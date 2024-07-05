@@ -4,9 +4,9 @@ import { useComponentsContext } from "../../editor/ComponentsContext";
 // import { useDictionary } from "../../i18n/dictionary";
 import { DefaultReactGridSuggestionItem, SuggestionMenuProps } from "./types";
 
-export default function GridSuggestionMenu<
-  T extends DefaultReactGridSuggestionItem
->(props: SuggestionMenuProps<T>): JSX.Element {
+export function GridSuggestionMenu<T extends DefaultReactGridSuggestionItem>(
+  props: SuggestionMenuProps<T>
+) {
   const Components = useComponentsContext()!;
   // const dict = useDictionary();
 
@@ -15,7 +15,7 @@ export default function GridSuggestionMenu<
     // loadingState,
     selectedIndex,
     onItemClick,
-    gridCols
+    columns,
   } = props;
 
   // const loader =
@@ -60,7 +60,7 @@ export default function GridSuggestionMenu<
   return (
     <Components.GridSuggestionMenu.Root
       id="bn-grid-suggestion-menu"
-      style={{gridTemplateColumns: `repeat(${gridCols}, 1fr)`} as any}
+      columns={columns}
       className="bn-grid-suggestion-menu">
       {renderedItems}
       {/*{renderedItems.length === 0 &&*/}

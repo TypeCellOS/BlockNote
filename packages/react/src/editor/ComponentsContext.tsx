@@ -148,9 +148,9 @@ export type ComponentProps = {
   GridSuggestionMenu: {
     Root: {
       id: string;
+      columns?: number;
       className?: string;
       children?: ReactNode;
-      style?:any;
     };
     // EmptyItem: {
     //   className?: string;

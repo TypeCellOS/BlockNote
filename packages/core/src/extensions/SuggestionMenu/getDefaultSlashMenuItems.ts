@@ -1,6 +1,5 @@
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { Block, PartialBlock } from "../../blocks/defaultBlocks";
-import { suggestionMenuPluginKey } from "../SuggestionMenu/SuggestionPlugin";
 
 import { checkDefaultBlockTypeInSchema } from "../../blocks/defaultBlockTypeGuards";
 import {
@@ -273,17 +272,7 @@ export function getDefaultSlashMenuItems<
   }
 
   items.push({
-    onItemClick: () => {
-      editor.prosemirrorView.focus();
-      editor.prosemirrorView.dispatch(
-        editor.prosemirrorView.state.tr
-          .scrollIntoView()
-          .setMeta(suggestionMenuPluginKey, {
-            triggerCharacter: ":",
-            fromUserInput: false,
-          })
-      );
-    },
+    onItemClick: () => editor.openSelectionMenu(":"),
     key: "emoji",
     ...editor.dictionary.slash_menu.emoji,
   });

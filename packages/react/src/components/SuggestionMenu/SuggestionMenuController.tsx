@@ -14,35 +14,70 @@ import { useUIPluginState } from "../../hooks/useUIPluginState";
 import { SuggestionMenu } from "./SuggestionMenu";
 import { SuggestionMenuWrapper } from "./SuggestionMenuWrapper";
 import { getDefaultReactSlashMenuItems } from "./getDefaultReactSlashMenuItems";
-import { DefaultReactSuggestionItem, SuggestionMenuProps } from "./types";
+import { GridSuggestionMenu } from "./GridSuggestionMenu";
+import { getDefaultReactEmojiPickerItems } from "./getDefaultReactEmojiPickerItems";
+import {
+  DefaultReactGridSuggestionItem,
+  DefaultReactSuggestionItem,
+  SuggestionMenuProps,
+} from "./types";
 
 type ArrayElement<A> = A extends readonly (infer T)[] ? T : never;
 
 type ItemType<GetItemsType extends (query: string) => Promise<any[]>> =
   ArrayElement<Awaited<ReturnType<GetItemsType>>>;
 
+// There's a lot going on with the typing here but tl;dr:
+// - If Columns is undefined and the item type is DefaultReactSuggestionItem,
+// `suggestionMenuComponent` and `onItemClick` are optional.
+// - If Columns is a number and the item type is DefaultGridReactSuggestionItem,
+// `suggestionMenuComponent` and `onItemClick` are also optional.
+// - Otherwise, `suggestionMenuComponent` and `onItemClick` are required.
 export function SuggestionMenuController<
+  Columns extends number | undefined = undefined,
   // This is a bit hacky, but only way I found to make types work so the optionality
   // of suggestionMenuComponent depends on the return type of getItems
   GetItemsType extends (query: string) => Promise<any[]> = (
     query: string
-  ) => Promise<DefaultReactSuggestionItem[]>
+  ) => Promise<
+    Columns extends number
+      ? DefaultReactGridSuggestionItem[]
+      : DefaultReactSuggestionItem[]
+  >
 >(
   props: {
     triggerCharacter: string;
     getItems?: GetItemsType;
-    grid?: boolean;
-    gridCols?: number
+    columns?: Columns;
   } & (ItemType<GetItemsType> extends DefaultReactSuggestionItem
-    ? {
-        // can be undefined
-        suggestionMenuComponent?: FC<
-          SuggestionMenuProps<ItemType<GetItemsType>>
-        >;
-        onItemClick?: (item: ItemType<GetItemsType>) => void;
-      }
+    ? Columns extends undefined
+      ? {
+          suggestionMenuComponent?: FC<
+            SuggestionMenuProps<ItemType<GetItemsType>>
+          >;
+          onItemClick?: (item: ItemType<GetItemsType>) => void;
+        }
+      : {
+          suggestionMenuComponent: FC<
+            SuggestionMenuProps<ItemType<GetItemsType>>
+          >;
+          onItemClick: (item: ItemType<GetItemsType>) => void;
+        }
+    : ItemType<GetItemsType> extends DefaultReactGridSuggestionItem
+    ? Columns extends number
+      ? {
+          suggestionMenuComponent?: FC<
+            SuggestionMenuProps<ItemType<GetItemsType>>
+          >;
+          onItemClick?: (item: ItemType<GetItemsType>) => void;
+        }
+      : {
+          suggestionMenuComponent: FC<
+            SuggestionMenuProps<ItemType<GetItemsType>>
+          >;
+          onItemClick: (item: ItemType<GetItemsType>) => void;
+        }
     : {
-        // getItems doesn't return DefaultSuggestionItem, so suggestionMenuComponent is required
         suggestionMenuComponent: FC<
           SuggestionMenuProps<ItemType<GetItemsType>>
         >;
@@ -58,11 +93,12 @@ export function SuggestionMenuController<
   const {
     triggerCharacter,
     suggestionMenuComponent,
-    grid,
+    columns,
     onItemClick,
     getItems,
-    gridCols
   } = props;
+
+  const isGrid = columns !== undefined && columns > 1;
 
   const onItemClickOrDefault = useMemo(() => {
     return (
@@ -77,12 +113,14 @@ export function SuggestionMenuController<
     return (
       getItems ||
       ((async (query: string) =>
-        filterSuggestionItems(
-          getDefaultReactSlashMenuItems(editor),
-          query
-        )) as any as typeof getItems)
+        isGrid
+          ? await getDefaultReactEmojiPickerItems(editor, query)
+          : filterSuggestionItems(
+              getDefaultReactSlashMenuItems(editor),
+              query
+            )) as any as typeof getItems)
     );
-  }, [editor, getItems])!;
+  }, [editor, getItems, isGrid])!;
 
   const callbacks = {
     closeMenu: editor.suggestionMenus.closeMenu,
@@ -136,9 +174,12 @@ export function SuggestionMenuController<
         closeMenu={callbacks.closeMenu}
         clearQuery={callbacks.clearQuery}
         getItems={getItemsOrDefault}
-        grid={grid}
-        gridCols={gridCols}
-        suggestionMenuComponent={suggestionMenuComponent || SuggestionMenu}
+        columns={columns}
+        suggestionMenuComponent={
+          suggestionMenuComponent || (columns !== undefined && columns > 1)
+            ? GridSuggestionMenu
+            : SuggestionMenu
+        }
         onItemClick={onItemClickOrDefault}
       />
     </div>

@@ -14,8 +14,12 @@ export async function getDefaultReactEmojiPickerItems<
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
   query: string
-): Promise<(DefaultReactGridSuggestionItem & { emoji: string })[]> {
+): Promise<DefaultReactGridSuggestionItem[]> {
   return (await getDefaultEmojiPickerItems(editor, query)).map(
-    ({ id, emoji }) => ({ id, emoji, icon: emoji as any })
+    ({ id, onItemClick }) => ({
+      id,
+      onItemClick,
+      icon: id as any,
+    })
   );
 }

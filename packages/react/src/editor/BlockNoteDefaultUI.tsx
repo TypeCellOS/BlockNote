@@ -1,12 +1,8 @@
-import { useCallback } from "react";
-
 import { FormattingToolbarController } from "../components/FormattingToolbar/FormattingToolbarController";
 import { LinkToolbarController } from "../components/LinkToolbar/LinkToolbarController";
 import { FilePanelController } from "../components/FilePanel/FilePanelController";
 import { SideMenuController } from "../components/SideMenu/SideMenuController";
 import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController";
-import GridSuggestionMenu from "../components/SuggestionMenu/GridSuggestionMenu";
-import { getDefaultReactEmojiPickerItems } from "../components/SuggestionMenu/getDefaultReactEmojiPickerItems";
 import { TableHandlesController } from "../components/TableHandles/TableHandlesController";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor";
 
@@ -29,25 +25,6 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
     );
   }
 
-  const getEmojiPickerItems = useCallback(
-    (query: string) => getDefaultReactEmojiPickerItems(editor, query),
-    [editor]
-  );
-  const emojiPickerOnItemClick = useCallback(
-    (item: { id: string; emoji: string }) => {
-      editor.insertInlineContent([
-        {
-          type: "emoji",
-          props: {
-            emoji: item.emoji,
-          },
-        },
-        " ",
-      ]);
-    },
-    [editor]
-  );
-
   return (
     <>
       {props.formattingToolbar !== false && <FormattingToolbarController />}
@@ -56,14 +33,7 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
         <SuggestionMenuController triggerCharacter="/" />
       )}
       {props.emojiPicker !== false && (
-        <SuggestionMenuController
-          triggerCharacter={":"}
-          grid={true}
-          gridCols={10}
-          suggestionMenuComponent={GridSuggestionMenu}
-          getItems={getEmojiPickerItems}
-          onItemClick={emojiPickerOnItemClick}
-        />
+        <SuggestionMenuController triggerCharacter={":"} columns={10} />
       )}
       {props.sideMenu !== false && <SideMenuController />}
       {editor.filePanel && props.filePanel !== false && <FilePanelController />}

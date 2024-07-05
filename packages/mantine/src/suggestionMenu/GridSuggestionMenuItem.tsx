@@ -29,16 +29,14 @@ export const GridSuggestionMenuItem = forwardRef<
   }, [isSelected]);
 
   return (
-    <p
+    <div
       className={className}
       ref={mergeRefs(ref, itemRef)}
       id={id}
       role="option"
       onClick={onClick}
-      // className={index === selectedIndex ? "grid-item-selected" : ""}
-      // onClick={() => onItemClick?.(item)}
       aria-selected={isSelected || undefined}>
       {item.icon}
-    </p>
+    </div>
   );
 });

@@ -13,8 +13,7 @@ export function SuggestionMenuWrapper<Item>(props: {
   closeMenu: () => void;
   clearQuery: () => void;
   getItems: (query: string) => Promise<Item[]>;
-  grid?: boolean;
-  gridCols?: number
+  columns?: number;
   onItemClick?: (item: Item) => void;
   suggestionMenuComponent: FC<SuggestionMenuProps<Item>>;
 }) {
@@ -33,8 +32,7 @@ export function SuggestionMenuWrapper<Item>(props: {
     clearQuery,
     closeMenu,
     onItemClick,
-    grid,
-    gridCols
+    columns,
   } = props;
 
   const onItemClickCloseMenu = useCallback(
@@ -57,7 +55,7 @@ export function SuggestionMenuWrapper<Item>(props: {
     editor,
     query,
     items,
-    grid,
+    columns,
     onItemClickCloseMenu
   );
 
@@ -101,7 +99,7 @@ export function SuggestionMenuWrapper<Item>(props: {
       onItemClick={onItemClickCloseMenu}
       loadingState={loadingState}
       selectedIndex={selectedIndex}
-      gridCols={gridCols}
+      columns={columns}
     />
   );
 }

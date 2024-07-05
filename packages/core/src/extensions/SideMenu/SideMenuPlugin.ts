@@ -12,7 +12,6 @@ import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { EventEmitter } from "../../util/EventEmitter";
-import { suggestionMenuPluginKey } from "../SuggestionMenu/SuggestionPlugin";
 import { MultipleNodeSelection } from "./MultipleNodeSelection";
 
 let dragImageElement: Element | undefined;
@@ -649,14 +648,8 @@ export class SideMenuView<
       this.editor._tiptapEditor.commands.setTextSelection(startPos + 1);
     }
 
-    // Focuses and activates the suggestion menu.
-    this.pmView.focus();
-    this.pmView.dispatch(
-      this.pmView.state.tr.scrollIntoView().setMeta(suggestionMenuPluginKey, {
-        triggerCharacter: "/",
-        fromUserInput: false,
-      })
-    );
+    // Focuses and activates the slash menu.
+    this.editor.openSelectionMenu("/");
   }
 }
 

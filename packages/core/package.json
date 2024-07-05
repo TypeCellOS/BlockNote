@@ -55,7 +55,6 @@
   },
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
-    "@emoji-mart/react": "^1.1.1",
     "@tiptap/core": "^2.4.0",
     "@tiptap/extension-bold": "^2.4.0",
     "@tiptap/extension-code": "^2.4.0",

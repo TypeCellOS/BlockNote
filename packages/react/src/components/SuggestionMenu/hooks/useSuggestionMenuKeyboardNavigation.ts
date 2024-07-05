@@ -8,28 +8,30 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
   editor: BlockNoteEditor<any, any, any>,
   query: string,
   items: Item[],
-  grid = false,
+  columns?: number,
   onItemClick?: (item: Item) => void
 ) {
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
+  const isGrid = columns !== undefined && columns > 1;
+
   useEffect(() => {
     const handleMenuNavigationKeys = (event: KeyboardEvent) => {
-      if (grid) {
-        if (event.key === "ArrowRight") {
-          event.preventDefault();
-          if (items.length) {
-            setSelectedIndex(
-              (selectedIndex + 1 + items!.length) % items!.length
-            );
-          }
-        }
-
+      if (isGrid) {
         if (event.key === "ArrowLeft") {
           event.preventDefault();
           if (items.length) {
             setSelectedIndex(
               (selectedIndex - 1 + items!.length) % items!.length
+            );
+          }
+        }
+
+        if (event.key === "ArrowRight") {
+          event.preventDefault();
+          if (items.length) {
+            setSelectedIndex(
+              (selectedIndex + 1 + items!.length) % items!.length
             );
           }
         }
@@ -40,7 +42,8 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
 
         if (items.length) {
           setSelectedIndex(
-            (selectedIndex - (grid ? 10 : 1) + items!.length) % items!.length
+            (selectedIndex - (isGrid ? columns : 1) + items!.length) %
+              items!.length
           );
         }
 
@@ -51,7 +54,9 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
         event.preventDefault();
 
         if (items.length) {
-          setSelectedIndex((selectedIndex + (grid ? 10 : 1)) % items!.length);
+          setSelectedIndex(
+            (selectedIndex + (isGrid ? columns : 1)) % items!.length
+          );
         }
 
         return true;
@@ -83,7 +88,7 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
         true
       );
     };
-  }, [editor.domElement, items, selectedIndex, onItemClick, grid]);
+  }, [editor.domElement, items, selectedIndex, onItemClick, columns, isGrid]);
 
   // Resets index when items change
   useEffect(() => {
