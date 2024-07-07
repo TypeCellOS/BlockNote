@@ -49,8 +49,10 @@ import { TextInput } from "./form/TextInput";
 import { Toolbar } from "./toolbar/Toolbar";
 import { ToolbarButton } from "./toolbar/ToolbarButton";
 import { ToolbarSelect } from "./toolbar/ToolbarSelect";
-
 import "./style.css";
+
+export * from "./BlockNoteTheme";
+export * from "./defaultThemes";
 
 export const components: Components = {
   FormattingToolbar: {
