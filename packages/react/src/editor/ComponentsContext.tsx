@@ -152,10 +152,11 @@ export type ComponentProps = {
       className?: string;
       children?: ReactNode;
     };
-    // EmptyItem: {
-    //   className?: string;
-    //   children?: ReactNode;
-    // };
+    EmptyItem: {
+      columns?: number;
+      className?: string;
+      children?: ReactNode;
+    };
     Item: {
       className?: string;
       id: string;
@@ -167,10 +168,11 @@ export type ComponentProps = {
     //   className?: string;
     //   children?: ReactNode;
     // };
-    // Loader: {
-    //   className?: string;
-    //   children?: ReactNode;
-    // };
+    Loader: {
+      columns?: number;
+      className?: string;
+      children?: ReactNode;
+    };
   };
   TableHandle: {
     Root: {

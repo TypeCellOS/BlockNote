@@ -1,29 +1,25 @@
 import { useMemo } from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext";
-// import { useDictionary } from "../../i18n/dictionary";
+import { useDictionary } from "../../i18n/dictionary";
 import { DefaultReactGridSuggestionItem, SuggestionMenuProps } from "./types";
 
 export function GridSuggestionMenu<T extends DefaultReactGridSuggestionItem>(
   props: SuggestionMenuProps<T>
 ) {
   const Components = useComponentsContext()!;
-  // const dict = useDictionary();
+  const dict = useDictionary();
 
-  const {
-    items,
-    // loadingState,
-    selectedIndex,
-    onItemClick,
-    columns,
-  } = props;
+  const { items, loadingState, selectedIndex, onItemClick, columns } = props;
 
-  // const loader =
-  //   loadingState === "loading-initial" || loadingState === "loading" ? (
-  //     <Components.SuggestionMenu.Loader className={"bn-suggestion-menu-loader"}>
-  //       {dict.suggestion_menu.loading}
-  //     </Components.SuggestionMenu.Loader>
-  //   ) : null;
+  const loader =
+    loadingState === "loading-initial" || loadingState === "loading" ? (
+      <Components.GridSuggestionMenu.Loader
+        className={"bn-grid-suggestion-menu-loader"}
+        columns={columns}>
+        {dict.suggestion_menu.loading}
+      </Components.GridSuggestionMenu.Loader>
+    ) : null;
 
   const renderedItems = useMemo<JSX.Element[]>(() => {
     // let currentGroup: string | undefined = undefined;
@@ -62,16 +58,15 @@ export function GridSuggestionMenu<T extends DefaultReactGridSuggestionItem>(
       id="bn-grid-suggestion-menu"
       columns={columns}
       className="bn-grid-suggestion-menu">
+      {loader}
       {renderedItems}
-      {/*{renderedItems.length === 0 &&*/}
-      {/*  (props.loadingState === "loading" ||*/}
-      {/*    props.loadingState === "loaded") && (*/}
-      {/*    <Components.SuggestionMenu.EmptyItem*/}
-      {/*      className={"bn-suggestion-menu-item"}>*/}
-      {/*      {dict.suggestion_menu.no_items_title}*/}
-      {/*    </Components.SuggestionMenu.EmptyItem>*/}
-      {/*  )}*/}
-      {/*{loader}*/}
+      {renderedItems.length === 0 && props.loadingState === "loaded" && (
+        <Components.GridSuggestionMenu.EmptyItem
+          className={"bn-grid-suggestion-menu-empty-item"}
+          columns={columns}>
+          {dict.suggestion_menu.no_items_title}
+        </Components.GridSuggestionMenu.EmptyItem>
+      )}
     </Components.GridSuggestionMenu.Root>
   );
 }

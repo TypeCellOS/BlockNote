@@ -17,8 +17,10 @@ import {
   ShadCNDefaultComponents,
 } from "./ShadCNComponentsContext";
 import { Form } from "./form/Form";
-import  {GridSuggestionMenu}  from "@/suggestionMenu/GridSuggestionMenu";
-import { GridSuggestionMenuItem } from "@/suggestionMenu/GridSuggestionMenuItem";
+import { GridSuggestionMenu } from "./suggestionMenu/GridSuggestionMenu";
+import { GridSuggestionMenuEmptyItem } from "./suggestionMenu/GridSuggestionMenuEmptyItem";
+import { GridSuggestionMenuItem } from "./suggestionMenu/GridSuggestionMenuItem";
+import { GridSuggestionMenuLoader } from "./suggestionMenu/GridSuggestionMenuLoader";
 import {
   Menu,
   MenuDivider,
@@ -77,6 +79,8 @@ export const components: Components = {
   GridSuggestionMenu: {
     Root: GridSuggestionMenu,
     Item: GridSuggestionMenuItem,
+    EmptyItem: GridSuggestionMenuEmptyItem,
+    Loader: GridSuggestionMenuLoader,
   },
   TableHandle: {
     Root: TableHandle,

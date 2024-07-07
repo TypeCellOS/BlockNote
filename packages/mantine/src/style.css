@@ -299,6 +299,7 @@
   box-shadow: var(--bn-shadow-medium);
   box-sizing: border-box;
   color: var(--bn-colors-menu-text);
+  height: fit-content;
   overflow-y: auto;
   padding: 2px;
 }
@@ -368,9 +369,10 @@
   box-shadow: var(--bn-shadow-medium);
   display: grid;
   gap: 7px;
+  height: fit-content;
   justify-items: center;
-  max-height: 30vh;
-  overflow-y: scroll;
+  max-height: min(500px, 100%);
+  overflow-y: auto;
   padding: 20px;
 }
 
@@ -390,6 +392,21 @@
 .bn-mantine .bn-grid-suggestion-menu-item[aria-selected="true"],
 .bn-mantine .bn-grid-suggestion-menu-item:hover {
   background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-mantine .bn-grid-suggestion-menu-empty-item,
+.bn-mantine .bn-grid-suggestion-menu-loader{
+  align-items: center;
+  color: var(--bn-colors-menu-text);
+  display: flex;
+  font-size: 14px;
+  font-weight: 500;
+  height: 32px;
+  justify-content: center;
+}
+
+.bn-mantine .bn-grid-suggestion-menu-loader span {
+  background-color: var(--bn-colors-side-menu);
 }
 
 /* Side Menu styling */

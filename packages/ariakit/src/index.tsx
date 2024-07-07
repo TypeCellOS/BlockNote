@@ -13,7 +13,9 @@ import { ComponentProps } from "react";
 
 import { Form } from "./input/Form";
 import { GridSuggestionMenu } from "./suggestionMenu/GridSuggestionMenu";
+import { GridSuggestionMenuEmptyItem } from "./suggestionMenu/GridSuggestionMenuEmptyItem";
 import { GridSuggestionMenuItem } from "./suggestionMenu/GridSuggestionMenuItem";
+import { GridSuggestionMenuLoader } from "./suggestionMenu/GridSuggestionMenuLoader";
 import { TextInput } from "./input/TextInput";
 import {
   Menu,
@@ -59,6 +61,8 @@ export const components: Components = {
   GridSuggestionMenu: {
     Root: GridSuggestionMenu,
     Item: GridSuggestionMenuItem,
+    EmptyItem: GridSuggestionMenuEmptyItem,
+    Loader: GridSuggestionMenuLoader,
   },
   LinkToolbar: {
     Root: Toolbar,
