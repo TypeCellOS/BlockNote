@@ -14,7 +14,8 @@
           "author": "matthewlipski",
           "tags": [
             "Basic"
-          ]
+          ],
+          "pro": true
         },
         "title": "Basic Setup",
         "group": {

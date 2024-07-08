@@ -206,11 +206,11 @@ const config: DocsThemeConfig = {
             <span className="sr-only">Discord</span>
             <DiscordIcon />
           </NextLink>
-          <NextLink href="/pro">
+          {/* <NextLink href="/pro">
             <CTA href={"/pro"} variant={"small"}>
-              BlockNote Pro
+              Sign in
             </CTA>
-          </NextLink>
+          </NextLink> */}
           <AuthNavButton />
         </>
       );

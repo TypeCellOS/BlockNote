@@ -2,5 +2,6 @@
   "playground": true,
   "docs": true,
   "author": "matthewlipski",
-  "tags": ["Basic"]
+  "tags": ["Basic"],
+  "pro": true
 }

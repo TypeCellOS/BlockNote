@@ -25,7 +25,9 @@ const templateExampleBlock = (
 ) => `import { ExampleBlock } from "@/components/example/ExampleBlock";
 import { Tabs } from "nextra/components";
 
-<ExampleBlock name="${project.fullSlug}" path="${project.pathFromRoot}">
+<ExampleBlock name="${project.fullSlug}" path="${
+  project.pathFromRoot
+}" hideCode={props.hideCode}>
   <Tabs items={${JSON.stringify(
     Object.keys(files).map((fileName) => fileName.slice(1))
   )}}>
@@ -140,6 +142,7 @@ ${projects
     ExampleWithCode: dynamic(() => import("./mdx/${p.fullSlug}.mdx"), {
       //ssr: false,
     }),
+    pro: ${p.config.pro || false}
   },`;
   })
   .join("\n")}  
