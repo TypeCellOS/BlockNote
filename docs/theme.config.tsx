@@ -12,6 +12,8 @@ import { AuthNavButton } from "./components/AuthNavButton";
 import { Footer } from "./components/Footer";
 import { Logo } from "./components/Logo";
 import { Navigation } from "./components/Navigation";
+import { ProBadge } from "./components/example/ProBadge";
+import { proExamplesList } from "./components/example/proExamplesList";
 // import { Search } from "./components/Search";
 
 // const NoSSRCommentsButton = dynamic(
@@ -48,6 +50,20 @@ const config: DocsThemeConfig = {
   sidebar: {
     defaultMenuCollapseLevel: 1,
     toggleButton: false,
+    titleComponent({ title, type }) {
+      if (type === "doc") {
+        return (
+          <span>
+            {title}
+            {proExamplesList.includes(title) && <ProBadge />}
+          </span>
+        );
+      }
+      if (title === "About") {
+        return <>❓ {title}</>;
+      }
+      return <>👉 {title}</>;
+    },
   },
   docsRepositoryBase: "https://github.com/TypeCellOS/BlockNote/blob/main/docs",
   useNextSeoProps: function SEO() {
