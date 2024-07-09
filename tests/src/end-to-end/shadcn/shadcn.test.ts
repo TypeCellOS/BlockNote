@@ -46,6 +46,13 @@ test.describe("Check ShadCN UI", () => {
     await page.waitForTimeout(500);
     expect(await page.screenshot()).toMatchSnapshot("shadcn-slash-menu.png");
   });
+  test("Check emoji picker", async ({ page }) => {
+    await focusOnEditor(page);
+    await page.keyboard.press(":");
+
+    await page.waitForTimeout(500);
+    expect(await page.screenshot()).toMatchSnapshot("shadcn-emoji-picker.png");
+  });
   test("Check side menu", async ({ page }) => {
     await focusOnEditor(page);
     await page.waitForSelector(PARAGRAPH_SELECTOR);

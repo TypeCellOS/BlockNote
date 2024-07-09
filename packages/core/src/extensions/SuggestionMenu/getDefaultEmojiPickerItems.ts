@@ -6,6 +6,7 @@ import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { checkDefaultInlineContentTypeInSchema } from "../../blocks/defaultBlockTypeGuards";
 import { DefaultGridSuggestionItem } from "./DefaultGridSuggestionItem";
 
+let dataInitialized = false;
 const emojiMartData = data as EmojiMartData;
 
 export async function getDefaultEmojiPickerItems<
@@ -20,8 +21,9 @@ export async function getDefaultEmojiPickerItems<
     return [];
   }
 
-  if (!emojiMartData) {
-    init({ emojiMartData });
+  if (!dataInitialized) {
+    dataInitialized = true;
+    await init({ emojiMartData });
   }
 
   const emojisToShow =

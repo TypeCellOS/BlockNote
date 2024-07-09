@@ -56,6 +56,13 @@ test.describe("Check Dark Theme is Automatically Applied", () => {
     await page.waitForTimeout(500);
     expect(await page.screenshot()).toMatchSnapshot("dark-slash-menu.png");
   });
+  test("Should show dark emoji picker", async ({ page }) => {
+    await focusOnEditor(page);
+    await page.keyboard.press(":");
+
+    await page.waitForTimeout(500);
+    expect(await page.screenshot()).toMatchSnapshot("dark-emoji-picker.png");
+  });
   test("Should show dark side menu", async ({ page }) => {
     await focusOnEditor(page);
     await page.waitForSelector(PARAGRAPH_SELECTOR);
