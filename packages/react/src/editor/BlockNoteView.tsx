@@ -127,9 +127,10 @@ function BlockNoteViewComponent<
     children,
     formattingToolbar,
     linkToolbar,
-    filePanel,
-    sideMenu,
     slashMenu,
+    emojiPicker,
+    sideMenu,
+    filePanel,
     tableHandles,
   ]);
 
