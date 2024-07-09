@@ -84,3 +84,14 @@ You may have noticed that the Emoji Picker is rendered using a grid instead of a
 <Example name="ui-components/suggestion-menus-grid-mentions" />
 
 Keep in mind that while we used the `DefaultReactSuggestionMenuItem` type in previous demos where we were setting the `getItems` prop, we're now using `DefaultReactGridSuggestionMenuItem`.
+
+## Opening Suggestion Menus Programmatically
+
+While suggestion menus are generally meant to be opened when the user presses a trigger character, you may also want to open them from code. To do this, you can use the following editor method:
+
+```typescript
+openSuggestionMenu(triggerCharacter: string): void;
+
+// Usage
+editor.openSuggestionMenu("/");
+```
