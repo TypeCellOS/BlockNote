@@ -68,7 +68,6 @@ function UppyFilePanel(props: FilePanelProps) {
       file,
       response
     ) => {
-      debugger;
       if (!file) {
         return;
       }

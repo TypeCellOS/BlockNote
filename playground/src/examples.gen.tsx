@@ -203,17 +203,21 @@
           "author": "ezhil56x",
           "tags": [
             "Intermediate",
-            "Saving/Loading"
+            "Files"
           ],
           "dependencies": {
-            "@uppy/core": "^3.12.0",
-            "@uppy/dashboard": "^3.8.3",
-            "@uppy/drag-drop": "^3.1.0",
+            "@uppy/core": "^3.13.1",
+            "@uppy/dashboard": "^3.9.1",
+            "@uppy/drag-drop": "^3.1.1",
             "@uppy/file-input": "^3.1.2",
+            "@uppy/image-editor": "^2.4.6",
             "@uppy/progress-bar": "^3.1.1",
-            "@uppy/react": "^3.3.1",
-            "@uppy/xhr-upload": "^3.6.7",
-          },
+            "@uppy/react": "^3.4.0",
+            "@uppy/screen-capture": "^3.2.0",
+            "@uppy/status-bar": "^3.1.1",
+            "@uppy/webcam": "^3.4.2",
+            "@uppy/xhr-upload": "^3.4.0"
+          } as any
         },
         "title": "Uploading Files with Uppy",
         "group": {
@@ -280,7 +284,7 @@
           "dependencies": {
             "@mantine/core": "^7.10.1",
             "react-icons": "^5.2.1"
-          }
+          } as any
         },
         "title": "Adding Block Type Select Items",
         "group": {
@@ -304,7 +308,7 @@
           ],
           "dependencies": {
             "react-icons": "^5.2.1"
-          }
+          } as any
         },
         "title": "Adding Block Side Menu Buttons",
         "group": {
@@ -328,7 +332,7 @@
           ],
           "dependencies": {
             "react-icons": "^5.2.1"
-          }
+          } as any
         },
         "title": "Adding Drag Handle Menu Items",
         "group": {
@@ -353,7 +357,7 @@
           ],
           "dependencies": {
             "react-icons": "^5.2.1"
-          }
+          } as any
         },
         "title": "Adding Slash Menu Items",
         "group": {
@@ -403,7 +407,7 @@
           ],
           "dependencies": {
             "react-icons": "^5.2.1"
-          }
+          } as any
         },
         "title": "Custom UI",
         "group": {
@@ -642,7 +646,7 @@
           "dependencies": {
             "@mantine/core": "^7.10.1",
             "react-icons": "^5.2.1"
-          }
+          } as any
         },
         "title": "Alert Block",
         "group": {
@@ -710,7 +714,7 @@
           "dependencies": {
             "@mantine/core": "^7.10.1",
             "react-icons": "^5.2.1"
-          }
+          } as any
         },
         "title": "PDF Block",
         "group": {
@@ -788,7 +792,7 @@
           "dependencies": {
             "y-partykit": "^0.0.25",
             "yjs": "^13.6.15"
-          }
+          } as any
         },
         "title": "Collaborative Editing with PartyKit",
         "group": {
@@ -814,7 +818,7 @@
             "@liveblocks/react": "^1.10.0",
             "@liveblocks/yjs": "^1.10.0",
             "yjs": "^13.6.15"
-          }
+          } as any
         },
         "title": "Collaborative Editing with Liveblocks",
         "group": {
