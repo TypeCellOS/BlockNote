@@ -204,10 +204,10 @@
           "tags": [
             "Basic",
             "removing",
-            "custom"
+            "blocks"
           ]
         },
-        "title": "Removing Default Blocks Options",
+        "title": "Removing Default Blocks from the Schema",
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"

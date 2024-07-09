@@ -1,6 +1,6 @@
-# Removing Default Blocks Options
+# Removing Default Blocks from the Schema
 
-In this example, we pass a custom schema to the editor function, which returns an editor which has our custom schema. While creating this schema we remove the blocks - audio and image in this example - which we don't want, by making those blocks undefined.
+This example shows how to change the default schema and disable the Audio and Image blocks. To do this, we pass in a custom schema based on the built-in, default schema, with two specific blocks removed.
 
 **Relevant Docs:**
 

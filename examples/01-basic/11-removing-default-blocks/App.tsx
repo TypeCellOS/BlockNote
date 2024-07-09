@@ -1,39 +1,25 @@
+import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
-import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { BlockNoteSchema, BlockSpec, defaultBlockSpecs, defaultInlineContentSpecs,  defaultStyleSpecs } from "@blocknote/core";
+import { useCreateBlockNote } from "@blocknote/react";
 
 export default function App() {
-
-  // create the schema
+  // Disable the Audio and Image blocks from the built-in schema
   const schema = BlockNoteSchema.create({
     blockSpecs: {
-      //first pass all the blocks
+      //first pass all the blockspecs from the built in, default block schema
       ...defaultBlockSpecs,
-      //now make the unwanted blocks undefined
+
+      // disable blocks you don't want
       audio: undefined as any,
-      image: undefined as any
-    },
-    inlineContentSpecs: {
-      // enable the default inline content if desired
-      ...defaultInlineContentSpecs,
-   
-      // Add your own custom inline content:
-      // customInlineContent: CustomInlineContent,
-    },
-    styleSpecs: {
-      // enable the default styles if desired
-      ...defaultStyleSpecs,
-   
-      // Add your own custom styles:
-      // customStyle: CustomStyle
+      image: undefined as any,
     },
   });
 
-  // Creates a new editor instance.
+  // Creates a new editor instance with the schema
   const editor = useCreateBlockNote({
-    schema
+    schema,
   });
 
   // Renders the editor instance using a React component.
