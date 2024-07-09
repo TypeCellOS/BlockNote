@@ -4,13 +4,13 @@
 /* Mantine base styles*/
 
 /* Mantine Badge component base styles */
-.bn-container .mantine-Badge-root {
+.bn-mantine .mantine-Badge-root {
   background-color: var(--bn-colors-tooltip-background);
   color: var(--bn-colors-tooltip-text);
 }
 
 /* Mantine FileInput component base styles */
-.bn-container .mantine-FileInput-input {
+.bn-mantine .mantine-FileInput-input {
   align-items: center;
   background-color: var(--bn-colors-menu-background);
   border: none;
@@ -18,25 +18,27 @@
   color: var(--bn-colors-menu-text);
   display: flex;
   flex-direction: row;
+  font-family: var(--bn-font-family);
   justify-content: center;
 }
 
-.bn-container .mantine-FileInput-input:hover {
+.bn-mantine .mantine-FileInput-input:hover {
   background-color: var(--bn-colors-hovered-background);
 }
 
-.bn-container .mantine-FileInput-wrapper {
+.bn-mantine .mantine-FileInput-wrapper {
   border: solid var(--bn-colors-border) 1px;
   border-radius: 4px;
 }
 
-.bn-container .mantine-InputPlaceholder-placeholder {
+.bn-mantine .mantine-InputPlaceholder-placeholder {
   color: var(--bn-colors-menu-text);
+  font-family: var(--bn-font-family);
   font-weight: 600;
 }
 
 /* Mantine Menu component base styles */
-.bn-container .mantine-Menu-dropdown {
+.bn-mantine .mantine-Menu-dropdown {
   background-color: var(--bn-colors-menu-background);
   border: var(--bn-border);
   border-radius: var(--bn-border-radius-medium);
@@ -47,27 +49,27 @@
   overflow: auto;
 }
 
-.bn-container .mantine-Menu-label {
+.bn-mantine .mantine-Menu-label {
   background-color: var(--bn-colors-menu-background);
   color: var(--bn-colors-menu-text);
 }
 
-.bn-container .mantine-Menu-item {
+.bn-mantine .mantine-Menu-item {
   background-color: var(--bn-colors-menu-background);
   border: none;
   border-radius: var(--bn-border-radius-small);
   color: var(--bn-colors-menu-text);
 }
 
-.bn-container .mantine-Menu-item[aria-selected="true"],
-.bn-container .mantine-Menu-item:hover {
+.bn-mantine .mantine-Menu-item[aria-selected="true"],
+.bn-mantine .mantine-Menu-item:hover {
   background-color: var(--bn-colors-hovered-background);
   border: none;
   color: var(--bn-colors-hovered-text);
 }
 
 /* Mantine Popover component base styles */
-.bn-container .mantine-Popover-dropdown {
+.bn-mantine .mantine-Popover-dropdown {
   background-color: transparent;
   border: none;
   border-radius: 0;
@@ -76,47 +78,48 @@
 }
 
 /* Mantine Tabs component base styles */
-.bn-container .mantine-Tabs-root {
+.bn-mantine .mantine-Tabs-root {
   width: 100%;
   background-color: var(--bn-colors-menu-background);
 }
 
-.bn-container .mantine-Tabs-list:before {
+.bn-mantine .mantine-Tabs-list:before {
   border-color: var(--bn-colors-hovered-background);
 }
 
-.bn-container .mantine-Tabs-tab {
+.bn-mantine .mantine-Tabs-tab {
   color: var(--bn-colors-menu-text);
   border-color: var(--bn-colors-hovered-background);
 }
 
-.bn-container .mantine-Tabs-tab:hover {
+.bn-mantine .mantine-Tabs-tab:hover {
   background-color: var(--bn-colors-hovered-background);
   border-color: var(--bn-colors-hovered-background);
   color: var(--bn-colors-hovered-text);
 }
 
-.bn-container .mantine-Tabs-tab[data-active],
-.bn-container .mantine-Tabs-tab[data-active]:hover {
+.bn-mantine .mantine-Tabs-tab[data-active],
+.bn-mantine .mantine-Tabs-tab[data-active]:hover {
   border-color: var(--bn-colors-menu-text);
   color: var(--bn-colors-menu-text);
 }
 
-.bn-container .mantine-Tabs-panel {
+.bn-mantine .mantine-Tabs-panel {
   padding: 8px;
 }
 
 /* Mantine TextInput component base styles */
-.bn-container .mantine-TextInput-input {
+.bn-mantine .mantine-TextInput-input {
   background-color: var(--bn-colors-menu-background);
   border: solid var(--bn-colors-border) 1px;
   border-radius: 4px;
   color: var(--bn-colors-menu-text);
+  font-family: var(--bn-font-family);
   height: 32px;
 }
 
 /* Mantine Tooltip component base styles */
-.bn-container .mantine-Tooltip-tooltip {
+.bn-mantine .mantine-Tooltip-tooltip {
   background-color: transparent;
   border: none;
   border-radius: 0;
@@ -127,12 +130,12 @@
 /* UI element styling */
 
 /* Select styling */
-.bn-select {
+.bn-mantine .bn-select {
   overflow: auto;
 }
 
 /* Toolbar styling */
-.bn-toolbar {
+.bn-mantine .bn-toolbar {
   background-color: var(--bn-colors-menu-background);
   border: var(--bn-border);
   border-radius: var(--bn-border-radius-medium);
@@ -143,7 +146,7 @@
   width: fit-content;
 }
 
-.bn-toolbar:empty {
+.bn-mantine .bn-toolbar:empty {
   display: none;
 }
 
@@ -185,7 +188,7 @@
   background-color: var(--bn-colors-hovered-background);
 }
 
-.bn-container .bn-form-popover {
+.bn-mantine .bn-form-popover {
   background-color: var(--bn-colors-menu-background);
   border: var(--bn-border);
   border-radius: var(--bn-border-radius-medium);
@@ -235,7 +238,7 @@
 /* Unfortunately necessary, as we can't use a Menu.Dropdown component on its
  own. */
 /* https://github.com/mantinedev/mantine/blob/e3e3bb834de1f2f75a27dbc757dc0a2fc6a6cba8/packages/%40mantine/core/src/components/Menu/Menu.module.css */
-.bn-suggestion-menu {
+.bn-mantine .bn-suggestion-menu {
   max-height: 100%;
   position: relative;
   box-shadow: var(--mantine-shadow-md);
@@ -245,7 +248,7 @@
   padding: 4px;
 }
 
-.bn-suggestion-menu-label {
+.bn-mantine .bn-suggestion-menu-label {
   color: var(--mantine-color-dimmed);
   font-weight: 500;
   font-size: var(--mantine-font-size-xs);
@@ -253,7 +256,7 @@
   cursor: default;
 }
 
-.bn-suggestion-menu-item {
+.bn-mantine .bn-suggestion-menu-item {
   font-size: var(--mantine-font-size-sm);
   width: 100%;
   padding: calc(var(--mantine-spacing-xs) / 1.5) var(--mantine-spacing-sm);
@@ -289,7 +292,7 @@
   }
 }
 
-.bn-suggestion-menu {
+.bn-mantine .bn-suggestion-menu {
   background-color: var(--bn-colors-menu-background);
   border: var(--bn-border);
   border-radius: var(--bn-border-radius-medium);
@@ -300,13 +303,13 @@
   padding: 2px;
 }
 
-.bn-suggestion-menu-item {
+.bn-mantine .bn-suggestion-menu-item {
   cursor: pointer;
   height: 52px;
 }
 
-.bn-suggestion-menu-item[aria-selected="true"],
-.bn-suggestion-menu-item:hover {
+.bn-mantine .bn-suggestion-menu-item[aria-selected="true"],
+.bn-mantine .bn-suggestion-menu-item:hover {
   background-color: var(--bn-colors-hovered-background);
 }
 
@@ -346,21 +349,21 @@
   padding: 0;
 }
 
-.bn-suggestion-menu-label {
+.bn-mantine .bn-suggestion-menu-label {
   color: var(--bn-colors-hovered-text);
 }
 
-.bn-suggestion-menu-loader {
+.bn-mantine .bn-suggestion-menu-loader {
   height: 20px;
   width: 100%;
 }
 
-.bn-suggestion-menu-loader span {
+.bn-mantine .bn-suggestion-menu-loader span {
   background-color: var(--bn-colors-side-menu);
 }
 
 /* Side Menu styling */
-.bn-side-menu {
+.bn-mantine .bn-side-menu {
   background-color: transparent;
   overflow: visible;
 }
@@ -386,7 +389,7 @@
   width: 22px;
 }
 
-.bn-side-menu > [draggable="true"] {
+.bn-mantine .bn-side-menu > [draggable="true"] {
   display: flex;
 }
 
@@ -397,7 +400,7 @@
 }
 
 /* Image Panel styling*/
-.bn-panel {
+.bn-mantine .bn-panel {
   background-color: var(--bn-colors-menu-background);
   border: var(--bn-border);
   border-radius: var(--bn-border-radius-medium);
@@ -406,7 +409,7 @@
   width: 500px;
 }
 
-.bn-panel .bn-tab-panel {
+.bn-mantine .bn-panel .bn-tab-panel {
   align-items: center;
   display: flex;
   flex-direction: column;
@@ -432,12 +435,12 @@
   background-color: var(--bn-colors-hovered-background);
 }
 
-.bn-panel.mantine-Text-root {
+.bn-panel .mantine-Text-root {
   text-align: center;
 }
 
 /* Table Handle styling */
-.bn-table-handle {
+.bn-mantine .bn-table-handle {
   align-items: center;
   background-color: var(--bn-colors-menu-background);
   border: var(--bn-border);
@@ -452,22 +455,22 @@
   padding: 0;
 }
 
-.bn-table-handle svg {
+.bn-mantine .bn-table-handle svg {
   margin-inline: -4px;
 }
 
-.bn-table-handle:hover,
-.bn-table-handle-dragging {
+.bn-mantine .bn-table-handle:hover,
+.bn-mantine .bn-table-handle-dragging {
   background-color: var(--bn-colors-hovered-background);
 }
 
 /* Drag Handle & Table Handle Menu styling */
-.bn-container .bn-drag-handle-menu {
+.bn-mantine .bn-drag-handle-menu {
   overflow: visible;
 }
 
 /* Tooltip styling */
-.bn-tooltip {
+.bn-mantine .bn-tooltip {
   background-color: var(--bn-colors-tooltip-background);
   border: var(--bn-border);
   border-radius: var(--bn-border-radius-medium);
@@ -478,7 +481,7 @@
 }
 
 /* Additional menu styles */
-.bn-tick-space {
+.bn-mantine .bn-tick-space {
   padding: 0;
   width: 20px;
 }
