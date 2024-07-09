@@ -1,4 +1,4 @@
-.slash-menu {
+.emoji-picker {
     z-index: 9999;
 
     background-color: white;
@@ -6,7 +6,7 @@
     border-radius: 2px;
     box-shadow: 0 0 8px #dddddd;
 
-    display: flex;
+    display: grid;
     flex-direction: column;
     gap: 8px;
     height: fit-content;
@@ -19,7 +19,7 @@
     top: 8px;
 }
 
-.slash-menu-item {
+.emoji-picker-item {
     background-color: white;
     border: 1px solid lightgray;
     border-radius: 2px;
@@ -36,6 +36,6 @@
     padding: 8px;
 }
 
-.slash-menu-item:hover, .slash-menu-item.selected {
+.emoji-picker-item:hover, .emoji-picker-item.selected {
     background-color: lightgray;
 }

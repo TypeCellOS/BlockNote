@@ -176,9 +176,8 @@ export function SuggestionMenuController<
         getItems={getItemsOrDefault}
         columns={columns}
         suggestionMenuComponent={
-          suggestionMenuComponent || (columns !== undefined && columns > 1)
-            ? GridSuggestionMenu
-            : SuggestionMenu
+          suggestionMenuComponent ||
+          (columns !== undefined ? GridSuggestionMenu : SuggestionMenu)
         }
         onItemClick={onItemClickOrDefault}
       />

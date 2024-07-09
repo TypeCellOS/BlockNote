@@ -33,7 +33,7 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
         <SuggestionMenuController triggerCharacter="/" />
       )}
       {props.emojiPicker !== false && (
-        <SuggestionMenuController triggerCharacter={":"} columns={10} />
+        <SuggestionMenuController triggerCharacter=":" columns={10} />
       )}
       {props.sideMenu !== false && <SideMenuController />}
       {editor.filePanel && props.filePanel !== false && <FilePanelController />}
