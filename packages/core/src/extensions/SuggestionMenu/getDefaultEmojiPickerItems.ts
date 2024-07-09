@@ -7,7 +7,6 @@ import { checkDefaultInlineContentTypeInSchema } from "../../blocks/defaultBlock
 import { DefaultGridSuggestionItem } from "./DefaultGridSuggestionItem";
 
 const emojiMartData = data as EmojiMartData;
-init({ emojiMartData });
 
 export async function getDefaultEmojiPickerItems<
   BSchema extends BlockSchema,
@@ -21,17 +20,17 @@ export async function getDefaultEmojiPickerItems<
     return [];
   }
 
+  if (!emojiMartData) {
+    init({ emojiMartData });
+  }
+
   const emojisToShow =
-    query === ""
+    query.trim() === ""
       ? Object.values(emojiMartData.emojis)
       : ((await SearchIndex.search(query)) as Emoji[]);
 
   return emojisToShow.map((emoji: Emoji) => ({
     id: emoji.skins[0].native,
-    onItemClick: () => {
-      if (checkDefaultInlineContentTypeInSchema("text", editor)) {
-        editor.insertInlineContent(emoji.skins[0].native + " ");
-      }
-    },
+    onItemClick: () => editor.insertInlineContent(emoji.skins[0].native + " "),
   }));
 }
