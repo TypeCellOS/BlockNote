@@ -27,7 +27,7 @@ import { Tabs } from "nextra/components";
 
 <ExampleBlock name="${project.fullSlug}" path="${
   project.pathFromRoot
-}" hideCode={props.hideCode}>
+}" isProExample={props.isProExample}>
   <Tabs items={${JSON.stringify(
     Object.keys(files).map((fileName) => fileName.slice(1))
   )}}>

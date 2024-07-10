@@ -1,4 +1,5 @@
 import dynamic from "next/dynamic";
+import { signIn } from "next-auth/react";
 import { AiFillGithub } from "react-icons/ai";
 import { SiStackblitz } from "react-icons/si";
 
@@ -24,16 +25,18 @@ export function ExampleBlock(props: {
   name: keyof typeof examples;
   path: string;
   children: any;
-  hideCode: boolean;
+  isProExample?: {
+    userStatus: "pro" | "starter" | "free" | undefined;
+  };
 }) {
-  // const example = examplesFlattened.find((e) => e.slug === props.name);
-  // if (!example) {
-  //   throw new Error("invalid example");
-  // }
+  const showCode =
+    !props.isProExample ||
+    props.isProExample.userStatus === "starter" ||
+    props.isProExample.userStatus === "pro";
 
   return (
     <div className="demo nx-bg-primary-700/5 dark:nx-bg-primary-300/10 mt-6 rounded-lg p-4">
-      {!props.hideCode && (
+      {showCode && (
         <div className={"z-10 flex flex-row gap-6 pb-4"}>
           <a
             className={
@@ -58,7 +61,7 @@ export function ExampleBlock(props: {
       <div className={"demo-contents h-96 overflow-auto rounded-lg"}>
         <ThemedExample name={props.name} />
       </div>
-      {!props.hideCode ? (
+      {showCode ? (
         props.children
       ) : (
         <div
@@ -75,36 +78,28 @@ export function ExampleBlock(props: {
               to BlockNote Pro
             </p>
             <div className={"mt-8"}>
-              <CTAButton href={"/pricing"} variant={"large"} hoverGlow={true}>
+              <CTAButton
+                href={"/pricing"}
+                color={"pro"}
+                size={"large"}
+                hoverGlow={true}>
                 Get BlockNote Pro
               </CTAButton>
             </div>
+            {!props.isProExample?.userStatus && (
+              <p className={"mt-1 text-xs"}>
+                Or{" "}
+                <button
+                  className={"nx-text-primary-600"}
+                  onClick={async () => {
+                    await signIn("github", {});
+                  }}>
+                  sign in
+                </button>{" "}
+                via GitHub
+              </p>
+            )}
           </div>
-          {/*  <a*/}
-          {/*    className={"nx-text-primary-600 text-4xl font-bold"}*/}
-          {/*    href={"/pricing"}>*/}
-          {/*    Get BlockNote Pro*/}
-          {/*  </a>{" "}*/}
-          {/*</div>*/}
-          {/*<div>*/}
-          {/*  {userType === undefined && (*/}
-          {/*    <>*/}
-          {/*      or{" "}*/}
-          {/*      <button*/}
-          {/*        className={"nx-text-primary-600 font-bold"}*/}
-          {/*        onClick={async () => {*/}
-          {/*          await signIn("github", {});*/}
-          {/*        }}>*/}
-          {/*        Sign In*/}
-          {/*      </button>*/}
-          {/*      {" "}*/}
-          {/*      <CTAButton href={"/pricing"} variant={"large"} hoverGlow={true}>*/}
-          {/*        Get BlockNote Pro*/}
-          {/*      </CTAButton>{" "}*/}
-          {/*    </>*/}
-          {/*  )}*/}
-          {/*  to access Pro example code*/}
-          {/*</div>*/}
         </div>
       )}
     </div>
