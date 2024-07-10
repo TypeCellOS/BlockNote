@@ -1,11 +1,14 @@
 import { useMemo } from "react";
 
-import { useComponentsContext } from "../../editor/ComponentsContext";
-import { useDictionary } from "../../i18n/dictionary";
-import { DefaultReactGridSuggestionItem, SuggestionMenuProps } from "./types";
+import { useComponentsContext } from "../../../editor/ComponentsContext";
+import { useDictionary } from "../../../i18n/dictionary";
+import {
+  DefaultReactGridSuggestionItem,
+  GridSuggestionMenuProps,
+} from "./types";
 
 export function GridSuggestionMenu<T extends DefaultReactGridSuggestionItem>(
-  props: SuggestionMenuProps<T>
+  props: GridSuggestionMenuProps<T>
 ) {
   const Components = useComponentsContext()!;
   const dict = useDictionary();

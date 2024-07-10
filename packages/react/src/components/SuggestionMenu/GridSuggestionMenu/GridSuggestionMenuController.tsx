@@ -3,47 +3,50 @@ import {
   InlineContentSchema,
   StyleSchema,
   SuggestionMenuState,
-  filterSuggestionItems,
 } from "@blocknote/core";
 import { flip, offset, size } from "@floating-ui/react";
 import { FC, useCallback, useMemo } from "react";
 
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
-import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
-import { useUIPluginState } from "../../hooks/useUIPluginState";
-import { SuggestionMenu } from "./SuggestionMenu";
-import { SuggestionMenuWrapper } from "./SuggestionMenuWrapper";
-import { getDefaultReactSlashMenuItems } from "./getDefaultReactSlashMenuItems";
-import { DefaultReactSuggestionItem, SuggestionMenuProps } from "./types";
+import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
+import { useUIElementPositioning } from "../../../hooks/useUIElementPositioning";
+import { useUIPluginState } from "../../../hooks/useUIPluginState";
+import { getDefaultReactEmojiPickerItems } from "./getDefaultReactEmojiPickerItems";
+import { GridSuggestionMenu } from "./GridSuggestionMenu";
+import { GridSuggestionMenuWrapper } from "./GridSuggestionMenuWrapper";
+import {
+  DefaultReactGridSuggestionItem,
+  GridSuggestionMenuProps,
+} from "./types";
 
 type ArrayElement<A> = A extends readonly (infer T)[] ? T : never;
 
 type ItemType<GetItemsType extends (query: string) => Promise<any[]>> =
   ArrayElement<Awaited<ReturnType<GetItemsType>>>;
 
-export function SuggestionMenuController<
+export function GridSuggestionMenuController<
   // This is a bit hacky, but only way I found to make types work so the optionality
   // of suggestionMenuComponent depends on the return type of getItems
   GetItemsType extends (query: string) => Promise<any[]> = (
     query: string
-  ) => Promise<DefaultReactSuggestionItem[]>
+  ) => Promise<DefaultReactGridSuggestionItem[]>
 >(
   props: {
     triggerCharacter: string;
     getItems?: GetItemsType;
+    columns: number;
     minQueryLength?: number;
-  } & (ItemType<GetItemsType> extends DefaultReactSuggestionItem
+  } & (ItemType<GetItemsType> extends DefaultReactGridSuggestionItem
     ? {
         // can be undefined
-        suggestionMenuComponent?: FC<
-          SuggestionMenuProps<ItemType<GetItemsType>>
+        gridSuggestionMenuComponent?: FC<
+          GridSuggestionMenuProps<ItemType<GetItemsType>>
         >;
         onItemClick?: (item: ItemType<GetItemsType>) => void;
       }
     : {
         // getItems doesn't return DefaultSuggestionItem, so suggestionMenuComponent is required
-        suggestionMenuComponent: FC<
-          SuggestionMenuProps<ItemType<GetItemsType>>
+        gridSuggestionMenuComponent: FC<
+          GridSuggestionMenuProps<ItemType<GetItemsType>>
         >;
         onItemClick: (item: ItemType<GetItemsType>) => void;
       })
@@ -56,7 +59,8 @@ export function SuggestionMenuController<
 
   const {
     triggerCharacter,
-    suggestionMenuComponent,
+    gridSuggestionMenuComponent,
+    columns,
     minQueryLength,
     onItemClick,
     getItems,
@@ -75,8 +79,8 @@ export function SuggestionMenuController<
     return (
       getItems ||
       ((async (query: string) =>
-        filterSuggestionItems(
-          getDefaultReactSlashMenuItems(editor),
+        await getDefaultReactEmojiPickerItems(
+          editor,
           query
         )) as any as typeof getItems)
     );
@@ -129,12 +133,15 @@ export function SuggestionMenuController<
 
   return (
     <div ref={ref} style={style} {...getFloatingProps()}>
-      <SuggestionMenuWrapper
+      <GridSuggestionMenuWrapper
         query={state.query}
         closeMenu={callbacks.closeMenu}
         clearQuery={callbacks.clearQuery}
         getItems={getItemsOrDefault}
-        suggestionMenuComponent={suggestionMenuComponent || SuggestionMenu}
+        columns={columns}
+        gridSuggestionMenuComponent={
+          gridSuggestionMenuComponent || GridSuggestionMenu
+        }
         onItemClick={onItemClickOrDefault}
       />
     </div>

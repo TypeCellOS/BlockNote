@@ -1,5 +1,8 @@
 import "@blocknote/core/fonts/inter.css";
-import { SuggestionMenuController, useCreateBlockNote } from "@blocknote/react";
+import {
+  GridSuggestionMenuController,
+  useCreateBlockNote,
+} from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 
@@ -28,7 +31,7 @@ export default function App() {
   // Renders the editor instance.
   return (
     <BlockNoteView editor={editor} emojiPicker={false}>
-      <SuggestionMenuController
+      <GridSuggestionMenuController
         triggerCharacter={":"}
         // Changes the Emoji Picker to only have 5 columns.
         columns={5}

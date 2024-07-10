@@ -1,8 +1,8 @@
 import "@blocknote/core/fonts/inter.css";
 import {
   DefaultReactGridSuggestionItem,
-  SuggestionMenuController,
-  SuggestionMenuProps,
+  GridSuggestionMenuController,
+  GridSuggestionMenuProps,
   useCreateBlockNote,
 } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
@@ -12,7 +12,7 @@ import "./styles.css";
 
 // Custom component to replace the default Emoji Picker.
 function CustomEmojiPicker(
-  props: SuggestionMenuProps<DefaultReactGridSuggestionItem>
+  props: GridSuggestionMenuProps<DefaultReactGridSuggestionItem>
 ) {
   return (
     <div
@@ -60,9 +60,9 @@ export default function App() {
   // Renders the editor instance.
   return (
     <BlockNoteView editor={editor} emojiPicker={false}>
-      <SuggestionMenuController
+      <GridSuggestionMenuController
         triggerCharacter={":"}
-        suggestionMenuComponent={CustomEmojiPicker}
+        gridSuggestionMenuComponent={CustomEmojiPicker}
         columns={10}
       />
     </BlockNoteView>

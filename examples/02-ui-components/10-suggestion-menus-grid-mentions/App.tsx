@@ -6,7 +6,7 @@ import {
 import "@blocknote/core/fonts/inter.css";
 import {
   DefaultReactGridSuggestionItem,
-  SuggestionMenuController,
+  GridSuggestionMenuController,
   useCreateBlockNote,
 } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
@@ -85,7 +85,7 @@ export function App() {
   return (
     <BlockNoteView editor={editor}>
       {/* Adds a mentions menu which opens with the "@" key */}
-      <SuggestionMenuController
+      <GridSuggestionMenuController
         triggerCharacter={"@"}
         getItems={async (query) =>
           // Gets the mentions menu items

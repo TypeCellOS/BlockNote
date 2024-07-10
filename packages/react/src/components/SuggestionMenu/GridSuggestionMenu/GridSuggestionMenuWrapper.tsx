@@ -1,20 +1,21 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import { FC, useCallback, useEffect } from "react";
 
-import { useBlockNoteContext } from "../../editor/BlockNoteContext";
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
-import { useCloseSuggestionMenuNoItems } from "./hooks/useCloseSuggestionMenuNoItems";
-import { useLoadSuggestionMenuItems } from "./hooks/useLoadSuggestionMenuItems";
-import { useSuggestionMenuKeyboardNavigation } from "./hooks/useSuggestionMenuKeyboardNavigation";
-import { SuggestionMenuProps } from "./types";
+import { useBlockNoteContext } from "../../../editor/BlockNoteContext";
+import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
+import { useCloseSuggestionMenuNoItems } from "../hooks/useCloseSuggestionMenuNoItems";
+import { useGridSuggestionMenuKeyboardNavigation } from "./hooks/useGridSuggestionMenuKeyboardNavigation";
+import { useLoadSuggestionMenuItems } from "../hooks/useLoadSuggestionMenuItems";
+import { GridSuggestionMenuProps } from "./types";
 
-export function SuggestionMenuWrapper<Item>(props: {
+export function GridSuggestionMenuWrapper<Item>(props: {
   query: string;
   closeMenu: () => void;
   clearQuery: () => void;
   getItems: (query: string) => Promise<Item[]>;
+  columns: number;
   onItemClick?: (item: Item) => void;
-  suggestionMenuComponent: FC<SuggestionMenuProps<Item>>;
+  gridSuggestionMenuComponent: FC<GridSuggestionMenuProps<Item>>;
 }) {
   const ctx = useBlockNoteContext();
   const setContentEditableProps = ctx!.setContentEditableProps!;
@@ -26,11 +27,12 @@ export function SuggestionMenuWrapper<Item>(props: {
 
   const {
     getItems,
-    suggestionMenuComponent,
+    gridSuggestionMenuComponent,
     query,
     clearQuery,
     closeMenu,
     onItemClick,
+    columns,
   } = props;
 
   const onItemClickCloseMenu = useCallback(
@@ -49,10 +51,11 @@ export function SuggestionMenuWrapper<Item>(props: {
 
   useCloseSuggestionMenuNoItems(items, usedQuery, closeMenu);
 
-  const { selectedIndex } = useSuggestionMenuKeyboardNavigation(
+  const { selectedIndex } = useGridSuggestionMenuKeyboardNavigation(
     editor,
     query,
     items,
+    columns,
     onItemClickCloseMenu
   );
 
@@ -88,7 +91,7 @@ export function SuggestionMenuWrapper<Item>(props: {
     };
   }, [setContentEditableProps, selectedIndex]);
 
-  const Component = suggestionMenuComponent;
+  const Component = gridSuggestionMenuComponent;
 
   return (
     <Component
@@ -96,6 +99,7 @@ export function SuggestionMenuWrapper<Item>(props: {
       onItemClick={onItemClickCloseMenu}
       loadingState={loadingState}
       selectedIndex={selectedIndex}
+      columns={columns}
     />
   );
 }
