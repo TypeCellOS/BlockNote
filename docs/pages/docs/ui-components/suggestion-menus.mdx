@@ -41,34 +41,6 @@ Again, we add a `SuggestionMenuController` component with `triggerCharacter={"/"
 
 Now, we also pass a component to its `suggestionMenuComponent` prop. The `suggestionMenuComponent` we pass is responsible for rendering the filtered items. The `SuggestionMenuController` controls its position and visibility (below the trigger character), and it also determines which items should be shown (using the optional `getItems` prop we've seen above).
 
-## Emoji Picker
-
-The Emoji Picker is a Suggestion Menu that opens with the `:` character (or when selecting emoji item in the Slash Menu).
-
-<img
-  style={{ maxWidth: "400px" }}
-  src="/img/screenshots/emoji_picker.png"
-  alt="image"
-/>
-
-### Changing Emoji Picker Columns
-
-By default, the Emoji Picker is rendered with 10 columns, but you can change this to any amount. In the demo below, the Emoji Picker is changed to only display 5 columns.
-
-<Example name="ui-components/suggestion-menus-emoji-picker-columns" />
-
-Passing `emojiPicker={false}` to `BlockNoteView` tells BlockNote not to show the default Emoji Picker. Adding the `SuggestionMenuController` with `triggerCharacter={":"}` and `columns={5}` tells BlockNote to show one with 5 columns instead.
-
-### Replacing the Emoji Picker Component
-
-You can replace the React component used for the Emoji Picker with your own, as you can see in the demo below.
-
-<Example name="ui-components/suggestion-menus-emoji-picker-component" />
-
-Again, we add a `SuggestionMenuController` component with `triggerCharacter={":"}` and set `slashMenu={false}` to replace the default Slash Menu. We also set the `columns` prop so the `SuggestionMenuController` knows to render a grid.
-
-Now, we also pass a component to its `suggestionMenuComponent` prop. The `suggestionMenuComponent` we pass is responsible for rendering the filtered items. The `SuggestionMenuController` controls its position and visibility (below the trigger character), and it also determines which items should be shown. Since we don't specify which items to show (the `getItems` prop isn't defined), it will use the default items for a grid, which are the emojis.
-
 ## Creating additional Suggestion Menus
 
 You can add additional Suggestion Menus to the editor, which can use any trigger character. The demo below adds an example Suggestion Menu for mentions, which opens with the `@` character.
@@ -77,15 +49,11 @@ You can add additional Suggestion Menus to the editor, which can use any trigger
 
 Changing the items in the new Suggestion Menu, or the component used to render it, is done the same way as for the [Slash Menu](/docs/ui-components/suggestion-menus#slash-menu). For more information about how the mentions elements work, see [Custom Inline Content](/docs/custom-schemas/custom-inline-content).
 
-### Grid Suggestion Menus
+## Additional Features
 
-You may have noticed that the Emoji Picker is rendered using a grid instead of a stack. You can make your custom Suggestion Menus also render as a grid by passing a number to the `columns` prop in `SuggestionMenuController`. The demo below also adds a Suggestion Menu for mentions, but as a grid with only the first letters of names.
+BlockNote offers a few other features for working with Suggestion Menus which may fit your use case.
 
-<Example name="ui-components/suggestion-menus-grid-mentions" />
-
-Keep in mind that while we used the `DefaultReactSuggestionMenuItem` type in previous demos where we were setting the `getItems` prop, we're now using `DefaultReactGridSuggestionMenuItem`.
-
-## Opening Suggestion Menus Programmatically
+### Opening Suggestion Menus Programmatically
 
 While suggestion menus are generally meant to be opened when the user presses a trigger character, you may also want to open them from code. To do this, you can use the following editor method:
 
@@ -95,3 +63,9 @@ openSuggestionMenu(triggerCharacter: string): void;
 // Usage
 editor.openSuggestionMenu("/");
 ```
+
+### Waiting for a Query
+
+You may want to hold off displaying a Suggestion Menu unless you're certain that the user actually wants to open the menu and not just enter the trigger character. In this case, you should use the `minQueryLength` prop for `SuggestionMenuController`, which takes a number.
+
+The number indicates how many characters the user query needs to have before the menu is shown. When greater than 0, it also prevents the menu from displaying if the user enters a space immediately after the trigger character.

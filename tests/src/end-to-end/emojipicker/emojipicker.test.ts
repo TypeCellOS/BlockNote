@@ -9,9 +9,16 @@ test.beforeEach(async ({ page }) => {
 });
 
 test.describe("Check Emoji Picker Functionality", () => {
-  test("should show emoji picker when : is typed", async ({ page }) => {
+  test("should not show emoji picker when : is typed", async ({ page }) => {
     await focusOnEditor(page);
     await openEmojiPicker(page);
+  });
+  test("should show emoji picker when : and query is typed", async ({
+    page,
+  }) => {
+    await focusOnEditor(page);
+    await openEmojiPicker(page);
+    await page.keyboard.type("sm");
   });
   test("Should be able to insert emoji", async ({ page }) => {
     await focusOnEditor(page);
@@ -24,6 +31,7 @@ test.describe("Check Emoji Picker Functionality", () => {
     await focusOnEditor(page);
     await executeSlashCommand(page, "emoji");
     await page.waitForSelector(EMOJI_PICKER_SELECTOR);
+    await page.keyboard.type("sm");
   });
   test("Should be able to insert emoji after slash command", async ({
     page,
@@ -33,7 +41,6 @@ test.describe("Check Emoji Picker Functionality", () => {
     await page.waitForSelector(EMOJI_PICKER_SELECTOR);
     await page.keyboard.type("smile");
     await page.keyboard.press("Enter");
-    await page.pause();
     await waitForTextInEditor(page, "😄 ");
   });
 });

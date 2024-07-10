@@ -13,7 +13,7 @@ export const GridSuggestionMenu = forwardRef<
   return (
     <div
       className={className}
-      style={{ gridTemplateColumns: `repeat(${columns || 1}, 1fr)` } as any}
+      style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` } as any}
       ref={ref}
       id={id}
       role="grid">

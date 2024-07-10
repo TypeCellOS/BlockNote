@@ -20,7 +20,7 @@ export const GridSuggestionMenuLoader = forwardRef<
   return (
     <MantineLoader
       className={className}
-      style={{ gridColumn: `1 / ${(columns || 1) + 1}` }}
+      style={{ gridColumn: `1 / ${columns + 1}` }}
       type="dots"
       ref={ref}
     />

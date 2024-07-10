@@ -127,7 +127,12 @@ export function GridSuggestionMenuController<
     }
   );
 
-  if (!isMounted || !state || state.query.length < (minQueryLength || 0)) {
+  if (
+    !isMounted ||
+    !state ||
+    (minQueryLength &&
+      (state.query.startsWith(" ") || state.query.length < minQueryLength))
+  ) {
     return null;
   }
 

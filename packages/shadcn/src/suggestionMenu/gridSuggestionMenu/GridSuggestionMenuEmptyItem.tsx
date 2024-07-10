@@ -1,4 +1,4 @@
-import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
+import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
@@ -12,10 +12,10 @@ export const GridSuggestionMenuEmptyItem = forwardRef<
 
   return (
     <div
-      className={mergeCSSClasses("bn-ak-menu-item", className || "")}
-      style={{ gridColumn: `1 / ${(columns || 1) + 1}` }}
+      className={className}
+      style={{ gridColumn: `1 / ${columns + 1}` }}
       ref={ref}>
-      <div className="bn-ak-suggestion-menu-item-label">{children}</div>
+      {children}
     </div>
   );
 });

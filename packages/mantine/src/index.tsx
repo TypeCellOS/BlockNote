@@ -19,10 +19,10 @@ import {
   applyBlockNoteCSSVariablesFromTheme,
   removeBlockNoteCSSVariables,
 } from "./BlockNoteTheme";
-import { GridSuggestionMenu } from "./suggestionMenu/GridSuggestionMenu";
-import { GridSuggestionMenuEmptyItem } from "./suggestionMenu/GridSuggestionMenuEmptyItem";
-import { GridSuggestionMenuItem } from "./suggestionMenu/GridSuggestionMenuItem";
-import { GridSuggestionMenuLoader } from "./suggestionMenu/GridSuggestionMenuLoader";
+import { GridSuggestionMenu } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenu";
+import { GridSuggestionMenuEmptyItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuEmptyItem";
+import { GridSuggestionMenuItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuItem";
+import { GridSuggestionMenuLoader } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuLoader";
 import {
   Menu,
   MenuDivider,

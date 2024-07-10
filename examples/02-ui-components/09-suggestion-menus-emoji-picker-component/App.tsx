@@ -64,6 +64,7 @@ export default function App() {
         triggerCharacter={":"}
         gridSuggestionMenuComponent={CustomEmojiPicker}
         columns={10}
+        minQueryLength={2}
       />
     </BlockNoteView>
   );

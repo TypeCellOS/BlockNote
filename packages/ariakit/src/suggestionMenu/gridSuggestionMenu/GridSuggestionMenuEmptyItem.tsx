@@ -1,6 +1,4 @@
-import { Group as MantineGroup } from "@mantine/core";
-
-import { assertEmpty } from "@blocknote/core";
+import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
@@ -13,13 +11,11 @@ export const GridSuggestionMenuEmptyItem = forwardRef<
   assertEmpty(rest);
 
   return (
-    <MantineGroup
-      className={className}
-      style={{ gridColumn: `1 / ${(columns || 1) + 1}` }}
+    <div
+      className={mergeCSSClasses("bn-ak-menu-item", className || "")}
+      style={{ gridColumn: `1 / ${columns + 1}` }}
       ref={ref}>
-      <MantineGroup className="bn-mt-suggestion-menu-item-title">
-        {children}
-      </MantineGroup>
-    </MantineGroup>
+      <div className="bn-ak-suggestion-menu-item-label">{children}</div>
+    </div>
   );
 });

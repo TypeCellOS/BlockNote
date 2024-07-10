@@ -146,12 +146,12 @@ export type ComponentProps = {
   GridSuggestionMenu: {
     Root: {
       id: string;
-      columns?: number;
+      columns: number;
       className?: string;
       children?: ReactNode;
     };
     EmptyItem: {
-      columns?: number;
+      columns: number;
       className?: string;
       children?: ReactNode;
     };
@@ -167,7 +167,7 @@ export type ComponentProps = {
     //   children?: ReactNode;
     // };
     Loader: {
-      columns?: number;
+      columns: number;
       className?: string;
       children?: ReactNode;
     };

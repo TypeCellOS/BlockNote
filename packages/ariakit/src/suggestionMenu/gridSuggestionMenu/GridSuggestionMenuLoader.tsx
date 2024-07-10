@@ -18,7 +18,7 @@ export const GridSuggestionMenuLoader = forwardRef<
   return (
     <div
       className={className}
-      style={{ gridColumn: `1 / ${(columns || 1) + 1}` }}
+      style={{ gridColumn: `1 / ${columns + 1}` }}
       ref={ref}>
       {children}
     </div>

@@ -59,6 +59,7 @@ test.describe("Check Dark Theme is Automatically Applied", () => {
   test("Should show dark emoji picker", async ({ page }) => {
     await focusOnEditor(page);
     await page.keyboard.press(":");
+    await page.keyboard.type("sm");
 
     await page.waitForTimeout(500);
     expect(await page.screenshot()).toMatchSnapshot("dark-emoji-picker.png");

@@ -98,8 +98,8 @@ export function App() {
             query
           ) as DefaultReactGridSuggestionItem[]
         }
-        // Sets number of columns to render as a grid
         columns={2}
+        minQueryLength={2}
       />
     </BlockNoteView>
   );
