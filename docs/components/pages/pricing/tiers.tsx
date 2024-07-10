@@ -1,4 +1,5 @@
 import { CheckIcon } from "@heroicons/react/20/solid";
+import { track } from "@vercel/analytics";
 import classNames from "classnames";
 
 type Frequency = "month" | "year";
@@ -63,7 +64,10 @@ function TierCTAButton({ tier }: { tier: Tier }) {
           ? "bg-indigo-600 text-white shadow-sm hover:bg-indigo-500"
           : "text-indigo-600 ring-1 ring-inset ring-indigo-600 hover:text-indigo-500 hover:ring-indigo-500",
         "mt-8 block rounded-md px-3 py-2 text-center text-sm font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
-      )}>
+      )}
+      onClick={() => {
+        track("Signup", { tier: tier.id });
+      }}>
       {tier.id === "tier-free"
         ? "Get started"
         : tier.id === "tier-enterprise"
