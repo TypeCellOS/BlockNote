@@ -227,6 +227,26 @@
         }
       },
       {
+        "projectSlug": "removing-default-blocks",
+        "fullSlug": "basic/removing-default-blocks",
+        "pathFromRoot": "examples/01-basic/11-removing-default-blocks",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "hunxjunedo",
+          "tags": [
+            "Basic",
+            "removing",
+            "blocks"
+          ]
+        },
+        "title": "Removing Default Blocks from the Schema",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
         "projectSlug": "testing",
         "fullSlug": "basic/testing",
         "pathFromRoot": "examples/01-basic/testing",
