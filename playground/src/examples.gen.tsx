@@ -216,7 +216,8 @@
             "@uppy/screen-capture": "^3.2.0",
             "@uppy/status-bar": "^3.1.1",
             "@uppy/webcam": "^3.4.2",
-            "@uppy/xhr-upload": "^3.4.0"
+            "@uppy/xhr-upload": "^3.4.0",
+            "react-icons": "^5.2.1"
           } as any
         },
         "title": "Uploading Files with Uppy",
