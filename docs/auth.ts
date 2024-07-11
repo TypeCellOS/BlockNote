@@ -100,8 +100,24 @@ export const {
             // use API data:
 
             const data = await resSponsor.json();
-            profile.sponsorInfo =
-              data.data.organization?.sponsorshipForViewerAsSponsor;
+            // eslint-disable-next-line no-console
+            console.log("sponsor data", data);
+
+            // {
+            //   "data": {
+            //     "user": {
+            //       "sponsorshipForViewerAsSponsor": {
+            //         "isActive": true,
+            //         "tier": {
+            //           "name": "$90 a month",
+            //           "monthlyPriceInDollars": 90
+            //         }
+            //       }
+            //     }
+            //   }
+            // }
+
+            profile.sponsorInfo = data.data.user.sponsorshipForViewerAsSponsor;
           }
 
           return profile;
