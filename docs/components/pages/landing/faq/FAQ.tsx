@@ -1,6 +1,6 @@
-import { Link } from "nextra-theme-docs";
 import { SectionIntro } from "@/components/pages/landing/shared/Headings";
 import { Section } from "@/components/pages/landing/shared/Section";
+import { Link } from "nextra-theme-docs";
 
 const faqs = [
   {
@@ -24,7 +24,7 @@ const faqs = [
     id: 4,
     question: "Is BlockNote really free?",
     answer: `100% of BlockNote is open source. While the library is free, we offer paid consultancy and support services to help sustain BlockNote.   
-    Sponsoring the project is encouraged if you are using BlockNote in a commercial project.`,
+    If you are using BlockNote in a commercial project, we encourage to sign up for BlockNote Pro!`,
   },
 ];
 
