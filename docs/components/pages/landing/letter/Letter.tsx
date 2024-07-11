@@ -1,5 +1,5 @@
 import cn from "classnames";
-import { CTAButton } from "@/components/pages/landing/shared/CTAButton";
+import CTAButton from "@/components/pages/landing/shared/CTAButton";
 import { Section } from "@/components/pages/landing/shared/Section";
 import { FadeIn } from "@/components/pages/landing/shared/FadeIn";
 import { HeroText } from "@/components/pages/landing/shared/Headings";

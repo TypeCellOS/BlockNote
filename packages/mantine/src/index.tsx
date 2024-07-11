@@ -9,10 +9,10 @@ import {
   Components,
   ComponentsContext,
   useBlockNoteContext,
+  usePrefersColorScheme,
 } from "@blocknote/react";
 import { MantineProvider } from "@mantine/core";
 import { ComponentProps, useCallback } from "react";
-import { usePrefersColorScheme } from "use-prefers-color-scheme";
 
 import {
   Theme,

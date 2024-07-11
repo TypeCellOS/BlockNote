@@ -41,6 +41,7 @@ export type Project = {
     devDependencies?: any;
     shortTitle?: string;
     author: string;
+    pro?: boolean;
   };
 };
 

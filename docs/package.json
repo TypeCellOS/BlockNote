@@ -1,6 +1,6 @@
 {
   "name": "docs",
-  "version": "0.14.2",
+  "version": "0.14.6",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,12 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@blocknote/ariakit": "^0.14.2",
-    "@blocknote/core": "^0.14.2",
-    "@blocknote/mantine": "^0.14.2",
-    "@blocknote/react": "^0.14.2",
-    "@blocknote/shadcn": "^0.14.2",
+    "@blocknote/ariakit": "^0.14.6",
+    "@blocknote/core": "^0.14.5",
+    "@blocknote/mantine": "^0.14.6",
+    "@blocknote/react": "^0.14.6",
+    "@blocknote/shadcn": "^0.14.6",
     "@headlessui/react": "^1.7.18",
+    "@heroicons/react": "^2.1.4",
     "@mantine/core": "^7.10.1",
     "@next/bundle-analyzer": "^14.1.0",
     "@vercel/analytics": "^1.2.2",
@@ -23,7 +24,7 @@
     "clsx": "^2.1.0",
     "framer-motion": "^10.16.16",
     "next": "^14.2.3",
-    "next-auth": "^5.0.0-beta.9",
+    "next-auth": "^5.0.0-beta.19",
     "nextra": "^2.13.2",
     "nextra-theme-docs": "^2.13.2",
     "partykit": "^0.0.84",

@@ -41,14 +41,15 @@ export function AuthNavButton(props: any) {
       />
     </NavbarMenu>
   ) : (
-    <></>
-    // TODO: design button
-    // <button
-    //   onClick={async () => {
-    //     await signIn("github");
-    //   }}>
-    //   Sign in
-    // </button>
+    <>
+      {/* TODO: move to footer */}{" "}
+      {/* <button
+        onClick={async () => {
+          await signIn("github", {});
+        }}>
+        Sign in
+      </button> */}
+    </>
   );
 }
 
