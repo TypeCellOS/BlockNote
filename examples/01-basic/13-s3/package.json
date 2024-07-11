@@ -18,7 +18,8 @@
     "@blocknote/shadcn": "latest",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "@aws-sdk/client-s3": "^3.600.0"
+    "@aws-sdk/client-s3": "^3.609.0",
+    "@aws-sdk/s3-request-presigner": "^3.609.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",
