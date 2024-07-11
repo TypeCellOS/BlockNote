@@ -1,6 +1,4 @@
-import "../../../packages/core/src/fonts/inter.css";
-import { BlockNoteView } from "@blocknote/mantine";
-import "../../../packages/mantine/dist/style.css";
+import "@blocknote/core/fonts/inter.css";
 import {
   FilePanelController,
   FormattingToolbar,
@@ -8,6 +6,8 @@ import {
   getFormattingToolbarItems,
   useCreateBlockNote,
 } from "@blocknote/react";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
 
 import { uploadFile, UppyFilePanel } from "./UppyFilePanel";
 import { FileReplaceButton } from "./FileReplaceButton";
@@ -41,7 +41,11 @@ export default function App() {
         formattingToolbar={(props) => {
           // Replaces default file replace button with one that opens Uppy.
           const items = getFormattingToolbarItems();
-          items.splice(2, 1, <FileReplaceButton key={"fileReplaceButton"} />);
+          items.splice(
+            items.findIndex((c) => c.key === "replaceFileButton"),
+            1,
+            <FileReplaceButton key={"fileReplaceButton"} />
+          );
 
           return <FormattingToolbar {...props}>{items}</FormattingToolbar>;
         }}
