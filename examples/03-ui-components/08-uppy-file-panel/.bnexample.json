@@ -16,5 +16,6 @@
     "@uppy/webcam": "^3.4.2",
     "@uppy/xhr-upload": "^3.4.0",
     "react-icons": "^5.2.1"
-  }
+  },
+  "pro": true
 }
