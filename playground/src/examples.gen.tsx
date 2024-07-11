@@ -194,9 +194,29 @@
         }
       },
       {
+        "projectSlug": "removing-default-blocks",
+        "fullSlug": "basic/removing-default-blocks",
+        "pathFromRoot": "examples/01-basic/11-removing-default-blocks",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "hunxjunedo",
+          "tags": [
+            "Basic",
+            "removing",
+            "blocks"
+          ]
+        },
+        "title": "Removing Default Blocks from the Schema",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
         "projectSlug": "file-uploading-uppy",
         "fullSlug": "basic/file-uploading-uppy",
-        "pathFromRoot": "examples/01-basic/11-file-uploading-uppy",
+        "pathFromRoot": "examples/01-basic/12-file-uploading-uppy",
         "config": {
           "playground": true,
           "docs": true,
@@ -221,26 +241,6 @@
           } as any
         },
         "title": "Uploading Files with Uppy",
-        "group": {
-          "pathFromRoot": "examples/01-basic",
-          "slug": "basic"
-        }
-      },
-      {
-        "projectSlug": "removing-default-blocks",
-        "fullSlug": "basic/removing-default-blocks",
-        "pathFromRoot": "examples/01-basic/11-removing-default-blocks",
-        "config": {
-          "playground": true,
-          "docs": true,
-          "author": "hunxjunedo",
-          "tags": [
-            "Basic",
-            "removing",
-            "blocks"
-          ]
-        },
-        "title": "Removing Default Blocks from the Schema",
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
