@@ -1,4 +1,4 @@
-section {
+body {
   --text-color: #000000;
   --bg-color: #ffffff;
 
@@ -6,7 +6,7 @@ section {
   --glow-purple: 261, 100%, 50%;
 }
 
-.dark section {
+.dark body {
   --text-color: #ffffff;
   --bg-color: #000000;
 }
@@ -22,6 +22,17 @@ section {
   @media only screen and (hover: none) and (pointer: coarse) {
     display: block; /* disable on mobile */
   }
+}
+
+.cta-glow {
+  --glow-opacity: 0.3;
+  background: conic-gradient(
+          from 33deg at 50% 50%,
+          hsla(var(--glow-blue), var(--glow-opacity)),
+          hsla(var(--glow-purple), var(--glow-opacity)),
+          hsla(var(--glow-blue), var(--glow-opacity))
+  );
+  filter: blur(60px);
 }
 
 .hero-glow {

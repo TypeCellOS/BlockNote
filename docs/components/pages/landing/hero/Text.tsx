@@ -2,7 +2,7 @@ import {
   HeroText,
   SectionSubtext,
 } from "@/components/pages/landing/shared/Headings";
-import { CTAButton } from "@/components/pages/landing/shared/CTAButton";
+import CTAButton from "@/components/pages/landing/shared/CTAButton";
 
 export function Text() {
   return (

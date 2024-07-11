@@ -207,7 +207,7 @@
             "Saving/Loading"
           ]
         },
-        "title": "Uploading Files",
+        "title": "Upload Files",
         "group": {
           "pathFromRoot": "examples/02-backend",
           "slug": "backend"
@@ -248,9 +248,10 @@
           "dependencies": {
             "@aws-sdk/client-s3": "^3.609.0",
             "@aws-sdk/s3-request-presigner": "^3.609.0"
-          } as any
+          } as any,
+          "pro": true
         },
-        "title": "Uploading Files to AWS S3",
+        "title": "Upload Files to AWS S3",
         "group": {
           "pathFromRoot": "examples/02-backend",
           "slug": "backend"
@@ -429,7 +430,8 @@
             "@uppy/webcam": "^3.4.2",
             "@uppy/xhr-upload": "^3.4.0",
             "react-icons": "^5.2.1"
-          } as any
+          } as any,
+          "pro": true
         },
         "title": "Uppy File Panel",
         "group": {
@@ -457,7 +459,8 @@
           ],
           "dependencies": {
             "react-icons": "^5.2.1"
-          } as any
+          } as any,
+          "pro": true
         },
         "title": "Custom UI",
         "group": {
@@ -764,7 +767,8 @@
           "dependencies": {
             "@mantine/core": "^7.10.1",
             "react-icons": "^5.2.1"
-          } as any
+          } as any,
+          "pro": true
         },
         "title": "PDF Block",
         "group": {
