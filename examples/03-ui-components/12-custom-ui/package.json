@@ -1,5 +1,5 @@
 {
-  "name": "@blocknote/example-suggestion-menus-grid-mentions",
+  "name": "@blocknote/example-custom-ui",
   "description": "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
   "private": true,
   "version": "0.12.4",
@@ -17,7 +17,8 @@
     "@blocknote/mantine": "latest",
     "@blocknote/shadcn": "latest",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-icons": "^5.2.1"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",
