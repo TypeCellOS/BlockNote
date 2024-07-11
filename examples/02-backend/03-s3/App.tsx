@@ -69,6 +69,22 @@ const SERVER_createPresignedUrlGET = (opts: {
  */
 export default function App() {
   const editor = useCreateBlockNote({
+    initialContent: [
+      {
+        type: "paragraph",
+        content: "Welcome to this demo!",
+      },
+      {
+        type: "paragraph",
+        content: "Upload an image to S3 using the button below",
+      },
+      {
+        type: "image",
+      },
+      {
+        type: "paragraph",
+      },
+    ],
     uploadFile: async (file) => {
       /**
        * This function is called by BlockNote whenever it wants to upload a

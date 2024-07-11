@@ -1,6 +1,6 @@
-import "@blocknote/core/fonts/inter.css";
+import "../../../packages/core/src/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
+import "../../../packages/mantine/dist/style.css";
 import {
   FilePanelController,
   FormattingToolbar,
