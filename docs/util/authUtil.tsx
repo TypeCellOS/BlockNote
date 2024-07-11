@@ -1,9 +1,8 @@
 import type { useSession } from "next-auth/react";
 
-// TODO: test with real data
 export function getProLevel(
   session: ReturnType<typeof useSession>,
-): "pro" | "starter" | "free" | undefined {
+): "business" | "starter" | "free" | undefined {
   if (session.status !== "authenticated") {
     return undefined;
   }
@@ -13,5 +12,5 @@ export function getProLevel(
     return "free";
   }
 
-  return sponsorInfo.tier.monthlyPriceInDollars > 100 ? "pro" : "starter";
+  return sponsorInfo.tier.monthlyPriceInDollars > 100 ? "business" : "starter";
 }

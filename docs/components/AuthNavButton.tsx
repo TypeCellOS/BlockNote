@@ -1,6 +1,6 @@
 import { Menu, Transition } from "@headlessui/react";
 import clsx from "clsx";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import { ReactElement, ReactNode } from "react";
 
@@ -43,12 +43,12 @@ export function AuthNavButton(props: any) {
   ) : (
     <>
       {/* TODO: move to footer */}{" "}
-      <button
+      {/* <button
         onClick={async () => {
           await signIn("github", {});
         }}>
         Sign in
-      </button>
+      </button> */}
     </>
   );
 }

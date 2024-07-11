@@ -90,18 +90,18 @@ export const {
 
           if (resSponsor.ok) {
             // Mock data. TODO: disable and test actial data
-            profile.sponsorInfo = {
-              isActive: true,
-              tier: {
-                name: "test",
-                monthlyPriceInDollars: 100,
-              },
-            };
+            // profile.sponsorInfo = {
+            //   isActive: true,
+            //   tier: {
+            //     name: "test",
+            //     monthlyPriceInDollars: 100,
+            //   },
+            // };
             // use API data:
 
-            // const data = await resSponsor.json();
-            // profile.sponsorInfo =
-            // data.data.organization?.sponsorshipForViewerAsSponsor;
+            const data = await resSponsor.json();
+            profile.sponsorInfo =
+              data.data.organization?.sponsorshipForViewerAsSponsor;
           }
 
           return profile;
