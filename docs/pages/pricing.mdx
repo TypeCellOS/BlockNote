@@ -1,14 +1,14 @@
+import { SectionHeader } from "../components/pages/landing/shared/Headings";
+import { FAQ } from "../components/pages/pricing/faq";
 import { Tiers } from "../components/pages/pricing/tiers";
-import {SectionHeader} from "../components/pages/landing/shared/Headings";
-import {FAQ} from "../components/pages/pricing/faq";
 
 export default function Pricing() {
   const tiers = [
     {
       id: "tier-free",
-      title: "Free",
-      description: "Everything necessary to get started.",
-      price: "No cost",
+      title: "Community",
+      description: "Everything necessary to get started for individuals and non-commercial projects.",
+      price: "Free",
       features: [
         "Use BlockNote for free (open source license)",
         "Community Discord for help & feedback",
@@ -20,7 +20,7 @@ export default function Pricing() {
       mostPopular: true,
       title: "Starter",
       description:
-        "Everything in Basic, plus essential tools for growing your business.",
+        "Best for companies and organizations building products with BlockNote.",
       price: { month: 90, year: 24 },
       features: [
         "Access to all Pro Examples",
@@ -33,7 +33,7 @@ export default function Pricing() {
       id: "tier-business",
       title: "Business",
       description:
-        "Everything in Starter, plus collaboration tools and deeper insights.",
+        "Best for companies that want a direct line to the team.",
       price: { month: 189, year: 48 },
       features: [
         "Access to all Pro Examples",
@@ -49,7 +49,7 @@ export default function Pricing() {
       id: "tier-enterprise",
       title: "Enterprise",
       description:
-        "Work directly with the BlockNote team on implementing the editor your application needs.",
+        "Collaborate directly with the BlockNote team on integrating and extending the editor.",
       price: "Tailored pricing",
       features: [
         "Access to all Pro Examples",
@@ -64,30 +64,30 @@ export default function Pricing() {
     },
   ];
 
-  const frequency = "month";
+const frequency = "month";
 
-  return (
-    <div className="flex flex-col items-center py-16 sm:py-16">
-      <div className="flex flex-col items-center max-w-screen-xl px-6 lg:px-8">
-        <h2 className="text-base max-w-6xl text-center font-semibold leading-7 text-indigo-600">
-          BlockNote Pro
-        </h2>
-        <SectionHeader>Upgrade your BlockNote experience</SectionHeader>
-        {/* TODO: can we make this look better? */}
-        <p className="mt-6 text-center max-w-screen-lg text-lg text-[#00000080] dark:text-[#FFFFFFB2]">
-          Thanks for checking out BlockNote Pro! BlockNote is free and open
-          source software that organizations of all sizes are using to add
-          polished editing experiences to their apps.
-        </p>
-        <p className="mt-6 text-center max-w-screen-lg text-lg text-[#00000080] dark:text-[#FFFFFFB2]">
-          With your subscription, you are ensuring the sustainable maintenance
-          and development of the library. It's a great way to support the
-          project and get access to direct support, prioritized feature requests
-          and Pro Examples.
-        </p>
-        <Tiers tiers={tiers} frequency={frequency} />
-        <FAQ />
-      </div>
-    </div>
-  );
-}
+return (
+
+<div className="flex flex-col items-center py-16 sm:py-16">
+  <div className="flex max-w-screen-xl flex-col items-center px-6 lg:px-8">
+    <h2 className="max-w-6xl text-center text-base font-semibold leading-7 text-indigo-600">
+      BlockNote Pro
+    </h2>
+    <SectionHeader>Upgrade your BlockNote experience</SectionHeader>
+    {/* TODO: can we make this look better? */}
+    <p className="mt-6 max-w-screen-lg text-center text-lg text-[#00000080] dark:text-[#FFFFFFB2]">
+      Thanks for checking out BlockNote Pro! BlockNote is free and open source
+      software that organizations of all sizes are using to add polished editing
+      experiences to their apps.
+    </p>
+    <p className="mt-6 max-w-screen-lg text-center text-lg text-[#00000080] dark:text-[#FFFFFFB2]">
+      With your subscription, you are ensuring the sustainable maintenance and
+      development of the library. It's a great way to support the project and
+      get access to direct support, prioritized feature requests and Pro
+      Examples.
+    </p>
+    <Tiers tiers={tiers} frequency={frequency} />
+    <FAQ />
+  </div>
+</div>
+); }

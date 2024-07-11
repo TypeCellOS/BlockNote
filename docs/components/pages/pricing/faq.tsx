@@ -3,14 +3,21 @@ import { MinusIcon, PlusIcon } from "@heroicons/react/24/outline";
 
 const faqs = [
   {
-    question: "What's the best thing about Switzerland?",
-    answer:
-      "I don't know, but the flag is a big plus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas cupiditate laboriosam fugiat.",
+    question: "Is BlockNote Pro a different library than BlockNote?",
+    answer: `"BlockNote Pro" is not an additional library, but instead a subscription service built around the open-source BlockNote library.
+       With your subscription, you are ensuring the sustainable maintenance and development of BlockNote and make sure it stays up-to-date under an open source license. 
+       You'll also get prioritized support, feature requests, and access to Pro examples.`,
   },
   {
-    question: "What's the best thing about Switzerland?",
-    answer:
-      "I don't know, but the flag is a big plus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas cupiditate laboriosam fugiat.",
+    question: "What payment methods do you accept?",
+    answer: `BlockNote Pro is fully integrated with GitHub Sponsors, which means invoicing and payment is handled by GitHub.
+    If you require a different payment method, please contact us.`,
+  },
+  {
+    question:
+      "What License is BlockNote using? Can I use it for commercial projects?",
+    answer: `BlockNote is licensed under the MPL 2.0 license, which allows you to use BlockNote in commercial (and closed-source) applications. 
+    If you make changes to the BlockNote source files, you're expected to publish these changes so the wider community can benefit as well.`,
   },
   // More questions...
 ];
