@@ -194,19 +194,53 @@
         }
       },
       {
-        "projectSlug": "s3",
-        "fullSlug": "basic/s3",
-        "pathFromRoot": "examples/01-basic/s3",
+        "projectSlug": "removing-default-blocks",
+        "fullSlug": "basic/removing-default-blocks",
+        "pathFromRoot": "examples/01-basic/11-removing-default-blocks",
         "config": {
           "playground": true,
-          "docs": false,
-          "author": "matthewlipski",
-          "tags": [],
-          "dependencies": {
-            "@aws-sdk/client-s3": "^3.600.0"
-          }
+          "docs": true,
+          "author": "hunxjunedo",
+          "tags": [
+            "Basic",
+            "removing",
+            "blocks"
+          ]
         },
-        "title": "AWS S3 File Upload",
+        "title": "Removing Default Blocks from the Schema",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
+        "projectSlug": "file-uploading-uppy",
+        "fullSlug": "basic/file-uploading-uppy",
+        "pathFromRoot": "examples/01-basic/12-file-uploading-uppy",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "ezhil56x",
+          "tags": [
+            "Intermediate",
+            "Files"
+          ],
+          "dependencies": {
+            "@uppy/core": "^3.13.1",
+            "@uppy/dashboard": "^3.9.1",
+            "@uppy/drag-drop": "^3.1.1",
+            "@uppy/file-input": "^3.1.2",
+            "@uppy/image-editor": "^2.4.6",
+            "@uppy/progress-bar": "^3.1.1",
+            "@uppy/react": "^3.4.0",
+            "@uppy/screen-capture": "^3.2.0",
+            "@uppy/status-bar": "^3.1.1",
+            "@uppy/webcam": "^3.4.2",
+            "@uppy/xhr-upload": "^3.4.0",
+            "react-icons": "^5.2.1"
+          } as any
+        },
+        "title": "Uploading Files with Uppy",
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"
@@ -271,7 +305,7 @@
           "dependencies": {
             "@mantine/core": "^7.10.1",
             "react-icons": "^5.2.1"
-          }
+          } as any
         },
         "title": "Adding Block Type Select Items",
         "group": {
@@ -295,7 +329,7 @@
           ],
           "dependencies": {
             "react-icons": "^5.2.1"
-          }
+          } as any
         },
         "title": "Adding Block Side Menu Buttons",
         "group": {
@@ -319,7 +353,7 @@
           ],
           "dependencies": {
             "react-icons": "^5.2.1"
-          }
+          } as any
         },
         "title": "Adding Drag Handle Menu Items",
         "group": {
@@ -344,7 +378,7 @@
           ],
           "dependencies": {
             "react-icons": "^5.2.1"
-          }
+          } as any
         },
         "title": "Adding Slash Menu Items",
         "group": {
@@ -394,7 +428,7 @@
           ],
           "dependencies": {
             "react-icons": "^5.2.1"
-          }
+          } as any
         },
         "title": "Custom UI",
         "group": {
@@ -633,7 +667,7 @@
           "dependencies": {
             "@mantine/core": "^7.10.1",
             "react-icons": "^5.2.1"
-          }
+          } as any
         },
         "title": "Alert Block",
         "group": {
@@ -701,7 +735,7 @@
           "dependencies": {
             "@mantine/core": "^7.10.1",
             "react-icons": "^5.2.1"
-          }
+          } as any
         },
         "title": "PDF Block",
         "group": {
@@ -779,7 +813,7 @@
           "dependencies": {
             "y-partykit": "^0.0.25",
             "yjs": "^13.6.15"
-          }
+          } as any
         },
         "title": "Collaborative Editing with PartyKit",
         "group": {
@@ -805,7 +839,7 @@
             "@liveblocks/react": "^1.10.0",
             "@liveblocks/yjs": "^1.10.0",
             "yjs": "^13.6.15"
-          }
+          } as any
         },
         "title": "Collaborative Editing with Liveblocks",
         "group": {
