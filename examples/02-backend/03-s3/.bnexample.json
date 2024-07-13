@@ -1,0 +1,11 @@
+{
+  "playground": true,
+  "docs": true,
+  "author": "matthewlipski",
+  "tags": ["Intermediate", "Saving/Loading"],
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.609.0",
+    "@aws-sdk/s3-request-presigner": "^3.609.0"
+  },
+  "pro": true
+}

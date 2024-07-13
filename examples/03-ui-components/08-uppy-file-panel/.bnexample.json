@@ -1,0 +1,21 @@
+{
+  "playground": true,
+  "docs": true,
+  "author": "ezhil56x",
+  "tags": ["Intermediate", "Files"],
+  "dependencies": {
+    "@uppy/core": "^3.13.1",
+    "@uppy/dashboard": "^3.9.1",
+    "@uppy/drag-drop": "^3.1.1",
+    "@uppy/file-input": "^3.1.2",
+    "@uppy/image-editor": "^2.4.6",
+    "@uppy/progress-bar": "^3.1.1",
+    "@uppy/react": "^3.4.0",
+    "@uppy/screen-capture": "^3.2.0",
+    "@uppy/status-bar": "^3.1.1",
+    "@uppy/webcam": "^3.4.2",
+    "@uppy/xhr-upload": "^3.4.0",
+    "react-icons": "^5.2.1"
+  },
+  "pro": true
+}
