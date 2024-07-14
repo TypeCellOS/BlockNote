@@ -7,6 +7,7 @@ import { TableHandlesController } from "../components/TableHandles/TableHandlesC
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor";
 
 export type BlockNoteDefaultUIProps = {
+  dir?: "rtl" | "ltr";
   formattingToolbar?: boolean;
   linkToolbar?: boolean;
   slashMenu?: boolean;
@@ -31,7 +32,7 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
       {props.slashMenu !== false && (
         <SuggestionMenuController triggerCharacter="/" />
       )}
-      {props.sideMenu !== false && <SideMenuController />}
+      {props.sideMenu !== false && <SideMenuController dir={props.dir} />}
       {editor.filePanel && props.filePanel !== false && <FilePanelController />}
       {editor.tableHandles && props.tableHandles !== false && (
         <TableHandlesController />
