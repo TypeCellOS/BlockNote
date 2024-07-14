@@ -112,6 +112,7 @@ function BlockNoteViewComponent<
       <>
         {children}
         <BlockNoteDefaultUI
+          dir={props.dir}
           formattingToolbar={formattingToolbar}
           linkToolbar={linkToolbar}
           slashMenu={slashMenu}

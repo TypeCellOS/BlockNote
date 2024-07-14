@@ -20,6 +20,7 @@ export const SideMenuController = <
   S extends StyleSchema = DefaultStyleSchema
 >(props: {
   sideMenu?: FC<SideMenuProps<BSchema, I, S>>;
+  dir?: "rtl" | "ltr";
 }) => {
   const editor = useBlockNoteEditor<BSchema, I, S>();
 
@@ -39,7 +40,7 @@ export const SideMenuController = <
     state?.referencePos || null,
     1000,
     {
-      placement: "left-start",
+      placement: props.dir === "rtl" ? "right-start" : "left-start",
     }
   );
 
