@@ -83,6 +83,7 @@ function BlockNoteViewComponent<
     formattingToolbar,
     linkToolbar,
     slashMenu,
+    emojiPicker,
     sideMenu,
     filePanel,
     tableHandles,
@@ -117,6 +118,7 @@ function BlockNoteViewComponent<
           formattingToolbar={formattingToolbar}
           linkToolbar={linkToolbar}
           slashMenu={slashMenu}
+          emojiPicker={emojiPicker}
           sideMenu={sideMenu}
           filePanel={filePanel}
           tableHandles={tableHandles}
@@ -127,9 +129,10 @@ function BlockNoteViewComponent<
     children,
     formattingToolbar,
     linkToolbar,
-    filePanel,
-    sideMenu,
     slashMenu,
+    emojiPicker,
+    sideMenu,
+    filePanel,
     tableHandles,
   ]);
 

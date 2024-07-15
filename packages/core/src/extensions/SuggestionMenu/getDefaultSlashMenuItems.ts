@@ -1,6 +1,7 @@
-import { checkDefaultBlockTypeInSchema } from "../../blocks/defaultBlockTypeGuards";
 import { Block, PartialBlock } from "../../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+
+import { checkDefaultBlockTypeInSchema } from "../../blocks/defaultBlockTypeGuards";
 import {
   BlockSchema,
   InlineContentSchema,
@@ -269,6 +270,12 @@ export function getDefaultSlashMenuItems<
       ...editor.dictionary.slash_menu.file,
     });
   }
+
+  items.push({
+    onItemClick: () => editor.openSelectionMenu(":"),
+    key: "emoji",
+    ...editor.dictionary.slash_menu.emoji,
+  });
 
   return items;
 }
