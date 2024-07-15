@@ -65,6 +65,7 @@ import { PlaceholderPlugin } from "../extensions/Placeholder/PlaceholderPlugin";
 import { Dictionary } from "../i18n/dictionary";
 import { en } from "../i18n/locales";
 
+import { Transaction } from "@tiptap/pm/state";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer";
 import "../style.css";
 
@@ -426,6 +427,10 @@ export class BlockNoteEditor<
       // but we still need the schema
       this._pmSchema = getSchema(tiptapOptions.extensions!);
     }
+  }
+
+  dispatch(tr: Transaction) {
+    this._tiptapEditor.dispatch(tr);
   }
 
   /**
@@ -954,8 +959,8 @@ export class BlockNoteEditor<
 
     const mark = this.pmSchema.mark("link", { href: url });
 
-    this._tiptapEditor.view.dispatch(
-      this._tiptapEditor.view.state.tr
+    this.dispatch(
+      this._tiptapEditor.state.tr
         .insertText(text, from, to)
         .addMark(from, from + text.length, mark)
     );
