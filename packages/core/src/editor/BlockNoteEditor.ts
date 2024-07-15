@@ -66,7 +66,9 @@ import { Dictionary } from "../i18n/dictionary";
 import { en } from "../i18n/locales";
 
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer";
-import "../style.css";
+
+import "./Block.css";
+import "./editor.css";
 
 export type BlockNoteEditorOptions<
   BSchema extends BlockSchema,
