@@ -256,6 +256,27 @@
           "pathFromRoot": "examples/02-backend",
           "slug": "backend"
         }
+      },
+      {
+        "projectSlug": "rendering-static-documents",
+        "fullSlug": "backend/rendering-static-documents",
+        "pathFromRoot": "examples/02-backend/04-rendering-static-documents",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "server"
+          ],
+          "dependencies": {
+            "@blocknote/server-util": "latest"
+          } as any
+        },
+        "title": "Rendering static documents",
+        "group": {
+          "pathFromRoot": "examples/02-backend",
+          "slug": "backend"
+        }
       }
     ]
   },

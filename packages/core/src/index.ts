@@ -2,13 +2,14 @@ import * as locales from "./i18n/locales";
 export * from "./api/exporters/html/externalHTMLExporter";
 export * from "./api/exporters/html/internalHTMLSerializer";
 export * from "./api/testUtil";
+export * from "./blocks/AudioBlockContent/AudioBlockContent";
 export * from "./blocks/FileBlockContent/FileBlockContent";
 export * from "./blocks/ImageBlockContent/ImageBlockContent";
 export * from "./blocks/VideoBlockContent/VideoBlockContent";
-export * from "./blocks/AudioBlockContent/AudioBlockContent";
 
 export * from "./blocks/FileBlockContent/fileBlockHelpers";
 export * from "./blocks/FileBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
+export { parseImageElement } from "./blocks/ImageBlockContent/imageBlockHelpers";
 export * from "./blocks/defaultBlockTypeGuards";
 export * from "./blocks/defaultBlocks";
 export * from "./blocks/defaultProps";
@@ -25,14 +26,20 @@ export * from "./extensions/SuggestionMenu/DefaultSuggestionItem";
 export * from "./extensions/SuggestionMenu/SuggestionPlugin";
 export * from "./extensions/SuggestionMenu/getDefaultSlashMenuItems";
 export * from "./extensions/TableHandles/TableHandlesPlugin";
+export * from "./i18n/dictionary";
 export * from "./schema";
 export * from "./util/browser";
 export * from "./util/string";
+export * from "./util/typescript";
+export { UnreachableCaseError, assertEmpty } from "./util/typescript";
+export { locales };
+
 // for testing from react (TODO: move):
 export * from "./api/nodeConversions/nodeConversions";
 export * from "./api/testUtil/partialBlockTestUtil";
 export * from "./extensions/UniqueID/UniqueID";
-export * from "./i18n/dictionary";
-export { UnreachableCaseError, assertEmpty } from "./util/typescript";
-export { locales };
-export { parseImageElement } from "./blocks/ImageBlockContent/imageBlockHelpers";
+
+// for server-util (TODO: maybe move):
+export * from "./api/exporters/markdown/markdownExporter";
+export * from "./api/parsers/html/parseHTML";
+export * from "./api/parsers/markdown/parseMarkdown";

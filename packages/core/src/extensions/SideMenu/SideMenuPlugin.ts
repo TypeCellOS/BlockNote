@@ -225,16 +225,18 @@ function dragStart<
     }
 
     const selectedSlice = view.state.selection.content();
-    const schema = editor._tiptapEditor.schema;
+    const schema = editor.pmSchema;
 
     const internalHTMLSerializer = createInternalHTMLSerializer(schema, editor);
     const internalHTML = internalHTMLSerializer.serializeProseMirrorFragment(
-      selectedSlice.content
+      selectedSlice.content,
+      {}
     );
 
     const externalHTMLExporter = createExternalHTMLExporter(schema, editor);
     const externalHTML = externalHTMLExporter.exportProseMirrorFragment(
-      selectedSlice.content
+      selectedSlice.content,
+      {}
     );
 
     const plainText = cleanHTMLToMarkdown(externalHTML);

@@ -10,9 +10,9 @@ import {
 } from "@blocknote/core";
 import { createContext, useContext } from "react";
 
-import { createReactBlockSpec } from "../../schema/ReactBlockSpec";
 import { ReactFileBlock } from "../../blocks/FileBlockContent/FileBlockContent";
 import { ReactImageBlock } from "../../blocks/ImageBlockContent/ImageBlockContent";
+import { createReactBlockSpec } from "../../schema/ReactBlockSpec";
 
 const ReactCustomParagraph = createReactBlockSpec(
   {

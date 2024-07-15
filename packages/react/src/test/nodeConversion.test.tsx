@@ -29,11 +29,7 @@ function validateConversion(
   editor: BlockNoteEditor<any, any, any>
 ) {
   addIdsToBlock(block);
-  const node = blockToNode(
-    block,
-    editor._tiptapEditor.schema,
-    editor.schema.styleSchema
-  );
+  const node = blockToNode(block, editor.pmSchema, editor.schema.styleSchema);
 
   expect(node).toMatchSnapshot();
 
@@ -62,7 +58,13 @@ describe("Test React BlockNote-Prosemirror conversion", () => {
   for (const testCase of testCases) {
     describe("Case: " + testCase.name, () => {
       let editor: BlockNoteEditor<any, any, any>;
-      // TODO: Why do we need to render for unit tests?
+      // Note that we don't necessarily need to mount a root (unless we need a React Context)
+      // Currently, we do mount to a root so that it reflects the "production" use-case more closely.
+
+      // However, it would be nice to increased converage and share the same set of tests for these cases:
+      // - does render to a root
+      // - does not render to a root
+      // - runs in server (jsdom) environment using server-util
       let root: Root;
       const div = document.createElement("div");
 

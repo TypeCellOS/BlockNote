@@ -3,10 +3,10 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 
 import { PartialBlock } from "../../blocks/defaultBlocks";
+import { customBlocksTestCases } from "../testUtil/cases/customBlocks";
 import { customInlineContentTestCases } from "../testUtil/cases/customInlineContent";
 import { customStylesTestCases } from "../testUtil/cases/customStyles";
 import { defaultSchemaTestCases } from "../testUtil/cases/defaultSchema";
-import { customBlocksTestCases } from "../testUtil/cases/customBlocks";
 import {
   addIdsToBlock,
   partialBlockToBlockForTesting,
@@ -18,11 +18,7 @@ function validateConversion(
   editor: BlockNoteEditor<any, any, any>
 ) {
   addIdsToBlock(block);
-  const node = blockToNode(
-    block,
-    editor._tiptapEditor.schema,
-    editor.schema.styleSchema
-  );
+  const node = blockToNode(block, editor.pmSchema, editor.schema.styleSchema);
 
   expect(node).toMatchSnapshot();
 
@@ -56,6 +52,13 @@ describe("Test BlockNote-Prosemirror conversion", () => {
 
       beforeEach(() => {
         editor = testCase.createEditor();
+        // Note that we don't necessarily need to mount a root
+        // Currently, we do mount to a root so that it reflects the "production" use-case more closely.
+
+        // However, it would be nice to increased converage and share the same set of tests for these cases:
+        // - does render to a root
+        // - does not render to a root
+        // - runs in server (jsdom) environment using server-util
         editor.mount(div);
       });
 

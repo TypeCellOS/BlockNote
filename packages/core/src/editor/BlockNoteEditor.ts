@@ -1,5 +1,5 @@
-import { EditorOptions, Extension } from "@tiptap/core";
-import { Node } from "prosemirror-model";
+import { EditorOptions, Extension, getSchema } from "@tiptap/core";
+import { Node, Schema } from "prosemirror-model";
 // import "./blocknote.css";
 import * as Y from "yjs";
 import {
@@ -61,12 +61,12 @@ import {
   BlockNoteTipTapEditorOptions,
 } from "./BlockNoteTipTapEditor";
 
-// CSS
 import { PlaceholderPlugin } from "../extensions/Placeholder/PlaceholderPlugin";
 import { Dictionary } from "../i18n/dictionary";
 import { en } from "../i18n/locales";
-import "./Block.css";
-import "./editor.css";
+
+import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer";
+import "../style.css";
 
 export type BlockNoteEditorOptions<
   BSchema extends BlockSchema,
@@ -109,7 +109,11 @@ export type BlockNoteEditorOptions<
   schema: BlockNoteSchema<BSchema, ISchema, SSchema>;
 
   /**
-   * A custom function to handle file uploads.
+   * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
+   * This method should set when creating the editor as this is application-specific.
+   *
+   * `undefined` means the application doesn't support file uploads.
+   *
    * @param file The file that should be uploaded.
    * @returns The URL of the uploaded file OR an object containing props that should be set on the file block (such as an id)
    */
@@ -151,6 +155,15 @@ export type BlockNoteEditorOptions<
   _tiptapOptions: Partial<EditorOptions>;
 
   trailingBlock?: boolean;
+
+  /**
+   * Boolean indicating whether the editor is in headless mode.
+   * Headless mode means we can use features like importing / exporting blocks,
+   * but there's no underlying editor (UI) instantiated.
+   *
+   * You probably don't need to set this manually, but use the `server-util` package instead that uses this option internally
+   */
+  _headless: boolean;
 };
 
 const blockNoteTipTapOptions = {
@@ -164,12 +177,44 @@ export class BlockNoteEditor<
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
   SSchema extends StyleSchema = DefaultStyleSchema
 > {
-  public readonly _tiptapEditor: BlockNoteTipTapEditor & {
-    contentComponent: any;
-  };
+  private readonly _pmSchema: Schema;
+
+  /**
+   * Boolean indicating whether the editor is in headless mode.
+   * Headless mode means we can use features like importing / exporting blocks,
+   * but there's no underlying editor (UI) instantiated.
+   *
+   * You probably don't need to set this manually, but use the `server-util` package instead that uses this option internally
+   */
+  public readonly headless: boolean = false;
+
+  public readonly _tiptapEditor:
+    | BlockNoteTipTapEditor & {
+        contentComponent: any;
+      } = undefined as any; // TODO: Type should actually reflect that it can be `undefined` in headless mode
+
+  /**
+   * Used by React to store a reference to an `ElementRenderer` helper utility to make sure we can render React elements
+   * in the correct context (used by `ReactRenderUtil`)
+   */
+  public elementRenderer: ((node: any, container: HTMLElement) => void) | null =
+    null;
+
+  /**
+   * Cache of all blocks. This makes sure we don't have to "recompute" blocks if underlying Prosemirror Nodes haven't changed.
+   * This is especially useful when we want to keep track of the same block across multiple operations,
+   * with this cache, blocks stay the same object reference (referential equality with ===).
+   */
   public blockCache = new WeakMap<Node, Block<any, any, any>>();
+
+  /**
+   * The dictionary contains translations for the editor.
+   */
   public readonly dictionary: Dictionary;
 
+  /**
+   * The schema of the editor. The schema defines which Blocks, InlineContent, and Styles are available in the editor.
+   */
   public readonly schema: BlockNoteSchema<BSchema, ISchema, SSchema>;
 
   public readonly blockImplementations: BlockSpecs;
@@ -198,11 +243,24 @@ export class BlockNoteEditor<
     SSchema
   >;
 
+  /**
+   * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
+   * This method should set when creating the editor as this is application-specific.
+   *
+   * `undefined` means the application doesn't support file uploads.
+   *
+   * @param file The file that should be uploaded.
+   * @returns The URL of the uploaded file OR an object containing props that should be set on the file block (such as an id)
+   */
   public readonly uploadFile:
     | ((file: File) => Promise<string | Record<string, any>>)
     | undefined;
 
   public readonly resolveFileUrl: (url: string) => Promise<string>;
+
+  public get pmSchema() {
+    return this._pmSchema;
+  }
 
   public static create<
     BSchema extends BlockSchema = DefaultBlockSchema,
@@ -246,6 +304,7 @@ export class BlockNoteEditor<
     const newOptions = {
       defaultStyles: true,
       schema: options.schema || BlockNoteSchema.create(),
+      _headless: false,
       ...options,
       placeholders: {
         ...this.dictionary.placeholders,
@@ -272,7 +331,6 @@ export class BlockNoteEditor<
     const extensions = getBlockNoteExtensions({
       editor: this,
       domAttributes: newOptions.domAttributes || {},
-      blockSchema: this.schema.blockSchema,
       blockSpecs: this.schema.blockSpecs,
       styleSpecs: this.schema.styleSpecs,
       inlineContentSpecs: this.schema.inlineContentSpecs,
@@ -300,6 +358,7 @@ export class BlockNoteEditor<
 
     this.uploadFile = newOptions.uploadFile;
     this.resolveFileUrl = newOptions.resolveFileUrl || (async (url) => url);
+    this.headless = newOptions._headless;
 
     if (newOptions.collaboration && newOptions.initialContent) {
       // eslint-disable-next-line no-console
@@ -354,22 +413,29 @@ export class BlockNoteEditor<
       },
     };
 
-    this._tiptapEditor = new BlockNoteTipTapEditor(
-      tiptapOptions,
-      this.schema.styleSchema
-    ) as BlockNoteTipTapEditor & {
-      contentComponent: any;
-    };
+    if (!this.headless) {
+      this._tiptapEditor = new BlockNoteTipTapEditor(
+        tiptapOptions,
+        this.schema.styleSchema
+      ) as BlockNoteTipTapEditor & {
+        contentComponent: any;
+      };
+      this._pmSchema = this._tiptapEditor.schema;
+    } else {
+      // In headless mode, we don't instantiate an underlying TipTap editor,
+      // but we still need the schema
+      this._pmSchema = getSchema(tiptapOptions.extensions!);
+    }
   }
 
   /**
    * Mount the editor to a parent DOM element. Call mount(undefined) to clean up
    *
-   * @warning Not needed for React, use BlockNoteView to take care of this
+   * @warning Not needed to call manually when using React, use BlockNoteView to take care of mounting
    */
-  public mount(parentElement?: HTMLElement | null) {
+  public mount = (parentElement?: HTMLElement | null) => {
     this._tiptapEditor.mount(parentElement);
-  }
+  };
 
   public get prosemirrorView() {
     return this._tiptapEditor.view;
@@ -391,7 +457,7 @@ export class BlockNoteEditor<
    * @deprecated, use `editor.document` instead
    */
   public get topLevelBlocks(): Block<BSchema, ISchema, SSchema>[] {
-    return this.topLevelBlocks;
+    return this.document;
   }
 
   /**
@@ -676,6 +742,12 @@ export class BlockNoteEditor<
    * @returns True if the editor is editable, false otherwise.
    */
   public get isEditable(): boolean {
+    if (!this._tiptapEditor) {
+      if (!this.headless) {
+        throw new Error("no editor, but also not headless?");
+      }
+      return false;
+    }
     return this._tiptapEditor.isEditable;
   }
 
@@ -684,6 +756,13 @@ export class BlockNoteEditor<
    * @param editable True to make the editor editable, or false to lock it.
    */
   public set isEditable(editable: boolean) {
+    if (!this._tiptapEditor) {
+      if (!this.headless) {
+        throw new Error("no editor, but also not headless?");
+      }
+      // not relevant on headless
+      return;
+    }
     if (this._tiptapEditor.options.editable !== editable) {
       this._tiptapEditor.setEditable(editable);
     }
@@ -749,7 +828,7 @@ export class BlockNoteEditor<
   public insertInlineContent(content: PartialInlineContent<ISchema, SSchema>) {
     const nodes = inlineContentToNodes(
       content,
-      this._tiptapEditor.schema,
+      this.pmSchema,
       this.schema.styleSchema
     );
 
@@ -873,7 +952,7 @@ export class BlockNoteEditor<
       text = this._tiptapEditor.state.doc.textBetween(from, to);
     }
 
-    const mark = this._tiptapEditor.schema.mark("link", { href: url });
+    const mark = this.pmSchema.mark("link", { href: url });
 
     this._tiptapEditor.view.dispatch(
       this._tiptapEditor.view.state.tr
@@ -920,23 +999,35 @@ export class BlockNoteEditor<
     this._tiptapEditor.commands.liftListItem("blockContainer");
   }
 
-  // TODO: Fix when implementing HTML/Markdown import & export
   /**
-   * Serializes blocks into an HTML string. To better conform to HTML standards, children of blocks which aren't list
+   * Exports blocks into a simplified HTML string. To better conform to HTML standards, children of blocks which aren't list
    * items are un-nested in the output HTML.
+   *
    * @param blocks An array of blocks that should be serialized into HTML.
    * @returns The blocks, serialized as an HTML string.
    */
   public async blocksToHTMLLossy(
-    blocks: Block<BSchema, ISchema, SSchema>[] = this.document
+    blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.document
   ): Promise<string> {
-    const exporter = createExternalHTMLExporter(
-      this._tiptapEditor.schema,
-      this
-    );
-    return exporter.exportBlocks(blocks);
+    const exporter = createExternalHTMLExporter(this.pmSchema, this);
+    return exporter.exportBlocks(blocks, {});
   }
 
+  /**
+   * Serializes blocks into an HTML string in the format that would normally be rendered by the editor.
+   *
+   * Use this method if you want to server-side render HTML (for example, a blog post that has been edited in BlockNote)
+   * and serve it to users without loading the editor on the client (i.e.: displaying the blog post)
+   *
+   * @param blocks An array of blocks that should be serialized into HTML.
+   * @returns The blocks, serialized as an HTML string.
+   */
+  public async blocksToFullHTML(
+    blocks: PartialBlock<BSchema, ISchema, SSchema>[]
+  ): Promise<string> {
+    const exporter = createInternalHTMLSerializer(this.pmSchema, this);
+    return exporter.serializeBlocks(blocks, {});
+  }
   /**
    * Parses blocks from an HTML string. Tries to create `Block` objects out of any HTML block-level elements, and
    * `InlineNode` objects from any HTML inline elements, though not all element types are recognized. If BlockNote
@@ -952,7 +1043,7 @@ export class BlockNoteEditor<
       this.schema.blockSchema,
       this.schema.inlineContentSchema,
       this.schema.styleSchema,
-      this._tiptapEditor.schema
+      this.pmSchema
     );
   }
 
@@ -963,9 +1054,9 @@ export class BlockNoteEditor<
    * @returns The blocks, serialized as a Markdown string.
    */
   public async blocksToMarkdownLossy(
-    blocks: Block<BSchema, ISchema, SSchema>[] = this.document
+    blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.document
   ): Promise<string> {
-    return blocksToMarkdown(blocks, this._tiptapEditor.schema, this);
+    return blocksToMarkdown(blocks, this.pmSchema, this, {});
   }
 
   /**
@@ -983,7 +1074,7 @@ export class BlockNoteEditor<
       this.schema.blockSchema,
       this.schema.inlineContentSchema,
       this.schema.styleSchema,
-      this._tiptapEditor.schema
+      this.pmSchema
     );
   }
 
@@ -1008,6 +1099,11 @@ export class BlockNoteEditor<
   public onChange(
     callback: (editor: BlockNoteEditor<BSchema, ISchema, SSchema>) => void
   ) {
+    if (this.headless) {
+      // Note: would be nice if this is possible in headless mode as well
+      return;
+    }
+
     const cb = () => {
       callback(this);
     };
@@ -1028,6 +1124,10 @@ export class BlockNoteEditor<
   public onSelectionChange(
     callback: (editor: BlockNoteEditor<BSchema, ISchema, SSchema>) => void
   ) {
+    if (this.headless) {
+      return;
+    }
+
     const cb = () => {
       callback(this);
     };
