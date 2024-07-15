@@ -101,7 +101,7 @@ class SuggestionMenuView<
   }
 
   closeMenu = () => {
-    this.editor._tiptapEditor.view.dispatch(
+    this.editor.dispatch(
       this.editor._tiptapEditor.view.state.tr.setMeta(
         suggestionMenuPluginKey,
         null
@@ -139,7 +139,7 @@ type SuggestionPluginState =
     }
   | undefined;
 
-export const suggestionMenuPluginKey = new PluginKey("SuggestionMenuPlugin");
+const suggestionMenuPluginKey = new PluginKey("SuggestionMenuPlugin");
 
 /**
  * A ProseMirror plugin for suggestions, designed to make '/'-commands possible as well as mentions.

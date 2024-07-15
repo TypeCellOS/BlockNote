@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { useConfig, useTheme, type DocsThemeConfig } from "nextra-theme-docs";
@@ -11,6 +12,8 @@ import { AuthNavButton } from "./components/AuthNavButton";
 import { Footer } from "./components/Footer";
 import { Logo } from "./components/Logo";
 import { Navigation } from "./components/Navigation";
+import { ProBadge } from "./components/example/ProBadge";
+import { proExamplesList } from "./components/example/proExamplesList";
 // import { Search } from "./components/Search";
 
 // const NoSSRCommentsButton = dynamic(
@@ -19,6 +22,14 @@ import { Navigation } from "./components/Navigation";
 //     ssr: false,
 //   }
 // );
+
+const CTA = dynamic(
+  () => import("@/components/pages/landing/shared/CTAButton"),
+  {
+    ssr: false,
+  },
+);
+
 const SITE_ROOT = "https://www.blocknotejs.org";
 
 const METADATA_DEFAULT = {
@@ -39,6 +50,20 @@ const config: DocsThemeConfig = {
   sidebar: {
     defaultMenuCollapseLevel: 1,
     toggleButton: false,
+    titleComponent({ title, type }) {
+      if (type === "doc") {
+        return (
+          <span>
+            {title}
+            {proExamplesList.includes(title) && <ProBadge />}
+          </span>
+        );
+      }
+      if (title === "About") {
+        return <>❓ {title}</>;
+      }
+      return <>👉 {title}</>;
+    },
   },
   docsRepositoryBase: "https://github.com/TypeCellOS/BlockNote/blob/main/docs",
   useNextSeoProps: function SEO() {
@@ -197,6 +222,11 @@ const config: DocsThemeConfig = {
             <span className="sr-only">Discord</span>
             <DiscordIcon />
           </NextLink>
+          {/* <NextLink href="/pro">
+            <CTA href={"/pro"} variant={"small"}>
+              Sign in
+            </CTA>
+          </NextLink> */}
           <AuthNavButton />
         </>
       );

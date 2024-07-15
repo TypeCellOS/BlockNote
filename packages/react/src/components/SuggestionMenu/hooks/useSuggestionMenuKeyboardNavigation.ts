@@ -1,8 +1,8 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { useEffect, useState } from "react";
 
-// Hook which handles keyboard navigation of a suggestion menu. Arrow keys are
-// used to select a menu item, enter to execute it
+// Hook which handles keyboard navigation of a suggestion menu. Up & down arrow
+// keys are used to select a menu item, enter is used to execute it.
 export function useSuggestionMenuKeyboardNavigation<Item>(
   editor: BlockNoteEditor<any, any, any>,
   query: string,

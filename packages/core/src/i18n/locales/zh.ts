@@ -130,6 +130,20 @@ export const zh: Dictionary = {
       aliases: ["文件", "上传", "file", "嵌入", "媒体", "url"],
       group: "媒体",
     },
+    emoji: {
+      title: "表情符号",
+      subtext: "用于插入表情符号",
+      aliases: [
+        "表情符号",
+        "emoji",
+        "face",
+        "emote",
+        "表情",
+        "表情表达",
+        "表情",
+      ],
+      group: "其他",
+    },
   },
   placeholders: {
     default: "输入 '/' 以使用命令",

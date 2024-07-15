@@ -3,8 +3,8 @@ import { EditorOptions, createDocument } from "@tiptap/core";
 import { Editor as TiptapEditor } from "@tiptap/core";
 import { Node } from "@tiptap/pm/model";
 import { EditorView } from "@tiptap/pm/view";
-import { EditorState } from "prosemirror-state";
 
+import { EditorState, Transaction } from "@tiptap/pm/state";
 import { blockToNode } from "../api/nodeConversions/nodeConversions";
 import { PartialBlock } from "../blocks/defaultBlocks";
 import { StyleSchema } from "../schema";
@@ -115,10 +115,13 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
     return this._state;
   }
 
-  createView() {
-    // no-op
-    // Disable default call to `createView` in the Editor constructor.
-    // We should call `createView` manually only when a DOM element is available
+  dispatch(tr: Transaction) {
+    if (this.view) {
+      this.view.dispatch(tr);
+    } else {
+      // before view has been initialized
+      this._state = this.state.apply(tr);
+    }
   }
 
   /**
@@ -164,3 +167,9 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
     }
   };
 }
+
+(BlockNoteTipTapEditor.prototype as any).createView = () => {
+  // no-op
+  // Disable default call to `createView` in the Editor constructor.
+  // We should call `createView` manually only when a DOM element is available
+};

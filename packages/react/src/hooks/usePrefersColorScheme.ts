@@ -2,13 +2,17 @@
 // https://github.com/rfoel/use-prefers-color-scheme/blob/v1.0.0/src/index.ts
 // The code is copied instead of being imported as the package seems to cause
 // issues when used in a NextJS project.
-import { useEffect, useState } from "react";
-
-const darkQuery = window.matchMedia?.("(prefers-color-scheme: dark)");
-
-const lightQuery = window.matchMedia?.("(prefers-color-scheme: light)");
+import { useEffect, useMemo, useState } from "react";
 
 export const usePrefersColorScheme = () => {
+  const darkQuery = useMemo(
+    () => window.matchMedia?.("(prefers-color-scheme: dark)"),
+    []
+  );
+  const lightQuery = useMemo(
+    () => window.matchMedia?.("(prefers-color-scheme: light)"),
+    []
+  );
   const isDark = darkQuery?.matches;
   const isLight = lightQuery?.matches;
 
@@ -69,7 +73,7 @@ export const usePrefersColorScheme = () => {
         lightQuery?.removeEventListener("change", listener);
       };
     }
-  }, []);
+  }, [darkQuery, lightQuery]);
 
   if (typeof window.matchMedia !== "function") {
     return preferredColorSchema;

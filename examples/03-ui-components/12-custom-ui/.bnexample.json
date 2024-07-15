@@ -1,0 +1,10 @@
+{
+  "playground": true,
+  "docs": true,
+  "author": "matthewlipski",
+  "tags": ["Advanced", "Inline Content", "UI Components", "Block Side Menu", "Formatting Toolbar", "Suggestion Menus", "Slash Menu", "Appearance & Styling"],
+  "dependencies": {
+    "react-icons": "^5.2.1"
+  },
+  "pro": true
+}

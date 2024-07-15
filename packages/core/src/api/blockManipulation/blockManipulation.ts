@@ -23,42 +23,45 @@ export function insertBlocks<
   placement: "before" | "after" | "nested" = "before",
   editor: BlockNoteEditor<BSchema, I, S>
 ): Block<BSchema, I, S>[] {
-  const ttEditor = editor._tiptapEditor;
-
   const id =
     typeof referenceBlock === "string" ? referenceBlock : referenceBlock.id;
 
   const nodesToInsert: Node[] = [];
   for (const blockSpec of blocksToInsert) {
     nodesToInsert.push(
-      blockToNode(blockSpec, ttEditor.schema, editor.schema.styleSchema)
+      blockToNode(blockSpec, editor.pmSchema, editor.schema.styleSchema)
     );
   }
 
-  const { node, posBeforeNode } = getNodeById(id, ttEditor.state.doc);
+  const { node, posBeforeNode } = getNodeById(
+    id,
+    editor._tiptapEditor.state.doc
+  );
 
   if (placement === "before") {
-    ttEditor.view.dispatch(
-      ttEditor.state.tr.insert(posBeforeNode, nodesToInsert)
+    editor.dispatch(
+      editor._tiptapEditor.state.tr.insert(posBeforeNode, nodesToInsert)
     );
   }
 
   if (placement === "after") {
-    ttEditor.view.dispatch(
-      ttEditor.state.tr.insert(posBeforeNode + node.nodeSize, nodesToInsert)
+    editor.dispatch(
+      editor._tiptapEditor.state.tr.insert(
+        posBeforeNode + node.nodeSize,
+        nodesToInsert
+      )
     );
   }
 
   if (placement === "nested") {
     // Case if block doesn't already have children.
     if (node.childCount < 2) {
-      const blockGroupNode = ttEditor.state.schema.nodes["blockGroup"].create(
-        {},
-        nodesToInsert
-      );
+      const blockGroupNode = editor._tiptapEditor.state.schema.nodes[
+        "blockGroup"
+      ].create({}, nodesToInsert);
 
-      ttEditor.view.dispatch(
-        ttEditor.state.tr.insert(
+      editor.dispatch(
+        editor._tiptapEditor.state.tr.insert(
           posBeforeNode + node.firstChild!.nodeSize + 1,
           blockGroupNode
         )
@@ -186,7 +189,7 @@ function removeBlocksWithCallback<
     );
   }
 
-  ttEditor.view.dispatch(tr);
+  editor.dispatch(tr);
 
   return removedBlocks;
 }
@@ -214,12 +217,10 @@ export function replaceBlocks<
   insertedBlocks: Block<BSchema, I, S>[];
   removedBlocks: Block<BSchema, I, S>[];
 } {
-  const ttEditor = editor._tiptapEditor;
-
   const nodesToInsert: Node[] = [];
   for (const block of blocksToInsert) {
     nodesToInsert.push(
-      blockToNode(block, ttEditor.schema, editor.schema.styleSchema)
+      blockToNode(block, editor.pmSchema, editor.schema.styleSchema)
     );
   }
 
@@ -274,8 +275,7 @@ export function insertContentAt<
     updateSelection: boolean;
   } = { updateSelection: true }
 ) {
-  const ttEditor = editor._tiptapEditor;
-  const tr = ttEditor.state.tr;
+  const tr = editor._tiptapEditor.state.tr;
 
   // don’t dispatch an empty fragment because this can lead to strange errors
   // if (content.toString() === "<>") {
@@ -344,7 +344,7 @@ export function insertContentAt<
     selectionToInsertionEnd(tr, tr.steps.length - 1, -1);
   }
 
-  ttEditor.view.dispatch(tr);
+  editor.dispatch(tr);
 
   return true;
 }

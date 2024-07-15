@@ -119,9 +119,10 @@ export const serializeNodeInner = <
 // returns a string instead, to make it easier to use.
 export const serializeProseMirrorFragment = (
   fragment: Fragment,
-  serializer: DOMSerializer
+  serializer: DOMSerializer,
+  options?: { document?: Document }
 ) => {
-  const internalHTML = serializer.serializeFragment(fragment);
+  const internalHTML = serializer.serializeFragment(fragment, options);
   const parent = document.createElement("div");
   parent.appendChild(internalHTML);
 

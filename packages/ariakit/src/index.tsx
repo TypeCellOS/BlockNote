@@ -12,6 +12,10 @@ import {
 import { ComponentProps } from "react";
 
 import { Form } from "./input/Form";
+import { GridSuggestionMenu } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenu";
+import { GridSuggestionMenuEmptyItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuEmptyItem";
+import { GridSuggestionMenuItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuItem";
+import { GridSuggestionMenuLoader } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuLoader";
 import { TextInput } from "./input/TextInput";
 import {
   Menu,
@@ -53,6 +57,12 @@ export const components: Components = {
     FileInput: PanelFileInput,
     TabPanel: PanelTab,
     TextInput: PanelTextInput,
+  },
+  GridSuggestionMenu: {
+    Root: GridSuggestionMenu,
+    Item: GridSuggestionMenuItem,
+    EmptyItem: GridSuggestionMenuEmptyItem,
+    Loader: GridSuggestionMenuLoader,
   },
   LinkToolbar: {
     Root: Toolbar,

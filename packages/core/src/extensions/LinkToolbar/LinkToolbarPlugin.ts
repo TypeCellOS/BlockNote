@@ -158,7 +158,7 @@ class LinkToolbarView implements PluginView {
       this.linkMarkRange!.from + text.length,
       this.pmView.state.schema.mark("link", { href: url })
     );
-    this.pmView.dispatch(tr);
+    this.editor.dispatch(tr);
     this.pmView.focus();
 
     if (this.state?.show) {
@@ -168,7 +168,7 @@ class LinkToolbarView implements PluginView {
   }
 
   deleteLink() {
-    this.pmView.dispatch(
+    this.editor.dispatch(
       this.pmView.state.tr
         .removeMark(
           this.linkMarkRange!.from,

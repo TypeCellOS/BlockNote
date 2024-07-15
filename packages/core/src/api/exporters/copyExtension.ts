@@ -1,13 +1,13 @@
 import { Extension } from "@tiptap/core";
-import { NodeSelection, Plugin } from "prosemirror-state";
 import { Node } from "prosemirror-model";
+import { NodeSelection, Plugin } from "prosemirror-state";
 
+import { EditorView } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { createExternalHTMLExporter } from "./html/externalHTMLExporter";
 import { createInternalHTMLSerializer } from "./html/internalHTMLSerializer";
 import { cleanHTMLToMarkdown } from "./markdown/markdownExporter";
-import { EditorView } from "prosemirror-view";
 
 function selectedFragmentToHTML<
   BSchema extends BlockSchema,
@@ -27,15 +27,19 @@ function selectedFragmentToHTML<
     view.state.schema,
     editor
   );
-  const internalHTML =
-    internalHTMLSerializer.serializeProseMirrorFragment(selectedFragment);
+  const internalHTML = internalHTMLSerializer.serializeProseMirrorFragment(
+    selectedFragment,
+    {}
+  );
 
   const externalHTMLExporter = createExternalHTMLExporter(
     view.state.schema,
     editor
   );
-  const externalHTML =
-    externalHTMLExporter.exportProseMirrorFragment(selectedFragment);
+  const externalHTML = externalHTMLExporter.exportProseMirrorFragment(
+    selectedFragment,
+    {}
+  );
 
   const plainText = cleanHTMLToMarkdown(externalHTML);
 
@@ -70,8 +74,8 @@ export const createCopyToClipboardExtension = <
                   (view.state.selection.node as Node).type.spec.group ===
                     "blockContent"
                 ) {
-                  view.dispatch(
-                    view.state.tr.setSelection(
+                  editor.dispatch(
+                    editor._tiptapEditor.state.tr.setSelection(
                       new NodeSelection(
                         view.state.doc.resolve(view.state.selection.from - 1)
                       )
@@ -109,8 +113,8 @@ export const createCopyToClipboardExtension = <
                 }
 
                 // Expands the selection to the parent `blockContainer` node.
-                view.dispatch(
-                  view.state.tr.setSelection(
+                editor.dispatch(
+                  editor._tiptapEditor.state.tr.setSelection(
                     new NodeSelection(
                       view.state.doc.resolve(view.state.selection.from - 1)
                     )

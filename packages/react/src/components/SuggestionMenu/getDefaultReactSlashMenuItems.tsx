@@ -6,6 +6,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import {
+  RiEmotionFill,
   RiH1,
   RiH2,
   RiH3,
@@ -34,6 +35,7 @@ const icons = {
   video: RiFilmLine,
   audio: RiVolumeUpFill,
   file: RiFile2Line,
+  emoji: RiEmotionFill,
 };
 
 export function getDefaultReactSlashMenuItems<
