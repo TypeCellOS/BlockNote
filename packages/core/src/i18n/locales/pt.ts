@@ -97,6 +97,12 @@ export const pt: Dictionary = {
       aliases: ["arquivo", "upload", "incorporar", "mídia", "url"],
       group: "Mídia",
     },
+    emoji: {
+      title: "Emoji",
+      subtext: "Usado para inserir um emoji",
+      aliases: ["emoji", "emoticon", "expressão emocional", "rosto"],
+      group: "Outros",
+    },
   },
   placeholders: {
     default: "Digite texto ou use '/' para comandos",

@@ -46,6 +46,14 @@ test.describe("Check Ariakit UI", () => {
     await page.waitForTimeout(500);
     expect(await page.screenshot()).toMatchSnapshot("ariakit-slash-menu.png");
   });
+  test("Check emoji picker", async ({ page }) => {
+    await focusOnEditor(page);
+    await page.keyboard.press(":");
+    await page.keyboard.type("sm");
+
+    await page.waitForTimeout(500);
+    expect(await page.screenshot()).toMatchSnapshot("ariakit-emoji-picker.png");
+  });
   test("Check side menu", async ({ page }) => {
     await focusOnEditor(page);
     await page.waitForSelector(PARAGRAPH_SELECTOR);

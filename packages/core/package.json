@@ -54,6 +54,7 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
+    "@emoji-mart/data": "^1.2.1",
     "@tiptap/core": "^2.4.0",
     "@tiptap/extension-bold": "^2.4.0",
     "@tiptap/extension-code": "^2.4.0",
@@ -74,6 +75,7 @@
     "@tiptap/extension-text": "^2.4.0",
     "@tiptap/extension-underline": "^2.4.0",
     "@tiptap/pm": "^2.4.0",
+    "emoji-mart": "^5.6.0",
     "hast-util-from-dom": "^4.2.0",
     "prosemirror-model": "^1.21.0",
     "prosemirror-state": "^1.4.3",
@@ -95,6 +97,7 @@
     "yjs": "^13.6.15"
   },
   "devDependencies": {
+    "@types/emoji-mart": "^3.0.14",
     "@types/hast": "^2.3.4",
     "@types/uuid": "^8.3.4",
     "eslint": "^8.10.0",

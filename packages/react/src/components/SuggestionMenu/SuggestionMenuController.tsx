@@ -31,6 +31,7 @@ export function SuggestionMenuController<
   props: {
     triggerCharacter: string;
     getItems?: GetItemsType;
+    minQueryLength?: number;
   } & (ItemType<GetItemsType> extends DefaultReactSuggestionItem
     ? {
         // can be undefined
@@ -53,9 +54,13 @@ export function SuggestionMenuController<
     StyleSchema
   >();
 
-  const { triggerCharacter, suggestionMenuComponent } = props;
-
-  const { onItemClick, getItems } = props;
+  const {
+    triggerCharacter,
+    suggestionMenuComponent,
+    minQueryLength,
+    onItemClick,
+    getItems,
+  } = props;
 
   const onItemClickOrDefault = useMemo(() => {
     return (
@@ -105,7 +110,7 @@ export function SuggestionMenuController<
         size({
           apply({ availableHeight, elements }) {
             Object.assign(elements.floating.style, {
-              maxHeight: `${availableHeight - 10}px`,
+              height: `${availableHeight - 10}px`,
             });
           },
         }),
@@ -118,7 +123,12 @@ export function SuggestionMenuController<
     }
   );
 
-  if (!isMounted || !state) {
+  if (
+    !isMounted ||
+    !state ||
+    (minQueryLength &&
+      (state.query.startsWith(" ") || state.query.length < minQueryLength))
+  ) {
     return null;
   }
 

@@ -427,9 +427,74 @@
         }
       },
       {
+        "projectSlug": "suggestion-menus-emoji-picker-columns",
+        "fullSlug": "ui-components/suggestion-menus-emoji-picker-columns",
+        "pathFromRoot": "examples/03-ui-components/08-suggestion-menus-emoji-picker-columns",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "Intermediate",
+            "Blocks",
+            "UI Components",
+            "Suggestion Menus",
+            "Emoji Picker"
+          ]
+        },
+        "title": "Changing Emoji Picker Columns",
+        "group": {
+          "pathFromRoot": "examples/03-ui-components",
+          "slug": "ui-components"
+        }
+      },
+      {
+        "projectSlug": "suggestion-menus-emoji-picker-component",
+        "fullSlug": "ui-components/suggestion-menus-emoji-picker-component",
+        "pathFromRoot": "examples/03-ui-components/09-suggestion-menus-emoji-picker-component",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "Intermediate",
+            "UI Components",
+            "Suggestion Menus",
+            "Emoji Picker",
+            "Appearance & Styling"
+          ]
+        },
+        "title": "Replacing Emoji Picker Component",
+        "group": {
+          "pathFromRoot": "examples/03-ui-components",
+          "slug": "ui-components"
+        }
+      },
+      {
+        "projectSlug": "suggestion-menus-grid-mentions",
+        "fullSlug": "ui-components/suggestion-menus-grid-mentions",
+        "pathFromRoot": "examples/03-ui-components/10-suggestion-menus-grid-mentions",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "Intermediate",
+            "Inline Content",
+            "Custom Schemas",
+            "Suggestion Menus"
+          ]
+        },
+        "title": "Grid Mentions Menu",
+        "group": {
+          "pathFromRoot": "examples/03-ui-components",
+          "slug": "ui-components"
+        }
+      },
+      {
         "projectSlug": "uppy-file-panel",
         "fullSlug": "ui-components/uppy-file-panel",
-        "pathFromRoot": "examples/03-ui-components/08-uppy-file-panel",
+        "pathFromRoot": "examples/03-ui-components/11-uppy-file-panel",
         "config": {
           "playground": true,
           "docs": true,
@@ -463,7 +528,7 @@
       {
         "projectSlug": "custom-ui",
         "fullSlug": "ui-components/custom-ui",
-        "pathFromRoot": "examples/03-ui-components/09-custom-ui",
+        "pathFromRoot": "examples/03-ui-components/12-custom-ui",
         "config": {
           "playground": true,
           "docs": true,

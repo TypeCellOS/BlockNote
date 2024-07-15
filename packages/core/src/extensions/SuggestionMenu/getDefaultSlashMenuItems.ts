@@ -1,5 +1,6 @@
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { Block, PartialBlock } from "../../blocks/defaultBlocks";
+
 import { checkDefaultBlockTypeInSchema } from "../../blocks/defaultBlockTypeGuards";
 import {
   BlockSchema,
@@ -269,6 +270,12 @@ export function getDefaultSlashMenuItems<
       ...editor.dictionary.slash_menu.file,
     });
   }
+
+  items.push({
+    onItemClick: () => editor.openSelectionMenu(":"),
+    key: "emoji",
+    ...editor.dictionary.slash_menu.emoji,
+  });
 
   return items;
 }
