@@ -6,9 +6,9 @@ Directory structure:
 blocknote
 ├── packages/core        - The core of the editor
 ├── packages/react       - The main library for use in React apps
-├── packages/ariakit     - AriaKit, a library for building accessible UI components
-├── packages/mantine     - Mantine, a library for building UI components
-├── packages/shadcn      - Shadcn, a library for building UI components
+├── packages/ariakit     - For the BlockNoteView component made with ariakit
+├── packages/mantine     - For the BlockNoteView component made with mantine
+├── packages/shadcn      - For the BlockNoteView component made with shadcn
 ├── examples/editor      - Example React app that embeds the editor
 ├── examples/vanilla     - An advanced example if you don't want to use React or want to build your own UI components
 └── tests                - Playwright end to end tests
