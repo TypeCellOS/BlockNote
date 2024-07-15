@@ -101,7 +101,7 @@ class SuggestionMenuView<
   }
 
   closeMenu = () => {
-    this.editor._tiptapEditor.view.dispatch(
+    this.editor.dispatch(
       this.editor._tiptapEditor.view.state.tr.setMeta(
         suggestionMenuPluginKey,
         null

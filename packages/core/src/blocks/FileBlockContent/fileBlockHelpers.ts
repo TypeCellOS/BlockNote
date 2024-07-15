@@ -75,7 +75,7 @@ export const createAddFileButton = (
   };
   // Opens the file toolbar.
   const addFileButtonClickHandler = () => {
-    editor._tiptapEditor.view.dispatch(
+    editor.dispatch(
       editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
         block: block,
       })

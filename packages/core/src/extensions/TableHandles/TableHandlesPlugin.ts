@@ -1,6 +1,7 @@
 import { Plugin, PluginKey, PluginView } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import { nodeToBlock } from "../../api/nodeConversions/nodeConversions";
+import { checkBlockIsDefaultType } from "../../blocks/defaultBlockTypeGuards";
 import { Block, DefaultBlockSchema } from "../../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import {
@@ -9,7 +10,6 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../schema";
-import { checkBlockIsDefaultType } from "../../blocks/defaultBlockTypeGuards";
 import { EventEmitter } from "../../util/EventEmitter";
 import { getDraggableBlockFromElement } from "../SideMenu/SideMenuPlugin";
 
@@ -321,7 +321,7 @@ export class TableHandlesView<
     // Dispatches a dummy transaction to force a decorations update if
     // necessary.
     if (dispatchDecorationsTransaction) {
-      this.pmView.dispatch(
+      this.editor.dispatch(
         this.pmView.state.tr.setMeta(tableHandlesPluginKey, true)
       );
     }
@@ -571,7 +571,7 @@ export class TableHandlesProsemirrorPlugin<
     };
     this.view!.emitUpdate();
 
-    this.editor._tiptapEditor.view.dispatch(
+    this.editor.dispatch(
       this.editor._tiptapEditor.state.tr.setMeta(tableHandlesPluginKey, {
         draggedCellOrientation:
           this.view!.state.draggingState.draggedCellOrientation,
@@ -607,7 +607,7 @@ export class TableHandlesProsemirrorPlugin<
     };
     this.view!.emitUpdate();
 
-    this.editor._tiptapEditor.view.dispatch(
+    this.editor.dispatch(
       this.editor._tiptapEditor.state.tr.setMeta(tableHandlesPluginKey, {
         draggedCellOrientation:
           this.view!.state.draggingState.draggedCellOrientation,
@@ -636,7 +636,7 @@ export class TableHandlesProsemirrorPlugin<
     this.view!.state.draggingState = undefined;
     this.view!.emitUpdate();
 
-    this.editor._tiptapEditor.view.dispatch(
+    this.editor.dispatch(
       this.editor._tiptapEditor.state.tr.setMeta(tableHandlesPluginKey, null)
     );
 

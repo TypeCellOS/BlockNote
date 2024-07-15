@@ -74,8 +74,8 @@ export const createCopyToClipboardExtension = <
                   (view.state.selection.node as Node).type.spec.group ===
                     "blockContent"
                 ) {
-                  view.dispatch(
-                    view.state.tr.setSelection(
+                  editor.dispatch(
+                    editor._tiptapEditor.state.tr.setSelection(
                       new NodeSelection(
                         view.state.doc.resolve(view.state.selection.from - 1)
                       )
@@ -113,8 +113,8 @@ export const createCopyToClipboardExtension = <
                 }
 
                 // Expands the selection to the parent `blockContainer` node.
-                view.dispatch(
-                  view.state.tr.setSelection(
+                editor.dispatch(
+                  editor._tiptapEditor.state.tr.setSelection(
                     new NodeSelection(
                       view.state.doc.resolve(view.state.selection.from - 1)
                     )

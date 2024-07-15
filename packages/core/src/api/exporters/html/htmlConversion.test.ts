@@ -177,7 +177,7 @@ describe("Test ProseMirror fragment edge case conversion", () => {
 
     it("Selection within a block's children", () => {
       // Selection starts and ends within the first block's children.
-      editor.prosemirrorView.dispatch(
+      editor.dispatch(
         editor._tiptapEditor.state.tr.setSelection(
           TextSelection.create(editor._tiptapEditor.state.doc, 18, 80)
         )
@@ -200,7 +200,7 @@ describe("Test ProseMirror fragment edge case conversion", () => {
     it("Selection leaves a block's children", () => {
       // Selection starts and ends within the first block's children and ends
       // outside, at a shallower nesting level in the second block.
-      editor.prosemirrorView.dispatch(
+      editor.dispatch(
         editor._tiptapEditor.state.tr.setSelection(
           TextSelection.create(editor._tiptapEditor.state.doc, 18, 97)
         )
@@ -223,7 +223,7 @@ describe("Test ProseMirror fragment edge case conversion", () => {
     it("Selection spans multiple blocks' children", () => {
       // Selection starts and ends within the first block's children and ends
       // within the second block's children.
-      editor.prosemirrorView.dispatch(
+      editor.dispatch(
         editor._tiptapEditor.state.tr.setSelection(
           TextSelection.create(editor._tiptapEditor.state.doc, 18, 163)
         )
