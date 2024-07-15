@@ -22,7 +22,7 @@ const editor = ServerBlockNoteEditor.create();
 const html = await editor.blocksToFullHTML(blocks);
 ```
 
-`ServerBlockNoteEditor.create` takes the same BlockNoteEditorOptions as `useCreateBlockNote` (or `BlockNoteEditor.create`) [see docs](/docs/editor-basics/setup),
+`ServerBlockNoteEditor.create` takes the same BlockNoteEditorOptions as `useCreateBlockNote` and `BlockNoteEditor.create` ([see docs](/docs/editor-basics/setup)),
 so you can pass the same configuration (for example, your custom schema) to your server-side BlockNote editor as on the client.
 
 ## Functions for converting blocks
