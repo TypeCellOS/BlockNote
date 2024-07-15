@@ -544,7 +544,10 @@
             "Appearance & Styling"
           ],
           "dependencies": {
-            "react-icons": "^5.2.1"
+            "@emotion/react": "^11.11.4",
+            "@emotion/styled": "^11.11.5",
+            "@mui/icons-material": "^5.16.1",
+            "@mui/material": "^5.16.1"
           } as any,
           "pro": true
         },
@@ -852,7 +855,8 @@
           ],
           "dependencies": {
             "@mantine/core": "^7.10.1",
-            "react-icons": "^5.2.1"
+            "react-icons": "^5.2.1",
+            "react-pdf": "^9.1.0"
           } as any,
           "pro": true
         },

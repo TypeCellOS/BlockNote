@@ -3,6 +3,7 @@ import {
   defaultBlockSpecs,
   filterSuggestionItems,
   insertOrUpdateBlock,
+  uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import {
@@ -53,7 +54,7 @@ export default function App() {
       {
         type: "pdf",
         props: {
-          url: "https://pdfobject.com/pdf/sample.pdf",
+          url: "https://ontheline.trincoll.edu/images/bookdown/sample-local-pdf.pdf",
         },
       },
       {
