@@ -63,11 +63,13 @@ Tries to create `Block` and `InlineContent` objects based on Markdown syntax, th
 
 <Example name="interoperability/converting-blocks-from-md" />
 
-## Export HTML (fully styled)
+## Export HTML (for static rendering)
 
-Use `blocksToFullHTML` to export the entire document with all styles and formatting.
+Use `blocksToFullHTML` to export the entire document with all structure, styles and formatting.
 The exported HTML is the same as BlockNote would use to render the editor, and includes all structure for nested blocks.
-Make sure to include the same stylesheets when you want to render the output HTML.
+
+For example, you an use this for static rendering documents that have been created in the editor.
+Make sure to include the same stylesheets when you want to render the output HTML ([see example](/examples/backend/rendering-static-documents)).
 
 ```typescript
 blocksToFullHTML(blocks?: Block[]): string;
@@ -79,10 +81,6 @@ const HTMLFromBlocks = editor.blocksToFullHTML(blocks);
 `blocks:` The blocks to convert. If not provided, the entire document (all top-level blocks) is used.
 
 `returns:` The blocks, exported to an HTML string.
-
-**Demo**
-
-TODO?
 
 ## HTML (for interoperability)
 
