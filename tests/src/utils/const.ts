@@ -12,8 +12,8 @@ export const ARIAKIT_URL = !process.env.RUN_IN_DOCKER
   : `http://host.docker.internal:${PORT}/basic/ariakit?hideMenu`;
 
 export const STATIC_URL = !process.env.RUN_IN_DOCKER
-  ? `http://localhost:${PORT}/server-side-processing/rendering-static-documents?hideMenu`
-  : `http://host.docker.internal:${PORT}/server-side-processing/rendering-static-documents?hideMenu`;
+  ? `http://localhost:${PORT}/backend/rendering-static-documents?hideMenu`
+  : `http://host.docker.internal:${PORT}/backend/rendering-static-documents?hideMenu`;
 
 export const PASTE_ZONE_SELECTOR = "#pasteZone";
 

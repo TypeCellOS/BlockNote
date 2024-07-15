@@ -256,6 +256,27 @@
           "pathFromRoot": "examples/02-backend",
           "slug": "backend"
         }
+      },
+      {
+        "projectSlug": "rendering-static-documents",
+        "fullSlug": "backend/rendering-static-documents",
+        "pathFromRoot": "examples/02-backend/04-rendering-static-documents",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "server"
+          ],
+          "dependencies": {
+            "@blocknote/server-util": "latest"
+          } as any
+        },
+        "title": "Rendering static documents",
+        "group": {
+          "pathFromRoot": "examples/02-backend",
+          "slug": "backend"
+        }
       }
     ]
   },
@@ -878,33 +899,6 @@
         "group": {
           "pathFromRoot": "examples/07-collaboration",
           "slug": "collaboration"
-        }
-      }
-    ]
-  },
-  "server-side-processing": {
-    "pathFromRoot": "examples/07-server-side-processing",
-    "slug": "server-side-processing",
-    "projects": [
-      {
-        "projectSlug": "rendering-static-documents",
-        "fullSlug": "server-side-processing/rendering-static-documents",
-        "pathFromRoot": "examples/07-server-side-processing/01-rendering-static-documents",
-        "config": {
-          "playground": true,
-          "docs": true,
-          "author": "yousefed",
-          "tags": [
-            "server"
-          ],
-          "dependencies": {
-            "@blocknote/server-util": "latest"
-          } as any
-        },
-        "title": "Rendering static documents",
-        "group": {
-          "pathFromRoot": "examples/07-server-side-processing",
-          "slug": "server-side-processing"
         }
       }
     ]
