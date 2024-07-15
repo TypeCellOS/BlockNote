@@ -3,7 +3,7 @@
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
   "license": "MPL-2.0",
-  "version": "0.14.5",
+  "version": "0.15.0",
   "files": [
     "dist",
     "types",
@@ -54,6 +54,7 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
+    "@emoji-mart/data": "^1.2.1",
     "@tiptap/core": "^2.5.0",
     "@tiptap/extension-bold": "^2.5.0",
     "@tiptap/extension-code": "^2.5.0",
@@ -74,7 +75,6 @@
     "@tiptap/extension-text": "^2.5.0",
     "@tiptap/extension-underline": "^2.5.0",
     "@tiptap/pm": "^2.5.0",
-    "@emoji-mart/data": "^1.2.1",
     "emoji-mart": "^5.6.0",
     "hast-util-from-dom": "^4.2.0",
     "prosemirror-model": "^1.21.0",

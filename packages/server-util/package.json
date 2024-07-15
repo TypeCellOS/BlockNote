@@ -3,7 +3,7 @@
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": true,
   "license": "MPL-2.0",
-  "version": "0.14.6",
+  "version": "0.15.0",
   "files": [
     "dist",
     "types",
@@ -47,21 +47,21 @@
     "test-watch": "vitest watch"
   },
   "dependencies": {
-    "@blocknote/core": "^0.14.2",
-    "@blocknote/react": "^0.14.2",
-    "@tiptap/pm": "^2.5.0",
+    "@blocknote/core": "^0.15.0",
+    "@blocknote/react": "^0.15.0",
     "@tiptap/core": "^2.5.0",
+    "@tiptap/pm": "^2.5.0",
     "jsdom": "^21.1.0",
+    "react": "^18",
+    "react-dom": "^18",
     "y-prosemirror": "1.2.9",
     "y-protocols": "^1.0.6",
-    "yjs": "^13.6.15",
-    "react": "^18",
-    "react-dom": "^18"
+    "yjs": "^13.6.15"
   },
   "devDependencies": {
+    "@types/jsdom": "^21.1.6",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",
-    "@types/jsdom": "^21.1.6",
     "eslint": "^8.10.0",
     "prettier": "^2.7.1",
     "rollup-plugin-webpack-stats": "^0.2.2",
