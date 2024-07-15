@@ -1,4 +1,6 @@
-import data, { Emoji, EmojiMartData } from "@emoji-mart/data";
+import data from "@emoji-mart/data/sets/15/native.json" assert { type: "json" };
+
+import { Emoji, EmojiMartData } from "@emoji-mart/data";
 import { init, SearchIndex } from "emoji-mart";
 
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
