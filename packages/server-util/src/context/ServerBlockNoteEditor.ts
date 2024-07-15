@@ -29,7 +29,9 @@ import {
 } from "y-prosemirror";
 import type * as Y from "yjs";
 
-// TODO: naming, what's a good name for this?
+/**
+ * Use the ServerBlockNoteEditor to interact with BlockNote documents in a server (nodejs) environment.
+ */
 export class ServerBlockNoteEditor<
   BSchema extends BlockSchema = DefaultBlockSchema,
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
@@ -86,7 +88,7 @@ export class ServerBlockNoteEditor<
   private constructor(options: Partial<BlockNoteEditorOptions<any, any, any>>) {
     this.editor = BlockNoteEditor.create({
       ...options,
-      headless: true,
+      _headless: true,
     });
   }
 
@@ -303,6 +305,20 @@ export class ServerBlockNoteEditor<
     });
   }
 
+  /**
+   * If you're using React Context in your blocks, you can use this method to wrap editor calls for importing / exporting / block manipulation
+   * with the React Context Provider.
+   * 
+   * Example:
+   * 
+   * ```tsx
+      const html = await editor.withReactContext(
+      ({ children }) => (
+        <YourContext.Provider value={true}>{children}</YourContext.Provider>
+      ),
+      async () => editor.blocksToFullHTML(blocks)
+    );
+   */
   public async withReactContext<T>(comp: React.FC<any>, fn: () => Promise<T>) {
     return this.withJSDOM(async () => {
       const tmpRoot = createRoot(
