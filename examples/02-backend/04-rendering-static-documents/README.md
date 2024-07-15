@@ -4,4 +4,4 @@ This example shows how you can use HTML exported using the `blocksToFullHTML` an
 
 **Relevant Docs:**
 
-- TODO
+- [Server-side processing](/docs/editor-api/server-processing)

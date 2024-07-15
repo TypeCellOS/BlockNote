@@ -1,10 +1,10 @@
 {
   "index": "Overview",
   "basic": "Basic",
+  "backend": "Backend",
   "ui-components": "UI Components",
   "theming": "Theming",
   "interoperability": "Interoperability",
   "custom-schema": "Custom Schemas",
-  "collaboration": "Collaboration",
-  "server-side-processing": "Server side processing"
+  "collaboration": "Collaboration"
 }

@@ -29,7 +29,9 @@ import {
 } from "y-prosemirror";
 import type * as Y from "yjs";
 
-// TODO: naming, what's a good name for this?
+/**
+ * Use the ServerBlockNoteEditor to interact with BlockNote documents in a server (nodejs) environment.
+ */
 export class ServerBlockNoteEditor<
   BSchema extends BlockSchema = DefaultBlockSchema,
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
@@ -55,7 +57,7 @@ export class ServerBlockNoteEditor<
    *
    * We could make this obsolete by passing in a document / window object to the render / serialize methods of Blocks
    */
-  private async withJSDOM<T>(fn: () => Promise<T>) {
+  public async _withJSDOM<T>(fn: () => Promise<T>) {
     const prevWindow = globalThis.window;
     const prevDocument = globalThis.document;
     globalThis.document = this.jsdom.window.document;
@@ -86,7 +88,7 @@ export class ServerBlockNoteEditor<
   private constructor(options: Partial<BlockNoteEditorOptions<any, any, any>>) {
     this.editor = BlockNoteEditor.create({
       ...options,
-      headless: true,
+      _headless: true,
     });
   }
 
@@ -219,7 +221,7 @@ export class ServerBlockNoteEditor<
   public async blocksToHTMLLossy(
     blocks: PartialBlock<BSchema, ISchema, SSchema>[]
   ): Promise<string> {
-    return this.withJSDOM(async () => {
+    return this._withJSDOM(async () => {
       const exporter = createExternalHTMLExporter(
         this.editor.pmSchema,
         this.editor
@@ -243,7 +245,7 @@ export class ServerBlockNoteEditor<
   public async blocksToFullHTML(
     blocks: PartialBlock<BSchema, ISchema, SSchema>[]
   ): Promise<string> {
-    return this.withJSDOM(async () => {
+    return this._withJSDOM(async () => {
       const exporter = createInternalHTMLSerializer(
         this.editor.pmSchema,
         this.editor
@@ -265,7 +267,7 @@ export class ServerBlockNoteEditor<
   public async tryParseHTMLToBlocks(
     html: string
   ): Promise<Block<BSchema, ISchema, SSchema>[]> {
-    return this.withJSDOM(() => {
+    return this._withJSDOM(() => {
       return this.editor.tryParseHTMLToBlocks(html);
     });
   }
@@ -281,7 +283,7 @@ export class ServerBlockNoteEditor<
   public async blocksToMarkdownLossy(
     blocks: PartialBlock<BSchema, ISchema, SSchema>[]
   ): Promise<string> {
-    return this.withJSDOM(async () => {
+    return this._withJSDOM(async () => {
       return blocksToMarkdown(blocks, this.editor.pmSchema, this.editor, {
         document: this.jsdom.window.document,
       });
@@ -298,13 +300,27 @@ export class ServerBlockNoteEditor<
   public async tryParseMarkdownToBlocks(
     markdown: string
   ): Promise<Block<BSchema, ISchema, SSchema>[]> {
-    return this.withJSDOM(() => {
+    return this._withJSDOM(() => {
       return this.editor.tryParseMarkdownToBlocks(markdown);
     });
   }
 
+  /**
+   * If you're using React Context in your blocks, you can use this method to wrap editor calls for importing / exporting / block manipulation
+   * with the React Context Provider.
+   * 
+   * Example:
+   * 
+   * ```tsx
+      const html = await editor.withReactContext(
+      ({ children }) => (
+        <YourContext.Provider value={true}>{children}</YourContext.Provider>
+      ),
+      async () => editor.blocksToFullHTML(blocks)
+    );
+   */
   public async withReactContext<T>(comp: React.FC<any>, fn: () => Promise<T>) {
-    return this.withJSDOM(async () => {
+    return this._withJSDOM(async () => {
       const tmpRoot = createRoot(
         this.jsdom.window.document.createElement("div")
       );

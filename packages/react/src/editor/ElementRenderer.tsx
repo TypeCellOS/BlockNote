@@ -9,7 +9,9 @@ import { createPortal, flushSync } from "react-dom";
 export const ElementRenderer = forwardRef<
   (node: React.ReactNode, container: HTMLElement) => void
 >((_props, ref) => {
-  const [singleRenderData, setSingleRenderData] = useState<any>();
+  const [singleRenderData, setSingleRenderData] = useState<
+    { node: React.ReactNode; container: HTMLElement } | undefined
+  >();
 
   useImperativeHandle(
     ref,

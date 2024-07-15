@@ -157,7 +157,14 @@ export type BlockNoteEditorOptions<
 
   trailingBlock?: boolean;
 
-  headless: boolean;
+  /**
+   * Boolean indicating whether the editor is in headless mode.
+   * Headless mode means we can use features like importing / exporting blocks,
+   * but there's no underlying editor (UI) instantiated.
+   *
+   * You probably don't need to set this manually, but use the `server-util` package instead that uses this option internally
+   */
+  _headless: boolean;
 };
 
 const blockNoteTipTapOptions = {
@@ -177,6 +184,8 @@ export class BlockNoteEditor<
    * Boolean indicating whether the editor is in headless mode.
    * Headless mode means we can use features like importing / exporting blocks,
    * but there's no underlying editor (UI) instantiated.
+   *
+   * You probably don't need to set this manually, but use the `server-util` package instead that uses this option internally
    */
   public readonly headless: boolean = false;
 
@@ -296,7 +305,7 @@ export class BlockNoteEditor<
     const newOptions = {
       defaultStyles: true,
       schema: options.schema || BlockNoteSchema.create(),
-      headless: false,
+      _headless: false,
       ...options,
       placeholders: {
         ...this.dictionary.placeholders,
@@ -350,7 +359,7 @@ export class BlockNoteEditor<
 
     this.uploadFile = newOptions.uploadFile;
     this.resolveFileUrl = newOptions.resolveFileUrl || (async (url) => url);
-    this.headless = newOptions.headless;
+    this.headless = newOptions._headless;
 
     if (newOptions.collaboration && newOptions.initialContent) {
       // eslint-disable-next-line no-console
@@ -1096,7 +1105,7 @@ export class BlockNoteEditor<
     callback: (editor: BlockNoteEditor<BSchema, ISchema, SSchema>) => void
   ) {
     if (this.headless) {
-      // TODO: should actually be possible in headless mode as well
+      // Note: would be nice if this is possible in headless mode as well
       return;
     }
 
@@ -1121,7 +1130,6 @@ export class BlockNoteEditor<
     callback: (editor: BlockNoteEditor<BSchema, ISchema, SSchema>) => void
   ) {
     if (this.headless) {
-      // TODO: should actually be possible in headless mode as well
       return;
     }
 

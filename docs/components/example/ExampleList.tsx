@@ -1,5 +1,7 @@
 import { Card, Cards } from "../../components/cards";
 import { EXAMPLES_LIST } from "../../components/example/generated/exampleList.gen";
+import { ProBadge } from "../../components/example/ProBadge";
+import { proExamplesList } from "../../components/example/proExamplesList";
 
 export function ExampleGroup(props: { examples: (typeof EXAMPLES_LIST)[0] }) {
   return (
@@ -14,6 +16,7 @@ export function ExampleGroup(props: { examples: (typeof EXAMPLES_LIST)[0] }) {
               key={i}
               title={project.text}
               href={project.link}
+              icon={proExamplesList.includes(project.text) && <ProBadge />}
               authorName={project.author}
               authorImage={`https://github.com/${project.author}.png`}
             />

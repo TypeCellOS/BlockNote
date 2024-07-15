@@ -10,11 +10,27 @@ export const {
   callbacks: {
     signIn: async (params) => {
       if (params.profile!.sponsorInfo) {
-        // TODO
+        // user is sponsor
         return true;
       }
+      // user is signed in to github, but not a sponsor.
+      // TODO: We could redirect to pricing page here
       return true;
-      return "https://github.com/sponsors/TypeCellOS"; // TODO
+      // return "https://www.blocknotejs.org/pricing";
+    },
+    // https://authjs.dev/guides/extending-the-session
+    jwt({ token, user }) {
+      if (user) {
+        // User is available during sign-in
+        token.sponsorInfo = (user as any).sponsorInfo;
+      }
+      return token;
+    },
+    session: async (params) => {
+      (params.session.user as any).sponsorInfo = (
+        params.token as any
+      ).sponsorInfo;
+      return params.session;
     },
   },
   providers: [
@@ -55,9 +71,11 @@ export const {
               "Content-Type": "application/json",
               Authorization: `Bearer ${tokens.access_token}`,
             },
+            // organization(login:"TypeCellOS") {
+            // user(login:"YousefED") {
             body: JSON.stringify({
               query: `{
-                organization(login:"TypeCellOS") {
+                user(login:"YousefED") {
                   sponsorshipForViewerAsSponsor(activeOnly:false) {
                     isActive,
                     tier {
@@ -71,10 +89,35 @@ export const {
           });
 
           if (resSponsor.ok) {
-            const data = await resSponsor.json();
+            // Mock data. TODO: disable and test actial data
+            // profile.sponsorInfo = {
+            //   isActive: true,
+            //   tier: {
+            //     name: "test",
+            //     monthlyPriceInDollars: 100,
+            //   },
+            // };
+            // use API data:
 
-            profile.sponsorInfo =
-              data.data.organization.sponsorshipForViewerAsSponsor;
+            const data = await resSponsor.json();
+            // eslint-disable-next-line no-console
+            console.log("sponsor data", data);
+
+            // {
+            //   "data": {
+            //     "user": {
+            //       "sponsorshipForViewerAsSponsor": {
+            //         "isActive": true,
+            //         "tier": {
+            //           "name": "$90 a month",
+            //           "monthlyPriceInDollars": 90
+            //         }
+            //       }
+            //     }
+            //   }
+            // }
+
+            profile.sponsorInfo = data.data.user.sponsorshipForViewerAsSponsor;
           }
 
           return profile;
@@ -87,7 +130,7 @@ export const {
           email: profile.email,
           image: profile.avatar_url,
           username: profile.login,
-          sponsorInfo: profile.sponsorsTypeCell,
+          sponsorInfo: profile.sponsorInfo,
         };
       },
     }),
