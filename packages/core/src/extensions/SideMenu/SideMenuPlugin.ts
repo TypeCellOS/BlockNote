@@ -529,7 +529,6 @@ export class SideMenuView<
         this.state.show = false;
         this.emitUpdate(this.state);
       }
-      console.log("hide");
 
       return;
     }
