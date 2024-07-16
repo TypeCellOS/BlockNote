@@ -1143,4 +1143,16 @@ export class BlockNoteEditor<
       this._tiptapEditor.off("selectionUpdate", cb);
     };
   }
+
+  public openSelectionMenu(triggerCharacter: string) {
+    this.prosemirrorView.focus();
+    this.prosemirrorView.dispatch(
+      this.prosemirrorView.state.tr
+        .scrollIntoView()
+        .setMeta(this.suggestionMenus.plugin, {
+          triggerCharacter: triggerCharacter,
+          fromUserInput: false,
+        })
+    );
+  }
 }

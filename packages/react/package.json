@@ -4,7 +4,7 @@
   "private": false,
   "sideEffects": false,
   "license": "MPL-2.0",
-  "version": "0.14.6",
+  "version": "0.15.0",
   "files": [
     "dist",
     "types",
@@ -51,10 +51,10 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "^0.14.5",
+    "@blocknote/core": "^0.15.0",
     "@floating-ui/react": "^0.26.4",
-    "@tiptap/core": "^2.4.0",
-    "@tiptap/react": "^2.4.0",
+    "@tiptap/core": "^2.5.0",
+    "@tiptap/react": "^2.5.0",
     "lodash.merge": "^4.6.2",
     "react": "^18",
     "react-dom": "^18",

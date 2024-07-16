@@ -31,9 +31,9 @@ Passing `slashMenu={false}` to `BlockNoteView` tells BlockNote not to show the d
 
 `getItems` should return the items that need to be shown in the Slash Menu, based on a `query` entered by the user (anything the user types after the `triggerCharacter`).
 
-### Replacing the Suggestion Menu Component
+### Replacing the Slash Menu Component
 
-You can replace the React component used for the Suggestion Menu with your own, as you can see in the demo below.
+You can replace the React component used for the Slash Menu with your own, as you can see in the demo below.
 
 <Example name="ui-components/suggestion-menus-slash-menu-component" />
 
@@ -48,3 +48,24 @@ You can add additional Suggestion Menus to the editor, which can use any trigger
 <Example name="custom-schema/suggestion-menus-mentions" />
 
 Changing the items in the new Suggestion Menu, or the component used to render it, is done the same way as for the [Slash Menu](/docs/ui-components/suggestion-menus#slash-menu). For more information about how the mentions elements work, see [Custom Inline Content](/docs/custom-schemas/custom-inline-content).
+
+## Additional Features
+
+BlockNote offers a few other features for working with Suggestion Menus which may fit your use case.
+
+### Opening Suggestion Menus Programmatically
+
+While suggestion menus are generally meant to be opened when the user presses a trigger character, you may also want to open them from code. To do this, you can use the following editor method:
+
+```typescript
+openSuggestionMenu(triggerCharacter: string): void;
+
+// Usage
+editor.openSuggestionMenu("/");
+```
+
+### Waiting for a Query
+
+You may want to hold off displaying a Suggestion Menu unless you're certain that the user actually wants to open the menu and not just enter the trigger character. In this case, you should use the `minQueryLength` prop for `SuggestionMenuController`, which takes a number.
+
+The number indicates how many characters the user query needs to have before the menu is shown. When greater than 0, it also prevents the menu from displaying if the user enters a space immediately after the trigger character.

@@ -173,3 +173,9 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
     }
   };
 }
+
+(BlockNoteTipTapEditor.prototype as any).createView = () => {
+  // no-op
+  // Disable default call to `createView` in the Editor constructor.
+  // We should call `createView` manually only when a DOM element is available
+};
