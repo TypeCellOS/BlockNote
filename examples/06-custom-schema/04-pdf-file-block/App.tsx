@@ -3,7 +3,6 @@ import {
   defaultBlockSpecs,
   filterSuggestionItems,
   insertOrUpdateBlock,
-  uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import {

@@ -1,11 +1,9 @@
-import { checkBlockHasDefaultProp, DefaultBlockSchema } from "@blocknote/core";
+import { Block, checkBlockHasDefaultProp } from "@blocknote/core";
 import {
   blockTypeSelectItems,
   useBlockNoteEditor,
   useEditorContentOrSelectionChange,
 } from "@blocknote/react";
-import { MouseEvent, useCallback, useState, useMemo } from "react";
-
 import {
   Done,
   FormatAlignCenter,
@@ -37,7 +35,11 @@ import {
   Typography,
 } from "@mui/material";
 import { OverridableComponent } from "@mui/material/OverridableComponent";
+import { MouseEvent, useCallback, useState, useMemo } from "react";
 
+import { TextBlockSchema } from "./schema";
+
+// The highlight colors used by BlockNote.
 const colors = [
   "default",
   "red",
@@ -50,10 +52,20 @@ const colors = [
 
 // Custom component to replace the Block Type Select.
 function MUIBlockTypeSelect(props: {
-  blockType: keyof DefaultBlockSchema;
-  setBlockType: (blockType: keyof DefaultBlockSchema) => void;
+  block: Block;
+  setBlock: (block: Block) => void;
   blockTypeSelectItems: ReturnType<typeof blockTypeSelectItems>;
 }) {
+  const editor = useBlockNoteEditor<TextBlockSchema>();
+
+  const selectedItemName = useMemo(
+    () =>
+      props.blockTypeSelectItems.find((item) =>
+        item.isSelected(props.block as any)
+      )!.name,
+    [props.block, props.blockTypeSelectItems]
+  );
+
   return (
     <FormControl
       size={"small"}
@@ -83,13 +95,23 @@ function MUIBlockTypeSelect(props: {
       <Select
         labelId={"block-type-select-label"}
         id={"block-type-select"}
-        value={props.blockType}
+        value={selectedItemName}
         label={"Block Type"}
-        onChange={(event) =>
-          props.setBlockType(event.target.value as keyof DefaultBlockSchema)
-        }>
+        onChange={(event) => {
+          const newSelectedItem = props.blockTypeSelectItems.find(
+            (item) => item.name === event.target.value
+          )!;
+
+          editor.updateBlock(props.block, {
+            type: newSelectedItem.type as keyof TextBlockSchema,
+            props: newSelectedItem.props,
+          });
+          editor.focus();
+
+          props.setBlock(editor.getTextCursorPosition().block);
+        }}>
         {props.blockTypeSelectItems.map((item) => (
-          <MenuItem key={item.type} value={item.type}>
+          <MenuItem key={item.name} value={item.name}>
             <Box
               sx={{
                 display: "flex",
@@ -160,7 +182,7 @@ function MUIColorMenuButton(props: {
       />
       <Menu
         open={anchorEl !== null}
-        disablePortal={true}
+        container={document.querySelector(".bn-container")!}
         anchorEl={anchorEl}
         id={"color-menu"}
         onClose={() => setAnchorEl(null)}>
@@ -235,12 +257,11 @@ export function MUIFormattingToolbar() {
     () => blockTypeSelectItems(editor.dictionary),
     [editor.dictionary]
   );
-  const block = editor.getTextCursorPosition().block;
   const activeStyles = editor.getActiveStyles();
 
   // States for the toolbar items.
-  const [blockType, setBlockType] = useState<keyof DefaultBlockSchema>(
-    block.type
+  const [block, setBlock] = useState<Block>(
+    editor.getTextCursorPosition().block
   );
 
   const [bold, setBold] = useState(!!activeStyles.bold);
@@ -268,7 +289,7 @@ export function MUIFormattingToolbar() {
     const block = editor.getTextCursorPosition().block;
     const activeStyles = editor.getActiveStyles();
 
-    setBlockType(block.type);
+    setBlock(block);
 
     setBold("bold" in activeStyles);
     setItalic("italic" in activeStyles);
@@ -332,8 +353,8 @@ export function MUIFormattingToolbar() {
       <Container maxWidth="xl">
         <Toolbar disableGutters sx={{ gap: "1em" }}>
           <MUIBlockTypeSelect
-            blockType={blockType}
-            setBlockType={setBlockType}
+            block={block}
+            setBlock={setBlock}
             blockTypeSelectItems={defaultBlockTypeSelectItems}
           />
           <ButtonGroup

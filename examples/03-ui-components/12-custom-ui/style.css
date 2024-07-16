@@ -124,6 +124,7 @@
     background-color: var(--bn-colors-highlights-purple-background);
 }
 
+/* Positions the formatting toolbar above the editor. */
 .bn-container {
     display: flex;
     flex-direction: column-reverse;

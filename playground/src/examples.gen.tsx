@@ -551,7 +551,7 @@
           } as any,
           "pro": true
         },
-        "title": "Custom UI",
+        "title": "Using Material UI",
         "group": {
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"

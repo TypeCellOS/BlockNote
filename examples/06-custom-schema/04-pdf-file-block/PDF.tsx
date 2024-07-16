@@ -7,19 +7,14 @@ import {
   ReactCustomBlockRenderProps,
 } from "@blocknote/react";
 import { RiFilePdfFill } from "react-icons/ri";
-import "./pdf.pdf";
-
-import "./styles.css";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
+import { DocumentCallback } from "react-pdf/dist/cjs/shared/types";
 import "react-pdf/dist/Page/TextLayer.css";
 import "react-pdf/dist/Page/AnnotationLayer.css";
-import { DocumentCallback } from "react-pdf/dist/cjs/shared/types";
 
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url
-).toString();
+import "./styles.css";
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 // Component for the PDF preview.
 export const PDFPreview = (

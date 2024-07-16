@@ -16,13 +16,15 @@ import {
 } from "@mui/material";
 import { useEffect, useMemo, useRef } from "react";
 
+import { TextBlockSchema } from "./schema";
+
 // Custom component to replace items in the default Slash Menu.
 export function MUISlashMenuItem(
   props: Omit<SuggestionMenuProps<DefaultReactSuggestionItem>, "items"> & {
     item: DefaultReactSuggestionItem & { index: number };
   }
 ) {
-  const editor = useBlockNoteEditor();
+  const editor = useBlockNoteEditor<TextBlockSchema>();
 
   const itemRef = useRef<HTMLDivElement>(null);
 
@@ -119,8 +121,8 @@ export function MUISlashMenu(
   return (
     <Paper
       sx={{
-        height: 720,
-        maxHeight: "fit-content",
+        height: "fit-content",
+        maxHeight: "100%",
         width: "100%",
         maxWidth: 360,
         overflow: "auto",

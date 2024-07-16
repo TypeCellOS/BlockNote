@@ -1,6 +1,6 @@
-# Custom UI
+# Using Material UI
 
-In this example, we replace the default Formatting Toolbar using a custom React component, as well as the default Slash Menu and Side Menu. The Formatting Toolbar is also made static and always visible above the editor.
+In this example, we implement a basic editor interface using Material UI. We replace the Formatting Toolbar, Slash Menu, and Block Side Menu while disabling the other default elements. Additionally, the Formatting Toolbar is made static and always visible above the editor.
 
 **Relevant Docs:**
 
