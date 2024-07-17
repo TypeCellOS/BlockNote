@@ -20,7 +20,7 @@ React rich text editor. Easily add a modern text editing experience to your app.
     Documentation
   </a> - <a href="https://www.blocknotejs.org/docs/quickstart">
     Quickstart
-  </a>- <a href="https://www.blocknotejs.org/docs/examples">
+  </a>- <a href="https://www.blocknotejs.org/examples">
     Examples
   </a>
 </p>
