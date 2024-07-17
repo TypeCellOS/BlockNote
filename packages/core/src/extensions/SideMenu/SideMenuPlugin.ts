@@ -493,11 +493,16 @@ export class SideMenuView<
     if (this.state && this.state.show && this.menuFrozen) {
       this.menuFrozen = false;
       this.state.show = false;
+      console.log("hide click");
       this.emitUpdate(this.state);
     }
   };
 
   onMouseMove = (event: MouseEvent) => {
+    if (this.menuFrozen) {
+      return;
+    }
+
     this.mousePos = { x: event.clientX, y: event.clientY };
 
     // We want the full area of the editor to check if the cursor is hovering
@@ -526,7 +531,9 @@ export class SideMenuView<
       )
     ) {
       if (this.state?.show) {
+        // debugger;
         this.state.show = false;
+        // console.log("hide");
         this.emitUpdate(this.state);
       }
 
