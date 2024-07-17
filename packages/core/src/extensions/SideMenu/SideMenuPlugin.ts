@@ -493,7 +493,6 @@ export class SideMenuView<
     if (this.state && this.state.show && this.menuFrozen) {
       this.menuFrozen = false;
       this.state.show = false;
-      console.log("hide click");
       this.emitUpdate(this.state);
     }
   };
@@ -531,9 +530,7 @@ export class SideMenuView<
       )
     ) {
       if (this.state?.show) {
-        // debugger;
         this.state.show = false;
-        // console.log("hide");
         this.emitUpdate(this.state);
       }
 
