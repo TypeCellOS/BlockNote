@@ -90,6 +90,11 @@ export class FormattingToolbarView implements PluginView {
   };
 
   update(view: EditorView, oldState?: EditorState) {
+    // Delays the update to handle edge case with drag and drop, where the view
+    // is blurred asynchronously and happens only after the state update.
+    // Wrapping in a setTimeout gives enough time to wait for the blur event to
+    // occur before updating the toolbar.
+    // setTimeout(() => {
     const { state, composing } = view;
     const { doc, selection } = state;
     const isSame =
@@ -139,6 +144,7 @@ export class FormattingToolbarView implements PluginView {
 
       return;
     }
+    // });
   }
 
   destroy() {

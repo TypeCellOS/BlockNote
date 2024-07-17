@@ -436,19 +436,33 @@ export class SideMenuView<
 
     this.isDragging = false;
 
+    const evt = new Event("drop") as any;
+    evt.clientY = event.clientY;
+    evt.dataTransfer = event.dataTransfer;
+    // evt.preventDefault = () => event.preventDefault();
+
+    // Checks if cursor is outside the editor contents
     if (!pos || pos.inside === -1) {
-      const evt = new Event("drop", event) as any;
+      // Creates duplicate event with cursor centered horizontally on the editor
       const editorBoundingBox = (
         this.pmView.dom.firstChild! as HTMLElement
       ).getBoundingClientRect();
       evt.clientX = editorBoundingBox.left + editorBoundingBox.width / 2;
-      evt.clientY = event.clientY;
-      evt.dataTransfer = event.dataTransfer;
-      evt.preventDefault = () => event.preventDefault();
+
       evt.synthetic = true; // prevent recursion
-      // console.log("dispatch fake drop");
-      this.pmView.dom.dispatchEvent(evt);
+    } else {
+      // Creates duplicate event and prevents the original one from firing.
+      evt.clientX = event.clientX;
+
+      event.preventDefault();
+      event.stopPropagation();
     }
+
+    // Works
+    this.pmView.dom.dispatchEvent(evt);
+
+    // Doesn't work
+    // setTimeout(() => this.pmView.dom.dispatchEvent(evt), 1000);
   };
 
   /**
