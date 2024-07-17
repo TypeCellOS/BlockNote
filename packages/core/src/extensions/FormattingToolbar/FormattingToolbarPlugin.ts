@@ -58,12 +58,49 @@ export class FormattingToolbarView implements PluginView {
     pmView.dom.addEventListener("mouseup", this.viewMouseupHandler);
     pmView.dom.addEventListener("dragstart", this.dragHandler);
     pmView.dom.addEventListener("dragover", this.dragHandler);
+    pmView.dom.addEventListener("focus", this.focusHandler);
+    pmView.dom.addEventListener("blur", this.blurHandler);
 
     // Setting capture=true ensures that any parent container of the editor that
     // gets scrolled will trigger the scroll event. Scroll events do not bubble
     // and so won't propagate to the document by default.
     pmView.root.addEventListener("scroll", this.scrollHandler, true);
   }
+
+  focusHandler = () => {
+    this.update(this.pmView);
+  };
+
+  blurHandler = (event: FocusEvent) => {
+    if (this.preventHide) {
+      this.preventHide = false;
+
+      return;
+    }
+
+    const editorWrapper = this.pmView.dom.parentElement!;
+
+    // Checks if the focus is moving to an element outside the editor. If it is,
+    // the toolbar is hidden.
+    if (
+      // An element is clicked.
+      event &&
+      event.relatedTarget &&
+      // Element is inside the editor.
+      (editorWrapper === (event.relatedTarget as Node) ||
+        editorWrapper.contains(event.relatedTarget as Node) ||
+        (event.relatedTarget as HTMLElement).matches(
+          ".bn-ui-container, .bn-ui-container *"
+        ))
+    ) {
+      return;
+    }
+
+    if (this.state?.show) {
+      this.state.show = false;
+      this.emitUpdate();
+    }
+  };
 
   viewMousedownHandler = () => {
     this.preventShow = true;
@@ -94,7 +131,6 @@ export class FormattingToolbarView implements PluginView {
     // is blurred asynchronously and happens only after the state update.
     // Wrapping in a setTimeout gives enough time to wait for the blur event to
     // occur before updating the toolbar.
-    // setTimeout(() => {
     const { state, composing } = view;
     const { doc, selection } = state;
     const isSame =
@@ -144,7 +180,6 @@ export class FormattingToolbarView implements PluginView {
 
       return;
     }
-    // });
   }
 
   destroy() {
@@ -152,6 +187,8 @@ export class FormattingToolbarView implements PluginView {
     this.pmView.dom.removeEventListener("mouseup", this.viewMouseupHandler);
     this.pmView.dom.removeEventListener("dragstart", this.dragHandler);
     this.pmView.dom.removeEventListener("dragover", this.dragHandler);
+    this.pmView.dom.removeEventListener("focus", this.focusHandler);
+    this.pmView.dom.removeEventListener("blur", this.blurHandler);
 
     this.pmView.root.removeEventListener("scroll", this.scrollHandler, true);
   }
