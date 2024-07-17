@@ -51,6 +51,12 @@ export * from "./components/SuggestionMenu/hooks/useLoadSuggestionMenuItems";
 export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardNavigation";
 export * from "./components/SuggestionMenu/types";
 
+export * from "./components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuController";
+export * from "./components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuWrapper";
+export * from "./components/SuggestionMenu/GridSuggestionMenu/getDefaultReactEmojiPickerItems";
+export * from "./components/SuggestionMenu/GridSuggestionMenu/hooks/useGridSuggestionMenuKeyboardNavigation";
+export * from "./components/SuggestionMenu/GridSuggestionMenu/types";
+
 export * from "./components/FilePanel/DefaultTabs/EmbedTab";
 export * from "./components/FilePanel/DefaultTabs/UploadTab";
 export * from "./components/FilePanel/FilePanel";
@@ -74,6 +80,7 @@ export * from "./hooks/useEditorChange";
 export * from "./hooks/useEditorContentOrSelectionChange";
 export * from "./hooks/useEditorForceUpdate";
 export * from "./hooks/useEditorSelectionChange";
+export * from "./hooks/usePrefersColorScheme";
 export * from "./hooks/useSelectedBlocks";
 
 export * from "./schema/ReactBlockSpec";

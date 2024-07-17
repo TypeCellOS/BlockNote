@@ -57,9 +57,9 @@ export const PopoverContent = forwardRef<
       sideOffset={8}
       className={cn(
         className,
-        "flex flex-col gap-2",
+        "bn-flex bn-flex-col bn-gap-2",
         variant === "panel-popover"
-          ? "p-0 border-none shadow-none max-w-none w-fit"
+          ? "bn-p-0 bn-border-none bn-shadow-none bn-max-w-none bn-w-fit"
           : ""
       )}
       ref={ref}>

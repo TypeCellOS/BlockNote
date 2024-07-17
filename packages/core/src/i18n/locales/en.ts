@@ -2,37 +2,37 @@ export const en = {
   slash_menu: {
     heading: {
       title: "Heading 1",
-      subtext: "Used for a top-level heading",
+      subtext: "Top-level heading",
       aliases: ["h", "heading1", "h1"],
       group: "Headings",
     },
     heading_2: {
       title: "Heading 2",
-      subtext: "Used for key sections",
+      subtext: "Key section heading",
       aliases: ["h2", "heading2", "subheading"],
       group: "Headings",
     },
     heading_3: {
       title: "Heading 3",
-      subtext: "Used for subsections and group headings",
+      subtext: "Subsection and group heading",
       aliases: ["h3", "heading3", "subheading"],
       group: "Headings",
     },
     numbered_list: {
       title: "Numbered List",
-      subtext: "Used to display a numbered list",
+      subtext: "List with ordered items",
       aliases: ["ol", "li", "list", "numberedlist", "numbered list"],
       group: "Basic blocks",
     },
     bullet_list: {
       title: "Bullet List",
-      subtext: "Used to display an unordered list",
+      subtext: "List with unordered items",
       aliases: ["ul", "li", "list", "bulletlist", "bullet list"],
       group: "Basic blocks",
     },
     check_list: {
       title: "Check List",
-      subtext: "Used to display a list with checkboxes",
+      subtext: "List with checkboxes",
       aliases: [
         "ul",
         "li",
@@ -46,19 +46,19 @@ export const en = {
     },
     paragraph: {
       title: "Paragraph",
-      subtext: "Used for the body of your document",
+      subtext: "The body of your document",
       aliases: ["p", "paragraph"],
       group: "Basic blocks",
     },
     table: {
       title: "Table",
-      subtext: "Used for tables",
+      subtext: "Table with editable cells",
       aliases: ["table"],
       group: "Advanced",
     },
     image: {
       title: "Image",
-      subtext: "Insert an image",
+      subtext: "Resizable image with caption",
       aliases: [
         "image",
         "imageUpload",
@@ -72,7 +72,7 @@ export const en = {
     },
     video: {
       title: "Video",
-      subtext: "Insert a video",
+      subtext: "Resizable video with caption",
       aliases: [
         "video",
         "videoUpload",
@@ -86,7 +86,7 @@ export const en = {
     },
     audio: {
       title: "Audio",
-      subtext: "Insert audio",
+      subtext: "Embedded audio with caption",
       aliases: [
         "audio",
         "audioUpload",
@@ -100,9 +100,15 @@ export const en = {
     },
     file: {
       title: "File",
-      subtext: "Insert a file",
+      subtext: "Embedded file",
       aliases: ["file", "upload", "embed", "media", "url"],
       group: "Media",
+    },
+    emoji: {
+      title: "Emoji",
+      subtext: "Search for and insert an emoji",
+      aliases: ["emoji", "emote", "emotion", "face"],
+      group: "Others",
     },
   },
   placeholders: {

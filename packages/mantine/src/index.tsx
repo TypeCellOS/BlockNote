@@ -1,20 +1,28 @@
-import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  mergeCSSClasses,
+  StyleSchema,
+} from "@blocknote/core";
 import {
   BlockNoteViewRaw,
   Components,
   ComponentsContext,
   useBlockNoteContext,
+  usePrefersColorScheme,
 } from "@blocknote/react";
 import { MantineProvider } from "@mantine/core";
 import { ComponentProps, useCallback } from "react";
-import usePrefersColorScheme from "use-prefers-color-scheme";
 
 import {
   Theme,
   applyBlockNoteCSSVariablesFromTheme,
   removeBlockNoteCSSVariables,
 } from "./BlockNoteTheme";
-import { TextInput } from "./form/TextInput";
+import { GridSuggestionMenu } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenu";
+import { GridSuggestionMenuEmptyItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuEmptyItem";
+import { GridSuggestionMenuItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuItem";
+import { GridSuggestionMenuLoader } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuLoader";
 import {
   Menu,
   MenuDivider,
@@ -37,10 +45,10 @@ import { SuggestionMenuItem } from "./suggestionMenu/SuggestionMenuItem";
 import { SuggestionMenuLabel } from "./suggestionMenu/SuggestionMenuLabel";
 import { SuggestionMenuLoader } from "./suggestionMenu/SuggestionMenuLoader";
 import { TableHandle } from "./tableHandle/TableHandle";
+import { TextInput } from "./form/TextInput";
 import { Toolbar } from "./toolbar/Toolbar";
 import { ToolbarButton } from "./toolbar/ToolbarButton";
 import { ToolbarSelect } from "./toolbar/ToolbarSelect";
-
 import "./style.css";
 
 export * from "./BlockNoteTheme";
@@ -58,6 +66,12 @@ export const components: Components = {
     FileInput: PanelFileInput,
     TabPanel: PanelTab,
     TextInput: PanelTextInput,
+  },
+  GridSuggestionMenu: {
+    Root: GridSuggestionMenu,
+    Item: GridSuggestionMenuItem,
+    EmptyItem: GridSuggestionMenuEmptyItem,
+    Loader: GridSuggestionMenuLoader,
   },
   LinkToolbar: {
     Root: Toolbar,
@@ -122,7 +136,7 @@ export const BlockNoteView = <
         };
   }
 ) => {
-  const { theme, ...rest } = props;
+  const { className, theme, ...rest } = props;
 
   const existingContext = useBlockNoteContext();
   const systemColorScheme = usePrefersColorScheme();
@@ -160,12 +174,13 @@ export const BlockNoteView = <
       {/* as proposed here:  https://github.com/orgs/mantinedev/discussions/5685 */}
       <MantineProvider
         theme={mantineTheme}
-        cssVariablesSelector=".bn-container"
+        cssVariablesSelector=".bn-mantine"
         // This gets the element to set `data-mantine-color-scheme` on. Since we
         // don't need this attribute (we use our own theming API), we return
         // undefined here.
         getRootElement={() => undefined}>
         <BlockNoteViewRaw
+          className={mergeCSSClasses("bn-mantine", className || "")}
           theme={typeof theme === "object" ? undefined : theme}
           {...rest}
           ref={ref}

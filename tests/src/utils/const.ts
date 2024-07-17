@@ -11,6 +11,10 @@ export const ARIAKIT_URL = !process.env.RUN_IN_DOCKER
   ? `http://localhost:${PORT}/basic/ariakit?hideMenu`
   : `http://host.docker.internal:${PORT}/basic/ariakit?hideMenu`;
 
+export const STATIC_URL = !process.env.RUN_IN_DOCKER
+  ? `http://localhost:${PORT}/backend/rendering-static-documents?hideMenu`
+  : `http://host.docker.internal:${PORT}/backend/rendering-static-documents?hideMenu`;
+
 export const PASTE_ZONE_SELECTOR = "#pasteZone";
 
 export const EDITOR_SELECTOR = `.bn-editor`;
@@ -30,6 +34,7 @@ export const DRAG_HANDLE_ADD_SELECTOR = `[data-test="dragHandleAdd"]`;
 
 export const DRAG_HANDLE_MENU_SELECTOR = `.bn-side-menu > .bn-menu-dropdown`;
 export const SLASH_MENU_SELECTOR = `.bn-suggestion-menu`;
+export const EMOJI_PICKER_SELECTOR = `.bn-grid-suggestion-menu`;
 
 export const ITALIC_BUTTON_SELECTOR = `[data-test="italic"]`;
 export const COLORS_BUTTON_SELECTOR = `[data-test="colors"]`;

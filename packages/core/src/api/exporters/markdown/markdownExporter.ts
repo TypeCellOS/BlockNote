@@ -4,7 +4,7 @@ import rehypeRemark from "rehype-remark";
 import remarkGfm from "remark-gfm";
 import remarkStringify from "remark-stringify";
 import { unified } from "unified";
-import { Block } from "../../../blocks/defaultBlocks";
+import { PartialBlock } from "../../../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
 import { createExternalHTMLExporter } from "../html/externalHTMLExporter";
@@ -18,7 +18,7 @@ export function cleanHTMLToMarkdown(cleanHTMLString: string) {
     .use(addSpacesToCheckboxes)
     .use(rehypeRemark)
     .use(remarkGfm)
-    .use(remarkStringify)
+    .use(remarkStringify, { handlers: { text: (node) => node.value } })
     .processSync(cleanHTMLString);
 
   return markdownString.value as string;
@@ -29,12 +29,13 @@ export function blocksToMarkdown<
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  blocks: Block<BSchema, I, S>[],
+  blocks: PartialBlock<BSchema, I, S>[],
   schema: Schema,
-  editor: BlockNoteEditor<BSchema, I, S>
+  editor: BlockNoteEditor<BSchema, I, S>,
+  options: { document?: Document }
 ): string {
   const exporter = createExternalHTMLExporter(schema, editor);
-  const externalHTML = exporter.exportBlocks(blocks);
+  const externalHTML = exporter.exportBlocks(blocks, options);
 
   return cleanHTMLToMarkdown(externalHTML);
 }

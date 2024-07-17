@@ -3,6 +3,7 @@ import { LinkToolbarController } from "../components/LinkToolbar/LinkToolbarCont
 import { FilePanelController } from "../components/FilePanel/FilePanelController";
 import { SideMenuController } from "../components/SideMenu/SideMenuController";
 import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController";
+import { GridSuggestionMenuController } from "../components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuController";
 import { TableHandlesController } from "../components/TableHandles/TableHandlesController";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor";
 
@@ -13,6 +14,7 @@ export type BlockNoteDefaultUIProps = {
   sideMenu?: boolean;
   filePanel?: boolean;
   tableHandles?: boolean;
+  emojiPicker?: boolean;
 };
 
 export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
@@ -30,6 +32,13 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
       {props.linkToolbar !== false && <LinkToolbarController />}
       {props.slashMenu !== false && (
         <SuggestionMenuController triggerCharacter="/" />
+      )}
+      {props.emojiPicker !== false && (
+        <GridSuggestionMenuController
+          triggerCharacter=":"
+          columns={10}
+          minQueryLength={2}
+        />
       )}
       {props.sideMenu !== false && <SideMenuController />}
       {editor.filePanel && props.filePanel !== false && <FilePanelController />}

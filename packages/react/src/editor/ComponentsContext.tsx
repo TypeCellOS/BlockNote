@@ -10,6 +10,7 @@ import {
 } from "react";
 
 import { DefaultReactSuggestionItem } from "../components/SuggestionMenu/types";
+import { DefaultReactGridSuggestionItem } from "../components/SuggestionMenu/GridSuggestionMenu/types";
 
 export type ComponentProps = {
   FormattingToolbar: {
@@ -138,6 +139,35 @@ export type ComponentProps = {
       children?: ReactNode;
     };
     Loader: {
+      className?: string;
+      children?: ReactNode;
+    };
+  };
+  GridSuggestionMenu: {
+    Root: {
+      id: string;
+      columns: number;
+      className?: string;
+      children?: ReactNode;
+    };
+    EmptyItem: {
+      columns: number;
+      className?: string;
+      children?: ReactNode;
+    };
+    Item: {
+      className?: string;
+      id: string;
+      isSelected: boolean;
+      onClick: () => void;
+      item: DefaultReactGridSuggestionItem;
+    };
+    // Label: {
+    //   className?: string;
+    //   children?: ReactNode;
+    // };
+    Loader: {
+      columns: number;
       className?: string;
       children?: ReactNode;
     };

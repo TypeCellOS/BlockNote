@@ -1,4 +1,9 @@
-import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  mergeCSSClasses,
+  StyleSchema,
+} from "@blocknote/core";
 import {
   BlockNoteViewRaw,
   Components,
@@ -12,6 +17,10 @@ import {
   ShadCNDefaultComponents,
 } from "./ShadCNComponentsContext";
 import { Form } from "./form/Form";
+import { GridSuggestionMenu } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenu";
+import { GridSuggestionMenuEmptyItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuEmptyItem";
+import { GridSuggestionMenuItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuItem";
+import { GridSuggestionMenuLoader } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuLoader";
 import {
   Menu,
   MenuDivider,
@@ -67,6 +76,12 @@ export const components: Components = {
     Label: SuggestionMenuLabel,
     Loader: SuggestionMenuLoader,
   },
+  GridSuggestionMenu: {
+    Root: GridSuggestionMenu,
+    Item: GridSuggestionMenuItem,
+    EmptyItem: GridSuggestionMenuEmptyItem,
+    Loader: GridSuggestionMenuLoader,
+  },
   TableHandle: {
     Root: TableHandle,
   },
@@ -103,19 +118,22 @@ export const BlockNoteView = <
     shadCNComponents?: Partial<ShadCNComponents>;
   }
 ) => {
-  const { shadCNComponents, ...rest } = props;
+  const { className, shadCNComponents, ...rest } = props;
 
   const componentsValue = useMemo(() => {
     return {
-      ...shadCNComponents,
       ...ShadCNDefaultComponents,
+      ...shadCNComponents,
     };
   }, [shadCNComponents]);
 
   return (
     <ShadCNComponentsContext.Provider value={componentsValue}>
       <ComponentsContext.Provider value={components}>
-        <BlockNoteViewRaw {...rest} />
+        <BlockNoteViewRaw
+          className={mergeCSSClasses("bn-shadcn", className || "")}
+          {...rest}
+        />
       </ComponentsContext.Provider>
     </ShadCNComponentsContext.Provider>
   );

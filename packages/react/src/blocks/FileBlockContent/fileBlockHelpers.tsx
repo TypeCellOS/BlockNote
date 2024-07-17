@@ -56,7 +56,7 @@ export const AddFileButton = (
   );
   // Opens the file toolbar.
   const addFileButtonClickHandler = useCallback(() => {
-    props.editor._tiptapEditor.view.dispatch(
+    props.editor.dispatch(
       props.editor._tiptapEditor.state.tr.setMeta(
         props.editor.filePanel!.plugin,
         {
@@ -64,12 +64,7 @@ export const AddFileButton = (
         }
       )
     );
-  }, [
-    props.block,
-    props.editor._tiptapEditor.state.tr,
-    props.editor._tiptapEditor.view,
-    props.editor.filePanel,
-  ]);
+  }, [props.block, props.editor]);
 
   return (
     <div

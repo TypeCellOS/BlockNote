@@ -1,11 +1,12 @@
 import { Block, PartialBlock } from "../../blocks/defaultBlocks";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+
 import { checkDefaultBlockTypeInSchema } from "../../blocks/defaultBlockTypeGuards";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import {
   BlockSchema,
   InlineContentSchema,
-  isStyledTextInlineContent,
   StyleSchema,
+  isStyledTextInlineContent,
 } from "../../schema";
 import { formatKeyboardShortcut } from "../../util/browser";
 import { DefaultSuggestionItem } from "./DefaultSuggestionItem";
@@ -202,7 +203,7 @@ export function getDefaultSlashMenuItems<
         });
 
         // Immediately open the file toolbar
-        editor.prosemirrorView.dispatch(
+        editor.dispatch(
           editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
             block: insertedBlock,
           })
@@ -221,7 +222,7 @@ export function getDefaultSlashMenuItems<
         });
 
         // Immediately open the file toolbar
-        editor.prosemirrorView.dispatch(
+        editor.dispatch(
           editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
             block: insertedBlock,
           })
@@ -240,7 +241,7 @@ export function getDefaultSlashMenuItems<
         });
 
         // Immediately open the file toolbar
-        editor.prosemirrorView.dispatch(
+        editor.dispatch(
           editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
             block: insertedBlock,
           })
@@ -259,7 +260,7 @@ export function getDefaultSlashMenuItems<
         });
 
         // Immediately open the file toolbar
-        editor.prosemirrorView.dispatch(
+        editor.dispatch(
           editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
             block: insertedBlock,
           })
@@ -269,6 +270,12 @@ export function getDefaultSlashMenuItems<
       ...editor.dictionary.slash_menu.file,
     });
   }
+
+  items.push({
+    onItemClick: () => editor.openSelectionMenu(":"),
+    key: "emoji",
+    ...editor.dictionary.slash_menu.emoji,
+  });
 
   return items;
 }

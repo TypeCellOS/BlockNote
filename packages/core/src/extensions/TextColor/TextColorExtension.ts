@@ -15,10 +15,14 @@ export const TextColorExtension = Extension.create({
               element.hasAttribute("data-text-color")
                 ? element.getAttribute("data-text-color")
                 : defaultProps.textColor.default,
-            renderHTML: (attributes) =>
-              attributes.textColor !== defaultProps.textColor.default && {
+            renderHTML: (attributes) => {
+              if (attributes.textColor === defaultProps.textColor.default) {
+                return {};
+              }
+              return {
                 "data-text-color": attributes.textColor,
-              },
+              };
+            },
           },
         },
       },

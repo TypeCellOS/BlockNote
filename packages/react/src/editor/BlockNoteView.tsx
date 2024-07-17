@@ -11,19 +11,21 @@ import React, {
   HTMLAttributes,
   ReactNode,
   Ref,
+  useCallback,
   useEffect,
   useMemo,
   useState,
 } from "react";
-import usePrefersColorScheme from "use-prefers-color-scheme";
 import { useEditorChange } from "../hooks/useEditorChange";
 import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange";
+import { usePrefersColorScheme } from "../hooks/usePrefersColorScheme";
 import { BlockNoteContext, useBlockNoteContext } from "./BlockNoteContext";
 import {
   BlockNoteDefaultUI,
   BlockNoteDefaultUIProps,
 } from "./BlockNoteDefaultUI";
 import { EditorContent } from "./EditorContent";
+import { ElementRenderer } from "./ElementRenderer";
 import "./styles.css";
 
 const emptyFn = () => {
@@ -81,6 +83,7 @@ function BlockNoteViewComponent<
     formattingToolbar,
     linkToolbar,
     slashMenu,
+    emojiPicker,
     sideMenu,
     filePanel,
     tableHandles,
@@ -115,6 +118,7 @@ function BlockNoteViewComponent<
           formattingToolbar={formattingToolbar}
           linkToolbar={linkToolbar}
           slashMenu={slashMenu}
+          emojiPicker={emojiPicker}
           sideMenu={sideMenu}
           filePanel={filePanel}
           tableHandles={tableHandles}
@@ -125,9 +129,10 @@ function BlockNoteViewComponent<
     children,
     formattingToolbar,
     linkToolbar,
-    filePanel,
-    sideMenu,
     slashMenu,
+    emojiPicker,
+    sideMenu,
+    filePanel,
     tableHandles,
   ]);
 
@@ -139,27 +144,37 @@ function BlockNoteViewComponent<
     };
   }, [existingContext, editor]);
 
+  const setElementRenderer = useCallback(
+    (ref: (typeof editor)["elementRenderer"]) => {
+      editor.elementRenderer = ref;
+    },
+    [editor]
+  );
+
   return (
     <BlockNoteContext.Provider value={context as any}>
-      <EditorContent editor={editor}>
-        <div
-          className={mergeCSSClasses(
-            "bn-container",
-            editorColorScheme || "",
-            className || ""
-          )}
-          data-color-scheme={editorColorScheme}
-          {...rest}
-          ref={ref}>
+      <ElementRenderer ref={setElementRenderer} />
+      {!editor.headless && (
+        <EditorContent editor={editor}>
           <div
-            aria-autocomplete="list"
-            aria-haspopup="listbox"
-            ref={editor._tiptapEditor.mount}
-            {...contentEditableProps}
-          />
-          {renderChildren}
-        </div>
-      </EditorContent>
+            className={mergeCSSClasses(
+              "bn-container",
+              editorColorScheme || "",
+              className || ""
+            )}
+            data-color-scheme={editorColorScheme}
+            {...rest}
+            ref={ref}>
+            <div
+              aria-autocomplete="list"
+              aria-haspopup="listbox"
+              ref={editor.mount}
+              {...contentEditableProps}
+            />
+            {renderChildren}
+          </div>
+        </EditorContent>
+      )}
     </BlockNoteContext.Provider>
   );
 }

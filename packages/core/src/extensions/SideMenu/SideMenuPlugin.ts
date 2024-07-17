@@ -12,7 +12,6 @@ import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { EventEmitter } from "../../util/EventEmitter";
-import { suggestionMenuPluginKey } from "../SuggestionMenu/SuggestionPlugin";
 import { MultipleNodeSelection } from "./MultipleNodeSelection";
 
 let dragImageElement: Element | undefined;
@@ -128,7 +127,7 @@ function setDragImage(view: EditorView, from: number, to = from) {
   }
 
   // dataTransfer.setDragImage(element) only works if element is attached to the DOM.
-  unsetDragImage();
+  unsetDragImage(view.root);
   dragImageElement = parentClone;
 
   // TODO: This is hacky, need a better way of assigning classes to the editor so that they can also be applied to the
@@ -146,12 +145,21 @@ function setDragImage(view: EditorView, from: number, to = from) {
   dragImageElement.className =
     dragImageElement.className + " bn-drag-preview " + inheritedClasses;
 
-  document.body.appendChild(dragImageElement);
+  if (view.root instanceof ShadowRoot) {
+    view.root.appendChild(dragImageElement);
+  } else {
+    view.root.body.appendChild(dragImageElement);
+  }
 }
 
-function unsetDragImage() {
+function unsetDragImage(rootEl: Document | ShadowRoot) {
   if (dragImageElement !== undefined) {
-    document.body.removeChild(dragImageElement);
+    if (rootEl instanceof ShadowRoot) {
+      rootEl.removeChild(dragImageElement);
+    } else {
+      rootEl.body.removeChild(dragImageElement);
+    }
+
     dragImageElement = undefined;
   }
 }
@@ -177,7 +185,7 @@ function dragStart<
     top: e.clientY,
   };
 
-  const elements = document.elementsFromPoint(coords.left, coords.top);
+  const elements = view.root.elementsFromPoint(coords.left, coords.top);
   let blockEl = undefined;
 
   for (const element of elements) {
@@ -216,16 +224,18 @@ function dragStart<
     }
 
     const selectedSlice = view.state.selection.content();
-    const schema = editor._tiptapEditor.schema;
+    const schema = editor.pmSchema;
 
     const internalHTMLSerializer = createInternalHTMLSerializer(schema, editor);
     const internalHTML = internalHTMLSerializer.serializeProseMirrorFragment(
-      selectedSlice.content
+      selectedSlice.content,
+      {}
     );
 
     const externalHTMLExporter = createExternalHTMLExporter(schema, editor);
     const externalHTML = externalHTMLExporter.exportProseMirrorFragment(
-      selectedSlice.content
+      selectedSlice.content,
+      {}
     );
 
     const plainText = cleanHTMLToMarkdown(externalHTML);
@@ -283,22 +293,37 @@ export class SideMenuView<
       this.pmView.dom.firstChild! as HTMLElement
     ).getBoundingClientRect().x;
 
-    document.body.addEventListener("drop", this.onDrop, true);
-    document.body.addEventListener("dragover", this.onDragOver);
+    this.pmView.root.addEventListener(
+      "drop",
+      this.onDrop as EventListener,
+      true
+    );
+    this.pmView.root.addEventListener(
+      "dragover",
+      this.onDragOver as EventListener
+    );
     this.pmView.dom.addEventListener("dragstart", this.onDragStart);
 
     // Shows or updates menu position whenever the cursor moves, if the menu isn't frozen.
-    document.body.addEventListener("mousemove", this.onMouseMove, true);
+    this.pmView.root.addEventListener(
+      "mousemove",
+      this.onMouseMove as EventListener,
+      true
+    );
 
     // Unfreezes the menu whenever the user clicks.
     this.pmView.dom.addEventListener("mousedown", this.onMouseDown);
     // Hides and unfreezes the menu whenever the user presses a key.
-    document.body.addEventListener("keydown", this.onKeyDown, true);
+    this.pmView.root.addEventListener(
+      "keydown",
+      this.onKeyDown as EventListener,
+      true
+    );
 
     // Setting capture=true ensures that any parent container of the editor that
     // gets scrolled will trigger the scroll event. Scroll events do not bubble
     // and so won't propagate to the document by default.
-    document.addEventListener("scroll", this.onScroll, true);
+    this.pmView.root.addEventListener("scroll", this.onScroll, true);
   }
 
   updateState = () => {
@@ -322,7 +347,10 @@ export class SideMenuView<
       top: this.mousePos.y,
     };
 
-    const elements = document.elementsFromPoint(coords.left, coords.top);
+    const elements = this.pmView.root.elementsFromPoint(
+      coords.left,
+      coords.top
+    );
     let block = undefined;
 
     for (const element of elements) {
@@ -553,13 +581,28 @@ export class SideMenuView<
       this.state.show = false;
       this.emitUpdate(this.state);
     }
-    document.body.removeEventListener("mousemove", this.onMouseMove, true);
-    document.body.removeEventListener("dragover", this.onDragOver);
+    this.pmView.root.removeEventListener(
+      "mousemove",
+      this.onMouseMove as EventListener,
+      true
+    );
+    this.pmView.root.removeEventListener(
+      "dragover",
+      this.onDragOver as EventListener
+    );
     this.pmView.dom.removeEventListener("dragstart", this.onDragStart);
-    document.body.removeEventListener("drop", this.onDrop, true);
-    document.removeEventListener("scroll", this.onScroll, true);
+    this.pmView.root.removeEventListener(
+      "drop",
+      this.onDrop as EventListener,
+      true
+    );
+    this.pmView.root.removeEventListener("scroll", this.onScroll, true);
     this.pmView.dom.removeEventListener("mousedown", this.onMouseDown);
-    document.body.removeEventListener("keydown", this.onKeyDown, true);
+    this.pmView.root.removeEventListener(
+      "keydown",
+      this.onKeyDown as EventListener,
+      true
+    );
   }
 
   addBlock() {
@@ -607,14 +650,8 @@ export class SideMenuView<
       this.editor._tiptapEditor.commands.setTextSelection(startPos + 1);
     }
 
-    // Focuses and activates the suggestion menu.
-    this.pmView.focus();
-    this.pmView.dispatch(
-      this.pmView.state.tr.scrollIntoView().setMeta(suggestionMenuPluginKey, {
-        triggerCharacter: "/",
-        fromUserInput: false,
-      })
-    );
+    // Focuses and activates the slash menu.
+    this.editor.openSelectionMenu("/");
   }
 }
 
@@ -665,7 +702,7 @@ export class SideMenuProsemirrorPlugin<
   /**
    * Handles drag & drop events for blocks.
    */
-  blockDragEnd = () => unsetDragImage();
+  blockDragEnd = () => unsetDragImage(this.editor.prosemirrorView.root);
   /**
    * Freezes the side menu. When frozen, the side menu will stay
    * attached to the same block regardless of which block is hovered by the

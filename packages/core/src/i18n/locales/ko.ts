@@ -109,6 +109,21 @@ export const ko: Dictionary = {
       aliases: ["file", "upload", "embed", "media", "파일", "url"],
       group: "미디어",
     },
+    emoji: {
+      title: "이모지",
+      subtext: "이모지 삽입용으로 사용됩니다",
+      aliases: [
+        "이모지",
+        "emoji",
+        "감정 표현",
+        "emotion expression",
+        "표정",
+        "face expression",
+        "얼굴",
+        "face",
+      ],
+      group: "기타",
+    },
   },
   placeholders: {
     default: "텍스트를 입력하거나 /를 입력하여 명령을 입력하세요.",

@@ -1,4 +1,9 @@
-import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  mergeCSSClasses,
+  StyleSchema,
+} from "@blocknote/core";
 import {
   BlockNoteViewRaw,
   Components,
@@ -7,6 +12,10 @@ import {
 import { ComponentProps } from "react";
 
 import { Form } from "./input/Form";
+import { GridSuggestionMenu } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenu";
+import { GridSuggestionMenuEmptyItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuEmptyItem";
+import { GridSuggestionMenuItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuItem";
+import { GridSuggestionMenuLoader } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuLoader";
 import { TextInput } from "./input/TextInput";
 import {
   Menu,
@@ -48,6 +57,12 @@ export const components: Components = {
     FileInput: PanelFileInput,
     TabPanel: PanelTab,
     TextInput: PanelTextInput,
+  },
+  GridSuggestionMenu: {
+    Root: GridSuggestionMenu,
+    Item: GridSuggestionMenuItem,
+    EmptyItem: GridSuggestionMenuEmptyItem,
+    Loader: GridSuggestionMenuLoader,
   },
   LinkToolbar: {
     Root: Toolbar,
@@ -95,9 +110,14 @@ export const BlockNoteView = <
 >(
   props: ComponentProps<typeof BlockNoteViewRaw<BSchema, ISchema, SSchema>>
 ) => {
+  const { className, ...rest } = props;
+
   return (
     <ComponentsContext.Provider value={components}>
-      <BlockNoteViewRaw {...props} />
+      <BlockNoteViewRaw
+        className={mergeCSSClasses("bn-ariakit", className || "")}
+        {...rest}
+      />
     </ComponentsContext.Provider>
   );
 };

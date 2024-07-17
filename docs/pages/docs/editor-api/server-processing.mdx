@@ -1,0 +1,59 @@
+---
+title: Server-side processing
+description: Use `ServerBlockNoteEditor` to process Blocks on the server.
+imageTitle: Server-side processing
+path: /docs/server-side-processing
+---
+
+import { Example } from "@/components/example";
+import { Callout } from "nextra/components";
+
+# Server-side processing
+
+While you can use the `BlockNoteEditor` on the client side,
+you can also use `ServerBlockNoteEditor` from `@blocknote/server-util` to process BlockNote documents on the server.
+
+For example, use the following code to convert a BlockNote document to HTML on the server:
+
+```tsx
+import { ServerBlockNoteEditor } from "@blocknote/server-util";
+
+const editor = ServerBlockNoteEditor.create();
+const html = await editor.blocksToFullHTML(blocks);
+```
+
+`ServerBlockNoteEditor.create` takes the same BlockNoteEditorOptions as `useCreateBlockNote` and `BlockNoteEditor.create` ([see docs](/docs/editor-basics/setup)),
+so you can pass the same configuration (for example, your custom schema) to your server-side BlockNote editor as on the client.
+
+## Functions for converting blocks
+
+`ServerBlockNoteEditor` exposes the same functions for [converting blocks as the client side editor](/docs/converting-blocks):
+
+- `blocksToFullHTML`
+- `blocksToHTMLLossy` and `tryParseHTMLToBlocks`
+- `blocksToMarkdownLossy` and `tryParseMarkdownToBlocks`
+
+## Yjs processing
+
+Additionally, `ServerBlockNoteEditor` provides functions for processing Yjs documents in case you use Yjs collaboration:
+
+- `yDocToBlocks` or `yXmlFragmentToBlocks`: use this to convert a Yjs document or XML Fragment to BlockNote blocks
+- `blocksToYDoc` or `blocksToYXmlFragment`: use this to convert a BlockNote document (blocks) to a Yjs document or XML Fragment
+
+## React compatibility
+
+If you use [custom schemas in React](/docs/custom-schemas), you can use the same schema on the server side.
+Functions like `blocksToFullHTML` will use your custom React rendering functions to export blocks to HTML, similar to how these functions work on the client.
+However, it could be that your React components require access to a React context (e.g. a theme or localization context).
+
+For these use-cases, we provide a function `withReactContext` that allows you to pass a React context to the server-side editor.
+This example exports a BlockNote document to HTML within a React context `YourContext`, so that even Custom Blocks built in React that require `YourContext` will be exported correctly:
+
+```tsx
+const html = await editor.withReactContext(
+  ({ children }) => (
+    <YourContext.Provider value={true}>{children}</YourContext.Provider>
+  ),
+  async () => editor.blocksToFullHTML(blocks),
+);
+```

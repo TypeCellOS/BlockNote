@@ -1,6 +1,7 @@
 import { Plugin, PluginKey, PluginView } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import { nodeToBlock } from "../../api/nodeConversions/nodeConversions";
+import { checkBlockIsDefaultType } from "../../blocks/defaultBlockTypeGuards";
 import { Block, DefaultBlockSchema } from "../../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import {
@@ -9,7 +10,6 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../schema";
-import { checkBlockIsDefaultType } from "../../blocks/defaultBlockTypeGuards";
 import { EventEmitter } from "../../util/EventEmitter";
 import { getDraggableBlockFromElement } from "../SideMenu/SideMenuPlugin";
 import { CellSelection, cellAround } from "prosemirror-tables";
@@ -37,7 +37,7 @@ export type TableHandlesState<
     | undefined;
 };
 
-function setHiddenDragImage() {
+function setHiddenDragImage(rootEl: Document | ShadowRoot) {
   if (dragImageElement) {
     return;
   }
@@ -47,12 +47,20 @@ function setHiddenDragImage() {
   dragImageElement.style.opacity = "0";
   dragImageElement.style.height = "1px";
   dragImageElement.style.width = "1px";
-  document.body.appendChild(dragImageElement);
+  if (rootEl instanceof Document) {
+    rootEl.body.appendChild(dragImageElement);
+  } else {
+    rootEl.appendChild(dragImageElement);
+  }
 }
 
-function unsetHiddenDragImage() {
+function unsetHiddenDragImage(rootEl: Document | ShadowRoot) {
   if (dragImageElement) {
-    document.body.removeChild(dragImageElement);
+    if (rootEl instanceof Document) {
+      rootEl.body.removeChild(dragImageElement);
+    } else {
+      rootEl.removeChild(dragImageElement);
+    }
     dragImageElement = undefined;
   }
 }
@@ -74,9 +82,13 @@ function domCellAround(target: Element | null): Element | null {
 }
 
 // Hides elements in the DOMwith the provided class names.
-function hideElementsWithClassNames(classNames: string[]) {
+function hideElementsWithClassNames(
+  classNames: string[],
+  rootEl: Document | ShadowRoot
+) {
   classNames.forEach((className) => {
-    const elementsToHide = document.getElementsByClassName(className);
+    const elementsToHide = rootEl.querySelectorAll(className);
+
     for (let i = 0; i < elementsToHide.length; i++) {
       (elementsToHide[i] as HTMLElement).style.visibility = "hidden";
     }
@@ -121,13 +133,16 @@ export class TableHandlesView<
     pmView.dom.addEventListener("mousedown", this.mouseDownHandler);
     pmView.dom.addEventListener("click", this.mouseClickHandler);
 
-    document.addEventListener("dragover", this.dragOverHandler);
-    document.addEventListener("drop", this.dropHandler);
+    pmView.root.addEventListener(
+      "dragover",
+      this.dragOverHandler as EventListener
+    );
+    pmView.root.addEventListener("drop", this.dropHandler as EventListener);
 
     // Setting capture=true ensures that any parent container of the editor that
     // gets scrolled will trigger the scroll event. Scroll events do not bubble
     // and so won't propagate to the document by default.
-    document.addEventListener("scroll", this.scrollHandler, true);
+    pmView.root.addEventListener("scroll", this.scrollHandler, true);
   }
 
   mouseMoveHandler = (event: MouseEvent) => {
@@ -225,11 +240,14 @@ export class TableHandlesView<
     event.preventDefault();
     event.dataTransfer!.dropEffect = "move";
 
-    hideElementsWithClassNames([
-      "column-resize-handle",
-      "prosemirror-dropcursor-block",
-      "prosemirror-dropcursor-inline",
-    ]);
+    hideElementsWithClassNames(
+      [
+        "column-resize-handle",
+        "prosemirror-dropcursor-block",
+        "prosemirror-dropcursor-inline",
+      ],
+      this.pmView.root
+    );
 
     // The mouse cursor coordinates, bounded to the table's bounding box. The
     // bounding box is shrunk by 1px on each side to ensure that the bounded
@@ -247,7 +265,7 @@ export class TableHandlesView<
 
     // Gets the table cell element that the bounded mouse cursor coordinates lie
     // in.
-    const tableCellElements = document
+    const tableCellElements = this.pmView.root
       .elementsFromPoint(boundedMouseCoords.left, boundedMouseCoords.top)
       .filter(
         (element) => element.tagName === "TD" || element.tagName === "TH"
@@ -308,7 +326,7 @@ export class TableHandlesView<
     // Dispatches a dummy transaction to force a decorations update if
     // necessary.
     if (dispatchDecorationsTransaction) {
-      this.pmView.dispatch(
+      this.editor.dispatch(
         this.pmView.state.tr.setMeta(tableHandlesPluginKey, true)
       );
     }
@@ -348,7 +366,7 @@ export class TableHandlesView<
 
   scrollHandler = () => {
     if (this.state?.show) {
-      const tableElement = document.querySelector(
+      const tableElement = this.pmView.root.querySelector(
         `[data-node-type="blockContainer"][data-id="${this.tableId}"] table`
       )!;
       const cellElement = tableElement.querySelector(
@@ -473,10 +491,15 @@ export class TableHandlesView<
     this.pmView.dom.removeEventListener("mouseup", this.mouseUpHandler);
     this.pmView.dom.addEventListener("click", this.mouseClickHandler);
 
-    document.removeEventListener("dragover", this.dragOverHandler);
-    document.removeEventListener("drop", this.dropHandler);
-
-    document.removeEventListener("scroll", this.scrollHandler, true);
+    this.pmView.root.removeEventListener(
+      "dragover",
+      this.dragOverHandler as EventListener
+    );
+    this.pmView.root.removeEventListener(
+      "drop",
+      this.dropHandler as EventListener
+    );
+    this.pmView.root.removeEventListener("scroll", this.scrollHandler, true);
   }
 }
 
@@ -661,7 +684,7 @@ export class TableHandlesProsemirrorPlugin<
     };
     this.view!.emitUpdate();
 
-    this.editor._tiptapEditor.view.dispatch(
+    this.editor.dispatch(
       this.editor._tiptapEditor.state.tr.setMeta(tableHandlesPluginKey, {
         draggedCellOrientation:
           this.view!.state.draggingState.draggedCellOrientation,
@@ -671,7 +694,7 @@ export class TableHandlesProsemirrorPlugin<
       })
     );
 
-    setHiddenDragImage();
+    setHiddenDragImage(this.editor._tiptapEditor.view.root);
     event.dataTransfer!.setDragImage(dragImageElement!, 0, 0);
     event.dataTransfer!.effectAllowed = "move";
   };
@@ -697,7 +720,7 @@ export class TableHandlesProsemirrorPlugin<
     };
     this.view!.emitUpdate();
 
-    this.editor._tiptapEditor.view.dispatch(
+    this.editor.dispatch(
       this.editor._tiptapEditor.state.tr.setMeta(tableHandlesPluginKey, {
         draggedCellOrientation:
           this.view!.state.draggingState.draggedCellOrientation,
@@ -707,7 +730,7 @@ export class TableHandlesProsemirrorPlugin<
       })
     );
 
-    setHiddenDragImage();
+    setHiddenDragImage(this.editor._tiptapEditor.view.root);
     event.dataTransfer!.setDragImage(dragImageElement!, 0, 0);
     event.dataTransfer!.effectAllowed = "copyMove";
   };
@@ -726,11 +749,11 @@ export class TableHandlesProsemirrorPlugin<
     this.view!.state.draggingState = undefined;
     this.view!.emitUpdate();
 
-    this.editor._tiptapEditor.view.dispatch(
+    this.editor.dispatch(
       this.editor._tiptapEditor.state.tr.setMeta(tableHandlesPluginKey, null)
     );
 
-    unsetHiddenDragImage();
+    unsetHiddenDragImage(this.editor._tiptapEditor.view.root);
   };
 
   /**
