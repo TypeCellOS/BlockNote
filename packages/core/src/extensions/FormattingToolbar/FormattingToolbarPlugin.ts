@@ -58,7 +58,6 @@ export class FormattingToolbarView implements PluginView {
     pmView.dom.addEventListener("mouseup", this.viewMouseupHandler);
     pmView.dom.addEventListener("dragstart", this.dragHandler);
     pmView.dom.addEventListener("dragover", this.dragHandler);
-    pmView.dom.addEventListener("focus", this.focusHandler);
     pmView.dom.addEventListener("blur", this.blurHandler);
 
     // Setting capture=true ensures that any parent container of the editor that
@@ -66,10 +65,6 @@ export class FormattingToolbarView implements PluginView {
     // and so won't propagate to the document by default.
     pmView.root.addEventListener("scroll", this.scrollHandler, true);
   }
-
-  focusHandler = () => {
-    this.update(this.pmView);
-  };
 
   blurHandler = (event: FocusEvent) => {
     if (this.preventHide) {
@@ -187,7 +182,6 @@ export class FormattingToolbarView implements PluginView {
     this.pmView.dom.removeEventListener("mouseup", this.viewMouseupHandler);
     this.pmView.dom.removeEventListener("dragstart", this.dragHandler);
     this.pmView.dom.removeEventListener("dragover", this.dragHandler);
-    this.pmView.dom.removeEventListener("focus", this.focusHandler);
     this.pmView.dom.removeEventListener("blur", this.blurHandler);
 
     this.pmView.root.removeEventListener("scroll", this.scrollHandler, true);
