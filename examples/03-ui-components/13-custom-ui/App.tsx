@@ -12,9 +12,9 @@ import { createTheme, ThemeProvider, useMediaQuery } from "@mui/material";
 import { useMemo } from "react";
 
 import { schema } from "./schema";
-import { MUIFormattingToolbar } from "./MUIFormattingToolbar";
-import { MUISideMenu } from "./MUISideMenu";
-import { MUISlashMenu } from "./MUISlashMenu";
+import { CustomMUIFormattingToolbar } from "./MUIFormattingToolbar";
+import { CustomMUISideMenu } from "./MUISideMenu";
+import { MUISuggestionMenu } from "./MUISuggestionMenu";
 
 import "./style.css";
 
@@ -61,15 +61,18 @@ export default function App() {
         tableHandles={false}
         emojiPicker={false}>
         {/* Adds the custom Formatting Toolbar. */}
-        {/* `FormattingToolbarController isn't used since the custom toolbar */}
-        {/* is static and always visible above the editor. */}
-        <MUIFormattingToolbar />
+        {/* `FormattingToolbarController isn't used since we make the custom */}
+        {/* toolbar static and always visible above the editor for this */}
+        {/* example. */}
+        <CustomMUIFormattingToolbar />
         {/* Adds the custom Side Menu and Slash Menu. */}
         {/* These use controllers since we want them to be positioned and */}
         {/* show/hide the same as the default ones. */}
-        <SideMenuController sideMenu={MUISideMenu} />
+        <SideMenuController sideMenu={CustomMUISideMenu} />
         <SuggestionMenuController
           triggerCharacter={"/"}
+          // We use the default slash menu items but exclude the `Emoji` one as
+          // we disabled the Emoji Picker.
           getItems={async (query) =>
             filterSuggestionItems(
               getDefaultReactSlashMenuItems(editor).filter(
@@ -78,7 +81,7 @@ export default function App() {
               query
             )
           }
-          suggestionMenuComponent={MUISlashMenu}
+          suggestionMenuComponent={MUISuggestionMenu}
           onItemClick={(i) => i.onItemClick()}
         />
       </BlockNoteViewRaw>

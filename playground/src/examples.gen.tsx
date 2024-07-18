@@ -526,9 +526,30 @@
         }
       },
       {
+        "projectSlug": "static-formatting-toolbar",
+        "fullSlug": "ui-components/static-formatting-toolbar",
+        "pathFromRoot": "examples/03-ui-components/12-static-formatting-toolbar",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic",
+            "UI Components",
+            "Formatting Toolbar",
+            "Appearance & Styling"
+          ]
+        },
+        "title": "Static Formatting Toolbar",
+        "group": {
+          "pathFromRoot": "examples/03-ui-components",
+          "slug": "ui-components"
+        }
+      },
+      {
         "projectSlug": "custom-ui",
         "fullSlug": "ui-components/custom-ui",
-        "pathFromRoot": "examples/03-ui-components/12-custom-ui",
+        "pathFromRoot": "examples/03-ui-components/13-custom-ui",
         "config": {
           "playground": true,
           "docs": true,
@@ -551,7 +572,7 @@
           } as any,
           "pro": true
         },
-        "title": "Using Material UI",
+        "title": "UI With Third-Party Components",
         "group": {
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"
