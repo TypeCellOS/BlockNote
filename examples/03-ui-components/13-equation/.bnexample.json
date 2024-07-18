@@ -1,0 +1,11 @@
+{
+  "playground": true,
+  "docs": false,
+  "author": "matthewlipski",
+  "tags": ["Intermediate", "Blocks", "Custom Schemas", "Suggestion Menus", "Slash Menu"],
+  "dependencies": {
+    "katex": "^0.16.11",
+    "@types/katex": "^0.16.7",
+    "react-icons": "^5.2.1"
+  }
+}

@@ -21,6 +21,7 @@
     "@liveblocks/client": "^1.10.0",
     "@liveblocks/yjs": "^1.10.0",
     "@mantine/core": "^7.10.1",
+    "@types/katex": "^0.16.7",
     "@uppy/core": "^3.13.1",
     "@uppy/dashboard": "^3.9.1",
     "@uppy/drag-drop": "^3.1.1",
@@ -32,6 +33,7 @@
     "@uppy/status-bar": "^3.1.1",
     "@uppy/webcam": "^3.4.2",
     "@uppy/xhr-upload": "^3.4.0",
+    "katex": "^0.16.11",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-icons": "^5.2.1",
@@ -40,6 +42,7 @@
     "yjs": "^13.6.15"
   },
   "devDependencies": {
+    "@types/katex": "^0.16.7",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",
     "@vitejs/plugin-react": "^4.0.4",

@@ -555,6 +555,33 @@
         }
       },
       {
+        "projectSlug": "equation",
+        "fullSlug": "ui-components/equation",
+        "pathFromRoot": "examples/03-ui-components/13-equation",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas",
+            "Suggestion Menus",
+            "Slash Menu"
+          ],
+          "dependencies": {
+            "katex": "^0.16.11",
+            "@types/katex": "^0.16.11",
+            "react-icons": "^5.2.1"
+          } as any
+        },
+        "title": "Equation",
+        "group": {
+          "pathFromRoot": "examples/03-ui-components",
+          "slug": "ui-components"
+        }
+      },
+      {
         "projectSlug": "link-toolbar-buttons",
         "fullSlug": "ui-components/link-toolbar-buttons",
         "pathFromRoot": "examples/03-ui-components/link-toolbar-buttons",
