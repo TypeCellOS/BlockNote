@@ -4,7 +4,7 @@
   "private": false,
   "sideEffects": false,
   "license": "MPL-2.0",
-  "version": "0.15.0",
+  "version": "0.15.3",
   "files": [
     "dist",
     "types",
@@ -51,7 +51,7 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "^0.15.0",
+    "@blocknote/core": "^0.15.3",
     "@floating-ui/react": "^0.26.4",
     "@tiptap/core": "^2.5.0",
     "@tiptap/react": "^2.5.0",
@@ -66,16 +66,16 @@
     "@types/lodash.merge": "^4.6.9",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",
-    "@vitejs/plugin-react": "^4.0.4",
+    "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^8.10.0",
     "prettier": "^2.7.1",
     "rimraf": "^5.0.5",
     "rollup-plugin-webpack-stats": "^0.2.2",
     "typescript": "^5.3.3",
-    "vite": "^4.4.8",
+    "vite": "^5.3.4",
     "vite-plugin-eslint": "^1.8.1",
-    "vite-plugin-externalize-deps": "^0.7.0",
-    "vitest": "^0.34.1"
+    "vite-plugin-externalize-deps": "^0.8.0",
+    "vitest": "^2.0.3"
   },
   "peerDependencies": {
     "react": "^18",

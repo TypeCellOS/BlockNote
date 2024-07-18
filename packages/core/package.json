@@ -3,7 +3,7 @@
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
   "license": "MPL-2.0",
-  "version": "0.15.0",
+  "version": "0.15.3",
   "files": [
     "dist",
     "types",
@@ -106,9 +106,9 @@
     "rimraf": "^5.0.5",
     "rollup-plugin-webpack-stats": "^0.2.2",
     "typescript": "^5.3.3",
-    "vite": "^4.4.8",
+    "vite": "^5.3.4",
     "vite-plugin-eslint": "^1.8.1",
-    "vitest": "^0.34.1"
+    "vitest": "^2.0.3"
   },
   "eslintConfig": {
     "extends": [
