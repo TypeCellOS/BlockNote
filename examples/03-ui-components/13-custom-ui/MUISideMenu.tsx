@@ -154,8 +154,8 @@ function MUISideMenu(
 // You can add to or replace the `MUIDragHandleButton` component using the MUI
 // `Button` components. Unlike the Formatting Toolbar, we don't use button
 // components specific to the Side Menu since there is really nothing more to
-// them than just an MUI `Button` and some styles passed via the `sx` prop, as
-// you can see in `MUIDragHandleButton`.
+// them than just an MUI `IconButton` and some styles passed via the `sx` prop,
+// as you can see in `MUIDragHandleButton`.
 export function CustomMUISideMenu(props: SideMenuProps<TextBlockSchema>) {
   return (
     <MUISideMenu {...props}>

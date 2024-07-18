@@ -876,8 +876,7 @@
           ],
           "dependencies": {
             "@mantine/core": "^7.10.1",
-            "react-icons": "^5.2.1",
-            "react-pdf": "^9.1.0"
+            "react-icons": "^5.2.1"
           } as any,
           "pro": true
         },

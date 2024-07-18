@@ -53,7 +53,7 @@ export default function App() {
       {
         type: "pdf",
         props: {
-          url: "https://ontheline.trincoll.edu/images/bookdown/sample-local-pdf.pdf",
+          url: "https://pdfobject.com/pdf/sample.pdf",
         },
       },
       {
