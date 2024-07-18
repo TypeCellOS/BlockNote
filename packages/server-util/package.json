@@ -66,9 +66,9 @@
     "prettier": "^2.7.1",
     "rollup-plugin-webpack-stats": "^0.2.2",
     "typescript": "^5.0.4",
-    "vite": "^4.4.8",
+    "vite": "^5.3.4",
     "vite-plugin-eslint": "^1.8.1",
-    "vitest": "^0.34.1"
+    "vitest": "^2.0.3"
   },
   "peerDependencies": {
     "react": "^18",
