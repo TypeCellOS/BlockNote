@@ -441,8 +441,15 @@ export class SideMenuView<
       const editorBoundingBox = (
         this.pmView.dom.firstChild! as HTMLElement
       ).getBoundingClientRect();
-      evt.clientX = editorBoundingBox.left + editorBoundingBox.width / 2;
-      evt.clientY = event.clientY;
+      evt.clientX =
+        event.clientX < editorBoundingBox.left ||
+        event.clientX > editorBoundingBox.left + editorBoundingBox.width
+          ? editorBoundingBox.left + editorBoundingBox.width / 2
+          : event.clientX;
+      evt.clientY = Math.min(
+        Math.max(event.clientY, editorBoundingBox.top),
+        editorBoundingBox.top + editorBoundingBox.height
+      );
       evt.dataTransfer = event.dataTransfer;
       evt.preventDefault = () => event.preventDefault();
       evt.synthetic = true; // prevent recursion
@@ -498,6 +505,10 @@ export class SideMenuView<
   };
 
   onMouseMove = (event: MouseEvent) => {
+    if (this.menuFrozen) {
+      return;
+    }
+
     this.mousePos = { x: event.clientX, y: event.clientY };
 
     // We want the full area of the editor to check if the cursor is hovering

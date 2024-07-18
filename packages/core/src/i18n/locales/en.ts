@@ -185,7 +185,7 @@ export const en = {
     },
     strike: {
       tooltip: "Strike",
-      secondary_tooltip: "Mod+Shift+X",
+      secondary_tooltip: "Mod+Shift+S",
     },
     code: {
       tooltip: "Code",
