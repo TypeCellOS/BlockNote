@@ -498,6 +498,10 @@ export class SideMenuView<
   };
 
   onMouseMove = (event: MouseEvent) => {
+    if (this.menuFrozen) {
+      return;
+    }
+
     this.mousePos = { x: event.clientX, y: event.clientY };
 
     // We want the full area of the editor to check if the cursor is hovering
