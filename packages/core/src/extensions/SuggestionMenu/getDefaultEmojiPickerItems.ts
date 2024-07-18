@@ -1,5 +1,5 @@
 import type { Emoji, EmojiMartData } from "@emoji-mart/data";
-import emojiMart from "emoji-mart";
+import { SearchIndex, init } from "emoji-mart";
 import { checkDefaultInlineContentTypeInSchema } from "../../blocks/defaultBlockTypeGuards";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
@@ -28,7 +28,7 @@ export async function getDefaultEmojiPickerItems<
     // and a smaller initial client bundle size
     data = import("@emoji-mart/data", { assert: { type: "json" } }) as any;
     const emojiMartData = (await data)!.default;
-    await emojiMart.init({ data: emojiMartData });
+    await init({ data: emojiMartData });
   }
 
   const emojiMartData = (await data)!.default;
@@ -36,7 +36,7 @@ export async function getDefaultEmojiPickerItems<
   const emojisToShow =
     query.trim() === ""
       ? Object.values(emojiMartData.emojis)
-      : ((await emojiMart.SearchIndex.search(query)) as Emoji[]);
+      : ((await SearchIndex.search(query)) as Emoji[]);
 
   return emojisToShow.map((emoji) => ({
     id: emoji.skins[0].native,
