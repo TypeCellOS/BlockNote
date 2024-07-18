@@ -1,5 +1,5 @@
 import type { Emoji, EmojiMartData } from "@emoji-mart/data";
-import emojimart from "emoji-mart";
+
 import { checkDefaultInlineContentTypeInSchema } from "../../blocks/defaultBlockTypeGuards";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
@@ -10,6 +10,8 @@ let data:
       default: EmojiMartData;
     }>
   | undefined;
+
+let emojiMart: typeof import("emoji-mart") | undefined;
 
 export async function getDefaultEmojiPickerItems<
   BSchema extends BlockSchema,
@@ -27,8 +29,11 @@ export async function getDefaultEmojiPickerItems<
     // use a dynamic import to encourage bundle-splitting
     // and a smaller initial client bundle size
     data = import("@emoji-mart/data", { assert: { type: "json" } }) as any;
+
+    // load dynamically because emoji-mart doesn't specify type: module and breaks in nodejs
+    emojiMart = await import("emoji-mart");
     const emojiMartData = (await data)!.default;
-    await emojimart.init({ data: emojiMartData });
+    await emojiMart.init({ data: emojiMartData });
   }
 
   const emojiMartData = (await data)!.default;
@@ -36,7 +41,7 @@ export async function getDefaultEmojiPickerItems<
   const emojisToShow =
     query.trim() === ""
       ? Object.values(emojiMartData.emojis)
-      : ((await emojimart.SearchIndex.search(query)) as Emoji[]);
+      : ((await emojiMart!.SearchIndex.search(query)) as Emoji[]);
 
   return emojisToShow.map((emoji) => ({
     id: emoji.skins[0].native,
