@@ -1,1 +1,1 @@
-export * from "./context/ServerBlockNoteEditor";
+export { ServerBlockNoteEditor } from "./context/ServerBlockNoteEditor";
