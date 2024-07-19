@@ -4,9 +4,13 @@ import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import remarkRehype, { defaultHandlers } from "remark-rehype";
 import { unified } from "unified";
-import { Block } from "../../../blocks/defaultBlocks";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
-import { HTMLToBlocks } from "../html/parseHTML";
+import { Block } from "../../../blocks/defaultBlocks.js";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../../schema/index.js";
+import { HTMLToBlocks } from "../html/parseHTML.js";
 
 // modified version of https://github.com/syntax-tree/mdast-util-to-hast/blob/main/lib/handlers/code.js
 // that outputs a data-language attribute instead of a CSS class (e.g.: language-typescript)

@@ -1,14 +1,14 @@
 import { expect } from "@playwright/test";
-import { test } from "../../setup/setupScript";
+import { test } from "../../setup/setupScript.js";
 import {
+  ARIAKIT_URL,
   DRAG_HANDLE_SELECTOR,
   LINK_BUTTON_SELECTOR,
   PARAGRAPH_SELECTOR,
-  ARIAKIT_URL,
-} from "../../utils/const";
-import { focusOnEditor } from "../../utils/editor";
-import { moveMouseOverElement } from "../../utils/mouse";
-import { executeSlashCommand } from "../../utils/slashmenu";
+} from "../../utils/const.js";
+import { focusOnEditor } from "../../utils/editor.js";
+import { moveMouseOverElement } from "../../utils/mouse.js";
+import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 test.beforeEach(async ({ page }) => {
   await page.goto(ARIAKIT_URL);

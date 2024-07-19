@@ -1,5 +1,5 @@
 import React from "react";
-import type { Project } from "../util";
+import type { Project } from "../util.js";
 
 const template = (project: Project) => (
   <html lang="en">

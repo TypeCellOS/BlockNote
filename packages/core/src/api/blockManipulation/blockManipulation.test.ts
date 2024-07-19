@@ -1,14 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   Block,
-  defaultBlockSpecs,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   PartialBlock,
-} from "../../blocks/defaultBlocks";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { createBlockSpec } from "../../schema";
-import { BlockNoteSchema } from "../../editor/BlockNoteSchema";
+  defaultBlockSpecs,
+} from "../../blocks/defaultBlocks.js";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { BlockNoteSchema } from "../../editor/BlockNoteSchema.js";
+import { createBlockSpec } from "../../schema/index.js";
 
 const CustomBlock = createBlockSpec(
   {

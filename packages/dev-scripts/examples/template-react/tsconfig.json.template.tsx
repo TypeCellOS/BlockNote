@@ -1,4 +1,4 @@
-import type { Project } from "../util";
+import type { Project } from "../util.js";
 
 const template = (project: Project) => ({
   __comment: "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",

@@ -1,5 +1,5 @@
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { BlockFromConfig, FileBlockConfig } from "../../schema";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { BlockFromConfig, FileBlockConfig } from "../../schema/index.js";
 
 // Default file preview, displaying a file icon and file name.
 export const createDefaultFilePreview = (

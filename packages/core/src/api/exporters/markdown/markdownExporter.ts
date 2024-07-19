@@ -4,12 +4,16 @@ import rehypeRemark from "rehype-remark";
 import remarkGfm from "remark-gfm";
 import remarkStringify from "remark-stringify";
 import { unified } from "unified";
-import { PartialBlock } from "../../../blocks/defaultBlocks";
-import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
-import { createExternalHTMLExporter } from "../html/externalHTMLExporter";
-import { removeUnderlines } from "./removeUnderlinesRehypePlugin";
-import { addSpacesToCheckboxes } from "./util/addSpacesToCheckboxesRehypePlugin";
+import { PartialBlock } from "../../../blocks/defaultBlocks.js";
+import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../../schema/index.js";
+import { createExternalHTMLExporter } from "../html/externalHTMLExporter.js";
+import { removeUnderlines } from "./removeUnderlinesRehypePlugin.js";
+import { addSpacesToCheckboxes } from "./util/addSpacesToCheckboxesRehypePlugin.js";
 
 export function cleanHTMLToMarkdown(cleanHTMLString: string) {
   const markdownString = unified()

@@ -1,7 +1,7 @@
 import { KeyboardShortcutCommand, Node } from "@tiptap/core";
 
-import { camelToDataKebab } from "../../util/string";
-import { PropSchema, Props } from "../propTypes";
+import { camelToDataKebab } from "../../util/string.js";
+import { PropSchema, Props } from "../propTypes.js";
 import {
   CustomInlineContentConfig,
   InlineContentConfig,
@@ -9,7 +9,7 @@ import {
   InlineContentSchemaFromSpecs,
   InlineContentSpec,
   InlineContentSpecs,
-} from "./types";
+} from "./types.js";
 
 // Function that adds necessary classes and attributes to the `dom` element
 // returned from a custom inline content's 'render' function, to ensure no data

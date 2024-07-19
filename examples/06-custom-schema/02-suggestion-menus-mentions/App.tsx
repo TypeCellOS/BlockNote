@@ -4,15 +4,15 @@ import {
   filterSuggestionItems,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
 import {
   DefaultReactSuggestionItem,
   SuggestionMenuController,
   useCreateBlockNote,
 } from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
 
-import { Mention } from "./Mention";
+import { Mention } from "./Mention.js";
 
 // Our schema with inline content specs, which contain the configs and
 // implementations for inline content  that we want our editor to use.

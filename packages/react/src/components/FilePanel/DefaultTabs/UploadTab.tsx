@@ -8,10 +8,10 @@ import {
 } from "@blocknote/core";
 import { useCallback, useEffect, useState } from "react";
 
-import { useComponentsContext } from "../../../editor/ComponentsContext";
-import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
-import { useDictionary } from "../../../i18n/dictionary";
-import { FilePanelProps } from "../FilePanelProps";
+import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
+import { useDictionary } from "../../../i18n/dictionary.js";
+import { FilePanelProps } from "../FilePanelProps.js";
 
 export const UploadTab = <
   B extends BlockSchema = DefaultBlockSchema,

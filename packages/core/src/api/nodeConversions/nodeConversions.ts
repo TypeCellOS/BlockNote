@@ -1,6 +1,6 @@
 import { Mark, Node, Schema } from "@tiptap/pm/model";
 
-import UniqueID from "../../extensions/UniqueID/UniqueID";
+import UniqueID from "../../extensions/UniqueID/UniqueID.js";
 import type {
   BlockSchema,
   CustomInlineContentConfig,
@@ -16,16 +16,16 @@ import type {
   StyledText,
   Styles,
   TableContent,
-} from "../../schema";
-import { getBlockInfo } from "../getBlockInfoFromPos";
+} from "../../schema/index.js";
+import { getBlockInfo } from "../getBlockInfoFromPos.js";
 
-import type { Block, PartialBlock } from "../../blocks/defaultBlocks";
+import type { Block, PartialBlock } from "../../blocks/defaultBlocks.js";
 import {
   isLinkInlineContent,
   isPartialLinkInlineContent,
   isStyledTextInlineContent,
-} from "../../schema/inlineContent/types";
-import { UnreachableCaseError } from "../../util/typescript";
+} from "../../schema/inlineContent/types.js";
+import { UnreachableCaseError } from "../../util/typescript.js";
 
 /**
  * Convert a StyledText inline element to a

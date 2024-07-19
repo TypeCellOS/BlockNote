@@ -5,16 +5,16 @@ import {
   insertOrUpdateBlock,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
 import {
   SuggestionMenuController,
   getDefaultReactSlashMenuItems,
   useCreateBlockNote,
 } from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
 
 import { RiAlertFill } from "react-icons/ri";
-import { Alert } from "./Alert";
+import { Alert } from "./Alert.js";
 
 // Our schema with block specs, which contain the configs and implementations for blocks
 // that we want our editor to use.

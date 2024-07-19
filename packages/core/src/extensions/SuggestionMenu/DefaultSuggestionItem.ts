@@ -1,4 +1,4 @@
-import type { Dictionary } from "../../i18n/dictionary";
+import type { Dictionary } from "../../i18n/dictionary.js";
 
 export type DefaultSuggestionItem = {
   key: keyof Dictionary["slash_menu"];

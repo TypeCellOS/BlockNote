@@ -8,10 +8,10 @@ import {
 } from "@blocknote/core";
 import { ReactNode, useMemo } from "react";
 
-import { AddBlockButton } from "./DefaultButtons/AddBlockButton";
-import { DragHandleButton } from "./DefaultButtons/DragHandleButton";
-import { SideMenuProps } from "./SideMenuProps";
-import { useComponentsContext } from "../../editor/ComponentsContext";
+import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { AddBlockButton } from "./DefaultButtons/AddBlockButton.js";
+import { DragHandleButton } from "./DefaultButtons/DragHandleButton.js";
+import { SideMenuProps } from "./SideMenuProps.js";
 
 // TODO: props.dragHandleMenu should only be available if no children are passed
 /**

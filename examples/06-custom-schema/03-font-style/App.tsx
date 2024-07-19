@@ -18,9 +18,10 @@ import {
   useComponentsContext,
   useCreateBlockNote,
 } from "@blocknote/react";
+
 import { RiText } from "react-icons/ri";
 
-import { Font } from "./Font";
+import { Font } from "./Font.js";
 
 // Our schema with style specs, which contain the configs and implementations for styles
 // that we want our editor to use.

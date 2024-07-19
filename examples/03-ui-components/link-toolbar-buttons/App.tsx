@@ -1,13 +1,13 @@
 import "@blocknote/core/fonts/inter.css";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
 import {
   LinkToolbar,
   LinkToolbarController,
   useCreateBlockNote,
 } from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
 
-import { AlertButton } from "./AlertButton";
+import { AlertButton } from "./AlertButton.js";
 
 export default function App() {
   // Creates a new editor instance.

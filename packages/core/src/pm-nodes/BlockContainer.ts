@@ -2,24 +2,24 @@ import { Node } from "@tiptap/core";
 import { Fragment, Node as PMNode, Slice } from "prosemirror-model";
 import { NodeSelection, TextSelection } from "prosemirror-state";
 
-import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos";
+import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos.js";
 import {
   blockToNode,
   inlineContentToNodes,
   tableContentToNodes,
-} from "../api/nodeConversions/nodeConversions";
-import { PartialBlock } from "../blocks/defaultBlocks";
-import type { BlockNoteEditor } from "../editor/BlockNoteEditor";
-import { NonEditableBlockPlugin } from "../extensions/NonEditableBlocks/NonEditableBlockPlugin";
-import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin";
+} from "../api/nodeConversions/nodeConversions.js";
+import { PartialBlock } from "../blocks/defaultBlocks.js";
+import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
+import { NonEditableBlockPlugin } from "../extensions/NonEditableBlocks/NonEditableBlockPlugin.js";
+import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin.js";
 import {
   BlockNoteDOMAttributes,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
-} from "../schema";
-import { mergeCSSClasses } from "../util/browser";
-import { UnreachableCaseError } from "../util/typescript";
+} from "../schema/index.js";
+import { mergeCSSClasses } from "../util/browser.js";
+import { UnreachableCaseError } from "../util/typescript.js";
 
 // Object containing all possible block attributes.
 const BlockAttributes: Record<string, string> = {

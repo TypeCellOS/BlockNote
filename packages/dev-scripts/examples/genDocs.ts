@@ -7,7 +7,7 @@ import {
   getProjectFiles,
   groupProjects,
   Project,
-} from "./util";
+} from "./util.js";
 
 /*
  `genDocs` generates the nextjs example blocks for the website docs. 
@@ -22,7 +22,7 @@ const getLanguageFromFileName = (fileName: string) => fileName.split(".").pop();
 const templateExampleBlock = (
   project: Project,
   files: Files
-) => `import { ExampleBlock } from "@/components/example/ExampleBlock";
+) => `import { ExampleBlock } from "./components/example/ExampleBlock.js";
 import { Tabs } from "nextra/components";
 
 <ExampleBlock name="${project.fullSlug}" path="${
@@ -75,7 +75,7 @@ async function generateCodeForExample(project: Project) {
 const templatePageForExample = (
   project: Project,
   readme: string
-) => `import { Example } from "@/components/example";
+) => `import { Example } from "./components/example.js";
 
 ${readme}
 
@@ -132,7 +132,7 @@ import dynamic from "next/dynamic";
 export const examples = {
 ${projects
   .map((p) => {
-    const importPath = `../../../../${p.pathFromRoot}/App`;
+    const importPath = `../../../../${p.pathFromRoot}/App.js`;
 
     return `  "${p.fullSlug}": {
     // App: () => <div>hello</div>,

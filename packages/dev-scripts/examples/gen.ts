@@ -3,8 +3,9 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import prettier from "prettier";
 import React from "react";
+
 import ReactDOM from "react-dom/server";
-import { Project, getExampleProjects, groupProjects } from "./util";
+import { Project, getExampleProjects, groupProjects } from "./util.js";
 
 /**
  * This script reads the examples in the /examples folder. These folders initially only need an App.tsx, .bnexample.json and README.md file.

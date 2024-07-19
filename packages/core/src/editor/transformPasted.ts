@@ -1,4 +1,5 @@
 import { Fragment, Slice } from "@tiptap/pm/model";
+
 import { EditorView } from "@tiptap/pm/view";
 
 // helper function to remove a child from a fragment

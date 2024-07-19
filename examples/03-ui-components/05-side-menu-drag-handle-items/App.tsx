@@ -1,4 +1,6 @@
 import "@blocknote/core/fonts/inter.css";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
 import {
   BlockColorsItem,
   DragHandleMenu,
@@ -7,10 +9,8 @@ import {
   SideMenuController,
   useCreateBlockNote,
 } from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
 
-import { ResetBlockTypeItem } from "./ResetBlockTypeItem";
+import { ResetBlockTypeItem } from "./ResetBlockTypeItem.js";
 
 export default function App() {
   // Creates a new editor instance.

@@ -1,11 +1,11 @@
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   BlockFromConfig,
   FileBlockConfig,
   PropSchema,
   createBlockSpec,
-} from "../../schema";
-import { defaultProps } from "../defaultProps";
+} from "../../schema/index.js";
+import { defaultProps } from "../defaultProps.js";
 import {
   createAddFileButton,
   createDefaultFilePreview,
@@ -13,7 +13,7 @@ import {
   createLinkWithCaption,
   parseEmbedElement,
   parseFigureElement,
-} from "./fileBlockHelpers";
+} from "./fileBlockHelpers.js";
 
 export const filePropSchema = {
   backgroundColor: defaultProps.backgroundColor,

@@ -1,5 +1,5 @@
 import { Locator, Page } from "@playwright/test";
-import { DRAG_HANDLE_SELECTOR } from "./const";
+import { DRAG_HANDLE_SELECTOR } from "./const.js";
 
 async function getElementLeftCoords(_page: Page, element: Locator) {
   const boundingBox = (await element.boundingBox())!;

@@ -16,8 +16,8 @@ import {
 } from "react-icons/md";
 
 import { checkBlockHasDefaultProp } from "@blocknote/core";
-import { ColorMenu } from "./ColorMenu";
-import { LinkMenu } from "./LinkMenu";
+import { ColorMenu } from "./ColorMenu.js";
+import { LinkMenu } from "./LinkMenu.js";
 
 type CustomFormattingToolbarState = {
   bold: boolean;
