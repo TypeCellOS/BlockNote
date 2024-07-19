@@ -10,7 +10,7 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
-import { PiTextSuperscript } from "react-icons/pi";
+import { RiFormula } from "react-icons/ri";
 import "@blocknote/mantine/style.css";
 
 import { InlineEquation } from "./Equation";
@@ -26,7 +26,7 @@ const schema = BlockNoteSchema.create({
 
 // Slash menu item to insert an Alert block
 const insertLaTex = (editor: typeof schema.BlockNoteEditor) => ({
-  icon: PiTextSuperscript,
+  icon: <RiFormula size={18}/>,
   title: "Inline Equation",
   key: "inlineEquation",
   subtext: "Insert mathematical symbols in text.",
@@ -51,7 +51,7 @@ export default function App() {
       {
         type: "paragraph",
         content: [
-          "This is an example inline equation",
+          "This is an example inline equation ",
           {
             type: "inlineEquation",
             content: "c = \\pm\\sqrt{a^2 + b^2}",

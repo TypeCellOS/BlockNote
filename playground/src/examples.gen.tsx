@@ -560,22 +560,22 @@
         "pathFromRoot": "examples/03-ui-components/13-equation",
         "config": {
           "playground": true,
-          "docs": true,
+          "docs": false,
           "author": "matthewlipski",
           "tags": [
-            "Intermediate",
-            "Blocks",
+            "Equation",
+            "Inline Equation",
             "Custom Schemas",
-            "Suggestion Menus",
+            "Latex",
             "Slash Menu"
           ],
           "dependencies": {
             "katex": "^0.16.11",
-            "@types/katex": "^0.16.11",
+            "@types/katex": "^0.16.7",
             "react-icons": "^5.2.1"
           } as any
         },
-        "title": "Equation",
+        "title": "Alert Block",
         "group": {
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"
