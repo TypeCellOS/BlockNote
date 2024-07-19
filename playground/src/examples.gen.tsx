@@ -175,6 +175,24 @@
         }
       },
       {
+        "projectSlug": "rtl-direction",
+        "fullSlug": "basic/rtl-direction",
+        "pathFromRoot": "examples/01-basic/10-rtl-direction",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "zaaakher",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "RTL Direction",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
         "projectSlug": "testing",
         "fullSlug": "basic/testing",
         "pathFromRoot": "examples/01-basic/testing",
