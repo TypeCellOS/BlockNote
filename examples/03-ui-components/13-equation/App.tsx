@@ -2,7 +2,6 @@ import {
   BlockNoteSchema,
   defaultInlineContentSpecs,
   filterSuggestionItems,
-  insertOrUpdateBlock,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import {
@@ -11,39 +10,36 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
+import { PiTextSuperscript } from "react-icons/pi";
 import "@blocknote/mantine/style.css";
 
-import { LaTex } from "./Equation";
+import { InlineEquation } from "./Equation";
 
 // Our schema with block specs, which contain the configs and implementations for blocks
 // that we want our editor to use.
 const schema = BlockNoteSchema.create({
   inlineContentSpecs: {
     ...defaultInlineContentSpecs,
-    latex: LaTex,
+    inlineEquation: InlineEquation,
   },
 });
 
 // Slash menu item to insert an Alert block
 const insertLaTex = (editor: typeof schema.BlockNoteEditor) => ({
-  title: "latex",
-  key: "latex",
-  subtext: "Used for a top-level heading",
-  aliases: ["latex", "heading1", "h1"],
+  icon: PiTextSuperscript,
+  title: "Inline Equation",
+  key: "inlineEquation",
+  subtext: "Insert mathematical symbols in text.",
+  aliases: ["equation", "latex", "katex"],
   group: "Other",
   onItemClick: () => {
-    insertOrUpdateBlock(editor, {
-      type: "paragraph",
-      content: [
-        {
-          type: "latex",
-          props: {
-            open: true,
-          },
-          content: "\\sqrt{a^2 + b^2}",
-        },
-      ],
-    });
+    const view = editor._tiptapEditor.view;
+    const pos = editor._tiptapEditor.state.selection.from;
+    const tr = view.state.tr.insert(
+        pos,
+        view.state.schema.nodes.inlineEquation.create(""),
+    );
+    view.dispatch(tr);
   },
 });
 
@@ -55,25 +51,22 @@ export default function App() {
       {
         type: "paragraph",
         content: [
-          "latex text editor ",
+          "This is an example inline equation",
           {
-            type: "latex",
+            type: "inlineEquation",
             content: "c = \\pm\\sqrt{a^2 + b^2}",
           },
         ],
       },
       {
         type: "paragraph",
+        content: "Press the '/' key to open the Slash Menu and add another",
       },
       {
         type: "paragraph",
-        content: [
-          {
-            type: "latex",
-            content:
-              "\\int \\frac{1}{\\sqrt{1-x^{2}}}\\mathrm{d}x= \\arcsin x +C",
-          },
-        ],
+      },
+      {
+        type: "paragraph",
       },
       {
         type: "paragraph",
