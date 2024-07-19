@@ -318,6 +318,7 @@ export const InlineEquation = createInternalInlineContentSpec(
   {
     content: "styled",
     type: "inlineEquation",
+    propSchema: {},
   },
   {
     node,

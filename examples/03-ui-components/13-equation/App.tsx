@@ -37,7 +37,7 @@ const insertLaTex = (editor: typeof schema.BlockNoteEditor) => ({
     const pos = editor._tiptapEditor.state.selection.from;
     const tr = view.state.tr.insert(
         pos,
-        view.state.schema.nodes.inlineEquation.create(""),
+        view.state.schema.nodes.inlineEquation.create(),
     );
     view.dispatch(tr);
   },
