@@ -11,7 +11,7 @@ import {
   useBlockNoteContext,
   usePrefersColorScheme,
 } from "@blocknote/react";
-import { MantineProvider, MenuItem, MenuLabel } from "@mantine/core";
+import { MantineProvider } from "@mantine/core";
 import { ComponentProps, useCallback } from "react";
 
 import {
@@ -20,7 +20,14 @@ import {
   Theme,
 } from "./BlockNoteTheme.js";
 import { TextInput } from "./form/TextInput.js";
-import { Menu, MenuDivider, MenuDropdown, MenuTrigger } from "./menu/Menu.js";
+import {
+  Menu,
+  MenuDivider,
+  MenuDropdown,
+  MenuItem,
+  MenuLabel,
+  MenuTrigger,
+} from "./menu/Menu.js";
 import { Panel } from "./panel/Panel.js";
 import { PanelButton } from "./panel/PanelButton.js";
 import { PanelFileInput } from "./panel/PanelFileInput.js";
