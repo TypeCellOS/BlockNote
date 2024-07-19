@@ -575,7 +575,7 @@
             "react-icons": "^5.2.1"
           } as any
         },
-        "title": "Alert Block",
+        "title": "Inline Equation",
         "group": {
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"
