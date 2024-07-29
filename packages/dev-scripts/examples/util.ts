@@ -1,8 +1,10 @@
 import glob from "fast-glob";
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
-const dir = path.parse(import.meta.url.replace("file://", "")).dir;
+const dir = dirname(fileURLToPath(import.meta.url));
 
 export type Project = {
   /**
@@ -114,7 +116,7 @@ export type Files = Record<
 
 export function getProjectFiles(project: Project): Files {
   const dir = path.resolve("../../", project.pathFromRoot);
-  const files = glob.globSync(dir + "/**/*", {
+  const files = glob.globSync((dir + "/**/*").replace(/\\/g, '/'), {
     ignore: ["**/node_modules/**/*", "**/dist/**/*"],
   });
   const passedFiles = Object.fromEntries(
@@ -140,7 +142,7 @@ export function getProjectFiles(project: Project): Files {
  */
 export function getExampleProjects(): Project[] {
   const examples: Project[] = glob
-    .globSync(path.join(dir, "../../../examples/**/*/.bnexample.json"))
+    .globSync(path.join(dir, "../../../examples/**/*/.bnexample.json").replace(/\\/g, '/'))
     .map((configPath) => {
       const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
       const directory = path.dirname(configPath);
