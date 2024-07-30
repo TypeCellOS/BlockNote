@@ -11,6 +11,7 @@ import { History } from "@tiptap/extension-history";
 import { Link } from "@tiptap/extension-link";
 import { Text } from "@tiptap/extension-text";
 import * as Y from "yjs";
+import { ArrowConversionExtension } from "../extensions/ArrowConversion/ArrowConversionExtension";
 import { createCopyToClipboardExtension } from "../api/exporters/copyExtension";
 import { createPasteFromClipboardExtension } from "../api/parsers/pasteExtension";
 import { createDropFileExtension } from "../api/parsers/fileDropExtension";
@@ -90,6 +91,8 @@ export const getBlockNoteExtensions = <
     ...Object.values(opts.styleSpecs).map((styleSpec) => {
       return styleSpec.implementation.mark;
     }),
+
+    ArrowConversionExtension,
 
     TextColorExtension,
 
