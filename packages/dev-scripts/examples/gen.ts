@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import * as glob from "glob";
 import * as fs from "node:fs";
 import * as path from "node:path";
@@ -17,7 +18,7 @@ import { Project, getExampleProjects, groupProjects } from "./util";
  * (The downside of this is that we have some almost duplicate, generated files in the repo,
  * but the upside is anyone can run npm start in any of the examples (and that we can point a codesandbox / repl to the examples directory))
  */
-const dir = path.parse(import.meta.url.replace("file://", "")).dir;
+const dir = path.parse(fileURLToPath(import.meta.url)).dir;
 
 async function writeTemplate(project: Project, templateFile: string) {
   const template = await import(templateFile);
