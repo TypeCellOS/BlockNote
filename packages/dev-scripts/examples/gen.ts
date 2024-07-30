@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import * as glob from "glob";
 import * as fs from "node:fs";
 import * as path from "node:path";
@@ -21,7 +21,7 @@ import { Project, getExampleProjects, groupProjects } from "./util";
 const dir = path.parse(fileURLToPath(import.meta.url)).dir;
 
 async function writeTemplate(project: Project, templateFile: string) {
-  const template = await import(templateFile);
+  const template = await import(pathToFileURL(templateFile).toString());
   const ret = await template.default(project);
 
   const targetFilePath = path.join(
@@ -58,7 +58,7 @@ async function writeTemplate(project: Project, templateFile: string) {
 
 async function generateCodeForExample(project: Project) {
   const templates = glob.sync(
-    path.resolve(dir, "./template-react/*.template.tsx")
+    path.resolve(dir, "./template-react/*.template.tsx").replace(/\\/g, "/")
   );
 
   for (const template of templates) {
