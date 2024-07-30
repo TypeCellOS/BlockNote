@@ -116,7 +116,7 @@ export type Files = Record<
 
 export function getProjectFiles(project: Project): Files {
   const dir = path.resolve("../../", project.pathFromRoot);
-  const files = glob.globSync(glob.convertPathToPattern(dir + "/**/*"), {
+  const files = glob.globSync(glob.win32.convertPathToPattern(dir + "/**/*"), {
     ignore: ["**/node_modules/**/*", "**/dist/**/*"],
   });
   const passedFiles = Object.fromEntries(
@@ -143,7 +143,7 @@ export function getProjectFiles(project: Project): Files {
 export function getExampleProjects(): Project[] {
   const examples: Project[] = glob
     .globSync(
-      glob.convertPathToPattern(
+      glob.win32.convertPathToPattern(
         path.join(dir, "../../../examples/**/*/.bnexample.json")
       )
     )
