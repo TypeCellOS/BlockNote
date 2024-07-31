@@ -7,7 +7,7 @@ body:
       value: |
         ## Submit a Custom Block (Schema)
 
-        Thank you for contributing to BlockNote! Please fill out the following sections to submit your custom block. Make sure to provide as much detail as possible to help us understand and integrate your block effectively.
+        Thank you for contributing to BlockNote! Please fill out the following sections to submit your custom block. Make sure to provide as much detail as possible to help us understand and showcase your block effectively.
 
   - type: input
     id: block_name
@@ -22,7 +22,7 @@ body:
       label: "Block Description"
       description: "Provide a detailed description of your custom block. Explain its purpose and how it works."
       placeholder: "This block is used to display alert messages with different severity levels."
-      
+
   - type: textarea
     id: block_dependencies
     attributes:
@@ -30,13 +30,6 @@ body:
       description: "Provide a full list of all the dependencies needed to make your custom block work."
       placeholder: "`npm_package_1`, `npm_package_2`, ...etc  "
 
-  - type: textarea
-    id: block_code
-    attributes:
-      label: "Block Code"
-      description: "Provide the code for your custom block. Include all necessary imports and components."
-      placeholder: 'Place your code here'
-      
   - type: input
     id: live_example
     attributes:
