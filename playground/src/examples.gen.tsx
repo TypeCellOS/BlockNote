@@ -968,6 +968,31 @@
       }
     ]
   },
+  "extensions": {
+    "pathFromRoot": "examples/08-extensions",
+    "slug": "extensions",
+    "projects": [
+      {
+        "projectSlug": "tiptap-arrow-conversion",
+        "fullSlug": "extensions/tiptap-arrow-conversion",
+        "pathFromRoot": "examples/08-extensions/01-tiptap-arrow-conversion",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "komsenapati",
+          "tags": [
+            "Extension"
+          ],
+          "pro": true
+        },
+        "title": "TipTap extension (arrow InputRule)",
+        "group": {
+          "pathFromRoot": "examples/08-extensions",
+          "slug": "extensions"
+        }
+      }
+    ]
+  },
   "vanilla-js": {
     "pathFromRoot": "examples/vanilla-js",
     "slug": "vanilla-js",
