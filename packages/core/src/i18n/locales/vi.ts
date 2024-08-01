@@ -110,6 +110,12 @@ export const vi: Dictionary = {
       ],
       group: "Khác",
     },
+    ai: {
+      title: "AI Block",
+      subtext: "Create content using generative AI",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "Others",
+    },
   },
   placeholders: {
     default: "Nhập văn bản hoặc gõ '/' để thêm định dạng",
@@ -117,6 +123,7 @@ export const vi: Dictionary = {
     bulletListItem: "Danh sách",
     numberedListItem: "Danh sách",
     checkListItem: "Danh sách",
+    ai: "Enter a prompt",
   },
   file_blocks: {
     image: {
@@ -301,6 +308,11 @@ export const vi: Dictionary = {
       title_placeholder: "Chỉnh sửa tiêu đề",
       url_placeholder: "Chỉnh sửa URL",
     },
+  },
+  ai_toolbar: {
+    show_prompt: "Show prompt",
+    update: "Update",
+    updating: "Updating…",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

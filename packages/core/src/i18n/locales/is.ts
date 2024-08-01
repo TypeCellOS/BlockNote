@@ -104,6 +104,12 @@ export const is: Dictionary = {
       aliases: ["emoji", "andlitsávísun", "tilfinningar", "andlit"],
       group: "Annað",
     },
+    ai: {
+      title: "AI Block",
+      subtext: "Create content using generative AI",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "Others",
+    },
   },
   placeholders: {
     default: "Sláðu inn texta eða skrifaðu '/' fyrir skipanir",
@@ -111,6 +117,7 @@ export const is: Dictionary = {
     bulletListItem: "Listi",
     numberedListItem: "Listi",
     checkListItem: "Listi",
+    ai: "Enter a prompt",
   },
   file_blocks: {
     image: {
@@ -294,6 +301,11 @@ export const is: Dictionary = {
       title_placeholder: "Breyta titli",
       url_placeholder: "Breyta URL",
     },
+  },
+  ai_toolbar: {
+    show_prompt: "Show prompt",
+    update: "Update",
+    updating: "Updating…",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

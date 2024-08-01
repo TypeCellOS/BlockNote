@@ -131,6 +131,12 @@ export const ja: Dictionary = {
       aliases: ["絵文字", "顔文字", "感情表現", "顔"],
       group: "その他",
     },
+    ai: {
+      title: "AI Block",
+      subtext: "Create content using generative AI",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "Others",
+    },
   },
   placeholders: {
     default: "テキストを入力するか'/' を入力してコマンド選択",
@@ -138,6 +144,7 @@ export const ja: Dictionary = {
     bulletListItem: "リストを追加",
     numberedListItem: "リストを追加",
     checkListItem: "リストを追加",
+    ai: "Enter a prompt",
   },
   file_blocks: {
     image: {
@@ -322,6 +329,11 @@ export const ja: Dictionary = {
       title_placeholder: "タイトルを編集",
       url_placeholder: "URLを編集",
     },
+  },
+  ai_toolbar: {
+    show_prompt: "Show prompt",
+    update: "Update",
+    updating: "Updating…",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

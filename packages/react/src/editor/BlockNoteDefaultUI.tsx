@@ -6,6 +6,7 @@ import { SuggestionMenuController } from "../components/SuggestionMenu/Suggestio
 import { GridSuggestionMenuController } from "../components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuController";
 import { TableHandlesController } from "../components/TableHandles/TableHandlesController";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor";
+import { AIToolbarController } from "../components/AIToolbar/AIToolbarController";
 
 export type BlockNoteDefaultUIProps = {
   formattingToolbar?: boolean;
@@ -15,6 +16,7 @@ export type BlockNoteDefaultUIProps = {
   filePanel?: boolean;
   tableHandles?: boolean;
   emojiPicker?: boolean;
+  aiToolbar?: boolean;
 };
 
 export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
@@ -45,6 +47,7 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
       {editor.tableHandles && props.tableHandles !== false && (
         <TableHandlesController />
       )}
+      {editor.aiToolbar && props.aiToolbar !== false && <AIToolbarController />}
     </>
   );
 }

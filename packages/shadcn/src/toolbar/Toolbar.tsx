@@ -89,18 +89,22 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         </ShadCNComponents.Toggle.Toggle>
       );
 
-    return (
-      <ShadCNComponents.Tooltip.Tooltip>
-        <ShadCNComponents.Tooltip.TooltipTrigger asChild>
-          {trigger}
-        </ShadCNComponents.Tooltip.TooltipTrigger>
-        <ShadCNComponents.Tooltip.TooltipContent
-          className={"bn-flex bn-flex-col bn-items-center"}>
-          <span>{mainTooltip}</span>
-          {secondaryTooltip && <span>{secondaryTooltip}</span>}
-        </ShadCNComponents.Tooltip.TooltipContent>
-      </ShadCNComponents.Tooltip.Tooltip>
-    );
+    if (mainTooltip) {
+      return (
+        <ShadCNComponents.Tooltip.Tooltip>
+          <ShadCNComponents.Tooltip.TooltipTrigger asChild>
+            {trigger}
+          </ShadCNComponents.Tooltip.TooltipTrigger>
+          <ShadCNComponents.Tooltip.TooltipContent
+            className={"bn-flex bn-flex-col bn-items-center"}>
+            <span>{mainTooltip}</span>
+            {secondaryTooltip && <span>{secondaryTooltip}</span>}
+          </ShadCNComponents.Tooltip.TooltipContent>
+        </ShadCNComponents.Tooltip.Tooltip>
+      );
+    }
+
+    return trigger;
   }
 );
 

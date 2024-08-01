@@ -26,6 +26,7 @@ import {
   DefaultStyleSchema,
   PartialBlock,
 } from "../blocks/defaultBlocks";
+import { AIToolbarProsemirrorPlugin } from "../extensions/AIToolbar/AIToolbarPlugin";
 import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin";
 import { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkToolbarPlugin";
@@ -243,6 +244,7 @@ export class BlockNoteEditor<
     ISchema,
     SSchema
   >;
+  public readonly aiToolbar?: AIToolbarProsemirrorPlugin;
 
   /**
    * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
@@ -328,6 +330,9 @@ export class BlockNoteEditor<
     if (checkDefaultBlockTypeInSchema("table", this)) {
       this.tableHandles = new TableHandlesProsemirrorPlugin(this as any);
     }
+    if (checkDefaultBlockTypeInSchema("ai", this)) {
+      this.aiToolbar = new AIToolbarProsemirrorPlugin();
+    }
 
     const extensions = getBlockNoteExtensions({
       editor: this,
@@ -351,6 +356,7 @@ export class BlockNoteEditor<
           this.suggestionMenus.plugin,
           ...(this.filePanel ? [this.filePanel.plugin] : []),
           ...(this.tableHandles ? [this.tableHandles.plugin] : []),
+          ...(this.aiToolbar ? [this.aiToolbar.plugin] : []),
           PlaceholderPlugin(this, newOptions.placeholders),
         ];
       },

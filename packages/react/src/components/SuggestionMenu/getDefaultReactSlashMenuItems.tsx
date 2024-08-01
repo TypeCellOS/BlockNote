@@ -11,13 +11,14 @@ import {
   RiH2,
   RiH3,
   RiFile2Line,
+  RiFilmLine,
   RiImage2Fill,
   RiListCheck3,
   RiListOrdered,
   RiListUnordered,
+  RiSparkling2Fill,
   RiTable2,
   RiText,
-  RiFilmLine,
   RiVolumeUpFill,
 } from "react-icons/ri";
 import { DefaultReactSuggestionItem } from "./types";
@@ -35,6 +36,7 @@ const icons = {
   video: RiFilmLine,
   audio: RiVolumeUpFill,
   file: RiFile2Line,
+  ai: RiSparkling2Fill,
   emoji: RiEmotionFill,
 };
 

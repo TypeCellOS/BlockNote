@@ -96,6 +96,12 @@ export const ar: Dictionary = {
       aliases: ["رمز تعبيري", "إيموجي", "إيموت", "عاطفة", "وجه"],
       group: "آخرون",
     },
+    ai: {
+      title: "AI Block",
+      subtext: "Create content using generative AI",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "Others",
+    },
   },
   placeholders: {
     default: "أدخل نصًا أو اكتب '/' للأوامر",
@@ -103,6 +109,7 @@ export const ar: Dictionary = {
     bulletListItem: "قائمة",
     numberedListItem: "قائمة",
     checkListItem: "قائمة",
+    ai: "Enter a prompt",
   },
   file_blocks: {
     image: {
@@ -287,6 +294,11 @@ export const ar: Dictionary = {
       title_placeholder: "تحرير العنوان",
       url_placeholder: "تحرير الرابط",
     },
+  },
+  ai_toolbar: {
+    show_prompt: "Show prompt",
+    update: "Update",
+    updating: "Updating…",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

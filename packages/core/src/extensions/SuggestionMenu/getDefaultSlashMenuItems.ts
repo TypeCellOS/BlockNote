@@ -271,6 +271,18 @@ export function getDefaultSlashMenuItems<
     });
   }
 
+  if (checkDefaultBlockTypeInSchema("ai", editor)) {
+    items.push({
+      onItemClick: () => {
+        insertOrUpdateBlock(editor, {
+          type: "ai",
+        });
+      },
+      key: "ai",
+      ...editor.dictionary.slash_menu.ai,
+    });
+  }
+
   items.push({
     onItemClick: () => editor.openSelectionMenu(":"),
     key: "emoji",

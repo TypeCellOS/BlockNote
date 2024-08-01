@@ -110,6 +110,12 @@ export const en = {
       aliases: ["emoji", "emote", "emotion", "face"],
       group: "Others",
     },
+    ai: {
+      title: "AI Block",
+      subtext: "Create content using generative AI",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "Others",
+    },
   },
   placeholders: {
     default: "Enter text or type '/' for commands",
@@ -117,6 +123,7 @@ export const en = {
     bulletListItem: "List",
     numberedListItem: "List",
     checkListItem: "List",
+    ai: "Enter a prompt",
   },
   file_blocks: {
     image: {
@@ -301,6 +308,11 @@ export const en = {
       title_placeholder: "Edit title",
       url_placeholder: "Edit URL",
     },
+  },
+  ai_toolbar: {
+    show_prompt: "Show prompt",
+    update: "Update",
+    updating: "Updating…",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

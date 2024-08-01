@@ -90,16 +90,17 @@ export const PlaceholderPlugin = (
 
         const $pos = selection.$anchor;
         const node = $pos.parent;
-
-        if (node.content.size > 0) {
-          return null;
-        }
-
         const before = $pos.before();
 
-        const dec = Decoration.node(before, before + node.nodeSize, {
-          "data-is-empty-and-focused": "true",
-        });
+        const dec = Decoration.node(
+          before,
+          before + node.nodeSize,
+          node.content.size > 0
+            ? { "data-is-focused": "true" }
+            : {
+                "data-is-empty-and-focused": "true",
+              }
+        );
 
         return DecorationSet.create(doc, [dec]);
       },

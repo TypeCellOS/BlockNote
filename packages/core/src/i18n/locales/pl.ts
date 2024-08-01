@@ -96,6 +96,12 @@ export const pl: Dictionary = {
       aliases: ["emoji", "emotka", "wyrażenie emocji", "twarz"],
       group: "Inne",
     },
+    ai: {
+      title: "AI Block",
+      subtext: "Create content using generative AI",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "Others",
+    },
   },
   placeholders: {
     default: "Wprowadź tekst lub wpisz '/' aby użyć poleceń",
@@ -103,6 +109,7 @@ export const pl: Dictionary = {
     bulletListItem: "Lista",
     numberedListItem: "Lista",
     checkListItem: "Lista",
+    ai: "Enter a prompt",
   },
   file_blocks: {
     image: {
@@ -286,6 +293,11 @@ export const pl: Dictionary = {
       title_placeholder: "Edytuj tytuł",
       url_placeholder: "Edytuj URL",
     },
+  },
+  ai_toolbar: {
+    show_prompt: "Show prompt",
+    update: "Update",
+    updating: "Updating…",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

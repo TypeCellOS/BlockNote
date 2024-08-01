@@ -111,6 +111,12 @@ export const fr: Dictionary = {
       aliases: ["emoji", "émoticône", "émotion", "visage"],
       group: "Autres",
     },
+    ai: {
+      title: "AI Block",
+      subtext: "Create content using generative AI",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "Others",
+    },
   },
   placeholders: {
     default: "Entrez du texte ou tapez '/' pour les commandes",
@@ -118,6 +124,7 @@ export const fr: Dictionary = {
     bulletListItem: "Liste",
     numberedListItem: "Liste",
     checkListItem: "Liste",
+    ai: "Enter a prompt",
   },
   file_blocks: {
     image: {
@@ -302,6 +309,11 @@ export const fr: Dictionary = {
       title_placeholder: "Modifier le titre",
       url_placeholder: "Modifier l'URL",
     },
+  },
+  ai_toolbar: {
+    show_prompt: "Show prompt",
+    update: "Update",
+    updating: "Updating…",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

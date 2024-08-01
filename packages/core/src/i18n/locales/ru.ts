@@ -138,6 +138,12 @@ export const ru: Dictionary = {
       aliases: ["эмодзи", "смайлик", "выражение эмоций", "лицо"],
       group: "Прочее",
     },
+    ai: {
+      title: "AI Block",
+      subtext: "Create content using generative AI",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "Others",
+    },
   },
   placeholders: {
     default: "Ведите текст или введите «/» для команд",
@@ -145,6 +151,7 @@ export const ru: Dictionary = {
     bulletListItem: "Список",
     numberedListItem: "Список",
     checkListItem: "Список",
+    ai: "Enter a prompt",
   },
   file_blocks: {
     image: {
@@ -329,6 +336,11 @@ export const ru: Dictionary = {
       title_placeholder: "Изменить заголовок",
       url_placeholder: "Изменить URL",
     },
+  },
+  ai_toolbar: {
+    show_prompt: "Show prompt",
+    update: "Update",
+    updating: "Updating…",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

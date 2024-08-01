@@ -111,6 +111,12 @@ export const nl: Dictionary = {
       ],
       group: "Overig",
     },
+    ai: {
+      title: "AI Block",
+      subtext: "Create content using generative AI",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "Others",
+    },
   },
   placeholders: {
     default: "Voer tekst in of type '/' voor commando's",
@@ -118,6 +124,7 @@ export const nl: Dictionary = {
     bulletListItem: "Lijst",
     numberedListItem: "Lijst",
     checkListItem: "Lijst",
+    ai: "Enter a prompt",
   },
   file_blocks: {
     image: {
@@ -301,6 +308,11 @@ export const nl: Dictionary = {
       title_placeholder: "Bewerk titel",
       url_placeholder: "Bewerk URL",
     },
+  },
+  ai_toolbar: {
+    show_prompt: "Show prompt",
+    update: "Update",
+    updating: "Updating…",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

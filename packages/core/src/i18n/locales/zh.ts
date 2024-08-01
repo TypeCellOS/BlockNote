@@ -144,6 +144,12 @@ export const zh: Dictionary = {
       ],
       group: "其他",
     },
+    ai: {
+      title: "AI Block",
+      subtext: "Create content using generative AI",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "Others",
+    },
   },
   placeholders: {
     default: "输入 '/' 以使用命令",
@@ -151,6 +157,7 @@ export const zh: Dictionary = {
     bulletListItem: "列表",
     numberedListItem: "列表",
     checkListItem: "列表",
+    ai: "Enter a prompt",
   },
   file_blocks: {
     image: {
@@ -335,6 +342,11 @@ export const zh: Dictionary = {
       title_placeholder: "编辑标题",
       url_placeholder: "编辑链接地址",
     },
+  },
+  ai_toolbar: {
+    show_prompt: "Show prompt",
+    update: "Update",
+    updating: "Updating…",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

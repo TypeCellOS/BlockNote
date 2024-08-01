@@ -124,6 +124,12 @@ export const ko: Dictionary = {
       ],
       group: "기타",
     },
+    ai: {
+      title: "AI Block",
+      subtext: "Create content using generative AI",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "Others",
+    },
   },
   placeholders: {
     default: "텍스트를 입력하거나 /를 입력하여 명령을 입력하세요.",
@@ -131,6 +137,7 @@ export const ko: Dictionary = {
     bulletListItem: "목록",
     numberedListItem: "목록",
     checkListItem: "목록",
+    ai: "Enter a prompt",
   },
   file_blocks: {
     image: {
@@ -315,6 +322,11 @@ export const ko: Dictionary = {
       title_placeholder: "제목 수정",
       url_placeholder: "URL 수정",
     },
+  },
+  ai_toolbar: {
+    show_prompt: "Show prompt",
+    update: "Update",
+    updating: "Updating…",
   },
   generic: {
     ctrl_shortcut: "Ctrl",
