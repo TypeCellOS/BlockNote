@@ -1,7 +1,6 @@
 import glob from "fast-glob";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import slash from "slash";
 import { fileURLToPath } from "node:url";
 
 const dir = path.parse(fileURLToPath(import.meta.url)).dir;
@@ -116,7 +115,7 @@ export type Files = Record<
 
 export function getProjectFiles(project: Project): Files {
   const dir = path.resolve("../../", project.pathFromRoot);
-  const files = glob.globSync(glob.win32.convertPathToPattern(dir + "/**/*"), {
+  const files = glob.globSync(replacePathSepToSlash(dir + "/**/*"), {
     ignore: ["**/node_modules/**/*", "**/dist/**/*"],
   });
   const passedFiles = Object.fromEntries(
@@ -143,7 +142,7 @@ export function getProjectFiles(project: Project): Files {
 export function getExampleProjects(): Project[] {
   const examples: Project[] = glob
     .globSync(
-      glob.win32.convertPathToPattern(
+      replacePathSepToSlash(
         path.join(dir, "../../../examples/**/*/.bnexample.json")
       )
     )
@@ -168,7 +167,7 @@ export function getExampleProjects(): Project[] {
         .split(path.sep);
 
       const group = {
-        pathFromRoot: slash(
+        pathFromRoot: replacePathSepToSlash(
           path.relative(path.resolve("../../"), path.join(directory, ".."))
         ),
         // remove optional 01- prefix
@@ -179,7 +178,9 @@ export function getExampleProjects(): Project[] {
       const project = {
         projectSlug,
         fullSlug: `${group.slug}/${projectSlug}`,
-        pathFromRoot: slash(path.relative(path.resolve("../../"), directory)),
+        pathFromRoot: replacePathSepToSlash(
+          path.relative(path.resolve("../../"), directory)
+        ),
         config,
         title,
         group,
@@ -200,4 +201,14 @@ export function getExampleProjects(): Project[] {
   //   return 0;
   // });
   return examples;
+}
+
+export function replacePathSepToSlash(path: string) {
+  const isExtendedLengthPath = path.startsWith("\\\\?\\");
+
+  if (isExtendedLengthPath) {
+    return path;
+  }
+
+  return path.replace(/\\/g, "/");
 }

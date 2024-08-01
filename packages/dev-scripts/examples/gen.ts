@@ -5,7 +5,12 @@ import * as path from "node:path";
 import prettier from "prettier";
 import React from "react";
 import ReactDOM from "react-dom/server";
-import { Project, getExampleProjects, groupProjects } from "./util";
+import {
+  Project,
+  getExampleProjects,
+  groupProjects,
+  replacePathSepToSlash,
+} from "./util";
 
 /**
  * This script reads the examples in the /examples folder. These folders initially only need an App.tsx, .bnexample.json and README.md file.
@@ -58,7 +63,7 @@ async function writeTemplate(project: Project, templateFile: string) {
 
 async function generateCodeForExample(project: Project) {
   const templates = glob.sync(
-    path.resolve(dir, "./template-react/*.template.tsx").replace(/\\/g, "/")
+    replacePathSepToSlash(path.resolve(dir, "./template-react/*.template.tsx"))
   );
 
   for (const template of templates) {
