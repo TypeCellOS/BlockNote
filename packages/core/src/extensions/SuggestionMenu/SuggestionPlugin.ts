@@ -11,6 +11,7 @@ const findBlock = findParentNode((node) => node.type.name === "blockContainer");
 
 export type SuggestionMenuState = UiElementPosition & {
   query: string;
+  fromUserInput?: boolean;
 };
 
 class SuggestionMenuView<
@@ -34,7 +35,10 @@ class SuggestionMenuView<
         throw new Error("Attempting to update uninitialized suggestions menu");
       }
 
-      emitUpdate(menuName, this.state);
+      emitUpdate(menuName, {
+        ...this.state,
+        fromUserInput: Boolean(this.pluginState?.fromUserInput),
+      });
     };
 
     this.rootEl = this.editor._tiptapEditor.view.root;
