@@ -109,6 +109,18 @@ export const ko: Dictionary = {
       aliases: ["file", "upload", "embed", "media", "파일", "url"],
       group: "미디어",
     },
+    ai_block: {
+      title: "AI Block",
+      subtext: "Block with AI generated content",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "AI",
+    },
+    ai: {
+      title: "Ask AI",
+      subtext: "Continue writing with AI",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "AI",
+    },
     emoji: {
       title: "이모지",
       subtext: "이모지 삽입용으로 사용됩니다",
@@ -124,11 +136,16 @@ export const ko: Dictionary = {
       ],
       group: "기타",
     },
-    ai_block: {
-      title: "AI Block",
-      subtext: "Create content using generative AI",
-      aliases: ["ai", "artificial intelligence", "generate"],
-      group: "Others",
+  },
+  ai_menu: {
+    custom_prompt: {
+      title: "Custom Prompt",
+      subtext: "Use your query as an AI prompt",
+      aliases: ["", "custom prompt"],
+    },
+    make_longer: {
+      title: "Make Longer",
+      aliases: ["make longer"],
     },
   },
   placeholders: {

@@ -1,11 +1,4 @@
-import {
-  aiBlockConfig,
-  BlockSchemaWithBlock,
-  InlineContentSchema,
-  mockAIOperation,
-  StyleSchema,
-} from "@blocknote/core";
-import { TextSelection } from "prosemirror-state";
+import { mockAIReplaceSelection } from "@blocknote/core";
 import { RiLoopLeftFill } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext";
@@ -22,11 +15,7 @@ export const RetryButton = (
   const dict = useDictionary();
   const Components = useComponentsContext()!;
 
-  const editor = useBlockNoteEditor<
-    BlockSchemaWithBlock<"ai", typeof aiBlockConfig>,
-    InlineContentSchema,
-    StyleSchema
-  >();
+  const editor = useBlockNoteEditor<any, any, any>();
 
   if (!editor.isEditable) {
     return null;
@@ -39,40 +28,10 @@ export const RetryButton = (
       mainTooltip={dict.ai_inline_toolbar.retry}
       label={dict.ai_inline_toolbar.retry}
       onClick={async () => {
-        editor.focus();
-
         props.setUpdating(true);
-
-        const oldDocSize = editor._tiptapEditor.state.doc.nodeSize;
-        const startPos = editor._tiptapEditor.state.selection.from;
-        const endPos = editor._tiptapEditor.state.selection.to;
-        const currentContent = editor.getSelection()?.blocks || [
-          editor.getTextCursorPosition().block,
-        ];
-
-        editor.replaceBlocks(
-          currentContent,
-          (await mockAIOperation(editor, props.prompt, {
-            operation: "replaceSelection",
-          })) as any[]
-        );
-
-        const newDocSize = editor._tiptapEditor.state.doc.nodeSize;
-
-        editor._tiptapEditor.view.dispatch(
-          editor._tiptapEditor.state.tr.setSelection(
-            TextSelection.create(
-              editor._tiptapEditor.state.doc,
-              startPos,
-              endPos + newDocSize - oldDocSize
-            )
-          )
-        );
-
+        // editor.focus();
+        await mockAIReplaceSelection(editor, props.prompt);
         props.setUpdating(false);
-        editor.formattingToolbar.closeMenu();
-        editor.focus();
-        editor.aiInlineToolbar.open(props.prompt, props.originalContent);
       }}>
       {props.updating && dict.ai_inline_toolbar.updating}
     </Components.AIInlineToolbar.Button>

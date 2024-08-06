@@ -6,7 +6,7 @@ import {
   PropSchema,
 } from "../../schema";
 import { defaultProps } from "../defaultProps";
-import { mockAIOperation } from "./mockAIOperation";
+import { mockAIReplaceBlockContent } from "./mockAIFunctions";
 
 export const aiPropSchema = {
   ...defaultProps,
@@ -26,20 +26,12 @@ export const aiRender = (
   editor: BlockNoteEditor<any, any, any>
 ) => {
   if (!block.props.prompt) {
-    const generateResponseCallback = async () => {
+    const replaceContent = () => {
       const prompt = span.innerText;
+      // TODO: Updating text content in this way isn't working
       generateButton.textContent = "Generating...";
 
-      const response = await mockAIOperation(editor, prompt, {
-        operation: "replaceBlock",
-        blockIdentifier: block.id,
-      });
-
-      editor.updateBlock(block, {
-        type: "ai",
-        props: { prompt },
-        content: response[0].content,
-      });
+      mockAIReplaceBlockContent(editor, prompt, block.id);
     };
 
     const promptBox = document.createElement("div");
@@ -66,7 +58,7 @@ export const aiRender = (
           event.preventDefault();
           event.stopPropagation();
 
-          generateResponseCallback();
+          replaceContent();
         }
       },
       true
@@ -76,7 +68,7 @@ export const aiRender = (
     const generateButton = document.createElement("button");
     generateButton.contentEditable = "false";
     generateButton.textContent = "Generate";
-    generateButton.addEventListener("click", generateResponseCallback);
+    generateButton.addEventListener("click", replaceContent);
     promptBox.appendChild(generateButton);
 
     return {

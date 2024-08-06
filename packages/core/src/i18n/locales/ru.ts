@@ -132,17 +132,34 @@ export const ru: Dictionary = {
       aliases: ["file", "upload", "embed", "media", "url", "загрузка", "файл"],
       group: "Медиа",
     },
+    ai_block: {
+      title: "AI Block",
+      subtext: "Block with AI generated content",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "AI",
+    },
+    ai: {
+      title: "Ask AI",
+      subtext: "Continue writing with AI",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "AI",
+    },
     emoji: {
       title: "Эмодзи",
       subtext: "Используется для вставки эмодзи",
       aliases: ["эмодзи", "смайлик", "выражение эмоций", "лицо"],
       group: "Прочее",
     },
-    ai_block: {
-      title: "AI Block",
-      subtext: "Create content using generative AI",
-      aliases: ["ai", "artificial intelligence", "generate"],
-      group: "Others",
+  },
+  ai_menu: {
+    custom_prompt: {
+      title: "Custom Prompt",
+      subtext: "Use your query as an AI prompt",
+      aliases: ["", "custom prompt"],
+    },
+    make_longer: {
+      title: "Make Longer",
+      aliases: ["make longer"],
     },
   },
   placeholders: {

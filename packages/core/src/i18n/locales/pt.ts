@@ -97,17 +97,34 @@ export const pt: Dictionary = {
       aliases: ["arquivo", "upload", "incorporar", "mídia", "url"],
       group: "Mídia",
     },
+    ai_block: {
+      title: "AI Block",
+      subtext: "Block with AI generated content",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "AI",
+    },
+    ai: {
+      title: "Ask AI",
+      subtext: "Continue writing with AI",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "AI",
+    },
     emoji: {
       title: "Emoji",
       subtext: "Usado para inserir um emoji",
       aliases: ["emoji", "emoticon", "expressão emocional", "rosto"],
       group: "Outros",
     },
-    ai_block: {
-      title: "AI Block",
-      subtext: "Create content using generative AI",
-      aliases: ["ai", "artificial intelligence", "generate"],
-      group: "Others",
+  },
+  ai_menu: {
+    custom_prompt: {
+      title: "Custom Prompt",
+      subtext: "Use your query as an AI prompt",
+      aliases: ["", "custom prompt"],
+    },
+    make_longer: {
+      title: "Make Longer",
+      aliases: ["make longer"],
     },
   },
   placeholders: {

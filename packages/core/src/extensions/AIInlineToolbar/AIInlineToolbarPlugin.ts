@@ -2,13 +2,12 @@ import { isNodeSelection, posToDOMRect } from "@tiptap/core";
 import { Plugin, PluginKey, PluginView } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
-import { Block } from "../../blocks/defaultBlocks";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
 import { EventEmitter } from "../../util/EventEmitter";
 
 export type AIInlineToolbarState = UiElementPosition & {
   prompt: string;
-  originalContent: Block<any, any, any>[];
+  operation: "replaceSelection" | "insertAfterSelection";
 };
 
 export class AIInlineToolbarView implements PluginView {
@@ -94,7 +93,7 @@ export class AIInlineToolbarView implements PluginView {
         show: true,
         referencePos: this.getSelectionBoundingBox(),
         prompt: pluginState.prompt,
-        originalContent: pluginState.originalContent,
+        operation: pluginState.operation,
       };
 
       this.emitUpdate();
@@ -118,13 +117,13 @@ export class AIInlineToolbarView implements PluginView {
     this.pmView.root.removeEventListener("scroll", this.scrollHandler, true);
   }
 
-  open(prompt: string, originalContent: Block<any, any, any>[]) {
+  open(prompt: string, operation: "replaceSelection" | "insertAfterSelection") {
     this.pmView.focus();
     this.pmView.dispatch(
       this.pmView.state.tr.scrollIntoView().setMeta(aiInlineToolbarPluginKey, {
         open: true,
         prompt,
-        originalContent,
+        operation,
       })
     );
   }
@@ -167,7 +166,11 @@ export class AIInlineToolbarView implements PluginView {
 }
 
 type AIInlineToolbarPluginState =
-  | { open: true; prompt: string; originalContent: Block<any, any, any>[] }
+  | {
+      open: true;
+      prompt: string;
+      operation: "replaceSelection" | "insertAfterSelection";
+    }
   | { open: false };
 
 export const aiInlineToolbarPluginKey = new PluginKey("AIInlineToolbarPlugin");
@@ -209,8 +212,11 @@ export class AIInlineToolbarProsemirrorPlugin extends EventEmitter<any> {
     });
   }
 
-  public open(prompt: string, originalContent: Block<any, any, any>[]) {
-    this.view?.open(prompt, originalContent);
+  public open(
+    prompt: string,
+    operation: "replaceSelection" | "insertAfterSelection"
+  ) {
+    this.view?.open(prompt, operation);
   }
 
   public close() {

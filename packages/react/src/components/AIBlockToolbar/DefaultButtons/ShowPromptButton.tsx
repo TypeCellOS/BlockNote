@@ -2,7 +2,7 @@ import {
   aiBlockConfig,
   BlockSchemaWithBlock,
   InlineContentSchema,
-  mockAIOperation,
+  mockAIReplaceBlockContent,
   StyleSchema,
 } from "@blocknote/core";
 import {
@@ -46,15 +46,11 @@ export const ShowPromptButton = (
         event.preventDefault();
         props.setUpdating(true);
         setOpened(false);
-        editor.updateBlock(editor.getTextCursorPosition().block, {
-          props: { prompt: currentEditingPrompt },
-          content: (
-            await mockAIOperation(editor, props.prompt, {
-              operation: "replaceBlock",
-              blockIdentifier: editor.getTextCursorPosition().block,
-            })
-          )[0].content as any,
-        });
+        await mockAIReplaceBlockContent(
+          editor,
+          currentEditingPrompt,
+          editor.getTextCursorPosition().block
+        );
         props.setUpdating(false);
       }
     },

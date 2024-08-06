@@ -2,7 +2,7 @@ import {
   aiBlockConfig,
   BlockSchemaWithBlock,
   InlineContentSchema,
-  mockAIOperation,
+  mockAIReplaceBlockContent,
   StyleSchema,
 } from "@blocknote/core";
 
@@ -37,15 +37,11 @@ export const UpdateButton = (
       onClick={async () => {
         props.setUpdating(true);
         editor.focus();
-        editor.updateBlock(editor.getTextCursorPosition().block, {
-          props: { prompt: props.prompt },
-          content: (
-            await mockAIOperation(editor, props.prompt, {
-              operation: "replaceBlock",
-              blockIdentifier: editor.getTextCursorPosition().block,
-            })
-          )[0].content as any,
-        });
+        await mockAIReplaceBlockContent(
+          editor,
+          props.prompt,
+          editor.getTextCursorPosition().block
+        );
         props.setUpdating(false);
       }}>
       {props.updating

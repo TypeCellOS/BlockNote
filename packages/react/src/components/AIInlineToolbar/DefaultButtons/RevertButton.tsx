@@ -1,26 +1,21 @@
-import {
-  aiBlockConfig,
-  BlockSchemaWithBlock,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
-import { TextSelection } from "prosemirror-state";
+import { TextSelection } from "@tiptap/pm/state";
 import { RiArrowGoBackFill } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useDictionary } from "../../../i18n/dictionary";
 import { AIInlineToolbarProps } from "../AIInlineToolbarProps";
+import { Block } from "@blocknote/core";
 
-export const RevertButton = (props: AIInlineToolbarProps) => {
+export const RevertButton = (
+  props: AIInlineToolbarProps & {
+    originalBlocks: Block<any, any, any>[];
+  }
+) => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;
 
-  const editor = useBlockNoteEditor<
-    BlockSchemaWithBlock<"ai", typeof aiBlockConfig>,
-    InlineContentSchema,
-    StyleSchema
-  >();
+  const editor = useBlockNoteEditor<any, any, any>();
 
   if (!editor.isEditable) {
     return null;
@@ -33,15 +28,16 @@ export const RevertButton = (props: AIInlineToolbarProps) => {
       mainTooltip={dict.ai_inline_toolbar.revert}
       label={dict.ai_inline_toolbar.revert}
       onClick={() => {
-        editor.focus();
+        editor.aiInlineToolbar.close();
+
         const oldDocSize = editor._tiptapEditor.state.doc.nodeSize;
         const startPos = editor._tiptapEditor.state.selection.from;
         const endPos = editor._tiptapEditor.state.selection.to;
-        const replacedContent = editor.getSelection()?.blocks || [
+        const replacementBlocks = editor.getSelection()?.blocks || [
           editor.getTextCursorPosition().block,
         ];
 
-        editor.replaceBlocks(replacedContent, props.originalContent as any[]);
+        editor.replaceBlocks(replacementBlocks, props.originalBlocks as any[]);
 
         const newDocSize = editor._tiptapEditor.state.doc.nodeSize;
 
@@ -55,9 +51,7 @@ export const RevertButton = (props: AIInlineToolbarProps) => {
           )
         );
 
-        editor.formattingToolbar.closeMenu();
         editor.focus();
-        editor.aiInlineToolbar.close();
       }}
     />
   );

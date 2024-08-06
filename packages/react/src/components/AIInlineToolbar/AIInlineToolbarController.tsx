@@ -41,13 +41,13 @@ export const AIInlineToolbarController = (props: {
     return null;
   }
 
-  const { prompt, originalContent } = state;
+  const { prompt, operation } = state;
 
   const Component = props.aiToolbar || AIInlineToolbar;
 
   return (
     <div ref={ref} style={style} {...getFloatingProps()}>
-      <Component prompt={prompt} originalContent={originalContent} />
+      <Component prompt={prompt} operation={operation} />
     </div>
   );
 };

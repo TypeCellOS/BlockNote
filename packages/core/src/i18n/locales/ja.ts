@@ -125,17 +125,34 @@ export const ja: Dictionary = {
       aliases: ["file", "upload", "embed", "media", "url", "ファイル"],
       group: "メディア",
     },
+    ai_block: {
+      title: "AI Block",
+      subtext: "Block with AI generated content",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "AI",
+    },
+    ai: {
+      title: "Ask AI",
+      subtext: "Continue writing with AI",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "AI",
+    },
     emoji: {
       title: "絵文字",
       subtext: "絵文字を挿入するために使用します",
       aliases: ["絵文字", "顔文字", "感情表現", "顔"],
       group: "その他",
     },
-    ai_block: {
-      title: "AI Block",
-      subtext: "Create content using generative AI",
-      aliases: ["ai", "artificial intelligence", "generate"],
-      group: "Others",
+  },
+  ai_menu: {
+    custom_prompt: {
+      title: "Custom Prompt",
+      subtext: "Use your query as an AI prompt",
+      aliases: ["", "custom prompt"],
+    },
+    make_longer: {
+      title: "Make Longer",
+      aliases: ["make longer"],
     },
   },
   placeholders: {

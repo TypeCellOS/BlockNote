@@ -1,16 +1,10 @@
-import {
-  BlockSchema,
-  InlineContentSchema,
-  mockAIOperation,
-  StyleSchema,
-} from "@blocknote/core";
-import { TextSelection } from "@tiptap/pm/state";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
 import { RiSparkling2Fill } from "react-icons/ri";
 
-import { useDictionary } from "../../../i18n/dictionary";
 import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
+import { useDictionary } from "../../../i18n/dictionary";
 
 export const AIButton = () => {
   const dict = useDictionary();
@@ -23,42 +17,11 @@ export const AIButton = () => {
   >();
 
   const [currentEditingPrompt, setCurrentEditingPrompt] = useState<string>("");
-  const [updating, setUpdating] = useState(false);
 
   const runAIEdit = useCallback(
     async (prompt: string) => {
-      setUpdating(true);
-
-      const oldDocSize = editor._tiptapEditor.state.doc.nodeSize;
-      const startPos = editor._tiptapEditor.state.selection.from;
-      const endPos = editor._tiptapEditor.state.selection.to;
-      const originalContent = editor.getSelection()?.blocks || [
-        editor.getTextCursorPosition().block,
-      ];
-
-      editor.replaceBlocks(
-        originalContent,
-        (await mockAIOperation(editor, prompt, {
-          operation: "replaceSelection",
-        })) as any[]
-      );
-
-      const newDocSize = editor._tiptapEditor.state.doc.nodeSize;
-
-      editor._tiptapEditor.view.dispatch(
-        editor._tiptapEditor.state.tr.setSelection(
-          TextSelection.create(
-            editor._tiptapEditor.state.doc,
-            startPos,
-            endPos + newDocSize - oldDocSize
-          )
-        )
-      );
-
-      setUpdating(false);
       editor.formattingToolbar.closeMenu();
-      editor.focus();
-      editor.aiInlineToolbar.open(prompt, originalContent);
+      editor.aiInlineToolbar.open(prompt, "replaceSelection");
     },
     [editor]
   );
@@ -90,9 +53,8 @@ export const AIButton = () => {
           className={"bn-button"}
           label={dict.formatting_toolbar.ai.tooltip}
           mainTooltip={dict.formatting_toolbar.ai.tooltip}
-          icon={!updating && <RiSparkling2Fill />}>
-          {updating && "Updating..."}
-        </Components.FormattingToolbar.Button>
+          icon={<RiSparkling2Fill />}
+        />
       </Components.Generic.Menu.Trigger>
       <Components.Generic.Menu.Dropdown
         className={"bn-popover-content bn-form-popover"}>
