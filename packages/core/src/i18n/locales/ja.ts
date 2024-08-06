@@ -131,7 +131,7 @@ export const ja: Dictionary = {
       aliases: ["絵文字", "顔文字", "感情表現", "顔"],
       group: "その他",
     },
-    ai: {
+    ai_block: {
       title: "AI Block",
       subtext: "Create content using generative AI",
       aliases: ["ai", "artificial intelligence", "generate"],
@@ -291,6 +291,10 @@ export const ja: Dictionary = {
     align_justify: {
       tooltip: "両端揃え",
     },
+    ai: {
+      tooltip: "Generate content",
+      input_placeholder: "Enter a prompt",
+    },
   },
   file_panel: {
     upload: {
@@ -330,10 +334,16 @@ export const ja: Dictionary = {
       url_placeholder: "URLを編集",
     },
   },
-  ai_toolbar: {
+  ai_block_toolbar: {
     show_prompt: "Show prompt",
     update: "Update",
     updating: "Updating…",
+  },
+  ai_inline_toolbar: {
+    accept: "Accept",
+    retry: "Retry",
+    updating: "Updating…",
+    revert: "Revert",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

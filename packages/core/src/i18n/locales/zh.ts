@@ -144,7 +144,7 @@ export const zh: Dictionary = {
       ],
       group: "其他",
     },
-    ai: {
+    ai_block: {
       title: "AI Block",
       subtext: "Create content using generative AI",
       aliases: ["ai", "artificial intelligence", "generate"],
@@ -304,6 +304,10 @@ export const zh: Dictionary = {
     align_justify: {
       tooltip: "文本对齐",
     },
+    ai: {
+      tooltip: "Generate content",
+      input_placeholder: "Enter a prompt",
+    },
   },
   file_panel: {
     upload: {
@@ -343,10 +347,16 @@ export const zh: Dictionary = {
       url_placeholder: "编辑链接地址",
     },
   },
-  ai_toolbar: {
+  ai_block_toolbar: {
     show_prompt: "Show prompt",
     update: "Update",
     updating: "Updating…",
+  },
+  ai_inline_toolbar: {
+    accept: "Accept",
+    retry: "Retry",
+    updating: "Updating…",
+    revert: "Revert",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

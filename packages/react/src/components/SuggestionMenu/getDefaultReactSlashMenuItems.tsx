@@ -36,6 +36,7 @@ const icons = {
   video: RiFilmLine,
   audio: RiVolumeUpFill,
   file: RiFile2Line,
+  ai_block: RiSparkling2Fill,
   ai: RiSparkling2Fill,
   emoji: RiEmotionFill,
 };

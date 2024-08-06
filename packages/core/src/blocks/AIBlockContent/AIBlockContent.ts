@@ -6,16 +6,7 @@ import {
   PropSchema,
 } from "../../schema";
 import { defaultProps } from "../defaultProps";
-
-export const mockAIModelCall = async (_prompt: string) => {
-  return new Promise<string>((resolve) => {
-    setTimeout(() => {
-      resolve(
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-      );
-    }, 1000);
-  });
-};
+import { mockAIOperation } from "./mockAIOperation";
 
 export const aiPropSchema = {
   ...defaultProps,
@@ -36,12 +27,18 @@ export const aiRender = (
 ) => {
   if (!block.props.prompt) {
     const generateResponseCallback = async () => {
+      const prompt = span.innerText;
       generateButton.textContent = "Generating...";
+
+      const response = await mockAIOperation(editor, prompt, {
+        operation: "replaceBlock",
+        blockIdentifier: block.id,
+      });
 
       editor.updateBlock(block, {
         type: "ai",
-        props: { prompt: span.innerText },
-        content: await mockAIModelCall(block.props.prompt),
+        props: { prompt },
+        content: response[0].content,
       });
     };
 

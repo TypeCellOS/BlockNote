@@ -5,11 +5,11 @@ import { FC } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
 import { useUIPluginState } from "../../hooks/useUIPluginState";
-import { AIToolbar } from "./AIToolbar";
-import { AIToolbarProps } from "./AIToolbarProps";
+import { AIInlineToolbar } from "./AIInlineToolbar";
+import { AIInlineToolbarProps } from "./AIInlineToolbarProps";
 
-export const AIToolbarController = (props: {
-  aiToolbar?: FC<AIToolbarProps>;
+export const AIInlineToolbarController = (props: {
+  aiToolbar?: FC<AIInlineToolbarProps>;
 }) => {
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -17,14 +17,8 @@ export const AIToolbarController = (props: {
     StyleSchema
   >();
 
-  if (!editor.aiToolbar) {
-    throw new Error(
-      "AIToolbarController can only be used when BlockNote editor schema contains an AI block"
-    );
-  }
-
   const state = useUIPluginState(
-    editor.aiToolbar.onUpdate.bind(editor.aiToolbar)
+    editor.aiInlineToolbar.onUpdate.bind(editor.aiInlineToolbar)
   );
 
   const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
@@ -32,7 +26,7 @@ export const AIToolbarController = (props: {
     state?.referencePos || null,
     3000,
     {
-      placement: "top-end",
+      placement: "top-start",
       middleware: [offset(10), flip()],
       onOpenChange: (open) => {
         if (!open) {
@@ -47,13 +41,13 @@ export const AIToolbarController = (props: {
     return null;
   }
 
-  const { prompt } = state;
+  const { prompt, originalContent } = state;
 
-  const Component = props.aiToolbar || AIToolbar;
+  const Component = props.aiToolbar || AIInlineToolbar;
 
   return (
     <div ref={ref} style={style} {...getFloatingProps()}>
-      <Component prompt={prompt!} />
+      <Component prompt={prompt} originalContent={originalContent} />
     </div>
   );
 };

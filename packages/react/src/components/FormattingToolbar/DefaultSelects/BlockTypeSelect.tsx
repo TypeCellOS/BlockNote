@@ -95,7 +95,7 @@ export const blockTypeSelectItems = (
     isSelected: (block) => block.type === "checkListItem",
   },
   {
-    name: dict.slash_menu.ai.title,
+    name: dict.slash_menu.ai_block.title,
     type: "ai",
     icon: RiSparkling2Fill,
     isSelected: (block) => block.type === "ai",

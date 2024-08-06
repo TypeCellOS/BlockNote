@@ -26,7 +26,8 @@ import {
   DefaultStyleSchema,
   PartialBlock,
 } from "../blocks/defaultBlocks";
-import { AIToolbarProsemirrorPlugin } from "../extensions/AIToolbar/AIToolbarPlugin";
+import { AIBlockToolbarProsemirrorPlugin } from "../extensions/AIBlockToolbar/AIBlockToolbarPlugin";
+import { AIInlineToolbarProsemirrorPlugin } from "../extensions/AIInlineToolbar/AIInlineToolbarPlugin";
 import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin";
 import { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkToolbarPlugin";
@@ -244,7 +245,8 @@ export class BlockNoteEditor<
     ISchema,
     SSchema
   >;
-  public readonly aiToolbar?: AIToolbarProsemirrorPlugin;
+  public readonly aiBlockToolbar?: AIBlockToolbarProsemirrorPlugin;
+  public readonly aiInlineToolbar: AIInlineToolbarProsemirrorPlugin;
 
   /**
    * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
@@ -331,8 +333,10 @@ export class BlockNoteEditor<
       this.tableHandles = new TableHandlesProsemirrorPlugin(this as any);
     }
     if (checkDefaultBlockTypeInSchema("ai", this)) {
-      this.aiToolbar = new AIToolbarProsemirrorPlugin();
+      this.aiBlockToolbar = new AIBlockToolbarProsemirrorPlugin();
     }
+
+    this.aiInlineToolbar = new AIInlineToolbarProsemirrorPlugin();
 
     const extensions = getBlockNoteExtensions({
       editor: this,
@@ -356,7 +360,8 @@ export class BlockNoteEditor<
           this.suggestionMenus.plugin,
           ...(this.filePanel ? [this.filePanel.plugin] : []),
           ...(this.tableHandles ? [this.tableHandles.plugin] : []),
-          ...(this.aiToolbar ? [this.aiToolbar.plugin] : []),
+          ...(this.aiBlockToolbar ? [this.aiBlockToolbar.plugin] : []),
+          this.aiInlineToolbar.plugin,
           PlaceholderPlugin(this, newOptions.placeholders),
         ];
       },

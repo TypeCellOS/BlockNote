@@ -1,12 +1,12 @@
 import { ReactNode, useState } from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext";
-import { AIToolbarProps } from "./AIToolbarProps";
+import { AIBlockToolbarProps } from "./AIBlockToolbarProps";
 import { ShowPromptButton } from "./DefaultButtons/ShowPromptButton";
 import { UpdateButton } from "./DefaultButtons/UpdateButton";
 
-export const getAIToolbarItems = (
-  props: AIToolbarProps & {
+export const getAIBlockToolbarItems = (
+  props: AIBlockToolbarProps & {
     updating: boolean;
     setUpdating: (updating: boolean) => void;
   }
@@ -24,14 +24,17 @@ export const getAIToolbarItems = (
  * - Custom buttons: Buttons made using the Components.AIToolbar.Button
  * component from the component context.
  */
-export const AIToolbar = (props: AIToolbarProps & { children?: ReactNode }) => {
+export const AIBlockToolbar = (
+  props: AIBlockToolbarProps & { children?: ReactNode }
+) => {
   const Components = useComponentsContext()!;
 
   const [updating, setUpdating] = useState(false);
 
   return (
-    <Components.AIToolbar.Root className={"bn-toolbar bn-ai-toolbar"}>
-      {props.children || getAIToolbarItems({ ...props, updating, setUpdating })}
-    </Components.AIToolbar.Root>
+    <Components.AIBlockToolbar.Root className={"bn-toolbar bn-ai-toolbar"}>
+      {props.children ||
+        getAIBlockToolbarItems({ ...props, updating, setUpdating })}
+    </Components.AIBlockToolbar.Root>
   );
 };

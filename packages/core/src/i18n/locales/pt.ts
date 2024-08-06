@@ -103,7 +103,7 @@ export const pt: Dictionary = {
       aliases: ["emoji", "emoticon", "expressão emocional", "rosto"],
       group: "Outros",
     },
-    ai: {
+    ai_block: {
       title: "AI Block",
       subtext: "Create content using generative AI",
       aliases: ["ai", "artificial intelligence", "generate"],
@@ -263,6 +263,10 @@ export const pt: Dictionary = {
     align_justify: {
       tooltip: "Justificar texto",
     },
+    ai: {
+      tooltip: "Generate content",
+      input_placeholder: "Enter a prompt",
+    },
   },
   file_panel: {
     upload: {
@@ -302,10 +306,16 @@ export const pt: Dictionary = {
       url_placeholder: "Editar URL",
     },
   },
-  ai_toolbar: {
+  ai_block_toolbar: {
     show_prompt: "Show prompt",
     update: "Update",
     updating: "Updating…",
+  },
+  ai_inline_toolbar: {
+    accept: "Accept",
+    retry: "Retry",
+    updating: "Updating…",
+    revert: "Revert",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

@@ -2,7 +2,7 @@ import {
   aiBlockConfig,
   BlockSchemaWithBlock,
   InlineContentSchema,
-  mockAIModelCall,
+  mockAIOperation,
   StyleSchema,
 } from "@blocknote/core";
 import {
@@ -17,10 +17,10 @@ import { RiSparkling2Fill } from "react-icons/ri";
 import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useDictionary } from "../../../i18n/dictionary";
-import { AIToolbarProps } from "../AIToolbarProps";
+import { AIBlockToolbarProps } from "../AIBlockToolbarProps";
 
 export const ShowPromptButton = (
-  props: AIToolbarProps & {
+  props: AIBlockToolbarProps & {
     setUpdating: (updating: boolean) => void;
   }
 ) => {
@@ -47,13 +47,18 @@ export const ShowPromptButton = (
         props.setUpdating(true);
         setOpened(false);
         editor.updateBlock(editor.getTextCursorPosition().block, {
-          props: { prompt: props.prompt },
-          content: await mockAIModelCall(props.prompt),
+          props: { prompt: currentEditingPrompt },
+          content: (
+            await mockAIOperation(editor, props.prompt, {
+              operation: "replaceBlock",
+              blockIdentifier: editor.getTextCursorPosition().block,
+            })
+          )[0].content as any,
         });
         props.setUpdating(false);
       }
     },
-    [editor, props]
+    [currentEditingPrompt, editor, props]
   );
 
   const handleChange = useCallback(
@@ -72,14 +77,18 @@ export const ShowPromptButton = (
     };
   }, [editor.domElement]);
 
+  if (!editor.isEditable) {
+    return null;
+  }
+
   return (
     <Components.Generic.Popover.Root opened={opened}>
       <Components.Generic.Popover.Trigger>
         <Components.FormattingToolbar.Button
           className={"bn-button"}
-          label={dict.ai_toolbar.show_prompt}
+          label={dict.ai_block_toolbar.show_prompt}
           onClick={handleClick}>
-          {dict.ai_toolbar.show_prompt}
+          {dict.ai_block_toolbar.show_prompt}
         </Components.FormattingToolbar.Button>
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content

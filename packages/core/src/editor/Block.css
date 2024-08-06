@@ -407,10 +407,12 @@ NESTED BLOCKS
   border-radius: 4px;
 }
 
+.bn-editor[contenteditable="true"]
 [data-content-type="ai"][data-prompt] p:hover {
   outline: solid 3px rgba(154, 56, 173, 0.1);
 }
 
+.bn-editor[contenteditable="true"]
 [data-content-type="ai"][data-prompt][data-is-focused] p {
   outline: solid 3px rgba(154, 56, 173, 0.2);
 }

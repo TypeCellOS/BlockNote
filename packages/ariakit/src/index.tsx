@@ -46,7 +46,11 @@ import { ToolbarSelect } from "./toolbar/ToolbarSelect";
 import "./style.css";
 
 export const components: Components = {
-  AIToolbar: {
+  AIBlockToolbar: {
+    Root: Toolbar,
+    Button: ToolbarButton,
+  },
+  AIInlineToolbar: {
     Root: Toolbar,
     Button: ToolbarButton,
   },

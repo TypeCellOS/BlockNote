@@ -6,7 +6,10 @@ import { SuggestionMenuController } from "../components/SuggestionMenu/Suggestio
 import { GridSuggestionMenuController } from "../components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuController";
 import { TableHandlesController } from "../components/TableHandles/TableHandlesController";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor";
-import { AIToolbarController } from "../components/AIToolbar/AIToolbarController";
+import { AIBlockToolbarController } from "../components/AIBlockToolbar/AIBlockToolbarController";
+import { AIInlineToolbarController } from "../components/AIInlineToolbar/AIInlineToolbarController";
+import { filterSuggestionItems } from "@blocknote/core";
+import { getDefaultAIMenuItems } from "../components/SuggestionMenu/getDefaultAIMenuItems";
 
 export type BlockNoteDefaultUIProps = {
   formattingToolbar?: boolean;
@@ -16,7 +19,9 @@ export type BlockNoteDefaultUIProps = {
   filePanel?: boolean;
   tableHandles?: boolean;
   emojiPicker?: boolean;
-  aiToolbar?: boolean;
+  aiBlockToolbar?: boolean;
+  aiInlineToolbar?: boolean;
+  aiMenu?: boolean;
 };
 
 export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
@@ -47,7 +52,18 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
       {editor.tableHandles && props.tableHandles !== false && (
         <TableHandlesController />
       )}
-      {editor.aiToolbar && props.aiToolbar !== false && <AIToolbarController />}
+      {editor.aiBlockToolbar && props.aiBlockToolbar !== false && (
+        <AIBlockToolbarController />
+      )}
+      {props.aiInlineToolbar !== false && <AIInlineToolbarController />}
+      {props.aiMenu !== false && (
+        <SuggestionMenuController
+          triggerCharacter="`"
+          getItems={async (query) =>
+            filterSuggestionItems(getDefaultAIMenuItems(editor, query), query)
+          }
+        />
+      )}
     </>
   );
 }

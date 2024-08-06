@@ -5,10 +5,10 @@ import { BlockInfo, getBlockInfoFromPos } from "../../api/getBlockInfoFromPos";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
 import { EventEmitter } from "../../util/EventEmitter";
 
-export type AIToolbarState = UiElementPosition & { prompt?: string };
+export type AIBlockToolbarState = UiElementPosition & { prompt?: string };
 
-export class AIToolbarView implements PluginView {
-  public state?: AIToolbarState;
+export class AIBlockToolbarView implements PluginView {
+  public state?: AIBlockToolbarState;
   public emitUpdate: () => void;
 
   public oldBlockInfo: BlockInfo | undefined;
@@ -16,7 +16,7 @@ export class AIToolbarView implements PluginView {
 
   constructor(
     private readonly pmView: EditorView,
-    emitUpdate: (state: AIToolbarState) => void
+    emitUpdate: (state: AIBlockToolbarState) => void
   ) {
     this.emitUpdate = () => {
       if (!this.state) {
@@ -136,18 +136,18 @@ export class AIToolbarView implements PluginView {
   };
 }
 
-export const aiToolbarPluginKey = new PluginKey("AIToolbarPlugin");
+export const aiBlockToolbarPluginKey = new PluginKey("AIBlockToolbarPlugin");
 
-export class AIToolbarProsemirrorPlugin extends EventEmitter<any> {
-  private view: AIToolbarView | undefined;
+export class AIBlockToolbarProsemirrorPlugin extends EventEmitter<any> {
+  private view: AIBlockToolbarView | undefined;
   public readonly plugin: Plugin;
 
   constructor() {
     super();
     this.plugin = new Plugin({
-      key: aiToolbarPluginKey,
+      key: aiBlockToolbarPluginKey,
       view: (editorView) => {
-        this.view = new AIToolbarView(editorView, (state) => {
+        this.view = new AIBlockToolbarView(editorView, (state) => {
           this.emit("update", state);
         });
         return this.view;
@@ -159,7 +159,7 @@ export class AIToolbarProsemirrorPlugin extends EventEmitter<any> {
     return this.view?.state?.show || false;
   }
 
-  public onUpdate(callback: (state: AIToolbarState) => void) {
+  public onUpdate(callback: (state: AIBlockToolbarState) => void) {
     return this.on("update", callback);
   }
 

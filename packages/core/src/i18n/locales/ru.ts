@@ -138,7 +138,7 @@ export const ru: Dictionary = {
       aliases: ["эмодзи", "смайлик", "выражение эмоций", "лицо"],
       group: "Прочее",
     },
-    ai: {
+    ai_block: {
       title: "AI Block",
       subtext: "Create content using generative AI",
       aliases: ["ai", "artificial intelligence", "generate"],
@@ -298,6 +298,10 @@ export const ru: Dictionary = {
     align_justify: {
       tooltip: "По середине текст",
     },
+    ai: {
+      tooltip: "Generate content",
+      input_placeholder: "Enter a prompt",
+    },
   },
   file_panel: {
     upload: {
@@ -337,10 +341,16 @@ export const ru: Dictionary = {
       url_placeholder: "Изменить URL",
     },
   },
-  ai_toolbar: {
+  ai_block_toolbar: {
     show_prompt: "Show prompt",
     update: "Update",
     updating: "Updating…",
+  },
+  ai_inline_toolbar: {
+    accept: "Accept",
+    retry: "Retry",
+    updating: "Updating…",
+    revert: "Revert",
   },
   generic: {
     ctrl_shortcut: "Ctrl",
