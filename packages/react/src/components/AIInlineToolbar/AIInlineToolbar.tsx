@@ -31,7 +31,7 @@ export const AIInlineToolbar = (
 ) => {
   const Components = useComponentsContext()!;
 
-  const [updating, setUpdating] = useState(true);
+  const [updating, setUpdating] = useState(false);
 
   return (
     <Components.AIBlockToolbar.Root className={"bn-toolbar bn-ai-toolbar"}>
