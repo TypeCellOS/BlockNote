@@ -10,3 +10,4 @@ export * from "./pt";
 export * from "./vi";
 export * from "./zh";
 export * from "./ru";
+export * from "./de";
