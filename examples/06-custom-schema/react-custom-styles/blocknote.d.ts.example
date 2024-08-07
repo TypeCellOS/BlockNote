@@ -8,7 +8,7 @@
  * This method only works if you use one custom schema in your app)
  */
 import "@blocknote/core";
-import type { schema } from "./App.js";
+import type { schema } from "./App";
 
 declare module "@blocknote/core" {
   // Override the default schema types

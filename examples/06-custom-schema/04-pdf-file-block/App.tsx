@@ -15,7 +15,7 @@ import {
 
 import { RiFilePdfFill } from "react-icons/ri";
 
-import { PDF } from "./PDF.js";
+import { PDF } from "./PDF";
 
 // Our schema with block specs, which contain the configs and implementations for blocks
 // that we want our editor to use.

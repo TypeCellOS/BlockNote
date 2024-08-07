@@ -9,9 +9,9 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 
-import { CustomFormattingToolbar } from "./CustomFormattingToolbar.js";
-import { CustomSideMenu } from "./CustomSideMenu.js";
-import { CustomSlashMenu } from "./CustomSlashMenu.js";
+import { CustomFormattingToolbar } from "./CustomFormattingToolbar";
+import { CustomSideMenu } from "./CustomSideMenu";
+import { CustomSlashMenu } from "./CustomSlashMenu";
 import "./styles.css";
 
 export default function App() {

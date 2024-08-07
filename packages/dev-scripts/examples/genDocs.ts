@@ -22,7 +22,7 @@ const getLanguageFromFileName = (fileName: string) => fileName.split(".").pop();
 const templateExampleBlock = (
   project: Project,
   files: Files
-) => `import { ExampleBlock } from "./components/example/ExampleBlock.js";
+) => `import { ExampleBlock } from "@/components/example/ExampleBlock";
 import { Tabs } from "nextra/components";
 
 <ExampleBlock name="${project.fullSlug}" path="${
@@ -75,7 +75,7 @@ async function generateCodeForExample(project: Project) {
 const templatePageForExample = (
   project: Project,
   readme: string
-) => `import { Example } from "./components/example.js";
+) => `import { Example } from "@/components/example";
 
 ${readme}
 

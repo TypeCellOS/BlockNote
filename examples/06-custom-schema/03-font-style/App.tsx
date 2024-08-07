@@ -21,7 +21,7 @@ import {
 
 import { RiText } from "react-icons/ri";
 
-import { Font } from "./Font.js";
+import { Font } from "./Font";
 
 // Our schema with style specs, which contain the configs and implementations for styles
 // that we want our editor to use.

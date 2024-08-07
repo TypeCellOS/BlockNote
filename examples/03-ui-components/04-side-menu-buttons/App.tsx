@@ -8,7 +8,7 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 
-import { RemoveBlockButton } from "./RemoveBlockButton.js";
+import { RemoveBlockButton } from "./RemoveBlockButton";
 
 export default function App() {
   // Creates a new editor instance.
