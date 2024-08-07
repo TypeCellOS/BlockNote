@@ -1,6 +1,6 @@
-import { useComponentsContext } from "../../editor/ComponentsContext";
-import { useDictionary } from "../../i18n/dictionary";
-import { ColorIcon } from "./ColorIcon";
+import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { useDictionary } from "../../i18n/dictionary.js";
+import { ColorIcon } from "./ColorIcon.js";
 
 const colors = [
   "default",

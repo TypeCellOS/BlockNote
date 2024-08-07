@@ -2,16 +2,19 @@ import { Node } from "prosemirror-model";
 
 import { selectionToInsertionEnd } from "@tiptap/core";
 import { Transaction } from "prosemirror-state";
-import { Block, PartialBlock } from "../../blocks/defaultBlocks";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { Block, PartialBlock } from "../../blocks/defaultBlocks.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   BlockIdentifier,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
-} from "../../schema";
-import { blockToNode, nodeToBlock } from "../nodeConversions/nodeConversions";
-import { getNodeById } from "../nodeUtil";
+} from "../../schema/index.js";
+import {
+  blockToNode,
+  nodeToBlock,
+} from "../nodeConversions/nodeConversions.js";
+import { getNodeById } from "../nodeUtil.js";
 
 export function insertBlocks<
   BSchema extends BlockSchema,

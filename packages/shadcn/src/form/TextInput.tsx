@@ -2,7 +2,7 @@ import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
-import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
+import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
 
 export const TextInput = forwardRef<
   HTMLInputElement,

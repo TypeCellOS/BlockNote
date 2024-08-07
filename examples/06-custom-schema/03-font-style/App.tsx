@@ -18,6 +18,7 @@ import {
   useComponentsContext,
   useCreateBlockNote,
 } from "@blocknote/react";
+
 import { RiText } from "react-icons/ri";
 
 import { Font } from "./Font";

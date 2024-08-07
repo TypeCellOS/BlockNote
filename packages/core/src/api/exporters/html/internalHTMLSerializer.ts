@@ -1,12 +1,16 @@
 import { DOMSerializer, Fragment, Node, Schema } from "prosemirror-model";
-import { PartialBlock } from "../../../blocks/defaultBlocks";
-import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
-import { blockToNode } from "../../nodeConversions/nodeConversions";
+import { PartialBlock } from "../../../blocks/defaultBlocks.js";
+import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../../schema/index.js";
+import { blockToNode } from "../../nodeConversions/nodeConversions.js";
 import {
   serializeNodeInner,
   serializeProseMirrorFragment,
-} from "./util/sharedHTMLConversion";
+} from "./util/sharedHTMLConversion.js";
 
 // Used to serialize BlockNote blocks and ProseMirror nodes to HTML without
 // losing data. Blocks are exported using the `toInternalHTML` method in their

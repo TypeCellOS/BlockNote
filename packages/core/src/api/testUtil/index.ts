@@ -1,9 +1,9 @@
-import { PartialBlock } from "../../blocks/defaultBlocks";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { BlockSchema } from "../../schema/blocks/types";
-import { InlineContentSchema } from "../../schema/inlineContent/types";
-import { StyleSchema } from "../../schema/styles/types";
-import { NoInfer } from "../../util/typescript";
+import { PartialBlock } from "../../blocks/defaultBlocks.js";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { BlockSchema } from "../../schema/blocks/types.js";
+import { InlineContentSchema } from "../../schema/inlineContent/types.js";
+import { StyleSchema } from "../../schema/styles/types.js";
+import { NoInfer } from "../../util/typescript.js";
 
 export type EditorTestCases<
   B extends BlockSchema,

@@ -1,5 +1,5 @@
 import { Editor } from "@tiptap/core";
-import { getBlockInfoFromPos } from "./getBlockInfoFromPos";
+import { getBlockInfoFromPos } from "./getBlockInfoFromPos.js";
 
 // Used to get the content type of the block that the text cursor is in. This is
 // a band-aid fix to prevent input rules and keyboard shortcuts from triggering

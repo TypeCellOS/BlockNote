@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
-import { test } from "../../setup/setupScript";
-import { STATIC_URL } from "../../utils/const";
+import { test } from "../../setup/setupScript.js";
+import { STATIC_URL } from "../../utils/const.js";
 
 test.beforeEach(async ({ page }) => {
   await page.goto(STATIC_URL);

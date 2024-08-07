@@ -1,25 +1,26 @@
 import { ReactNode } from "react";
 
-import { useComponentsContext } from "../../editor/ComponentsContext";
-import { BasicTextStyleButton } from "./DefaultButtons/BasicTextStyleButton";
-import { ColorStyleButton } from "./DefaultButtons/ColorStyleButton";
-import { CreateLinkButton } from "./DefaultButtons/CreateLinkButton";
-import { FileCaptionButton } from "./DefaultButtons/FileCaptionButton";
+import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { BasicTextStyleButton } from "./DefaultButtons/BasicTextStyleButton.js";
+import { ColorStyleButton } from "./DefaultButtons/ColorStyleButton.js";
+import { CreateLinkButton } from "./DefaultButtons/CreateLinkButton.js";
+import { FileCaptionButton } from "./DefaultButtons/FileCaptionButton.js";
+import { FileDeleteButton } from "./DefaultButtons/FileDeleteButton.js";
+import { FileRenameButton } from "./DefaultButtons/FileRenameButton.js";
+import { FileReplaceButton } from "./DefaultButtons/FileReplaceButton.js";
 import {
   NestBlockButton,
   UnnestBlockButton,
-} from "./DefaultButtons/NestBlockButtons";
-import { FileReplaceButton } from "./DefaultButtons/FileReplaceButton";
-import { TextAlignButton } from "./DefaultButtons/TextAlignButton";
+} from "./DefaultButtons/NestBlockButtons.js";
 import {
   BlockTypeSelect,
   BlockTypeSelectItem,
-} from "./DefaultSelects/BlockTypeSelect";
-import { FormattingToolbarProps } from "./FormattingToolbarProps";
-import { FileRenameButton } from "./DefaultButtons/FileRenameButton";
-import { FileDownloadButton } from "./DefaultButtons/FileDownloadButton";
-import { FilePreviewButton } from "./DefaultButtons/FilePreviewButton";
-import { FileDeleteButton } from "./DefaultButtons/FileDeleteButton";
+} from "./DefaultSelects/BlockTypeSelect.js";
+
+import { FileDownloadButton } from "./DefaultButtons/FileDownloadButton.js";
+import { FilePreviewButton } from "./DefaultButtons/FilePreviewButton.js";
+import { TextAlignButton } from "./DefaultButtons/TextAlignButton.js";
+import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 
 export const getFormattingToolbarItems = (
   blockTypeSelectItems?: BlockTypeSelectItem[]

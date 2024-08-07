@@ -1,5 +1,5 @@
 import { expect } from "@playwright/test";
-import { test } from "../../setup/setupScript";
+import { test } from "../../setup/setupScript.js";
 import {
   BACKGROUND_COLOR_SELECTOR,
   BASE_URL,
@@ -8,9 +8,9 @@ import {
   DRAG_HANDLE_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
   TEXT_COLOR_SELECTOR,
-} from "../../utils/const";
-import { insertHeading, insertParagraph } from "../../utils/copypaste";
-import { focusOnEditor } from "../../utils/editor";
+} from "../../utils/const.js";
+import { insertHeading, insertParagraph } from "../../utils/copypaste.js";
+import { focusOnEditor } from "../../utils/editor.js";
 
 test.beforeEach(async ({ page }) => {
   await page.goto(BASE_URL, { waitUntil: "networkidle" });

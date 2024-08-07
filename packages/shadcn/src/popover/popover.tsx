@@ -2,8 +2,8 @@ import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
-import { cn } from "../lib/utils";
-import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
+import { cn } from "../lib/utils.js";
+import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
 
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"]

@@ -1,6 +1,6 @@
 import { Page } from "@playwright/test";
-import { PASTE_ZONE_SELECTOR, TYPE_DELAY } from "./const";
-import { focusOnEditor } from "./editor";
+import { PASTE_ZONE_SELECTOR, TYPE_DELAY } from "./const.js";
+import { focusOnEditor } from "./editor.js";
 
 export async function copyPaste(page: Page, os: "mac" | "linux" = "linux") {
   const modifierKey = os === "mac" ? "Meta" : "Control";

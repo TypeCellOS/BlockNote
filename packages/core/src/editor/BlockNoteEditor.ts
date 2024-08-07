@@ -8,31 +8,31 @@ import {
   removeBlocks,
   replaceBlocks,
   updateBlock,
-} from "../api/blockManipulation/blockManipulation";
-import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter";
-import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter";
-import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos";
+} from "../api/blockManipulation/blockManipulation.js";
+import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
+import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
+import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos.js";
 import {
   inlineContentToNodes,
   nodeToBlock,
-} from "../api/nodeConversions/nodeConversions";
-import { getNodeById } from "../api/nodeUtil";
-import { HTMLToBlocks } from "../api/parsers/html/parseHTML";
-import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown";
+} from "../api/nodeConversions/nodeConversions.js";
+import { getNodeById } from "../api/nodeUtil.js";
+import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
+import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown.js";
 import {
   Block,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   PartialBlock,
-} from "../blocks/defaultBlocks";
-import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin";
-import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin";
-import { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkToolbarPlugin";
-import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin";
-import { SuggestionMenuProseMirrorPlugin } from "../extensions/SuggestionMenu/SuggestionPlugin";
-import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin";
-import { UniqueID } from "../extensions/UniqueID/UniqueID";
+} from "../blocks/defaultBlocks.js";
+import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin.js";
+import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin.js";
+import { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkToolbarPlugin.js";
+import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin.js";
+import { SuggestionMenuProseMirrorPlugin } from "../extensions/SuggestionMenu/SuggestionPlugin.js";
+import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin.js";
+import { UniqueID } from "../extensions/UniqueID/UniqueID.js";
 import {
   BlockIdentifier,
   BlockNoteDOMAttributes,
@@ -44,29 +44,29 @@ import {
   StyleSchema,
   StyleSpecs,
   Styles,
-} from "../schema";
-import { mergeCSSClasses } from "../util/browser";
-import { NoInfer, UnreachableCaseError } from "../util/typescript";
+} from "../schema/index.js";
+import { mergeCSSClasses } from "../util/browser.js";
+import { NoInfer, UnreachableCaseError } from "../util/typescript.js";
 
-import { getBlockNoteExtensions } from "./BlockNoteExtensions";
-import { TextCursorPosition } from "./cursorPositionTypes";
+import { getBlockNoteExtensions } from "./BlockNoteExtensions.js";
+import { TextCursorPosition } from "./cursorPositionTypes.js";
 
-import { Selection } from "./selectionTypes";
-import { transformPasted } from "./transformPasted";
+import { Selection } from "./selectionTypes.js";
+import { transformPasted } from "./transformPasted.js";
 
-import { checkDefaultBlockTypeInSchema } from "../blocks/defaultBlockTypeGuards";
-import { BlockNoteSchema } from "./BlockNoteSchema";
+import { checkDefaultBlockTypeInSchema } from "../blocks/defaultBlockTypeGuards.js";
+import { BlockNoteSchema } from "./BlockNoteSchema.js";
 import {
   BlockNoteTipTapEditor,
   BlockNoteTipTapEditorOptions,
-} from "./BlockNoteTipTapEditor";
+} from "./BlockNoteTipTapEditor.js";
 
-import { PlaceholderPlugin } from "../extensions/Placeholder/PlaceholderPlugin";
-import { Dictionary } from "../i18n/dictionary";
-import { en } from "../i18n/locales";
+import { PlaceholderPlugin } from "../extensions/Placeholder/PlaceholderPlugin.js";
+import { Dictionary } from "../i18n/dictionary.js";
+import { en } from "../i18n/locales/index.js";
 
 import { Transaction } from "@tiptap/pm/state";
-import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer";
+import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import "../style.css";
 
 export type BlockNoteEditorOptions<

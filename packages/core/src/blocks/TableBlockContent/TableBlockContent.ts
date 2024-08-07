@@ -5,10 +5,10 @@ import { TableRow } from "@tiptap/extension-table-row";
 import {
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
-} from "../../schema";
-import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers";
-import { defaultProps } from "../defaultProps";
-import { TableExtension } from "./TableExtension";
+} from "../../schema/index.js";
+import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
+import { defaultProps } from "../defaultProps.js";
+import { TableExtension } from "./TableExtension.js";
 
 export const tablePropSchema = {
   ...defaultProps,

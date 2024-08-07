@@ -6,8 +6,8 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { useState } from "react";
-import { useBlockNoteContext } from "../editor/BlockNoteContext";
-import { useEditorContentOrSelectionChange } from "./useEditorContentOrSelectionChange";
+import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
+import { useEditorContentOrSelectionChange } from "./useEditorContentOrSelectionChange.js";
 
 export function useSelectedBlocks<
   BSchema extends BlockSchema,

@@ -1,8 +1,8 @@
 import { RiLinkUnlink } from "react-icons/ri";
 
-import { useComponentsContext } from "../../../editor/ComponentsContext";
-import { useDictionary } from "../../../i18n/dictionary";
-import { LinkToolbarProps } from "../LinkToolbarProps";
+import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { useDictionary } from "../../../i18n/dictionary.js";
+import { LinkToolbarProps } from "../LinkToolbarProps.js";
 
 export const DeleteLinkButton = (
   props: Pick<LinkToolbarProps, "deleteLink">

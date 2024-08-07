@@ -1,7 +1,7 @@
 // function scramble(dict: any) {
 //   const newDict: any = {} as any;
 
-import type { en } from "./locales";
+import type { en } from "./locales/index.js";
 
 //   for (const key in dict) {
 //     if (typeof dict[key] === "object") {

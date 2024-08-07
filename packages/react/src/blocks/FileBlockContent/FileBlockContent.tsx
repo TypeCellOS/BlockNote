@@ -4,13 +4,13 @@ import { RiFile2Line } from "react-icons/ri";
 import {
   createReactBlockSpec,
   ReactCustomBlockRenderProps,
-} from "../../schema/ReactBlockSpec";
+} from "../../schema/ReactBlockSpec.js";
 import {
   AddFileButton,
   DefaultFilePreview,
   FileAndCaptionWrapper,
   LinkWithCaption,
-} from "./fileBlockHelpers";
+} from "./fileBlockHelpers.js";
 
 export const FileToExternalHTML = (
   props: Omit<

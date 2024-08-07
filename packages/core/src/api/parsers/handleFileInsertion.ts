@@ -1,13 +1,13 @@
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { PartialBlock } from "../../blocks/defaultBlocks";
-import { insertOrUpdateBlock } from "../../extensions/SuggestionMenu/getDefaultSlashMenuItems";
+import { PartialBlock } from "../../blocks/defaultBlocks.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { insertOrUpdateBlock } from "../../extensions/SuggestionMenu/getDefaultSlashMenuItems.js";
 import {
   BlockSchema,
   FileBlockConfig,
   InlineContentSchema,
   StyleSchema,
-} from "../../schema";
-import { acceptedMIMETypes } from "./acceptedMIMETypes";
+} from "../../schema/index.js";
+import { acceptedMIMETypes } from "./acceptedMIMETypes.js";
 
 function checkMIMETypesMatch(mimeType1: string, mimeType2: string) {
   const types1 = mimeType1.split("/");

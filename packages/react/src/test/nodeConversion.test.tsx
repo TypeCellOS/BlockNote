@@ -10,10 +10,10 @@ import {
 } from "@blocknote/core";
 import { flushSync } from "react-dom";
 import { Root, createRoot } from "react-dom/client";
-import { BlockNoteViewRaw } from "../editor/BlockNoteView";
-import { customReactBlockSchemaTestCases } from "./testCases/customReactBlocks";
-import { customReactInlineContentTestCases } from "./testCases/customReactInlineContent";
-import { customReactStylesTestCases } from "./testCases/customReactStyles";
+import { BlockNoteViewRaw } from "../editor/BlockNoteView.js";
+import { customReactBlockSchemaTestCases } from "./testCases/customReactBlocks.js";
+import { customReactInlineContentTestCases } from "./testCases/customReactInlineContent.js";
+import { customReactStylesTestCases } from "./testCases/customReactStyles.js";
 
 function addIdsToBlock(block: PartialBlock<any, any, any>) {
   if (!block.id) {

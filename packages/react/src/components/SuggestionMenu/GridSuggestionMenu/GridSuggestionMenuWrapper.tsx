@@ -1,12 +1,12 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import { FC, useCallback, useEffect } from "react";
 
-import { useBlockNoteContext } from "../../../editor/BlockNoteContext";
-import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
-import { useCloseSuggestionMenuNoItems } from "../hooks/useCloseSuggestionMenuNoItems";
-import { useGridSuggestionMenuKeyboardNavigation } from "./hooks/useGridSuggestionMenuKeyboardNavigation";
-import { useLoadSuggestionMenuItems } from "../hooks/useLoadSuggestionMenuItems";
-import { GridSuggestionMenuProps } from "./types";
+import { useBlockNoteContext } from "../../../editor/BlockNoteContext.js";
+import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
+import { useCloseSuggestionMenuNoItems } from "../hooks/useCloseSuggestionMenuNoItems.js";
+import { useLoadSuggestionMenuItems } from "../hooks/useLoadSuggestionMenuItems.js";
+import { useGridSuggestionMenuKeyboardNavigation } from "./hooks/useGridSuggestionMenuKeyboardNavigation.js";
+import { GridSuggestionMenuProps } from "./types.js";
 
 export function GridSuggestionMenuWrapper<Item>(props: {
   query: string;

@@ -1,6 +1,6 @@
 import { Extension, Extensions, extensions } from "@tiptap/core";
 
-import type { BlockNoteEditor } from "./BlockNoteEditor";
+import type { BlockNoteEditor } from "./BlockNoteEditor.js";
 
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
@@ -11,15 +11,15 @@ import { History } from "@tiptap/extension-history";
 import { Link } from "@tiptap/extension-link";
 import { Text } from "@tiptap/extension-text";
 import * as Y from "yjs";
-import { createCopyToClipboardExtension } from "../api/exporters/copyExtension";
-import { createPasteFromClipboardExtension } from "../api/parsers/pasteExtension";
-import { createDropFileExtension } from "../api/parsers/fileDropExtension";
-import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension";
-import { TextAlignmentExtension } from "../extensions/TextAlignment/TextAlignmentExtension";
-import { TextColorExtension } from "../extensions/TextColor/TextColorExtension";
-import { TrailingNode } from "../extensions/TrailingNode/TrailingNodeExtension";
-import UniqueID from "../extensions/UniqueID/UniqueID";
-import { BlockContainer, BlockGroup, Doc } from "../pm-nodes";
+import { createCopyToClipboardExtension } from "../api/exporters/copyExtension.js";
+import { createDropFileExtension } from "../api/parsers/fileDropExtension.js";
+import { createPasteFromClipboardExtension } from "../api/parsers/pasteExtension.js";
+import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension.js";
+import { TextAlignmentExtension } from "../extensions/TextAlignment/TextAlignmentExtension.js";
+import { TextColorExtension } from "../extensions/TextColor/TextColorExtension.js";
+import { TrailingNode } from "../extensions/TrailingNode/TrailingNodeExtension.js";
+import UniqueID from "../extensions/UniqueID/UniqueID.js";
+import { BlockContainer, BlockGroup, Doc } from "../pm-nodes/index.js";
 import {
   BlockNoteDOMAttributes,
   BlockSchema,
@@ -28,7 +28,7 @@ import {
   InlineContentSpecs,
   StyleSchema,
   StyleSpecs,
-} from "../schema";
+} from "../schema/index.js";
 
 /**
  * Get all the Tiptap extensions BlockNote is configured with by default
@@ -197,5 +197,5 @@ export const getBlockNoteExtensions = <
   }
 
   const disableExtensions: string[] = opts.disableExtensions || [];
-  return ret.filter(ex => !disableExtensions.includes(ex.name));
+  return ret.filter((ex) => !disableExtensions.includes(ex.name));
 };

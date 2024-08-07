@@ -8,11 +8,11 @@ import {
 } from "@blocknote/core";
 import { ReactNode } from "react";
 
-import { useComponentsContext } from "../../../editor/ComponentsContext";
-import { useDictionary } from "../../../i18n/dictionary";
-import { BlockColorsItem } from "./DefaultItems/BlockColorsItem";
-import { RemoveBlockItem } from "./DefaultItems/RemoveBlockItem";
-import { DragHandleMenuProps } from "./DragHandleMenuProps";
+import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { useDictionary } from "../../../i18n/dictionary.js";
+import { BlockColorsItem } from "./DefaultItems/BlockColorsItem.js";
+import { RemoveBlockItem } from "./DefaultItems/RemoveBlockItem.js";
+import { DragHandleMenuProps } from "./DragHandleMenuProps.js";
 
 /**
  * By default, the DragHandleMenu component will render with default items.

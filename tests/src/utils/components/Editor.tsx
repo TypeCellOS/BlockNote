@@ -9,8 +9,8 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 
-import { Alert, insertAlert } from "../customblocks/Alert";
-import { Button } from "../customblocks/Button";
+import { Alert, insertAlert } from "../customblocks/Alert.js";
+import { Button } from "../customblocks/Button.js";
 
 type WindowWithProseMirror = Window & typeof globalThis & { ProseMirror: any };
 

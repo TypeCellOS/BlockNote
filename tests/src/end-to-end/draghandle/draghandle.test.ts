@@ -1,24 +1,24 @@
 import { expect, Page } from "@playwright/test";
-import { test } from "../../setup/setupScript";
+import { test } from "../../setup/setupScript.js";
 import {
   BASE_URL,
-  DRAG_HANDLE_SELECTOR,
   DRAG_HANDLE_ADD_SELECTOR,
   DRAG_HANDLE_MENU_SELECTOR,
+  DRAG_HANDLE_SELECTOR,
   H_ONE_BLOCK_SELECTOR,
   H_THREE_BLOCK_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
   PARAGRAPH_SELECTOR,
   SLASH_MENU_SELECTOR,
-} from "../../utils/const";
+} from "../../utils/const.js";
+import { insertHeading } from "../../utils/copypaste.js";
 import {
   getDragHandleYCoord,
   hoverAndAddBlockFromDragHandle,
-} from "../../utils/draghandle";
-import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor";
-import { moveMouseOverElement } from "../../utils/mouse";
-import { executeSlashCommand } from "../../utils/slashmenu";
-import { insertHeading } from "../../utils/copypaste";
+} from "../../utils/draghandle.js";
+import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor.js";
+import { moveMouseOverElement } from "../../utils/mouse.js";
+import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 let page: Page;
 

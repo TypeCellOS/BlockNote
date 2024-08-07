@@ -9,7 +9,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 
-import { useBlockNoteContext } from "../editor/BlockNoteContext";
+import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
 
 /**
  * Get the BlockNoteEditor instance from the nearest BlockNoteContext provider

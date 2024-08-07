@@ -1,5 +1,5 @@
 import "@blocknote/core/style.css";
-import Editor from "./Editor";
+import Editor from "./Editor.js";
 import styles from "./TextArea.module.css";
 
 export default function EditorWithTextArea() {

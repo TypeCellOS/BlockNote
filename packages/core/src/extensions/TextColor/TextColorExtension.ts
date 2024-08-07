@@ -1,5 +1,5 @@
 import { Extension } from "@tiptap/core";
-import { defaultProps } from "../../blocks/defaultProps";
+import { defaultProps } from "../../blocks/defaultProps.js";
 
 export const TextColorExtension = Extension.create({
   name: "blockTextColor",

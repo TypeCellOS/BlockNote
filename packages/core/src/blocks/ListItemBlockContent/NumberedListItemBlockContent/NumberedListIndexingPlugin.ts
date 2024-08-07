@@ -1,5 +1,5 @@
 import { Plugin, PluginKey } from "prosemirror-state";
-import { getBlockInfoFromPos } from "../../../api/getBlockInfoFromPos";
+import { getBlockInfoFromPos } from "../../../api/getBlockInfoFromPos.js";
 
 // ProseMirror Plugin which automatically assigns indices to ordered list items per nesting level.
 const PLUGIN_KEY = new PluginKey(`numbered-list-indexing`);

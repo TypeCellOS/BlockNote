@@ -1,10 +1,10 @@
 import { ReactNode } from "react";
 
-import { DeleteLinkButton } from "./DefaultButtons/DeleteLinkButton";
-import { EditLinkButton } from "./DefaultButtons/EditLinkButton";
-import { OpenLinkButton } from "./DefaultButtons/OpenLinkButton";
-import { LinkToolbarProps } from "./LinkToolbarProps";
-import { useComponentsContext } from "../../editor/ComponentsContext";
+import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { DeleteLinkButton } from "./DefaultButtons/DeleteLinkButton.js";
+import { EditLinkButton } from "./DefaultButtons/EditLinkButton.js";
+import { OpenLinkButton } from "./DefaultButtons/OpenLinkButton.js";
+import { LinkToolbarProps } from "./LinkToolbarProps.js";
 
 /**
  * By default, the LinkToolbar component will render with default buttons.

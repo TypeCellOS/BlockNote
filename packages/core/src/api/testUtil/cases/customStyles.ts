@@ -1,14 +1,14 @@
-import { EditorTestCases } from "../index";
+import { EditorTestCases } from "../index.js";
 
-import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/FileBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
+import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/FileBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY.js";
 import {
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   defaultStyleSpecs,
-} from "../../../blocks/defaultBlocks";
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
-import { BlockNoteSchema } from "../../../editor/BlockNoteSchema";
-import { createStyleSpec } from "../../../schema/styles/createSpec";
+} from "../../../blocks/defaultBlocks.js";
+import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import { BlockNoteSchema } from "../../../editor/BlockNoteSchema.js";
+import { createStyleSpec } from "../../../schema/styles/createSpec.js";
 
 const small = createStyleSpec(
   {

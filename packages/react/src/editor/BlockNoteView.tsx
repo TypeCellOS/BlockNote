@@ -16,16 +16,16 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { useEditorChange } from "../hooks/useEditorChange";
-import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange";
-import { usePrefersColorScheme } from "../hooks/usePrefersColorScheme";
-import { BlockNoteContext, useBlockNoteContext } from "./BlockNoteContext";
+import { useEditorChange } from "../hooks/useEditorChange.js";
+import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange.js";
+import { usePrefersColorScheme } from "../hooks/usePrefersColorScheme.js";
+import { BlockNoteContext, useBlockNoteContext } from "./BlockNoteContext.js";
 import {
   BlockNoteDefaultUI,
   BlockNoteDefaultUIProps,
-} from "./BlockNoteDefaultUI";
-import { EditorContent } from "./EditorContent";
-import { ElementRenderer } from "./ElementRenderer";
+} from "./BlockNoteDefaultUI.js";
+import { EditorContent } from "./EditorContent.js";
+import { ElementRenderer } from "./ElementRenderer.js";
 import "./styles.css";
 
 const emptyFn = () => {

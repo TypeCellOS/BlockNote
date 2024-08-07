@@ -1,9 +1,13 @@
 import type { Emoji, EmojiMartData } from "@emoji-mart/data";
 
-import { checkDefaultInlineContentTypeInSchema } from "../../blocks/defaultBlockTypeGuards";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
-import { DefaultGridSuggestionItem } from "./DefaultGridSuggestionItem";
+import { checkDefaultInlineContentTypeInSchema } from "../../blocks/defaultBlockTypeGuards.js";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../schema/index.js";
+import { DefaultGridSuggestionItem } from "./DefaultGridSuggestionItem.js";
 
 let data:
   | Promise<{

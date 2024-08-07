@@ -3,11 +3,15 @@ import { Node } from "prosemirror-model";
 import { NodeSelection, Plugin } from "prosemirror-state";
 
 import { EditorView } from "prosemirror-view";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
-import { createExternalHTMLExporter } from "./html/externalHTMLExporter";
-import { createInternalHTMLSerializer } from "./html/internalHTMLSerializer";
-import { cleanHTMLToMarkdown } from "./markdown/markdownExporter";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../schema/index.js";
+import { createExternalHTMLExporter } from "./html/externalHTMLExporter.js";
+import { createInternalHTMLSerializer } from "./html/internalHTMLSerializer.js";
+import { cleanHTMLToMarkdown } from "./markdown/markdownExporter.js";
 
 function selectedFragmentToHTML<
   BSchema extends BlockSchema,

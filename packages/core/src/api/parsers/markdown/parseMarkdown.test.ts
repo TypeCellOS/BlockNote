@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BlockNoteEditor } from "../../..";
+import { BlockNoteEditor } from "../../../index.js";
 
 async function parseMarkdownAndCompareSnapshots(
   md: string,

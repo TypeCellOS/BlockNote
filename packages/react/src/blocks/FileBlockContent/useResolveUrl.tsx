@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
+import { useEffect, useState } from "react";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 
 export function useResolveUrl(fetchUrl: string) {
   const editor = useBlockNoteEditor<

@@ -14,13 +14,13 @@ import {
 import { flushSync } from "react-dom";
 import { Root, createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { BlockNoteViewRaw } from "../editor/BlockNoteView";
+import { BlockNoteViewRaw } from "../editor/BlockNoteView.js";
 import {
   TestContext,
   customReactBlockSchemaTestCases,
-} from "./testCases/customReactBlocks";
-import { customReactInlineContentTestCases } from "./testCases/customReactInlineContent";
-import { customReactStylesTestCases } from "./testCases/customReactStyles";
+} from "./testCases/customReactBlocks.js";
+import { customReactInlineContentTestCases } from "./testCases/customReactInlineContent.js";
+import { customReactStylesTestCases } from "./testCases/customReactStyles.js";
 
 // TODO: code same from @blocknote/core, maybe create separate test util package
 async function convertToHTMLAndCompareSnapshots<

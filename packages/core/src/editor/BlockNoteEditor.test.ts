@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
-import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos";
-import { BlockNoteEditor } from "./BlockNoteEditor";
+import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos.js";
+import { BlockNoteEditor } from "./BlockNoteEditor.js";
 
 /**
  * @vitest-environment jsdom

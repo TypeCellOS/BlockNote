@@ -8,7 +8,7 @@ import {
   createBrowserRouter,
 } from "react-router-dom";
 
-import { examples } from "./examples.gen";
+import { examples } from "./examples.gen.js";
 import "./style.css";
 
 window.React = React;

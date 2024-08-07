@@ -20,11 +20,11 @@ import {
 import {
   ComponentProps,
   useComponentsContext,
-} from "../../../editor/ComponentsContext";
-import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
-import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
-import { useDictionary } from "../../../i18n/dictionary";
+} from "../../../editor/ComponentsContext.js";
+import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
+import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange.js";
+import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
+import { useDictionary } from "../../../i18n/dictionary.js";
 
 export type BlockTypeSelectItem = {
   name: string;

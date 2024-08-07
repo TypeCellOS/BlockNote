@@ -6,7 +6,7 @@ import {
 import { createReactBlockSpec } from "@blocknote/react";
 import { createContext, useContext } from "react";
 import { describe, expect, it } from "vitest";
-import { ServerBlockNoteEditor } from "../ServerBlockNoteEditor";
+import { ServerBlockNoteEditor } from "../ServerBlockNoteEditor.js";
 
 const SimpleReactCustomParagraph = createReactBlockSpec(
   {

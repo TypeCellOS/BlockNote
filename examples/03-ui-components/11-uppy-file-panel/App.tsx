@@ -1,4 +1,6 @@
 import "@blocknote/core/fonts/inter.css";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
 import {
   FilePanelController,
   FormattingToolbar,
@@ -6,11 +8,9 @@ import {
   getFormattingToolbarItems,
   useCreateBlockNote,
 } from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
 
-import { uploadFile, UppyFilePanel } from "./UppyFilePanel";
 import { FileReplaceButton } from "./FileReplaceButton";
+import { uploadFile, UppyFilePanel } from "./UppyFilePanel";
 
 export default function App() {
   // Creates a new editor instance.

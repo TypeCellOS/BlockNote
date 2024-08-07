@@ -1,7 +1,7 @@
-import { useComponentsContext } from "../../../editor/ComponentsContext";
-import { useDictionary } from "../../../i18n/dictionary";
-import { EditLinkMenuItems } from "../EditLinkMenuItems";
-import { LinkToolbarProps } from "../LinkToolbarProps";
+import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { useDictionary } from "../../../i18n/dictionary.js";
+import { EditLinkMenuItems } from "../EditLinkMenuItems.js";
+import { LinkToolbarProps } from "../LinkToolbarProps.js";
 
 export const EditLinkButton = (
   props: Pick<LinkToolbarProps, "url" | "text" | "editLink">

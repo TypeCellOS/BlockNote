@@ -1,9 +1,12 @@
 import { expect } from "@playwright/test";
-import { test } from "../../setup/setupScript";
-import { BASE_URL, EMOJI_PICKER_SELECTOR } from "../../utils/const";
-import { focusOnEditor, waitForTextInEditor } from "../../utils/editor";
-import { executeEmojiCommand, openEmojiPicker } from "../../utils/emojipicker";
-import { executeSlashCommand } from "../../utils/slashmenu";
+import { test } from "../../setup/setupScript.js";
+import { BASE_URL, EMOJI_PICKER_SELECTOR } from "../../utils/const.js";
+import { focusOnEditor, waitForTextInEditor } from "../../utils/editor.js";
+import {
+  executeEmojiCommand,
+  openEmojiPicker,
+} from "../../utils/emojipicker.js";
+import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 test.beforeEach(async ({ page }) => {
   await page.goto(BASE_URL);

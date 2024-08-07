@@ -9,11 +9,11 @@ import {
 import { flip, offset } from "@floating-ui/react";
 import { FC } from "react";
 
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
-import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
-import { useUIPluginState } from "../../hooks/useUIPluginState";
-import { LinkToolbar } from "./LinkToolbar";
-import { LinkToolbarProps } from "./LinkToolbarProps";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { useUIElementPositioning } from "../../hooks/useUIElementPositioning.js";
+import { useUIPluginState } from "../../hooks/useUIPluginState.js";
+import { LinkToolbar } from "./LinkToolbar.js";
+import { LinkToolbarProps } from "./LinkToolbarProps.js";
 
 export const LinkToolbarController = <
   BSchema extends BlockSchema = DefaultBlockSchema,

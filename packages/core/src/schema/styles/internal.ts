@@ -6,7 +6,7 @@ import {
   StyleSchemaFromSpecs,
   StyleSpec,
   StyleSpecs,
-} from "./types";
+} from "./types.js";
 
 export function stylePropsToAttributes(
   propSchema: StylePropSchema

@@ -1,12 +1,12 @@
 import { InputRule } from "@tiptap/core";
+import { getCurrentBlockContentType } from "../../api/getCurrentBlockContentType.js";
 import {
   PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
-} from "../../schema";
-import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers";
-import { defaultProps } from "../defaultProps";
-import { getCurrentBlockContentType } from "../../api/getCurrentBlockContentType";
+} from "../../schema/index.js";
+import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
+import { defaultProps } from "../defaultProps.js";
 
 export const headingPropSchema = {
   ...defaultProps,

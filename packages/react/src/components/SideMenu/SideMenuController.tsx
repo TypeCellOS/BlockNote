@@ -8,11 +8,11 @@ import {
 } from "@blocknote/core";
 import { FC } from "react";
 
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
-import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
-import { useUIPluginState } from "../../hooks/useUIPluginState";
-import { SideMenu } from "./SideMenu";
-import { SideMenuProps } from "./SideMenuProps";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { useUIElementPositioning } from "../../hooks/useUIElementPositioning.js";
+import { useUIPluginState } from "../../hooks/useUIPluginState.js";
+import { SideMenu } from "./SideMenu.js";
+import { SideMenuProps } from "./SideMenuProps.js";
 
 export const SideMenuController = <
   BSchema extends BlockSchema = DefaultBlockSchema,

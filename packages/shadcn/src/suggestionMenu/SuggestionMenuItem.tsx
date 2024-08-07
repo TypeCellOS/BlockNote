@@ -2,8 +2,8 @@ import { assertEmpty } from "@blocknote/core";
 import { ComponentProps, elementOverflow, mergeRefs } from "@blocknote/react";
 import { forwardRef, useEffect, useRef } from "react";
 
-import { cn } from "../lib/utils";
-import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
+import { cn } from "../lib/utils.js";
+import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
 
 export const SuggestionMenuItem = forwardRef<
   HTMLDivElement,

@@ -8,9 +8,9 @@ import {
 import { ReactNode, useState } from "react";
 
 import { MdDragIndicator } from "react-icons/md";
-import { useComponentsContext } from "../../editor/ComponentsContext";
-import { TableHandleMenu } from "./TableHandleMenu/TableHandleMenu";
-import { TableHandleProps } from "./TableHandleProps";
+import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { TableHandleMenu } from "./TableHandleMenu/TableHandleMenu.js";
+import { TableHandleProps } from "./TableHandleProps.js";
 
 /**
  * By default, the TableHandle component will render with the default icon.

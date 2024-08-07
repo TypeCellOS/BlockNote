@@ -6,10 +6,10 @@ import {
 } from "@blocknote/core";
 import { ReactNode } from "react";
 
-import { useComponentsContext } from "../../../editor/ComponentsContext";
-import { AddButton } from "./DefaultButtons/AddButton";
-import { DeleteButton } from "./DefaultButtons/DeleteButton";
-import { TableHandleMenuProps } from "./TableHandleMenuProps";
+import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { AddButton } from "./DefaultButtons/AddButton.js";
+import { DeleteButton } from "./DefaultButtons/DeleteButton.js";
+import { TableHandleMenuProps } from "./TableHandleMenuProps.js";
 
 export const TableHandleMenu = <
   I extends InlineContentSchema = DefaultInlineContentSchema,

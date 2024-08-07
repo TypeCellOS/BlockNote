@@ -1,12 +1,12 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import { FC, useCallback, useEffect } from "react";
 
-import { useBlockNoteContext } from "../../editor/BlockNoteContext";
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
-import { useCloseSuggestionMenuNoItems } from "./hooks/useCloseSuggestionMenuNoItems";
-import { useLoadSuggestionMenuItems } from "./hooks/useLoadSuggestionMenuItems";
-import { useSuggestionMenuKeyboardNavigation } from "./hooks/useSuggestionMenuKeyboardNavigation";
-import { SuggestionMenuProps } from "./types";
+import { useBlockNoteContext } from "../../editor/BlockNoteContext.js";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { useCloseSuggestionMenuNoItems } from "./hooks/useCloseSuggestionMenuNoItems.js";
+import { useLoadSuggestionMenuItems } from "./hooks/useLoadSuggestionMenuItems.js";
+import { useSuggestionMenuKeyboardNavigation } from "./hooks/useSuggestionMenuKeyboardNavigation.js";
+import { SuggestionMenuProps } from "./types.js";
 
 export function SuggestionMenuWrapper<Item>(props: {
   query: string;

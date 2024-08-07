@@ -1,5 +1,5 @@
 import { Editor } from "@tiptap/core";
-import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos";
+import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos.js";
 
 export const handleEnter = (editor: Editor) => {
   const { contentNode, contentType } = getBlockInfoFromPos(

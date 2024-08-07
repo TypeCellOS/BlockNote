@@ -3,8 +3,8 @@ import Code from "@tiptap/extension-code";
 import Italic from "@tiptap/extension-italic";
 import Strike from "@tiptap/extension-strike";
 import Underline from "@tiptap/extension-underline";
-import { BackgroundColor } from "../extensions/BackgroundColor/BackgroundColorMark";
-import { TextColor } from "../extensions/TextColor/TextColorMark";
+import { BackgroundColor } from "../extensions/BackgroundColor/BackgroundColorMark.js";
+import { TextColor } from "../extensions/TextColor/TextColorMark.js";
 import {
   BlockNoDefaults,
   BlockSchema,
@@ -18,18 +18,18 @@ import {
   getBlockSchemaFromSpecs,
   getInlineContentSchemaFromSpecs,
   getStyleSchemaFromSpecs,
-} from "../schema";
+} from "../schema/index.js";
 
-import { Heading } from "./HeadingBlockContent/HeadingBlockContent";
-import { BulletListItem } from "./ListItemBlockContent/BulletListItemBlockContent/BulletListItemBlockContent";
-import { NumberedListItem } from "./ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContent";
-import { CheckListItem } from "./ListItemBlockContent/CheckListItemBlockContent/CheckListItemBlockContent";
-import { Paragraph } from "./ParagraphBlockContent/ParagraphBlockContent";
-import { Table } from "./TableBlockContent/TableBlockContent";
-import { FileBlock } from "./FileBlockContent/FileBlockContent";
-import { ImageBlock } from "./ImageBlockContent/ImageBlockContent";
-import { VideoBlock } from "./VideoBlockContent/VideoBlockContent";
-import { AudioBlock } from "./AudioBlockContent/AudioBlockContent";
+import { AudioBlock } from "./AudioBlockContent/AudioBlockContent.js";
+import { FileBlock } from "./FileBlockContent/FileBlockContent.js";
+import { Heading } from "./HeadingBlockContent/HeadingBlockContent.js";
+import { ImageBlock } from "./ImageBlockContent/ImageBlockContent.js";
+import { BulletListItem } from "./ListItemBlockContent/BulletListItemBlockContent/BulletListItemBlockContent.js";
+import { CheckListItem } from "./ListItemBlockContent/CheckListItemBlockContent/CheckListItemBlockContent.js";
+import { NumberedListItem } from "./ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContent.js";
+import { Paragraph } from "./ParagraphBlockContent/ParagraphBlockContent.js";
+import { Table } from "./TableBlockContent/TableBlockContent.js";
+import { VideoBlock } from "./VideoBlockContent/VideoBlockContent.js";
 
 export const defaultBlockSpecs = {
   paragraph: Paragraph,

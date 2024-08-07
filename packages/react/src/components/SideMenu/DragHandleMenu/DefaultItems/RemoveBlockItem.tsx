@@ -8,9 +8,9 @@ import {
 } from "@blocknote/core";
 import { ReactNode } from "react";
 
-import { useComponentsContext } from "../../../../editor/ComponentsContext";
-import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
-import { DragHandleMenuProps } from "../DragHandleMenuProps";
+import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
+import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
+import { DragHandleMenuProps } from "../DragHandleMenuProps.js";
 
 export const RemoveBlockItem = <
   BSchema extends BlockSchema = DefaultBlockSchema,

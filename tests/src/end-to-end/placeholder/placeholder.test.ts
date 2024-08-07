@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
-import { test } from "../../setup/setupScript";
-import { BASE_URL, EDITOR_SELECTOR } from "../../utils/const";
+import { test } from "../../setup/setupScript.js";
+import { BASE_URL, EDITOR_SELECTOR } from "../../utils/const.js";
 
 test.beforeEach(async ({ page }) => {
   await page.goto(BASE_URL);

@@ -7,16 +7,16 @@ import {
 import { flip, offset, size } from "@floating-ui/react";
 import { FC, useCallback, useMemo } from "react";
 
-import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
-import { useUIElementPositioning } from "../../../hooks/useUIElementPositioning";
-import { useUIPluginState } from "../../../hooks/useUIPluginState";
-import { getDefaultReactEmojiPickerItems } from "./getDefaultReactEmojiPickerItems";
-import { GridSuggestionMenu } from "./GridSuggestionMenu";
-import { GridSuggestionMenuWrapper } from "./GridSuggestionMenuWrapper";
+import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
+import { useUIElementPositioning } from "../../../hooks/useUIElementPositioning.js";
+import { useUIPluginState } from "../../../hooks/useUIPluginState.js";
+import { getDefaultReactEmojiPickerItems } from "./getDefaultReactEmojiPickerItems.js";
+import { GridSuggestionMenu } from "./GridSuggestionMenu.js";
+import { GridSuggestionMenuWrapper } from "./GridSuggestionMenuWrapper.js";
 import {
   DefaultReactGridSuggestionItem,
   GridSuggestionMenuProps,
-} from "./types";
+} from "./types.js";
 
 type ArrayElement<A> = A extends readonly (infer T)[] ? T : never;
 

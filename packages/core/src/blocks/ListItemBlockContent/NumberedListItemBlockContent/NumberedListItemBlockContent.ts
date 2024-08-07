@@ -1,14 +1,14 @@
 import { InputRule } from "@tiptap/core";
+import { getCurrentBlockContentType } from "../../../api/getCurrentBlockContentType.js";
 import {
   PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
-} from "../../../schema";
-import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers";
-import { defaultProps } from "../../defaultProps";
-import { handleEnter } from "../ListItemKeyboardShortcuts";
-import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin";
-import { getCurrentBlockContentType } from "../../../api/getCurrentBlockContentType";
+} from "../../../schema/index.js";
+import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers.js";
+import { defaultProps } from "../../defaultProps.js";
+import { handleEnter } from "../ListItemKeyboardShortcuts.js";
+import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin.js";
 
 export const numberedListItemPropSchema = {
   ...defaultProps,

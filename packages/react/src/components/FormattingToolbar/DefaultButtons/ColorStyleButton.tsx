@@ -6,13 +6,13 @@ import {
 } from "@blocknote/core";
 import { useCallback, useMemo, useState } from "react";
 
-import { useComponentsContext } from "../../../editor/ComponentsContext";
-import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
-import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
-import { useDictionary } from "../../../i18n/dictionary";
-import { ColorIcon } from "../../ColorPicker/ColorIcon";
-import { ColorPicker } from "../../ColorPicker/ColorPicker";
+import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
+import { useEditorContentOrSelectionChange } from "../../../hooks/useEditorContentOrSelectionChange.js";
+import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
+import { useDictionary } from "../../../i18n/dictionary.js";
+import { ColorIcon } from "../../ColorPicker/ColorIcon.js";
+import { ColorPicker } from "../../ColorPicker/ColorPicker.js";
 
 function checkColorInSchema<Color extends "text" | "background">(
   color: Color,

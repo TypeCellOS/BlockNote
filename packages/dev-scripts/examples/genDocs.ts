@@ -1,6 +1,6 @@
-import { fileURLToPath } from "node:url";
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   addTitleToGroups,
   Files,
@@ -8,7 +8,7 @@ import {
   getProjectFiles,
   groupProjects,
   Project,
-} from "./util";
+} from "./util.js";
 
 /*
  `genDocs` generates the nextjs example blocks for the website docs. 

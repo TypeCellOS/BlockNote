@@ -1,6 +1,6 @@
 /* eslint-disable jest/valid-title */
-import { test } from "../../setup/setupScript";
-import { BASE_URL } from "../../utils/const";
+import { test } from "../../setup/setupScript.js";
+import { BASE_URL } from "../../utils/const.js";
 import {
   copyPaste,
   copyPasteAll,
@@ -9,9 +9,9 @@ import {
   insertNestedListItems,
   insertParagraph,
   startList,
-} from "../../utils/copypaste";
-import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor";
-import { executeSlashCommand } from "../../utils/slashmenu";
+} from "../../utils/copypaste.js";
+import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor.js";
+import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 test.describe.configure({ mode: "serial" });
 

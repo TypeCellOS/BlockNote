@@ -2,10 +2,14 @@ import { findParentNode } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
-import { EventEmitter } from "../../util/EventEmitter";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../schema/index.js";
+import { EventEmitter } from "../../util/EventEmitter.js";
 
 const findBlock = findParentNode((node) => node.type.name === "blockContainer");
 

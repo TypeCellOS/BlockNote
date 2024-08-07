@@ -8,10 +8,10 @@ import {
 import { useCallback, useMemo } from "react";
 import { RiImageAddFill } from "react-icons/ri";
 
-import { useComponentsContext } from "../../../editor/ComponentsContext";
-import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
-import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
-import { useDictionary } from "../../../i18n/dictionary";
+import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
+import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks.js";
+import { useDictionary } from "../../../i18n/dictionary.js";
 
 export const FilePreviewButton = () => {
   const dict = useDictionary();
