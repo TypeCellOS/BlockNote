@@ -1,6 +1,6 @@
-import { fileURLToPath } from "node:url";
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   addTitleToGroups,
   Files,
@@ -132,7 +132,7 @@ import dynamic from "next/dynamic";
 export const examples = {
 ${projects
   .map((p) => {
-    const importPath = `../../../../${p.pathFromRoot}/App.js`;
+    const importPath = `../../../../${p.pathFromRoot}/App`;
 
     return `  "${p.fullSlug}": {
     // App: () => <div>hello</div>,
