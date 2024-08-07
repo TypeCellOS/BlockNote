@@ -1,5 +1,7 @@
 export * from "./ar.js";
+export * from "./de.js";
 export * from "./en.js";
+export * from "./es.js";
 export * from "./fr.js";
 export * from "./is.js";
 export * from "./ja.js";

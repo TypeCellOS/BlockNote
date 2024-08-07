@@ -114,7 +114,7 @@ export function GridSuggestionMenuController<
         size({
           apply({ availableHeight, elements }) {
             Object.assign(elements.floating.style, {
-              height: `${availableHeight - 10}px`,
+              maxHeight: `${availableHeight - 10}px`,
             });
           },
         }),

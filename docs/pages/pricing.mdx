@@ -4,20 +4,20 @@ import { Tiers } from "../components/pages/pricing/tiers";
 
 export default function Pricing() {
   const tiers = [
-    {
-      id: "tier-free",
-      title: "Community",
-      description: "Everything necessary to get started for individuals and non-commercial projects.",
-      price: "Free",
-      features: [
-        "Use BlockNote for free (open source license)",
-        "Community Discord for help & feedback",
-      ],
-      href: "/docs/",
-    },
+    // {
+    //   id: "tier-free",
+    //   title: "Community",
+    //   description: "Everything necessary to get started for individuals and non-commercial projects.",
+    //   price: "Free",
+    //   features: [
+    //     "Use BlockNote for free (open source license)",
+    //     "Community Discord for help & feedback",
+    //   ],
+    //   href: "/docs/",
+    // },
     {
       id: "tier-starter",
-      mostPopular: true,
+      mostPopular: false,
       title: "Starter",
       description:
         "Best for companies and organizations building products with BlockNote.",
@@ -32,6 +32,7 @@ export default function Pricing() {
     {
       id: "tier-business",
       title: "Business",
+      mostPopular: true,
       description:
         "Best for companies that want a direct line to the team.",
       price: { month: 189, year: 48 },

@@ -753,7 +753,9 @@ export class BlockNoteEditor<
       }
       return false;
     }
-    return this._tiptapEditor.isEditable;
+    return this._tiptapEditor.isEditable === undefined
+      ? true
+      : this._tiptapEditor.isEditable;
   }
 
   /**
