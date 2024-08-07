@@ -13,6 +13,42 @@ import { DefaultReactSuggestionItem } from "../components/SuggestionMenu/types";
 import { DefaultReactGridSuggestionItem } from "../components/SuggestionMenu/GridSuggestionMenu/types";
 
 export type ComponentProps = {
+  AIBlockToolbar: {
+    Root: {
+      className?: string;
+      children?: ReactNode;
+    };
+    Button: {
+      className?: string;
+      mainTooltip?: string;
+      secondaryTooltip?: string;
+      icon?: ReactNode;
+      onClick?: (e: MouseEvent) => void;
+      isSelected?: boolean;
+      isDisabled?: boolean;
+    } & (
+      | { children: ReactNode; label?: string }
+      | { children?: undefined; label: string }
+    );
+  };
+  AIInlineToolbar: {
+    Root: {
+      className?: string;
+      children?: ReactNode;
+    };
+    Button: {
+      className?: string;
+      mainTooltip?: string;
+      secondaryTooltip?: string;
+      icon?: ReactNode;
+      onClick?: (e: MouseEvent) => void;
+      isSelected?: boolean;
+      isDisabled?: boolean;
+    } & (
+      | { children: ReactNode; label?: string }
+      | { children?: undefined; label: string }
+    );
+  };
   FormattingToolbar: {
     Root: {
       className?: string;
@@ -20,7 +56,7 @@ export type ComponentProps = {
     };
     Button: {
       className?: string;
-      mainTooltip: string;
+      mainTooltip?: string;
       secondaryTooltip?: string;
       icon?: ReactNode;
       onClick?: (e: MouseEvent) => void;
@@ -89,7 +125,7 @@ export type ComponentProps = {
     };
     Button: {
       className?: string;
-      mainTooltip: string;
+      mainTooltip?: string;
       secondaryTooltip?: string;
       icon?: ReactNode;
       onClick?: (e: MouseEvent) => void;

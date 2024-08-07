@@ -104,11 +104,34 @@ export const en = {
       aliases: ["file", "upload", "embed", "media", "url"],
       group: "Media",
     },
+    ai_block: {
+      title: "AI Block",
+      subtext: "Block with AI generated content",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "AI",
+    },
+    ai: {
+      title: "Ask AI",
+      subtext: "Continue writing with AI",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "AI",
+    },
     emoji: {
       title: "Emoji",
       subtext: "Search for and insert an emoji",
       aliases: ["emoji", "emote", "emotion", "face"],
       group: "Others",
+    },
+  },
+  ai_menu: {
+    custom_prompt: {
+      title: "Custom Prompt",
+      subtext: "Use your query as an AI prompt",
+      aliases: ["", "custom prompt"],
+    },
+    make_longer: {
+      title: "Make Longer",
+      aliases: ["make longer"],
     },
   },
   placeholders: {
@@ -117,6 +140,7 @@ export const en = {
     bulletListItem: "List",
     numberedListItem: "List",
     checkListItem: "List",
+    ai: "Enter a prompt",
   },
   file_blocks: {
     image: {
@@ -263,6 +287,10 @@ export const en = {
     align_justify: {
       tooltip: "Justify text",
     },
+    ai: {
+      tooltip: "Generate content",
+      input_placeholder: "Enter a prompt",
+    },
   },
   file_panel: {
     upload: {
@@ -301,6 +329,17 @@ export const en = {
       title_placeholder: "Edit title",
       url_placeholder: "Edit URL",
     },
+  },
+  ai_block_toolbar: {
+    show_prompt: "Show prompt",
+    update: "Update",
+    updating: "Updating…",
+  },
+  ai_inline_toolbar: {
+    accept: "Accept",
+    retry: "Retry",
+    updating: "Updating…",
+    revert: "Revert",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

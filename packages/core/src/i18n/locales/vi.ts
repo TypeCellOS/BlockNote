@@ -97,6 +97,18 @@ export const vi: Dictionary = {
       aliases: ["tep", "tai-len", "nhung", "media", "url"],
       group: "Phương tiện",
     },
+    ai_block: {
+      title: "AI Block",
+      subtext: "Block with AI generated content",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "AI",
+    },
+    ai: {
+      title: "Ask AI",
+      subtext: "Continue writing with AI",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "AI",
+    },
     emoji: {
       title: "Biểu tượng cảm xúc",
       subtext: "Dùng để chèn biểu tượng cảm xúc",
@@ -111,12 +123,24 @@ export const vi: Dictionary = {
       group: "Khác",
     },
   },
+  ai_menu: {
+    custom_prompt: {
+      title: "Custom Prompt",
+      subtext: "Use your query as an AI prompt",
+      aliases: ["", "custom prompt"],
+    },
+    make_longer: {
+      title: "Make Longer",
+      aliases: ["make longer"],
+    },
+  },
   placeholders: {
     default: "Nhập văn bản hoặc gõ '/' để thêm định dạng",
     heading: "Tiêu đề",
     bulletListItem: "Danh sách",
     numberedListItem: "Danh sách",
     checkListItem: "Danh sách",
+    ai: "Enter a prompt",
   },
   file_blocks: {
     image: {
@@ -263,6 +287,10 @@ export const vi: Dictionary = {
     align_justify: {
       tooltip: "Căn đều văn bản",
     },
+    ai: {
+      tooltip: "Generate content",
+      input_placeholder: "Enter a prompt",
+    },
   },
   file_panel: {
     upload: {
@@ -301,6 +329,17 @@ export const vi: Dictionary = {
       title_placeholder: "Chỉnh sửa tiêu đề",
       url_placeholder: "Chỉnh sửa URL",
     },
+  },
+  ai_block_toolbar: {
+    show_prompt: "Show prompt",
+    update: "Update",
+    updating: "Updating…",
+  },
+  ai_inline_toolbar: {
+    accept: "Accept",
+    retry: "Retry",
+    updating: "Updating…",
+    revert: "Revert",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

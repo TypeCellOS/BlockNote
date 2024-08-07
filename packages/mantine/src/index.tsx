@@ -55,6 +55,14 @@ export * from "./BlockNoteTheme";
 export * from "./defaultThemes";
 
 export const components: Components = {
+  AIBlockToolbar: {
+    Root: Toolbar,
+    Button: ToolbarButton,
+  },
+  AIInlineToolbar: {
+    Root: Toolbar,
+    Button: ToolbarButton,
+  },
   FormattingToolbar: {
     Root: Toolbar,
     Button: ToolbarButton,

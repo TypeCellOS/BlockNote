@@ -51,10 +51,12 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       <MantineTooltip
         withinPortal={false}
         label={
-          <TooltipContent
-            mainTooltip={mainTooltip}
-            secondaryTooltip={secondaryTooltip}
-          />
+          mainTooltip && (
+            <TooltipContent
+              mainTooltip={mainTooltip}
+              secondaryTooltip={secondaryTooltip}
+            />
+          )
         }>
         {/*Creates an ActionIcon instead of a Button if only an icon is provided as content.*/}
         {children ? (
@@ -72,8 +74,9 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             aria-pressed={isSelected}
             data-selected={isSelected || undefined}
             data-test={
+              mainTooltip &&
               mainTooltip.slice(0, 1).toLowerCase() +
-              mainTooltip.replace(/\s+/g, "").slice(1)
+                mainTooltip.replace(/\s+/g, "").slice(1)
             }
             size={"xs"}
             disabled={isDisabled || false}
@@ -96,8 +99,9 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             aria-pressed={isSelected}
             data-selected={isSelected || undefined}
             data-test={
+              mainTooltip &&
               mainTooltip.slice(0, 1).toLowerCase() +
-              mainTooltip.replace(/\s+/g, "").slice(1)
+                mainTooltip.replace(/\s+/g, "").slice(1)
             }
             size={30}
             disabled={isDisabled || false}

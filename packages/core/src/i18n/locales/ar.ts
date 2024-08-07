@@ -90,11 +90,34 @@ export const ar: Dictionary = {
       aliases: ["ملف", "تحميل", "تضمين", "وسائط", "رابط"],
       group: "وسائط",
     },
+    ai_block: {
+      title: "AI Block",
+      subtext: "Block with AI generated content",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "AI",
+    },
+    ai: {
+      title: "Ask AI",
+      subtext: "Continue writing with AI",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "AI",
+    },
     emoji: {
       title: "الرموز التعبيرية",
       subtext: "تُستخدم لإدراج رمز تعبيري",
       aliases: ["رمز تعبيري", "إيموجي", "إيموت", "عاطفة", "وجه"],
       group: "آخرون",
+    },
+  },
+  ai_menu: {
+    custom_prompt: {
+      title: "Custom Prompt",
+      subtext: "Use your query as an AI prompt",
+      aliases: ["", "custom prompt"],
+    },
+    make_longer: {
+      title: "Make Longer",
+      aliases: ["make longer"],
     },
   },
   placeholders: {
@@ -103,6 +126,7 @@ export const ar: Dictionary = {
     bulletListItem: "قائمة",
     numberedListItem: "قائمة",
     checkListItem: "قائمة",
+    ai: "Enter a prompt",
   },
   file_blocks: {
     image: {
@@ -249,6 +273,10 @@ export const ar: Dictionary = {
     align_justify: {
       tooltip: "ضبط النص",
     },
+    ai: {
+      tooltip: "Generate content",
+      input_placeholder: "Enter a prompt",
+    },
   },
   file_panel: {
     upload: {
@@ -287,6 +315,17 @@ export const ar: Dictionary = {
       title_placeholder: "تحرير العنوان",
       url_placeholder: "تحرير الرابط",
     },
+  },
+  ai_block_toolbar: {
+    show_prompt: "Show prompt",
+    update: "Update",
+    updating: "Updating…",
+  },
+  ai_inline_toolbar: {
+    accept: "Accept",
+    retry: "Retry",
+    updating: "Updating…",
+    revert: "Revert",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

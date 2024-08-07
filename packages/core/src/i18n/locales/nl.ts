@@ -100,6 +100,18 @@ export const nl: Dictionary = {
       aliases: ["bestand", "upload", "insluiten", "media", "url"],
       group: "Media",
     },
+    ai_block: {
+      title: "AI Block",
+      subtext: "Block with AI generated content",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "AI",
+    },
+    ai: {
+      title: "Ask AI",
+      subtext: "Continue writing with AI",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "AI",
+    },
     emoji: {
       title: "Emoji",
       subtext: "Gebruikt voor het invoegen van een emoji",
@@ -112,12 +124,24 @@ export const nl: Dictionary = {
       group: "Overig",
     },
   },
+  ai_menu: {
+    custom_prompt: {
+      title: "Custom Prompt",
+      subtext: "Use your query as an AI prompt",
+      aliases: ["", "custom prompt"],
+    },
+    make_longer: {
+      title: "Make Longer",
+      aliases: ["make longer"],
+    },
+  },
   placeholders: {
     default: "Voer tekst in of type '/' voor commando's",
     heading: "Kop",
     bulletListItem: "Lijst",
     numberedListItem: "Lijst",
     checkListItem: "Lijst",
+    ai: "Enter a prompt",
   },
   file_blocks: {
     image: {
@@ -263,6 +287,10 @@ export const nl: Dictionary = {
     align_justify: {
       tooltip: "Tekst uitvullen",
     },
+    ai: {
+      tooltip: "Generate content",
+      input_placeholder: "Enter a prompt",
+    },
   },
   file_panel: {
     upload: {
@@ -301,6 +329,17 @@ export const nl: Dictionary = {
       title_placeholder: "Bewerk titel",
       url_placeholder: "Bewerk URL",
     },
+  },
+  ai_block_toolbar: {
+    show_prompt: "Show prompt",
+    update: "Update",
+    updating: "Updating…",
+  },
+  ai_inline_toolbar: {
+    accept: "Accept",
+    retry: "Retry",
+    updating: "Updating…",
+    revert: "Revert",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

@@ -271,6 +271,24 @@ export function getDefaultSlashMenuItems<
     });
   }
 
+  if (checkDefaultBlockTypeInSchema("ai", editor)) {
+    items.push({
+      onItemClick: () => {
+        insertOrUpdateBlock(editor, {
+          type: "ai",
+        });
+      },
+      key: "ai_block",
+      ...editor.dictionary.slash_menu.ai_block,
+    });
+  }
+
+  items.push({
+    onItemClick: () => editor.openSelectionMenu("`"),
+    key: "ai",
+    ...editor.dictionary.slash_menu.ai,
+  });
+
   items.push({
     onItemClick: () => editor.openSelectionMenu(":"),
     key: "emoji",
@@ -287,8 +305,9 @@ export function filterSuggestionItems<
     ({ title, aliases }) =>
       title.toLowerCase().includes(query.toLowerCase()) ||
       (aliases &&
-        aliases.filter((alias) =>
-          alias.toLowerCase().includes(query.toLowerCase())
+        aliases.filter(
+          (alias) =>
+            alias === "" || alias.toLowerCase().includes(query.toLowerCase())
         ).length !== 0)
   );
 }

@@ -2,6 +2,8 @@ import * as locales from "./i18n/locales";
 export * from "./api/exporters/html/externalHTMLExporter";
 export * from "./api/exporters/html/internalHTMLSerializer";
 export * from "./api/testUtil";
+export * from "./blocks/AIBlockContent/AIBlockContent";
+export * from "./blocks/AIBlockContent/mockAIFunctions";
 export * from "./blocks/AudioBlockContent/AudioBlockContent";
 export * from "./blocks/FileBlockContent/FileBlockContent";
 export * from "./blocks/ImageBlockContent/ImageBlockContent";

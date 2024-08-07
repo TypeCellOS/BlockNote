@@ -109,6 +109,18 @@ export const ko: Dictionary = {
       aliases: ["file", "upload", "embed", "media", "파일", "url"],
       group: "미디어",
     },
+    ai_block: {
+      title: "AI Block",
+      subtext: "Block with AI generated content",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "AI",
+    },
+    ai: {
+      title: "Ask AI",
+      subtext: "Continue writing with AI",
+      aliases: ["ai", "artificial intelligence", "generate"],
+      group: "AI",
+    },
     emoji: {
       title: "이모지",
       subtext: "이모지 삽입용으로 사용됩니다",
@@ -125,12 +137,24 @@ export const ko: Dictionary = {
       group: "기타",
     },
   },
+  ai_menu: {
+    custom_prompt: {
+      title: "Custom Prompt",
+      subtext: "Use your query as an AI prompt",
+      aliases: ["", "custom prompt"],
+    },
+    make_longer: {
+      title: "Make Longer",
+      aliases: ["make longer"],
+    },
+  },
   placeholders: {
     default: "텍스트를 입력하거나 /를 입력하여 명령을 입력하세요.",
     heading: "제목",
     bulletListItem: "목록",
     numberedListItem: "목록",
     checkListItem: "목록",
+    ai: "Enter a prompt",
   },
   file_blocks: {
     image: {
@@ -277,6 +301,10 @@ export const ko: Dictionary = {
     align_justify: {
       tooltip: "텍스트 양쪽 맞춤",
     },
+    ai: {
+      tooltip: "Generate content",
+      input_placeholder: "Enter a prompt",
+    },
   },
   file_panel: {
     upload: {
@@ -315,6 +343,17 @@ export const ko: Dictionary = {
       title_placeholder: "제목 수정",
       url_placeholder: "URL 수정",
     },
+  },
+  ai_block_toolbar: {
+    show_prompt: "Show prompt",
+    update: "Update",
+    updating: "Updating…",
+  },
+  ai_inline_toolbar: {
+    accept: "Accept",
+    retry: "Retry",
+    updating: "Updating…",
+    revert: "Revert",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

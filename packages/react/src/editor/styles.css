@@ -238,3 +238,7 @@
 .bn-side-menu[data-url="false"] {
   height: 54px;
 }
+
+.bn-side-menu[data-block-type="ai"]:not([data-prompt]) {
+  height: 58px;
+}
