@@ -33,11 +33,11 @@ export function getDraggableBlockFromElement(
     element &&
     element.parentElement &&
     element.parentElement !== view.dom &&
-    !element.hasAttribute?.("data-id")
+    element.getAttribute?.("data-node-type") !== "blockContainer"
   ) {
     element = element.parentElement;
   }
-  if (!element.hasAttribute("data-id")) {
+  if (element.getAttribute?.("data-node-type") !== "blockContainer") {
     return undefined;
   }
   return { node: element as HTMLElement, id: element.getAttribute("data-id")! };
@@ -383,6 +383,7 @@ export class SideMenuView<
 
     // Gets the block's content node, which lets to ignore child blocks when determining the block menu's position.
     const blockContent = block.node.firstChild as HTMLElement;
+    console.log(blockContent.textContent);
 
     if (!blockContent) {
       return;
@@ -577,6 +578,11 @@ export class SideMenuView<
   // would otherwise not update the side menu, and so clicking the button again
   // would attempt to remove the same block again, causing an error.
   update() {
+    // if (!this.needUpdate) {
+    //   return;
+    // }
+
+    console.log(this.state?.block);
     const prevBlockId = this.state?.block.id;
 
     this.updateState();
