@@ -4,7 +4,7 @@
   "private": false,
   "sideEffects": false,
   "license": "MPL-2.0",
-  "version": "0.15.3",
+  "version": "0.15.4",
   "files": [
     "dist",
     "types",
@@ -51,7 +51,7 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "^0.15.3",
+    "@blocknote/core": "^0.15.4",
     "@floating-ui/react": "^0.26.4",
     "@tiptap/core": "^2.5.0",
     "@tiptap/react": "^2.5.0",
