@@ -33,11 +33,11 @@ export function getDraggableBlockFromElement(
     element &&
     element.parentElement &&
     element.parentElement !== view.dom &&
-    !element.hasAttribute?.("data-id")
+    element.getAttribute?.("data-node-type") !== "blockContainer"
   ) {
     element = element.parentElement;
   }
-  if (!element.hasAttribute("data-id")) {
+  if (element.getAttribute?.("data-node-type") !== "blockContainer") {
     return undefined;
   }
   return { node: element as HTMLElement, id: element.getAttribute("data-id")! };

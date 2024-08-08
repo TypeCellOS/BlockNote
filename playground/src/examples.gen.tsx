@@ -526,9 +526,30 @@
         }
       },
       {
+        "projectSlug": "static-formatting-toolbar",
+        "fullSlug": "ui-components/static-formatting-toolbar",
+        "pathFromRoot": "examples/03-ui-components/12-static-formatting-toolbar",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic",
+            "UI Components",
+            "Formatting Toolbar",
+            "Appearance & Styling"
+          ]
+        },
+        "title": "Static Formatting Toolbar",
+        "group": {
+          "pathFromRoot": "examples/03-ui-components",
+          "slug": "ui-components"
+        }
+      },
+      {
         "projectSlug": "custom-ui",
         "fullSlug": "ui-components/custom-ui",
-        "pathFromRoot": "examples/03-ui-components/12-custom-ui",
+        "pathFromRoot": "examples/03-ui-components/13-custom-ui",
         "config": {
           "playground": true,
           "docs": true,
@@ -544,11 +565,14 @@
             "Appearance & Styling"
           ],
           "dependencies": {
-            "react-icons": "^5.2.1"
+            "@emotion/react": "^11.11.4",
+            "@emotion/styled": "^11.11.5",
+            "@mui/icons-material": "^5.16.1",
+            "@mui/material": "^5.16.1"
           } as any,
           "pro": true
         },
-        "title": "Custom UI",
+        "title": "UI With Third-Party Components",
         "group": {
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"
@@ -964,6 +988,31 @@
         "group": {
           "pathFromRoot": "examples/07-collaboration",
           "slug": "collaboration"
+        }
+      }
+    ]
+  },
+  "extensions": {
+    "pathFromRoot": "examples/08-extensions",
+    "slug": "extensions",
+    "projects": [
+      {
+        "projectSlug": "tiptap-arrow-conversion",
+        "fullSlug": "extensions/tiptap-arrow-conversion",
+        "pathFromRoot": "examples/08-extensions/01-tiptap-arrow-conversion",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "komsenapati",
+          "tags": [
+            "Extension"
+          ],
+          "pro": true
+        },
+        "title": "TipTap extension (arrow InputRule)",
+        "group": {
+          "pathFromRoot": "examples/08-extensions",
+          "slug": "extensions"
         }
       }
     ]

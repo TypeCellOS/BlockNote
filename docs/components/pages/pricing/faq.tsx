@@ -16,7 +16,7 @@ const faqs = [
   {
     question:
       "What License is BlockNote using? Can I use it for commercial projects?",
-    answer: `BlockNote is licensed under the MPL 2.0 license, which allows you to use BlockNote in commercial (and closed-source) applications. 
+    answer: `BlockNote is open source software licensed under the MPL 2.0 license, which allows you to use BlockNote in commercial (and closed-source) applications - even without a subscription. 
     If you make changes to the BlockNote source files, you're expected to publish these changes so the wider community can benefit as well.`,
   },
   // More questions...
