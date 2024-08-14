@@ -17,12 +17,15 @@ import {
   propsToAttributes,
   StyleSchema,
 } from "@blocknote/core";
+import { NodeView } from "@tiptap/core";
 import {
   NodeViewContent,
   NodeViewProps,
   NodeViewWrapper,
   ReactNodeViewRenderer,
 } from "@tiptap/react";
+// TODO: Fix import
+import { NodeSelection, TextSelection } from "prosemirror-state";
 import { FC, ReactNode } from "react";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil";
 
@@ -140,8 +143,8 @@ export function createReactBlockSpec<
     },
 
     addNodeView() {
-      return (props) =>
-        ReactNodeViewRenderer(
+      return (props) => {
+        const nodeView = ReactNodeViewRenderer(
           (props: NodeViewProps) => {
             // Gets the BlockNote editor instance
             const editor = this.options.editor! as BlockNoteEditor<any>;
@@ -178,7 +181,177 @@ export function createReactBlockSpec<
           {
             className: "bn-react-node-view-renderer",
           }
-        )(props);
+        )(props) as NodeView<any>;
+
+        // Mostly original TipTap code:
+        // https://github.com/ueberdosis/tiptap/blob/c2e4ad9845837cd753935af1eba6a65299cbf037/packages/core/src/NodeView.ts#L104
+        // This fix is to allow users to select text inside blocks without
+        // inline content while the containing node is selected. Normally,
+        // ProseMirror only allows this is the node is not selected. It also
+        // makes the nodes get selected on mousedown instead on clink, so that
+        // the selected text is always within the selected node.
+        nodeView.stopEvent = (event: Event) => {
+          if (!nodeView.dom) {
+            return false;
+          }
+
+          if (typeof this.options.stopEvent === "function") {
+            return this.options.stopEvent({ event });
+          }
+
+          const target = event.target as HTMLElement;
+          const isInElement =
+            nodeView.dom.contains(target) &&
+            !nodeView.contentDOM?.contains(target);
+
+          // any event from child nodes should be handled by ProseMirror
+          if (!isInElement) {
+            return false;
+          }
+
+          const isDragEvent = event.type.startsWith("drag");
+          const isDropEvent = event.type === "drop";
+          const isInput =
+            ["INPUT", "BUTTON", "SELECT", "TEXTAREA"].includes(
+              target.tagName
+            ) || target.isContentEditable;
+
+          // any input event within node views should be ignored by ProseMirror
+          if (isInput && !isDropEvent && !isDragEvent) {
+            return true;
+          }
+
+          const { isEditable } = nodeView.editor;
+          const { isDragging } = nodeView;
+          const isDraggable = !!nodeView.node.type.spec.draggable;
+          const isSelectable = NodeSelection.isSelectable(nodeView.node);
+          const isCopyEvent = event.type === "copy";
+          const isPasteEvent = event.type === "paste";
+          const isCutEvent = event.type === "cut";
+          const isClickEvent = event.type === "mousedown";
+
+          // ProseMirror tries to drag selectable nodes
+          // even if `draggable` is set to `false`
+          // this fix prevents that
+          if (!isDraggable && isSelectable && isDragEvent) {
+            event.preventDefault();
+          }
+
+          if (isDraggable && isDragEvent && !isDragging) {
+            event.preventDefault();
+            return false;
+          }
+
+          // we have to store that dragging started
+          if (isDraggable && isEditable && !isDragging && isClickEvent) {
+            const dragHandle = target.closest("[data-drag-handle]");
+            const isValidDragHandle =
+              dragHandle &&
+              (nodeView.dom === dragHandle ||
+                nodeView.dom.contains(dragHandle));
+
+            if (isValidDragHandle) {
+              nodeView.isDragging = true;
+
+              document.addEventListener(
+                "dragend",
+                () => {
+                  nodeView.isDragging = false;
+                },
+                { once: true }
+              );
+
+              document.addEventListener(
+                "drop",
+                () => {
+                  nodeView.isDragging = false;
+                },
+                { once: true }
+              );
+
+              document.addEventListener(
+                "mouseup",
+                () => {
+                  nodeView.isDragging = false;
+                },
+                { once: true }
+              );
+            }
+          }
+
+          // these events are handled by prosemirror
+          if (
+            isDragging ||
+            isDropEvent ||
+            isCopyEvent ||
+            isPasteEvent ||
+            isCutEvent ||
+            (isClickEvent && isSelectable)
+          ) {
+            // Modified section
+            if (nodeView.node.type.spec.content !== "") {
+              return false;
+            }
+
+            const nodeStartPos = nodeView.getPos();
+            const nodeEndPos = nodeStartPos + nodeView.node.nodeSize;
+            const selectionStartPos = nodeView.editor.state.selection.from;
+            const selectionEndPos = nodeView.editor.state.selection.to;
+
+            const nodeIsSelected =
+              nodeStartPos === selectionStartPos &&
+              nodeEndPos === selectionEndPos;
+
+            const targetIsSelectable =
+              (event.target as HTMLElement).getAttribute("tabindex") === "-1";
+
+            // Node seems to need to be selected for copying to work properly,
+            // so we select it on mousedown if it's not already selected.
+            // Otherwise, it's also possible to select text in the node without
+            // the node itself being selected. This is also more inline with
+            // text selection behaviour, which is also set on mousedown.
+            if (isClickEvent && !nodeIsSelected) {
+              if (targetIsSelectable) {
+                nodeView.editor.view.dispatch(
+                  nodeView.editor.state.tr.setSelection(
+                    TextSelection.create(
+                      nodeView.editor.state.doc,
+                      nodeStartPos,
+                      nodeEndPos
+                    )
+                  )
+                );
+              } else {
+                nodeView.editor.view.dispatch(
+                  nodeView.editor.state.tr.setSelection(
+                    NodeSelection.create(
+                      nodeView.editor.state.doc,
+                      nodeStartPos
+                    )
+                  )
+                );
+              }
+            }
+
+            // Checks if a piece of text is selected and should be cut/copied by
+            // the browser, or if the entire block should be copied by the
+            // editor.
+            if (isCutEvent || isCopyEvent) {
+              const windowSelection = window.getSelection();
+
+              return windowSelection !== null && !windowSelection.isCollapsed;
+            }
+
+            // If the element is selectable, mouse clicks should be handled by
+            // the browser. Otherwise, they, should be handled by the editor.
+            return targetIsSelectable;
+          }
+
+          return true;
+        };
+
+        return nodeView;
+      };
     },
   });
 
