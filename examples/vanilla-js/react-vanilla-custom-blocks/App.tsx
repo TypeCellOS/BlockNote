@@ -123,13 +123,21 @@ const simpleImageBlock = createBlockSpec(
   },
   {
     render: (block) => {
+      // debugger;
       const image = document.createElement("img");
       image.className = "simple-image";
       image.src = block.props.src;
       image.alt = "placeholder";
 
+      const div = document.createElement("div");
+      div.innerText = "fgresfesfes";
+
+      const parent = document.createElement("div");
+      parent.appendChild(div);
+      parent.appendChild(image);
+
       return {
-        dom: image,
+        dom: parent,
       };
     },
   }
