@@ -86,13 +86,18 @@ const simpleImageBlock = createReactBlockSpec(
     content: "none",
   },
   {
-    render: (props) => (
-      <img
-        className={"simple-image"}
-        src={props.block.props.src}
-        alt="placeholder"
-      />
-    ),
+    render: (props) => {
+      return (
+        <div tabIndex={-1}>
+          <div>fgresfesfes</div>
+          <img
+            className={"simple-image"}
+            src={props.block.props.src}
+            alt="placeholder"
+          />
+        </div>
+      );
+    },
   }
 );
 
