@@ -33,7 +33,13 @@ export const NonEditableBlockPlugin = () => {
             return true;
           }
           // Checks if key press is Enter
-          if (event.key === "Enter") {
+          if (
+            event.key === "Enter" &&
+            !event.shiftKey &&
+            !event.altKey &&
+            !event.ctrlKey &&
+            !event.metaKey
+          ) {
             const tr = view.state.tr;
             view.dispatch(
               tr
