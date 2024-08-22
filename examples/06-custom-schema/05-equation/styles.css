@@ -1,0 +1,62 @@
+.equation-content {
+    caret-color: rgb(55, 53, 47);
+    padding: 2px 2px;
+    border-radius: 4px;
+    transform: translate3d(-4px, 0, 0);
+    margin-right: -4px;
+    white-space: pre;
+}
+
+
+.equation.focus .equation-content {
+    background: rgba(37, 135, 231, 0.12);
+}
+
+.equation .equation-empty {
+    white-space: nowrap;
+    font-size: 12px;
+    background: rgb(207, 207, 207);
+    caret-color: rgb(55, 53, 47);
+    vertical-align: top;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transform: translate3d(-4px, 0, 0);
+    margin-right: -8px;
+}
+
+.equation-label {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 4px;
+}
+
+.equation-textarea {
+    min-width: 200px;
+    margin-right: 10px;
+    outline: none;
+    border: none;
+    font-size: 14px;
+}
+
+.equation-enter {
+    user-select: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    white-space: nowrap;
+    height: 28px;
+    border-radius: 4px;
+    box-shadow: rgba(15, 15, 15, 0.1) 0 0 0 1px inset, rgba(15, 15, 15, 0.1) 0 1px 2px;
+    background: rgb(35, 131, 226);
+    color: white;
+    fill: white;
+    line-height: 1.2;
+    padding-left: 12px;
+    padding-right: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    align-self: flex-start;
+}

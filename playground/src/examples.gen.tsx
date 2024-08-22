@@ -887,6 +887,33 @@
         }
       },
       {
+        "projectSlug": "equation",
+        "fullSlug": "custom-schema/equation",
+        "pathFromRoot": "examples/06-custom-schema/05-equation",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "jkcs",
+          "tags": [
+            "Equation",
+            "Inline Equation",
+            "Custom Schemas",
+            "Latex",
+            "Slash Menu"
+          ],
+          "dependencies": {
+            "katex": "^0.16.11",
+            "@types/katex": "^0.16.7",
+            "react-icons": "^5.2.1"
+          } as any
+        },
+        "title": "Inline Equation",
+        "group": {
+          "pathFromRoot": "examples/06-custom-schema",
+          "slug": "custom-schema"
+        }
+      },
+      {
         "projectSlug": "react-custom-blocks",
         "fullSlug": "custom-schema/react-custom-blocks",
         "pathFromRoot": "examples/06-custom-schema/react-custom-blocks",

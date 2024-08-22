@@ -23,6 +23,7 @@ import {
 // import { useReactNodeView } from "@tiptap/react/dist/packages/react/src/useReactNodeView";
 import { FC } from "react";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil";
+import { Node } from "@tiptap/pm/model";
 
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 
@@ -35,6 +36,7 @@ export type ReactInlineContentImplementation<
   render: FC<{
     inlineContent: InlineContentFromConfig<T, S>;
     contentRef: (node: HTMLElement | null) => void;
+    node: Node;
   }>;
   // TODO?
   // toExternalHTML?: FC<{
@@ -109,7 +111,10 @@ export function createReactInlineContentSpec<
       return getInlineContentParseRules(inlineContentConfig);
     },
 
-    renderHTML({ node }) {
+    renderHTML({ node, ...args }) {
+      if (inlineContentConfig.renderHTML) {
+        return inlineContentConfig.renderHTML({ node, ...args });
+      }
       const editor = this.options.editor;
 
       const ic = nodeToCustomInlineContent(
@@ -119,7 +124,9 @@ export function createReactInlineContentSpec<
       ) as any as InlineContentFromConfig<T, S>; // TODO: fix cast
       const Content = inlineContentImplementation.render;
       const output = renderToDOMSpec(
-        (refCB) => <Content inlineContent={ic} contentRef={refCB} />,
+        (refCB) => (
+          <Content inlineContent={ic} contentRef={refCB} node={node} />
+        ),
         editor
       );
 
@@ -131,7 +138,6 @@ export function createReactInlineContentSpec<
       );
     },
 
-    // TODO: needed?
     addNodeView() {
       const editor = this.options.editor;
       return (props) =>
@@ -148,6 +154,7 @@ export function createReactInlineContentSpec<
                 propSchema={inlineContentConfig.propSchema}>
                 <Content
                   contentRef={ref}
+                  node={props.node}
                   inlineContent={
                     nodeToCustomInlineContent(
                       props.node,

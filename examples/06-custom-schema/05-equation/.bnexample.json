@@ -1,0 +1,11 @@
+{
+  "playground": true,
+  "docs": false,
+  "author": "jkcs",
+  "tags": ["Equation", "Inline Equation", "Custom Schemas", "Latex", "Slash Menu"],
+  "dependencies": {
+    "katex": "^0.16.11",
+    "@types/katex": "^0.16.7",
+    "react-icons": "^5.2.1"
+  }
+}
