@@ -54,7 +54,7 @@ async function convertToHTMLAndCompareSnapshots<
   expect(parsed).toStrictEqual(fullBlocks);
 
   // Create the "external" HTML, which is a cleaned up HTML representation, but lossy
-  const exporter = createExternalHTMLExporter(editor.pmSchema, editor);
+  const exporter = await createExternalHTMLExporter(editor.pmSchema, editor);
   const externalHTML = exporter.exportBlocks(blocks, {});
   const externalHTMLSnapshotPath =
     "./__snapshots__/" +

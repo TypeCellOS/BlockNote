@@ -1016,7 +1016,7 @@ export class BlockNoteEditor<
   public async blocksToHTMLLossy(
     blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.document
   ): Promise<string> {
-    const exporter = createExternalHTMLExporter(this.pmSchema, this);
+    const exporter = await createExternalHTMLExporter(this.pmSchema, this);
     return exporter.exportBlocks(blocks, {});
   }
 

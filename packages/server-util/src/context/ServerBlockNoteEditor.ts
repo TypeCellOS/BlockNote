@@ -222,7 +222,7 @@ export class ServerBlockNoteEditor<
     blocks: PartialBlock<BSchema, ISchema, SSchema>[]
   ): Promise<string> {
     return this._withJSDOM(async () => {
-      const exporter = createExternalHTMLExporter(
+      const exporter = await createExternalHTMLExporter(
         this.editor.pmSchema,
         this.editor
       );

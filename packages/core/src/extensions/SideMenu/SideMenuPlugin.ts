@@ -164,7 +164,7 @@ function unsetDragImage(rootEl: Document | ShadowRoot) {
   }
 }
 
-function dragStart<
+async function dragStart<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
@@ -232,13 +232,16 @@ function dragStart<
       {}
     );
 
-    const externalHTMLExporter = createExternalHTMLExporter(schema, editor);
+    const externalHTMLExporter = await createExternalHTMLExporter(
+      schema,
+      editor
+    );
     const externalHTML = externalHTMLExporter.exportProseMirrorFragment(
       selectedSlice.content,
       {}
     );
 
-    const plainText = cleanHTMLToMarkdown(externalHTML);
+    const plainText = await cleanHTMLToMarkdown(externalHTML);
 
     e.dataTransfer.clearData();
     e.dataTransfer.setData("blocknote/html", internalHTML);

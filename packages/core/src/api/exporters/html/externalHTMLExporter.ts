@@ -1,7 +1,4 @@
 import { DOMSerializer, Fragment, Node, Schema } from "prosemirror-model";
-import rehypeParse from "rehype-parse";
-import rehypeStringify from "rehype-stringify";
-import { unified } from "unified";
 
 import { PartialBlock } from "../../../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
@@ -47,14 +44,18 @@ export interface ExternalHTMLExporter<
   ) => string;
 }
 
-export const createExternalHTMLExporter = <
+export const createExternalHTMLExporter = async <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
   schema: Schema,
   editor: BlockNoteEditor<BSchema, I, S>
-): ExternalHTMLExporter<BSchema, I, S> => {
+): Promise<ExternalHTMLExporter<BSchema, I, S>> => {
+  const rehypeParse = await import("rehype-parse");
+  const rehypeStringify = await import("rehype-stringify");
+  const unified = await import("unified");
+
   const serializer = DOMSerializer.fromSchema(schema) as DOMSerializer & {
     serializeNodeInner: (
       node: Node,
@@ -79,8 +80,9 @@ export const createExternalHTMLExporter = <
   // but additionally runs it through the `simplifyBlocks` rehype plugin to
   // convert the internal HTML to external.
   serializer.exportProseMirrorFragment = (fragment, options) => {
-    const externalHTML = unified()
-      .use(rehypeParse, { fragment: true })
+    const externalHTML = unified
+      .unified()
+      .use(rehypeParse.default, { fragment: true })
       .use(simplifyBlocks, {
         orderedListItemBlockTypes: new Set<string>(["numberedListItem"]),
         unorderedListItemBlockTypes: new Set<string>([
@@ -88,7 +90,7 @@ export const createExternalHTMLExporter = <
           "checkListItem",
         ]),
       })
-      .use(rehypeStringify)
+      .use(rehypeStringify.default)
       .processSync(serializeProseMirrorFragment(fragment, serializer, options));
 
     return externalHTML.value as string;
