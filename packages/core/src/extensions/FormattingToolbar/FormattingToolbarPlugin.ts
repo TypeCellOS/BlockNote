@@ -31,18 +31,8 @@ export class FormattingToolbarView implements PluginView {
     const isEmptyTextBlock =
       !doc.textBetween(from, to).length && isTextSelection(state.selection);
 
-    const domSelection = window.getSelection();
-    if (!domSelection) {
-      return false;
-    }
-
     // check view.hasFocus so that the toolbar doesn't show up when the editor is not focused or when for example a code block is focused
-    return !(
-      !view.dom.contains(domSelection.anchorNode) ||
-      !view.dom.contains(domSelection.focusNode) ||
-      empty ||
-      isEmptyTextBlock
-    );
+    return !(!view.hasFocus() || empty || isEmptyTextBlock);
   };
 
   constructor(
@@ -156,7 +146,6 @@ export class FormattingToolbarView implements PluginView {
       from,
       to,
     });
-    console.log(shouldShow);
 
     // Checks if menu should be shown/updated.
     if (!this.preventShow && (shouldShow || this.preventHide)) {
