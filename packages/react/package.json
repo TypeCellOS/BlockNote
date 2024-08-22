@@ -55,6 +55,7 @@
     "@floating-ui/react": "^0.26.4",
     "@tiptap/core": "^2.5.0",
     "@tiptap/react": "^2.5.0",
+    "@tiptap/pm": "^2.5.0",
     "lodash.merge": "^4.6.2",
     "react": "^18",
     "react-dom": "^18",
