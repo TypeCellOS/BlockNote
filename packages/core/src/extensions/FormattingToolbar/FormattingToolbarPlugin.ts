@@ -156,7 +156,6 @@ export class FormattingToolbarView implements PluginView {
       from,
       to,
     });
-    console.log(shouldShow);
 
     // Checks if menu should be shown/updated.
     if (!this.preventShow && (shouldShow || this.preventHide)) {
