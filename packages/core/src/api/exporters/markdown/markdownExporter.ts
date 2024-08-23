@@ -18,7 +18,7 @@ export async function cleanHTMLToMarkdown(cleanHTMLString: string) {
     .unified()
     .use(rehypeParse.default, { fragment: true })
     .use(removeUnderlines)
-    .use(addSpacesToCheckboxes)
+    .use(await addSpacesToCheckboxes())
     .use(rehypeRemark.default)
     .use(remarkGfm.default)
     .use(remarkStringify.default, { handlers: { text: (node) => node.value } })

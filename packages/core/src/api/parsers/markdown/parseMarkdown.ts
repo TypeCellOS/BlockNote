@@ -1,9 +1,5 @@
 import { Schema } from "prosemirror-model";
-import rehypeStringify from "rehype-stringify";
-import remarkGfm from "remark-gfm";
-import remarkParse from "remark-parse";
-import remarkRehype, { defaultHandlers } from "remark-rehype";
-import { unified } from "unified";
+
 import { Block } from "../../../blocks/defaultBlocks";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
 import { HTMLToBlocks } from "../html/parseHTML";
@@ -47,7 +43,7 @@ function code(state: any, node: any) {
   return result;
 }
 
-export function markdownToBlocks<
+export async function markdownToBlocks<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
@@ -58,16 +54,22 @@ export function markdownToBlocks<
   styleSchema: S,
   pmSchema: Schema
 ): Promise<Block<BSchema, I, S>[]> {
-  const htmlString = unified()
-    .use(remarkParse)
-    .use(remarkGfm)
-    .use(remarkRehype, {
+  const remarkParse = await import("remark-parse");
+  const remarkGfm = await import("remark-gfm");
+  const remarkRehype = await import("remark-rehype");
+  const rehypeStringify = await import("rehype-stringify");
+  const unified = await import("unified");
+  const htmlString = unified
+    .unified()
+    .use(remarkParse.default)
+    .use(remarkGfm.default)
+    .use(remarkRehype.default, {
       handlers: {
-        ...(defaultHandlers as any),
+        ...(remarkRehype.defaultHandlers as any),
         code,
       },
     })
-    .use(rehypeStringify)
+    .use(rehypeStringify.default)
     .processSync(markdown);
 
   return HTMLToBlocks(

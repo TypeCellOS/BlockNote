@@ -55,7 +55,7 @@ export const createExternalHTMLExporter = async <
   const rehypeParse = await import("rehype-parse");
   const rehypeStringify = await import("rehype-stringify");
   const unified = await import("unified");
-
+  const simplifyPlugin = await simplifyBlocks();
   const serializer = DOMSerializer.fromSchema(schema) as DOMSerializer & {
     serializeNodeInner: (
       node: Node,
@@ -83,7 +83,7 @@ export const createExternalHTMLExporter = async <
     const externalHTML = unified
       .unified()
       .use(rehypeParse.default, { fragment: true })
-      .use(simplifyBlocks, {
+      .use(simplifyPlugin, {
         orderedListItemBlockTypes: new Set<string>(["numberedListItem"]),
         unorderedListItemBlockTypes: new Set<string>([
           "bulletListItem",
