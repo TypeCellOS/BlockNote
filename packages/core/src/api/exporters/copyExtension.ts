@@ -5,6 +5,7 @@ import { NodeSelection, Plugin } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
+import { initializeESMDependencies } from "../../util/esmDependencies";
 import { createExternalHTMLExporter } from "./html/externalHTMLExporter";
 import { createInternalHTMLSerializer } from "./html/internalHTMLSerializer";
 import { cleanHTMLToMarkdown } from "./markdown/markdownExporter";
@@ -32,7 +33,8 @@ async function selectedFragmentToHTML<
     {}
   );
 
-  const externalHTMLExporter = await createExternalHTMLExporter(
+  await initializeESMDependencies();
+  const externalHTMLExporter = createExternalHTMLExporter(
     view.state.schema,
     editor
   );

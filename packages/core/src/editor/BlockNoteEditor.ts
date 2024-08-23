@@ -68,6 +68,7 @@ import { en } from "../i18n/locales";
 import { Transaction } from "@tiptap/pm/state";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer";
 import "../style.css";
+import { initializeESMDependencies } from "../util/esmDependencies";
 
 export type BlockNoteEditorOptions<
   BSchema extends BlockSchema,
@@ -1016,7 +1017,8 @@ export class BlockNoteEditor<
   public async blocksToHTMLLossy(
     blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.document
   ): Promise<string> {
-    const exporter = await createExternalHTMLExporter(this.pmSchema, this);
+    await initializeESMDependencies();
+    const exporter = createExternalHTMLExporter(this.pmSchema, this);
     return exporter.exportBlocks(blocks, {});
   }
 

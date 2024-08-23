@@ -1,20 +1,17 @@
 import { describe, expect, it } from "vitest";
+import { initializeESMDependencies } from "../../../../util/esmDependencies";
 import { nestedListsToBlockNoteStructure } from "./nestedLists";
 
 async function testHTML(html: string) {
-  const rehypeParse = await import("rehype-parse");
-  const rehypeStringify = await import("rehype-stringify");
-  const rehypeFormat = await import("rehype-format");
-
-  const unified = await import("unified");
+  const deps = await initializeESMDependencies();
 
   const htmlNode = nestedListsToBlockNoteStructure(html);
 
-  const pretty = await unified
+  const pretty = await deps.unified
     .unified()
-    .use(rehypeParse.default, { fragment: true })
-    .use(rehypeFormat.default)
-    .use(rehypeStringify.default)
+    .use(deps.rehypeParse.default, { fragment: true })
+    .use(deps.rehypeFormat.default)
+    .use(deps.rehypeStringify.default)
     .process(htmlNode.innerHTML);
 
   expect(pretty.value).toMatchSnapshot();

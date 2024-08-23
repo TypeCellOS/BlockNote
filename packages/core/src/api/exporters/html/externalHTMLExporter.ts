@@ -3,6 +3,7 @@ import { DOMSerializer, Fragment, Node, Schema } from "prosemirror-model";
 import { PartialBlock } from "../../../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
+import { esmDependencies } from "../../../util/esmDependencies";
 import { blockToNode } from "../../nodeConversions/nodeConversions";
 import {
   serializeNodeInner,
@@ -44,18 +45,24 @@ export interface ExternalHTMLExporter<
   ) => string;
 }
 
-export const createExternalHTMLExporter = async <
+// Needs to be sync because it's used in drag handler event (SideMenuPlugin)
+// Ideally, call `await initializeESMDependencies()` before calling this function
+export const createExternalHTMLExporter = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
   schema: Schema,
   editor: BlockNoteEditor<BSchema, I, S>
-): Promise<ExternalHTMLExporter<BSchema, I, S>> => {
-  const rehypeParse = await import("rehype-parse");
-  const rehypeStringify = await import("rehype-stringify");
-  const unified = await import("unified");
-  const simplifyPlugin = await simplifyBlocks();
+): ExternalHTMLExporter<BSchema, I, S> => {
+  const deps = esmDependencies;
+
+  if (!deps) {
+    throw new Error(
+      "External HTML exporter requires ESM dependencies to be initialized"
+    );
+  }
+
   const serializer = DOMSerializer.fromSchema(schema) as DOMSerializer & {
     serializeNodeInner: (
       node: Node,
@@ -80,17 +87,17 @@ export const createExternalHTMLExporter = async <
   // but additionally runs it through the `simplifyBlocks` rehype plugin to
   // convert the internal HTML to external.
   serializer.exportProseMirrorFragment = (fragment, options) => {
-    const externalHTML = unified
+    const externalHTML = deps.unified
       .unified()
-      .use(rehypeParse.default, { fragment: true })
-      .use(simplifyPlugin, {
+      .use(deps.rehypeParse.default, { fragment: true })
+      .use(simplifyBlocks, {
         orderedListItemBlockTypes: new Set<string>(["numberedListItem"]),
         unorderedListItemBlockTypes: new Set<string>([
           "bulletListItem",
           "checkListItem",
         ]),
       })
-      .use(rehypeStringify.default)
+      .use(deps.rehypeStringify.default)
       .processSync(serializeProseMirrorFragment(fragment, serializer, options));
 
     return externalHTML.value as string;

@@ -2,6 +2,7 @@ import { Schema } from "prosemirror-model";
 
 import { Block } from "../../../blocks/defaultBlocks";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
+import { initializeESMDependencies } from "../../../util/esmDependencies";
 import { HTMLToBlocks } from "../html/parseHTML";
 
 // modified version of https://github.com/syntax-tree/mdast-util-to-hast/blob/main/lib/handlers/code.js
@@ -54,22 +55,18 @@ export async function markdownToBlocks<
   styleSchema: S,
   pmSchema: Schema
 ): Promise<Block<BSchema, I, S>[]> {
-  const remarkParse = await import("remark-parse");
-  const remarkGfm = await import("remark-gfm");
-  const remarkRehype = await import("remark-rehype");
-  const rehypeStringify = await import("rehype-stringify");
-  const unified = await import("unified");
-  const htmlString = unified
+  const deps = await initializeESMDependencies();
+  const htmlString = deps.unified
     .unified()
-    .use(remarkParse.default)
-    .use(remarkGfm.default)
-    .use(remarkRehype.default, {
+    .use(deps.remarkParse.default)
+    .use(deps.remarkGfm.default)
+    .use(deps.remarkRehype.default, {
       handlers: {
-        ...(remarkRehype.defaultHandlers as any),
+        ...(deps.remarkRehype.defaultHandlers as any),
         code,
       },
     })
-    .use(rehypeStringify.default)
+    .use(deps.rehypeStringify.default)
     .processSync(markdown);
 
   return HTMLToBlocks(

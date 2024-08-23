@@ -7,6 +7,7 @@ import { PartialBlock } from "../../../blocks/defaultBlocks";
 import { BlockSchema } from "../../../schema/blocks/types";
 import { InlineContentSchema } from "../../../schema/inlineContent/types";
 import { StyleSchema } from "../../../schema/styles/types";
+import { initializeESMDependencies } from "../../../util/esmDependencies";
 import { customBlocksTestCases } from "../../testUtil/cases/customBlocks";
 import { customInlineContentTestCases } from "../../testUtil/cases/customInlineContent";
 import { customStylesTestCases } from "../../testUtil/cases/customStyles";
@@ -44,8 +45,9 @@ async function convertToHTMLAndCompareSnapshots<
 
   expect(parsed).toStrictEqual(fullBlocks);
 
+  await initializeESMDependencies();
   // Create the "external" HTML, which is a cleaned up HTML representation, but lossy
-  const exporter = await createExternalHTMLExporter(editor.pmSchema, editor);
+  const exporter = createExternalHTMLExporter(editor.pmSchema, editor);
   const externalHTML = exporter.exportBlocks(blocks, {});
   const externalHTMLSnapshotPath =
     "./__snapshots__/" +
@@ -186,10 +188,8 @@ describe("Test ProseMirror fragment edge case conversion", () => {
       const copiedFragment =
         editor._tiptapEditor.state.selection.content().content;
 
-      const exporter = await createExternalHTMLExporter(
-        editor.pmSchema,
-        editor
-      );
+      await initializeESMDependencies();
+      const exporter = createExternalHTMLExporter(editor.pmSchema, editor);
       const externalHTML = exporter.exportProseMirrorFragment(
         copiedFragment,
         {}
@@ -212,10 +212,8 @@ describe("Test ProseMirror fragment edge case conversion", () => {
       const copiedFragment =
         editor._tiptapEditor.state.selection.content().content;
 
-      const exporter = await createExternalHTMLExporter(
-        editor.pmSchema,
-        editor
-      );
+      await initializeESMDependencies();
+      const exporter = createExternalHTMLExporter(editor.pmSchema, editor);
       const externalHTML = exporter.exportProseMirrorFragment(
         copiedFragment,
         {}
@@ -237,10 +235,8 @@ describe("Test ProseMirror fragment edge case conversion", () => {
 
       const copiedFragment =
         editor._tiptapEditor.state.selection.content().content;
-      const exporter = await createExternalHTMLExporter(
-        editor.pmSchema,
-        editor
-      );
+      await initializeESMDependencies();
+      const exporter = createExternalHTMLExporter(editor.pmSchema, editor);
       const externalHTML = exporter.exportProseMirrorFragment(
         copiedFragment,
         {}

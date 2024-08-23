@@ -9,8 +9,10 @@ import {
   addIdsToBlocks,
   createExternalHTMLExporter,
   createInternalHTMLSerializer,
+  initializeESMDependencies,
   partialBlocksToBlocksForTesting,
 } from "@blocknote/core";
+
 import { flushSync } from "react-dom";
 import { Root, createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -54,7 +56,8 @@ async function convertToHTMLAndCompareSnapshots<
   expect(parsed).toStrictEqual(fullBlocks);
 
   // Create the "external" HTML, which is a cleaned up HTML representation, but lossy
-  const exporter = await createExternalHTMLExporter(editor.pmSchema, editor);
+  await initializeESMDependencies();
+  const exporter = createExternalHTMLExporter(editor.pmSchema, editor);
   const externalHTML = exporter.exportBlocks(blocks, {});
   const externalHTMLSnapshotPath =
     "./__snapshots__/" +

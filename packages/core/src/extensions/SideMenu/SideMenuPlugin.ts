@@ -12,6 +12,7 @@ import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { EventEmitter } from "../../util/EventEmitter";
+import { initializeESMDependencies } from "../../util/esmDependencies";
 import { MultipleNodeSelection } from "./MultipleNodeSelection";
 
 let dragImageElement: Element | undefined;
@@ -164,7 +165,7 @@ function unsetDragImage(rootEl: Document | ShadowRoot) {
   }
 }
 
-async function dragStart<
+function dragStart<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
@@ -232,16 +233,13 @@ async function dragStart<
       {}
     );
 
-    const externalHTMLExporter = await createExternalHTMLExporter(
-      schema,
-      editor
-    );
+    const externalHTMLExporter = createExternalHTMLExporter(schema, editor);
     const externalHTML = externalHTMLExporter.exportProseMirrorFragment(
       selectedSlice.content,
       {}
     );
 
-    const plainText = await cleanHTMLToMarkdown(externalHTML);
+    const plainText = cleanHTMLToMarkdown(externalHTML);
 
     e.dataTransfer.clearData();
     e.dataTransfer.setData("blocknote/html", internalHTML);
@@ -305,6 +303,7 @@ export class SideMenuView<
       "dragover",
       this.onDragOver as EventListener
     );
+    initializeESMDependencies();
     this.pmView.dom.addEventListener("dragstart", this.onDragStart);
 
     // Shows or updates menu position whenever the cursor moves, if the menu isn't frozen.
