@@ -746,8 +746,6 @@ export class BlockNoteEditor<
       return false;
     });
 
-    console.log(blocks, "========");
-
     return { blocks: blocks };
   }
 
