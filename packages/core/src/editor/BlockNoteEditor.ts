@@ -402,6 +402,10 @@ export class BlockNoteEditor<
       editorProps: {
         ...newOptions._tiptapOptions?.editorProps,
         attributes: {
+          // As of TipTap v2.5.0 the tabIndex is removed when the editor is not
+          // editable, so you can't focus it. We want to revert this as we have
+          // UI behaviour that relies on it.
+          tabIndex: "0",
           ...newOptions._tiptapOptions?.editorProps?.attributes,
           ...newOptions.domAttributes?.editor,
           class: mergeCSSClasses(
