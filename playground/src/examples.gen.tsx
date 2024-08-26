@@ -899,7 +899,7 @@
             "Inline Equation",
             "Custom Schemas",
             "Latex",
-            "Slash Menu"
+            "Katex"
           ],
           "dependencies": {
             "katex": "^0.16.11",

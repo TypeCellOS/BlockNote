@@ -11,7 +11,7 @@ import { forwardRef } from "react";
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"]
 ) => {
-  const { children, opened, position, ...rest } = props;
+  const { children, opened, onChange, position, ...rest } = props;
 
   assertEmpty(rest);
 
@@ -20,7 +20,8 @@ export const Popover = (
       withinPortal={false}
       zIndex={10000}
       opened={opened}
-      position={position}>
+      position={position}
+      onChange={onChange}>
       {children}
     </MantinePopover>
   );

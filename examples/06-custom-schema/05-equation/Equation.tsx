@@ -1,26 +1,25 @@
+import { InlineContentFromConfig } from "@blocknote/core";
 import {
   createReactInlineContentSpec,
   useBlockNoteEditor,
   useComponentsContext,
-  useEditorContentOrSelectionChange,
 } from "@blocknote/react";
+import { Node as TipTapNode } from "@tiptap/pm/model";
 import { NodeViewWrapper } from "@tiptap/react";
+import katex from "katex";
+import "katex/dist/katex.min.css";
 import {
   ChangeEvent,
-  forwardRef,
   MouseEvent as ReactMouseEvent,
   TextareaHTMLAttributes,
+  forwardRef,
   useCallback,
   useEffect,
   useMemo,
   useRef,
-  useState,
 } from "react";
-import katex from "katex";
 import { AiOutlineEnter } from "react-icons/ai";
-import "katex/dist/katex.min.css";
 import "./styles.css";
-import { Node as TipTapNode } from "@tiptap/pm/model";
 
 const TextareaView = forwardRef<
   HTMLTextAreaElement,
@@ -47,14 +46,17 @@ const TextareaView = forwardRef<
   );
 });
 
-export const InlineEquationView = (props: { node: TipTapNode }) => {
-  const content = props.node.attrs.content;
+export const InlineEquationView = (props: {
+  inlineContent: InlineContentFromConfig<typeof InlineEquation.config, any>;
+  node: TipTapNode;
+  isSelected: boolean;
+}) => {
+  const content = props.inlineContent.props.content;
   const nodeSize = props.node.nodeSize;
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const contentRef = useRef<HTMLElement | null>(null);
   const containerRef = useRef<HTMLElement | null>(null);
-  const [focus, setFocus] = useState(!content);
-  const [curEdge, setCurEdge] = useState(!content);
+
   const Components = useComponentsContext()!;
   const editor = useBlockNoteEditor();
   const html = useMemo(
@@ -95,25 +97,12 @@ export const InlineEquationView = (props: { node: TipTapNode }) => {
     return position;
   }, [editor, props.node]);
 
-  useEditorContentOrSelectionChange(() => {
-    const pos = getPos();
-    const courPos = editor._tiptapEditor.state.selection.from;
-    const selection = editor.getSelection();
-
-    setCurEdge(!selection && (courPos === pos + nodeSize || courPos === pos));
-  });
-
-  useEffect(() => {
-    if (focus) {
-      contentRef.current?.click();
-    }
-  }, [focus]);
-
   const handleEnter = useCallback(
-    (event: ReactMouseEvent | KeyboardEvent) => {
+    (event: ReactMouseEvent | React.KeyboardEvent) => {
       event.preventDefault();
       const pos = getPos();
       if (!content) {
+        // TODO: implement BlockNote API to easily delete inline content
         const node = props.node;
         const view = editor._tiptapEditor.view;
 
@@ -122,68 +111,50 @@ export const InlineEquationView = (props: { node: TipTapNode }) => {
         view.dispatch(tr);
         editor._tiptapEditor.commands.setTextSelection(pos);
       } else {
+        // TODO: implement BlockNote API to easily update cursor position
         editor._tiptapEditor.commands.setTextSelection(pos + nodeSize);
       }
       editor.focus();
-      setFocus(false);
-      setCurEdge(true);
     },
     [content, editor, getPos, nodeSize, props.node]
   );
 
   const handleMenuNavigationKeys = useCallback(
-    (event: KeyboardEvent) => {
+    (event: React.KeyboardEvent) => {
       const textareaEdge = getTextareaEdge();
       const pos = getPos();
-      const courPos = editor._tiptapEditor.state.selection.from;
 
       if (event.key === "ArrowLeft") {
-        if (courPos === pos + nodeSize && !focus) {
-          setFocus(true);
-        }
         if (textareaEdge.isLeftEdge) {
+          // TODO: implement BlockNote API to set cursor position
           event.preventDefault();
           editor.focus();
           editor._tiptapEditor.commands.setTextSelection(pos);
-          setFocus(false);
         }
         return true;
       }
 
       if (event.key === "ArrowRight") {
-        if (courPos === pos && !focus) {
-          setFocus(true);
-        }
         if (textareaEdge.isRightEdge) {
+          // TODO: implement BlockNote API to set cursor position
           event.preventDefault();
           editor.focus();
           editor._tiptapEditor.commands.setTextSelection(pos + nodeSize);
-          setFocus(false);
         }
         return true;
       }
 
-      if (event.key === "Enter" && focus) {
+      if (event.key === "Enter" && props.isSelected) {
         handleEnter(event);
         return true;
       }
 
       return false;
     },
-    [editor, focus, getPos, handleEnter, nodeSize]
+    [editor, getPos, handleEnter, nodeSize, props.isSelected]
   );
 
-  useEffect(() => {
-    const domEle = editor._tiptapEditor?.view?.dom;
-    if (focus || curEdge) {
-      domEle?.addEventListener("keydown", handleMenuNavigationKeys, true);
-    }
-
-    return () => {
-      domEle?.removeEventListener("keydown", handleMenuNavigationKeys, true);
-    };
-  }, [editor, focus, handleMenuNavigationKeys, curEdge]);
-
+  // TODO: implement BlockNote API to easily update inline content
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value;
     const pos = getPos();
@@ -203,39 +174,19 @@ export const InlineEquationView = (props: { node: TipTapNode }) => {
     );
 
     view.dispatch(tr);
-    setFocus(true);
   };
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setFocus(false);
-      }
-    };
-
-    document.addEventListener("pointerup", handleClickOutside, true);
-    return () => {
-      document.removeEventListener("pointerup", handleClickOutside, true);
-    };
-  }, []);
 
   return (
     <NodeViewWrapper as={"span"} ref={containerRef}>
-      <Components.Generic.Popover.Root opened={focus}>
+      <Components.Generic.Popover.Root opened={props.isSelected}>
         <Components.Generic.Popover.Trigger>
           <span
-            className={"equation " + (focus ? "focus" : "")}
+            className={"equation " + (props.isSelected ? "focus" : "")}
             ref={contentRef}>
             {!content ? (
-              <span onClick={() => setFocus(true)} className={"equation-empty"}>
-                New Equation
-              </span>
+              <span className={"equation-empty"}>New Equation</span>
             ) : (
               <span
-                onClick={() => setFocus(true)}
                 className={"equation-content"}
                 dangerouslySetInnerHTML={{ __html: html }}></span>
             )}
@@ -251,6 +202,7 @@ export const InlineEquationView = (props: { node: TipTapNode }) => {
               autofocus
               value={content}
               onChange={handleChange}
+              onKeyDown={handleMenuNavigationKeys}
             />
             <span onClick={handleEnter} className={"equation-enter"}>
               <AiOutlineEnter />
@@ -286,7 +238,13 @@ export const InlineEquation = createReactInlineContentSpec(
   },
   {
     render: (props) => {
-      return <InlineEquationView node={props.node} />;
+      return (
+        <InlineEquationView
+          node={props.node}
+          inlineContent={props.inlineContent}
+          isSelected={props.isSelected}
+        />
+      );
     },
   }
 );

@@ -21,9 +21,9 @@ import {
   ReactNodeViewRenderer,
 } from "@tiptap/react";
 // import { useReactNodeView } from "@tiptap/react/dist/packages/react/src/useReactNodeView";
+import { Node } from "@tiptap/pm/model";
 import { FC } from "react";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil";
-import { Node } from "@tiptap/pm/model";
 
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 
@@ -37,6 +37,7 @@ export type ReactInlineContentImplementation<
     inlineContent: InlineContentFromConfig<T, S>;
     contentRef: (node: HTMLElement | null) => void;
     node: Node;
+    isSelected: boolean;
   }>;
   // TODO?
   // toExternalHTML?: FC<{
@@ -93,7 +94,7 @@ export function createReactInlineContentSpec<
     name: inlineContentConfig.type as T["type"],
     inline: true,
     group: "inline",
-    selectable: inlineContentConfig.content === "styled",
+    selectable: true, //inlineContentConfig.content === "styled",
     atom: inlineContentConfig.content === "none",
     content: (inlineContentConfig.content === "styled"
       ? "inline*"
@@ -125,7 +126,12 @@ export function createReactInlineContentSpec<
       const Content = inlineContentImplementation.render;
       const output = renderToDOMSpec(
         (refCB) => (
-          <Content inlineContent={ic} contentRef={refCB} node={node} />
+          <Content
+            inlineContent={ic}
+            contentRef={refCB}
+            node={node}
+            isSelected={false}
+          />
         ),
         editor
       );
@@ -147,6 +153,13 @@ export function createReactInlineContentSpec<
             const ref = (NodeViewContent({}) as any).ref;
 
             const Content = inlineContentImplementation.render;
+
+            const isSelected =
+              props.selected &&
+              props.editor.state.selection.from === props.getPos() &&
+              props.editor.state.selection.to ===
+                props.getPos() + props.node.nodeSize;
+
             return (
               <InlineContentWrapper
                 inlineContentProps={props.node.attrs as Props<T["propSchema"]>}
@@ -162,6 +175,7 @@ export function createReactInlineContentSpec<
                       editor.schema.styleSchema
                     ) as any as InlineContentFromConfig<T, S> // TODO: fix cast
                   }
+                  isSelected={isSelected}
                 />
               </InlineContentWrapper>
             );

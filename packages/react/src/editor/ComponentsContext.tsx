@@ -9,8 +9,8 @@ import {
   useContext,
 } from "react";
 
-import { DefaultReactSuggestionItem } from "../components/SuggestionMenu/types";
 import { DefaultReactGridSuggestionItem } from "../components/SuggestionMenu/GridSuggestionMenu/types";
+import { DefaultReactSuggestionItem } from "../components/SuggestionMenu/types";
 
 export type ComponentProps = {
   FormattingToolbar: {
@@ -241,6 +241,7 @@ export type ComponentProps = {
         children?: ReactNode;
         opened?: boolean;
         position?: "top" | "right" | "bottom" | "left";
+        onChange?: (open: boolean) => void;
       };
       Content: {
         className?: string;

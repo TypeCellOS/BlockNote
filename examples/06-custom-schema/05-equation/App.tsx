@@ -4,14 +4,14 @@ import {
   filterSuggestionItems,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
 import {
   SuggestionMenuController,
   getDefaultReactSlashMenuItems,
   useCreateBlockNote,
 } from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/mantine";
 import { RiFormula } from "react-icons/ri";
-import "@blocknote/mantine/style.css";
 
 import { InlineEquation } from "./Equation";
 

@@ -1,8 +1,8 @@
 import { Node } from "@tiptap/core";
+import { DOMOutputSpec } from "@tiptap/pm/model";
+import { Node as ProseMirrorNode } from "prosemirror-model";
 import { PropSchema, Props } from "../propTypes";
 import { StyleSchema, Styles } from "../styles/types";
-import { Node as ProseMirrorNode } from "prosemirror-model";
-import { DOMOutputSpec } from "@tiptap/pm/model";
 
 export type CustomInlineContentConfig = {
   type: string;
