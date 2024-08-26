@@ -45,6 +45,7 @@ test.describe("Check Text Alignment Functionality", () => {
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("Control+ArrowLeft");
+    await page.keyboard.press("Control+Shift+ArrowRight");
     await page.keyboard.press("Control+Shift+ArrowUp");
 
     await page.locator(ALIGN_TEXT_RIGHT_BUTTON_SELECTOR).click();
