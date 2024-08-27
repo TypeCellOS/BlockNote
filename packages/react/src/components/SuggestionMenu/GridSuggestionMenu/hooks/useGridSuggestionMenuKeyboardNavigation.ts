@@ -55,7 +55,7 @@ export function useGridSuggestionMenuKeyboardNavigation<Item>(
       if (event.key === "Enter") {
         event.preventDefault();
 
-        if (items.length) {
+        if (items.length && !event.isComposing) {
           onItemClick?.(items[selectedIndex]);
         }
 
