@@ -724,9 +724,16 @@ export class BlockNoteEditor<
         return true;
       }
 
+      // Fixed the block pos and size
+      // all block is wrapped with a blockContent wrapper
+      // and blockContent wrapper pos = inner block pos - 1
+      // blockContent wrapper end = inner block pos + nodeSize + 1
+      // need to add 1 to start and -1 to end
+      const end = pos + node.nodeSize - 1;
+      const start = pos + 1;
       if (
-        pos + node.nodeSize < this._tiptapEditor.state.selection.from ||
-        pos > this._tiptapEditor.state.selection.to
+        end <= this._tiptapEditor.state.selection.from ||
+        start >= this._tiptapEditor.state.selection.to
       ) {
         return true;
       }
