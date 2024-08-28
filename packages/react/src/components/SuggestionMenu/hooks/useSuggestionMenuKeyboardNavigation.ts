@@ -33,7 +33,7 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
         return true;
       }
 
-      if (event.key === "Enter") {
+      if (event.key === "Enter" && !event.isComposing) {
         event.preventDefault();
 
         if (items.length) {
