@@ -271,7 +271,7 @@ export class BlockNoteEditor<
     return new BlockNoteEditor<BSchema, ISchema, SSchema>(options);
   }
 
-  private constructor(
+  protected constructor(
     private readonly options: Partial<BlockNoteEditorOptions<any, any, any>>
   ) {
     const anyOpts = options as any;
