@@ -7,6 +7,7 @@ import { PartialBlock } from "../../../blocks/defaultBlocks";
 import { BlockSchema } from "../../../schema/blocks/types";
 import { InlineContentSchema } from "../../../schema/inlineContent/types";
 import { StyleSchema } from "../../../schema/styles/types";
+import { initializeESMDependencies } from "../../../util/esmDependencies";
 import { customBlocksTestCases } from "../../testUtil/cases/customBlocks";
 import { customInlineContentTestCases } from "../../testUtil/cases/customInlineContent";
 import { customStylesTestCases } from "../../testUtil/cases/customStyles";
@@ -44,6 +45,7 @@ async function convertToHTMLAndCompareSnapshots<
 
   expect(parsed).toStrictEqual(fullBlocks);
 
+  await initializeESMDependencies();
   // Create the "external" HTML, which is a cleaned up HTML representation, but lossy
   const exporter = createExternalHTMLExporter(editor.pmSchema, editor);
   const externalHTML = exporter.exportBlocks(blocks, {});
@@ -175,7 +177,7 @@ describe("Test ProseMirror fragment edge case conversion", () => {
       editor.replaceBlocks(editor.document, blocks);
     });
 
-    it("Selection within a block's children", () => {
+    it("Selection within a block's children", async () => {
       // Selection starts and ends within the first block's children.
       editor.dispatch(
         editor._tiptapEditor.state.tr.setSelection(
@@ -186,6 +188,7 @@ describe("Test ProseMirror fragment edge case conversion", () => {
       const copiedFragment =
         editor._tiptapEditor.state.selection.content().content;
 
+      await initializeESMDependencies();
       const exporter = createExternalHTMLExporter(editor.pmSchema, editor);
       const externalHTML = exporter.exportProseMirrorFragment(
         copiedFragment,
@@ -197,7 +200,7 @@ describe("Test ProseMirror fragment edge case conversion", () => {
       );
     });
 
-    it("Selection leaves a block's children", () => {
+    it("Selection leaves a block's children", async () => {
       // Selection starts and ends within the first block's children and ends
       // outside, at a shallower nesting level in the second block.
       editor.dispatch(
@@ -209,6 +212,7 @@ describe("Test ProseMirror fragment edge case conversion", () => {
       const copiedFragment =
         editor._tiptapEditor.state.selection.content().content;
 
+      await initializeESMDependencies();
       const exporter = createExternalHTMLExporter(editor.pmSchema, editor);
       const externalHTML = exporter.exportProseMirrorFragment(
         copiedFragment,
@@ -220,7 +224,7 @@ describe("Test ProseMirror fragment edge case conversion", () => {
       );
     });
 
-    it("Selection spans multiple blocks' children", () => {
+    it("Selection spans multiple blocks' children", async () => {
       // Selection starts and ends within the first block's children and ends
       // within the second block's children.
       editor.dispatch(
@@ -231,6 +235,7 @@ describe("Test ProseMirror fragment edge case conversion", () => {
 
       const copiedFragment =
         editor._tiptapEditor.state.selection.content().content;
+      await initializeESMDependencies();
       const exporter = createExternalHTMLExporter(editor.pmSchema, editor);
       const externalHTML = exporter.exportProseMirrorFragment(
         copiedFragment,

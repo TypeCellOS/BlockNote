@@ -12,6 +12,7 @@ import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { EventEmitter } from "../../util/EventEmitter";
+import { initializeESMDependencies } from "../../util/esmDependencies";
 import { MultipleNodeSelection } from "./MultipleNodeSelection";
 
 let dragImageElement: Element | undefined;
@@ -302,6 +303,7 @@ export class SideMenuView<
       "dragover",
       this.onDragOver as EventListener
     );
+    initializeESMDependencies();
     this.pmView.dom.addEventListener("dragstart", this.onDragStart);
 
     // Shows or updates menu position whenever the cursor moves, if the menu isn't frozen.

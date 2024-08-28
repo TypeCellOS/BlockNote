@@ -5,25 +5,26 @@ import { NodeSelection, Plugin } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
+import { initializeESMDependencies } from "../../util/esmDependencies";
 import { createExternalHTMLExporter } from "./html/externalHTMLExporter";
 import { createInternalHTMLSerializer } from "./html/internalHTMLSerializer";
 import { cleanHTMLToMarkdown } from "./markdown/markdownExporter";
 
-function selectedFragmentToHTML<
+async function selectedFragmentToHTML<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
   view: EditorView,
   editor: BlockNoteEditor<BSchema, I, S>
-): {
+): Promise<{
   internalHTML: string;
   externalHTML: string;
   plainText: string;
-} {
+}> {
   const selectedFragment = view.state.selection.content().content;
 
-  const internalHTMLSerializer = createInternalHTMLSerializer(
+  const internalHTMLSerializer = await createInternalHTMLSerializer(
     view.state.schema,
     editor
   );
@@ -32,6 +33,7 @@ function selectedFragmentToHTML<
     {}
   );
 
+  await initializeESMDependencies();
   const externalHTMLExporter = createExternalHTMLExporter(
     view.state.schema,
     editor
@@ -41,7 +43,7 @@ function selectedFragmentToHTML<
     {}
   );
 
-  const plainText = cleanHTMLToMarkdown(externalHTML);
+  const plainText = await cleanHTMLToMarkdown(externalHTML);
 
   return { internalHTML, externalHTML, plainText };
 }
@@ -83,15 +85,16 @@ export const createCopyToClipboardExtension = <
                   );
                 }
 
-                const { internalHTML, externalHTML, plainText } =
-                  selectedFragmentToHTML(view, editor);
+                (async () => {
+                  const { internalHTML, externalHTML, plainText } =
+                    await selectedFragmentToHTML(view, editor);
 
-                // TODO: Writing to other MIME types not working in Safari for
-                //  some reason.
-                event.clipboardData!.setData("blocknote/html", internalHTML);
-                event.clipboardData!.setData("text/html", externalHTML);
-                event.clipboardData!.setData("text/plain", plainText);
-
+                  // TODO: Writing to other MIME types not working in Safari for
+                  //  some reason.
+                  event.clipboardData!.setData("blocknote/html", internalHTML);
+                  event.clipboardData!.setData("text/html", externalHTML);
+                  event.clipboardData!.setData("text/plain", plainText);
+                })();
                 // Prevent default PM handler to be called
                 return true;
               },
@@ -125,15 +128,16 @@ export const createCopyToClipboardExtension = <
                 event.preventDefault();
                 event.dataTransfer!.clearData();
 
-                const { internalHTML, externalHTML, plainText } =
-                  selectedFragmentToHTML(view, editor);
+                (async () => {
+                  const { internalHTML, externalHTML, plainText } =
+                    await selectedFragmentToHTML(view, editor);
 
-                // TODO: Writing to other MIME types not working in Safari for
-                //  some reason.
-                event.dataTransfer!.setData("blocknote/html", internalHTML);
-                event.dataTransfer!.setData("text/html", externalHTML);
-                event.dataTransfer!.setData("text/plain", plainText);
-
+                  // TODO: Writing to other MIME types not working in Safari for
+                  //  some reason.
+                  event.dataTransfer!.setData("blocknote/html", internalHTML);
+                  event.dataTransfer!.setData("text/html", externalHTML);
+                  event.dataTransfer!.setData("text/plain", plainText);
+                })();
                 // Prevent default PM handler to be called
                 return true;
               },
