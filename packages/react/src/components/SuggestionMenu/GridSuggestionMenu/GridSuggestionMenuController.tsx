@@ -130,8 +130,7 @@ export function GridSuggestionMenuController<
   if (
     !isMounted ||
     !state ||
-    (state.show &&
-      state.fromUserInput &&
+    (state.fromUserInput &&
       minQueryLength &&
       (state.query.startsWith(" ") || state.query.length < minQueryLength))
   ) {
