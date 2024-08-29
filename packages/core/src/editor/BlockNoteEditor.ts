@@ -68,6 +68,7 @@ import { en } from "../i18n/locales";
 import { Transaction } from "@tiptap/pm/state";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer";
 import "../style.css";
+import { initializeESMDependencies } from "../util/esmDependencies";
 
 export type BlockNoteEditorOptions<
   BSchema extends BlockSchema,
@@ -271,7 +272,7 @@ export class BlockNoteEditor<
     return new BlockNoteEditor<BSchema, ISchema, SSchema>(options);
   }
 
-  private constructor(
+  protected constructor(
     private readonly options: Partial<BlockNoteEditorOptions<any, any, any>>
   ) {
     const anyOpts = options as any;
@@ -402,6 +403,10 @@ export class BlockNoteEditor<
       editorProps: {
         ...newOptions._tiptapOptions?.editorProps,
         attributes: {
+          // As of TipTap v2.5.0 the tabIndex is removed when the editor is not
+          // editable, so you can't focus it. We want to revert this as we have
+          // UI behaviour that relies on it.
+          tabIndex: "0",
           ...newOptions._tiptapOptions?.editorProps?.attributes,
           ...newOptions.domAttributes?.editor,
           class: mergeCSSClasses(
@@ -719,9 +724,16 @@ export class BlockNoteEditor<
         return true;
       }
 
+      // Fixed the block pos and size
+      // all block is wrapped with a blockContent wrapper
+      // and blockContent wrapper pos = inner block pos - 1
+      // blockContent wrapper end = inner block pos + nodeSize + 1
+      // need to add 1 to start and -1 to end
+      const end = pos + node.nodeSize - 1;
+      const start = pos + 1;
       if (
-        pos + node.nodeSize < this._tiptapEditor.state.selection.from ||
-        pos > this._tiptapEditor.state.selection.to
+        end <= this._tiptapEditor.state.selection.from ||
+        start >= this._tiptapEditor.state.selection.to
       ) {
         return true;
       }
@@ -1016,6 +1028,7 @@ export class BlockNoteEditor<
   public async blocksToHTMLLossy(
     blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.document
   ): Promise<string> {
+    await initializeESMDependencies();
     const exporter = createExternalHTMLExporter(this.pmSchema, this);
     return exporter.exportBlocks(blocks, {});
   }

@@ -21,7 +21,7 @@ test.describe("Check Text Alignment Functionality", () => {
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("Control+ArrowLeft");
-    await page.keyboard.press("Control+Shift+ArrowRight");
+    await page.keyboard.press("Control+Shift+ArrowDown");
 
     await page.locator(ALIGN_TEXT_RIGHT_BUTTON_SELECTOR).click();
     await page.waitForTimeout(350);
@@ -44,8 +44,10 @@ test.describe("Check Text Alignment Functionality", () => {
 
     await page.keyboard.press("ArrowUp");
     await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
     await page.keyboard.press("Control+ArrowLeft");
-    await page.keyboard.press("Control+Shift+ArrowUp");
+    await page.keyboard.press("Control+Shift+ArrowDown");
+    await page.keyboard.press("Control+Shift+ArrowDown");
 
     await page.locator(ALIGN_TEXT_RIGHT_BUTTON_SELECTOR).click();
     await page.waitForTimeout(350);
@@ -54,6 +56,7 @@ test.describe("Check Text Alignment Functionality", () => {
     // Waits for formatting toolbar animation to finish.
     await page.waitForTimeout(500);
     await page.keyboard.press("ArrowLeft");
+    await page.pause();
 
     expect(await page.screenshot()).toMatchSnapshot(
       "alignTextMultipleBlocks.png"

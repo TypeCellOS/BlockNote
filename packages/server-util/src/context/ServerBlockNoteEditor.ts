@@ -13,8 +13,10 @@ import {
   blocksToMarkdown,
   createExternalHTMLExporter,
   createInternalHTMLSerializer,
+  initializeESMDependencies,
   nodeToBlock,
 } from "@blocknote/core";
+
 import { BlockNoteViewRaw } from "@blocknote/react";
 import { Node } from "@tiptap/pm/model";
 import * as jsdom from "jsdom";
@@ -222,6 +224,7 @@ export class ServerBlockNoteEditor<
     blocks: PartialBlock<BSchema, ISchema, SSchema>[]
   ): Promise<string> {
     return this._withJSDOM(async () => {
+      await initializeESMDependencies();
       const exporter = createExternalHTMLExporter(
         this.editor.pmSchema,
         this.editor
