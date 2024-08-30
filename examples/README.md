@@ -1,6 +1,6 @@
 # Examples
 
-Here, we collect a number of examples using BlockNote. You can run the examples via the Playground (`npm start` or [playground.blocknotejs.org](https://playground.blocknotejs.org/)).
+Here, we collect a number of examples using BlockNote. You can run the examples via the Playground (`npm start` or [online version](https://blocknote-main.vercel.app/)).
 
 ### (contributors) Adding examples
 
