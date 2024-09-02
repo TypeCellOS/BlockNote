@@ -11,7 +11,7 @@ const findBlock = findParentNode((node) => node.type.name === "blockContainer");
 
 export type SuggestionMenuState = UiElementPosition & {
   query: string;
-  fromUserInput?: boolean;
+  payload?: Record<string, unknown>;
 };
 
 class SuggestionMenuView<
@@ -37,7 +37,7 @@ class SuggestionMenuView<
 
       emitUpdate(menuName, {
         ...this.state,
-        fromUserInput: Boolean(this.pluginState?.fromUserInput),
+        payload: this.pluginState?.payload,
       });
     };
 
@@ -140,6 +140,7 @@ type SuggestionPluginState =
       queryStartPos: number;
       query: string;
       decorationId: string;
+      payload?: Record<string, unknown>;
     }
   | undefined;
 
@@ -199,6 +200,7 @@ export class SuggestionMenuProseMirrorPlugin<
           const suggestionPluginTransactionMeta: {
             triggerCharacter: string;
             fromUserInput?: boolean;
+            payload?: Record<string, unknown>;
           } | null = transaction.getMeta(suggestionMenuPluginKey);
 
           // Only opens a menu of no menu is already open
@@ -215,6 +217,7 @@ export class SuggestionMenuProseMirrorPlugin<
               queryStartPos: newState.selection.from,
               query: "",
               decorationId: `id_${Math.floor(Math.random() * 0xffffffff)}`,
+              payload: suggestionPluginTransactionMeta?.payload,
             };
           }
 
