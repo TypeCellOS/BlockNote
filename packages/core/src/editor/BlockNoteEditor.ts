@@ -1159,7 +1159,7 @@ export class BlockNoteEditor<
     };
   }
 
-  public openSelectionMenu(triggerCharacter: string) {
+  public openSuggestionMenu(triggerCharacter: string) {
     this.prosemirrorView.focus();
     this.prosemirrorView.dispatch(
       this.prosemirrorView.state.tr
