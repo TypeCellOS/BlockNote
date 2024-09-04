@@ -664,7 +664,7 @@ export class SideMenuView<
     }
 
     // Focuses and activates the slash menu.
-    this.editor.openSelectionMenu("/");
+    this.editor.openSuggestionMenu("/");
   }
 }
 
