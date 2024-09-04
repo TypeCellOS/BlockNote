@@ -50,7 +50,10 @@ class SuggestionMenuView<
       const decorationNode = this.rootEl?.querySelector(
         `[data-decoration-id="${this.pluginState!.decorationId}"]`
       );
-      this.state.referencePos = decorationNode!.getBoundingClientRect();
+      if (!decorationNode) {
+        return;
+      }
+      this.state.referencePos = decorationNode.getBoundingClientRect();
       this.emitUpdate(this.pluginState!.triggerCharacter!);
     }
   };
@@ -85,10 +88,10 @@ class SuggestionMenuView<
       `[data-decoration-id="${this.pluginState!.decorationId}"]`
     );
 
-    if (this.editor.isEditable) {
+    if (this.editor.isEditable && decorationNode) {
       this.state = {
         show: true,
-        referencePos: decorationNode!.getBoundingClientRect(),
+        referencePos: decorationNode.getBoundingClientRect(),
         query: this.pluginState!.query,
       };
 
