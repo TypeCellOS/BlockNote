@@ -87,7 +87,9 @@ export class ServerBlockNoteEditor<
     >;
   }
 
-  private constructor(options: Partial<BlockNoteEditorOptions<any, any, any>>) {
+  protected constructor(
+    options: Partial<BlockNoteEditorOptions<any, any, any>>
+  ) {
     this.editor = BlockNoteEditor.create({
       ...options,
       _headless: true,
