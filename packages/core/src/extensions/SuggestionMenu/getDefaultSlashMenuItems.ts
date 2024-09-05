@@ -274,8 +274,8 @@ export function getDefaultSlashMenuItems<
   items.push({
     onItemClick: () => {
       editor.openSelectionMenu(":", {
-        fromUserInput: true,
-        payload: { ignoreQueryLength: true },
+        deleteTriggerCharacter: true,
+        ignoreQueryLength: true,
       });
     },
     key: "emoji",

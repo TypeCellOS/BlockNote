@@ -1146,11 +1146,14 @@ export class BlockNoteEditor<
 
   public openSelectionMenu(
     triggerCharacter: string,
-    pluginState?: { fromUserInput: boolean; payload: Record<string, unknown> }
+    pluginState?: {
+      deleteTriggerCharacter?: boolean;
+      ignoreQueryLength?: boolean;
+    }
   ) {
     const tr = this.prosemirrorView.state.tr;
     const transaction =
-      pluginState && pluginState.fromUserInput
+      pluginState && pluginState.deleteTriggerCharacter
         ? tr.insertText(triggerCharacter)
         : tr;
 
@@ -1158,8 +1161,8 @@ export class BlockNoteEditor<
     this.prosemirrorView.dispatch(
       transaction.scrollIntoView().setMeta(this.suggestionMenus.plugin, {
         triggerCharacter: triggerCharacter,
-        fromUserInput: pluginState?.fromUserInput || false,
-        payload: pluginState?.payload,
+        deleteTriggerCharacter: pluginState?.deleteTriggerCharacter || false,
+        ignoreQueryLength: pluginState?.ignoreQueryLength || false,
       })
     );
   }
