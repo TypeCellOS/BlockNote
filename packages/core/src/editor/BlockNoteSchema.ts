@@ -92,6 +92,7 @@ export class BlockNoteSchema<
     blockSpecs?: BlockSpecs;
     inlineContentSpecs?: InlineContentSpecs;
     styleSpecs?: StyleSpecs;
+    blocks?: JSX.Element;
   }) {
     this.blockSpecs = removeUndefined(opts?.blockSpecs) || defaultBlockSpecs;
     this.inlineContentSpecs =

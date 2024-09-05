@@ -67,6 +67,7 @@ export const Alert = createReactBlockSpec(
       const alertType = alertTypes.find(
         (a) => a.value === props.block.props.type
       )!;
+
       const Icon = alertType.icon;
       return (
         <div className={"alert"} data-alert-type={props.block.props.type}>
@@ -116,3 +117,29 @@ export const Alert = createReactBlockSpec(
     },
   }
 );
+
+function InputBlock() {
+  const [text, setText] = useBlockState("text", "string");
+
+  return block(
+    <div>
+      <input type="text" placeholder="Type here..." />
+    </div>,
+
+    { state: { text } }
+  );
+}
+
+createReactBlockSpec({});
+
+export default function AppWithBlocks() {
+  // Creates a new editor instance.
+  const editor = useCreateBlockNote();
+
+  // Renders the editor instance using a React component.
+  return (
+    <BlockNoteView editor={editor}>
+      <InputBlock />
+    </BlockNoteView>
+  );
+}
