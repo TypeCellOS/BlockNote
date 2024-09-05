@@ -12,6 +12,7 @@ import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { EventEmitter } from "../../util/EventEmitter";
+import { initializeESMDependencies } from "../../util/esmDependencies";
 import { MultipleNodeSelection } from "./MultipleNodeSelection";
 
 let dragImageElement: Element | undefined;
@@ -33,11 +34,11 @@ export function getDraggableBlockFromElement(
     element &&
     element.parentElement &&
     element.parentElement !== view.dom &&
-    !element.hasAttribute?.("data-id")
+    element.getAttribute?.("data-node-type") !== "blockContainer"
   ) {
     element = element.parentElement;
   }
-  if (!element.hasAttribute("data-id")) {
+  if (element.getAttribute?.("data-node-type") !== "blockContainer") {
     return undefined;
   }
   return { node: element as HTMLElement, id: element.getAttribute("data-id")! };
@@ -302,6 +303,7 @@ export class SideMenuView<
       "dragover",
       this.onDragOver as EventListener
     );
+    initializeESMDependencies();
     this.pmView.dom.addEventListener("dragstart", this.onDragStart);
 
     // Shows or updates menu position whenever the cursor moves, if the menu isn't frozen.
@@ -662,7 +664,7 @@ export class SideMenuView<
     }
 
     // Focuses and activates the slash menu.
-    this.editor.openSelectionMenu("/");
+    this.editor.openSuggestionMenu("/");
   }
 }
 

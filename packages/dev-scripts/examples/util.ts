@@ -1,8 +1,9 @@
 import glob from "fast-glob";
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const dir = path.parse(import.meta.url.replace("file://", "")).dir;
+const dir = path.parse(fileURLToPath(import.meta.url)).dir;
 
 export type Project = {
   /**
@@ -114,7 +115,7 @@ export type Files = Record<
 
 export function getProjectFiles(project: Project): Files {
   const dir = path.resolve("../../", project.pathFromRoot);
-  const files = glob.globSync(dir + "/**/*", {
+  const files = glob.globSync(replacePathSepToSlash(dir + "/**/*"), {
     ignore: ["**/node_modules/**/*", "**/dist/**/*"],
   });
   const passedFiles = Object.fromEntries(
@@ -140,7 +141,11 @@ export function getProjectFiles(project: Project): Files {
  */
 export function getExampleProjects(): Project[] {
   const examples: Project[] = glob
-    .globSync(path.join(dir, "../../../examples/**/*/.bnexample.json"))
+    .globSync(
+      replacePathSepToSlash(
+        path.join(dir, "../../../examples/**/*/.bnexample.json")
+      )
+    )
     .map((configPath) => {
       const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
       const directory = path.dirname(configPath);
@@ -162,9 +167,8 @@ export function getExampleProjects(): Project[] {
         .split(path.sep);
 
       const group = {
-        pathFromRoot: path.relative(
-          path.resolve("../../"),
-          path.join(directory, "..")
+        pathFromRoot: replacePathSepToSlash(
+          path.relative(path.resolve("../../"), path.join(directory, ".."))
         ),
         // remove optional 01- prefix
         slug: groupDir.replace(/^\d{2}-/, ""),
@@ -174,7 +178,9 @@ export function getExampleProjects(): Project[] {
       const project = {
         projectSlug,
         fullSlug: `${group.slug}/${projectSlug}`,
-        pathFromRoot: path.relative(path.resolve("../../"), directory),
+        pathFromRoot: replacePathSepToSlash(
+          path.relative(path.resolve("../../"), directory)
+        ),
         config,
         title,
         group,
@@ -195,4 +201,14 @@ export function getExampleProjects(): Project[] {
   //   return 0;
   // });
   return examples;
+}
+
+export function replacePathSepToSlash(path: string) {
+  const isExtendedLengthPath = path.startsWith("\\\\?\\");
+
+  if (isExtendedLengthPath) {
+    return path;
+  }
+
+  return path.replace(/\\/g, "/");
 }

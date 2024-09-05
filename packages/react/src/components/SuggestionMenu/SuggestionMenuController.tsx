@@ -5,7 +5,7 @@ import {
   SuggestionMenuState,
   filterSuggestionItems,
 } from "@blocknote/core";
-import { flip, offset, size } from "@floating-ui/react";
+import { flip, offset, shift, size } from "@floating-ui/react";
 import { FC, useCallback, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
@@ -106,11 +106,15 @@ export function SuggestionMenuController<
         offset(10),
         // Flips the menu placement to maximize the space available, and prevents
         // the menu from being cut off by the confines of the screen.
-        flip(),
+        flip({
+          mainAxis: true,
+          crossAxis: false,
+        }),
+        shift(),
         size({
           apply({ availableHeight, elements }) {
             Object.assign(elements.floating.style, {
-              height: `${availableHeight - 10}px`,
+              maxHeight: `${availableHeight - 10}px`,
             });
           },
         }),

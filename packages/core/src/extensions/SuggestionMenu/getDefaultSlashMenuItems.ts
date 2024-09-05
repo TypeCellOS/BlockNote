@@ -273,7 +273,7 @@ export function getDefaultSlashMenuItems<
 
   items.push({
     onItemClick: () => {
-      editor.openSelectionMenu(":", {
+      editor.openSuggestionMenu(":", {
         deleteTriggerCharacter: true,
         ignoreQueryLength: true,
       });

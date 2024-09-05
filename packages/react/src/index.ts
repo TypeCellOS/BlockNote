@@ -16,8 +16,12 @@ export * from "./components/FormattingToolbar/DefaultButtons/BasicTextStyleButto
 export * from "./components/FormattingToolbar/DefaultButtons/ColorStyleButton";
 export * from "./components/FormattingToolbar/DefaultButtons/CreateLinkButton";
 export * from "./components/FormattingToolbar/DefaultButtons/FileCaptionButton";
-export * from "./components/FormattingToolbar/DefaultButtons/NestBlockButtons";
+export * from "./components/FormattingToolbar/DefaultButtons/FileDeleteButton";
+export * from "./components/FormattingToolbar/DefaultButtons/FileDownloadButton";
+export * from "./components/FormattingToolbar/DefaultButtons/FilePreviewButton";
+export * from "./components/FormattingToolbar/DefaultButtons/FileRenameButton";
 export * from "./components/FormattingToolbar/DefaultButtons/FileReplaceButton";
+export * from "./components/FormattingToolbar/DefaultButtons/NestBlockButtons";
 export * from "./components/FormattingToolbar/DefaultButtons/TextAlignButton";
 export * from "./components/FormattingToolbar/DefaultSelects/BlockTypeSelect";
 export * from "./components/FormattingToolbar/FormattingToolbar";

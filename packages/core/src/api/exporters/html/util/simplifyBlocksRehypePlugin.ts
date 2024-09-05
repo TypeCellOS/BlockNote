@@ -1,5 +1,5 @@
 import { Element as HASTElement, Parent as HASTParent } from "hast";
-import { fromDom } from "hast-util-from-dom";
+import { esmDependencies } from "../../../../util/esmDependencies";
 
 type SimplifyBlocksOptions = {
   orderedListItemBlockTypes: Set<string>;
@@ -16,6 +16,14 @@ type SimplifyBlocksOptions = {
  * @param options Options for specifying which block types represent ordered and unordered list items.
  */
 export function simplifyBlocks(options: SimplifyBlocksOptions) {
+  const deps = esmDependencies;
+
+  if (!deps) {
+    throw new Error(
+      "simplifyBlocks requires ESM dependencies to be initialized"
+    );
+  }
+
   const listItemBlockTypes = new Set<string>([
     ...options.orderedListItemBlockTypes,
     ...options.unorderedListItemBlockTypes,
@@ -110,13 +118,13 @@ export function simplifyBlocks(options: SimplifyBlocksOptions) {
         // type as this was already done earlier.
         if (!activeList) {
           // Creates a new list element to represent an active list.
-          activeList = fromDom(
+          activeList = deps.hastUtilFromDom.fromDom(
             document.createElement(listItemBlockType!)
           ) as HASTElement;
         }
 
         // Creates a new list item element to represent the block.
-        const listItemElement = fromDom(
+        const listItemElement = deps.hastUtilFromDom.fromDom(
           document.createElement("li")
         ) as HASTElement;
 
