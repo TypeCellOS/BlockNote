@@ -49,7 +49,7 @@ export const imageBlockConfig = {
   propSchema: imagePropSchema,
   content: "none",
   isFileBlock: true,
-  fileBlockAcceptMimeTypes: ["image/*"],
+  fileBlockAccept: ["image/*"],
 } satisfies FileBlockConfig;
 
 export const imageRender = (
