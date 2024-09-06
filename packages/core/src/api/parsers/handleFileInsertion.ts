@@ -82,7 +82,7 @@ export async function handleFileInsertion<
     // Gets file block corresponding to MIME type.
     let fileBlockType = "file";
     for (const fileBlockConfig of fileBlockConfigs) {
-      for (const mimeType of fileBlockConfig.fileBlockAcceptMimeTypes || []) {
+      for (const mimeType of fileBlockConfig.fileBlockAccept || []) {
         const isFileExtension = mimeType.startsWith(".");
         const file = items[i].getAsFile();
 
@@ -93,7 +93,7 @@ export async function handleFileInsertion<
               checkMIMETypesMatch(items[i].type, mimeType)) ||
             (isFileExtension &&
               checkFileExtensionsMatch(
-                "." + items[i].getAsFile()!.name.split(".").pop(),
+                "." + file.name.split(".").pop(),
                 mimeType
               ))
           ) {
