@@ -158,6 +158,8 @@ export type CellContent<
 > = {
   content: InlineContent<I, T>[];
   width?: number;
+  colspan?: number;
+  rowspan?: number;
 };
 
 // A BlockConfig has all the information to get the type of a Block (which is a specific instance of the BlockConfig.
@@ -241,6 +243,8 @@ export type PartialCellContent<
 > = {
   content: PartialInlineContent<I, T>;
   width?: number;
+  colspan?: number;
+  rowspan?: number;
 };
 
 type PartialBlockFromConfigNoChildren<

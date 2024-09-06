@@ -186,7 +186,11 @@ export function tableContentToNodes<
       }
 
       const cellNode = schema.nodes["tableCell"].create(
-        { colwidth: [cell.width] || null },
+        {
+          colwidth: [cell.width] || null,
+          colspan: cell.colspan || 1, 
+          rowspan: cell.rowspan || 1
+        },
         pNode
       );
       columnNodes.push(cellNode);
@@ -299,6 +303,8 @@ function contentNodeToTableContent<
           cellNode.attrs.colwidth !== null
             ? cellNode.attrs.colwidth[0]
             : undefined,
+          colspan: cellNode.attrs.colspan || 1,
+          rowspan: cellNode.attrs.rowspan || 1
       });
     });
 
