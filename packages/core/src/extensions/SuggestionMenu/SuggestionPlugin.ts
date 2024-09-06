@@ -11,6 +11,7 @@ const findBlock = findParentNode((node) => node.type.name === "blockContainer");
 
 export type SuggestionMenuState = UiElementPosition & {
   query: string;
+  ignoreQueryLength?: boolean;
 };
 
 class SuggestionMenuView<
@@ -34,7 +35,10 @@ class SuggestionMenuView<
         throw new Error("Attempting to update uninitialized suggestions menu");
       }
 
-      emitUpdate(menuName, this.state);
+      emitUpdate(menuName, {
+        ...this.state,
+        ignoreQueryLength: this.pluginState?.ignoreQueryLength,
+      });
     };
 
     this.rootEl = this.editor._tiptapEditor.view.root;
@@ -120,7 +124,7 @@ class SuggestionMenuView<
       .deleteRange({
         from:
           this.pluginState.queryStartPos! -
-          (this.pluginState.fromUserInput
+          (this.pluginState.deleteTriggerCharacter
             ? this.pluginState.triggerCharacter!.length
             : 0),
         to: this.editor._tiptapEditor.state.selection.from,
@@ -132,10 +136,11 @@ class SuggestionMenuView<
 type SuggestionPluginState =
   | {
       triggerCharacter: string;
-      fromUserInput: boolean;
+      deleteTriggerCharacter: boolean;
       queryStartPos: number;
       query: string;
       decorationId: string;
+      ignoreQueryLength?: boolean;
     }
   | undefined;
 
@@ -194,7 +199,8 @@ export class SuggestionMenuProseMirrorPlugin<
           // or null if it should be hidden.
           const suggestionPluginTransactionMeta: {
             triggerCharacter: string;
-            fromUserInput?: boolean;
+            deleteTriggerCharacter?: boolean;
+            ignoreQueryLength?: boolean;
           } | null = transaction.getMeta(suggestionMenuPluginKey);
 
           // Only opens a menu of no menu is already open
@@ -206,11 +212,14 @@ export class SuggestionMenuProseMirrorPlugin<
             return {
               triggerCharacter:
                 suggestionPluginTransactionMeta.triggerCharacter,
-              fromUserInput:
-                suggestionPluginTransactionMeta.fromUserInput !== false,
+              deleteTriggerCharacter:
+                suggestionPluginTransactionMeta.deleteTriggerCharacter !==
+                false,
               queryStartPos: newState.selection.from,
               query: "",
               decorationId: `id_${Math.floor(Math.random() * 0xffffffff)}`,
+              ignoreQueryLength:
+                suggestionPluginTransactionMeta?.ignoreQueryLength,
             };
           }
 
@@ -285,7 +294,7 @@ export class SuggestionMenuProseMirrorPlugin<
 
           // If the menu was opened programmatically by another extension, it may not use a trigger character. In this
           // case, the decoration is set on the whole block instead, as the decoration range would otherwise be empty.
-          if (!suggestionPluginState.fromUserInput) {
+          if (!suggestionPluginState.deleteTriggerCharacter) {
             const blockNode = findBlock(state.selection);
             if (blockNode) {
               return DecorationSet.create(state.doc, [

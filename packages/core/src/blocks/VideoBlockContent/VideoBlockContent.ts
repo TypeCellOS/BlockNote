@@ -49,7 +49,7 @@ export const videoBlockConfig = {
   propSchema: videoPropSchema,
   content: "none",
   isFileBlock: true,
-  fileBlockAcceptMimeTypes: ["video/*"],
+  fileBlockAccept: ["video/*"],
 } satisfies FileBlockConfig;
 
 export const videoRender = (

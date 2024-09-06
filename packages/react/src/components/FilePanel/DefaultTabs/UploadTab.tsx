@@ -76,8 +76,8 @@ export const UploadTab = <
 
   const config = editor.schema.blockSchema[block.type];
   const accept =
-    config.isFileBlock && config.fileBlockAcceptMimeTypes?.length
-      ? config.fileBlockAcceptMimeTypes.join(",")
+    config.isFileBlock && config.fileBlockAccept?.length
+      ? config.fileBlockAccept.join(",")
       : "*/*";
 
   return (

@@ -1159,15 +1159,26 @@ export class BlockNoteEditor<
     };
   }
 
-  public openSelectionMenu(triggerCharacter: string) {
+  public openSuggestionMenu(
+    triggerCharacter: string,
+    pluginState?: {
+      deleteTriggerCharacter?: boolean;
+      ignoreQueryLength?: boolean;
+    }
+  ) {
+    const tr = this.prosemirrorView.state.tr;
+    const transaction =
+      pluginState && pluginState.deleteTriggerCharacter
+        ? tr.insertText(triggerCharacter)
+        : tr;
+
     this.prosemirrorView.focus();
     this.prosemirrorView.dispatch(
-      this.prosemirrorView.state.tr
-        .scrollIntoView()
-        .setMeta(this.suggestionMenus.plugin, {
-          triggerCharacter: triggerCharacter,
-          fromUserInput: false,
-        })
+      transaction.scrollIntoView().setMeta(this.suggestionMenus.plugin, {
+        triggerCharacter: triggerCharacter,
+        deleteTriggerCharacter: pluginState?.deleteTriggerCharacter || false,
+        ignoreQueryLength: pluginState?.ignoreQueryLength || false,
+      })
     );
   }
 }
