@@ -12,6 +12,7 @@ import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useSelectedBlocks } from "../../../hooks/useSelectedBlocks";
 import { useDictionary } from "../../../i18n/dictionary";
+import { sanitizeUrl } from "../../../util/sanitizeUrl";
 
 export const FileDownloadButton = () => {
   const dict = useDictionary();
@@ -45,7 +46,9 @@ export const FileDownloadButton = () => {
       editor.focus();
       editor
         .resolveFileUrl(fileBlock.props.url)
-        .then((downloadUrl) => window.open(downloadUrl));
+        .then((downloadUrl) =>
+          window.open(sanitizeUrl(downloadUrl, window.location.href))
+        );
     }
   }, [editor, fileBlock]);
 
