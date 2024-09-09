@@ -12,7 +12,7 @@ import {
   usePrefersColorScheme,
 } from "@blocknote/react";
 import { MantineProvider } from "@mantine/core";
-import { ComponentProps, FC, useCallback } from "react";
+import { ComponentProps, useCallback } from "react";
 
 import {
   Theme,
@@ -130,9 +130,6 @@ export const BlockNoteView = <
           light: Theme;
           dark: Theme;
         };
-    viewComponent?: FC<
-      ComponentProps<typeof BlockNoteViewRaw<BSchema, ISchema, SSchema>>
-    >;
   }
 ) => {
   const { className, theme, ...rest } = props;
@@ -167,8 +164,6 @@ export const BlockNoteView = <
     [defaultColorScheme, theme]
   );
 
-  const ViewComponent = props.viewComponent || BlockNoteViewRaw;
-
   return (
     <ComponentsContext.Provider value={components}>
       {/* `cssVariablesSelector` scopes Mantine CSS variables to only the editor, */}
@@ -180,7 +175,7 @@ export const BlockNoteView = <
         // don't need this attribute (we use our own theming API), we return
         // undefined here.
         getRootElement={() => undefined}>
-        <ViewComponent
+        <BlockNoteViewRaw
           className={mergeCSSClasses("bn-mantine", className || "")}
           theme={typeof theme === "object" ? undefined : theme}
           {...rest}

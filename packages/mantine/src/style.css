@@ -178,6 +178,7 @@
   border: none;
   color: var(--bn-colors-disabled-text);
 }
+
 .bn-toolbar .mantine-Menu-item {
   font-size: 12px;
   height: 30px;
