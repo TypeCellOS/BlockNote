@@ -8,7 +8,7 @@ export function sanitizeUrl(inputUrl: string, baseUrl: string): string {
   try {
     const url = new URL(inputUrl, baseUrl);
 
-    // check if the protocol is safe to prevent XSS
+    // eslint-disable-next-line no-script-url -- false positive, we are explicitly checking if the protocol is safe to prevent XSS
     if (url.protocol !== "javascript:") {
       return url.href;
     }
