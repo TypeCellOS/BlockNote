@@ -273,7 +273,7 @@ export class BlockNoteEditor<
   }
 
   protected constructor(
-    private readonly options: Partial<BlockNoteEditorOptions<any, any, any>>
+    protected readonly options: Partial<BlockNoteEditorOptions<any, any, any>>
   ) {
     const anyOpts = options as any;
     if (anyOpts.onEditorContentChange) {
