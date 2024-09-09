@@ -332,6 +332,7 @@ export const vi: Dictionary = {
   },
   ai_block_toolbar: {
     show_prompt: "Show prompt",
+    show_prompt_datetime_tooltip: "Generated:",
     update: "Update",
     updating: "Updating…",
   },

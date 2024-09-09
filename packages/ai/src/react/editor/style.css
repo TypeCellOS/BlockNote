@@ -1,0 +1,3 @@
+.bn-side-menu[data-block-type="ai"]:not([data-prompt]) {
+    height: 58px;
+}

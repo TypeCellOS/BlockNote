@@ -1,9 +1,8 @@
 import * as locales from "./i18n/locales";
+export * from "./api/getBlockInfoFromPos";
 export * from "./api/exporters/html/externalHTMLExporter";
 export * from "./api/exporters/html/internalHTMLSerializer";
 export * from "./api/testUtil";
-export * from "./blocks/AIBlockContent/AIBlockContent";
-export * from "./blocks/AIBlockContent/mockAIFunctions";
 export * from "./blocks/AudioBlockContent/AudioBlockContent";
 export * from "./blocks/FileBlockContent/FileBlockContent";
 export * from "./blocks/ImageBlockContent/ImageBlockContent";
@@ -33,6 +32,7 @@ export * from "./extensions/TableHandles/TableHandlesPlugin";
 export * from "./i18n/dictionary";
 export * from "./schema";
 export * from "./util/browser";
+export * from "./util/EventEmitter";
 export * from "./util/string";
 export * from "./util/typescript";
 export { UnreachableCaseError, assertEmpty } from "./util/typescript";

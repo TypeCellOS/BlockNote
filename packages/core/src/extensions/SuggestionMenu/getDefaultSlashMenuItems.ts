@@ -91,7 +91,7 @@ export function getDefaultSlashMenuItems<
           });
         },
         badge: formatKeyboardShortcut("Mod-Alt-1"),
-        key: "heading",
+        dictKey: "heading",
         ...editor.dictionary.slash_menu.heading,
       },
       {
@@ -102,7 +102,7 @@ export function getDefaultSlashMenuItems<
           });
         },
         badge: formatKeyboardShortcut("Mod-Alt-2"),
-        key: "heading_2",
+        dictKey: "heading_2",
         ...editor.dictionary.slash_menu.heading_2,
       },
       {
@@ -113,7 +113,7 @@ export function getDefaultSlashMenuItems<
           });
         },
         badge: formatKeyboardShortcut("Mod-Alt-3"),
-        key: "heading_3",
+        dictKey: "heading_3",
         ...editor.dictionary.slash_menu.heading_3,
       }
     );
@@ -127,7 +127,7 @@ export function getDefaultSlashMenuItems<
         });
       },
       badge: formatKeyboardShortcut("Mod-Shift-7"),
-      key: "numbered_list",
+      dictKey: "numbered_list",
       ...editor.dictionary.slash_menu.numbered_list,
     });
   }
@@ -140,7 +140,7 @@ export function getDefaultSlashMenuItems<
         });
       },
       badge: formatKeyboardShortcut("Mod-Shift-8"),
-      key: "bullet_list",
+      dictKey: "bullet_list",
       ...editor.dictionary.slash_menu.bullet_list,
     });
   }
@@ -153,7 +153,7 @@ export function getDefaultSlashMenuItems<
         });
       },
       badge: formatKeyboardShortcut("Mod-Shift-9"),
-      key: "check_list",
+      dictKey: "check_list",
       ...editor.dictionary.slash_menu.check_list,
     });
   }
@@ -166,7 +166,7 @@ export function getDefaultSlashMenuItems<
         });
       },
       badge: formatKeyboardShortcut("Mod-Alt-0"),
-      key: "paragraph",
+      dictKey: "paragraph",
       ...editor.dictionary.slash_menu.paragraph,
     });
   }
@@ -190,7 +190,7 @@ export function getDefaultSlashMenuItems<
         });
       },
       badge: undefined,
-      key: "table",
+      dictKey: "table",
       ...editor.dictionary.slash_menu.table,
     });
   }
@@ -209,7 +209,7 @@ export function getDefaultSlashMenuItems<
           })
         );
       },
-      key: "image",
+      dictKey: "image",
       ...editor.dictionary.slash_menu.image,
     });
   }
@@ -228,7 +228,7 @@ export function getDefaultSlashMenuItems<
           })
         );
       },
-      key: "video",
+      dictKey: "video",
       ...editor.dictionary.slash_menu.video,
     });
   }
@@ -247,7 +247,7 @@ export function getDefaultSlashMenuItems<
           })
         );
       },
-      key: "audio",
+      dictKey: "audio",
       ...editor.dictionary.slash_menu.audio,
     });
   }
@@ -266,32 +266,14 @@ export function getDefaultSlashMenuItems<
           })
         );
       },
-      key: "image",
+      dictKey: "image",
       ...editor.dictionary.slash_menu.file,
     });
   }
 
-  if (checkDefaultBlockTypeInSchema("ai", editor)) {
-    items.push({
-      onItemClick: () => {
-        insertOrUpdateBlock(editor, {
-          type: "ai",
-        });
-      },
-      key: "ai_block",
-      ...editor.dictionary.slash_menu.ai_block,
-    });
-  }
-
-  items.push({
-    onItemClick: () => editor.openSelectionMenu("`"),
-    key: "ai",
-    ...editor.dictionary.slash_menu.ai,
-  });
-
   items.push({
     onItemClick: () => editor.openSelectionMenu(":"),
-    key: "emoji",
+    dictKey: "emoji",
     ...editor.dictionary.slash_menu.emoji,
   });
 

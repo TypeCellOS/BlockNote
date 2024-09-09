@@ -14,7 +14,6 @@ import {
   RiListCheck3,
   RiListOrdered,
   RiListUnordered,
-  RiSparkling2Fill,
   RiText,
 } from "react-icons/ri";
 
@@ -93,12 +92,6 @@ export const blockTypeSelectItems = (
     type: "checkListItem",
     icon: RiListCheck3,
     isSelected: (block) => block.type === "checkListItem",
-  },
-  {
-    name: dict.slash_menu.ai_block.title,
-    type: "ai",
-    icon: RiSparkling2Fill,
-    isSelected: (block) => block.type === "ai",
   },
 ];
 

@@ -71,6 +71,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
               }
             }}
             onClick={onClick}
+            leftSection={icon}
             aria-pressed={isSelected}
             data-selected={isSelected || undefined}
             data-test={

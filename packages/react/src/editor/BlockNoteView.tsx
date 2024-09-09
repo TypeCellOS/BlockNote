@@ -64,7 +64,7 @@ export type BlockNoteViewProps<
 > &
   BlockNoteDefaultUIProps;
 
-function BlockNoteViewComponent<
+export function BlockNoteViewComponent<
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema

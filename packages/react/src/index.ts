@@ -82,6 +82,8 @@ export * from "./hooks/useEditorForceUpdate";
 export * from "./hooks/useEditorSelectionChange";
 export * from "./hooks/usePrefersColorScheme";
 export * from "./hooks/useSelectedBlocks";
+export * from "./hooks/useUIElementPositioning";
+export * from "./hooks/useUIPluginState";
 
 export * from "./schema/ReactBlockSpec";
 export * from "./schema/ReactInlineContentSpec";

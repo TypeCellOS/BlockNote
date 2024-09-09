@@ -16,11 +16,11 @@ import {
   RiListCheck3,
   RiListOrdered,
   RiListUnordered,
-  RiSparkling2Fill,
   RiTable2,
   RiText,
   RiVolumeUpFill,
 } from "react-icons/ri";
+
 import { DefaultReactSuggestionItem } from "./types";
 
 const icons = {
@@ -36,8 +36,6 @@ const icons = {
   video: RiFilmLine,
   audio: RiVolumeUpFill,
   file: RiFile2Line,
-  ai_block: RiSparkling2Fill,
-  ai: RiSparkling2Fill,
   emoji: RiEmotionFill,
 };
 
@@ -47,7 +45,7 @@ export function getDefaultReactSlashMenuItems<
   S extends StyleSchema
 >(editor: BlockNoteEditor<BSchema, I, S>): DefaultReactSuggestionItem[] {
   return getDefaultSlashMenuItems(editor).map((item) => {
-    const Icon = icons[item.key];
+    const Icon = icons[item.dictKey as keyof typeof icons]; // TODO
     return {
       ...item,
       icon: <Icon size={18} />,
