@@ -1,3 +1,10 @@
 @import url("@blocknote/react/style.css");
-@import url("/src/core/editor/style.css");
-@import url("/src/react/editor/style.css");
+@import url("./core/editor/style.css");
+@import url("./react/editor/style.css");
+
+/* Mantine */
+.bn-toolbar .mantine-Button-root.bn-show-prompt-button,
+.bn-toolbar .mantine-Button-root.bn-show-prompt-button:hover
+{
+    color: rgba(154, 56, 173, 0.5);
+}

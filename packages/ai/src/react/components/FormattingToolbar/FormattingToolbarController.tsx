@@ -7,10 +7,8 @@ import { FormattingToolbar } from "./FormattingToolbar";
 
 export const FormattingToolbarController = (props: {
   formattingToolbar?: FC<FormattingToolbarProps>;
-}) => {
-  return (
-    <FormattingToolbarControllerCore
-      formattingToolbar={props.formattingToolbar || FormattingToolbar}
-    />
-  );
-};
+}) => (
+  <FormattingToolbarControllerCore
+    formattingToolbar={props.formattingToolbar || FormattingToolbar}
+  />
+);

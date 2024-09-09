@@ -178,13 +178,6 @@
   border: none;
   color: var(--bn-colors-disabled-text);
 }
-
-.bn-toolbar .mantine-Button-root.bn-show-prompt-button,
-.bn-toolbar .mantine-Button-root.bn-show-prompt-button:hover
-{
-  color: rgba(154, 56, 173, 0.5);
-}
-
 .bn-toolbar .mantine-Menu-item {
   font-size: 12px;
   height: 30px;

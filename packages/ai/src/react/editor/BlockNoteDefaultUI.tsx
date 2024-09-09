@@ -7,10 +7,11 @@ import {
 
 import { AIBlockToolbarController } from "../components/AIBlockToolbar/AIBlockToolbarController";
 import { AIInlineToolbarController } from "../components/AIInlineToolbar/AIInlineToolbarController";
-import { getDefaultAIMenuItems } from "../components/SuggestionMenu/getDefaultAIMenuItems";
-import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor";
 import { FormattingToolbarController } from "../components/FormattingToolbar/FormattingToolbarController";
+import { SideMenuController } from "../components/SideMenu/SideMenuController";
+import { getDefaultAIMenuItems } from "../components/SuggestionMenu/getDefaultAIMenuItems";
 import { getDefaultReactSlashMenuItems } from "../components/SuggestionMenu/getDefaultReactSlashMenuItems";
+import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor";
 
 export type BlockNoteDefaultUIProps = BlockNoteDefaultCoreUIProps & {
   aiBlockToolbar?: boolean;
@@ -29,8 +30,13 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
 
   return (
     <>
-      <BlockNoteDefaultCoreUI formattingToolbar={false} slashMenu={false} />
+      <BlockNoteDefaultCoreUI
+        formattingToolbar={false}
+        sideMenu={false}
+        slashMenu={false}
+      />
       {props.formattingToolbar !== false && <FormattingToolbarController />}
+      {props.sideMenu !== false && <SideMenuController />}
       {props.slashMenu !== false && (
         <SuggestionMenuController
           triggerCharacter="/"

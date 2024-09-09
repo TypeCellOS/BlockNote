@@ -371,52 +371,6 @@ NESTED BLOCKS
   position: absolute;
   font-style: italic;
 }
-
-/* AI */
-[data-content-type="ai"] .bn-ai-prompt-box {
-  align-items: center;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-  outline: solid 3px rgba(154, 56, 173, 0.2);
-  padding: 12px;
-  width: 100%;
-}
-
-[data-content-type="ai"] .bn-ai-prompt-box svg {
-  color: rgba(154, 56, 173, 0.2);
-  width: 24px;
-  height: 24px;
-}
-
-[data-content-type="ai"] .bn-ai-prompt-box span {
-  flex: 1;
-}
-
-[data-content-type="ai"] .bn-ai-prompt-box button {
-  background-color: transparent;
-  border: solid 1px rgba(120, 120, 120, 0.3);
-  border-radius: 4px;
-  color: rgba(154, 56, 173, 0.5);
-  cursor: pointer;
-  user-select: none;
-}
-
-[data-content-type="ai"][data-prompt] p {
-  border-radius: 4px;
-}
-
-.bn-editor[contenteditable="true"]
-[data-content-type="ai"][data-prompt] p:hover {
-  outline: solid 3px rgba(154, 56, 173, 0.1);
-}
-
-.bn-editor[contenteditable="true"]
-[data-content-type="ai"][data-prompt][data-is-focused] p {
-  outline: solid 3px rgba(154, 56, 173, 0.2);
-}
-
 /* TODO: should this be here? */
 
 /* TEXT COLORS */

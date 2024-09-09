@@ -31,7 +31,18 @@ export const SideMenu = <
 ) => {
   const Components = useComponentsContext()!;
 
-  const { addBlock, ...rest } = props;
+  const {
+    addBlock,
+    block,
+    blockDragEnd,
+    blockDragStart,
+    children,
+    dragHandleMenu,
+    editor,
+    freezeMenu,
+    unfreezeMenu,
+    ...rest
+  } = props;
 
   const dataAttributes = useMemo(() => {
     const attrs: Record<string, string> = {
@@ -58,11 +69,14 @@ export const SideMenu = <
   }, [props.block, props.editor.schema.blockSchema]);
 
   return (
-    <Components.SideMenu.Root className={"bn-side-menu"} {...dataAttributes}>
+    <Components.SideMenu.Root
+      className={"bn-side-menu"}
+      {...dataAttributes}
+      {...rest}>
       {props.children || (
         <>
-          <AddBlockButton addBlock={addBlock} />
-          <DragHandleButton {...rest} />
+          <AddBlockButton {...props} />
+          <DragHandleButton {...props} />
         </>
       )}
     </Components.SideMenu.Root>
