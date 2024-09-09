@@ -16,11 +16,11 @@ export function getDefaultSlashMenuItems<
   S extends StyleSchema
 >(editor: BlockNoteEditor<BSchema, I, S>) {
   const items: DefaultSuggestionItem[] = getDefaultCoreSlashMenuItems(editor);
-  const insertionIndex = items.findIndex((item) => item.key === "emoji");
+  const insertionIndex = items.findIndex((item) => item.name === "emoji");
 
   items.splice(insertionIndex, 0, {
     onItemClick: () => editor.openSelectionMenu("`"),
-    key: "ai",
+    name: "ai",
     ...editor.dictionary.slash_menu.ai,
   });
 
@@ -31,7 +31,7 @@ export function getDefaultSlashMenuItems<
           type: "ai",
         });
       },
-      key: "ai_block",
+      name: "ai_block",
       ...editor.dictionary.slash_menu.ai_block,
     });
   }

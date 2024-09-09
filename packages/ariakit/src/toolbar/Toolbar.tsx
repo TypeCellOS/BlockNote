@@ -4,8 +4,7 @@ import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
-type ToolbarProps = ComponentProps["FormattingToolbar"]["Root"] &
-  ComponentProps["LinkToolbar"]["Root"];
+type ToolbarProps = ComponentProps["Toolbar"]["Root"];
 
 export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
   (props, ref) => {

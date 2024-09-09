@@ -17,5 +17,9 @@ export function useBlockNoteEditor<
 >(
   _schema?: BlockNoteSchema<BSchema, ISchema, SSchema>
 ): BlockNoteEditor<BSchema, ISchema, SSchema> {
-  return useBlockNoteEditorCore(_schema) as any;
+  return useBlockNoteEditorCore(_schema) as BlockNoteEditor<
+    BSchema,
+    ISchema,
+    SSchema
+  >;
 }

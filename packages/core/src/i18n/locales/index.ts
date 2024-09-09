@@ -7,6 +7,6 @@ export * from "./ko";
 export * from "./nl";
 export * from "./pl";
 export * from "./pt";
+export * from "./ru";
 export * from "./vi";
 export * from "./zh";
-export * from "./ru";

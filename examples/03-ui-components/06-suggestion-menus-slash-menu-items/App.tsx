@@ -16,6 +16,7 @@ import { HiOutlineGlobeAlt } from "react-icons/hi";
 
 // Custom Slash Menu item to insert a block after the current one.
 const insertHelloWorldItem = (editor: BlockNoteEditor) => ({
+  name: "hello_world",
   title: "Insert Hello World",
   onItemClick: () => {
     // Block that the text cursor is currently in.

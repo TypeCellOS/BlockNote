@@ -67,7 +67,7 @@ const CustomFormattingToolbar = (props: FormattingToolbarProps) => {
 
   return (
     <FormattingToolbar>
-      <Components.FormattingToolbar.Button
+      <Components.Toolbar.Button
         mainTooltip={"small"}
         onClick={() => {
           editor.toggleStyles({
@@ -76,8 +76,8 @@ const CustomFormattingToolbar = (props: FormattingToolbarProps) => {
         }}
         isSelected={activeStyles.small}>
         Small
-      </Components.FormattingToolbar.Button>
-      <Components.FormattingToolbar.Button
+      </Components.Toolbar.Button>
+      <Components.Toolbar.Button
         mainTooltip={"font size"}
         onClick={() => {
           editor.toggleStyles({
@@ -86,7 +86,7 @@ const CustomFormattingToolbar = (props: FormattingToolbarProps) => {
         }}
         isSelected={!!activeStyles.fontSize}>
         Font size
-      </Components.FormattingToolbar.Button>
+      </Components.Toolbar.Button>
     </FormattingToolbar>
   );
 };

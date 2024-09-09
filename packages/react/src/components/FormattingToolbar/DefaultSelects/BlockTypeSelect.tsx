@@ -120,7 +120,7 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
     [block.type, filteredItems]
   );
 
-  const fullItems: ComponentProps["FormattingToolbar"]["Select"]["items"] =
+  const fullItems: ComponentProps["Toolbar"]["Select"]["items"] =
     useMemo(() => {
       const onClick = (item: BlockTypeSelectItem) => {
         editor.focus();
@@ -154,9 +154,6 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
   }
 
   return (
-    <Components.FormattingToolbar.Select
-      className={"bn-select"}
-      items={fullItems}
-    />
+    <Components.Toolbar.Select className={"bn-select"} items={fullItems} />
   );
 };

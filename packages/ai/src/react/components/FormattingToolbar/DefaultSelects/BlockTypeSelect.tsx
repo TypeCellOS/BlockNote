@@ -1,17 +1,18 @@
 import {
   Block,
   BlockSchema,
-  Dictionary,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
 import {
   BlockTypeSelect as CoreBlockTypeSelect,
   blockTypeSelectItems as blockTypeSelectCoreItems,
-  useDictionary,
 } from "@blocknote/react";
 import type { IconType } from "react-icons";
 import { RiSparkling2Fill } from "react-icons/ri";
+
+import { Dictionary } from "../../../../core/i18n/dictionary";
+import { useDictionary } from "../../../hooks/useDictionary";
 
 export type BlockTypeSelectItem = {
   name: string;

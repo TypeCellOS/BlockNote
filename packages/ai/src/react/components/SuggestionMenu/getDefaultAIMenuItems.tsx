@@ -14,7 +14,7 @@ export function getDefaultAIMenuItems<
   query: string
 ): DefaultReactSuggestionItem[] {
   return Object.values(editor.dictionary.ai_menu).map((item) => ({
-    dictKey: item.title as any,
+    name: item.title as any,
     ...item,
     onItemClick: async () => {
       editor.aiInlineToolbar.open(

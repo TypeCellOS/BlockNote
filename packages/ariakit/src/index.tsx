@@ -46,15 +46,7 @@ import { ToolbarSelect } from "./toolbar/ToolbarSelect";
 import "./style.css";
 
 export const components: Components = {
-  AIBlockToolbar: {
-    Root: Toolbar,
-    Button: ToolbarButton,
-  },
-  AIInlineToolbar: {
-    Root: Toolbar,
-    Button: ToolbarButton,
-  },
-  FormattingToolbar: {
+  Toolbar: {
     Root: Toolbar,
     Button: ToolbarButton,
     Select: ToolbarSelect,
@@ -71,10 +63,6 @@ export const components: Components = {
     Item: GridSuggestionMenuItem,
     EmptyItem: GridSuggestionMenuEmptyItem,
     Loader: GridSuggestionMenuLoader,
-  },
-  LinkToolbar: {
-    Root: Toolbar,
-    Button: ToolbarButton,
   },
   SideMenu: {
     Root: SideMenu,

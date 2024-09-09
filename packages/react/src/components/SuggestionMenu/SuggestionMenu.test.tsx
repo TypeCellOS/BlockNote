@@ -17,6 +17,7 @@ it("has good typing", () => {
     <SuggestionMenuController
       getItems={async () => [
         {
+          name: "hello",
           title: "hello",
           onItemClick: () => {
             return;

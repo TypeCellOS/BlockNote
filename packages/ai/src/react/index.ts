@@ -20,7 +20,6 @@ export * from "./components/SuggestionMenu/getDefaultAIMenuItems";
 export * from "./components/SuggestionMenu/getDefaultReactSlashMenuItems";
 
 export * from "./editor/BlockNoteDefaultUI";
-export * from "./editor/BlockNoteView";
 
 export * from "./hooks/useBlockNoteEditor";
 export * from "./hooks/useCreateBlockNote";

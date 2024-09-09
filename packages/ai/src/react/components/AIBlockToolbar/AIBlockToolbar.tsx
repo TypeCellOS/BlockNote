@@ -32,9 +32,9 @@ export const AIBlockToolbar = (
   const [updating, setUpdating] = useState(false);
 
   return (
-    <Components.AIBlockToolbar.Root className={"bn-toolbar bn-ai-toolbar"}>
+    <Components.Toolbar.Root className={"bn-toolbar bn-ai-toolbar"}>
       {props.children ||
         getAIBlockToolbarItems({ ...props, updating, setUpdating })}
-    </Components.AIBlockToolbar.Root>
+    </Components.Toolbar.Root>
   );
 };

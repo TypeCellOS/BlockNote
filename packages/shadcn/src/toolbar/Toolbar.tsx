@@ -5,8 +5,7 @@ import { forwardRef } from "react";
 import { cn } from "../lib/utils";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
 
-type ToolbarProps = ComponentProps["FormattingToolbar"]["Root"] &
-  ComponentProps["LinkToolbar"]["Root"];
+type ToolbarProps = ComponentProps["Toolbar"]["Root"];
 
 export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
   (props, ref) => {
@@ -33,8 +32,7 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
   }
 );
 
-type ToolbarButtonProps = ComponentProps["FormattingToolbar"]["Button"] &
-  ComponentProps["LinkToolbar"]["Button"];
+type ToolbarButtonProps = ComponentProps["Toolbar"]["Button"];
 
 export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
   (props, ref) => {
@@ -110,7 +108,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
 
 export const ToolbarSelect = forwardRef<
   HTMLDivElement,
-  ComponentProps["FormattingToolbar"]["Select"]
+  ComponentProps["Toolbar"]["Select"]
 >((props, ref) => {
   const { className, items, isDisabled, ...rest } = props;
 

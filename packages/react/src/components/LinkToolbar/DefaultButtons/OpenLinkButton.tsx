@@ -8,7 +8,7 @@ export const OpenLinkButton = (props: Pick<LinkToolbarProps, "url">) => {
   const dict = useDictionary();
 
   return (
-    <Components.LinkToolbar.Button
+    <Components.Toolbar.Button
       className={"bn-button"}
       mainTooltip={dict.link_toolbar.open.tooltip}
       label={dict.link_toolbar.open.tooltip}

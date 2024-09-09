@@ -130,18 +130,6 @@ export const zh: Dictionary = {
       aliases: ["文件", "上传", "file", "嵌入", "媒体", "url"],
       group: "媒体",
     },
-    ai_block: {
-      title: "AI Block",
-      subtext: "Block with AI generated content",
-      aliases: ["ai", "artificial intelligence", "generate"],
-      group: "AI",
-    },
-    ai: {
-      title: "Ask AI",
-      subtext: "Continue writing with AI",
-      aliases: ["ai", "artificial intelligence", "generate"],
-      group: "AI",
-    },
     emoji: {
       title: "表情符号",
       subtext: "用于插入表情符号",
@@ -157,24 +145,12 @@ export const zh: Dictionary = {
       group: "其他",
     },
   },
-  ai_menu: {
-    custom_prompt: {
-      title: "Custom Prompt",
-      subtext: "Use your query as an AI prompt",
-      aliases: ["", "custom prompt"],
-    },
-    make_longer: {
-      title: "Make Longer",
-      aliases: ["make longer"],
-    },
-  },
   placeholders: {
     default: "输入 '/' 以使用命令",
     heading: "标题",
     bulletListItem: "列表",
     numberedListItem: "列表",
     checkListItem: "列表",
-    ai: "Enter a prompt",
   },
   file_blocks: {
     image: {
@@ -321,10 +297,6 @@ export const zh: Dictionary = {
     align_justify: {
       tooltip: "文本对齐",
     },
-    ai: {
-      tooltip: "Generate content",
-      input_placeholder: "Enter a prompt",
-    },
   },
   file_panel: {
     upload: {
@@ -363,18 +335,6 @@ export const zh: Dictionary = {
       title_placeholder: "编辑标题",
       url_placeholder: "编辑链接地址",
     },
-  },
-  ai_block_toolbar: {
-    show_prompt: "Show prompt",
-    show_prompt_datetime_tooltip: "Generated:",
-    update: "Update",
-    updating: "Updating…",
-  },
-  ai_inline_toolbar: {
-    accept: "Accept",
-    retry: "Retry",
-    updating: "Updating…",
-    revert: "Revert",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

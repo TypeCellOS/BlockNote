@@ -27,7 +27,7 @@ export function BlueButton() {
   }, editor);
 
   return (
-    <Components.FormattingToolbar.Button
+    <Components.Toolbar.Button
       mainTooltip={"Blue Text & Background"}
       onClick={() => {
         editor.toggleStyles({
@@ -37,6 +37,6 @@ export function BlueButton() {
       }}
       isSelected={isSelected}>
       Blue
-    </Components.FormattingToolbar.Button>
+    </Components.Toolbar.Button>
   );
 }

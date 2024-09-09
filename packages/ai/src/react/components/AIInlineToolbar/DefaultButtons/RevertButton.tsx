@@ -1,9 +1,10 @@
 import { Block } from "@blocknote/core";
-import { useComponentsContext, useDictionary } from "@blocknote/react";
+import { useComponentsContext } from "@blocknote/react";
 import { TextSelection } from "prosemirror-state";
 import { RiArrowGoBackFill } from "react-icons/ri";
 
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
+import { useDictionary } from "../../../hooks/useDictionary";
 import { AIInlineToolbarProps } from "../AIInlineToolbarProps";
 
 export const RevertButton = (
@@ -21,7 +22,7 @@ export const RevertButton = (
   }
 
   return (
-    <Components.AIInlineToolbar.Button
+    <Components.Toolbar.Button
       className={"bn-button"}
       icon={<RiArrowGoBackFill />}
       mainTooltip={dict.ai_inline_toolbar.revert}

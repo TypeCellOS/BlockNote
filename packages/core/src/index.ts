@@ -29,6 +29,7 @@ export * from "./extensions/SuggestionMenu/SuggestionPlugin";
 export * from "./extensions/SuggestionMenu/getDefaultSlashMenuItems";
 export * from "./extensions/SuggestionMenu/getDefaultEmojiPickerItems";
 export * from "./extensions/TableHandles/TableHandlesPlugin";
+export * from "./i18n/locales";
 export * from "./i18n/dictionary";
 export * from "./schema";
 export * from "./util/browser";

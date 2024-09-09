@@ -24,10 +24,10 @@ export function getDefaultReactSlashMenuItems<
 >(editor: BlockNoteEditor<BSchema, I, S>): DefaultReactSuggestionItem[] {
   const items: DefaultReactSuggestionItem[] =
     getDefaultCoreSlashMenuItems(editor);
-  const insertionIndex = items.findIndex((item) => item.dictKey === "emoji");
+  const insertionIndex = items.findIndex((item) => item.name === "emoji");
 
   items.splice(insertionIndex, 0, {
-    dictKey: "ai",
+    name: "ai",
     onItemClick: () => editor.openSelectionMenu("`"),
     ...editor.dictionary.slash_menu.ai,
     icon: <Icons.AI />,
@@ -35,7 +35,7 @@ export function getDefaultReactSlashMenuItems<
 
   if (checkDefaultBlockTypeInSchema("ai", editor)) {
     items.splice(insertionIndex, 0, {
-      dictKey: "ai_block",
+      name: "ai_block",
       onItemClick: () => {
         insertOrUpdateBlock(editor, {
           type: "ai",

@@ -30,6 +30,7 @@ const schema = BlockNoteSchema.create({
 
 // Slash menu item to insert a PDF block
 const insertPDF = (editor: typeof schema.BlockNoteEditor) => ({
+  name: "pdf",
   title: "PDF",
   onItemClick: () => {
     insertOrUpdateBlock(editor, {

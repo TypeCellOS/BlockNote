@@ -1,5 +1,4 @@
 import {
-  BlockNoteEditorOptions,
   BlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
@@ -8,7 +7,11 @@ import {
 } from "@blocknote/core";
 import { DependencyList, useMemo } from "react";
 
-import { BlockNoteEditor, DefaultBlockSchema } from "../../core";
+import {
+  BlockNoteEditor,
+  BlockNoteEditorOptions,
+  DefaultBlockSchema,
+} from "../../core";
 
 export const useCreateBlockNote = <
   BSchema extends BlockSchema = DefaultBlockSchema,

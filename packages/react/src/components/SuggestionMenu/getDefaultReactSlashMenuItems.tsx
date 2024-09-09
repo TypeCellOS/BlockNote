@@ -22,8 +22,9 @@ import {
 } from "react-icons/ri";
 
 import { DefaultReactSuggestionItem } from "./types";
+import { IconType } from "react-icons";
 
-const icons = {
+const icons: Record<string, IconType> = {
   heading: RiH1,
   heading_2: RiH2,
   heading_3: RiH3,
@@ -45,7 +46,7 @@ export function getDefaultReactSlashMenuItems<
   S extends StyleSchema
 >(editor: BlockNoteEditor<BSchema, I, S>): DefaultReactSuggestionItem[] {
   return getDefaultSlashMenuItems(editor).map((item) => {
-    const Icon = icons[item.dictKey as keyof typeof icons]; // TODO
+    const Icon = icons[item.name];
     return {
       ...item,
       icon: <Icon size={18} />,

@@ -9,8 +9,7 @@ import { assertEmpty, isSafari, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
-type ToolbarButtonProps = ComponentProps["FormattingToolbar"]["Button"] &
-  ComponentProps["LinkToolbar"]["Button"];
+type ToolbarButtonProps = ComponentProps["Toolbar"]["Button"];
 
 /**
  * Helper for basic buttons that show in the formatting toolbar.

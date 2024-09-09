@@ -105,34 +105,11 @@ export const fr: Dictionary = {
       aliases: ["fichier", "téléverser", "intégrer", "média", "url"],
       group: "Média",
     },
-    ai_block: {
-      title: "AI Block",
-      subtext: "Block with AI generated content",
-      aliases: ["ai", "artificial intelligence", "generate"],
-      group: "AI",
-    },
-    ai: {
-      title: "Ask AI",
-      subtext: "Continue writing with AI",
-      aliases: ["ai", "artificial intelligence", "generate"],
-      group: "AI",
-    },
     emoji: {
       title: "Emoji",
       subtext: "Utilisé pour insérer un emoji",
       aliases: ["emoji", "émoticône", "émotion", "visage"],
       group: "Autres",
-    },
-  },
-  ai_menu: {
-    custom_prompt: {
-      title: "Custom Prompt",
-      subtext: "Use your query as an AI prompt",
-      aliases: ["", "custom prompt"],
-    },
-    make_longer: {
-      title: "Make Longer",
-      aliases: ["make longer"],
     },
   },
   placeholders: {
@@ -141,7 +118,6 @@ export const fr: Dictionary = {
     bulletListItem: "Liste",
     numberedListItem: "Liste",
     checkListItem: "Liste",
-    ai: "Enter a prompt",
   },
   file_blocks: {
     image: {
@@ -288,10 +264,6 @@ export const fr: Dictionary = {
     align_justify: {
       tooltip: "Justifier le texte",
     },
-    ai: {
-      tooltip: "Generate content",
-      input_placeholder: "Enter a prompt",
-    },
   },
   file_panel: {
     upload: {
@@ -330,18 +302,6 @@ export const fr: Dictionary = {
       title_placeholder: "Modifier le titre",
       url_placeholder: "Modifier l'URL",
     },
-  },
-  ai_block_toolbar: {
-    show_prompt: "Show prompt",
-    show_prompt_datetime_tooltip: "Generated:",
-    update: "Update",
-    updating: "Updating…",
-  },
-  ai_inline_toolbar: {
-    accept: "Accept",
-    retry: "Retry",
-    updating: "Updating…",
-    revert: "Revert",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

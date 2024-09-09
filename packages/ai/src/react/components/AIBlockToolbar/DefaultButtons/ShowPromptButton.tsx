@@ -3,7 +3,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { useComponentsContext, useDictionary } from "@blocknote/react";
+import { useComponentsContext } from "@blocknote/react";
 import {
   ChangeEvent,
   KeyboardEvent,
@@ -16,6 +16,7 @@ import { RiSparkling2Fill } from "react-icons/ri";
 import { aiBlockConfig } from "../../../../core/blocks/AIBlockContent/AIBlockContent";
 import { mockAIReplaceBlockContent } from "../../../../core/blocks/AIBlockContent/mockAIFunctions";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
+import { useDictionary } from "../../../hooks/useDictionary";
 import { AIBlockToolbarProps } from "../AIBlockToolbarProps";
 
 export const ShowPromptButton = (
@@ -79,7 +80,7 @@ export const ShowPromptButton = (
   return (
     <Components.Generic.Popover.Root opened={opened}>
       <Components.Generic.Popover.Trigger>
-        <Components.FormattingToolbar.Button
+        <Components.Toolbar.Button
           className={"bn-button bn-show-prompt-button"}
           mainTooltip={`${
             dict.ai_block_toolbar.show_prompt_datetime_tooltip
@@ -96,7 +97,7 @@ export const ShowPromptButton = (
           label={dict.ai_block_toolbar.show_prompt}
           onClick={handleClick}>
           {dict.ai_block_toolbar.show_prompt}
-        </Components.FormattingToolbar.Button>
+        </Components.Toolbar.Button>
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content
         className={"bn-popover-content bn-form-popover"}

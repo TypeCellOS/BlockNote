@@ -1,7 +1,8 @@
-import { useComponentsContext, useDictionary } from "@blocknote/react";
+import { useComponentsContext } from "@blocknote/react";
 import { RiCheckFill } from "react-icons/ri";
 
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
+import { useDictionary } from "../../../hooks/useDictionary";
 
 export const AcceptButton = () => {
   const dict = useDictionary();
@@ -14,7 +15,7 @@ export const AcceptButton = () => {
   }
 
   return (
-    <Components.AIInlineToolbar.Button
+    <Components.Toolbar.Button
       className={"bn-button"}
       icon={<RiCheckFill />}
       mainTooltip={dict.ai_inline_toolbar.accept}

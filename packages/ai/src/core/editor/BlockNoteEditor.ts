@@ -1,6 +1,6 @@
 import {
   BlockNoteEditor as BlockNoteCoreEditor,
-  BlockNoteEditorOptions,
+  BlockNoteEditorOptions as BlockNoteCoreEditorOptions,
   BlockNoteSchema,
   BlockSchema,
   DefaultInlineContentSchema,
@@ -13,13 +13,28 @@ import { Extension } from "@tiptap/core";
 import { DefaultBlockSchema, defaultBlockSpecs } from "../blocks/defaultBlocks";
 import { AIBlockToolbarProsemirrorPlugin } from "../extensions/AIBlockToolbar/AIBlockToolbarPlugin";
 import { AIInlineToolbarProsemirrorPlugin } from "../extensions/AIInlineToolbar/AIInlineToolbarPlugin";
+import { Dictionary } from "../i18n/dictionary";
+import { en } from "../i18n/locales";
 // import { checkDefaultBlockTypeInSchema } from "../blocks/defaultBlockTypeGuards";
+
+export type BlockNoteEditorOptions<
+  BSchema extends BlockSchema,
+  ISchema extends InlineContentSchema,
+  SSchema extends StyleSchema
+> = Omit<
+  BlockNoteCoreEditorOptions<BSchema, ISchema, SSchema>,
+  "dictionary"
+> & {
+  dictionary?: Dictionary;
+};
 
 export class BlockNoteEditor<
   BSchema extends BlockSchema = DefaultBlockSchema,
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
   SSchema extends StyleSchema = DefaultStyleSchema
 > extends BlockNoteCoreEditor<BSchema, ISchema, SSchema> {
+  public declare dictionary: Dictionary;
+
   public readonly aiBlockToolbar?: AIBlockToolbarProsemirrorPlugin =
     new AIBlockToolbarProsemirrorPlugin();
   public readonly aiInlineToolbar: AIInlineToolbarProsemirrorPlugin =
@@ -33,6 +48,7 @@ export class BlockNoteEditor<
         blockSpecs: defaultBlockSpecs,
       }),
       ...options,
+      dictionary: options.dictionary || en,
       _tiptapOptions: {
         extensions: [
           Extension.create({

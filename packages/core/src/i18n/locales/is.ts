@@ -98,34 +98,11 @@ export const is: Dictionary = {
       aliases: ["skrá", "hlaða upp", "fella inn", "miðill", "url"],
       group: "Miðlar",
     },
-    ai_block: {
-      title: "AI Block",
-      subtext: "Block with AI generated content",
-      aliases: ["ai", "artificial intelligence", "generate"],
-      group: "AI",
-    },
-    ai: {
-      title: "Ask AI",
-      subtext: "Continue writing with AI",
-      aliases: ["ai", "artificial intelligence", "generate"],
-      group: "AI",
-    },
     emoji: {
       title: "Emoji",
       subtext: "Notað til að setja inn smámynd",
       aliases: ["emoji", "andlitsávísun", "tilfinningar", "andlit"],
       group: "Annað",
-    },
-  },
-  ai_menu: {
-    custom_prompt: {
-      title: "Custom Prompt",
-      subtext: "Use your query as an AI prompt",
-      aliases: ["", "custom prompt"],
-    },
-    make_longer: {
-      title: "Make Longer",
-      aliases: ["make longer"],
     },
   },
   placeholders: {
@@ -134,7 +111,6 @@ export const is: Dictionary = {
     bulletListItem: "Listi",
     numberedListItem: "Listi",
     checkListItem: "Listi",
-    ai: "Enter a prompt",
   },
   file_blocks: {
     image: {
@@ -280,10 +256,6 @@ export const is: Dictionary = {
     align_justify: {
       tooltip: "Jafna texta",
     },
-    ai: {
-      tooltip: "Generate content",
-      input_placeholder: "Enter a prompt",
-    },
   },
   file_panel: {
     upload: {
@@ -322,18 +294,6 @@ export const is: Dictionary = {
       title_placeholder: "Breyta titli",
       url_placeholder: "Breyta URL",
     },
-  },
-  ai_block_toolbar: {
-    show_prompt: "Show prompt",
-    show_prompt_datetime_tooltip: "Generated:",
-    update: "Update",
-    updating: "Updating…",
-  },
-  ai_inline_toolbar: {
-    accept: "Accept",
-    retry: "Retry",
-    updating: "Updating…",
-    revert: "Revert",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

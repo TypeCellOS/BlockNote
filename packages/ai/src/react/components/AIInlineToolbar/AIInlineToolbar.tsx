@@ -64,7 +64,7 @@ export const AIInlineToolbar = (
   }, []);
 
   return (
-    <Components.AIBlockToolbar.Root className={"bn-toolbar bn-ai-toolbar"}>
+    <Components.Toolbar.Root className={"bn-toolbar bn-ai-toolbar"}>
       {props.children ||
         getAIInlineToolbarItems({
           ...props,
@@ -72,6 +72,6 @@ export const AIInlineToolbar = (
           updating,
           setUpdating,
         })}
-    </Components.AIBlockToolbar.Root>
+    </Components.Toolbar.Root>
   );
 };

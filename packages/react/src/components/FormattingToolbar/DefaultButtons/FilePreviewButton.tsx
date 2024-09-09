@@ -59,7 +59,7 @@ export const FilePreviewButton = () => {
   }
 
   return (
-    <Components.FormattingToolbar.Button
+    <Components.Toolbar.Button
       className={"bn-button"}
       label={"Toggle preview"}
       mainTooltip={dict.formatting_toolbar.file_preview_toggle.tooltip}

@@ -22,8 +22,7 @@ export const TooltipContent = (props: {
   </MantineStack>
 );
 
-type ToolbarButtonProps = ComponentProps["FormattingToolbar"]["Button"] &
-  ComponentProps["LinkToolbar"]["Button"];
+type ToolbarButtonProps = ComponentProps["Toolbar"]["Button"];
 
 /**
  * Helper for basic buttons that show in the formatting toolbar.

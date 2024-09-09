@@ -125,34 +125,11 @@ export const ja: Dictionary = {
       aliases: ["file", "upload", "embed", "media", "url", "ファイル"],
       group: "メディア",
     },
-    ai_block: {
-      title: "AI Block",
-      subtext: "Block with AI generated content",
-      aliases: ["ai", "artificial intelligence", "generate"],
-      group: "AI",
-    },
-    ai: {
-      title: "Ask AI",
-      subtext: "Continue writing with AI",
-      aliases: ["ai", "artificial intelligence", "generate"],
-      group: "AI",
-    },
     emoji: {
       title: "絵文字",
       subtext: "絵文字を挿入するために使用します",
       aliases: ["絵文字", "顔文字", "感情表現", "顔"],
       group: "その他",
-    },
-  },
-  ai_menu: {
-    custom_prompt: {
-      title: "Custom Prompt",
-      subtext: "Use your query as an AI prompt",
-      aliases: ["", "custom prompt"],
-    },
-    make_longer: {
-      title: "Make Longer",
-      aliases: ["make longer"],
     },
   },
   placeholders: {
@@ -161,7 +138,6 @@ export const ja: Dictionary = {
     bulletListItem: "リストを追加",
     numberedListItem: "リストを追加",
     checkListItem: "リストを追加",
-    ai: "Enter a prompt",
   },
   file_blocks: {
     image: {
@@ -308,10 +284,6 @@ export const ja: Dictionary = {
     align_justify: {
       tooltip: "両端揃え",
     },
-    ai: {
-      tooltip: "Generate content",
-      input_placeholder: "Enter a prompt",
-    },
   },
   file_panel: {
     upload: {
@@ -350,18 +322,6 @@ export const ja: Dictionary = {
       title_placeholder: "タイトルを編集",
       url_placeholder: "URLを編集",
     },
-  },
-  ai_block_toolbar: {
-    show_prompt: "Show prompt",
-    show_prompt_datetime_tooltip: "Generated:",
-    update: "Update",
-    updating: "Updating…",
-  },
-  ai_inline_toolbar: {
-    accept: "Accept",
-    retry: "Retry",
-    updating: "Updating…",
-    revert: "Revert",
   },
   generic: {
     ctrl_shortcut: "Ctrl",

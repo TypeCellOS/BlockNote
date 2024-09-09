@@ -1,9 +1,10 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
-import { useComponentsContext, useDictionary } from "@blocknote/react";
+import { useComponentsContext } from "@blocknote/react";
 import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
 import { RiSparkling2Fill } from "react-icons/ri";
 
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
+import { useDictionary } from "../../../hooks/useDictionary";
 
 export const AIButton = () => {
   const dict = useDictionary();
@@ -48,7 +49,7 @@ export const AIButton = () => {
   return (
     <Components.Generic.Menu.Root>
       <Components.Generic.Menu.Trigger>
-        <Components.FormattingToolbar.Button
+        <Components.Toolbar.Button
           className={"bn-button"}
           label={dict.formatting_toolbar.ai.tooltip}
           mainTooltip={dict.formatting_toolbar.ai.tooltip}

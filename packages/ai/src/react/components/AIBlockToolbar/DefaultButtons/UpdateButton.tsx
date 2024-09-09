@@ -3,11 +3,12 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { useComponentsContext, useDictionary } from "@blocknote/react";
+import { useComponentsContext } from "@blocknote/react";
 
 import { aiBlockConfig } from "../../../../core/blocks/AIBlockContent/AIBlockContent";
 import { mockAIReplaceBlockContent } from "../../../../core/blocks/AIBlockContent/mockAIFunctions";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
+import { useDictionary } from "../../../hooks/useDictionary";
 import { AIBlockToolbarProps } from "../AIBlockToolbarProps";
 
 export const UpdateButton = (
@@ -30,7 +31,7 @@ export const UpdateButton = (
   }
 
   return (
-    <Components.AIBlockToolbar.Button
+    <Components.Toolbar.Button
       className={"bn-button"}
       label={dict.ai_block_toolbar.update}
       onClick={async () => {
@@ -46,6 +47,6 @@ export const UpdateButton = (
       {props.updating
         ? dict.ai_block_toolbar.updating
         : dict.ai_block_toolbar.update}
-    </Components.AIBlockToolbar.Button>
+    </Components.Toolbar.Button>
   );
 };

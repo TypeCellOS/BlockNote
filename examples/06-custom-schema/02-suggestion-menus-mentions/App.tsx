@@ -32,6 +32,7 @@ const getMentionMenuItems = (
   const users = ["Steve", "Bob", "Joe", "Mike"];
 
   return users.map((user) => ({
+    name: user.toLowerCase(),
     title: user,
     onItemClick: () => {
       editor.insertInlineContent([

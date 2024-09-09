@@ -29,6 +29,7 @@ const schema = BlockNoteSchema.create({
 
 // Slash menu item to insert an Alert block
 const insertAlert = (editor: typeof schema.BlockNoteEditor) => ({
+  name: "alert",
   title: "Alert",
   onItemClick: () => {
     insertOrUpdateBlock(editor, {

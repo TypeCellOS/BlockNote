@@ -1,4 +1,3 @@
-import { Dictionary } from "@blocknote/core";
 import {
   FormattingToolbar as FormattingToolbarCore,
   FormattingToolbarProps,
@@ -6,6 +5,7 @@ import {
 } from "@blocknote/react";
 import { ReactNode } from "react";
 
+import { Dictionary } from "../../../core/i18n/dictionary";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { AIButton } from "./DefaultButtons/AIButton";
 import {
