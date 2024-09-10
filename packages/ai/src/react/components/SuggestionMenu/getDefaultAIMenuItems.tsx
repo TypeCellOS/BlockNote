@@ -6,9 +6,10 @@ import {
 } from "@blocknote/core";
 import { DefaultReactSuggestionItem } from "@blocknote/react";
 
-import { BlockNoteEditor } from "../../../core/editor/BlockNoteEditor";
-import { Dictionary } from "../../../core/i18n/dictionary";
-import { AIInlineToolbarProsemirrorPlugin } from "../../../core";
+import {
+  AIInlineToolbarProsemirrorPlugin,
+  getAIDictionary,
+} from "../../../core";
 
 // TODO: Maybe we don't want to define the default AI prompts based on the
 //  dictionary
@@ -21,16 +22,13 @@ export function getDefaultAIMenuItems<
   editor: BlockNoteEditor<BSchema, I, S>,
   query: string
 ): DefaultReactSuggestionItem[] {
-  return Object.values(
-    (editor.dictionary as unknown as Dictionary).ai_menu // TODO
-  ).map((item) => ({
+  return Object.values(getAIDictionary(editor).ai_menu).map((item) => ({
     name: item.title as any,
     ...item,
     onItemClick: async () => {
       (editor.extensions.aiInlineToolbar as AIInlineToolbarProsemirrorPlugin) // TODO
         .open(
-          (editor.dictionary as unknown as Dictionary).ai_menu.custom_prompt // TODO
-            .title === item.title
+          getAIDictionary(editor).ai_menu.custom_prompt.title === item.title
             ? query
             : item.title,
           "insertAfterSelection"

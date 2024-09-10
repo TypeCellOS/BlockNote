@@ -13,10 +13,10 @@ import {
 } from "react";
 import { RiSparkling2Fill } from "react-icons/ri";
 
+import { useBlockNoteEditor } from "@blocknote/react";
 import { aiBlockConfig } from "../../../../core/blocks/AIBlockContent/AIBlockContent";
 import { mockAIReplaceBlockContent } from "../../../../core/blocks/AIBlockContent/mockAIFunctions";
 import { useAIDictionary } from "../../../hooks/useAIDictionary";
-import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { AIBlockToolbarProps } from "../AIBlockToolbarProps";
 
 export const ShowPromptButton = (

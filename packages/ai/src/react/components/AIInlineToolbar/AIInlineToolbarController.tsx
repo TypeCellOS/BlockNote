@@ -3,8 +3,9 @@ import { useUIElementPositioning, useUIPluginState } from "@blocknote/react";
 import { flip, offset } from "@floating-ui/react";
 import { FC } from "react";
 
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
+import { useBlockNoteEditor } from "@blocknote/react";
 
+import { AIInlineToolbarProsemirrorPlugin } from "../../../core";
 import { AIInlineToolbar } from "./AIInlineToolbar";
 import { AIInlineToolbarProps } from "./AIInlineToolbarProps";
 
@@ -18,7 +19,11 @@ export const AIInlineToolbarController = (props: {
   >();
 
   const state = useUIPluginState(
-    editor.aiInlineToolbar.onUpdate.bind(editor.aiInlineToolbar)
+    (
+      editor.extensions.aiInlineToolbar as AIInlineToolbarProsemirrorPlugin
+    ).onUpdate.bind(
+      editor.extensions.aiInlineToolbar as AIInlineToolbarProsemirrorPlugin // TODO
+    )
   );
 
   const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(

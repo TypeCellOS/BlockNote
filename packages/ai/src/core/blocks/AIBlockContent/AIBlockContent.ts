@@ -1,12 +1,12 @@
 import {
   BlockConfig,
-  PropSchema,
-  defaultProps,
   BlockFromConfig,
+  BlockNoteEditor,
+  PropSchema,
   createBlockSpec,
+  defaultProps,
 } from "@blocknote/core";
 
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { mockAIReplaceBlockContent } from "./mockAIFunctions";
 
 export const aiPropSchema = {

@@ -2,11 +2,11 @@ import { Block } from "@blocknote/core";
 import { useComponentsContext } from "@blocknote/react";
 import { ReactNode, useEffect, useState } from "react";
 
+import { useBlockNoteEditor } from "@blocknote/react";
 import {
   mockAIInsertAfterSelection,
   mockAIReplaceSelection,
 } from "../../../core/blocks/AIBlockContent/mockAIFunctions";
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
 import { AIInlineToolbarProps } from "./AIInlineToolbarProps";
 import { AcceptButton } from "./DefaultButtons/AcceptButton";
 import { RetryButton } from "./DefaultButtons/RetryButton";

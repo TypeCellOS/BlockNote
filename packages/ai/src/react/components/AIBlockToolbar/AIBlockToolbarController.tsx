@@ -1,9 +1,14 @@
 import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
-import { useUIElementPositioning, useUIPluginState } from "@blocknote/react";
+import {
+  useBlockNoteEditor,
+  useUIElementPositioning,
+  useUIPluginState,
+} from "@blocknote/react";
 import { flip, offset } from "@floating-ui/react";
 import { FC } from "react";
 
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
+import { AIBlockToolbarProsemirrorPlugin } from "../../../core";
+
 import { AIBlockToolbar } from "./AIBlockToolbar";
 import { AIBlockToolbarProps } from "./AIBlockToolbarProps";
 
@@ -16,14 +21,19 @@ export const AIBlockToolbarController = (props: {
     StyleSchema
   >();
 
-  if (!editor.aiBlockToolbar) {
+  if (!editor.extensions.aiBlockToolbar) {
     throw new Error(
       "AIToolbarController can only be used when BlockNote editor schema contains an AI block"
     );
   }
 
+  // TODO
   const state = useUIPluginState(
-    editor.aiBlockToolbar.onUpdate.bind(editor.aiBlockToolbar)
+    (
+      editor.extensions.aiBlockToolbar as AIBlockToolbarProsemirrorPlugin
+    ).onUpdate.bind(
+      editor.extensions.aiBlockToolbar as AIBlockToolbarProsemirrorPlugin
+    )
   );
 
   const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(

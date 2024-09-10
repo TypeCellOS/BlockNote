@@ -1,10 +1,10 @@
 import { filterSuggestionItems } from "@blocknote/core";
 import { SuggestionMenuController } from "@blocknote/react";
 
+import { useBlockNoteEditor } from "@blocknote/react";
 import { AIBlockToolbarController } from "../components/AIBlockToolbar/AIBlockToolbarController";
 import { AIInlineToolbarController } from "../components/AIInlineToolbar/AIInlineToolbarController";
 import { getDefaultAIMenuItems } from "../components/SuggestionMenu/getDefaultAIMenuItems";
-import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor";
 
 export type BlockNoteAIUIProps = {
   aiBlockToolbar?: boolean;
@@ -23,7 +23,7 @@ export function BlockNoteAIUI(props: BlockNoteAIUIProps) {
 
   return (
     <>
-      {editor.aiBlockToolbar && props.aiBlockToolbar !== false && (
+      {editor.extensions.aiBlockToolbar && props.aiBlockToolbar !== false && (
         <AIBlockToolbarController />
       )}
       {props.aiInlineToolbar !== false && <AIInlineToolbarController />}

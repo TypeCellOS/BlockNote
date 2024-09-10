@@ -1,7 +1,8 @@
-import { useDictionary } from "@blocknote/react";
+import { useBlockNoteContext } from "@blocknote/react";
 
-import { Dictionary } from "../../core/i18n/dictionary";
+import { getAIDictionary } from "../../core/i18n/dictionary";
 
-export function useAIDictionary(): Dictionary {
-  return useDictionary() as unknown as Dictionary;
+export function useAIDictionary() {
+  const ctx = useBlockNoteContext();
+  return getAIDictionary(ctx!.editor!);
 }

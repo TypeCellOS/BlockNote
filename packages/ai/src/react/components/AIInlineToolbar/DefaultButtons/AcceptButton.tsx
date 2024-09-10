@@ -1,8 +1,8 @@
-import { useComponentsContext } from "@blocknote/react";
+import { useBlockNoteEditor, useComponentsContext } from "@blocknote/react";
 import { RiCheckFill } from "react-icons/ri";
 
+import { AIInlineToolbarProsemirrorPlugin } from "../../../../core/extensions/AIInlineToolbar/AIInlineToolbarPlugin";
 import { useAIDictionary } from "../../../hooks/useAIDictionary";
-import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 
 export const AcceptButton = () => {
   const dict = useAIDictionary();

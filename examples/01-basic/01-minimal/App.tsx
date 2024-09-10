@@ -4,9 +4,8 @@ import {
   AIInlineToolbarProsemirrorPlugin,
   BlockNoteAIUI,
   aiBlockTypeSelectItems,
-  getAISlashMenuItems,
-  Dictionary,
   en as aiEN,
+  getAISlashMenuItems,
 } from "@blocknote/ai";
 import "@blocknote/ai/style.css";
 import { en, filterSuggestionItems } from "@blocknote/core";
@@ -46,9 +45,7 @@ export default function App() {
           <FormattingToolbar>
             {...getFormattingToolbarItems([
               ...blockTypeSelectItems(editor.dictionary),
-              ...aiBlockTypeSelectItems(
-                editor.dictionary as unknown as Dictionary
-              ), // TODO
+              ...aiBlockTypeSelectItems(aiEN),
             ])}
             <AIButton />
           </FormattingToolbar>

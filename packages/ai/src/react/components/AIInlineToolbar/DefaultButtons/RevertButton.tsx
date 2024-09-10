@@ -1,11 +1,11 @@
 import { Block } from "@blocknote/core";
-import { useComponentsContext } from "@blocknote/react";
+import { useBlockNoteEditor, useComponentsContext } from "@blocknote/react";
 import { TextSelection } from "prosemirror-state";
 import { RiArrowGoBackFill } from "react-icons/ri";
 
 import { AIInlineToolbarProsemirrorPlugin } from "../../../../core";
 import { useAIDictionary } from "../../../hooks/useAIDictionary";
-import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
+
 import { AIInlineToolbarProps } from "../AIInlineToolbarProps";
 
 export const RevertButton = (

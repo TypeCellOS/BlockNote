@@ -1,7 +1,6 @@
-import { Block, BlockIdentifier } from "@blocknote/core";
+import { Block, BlockIdentifier, BlockNoteEditor } from "@blocknote/core";
 import { TextSelection } from "prosemirror-state";
-
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { AIInlineToolbarProsemirrorPlugin } from "../../extensions/AIInlineToolbar/AIInlineToolbarPlugin";
 
 const flattenBlocks = (
   blocks: Block<any, any, any>[]
@@ -161,7 +160,8 @@ Provide a version of the selected section where the selected text inside is modi
 
   editor.formattingToolbar.closeMenu();
   editor.focus();
-  editor.aiInlineToolbar.open(prompt, "replaceSelection");
+  (editor.extensions["aiInlineToolbar"] as AIInlineToolbarProsemirrorPlugin) // TODO
+    .open(prompt, "replaceSelection");
 
   return selectedBlocks;
 };
@@ -326,7 +326,8 @@ Provide a modified version of the selected section where content based on the pr
 
   editor.formattingToolbar.closeMenu();
   editor.focus();
-  editor.aiInlineToolbar.open(prompt, "insertAfterSelection");
+  (editor.extensions["aiInlineToolbar"] as AIInlineToolbarProsemirrorPlugin) // TODO
+    .open(prompt, "insertAfterSelection");
 
   return [selectedBlock];
 };

@@ -1,9 +1,9 @@
-import { useComponentsContext } from "@blocknote/react";
+import { useBlockNoteEditor, useComponentsContext } from "@blocknote/react";
 import { RiLoopLeftFill } from "react-icons/ri";
 
 import { mockAIReplaceSelection } from "../../../../core/blocks/AIBlockContent/mockAIFunctions";
 import { useAIDictionary } from "../../../hooks/useAIDictionary";
-import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
+
 import { AIInlineToolbarProps } from "../AIInlineToolbarProps";
 
 export const RetryButton = (

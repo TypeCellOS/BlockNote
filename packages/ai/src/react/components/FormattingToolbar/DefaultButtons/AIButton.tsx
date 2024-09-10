@@ -3,9 +3,9 @@ import { useComponentsContext } from "@blocknote/react";
 import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
 import { RiSparkling2Fill } from "react-icons/ri";
 
-import { useAIDictionary } from "../../../hooks/useAIDictionary";
-import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
+import { useBlockNoteEditor } from "@blocknote/react";
 import { AIInlineToolbarProsemirrorPlugin } from "../../../../core";
+import { useAIDictionary } from "../../../hooks/useAIDictionary";
 
 // TODO: name?
 export const AIButton = () => {
