@@ -3,6 +3,7 @@ import { useComponentsContext } from "@blocknote/react";
 import { TextSelection } from "prosemirror-state";
 import { RiArrowGoBackFill } from "react-icons/ri";
 
+import { AIInlineToolbarProsemirrorPlugin } from "../../../../core";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useDictionary } from "../../../hooks/useDictionary";
 import { AIInlineToolbarProps } from "../AIInlineToolbarProps";
@@ -17,6 +18,11 @@ export const RevertButton = (
 
   const editor = useBlockNoteEditor<any, any, any>();
 
+  // TODO: simplify?
+  const plugin = editor.extensions[
+    "aiinlineToolbar"
+  ] as AIInlineToolbarProsemirrorPlugin;
+
   if (!editor.isEditable) {
     return null;
   }
@@ -28,7 +34,7 @@ export const RevertButton = (
       mainTooltip={dict.ai_inline_toolbar.revert}
       label={dict.ai_inline_toolbar.revert}
       onClick={() => {
-        editor.aiInlineToolbar.close();
+        plugin.close();
 
         const oldDocSize = editor._tiptapEditor.state.doc.nodeSize;
         const startPos = editor._tiptapEditor.state.selection.from;

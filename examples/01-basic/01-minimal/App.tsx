@@ -1,5 +1,7 @@
 import {
+  AIBlockToolbarProsemirrorPlugin,
   AIButton,
+  AIInlineToolbarProsemirrorPlugin,
   BlockNoteAIUI,
   aiBlockTypeSelectItems,
   getAISlashMenuItems,
@@ -21,7 +23,13 @@ import {
 
 export default function App() {
   // Creates a new editor instance.
-  const editor = useCreateBlockNote();
+  const editor = useCreateBlockNote({
+    extensions: {
+      // TODO: things will break when user provides different keys. Define name on plugins instead?
+      aiBlockToolbar: new AIBlockToolbarProsemirrorPlugin(),
+      aiInlineToolbar: new AIInlineToolbarProsemirrorPlugin(),
+    },
+  });
 
   // Renders the editor instance using a React component.
   return (

@@ -1,4 +1,11 @@
-import { EditorOptions, Extension, getSchema } from "@tiptap/core";
+import {
+  AnyExtension,
+  EditorOptions,
+  Extension,
+  Mark,
+  Node as TipTapNode,
+  getSchema,
+} from "@tiptap/core";
 import { Node, Schema } from "prosemirror-model";
 // import "./blocknote.css";
 import * as Y from "yjs";
@@ -61,11 +68,10 @@ import {
   BlockNoteTipTapEditorOptions,
 } from "./BlockNoteTipTapEditor";
 
-import { PlaceholderPlugin } from "../extensions/Placeholder/PlaceholderPlugin";
 import { Dictionary } from "../i18n/dictionary";
 import { en } from "../i18n/locales";
 
-import { Transaction } from "@tiptap/pm/state";
+import { Plugin, Transaction } from "@tiptap/pm/state";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer";
 import "../style.css";
 
@@ -157,6 +163,8 @@ export type BlockNoteEditorOptions<
 
   trailingBlock?: boolean;
 
+  extensions: Record<string, BlockNoteExtension>;
+
   /**
    * Boolean indicating whether the editor is in headless mode.
    * Headless mode means we can use features like importing / exporting blocks,
@@ -173,12 +181,20 @@ const blockNoteTipTapOptions = {
   enableCoreExtensions: false,
 };
 
+export type BlockNoteExtension =
+  | AnyExtension
+  | {
+      plugin: Plugin;
+    };
+
 export class BlockNoteEditor<
   BSchema extends BlockSchema = DefaultBlockSchema,
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
   SSchema extends StyleSchema = DefaultStyleSchema
 > {
   private readonly _pmSchema: Schema;
+
+  public readonly extensions: Record<string, BlockNoteExtension> = {};
 
   /**
    * Boolean indicating whether the editor is in headless mode.
@@ -222,27 +238,45 @@ export class BlockNoteEditor<
   public readonly inlineContentImplementations: InlineContentSpecs;
   public readonly styleImplementations: StyleSpecs;
 
-  public readonly formattingToolbar: FormattingToolbarProsemirrorPlugin;
-  public readonly linkToolbar: LinkToolbarProsemirrorPlugin<
-    BSchema,
-    ISchema,
-    SSchema
-  >;
-  public readonly sideMenu: SideMenuProsemirrorPlugin<
-    BSchema,
-    ISchema,
-    SSchema
-  >;
-  public readonly suggestionMenus: SuggestionMenuProseMirrorPlugin<
-    BSchema,
-    ISchema,
-    SSchema
-  >;
-  public readonly filePanel?: FilePanelProsemirrorPlugin<ISchema, SSchema>;
-  public readonly tableHandles?: TableHandlesProsemirrorPlugin<
-    ISchema,
-    SSchema
-  >;
+  public get formattingToolbar() {
+    return this.extensions[
+      "formattingToolbar"
+    ] as FormattingToolbarProsemirrorPlugin;
+  }
+
+  public get linkToolbar() {
+    return this.extensions["linkToolbar"] as LinkToolbarProsemirrorPlugin<
+      BSchema,
+      ISchema,
+      SSchema
+    >;
+  }
+
+  public get sideMenu() {
+    return this.extensions["sideMenu"] as SideMenuProsemirrorPlugin<
+      BSchema,
+      ISchema,
+      SSchema
+    >;
+  }
+
+  public get suggestionMenus() {
+    return this.extensions[
+      "suggestionMenus"
+    ] as SuggestionMenuProseMirrorPlugin<BSchema, ISchema, SSchema>;
+  }
+
+  public get filePanel() {
+    return this.extensions["filePanel"] as
+      | FilePanelProsemirrorPlugin<ISchema, SSchema>
+      | undefined;
+  }
+
+  public get tableHandles() {
+    return this.extensions["tableHandles"] as
+      | TableHandlesProsemirrorPlugin<ISchema, SSchema>
+      | undefined;
+  }
 
   /**
    * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
@@ -319,17 +353,7 @@ export class BlockNoteEditor<
     this.inlineContentImplementations = newOptions.schema.inlineContentSpecs;
     this.styleImplementations = newOptions.schema.styleSpecs;
 
-    this.formattingToolbar = new FormattingToolbarProsemirrorPlugin(this);
-    this.linkToolbar = new LinkToolbarProsemirrorPlugin(this);
-    this.sideMenu = new SideMenuProsemirrorPlugin(this);
-    this.suggestionMenus = new SuggestionMenuProseMirrorPlugin(this);
-    this.filePanel = new FilePanelProsemirrorPlugin(this as any);
-
-    if (checkDefaultBlockTypeInSchema("table", this)) {
-      this.tableHandles = new TableHandlesProsemirrorPlugin(this as any);
-    }
-
-    const extensions = getBlockNoteExtensions({
+    this.extensions = getBlockNoteExtensions({
       editor: this,
       domAttributes: newOptions.domAttributes || {},
       blockSpecs: this.schema.blockSpecs,
@@ -338,24 +362,19 @@ export class BlockNoteEditor<
       collaboration: newOptions.collaboration,
       trailingBlock: newOptions.trailingBlock,
       disableExtensions: newOptions.disableExtensions,
+      tableHandles: checkDefaultBlockTypeInSchema("table", this),
+      placeholders: newOptions.placeholders,
     });
 
-    const blockNoteUIExtension = Extension.create({
-      name: "BlockNoteUIExtension",
-
-      addProseMirrorPlugins: () => {
-        return [
-          this.formattingToolbar.plugin,
-          this.linkToolbar.plugin,
-          this.sideMenu.plugin,
-          this.suggestionMenus.plugin,
-          ...(this.filePanel ? [this.filePanel.plugin] : []),
-          ...(this.tableHandles ? [this.tableHandles.plugin] : []),
-          PlaceholderPlugin(this, newOptions.placeholders),
-        ];
-      },
+    // add extensions from _tiptapOptions
+    (newOptions._tiptapOptions?.extensions || []).forEach((ext) => {
+      this.extensions[ext.name] = ext;
     });
-    extensions.push(blockNoteUIExtension);
+
+    // add extensions from options
+    Object.entries(newOptions.extensions || {}).forEach(([key, ext]) => {
+      this.extensions[key] = ext;
+    });
 
     this.uploadFile = newOptions.uploadFile;
     this.resolveFileUrl = newOptions.resolveFileUrl || (async (url) => url);
@@ -396,8 +415,22 @@ export class BlockNoteEditor<
       ...newOptions._tiptapOptions,
       content: initialContent,
       extensions: [
-        ...(newOptions._tiptapOptions?.extensions || []),
-        ...extensions,
+        ...Object.entries(this.extensions).map(([key, ext]) => {
+          if (
+            ext instanceof Extension ||
+            ext instanceof TipTapNode ||
+            ext instanceof Mark
+          ) {
+            // tiptap extension
+            return ext;
+          }
+
+          // "blocknote" extensions (prosemirror plugins)
+          return Extension.create({
+            name: key,
+            addProseMirrorPlugins: () => [ext.plugin],
+          });
+        }),
       ],
       editorProps: {
         ...newOptions._tiptapOptions?.editorProps,

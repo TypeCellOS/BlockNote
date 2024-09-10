@@ -40,6 +40,8 @@ export class BlockNoteEditor<
   public readonly aiInlineToolbar: AIInlineToolbarProsemirrorPlugin =
     new AIInlineToolbarProsemirrorPlugin();
 
+  public toolbars: Record<string, any>;
+
   protected constructor(
     protected readonly options: Partial<BlockNoteEditorOptions<any, any, any>>
   ) {
