@@ -6,6 +6,7 @@ import { RiSparkling2Fill } from "react-icons/ri";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
 import { useDictionary } from "../../../hooks/useDictionary";
 
+// TODO: name?
 export const AIButton = () => {
   const dict = useDictionary();
   const Components = useComponentsContext()!;

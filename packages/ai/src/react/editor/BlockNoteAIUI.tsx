@@ -1,25 +1,18 @@
 import { filterSuggestionItems } from "@blocknote/core";
-import {
-  BlockNoteDefaultUI as BlockNoteDefaultCoreUI,
-  BlockNoteDefaultUIProps as BlockNoteDefaultCoreUIProps,
-  SuggestionMenuController,
-} from "@blocknote/react";
+import { SuggestionMenuController } from "@blocknote/react";
 
 import { AIBlockToolbarController } from "../components/AIBlockToolbar/AIBlockToolbarController";
 import { AIInlineToolbarController } from "../components/AIInlineToolbar/AIInlineToolbarController";
-import { FormattingToolbarController } from "../components/FormattingToolbar/FormattingToolbarController";
-import { SideMenuController } from "../components/SideMenu/SideMenuController";
 import { getDefaultAIMenuItems } from "../components/SuggestionMenu/getDefaultAIMenuItems";
-import { getDefaultReactSlashMenuItems } from "../components/SuggestionMenu/getDefaultReactSlashMenuItems";
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor";
 
-export type BlockNoteDefaultUIProps = BlockNoteDefaultCoreUIProps & {
+export type BlockNoteAIUIProps = {
   aiBlockToolbar?: boolean;
   aiInlineToolbar?: boolean;
   aiMenu?: boolean;
 };
 
-export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
+export function BlockNoteAIUI(props: BlockNoteAIUIProps) {
   const editor = useBlockNoteEditor();
 
   if (!editor) {
@@ -30,21 +23,6 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
 
   return (
     <>
-      <BlockNoteDefaultCoreUI
-        formattingToolbar={false}
-        sideMenu={false}
-        slashMenu={false}
-      />
-      {props.formattingToolbar !== false && <FormattingToolbarController />}
-      {props.sideMenu !== false && <SideMenuController />}
-      {props.slashMenu !== false && (
-        <SuggestionMenuController
-          triggerCharacter="/"
-          getItems={async (query) =>
-            filterSuggestionItems(getDefaultReactSlashMenuItems(editor), query)
-          }
-        />
-      )}
       {editor.aiBlockToolbar && props.aiBlockToolbar !== false && (
         <AIBlockToolbarController />
       )}

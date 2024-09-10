@@ -14,7 +14,10 @@
           "author": "matthewlipski",
           "tags": [
             "Basic"
-          ]
+          ],
+          "dependencies": {
+            "blocknote/ai": "latest"
+          } as any
         },
         "title": "Basic Setup",
         "group": {

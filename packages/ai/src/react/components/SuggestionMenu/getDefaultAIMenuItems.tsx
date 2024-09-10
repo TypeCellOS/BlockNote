@@ -5,6 +5,7 @@ import { BlockNoteEditor } from "../../../core/editor/BlockNoteEditor";
 
 // TODO: Maybe we don't want to define the default AI prompts based on the
 //  dictionary
+// TODO: name
 export function getDefaultAIMenuItems<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,

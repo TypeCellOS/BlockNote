@@ -1,13 +1,14 @@
 import {
-  DefaultSuggestionItem,
-  insertOrUpdateBlock,
-  getDefaultSlashMenuItems as getDefaultCoreSlashMenuItems,
   BlockSchema,
+  DefaultSuggestionItem,
   InlineContentSchema,
   StyleSchema,
+  checkBlockTypeInSchema,
+  getDefaultSlashMenuItems as getDefaultCoreSlashMenuItems,
+  insertOrUpdateBlock,
 } from "@blocknote/core";
 
-import { checkDefaultBlockTypeInSchema } from "../../blocks/defaultBlockTypeGuards";
+import { aiBlockConfig } from "../../blocks/AIBlockContent/AIBlockContent";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 
 export function getDefaultSlashMenuItems<
@@ -24,7 +25,7 @@ export function getDefaultSlashMenuItems<
     ...editor.dictionary.slash_menu.ai,
   });
 
-  if (checkDefaultBlockTypeInSchema("ai", editor)) {
+  if (checkBlockTypeInSchema(aiBlockConfig, editor)) {
     items.splice(insertionIndex, 0, {
       onItemClick: () => {
         insertOrUpdateBlock(editor, {
