@@ -27,7 +27,7 @@ export function checkBlockTypeInSchema<
 ): editor is BlockNoteEditor<{ Type: Config }, I, S> {
   return (
     blockConfig.type in editor.schema.blockSchema &&
-    editor.schema.blockSchema[blockConfig.type].config === blockConfig
+    editor.schema.blockSchema[blockConfig.type] === blockConfig
   );
 }
 

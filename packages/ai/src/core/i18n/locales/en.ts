@@ -26,7 +26,10 @@ export const en = {
     custom_prompt: {
       title: "Custom Prompt",
       subtext: "Use your query as an AI prompt",
-      aliases: ["", "custom prompt"],
+      aliases: [
+        "", // TODO: add comment
+        "custom prompt",
+      ],
     },
     make_longer: {
       title: "Make Longer",

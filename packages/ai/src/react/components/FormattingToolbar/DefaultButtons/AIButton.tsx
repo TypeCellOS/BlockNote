@@ -51,16 +51,17 @@ export const AIButton = () => {
   }
 
   return (
-    <Components.Generic.Menu.Root>
-      <Components.Generic.Menu.Trigger>
+    <Components.Generic.Popover.Root>
+      <Components.Generic.Popover.Trigger>
         <Components.Toolbar.Button
           className={"bn-button"}
           label={dict.formatting_toolbar.ai.tooltip}
           mainTooltip={dict.formatting_toolbar.ai.tooltip}
           icon={<RiSparkling2Fill />}
         />
-      </Components.Generic.Menu.Trigger>
-      <Components.Generic.Menu.Dropdown
+      </Components.Generic.Popover.Trigger>
+      <Components.Generic.Popover.Content
+        variant="form-popover"
         className={"bn-popover-content bn-form-popover"}>
         <Components.Generic.Form.Root>
           <Components.Generic.Form.TextInput
@@ -73,10 +74,9 @@ export const AIButton = () => {
             onChange={handleChange}
           />
         </Components.Generic.Form.Root>
-        <Components.Generic.Menu.Item onClick={() => runAIEdit("Make longer")}>
-          Make longer
-        </Components.Generic.Menu.Item>
-      </Components.Generic.Menu.Dropdown>
-    </Components.Generic.Menu.Root>
+
+        <p onClick={() => runAIEdit("Make longer")}>Make longer</p>
+      </Components.Generic.Popover.Content>
+    </Components.Generic.Popover.Root>
   );
 };

@@ -1,4 +1,5 @@
 import {
+  AIBlock,
   AIBlockToolbarProsemirrorPlugin,
   AIButton,
   AIInlineToolbarProsemirrorPlugin,
@@ -8,7 +9,12 @@ import {
   getAISlashMenuItems,
 } from "@blocknote/ai";
 import "@blocknote/ai/style.css";
-import { en, filterSuggestionItems } from "@blocknote/core";
+import {
+  BlockNoteSchema,
+  defaultBlockSpecs,
+  en,
+  filterSuggestionItems,
+} from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
@@ -22,9 +28,16 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 
+const schema = BlockNoteSchema.create({
+  blockSpecs: {
+    ai: AIBlock,
+    ...defaultBlockSpecs,
+  },
+});
 export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
+    schema,
     dictionary: {
       ...en,
       ai: aiEN,
