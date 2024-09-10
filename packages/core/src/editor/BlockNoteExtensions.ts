@@ -212,12 +212,13 @@ export const getBlockNoteExtensions = <
     ret[ext.name] = ext;
   }
 
+  // TODO: things will break when user provides different keys. Define name on plugins instead?
   ret["formattingToolbar"] = new FormattingToolbarProsemirrorPlugin(
     opts.editor
   );
   ret["linkToolbar"] = new LinkToolbarProsemirrorPlugin(opts.editor);
   ret["sideMenu"] = new SideMenuProsemirrorPlugin(opts.editor);
-  ret["suggestionMenu"] = new SuggestionMenuProseMirrorPlugin(opts.editor);
+  ret["suggestionMenus"] = new SuggestionMenuProseMirrorPlugin(opts.editor);
   ret["filePanel"] = new FilePanelProsemirrorPlugin(opts.editor as any);
   ret["placeholder"] = new PlaceholderPlugin(opts.editor, opts.placeholders);
 

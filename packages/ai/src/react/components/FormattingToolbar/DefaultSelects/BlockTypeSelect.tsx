@@ -1,11 +1,11 @@
 import { RiSparkling2Fill } from "react-icons/ri";
 
 import { BlockTypeSelectItem } from "@blocknote/react";
-import { Dictionary } from "../../../../core/i18n/dictionary";
+import { AIDictionary } from "../../../../core";
 
 // TODO: rename?
 export const aiBlockTypeSelectItems = (
-  dict: Dictionary
+  dict: AIDictionary
 ): BlockTypeSelectItem[] => [
   {
     name: dict.slash_menu.ai_block.title,
