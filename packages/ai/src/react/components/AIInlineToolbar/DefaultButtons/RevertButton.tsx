@@ -4,8 +4,8 @@ import { TextSelection } from "prosemirror-state";
 import { RiArrowGoBackFill } from "react-icons/ri";
 
 import { AIInlineToolbarProsemirrorPlugin } from "../../../../core";
+import { useAIDictionary } from "../../../hooks/useAIDictionary";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
-import { useDictionary } from "../../../hooks/useDictionary";
 import { AIInlineToolbarProps } from "../AIInlineToolbarProps";
 
 export const RevertButton = (
@@ -13,15 +13,14 @@ export const RevertButton = (
     originalBlocks: Block<any, any, any>[];
   }
 ) => {
-  const dict = useDictionary();
+  const dict = useAIDictionary();
   const Components = useComponentsContext()!;
 
   const editor = useBlockNoteEditor<any, any, any>();
 
   // TODO: simplify?
-  const plugin = editor.extensions[
-    "aiinlineToolbar"
-  ] as AIInlineToolbarProsemirrorPlugin;
+  const plugin = editor.extensions
+    .aiInlineToolbar as AIInlineToolbarProsemirrorPlugin;
 
   if (!editor.isEditable) {
     return null;

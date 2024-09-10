@@ -3,12 +3,13 @@ import { useComponentsContext } from "@blocknote/react";
 import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
 import { RiSparkling2Fill } from "react-icons/ri";
 
+import { useAIDictionary } from "../../../hooks/useAIDictionary";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
-import { useDictionary } from "../../../hooks/useDictionary";
+import { AIInlineToolbarProsemirrorPlugin } from "../../../../core";
 
 // TODO: name?
 export const AIButton = () => {
-  const dict = useDictionary();
+  const dict = useAIDictionary();
   const Components = useComponentsContext()!;
 
   const editor = useBlockNoteEditor<
@@ -22,7 +23,9 @@ export const AIButton = () => {
   const runAIEdit = useCallback(
     async (prompt: string) => {
       editor.formattingToolbar.closeMenu();
-      editor.aiInlineToolbar.open(prompt, "replaceSelection");
+      (
+        editor.extensions.aiInlineToolbar as AIInlineToolbarProsemirrorPlugin
+      ).open(prompt, "replaceSelection");
     },
     [editor]
   );

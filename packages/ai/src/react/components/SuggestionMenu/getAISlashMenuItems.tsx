@@ -10,6 +10,7 @@ import { RiSparkling2Fill } from "react-icons/ri";
 
 import { aiBlockConfig } from "../../../core";
 import type { BlockNoteEditor } from "../../../core/editor/BlockNoteEditor";
+import { Dictionary } from "../../../core/i18n/dictionary";
 
 const Icons = {
   AI: RiSparkling2Fill,
@@ -24,7 +25,7 @@ export function getAISlashMenuItems<
     {
       name: "ai",
       onItemClick: () => editor.openSelectionMenu("`"),
-      ...editor.dictionary.slash_menu.ai,
+      ...(editor.dictionary as unknown as Dictionary).slash_menu.ai,
       icon: <Icons.AI />,
     },
   ];
@@ -37,7 +38,7 @@ export function getAISlashMenuItems<
           type: "ai",
         });
       },
-      ...editor.dictionary.slash_menu.ai_block,
+      ...(editor.dictionary as unknown as Dictionary).slash_menu.ai_block,
       icon: <Icons.AI />,
     });
   }

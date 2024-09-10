@@ -2,8 +2,8 @@ import { useComponentsContext } from "@blocknote/react";
 import { RiLoopLeftFill } from "react-icons/ri";
 
 import { mockAIReplaceSelection } from "../../../../core/blocks/AIBlockContent/mockAIFunctions";
+import { useAIDictionary } from "../../../hooks/useAIDictionary";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
-import { useDictionary } from "../../../hooks/useDictionary";
 import { AIInlineToolbarProps } from "../AIInlineToolbarProps";
 
 export const RetryButton = (
@@ -12,7 +12,7 @@ export const RetryButton = (
     setUpdating: (updating: boolean) => void;
   }
 ) => {
-  const dict = useDictionary();
+  const dict = useAIDictionary();
   const Components = useComponentsContext()!;
 
   const editor = useBlockNoteEditor<any, any, any>();

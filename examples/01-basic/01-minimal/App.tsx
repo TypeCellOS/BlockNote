@@ -5,9 +5,11 @@ import {
   BlockNoteAIUI,
   aiBlockTypeSelectItems,
   getAISlashMenuItems,
+  Dictionary,
+  en as aiEN,
 } from "@blocknote/ai";
 import "@blocknote/ai/style.css";
-import { filterSuggestionItems } from "@blocknote/core";
+import { en, filterSuggestionItems } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
@@ -24,6 +26,10 @@ import {
 export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
+    dictionary: {
+      ...en,
+      ai: aiEN,
+    } as any,
     extensions: {
       // TODO: things will break when user provides different keys. Define name on plugins instead?
       aiBlockToolbar: new AIBlockToolbarProsemirrorPlugin(),
@@ -40,7 +46,9 @@ export default function App() {
           <FormattingToolbar>
             {...getFormattingToolbarItems([
               ...blockTypeSelectItems(editor.dictionary),
-              ...aiBlockTypeSelectItems(editor.dictionary as any), // TODO
+              ...aiBlockTypeSelectItems(
+                editor.dictionary as unknown as Dictionary
+              ), // TODO
             ])}
             <AIButton />
           </FormattingToolbar>

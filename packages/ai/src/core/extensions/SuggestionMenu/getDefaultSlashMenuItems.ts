@@ -10,6 +10,7 @@ import {
 
 import { aiBlockConfig } from "../../blocks/AIBlockContent/AIBlockContent";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { Dictionary } from "../../i18n/dictionary";
 
 export function getDefaultSlashMenuItems<
   BSchema extends BlockSchema,
@@ -22,7 +23,7 @@ export function getDefaultSlashMenuItems<
   items.splice(insertionIndex, 0, {
     onItemClick: () => editor.openSelectionMenu("`"),
     name: "ai",
-    ...editor.dictionary.slash_menu.ai,
+    ...(editor.dictionary as unknown as Dictionary).slash_menu.ai,
   });
 
   if (checkBlockTypeInSchema(aiBlockConfig, editor)) {
@@ -33,7 +34,7 @@ export function getDefaultSlashMenuItems<
         });
       },
       name: "ai_block",
-      ...editor.dictionary.slash_menu.ai_block,
+      ...(editor.dictionary as unknown as Dictionary).slash_menu.ai_block,
     });
   }
 

@@ -1,16 +1,11 @@
-import { en as dict } from "@blocknote/core";
-
 export const en = {
-  ...dict,
   formatting_toolbar: {
-    ...dict.formatting_toolbar,
     ai: {
       tooltip: "Generate content",
       input_placeholder: "Enter a prompt",
     },
   },
   slash_menu: {
-    ...dict.slash_menu,
     ai_block: {
       title: "AI Block",
       subtext: "Block with AI generated content",
@@ -25,7 +20,6 @@ export const en = {
     },
   },
   placeholders: {
-    ...dict.placeholders,
     ai: "Enter a prompt",
   },
   ai_menu: {
