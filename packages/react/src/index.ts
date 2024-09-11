@@ -48,6 +48,7 @@ export * from "./components/SuggestionMenu/SuggestionMenuWrapper";
 export * from "./components/SuggestionMenu/getDefaultReactSlashMenuItems";
 export * from "./components/SuggestionMenu/hooks/useCloseSuggestionMenuNoItems";
 export * from "./components/SuggestionMenu/hooks/useLoadSuggestionMenuItems";
+export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardHandler";
 export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardNavigation";
 export * from "./components/SuggestionMenu/types";
 

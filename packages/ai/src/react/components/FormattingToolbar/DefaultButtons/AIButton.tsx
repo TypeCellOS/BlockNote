@@ -7,11 +7,13 @@ import {
 import {
   DefaultReactSuggestionItem,
   useComponentsContext,
+  useSuggestionMenuKeyboardHandler,
 } from "@blocknote/react";
 import {
   ChangeEvent,
   KeyboardEvent,
   useCallback,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -69,11 +71,44 @@ export const AIButton = () => {
             title: "Make Longer",
             onItemClick: () => runAIEdit("Make longer"),
           },
+          {
+            name: "make-shorter",
+            title: "Make Shorter",
+            onItemClick: () => runAIEdit("Make shorter"),
+          },
+          {
+            name: "summarize",
+            title: "Summarize",
+            onItemClick: () => runAIEdit("Summarize"),
+          },
         ],
         currentEditingPrompt
       ),
     [currentEditingPrompt, runAIEdit]
   );
+
+  const { selectedIndex, setSelectedIndex, handler } =
+    useSuggestionMenuKeyboardHandler(items, (item) => item.onItemClick());
+
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === "Enter") {
+        if (items.length > 0) {
+          handler(event);
+        } else {
+          handleEnter(event);
+        }
+      } else {
+        handler(event);
+      }
+    },
+    [handleEnter, handler, items.length]
+  );
+
+  // Resets index when items change
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [currentEditingPrompt, setSelectedIndex]);
 
   if (!editor.isEditable) {
     return null;
@@ -99,20 +134,19 @@ export const AIButton = () => {
             value={currentEditingPrompt || ""}
             autoFocus={true}
             placeholder={dict.formatting_toolbar.ai.input_placeholder}
-            onKeyDown={handleEnter}
+            onKeyDown={handleKeyDown}
             onChange={handleChange}
           />
         </Components.Generic.Form.Root>
-
         <Components.SuggestionMenu.Root
           className={"bn-ai-menu"}
           id={"ai-suggestion-menu"}>
-          {items.map((item) => (
+          {items.map((item, index) => (
             <Components.SuggestionMenu.Item
               key={item.name}
               className={"bn-suggestion-menu-item"}
               id={item.name}
-              isSelected={false}
+              isSelected={index === selectedIndex}
               onClick={item.onItemClick}
               item={item}
             />
