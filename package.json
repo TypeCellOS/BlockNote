@@ -23,7 +23,6 @@
     "gen": "lerna run --stream --scope @blocknote/dev-scripts gen",
     "start:built": "npx serve playground/dist -c ../serve.json",
     "build": "npm run clean && npm run gen && npm run clean && lerna run --stream build --concurrency 1",
-    "prepare": "npm run clean && npm run gen && npm run clean && lerna run --stream build --concurrency 1",
     "build:site": "lerna run --stream docs:build --concurrency 1",
     "lint": "lerna run --stream lint",
     "bootstrap": "lerna bootstrap --ci -- --force && patch-package",
