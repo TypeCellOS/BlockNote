@@ -30,12 +30,17 @@ export const aiRender = (
   editor: BlockNoteEditor<any, any, any>
 ) => {
   if (!block.props.prompt) {
-    const replaceContent = () => {
+    const replaceContent = async () => {
       const prompt = span.innerText;
       // TODO: Updating text content in this way isn't working
       generateButton.textContent = "Generating...";
 
-      mockAIReplaceBlockContent(editor, prompt, block);
+      await mockAIReplaceBlockContent(editor, prompt, block);
+      editor.updateBlock(block, {
+        props: {
+          timeGenerated: Date.now(),
+        },
+      });
     };
 
     const promptBox = document.createElement("div");

@@ -4,7 +4,7 @@ import { RiSparkling2Fill } from "react-icons/ri";
 
 import { useBlockNoteEditor } from "@blocknote/react";
 import { useAIDictionary } from "../../../hooks/useAIDictionary";
-import { AIMenu } from "../../AIMenu/AIMenu";
+import { AIMenuProsemirrorPlugin } from "../../../../core";
 
 // TODO: name?
 export const AIButton = () => {
@@ -17,25 +17,22 @@ export const AIButton = () => {
     StyleSchema
   >();
 
+  const onClick = () => {
+    editor.formattingToolbar.closeMenu();
+    (editor.extensions.aiMenu as AIMenuProsemirrorPlugin).open();
+  };
+
   if (!editor.isEditable) {
     return null;
   }
 
   return (
-    <Components.Generic.Popover.Root>
-      <Components.Generic.Popover.Trigger>
-        <Components.Toolbar.Button
-          className={"bn-button"}
-          label={dict.formatting_toolbar.ai.tooltip}
-          mainTooltip={dict.formatting_toolbar.ai.tooltip}
-          icon={<RiSparkling2Fill />}
-        />
-      </Components.Generic.Popover.Trigger>
-      <Components.Generic.Popover.Content
-        variant="form-popover"
-        className={"bn-popover-content bn-form-popover"}>
-        <AIMenu />
-      </Components.Generic.Popover.Content>
-    </Components.Generic.Popover.Root>
+    <Components.Toolbar.Button
+      className={"bn-button"}
+      label={dict.formatting_toolbar.ai.tooltip}
+      mainTooltip={dict.formatting_toolbar.ai.tooltip}
+      icon={<RiSparkling2Fill />}
+      onClick={onClick}
+    />
   );
 };

@@ -23,15 +23,18 @@ export function getDefaultAIMenuItems<
   editor: BlockNoteEditor<BSchema, I, S>,
   operation: "insertAfterSelection" | "replaceSelection"
 ): DefaultReactSuggestionItem[] {
-  return Object.values(getAIDictionary(editor).ai_menu).map((item) => ({
-    name: item.title as any,
-    ...item,
+  const items = ["make_longer", "make_shorter", "rewrite"] as const;
+
+  const dict = getAIDictionary(editor);
+
+  return items.map((item) => ({
+    name: item,
+    title: dict.ai_menu[item].title,
     onItemClick: async () => {
-      editor.formattingToolbar.closeMenu();
       (editor.extensions.aiMenu as AIMenuProsemirrorPlugin).close();
       (
         editor.extensions.aiInlineToolbar as AIInlineToolbarProsemirrorPlugin
-      ).open(item.title, operation);
+      ).open(dict.ai_menu[item].title, operation);
     },
   }));
 }

@@ -39,7 +39,10 @@ export const AIMenuController = (props: { aiMenu?: FC<AIMenuProps> }) => {
   const Component = props.aiMenu || AIMenu;
 
   return (
-    <div ref={ref} style={style} {...getFloatingProps()}>
+    <div
+      ref={ref}
+      style={{ ...style, width: state.referencePos.width }}
+      {...getFloatingProps()}>
       <Component />
     </div>
   );

@@ -12,5 +12,7 @@ export const aiBlockTypeSelectItems = (
     type: "ai",
     icon: RiSparkling2Fill,
     isSelected: (block) => block.type === "ai",
+    showWhileSelected: true,
+    showWhileNotSelected: false,
   },
 ];

@@ -2,7 +2,15 @@
     height: 58px;
 }
 
-div:not(.bn-popover-content) > .bn-ai-menu {
+.bn-ai-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+}
+
+div:not(.bn-popover-content) > .bn-ai-menu-input,
+div:not(.bn-popover-content) > .bn-ai-menu-items:not(:empty) {
     background-color: var(--bn-colors-menu-background);
     border: var(--bn-border);
     border-radius: var(--bn-border-radius-medium);
@@ -16,7 +24,12 @@ div:not(.bn-popover-content) > .bn-ai-menu {
 /* TODO: How to split UI libs CSS? */
 .bn-ai-menu-input .mantine-Input-input {
     border: none;
-    font-size: 12px;
+    font-size: 14px;
+    height: 52px;
+}
+
+.bn-ai-menu-items {
+    max-width: 50%;
 }
 
 .bn-ai-menu .bn-suggestion-menu-item {
@@ -24,5 +37,5 @@ div:not(.bn-popover-content) > .bn-ai-menu {
 }
 
 .bn-ai-menu .bn-mt-suggestion-menu-item-title {
-    font-size: 12px;
+    /*font-size: 12px;*/
 }
