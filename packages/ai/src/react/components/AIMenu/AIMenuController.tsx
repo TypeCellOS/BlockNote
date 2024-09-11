@@ -29,12 +29,6 @@ export const AIMenuController = (props: { aiMenu?: FC<AIMenuProps> }) => {
     {
       placement: "bottom",
       middleware: [offset(10), flip()],
-      onOpenChange: (open) => {
-        if (!open) {
-          editor.linkToolbar.closeMenu();
-          editor.focus();
-        }
-      },
     }
   );
 

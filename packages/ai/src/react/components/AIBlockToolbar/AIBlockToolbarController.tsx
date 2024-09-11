@@ -43,12 +43,6 @@ export const AIBlockToolbarController = (props: {
     {
       placement: "top-end",
       middleware: [offset(10), flip()],
-      onOpenChange: (open) => {
-        if (!open) {
-          editor.linkToolbar.closeMenu();
-          editor.focus();
-        }
-      },
     }
   );
 

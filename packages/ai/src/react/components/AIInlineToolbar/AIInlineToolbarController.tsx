@@ -33,12 +33,6 @@ export const AIInlineToolbarController = (props: {
     {
       placement: "top-start",
       middleware: [offset(10), flip()],
-      onOpenChange: (open) => {
-        if (!open) {
-          editor.linkToolbar.closeMenu();
-          editor.focus();
-        }
-      },
     }
   );
 
