@@ -8,6 +8,7 @@ import { DefaultReactSuggestionItem } from "@blocknote/react";
 
 import {
   AIInlineToolbarProsemirrorPlugin,
+  AIMenuProsemirrorPlugin,
   getAIDictionary,
 } from "../../../core";
 
@@ -20,19 +21,17 @@ export function getDefaultAIMenuItems<
   S extends StyleSchema
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
-  query: string
+  operation: "insertAfterSelection" | "replaceSelection"
 ): DefaultReactSuggestionItem[] {
   return Object.values(getAIDictionary(editor).ai_menu).map((item) => ({
     name: item.title as any,
     ...item,
     onItemClick: async () => {
-      (editor.extensions.aiInlineToolbar as AIInlineToolbarProsemirrorPlugin) // TODO
-        .open(
-          getAIDictionary(editor).ai_menu.custom_prompt.title === item.title
-            ? query
-            : item.title,
-          "insertAfterSelection"
-        );
+      editor.formattingToolbar.closeMenu();
+      (editor.extensions.aiMenu as AIMenuProsemirrorPlugin).close();
+      (
+        editor.extensions.aiInlineToolbar as AIInlineToolbarProsemirrorPlugin
+      ).open(item.title, operation);
     },
   }));
 }

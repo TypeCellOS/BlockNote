@@ -23,17 +23,25 @@ export const en = {
     ai: "Enter a prompt",
   },
   ai_menu: {
-    custom_prompt: {
-      title: "Custom Prompt",
-      subtext: "Use your query as an AI prompt",
-      aliases: [
-        "", // TODO: add comment
-        "custom prompt",
-      ],
-    },
+    // custom_prompt: {
+    //   title: "Custom Prompt",
+    //   subtext: "Use your query as an AI prompt",
+    //   aliases: [
+    //     "", // TODO: add comment
+    //     "custom prompt",
+    //   ],
+    // },
     make_longer: {
       title: "Make Longer",
       aliases: ["make longer"],
+    },
+    make_shorter: {
+      title: "Make Shorter",
+      aliases: ["make shorter"],
+    },
+    rewrite: {
+      title: "Rewrite",
+      aliases: ["rewrite"],
     },
   },
   ai_block_toolbar: {

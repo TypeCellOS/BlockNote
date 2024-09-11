@@ -1,24 +1,26 @@
-import { EventEmitter, UiElementPosition } from "@blocknote/core";
-import { isNodeSelection, posToDOMRect } from "@tiptap/core";
+import {
+  EventEmitter,
+  getBlockInfoFromPos,
+  UiElementPosition,
+} from "@blocknote/core";
 import { Plugin, PluginKey, PluginView } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
-export type AIInlineToolbarState = UiElementPosition & {
-  prompt: string;
-  operation: "replaceSelection" | "insertAfterSelection";
-};
+export type AIMenuState = UiElementPosition;
 
-export class AIInlineToolbarView implements PluginView {
-  public state?: AIInlineToolbarState;
+export class AIMenuView implements PluginView {
+  public state?: AIMenuState;
   public emitUpdate: () => void;
+
+  public domElement: HTMLElement | undefined;
 
   constructor(
     private readonly pmView: EditorView,
-    emitUpdate: (state: AIInlineToolbarState) => void
+    emitUpdate: (state: AIMenuState) => void
   ) {
     this.emitUpdate = () => {
       if (!this.state) {
-        throw new Error("Attempting to update uninitialized AI toolbar");
+        throw new Error("Attempting to update uninitialized AI menu");
       }
 
       emitUpdate(this.state);
@@ -28,7 +30,6 @@ export class AIInlineToolbarView implements PluginView {
     pmView.dom.addEventListener("dragover", this.dragHandler);
     pmView.dom.addEventListener("blur", this.blurHandler);
     pmView.dom.addEventListener("mousedown", this.closeHandler, true);
-    pmView.dom.addEventListener("keydown", this.closeHandler, true);
 
     // Setting capture=true ensures that any parent container of the editor that
     // gets scrolled will trigger the scroll event. Scroll events do not bubble
@@ -40,7 +41,7 @@ export class AIInlineToolbarView implements PluginView {
     const editorWrapper = this.pmView.dom.parentElement!;
 
     // Checks if the focus is moving to an element outside the editor. If it is,
-    // the toolbar is hidden.
+    // the menu is hidden.
     if (
       // An element is clicked.
       event &&
@@ -73,25 +74,32 @@ export class AIInlineToolbarView implements PluginView {
 
   scrollHandler = () => {
     if (this.state?.show) {
-      this.state.referencePos = this.getSelectionBoundingBox();
+      this.state.referencePos = this.domElement!.getBoundingClientRect();
       this.emitUpdate();
     }
   };
 
   update(view: EditorView) {
-    const pluginState: AIInlineToolbarPluginState =
-      aiInlineToolbarPluginKey.getState(view.state);
+    const pluginState: AIInlineToolbarPluginState = aiMenuPluginKey.getState(
+      view.state
+    );
 
     if (this.state && !this.state.show && !pluginState.open) {
       return;
     }
 
     if (pluginState.open) {
+      const blockInfo = getBlockInfoFromPos(
+        view.state.doc,
+        view.state.selection.from
+      );
+
+      this.domElement = view.domAtPos(blockInfo.startPos).node
+        .firstChild as HTMLElement;
+
       this.state = {
         show: true,
-        referencePos: this.getSelectionBoundingBox(),
-        prompt: pluginState.prompt,
-        operation: pluginState.operation,
+        referencePos: this.domElement.getBoundingClientRect(),
       };
 
       this.emitUpdate();
@@ -110,17 +118,15 @@ export class AIInlineToolbarView implements PluginView {
     this.pmView.dom.removeEventListener("dragover", this.dragHandler);
     this.pmView.dom.removeEventListener("blur", this.blurHandler);
     this.pmView.dom.removeEventListener("mousedown", this.closeHandler);
-    this.pmView.dom.removeEventListener("keydown", this.closeHandler);
 
     this.pmView.root.removeEventListener("scroll", this.scrollHandler, true);
   }
 
-  open(prompt: string, operation: "replaceSelection" | "insertAfterSelection") {
+  open() {
+    this.pmView.focus();
     this.pmView.dispatch(
-      this.pmView.state.tr.scrollIntoView().setMeta(aiInlineToolbarPluginKey, {
+      this.pmView.state.tr.scrollIntoView().setMeta(aiMenuPluginKey, {
         open: true,
-        prompt,
-        operation,
       })
     );
   }
@@ -128,7 +134,7 @@ export class AIInlineToolbarView implements PluginView {
   close() {
     this.pmView.focus();
     this.pmView.dispatch(
-      this.pmView.state.tr.scrollIntoView().setMeta(aiInlineToolbarPluginKey, {
+      this.pmView.state.tr.scrollIntoView().setMeta(aiMenuPluginKey, {
         open: false,
       })
     );
@@ -140,49 +146,25 @@ export class AIInlineToolbarView implements PluginView {
       this.emitUpdate();
     }
   };
-
-  getSelectionBoundingBox() {
-    const { state } = this.pmView;
-    const { selection } = state;
-
-    // support for CellSelections
-    const { ranges } = selection;
-    const from = Math.min(...ranges.map((range) => range.$from.pos));
-    const to = Math.max(...ranges.map((range) => range.$to.pos));
-
-    if (isNodeSelection(selection)) {
-      const node = this.pmView.nodeDOM(from) as HTMLElement;
-
-      if (node) {
-        return node.getBoundingClientRect();
-      }
-    }
-
-    return posToDOMRect(this.pmView, from, to);
-  }
 }
 
-type AIInlineToolbarPluginState =
-  | {
-      open: true;
-      prompt: string;
-      operation: "replaceSelection" | "insertAfterSelection";
-    }
-  | { open: false };
+type AIInlineToolbarPluginState = {
+  open: boolean;
+};
 
-export const aiInlineToolbarPluginKey = new PluginKey("AIInlineToolbarPlugin");
+export const aiMenuPluginKey = new PluginKey("AIMenuPlugin");
 
-export class AIInlineToolbarProsemirrorPlugin extends EventEmitter<any> {
-  private view: AIInlineToolbarView | undefined;
+export class AIMenuProsemirrorPlugin extends EventEmitter<any> {
+  private view: AIMenuView | undefined;
   public readonly plugin: Plugin;
   constructor() {
     super();
 
     this.plugin = new Plugin({
-      key: aiInlineToolbarPluginKey,
+      key: aiMenuPluginKey,
 
       view: (editorView) => {
-        this.view = new AIInlineToolbarView(editorView, (state) => {
+        this.view = new AIMenuView(editorView, (state) => {
           this.emit("update", state);
         });
         return this.view;
@@ -197,7 +179,7 @@ export class AIInlineToolbarProsemirrorPlugin extends EventEmitter<any> {
         // Apply changes to the plugin state from an editor transaction.
         apply(transaction, prev) {
           const meta: AIInlineToolbarPluginState | undefined =
-            transaction.getMeta(aiInlineToolbarPluginKey);
+            transaction.getMeta(aiMenuPluginKey);
 
           if (meta === undefined) {
             return prev;
@@ -209,11 +191,8 @@ export class AIInlineToolbarProsemirrorPlugin extends EventEmitter<any> {
     });
   }
 
-  public open(
-    prompt: string,
-    operation: "replaceSelection" | "insertAfterSelection"
-  ) {
-    this.view?.open(prompt, operation);
+  public open() {
+    this.view?.open();
   }
 
   public close() {
@@ -224,7 +203,7 @@ export class AIInlineToolbarProsemirrorPlugin extends EventEmitter<any> {
     return this.view?.state?.show || false;
   }
 
-  public onUpdate(callback: (state: AIInlineToolbarState) => void) {
+  public onUpdate(callback: (state: AIMenuState) => void) {
     return this.on("update", callback);
   }
 

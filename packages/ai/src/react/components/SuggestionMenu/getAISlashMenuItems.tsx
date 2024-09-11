@@ -9,7 +9,7 @@ import {
 import { DefaultReactSuggestionItem } from "@blocknote/react";
 import { RiSparkling2Fill } from "react-icons/ri";
 
-import { aiBlockConfig } from "../../../core";
+import { aiBlockConfig, AIMenuProsemirrorPlugin } from "../../../core";
 
 import { getAIDictionary } from "../../../core/i18n/dictionary";
 
@@ -25,7 +25,8 @@ export function getAISlashMenuItems<
   const items = [
     {
       name: "ai",
-      onItemClick: () => editor.openSelectionMenu("`"),
+      onItemClick: () =>
+        (editor.extensions.aiMenu as AIMenuProsemirrorPlugin).open(),
       ...getAIDictionary(editor).slash_menu.ai,
       icon: <Icons.AI />,
     },

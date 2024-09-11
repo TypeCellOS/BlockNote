@@ -15,6 +15,5 @@ export * from "./components/FormattingToolbar/DefaultButtons/AIButton";
 export * from "./components/FormattingToolbar/DefaultSelects/BlockTypeSelect";
 
 export * from "./components/SuggestionMenu/getAISlashMenuItems";
-export * from "./components/SuggestionMenu/getDefaultAIMenuItems";
 
 export * from "./editor/BlockNoteAIUI";

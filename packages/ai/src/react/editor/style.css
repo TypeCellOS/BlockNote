@@ -2,6 +2,23 @@
     height: 58px;
 }
 
+div:not(.bn-popover-content) > .bn-ai-menu {
+    background-color: var(--bn-colors-menu-background);
+    border: var(--bn-border);
+    border-radius: var(--bn-border-radius-medium);
+    box-shadow: var(--bn-shadow-medium);
+    color: var(--bn-colors-menu-text);
+    gap: 4px;
+    min-width: 145px;
+    padding: 2px;
+}
+
+/* TODO: How to split UI libs CSS? */
+.bn-ai-menu-input .mantine-Input-input {
+    border: none;
+    font-size: 12px;
+}
+
 .bn-ai-menu .bn-suggestion-menu-item {
     height: revert;
 }

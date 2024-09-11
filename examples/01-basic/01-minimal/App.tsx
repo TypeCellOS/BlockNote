@@ -3,6 +3,7 @@ import {
   AIBlockToolbarProsemirrorPlugin,
   AIButton,
   AIInlineToolbarProsemirrorPlugin,
+  AIMenuProsemirrorPlugin,
   BlockNoteAIUI,
   aiBlockTypeSelectItems,
   en as aiEN,
@@ -31,8 +32,8 @@ import {
 
 const schema = BlockNoteSchema.create({
   blockSpecs: {
-    ai: AIBlock,
     ...defaultBlockSpecs,
+    ai: AIBlock,
   },
 });
 export default function App() {
@@ -47,6 +48,7 @@ export default function App() {
       // TODO: things will break when user provides different keys. Define name on plugins instead?
       aiBlockToolbar: new AIBlockToolbarProsemirrorPlugin(),
       aiInlineToolbar: new AIInlineToolbarProsemirrorPlugin(),
+      aiMenu: new AIMenuProsemirrorPlugin(),
     },
   });
 

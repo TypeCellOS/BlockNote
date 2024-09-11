@@ -51,7 +51,7 @@ export class AIBlockToolbarView implements PluginView {
       (editorWrapper === (event.relatedTarget as Node) ||
         editorWrapper.contains(event.relatedTarget as Node) ||
         (event.relatedTarget as HTMLElement).matches(
-          ".bn-ui-container, .bn-ui-container *"
+          ".bn-container, .bn-container *"
         ))
     ) {
       return;

@@ -1,10 +1,7 @@
-import { filterSuggestionItems } from "@blocknote/core";
-import { SuggestionMenuController } from "@blocknote/react";
-
 import { useBlockNoteEditor } from "@blocknote/react";
 import { AIBlockToolbarController } from "../components/AIBlockToolbar/AIBlockToolbarController";
 import { AIInlineToolbarController } from "../components/AIInlineToolbar/AIInlineToolbarController";
-import { getDefaultAIMenuItems } from "../components/SuggestionMenu/getDefaultAIMenuItems";
+import { AIMenuController } from "../components/AIMenu/AIMenuController";
 
 export type BlockNoteAIUIProps = {
   aiBlockToolbar?: boolean;
@@ -27,14 +24,7 @@ export function BlockNoteAIUI(props: BlockNoteAIUIProps) {
         <AIBlockToolbarController />
       )}
       {props.aiInlineToolbar !== false && <AIInlineToolbarController />}
-      {props.aiMenu !== false && (
-        <SuggestionMenuController
-          triggerCharacter="`"
-          getItems={async (query) =>
-            filterSuggestionItems(getDefaultAIMenuItems(editor, query), query)
-          }
-        />
-      )}
+      {props.aiMenu !== false && <AIMenuController />}
     </>
   );
 }
