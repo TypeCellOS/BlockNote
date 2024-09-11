@@ -272,7 +272,12 @@ export function getDefaultSlashMenuItems<
   }
 
   items.push({
-    onItemClick: () => editor.openSelectionMenu(":"),
+    onItemClick: () => {
+      editor.openSuggestionMenu(":", {
+        deleteTriggerCharacter: true,
+        ignoreQueryLength: true,
+      });
+    },
     key: "emoji",
     ...editor.dictionary.slash_menu.emoji,
   });

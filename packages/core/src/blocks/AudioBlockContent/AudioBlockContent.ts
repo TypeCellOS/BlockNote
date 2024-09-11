@@ -43,7 +43,7 @@ export const audioBlockConfig = {
   propSchema: audioPropSchema,
   content: "none",
   isFileBlock: true,
-  fileBlockAcceptMimeTypes: ["audio/*"],
+  fileBlockAccept: ["audio/*"],
 } satisfies FileBlockConfig;
 
 export const audioRender = (

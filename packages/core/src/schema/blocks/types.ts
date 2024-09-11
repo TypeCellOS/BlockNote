@@ -50,7 +50,7 @@ export type FileBlockConfig = {
   };
   content: "none";
   isFileBlock: true;
-  fileBlockAcceptMimeTypes?: string[];
+  fileBlockAccept?: string[];
 };
 
 // BlockConfig contains the "schema" info about a Block type
