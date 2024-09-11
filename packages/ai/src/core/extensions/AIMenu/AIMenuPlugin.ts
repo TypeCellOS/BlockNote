@@ -6,7 +6,9 @@ import {
 import { Plugin, PluginKey, PluginView } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
-export type AIMenuState = UiElementPosition;
+export type AIMenuState = UiElementPosition & {
+  blockIsEmpty: boolean;
+};
 
 export class AIMenuView implements PluginView {
   public state?: AIMenuState;
@@ -100,6 +102,7 @@ export class AIMenuView implements PluginView {
       this.state = {
         show: true,
         referencePos: this.domElement.getBoundingClientRect(),
+        blockIsEmpty: blockInfo.contentNode.content.size === 0,
       };
 
       this.emitUpdate();
