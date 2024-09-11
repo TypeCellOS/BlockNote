@@ -41,6 +41,7 @@ export const SuggestionMenuItem = forwardRef<
       ref={mergeRefs(ref, itemRef)}
       id={id}
       role="option"
+      onMouseDown={(event) => event.preventDefault()}
       onClick={onClick}
       aria-selected={isSelected || undefined}>
       {item.icon && (

@@ -58,7 +58,7 @@ export const AIMenu = (props: AIMenuProps) => {
         await runAIEdit(currentEditingPrompt);
       }
     },
-    [currentEditingPrompt, runAIEdit]
+    [currentEditingPrompt, editor.extensions.aiMenu, runAIEdit]
   );
 
   const handleChange = useCallback(

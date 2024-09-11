@@ -31,6 +31,7 @@ export const SuggestionMenuItem = forwardRef<
       className={mergeCSSClasses("bn-ak-menu-item", className || "")}
       ref={mergeRefs([ref, itemRef])}
       id={id}
+      onMouseDown={(event) => event.preventDefault()}
       onClick={onClick}
       role="option"
       aria-selected={isSelected || undefined}>
