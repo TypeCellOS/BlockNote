@@ -23,8 +23,7 @@ import { useBlockNoteEditor } from "@blocknote/react";
 import { AIInlineToolbarProsemirrorPlugin } from "../../../../core";
 import { useAIDictionary } from "../../../hooks/useAIDictionary";
 
-// TODO: name?
-export const AIButton = () => {
+export const AIButtonCombobox = () => {
   const dict = useAIDictionary();
   const Components = useComponentsContext()!;
 
@@ -110,6 +109,48 @@ export const AIButton = () => {
     setSelectedIndex(0);
   }, [currentEditingPrompt, setSelectedIndex]);
 
+  return (
+    <>
+      <Components.Generic.Form.Root>
+        <Components.Generic.Form.TextInput
+          name={"ai-prompt"}
+          icon={<RiSparkling2Fill />}
+          value={currentEditingPrompt || ""}
+          autoFocus={true}
+          placeholder={dict.formatting_toolbar.ai.input_placeholder}
+          onKeyDown={handleKeyDown}
+          onChange={handleChange}
+        />
+      </Components.Generic.Form.Root>
+      <Components.SuggestionMenu.Root
+        className={"bn-ai-menu"}
+        id={"ai-suggestion-menu"}>
+        {items.map((item, index) => (
+          <Components.SuggestionMenu.Item
+            key={item.name}
+            className={"bn-suggestion-menu-item"}
+            id={item.name}
+            isSelected={index === selectedIndex}
+            onClick={item.onItemClick}
+            item={item}
+          />
+        ))}
+      </Components.SuggestionMenu.Root>
+    </>
+  );
+};
+
+// TODO: name?
+export const AIButton = () => {
+  const dict = useAIDictionary();
+  const Components = useComponentsContext()!;
+
+  const editor = useBlockNoteEditor<
+    BlockSchema,
+    InlineContentSchema,
+    StyleSchema
+  >();
+
   if (!editor.isEditable) {
     return null;
   }
@@ -127,31 +168,7 @@ export const AIButton = () => {
       <Components.Generic.Popover.Content
         variant="form-popover"
         className={"bn-popover-content bn-form-popover"}>
-        <Components.Generic.Form.Root>
-          <Components.Generic.Form.TextInput
-            name={"ai-prompt"}
-            icon={<RiSparkling2Fill />}
-            value={currentEditingPrompt || ""}
-            autoFocus={true}
-            placeholder={dict.formatting_toolbar.ai.input_placeholder}
-            onKeyDown={handleKeyDown}
-            onChange={handleChange}
-          />
-        </Components.Generic.Form.Root>
-        <Components.SuggestionMenu.Root
-          className={"bn-ai-menu"}
-          id={"ai-suggestion-menu"}>
-          {items.map((item, index) => (
-            <Components.SuggestionMenu.Item
-              key={item.name}
-              className={"bn-suggestion-menu-item"}
-              id={item.name}
-              isSelected={index === selectedIndex}
-              onClick={item.onItemClick}
-              item={item}
-            />
-          ))}
-        </Components.SuggestionMenu.Root>
+        <AIButtonCombobox />
       </Components.Generic.Popover.Content>
     </Components.Generic.Popover.Root>
   );
