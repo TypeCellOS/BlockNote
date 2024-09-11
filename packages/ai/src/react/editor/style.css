@@ -1,3 +1,11 @@
 .bn-side-menu[data-block-type="ai"]:not([data-prompt]) {
     height: 58px;
 }
+
+.bn-ai-menu .bn-suggestion-menu-item {
+    height: revert;
+}
+
+.bn-ai-menu .bn-mt-suggestion-menu-item-title {
+    font-size: 12px;
+}

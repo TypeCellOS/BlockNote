@@ -1,6 +1,20 @@
-import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
-import { useComponentsContext } from "@blocknote/react";
-import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
+import {
+  BlockSchema,
+  filterSuggestionItems,
+  InlineContentSchema,
+  StyleSchema,
+} from "@blocknote/core";
+import {
+  DefaultReactSuggestionItem,
+  useComponentsContext,
+} from "@blocknote/react";
+import {
+  ChangeEvent,
+  KeyboardEvent,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
 import { RiSparkling2Fill } from "react-icons/ri";
 
 import { useBlockNoteEditor } from "@blocknote/react";
@@ -46,6 +60,21 @@ export const AIButton = () => {
     []
   );
 
+  const items: DefaultReactSuggestionItem[] = useMemo(
+    () =>
+      filterSuggestionItems(
+        [
+          {
+            name: "make-longer",
+            title: "Make Longer",
+            onItemClick: () => runAIEdit("Make longer"),
+          },
+        ],
+        currentEditingPrompt
+      ),
+    [currentEditingPrompt, runAIEdit]
+  );
+
   if (!editor.isEditable) {
     return null;
   }
@@ -75,7 +104,20 @@ export const AIButton = () => {
           />
         </Components.Generic.Form.Root>
 
-        <p onClick={() => runAIEdit("Make longer")}>Make longer</p>
+        <Components.SuggestionMenu.Root
+          className={"bn-ai-menu"}
+          id={"ai-suggestion-menu"}>
+          {items.map((item) => (
+            <Components.SuggestionMenu.Item
+              key={item.name}
+              className={"bn-suggestion-menu-item"}
+              id={item.name}
+              isSelected={false}
+              onClick={item.onItemClick}
+              item={item}
+            />
+          ))}
+        </Components.SuggestionMenu.Root>
       </Components.Generic.Popover.Content>
     </Components.Generic.Popover.Root>
   );

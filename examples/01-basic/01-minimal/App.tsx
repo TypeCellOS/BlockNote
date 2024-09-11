@@ -8,7 +8,7 @@ import {
   en as aiEN,
   getAISlashMenuItems,
 } from "@blocknote/ai";
-import "@blocknote/ai/style.css";
+
 import {
   BlockNoteSchema,
   defaultBlockSpecs,
@@ -18,6 +18,7 @@ import {
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
+import "@blocknote/ai/style.css";
 import {
   FormattingToolbar,
   FormattingToolbarController,
