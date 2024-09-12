@@ -6,8 +6,8 @@ import {
 import { useComponentsContext } from "@blocknote/react";
 
 import { useBlockNoteEditor } from "@blocknote/react";
-import { aiBlockConfig } from "../../../../core/blocks/AIBlockContent/AIBlockContent";
-import { mockAIReplaceBlockContent } from "../../../../core/blocks/AIBlockContent/mockAIFunctions";
+import { aiBlockConfig } from "../../../blocks/AIBlockContent/AIBlockContent";
+import { mockAIReplaceBlockContent } from "../../../blocks/AIBlockContent/mockAIFunctions";
 import { useAIDictionary } from "../../../hooks/useAIDictionary";
 import { AIBlockToolbarProps } from "../AIBlockToolbarProps";
 

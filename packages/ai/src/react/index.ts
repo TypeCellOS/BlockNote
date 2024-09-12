@@ -1,3 +1,6 @@
+export * from "./blocks/AIBlockContent/AIBlockContent";
+export * from "./blocks/AIBlockContent/mockAIFunctions";
+
 export * from "./components/AIBlockToolbar/AIBlockToolbar";
 export * from "./components/AIBlockToolbar/AIBlockToolbarController";
 export * from "./components/AIBlockToolbar/AIBlockToolbarProps";

@@ -9,9 +9,10 @@ import {
 import { DefaultReactSuggestionItem } from "@blocknote/react";
 import { RiSparkling2Fill } from "react-icons/ri";
 
-import { aiBlockConfig, AIMenuProsemirrorPlugin } from "../../../core";
+import { AIMenuProsemirrorPlugin } from "../../../core";
 
 import { getAIDictionary } from "../../../core/i18n/dictionary";
+import { aiBlockConfig } from "../../blocks/AIBlockContent/AIBlockContent";
 
 const Icons = {
   AI: RiSparkling2Fill,
