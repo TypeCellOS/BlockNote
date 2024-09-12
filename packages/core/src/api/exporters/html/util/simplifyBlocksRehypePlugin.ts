@@ -62,6 +62,32 @@ export function simplifyBlocks(options: SimplifyBlocksOptions) {
         return classNames?.includes("bn-block-group");
       }) as HASTElement | undefined;
 
+      // Saves the data attributes of the block container, excluding the block
+      // ID and node type as we're removing the block structure. This means that
+      // only attributes for the block's props are saved.
+      const blockContainerDataAttributes = Object.fromEntries(
+        Object.entries(blockContainer.properties || {}).filter(
+          ([key]) =>
+            key.startsWith("data") && key !== "dataId" && key !== "dataNodeType"
+        )
+      );
+      // Saves the data attributes of the block content, excluding the block
+      // content type as we're removing the block structure. This means that
+      // only attributes for the block's props are saved.
+      const blockContentDataAttributes = Object.fromEntries(
+        Object.entries(blockContent?.properties || {}).filter(
+          ([key]) =>
+            key.startsWith("data") &&
+            key !== "dataContentType" &&
+            key !== "dataFileBlock"
+        )
+      );
+      // All the block's props as data attributes.
+      const blockPropsDataAttributes = {
+        ...blockContainerDataAttributes,
+        ...blockContentDataAttributes,
+      };
+
       // When the selection starts in a nested block, the Fragment from it omits
       // the `blockContent` node of the parent `blockContainer` if it's not also
       // included in the selection. This is because ProseMirror preserves the
@@ -142,7 +168,19 @@ export function simplifyBlocks(options: SimplifyBlocksOptions) {
         // Lifts all children out of the current block, as only list items should allow nesting.
         tree.children.splice(i + 1, 0, ...blockGroup.children);
         // Replaces the block with only the content inside it.
-        tree.children[i] = blockContent.children[0];
+        const content = blockContent.children[0] as HASTElement;
+        // Removes all BlockNote specific class names from the block content.
+        const className =
+          ((content.properties?.className as string[]) || []).filter(
+            (className) => !className.startsWith("bn-")
+          ) || [];
+        // Adds all the block's props as data attributes.
+        content.properties = {
+          ...content.properties,
+          ...blockPropsDataAttributes,
+          className: className.length > 0 ? className : undefined,
+        };
+        tree.children[i] = content;
 
         // Updates the current index and number of child elements.
         const numElementsAdded = blockGroup.children.length;
@@ -150,7 +188,19 @@ export function simplifyBlocks(options: SimplifyBlocksOptions) {
         numChildElements += numElementsAdded;
       } else {
         // Replaces the block with only the content inside it.
-        tree.children[i] = blockContent.children[0];
+        const content = blockContent.children[0] as HASTElement;
+        // Removes all BlockNote specific class names from the block content.
+        const className =
+          ((content.properties?.className as string[]) || []).filter(
+            (className) => !className.startsWith("bn-")
+          ) || [];
+        // Adds all the block's props as data attributes.
+        content.properties = {
+          ...content.properties,
+          ...blockPropsDataAttributes,
+          className: className.length > 0 ? className : undefined,
+        };
+        tree.children[i] = content;
       }
     }
 
