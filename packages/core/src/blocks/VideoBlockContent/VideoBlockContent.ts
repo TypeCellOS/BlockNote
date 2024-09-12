@@ -35,6 +35,9 @@ export const videoPropSchema = {
     default: "" as const,
   },
 
+  loading: {
+    default: false,
+  },
   showPreview: {
     default: true,
   },
@@ -56,6 +59,15 @@ export const videoRender = (
   block: BlockFromConfig<typeof videoBlockConfig, any, any>,
   editor: BlockNoteEditor<any, any, any>
 ) => {
+  if (block.props.loading) {
+    const loading = document.createElement("div");
+    loading.className = "bn-file-loading-preview";
+    loading.textContent = "Loading...";
+    return {
+      dom: loading,
+    };
+  }
+
   const wrapper = document.createElement("div");
   wrapper.className = "bn-file-block-content-wrapper";
 
@@ -141,6 +153,14 @@ export const videoParse = (
 export const videoToExternalHTML = (
   block: BlockFromConfig<typeof videoBlockConfig, any, any>
 ) => {
+  if (block.props.loading) {
+    const loading = document.createElement("div");
+    loading.textContent = "Loading...";
+    return {
+      dom: loading,
+    };
+  }
+
   if (!block.props.url) {
     const div = document.createElement("p");
     div.textContent = "Add video";

@@ -29,6 +29,10 @@ export const filePropSchema = {
   caption: {
     default: "" as const,
   },
+
+  loading: {
+    default: false,
+  },
 } satisfies PropSchema;
 
 export const fileBlockConfig = {
@@ -42,6 +46,15 @@ export const fileRender = (
   block: BlockFromConfig<typeof fileBlockConfig, any, any>,
   editor: BlockNoteEditor<any, any, any>
 ) => {
+  if (block.props.loading) {
+    const loading = document.createElement("div");
+    loading.className = "bn-file-loading-preview";
+    loading.textContent = "Loading...";
+    return {
+      dom: loading,
+    };
+  }
+
   // Wrapper element to set the file alignment, contains both file/file
   // upload dashboard and caption.
   const wrapper = document.createElement("div");
@@ -91,6 +104,14 @@ export const fileParse = (element: HTMLElement) => {
 export const fileToExternalHTML = (
   block: BlockFromConfig<typeof fileBlockConfig, any, any>
 ) => {
+  if (block.props.loading) {
+    const loading = document.createElement("div");
+    loading.textContent = "Loading...";
+    return {
+      dom: loading,
+    };
+  }
+
   if (!block.props.url) {
     const div = document.createElement("p");
     div.textContent = "Add file";

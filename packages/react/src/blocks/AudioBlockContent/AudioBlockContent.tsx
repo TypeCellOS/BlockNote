@@ -71,29 +71,38 @@ export const AudioToExternalHTML = (
 };
 
 export const ReactAudioBlock = createReactBlockSpec(audioBlockConfig, {
-  render: (props) => (
-    <div className={"bn-file-block-content-wrapper"}>
-      {props.block.props.url === "" ? (
-        <AddFileButton
-          {...props}
-          editor={props.editor as any}
-          buttonText={props.editor.dictionary.file_blocks.audio.add_button_text}
-          buttonIcon={<RiVolumeUpFill size={24} />}
-        />
-      ) : !props.block.props.showPreview ? (
-        <FileAndCaptionWrapper block={props.block} editor={props.editor as any}>
-          <DefaultFilePreview
-            block={props.block}
+  render: (props) =>
+    props.block.props.loading ? (
+      <div>Loading...</div>
+    ) : (
+      <div className={"bn-file-block-content-wrapper"}>
+        {props.block.props.url === "" ? (
+          <AddFileButton
+            {...props}
             editor={props.editor as any}
+            buttonText={
+              props.editor.dictionary.file_blocks.audio.add_button_text
+            }
+            buttonIcon={<RiVolumeUpFill size={24} />}
           />
-        </FileAndCaptionWrapper>
-      ) : (
-        <FileAndCaptionWrapper block={props.block} editor={props.editor as any}>
-          <AudioPreview block={props.block} editor={props.editor as any} />
-        </FileAndCaptionWrapper>
-      )}
-    </div>
-  ),
+        ) : !props.block.props.showPreview ? (
+          <FileAndCaptionWrapper
+            block={props.block}
+            editor={props.editor as any}>
+            <DefaultFilePreview
+              block={props.block}
+              editor={props.editor as any}
+            />
+          </FileAndCaptionWrapper>
+        ) : (
+          <FileAndCaptionWrapper
+            block={props.block}
+            editor={props.editor as any}>
+            <AudioPreview block={props.block} editor={props.editor as any} />
+          </FileAndCaptionWrapper>
+        )}
+      </div>
+    ),
   parse: audioParse,
   toExternalHTML: (props) => <AudioToExternalHTML {...props} />,
 });

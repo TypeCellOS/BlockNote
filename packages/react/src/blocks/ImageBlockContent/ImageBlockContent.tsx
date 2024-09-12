@@ -89,29 +89,38 @@ export const ImageToExternalHTML = (
 };
 
 export const ReactImageBlock = createReactBlockSpec(imageBlockConfig, {
-  render: (props) => (
-    <div className={"bn-file-block-content-wrapper"}>
-      {props.block.props.url === "" ? (
-        <AddFileButton
-          {...props}
-          editor={props.editor as any}
-          buttonText={props.editor.dictionary.file_blocks.image.add_button_text}
-          buttonIcon={<RiImage2Fill size={24} />}
-        />
-      ) : !props.block.props.showPreview ? (
-        <FileAndCaptionWrapper block={props.block} editor={props.editor as any}>
-          <DefaultFilePreview
-            block={props.block}
+  render: (props) =>
+    props.block.props.loading ? (
+      <div>Loading...</div>
+    ) : (
+      <div className={"bn-file-block-content-wrapper"}>
+        {props.block.props.url === "" ? (
+          <AddFileButton
+            {...props}
             editor={props.editor as any}
+            buttonText={
+              props.editor.dictionary.file_blocks.image.add_button_text
+            }
+            buttonIcon={<RiImage2Fill size={24} />}
           />
-        </FileAndCaptionWrapper>
-      ) : (
-        <FileAndCaptionWrapper block={props.block} editor={props.editor as any}>
-          <ImagePreview block={props.block} editor={props.editor as any} />
-        </FileAndCaptionWrapper>
-      )}
-    </div>
-  ),
+        ) : !props.block.props.showPreview ? (
+          <FileAndCaptionWrapper
+            block={props.block}
+            editor={props.editor as any}>
+            <DefaultFilePreview
+              block={props.block}
+              editor={props.editor as any}
+            />
+          </FileAndCaptionWrapper>
+        ) : (
+          <FileAndCaptionWrapper
+            block={props.block}
+            editor={props.editor as any}>
+            <ImagePreview block={props.block} editor={props.editor as any} />
+          </FileAndCaptionWrapper>
+        )}
+      </div>
+    ),
   parse: imageParse,
   toExternalHTML: (props) => <ImageToExternalHTML {...props} />,
 });

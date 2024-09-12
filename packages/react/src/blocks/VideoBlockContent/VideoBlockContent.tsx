@@ -83,29 +83,38 @@ export const VideoToExternalHTML = (
 };
 
 export const ReactVideoBlock = createReactBlockSpec(videoBlockConfig, {
-  render: (props) => (
-    <div className={"bn-file-block-content-wrapper"}>
-      {props.block.props.url === "" ? (
-        <AddFileButton
-          {...props}
-          editor={props.editor as any}
-          buttonText={props.editor.dictionary.file_blocks.video.add_button_text}
-          buttonIcon={<RiVideoFill size={24} />}
-        />
-      ) : !props.block.props.showPreview ? (
-        <FileAndCaptionWrapper block={props.block} editor={props.editor as any}>
-          <DefaultFilePreview
-            block={props.block}
+  render: (props) =>
+    props.block.props.loading ? (
+      <div>Loading...</div>
+    ) : (
+      <div className={"bn-file-block-content-wrapper"}>
+        {props.block.props.url === "" ? (
+          <AddFileButton
+            {...props}
             editor={props.editor as any}
+            buttonText={
+              props.editor.dictionary.file_blocks.video.add_button_text
+            }
+            buttonIcon={<RiVideoFill size={24} />}
           />
-        </FileAndCaptionWrapper>
-      ) : (
-        <FileAndCaptionWrapper block={props.block} editor={props.editor as any}>
-          <VideoPreview block={props.block} editor={props.editor as any} />
-        </FileAndCaptionWrapper>
-      )}
-    </div>
-  ),
+        ) : !props.block.props.showPreview ? (
+          <FileAndCaptionWrapper
+            block={props.block}
+            editor={props.editor as any}>
+            <DefaultFilePreview
+              block={props.block}
+              editor={props.editor as any}
+            />
+          </FileAndCaptionWrapper>
+        ) : (
+          <FileAndCaptionWrapper
+            block={props.block}
+            editor={props.editor as any}>
+            <VideoPreview block={props.block} editor={props.editor as any} />
+          </FileAndCaptionWrapper>
+        )}
+      </div>
+    ),
   parse: videoParse,
   toExternalHTML: (props) => <VideoToExternalHTML {...props} />,
 });

@@ -106,18 +106,15 @@ export async function handleFileInsertion<
 
     const file = items[i].getAsFile();
     if (file) {
-      const updateData = await editor.uploadFile(file);
+      const fileBlock = {
+        type: fileBlockType,
+        props: {
+          name: file.name,
+          loading: true,
+        },
+      } as PartialBlock<BSchema, I, S>;
 
-      const fileBlock =
-        typeof updateData === "string"
-          ? ({
-              type: fileBlockType,
-              props: {
-                name: file.name,
-                url: updateData,
-              },
-            } as PartialBlock<BSchema, I, S>)
-          : { type: fileBlockType, ...updateData };
+      let insertedBlockId: string | undefined = undefined;
 
       if (event.type === "paste") {
         editor.insertBlocks(
@@ -125,6 +122,8 @@ export async function handleFileInsertion<
           editor.getTextCursorPosition().block,
           "after"
         );
+
+        insertedBlockId = editor.getTextCursorPosition().nextBlock!.id;
       }
 
       if (event.type === "drop") {
@@ -144,7 +143,29 @@ export async function handleFileInsertion<
         );
 
         editor.insertBlocks([fileBlock], blockInfo.id, "after");
+
+        insertedBlockId = editor._tiptapEditor.state.doc
+          .resolve(blockInfo.endPos + 2)
+          .node().attrs.id;
       }
+
+      if (!insertedBlockId) {
+        return;
+      }
+
+      const updateData = await editor.uploadFile(file);
+
+      const updatedFileBlock =
+        typeof updateData === "string"
+          ? ({
+              props: {
+                url: updateData,
+                loading: false,
+              },
+            } as PartialBlock<BSchema, I, S>)
+          : { ...updateData, props: { ...updateData.props, loading: false } };
+
+      editor.updateBlock(insertedBlockId, updatedFileBlock);
     }
   }
 }
