@@ -6,6 +6,23 @@ type SimplifyBlocksOptions = {
   unorderedListItemBlockTypes: Set<string>;
 };
 
+function addAttributesAndRemoveClasses(
+  element: HASTElement,
+  attributes: Record<string, unknown>
+) {
+  // Removes all BlockNote specific class names.
+  const className =
+    ((element.properties?.className as string[]) || []).filter(
+      (className) => !className.startsWith("bn-")
+    ) || [];
+  // Adds all block props as data attributes.
+  element.properties = {
+    ...element.properties,
+    ...attributes,
+    className: className.length > 0 ? className : undefined,
+  };
+}
+
 /**
  * Rehype plugin which converts the HTML output string rendered by BlockNote into a simplified structure which better
  * follows HTML standards. It does several things:
@@ -169,17 +186,7 @@ export function simplifyBlocks(options: SimplifyBlocksOptions) {
         tree.children.splice(i + 1, 0, ...blockGroup.children);
         // Replaces the block with only the content inside it.
         const content = blockContent.children[0] as HASTElement;
-        // Removes all BlockNote specific class names from the block content.
-        const className =
-          ((content.properties?.className as string[]) || []).filter(
-            (className) => !className.startsWith("bn-")
-          ) || [];
-        // Adds all the block's props as data attributes.
-        content.properties = {
-          ...content.properties,
-          ...blockPropsDataAttributes,
-          className: className.length > 0 ? className : undefined,
-        };
+        addAttributesAndRemoveClasses(content, blockPropsDataAttributes);
         tree.children[i] = content;
 
         // Updates the current index and number of child elements.
@@ -189,17 +196,7 @@ export function simplifyBlocks(options: SimplifyBlocksOptions) {
       } else {
         // Replaces the block with only the content inside it.
         const content = blockContent.children[0] as HASTElement;
-        // Removes all BlockNote specific class names from the block content.
-        const className =
-          ((content.properties?.className as string[]) || []).filter(
-            (className) => !className.startsWith("bn-")
-          ) || [];
-        // Adds all the block's props as data attributes.
-        content.properties = {
-          ...content.properties,
-          ...blockPropsDataAttributes,
-          className: className.length > 0 ? className : undefined,
-        };
+        addAttributesAndRemoveClasses(content, blockPropsDataAttributes);
         tree.children[i] = content;
       }
     }
