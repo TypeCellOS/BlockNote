@@ -96,7 +96,9 @@ export function simplifyBlocks(options: SimplifyBlocksOptions) {
           ([key]) =>
             key.startsWith("data") &&
             key !== "dataContentType" &&
-            key !== "dataFileBlock"
+            key !== "dataFileBlock" &&
+            key !== "dataNodeViewWrapper" &&
+            key !== "dataEditable"
         )
       );
       // All the block's props as data attributes.
