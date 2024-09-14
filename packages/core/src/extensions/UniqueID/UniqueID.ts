@@ -1,12 +1,7 @@
-import {
-  combineTransactionSteps,
-  Extension,
-  findChildrenInRange,
-  getChangedRanges,
-} from "@tiptap/core";
-import { Fragment, Slice } from "prosemirror-model";
-import { Plugin, PluginKey } from "prosemirror-state";
-import { v4 } from "uuid";
+import {combineTransactionSteps, Extension, findChildrenInRange, getChangedRanges,} from "@tiptap/core";
+import {Fragment, Slice} from "prosemirror-model";
+import {Plugin, PluginKey} from "prosemirror-state";
+import {v4} from "uuid";
 
 /**
  * Code from Tiptap UniqueID extension (https://tiptap.dev/api/extensions/unique-id)
@@ -50,6 +45,7 @@ const UniqueID = Extension.create({
     return {
       attributeName: "id",
       types: [],
+      setHtmlId: false,
       generateID: () => {
         // Use mock ID if tests are running.
         if (typeof window !== "undefined" && (window as any).__TEST_OPTIONS) {
@@ -69,6 +65,7 @@ const UniqueID = Extension.create({
     };
   },
   addGlobalAttributes() {
+
     return [
       {
         types: this.options.types,
@@ -77,10 +74,17 @@ const UniqueID = Extension.create({
             default: null,
             parseHTML: (element) =>
               element.getAttribute(`data-${this.options.attributeName}`),
-            renderHTML: (attributes) => ({
-              [`data-${this.options.attributeName}`]:
-                attributes[this.options.attributeName],
-            }),
+            renderHTML: (attributes) => {
+              const defaultIdAttributes = {
+                [`data-${this.options.attributeName}`]:
+                    attributes[this.options.attributeName]
+              };
+              if (this.options.setHtmlId) {
+                return {...defaultIdAttributes, 'id': attributes[this.options.attributeName]}
+              } else {
+                return defaultIdAttributes
+              }
+            },
           },
         },
       },

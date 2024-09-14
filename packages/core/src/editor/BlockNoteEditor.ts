@@ -166,6 +166,14 @@ export type BlockNoteEditorOptions<
    * You probably don't need to set this manually, but use the `server-util` package instead that uses this option internally
    */
   _headless: boolean;
+
+  /**
+   * A flag indicating whether to set an HTML ID for every block
+   *
+   * When set to `true`, on each block an id attribute will be set with the block id
+   * Otherwise, the HTML ID attribute will not be set.
+   */
+  setHtmlId?: boolean;
 };
 
 const blockNoteTipTapOptions = {
@@ -339,6 +347,7 @@ export class BlockNoteEditor<
       collaboration: newOptions.collaboration,
       trailingBlock: newOptions.trailingBlock,
       disableExtensions: newOptions.disableExtensions,
+      setHtmlId: newOptions.setHtmlId,
     });
 
     const blockNoteUIExtension = Extension.create({

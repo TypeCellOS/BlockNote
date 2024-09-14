@@ -55,6 +55,7 @@ export const getBlockNoteExtensions = <
     renderCursor?: (user: any) => HTMLElement;
   };
   disableExtensions: string[] | undefined;
+  setHtmlId?: boolean;
 }) => {
   const ret: Extensions = [
     extensions.ClipboardTextSerializer,
@@ -69,6 +70,7 @@ export const getBlockNoteExtensions = <
     // DropCursor,
     UniqueID.configure({
       types: ["blockContainer"],
+      setHtmlId: opts.setHtmlId
     }),
     HardBreak.extend({ priority: 10 }),
     // Comments,
