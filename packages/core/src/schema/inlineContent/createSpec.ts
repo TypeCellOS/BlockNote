@@ -1,6 +1,9 @@
 import { Node } from "@tiptap/core";
 import { TagParseRule } from "@tiptap/pm/model";
-import { nodeToCustomInlineContent } from "../../api/nodeConversions/nodeConversions";
+import {
+  inlineContentToNodes,
+  nodeToCustomInlineContent,
+} from "../../api/nodeConversions/nodeConversions";
 import { propsToAttributes } from "../blocks/internal";
 import { Props } from "../propTypes";
 import { StyleSchema } from "../styles/types";
@@ -11,15 +14,15 @@ import {
 } from "./internal";
 import {
   CustomInlineContentConfig,
-  InlineContentConfig,
   InlineContentFromConfig,
   InlineContentSpec,
+  PartialCustomInlineContentFromConfig,
 } from "./types";
 
 // TODO: support serialization
 
 export type CustomInlineContentImplementation<
-  T extends InlineContentConfig,
+  T extends CustomInlineContentConfig,
   // B extends BlockSchema,
   // I extends InlineContentSchema,
   S extends StyleSchema
@@ -28,7 +31,10 @@ export type CustomInlineContentImplementation<
     /**
      * The custom inline content to render
      */
-    inlineContent: InlineContentFromConfig<T, S>
+    inlineContent: InlineContentFromConfig<T, S>,
+    updateInlineContent: (
+      update: PartialCustomInlineContentFromConfig<T, S>
+    ) => void
     /**
      * The BlockNote editor instance
      * This is typed generically. If you want an editor with your custom schema, you need to
@@ -100,7 +106,10 @@ export function createInlineContentSpec<
           node,
           editor.schema.inlineContentSchema,
           editor.schema.styleSchema
-        ) as any as InlineContentFromConfig<T, S> // TODO: fix cast
+        ) as any as InlineContentFromConfig<T, S>, // TODO: fix cast
+        () => {
+          // No-op
+        }
       );
 
       return addInlineContentAttributes(
@@ -109,6 +118,46 @@ export function createInlineContentSpec<
         node.attrs as Props<T["propSchema"]>,
         inlineContentConfig.propSchema
       );
+    },
+
+    addNodeView() {
+      return ({ node, getPos }) => {
+        const editor = this.options.editor;
+
+        const output = inlineContentImplementation.render(
+          nodeToCustomInlineContent(
+            node,
+            editor.schema.inlineContentSchema,
+            editor.schema.styleSchema
+          ) as any as InlineContentFromConfig<T, S>, // TODO: fix cast
+          (update) => {
+            if (typeof getPos === "boolean") {
+              return;
+            }
+
+            const content = inlineContentToNodes(
+              [update],
+              editor._tiptapEditor.schema,
+              editor.schema.styleSchema
+            );
+
+            editor._tiptapEditor.view.dispatch(
+              editor._tiptapEditor.view.state.tr.replaceWith(
+                getPos(),
+                getPos() + node.nodeSize,
+                content
+              )
+            );
+          }
+        );
+
+        return addInlineContentAttributes(
+          output,
+          inlineContentConfig.type,
+          node.attrs as Props<T["propSchema"]>,
+          inlineContentConfig.propSchema
+        );
+      };
     },
   });
 
