@@ -2,6 +2,7 @@ import { FileBlockConfig, imageBlockConfig, imageParse } from "@blocknote/core";
 import { useState } from "react";
 import { RiImage2Fill } from "react-icons/ri";
 
+import { useUploadLoading } from "../../hooks/useUploadLoading";
 import {
   createReactBlockSpec,
   ReactCustomBlockRenderProps,
@@ -56,6 +57,10 @@ export const ImageToExternalHTML = (
   >
 ) => {
   if (!props.block.props.url) {
+    if (props.editor.fileUploadStatus.uploading) {
+      return <div>Loading...</div>;
+    }
+
     return <p>Add image</p>;
   }
 
@@ -88,39 +93,42 @@ export const ImageToExternalHTML = (
   return image;
 };
 
-export const ReactImageBlock = createReactBlockSpec(imageBlockConfig, {
-  render: (props) =>
-    props.block.props.loading ? (
-      <div>Loading...</div>
-    ) : (
-      <div className={"bn-file-block-content-wrapper"}>
-        {props.block.props.url === "" ? (
-          <AddFileButton
-            {...props}
+export const ImageBlock = (
+  props: ReactCustomBlockRenderProps<typeof imageBlockConfig, any, any>
+) => {
+  const showLoader = useUploadLoading(props.block.id);
+
+  if (showLoader) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div className={"bn-file-block-content-wrapper"}>
+      {props.block.props.url === "" ? (
+        <AddFileButton
+          {...props}
+          editor={props.editor as any}
+          buttonText={props.editor.dictionary.file_blocks.image.add_button_text}
+          buttonIcon={<RiImage2Fill size={24} />}
+        />
+      ) : !props.block.props.showPreview ? (
+        <FileAndCaptionWrapper block={props.block} editor={props.editor as any}>
+          <DefaultFilePreview
+            block={props.block}
             editor={props.editor as any}
-            buttonText={
-              props.editor.dictionary.file_blocks.image.add_button_text
-            }
-            buttonIcon={<RiImage2Fill size={24} />}
           />
-        ) : !props.block.props.showPreview ? (
-          <FileAndCaptionWrapper
-            block={props.block}
-            editor={props.editor as any}>
-            <DefaultFilePreview
-              block={props.block}
-              editor={props.editor as any}
-            />
-          </FileAndCaptionWrapper>
-        ) : (
-          <FileAndCaptionWrapper
-            block={props.block}
-            editor={props.editor as any}>
-            <ImagePreview block={props.block} editor={props.editor as any} />
-          </FileAndCaptionWrapper>
-        )}
-      </div>
-    ),
+        </FileAndCaptionWrapper>
+      ) : (
+        <FileAndCaptionWrapper block={props.block} editor={props.editor as any}>
+          <ImagePreview block={props.block} editor={props.editor as any} />
+        </FileAndCaptionWrapper>
+      )}
+    </div>
+  );
+};
+
+export const ReactImageBlock = createReactBlockSpec(imageBlockConfig, {
+  render: ImageBlock,
   parse: imageParse,
-  toExternalHTML: (props) => <ImageToExternalHTML {...props} />,
+  toExternalHTML: ImageToExternalHTML,
 });

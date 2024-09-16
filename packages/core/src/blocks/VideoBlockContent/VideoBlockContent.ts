@@ -35,9 +35,6 @@ export const videoPropSchema = {
     default: "" as const,
   },
 
-  loading: {
-    default: false,
-  },
   showPreview: {
     default: true,
   },
@@ -59,17 +56,12 @@ export const videoRender = (
   block: BlockFromConfig<typeof videoBlockConfig, any, any>,
   editor: BlockNoteEditor<any, any, any>
 ) => {
-  if (block.props.loading) {
-    const loading = document.createElement("div");
-    loading.className = "bn-file-loading-preview";
-    loading.textContent = "Loading...";
-    return {
-      dom: loading,
-    };
-  }
-
   const wrapper = document.createElement("div");
   wrapper.className = "bn-file-block-content-wrapper";
+
+  const loading = document.createElement("div");
+  loading.className = "bn-file-loading-preview";
+  loading.textContent = "Loading...";
 
   if (block.props.url === "") {
     const fileBlockVideoIcon = document.createElement("div");
@@ -81,12 +73,35 @@ export const videoRender = (
       editor.dictionary.file_blocks.video.add_button_text,
       fileBlockVideoIcon.firstElementChild as HTMLElement
     );
-    wrapper.appendChild(addVideoButton.dom);
+
+    if (
+      editor.fileUploadStatus.uploading &&
+      editor.fileUploadStatus.blockId === block.id
+    ) {
+      wrapper.appendChild(loading);
+    } else {
+      wrapper.appendChild(addVideoButton.dom);
+    }
+
+    const destroyUploadStartHandler = editor.onUploadStart((blockId) => {
+      if (blockId === block.id) {
+        wrapper.removeChild(addVideoButton.dom);
+        wrapper.appendChild(loading);
+      }
+    });
+    const destroyUploadEndHandler = editor.onUploadEnd((blockId) => {
+      if (blockId === block.id) {
+        wrapper.removeChild(loading);
+        wrapper.appendChild(addVideoButton.dom);
+      }
+    });
 
     return {
       dom: wrapper,
       destroy: () => {
-        addVideoButton?.destroy?.();
+        addVideoButton.destroy?.();
+        destroyUploadStartHandler();
+        destroyUploadEndHandler();
       },
     };
   } else if (!block.props.showPreview) {
@@ -151,17 +166,22 @@ export const videoParse = (
 };
 
 export const videoToExternalHTML = (
-  block: BlockFromConfig<typeof videoBlockConfig, any, any>
+  block: BlockFromConfig<typeof videoBlockConfig, any, any>,
+  editor: BlockNoteEditor<any, any, any>
 ) => {
-  if (block.props.loading) {
-    const loading = document.createElement("div");
-    loading.textContent = "Loading...";
-    return {
-      dom: loading,
-    };
-  }
-
   if (!block.props.url) {
+    if (
+      editor.fileUploadStatus.uploading &&
+      editor.fileUploadStatus.blockId === block.id
+    ) {
+      const loading = document.createElement("div");
+      loading.textContent = "Loading...";
+
+      return {
+        dom: loading,
+      };
+    }
+
     const div = document.createElement("p");
     div.textContent = "Add video";
 

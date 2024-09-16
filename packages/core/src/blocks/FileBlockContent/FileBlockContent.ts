@@ -29,10 +29,6 @@ export const filePropSchema = {
   caption: {
     default: "" as const,
   },
-
-  loading: {
-    default: false,
-  },
 } satisfies PropSchema;
 
 export const fileBlockConfig = {
@@ -46,27 +42,47 @@ export const fileRender = (
   block: BlockFromConfig<typeof fileBlockConfig, any, any>,
   editor: BlockNoteEditor<any, any, any>
 ) => {
-  if (block.props.loading) {
-    const loading = document.createElement("div");
-    loading.className = "bn-file-loading-preview";
-    loading.textContent = "Loading...";
-    return {
-      dom: loading,
-    };
-  }
-
   // Wrapper element to set the file alignment, contains both file/file
   // upload dashboard and caption.
   const wrapper = document.createElement("div");
   wrapper.className = "bn-file-block-content-wrapper";
 
+  const loading = document.createElement("div");
+  loading.className = "bn-file-loading-preview";
+  loading.textContent = "Loading...";
+
   if (block.props.url === "") {
     const addFileButton = createAddFileButton(block, editor);
-    wrapper.appendChild(addFileButton.dom);
+
+    if (
+      editor.fileUploadStatus.uploading &&
+      editor.fileUploadStatus.blockId === block.id
+    ) {
+      wrapper.appendChild(loading);
+    } else {
+      wrapper.appendChild(addFileButton.dom);
+    }
+
+    const destroyUploadStartHandler = editor.onUploadStart((blockId) => {
+      if (blockId === block.id) {
+        wrapper.removeChild(addFileButton.dom);
+        wrapper.appendChild(loading);
+      }
+    });
+    const destroyUploadEndHandler = editor.onUploadEnd((blockId) => {
+      if (blockId === block.id) {
+        wrapper.removeChild(loading);
+        wrapper.appendChild(addFileButton.dom);
+      }
+    });
 
     return {
       dom: wrapper,
-      destroy: addFileButton.destroy,
+      destroy: () => {
+        addFileButton.destroy?.();
+        destroyUploadStartHandler();
+        destroyUploadEndHandler();
+      },
     };
   } else {
     const file = createDefaultFilePreview(block).dom;
@@ -102,17 +118,22 @@ export const fileParse = (element: HTMLElement) => {
 };
 
 export const fileToExternalHTML = (
-  block: BlockFromConfig<typeof fileBlockConfig, any, any>
+  block: BlockFromConfig<typeof fileBlockConfig, any, any>,
+  editor: BlockNoteEditor<any, any, any>
 ) => {
-  if (block.props.loading) {
-    const loading = document.createElement("div");
-    loading.textContent = "Loading...";
-    return {
-      dom: loading,
-    };
-  }
-
   if (!block.props.url) {
+    if (
+      editor.fileUploadStatus.uploading &&
+      editor.fileUploadStatus.blockId === block.id
+    ) {
+      const loading = document.createElement("div");
+      loading.textContent = "Loading...";
+
+      return {
+        dom: loading,
+      };
+    }
+
     const div = document.createElement("p");
     div.textContent = "Add file";
 

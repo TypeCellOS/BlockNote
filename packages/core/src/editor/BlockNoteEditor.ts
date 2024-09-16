@@ -119,7 +119,22 @@ export type BlockNoteEditorOptions<
    * @param file The file that should be uploaded.
    * @returns The URL of the uploaded file OR an object containing props that should be set on the file block (such as an id)
    */
-  uploadFile: (file: File) => Promise<string | Record<string, any>>;
+  uploadFile: (
+    file: File,
+    blockId?: string
+  ) => Promise<string | Record<string, any>>;
+
+  /**
+   * Listen for when a file upload begins.
+   * @param blockId The ID of the block that the uploaded file is for.
+   */
+  onUploadStart: (blockId?: string) => void;
+
+  /**
+   * Listen for when a file upload completes.
+   * @param blockId The ID of the block that the uploaded file is for.
+   */
+  onUploadEnd: (blockId?: string) => void;
 
   /**
    * Resolve a URL of a file block to one that can be displayed or downloaded. This can be used for creating authenticated URL or
@@ -255,8 +270,18 @@ export class BlockNoteEditor<
    * @returns The URL of the uploaded file OR an object containing props that should be set on the file block (such as an id)
    */
   public readonly uploadFile:
-    | ((file: File) => Promise<string | Record<string, any>>)
+    | ((file: File, blockId?: string) => Promise<string | Record<string, any>>)
     | undefined;
+
+  public fileUploadStatus:
+    | { uploading: true; blockId?: string }
+    | { uploading: false } = { uploading: false };
+  private onUploadStartCallbacks: ((blockId?: string) => void)[] = [
+    (blockId) => (this.fileUploadStatus = { uploading: true, blockId }),
+  ];
+  private onUploadEndCallbacks: ((blockId?: string) => void)[] = [
+    () => (this.fileUploadStatus = { uploading: false }),
+  ];
 
   public readonly resolveFileUrl: (url: string) => Promise<string>;
 
@@ -358,7 +383,26 @@ export class BlockNoteEditor<
     });
     extensions.push(blockNoteUIExtension);
 
-    this.uploadFile = newOptions.uploadFile;
+    if (newOptions.onUploadStart) {
+      this.onUploadStartCallbacks.push(newOptions.onUploadStart);
+    }
+    if (newOptions.onUploadEnd) {
+      this.onUploadEndCallbacks.push(newOptions.onUploadEnd);
+    }
+
+    this.uploadFile = (file, block) => {
+      this.onUploadStartCallbacks.forEach((callback) =>
+        callback.apply(this, [block])
+      );
+      return new Promise((resolve) => {
+        newOptions.uploadFile?.(file, block).then((fileData) => {
+          this.onUploadEndCallbacks.forEach((callback) =>
+            callback.apply(this, [block])
+          );
+          resolve(fileData);
+        });
+      });
+    };
     this.resolveFileUrl = newOptions.resolveFileUrl || (async (url) => url);
     this.headless = newOptions._headless;
 
@@ -461,6 +505,28 @@ export class BlockNoteEditor<
 
   public focus() {
     this._tiptapEditor.view.focus();
+  }
+
+  public onUploadStart(callback: (blockId?: string) => void) {
+    this.onUploadStartCallbacks.push(callback);
+
+    return () => {
+      const index = this.onUploadStartCallbacks.indexOf(callback);
+      if (index > -1) {
+        this.onUploadStartCallbacks.splice(index, 1);
+      }
+    };
+  }
+
+  public onUploadEnd(callback: (blockId?: string) => void) {
+    this.onUploadEndCallbacks.push(callback);
+
+    return () => {
+      const index = this.onUploadEndCallbacks.indexOf(callback);
+      if (index > -1) {
+        this.onUploadEndCallbacks.splice(index, 1);
+      }
+    };
   }
 
   /**

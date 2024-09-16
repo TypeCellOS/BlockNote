@@ -37,10 +37,6 @@ export type FileBlockConfig = {
       default: "";
     };
 
-    // Whether the file is currently being loaded
-    loading?: {
-      default: false;
-    };
     // Whether to show the file preview or the name only.
     // This is useful for some file blocks, but not all
     // (e.g.: not relevant for default "file" block which doesn;'t show previews)

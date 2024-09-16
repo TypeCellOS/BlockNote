@@ -153,7 +153,7 @@ export async function handleFileInsertion<
         return;
       }
 
-      const updateData = await editor.uploadFile(file);
+      const updateData = await editor.uploadFile(file, insertedBlockId);
 
       const updatedFileBlock =
         typeof updateData === "string"

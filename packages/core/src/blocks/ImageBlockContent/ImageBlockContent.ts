@@ -35,9 +35,6 @@ export const imagePropSchema = {
     default: "" as const,
   },
 
-  loading: {
-    default: false,
-  },
   showPreview: {
     default: true,
   },
@@ -59,17 +56,12 @@ export const imageRender = (
   block: BlockFromConfig<typeof imageBlockConfig, any, any>,
   editor: BlockNoteEditor<any, any, any>
 ) => {
-  if (block.props.loading) {
-    const loading = document.createElement("div");
-    loading.className = "bn-file-loading-preview";
-    loading.textContent = "Loading...";
-    return {
-      dom: loading,
-    };
-  }
-
   const wrapper = document.createElement("div");
   wrapper.className = "bn-file-block-content-wrapper";
+
+  const loading = document.createElement("div");
+  loading.className = "bn-file-loading-preview";
+  loading.textContent = "Loading...";
 
   if (block.props.url === "") {
     const fileBlockImageIcon = document.createElement("div");
@@ -81,12 +73,35 @@ export const imageRender = (
       editor.dictionary.file_blocks.image.add_button_text,
       fileBlockImageIcon.firstElementChild as HTMLElement
     );
-    wrapper.appendChild(addImageButton.dom);
+
+    if (
+      editor.fileUploadStatus.uploading &&
+      editor.fileUploadStatus.blockId === block.id
+    ) {
+      wrapper.appendChild(loading);
+    } else {
+      wrapper.appendChild(addImageButton.dom);
+    }
+
+    const destroyUploadStartHandler = editor.onUploadStart((blockId) => {
+      if (blockId === block.id) {
+        wrapper.removeChild(addImageButton.dom);
+        wrapper.appendChild(loading);
+      }
+    });
+    const destroyUploadEndHandler = editor.onUploadEnd((blockId) => {
+      if (blockId === block.id) {
+        wrapper.removeChild(loading);
+        wrapper.appendChild(addImageButton.dom);
+      }
+    });
 
     return {
       dom: wrapper,
       destroy: () => {
-        addImageButton?.destroy?.();
+        addImageButton.destroy?.();
+        destroyUploadStartHandler();
+        destroyUploadEndHandler();
       },
     };
   } else if (!block.props.showPreview) {
@@ -153,17 +168,22 @@ export const imageParse = (
 };
 
 export const imageToExternalHTML = (
-  block: BlockFromConfig<typeof imageBlockConfig, any, any>
+  block: BlockFromConfig<typeof imageBlockConfig, any, any>,
+  editor: BlockNoteEditor<any, any, any>
 ) => {
-  if (block.props.loading) {
-    const loading = document.createElement("div");
-    loading.textContent = "Loading...";
-    return {
-      dom: loading,
-    };
-  }
-
   if (!block.props.url) {
+    if (
+      editor.fileUploadStatus.uploading &&
+      editor.fileUploadStatus.blockId === block.id
+    ) {
+      const loading = document.createElement("div");
+      loading.textContent = "Loading...";
+
+      return {
+        dom: loading,
+      };
+    }
+
     const div = document.createElement("p");
     div.textContent = "Add image";
 
