@@ -390,19 +390,22 @@ export class BlockNoteEditor<
       this.onUploadEndCallbacks.push(newOptions.onUploadEnd);
     }
 
-    this.uploadFile = (file, block) => {
-      this.onUploadStartCallbacks.forEach((callback) =>
-        callback.apply(this, [block])
-      );
-      return new Promise((resolve) => {
-        newOptions.uploadFile?.(file, block).then((fileData) => {
-          this.onUploadEndCallbacks.forEach((callback) =>
-            callback.apply(this, [block])
-          );
-          resolve(fileData);
+    if (newOptions.uploadFile) {
+      this.uploadFile = (file, block) => {
+        this.onUploadStartCallbacks.forEach((callback) =>
+          callback.apply(this, [block])
+        );
+        return new Promise((resolve) => {
+          newOptions.uploadFile?.(file, block).then((fileData) => {
+            this.onUploadEndCallbacks.forEach((callback) =>
+              callback.apply(this, [block])
+            );
+            resolve(fileData);
+          });
         });
-      });
-    };
+      };
+    }
+
     this.resolveFileUrl = newOptions.resolveFileUrl || (async (url) => url);
     this.headless = newOptions._headless;
 
