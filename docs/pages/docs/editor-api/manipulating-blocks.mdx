@@ -91,7 +91,7 @@ Use `forEachBlock` to traverse all blocks in the editor depth-first, and execute
 
 ```typescript
 forEachBlock(
-  callback: (block: Block) => boolean,
+  callback: (block: Block) => boolean | undefined,
   reverse: boolean = false
 ): void;
 
