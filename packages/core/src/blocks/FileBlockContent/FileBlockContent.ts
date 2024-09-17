@@ -7,9 +7,9 @@ import {
 } from "../../schema";
 import { defaultProps } from "../defaultProps";
 import {
-  createAddFileButton,
   createDefaultFilePreview,
   createFileAndCaptionWrapper,
+  createFileBlockWrapper,
   createLinkWithCaption,
   parseEmbedElement,
   parseFigureElement,
@@ -42,57 +42,10 @@ export const fileRender = (
   block: BlockFromConfig<typeof fileBlockConfig, any, any>,
   editor: BlockNoteEditor<any, any, any>
 ) => {
-  // Wrapper element to set the file alignment, contains both file/file
-  // upload dashboard and caption.
-  const wrapper = document.createElement("div");
-  wrapper.className = "bn-file-block-content-wrapper";
+  const file = createDefaultFilePreview(block).dom;
+  const element = createFileAndCaptionWrapper(block, file);
 
-  const loading = document.createElement("div");
-  loading.className = "bn-file-loading-preview";
-  loading.textContent = "Loading...";
-
-  if (block.props.url === "") {
-    const addFileButton = createAddFileButton(block, editor);
-
-    if (
-      editor.fileUploadStatus.uploading &&
-      editor.fileUploadStatus.blockId === block.id
-    ) {
-      wrapper.appendChild(loading);
-    } else {
-      wrapper.appendChild(addFileButton.dom);
-    }
-
-    const destroyUploadStartHandler = editor.onUploadStart((blockId) => {
-      if (blockId === block.id) {
-        wrapper.removeChild(addFileButton.dom);
-        wrapper.appendChild(loading);
-      }
-    });
-    const destroyUploadEndHandler = editor.onUploadEnd((blockId) => {
-      if (blockId === block.id) {
-        wrapper.removeChild(loading);
-        wrapper.appendChild(addFileButton.dom);
-      }
-    });
-
-    return {
-      dom: wrapper,
-      destroy: () => {
-        addFileButton.destroy?.();
-        destroyUploadStartHandler();
-        destroyUploadEndHandler();
-      },
-    };
-  } else {
-    const file = createDefaultFilePreview(block).dom;
-    const element = createFileAndCaptionWrapper(block, file);
-    wrapper.appendChild(element.dom);
-
-    return {
-      dom: wrapper,
-    };
-  }
+  return createFileBlockWrapper(block, editor, element);
 };
 
 export const fileParse = (element: HTMLElement) => {
@@ -118,22 +71,9 @@ export const fileParse = (element: HTMLElement) => {
 };
 
 export const fileToExternalHTML = (
-  block: BlockFromConfig<typeof fileBlockConfig, any, any>,
-  editor: BlockNoteEditor<any, any, any>
+  block: BlockFromConfig<typeof fileBlockConfig, any, any>
 ) => {
   if (!block.props.url) {
-    if (
-      editor.fileUploadStatus.uploading &&
-      editor.fileUploadStatus.blockId === block.id
-    ) {
-      const loading = document.createElement("div");
-      loading.textContent = "Loading...";
-
-      return {
-        dom: loading,
-      };
-    }
-
     const div = document.createElement("p");
     div.textContent = "Add file";
 

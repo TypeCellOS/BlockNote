@@ -2,16 +2,13 @@ import { FileBlockConfig, videoBlockConfig, videoParse } from "@blocknote/core";
 import { useState } from "react";
 import { RiVideoFill } from "react-icons/ri";
 
-import { useUploadLoading } from "../../hooks/useUploadLoading";
 import {
   createReactBlockSpec,
   ReactCustomBlockRenderProps,
 } from "../../schema/ReactBlockSpec";
 import {
-  AddFileButton,
-  DefaultFilePreview,
   FigureWithCaption,
-  FileAndCaptionWrapper,
+  FileBlockWrapper,
   LinkWithCaption,
   ResizeHandlesWrapper,
 } from "../FileBlockContent/fileBlockHelpers";
@@ -57,10 +54,6 @@ export const VideoToExternalHTML = (
   >
 ) => {
   if (!props.block.props.url) {
-    if (props.editor.fileUploadStatus.uploading) {
-      return <div>Loading...</div>;
-    }
-
     return <p>Add video</p>;
   }
 
@@ -90,34 +83,13 @@ export const VideoToExternalHTML = (
 export const VideoBlock = (
   props: ReactCustomBlockRenderProps<typeof videoBlockConfig, any, any>
 ) => {
-  const showLoader = useUploadLoading(props.block.id);
-
-  if (showLoader) {
-    return <div>Loading...</div>;
-  }
-
   return (
-    <div className={"bn-file-block-content-wrapper"}>
-      {props.block.props.url === "" ? (
-        <AddFileButton
-          {...props}
-          editor={props.editor as any}
-          buttonText={props.editor.dictionary.file_blocks.video.add_button_text}
-          buttonIcon={<RiVideoFill size={24} />}
-        />
-      ) : !props.block.props.showPreview ? (
-        <FileAndCaptionWrapper block={props.block} editor={props.editor as any}>
-          <DefaultFilePreview
-            block={props.block}
-            editor={props.editor as any}
-          />
-        </FileAndCaptionWrapper>
-      ) : (
-        <FileAndCaptionWrapper block={props.block} editor={props.editor as any}>
-          <VideoPreview block={props.block} editor={props.editor as any} />
-        </FileAndCaptionWrapper>
-      )}
-    </div>
+    <FileBlockWrapper
+      {...(props as any)}
+      buttonText={props.editor.dictionary.file_blocks.video.add_button_text}
+      buttonIcon={<RiVideoFill size={24} />}>
+      <VideoPreview block={props.block} editor={props.editor as any} />
+    </FileBlockWrapper>
   );
 };
 

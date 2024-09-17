@@ -273,15 +273,8 @@ export class BlockNoteEditor<
     | ((file: File, blockId?: string) => Promise<string | Record<string, any>>)
     | undefined;
 
-  public fileUploadStatus:
-    | { uploading: true; blockId?: string }
-    | { uploading: false } = { uploading: false };
-  private onUploadStartCallbacks: ((blockId?: string) => void)[] = [
-    (blockId) => (this.fileUploadStatus = { uploading: true, blockId }),
-  ];
-  private onUploadEndCallbacks: ((blockId?: string) => void)[] = [
-    () => (this.fileUploadStatus = { uploading: false }),
-  ];
+  private onUploadStartCallbacks: ((blockId?: string) => void)[] = [];
+  private onUploadEndCallbacks: ((blockId?: string) => void)[] = [];
 
   public readonly resolveFileUrl: (url: string) => Promise<string>;
 

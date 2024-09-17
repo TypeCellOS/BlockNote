@@ -1,16 +1,13 @@
 import { FileBlockConfig, audioBlockConfig, audioParse } from "@blocknote/core";
 import { RiVolumeUpFill } from "react-icons/ri";
 
-import { useUploadLoading } from "../../hooks/useUploadLoading";
 import {
   ReactCustomBlockRenderProps,
   createReactBlockSpec,
 } from "../../schema/ReactBlockSpec";
 import {
-  AddFileButton,
-  DefaultFilePreview,
   FigureWithCaption,
-  FileAndCaptionWrapper,
+  FileBlockWrapper,
   LinkWithCaption,
 } from "../FileBlockContent/fileBlockHelpers";
 import { useResolveUrl } from "../FileBlockContent/useResolveUrl";
@@ -45,10 +42,6 @@ export const AudioToExternalHTML = (
   >
 ) => {
   if (!props.block.props.url) {
-    if (props.editor.fileUploadStatus.uploading) {
-      return <div>Loading...</div>;
-    }
-
     return <p>Add audio</p>;
   }
 
@@ -78,34 +71,13 @@ export const AudioToExternalHTML = (
 export const AudioBlock = (
   props: ReactCustomBlockRenderProps<typeof audioBlockConfig, any, any>
 ) => {
-  const showLoader = useUploadLoading(props.block.id);
-
-  if (showLoader) {
-    return <div>Loading...</div>;
-  }
-
   return (
-    <div className={"bn-file-block-content-wrapper"}>
-      {props.block.props.url === "" ? (
-        <AddFileButton
-          {...props}
-          editor={props.editor as any}
-          buttonText={props.editor.dictionary.file_blocks.audio.add_button_text}
-          buttonIcon={<RiVolumeUpFill size={24} />}
-        />
-      ) : !props.block.props.showPreview ? (
-        <FileAndCaptionWrapper block={props.block} editor={props.editor as any}>
-          <DefaultFilePreview
-            block={props.block}
-            editor={props.editor as any}
-          />
-        </FileAndCaptionWrapper>
-      ) : (
-        <FileAndCaptionWrapper block={props.block} editor={props.editor as any}>
-          <AudioPreview block={props.block} editor={props.editor as any} />
-        </FileAndCaptionWrapper>
-      )}
-    </div>
+    <FileBlockWrapper
+      {...(props as any)}
+      buttonText={props.editor.dictionary.file_blocks.audio.add_button_text}
+      buttonIcon={<RiVolumeUpFill size={24} />}>
+      <AudioPreview block={props.block} editor={props.editor as any} />
+    </FileBlockWrapper>
   );
 };
 

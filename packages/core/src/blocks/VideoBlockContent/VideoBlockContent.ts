@@ -9,10 +9,9 @@ import {
 import { defaultProps } from "../defaultProps";
 
 import {
-  createAddFileButton,
-  createDefaultFilePreview,
   createFigureWithCaption,
   createFileAndCaptionWrapper,
+  createFileBlockWrapper,
   createLinkWithCaption,
   createResizeHandlesWrapper,
   parseFigureElement,
@@ -56,89 +55,38 @@ export const videoRender = (
   block: BlockFromConfig<typeof videoBlockConfig, any, any>,
   editor: BlockNoteEditor<any, any, any>
 ) => {
-  const wrapper = document.createElement("div");
-  wrapper.className = "bn-file-block-content-wrapper";
+  const icon = document.createElement("div");
+  icon.innerHTML =
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M2 3.9934C2 3.44476 2.45531 3 2.9918 3H21.0082C21.556 3 22 3.44495 22 3.9934V20.0066C22 20.5552 21.5447 21 21.0082 21H2.9918C2.44405 21 2 20.5551 2 20.0066V3.9934ZM8 5V19H16V5H8ZM4 5V7H6V5H4ZM18 5V7H20V5H18ZM4 9V11H6V9H4ZM18 9V11H20V9H18ZM4 13V15H6V13H4ZM18 13V15H20V13H18ZM4 17V19H6V17H4ZM18 17V19H20V17H18Z"></path></svg>';
 
-  const loading = document.createElement("div");
-  loading.className = "bn-file-loading-preview";
-  loading.textContent = "Loading...";
+  const video = document.createElement("video");
+  video.className = "bn-visual-media";
+  video.src = block.props.url;
+  video.controls = true;
+  video.contentEditable = "false";
+  video.draggable = false;
+  video.width = Math.min(
+    block.props.previewWidth,
+    editor.domElement.firstElementChild!.clientWidth
+  );
 
-  if (block.props.url === "") {
-    const fileBlockVideoIcon = document.createElement("div");
-    fileBlockVideoIcon.innerHTML =
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M2 3.9934C2 3.44476 2.45531 3 2.9918 3H21.0082C21.556 3 22 3.44495 22 3.9934V20.0066C22 20.5552 21.5447 21 21.0082 21H2.9918C2.44405 21 2 20.5551 2 20.0066V3.9934ZM8 5V19H16V5H8ZM4 5V7H6V5H4ZM18 5V7H20V5H18ZM4 9V11H6V9H4ZM18 9V11H20V9H18ZM4 13V15H6V13H4ZM18 13V15H20V13H18ZM4 17V19H6V17H4ZM18 17V19H20V17H18Z"></path></svg>';
-    const addVideoButton = createAddFileButton(
-      block,
-      editor,
-      editor.dictionary.file_blocks.video.add_button_text,
-      fileBlockVideoIcon.firstElementChild as HTMLElement
-    );
+  const file = createResizeHandlesWrapper(
+    block,
+    editor,
+    video,
+    () => video.width,
+    (width) => (video.width = width)
+  );
 
-    if (
-      editor.fileUploadStatus.uploading &&
-      editor.fileUploadStatus.blockId === block.id
-    ) {
-      wrapper.appendChild(loading);
-    } else {
-      wrapper.appendChild(addVideoButton.dom);
-    }
+  const element = createFileAndCaptionWrapper(block, file.dom);
 
-    const destroyUploadStartHandler = editor.onUploadStart((blockId) => {
-      if (blockId === block.id) {
-        wrapper.removeChild(addVideoButton.dom);
-        wrapper.appendChild(loading);
-      }
-    });
-    const destroyUploadEndHandler = editor.onUploadEnd((blockId) => {
-      if (blockId === block.id) {
-        wrapper.removeChild(loading);
-        wrapper.appendChild(addVideoButton.dom);
-      }
-    });
-
-    return {
-      dom: wrapper,
-      destroy: () => {
-        addVideoButton.destroy?.();
-        destroyUploadStartHandler();
-        destroyUploadEndHandler();
-      },
-    };
-  } else if (!block.props.showPreview) {
-    const file = createDefaultFilePreview(block).dom;
-    const element = createFileAndCaptionWrapper(block, file);
-
-    return {
-      dom: element.dom,
-    };
-  } else {
-    const video = document.createElement("video");
-    video.className = "bn-visual-media";
-    video.src = block.props.url;
-    video.controls = true;
-    video.contentEditable = "false";
-    video.draggable = false;
-    video.width = Math.min(
-      block.props.previewWidth,
-      editor.domElement.firstElementChild!.clientWidth
-    );
-
-    const file = createResizeHandlesWrapper(
-      block,
-      editor,
-      video,
-      () => video.width,
-      (width) => (video.width = width)
-    );
-
-    const element = createFileAndCaptionWrapper(block, file.dom);
-    wrapper.appendChild(element.dom);
-
-    return {
-      dom: wrapper,
-      destroy: file.destroy,
-    };
-  }
+  return createFileBlockWrapper(
+    block,
+    editor,
+    element,
+    editor.dictionary.file_blocks.video.add_button_text,
+    icon.firstElementChild as HTMLElement
+  );
 };
 
 export const videoParse = (
@@ -166,22 +114,9 @@ export const videoParse = (
 };
 
 export const videoToExternalHTML = (
-  block: BlockFromConfig<typeof videoBlockConfig, any, any>,
-  editor: BlockNoteEditor<any, any, any>
+  block: BlockFromConfig<typeof videoBlockConfig, any, any>
 ) => {
   if (!block.props.url) {
-    if (
-      editor.fileUploadStatus.uploading &&
-      editor.fileUploadStatus.blockId === block.id
-    ) {
-      const loading = document.createElement("div");
-      loading.textContent = "Loading...";
-
-      return {
-        dom: loading,
-      };
-    }
-
     const div = document.createElement("p");
     div.textContent = "Add video";
 
