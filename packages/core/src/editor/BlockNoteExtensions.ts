@@ -12,8 +12,8 @@ import { Link } from "@tiptap/extension-link";
 import { Text } from "@tiptap/extension-text";
 import * as Y from "yjs";
 import { createCopyToClipboardExtension } from "../api/exporters/copyExtension";
-import { createPasteFromClipboardExtension } from "../api/parsers/pasteExtension";
 import { createDropFileExtension } from "../api/parsers/fileDropExtension";
+import { createPasteFromClipboardExtension } from "../api/parsers/pasteExtension";
 import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension";
 import { TextAlignmentExtension } from "../extensions/TextAlignment/TextAlignmentExtension";
 import { TextColorExtension } from "../extensions/TextColor/TextColorExtension";
@@ -55,7 +55,7 @@ export const getBlockNoteExtensions = <
     renderCursor?: (user: any) => HTMLElement;
   };
   disableExtensions: string[] | undefined;
-  setHtmlId?: boolean;
+  setIdAttribute?: boolean;
 }) => {
   const ret: Extensions = [
     extensions.ClipboardTextSerializer,
@@ -70,7 +70,7 @@ export const getBlockNoteExtensions = <
     // DropCursor,
     UniqueID.configure({
       types: ["blockContainer"],
-      setHtmlId: opts.setHtmlId
+      setIdAttribute: opts.setIdAttribute,
     }),
     HardBreak.extend({ priority: 10 }),
     // Comments,
@@ -199,5 +199,5 @@ export const getBlockNoteExtensions = <
   }
 
   const disableExtensions: string[] = opts.disableExtensions || [];
-  return ret.filter(ex => !disableExtensions.includes(ex.name));
+  return ret.filter((ex) => !disableExtensions.includes(ex.name));
 };

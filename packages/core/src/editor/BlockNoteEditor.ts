@@ -172,8 +172,10 @@ export type BlockNoteEditorOptions<
    *
    * When set to `true`, on each block an id attribute will be set with the block id
    * Otherwise, the HTML ID attribute will not be set.
+   *
+   * (note that the id is always set on the `data-id` attribute)
    */
-  setHtmlId?: boolean;
+  setIdAttribute?: boolean;
 };
 
 const blockNoteTipTapOptions = {
@@ -347,7 +349,7 @@ export class BlockNoteEditor<
       collaboration: newOptions.collaboration,
       trailingBlock: newOptions.trailingBlock,
       disableExtensions: newOptions.disableExtensions,
-      setHtmlId: newOptions.setHtmlId,
+      setIdAttribute: newOptions.setIdAttribute,
     });
 
     const blockNoteUIExtension = Extension.create({
