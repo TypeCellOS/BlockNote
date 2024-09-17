@@ -5,7 +5,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { DefaultReactSuggestionItem } from "@blocknote/react";
-
+import { streamObject, streamText } from 'ai';
 import {
   AIInlineToolbarProsemirrorPlugin,
   AIMenuProsemirrorPlugin,
@@ -31,6 +31,12 @@ export function getDefaultAIMenuItems<
     name: item,
     title: dict.ai_menu[item].title,
     onItemClick: async () => {
+      streamObject({
+        
+      });
+      streamText({ 
+experimental_toolCallStreaming
+      })
       (editor.extensions.aiMenu as AIMenuProsemirrorPlugin).close();
       (
         editor.extensions.aiInlineToolbar as AIInlineToolbarProsemirrorPlugin
@@ -38,3 +44,33 @@ export function getDefaultAIMenuItems<
     },
   }));
 }
+
+
+/**
+3 examples:
+
+input:
+- pass schema / blocks / functions
+
+1) block -> markdown, markdown -> block
+2) pass entire document
+3) functions (updateBlock, insertBlock, deleteBlock)
+
+
+response:
+- markdown
+- entire document (text stream)
+- entire document (block call streams)
+ * 
+ */
+
+
+const context = createAIExecutionContext(editor, prompt, () = {
+  // add ai command
+  // add context
+
+
+  // apply streaming response
+  context.execute();
+});
+aitoolbar.open(context);

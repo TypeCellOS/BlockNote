@@ -1,11 +1,19 @@
 import {
   EventEmitter,
-  getBlockInfoFromPos,
+  PartialBlock,
   UiElementPosition,
+  _DefaultBlockSchema,
+  _DefaultInlineContentSchema,
+  _DefaultStyleSchema,
+  getBlockInfoFromPos,
 } from "@blocknote/core";
 import { Plugin, PluginKey, PluginView } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
-
+export type S = PartialBlock<
+  _DefaultBlockSchema,
+  _DefaultInlineContentSchema,
+  _DefaultStyleSchema
+>;
 export type AIMenuState = UiElementPosition & {
   blockIsEmpty: boolean;
 };
