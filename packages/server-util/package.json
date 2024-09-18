@@ -49,12 +49,12 @@
   "dependencies": {
     "@blocknote/core": "^0.15.7",
     "@blocknote/react": "^0.15.7",
-    "@tiptap/core": "^2.5.0",
-    "@tiptap/pm": "^2.5.0",
+    "@tiptap/core": "^2.7.1",
+    "@tiptap/pm": "^2.7.1",
     "jsdom": "^21.1.0",
     "react": "^18",
     "react-dom": "^18",
-    "y-prosemirror": "1.2.9",
+    "y-prosemirror": "1.2.12",
     "y-protocols": "^1.0.6",
     "yjs": "^13.6.15"
   },

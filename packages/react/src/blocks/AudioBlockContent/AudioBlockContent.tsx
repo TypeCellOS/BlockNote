@@ -6,10 +6,8 @@ import {
   createReactBlockSpec,
 } from "../../schema/ReactBlockSpec";
 import {
-  AddFileButton,
-  DefaultFilePreview,
   FigureWithCaption,
-  FileAndCaptionWrapper,
+  FileBlockWrapper,
   LinkWithCaption,
 } from "../FileBlockContent/fileBlockHelpers";
 import { useResolveUrl } from "../FileBlockContent/useResolveUrl";
@@ -70,30 +68,21 @@ export const AudioToExternalHTML = (
   return audio;
 };
 
+export const AudioBlock = (
+  props: ReactCustomBlockRenderProps<typeof audioBlockConfig, any, any>
+) => {
+  return (
+    <FileBlockWrapper
+      {...(props as any)}
+      buttonText={props.editor.dictionary.file_blocks.audio.add_button_text}
+      buttonIcon={<RiVolumeUpFill size={24} />}>
+      <AudioPreview block={props.block} editor={props.editor as any} />
+    </FileBlockWrapper>
+  );
+};
+
 export const ReactAudioBlock = createReactBlockSpec(audioBlockConfig, {
-  render: (props) => (
-    <div className={"bn-file-block-content-wrapper"}>
-      {props.block.props.url === "" ? (
-        <AddFileButton
-          {...props}
-          editor={props.editor as any}
-          buttonText={props.editor.dictionary.file_blocks.audio.add_button_text}
-          buttonIcon={<RiVolumeUpFill size={24} />}
-        />
-      ) : !props.block.props.showPreview ? (
-        <FileAndCaptionWrapper block={props.block} editor={props.editor as any}>
-          <DefaultFilePreview
-            block={props.block}
-            editor={props.editor as any}
-          />
-        </FileAndCaptionWrapper>
-      ) : (
-        <FileAndCaptionWrapper block={props.block} editor={props.editor as any}>
-          <AudioPreview block={props.block} editor={props.editor as any} />
-        </FileAndCaptionWrapper>
-      )}
-    </div>
-  ),
+  render: AudioBlock,
   parse: audioParse,
-  toExternalHTML: (props) => <AudioToExternalHTML {...props} />,
+  toExternalHTML: AudioToExternalHTML,
 });

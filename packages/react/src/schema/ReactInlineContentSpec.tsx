@@ -6,9 +6,10 @@ import {
   createStronglyTypedTiptapNode,
   CustomInlineContentConfig,
   getInlineContentParseRules,
-  InlineContentConfig,
   InlineContentFromConfig,
+  inlineContentToNodes,
   nodeToCustomInlineContent,
+  PartialCustomInlineContentFromConfig,
   Props,
   PropSchema,
   propsToAttributes,
@@ -28,12 +29,15 @@ import { renderToDOMSpec } from "./@util/ReactRenderUtil";
 
 // extend BlockConfig but use a React render function
 export type ReactInlineContentImplementation<
-  T extends InlineContentConfig,
+  T extends CustomInlineContentConfig,
   // I extends InlineContentSchema,
   S extends StyleSchema
 > = {
   render: FC<{
     inlineContent: InlineContentFromConfig<T, S>;
+    updateInlineContent: (
+      update: PartialCustomInlineContentFromConfig<T, S>
+    ) => void;
     contentRef: (node: HTMLElement | null) => void;
   }>;
   // TODO?
@@ -119,7 +123,15 @@ export function createReactInlineContentSpec<
       ) as any as InlineContentFromConfig<T, S>; // TODO: fix cast
       const Content = inlineContentImplementation.render;
       const output = renderToDOMSpec(
-        (refCB) => <Content inlineContent={ic} contentRef={refCB} />,
+        (refCB) => (
+          <Content
+            inlineContent={ic}
+            updateInlineContent={() => {
+              // No-op
+            }}
+            contentRef={refCB}
+          />
+        ),
         editor
       );
 
@@ -155,6 +167,21 @@ export function createReactInlineContentSpec<
                       editor.schema.styleSchema
                     ) as any as InlineContentFromConfig<T, S> // TODO: fix cast
                   }
+                  updateInlineContent={(update) => {
+                    const content = inlineContentToNodes(
+                      [update],
+                      editor._tiptapEditor.schema,
+                      editor.schema.styleSchema
+                    );
+
+                    editor._tiptapEditor.view.dispatch(
+                      editor._tiptapEditor.view.state.tr.replaceWith(
+                        props.getPos(),
+                        props.getPos() + props.node.nodeSize,
+                        content
+                      )
+                    );
+                  }}
                 />
               </InlineContentWrapper>
             );

@@ -106,28 +106,22 @@ export async function handleFileInsertion<
 
     const file = items[i].getAsFile();
     if (file) {
-      const updateData = await editor.uploadFile(file);
+      const fileBlock = {
+        type: fileBlockType,
+        props: {
+          name: file.name,
+        },
+      } as PartialBlock<BSchema, I, S>;
 
-      const fileBlock =
-        typeof updateData === "string"
-          ? ({
-              type: fileBlockType,
-              props: {
-                name: file.name,
-                url: updateData,
-              },
-            } as PartialBlock<BSchema, I, S>)
-          : { type: fileBlockType, ...updateData };
+      let insertedBlockId: string | undefined = undefined;
 
       if (event.type === "paste") {
-        editor.insertBlocks(
+        insertedBlockId = editor.insertBlocks(
           [fileBlock],
           editor.getTextCursorPosition().block,
           "after"
-        );
-      }
-
-      if (event.type === "drop") {
+        )[0].id;
+      } else if (event.type === "drop") {
         const coords = {
           left: (event as DragEvent).clientX,
           top: (event as DragEvent).clientY,
@@ -143,8 +137,27 @@ export async function handleFileInsertion<
           pos.pos
         );
 
-        editor.insertBlocks([fileBlock], blockInfo.id, "after");
+        insertedBlockId = editor.insertBlocks(
+          [fileBlock],
+          blockInfo.id,
+          "after"
+        )[0].id;
+      } else {
+        return;
       }
+
+      const updateData = await editor.uploadFile(file, insertedBlockId);
+
+      const updatedFileBlock =
+        typeof updateData === "string"
+          ? ({
+              props: {
+                url: updateData,
+              },
+            } as PartialBlock<BSchema, I, S>)
+          : { ...updateData };
+
+      editor.updateBlock(insertedBlockId, updatedFileBlock);
     }
   }
 }

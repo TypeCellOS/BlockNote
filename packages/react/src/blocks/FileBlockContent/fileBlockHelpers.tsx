@@ -1,7 +1,42 @@
 import { FileBlockConfig } from "@blocknote/core";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 import { RiFile2Line } from "react-icons/ri";
+
+import { useUploadLoading } from "../../hooks/useUploadLoading";
+import { useDictionary } from "../../i18n/dictionary";
 import { ReactCustomBlockRenderProps } from "../../schema/ReactBlockSpec";
+
+export const FileBlockWrapper = (
+  props: Omit<
+    ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
+    "contentRef"
+  > & { buttonText?: string; buttonIcon?: ReactNode; children: ReactNode }
+) => {
+  const showLoader = useUploadLoading(props.block.id);
+
+  if (showLoader) {
+    return <div className={"bn-file-loading-preview"}>Loading...</div>;
+  }
+
+  return (
+    <div className={"bn-file-block-content-wrapper"}>
+      {props.block.props.url === "" ? (
+        <AddFileButton {...props} />
+      ) : props.block.props.showPreview === false ? (
+        <FileAndCaptionWrapper block={props.block} editor={props.editor as any}>
+          <DefaultFilePreview
+            block={props.block}
+            editor={props.editor as any}
+          />
+        </FileAndCaptionWrapper>
+      ) : (
+        <FileAndCaptionWrapper block={props.block} editor={props.editor as any}>
+          {props.children}
+        </FileAndCaptionWrapper>
+      )}
+    </div>
+  );
+};
 
 export const DefaultFilePreview = (
   props: Omit<
@@ -43,10 +78,12 @@ export const AddFileButton = (
     ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
     "contentRef"
   > & {
-    buttonText: string;
-    buttonIcon: ReactNode;
+    buttonText?: string;
+    buttonIcon?: ReactNode;
   }
 ) => {
+  const dict = useDictionary();
+
   // Prevents focus from moving to the button.
   const addFileButtonMouseDownHandler = useCallback(
     (event: React.MouseEvent) => {
@@ -74,7 +111,9 @@ export const AddFileButton = (
       <div className={"bn-add-file-button-icon"}>
         {props.buttonIcon || <RiFile2Line size={24} />}
       </div>
-      <div className={"bn-add-file-button-text"}>{props.buttonText}</div>
+      <div className={"bn-add-file-button-text"}>
+        {props.buttonText || dict.file_blocks.file.add_button_text}
+      </div>
     </div>
   );
 };
