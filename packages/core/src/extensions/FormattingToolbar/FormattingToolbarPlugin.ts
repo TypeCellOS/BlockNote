@@ -205,7 +205,6 @@ export class FormattingToolbarView implements PluginView {
 
     if (isNodeSelection(selection)) {
       const node = this.pmView.nodeDOM(from) as HTMLElement;
-
       if (node) {
         return node.getBoundingClientRect();
       }

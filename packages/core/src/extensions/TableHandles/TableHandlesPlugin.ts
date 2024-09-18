@@ -159,7 +159,11 @@ export class TableHandlesView<
     const rowIndex = getChildIndex(target.parentElement!);
     const cellRect = target.getBoundingClientRect();
     const tableRect =
-      target.parentElement!.parentElement!.getBoundingClientRect();
+      target.parentElement?.parentElement?.getBoundingClientRect();
+
+    if (!tableRect) {
+      return;
+    }
 
     const blockEl = getDraggableBlockFromElement(target, this.pmView);
     if (!blockEl) {
