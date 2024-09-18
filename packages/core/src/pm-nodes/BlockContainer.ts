@@ -10,6 +10,7 @@ import {
 } from "../api/nodeConversions/nodeConversions";
 import { PartialBlock } from "../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor";
+import { NonEditableBlockPlugin } from "../extensions/NonEditableBlocks/NonEditableBlockPlugin";
 import {
   BlockNoteDOMAttributes,
   BlockSchema,
@@ -487,6 +488,10 @@ export const BlockContainer = Node.create<{
           return true;
         },
     };
+  },
+
+  addProseMirrorPlugins() {
+    return [NonEditableBlockPlugin()];
   },
 
   addKeyboardShortcuts() {

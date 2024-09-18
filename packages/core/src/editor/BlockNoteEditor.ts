@@ -67,7 +67,6 @@ import { en } from "../i18n/locales";
 
 import { Transaction } from "@tiptap/pm/state";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer";
-import { NonEditableBlockPlugin } from "../extensions/NonEditableBlocks/NonEditableBlockPlugin";
 import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin";
 import "../style.css";
 import { initializeESMDependencies } from "../util/esmDependencies";
@@ -365,7 +364,6 @@ export class BlockNoteEditor<
           ...(this.options.animations ?? true
             ? [PreviousBlockTypePlugin()]
             : []),
-          NonEditableBlockPlugin(),
         ];
       },
     });
