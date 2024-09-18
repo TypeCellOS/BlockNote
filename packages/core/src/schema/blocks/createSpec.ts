@@ -121,13 +121,7 @@ export function fixNodeViewTextSelection(
         );
       }
 
-      // If the target element contains only text, the browser should handle
-      // the event to update the selection. Otherwise, the event should be
-      // handled by BlockNote to select the block.
-      return (
-        (event.target as HTMLElement)?.innerText ===
-        (event.target as HTMLElement)?.innerHTML
-      );
+      return true;
     }
 
     return false;

@@ -7,8 +7,30 @@ import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos";
 // scenarios look identical in the editor state, so we need to check the DOM
 // selection to differentiate them.
 const onSelectionChange = (editor: Editor) => {
+  const isNodeSelection = "node" in editor.state.selection;
   const selection = document.getSelection();
   if (selection === null) {
+    return;
+  }
+
+  if (selection.type === "None") {
+    if (isNodeSelection) {
+      // The browser just reset the selection to None (for example, after single clicking a piece of text within the block),
+      // we want to reset the selection to span the entire block
+      const blockInfo = getBlockInfoFromPos(
+        editor.state.doc,
+        editor.state.selection.from
+      );
+      // TODO: check if fix should be applied for this node
+
+      // set selection to blcok
+      const range = document.createRange();
+      const blockElement = editor.view.domAtPos(blockInfo.startPos).node;
+      console.log("update selection", blockElement);
+      range.selectNode(blockElement.firstChild);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
     return;
   }
 
@@ -22,7 +44,7 @@ const onSelectionChange = (editor: Editor) => {
   }
 
   // Node selection is active.
-  const isNodeSelection = "node" in editor.state.selection;
+
   if (!isNodeSelection) {
     editor.view.dom.classList.remove("ProseMirror-fullyselected");
     return;
