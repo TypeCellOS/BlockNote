@@ -110,7 +110,6 @@ export async function handleFileInsertion<
         type: fileBlockType,
         props: {
           name: file.name,
-          loading: true,
         },
       } as PartialBlock<BSchema, I, S>;
 
@@ -160,10 +159,9 @@ export async function handleFileInsertion<
           ? ({
               props: {
                 url: updateData,
-                loading: false,
               },
             } as PartialBlock<BSchema, I, S>)
-          : { ...updateData, props: { ...updateData.props, loading: false } };
+          : { ...updateData, props: { ...updateData.props } };
 
       editor.updateBlock(insertedBlockId, updatedFileBlock);
     }
