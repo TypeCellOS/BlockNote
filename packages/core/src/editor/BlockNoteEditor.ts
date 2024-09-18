@@ -561,7 +561,7 @@ export class BlockNoteEditor<
       blockArray: Block<BSchema, ISchema, SSchema>[]
     ): boolean {
       for (const block of blockArray) {
-        if (!callback(block)) {
+        if (callback(block) === false) {
           return false;
         }
 
