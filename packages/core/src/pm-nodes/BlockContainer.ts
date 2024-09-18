@@ -11,7 +11,6 @@ import {
 import { PartialBlock } from "../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor";
 import { NonEditableBlockPlugin } from "../extensions/NonEditableBlocks/NonEditableBlockPlugin";
-import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin";
 import {
   BlockNoteDOMAttributes,
   BlockSchema,
@@ -492,7 +491,7 @@ export const BlockContainer = Node.create<{
   },
 
   addProseMirrorPlugins() {
-    return [PreviousBlockTypePlugin(), NonEditableBlockPlugin()];
+    return [NonEditableBlockPlugin()];
   },
 
   addKeyboardShortcuts() {

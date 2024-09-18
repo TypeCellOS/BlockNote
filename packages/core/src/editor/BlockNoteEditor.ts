@@ -67,6 +67,7 @@ import { en } from "../i18n/locales";
 
 import { Transaction } from "@tiptap/pm/state";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer";
+import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin";
 import "../style.css";
 import { initializeESMDependencies } from "../util/esmDependencies";
 
@@ -75,6 +76,13 @@ export type BlockNoteEditorOptions<
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema
 > = {
+  /**
+   * Whether changes to blocks (like indentation, creating lists, changing headings) should be animated or not. Defaults to `true`.
+   *
+   * @default true
+   */
+  animations?: boolean;
+
   disableExtensions: string[];
   /**
    * A dictionary object containing translations for the editor.
@@ -364,6 +372,9 @@ export class BlockNoteEditor<
           ...(this.filePanel ? [this.filePanel.plugin] : []),
           ...(this.tableHandles ? [this.tableHandles.plugin] : []),
           PlaceholderPlugin(this, newOptions.placeholders),
+          ...(this.options.animations ?? true
+            ? [PreviousBlockTypePlugin()]
+            : []),
         ];
       },
     });
