@@ -50,6 +50,7 @@ const UniqueID = Extension.create({
     return {
       attributeName: "id",
       types: [],
+      setIdAttribute: false,
       generateID: () => {
         // Use mock ID if tests are running.
         if (typeof window !== "undefined" && (window as any).__TEST_OPTIONS) {
@@ -77,10 +78,20 @@ const UniqueID = Extension.create({
             default: null,
             parseHTML: (element) =>
               element.getAttribute(`data-${this.options.attributeName}`),
-            renderHTML: (attributes) => ({
-              [`data-${this.options.attributeName}`]:
-                attributes[this.options.attributeName],
-            }),
+            renderHTML: (attributes) => {
+              const defaultIdAttributes = {
+                [`data-${this.options.attributeName}`]:
+                  attributes[this.options.attributeName],
+              };
+              if (this.options.setIdAttribute) {
+                return {
+                  ...defaultIdAttributes,
+                  id: attributes[this.options.attributeName],
+                };
+              } else {
+                return defaultIdAttributes;
+              }
+            },
           },
         },
       },
