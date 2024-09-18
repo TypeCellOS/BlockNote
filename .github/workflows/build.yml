@@ -78,7 +78,7 @@ jobs:
           retention-days: 30
 
       - name: Upload webpack stats artifact (editor)
-        uses: relative-ci/agent-upload-artifact-action@v1
+        uses: relative-ci/agent-upload-artifact-action@v2
         with:
           webpackStatsFile: ./playground/dist/webpack-stats.json
           artifactName: relative-ci-artifacts-editor
