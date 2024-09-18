@@ -1,4 +1,8 @@
+import { NodeViewRendererProps } from "@tiptap/core";
 import { TagParseRule } from "@tiptap/pm/model";
+import { NodeSelection } from "@tiptap/pm/state";
+import { NodeView } from "@tiptap/pm/view";
+
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { InlineContentSchema } from "../inlineContent/types";
 import { StyleSchema } from "../styles/types";
@@ -60,6 +64,75 @@ export type CustomBlockImplementation<
     el: HTMLElement
   ) => PartialBlockFromConfig<T, I, S>["props"] | undefined;
 };
+
+export function fixNodeViewTextSelection(
+  props: NodeViewRendererProps,
+  nodeView: NodeView
+) {
+  // Necessary for DOM to handle selections.
+  nodeView.ignoreMutation = () => true;
+
+  // Prevents selecting the node from making it draggable, and prevents the DOM selection from being visible when it wraps the node.
+  nodeView.selectNode = () => {
+    (nodeView.dom as HTMLElement).classList.add("ProseMirror-selectednode");
+    props.editor.view.dom.classList.add("ProseMirror-fullyselected");
+  };
+
+  nodeView.stopEvent = (event) => {
+    // Let the browser handle copy events, as these only fire when the whole
+    // node isn't selected.
+    if (event.type === "cut" || event.type === "copy") {
+      return true;
+    }
+
+    // Prevent all drag events.
+    if (event.type.startsWith("drag")) {
+      event.preventDefault();
+      return true;
+    }
+
+    // Keyboard events should be handled by the browser. This doesn't prevent
+    // BlockNote's own key handlers from firing.
+    if (event.type.startsWith("key")) {
+      return true;
+    }
+
+    // Select the node on mouse down, if it isn't already selected.
+    if (event.type === "mousedown") {
+      if (typeof props.getPos !== "function") {
+        return false;
+      }
+
+      const nodeStartPos = props.getPos();
+      const nodeEndPos = nodeStartPos + props.node.nodeSize;
+      const selectionStartPos = props.editor.view.state.selection.from;
+      const selectionEndPos = props.editor.view.state.selection.to;
+
+      // Node is selected in the editor state.
+      const nodeIsSelected =
+        nodeStartPos === selectionStartPos && nodeEndPos === selectionEndPos;
+
+      if (!nodeIsSelected) {
+        // Select node in editor state if not already selected.
+        props.editor.view.dispatch(
+          props.editor.view.state.tr.setSelection(
+            NodeSelection.create(props.editor.view.state.doc, nodeStartPos)
+          )
+        );
+      }
+
+      // If the target element contains only text, the browser should handle
+      // the event to update the selection. Otherwise, the event should be
+      // handled by BlockNote to select the block.
+      return (
+        (event.target as HTMLElement)?.innerText ===
+        (event.target as HTMLElement)?.innerHTML
+      );
+    }
+
+    return false;
+  };
+}
 
 // Function that uses the 'parse' function of a blockConfig to create a
 // TipTap node's `parseHTML` property. This is only used for parsing content
@@ -147,12 +220,12 @@ export function createBlockSpec<
     },
 
     addNodeView() {
-      return ({ getPos }) => {
+      return (props) => {
         // Gets the BlockNote editor instance
         const editor = this.options.editor;
         // Gets the block
         const block = getBlockFromPos(
-          getPos,
+          props.getPos,
           editor,
           this.editor,
           blockConfig.type
@@ -163,13 +236,22 @@ export function createBlockSpec<
 
         const output = blockImplementation.render(block as any, editor);
 
-        return wrapInBlockStructure(
+        const nodeView: NodeView = wrapInBlockStructure(
           output,
           block.type,
           block.props,
           blockConfig.propSchema,
           blockContentDOMAttributes
         );
+
+        if (
+          blockConfig.content === "none" &&
+          blockConfig.canSelectText === true
+        ) {
+          fixNodeViewTextSelection(props, nodeView);
+        }
+
+        return nodeView;
       };
     },
   });

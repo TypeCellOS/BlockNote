@@ -15,6 +15,7 @@ import { createCopyToClipboardExtension } from "../api/exporters/copyExtension";
 import { createPasteFromClipboardExtension } from "../api/parsers/pasteExtension";
 import { createDropFileExtension } from "../api/parsers/fileDropExtension";
 import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension";
+import { FullySelectedNodeExtension } from "../extensions/FullySelectedNode/FullySelectedNodeExtension";
 import { TextAlignmentExtension } from "../extensions/TextAlignment/TextAlignmentExtension";
 import { TextColorExtension } from "../extensions/TextColor/TextColorExtension";
 import { TrailingNode } from "../extensions/TrailingNode/TrailingNodeExtension";
@@ -155,6 +156,8 @@ export const getBlockNoteExtensions = <
     ...(opts.trailingBlock === undefined || opts.trailingBlock
       ? [TrailingNode]
       : []),
+
+    FullySelectedNodeExtension,
   ];
 
   if (opts.collaboration) {
@@ -197,5 +200,5 @@ export const getBlockNoteExtensions = <
   }
 
   const disableExtensions: string[] = opts.disableExtensions || [];
-  return ret.filter(ex => !disableExtensions.includes(ex.name));
+  return ret.filter((ex) => !disableExtensions.includes(ex.name));
 };
