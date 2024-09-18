@@ -1,20 +1,15 @@
-interface Schema {
-  type: string;
-  properties: {
-    [key: string]: any;
-  };
-  required?: string[];
-  additionalProperties?: boolean;
-}
+import type { SimpleJSONObjectSchema } from "./schemaToJSONSchema";
 
 /**
  * Merges schemas that only differ by the "type" field.
  * @param schemas The array of schema objects to be processed.
  * @returns A new array with merged schema objects where applicable.
  */
-export function mergeSchemas(schemas: Schema[]): Schema[] {
+export function mergeSchemas(
+  schemas: SimpleJSONObjectSchema[]
+): SimpleJSONObjectSchema[] {
   const groupedSchemas: { [signature: string]: string[] } = {};
-  const signatureToSchema: { [signature: string]: Schema } = {};
+  const signatureToSchema: { [signature: string]: SimpleJSONObjectSchema } = {};
 
   schemas.forEach((schemaObj) => {
     // Extract the schema properties except for the "type" field
@@ -32,95 +27,95 @@ export function mergeSchemas(schemas: Schema[]): Schema[] {
   });
 
   // Create the new merged schema array
-  const mergedSchemas: Schema[] = Object.keys(groupedSchemas).map(
-    (signature) => {
-      const baseSchema = signatureToSchema[signature];
-      return {
-        ...baseSchema,
-        properties: {
-          ...baseSchema.properties,
-          type: {
-            type: "string",
-            enum: groupedSchemas[signature],
-          },
+  const mergedSchemas: SimpleJSONObjectSchema[] = Object.keys(
+    groupedSchemas
+  ).map((signature) => {
+    const baseSchema = signatureToSchema[signature];
+    return {
+      ...baseSchema,
+      properties: {
+        ...baseSchema.properties,
+        type: {
+          type: "string",
+          enum: groupedSchemas[signature],
         },
-      };
-    }
-  );
+      },
+    };
+  });
 
   return mergedSchemas;
 }
 
-// Example usage:
-const exampleSchemas: Schema[] = [
-  {
-    type: "object",
-    properties: {
-      type: { type: "string", enum: ["paragraph"] },
-      content: { $ref: "#/$defs/inlinecontent" },
-      props: {
-        type: "object",
-        properties: {
-          backgroundColor: { type: "string" },
-          textColor: { type: "string" },
-          textAlignment: {
-            type: "string",
-            enum: ["left", "center", "right", "justify"],
-          },
-        },
-        additionalProperties: false,
-      },
-    },
-    additionalProperties: false,
-    required: ["type"],
-  },
-  {
-    type: "object",
-    properties: {
-      type: { type: "string", enum: ["bulletListItem"] },
-      content: { $ref: "#/$defs/inlinecontent" },
-      props: {
-        type: "object",
-        properties: {
-          backgroundColor: { type: "string" },
-          textColor: { type: "string" },
-          textAlignment: {
-            type: "string",
-            enum: ["left", "center", "right", "justify"],
-          },
-        },
-        additionalProperties: false,
-      },
-    },
-    additionalProperties: false,
-    required: ["type"],
-  },
-  {
-    type: "object",
-    properties: {
-      type: { type: "string", enum: ["heading"] },
-      content: { $ref: "#/$defs/inlinecontent" },
-      props: {
-        type: "object",
-        properties: {
-          backgroundColor: { type: "string" },
-          textColor: { type: "string" },
-          textAlignment: {
-            type: "string",
-            enum: ["left", "center", "right", "justify"],
-          },
-          level: {
-            type: "number",
-            enum: [1, 2, 3],
-          },
-        },
-        additionalProperties: false,
-      },
-    },
-    additionalProperties: false,
-    required: ["type"],
-  },
-];
+// // Example usage:
+// const exampleSchemas: Schema[] = [
+//   {
+//     type: "object",
+//     properties: {
+//       type: { type: "string", enum: ["paragraph"] },
+//       content: { $ref: "#/$defs/inlinecontent" },
+//       props: {
+//         type: "object",
+//         properties: {
+//           backgroundColor: { type: "string" },
+//           textColor: { type: "string" },
+//           textAlignment: {
+//             type: "string",
+//             enum: ["left", "center", "right", "justify"],
+//           },
+//         },
+//         additionalProperties: false,
+//       },
+//     },
+//     additionalProperties: false,
+//     required: ["type"],
+//   },
+//   {
+//     type: "object",
+//     properties: {
+//       type: { type: "string", enum: ["bulletListItem"] },
+//       content: { $ref: "#/$defs/inlinecontent" },
+//       props: {
+//         type: "object",
+//         properties: {
+//           backgroundColor: { type: "string" },
+//           textColor: { type: "string" },
+//           textAlignment: {
+//             type: "string",
+//             enum: ["left", "center", "right", "justify"],
+//           },
+//         },
+//         additionalProperties: false,
+//       },
+//     },
+//     additionalProperties: false,
+//     required: ["type"],
+//   },
+//   {
+//     type: "object",
+//     properties: {
+//       type: { type: "string", enum: ["heading"] },
+//       content: { $ref: "#/$defs/inlinecontent" },
+//       props: {
+//         type: "object",
+//         properties: {
+//           backgroundColor: { type: "string" },
+//           textColor: { type: "string" },
+//           textAlignment: {
+//             type: "string",
+//             enum: ["left", "center", "right", "justify"],
+//           },
+//           level: {
+//             type: "number",
+//             enum: [1, 2, 3],
+//           },
+//         },
+//         additionalProperties: false,
+//       },
+//     },
+//     additionalProperties: false,
+//     required: ["type"],
+//   },
+// ];
 
-const mergedSchemas = mergeSchemas(exampleSchemas);
-console.log(JSON.stringify(mergedSchemas, null, 2));
+// const mergedSchemas = mergeSchemas(exampleSchemas);
+// console.log(JSON.stringify(mergedSchemas, null, 2));

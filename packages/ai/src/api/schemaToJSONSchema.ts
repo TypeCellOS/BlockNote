@@ -81,13 +81,22 @@ import { mergeSchemas } from "./mergeSchema";
     }
   }*/
 
+export type SimpleJSONObjectSchema = {
+  type: string;
+  properties: {
+    [key: string]: any;
+  };
+  required?: string[];
+  additionalProperties?: boolean;
+};
+
 export function styleSchemaToJSONSchema(
-  schema: BlockNoteSchema<any, any, StyleSchema>
-) {
+  schema: StyleSchema
+): SimpleJSONObjectSchema {
   return {
     type: "object",
     properties: Object.fromEntries(
-      Object.entries(schema.styleSchema).map(([key, val]) => {
+      Object.entries(schema).map(([key, val]) => {
         return [
           key,
           {
@@ -120,7 +129,9 @@ export function styledTextToJSONSchema() {
   };
 }
 
-export function propSchemaToJSONSchema(propSchema: PropSchema) {
+export function propSchemaToJSONSchema(
+  propSchema: PropSchema
+): SimpleJSONObjectSchema {
   return {
     type: "object",
     properties: Object.fromEntries(
@@ -138,13 +149,11 @@ export function propSchemaToJSONSchema(propSchema: PropSchema) {
   };
 }
 
-export function inlineContentToJSONSchema(
-  schema: BlockNoteSchema<any, InlineContentSchema, StyleSchema>
-) {
+export function inlineContentSchemaToJSONSchema(schema: InlineContentSchema) {
   return {
     type: "array",
     items: {
-      anyOf: Object.entries(schema.inlineContentSchema).map(([key, val]) => {
+      anyOf: Object.entries(schema).map(([key, val]) => {
         if (val === "text") {
           return {
             $ref: "#/$defs/styledtext",
@@ -202,12 +211,10 @@ export function inlineContentToJSONSchema(
   };
 }
 
-export function blockToJSONSchema(
-  schema: BlockNoteSchema<BlockSchema, InlineContentSchema, StyleSchema>
-) {
+export function blockSchemaToJSONSchema(schema: BlockSchema) {
   return {
     anyOf: mergeSchemas(
-      Object.entries(schema.blockSchema).map(([key, val]) => {
+      Object.entries(schema).map(([key, val]) => {
         return {
           type: "object",
           properties: {
@@ -222,13 +229,13 @@ export function blockToJSONSchema(
                 ? { type: "object", properties: {} } // TODO
                 : undefined,
             // filter out default props (TODO: make option)
-            props: propSchemaToJSONSchema(
-              Object.fromEntries(
-                Object.entries(val.propSchema).filter(
-                  (key) => typeof (defaultProps as any)[key[0]] === "undefined"
-                )
-              )
-            ),
+            props: propSchemaToJSONSchema(val.propSchema),
+            // Object.fromEntries(
+            //   Object.entries(val.propSchema).filter(
+            //     (key) => typeof (defaultProps as any)[key[0]] === "undefined"
+            //   )
+            // )
+            // ),
           },
           additionalProperties: false,
           required: ["type"],
@@ -239,14 +246,69 @@ export function blockToJSONSchema(
 }
 
 export function blockNoteSchemaToJSONSchema(
-  schema: BlockNoteSchema<BlockSchema, InlineContentSchema, StyleSchema>
+  schema: Pick<
+    BlockNoteSchema<BlockSchema, InlineContentSchema, StyleSchema>,
+    "blockSchema" | "inlineContentSchema" | "styleSchema"
+  >
 ) {
+  schema = schemaOps(schema).removeFileBlocks().removeDefaultProps().get();
   return {
     $defs: {
-      //   styles: styleSchemaToJSONSchema(schema),
-      //   styledtext: styledTextToJSONSchema(),
-      //   inlinecontent: inlineContentToJSONSchema(schema),
-      block: blockToJSONSchema(schema),
+      styles: styleSchemaToJSONSchema(schema.styleSchema),
+      styledtext: styledTextToJSONSchema(),
+      inlinecontent: inlineContentSchemaToJSONSchema(
+        schema.inlineContentSchema
+      ),
+      block: blockSchemaToJSONSchema(schema.blockSchema),
+    },
+  };
+}
+
+type Writeable<T> = { -readonly [P in keyof T]: T[P] };
+
+export function schemaOps(
+  schema: Pick<
+    BlockNoteSchema<BlockSchema, InlineContentSchema, StyleSchema>,
+    "blockSchema" | "inlineContentSchema" | "styleSchema"
+  >
+) {
+  const clone: Writeable<typeof schema> = JSON.parse(
+    JSON.stringify({
+      blockSchema: schema.blockSchema,
+      inlineContentSchema: schema.inlineContentSchema,
+      styleSchema: schema.styleSchema,
+    })
+  );
+  return {
+    removeFileBlocks() {
+      clone.blockSchema = Object.fromEntries(
+        Object.entries(clone.blockSchema).filter(
+          ([key, val]) => !val.isFileBlock
+        )
+      );
+      return this;
+    },
+    removeDefaultProps() {
+      clone.blockSchema = Object.fromEntries(
+        Object.entries(clone.blockSchema).map(([key, val]) => {
+          return [
+            key,
+            {
+              ...val,
+              propSchema: Object.fromEntries(
+                Object.entries(val.propSchema).filter(
+                  (key) => typeof (defaultProps as any)[key[0]] === "undefined"
+                )
+              ) as any,
+            },
+          ];
+        })
+      );
+      return this;
+    },
+
+    get() {
+      return clone;
     },
   };
 }
