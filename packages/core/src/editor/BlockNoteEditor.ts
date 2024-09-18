@@ -41,9 +41,9 @@ import {
   InlineContentSchema,
   InlineContentSpecs,
   PartialInlineContent,
+  Styles,
   StyleSchema,
   StyleSpecs,
-  Styles,
 } from "../schema";
 import { mergeCSSClasses } from "../util/browser";
 import { NoInfer, UnreachableCaseError } from "../util/typescript";
@@ -123,18 +123,6 @@ export type BlockNoteEditorOptions<
     file: File,
     blockId?: string
   ) => Promise<string | Record<string, any>>;
-
-  /**
-   * Listen for when a file upload begins.
-   * @param blockId The ID of the block that the uploaded file is for.
-   */
-  onUploadStart: (blockId?: string) => void;
-
-  /**
-   * Listen for when a file upload completes.
-   * @param blockId The ID of the block that the uploaded file is for.
-   */
-  onUploadEnd: (blockId?: string) => void;
 
   /**
    * Resolve a URL of a file block to one that can be displayed or downloaded. This can be used for creating authenticated URL or
@@ -376,26 +364,20 @@ export class BlockNoteEditor<
     });
     extensions.push(blockNoteUIExtension);
 
-    if (newOptions.onUploadStart) {
-      this.onUploadStartCallbacks.push(newOptions.onUploadStart);
-    }
-    if (newOptions.onUploadEnd) {
-      this.onUploadEndCallbacks.push(newOptions.onUploadEnd);
-    }
-
     if (newOptions.uploadFile) {
-      this.uploadFile = (file, block) => {
+      const uploadFile = newOptions.uploadFile;
+      this.uploadFile = async (file, block) => {
         this.onUploadStartCallbacks.forEach((callback) =>
           callback.apply(this, [block])
         );
-        return new Promise((resolve) => {
-          newOptions.uploadFile?.(file, block).then((fileData) => {
-            this.onUploadEndCallbacks.forEach((callback) =>
-              callback.apply(this, [block])
-            );
-            resolve(fileData);
-          });
-        });
+        try {
+          return await uploadFile(file, block);
+        } finally {
+          // TODO: Test successful & failed uploads
+          this.onUploadEndCallbacks.forEach((callback) =>
+            callback.apply(this, [block])
+          );
+        }
       };
     }
 

@@ -12,16 +12,13 @@ export const createFileBlockWrapper = (
     any,
     any
   >,
+  // TODO: Maybe make optional for default preview
   element: { dom: HTMLElement; destroy?: () => void },
   buttonText?: string,
   buttonIcon?: HTMLElement
 ) => {
   const wrapper = document.createElement("div");
   wrapper.className = "bn-file-block-content-wrapper";
-
-  const loading = document.createElement("div");
-  loading.className = "bn-file-loading-preview";
-  loading.textContent = "Loading...";
 
   if (block.props.url === "") {
     const addFileButton = createAddFileButton(
@@ -31,6 +28,10 @@ export const createFileBlockWrapper = (
       buttonIcon
     );
     wrapper.appendChild(addFileButton.dom);
+
+    const loading = document.createElement("div");
+    loading.className = "bn-file-loading-preview";
+    loading.textContent = "Loading...";
 
     const destroyUploadStartHandler = editor.onUploadStart((blockId) => {
       if (blockId === block.id) {
@@ -54,6 +55,7 @@ export const createFileBlockWrapper = (
       },
     };
   } else if (block.props.showPreview === false) {
+    // TODO: Not using the wrapper element here?
     const file = createDefaultFilePreview(block).dom;
     const element = createFileAndCaptionWrapper(block, file);
 

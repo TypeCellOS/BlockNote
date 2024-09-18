@@ -15,7 +15,7 @@ export const FileBlockWrapper = (
   const showLoader = useUploadLoading(props.block.id);
 
   if (showLoader) {
-    return <div>Loading...</div>;
+    return <div className={"bn-file-loading-preview"}>Loading...</div>;
   }
 
   return (

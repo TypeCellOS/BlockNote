@@ -116,16 +116,12 @@ export async function handleFileInsertion<
       let insertedBlockId: string | undefined = undefined;
 
       if (event.type === "paste") {
-        editor.insertBlocks(
+        insertedBlockId = editor.insertBlocks(
           [fileBlock],
           editor.getTextCursorPosition().block,
           "after"
-        );
-
-        insertedBlockId = editor.getTextCursorPosition().nextBlock!.id;
-      }
-
-      if (event.type === "drop") {
+        )[0].id;
+      } else if (event.type === "drop") {
         const coords = {
           left: (event as DragEvent).clientX,
           top: (event as DragEvent).clientY,
@@ -141,14 +137,12 @@ export async function handleFileInsertion<
           pos.pos
         );
 
-        editor.insertBlocks([fileBlock], blockInfo.id, "after");
-
-        insertedBlockId = editor._tiptapEditor.state.doc
-          .resolve(blockInfo.endPos + 2)
-          .node().attrs.id;
-      }
-
-      if (!insertedBlockId) {
+        insertedBlockId = editor.insertBlocks(
+          [fileBlock],
+          blockInfo.id,
+          "after"
+        )[0].type;
+      } else {
         return;
       }
 
@@ -161,7 +155,7 @@ export async function handleFileInsertion<
                 url: updateData,
               },
             } as PartialBlock<BSchema, I, S>)
-          : { ...updateData, props: { ...updateData.props } };
+          : { ...updateData };
 
       editor.updateBlock(insertedBlockId, updatedFileBlock);
     }
