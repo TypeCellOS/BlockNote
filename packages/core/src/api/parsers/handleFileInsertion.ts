@@ -141,7 +141,7 @@ export async function handleFileInsertion<
           [fileBlock],
           blockInfo.id,
           "after"
-        )[0].type;
+        )[0].id;
       } else {
         return;
       }
