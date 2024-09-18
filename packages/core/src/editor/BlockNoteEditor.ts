@@ -373,7 +373,6 @@ export class BlockNoteEditor<
         try {
           return await uploadFile(file, block);
         } finally {
-          // TODO: Test successful & failed uploads
           this.onUploadEndCallbacks.forEach((callback) =>
             callback.apply(this, [block])
           );
