@@ -184,7 +184,7 @@ export function createReactBlockSpec<
 
         if (
           blockConfig.content === "none" &&
-          blockConfig.canSelectText === true
+          blockConfig.allowTextSelection === true
         ) {
           fixNodeViewTextSelection(props, nodeView);
         }

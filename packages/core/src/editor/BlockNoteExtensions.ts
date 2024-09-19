@@ -15,9 +15,12 @@ import { createCopyToClipboardExtension } from "../api/exporters/copyExtension";
 import { createPasteFromClipboardExtension } from "../api/parsers/pasteExtension";
 import { createDropFileExtension } from "../api/parsers/fileDropExtension";
 import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension";
-import { FullySelectedNodeExtension } from "../extensions/FullySelectedNode/FullySelectedNodeExtension";
 import { TextAlignmentExtension } from "../extensions/TextAlignment/TextAlignmentExtension";
 import { TextColorExtension } from "../extensions/TextColor/TextColorExtension";
+import {
+  TextSelectionExtension,
+  onSelectionChange,
+} from "../extensions/TextSelection/TextSelectionExtension";
 import { TrailingNode } from "../extensions/TrailingNode/TrailingNodeExtension";
 import UniqueID from "../extensions/UniqueID/UniqueID";
 import { BlockContainer, BlockGroup, Doc } from "../pm-nodes";
@@ -156,9 +159,24 @@ export const getBlockNoteExtensions = <
     ...(opts.trailingBlock === undefined || opts.trailingBlock
       ? [TrailingNode]
       : []),
-
-    FullySelectedNodeExtension,
   ];
+
+  if (
+    Object.values(opts.editor.schema.blockSchema).find(
+      (blockConfig) => blockConfig.allowTextSelection
+    )
+  ) {
+    ret.push(
+      TextSelectionExtension.configure({
+        blockSchema: opts.editor.schema.blockSchema,
+        onSelectionChange: () =>
+          onSelectionChange(
+            opts.editor._tiptapEditor,
+            opts.editor.schema.blockSchema
+          ),
+      })
+    );
+  }
 
   if (opts.collaboration) {
     ret.push(

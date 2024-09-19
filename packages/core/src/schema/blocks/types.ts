@@ -49,7 +49,7 @@ export type FileBlockConfig = {
     };
   };
   content: "none";
-  canSelectText?: boolean;
+  allowTextSelection?: boolean;
   isFileBlock: true;
   fileBlockAccept?: string[];
 };
@@ -61,7 +61,7 @@ export type BlockConfig =
       type: string;
       readonly propSchema: PropSchema;
       content: "inline" | "none" | "table";
-      canSelectText?: boolean;
+      allowTextSelection?: boolean;
       isFileBlock?: false;
     }
   | FileBlockConfig;

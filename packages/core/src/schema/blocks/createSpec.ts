@@ -72,15 +72,19 @@ export function fixNodeViewTextSelection(
   // Necessary for DOM to handle selections.
   nodeView.ignoreMutation = () => true;
 
-  // Prevents selecting the node from making it draggable, and prevents the DOM selection from being visible when it wraps the node.
+  // We need to override `selectNode` because the default implementation makes
+  // the node draggable. We do, however, want to still add the
+  // `ProseMirror-selectednode` class.
   nodeView.selectNode = () => {
     (nodeView.dom as HTMLElement).classList.add("ProseMirror-selectednode");
-    props.editor.view.dom.classList.add("ProseMirror-fullyselected");
+    // We also add the `ProseMirror-hideselection` class to prevent flickering
+    // as `selectNode` is called before any `selectionchange` listeners.
+    props.editor.view.dom.classList.add("ProseMirror-hideselection");
   };
 
   nodeView.stopEvent = (event) => {
     // Let the browser handle copy events, as these only fire when the whole
-    // node isn't selected.
+    // node isn't selected in the DOM.
     if (event.type === "cut" || event.type === "copy") {
       return true;
     }
@@ -119,6 +123,13 @@ export function fixNodeViewTextSelection(
             NodeSelection.create(props.editor.view.state.doc, nodeStartPos)
           )
         );
+      } else {
+        // ProseMirror seems to remove the `ProseMirror-hideselection` class
+        // on mousedown, so we need to add it back to prevent flickering when
+        // clicking a node while it's selected. I have no idea why this is the
+        // case, since the class gets removed even if we don't remove it
+        // ourselves.
+        props.editor.view.dom.classList.add("ProseMirror-hideselection");
       }
 
       return true;
@@ -240,7 +251,7 @@ export function createBlockSpec<
 
         if (
           blockConfig.content === "none" &&
-          blockConfig.canSelectText === true
+          blockConfig.allowTextSelection === true
         ) {
           fixNodeViewTextSelection(props, nodeView);
         }
