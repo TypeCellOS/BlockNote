@@ -2,21 +2,23 @@ import {
   BlockFromConfig,
   BlockNoteEditor,
   BlockSchemaWithBlock,
+  CustomBlockConfig,
+  InlineContentSchema,
+  PartialBlockFromConfig,
+  PropSchema,
+  Props,
+  StyleSchema,
   camelToDataKebab,
   createInternalBlockSpec,
   createStronglyTypedTiptapNode,
-  CustomBlockConfig,
   getBlockFromPos,
+  getBlockInfoFromPos,
   getParseRules,
   inheritedProps,
-  InlineContentSchema,
   mergeCSSClasses,
-  PartialBlockFromConfig,
-  Props,
-  PropSchema,
   propsToAttributes,
-  StyleSchema,
 } from "@blocknote/core";
+import { NodeSelection } from "@tiptap/pm/state";
 import {
   NodeViewContent,
   NodeViewProps,
@@ -140,8 +142,8 @@ export function createReactBlockSpec<
     },
 
     addNodeView() {
-      return (props) =>
-        ReactNodeViewRenderer(
+      return (props) => {
+        const nv = ReactNodeViewRenderer(
           (props: NodeViewProps) => {
             // Gets the BlockNote editor instance
             const editor = this.options.editor! as BlockNoteEditor<any>;
@@ -179,6 +181,82 @@ export function createReactBlockSpec<
             className: "bn-react-node-view-renderer",
           }
         )(props);
+        // nv.ignoreMutation = () => true;
+        nv.stopEvent = (event) => {
+          console.log("event", event);
+          if (event.type === "copy") {
+            const selection = document.getSelection();
+            if (selection === null) {
+              return false;
+            }
+
+            const blockInfo = getBlockInfoFromPos(
+              props.editor.state.doc,
+              props.editor.state.selection.from
+            );
+
+            const blockElement = props.editor.view.domAtPos(
+              blockInfo.startPos
+            ).node;
+
+            if (selection.type === "None" || selection.type === "Caret") {
+              // TODO: except if we're in an input / textarea / contenteditable, then return true
+              return false;
+            }
+            return (
+              selection.type !== "Range" ||
+              selection.anchorNode !== blockElement ||
+              selection.focusNode !== blockElement ||
+              selection.anchorOffset !== 0 ||
+              selection.focusOffset !== 1
+            );
+          }
+          if (event.type.startsWith("key")) {
+            // TODO: copy logic from tiptap related to inputs etc
+            return true;
+          }
+          if (event.type === "mousedown") {
+            // unfortunately there seems to be an issue here, because we can't
+            // type in input fields after this
+            // setTimeout(() => {
+            //   this.editor.view.dom.blur();
+            // }, 10);
+
+            if (typeof props.getPos !== "function") {
+              return false;
+            }
+
+            const nodeStartPos = props.getPos();
+            const nodeEndPos = nodeStartPos + props.node.nodeSize;
+            const selectionStartPos = props.editor.view.state.selection.from;
+            const selectionEndPos = props.editor.view.state.selection.to;
+
+            // Node is selected in the editor state.
+            const nodeIsSelected =
+              nodeStartPos === selectionStartPos &&
+              nodeEndPos === selectionEndPos;
+
+            if (!nodeIsSelected) {
+              // Select node in editor state if not already selected.
+              props.editor.view.dom.blur(); // blur so that prosemirror doesn't set dom selection
+              props.editor.view.dispatch(
+                props.editor.view.state.tr.setSelection(
+                  NodeSelection.create(
+                    props.editor.view.state.doc,
+                    nodeStartPos
+                  )
+                )
+              );
+              setTimeout(() => {
+                props.editor.view.dom.blur();
+              }, 10);
+            }
+            return true;
+          }
+          return false;
+        };
+        return nv;
+      };
     },
   });
 

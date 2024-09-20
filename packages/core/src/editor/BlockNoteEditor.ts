@@ -41,9 +41,9 @@ import {
   InlineContentSchema,
   InlineContentSpecs,
   PartialInlineContent,
-  Styles,
   StyleSchema,
   StyleSpecs,
+  Styles,
 } from "../schema";
 import { mergeCSSClasses } from "../util/browser";
 import { NoInfer, UnreachableCaseError } from "../util/typescript";
@@ -438,6 +438,7 @@ export class BlockNoteEditor<
     const tiptapOptions: BlockNoteTipTapEditorOptions = {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
+      injectCSS: false,
       content: initialContent,
       extensions: [
         ...(newOptions._tiptapOptions?.extensions || []),
