@@ -200,9 +200,12 @@ export function createReactBlockSpec<
             ).node;
 
             if (selection.type === "None" || selection.type === "Caret") {
+              // let prosemirror handle the event when there's no text selected
               // TODO: except if we're in an input / textarea / contenteditable, then return true
               return false;
             }
+
+            // only let prosemirror handle the event if the entire node is selected
             return (
               selection.type !== "Range" ||
               selection.anchorNode !== blockElement ||
@@ -216,12 +219,6 @@ export function createReactBlockSpec<
             return true;
           }
           if (event.type === "mousedown") {
-            // unfortunately there seems to be an issue here, because we can't
-            // type in input fields after this
-            // setTimeout(() => {
-            //   this.editor.view.dom.blur();
-            // }, 10);
-
             if (typeof props.getPos !== "function") {
               return false;
             }
