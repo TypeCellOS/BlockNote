@@ -1,5 +1,4 @@
 import { Editor, Extension } from "@tiptap/core";
-import { NodeSelection } from "prosemirror-state";
 import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos";
 import { BlockSchema } from "../../schema";
 
@@ -11,12 +10,13 @@ import { BlockSchema } from "../../schema";
 export const onSelectionChange = (editor: Editor, blockSchema: BlockSchema) => {
   const isNodeSelection = "node" in editor.state.selection;
   if (!isNodeSelection) {
-    editor.view.dom.classList.remove("ProseMirror-hideselection");
+    editor.view.dom.classList.remove("ProseMirror-forceshowselection");
     return;
   }
 
   const selection = document.getSelection();
   if (selection === null) {
+    editor.view.dom.classList.remove("ProseMirror-forceshowselection");
     return;
   }
 
@@ -27,6 +27,10 @@ export const onSelectionChange = (editor: Editor, blockSchema: BlockSchema) => {
 
   const selectedBlockHasSelectableText =
     blockSchema[blockInfo.contentType.name].allowTextSelection;
+  if (!selectedBlockHasSelectableText) {
+    editor.view.dom.classList.remove("ProseMirror-forceshowselection");
+    return;
+  }
 
   // We want to ensure that the DOM selection and the editor selection
   // remain in sync. This means that in cases where the editor is focused
@@ -54,31 +58,20 @@ export const onSelectionChange = (editor: Editor, blockSchema: BlockSchema) => {
     return;
   }
 
-  // Replicates default behaviour if the block doesn't have selectable text,
-  // i.e. sets the `ProseMirror-hideselection` class whenever a   NodeSelection
-  // is active.
-  if (!selectedBlockHasSelectableText) {
-    editor.view.dom.classList.add("ProseMirror-hideselection");
-
-    return;
-  }
-
-  // Uses custom behaviour if the block has selectable text, i.e. only sets the
-  // `ProseMirror-hideselection` class when a NodeSelection is active and the
-  // DOM selection wraps the selected block.
+  // Sets/unsets the `ProseMirror-forceshowselection` class when the selection
+  // is inside the selected node.
   const blockElement = editor.view.domAtPos(blockInfo.startPos).node;
 
   if (
-    // Selection doesn't wrap this node.
-    selection.type !== "Range" ||
-    selection.anchorNode !== blockElement ||
-    selection.focusNode !== blockElement ||
-    selection.anchorOffset !== 0 ||
-    selection.focusOffset !== 1
+    // Selection is inside the selected node.
+    blockElement.contains(selection.anchorNode) &&
+    blockElement.contains(selection.focusNode) &&
+    selection.anchorNode !== blockElement &&
+    selection.focusNode !== blockElement
   ) {
-    editor.view.dom.classList.remove("ProseMirror-hideselection");
+    editor.view.dom.classList.add("ProseMirror-forceshowselection");
   } else {
-    editor.view.dom.classList.add("ProseMirror-hideselection");
+    editor.view.dom.classList.remove("ProseMirror-forceshowselection");
   }
 };
 
@@ -96,7 +89,6 @@ export const TextSelectionExtension = Extension.create<{
     };
   },
   onCreate() {
-    NodeSelection.prototype.visible = true;
     document.addEventListener(
       "selectionchange",
       this.options.onSelectionChange

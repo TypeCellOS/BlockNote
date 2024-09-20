@@ -393,6 +393,7 @@ export class BlockNoteEditor<
     }
 
     const tiptapOptions: BlockNoteTipTapEditorOptions = {
+      injectCSS: false,
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
       content: initialContent,

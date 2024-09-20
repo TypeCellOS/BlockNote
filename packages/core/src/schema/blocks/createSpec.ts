@@ -19,6 +19,7 @@ import {
   BlockSchemaWithBlock,
   PartialBlockFromConfig,
 } from "./types";
+import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos";
 
 // restrict content to "inline" and "none" only
 export type CustomBlockConfig = BlockConfig & {
@@ -77,16 +78,31 @@ export function fixNodeViewTextSelection(
   // `ProseMirror-selectednode` class.
   nodeView.selectNode = () => {
     (nodeView.dom as HTMLElement).classList.add("ProseMirror-selectednode");
-    // We also add the `ProseMirror-hideselection` class to prevent flickering
-    // as `selectNode` is called before any `selectionchange` listeners.
-    props.editor.view.dom.classList.add("ProseMirror-hideselection");
   };
 
   nodeView.stopEvent = (event) => {
-    // Let the browser handle copy events, as these only fire when the whole
-    // node isn't selected in the DOM.
+    // Let the browser handle copy events, unless the selection wraps the
+    // selected node.
     if (event.type === "cut" || event.type === "copy") {
-      return true;
+      const selection = document.getSelection();
+      if (selection === null) {
+        return false;
+      }
+
+      const blockInfo = getBlockInfoFromPos(
+        props.editor.state.doc,
+        props.editor.state.selection.from
+      );
+
+      const blockElement = props.editor.view.domAtPos(blockInfo.startPos).node;
+
+      return (
+        selection.type !== "Range" ||
+        selection.anchorNode !== blockElement ||
+        selection.focusNode !== blockElement ||
+        selection.anchorOffset !== 0 ||
+        selection.focusOffset !== 1
+      );
     }
 
     // Prevent all drag events.
@@ -123,13 +139,6 @@ export function fixNodeViewTextSelection(
             NodeSelection.create(props.editor.view.state.doc, nodeStartPos)
           )
         );
-      } else {
-        // ProseMirror seems to remove the `ProseMirror-hideselection` class
-        // on mousedown, so we need to add it back to prevent flickering when
-        // clicking a node while it's selected. I have no idea why this is the
-        // case, since the class gets removed even if we don't remove it
-        // ourselves.
-        props.editor.view.dom.classList.add("ProseMirror-hideselection");
       }
 
       return true;
