@@ -140,8 +140,8 @@ export function createReactBlockSpec<
     },
 
     addNodeView() {
-      return (props) =>
-        ReactNodeViewRenderer(
+      return (props) => {
+        const nv = ReactNodeViewRenderer(
           (props: NodeViewProps) => {
             // Gets the BlockNote editor instance
             const editor = this.options.editor! as BlockNoteEditor<any>;
@@ -179,6 +179,22 @@ export function createReactBlockSpec<
             className: "bn-react-node-view-renderer",
           }
         )(props);
+
+        nv.stopEvent = (event) => {
+          console.log("event", event);
+          if (event.type === "copy") {
+            return true;
+          }
+          if (event.type === "mousedown") {
+            setTimeout(() => {
+              this.editor.view.dom.blur();
+            }, 10);
+            return true;
+          }
+          return false;
+        };
+        return nv;
+      };
     },
   });
 
