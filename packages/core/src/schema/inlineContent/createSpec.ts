@@ -4,6 +4,7 @@ import {
   inlineContentToNodes,
   nodeToCustomInlineContent,
 } from "../../api/nodeConversions/nodeConversions";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { propsToAttributes } from "../blocks/internal";
 import { Props } from "../propTypes";
 import { StyleSchema } from "../styles/types";
@@ -34,13 +35,13 @@ export type CustomInlineContentImplementation<
     inlineContent: InlineContentFromConfig<T, S>,
     updateInlineContent: (
       update: PartialCustomInlineContentFromConfig<T, S>
-    ) => void
+    ) => void,
     /**
      * The BlockNote editor instance
      * This is typed generically. If you want an editor with your custom schema, you need to
      * cast it manually, e.g.: `const e = editor as BlockNoteEditor<typeof mySchema>;`
      */
-    // editor: BlockNoteEditor<B, I, S>
+    editor: BlockNoteEditor<any, any, S>
     // (note) if we want to fix the manual cast, we need to prevent circular references and separate block definition and render implementations
     // or allow manually passing <BSchema>, but that's not possible without passing the other generics because Typescript doesn't support partial inferred generics
   ) => {
@@ -109,7 +110,8 @@ export function createInlineContentSpec<
         ) as any as InlineContentFromConfig<T, S>, // TODO: fix cast
         () => {
           // No-op
-        }
+        },
+        editor
       );
 
       return addInlineContentAttributes(
@@ -148,7 +150,8 @@ export function createInlineContentSpec<
                 content
               )
             );
-          }
+          },
+          editor
         );
 
         return addInlineContentAttributes(
