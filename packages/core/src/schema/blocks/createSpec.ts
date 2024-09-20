@@ -63,12 +63,17 @@ export type CustomBlockImplementation<
   ) => PartialBlockFromConfig<T, I, S>["props"] | undefined;
 };
 
+// Function that enables copying of selected content within non-selectable
+// blocks.
 export function applyNonSelectableBlockFix(nodeView: NodeView, editor: Editor) {
   nodeView.stopEvent = (event) => {
-    // console.log("event", event);
+    // Ensures copy events are handled by the browser and not by ProseMirror.
     if (event.type === "copy") {
       return true;
     }
+    // Blurs the editor on mouse down as the block is non-selectable. This is
+    // mainly done to prevent UI elements like the formatting toolbar from being
+    // visible while content within a non-selectable block is selected.
     if (event.type === "mousedown") {
       setTimeout(() => {
         editor.view.dom.blur();
