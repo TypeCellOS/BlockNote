@@ -1,5 +1,5 @@
 import { Extension } from "@tiptap/core";
-import { Node } from "prosemirror-model";
+import { Fragment, Node } from "prosemirror-model";
 import { NodeSelection, Plugin } from "prosemirror-state";
 
 import { EditorView } from "prosemirror-view";
@@ -10,11 +10,12 @@ import { createExternalHTMLExporter } from "./html/externalHTMLExporter";
 import { createInternalHTMLSerializer } from "./html/internalHTMLSerializer";
 import { cleanHTMLToMarkdown } from "./markdown/markdownExporter";
 
-async function selectedFragmentToHTML<
+async function fragmentToHTML<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
+  fragment: Fragment,
   view: EditorView,
   editor: BlockNoteEditor<BSchema, I, S>
 ): Promise<{
@@ -22,14 +23,12 @@ async function selectedFragmentToHTML<
   externalHTML: string;
   plainText: string;
 }> {
-  const selectedFragment = view.state.selection.content().content;
-
   const internalHTMLSerializer = createInternalHTMLSerializer(
     view.state.schema,
     editor
   );
   const internalHTML = internalHTMLSerializer.serializeProseMirrorFragment(
-    selectedFragment,
+    fragment,
     {}
   );
 
@@ -39,7 +38,7 @@ async function selectedFragmentToHTML<
     editor
   );
   const externalHTML = externalHTMLExporter.exportProseMirrorFragment(
-    selectedFragment,
+    fragment,
     {}
   );
 
@@ -65,20 +64,20 @@ const copyToClipboard = <
   // the selection to the parent `blockContainer` node. This is
   // for the use-case in which only a block without content is
   // selected, e.g. an image block.
-  if (
+  const fragment =
     "node" in view.state.selection &&
     (view.state.selection.node as Node).type.spec.group === "blockContent"
-  ) {
-    editor.dispatch(
-      editor._tiptapEditor.state.tr.setSelection(
-        new NodeSelection(view.state.doc.resolve(view.state.selection.from - 1))
-      )
-    );
-  }
+      ? new NodeSelection(
+          view.state.doc.resolve(view.state.selection.from - 1)
+        ).content().content
+      : view.state.selection.content().content;
 
   (async () => {
-    const { internalHTML, externalHTML, plainText } =
-      await selectedFragmentToHTML(view, editor);
+    const { plainText, internalHTML, externalHTML } = await fragmentToHTML(
+      fragment,
+      view,
+      editor
+    );
 
     // TODO: Writing to other MIME types not working in Safari for
     //  some reason.
@@ -145,7 +144,11 @@ export const createCopyToClipboardExtension = <
 
                 (async () => {
                   const { internalHTML, externalHTML, plainText } =
-                    await selectedFragmentToHTML(view, editor);
+                    await fragmentToHTML(
+                      view.state.selection.content().content,
+                      view,
+                      editor
+                    );
 
                   // TODO: Writing to other MIME types not working in Safari for
                   //  some reason.

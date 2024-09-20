@@ -6,6 +6,7 @@ import {
   createInternalBlockSpec,
   createStronglyTypedTiptapNode,
   CustomBlockConfig,
+  fixNodeViewTextSelection,
   getBlockFromPos,
   getParseRules,
   inheritedProps,
@@ -18,6 +19,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import {
+  NodeView,
   NodeViewContent,
   NodeViewProps,
   NodeViewWrapper,
@@ -140,8 +142,8 @@ export function createReactBlockSpec<
     },
 
     addNodeView() {
-      return (props) =>
-        ReactNodeViewRenderer(
+      return (props) => {
+        const nodeView = ReactNodeViewRenderer(
           (props: NodeViewProps) => {
             // Gets the BlockNote editor instance
             const editor = this.options.editor! as BlockNoteEditor<any>;
@@ -178,7 +180,17 @@ export function createReactBlockSpec<
           {
             className: "bn-react-node-view-renderer",
           }
-        )(props);
+        )(props) as NodeView<any>;
+
+        if (
+          blockConfig.content === "none" &&
+          blockConfig.allowTextSelection === true
+        ) {
+          fixNodeViewTextSelection(props, nodeView);
+        }
+
+        return nodeView;
+      };
     },
   });
 

@@ -1,4 +1,8 @@
+import { NodeViewRendererProps } from "@tiptap/core";
 import { TagParseRule } from "@tiptap/pm/model";
+import { NodeSelection } from "@tiptap/pm/state";
+import { NodeView } from "@tiptap/pm/view";
+
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { InlineContentSchema } from "../inlineContent/types";
 import { StyleSchema } from "../styles/types";
@@ -15,6 +19,7 @@ import {
   BlockSchemaWithBlock,
   PartialBlockFromConfig,
 } from "./types";
+import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos";
 
 // restrict content to "inline" and "none" only
 export type CustomBlockConfig = BlockConfig & {
@@ -60,6 +65,88 @@ export type CustomBlockImplementation<
     el: HTMLElement
   ) => PartialBlockFromConfig<T, I, S>["props"] | undefined;
 };
+
+export function fixNodeViewTextSelection(
+  props: NodeViewRendererProps,
+  nodeView: NodeView
+) {
+  // Necessary for DOM to handle selections.
+  nodeView.ignoreMutation = () => true;
+
+  // We need to override `selectNode` because the default implementation makes
+  // the node draggable. We do, however, want to still add the
+  // `ProseMirror-selectednode` class.
+  nodeView.selectNode = () => {
+    (nodeView.dom as HTMLElement).classList.add("ProseMirror-selectednode");
+  };
+
+  nodeView.stopEvent = (event) => {
+    // Let the browser handle copy events, unless the selection wraps the
+    // selected node.
+    if (event.type === "cut" || event.type === "copy") {
+      const selection = document.getSelection();
+      if (selection === null) {
+        return false;
+      }
+
+      const blockInfo = getBlockInfoFromPos(
+        props.editor.state.doc,
+        props.editor.state.selection.from
+      );
+
+      const blockElement = props.editor.view.domAtPos(blockInfo.startPos).node;
+
+      return (
+        selection.type !== "Range" ||
+        selection.anchorNode !== blockElement ||
+        selection.focusNode !== blockElement ||
+        selection.anchorOffset !== 0 ||
+        selection.focusOffset !== 1
+      );
+    }
+
+    // Prevent all drag events.
+    if (event.type.startsWith("drag")) {
+      event.preventDefault();
+      return true;
+    }
+
+    // Keyboard events should be handled by the browser. This doesn't prevent
+    // BlockNote's own key handlers from firing.
+    if (event.type.startsWith("key")) {
+      return true;
+    }
+
+    // Select the node on mouse down, if it isn't already selected.
+    if (event.type === "mousedown") {
+      if (typeof props.getPos !== "function") {
+        return false;
+      }
+
+      const nodeStartPos = props.getPos();
+      const nodeEndPos = nodeStartPos + props.node.nodeSize;
+      const selectionStartPos = props.editor.view.state.selection.from;
+      const selectionEndPos = props.editor.view.state.selection.to;
+
+      // Node is selected in the editor state.
+      const nodeIsSelected =
+        nodeStartPos === selectionStartPos && nodeEndPos === selectionEndPos;
+
+      if (!nodeIsSelected) {
+        // Select node in editor state if not already selected.
+        props.editor.view.dispatch(
+          props.editor.view.state.tr.setSelection(
+            NodeSelection.create(props.editor.view.state.doc, nodeStartPos)
+          )
+        );
+      }
+
+      return true;
+    }
+
+    return false;
+  };
+}
 
 // Function that uses the 'parse' function of a blockConfig to create a
 // TipTap node's `parseHTML` property. This is only used for parsing content
@@ -147,12 +234,12 @@ export function createBlockSpec<
     },
 
     addNodeView() {
-      return ({ getPos }) => {
+      return (props) => {
         // Gets the BlockNote editor instance
         const editor = this.options.editor;
         // Gets the block
         const block = getBlockFromPos(
-          getPos,
+          props.getPos,
           editor,
           this.editor,
           blockConfig.type
@@ -163,13 +250,22 @@ export function createBlockSpec<
 
         const output = blockImplementation.render(block as any, editor);
 
-        return wrapInBlockStructure(
+        const nodeView: NodeView = wrapInBlockStructure(
           output,
           block.type,
           block.props,
           blockConfig.propSchema,
           blockContentDOMAttributes
         );
+
+        if (
+          blockConfig.content === "none" &&
+          blockConfig.allowTextSelection === true
+        ) {
+          fixNodeViewTextSelection(props, nodeView);
+        }
+
+        return nodeView;
       };
     },
   });

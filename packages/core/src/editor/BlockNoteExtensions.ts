@@ -17,6 +17,10 @@ import { createPasteFromClipboardExtension } from "../api/parsers/pasteExtension
 import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension";
 import { TextAlignmentExtension } from "../extensions/TextAlignment/TextAlignmentExtension";
 import { TextColorExtension } from "../extensions/TextColor/TextColorExtension";
+import {
+  TextSelectionExtension,
+  onSelectionChange,
+} from "../extensions/TextSelection/TextSelectionExtension";
 import { TrailingNode } from "../extensions/TrailingNode/TrailingNodeExtension";
 import UniqueID from "../extensions/UniqueID/UniqueID";
 import { BlockContainer, BlockGroup, Doc } from "../pm-nodes";
@@ -158,6 +162,23 @@ export const getBlockNoteExtensions = <
       ? [TrailingNode]
       : []),
   ];
+
+  if (
+    Object.values(opts.editor.schema.blockSchema).find(
+      (blockConfig) => blockConfig.allowTextSelection
+    )
+  ) {
+    ret.push(
+      TextSelectionExtension.configure({
+        blockSchema: opts.editor.schema.blockSchema,
+        onSelectionChange: () =>
+          onSelectionChange(
+            opts.editor._tiptapEditor,
+            opts.editor.schema.blockSchema
+          ),
+      })
+    );
+  }
 
   if (opts.collaboration) {
     ret.push(

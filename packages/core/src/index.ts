@@ -1,4 +1,5 @@
 import * as locales from "./i18n/locales";
+export * from "./api/getBlockInfoFromPos";
 export * from "./api/exporters/html/externalHTMLExporter";
 export * from "./api/exporters/html/internalHTMLSerializer";
 export * from "./api/getCurrentBlockContentType";

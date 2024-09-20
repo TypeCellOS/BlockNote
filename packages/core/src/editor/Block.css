@@ -268,11 +268,13 @@ NESTED BLOCKS
 }
 
 [data-file-block] .bn-file-block-content-wrapper {
-  cursor: pointer;
   display: flex;
   flex-direction: column;
   justify-content: stretch;
-  user-select: none;
+}
+
+[data-file-block] .bn-visual-media-wrapper {
+  cursor: pointer;
 }
 
 [data-file-block] .bn-add-file-button {

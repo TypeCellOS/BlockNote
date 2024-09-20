@@ -84,7 +84,9 @@ export const FormattingToolbarController = (props: {
         // console.log("change", event);
         if (!open) {
           editor.formattingToolbar.closeMenu();
-          editor.focus();
+          if (!editor.isFocused()) {
+            editor.focus();
+          }
         }
       },
     }
