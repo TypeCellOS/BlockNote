@@ -1,5 +1,76 @@
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { BlockFromConfig, FileBlockConfig } from "../../schema";
+import {
+  BlockFromConfig,
+  BlockSchemaWithBlock,
+  FileBlockConfig,
+} from "../../schema";
+
+export const createFileBlockWrapper = (
+  block: BlockFromConfig<FileBlockConfig, any, any>,
+  editor: BlockNoteEditor<
+    BlockSchemaWithBlock<FileBlockConfig["type"], FileBlockConfig>,
+    any,
+    any
+  >,
+  // TODO: Maybe make optional for default preview
+  element: { dom: HTMLElement; destroy?: () => void },
+  buttonText?: string,
+  buttonIcon?: HTMLElement
+) => {
+  const wrapper = document.createElement("div");
+  wrapper.className = "bn-file-block-content-wrapper";
+
+  if (block.props.url === "") {
+    const addFileButton = createAddFileButton(
+      block,
+      editor,
+      buttonText,
+      buttonIcon
+    );
+    wrapper.appendChild(addFileButton.dom);
+
+    const loading = document.createElement("div");
+    loading.className = "bn-file-loading-preview";
+    loading.textContent = "Loading...";
+
+    const destroyUploadStartHandler = editor.onUploadStart((blockId) => {
+      if (blockId === block.id) {
+        wrapper.removeChild(addFileButton.dom);
+        wrapper.appendChild(loading);
+      }
+    });
+    const destroyUploadEndHandler = editor.onUploadEnd((blockId) => {
+      if (blockId === block.id) {
+        wrapper.removeChild(loading);
+        wrapper.appendChild(addFileButton.dom);
+      }
+    });
+
+    return {
+      dom: wrapper,
+      destroy: () => {
+        addFileButton.destroy?.();
+        destroyUploadStartHandler();
+        destroyUploadEndHandler();
+      },
+    };
+  } else if (block.props.showPreview === false) {
+    // TODO: Not using the wrapper element here?
+    const file = createDefaultFilePreview(block).dom;
+    const element = createFileAndCaptionWrapper(block, file);
+
+    return {
+      dom: element.dom,
+    };
+  } else {
+    wrapper.appendChild(element.dom);
+
+    return {
+      dom: wrapper,
+      destroy: element.destroy,
+    };
+  }
+};
 
 // Default file preview, displaying a file icon and file name.
 export const createDefaultFilePreview = (

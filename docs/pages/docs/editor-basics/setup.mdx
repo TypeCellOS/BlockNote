@@ -27,6 +27,7 @@ type BlockNoteEditorOptions = {
   dictionary?: Dictionary;
   schema?: BlockNoteSchema;
   trailingBlock?: boolean;
+  animations?: boolean;
 };
 ```
 
@@ -50,6 +51,8 @@ The hook takes two optional parameters:
 
 `trailingBlock`: An option which user can pass with `false` value to disable the automatic creation of a trailing new block on the next line when the user types or edits any block. Defaults to `true` if undefined.
 
+`animations`: Whether changes to blocks (like indentation, creating lists, changing headings) should be animated or not. Defaults to `true`.
+
 **deps:** Dependency array that's internally passed to `useMemo`. A new editor will only be created when this array changes.
 
 <Callout type="info" emoji={"💡"}>
@@ -58,9 +61,9 @@ The hook takes two optional parameters:
     The `useCreateBlockNote` hook is actually a simple `useMemo` wrapper around
     the `BlockNoteEditor.create` method. You can use this method directly if you
     want to control the editor lifecycle manually. For example, we do this in
-    the [Saving & Loading example](/examples/backend/saving-loading) to delay the
-    editor creation until some content has been fetched from an external data
-    source.
+    the [Saving & Loading example](/examples/backend/saving-loading) to delay
+    the editor creation until some content has been fetched from an external
+    data source.
   </p>
 </Callout>
 

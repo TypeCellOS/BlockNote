@@ -1,14 +1,12 @@
 import { fileBlockConfig, fileParse } from "@blocknote/core";
 
-import { RiFile2Line } from "react-icons/ri";
 import {
   createReactBlockSpec,
   ReactCustomBlockRenderProps,
 } from "../../schema/ReactBlockSpec";
 import {
-  AddFileButton,
   DefaultFilePreview,
-  FileAndCaptionWrapper,
+  FileBlockWrapper,
   LinkWithCaption,
 } from "./fileBlockHelpers";
 
@@ -39,26 +37,18 @@ export const FileToExternalHTML = (
   return link;
 };
 
+export const FileBlock = (
+  props: ReactCustomBlockRenderProps<typeof fileBlockConfig, any, any>
+) => {
+  return (
+    <FileBlockWrapper {...(props as any)}>
+      <DefaultFilePreview block={props.block} editor={props.editor as any} />
+    </FileBlockWrapper>
+  );
+};
+
 export const ReactFileBlock = createReactBlockSpec(fileBlockConfig, {
-  render: (props) => (
-    <div className={"bn-file-block-content-wrapper"}>
-      {props.block.props.url === "" ? (
-        <AddFileButton
-          block={props.block}
-          editor={props.editor as any}
-          buttonIcon={<RiFile2Line size={24} />}
-          buttonText={props.editor.dictionary.file_blocks.file.add_button_text}
-        />
-      ) : (
-        <FileAndCaptionWrapper block={props.block} editor={props.editor as any}>
-          <DefaultFilePreview
-            block={props.block}
-            editor={props.editor as any}
-          />
-        </FileAndCaptionWrapper>
-      )}
-    </div>
-  ),
+  render: FileBlock,
   parse: fileParse,
-  toExternalHTML: (props) => <FileToExternalHTML {...props} />,
+  toExternalHTML: FileToExternalHTML,
 });
