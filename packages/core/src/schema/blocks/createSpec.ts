@@ -68,7 +68,7 @@ export type CustomBlockImplementation<
 export function applyNonSelectableBlockFix(nodeView: NodeView, editor: Editor) {
   nodeView.stopEvent = (event) => {
     // Ensures copy events are handled by the browser and not by ProseMirror.
-    if (event.type === "copy") {
+    if (event.type === "copy" || event.type === "cut") {
       return true;
     }
     // Blurs the editor on mouse down as the block is non-selectable. This is
