@@ -4,7 +4,7 @@ import {
   inlineContentToNodes,
   nodeToCustomInlineContent,
 } from "../../api/nodeConversions/nodeConversions";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { propsToAttributes } from "../blocks/internal";
 import { Props } from "../propTypes";
 import { StyleSchema } from "../styles/types";
