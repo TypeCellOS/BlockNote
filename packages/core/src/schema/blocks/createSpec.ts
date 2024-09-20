@@ -1,4 +1,6 @@
+import { Editor } from "@tiptap/core";
 import { TagParseRule } from "@tiptap/pm/model";
+import { NodeView } from "@tiptap/pm/view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { InlineContentSchema } from "../inlineContent/types";
 import { StyleSchema } from "../styles/types";
@@ -60,6 +62,27 @@ export type CustomBlockImplementation<
     el: HTMLElement
   ) => PartialBlockFromConfig<T, I, S>["props"] | undefined;
 };
+
+// Function that enables copying of selected content within non-selectable
+// blocks.
+export function applyNonSelectableBlockFix(nodeView: NodeView, editor: Editor) {
+  nodeView.stopEvent = (event) => {
+    // Ensures copy events are handled by the browser and not by ProseMirror.
+    if (event.type === "copy" || event.type === "cut") {
+      return true;
+    }
+    // Blurs the editor on mouse down as the block is non-selectable. This is
+    // mainly done to prevent UI elements like the formatting toolbar from being
+    // visible while content within a non-selectable block is selected.
+    if (event.type === "mousedown") {
+      setTimeout(() => {
+        editor.view.dom.blur();
+      }, 10);
+      return true;
+    }
+    return false;
+  };
+}
 
 // Function that uses the 'parse' function of a blockConfig to create a
 // TipTap node's `parseHTML` property. This is only used for parsing content
@@ -125,7 +148,7 @@ export function createBlockSpec<
       ? "inline*"
       : "") as T["content"] extends "inline" ? "inline*" : "",
     group: "blockContent",
-    selectable: true,
+    selectable: blockConfig.isSelectable ?? true,
 
     addAttributes() {
       return propsToAttributes(blockConfig.propSchema);
@@ -163,13 +186,19 @@ export function createBlockSpec<
 
         const output = blockImplementation.render(block as any, editor);
 
-        return wrapInBlockStructure(
+        const nodeView: NodeView = wrapInBlockStructure(
           output,
           block.type,
           block.props,
           blockConfig.propSchema,
           blockContentDOMAttributes
         );
+
+        if (blockConfig.isSelectable === false) {
+          applyNonSelectableBlockFix(nodeView, this.editor);
+        }
+
+        return nodeView;
       };
     },
   });
