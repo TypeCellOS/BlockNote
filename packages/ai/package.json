@@ -50,7 +50,6 @@
     "test-watch": "vitest watch"
   },
   "dependencies": {
-    "ai": "^3.3.39",
     "@ai-sdk/openai": "^0.0.60",
     "@blocknote/core": "^0.15.3",
     "@blocknote/mantine": "^0.15.3",
@@ -68,6 +67,8 @@
     "@types/react-dom": "^18.0.9",
     "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^8.10.0",
+    "msw": "^2.4.8",
+    "msw-snapshot": "^5.2.0",
     "prettier": "^2.7.1",
     "rimraf": "^5.0.5",
     "rollup-plugin-webpack-stats": "^0.2.2",

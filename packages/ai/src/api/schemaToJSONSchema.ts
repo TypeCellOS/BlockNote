@@ -82,7 +82,7 @@ import { mergeSchemas } from "./mergeSchema";
   }*/
 
 export type SimpleJSONObjectSchema = {
-  type: string;
+  type: "object";
   properties: {
     [key: string]: any;
   };

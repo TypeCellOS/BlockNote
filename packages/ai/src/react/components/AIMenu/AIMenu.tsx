@@ -19,14 +19,12 @@ import {
 } from "react";
 
 import { useBlockNoteEditor } from "@blocknote/react";
-import { useAIDictionary } from "../../hooks/useAIDictionary";
-import {
-  AIInlineToolbarProsemirrorPlugin,
-  AIMenuProsemirrorPlugin,
-} from "../../../core";
 import { RiSparkling2Fill } from "react-icons/ri";
-import { getDefaultAIMenuItems } from "./getDefaultAIMenuItems";
+import { streamDocumentOperations } from "../../../api/api";
+import { AIMenuProsemirrorPlugin } from "../../../core";
+import { useAIDictionary } from "../../hooks/useAIDictionary";
 import { AIMenuProps } from "./AIMenuProps";
+import { getDefaultAIMenuItems } from "./getDefaultAIMenuItems";
 
 export const AIMenu = (props: AIMenuProps) => {
   const dict = useAIDictionary();
@@ -42,10 +40,11 @@ export const AIMenu = (props: AIMenuProps) => {
 
   const runAIEdit = useCallback(
     async (prompt: string) => {
-      editor.formattingToolbar.closeMenu();
-      (
-        editor.extensions.aiInlineToolbar as AIInlineToolbarProsemirrorPlugin
-      ).open(prompt, "replaceSelection");
+      await streamDocumentOperations(editor, prompt);
+      // editor.formattingToolbar.closeMenu();
+      // (
+      //   editor.extensions.aiInlineToolbar as AIInlineToolbarProsemirrorPlugin
+      // ).open(prompt, "replaceSelection");
     },
     [editor]
   );
@@ -85,6 +84,7 @@ export const AIMenu = (props: AIMenuProps) => {
         if (items.length > 0) {
           handler(event);
         } else {
+          // TODO: check focus?
           handleEnter(event);
         }
       } else {

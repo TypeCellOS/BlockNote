@@ -5,7 +5,6 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { DefaultReactSuggestionItem } from "@blocknote/react";
-import { streamObject, streamText } from 'ai';
 import {
   AIInlineToolbarProsemirrorPlugin,
   AIMenuProsemirrorPlugin,
@@ -31,12 +30,12 @@ export function getDefaultAIMenuItems<
     name: item,
     title: dict.ai_menu[item].title,
     onItemClick: async () => {
-      streamObject({
-        
-      });
-      streamText({ 
-experimental_toolCallStreaming
-      })
+      //       streamObject({
+
+      //       });
+      //       streamText({
+      // experimental_toolCallStreaming
+      //       })
       (editor.extensions.aiMenu as AIMenuProsemirrorPlugin).close();
       (
         editor.extensions.aiInlineToolbar as AIInlineToolbarProsemirrorPlugin
@@ -44,7 +43,6 @@ experimental_toolCallStreaming
     },
   }));
 }
-
 
 /**
 3 examples:
@@ -64,13 +62,11 @@ response:
  * 
  */
 
+// const context = createAIExecutionContext(editor, prompt, () = {
+//   // add ai command
+//   // add context
 
-const context = createAIExecutionContext(editor, prompt, () = {
-  // add ai command
-  // add context
-
-
-  // apply streaming response
-  context.execute();
-});
-aitoolbar.open(context);
+//   // apply streaming response
+//   context.execute();
+// });
+// aitoolbar.open(context);

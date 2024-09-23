@@ -1,3 +1,8 @@
+import { createOpenAI } from "@ai-sdk/openai";
+import { BlockNoteEditor } from "@blocknote/core";
+import { jsonSchema, streamObject } from "ai";
+import { SimpleJSONObjectSchema } from "./schemaToJSONSchema";
+
 export const AI_OPERATION_DELETE = {
   name: "delete",
   description: "Delete a block",
@@ -87,7 +92,9 @@ export const AI_OPERATION_UPDATE = {
 // UPDATE_MARKDOWN
 // INSERT_MARKDOWN
 
-export function createOperationsArraySchema(operations: any[]) {
+export function createOperationsArraySchema(
+  operations: any[]
+): SimpleJSONObjectSchema {
   return {
     type: "object",
     properties: {
@@ -99,6 +106,70 @@ export function createOperationsArraySchema(operations: any[]) {
       },
     },
     additionalProperties: false,
-    required: ["operations"],
-  } as const;
+    required: ["operations"] as string[],
+  };
 }
+
+export async function streamDocumentOperations(
+  editor: BlockNoteEditor<any, any, any>,
+  prompt: string
+) {
+  const model = createOpenAI({
+    apiKey: "",
+  })("gpt-4o-2024-08-06", {});
+
+  const ret = await streamObject<any>({
+    model,
+    mode: "tool",
+    schema: jsonSchema(
+      createOperationsArraySchema([AI_OPERATION_UPDATE] as any)
+    ),
+    messages: [
+      {
+        role: "system",
+        content: "You're manipulating a text document. This is the document:",
+      },
+      {
+        role: "system",
+        content: JSON.stringify(editor.document),
+      },
+      {
+        role: "user",
+        content: prompt,
+      },
+    ],
+  });
+
+  let numOperationsAppliedCompletely = 0;
+
+  for await (const partialObject of ret.partialObjectStream) {
+    const operations: [] = partialObject.operations || [];
+
+    for (const operation of operations.slice(numOperationsAppliedCompletely)) {
+      applyOperation(operation, editor);
+    }
+    numOperationsAppliedCompletely = operations.length - 1;
+  }
+}
+
+function applyOperation(operation: any, editor: BlockNoteEditor) {
+  if (operation.type === AI_OPERATION_UPDATE.name) {
+    console.log("applyOperation", operation);
+    if (!(operation?.id?.length > 0 && operation?.block)) {
+      return;
+    }
+
+    if (
+      ((operation.block.content as []) || []).find(
+        (content: any) => content.type !== "text" || !("text" in content)
+      )
+    ) {
+      return;
+    }
+    console.log("execute", operation);
+    editor.updateBlock(operation.id, operation.block);
+  }
+}
+
+// - cursor position
+// - API design (customize context, cursor position, prompt, stream / nostream, validation)
