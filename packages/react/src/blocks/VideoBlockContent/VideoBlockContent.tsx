@@ -7,10 +7,8 @@ import {
   ReactCustomBlockRenderProps,
 } from "../../schema/ReactBlockSpec";
 import {
-  AddFileButton,
-  DefaultFilePreview,
   FigureWithCaption,
-  FileAndCaptionWrapper,
+  FileBlockWrapper,
   LinkWithCaption,
   ResizeHandlesWrapper,
 } from "../FileBlockContent/fileBlockHelpers";
@@ -82,30 +80,21 @@ export const VideoToExternalHTML = (
   return video;
 };
 
+export const VideoBlock = (
+  props: ReactCustomBlockRenderProps<typeof videoBlockConfig, any, any>
+) => {
+  return (
+    <FileBlockWrapper
+      {...(props as any)}
+      buttonText={props.editor.dictionary.file_blocks.video.add_button_text}
+      buttonIcon={<RiVideoFill size={24} />}>
+      <VideoPreview block={props.block} editor={props.editor as any} />
+    </FileBlockWrapper>
+  );
+};
+
 export const ReactVideoBlock = createReactBlockSpec(videoBlockConfig, {
-  render: (props) => (
-    <div className={"bn-file-block-content-wrapper"}>
-      {props.block.props.url === "" ? (
-        <AddFileButton
-          {...props}
-          editor={props.editor as any}
-          buttonText={props.editor.dictionary.file_blocks.video.add_button_text}
-          buttonIcon={<RiVideoFill size={24} />}
-        />
-      ) : !props.block.props.showPreview ? (
-        <FileAndCaptionWrapper block={props.block} editor={props.editor as any}>
-          <DefaultFilePreview
-            block={props.block}
-            editor={props.editor as any}
-          />
-        </FileAndCaptionWrapper>
-      ) : (
-        <FileAndCaptionWrapper block={props.block} editor={props.editor as any}>
-          <VideoPreview block={props.block} editor={props.editor as any} />
-        </FileAndCaptionWrapper>
-      )}
-    </div>
-  ),
+  render: VideoBlock,
   parse: videoParse,
-  toExternalHTML: (props) => <VideoToExternalHTML {...props} />,
+  toExternalHTML: VideoToExternalHTML,
 });

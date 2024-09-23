@@ -1,4 +1,5 @@
 import {
+  applyNonSelectableBlockFix,
   BlockFromConfig,
   BlockNoteEditor,
   BlockSchemaWithBlock,
@@ -18,6 +19,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import {
+  NodeView,
   NodeViewContent,
   NodeViewProps,
   NodeViewWrapper,
@@ -118,7 +120,7 @@ export function createReactBlockSpec<
       ? "inline*"
       : "") as T["content"] extends "inline" ? "inline*" : "",
     group: "blockContent",
-    selectable: true,
+    selectable: blockConfig.isSelectable ?? true,
 
     addAttributes() {
       return propsToAttributes(blockConfig.propSchema);
@@ -140,8 +142,8 @@ export function createReactBlockSpec<
     },
 
     addNodeView() {
-      return (props) =>
-        ReactNodeViewRenderer(
+      return (props) => {
+        const nodeView = ReactNodeViewRenderer(
           (props: NodeViewProps) => {
             // Gets the BlockNote editor instance
             const editor = this.options.editor! as BlockNoteEditor<any>;
@@ -178,7 +180,14 @@ export function createReactBlockSpec<
           {
             className: "bn-react-node-view-renderer",
           }
-        )(props);
+        )(props) as NodeView<any>;
+
+        if (blockConfig.isSelectable === false) {
+          applyNonSelectableBlockFix(nodeView, this.editor);
+        }
+
+        return nodeView;
+      };
     },
   });
 

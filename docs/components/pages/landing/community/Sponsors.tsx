@@ -5,8 +5,9 @@ import {
 import { FadeIn } from "@/components/pages/landing/shared/FadeIn";
 import { SectionSubHeader } from "@/components/pages/landing/shared/Headings";
 
-import fermatDark from "../../../../public/img/sponsors/fermat-dark.png";
-import fermatLight from "../../../../public/img/sponsors/fermat.png";
+import deeporigin from "../../../../public/img/sponsors/deeporigin.svg";
+import fermatDark from "../../../../public/img/sponsors/fermat-dark.svg";
+import fermatLight from "../../../../public/img/sponsors/fermat.svg";
 import nlnetDark from "../../../../public/img/sponsors/nlnet-dark.svg";
 import nlnetLight from "../../../../public/img/sponsors/nlnet.svg";
 import noteplanDark from "../../../../public/img/sponsors/noteplan-dark.png";
@@ -21,10 +22,19 @@ import typecellLight from "../../../../public/img/sponsors/typecell.svg";
 export const sponsorsCardData: SponsorCardProps[] = [
   {
     logo: {
+      light: deeporigin,
+      dark: deeporigin,
+    },
+    name: "Deep Origin",
+    link: "https://www.deeporigin.com/",
+  },
+  {
+    logo: {
       light: fermatLight,
       dark: fermatDark,
     },
     name: "Fermat",
+    link: "https://fermat.app/",
   },
   {
     logo: {
@@ -32,28 +42,7 @@ export const sponsorsCardData: SponsorCardProps[] = [
       dark: nlnetDark,
     },
     name: "NLNet",
-  },
-  {
-    logo: {
-      light: typecellLight,
-      dark: typecellDark,
-    },
-    name: "TypeCell",
-  },
-  {
-    logo: {
-      light: poggioLight,
-      dark: poggioDark,
-    },
-    name: "Poggio",
-  },
-  {
-    logo: {
-      light: twentyLight,
-      dark: twentyDark,
-    },
-    name: "Twenty",
-    tagline: "YC S23",
+    link: "https://nlnet.nl/",
   },
   {
     logo: {
@@ -61,7 +50,33 @@ export const sponsorsCardData: SponsorCardProps[] = [
       dark: noteplanDark,
     },
     name: "Noteplan",
+    link: "https://noteplan.co/",
     tagline: "Apple Top Notes Apps",
+  },
+  {
+    logo: {
+      light: poggioLight,
+      dark: poggioDark,
+    },
+    name: "Poggio",
+    link: "https://poggio.io/",
+  },
+  {
+    logo: {
+      light: twentyLight,
+      dark: twentyDark,
+    },
+    name: "Twenty",
+    link: "https://twenty.com/",
+    tagline: "YC S23",
+  },
+  {
+    logo: {
+      light: typecellLight,
+      dark: typecellDark,
+    },
+    name: "TypeCell",
+    link: "https://www.typecell.org/",
   },
 ];
 
@@ -71,7 +86,7 @@ export function Sponsors() {
       <FadeIn>
         <SectionSubHeader>Sponsors &amp; users</SectionSubHeader>
       </FadeIn>
-      <FadeIn className="grid grid-cols-2 gap-0.5 overflow-hidden rounded-2xl md:grid-cols-3">
+      <FadeIn className="grid grid-cols-2 gap-2 overflow-hidden md:grid-cols-3">
         {sponsorsCardData.map((sponsor) => (
           <SponsorCard key={sponsor.name} {...sponsor} />
         ))}

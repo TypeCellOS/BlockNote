@@ -1,10 +1,6 @@
-export function elementOverflow(element: HTMLElement) {
-  if (!element.parentElement) {
-    return "none";
-  }
-
+export function elementOverflow(element: HTMLElement, container: HTMLElement) {
   const elementRect = element.getBoundingClientRect();
-  const parentRect = element.parentElement.getBoundingClientRect();
+  const parentRect = container.getBoundingClientRect();
 
   const topOverflow = elementRect.top < parentRect.top;
   const bottomOverflow = elementRect.bottom > parentRect.bottom;

@@ -71,8 +71,10 @@ export class FilePanelView<I extends InlineContentSchema, S extends StyleSchema>
     if (this.state?.show) {
       const blockElement = this.pmView.root.querySelector(
         `[data-node-type="blockContainer"][data-id="${this.state.block.id}"]`
-      )!;
-
+      );
+      if (!blockElement) {
+        return;
+      }
       this.state.referencePos = blockElement.getBoundingClientRect();
       this.emitUpdate();
     }
@@ -86,8 +88,10 @@ export class FilePanelView<I extends InlineContentSchema, S extends StyleSchema>
     if (!this.state?.show && pluginState.block && this.editor.isEditable) {
       const blockElement = this.pmView.root.querySelector(
         `[data-node-type="blockContainer"][data-id="${pluginState.block.id}"]`
-      )!;
-
+      );
+      if (!blockElement) {
+        return;
+      }
       this.state = {
         show: true,
         referencePos: blockElement.getBoundingClientRect(),
@@ -157,7 +161,7 @@ export class FilePanelProsemirrorPlugin<
       props: {
         handleKeyDown: (_view, event: KeyboardEvent) => {
           if (event.key === "Escape" && this.shown) {
-            this.view!.closeMenu();
+            this.view?.closeMenu();
             return true;
           }
           return false;
@@ -189,5 +193,5 @@ export class FilePanelProsemirrorPlugin<
     return this.on("update", callback);
   }
 
-  public closeMenu = () => this.view!.closeMenu();
+  public closeMenu = () => this.view?.closeMenu();
 }

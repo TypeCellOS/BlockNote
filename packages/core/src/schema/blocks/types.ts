@@ -49,8 +49,9 @@ export type FileBlockConfig = {
     };
   };
   content: "none";
+  isSelectable?: boolean;
   isFileBlock: true;
-  fileBlockAcceptMimeTypes?: string[];
+  fileBlockAccept?: string[];
 };
 
 // BlockConfig contains the "schema" info about a Block type
@@ -60,6 +61,7 @@ export type BlockConfig =
       type: string;
       readonly propSchema: PropSchema;
       content: "inline" | "none" | "table";
+      isSelectable?: boolean;
       isFileBlock?: false;
     }
   | FileBlockConfig;

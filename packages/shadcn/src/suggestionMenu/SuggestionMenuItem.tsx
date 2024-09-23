@@ -22,8 +22,10 @@ export const SuggestionMenuItem = forwardRef<
       return;
     }
 
-    const overflow = elementOverflow(itemRef.current);
-
+    const overflow = elementOverflow(
+      itemRef.current,
+      document.querySelector(".bn-suggestion-menu")!
+    );
     if (overflow === "top") {
       itemRef.current.scrollIntoView(true);
     } else if (overflow === "bottom") {

@@ -5,22 +5,23 @@ import { NodeSelection, Plugin } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
+import { initializeESMDependencies } from "../../util/esmDependencies";
 import { createExternalHTMLExporter } from "./html/externalHTMLExporter";
 import { createInternalHTMLSerializer } from "./html/internalHTMLSerializer";
 import { cleanHTMLToMarkdown } from "./markdown/markdownExporter";
 
-function selectedFragmentToHTML<
+async function selectedFragmentToHTML<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
   view: EditorView,
   editor: BlockNoteEditor<BSchema, I, S>
-): {
+): Promise<{
   internalHTML: string;
   externalHTML: string;
   plainText: string;
-} {
+}> {
   const selectedFragment = view.state.selection.content().content;
 
   const internalHTMLSerializer = createInternalHTMLSerializer(
@@ -32,6 +33,7 @@ function selectedFragmentToHTML<
     {}
   );
 
+  await initializeESMDependencies();
   const externalHTMLExporter = createExternalHTMLExporter(
     view.state.schema,
     editor
@@ -41,10 +43,50 @@ function selectedFragmentToHTML<
     {}
   );
 
-  const plainText = cleanHTMLToMarkdown(externalHTML);
+  const plainText = await cleanHTMLToMarkdown(externalHTML);
 
   return { internalHTML, externalHTML, plainText };
 }
+
+const copyToClipboard = <
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  editor: BlockNoteEditor<BSchema, I, S>,
+  view: EditorView,
+  event: ClipboardEvent
+) => {
+  // Stops the default browser copy behaviour.
+  event.preventDefault();
+  event.clipboardData!.clearData();
+
+  // Checks if a `blockContent` node is being copied and expands
+  // the selection to the parent `blockContainer` node. This is
+  // for the use-case in which only a block without content is
+  // selected, e.g. an image block.
+  if (
+    "node" in view.state.selection &&
+    (view.state.selection.node as Node).type.spec.group === "blockContent"
+  ) {
+    editor.dispatch(
+      editor._tiptapEditor.state.tr.setSelection(
+        new NodeSelection(view.state.doc.resolve(view.state.selection.from - 1))
+      )
+    );
+  }
+
+  (async () => {
+    const { internalHTML, externalHTML, plainText } =
+      await selectedFragmentToHTML(view, editor);
+
+    // TODO: Writing to other MIME types not working in Safari for
+    //  some reason.
+    event.clipboardData!.setData("blocknote/html", internalHTML);
+    event.clipboardData!.setData("text/html", externalHTML);
+    event.clipboardData!.setData("text/plain", plainText);
+  })();
+};
 
 export const createCopyToClipboardExtension = <
   BSchema extends BlockSchema,
@@ -61,37 +103,13 @@ export const createCopyToClipboardExtension = <
           props: {
             handleDOMEvents: {
               copy(view, event) {
-                // Stops the default browser copy behaviour.
-                event.preventDefault();
-                event.clipboardData!.clearData();
-
-                // Checks if a `blockContent` node is being copied and expands
-                // the selection to the parent `blockContainer` node. This is
-                // for the use-case in which only a block without content is
-                // selected, e.g. an image block.
-                if (
-                  "node" in view.state.selection &&
-                  (view.state.selection.node as Node).type.spec.group ===
-                    "blockContent"
-                ) {
-                  editor.dispatch(
-                    editor._tiptapEditor.state.tr.setSelection(
-                      new NodeSelection(
-                        view.state.doc.resolve(view.state.selection.from - 1)
-                      )
-                    )
-                  );
-                }
-
-                const { internalHTML, externalHTML, plainText } =
-                  selectedFragmentToHTML(view, editor);
-
-                // TODO: Writing to other MIME types not working in Safari for
-                //  some reason.
-                event.clipboardData!.setData("blocknote/html", internalHTML);
-                event.clipboardData!.setData("text/html", externalHTML);
-                event.clipboardData!.setData("text/plain", plainText);
-
+                copyToClipboard(editor, view, event);
+                // Prevent default PM handler to be called
+                return true;
+              },
+              cut(view, event) {
+                copyToClipboard(editor, view, event);
+                view.dispatch(view.state.tr.deleteSelection());
                 // Prevent default PM handler to be called
                 return true;
               },
@@ -125,15 +143,16 @@ export const createCopyToClipboardExtension = <
                 event.preventDefault();
                 event.dataTransfer!.clearData();
 
-                const { internalHTML, externalHTML, plainText } =
-                  selectedFragmentToHTML(view, editor);
+                (async () => {
+                  const { internalHTML, externalHTML, plainText } =
+                    await selectedFragmentToHTML(view, editor);
 
-                // TODO: Writing to other MIME types not working in Safari for
-                //  some reason.
-                event.dataTransfer!.setData("blocknote/html", internalHTML);
-                event.dataTransfer!.setData("text/html", externalHTML);
-                event.dataTransfer!.setData("text/plain", plainText);
-
+                  // TODO: Writing to other MIME types not working in Safari for
+                  //  some reason.
+                  event.dataTransfer!.setData("blocknote/html", internalHTML);
+                  event.dataTransfer!.setData("text/html", externalHTML);
+                  event.dataTransfer!.setData("text/plain", plainText);
+                })();
                 // Prevent default PM handler to be called
                 return true;
               },

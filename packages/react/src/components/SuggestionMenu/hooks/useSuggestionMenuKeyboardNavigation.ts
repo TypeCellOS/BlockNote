@@ -24,7 +24,7 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
         true
       );
     };
-  }, [editor.domElement, items, selectedIndex, onItemClick, element]);
+  }, [editor.domElement, items, selectedIndex, onItemClick, element, handler]);
 
   // Resets index when items change
   useEffect(() => {

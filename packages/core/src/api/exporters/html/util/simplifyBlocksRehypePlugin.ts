@@ -1,10 +1,27 @@
 import { Element as HASTElement, Parent as HASTParent } from "hast";
-import { fromDom } from "hast-util-from-dom";
+import { esmDependencies } from "../../../../util/esmDependencies";
 
 type SimplifyBlocksOptions = {
   orderedListItemBlockTypes: Set<string>;
   unorderedListItemBlockTypes: Set<string>;
 };
+
+function addAttributesAndRemoveClasses(
+  element: HASTElement,
+  attributes: Record<string, unknown>
+) {
+  // Removes all BlockNote specific class names.
+  const className =
+    ((element.properties?.className as string[]) || []).filter(
+      (className) => !className.startsWith("bn-")
+    ) || [];
+  // Adds all block props as data attributes.
+  element.properties = {
+    ...element.properties,
+    ...attributes,
+    className: className.length > 0 ? className : undefined,
+  };
+}
 
 /**
  * Rehype plugin which converts the HTML output string rendered by BlockNote into a simplified structure which better
@@ -16,6 +33,14 @@ type SimplifyBlocksOptions = {
  * @param options Options for specifying which block types represent ordered and unordered list items.
  */
 export function simplifyBlocks(options: SimplifyBlocksOptions) {
+  const deps = esmDependencies;
+
+  if (!deps) {
+    throw new Error(
+      "simplifyBlocks requires ESM dependencies to be initialized"
+    );
+  }
+
   const listItemBlockTypes = new Set<string>([
     ...options.orderedListItemBlockTypes,
     ...options.unorderedListItemBlockTypes,
@@ -53,6 +78,34 @@ export function simplifyBlocks(options: SimplifyBlocksOptions) {
 
         return classNames?.includes("bn-block-group");
       }) as HASTElement | undefined;
+
+      // Saves the data attributes of the block container, excluding the block
+      // ID and node type as we're removing the block structure. This means that
+      // only attributes for the block's props are saved.
+      const blockContainerDataAttributes = Object.fromEntries(
+        Object.entries(blockContainer.properties || {}).filter(
+          ([key]) =>
+            key.startsWith("data") && key !== "dataId" && key !== "dataNodeType"
+        )
+      );
+      // Saves the data attributes of the block content, excluding the block
+      // content type as we're removing the block structure. This means that
+      // only attributes for the block's props are saved.
+      const blockContentDataAttributes = Object.fromEntries(
+        Object.entries(blockContent?.properties || {}).filter(
+          ([key]) =>
+            key.startsWith("data") &&
+            key !== "dataContentType" &&
+            key !== "dataFileBlock" &&
+            key !== "dataNodeViewWrapper" &&
+            key !== "dataEditable"
+        )
+      );
+      // All the block's props as data attributes.
+      const blockPropsDataAttributes = {
+        ...blockContainerDataAttributes,
+        ...blockContentDataAttributes,
+      };
 
       // When the selection starts in a nested block, the Fragment from it omits
       // the `blockContent` node of the parent `blockContainer` if it's not also
@@ -110,13 +163,13 @@ export function simplifyBlocks(options: SimplifyBlocksOptions) {
         // type as this was already done earlier.
         if (!activeList) {
           // Creates a new list element to represent an active list.
-          activeList = fromDom(
+          activeList = deps.hastUtilFromDom.fromDom(
             document.createElement(listItemBlockType!)
           ) as HASTElement;
         }
 
         // Creates a new list item element to represent the block.
-        const listItemElement = fromDom(
+        const listItemElement = deps.hastUtilFromDom.fromDom(
           document.createElement("li")
         ) as HASTElement;
 
@@ -134,7 +187,9 @@ export function simplifyBlocks(options: SimplifyBlocksOptions) {
         // Lifts all children out of the current block, as only list items should allow nesting.
         tree.children.splice(i + 1, 0, ...blockGroup.children);
         // Replaces the block with only the content inside it.
-        tree.children[i] = blockContent.children[0];
+        const content = blockContent.children[0] as HASTElement;
+        addAttributesAndRemoveClasses(content, blockPropsDataAttributes);
+        tree.children[i] = content;
 
         // Updates the current index and number of child elements.
         const numElementsAdded = blockGroup.children.length;
@@ -142,7 +197,9 @@ export function simplifyBlocks(options: SimplifyBlocksOptions) {
         numChildElements += numElementsAdded;
       } else {
         // Replaces the block with only the content inside it.
-        tree.children[i] = blockContent.children[0];
+        const content = blockContent.children[0] as HASTElement;
+        addAttributesAndRemoveClasses(content, blockPropsDataAttributes);
+        tree.children[i] = content;
       }
     }
 

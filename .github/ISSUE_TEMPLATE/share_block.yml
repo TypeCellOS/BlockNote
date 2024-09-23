@@ -1,0 +1,57 @@
+name: "Submit a Custom Block"
+description: "Use this template to submit a new custom block (schema) for BlockNote."
+title: "<Your Block Name>"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Submit a Custom Block (Schema)
+
+        Thank you for contributing to BlockNote! Please fill out the following sections to submit your custom block. Make sure to provide as much detail as possible to help us understand and showcase your block effectively.
+
+  - type: input
+    id: block_name
+    attributes:
+      label: "Block Name"
+      description: "Enter the name of your custom block."
+      placeholder: "e.g., Alert Block"
+
+  - type: textarea
+    id: block_description
+    attributes:
+      label: "Block Description"
+      description: "Provide a detailed description of your custom block. Explain its purpose and how it works."
+      placeholder: "This block is used to display alert messages with different severity levels."
+
+  - type: textarea
+    id: block_dependencies
+    attributes:
+      label: "Dependencies"
+      description: "Provide a full list of all the dependencies needed to make your custom block work."
+      placeholder: "`npm_package_1`, `npm_package_2`, ...etc  "
+
+  - type: input
+    id: live_example
+    attributes:
+      label: "Live Example"
+      description: "Please provide a valid URL to a codepen, stackblitz, codeSandbox, or simply a github repo"
+      placeholder: "live example URL here"
+
+  - type: textarea
+    id: usage_instructions
+    attributes:
+      label: "Usage Instructions"
+      description: "Explain how to use your custom block in a BlockNote application. Include any necessary setup steps."
+      placeholder: |
+        ```markdown
+        1. Import your custom block.
+        2. Add it to the BlockNote editor configuration.
+        3. Use it within the BlockNote editor.
+        ```
+
+  - type: textarea
+    id: additional_notes
+    attributes:
+      label: "Additional Notes"
+      description: "Include any additional information or notes about your custom block."
+      placeholder: "Any additional context or information."

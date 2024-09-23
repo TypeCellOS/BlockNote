@@ -74,12 +74,20 @@ import { en } from "../i18n/locales";
 import { Plugin, Transaction } from "@tiptap/pm/state";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer";
 import "../style.css";
+import { initializeESMDependencies } from "../util/esmDependencies";
 
 export type BlockNoteEditorOptions<
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema
 > = {
+  /**
+   * Whether changes to blocks (like indentation, creating lists, changing headings) should be animated or not. Defaults to `true`.
+   *
+   * @default true
+   */
+  animations?: boolean;
+
   disableExtensions: string[];
   /**
    * A dictionary object containing translations for the editor.
@@ -124,7 +132,10 @@ export type BlockNoteEditorOptions<
    * @param file The file that should be uploaded.
    * @returns The URL of the uploaded file OR an object containing props that should be set on the file block (such as an id)
    */
-  uploadFile: (file: File) => Promise<string | Record<string, any>>;
+  uploadFile: (
+    file: File,
+    blockId?: string
+  ) => Promise<string | Record<string, any>>;
 
   /**
    * Resolve a URL of a file block to one that can be displayed or downloaded. This can be used for creating authenticated URL or
@@ -173,6 +184,16 @@ export type BlockNoteEditorOptions<
    * You probably don't need to set this manually, but use the `server-util` package instead that uses this option internally
    */
   _headless: boolean;
+
+  /**
+   * A flag indicating whether to set an HTML ID for every block
+   *
+   * When set to `true`, on each block an id attribute will be set with the block id
+   * Otherwise, the HTML ID attribute will not be set.
+   *
+   * (note that the id is always set on the `data-id` attribute)
+   */
+  setIdAttribute?: boolean;
 };
 
 const blockNoteTipTapOptions = {
@@ -288,8 +309,11 @@ export class BlockNoteEditor<
    * @returns The URL of the uploaded file OR an object containing props that should be set on the file block (such as an id)
    */
   public readonly uploadFile:
-    | ((file: File) => Promise<string | Record<string, any>>)
+    | ((file: File, blockId?: string) => Promise<string | Record<string, any>>)
     | undefined;
+
+  private onUploadStartCallbacks: ((blockId?: string) => void)[] = [];
+  private onUploadEndCallbacks: ((blockId?: string) => void)[] = [];
 
   public readonly resolveFileUrl: (url: string) => Promise<string>;
 
@@ -362,8 +386,10 @@ export class BlockNoteEditor<
       collaboration: newOptions.collaboration,
       trailingBlock: newOptions.trailingBlock,
       disableExtensions: newOptions.disableExtensions,
+      setIdAttribute: newOptions.setIdAttribute,
       tableHandles: checkDefaultBlockTypeInSchema("table", this),
       placeholders: newOptions.placeholders,
+      animations: newOptions.animations ?? true,
     });
 
     // add extensions from _tiptapOptions
@@ -376,7 +402,22 @@ export class BlockNoteEditor<
       this.extensions[key] = ext;
     });
 
-    this.uploadFile = newOptions.uploadFile;
+    if (newOptions.uploadFile) {
+      const uploadFile = newOptions.uploadFile;
+      this.uploadFile = async (file, block) => {
+        this.onUploadStartCallbacks.forEach((callback) =>
+          callback.apply(this, [block])
+        );
+        try {
+          return await uploadFile(file, block);
+        } finally {
+          this.onUploadEndCallbacks.forEach((callback) =>
+            callback.apply(this, [block])
+          );
+        }
+      };
+    }
+
     this.resolveFileUrl = newOptions.resolveFileUrl || (async (url) => url);
     this.headless = newOptions._headless;
 
@@ -435,6 +476,10 @@ export class BlockNoteEditor<
       editorProps: {
         ...newOptions._tiptapOptions?.editorProps,
         attributes: {
+          // As of TipTap v2.5.0 the tabIndex is removed when the editor is not
+          // editable, so you can't focus it. We want to revert this as we have
+          // UI behaviour that relies on it.
+          tabIndex: "0",
           ...newOptions._tiptapOptions?.editorProps?.attributes,
           ...newOptions.domAttributes?.editor,
           class: mergeCSSClasses(
@@ -489,6 +534,28 @@ export class BlockNoteEditor<
 
   public focus() {
     this._tiptapEditor.view.focus();
+  }
+
+  public onUploadStart(callback: (blockId?: string) => void) {
+    this.onUploadStartCallbacks.push(callback);
+
+    return () => {
+      const index = this.onUploadStartCallbacks.indexOf(callback);
+      if (index > -1) {
+        this.onUploadStartCallbacks.splice(index, 1);
+      }
+    };
+  }
+
+  public onUploadEnd(callback: (blockId?: string) => void) {
+    this.onUploadEndCallbacks.push(callback);
+
+    return () => {
+      const index = this.onUploadEndCallbacks.indexOf(callback);
+      if (index > -1) {
+        this.onUploadEndCallbacks.splice(index, 1);
+      }
+    };
   }
 
   /**
@@ -578,7 +645,7 @@ export class BlockNoteEditor<
       blockArray: Block<BSchema, ISchema, SSchema>[]
     ): boolean {
       for (const block of blockArray) {
-        if (!callback(block)) {
+        if (callback(block) === false) {
           return false;
         }
 
@@ -752,9 +819,16 @@ export class BlockNoteEditor<
         return true;
       }
 
+      // Fixed the block pos and size
+      // all block is wrapped with a blockContent wrapper
+      // and blockContent wrapper pos = inner block pos - 1
+      // blockContent wrapper end = inner block pos + nodeSize + 1
+      // need to add 1 to start and -1 to end
+      const end = pos + node.nodeSize - 1;
+      const start = pos + 1;
       if (
-        pos + node.nodeSize < this._tiptapEditor.state.selection.from ||
-        pos > this._tiptapEditor.state.selection.to
+        end <= this._tiptapEditor.state.selection.from ||
+        start >= this._tiptapEditor.state.selection.to
       ) {
         return true;
       }
@@ -786,7 +860,9 @@ export class BlockNoteEditor<
       }
       return false;
     }
-    return this._tiptapEditor.isEditable;
+    return this._tiptapEditor.isEditable === undefined
+      ? true
+      : this._tiptapEditor.isEditable;
   }
 
   /**
@@ -1047,6 +1123,7 @@ export class BlockNoteEditor<
   public async blocksToHTMLLossy(
     blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.document
   ): Promise<string> {
+    await initializeESMDependencies();
     const exporter = createExternalHTMLExporter(this.pmSchema, this);
     return exporter.exportBlocks(blocks, {});
   }
@@ -1177,15 +1254,26 @@ export class BlockNoteEditor<
     };
   }
 
-  public openSelectionMenu(triggerCharacter: string) {
+  public openSuggestionMenu(
+    triggerCharacter: string,
+    pluginState?: {
+      deleteTriggerCharacter?: boolean;
+      ignoreQueryLength?: boolean;
+    }
+  ) {
+    const tr = this.prosemirrorView.state.tr;
+    const transaction =
+      pluginState && pluginState.deleteTriggerCharacter
+        ? tr.insertText(triggerCharacter)
+        : tr;
+
     this.prosemirrorView.focus();
     this.prosemirrorView.dispatch(
-      this.prosemirrorView.state.tr
-        .scrollIntoView()
-        .setMeta(this.suggestionMenus.plugin, {
-          triggerCharacter: triggerCharacter,
-          fromUserInput: false,
-        })
+      transaction.scrollIntoView().setMeta(this.suggestionMenus.plugin, {
+        triggerCharacter: triggerCharacter,
+        deleteTriggerCharacter: pluginState?.deleteTriggerCharacter || false,
+        ignoreQueryLength: pluginState?.ignoreQueryLength || false,
+      })
     );
   }
 }

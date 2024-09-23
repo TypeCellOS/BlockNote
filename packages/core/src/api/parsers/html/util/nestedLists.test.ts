@@ -1,17 +1,17 @@
-import rehypeFormat from "rehype-format";
-import rehypeParse from "rehype-parse";
-import rehypeStringify from "rehype-stringify";
-import { unified } from "unified";
 import { describe, expect, it } from "vitest";
+import { initializeESMDependencies } from "../../../../util/esmDependencies";
 import { nestedListsToBlockNoteStructure } from "./nestedLists";
 
 async function testHTML(html: string) {
+  const deps = await initializeESMDependencies();
+
   const htmlNode = nestedListsToBlockNoteStructure(html);
 
-  const pretty = await unified()
-    .use(rehypeParse, { fragment: true })
-    .use(rehypeFormat)
-    .use(rehypeStringify)
+  const pretty = await deps.unified
+    .unified()
+    .use(deps.rehypeParse.default, { fragment: true })
+    .use(deps.rehypeFormat.default)
+    .use(deps.rehypeStringify.default)
     .process(htmlNode.innerHTML);
 
   expect(pretty.value).toMatchSnapshot();

@@ -20,6 +20,7 @@ import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlu
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin";
 import { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkToolbarPlugin";
 import { PlaceholderPlugin } from "../extensions/Placeholder/PlaceholderPlugin";
+import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin";
 import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin";
 import { SuggestionMenuProseMirrorPlugin } from "../extensions/SuggestionMenu/SuggestionPlugin";
 import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin";
@@ -65,6 +66,8 @@ export const getBlockNoteExtensions = <
   disableExtensions: string[] | undefined;
   tableHandles: boolean;
   placeholders: Record<string | "default", string>;
+  setIdAttribute?: boolean;
+  animations: boolean;
 }) => {
   const tiptapExtensions: AnyExtension[] = [
     extensions.ClipboardTextSerializer,
@@ -79,6 +82,7 @@ export const getBlockNoteExtensions = <
     // DropCursor,
     UniqueID.configure({
       types: ["blockContainer"],
+      setIdAttribute: opts.setIdAttribute,
     }),
     HardBreak.extend({ priority: 10 }),
     // Comments,
@@ -221,6 +225,10 @@ export const getBlockNoteExtensions = <
   ret["suggestionMenus"] = new SuggestionMenuProseMirrorPlugin(opts.editor);
   ret["filePanel"] = new FilePanelProsemirrorPlugin(opts.editor as any);
   ret["placeholder"] = new PlaceholderPlugin(opts.editor, opts.placeholders);
+
+  if (opts.animations ?? true) {
+    ret["animations"] = new PreviousBlockTypePlugin();
+  }
 
   if (checkDefaultBlockTypeInSchema("table", opts.editor)) {
     ret["tableHandles"] = new TableHandlesProsemirrorPlugin(opts.editor as any);

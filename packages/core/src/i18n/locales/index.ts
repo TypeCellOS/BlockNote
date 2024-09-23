@@ -1,5 +1,7 @@
 export * from "./ar";
+export * from "./de";
 export * from "./en";
+export * from "./es";
 export * from "./fr";
 export * from "./is";
 export * from "./ja";

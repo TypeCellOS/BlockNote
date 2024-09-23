@@ -11,7 +11,11 @@ export function useSuggestionMenuKeyboardHandler<Item>(
   return {
     selectedIndex,
     setSelectedIndex,
-    handler: (event: { key: string; preventDefault: () => void }) => {
+    handler: (event: {
+      key: string;
+      preventDefault: () => void;
+      isComposing: boolean;
+    }) => {
       if (event.key === "ArrowUp") {
         event.preventDefault();
 
@@ -33,7 +37,7 @@ export function useSuggestionMenuKeyboardHandler<Item>(
         return true;
       }
 
-      if (event.key === "Enter") {
+      if (event.key === "Enter" && !event.isComposing) {
         event.preventDefault();
 
         if (items.length) {

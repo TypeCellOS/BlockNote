@@ -114,7 +114,7 @@ export function GridSuggestionMenuController<
         size({
           apply({ availableHeight, elements }) {
             Object.assign(elements.floating.style, {
-              height: `${availableHeight - 10}px`,
+              maxHeight: `${availableHeight - 10}px`,
             });
           },
         }),
@@ -130,7 +130,8 @@ export function GridSuggestionMenuController<
   if (
     !isMounted ||
     !state ||
-    (minQueryLength &&
+    (!state?.ignoreQueryLength &&
+      minQueryLength &&
       (state.query.startsWith(" ") || state.query.length < minQueryLength))
   ) {
     return null;

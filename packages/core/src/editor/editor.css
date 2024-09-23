@@ -62,7 +62,19 @@ Tippy popups that are appended to document.body directly
 
 .bn-drag-preview {
   position: absolute;
-  z-index: -1;
+  top: 0;
+  left: 0;
+  padding: 10px;
+  /* Sort of a hack but seems like the most reliable solution. */
+  /* Drag preview element needs to be within bounds of the document area or it
+   won't work in some cases. */
+  /* Negative z-index covers most cases, but the element can still be visible
+   if UI elements are translucent. */
+  /* Setting opacity has no effect on the drag preview but does affect the
+   element. Unless it's set to 0, in which case the drag preview also becomes
+   hidden. So setting it to an extremely low value instead makes the element
+   functionally invisible while not affecting the drag preview itself. */
+  opacity: 0.001;
 }
 
 /* Give a remote user a caret */
