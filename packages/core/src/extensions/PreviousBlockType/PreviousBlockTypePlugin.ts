@@ -26,8 +26,8 @@ const nodeAttributes: Record<string, string> = {
 export class PreviousBlockTypePlugin {
   public readonly plugin: Plugin;
 
-  private timeout: any;
   constructor() {
+    let timeout: ReturnType<typeof setTimeout> | undefined;
     this.plugin = new Plugin({
       key: PLUGIN_KEY,
       view(_editorView) {
@@ -36,7 +36,7 @@ export class PreviousBlockTypePlugin {
             if (this.key?.getState(view.state).updatedBlocks.size > 0) {
               // use setTimeout 0 to clear the decorations so that at least
               // for one DOM-render the decorations have been applied
-              this.timeout = setTimeout(() => {
+              timeout = setTimeout(() => {
                 view.dispatch(
                   view.state.tr.setMeta(PLUGIN_KEY, { clearUpdate: true })
                 );
@@ -44,8 +44,8 @@ export class PreviousBlockTypePlugin {
             }
           },
           destroy: () => {
-            if (this.timeout) {
-              clearTimeout(this.timeout);
+            if (timeout) {
+              clearTimeout(timeout);
             }
           },
         };

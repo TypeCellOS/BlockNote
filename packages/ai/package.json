@@ -3,7 +3,7 @@
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
   "license": "MPL-2.0",
-  "version": "0.15.3",
+  "version": "0.15.10",
   "files": [
     "dist",
     "types",
@@ -56,7 +56,7 @@
     "@blocknote/mantine": "^0.15.3",
     "@blocknote/react": "^0.15.3",
     "@floating-ui/react": "^0.26.4",
-    "@tiptap/core": "^2.5.0",
+    "@tiptap/core": "^2.7.1",
     "prosemirror-state": "^1.4.3",
     "prosemirror-view": "^1.33.7",
     "react": "^18",
