@@ -2,16 +2,8 @@ import { afterEach, beforeEach, describe, it } from "vitest";
 
 import { BlockNoteEditor } from "@blocknote/core";
 
-import { createOpenAI } from "@ai-sdk/openai";
 import { defaultSchemaTestCases } from "../testUtil/cases/defaultSchema";
 import { blockNoteSchemaToJSONSchema } from "./schemaToJSONSchema";
-
-const model = createOpenAI({
-  // additional settings
-  apiKey: "",
-})("gpt-4o-2024-08-06", {
-  // structuredOutputs: true,
-});
 
 const testCases = [defaultSchemaTestCases];
 

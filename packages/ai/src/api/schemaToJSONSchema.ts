@@ -153,7 +153,7 @@ export function inlineContentSchemaToJSONSchema(schema: InlineContentSchema) {
   return {
     type: "array",
     items: {
-      anyOf: Object.entries(schema).map(([key, val]) => {
+      anyOf: Object.entries(schema).map(([_key, val]) => {
         if (val === "text") {
           return {
             $ref: "#/$defs/styledtext",
@@ -214,7 +214,7 @@ export function inlineContentSchemaToJSONSchema(schema: InlineContentSchema) {
 export function blockSchemaToJSONSchema(schema: BlockSchema) {
   return {
     anyOf: mergeSchemas(
-      Object.entries(schema).map(([key, val]) => {
+      Object.entries(schema).map(([_key, val]) => {
         return {
           type: "object",
           properties: {
@@ -283,7 +283,7 @@ export function schemaOps(
     removeFileBlocks() {
       clone.blockSchema = Object.fromEntries(
         Object.entries(clone.blockSchema).filter(
-          ([key, val]) => !val.isFileBlock
+          ([_key, val]) => !val.isFileBlock
         )
       );
       return this;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 
 // Hook which returns a handler for keyboard navigation of a suggestion menu. Up
 // & down arrow keys are used to select an item, enter is used to execute it.
@@ -11,11 +11,7 @@ export function useSuggestionMenuKeyboardHandler<Item>(
   return {
     selectedIndex,
     setSelectedIndex,
-    handler: (event: {
-      key: string;
-      preventDefault: () => void;
-      isComposing: boolean;
-    }) => {
+    handler: (event: KeyboardEvent | React.KeyboardEvent) => {
       if (event.key === "ArrowUp") {
         event.preventDefault();
 
@@ -37,7 +33,10 @@ export function useSuggestionMenuKeyboardHandler<Item>(
         return true;
       }
 
-      if (event.key === "Enter" && !event.isComposing) {
+      const isComposing = isReactEvent(event)
+        ? event.nativeEvent.isComposing
+        : event.isComposing;
+      if (event.key === "Enter" && !isComposing) {
         event.preventDefault();
 
         if (items.length) {
@@ -50,4 +49,10 @@ export function useSuggestionMenuKeyboardHandler<Item>(
       return false;
     },
   };
+}
+
+function isReactEvent(
+  event: KeyboardEvent | React.KeyboardEvent
+): event is React.KeyboardEvent {
+  return (event as React.KeyboardEvent).nativeEvent !== undefined;
 }

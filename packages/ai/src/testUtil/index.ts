@@ -1,9 +1,10 @@
-import { PartialBlock } from "../../blocks/defaultBlocks";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { BlockSchema } from "../../schema/blocks/types";
-import { InlineContentSchema } from "../../schema/inlineContent/types";
-import { StyleSchema } from "../../schema/styles/types";
-import { NoInfer } from "../../util/typescript";
+import {
+  BlockNoteEditor,
+  BlockSchema,
+  InlineContentSchema,
+  PartialBlock,
+  StyleSchema,
+} from "@blocknote/core";
 
 export type EditorTestCases<
   B extends BlockSchema,
