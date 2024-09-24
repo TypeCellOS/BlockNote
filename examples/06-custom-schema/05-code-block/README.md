@@ -1,4 +1,4 @@
-# PDF Block
+# Code Block
 
 In this example, we create a custom CodeBlock component, which is used to display formatted code snippets. Additionally, we create a Slash Menu item that inserts a CodeBlock into the editor.
 
