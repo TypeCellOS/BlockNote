@@ -1,8 +1,24 @@
 import { TextSelection } from "prosemirror-state";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+} from "vitest";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
 
-import { addIdsToBlocks, partialBlocksToBlocksForTesting } from "../../..";
+import {
+  addIdsToBlocks,
+  DefaultBlockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+  ExternalHTMLExporter,
+  InternalHTMLSerializer,
+  partialBlocksToBlocksForTesting,
+} from "../../..";
 import { PartialBlock } from "../../../blocks/defaultBlocks";
 import { BlockSchema } from "../../../schema/blocks/types";
 import { InlineContentSchema } from "../../../schema/inlineContent/types";
@@ -107,21 +123,155 @@ describe("Test HTML conversion", () => {
   }
 });
 
-// Fragments created from ProseMirror selections don't always conform to the
-// schema. This is because ProseMirror preserves the full ancestry of selected
-// nodes, but not the siblings of ancestor nodes. These tests are to verify that
-// Fragments like this are exported to HTML properly, as they can't be created
-// from Block objects like all the other test cases (Block object conversions
-// always conform to the schema).
-describe("Test ProseMirror fragment edge case conversion", () => {
+// These tests are meant to test the copying of user selections in the editor.
+// The test cases used for the other HTML conversion tests are not suitable here
+// as they are represented in the BlockNote API, whereas here we want to test
+// ProseMirror/TipTap selections directly.
+describe("Test ProseMirror selection HTML conversion", () => {
+  const initialContent: PartialBlock[] = [
+    {
+      type: "heading",
+      props: {
+        level: 2,
+        textColor: "red",
+      },
+      content: "Heading 1",
+      children: [
+        {
+          type: "paragraph",
+          content: "Nested Paragraph 1",
+        },
+        {
+          type: "paragraph",
+          content: "Nested Paragraph 2",
+        },
+        {
+          type: "paragraph",
+          content: "Nested Paragraph 3",
+        },
+      ],
+    },
+    {
+      type: "heading",
+      props: {
+        level: 2,
+        textColor: "red",
+      },
+      content: "Heading 2",
+      children: [
+        {
+          type: "paragraph",
+          content: "Nested Paragraph 1",
+        },
+        {
+          type: "paragraph",
+          content: "Nested Paragraph 2",
+        },
+        {
+          type: "paragraph",
+          content: "Nested Paragraph 3",
+        },
+      ],
+    },
+    {
+      type: "heading",
+      props: {
+        level: 2,
+        textColor: "red",
+      },
+      content: [
+        {
+          type: "text",
+          text: "Bold",
+          styles: {
+            bold: true,
+          },
+        },
+        {
+          type: "text",
+          text: "Italic",
+          styles: {
+            italic: true,
+          },
+        },
+        {
+          type: "text",
+          text: "Regular",
+          styles: {},
+        },
+      ],
+      children: [
+        {
+          type: "image",
+          props: {
+            url: "https://ralfvanveen.com/wp-content/uploads/2021/06/Placeholder-_-Glossary.svg",
+          },
+          children: [
+            {
+              type: "paragraph",
+              content: "Nested Paragraph",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      type: "table",
+      content: {
+        type: "tableContent",
+        rows: [
+          {
+            cells: ["Table Cell", "Table Cell"],
+          },
+          {
+            cells: ["Table Cell", "Table Cell"],
+          },
+        ],
+      },
+      // Not needed as selections starting in table cells will get snapped to
+      // the table boundaries.
+      // children: [
+      //   {
+      //     type: "table",
+      //     content: {
+      //       type: "tableContent",
+      //       rows: [
+      //         {
+      //           cells: ["Table Cell", "Table Cell"],
+      //         },
+      //         {
+      //           cells: ["Table Cell", "Table Cell"],
+      //         },
+      //       ],
+      //     },
+      //   },
+      // ],
+    },
+  ];
+
   let editor: BlockNoteEditor;
+  let serializer: InternalHTMLSerializer<
+    DefaultBlockSchema,
+    DefaultInlineContentSchema,
+    DefaultStyleSchema
+  >;
+  let exporter: ExternalHTMLExporter<
+    DefaultBlockSchema,
+    DefaultInlineContentSchema,
+    DefaultStyleSchema
+  >;
   const div = document.createElement("div");
-  beforeEach(() => {
-    editor = BlockNoteEditor.create();
+
+  beforeAll(async () => {
+    editor = BlockNoteEditor.create({ initialContent });
     editor.mount(div);
+
+    await initializeESMDependencies();
+    serializer = createInternalHTMLSerializer(editor.pmSchema, editor);
+    exporter = createExternalHTMLExporter(editor.pmSchema, editor);
   });
 
-  afterEach(() => {
+  afterAll(() => {
     editor.mount(undefined);
     editor._tiptapEditor.destroy();
     editor = undefined as any;
@@ -129,122 +279,114 @@ describe("Test ProseMirror fragment edge case conversion", () => {
     delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
   });
 
-  // When the selection starts in a nested block, the Fragment from it omits the
-  // `blockContent` node of the parent `blockContainer` if it's not also
-  // included in the selection. In the schema, `blockContainer` nodes should
-  // contain a single `blockContent` node, so this edge case needs to be tested.
-  describe("No block content", () => {
-    const blocks: PartialBlock[] = [
-      {
-        type: "paragraph",
-        content: "Paragraph 1",
-        children: [
-          {
-            type: "paragraph",
-            content: "Nested Paragraph 1",
-          },
-          {
-            type: "paragraph",
-            content: "Nested Paragraph 2",
-          },
-          {
-            type: "paragraph",
-            content: "Nested Paragraph 3",
-          },
-        ],
-      },
-      {
-        type: "paragraph",
-        content: "Paragraph 2",
-        children: [
-          {
-            type: "paragraph",
-            content: "Nested Paragraph 1",
-          },
-          {
-            type: "paragraph",
-            content: "Nested Paragraph 2",
-          },
-          {
-            type: "paragraph",
-            content: "Nested Paragraph 3",
-          },
-        ],
-      },
-    ];
+  // Sets the editor selection to the given start and end positions, then
+  // exports the selected content to HTML and compares it to a snapshot.
+  function testSelection(testName: string, startPos: number, endPos: number) {
+    editor.dispatch(
+      editor._tiptapEditor.state.tr.setSelection(
+        TextSelection.create(editor._tiptapEditor.state.doc, startPos, endPos)
+      )
+    );
 
-    beforeEach(() => {
-      editor.replaceBlocks(editor.document, blocks);
+    const copiedFragment =
+      editor._tiptapEditor.state.selection.content().content;
+
+    const internalHTML = serializer.serializeProseMirrorFragment(
+      copiedFragment,
+      {}
+    );
+    const externalHTML = exporter.exportProseMirrorFragment(copiedFragment, {});
+
+    expect(internalHTML).toMatchFileSnapshot(
+      `./__snapshots_selection_html__/internal/${testName}.html`
+    );
+    expect(externalHTML).toMatchFileSnapshot(
+      `./__snapshots_selection_html__/external/${testName}.html`
+    );
+  }
+
+  const testCases: { testName: string; startPos: number; endPos: number }[] = [
+    // Selection spans all of first heading's children.
+    {
+      testName: "multipleChildren",
+      startPos: 16,
+      endPos: 78,
+    },
+    // Selection spans from start of first heading to end of its first child.
+    {
+      testName: "childToParent",
+      startPos: 3,
+      endPos: 34,
+    },
+    // Selection spans from start of first heading's first child to end of
+    // second heading's content (does not include second heading's children).
+    {
+      testName: "childrenToNextParent",
+      startPos: 16,
+      endPos: 93,
+    },
+    // Selection spans from start of first heading's first child to end of
+    // second heading's last child.
+    {
+      testName: "childrenToNextParentsChildren",
+      startPos: 16,
+      endPos: 159,
+    },
+    // Selection spans "Regular" text inside third heading.
+    {
+      testName: "unstyledText",
+      startPos: 175,
+      endPos: 182,
+    },
+    // Selection spans "Italic" text inside third heading.
+    {
+      testName: "styledText",
+      startPos: 169,
+      endPos: 175,
+    },
+    // Selection spans third heading's content (does not include third heading's
+    // children).
+    {
+      testName: "multipleStyledText",
+      startPos: 165,
+      endPos: 182,
+    },
+    // Selection spans from start of third heading to end of it's last
+    // descendant.
+    {
+      testName: "nestedImage",
+      startPos: 165,
+      endPos: 205,
+    },
+    // Selection spans text in first cell of the table.
+    {
+      testName: "tableCellText",
+      startPos: 216,
+      endPos: 226,
+    },
+    // Selection spans first cell of the table.
+    {
+      testName: "tableCell",
+      startPos: 215,
+      endPos: 227,
+    },
+    // Selection spans first row of the table.
+    {
+      testName: "tableRow",
+      startPos: 229,
+      endPos: 241,
+    },
+    // Selection spans all cells of the table.
+    {
+      testName: "tableAllCells",
+      startPos: 259,
+      endPos: 271,
+    },
+  ];
+
+  for (const testCase of testCases) {
+    it(testCase.testName, () => {
+      testSelection(testCase.testName, testCase.startPos, testCase.endPos);
     });
-
-    it("Selection within a block's children", async () => {
-      // Selection starts and ends within the first block's children.
-      editor.dispatch(
-        editor._tiptapEditor.state.tr.setSelection(
-          TextSelection.create(editor._tiptapEditor.state.doc, 18, 80)
-        )
-      );
-
-      const copiedFragment =
-        editor._tiptapEditor.state.selection.content().content;
-
-      await initializeESMDependencies();
-      const exporter = createExternalHTMLExporter(editor.pmSchema, editor);
-      const externalHTML = exporter.exportProseMirrorFragment(
-        copiedFragment,
-        {}
-      );
-      expect(externalHTML).toMatchFileSnapshot(
-        "./__snapshots_fragment_edge_cases__/" +
-          "selectionWithinBlockChildren.html"
-      );
-    });
-
-    it("Selection leaves a block's children", async () => {
-      // Selection starts and ends within the first block's children and ends
-      // outside, at a shallower nesting level in the second block.
-      editor.dispatch(
-        editor._tiptapEditor.state.tr.setSelection(
-          TextSelection.create(editor._tiptapEditor.state.doc, 18, 97)
-        )
-      );
-
-      const copiedFragment =
-        editor._tiptapEditor.state.selection.content().content;
-
-      await initializeESMDependencies();
-      const exporter = createExternalHTMLExporter(editor.pmSchema, editor);
-      const externalHTML = exporter.exportProseMirrorFragment(
-        copiedFragment,
-        {}
-      );
-      expect(externalHTML).toMatchFileSnapshot(
-        "./__snapshots_fragment_edge_cases__/" +
-          "selectionLeavesBlockChildren.html"
-      );
-    });
-
-    it("Selection spans multiple blocks' children", async () => {
-      // Selection starts and ends within the first block's children and ends
-      // within the second block's children.
-      editor.dispatch(
-        editor._tiptapEditor.state.tr.setSelection(
-          TextSelection.create(editor._tiptapEditor.state.doc, 18, 163)
-        )
-      );
-
-      const copiedFragment =
-        editor._tiptapEditor.state.selection.content().content;
-      await initializeESMDependencies();
-      const exporter = createExternalHTMLExporter(editor.pmSchema, editor);
-      const externalHTML = exporter.exportProseMirrorFragment(
-        copiedFragment,
-        {}
-      );
-      expect(externalHTML).toMatchFileSnapshot(
-        "./__snapshots_fragment_edge_cases__/" +
-          "selectionSpansBlocksChildren.html"
-      );
-    });
-  });
+  }
 });
