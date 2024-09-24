@@ -1,0 +1,44 @@
+.bn-block-content.ProseMirror-selectednode > *,
+.ProseMirror-selectednode > .bn-block-content > * {
+  outline: none;
+  border-radius: 8px;
+}
+
+.ProseMirror:not([contenteditable="true"])
+  .ProseMirror-selectednode
+  > .bn-block-content
+  > * {
+  outline: none;
+}
+
+.cm-scroller {
+  padding: 16px;
+}
+
+.ͼ1.cm-focused {
+  outline: none;
+}
+
+.cm-content,
+.cm-gutter {
+  display: flex !important;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.code-block {
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background-color: rgb(39 39 42);
+  width: 100%;
+  color: rgb(255 255 255);
+}
+
+.code-block-language-wrapper {
+  display: flex;
+  width: 100%;
+  margin: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}

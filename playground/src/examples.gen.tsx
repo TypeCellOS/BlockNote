@@ -887,6 +887,34 @@
         }
       },
       {
+        "projectSlug": "code-block",
+        "fullSlug": "custom-schema/code-block",
+        "pathFromRoot": "examples/06-custom-schema/05-code-block",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "JaeungJayJang",
+          "tags": [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas",
+            "Suggestion Menus",
+            "Slash Menu"
+          ],
+          "dependencies": {
+            "@uiw/react-codemirror": "^4.23.3",
+            "@uiw/codemirror-extensions-langs": "^4.23.3",
+            "@uiw/codemirror-theme-material": "^4.23.3",
+            "lucide-react": "^0.407.0"
+          } as any
+        },
+        "title": "PDF Block",
+        "group": {
+          "pathFromRoot": "examples/06-custom-schema",
+          "slug": "custom-schema"
+        }
+      },
+      {
         "projectSlug": "react-custom-blocks",
         "fullSlug": "custom-schema/react-custom-blocks",
         "pathFromRoot": "examples/06-custom-schema/react-custom-blocks",
