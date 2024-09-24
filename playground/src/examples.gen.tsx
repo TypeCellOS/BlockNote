@@ -908,7 +908,7 @@
             "lucide-react": "^0.407.0"
           } as any
         },
-        "title": "PDF Block",
+        "title": "Code Block",
         "group": {
           "pathFromRoot": "examples/06-custom-schema",
           "slug": "custom-schema"
