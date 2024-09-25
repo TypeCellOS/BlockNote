@@ -1,4 +1,4 @@
-import { Mark, Node, Schema } from "@tiptap/pm/model";
+import { Mark, Node, Schema, Slice } from "@tiptap/pm/model";
 
 import UniqueID from "../../extensions/UniqueID/UniqueID";
 import type {
@@ -641,4 +641,141 @@ export function nodeToBlock<
   blockCache?.set(node, block);
 
   return block;
+}
+
+// fragmentOfFirstBlock: InlineContent<I, S>[];
+// fragmentOfLastBlock: InlineContent<I, S>[];
+// // blocks: Array<Block<BSchema, I, S>>;
+/**
+ *
+ * Parse a Prosemirror Slice into a BlockNote selection. The prosemirror schema looks like this:
+ *
+ * <blockGroup>
+ *   <blockContainer> (main content of block)
+ *       <p, heading, etc.>
+ *   <blockGroup> (only if blocks has children)
+ *     <blockContainer> (child block)
+ *       <p, heading, etc.>
+ *     </blockContainer>
+ *    <blockContainer> (child block 2)
+ *       <p, heading, etc.>
+ *     </blockContainer>
+ *   </blockContainer>
+ *  </blockGroup>
+ * </blockGroup>
+ *
+ * Examples,
+ *
+ * for slice:
+ *
+ * {"content":[{"type":"blockGroup","content":[{"type":"blockContainer","attrs":{"id":"1","textColor":"yellow","backgroundColor":"blue"},"content":[{"type":"heading","attrs":{"textAlignment":"right","level":2},"content":[{"type":"text","marks":[{"type":"bold"},{"type":"underline"}],"text":"ding "},{"type":"text","marks":[{"type":"italic"},{"type":"strike"}],"text":"2"}]},{"type":"blockGroup","content":[{"type":"blockContainer","attrs":{"id":"2","textColor":"default","backgroundColor":"red"},"content":[{"type":"paragraph","attrs":{"textAlignment":"left"},"content":[{"type":"text","text":"Par"}]}]}]}]}]}],"openStart":3,"openEnd":5}
+ *
+ * should return:
+ *
+ * [
+ *   {
+ *     block: {
+ *       nodeToBlock(first blockContainer node),
+ *       children: [
+ *         {
+ *           block: nodeToBlock(second blockContainer node),
+ *           contentCutAtEnd: true,
+ *           childrenCutAtEnd: false,
+ *         },
+ *       ],
+ *     },
+ *      contentCutAtStart: true,
+ *     contentCutAtEnd: false,
+ *     childrenCutAtEnd: true,
+ *   },
+ * ]
+ */
+
+export type BlockWithSelectionInfo<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+> = {
+  block: Block<BSchema, I, S> & {
+    children: BlockWithSelectionInfo<BSchema, I, S>[];
+  };
+  contentCutAtStart: boolean;
+  contentCutAtEnd: boolean;
+};
+
+export function sliceToBlockNote<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  slice: Slice,
+  blockSchema: BSchema,
+  inlineContentSchema: I,
+  styleSchema: S,
+  blockCache?: WeakMap<Node, Block<BSchema, I, S>>
+): {
+  blocks: BlockWithSelectionInfo<BSchema, I, S>[];
+} {
+  function processNode(
+    node: Node,
+    openStart: number,
+    openEnd: number
+  ): BlockWithSelectionInfo<BSchema, I, S>[] {
+    if (node.type.name !== "blockGroup") {
+      throw new Error("unexpected");
+    }
+    const children: BlockWithSelectionInfo<BSchema, I, S>[] = [];
+
+    node.forEach((blockContainer, _offset, index) => {
+      if (blockContainer.type.name !== "blockContainer") {
+        throw new Error("unexpected");
+      }
+      const block = nodeToBlock(
+        blockContainer,
+        blockSchema,
+        inlineContentSchema,
+        styleSchema,
+        blockCache
+      );
+      const childGroup =
+        blockContainer.childCount > 1 ? blockContainer.child(1) : undefined;
+
+      const isFirstBlock = index === 0;
+      const isLastBlock = index === node.childCount - 1;
+
+      let childBlocks: BlockWithSelectionInfo<BSchema, I, S>[] = [];
+      if (childGroup) {
+        childBlocks = processNode(
+          childGroup,
+          0, // TODO: can this be anything other than 0?
+          isLastBlock ? Math.max(0, openEnd - 1) : 0
+        );
+      }
+
+      children.push({
+        block: {
+          ...(block as any),
+          children: childBlocks,
+        },
+        contentCutAtStart: openStart > 1 && isFirstBlock,
+        contentCutAtEnd: !!(openEnd > 1 && isLastBlock && !childGroup),
+      });
+    });
+
+    return children;
+  }
+
+  if (slice.content.childCount > 1) {
+    throw new Error(
+      "slice must be a single block, did you forget includeParents=true?"
+    );
+  }
+
+  return {
+    blocks: processNode(
+      slice.content.firstChild!,
+      slice.openStart,
+      slice.openEnd
+    ),
+  };
 }

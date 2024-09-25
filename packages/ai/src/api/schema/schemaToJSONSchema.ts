@@ -6,6 +6,7 @@ import {
   StyleSchema,
   defaultProps,
 } from "@blocknote/core";
+import { SimpleJSONObjectSchema } from "../util/JSONSchema";
 import { mergeSchemas } from "./mergeSchema";
 /*
 {
@@ -80,15 +81,6 @@ import { mergeSchemas } from "./mergeSchema";
       "additionalProperties": false
     }
   }*/
-
-export type SimpleJSONObjectSchema = {
-  type: "object";
-  properties: {
-    [key: string]: any;
-  };
-  required?: string[];
-  additionalProperties?: boolean;
-};
 
 export function styleSchemaToJSONSchema(
   schema: StyleSchema

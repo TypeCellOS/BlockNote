@@ -1,119 +1,54 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import { BlockNoteEditor } from "@blocknote/core";
-import { jsonSchema, streamObject } from "ai";
-import { SimpleJSONObjectSchema } from "./schemaToJSONSchema";
+import {
+  Block,
+  BlockNoteEditor,
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "@blocknote/core";
+import { CoreMessage, StreamObjectResult, jsonSchema, streamObject } from "ai";
+import { AIFunction } from "./functions";
+import { addFunction } from "./functions/add";
+import { deleteFunction } from "./functions/delete";
+import { updateFunction } from "./functions/update";
+import { createOperationsArraySchema } from "./schema/operations";
 
-export const AI_OPERATION_DELETE = {
-  name: "delete",
-  description: "Delete a block",
-  parameters: {
-    id: {
-      type: "string",
-      description: "id of block to delete",
+export function createMessagesForLLM(opts: {
+  prompt: string;
+  document: any;
+}): Array<CoreMessage> {
+  return [
+    {
+      role: "system",
+      content: "You're manipulating a text document. This is the document:",
     },
-  },
-  required: ["id"],
-};
-
-export function operationToJSONSchema(operation: any) {
-  // const parameterProperties = Object.entries(operation.parameters).map(
-  //   ([key, value]) => {
-  //     const { required, ...rest } = value;
-  //     return {
-  //       [key]: rest,
-  //     };
-  //   }
-  // );
-  return {
-    type: "object",
-    description: operation.description,
-    properties: {
-      type: {
-        type: "string",
-        enum: [operation.name],
-      },
-      ...operation.parameters,
-
-      // ...Object.entries(operation.parameters).map(([key, value]) => {
-      // return {
-      // [key]: value,
-      // };
-      // }),
+    {
+      role: "system",
+      content: JSON.stringify(suffixIDs(opts.document)),
     },
-    required: ["type", ...operation.required],
-    additionalProperties: false,
-  } as const;
+    {
+      role: "user",
+      content: opts.prompt,
+    },
+  ];
 }
 
-export const AI_OPERATION_INSERT = {
-  description: "Insert new blocks",
-  parameters: {
-    referenceId: {
-      type: "string",
-      description: "",
-      required: true,
-    },
-    position: {
-      type: "string",
-      enum: ["before", "after"],
-      description:
-        "Whether new block(s) should be inserterd before or after `referenceId`",
-      required: true,
-    },
-    blocks: {
-      items: {
-        // $ref: "#/definitions/newblock",
-        type: "object",
-        properties: {},
-      },
-      type: "array",
-      required: true,
-    },
-  },
-};
-
-export const AI_OPERATION_UPDATE = {
-  name: "update",
-  description: "Update a block",
-  parameters: {
-    id: {
-      type: "string",
-      description: "id of block to update",
-    },
-    block: {
-      // $ref: "#/definitions/newblock",
-      type: "object",
-      properties: {},
-    },
-  },
-  required: ["id", "block"],
-};
-
-// UPDATE_MARKDOWN
-// INSERT_MARKDOWN
-
-export function createOperationsArraySchema(
-  operations: any[]
-): SimpleJSONObjectSchema {
-  return {
-    type: "object",
-    properties: {
-      operations: {
-        type: "array",
-        items: {
-          anyOf: operations.map((op) => operationToJSONSchema(op)),
-        },
-      },
-    },
-    additionalProperties: false,
-    required: ["operations"] as string[],
-  };
+export function suffixIDs<
+  T extends Block<BlockSchema, InlineContentSchema, StyleSchema>
+>(blocks: T[]): T[] {
+  return blocks.map((block) => ({
+    ...block,
+    id: `${block.id}$`,
+    children: suffixIDs(block.children),
+  }));
 }
 
-export async function streamDocumentOperations(
+export async function callLLM(
   editor: BlockNoteEditor<any, any, any>,
   prompt: string
 ) {
+  const functions = [updateFunction, addFunction, deleteFunction];
+
   const model = createOpenAI({
     apiKey: "",
   })("gpt-4o-2024-08-06", {});
@@ -121,53 +56,38 @@ export async function streamDocumentOperations(
   const ret = await streamObject<any>({
     model,
     mode: "tool",
-    schema: jsonSchema(
-      createOperationsArraySchema([AI_OPERATION_UPDATE] as any)
-    ),
-    messages: [
-      {
-        role: "system",
-        content: "You're manipulating a text document. This is the document:",
-      },
-      {
-        role: "system",
-        content: JSON.stringify(editor.document),
-      },
-      {
-        role: "user",
-        content: prompt,
-      },
-    ],
+    schema: jsonSchema(createOperationsArraySchema(functions)),
+    messages: createMessagesForLLM({ prompt, document: editor.document }),
   });
+  await applyLLMResponse(editor, ret, functions);
+}
 
+export function applyAIOperation(
+  editor: BlockNoteEditor,
+  operation: any,
+  functions: AIFunction[]
+) {
+  const func = functions.find((func) => func.schema.name === operation.type);
+  if (!func || !func.validate(operation, editor)) {
+    return;
+  }
+  func.apply(operation, editor);
+}
+
+export async function applyLLMResponse(
+  editor: BlockNoteEditor,
+  response: StreamObjectResult<any, any, any>,
+  functions: AIFunction[]
+) {
   let numOperationsAppliedCompletely = 0;
 
-  for await (const partialObject of ret.partialObjectStream) {
+  for await (const partialObject of response.partialObjectStream) {
     const operations: [] = partialObject.operations || [];
 
     for (const operation of operations.slice(numOperationsAppliedCompletely)) {
-      applyOperation(operation, editor);
+      applyAIOperation(operation, editor, functions);
     }
     numOperationsAppliedCompletely = operations.length - 1;
-  }
-}
-
-function applyOperation(operation: any, editor: BlockNoteEditor) {
-  if (operation.type === AI_OPERATION_UPDATE.name) {
-    console.log("applyOperation", operation);
-    if (!(operation?.id?.length > 0 && operation?.block)) {
-      return;
-    }
-
-    if (
-      ((operation.block.content as []) || []).find(
-        (content: any) => content.type !== "text" || !("text" in content)
-      )
-    ) {
-      return;
-    }
-    console.log("execute", operation);
-    editor.updateBlock(operation.id, operation.block);
   }
 }
 

@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, it } from "vitest";
 import { BlockNoteEditor } from "@blocknote/core";
 
 import { defaultSchemaTestCases } from "../testUtil/cases/defaultSchema";
-import { streamDocumentOperations } from "./api";
+import { callLLM } from "./api";
 
 const testCases = [defaultSchemaTestCases];
 
@@ -32,7 +32,7 @@ describe("Test BlockNote-Prosemirror conversion", () => {
           const document = testCase.documents[1];
           editor.replaceBlocks(editor.document, document.blocks);
 
-          await streamDocumentOperations(editor, "translate to german");
+          await callLLM(editor, "translate to german");
 
           // Add assertions here to check if the document was correctly translated
           // For example:

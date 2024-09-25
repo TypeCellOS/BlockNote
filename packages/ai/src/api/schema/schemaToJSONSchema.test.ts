@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, it } from "vitest";
 
 import { BlockNoteEditor } from "@blocknote/core";
 
-import { defaultSchemaTestCases } from "../testUtil/cases/defaultSchema";
+import { defaultSchemaTestCases } from "../../testUtil/cases/defaultSchema";
 import { blockNoteSchemaToJSONSchema } from "./schemaToJSONSchema";
 
 const testCases = [defaultSchemaTestCases];

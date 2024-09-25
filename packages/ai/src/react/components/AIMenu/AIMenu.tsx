@@ -20,7 +20,7 @@ import {
 
 import { useBlockNoteEditor } from "@blocknote/react";
 import { RiSparkling2Fill } from "react-icons/ri";
-import { streamDocumentOperations } from "../../../api/api";
+import { callLLM } from "../../../api/api";
 import { AIMenuProsemirrorPlugin } from "../../../core";
 import { useAIDictionary } from "../../hooks/useAIDictionary";
 import { AIMenuProps } from "./AIMenuProps";
@@ -40,7 +40,7 @@ export const AIMenu = (props: AIMenuProps) => {
 
   const runAIEdit = useCallback(
     async (prompt: string) => {
-      await streamDocumentOperations(editor, prompt);
+      await callLLM(editor, prompt);
       // editor.formattingToolbar.closeMenu();
       // (
       //   editor.extensions.aiInlineToolbar as AIInlineToolbarProsemirrorPlugin
