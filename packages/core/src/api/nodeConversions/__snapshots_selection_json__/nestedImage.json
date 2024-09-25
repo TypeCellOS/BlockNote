@@ -2,7 +2,7 @@
   "blocks": [
     {
       "block": {
-        "id": "d3c74ea1-f512-42f8-a93a-829226fb7457",
+        "id": "8",
         "type": "heading",
         "props": {
           "textColor": "red",
@@ -34,7 +34,7 @@
         "children": [
           {
             "block": {
-              "id": "444f79f8-84f2-4443-9217-c200a625e903",
+              "id": "9",
               "type": "image",
               "props": {
                 "backgroundColor": "default",
@@ -48,7 +48,7 @@
               "children": [
                 {
                   "block": {
-                    "id": "fd5adc68-6f0b-4579-a66c-eec16a9244a4",
+                    "id": "10",
                     "type": "paragraph",
                     "props": {
                       "textColor": "default",

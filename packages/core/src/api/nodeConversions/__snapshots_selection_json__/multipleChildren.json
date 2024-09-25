@@ -2,7 +2,7 @@
   "blocks": [
     {
       "block": {
-        "id": "dcf9b359-261e-46cb-b5b8-d64a2b8968ef",
+        "id": "1",
         "type": "paragraph",
         "props": {
           "textColor": "default",
@@ -23,7 +23,7 @@
     },
     {
       "block": {
-        "id": "e94ed227-a4ed-456e-b7af-34583e84391d",
+        "id": "2",
         "type": "paragraph",
         "props": {
           "textColor": "default",
@@ -44,7 +44,7 @@
     },
     {
       "block": {
-        "id": "1460764b-bc20-46d8-a1db-c78d5fefac88",
+        "id": "3",
         "type": "paragraph",
         "props": {
           "textColor": "default",

@@ -135,6 +135,7 @@ describe("Test ProseMirror selection HTML conversion", () => {
   const div = document.createElement("div");
 
   beforeAll(async () => {
+    (window as any).__TEST_OPTIONS = (window as any).__TEST_OPTIONS || {};
     editor = BlockNoteEditor.create({ initialContent });
     editor.mount(div);
   });
@@ -178,6 +179,13 @@ describe("Test ProseMirror selection HTML conversion", () => {
       startPos: 3,
       endPos: 34,
     },
+    // Selection spans from middle of first heading to the middle of its first
+    // child.
+    {
+      testName: "partialChildToParent",
+      startPos: 6,
+      endPos: 23,
+    },
     // Selection spans from start of first heading's first child to end of
     // second heading's content (does not include second heading's children).
     {
@@ -210,6 +218,12 @@ describe("Test ProseMirror selection HTML conversion", () => {
       testName: "multipleStyledText",
       startPos: 165,
       endPos: 182,
+    },
+    // Selection spans the image block content.
+    {
+      testName: "image",
+      startPos: 185,
+      endPos: 186,
     },
     // Selection spans from start of third heading to end of it's last
     // descendant.
@@ -271,7 +285,7 @@ describe("Test ProseMirror selection HTML conversion", () => {
     );
   });
 
-  it.only("move start", () => {
+  it("move start", () => {
     const size = editor._tiptapEditor.state.doc.content.size;
 
     let ret = "";

@@ -2,7 +2,7 @@
   "blocks": [
     {
       "block": {
-        "id": "dcf9b359-261e-46cb-b5b8-d64a2b8968ef",
+        "id": "1",
         "type": "paragraph",
         "props": {
           "textColor": "default",
@@ -23,7 +23,7 @@
     },
     {
       "block": {
-        "id": "e94ed227-a4ed-456e-b7af-34583e84391d",
+        "id": "2",
         "type": "paragraph",
         "props": {
           "textColor": "default",
@@ -44,7 +44,7 @@
     },
     {
       "block": {
-        "id": "1460764b-bc20-46d8-a1db-c78d5fefac88",
+        "id": "3",
         "type": "paragraph",
         "props": {
           "textColor": "default",
@@ -65,7 +65,7 @@
     },
     {
       "block": {
-        "id": "d1c96ec6-b6d7-44b1-8836-65014529c01b",
+        "id": "4",
         "type": "heading",
         "props": {
           "textColor": "red",
@@ -83,7 +83,7 @@
         "children": [
           {
             "block": {
-              "id": "02a6dadb-271f-472a-ada0-04671e42390a",
+              "id": "5",
               "type": "paragraph",
               "props": {
                 "textColor": "default",
@@ -104,7 +104,7 @@
           },
           {
             "block": {
-              "id": "675e9cac-9511-4dac-88a2-d76f1a09a4f9",
+              "id": "6",
               "type": "paragraph",
               "props": {
                 "textColor": "default",
@@ -125,7 +125,7 @@
           },
           {
             "block": {
-              "id": "66cc1a2e-de01-4a08-81e1-4616a877b183",
+              "id": "7",
               "type": "paragraph",
               "props": {
                 "textColor": "default",
