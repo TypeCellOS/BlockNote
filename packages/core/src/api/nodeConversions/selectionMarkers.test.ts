@@ -159,11 +159,13 @@ describe("Test ProseMirror selection HTML conversion", () => {
 
     // const slice = editor._tiptapEditor.state.selection.content();
 
-    const blockNoteSelection = editor.getSelection2();
+    const blockNoteSelection = editor.getSelectionWithMarkers();
 
     expect(
       JSON.stringify(blockNoteSelection, undefined, 2)
-    ).toMatchFileSnapshot(`./__snapshots_selection_json__/${testName}.json`);
+    ).toMatchFileSnapshot(
+      `./__snapshots_selection_markers_json__/${testName}.json`
+    );
   }
 
   const testCases: { testName: string; startPos: number; endPos: number }[] = [
@@ -257,6 +259,10 @@ describe("Test ProseMirror selection HTML conversion", () => {
       endPos: 271,
     },
   ];
+  // const testCase = testCases.find((testCase) => testCase.testName === "image");
+  // it.only(testCase.testName, () => {
+  //   testSelection(testCase.testName, testCase.startPos, testCase.endPos);
+  // });
 
   for (const testCase of testCases) {
     it(testCase.testName, () => {
@@ -275,13 +281,17 @@ describe("Test ProseMirror selection HTML conversion", () => {
           TextSelection.create(editor._tiptapEditor.state.doc, 0, i)
         )
       );
-      const blockNoteSelection = editor.getSelection2();
-      const JSONString = JSON.stringify(blockNoteSelection);
-      ret += JSONString + "\n";
+      try {
+        const blockNoteSelection = editor.getSelectionWithMarkers();
+        const JSONString = JSON.stringify(blockNoteSelection);
+        ret += JSONString + "\n";
+      } catch (e) {
+        ret += e + "\n";
+      }
     }
 
     expect(ret).toMatchFileSnapshot(
-      `./__snapshots_selection_json__/move_end.txt`
+      `./__snapshots_selection_markers_json__/move_end.txt`
     );
   });
 
@@ -297,13 +307,17 @@ describe("Test ProseMirror selection HTML conversion", () => {
         )
       );
 
-      const blockNoteSelection = editor.getSelection2();
-      const JSONString = JSON.stringify(blockNoteSelection);
-      ret += JSONString + "\n";
+      try {
+        const blockNoteSelection = editor.getSelectionWithMarkers();
+        const JSONString = JSON.stringify(blockNoteSelection);
+        ret += JSONString + "\n";
+      } catch (e) {
+        ret += e + "\n";
+      }
     }
 
     expect(ret).toMatchFileSnapshot(
-      `./__snapshots_selection_json__/move_start.txt`
+      `./__snapshots_selection_markers_json__/move_start.txt`
     );
   });
 });

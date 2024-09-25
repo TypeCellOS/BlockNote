@@ -17,8 +17,10 @@ import type {
   Styles,
   TableContent,
 } from "../../schema";
-import { getBlockInfo } from "../getBlockInfoFromPos";
+import { getBlockInfo, getBlockInfoFromPos } from "../getBlockInfoFromPos";
 
+import { EditorState, Transaction } from "prosemirror-state";
+import { ReplaceAroundStep, ReplaceStep } from "prosemirror-transform";
 import type { Block, PartialBlock } from "../../blocks/defaultBlocks";
 import {
   isLinkInlineContent,
@@ -704,6 +706,77 @@ export type BlockWithSelectionInfo<
   contentCutAtStart: boolean;
   contentCutAtEnd: boolean;
 };
+
+export function selectionToInsertionEnd(tr: Transaction, startLen: number) {
+  const last = tr.steps.length - 1;
+
+  if (last < startLen) {
+    return;
+  }
+
+  const step = tr.steps[last];
+
+  if (!(step instanceof ReplaceStep || step instanceof ReplaceAroundStep)) {
+    return;
+  }
+
+  const map = tr.mapping.maps[last];
+  let end = 0;
+
+  map.forEach((_from, _to, _newFrom, newTo) => {
+    if (end === 0) {
+      end = newTo;
+    }
+  });
+
+  return end;
+}
+
+// TODO: fix this method (unit tests)
+export function withSelectionMarkers<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  state: EditorState,
+  from: number,
+  to: number,
+  blockSchema: BSchema,
+  inlineContentSchema: I,
+  styleSchema: S,
+  blockCache?: WeakMap<Node, Block<BSchema, I, S>>
+) {
+  let tr = state.tr.insertText("@$@", to);
+  let newEnd = selectionToInsertionEnd(tr, tr.steps.length - 1)!;
+
+  tr = tr.insertText("@$@", from);
+  const newStart = selectionToInsertionEnd(tr, tr.steps.length - 1)!;
+
+  newEnd = tr.mapping.maps[tr.mapping.maps.length - 1].map(newEnd);
+
+  if (!tr.docChanged) {
+    throw new Error("tr.docChanged is false");
+  }
+  // (maybe use mapping instead?)
+  // const diffStart = tr.doc.content.findDiffStart(state.doc.content);
+  // const diffEnd = tr.doc.content.findDiffEnd(state.doc.content);
+
+  // const newStart = diffStart!;
+  // const newEnd = diffEnd!.a;
+  console.log(newStart, newEnd);
+  const startNode = getBlockInfoFromPos(tr.doc, newStart);
+  const endNode = getBlockInfoFromPos(tr.doc, newEnd);
+
+  const slice = tr.doc.slice(startNode.startPos, endNode.endPos, true);
+
+  const bnSelection = sliceToBlockNote(
+    slice,
+    blockSchema,
+    inlineContentSchema,
+    styleSchema
+  );
+  return bnSelection;
+}
 
 export function sliceToBlockNote<
   BSchema extends BlockSchema,
