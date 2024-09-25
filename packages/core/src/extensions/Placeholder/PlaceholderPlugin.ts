@@ -94,6 +94,11 @@ export class PlaceholderPlugin {
 
           const $pos = selection.$anchor;
           const node = $pos.parent;
+
+          if ($pos.pos === 0) {
+            return;
+          }
+
           const before = $pos.before();
 
           const dec = Decoration.node(

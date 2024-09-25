@@ -1,0 +1,81 @@
+{
+  "blocks": [
+    {
+      "block": {
+        "id": "d3c74ea1-f512-42f8-a93a-829226fb7457",
+        "type": "heading",
+        "props": {
+          "textColor": "red",
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "level": 2
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Bold",
+            "styles": {
+              "bold": true
+            }
+          },
+          {
+            "type": "text",
+            "text": "Italic",
+            "styles": {
+              "italic": true
+            }
+          },
+          {
+            "type": "text",
+            "text": "Regular",
+            "styles": {}
+          }
+        ],
+        "children": [
+          {
+            "block": {
+              "id": "444f79f8-84f2-4443-9217-c200a625e903",
+              "type": "image",
+              "props": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "name": "",
+                "url": "https://ralfvanveen.com/wp-content/uploads/2021/06/Placeholder-_-Glossary.svg",
+                "caption": "",
+                "showPreview": true,
+                "previewWidth": 512
+              },
+              "children": [
+                {
+                  "block": {
+                    "id": "fd5adc68-6f0b-4579-a66c-eec16a9244a4",
+                    "type": "paragraph",
+                    "props": {
+                      "textColor": "default",
+                      "backgroundColor": "default",
+                      "textAlignment": "left"
+                    },
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Nested Paragraph",
+                        "styles": {}
+                      }
+                    ],
+                    "children": []
+                  },
+                  "contentCutAtStart": false,
+                  "contentCutAtEnd": false
+                }
+              ]
+            },
+            "contentCutAtStart": false,
+            "contentCutAtEnd": false
+          }
+        ]
+      },
+      "contentCutAtStart": false,
+      "contentCutAtEnd": false
+    }
+  ]
+}

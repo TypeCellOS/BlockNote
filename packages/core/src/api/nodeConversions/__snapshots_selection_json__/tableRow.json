@@ -1,0 +1,33 @@
+{
+  "blocks": [
+    {
+      "block": {
+        "id": "421a2b2d-953f-429a-928a-3b0d80c58e5f",
+        "type": "table",
+        "props": {
+          "textColor": "default",
+          "backgroundColor": "default"
+        },
+        "content": {
+          "type": "tableContent",
+          "rows": [
+            {
+              "cells": [
+                [
+                  {
+                    "type": "text",
+                    "text": "Table Cell",
+                    "styles": {}
+                  }
+                ]
+              ]
+            }
+          ]
+        },
+        "children": []
+      },
+      "contentCutAtStart": true,
+      "contentCutAtEnd": true
+    }
+  ]
+}

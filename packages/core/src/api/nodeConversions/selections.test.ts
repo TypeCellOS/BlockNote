@@ -1,88 +1,295 @@
-import { afterEach, beforeEach, describe, it } from "vitest";
-
+import { TextSelection } from "prosemirror-state";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 
-import { defaultSchemaTestCases } from "../testUtil/cases/defaultSchema";
-import { sliceToBlockNote } from "./nodeConversions";
+import { PartialBlock } from "../../blocks/defaultBlocks";
 
-describe("Test selection conversion", () => {
-  const testCase = defaultSchemaTestCases;
-  describe("Case: " + testCase.name, () => {
-    let editor: BlockNoteEditor<any, any, any>;
-    const div = document.createElement("div");
+// These tests are meant to test the copying of user selections in the editor.
+// The test cases used for the other HTML conversion tests are not suitable here
+// as they are represented in the BlockNote API, whereas here we want to test
+// ProseMirror/TipTap selections directly.
+describe("Test ProseMirror selection HTML conversion", () => {
+  const initialContent: PartialBlock[] = [
+    {
+      type: "heading",
+      props: {
+        level: 2,
+        textColor: "red",
+      },
+      content: "Heading 1",
+      children: [
+        {
+          type: "paragraph",
+          content: "Nested Paragraph 1",
+        },
+        {
+          type: "paragraph",
+          content: "Nested Paragraph 2",
+        },
+        {
+          type: "paragraph",
+          content: "Nested Paragraph 3",
+        },
+      ],
+    },
+    {
+      type: "heading",
+      props: {
+        level: 2,
+        textColor: "red",
+      },
+      content: "Heading 2",
+      children: [
+        {
+          type: "paragraph",
+          content: "Nested Paragraph 1",
+        },
+        {
+          type: "paragraph",
+          content: "Nested Paragraph 2",
+        },
+        {
+          type: "paragraph",
+          content: "Nested Paragraph 3",
+        },
+      ],
+    },
+    {
+      type: "heading",
+      props: {
+        level: 2,
+        textColor: "red",
+      },
+      content: [
+        {
+          type: "text",
+          text: "Bold",
+          styles: {
+            bold: true,
+          },
+        },
+        {
+          type: "text",
+          text: "Italic",
+          styles: {
+            italic: true,
+          },
+        },
+        {
+          type: "text",
+          text: "Regular",
+          styles: {},
+        },
+      ],
+      children: [
+        {
+          type: "image",
+          props: {
+            url: "https://ralfvanveen.com/wp-content/uploads/2021/06/Placeholder-_-Glossary.svg",
+          },
+          children: [
+            {
+              type: "paragraph",
+              content: "Nested Paragraph",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      type: "table",
+      content: {
+        type: "tableContent",
+        rows: [
+          {
+            cells: ["Table Cell", "Table Cell"],
+          },
+          {
+            cells: ["Table Cell", "Table Cell"],
+          },
+        ],
+      },
+      // Not needed as selections starting in table cells will get snapped to
+      // the table boundaries.
+      // children: [
+      //   {
+      //     type: "table",
+      //     content: {
+      //       type: "tableContent",
+      //       rows: [
+      //         {
+      //           cells: ["Table Cell", "Table Cell"],
+      //         },
+      //         {
+      //           cells: ["Table Cell", "Table Cell"],
+      //         },
+      //       ],
+      //     },
+      //   },
+      // ],
+    },
+  ];
 
-    beforeEach(() => {
-      editor = testCase.createEditor();
-      // Note that we don't necessarily need to mount a root
-      // Currently, we do mount to a root so that it reflects the "production" use-case more closely.
+  let editor: BlockNoteEditor;
 
-      // However, it would be nice to increased converage and share the same set of tests for these cases:
-      // - does render to a root
-      // - does not render to a root
-      // - runs in server (jsdom) environment using server-util
-      editor.mount(div);
+  const div = document.createElement("div");
+
+  beforeAll(async () => {
+    editor = BlockNoteEditor.create({ initialContent });
+    editor.mount(div);
+  });
+
+  afterAll(() => {
+    editor.mount(undefined);
+    editor._tiptapEditor.destroy();
+    editor = undefined as any;
+
+    delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
+  });
+
+  // Sets the editor selection to the given start and end positions, then
+  // exports the selected content to HTML and compares it to a snapshot.
+  function testSelection(testName: string, startPos: number, endPos: number) {
+    editor.dispatch(
+      editor._tiptapEditor.state.tr.setSelection(
+        TextSelection.create(editor._tiptapEditor.state.doc, startPos, endPos)
+      )
+    );
+
+    // const slice = editor._tiptapEditor.state.selection.content();
+
+    const blockNoteSelection = editor.getSelection2();
+
+    expect(
+      JSON.stringify(blockNoteSelection, undefined, 2)
+    ).toMatchFileSnapshot(`./__snapshots_selection_json__/${testName}.json`);
+  }
+
+  const testCases: { testName: string; startPos: number; endPos: number }[] = [
+    // Selection spans all of first heading's children.
+    {
+      testName: "multipleChildren",
+      startPos: 16,
+      endPos: 78,
+    },
+    // Selection spans from start of first heading to end of its first child.
+    {
+      testName: "childToParent",
+      startPos: 3,
+      endPos: 34,
+    },
+    // Selection spans from start of first heading's first child to end of
+    // second heading's content (does not include second heading's children).
+    {
+      testName: "childrenToNextParent",
+      startPos: 16,
+      endPos: 93,
+    },
+    // Selection spans from start of first heading's first child to end of
+    // second heading's last child.
+    {
+      testName: "childrenToNextParentsChildren",
+      startPos: 16,
+      endPos: 159,
+    },
+    // Selection spans "Regular" text inside third heading.
+    {
+      testName: "unstyledText",
+      startPos: 175,
+      endPos: 182,
+    },
+    // Selection spans "Italic" text inside third heading.
+    {
+      testName: "styledText",
+      startPos: 169,
+      endPos: 175,
+    },
+    // Selection spans third heading's content (does not include third heading's
+    // children).
+    {
+      testName: "multipleStyledText",
+      startPos: 165,
+      endPos: 182,
+    },
+    // Selection spans from start of third heading to end of it's last
+    // descendant.
+    {
+      testName: "nestedImage",
+      startPos: 165,
+      endPos: 205,
+    },
+    // Selection spans text in first cell of the table.
+    {
+      testName: "tableCellText",
+      startPos: 216,
+      endPos: 226,
+    },
+    // Selection spans first cell of the table.
+    {
+      testName: "tableCell",
+      startPos: 215,
+      endPos: 227,
+    },
+    // Selection spans first row of the table.
+    {
+      testName: "tableRow",
+      startPos: 229,
+      endPos: 241,
+    },
+    // Selection spans all cells of the table.
+    {
+      testName: "tableAllCells",
+      startPos: 259,
+      endPos: 271,
+    },
+  ];
+
+  for (const testCase of testCases) {
+    it(testCase.testName, () => {
+      testSelection(testCase.testName, testCase.startPos, testCase.endPos);
     });
+  }
 
-    afterEach(() => {
-      editor.mount(undefined);
-      editor._tiptapEditor.destroy();
-      editor = undefined as any;
+  it("move end", () => {
+    const size = editor._tiptapEditor.state.doc.content.size;
 
-      delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
-    });
+    let ret = "";
 
-    // eslint-disable-next-line no-loop-func
-    it("selection test within block and nested block", () => {
-      const document = testCase.documents.find(
-        (doc) => doc.name === "complex/misc"
-      )!;
-
-      editor.replaceBlocks(editor.document, document.blocks);
-
-      const start = editor._tiptapEditor.$node("heading")!.pos + 3;
-      const end = editor._tiptapEditor.$node("paragraph")!.after!.pos - 10;
-      const slice = editor._tiptapEditor.state.doc.slice(start, end, true);
-
-      console.log(JSON.stringify(slice.toJSON()));
-      console.log(
-        JSON.stringify(
-          sliceToBlockNote(
-            slice,
-            editor.schema.blockSchema,
-            editor.schema.inlineContentSchema,
-            editor.schema.styleSchema
-          ),
-          undefined,
-          2
+    for (let i = 0; i < size; i++) {
+      editor.dispatch(
+        editor._tiptapEditor.state.tr.setSelection(
+          TextSelection.create(editor._tiptapEditor.state.doc, 0, i)
         )
       );
-    });
+      const blockNoteSelection = editor.getSelection2();
+      const JSONString = JSON.stringify(blockNoteSelection);
+      ret += JSONString + "\n";
+    }
 
-    it("selection test across list blocks", () => {
-      const document = testCase.documents.find(
-        (doc) => doc.name === "lists/basic"
-      )!;
+    expect(ret).toMatchFileSnapshot(
+      `./__snapshots_selection_json__/move_end.txt`
+    );
+  });
 
-      editor.replaceBlocks(editor.document, document.blocks);
+  it.only("move start", () => {
+    const size = editor._tiptapEditor.state.doc.content.size;
 
-      const start = editor._tiptapEditor.$node("bulletListItem")!.pos + 3;
-      const end =
-        editor._tiptapEditor.$node("numberedListItem")!.after!.pos - 10;
-      const slice = editor._tiptapEditor.state.doc.slice(start, end, true);
-      // console.log(JSON.stringify(slice.toJSON()));
+    let ret = "";
 
-      console.log(
-        JSON.stringify(
-          sliceToBlockNote(
-            slice,
-            editor.schema.blockSchema,
-            editor.schema.inlineContentSchema,
-            editor.schema.styleSchema
-          ),
-          undefined,
-          2
+    for (let i = 0; i < size; i++) {
+      editor.dispatch(
+        editor._tiptapEditor.state.tr.setSelection(
+          TextSelection.create(editor._tiptapEditor.state.doc, i, size - 1)
         )
       );
-    });
+
+      const blockNoteSelection = editor.getSelection2();
+      const JSONString = JSON.stringify(blockNoteSelection);
+      ret += JSONString + "\n";
+    }
+
+    expect(ret).toMatchFileSnapshot(
+      `./__snapshots_selection_json__/move_start.txt`
+    );
   });
 });

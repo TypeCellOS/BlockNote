@@ -1,0 +1,48 @@
+{
+  "blocks": [
+    {
+      "block": {
+        "id": "e7027692-de5b-43c9-a367-bceac96ff406",
+        "type": "heading",
+        "props": {
+          "textColor": "red",
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "level": 2
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Heading 1",
+            "styles": {}
+          }
+        ],
+        "children": [
+          {
+            "block": {
+              "id": "dcf9b359-261e-46cb-b5b8-d64a2b8968ef",
+              "type": "paragraph",
+              "props": {
+                "textColor": "default",
+                "backgroundColor": "default",
+                "textAlignment": "left"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Nested Paragraph 1",
+                  "styles": {}
+                }
+              ],
+              "children": []
+            },
+            "contentCutAtStart": false,
+            "contentCutAtEnd": false
+          }
+        ]
+      },
+      "contentCutAtStart": false,
+      "contentCutAtEnd": false
+    }
+  ]
+}

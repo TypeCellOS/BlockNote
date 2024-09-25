@@ -283,11 +283,13 @@ function contentNodeToTableContent<
 
     rowNode.content.forEach((cellNode) => {
       row.cells.push(
-        contentNodeToInlineContent(
-          cellNode.firstChild!,
-          inlineContentSchema,
-          styleSchema
-        )
+        cellNode.firstChild
+          ? contentNodeToInlineContent(
+              cellNode.firstChild,
+              inlineContentSchema,
+              styleSchema
+            )
+          : []
       );
     });
 
@@ -716,6 +718,7 @@ export function sliceToBlockNote<
 ): {
   blocks: BlockWithSelectionInfo<BSchema, I, S>[];
 } {
+  // console.log(JSON.stringify(slice.toJSON()));
   function processNode(
     node: Node,
     openStart: number,
@@ -724,12 +727,44 @@ export function sliceToBlockNote<
     if (node.type.name !== "blockGroup") {
       throw new Error("unexpected");
     }
-    const children: BlockWithSelectionInfo<BSchema, I, S>[] = [];
+    const blocks: BlockWithSelectionInfo<BSchema, I, S>[] = [];
 
     node.forEach((blockContainer, _offset, index) => {
       if (blockContainer.type.name !== "blockContainer") {
         throw new Error("unexpected");
       }
+      if (blockContainer.childCount === 0) {
+        return;
+      }
+      if (blockContainer.childCount === 0 || blockContainer.childCount > 2) {
+        throw new Error(
+          "unexpected, blockContainer.childCount: " + blockContainer.childCount
+        );
+      }
+
+      const isFirstBlock = index === 0;
+      const isLastBlock = index === node.childCount - 1;
+
+      if (blockContainer.firstChild!.type.name === "blockGroup") {
+        // this is the parent where a selection starts within one of its children,
+        // e.g.:
+        // A
+        // ├── B
+        // selection starts within B, then this blockContainer is A, but we don't care about A
+        // so let's descend into B and continue processing
+        if (!isFirstBlock) {
+          throw new Error("unexpected");
+        }
+        blocks.push(
+          ...processNode(
+            blockContainer.firstChild!,
+            Math.max(0, openStart - 1),
+            isLastBlock ? Math.max(0, openEnd - 1) : 0
+          )
+        );
+        return;
+      }
+
       const block = nodeToBlock(
         blockContainer,
         blockSchema,
@@ -740,9 +775,6 @@ export function sliceToBlockNote<
       const childGroup =
         blockContainer.childCount > 1 ? blockContainer.child(1) : undefined;
 
-      const isFirstBlock = index === 0;
-      const isLastBlock = index === node.childCount - 1;
-
       let childBlocks: BlockWithSelectionInfo<BSchema, I, S>[] = [];
       if (childGroup) {
         childBlocks = processNode(
@@ -752,7 +784,7 @@ export function sliceToBlockNote<
         );
       }
 
-      children.push({
+      blocks.push({
         block: {
           ...(block as any),
           children: childBlocks,
@@ -762,10 +794,16 @@ export function sliceToBlockNote<
       });
     });
 
-    return children;
+    return blocks;
   }
 
-  if (slice.content.childCount > 1) {
+  if (slice.content.childCount === 0) {
+    return {
+      blocks: [],
+    };
+  }
+
+  if (slice.content.childCount !== 1) {
     throw new Error(
       "slice must be a single block, did you forget includeParents=true?"
     );
@@ -774,8 +812,8 @@ export function sliceToBlockNote<
   return {
     blocks: processNode(
       slice.content.firstChild!,
-      slice.openStart,
-      slice.openEnd
+      Math.max(slice.openStart - 1, 0),
+      Math.max(slice.openEnd - 1, 0)
     ),
   };
 }
