@@ -12,6 +12,7 @@ export function useSuggestionMenuKeyboardHandler<Item>(
     selectedIndex,
     setSelectedIndex,
     handler: (event: KeyboardEvent | React.KeyboardEvent) => {
+      console.log("event", event);
       if (event.key === "ArrowUp") {
         event.preventDefault();
 

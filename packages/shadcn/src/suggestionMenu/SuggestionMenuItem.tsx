@@ -24,7 +24,7 @@ export const SuggestionMenuItem = forwardRef<
 
     const overflow = elementOverflow(
       itemRef.current,
-      document.querySelector(".bn-suggestion-menu")!
+      document.querySelector(".bn-suggestion-menu, #ai-suggestion-menu")! // TODO
     );
     if (overflow === "top") {
       itemRef.current.scrollIntoView(true);
