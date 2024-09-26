@@ -2,7 +2,7 @@ import { useUIElementPositioning } from "@blocknote/react";
 import { OpenChangeReason, flip, offset, size } from "@floating-ui/react";
 import { useMemo } from "react";
 
-// const { aiMenuBlockID } = useBlockNoteAIContext()!;
+// The block positioner automattically positions it's children below the block with `blockID`
 export const BlockPositioner = (props: {
   blockID?: string;
   children: React.ReactNode;
