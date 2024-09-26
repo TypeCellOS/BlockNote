@@ -4,13 +4,13 @@ export * from "./blocks/AIBlockContent/AIBlockContent";
 export * from "./blocks/AIBlockContent/mockAIFunctions";
 export * from "./extensions/AIBlockToolbar/AIBlockToolbarPlugin";
 export * from "./extensions/AIInlineToolbar/AIInlineToolbarPlugin";
-export * from "./extensions/AIMenu/AIMenuPlugin";
 
 export * from "./components/AIBlockToolbar/AIBlockToolbar";
 export * from "./components/AIBlockToolbar/AIBlockToolbarController";
 export * from "./components/AIBlockToolbar/AIBlockToolbarProps";
 export * from "./components/AIBlockToolbar/DefaultButtons/ShowPromptButton";
 export * from "./components/AIBlockToolbar/DefaultButtons/UpdateButton";
+export * from "./components/BlockNoteAIContext";
 
 export * from "./components/AIInlineToolbar/AIInlineToolbar";
 export * from "./components/AIInlineToolbar/AIInlineToolbarController";

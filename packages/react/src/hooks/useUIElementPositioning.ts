@@ -4,12 +4,18 @@ import {
   UseFloatingOptions,
   useInteractions,
   useTransitionStyles,
+  VirtualElement,
 } from "@floating-ui/react";
 import { useEffect, useMemo } from "react";
 
+type ReferencePos = DOMRect | HTMLElement | VirtualElement | null;
+function isVirtualElement(element: ReferencePos): element is VirtualElement {
+  return (element as VirtualElement).getBoundingClientRect !== undefined;
+}
+
 export function useUIElementPositioning(
   show: boolean,
-  referencePos: DOMRect | null,
+  referencePos: DOMRect | HTMLElement | VirtualElement | null,
   zIndex: number,
   options?: Partial<UseFloatingOptions>
 ) {
@@ -36,9 +42,15 @@ export function useUIElementPositioning(
       return;
     }
 
-    refs.setReference({
-      getBoundingClientRect: () => referencePos,
-    });
+    if (referencePos instanceof HTMLElement) {
+      refs.setReference(referencePos);
+    } else if (isVirtualElement(referencePos)) {
+      refs.setReference(referencePos);
+    } else {
+      refs.setReference({
+        getBoundingClientRect: () => referencePos,
+      });
+    }
   }, [referencePos, refs]);
 
   return useMemo(

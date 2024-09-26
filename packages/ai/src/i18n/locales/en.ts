@@ -31,17 +31,51 @@ export const en = {
     //     "custom prompt",
     //   ],
     // },
+    continue_writing: {
+      title: "Continue Writing",
+      aliases: undefined,
+    },
+    summarize: {
+      title: "Summarize",
+      aliases: undefined,
+    },
+    add_action_items: {
+      title: "Add Action Items",
+      aliases: undefined,
+    },
+    write_anything: {
+      title: "Write Anything…",
+      aliases: undefined,
+      prompt_placeholder: "Write about ",
+    },
     make_longer: {
       title: "Make Longer",
-      aliases: ["make longer"],
+      aliases: undefined,
     },
     make_shorter: {
       title: "Make Shorter",
-      aliases: ["make shorter"],
+      aliases: undefined,
     },
     rewrite: {
       title: "Rewrite",
-      aliases: ["rewrite"],
+      aliases: undefined,
+    },
+    simplify: {
+      title: "Simplify",
+      aliases: undefined,
+    },
+    translate: {
+      title: "Translate…",
+      aliases: undefined,
+      prompt_placeholder: "Translate into ",
+    },
+    fix_spelling: {
+      title: "Fix Spelling",
+      aliases: undefined,
+    },
+    improve_writing: {
+      title: "Improve Writing",
+      aliases: undefined,
     },
   },
   ai_block_toolbar: {

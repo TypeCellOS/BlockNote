@@ -3,14 +3,15 @@ import {
   ComponentType,
   createContext,
   CSSProperties,
+  HTMLInputAutoCompleteAttribute,
   KeyboardEvent,
   MouseEvent,
   ReactNode,
   useContext,
 } from "react";
 
-import { DefaultReactSuggestionItem } from "../components/SuggestionMenu/types";
 import { DefaultReactGridSuggestionItem } from "../components/SuggestionMenu/GridSuggestionMenu/types";
+import { DefaultReactSuggestionItem } from "../components/SuggestionMenu/types";
 
 export type ComponentProps = {
   Toolbar: {
@@ -114,7 +115,7 @@ export type ComponentProps = {
       id: string;
       isSelected: boolean;
       onClick: () => void;
-      item: DefaultReactSuggestionItem;
+      item: Omit<DefaultReactSuggestionItem, "onItemClick">;
     };
     Label: {
       className?: string;
@@ -183,6 +184,7 @@ export type ComponentProps = {
         onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
         onChange: (event: ChangeEvent<HTMLInputElement>) => void;
         onSubmit?: () => void;
+        autoComplete?: HTMLInputAutoCompleteAttribute;
       };
     };
     Menu: {

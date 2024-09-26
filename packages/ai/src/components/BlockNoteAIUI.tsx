@@ -1,7 +1,10 @@
 import { useBlockNoteEditor } from "@blocknote/react";
 import { AIBlockToolbarController } from "./AIBlockToolbar/AIBlockToolbarController";
 import { AIInlineToolbarController } from "./AIInlineToolbar/AIInlineToolbarController";
-import { AIMenuController } from "./AIMenu/AIMenuController";
+
+import { AIMenu } from "./AIMenu/AIMenu";
+import { BlockPositioner } from "./AIMenu/BlockPositioner";
+import { useBlockNoteAIContext } from "./BlockNoteAIContext";
 
 export type BlockNoteAIUIProps = {
   aiBlockToolbar?: boolean;
@@ -28,3 +31,21 @@ export function BlockNoteAIUI(props: BlockNoteAIUIProps) {
     </>
   );
 }
+
+const AIMenuController = () => {
+  const editor = useBlockNoteEditor();
+  const ctx = useBlockNoteAIContext();
+
+  return (
+    <BlockPositioner
+      blockID={ctx.aiMenuBlockID}
+      onOpenChange={(open) => {
+        if (!open && ctx.aiMenuBlockID) {
+          ctx.setAiMenuBlockID(undefined);
+          editor.focus();
+        }
+      }}>
+      <AIMenu key={ctx.aiMenuBlockID} />
+    </BlockPositioner>
+  );
+};

@@ -19,6 +19,7 @@ export const TextInput = forwardRef<
     onKeyDown,
     onChange,
     onSubmit,
+    autoComplete,
     ...rest
   } = props;
 
@@ -37,6 +38,7 @@ export const TextInput = forwardRef<
         onKeyDown={onKeyDown}
         onChange={onChange}
         onSubmit={onSubmit}
+        autoComplete={autoComplete}
         ref={ref}
       />
     );

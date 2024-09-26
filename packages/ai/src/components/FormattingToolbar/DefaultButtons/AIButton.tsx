@@ -4,14 +4,14 @@ import { RiSparkling2Fill } from "react-icons/ri";
 
 import { useBlockNoteEditor } from "@blocknote/react";
 
-import { AIMenuProsemirrorPlugin } from "../../../extensions/AIMenu/AIMenuPlugin";
 import { useAIDictionary } from "../../../i18n/useAIDictionary";
+import { useBlockNoteAIContext } from "../../BlockNoteAIContext";
 
 // TODO: name?
 export const AIButton = () => {
   const dict = useAIDictionary();
   const Components = useComponentsContext()!;
-
+  const ctx = useBlockNoteAIContext();
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -20,7 +20,8 @@ export const AIButton = () => {
 
   const onClick = () => {
     editor.formattingToolbar.closeMenu();
-    (editor.extensions.aiMenu as AIMenuProsemirrorPlugin).open();
+    const position = editor.getTextCursorPosition().block;
+    ctx.setAiMenuBlockID(position.id);
   };
 
   if (!editor.isEditable) {

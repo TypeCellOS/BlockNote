@@ -3,15 +3,17 @@ import {
   AIBlockToolbarProsemirrorPlugin,
   AIButton,
   AIInlineToolbarProsemirrorPlugin,
-  AIMenuProsemirrorPlugin,
+  BlockNoteAIContextProvider,
   BlockNoteAIUI,
   aiBlockTypeSelectItems,
   en as aiEN,
   getAISlashMenuItems,
+  useBlockNoteAIContext,
 } from "@blocknote/ai";
 
 import "@blocknote/ai/style.css";
 import {
+  BlockNoteEditor,
   BlockNoteSchema,
   defaultBlockSpecs,
   en,
@@ -48,38 +50,46 @@ export default function App() {
       // TODO: things will break when user provides different keys. Define name on plugins instead?
       aiBlockToolbar: new AIBlockToolbarProsemirrorPlugin(),
       aiInlineToolbar: new AIInlineToolbarProsemirrorPlugin(),
-      aiMenu: new AIMenuProsemirrorPlugin(),
     },
   });
 
   // Renders the editor instance using a React component.
   return (
     <BlockNoteView editor={editor} formattingToolbar={false} slashMenu={false}>
-      <BlockNoteAIUI />
-      <FormattingToolbarController
-        formattingToolbar={() => (
-          <FormattingToolbar>
-            {...getFormattingToolbarItems([
-              ...blockTypeSelectItems(editor.dictionary),
-              ...aiBlockTypeSelectItems(aiEN),
-            ])}
-            <AIButton />
-          </FormattingToolbar>
-        )}
-      />
-      <SuggestionMenuController
-        triggerCharacter="/"
-        getItems={async (query) =>
-          filterSuggestionItems(
-            [
-              ...getDefaultReactSlashMenuItems(editor),
-              ...getAISlashMenuItems(editor as any), // TODO
-            ],
-            query
-          )
-        }
-      />
+      <BlockNoteAIContextProvider>
+        <BlockNoteAIUI />
+        <FormattingToolbarController
+          formattingToolbar={() => (
+            <FormattingToolbar>
+              {...getFormattingToolbarItems([
+                ...blockTypeSelectItems(editor.dictionary),
+                ...aiBlockTypeSelectItems(aiEN),
+              ])}
+              <AIButton />
+            </FormattingToolbar>
+          )}
+        />
+        <SuggestionMenu editor={editor} />
+      </BlockNoteAIContextProvider>
       {/* TODO: Side Menu customization */}
     </BlockNoteView>
+  );
+}
+
+function SuggestionMenu(props: { editor: BlockNoteEditor<any, any, any> }) {
+  const ctx = useBlockNoteAIContext();
+  return (
+    <SuggestionMenuController
+      triggerCharacter="/"
+      getItems={async (query) =>
+        filterSuggestionItems(
+          [
+            ...getDefaultReactSlashMenuItems(props.editor),
+            ...getAISlashMenuItems(props.editor as any, ctx), // TODO
+          ],
+          query
+        )
+      }
+    />
   );
 }
