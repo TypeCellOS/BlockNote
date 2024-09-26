@@ -344,7 +344,7 @@ export class BlockNoteEditor<
     this.inlineContentImplementations = newOptions.schema.inlineContentSpecs;
     this.styleImplementations = newOptions.schema.styleSpecs;
 
-    this.formattingToolbar = new FormattingToolbarProsemirrorPlugin(this);
+    this.formattingToolbar = new FormattingToolbarProsemirrorPlugin();
     this.linkToolbar = new LinkToolbarProsemirrorPlugin(this);
     this.sideMenu = new SideMenuProsemirrorPlugin(this);
     this.suggestionMenus = new SuggestionMenuProseMirrorPlugin(this);
