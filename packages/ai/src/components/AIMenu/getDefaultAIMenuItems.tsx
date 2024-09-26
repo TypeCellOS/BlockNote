@@ -14,6 +14,8 @@ import {
   RiText,
   RiTextWrap,
 } from "react-icons/ri";
+import { callLLMStreaming } from "../../api/api";
+import { addFunction } from "../../api/functions/add";
 import { getAIDictionary } from "../../i18n/dictionary";
 
 export type AIMenuSuggestionItem = Omit<
@@ -40,7 +42,11 @@ export function getDefaultAIMenuItems<
         aliases: dict.ai_menu.continue_writing.aliases,
         icon: <RiBallPenLine size={18} />,
         onItemClick: () => {
-          console.log("MAKE SHORTER");
+          callLLMStreaming(editor, {
+            prompt: "Continue writing",
+            // By default, LLM will be able to add / update / delete blocks. For "continue writing", we only want to allow adding new blocks.
+            functions: [addFunction],
+          });
         },
       },
 

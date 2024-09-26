@@ -17,9 +17,9 @@ const schema = {
     },
     blocks: {
       items: {
-        // $ref: "#/definitions/newblock",
-        type: "object",
-        properties: {},
+        $ref: "#/$defs/block",
+        // type: "object",
+        // properties: {},
       },
       type: "array",
     },
@@ -27,9 +27,37 @@ const schema = {
   required: ["referenceId", "position", "blocks"],
 } as const;
 
-function applyOperation(operation: any, editor: BlockNoteEditor) {
-  const id = operation.referenceId.slice(0, -1);
-  editor.insertBlocks(operation.blocks, id, operation.position);
+// TODO: document
+function applyOperation(
+  operation: any,
+  editor: BlockNoteEditor,
+  operationContext: any
+) {
+  const referenceId = operation.referenceId.slice(0, -1);
+
+  const idsAdded = operationContext || [];
+  const toUpdate = operation.blocks.slice(0, idsAdded.length);
+
+  for (let i = 0; i < toUpdate.length; i++) {
+    editor.updateBlock(idsAdded[i], toUpdate[i]);
+  }
+
+  const toAdd = operation.blocks.slice(idsAdded.length);
+  if (toAdd.length > 0) {
+    if (toUpdate.length === 0) {
+      const ret = editor.insertBlocks(toAdd, referenceId, operation.position);
+      return [...ret.map((block) => block.id)];
+    }
+
+    // insert after the last inserted block part of this operation
+    const ret = editor.insertBlocks(
+      toAdd,
+      idsAdded[idsAdded.length - 1],
+      "after"
+    );
+    return [...idsAdded, ...ret.map((block) => block.id)];
+  }
+  return idsAdded;
 }
 
 function validateOperation(operation: any, editor: BlockNoteEditor) {
@@ -49,6 +77,10 @@ function validateOperation(operation: any, editor: BlockNoteEditor) {
   const block = editor.getBlock(id);
 
   if (!block) {
+    return false;
+  }
+
+  if (!operation.blocks || operation.blocks.length === 0) {
     return false;
   }
 

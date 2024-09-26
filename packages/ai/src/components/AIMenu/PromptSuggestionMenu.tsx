@@ -33,6 +33,7 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
   const handleEnter = useCallback(
     async (event: KeyboardEvent) => {
       if (event.key === "Enter") {
+        // console.log("ENTER", currentEditingPrompt);
         onManualPromptSubmit(currentEditingPrompt);
       }
     },

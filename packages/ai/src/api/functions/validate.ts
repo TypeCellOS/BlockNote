@@ -44,7 +44,7 @@ export function validateBlockFunction(
       return false;
     }
   } else {
-    if (!block.content) {
+    if (!block.content || !Array.isArray(block.content)) {
       // content expected for this block
       return false;
     }

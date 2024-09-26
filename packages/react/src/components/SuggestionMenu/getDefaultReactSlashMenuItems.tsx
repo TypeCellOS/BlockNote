@@ -7,11 +7,11 @@ import {
 } from "@blocknote/core";
 import {
   RiEmotionFill,
+  RiFile2Line,
+  RiFilmLine,
   RiH1,
   RiH2,
   RiH3,
-  RiFile2Line,
-  RiFilmLine,
   RiImage2Fill,
   RiListCheck3,
   RiListOrdered,
@@ -21,8 +21,8 @@ import {
   RiVolumeUpFill,
 } from "react-icons/ri";
 
-import { DefaultReactSuggestionItem } from "./types";
 import { IconType } from "react-icons";
+import { DefaultReactSuggestionItem } from "./types";
 
 const icons: Record<string, IconType> = {
   heading: RiH1,

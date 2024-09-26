@@ -1,5 +1,6 @@
 import { useBlockNoteEditor } from "@blocknote/react";
 import { useCallback, useMemo } from "react";
+import { callLLMStreaming } from "../../api/api";
 import { useAIDictionary } from "../../i18n/useAIDictionary";
 import { PromptSuggestionMenu } from "./PromptSuggestionMenu";
 import {
@@ -22,7 +23,9 @@ export const AIMenu = (props: {
   }, [props.items, editor]);
 
   const onManualPromptSubmitDefault = useCallback((prompt: string) => {
-    // TODO
+    callLLMStreaming(editor, {
+      prompt,
+    });
   }, []);
 
   return (

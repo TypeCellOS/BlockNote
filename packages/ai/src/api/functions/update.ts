@@ -10,15 +10,19 @@ const schema = {
       description: "id of block to update",
     },
     block: {
-      // $ref: "#/definitions/newblock",
-      type: "object",
-      properties: {},
+      $ref: "#/$defs/block",
+      // type: "object",
+      // properties: {},
     },
   },
   required: ["id", "block"],
 };
 
-function applyOperation(operation: any, editor: BlockNoteEditor) {
+function applyOperation(
+  operation: any,
+  editor: BlockNoteEditor,
+  operationContext: any
+) {
   const id = operation.id.slice(0, -1);
   editor.updateBlock(id, operation.block);
 }
@@ -32,16 +36,19 @@ function validateOperation(operation: any, editor: BlockNoteEditor) {
     return false;
   }
 
+  if (!operation.block) {
+    return false;
+  }
+
   const id = operation.id.slice(0, -1);
   const block = editor.getBlock(id);
 
   if (!block) {
+    console.log("BLOCK NOT FOUND", id);
     return false;
   }
 
-  const type = operation.block.type || block.type;
-
-  return validateBlockFunction(operation.block, editor, type);
+  return validateBlockFunction(operation.block, editor, block.type);
 }
 
 export const updateFunction = {

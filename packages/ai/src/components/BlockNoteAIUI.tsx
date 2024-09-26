@@ -43,6 +43,7 @@ const AIMenuController = () => {
         if (!open && ctx.aiMenuBlockID) {
           ctx.setAiMenuBlockID(undefined);
           editor.focus();
+          // TODO: doesn't work with esc?
         }
       }}>
       <AIMenu key={ctx.aiMenuBlockID} />

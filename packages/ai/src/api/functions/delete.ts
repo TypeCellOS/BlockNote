@@ -12,7 +12,11 @@ const schema = {
   required: ["id"],
 };
 
-function applyOperation(operation: any, editor: BlockNoteEditor) {
+function applyOperation(
+  operation: any,
+  editor: BlockNoteEditor,
+  operationContext: any
+) {
   const id: string = operation.id.slice(0, -1);
   editor.removeBlocks([id]);
 }

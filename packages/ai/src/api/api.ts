@@ -12,6 +12,7 @@ import { addFunction } from "./functions/add";
 import { deleteFunction } from "./functions/delete";
 import { updateFunction } from "./functions/update";
 import { createOperationsArraySchema } from "./schema/operations";
+import { blockNoteSchemaToJSONSchema } from "./schema/schemaToJSONSchema";
 
 export function createMessagesForLLM(opts: {
   prompt: string;
@@ -43,12 +44,36 @@ export function suffixIDs<
   }));
 }
 
-export async function callLLM(
-  editor: BlockNoteEditor<any, any, any>,
-  prompt: string
-) {
-  const functions = [updateFunction, addFunction, deleteFunction];
+type CallLLMOptions = {
+  functions?: AIFunction[];
+} & (
+  | {
+      prompt: string;
+    }
+  | {
+      messages: Array<CoreMessage>;
+    }
+);
 
+export async function callLLMStreaming(
+  editor: BlockNoteEditor<any, any, any>,
+  options: CallLLMOptions & {
+    _streamObjectOptions?: Partial<Parameters<typeof streamObject<any>>[0]>;
+  }
+) {
+  const withDefaults: Required<
+    Omit<CallLLMOptions, "prompt"> & { messages: CoreMessage[] }
+  > = {
+    functions: [updateFunction, addFunction, deleteFunction],
+    messages:
+      (options as any).messages ||
+      createMessagesForLLM({
+        prompt: (options as any).prompt,
+        document: editor.document,
+      }),
+    ...options,
+  };
+  // options.streamObjectOptions!.
   const model = createOpenAI({
     apiKey: "",
   })("gpt-4o-2024-08-06", {});
@@ -56,22 +81,28 @@ export async function callLLM(
   const ret = await streamObject<any>({
     model,
     mode: "tool",
-    schema: jsonSchema(createOperationsArraySchema(functions)),
-    messages: createMessagesForLLM({ prompt, document: editor.document }),
+    schema: jsonSchema({
+      ...createOperationsArraySchema(withDefaults.functions),
+      $defs: blockNoteSchemaToJSONSchema(editor.schema).$defs as any,
+    }),
+    messages: withDefaults.messages,
+    ...(options._streamObjectOptions as any),
   });
-  await applyLLMResponse(editor, ret, functions);
+  await applyLLMResponse(editor, ret, withDefaults.functions);
 }
 
 export function applyAIOperation(
-  editor: BlockNoteEditor,
   operation: any,
-  functions: AIFunction[]
+  editor: BlockNoteEditor,
+  functions: AIFunction[],
+  operationContext: any
 ) {
   const func = functions.find((func) => func.schema.name === operation.type);
   if (!func || !func.validate(operation, editor)) {
-    return;
+    console.log("INVALID OPERATION", operation);
+    return operationContext;
   }
-  func.apply(operation, editor);
+  return func.apply(operation, editor, operationContext);
 }
 
 export async function applyLLMResponse(
@@ -80,12 +111,20 @@ export async function applyLLMResponse(
   functions: AIFunction[]
 ) {
   let numOperationsAppliedCompletely = 0;
+  let operationContext: any = undefined;
 
   for await (const partialObject of response.partialObjectStream) {
     const operations: [] = partialObject.operations || [];
-
+    console.log(operations);
+    let isFirst = true;
     for (const operation of operations.slice(numOperationsAppliedCompletely)) {
-      applyAIOperation(operation, editor, functions);
+      operationContext = applyAIOperation(
+        operation,
+        editor,
+        functions,
+        isFirst ? operationContext : undefined
+      );
+      isFirst = false;
     }
     numOperationsAppliedCompletely = operations.length - 1;
   }
