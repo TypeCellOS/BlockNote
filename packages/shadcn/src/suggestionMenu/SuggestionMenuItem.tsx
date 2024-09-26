@@ -38,6 +38,7 @@ export const SuggestionMenuItem = forwardRef<
       // Styles from ShadCN DropdownMenuItem component
       className={cn(
         "bn-relative bn-flex bn-cursor-pointer bn-select-none bn-items-center bn-rounded-sm bn-px-2 bn-py-1.5 bn-text-sm bn-outline-none bn-transition-colors focus:bn-bg-accent focus:bn-text-accent-foreground data-[disabled]:bn-pointer-events-none data-[disabled]:bn-opacity-50",
+        props.item.size === "small" ? "bn-gap-3 bn-py-1" : "",
         className
       )}
       ref={mergeRefs([ref, itemRef])}
@@ -47,13 +48,33 @@ export const SuggestionMenuItem = forwardRef<
       role="option"
       aria-selected={isSelected || undefined}>
       {item.icon && (
-        <div className="bn-p-3" data-position="left">
+        <div
+          className={cn(
+            "bn-p-3",
+            props.item.size === "small" ? "bn-p-0" : "",
+            className
+          )}
+          data-position="left">
           {item.icon}
         </div>
       )}
       <div className="bn-flex-1">
-        <div className="bn-text-base">{item.title}</div>
-        <div className="bn-text-xs">{item.subtext}</div>
+        <div
+          className={cn(
+            "bn-text-base",
+            props.item.size === "small" ? "bn-text-sm" : "",
+            className
+          )}>
+          {item.title}
+        </div>
+        <div
+          className={cn(
+            "bn-text-xs",
+            props.item.size === "small" ? "bn-hidden" : "",
+            className
+          )}>
+          {item.subtext}
+        </div>
       </div>
       {item.badge && (
         <div data-position="right" className="bn-text-xs">

@@ -42,6 +42,7 @@ export function getDefaultAIMenuItems<
         onItemClick: () => {
           console.log("MAKE SHORTER");
         },
+        size: "small",
       },
 
       {
@@ -52,6 +53,7 @@ export function getDefaultAIMenuItems<
         onItemClick: () => {
           console.log("SUMMARIZE");
         },
+        size: "small",
       },
       {
         name: "action_items",
@@ -61,6 +63,7 @@ export function getDefaultAIMenuItems<
         onItemClick: () => {
           console.log("ADD ACTION ITEMS");
         },
+        size: "small",
       },
       {
         name: "write_anything",
@@ -70,6 +73,7 @@ export function getDefaultAIMenuItems<
         onItemClick: (setPrompt) => {
           setPrompt(dict.ai_menu.write_anything.prompt_placeholder);
         },
+        size: "small",
       },
     ];
   } else {
@@ -83,6 +87,7 @@ export function getDefaultAIMenuItems<
         onItemClick: () => {
           console.log("MAKE SHORTER");
         },
+        size: "small",
       },
       {
         name: "fix_spelling",
@@ -92,6 +97,7 @@ export function getDefaultAIMenuItems<
         onItemClick: () => {
           console.log("FIX SPELLING");
         },
+        size: "small",
       },
       {
         name: "translate",
@@ -101,6 +107,7 @@ export function getDefaultAIMenuItems<
         onItemClick: (setPrompt) => {
           setPrompt(dict.ai_menu.translate.prompt_placeholder);
         },
+        size: "small",
       },
       {
         name: "simplify",
@@ -110,6 +117,7 @@ export function getDefaultAIMenuItems<
         onItemClick: () => {
           console.log("SIMPLIFY");
         },
+        size: "small",
       },
     ];
   }

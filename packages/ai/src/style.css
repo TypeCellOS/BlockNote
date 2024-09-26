@@ -79,14 +79,6 @@ div:not(.bn-popover-content) > .bn-ai-menu-items:not(:empty) {
   max-width: 50%;
 }
 
-.bn-ai-menu .bn-suggestion-menu-item {
-  height: revert;
-}
-
-.bn-ai-menu .bn-mt-suggestion-menu-item-title {
-  /*font-size: 12px;*/
-}
-
 /* Mantine (TODO) */
 .bn-toolbar .mantine-Button-root.bn-show-prompt-button,
 .bn-toolbar .mantine-Button-root.bn-show-prompt-button:hover {

@@ -743,8 +743,8 @@ export function withSelectionMarkers<
   to: number,
   blockSchema: BSchema,
   inlineContentSchema: I,
-  styleSchema: S,
-  blockCache?: WeakMap<Node, Block<BSchema, I, S>>
+  styleSchema: S
+  // blockCache?: WeakMap<Node, Block<BSchema, I, S>>
 ) {
   let tr = state.tr.insertText("@$@", to);
   let newEnd = selectionToInsertionEnd(tr, tr.steps.length - 1)!;
@@ -763,7 +763,7 @@ export function withSelectionMarkers<
 
   // const newStart = diffStart!;
   // const newEnd = diffEnd!.a;
-  console.log(newStart, newEnd);
+  // console.log(newStart, newEnd);
   const startNode = getBlockInfoFromPos(tr.doc, newStart);
   const endNode = getBlockInfoFromPos(tr.doc, newEnd);
 

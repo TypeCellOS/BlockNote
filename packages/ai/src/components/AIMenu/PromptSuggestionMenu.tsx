@@ -1,4 +1,4 @@
-import { filterSuggestionItems } from "@blocknote/core";
+import { filterSuggestionItems, mergeCSSClasses } from "@blocknote/core";
 import {
   useComponentsContext,
   useSuggestionMenuKeyboardHandler,
@@ -98,7 +98,10 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
         {items.map((item, index) => (
           <Components.SuggestionMenu.Item
             key={item.name}
-            className={"bn-suggestion-menu-item"}
+            className={mergeCSSClasses(
+              "bn-suggestion-menu-item",
+              item.size === "small" ? "bn-suggestion-menu-item-small" : ""
+            )}
             id={item.name}
             isSelected={index === selectedIndex}
             onClick={() => item.onItemClick(setCurrentEditingPrompt)}
