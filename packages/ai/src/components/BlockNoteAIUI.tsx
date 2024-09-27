@@ -46,7 +46,7 @@ const AIMenuController = () => {
           // TODO: doesn't work with esc?
         }
       }}>
-      <AIMenu key={ctx.aiMenuBlockID} />
+      <AIMenu />
     </BlockPositioner>
   );
 };

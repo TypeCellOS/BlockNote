@@ -1,5 +1,6 @@
 import { filterSuggestionItems, mergeCSSClasses } from "@blocknote/core";
 import {
+  DefaultReactSuggestionItem,
   useComponentsContext,
   useSuggestionMenuKeyboardHandler,
 } from "@blocknote/react";
@@ -15,46 +16,56 @@ import {
 import { RiSparkling2Fill } from "react-icons/ri";
 
 import { useAIDictionary } from "../../i18n/useAIDictionary";
-import { AIMenuSuggestionItem } from "./getDefaultAIMenuItems";
 
 export type PromptSuggestionMenuProps = {
-  items: AIMenuSuggestionItem[];
+  items: DefaultReactSuggestionItem[];
   onManualPromptSubmit: (prompt: string) => void;
+  promptText?: string;
+  onPromptTextChange?: (prompt: string) => void;
 };
 
 export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
   const dict = useAIDictionary();
   const Components = useComponentsContext()!;
 
-  const { onManualPromptSubmit } = props;
+  const { onManualPromptSubmit, promptText, onPromptTextChange } = props;
 
-  const [currentEditingPrompt, setCurrentEditingPrompt] = useState<string>("");
+  // Only used internal state when `props.prompText` is undefined (i.e., uncontrolled mode)
+  const [internalPromptText, setInternalPromptText] = useState<string>("");
+  const promptTextToUse = promptText || internalPromptText;
 
   const handleEnter = useCallback(
     async (event: KeyboardEvent) => {
       if (event.key === "Enter") {
         // console.log("ENTER", currentEditingPrompt);
-        onManualPromptSubmit(currentEditingPrompt);
+        onManualPromptSubmit(promptTextToUse);
       }
     },
-    [currentEditingPrompt, onManualPromptSubmit]
+    [promptTextToUse, onManualPromptSubmit]
   );
 
   const handleChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) =>
-      setCurrentEditingPrompt(event.currentTarget.value),
-    []
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const newValue = event.currentTarget.value;
+      if (onPromptTextChange) {
+        onPromptTextChange(newValue);
+      }
+
+      // Only update internal state if it's uncontrolled
+      if (promptText === undefined) {
+        setInternalPromptText(newValue);
+      }
+    },
+    [onPromptTextChange, setInternalPromptText, promptText]
   );
 
-  const items: AIMenuSuggestionItem[] = useMemo(
-    () => filterSuggestionItems(props.items, currentEditingPrompt),
-    [currentEditingPrompt, props.items]
+  const items: DefaultReactSuggestionItem[] = useMemo(
+    () => filterSuggestionItems(props.items, promptTextToUse),
+    [promptTextToUse, props.items]
   );
 
   const { selectedIndex, setSelectedIndex, handler } =
-    useSuggestionMenuKeyboardHandler(items, (item) =>
-      item.onItemClick(setCurrentEditingPrompt)
-    );
+    useSuggestionMenuKeyboardHandler(items, (item) => item.onItemClick());
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -76,7 +87,7 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
   // Resets index when items change
   useEffect(() => {
     setSelectedIndex(0);
-  }, [currentEditingPrompt, setSelectedIndex]);
+  }, [promptTextToUse, setSelectedIndex]);
 
   return (
     <div className={"bn-ai-menu"}>
@@ -85,7 +96,7 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
           className={"bn-ai-menu-input"}
           name={"ai-prompt"}
           icon={<RiSparkling2Fill />}
-          value={currentEditingPrompt || ""}
+          value={promptTextToUse || ""}
           autoFocus={true}
           placeholder={dict.formatting_toolbar.ai.input_placeholder}
           onKeyDown={handleKeyDown}
@@ -105,7 +116,7 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
             )}
             id={item.name}
             isSelected={index === selectedIndex}
-            onClick={() => item.onItemClick(setCurrentEditingPrompt)}
+            onClick={item.onItemClick}
             item={item}
           />
         ))}

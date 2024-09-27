@@ -22,7 +22,10 @@ export type AIMenuSuggestionItem = Omit<
   DefaultReactSuggestionItem,
   "onItemClick"
 > & {
-  onItemClick: (setPrompt: (prompt: string) => void) => void;
+  onItemClick: (
+    setPrompt: (prompt: string) => void,
+    setAIInProgress: (aiInProgress: boolean) => void
+  ) => void;
 };
 // TODO: name
 export function getDefaultAIMenuItems<
@@ -56,8 +59,9 @@ export function getDefaultAIMenuItems<
         title: dict.ai_menu.summarize.title,
         aliases: dict.ai_menu.summarize.aliases,
         icon: <RiTextWrap size={18} />,
-        onItemClick: () => {
-          console.log("SUMMARIZE");
+        onItemClick: (setPrompt, setAIInProgress) => {
+          // setPrompt(dict.ai_menu.summarize.prompt_placeholder);
+          setAIInProgress(true);
         },
         size: "small",
       },
