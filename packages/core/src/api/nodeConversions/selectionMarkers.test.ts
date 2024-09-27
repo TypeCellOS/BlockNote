@@ -1,4 +1,5 @@
-import { TextSelection } from "prosemirror-state";
+import { Node } from "prosemirror-model";
+import { Selection, TextSelection } from "prosemirror-state";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 
@@ -271,24 +272,18 @@ describe("Test ProseMirror selection HTML conversion", () => {
   }
 
   it("move end", () => {
-    const size = editor._tiptapEditor.state.doc.content.size;
-
     let ret = "";
 
-    for (let i = 0; i < size; i++) {
-      editor.dispatch(
-        editor._tiptapEditor.state.tr.setSelection(
-          TextSelection.create(editor._tiptapEditor.state.doc, 0, i)
-        )
-      );
-      try {
-        const blockNoteSelection = editor.getSelectionWithMarkers();
-        const JSONString = JSON.stringify(blockNoteSelection);
-        ret += JSONString + "\n";
-      } catch (e) {
-        ret += e + "\n";
+    loopTextSelections(editor._tiptapEditor.state.doc, "end", (selection) => {
+      if (selection.empty) {
+        return;
       }
-    }
+      editor.dispatch(editor._tiptapEditor.state.tr.setSelection(selection));
+
+      const blockNoteSelection = editor.getSelectionWithMarkers();
+      const JSONString = JSON.stringify(blockNoteSelection);
+      ret += JSONString + "\n";
+    });
 
     expect(ret).toMatchFileSnapshot(
       `./__snapshots_selection_markers_json__/move_end.txt`
@@ -296,25 +291,18 @@ describe("Test ProseMirror selection HTML conversion", () => {
   });
 
   it("move start", () => {
-    const size = editor._tiptapEditor.state.doc.content.size;
-
     let ret = "";
 
-    for (let i = 0; i < size; i++) {
-      editor.dispatch(
-        editor._tiptapEditor.state.tr.setSelection(
-          TextSelection.create(editor._tiptapEditor.state.doc, i, size - 1)
-        )
-      );
-
-      try {
-        const blockNoteSelection = editor.getSelectionWithMarkers();
-        const JSONString = JSON.stringify(blockNoteSelection);
-        ret += JSONString + "\n";
-      } catch (e) {
-        ret += e + "\n";
+    loopTextSelections(editor._tiptapEditor.state.doc, "start", (selection) => {
+      if (selection.empty) {
+        return;
       }
-    }
+      editor.dispatch(editor._tiptapEditor.state.tr.setSelection(selection));
+
+      const blockNoteSelection = editor.getSelectionWithMarkers();
+      const JSONString = JSON.stringify(blockNoteSelection);
+      ret += JSONString + "\n";
+    });
 
     expect(ret).toMatchFileSnapshot(
       `./__snapshots_selection_markers_json__/move_start.txt`
@@ -322,6 +310,30 @@ describe("Test ProseMirror selection HTML conversion", () => {
   });
 });
 
+function loopTextSelections(
+  doc: Node,
+  move: "start" | "end",
+  cb: (selection: Selection) => void
+) {
+  const size = doc.content.size;
+
+  for (let i = 0; i < size; i++) {
+    const selection = TextSelection.between(
+      move === "start" ? doc.resolve(i) : doc.resolve(0),
+      move === "start" ? doc.resolve(size - 1) : doc.resolve(i)
+    );
+    if (
+      (move === "start" && selection.from !== i) ||
+      (move === "end" && selection.to !== i)
+    ) {
+      // The TextSelection.between has moved the position to a valid text position.
+      // In this case we just skip it.
+      // (we either have seen this text selection already or it's coming up as we iterate further)
+      continue;
+    }
+    cb(selection);
+  }
+}
 /**
  *
  * Insert $#$ markers around the selection

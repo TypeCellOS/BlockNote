@@ -647,9 +647,129 @@ export function nodeToBlock<
   return block;
 }
 
-// fragmentOfFirstBlock: InlineContent<I, S>[];
-// fragmentOfLastBlock: InlineContent<I, S>[];
-// // blocks: Array<Block<BSchema, I, S>>;
+export type SlicedBlock<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+> = {
+  block: Block<BSchema, I, S> & {
+    children: SlicedBlock<BSchema, I, S>[];
+  };
+  contentCutAtStart: boolean;
+  contentCutAtEnd: boolean;
+};
+
+export function selectionToInsertionEnd(tr: Transaction, startLen: number) {
+  const last = tr.steps.length - 1;
+
+  if (last < startLen) {
+    return;
+  }
+
+  const step = tr.steps[last];
+
+  if (!(step instanceof ReplaceStep || step instanceof ReplaceAroundStep)) {
+    return;
+  }
+
+  const map = tr.mapping.maps[last];
+  let end = 0;
+
+  map.forEach((_from, _to, _newFrom, newTo) => {
+    if (end === 0) {
+      end = newTo;
+    }
+  });
+
+  return end;
+}
+
+export function withSelectionMarkers<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  state: EditorState,
+  from: number,
+  to: number,
+  blockSchema: BSchema,
+  inlineContentSchema: I,
+  styleSchema: S,
+  blockCache?: WeakMap<Node, Block<BSchema, I, S>>
+) {
+  if (from >= to) {
+    throw new Error("from must be less than to");
+  }
+  let tr = state.tr.insertText("!$]", to);
+  let newEnd = selectionToInsertionEnd(tr, tr.steps.length - 1)!;
+
+  tr = tr.insertText("[$!", from);
+
+  newEnd = tr.mapping.maps[tr.mapping.maps.length - 1].map(newEnd);
+
+  if (!tr.docChanged || tr.steps.length !== 2) {
+    throw new Error(
+      "tr.docChanged is false or insertText was not applied. Was a valid textselection passed?"
+    );
+  }
+
+  return getBlocksBetween(
+    from,
+    newEnd,
+    tr.doc,
+    blockSchema,
+    inlineContentSchema,
+    styleSchema,
+    blockCache
+  );
+}
+
+/**
+ * Returns all blocks between two positions in a document, but without automatically including parent blocks
+ */
+function getBlocksBetween<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  start: number,
+  end: number,
+  doc: Node,
+  blockSchema: BSchema,
+  inlineContentSchema: I,
+  styleSchema: S,
+  blockCache?: WeakMap<Node, Block<BSchema, I, S>>
+) {
+  const startNode = getBlockInfoFromPos(doc, start);
+  const endNode = getBlockInfoFromPos(doc, end);
+
+  const slice = doc.slice(startNode.startPos, endNode.endPos, true);
+
+  const bnSelection = prosemirrorSliceToSlicedBlocks(
+    slice,
+    blockSchema,
+    inlineContentSchema,
+    styleSchema,
+    blockCache
+  );
+
+  // we don't care about the slice metadata, because our slice is based on complete blocks, the
+  return withoutSliceMetadata(bnSelection.blocks);
+}
+
+export function withoutSliceMetadata<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(blocks: SlicedBlock<BSchema, I, S>[]): Block<BSchema, I, S>[] {
+  return blocks.map((block) => {
+    return {
+      ...block.block,
+      children: withoutSliceMetadata(block.block.children),
+    };
+  });
+}
+
 /**
  *
  * Parse a Prosemirror Slice into a BlockNote selection. The prosemirror schema looks like this:
@@ -694,91 +814,7 @@ export function nodeToBlock<
  *   },
  * ]
  */
-
-export type BlockWithSelectionInfo<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
-> = {
-  block: Block<BSchema, I, S> & {
-    children: BlockWithSelectionInfo<BSchema, I, S>[];
-  };
-  contentCutAtStart: boolean;
-  contentCutAtEnd: boolean;
-};
-
-export function selectionToInsertionEnd(tr: Transaction, startLen: number) {
-  const last = tr.steps.length - 1;
-
-  if (last < startLen) {
-    return;
-  }
-
-  const step = tr.steps[last];
-
-  if (!(step instanceof ReplaceStep || step instanceof ReplaceAroundStep)) {
-    return;
-  }
-
-  const map = tr.mapping.maps[last];
-  let end = 0;
-
-  map.forEach((_from, _to, _newFrom, newTo) => {
-    if (end === 0) {
-      end = newTo;
-    }
-  });
-
-  return end;
-}
-
-// TODO: fix this method (unit tests)
-export function withSelectionMarkers<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(
-  state: EditorState,
-  from: number,
-  to: number,
-  blockSchema: BSchema,
-  inlineContentSchema: I,
-  styleSchema: S
-  // blockCache?: WeakMap<Node, Block<BSchema, I, S>>
-) {
-  let tr = state.tr.insertText("@$@", to);
-  let newEnd = selectionToInsertionEnd(tr, tr.steps.length - 1)!;
-
-  tr = tr.insertText("@$@", from);
-  const newStart = selectionToInsertionEnd(tr, tr.steps.length - 1)!;
-
-  newEnd = tr.mapping.maps[tr.mapping.maps.length - 1].map(newEnd);
-
-  if (!tr.docChanged) {
-    throw new Error("tr.docChanged is false");
-  }
-  // (maybe use mapping instead?)
-  // const diffStart = tr.doc.content.findDiffStart(state.doc.content);
-  // const diffEnd = tr.doc.content.findDiffEnd(state.doc.content);
-
-  // const newStart = diffStart!;
-  // const newEnd = diffEnd!.a;
-  // console.log(newStart, newEnd);
-  const startNode = getBlockInfoFromPos(tr.doc, newStart);
-  const endNode = getBlockInfoFromPos(tr.doc, newEnd);
-
-  const slice = tr.doc.slice(startNode.startPos, endNode.endPos, true);
-
-  const bnSelection = sliceToBlockNote(
-    slice,
-    blockSchema,
-    inlineContentSchema,
-    styleSchema
-  );
-  return bnSelection;
-}
-
-export function sliceToBlockNote<
+export function prosemirrorSliceToSlicedBlocks<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
@@ -789,18 +825,18 @@ export function sliceToBlockNote<
   styleSchema: S,
   blockCache?: WeakMap<Node, Block<BSchema, I, S>>
 ): {
-  blocks: BlockWithSelectionInfo<BSchema, I, S>[];
+  blocks: SlicedBlock<BSchema, I, S>[];
 } {
   // console.log(JSON.stringify(slice.toJSON()));
   function processNode(
     node: Node,
     openStart: number,
     openEnd: number
-  ): BlockWithSelectionInfo<BSchema, I, S>[] {
+  ): SlicedBlock<BSchema, I, S>[] {
     if (node.type.name !== "blockGroup") {
       throw new Error("unexpected");
     }
-    const blocks: BlockWithSelectionInfo<BSchema, I, S>[] = [];
+    const blocks: SlicedBlock<BSchema, I, S>[] = [];
 
     node.forEach((blockContainer, _offset, index) => {
       if (blockContainer.type.name !== "blockContainer") {
@@ -848,7 +884,7 @@ export function sliceToBlockNote<
       const childGroup =
         blockContainer.childCount > 1 ? blockContainer.child(1) : undefined;
 
-      let childBlocks: BlockWithSelectionInfo<BSchema, I, S>[] = [];
+      let childBlocks: SlicedBlock<BSchema, I, S>[] = [];
       if (childGroup) {
         childBlocks = processNode(
           childGroup,
