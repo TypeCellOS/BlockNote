@@ -70,12 +70,27 @@
     flex: 1;
 }
 
+.bn-suggestion-menu-item-small .bn-ak-suggestion-menu-item-title {
+    font-size: 0.875rem
+}
+
 .bn-ak-suggestion-menu-item-subtitle {
     font-size: 0.7rem;
 }
 
+.bn-suggestion-menu-item-small .bn-ak-suggestion-menu-item-subtitle {
+    display: none;
+}
+
 .bn-ak-suggestion-menu-item-section[data-position="left"] {
+    align-items: center;
+    display: flex;
+    justify-content: center;
     padding: 8px;
+}
+
+.bn-suggestion-menu-item-small .bn-ak-suggestion-menu-item-section[data-position="left"] {
+    padding: 0;
 }
 
 .bn-ak-suggestion-menu-item-section[data-position="right"] {
