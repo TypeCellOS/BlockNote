@@ -22,7 +22,7 @@ import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos";
 import {
   inlineContentToNodes,
   nodeToBlock,
-  sliceToBlockNote,
+  prosemirrorSliceToSlicedBlocks,
   withSelectionMarkers,
 } from "../api/nodeConversions/nodeConversions";
 import { getNodeById } from "../api/nodeUtil";
@@ -818,7 +818,7 @@ export class BlockNoteEditor<
     //   start = this._tiptapEditor.state.doc.resolve(start.pos - 1);
     // }
 
-    // // if the start is at the end of a node (|</p><p><span>|) move it forwards so we drop all closing tags (|<p><span>)
+    // // if the start is at the end of a node (|</p><p><span>) move it forwards so we drop all closing tags (|<p><span>)
     // while (start.parentOffset >= start.parent.nodeSize - 2 && start.depth > 0) {
     //   start = this._tiptapEditor.state.doc.resolve(start.pos + 1);
     // }
@@ -859,7 +859,7 @@ export class BlockNoteEditor<
     }
 
     // console.log(start.pos, end.pos);
-    return sliceToBlockNote(
+    return prosemirrorSliceToSlicedBlocks(
       this._tiptapEditor.state.doc.slice(start.pos, end.pos, true),
       this.schema.blockSchema,
       this.schema.inlineContentSchema,

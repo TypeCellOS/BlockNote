@@ -15,17 +15,68 @@ import { createOperationsArraySchema } from "./schema/operations";
 import { blockNoteSchemaToJSONSchema } from "./schema/schemaToJSONSchema";
 
 export function createMessagesForLLM(opts: {
+  editor: BlockNoteEditor;
   prompt: string;
   document: any;
 }): Array<CoreMessage> {
+  if (opts.editor.getSelection()) {
+    return [
+      {
+        role: "system",
+        content: `You're manipulating a text document. Make sure to follow the json schema provided. 
+          The user selected everything between [$! and !$], including blocks in between.`,
+      },
+      {
+        role: "system",
+        content: JSON.stringify(
+          suffixIDs(opts.editor.getSelectionWithMarkers() as any)
+        ),
+      },
+      {
+        role: "system",
+        content:
+          "Make sure to ONLY affect the selected text and blocks (split words if necessary), and don't include the markers in the response.",
+      },
+      {
+        role: "user",
+        content: opts.prompt,
+      },
+    ];
+  }
   return [
     {
       role: "system",
-      content: "You're manipulating a text document. This is the document:",
+      content:
+        "You're manipulating a text document. Make sure to follow the json schema provided. This is the document:",
     },
     {
       role: "system",
       content: JSON.stringify(suffixIDs(opts.document)),
+    },
+    {
+      role: "system",
+      content:
+        "This would be an example block: \n" +
+        JSON.stringify({
+          type: "paragraph",
+          props: {},
+          content: [
+            {
+              type: "text",
+              text: "Bold text",
+              styles: {
+                bold: true,
+              },
+            },
+            {
+              type: "text",
+              text: " and italic text",
+              styles: {
+                italic: true,
+              },
+            },
+          ],
+        }),
     },
     {
       role: "user",
@@ -68,6 +119,7 @@ export async function callLLMStreaming(
     messages:
       (options as any).messages ||
       createMessagesForLLM({
+        editor,
         prompt: (options as any).prompt,
         document: editor.document,
       }),

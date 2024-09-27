@@ -1,72 +1,66 @@
-{
-  "blocks": [
-    {
-      "block": {
-        "id": "11",
-        "type": "table",
-        "props": {
-          "textColor": "default",
-          "backgroundColor": "default"
-        },
-        "content": {
-          "type": "tableContent",
-          "rows": [
-            {
-              "cells": [
-                [
-                  {
-                    "type": "text",
-                    "text": "@$@",
-                    "styles": {}
-                  }
-                ],
-                [
-                  {
-                    "type": "text",
-                    "text": "Table Cell",
-                    "styles": {}
-                  }
-                ],
-                [
-                  {
-                    "type": "text",
-                    "text": "@$@",
-                    "styles": {}
-                  }
-                ],
-                [
-                  {
-                    "type": "text",
-                    "text": "Table Cell",
-                    "styles": {}
-                  }
-                ]
-              ]
-            },
-            {
-              "cells": [
-                [
-                  {
-                    "type": "text",
-                    "text": "Table Cell",
-                    "styles": {}
-                  }
-                ],
-                [
-                  {
-                    "type": "text",
-                    "text": "Table Cell",
-                    "styles": {}
-                  }
-                ]
-              ]
-            }
+[
+  {
+    "id": "11",
+    "type": "table",
+    "props": {
+      "textColor": "default",
+      "backgroundColor": "default"
+    },
+    "content": {
+      "type": "tableContent",
+      "rows": [
+        {
+          "cells": [
+            [
+              {
+                "type": "text",
+                "text": "[$!",
+                "styles": {}
+              }
+            ],
+            [
+              {
+                "type": "text",
+                "text": "Table Cell",
+                "styles": {}
+              }
+            ],
+            [
+              {
+                "type": "text",
+                "text": "!$]",
+                "styles": {}
+              }
+            ],
+            [
+              {
+                "type": "text",
+                "text": "Table Cell",
+                "styles": {}
+              }
+            ]
           ]
         },
-        "children": []
-      },
-      "contentCutAtStart": false,
-      "contentCutAtEnd": false
-    }
-  ]
-}
+        {
+          "cells": [
+            [
+              {
+                "type": "text",
+                "text": "Table Cell",
+                "styles": {}
+              }
+            ],
+            [
+              {
+                "type": "text",
+                "text": "Table Cell",
+                "styles": {}
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    "children": []
+  }
+]
