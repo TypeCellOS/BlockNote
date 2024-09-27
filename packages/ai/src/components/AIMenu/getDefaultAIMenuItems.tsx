@@ -6,10 +6,13 @@ import {
 } from "@blocknote/core";
 import { DefaultReactSuggestionItem } from "@blocknote/react";
 import {
+  RiArrowGoBackFill,
   RiBallPenLine,
+  RiCheckFill,
   RiCheckLine,
   RiEarthLine,
   RiListCheck3,
+  RiLoopLeftFill,
   RiMagicLine,
   RiText,
   RiTextWrap,
@@ -17,6 +20,7 @@ import {
 import { callLLMStreaming } from "../../api/api";
 import { addFunction } from "../../api/functions/add";
 import { getAIDictionary } from "../../i18n/dictionary";
+import { BlockNoteAIContextValue } from "../BlockNoteAIContext";
 
 export type AIMenuSuggestionItem = Omit<
   DefaultReactSuggestionItem,
@@ -24,113 +28,175 @@ export type AIMenuSuggestionItem = Omit<
 > & {
   onItemClick: (
     setPrompt: (prompt: string) => void,
-    setAIInProgress: (aiInProgress: boolean) => void
+    setAIResponseStatus: (
+      aiResponseStatus: "initial" | "generating" | "done"
+    ) => void
   ) => void;
 };
-// TODO: name
-export function getDefaultAIMenuItems<
+
+export function getDefaultAIAddMenuItems<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  editor: BlockNoteEditor<BSchema, I, S>,
+  contextValue: BlockNoteAIContextValue
+): AIMenuSuggestionItem[] {
+  const dict = getAIDictionary(editor);
+
+  return [
+    {
+      name: "continue_writing",
+      title: dict.ai_menu.continue_writing.title,
+      aliases: dict.ai_menu.continue_writing.aliases,
+      icon: <RiBallPenLine size={18} />,
+      onItemClick: () => {
+        callLLMStreaming(editor, {
+          prompt: "Continue writing",
+          // By default, LLM will be able to add / update / delete blocks. For "continue writing", we only want to allow adding new blocks.
+          functions: [addFunction],
+        });
+      },
+      size: "small",
+    },
+
+    {
+      name: "summarize",
+      title: dict.ai_menu.summarize.title,
+      aliases: dict.ai_menu.summarize.aliases,
+      icon: <RiTextWrap size={18} />,
+      onItemClick: async (_setPrompt, setAIResponseStatus) => {
+        // setPrompt(dict.ai_menu.summarize.prompt_placeholder);
+        contextValue.setPrevDocument(editor.document);
+        setAIResponseStatus("generating");
+        await callLLMStreaming(editor, {
+          prompt: "Summarize",
+          // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
+          functions: [addFunction],
+        });
+        setAIResponseStatus("done");
+      },
+      size: "small",
+    },
+    {
+      name: "action_items",
+      title: dict.ai_menu.add_action_items.title,
+      aliases: dict.ai_menu.add_action_items.aliases,
+      icon: <RiListCheck3 size={18} />,
+      onItemClick: () => {
+        console.log("ADD ACTION ITEMS");
+      },
+      size: "small",
+    },
+    {
+      name: "write_anything",
+      title: dict.ai_menu.write_anything.title,
+      aliases: dict.ai_menu.write_anything.aliases,
+      icon: <RiBallPenLine size={18} />,
+      onItemClick: (setPrompt) => {
+        setPrompt(dict.ai_menu.write_anything.prompt_placeholder);
+      },
+      size: "small",
+    },
+  ];
+}
+
+export function getDefaultAIEditMenuItems<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
 >(editor: BlockNoteEditor<BSchema, I, S>): AIMenuSuggestionItem[] {
   const dict = getAIDictionary(editor);
-  const selection = editor.getSelection();
 
-  if (!selection) {
-    // the AI menu has been opened via the / command
-    return [
-      {
-        name: "continue_writing",
-        title: dict.ai_menu.continue_writing.title,
-        aliases: dict.ai_menu.continue_writing.aliases,
-        icon: <RiBallPenLine size={18} />,
-        onItemClick: () => {
-          callLLMStreaming(editor, {
-            prompt: "Continue writing",
-            // By default, LLM will be able to add / update / delete blocks. For "continue writing", we only want to allow adding new blocks.
-            functions: [addFunction],
-          });
-        },
-        size: "small",
+  return [
+    {
+      name: "improve_writing",
+      title: dict.ai_menu.improve_writing.title,
+      aliases: dict.ai_menu.improve_writing.aliases,
+      icon: <RiText size={18} />,
+      onItemClick: () => {
+        console.log("MAKE SHORTER");
       },
+      size: "small",
+    },
+    {
+      name: "fix_spelling",
+      title: dict.ai_menu.fix_spelling.title,
+      aliases: dict.ai_menu.fix_spelling.aliases,
+      icon: <RiCheckLine size={18} />,
+      onItemClick: () => {
+        console.log("FIX SPELLING");
+      },
+      size: "small",
+    },
+    {
+      name: "translate",
+      title: dict.ai_menu.translate.title,
+      aliases: dict.ai_menu.translate.aliases,
+      icon: <RiEarthLine size={18} />,
+      onItemClick: (setPrompt) => {
+        setPrompt(dict.ai_menu.translate.prompt_placeholder);
+      },
+      size: "small",
+    },
+    {
+      name: "simplify",
+      title: dict.ai_menu.simplify.title,
+      aliases: dict.ai_menu.simplify.aliases,
+      icon: <RiMagicLine size={18} />,
+      onItemClick: () => {
+        console.log("SIMPLIFY");
+      },
+      size: "small",
+    },
+  ];
+}
 
-      {
-        name: "summarize",
-        title: dict.ai_menu.summarize.title,
-        aliases: dict.ai_menu.summarize.aliases,
-        icon: <RiTextWrap size={18} />,
-        onItemClick: (setPrompt, setAIInProgress) => {
-          // setPrompt(dict.ai_menu.summarize.prompt_placeholder);
-          setAIInProgress(true);
-        },
-        size: "small",
+export function getDefaultAIActionMenuItems<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  editor: BlockNoteEditor<BSchema, I, S>,
+  contextValue: BlockNoteAIContextValue
+): AIMenuSuggestionItem[] {
+  const dict = getAIDictionary(editor);
+
+  return [
+    {
+      name: "accept",
+      title: dict.ai_menu.accept.title,
+      aliases: dict.ai_menu.accept.aliases,
+      icon: <RiCheckFill size={18} />,
+      onItemClick: (_setPrompt) => {
+        contextValue.setAiMenuBlockID(undefined);
+        contextValue.setPrevDocument(undefined);
       },
-      {
-        name: "action_items",
-        title: dict.ai_menu.add_action_items.title,
-        aliases: dict.ai_menu.add_action_items.aliases,
-        icon: <RiListCheck3 size={18} />,
-        onItemClick: () => {
-          console.log("ADD ACTION ITEMS");
-        },
-        size: "small",
+      size: "small",
+    },
+    {
+      name: "retry",
+      title: dict.ai_menu.retry.title,
+      aliases: dict.ai_menu.retry.aliases,
+      icon: <RiLoopLeftFill size={18} />,
+      onItemClick: () => {
+        console.log("RETRY");
       },
-      {
-        name: "write_anything",
-        title: dict.ai_menu.write_anything.title,
-        aliases: dict.ai_menu.write_anything.aliases,
-        icon: <RiBallPenLine size={18} />,
-        onItemClick: (setPrompt) => {
-          setPrompt(dict.ai_menu.write_anything.prompt_placeholder);
-        },
-        size: "small",
+      size: "small",
+    },
+    {
+      name: "revert",
+      title: dict.ai_menu.revert.title,
+      aliases: dict.ai_menu.revert.aliases,
+      icon: <RiArrowGoBackFill size={18} />,
+      onItemClick: () => {
+        editor.replaceBlocks(editor.document, contextValue.prevDocument as any);
+        contextValue.setAiMenuBlockID(undefined);
+        contextValue.setPrevDocument(undefined);
       },
-    ];
-  } else {
-    // the AI menu has been opened via the formatting toolbar (the user highlighted text and clicked the AI button)
-    return [
-      {
-        name: "improve_writing",
-        title: dict.ai_menu.improve_writing.title,
-        aliases: dict.ai_menu.improve_writing.aliases,
-        icon: <RiText size={18} />,
-        onItemClick: () => {
-          console.log("MAKE SHORTER");
-        },
-        size: "small",
-      },
-      {
-        name: "fix_spelling",
-        title: dict.ai_menu.fix_spelling.title,
-        aliases: dict.ai_menu.fix_spelling.aliases,
-        icon: <RiCheckLine size={18} />,
-        onItemClick: () => {
-          console.log("FIX SPELLING");
-        },
-        size: "small",
-      },
-      {
-        name: "translate",
-        title: dict.ai_menu.translate.title,
-        aliases: dict.ai_menu.translate.aliases,
-        icon: <RiEarthLine size={18} />,
-        onItemClick: (setPrompt) => {
-          setPrompt(dict.ai_menu.translate.prompt_placeholder);
-        },
-        size: "small",
-      },
-      {
-        name: "simplify",
-        title: dict.ai_menu.simplify.title,
-        aliases: dict.ai_menu.simplify.aliases,
-        icon: <RiMagicLine size={18} />,
-        onItemClick: () => {
-          console.log("SIMPLIFY");
-        },
-        size: "small",
-      },
-    ];
-  }
+      size: "small",
+    },
+  ];
 }
 
 /**

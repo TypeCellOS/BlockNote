@@ -14,8 +14,8 @@ const schema = {
 
 function applyOperation(
   operation: any,
-  editor: BlockNoteEditor,
-  operationContext: any
+  editor: BlockNoteEditor
+  // operationContext: any
 ) {
   const id: string = operation.id.slice(0, -1);
   editor.removeBlocks([id]);

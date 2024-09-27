@@ -56,6 +56,7 @@
     "@blocknote/react": "^0.15.3",
     "@floating-ui/react": "^0.26.4",
     "@tiptap/core": "^2.7.1",
+    "ai": "^3.4.5",
     "prosemirror-state": "^1.4.3",
     "prosemirror-view": "^1.33.7",
     "react": "^18",

@@ -74,8 +74,13 @@ export async function callLLMStreaming(
     ...options,
   };
   // options.streamObjectOptions!.
+  const apiKey = (import.meta as any).env.VITE_OPEN_AI_API_KEY;
+  if (!apiKey) {
+    throw new Error("OpenAI API key not found");
+  }
+
   const model = createOpenAI({
-    apiKey: "",
+    apiKey,
   })("gpt-4o-2024-08-06", {});
 
   const ret = await streamObject<any>({
