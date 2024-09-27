@@ -179,7 +179,8 @@ export type ComponentProps = {
         label?: string;
         icon: ReactNode;
         autoFocus?: boolean;
-        placeholder: string;
+        placeholder?: string;
+        disabled?: boolean;
         value: string;
         onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
         onChange: (event: ChangeEvent<HTMLInputElement>) => void;

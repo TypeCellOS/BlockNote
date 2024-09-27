@@ -9,10 +9,19 @@ import {
   getDefaultAIAddMenuItems,
   getDefaultAIEditMenuItems,
 } from "./getDefaultAIMenuItems";
-import { useBlockNoteAIContext } from "../BlockNoteAIContext";
+import {
+  BlockNoteAIContextValue,
+  useBlockNoteAIContext,
+} from "../BlockNoteAIContext";
+import { BlockNoteEditor } from "@blocknote/core";
+import { useAIDictionary } from "../../i18n/useAIDictionary";
 
 export const AIMenu = (props: {
-  items?: AIMenuSuggestionItem[];
+  items?: (
+    editor: BlockNoteEditor<any, any, any>,
+    ctx: BlockNoteAIContextValue,
+    aiResponseStatus: "initial" | "generating" | "done"
+  ) => AIMenuSuggestionItem[];
   onManualPromptSubmit?: (prompt: string) => void;
 }) => {
   const editor = useBlockNoteEditor();
@@ -20,7 +29,7 @@ export const AIMenu = (props: {
   const [aiResponseStatus, setAIResponseStatus] = useState<
     "initial" | "generating" | "done"
   >("initial");
-  // const dict = useAIDictionary();
+  const dict = useAIDictionary();
 
   const ctx = useBlockNoteAIContext();
 
@@ -28,12 +37,18 @@ export const AIMenu = (props: {
   // would not call getDefaultAIMenuItems with the correct selection, because the component is reused and the memo not retriggered
   // practically this should not happen (you can test it by using a high transition duration in useUIElementPositioning)
   const items = useMemo(() => {
-    const items =
-      props.items || aiResponseStatus !== "initial"
-        ? getDefaultAIActionMenuItems(editor, ctx)
-        : editor.getSelection()
-        ? getDefaultAIEditMenuItems(editor)
-        : getDefaultAIAddMenuItems(editor, ctx);
+    let items: AIMenuSuggestionItem[] = [];
+    if (props.items) {
+      items = props.items(editor, ctx, aiResponseStatus);
+    } else {
+      if (aiResponseStatus === "initial") {
+        items = editor.getSelection()
+          ? getDefaultAIEditMenuItems(editor)
+          : getDefaultAIAddMenuItems(editor, ctx);
+      } else if (aiResponseStatus === "done") {
+        items = getDefaultAIActionMenuItems(editor, ctx);
+      }
+    }
 
     // map from AI items to React Items required by PromptSuggestionMenu
     return items.map((item) => {
@@ -70,6 +85,12 @@ export const AIMenu = (props: {
       items={items}
       promptText={prompt}
       onPromptTextChange={setPrompt}
+      placeholder={
+        aiResponseStatus === "generating"
+          ? "Generating..."
+          : dict.formatting_toolbar.ai.input_placeholder
+      }
+      disabled={aiResponseStatus === "generating"}
     />
   );
 };

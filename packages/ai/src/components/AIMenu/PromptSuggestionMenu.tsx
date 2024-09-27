@@ -15,17 +15,19 @@ import {
 
 import { RiSparkling2Fill } from "react-icons/ri";
 
-import { useAIDictionary } from "../../i18n/useAIDictionary";
+// import { useAIDictionary } from "../../i18n/useAIDictionary";
 
 export type PromptSuggestionMenuProps = {
   items: DefaultReactSuggestionItem[];
   onManualPromptSubmit: (prompt: string) => void;
   promptText?: string;
   onPromptTextChange?: (prompt: string) => void;
+  placeholder?: string;
+  disabled?: boolean;
 };
 
 export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
-  const dict = useAIDictionary();
+  // const dict = useAIDictionary();
   const Components = useComponentsContext()!;
 
   const { onManualPromptSubmit, promptText, onPromptTextChange } = props;
@@ -98,7 +100,8 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
           icon={<RiSparkling2Fill />}
           value={promptTextToUse || ""}
           autoFocus={true}
-          placeholder={dict.formatting_toolbar.ai.input_placeholder}
+          placeholder={props.placeholder}
+          disabled={props.disabled}
           onKeyDown={handleKeyDown}
           onChange={handleChange}
           autoComplete={"off"}

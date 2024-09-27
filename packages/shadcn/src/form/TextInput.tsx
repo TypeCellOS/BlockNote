@@ -16,6 +16,7 @@ export const TextInput = forwardRef<
     value,
     autoFocus,
     placeholder,
+    disabled,
     onKeyDown,
     onChange,
     onSubmit,
@@ -34,6 +35,7 @@ export const TextInput = forwardRef<
         name={name}
         autoFocus={autoFocus}
         placeholder={placeholder}
+        disabled={disabled}
         value={value}
         onKeyDown={onKeyDown}
         onChange={onChange}
@@ -55,6 +57,7 @@ export const TextInput = forwardRef<
         name={name}
         autoFocus={autoFocus}
         placeholder={placeholder}
+        disabled={disabled}
         value={value}
         onKeyDown={onKeyDown}
         onChange={onChange}

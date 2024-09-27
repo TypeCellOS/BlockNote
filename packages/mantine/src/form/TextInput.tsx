@@ -16,6 +16,7 @@ export const TextInput = forwardRef<
     value,
     autoFocus,
     placeholder,
+    disabled,
     onKeyDown,
     onChange,
     onSubmit,
@@ -37,6 +38,7 @@ export const TextInput = forwardRef<
       autoFocus={autoFocus}
       data-autofocus={autoFocus ? "true" : undefined}
       placeholder={placeholder}
+      disabled={disabled}
       onKeyDown={onKeyDown}
       onChange={onChange}
       onSubmit={onSubmit}
