@@ -3,6 +3,7 @@
 import { defaultProps } from "@blocknote/core";
 import { createReactBlockSpec } from "@blocknote/react";
 import CodeMirror from "@uiw/react-codemirror";
+import { NativeSelect } from "@mantine/core";
 import {
   langs,
   langNames,
@@ -39,9 +40,24 @@ export const Code = createReactBlockSpec(
         });
       };
 
+      const onLanguageChange = (val: string) => {
+        props.editor.updateBlock(props.block, {
+          props: {
+            ...props.block.props,
+            language: val,
+          },
+        });
+      };
+
       return (
         <div className={"code-block"}>
-          <div className={"code-block-language-wrapper"}>{language}</div>
+          <div className={"code-block-language-wrapper"}>
+            <NativeSelect
+              data={langNames}
+              defaultValue={props.block.props.language}
+              onChange={(e) => onLanguageChange(e.target.value)}
+            />
+          </div>
           <CodeMirror
             id={props.block.id}
             placeholder={"Write your code here..."}
