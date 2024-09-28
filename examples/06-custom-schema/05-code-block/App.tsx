@@ -22,12 +22,12 @@ const schema = BlockNoteSchema.create({
   blockSpecs: {
     // Adds all default blocks.
     ...defaultBlockSpecs,
-    // Adds the Alert block.
+    // Adds the Code block.
     codeBlock: Code,
   },
 });
 
-// Slash menu item to insert an Alert block
+// Slash menu item to insert an Code block
 const insertCodeBlock = (editor: typeof schema.BlockNoteEditor) => ({
   title: "Code",
   onItemClick: () => {
