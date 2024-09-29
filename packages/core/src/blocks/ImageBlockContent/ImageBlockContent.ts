@@ -60,7 +60,7 @@ export const imageRender = (
 
   const image = document.createElement("img");
   image.className = "bn-visual-media";
-  editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
+  editor.resolveFileUrl(block.props.url, block.id).then((downloadUrl) => {
     image.src = downloadUrl;
   });
   image.alt = block.props.name || block.props.caption || "BlockNote image";

@@ -45,7 +45,7 @@ export const FileDownloadButton = () => {
     if (fileBlock && fileBlock.props.url) {
       editor.focus();
       editor
-        .resolveFileUrl(fileBlock.props.url)
+        .resolveFileUrl(fileBlock.props.url, fileBlock.id)
         .then((downloadUrl) =>
           window.open(sanitizeUrl(downloadUrl, window.location.href))
         );
