@@ -56,6 +56,12 @@ let singleBlock: PartialBlock<
   DefaultStyleSchema
 >;
 
+let singleBlockWithChildren: PartialBlock<
+  typeof schema.blockSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema
+>;
+
 let multipleBlocks: PartialBlock<
   typeof schema.blockSchema,
   DefaultInlineContentSchema,
@@ -86,6 +92,17 @@ beforeEach(() => {
   singleBlock = {
     type: "paragraph",
     content: "Paragraph",
+  };
+
+  singleBlockWithChildren = {
+    type: "paragraph",
+    content: "Paragraph",
+    children: [
+      {
+        type: "paragraph",
+        content: "Nested Paragraph",
+      },
+    ],
   };
 
   multipleBlocks = [
@@ -280,6 +297,75 @@ describe("Insert, Update, & Delete Blocks", () => {
 
     const updatedBlocks = editor.document.slice(0, 2);
     editor.removeBlocks([updatedBlocks[0].children[0], updatedBlocks[1]]);
+
+    expect(editor.document).toMatchSnapshot();
+  });
+});
+
+describe("Update block cases", () => {
+  it("Update type only", async () => {
+    await waitForEditor();
+
+    const existingBlock = editor.document[0];
+    editor.insertBlocks([singleBlockWithChildren], existingBlock);
+
+    const newBlock = editor.document[0];
+    editor.updateBlock(newBlock, {
+      type: "heading",
+    });
+
+    expect(editor.document).toMatchSnapshot();
+  });
+
+  it("Update content only", async () => {
+    await waitForEditor();
+
+    const existingBlock = editor.document[0];
+    editor.insertBlocks([singleBlockWithChildren], existingBlock);
+
+    const newBlock = editor.document[0];
+    editor.updateBlock(newBlock, {
+      content: "Updated Paragraph",
+    });
+
+    expect(editor.document).toMatchSnapshot();
+  });
+
+  it("Update children only", async () => {
+    await waitForEditor();
+
+    const existingBlock = editor.document[0];
+    editor.insertBlocks([singleBlockWithChildren], existingBlock);
+
+    const newBlock = editor.document[0];
+    editor.updateBlock(newBlock, {
+      children: [
+        {
+          type: "heading",
+          content: "Heading",
+        },
+      ],
+    });
+
+    expect(editor.document).toMatchSnapshot();
+  });
+
+  it("Update content and children", async () => {
+    await waitForEditor();
+
+    const existingBlock = editor.document[0];
+    editor.insertBlocks([singleBlockWithChildren], existingBlock);
+
+    const newBlock = editor.document[0];
+    editor.updateBlock(newBlock, {
+      content: "Updated Paragraph",
+      children: [
+        {
+          type: "heading",
+          content: "Heading",
+        },
+      ],
+    });
 
     expect(editor.document).toMatchSnapshot();
   });
