@@ -15,6 +15,7 @@ export const TextInput = forwardRef<
     className,
     name,
     label,
+    variant,
     icon,
     value,
     autoFocus,
@@ -35,7 +36,11 @@ export const TextInput = forwardRef<
       <div className="bn-ak-input-wrapper">
         {icon}
         <AriakitFormInput
-          className={mergeCSSClasses("bn-ak-input", className || "")}
+          className={mergeCSSClasses(
+            "bn-ak-input",
+            className || "",
+            variant === "large" ? "bn-ak-input-large" : ""
+          )}
           ref={ref}
           name={name}
           value={value}

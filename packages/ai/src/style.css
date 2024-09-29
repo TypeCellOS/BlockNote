@@ -49,15 +49,15 @@
   height: 58px;
 }
 
-.bn-ai-menu {
+.bn-combobox {
   display: flex;
   flex-direction: column;
   gap: 4px;
   width: 100%;
 }
 
-div:not(.bn-popover-content) > .bn-ai-menu-input,
-div:not(.bn-popover-content) > .bn-ai-menu-items:not(:empty) {
+div:not(.bn-popover-content) > .bn-combobox-input,
+div:not(.bn-popover-content) > .bn-combobox-items:not(:empty) {
   background-color: var(--bn-colors-menu-background);
   border: var(--bn-border);
   border-radius: var(--bn-border-radius-medium);
@@ -68,19 +68,12 @@ div:not(.bn-popover-content) > .bn-ai-menu-items:not(:empty) {
   padding: 2px;
 }
 
-/* TODO: How to split UI libs CSS? */
-.bn-ai-menu-input .mantine-Input-input {
-  border: none;
-  font-size: 14px;
-  height: 52px;
-}
-
-.bn-ai-menu-items {
+.bn-combobox-items {
   max-width: 50%;
 }
 
 /* Mantine (TODO) */
-.bn-toolbar .mantine-Button-root.bn-show-prompt-button,
-.bn-toolbar .mantine-Button-root.bn-show-prompt-button:hover {
-  color: rgba(154, 56, 173, 0.5);
-}
+/*.bn-toolbar .mantine-Button-root.bn-show-prompt-button,*/
+/*.bn-toolbar .mantine-Button-root.bn-show-prompt-button:hover {*/
+/*  color: rgba(154, 56, 173, 0.5);*/
+/*}*/

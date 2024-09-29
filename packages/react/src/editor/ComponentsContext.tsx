@@ -177,6 +177,7 @@ export type ComponentProps = {
         className?: string;
         name: string;
         label?: string;
+        variant?: "default" | "large";
         icon: ReactNode;
         autoFocus?: boolean;
         placeholder?: string;

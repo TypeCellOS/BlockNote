@@ -92,11 +92,12 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
   }, [promptTextToUse, setSelectedIndex]);
 
   return (
-    <div className={"bn-ai-menu"}>
+    <div className={"bn-combobox"}>
       <Components.Generic.Form.Root>
         <Components.Generic.Form.TextInput
-          className={"bn-ai-menu-input"}
+          className={"bn-combobox-input"}
           name={"ai-prompt"}
+          variant={"large"}
           icon={<RiSparkling2Fill />}
           value={promptTextToUse || ""}
           autoFocus={true}
@@ -108,7 +109,7 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
         />
       </Components.Generic.Form.Root>
       <Components.SuggestionMenu.Root
-        className={"bn-ai-menu-items"}
+        className={"bn-combobox-items"}
         id={"ai-suggestion-menu"}>
         {items.map((item, index) => (
           <Components.SuggestionMenu.Item

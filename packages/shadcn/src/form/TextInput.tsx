@@ -12,6 +12,7 @@ export const TextInput = forwardRef<
     className,
     name,
     label,
+    variant,
     icon, // TODO: implement
     value,
     autoFocus,

@@ -118,6 +118,12 @@
   height: 32px;
 }
 
+.bn-mantine .bn-mt-input-large .mantine-TextInput-input {
+  border: none;
+  font-size: 14px;
+  height: 52px;
+}
+
 /* Mantine Tooltip component base styles */
 .bn-mantine .mantine-Tooltip-tooltip {
   background-color: transparent;
