@@ -23,7 +23,32 @@ export type BlockNoteTipTapEditorOptions = Partial<
 export class BlockNoteTipTapEditor extends TiptapEditor {
   private _state: EditorState;
 
-  constructor(options: BlockNoteTipTapEditorOptions, styleSchema: StyleSchema) {
+  public static create = (
+    options: BlockNoteTipTapEditorOptions,
+    styleSchema: StyleSchema
+  ) => {
+    // because we separate the constructor from the creation of the view,
+    // we need to patch setTimeout to prevent this code from having any effect:
+    // https://github.com/ueberdosis/tiptap/blob/45bac803283446795ad1b03f43d3746fa54a68ff/packages/core/src/Editor.ts#L117
+    const oldSetTimeout = globalThis?.window?.setTimeout;
+    if (typeof globalThis?.window?.setTimeout !== "undefined") {
+      globalThis.window.setTimeout = (() => {
+        return 0;
+      }) as any;
+    }
+    try {
+      return new BlockNoteTipTapEditor(options, styleSchema);
+    } finally {
+      if (oldSetTimeout) {
+        globalThis.window.setTimeout = oldSetTimeout;
+      }
+    }
+  };
+
+  protected constructor(
+    options: BlockNoteTipTapEditorOptions,
+    styleSchema: StyleSchema
+  ) {
     // possible fix for next.js server side rendering
     // const d = globalThis.document;
     // const w = globalThis.window;
@@ -32,14 +57,10 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
     //     createElement: () => {},
     //   };
     // }
-    // if (!globalThis.window) {
-    //   globalThis.window = {
-    //     setTimeout: () => {},
-    //   };
-    // }
-    // options.injectCSS = false
-    super({ ...options, content: undefined });
 
+    // options.injectCSS = false
+
+    super({ ...options, content: undefined });
     // try {
     //   globalThis.window = w;
     //   } catch(e) {}
@@ -149,6 +170,12 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
       this.view.updateState(newState);
 
       this.createNodeViews();
+
+      // emit the created event, call here manually because we blocked the default call in the constructor
+      // (https://github.com/ueberdosis/tiptap/blob/45bac803283446795ad1b03f43d3746fa54a68ff/packages/core/src/Editor.ts#L117)
+      this.commands.focus(this.options.autofocus);
+      this.emit("create", { editor: this });
+      this.isInitialized = true;
     });
   }
 
