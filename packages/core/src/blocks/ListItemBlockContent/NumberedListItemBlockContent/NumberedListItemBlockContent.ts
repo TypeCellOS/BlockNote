@@ -36,10 +36,6 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
     };
   },
 
-  onCreate() {
-    console.log("onCreate");
-  },
-
   addInputRules() {
     return [
       // Creates an ordered list when starting with "1.".
