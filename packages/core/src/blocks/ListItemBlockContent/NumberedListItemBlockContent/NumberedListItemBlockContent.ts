@@ -12,6 +12,9 @@ import { getCurrentBlockContentType } from "../../../api/getCurrentBlockContentT
 
 export const numberedListItemPropSchema = {
   ...defaultProps,
+  index: {
+    default: 0,
+  },
 } satisfies PropSchema;
 
 const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
@@ -31,6 +34,10 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
         },
       },
     };
+  },
+
+  onCreate() {
+    console.log("onCreate");
   },
 
   addInputRules() {

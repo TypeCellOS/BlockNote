@@ -24,6 +24,8 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
   private _state: EditorState;
 
   constructor(options: BlockNoteTipTapEditorOptions, styleSchema: StyleSchema) {
+    console.log("BlockNoteTipTapEditor constructor");
+    debugger;
     // possible fix for next.js server side rendering
     // const d = globalThis.document;
     // const w = globalThis.window;
@@ -128,8 +130,10 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
    * Replace the default `createView` method with a custom one - which we call on mount
    */
   private createViewAlternative() {
+    console.log("createViewAlternative");
     // Without queueMicrotask, custom IC / styles will give a React FlushSync error
     queueMicrotask(() => {
+      console.log("microtask start");
       this.view = new EditorView(
         { mount: this.options.element as any }, // use mount option so that we reuse the existing element instead of creating a new one
         {
@@ -149,6 +153,10 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
       this.view.updateState(newState);
 
       this.createNodeViews();
+
+      // Temp fix
+      // this.dispatch(this.state.tr.setMeta("initView", undefined));
+      console.log("microtask end");
     });
   }
 
@@ -159,8 +167,10 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
    */
   public mount = (element?: HTMLElement | null) => {
     if (!element) {
+      console.log("unmount");
       this.destroy();
     } else {
+      console.log("mount");
       this.options.element = element;
       // @ts-ignore
       this.createViewAlternative();
