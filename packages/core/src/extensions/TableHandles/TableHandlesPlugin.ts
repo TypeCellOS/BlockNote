@@ -127,6 +127,7 @@ export class TableHandlesView<
     };
 
     pmView.dom.addEventListener("mousemove", this.mouseMoveHandler);
+    pmView.dom.addEventListener("mouseup", this.mouseUpHandler);
 
     pmView.root.addEventListener(
       "dragover",
@@ -142,6 +143,16 @@ export class TableHandlesView<
 
   mouseMoveHandler = (event: MouseEvent) => {
     if (this.menuFrozen) {
+      return;
+    }
+
+    // Prevents table handles from showing while a selection is active.
+    if (!this.pmView.state.selection.empty) {
+      if (this.state?.show) {
+        this.state.show = false;
+        this.emitUpdate();
+      }
+
       return;
     }
 
@@ -229,6 +240,11 @@ export class TableHandlesView<
     this.emitUpdate();
 
     return false;
+  };
+
+  mouseUpHandler = (event: MouseEvent) => {
+    // Have to wait for changes from view to propagate to state.
+    setTimeout(() => this.mouseMoveHandler(event), 10);
   };
 
   dragOverHandler = (event: DragEvent) => {
