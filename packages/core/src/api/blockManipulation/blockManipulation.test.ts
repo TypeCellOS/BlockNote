@@ -39,17 +39,6 @@ const schema = BlockNoteSchema.create({
 let editor: BlockNoteEditor<typeof schema.blockSchema>;
 const div = document.createElement("div");
 
-function waitForEditor() {
-  // wait for create event on editor,
-  // this is necessary because otherwise UniqueId.create hasn't been called yet, and
-  // blocks would have "null" as their id
-  return new Promise<void>((resolve) => {
-    editor._tiptapEditor.on("create", () => {
-      resolve();
-    });
-  });
-}
-
 let singleBlock: PartialBlock<
   typeof schema.blockSchema,
   DefaultInlineContentSchema,
@@ -195,25 +184,19 @@ describe("Test strong typing", () => {
 });
 
 describe("Inserting Blocks with Different Placements", () => {
-  it("Insert before existing block", async () => {
-    await waitForEditor();
-
+  it("Insert before existing block", () => {
     const output = insert("before");
 
     expect(output).toMatchSnapshot();
   });
 
-  it("Insert nested inside existing block", async () => {
-    await waitForEditor();
-
+  it("Insert nested inside existing block", () => {
     const output = insert("nested");
 
     expect(output).toMatchSnapshot();
   });
 
-  it("Insert after existing block", async () => {
-    await waitForEditor();
-
+  it("Insert after existing block", () => {
     const output = insert("after");
 
     expect(output).toMatchSnapshot();
@@ -221,9 +204,7 @@ describe("Inserting Blocks with Different Placements", () => {
 });
 
 describe("Insert, Update, & Delete Blocks", () => {
-  it("Insert, update, & delete single block", async () => {
-    await waitForEditor();
-
+  it("Insert, update, & delete single block", () => {
     const existingBlock = editor.document[0];
     editor.insertBlocks([singleBlock], existingBlock);
 
@@ -263,9 +244,7 @@ describe("Insert, Update, & Delete Blocks", () => {
     expect(editor.document).toMatchSnapshot();
   });
 
-  it("Insert, update, & delete multiple blocks", async () => {
-    await waitForEditor();
-
+  it("Insert, update, & delete multiple blocks", () => {
     const existingBlock = editor.document[0];
     editor.insertBlocks(multipleBlocks, existingBlock);
 
@@ -286,9 +265,7 @@ describe("Insert, Update, & Delete Blocks", () => {
 });
 
 describe("Update Line Breaks", () => {
-  it("Update paragraph with line break", async () => {
-    await waitForEditor();
-
+  it("Update paragraph with line break", () => {
     const existingBlock = editor.document[0];
     editor.insertBlocks(blocksWithLineBreaks, existingBlock);
 
@@ -300,9 +277,7 @@ describe("Update Line Breaks", () => {
 
     expect(editor.document).toMatchSnapshot();
   });
-  it("Update custom block with line break", async () => {
-    await waitForEditor();
-
+  it("Update custom block with line break", () => {
     const existingBlock = editor.document[0];
     editor.insertBlocks(blocksWithLineBreaks, existingBlock);
 

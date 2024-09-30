@@ -12,9 +12,6 @@ import { getCurrentBlockContentType } from "../../../api/getCurrentBlockContentT
 
 export const numberedListItemPropSchema = {
   ...defaultProps,
-  index: {
-    default: 0,
-  },
 } satisfies PropSchema;
 
 const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
