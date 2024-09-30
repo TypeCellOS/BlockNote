@@ -2,7 +2,7 @@ import {
   AIBlock,
   AIBlockToolbarProsemirrorPlugin,
   AIButton,
-  AIInlineToolbarProsemirrorPlugin,
+  AIShowSelectionPlugin,
   BlockNoteAIContextProvider,
   BlockNoteAIUI,
   aiBlockTypeSelectItems,
@@ -49,7 +49,7 @@ export default function App() {
     extensions: {
       // TODO: things will break when user provides different keys. Define name on plugins instead?
       aiBlockToolbar: new AIBlockToolbarProsemirrorPlugin(),
-      aiInlineToolbar: new AIInlineToolbarProsemirrorPlugin(),
+      aiSelection: new AIShowSelectionPlugin(),
     },
   });
 

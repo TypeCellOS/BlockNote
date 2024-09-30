@@ -1,6 +1,5 @@
 import { useBlockNoteEditor } from "@blocknote/react";
 import { AIBlockToolbarController } from "./AIBlockToolbar/AIBlockToolbarController";
-import { AIInlineToolbarController } from "./AIInlineToolbar/AIInlineToolbarController";
 
 import { AIMenu } from "./AIMenu/AIMenu";
 import { BlockPositioner } from "./AIMenu/BlockPositioner";
@@ -26,7 +25,6 @@ export function BlockNoteAIUI(props: BlockNoteAIUIProps) {
       {editor.extensions.aiBlockToolbar && props.aiBlockToolbar !== false && (
         <AIBlockToolbarController />
       )}
-      {props.aiInlineToolbar !== false && <AIInlineToolbarController />}
       {props.aiMenu !== false && <AIMenuController />}
     </>
   );

@@ -3,7 +3,7 @@ import "./style.css";
 export * from "./blocks/AIBlockContent/AIBlockContent";
 export * from "./blocks/AIBlockContent/mockAIFunctions";
 export * from "./extensions/AIBlockToolbar/AIBlockToolbarPlugin";
-export * from "./extensions/AIInlineToolbar/AIInlineToolbarPlugin";
+export * from "./extensions/AIShowSelectionPlugin";
 
 export * from "./components/AIBlockToolbar/AIBlockToolbar";
 export * from "./components/AIBlockToolbar/AIBlockToolbarController";

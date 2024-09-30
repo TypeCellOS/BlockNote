@@ -14,6 +14,7 @@ import { updateFunction } from "./functions/update";
 import { createOperationsArraySchema } from "./schema/operations";
 import { blockNoteSchemaToJSONSchema } from "./schema/schemaToJSONSchema";
 
+// TODO don't include child block
 export function createMessagesForLLM(opts: {
   editor: BlockNoteEditor;
   prompt: string;

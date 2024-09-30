@@ -1,0 +1,7 @@
+
+review toolbar code
+fix design of menus (smaller items, border?)
+
+see if addToHistory: false is needed
+track last affected position to update toolbar
+enable / disable show selection plugin

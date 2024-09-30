@@ -77,3 +77,8 @@ div:not(.bn-popover-content) > .bn-combobox-items:not(:empty) {
 /*.bn-toolbar .mantine-Button-root.bn-show-prompt-button:hover {*/
 /*  color: rgba(154, 56, 173, 0.5);*/
 /*}*/
+
+[data-ai-show-selection] {
+  background-color: highlight;
+  padding: 2px 0;
+}
