@@ -12,6 +12,9 @@ import { getCurrentBlockContentType } from "../../../api/getCurrentBlockContentT
 
 export const numberedListItemPropSchema = {
   ...defaultProps,
+  index: {
+    default: 0,
+  },
 } satisfies PropSchema;
 
 const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
@@ -22,11 +25,18 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
   addAttributes() {
     return {
       index: {
-        default: null,
-        parseHTML: (element) => element.getAttribute("data-index"),
+        default: 0,
+        parseHTML: (element) => {
+          const attr = element.getAttribute("data-index")!;
+          const parsed = parseInt(attr);
+          if (isFinite(parsed)) {
+            return parsed;
+          }
+          return undefined;
+        },
         renderHTML: (attributes) => {
           return {
-            "data-index": attributes.index,
+            "data-index": (attributes.index as number).toString(),
           };
         },
       },

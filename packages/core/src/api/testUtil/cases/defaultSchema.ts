@@ -120,10 +120,16 @@ export const defaultSchemaTestCases: EditorTestCases<
         },
         {
           type: "numberedListItem",
+          props: {
+            index: 1,
+          },
           content: "Numbered List Item 1",
         },
         {
           type: "numberedListItem",
+          props: {
+            index: 2,
+          },
           content: "Numbered List Item 2",
         },
         {
@@ -152,10 +158,16 @@ export const defaultSchemaTestCases: EditorTestCases<
           children: [
             {
               type: "numberedListItem",
+              props: {
+                index: 1,
+              },
               content: "Numbered List Item 1",
             },
             {
               type: "numberedListItem",
+              props: {
+                index: 2,
+              },
               content: "Numbered List Item 2",
               children: [
                 {
