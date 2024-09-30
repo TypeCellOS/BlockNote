@@ -12,12 +12,12 @@ export const EditLinkButton = (
   return (
     <Components.Generic.Popover.Root>
       <Components.Generic.Popover.Trigger>
-        <Components.LinkToolbar.Button
+        <Components.Toolbar.Button
           className={"bn-button"}
           mainTooltip={dict.link_toolbar.edit.tooltip}
           isSelected={false}>
           {dict.link_toolbar.edit.text}
-        </Components.LinkToolbar.Button>
+        </Components.Toolbar.Button>
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content
         className={"bn-popover-content bn-form-popover"}

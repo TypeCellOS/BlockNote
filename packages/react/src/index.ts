@@ -52,6 +52,7 @@ export * from "./components/SuggestionMenu/SuggestionMenuWrapper";
 export * from "./components/SuggestionMenu/getDefaultReactSlashMenuItems";
 export * from "./components/SuggestionMenu/hooks/useCloseSuggestionMenuNoItems";
 export * from "./components/SuggestionMenu/hooks/useLoadSuggestionMenuItems";
+export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardHandler";
 export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardNavigation";
 export * from "./components/SuggestionMenu/types";
 
@@ -86,6 +87,8 @@ export * from "./hooks/useEditorForceUpdate";
 export * from "./hooks/useEditorSelectionChange";
 export * from "./hooks/usePrefersColorScheme";
 export * from "./hooks/useSelectedBlocks";
+export * from "./hooks/useUIElementPositioning";
+export * from "./hooks/useUIPluginState";
 
 export * from "./schema/ReactBlockSpec";
 export * from "./schema/ReactInlineContentSpec";

@@ -3,24 +3,27 @@ import {
   ComponentType,
   createContext,
   CSSProperties,
+  HTMLInputAutoCompleteAttribute,
   KeyboardEvent,
   MouseEvent,
   ReactNode,
   useContext,
 } from "react";
 
-import { DefaultReactSuggestionItem } from "../components/SuggestionMenu/types";
 import { DefaultReactGridSuggestionItem } from "../components/SuggestionMenu/GridSuggestionMenu/types";
+import { DefaultReactSuggestionItem } from "../components/SuggestionMenu/types";
 
 export type ComponentProps = {
-  FormattingToolbar: {
+  Toolbar: {
     Root: {
       className?: string;
       children?: ReactNode;
+      onMouseEnter?: () => void;
+      onMouseLeave?: () => void;
     };
     Button: {
       className?: string;
-      mainTooltip: string;
+      mainTooltip?: string;
       secondaryTooltip?: string;
       icon?: ReactNode;
       onClick?: (e: MouseEvent) => void;
@@ -80,26 +83,6 @@ export type ComponentProps = {
       onKeyDown: (event: KeyboardEvent) => void;
     };
   };
-  LinkToolbar: {
-    Root: {
-      className?: string;
-      children?: ReactNode;
-      onMouseEnter?: () => void;
-      onMouseLeave?: () => void;
-    };
-    Button: {
-      className?: string;
-      mainTooltip: string;
-      secondaryTooltip?: string;
-      icon?: ReactNode;
-      onClick?: (e: MouseEvent) => void;
-      isSelected?: boolean;
-      isDisabled?: boolean;
-    } & (
-      | { children: ReactNode; label?: string }
-      | { children?: undefined; label: string }
-    );
-  };
   SideMenu: {
     Root: {
       className?: string;
@@ -132,7 +115,7 @@ export type ComponentProps = {
       id: string;
       isSelected: boolean;
       onClick: () => void;
-      item: DefaultReactSuggestionItem;
+      item: Omit<DefaultReactSuggestionItem, "onItemClick">;
     };
     Label: {
       className?: string;
@@ -194,13 +177,16 @@ export type ComponentProps = {
         className?: string;
         name: string;
         label?: string;
+        variant?: "default" | "large";
         icon: ReactNode;
         autoFocus?: boolean;
-        placeholder: string;
+        placeholder?: string;
+        disabled?: boolean;
         value: string;
         onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
         onChange: (event: ChangeEvent<HTMLInputElement>) => void;
         onSubmit?: () => void;
+        autoComplete?: HTMLInputAutoCompleteAttribute;
       };
     };
     Menu: {

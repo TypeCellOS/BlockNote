@@ -1,0 +1,26 @@
+{
+  "blocks": [
+    {
+      "block": {
+        "id": "8",
+        "type": "heading",
+        "props": {
+          "textColor": "red",
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "level": 2
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Regular",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      "contentCutAtStart": true,
+      "contentCutAtEnd": false
+    }
+  ]
+}

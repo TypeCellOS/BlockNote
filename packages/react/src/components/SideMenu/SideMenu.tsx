@@ -31,7 +31,18 @@ export const SideMenu = <
 ) => {
   const Components = useComponentsContext()!;
 
-  const { addBlock, ...rest } = props;
+  const {
+    addBlock,
+    block,
+    blockDragEnd,
+    blockDragStart,
+    children,
+    dragHandleMenu,
+    editor,
+    freezeMenu,
+    unfreezeMenu,
+    ...rest
+  } = props;
 
   const dataAttributes = useMemo(() => {
     const attrs: Record<string, string> = {
@@ -50,15 +61,22 @@ export const SideMenu = <
       }
     }
 
+    if (props.block.type === "ai" && props.block.props.prompt) {
+      attrs["data-prompt"] = props.block.props.prompt.toString();
+    }
+
     return attrs;
   }, [props.block, props.editor.schema.blockSchema]);
 
   return (
-    <Components.SideMenu.Root className={"bn-side-menu"} {...dataAttributes}>
+    <Components.SideMenu.Root
+      className={"bn-side-menu"}
+      {...dataAttributes}
+      {...rest}>
       {props.children || (
         <>
-          <AddBlockButton addBlock={addBlock} />
-          <DragHandleButton {...rest} />
+          <AddBlockButton {...props} />
+          <DragHandleButton {...props} />
         </>
       )}
     </Components.SideMenu.Root>

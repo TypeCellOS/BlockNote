@@ -1,3 +1,4 @@
+import { mergeCSSClasses } from "@blocknote/core";
 import { useMemo } from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext";
@@ -38,7 +39,10 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
 
       renderedItems.push(
         <Components.SuggestionMenu.Item
-          className={"bn-suggestion-menu-item"}
+          className={mergeCSSClasses(
+            "bn-suggestion-menu-item",
+            item.size === "small" ? "bn-suggestion-menu-item-small" : ""
+          )}
           item={item}
           id={`bn-suggestion-menu-item-${i}`}
           isSelected={i === selectedIndex}

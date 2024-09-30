@@ -286,7 +286,7 @@ export const BlockContainer = Node.create<{
               state.tr
                 .replaceWith(
                   startPos,
-                  endPos,
+                  startPos + contentNode.nodeSize,
                   state.schema.nodes[newType].create(
                     {
                       ...contentNode.attrs,
@@ -317,7 +317,7 @@ export const BlockContainer = Node.create<{
               ...block.props,
             });
           }
-
+          // state.tr.setMeta("addToHistory", false);
           return true;
         },
       // Appends the text contents of a block to the nearest previous block, given a position between them. Children of

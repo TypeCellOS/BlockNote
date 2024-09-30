@@ -1,6 +1,7 @@
 import * as locales from "./i18n/locales";
 export * from "./api/exporters/html/externalHTMLExporter";
 export * from "./api/exporters/html/internalHTMLSerializer";
+export * from "./api/getBlockInfoFromPos";
 export * from "./api/getCurrentBlockContentType";
 export * from "./api/testUtil";
 export * from "./blocks/AudioBlockContent/AudioBlockContent";
@@ -30,7 +31,9 @@ export * from "./extensions/SuggestionMenu/getDefaultEmojiPickerItems";
 export * from "./extensions/SuggestionMenu/getDefaultSlashMenuItems";
 export * from "./extensions/TableHandles/TableHandlesPlugin";
 export * from "./i18n/dictionary";
+export * from "./i18n/locales";
 export * from "./schema";
+export * from "./util/EventEmitter";
 export * from "./util/browser";
 export * from "./util/esmDependencies";
 export * from "./util/string";

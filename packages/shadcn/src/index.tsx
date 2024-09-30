@@ -49,7 +49,7 @@ import { Toolbar, ToolbarButton, ToolbarSelect } from "./toolbar/Toolbar";
 import "./style.css";
 
 export const components: Components = {
-  FormattingToolbar: {
+  Toolbar: {
     Root: Toolbar,
     Button: ToolbarButton,
     Select: ToolbarSelect,
@@ -60,10 +60,6 @@ export const components: Components = {
     FileInput: PanelFileInput,
     TabPanel: PanelTab,
     TextInput: PanelTextInput,
-  },
-  LinkToolbar: {
-    Root: Toolbar,
-    Button: ToolbarButton,
   },
   SideMenu: {
     Root: SideMenu,

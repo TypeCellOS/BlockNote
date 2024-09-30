@@ -44,7 +44,7 @@ export const FileReplaceButton = () => {
   return (
     <Components.Generic.Popover.Root opened={isOpen} position={"bottom"}>
       <Components.Generic.Popover.Trigger>
-        <Components.FormattingToolbar.Button
+        <Components.Toolbar.Button
           className={"bn-button"}
           onClick={() => setIsOpen(!isOpen)}
           isSelected={isOpen}

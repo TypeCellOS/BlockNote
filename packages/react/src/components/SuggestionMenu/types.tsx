@@ -4,8 +4,9 @@ import { DefaultSuggestionItem } from "@blocknote/core";
  * Although any arbitrary data can be passed as suggestion items, the built-in
  * UI components such as `MantineSuggestionMenu` expect a shape that conforms to DefaultSuggestionItem
  */
-export type DefaultReactSuggestionItem = Omit<DefaultSuggestionItem, "key"> & {
+export type DefaultReactSuggestionItem = DefaultSuggestionItem & {
   icon?: JSX.Element;
+  size?: "default" | "small";
 };
 
 /**

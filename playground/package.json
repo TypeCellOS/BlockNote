@@ -12,6 +12,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.609.0",
     "@aws-sdk/s3-request-presigner": "^3.609.0",
+    "@blocknote/ai": "^0.15.10",
     "@blocknote/ariakit": "^0.15.10",
     "@blocknote/core": "^0.15.10",
     "@blocknote/mantine": "^0.15.10",
