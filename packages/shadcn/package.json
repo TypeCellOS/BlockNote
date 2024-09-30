@@ -4,7 +4,7 @@
   "private": false,
   "sideEffects": false,
   "license": "MPL-2.0",
-  "version": "0.15.10",
+  "version": "0.15.11",
   "files": [
     "dist",
     "types",
@@ -49,8 +49,8 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "^0.15.10",
-    "@blocknote/react": "^0.15.10",
+    "@blocknote/core": "^0.15.11",
+    "@blocknote/react": "^0.15.11",
     "@hookform/resolvers": "^3.6.0",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
     "@radix-ui/react-label": "^2.0.2",
