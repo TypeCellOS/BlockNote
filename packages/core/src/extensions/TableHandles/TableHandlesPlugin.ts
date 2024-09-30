@@ -107,6 +107,8 @@ export class TableHandlesView<
 
   public menuFrozen = false;
 
+  public mouseState: "up" | "down" | "selecting" = "up";
+
   public prevWasEditable: boolean | null = null;
 
   constructor(
@@ -127,6 +129,8 @@ export class TableHandlesView<
     };
 
     pmView.dom.addEventListener("mousemove", this.mouseMoveHandler);
+    pmView.dom.addEventListener("mousedown", this.viewMousedownHandler);
+    pmView.dom.addEventListener("mouseup", this.viewMouseupHandler);
 
     pmView.root.addEventListener(
       "dragover",
@@ -140,8 +144,30 @@ export class TableHandlesView<
     pmView.root.addEventListener("scroll", this.scrollHandler, true);
   }
 
+  viewMousedownHandler = () => {
+    this.mouseState = "down";
+  };
+
+  viewMouseupHandler = (event: MouseEvent) => {
+    this.mouseState = "up";
+    this.mouseMoveHandler(event);
+  };
+
   mouseMoveHandler = (event: MouseEvent) => {
     if (this.menuFrozen) {
+      return;
+    }
+
+    if (this.mouseState === "down") {
+      this.mouseState = "selecting";
+
+      if (this.state?.show) {
+        this.state.show = false;
+        this.emitUpdate();
+      }
+    }
+
+    if (this.mouseState === "selecting") {
       return;
     }
 
