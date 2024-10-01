@@ -35,6 +35,8 @@ export function wrapTableRows(f: Fragment, schema: Schema) {
         const newTable = schema.nodes.table.create(undefined, f.child(i));
         newItems.push(newTable);
       }
+    } else {
+      newItems.push(f.child(i));
     }
   }
   f = Fragment.from(newItems);
