@@ -1,4 +1,4 @@
-import { TextSelection } from "prosemirror-state";
+import { NodeSelection, TextSelection } from "prosemirror-state";
 import {
   afterAll,
   afterEach,
@@ -10,15 +10,7 @@ import {
 } from "vitest";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
 
-import {
-  addIdsToBlocks,
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  ExternalHTMLExporter,
-  InternalHTMLSerializer,
-  partialBlocksToBlocksForTesting,
-} from "../../..";
+import { addIdsToBlocks, partialBlocksToBlocksForTesting } from "../../..";
 import { PartialBlock } from "../../../blocks/defaultBlocks";
 import { BlockSchema } from "../../../schema/blocks/types";
 import { InlineContentSchema } from "../../../schema/inlineContent/types";
@@ -30,6 +22,7 @@ import { customStylesTestCases } from "../../testUtil/cases/customStyles";
 import { defaultSchemaTestCases } from "../../testUtil/cases/defaultSchema";
 import { createExternalHTMLExporter } from "./externalHTMLExporter";
 import { createInternalHTMLSerializer } from "./internalHTMLSerializer";
+import { Node } from "prosemirror-model";
 
 async function convertToHTMLAndCompareSnapshots<
   B extends BlockSchema,
@@ -127,7 +120,7 @@ describe("Test HTML conversion", () => {
 // The test cases used for the other HTML conversion tests are not suitable here
 // as they are represented in the BlockNote API, whereas here we want to test
 // ProseMirror/TipTap selections directly.
-describe("Test ProseMirror selection HTML conversion", () => {
+describe("Test ProseMirror selection clipboard HTML", () => {
   const initialContent: PartialBlock[] = [
     {
       type: "heading",
@@ -249,28 +242,23 @@ describe("Test ProseMirror selection HTML conversion", () => {
     },
   ];
 
+  let pmView: any;
   let editor: BlockNoteEditor;
-  let serializer: InternalHTMLSerializer<
-    DefaultBlockSchema,
-    DefaultInlineContentSchema,
-    DefaultStyleSchema
-  >;
-  let exporter: ExternalHTMLExporter<
-    DefaultBlockSchema,
-    DefaultInlineContentSchema,
-    DefaultStyleSchema
-  >;
   const div = document.createElement("div");
+  document.body.append(div);
+
+  beforeEach(() => {
+    editor.replaceBlocks(editor.document, initialContent);
+  });
 
   beforeAll(async () => {
+    pmView = await import("prosemirror-view");
     (window as any).__TEST_OPTIONS = (window as any).__TEST_OPTIONS || {};
 
-    editor = BlockNoteEditor.create({ initialContent });
+    editor = BlockNoteEditor.create();
     editor.mount(div);
 
     await initializeESMDependencies();
-    serializer = createInternalHTMLSerializer(editor.pmSchema, editor);
-    exporter = createExternalHTMLExporter(editor.pmSchema, editor);
   });
 
   afterAll(() => {
@@ -289,24 +277,43 @@ describe("Test ProseMirror selection HTML conversion", () => {
         TextSelection.create(editor._tiptapEditor.state.doc, startPos, endPos)
       )
     );
+    if (
+      "node" in editor._tiptapEditor.view.state.selection &&
+      (editor._tiptapEditor.view.state.selection.node as Node).type.spec
+        .group === "blockContent"
+    ) {
+      editor.dispatch(
+        editor._tiptapEditor.state.tr.setSelection(
+          new NodeSelection(
+            editor._tiptapEditor.view.state.doc.resolve(
+              editor._tiptapEditor.view.state.selection.from - 1
+            )
+          )
+        )
+      );
+    }
 
-    const copiedFragment =
-      editor._tiptapEditor.state.selection.content().content;
+    const originalSlice = editor._tiptapEditor.view.state.selection.content();
 
-    const internalHTML = serializer.serializeProseMirrorFragment(
-      copiedFragment,
-      {}
-    );
-    const externalHTML = exporter.exportProseMirrorFragment(copiedFragment, {});
+    // Uses default ProseMirror clipboard serialization.
+    const internalHTML: string = pmView.__serializeForClipboard(
+      editor._tiptapEditor.view,
+      originalSlice
+    ).dom.innerHTML;
 
     expect(internalHTML).toMatchFileSnapshot(
-      `./__snapshots_selection_html__/internal/${testName}.html`
-    );
-    expect(externalHTML).toMatchFileSnapshot(
-      `./__snapshots_selection_html__/external/${testName}.html`
+      `./__snapshots_selection_html__/${testName}.html`
     );
 
-    // TODO: Add a snapshot comparison for document JSON after paste.
+    const recreatedSlice = pmView.__parseFromClipboard(
+      editor._tiptapEditor.view,
+      "",
+      internalHTML,
+      false,
+      editor._tiptapEditor.state.selection.$from
+    );
+
+    expect(recreatedSlice).toStrictEqual(originalSlice);
   }
 
   const testCases: { testName: string; startPos: number; endPos: number }[] = [

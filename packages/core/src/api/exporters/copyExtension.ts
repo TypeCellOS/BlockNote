@@ -25,6 +25,15 @@ async function selectedFragmentToHTML<
   externalHTML: string;
   plainText: string;
 }> {
+  // Uses default ProseMirror clipboard serialization.
+  const internalHTML: string = pmView.__serializeForClipboard(
+    view,
+    view.state.selection.content()
+  ).dom.innerHTML;
+
+  // Checks whether block ancestry should be included when creating external
+  // HTML. If the selection is within a block content node, the block ancestry
+  // is excluded as we only care about the inline content.
   let selectedFragment = view.state.doc.slice(
     view.state.selection.from,
     view.state.selection.to,
@@ -44,18 +53,12 @@ async function selectedFragmentToHTML<
         child.type.spec.group === "blockContent"
     ) === undefined;
   if (!isWithinBlockContent) {
-    selectedFragment = editor.prosemirrorView.state.doc.slice(
-      editor.prosemirrorView.state.selection.from,
-      editor.prosemirrorView.state.selection.to,
+    selectedFragment = view.state.doc.slice(
+      view.state.selection.from,
+      view.state.selection.to,
       true
     ).content;
   }
-
-  // console.log(selectedFragment);
-  const internalHTML: string = pmView.__serializeForClipboard(
-    view,
-    view.state.selection.content()
-  ).dom.outerHTML;
 
   await initializeESMDependencies();
   const externalHTMLExporter = createExternalHTMLExporter(
@@ -67,7 +70,7 @@ async function selectedFragmentToHTML<
     { simplifyBlocks: !isWithinBlockContent }
   );
 
-  const plainText = await cleanHTMLToMarkdown(externalHTML);
+  const plainText = cleanHTMLToMarkdown(externalHTML);
 
   return { internalHTML, externalHTML, plainText };
 }
