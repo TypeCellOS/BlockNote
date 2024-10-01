@@ -1,6 +1,7 @@
 import { Extension } from "@tiptap/core";
-import { Node } from "prosemirror-model";
+import { DOMSerializer, Node } from "prosemirror-model";
 import { NodeSelection, Plugin } from "prosemirror-state";
+import { __serializeForClipboard } from "prosemirror-view";
 
 import { EditorView } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
@@ -22,16 +23,47 @@ async function selectedFragmentToHTML<
   externalHTML: string;
   plainText: string;
 }> {
+  // let selectedFragment = view.state.doc.slice(
+  //   view.state.selection.from,
+  //   view.state.selection.to,
+  //   false
+  // ).content;
+  // console.log(selectedFragment);
+  //
+  // const children = [];
+  // for (let i = 0; i < selectedFragment.childCount; i++) {
+  //   children.push(selectedFragment.child(i));
+  // }
+  // const isWithinBlockContent =
+  //   children.find(
+  //     (child) =>
+  //       child.type.name === "blockContainer" ||
+  //       child.type.name === "blockGroup" ||
+  //       child.type.spec.group === "blockContent"
+  //   ) === undefined;
+  // if (!isWithinBlockContent) {
+  //   selectedFragment = view.state.doc.slice(
+  //     view.state.selection.from,
+  //     view.state.selection.to,
+  //     true
+  //   ).content;
+  // }
   const selectedFragment = view.state.selection.content().content;
+  // console.log(selectedFragment);
+  const s = __serializeForClipboard(view, selectedFragment);
+  console.log(s);
 
-  const internalHTMLSerializer = createInternalHTMLSerializer(
-    view.state.schema,
-    editor
-  );
-  const internalHTML = internalHTMLSerializer.serializeProseMirrorFragment(
-    selectedFragment,
-    {}
-  );
+  // 1. Why did we use the internal serializer to put HTML on the clipboard and not the defualt logic?
+  // 2. Will we lose context from parent nodes if we e.g. only select block content?
+
+  // const internalHTMLSerializer = createInternalHTMLSerializer(
+  //   view.state.schema,
+  //   editor
+  // );
+  // const internalHTML = internalHTMLSerializer.serializeProseMirrorFragment(
+  //   selectedFragment,
+  //   {}
+  // );
 
   await initializeESMDependencies();
   const externalHTMLExporter = createExternalHTMLExporter(
@@ -45,7 +77,7 @@ async function selectedFragmentToHTML<
 
   const plainText = await cleanHTMLToMarkdown(externalHTML);
 
-  return { internalHTML, externalHTML, plainText };
+  return { internalHTML: s.dom.outerHTML, externalHTML, plainText };
 }
 
 const copyToClipboard = <
