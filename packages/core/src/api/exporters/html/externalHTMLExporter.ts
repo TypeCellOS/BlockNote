@@ -63,7 +63,11 @@ export const createExternalHTMLExporter = <
     );
   }
 
-  const serializer = DOMSerializer.fromSchema(schema) as DOMSerializer & {
+  // TODO: maybe cache this serializer (default prosemirror serializer is cached)?
+  const serializer = new DOMSerializer(
+    DOMSerializer.nodesFromSchema(schema),
+    DOMSerializer.marksFromSchema(schema)
+  ) as DOMSerializer & {
     serializeNodeInner: (
       node: Node,
       options: { document?: Document }
