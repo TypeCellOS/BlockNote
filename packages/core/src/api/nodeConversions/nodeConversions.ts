@@ -172,16 +172,23 @@ export function tableContentToNodes<
     const columnNodes: Node[] = [];
     for (const cell of row.cells) {
       let pNode: Node;
-      if (!cell) {
+      if (!cell.content || cell.content.length === 0) {
         pNode = schema.nodes["tableParagraph"].create({});
       } else if (typeof cell === "string") {
         pNode = schema.nodes["tableParagraph"].create({}, schema.text(cell));
       } else {
-        const textNodes = inlineContentToNodes(cell, schema, styleSchema);
+        const textNodes = inlineContentToNodes(
+          cell.content,
+          schema,
+          styleSchema
+        );
         pNode = schema.nodes["tableParagraph"].create({}, textNodes);
       }
 
-      const cellNode = schema.nodes["tableCell"].create({}, pNode);
+      const cellNode = schema.nodes["tableCell"].create(
+        { colwidth: [cell.width] || null },
+        pNode
+      );
       columnNodes.push(cellNode);
     }
     const rowNode = schema.nodes["tableRow"].create({}, columnNodes);
@@ -282,13 +289,17 @@ function contentNodeToTableContent<
     };
 
     rowNode.content.forEach((cellNode) => {
-      row.cells.push(
-        contentNodeToInlineContent(
+      row.cells.push({
+        content: contentNodeToInlineContent(
           cellNode.firstChild!,
           inlineContentSchema,
           styleSchema
-        )
-      );
+        ),
+        width:
+          cellNode.attrs.colwidth !== null
+            ? cellNode.attrs.colwidth[0]
+            : undefined,
+      });
     });
 
     ret.rows.push(row);
