@@ -3,7 +3,7 @@
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
   "license": "MPL-2.0",
-  "version": "0.15.10",
+  "version": "0.15.11",
   "files": [
     "dist",
     "types",
@@ -49,8 +49,8 @@
   },
   "dependencies": {
     "@ariakit/react": "^0.4.3",
-    "@blocknote/core": "^0.15.10",
-    "@blocknote/react": "^0.15.10",
+    "@blocknote/core": "^0.15.11",
+    "@blocknote/react": "^0.15.11",
     "react": "^18",
     "react-dom": "^18"
   },

@@ -1,7 +1,7 @@
 {
   "name": "@blocknote/tests",
   "private": true,
-  "version": "0.15.10",
+  "version": "0.15.11",
   "scripts": {
     "build": "tsc",
     "lint": "eslint src --max-warnings 0",
@@ -17,11 +17,11 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@blocknote/ariakit": "^0.15.10",
-    "@blocknote/core": "^0.15.10",
-    "@blocknote/mantine": "^0.15.10",
-    "@blocknote/react": "^0.15.10",
-    "@blocknote/shadcn": "^0.15.10",
+    "@blocknote/ariakit": "^0.15.11",
+    "@blocknote/core": "^0.15.11",
+    "@blocknote/mantine": "^0.15.11",
+    "@blocknote/react": "^0.15.11",
+    "@blocknote/shadcn": "^0.15.11",
     "@playwright/experimental-ct-react": "^1.42.1",
     "@playwright/test": "^1.42.1",
     "eslint": "^8.10.0",
