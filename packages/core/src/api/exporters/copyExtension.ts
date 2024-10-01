@@ -1,15 +1,17 @@
 import { Extension } from "@tiptap/core";
-import { DOMSerializer, Node } from "prosemirror-model";
+import { Node } from "prosemirror-model";
 import { NodeSelection, Plugin } from "prosemirror-state";
-import { __serializeForClipboard } from "prosemirror-view";
 
 import { EditorView } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { initializeESMDependencies } from "../../util/esmDependencies";
 import { createExternalHTMLExporter } from "./html/externalHTMLExporter";
-import { createInternalHTMLSerializer } from "./html/internalHTMLSerializer";
 import { cleanHTMLToMarkdown } from "./markdown/markdownExporter";
+
+// use a dynamic import because we want to access
+// __serializeForClipboard which is not exposed in types
+let pmView: any;
 
 async function selectedFragmentToHTML<
   BSchema extends BlockSchema,
@@ -23,47 +25,37 @@ async function selectedFragmentToHTML<
   externalHTML: string;
   plainText: string;
 }> {
-  // let selectedFragment = view.state.doc.slice(
-  //   view.state.selection.from,
-  //   view.state.selection.to,
-  //   false
-  // ).content;
-  // console.log(selectedFragment);
-  //
-  // const children = [];
-  // for (let i = 0; i < selectedFragment.childCount; i++) {
-  //   children.push(selectedFragment.child(i));
-  // }
-  // const isWithinBlockContent =
-  //   children.find(
-  //     (child) =>
-  //       child.type.name === "blockContainer" ||
-  //       child.type.name === "blockGroup" ||
-  //       child.type.spec.group === "blockContent"
-  //   ) === undefined;
-  // if (!isWithinBlockContent) {
-  //   selectedFragment = view.state.doc.slice(
-  //     view.state.selection.from,
-  //     view.state.selection.to,
-  //     true
-  //   ).content;
-  // }
-  const selectedFragment = view.state.selection.content().content;
-  // console.log(selectedFragment);
-  const s = __serializeForClipboard(view, selectedFragment);
-  console.log(s);
+  let selectedFragment = view.state.doc.slice(
+    view.state.selection.from,
+    view.state.selection.to,
+    false
+  ).content;
 
-  // 1. Why did we use the internal serializer to put HTML on the clipboard and not the defualt logic?
-  // 2. Will we lose context from parent nodes if we e.g. only select block content?
+  const children = [];
+  for (let i = 0; i < selectedFragment.childCount; i++) {
+    children.push(selectedFragment.child(i));
+  }
 
-  // const internalHTMLSerializer = createInternalHTMLSerializer(
-  //   view.state.schema,
-  //   editor
-  // );
-  // const internalHTML = internalHTMLSerializer.serializeProseMirrorFragment(
-  //   selectedFragment,
-  //   {}
-  // );
+  const isWithinBlockContent =
+    children.find(
+      (child) =>
+        child.type.name === "blockContainer" ||
+        child.type.name === "blockGroup" ||
+        child.type.spec.group === "blockContent"
+    ) === undefined;
+  if (!isWithinBlockContent) {
+    selectedFragment = editor.prosemirrorView.state.doc.slice(
+      editor.prosemirrorView.state.selection.from,
+      editor.prosemirrorView.state.selection.to,
+      true
+    ).content;
+  }
+
+  // console.log(selectedFragment);
+  const internalHTML: string = pmView.__serializeForClipboard(
+    view,
+    view.state.selection.content()
+  ).dom.outerHTML;
 
   await initializeESMDependencies();
   const externalHTMLExporter = createExternalHTMLExporter(
@@ -72,12 +64,12 @@ async function selectedFragmentToHTML<
   );
   const externalHTML = externalHTMLExporter.exportProseMirrorFragment(
     selectedFragment,
-    {}
+    { simplifyBlocks: !isWithinBlockContent }
   );
 
   const plainText = await cleanHTMLToMarkdown(externalHTML);
 
-  return { internalHTML: s.dom.outerHTML, externalHTML, plainText };
+  return { internalHTML, externalHTML, plainText };
 }
 
 const copyToClipboard = <
@@ -129,6 +121,9 @@ export const createCopyToClipboardExtension = <
 ) =>
   Extension.create<{ editor: BlockNoteEditor<BSchema, I, S> }, undefined>({
     name: "copyToClipboard",
+    onCreate: async () => {
+      pmView = await import("prosemirror-view");
+    },
     addProseMirrorPlugins() {
       return [
         new Plugin({

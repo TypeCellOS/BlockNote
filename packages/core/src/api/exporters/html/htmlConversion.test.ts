@@ -305,9 +305,14 @@ describe("Test ProseMirror selection HTML conversion", () => {
     expect(externalHTML).toMatchFileSnapshot(
       `./__snapshots_selection_html__/external/${testName}.html`
     );
+
+    // TODO: Add a snapshot comparison for document JSON after paste.
   }
 
   const testCases: { testName: string; startPos: number; endPos: number }[] = [
+    // TODO: Consider adding test cases for nested blocks & double nested blocks.
+    // TODO: Add test case for copying 2 paragraphs as this was a bug in the past.
+    // TODO: Add test case for copying multiple list items as this was a bug in the past.
     // Selection spans all of first heading's children.
     {
       testName: "multipleChildren",
@@ -400,7 +405,7 @@ describe("Test ProseMirror selection HTML conversion", () => {
   ];
 
   for (const testCase of testCases) {
-    it(testCase.testName, () => {
+    it(`${testCase.testName}`, () => {
       testSelection(testCase.testName, testCase.startPos, testCase.endPos);
     });
   }

@@ -41,7 +41,7 @@ export interface ExternalHTMLExporter<
   ) => string;
   exportProseMirrorFragment: (
     fragment: Fragment,
-    options: { document?: Document }
+    options: { document?: Document; simplifyBlocks?: boolean }
   ) => string;
 }
 
@@ -70,7 +70,7 @@ export const createExternalHTMLExporter = <
     ) => HTMLElement;
     exportProseMirrorFragment: (
       fragment: Fragment,
-      options: { document?: Document }
+      options: { document?: Document; simplifyBlocks?: boolean }
     ) => string;
     exportBlocks: (
       blocks: PartialBlock<BSchema, I, S>[],
@@ -87,16 +87,19 @@ export const createExternalHTMLExporter = <
   // but additionally runs it through the `simplifyBlocks` rehype plugin to
   // convert the internal HTML to external.
   serializer.exportProseMirrorFragment = (fragment, options) => {
-    const externalHTML = deps.unified
+    let externalHTML: any = deps.unified
       .unified()
-      .use(deps.rehypeParse.default, { fragment: true })
-      .use(simplifyBlocks, {
+      .use(deps.rehypeParse.default, { fragment: true });
+    if (options.simplifyBlocks !== false) {
+      externalHTML = externalHTML.use(simplifyBlocks, {
         orderedListItemBlockTypes: new Set<string>(["numberedListItem"]),
         unorderedListItemBlockTypes: new Set<string>([
           "bulletListItem",
           "checkListItem",
         ]),
-      })
+      });
+    }
+    externalHTML = externalHTML
       .use(deps.rehypeStringify.default)
       .processSync(serializeProseMirrorFragment(fragment, serializer, options));
 
