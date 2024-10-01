@@ -46,7 +46,6 @@ const TableParagraph = Node.create({
 
   parseHTML() {
     return [
-      { tag: "td" },
       {
         tag: "p",
         getAttrs: (element) => {
