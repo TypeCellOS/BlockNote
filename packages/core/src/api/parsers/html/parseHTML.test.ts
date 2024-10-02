@@ -17,8 +17,6 @@ async function parseHTMLAndCompareSnapshots(
     snapshotPath
   );
 
-  // TODO: I don't think is really related to parsing. It's paste behaviour
-  //  which is already tested in the clipboard tests.
   // Now, we also want to test actually pasting in the editor, and not just calling
   // tryParseHTMLToBlocks directly.
   // The reason is that the prosemirror logic for pasting can be a bit different, because
