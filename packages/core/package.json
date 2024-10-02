@@ -49,7 +49,7 @@
     "build-bundled": "tsc && vite build --config vite.config.bundled.ts && git checkout tmp-releases && rm -rf ../../release && mv ../../release-tmp ../../release",
     "preview": "vite preview",
     "lint": "eslint src --max-warnings 0",
-    "test": "vitest -u",
+    "test": "vitest --run",
     "test-watch": "vitest watch",
     "clean": "rimraf dist && rimraf types"
   },
