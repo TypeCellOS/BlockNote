@@ -48,14 +48,9 @@ const TableParagraph = Node.create({
     return [
       {
         tag: "p",
-        priority: 1000,
         getAttrs: (element) => {
           if (typeof element === "string" || !element.textContent) {
             return false;
-          }
-
-          if (element.hasAttribute("data-table-cell")) {
-            return {};
           }
 
           const parent = element.parentElement;
@@ -77,10 +72,7 @@ const TableParagraph = Node.create({
   renderHTML({ HTMLAttributes }) {
     return [
       "p",
-      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
-        // Ensures correct parsing even without a parent table cell context.
-        "data-table-cell": "",
-      }),
+      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes),
       0,
     ];
   },

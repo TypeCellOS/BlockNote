@@ -1,12 +1,12 @@
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { PartialBlock } from "../../blocks/defaultBlocks";
+import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
+import { PartialBlock } from "../../../blocks/defaultBlocks";
 import {
   BlockSchema,
   FileBlockConfig,
   InlineContentSchema,
   StyleSchema,
-} from "../../schema";
-import { getBlockInfoFromPos } from "../getBlockInfoFromPos";
+} from "../../../schema";
+import { getBlockInfoFromPos } from "../../getBlockInfoFromPos";
 import { acceptedMIMETypes } from "./acceptedMIMETypes";
 
 function checkFileExtensionsMatch(
