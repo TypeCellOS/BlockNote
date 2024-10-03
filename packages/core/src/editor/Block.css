@@ -196,7 +196,8 @@ NESTED BLOCKS
   cursor: pointer;
 }
 
-.bn-block-content[data-content-type="checkListItem"][data-checked="true"] .bn-inline-content {
+.bn-block-content[data-content-type="checkListItem"][data-checked="true"]
+  .bn-inline-content {
   text-decoration: line-through;
 }
 
@@ -349,7 +350,8 @@ NESTED BLOCKS
   cursor: ew-resize;
 }
 
-[data-content-type="audio"] > .bn-file-block-content-wrapper, .bn-audio {
+[data-content-type="audio"] > .bn-file-block-content-wrapper,
+.bn-audio {
   width: 100%;
 }
 
@@ -467,4 +469,14 @@ NESTED BLOCKS
 [data-text-alignment="justify"] {
   justify-content: flex-start;
   text-align: justify;
+}
+
+.bn-block[data-node-type="columnList"] {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.bn-block[data-node-type="columnList"] > div {
+  flex: 1;
 }

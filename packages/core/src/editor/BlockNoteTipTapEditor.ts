@@ -74,6 +74,7 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
       const pmNodes = options?.content.map((b) =>
         blockToNode(b, this.schema, styleSchema).toJSON()
       );
+      console.log(pmNodes);
       doc = createDocument(
         {
           type: "doc",

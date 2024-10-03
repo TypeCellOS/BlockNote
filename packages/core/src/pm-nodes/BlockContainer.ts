@@ -68,7 +68,7 @@ export const BlockContainer = Node.create<{
   editor: BlockNoteEditor<any, any, any>;
 }>({
   name: "blockContainer",
-  group: "blockContainer",
+  group: "blockContainerGroup",
   // A block always contains content, and optionally a blockGroup which contains nested blocks
   content: "blockContent blockGroup?",
   // Ensures content-specific keyboard handlers trigger first.
@@ -195,20 +195,20 @@ export const BlockContainer = Node.create<{
               if (node.childCount === 2) {
                 // Replaces all child nodes in the existing blockGroup with the ones created earlier.
                 state.tr.replace(
-                  startPos + contentNode.nodeSize + 1,
+                  startPos + contentNode!.nodeSize + 1, // TODO: !
                   endPos - 1,
                   new Slice(Fragment.from(childNodes), 0, 0)
                 );
               } else {
                 // Inserts a new blockGroup containing the child nodes created earlier.
                 state.tr.insert(
-                  startPos + contentNode.nodeSize,
+                  startPos + contentNode!.nodeSize,
                   state.schema.nodes["blockGroup"].create({}, childNodes)
                 );
               }
             }
 
-            const oldType = contentNode.type.name;
+            const oldType = contentNode!.type.name; // TODO: !
             const newType = block.type || oldType;
 
             // The code below determines the new content of the block.
@@ -275,7 +275,7 @@ export const BlockContainer = Node.create<{
                   ? undefined
                   : state.schema.nodes[block.type],
                 {
-                  ...contentNode.attrs,
+                  ...contentNode!.attrs, // TODO: !
                   ...block.props,
                 }
               );
@@ -289,7 +289,7 @@ export const BlockContainer = Node.create<{
                   endPos,
                   state.schema.nodes[newType].create(
                     {
-                      ...contentNode.attrs,
+                      ...contentNode!.attrs, // TODO: !
                       ...block.props,
                     },
                     content
@@ -362,7 +362,7 @@ export const BlockContainer = Node.create<{
           // group nodes.
           if (node.childCount === 2) {
             const childBlocksStart = state.doc.resolve(
-              startPos + contentNode.nodeSize + 1
+              startPos + contentNode!.nodeSize + 1 // TODO: !
             );
             const childBlocksEnd = state.doc.resolve(endPos - 1);
             const childBlocksRange =
@@ -391,11 +391,11 @@ export const BlockContainer = Node.create<{
           if (dispatch) {
             dispatch(
               state.tr
-                .deleteRange(startPos, startPos + contentNode.nodeSize)
+                .deleteRange(startPos, startPos + contentNode!.nodeSize) // TODO: !
                 .replace(
                   prevBlockEndPos - 1,
                   startPos,
-                  new Slice(contentNode.content, 0, 0)
+                  new Slice(contentNode!.content, 0, 0) // TODO: !
                 )
                 .scrollIntoView()
             );
@@ -421,8 +421,7 @@ export const BlockContainer = Node.create<{
             return false;
           }
 
-          const { contentNode, contentType, startPos, endPos, depth } =
-            blockInfo;
+          const { contentNode, type, startPos, endPos, depth } = blockInfo;
 
           const originalBlockContent = state.doc.cut(startPos + 1, posInBlock);
           const newBlockContent = state.doc.cut(posInBlock, endPos - 1);
@@ -458,8 +457,8 @@ export const BlockContainer = Node.create<{
               state.tr.setBlockType(
                 newBlockContentPos,
                 newBlockContentPos,
-                state.schema.node(contentType).type,
-                keepProps ? contentNode.attrs : undefined
+                state.schema.node(type).type,
+                keepProps ? contentNode!.attrs : undefined // TODO: !
               );
             }
 
@@ -505,13 +504,13 @@ export const BlockContainer = Node.create<{
         // Reverts block content type to a paragraph if the selection is at the start of the block.
         () =>
           commands.command(({ state }) => {
-            const { contentType, startPos } = getBlockInfoFromPos(
+            const { type, startPos } = getBlockInfoFromPos(
               state.doc,
               state.selection.from
             )!;
 
             const selectionAtBlockStart = state.selection.from === startPos + 1;
-            const isParagraph = contentType.name === "paragraph";
+            const isParagraph = type.name === "paragraph";
 
             if (selectionAtBlockStart && !isParagraph) {
               return commands.BNUpdateBlock(state.selection.from, {
@@ -614,7 +613,7 @@ export const BlockContainer = Node.create<{
         // of the block.
         () =>
           commands.command(({ state }) => {
-            const { contentNode, depth } = getBlockInfoFromPos(
+            const { contentNode, depth, hasContent } = getBlockInfoFromPos(
               state.doc,
               state.selection.from
             )!;
@@ -623,7 +622,7 @@ export const BlockContainer = Node.create<{
               state.selection.$anchor.parentOffset === 0;
             const selectionEmpty =
               state.selection.anchor === state.selection.head;
-            const blockEmpty = contentNode.childCount === 0;
+            const blockEmpty = !hasContent || contentNode.childCount === 0;
             const blockIndented = depth > 2;
 
             if (
@@ -641,7 +640,7 @@ export const BlockContainer = Node.create<{
         // empty & at the start of the block.
         () =>
           commands.command(({ state, chain }) => {
-            const { contentNode, endPos } = getBlockInfoFromPos(
+            const { contentNode, endPos, hasContent } = getBlockInfoFromPos(
               state.doc,
               state.selection.from
             )!;
@@ -650,7 +649,7 @@ export const BlockContainer = Node.create<{
               state.selection.$anchor.parentOffset === 0;
             const selectionEmpty =
               state.selection.anchor === state.selection.head;
-            const blockEmpty = contentNode.childCount === 0;
+            const blockEmpty = !hasContent || contentNode.childCount === 0;
 
             if (selectionAtBlockStart && selectionEmpty && blockEmpty) {
               const newBlockInsertionPos = endPos + 1;
@@ -670,14 +669,14 @@ export const BlockContainer = Node.create<{
         // deletes the selection beforehand, if it's not empty.
         () =>
           commands.command(({ state, chain }) => {
-            const { contentNode } = getBlockInfoFromPos(
+            const { contentNode, hasContent } = getBlockInfoFromPos(
               state.doc,
               state.selection.from
             )!;
 
             const selectionAtBlockStart =
               state.selection.$anchor.parentOffset === 0;
-            const blockEmpty = contentNode.childCount === 0;
+            const blockEmpty = !hasContent || contentNode.childCount === 0;
 
             if (!blockEmpty) {
               chain()

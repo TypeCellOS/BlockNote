@@ -40,8 +40,8 @@ export const NumberedListIndexingPlugin = () => {
               blockInfo.depth !== prevBlockInfo.depth;
 
             if (!isFirstBlockInNestingLevel) {
-              const prevBlockContentNode = prevBlockInfo.contentNode;
-              const prevBlockContentType = prevBlockInfo.contentType;
+              const prevBlockContentNode = prevBlockInfo.contentNode!;
+              const prevBlockContentType = prevBlockInfo.type;
 
               const isPrevBlockOrderedListItem =
                 prevBlockContentType.name === "numberedListItem";
@@ -54,7 +54,7 @@ export const NumberedListIndexingPlugin = () => {
             }
           }
 
-          const contentNode = blockInfo.contentNode;
+          const contentNode = blockInfo.contentNode!;
           const index = contentNode.attrs["index"];
 
           if (index !== newIndex) {

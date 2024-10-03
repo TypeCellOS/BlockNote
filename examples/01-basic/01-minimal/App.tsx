@@ -5,7 +5,33 @@ import { useCreateBlockNote } from "@blocknote/react";
 
 export default function App() {
   // Creates a new editor instance.
-  const editor = useCreateBlockNote();
+  const editor = useCreateBlockNote({
+    initialContent: [
+      {
+        type: "columnList",
+        children: [
+          {
+            type: "column",
+            children: [
+              {
+                type: "paragraph",
+                content: "Hello world",
+              },
+            ],
+          },
+          {
+            type: "column",
+            children: [
+              {
+                type: "paragraph",
+                content: "Hello world",
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  });
 
   // Renders the editor instance using a React component.
   return <BlockNoteView editor={editor} />;

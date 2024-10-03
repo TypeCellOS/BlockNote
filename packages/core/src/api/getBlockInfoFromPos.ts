@@ -1,38 +1,41 @@
-import { Node, NodeType } from "prosemirror-model";
-
-export type BlockInfoWithoutPositions = {
-  id: string;
-  node: Node;
-  contentNode: Node;
-  contentType: NodeType;
-  numChildBlocks: number;
-};
-
-export type BlockInfo = BlockInfoWithoutPositions & {
-  startPos: number;
-  endPos: number;
-  depth: number;
-};
+import { Node } from "prosemirror-model";
 
 /**
  * Helper function for `getBlockInfoFromPos`, returns information regarding
  * provided blockContainer node.
  * @param blockContainer The blockContainer node to retrieve info for.
  */
-export function getBlockInfo(blockContainer: Node): BlockInfoWithoutPositions {
+export function getBlockInfo(blockContainer: Node) {
   const id = blockContainer.attrs["id"];
-  const contentNode = blockContainer.firstChild!;
-  const contentType = contentNode.type;
-  const numChildBlocks =
-    blockContainer.childCount === 2 ? blockContainer.lastChild!.childCount : 0;
 
-  return {
-    id,
-    node: blockContainer,
-    contentNode,
-    contentType,
-    numChildBlocks,
-  };
+  if (blockContainer.type.name === "blockContainer") {
+    const contentNode = blockContainer.firstChild!;
+    const contentType = contentNode.type;
+    const numChildBlocks =
+      blockContainer.childCount === 2
+        ? blockContainer.lastChild!.childCount
+        : 0;
+
+    return {
+      hasContent: true,
+      id,
+      node: blockContainer,
+      contentNode,
+      type: contentType,
+      numChildBlocks,
+      childContainerNode: blockContainer.lastChild,
+    } as const;
+  } else {
+    return {
+      hasContent: false,
+      node: blockContainer,
+      id,
+      type: blockContainer.type,
+      numChildBlocks: blockContainer.childCount,
+      childContainerNode: blockContainer,
+      contentNode: undefined,
+    } as const;
+  }
 }
 
 /**
@@ -42,7 +45,7 @@ export function getBlockInfo(blockContainer: Node): BlockInfoWithoutPositions {
  * @param pos An integer position.
  * @returns A BlockInfo object for the nearest blockContainer node.
  */
-export function getBlockInfoFromPos(doc: Node, pos: number): BlockInfo {
+export function getBlockInfoFromPos(doc: Node, pos: number) {
   // If the position is outside the outer block group, we need to move it to the
   // nearest block. This happens when the collaboration plugin is active, where
   // the selection is placed at the very end of the doc.
@@ -52,7 +55,7 @@ export function getBlockInfoFromPos(doc: Node, pos: number): BlockInfo {
     pos = outerBlockGroupStartPos + 1;
 
     while (
-      doc.resolve(pos).parent.type.name !== "blockContainer" &&
+      doc.resolve(pos).parent.type.spec.group !== "blockContainerGroup" &&
       pos < outerBlockGroupEndPos
     ) {
       pos++;
@@ -61,7 +64,7 @@ export function getBlockInfoFromPos(doc: Node, pos: number): BlockInfo {
     pos = outerBlockGroupEndPos - 1;
 
     while (
-      doc.resolve(pos).parent.type.name !== "blockContainer" &&
+      doc.resolve(pos).parent.type.spec.group !== "blockContainerGroup" &&
       pos > outerBlockGroupStartPos
     ) {
       pos--;
@@ -71,6 +74,7 @@ export function getBlockInfoFromPos(doc: Node, pos: number): BlockInfo {
   // This gets triggered when a node selection on a block is active, i.e. when
   // you drag and drop a block.
   if (doc.resolve(pos).parent.type.name === "blockGroup") {
+    // TODO
     pos++;
   }
 
@@ -88,7 +92,7 @@ export function getBlockInfoFromPos(doc: Node, pos: number): BlockInfo {
       );
     }
 
-    if (node.type.name === "blockContainer") {
+    if (node.type.spec.group === "blockContainerGroup") {
       break;
     }
 
@@ -96,17 +100,13 @@ export function getBlockInfoFromPos(doc: Node, pos: number): BlockInfo {
     node = $pos.node(depth);
   }
 
-  const { id, contentNode, contentType, numChildBlocks } = getBlockInfo(node);
+  const info = getBlockInfo(node);
 
   const startPos = $pos.start(depth);
   const endPos = $pos.end(depth);
 
   return {
-    id,
-    node,
-    contentNode,
-    contentType,
-    numChildBlocks,
+    ...info,
     startPos,
     endPos,
     depth,

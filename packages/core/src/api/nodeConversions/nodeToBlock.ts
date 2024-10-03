@@ -309,11 +309,13 @@ export function nodeToBlock<
   styleSchema: S,
   blockCache?: WeakMap<Node, Block<BSchema, I, S>>
 ): Block<BSchema, I, S> {
-  if (node.type.name !== "blockContainer") {
+  if (
+    node.type.spec.group !== "blockContainerGroup" &&
+    node.type.name !== "column"
+  ) {
     throw Error(
-      "Node must be of type blockContainer, but is of type" +
-        node.type.name +
-        "."
+      "Node must be of group blockContainerGroup or column, but is of type" +
+        node.type.name
     );
   }
 
@@ -332,33 +334,35 @@ export function nodeToBlock<
     id = UniqueID.options.generateID();
   }
 
+  const blockSpec = blockSchema[blockInfo.type.name];
+
+  if (!blockSpec) {
+    throw Error("Block is of an unrecognized type: " + blockInfo.type.name);
+  }
+
   const props: any = {};
-  for (const [attr, value] of Object.entries({
-    ...node.attrs,
-    ...blockInfo.contentNode.attrs,
-  })) {
-    const blockSpec = blockSchema[blockInfo.contentType.name];
 
-    if (!blockSpec) {
-      throw Error(
-        "Block is of an unrecognized type: " + blockInfo.contentType.name
-      );
-    }
-
+  if (blockInfo.hasContent) {
+    // get props from contentnode
     const propSchema = blockSpec.propSchema;
 
-    if (attr in propSchema) {
-      props[attr] = value;
+    for (const [attr, value] of Object.entries({
+      ...node.attrs,
+      ...blockInfo.contentNode.attrs,
+    })) {
+      if (attr in propSchema) {
+        props[attr] = value;
+      }
     }
   }
 
-  const blockConfig = blockSchema[blockInfo.contentType.name];
+  const blockConfig = blockSchema[blockInfo.type.name];
 
   const children: Block<BSchema, I, S>[] = [];
   for (let i = 0; i < blockInfo.numChildBlocks; i++) {
     children.push(
       nodeToBlock(
-        node.lastChild!.child(i),
+        blockInfo.childContainerNode!.child(i),
         blockSchema,
         inlineContentSchema,
         styleSchema,
@@ -369,22 +373,30 @@ export function nodeToBlock<
 
   let content: Block<any, any, any>["content"];
 
-  if (blockConfig.content === "inline") {
-    content = contentNodeToInlineContent(
-      blockInfo.contentNode,
-      inlineContentSchema,
-      styleSchema
-    );
-  } else if (blockConfig.content === "table") {
-    content = contentNodeToTableContent(
-      blockInfo.contentNode,
-      inlineContentSchema,
-      styleSchema
-    );
-  } else if (blockConfig.content === "none") {
-    content = undefined;
+  if (blockInfo.hasContent) {
+    if (blockConfig.content === "inline") {
+      content = contentNodeToInlineContent(
+        blockInfo.contentNode,
+        inlineContentSchema,
+        styleSchema
+      );
+    } else if (blockConfig.content === "table") {
+      content = contentNodeToTableContent(
+        blockInfo.contentNode,
+        inlineContentSchema,
+        styleSchema
+      );
+    } else if (blockConfig.content === "none") {
+      content = undefined;
+    } else {
+      throw new UnreachableCaseError(blockConfig.content);
+    }
   } else {
-    throw new UnreachableCaseError(blockConfig.content);
+    if (blockConfig.content !== "none") {
+      throw new Error(
+        "blocknot schema says block has no content, but blockInfo returned content node"
+      );
+    }
   }
 
   const block = {

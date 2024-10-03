@@ -148,9 +148,7 @@ export function createBlockSpec<
 >(blockConfig: T, blockImplementation: CustomBlockImplementation<T, I, S>) {
   const node = createStronglyTypedTiptapNode({
     name: blockConfig.type as T["type"],
-    content: (blockConfig.content === "inline"
-      ? "inline*"
-      : "") as T["content"] extends "inline" ? "inline*" : "",
+    content: (blockConfig.content === "inline" ? "inline*" : "") as any,
     group: "blockContent",
     selectable: blockConfig.isSelectable ?? true,
 

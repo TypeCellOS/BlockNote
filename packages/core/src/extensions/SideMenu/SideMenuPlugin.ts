@@ -654,13 +654,10 @@ export class SideMenuView<
       return;
     }
 
-    const { contentNode, startPos, endPos } = blockInfo;
+    const { hasContent, contentNode, startPos, endPos } = blockInfo;
 
     // Creates a new block if current one is not empty for the suggestion menu to open in.
-    if (
-      contentNode.type.spec.content !== "inline*" ||
-      contentNode.textContent.length !== 0
-    ) {
+    if (!hasContent || contentNode.textContent.length !== 0) {
       const newBlockInsertionPos = endPos + 1;
       const newBlockContentPos = newBlockInsertionPos + 2;
 

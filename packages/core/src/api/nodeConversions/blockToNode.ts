@@ -231,12 +231,6 @@ export function blockToNode(
     id = UniqueID.options.generateID();
   }
 
-  const contentNode = blockOrInlineContentToContentNode(
-    block,
-    schema,
-    styleSchema
-  );
-
   const children: Node[] = [];
 
   if (block.children) {
@@ -245,8 +239,27 @@ export function blockToNode(
     }
   }
 
-  const groupNode = schema.nodes["blockGroup"].create({}, children);
+  // TODO: generalize this?
+  const hasContentNode = block.type !== "columnList" && block.type !== "column";
 
+  if (!hasContentNode) {
+    return schema.nodes[block.type].create(
+      {
+        id: id,
+        ...block.props,
+      },
+      children
+    );
+  }
+
+  const contentNode = blockOrInlineContentToContentNode(
+    block,
+    schema,
+    styleSchema
+  );
+
+  const groupNode = schema.nodes["blockGroup"].create({}, children);
+  console.log(children.length);
   return schema.nodes["blockContainer"].create(
     {
       id: id,

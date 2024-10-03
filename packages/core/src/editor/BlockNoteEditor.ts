@@ -727,17 +727,21 @@ export class BlockNoteEditor<
     const id = typeof targetBlock === "string" ? targetBlock : targetBlock.id;
 
     const { posBeforeNode } = getNodeById(id, this._tiptapEditor.state.doc);
-    const { startPos, contentNode } = getBlockInfoFromPos(
+    const { startPos, contentNode, type, hasContent } = getBlockInfoFromPos(
       this._tiptapEditor.state.doc,
       posBeforeNode + 2
     )!;
 
     const contentType: "none" | "inline" | "table" =
-      this.schema.blockSchema[contentNode.type.name]!.content;
+      this.schema.blockSchema[type.name]!.content;
 
     if (contentType === "none") {
       this._tiptapEditor.commands.setNodeSelection(startPos);
       return;
+    }
+
+    if (!hasContent) {
+      throw new Error("block has no content, but schema says it does");
     }
 
     if (contentType === "inline") {
@@ -783,6 +787,7 @@ export class BlockNoteEditor<
     // TODO: This adds all child blocks to the same array. Needs to find min
     //  depth and only add blocks at that depth.
     this._tiptapEditor.state.doc.descendants((node, pos) => {
+      // TODO: columns and columnlists will not be in selection because they won't match
       if (node.type.spec.group !== "blockContent") {
         return true;
       }
