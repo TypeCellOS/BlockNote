@@ -1,11 +1,11 @@
 import { Node } from "prosemirror-model";
 import { NodeSelection, Selection, TextSelection } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
-import * as pmView from "prosemirror-view";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 import { PartialBlock } from "../../blocks/defaultBlocks";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { doPaste } from "../testUtil/paste";
 import { initializeESMDependencies } from "../../util/esmDependencies";
 import { selectedFragmentToHTML } from "./toClipboard/copyExtension";
 
@@ -173,22 +173,6 @@ describe("Test ProseMirror selection clipboard HTML", () => {
       )
     );
 
-    if (
-      "node" in editor._tiptapEditor.view.state.selection &&
-      (editor._tiptapEditor.view.state.selection.node as Node).type.spec
-        .group === "blockContent"
-    ) {
-      editor.dispatch(
-        editor._tiptapEditor.state.tr.setSelection(
-          new NodeSelection(
-            editor._tiptapEditor.view.state.doc.resolve(
-              editor._tiptapEditor.view.state.selection.from - 1
-            )
-          )
-        )
-      );
-    }
-
     const { clipboardHTML, externalHTML } = await selectedFragmentToHTML(
       editor._tiptapEditor.view,
       editor
@@ -199,14 +183,12 @@ describe("Test ProseMirror selection clipboard HTML", () => {
     );
 
     const originalDocument = editor.document;
-    editor._tiptapEditor.state.tr.replaceSelection(
-      (pmView as any).__parseFromClipboard(
-        editor._tiptapEditor.view,
-        "text",
-        clipboardHTML,
-        false,
-        editor._tiptapEditor.view.state.selection.$from
-      )
+    doPaste(
+      editor._tiptapEditor.view,
+      "text",
+      clipboardHTML,
+      false,
+      new ClipboardEvent("paste")
     );
     const newDocument = editor.document;
 
