@@ -2,6 +2,7 @@ import { Node } from "@tiptap/core";
 import { Fragment, Node as PMNode, Slice } from "prosemirror-model";
 import { NodeSelection, TextSelection } from "prosemirror-state";
 
+import { ReplaceAroundStep } from "prosemirror-transform";
 import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos";
 import {
   blockToNode,
@@ -33,7 +34,6 @@ declare module "@tiptap/core" {
   interface Commands<ReturnType> {
     block: {
       BNCreateBlock: (pos: number) => ReturnType;
-      BNDeleteBlock: (posInBlock: number) => ReturnType;
       BNMergeBlocks: (posBetweenBlocks: number) => ReturnType;
       BNSplitBlock: (
         posInBlock: number,
@@ -41,14 +41,6 @@ declare module "@tiptap/core" {
         keepProps?: boolean
       ) => ReturnType;
       BNUpdateBlock: <
-        BSchema extends BlockSchema,
-        I extends InlineContentSchema,
-        S extends StyleSchema
-      >(
-        posInBlock: number,
-        block: PartialBlock<BSchema, I, S>
-      ) => ReturnType;
-      BNCreateOrUpdateBlock: <
         BSchema extends BlockSchema,
         I extends InlineContentSchema,
         S extends StyleSchema
@@ -147,23 +139,7 @@ export const BlockContainer = Node.create<{
 
           return true;
         },
-      // Deletes a block at a given position.
-      BNDeleteBlock:
-        (posInBlock) =>
-        ({ state, dispatch }) => {
-          const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
-          if (blockInfo === undefined) {
-            return false;
-          }
 
-          const { startPos, endPos } = blockInfo;
-
-          if (dispatch) {
-            state.tr.deleteRange(startPos, endPos);
-          }
-
-          return true;
-        },
       // Updates a block at a given position.
       BNUpdateBlock:
         (posInBlock, block) =>
@@ -710,7 +686,11 @@ export const BlockContainer = Node.create<{
           // don't handle tabs if a toolbar is shown, so we can tab into / out of it
           return false;
         }
-        this.editor.commands.sinkListItem("blockContainer");
+        debugger;
+        sinkListItem(this.options.editor.pmSchema.nodes["blockContainer"])(
+          this.editor.state,
+          this.editor.view.dispatch
+        );
         return true;
       },
       "Shift-Tab": () => {
@@ -728,3 +708,52 @@ export const BlockContainer = Node.create<{
     };
   },
 });
+
+// TODO: cleanup
+function sinkListItem(itemType) {
+  return function (state, dispatch) {
+    let { $from, $to } = state.selection;
+    let range = $from.blockRange(
+      $to,
+      (node) =>
+        node.childCount > 0 &&
+        (node.type.name === "blockGroup" || node.type.name === "column") // change necessary to lot look at first item child type
+    );
+    if (!range) return false;
+    let startIndex = range.startIndex;
+    if (startIndex == 0) return false;
+    let parent = range.parent,
+      nodeBefore = parent.child(startIndex - 1);
+    if (nodeBefore.type != itemType) return false;
+    if (dispatch) {
+      let nestedBefore =
+        nodeBefore.lastChild && nodeBefore.lastChild.type == parent.type;
+      let inner = Fragment.from(nestedBefore ? itemType.create() : null);
+      let slice = new Slice(
+        Fragment.from(
+          itemType.create(null, Fragment.from(parent.type.create(null, inner)))
+        ),
+        nestedBefore ? 3 : 1,
+        0
+      );
+      let before = range.start,
+        after = range.end;
+      dispatch(
+        state.tr
+          .step(
+            new ReplaceAroundStep(
+              before - (nestedBefore ? 3 : 1),
+              after,
+              before,
+              after,
+              slice,
+              1,
+              true
+            )
+          )
+          .scrollIntoView()
+      );
+    }
+    return true;
+  };
+}

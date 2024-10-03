@@ -130,7 +130,7 @@ export const Column = createStronglyTypedTiptapNode({
 
   // A block always contains content, and optionally a blockGroup which contains nested blocks
   content: "blockContainer+",
-
+  priority: 40,
   // defining: true, // TODO
 
   // TODO
@@ -192,3 +192,15 @@ export const Column = createStronglyTypedTiptapNode({
     };
   },
 });
+
+/**
+ * 
+- tab inside columns
+- clean tab outside columns + test
+- updateblock + tests
+- drag drop indicators
+- resize
+- drag drop right / left
+
+- backspace behavior etc
+ */
