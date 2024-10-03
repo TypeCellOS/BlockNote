@@ -65,6 +65,7 @@ import { en } from "../i18n/locales";
 import { Transaction } from "@tiptap/pm/state";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer";
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode";
+import { dropCursor } from "../extensions/DropCursorPlugin";
 import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin";
 import "../style.css";
 import { initializeESMDependencies } from "../util/esmDependencies";
@@ -375,6 +376,7 @@ export class BlockNoteEditor<
           this.suggestionMenus.plugin,
           ...(this.filePanel ? [this.filePanel.plugin] : []),
           ...(this.tableHandles ? [this.tableHandles.plugin] : []),
+          dropCursor({ width: 5, color: "#ddeeff" }),
           PlaceholderPlugin(this, newOptions.placeholders),
           ...(this.options.animations ?? true
             ? [PreviousBlockTypePlugin()]

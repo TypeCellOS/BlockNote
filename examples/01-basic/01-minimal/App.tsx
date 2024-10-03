@@ -30,6 +30,10 @@ export default function App() {
           },
         ],
       },
+      {
+        type: "paragraph",
+        content: "Hello world",
+      },
     ],
   });
 
