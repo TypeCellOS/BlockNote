@@ -1,9 +1,7 @@
 import { Node } from "@tiptap/core";
 import { TagParseRule } from "@tiptap/pm/model";
-import {
-  inlineContentToNodes,
-  nodeToCustomInlineContent,
-} from "../../api/nodeConversions/nodeConversions";
+import { inlineContentToNodes } from "../../api/nodeConversions/blockToNode";
+import { nodeToCustomInlineContent } from "../../api/nodeConversions/nodeToBlock";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { propsToAttributes } from "../blocks/internal";
 import { Props } from "../propTypes";

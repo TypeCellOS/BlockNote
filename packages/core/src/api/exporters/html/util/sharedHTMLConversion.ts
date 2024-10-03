@@ -6,7 +6,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema";
-import { nodeToBlock } from "../../../nodeConversions/nodeConversions";
+import { nodeToBlock } from "../../../nodeConversions/nodeToBlock";
 
 function doc(options: { document?: Document }) {
   return options.document || window.document;

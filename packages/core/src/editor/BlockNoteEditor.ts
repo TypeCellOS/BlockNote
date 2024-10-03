@@ -12,10 +12,7 @@ import {
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter";
 import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos";
-import {
-  inlineContentToNodes,
-  nodeToBlock,
-} from "../api/nodeConversions/nodeConversions";
+import { nodeToBlock } from "../api/nodeConversions/nodeToBlock";
 import { getNodeById } from "../api/nodeUtil";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML";
 import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown";
@@ -41,9 +38,9 @@ import {
   InlineContentSchema,
   InlineContentSpecs,
   PartialInlineContent,
-  Styles,
   StyleSchema,
   StyleSpecs,
+  Styles,
 } from "../schema";
 import { mergeCSSClasses } from "../util/browser";
 import { NoInfer, UnreachableCaseError } from "../util/typescript";
@@ -67,6 +64,7 @@ import { en } from "../i18n/locales";
 
 import { Transaction } from "@tiptap/pm/state";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer";
+import { inlineContentToNodes } from "../api/nodeConversions/blockToNode";
 import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin";
 import "../style.css";
 import { initializeESMDependencies } from "../util/esmDependencies";

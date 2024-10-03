@@ -2,7 +2,8 @@ import { DOMSerializer, Fragment, Node, Schema } from "prosemirror-model";
 import { PartialBlock } from "../../../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
-import { blockToNode } from "../../nodeConversions/nodeConversions";
+
+import { blockToNode } from "../../nodeConversions/blockToNode";
 import {
   serializeNodeInner,
   serializeProseMirrorFragment,

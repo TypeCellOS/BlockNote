@@ -1,4 +1,4 @@
-import { blockToNode } from "../api/nodeConversions/nodeConversions";
+import { blockToNode } from "../api/nodeConversions/blockToNode";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor";
 import type {
   BlockNoDefaults,

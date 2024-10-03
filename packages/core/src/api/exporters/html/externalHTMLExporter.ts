@@ -4,7 +4,7 @@ import { PartialBlock } from "../../../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
 import { esmDependencies } from "../../../util/esmDependencies";
-import { blockToNode } from "../../nodeConversions/nodeConversions";
+import { blockToNode } from "../../nodeConversions/blockToNode";
 import {
   serializeNodeInner,
   serializeProseMirrorFragment,

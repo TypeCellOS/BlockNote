@@ -1,6 +1,6 @@
 import { Plugin, PluginKey, PluginView } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
-import { nodeToBlock } from "../../api/nodeConversions/nodeConversions";
+import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock";
 import { checkBlockIsDefaultType } from "../../blocks/defaultBlockTypeGuards";
 import { Block, DefaultBlockSchema } from "../../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";

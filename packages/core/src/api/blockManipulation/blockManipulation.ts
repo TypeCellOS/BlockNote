@@ -10,7 +10,9 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../schema";
-import { blockToNode, nodeToBlock } from "../nodeConversions/nodeConversions";
+
+import { blockToNode } from "../nodeConversions/blockToNode";
+import { nodeToBlock } from "../nodeConversions/nodeToBlock";
 import { getNodeById } from "../nodeUtil";
 
 export function insertBlocks<

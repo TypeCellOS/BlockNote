@@ -7,7 +7,7 @@ import {
   blockToNode,
   inlineContentToNodes,
   tableContentToNodes,
-} from "../api/nodeConversions/nodeConversions";
+} from "../api/nodeConversions/blockToNode";
 import { PartialBlock } from "../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor";
 import { NonEditableBlockPlugin } from "../extensions/NonEditableBlocks/NonEditableBlockPlugin";
