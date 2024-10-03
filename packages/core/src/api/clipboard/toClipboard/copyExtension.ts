@@ -1,19 +1,17 @@
 import { Extension } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 import { NodeSelection, Plugin } from "prosemirror-state";
+import { CellSelection } from "prosemirror-tables";
+import * as pmView from "prosemirror-view";
 
 import { EditorView } from "prosemirror-view";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
-import { initializeESMDependencies } from "../../util/esmDependencies";
-import { createExternalHTMLExporter } from "./html/externalHTMLExporter";
-import { cleanHTMLToMarkdown } from "./markdown/markdownExporter";
+import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
+import { initializeESMDependencies } from "../../../util/esmDependencies";
+import { createExternalHTMLExporter } from "../../exporters/html/externalHTMLExporter";
+import { cleanHTMLToMarkdown } from "../../exporters/markdown/markdownExporter";
 
-// use a dynamic import because we want to access
-// __serializeForClipboard which is not exposed in types
-let pmView: any;
-
-async function selectedFragmentToHTML<
+export async function selectedFragmentToHTML<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
@@ -21,41 +19,46 @@ async function selectedFragmentToHTML<
   view: EditorView,
   editor: BlockNoteEditor<BSchema, I, S>
 ): Promise<{
-  internalHTML: string;
+  clipboardHTML: string;
   externalHTML: string;
-  plainText: string;
+  markdown: string;
 }> {
-  let selectedFragment = view.state.doc.slice(
-    view.state.selection.from,
-    view.state.selection.to,
-    false
-  ).content;
-
-  const children = [];
-  for (let i = 0; i < selectedFragment.childCount; i++) {
-    children.push(selectedFragment.child(i));
-  }
-
-  const isWithinBlockContent =
-    children.find(
-      (child) =>
-        child.type.name === "blockContainer" ||
-        child.type.name === "blockGroup" ||
-        child.type.spec.group === "blockContent"
-    ) === undefined;
-  if (!isWithinBlockContent) {
-    selectedFragment = editor.prosemirrorView.state.doc.slice(
-      editor.prosemirrorView.state.selection.from,
-      editor.prosemirrorView.state.selection.to,
-      true
-    ).content;
-  }
-
-  // console.log(selectedFragment);
-  const internalHTML: string = pmView.__serializeForClipboard(
+  // Uses default ProseMirror clipboard serialization.
+  const clipboardHTML: string = (pmView as any).__serializeForClipboard(
     view,
     view.state.selection.content()
-  ).dom.outerHTML;
+  ).dom.innerHTML;
+
+  let selectedFragment = view.state.selection.content().content;
+
+  // Checks whether block ancestry should be included when creating external
+  // HTML. If the selection is within a block content node, the block ancestry
+  // is excluded as we only care about the inline content.
+  let isWithinBlockContent = false;
+  const isWithinTable = view.state.selection instanceof CellSelection;
+  if (!isWithinTable) {
+    const fragmentWithoutParents = view.state.doc.slice(
+      view.state.selection.from,
+      view.state.selection.to,
+      false
+    ).content;
+
+    const children = [];
+    for (let i = 0; i < fragmentWithoutParents.childCount; i++) {
+      children.push(fragmentWithoutParents.child(i));
+    }
+
+    isWithinBlockContent =
+      children.find(
+        (child) =>
+          child.type.name === "blockContainer" ||
+          child.type.name === "blockGroup" ||
+          child.type.spec.group === "blockContent"
+      ) === undefined;
+    if (isWithinBlockContent) {
+      selectedFragment = fragmentWithoutParents;
+    }
+  }
 
   await initializeESMDependencies();
   const externalHTMLExporter = createExternalHTMLExporter(
@@ -64,12 +67,12 @@ async function selectedFragmentToHTML<
   );
   const externalHTML = externalHTMLExporter.exportProseMirrorFragment(
     selectedFragment,
-    { simplifyBlocks: !isWithinBlockContent }
+    { simplifyBlocks: !isWithinBlockContent && !isWithinTable }
   );
 
-  const plainText = await cleanHTMLToMarkdown(externalHTML);
+  const markdown = cleanHTMLToMarkdown(externalHTML);
 
-  return { internalHTML, externalHTML, plainText };
+  return { clipboardHTML, externalHTML, markdown };
 }
 
 const copyToClipboard = <
@@ -101,14 +104,14 @@ const copyToClipboard = <
   }
 
   (async () => {
-    const { internalHTML, externalHTML, plainText } =
+    const { clipboardHTML, externalHTML, markdown } =
       await selectedFragmentToHTML(view, editor);
 
     // TODO: Writing to other MIME types not working in Safari for
     //  some reason.
-    event.clipboardData!.setData("blocknote/html", internalHTML);
+    event.clipboardData!.setData("blocknote/html", clipboardHTML);
     event.clipboardData!.setData("text/html", externalHTML);
-    event.clipboardData!.setData("text/plain", plainText);
+    event.clipboardData!.setData("text/plain", markdown);
   })();
 };
 
@@ -121,9 +124,6 @@ export const createCopyToClipboardExtension = <
 ) =>
   Extension.create<{ editor: BlockNoteEditor<BSchema, I, S> }, undefined>({
     name: "copyToClipboard",
-    onCreate: async () => {
-      pmView = await import("prosemirror-view");
-    },
     addProseMirrorPlugins() {
       return [
         new Plugin({
@@ -171,14 +171,14 @@ export const createCopyToClipboardExtension = <
                 event.dataTransfer!.clearData();
 
                 (async () => {
-                  const { internalHTML, externalHTML, plainText } =
+                  const { clipboardHTML, externalHTML, markdown } =
                     await selectedFragmentToHTML(view, editor);
 
                   // TODO: Writing to other MIME types not working in Safari for
                   //  some reason.
-                  event.dataTransfer!.setData("blocknote/html", internalHTML);
+                  event.dataTransfer!.setData("blocknote/html", clipboardHTML);
                   event.dataTransfer!.setData("text/html", externalHTML);
-                  event.dataTransfer!.setData("text/plain", plainText);
+                  event.dataTransfer!.setData("text/plain", markdown);
                 })();
                 // Prevent default PM handler to be called
                 return true;
