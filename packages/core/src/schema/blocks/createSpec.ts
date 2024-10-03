@@ -154,15 +154,24 @@ export function createBlockSpec<
       return getParseRules(blockConfig, blockImplementation.parse);
     },
 
-    renderHTML() {
-      // renderHTML is not really used, as we always use a nodeView, and we use toExternalHTML / toInternalHTML for serialization
-      // There's an edge case when this gets called nevertheless; before the nodeviews have been mounted
-      // this is why we implement it with a temporary placeholder
+    renderHTML({ HTMLAttributes }) {
+      // renderHTML is used for copy/pasting content from the editor back into
+      // the editor, so we need to make sure the `blockContent` element is
+      // structured correctly as this is what's used for parsing blocks. We
+      // just render a placeholder div inside as the `blockContent` element
+      // already has all the information needed for proper parsing.
       const div = document.createElement("div");
       div.setAttribute("data-tmp-placeholder", "true");
-      return {
-        dom: div,
-      };
+      return wrapInBlockStructure(
+        {
+          dom: div,
+        },
+        blockConfig.type,
+        {},
+        blockConfig.propSchema,
+        blockConfig.isFileBlock,
+        HTMLAttributes
+      );
     },
 
     addNodeView() {
