@@ -2,9 +2,9 @@ import { PluginView } from "@tiptap/pm/state";
 import { Node } from "prosemirror-model";
 import { NodeSelection, Plugin, PluginKey, Selection } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
+import * as pmView from "prosemirror-view";
 
 import { createExternalHTMLExporter } from "../../api/exporters/html/externalHTMLExporter";
-import { createInternalHTMLSerializer } from "../../api/exporters/html/internalHTMLSerializer";
 import { cleanHTMLToMarkdown } from "../../api/exporters/markdown/markdownExporter";
 import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos";
 import { Block } from "../../blocks/defaultBlocks";
@@ -227,11 +227,10 @@ function dragStart<
     const selectedSlice = view.state.selection.content();
     const schema = editor.pmSchema;
 
-    const internalHTMLSerializer = createInternalHTMLSerializer(schema, editor);
-    const internalHTML = internalHTMLSerializer.serializeProseMirrorFragment(
-      selectedSlice.content,
-      {}
-    );
+    const clipboardHML = (pmView as any).__serializeForClipboard(
+      view,
+      selectedSlice
+    ).dom.innerHTML;
 
     const externalHTMLExporter = createExternalHTMLExporter(schema, editor);
     const externalHTML = externalHTMLExporter.exportProseMirrorFragment(
@@ -242,7 +241,7 @@ function dragStart<
     const plainText = cleanHTMLToMarkdown(externalHTML);
 
     e.dataTransfer.clearData();
-    e.dataTransfer.setData("blocknote/html", internalHTML);
+    e.dataTransfer.setData("blocknote/html", clipboardHML);
     e.dataTransfer.setData("text/html", externalHTML);
     e.dataTransfer.setData("text/plain", plainText);
     e.dataTransfer.effectAllowed = "move";
