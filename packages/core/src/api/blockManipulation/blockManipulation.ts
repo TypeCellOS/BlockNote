@@ -12,7 +12,6 @@ import {
 } from "../../schema";
 
 import { blockToNode } from "../nodeConversions/blockToNode";
-import { nodeToBlock } from "../nodeConversions/nodeToBlock";
 import { getNodeById } from "../nodeUtil";
 
 export function insertBlocks<
@@ -73,20 +72,7 @@ export function insertBlocks<
 
   // Now that the `PartialBlock`s have been converted to nodes, we can
   // re-convert them into full `Block`s.
-  const insertedBlocks: Block<BSchema, I, S>[] = [];
-  for (const node of nodesToInsert) {
-    insertedBlocks.push(
-      nodeToBlock(
-        node,
-        editor.schema.blockSchema,
-        editor.schema.inlineContentSchema,
-        editor.schema.styleSchema,
-        editor.blockCache
-      )
-    );
-  }
-
-  return insertedBlocks;
+  return nodesToInsert.map((node) => editor.prosemirrorNodeToBlock(node));
 }
 
 export function updateBlock<
@@ -110,13 +96,7 @@ export function updateBlock<
     .resolve(posBeforeNode + 1)
     .node();
 
-  return nodeToBlock(
-    blockContainerNode,
-    editor.schema.blockSchema,
-    editor.schema.inlineContentSchema,
-    editor.schema.styleSchema,
-    editor.blockCache
-  );
+  return editor.prosemirrorNodeToBlock(blockContainerNode);
 }
 
 function removeBlocksWithCallback<
@@ -160,15 +140,7 @@ function removeBlocksWithCallback<
     }
 
     // Saves the block that is being deleted.
-    removedBlocks.push(
-      nodeToBlock(
-        node,
-        editor.schema.blockSchema,
-        editor.schema.inlineContentSchema,
-        editor.schema.styleSchema,
-        editor.blockCache
-      )
-    );
+    removedBlocks.push(editor.prosemirrorNodeToBlock(node));
     idsOfBlocksToRemove.delete(node.attrs.id);
 
     // Removes the block and calculates the change in document size.
@@ -248,18 +220,9 @@ export function replaceBlocks<
 
   // Now that the `PartialBlock`s have been converted to nodes, we can
   // re-convert them into full `Block`s.
-  const insertedBlocks: Block<BSchema, I, S>[] = [];
-  for (const node of nodesToInsert) {
-    insertedBlocks.push(
-      nodeToBlock(
-        node,
-        editor.schema.blockSchema,
-        editor.schema.inlineContentSchema,
-        editor.schema.styleSchema,
-        editor.blockCache
-      )
-    );
-  }
+  const insertedBlocks: Block<BSchema, I, S>[] = nodesToInsert.map((node) =>
+    editor.prosemirrorNodeToBlock(node)
+  );
 
   return { insertedBlocks, removedBlocks };
 }
