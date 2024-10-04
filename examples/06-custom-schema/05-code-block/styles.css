@@ -42,3 +42,23 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
 }
+
+.mantine-Combobox-dropdown {
+  left: 70px !important;
+  width: 160px !important;
+  background-color: white !important;
+  color: black;
+  padding: 0 6px !important;
+  border-radius: 4px !important;
+  border: 1px solid rgb(223, 223, 223) !important;
+}
+
+.mantine-Combobox-option:hover {
+  background-color: rgb(242, 242, 242);
+}
+
+.mantine-Combobox-input {
+  color: rgb(160, 160, 160);
+  margin-top: 4px;
+  border-bottom: 1px solid rgb(223, 223, 223);
+}
