@@ -1,0 +1,23 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@blocknote/server-util": "^0.15.3",
+    "express": "^4.19.2",
+    "js-base64": "^3.7.7",
+    "lorem-ipsum": "^2.0.8",
+    "yjs": "^13.6.18"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
