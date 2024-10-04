@@ -1,38 +1,37 @@
 import { Node } from "prosemirror-model";
+import type { BlockNoteEditor } from "../editor/BlockNoteEditor";
 
 /**
  * Helper function for `getBlockInfoFromPos`, returns information regarding
  * provided blockContainer node.
- * @param blockContainer The blockContainer node to retrieve info for.
+ * @param blockNode The blockContainer node to retrieve info for.
  */
-export function getBlockInfo(blockContainer: Node) {
-  const id = blockContainer.attrs["id"];
+export function getBlockInfo(blockNode: Node) {
+  const id = blockNode.attrs["id"];
 
-  if (blockContainer.type.name === "blockContainer") {
-    const contentNode = blockContainer.firstChild!;
+  if (blockNode.type.name === "blockContainer") {
+    const contentNode = blockNode.firstChild!;
     const contentType = contentNode.type;
     const numChildBlocks =
-      blockContainer.childCount === 2
-        ? blockContainer.lastChild!.childCount
-        : 0;
+      blockNode.childCount === 2 ? blockNode.lastChild!.childCount : 0;
 
     return {
       hasContent: true,
       id,
-      node: blockContainer,
+      node: blockNode,
       contentNode,
       type: contentType,
       numChildBlocks,
-      childContainerNode: blockContainer.lastChild,
+      childContainerNode: blockNode.lastChild,
     } as const;
   } else {
     return {
       hasContent: false,
-      node: blockContainer,
+      node: blockNode,
       id,
-      type: blockContainer.type,
-      numChildBlocks: blockContainer.childCount,
-      childContainerNode: blockContainer,
+      type: blockNode.type,
+      numChildBlocks: blockNode.childCount,
+      childContainerNode: blockNode,
       contentNode: undefined,
     } as const;
   }
@@ -46,6 +45,8 @@ export function getBlockInfo(blockContainer: Node) {
  * @returns A BlockInfo object for the nearest blockContainer node.
  */
 export function getBlockInfoFromPos(doc: Node, pos: number) {
+  // TODO: revise this method
+
   // If the position is outside the outer block group, we need to move it to the
   // nearest block. This happens when the collaboration plugin is active, where
   // the selection is placed at the very end of the doc.
@@ -55,7 +56,9 @@ export function getBlockInfoFromPos(doc: Node, pos: number) {
     pos = outerBlockGroupStartPos + 1;
 
     while (
-      doc.resolve(pos).parent.type.spec.group !== "blockContainerGroup" &&
+      !(doc.resolve(pos).parent.type as any).groups.includes(
+        "blockContainerGroup"
+      ) &&
       pos < outerBlockGroupEndPos
     ) {
       pos++;
@@ -64,7 +67,9 @@ export function getBlockInfoFromPos(doc: Node, pos: number) {
     pos = outerBlockGroupEndPos - 1;
 
     while (
-      doc.resolve(pos).parent.type.spec.group !== "blockContainerGroup" &&
+      !(doc.resolve(pos).parent.type as any).groups.includes(
+        "blockContainerGroup"
+      ) &&
       pos > outerBlockGroupStartPos
     ) {
       pos--;
@@ -92,7 +97,7 @@ export function getBlockInfoFromPos(doc: Node, pos: number) {
       );
     }
 
-    if (node.type.spec.group === "blockContainerGroup") {
+    if ((node.type as any).groups.includes("bnBlock")) {
       break;
     }
 
@@ -110,5 +115,25 @@ export function getBlockInfoFromPos(doc: Node, pos: number) {
     startPos,
     endPos,
     depth,
+    parent: () => {
+      const $startPos = doc.resolve(startPos);
+      let depth = $startPos.depth - 1;
+
+      while (
+        depth >= 0 &&
+        !($startPos.node(depth).type as any).groups.includes("bnBlock")
+      ) {
+        depth--;
+      }
+
+      if (depth === -1) {
+        return undefined;
+      }
+      const parentPos = $startPos.start(depth);
+      return getBlockInfoFromPos(doc, parentPos);
+    },
+    block: (editor: BlockNoteEditor<any, any, any>) => {
+      return editor.prosemirrorNodeToBlock(info.node);
+    },
   };
 }

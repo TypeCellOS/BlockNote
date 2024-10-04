@@ -12,41 +12,9 @@ const BlockAttributes: Record<string, string> = {
 
 /**
  * The main "Block node" documents consist of
- * 
+ *
  * instead of
- * 
- * <blockContainer>
- *  <blockContent />
- *  <blockGroup>
- *    <blockContainer />
- *    <blockContainer />
- *    <blockContainer />
- *  </blockGroup>
- * </blockContainer>
- * 
- * we have
- * 
- * <columnList>
- *  <blockGroup />
- *  <blockGroup />
- *  <blockGroup />
- * </columnList>
- * 
- * vs 
- * 
- * <columnList>
- *  <blockGroup>
- *    <blockContainer>
- *      <blockGroup />
- *    </blockContainer>
-<blockContainer>
- *      <blockGroup />
- *    </blockContainer>
- *  </blockGroup>
- * </columnList>
- * 
- * vs
- * 
+ *
  * <columnList>
  *    <blockContainer>
  *      <blockContainer />
@@ -59,7 +27,7 @@ const BlockAttributes: Record<string, string> = {
  */
 export const ColumnList = createStronglyTypedTiptapNode({
   name: "columnList",
-  group: "blockContainerGroup", // TODO: technically this means you can have a columnlist inside a column which we probably don't want
+  group: "blockContainerGroup bnBlock", // TODO: technically this means you can have a columnlist inside a column which we probably don't want
   // A block always contains content, and optionally a blockGroup which contains nested blocks
   content: "column column+", // min two columns
   priority: 40, //should be below blockContainer
@@ -127,7 +95,7 @@ export const ColumnList = createStronglyTypedTiptapNode({
 
 export const Column = createStronglyTypedTiptapNode({
   name: "column",
-
+  group: "bnBlock",
   // A block always contains content, and optionally a blockGroup which contains nested blocks
   content: "blockContainer+",
   priority: 40,

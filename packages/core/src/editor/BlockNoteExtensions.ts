@@ -68,7 +68,8 @@ export const getBlockNoteExtensions = <
 
     // DropCursor,
     UniqueID.configure({
-      types: ["blockContainer"],
+      // everything from bnBlock group
+      types: ["blockContainer", "columnList"],
       setIdAttribute: opts.setIdAttribute,
     }),
     HardBreak.extend({ priority: 10 }),

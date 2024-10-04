@@ -309,13 +309,9 @@ export function nodeToBlock<
   styleSchema: S,
   blockCache?: WeakMap<Node, Block<BSchema, I, S>>
 ): Block<BSchema, I, S> {
-  if (
-    node.type.spec.group !== "blockContainerGroup" &&
-    node.type.name !== "column"
-  ) {
+  if (!(node.type as any).groups.includes("bnBlock")) {
     throw Error(
-      "Node must be of group blockContainerGroup or column, but is of type" +
-        node.type.name
+      "Node must be of group bnBlock, but is of type" + node.type.name
     );
   }
 

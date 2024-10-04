@@ -63,9 +63,9 @@ export const TrailingNode = Extension.create<TrailingNodeOptions>({
 
             if (
               !lastNode ||
-              lastNode.type.spec.group !== "blockContainerGroup"
+              !(lastNode.type as any).groups.includes("blockContainerGroup")
             ) {
-              throw new Error("Expected blockContainer");
+              throw new Error("Expected blockContainerGroup");
             }
 
             if (lastNode.type.name !== "blockContainer") {

@@ -60,7 +60,7 @@ export const BlockContainer = Node.create<{
   editor: BlockNoteEditor<any, any, any>;
 }>({
   name: "blockContainer",
-  group: "blockContainerGroup",
+  group: "blockContainerGroup bnBlock",
   // A block always contains content, and optionally a blockGroup which contains nested blocks
   content: "blockContent blockGroup?",
   // Ensures content-specific keyboard handlers trigger first.

@@ -46,7 +46,6 @@ import { mergeCSSClasses } from "../util/browser";
 import { NoInfer, UnreachableCaseError } from "../util/typescript";
 
 import { getBlockNoteExtensions } from "./BlockNoteExtensions";
-import { TextCursorPosition } from "./cursorPositionTypes";
 
 import { Selection } from "./selectionTypes";
 import { transformPasted } from "./transformPasted";
@@ -69,6 +68,7 @@ import { dropCursor } from "../extensions/DropCursorPlugin";
 import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin";
 import "../style.css";
 import { initializeESMDependencies } from "../util/esmDependencies";
+import { TextCursorPosition } from "./cursorPositionTypes";
 
 export type BlockNoteEditorOptions<
   BSchema extends BlockSchema,
@@ -376,7 +376,7 @@ export class BlockNoteEditor<
           this.suggestionMenus.plugin,
           ...(this.filePanel ? [this.filePanel.plugin] : []),
           ...(this.tableHandles ? [this.tableHandles.plugin] : []),
-          dropCursor({ width: 5, color: "#ddeeff" }),
+          dropCursor(this, { width: 5, color: "#ddeeff" }),
           PlaceholderPlugin(this, newOptions.placeholders),
           ...(this.options.animations ?? true
             ? [PreviousBlockTypePlugin()]
@@ -543,15 +543,7 @@ export class BlockNoteEditor<
     const blocks: Block<BSchema, ISchema, SSchema>[] = [];
 
     this._tiptapEditor.state.doc.firstChild!.descendants((node) => {
-      blocks.push(
-        nodeToBlock(
-          node,
-          this.schema.blockSchema,
-          this.schema.inlineContentSchema,
-          this.schema.styleSchema,
-          this.blockCache
-        )
-      );
+      blocks.push(this.prosemirrorNodeToBlock(node));
 
       return false;
     });
@@ -582,13 +574,7 @@ export class BlockNoteEditor<
         return true;
       }
 
-      newBlock = nodeToBlock(
-        node,
-        this.schema.blockSchema,
-        this.schema.inlineContentSchema,
-        this.schema.styleSchema,
-        this.blockCache
-      );
+      newBlock = this.prosemirrorNodeToBlock(node);
 
       return false;
     });
@@ -686,34 +672,26 @@ export class BlockNoteEditor<
     }
 
     return {
-      block: nodeToBlock(
-        node,
-        this.schema.blockSchema,
-        this.schema.inlineContentSchema,
-        this.schema.styleSchema,
-        this.blockCache
-      ),
+      block: this.prosemirrorNodeToBlock(node),
       prevBlock:
         prevNode === undefined
           ? undefined
-          : nodeToBlock(
-              prevNode,
-              this.schema.blockSchema,
-              this.schema.inlineContentSchema,
-              this.schema.styleSchema,
-              this.blockCache
-            ),
+          : this.prosemirrorNodeToBlock(prevNode),
       nextBlock:
         nextNode === undefined
           ? undefined
-          : nodeToBlock(
-              nextNode,
-              this.schema.blockSchema,
-              this.schema.inlineContentSchema,
-              this.schema.styleSchema,
-              this.blockCache
-            ),
+          : this.prosemirrorNodeToBlock(nextNode),
     };
+  }
+
+  public prosemirrorNodeToBlock(node: Node) {
+    return nodeToBlock(
+      node,
+      this.schema.blockSchema,
+      this.schema.inlineContentSchema,
+      this.schema.styleSchema,
+      this.blockCache
+    );
   }
 
   /**
@@ -809,12 +787,8 @@ export class BlockNoteEditor<
       }
 
       blocks.push(
-        nodeToBlock(
-          this._tiptapEditor.state.doc.resolve(pos).node(),
-          this.schema.blockSchema,
-          this.schema.inlineContentSchema,
-          this.schema.styleSchema,
-          this.blockCache
+        this.prosemirrorNodeToBlock(
+          this._tiptapEditor.state.doc.resolve(pos).node()
         )
       );
 

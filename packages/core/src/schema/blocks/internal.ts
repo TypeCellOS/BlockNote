@@ -20,7 +20,6 @@ import {
   BlockSchemaWithBlock,
   BlockSpec,
   BlockSpecs,
-  SpecificBlock,
   TiptapBlockImplementation,
 } from "./types";
 
@@ -107,20 +106,9 @@ export function getBlockFromPos<
   const pos = getPos();
   // Gets parent blockContainer node
   const blockContainer = tipTapEditor.state.doc.resolve(pos!).node();
-  // Gets block identifier
-  const blockIdentifier = blockContainer.attrs.id;
 
-  if (!blockIdentifier) {
-    throw new Error("Block doesn't have id");
-  }
+  const block = editor.prosemirrorNodeToBlock(blockContainer);
 
-  // Gets the block
-  const block = editor.getBlock(blockIdentifier)! as SpecificBlock<
-    BSchema,
-    BType,
-    I,
-    S
-  >;
   if (block.type !== type) {
     throw new Error("Block type does not match");
   }
