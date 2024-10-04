@@ -9,6 +9,7 @@ import {
   replaceBlocks,
   updateBlock,
 } from "../api/blockManipulation/blockManipulation";
+import { moveBlockDown, moveBlockUp } from "../api/blockManipulation/moveBlock";
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter";
 import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos";
@@ -672,6 +673,8 @@ export class BlockNoteEditor<
     const numNodes = this._tiptapEditor.state.doc
       .resolve(endPos + 1)
       .node().childCount;
+    // Depth of the blockContainer node.
+    const nodeDepth = this._tiptapEditor.state.doc.resolve(startPos).depth;
 
     // Gets previous blockContainer node at the same nesting level, if the current node isn't the first child.
     let prevNode: Node | undefined = undefined;
@@ -683,6 +686,14 @@ export class BlockNoteEditor<
     let nextNode: Node | undefined = undefined;
     if (nodeIndex < numNodes - 1) {
       nextNode = this._tiptapEditor.state.doc.resolve(endPos + 2).node();
+    }
+
+    // Gets parent blockContainer node, if the current node is nested.
+    let parentNode: Node | undefined = undefined;
+    if (nodeDepth > 2) {
+      parentNode = this._tiptapEditor.state.doc
+        .resolve(startPos - 1)
+        .node(nodeDepth - 2);
     }
 
     return {
@@ -708,6 +719,16 @@ export class BlockNoteEditor<
           ? undefined
           : nodeToBlock(
               nextNode,
+              this.schema.blockSchema,
+              this.schema.inlineContentSchema,
+              this.schema.styleSchema,
+              this.blockCache
+            ),
+      parentBlock:
+        parentNode === undefined
+          ? undefined
+          : nodeToBlock(
+              parentNode,
               this.schema.blockSchema,
               this.schema.inlineContentSchema,
               this.schema.styleSchema,
@@ -1081,6 +1102,24 @@ export class BlockNoteEditor<
    */
   public unnestBlock() {
     this._tiptapEditor.commands.liftListItem("blockContainer");
+  }
+
+  /**
+   * Moves the block containing the text cursor up. If the previous block has
+   * children, moves it to the end of its children. If there is no previous
+   * block, but the current block is nested, moves it out of & before its parent.
+   */
+  public moveBlockUp() {
+    moveBlockUp(this);
+  }
+
+  /**
+   * Moves the block containing the text cursor down. If the next block has
+   * children, moves it to the start of its children. If there is no next block,
+   * but the current block is nested, moves it out of & after its parent.
+   */
+  public moveBlockDown() {
+    moveBlockDown(this);
   }
 
   /**
