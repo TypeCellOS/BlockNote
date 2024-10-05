@@ -146,7 +146,8 @@
   width: fit-content;
 }
 
-.bn-mantine .bn-toolbar:empty {
+.bn-mantine .bn-toolbar:empty,
+.bn-mantine .bn-toolbar:not(:has(*)) {
   display: none;
 }
 
