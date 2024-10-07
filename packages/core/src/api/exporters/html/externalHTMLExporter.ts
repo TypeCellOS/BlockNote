@@ -62,6 +62,13 @@ export const createExternalHTMLExporter = <
         options
       ).outerHTML;
 
+      // Possible improvement: now, we first use the serializeBlocks function
+      // which adds blockcontainer and blockgroup wrappers. We then pass the
+      // result to simplifyBlocks, which then cleans the wrappers.
+      //
+      // It might be easier if we create a version of serializeBlocks that
+      // doesn't add the wrappers in the first place, then we can get rid of
+      // the more complex simplifyBlocks plugin.
       let externalHTML: any = deps.unified
         .unified()
         .use(deps.rehypeParse.default, { fragment: true });
