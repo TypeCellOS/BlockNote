@@ -23,6 +23,21 @@ export async function selectedFragmentToHTML<
   externalHTML: string;
   markdown: string;
 }> {
+  // Checks if a `blockContent` node is being copied and expands
+  // the selection to the parent `blockContainer` node. This is
+  // for the use-case in which only a block without content is
+  // selected, e.g. an image block.
+  if (
+    "node" in view.state.selection &&
+    (view.state.selection.node as Node).type.spec.group === "blockContent"
+  ) {
+    editor.dispatch(
+      editor._tiptapEditor.state.tr.setSelection(
+        new NodeSelection(view.state.doc.resolve(view.state.selection.from - 1))
+      )
+    );
+  }
+
   // Uses default ProseMirror clipboard serialization.
   const clipboardHTML: string = (pmView as any).__serializeForClipboard(
     view,
@@ -87,21 +102,6 @@ const copyToClipboard = <
   // Stops the default browser copy behaviour.
   event.preventDefault();
   event.clipboardData!.clearData();
-
-  // Checks if a `blockContent` node is being copied and expands
-  // the selection to the parent `blockContainer` node. This is
-  // for the use-case in which only a block without content is
-  // selected, e.g. an image block.
-  if (
-    "node" in view.state.selection &&
-    (view.state.selection.node as Node).type.spec.group === "blockContent"
-  ) {
-    editor.dispatch(
-      editor._tiptapEditor.state.tr.setSelection(
-        new NodeSelection(view.state.doc.resolve(view.state.selection.from - 1))
-      )
-    );
-  }
 
   (async () => {
     const { clipboardHTML, externalHTML, markdown } =

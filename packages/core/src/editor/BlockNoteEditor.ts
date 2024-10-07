@@ -463,7 +463,7 @@ export class BlockNoteEditor<
     };
 
     if (!this.headless) {
-      this._tiptapEditor = new BlockNoteTipTapEditor(
+      this._tiptapEditor = BlockNoteTipTapEditor.create(
         tiptapOptions,
         this.schema.styleSchema
       ) as BlockNoteTipTapEditor & {
