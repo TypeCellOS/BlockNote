@@ -1,5 +1,5 @@
 import { Element as HASTElement, Parent as HASTParent } from "hast";
-import { esmDependencies } from "../../../../util/esmDependencies";
+import { esmDependencies } from "../../../../util/esmDependencies.js";
 
 type SimplifyBlocksOptions = {
   orderedListItemBlockTypes: Set<string>;

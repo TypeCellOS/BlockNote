@@ -11,15 +11,15 @@ import { History } from "@tiptap/extension-history";
 import { Link } from "@tiptap/extension-link";
 import { Text } from "@tiptap/extension-text";
 import * as Y from "yjs";
-import { createDropFileExtension } from "../api/clipboard/fromClipboard/fileDropExtension";
-import { createPasteFromClipboardExtension } from "../api/clipboard/fromClipboard/pasteExtension";
-import { createCopyToClipboardExtension } from "../api/clipboard/toClipboard/copyExtension";
-import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension";
-import { TextAlignmentExtension } from "../extensions/TextAlignment/TextAlignmentExtension";
-import { TextColorExtension } from "../extensions/TextColor/TextColorExtension";
-import { TrailingNode } from "../extensions/TrailingNode/TrailingNodeExtension";
-import UniqueID from "../extensions/UniqueID/UniqueID";
-import { BlockContainer, BlockGroup, Doc } from "../pm-nodes";
+import { createDropFileExtension } from "../api/clipboard/fromClipboard/fileDropExtension.js";
+import { createPasteFromClipboardExtension } from "../api/clipboard/fromClipboard/pasteExtension.js";
+import { createCopyToClipboardExtension } from "../api/clipboard/toClipboard/copyExtension.js";
+import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension.js";
+import { TextAlignmentExtension } from "../extensions/TextAlignment/TextAlignmentExtension.js";
+import { TextColorExtension } from "../extensions/TextColor/TextColorExtension.js";
+import { TrailingNode } from "../extensions/TrailingNode/TrailingNodeExtension.js";
+import UniqueID from "../extensions/UniqueID/UniqueID.js";
+import { BlockContainer, BlockGroup, Doc } from "../pm-nodes/index.js";
 import {
   BlockNoteDOMAttributes,
   BlockSchema,

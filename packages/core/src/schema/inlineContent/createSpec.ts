@@ -4,11 +4,11 @@ import { TagParseRule } from "@tiptap/pm/model";
 import {
   inlineContentToNodes,
   nodeToCustomInlineContent,
-} from "../../api/nodeConversions/nodeConversions";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { propsToAttributes } from "../blocks/internal";
-import { Props } from "../propTypes";
-import { StyleSchema } from "../styles/types";
+} from "../../api/nodeConversions/nodeConversions.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { propsToAttributes } from "../blocks/internal.js";
+import { Props } from "../propTypes.js";
+import { StyleSchema } from "../styles/types.js";
 import {
   addInlineContentAttributes,
   addInlineContentKeyboardShortcuts,
@@ -19,7 +19,7 @@ import {
   InlineContentFromConfig,
   InlineContentSpec,
   PartialCustomInlineContentFromConfig,
-} from "./types";
+} from "./types.js";
 
 // TODO: support serialization
 

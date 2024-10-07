@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useOnUploadStart } from "./useOnUploadStart";
-import { useOnUploadEnd } from "./useOnUploadEnd";
+import { useOnUploadEnd } from "./useOnUploadEnd.js";
+import { useOnUploadStart } from "./useOnUploadStart.js";
 
 export function useUploadLoading(blockId?: string) {
   const [showLoader, setShowLoader] = useState(false);

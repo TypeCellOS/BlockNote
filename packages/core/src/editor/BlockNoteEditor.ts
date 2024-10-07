@@ -66,10 +66,10 @@ import { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
 
 import { Transaction } from "@tiptap/pm/state";
-import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer";
-import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin";
+import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
+import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin.js";
 import "../style.css";
-import { initializeESMDependencies } from "../util/esmDependencies";
+import { initializeESMDependencies } from "../util/esmDependencies.js";
 
 export type BlockNoteEditorOptions<
   BSchema extends BlockSchema,

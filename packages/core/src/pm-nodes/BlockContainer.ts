@@ -7,10 +7,10 @@ import {
   blockToNode,
   inlineContentToNodes,
   tableContentToNodes,
-} from "../api/nodeConversions/nodeConversions";
-import { PartialBlock } from "../blocks/defaultBlocks";
-import type { BlockNoteEditor } from "../editor/BlockNoteEditor";
-import { NonEditableBlockPlugin } from "../extensions/NonEditableBlocks/NonEditableBlockPlugin";
+} from "../api/nodeConversions/nodeConversions.js";
+import { PartialBlock } from "../blocks/defaultBlocks.js";
+import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
+import { NonEditableBlockPlugin } from "../extensions/NonEditableBlocks/NonEditableBlockPlugin.js";
 import {
   BlockNoteDOMAttributes,
   BlockSchema,

@@ -5,8 +5,8 @@ import {
   FileBlockConfig,
   Props,
   PropSchema,
-} from "../../schema";
-import { defaultProps } from "../defaultProps";
+} from "../../schema/index.js";
+import { defaultProps } from "../defaultProps.js";
 import {
   createFigureWithCaption,
   createFileAndCaptionWrapper,

@@ -1,8 +1,8 @@
 import { RiExternalLinkFill } from "react-icons/ri";
-import { useComponentsContext } from "../../../editor/ComponentsContext";
-import { useDictionary } from "../../../i18n/dictionary";
-import { sanitizeUrl } from "../../../util/sanitizeUrl";
-import { LinkToolbarProps } from "../LinkToolbarProps";
+import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { useDictionary } from "../../../i18n/dictionary.js";
+import { sanitizeUrl } from "../../../util/sanitizeUrl.js";
+import { LinkToolbarProps } from "../LinkToolbarProps.js";
 
 export const OpenLinkButton = (props: Pick<LinkToolbarProps, "url">) => {
   const Components = useComponentsContext()!;

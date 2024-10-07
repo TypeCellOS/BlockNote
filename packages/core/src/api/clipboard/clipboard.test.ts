@@ -3,11 +3,11 @@ import { NodeSelection, Selection, TextSelection } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
-import { PartialBlock } from "../../blocks/defaultBlocks";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { doPaste } from "../testUtil/paste";
-import { initializeESMDependencies } from "../../util/esmDependencies";
-import { selectedFragmentToHTML } from "./toClipboard/copyExtension";
+import { PartialBlock } from "../../blocks/defaultBlocks.js";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { initializeESMDependencies } from "../../util/esmDependencies.js";
+import { doPaste } from "../testUtil/paste.js";
+import { selectedFragmentToHTML } from "./toClipboard/copyExtension.js";
 
 type SelectionTestCase = {
   testName: string;

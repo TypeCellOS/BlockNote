@@ -1,10 +1,14 @@
 import { DOMSerializer, Fragment, Node, Schema } from "prosemirror-model";
 
-import { PartialBlock } from "../../../blocks/defaultBlocks";
-import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
-import { esmDependencies } from "../../../util/esmDependencies";
-import { blockToNode } from "../../nodeConversions/nodeConversions";
+import { PartialBlock } from "../../../blocks/defaultBlocks.js";
+import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../../schema/index.js";
+import { esmDependencies } from "../../../util/esmDependencies.js";
+import { blockToNode } from "../../nodeConversions/nodeConversions.js";
 import {
   serializeNodeInner,
   serializeProseMirrorFragment,

@@ -4,16 +4,20 @@ import { NodeSelection, Plugin, PluginKey, Selection } from "prosemirror-state";
 import * as pmView from "prosemirror-view";
 import { EditorView } from "prosemirror-view";
 
-import { createExternalHTMLExporter } from "../../api/exporters/html/externalHTMLExporter";
-import { cleanHTMLToMarkdown } from "../../api/exporters/markdown/markdownExporter";
-import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos";
-import { Block } from "../../blocks/defaultBlocks";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
-import { EventEmitter } from "../../util/EventEmitter";
-import { initializeESMDependencies } from "../../util/esmDependencies";
-import { MultipleNodeSelection } from "./MultipleNodeSelection";
+import { createExternalHTMLExporter } from "../../api/exporters/html/externalHTMLExporter.js";
+import { cleanHTMLToMarkdown } from "../../api/exporters/markdown/markdownExporter.js";
+import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos.js";
+import { Block } from "../../blocks/defaultBlocks.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../schema/index.js";
+import { EventEmitter } from "../../util/EventEmitter.js";
+import { initializeESMDependencies } from "../../util/esmDependencies.js";
+import { MultipleNodeSelection } from "./MultipleNodeSelection.js";
 
 let dragImageElement: Element | undefined;
 

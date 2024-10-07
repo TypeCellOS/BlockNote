@@ -1,9 +1,9 @@
 import { Editor } from "@tiptap/core";
 import { TagParseRule } from "@tiptap/pm/model";
 import { NodeView } from "@tiptap/pm/view";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { InlineContentSchema } from "../inlineContent/types";
-import { StyleSchema } from "../styles/types";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { InlineContentSchema } from "../inlineContent/types.js";
+import { StyleSchema } from "../styles/types.js";
 import {
   createInternalBlockSpec,
   createStronglyTypedTiptapNode,

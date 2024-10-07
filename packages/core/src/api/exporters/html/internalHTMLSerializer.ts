@@ -10,7 +10,7 @@ import { blockToNode } from "../../nodeConversions/nodeConversions.js";
 import {
   serializeNodeInner,
   serializeProseMirrorFragment,
-} from "./util/sharedHTMLConversion";
+} from "./util/sharedHTMLConversion.js";
 // Used to serialize BlockNote blocks and ProseMirror nodes to HTML without
 // losing data. Blocks are exported using the `toInternalHTML` method in their
 // `blockSpec`.
