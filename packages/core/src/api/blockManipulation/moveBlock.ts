@@ -100,7 +100,7 @@ function updateBlockSelectionFromData(
   );
 }
 
-function moveSelectedBlock(
+export function moveSelectedBlockAndSelection(
   editor: BlockNoteEditor<any, any, any>,
   referenceBlock: BlockIdentifier,
   placement: "before" | "after"
@@ -142,7 +142,7 @@ export function moveBlockUp(editor: BlockNoteEditor<any, any, any>) {
     return;
   }
 
-  moveSelectedBlock(editor, referenceBlockId, placement);
+  moveSelectedBlockAndSelection(editor, referenceBlockId, placement);
 }
 
 export function moveBlockDown(editor: BlockNoteEditor<any, any, any>) {
@@ -173,5 +173,5 @@ export function moveBlockDown(editor: BlockNoteEditor<any, any, any>) {
     return;
   }
 
-  moveSelectedBlock(editor, referenceBlockId, placement);
+  moveSelectedBlockAndSelection(editor, referenceBlockId, placement);
 }

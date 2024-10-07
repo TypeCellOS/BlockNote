@@ -1,12 +1,21 @@
+import { NodeSelection, TextSelection } from "prosemirror-state";
+import { CellSelection } from "prosemirror-tables";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { PartialBlock } from "../../blocks/defaultBlocks";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { getBlockInfoFromPos } from "../getBlockInfoFromPos";
-import { NodeSelection, TextSelection } from "prosemirror-state";
-import { CellSelection } from "prosemirror-tables";
-import { moveBlockUp } from "./moveBlock";
+import {
+  moveBlockDown,
+  moveBlockUp,
+  moveSelectedBlockAndSelection,
+} from "./moveBlock";
 
 const blocks: PartialBlock[] = [
+  {
+    id: "paragraph-0",
+    type: "paragraph",
+    content: "Paragraph 0",
+  },
   {
     id: "paragraph-1",
     type: "paragraph",
@@ -82,22 +91,41 @@ function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
       )
     );
   } else if (selectionType === "node") {
+    const resolvedContentStartPos =
+      editor._tiptapEditor.state.doc.resolve(startPos);
+
     editor._tiptapEditor.view.dispatch(
       editor._tiptapEditor.state.tr.setSelection(
         NodeSelection.create(
           editor._tiptapEditor.state.doc,
-          editor._tiptapEditor.state.doc.resolve(startPos + 1).start()
+          editor._tiptapEditor.state.doc
+            .resolve(
+              resolvedContentStartPos.after(resolvedContentStartPos.depth + 1)
+            )
+            .start()
         )
       )
     );
   } else {
+    const resolvedContentStartPos =
+      editor._tiptapEditor.state.doc.resolve(startPos);
+    const resolvedContentEndPos = editor._tiptapEditor.state.doc.resolve(
+      startPos + contentNode.nodeSize
+    );
+
     editor._tiptapEditor.view.dispatch(
       editor._tiptapEditor.state.tr.setSelection(
         TextSelection.create(
           editor._tiptapEditor.state.doc,
-          editor._tiptapEditor.state.doc.resolve(startPos + 1).start(),
           editor._tiptapEditor.state.doc
-            .resolve(startPos + contentNode.nodeSize - 1)
+            .resolve(
+              resolvedContentStartPos.after(resolvedContentStartPos.depth + 1)
+            )
+            .start(),
+          editor._tiptapEditor.state.doc
+            .resolve(
+              resolvedContentEndPos.before(resolvedContentEndPos.depth + 1)
+            )
             .end()
         )
       )
@@ -120,15 +148,15 @@ beforeEach(() => {
   editor.replaceBlocks(editor.document, blocks);
 });
 
-describe("Test moveBlockUp", () => {
+describe("Test moveSelectedBlockAndSelection", () => {
   it("Text selection", () => {
-    editor.setTextCursorPosition("paragraph-3");
+    editor.setTextCursorPosition("paragraph-2");
     makeSelectionSpanContent("text");
 
-    moveBlockUp(editor);
+    moveSelectedBlockAndSelection(editor, "paragraph-0", "before");
 
     const selection = editor._tiptapEditor.state.selection;
-    editor.setTextCursorPosition("paragraph-3");
+    editor.setTextCursorPosition("paragraph-2");
     makeSelectionSpanContent("text");
 
     expect(selection.eq(editor._tiptapEditor.state.selection)).toBeTruthy();
@@ -138,7 +166,7 @@ describe("Test moveBlockUp", () => {
     editor.setTextCursorPosition("image-1");
     makeSelectionSpanContent("node");
 
-    moveBlockUp(editor);
+    moveSelectedBlockAndSelection(editor, "paragraph-0", "before");
 
     const selection = editor._tiptapEditor.state.selection;
     editor.setTextCursorPosition("image-1");
@@ -151,7 +179,7 @@ describe("Test moveBlockUp", () => {
     editor.setTextCursorPosition("table-1");
     makeSelectionSpanContent("cell");
 
-    moveBlockUp(editor);
+    moveSelectedBlockAndSelection(editor, "paragraph-0", "before");
 
     const selection = editor._tiptapEditor.state.selection;
     editor.setTextCursorPosition("table-1");
@@ -159,7 +187,9 @@ describe("Test moveBlockUp", () => {
 
     expect(selection.eq(editor._tiptapEditor.state.selection)).toBeTruthy();
   });
+});
 
+describe("Test moveBlockUp", () => {
   it("Basic", () => {
     editor.setTextCursorPosition("paragraph-3");
 
@@ -185,9 +215,43 @@ describe("Test moveBlockUp", () => {
   });
 
   it("First block", () => {
-    editor.setTextCursorPosition("paragraph-1");
+    editor.setTextCursorPosition("paragraph-0");
 
     moveBlockUp(editor);
+
+    expect(editor.document).toMatchSnapshot();
+  });
+});
+
+describe("Test moveBlockDown", () => {
+  it("Basic", () => {
+    editor.setTextCursorPosition("paragraph-2");
+
+    moveBlockDown(editor);
+
+    expect(editor.document).toMatchSnapshot();
+  });
+
+  it("Into children", () => {
+    editor.setTextCursorPosition("paragraph-0");
+
+    moveBlockDown(editor);
+
+    expect(editor.document).toMatchSnapshot();
+  });
+
+  it("Out of children", () => {
+    editor.setTextCursorPosition("nested-paragraph-1");
+
+    moveBlockDown(editor);
+
+    expect(editor.document).toMatchSnapshot();
+  });
+
+  it("Last block", () => {
+    editor.setTextCursorPosition("trailing-paragraph");
+
+    moveBlockDown(editor);
 
     expect(editor.document).toMatchSnapshot();
   });
