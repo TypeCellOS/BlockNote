@@ -1,5 +1,5 @@
 import { PluginView } from "@tiptap/pm/state";
-import { Plugin, PluginKey } from "prosemirror-state";
+import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
 import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos";
@@ -323,8 +323,9 @@ export class SideMenuView<
   // allowing the user to click the button again without moving the cursor. This
   // would otherwise not update the side menu, and so clicking the button again
   // would attempt to remove the same block again, causing an error.
-  update() {
-    if (this.state?.show) {
+  update(_view: EditorView, prevState: EditorState) {
+    const docChanged = !prevState.doc.eq(this.pmView.state.doc)
+    if (docChanged && this.state?.show) {
       this.updateStateFromMousePos();
     }
   }
