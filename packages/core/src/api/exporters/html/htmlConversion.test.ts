@@ -3,9 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { addIdsToBlocks, partialBlocksToBlocksForTesting } from "../../..";
 import { PartialBlock } from "../../../blocks/defaultBlocks";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
-import { BlockSchema } from "../../../schema";
-import { InlineContentSchema } from "../../../schema";
-import { StyleSchema } from "../../../schema";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
 import { initializeESMDependencies } from "../../../util/esmDependencies";
 import { customBlocksTestCases } from "../../testUtil/cases/customBlocks";
 import { customInlineContentTestCases } from "../../testUtil/cases/customInlineContent";
@@ -25,6 +23,7 @@ async function convertToHTMLAndCompareSnapshots<
   snapshotName: string
 ) {
   addIdsToBlocks(blocks);
+
   const serializer = createInternalHTMLSerializer(editor.pmSchema, editor);
   const internalHTML = serializer.serializeBlocks(blocks, {});
   const internalHTMLSnapshotPath =

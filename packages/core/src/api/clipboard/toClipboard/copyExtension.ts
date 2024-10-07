@@ -10,6 +10,11 @@ import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
 import { initializeESMDependencies } from "../../../util/esmDependencies";
 import { createExternalHTMLExporter } from "../../exporters/html/externalHTMLExporter";
 import { cleanHTMLToMarkdown } from "../../exporters/markdown/markdownExporter";
+import {
+  contentNodeToInlineContent,
+  contentNodeToTableContent,
+  nodeToBlock,
+} from "../../nodeConversions/nodeConversions";
 
 export async function selectedFragmentToHTML<
   BSchema extends BlockSchema,
@@ -75,15 +80,56 @@ export async function selectedFragmentToHTML<
     }
   }
 
+  let externalHTML: string;
+
   await initializeESMDependencies();
   const externalHTMLExporter = createExternalHTMLExporter(
     view.state.schema,
     editor
   );
-  const externalHTML = externalHTMLExporter.exportProseMirrorFragment(
-    selectedFragment,
-    { simplifyBlocks: !isWithinBlockContent && !isWithinTable }
-  );
+
+  if (isWithinTable) {
+    const ic = contentNodeToTableContent(
+      selectedFragment as any,
+      editor.schema.inlineContentSchema,
+      editor.schema.styleSchema
+    );
+    externalHTML = externalHTMLExporter.exportInlineContent(ic as any, {
+      simplifyBlocks: false,
+    });
+  } else if (isWithinBlockContent) {
+    const ic = contentNodeToInlineContent(
+      selectedFragment as any,
+      editor.schema.inlineContentSchema,
+      editor.schema.styleSchema
+    );
+    externalHTML = externalHTMLExporter.exportInlineContent(ic, {
+      simplifyBlocks: false,
+    });
+  } else {
+    const blocks: any[] = [];
+    selectedFragment.descendants((node) => {
+      if (node.type.name === "blockContainer") {
+        if (node.firstChild?.type.name === "blockGroup") {
+          // selection started within a block group
+          return true;
+        }
+        blocks.push(
+          nodeToBlock(
+            node,
+            editor.schema.blockSchema,
+            editor.schema.inlineContentSchema,
+            editor.schema.styleSchema
+          )
+        );
+        return false;
+      }
+      return true;
+    });
+    externalHTML = externalHTMLExporter.exportBlocks(blocks, {
+      simplifyBlocks: true,
+    });
+  }
 
   const markdown = cleanHTMLToMarkdown(externalHTML);
 
