@@ -115,6 +115,7 @@ export function moveSelectedBlockAndSelection(
 }
 
 export function moveBlockUp(editor: BlockNoteEditor<any, any, any>) {
+  // This function currently only supports moving a single block.
   const editorSelection = editor.getSelection();
   if (editorSelection && editorSelection.blocks.length > 1) {
     return;
@@ -146,6 +147,7 @@ export function moveBlockUp(editor: BlockNoteEditor<any, any, any>) {
 }
 
 export function moveBlockDown(editor: BlockNoteEditor<any, any, any>) {
+  // This function currently only supports moving a single block.
   const editorSelection = editor.getSelection();
   if (editorSelection && editorSelection.blocks.length > 1) {
     return;
