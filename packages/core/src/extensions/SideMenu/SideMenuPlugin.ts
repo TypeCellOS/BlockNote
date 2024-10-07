@@ -87,19 +87,12 @@ export class SideMenuView<
       true
     );
 
-    // Unfreezes the menu whenever the user clicks.
-    this.pmView.dom.addEventListener("mousedown", this.onMouseDown);
     // Hides and unfreezes the menu whenever the user presses a key.
     this.pmView.root.addEventListener(
       "keydown",
       this.onKeyDown as EventListener,
       true
     );
-
-    // Setting capture=true ensures that any parent container of the editor that
-    // gets scrolled will trigger the scroll event. Scroll events do not bubble
-    // and so won't propagate to the document by default.
-    this.pmView.root.addEventListener("scroll", this.onScroll, true);
   }
 
   updateState = (state: SideMenuState<BSchema, I, S>) => {
@@ -280,16 +273,6 @@ export class SideMenuView<
       // Typing in editor should hide side menu
       this.state.show = false;
       this.emitUpdate(this.state);
-      this.menuFrozen = false;
-    }
-  };
-
-  // TODO
-  onMouseDown = () => {
-    if (this.state && this.state.show && this.menuFrozen) {
-      this.menuFrozen = false;
-      this.state.show = false;
-      this.emitUpdate(this.state);
     }
   };
 
@@ -337,24 +320,6 @@ export class SideMenuView<
     this.updateStateFromMousePos();
   };
 
-  // TODO: needed?
-  onScroll = () => {
-    if (this.state?.show && this.hoveredBlock?.firstChild) {
-      const blockContent = this.hoveredBlock.firstChild as HTMLElement;
-      const blockContentBoundingBox = blockContent.getBoundingClientRect();
-
-      this.state.referencePos = new DOMRect(
-        this.horizontalPosAnchoredAtRoot
-          ? this.horizontalPosAnchor
-          : blockContentBoundingBox.x,
-        blockContentBoundingBox.y,
-        blockContentBoundingBox.width,
-        blockContentBoundingBox.height
-      );
-      this.emitUpdate(this.state);
-    }
-  };
-
   // Needed in cases where the editor state updates without the mouse cursor
   // moving, as some state updates can require a side menu update. For example,
   // adding a button to the side menu which removes the block can cause the
@@ -386,8 +351,6 @@ export class SideMenuView<
       this.onDrop as EventListener,
       true
     );
-    this.pmView.root.removeEventListener("scroll", this.onScroll, true);
-    this.pmView.dom.removeEventListener("mousedown", this.onMouseDown);
     this.pmView.root.removeEventListener(
       "keydown",
       this.onKeyDown as EventListener,
