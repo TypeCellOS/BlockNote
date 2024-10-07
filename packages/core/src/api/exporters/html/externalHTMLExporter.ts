@@ -1,16 +1,10 @@
 import { DOMSerializer, Fragment, Node, Schema } from "prosemirror-model";
-import rehypeParse from "rehype-parse";
-import rehypeStringify from "rehype-stringify";
-import { unified } from "unified";
 
-import { PartialBlock } from "../../../blocks/defaultBlocks.js";
-import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
-import {
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "../../../schema/index.js";
-import { blockToNode } from "../../nodeConversions/nodeConversions.js";
+import { PartialBlock } from "../../../blocks/defaultBlocks";
+import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
+import { esmDependencies } from "../../../util/esmDependencies";
+import { blockToNode } from "../../nodeConversions/nodeConversions";
 import {
   serializeNodeInner,
   serializeProseMirrorFragment,
@@ -47,10 +41,12 @@ export interface ExternalHTMLExporter<
   ) => string;
   exportProseMirrorFragment: (
     fragment: Fragment,
-    options: { document?: Document }
+    options: { document?: Document; simplifyBlocks?: boolean }
   ) => string;
 }
 
+// Needs to be sync because it's used in drag handler event (SideMenuPlugin)
+// Ideally, call `await initializeESMDependencies()` before calling this function
 export const createExternalHTMLExporter = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -59,14 +55,26 @@ export const createExternalHTMLExporter = <
   schema: Schema,
   editor: BlockNoteEditor<BSchema, I, S>
 ): ExternalHTMLExporter<BSchema, I, S> => {
-  const serializer = DOMSerializer.fromSchema(schema) as DOMSerializer & {
+  const deps = esmDependencies;
+
+  if (!deps) {
+    throw new Error(
+      "External HTML exporter requires ESM dependencies to be initialized"
+    );
+  }
+
+  // TODO: maybe cache this serializer (default prosemirror serializer is cached)?
+  const serializer = new DOMSerializer(
+    DOMSerializer.nodesFromSchema(schema),
+    DOMSerializer.marksFromSchema(schema)
+  ) as DOMSerializer & {
     serializeNodeInner: (
       node: Node,
       options: { document?: Document }
     ) => HTMLElement;
     exportProseMirrorFragment: (
       fragment: Fragment,
-      options: { document?: Document }
+      options: { document?: Document; simplifyBlocks?: boolean }
     ) => string;
     exportBlocks: (
       blocks: PartialBlock<BSchema, I, S>[],
@@ -83,16 +91,20 @@ export const createExternalHTMLExporter = <
   // but additionally runs it through the `simplifyBlocks` rehype plugin to
   // convert the internal HTML to external.
   serializer.exportProseMirrorFragment = (fragment, options) => {
-    const externalHTML = unified()
-      .use(rehypeParse, { fragment: true })
-      .use(simplifyBlocks, {
+    let externalHTML: any = deps.unified
+      .unified()
+      .use(deps.rehypeParse.default, { fragment: true });
+    if (options.simplifyBlocks !== false) {
+      externalHTML = externalHTML.use(simplifyBlocks, {
         orderedListItemBlockTypes: new Set<string>(["numberedListItem"]),
         unorderedListItemBlockTypes: new Set<string>([
           "bulletListItem",
           "checkListItem",
         ]),
-      })
-      .use(rehypeStringify)
+      });
+    }
+    externalHTML = externalHTML
+      .use(deps.rehypeStringify.default)
       .processSync(serializeProseMirrorFragment(fragment, serializer, options));
 
     return externalHTML.value as string;

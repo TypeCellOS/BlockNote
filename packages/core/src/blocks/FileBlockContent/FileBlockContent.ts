@@ -7,9 +7,9 @@ import {
 } from "../../schema/index.js";
 import { defaultProps } from "../defaultProps.js";
 import {
-  createAddFileButton,
   createDefaultFilePreview,
   createFileAndCaptionWrapper,
+  createFileBlockWrapper,
   createLinkWithCaption,
   parseEmbedElement,
   parseFigureElement,
@@ -42,28 +42,10 @@ export const fileRender = (
   block: BlockFromConfig<typeof fileBlockConfig, any, any>,
   editor: BlockNoteEditor<any, any, any>
 ) => {
-  // Wrapper element to set the file alignment, contains both file/file
-  // upload dashboard and caption.
-  const wrapper = document.createElement("div");
-  wrapper.className = "bn-file-block-content-wrapper";
+  const file = createDefaultFilePreview(block).dom;
+  const element = createFileAndCaptionWrapper(block, file);
 
-  if (block.props.url === "") {
-    const addFileButton = createAddFileButton(block, editor);
-    wrapper.appendChild(addFileButton.dom);
-
-    return {
-      dom: wrapper,
-      destroy: addFileButton.destroy,
-    };
-  } else {
-    const file = createDefaultFilePreview(block).dom;
-    const element = createFileAndCaptionWrapper(block, file);
-    wrapper.appendChild(element.dom);
-
-    return {
-      dom: wrapper,
-    };
-  }
+  return createFileBlockWrapper(block, editor, element);
 };
 
 export const fileParse = (element: HTMLElement) => {

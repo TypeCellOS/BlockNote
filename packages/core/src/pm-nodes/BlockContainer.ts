@@ -7,11 +7,10 @@ import {
   blockToNode,
   inlineContentToNodes,
   tableContentToNodes,
-} from "../api/nodeConversions/nodeConversions.js";
-import { PartialBlock } from "../blocks/defaultBlocks.js";
-import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
-import { NonEditableBlockPlugin } from "../extensions/NonEditableBlocks/NonEditableBlockPlugin.js";
-import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin.js";
+} from "../api/nodeConversions/nodeConversions";
+import { PartialBlock } from "../blocks/defaultBlocks";
+import type { BlockNoteEditor } from "../editor/BlockNoteEditor";
+import { NonEditableBlockPlugin } from "../extensions/NonEditableBlocks/NonEditableBlockPlugin";
 import {
   BlockNoteDOMAttributes,
   BlockSchema,
@@ -492,7 +491,7 @@ export const BlockContainer = Node.create<{
   },
 
   addProseMirrorPlugins() {
-    return [PreviousBlockTypePlugin(), NonEditableBlockPlugin()];
+    return [NonEditableBlockPlugin()];
   },
 
   addKeyboardShortcuts() {

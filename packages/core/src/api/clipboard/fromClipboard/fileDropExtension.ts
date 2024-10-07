@@ -1,14 +1,10 @@
 import { Extension } from "@tiptap/core";
 import { Plugin } from "prosemirror-state";
 
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import {
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "../../schema/index.js";
-import { acceptedMIMETypes } from "./acceptedMIMETypes.js";
-import { handleFileInsertion } from "./handleFileInsertion.js";
+import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
+import { acceptedMIMETypes } from "./acceptedMIMETypes";
+import { handleFileInsertion } from "./handleFileInsertion";
 
 export const createDropFileExtension = <
   BSchema extends BlockSchema,

@@ -1,4 +1,5 @@
 import {
+  applyNonSelectableBlockFix,
   BlockFromConfig,
   BlockNoteEditor,
   BlockSchemaWithBlock,
@@ -16,8 +17,10 @@ import {
   PropSchema,
   propsToAttributes,
   StyleSchema,
+  wrapInBlockStructure,
 } from "@blocknote/core";
 import {
+  NodeView,
   NodeViewContent,
   NodeViewProps,
   NodeViewWrapper,
@@ -118,7 +121,7 @@ export function createReactBlockSpec<
       ? "inline*"
       : "") as T["content"] extends "inline" ? "inline*" : "",
     group: "blockContent",
-    selectable: true,
+    selectable: blockConfig.isSelectable ?? true,
 
     addAttributes() {
       return propsToAttributes(blockConfig.propSchema);
@@ -128,20 +131,29 @@ export function createReactBlockSpec<
       return getParseRules(blockConfig, blockImplementation.parse);
     },
 
-    renderHTML() {
-      // renderHTML is not really used, as we always use a nodeView, and we use toExternalHTML / toInternalHTML for serialization
-      // There's an edge case when this gets called nevertheless; before the nodeviews have been mounted
-      // this is why we implement it with a temporary placeholder
+    renderHTML({ HTMLAttributes }) {
+      // renderHTML is used for copy/pasting content from the editor back into
+      // the editor, so we need to make sure the `blockContent` element is
+      // structured correctly as this is what's used for parsing blocks. We
+      // just render a placeholder div inside as the `blockContent` element
+      // already has all the information needed for proper parsing.
       const div = document.createElement("div");
       div.setAttribute("data-tmp-placeholder", "true");
-      return {
-        dom: div,
-      };
+      return wrapInBlockStructure(
+        {
+          dom: div,
+        },
+        blockConfig.type,
+        {},
+        blockConfig.propSchema,
+        blockConfig.isFileBlock,
+        HTMLAttributes
+      );
     },
 
     addNodeView() {
-      return (props) =>
-        ReactNodeViewRenderer(
+      return (props) => {
+        const nodeView = ReactNodeViewRenderer(
           (props: NodeViewProps) => {
             // Gets the BlockNote editor instance
             const editor = this.options.editor! as BlockNoteEditor<any>;
@@ -178,7 +190,14 @@ export function createReactBlockSpec<
           {
             className: "bn-react-node-view-renderer",
           }
-        )(props);
+        )(props) as NodeView<any>;
+
+        if (blockConfig.isSelectable === false) {
+          applyNonSelectableBlockFix(nodeView, this.editor);
+        }
+
+        return nodeView;
+      };
     },
   });
 

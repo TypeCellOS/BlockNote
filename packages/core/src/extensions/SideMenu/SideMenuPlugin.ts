@@ -1,22 +1,19 @@
 import { PluginView } from "@tiptap/pm/state";
 import { Node } from "prosemirror-model";
 import { NodeSelection, Plugin, PluginKey, Selection } from "prosemirror-state";
+import * as pmView from "prosemirror-view";
 import { EditorView } from "prosemirror-view";
 
-import { createExternalHTMLExporter } from "../../api/exporters/html/externalHTMLExporter.js";
-import { createInternalHTMLSerializer } from "../../api/exporters/html/internalHTMLSerializer.js";
-import { cleanHTMLToMarkdown } from "../../api/exporters/markdown/markdownExporter.js";
-import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos.js";
-import { Block } from "../../blocks/defaultBlocks.js";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
-import {
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "../../schema/index.js";
-import { EventEmitter } from "../../util/EventEmitter.js";
-import { MultipleNodeSelection } from "./MultipleNodeSelection.js";
+import { createExternalHTMLExporter } from "../../api/exporters/html/externalHTMLExporter";
+import { cleanHTMLToMarkdown } from "../../api/exporters/markdown/markdownExporter";
+import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos";
+import { Block } from "../../blocks/defaultBlocks";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
+import { EventEmitter } from "../../util/EventEmitter";
+import { initializeESMDependencies } from "../../util/esmDependencies";
+import { MultipleNodeSelection } from "./MultipleNodeSelection";
 
 let dragImageElement: Element | undefined;
 
@@ -37,11 +34,11 @@ export function getDraggableBlockFromElement(
     element &&
     element.parentElement &&
     element.parentElement !== view.dom &&
-    !element.hasAttribute?.("data-id")
+    element.getAttribute?.("data-node-type") !== "blockContainer"
   ) {
     element = element.parentElement;
   }
-  if (!element.hasAttribute("data-id")) {
+  if (element.getAttribute?.("data-node-type") !== "blockContainer") {
     return undefined;
   }
   return { node: element as HTMLElement, id: element.getAttribute("data-id")! };
@@ -230,11 +227,10 @@ function dragStart<
     const selectedSlice = view.state.selection.content();
     const schema = editor.pmSchema;
 
-    const internalHTMLSerializer = createInternalHTMLSerializer(schema, editor);
-    const internalHTML = internalHTMLSerializer.serializeProseMirrorFragment(
-      selectedSlice.content,
-      {}
-    );
+    const clipboardHML = (pmView as any).__serializeForClipboard(
+      view,
+      selectedSlice
+    ).dom.innerHTML;
 
     const externalHTMLExporter = createExternalHTMLExporter(schema, editor);
     const externalHTML = externalHTMLExporter.exportProseMirrorFragment(
@@ -245,7 +241,7 @@ function dragStart<
     const plainText = cleanHTMLToMarkdown(externalHTML);
 
     e.dataTransfer.clearData();
-    e.dataTransfer.setData("blocknote/html", internalHTML);
+    e.dataTransfer.setData("blocknote/html", clipboardHML);
     e.dataTransfer.setData("text/html", externalHTML);
     e.dataTransfer.setData("text/plain", plainText);
     e.dataTransfer.effectAllowed = "move";
@@ -270,7 +266,7 @@ export class SideMenuView<
   // When false, the drag handle with be just to the left of the element
   // TODO: Is there any case where we want this to be false?
   private horizontalPosAnchoredAtRoot: boolean;
-  private horizontalPosAnchor: number;
+  private horizontalPosAnchor: number | undefined;
 
   private hoveredBlock: HTMLElement | undefined;
 
@@ -293,9 +289,12 @@ export class SideMenuView<
     };
 
     this.horizontalPosAnchoredAtRoot = true;
-    this.horizontalPosAnchor = (
-      this.pmView.dom.firstChild! as HTMLElement
-    ).getBoundingClientRect().x;
+
+    if (this.pmView.dom.firstChild) {
+      this.horizontalPosAnchor = (
+        this.pmView.dom.firstChild as HTMLElement
+      ).getBoundingClientRect().x;
+    }
 
     this.pmView.root.addEventListener(
       "drop",
@@ -306,6 +305,7 @@ export class SideMenuView<
       "dragover",
       this.onDragOver as EventListener
     );
+    initializeESMDependencies();
     this.pmView.dom.addEventListener("dragstart", this.onDragStart);
 
     // Shows or updates menu position whenever the cursor moves, if the menu isn't frozen.
@@ -339,8 +339,12 @@ export class SideMenuView<
     // size/position, so we get the boundingRect of the first child (i.e. the
     // blockGroup that wraps all blocks in the editor) for more accurate side
     // menu placement.
+    if (!this.pmView.dom.firstChild) {
+      return;
+    }
+
     const editorBoundingBox = (
-      this.pmView.dom.firstChild! as HTMLElement
+      this.pmView.dom.firstChild as HTMLElement
     ).getBoundingClientRect();
 
     this.horizontalPosAnchor = editorBoundingBox.x;
@@ -443,7 +447,7 @@ export class SideMenuView<
     if (!pos || pos.inside === -1) {
       const evt = new Event("drop", event) as any;
       const editorBoundingBox = (
-        this.pmView.dom.firstChild! as HTMLElement
+        this.pmView.dom.firstChild as HTMLElement
       ).getBoundingClientRect();
       evt.clientX =
         event.clientX < editorBoundingBox.left ||
@@ -476,10 +480,10 @@ export class SideMenuView<
       top: event.clientY,
     });
 
-    if (!pos || pos.inside === -1) {
+    if (!pos || (pos.inside === -1 && this.pmView.dom.firstChild)) {
       const evt = new Event("dragover", event) as any;
       const editorBoundingBox = (
-        this.pmView.dom.firstChild! as HTMLElement
+        this.pmView.dom.firstChild as HTMLElement
       ).getBoundingClientRect();
       evt.clientX = editorBoundingBox.left + editorBoundingBox.width / 2;
       evt.clientY = event.clientY;
@@ -557,8 +561,8 @@ export class SideMenuView<
   };
 
   onScroll = () => {
-    if (this.state?.show) {
-      const blockContent = this.hoveredBlock!.firstChild as HTMLElement;
+    if (this.state?.show && this.hoveredBlock?.firstChild) {
+      const blockContent = this.hoveredBlock.firstChild as HTMLElement;
       const blockContentBoundingBox = blockContent.getBoundingClientRect();
 
       this.state.referencePos = new DOMRect(
@@ -626,7 +630,11 @@ export class SideMenuView<
       this.emitUpdate(this.state);
     }
 
-    const blockContent = this.hoveredBlock!.firstChild! as HTMLElement;
+    if (!this.hoveredBlock?.firstChild) {
+      return;
+    }
+
+    const blockContent = this.hoveredBlock.firstChild as HTMLElement;
     const blockContentBoundingBox = blockContent.getBoundingClientRect();
 
     const pos = this.pmView.posAtCoords({
@@ -666,7 +674,7 @@ export class SideMenuView<
     }
 
     // Focuses and activates the slash menu.
-    this.editor.openSelectionMenu("/");
+    this.editor.openSuggestionMenu("/");
   }
 }
 

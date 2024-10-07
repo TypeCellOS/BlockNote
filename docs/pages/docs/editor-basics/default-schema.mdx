@@ -95,7 +95,7 @@ type ImageBlock = {
   props: {
     url: string = "";
     caption: string = "";
-    width: number = 512;
+    previewWidth: number = 512;
   } & DefaultProps;
   content: undefined;
   children: Block[];
@@ -106,7 +106,7 @@ type ImageBlock = {
 
 `caption:` The image caption.
 
-`width:` The image width in pixels.
+`previewWidth:` The image previewWidth in pixels.
 
 #### Table
 
@@ -117,7 +117,7 @@ type TableBlock = {
   id: string;
   type: "table";
   props: DefaultProps;
-  content: TableContent[];
+  content: TableContent;
   children: Block[];
 };
 ```

@@ -10,8 +10,7 @@ import { blockToNode } from "../../nodeConversions/nodeConversions.js";
 import {
   serializeNodeInner,
   serializeProseMirrorFragment,
-} from "./util/sharedHTMLConversion.js";
-
+} from "./util/sharedHTMLConversion";
 // Used to serialize BlockNote blocks and ProseMirror nodes to HTML without
 // losing data. Blocks are exported using the `toInternalHTML` method in their
 // `blockSpec`.
@@ -52,7 +51,11 @@ export const createInternalHTMLSerializer = <
   schema: Schema,
   editor: BlockNoteEditor<BSchema, I, S>
 ): InternalHTMLSerializer<BSchema, I, S> => {
-  const serializer = DOMSerializer.fromSchema(schema) as DOMSerializer & {
+  // TODO: maybe cache this serializer (default prosemirror serializer is cached)?
+  const serializer = new DOMSerializer(
+    DOMSerializer.nodesFromSchema(schema),
+    DOMSerializer.marksFromSchema(schema)
+  ) as DOMSerializer & {
     serializeNodeInner: (
       node: Node,
       options: { document?: Document }

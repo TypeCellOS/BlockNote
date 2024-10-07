@@ -1,15 +1,11 @@
 import { Extension } from "@tiptap/core";
 import { Plugin } from "prosemirror-state";
 
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import {
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "../../schema/index.js";
-import { acceptedMIMETypes } from "./acceptedMIMETypes.js";
-import { handleFileInsertion } from "./handleFileInsertion.js";
-import { nestedListsToBlockNoteStructure } from "./html/util/nestedLists.js";
+import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
+import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
+import { nestedListsToBlockNoteStructure } from "../../parsers/html/util/nestedLists";
+import { acceptedMIMETypes } from "./acceptedMIMETypes";
+import { handleFileInsertion } from "./handleFileInsertion";
 
 export const createPasteFromClipboardExtension = <
   BSchema extends BlockSchema,
@@ -32,14 +28,14 @@ export const createPasteFromClipboardExtension = <
                   return;
                 }
 
-                let format: (typeof acceptedMIMETypes)[number] | null = null;
+                let format: (typeof acceptedMIMETypes)[number] | undefined;
                 for (const mimeType of acceptedMIMETypes) {
                   if (event.clipboardData!.types.includes(mimeType)) {
                     format = mimeType;
                     break;
                   }
                 }
-                if (format === null) {
+                if (!format) {
                   return true;
                 }
 
@@ -50,12 +46,19 @@ export const createPasteFromClipboardExtension = <
 
                 let data = event.clipboardData!.getData(format);
 
+                if (format === "blocknote/html") {
+                  editor._tiptapEditor.view.pasteHTML(data);
+                  return true;
+                }
+
                 if (format === "text/html") {
                   const htmlNode = nestedListsToBlockNoteStructure(data.trim());
                   data = htmlNode.innerHTML;
+                  editor._tiptapEditor.view.pasteHTML(data);
+                  return true;
                 }
 
-                editor._tiptapEditor.view.pasteHTML(data);
+                editor._tiptapEditor.view.pasteText(data);
 
                 return true;
               },

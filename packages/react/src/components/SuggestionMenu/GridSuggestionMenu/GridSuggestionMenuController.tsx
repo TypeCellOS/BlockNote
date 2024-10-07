@@ -130,7 +130,8 @@ export function GridSuggestionMenuController<
   if (
     !isMounted ||
     !state ||
-    (minQueryLength &&
+    (!state?.ignoreQueryLength &&
+      minQueryLength &&
       (state.query.startsWith(" ") || state.query.length < minQueryLength))
   ) {
     return null;

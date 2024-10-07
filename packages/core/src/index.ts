@@ -1,15 +1,16 @@
 import * as locales from "./i18n/locales/index.js";
 export * from "./api/exporters/html/externalHTMLExporter.js";
 export * from "./api/exporters/html/internalHTMLSerializer.js";
+export * from "./api/getCurrentBlockContentType.js";
 export * from "./api/testUtil/index.js";
 export * from "./blocks/AudioBlockContent/AudioBlockContent.js";
 export * from "./blocks/FileBlockContent/FileBlockContent.js";
-export * from "./blocks/ImageBlockContent/ImageBlockContent.js";
-export * from "./blocks/VideoBlockContent/VideoBlockContent.js";
-
 export * from "./blocks/FileBlockContent/fileBlockHelpers.js";
 export * from "./blocks/FileBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY.js";
+export * from "./blocks/ImageBlockContent/ImageBlockContent.js";
 export { parseImageElement } from "./blocks/ImageBlockContent/imageBlockHelpers.js";
+export * from "./blocks/VideoBlockContent/VideoBlockContent.js";
+export * from "./blocks/defaultBlockHelpers.js";
 export * from "./blocks/defaultBlockTypeGuards.js";
 export * from "./blocks/defaultBlocks.js";
 export * from "./blocks/defaultProps.js";
@@ -31,6 +32,7 @@ export * from "./extensions/TableHandles/TableHandlesPlugin.js";
 export * from "./i18n/dictionary.js";
 export * from "./schema/index.js";
 export * from "./util/browser.js";
+export * from "./util/esmDependencies.js";
 export * from "./util/string.js";
 export * from "./util/typescript.js";
 export { UnreachableCaseError, assertEmpty } from "./util/typescript.js";
