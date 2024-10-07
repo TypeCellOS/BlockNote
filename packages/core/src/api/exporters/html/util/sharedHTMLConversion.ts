@@ -23,11 +23,12 @@ export function serializeInlineContent<
   editor: BlockNoteEditor<any, I, S>,
   blockContent: Block<BSchema, I, S>["content"],
   serializer: DOMSerializer,
-  toExternalHTML: boolean, // TODO, externalHTML for IC
+  _toExternalHTML: boolean, // TODO, externalHTML for IC
   options?: { document?: Document }
 ) {
   let nodes: any;
 
+  // TODO: reuse function from nodeconversions?
   if (!blockContent) {
     throw new Error("blockContent is required");
   } else if (typeof blockContent === "string") {
@@ -53,12 +54,8 @@ export function serializeInlineContent<
   }
 
   const dom = serializer.serializeFragment(Fragment.from(nodes), options);
-  // const parent = document.createElement("div");
-  // parent.appendChild(dom);
 
-  // console.error(dom.children);
-  console.error(dom.firstChild?.nodeName);
-  return dom.cloneNode(true);
+  return dom;
 }
 
 function serializeBlock<

@@ -47,11 +47,7 @@ export const createExternalHTMLExporter = <
     );
   }
 
-  // TODO: maybe cache this serializer (default prosemirror serializer is cached)?
-  const serializer = new DOMSerializer(
-    DOMSerializer.nodesFromSchema(schema),
-    DOMSerializer.marksFromSchema(schema)
-  );
+  const serializer = DOMSerializer.fromSchema(schema);
 
   return {
     exportBlocks: (
@@ -91,7 +87,7 @@ export const createExternalHTMLExporter = <
     ) => {
       const domFragment = serializeInlineContent(
         editor,
-        inlineContent,
+        inlineContent as any,
         serializer,
         true,
         options

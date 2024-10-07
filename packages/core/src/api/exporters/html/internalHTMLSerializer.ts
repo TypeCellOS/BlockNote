@@ -20,11 +20,7 @@ export const createInternalHTMLSerializer = <
   schema: Schema,
   editor: BlockNoteEditor<BSchema, I, S>
 ) => {
-  // TODO: maybe cache this serializer (default prosemirror serializer is cached)?
-  const serializer = new DOMSerializer(
-    DOMSerializer.nodesFromSchema(schema),
-    DOMSerializer.marksFromSchema(schema)
-  ) as DOMSerializer;
+  const serializer = DOMSerializer.fromSchema(schema);
 
   return {
     serializeBlocks: (
