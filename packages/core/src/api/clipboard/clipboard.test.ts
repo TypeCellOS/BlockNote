@@ -5,8 +5,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
 import { PartialBlock } from "../../blocks/defaultBlocks";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { doPaste } from "../testUtil/paste";
 import { initializeESMDependencies } from "../../util/esmDependencies";
+import { doPaste } from "../testUtil/paste";
 import { selectedFragmentToHTML } from "./toClipboard/copyExtension";
 
 type SelectionTestCase = {
@@ -269,7 +269,6 @@ describe("Test ProseMirror selection clipboard HTML", () => {
       createSelection: (doc) => CellSelection.create(doc, 214, 228),
     },
     // Selection spans all cells of the table.
-    // TODO: External HTML is wrapped in unnecessary `blockContent` element.
     {
       testName: "tableAllCells",
       createSelection: (doc) => CellSelection.create(doc, 214, 258),
