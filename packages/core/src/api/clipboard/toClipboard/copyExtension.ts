@@ -10,10 +10,10 @@ import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
 import { initializeESMDependencies } from "../../../util/esmDependencies";
 import { createExternalHTMLExporter } from "../../exporters/html/externalHTMLExporter";
 import { cleanHTMLToMarkdown } from "../../exporters/markdown/markdownExporter";
+import { fragmentToBlocks } from "../../nodeConversions/fragmentToBlocks";
 import {
   contentNodeToInlineContent,
   contentNodeToTableContent,
-  nodeToBlock,
 } from "../../nodeConversions/nodeConversions";
 
 async function fragmentToExternalHTML<
@@ -93,49 +93,8 @@ async function fragmentToExternalHTML<
       simplifyBlocks: false,
     });
   } else {
-    // first convert selection to blocknote-style blocks, and then
-    // pass these to the exporter
-    const blocks: any[] = [];
-    selectedFragment.descendants((node) => {
-      if (node.type.name === "blockContainer") {
-        if (node.firstChild?.type.name === "blockGroup") {
-          // selection started within a block group
-          // in this case the fragment starts with:
-          // <blockContainer>
-          //   <blockGroup>
-          //     <blockContainer ... />
-          //     <blockContainer ... />
-          //   </blockGroup>
-          // </blockContainer>
-          //
-          // instead of:
-          // <blockContainer>
-          //   <blockContent ... />
-          //   <blockGroup>
-          //     <blockContainer ... />
-          //     <blockContainer ... />
-          //   </blockGroup>
-          // </blockContainer>
-          //
-          // so we don't need to serialize this block, just descend into the children of the blockGroup
-          return true;
-        }
-        blocks.push(
-          nodeToBlock(
-            node,
-            editor.schema.blockSchema,
-            editor.schema.inlineContentSchema,
-            editor.schema.styleSchema
-          )
-        );
-        // don't descend into children, as they're already included in the block returned by nodeToBlock
-        return false;
-      }
-      return true;
-    });
-    externalHTML = externalHTMLExporter.exportBlocks(blocks, {
-      simplifyBlocks: true,
-    });
+    const blocks = fragmentToBlocks(selectedFragment, editor.schema);
+    externalHTML = externalHTMLExporter.exportBlocks(blocks, {});
   }
   return externalHTML;
 }

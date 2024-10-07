@@ -2,7 +2,6 @@ import { DOMSerializer, Fragment } from "prosemirror-model";
 
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 
-import { Block } from "../../../../../types/src";
 import { PartialBlock } from "../../../../blocks/defaultBlocks";
 import {
   BlockSchema,
@@ -21,7 +20,7 @@ export function serializeInlineContent<
   S extends StyleSchema
 >(
   editor: BlockNoteEditor<any, I, S>,
-  blockContent: Block<BSchema, I, S>["content"],
+  blockContent: PartialBlock<BSchema, I, S>["content"],
   serializer: DOMSerializer,
   _toExternalHTML: boolean, // TODO, externalHTML for IC
   options?: { document?: Document }

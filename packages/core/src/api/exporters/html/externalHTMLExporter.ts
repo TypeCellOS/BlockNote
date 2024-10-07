@@ -52,7 +52,7 @@ export const createExternalHTMLExporter = <
   return {
     exportBlocks: (
       blocks: PartialBlock<BSchema, I, S>[],
-      options: { simplifyBlocks: boolean; document?: Document }
+      options: { document?: Document }
     ) => {
       const html = serializeBlocks(
         editor,
