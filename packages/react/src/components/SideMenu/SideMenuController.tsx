@@ -24,7 +24,6 @@ export const SideMenuController = <
   const editor = useBlockNoteEditor<BSchema, I, S>();
 
   const callbacks = {
-    addBlock: editor.sideMenu.addBlock,
     blockDragStart: editor.sideMenu.blockDragStart,
     blockDragEnd: editor.sideMenu.blockDragEnd,
     freezeMenu: editor.sideMenu.freezeMenu,

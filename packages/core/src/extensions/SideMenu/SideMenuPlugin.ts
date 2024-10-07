@@ -2,14 +2,17 @@ import { PluginView } from "@tiptap/pm/state";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
-import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos";
 import { Block } from "../../blocks/defaultBlocks";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { EventEmitter } from "../../util/EventEmitter";
 import { initializeESMDependencies } from "../../util/esmDependencies";
-import { dragStart, unsetDragImage } from "./dragging";
+import {
+  dragStart,
+  getDraggableBlockFromElement,
+  unsetDragImage,
+} from "./dragging";
 
 export type SideMenuState<
   BSchema extends BlockSchema,
@@ -324,7 +327,7 @@ export class SideMenuView<
   // would otherwise not update the side menu, and so clicking the button again
   // would attempt to remove the same block again, causing an error.
   update(_view: EditorView, prevState: EditorState) {
-    const docChanged = !prevState.doc.eq(this.pmView.state.doc)
+    const docChanged = !prevState.doc.eq(this.pmView.state.doc);
     if (docChanged && this.state?.show) {
       this.updateStateFromMousePos();
     }
@@ -356,59 +359,6 @@ export class SideMenuView<
       true
     );
   }
-
-  addBlock() {
-    if (this.state?.show) {
-      this.state.show = false;
-      this.emitUpdate(this.state);
-    }
-
-    if (!this.hoveredBlock?.firstChild) {
-      return;
-    }
-
-    const blockContent = this.hoveredBlock.firstChild as HTMLElement;
-    const blockContentBoundingBox = blockContent.getBoundingClientRect();
-
-    const pos = this.pmView.posAtCoords({
-      left: blockContentBoundingBox.left + blockContentBoundingBox.width / 2,
-      top: blockContentBoundingBox.top + blockContentBoundingBox.height / 2,
-    });
-    if (!pos) {
-      return;
-    }
-
-    const blockInfo = getBlockInfoFromPos(
-      this.editor._tiptapEditor.state.doc,
-      pos.pos
-    );
-    if (blockInfo === undefined) {
-      return;
-    }
-
-    const { contentNode, startPos, endPos } = blockInfo;
-
-    // Creates a new block if current one is not empty for the suggestion menu to open in.
-    if (
-      contentNode.type.spec.content !== "inline*" ||
-      contentNode.textContent.length !== 0
-    ) {
-      const newBlockInsertionPos = endPos + 1;
-      const newBlockContentPos = newBlockInsertionPos + 2;
-
-      this.editor._tiptapEditor
-        .chain()
-        .BNCreateBlock(newBlockInsertionPos)
-        // .BNUpdateBlock(newBlockContentPos, { type: "paragraph", props: {} })
-        .setTextSelection(newBlockContentPos)
-        .run();
-    } else {
-      this.editor._tiptapEditor.commands.setTextSelection(startPos + 1);
-    }
-
-    // Focuses and activates the slash menu.
-    this.editor.openSuggestionMenu("/");
-  }
 }
 
 export const sideMenuPluginKey = new PluginKey("SideMenuPlugin");
@@ -437,12 +387,6 @@ export class SideMenuProsemirrorPlugin<
   public onUpdate(callback: (state: SideMenuState<BSchema, I, S>) => void) {
     return this.on("update", callback);
   }
-
-  /**
-   * If the block is empty, opens the slash menu. If the block has content,
-   * creates a new block below and opens the slash menu in it.
-   */
-  addBlock = () => this.view!.addBlock();
 
   /**
    * Handles drag & drop events for blocks.
@@ -475,22 +419,4 @@ export class SideMenuProsemirrorPlugin<
     this.view!.state!.show = false;
     this.view!.emitUpdate(this.view!.state!);
   };
-}
-
-export function getDraggableBlockFromElement(
-  element: Element,
-  view: EditorView
-) {
-  while (
-    element &&
-    element.parentElement &&
-    element.parentElement !== view.dom &&
-    element.getAttribute?.("data-node-type") !== "blockContainer"
-  ) {
-    element = element.parentElement;
-  }
-  if (element.getAttribute?.("data-node-type") !== "blockContainer") {
-    return undefined;
-  }
-  return { node: element as HTMLElement, id: element.getAttribute("data-id")! };
 }

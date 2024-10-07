@@ -10,7 +10,6 @@ import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
 import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
 import { MultipleNodeSelection } from "./MultipleNodeSelection";
-import { getDraggableBlockFromElement } from "./SideMenuPlugin";
 
 let dragImageElement: Element | undefined;
 
@@ -22,6 +21,24 @@ export type SideMenuState<
   // The block that the side menu is attached to.
   block: Block<BSchema, I, S>;
 };
+
+export function getDraggableBlockFromElement(
+  element: Element,
+  view: EditorView
+) {
+  while (
+    element &&
+    element.parentElement &&
+    element.parentElement !== view.dom &&
+    element.getAttribute?.("data-node-type") !== "blockContainer"
+  ) {
+    element = element.parentElement;
+  }
+  if (element.getAttribute?.("data-node-type") !== "blockContainer") {
+    return undefined;
+  }
+  return { node: element as HTMLElement, id: element.getAttribute("data-id")! };
+}
 
 function blockPositionFromElement(element: Element, view: EditorView) {
   const block = getDraggableBlockFromElement(element, view);

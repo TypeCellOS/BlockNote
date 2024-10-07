@@ -31,8 +31,6 @@ export const SideMenu = <
 ) => {
   const Components = useComponentsContext()!;
 
-  const { addBlock, ...rest } = props;
-
   const dataAttributes = useMemo(() => {
     const attrs: Record<string, string> = {
       "data-block-type": props.block.type,
@@ -57,8 +55,8 @@ export const SideMenu = <
     <Components.SideMenu.Root className={"bn-side-menu"} {...dataAttributes}>
       {props.children || (
         <>
-          <AddBlockButton addBlock={addBlock} />
-          <DragHandleButton {...rest} />
+          <AddBlockButton {...props} />
+          <DragHandleButton {...props} />
         </>
       )}
     </Components.SideMenu.Root>
