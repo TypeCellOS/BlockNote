@@ -73,7 +73,6 @@ function serializeBlock<
   options?: { document?: Document }
 ) {
   const BC_NODE = editor.pmSchema.nodes["blockContainer"];
-  const BG_NODE = editor.pmSchema.nodes["blockGroup"];
 
   let props = block.props;
   // set default props in case we were passed a partial block
