@@ -20,6 +20,46 @@ export type SideMenuState<
   block: Block<BSchema, I, S>;
 };
 
+const getBlockFromMousePos = (
+  mousePos: {
+    x: number;
+    y: number;
+  },
+  view: EditorView
+): { node: HTMLElement; id: string } | undefined => {
+  // Editor itself may have padding or other styling which affects
+  // size/position, so we get the boundingRect of the first child (i.e. the
+  // blockGroup that wraps all blocks in the editor) for more accurate side
+  // menu placement.
+  if (!view.dom.firstChild) {
+    return;
+  }
+
+  const editorBoundingBox = (
+    view.dom.firstChild as HTMLElement
+  ).getBoundingClientRect();
+
+  // this.horizontalPosAnchor = editorBoundingBox.x;
+
+  // Gets block at mouse cursor's vertical position.
+  const coords = {
+    left: editorBoundingBox.left + editorBoundingBox.width / 2, // take middle of editor
+    top: mousePos.y,
+  };
+
+  const elements = view.root.elementsFromPoint(coords.left, coords.top);
+  let block = undefined;
+
+  for (const element of elements) {
+    if (view.dom.contains(element)) {
+      block = getDraggableBlockFromElement(element, view);
+      break;
+    }
+  }
+
+  return block;
+};
+
 /**
  * With the sidemenu plugin we can position a menu next to a hovered block.
  */
@@ -33,12 +73,6 @@ export class SideMenuView<
   public readonly emitUpdate: (state: SideMenuState<BSchema, I, S>) => void;
 
   private mousePos: { x: number; y: number } | undefined;
-
-  // When true, the drag handle with be anchored at the same level as root elements
-  // When false, the drag handle with be just to the left of the element
-  // TODO: Is there any case where we want this to be false?
-  private horizontalPosAnchoredAtRoot: boolean;
-  private horizontalPosAnchor: number | undefined;
 
   private hoveredBlock: HTMLElement | undefined;
 
@@ -59,14 +93,6 @@ export class SideMenuView<
 
       emitUpdate(this.state);
     };
-
-    this.horizontalPosAnchoredAtRoot = true;
-
-    if (this.pmView.dom.firstChild) {
-      this.horizontalPosAnchor = (
-        this.pmView.dom.firstChild as HTMLElement
-      ).getBoundingClientRect().x;
-    }
 
     this.pmView.root.addEventListener(
       "drop",
@@ -105,38 +131,7 @@ export class SideMenuView<
       return;
     }
 
-    // Editor itself may have padding or other styling which affects
-    // size/position, so we get the boundingRect of the first child (i.e. the
-    // blockGroup that wraps all blocks in the editor) for more accurate side
-    // menu placement.
-    if (!this.pmView.dom.firstChild) {
-      return;
-    }
-
-    const editorBoundingBox = (
-      this.pmView.dom.firstChild as HTMLElement
-    ).getBoundingClientRect();
-
-    this.horizontalPosAnchor = editorBoundingBox.x;
-
-    // Gets block at mouse cursor's vertical position.
-    const coords = {
-      left: editorBoundingBox.left + editorBoundingBox.width / 2, // take middle of editor
-      top: this.mousePos.y,
-    };
-
-    const elements = this.pmView.root.elementsFromPoint(
-      coords.left,
-      coords.top
-    );
-    let block = undefined;
-
-    for (const element of elements) {
-      if (this.pmView.dom.contains(element)) {
-        block = getDraggableBlockFromElement(element, this.pmView);
-        break;
-      }
-    }
+    const block = getBlockFromMousePos(this.mousePos, this.pmView);
 
     // Closes the menu if the mouse cursor is beyond the editor vertically.
     if (!block || !this.editor.isEditable) {
@@ -170,14 +165,15 @@ export class SideMenuView<
 
     // Shows or updates elements.
     if (this.editor.isEditable) {
+      const editorBoundingBox = (
+        this.pmView.dom.firstChild as HTMLElement
+      ).getBoundingClientRect();
       const blockContentBoundingBox = blockContent.getBoundingClientRect();
 
       this.updateState({
         show: true,
         referencePos: new DOMRect(
-          this.horizontalPosAnchoredAtRoot
-            ? this.horizontalPosAnchor
-            : blockContentBoundingBox.x,
+          editorBoundingBox.x,
           blockContentBoundingBox.y,
           blockContentBoundingBox.width,
           blockContentBoundingBox.height
@@ -328,7 +324,9 @@ export class SideMenuView<
   // would otherwise not update the side menu, and so clicking the button again
   // would attempt to remove the same block again, causing an error.
   update() {
-    this.updateStateFromMousePos();
+    if (this.state?.show) {
+      this.updateStateFromMousePos();
+    }
   }
 
   destroy() {
