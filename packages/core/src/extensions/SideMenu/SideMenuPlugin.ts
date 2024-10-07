@@ -76,9 +76,6 @@ export class SideMenuView<
 
   private hoveredBlock: HTMLElement | undefined;
 
-  // Used to check if currently dragged content comes from this editor instance.
-  public isDragging = false; // TODO
-
   public menuFrozen = false;
 
   constructor(
@@ -104,7 +101,6 @@ export class SideMenuView<
       this.onDragOver as EventListener
     );
     initializeESMDependencies();
-    this.pmView.dom.addEventListener("dragstart", this.onDragStart);
 
     // Shows or updates menu position whenever the cursor moves, if the menu isn't frozen.
     this.pmView.root.addEventListener(
@@ -186,15 +182,6 @@ export class SideMenuView<
   };
 
   /**
-   * Sets isDragging when dragging text.
-   *
-   * TODO: clean up naming confusing
-   */
-  onDragStart = () => {
-    this.isDragging = true;
-  };
-
-  /**
    * If the event is outside the editor contents,
    * we dispatch a fake event, so that we can still drop the content
    * when dragging / dropping to the side of the editor
@@ -202,7 +189,10 @@ export class SideMenuView<
   onDrop = (event: DragEvent) => {
     this.editor._tiptapEditor.commands.blur();
 
-    if ((event as any).synthetic || !this.isDragging) {
+    if (
+      (event as any).synthetic ||
+      !event.dataTransfer?.types.includes("blocknote/html")
+    ) {
       return;
     }
 
@@ -210,8 +200,6 @@ export class SideMenuView<
       left: event.clientX,
       top: event.clientY,
     });
-
-    this.isDragging = false;
 
     if (!pos || pos.inside === -1) {
       const evt = new Event("drop", event) as any;
@@ -241,7 +229,10 @@ export class SideMenuView<
    * when dragging / dropping to the side of the editor
    */
   onDragOver = (event: DragEvent) => {
-    if ((event as any).synthetic || !this.isDragging) {
+    if (
+      (event as any).synthetic ||
+      !event.dataTransfer?.types.includes("blocknote/html")
+    ) {
       return;
     }
     const pos = this.pmView.posAtCoords({
@@ -324,7 +315,7 @@ export class SideMenuView<
   // would otherwise not update the side menu, and so clicking the button again
   // would attempt to remove the same block again, causing an error.
   update(_view: EditorView, prevState: EditorState) {
-    const docChanged = !prevState.doc.eq(this.pmView.state.doc)
+    const docChanged = !prevState.doc.eq(this.pmView.state.doc);
     if (docChanged && this.state?.show) {
       this.updateStateFromMousePos();
     }
@@ -344,7 +335,7 @@ export class SideMenuView<
       "dragover",
       this.onDragOver as EventListener
     );
-    this.pmView.dom.removeEventListener("dragstart", this.onDragStart);
+
     this.pmView.root.removeEventListener(
       "drop",
       this.onDrop as EventListener,
@@ -451,7 +442,6 @@ export class SideMenuProsemirrorPlugin<
     dataTransfer: DataTransfer | null;
     clientY: number;
   }) => {
-    this.view!.isDragging = true;
     dragStart(event, this.editor);
   };
 
