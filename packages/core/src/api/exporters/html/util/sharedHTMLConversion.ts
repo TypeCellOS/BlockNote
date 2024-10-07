@@ -53,6 +53,9 @@ export function serializeInlineContent<
     throw new UnreachableCaseError(blockContent.type);
   }
 
+  // We call the prosemirror serializer here because it handles Marks and Inline Content nodes nicely.
+  // If we'd want to support custom serialization or externalHTML for Inline Content, we'd have to implement
+  // a custom serializer here.
   const dom = serializer.serializeFragment(Fragment.from(nodes), options);
 
   return dom;
@@ -112,28 +115,15 @@ function serializeBlock<
   bc.contentDOM?.appendChild(ret.dom);
 
   if (block.children && block.children.length > 0) {
-    const bg = BG_NODE.spec?.toDOM?.(
-      BG_NODE.create({
-        type: BG_NODE,
-        attrs: {},
-      })
-    ) as {
-      dom: HTMLElement;
-      contentDOM?: HTMLElement;
-    };
-
-    for (const child of block.children || []) {
-      const childDOM = serializeBlock(
+    bc.contentDOM?.appendChild(
+      serializeBlocks(
         editor,
-        child,
+        block.children,
         serializer,
         toExternalHTML,
         options
-      );
-      bg.contentDOM?.appendChild(childDOM);
-    }
-
-    bc.contentDOM?.appendChild(bg.dom);
+      )
+    );
   }
   return bc.dom;
 }

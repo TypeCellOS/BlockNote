@@ -64,6 +64,12 @@ async function fragmentToExternalHTML<
   );
 
   if (isWithinTable) {
+    if (selectedFragment.firstChild?.type.name === "table") {
+      // contentNodeToTableContent expects the fragment of the content of a table, not the table node itself
+      // but cellselection.content() returns the table node itself if all cells and columns are selected
+      selectedFragment = selectedFragment.firstChild.content;
+    }
+
     // first convert selection to blocknote-style table content, and then
     // pass this to the exporter
     const ic = contentNodeToTableContent(
@@ -71,6 +77,7 @@ async function fragmentToExternalHTML<
       editor.schema.inlineContentSchema,
       editor.schema.styleSchema
     );
+
     externalHTML = externalHTMLExporter.exportInlineContent(ic as any, {
       simplifyBlocks: false,
     });
