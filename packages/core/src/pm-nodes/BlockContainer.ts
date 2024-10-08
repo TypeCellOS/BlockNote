@@ -726,6 +726,14 @@ export const BlockContainer = Node.create<{
         this.editor.commands.liftListItem("blockContainer");
         return true;
       },
+      "Shift-Mod-ArrowUp": () => {
+        this.options.editor.moveBlockUp();
+        return true;
+      },
+      "Shift-Mod-ArrowDown": () => {
+        this.options.editor.moveBlockDown();
+        return true;
+      },
     };
   },
 });
