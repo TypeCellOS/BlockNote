@@ -1,17 +1,17 @@
 import { Plugin, PluginKey, PluginView } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
-import { nodeToBlock } from "../../api/nodeConversions/nodeConversions";
-import { checkBlockIsDefaultType } from "../../blocks/defaultBlockTypeGuards";
-import { Block, DefaultBlockSchema } from "../../blocks/defaultBlocks";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { nodeToBlock } from "../../api/nodeConversions/nodeConversions.js";
+import { checkBlockIsDefaultType } from "../../blocks/defaultBlockTypeGuards.js";
+import { Block, DefaultBlockSchema } from "../../blocks/defaultBlocks.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   BlockFromConfigNoChildren,
   BlockSchemaWithBlock,
   InlineContentSchema,
   StyleSchema,
-} from "../../schema";
-import { EventEmitter } from "../../util/EventEmitter";
-import { getDraggableBlockFromElement } from "../SideMenu/dragging";
+} from "../../schema/index.js";
+import { EventEmitter } from "../../util/EventEmitter.js";
+import { getDraggableBlockFromElement } from "../SideMenu/dragging.js";
 
 let dragImageElement: HTMLElement | undefined;
 

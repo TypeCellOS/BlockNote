@@ -11,7 +11,7 @@ import {
 } from "@blocknote/core";
 import { FC } from "react";
 
-import { DragHandleMenuProps } from "./DragHandleMenu/DragHandleMenuProps";
+import { DragHandleMenuProps } from "./DragHandleMenu/DragHandleMenuProps.js";
 
 export type SideMenuProps<
   BSchema extends BlockSchema = DefaultBlockSchema,

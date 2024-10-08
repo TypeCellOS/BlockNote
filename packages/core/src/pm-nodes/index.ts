@@ -1,3 +1,3 @@
-export { BlockContainer } from "./BlockContainer";
-export { BlockGroup } from "./BlockGroup";
-export { Doc } from "./Doc";
+export { BlockContainer } from "./BlockContainer.js";
+export { BlockGroup } from "./BlockGroup.js";
+export { Doc } from "./Doc.js";

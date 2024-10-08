@@ -1,5 +1,5 @@
 import { Page, expect } from "@playwright/test";
-import { EDITOR_SELECTOR } from "./const";
+import { EDITOR_SELECTOR } from "./const.js";
 
 export async function focusOnEditor(page: Page) {
   await page.waitForSelector(EDITOR_SELECTOR);

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { BlockNoteEditor } from "../../..";
-import { doPaste } from "../../testUtil/paste";
+import { BlockNoteEditor } from "../../../index.js";
+import { doPaste } from "../../testUtil/paste.js";
 
 async function parseMarkdownAndCompareSnapshots(
   md: string,

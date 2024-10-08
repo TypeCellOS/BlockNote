@@ -11,12 +11,12 @@ import { useState } from "react";
 import {
   ComponentProps,
   useComponentsContext,
-} from "../../editor/ComponentsContext";
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
-import { useDictionary } from "../../i18n/dictionary";
-import { EmbedTab } from "./DefaultTabs/EmbedTab";
-import { UploadTab } from "./DefaultTabs/UploadTab";
-import { FilePanelProps } from "./FilePanelProps";
+} from "../../editor/ComponentsContext.js";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { useDictionary } from "../../i18n/dictionary.js";
+import { EmbedTab } from "./DefaultTabs/EmbedTab.js";
+import { UploadTab } from "./DefaultTabs/UploadTab.js";
+import { FilePanelProps } from "./FilePanelProps.js";
 
 type PanelProps = ComponentProps["FilePanel"]["Root"];
 

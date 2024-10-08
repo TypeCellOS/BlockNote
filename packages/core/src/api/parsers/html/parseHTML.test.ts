@@ -1,7 +1,7 @@
 import * as pmView from "prosemirror-view";
 import { describe, expect, it } from "vitest";
-import { BlockNoteEditor } from "../../..";
-import { nestedListsToBlockNoteStructure } from "./util/nestedLists";
+import { BlockNoteEditor } from "../../../index.js";
+import { nestedListsToBlockNoteStructure } from "./util/nestedLists.js";
 
 async function parseHTMLAndCompareSnapshots(
   html: string,

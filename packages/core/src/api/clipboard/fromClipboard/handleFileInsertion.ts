@@ -1,13 +1,13 @@
+import { PartialBlock } from "../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
-import { PartialBlock } from "../../../blocks/defaultBlocks";
 import {
   BlockSchema,
   FileBlockConfig,
   InlineContentSchema,
   StyleSchema,
-} from "../../../schema";
-import { getBlockInfoFromPos } from "../../getBlockInfoFromPos";
-import { acceptedMIMETypes } from "./acceptedMIMETypes";
+} from "../../../schema/index.js";
+import { getBlockInfoFromPos } from "../../getBlockInfoFromPos.js";
+import { acceptedMIMETypes } from "./acceptedMIMETypes.js";
 
 function checkFileExtensionsMatch(
   fileExtension1: string,

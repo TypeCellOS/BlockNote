@@ -8,31 +8,35 @@ import {
   removeBlocks,
   replaceBlocks,
   updateBlock,
-} from "../api/blockManipulation/blockManipulation";
-import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter";
-import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter";
-import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos";
+} from "../api/blockManipulation/blockManipulation.js";
+import {
+  moveBlockDown,
+  moveBlockUp,
+} from "../api/blockManipulation/moveBlock.js";
+import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
+import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
+import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos.js";
 import {
   inlineContentToNodes,
   nodeToBlock,
-} from "../api/nodeConversions/nodeConversions";
-import { getNodeById } from "../api/nodeUtil";
-import { HTMLToBlocks } from "../api/parsers/html/parseHTML";
-import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown";
+} from "../api/nodeConversions/nodeConversions.js";
+import { getNodeById } from "../api/nodeUtil.js";
+import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
+import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown.js";
 import {
   Block,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   PartialBlock,
-} from "../blocks/defaultBlocks";
-import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin";
-import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin";
-import { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkToolbarPlugin";
-import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin";
-import { SuggestionMenuProseMirrorPlugin } from "../extensions/SuggestionMenu/SuggestionPlugin";
-import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin";
-import { UniqueID } from "../extensions/UniqueID/UniqueID";
+} from "../blocks/defaultBlocks.js";
+import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin.js";
+import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin.js";
+import { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkToolbarPlugin.js";
+import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin.js";
+import { SuggestionMenuProseMirrorPlugin } from "../extensions/SuggestionMenu/SuggestionPlugin.js";
+import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin.js";
+import { UniqueID } from "../extensions/UniqueID/UniqueID.js";
 import {
   BlockIdentifier,
   BlockNoteDOMAttributes,
@@ -44,32 +48,32 @@ import {
   StyleSchema,
   StyleSpecs,
   Styles,
-} from "../schema";
-import { mergeCSSClasses } from "../util/browser";
-import { NoInfer, UnreachableCaseError } from "../util/typescript";
+} from "../schema/index.js";
+import { mergeCSSClasses } from "../util/browser.js";
+import { NoInfer, UnreachableCaseError } from "../util/typescript.js";
 
-import { getBlockNoteExtensions } from "./BlockNoteExtensions";
-import { TextCursorPosition } from "./cursorPositionTypes";
+import { getBlockNoteExtensions } from "./BlockNoteExtensions.js";
+import { TextCursorPosition } from "./cursorPositionTypes.js";
 
-import { Selection } from "./selectionTypes";
-import { transformPasted } from "./transformPasted";
+import { Selection } from "./selectionTypes.js";
+import { transformPasted } from "./transformPasted.js";
 
-import { checkDefaultBlockTypeInSchema } from "../blocks/defaultBlockTypeGuards";
-import { BlockNoteSchema } from "./BlockNoteSchema";
+import { checkDefaultBlockTypeInSchema } from "../blocks/defaultBlockTypeGuards.js";
+import { BlockNoteSchema } from "./BlockNoteSchema.js";
 import {
   BlockNoteTipTapEditor,
   BlockNoteTipTapEditorOptions,
-} from "./BlockNoteTipTapEditor";
+} from "./BlockNoteTipTapEditor.js";
 
-import { PlaceholderPlugin } from "../extensions/Placeholder/PlaceholderPlugin";
-import { Dictionary } from "../i18n/dictionary";
-import { en } from "../i18n/locales";
+import { PlaceholderPlugin } from "../extensions/Placeholder/PlaceholderPlugin.js";
+import { Dictionary } from "../i18n/dictionary.js";
+import { en } from "../i18n/locales/index.js";
 
 import { Transaction } from "@tiptap/pm/state";
-import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer";
-import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin";
+import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
+import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin.js";
 import "../style.css";
-import { initializeESMDependencies } from "../util/esmDependencies";
+import { initializeESMDependencies } from "../util/esmDependencies.js";
 
 export type BlockNoteEditorOptions<
   BSchema extends BlockSchema,
@@ -672,6 +676,8 @@ export class BlockNoteEditor<
     const numNodes = this._tiptapEditor.state.doc
       .resolve(endPos + 1)
       .node().childCount;
+    // Depth of the blockContainer node.
+    const nodeDepth = this._tiptapEditor.state.doc.resolve(startPos).depth;
 
     // Gets previous blockContainer node at the same nesting level, if the current node isn't the first child.
     let prevNode: Node | undefined = undefined;
@@ -683,6 +689,14 @@ export class BlockNoteEditor<
     let nextNode: Node | undefined = undefined;
     if (nodeIndex < numNodes - 1) {
       nextNode = this._tiptapEditor.state.doc.resolve(endPos + 2).node();
+    }
+
+    // Gets parent blockContainer node, if the current node is nested.
+    let parentNode: Node | undefined = undefined;
+    if (nodeDepth > 2) {
+      parentNode = this._tiptapEditor.state.doc
+        .resolve(startPos - 1)
+        .node(nodeDepth - 2);
     }
 
     return {
@@ -708,6 +722,16 @@ export class BlockNoteEditor<
           ? undefined
           : nodeToBlock(
               nextNode,
+              this.schema.blockSchema,
+              this.schema.inlineContentSchema,
+              this.schema.styleSchema,
+              this.blockCache
+            ),
+      parentBlock:
+        parentNode === undefined
+          ? undefined
+          : nodeToBlock(
+              parentNode,
               this.schema.blockSchema,
               this.schema.inlineContentSchema,
               this.schema.styleSchema,
@@ -1081,6 +1105,24 @@ export class BlockNoteEditor<
    */
   public unnestBlock() {
     this._tiptapEditor.commands.liftListItem("blockContainer");
+  }
+
+  /**
+   * Moves the block containing the text cursor up. If the previous block has
+   * children, moves it to the end of its children. If there is no previous
+   * block, but the current block is nested, moves it out of & before its parent.
+   */
+  public moveBlockUp() {
+    moveBlockUp(this);
+  }
+
+  /**
+   * Moves the block containing the text cursor down. If the next block has
+   * children, moves it to the start of its children. If there is no next block,
+   * but the current block is nested, moves it out of & after its parent.
+   */
+  public moveBlockDown() {
+    moveBlockDown(this);
   }
 
   /**
