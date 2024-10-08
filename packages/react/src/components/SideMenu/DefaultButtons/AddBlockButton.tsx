@@ -12,6 +12,7 @@ import { useComponentsContext } from "../../../editor/ComponentsContext";
 import { useDictionary } from "../../../i18n/dictionary";
 import { SideMenuProps } from "../SideMenuProps";
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
+import { useCallback } from "react";
 
 export const AddBlockButton = <
   BSchema extends BlockSchema = DefaultBlockSchema,
@@ -25,38 +26,33 @@ export const AddBlockButton = <
 
   const editor = useBlockNoteEditor<BSchema, I, S>();
 
+  const onClick = useCallback(() => {
+    const blockContent = props.block.content;
+    const isBlockEmpty =
+      blockContent !== undefined &&
+      Array.isArray(blockContent) &&
+      blockContent.length === 0;
+
+    if (isBlockEmpty) {
+      editor.setTextCursorPosition(props.block);
+      editor.openSuggestionMenu("/");
+    } else {
+      const insertedBlock = editor.insertBlocks(
+        [{ type: "paragraph" }],
+        props.block,
+        "after"
+      )[0];
+      editor.setTextCursorPosition(insertedBlock);
+      editor.openSuggestionMenu("/");
+    }
+  }, [editor, props.block]);
+
   return (
     <Components.SideMenu.Button
       className={"bn-button"}
       label={dict.side_menu.add_block_label}
       icon={
-        <AiOutlinePlus
-          size={24}
-          onClick={() => {
-            const blockContent = props.block.content;
-            const createNewBlock =
-              blockContent === undefined ||
-              !Array.isArray(blockContent) ||
-              blockContent.length > 0;
-
-            if (!createNewBlock) {
-              editor.setTextCursorPosition(props.block);
-              editor.openSuggestionMenu("/");
-            } else {
-              editor.setTextCursorPosition(props.block);
-              editor.insertBlocks(
-                [{ type: "paragraph" }],
-                props.block,
-                "after"
-              );
-              editor.setTextCursorPosition(
-                editor.getTextCursorPosition().nextBlock!
-              );
-              editor.openSuggestionMenu("/");
-            }
-          }}
-          data-test="dragHandleAdd"
-        />
+        <AiOutlinePlus size={24} onClick={onClick} data-test="dragHandleAdd" />
       }
     />
   );
