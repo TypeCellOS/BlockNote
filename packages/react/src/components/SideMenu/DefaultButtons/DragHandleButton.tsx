@@ -32,8 +32,6 @@ export const DragHandleButton = <
           props.freezeMenu();
         } else {
           props.unfreezeMenu();
-          // TODO
-          props.editor.focus();
         }
       }}
       position={"left"}>

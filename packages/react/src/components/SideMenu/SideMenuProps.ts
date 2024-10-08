@@ -23,9 +23,5 @@ export type SideMenuProps<
 } & Omit<SideMenuState<BSchema, I, S>, keyof UiElementPosition> &
   Pick<
     BlockNoteEditor<BSchema, I, S>["sideMenu"],
-    | "addBlock"
-    | "blockDragStart"
-    | "blockDragEnd"
-    | "freezeMenu"
-    | "unfreezeMenu"
+    "blockDragStart" | "blockDragEnd" | "freezeMenu" | "unfreezeMenu"
   >;

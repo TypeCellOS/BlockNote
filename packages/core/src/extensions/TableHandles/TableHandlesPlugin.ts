@@ -11,7 +11,7 @@ import {
   StyleSchema,
 } from "../../schema/index.js";
 import { EventEmitter } from "../../util/EventEmitter.js";
-import { getDraggableBlockFromElement } from "../SideMenu/SideMenuPlugin.js";
+import { getDraggableBlockFromElement } from "../SideMenu/dragging.js";
 
 let dragImageElement: HTMLElement | undefined;
 
