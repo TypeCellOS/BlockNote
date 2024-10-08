@@ -269,7 +269,6 @@ describe("Test ProseMirror selection clipboard HTML", () => {
       createSelection: (doc) => CellSelection.create(doc, 214, 228),
     },
     // Selection spans all cells of the table.
-    // TODO: External HTML is wrapped in unnecessary `blockContent` element.
     {
       testName: "tableAllCells",
       createSelection: (doc) => CellSelection.create(doc, 214, 258),

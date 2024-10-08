@@ -13,4 +13,5 @@ export type TextCursorPosition<
   block: Block<BSchema, I, S>;
   prevBlock: Block<BSchema, I, S> | undefined;
   nextBlock: Block<BSchema, I, S> | undefined;
+  parentBlock: Block<BSchema, I, S> | undefined;
 };

@@ -30,6 +30,7 @@ async function convertToHTMLAndCompareSnapshots<
   snapshotName: string
 ) {
   addIdsToBlocks(blocks);
+
   const serializer = createInternalHTMLSerializer(editor.pmSchema, editor);
   const internalHTML = serializer.serializeBlocks(blocks, {});
   const internalHTMLSnapshotPath =

@@ -1,130 +1,158 @@
-import { DOMSerializer, Fragment, Node } from "prosemirror-model";
+import { DOMSerializer, Fragment } from "prosemirror-model";
 
+import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema/index.js";
-import { nodeToBlock } from "../../../nodeConversions/nodeConversions.js";
+import { UnreachableCaseError } from "../../../../util/typescript.js";
+import {
+  inlineContentToNodes,
+  tableContentToNodes,
+} from "../../../nodeConversions/nodeConversions.js";
 
-function doc(options: { document?: Document }) {
-  return options.document || window.document;
-}
-
-// Used to implement `serializeNodeInner` for the `internalHTMLSerializer` and
-// `externalHTMLExporter`. Changes how the content of `blockContainer` nodes is
-// serialized vs the default `DOMSerializer` implementation. For the
-// `blockContent` node, the `toInternalHTML` or `toExternalHTML` function of its
-// corresponding block is used for serialization instead of the node's
-// `renderHTML` method.
-export const serializeNodeInner = <
+export function serializeInlineContent<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  node: Node,
-  options: { document?: Document },
+  editor: BlockNoteEditor<any, I, S>,
+  blockContent: PartialBlock<BSchema, I, S>["content"],
   serializer: DOMSerializer,
+  _toExternalHTML: boolean, // TODO, externalHTML for IC
+  options?: { document?: Document }
+) {
+  let nodes: any;
+
+  // TODO: reuse function from nodeconversions?
+  if (!blockContent) {
+    throw new Error("blockContent is required");
+  } else if (typeof blockContent === "string") {
+    nodes = inlineContentToNodes(
+      [blockContent],
+      editor.pmSchema,
+      editor.schema.styleSchema
+    );
+  } else if (Array.isArray(blockContent)) {
+    nodes = inlineContentToNodes(
+      blockContent,
+      editor.pmSchema,
+      editor.schema.styleSchema
+    );
+  } else if (blockContent.type === "tableContent") {
+    nodes = tableContentToNodes(
+      blockContent,
+      editor.pmSchema,
+      editor.schema.styleSchema
+    );
+  } else {
+    throw new UnreachableCaseError(blockContent.type);
+  }
+
+  // We call the prosemirror serializer here because it handles Marks and Inline Content nodes nicely.
+  // If we'd want to support custom serialization or externalHTML for Inline Content, we'd have to implement
+  // a custom serializer here.
+  const dom = serializer.serializeFragment(Fragment.from(nodes), options);
+
+  return dom;
+}
+
+function serializeBlock<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
   editor: BlockNoteEditor<BSchema, I, S>,
-  toExternalHTML: boolean
-) => {
-  if (!serializer.nodes[node.type.name]) {
-    throw new Error("Serializer is missing a node type: " + node.type.name);
-  }
-
-  const { dom, contentDOM } = DOMSerializer.renderSpec(
-    doc(options),
-    serializer.nodes[node.type.name](node)
-  );
-
-  if (contentDOM) {
-    if (node.isLeaf) {
-      throw new RangeError("Content hole not allowed in a leaf node spec");
-    }
-
-    // Handles converting `blockContainer` nodes to HTML.
-    if (node.type.name === "blockContainer") {
-      const blockContentNode =
-        node.childCount > 0 &&
-        node.firstChild!.type.spec.group === "blockContent"
-          ? node.firstChild!
-          : undefined;
-      const blockGroupNode =
-        node.childCount > 0 && node.lastChild!.type.spec.group === "blockGroup"
-          ? node.lastChild!
-          : undefined;
-
-      // Converts `blockContent` node using the custom `blockSpec`'s
-      // `toExternalHTML` or `toInternalHTML` function.
-      // Note: While `blockContainer` nodes should always contain a
-      // `blockContent` node according to the schema, PM Fragments don't always
-      // conform to the schema. This is unintuitive but important as it occurs
-      // when copying only nested blocks.
-      if (blockContentNode !== undefined) {
-        const impl =
-          editor.blockImplementations[blockContentNode.type.name]
-            .implementation;
-        const toHTML = toExternalHTML
-          ? impl.toExternalHTML
-          : impl.toInternalHTML;
-        const blockContent = toHTML(
-          nodeToBlock(
-            node,
-            editor.schema.blockSchema,
-            editor.schema.inlineContentSchema,
-            editor.schema.styleSchema,
-            editor.blockCache
-          ),
-          editor as any
-        );
-
-        // Converts inline nodes in the `blockContent` node's content to HTML
-        // using their `renderHTML` methods.
-        if (blockContent.contentDOM !== undefined) {
-          if (node.isLeaf) {
-            throw new RangeError(
-              "Content hole not allowed in a leaf node spec"
-            );
-          }
-
-          blockContent.contentDOM.appendChild(
-            serializer.serializeFragment(blockContentNode.content, options)
-          );
-        }
-
-        contentDOM.appendChild(blockContent.dom);
-      }
-
-      // Converts `blockGroup` node to HTML using its `renderHTML` method.
-      if (blockGroupNode !== undefined) {
-        serializer.serializeFragment(
-          Fragment.from(blockGroupNode),
-          options,
-          contentDOM
-        );
-      }
-    } else {
-      // Converts the node normally, i.e. using its `renderHTML method`.
-      serializer.serializeFragment(node.content, options, contentDOM);
-    }
-  }
-
-  return dom as HTMLElement;
-};
-
-// Used to implement `serializeProseMirrorFragment` for the
-// `internalHTMLSerializer` and `externalHTMLExporter`. Does basically the same
-// thing as `serializer.serializeFragment`, but takes fewer arguments and
-// returns a string instead, to make it easier to use.
-export const serializeProseMirrorFragment = (
-  fragment: Fragment,
+  block: PartialBlock<BSchema, I, S>,
   serializer: DOMSerializer,
+  toExternalHTML: boolean,
+  options?: { document?: Document }
+) {
+  const BC_NODE = editor.pmSchema.nodes["blockContainer"];
+
+  let props = block.props;
+  // set default props in case we were passed a partial block
+  if (!block.props) {
+    props = {};
+    for (const [name, spec] of Object.entries(
+      editor.schema.blockSchema[block.type as any].propSchema
+    )) {
+      (props as any)[name] = spec.default;
+    }
+  }
+
+  const bc = BC_NODE.spec?.toDOM?.(
+    BC_NODE.create({
+      id: block.id,
+      ...props,
+    })
+  ) as {
+    dom: HTMLElement;
+    contentDOM?: HTMLElement;
+  };
+
+  const impl = editor.blockImplementations[block.type as any].implementation;
+  const ret = toExternalHTML
+    ? impl.toExternalHTML({ ...block, props } as any, editor as any)
+    : impl.toInternalHTML({ ...block, props } as any, editor as any);
+
+  if (ret.contentDOM && block.content) {
+    const ic = serializeInlineContent(
+      editor,
+      block.content as any, // TODO
+      serializer,
+      toExternalHTML,
+      options
+    );
+    ret.contentDOM.appendChild(ic);
+  }
+
+  bc.contentDOM?.appendChild(ret.dom);
+
+  if (block.children && block.children.length > 0) {
+    bc.contentDOM?.appendChild(
+      serializeBlocks(
+        editor,
+        block.children,
+        serializer,
+        toExternalHTML,
+        options
+      )
+    );
+  }
+  return bc.dom;
+}
+
+export const serializeBlocks = <
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  editor: BlockNoteEditor<BSchema, I, S>,
+  blocks: PartialBlock<BSchema, I, S>[],
+  serializer: DOMSerializer,
+  toExternalHTML: boolean,
   options?: { document?: Document }
 ) => {
-  const internalHTML = serializer.serializeFragment(fragment, options);
-  const parent = document.createElement("div");
-  parent.appendChild(internalHTML);
+  const BG_NODE = editor.pmSchema.nodes["blockGroup"];
 
-  return parent.innerHTML;
+  const bg = BG_NODE.spec!.toDOM!(BG_NODE.create({})) as {
+    dom: HTMLElement;
+    contentDOM?: HTMLElement;
+  };
+
+  for (const block of blocks) {
+    const blockDOM = serializeBlock(
+      editor,
+      block,
+      serializer,
+      toExternalHTML,
+      options
+    );
+    bg.contentDOM!.appendChild(blockDOM);
+  }
+
+  return bg.dom;
 };
