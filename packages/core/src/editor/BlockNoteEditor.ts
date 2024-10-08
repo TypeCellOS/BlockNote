@@ -71,6 +71,7 @@ import { en } from "../i18n/locales/index.js";
 
 import { Transaction } from "@tiptap/pm/state";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
+import { NodeSelectionKeyboardPlugin } from "../extensions/NodeSelectionKeyboard/NodeSelectionKeyboardPlugin.js";
 import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin.js";
 import "../style.css";
 import { initializeESMDependencies } from "../util/esmDependencies.js";
@@ -382,6 +383,7 @@ export class BlockNoteEditor<
           ...(this.filePanel ? [this.filePanel.plugin] : []),
           ...(this.tableHandles ? [this.tableHandles.plugin] : []),
           PlaceholderPlugin(this, newOptions.placeholders),
+          NodeSelectionKeyboardPlugin(),
           ...(this.options.animations ?? true
             ? [PreviousBlockTypePlugin()]
             : []),
