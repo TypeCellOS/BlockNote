@@ -190,7 +190,7 @@ export function tableContentToNodes<
   return rowNodes;
 }
 
-function blockOrInlineContentToContentNode(
+export function blockOrInlineContentToContentNode(
   block:
     | PartialBlock<any, any, any>
     | PartialCustomInlineContentFromConfig<any, any>,
@@ -267,7 +267,7 @@ export function blockToNode(
 /**
  * Converts an internal (prosemirror) table node contentto a BlockNote Tablecontent
  */
-function contentNodeToTableContent<
+export function contentNodeToTableContent<
   I extends InlineContentSchema,
   S extends StyleSchema
 >(contentNode: Node, inlineContentSchema: I, styleSchema: S) {

@@ -58,6 +58,7 @@ describe("Test ServerBlockNoteEditor with React blocks", () => {
     });
     const html = await editor.blocksToFullHTML([
       {
+        id: "1",
         type: "simpleReactCustomParagraph",
         content: "React Custom Paragraph",
       },
@@ -77,6 +78,7 @@ describe("Test ServerBlockNoteEditor with React blocks", () => {
       async () =>
         editor.blocksToFullHTML([
           {
+            id: "1",
             type: "reactContextParagraph",
             content: "React Context Paragraph",
           },
