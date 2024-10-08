@@ -1,10 +1,10 @@
 import { NodeSelection, Selection, TextSelection } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
 
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { BlockIdentifier } from "../../schema";
-import { getBlockInfoFromPos } from "../getBlockInfoFromPos";
-import { getNodeById } from "../nodeUtil";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { BlockIdentifier } from "../../schema/index.js";
+import { getBlockInfoFromPos } from "../getBlockInfoFromPos.js";
+import { getNodeById } from "../nodeUtil.js";
 
 type BlockSelectionData = (
   | {

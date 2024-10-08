@@ -1,8 +1,11 @@
 import { expect } from "@playwright/test";
-import { test } from "../../setup/setupScript";
-import { ALIGN_TEXT_RIGHT_BUTTON_SELECTOR, BASE_URL } from "../../utils/const";
-import { insertHeading } from "../../utils/copypaste";
-import { focusOnEditor } from "../../utils/editor";
+import { test } from "../../setup/setupScript.js";
+import {
+  ALIGN_TEXT_RIGHT_BUTTON_SELECTOR,
+  BASE_URL,
+} from "../../utils/const.js";
+import { insertHeading } from "../../utils/copypaste.js";
+import { focusOnEditor } from "../../utils/editor.js";
 
 test.beforeEach(async ({ page }) => {
   await page.goto(BASE_URL, { waitUntil: "networkidle" });

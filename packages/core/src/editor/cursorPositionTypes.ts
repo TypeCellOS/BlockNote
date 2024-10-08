@@ -1,5 +1,9 @@
-import { Block } from "../blocks/defaultBlocks";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../schema";
+import { Block } from "../blocks/defaultBlocks.js";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../schema/index.js";
 
 export type TextCursorPosition<
   BSchema extends BlockSchema,

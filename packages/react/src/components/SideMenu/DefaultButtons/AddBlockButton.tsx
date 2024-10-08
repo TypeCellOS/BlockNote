@@ -8,9 +8,9 @@ import {
 } from "@blocknote/core";
 import { AiOutlinePlus } from "react-icons/ai";
 
-import { useComponentsContext } from "../../../editor/ComponentsContext";
-import { useDictionary } from "../../../i18n/dictionary";
-import { SideMenuProps } from "../SideMenuProps";
+import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { useDictionary } from "../../../i18n/dictionary.js";
+import { SideMenuProps } from "../SideMenuProps.js";
 
 export const AddBlockButton = <
   BSchema extends BlockSchema = DefaultBlockSchema,

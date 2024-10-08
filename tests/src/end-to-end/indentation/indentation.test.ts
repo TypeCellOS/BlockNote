@@ -1,13 +1,13 @@
-import { test } from "../../setup/setupScript";
+import { test } from "../../setup/setupScript.js";
 import {
   BASE_URL,
   H_THREE_BLOCK_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
   NEST_BLOCK_BUTTON_SELECTOR,
   UNNEST_BLOCK_BUTTON_SELECTOR,
-} from "../../utils/const";
-import { insertHeading, insertParagraph } from "../../utils/copypaste";
-import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor";
+} from "../../utils/const.js";
+import { insertHeading, insertParagraph } from "../../utils/copypaste.js";
+import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor.js";
 
 test.beforeEach(async ({ page }) => {
   await page.goto(BASE_URL, { waitUntil: "networkidle" });

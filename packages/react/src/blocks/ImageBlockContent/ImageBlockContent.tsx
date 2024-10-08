@@ -5,14 +5,14 @@ import { RiImage2Fill } from "react-icons/ri";
 import {
   createReactBlockSpec,
   ReactCustomBlockRenderProps,
-} from "../../schema/ReactBlockSpec";
+} from "../../schema/ReactBlockSpec.js";
 import {
   FigureWithCaption,
   FileBlockWrapper,
   LinkWithCaption,
   ResizeHandlesWrapper,
-} from "../FileBlockContent/fileBlockHelpers";
-import { useResolveUrl } from "../FileBlockContent/useResolveUrl";
+} from "../FileBlockContent/fileBlockHelpers.js";
+import { useResolveUrl } from "../FileBlockContent/useResolveUrl.js";
 
 export const ImagePreview = (
   props: Omit<

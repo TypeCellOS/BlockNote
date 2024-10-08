@@ -5,16 +5,20 @@ import { CellSelection } from "prosemirror-tables";
 import * as pmView from "prosemirror-view";
 
 import { EditorView } from "prosemirror-view";
-import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
-import { initializeESMDependencies } from "../../../util/esmDependencies";
-import { createExternalHTMLExporter } from "../../exporters/html/externalHTMLExporter";
-import { cleanHTMLToMarkdown } from "../../exporters/markdown/markdownExporter";
-import { fragmentToBlocks } from "../../nodeConversions/fragmentToBlocks";
+import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../../schema/index.js";
+import { initializeESMDependencies } from "../../../util/esmDependencies.js";
+import { createExternalHTMLExporter } from "../../exporters/html/externalHTMLExporter.js";
+import { cleanHTMLToMarkdown } from "../../exporters/markdown/markdownExporter.js";
+import { fragmentToBlocks } from "../../nodeConversions/fragmentToBlocks.js";
 import {
   contentNodeToInlineContent,
   contentNodeToTableContent,
-} from "../../nodeConversions/nodeConversions";
+} from "../../nodeConversions/nodeConversions.js";
 
 async function fragmentToExternalHTML<
   BSchema extends BlockSchema,

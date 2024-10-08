@@ -1,4 +1,4 @@
-import type { Dictionary } from "../dictionary";
+import type { Dictionary } from "../dictionary.js";
 
 export const ar: Dictionary = {
   slash_menu: {

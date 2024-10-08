@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { initializeESMDependencies } from "../../../../util/esmDependencies";
-import { nestedListsToBlockNoteStructure } from "./nestedLists";
+import { initializeESMDependencies } from "../../../../util/esmDependencies.js";
+import { nestedListsToBlockNoteStructure } from "./nestedLists.js";
 
 async function testHTML(html: string) {
   const deps = await initializeESMDependencies();

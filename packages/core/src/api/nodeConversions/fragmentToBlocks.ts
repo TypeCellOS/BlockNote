@@ -1,12 +1,12 @@
 import { Fragment } from "@tiptap/pm/model";
-import { BlockNoteSchema } from "../../editor/BlockNoteSchema";
+import { BlockNoteSchema } from "../../editor/BlockNoteSchema.js";
 import {
   BlockNoDefaults,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
-} from "../../schema";
-import { nodeToBlock } from "./nodeConversions";
+} from "../../schema/index.js";
+import { nodeToBlock } from "./nodeConversions.js";
 
 /**
  * Converts all Blocks within a fragment to BlockNote blocks.
