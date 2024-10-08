@@ -1,6 +1,6 @@
 import { Extension } from "@tiptap/core";
 
-import { createBlockCommand } from "../../api/blockManipulation/commands/createBlock.js";
+import { TextSelection } from "prosemirror-state";
 import { mergeBlocksCommand } from "../../api/blockManipulation/commands/mergeBlocks.js";
 import { splitBlockCommand } from "../../api/blockManipulation/commands/splitBlock.js";
 import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock.js";
@@ -160,7 +160,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // Creates a new block and moves the selection to it if the current one is empty, while the selection is also
         // empty & at the start of the block.
         () =>
-          commands.command(({ state, chain }) => {
+          commands.command(({ state, dispatch }) => {
             const { contentNode, endPos } = getBlockInfoFromPos(
               state.doc,
               state.selection.from
@@ -176,10 +176,17 @@ export const KeyboardShortcutsExtension = Extension.create<{
               const newBlockInsertionPos = endPos + 1;
               const newBlockContentPos = newBlockInsertionPos + 2;
 
-              chain()
-                .command(createBlockCommand(newBlockInsertionPos))
-                .setTextSelection(newBlockContentPos)
-                .run();
+              if (dispatch) {
+                const newBlock =
+                  state.schema.nodes["blockContainer"].createAndFill()!;
+
+                state.tr
+                  .insert(newBlockInsertionPos, newBlock)
+                  .scrollIntoView();
+                state.tr.setSelection(
+                  new TextSelection(state.doc.resolve(newBlockContentPos))
+                );
+              }
 
               return true;
             }
