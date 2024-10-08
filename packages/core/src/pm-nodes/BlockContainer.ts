@@ -1,7 +1,8 @@
 import { Node } from "@tiptap/core";
-import { Fragment, Slice } from "prosemirror-model";
-import { TextSelection } from "prosemirror-state";
 
+import { createBlockCommand } from "../api/blockManipulation/createBlock.js";
+import { mergeBlocksCommand } from "../api/blockManipulation/mergeBlocks.js";
+import { splitBlockCommand } from "../api/blockManipulation/splitBlock.js";
 import { updateBlockCommand } from "../api/blockManipulation/updateBlock.js";
 import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos.js";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
@@ -17,20 +18,6 @@ const BlockAttributes: Record<string, string> = {
   depth: "data-depth",
   depthChange: "data-depth-change",
 };
-
-declare module "@tiptap/core" {
-  interface Commands<ReturnType> {
-    block: {
-      BNCreateBlock: (pos: number) => ReturnType;
-      BNMergeBlocks: (posBetweenBlocks: number) => ReturnType;
-      BNSplitBlock: (
-        posInBlock: number,
-        keepType?: boolean,
-        keepProps?: boolean
-      ) => ReturnType;
-    };
-  }
-}
 
 /**
  * The main "Block node" documents consist of
@@ -101,192 +88,6 @@ export const BlockContainer = Node.create<{
     return {
       dom: blockOuter,
       contentDOM: block,
-    };
-  },
-
-  addCommands() {
-    return {
-      // Creates a new text block at a given position.
-      BNCreateBlock:
-        (pos) =>
-        ({ state, dispatch }) => {
-          const newBlock =
-            state.schema.nodes["blockContainer"].createAndFill()!;
-
-          if (dispatch) {
-            state.tr.insert(pos, newBlock).scrollIntoView();
-          }
-
-          return true;
-        },
-
-      // Appends the text contents of a block to the nearest previous block, given a position between them. Children of
-      // the merged block are moved out of it first, rather than also being merged.
-      //
-      // In the example below, the position passed into the function is between Block1 and Block2.
-      //
-      // Block1
-      //    Block2
-      // Block3
-      //    Block4
-      //        Block5
-      //
-      // Becomes:
-      //
-      // Block1
-      //    Block2Block3
-      // Block4
-      //     Block5
-      BNMergeBlocks:
-        (posBetweenBlocks) =>
-        ({ state, dispatch }) => {
-          const nextNodeIsBlock =
-            state.doc.resolve(posBetweenBlocks + 1).node().type.name ===
-            "blockContainer";
-          const prevNodeIsBlock =
-            state.doc.resolve(posBetweenBlocks - 1).node().type.name ===
-            "blockContainer";
-
-          if (!nextNodeIsBlock || !prevNodeIsBlock) {
-            return false;
-          }
-
-          const nextBlockInfo = getBlockInfoFromPos(
-            state.doc,
-            posBetweenBlocks + 1
-          );
-
-          const { node, contentNode, startPos, endPos, depth } = nextBlockInfo!;
-
-          // Removes a level of nesting all children of the next block by 1 level, if it contains both content and block
-          // group nodes.
-          if (node.childCount === 2) {
-            const childBlocksStart = state.doc.resolve(
-              startPos + contentNode.nodeSize + 1
-            );
-            const childBlocksEnd = state.doc.resolve(endPos - 1);
-            const childBlocksRange =
-              childBlocksStart.blockRange(childBlocksEnd);
-
-            // Moves the block group node inside the block into the block group node that the current block is in.
-            if (dispatch) {
-              state.tr.lift(childBlocksRange!, depth - 1);
-            }
-          }
-
-          let prevBlockEndPos = posBetweenBlocks - 1;
-          let prevBlockInfo = getBlockInfoFromPos(state.doc, prevBlockEndPos);
-
-          // Finds the nearest previous block, regardless of nesting level.
-          while (prevBlockInfo!.numChildBlocks > 0) {
-            prevBlockEndPos--;
-            prevBlockInfo = getBlockInfoFromPos(state.doc, prevBlockEndPos);
-            if (prevBlockInfo === undefined) {
-              return false;
-            }
-          }
-
-          // Deletes next block and adds its text content to the nearest previous block.
-
-          if (dispatch) {
-            dispatch(
-              state.tr
-                .deleteRange(startPos, startPos + contentNode.nodeSize)
-                .replace(
-                  prevBlockEndPos - 1,
-                  startPos,
-                  new Slice(contentNode.content, 0, 0)
-                )
-                .scrollIntoView()
-            );
-
-            state.tr.setSelection(
-              new TextSelection(state.doc.resolve(prevBlockEndPos - 1))
-            );
-          }
-
-          return true;
-        },
-      // Splits a block at a given position. Content after the position is moved to a new block below, at the same
-      // nesting level.
-      // - `keepType` is usually false, unless the selection is at the start of
-      // a block.
-      // - `keepProps` is usually true when `keepType` is true, except for when
-      // creating new list item blocks with Enter.
-      BNSplitBlock:
-        (posInBlock, keepType, keepProps) =>
-        ({ state, dispatch }) => {
-          const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
-          if (blockInfo === undefined) {
-            return false;
-          }
-
-          const { contentNode, contentType, startPos, endPos, depth } =
-            blockInfo;
-
-          const originalBlockContent = state.doc.cut(startPos + 1, posInBlock);
-          const newBlockContent = state.doc.cut(posInBlock, endPos - 1);
-
-          const newBlock =
-            state.schema.nodes["blockContainer"].createAndFill()!;
-
-          const newBlockInsertionPos = endPos + 1;
-          const newBlockContentPos = newBlockInsertionPos + 2;
-
-          if (dispatch) {
-            // Creates a new block. Since the schema requires it to have a content node, a paragraph node is created
-            // automatically, spanning newBlockContentPos to newBlockContentPos + 1.
-            state.tr.insert(newBlockInsertionPos, newBlock);
-
-            // Replaces the content of the newly created block's content node. Doesn't replace the whole content node so
-            // its type doesn't change.
-            state.tr.replace(
-              newBlockContentPos,
-              newBlockContentPos + 1,
-              newBlockContent.content.size > 0
-                ? new Slice(
-                    Fragment.from(newBlockContent),
-                    depth + 2,
-                    depth + 2
-                  )
-                : undefined
-            );
-
-            // Changes the type of the content node. The range doesn't matter as long as both from and to positions are
-            // within the content node.
-            if (keepType) {
-              state.tr.setBlockType(
-                newBlockContentPos,
-                newBlockContentPos,
-                state.schema.node(contentType).type,
-                keepProps ? contentNode.attrs : undefined
-              );
-            }
-
-            // Sets the selection to the start of the new block's content node.
-            state.tr.setSelection(
-              new TextSelection(state.doc.resolve(newBlockContentPos))
-            );
-
-            // Replaces the content of the original block's content node. Doesn't replace the whole content node so its
-            // type doesn't change.
-            state.tr.replace(
-              startPos + 1,
-              endPos - 1,
-              originalBlockContent.content.size > 0
-                ? new Slice(
-                    Fragment.from(originalBlockContent),
-                    depth + 2,
-                    depth + 2
-                  )
-                : undefined
-            );
-
-            state.tr.scrollIntoView();
-          }
-
-          return true;
-        },
     };
   },
 
@@ -361,7 +162,7 @@ export const BlockContainer = Node.create<{
               selectionEmpty &&
               depth === 2
             ) {
-              return commands.BNMergeBlocks(posBetweenBlocks);
+              return commands.command(mergeBlocksCommand(posBetweenBlocks));
             }
 
             return false;
@@ -403,7 +204,7 @@ export const BlockContainer = Node.create<{
                 newDepth = state.doc.resolve(newPos).depth;
               }
 
-              return commands.BNMergeBlocks(newPos - 1);
+              return commands.command(mergeBlocksCommand(newPos - 1));
             }
 
             return false;
@@ -459,7 +260,7 @@ export const BlockContainer = Node.create<{
               const newBlockContentPos = newBlockInsertionPos + 2;
 
               chain()
-                .BNCreateBlock(newBlockInsertionPos)
+                .command(createBlockCommand(newBlockInsertionPos))
                 .setTextSelection(newBlockContentPos)
                 .run();
 
@@ -484,10 +285,12 @@ export const BlockContainer = Node.create<{
             if (!blockEmpty) {
               chain()
                 .deleteSelection()
-                .BNSplitBlock(
-                  state.selection.from,
-                  selectionAtBlockStart,
-                  selectionAtBlockStart
+                .command(
+                  splitBlockCommand(
+                    state.selection.from,
+                    selectionAtBlockStart,
+                    selectionAtBlockStart
+                  )
                 )
                 .run();
 

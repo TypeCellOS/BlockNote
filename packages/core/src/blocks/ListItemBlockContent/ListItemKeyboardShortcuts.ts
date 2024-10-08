@@ -1,4 +1,5 @@
 import { updateBlockCommand } from "../../api/blockManipulation/updateBlock.js";
+import { splitBlockCommand } from "../../api/blockManipulation/splitBlock.js";
 import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
@@ -46,7 +47,7 @@ export const handleEnter = (editor: BlockNoteEditor<any, any, any>) => {
         if (contentNode.childCount > 0) {
           chain()
             .deleteSelection()
-            .BNSplitBlock(state.selection.from, true)
+            .command(splitBlockCommand(state.selection.from, true))
             .run();
 
           return true;
