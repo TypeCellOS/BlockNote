@@ -1,5 +1,11 @@
 import { Node } from "prosemirror-model";
-import { NodeSelection, Plugin, PluginKey, Selection } from "prosemirror-state";
+import {
+  NodeSelection,
+  Plugin,
+  PluginKey,
+  PluginView,
+  Selection,
+} from "prosemirror-state";
 import * as pmView from "prosemirror-view";
 import { EditorView } from "prosemirror-view";
 

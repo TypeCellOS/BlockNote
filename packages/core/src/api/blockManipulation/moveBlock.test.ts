@@ -1,14 +1,14 @@
 import { NodeSelection, TextSelection } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { PartialBlock } from "../../blocks/defaultBlocks";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { getBlockInfoFromPos } from "../getBlockInfoFromPos";
+import { PartialBlock } from "../../blocks/defaultBlocks.js";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { getBlockInfoFromPos } from "../getBlockInfoFromPos.js";
 import {
   moveBlockDown,
   moveBlockUp,
   moveSelectedBlockAndSelection,
-} from "./moveBlock";
+} from "./moveBlock.js";
 
 const blocks: PartialBlock[] = [
   {
