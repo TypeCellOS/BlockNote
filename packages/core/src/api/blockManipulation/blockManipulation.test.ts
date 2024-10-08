@@ -283,8 +283,6 @@ describe("Insert, Update, & Delete Blocks", () => {
 
 describe("Update block cases", () => {
   it("Update type only", async () => {
-    await waitForEditor();
-
     const existingBlock = editor.document[0];
     editor.insertBlocks([singleBlockWithChildren], existingBlock);
 
@@ -297,8 +295,6 @@ describe("Update block cases", () => {
   });
 
   it("Update content only", async () => {
-    await waitForEditor();
-
     const existingBlock = editor.document[0];
     editor.insertBlocks([singleBlockWithChildren], existingBlock);
 
@@ -311,8 +307,6 @@ describe("Update block cases", () => {
   });
 
   it("Update children only", async () => {
-    await waitForEditor();
-
     const existingBlock = editor.document[0];
     editor.insertBlocks([singleBlockWithChildren], existingBlock);
 
@@ -330,8 +324,6 @@ describe("Update block cases", () => {
   });
 
   it("Update content and children", async () => {
-    await waitForEditor();
-
     const existingBlock = editor.document[0];
     editor.insertBlocks([singleBlockWithChildren], existingBlock);
 
