@@ -286,7 +286,7 @@ export const BlockContainer = Node.create<{
               state.tr
                 .replaceWith(
                   startPos,
-                  endPos,
+                  startPos + contentNode.nodeSize,
                   state.schema.nodes[newType].create(
                     {
                       ...contentNode.attrs,
