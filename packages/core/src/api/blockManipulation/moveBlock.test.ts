@@ -1,7 +1,6 @@
 import { NodeSelection, TextSelection } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { PartialBlock } from "../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { getBlockInfoFromPos } from "../getBlockInfoFromPos.js";
 import {
@@ -9,65 +8,7 @@ import {
   moveBlockUp,
   moveSelectedBlockAndSelection,
 } from "./moveBlock.js";
-
-const blocks: PartialBlock[] = [
-  {
-    id: "paragraph-0",
-    type: "paragraph",
-    content: "Paragraph 0",
-  },
-  {
-    id: "paragraph-1",
-    type: "paragraph",
-    content: "Paragraph 1",
-    children: [
-      {
-        id: "nested-paragraph-1",
-        type: "paragraph",
-        content: "Nested Paragraph 1",
-      },
-    ],
-  },
-  {
-    id: "paragraph-2",
-    type: "paragraph",
-    content: "Paragraph 2",
-  },
-  {
-    id: "paragraph-3",
-    type: "paragraph",
-    content: "Paragraph 3",
-  },
-  {
-    id: "image-1",
-    type: "image",
-    props: {
-      url: "https://via.placeholder.com/150",
-    },
-  },
-  {
-    id: "table-1",
-    type: "table",
-    content: {
-      type: "tableContent",
-      rows: [
-        {
-          cells: ["Cell 1", "Cell 2", "Cell 3"],
-        },
-        {
-          cells: ["Cell 4", "Cell 5", "Cell 6"],
-        },
-        {
-          cells: ["Cell 7", "Cell 8", "Cell 9"],
-        },
-      ],
-    },
-  },
-  {
-    id: "trailing-paragraph",
-    type: "paragraph",
-  },
-];
+import { testDocument } from "./testDocument.js";
 
 let editor: BlockNoteEditor;
 const div = document.createElement("div");
@@ -145,44 +86,44 @@ afterAll(() => {
 });
 
 beforeEach(() => {
-  editor.replaceBlocks(editor.document, blocks);
+  editor.replaceBlocks(editor.document, testDocument);
 });
 
 describe("Test moveSelectedBlockAndSelection", () => {
   it("Text selection", () => {
-    editor.setTextCursorPosition("paragraph-2");
+    editor.setTextCursorPosition("paragraph-1");
     makeSelectionSpanContent("text");
 
     moveSelectedBlockAndSelection(editor, "paragraph-0", "before");
 
     const selection = editor._tiptapEditor.state.selection;
-    editor.setTextCursorPosition("paragraph-2");
+    editor.setTextCursorPosition("paragraph-1");
     makeSelectionSpanContent("text");
 
     expect(selection.eq(editor._tiptapEditor.state.selection)).toBeTruthy();
   });
 
   it("Node selection", () => {
-    editor.setTextCursorPosition("image-1");
+    editor.setTextCursorPosition("image-0");
     makeSelectionSpanContent("node");
 
     moveSelectedBlockAndSelection(editor, "paragraph-0", "before");
 
     const selection = editor._tiptapEditor.state.selection;
-    editor.setTextCursorPosition("image-1");
+    editor.setTextCursorPosition("image-0");
     makeSelectionSpanContent("node");
 
     expect(selection.eq(editor._tiptapEditor.state.selection)).toBeTruthy();
   });
 
   it("Cell selection", () => {
-    editor.setTextCursorPosition("table-1");
+    editor.setTextCursorPosition("table-0");
     makeSelectionSpanContent("cell");
 
     moveSelectedBlockAndSelection(editor, "paragraph-0", "before");
 
     const selection = editor._tiptapEditor.state.selection;
-    editor.setTextCursorPosition("table-1");
+    editor.setTextCursorPosition("table-0");
     makeSelectionSpanContent("cell");
 
     expect(selection.eq(editor._tiptapEditor.state.selection)).toBeTruthy();
@@ -191,7 +132,7 @@ describe("Test moveSelectedBlockAndSelection", () => {
 
 describe("Test moveBlockUp", () => {
   it("Basic", () => {
-    editor.setTextCursorPosition("paragraph-3");
+    editor.setTextCursorPosition("paragraph-1");
 
     moveBlockUp(editor);
 
@@ -225,7 +166,7 @@ describe("Test moveBlockUp", () => {
 
 describe("Test moveBlockDown", () => {
   it("Basic", () => {
-    editor.setTextCursorPosition("paragraph-2");
+    editor.setTextCursorPosition("paragraph-0");
 
     moveBlockDown(editor);
 
@@ -233,7 +174,7 @@ describe("Test moveBlockDown", () => {
   });
 
   it("Into children", () => {
-    editor.setTextCursorPosition("paragraph-0");
+    editor.setTextCursorPosition("paragraph-1");
 
     moveBlockDown(editor);
 
