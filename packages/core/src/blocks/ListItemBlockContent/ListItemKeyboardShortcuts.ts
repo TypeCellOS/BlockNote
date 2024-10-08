@@ -1,14 +1,16 @@
-import { Editor } from "@tiptap/core";
+import { updateBlockCommand } from "../../api/blockManipulation/updateBlock.js";
 import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos.js";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
-export const handleEnter = (editor: Editor) => {
+export const handleEnter = (editor: BlockNoteEditor<any, any, any>) => {
+  const ttEditor = editor._tiptapEditor;
   const { contentNode, contentType } = getBlockInfoFromPos(
-    editor.state.doc,
-    editor.state.selection.from
+    ttEditor.state.doc,
+    ttEditor.state.selection.from
   )!;
 
   const selectionEmpty =
-    editor.state.selection.anchor === editor.state.selection.head;
+    ttEditor.state.selection.anchor === ttEditor.state.selection.head;
 
   if (
     !(
@@ -21,15 +23,17 @@ export const handleEnter = (editor: Editor) => {
     return false;
   }
 
-  return editor.commands.first(({ state, chain, commands }) => [
+  return ttEditor.commands.first(({ state, chain, commands }) => [
     () =>
       // Changes list item block to a paragraph block if the content is empty.
       commands.command(() => {
         if (contentNode.childCount === 0) {
-          return commands.BNUpdateBlock(state.selection.from, {
-            type: "paragraph",
-            props: {},
-          });
+          return commands.command(
+            updateBlockCommand(editor, state.selection.from, {
+              type: "paragraph",
+              props: {},
+            })
+          );
         }
 
         return false;

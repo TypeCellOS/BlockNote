@@ -1,4 +1,5 @@
 import { InputRule } from "@tiptap/core";
+import { updateBlockCommand } from "../../../api/blockManipulation/updateBlock.js";
 import { getCurrentBlockContentType } from "../../../api/getCurrentBlockContentType.js";
 import {
   PropSchema,
@@ -31,10 +32,12 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
           }
 
           chain()
-            .BNUpdateBlock(state.selection.from, {
-              type: "bulletListItem",
-              props: {},
-            })
+            .command(
+              updateBlockCommand(this.options.editor, state.selection.from, {
+                type: "bulletListItem",
+                props: {},
+              })
+            )
             // Removes the "-", "+", or "*" character used to set the list.
             .deleteRange({ from: range.from, to: range.to });
         },
@@ -44,18 +47,21 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
 
   addKeyboardShortcuts() {
     return {
-      Enter: () => handleEnter(this.editor),
+      Enter: () => handleEnter(this.options.editor),
       "Mod-Shift-8": () => {
-        if (getCurrentBlockContentType(this.editor) !== "inline*") {
+        if (getCurrentBlockContentType(this.options.editor) !== "inline*") {
           return true;
         }
 
-        return this.editor.commands.BNUpdateBlock(
-          this.editor.state.selection.anchor,
-          {
-            type: "bulletListItem",
-            props: {},
-          }
+        return this.options.editor.commands.command(
+          updateBlockCommand(
+            this.options.editor,
+            this.options.editor.state.selection.anchor,
+            {
+              type: "bulletListItem",
+              props: {},
+            }
+          )
         );
       },
     };

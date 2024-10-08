@@ -1,3 +1,4 @@
+import { updateBlockCommand } from "../../api/blockManipulation/updateBlock.js";
 import { getCurrentBlockContentType } from "../../api/getCurrentBlockContentType.js";
 import {
   createBlockSpecFromStronglyTypedTiptapNode,
@@ -22,12 +23,15 @@ export const ParagraphBlockContent = createStronglyTypedTiptapNode({
           return true;
         }
 
-        return this.editor.commands.BNUpdateBlock(
-          this.editor.state.selection.anchor,
-          {
-            type: "paragraph",
-            props: {},
-          }
+        return this.editor.commands.command(
+          updateBlockCommand(
+            this.options.editor,
+            this.editor.state.selection.anchor,
+            {
+              type: "paragraph",
+              props: {},
+            }
+          )
         );
       },
     };

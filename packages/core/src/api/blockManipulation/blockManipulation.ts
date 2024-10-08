@@ -15,6 +15,7 @@ import {
   nodeToBlock,
 } from "../nodeConversions/nodeConversions.js";
 import { getNodeById } from "../nodeUtil.js";
+import { updateBlockCommand } from "./updateBlock.js";
 
 export function insertBlocks<
   BSchema extends BlockSchema,
@@ -105,7 +106,10 @@ export function updateBlock<
     typeof blockToUpdate === "string" ? blockToUpdate : blockToUpdate.id;
   const { posBeforeNode } = getNodeById(id, ttEditor.state.doc);
 
-  ttEditor.commands.BNUpdateBlock(posBeforeNode + 1, update);
+  ttEditor.commands.command(({ state, dispatch }) => {
+    updateBlockCommand(editor, posBeforeNode + 1, update)({ state, dispatch });
+    return true;
+  });
 
   const blockContainerNode = ttEditor.state.doc
     .resolve(posBeforeNode + 1)

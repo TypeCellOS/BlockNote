@@ -1,4 +1,5 @@
 import { InputRule } from "@tiptap/core";
+import { updateBlockCommand } from "../../api/blockManipulation/updateBlock.js";
 import { getCurrentBlockContentType } from "../../api/getCurrentBlockContentType.js";
 import {
   PropSchema,
@@ -51,14 +52,17 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
             }
 
             chain()
-              .BNUpdateBlock(state.selection.from, {
-                type: "heading",
-                props: {
-                  level: level as any,
-                },
-              })
+              .command(
+                updateBlockCommand(this.options.editor, state.selection.from, {
+                  type: "heading",
+                  props: {
+                    level: level as any,
+                  },
+                })
+              )
               // Removes the "#" character(s) used to set the heading.
-              .deleteRange({ from: range.from, to: range.to });
+              .deleteRange({ from: range.from, to: range.to })
+              .run();
           },
         });
       }),
@@ -72,14 +76,18 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
           return true;
         }
 
-        return this.editor.commands.BNUpdateBlock(
-          this.editor.state.selection.anchor,
-          {
-            type: "heading",
-            props: {
-              level: 1 as any,
-            },
-          }
+        // call updateBlockCommand
+        return this.editor.commands.command(
+          updateBlockCommand(
+            this.options.editor,
+            this.editor.state.selection.anchor,
+            {
+              type: "heading",
+              props: {
+                level: 1 as any,
+              },
+            }
+          )
         );
       },
       "Mod-Alt-2": () => {
@@ -87,14 +95,17 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
           return true;
         }
 
-        return this.editor.commands.BNUpdateBlock(
-          this.editor.state.selection.anchor,
-          {
-            type: "heading",
-            props: {
-              level: 2 as any,
-            },
-          }
+        return this.editor.commands.command(
+          updateBlockCommand(
+            this.options.editor,
+            this.editor.state.selection.anchor,
+            {
+              type: "heading",
+              props: {
+                level: 2 as any,
+              },
+            }
+          )
         );
       },
       "Mod-Alt-3": () => {
@@ -102,14 +113,17 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
           return true;
         }
 
-        return this.editor.commands.BNUpdateBlock(
-          this.editor.state.selection.anchor,
-          {
-            type: "heading",
-            props: {
-              level: 3 as any,
-            },
-          }
+        return this.editor.commands.command(
+          updateBlockCommand(
+            this.options.editor,
+            this.editor.state.selection.anchor,
+            {
+              type: "heading",
+              props: {
+                level: 3 as any,
+              },
+            }
+          )
         );
       },
     };
