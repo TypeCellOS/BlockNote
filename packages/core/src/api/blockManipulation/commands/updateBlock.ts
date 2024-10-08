@@ -1,18 +1,18 @@
 import { Fragment, Node as PMNode, Slice } from "prosemirror-model";
 import { EditorState, NodeSelection, TextSelection } from "prosemirror-state";
 
-import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos.js";
+import { PartialBlock } from "../../../blocks/defaultBlocks.js";
+import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import { BlockSchema } from "../../../schema/blocks/types.js";
+import { InlineContentSchema } from "../../../schema/inlineContent/types.js";
+import { StyleSchema } from "../../../schema/styles/types.js";
+import { UnreachableCaseError } from "../../../util/typescript.js";
+import { getBlockInfoFromPos } from "../../getBlockInfoFromPos.js";
 import {
   blockToNode,
   inlineContentToNodes,
   tableContentToNodes,
-} from "../../api/nodeConversions/nodeConversions.js";
-import { PartialBlock } from "../../blocks/defaultBlocks.js";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { BlockSchema } from "../../schema/blocks/types.js";
-import { InlineContentSchema } from "../../schema/inlineContent/types.js";
-import { StyleSchema } from "../../schema/styles/types.js";
-import { UnreachableCaseError } from "../../util/typescript.js";
+} from "../../nodeConversions/nodeConversions.js";
 
 export const updateBlockCommand =
   <

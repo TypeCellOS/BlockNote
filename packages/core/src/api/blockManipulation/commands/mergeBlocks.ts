@@ -1,7 +1,7 @@
 import { Slice } from "prosemirror-model";
 import { EditorState, TextSelection } from "prosemirror-state";
 
-import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos.js";
+import { getBlockInfoFromPos } from "../../getBlockInfoFromPos.js";
 
 export const mergeBlocksCommand =
   (posBetweenBlocks: number) =>

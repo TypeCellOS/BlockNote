@@ -1,5 +1,5 @@
 import { InputRule } from "@tiptap/core";
-import { updateBlockCommand } from "../../api/blockManipulation/updateBlock.js";
+import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock.js";
 import { getCurrentBlockContentType } from "../../api/getCurrentBlockContentType.js";
 import {
   PropSchema,

@@ -15,7 +15,7 @@ import {
   nodeToBlock,
 } from "../nodeConversions/nodeConversions.js";
 import { getNodeById } from "../nodeUtil.js";
-import { updateBlockCommand } from "./updateBlock.js";
+import { updateBlockCommand } from "./commands/updateBlock.js";
 
 export function insertBlocks<
   BSchema extends BlockSchema,

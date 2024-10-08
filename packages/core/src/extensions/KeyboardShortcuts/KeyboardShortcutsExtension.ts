@@ -1,9 +1,9 @@
 import { Extension } from "@tiptap/core";
 
-import { createBlockCommand } from "../../api/blockManipulation/createBlock.js";
-import { mergeBlocksCommand } from "../../api/blockManipulation/mergeBlocks.js";
-import { splitBlockCommand } from "../../api/blockManipulation/splitBlock.js";
-import { updateBlockCommand } from "../../api/blockManipulation/updateBlock.js";
+import { createBlockCommand } from "../../api/blockManipulation/commands/createBlock.js";
+import { mergeBlocksCommand } from "../../api/blockManipulation/commands/mergeBlocks.js";
+import { splitBlockCommand } from "../../api/blockManipulation/commands/splitBlock.js";
+import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock.js";
 import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 

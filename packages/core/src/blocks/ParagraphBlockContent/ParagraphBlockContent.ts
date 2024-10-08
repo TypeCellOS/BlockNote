@@ -1,4 +1,4 @@
-import { updateBlockCommand } from "../../api/blockManipulation/updateBlock.js";
+import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock.js";
 import { getCurrentBlockContentType } from "../../api/getCurrentBlockContentType.js";
 import {
   createBlockSpecFromStronglyTypedTiptapNode,
