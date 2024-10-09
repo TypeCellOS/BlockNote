@@ -137,7 +137,10 @@ export function createBlockSpec<
   T extends CustomBlockConfig,
   I extends InlineContentSchema,
   S extends StyleSchema
->(blockConfig: T, blockImplementation: CustomBlockImplementation<T, I, S>) {
+>(
+  blockConfig: T,
+  blockImplementation: CustomBlockImplementation<NoInfer<T>, I, S>
+) {
   const node = createStronglyTypedTiptapNode({
     name: blockConfig.type as T["type"],
     content: (blockConfig.content === "inline"
