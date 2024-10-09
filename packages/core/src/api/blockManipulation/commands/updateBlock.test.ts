@@ -142,9 +142,39 @@ describe("Test updateBlock", () => {
     expect(getEditor().document).toMatchSnapshot();
   });
 
+  it("Update inline content to empty table content", () => {
+    updateBlock(getEditor(), "paragraph-0", {
+      type: "table",
+    });
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Update table content to empty inline content", () => {
+    updateBlock(getEditor(), "table-0", {
+      type: "paragraph",
+    });
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
   it("Update inline content to table content", () => {
     updateBlock(getEditor(), "paragraph-0", {
       type: "table",
+      content: {
+        type: "tableContent",
+        rows: [
+          {
+            cells: ["Cell 1", "Cell 2", "Cell 3"],
+          },
+          {
+            cells: ["Cell 4", "Cell 5", "Cell 6"],
+          },
+          {
+            cells: ["Cell 7", "Cell 8", "Cell 9"],
+          },
+        ],
+      },
     });
 
     expect(getEditor().document).toMatchSnapshot();
@@ -153,6 +183,7 @@ describe("Test updateBlock", () => {
   it("Update table content to inline content", () => {
     updateBlock(getEditor(), "table-0", {
       type: "paragraph",
+      content: "Paragraph",
     });
 
     expect(getEditor().document).toMatchSnapshot();
@@ -166,9 +197,26 @@ describe("Test updateBlock", () => {
     expect(getEditor().document).toMatchSnapshot();
   });
 
+  it("Update no content to empty inline content", () => {
+    updateBlock(getEditor(), "image-0", {
+      type: "paragraph",
+    });
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
   it("Update no content to inline content", () => {
     updateBlock(getEditor(), "image-0", {
       type: "paragraph",
+      content: "Paragraph",
+    });
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Update no content to empty table content", () => {
+    updateBlock(getEditor(), "image-0", {
+      type: "table",
     });
 
     expect(getEditor().document).toMatchSnapshot();
@@ -177,6 +225,20 @@ describe("Test updateBlock", () => {
   it("Update no content to table content", () => {
     updateBlock(getEditor(), "image-0", {
       type: "table",
+      content: {
+        type: "tableContent",
+        rows: [
+          {
+            cells: ["Cell 1", "Cell 2", "Cell 3"],
+          },
+          {
+            cells: ["Cell 4", "Cell 5", "Cell 6"],
+          },
+          {
+            cells: ["Cell 7", "Cell 8", "Cell 9"],
+          },
+        ],
+      },
     });
 
     expect(getEditor().document).toMatchSnapshot();
