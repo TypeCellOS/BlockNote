@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { getBlockInfoFromPos } from "../../getBlockInfoFromPos.js";
-import { setupTestEnv } from "../setupTestEnv.js";
+import { getBlockInfoFromPos } from "../../../getBlockInfoFromPos.js";
+import { setupTestEnv } from "../../setupTestEnv.js";
 import { mergeBlocksCommand } from "./mergeBlocks.js";
 
 const getEditor = setupTestEnv();

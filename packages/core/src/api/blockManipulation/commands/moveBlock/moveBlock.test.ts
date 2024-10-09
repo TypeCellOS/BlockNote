@@ -2,13 +2,13 @@ import { NodeSelection, TextSelection } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
 import { describe, expect, it } from "vitest";
 
-import { getBlockInfoFromPos } from "../getBlockInfoFromPos.js";
+import { getBlockInfoFromPos } from "../../../getBlockInfoFromPos.js";
 import {
   moveBlockDown,
   moveBlockUp,
   moveSelectedBlockAndSelection,
 } from "./moveBlock.js";
-import { setupTestEnv } from "./setupTestEnv.js";
+import { setupTestEnv } from "../../setupTestEnv.js";
 
 const getEditor = setupTestEnv();
 

@@ -1,5 +1,5 @@
-import { splitBlockCommand } from "../../api/blockManipulation/commands/splitBlock.js";
-import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock.js";
+import { splitBlockCommand } from "../../api/blockManipulation/commands/splitBlock/splitBlock.js";
+import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 

@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { setupTestEnv } from "../setupTestEnv.js";
+import { setupTestEnv } from "../../setupTestEnv.js";
 import { splitBlockCommand } from "./splitBlock.js";
 
 const getEditor = setupTestEnv();
 
-function splitBlocks(
+function splitBlock(
   posInBlock: number,
   keepType?: boolean,
   keepProps?: boolean
@@ -24,7 +24,7 @@ describe("Test splitBlocks", () => {
   it("Basic", () => {
     getEditor().setTextCursorPosition("paragraph-0");
 
-    splitBlocks(getSelectionAnchorPosWithOffset(4));
+    splitBlock(getSelectionAnchorPosWithOffset(4));
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -32,7 +32,7 @@ describe("Test splitBlocks", () => {
   it("Block has children", () => {
     getEditor().setTextCursorPosition("paragraph-with-children");
 
-    splitBlocks(getSelectionAnchorPosWithOffset(4));
+    splitBlock(getSelectionAnchorPosWithOffset(4));
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -40,7 +40,7 @@ describe("Test splitBlocks", () => {
   it("Keep type", () => {
     getEditor().setTextCursorPosition("heading-0");
 
-    splitBlocks(getSelectionAnchorPosWithOffset(4), true);
+    splitBlock(getSelectionAnchorPosWithOffset(4), true);
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -48,7 +48,7 @@ describe("Test splitBlocks", () => {
   it("Don't keep type", () => {
     getEditor().setTextCursorPosition("heading-0");
 
-    splitBlocks(getSelectionAnchorPosWithOffset(4));
+    splitBlock(getSelectionAnchorPosWithOffset(4));
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -56,7 +56,7 @@ describe("Test splitBlocks", () => {
   it.skip("Keep props", () => {
     getEditor().setTextCursorPosition("paragraph-with-props");
 
-    splitBlocks(getSelectionAnchorPosWithOffset(4), false, true);
+    splitBlock(getSelectionAnchorPosWithOffset(4), false, true);
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -64,7 +64,7 @@ describe("Test splitBlocks", () => {
   it("Don't keep props", () => {
     getEditor().setTextCursorPosition("paragraph-with-props");
 
-    splitBlocks(getSelectionAnchorPosWithOffset(4));
+    splitBlock(getSelectionAnchorPosWithOffset(4));
 
     expect(getEditor().document).toMatchSnapshot();
   });

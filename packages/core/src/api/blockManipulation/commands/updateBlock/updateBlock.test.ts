@@ -1,9 +1,55 @@
 import { describe, expect, it } from "vitest";
 
-import { setupTestEnv } from "../setupTestEnv.js";
+import { setupTestEnv } from "../../setupTestEnv.js";
 import { updateBlock } from "./updateBlock.js";
 
 const getEditor = setupTestEnv();
+
+describe("Test updateBlock typing", () => {
+  it("Type is inferred correctly", () => {
+    try {
+      getEditor().updateBlock(
+        { id: "placeholder-id" },
+        {
+          // @ts-expect-error invalid type
+          type: "non-existing",
+        }
+      );
+    } catch (e) {
+      // ID doesn't exist, which is fine - this is a compile-time check
+    }
+  });
+
+  it("Props are inferred correctly", () => {
+    try {
+      getEditor().updateBlock(
+        { id: "placeholder-id" },
+        {
+          type: "paragraph",
+          props: {
+            // @ts-expect-error invalid type
+            level: 1,
+          },
+        }
+      );
+    } catch (e) {
+      // ID doesn't exist, which is fine - this is a compile-time check
+    }
+    try {
+      getEditor().updateBlock(
+        { id: "placeholder-id" },
+        {
+          type: "heading",
+          props: {
+            level: 1,
+          },
+        }
+      );
+    } catch (e) {
+      // ID doesn't exist, which is fine - this is a compile-time check
+    }
+  });
+});
 
 describe("Test updateBlock", () => {
   it.skip("Update ID", () => {
@@ -252,3 +298,31 @@ describe("Test updateBlock", () => {
     expect(getEditor().document).toMatchSnapshot();
   });
 });
+
+// TODO: This seems like it really tests converting strings to inline content?
+// describe("Update Line Breaks", () => {
+//   it("Update paragraph with line break", () => {
+//     const existingBlock = editor.document[0];
+//     editor.insertBlocks(blocksWithLineBreaks, existingBlock);
+//
+//     const newBlock = editor.document[0];
+//     editor.updateBlock(newBlock, {
+//       type: "paragraph",
+//       content: "Updated Custom Block with \nline \nbreak",
+//     });
+//
+//     expect(editor.document).toMatchSnapshot();
+//   });
+//   it("Update custom block with line break", () => {
+//     const existingBlock = editor.document[0];
+//     editor.insertBlocks(blocksWithLineBreaks, existingBlock);
+//
+//     const newBlock = editor.document[1];
+//     editor.updateBlock(newBlock, {
+//       type: "customBlock",
+//       content: "Updated Custom Block with \nline \nbreak",
+//     });
+//
+//     expect(editor.document).toMatchSnapshot();
+//   });
+// });

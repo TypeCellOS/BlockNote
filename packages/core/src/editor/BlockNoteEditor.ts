@@ -2,17 +2,15 @@ import { EditorOptions, Extension, getSchema } from "@tiptap/core";
 import { Node, Schema } from "prosemirror-model";
 // import "./blocknote.css";
 import * as Y from "yjs";
-import {
-  insertBlocks,
-  insertContentAt,
-  removeBlocks,
-  replaceBlocks,
-} from "../api/blockManipulation/blockManipulation.js";
-import { updateBlock } from "../api/blockManipulation/commands/updateBlock.js";
+import { insertContentAt } from "../api/blockManipulation/insertContentAt.js";
+import { insertBlocks } from "../api/blockManipulation/commands/insertBlocks/insertBlocks.js";
 import {
   moveBlockDown,
   moveBlockUp,
-} from "../api/blockManipulation/moveBlock.js";
+} from "../api/blockManipulation/commands/moveBlock/moveBlock.js";
+import { removeBlocks } from "../api/blockManipulation/commands/removeBlocks/removeBlocks.js";
+import { replaceBlocks } from "../api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
+import { updateBlock } from "../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
 import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos.js";
@@ -891,7 +889,7 @@ export class BlockNoteEditor<
     referenceBlock: BlockIdentifier,
     placement: "before" | "after" = "before"
   ) {
-    return insertBlocks(blocksToInsert, referenceBlock, placement, this);
+    return insertBlocks(this, blocksToInsert, referenceBlock, placement);
   }
 
   /**
@@ -913,7 +911,7 @@ export class BlockNoteEditor<
    * @param blocksToRemove An array of identifiers for existing blocks that should be removed.
    */
   public removeBlocks(blocksToRemove: BlockIdentifier[]) {
-    return removeBlocks(blocksToRemove, this);
+    return removeBlocks(this, blocksToRemove);
   }
 
   /**
@@ -927,7 +925,7 @@ export class BlockNoteEditor<
     blocksToRemove: BlockIdentifier[],
     blocksToInsert: PartialBlock<BSchema, ISchema, SSchema>[]
   ) {
-    return replaceBlocks(blocksToRemove, blocksToInsert, this);
+    return replaceBlocks(this, blocksToRemove, blocksToInsert);
   }
 
   /**

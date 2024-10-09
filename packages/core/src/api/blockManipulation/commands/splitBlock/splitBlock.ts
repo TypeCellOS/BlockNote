@@ -1,7 +1,7 @@
 import { Fragment, Slice } from "prosemirror-model";
 import { EditorState, TextSelection } from "prosemirror-state";
 
-import { getBlockInfoFromPos } from "../../getBlockInfoFromPos.js";
+import { getBlockInfoFromPos } from "../../../getBlockInfoFromPos.js";
 
 export const splitBlockCommand =
   (posInBlock: number, keepType?: boolean, keepProps?: boolean) =>
