@@ -25,17 +25,17 @@ export function docxBlockMappingForDefaultSchema(
       paragraph: (block) => {
         return new Paragraph({
           children: [
-            new TextRun({
-              children: [new Tab(), "John Doe"],
-            }),
+            // new TextRun({
+            //   children: [new Tab(), "John Doe"],
+            // }),
             ...createContent(block.content),
           ],
-          tabStops: [
-            {
-              position: 2268,
-              type: TabStopType.LEFT,
-            },
-          ],
+          // tabStops: [
+          //   {
+          //     position: 2268,
+          //     type: TabStopType.LEFT,
+          //   },
+          // ],
         });
       },
       numberedListItem: (block) => {

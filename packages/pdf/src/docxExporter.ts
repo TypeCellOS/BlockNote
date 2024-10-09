@@ -1,4 +1,5 @@
 import { Block } from "@blocknote/core";
+import { Paragraph, Tab, TextRun } from "docx";
 import { docxBlockMappingForDefaultSchema } from "./docx/blocks";
 import { docxInlineContentMappingForDefaultSchema } from "./docx/inlinecontent";
 import {
@@ -23,15 +24,25 @@ export function createDocxExporterForDefaultSchema() {
     docxBlockMappingForDefaultSchema(inlineContentTransformer)
   );
 
+  const transform = (blocks: Block[]): Paragraph[] => {
+    return blocks.flatMap((b) => {
+      let children = transform(b.children);
+      children = children.map((c) => {
+        c.addRunToFront(new TextRun({ children: [new Tab()] }));
+        return c;
+      });
+      const self = blockTransformer(b as any);
+      return [self, ...children];
+    }); // TODO
+  };
+
   return {
     util: {
       blockTransformer,
       styledTextTransformer,
       inlineContentTransformer,
     },
-    transform: (block: Block[]) => {
-      return block.map((b) => blockTransformer(b as any)); // TODO
-    },
+    transform,
   };
 }
 

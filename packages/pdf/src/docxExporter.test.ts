@@ -10,6 +10,7 @@ import {
   Packer,
   Paragraph,
   TextRun,
+  UnderlineType,
 } from "docx";
 import fs from "fs";
 import { describe, it } from "vitest";
@@ -22,10 +23,14 @@ describe("exporter", () => {
         {
           type: "paragraph",
           content: "Welcome to this demo!",
+          children: [
+            {
+              type: "paragraph",
+              content: "Hello World",
+            },
+          ],
         },
-        {
-          type: "paragraph",
-        },
+
         {
           type: "paragraph",
           content: [
@@ -148,6 +153,73 @@ describe("exporter", () => {
       ])
     );
     const doc = new Document({
+      styles: {
+        paragraphStyles: [
+          {
+            id: "myWonkyStyle",
+            name: "My Wonky Style",
+            basedOn: "Normal",
+            next: "Normal",
+            quickFormat: true,
+            run: {
+              italics: true,
+              color: "999999",
+            },
+            paragraph: {
+              spacing: {
+                line: 276,
+              },
+              indent: {
+                left: 720,
+              },
+            },
+          },
+          {
+            id: "Heading1",
+            name: "Heading 1",
+            basedOn: "Normal",
+            next: "Normal",
+            quickFormat: true,
+            run: {
+              size: 26,
+              bold: true,
+              color: "999999",
+              underline: {
+                type: UnderlineType.DOUBLE,
+                color: "FF0000",
+              },
+            },
+            paragraph: {
+              spacing: {
+                before: 240,
+                after: 120,
+              },
+            },
+          },
+          {
+            id: "Heading2",
+            name: "Heading 2",
+            basedOn: "Normal",
+            next: "Normal",
+            quickFormat: true,
+            run: {
+              size: 26,
+              bold: true,
+              color: "999999",
+              underline: {
+                type: UnderlineType.DOUBLE,
+                color: "FF0000",
+              },
+            },
+            paragraph: {
+              spacing: {
+                before: 240,
+                after: 120,
+              },
+            },
+          },
+        ],
+      },
       numbering: {
         config: [
           {
@@ -191,7 +263,7 @@ describe("exporter", () => {
         },
       ],
     });
-    const buffer = await Packer.toBuffer(doc2);
+    const buffer = await Packer.toBuffer(doc);
     fs.writeFileSync(__dirname + "/My Document.docx", buffer);
 
     // await saveTestFile();
