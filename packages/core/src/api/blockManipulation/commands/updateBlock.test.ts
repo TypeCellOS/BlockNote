@@ -45,6 +45,29 @@ describe("Test updateBlock", () => {
     expect(getEditor().document).toMatchSnapshot();
   });
 
+  it("Revert single prop", () => {
+    updateBlock(getEditor(), "heading-with-everything", {
+      props: {
+        level: undefined,
+      },
+    });
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Revert all props", () => {
+    updateBlock(getEditor(), "heading-with-everything", {
+      props: {
+        backgroundColor: undefined,
+        level: undefined,
+        textAlignment: undefined,
+        textColor: undefined,
+      },
+    });
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
   it("Update with plain content", () => {
     updateBlock(getEditor(), "heading-with-everything", {
       content: "New content",
