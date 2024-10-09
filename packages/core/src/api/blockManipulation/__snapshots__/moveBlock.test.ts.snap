@@ -118,7 +118,7 @@ exports[`Test moveBlockDown > Basic 1`] = `
     "id": "paragraph-with-props",
     "props": {
       "backgroundColor": "default",
-      "textAlignment": "left",
+      "textAlignment": "center",
       "textColor": "red",
     },
     "type": "paragraph",
@@ -200,10 +200,11 @@ exports[`Test moveBlockDown > Basic 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "level": 1,
       "textAlignment": "left",
       "textColor": "default",
     },
-    "type": "paragraph",
+    "type": "heading",
   },
   {
     "children": [],
@@ -492,7 +493,7 @@ exports[`Test moveBlockDown > Into children 1`] = `
     "id": "paragraph-with-props",
     "props": {
       "backgroundColor": "default",
-      "textAlignment": "left",
+      "textAlignment": "center",
       "textColor": "red",
     },
     "type": "paragraph",
@@ -574,10 +575,11 @@ exports[`Test moveBlockDown > Into children 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "level": 1,
       "textAlignment": "left",
       "textColor": "default",
     },
-    "type": "paragraph",
+    "type": "heading",
   },
   {
     "children": [],
@@ -866,7 +868,7 @@ exports[`Test moveBlockDown > Last block 1`] = `
     "id": "paragraph-with-props",
     "props": {
       "backgroundColor": "default",
-      "textAlignment": "left",
+      "textAlignment": "center",
       "textColor": "red",
     },
     "type": "paragraph",
@@ -948,10 +950,11 @@ exports[`Test moveBlockDown > Last block 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "level": 1,
       "textAlignment": "left",
       "textColor": "default",
     },
-    "type": "paragraph",
+    "type": "heading",
   },
   {
     "children": [],
@@ -1239,7 +1242,7 @@ exports[`Test moveBlockDown > Out of children 1`] = `
     "id": "paragraph-with-props",
     "props": {
       "backgroundColor": "default",
-      "textAlignment": "left",
+      "textAlignment": "center",
       "textColor": "red",
     },
     "type": "paragraph",
@@ -1321,10 +1324,11 @@ exports[`Test moveBlockDown > Out of children 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "level": 1,
       "textAlignment": "left",
       "textColor": "default",
     },
-    "type": "paragraph",
+    "type": "heading",
   },
   {
     "children": [],
@@ -1613,7 +1617,7 @@ exports[`Test moveBlockUp > Basic 1`] = `
     "id": "paragraph-with-props",
     "props": {
       "backgroundColor": "default",
-      "textAlignment": "left",
+      "textAlignment": "center",
       "textColor": "red",
     },
     "type": "paragraph",
@@ -1695,10 +1699,11 @@ exports[`Test moveBlockUp > Basic 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "level": 1,
       "textAlignment": "left",
       "textColor": "default",
     },
-    "type": "paragraph",
+    "type": "heading",
   },
   {
     "children": [],
@@ -1987,7 +1992,7 @@ exports[`Test moveBlockUp > First block 1`] = `
     "id": "paragraph-with-props",
     "props": {
       "backgroundColor": "default",
-      "textAlignment": "left",
+      "textAlignment": "center",
       "textColor": "red",
     },
     "type": "paragraph",
@@ -2069,10 +2074,11 @@ exports[`Test moveBlockUp > First block 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "level": 1,
       "textAlignment": "left",
       "textColor": "default",
     },
-    "type": "paragraph",
+    "type": "heading",
   },
   {
     "children": [],
@@ -2361,7 +2367,7 @@ exports[`Test moveBlockUp > Into children 1`] = `
     "id": "paragraph-with-props",
     "props": {
       "backgroundColor": "default",
-      "textAlignment": "left",
+      "textAlignment": "center",
       "textColor": "red",
     },
     "type": "paragraph",
@@ -2443,10 +2449,11 @@ exports[`Test moveBlockUp > Into children 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "level": 1,
       "textAlignment": "left",
       "textColor": "default",
     },
-    "type": "paragraph",
+    "type": "heading",
   },
   {
     "children": [],
@@ -2734,7 +2741,7 @@ exports[`Test moveBlockUp > Out of children 1`] = `
     "id": "paragraph-with-props",
     "props": {
       "backgroundColor": "default",
-      "textAlignment": "left",
+      "textAlignment": "center",
       "textColor": "red",
     },
     "type": "paragraph",
@@ -2816,10 +2823,11 @@ exports[`Test moveBlockUp > Out of children 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "level": 1,
       "textAlignment": "left",
       "textColor": "default",
     },
-    "type": "paragraph",
+    "type": "heading",
   },
   {
     "children": [],

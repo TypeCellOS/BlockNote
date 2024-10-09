@@ -39,6 +39,7 @@ export const testDocument: PartialBlock[] = [
     id: "paragraph-with-props",
     type: "paragraph",
     props: {
+      textAlignment: "center",
       textColor: "red",
     },
     content: "Paragraph with props",
@@ -64,7 +65,7 @@ export const testDocument: PartialBlock[] = [
   },
   {
     id: "heading-0",
-    type: "paragraph",
+    type: "heading",
     content: "Heading 1",
   },
   {

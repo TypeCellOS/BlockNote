@@ -7,11 +7,28 @@ exports[`Test splitBlocks > Basic 1`] = `
     "content": [
       {
         "styles": {},
-        "text": "Paragraph 0",
+        "text": "Para",
         "type": "text",
       },
     ],
     "id": "paragraph-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "graph 0",
+        "type": "text",
+      },
+    ],
+    "id": "0",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -118,7 +135,7 @@ exports[`Test splitBlocks > Basic 1`] = `
     "id": "paragraph-with-props",
     "props": {
       "backgroundColor": "default",
-      "textAlignment": "left",
+      "textAlignment": "center",
       "textColor": "red",
     },
     "type": "paragraph",
@@ -200,10 +217,11 @@ exports[`Test splitBlocks > Basic 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "level": 1,
       "textAlignment": "left",
       "textColor": "default",
     },
-    "type": "paragraph",
+    "type": "heading",
   },
   {
     "children": [],
@@ -411,6 +429,23 @@ exports[`Test splitBlocks > Block has children 1`] = `
     "type": "paragraph",
   },
   {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Para",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-with-children",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
     "children": [
       {
         "children": [
@@ -451,11 +486,11 @@ exports[`Test splitBlocks > Block has children 1`] = `
     "content": [
       {
         "styles": {},
-        "text": "Paragraph with children",
+        "text": "graph with children",
         "type": "text",
       },
     ],
-    "id": "paragraph-with-children",
+    "id": "0",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -492,7 +527,7 @@ exports[`Test splitBlocks > Block has children 1`] = `
     "id": "paragraph-with-props",
     "props": {
       "backgroundColor": "default",
-      "textAlignment": "left",
+      "textAlignment": "center",
       "textColor": "red",
     },
     "type": "paragraph",
@@ -574,10 +609,11 @@ exports[`Test splitBlocks > Block has children 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "level": 1,
       "textAlignment": "left",
       "textColor": "default",
     },
-    "type": "paragraph",
+    "type": "heading",
   },
   {
     "children": [],
@@ -859,15 +895,32 @@ exports[`Test splitBlocks > Don't keep props 1`] = `
     "content": [
       {
         "styles": {},
-        "text": "Paragraph with props",
+        "text": "Para",
         "type": "text",
       },
     ],
     "id": "paragraph-with-props",
     "props": {
       "backgroundColor": "default",
-      "textAlignment": "left",
+      "textAlignment": "center",
       "textColor": "red",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "graph with props",
+        "type": "text",
+      },
+    ],
+    "id": "0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
     },
     "type": "paragraph",
   },
@@ -948,10 +1001,11 @@ exports[`Test splitBlocks > Don't keep props 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "level": 1,
       "textAlignment": "left",
       "textColor": "default",
     },
-    "type": "paragraph",
+    "type": "heading",
   },
   {
     "children": [],
@@ -1240,7 +1294,7 @@ exports[`Test splitBlocks > Don't keep type 1`] = `
     "id": "paragraph-with-props",
     "props": {
       "backgroundColor": "default",
-      "textAlignment": "left",
+      "textAlignment": "center",
       "textColor": "red",
     },
     "type": "paragraph",
@@ -1315,385 +1369,29 @@ exports[`Test splitBlocks > Don't keep type 1`] = `
     "content": [
       {
         "styles": {},
-        "text": "Heading 1",
+        "text": "Head",
         "type": "text",
       },
     ],
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "level": 1,
       "textAlignment": "left",
       "textColor": "default",
     },
-    "type": "paragraph",
+    "type": "heading",
   },
   {
     "children": [],
     "content": [
       {
         "styles": {},
-        "text": "Paragraph 5",
+        "text": "ing 1",
         "type": "text",
       },
     ],
-    "id": "paragraph-5",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": undefined,
-    "id": "image-0",
-    "props": {
-      "backgroundColor": "default",
-      "caption": "",
-      "name": "",
-      "previewWidth": 512,
-      "showPreview": true,
-      "textAlignment": "left",
-      "url": "https://via.placeholder.com/150",
-    },
-    "type": "image",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Paragraph 6",
-        "type": "text",
-      },
-    ],
-    "id": "paragraph-6",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": {
-      "rows": [
-        {
-          "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 1",
-                "type": "text",
-              },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 2",
-                "type": "text",
-              },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 3",
-                "type": "text",
-              },
-            ],
-          ],
-        },
-        {
-          "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 4",
-                "type": "text",
-              },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 5",
-                "type": "text",
-              },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 6",
-                "type": "text",
-              },
-            ],
-          ],
-        },
-        {
-          "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 7",
-                "type": "text",
-              },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 8",
-                "type": "text",
-              },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 9",
-                "type": "text",
-              },
-            ],
-          ],
-        },
-      ],
-      "type": "tableContent",
-    },
-    "id": "table-0",
-    "props": {
-      "backgroundColor": "default",
-      "textColor": "default",
-    },
-    "type": "table",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Paragraph 7",
-        "type": "text",
-      },
-    ],
-    "id": "paragraph-7",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-]
-`;
-
-exports[`Test splitBlocks > Keep props 1`] = `
-[
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Paragraph 0",
-        "type": "text",
-      },
-    ],
-    "id": "paragraph-0",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Paragraph 1",
-        "type": "text",
-      },
-    ],
-    "id": "paragraph-1",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [
-      {
-        "children": [
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Double Nested Paragraph 1",
-                "type": "text",
-              },
-            ],
-            "id": "double-nested-paragraph-1",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": [
-          {
-            "styles": {},
-            "text": "Nested Paragraph 1",
-            "type": "text",
-          },
-        ],
-        "id": "nested-paragraph-1",
-        "props": {
-          "backgroundColor": "default",
-          "textAlignment": "left",
-          "textColor": "default",
-        },
-        "type": "paragraph",
-      },
-    ],
-    "content": [
-      {
-        "styles": {},
-        "text": "Paragraph with children",
-        "type": "text",
-      },
-    ],
-    "id": "paragraph-with-children",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Paragraph 2",
-        "type": "text",
-      },
-    ],
-    "id": "paragraph-2",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Paragraph with props",
-        "type": "text",
-      },
-    ],
-    "id": "paragraph-with-props",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "red",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Paragraph 3",
-        "type": "text",
-      },
-    ],
-    "id": "paragraph-3",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {
-          "bold": true,
-        },
-        "text": "Paragraph",
-        "type": "text",
-      },
-      {
-        "styles": {},
-        "text": " with styled ",
-        "type": "text",
-      },
-      {
-        "styles": {
-          "italic": true,
-        },
-        "text": "content",
-        "type": "text",
-      },
-    ],
-    "id": "paragraph-with-styled-content",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Paragraph 4",
-        "type": "text",
-      },
-    ],
-    "id": "paragraph-4",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Heading 1",
-        "type": "text",
-      },
-    ],
-    "id": "heading-0",
+    "id": "0",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -1988,7 +1686,7 @@ exports[`Test splitBlocks > Keep type 1`] = `
     "id": "paragraph-with-props",
     "props": {
       "backgroundColor": "default",
-      "textAlignment": "left",
+      "textAlignment": "center",
       "textColor": "red",
     },
     "type": "paragraph",
@@ -2063,17 +1761,36 @@ exports[`Test splitBlocks > Keep type 1`] = `
     "content": [
       {
         "styles": {},
-        "text": "Heading 1",
+        "text": "Head",
         "type": "text",
       },
     ],
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "level": 1,
       "textAlignment": "left",
       "textColor": "default",
     },
-    "type": "paragraph",
+    "type": "heading",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "ing 1",
+        "type": "text",
+      },
+    ],
+    "id": "0",
+    "props": {
+      "backgroundColor": "default",
+      "level": 1,
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "heading",
   },
   {
     "children": [],

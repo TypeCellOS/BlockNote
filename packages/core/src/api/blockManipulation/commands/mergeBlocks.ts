@@ -65,7 +65,7 @@ export const mergeBlocksCommand =
             startPos,
             new Slice(contentNode.content, 0, 0)
           )
-          .scrollIntoView()
+        // .scrollIntoView()
       );
 
       state.tr.setSelection(

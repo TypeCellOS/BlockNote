@@ -68,7 +68,7 @@ export const splitBlockCommand =
           : undefined
       );
 
-      state.tr.scrollIntoView();
+      // state.tr.scrollIntoView();
     }
 
     return true;
