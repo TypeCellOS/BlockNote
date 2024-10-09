@@ -58,7 +58,7 @@ let blocksWithLineBreaks: PartialBlock<
 >[];
 
 let insert: (
-  placement: "before" | "nested" | "after"
+  placement: "before" | "after"
 ) => Block<
   typeof schema.blockSchema,
   DefaultInlineContentSchema,
@@ -186,12 +186,6 @@ describe("Test strong typing", () => {
 describe("Inserting Blocks with Different Placements", () => {
   it("Insert before existing block", () => {
     const output = insert("before");
-
-    expect(output).toMatchSnapshot();
-  });
-
-  it("Insert nested inside existing block", () => {
-    const output = insert("nested");
 
     expect(output).toMatchSnapshot();
   });

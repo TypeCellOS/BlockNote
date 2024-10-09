@@ -23,7 +23,7 @@ export function insertBlocks<
 >(
   blocksToInsert: PartialBlock<BSchema, I, S>[],
   referenceBlock: BlockIdentifier,
-  placement: "before" | "after" | "nested" = "before",
+  placement: "before" | "after" = "before",
   editor: BlockNoteEditor<BSchema, I, S>
 ): Block<BSchema, I, S>[] {
   const id =
@@ -54,22 +54,6 @@ export function insertBlocks<
         nodesToInsert
       )
     );
-  }
-
-  if (placement === "nested") {
-    // Case if block doesn't already have children.
-    if (node.childCount < 2) {
-      const blockGroupNode = editor._tiptapEditor.state.schema.nodes[
-        "blockGroup"
-      ].create({}, nodesToInsert);
-
-      editor.dispatch(
-        editor._tiptapEditor.state.tr.insert(
-          posBeforeNode + node.firstChild!.nodeSize + 1,
-          blockGroupNode
-        )
-      );
-    }
   }
 
   // Now that the `PartialBlock`s have been converted to nodes, we can

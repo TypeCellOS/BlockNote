@@ -8,11 +8,11 @@ import {
   removeBlocks,
   replaceBlocks,
 } from "../api/blockManipulation/blockManipulation.js";
+import { updateBlock } from "../api/blockManipulation/commands/updateBlock.js";
 import {
   moveBlockDown,
   moveBlockUp,
 } from "../api/blockManipulation/moveBlock.js";
-import { updateBlock } from "../api/blockManipulation/commands/updateBlock.js";
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
 import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos.js";
@@ -884,12 +884,12 @@ export class BlockNoteEditor<
    * @param blocksToInsert An array of partial blocks that should be inserted.
    * @param referenceBlock An identifier for an existing block, at which the new blocks should be inserted.
    * @param placement Whether the blocks should be inserted just before, just after, or nested inside the
-   * `referenceBlock`. Inserts the blocks at the start of the existing block's children if "nested" is used.
+   * `referenceBlock`.
    */
   public insertBlocks(
     blocksToInsert: PartialBlock<BSchema, ISchema, SSchema>[],
     referenceBlock: BlockIdentifier,
-    placement: "before" | "after" | "nested" = "before"
+    placement: "before" | "after" = "before"
   ) {
     return insertBlocks(blocksToInsert, referenceBlock, placement, this);
   }
