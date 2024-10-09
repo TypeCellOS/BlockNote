@@ -55,7 +55,7 @@ export const audioRender = (
 
   const audio = document.createElement("audio");
   audio.className = "bn-audio";
-  editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
+  editor.resolveFileUrl(block.props.url, block.id).then((downloadUrl) => {
     audio.src = downloadUrl;
   });
   audio.controls = true;

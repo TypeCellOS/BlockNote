@@ -27,7 +27,7 @@ export const VideoPreview = (
     )
   );
 
-  const resolved = useResolveUrl(props.block.props.url!);
+  const resolved = useResolveUrl(props.block.props.url!, props.block.id);
 
   if (resolved.loadingState === "loading") {
     return null;
