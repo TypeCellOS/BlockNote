@@ -146,7 +146,7 @@ export const Code = createReactBlockSpec(
         props.editor.updateBlock(props.block, {
           props: {
             ...props.block.props,
-            language: val,
+            data: val,
           },
         });
       };
