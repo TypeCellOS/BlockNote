@@ -345,6 +345,74 @@ exports[`Test mergeBlocks > Basic 1`] = `
     "type": "paragraph",
   },
   {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Double Nested Paragraph 2",
+                "type": "text",
+              },
+            ],
+            "id": "double-nested-paragraph-2",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 2",
+            "type": "text",
+          },
+        ],
+        "id": "nested-paragraph-2",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "Heading",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " with styled ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "italic": true,
+        },
+        "text": "content",
+        "type": "text",
+      },
+    ],
+    "id": "heading-with-everything",
+    "props": {
+      "backgroundColor": "red",
+      "level": 2,
+      "textAlignment": "center",
+      "textColor": "red",
+    },
+    "type": "heading",
+  },
+  {
     "children": [],
     "content": [],
     "id": "trailing-paragraph",
@@ -703,6 +771,74 @@ exports[`Test mergeBlocks > Blocks have different types 1`] = `
     "type": "paragraph",
   },
   {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Double Nested Paragraph 2",
+                "type": "text",
+              },
+            ],
+            "id": "double-nested-paragraph-2",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 2",
+            "type": "text",
+          },
+        ],
+        "id": "nested-paragraph-2",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "Heading",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " with styled ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "italic": true,
+        },
+        "text": "content",
+        "type": "text",
+      },
+    ],
+    "id": "heading-with-everything",
+    "props": {
+      "backgroundColor": "red",
+      "level": 2,
+      "textAlignment": "center",
+      "textColor": "red",
+    },
+    "type": "heading",
+  },
+  {
     "children": [],
     "content": [],
     "id": "trailing-paragraph",
@@ -1059,6 +1195,74 @@ exports[`Test mergeBlocks > First block has children 1`] = `
       "textColor": "default",
     },
     "type": "paragraph",
+  },
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Double Nested Paragraph 2",
+                "type": "text",
+              },
+            ],
+            "id": "double-nested-paragraph-2",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 2",
+            "type": "text",
+          },
+        ],
+        "id": "nested-paragraph-2",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "Heading",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " with styled ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "italic": true,
+        },
+        "text": "content",
+        "type": "text",
+      },
+    ],
+    "id": "heading-with-everything",
+    "props": {
+      "backgroundColor": "red",
+      "level": 2,
+      "textAlignment": "center",
+      "textColor": "red",
+    },
+    "type": "heading",
   },
   {
     "children": [],
@@ -1421,6 +1625,74 @@ exports[`Test mergeBlocks > Inline content & no content 1`] = `
     "type": "paragraph",
   },
   {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Double Nested Paragraph 2",
+                "type": "text",
+              },
+            ],
+            "id": "double-nested-paragraph-2",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 2",
+            "type": "text",
+          },
+        ],
+        "id": "nested-paragraph-2",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "Heading",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " with styled ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "italic": true,
+        },
+        "text": "content",
+        "type": "text",
+      },
+    ],
+    "id": "heading-with-everything",
+    "props": {
+      "backgroundColor": "red",
+      "level": 2,
+      "textAlignment": "center",
+      "textColor": "red",
+    },
+    "type": "heading",
+  },
+  {
     "children": [],
     "content": [],
     "id": "trailing-paragraph",
@@ -1781,6 +2053,74 @@ exports[`Test mergeBlocks > No content & inline content 1`] = `
     "type": "paragraph",
   },
   {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Double Nested Paragraph 2",
+                "type": "text",
+              },
+            ],
+            "id": "double-nested-paragraph-2",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 2",
+            "type": "text",
+          },
+        ],
+        "id": "nested-paragraph-2",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "Heading",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " with styled ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "italic": true,
+        },
+        "text": "content",
+        "type": "text",
+      },
+    ],
+    "id": "heading-with-everything",
+    "props": {
+      "backgroundColor": "red",
+      "level": 2,
+      "textAlignment": "center",
+      "textColor": "red",
+    },
+    "type": "heading",
+  },
+  {
     "children": [],
     "content": [],
     "id": "trailing-paragraph",
@@ -2136,6 +2476,74 @@ exports[`Test mergeBlocks > Second block has children 1`] = `
       "textColor": "default",
     },
     "type": "paragraph",
+  },
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Double Nested Paragraph 2",
+                "type": "text",
+              },
+            ],
+            "id": "double-nested-paragraph-2",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 2",
+            "type": "text",
+          },
+        ],
+        "id": "nested-paragraph-2",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "Heading",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " with styled ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "italic": true,
+        },
+        "text": "content",
+        "type": "text",
+      },
+    ],
+    "id": "heading-with-everything",
+    "props": {
+      "backgroundColor": "red",
+      "level": 2,
+      "textAlignment": "center",
+      "textColor": "red",
+    },
+    "type": "heading",
   },
   {
     "children": [],

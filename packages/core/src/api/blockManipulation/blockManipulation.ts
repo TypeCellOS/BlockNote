@@ -15,7 +15,6 @@ import {
   nodeToBlock,
 } from "../nodeConversions/nodeConversions.js";
 import { getNodeById } from "../nodeUtil.js";
-import { updateBlockCommand } from "./commands/updateBlock.js";
 
 export function insertBlocks<
   BSchema extends BlockSchema,
@@ -89,39 +88,6 @@ export function insertBlocks<
   }
 
   return insertedBlocks;
-}
-
-export function updateBlock<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(
-  blockToUpdate: BlockIdentifier,
-  update: PartialBlock<BSchema, I, S>,
-  editor: BlockNoteEditor<BSchema, I, S>
-): Block<BSchema, I, S> {
-  const ttEditor = editor._tiptapEditor;
-
-  const id =
-    typeof blockToUpdate === "string" ? blockToUpdate : blockToUpdate.id;
-  const { posBeforeNode } = getNodeById(id, ttEditor.state.doc);
-
-  ttEditor.commands.command(({ state, dispatch }) => {
-    updateBlockCommand(editor, posBeforeNode + 1, update)({ state, dispatch });
-    return true;
-  });
-
-  const blockContainerNode = ttEditor.state.doc
-    .resolve(posBeforeNode + 1)
-    .node();
-
-  return nodeToBlock(
-    blockContainerNode,
-    editor.schema.blockSchema,
-    editor.schema.inlineContentSchema,
-    editor.schema.styleSchema,
-    editor.blockCache
-  );
 }
 
 function removeBlocksWithCallback<

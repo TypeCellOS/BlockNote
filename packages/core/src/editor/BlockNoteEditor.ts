@@ -7,12 +7,12 @@ import {
   insertContentAt,
   removeBlocks,
   replaceBlocks,
-  updateBlock,
 } from "../api/blockManipulation/blockManipulation.js";
 import {
   moveBlockDown,
   moveBlockUp,
 } from "../api/blockManipulation/moveBlock.js";
+import { updateBlock } from "../api/blockManipulation/commands/updateBlock.js";
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
 import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos.js";
@@ -905,7 +905,7 @@ export class BlockNoteEditor<
     blockToUpdate: BlockIdentifier,
     update: PartialBlock<BSchema, ISchema, SSchema>
   ) {
-    return updateBlock(blockToUpdate, update, this);
+    return updateBlock(this, blockToUpdate, update);
   }
 
   /**

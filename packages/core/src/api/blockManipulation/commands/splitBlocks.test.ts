@@ -1,26 +1,9 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
-import { testDocument } from "../testDocument.js";
+import { setupTestEnv } from "../setupTestEnv.js";
 import { splitBlockCommand } from "./splitBlock.js";
 
-let editor: BlockNoteEditor;
-const div = document.createElement("div");
-
-beforeAll(() => {
-  editor = BlockNoteEditor.create();
-  editor.mount(div);
-});
-
-afterAll(() => {
-  editor.mount(undefined);
-  editor._tiptapEditor.destroy();
-  editor = undefined as any;
-});
-
-beforeEach(() => {
-  editor.replaceBlocks(editor.document, testDocument);
-});
+const getEditor = setupTestEnv();
 
 function splitBlocks(
   posInBlock: number,
@@ -28,61 +11,61 @@ function splitBlocks(
   keepProps?: boolean
 ) {
   // TODO: Replace with imported function after converting from TipTap command
-  editor._tiptapEditor.commands.command(
+  getEditor()._tiptapEditor.commands.command(
     splitBlockCommand(posInBlock, keepType, keepProps)
   );
 }
 
 function getSelectionAnchorPosWithOffset(offset: number) {
-  return editor._tiptapEditor.state.selection.anchor + offset;
+  return getEditor()._tiptapEditor.state.selection.anchor + offset;
 }
 
 describe("Test splitBlocks", () => {
   it("Basic", () => {
-    editor.setTextCursorPosition("paragraph-0");
+    getEditor().setTextCursorPosition("paragraph-0");
 
     splitBlocks(getSelectionAnchorPosWithOffset(4));
 
-    expect(editor.document).toMatchSnapshot();
+    expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Block has children", () => {
-    editor.setTextCursorPosition("paragraph-with-children");
+    getEditor().setTextCursorPosition("paragraph-with-children");
 
     splitBlocks(getSelectionAnchorPosWithOffset(4));
 
-    expect(editor.document).toMatchSnapshot();
+    expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Keep type", () => {
-    editor.setTextCursorPosition("heading-0");
+    getEditor().setTextCursorPosition("heading-0");
 
     splitBlocks(getSelectionAnchorPosWithOffset(4), true);
 
-    expect(editor.document).toMatchSnapshot();
+    expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Don't keep type", () => {
-    editor.setTextCursorPosition("heading-0");
+    getEditor().setTextCursorPosition("heading-0");
 
     splitBlocks(getSelectionAnchorPosWithOffset(4));
 
-    expect(editor.document).toMatchSnapshot();
+    expect(getEditor().document).toMatchSnapshot();
   });
 
   it.skip("Keep props", () => {
-    editor.setTextCursorPosition("paragraph-with-props");
+    getEditor().setTextCursorPosition("paragraph-with-props");
 
-    splitBlocks(getSelectionAnchorPosWithOffset(4), true, true);
+    splitBlocks(getSelectionAnchorPosWithOffset(4), false, true);
 
-    expect(editor.document).toMatchSnapshot();
+    expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Don't keep props", () => {
-    editor.setTextCursorPosition("paragraph-with-props");
+    getEditor().setTextCursorPosition("paragraph-with-props");
 
     splitBlocks(getSelectionAnchorPosWithOffset(4));
 
-    expect(editor.document).toMatchSnapshot();
+    expect(getEditor().document).toMatchSnapshot();
   });
 });

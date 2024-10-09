@@ -1,9 +1,9 @@
 import { Fragment, Node as PMNode, Slice } from "prosemirror-model";
 import { EditorState, NodeSelection, TextSelection } from "prosemirror-state";
 
-import { PartialBlock } from "../../../blocks/defaultBlocks.js";
+import { Block, PartialBlock } from "../../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
-import { BlockSchema } from "../../../schema/blocks/types.js";
+import { BlockIdentifier, BlockSchema } from "../../../schema/blocks/types.js";
 import { InlineContentSchema } from "../../../schema/inlineContent/types.js";
 import { StyleSchema } from "../../../schema/styles/types.js";
 import { UnreachableCaseError } from "../../../util/typescript.js";
@@ -11,8 +11,10 @@ import { getBlockInfoFromPos } from "../../getBlockInfoFromPos.js";
 import {
   blockToNode,
   inlineContentToNodes,
+  nodeToBlock,
   tableContentToNodes,
 } from "../../nodeConversions/nodeConversions.js";
+import { getNodeById } from "../../nodeUtil.js";
 
 export const updateBlockCommand =
   <
@@ -177,3 +179,36 @@ export const updateBlockCommand =
 
     return true;
   };
+
+export function updateBlock<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  editor: BlockNoteEditor<BSchema, I, S>,
+  blockToUpdate: BlockIdentifier,
+  update: PartialBlock<BSchema, I, S>
+): Block<BSchema, I, S> {
+  const ttEditor = editor._tiptapEditor;
+
+  const id =
+    typeof blockToUpdate === "string" ? blockToUpdate : blockToUpdate.id;
+  const { posBeforeNode } = getNodeById(id, ttEditor.state.doc);
+
+  ttEditor.commands.command(({ state, dispatch }) => {
+    updateBlockCommand(editor, posBeforeNode + 1, update)({ state, dispatch });
+    return true;
+  });
+
+  const blockContainerNode = ttEditor.state.doc
+    .resolve(posBeforeNode + 1)
+    .node();
+
+  return nodeToBlock(
+    blockContainerNode,
+    editor.schema.blockSchema,
+    editor.schema.inlineContentSchema,
+    editor.schema.styleSchema,
+    editor.blockCache
+  );
+}

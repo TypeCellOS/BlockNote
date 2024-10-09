@@ -379,6 +379,74 @@ exports[`Test splitBlocks > Basic 1`] = `
     "type": "paragraph",
   },
   {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Double Nested Paragraph 2",
+                "type": "text",
+              },
+            ],
+            "id": "double-nested-paragraph-2",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 2",
+            "type": "text",
+          },
+        ],
+        "id": "nested-paragraph-2",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "Heading",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " with styled ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "italic": true,
+        },
+        "text": "content",
+        "type": "text",
+      },
+    ],
+    "id": "heading-with-everything",
+    "props": {
+      "backgroundColor": "red",
+      "level": 2,
+      "textAlignment": "center",
+      "textColor": "red",
+    },
+    "type": "heading",
+  },
+  {
     "children": [],
     "content": [],
     "id": "trailing-paragraph",
@@ -769,6 +837,74 @@ exports[`Test splitBlocks > Block has children 1`] = `
       "textColor": "default",
     },
     "type": "paragraph",
+  },
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Double Nested Paragraph 2",
+                "type": "text",
+              },
+            ],
+            "id": "double-nested-paragraph-2",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 2",
+            "type": "text",
+          },
+        ],
+        "id": "nested-paragraph-2",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "Heading",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " with styled ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "italic": true,
+        },
+        "text": "content",
+        "type": "text",
+      },
+    ],
+    "id": "heading-with-everything",
+    "props": {
+      "backgroundColor": "red",
+      "level": 2,
+      "textAlignment": "center",
+      "textColor": "red",
+    },
+    "type": "heading",
   },
   {
     "children": [],
@@ -1163,6 +1299,74 @@ exports[`Test splitBlocks > Don't keep props 1`] = `
     "type": "paragraph",
   },
   {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Double Nested Paragraph 2",
+                "type": "text",
+              },
+            ],
+            "id": "double-nested-paragraph-2",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 2",
+            "type": "text",
+          },
+        ],
+        "id": "nested-paragraph-2",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "Heading",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " with styled ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "italic": true,
+        },
+        "text": "content",
+        "type": "text",
+      },
+    ],
+    "id": "heading-with-everything",
+    "props": {
+      "backgroundColor": "red",
+      "level": 2,
+      "textAlignment": "center",
+      "textColor": "red",
+    },
+    "type": "heading",
+  },
+  {
     "children": [],
     "content": [],
     "id": "trailing-paragraph",
@@ -1553,6 +1757,74 @@ exports[`Test splitBlocks > Don't keep type 1`] = `
       "textColor": "default",
     },
     "type": "paragraph",
+  },
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Double Nested Paragraph 2",
+                "type": "text",
+              },
+            ],
+            "id": "double-nested-paragraph-2",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 2",
+            "type": "text",
+          },
+        ],
+        "id": "nested-paragraph-2",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "Heading",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " with styled ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "italic": true,
+        },
+        "text": "content",
+        "type": "text",
+      },
+    ],
+    "id": "heading-with-everything",
+    "props": {
+      "backgroundColor": "red",
+      "level": 2,
+      "textAlignment": "center",
+      "textColor": "red",
+    },
+    "type": "heading",
   },
   {
     "children": [],
@@ -1946,6 +2218,74 @@ exports[`Test splitBlocks > Keep type 1`] = `
       "textColor": "default",
     },
     "type": "paragraph",
+  },
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Double Nested Paragraph 2",
+                "type": "text",
+              },
+            ],
+            "id": "double-nested-paragraph-2",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 2",
+            "type": "text",
+          },
+        ],
+        "id": "nested-paragraph-2",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "Heading",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " with styled ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "italic": true,
+        },
+        "text": "content",
+        "type": "text",
+      },
+    ],
+    "id": "heading-with-everything",
+    "props": {
+      "backgroundColor": "red",
+      "level": 2,
+      "textAlignment": "center",
+      "textColor": "red",
+    },
+    "type": "heading",
   },
   {
     "children": [],

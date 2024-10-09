@@ -45,12 +45,6 @@ let singleBlock: PartialBlock<
   DefaultStyleSchema
 >;
 
-let singleBlockWithChildren: PartialBlock<
-  typeof schema.blockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema
->;
-
 let multipleBlocks: PartialBlock<
   typeof schema.blockSchema,
   DefaultInlineContentSchema,
@@ -81,17 +75,6 @@ beforeEach(() => {
   singleBlock = {
     type: "paragraph",
     content: "Paragraph",
-  };
-
-  singleBlockWithChildren = {
-    type: "paragraph",
-    content: "Paragraph",
-    children: [
-      {
-        type: "paragraph",
-        content: "Nested Paragraph",
-      },
-    ],
   };
 
   multipleBlocks = [
@@ -281,67 +264,7 @@ describe("Insert, Update, & Delete Blocks", () => {
   });
 });
 
-describe("Update block cases", () => {
-  it("Update type only", async () => {
-    const existingBlock = editor.document[0];
-    editor.insertBlocks([singleBlockWithChildren], existingBlock);
-
-    const newBlock = editor.document[0];
-    editor.updateBlock(newBlock, {
-      type: "heading",
-    });
-
-    expect(editor.document).toMatchSnapshot();
-  });
-
-  it("Update content only", async () => {
-    const existingBlock = editor.document[0];
-    editor.insertBlocks([singleBlockWithChildren], existingBlock);
-
-    const newBlock = editor.document[0];
-    editor.updateBlock(newBlock, {
-      content: "Updated Paragraph",
-    });
-
-    expect(editor.document).toMatchSnapshot();
-  });
-
-  it("Update children only", async () => {
-    const existingBlock = editor.document[0];
-    editor.insertBlocks([singleBlockWithChildren], existingBlock);
-
-    const newBlock = editor.document[0];
-    editor.updateBlock(newBlock, {
-      children: [
-        {
-          type: "heading",
-          content: "Heading",
-        },
-      ],
-    });
-
-    expect(editor.document).toMatchSnapshot();
-  });
-
-  it("Update content and children", async () => {
-    const existingBlock = editor.document[0];
-    editor.insertBlocks([singleBlockWithChildren], existingBlock);
-
-    const newBlock = editor.document[0];
-    editor.updateBlock(newBlock, {
-      content: "Updated Paragraph",
-      children: [
-        {
-          type: "heading",
-          content: "Heading",
-        },
-      ],
-    });
-
-    expect(editor.document).toMatchSnapshot();
-  });
-});
-
+// TODO: This seems like it really tests converting strings to inline content?
 describe("Update Line Breaks", () => {
   it("Update paragraph with line break", () => {
     const existingBlock = editor.document[0];

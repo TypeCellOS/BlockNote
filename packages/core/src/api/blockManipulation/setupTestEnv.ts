@@ -1,6 +1,31 @@
-import { PartialBlock } from "../../blocks/defaultBlocks.js";
+import { afterAll, beforeAll, beforeEach } from "vitest";
 
-export const testDocument: PartialBlock[] = [
+import { PartialBlock } from "../../blocks/defaultBlocks.js";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+
+export function setupTestEnv() {
+  let editor: BlockNoteEditor;
+  const div = document.createElement("div");
+
+  beforeAll(() => {
+    editor = BlockNoteEditor.create();
+    editor.mount(div);
+  });
+
+  afterAll(() => {
+    editor.mount(undefined);
+    editor._tiptapEditor.destroy();
+    editor = undefined as any;
+  });
+
+  beforeEach(() => {
+    editor.replaceBlocks(editor.document, testDocument);
+  });
+
+  return () => editor;
+}
+
+const testDocument: PartialBlock[] = [
   {
     id: "paragraph-0",
     type: "paragraph",
@@ -107,6 +132,35 @@ export const testDocument: PartialBlock[] = [
     id: "paragraph-7",
     type: "paragraph",
     content: "Paragraph 7",
+  },
+  {
+    id: "heading-with-everything",
+    type: "heading",
+    props: {
+      backgroundColor: "red",
+      level: 2,
+      textAlignment: "center",
+      textColor: "red",
+    },
+    content: [
+      { type: "text", text: "Heading", styles: { bold: true } },
+      { type: "text", text: " with styled ", styles: {} },
+      { type: "text", text: "content", styles: { italic: true } },
+    ],
+    children: [
+      {
+        id: "nested-paragraph-2",
+        type: "paragraph",
+        content: "Nested Paragraph 2",
+        children: [
+          {
+            id: "double-nested-paragraph-2",
+            type: "paragraph",
+            content: "Double Nested Paragraph 2",
+          },
+        ],
+      },
+    ],
   },
   {
     id: "trailing-paragraph",
