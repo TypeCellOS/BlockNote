@@ -139,7 +139,7 @@ export async function handleFileInsertion<
 
         insertedBlockId = editor.insertBlocks(
           [fileBlock],
-          blockInfo.id,
+          blockInfo.blockContainer.node.attrs.id,
           "after"
         )[0].id;
       } else {

@@ -1,5 +1,5 @@
 import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { getCurrentBlockContentType } from "../../api/getCurrentBlockContentType.js";
+import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos.js";
 import {
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
@@ -19,7 +19,12 @@ export const ParagraphBlockContent = createStronglyTypedTiptapNode({
   addKeyboardShortcuts() {
     return {
       "Mod-Alt-0": () => {
-        if (getCurrentBlockContentType(this.editor) !== "inline*") {
+        if (
+          getBlockInfoFromPos(
+            this.editor.state.doc,
+            this.editor.state.selection.anchor
+          ).blockContent.node.type.spec.content !== "inline*"
+        ) {
           return true;
         }
 

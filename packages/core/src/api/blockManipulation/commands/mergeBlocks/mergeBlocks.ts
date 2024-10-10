@@ -23,22 +23,22 @@ export const mergeBlocksCommand =
       return false;
     }
 
-    const nextBlockInfo = getBlockInfoFromPos(state.doc, posBetweenBlocks + 1);
-
-    const { node, contentNode, startPos, endPos, depth } = nextBlockInfo!;
+    const nextBlockInfo = getBlockInfoFromPos(state.doc, posBetweenBlocks);
 
     // Removes a level of nesting all children of the next block by 1 level, if it contains both content and block
     // group nodes.
-    if (node.childCount === 2) {
+    if (nextBlockInfo.blockGroup) {
       const childBlocksStart = state.doc.resolve(
-        startPos + contentNode.nodeSize + 1
+        nextBlockInfo.blockGroup.beforePos + 1
       );
-      const childBlocksEnd = state.doc.resolve(endPos - 1);
+      const childBlocksEnd = state.doc.resolve(
+        nextBlockInfo.blockGroup.afterPos - 1
+      );
       const childBlocksRange = childBlocksStart.blockRange(childBlocksEnd);
 
       // Moves the block group node inside the block into the block group node that the current block is in.
       if (dispatch) {
-        state.tr.lift(childBlocksRange!, depth - 1);
+        state.tr.lift(childBlocksRange!, nextBlockInfo.depth);
       }
     }
 
@@ -46,7 +46,7 @@ export const mergeBlocksCommand =
     let prevBlockInfo = getBlockInfoFromPos(state.doc, prevBlockEndPos);
 
     // Finds the nearest previous block, regardless of nesting level.
-    while (prevBlockInfo!.numChildBlocks > 0) {
+    while (prevBlockInfo.blockGroup) {
       prevBlockEndPos--;
       prevBlockInfo = getBlockInfoFromPos(state.doc, prevBlockEndPos);
       if (prevBlockInfo === undefined) {
@@ -59,11 +59,14 @@ export const mergeBlocksCommand =
     if (dispatch) {
       dispatch(
         state.tr
-          .deleteRange(startPos, startPos + contentNode.nodeSize)
+          .deleteRange(
+            nextBlockInfo.blockContent.beforePos,
+            nextBlockInfo.blockContent.afterPos
+          )
           .replace(
             prevBlockEndPos - 1,
-            startPos,
-            new Slice(contentNode.content, 0, 0)
+            nextBlockInfo.blockContent.beforePos,
+            new Slice(nextBlockInfo.blockContent.node.content, 0, 0)
           )
         // .scrollIntoView()
       );

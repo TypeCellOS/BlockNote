@@ -663,52 +663,39 @@ export class BlockNoteEditor<
     ISchema,
     SSchema
   > {
-    const { node, depth, startPos, endPos } = getBlockInfoFromPos(
+    const { depth, blockContainer } = getBlockInfoFromPos(
       this._tiptapEditor.state.doc,
       this._tiptapEditor.state.selection.from
     )!;
 
-    // Index of the current blockContainer node relative to its parent blockGroup.
-    const nodeIndex = this._tiptapEditor.state.doc
-      .resolve(endPos)
-      .index(depth - 1);
-    // Number of the parent blockGroup's child blockContainer nodes.
-    const numNodes = this._tiptapEditor.state.doc
-      .resolve(endPos + 1)
-      .node().childCount;
-    // Depth of the blockContainer node.
-    const nodeDepth = this._tiptapEditor.state.doc.resolve(startPos).depth;
-
     // Gets previous blockContainer node at the same nesting level, if the current node isn't the first child.
-    let prevNode: Node | undefined = undefined;
-    if (nodeIndex > 0) {
-      prevNode = this._tiptapEditor.state.doc.resolve(startPos - 2).node();
-    }
+    const prevNode = this._tiptapEditor.state.doc.resolve(
+      blockContainer.beforePos
+    ).nodeBefore;
 
     // Gets next blockContainer node at the same nesting level, if the current node isn't the last child.
-    let nextNode: Node | undefined = undefined;
-    if (nodeIndex < numNodes - 1) {
-      nextNode = this._tiptapEditor.state.doc.resolve(endPos + 2).node();
-    }
+    const nextNode = this._tiptapEditor.state.doc.resolve(
+      blockContainer.afterPos
+    ).nodeAfter;
 
     // Gets parent blockContainer node, if the current node is nested.
     let parentNode: Node | undefined = undefined;
-    if (nodeDepth > 2) {
+    if (depth > 1) {
       parentNode = this._tiptapEditor.state.doc
-        .resolve(startPos - 1)
-        .node(nodeDepth - 2);
+        .resolve(blockContainer.beforePos)
+        .node(depth - 1);
     }
 
     return {
       block: nodeToBlock(
-        node,
+        blockContainer.node,
         this.schema.blockSchema,
         this.schema.inlineContentSchema,
         this.schema.styleSchema,
         this.blockCache
       ),
       prevBlock:
-        prevNode === undefined
+        prevNode === null
           ? undefined
           : nodeToBlock(
               prevNode,
@@ -718,7 +705,7 @@ export class BlockNoteEditor<
               this.blockCache
             ),
       nextBlock:
-        nextNode === undefined
+        nextNode === null
           ? undefined
           : nodeToBlock(
               nextNode,
@@ -753,37 +740,37 @@ export class BlockNoteEditor<
     const id = typeof targetBlock === "string" ? targetBlock : targetBlock.id;
 
     const { posBeforeNode } = getNodeById(id, this._tiptapEditor.state.doc);
-    const { startPos, contentNode } = getBlockInfoFromPos(
+    const { blockContent } = getBlockInfoFromPos(
       this._tiptapEditor.state.doc,
       posBeforeNode + 2
     )!;
 
     const contentType: "none" | "inline" | "table" =
-      this.schema.blockSchema[contentNode.type.name]!.content;
+      this.schema.blockSchema[blockContent.node.type.name]!.content;
 
     if (contentType === "none") {
-      this._tiptapEditor.commands.setNodeSelection(startPos);
+      this._tiptapEditor.commands.setNodeSelection(blockContent.beforePos);
       return;
     }
 
     if (contentType === "inline") {
       if (placement === "start") {
-        this._tiptapEditor.commands.setTextSelection(startPos + 1);
-      } else {
         this._tiptapEditor.commands.setTextSelection(
-          startPos + contentNode.nodeSize - 1
+          blockContent.beforePos + 1
         );
+      } else {
+        this._tiptapEditor.commands.setTextSelection(blockContent.afterPos - 1);
       }
     } else if (contentType === "table") {
       if (placement === "start") {
         // Need to offset the position as we have to get through the `tableRow`
         // and `tableCell` nodes to get to the `tableParagraph` node we want to
         // set the selection in.
-        this._tiptapEditor.commands.setTextSelection(startPos + 4);
-      } else {
         this._tiptapEditor.commands.setTextSelection(
-          startPos + contentNode.nodeSize - 4
+          blockContent.beforePos + 4
         );
+      } else {
+        this._tiptapEditor.commands.setTextSelection(blockContent.afterPos - 4);
       }
     } else {
       throw new UnreachableCaseError(contentType);
@@ -1073,12 +1060,15 @@ export class BlockNoteEditor<
    * Checks if the block containing the text cursor can be nested.
    */
   public canNestBlock() {
-    const { startPos, depth } = getBlockInfoFromPos(
+    const { blockContainer } = getBlockInfoFromPos(
       this._tiptapEditor.state.doc,
       this._tiptapEditor.state.selection.from
     )!;
 
-    return this._tiptapEditor.state.doc.resolve(startPos).index(depth - 1) > 0;
+    return (
+      this._tiptapEditor.state.doc.resolve(blockContainer.beforePos)
+        .nodeBefore !== null
+    );
   }
 
   /**
@@ -1097,7 +1087,7 @@ export class BlockNoteEditor<
       this._tiptapEditor.state.selection.from
     )!;
 
-    return depth > 2;
+    return depth > 1;
   }
 
   /**

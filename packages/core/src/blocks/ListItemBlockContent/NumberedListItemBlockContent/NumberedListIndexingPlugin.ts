@@ -23,15 +23,18 @@ export const NumberedListIndexingPlugin = () => {
           let newIndex = "1";
           const isFirstBlockInDoc = pos === 1;
 
-          const blockInfo = getBlockInfoFromPos(tr.doc, pos + 1)!;
-          if (blockInfo === undefined) {
-            return;
-          }
+          const blockInfo = getBlockInfoFromPos(tr.doc, pos)!;
 
           // Checks if this block is the start of a new ordered list, i.e. if it's the first block in the document, the
           // first block in its nesting level, or the previous block is not an ordered list item.
           if (!isFirstBlockInDoc) {
-            const prevBlockInfo = getBlockInfoFromPos(tr.doc, pos - 2)!;
+            const prevBlock = tr.doc.resolve(
+              blockInfo.blockContainer.beforePos - 1
+            ).nodeBefore!;
+            const prevBlockInfo = getBlockInfoFromPos(
+              tr.doc,
+              blockInfo.blockContainer.beforePos - prevBlock.nodeSize
+            )!;
             if (prevBlockInfo === undefined) {
               return;
             }
@@ -40,8 +43,8 @@ export const NumberedListIndexingPlugin = () => {
               blockInfo.depth !== prevBlockInfo.depth;
 
             if (!isFirstBlockInNestingLevel) {
-              const prevBlockContentNode = prevBlockInfo.contentNode;
-              const prevBlockContentType = prevBlockInfo.contentType;
+              const prevBlockContentNode = prevBlockInfo.blockContent.node;
+              const prevBlockContentType = prevBlockContentNode.type;
 
               const isPrevBlockOrderedListItem =
                 prevBlockContentType.name === "numberedListItem";
@@ -54,13 +57,13 @@ export const NumberedListIndexingPlugin = () => {
             }
           }
 
-          const contentNode = blockInfo.contentNode;
+          const contentNode = blockInfo.blockContent.node;
           const index = contentNode.attrs["index"];
 
           if (index !== newIndex) {
             modified = true;
 
-            tr.setNodeMarkup(pos + 1, undefined, {
+            tr.setNodeMarkup(blockInfo.blockContent.beforePos, undefined, {
               index: newIndex,
             });
           }

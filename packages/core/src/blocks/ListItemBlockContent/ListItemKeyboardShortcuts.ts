@@ -5,7 +5,7 @@ import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 export const handleEnter = (editor: BlockNoteEditor<any, any, any>) => {
   const ttEditor = editor._tiptapEditor;
-  const { contentNode, contentType } = getBlockInfoFromPos(
+  const { blockContent } = getBlockInfoFromPos(
     ttEditor.state.doc,
     ttEditor.state.selection.from
   )!;
@@ -15,9 +15,9 @@ export const handleEnter = (editor: BlockNoteEditor<any, any, any>) => {
 
   if (
     !(
-      contentType.name === "bulletListItem" ||
-      contentType.name === "numberedListItem" ||
-      contentType.name === "checkListItem"
+      blockContent.node.type.name === "bulletListItem" ||
+      blockContent.node.type.name === "numberedListItem" ||
+      blockContent.node.type.name === "checkListItem"
     ) ||
     !selectionEmpty
   ) {
@@ -28,7 +28,7 @@ export const handleEnter = (editor: BlockNoteEditor<any, any, any>) => {
     () =>
       // Changes list item block to a paragraph block if the content is empty.
       commands.command(() => {
-        if (contentNode.childCount === 0) {
+        if (blockContent.node.childCount === 0) {
           return commands.command(
             updateBlockCommand(editor, state.selection.from, {
               type: "paragraph",
@@ -44,7 +44,7 @@ export const handleEnter = (editor: BlockNoteEditor<any, any, any>) => {
       // Splits the current block, moving content inside that's after the cursor
       // to a new block of the same type below.
       commands.command(() => {
-        if (contentNode.childCount > 0) {
+        if (blockContent.node.childCount > 0) {
           chain()
             .deleteSelection()
             .command(splitBlockCommand(state.selection.from, true))

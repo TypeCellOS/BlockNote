@@ -13,7 +13,7 @@ import { setupTestEnv } from "../../setupTestEnv.js";
 const getEditor = setupTestEnv();
 
 function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
-  const { startPos, contentNode } = getBlockInfoFromPos(
+  const { blockContent } = getBlockInfoFromPos(
     getEditor()._tiptapEditor.state.doc,
     getEditor()._tiptapEditor.state.selection.from
   );
@@ -24,19 +24,18 @@ function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
         CellSelection.create(
           getEditor()._tiptapEditor.state.doc,
           getEditor()
-            ._tiptapEditor.state.doc.resolve(startPos + 3)
+            ._tiptapEditor.state.doc.resolve(blockContent.beforePos + 3)
             .before(),
           getEditor()
-            ._tiptapEditor.state.doc.resolve(
-              startPos + contentNode.nodeSize - 3
-            )
+            ._tiptapEditor.state.doc.resolve(blockContent.afterPos - 3)
             .before()
         )
       )
     );
   } else if (selectionType === "node") {
-    const resolvedContentStartPos =
-      getEditor()._tiptapEditor.state.doc.resolve(startPos);
+    const resolvedContentStartPos = getEditor()._tiptapEditor.state.doc.resolve(
+      blockContent.beforePos
+    );
 
     getEditor()._tiptapEditor.view.dispatch(
       getEditor()._tiptapEditor.state.tr.setSelection(
@@ -51,10 +50,11 @@ function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
       )
     );
   } else {
-    const resolvedContentStartPos =
-      getEditor()._tiptapEditor.state.doc.resolve(startPos);
+    const resolvedContentStartPos = getEditor()._tiptapEditor.state.doc.resolve(
+      blockContent.beforePos
+    );
     const resolvedContentEndPos = getEditor()._tiptapEditor.state.doc.resolve(
-      startPos + contentNode.nodeSize
+      blockContent.afterPos
     );
 
     getEditor()._tiptapEditor.view.dispatch(

@@ -1,39 +1,17 @@
-import { Node, NodeType } from "prosemirror-model";
+import { Node } from "prosemirror-model";
 
-export type BlockInfoWithoutPositions = {
-  id: string;
+type SingleBlockInfo = {
   node: Node;
-  contentNode: Node;
-  contentType: NodeType;
-  numChildBlocks: number;
+  beforePos: number;
+  afterPos: number;
 };
 
-export type BlockInfo = BlockInfoWithoutPositions & {
-  startPos: number;
-  endPos: number;
+export type BlockInfo = {
   depth: number;
+  blockContainer: SingleBlockInfo;
+  blockContent: SingleBlockInfo;
+  blockGroup?: SingleBlockInfo;
 };
-
-/**
- * Helper function for `getBlockInfoFromPos`, returns information regarding
- * provided blockContainer node.
- * @param blockContainer The blockContainer node to retrieve info for.
- */
-export function getBlockInfo(blockContainer: Node): BlockInfoWithoutPositions {
-  const id = blockContainer.attrs["id"];
-  const contentNode = blockContainer.firstChild!;
-  const contentType = contentNode.type;
-  const numChildBlocks =
-    blockContainer.childCount === 2 ? blockContainer.lastChild!.childCount : 0;
-
-  return {
-    id,
-    node: blockContainer,
-    contentNode,
-    contentType,
-    numChildBlocks,
-  };
-}
 
 /**
  * Retrieves the position just before the nearest blockContainer node in a
@@ -50,6 +28,12 @@ export function getBlockInfo(blockContainer: Node): BlockInfoWithoutPositions {
 export function getNearestBlockContainerPos(doc: Node, pos: number) {
   const $pos = doc.resolve(pos);
 
+  // Checks if the position provided is already just before a blockContainer
+  // node, in which case we return the position.
+  if ($pos.nodeAfter && $pos.nodeAfter.type.name === "blockContainer") {
+    return $pos.pos;
+  }
+
   // Checks the node containing the position and its ancestors until a
   // blockContainer node is found and returned.
   let depth = $pos.depth;
@@ -63,12 +47,14 @@ export function getNearestBlockContainerPos(doc: Node, pos: number) {
     node = $pos.node(depth);
   }
 
+  // TODO: Make more specific & log warn
   // If the position doesn't lie within a blockContainer node, we instead find
   // the position of the next closest one. If the position is beyond the last
   // blockContainer, we return the position of the last blockContainer. While
   // running `doc.descendants` is expensive, this case should be very rarely
-  // triggered as almost every position will be within a blockContainer,
-  // according to the schema.
+  // triggered. However, it's possible for the position to sometimes be beyond
+  // the last blockContainer node. This is a problem specifically when using the
+  // collaboration plugin.
   const allBlockContainerPositions: number[] = [];
   doc.descendants((node, pos) => {
     if (node.type.name === "blockContainer") {
@@ -76,10 +62,83 @@ export function getNearestBlockContainerPos(doc: Node, pos: number) {
     }
   });
 
+  // eslint-disable-next-line no-console
+  console.warn(`Position ${pos} is not within a blockContainer node.`);
+
   return (
     allBlockContainerPositions.find((position) => position >= pos) ||
     allBlockContainerPositions[allBlockContainerPositions.length - 1]
   );
+}
+
+export function getBlockInfo(
+  node: Node,
+  beforePos?: number
+): Omit<BlockInfo, "depth"> {
+  const blockContainerNode = node;
+  const blockContainerBeforePos = beforePos || 0;
+  const blockContainerAfterPos =
+    blockContainerBeforePos + blockContainerNode.nodeSize;
+
+  const blockContainer: SingleBlockInfo = {
+    node: blockContainerNode,
+    beforePos: blockContainerBeforePos,
+    afterPos: blockContainerAfterPos,
+  };
+  let blockContent: SingleBlockInfo | undefined = undefined;
+  let blockGroup: SingleBlockInfo | undefined = undefined;
+
+  blockContainerNode.forEach((node, offset) => {
+    if (node.type.spec.group === "blockContent") {
+      // console.log(beforePos, offset);
+      const blockContentNode = node;
+      const blockContentBeforePos = blockContainerBeforePos + offset + 1;
+      const blockContentAfterPos = blockContentBeforePos + node.nodeSize;
+
+      blockContent = {
+        node: blockContentNode,
+        beforePos: blockContentBeforePos,
+        afterPos: blockContentAfterPos,
+      };
+    } else if (node.type.name === "blockGroup") {
+      const blockGroupNode = node;
+      const blockGroupBeforePos = blockContainerBeforePos + offset + 1;
+      const blockGroupAfterPos = blockGroupBeforePos + node.nodeSize;
+
+      blockGroup = {
+        node: blockGroupNode,
+        beforePos: blockGroupBeforePos,
+        afterPos: blockGroupAfterPos,
+      };
+    }
+  });
+
+  if (!blockContent) {
+    throw new Error(
+      `blockContainer node does not contain a blockContent node in its children: ${blockContainerNode}`
+    );
+  }
+
+  // TODO: Remove
+  if (
+    blockGroup &&
+    (blockContent as SingleBlockInfo).afterPos !==
+      (blockGroup as SingleBlockInfo).beforePos
+  ) {
+    throw new Error(
+      `blockContent.afterPos (${
+        (blockContent as SingleBlockInfo).afterPos
+      }) does not match blockGroup.beforePos (${
+        (blockGroup as SingleBlockInfo | undefined)?.beforePos
+      })`
+    );
+  }
+
+  return {
+    blockContainer,
+    blockContent,
+    blockGroup,
+  };
 }
 
 /**
@@ -91,25 +150,19 @@ export function getNearestBlockContainerPos(doc: Node, pos: number) {
  */
 export function getBlockInfoFromPos(doc: Node, pos: number): BlockInfo {
   const $pos = doc.resolve(getNearestBlockContainerPos(doc, pos));
-  const node = $pos.nodeAfter!;
+  const depth = $pos.depth;
 
-  const { id, contentNode, contentType, numChildBlocks } = getBlockInfo(node);
+  const node = $pos.nodeAfter;
+  const beforePos = $pos.pos;
 
-  const posInsideBlockContainer = $pos.pos + 1;
-  const $posInsideBlockContainer = doc.resolve(posInsideBlockContainer);
-  const depth = $posInsideBlockContainer.depth;
-
-  const startPos = $posInsideBlockContainer.start(depth);
-  const endPos = $posInsideBlockContainer.end(depth);
+  if (node === null || node.type.name !== "blockContainer") {
+    throw new Error(
+      `No blockContainer node found near position ${pos}. getNearestBlockContainerPos returned ${beforePos}.`
+    );
+  }
 
   return {
-    id,
-    node,
-    contentNode,
-    contentType,
-    numChildBlocks,
-    startPos,
-    endPos,
     depth,
+    ...getBlockInfo(node, beforePos),
   };
 }

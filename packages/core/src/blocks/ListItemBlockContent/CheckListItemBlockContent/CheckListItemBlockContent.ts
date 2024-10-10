@@ -1,6 +1,6 @@
 import { InputRule } from "@tiptap/core";
 import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { getCurrentBlockContentType } from "../../../api/getCurrentBlockContentType.js";
+import { getBlockInfoFromPos } from "../../../api/getBlockInfoFromPos.js";
 import {
   PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
@@ -45,7 +45,12 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
       new InputRule({
         find: new RegExp(`\\[\\s*\\]\\s$`),
         handler: ({ state, chain, range }) => {
-          if (getCurrentBlockContentType(this.editor) !== "inline*") {
+          if (
+            getBlockInfoFromPos(
+              this.editor.state.doc,
+              this.editor.state.selection.anchor
+            ).blockContent.node.type.spec.content !== "inline*"
+          ) {
             return;
           }
 
@@ -65,7 +70,12 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
       new InputRule({
         find: new RegExp(`\\[[Xx]\\]\\s$`),
         handler: ({ state, chain, range }) => {
-          if (getCurrentBlockContentType(this.editor) !== "inline*") {
+          if (
+            getBlockInfoFromPos(
+              this.editor.state.doc,
+              this.editor.state.selection.anchor
+            ).blockContent.node.type.spec.content !== "inline*"
+          ) {
             return;
           }
 
@@ -89,7 +99,12 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
     return {
       Enter: () => handleEnter(this.options.editor),
       "Mod-Shift-9": () => {
-        if (getCurrentBlockContentType(this.editor) !== "inline*") {
+        if (
+          getBlockInfoFromPos(
+            this.editor.state.doc,
+            this.editor.state.selection.anchor
+          ).blockContent.node.type.spec.content !== "inline*"
+        ) {
           return true;
         }
 

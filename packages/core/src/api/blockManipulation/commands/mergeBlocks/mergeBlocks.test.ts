@@ -14,11 +14,10 @@ function mergeBlocks(posBetweenBlocks: number) {
 }
 
 function getPosAfterSelectedBlock() {
-  const { startPos } = getBlockInfoFromPos(
+  return getBlockInfoFromPos(
     getEditor()._tiptapEditor.state.doc,
     getEditor()._tiptapEditor.state.selection.from
-  );
-  return getEditor()._tiptapEditor.state.doc.resolve(startPos).after();
+  ).blockContainer.afterPos;
 }
 
 describe("Test mergeBlocks", () => {

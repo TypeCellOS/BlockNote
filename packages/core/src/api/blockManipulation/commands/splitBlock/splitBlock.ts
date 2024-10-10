@@ -17,14 +17,20 @@ export const splitBlockCommand =
       return false;
     }
 
-    const { contentNode, contentType, startPos, endPos, depth } = blockInfo;
+    const { depth, blockContainer, blockContent } = blockInfo;
 
-    const originalBlockContent = state.doc.cut(startPos + 1, posInBlock);
-    const newBlockContent = state.doc.cut(posInBlock, endPos - 1);
+    const originalBlockContent = state.doc.cut(
+      blockContainer.beforePos + 2,
+      posInBlock
+    );
+    const newBlockContent = state.doc.cut(
+      posInBlock,
+      blockContainer.afterPos - 2
+    );
 
     const newBlock = state.schema.nodes["blockContainer"].createAndFill()!;
 
-    const newBlockInsertionPos = endPos + 1;
+    const newBlockInsertionPos = blockContainer.afterPos;
     const newBlockContentPos = newBlockInsertionPos + 2;
 
     if (dispatch) {
@@ -38,7 +44,7 @@ export const splitBlockCommand =
         newBlockContentPos,
         newBlockContentPos + 1,
         newBlockContent.content.size > 0
-          ? new Slice(Fragment.from(newBlockContent), depth + 2, depth + 2)
+          ? new Slice(Fragment.from(newBlockContent), depth + 3, depth + 3)
           : undefined
       );
 
@@ -48,8 +54,8 @@ export const splitBlockCommand =
         state.tr.setBlockType(
           newBlockContentPos,
           newBlockContentPos,
-          state.schema.node(contentType).type,
-          keepProps ? contentNode.attrs : undefined
+          blockContent.node.type,
+          keepProps ? blockContent.node.attrs : undefined
         );
       }
 
@@ -61,10 +67,10 @@ export const splitBlockCommand =
       // Replaces the content of the original block's content node. Doesn't replace the whole content node so its
       // type doesn't change.
       state.tr.replace(
-        startPos + 1,
-        endPos - 1,
+        blockContainer.beforePos + 2,
+        blockContainer.afterPos - 2,
         originalBlockContent.content.size > 0
-          ? new Slice(Fragment.from(originalBlockContent), depth + 2, depth + 2)
+          ? new Slice(Fragment.from(originalBlockContent), depth + 3, depth + 3)
           : undefined
       );
 

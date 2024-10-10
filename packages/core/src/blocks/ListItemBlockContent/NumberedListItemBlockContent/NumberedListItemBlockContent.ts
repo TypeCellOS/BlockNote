@@ -1,6 +1,6 @@
 import { InputRule } from "@tiptap/core";
 import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { getCurrentBlockContentType } from "../../../api/getCurrentBlockContentType.js";
+import { getBlockInfoFromPos } from "../../../api/getBlockInfoFromPos.js";
 import {
   PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
@@ -40,7 +40,12 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
       new InputRule({
         find: new RegExp(`^1\\.\\s$`),
         handler: ({ state, chain, range }) => {
-          if (getCurrentBlockContentType(this.editor) !== "inline*") {
+          if (
+            getBlockInfoFromPos(
+              this.editor.state.doc,
+              this.editor.state.selection.anchor
+            ).blockContent.node.type.spec.content !== "inline*"
+          ) {
             return;
           }
 
@@ -62,7 +67,12 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
     return {
       Enter: () => handleEnter(this.options.editor),
       "Mod-Shift-7": () => {
-        if (getCurrentBlockContentType(this.editor) !== "inline*") {
+        if (
+          getBlockInfoFromPos(
+            this.editor.state.doc,
+            this.editor.state.selection.anchor
+          ).blockContent.node.type.spec.content !== "inline*"
+        ) {
           return true;
         }
 
