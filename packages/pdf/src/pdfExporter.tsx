@@ -1,6 +1,6 @@
 import { Block } from "@blocknote/core";
 
-import { Text } from "@react-pdf/renderer";
+import { Text, View } from "@react-pdf/renderer";
 
 import { docxBlockMappingForDefaultSchema } from "./pdf/blocks";
 import { docxInlineContentMappingForDefaultSchema } from "./pdf/inlinecontent";
@@ -26,17 +26,23 @@ export function createDocxExporterForDefaultSchema() {
     docxBlockMappingForDefaultSchema(inlineContentTransformer)
   );
 
-  const transform = (blocks: Block[]): React.ReactElement<Text>[] => {
+  const transform = (
+    blocks: Block[],
+    nestingLevel = 0
+  ): React.ReactElement<Text>[] => {
     return blocks.map((b) => {
-      let children = transform(b.children);
-      children = children.map((c) => {
-        // c.addRunToFront(new TextRun({ children: [new Tab()] }));
-        return c;
-      });
-      const self = blockTransformer(b as any);
-      // return <Text>aaa</Text>;
-      return [self, ...children];
-    }); // TODO
+      const children = transform(b.children, nestingLevel + 1);
+      const self = blockTransformer(b as any, nestingLevel);
+
+      return (
+        <>
+          {self}
+          {children.length > 0 && (
+            <View style={{ marginLeft: 10 }}>{children}</View>
+          )}
+        </>
+      );
+    });
   };
 
   return {

@@ -24,14 +24,26 @@ export function createDocxExporterForDefaultSchema() {
     docxBlockMappingForDefaultSchema(inlineContentTransformer)
   );
 
-  const transform = (blocks: Block[]): Paragraph[] => {
+  const transform = (blocks: Block[], nestingLevel = 0): Paragraph[] => {
     return blocks.flatMap((b) => {
-      let children = transform(b.children);
+      let children = transform(b.children, nestingLevel + 1);
       children = children.map((c) => {
-        c.addRunToFront(new TextRun({ children: [new Tab()] }));
+        c.addRunToFront(
+          new TextRun({
+            children: [
+              // new PositionalTab({
+              //   alignment: PositionalTabAlignment.LEFT,
+              //   relativeTo: PositionalTabRelativeTo.MARGIN,
+              //   leader: PositionalTabLeader.HYPHEN,
+              // }),
+              new Tab(),
+            ],
+          })
+        );
         return c;
       });
-      const self = blockTransformer(b as any);
+      const self = blockTransformer(b as any, nestingLevel);
+      // self.addChildElement
       return [self, ...children];
     }); // TODO
   };

@@ -17,7 +17,10 @@ export type BlockMapping<
   S extends StyleSchema,
   R
 > = {
-  [K in keyof B]: (block: BlockFromConfig<B[K], I, S>) => R;
+  [K in keyof B]: (
+    block: BlockFromConfig<B[K], I, S>,
+    nestingLevel: number
+  ) => R;
 };
 
 /**

@@ -40,7 +40,7 @@ export const createBlockTransformerFromMapping = <
 >(
   mapping: BlockMapping<B, I, S, R>
 ) => {
-  return (block: BlockFromConfig<B[keyof B], I, S>) => {
-    return mapping[block.type](block);
+  return (block: BlockFromConfig<B[keyof B], I, S>, nestingLevel: number) => {
+    return mapping[block.type](block, nestingLevel);
   };
 };

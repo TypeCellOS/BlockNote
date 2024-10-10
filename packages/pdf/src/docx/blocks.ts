@@ -3,7 +3,6 @@ import {
   CheckBox,
   Paragraph,
   ParagraphChild,
-  Tab,
   TabStopType,
   TextRun,
 } from "docx";
@@ -20,23 +19,25 @@ export function docxBlockMappingForDefaultSchema(
     });
   }
 
+  function createTabStops(nestingLevel: number): any[] {
+    const tabStops: any[] = [];
+    for (let i = 0; i < Math.min(nestingLevel, 5); i++) {
+      // create min. 5 tabstops
+      tabStops.push({
+        position: 200 * (i + 1),
+        type: TabStopType.LEFT,
+      });
+    }
+    return tabStops;
+  }
+
   return mappingFactory(BlockNoteSchema.create()).createBlockMapping<Paragraph>(
     {
-      paragraph: (block) => {
+      paragraph: (block, nestingLevel) => {
         return new Paragraph({
-          children: [
-            // new TextRun({
-            //   children: [new Tab(), "John Doe"],
-            // }),
-            ...createContent(block.content),
-          ],
+          children: createContent(block.content),
           style: "Normal",
-          // tabStops: [
-          //   {
-          //     position: 2268,
-          //     type: TabStopType.LEFT,
-          //   },
-          // ],
+          tabStops: createTabStops(nestingLevel),
         });
       },
       numberedListItem: (block) => {
@@ -94,16 +95,9 @@ export function docxBlockMappingForDefaultSchema(
       file: (block) => {
         return new Paragraph({
           children: [
-            new Tab(),
             new TextRun({
               text: block.type + " not implemented",
             }),
-          ],
-          tabStops: [
-            {
-              position: 2268,
-              type: TabStopType.LEFT,
-            },
           ],
         });
       },

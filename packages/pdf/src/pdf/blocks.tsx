@@ -1,5 +1,5 @@
 import { BlockNoteSchema } from "@blocknote/core";
-import { Text } from "@react-pdf/renderer";
+import { Image, Text } from "@react-pdf/renderer";
 import { mappingFactory } from "../mapping";
 
 export function docxBlockMappingForDefaultSchema(
@@ -28,13 +28,7 @@ export function docxBlockMappingForDefaultSchema(
     bulletListItem: (block) => {
       return (
         <Text>
-          <Text
-            style={{
-              width: 10,
-              fontSize: 10,
-            }}>
-            •
-          </Text>
+          <Text>• </Text>
           <Text>{createContent(block.content)}</Text>
         </Text>
       );
@@ -43,13 +37,7 @@ export function docxBlockMappingForDefaultSchema(
       // TODO
       return (
         <Text>
-          <Text
-            style={{
-              width: 10,
-              fontSize: 10,
-            }}>
-            •
-          </Text>
+          <Text>•</Text>
           <Text>{createContent(block.content)}</Text>
         </Text>
       );
@@ -58,13 +46,7 @@ export function docxBlockMappingForDefaultSchema(
     checkListItem: (block) => {
       return (
         <Text>
-          <Text
-            style={{
-              width: 10,
-              fontSize: 10,
-            }}>
-            •
-          </Text>
+          <Text>•</Text>
           <Text>{createContent(block.content)}</Text>
         </Text>
       );
@@ -87,7 +69,7 @@ export function docxBlockMappingForDefaultSchema(
       return <Text>{block.type + " not implemented"}</Text>;
     },
     image: (block) => {
-      return <Text>{block.type + " not implemented"}</Text>;
+      return <Image src={block.props.url} />;
     },
     table: (block) => {
       return <Text>{block.type + " not implemented"}</Text>;

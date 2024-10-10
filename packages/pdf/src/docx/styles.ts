@@ -26,21 +26,33 @@ export const docxStyleMappingForDefaultSchema = mappingFactory(
     };
   },
   strike: (val) => {
+    if (!val) {
+      return {};
+    }
     return {
       strike: val,
     };
   },
   backgroundColor: (val) => {
+    if (!val) {
+      return {};
+    }
     return {
-      highlight: val,
+      // highlight: val,
     };
   },
   textColor: (val) => {
+    if (!val) {
+      return {};
+    }
     return {
-      color: val,
+      // color: val,
     };
   },
   code: (val) => {
+    if (!val) {
+      return {};
+    }
     return {
       // TODO
       // font: "",
@@ -52,15 +64,16 @@ export function createDocxStyledTextTransformer<S extends StyleSchema>(
   mapping: StyleMapping<S, IRunPropertiesOptions>
 ) {
   return (styledText: StyledText<S>) => {
-    const props = {
-      text: styledText.text,
-      ...Object.fromEntries(
-        Object.entries(styledText.styles).map(([key, value]) => {
-          return [key, mapping[key as keyof S](value)];
-        })
-      ),
-    };
+    const stylesArray = Object.entries(styledText.styles).map(
+      ([key, value]) => {
+        const mappedStyle = mapping[key](value);
+        return mappedStyle;
+      }
+    );
+    const styles = Object.assign({}, ...stylesArray);
 
-    return new TextRun(props);
+    // console.log(props);
+
+    return new TextRun({ ...styles, text: styledText.text });
   };
 }

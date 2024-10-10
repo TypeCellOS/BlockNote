@@ -64,15 +64,13 @@ export function createDocxStyledTextTransformer<S extends StyleSchema>(
   mapping: StyleMapping<S, TextProps>
 ) {
   return (styledText: StyledText<S>) => {
-    const style = Object.entries(styledText.styles).reduce(
-      (acc, [key, value]) => {
-        const mappedStyle = mapping[key as keyof S](value);
-        return { ...acc, ...mappedStyle };
-      },
-      {}
+    const stylesArray = Object.entries(styledText.styles).map(
+      ([key, value]) => {
+        const mappedStyle = mapping[key](value);
+        return mappedStyle;
+      }
     );
-
-    console.log("style", style);
-    return <Text style={style}>{styledText.text}</Text>;
+    const styles = Object.assign({}, ...stylesArray);
+    return <Text style={styles}>{styledText.text}</Text>;
   };
 }
