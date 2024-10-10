@@ -36,6 +36,53 @@ export function getBlockInfo(blockContainer: Node): BlockInfoWithoutPositions {
 }
 
 /**
+ * Retrieves the position just before the nearest blockContainer node in a
+ * ProseMirror doc, relative to a position. If the position is within a
+ * blockContainer node or its descendants, the position just before it is
+ * returned. If the position is not within a blockContainer node or its
+ * descendants, the position just before the next closest blockContainer node
+ * is returned. If the position is beyond the last blockContainer, the position
+ * just before the last blockContainer is returned.
+ * @param doc The ProseMirror doc.
+ * @param pos An integer position.
+ * @returns The position just before the nearest blockContainer node.
+ */
+export function getNearestBlockContainerPos(doc: Node, pos: number) {
+  const $pos = doc.resolve(pos);
+
+  // Checks the node containing the position and its ancestors until a
+  // blockContainer node is found and returned.
+  let depth = $pos.depth;
+  let node = $pos.node(depth);
+  while (depth > 0) {
+    if (node.type.name === "blockContainer") {
+      return $pos.before(depth);
+    }
+
+    depth--;
+    node = $pos.node(depth);
+  }
+
+  // If the position doesn't lie within a blockContainer node, we instead find
+  // the position of the next closest one. If the position is beyond the last
+  // blockContainer, we return the position of the last blockContainer. While
+  // running `doc.descendants` is expensive, this case should be very rarely
+  // triggered as almost every position will be within a blockContainer,
+  // according to the schema.
+  const allBlockContainerPositions: number[] = [];
+  doc.descendants((node, pos) => {
+    if (node.type.name === "blockContainer") {
+      allBlockContainerPositions.push(pos);
+    }
+  });
+
+  return (
+    allBlockContainerPositions.find((position) => position >= pos) ||
+    allBlockContainerPositions[allBlockContainerPositions.length - 1]
+  );
+}
+
+/**
  * Retrieves information regarding the nearest blockContainer node in a
  * ProseMirror doc, relative to a position.
  * @param doc The ProseMirror doc.
@@ -43,63 +90,17 @@ export function getBlockInfo(blockContainer: Node): BlockInfoWithoutPositions {
  * @returns A BlockInfo object for the nearest blockContainer node.
  */
 export function getBlockInfoFromPos(doc: Node, pos: number): BlockInfo {
-  // If the position is outside the outer block group, we need to move it to the
-  // nearest block. This happens when the collaboration plugin is active, where
-  // the selection is placed at the very end of the doc.
-  const outerBlockGroupStartPos = 1;
-  const outerBlockGroupEndPos = doc.nodeSize - 2;
-  if (pos <= outerBlockGroupStartPos) {
-    pos = outerBlockGroupStartPos + 1;
-
-    while (
-      doc.resolve(pos).parent.type.name !== "blockContainer" &&
-      pos < outerBlockGroupEndPos
-    ) {
-      pos++;
-    }
-  } else if (pos >= outerBlockGroupEndPos) {
-    pos = outerBlockGroupEndPos - 1;
-
-    while (
-      doc.resolve(pos).parent.type.name !== "blockContainer" &&
-      pos > outerBlockGroupStartPos
-    ) {
-      pos--;
-    }
-  }
-
-  // This gets triggered when a node selection on a block is active, i.e. when
-  // you drag and drop a block.
-  if (doc.resolve(pos).parent.type.name === "blockGroup") {
-    pos++;
-  }
-
-  const $pos = doc.resolve(pos);
-
-  const maxDepth = $pos.depth;
-  let node = $pos.node(maxDepth);
-  let depth = maxDepth;
-
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    if (depth < 0) {
-      throw new Error(
-        "Could not find blockContainer node. This can only happen if the underlying BlockNote schema has been edited."
-      );
-    }
-
-    if (node.type.name === "blockContainer") {
-      break;
-    }
-
-    depth -= 1;
-    node = $pos.node(depth);
-  }
+  const $pos = doc.resolve(getNearestBlockContainerPos(doc, pos));
+  const node = $pos.nodeAfter!;
 
   const { id, contentNode, contentType, numChildBlocks } = getBlockInfo(node);
 
-  const startPos = $pos.start(depth);
-  const endPos = $pos.end(depth);
+  const posInsideBlockContainer = $pos.pos + 1;
+  const $posInsideBlockContainer = doc.resolve(posInsideBlockContainer);
+  const depth = $posInsideBlockContainer.depth;
+
+  const startPos = $posInsideBlockContainer.start(depth);
+  const endPos = $posInsideBlockContainer.end(depth);
 
   return {
     id,
