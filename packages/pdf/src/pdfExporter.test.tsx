@@ -2,21 +2,17 @@ import {
   BlockNoteSchema,
   partialBlocksToBlocksForTesting,
 } from "@blocknote/core";
-import {
-  AlignmentType,
-  Document,
-  HeadingLevel,
-  LevelFormat,
-  LineRuleType,
-  Packer,
-  Paragraph,
-  TextRun,
-  UnderlineType,
-} from "docx";
-import fs from "fs";
-import { describe, it } from "vitest";
-import { createDocxExporterForDefaultSchema } from "./docxExporter";
 
+import ReactPDF, {
+  Document,
+  Font,
+  Page,
+  StyleSheet,
+  Text,
+  View,
+} from "@react-pdf/renderer";
+import { describe, it } from "vitest";
+import { createDocxExporterForDefaultSchema } from "./pdfExporter";
 describe("exporter", () => {
   it("should export a document", async () => {
     const exporter = createDocxExporterForDefaultSchema();
@@ -24,7 +20,15 @@ describe("exporter", () => {
       partialBlocksToBlocksForTesting(BlockNoteSchema.create().blockSchema, [
         {
           type: "paragraph",
-          content: "Welcome to this demo!",
+          content: [
+            {
+              type: "text",
+              text: "Welcome to this demo!",
+              styles: {
+                italic: true,
+              },
+            },
+          ],
           children: [
             {
               type: "paragraph",
@@ -154,133 +158,134 @@ describe("exporter", () => {
         // },
       ])
     );
-    const doc = new Document({
-      styles: {
-        paragraphStyles: [
-          {
-            id: "Normal",
-            name: "Normal",
-            run: {
-              font: "Inter, SF Pro Display, BlinkMacSystemFont, Open Sans, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif",
-              size: "14pt",
-            },
-            paragraph: {
-              spacing: {
-                line: 288,
-                lineRule: LineRuleType.AUTO,
+    let x = (
+      <Text>
+        <Text>sdfds #1</Text>
+      </Text>
+    );
+    // console.log(ps);
+    // console.log(x);
 
-                // before: 2808,
-                // after: 2808,
-              },
-            },
-            // next: "Normal",
-            // quickFormat: true,
-            // run: {
-            //   italics: true,
-            //   color: "999999",
-            // },
-            // paragraph: {
-            //   spacing: {
-            //     line: 276,
-            //   },
-            //   indent: {
-            //     left: 720,
-            //   },
-            // },
-          },
-
-          {
-            id: "Heading1",
-            name: "Heading 1",
-            basedOn: "Normal",
-            next: "Normal",
-            quickFormat: true,
-            run: {
-              size: 26,
-              bold: true,
-              color: "999999",
-              underline: {
-                type: UnderlineType.DOUBLE,
-                color: "FF0000",
-              },
-            },
-            paragraph: {
-              spacing: {
-                before: 240,
-                after: 120,
-              },
-            },
-          },
-          {
-            id: "Heading2",
-            name: "Heading 2",
-            basedOn: "Normal",
-            next: "Normal",
-            quickFormat: true,
-            run: {
-              size: 26,
-              bold: true,
-              color: "999999",
-              underline: {
-                type: UnderlineType.DOUBLE,
-                color: "FF0000",
-              },
-            },
-            paragraph: {
-              spacing: {
-                before: 240,
-                after: 120,
-              },
-            },
-          },
-        ],
+    const styles = StyleSheet.create({
+      page: {
+        fontFamily: "Inter",
+        // flexDirection: "row",
+        // backgroundColor: "#E4E4E4",
       },
-      numbering: {
-        config: [
-          {
-            reference: "blocknote-numbering",
-            levels: [
-              {
-                level: 0,
-                format: LevelFormat.DECIMAL,
-                text: "%1",
-                alignment: AlignmentType.START,
-              },
-            ],
-          },
-        ],
+      section: {
+        margin: 10,
+        padding: 10,
+        // flexGrow: 1,
       },
-      sections: [
-        {
-          properties: {},
-          children: ps,
-        },
-      ],
     });
-    // console.log(JSON.stringify(ps, null, 2));
 
-    const doc2 = new Document({
-      sections: [
-        {
-          properties: {},
-          children: [
-            new Paragraph({
-              children: [new TextRun("Hello World")],
-            }),
-            new Paragraph({
-              children: [new TextRun("Heading")],
-              heading: HeadingLevel.HEADING_1,
-            }),
-            new Paragraph({
-              children: [new TextRun("Goodbye")],
-            }),
-          ],
-        },
-      ],
-    });
-    const buffer = await Packer.toBuffer(doc);
-    fs.writeFileSync(__dirname + "/My Document.docx", buffer);
+    const MyDocument = () => (
+      <Document>
+        <Page size="A4" style={styles.page}>
+          <View style={styles.section}>{ps}</View>
+          <View>
+            {/* {...ps} */}
+            <Text>hello world no font set</Text>
+            <Text
+              style={{
+                fontFamily: "Inter",
+                // fontWeight: "bold",
+                // fontStyle: "italic",
+              }}>
+              hello world
+            </Text>
+            <Text
+              style={{
+                fontFamily: "Inter",
+                fontWeight: "bold",
+                // fontStyle: "italic",
+              }}>
+              hello world bold
+            </Text>
+            <Text
+              style={{
+                fontFamily: "Inter",
+                fontStyle: "italic",
+              }}>
+              hello world italic
+            </Text>
 
+            <Text>Section #1</Text>
+            <Text>Section #2</Text>
+          </View>
+          <View>
+            {/* {...ps} */}
+            <Text>Section #3</Text>
+            <Text>Section #4</Text>
+          </View>
+        </Page>
+      </Document>
+    );
+
+    if (import.meta.env.NODE_ENV === "test") {
+      let font = loadFontDataUrl("./src/fonts/inter/Inter_18pt-Regular.ttf");
+      Font.register({
+        family: "Inter",
+        src: font,
+      });
+
+      font = loadFontDataUrl("./src/fonts/inter/Inter_18pt-Italic.ttf");
+      Font.register({
+        family: "Inter",
+        fontStyle: "italic",
+        src: font,
+      });
+
+      font = loadFontDataUrl("./src/fonts/inter/Inter_18pt-Bold.ttf");
+      Font.register({
+        family: "Inter",
+        src: font,
+        fontWeight: "bold",
+      });
+
+      font = loadFontDataUrl("./src/fonts/inter/Inter_18pt-BoldItalic.ttf");
+      Font.register({
+        family: "Inter",
+        fontStyle: "italic",
+        src: font,
+        fontWeight: "bold",
+      });
+    } else {
+      console.error("TODO");
+      // const url = new URL("/types/" + typePath + "/" + path, import.meta.url);
+      // // console.log("RESOLVE", mod, url.toString(), path);
+      // content = await getCachedDTSString(config, url.toString());
+      // // content = await (await config.fetcher(url.toString())).text();
+    }
+
+    await ReactPDF.render(<MyDocument />, `${__dirname}/example.pdf`);
+
+    // Create styles
+
+    // Create Document Component
+    const MyDocument2 = () => (
+      <Document>
+        <Page size="A4" style={styles.page}>
+          <View style={styles.section}>
+            <Text>Section #1</Text>
+          </View>
+          <View style={styles.section}>
+            <Text>Section #2</Text>
+          </View>
+        </Page>
+      </Document>
+    );
+
+    await ReactPDF.render(<MyDocument2 />, `${__dirname}/example2.pdf`);
     // await saveTestFile();
   });
 });
+function loadFontDataUrl(path: string) {
+  // @ts-ignore
+  const fs = require("fs");
+  const buffer = fs.readFileSync(path);
+  const fontBase64 = buffer.toString("base64");
+
+  const dataUrl = `data:font/ttf;base64,${fontBase64}`;
+  return dataUrl;
+}

@@ -53,9 +53,13 @@
     "@tiptap/pm": "^2.7.1",
     "react": "^18",
     "react-dom": "^18",
-    "docx": "^8.5.0"
+    "docx": "^8.5.0",
+    "jspdf": "^2.5.2",
+    "pdfmake": "^0.2.14",
+    "@react-pdf/renderer": "^4.0.0"
   },
   "devDependencies": {
+    "@types/pdfmake": "^0.2.9",
     "@types/jsdom": "^21.1.6",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",

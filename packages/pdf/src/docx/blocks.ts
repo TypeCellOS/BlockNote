@@ -30,6 +30,7 @@ export function docxBlockMappingForDefaultSchema(
             // }),
             ...createContent(block.content),
           ],
+          style: "Normal",
           // tabStops: [
           //   {
           //     position: 2268,
