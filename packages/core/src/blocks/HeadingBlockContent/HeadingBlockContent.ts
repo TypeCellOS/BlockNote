@@ -1,5 +1,6 @@
 import { InputRule } from "@tiptap/core";
-import { getCurrentBlockContentType } from "../../api/getCurrentBlockContentType.js";
+import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
+import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos.js";
 import {
   PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
@@ -46,19 +47,27 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
         return new InputRule({
           find: new RegExp(`^(#{${level}})\\s$`),
           handler: ({ state, chain, range }) => {
-            if (getCurrentBlockContentType(this.editor) !== "inline*") {
+            if (
+              getBlockInfoFromPos(
+                this.editor.state.doc,
+                this.editor.state.selection.anchor
+              ).blockContent.node.type.spec.content !== "inline*"
+            ) {
               return;
             }
 
             chain()
-              .BNUpdateBlock(state.selection.from, {
-                type: "heading",
-                props: {
-                  level: level as any,
-                },
-              })
+              .command(
+                updateBlockCommand(this.options.editor, state.selection.from, {
+                  type: "heading",
+                  props: {
+                    level: level as any,
+                  },
+                })
+              )
               // Removes the "#" character(s) used to set the heading.
-              .deleteRange({ from: range.from, to: range.to });
+              .deleteRange({ from: range.from, to: range.to })
+              .run();
           },
         });
       }),
@@ -68,48 +77,73 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
   addKeyboardShortcuts() {
     return {
       "Mod-Alt-1": () => {
-        if (getCurrentBlockContentType(this.editor) !== "inline*") {
+        if (
+          getBlockInfoFromPos(
+            this.editor.state.doc,
+            this.editor.state.selection.anchor
+          ).blockContent.node.type.spec.content !== "inline*"
+        ) {
           return true;
         }
 
-        return this.editor.commands.BNUpdateBlock(
-          this.editor.state.selection.anchor,
-          {
-            type: "heading",
-            props: {
-              level: 1 as any,
-            },
-          }
+        // call updateBlockCommand
+        return this.editor.commands.command(
+          updateBlockCommand(
+            this.options.editor,
+            this.editor.state.selection.anchor,
+            {
+              type: "heading",
+              props: {
+                level: 1 as any,
+              },
+            }
+          )
         );
       },
       "Mod-Alt-2": () => {
-        if (getCurrentBlockContentType(this.editor) !== "inline*") {
+        if (
+          getBlockInfoFromPos(
+            this.editor.state.doc,
+            this.editor.state.selection.anchor
+          ).blockContent.node.type.spec.content !== "inline*"
+        ) {
           return true;
         }
 
-        return this.editor.commands.BNUpdateBlock(
-          this.editor.state.selection.anchor,
-          {
-            type: "heading",
-            props: {
-              level: 2 as any,
-            },
-          }
+        return this.editor.commands.command(
+          updateBlockCommand(
+            this.options.editor,
+            this.editor.state.selection.anchor,
+            {
+              type: "heading",
+              props: {
+                level: 2 as any,
+              },
+            }
+          )
         );
       },
       "Mod-Alt-3": () => {
-        if (getCurrentBlockContentType(this.editor) !== "inline*") {
+        if (
+          getBlockInfoFromPos(
+            this.editor.state.doc,
+            this.editor.state.selection.anchor
+          ).blockContent.node.type.spec.content !== "inline*"
+        ) {
           return true;
         }
 
-        return this.editor.commands.BNUpdateBlock(
-          this.editor.state.selection.anchor,
-          {
-            type: "heading",
-            props: {
-              level: 3 as any,
-            },
-          }
+        return this.editor.commands.command(
+          updateBlockCommand(
+            this.options.editor,
+            this.editor.state.selection.anchor,
+            {
+              type: "heading",
+              props: {
+                level: 3 as any,
+              },
+            }
+          )
         );
       },
     };

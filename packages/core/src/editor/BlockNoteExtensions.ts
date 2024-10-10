@@ -15,6 +15,7 @@ import { createDropFileExtension } from "../api/clipboard/fromClipboard/fileDrop
 import { createPasteFromClipboardExtension } from "../api/clipboard/fromClipboard/pasteExtension.js";
 import { createCopyToClipboardExtension } from "../api/clipboard/toClipboard/copyExtension.js";
 import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension.js";
+import { KeyboardShortcutsExtension } from "../extensions/KeyboardShortcuts/KeyboardShortcutsExtension.js";
 import { TextAlignmentExtension } from "../extensions/TextAlignment/TextAlignmentExtension.js";
 import { TextColorExtension } from "../extensions/TextColor/TextColorExtension.js";
 import { TrailingNode } from "../extensions/TrailingNode/TrailingNodeExtension.js";
@@ -119,6 +120,9 @@ export const getBlockNoteExtensions = <
     BlockContainer.configure({
       editor: opts.editor,
       domAttributes: opts.domAttributes,
+    }),
+    KeyboardShortcutsExtension.configure({
+      editor: opts.editor,
     }),
     BlockGroup.configure({
       domAttributes: opts.domAttributes,

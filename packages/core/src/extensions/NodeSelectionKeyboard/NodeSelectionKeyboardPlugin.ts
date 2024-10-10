@@ -1,6 +1,6 @@
 import { Plugin, PluginKey, TextSelection } from "prosemirror-state";
 
-const PLUGIN_KEY = new PluginKey("non-editable-block");
+const PLUGIN_KEY = new PluginKey("node-selection-keyboard");
 // By default, typing with a node selection active will cause ProseMirror to
 // replace the node with one that contains editable content. This plugin blocks
 // this behaviour without also blocking things like keyboard shortcuts:
@@ -15,7 +15,7 @@ const PLUGIN_KEY = new PluginKey("non-editable-block");
 // While a more elegant solution would probably process transactions instead of
 // keystrokes, this brings us most of the way to Notion's UX without much added
 // complexity.
-export const NonEditableBlockPlugin = () => {
+export const NodeSelectionKeyboardPlugin = () => {
   return new Plugin({
     key: PLUGIN_KEY,
     props: {

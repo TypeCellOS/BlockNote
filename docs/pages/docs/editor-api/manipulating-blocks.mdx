@@ -115,7 +115,7 @@ Use `insertBlocks` to insert new blocks into the document:
 insertBlocks(
   blocksToInsert: PartialBlock[],
   referenceBlock: BlockIdentifier,
-  placement: "before" | "after" | "nested" = "before"
+  placement: "before" | "after" = "before"
 ): void;
 
 // Usage
@@ -126,7 +126,7 @@ editor.insertBlocks([{type: "paragraph", content: "Hello World"}], referenceBloc
 
 `referenceBlock:` An [identifier](/docs/editor-api/manipulating-blocks#block-identifiers) for an existing block, at which the new blocks should be inserted.
 
-`placement:` Whether the blocks should be inserted just before, just after, or nested inside the `referenceBlock`. Inserts the blocks at the start of the existing block's children if `"nested"` is used.
+`placement:` Whether the blocks should be inserted just before or just after the `referenceBlock`.
 
 If a block's `id` is undefined, BlockNote generates one automatically.
 

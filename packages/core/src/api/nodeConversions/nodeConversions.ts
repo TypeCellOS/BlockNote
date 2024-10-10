@@ -566,9 +566,9 @@ export function nodeToBlock<
     return cachedBlock;
   }
 
-  const blockInfo = getBlockInfo(node);
+  const { blockContainer, blockContent, blockGroup } = getBlockInfo(node);
 
-  let id = blockInfo.id;
+  let id = blockContainer.node.attrs.id;
 
   // Only used for blocks converted from other formats.
   if (id === null) {
@@ -578,13 +578,13 @@ export function nodeToBlock<
   const props: any = {};
   for (const [attr, value] of Object.entries({
     ...node.attrs,
-    ...blockInfo.contentNode.attrs,
+    ...blockContent.node.attrs,
   })) {
-    const blockSpec = blockSchema[blockInfo.contentType.name];
+    const blockSpec = blockSchema[blockContent.node.type.name];
 
     if (!blockSpec) {
       throw Error(
-        "Block is of an unrecognized type: " + blockInfo.contentType.name
+        "Block is of an unrecognized type: " + blockContent.node.type.name
       );
     }
 
@@ -595,32 +595,32 @@ export function nodeToBlock<
     }
   }
 
-  const blockConfig = blockSchema[blockInfo.contentType.name];
+  const blockConfig = blockSchema[blockContent.node.type.name];
 
   const children: Block<BSchema, I, S>[] = [];
-  for (let i = 0; i < blockInfo.numChildBlocks; i++) {
+  blockGroup?.node.forEach((child) => {
     children.push(
       nodeToBlock(
-        node.lastChild!.child(i),
+        child,
         blockSchema,
         inlineContentSchema,
         styleSchema,
         blockCache
       )
     );
-  }
+  });
 
   let content: Block<any, any, any>["content"];
 
   if (blockConfig.content === "inline") {
     content = contentNodeToInlineContent(
-      blockInfo.contentNode,
+      blockContent.node,
       inlineContentSchema,
       styleSchema
     );
   } else if (blockConfig.content === "table") {
     content = contentNodeToTableContent(
-      blockInfo.contentNode,
+      blockContent.node,
       inlineContentSchema,
       styleSchema
     );
