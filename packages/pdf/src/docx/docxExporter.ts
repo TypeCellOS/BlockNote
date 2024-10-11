@@ -1,89 +1,207 @@
-import { Block } from "@blocknote/core";
-import { Paragraph, Tab, TextRun } from "docx";
 import {
-  createBlockTransformerFromMapping,
-  createInlineContentTransformerFromMapping,
-} from "../transformer";
-import { docxBlockMappingForDefaultSchema } from "./blocks";
-import { docxInlineContentMappingForDefaultSchema } from "./inlinecontent";
+  Block,
+  BlockFromConfig,
+  BlockNoteSchema,
+  BlockSchema,
+  InlineContent,
+  InlineContentSchema,
+  StyleSchema,
+  StyledText,
+} from "@blocknote/core";
 import {
-  createDocxStyledTextTransformer,
-  docxStyleMappingForDefaultSchema,
-} from "./styles";
+  AlignmentType,
+  Document,
+  IRunPropertiesOptions,
+  LevelFormat,
+  LineRuleType,
+  Paragraph,
+  ParagraphChild,
+  Tab,
+  TextRun,
+  UnderlineType,
+} from "docx";
+import { IPropertiesOptions } from "docx/build/file/core-properties";
+import { BlockMapping, InlineContentMapping, StyleMapping } from "../mapping";
 
-export function createDocxExporterForDefaultSchema() {
-  const styledTextTransformer = createDocxStyledTextTransformer(
-    docxStyleMappingForDefaultSchema
-  );
+export class DOCXExporter<
+  B extends BlockSchema,
+  S extends StyleSchema,
+  I extends InlineContentSchema
+> {
+  public constructor(
+    public readonly schema: BlockNoteSchema<B, I, S>,
+    public readonly mappings: {
+      blockMapping: BlockMapping<B, I, S, Paragraph, ParagraphChild[]>;
+      inlineContentMapping: InlineContentMapping<I, S, ParagraphChild, TextRun>;
+      styleMapping: StyleMapping<S, IRunPropertiesOptions>;
+    }
+  ) {}
 
-  const inlineContentTransformer = createInlineContentTransformerFromMapping(
-    docxInlineContentMappingForDefaultSchema(styledTextTransformer)
-  );
+  public transformStyledText(styledText: StyledText<S>) {
+    const stylesArray = Object.entries(styledText.styles).map(
+      ([key, value]) => {
+        const mappedStyle = this.mappings.styleMapping[key](value);
+        return mappedStyle;
+      }
+    );
+    const styles: IRunPropertiesOptions = Object.assign(
+      {} as IRunPropertiesOptions,
+      ...stylesArray
+    );
 
-  const blockTransformer = createBlockTransformerFromMapping(
-    docxBlockMappingForDefaultSchema(inlineContentTransformer)
-  );
+    return new TextRun({ ...styles, text: styledText.text });
+  }
 
-  const transform = (blocks: Block[], nestingLevel = 0): Paragraph[] => {
+  public transformInlineContent(inlineContent: InlineContent<I, S>) {
+    return this.mappings.inlineContentMapping[inlineContent.type](
+      inlineContent,
+      this.transformStyledText.bind(this)
+    );
+  }
+
+  public transformInlineContentArray(
+    inlineContentArray: InlineContent<I, S>[]
+  ) {
+    return inlineContentArray.map((ic) => this.transformInlineContent(ic));
+  }
+
+  public transformBlock(
+    block: BlockFromConfig<B[keyof B], I, S>,
+    nestingLevel: number
+  ) {
+    return this.mappings.blockMapping[block.type](
+      block,
+      this.transformInlineContentArray.bind(this) as any, // not ideal as any
+      nestingLevel
+    );
+  }
+
+  public transformBlocks(blocks: Block<B, I, S>[]): Paragraph[] {
     return blocks.flatMap((b) => {
-      let children = transform(b.children, nestingLevel + 1);
+      let children = this.transformBlocks(b.children);
       children = children.map((c) => {
         c.addRunToFront(
           new TextRun({
-            children: [
-              // new PositionalTab({
-              //   alignment: PositionalTabAlignment.LEFT,
-              //   relativeTo: PositionalTabRelativeTo.MARGIN,
-              //   leader: PositionalTabLeader.HYPHEN,
-              // }),
-              new Tab(),
-            ],
+            children: [new Tab()],
           })
         );
         return c;
       });
-      const self = blockTransformer(b as any, nestingLevel);
-      // self.addChildElement
+      const self = this.transformBlock(b as any, 0); // TODO: any
+
       return [self, ...children];
-    }); // TODO
-  };
+    });
+  }
 
-  return {
-    util: {
-      blockTransformer,
-      styledTextTransformer,
-      inlineContentTransformer,
-    },
-    transform,
-  };
+  public createDocumentProperties(): Partial<IPropertiesOptions> {
+    return {
+      styles: {
+        paragraphStyles: [
+          {
+            id: "Normal",
+            name: "Normal",
+            run: {
+              font: "Inter, SF Pro Display, BlinkMacSystemFont, Open Sans, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif",
+              size: "14pt",
+            },
+            paragraph: {
+              spacing: {
+                line: 288,
+                lineRule: LineRuleType.AUTO,
+
+                // before: 2808,
+                // after: 2808,
+              },
+            },
+            // next: "Normal",
+            // quickFormat: true,
+            // run: {
+            //   italics: true,
+            //   color: "999999",
+            // },
+            // paragraph: {
+            //   spacing: {
+            //     line: 276,
+            //   },
+            //   indent: {
+            //     left: 720,
+            //   },
+            // },
+          },
+
+          {
+            id: "Heading1",
+            name: "Heading 1",
+            basedOn: "Normal",
+            next: "Normal",
+            quickFormat: true,
+            run: {
+              size: 26,
+              bold: true,
+              color: "999999",
+              underline: {
+                type: UnderlineType.DOUBLE,
+                color: "FF0000",
+              },
+            },
+            paragraph: {
+              spacing: {
+                before: 240,
+                after: 120,
+              },
+            },
+          },
+          {
+            id: "Heading2",
+            name: "Heading 2",
+            basedOn: "Normal",
+            next: "Normal",
+            quickFormat: true,
+            run: {
+              size: 26,
+              bold: true,
+              color: "999999",
+              underline: {
+                type: UnderlineType.DOUBLE,
+                color: "FF0000",
+              },
+            },
+            paragraph: {
+              spacing: {
+                before: 240,
+                after: 120,
+              },
+            },
+          },
+        ],
+      },
+      numbering: {
+        config: [
+          {
+            reference: "blocknote-numbering",
+            levels: [
+              {
+                level: 0,
+                format: LevelFormat.DECIMAL,
+                text: "%1",
+                alignment: AlignmentType.START,
+              },
+            ],
+          },
+        ],
+      },
+    };
+  }
+
+  public toDocxJsDocument(blocks: Block<B, I, S>[]) {
+    return new Document({
+      ...this.createDocumentProperties(),
+      sections: [
+        {
+          properties: {},
+          children: this.transformBlocks(blocks),
+        },
+      ],
+    });
+  }
 }
-
-// const extraBlockSchema = BlockNoteSchema.create({
-//   blockSpecs: {
-//     extraBlock: createBlockSpec(
-//       {
-//         type: "extraBlock",
-//         content: "none",
-//         propSchema: {},
-//       },
-//       {
-//         render: () => ({} as any), // not used
-//       }
-//     ),
-//     ...defaultBlockSpecs,
-//   },
-// });
-
-// const { audio, ...rest } = defaultBlockSpecs;
-// const removedBlockSchema = BlockNoteSchema.create({
-//   blockSpecs: {
-//     //first pass all the blockspecs from the built in, default block schema
-//     ...rest,
-//   },
-// });
-
-// mappingFactory(removedBlockSchema).createBlockMapping(
-//   docxBlockMappingForDefaultSchema(ic)
-//   //   extraBlock: () => ({}) as any,
-// );
-// // if (b.type === "")

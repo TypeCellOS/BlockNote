@@ -1,18 +1,24 @@
 import { BlockNoteSchema, StyleSchema, StyledText } from "@blocknote/core";
-import { IRunPropertiesOptions, TextRun } from "docx";
-import { StyleMapping, mappingFactory } from "../mapping";
+import { Style, Text, TextProps } from "@react-pdf/renderer";
+import { StyleMapping, mappingFactory } from "../../mapping";
 
-export const docxStyleMappingForDefaultSchema = mappingFactory(
+export const pdfStyleMappingForDefaultSchema = mappingFactory(
   BlockNoteSchema.create()
-).createStyleMapping<IRunPropertiesOptions>({
+).createStyleMapping<Style>({
   bold: (val) => {
+    if (!val) {
+      return {};
+    }
     return {
-      bold: val,
+      fontWeight: "bold",
     };
   },
   italic: (val) => {
+    if (!val) {
+      return {};
+    }
     return {
-      italics: val,
+      fontStyle: "italic",
     };
   },
   underline: (val) => {
@@ -20,9 +26,7 @@ export const docxStyleMappingForDefaultSchema = mappingFactory(
       return {};
     }
     return {
-      underline: {
-        type: "single",
-      },
+      textDecoration: "underline", // TODO: could conflict with strike
     };
   },
   strike: (val) => {
@@ -30,15 +34,12 @@ export const docxStyleMappingForDefaultSchema = mappingFactory(
       return {};
     }
     return {
-      strike: val,
+      textDecoration: "line-through",
     };
   },
   backgroundColor: (val) => {
-    if (!val) {
-      return {};
-    }
     return {
-      // highlight: val,
+      backgroundColor: val,
     };
   },
   textColor: (val) => {
@@ -46,7 +47,7 @@ export const docxStyleMappingForDefaultSchema = mappingFactory(
       return {};
     }
     return {
-      // color: val,
+      color: val,
     };
   },
   code: (val) => {
@@ -54,14 +55,13 @@ export const docxStyleMappingForDefaultSchema = mappingFactory(
       return {};
     }
     return {
-      // TODO
-      // font: "",
+      fontFamily: "Courier",
     };
   },
 });
 
-export function createDocxStyledTextTransformer<S extends StyleSchema>(
-  mapping: StyleMapping<S, IRunPropertiesOptions>
+export function createPdfStyledTextTransformer<S extends StyleSchema>(
+  mapping: StyleMapping<S, TextProps>
 ) {
   return (styledText: StyledText<S>) => {
     const stylesArray = Object.entries(styledText.styles).map(
@@ -71,9 +71,6 @@ export function createDocxStyledTextTransformer<S extends StyleSchema>(
       }
     );
     const styles = Object.assign({}, ...stylesArray);
-
-    // console.log(props);
-
-    return new TextRun({ ...styles, text: styledText.text });
+    return <Text style={styles}>{styledText.text}</Text>;
   };
 }

@@ -1,142 +1,162 @@
-import ReactPDF, {
-  Document,
-  Font,
-  Page,
-  StyleSheet,
-  Text,
-  View,
-} from "@react-pdf/renderer";
+import {
+  BlockNoteSchema,
+  createBlockSpec,
+  createInlineContentSpec,
+  createStyleSpec,
+  defaultBlockSpecs,
+  defaultInlineContentSpecs,
+  defaultStyleSpecs,
+} from "@blocknote/core";
+import ReactPDF from "@react-pdf/renderer";
 import { describe, it } from "vitest";
 import { testDocument } from "../testDocument";
-import { createPdfExporterForDefaultSchema } from "./pdfExporter";
+import { PDFExporter, pdfDefaultSchemaMappings } from "./";
 describe("exporter", () => {
-  it("should export a document", async () => {
-    const exporter = createPdfExporterForDefaultSchema();
-    const ps = exporter.transform(testDocument);
+  it("typescript: schema with extra block", async () => {
+    // const exporter = createPdfExporterForDefaultSchema();
+    // const ps = exporter.transform(testDocument);
 
-    const styles = StyleSheet.create({
-      page: {
-        fontFamily: "Inter",
-        fontSize: 12,
-        lineHeight: 1.5,
-        // flexDirection: "row",
-        // backgroundColor: "#E4E4E4",
-      },
-      section: {
-        margin: 10,
-        padding: 10,
-        // flexGrow: 1,
+    const schema = BlockNoteSchema.create({
+      blockSpecs: {
+        ...defaultBlockSpecs,
+        extraBlock: createBlockSpec(
+          {
+            content: "none",
+            type: "extraBlock",
+            propSchema: {},
+          },
+          {} as any
+        ),
       },
     });
 
-    const MyDocument = () => (
-      <Document>
-        <Page size="A4" style={styles.page}>
-          <View style={styles.section}>{ps}</View>
-          {/* <View>
-
-            <Text>hello world no font set</Text>
-            <Text
-              style={{
-                fontFamily: "Inter",
-                // fontWeight: "bold",
-                // fontStyle: "italic",
-              }}>
-              hello world
-            </Text>
-            <Text
-              style={{
-                fontFamily: "Inter",
-                fontWeight: "bold",
-                // fontStyle: "italic",
-              }}>
-              hello world bold
-            </Text>
-            <Text
-              style={{
-                fontFamily: "Inter",
-                fontStyle: "italic",
-              }}>
-              hello world italic
-            </Text>
-
-            <Text>Section #1</Text>
-            <Text>Section #2</Text>
-          </View>
-          <View>
-
-            <Text>Section #3</Text>
-            <Text>Section #4</Text>
-          </View> */}
-        </Page>
-      </Document>
+    new PDFExporter(
+      schema,
+      // @ts-expect-error
+      pdfDefaultSchemaMappings
     );
 
-    if (import.meta.env.NODE_ENV === "test") {
-      let font = loadFontDataUrl("./src/fonts/inter/Inter_18pt-Regular.ttf");
-      Font.register({
-        family: "Inter",
-        src: font,
-      });
+    new PDFExporter(schema, {
+      // @ts-expect-error
+      blockMapping: pdfDefaultSchemaMappings.blockMapping,
+      inlineContentMapping: pdfDefaultSchemaMappings.inlineContentMapping,
+      styleMapping: pdfDefaultSchemaMappings.styleMapping,
+    });
 
-      font = loadFontDataUrl("./src/fonts/inter/Inter_18pt-Italic.ttf");
-      Font.register({
-        family: "Inter",
-        fontStyle: "italic",
-        src: font,
-      });
+    new PDFExporter(schema, {
+      blockMapping: {
+        ...pdfDefaultSchemaMappings.blockMapping,
+        extraBlock: () => {
+          throw new Error("extraBlock not implemented");
+        },
+      },
+      inlineContentMapping: pdfDefaultSchemaMappings.inlineContentMapping,
+      styleMapping: pdfDefaultSchemaMappings.styleMapping,
+    });
+  });
 
-      font = loadFontDataUrl("./src/fonts/inter/Inter_18pt-Bold.ttf");
-      Font.register({
-        family: "Inter",
-        src: font,
-        fontWeight: "bold",
-      });
+  it("typescript: schema with extra inline content", async () => {
+    const schema = BlockNoteSchema.create({
+      inlineContentSpecs: {
+        ...defaultInlineContentSpecs,
+        extraInlineContent: createInlineContentSpec(
+          {
+            type: "extraInlineContent",
+            content: "styled",
+            propSchema: {},
+          },
+          {} as any
+        ),
+      },
+    });
 
-      font = loadFontDataUrl("./src/fonts/inter/Inter_18pt-BoldItalic.ttf");
-      Font.register({
-        family: "Inter",
-        fontStyle: "italic",
-        src: font,
-        fontWeight: "bold",
-      });
-    } else {
-      console.error("TODO");
-      // const url = new URL("/types/" + typePath + "/" + path, import.meta.url);
-      // // console.log("RESOLVE", mod, url.toString(), path);
-      // content = await getCachedDTSString(config, url.toString());
-      // // content = await (await config.fetcher(url.toString())).text();
-    }
-
-    await ReactPDF.render(<MyDocument />, `${__dirname}/example.pdf`);
-
-    // Create styles
-
-    // Create Document Component
-    const MyDocument2 = () => (
-      <Document>
-        <Page size="A4" style={styles.page}>
-          <View style={styles.section}>
-            <Text>Section #1</Text>
-          </View>
-          <View style={styles.section}>
-            <Text>Section #2</Text>
-          </View>
-        </Page>
-      </Document>
+    new PDFExporter(
+      schema,
+      // @ts-expect-error
+      pdfDefaultSchemaMappings
     );
 
-    await ReactPDF.render(<MyDocument2 />, `${__dirname}/example2.pdf`);
-    // await saveTestFile();
+    new PDFExporter(schema, {
+      blockMapping: pdfDefaultSchemaMappings.blockMapping,
+      // @ts-expect-error
+      inlineContentMapping: pdfDefaultSchemaMappings.inlineContentMapping,
+      styleMapping: pdfDefaultSchemaMappings.styleMapping,
+    });
+
+    // no error
+    new PDFExporter(schema, {
+      blockMapping: pdfDefaultSchemaMappings.blockMapping,
+      styleMapping: pdfDefaultSchemaMappings.styleMapping,
+      inlineContentMapping: {
+        ...pdfDefaultSchemaMappings.inlineContentMapping,
+        extraInlineContent: () => {
+          throw new Error("extraInlineContent not implemented");
+        },
+      },
+    });
+  });
+
+  it("typescript: schema with extra style", async () => {
+    const schema = BlockNoteSchema.create({
+      styleSpecs: {
+        ...defaultStyleSpecs,
+        extraStyle: createStyleSpec(
+          {
+            type: "extraStyle",
+            propSchema: "boolean",
+          },
+          {} as any
+        ),
+      },
+    });
+
+    new PDFExporter(
+      schema,
+      // @ts-expect-error
+      pdfDefaultSchemaMappings
+    );
+
+    new PDFExporter(schema, {
+      blockMapping: pdfDefaultSchemaMappings.blockMapping,
+      inlineContentMapping: pdfDefaultSchemaMappings.inlineContentMapping,
+      // @ts-expect-error
+      styleMapping: pdfDefaultSchemaMappings.styleMapping,
+    });
+
+    // no error
+    new PDFExporter(schema, {
+      blockMapping: pdfDefaultSchemaMappings.blockMapping,
+      inlineContentMapping: pdfDefaultSchemaMappings.inlineContentMapping,
+      styleMapping: {
+        ...pdfDefaultSchemaMappings.styleMapping,
+        extraStyle: () => {
+          throw new Error("extraStyle not implemented");
+        },
+      },
+    });
+  });
+
+  it("typescript: schema with block and style removed", async () => {
+    const schema = BlockNoteSchema.create({
+      blockSpecs: {},
+      styleSpecs: {},
+    });
+
+    // still works (no error)
+    const exporter = new PDFExporter(schema, pdfDefaultSchemaMappings);
+  });
+
+  it("should export a document", async () => {
+    // const exporter = createPdfExporterForDefaultSchema();
+    // const ps = exporter.transform(testDocument);
+
+    const exporter = new PDFExporter(
+      BlockNoteSchema.create(),
+      pdfDefaultSchemaMappings
+    );
+
+    const transformed = exporter.toReactPDFDocument(testDocument);
+
+    await ReactPDF.render(transformed, `${__dirname}/example.pdf`);
   });
 });
-
-function loadFontDataUrl(path: string) {
-  // @ts-ignore
-  const fs = require("fs");
-  const buffer = fs.readFileSync(path);
-  const fontBase64 = buffer.toString("base64");
-
-  const dataUrl = `data:font/ttf;base64,${fontBase64}`;
-  return dataUrl;
-}

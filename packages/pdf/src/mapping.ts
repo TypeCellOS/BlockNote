@@ -2,9 +2,11 @@ import {
   BlockFromConfig,
   BlockNoteSchema,
   BlockSchema,
+  InlineContent,
   InlineContentFromConfig,
   InlineContentSchema,
   StyleSchema,
+  StyledText,
   Styles,
 } from "@blocknote/core";
 
@@ -15,10 +17,14 @@ export type BlockMapping<
   B extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
-  R
+  R,
+  RI
 > = {
   [K in keyof B]: (
     block: BlockFromConfig<B[K], I, S>,
+    inlineContentTransformer: (
+      inlineContent: InlineContent<InlineContentSchema, StyleSchema>[]
+    ) => RI,
     nestingLevel: number
   ) => R;
 };
@@ -29,9 +35,13 @@ export type BlockMapping<
 export type InlineContentMapping<
   I extends InlineContentSchema,
   S extends StyleSchema,
-  R
+  R,
+  RS
 > = {
-  [K in keyof I]: (inlineContent: InlineContentFromConfig<I[K], S>) => R;
+  [K in keyof I]: (
+    inlineContent: InlineContentFromConfig<I[K], S>,
+    styledTextTransformer: (styledText: StyledText<S>) => RS
+  ) => R;
 };
 
 /**
@@ -51,54 +61,11 @@ export function mappingFactory<
   S extends StyleSchema
 >(_schema: BlockNoteSchema<B, I, S>) {
   return {
-    createBlockMapping: <R>(mapping: BlockMapping<B, I, S, R>) => mapping,
-    createInlineContentMapping: <R>(mapping: InlineContentMapping<I, S, R>) =>
+    createBlockMapping: <R, RI>(mapping: BlockMapping<B, I, S, R, RI>) =>
       mapping,
+    createInlineContentMapping: <R, RS>(
+      mapping: InlineContentMapping<I, S, R, RS>
+    ) => mapping,
     createStyleMapping: <R>(mapping: StyleMapping<S, R>) => mapping,
   };
 }
-
-// export async function saveTestFile() {
-//   // Documents contain sections, you can have multiple sections per document, go here to learn more about sections
-//   // This simple example will only contain one section
-//   const doc = new Document({
-//     sections: [
-//       {
-//         properties: {},
-//         children: [
-//           new Paragraph({
-//             children: [
-//               new TextRun("Hello World"),
-//               new TextRun({
-//                 text: "Foo Bar",
-//                 bold: true,
-//               }),
-//               new TextRun({
-//                 text: "\tGithub is the best",
-//                 bold: true,
-//               }),
-//             ],
-//           }),
-//           new Paragraph({
-//             children: [
-//               new TextRun("Hello World"),
-//               new TextRun({
-//                 text: "Foo Bar",
-//                 bold: true,
-//               }),
-//               new TextRun({
-//                 text: "\tGithub is the best",
-//                 bold: true,
-//               }),
-//             ],
-//             indent: { left: "1cm", start: "1cm" },
-//           }),
-//         ],
-//       },
-//     ],
-//   });
-
-//   // Used to export the file into a .docx file
-//   const buffer = await Packer.toBuffer(doc);
-//   fs.writeFileSync(__dirname + "/My Document.docx", buffer);
-// }
