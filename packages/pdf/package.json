@@ -1,8 +1,8 @@
 {
   "name": "@blocknote/pdf",
   "homepage": "https://github.com/TypeCellOS/BlockNote",
-  "private": false,
-  "license": "MPL-2.0",
+  "private": true,
+  "license": "UNLICENSED",
   "version": "0.16.0",
   "files": [
     "dist",
