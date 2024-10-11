@@ -2,7 +2,7 @@ import { BlockNoteSchema, StyleSchema, StyledText } from "@blocknote/core";
 import { Style, Text, TextProps } from "@react-pdf/renderer";
 import { StyleMapping, mappingFactory } from "../mapping";
 
-export const docxStyleMappingForDefaultSchema = mappingFactory(
+export const pdfStyleMappingForDefaultSchema = mappingFactory(
   BlockNoteSchema.create()
 ).createStyleMapping<Style>({
   bold: (val) => {
@@ -60,7 +60,7 @@ export const docxStyleMappingForDefaultSchema = mappingFactory(
   },
 });
 
-export function createDocxStyledTextTransformer<S extends StyleSchema>(
+export function createPdfStyledTextTransformer<S extends StyleSchema>(
   mapping: StyleMapping<S, TextProps>
 ) {
   return (styledText: StyledText<S>) => {

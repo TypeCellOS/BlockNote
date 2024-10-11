@@ -8,10 +8,10 @@ import ReactPDF, {
 } from "@react-pdf/renderer";
 import { describe, it } from "vitest";
 import { testDocument } from "../testDocument";
-import { createDocxExporterForDefaultSchema } from "./pdfExporter";
+import { createPdfExporterForDefaultSchema } from "./pdfExporter";
 describe("exporter", () => {
   it("should export a document", async () => {
-    const exporter = createDocxExporterForDefaultSchema();
+    const exporter = createPdfExporterForDefaultSchema();
     const ps = exporter.transform(testDocument);
 
     const styles = StyleSheet.create({
@@ -130,6 +130,7 @@ describe("exporter", () => {
     // await saveTestFile();
   });
 });
+
 function loadFontDataUrl(path: string) {
   // @ts-ignore
   const fs = require("fs");

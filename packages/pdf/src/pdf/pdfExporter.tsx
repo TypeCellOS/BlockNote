@@ -6,24 +6,24 @@ import {
   createBlockTransformerFromMapping,
   createInlineContentTransformerFromMapping,
 } from "../transformer";
-import { docxBlockMappingForDefaultSchema } from "./blocks";
-import { docxInlineContentMappingForDefaultSchema } from "./inlinecontent";
+import { pdfBlockMappingForDefaultSchema } from "./blocks";
+import { pdfInlineContentMappingForDefaultSchema } from "./inlinecontent";
 import {
-  createDocxStyledTextTransformer,
-  docxStyleMappingForDefaultSchema,
+  createPdfStyledTextTransformer,
+  pdfStyleMappingForDefaultSchema,
 } from "./styles";
 
-export function createDocxExporterForDefaultSchema() {
-  const styledTextTransformer = createDocxStyledTextTransformer(
-    docxStyleMappingForDefaultSchema
+export function createPdfExporterForDefaultSchema() {
+  const styledTextTransformer = createPdfStyledTextTransformer(
+    pdfStyleMappingForDefaultSchema
   );
 
   const inlineContentTransformer = createInlineContentTransformerFromMapping(
-    docxInlineContentMappingForDefaultSchema(styledTextTransformer)
+    pdfInlineContentMappingForDefaultSchema(styledTextTransformer)
   );
 
   const blockTransformer = createBlockTransformerFromMapping(
-    docxBlockMappingForDefaultSchema(inlineContentTransformer)
+    pdfBlockMappingForDefaultSchema(inlineContentTransformer)
   );
 
   const transform = (

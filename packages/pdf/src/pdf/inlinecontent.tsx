@@ -2,7 +2,7 @@ import { BlockNoteSchema, StyleSchema, StyledText } from "@blocknote/core";
 import { Link, Text } from "@react-pdf/renderer";
 import { mappingFactory } from "../mapping";
 
-export function docxInlineContentMappingForDefaultSchema(
+export function pdfInlineContentMappingForDefaultSchema(
   styledTextTransformer: (
     styledText: StyledText<StyleSchema>
   ) => React.ReactElement<Text>

@@ -51,12 +51,9 @@ export function mappingFactory<
   S extends StyleSchema
 >(_schema: BlockNoteSchema<B, I, S>) {
   return {
-    createBlockMapping: <R>(
-      mapping: BlockMapping<B, InlineContentSchema, StyleSchema, R>
-    ) => mapping,
-    createInlineContentMapping: <R>(
-      mapping: InlineContentMapping<I, StyleSchema, R>
-    ) => mapping,
+    createBlockMapping: <R>(mapping: BlockMapping<B, I, S, R>) => mapping,
+    createInlineContentMapping: <R>(mapping: InlineContentMapping<I, S, R>) =>
+      mapping,
     createStyleMapping: <R>(mapping: StyleMapping<S, R>) => mapping,
   };
 }

@@ -1,14 +1,20 @@
-import { BlockNoteSchema } from "@blocknote/core";
+import {
+  BlockNoteSchema,
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+  InlineContent,
+} from "@blocknote/core";
 import { Image, Text } from "@react-pdf/renderer";
 import { mappingFactory } from "../mapping";
 
-export function docxBlockMappingForDefaultSchema(
+export function pdfBlockMappingForDefaultSchema(
   inlineContentTransformer: (
     inlineContent: any // TODO
   ) => React.ReactElement<Text>
 ) {
-  function createContent<T>(content: T[]): React.ReactElement<Text> {
-    console.log(content);
+  function createContent<T>(
+    content: InlineContent<DefaultInlineContentSchema, DefaultStyleSchema>[]
+  ): React.ReactElement<Text> {
     return (
       <Text>
         {content.map((content) => {
