@@ -1,15 +1,15 @@
 import { Block } from "@blocknote/core";
 import { Paragraph, Tab, TextRun } from "docx";
-import { docxBlockMappingForDefaultSchema } from "./docx/blocks";
-import { docxInlineContentMappingForDefaultSchema } from "./docx/inlinecontent";
-import {
-  createDocxStyledTextTransformer,
-  docxStyleMappingForDefaultSchema,
-} from "./docx/styles";
 import {
   createBlockTransformerFromMapping,
   createInlineContentTransformerFromMapping,
-} from "./transformer";
+} from "../transformer";
+import { docxBlockMappingForDefaultSchema } from "./blocks";
+import { docxInlineContentMappingForDefaultSchema } from "./inlinecontent";
+import {
+  createDocxStyledTextTransformer,
+  docxStyleMappingForDefaultSchema,
+} from "./styles";
 
 export function createDocxExporterForDefaultSchema() {
   const styledTextTransformer = createDocxStyledTextTransformer(

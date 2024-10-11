@@ -570,7 +570,7 @@ export const BlockContainer = Node.create<{
       this.editor.commands.first(({ commands }) => [
         // Deletes the selection if it's not empty.
         () => commands.deleteSelection(),
-        // Merges block with the next one (at the same nesting level or lower),
+        // Merges block with the next o ne (at the same nesting level or lower),
         // if one exists, the block has no children, and the selection is at the
         // end of the block.
         () =>
@@ -582,6 +582,7 @@ export const BlockContainer = Node.create<{
 
             const blockAtDocEnd = endPos === state.doc.nodeSize - 4;
             const selectionAtBlockEnd = state.selection.from === endPos - 1;
+            console.log(selectionAtBlockEnd, endPos);
             const selectionEmpty = state.selection.empty;
             const hasChildBlocks = node.childCount === 2;
 

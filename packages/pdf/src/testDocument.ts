@@ -4,7 +4,7 @@ import {
 } from "@blocknote/core";
 
 export const testDocument = partialBlocksToBlocksForTesting(
-  BlockNoteSchema.create().blockSchema,
+  BlockNoteSchema.create(),
   [
     {
       type: "paragraph",

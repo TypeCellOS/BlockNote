@@ -7,8 +7,8 @@ import ReactPDF, {
   View,
 } from "@react-pdf/renderer";
 import { describe, it } from "vitest";
+import { testDocument } from "../testDocument";
 import { createDocxExporterForDefaultSchema } from "./pdfExporter";
-import { testDocument } from "./testDocument";
 describe("exporter", () => {
   it("should export a document", async () => {
     const exporter = createDocxExporterForDefaultSchema();

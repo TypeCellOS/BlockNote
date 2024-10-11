@@ -2,16 +2,16 @@ import { Block } from "@blocknote/core";
 
 import { Text, View } from "@react-pdf/renderer";
 
-import { docxBlockMappingForDefaultSchema } from "./pdf/blocks";
-import { docxInlineContentMappingForDefaultSchema } from "./pdf/inlinecontent";
-import {
-  createDocxStyledTextTransformer,
-  docxStyleMappingForDefaultSchema,
-} from "./pdf/styles";
 import {
   createBlockTransformerFromMapping,
   createInlineContentTransformerFromMapping,
-} from "./transformer";
+} from "../transformer";
+import { docxBlockMappingForDefaultSchema } from "./blocks";
+import { docxInlineContentMappingForDefaultSchema } from "./inlinecontent";
+import {
+  createDocxStyledTextTransformer,
+  docxStyleMappingForDefaultSchema,
+} from "./styles";
 
 export function createDocxExporterForDefaultSchema() {
   const styledTextTransformer = createDocxStyledTextTransformer(

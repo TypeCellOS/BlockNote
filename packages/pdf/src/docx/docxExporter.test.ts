@@ -8,8 +8,8 @@ import {
 } from "docx";
 import fs from "fs";
 import { describe, it } from "vitest";
+import { testDocument } from "../testDocument";
 import { createDocxExporterForDefaultSchema } from "./docxExporter";
-import { testDocument } from "./testDocument";
 describe("exporter", () => {
   it("should export a document", async () => {
     const exporter = createDocxExporterForDefaultSchema();

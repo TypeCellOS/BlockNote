@@ -1,4 +1,5 @@
 import { Block, PartialBlock } from "../../blocks/defaultBlocks";
+import { BlockNoteSchema } from "../../editor/BlockNoteSchema";
 import UniqueID from "../../extensions/UniqueID/UniqueID";
 import { BlockSchema, TableContent } from "../../schema/blocks/types";
 import {
@@ -64,11 +65,11 @@ export function partialBlocksToBlocksForTesting<
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  schema: BSchema,
+  schema: BlockNoteSchema<BSchema, I, S>,
   partialBlocks: Array<PartialBlock<BSchema, I, S>>
 ): Array<Block<BSchema, I, S>> {
   return partialBlocks.map((partialBlock) =>
-    partialBlockToBlockForTesting(schema, partialBlock)
+    partialBlockToBlockForTesting(schema.blockSchema, partialBlock)
   );
 }
 
