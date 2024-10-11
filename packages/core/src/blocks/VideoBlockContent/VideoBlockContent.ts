@@ -1,12 +1,12 @@
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   BlockFromConfig,
   createBlockSpec,
   FileBlockConfig,
   Props,
   PropSchema,
-} from "../../schema";
-import { defaultProps } from "../defaultProps";
+} from "../../schema/index.js";
+import { defaultProps } from "../defaultProps.js";
 
 import {
   createFigureWithCaption,
@@ -15,8 +15,8 @@ import {
   createLinkWithCaption,
   createResizeHandlesWrapper,
   parseFigureElement,
-} from "../FileBlockContent/fileBlockHelpers";
-import { parseVideoElement } from "./videoBlockHelpers";
+} from "../FileBlockContent/fileBlockHelpers.js";
+import { parseVideoElement } from "./videoBlockHelpers.js";
 
 export const videoPropSchema = {
   textAlignment: defaultProps.textAlignment,

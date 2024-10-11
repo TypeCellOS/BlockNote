@@ -2,10 +2,14 @@ import { Extension } from "@tiptap/core";
 import { Plugin } from "prosemirror-state";
 
 import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
-import { nestedListsToBlockNoteStructure } from "../../parsers/html/util/nestedLists";
-import { acceptedMIMETypes } from "./acceptedMIMETypes";
-import { handleFileInsertion } from "./handleFileInsertion";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../../schema/index.js";
+import { nestedListsToBlockNoteStructure } from "../../parsers/html/util/nestedLists.js";
+import { acceptedMIMETypes } from "./acceptedMIMETypes.js";
+import { handleFileInsertion } from "./handleFileInsertion.js";
 
 export const createPasteFromClipboardExtension = <
   BSchema extends BlockSchema,

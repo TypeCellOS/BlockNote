@@ -1,19 +1,19 @@
 import { DOMSerializer, Schema } from "prosemirror-model";
 
-import { PartialBlock } from "../../../blocks/defaultBlocks";
-import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
+import { PartialBlock } from "../../../blocks/defaultBlocks.js";
+import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import {
   BlockSchema,
   InlineContent,
   InlineContentSchema,
   StyleSchema,
-} from "../../../schema";
-import { esmDependencies } from "../../../util/esmDependencies";
+} from "../../../schema/index.js";
+import { esmDependencies } from "../../../util/esmDependencies.js";
 import {
   serializeBlocks,
   serializeInlineContent,
-} from "./util/sharedHTMLConversion";
-import { simplifyBlocks } from "./util/simplifyBlocksRehypePlugin";
+} from "./util/sharedHTMLConversion.js";
+import { simplifyBlocks } from "./util/simplifyBlocksRehypePlugin.js";
 
 // Used to export BlockNote blocks and ProseMirror nodes to HTML for use outside
 // the editor. Blocks are exported using the `toExternalHTML` method in their

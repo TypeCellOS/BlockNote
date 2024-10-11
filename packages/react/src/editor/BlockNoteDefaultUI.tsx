@@ -1,11 +1,11 @@
-import { FormattingToolbarController } from "../components/FormattingToolbar/FormattingToolbarController";
-import { LinkToolbarController } from "../components/LinkToolbar/LinkToolbarController";
-import { FilePanelController } from "../components/FilePanel/FilePanelController";
-import { SideMenuController } from "../components/SideMenu/SideMenuController";
-import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController";
-import { GridSuggestionMenuController } from "../components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuController";
-import { TableHandlesController } from "../components/TableHandles/TableHandlesController";
-import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor";
+import { FilePanelController } from "../components/FilePanel/FilePanelController.js";
+import { FormattingToolbarController } from "../components/FormattingToolbar/FormattingToolbarController.js";
+import { LinkToolbarController } from "../components/LinkToolbar/LinkToolbarController.js";
+import { SideMenuController } from "../components/SideMenu/SideMenuController.js";
+import { GridSuggestionMenuController } from "../components/SuggestionMenu/GridSuggestionMenu/GridSuggestionMenuController.js";
+import { SuggestionMenuController } from "../components/SuggestionMenu/SuggestionMenuController.js";
+import { TableHandlesController } from "../components/TableHandles/TableHandlesController.js";
+import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor.js";
 
 export type BlockNoteDefaultUIProps = {
   formattingToolbar?: boolean;

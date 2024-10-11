@@ -8,10 +8,10 @@ import {
 } from "@blocknote/core";
 import { ReactNode, useMemo } from "react";
 
-import { AddBlockButton } from "./DefaultButtons/AddBlockButton";
-import { DragHandleButton } from "./DefaultButtons/DragHandleButton";
-import { SideMenuProps } from "./SideMenuProps";
-import { useComponentsContext } from "../../editor/ComponentsContext";
+import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { AddBlockButton } from "./DefaultButtons/AddBlockButton.js";
+import { DragHandleButton } from "./DefaultButtons/DragHandleButton.js";
+import { SideMenuProps } from "./SideMenuProps.js";
 
 // TODO: props.dragHandleMenu should only be available if no children are passed
 /**
@@ -30,8 +30,6 @@ export const SideMenu = <
   props: SideMenuProps<BSchema, I, S> & { children?: ReactNode }
 ) => {
   const Components = useComponentsContext()!;
-
-  const { addBlock, ...rest } = props;
 
   const dataAttributes = useMemo(() => {
     const attrs: Record<string, string> = {
@@ -57,8 +55,8 @@ export const SideMenu = <
     <Components.SideMenu.Root className={"bn-side-menu"} {...dataAttributes}>
       {props.children || (
         <>
-          <AddBlockButton addBlock={addBlock} />
-          <DragHandleButton {...rest} />
+          <AddBlockButton {...props} />
+          <DragHandleButton {...props} />
         </>
       )}
     </Components.SideMenu.Root>

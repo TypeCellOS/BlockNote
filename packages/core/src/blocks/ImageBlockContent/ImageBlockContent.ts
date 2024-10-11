@@ -1,12 +1,12 @@
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   BlockFromConfig,
   createBlockSpec,
   FileBlockConfig,
   Props,
   PropSchema,
-} from "../../schema";
-import { defaultProps } from "../defaultProps";
+} from "../../schema/index.js";
+import { defaultProps } from "../defaultProps.js";
 import {
   createFigureWithCaption,
   createFileAndCaptionWrapper,
@@ -14,8 +14,8 @@ import {
   createLinkWithCaption,
   createResizeHandlesWrapper,
   parseFigureElement,
-} from "../FileBlockContent/fileBlockHelpers";
-import { parseImageElement } from "./imageBlockHelpers";
+} from "../FileBlockContent/fileBlockHelpers.js";
+import { parseImageElement } from "./imageBlockHelpers.js";
 
 export const imagePropSchema = {
   textAlignment: defaultProps.textAlignment,

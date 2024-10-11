@@ -1,10 +1,10 @@
+import { getCurrentBlockContentType } from "../../api/getCurrentBlockContentType.js";
 import {
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
-} from "../../schema";
-import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers";
-import { defaultProps } from "../defaultProps";
-import { getCurrentBlockContentType } from "../../api/getCurrentBlockContentType";
+} from "../../schema/index.js";
+import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
+import { defaultProps } from "../defaultProps.js";
 
 export const paragraphPropSchema = {
   ...defaultProps,

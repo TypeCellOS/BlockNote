@@ -11,7 +11,7 @@ import {
 } from "@blocknote/core";
 import { FC } from "react";
 
-import { DragHandleMenuProps } from "./DragHandleMenu/DragHandleMenuProps";
+import { DragHandleMenuProps } from "./DragHandleMenu/DragHandleMenuProps.js";
 
 export type SideMenuProps<
   BSchema extends BlockSchema = DefaultBlockSchema,
@@ -23,9 +23,5 @@ export type SideMenuProps<
 } & Omit<SideMenuState<BSchema, I, S>, keyof UiElementPosition> &
   Pick<
     BlockNoteEditor<BSchema, I, S>["sideMenu"],
-    | "addBlock"
-    | "blockDragStart"
-    | "blockDragEnd"
-    | "freezeMenu"
-    | "unfreezeMenu"
+    "blockDragStart" | "blockDragEnd" | "freezeMenu" | "unfreezeMenu"
   >;

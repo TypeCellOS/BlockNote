@@ -9,10 +9,10 @@ import {
 } from "@blocknote/core";
 import { ChangeEvent, KeyboardEvent, useCallback, useState } from "react";
 
-import { useComponentsContext } from "../../../editor/ComponentsContext";
-import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor";
-import { useDictionary } from "../../../i18n/dictionary";
-import { FilePanelProps } from "../FilePanelProps";
+import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
+import { useDictionary } from "../../../i18n/dictionary.js";
+import { FilePanelProps } from "../FilePanelProps.js";
 
 export const EmbedTab = <
   B extends BlockSchema = DefaultBlockSchema,

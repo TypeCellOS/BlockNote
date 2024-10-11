@@ -1,14 +1,14 @@
 import { FileChooser, expect } from "@playwright/test";
-import { test } from "../../setup/setupScript";
+import { test } from "../../setup/setupScript.js";
 import {
   BASE_URL,
   H_ONE_BLOCK_SELECTOR,
   IMAGE_SELECTOR,
-} from "../../utils/const";
-import { insertHeading } from "../../utils/copypaste";
-import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor";
-import { dragAndDropBlock } from "../../utils/mouse";
-import { executeSlashCommand } from "../../utils/slashmenu";
+} from "../../utils/const.js";
+import { insertHeading } from "../../utils/copypaste.js";
+import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor.js";
+import { dragAndDropBlock } from "../../utils/mouse.js";
+import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 const IMAGE_UPLOAD_PATH = "src/end-to-end/images/placeholder.png";
 const IMAGE_EMBED_URL =

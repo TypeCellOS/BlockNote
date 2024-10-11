@@ -1,18 +1,17 @@
 import { DOMSerializer, Fragment } from "prosemirror-model";
 
-import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
-
-import { PartialBlock } from "../../../../blocks/defaultBlocks";
+import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
+import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
-} from "../../../../schema";
-import { UnreachableCaseError } from "../../../../util/typescript";
+} from "../../../../schema/index.js";
+import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
   inlineContentToNodes,
   tableContentToNodes,
-} from "../../../nodeConversions/nodeConversions";
+} from "../../../nodeConversions/nodeConversions.js";
 
 export function serializeInlineContent<
   BSchema extends BlockSchema,

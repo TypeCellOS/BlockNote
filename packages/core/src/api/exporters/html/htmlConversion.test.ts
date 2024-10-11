@@ -1,16 +1,23 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { addIdsToBlocks, partialBlocksToBlocksForTesting } from "../../..";
-import { PartialBlock } from "../../../blocks/defaultBlocks";
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
-import { initializeESMDependencies } from "../../../util/esmDependencies";
-import { customBlocksTestCases } from "../../testUtil/cases/customBlocks";
-import { customInlineContentTestCases } from "../../testUtil/cases/customInlineContent";
-import { customStylesTestCases } from "../../testUtil/cases/customStyles";
-import { defaultSchemaTestCases } from "../../testUtil/cases/defaultSchema";
-import { createExternalHTMLExporter } from "./externalHTMLExporter";
-import { createInternalHTMLSerializer } from "./internalHTMLSerializer";
+import { PartialBlock } from "../../../blocks/defaultBlocks.js";
+import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import {
+  addIdsToBlocks,
+  partialBlocksToBlocksForTesting,
+} from "../../../index.js";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../../schema/index.js";
+import { initializeESMDependencies } from "../../../util/esmDependencies.js";
+import { customBlocksTestCases } from "../../testUtil/cases/customBlocks.js";
+import { customInlineContentTestCases } from "../../testUtil/cases/customInlineContent.js";
+import { customStylesTestCases } from "../../testUtil/cases/customStyles.js";
+import { defaultSchemaTestCases } from "../../testUtil/cases/defaultSchema.js";
+import { createExternalHTMLExporter } from "./externalHTMLExporter.js";
+import { createInternalHTMLSerializer } from "./internalHTMLSerializer.js";
 
 async function convertToHTMLAndCompareSnapshots<
   B extends BlockSchema,

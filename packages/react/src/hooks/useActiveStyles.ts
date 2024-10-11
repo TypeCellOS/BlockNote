@@ -1,9 +1,9 @@
 import { BlockNoteEditor, StyleSchema } from "@blocknote/core";
 
 import { useState } from "react";
-import { useBlockNoteContext } from "../editor/BlockNoteContext";
-import { useEditorChange } from "./useEditorChange";
-import { useEditorSelectionChange } from "./useEditorSelectionChange";
+import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
+import { useEditorChange } from "./useEditorChange.js";
+import { useEditorSelectionChange } from "./useEditorSelectionChange.js";
 
 export function useActiveStyles<T extends StyleSchema>(
   editor?: BlockNoteEditor<any, any, T>

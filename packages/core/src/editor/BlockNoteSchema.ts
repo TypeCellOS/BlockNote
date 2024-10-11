@@ -2,7 +2,11 @@ import {
   defaultBlockSpecs,
   defaultInlineContentSpecs,
   defaultStyleSpecs,
-} from "../blocks/defaultBlocks";
+} from "../blocks/defaultBlocks.js";
+import type {
+  BlockNoDefaults,
+  PartialBlockNoDefaults,
+} from "../schema/blocks/types.js";
 import {
   BlockSchema,
   BlockSchemaFromSpecs,
@@ -16,12 +20,8 @@ import {
   getBlockSchemaFromSpecs,
   getInlineContentSchemaFromSpecs,
   getStyleSchemaFromSpecs,
-} from "../schema";
-import type {
-  BlockNoDefaults,
-  PartialBlockNoDefaults,
-} from "../schema/blocks/types";
-import type { BlockNoteEditor } from "./BlockNoteEditor";
+} from "../schema/index.js";
+import type { BlockNoteEditor } from "./BlockNoteEditor.js";
 
 function removeUndefined<T extends Record<string, any> | undefined>(obj: T): T {
   if (!obj) {

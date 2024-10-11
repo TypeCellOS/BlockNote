@@ -9,11 +9,11 @@ import {
 import { flip, offset } from "@floating-ui/react";
 import { FC } from "react";
 
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
-import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
-import { useUIPluginState } from "../../hooks/useUIPluginState";
-import { FilePanel } from "./FilePanel";
-import { FilePanelProps } from "./FilePanelProps";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { useUIElementPositioning } from "../../hooks/useUIElementPositioning.js";
+import { useUIPluginState } from "../../hooks/useUIPluginState.js";
+import { FilePanel } from "./FilePanel.js";
+import { FilePanelProps } from "./FilePanelProps.js";
 
 export const FilePanelController = <
   B extends BlockSchema = DefaultBlockSchema,

@@ -1,7 +1,7 @@
-import { Block, PartialBlock } from "../../blocks/defaultBlocks";
-import { BlockNoteSchema } from "../../editor/BlockNoteSchema";
-import UniqueID from "../../extensions/UniqueID/UniqueID";
-import { BlockSchema, TableContent } from "../../schema/blocks/types";
+import { Block, PartialBlock } from "../../blocks/defaultBlocks.js";
+import { BlockNoteSchema } from "../../editor/BlockNoteSchema.js";
+import UniqueID from "../../extensions/UniqueID/UniqueID.js";
+import { BlockSchema, TableContent } from "../../schema/blocks/types.js";
 import {
   InlineContent,
   InlineContentSchema,
@@ -9,8 +9,8 @@ import {
   StyledText,
   isPartialLinkInlineContent,
   isStyledTextInlineContent,
-} from "../../schema/inlineContent/types";
-import { StyleSchema } from "../../schema/styles/types";
+} from "../../schema/inlineContent/types.js";
+import { StyleSchema } from "../../schema/styles/types.js";
 
 function textShorthandToStyledText(
   content: string | StyledText<any>[] = ""

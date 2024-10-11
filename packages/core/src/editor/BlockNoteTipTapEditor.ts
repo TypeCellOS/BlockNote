@@ -1,13 +1,15 @@
 import { EditorOptions, createDocument } from "@tiptap/core";
 // import "./blocknote.css";
 import { Editor as TiptapEditor } from "@tiptap/core";
+
 import { Node } from "@tiptap/pm/model";
+
 import { EditorView } from "@tiptap/pm/view";
 
 import { EditorState, Transaction } from "@tiptap/pm/state";
-import { blockToNode } from "../api/nodeConversions/nodeConversions";
-import { PartialBlock } from "../blocks/defaultBlocks";
-import { StyleSchema } from "../schema";
+import { blockToNode } from "../api/nodeConversions/nodeConversions.js";
+import { PartialBlock } from "../blocks/defaultBlocks.js";
+import { StyleSchema } from "../schema/index.js";
 
 export type BlockNoteTipTapEditorOptions = Partial<
   Omit<EditorOptions, "content">
