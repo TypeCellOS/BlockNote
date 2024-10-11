@@ -1,10 +1,8 @@
-import { BlockNoteSchema, StyleSchema, StyledText } from "@blocknote/core";
-import { Style, Text, TextProps } from "@react-pdf/renderer";
-import { StyleMapping, mappingFactory } from "../../mapping";
+import { DefaultStyleSchema } from "@blocknote/core";
+import { TextProps } from "@react-pdf/renderer";
+import { StyleMapping } from "../../mapping";
 
-export const pdfStyleMappingForDefaultSchema = mappingFactory(
-  BlockNoteSchema.create()
-).createStyleMapping<Style>({
+export const pdfStyleMappingForDefaultSchema = {
   bold: (val) => {
     if (!val) {
       return {};
@@ -58,19 +56,4 @@ export const pdfStyleMappingForDefaultSchema = mappingFactory(
       fontFamily: "Courier",
     };
   },
-});
-
-export function createPdfStyledTextTransformer<S extends StyleSchema>(
-  mapping: StyleMapping<S, TextProps>
-) {
-  return (styledText: StyledText<S>) => {
-    const stylesArray = Object.entries(styledText.styles).map(
-      ([key, value]) => {
-        const mappedStyle = mapping[key](value);
-        return mappedStyle;
-      }
-    );
-    const styles = Object.assign({}, ...stylesArray);
-    return <Text style={styles}>{styledText.text}</Text>;
-  };
-}
+} satisfies StyleMapping<DefaultStyleSchema, TextProps["style"]>;

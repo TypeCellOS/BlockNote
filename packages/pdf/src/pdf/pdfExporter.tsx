@@ -31,7 +31,7 @@ export class PDFExporter<
   public constructor(
     public readonly schema: BlockNoteSchema<B, I, S>,
     public readonly mappings: {
-      styleMapping: StyleMapping<NoInfer<S>, TextProps>;
+      styleMapping: StyleMapping<NoInfer<S>, TextProps["style"]>;
       blockMapping: BlockMapping<
         B,
         I,
@@ -153,6 +153,7 @@ export class PDFExporter<
         fontWeight: "bold",
       });
     } else {
+      // eslint-disable-next-line no-console
       console.error("TODO");
     }
   }

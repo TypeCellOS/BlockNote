@@ -66,7 +66,7 @@ export const docxBlockMappingForDefaultSchema = {
       heading: `Heading${block.props.level}`,
     });
   },
-  audio: (block, inlineContentTransformer) => {
+  audio: (block, _inlineContentTransformer) => {
     return new Paragraph({
       children: [
         new TextRun({
@@ -75,7 +75,7 @@ export const docxBlockMappingForDefaultSchema = {
       ],
     });
   },
-  video: (block, inlineContentTransformer) => {
+  video: (block, _inlineContentTransformer) => {
     return new Paragraph({
       children: [
         new TextRun({
@@ -84,7 +84,7 @@ export const docxBlockMappingForDefaultSchema = {
       ],
     });
   },
-  file: (block, inlineContentTransformer) => {
+  file: (block, _inlineContentTransformer) => {
     return new Paragraph({
       children: [
         new TextRun({
@@ -93,7 +93,7 @@ export const docxBlockMappingForDefaultSchema = {
       ],
     });
   },
-  image: (block, inlineContentTransformer) => {
+  image: (block, _inlineContentTransformer) => {
     return new Paragraph({
       children: [
         new TextRun({
@@ -102,7 +102,7 @@ export const docxBlockMappingForDefaultSchema = {
       ],
     });
   },
-  table: (block, inlineContentTransformer) => {
+  table: (block, _inlineContentTransformer) => {
     return new Paragraph({
       children: [
         new TextRun({

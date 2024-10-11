@@ -1,5 +1,5 @@
 export function loadFontDataUrl(path: string) {
-  // @ts-ignore
+  // eslint-disable-next-line
   const fs = require("fs");
   const buffer = fs.readFileSync(path);
   const fontBase64 = buffer.toString("base64");

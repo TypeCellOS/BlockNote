@@ -143,7 +143,7 @@ describe("exporter", () => {
     });
 
     // still works (no error)
-    const exporter = new PDFExporter(schema, pdfDefaultSchemaMappings);
+    new PDFExporter(schema, pdfDefaultSchemaMappings);
   });
 
   it("should export a document", async () => {
