@@ -582,7 +582,7 @@ export const BlockContainer = Node.create<{
 
             const blockAtDocEnd = endPos === state.doc.nodeSize - 4;
             const selectionAtBlockEnd = state.selection.from === endPos - 1;
-            console.log(selectionAtBlockEnd, endPos);
+
             const selectionEmpty = state.selection.empty;
             const hasChildBlocks = node.childCount === 2;
 
