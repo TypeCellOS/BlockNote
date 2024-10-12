@@ -1,2 +1,2 @@
-export * from "./defaultSchema";
-export * from "./pdfExporter";
+export * from "./defaultSchema/index.js";
+export * from "./pdfExporter.js";

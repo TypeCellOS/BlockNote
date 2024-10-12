@@ -1,6 +1,6 @@
-import { docxBlockMappingForDefaultSchema } from "./blocks";
-import { docxInlineContentMappingForDefaultSchema } from "./inlinecontent";
-import { docxStyleMappingForDefaultSchema } from "./styles";
+import { docxBlockMappingForDefaultSchema } from "./blocks.js";
+import { docxInlineContentMappingForDefaultSchema } from "./inlinecontent.js";
+import { docxStyleMappingForDefaultSchema } from "./styles.js";
 
 export const docxDefaultSchemaMappings = {
   styleMapping: docxStyleMappingForDefaultSchema,

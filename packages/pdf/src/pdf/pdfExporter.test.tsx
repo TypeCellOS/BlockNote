@@ -9,8 +9,10 @@ import {
 } from "@blocknote/core";
 import ReactPDF from "@react-pdf/renderer";
 import { describe, it } from "vitest";
-import { testDocument } from "../testDocument";
-import { PDFExporter, pdfDefaultSchemaMappings } from "./";
+import { testDocument } from "../testDocument.js";
+import { pdfDefaultSchemaMappings } from "./defaultSchema/index.js";
+import { PDFExporter } from "./pdfExporter.js";
+
 describe("exporter", () => {
   it("typescript: schema with extra block", async () => {
     // const exporter = createPdfExporterForDefaultSchema();

@@ -20,8 +20,12 @@ import {
   View,
 } from "@react-pdf/renderer";
 
-import { BlockMapping, InlineContentMapping, StyleMapping } from "../mapping";
-import { loadFontDataUrl } from "./util/loadFontDataUrl";
+import {
+  BlockMapping,
+  InlineContentMapping,
+  StyleMapping,
+} from "../mapping.js";
+import { loadFontDataUrl } from "./util/loadFontDataUrl.js";
 
 export class PDFExporter<
   B extends BlockSchema,

@@ -10,7 +10,7 @@ import {
   TabStopType,
   TextRun,
 } from "docx";
-import { BlockMapping } from "../../mapping";
+import { BlockMapping } from "../../mapping.js";
 
 function createTabStops(nestingLevel: number): any[] {
   const tabStops: any[] = [];

@@ -1,2 +1,2 @@
-export * from "./defaultSchema";
-export * from "./docxExporter";
+export * from "./defaultSchema/index.js";
+export * from "./docxExporter.js";

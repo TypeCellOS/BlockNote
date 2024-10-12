@@ -4,7 +4,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { Image, Text } from "@react-pdf/renderer";
-import { BlockMapping } from "../../mapping";
+import { BlockMapping } from "../../mapping.js";
 
 export const pdfBlockMappingForDefaultSchema = {
   paragraph: (block, inlineContentTransformer) => {

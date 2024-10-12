@@ -1,2 +1,2 @@
-export * from "./docx";
-export * from "./pdf";
+export * from "./docx/index.js";
+export * from "./pdf/index.js";

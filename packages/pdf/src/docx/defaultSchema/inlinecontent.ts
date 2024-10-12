@@ -3,7 +3,7 @@ import {
   DefaultStyleSchema,
 } from "@blocknote/core";
 import { ExternalHyperlink, ParagraphChild, TextRun } from "docx";
-import { InlineContentMapping } from "../../mapping";
+import { InlineContentMapping } from "../../mapping.js";
 
 export const docxInlineContentMappingForDefaultSchema = {
   link: (ic, styledTextTransformer) => {

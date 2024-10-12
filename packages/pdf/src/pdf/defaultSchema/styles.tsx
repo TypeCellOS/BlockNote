@@ -1,6 +1,6 @@
 import { DefaultStyleSchema } from "@blocknote/core";
 import { TextProps } from "@react-pdf/renderer";
-import { StyleMapping } from "../../mapping";
+import { StyleMapping } from "../../mapping.js";
 
 export const pdfStyleMappingForDefaultSchema = {
   bold: (val) => {

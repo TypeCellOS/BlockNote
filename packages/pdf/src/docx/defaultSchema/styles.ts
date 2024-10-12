@@ -1,6 +1,6 @@
 import { DefaultStyleSchema } from "@blocknote/core";
 import { IRunPropertiesOptions } from "docx";
-import { StyleMapping } from "../../mapping";
+import { StyleMapping } from "../../mapping.js";
 
 export const docxStyleMappingForDefaultSchema = {
   bold: (val) => {

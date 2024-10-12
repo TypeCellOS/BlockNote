@@ -3,7 +3,7 @@ import {
   DefaultStyleSchema,
 } from "@blocknote/core";
 import { Link, Text } from "@react-pdf/renderer";
-import { InlineContentMapping } from "../../mapping";
+import { InlineContentMapping } from "../../mapping.js";
 
 export const pdfInlineContentMappingForDefaultSchema = {
   link: (ic, st) => {

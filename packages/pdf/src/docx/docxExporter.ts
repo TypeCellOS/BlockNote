@@ -21,7 +21,11 @@ import {
   UnderlineType,
 } from "docx";
 import { IPropertiesOptions } from "docx/build/file/core-properties";
-import { BlockMapping, InlineContentMapping, StyleMapping } from "../mapping";
+import {
+  BlockMapping,
+  InlineContentMapping,
+  StyleMapping,
+} from "../mapping.js";
 
 export class DOCXExporter<
   B extends BlockSchema,
