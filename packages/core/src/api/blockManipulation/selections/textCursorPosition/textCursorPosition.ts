@@ -2,16 +2,16 @@ import { Node } from "prosemirror-model";
 
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import { TextCursorPosition } from "../../../../editor/cursorPositionTypes.js";
-import { getBlockInfoFromPos } from "../../../getBlockInfoFromPos.js";
-import { nodeToBlock } from "../../../nodeConversions/nodeConversions.js";
 import {
   BlockIdentifier,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema/index.js";
-import { getNodeById } from "../../../nodeUtil";
-import { UnreachableCaseError } from "../../../../util/typescript";
+import { UnreachableCaseError } from "../../../../util/typescript.js";
+import { getBlockInfoFromPos } from "../../../getBlockInfoFromPos.js";
+import { nodeToBlock } from "../../../nodeConversions/nodeConversions.js";
+import { getNodeById } from "../../../nodeUtil.js";
 
 export function getTextCursorPosition<
   BSchema extends BlockSchema,
