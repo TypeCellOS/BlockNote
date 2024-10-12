@@ -1,81 +1,50 @@
-import { Fragment, Slice } from "prosemirror-model";
-import { EditorState, TextSelection } from "prosemirror-state";
+import { EditorState } from "prosemirror-state";
 
 import { getBlockInfoFromPos } from "../../../getBlockInfoFromPos.js";
 
-export const splitBlockCommand =
-  (posInBlock: number, keepType?: boolean, keepProps?: boolean) =>
-  ({
+export const splitBlockCommand = (
+  posInBlock: number,
+  keepType?: boolean,
+  keepProps?: boolean
+) => {
+  return ({
     state,
     dispatch,
   }: {
     state: EditorState;
     dispatch: ((args?: any) => any) | undefined;
   }) => {
-    const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
-    if (blockInfo === undefined) {
-      return false;
-    }
-
-    const { depth, blockContainer, blockContent } = blockInfo;
-
-    const originalBlockContent = state.doc.cut(
-      blockContainer.beforePos + 2,
+    const { blockContainer, blockContent, blockGroup } = getBlockInfoFromPos(
+      state.doc,
       posInBlock
     );
-    const newBlockContent = state.doc.cut(
-      posInBlock,
-      blockContainer.afterPos - 2
-    );
 
-    const newBlock = state.schema.nodes["blockContainer"].createAndFill()!;
-
-    const newBlockInsertionPos = blockContainer.afterPos;
-    const newBlockContentPos = newBlockInsertionPos + 2;
+    const newBlock = state.schema.nodes["blockContainer"].createAndFill(
+      keepProps ? { ...blockContainer.node.attrs, id: undefined } : null,
+      [
+        state.schema.nodes[
+          keepType ? blockContent.node.type.name : "paragraph"
+        ].createAndFill(
+          keepProps ? blockContent.node.attrs : null,
+          blockContent.node.content.cut(posInBlock - blockContent.beforePos - 1)
+        )!,
+        ...(blockGroup ? [blockGroup.node] : []),
+      ]
+    )!;
 
     if (dispatch) {
-      // Creates a new block. Since the schema requires it to have a content node, a paragraph node is created
-      // automatically, spanning newBlockContentPos to newBlockContentPos + 1.
-      state.tr.insert(newBlockInsertionPos, newBlock);
-
-      // Replaces the content of the newly created block's content node. Doesn't replace the whole content node so
-      // its type doesn't change.
-      state.tr.replace(
-        newBlockContentPos,
-        newBlockContentPos + 1,
-        newBlockContent.content.size > 0
-          ? new Slice(Fragment.from(newBlockContent), depth + 3, depth + 3)
-          : undefined
-      );
-
-      // Changes the type of the content node. The range doesn't matter as long as both from and to positions are
-      // within the content node.
-      if (keepType) {
-        state.tr.setBlockType(
-          newBlockContentPos,
-          newBlockContentPos,
-          blockContent.node.type,
-          keepProps ? blockContent.node.attrs : undefined
-        );
+      // Insert new block
+      state.tr.insert(blockContainer.afterPos, newBlock);
+      // Delete original block's children, if they exist
+      if (blockGroup) {
+        state.tr.delete(blockGroup.beforePos, blockGroup.afterPos);
       }
-
-      // Sets the selection to the start of the new block's content node.
-      state.tr.setSelection(
-        new TextSelection(state.doc.resolve(newBlockContentPos))
-      );
-
-      // Replaces the content of the original block's content node. Doesn't replace the whole content node so its
-      // type doesn't change.
-      state.tr.replace(
-        blockContainer.beforePos + 2,
-        blockContainer.afterPos - 2,
-        originalBlockContent.content.size > 0
-          ? new Slice(Fragment.from(originalBlockContent), depth + 3, depth + 3)
-          : undefined
-      );
+      // Delete original block's content past the cursor
+      state.tr.delete(posInBlock, blockContent.afterPos - 1);
 
       // state.tr.scrollIntoView();
     }
 
     return true;
   };
+};
