@@ -62,11 +62,11 @@ exports[`Test splitBlocks > Basic 1`] = `
             "content": [
               {
                 "styles": {},
-                "text": "Double Nested Paragraph 1",
+                "text": "Double Nested Paragraph 0",
                 "type": "text",
               },
             ],
-            "id": "double-nested-paragraph-1",
+            "id": "double-nested-paragraph-0",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -78,11 +78,11 @@ exports[`Test splitBlocks > Basic 1`] = `
         "content": [
           {
             "styles": {},
-            "text": "Nested Paragraph 1",
+            "text": "Nested Paragraph 0",
             "type": "text",
           },
         ],
-        "id": "nested-paragraph-1",
+        "id": "nested-paragraph-0",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -387,11 +387,11 @@ exports[`Test splitBlocks > Basic 1`] = `
             "content": [
               {
                 "styles": {},
-                "text": "Double Nested Paragraph 2",
+                "text": "Double Nested Paragraph 1",
                 "type": "text",
               },
             ],
-            "id": "double-nested-paragraph-2",
+            "id": "double-nested-paragraph-1",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -403,11 +403,11 @@ exports[`Test splitBlocks > Basic 1`] = `
         "content": [
           {
             "styles": {},
-            "text": "Nested Paragraph 2",
+            "text": "Nested Paragraph 1",
             "type": "text",
           },
         ],
-        "id": "nested-paragraph-2",
+        "id": "nested-paragraph-1",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -522,11 +522,11 @@ exports[`Test splitBlocks > Block has children 1`] = `
             "content": [
               {
                 "styles": {},
-                "text": "Double Nested Paragraph 1",
+                "text": "Double Nested Paragraph 0",
                 "type": "text",
               },
             ],
-            "id": "double-nested-paragraph-1",
+            "id": "double-nested-paragraph-0",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -538,11 +538,11 @@ exports[`Test splitBlocks > Block has children 1`] = `
         "content": [
           {
             "styles": {},
-            "text": "Nested Paragraph 1",
+            "text": "Nested Paragraph 0",
             "type": "text",
           },
         ],
-        "id": "nested-paragraph-1",
+        "id": "nested-paragraph-0",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -847,11 +847,11 @@ exports[`Test splitBlocks > Block has children 1`] = `
             "content": [
               {
                 "styles": {},
-                "text": "Double Nested Paragraph 2",
+                "text": "Double Nested Paragraph 1",
                 "type": "text",
               },
             ],
-            "id": "double-nested-paragraph-2",
+            "id": "double-nested-paragraph-1",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -863,11 +863,11 @@ exports[`Test splitBlocks > Block has children 1`] = `
         "content": [
           {
             "styles": {},
-            "text": "Nested Paragraph 2",
+            "text": "Nested Paragraph 1",
             "type": "text",
           },
         ],
-        "id": "nested-paragraph-2",
+        "id": "nested-paragraph-1",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -965,11 +965,11 @@ exports[`Test splitBlocks > Don't keep props 1`] = `
             "content": [
               {
                 "styles": {},
-                "text": "Double Nested Paragraph 1",
+                "text": "Double Nested Paragraph 0",
                 "type": "text",
               },
             ],
-            "id": "double-nested-paragraph-1",
+            "id": "double-nested-paragraph-0",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -981,11 +981,11 @@ exports[`Test splitBlocks > Don't keep props 1`] = `
         "content": [
           {
             "styles": {},
-            "text": "Nested Paragraph 1",
+            "text": "Nested Paragraph 0",
             "type": "text",
           },
         ],
-        "id": "nested-paragraph-1",
+        "id": "nested-paragraph-0",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -1307,11 +1307,11 @@ exports[`Test splitBlocks > Don't keep props 1`] = `
             "content": [
               {
                 "styles": {},
-                "text": "Double Nested Paragraph 2",
+                "text": "Double Nested Paragraph 1",
                 "type": "text",
               },
             ],
-            "id": "double-nested-paragraph-2",
+            "id": "double-nested-paragraph-1",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -1323,11 +1323,11 @@ exports[`Test splitBlocks > Don't keep props 1`] = `
         "content": [
           {
             "styles": {},
-            "text": "Nested Paragraph 2",
+            "text": "Nested Paragraph 1",
             "type": "text",
           },
         ],
-        "id": "nested-paragraph-2",
+        "id": "nested-paragraph-1",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -1425,11 +1425,11 @@ exports[`Test splitBlocks > Don't keep type 1`] = `
             "content": [
               {
                 "styles": {},
-                "text": "Double Nested Paragraph 1",
+                "text": "Double Nested Paragraph 0",
                 "type": "text",
               },
             ],
-            "id": "double-nested-paragraph-1",
+            "id": "double-nested-paragraph-0",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -1441,11 +1441,11 @@ exports[`Test splitBlocks > Don't keep type 1`] = `
         "content": [
           {
             "styles": {},
-            "text": "Nested Paragraph 1",
+            "text": "Nested Paragraph 0",
             "type": "text",
           },
         ],
-        "id": "nested-paragraph-1",
+        "id": "nested-paragraph-0",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -1767,11 +1767,11 @@ exports[`Test splitBlocks > Don't keep type 1`] = `
             "content": [
               {
                 "styles": {},
-                "text": "Double Nested Paragraph 2",
+                "text": "Double Nested Paragraph 1",
                 "type": "text",
               },
             ],
-            "id": "double-nested-paragraph-2",
+            "id": "double-nested-paragraph-1",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -1783,11 +1783,11 @@ exports[`Test splitBlocks > Don't keep type 1`] = `
         "content": [
           {
             "styles": {},
-            "text": "Nested Paragraph 2",
+            "text": "Nested Paragraph 1",
             "type": "text",
           },
         ],
-        "id": "nested-paragraph-2",
+        "id": "nested-paragraph-1",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -1885,11 +1885,11 @@ exports[`Test splitBlocks > Keep type 1`] = `
             "content": [
               {
                 "styles": {},
-                "text": "Double Nested Paragraph 1",
+                "text": "Double Nested Paragraph 0",
                 "type": "text",
               },
             ],
-            "id": "double-nested-paragraph-1",
+            "id": "double-nested-paragraph-0",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -1901,11 +1901,11 @@ exports[`Test splitBlocks > Keep type 1`] = `
         "content": [
           {
             "styles": {},
-            "text": "Nested Paragraph 1",
+            "text": "Nested Paragraph 0",
             "type": "text",
           },
         ],
-        "id": "nested-paragraph-1",
+        "id": "nested-paragraph-0",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -2228,11 +2228,11 @@ exports[`Test splitBlocks > Keep type 1`] = `
             "content": [
               {
                 "styles": {},
-                "text": "Double Nested Paragraph 2",
+                "text": "Double Nested Paragraph 1",
                 "type": "text",
               },
             ],
-            "id": "double-nested-paragraph-2",
+            "id": "double-nested-paragraph-1",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -2244,11 +2244,11 @@ exports[`Test splitBlocks > Keep type 1`] = `
         "content": [
           {
             "styles": {},
-            "text": "Nested Paragraph 2",
+            "text": "Nested Paragraph 1",
             "type": "text",
           },
         ],
-        "id": "nested-paragraph-2",
+        "id": "nested-paragraph-1",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",

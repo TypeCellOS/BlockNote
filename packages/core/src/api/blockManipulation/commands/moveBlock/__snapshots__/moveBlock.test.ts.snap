@@ -45,11 +45,11 @@ exports[`Test moveBlockDown > Basic 1`] = `
             "content": [
               {
                 "styles": {},
-                "text": "Double Nested Paragraph 1",
+                "text": "Double Nested Paragraph 0",
                 "type": "text",
               },
             ],
-            "id": "double-nested-paragraph-1",
+            "id": "double-nested-paragraph-0",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -61,11 +61,11 @@ exports[`Test moveBlockDown > Basic 1`] = `
         "content": [
           {
             "styles": {},
-            "text": "Nested Paragraph 1",
+            "text": "Nested Paragraph 0",
             "type": "text",
           },
         ],
-        "id": "nested-paragraph-1",
+        "id": "nested-paragraph-0",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -370,11 +370,11 @@ exports[`Test moveBlockDown > Basic 1`] = `
             "content": [
               {
                 "styles": {},
-                "text": "Double Nested Paragraph 2",
+                "text": "Double Nested Paragraph 1",
                 "type": "text",
               },
             ],
-            "id": "double-nested-paragraph-2",
+            "id": "double-nested-paragraph-1",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -386,11 +386,11 @@ exports[`Test moveBlockDown > Basic 1`] = `
         "content": [
           {
             "styles": {},
-            "text": "Nested Paragraph 2",
+            "text": "Nested Paragraph 1",
             "type": "text",
           },
         ],
-        "id": "nested-paragraph-2",
+        "id": "nested-paragraph-1",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -488,11 +488,11 @@ exports[`Test moveBlockDown > Into children 1`] = `
             "content": [
               {
                 "styles": {},
-                "text": "Double Nested Paragraph 1",
+                "text": "Double Nested Paragraph 0",
                 "type": "text",
               },
             ],
-            "id": "double-nested-paragraph-1",
+            "id": "double-nested-paragraph-0",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -504,11 +504,11 @@ exports[`Test moveBlockDown > Into children 1`] = `
         "content": [
           {
             "styles": {},
-            "text": "Nested Paragraph 1",
+            "text": "Nested Paragraph 0",
             "type": "text",
           },
         ],
-        "id": "nested-paragraph-1",
+        "id": "nested-paragraph-0",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -813,11 +813,11 @@ exports[`Test moveBlockDown > Into children 1`] = `
             "content": [
               {
                 "styles": {},
-                "text": "Double Nested Paragraph 2",
+                "text": "Double Nested Paragraph 1",
                 "type": "text",
               },
             ],
-            "id": "double-nested-paragraph-2",
+            "id": "double-nested-paragraph-1",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -829,11 +829,11 @@ exports[`Test moveBlockDown > Into children 1`] = `
         "content": [
           {
             "styles": {},
-            "text": "Nested Paragraph 2",
+            "text": "Nested Paragraph 1",
             "type": "text",
           },
         ],
-        "id": "nested-paragraph-2",
+        "id": "nested-paragraph-1",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -931,11 +931,11 @@ exports[`Test moveBlockDown > Last block 1`] = `
             "content": [
               {
                 "styles": {},
-                "text": "Double Nested Paragraph 1",
+                "text": "Double Nested Paragraph 0",
                 "type": "text",
               },
             ],
-            "id": "double-nested-paragraph-1",
+            "id": "double-nested-paragraph-0",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -947,11 +947,11 @@ exports[`Test moveBlockDown > Last block 1`] = `
         "content": [
           {
             "styles": {},
-            "text": "Nested Paragraph 1",
+            "text": "Nested Paragraph 0",
             "type": "text",
           },
         ],
-        "id": "nested-paragraph-1",
+        "id": "nested-paragraph-0",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -1256,11 +1256,11 @@ exports[`Test moveBlockDown > Last block 1`] = `
             "content": [
               {
                 "styles": {},
-                "text": "Double Nested Paragraph 2",
+                "text": "Double Nested Paragraph 1",
                 "type": "text",
               },
             ],
-            "id": "double-nested-paragraph-2",
+            "id": "double-nested-paragraph-1",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -1272,11 +1272,11 @@ exports[`Test moveBlockDown > Last block 1`] = `
         "content": [
           {
             "styles": {},
-            "text": "Nested Paragraph 2",
+            "text": "Nested Paragraph 1",
             "type": "text",
           },
         ],
-        "id": "nested-paragraph-2",
+        "id": "nested-paragraph-1",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -1366,34 +1366,35 @@ exports[`Test moveBlockDown > Out of children 1`] = `
     "type": "paragraph",
   },
   {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Paragraph with children",
-        "type": "text",
-      },
-    ],
-    "id": "paragraph-with-children",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
     "children": [
       {
-        "children": [],
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Double Nested Paragraph 0",
+                "type": "text",
+              },
+            ],
+            "id": "double-nested-paragraph-0",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
         "content": [
           {
             "styles": {},
-            "text": "Double Nested Paragraph 1",
+            "text": "Nested Paragraph 0",
             "type": "text",
           },
         ],
-        "id": "double-nested-paragraph-1",
+        "id": "nested-paragraph-0",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -1405,11 +1406,11 @@ exports[`Test moveBlockDown > Out of children 1`] = `
     "content": [
       {
         "styles": {},
-        "text": "Nested Paragraph 1",
+        "text": "Paragraph with children",
         "type": "text",
       },
     ],
-    "id": "nested-paragraph-1",
+    "id": "paragraph-with-children",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -1690,43 +1691,7 @@ exports[`Test moveBlockDown > Out of children 1`] = `
     "type": "paragraph",
   },
   {
-    "children": [
-      {
-        "children": [
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Double Nested Paragraph 2",
-                "type": "text",
-              },
-            ],
-            "id": "double-nested-paragraph-2",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": [
-          {
-            "styles": {},
-            "text": "Nested Paragraph 2",
-            "type": "text",
-          },
-        ],
-        "id": "nested-paragraph-2",
-        "props": {
-          "backgroundColor": "default",
-          "textAlignment": "left",
-          "textColor": "default",
-        },
-        "type": "paragraph",
-      },
-    ],
+    "children": [],
     "content": [
       {
         "styles": {
@@ -1756,6 +1721,41 @@ exports[`Test moveBlockDown > Out of children 1`] = `
       "textColor": "red",
     },
     "type": "heading",
+  },
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Double Nested Paragraph 1",
+            "type": "text",
+          },
+        ],
+        "id": "double-nested-paragraph-1",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {},
+        "text": "Nested Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "nested-paragraph-1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
   },
   {
     "children": [],
@@ -1816,11 +1816,11 @@ exports[`Test moveBlockUp > Basic 1`] = `
             "content": [
               {
                 "styles": {},
-                "text": "Double Nested Paragraph 1",
+                "text": "Double Nested Paragraph 0",
                 "type": "text",
               },
             ],
-            "id": "double-nested-paragraph-1",
+            "id": "double-nested-paragraph-0",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -1832,11 +1832,11 @@ exports[`Test moveBlockUp > Basic 1`] = `
         "content": [
           {
             "styles": {},
-            "text": "Nested Paragraph 1",
+            "text": "Nested Paragraph 0",
             "type": "text",
           },
         ],
-        "id": "nested-paragraph-1",
+        "id": "nested-paragraph-0",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -2141,11 +2141,11 @@ exports[`Test moveBlockUp > Basic 1`] = `
             "content": [
               {
                 "styles": {},
-                "text": "Double Nested Paragraph 2",
+                "text": "Double Nested Paragraph 1",
                 "type": "text",
               },
             ],
-            "id": "double-nested-paragraph-2",
+            "id": "double-nested-paragraph-1",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -2157,11 +2157,11 @@ exports[`Test moveBlockUp > Basic 1`] = `
         "content": [
           {
             "styles": {},
-            "text": "Nested Paragraph 2",
+            "text": "Nested Paragraph 1",
             "type": "text",
           },
         ],
-        "id": "nested-paragraph-2",
+        "id": "nested-paragraph-1",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -2259,11 +2259,11 @@ exports[`Test moveBlockUp > First block 1`] = `
             "content": [
               {
                 "styles": {},
-                "text": "Double Nested Paragraph 1",
+                "text": "Double Nested Paragraph 0",
                 "type": "text",
               },
             ],
-            "id": "double-nested-paragraph-1",
+            "id": "double-nested-paragraph-0",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -2275,11 +2275,11 @@ exports[`Test moveBlockUp > First block 1`] = `
         "content": [
           {
             "styles": {},
-            "text": "Nested Paragraph 1",
+            "text": "Nested Paragraph 0",
             "type": "text",
           },
         ],
-        "id": "nested-paragraph-1",
+        "id": "nested-paragraph-0",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -2584,11 +2584,11 @@ exports[`Test moveBlockUp > First block 1`] = `
             "content": [
               {
                 "styles": {},
-                "text": "Double Nested Paragraph 2",
+                "text": "Double Nested Paragraph 1",
                 "type": "text",
               },
             ],
-            "id": "double-nested-paragraph-2",
+            "id": "double-nested-paragraph-1",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -2600,11 +2600,11 @@ exports[`Test moveBlockUp > First block 1`] = `
         "content": [
           {
             "styles": {},
-            "text": "Nested Paragraph 2",
+            "text": "Nested Paragraph 1",
             "type": "text",
           },
         ],
-        "id": "nested-paragraph-2",
+        "id": "nested-paragraph-1",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -2702,11 +2702,11 @@ exports[`Test moveBlockUp > Into children 1`] = `
             "content": [
               {
                 "styles": {},
-                "text": "Double Nested Paragraph 1",
+                "text": "Double Nested Paragraph 0",
                 "type": "text",
               },
             ],
-            "id": "double-nested-paragraph-1",
+            "id": "double-nested-paragraph-0",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -2718,11 +2718,11 @@ exports[`Test moveBlockUp > Into children 1`] = `
         "content": [
           {
             "styles": {},
-            "text": "Nested Paragraph 1",
+            "text": "Nested Paragraph 0",
             "type": "text",
           },
         ],
-        "id": "nested-paragraph-1",
+        "id": "nested-paragraph-0",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -3027,11 +3027,11 @@ exports[`Test moveBlockUp > Into children 1`] = `
             "content": [
               {
                 "styles": {},
-                "text": "Double Nested Paragraph 2",
+                "text": "Double Nested Paragraph 1",
                 "type": "text",
               },
             ],
-            "id": "double-nested-paragraph-2",
+            "id": "double-nested-paragraph-1",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -3043,11 +3043,11 @@ exports[`Test moveBlockUp > Into children 1`] = `
         "content": [
           {
             "styles": {},
-            "text": "Nested Paragraph 2",
+            "text": "Nested Paragraph 1",
             "type": "text",
           },
         ],
-        "id": "nested-paragraph-2",
+        "id": "nested-paragraph-1",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -3139,15 +3139,33 @@ exports[`Test moveBlockUp > Out of children 1`] = `
   {
     "children": [
       {
-        "children": [],
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Double Nested Paragraph 0",
+                "type": "text",
+              },
+            ],
+            "id": "double-nested-paragraph-0",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
         "content": [
           {
             "styles": {},
-            "text": "Double Nested Paragraph 1",
+            "text": "Nested Paragraph 0",
             "type": "text",
           },
         ],
-        "id": "double-nested-paragraph-1",
+        "id": "nested-paragraph-0",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -3156,23 +3174,6 @@ exports[`Test moveBlockUp > Out of children 1`] = `
         "type": "paragraph",
       },
     ],
-    "content": [
-      {
-        "styles": {},
-        "text": "Nested Paragraph 1",
-        "type": "text",
-      },
-    ],
-    "id": "nested-paragraph-1",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
     "content": [
       {
         "styles": {},
@@ -3463,33 +3464,15 @@ exports[`Test moveBlockUp > Out of children 1`] = `
   {
     "children": [
       {
-        "children": [
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Double Nested Paragraph 2",
-                "type": "text",
-              },
-            ],
-            "id": "double-nested-paragraph-2",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
+        "children": [],
         "content": [
           {
             "styles": {},
-            "text": "Nested Paragraph 2",
+            "text": "Double Nested Paragraph 1",
             "type": "text",
           },
         ],
-        "id": "nested-paragraph-2",
+        "id": "double-nested-paragraph-1",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -3498,6 +3481,23 @@ exports[`Test moveBlockUp > Out of children 1`] = `
         "type": "paragraph",
       },
     ],
+    "content": [
+      {
+        "styles": {},
+        "text": "Nested Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "nested-paragraph-1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
     "content": [
       {
         "styles": {

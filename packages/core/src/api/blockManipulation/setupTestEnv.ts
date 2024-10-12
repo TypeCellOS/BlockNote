@@ -42,14 +42,14 @@ const testDocument: PartialBlock[] = [
     content: "Paragraph with children",
     children: [
       {
-        id: "nested-paragraph-1",
+        id: "nested-paragraph-0",
         type: "paragraph",
-        content: "Nested Paragraph 1",
+        content: "Nested Paragraph 0",
         children: [
           {
-            id: "double-nested-paragraph-1",
+            id: "double-nested-paragraph-0",
             type: "paragraph",
-            content: "Double Nested Paragraph 1",
+            content: "Double Nested Paragraph 0",
           },
         ],
       },
@@ -149,14 +149,14 @@ const testDocument: PartialBlock[] = [
     ],
     children: [
       {
-        id: "nested-paragraph-2",
+        id: "nested-paragraph-1",
         type: "paragraph",
-        content: "Nested Paragraph 2",
+        content: "Nested Paragraph 1",
         children: [
           {
-            id: "double-nested-paragraph-2",
+            id: "double-nested-paragraph-1",
             type: "paragraph",
-            content: "Double Nested Paragraph 2",
+            content: "Double Nested Paragraph 1",
           },
         ],
       },

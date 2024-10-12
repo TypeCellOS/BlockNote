@@ -11,6 +11,10 @@ import {
 import { removeBlocks } from "../api/blockManipulation/commands/removeBlocks/removeBlocks.js";
 import { replaceBlocks } from "../api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
 import { updateBlock } from "../api/blockManipulation/commands/updateBlock/updateBlock.js";
+import {
+  getTextCursorPosition,
+  setTextCursorPosition,
+} from "../api/blockManipulation/selections/textCursorPosition/textCursorPosition";
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
 import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos.js";
@@ -18,7 +22,6 @@ import {
   inlineContentToNodes,
   nodeToBlock,
 } from "../api/nodeConversions/nodeConversions.js";
-import { getNodeById } from "../api/nodeUtil.js";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
 import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown.js";
 import {
@@ -663,68 +666,7 @@ export class BlockNoteEditor<
     ISchema,
     SSchema
   > {
-    const { depth, blockContainer } = getBlockInfoFromPos(
-      this._tiptapEditor.state.doc,
-      this._tiptapEditor.state.selection.from
-    )!;
-
-    // Gets previous blockContainer node at the same nesting level, if the current node isn't the first child.
-    const prevNode = this._tiptapEditor.state.doc.resolve(
-      blockContainer.beforePos
-    ).nodeBefore;
-
-    // Gets next blockContainer node at the same nesting level, if the current node isn't the last child.
-    const nextNode = this._tiptapEditor.state.doc.resolve(
-      blockContainer.afterPos
-    ).nodeAfter;
-
-    // Gets parent blockContainer node, if the current node is nested.
-    let parentNode: Node | undefined = undefined;
-    if (depth > 1) {
-      parentNode = this._tiptapEditor.state.doc
-        .resolve(blockContainer.beforePos)
-        .node(depth - 1);
-    }
-
-    return {
-      block: nodeToBlock(
-        blockContainer.node,
-        this.schema.blockSchema,
-        this.schema.inlineContentSchema,
-        this.schema.styleSchema,
-        this.blockCache
-      ),
-      prevBlock:
-        prevNode === null
-          ? undefined
-          : nodeToBlock(
-              prevNode,
-              this.schema.blockSchema,
-              this.schema.inlineContentSchema,
-              this.schema.styleSchema,
-              this.blockCache
-            ),
-      nextBlock:
-        nextNode === null
-          ? undefined
-          : nodeToBlock(
-              nextNode,
-              this.schema.blockSchema,
-              this.schema.inlineContentSchema,
-              this.schema.styleSchema,
-              this.blockCache
-            ),
-      parentBlock:
-        parentNode === undefined
-          ? undefined
-          : nodeToBlock(
-              parentNode,
-              this.schema.blockSchema,
-              this.schema.inlineContentSchema,
-              this.schema.styleSchema,
-              this.blockCache
-            ),
-    };
+    return getTextCursorPosition(this);
   }
 
   /**
@@ -737,44 +679,7 @@ export class BlockNoteEditor<
     targetBlock: BlockIdentifier,
     placement: "start" | "end" = "start"
   ) {
-    const id = typeof targetBlock === "string" ? targetBlock : targetBlock.id;
-
-    const { posBeforeNode } = getNodeById(id, this._tiptapEditor.state.doc);
-    const { blockContent } = getBlockInfoFromPos(
-      this._tiptapEditor.state.doc,
-      posBeforeNode + 2
-    )!;
-
-    const contentType: "none" | "inline" | "table" =
-      this.schema.blockSchema[blockContent.node.type.name]!.content;
-
-    if (contentType === "none") {
-      this._tiptapEditor.commands.setNodeSelection(blockContent.beforePos);
-      return;
-    }
-
-    if (contentType === "inline") {
-      if (placement === "start") {
-        this._tiptapEditor.commands.setTextSelection(
-          blockContent.beforePos + 1
-        );
-      } else {
-        this._tiptapEditor.commands.setTextSelection(blockContent.afterPos - 1);
-      }
-    } else if (contentType === "table") {
-      if (placement === "start") {
-        // Need to offset the position as we have to get through the `tableRow`
-        // and `tableCell` nodes to get to the `tableParagraph` node we want to
-        // set the selection in.
-        this._tiptapEditor.commands.setTextSelection(
-          blockContent.beforePos + 4
-        );
-      } else {
-        this._tiptapEditor.commands.setTextSelection(blockContent.afterPos - 4);
-      }
-    } else {
-      throw new UnreachableCaseError(contentType);
-    }
+    setTextCursorPosition(this, targetBlock, placement);
   }
 
   /**
