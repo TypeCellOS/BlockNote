@@ -14,7 +14,7 @@ import { insertContentAt } from "../api/blockManipulation/insertContentAt.js";
 import {
   getTextCursorPosition,
   setTextCursorPosition,
-} from "../api/blockManipulation/selections/textCursorPosition/textCursorPosition";
+} from "../api/blockManipulation/selections/textCursorPosition/textCursorPosition.js";
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
 import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos.js";
