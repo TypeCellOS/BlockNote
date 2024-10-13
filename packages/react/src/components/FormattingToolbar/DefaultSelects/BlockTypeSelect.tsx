@@ -125,12 +125,14 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
       const onClick = (item: BlockTypeSelectItem) => {
         editor.focus();
 
-        for (const block of selectedBlocks) {
-          editor.updateBlock(block, {
-            type: item.type as any,
-            props: item.props as any,
-          });
-        }
+        editor.transact(() => {
+          for (const block of selectedBlocks) {
+            editor.updateBlock(block, {
+              type: item.type as any,
+              props: item.props as any,
+            });
+          }
+        });
       };
 
       return filteredItems.map((item) => {

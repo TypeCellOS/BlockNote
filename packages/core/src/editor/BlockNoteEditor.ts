@@ -2,7 +2,6 @@ import { EditorOptions, Extension, getSchema } from "@tiptap/core";
 import { Node, Schema } from "prosemirror-model";
 // import "./blocknote.css";
 import * as Y from "yjs";
-import { insertContentAt } from "../api/blockManipulation/insertContentAt.js";
 import { insertBlocks } from "../api/blockManipulation/commands/insertBlocks/insertBlocks.js";
 import {
   moveBlockDown,
@@ -11,6 +10,7 @@ import {
 import { removeBlocks } from "../api/blockManipulation/commands/removeBlocks/removeBlocks.js";
 import { replaceBlocks } from "../api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
 import { updateBlock } from "../api/blockManipulation/commands/updateBlock/updateBlock.js";
+import { insertContentAt } from "../api/blockManipulation/insertContentAt.js";
 import {
   getTextCursorPosition,
   setTextCursorPosition,
@@ -207,6 +207,7 @@ export class BlockNoteEditor<
   SSchema extends StyleSchema = DefaultStyleSchema
 > {
   private readonly _pmSchema: Schema;
+  private activeTransaction: Transaction | undefined = undefined;
 
   /**
    * Boolean indicating whether the editor is in headless mode.
@@ -484,8 +485,28 @@ export class BlockNoteEditor<
     }
   }
 
-  dispatch(tr: Transaction) {
-    this._tiptapEditor.dispatch(tr);
+  /**
+   * Dispatch a transaction, but only if not in a "blocknote transact".
+   */
+  public dispatch(tr: Transaction) {
+    if (!this.activeTransaction) {
+      this._tiptapEditor.dispatch(tr);
+    }
+  }
+
+  /**
+   * Execute a function within a "blocknote transaction".
+   * All changes to the editor within the transaction will be grouped together, so that
+   * we can dispatch them as a single operation (thus creating only a single undo step)
+   */
+  public transact(func: () => void) {
+    this.activeTransaction = this._tiptapEditor.state.tr;
+    try {
+      func();
+      this._tiptapEditor.dispatch(this.activeTransaction);
+    } finally {
+      this.activeTransaction = undefined;
+    }
   }
 
   /**
@@ -795,7 +816,7 @@ export class BlockNoteEditor<
     blockToUpdate: BlockIdentifier,
     update: PartialBlock<BSchema, ISchema, SSchema>
   ) {
-    return updateBlock(this, blockToUpdate, update);
+    return updateBlock(this, blockToUpdate, update, this.activeTransaction);
   }
 
   /**
