@@ -4,7 +4,10 @@ import { TextSelection } from "prosemirror-state";
 import { mergeBlocksCommand } from "../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
 import { splitBlockCommand } from "../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { getBlockInfoFromSelection } from "../../api/getBlockInfoFromPos.js";
+import {
+  getBlockInfoFromResolvedPos,
+  getBlockInfoFromSelection,
+} from "../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 export const KeyboardShortcutsExtension = Extension.create<{
@@ -59,8 +62,9 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
-        // Merges block with the previous one if it isn't indented, isn't the first block in the doc, and the selection
-        // is at the start of the block.
+        // Merges block with the previous one if it isn't indented, isn't the
+        // first block in the doc, and the selection is at the start of the
+        // block. The target block for merging must contain inline content.
         () =>
           commands.command(({ state }) => {
             const { blockContainer, blockContent } =
@@ -82,6 +86,44 @@ export const KeyboardShortcutsExtension = Extension.create<{
               depth === 1
             ) {
               return commands.command(mergeBlocksCommand(posBetweenBlocks));
+            }
+
+            return false;
+          }),
+        // Deletes previous block if it contains no content. If it has inline
+        // content, it's merged instead. Otherwise, it's a no-op.
+        () =>
+          commands.command(({ state }) => {
+            const { blockContainer, blockContent } =
+              getBlockInfoFromSelection(state);
+
+            const selectionAtBlockStart =
+              state.selection.from === blockContent.beforePos + 1;
+            const selectionEmpty = state.selection.empty;
+            const blockAtDocStart = blockContainer.beforePos === 1;
+
+            const $currentBlockPos = state.doc.resolve(
+              blockContainer.beforePos
+            );
+            const prevBlockPos = $currentBlockPos.posAtIndex(
+              $currentBlockPos.index() - 1
+            );
+            const prevBlockInfo = getBlockInfoFromResolvedPos(
+              state.doc.resolve(prevBlockPos)
+            );
+
+            if (
+              !blockAtDocStart &&
+              selectionAtBlockStart &&
+              selectionEmpty &&
+              $currentBlockPos.depth === 1 &&
+              prevBlockInfo.blockGroup === undefined &&
+              prevBlockInfo.blockContent.node.type.spec.content === ""
+            ) {
+              return commands.deleteRange({
+                from: prevBlockPos,
+                to: $currentBlockPos.pos,
+              });
             }
 
             return false;

@@ -1,6 +1,98 @@
+import { Node, ResolvedPos } from "prosemirror-model";
 import { EditorState } from "prosemirror-state";
 
 import { getBlockInfoFromResolvedPos } from "../../../getBlockInfoFromPos.js";
+
+export const getPrevBlockPos = (doc: Node, $nextBlockPos: ResolvedPos) => {
+  const prevNode = $nextBlockPos.nodeBefore;
+
+  if (!prevNode) {
+    throw new Error(
+      `Attempted to get previous blockContainer node for merge at position ${$nextBlockPos.pos} but a previous node does not exist`
+    );
+  }
+
+  // Finds the nearest previous block, regardless of nesting level.
+  let prevBlockBeforePos = $nextBlockPos.posAtIndex($nextBlockPos.index() - 1);
+  let prevBlockInfo = getBlockInfoFromResolvedPos(
+    doc.resolve(prevBlockBeforePos)
+  );
+
+  while (prevBlockInfo.blockGroup) {
+    const group = prevBlockInfo.blockGroup.node;
+
+    prevBlockBeforePos = doc
+      .resolve(prevBlockInfo.blockGroup.beforePos + 1)
+      .posAtIndex(group.childCount - 1);
+    prevBlockInfo = getBlockInfoFromResolvedPos(
+      doc.resolve(prevBlockBeforePos)
+    );
+  }
+
+  return doc.resolve(prevBlockBeforePos);
+};
+
+export const canMerge = (
+  $prevBlockPos: ResolvedPos,
+  $nextBlockPos: ResolvedPos
+) => {
+  const prevBlockInfo = getBlockInfoFromResolvedPos($prevBlockPos);
+  const nextBlockInfo = getBlockInfoFromResolvedPos($nextBlockPos);
+
+  return (
+    prevBlockInfo.blockContent.node.type.spec.content === "inline*" &&
+    nextBlockInfo.blockContent.node.type.spec.content === "inline*"
+  );
+};
+
+export const mergeBlocks = (
+  state: EditorState,
+  dispatch: ((args?: any) => any) | undefined,
+  $prevBlockPos: ResolvedPos,
+  $nextBlockPos: ResolvedPos
+) => {
+  const nextBlockInfo = getBlockInfoFromResolvedPos($nextBlockPos);
+
+  // Removes a level of nesting all children of the next block by 1 level, if it contains both content and block
+  // group nodes.
+  if (nextBlockInfo.blockGroup) {
+    const childBlocksStart = state.doc.resolve(
+      nextBlockInfo.blockGroup.beforePos + 1
+    );
+    const childBlocksEnd = state.doc.resolve(
+      nextBlockInfo.blockGroup.afterPos - 1
+    );
+    const childBlocksRange = childBlocksStart.blockRange(childBlocksEnd);
+
+    // Moves the block group node inside the block into the block group node that the current block is in.
+    if (dispatch) {
+      state.tr.lift(childBlocksRange!, $nextBlockPos.depth);
+    }
+  }
+
+  // Deletes next block and adds its text content to the nearest previous block.
+  if (dispatch) {
+    const prevBlockInfo = getBlockInfoFromResolvedPos($prevBlockPos);
+
+    dispatch(
+      state.tr.deleteRange(
+        prevBlockInfo.blockContent.afterPos - 1,
+        nextBlockInfo.blockContent.beforePos + 1
+      )
+
+      // .scrollIntoView()
+    );
+
+    // TODO: fix unit test + think of missing tests
+    // TODO: reenable set selection
+
+    // state.tr.setSelection(
+    //   new TextSelection(state.doc.resolve(prevBlockEndPos - 1))
+    // );
+  }
+
+  return true;
+};
 
 export const mergeBlocksCommand =
   (posBetweenBlocks: number) =>
@@ -11,75 +103,15 @@ export const mergeBlocksCommand =
     state: EditorState;
     dispatch: ((args?: any) => any) | undefined;
   }) => {
-    const $pos = state.doc.resolve(posBetweenBlocks);
-    const nextNodeIsBlock = $pos.nodeAfter?.type.name === "blockContainer";
-    const prevNodeIsBlock = $pos.nodeBefore?.type.name === "blockContainer";
+    const $nextBlockPos = state.doc.resolve(posBetweenBlocks);
+    const $prevBlockPos = getPrevBlockPos(state.doc, $nextBlockPos);
 
-    if (!nextNodeIsBlock || !prevNodeIsBlock) {
-      throw new Error(
-        "invalid `posBetweenBlocks` passed to mergeBlocksCommand"
-      );
-    }
-
-    const nextBlockInfo = getBlockInfoFromResolvedPos($pos);
-
-    // Removes a level of nesting all children of the next block by 1 level, if it contains both content and block
-    // group nodes.
-    if (nextBlockInfo.blockGroup) {
-      const childBlocksStart = state.doc.resolve(
-        nextBlockInfo.blockGroup.beforePos + 1
-      );
-      const childBlocksEnd = state.doc.resolve(
-        nextBlockInfo.blockGroup.afterPos - 1
-      );
-      const childBlocksRange = childBlocksStart.blockRange(childBlocksEnd);
-
-      // Moves the block group node inside the block into the block group node that the current block is in.
-      if (dispatch) {
-        state.tr.lift(childBlocksRange!, $pos.depth);
-      }
-    }
-
-    // TODO: extract helper?
-    // Finds the nearest previous block, regardless of nesting level.
-    let prevBlockStartPos = $pos.posAtIndex($pos.index() - 1);
-    let prevBlockInfo = getBlockInfoFromResolvedPos(
-      state.doc.resolve(prevBlockStartPos)
-    );
-    while (prevBlockInfo.blockGroup) {
-      const group = prevBlockInfo.blockGroup.node;
-
-      prevBlockStartPos = state.doc
-        .resolve(prevBlockInfo.blockGroup.beforePos + 1)
-        .posAtIndex(group.childCount - 1);
-      prevBlockInfo = getBlockInfoFromResolvedPos(
-        state.doc.resolve(prevBlockStartPos)
-      );
-    }
-
-    console.log(
-      prevBlockInfo.blockContent.afterPos,
-      nextBlockInfo.blockContent.beforePos
-    );
-    debugger;
-    // Deletes next block and adds its text content to the nearest previous block.
-    if (dispatch) {
-      dispatch(
-        state.tr.deleteRange(
-          prevBlockInfo.blockContent.afterPos - 1,
-          nextBlockInfo.blockContent.beforePos + 1
-        )
-
-        // .scrollIntoView()
-      );
-
-      // TODO: fix unit test + think of missing tests
-      // TODO: reenable set selection
-
-      // state.tr.setSelection(
-      //   new TextSelection(state.doc.resolve(prevBlockEndPos - 1))
+    if (!canMerge($prevBlockPos, $nextBlockPos)) {
+      // throw new Error(
+      //   `Attempting to merge block at position ${$nextBlockPos.pos} into previous block at position ${$prevBlockPos.pos}, but previous block has invalid content type`
       // );
+      return false;
     }
 
-    return true;
+    return mergeBlocks(state, dispatch, $prevBlockPos, $nextBlockPos);
   };
