@@ -1,4 +1,4 @@
-import { EditorState, TextSelection } from "prosemirror-state";
+import { EditorState } from "prosemirror-state";
 
 import { getBlockInfoFromPos } from "../../../getBlockInfoFromPos.js";
 
@@ -14,43 +14,26 @@ export const splitBlockCommand = (
     state: EditorState;
     dispatch: ((args?: any) => any) | undefined;
   }) => {
-    const { blockContainer, blockContent, blockGroup } = getBlockInfoFromPos(
+    const { blockContainer, blockContent } = getBlockInfoFromPos(
       state.doc,
       posInBlock
     );
 
-    const newBlock = state.schema.nodes["blockContainer"].createAndFill(
-      keepProps ? { ...blockContainer.node.attrs, id: undefined } : null,
-      [
-        state.schema.nodes[
-          keepType ? blockContent.node.type.name : "paragraph"
-        ].createAndFill(
-          keepProps ? blockContent.node.attrs : null,
-          blockContent.node.content.cut(posInBlock - blockContent.beforePos - 1)
-        )!,
-        ...(blockGroup ? [blockGroup.node] : []),
-      ]
-    )!;
+    const types = [
+      {
+        type: blockContainer.node.type, // always keep blockcontainer type
+        attrs: keepProps ? { ...blockContainer.node.attrs, id: undefined } : {},
+      },
+      {
+        type: keepType
+          ? blockContent.node.type
+          : state.schema.nodes["paragraph"],
+        attrs: keepProps ? { ...blockContent.node.attrs } : {},
+      },
+    ];
 
     if (dispatch) {
-      // Insert new block
-      state.tr.insert(blockContainer.afterPos, newBlock);
-      // Update selection
-      const newBlockInfo = getBlockInfoFromPos(
-        state.tr.doc,
-        blockContainer.afterPos
-      );
-      state.tr.setSelection(
-        TextSelection.create(state.doc, newBlockInfo.blockContent.beforePos + 1)
-      );
-      // Delete original block's children, if they exist
-      if (blockGroup) {
-        state.tr.delete(blockGroup.beforePos, blockGroup.afterPos);
-      }
-      // Delete original block's content past the cursor
-      state.tr.delete(posInBlock, blockContent.afterPos - 1);
-
-      // state.tr.scrollIntoView();
+      state.tr.split(posInBlock, 2, types);
     }
 
     return true;
