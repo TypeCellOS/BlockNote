@@ -13,75 +13,92 @@ function mergeBlocks(posBetweenBlocks: number) {
   );
 }
 
-function getPosAfterSelectedBlock() {
+function getPosBeforeSelectedBlock() {
   return getBlockInfoFromPos(
     getEditor()._tiptapEditor.state.doc,
     getEditor()._tiptapEditor.state.selection.from
-  ).blockContainer.afterPos;
+  ).blockContainer.beforePos;
 }
 
 describe("Test mergeBlocks", () => {
   it("Basic", () => {
-    getEditor().setTextCursorPosition("paragraph-0");
+    getEditor().setTextCursorPosition("paragraph-1");
 
-    mergeBlocks(getPosAfterSelectedBlock());
+    mergeBlocks(getPosBeforeSelectedBlock());
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("First block has children", () => {
-    getEditor().setTextCursorPosition("paragraph-with-children");
+    getEditor().setTextCursorPosition("paragraph-2");
 
-    mergeBlocks(getPosAfterSelectedBlock());
+    mergeBlocks(getPosBeforeSelectedBlock());
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Second block has children", () => {
-    getEditor().setTextCursorPosition("paragraph-1");
+    getEditor().setTextCursorPosition("paragraph-with-children");
 
-    mergeBlocks(getPosAfterSelectedBlock());
+    mergeBlocks(getPosBeforeSelectedBlock());
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Blocks have different types", () => {
-    getEditor().setTextCursorPosition("heading-0");
+    getEditor().setTextCursorPosition("paragraph-5");
 
-    mergeBlocks(getPosAfterSelectedBlock());
+    mergeBlocks(getPosBeforeSelectedBlock());
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Inline content & no content", () => {
-    getEditor().setTextCursorPosition("paragraph-5");
+    getEditor().setTextCursorPosition("image-0");
 
-    mergeBlocks(getPosAfterSelectedBlock());
+    mergeBlocks(getPosBeforeSelectedBlock());
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it.skip("Inline content & table content", () => {
-    getEditor().setTextCursorPosition("paragraph-6");
+    getEditor().setTextCursorPosition("table-0");
 
-    mergeBlocks(getPosAfterSelectedBlock());
+    mergeBlocks(getPosBeforeSelectedBlock());
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("No content & inline content", () => {
-    getEditor().setTextCursorPosition("image-0");
+    getEditor().setTextCursorPosition("paragraph-6");
 
-    mergeBlocks(getPosAfterSelectedBlock());
+    mergeBlocks(getPosBeforeSelectedBlock());
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it.skip("Table content & inline content", () => {
-    getEditor().setTextCursorPosition("table-0");
+    getEditor().setTextCursorPosition("paragraph-7");
 
-    mergeBlocks(getPosAfterSelectedBlock());
+    mergeBlocks(getPosBeforeSelectedBlock());
 
     expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Selection is set", () => {
+    getEditor().setTextCursorPosition("paragraph-0", "end");
+
+    const firstBlockEndOffset =
+      getEditor()._tiptapEditor.state.selection.$anchor.parentOffset;
+
+    getEditor().setTextCursorPosition("paragraph-1");
+
+    mergeBlocks(getPosBeforeSelectedBlock());
+
+    const anchorIsAtOldFirstBlockEndPos =
+      getEditor()._tiptapEditor.state.selection.$anchor.parentOffset ===
+      firstBlockEndOffset;
+
+    expect(anchorIsAtOldFirstBlockEndPos).toBeTruthy();
   });
 });

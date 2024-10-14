@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { getBlockInfoFromPos } from "../../../getBlockInfoFromPos.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
 import { splitBlockCommand } from "./splitBlock.js";
 
@@ -25,6 +26,14 @@ describe("Test splitBlocks", () => {
     getEditor().setTextCursorPosition("paragraph-0");
 
     splitBlock(getSelectionAnchorPosWithOffset(4));
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("End of content", () => {
+    getEditor().setTextCursorPosition("paragraph-0");
+
+    splitBlock(getSelectionAnchorPosWithOffset(11));
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -67,5 +76,22 @@ describe("Test splitBlocks", () => {
     splitBlock(getSelectionAnchorPosWithOffset(4));
 
     expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Selection is set", () => {
+    getEditor().setTextCursorPosition("paragraph-0");
+
+    splitBlock(getSelectionAnchorPosWithOffset(4));
+
+    const { blockContainer } = getBlockInfoFromPos(
+      getEditor()._tiptapEditor.state.doc,
+      getEditor()._tiptapEditor.state.selection.anchor
+    );
+
+    const anchorIsAtStartOfNewBlock =
+      blockContainer.node.attrs.id === "0" &&
+      getEditor()._tiptapEditor.state.selection.$anchor.parentOffset === 0;
+
+    expect(anchorIsAtStartOfNewBlock).toBeTruthy();
   });
 });
