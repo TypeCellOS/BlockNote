@@ -1,8 +1,11 @@
+import { Node } from "prosemirror-model";
 import { describe, expect, it } from "vitest";
 
 import { getBlockInfoFromPos } from "../../../getBlockInfoFromPos.js";
+import { getNodeById } from "../../../nodeUtil.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
 import { splitBlockCommand } from "./splitBlock.js";
+import { TextSelection } from "prosemirror-state";
 
 const getEditor = setupTestEnv();
 
@@ -17,71 +20,106 @@ function splitBlock(
   );
 }
 
-function getSelectionAnchorPosWithOffset(offset: number) {
-  return getEditor()._tiptapEditor.state.selection.anchor + offset;
+function setSelectionWithOffset(
+  doc: Node,
+  targetBlockId: string,
+  offset: number
+) {
+  const { posBeforeNode } = getNodeById(targetBlockId, doc);
+  const { blockContent } = getBlockInfoFromPos(doc, posBeforeNode);
+
+  getEditor()._tiptapEditor.view.dispatch(
+    getEditor()._tiptapEditor.state.tr.setSelection(
+      TextSelection.create(doc, blockContent.beforePos + offset + 1)
+    )
+  );
 }
 
 describe("Test splitBlocks", () => {
   it("Basic", () => {
-    getEditor().setTextCursorPosition("paragraph-0");
+    setSelectionWithOffset(
+      getEditor()._tiptapEditor.state.doc,
+      "paragraph-0",
+      4
+    );
 
-    splitBlock(getSelectionAnchorPosWithOffset(4));
+    splitBlock(getEditor()._tiptapEditor.state.selection.anchor);
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("End of content", () => {
-    getEditor().setTextCursorPosition("paragraph-0");
+    setSelectionWithOffset(
+      getEditor()._tiptapEditor.state.doc,
+      "paragraph-0",
+      11
+    );
 
-    splitBlock(getSelectionAnchorPosWithOffset(11));
+    splitBlock(getEditor()._tiptapEditor.state.selection.anchor);
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Block has children", () => {
-    getEditor().setTextCursorPosition("paragraph-with-children");
+    setSelectionWithOffset(
+      getEditor()._tiptapEditor.state.doc,
+      "paragraph-with-children",
+      4
+    );
 
-    splitBlock(getSelectionAnchorPosWithOffset(4));
+    splitBlock(getEditor()._tiptapEditor.state.selection.anchor);
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Keep type", () => {
-    getEditor().setTextCursorPosition("heading-0");
+    setSelectionWithOffset(getEditor()._tiptapEditor.state.doc, "heading-0", 4);
 
-    splitBlock(getSelectionAnchorPosWithOffset(4), true);
+    splitBlock(getEditor()._tiptapEditor.state.selection.anchor, true);
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Don't keep type", () => {
-    getEditor().setTextCursorPosition("heading-0");
+    setSelectionWithOffset(getEditor()._tiptapEditor.state.doc, "heading-0", 4);
 
-    splitBlock(getSelectionAnchorPosWithOffset(4));
+    splitBlock(getEditor()._tiptapEditor.state.selection.anchor, false);
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it.skip("Keep props", () => {
-    getEditor().setTextCursorPosition("paragraph-with-props");
+    setSelectionWithOffset(
+      getEditor()._tiptapEditor.state.doc,
+      "paragraph-with-props",
+      4
+    );
 
-    splitBlock(getSelectionAnchorPosWithOffset(4), false, true);
+    splitBlock(getEditor()._tiptapEditor.state.selection.anchor, false, true);
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Don't keep props", () => {
-    getEditor().setTextCursorPosition("paragraph-with-props");
+    setSelectionWithOffset(
+      getEditor()._tiptapEditor.state.doc,
+      "paragraph-with-props",
+      4
+    );
 
-    splitBlock(getSelectionAnchorPosWithOffset(4));
+    splitBlock(getEditor()._tiptapEditor.state.selection.anchor, false, false);
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Selection is set", () => {
-    getEditor().setTextCursorPosition("paragraph-0");
+    setSelectionWithOffset(
+      getEditor()._tiptapEditor.state.doc,
+      "paragraph-0",
+      4
+    );
 
-    splitBlock(getSelectionAnchorPosWithOffset(4));
+    splitBlock(getEditor()._tiptapEditor.state.selection.anchor);
 
     const { blockContainer } = getBlockInfoFromPos(
       getEditor()._tiptapEditor.state.doc,
