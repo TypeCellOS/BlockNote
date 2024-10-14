@@ -1,4 +1,4 @@
-import { EditorState } from "prosemirror-state";
+import { EditorState, TextSelection } from "prosemirror-state";
 
 import { getBlockInfoFromPos } from "../../../getBlockInfoFromPos.js";
 
@@ -35,6 +35,14 @@ export const splitBlockCommand = (
     if (dispatch) {
       // Insert new block
       state.tr.insert(blockContainer.afterPos, newBlock);
+      // Update selection
+      const newBlockInfo = getBlockInfoFromPos(
+        state.doc,
+        blockContainer.afterPos
+      );
+      state.tr.setSelection(
+        TextSelection.create(state.doc, newBlockInfo.blockContent.beforePos + 1)
+      );
       // Delete original block's children, if they exist
       if (blockGroup) {
         state.tr.delete(blockGroup.beforePos, blockGroup.afterPos);
