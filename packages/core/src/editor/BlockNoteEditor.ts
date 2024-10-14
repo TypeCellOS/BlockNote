@@ -17,7 +17,7 @@ import {
 } from "../api/blockManipulation/selections/textCursorPosition/textCursorPosition.js";
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
-import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos.js";
+import { getBlockInfoFromPos_DEPRECATED } from "../api/getBlockInfoFromPos.js";
 import {
   inlineContentToNodes,
   nodeToBlock,
@@ -965,7 +965,7 @@ export class BlockNoteEditor<
    * Checks if the block containing the text cursor can be nested.
    */
   public canNestBlock() {
-    const { blockContainer } = getBlockInfoFromPos(
+    const { blockContainer } = getBlockInfoFromPos_DEPRECATED(
       this._tiptapEditor.state.doc,
       this._tiptapEditor.state.selection.from
     )!;
@@ -987,7 +987,7 @@ export class BlockNoteEditor<
    * Checks if the block containing the text cursor is nested.
    */
   public canUnnestBlock() {
-    const { depth } = getBlockInfoFromPos(
+    const { depth } = getBlockInfoFromPos_DEPRECATED(
       this._tiptapEditor.state.doc,
       this._tiptapEditor.state.selection.from
     )!;

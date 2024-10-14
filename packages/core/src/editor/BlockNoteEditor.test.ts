@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos.js";
+import { getBlockInfoFromPos_DEPRECATED } from "../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "./BlockNoteEditor.js";
 
 /**
@@ -7,7 +7,7 @@ import { BlockNoteEditor } from "./BlockNoteEditor.js";
  */
 it("creates an editor", () => {
   const editor = BlockNoteEditor.create();
-  const { blockContent } = getBlockInfoFromPos(
+  const { blockContent } = getBlockInfoFromPos_DEPRECATED(
     editor._tiptapEditor.state.doc,
     2
   );

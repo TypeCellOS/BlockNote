@@ -1,4 +1,5 @@
 import { Node } from "prosemirror-model";
+import { EditorState } from "prosemirror-state";
 
 type SingleBlockInfo = {
   node: Node;
@@ -148,7 +149,10 @@ export function getBlockInfo(
  * @param pos An integer position.
  * @returns A BlockInfo object for the nearest blockContainer node.
  */
-export function getBlockInfoFromPos(doc: Node, pos: number): BlockInfo {
+export function getBlockInfoFromPos_DEPRECATED(
+  doc: Node,
+  pos: number
+): BlockInfo {
   const $pos = doc.resolve(getNearestBlockContainerPos(doc, pos));
   const depth = $pos.depth;
 
@@ -165,4 +169,9 @@ export function getBlockInfoFromPos(doc: Node, pos: number): BlockInfo {
     depth,
     ...getBlockInfo(node, beforePos),
   };
+}
+
+export function getBlockInfoFromSelection(state: EditorState) {
+  const pos = getNearestBlockContainerPos(state.doc, state.selection.anchor);
+  return getBlockInfoFromPos_DEPRECATED(state.doc, pos);
 }

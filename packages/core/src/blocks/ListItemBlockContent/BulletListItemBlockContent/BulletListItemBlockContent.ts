@@ -1,6 +1,6 @@
 import { InputRule } from "@tiptap/core";
 import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { getBlockInfoFromPos } from "../../../api/getBlockInfoFromPos.js";
+import { getBlockInfoFromSelection } from "../../../api/getBlockInfoFromPos.js";
 import {
   PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
@@ -27,21 +27,21 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
       new InputRule({
         find: new RegExp(`^[-+*]\\s$`),
         handler: ({ state, chain, range }) => {
-          if (
-            getBlockInfoFromPos(
-              this.editor.state.doc,
-              this.editor.state.selection.anchor
-            ).blockContent.node.type.spec.content !== "inline*"
-          ) {
+          const blockInfo = getBlockInfoFromSelection(state);
+          if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
             return;
           }
 
           chain()
             .command(
-              updateBlockCommand(this.options.editor, state.selection.from, {
-                type: "bulletListItem",
-                props: {},
-              })
+              updateBlockCommand(
+                this.options.editor,
+                blockInfo.blockContainer.beforePos,
+                {
+                  type: "bulletListItem",
+                  props: {},
+                }
+              )
             )
             // Removes the "-", "+", or "*" character used to set the list.
             .deleteRange({ from: range.from, to: range.to });
@@ -54,19 +54,15 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
     return {
       Enter: () => handleEnter(this.options.editor),
       "Mod-Shift-8": () => {
-        if (
-          getBlockInfoFromPos(
-            this.editor.state.doc,
-            this.editor.state.selection.anchor
-          ).blockContent.node.type.spec.content !== "inline*"
-        ) {
+        const blockInfo = getBlockInfoFromSelection(this.editor.state);
+        if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
           return true;
         }
 
         return this.options.editor.commands.command(
           updateBlockCommand(
             this.options.editor,
-            this.options.editor.state.selection.anchor,
+            blockInfo.blockContainer.beforePos,
             {
               type: "bulletListItem",
               props: {},

@@ -4,7 +4,10 @@ import { TextSelection } from "prosemirror-state";
 import { mergeBlocksCommand } from "../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
 import { splitBlockCommand } from "../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos.js";
+import {
+  getBlockInfoFromPos_DEPRECATED,
+  getBlockInfoFromSelection,
+} from "../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 export const KeyboardShortcutsExtension = Extension.create<{
@@ -23,21 +26,23 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // Reverts block content type to a paragraph if the selection is at the start of the block.
         () =>
           commands.command(({ state }) => {
-            const { blockContent } = getBlockInfoFromPos(
-              state.doc,
-              state.selection.from
-            )!;
+            const blockInfo = getBlockInfoFromSelection(state);
 
             const selectionAtBlockStart =
-              state.selection.from === blockContent.beforePos + 1;
-            const isParagraph = blockContent.node.type.name === "paragraph";
+              state.selection.from === blockInfo.blockContent.beforePos + 1;
+            const isParagraph =
+              blockInfo.blockContent.node.type.name === "paragraph";
 
             if (selectionAtBlockStart && !isParagraph) {
               return commands.command(
-                updateBlockCommand(this.options.editor, state.selection.from, {
-                  type: "paragraph",
-                  props: {},
-                })
+                updateBlockCommand(
+                  this.options.editor,
+                  blockInfo.blockContainer.beforePos,
+                  {
+                    type: "paragraph",
+                    props: {},
+                  }
+                )
               );
             }
 
@@ -46,7 +51,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // Removes a level of nesting if the block is indented if the selection is at the start of the block.
         () =>
           commands.command(({ state }) => {
-            const { blockContent } = getBlockInfoFromPos(
+            const { blockContent } = getBlockInfoFromPos_DEPRECATED(
               state.doc,
               state.selection.from
             )!;
@@ -64,10 +69,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // is at the start of the block.
         () =>
           commands.command(({ state }) => {
-            const { depth, blockContainer, blockContent } = getBlockInfoFromPos(
-              state.doc,
-              state.selection.from
-            )!;
+            const { depth, blockContainer, blockContent } =
+              getBlockInfoFromPos_DEPRECATED(state.doc, state.selection.from)!;
 
             const selectionAtBlockStart =
               state.selection.from === blockContent.beforePos + 1;
@@ -100,7 +103,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
           commands.command(({ state }) => {
             // TODO: Change this to not rely on offsets & schema assumptions
             const { depth, blockContainer, blockContent, blockGroup } =
-              getBlockInfoFromPos(state.doc, state.selection.from)!;
+              getBlockInfoFromPos_DEPRECATED(state.doc, state.selection.from)!;
 
             const blockAtDocEnd =
               blockContainer.afterPos === state.doc.nodeSize - 3;
@@ -138,7 +141,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // of the block.
         () =>
           commands.command(({ state }) => {
-            const { depth, blockContent } = getBlockInfoFromPos(
+            const { depth, blockContent } = getBlockInfoFromPos_DEPRECATED(
               state.doc,
               state.selection.from
             )!;
@@ -165,10 +168,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // empty & at the start of the block.
         () =>
           commands.command(({ state, dispatch }) => {
-            const { blockContainer, blockContent } = getBlockInfoFromPos(
-              state.doc,
-              state.selection.from
-            )!;
+            const { blockContainer, blockContent } =
+              getBlockInfoFromPos_DEPRECATED(state.doc, state.selection.from)!;
 
             const selectionAtBlockStart =
               state.selection.$anchor.parentOffset === 0;
@@ -201,7 +202,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // deletes the selection beforehand, if it's not empty.
         () =>
           commands.command(({ state, chain }) => {
-            const { blockContent } = getBlockInfoFromPos(
+            const { blockContent } = getBlockInfoFromPos_DEPRECATED(
               state.doc,
               state.selection.from
             )!;

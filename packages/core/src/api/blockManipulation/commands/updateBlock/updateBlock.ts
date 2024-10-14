@@ -10,7 +10,7 @@ import {
 import { InlineContentSchema } from "../../../../schema/inlineContent/types.js";
 import { StyleSchema } from "../../../../schema/styles/types.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
-import { getBlockInfoFromPos } from "../../../getBlockInfoFromPos.js";
+import { getBlockInfo } from "../../../getBlockInfoFromPos.js";
 import {
   blockToNode,
   inlineContentToNodes,
@@ -26,7 +26,7 @@ export const updateBlockCommand =
     S extends StyleSchema
   >(
     editor: BlockNoteEditor<BSchema, I, S>,
-    posInBlock: number,
+    posBeforeBlock: number,
     block: PartialBlock<BSchema, I, S>
   ) =>
   ({
@@ -36,12 +36,10 @@ export const updateBlockCommand =
     state: EditorState;
     dispatch: ((args?: any) => any) | undefined;
   }) => {
-    const blockInfo = getBlockInfoFromPos(state.doc, posInBlock);
-    if (blockInfo === undefined) {
-      return false;
-    }
-
-    const { blockContainer, blockContent, blockGroup } = blockInfo;
+    const { blockContainer, blockContent, blockGroup } = getBlockInfo(
+      state.doc,
+      posBeforeBlock
+    );
 
     if (dispatch) {
       // Adds blockGroup node with child blocks if necessary.
@@ -203,12 +201,12 @@ export function updateBlock<
   const { posBeforeNode } = getNodeById(id, ttEditor.state.doc);
 
   ttEditor.commands.command(({ state, dispatch }) => {
-    updateBlockCommand(editor, posBeforeNode + 1, update)({ state, dispatch });
+    updateBlockCommand(editor, posBeforeNode, update)({ state, dispatch });
     return true;
   });
 
   const blockContainerNode = ttEditor.state.doc
-    .resolve(posBeforeNode + 1)
+    .resolve(posBeforeNode + 1) // TODO: clean?
     .node();
 
   return nodeToBlock(

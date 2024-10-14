@@ -9,7 +9,7 @@ import {
   StyleSchema,
 } from "../../../../schema/index.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
-import { getBlockInfoFromPos } from "../../../getBlockInfoFromPos.js";
+import { getBlockInfoFromPos_DEPRECATED } from "../../../getBlockInfoFromPos.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeConversions.js";
 import { getNodeById } from "../../../nodeUtil.js";
 
@@ -18,7 +18,7 @@ export function getTextCursorPosition<
   I extends InlineContentSchema,
   S extends StyleSchema
 >(editor: BlockNoteEditor<BSchema, I, S>): TextCursorPosition<BSchema, I, S> {
-  const { depth, blockContainer } = getBlockInfoFromPos(
+  const { depth, blockContainer } = getBlockInfoFromPos_DEPRECATED(
     editor._tiptapEditor.state.doc,
     editor._tiptapEditor.state.selection.from
   )!;
@@ -94,7 +94,7 @@ export function setTextCursorPosition<
   const id = typeof targetBlock === "string" ? targetBlock : targetBlock.id;
 
   const { posBeforeNode } = getNodeById(id, editor._tiptapEditor.state.doc);
-  const { blockContent } = getBlockInfoFromPos(
+  const { blockContent } = getBlockInfoFromPos_DEPRECATED(
     editor._tiptapEditor.state.doc,
     posBeforeNode
   )!;

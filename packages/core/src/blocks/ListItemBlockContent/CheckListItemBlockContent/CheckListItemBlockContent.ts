@@ -1,6 +1,9 @@
 import { InputRule } from "@tiptap/core";
 import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { getBlockInfoFromPos } from "../../../api/getBlockInfoFromPos.js";
+import {
+  getBlockInfoFromSelection,
+  getNearestBlockContainerPos,
+} from "../../../api/getBlockInfoFromPos.js";
 import {
   PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
@@ -45,23 +48,23 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
       new InputRule({
         find: new RegExp(`\\[\\s*\\]\\s$`),
         handler: ({ state, chain, range }) => {
-          if (
-            getBlockInfoFromPos(
-              this.editor.state.doc,
-              this.editor.state.selection.anchor
-            ).blockContent.node.type.spec.content !== "inline*"
-          ) {
+          const blockInfo = getBlockInfoFromSelection(state);
+          if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
             return;
           }
 
           chain()
             .command(
-              updateBlockCommand(this.options.editor, state.selection.from, {
-                type: "checkListItem",
-                props: {
-                  checked: false as any,
-                },
-              })
+              updateBlockCommand(
+                this.options.editor,
+                blockInfo.blockContainer.beforePos,
+                {
+                  type: "checkListItem",
+                  props: {
+                    checked: false as any,
+                  },
+                }
+              )
             )
             // Removes the characters used to set the list.
             .deleteRange({ from: range.from, to: range.to });
@@ -70,23 +73,24 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
       new InputRule({
         find: new RegExp(`\\[[Xx]\\]\\s$`),
         handler: ({ state, chain, range }) => {
-          if (
-            getBlockInfoFromPos(
-              this.editor.state.doc,
-              this.editor.state.selection.anchor
-            ).blockContent.node.type.spec.content !== "inline*"
-          ) {
+          const blockInfo = getBlockInfoFromSelection(state);
+
+          if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
             return;
           }
 
           chain()
             .command(
-              updateBlockCommand(this.options.editor, state.selection.from, {
-                type: "checkListItem",
-                props: {
-                  checked: true as any,
-                },
-              })
+              updateBlockCommand(
+                this.options.editor,
+                blockInfo.blockContainer.beforePos,
+                {
+                  type: "checkListItem",
+                  props: {
+                    checked: true as any,
+                  },
+                }
+              )
             )
             // Removes the characters used to set the list.
             .deleteRange({ from: range.from, to: range.to });
@@ -99,19 +103,15 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
     return {
       Enter: () => handleEnter(this.options.editor),
       "Mod-Shift-9": () => {
-        if (
-          getBlockInfoFromPos(
-            this.editor.state.doc,
-            this.editor.state.selection.anchor
-          ).blockContent.node.type.spec.content !== "inline*"
-        ) {
+        const blockInfo = getBlockInfoFromSelection(this.options.editor.state);
+        if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
           return true;
         }
 
         return this.editor.commands.command(
           updateBlockCommand(
             this.options.editor,
-            this.editor.state.selection.anchor,
+            blockInfo.blockContainer.beforePos,
             {
               type: "checkListItem",
               props: {},
@@ -234,9 +234,14 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
           return;
         }
 
+        // TODO: test
         if (typeof getPos !== "boolean") {
+          const beforeBlockContainerPos = getNearestBlockContainerPos(
+            editor.state.doc,
+            getPos()
+          );
           this.editor.commands.command(
-            updateBlockCommand(this.options.editor, getPos(), {
+            updateBlockCommand(this.options.editor, beforeBlockContainerPos, {
               type: "checkListItem",
               props: {
                 checked: checkbox.checked as any,

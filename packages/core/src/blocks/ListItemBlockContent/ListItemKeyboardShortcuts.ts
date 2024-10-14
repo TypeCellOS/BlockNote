@@ -1,14 +1,13 @@
 import { splitBlockCommand } from "../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos.js";
+import { getBlockInfoFromSelection } from "../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 export const handleEnter = (editor: BlockNoteEditor<any, any, any>) => {
   const ttEditor = editor._tiptapEditor;
-  const { blockContent } = getBlockInfoFromPos(
-    ttEditor.state.doc,
-    ttEditor.state.selection.from
-  )!;
+  const { blockContent, blockContainer } = getBlockInfoFromSelection(
+    ttEditor.state
+  );
 
   const selectionEmpty =
     ttEditor.state.selection.anchor === ttEditor.state.selection.head;
@@ -30,7 +29,7 @@ export const handleEnter = (editor: BlockNoteEditor<any, any, any>) => {
       commands.command(() => {
         if (blockContent.node.childCount === 0) {
           return commands.command(
-            updateBlockCommand(editor, state.selection.from, {
+            updateBlockCommand(editor, blockContainer.beforePos, {
               type: "paragraph",
               props: {},
             })

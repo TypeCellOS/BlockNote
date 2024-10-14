@@ -1,5 +1,5 @@
 import { Plugin, PluginKey } from "prosemirror-state";
-import { getBlockInfoFromPos } from "../../../api/getBlockInfoFromPos.js";
+import { getBlockInfoFromPos_DEPRECATED } from "../../../api/getBlockInfoFromPos.js";
 
 // ProseMirror Plugin which automatically assigns indices to ordered list items per nesting level.
 const PLUGIN_KEY = new PluginKey(`numbered-list-indexing`);
@@ -23,7 +23,7 @@ export const NumberedListIndexingPlugin = () => {
           let newIndex = "1";
           const isFirstBlockInDoc = pos === 1;
 
-          const blockInfo = getBlockInfoFromPos(tr.doc, pos)!;
+          const blockInfo = getBlockInfoFromPos_DEPRECATED(tr.doc, pos)!;
 
           // Checks if this block is the start of a new ordered list, i.e. if it's the first block in the document, the
           // first block in its nesting level, or the previous block is not an ordered list item.
@@ -31,7 +31,7 @@ export const NumberedListIndexingPlugin = () => {
             const prevBlock = tr.doc.resolve(
               blockInfo.blockContainer.beforePos - 1
             ).nodeBefore!;
-            const prevBlockInfo = getBlockInfoFromPos(
+            const prevBlockInfo = getBlockInfoFromPos_DEPRECATED(
               tr.doc,
               blockInfo.blockContainer.beforePos - prevBlock.nodeSize
             )!;

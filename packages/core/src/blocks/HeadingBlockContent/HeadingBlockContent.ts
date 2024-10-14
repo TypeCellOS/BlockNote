@@ -1,6 +1,6 @@
 import { InputRule } from "@tiptap/core";
 import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { getBlockInfoFromPos } from "../../api/getBlockInfoFromPos.js";
+import { getBlockInfoFromSelection } from "../../api/getBlockInfoFromPos.js";
 import {
   PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
@@ -47,23 +47,23 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
         return new InputRule({
           find: new RegExp(`^(#{${level}})\\s$`),
           handler: ({ state, chain, range }) => {
-            if (
-              getBlockInfoFromPos(
-                this.editor.state.doc,
-                this.editor.state.selection.anchor
-              ).blockContent.node.type.spec.content !== "inline*"
-            ) {
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
               return;
             }
 
             chain()
               .command(
-                updateBlockCommand(this.options.editor, state.selection.from, {
-                  type: "heading",
-                  props: {
-                    level: level as any,
-                  },
-                })
+                updateBlockCommand(
+                  this.options.editor,
+                  blockInfo.blockContainer.beforePos,
+                  {
+                    type: "heading",
+                    props: {
+                      level: level as any,
+                    },
+                  }
+                )
               )
               // Removes the "#" character(s) used to set the heading.
               .deleteRange({ from: range.from, to: range.to })
@@ -77,12 +77,8 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
   addKeyboardShortcuts() {
     return {
       "Mod-Alt-1": () => {
-        if (
-          getBlockInfoFromPos(
-            this.editor.state.doc,
-            this.editor.state.selection.anchor
-          ).blockContent.node.type.spec.content !== "inline*"
-        ) {
+        const blockInfo = getBlockInfoFromSelection(this.editor.state);
+        if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
           return true;
         }
 
@@ -90,7 +86,7 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
         return this.editor.commands.command(
           updateBlockCommand(
             this.options.editor,
-            this.editor.state.selection.anchor,
+            blockInfo.blockContainer.beforePos,
             {
               type: "heading",
               props: {
@@ -101,19 +97,15 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
         );
       },
       "Mod-Alt-2": () => {
-        if (
-          getBlockInfoFromPos(
-            this.editor.state.doc,
-            this.editor.state.selection.anchor
-          ).blockContent.node.type.spec.content !== "inline*"
-        ) {
+        const blockInfo = getBlockInfoFromSelection(this.editor.state);
+        if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
           return true;
         }
 
         return this.editor.commands.command(
           updateBlockCommand(
             this.options.editor,
-            this.editor.state.selection.anchor,
+            blockInfo.blockContainer.beforePos,
             {
               type: "heading",
               props: {
@@ -124,19 +116,15 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
         );
       },
       "Mod-Alt-3": () => {
-        if (
-          getBlockInfoFromPos(
-            this.editor.state.doc,
-            this.editor.state.selection.anchor
-          ).blockContent.node.type.spec.content !== "inline*"
-        ) {
+        const blockInfo = getBlockInfoFromSelection(this.editor.state);
+        if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
           return true;
         }
 
         return this.editor.commands.command(
           updateBlockCommand(
             this.options.editor,
-            this.editor.state.selection.anchor,
+            blockInfo.blockContainer.beforePos,
             {
               type: "heading",
               props: {

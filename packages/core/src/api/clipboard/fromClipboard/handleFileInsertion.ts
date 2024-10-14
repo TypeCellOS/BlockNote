@@ -6,7 +6,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
-import { getBlockInfoFromPos } from "../../getBlockInfoFromPos.js";
+import { getBlockInfoFromPos_DEPRECATED } from "../../getBlockInfoFromPos.js";
 import { acceptedMIMETypes } from "./acceptedMIMETypes.js";
 
 function checkFileExtensionsMatch(
@@ -132,7 +132,7 @@ export async function handleFileInsertion<
           return;
         }
 
-        const blockInfo = getBlockInfoFromPos(
+        const blockInfo = getBlockInfoFromPos_DEPRECATED(
           editor._tiptapEditor.state.doc,
           pos.pos
         );
