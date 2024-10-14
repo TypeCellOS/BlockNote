@@ -10,7 +10,7 @@ import {
 import { InlineContentSchema } from "../../../../schema/inlineContent/types.js";
 import { StyleSchema } from "../../../../schema/styles/types.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
-import { getBlockInfo } from "../../../getBlockInfoFromPos.js";
+import { getBlockInfoFromResolvedPos } from "../../../getBlockInfoFromPos.js";
 import {
   blockToNode,
   inlineContentToNodes,
@@ -36,10 +36,8 @@ export const updateBlockCommand =
     state: EditorState;
     dispatch: ((args?: any) => any) | undefined;
   }) => {
-    const { blockContainer, blockContent, blockGroup } = getBlockInfo(
-      state.doc,
-      posBeforeBlock
-    );
+    const { blockContainer, blockContent, blockGroup } =
+      getBlockInfoFromResolvedPos(state.doc.resolve(posBeforeBlock));
 
     if (dispatch) {
       // Adds blockGroup node with child blocks if necessary.

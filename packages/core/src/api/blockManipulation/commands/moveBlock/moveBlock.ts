@@ -3,7 +3,7 @@ import { CellSelection } from "prosemirror-tables";
 
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import { BlockIdentifier } from "../../../../schema/index.js";
-import { getBlockInfoFromPos_DEPRECATED } from "../../../getBlockInfoFromPos.js";
+import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
 
 type BlockSelectionData = (
@@ -31,9 +31,8 @@ type BlockSelectionData = (
 function getBlockSelectionData(
   editor: BlockNoteEditor<any, any, any>
 ): BlockSelectionData {
-  const { blockContainer } = getBlockInfoFromPos_DEPRECATED(
-    editor._tiptapEditor.state.doc,
-    editor._tiptapEditor.state.selection.from
+  const { blockContainer } = getBlockInfoFromSelection(
+    editor._tiptapEditor.state
   );
 
   const selectionData = {

@@ -9,7 +9,10 @@ import {
   StyleSchema,
 } from "../../../../schema/index.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
-import { getBlockInfoFromPos_DEPRECATED } from "../../../getBlockInfoFromPos.js";
+import {
+  getBlockInfo,
+  getBlockInfoFromSelection,
+} from "../../../getBlockInfoFromPos.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeConversions.js";
 import { getNodeById } from "../../../nodeUtil.js";
 
@@ -18,15 +21,15 @@ export function getTextCursorPosition<
   I extends InlineContentSchema,
   S extends StyleSchema
 >(editor: BlockNoteEditor<BSchema, I, S>): TextCursorPosition<BSchema, I, S> {
-  const { depth, blockContainer } = getBlockInfoFromPos_DEPRECATED(
-    editor._tiptapEditor.state.doc,
-    editor._tiptapEditor.state.selection.from
-  )!;
+  const { blockContainer } = getBlockInfoFromSelection(
+    editor._tiptapEditor.state
+  );
 
-  // Gets previous blockContainer node at the same nesting level, if the current node isn't the first child.
-  const prevNode = editor._tiptapEditor.state.doc.resolve(
+  const resolvedPos = editor._tiptapEditor.state.doc.resolve(
     blockContainer.beforePos
-  ).nodeBefore;
+  );
+  // Gets previous blockContainer node at the same nesting level, if the current node isn't the first child.
+  const prevNode = resolvedPos.nodeBefore;
 
   // Gets next blockContainer node at the same nesting level, if the current node isn't the last child.
   const nextNode = editor._tiptapEditor.state.doc.resolve(
@@ -35,10 +38,8 @@ export function getTextCursorPosition<
 
   // Gets parent blockContainer node, if the current node is nested.
   let parentNode: Node | undefined = undefined;
-  if (depth > 1) {
-    parentNode = editor._tiptapEditor.state.doc
-      .resolve(blockContainer.beforePos)
-      .node(depth - 1);
+  if (resolvedPos.depth > 1) {
+    parentNode = resolvedPos.node(resolvedPos.depth - 1);
   }
 
   return {
@@ -93,11 +94,8 @@ export function setTextCursorPosition<
 ) {
   const id = typeof targetBlock === "string" ? targetBlock : targetBlock.id;
 
-  const { posBeforeNode } = getNodeById(id, editor._tiptapEditor.state.doc);
-  const { blockContent } = getBlockInfoFromPos_DEPRECATED(
-    editor._tiptapEditor.state.doc,
-    posBeforeNode
-  )!;
+  const posInfo = getNodeById(id, editor._tiptapEditor.state.doc);
+  const { blockContent } = getBlockInfo(posInfo);
 
   const contentType: "none" | "inline" | "table" =
     editor.schema.blockSchema[blockContent.node.type.name]!.content;

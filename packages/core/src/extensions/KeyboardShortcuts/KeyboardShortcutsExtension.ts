@@ -4,10 +4,7 @@ import { TextSelection } from "prosemirror-state";
 import { mergeBlocksCommand } from "../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
 import { splitBlockCommand } from "../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import {
-  getBlockInfoFromPos_DEPRECATED,
-  getBlockInfoFromSelection,
-} from "../../api/getBlockInfoFromPos.js";
+import { getBlockInfoFromSelection } from "../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 export const KeyboardShortcutsExtension = Extension.create<{
@@ -51,10 +48,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // Removes a level of nesting if the block is indented if the selection is at the start of the block.
         () =>
           commands.command(({ state }) => {
-            const { blockContent } = getBlockInfoFromPos_DEPRECATED(
-              state.doc,
-              state.selection.from
-            )!;
+            const { blockContent } = getBlockInfoFromSelection(state);
 
             const selectionAtBlockStart =
               state.selection.from === blockContent.beforePos + 1;
@@ -69,8 +63,10 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // is at the start of the block.
         () =>
           commands.command(({ state }) => {
-            const { depth, blockContainer, blockContent } =
-              getBlockInfoFromPos_DEPRECATED(state.doc, state.selection.from)!;
+            const { blockContainer, blockContent } =
+              getBlockInfoFromSelection(state);
+
+            const { depth } = state.doc.resolve(blockContainer.beforePos);
 
             const selectionAtBlockStart =
               state.selection.from === blockContent.beforePos + 1;
@@ -102,9 +98,10 @@ export const KeyboardShortcutsExtension = Extension.create<{
         () =>
           commands.command(({ state }) => {
             // TODO: Change this to not rely on offsets & schema assumptions
-            const { depth, blockContainer, blockContent, blockGroup } =
-              getBlockInfoFromPos_DEPRECATED(state.doc, state.selection.from)!;
+            const { blockContainer, blockContent, blockGroup } =
+              getBlockInfoFromSelection(state);
 
+            const { depth } = state.doc.resolve(blockContainer.beforePos);
             const blockAtDocEnd =
               blockContainer.afterPos === state.doc.nodeSize - 3;
             const selectionAtBlockEnd =
@@ -141,10 +138,10 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // of the block.
         () =>
           commands.command(({ state }) => {
-            const { depth, blockContent } = getBlockInfoFromPos_DEPRECATED(
-              state.doc,
-              state.selection.from
-            )!;
+            const { blockContent, blockContainer } =
+              getBlockInfoFromSelection(state);
+
+            const { depth } = state.doc.resolve(blockContainer.beforePos);
 
             const selectionAtBlockStart =
               state.selection.$anchor.parentOffset === 0;
@@ -169,7 +166,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
         () =>
           commands.command(({ state, dispatch }) => {
             const { blockContainer, blockContent } =
-              getBlockInfoFromPos_DEPRECATED(state.doc, state.selection.from)!;
+              getBlockInfoFromSelection(state);
 
             const selectionAtBlockStart =
               state.selection.$anchor.parentOffset === 0;
@@ -202,10 +199,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // deletes the selection beforehand, if it's not empty.
         () =>
           commands.command(({ state, chain }) => {
-            const { blockContent } = getBlockInfoFromPos_DEPRECATED(
-              state.doc,
-              state.selection.from
-            )!;
+            const { blockContent } = getBlockInfoFromSelection(state);
 
             const selectionAtBlockStart =
               state.selection.$anchor.parentOffset === 0;

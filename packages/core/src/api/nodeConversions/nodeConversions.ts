@@ -17,7 +17,7 @@ import type {
   Styles,
   TableContent,
 } from "../../schema/index.js";
-import { getBlockInfo } from "../getBlockInfoFromPos.js";
+import { getBlockInfoWithManualOffset } from "../getBlockInfoFromPos.js";
 
 import type { Block, PartialBlock } from "../../blocks/defaultBlocks.js";
 import {
@@ -566,7 +566,8 @@ export function nodeToBlock<
     return cachedBlock;
   }
 
-  const { blockContainer, blockContent, blockGroup } = getBlockInfo(node);
+  const { blockContainer, blockContent, blockGroup } =
+    getBlockInfoWithManualOffset(node, 0);
 
   let id = blockContainer.node.attrs.id;
 

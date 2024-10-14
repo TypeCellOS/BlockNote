@@ -1,5 +1,8 @@
 import { expect, it } from "vitest";
-import { getBlockInfoFromPos_DEPRECATED } from "../api/getBlockInfoFromPos.js";
+import {
+  getBlockInfo,
+  getNearestBlockContainerPos,
+} from "../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "./BlockNoteEditor.js";
 
 /**
@@ -7,10 +10,11 @@ import { BlockNoteEditor } from "./BlockNoteEditor.js";
  */
 it("creates an editor", () => {
   const editor = BlockNoteEditor.create();
-  const { blockContent } = getBlockInfoFromPos_DEPRECATED(
+  const posInfo = getNearestBlockContainerPos(
     editor._tiptapEditor.state.doc,
     2
   );
+  const { blockContent } = getBlockInfo(posInfo);
   expect(blockContent.node.type.name).toEqual("paragraph");
 });
 

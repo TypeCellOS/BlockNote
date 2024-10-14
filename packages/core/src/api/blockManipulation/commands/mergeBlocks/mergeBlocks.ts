@@ -1,6 +1,6 @@
 import { EditorState } from "prosemirror-state";
 
-import { getBlockInfo } from "../../../getBlockInfoFromPos.js";
+import { getBlockInfoFromResolvedPos } from "../../../getBlockInfoFromPos.js";
 
 export const mergeBlocksCommand =
   (posBetweenBlocks: number) =>
@@ -21,7 +21,7 @@ export const mergeBlocksCommand =
       );
     }
 
-    const nextBlockInfo = getBlockInfo($pos.nodeAfter, posBetweenBlocks);
+    const nextBlockInfo = getBlockInfoFromResolvedPos($pos);
 
     // Removes a level of nesting all children of the next block by 1 level, if it contains both content and block
     // group nodes.
@@ -43,9 +43,8 @@ export const mergeBlocksCommand =
     // TODO: extract helper?
     // Finds the nearest previous block, regardless of nesting level.
     let prevBlockStartPos = $pos.posAtIndex($pos.index() - 1);
-    let prevBlockInfo = getBlockInfo(
-      state.doc.resolve(prevBlockStartPos).nodeAfter!,
-      prevBlockStartPos
+    let prevBlockInfo = getBlockInfoFromResolvedPos(
+      state.doc.resolve(prevBlockStartPos)
     );
     while (prevBlockInfo.blockGroup) {
       const group = prevBlockInfo.blockGroup.node;
@@ -53,9 +52,8 @@ export const mergeBlocksCommand =
       prevBlockStartPos = state.doc
         .resolve(prevBlockInfo.blockGroup.beforePos + 1)
         .posAtIndex(group.childCount - 1);
-      prevBlockInfo = getBlockInfo(
-        state.doc.resolve(prevBlockStartPos).nodeAfter!,
-        prevBlockStartPos
+      prevBlockInfo = getBlockInfoFromResolvedPos(
+        state.doc.resolve(prevBlockStartPos)
       );
     }
 

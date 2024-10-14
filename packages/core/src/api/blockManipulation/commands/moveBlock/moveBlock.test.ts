@@ -2,7 +2,7 @@ import { NodeSelection, TextSelection } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
 import { describe, expect, it } from "vitest";
 
-import { getBlockInfoFromPos_DEPRECATED } from "../../../getBlockInfoFromPos.js";
+import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
 import {
   moveBlockDown,
@@ -13,9 +13,8 @@ import {
 const getEditor = setupTestEnv();
 
 function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
-  const { blockContent } = getBlockInfoFromPos_DEPRECATED(
-    getEditor()._tiptapEditor.state.doc,
-    getEditor()._tiptapEditor.state.selection.from
+  const { blockContent } = getBlockInfoFromSelection(
+    getEditor()._tiptapEditor.state
   );
 
   if (selectionType === "cell") {

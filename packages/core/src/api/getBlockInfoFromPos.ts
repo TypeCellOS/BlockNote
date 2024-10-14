@@ -1,4 +1,4 @@
-import { Node } from "prosemirror-model";
+import { Node, ResolvedPos } from "prosemirror-model";
 import { EditorState } from "prosemirror-state";
 
 type SingleBlockInfo = {
@@ -8,7 +8,6 @@ type SingleBlockInfo = {
 };
 
 export type BlockInfo = {
-  depth: number;
   blockContainer: SingleBlockInfo;
   blockContent: SingleBlockInfo;
   blockGroup?: SingleBlockInfo;
@@ -32,7 +31,10 @@ export function getNearestBlockContainerPos(doc: Node, pos: number) {
   // Checks if the position provided is already just before a blockContainer
   // node, in which case we return the position.
   if ($pos.nodeAfter && $pos.nodeAfter.type.name === "blockContainer") {
-    return $pos.pos;
+    return {
+      posBeforeNode: $pos.pos,
+      node: $pos.nodeAfter,
+    };
   }
 
   // Checks the node containing the position and its ancestors until a
@@ -41,7 +43,10 @@ export function getNearestBlockContainerPos(doc: Node, pos: number) {
   let node = $pos.node(depth);
   while (depth > 0) {
     if (node.type.name === "blockContainer") {
-      return $pos.before(depth);
+      return {
+        posBeforeNode: $pos.before(depth),
+        node: node,
+      };
     }
 
     depth--;
@@ -66,18 +71,22 @@ export function getNearestBlockContainerPos(doc: Node, pos: number) {
   // eslint-disable-next-line no-console
   console.warn(`Position ${pos} is not within a blockContainer node.`);
 
-  return (
+  const resolvedPos = doc.resolve(
     allBlockContainerPositions.find((position) => position >= pos) ||
-    allBlockContainerPositions[allBlockContainerPositions.length - 1]
+      allBlockContainerPositions[allBlockContainerPositions.length - 1]
   );
+  return {
+    posBeforeNode: resolvedPos.pos,
+    node: resolvedPos.nodeAfter!,
+  };
 }
 
-export function getBlockInfo(
+export function getBlockInfoWithManualOffset(
   node: Node,
-  beforePos?: number
-): Omit<BlockInfo, "depth"> {
+  blockContainerBeforePosOffset: number
+): BlockInfo {
   const blockContainerNode = node;
-  const blockContainerBeforePos = beforePos || 0;
+  const blockContainerBeforePos = blockContainerBeforePosOffset;
   const blockContainerAfterPos =
     blockContainerBeforePos + blockContainerNode.nodeSize;
 
@@ -142,36 +151,21 @@ export function getBlockInfo(
   };
 }
 
-/**
- * Retrieves information regarding the nearest blockContainer node in a
- * ProseMirror doc, relative to a position.
- * @param doc The ProseMirror doc.
- * @param pos An integer position.
- * @returns A BlockInfo object for the nearest blockContainer node.
- */
-export function getBlockInfoFromPos_DEPRECATED(
-  doc: Node,
-  pos: number
-): BlockInfo {
-  const $pos = doc.resolve(getNearestBlockContainerPos(doc, pos));
-  const depth = $pos.depth;
+export function getBlockInfo(posInfo: { posBeforeNode: number; node: Node }) {
+  return getBlockInfoWithManualOffset(posInfo.node, posInfo.posBeforeNode);
+}
 
-  const node = $pos.nodeAfter;
-  const beforePos = $pos.pos;
-
-  if (node === null || node.type.name !== "blockContainer") {
-    throw new Error(
-      `No blockContainer node found near position ${pos}. getNearestBlockContainerPos returned ${beforePos}.`
-    );
+export function getBlockInfoFromResolvedPos(resolvedPos: ResolvedPos) {
+  if (!resolvedPos.nodeAfter) {
+    throw new Error("ResolvedPos does not point to a node");
   }
-
-  return {
-    depth,
-    ...getBlockInfo(node, beforePos),
-  };
+  return getBlockInfoWithManualOffset(resolvedPos.nodeAfter, resolvedPos.pos);
 }
 
 export function getBlockInfoFromSelection(state: EditorState) {
-  const pos = getNearestBlockContainerPos(state.doc, state.selection.anchor);
-  return getBlockInfoFromPos_DEPRECATED(state.doc, pos);
+  const posInfo = getNearestBlockContainerPos(
+    state.doc,
+    state.selection.anchor
+  );
+  return getBlockInfo(posInfo);
 }

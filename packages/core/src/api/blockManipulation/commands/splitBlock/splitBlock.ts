@@ -23,7 +23,6 @@ export const splitBlockCommand = (
     );
 
     const { blockContainer, blockContent } = getBlockInfo(
-      state.doc,
       nearestBlockContainerPos
     );
 

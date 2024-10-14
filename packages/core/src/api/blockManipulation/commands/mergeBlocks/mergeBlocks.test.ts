@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getBlockInfoFromPos_DEPRECATED } from "../../../getBlockInfoFromPos.js";
+import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
 import { mergeBlocksCommand } from "./mergeBlocks.js";
 
@@ -14,10 +14,8 @@ function mergeBlocks(posBetweenBlocks: number) {
 }
 
 function getPosBeforeSelectedBlock() {
-  return getBlockInfoFromPos_DEPRECATED(
-    getEditor()._tiptapEditor.state.doc,
-    getEditor()._tiptapEditor.state.selection.from
-  ).blockContainer.beforePos;
+  return getBlockInfoFromSelection(getEditor()._tiptapEditor.state)
+    .blockContainer.beforePos;
 }
 
 describe("Test mergeBlocks", () => {

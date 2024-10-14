@@ -2,7 +2,10 @@ import { Node } from "prosemirror-model";
 import { describe, expect, it } from "vitest";
 
 import { TextSelection } from "prosemirror-state";
-import { getBlockInfoFromPos_DEPRECATED } from "../../../getBlockInfoFromPos.js";
+import {
+  getBlockInfo,
+  getBlockInfoFromSelection,
+} from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
 import { splitBlockCommand } from "./splitBlock.js";
@@ -25,8 +28,8 @@ function setSelectionWithOffset(
   targetBlockId: string,
   offset: number
 ) {
-  const { posBeforeNode } = getNodeById(targetBlockId, doc);
-  const { blockContent } = getBlockInfoFromPos_DEPRECATED(doc, posBeforeNode);
+  const posInfo = getNodeById(targetBlockId, doc);
+  const { blockContent } = getBlockInfo(posInfo);
 
   getEditor()._tiptapEditor.view.dispatch(
     getEditor()._tiptapEditor.state.tr.setSelection(
@@ -121,9 +124,8 @@ describe("Test splitBlocks", () => {
 
     splitBlock(getEditor()._tiptapEditor.state.selection.anchor);
 
-    const { blockContainer } = getBlockInfoFromPos_DEPRECATED(
-      getEditor()._tiptapEditor.state.doc,
-      getEditor()._tiptapEditor.state.selection.anchor
+    const { blockContainer } = getBlockInfoFromSelection(
+      getEditor()._tiptapEditor.state
     );
 
     const anchorIsAtStartOfNewBlock =
