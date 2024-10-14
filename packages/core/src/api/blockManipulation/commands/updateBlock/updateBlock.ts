@@ -157,6 +157,8 @@ export const updateBlockCommand =
               content
             )
           )
+          // TODO: This seems off - the selection is not necessarily in the block
+          //  being updated but this will set it anyway.
           // If the node doesn't contain editable content, we want to
           // select the whole node. But if it does have editable content,
           // we want to set the selection to the start of it.
