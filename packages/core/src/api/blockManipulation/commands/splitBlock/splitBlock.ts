@@ -37,7 +37,7 @@ export const splitBlockCommand = (
       state.tr.insert(blockContainer.afterPos, newBlock);
       // Update selection
       const newBlockInfo = getBlockInfoFromPos(
-        state.doc,
+        state.tr.doc,
         blockContainer.afterPos
       );
       state.tr.setSelection(
