@@ -59,7 +59,7 @@ describe("Test mergeBlocks", () => {
     expect(getEditor().document).toMatchSnapshot();
   });
 
-  it.skip("Inline content & table content", () => {
+  it("Inline content & table content", () => {
     getEditor().setTextCursorPosition("table-0");
 
     mergeBlocks(getPosBeforeSelectedBlock());
@@ -75,7 +75,7 @@ describe("Test mergeBlocks", () => {
     expect(getEditor().document).toMatchSnapshot();
   });
 
-  it.skip("Table content & inline content", () => {
+  it("Table content & inline content", () => {
     getEditor().setTextCursorPosition("paragraph-7");
 
     mergeBlocks(getPosBeforeSelectedBlock());

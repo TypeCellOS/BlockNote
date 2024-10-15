@@ -53,7 +53,6 @@ export function getNearestBlockContainerPos(doc: Node, pos: number) {
     node = $pos.node(depth);
   }
 
-  // TODO: Make more specific & log warn
   // If the position doesn't lie within a blockContainer node, we instead find
   // the position of the next closest one. If the position is beyond the last
   // blockContainer, we return the position of the last blockContainer. While
@@ -157,7 +156,14 @@ export function getBlockInfo(posInfo: { posBeforeNode: number; node: Node }) {
 
 export function getBlockInfoFromResolvedPos(resolvedPos: ResolvedPos) {
   if (!resolvedPos.nodeAfter) {
-    throw new Error("ResolvedPos does not point to a node");
+    throw new Error(
+      `Attempted to get blockContainer node at position ${resolvedPos.pos} but a node at this position does not exist`
+    );
+  }
+  if (resolvedPos.nodeAfter.type.name !== "blockContainer") {
+    throw new Error(
+      `Attempted to get blockContainer node at position ${resolvedPos.pos} but found node of different type ${resolvedPos.nodeAfter}`
+    );
   }
   return getBlockInfoWithManualOffset(resolvedPos.nodeAfter, resolvedPos.pos);
 }
