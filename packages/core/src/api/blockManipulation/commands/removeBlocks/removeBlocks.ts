@@ -1,8 +1,8 @@
 import { Node } from "prosemirror-model";
 import { Transaction } from "prosemirror-state";
 
-import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import { Block } from "../../../../blocks/defaultBlocks.js";
+import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import {
   BlockIdentifier,
   BlockSchema,

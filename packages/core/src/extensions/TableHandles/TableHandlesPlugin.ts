@@ -387,6 +387,10 @@ export class TableHandlesView<
         rows: rows,
       },
     });
+
+    // Have to reset text cursor position to the block as `updateBlock` moves
+    // the existing selection out of the block.
+    this.editor.setTextCursorPosition(this.state.block.id);
   };
 
   scrollHandler = () => {

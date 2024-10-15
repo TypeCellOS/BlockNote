@@ -1,5 +1,5 @@
 import { Fragment, Node as PMNode, Slice } from "prosemirror-model";
-import { EditorState, NodeSelection, TextSelection } from "prosemirror-state";
+import { EditorState } from "prosemirror-state";
 
 import { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
@@ -141,35 +141,17 @@ export const updateBlockCommand =
         // use replaceWith to replace the content and the block itself
         // also  reset the selection since replacing the block content
         // sets it to the next block.
-        state.tr
-          .replaceWith(
-            blockContent.beforePos,
-            blockContent.afterPos,
-            state.schema.nodes[newType].create(
-              {
-                ...blockContent.node.attrs,
-                ...block.props,
-              },
-              content
-            )
+        state.tr.replaceWith(
+          blockContent.beforePos,
+          blockContent.afterPos,
+          state.schema.nodes[newType].create(
+            {
+              ...blockContent.node.attrs,
+              ...block.props,
+            },
+            content
           )
-          // TODO: This seems off - the selection is not necessarily in the block
-          //  being updated but this will set it anyway.
-          // If the node doesn't contain editable content, we want to
-          // select the whole node. But if it does have editable content,
-          // we want to set the selection to the start of it.
-          .setSelection(
-            state.schema.nodes[newType].spec.content === ""
-              ? new NodeSelection(state.tr.doc.resolve(blockContent.beforePos))
-              : state.schema.nodes[newType].spec.content === "inline*"
-              ? new TextSelection(state.tr.doc.resolve(blockContent.beforePos))
-              : // Need to offset the position as we have to get through the
-                // `tableRow` and `tableCell` nodes to get to the
-                // `tableParagraph` node we want to set the selection in.
-                new TextSelection(
-                  state.tr.doc.resolve(blockContent.beforePos + 4)
-                )
-          );
+        );
       }
 
       // Adds all provided props as attributes to the parent blockContainer node too, and also preserves existing

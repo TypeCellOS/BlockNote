@@ -69,6 +69,16 @@ export function insertOrUpdateBlock<
   }
 
   const insertedBlock = editor.getTextCursorPosition().block;
+
+  // Edge case for table block content. Because the content type is changed,
+  // we have to reset text cursor position to the block as `updateBlock` moves
+  // the existing selection out of the block.
+  if (insertedBlock.content && !Array.isArray(insertedBlock.content)) {
+    editor.setTextCursorPosition(insertedBlock);
+  }
+
+  // Edge case for updating none block content. For UX reasons, we want to move
+  // the selection to the next block which has content.
   setSelectionToNextContentEditableBlock(editor);
 
   return insertedBlock;

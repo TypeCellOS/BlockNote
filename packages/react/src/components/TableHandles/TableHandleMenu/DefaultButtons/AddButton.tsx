@@ -45,6 +45,10 @@ export const AddRowButton = <
             rows,
           },
         });
+
+        // Have to reset text cursor position to the block as `updateBlock`
+        // moves the existing selection out of the block.
+        editor.setTextCursorPosition(props.block);
       }}>
       {dict.table_handle[`add_${props.side}_menuitem`]}
     </Components.Generic.Menu.Item>
@@ -82,6 +86,10 @@ export const AddColumnButton = <
           type: "table",
           content: content,
         });
+
+        // Have to reset text cursor position to the block as `updateBlock`
+        // moves the existing selection out of the block.
+        editor.setTextCursorPosition(props.block);
       }}>
       {dict.table_handle[`add_${props.side}_menuitem`]}
     </Components.Generic.Menu.Item>

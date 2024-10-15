@@ -7,7 +7,6 @@ import { mergeBlocksCommand } from "./mergeBlocks.js";
 const getEditor = setupTestEnv();
 
 function mergeBlocks(posBetweenBlocks: number) {
-  // TODO: Replace with imported function after converting from TipTap command
   return getEditor()._tiptapEditor.commands.command(
     mergeBlocksCommand(posBetweenBlocks)
   );

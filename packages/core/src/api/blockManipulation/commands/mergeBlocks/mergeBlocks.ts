@@ -3,7 +3,7 @@ import { EditorState } from "prosemirror-state";
 
 import { getBlockInfoFromResolvedPos } from "../../../getBlockInfoFromPos.js";
 
-export const getPrevBlockPos = (doc: Node, $nextBlockPos: ResolvedPos) => {
+const getPrevBlockPos = (doc: Node, $nextBlockPos: ResolvedPos) => {
   const prevNode = $nextBlockPos.nodeBefore;
 
   if (!prevNode) {
@@ -32,10 +32,7 @@ export const getPrevBlockPos = (doc: Node, $nextBlockPos: ResolvedPos) => {
   return doc.resolve(prevBlockBeforePos);
 };
 
-export const canMerge = (
-  $prevBlockPos: ResolvedPos,
-  $nextBlockPos: ResolvedPos
-) => {
+const canMerge = ($prevBlockPos: ResolvedPos, $nextBlockPos: ResolvedPos) => {
   const prevBlockInfo = getBlockInfoFromResolvedPos($prevBlockPos);
   const nextBlockInfo = getBlockInfoFromResolvedPos($nextBlockPos);
 
@@ -45,7 +42,7 @@ export const canMerge = (
   );
 };
 
-export const mergeBlocks = (
+const mergeBlocks = (
   state: EditorState,
   dispatch: ((args?: any) => any) | undefined,
   $prevBlockPos: ResolvedPos,
@@ -53,8 +50,7 @@ export const mergeBlocks = (
 ) => {
   const nextBlockInfo = getBlockInfoFromResolvedPos($nextBlockPos);
 
-  // Removes a level of nesting all children of the next block by 1 level, if it contains both content and block
-  // group nodes.
+  // Un-nests all children of the next block.
   if (nextBlockInfo.blockGroup) {
     const childBlocksStart = state.doc.resolve(
       nextBlockInfo.blockGroup.beforePos + 1
@@ -64,7 +60,6 @@ export const mergeBlocks = (
     );
     const childBlocksRange = childBlocksStart.blockRange(childBlocksEnd);
 
-    // Moves the block group node inside the block into the block group node that the current block is in.
     if (dispatch) {
       state.tr.lift(childBlocksRange!, $nextBlockPos.depth);
     }
@@ -100,9 +95,6 @@ export const mergeBlocksCommand =
     const $prevBlockPos = getPrevBlockPos(state.doc, $nextBlockPos);
 
     if (!canMerge($prevBlockPos, $nextBlockPos)) {
-      // throw new Error(
-      //   `Attempting to merge block at position ${$nextBlockPos.pos} into previous block at position ${$prevBlockPos.pos}, but previous block has invalid content type`
-      // );
       return false;
     }
 
