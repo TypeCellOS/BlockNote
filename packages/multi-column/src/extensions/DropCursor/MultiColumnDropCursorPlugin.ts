@@ -1,13 +1,13 @@
+import type { BlockNoteEditor } from "@blocknote/core";
+import {
+  UniqueID,
+  getBlockInfo,
+  getNearestBlockContainerPos,
+  nodeToBlock,
+} from "@blocknote/core";
 import { EditorState, Plugin } from "prosemirror-state";
 import { dropPoint } from "prosemirror-transform";
 import { EditorView } from "prosemirror-view";
-import {
-  getBlockInfo,
-  getNearestBlockContainerPos,
-} from "../../api/getBlockInfoFromPos.js";
-import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import UniqueID from "../UniqueID/UniqueID.js";
 
 function eventCoords(event: MouseEvent) {
   return { left: event.clientX, top: event.clientY };
@@ -32,10 +32,12 @@ interface DropCursorOptions {
 /// control the showing of a drop cursor inside them. This may be a
 /// boolean or a function, which will be called with a view and a
 /// position, and should return a boolean.
-export function dropCursor(
-  editor: BlockNoteEditor<any, any, any>,
-  options: DropCursorOptions = {}
+export function multiColumnDropCursor(
+  options: DropCursorOptions & {
+    editor: BlockNoteEditor<any, any, any>;
+  }
 ): Plugin {
+  const editor = options.editor;
   return new Plugin({
     view(editorView) {
       return new DropCursorView(editorView, options);

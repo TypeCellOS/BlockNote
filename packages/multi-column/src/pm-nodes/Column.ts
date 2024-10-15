@@ -1,5 +1,7 @@
-import { createStronglyTypedTiptapNode } from "../schema/index.js";
-import { mergeCSSClasses } from "../util/browser.js";
+import {
+  createStronglyTypedTiptapNode,
+  mergeCSSClasses,
+} from "@blocknote/core";
 
 // TODO: necessary?
 const BlockAttributes: Record<string, string> = {

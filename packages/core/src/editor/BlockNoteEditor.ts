@@ -66,11 +66,12 @@ import { PlaceholderPlugin } from "../extensions/Placeholder/PlaceholderPlugin.j
 import { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
 
-import { Transaction } from "@tiptap/pm/state";
+import { Plugin, Transaction } from "@tiptap/pm/state";
+import { dropCursor } from "prosemirror-dropcursor";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
+
 import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
-import { dropCursor } from "../extensions/DropCursor/DropCursorPlugin.js";
 import { NodeSelectionKeyboardPlugin } from "../extensions/NodeSelectionKeyboard/NodeSelectionKeyboardPlugin.js";
 import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin.js";
 import "../style.css";
@@ -191,6 +192,8 @@ export type BlockNoteEditorOptions<
    * (note that the id is always set on the `data-id` attribute)
    */
   setIdAttribute?: boolean;
+
+  dropCursor?: (opts: any) => Plugin;
 };
 
 const blockNoteTipTapOptions = {
@@ -370,6 +373,7 @@ export class BlockNoteEditor<
       setIdAttribute: newOptions.setIdAttribute,
     });
 
+    const dropCursorPlugin: any = this.options.dropCursor ?? dropCursor;
     const blockNoteUIExtension = Extension.create({
       name: "BlockNoteUIExtension",
 
@@ -381,7 +385,7 @@ export class BlockNoteEditor<
           this.suggestionMenus.plugin,
           ...(this.filePanel ? [this.filePanel.plugin] : []),
           ...(this.tableHandles ? [this.tableHandles.plugin] : []),
-          dropCursor(this, { width: 5, color: "#ddeeff" }),
+          dropCursorPlugin({ width: 5, color: "#ddeeff", editor: this }),
           PlaceholderPlugin(this, newOptions.placeholders),
           NodeSelectionKeyboardPlugin(),
           ...(this.options.animations ?? true
