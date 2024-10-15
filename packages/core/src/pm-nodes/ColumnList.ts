@@ -1,7 +1,4 @@
-import { Node } from "@tiptap/core";
-
-import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
-import { BlockNoteDOMAttributes } from "../schema/index.js";
+import { createStronglyTypedTiptapNode } from "../schema/index.js";
 import { mergeCSSClasses } from "../util/browser.js";
 
 // Object containing all possible block attributes.
@@ -13,20 +10,13 @@ const BlockAttributes: Record<string, string> = {
   depthChange: "data-depth-change",
 };
 
-/**
- * The main "Block node" documents consist of
- */
-export const BlockContainer = Node.create<{
-  domAttributes?: BlockNoteDOMAttributes;
-  editor: BlockNoteEditor<any, any, any>;
-}>({
-  name: "blockContainer",
-  group: "blockGroupChild bnBlock",
+export const ColumnList = createStronglyTypedTiptapNode({
+  name: "columnList",
+  group: "blockContainerGroup childContainer bnBlock", // TODO: technically this means you can have a columnlist inside a column which we probably don't want
   // A block always contains content, and optionally a blockGroup which contains nested blocks
-  content: "blockContent blockGroup?",
-  // Ensures content-specific keyboard handlers trigger first.
-  priority: 50,
-  defining: true,
+  content: "column column+", // min two columns
+  priority: 40, //should be below blockContainer
+  // defining: true, // TODO
 
   parseHTML() {
     return [
@@ -37,6 +27,7 @@ export const BlockContainer = Node.create<{
             return false;
           }
 
+          // TODO: needed? also fix typing
           const attrs: Record<string, string> = {};
           for (const [nodeAttr, HTMLAttr] of Object.entries(BlockAttributes)) {
             if (element.getAttribute(HTMLAttr)) {
@@ -44,7 +35,7 @@ export const BlockContainer = Node.create<{
             }
           }
 
-          if (element.getAttribute("data-node-type") === "blockContainer") {
+          if (element.getAttribute("data-node-type") === this.name) {
             return attrs;
           }
 
@@ -54,6 +45,7 @@ export const BlockContainer = Node.create<{
     ];
   },
 
+  // TODO: needed? also fix typing of attributes
   renderHTML({ HTMLAttributes }) {
     const blockOuter = document.createElement("div");
     blockOuter.className = "bn-block-outer";
@@ -73,7 +65,7 @@ export const BlockContainer = Node.create<{
     block.setAttribute("data-node-type", this.name);
     for (const [attribute, value] of Object.entries(blockHTMLAttributes)) {
       if (attribute !== "class") {
-        block.setAttribute(attribute, value);
+        block.setAttribute(attribute, value as any); // TODO as any
       }
     }
 

@@ -218,7 +218,7 @@ function blockOrInlineContentToContentNode(
 }
 
 /**
- * Converts a BlockNote block to a TipTap node.
+ * Converts a BlockNote block to a Prosemirror node.
  */
 export function blockToNode(
   block: PartialBlock<any, any, any>,
@@ -231,12 +231,6 @@ export function blockToNode(
     id = UniqueID.options.generateID();
   }
 
-  const contentNode = blockOrInlineContentToContentNode(
-    block,
-    schema,
-    styleSchema
-  );
-
   const children: Node[] = [];
 
   if (block.children) {
@@ -245,13 +239,38 @@ export function blockToNode(
     }
   }
 
-  const groupNode = schema.nodes["blockGroup"].create({}, children);
+  const nodeTypeCorrespondingToBlock = schema.nodes[block.type];
 
-  return schema.nodes["blockContainer"].create(
-    {
-      id: id,
-      ...block.props,
-    },
-    children.length > 0 ? [contentNode, groupNode] : contentNode
-  );
+  if (nodeTypeCorrespondingToBlock.isInGroup("blockContent")) {
+    // Blocks with a type that matches "blockContent" group always need to be wrapped in a blockContainer
+
+    const contentNode = blockOrInlineContentToContentNode(
+      block,
+      schema,
+      styleSchema
+    );
+
+    const groupNode = schema.nodes["blockGroup"].create({}, children);
+
+    return schema.nodes["blockContainer"].create(
+      {
+        id: id,
+        ...block.props,
+      },
+      children.length > 0 ? [contentNode, groupNode] : contentNode
+    );
+  } else if (nodeTypeCorrespondingToBlock.isInGroup("bnBlock")) {
+    // this is a bnBlock node like Column or ColumnList that directly translates to a prosemirror node
+    return schema.nodes[block.type].create(
+      {
+        id: id,
+        ...block.props,
+      },
+      children
+    );
+  } else {
+    throw new Error(
+      `block type ${block.type} doesn't match blockContent or bnBlock group`
+    );
+  }
 }
