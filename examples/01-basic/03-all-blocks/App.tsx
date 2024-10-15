@@ -1,7 +1,7 @@
 import "@blocknote/core/fonts/inter.css";
-import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
+import { useCreateBlockNote } from "@blocknote/react";
 
 export default function App() {
   // Creates a new editor instance.
@@ -27,6 +27,29 @@ export default function App() {
       {
         type: "paragraph",
         content: "Paragraph",
+      },
+      {
+        type: "columnList",
+        children: [
+          {
+            type: "column",
+            children: [
+              {
+                type: "paragraph",
+                content: "Hello to the left!",
+              },
+            ],
+          },
+          {
+            type: "column",
+            children: [
+              {
+                type: "paragraph",
+                content: "Hello to the right!",
+              },
+            ],
+          },
+        ],
       },
       {
         type: "heading",

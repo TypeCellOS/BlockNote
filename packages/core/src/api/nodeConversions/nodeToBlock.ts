@@ -309,11 +309,9 @@ export function nodeToBlock<
   styleSchema: S,
   blockCache?: WeakMap<Node, Block<BSchema, I, S>>
 ): Block<BSchema, I, S> {
-  if (node.type.name !== "blockContainer") {
+  if (!node.type.isInGroup("bnBlock")) {
     throw Error(
-      "Node must be of type blockContainer, but is of type" +
-        node.type.name +
-        "."
+      "Node must be in bnBlock group, but is of type" + node.type.name
     );
   }
 
@@ -333,19 +331,19 @@ export function nodeToBlock<
     id = UniqueID.options.generateID();
   }
 
+  const blockSpec = blockSchema[blockContent.node.type.name];
+
+  if (!blockSpec) {
+    throw Error(
+      "Block is of an unrecognized type: " + blockContent.node.type.name
+    );
+  }
+
   const props: any = {};
   for (const [attr, value] of Object.entries({
     ...node.attrs,
     ...blockContent.node.attrs,
   })) {
-    const blockSpec = blockSchema[blockContent.node.type.name];
-
-    if (!blockSpec) {
-      throw Error(
-        "Block is of an unrecognized type: " + blockContent.node.type.name
-      );
-    }
-
     const propSchema = blockSpec.propSchema;
 
     if (attr in propSchema) {

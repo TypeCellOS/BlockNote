@@ -1,33 +1,15 @@
-import { Node } from "@tiptap/core";
-
-import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
-import { BlockNoteDOMAttributes } from "../schema/index.js";
+import { createStronglyTypedTiptapNode } from "../schema/index.js";
 import { mergeCSSClasses } from "../util/browser.js";
 
-// Object containing all possible block attributes.
-const BlockAttributes: Record<string, string> = {
-  blockColor: "data-block-color",
-  blockStyle: "data-block-style",
-  id: "data-id",
-  depth: "data-depth",
-  depthChange: "data-depth-change",
-};
-
-/**
- * The main "Block node" documents consist of
- */
-export const BlockContainer = Node.create<{
-  domAttributes?: BlockNoteDOMAttributes;
-  editor: BlockNoteEditor<any, any, any>;
-}>({
-  name: "blockContainer",
-  group: "blockGroupChild bnBlock",
+export const Column = createStronglyTypedTiptapNode({
+  name: "column",
+  group: "bnBlock childContainer",
   // A block always contains content, and optionally a blockGroup which contains nested blocks
-  content: "blockContent blockGroup?",
-  // Ensures content-specific keyboard handlers trigger first.
-  priority: 50,
-  defining: true,
+  content: "blockGroupChild+",
+  priority: 40,
+  // defining: true, // TODO
 
+  // TODO
   parseHTML() {
     return [
       {
@@ -44,7 +26,7 @@ export const BlockContainer = Node.create<{
             }
           }
 
-          if (element.getAttribute("data-node-type") === "blockContainer") {
+          if (element.getAttribute("data-node-type") === this.name) {
             return attrs;
           }
 
@@ -54,6 +36,7 @@ export const BlockContainer = Node.create<{
     ];
   },
 
+  // TODO, needed? + type of attributes
   renderHTML({ HTMLAttributes }) {
     const blockOuter = document.createElement("div");
     blockOuter.className = "bn-block-outer";
@@ -73,7 +56,7 @@ export const BlockContainer = Node.create<{
     block.setAttribute("data-node-type", this.name);
     for (const [attribute, value] of Object.entries(blockHTMLAttributes)) {
       if (attribute !== "class") {
-        block.setAttribute(attribute, value);
+        block.setAttribute(attribute, value as any); // TODO as any
       }
     }
 

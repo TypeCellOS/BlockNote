@@ -2,7 +2,6 @@
 
 Defines the prosemirror nodes and base node structure. See below:
 
-
 # Node structure
 
 We use a Prosemirror document structure where every element is a `block` with 1 `content` element and one optional group of children (`blockgroup`).
@@ -40,3 +39,22 @@ This architecture is different from the "default" Prosemirror / Tiptap implement
     </block>
 </blockgroup>
 ```
+
+explain bnBlock
+
+/\*\*
+
+- The main "Block node" documents consist of
+-
+- instead of
+-
+- <columnList>
+- <blockContainer>
+-      <blockContainer />
+-      <blockContainer />
+- </blockContainer>
+- <blockContainer>
+-      <blockGroup />
+- </blockContainer>
+- </columnList>
+  */
