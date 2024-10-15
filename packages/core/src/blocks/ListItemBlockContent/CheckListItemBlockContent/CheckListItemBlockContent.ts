@@ -241,12 +241,16 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
             getPos()
           );
           this.editor.commands.command(
-            updateBlockCommand(this.options.editor, beforeBlockContainerPos, {
-              type: "checkListItem",
-              props: {
-                checked: checkbox.checked as any,
-              },
-            })
+            updateBlockCommand(
+              this.options.editor,
+              beforeBlockContainerPos.posBeforeNode,
+              {
+                type: "checkListItem",
+                props: {
+                  checked: checkbox.checked as any,
+                },
+              }
+            )
           );
         }
       };
