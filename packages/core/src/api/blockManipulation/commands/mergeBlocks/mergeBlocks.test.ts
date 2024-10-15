@@ -8,7 +8,7 @@ const getEditor = setupTestEnv();
 
 function mergeBlocks(posBetweenBlocks: number) {
   // TODO: Replace with imported function after converting from TipTap command
-  getEditor()._tiptapEditor.commands.command(
+  return getEditor()._tiptapEditor.commands.command(
     mergeBlocksCommand(posBetweenBlocks)
   );
 }
@@ -51,39 +51,7 @@ describe("Test mergeBlocks", () => {
     expect(getEditor().document).toMatchSnapshot();
   });
 
-  it("Inline content & no content", () => {
-    getEditor().setTextCursorPosition("image-0");
-
-    mergeBlocks(getPosBeforeSelectedBlock());
-
-    expect(getEditor().document).toMatchSnapshot();
-  });
-
-  it("Inline content & table content", () => {
-    getEditor().setTextCursorPosition("table-0");
-
-    mergeBlocks(getPosBeforeSelectedBlock());
-
-    expect(getEditor().document).toMatchSnapshot();
-  });
-
-  it("No content & inline content", () => {
-    getEditor().setTextCursorPosition("paragraph-6");
-
-    mergeBlocks(getPosBeforeSelectedBlock());
-
-    expect(getEditor().document).toMatchSnapshot();
-  });
-
-  it("Table content & inline content", () => {
-    getEditor().setTextCursorPosition("paragraph-7");
-
-    mergeBlocks(getPosBeforeSelectedBlock());
-
-    expect(getEditor().document).toMatchSnapshot();
-  });
-
-  it("Selection is set", () => {
+  it("Selection is updated", () => {
     getEditor().setTextCursorPosition("paragraph-0", "end");
 
     const firstBlockEndOffset =
@@ -98,5 +66,49 @@ describe("Test mergeBlocks", () => {
       firstBlockEndOffset;
 
     expect(anchorIsAtOldFirstBlockEndPos).toBeTruthy();
+  });
+
+  // We expect a no-op for each of the remaining tests as merging should only
+  // happen for blocks which both have inline content. We also expect
+  // `mergeBlocks` to return false as TipTap commands should do that instead of
+  // throwing an error, when the command cannot be executed.
+  it("Inline content & no content", () => {
+    getEditor().setTextCursorPosition("image-0");
+
+    const originalDocument = getEditor().document;
+    const ret = mergeBlocks(getPosBeforeSelectedBlock());
+
+    expect(getEditor().document).toEqual(originalDocument);
+    expect(ret).toBeFalsy();
+  });
+
+  it("Inline content & table content", () => {
+    getEditor().setTextCursorPosition("table-0");
+
+    const originalDocument = getEditor().document;
+    const ret = mergeBlocks(getPosBeforeSelectedBlock());
+
+    expect(getEditor().document).toEqual(originalDocument);
+    expect(ret).toBeFalsy();
+  });
+
+  it("No content & inline content", () => {
+    getEditor().setTextCursorPosition("paragraph-6");
+
+    const originalDocument = getEditor().document;
+    const ret = mergeBlocks(getPosBeforeSelectedBlock());
+
+    expect(getEditor().document).toEqual(originalDocument);
+    expect(ret).toBeFalsy();
+  });
+
+  it("Table content & inline content", () => {
+    getEditor().setTextCursorPosition("paragraph-7");
+
+    const originalDocument = getEditor().document;
+    const ret = mergeBlocks(getPosBeforeSelectedBlock());
+
+    expect(getEditor().document).toEqual(originalDocument);
+    expect(ret).toBeFalsy();
   });
 });

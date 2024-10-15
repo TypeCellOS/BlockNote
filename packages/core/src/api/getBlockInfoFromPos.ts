@@ -128,21 +128,6 @@ export function getBlockInfoWithManualOffset(
     );
   }
 
-  // TODO: Remove
-  if (
-    blockGroup &&
-    (blockContent as SingleBlockInfo).afterPos !==
-      (blockGroup as SingleBlockInfo).beforePos
-  ) {
-    throw new Error(
-      `blockContent.afterPos (${
-        (blockContent as SingleBlockInfo).afterPos
-      }) does not match blockGroup.beforePos (${
-        (blockGroup as SingleBlockInfo | undefined)?.beforePos
-      })`
-    );
-  }
-
   return {
     blockContainer,
     blockContent,

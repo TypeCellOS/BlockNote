@@ -70,7 +70,9 @@ export const mergeBlocks = (
     }
   }
 
-  // Deletes next block and adds its text content to the nearest previous block.
+  // Deletes the boundary between the two blocks. Can be thought of as
+  // removing the closing tags of the first block and the opening tags of the
+  // second one to stitch them together.
   if (dispatch) {
     const prevBlockInfo = getBlockInfoFromResolvedPos($prevBlockPos);
 
@@ -79,16 +81,7 @@ export const mergeBlocks = (
         prevBlockInfo.blockContent.afterPos - 1,
         nextBlockInfo.blockContent.beforePos + 1
       )
-
-      // .scrollIntoView()
     );
-
-    // TODO: fix unit test + think of missing tests
-    // TODO: reenable set selection
-
-    // state.tr.setSelection(
-    //   new TextSelection(state.doc.resolve(prevBlockEndPos - 1))
-    // );
   }
 
   return true;

@@ -15,10 +15,12 @@ export const KeyboardShortcutsExtension = Extension.create<{
 }>({
   priority: 50,
 
+  // TODO: The shortcuts need a refactor. Do we want to use a command priority
+  //  design as there is now, or clump the logic into a single function?
   addKeyboardShortcuts() {
     // handleBackspace is partially adapted from https://github.com/ueberdosis/tiptap/blob/ed56337470efb4fd277128ab7ef792b37cfae992/packages/core/src/extensions/keymap.ts
     const handleBackspace = () =>
-      this.editor.commands.first(({ commands }) => [
+      this.editor.commands.first(({ chain, commands }) => [
         // Deletes the selection if it's not empty.
         () => commands.deleteSelection(),
         // Undoes an input rule if one was triggered in the last editor state change.
@@ -85,13 +87,18 @@ export const KeyboardShortcutsExtension = Extension.create<{
               selectionEmpty &&
               depth === 1
             ) {
-              return commands.command(mergeBlocksCommand(posBetweenBlocks));
+              return chain()
+                .command(mergeBlocksCommand(posBetweenBlocks))
+                .scrollIntoView()
+                .run();
             }
 
             return false;
           }),
-        // Deletes previous block if it contains no content. If it has inline
-        // content, it's merged instead. Otherwise, it's a no-op.
+        // Deletes previous block if it contains no content, when the selection
+        // is empty and at the start of the block. The previous block also has
+        // to not have any parents or children, as otherwise the UX becomes
+        // confusing.
         () =>
           commands.command(({ state }) => {
             const { blockContainer, blockContent } =
