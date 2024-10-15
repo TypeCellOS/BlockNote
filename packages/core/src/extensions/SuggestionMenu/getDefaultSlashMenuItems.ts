@@ -205,7 +205,6 @@ export function getDefaultSlashMenuItems<
         const insertedBlock = insertOrUpdateBlock(editor, {
           type: "image",
         });
-        console.log(insertedBlock.id);
 
         // Immediately open the file toolbar
         editor.dispatch(
