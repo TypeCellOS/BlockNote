@@ -51,6 +51,8 @@ export function insertOrUpdateBlock<
     throw new Error("Slash Menu open in a block that doesn't contain content.");
   }
 
+  let newBlock: Block<BSchema, I, S>;
+
   if (
     Array.isArray(currentBlock.content) &&
     ((currentBlock.content.length === 1 &&
@@ -59,29 +61,21 @@ export function insertOrUpdateBlock<
       currentBlock.content[0].text === "/") ||
       currentBlock.content.length === 0)
   ) {
-    editor.updateBlock(currentBlock, block);
+    newBlock = editor.updateBlock(currentBlock, block);
+
+    // Edge case for updating block content as `updateBlock` causes the
+    // selection to move into the next block, so we have to set it back.
+    if (block.content) {
+      editor.setTextCursorPosition(newBlock);
+    }
   } else {
-    editor.insertBlocks([block], currentBlock, "after");
-    editor.setTextCursorPosition(
-      editor.getTextCursorPosition().nextBlock!,
-      "end"
-    );
+    newBlock = editor.insertBlocks([block], currentBlock, "after")[0];
+    editor.setTextCursorPosition(editor.getTextCursorPosition().nextBlock!);
   }
 
-  const insertedBlock = editor.getTextCursorPosition().block;
-
-  // Edge case for table block content. Because the content type is changed,
-  // we have to reset text cursor position to the block as `updateBlock` moves
-  // the existing selection out of the block.
-  if (insertedBlock.content && !Array.isArray(insertedBlock.content)) {
-    editor.setTextCursorPosition(insertedBlock);
-  }
-
-  // Edge case for updating none block content. For UX reasons, we want to move
-  // the selection to the next block which has content.
   setSelectionToNextContentEditableBlock(editor);
 
-  return insertedBlock;
+  return newBlock;
 }
 
 export function getDefaultSlashMenuItems<
@@ -211,6 +205,7 @@ export function getDefaultSlashMenuItems<
         const insertedBlock = insertOrUpdateBlock(editor, {
           type: "image",
         });
+        console.log(insertedBlock.id);
 
         // Immediately open the file toolbar
         editor.dispatch(
@@ -276,7 +271,7 @@ export function getDefaultSlashMenuItems<
           })
         );
       },
-      key: "image",
+      key: "file",
       ...editor.dictionary.slash_menu.file,
     });
   }
