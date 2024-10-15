@@ -11,12 +11,13 @@ import { InlineContentSchema } from "../../../../schema/inlineContent/types.js";
 import { StyleSchema } from "../../../../schema/styles/types.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import { getBlockInfoFromResolvedPos } from "../../../getBlockInfoFromPos.js";
+
 import {
   blockToNode,
   inlineContentToNodes,
-  nodeToBlock,
   tableContentToNodes,
-} from "../../../nodeConversions/nodeConversions.js";
+} from "../../../nodeConversions/blockToNode.js";
+import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
 
 export const updateBlockCommand =

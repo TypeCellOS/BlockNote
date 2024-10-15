@@ -39,7 +39,8 @@ export { UnreachableCaseError, assertEmpty } from "./util/typescript.js";
 export { locales };
 
 // for testing from react (TODO: move):
-export * from "./api/nodeConversions/nodeConversions.js";
+export * from "./api/nodeConversions/blockToNode.js";
+export * from "./api/nodeConversions/nodeToBlock.js";
 export * from "./api/testUtil/partialBlockTestUtil.js";
 export * from "./extensions/UniqueID/UniqueID.js";
 

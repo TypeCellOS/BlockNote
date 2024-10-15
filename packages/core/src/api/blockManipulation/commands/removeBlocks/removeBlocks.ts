@@ -1,15 +1,15 @@
 import { Node } from "prosemirror-model";
 import { Transaction } from "prosemirror-state";
 
-import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import { Block } from "../../../../blocks/defaultBlocks.js";
+import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import {
   BlockIdentifier,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema/index.js";
-import { nodeToBlock } from "../../../nodeConversions/nodeConversions.js";
+import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 
 export function removeBlocksWithCallback<
   BSchema extends BlockSchema,

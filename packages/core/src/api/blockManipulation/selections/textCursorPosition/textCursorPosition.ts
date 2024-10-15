@@ -13,7 +13,7 @@ import {
   getBlockInfo,
   getBlockInfoFromSelection,
 } from "../../../getBlockInfoFromPos.js";
-import { nodeToBlock } from "../../../nodeConversions/nodeConversions.js";
+import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
 
 export function getTextCursorPosition<

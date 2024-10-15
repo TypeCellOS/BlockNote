@@ -18,7 +18,7 @@ import { fragmentToBlocks } from "../../nodeConversions/fragmentToBlocks.js";
 import {
   contentNodeToInlineContent,
   contentNodeToTableContent,
-} from "../../nodeConversions/nodeConversions.js";
+} from "../../nodeConversions/nodeToBlock.js";
 
 async function fragmentToExternalHTML<
   BSchema extends BlockSchema,
