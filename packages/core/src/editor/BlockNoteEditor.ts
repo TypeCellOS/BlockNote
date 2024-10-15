@@ -70,6 +70,7 @@ import { Transaction } from "@tiptap/pm/state";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
+import { dropCursor } from "../extensions/DropCursor/DropCursorPlugin.js";
 import { NodeSelectionKeyboardPlugin } from "../extensions/NodeSelectionKeyboard/NodeSelectionKeyboardPlugin.js";
 import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin.js";
 import "../style.css";
@@ -380,6 +381,7 @@ export class BlockNoteEditor<
           this.suggestionMenus.plugin,
           ...(this.filePanel ? [this.filePanel.plugin] : []),
           ...(this.tableHandles ? [this.tableHandles.plugin] : []),
+          dropCursor(this, { width: 5, color: "#ddeeff" }),
           PlaceholderPlugin(this, newOptions.placeholders),
           NodeSelectionKeyboardPlugin(),
           ...(this.options.animations ?? true
@@ -962,7 +964,7 @@ export class BlockNoteEditor<
    * Checks if the block containing the text cursor can be nested.
    */
   public canNestBlock() {
-    const { blockContainer } = getBlockInfoFromSelection(
+    const { bnBlock: blockContainer } = getBlockInfoFromSelection(
       this._tiptapEditor.state
     );
 
@@ -983,7 +985,7 @@ export class BlockNoteEditor<
    * Checks if the block containing the text cursor is nested.
    */
   public canUnnestBlock() {
-    const { blockContainer } = getBlockInfoFromSelection(
+    const { bnBlock: blockContainer } = getBlockInfoFromSelection(
       this._tiptapEditor.state
     );
 

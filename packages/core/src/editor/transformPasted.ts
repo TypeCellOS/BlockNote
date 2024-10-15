@@ -64,7 +64,7 @@ export function transformPasted(slice: Slice, view: EditorView) {
       // (if we remove this if-block, the nesting bug will be fixed, but lists won't be nested correctly)
       if (
         i + 1 < f.childCount &&
-        f.child(i + 1).type.spec.group === "blockGroup"
+        f.child(i + 1).type.name === "blockGroup" // TODO
       ) {
         const nestedChild = f
           .child(i + 1)

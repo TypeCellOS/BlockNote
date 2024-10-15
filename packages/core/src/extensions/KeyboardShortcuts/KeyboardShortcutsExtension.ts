@@ -42,7 +42,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
               return commands.command(
                 updateBlockCommand(
                   this.options.editor,
-                  blockInfo.blockContainer.beforePos,
+                  blockInfo.bnBlock.beforePos,
                   {
                     type: "paragraph",
                     props: {},
@@ -72,7 +72,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // block. The target block for merging must contain inline content.
         () =>
           commands.command(({ state }) => {
-            const { blockContainer, blockContent } =
+            const { bnBlock: blockContainer, blockContent } =
               getBlockInfoFromSelection(state);
 
             const { depth } = state.doc.resolve(blockContainer.beforePos);
@@ -105,14 +105,17 @@ export const KeyboardShortcutsExtension = Extension.create<{
           commands.command(({ state }) => {
             const blockInfo = getBlockInfoFromSelection(state);
 
-            const { depth } = state.doc.resolve(
-              blockInfo.blockContainer.beforePos
-            );
+            if (!blockInfo.isBlockContainer) {
+              // TODO
+              throw new Error(`todo`);
+            }
+
+            const { depth } = state.doc.resolve(blockInfo.bnBlock.beforePos);
 
             const selectionAtBlockStart =
               state.selection.from === blockInfo.blockContent.beforePos + 1;
             const selectionEmpty = state.selection.empty;
-            const blockAtDocStart = blockInfo.blockContainer.beforePos === 1;
+            const blockAtDocStart = blockInfo.bnBlock.beforePos === 1;
 
             if (
               !blockAtDocStart &&
@@ -122,11 +125,16 @@ export const KeyboardShortcutsExtension = Extension.create<{
             ) {
               const prevBlockPos = getPrevBlockPos(
                 state.doc,
-                state.doc.resolve(blockInfo.blockContainer.beforePos)
+                state.doc.resolve(blockInfo.bnBlock.beforePos)
               );
               const prevBlockInfo = getBlockInfoFromResolvedPos(
                 state.doc.resolve(prevBlockPos.pos)
               );
+
+              if (!prevBlockInfo.isBlockContainer) {
+                // TODO
+                throw new Error(`todo`);
+              }
 
               const prevBlockNotTableAndNoContent =
                 prevBlockInfo.blockContent.node.type.spec.content === "" ||
@@ -138,14 +146,14 @@ export const KeyboardShortcutsExtension = Extension.create<{
                 return chain()
                   .cut(
                     {
-                      from: blockInfo.blockContainer.beforePos,
-                      to: blockInfo.blockContainer.afterPos,
+                      from: blockInfo.bnBlock.beforePos,
+                      to: blockInfo.bnBlock.afterPos,
                     },
-                    prevBlockInfo.blockContainer.afterPos
+                    prevBlockInfo.bnBlock.afterPos
                   )
                   .deleteRange({
-                    from: prevBlockInfo.blockContainer.beforePos,
-                    to: prevBlockInfo.blockContainer.afterPos,
+                    from: prevBlockInfo.bnBlock.beforePos,
+                    to: prevBlockInfo.bnBlock.afterPos,
                   })
                   .run();
               }
@@ -165,8 +173,11 @@ export const KeyboardShortcutsExtension = Extension.create<{
         () =>
           commands.command(({ state }) => {
             // TODO: Change this to not rely on offsets & schema assumptions
-            const { blockContainer, blockContent, blockGroup } =
-              getBlockInfoFromSelection(state);
+            const {
+              bnBlock: blockContainer,
+              blockContent,
+              childContainer,
+            } = getBlockInfoFromSelection(state);
 
             const { depth } = state.doc.resolve(blockContainer.beforePos);
             const blockAtDocEnd =
@@ -174,7 +185,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             const selectionAtBlockEnd =
               state.selection.from === blockContent.afterPos - 1;
             const selectionEmpty = state.selection.empty;
-            const hasChildBlocks = blockGroup !== undefined;
+            const hasChildBlocks = childContainer !== undefined;
 
             if (
               !blockAtDocEnd &&
@@ -205,7 +216,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // of the block.
         () =>
           commands.command(({ state }) => {
-            const { blockContent, blockContainer } =
+            const { blockContent, bnBlock: blockContainer } =
               getBlockInfoFromSelection(state);
 
             const { depth } = state.doc.resolve(blockContainer.beforePos);
@@ -232,7 +243,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // empty & at the start of the block.
         () =>
           commands.command(({ state, dispatch }) => {
-            const { blockContainer, blockContent } =
+            const { bnBlock: blockContainer, blockContent } =
               getBlockInfoFromSelection(state);
 
             const selectionAtBlockStart =

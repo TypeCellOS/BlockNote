@@ -28,11 +28,15 @@ function setSelectionWithOffset(
   offset: number
 ) {
   const posInfo = getNodeById(targetBlockId, doc);
-  const { blockContent } = getBlockInfo(posInfo);
+  const info = getBlockInfo(posInfo);
+
+  if (!info.isBlockContainer) {
+    throw new Error("Target block is not a block container");
+  }
 
   getEditor()._tiptapEditor.view.dispatch(
     getEditor()._tiptapEditor.state.tr.setSelection(
-      TextSelection.create(doc, blockContent.beforePos + offset + 1)
+      TextSelection.create(doc, info.blockContent.beforePos + offset + 1)
     )
   );
 }
@@ -123,12 +127,12 @@ describe("Test splitBlocks", () => {
 
     splitBlock(getEditor()._tiptapEditor.state.selection.anchor);
 
-    const { blockContainer } = getBlockInfoFromSelection(
+    const { bnBlock } = getBlockInfoFromSelection(
       getEditor()._tiptapEditor.state
     );
 
     const anchorIsAtStartOfNewBlock =
-      blockContainer.node.attrs.id === "0" &&
+      bnBlock.node.attrs.id === "0" &&
       getEditor()._tiptapEditor.state.selection.$anchor.parentOffset === 0;
 
     expect(anchorIsAtStartOfNewBlock).toBeTruthy();

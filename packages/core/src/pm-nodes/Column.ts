@@ -1,11 +1,20 @@
 import { createStronglyTypedTiptapNode } from "../schema/index.js";
 import { mergeCSSClasses } from "../util/browser.js";
 
+// TODO: necessary?
+const BlockAttributes: Record<string, string> = {
+  blockColor: "data-block-color",
+  blockStyle: "data-block-style",
+  id: "data-id",
+  depth: "data-depth",
+  depthChange: "data-depth-change",
+};
+
 export const Column = createStronglyTypedTiptapNode({
   name: "column",
   group: "bnBlock childContainer",
   // A block always contains content, and optionally a blockGroup which contains nested blocks
-  content: "blockGroupChild+",
+  content: "blockContainer+",
   priority: 40,
   // defining: true, // TODO
 

@@ -36,7 +36,7 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
             .command(
               updateBlockCommand(
                 this.options.editor,
-                blockInfo.blockContainer.beforePos,
+                blockInfo.bnBlock.beforePos,
                 {
                   type: "bulletListItem",
                   props: {},
@@ -60,14 +60,10 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
         }
 
         return this.options.editor.commands.command(
-          updateBlockCommand(
-            this.options.editor,
-            blockInfo.blockContainer.beforePos,
-            {
-              type: "bulletListItem",
-              props: {},
-            }
-          )
+          updateBlockCommand(this.options.editor, blockInfo.bnBlock.beforePos, {
+            type: "bulletListItem",
+            props: {},
+          })
         );
       },
     };

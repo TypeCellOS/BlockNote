@@ -1,7 +1,7 @@
 import { createStronglyTypedTiptapNode } from "../schema/index.js";
 import { mergeCSSClasses } from "../util/browser.js";
 
-// Object containing all possible block attributes.
+// TODO: necessary?
 const BlockAttributes: Record<string, string> = {
   blockColor: "data-block-color",
   blockStyle: "data-block-style",
@@ -12,10 +12,10 @@ const BlockAttributes: Record<string, string> = {
 
 export const ColumnList = createStronglyTypedTiptapNode({
   name: "columnList",
-  group: "blockContainerGroup childContainer bnBlock", // TODO: technically this means you can have a columnlist inside a column which we probably don't want
+  group: "childContainer bnBlock blockGroupChild",
   // A block always contains content, and optionally a blockGroup which contains nested blocks
   content: "column column+", // min two columns
-  priority: 40, //should be below blockContainer
+  priority: 40, // should be below blockContainer
   // defining: true, // TODO
 
   parseHTML() {

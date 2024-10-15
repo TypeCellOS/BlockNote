@@ -8,10 +8,41 @@ type SingleBlockInfo = {
 };
 
 export type BlockInfo = {
-  blockContainer: SingleBlockInfo;
-  blockContent: SingleBlockInfo;
-  blockGroup?: SingleBlockInfo;
-};
+  /**
+   * The outer node that represents a BlockNote block. This is the node that has the ID.
+   * Most of the time, this will be a blockContainer node, but it could also be a Column or ColumnList
+   */
+  bnBlock: SingleBlockInfo;
+  /**
+   * The type of BlockNote block that this node represents.
+   * When dealing with a blockContainer, this is retrieved from the blockContent node, otherwise it's retrieved from the bnBlock node.
+   */
+  blockNoteType: string;
+} & (
+  | {
+      // In case we're not dealing with a BlockContainer, we're dealing with a "wrapper node" (like a Column or ColumnList), so it will always have children
+
+      /**
+       * The Prosemirror node that holds block.children. For non-blockContainer, this node will be the same as bnBlock.
+       */
+      childContainer: SingleBlockInfo;
+      isBlockContainer: false;
+    }
+  | {
+      /**
+       * The Prosemirror node that holds block.children. For blockContainers, this is the blockGroup node, if it exists.
+       */
+      childContainer?: SingleBlockInfo;
+      /**
+       * The Prosemirror node that wraps block.content and has most of the props
+       */
+      blockContent: SingleBlockInfo;
+      /**
+       * Whether bnBlock is a blockContainer node
+       */
+      isBlockContainer: true;
+    }
+);
 
 /**
  * Retrieves the position just before the nearest blockContainer node in a
@@ -30,7 +61,7 @@ export function getNearestBlockContainerPos(doc: Node, pos: number) {
 
   // Checks if the position provided is already just before a blockContainer
   // node, in which case we return the position.
-  if ($pos.nodeAfter && $pos.nodeAfter.type.name === "blockContainer") {
+  if ($pos.nodeAfter && $pos.nodeAfter.type.isInGroup("bnBlock")) {
     return {
       posBeforeNode: $pos.pos,
       node: $pos.nodeAfter,
@@ -42,7 +73,7 @@ export function getNearestBlockContainerPos(doc: Node, pos: number) {
   let depth = $pos.depth;
   let node = $pos.node(depth);
   while (depth > 0) {
-    if (node.type.name === "blockContainer") {
+    if (node.type.isInGroup("bnBlock")) {
       return {
         posBeforeNode: $pos.before(depth),
         node: node,
@@ -62,7 +93,7 @@ export function getNearestBlockContainerPos(doc: Node, pos: number) {
   // collaboration plugin.
   const allBlockContainerPositions: number[] = [];
   doc.descendants((node, pos) => {
-    if (node.type.name === "blockContainer") {
+    if (node.type.isInGroup("bnBlock")) {
       allBlockContainerPositions.push(pos);
     }
   });
@@ -93,57 +124,80 @@ export function getNearestBlockContainerPos(doc: Node, pos: number) {
  */
 export function getBlockInfoWithManualOffset(
   node: Node,
-  blockContainerBeforePosOffset: number
+  bnBlockBeforePosOffset: number
 ): BlockInfo {
-  const blockContainerNode = node;
-  const blockContainerBeforePos = blockContainerBeforePosOffset;
-  const blockContainerAfterPos =
-    blockContainerBeforePos + blockContainerNode.nodeSize;
-
-  const blockContainer: SingleBlockInfo = {
-    node: blockContainerNode,
-    beforePos: blockContainerBeforePos,
-    afterPos: blockContainerAfterPos,
-  };
-  let blockContent: SingleBlockInfo | undefined = undefined;
-  let blockGroup: SingleBlockInfo | undefined = undefined;
-
-  blockContainerNode.forEach((node, offset) => {
-    if (node.type.spec.group === "blockContent") {
-      // console.log(beforePos, offset);
-      const blockContentNode = node;
-      const blockContentBeforePos = blockContainerBeforePos + offset + 1;
-      const blockContentAfterPos = blockContentBeforePos + node.nodeSize;
-
-      blockContent = {
-        node: blockContentNode,
-        beforePos: blockContentBeforePos,
-        afterPos: blockContentAfterPos,
-      };
-    } else if (node.type.name === "blockGroup") {
-      const blockGroupNode = node;
-      const blockGroupBeforePos = blockContainerBeforePos + offset + 1;
-      const blockGroupAfterPos = blockGroupBeforePos + node.nodeSize;
-
-      blockGroup = {
-        node: blockGroupNode,
-        beforePos: blockGroupBeforePos,
-        afterPos: blockGroupAfterPos,
-      };
-    }
-  });
-
-  if (!blockContent) {
+  if (!node.type.isInGroup("bnBlock")) {
     throw new Error(
-      `blockContainer node does not contain a blockContent node in its children: ${blockContainerNode}`
+      `Attempted to get bnBlock node at position but found node of different type ${node.type}`
     );
   }
 
-  return {
-    blockContainer,
-    blockContent,
-    blockGroup,
+  const bnBlockNode = node;
+  const bnBlockBeforePos = bnBlockBeforePosOffset;
+  const bnBlockAfterPos = bnBlockBeforePos + bnBlockNode.nodeSize;
+
+  const bnBlock: SingleBlockInfo = {
+    node: bnBlockNode,
+    beforePos: bnBlockBeforePos,
+    afterPos: bnBlockAfterPos,
   };
+
+  if (bnBlockNode.type.name === "blockContainer") {
+    let blockContent: SingleBlockInfo | undefined;
+    let blockGroup: SingleBlockInfo | undefined;
+
+    bnBlockNode.forEach((node, offset) => {
+      if (node.type.spec.group === "blockContent") {
+        // console.log(beforePos, offset);
+        const blockContentNode = node;
+        const blockContentBeforePos = bnBlockBeforePos + offset + 1;
+        const blockContentAfterPos = blockContentBeforePos + node.nodeSize;
+
+        blockContent = {
+          node: blockContentNode,
+          beforePos: blockContentBeforePos,
+          afterPos: blockContentAfterPos,
+        };
+      } else if (node.type.name === "blockGroup") {
+        const blockGroupNode = node;
+        const blockGroupBeforePos = bnBlockBeforePos + offset + 1;
+        const blockGroupAfterPos = blockGroupBeforePos + node.nodeSize;
+
+        blockGroup = {
+          node: blockGroupNode,
+          beforePos: blockGroupBeforePos,
+          afterPos: blockGroupAfterPos,
+        };
+      }
+    });
+
+    if (!blockContent) {
+      throw new Error(
+        `blockContainer node does not contain a blockContent node in its children: ${bnBlockNode}`
+      );
+    }
+
+    return {
+      isBlockContainer: true,
+      bnBlock,
+      blockContent,
+      childContainer: blockGroup,
+      blockNoteType: blockContent.node.type.name,
+    };
+  } else {
+    if (!bnBlock.node.type.isInGroup("childContainer")) {
+      throw new Error(
+        `bnBlock node is not in the childContainer group: ${bnBlock.node}`
+      );
+    }
+
+    return {
+      isBlockContainer: false,
+      bnBlock: bnBlock,
+      childContainer: bnBlock,
+      blockNoteType: bnBlock.node.type.name,
+    };
+  }
 }
 
 /**
@@ -173,11 +227,7 @@ export function getBlockInfoFromResolvedPos(resolvedPos: ResolvedPos) {
       `Attempted to get blockContainer node at position ${resolvedPos.pos} but a node at this position does not exist`
     );
   }
-  if (resolvedPos.nodeAfter.type.name !== "blockContainer") {
-    throw new Error(
-      `Attempted to get blockContainer node at position ${resolvedPos.pos} but found node of different type ${resolvedPos.nodeAfter}`
-    );
-  }
+
   return getBlockInfoWithManualOffset(resolvedPos.nodeAfter, resolvedPos.pos);
 }
 
@@ -192,5 +242,11 @@ export function getBlockInfoFromSelection(state: EditorState) {
     state.doc,
     state.selection.anchor
   );
-  return getBlockInfo(posInfo);
+  const ret = getBlockInfo(posInfo);
+  if (!ret.isBlockContainer) {
+    throw new Error(
+      `selection always expected to return blockContainer ${state.selection.anchor}`
+    );
+  }
+  return ret;
 }

@@ -31,13 +31,11 @@ type BlockSelectionData = (
 function getBlockSelectionData(
   editor: BlockNoteEditor<any, any, any>
 ): BlockSelectionData {
-  const { blockContainer } = getBlockInfoFromSelection(
-    editor._tiptapEditor.state
-  );
+  const { bnBlock } = getBlockInfoFromSelection(editor._tiptapEditor.state);
 
   const selectionData = {
-    blockId: blockContainer.node.attrs.id,
-    blockPos: blockContainer.beforePos,
+    blockId: bnBlock.node.attrs.id,
+    blockPos: bnBlock.beforePos,
   };
 
   if (editor._tiptapEditor.state.selection instanceof CellSelection) {
