@@ -21,6 +21,7 @@ import {
 } from "../schema/index.js";
 
 import { AudioBlock } from "./AudioBlockContent/AudioBlockContent.js";
+import { ColumnBlock, ColumnListBlock } from "./Columns/index.js";
 import { FileBlock } from "./FileBlockContent/FileBlockContent.js";
 import { Heading } from "./HeadingBlockContent/HeadingBlockContent.js";
 import { ImageBlock } from "./ImageBlockContent/ImageBlockContent.js";
@@ -34,6 +35,7 @@ import { VideoBlock } from "./VideoBlockContent/VideoBlockContent.js";
 export const defaultBlockSpecs = {
   paragraph: Paragraph,
   heading: Heading,
+
   bulletListItem: BulletListItem,
   numberedListItem: NumberedListItem,
   checkListItem: CheckListItem,
@@ -42,6 +44,8 @@ export const defaultBlockSpecs = {
   image: ImageBlock,
   video: VideoBlock,
   audio: AudioBlock,
+  column: ColumnBlock,
+  columnList: ColumnListBlock,
 } satisfies BlockSpecs;
 
 export const defaultBlockSchema = getBlockSchemaFromSpecs(defaultBlockSpecs);

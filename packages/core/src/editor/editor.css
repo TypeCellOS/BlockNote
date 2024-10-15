@@ -123,3 +123,13 @@ Tippy popups that are appended to document.body directly
   font-weight: bold;
   text-align: left;
 }
+
+.prosemirror-dropcursor-block {
+  transition-property: top, bottom;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 0.15s;
+}
+
+.prosemirror-dropcursor-vertical {
+  transition-property: left, right;
+}

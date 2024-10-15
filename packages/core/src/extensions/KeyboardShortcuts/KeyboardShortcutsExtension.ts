@@ -37,7 +37,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
               return commands.command(
                 updateBlockCommand(
                   this.options.editor,
-                  blockInfo.blockContainer.beforePos,
+                  blockInfo.bnBlock.beforePos,
                   {
                     type: "paragraph",
                     props: {},
@@ -67,7 +67,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // block. The target block for merging must contain inline content.
         () =>
           commands.command(({ state }) => {
-            const { blockContainer, blockContent } =
+            const { bnBlock: blockContainer, blockContent } =
               getBlockInfoFromSelection(state);
 
             const { depth } = state.doc.resolve(blockContainer.beforePos);
@@ -94,7 +94,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // content, it's merged instead. Otherwise, it's a no-op.
         () =>
           commands.command(({ state }) => {
-            const { blockContainer, blockContent } =
+            const { bnBlock: blockContainer, blockContent } =
               getBlockInfoFromSelection(state);
 
             const selectionAtBlockStart =
@@ -117,7 +117,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
               selectionAtBlockStart &&
               selectionEmpty &&
               $currentBlockPos.depth === 1 &&
-              prevBlockInfo.blockGroup === undefined &&
+              prevBlockInfo.childContainer === undefined &&
+              prevBlockInfo.isBlockContainer &&
               prevBlockInfo.blockContent.node.type.spec.content === ""
             ) {
               return commands.deleteRange({
@@ -140,8 +141,11 @@ export const KeyboardShortcutsExtension = Extension.create<{
         () =>
           commands.command(({ state }) => {
             // TODO: Change this to not rely on offsets & schema assumptions
-            const { blockContainer, blockContent, blockGroup } =
-              getBlockInfoFromSelection(state);
+            const {
+              bnBlock: blockContainer,
+              blockContent,
+              childContainer,
+            } = getBlockInfoFromSelection(state);
 
             const { depth } = state.doc.resolve(blockContainer.beforePos);
             const blockAtDocEnd =
@@ -149,7 +153,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             const selectionAtBlockEnd =
               state.selection.from === blockContent.afterPos - 1;
             const selectionEmpty = state.selection.empty;
-            const hasChildBlocks = blockGroup !== undefined;
+            const hasChildBlocks = childContainer !== undefined;
 
             if (
               !blockAtDocEnd &&
@@ -180,7 +184,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // of the block.
         () =>
           commands.command(({ state }) => {
-            const { blockContent, blockContainer } =
+            const { blockContent, bnBlock: blockContainer } =
               getBlockInfoFromSelection(state);
 
             const { depth } = state.doc.resolve(blockContainer.beforePos);
@@ -207,7 +211,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // empty & at the start of the block.
         () =>
           commands.command(({ state, dispatch }) => {
-            const { blockContainer, blockContent } =
+            const { bnBlock: blockContainer, blockContent } =
               getBlockInfoFromSelection(state);
 
             const selectionAtBlockStart =

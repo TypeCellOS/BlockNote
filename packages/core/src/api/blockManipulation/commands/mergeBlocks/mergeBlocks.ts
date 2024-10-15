@@ -18,11 +18,11 @@ export const getPrevBlockPos = (doc: Node, $nextBlockPos: ResolvedPos) => {
     doc.resolve(prevBlockBeforePos)
   );
 
-  while (prevBlockInfo.blockGroup) {
-    const group = prevBlockInfo.blockGroup.node;
+  while (prevBlockInfo.childContainer) {
+    const group = prevBlockInfo.childContainer.node;
 
     prevBlockBeforePos = doc
-      .resolve(prevBlockInfo.blockGroup.beforePos + 1)
+      .resolve(prevBlockInfo.childContainer.beforePos + 1)
       .posAtIndex(group.childCount - 1);
     prevBlockInfo = getBlockInfoFromResolvedPos(
       doc.resolve(prevBlockBeforePos)
@@ -40,7 +40,9 @@ export const canMerge = (
   const nextBlockInfo = getBlockInfoFromResolvedPos($nextBlockPos);
 
   return (
+    prevBlockInfo.isBlockContainer &&
     prevBlockInfo.blockContent.node.type.spec.content === "inline*" &&
+    nextBlockInfo.isBlockContainer &&
     nextBlockInfo.blockContent.node.type.spec.content === "inline*"
   );
 };
@@ -53,14 +55,20 @@ export const mergeBlocks = (
 ) => {
   const nextBlockInfo = getBlockInfoFromResolvedPos($nextBlockPos);
 
+  if (!nextBlockInfo.isBlockContainer) {
+    throw new Error(
+      `Attempted to merge block at position ${$nextBlockPos.pos} into previous block at position ${$prevBlockPos.pos}, but next block is not a block container`
+    );
+  }
+
   // Removes a level of nesting all children of the next block by 1 level, if it contains both content and block
   // group nodes.
-  if (nextBlockInfo.blockGroup) {
+  if (nextBlockInfo.childContainer) {
     const childBlocksStart = state.doc.resolve(
-      nextBlockInfo.blockGroup.beforePos + 1
+      nextBlockInfo.childContainer.beforePos + 1
     );
     const childBlocksEnd = state.doc.resolve(
-      nextBlockInfo.blockGroup.afterPos - 1
+      nextBlockInfo.childContainer.afterPos - 1
     );
     const childBlocksRange = childBlocksStart.blockRange(childBlocksEnd);
 
@@ -74,6 +82,13 @@ export const mergeBlocks = (
   if (dispatch) {
     const prevBlockInfo = getBlockInfoFromResolvedPos($prevBlockPos);
 
+    if (!prevBlockInfo.isBlockContainer) {
+      throw new Error(
+        `Attempted to merge block at position ${$nextBlockPos.pos} into previous block at position ${$prevBlockPos.pos}, but previous block is not a block container`
+      );
+    }
+
+    // TODO: test merging between a columnList and paragraph, between two columnLists, and v.v.
     dispatch(
       state.tr.deleteRange(
         prevBlockInfo.blockContent.afterPos - 1,
