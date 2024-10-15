@@ -1,6 +1,8 @@
 import { Extension } from "@tiptap/core";
 
-import { TextSelection } from "prosemirror-state";
+import { Fragment, NodeType, Slice } from "prosemirror-model";
+import { EditorState, TextSelection } from "prosemirror-state";
+import { ReplaceAroundStep } from "prosemirror-transform";
 import {
   getPrevBlockPos,
   mergeBlocksCommand,
@@ -317,8 +319,13 @@ export const KeyboardShortcutsExtension = Extension.create<{
           // don't handle tabs if a toolbar is shown, so we can tab into / out of it
           return false;
         }
-        this.editor.commands.sinkListItem("blockContainer");
-        return true;
+        return this.editor.commands.command(
+          sinkListItem(
+            this.editor.schema.nodes["blockContainer"],
+            this.editor.schema.nodes["blockGroup"]
+          )
+        );
+        // return true;
       },
       "Shift-Tab": () => {
         if (
@@ -343,3 +350,65 @@ export const KeyboardShortcutsExtension = Extension.create<{
     };
   },
 });
+
+/**
+ * This is a modified version of https://github.com/ProseMirror/prosemirror-schema-list/blob/569c2770cbb8092d8f11ea53ecf78cb7a4e8f15a/src/schema-list.ts#L232
+ *
+ * The original function derives too many information from the parentnode and itemtype
+ *
+ * TODO: move to separate file?
+ */
+function sinkListItem(itemType: NodeType, groupType: NodeType) {
+  return function ({ state, dispatch }: { state: EditorState; dispatch: any }) {
+    const { $from, $to } = state.selection;
+    const range = $from.blockRange(
+      $to,
+      (node) =>
+        node.childCount > 0 &&
+        (node.type.name === "blockGroup" || node.type.name === "column") // change necessary to not look at first item child type
+    );
+    if (!range) {
+      return false;
+    }
+    const startIndex = range.startIndex;
+    if (startIndex === 0) {
+      return false;
+    }
+    const parent = range.parent;
+    const nodeBefore = parent.child(startIndex - 1);
+    if (nodeBefore.type !== itemType) {
+      return false;
+    }
+    if (dispatch) {
+      const nestedBefore =
+        nodeBefore.lastChild && nodeBefore.lastChild.type === groupType; // change necessary to check groupType instead of parent.type
+      const inner = Fragment.from(nestedBefore ? itemType.create() : null);
+      const slice = new Slice(
+        Fragment.from(
+          itemType.create(null, Fragment.from(groupType.create(null, inner))) // change necessary to create "groupType" instead of parent.type
+        ),
+        nestedBefore ? 3 : 1,
+        0
+      );
+
+      const before = range.start;
+      const after = range.end;
+      dispatch(
+        state.tr
+          .step(
+            new ReplaceAroundStep(
+              before - (nestedBefore ? 3 : 1),
+              after,
+              before,
+              after,
+              slice,
+              1,
+              true
+            )
+          )
+          .scrollIntoView()
+      );
+    }
+    return true;
+  };
+}
