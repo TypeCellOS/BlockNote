@@ -2,9 +2,9 @@ import { FileBlockConfig } from "@blocknote/core";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 import { RiFile2Line } from "react-icons/ri";
 
-import { useUploadLoading } from "../../hooks/useUploadLoading";
-import { useDictionary } from "../../i18n/dictionary";
-import { ReactCustomBlockRenderProps } from "../../schema/ReactBlockSpec";
+import { useUploadLoading } from "../../hooks/useUploadLoading.js";
+import { useDictionary } from "../../i18n/dictionary.js";
+import { ReactCustomBlockRenderProps } from "../../schema/ReactBlockSpec.js";
 
 export const FileBlockWrapper = (
   props: Omit<

@@ -1,5 +1,5 @@
 import { Dictionary } from "@blocknote/core";
-import { useBlockNoteContext } from "../editor/BlockNoteContext";
+import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
 
 export function useDictionary(): Dictionary {
   const ctx = useBlockNoteContext();

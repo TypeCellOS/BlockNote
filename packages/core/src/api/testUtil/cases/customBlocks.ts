@@ -1,19 +1,19 @@
-import { EditorTestCases } from "../index";
+import { EditorTestCases } from "../index.js";
 
-import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/FileBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY";
+import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../../blocks/FileBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY.js";
+import {
+  imagePropSchema,
+  imageRender,
+} from "../../../blocks/ImageBlockContent/ImageBlockContent.js";
 import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   defaultBlockSpecs,
-} from "../../../blocks/defaultBlocks";
-import { defaultProps } from "../../../blocks/defaultProps";
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
-import { BlockNoteSchema } from "../../../editor/BlockNoteSchema";
-import { createBlockSpec } from "../../../schema";
-import {
-  imagePropSchema,
-  imageRender,
-} from "../../../blocks/ImageBlockContent/ImageBlockContent";
+} from "../../../blocks/defaultBlocks.js";
+import { defaultProps } from "../../../blocks/defaultProps.js";
+import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import { BlockNoteSchema } from "../../../editor/BlockNoteSchema.js";
+import { createBlockSpec } from "../../../schema/index.js";
 
 // This is a modified version of the default image block that does not implement
 // a `toExternalHTML` function. It's used to test if the custom serializer by

@@ -1,14 +1,18 @@
 import { Schema } from "prosemirror-model";
-import { PartialBlock } from "../../../blocks/defaultBlocks";
-import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
+import { PartialBlock } from "../../../blocks/defaultBlocks.js";
+import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../../schema/index.js";
 import {
   esmDependencies,
   initializeESMDependencies,
-} from "../../../util/esmDependencies";
-import { createExternalHTMLExporter } from "../html/externalHTMLExporter";
-import { removeUnderlines } from "./removeUnderlinesRehypePlugin";
-import { addSpacesToCheckboxes } from "./util/addSpacesToCheckboxesRehypePlugin";
+} from "../../../util/esmDependencies.js";
+import { createExternalHTMLExporter } from "../html/externalHTMLExporter.js";
+import { removeUnderlines } from "./removeUnderlinesRehypePlugin.js";
+import { addSpacesToCheckboxes } from "./util/addSpacesToCheckboxesRehypePlugin.js";
 
 // Needs to be sync because it's used in drag handler event (SideMenuPlugin)
 // Ideally, call `await initializeESMDependencies()` before calling this function

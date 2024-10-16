@@ -1,15 +1,15 @@
-import { Block, PartialBlock } from "../../blocks/defaultBlocks";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { Block, PartialBlock } from "../../blocks/defaultBlocks.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
-import { checkDefaultBlockTypeInSchema } from "../../blocks/defaultBlockTypeGuards";
+import { checkDefaultBlockTypeInSchema } from "../../blocks/defaultBlockTypeGuards.js";
 import {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
   isStyledTextInlineContent,
-} from "../../schema";
-import { formatKeyboardShortcut } from "../../util/browser";
-import { DefaultSuggestionItem } from "./DefaultSuggestionItem";
+} from "../../schema/index.js";
+import { formatKeyboardShortcut } from "../../util/browser.js";
+import { DefaultSuggestionItem } from "./DefaultSuggestionItem.js";
 
 // Sets the editor's text cursor position to the next content editable block,
 // so either a block with inline content or a table. The last block is always a

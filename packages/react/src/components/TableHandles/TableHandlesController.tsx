@@ -7,11 +7,11 @@ import {
 } from "@blocknote/core";
 import { FC, useMemo, useState } from "react";
 
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
-import { useUIPluginState } from "../../hooks/useUIPluginState";
-import { TableHandle } from "./TableHandle";
-import { TableHandleProps } from "./TableHandleProps";
-import { useTableHandlesPositioning } from "./hooks/useTableHandlesPositioning";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { useUIPluginState } from "../../hooks/useUIPluginState.js";
+import { TableHandle } from "./TableHandle.js";
+import { TableHandleProps } from "./TableHandleProps.js";
+import { useTableHandlesPositioning } from "./hooks/useTableHandlesPositioning.js";
 
 export const TableHandlesController = <
   I extends InlineContentSchema = DefaultInlineContentSchema,

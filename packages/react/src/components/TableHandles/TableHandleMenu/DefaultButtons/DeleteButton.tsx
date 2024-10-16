@@ -7,10 +7,10 @@ import {
   TableContent,
 } from "@blocknote/core";
 
-import { useComponentsContext } from "../../../../editor/ComponentsContext";
-import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
-import { useDictionary } from "../../../../i18n/dictionary";
-import { TableHandleMenuProps } from "../TableHandleMenuProps";
+import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
+import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
+import { useDictionary } from "../../../../i18n/dictionary.js";
+import { TableHandleMenuProps } from "../TableHandleMenuProps.js";
 
 export const DeleteRowButton = <
   I extends InlineContentSchema = DefaultInlineContentSchema,

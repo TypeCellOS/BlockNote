@@ -1,9 +1,9 @@
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   BlockFromConfig,
   BlockSchemaWithBlock,
   FileBlockConfig,
-} from "../../schema";
+} from "../../schema/index.js";
 
 export const createFileBlockWrapper = (
   block: BlockFromConfig<FileBlockConfig, any, any>,

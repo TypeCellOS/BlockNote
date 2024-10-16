@@ -1,16 +1,17 @@
-import { fileURLToPath, pathToFileURL } from "node:url";
 import * as glob from "glob";
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import prettier from "prettier";
 import React from "react";
+
 import ReactDOM from "react-dom/server";
 import {
   Project,
   getExampleProjects,
   groupProjects,
   replacePathSepToSlash,
-} from "./util";
+} from "./util.js";
 
 /**
  * This script reads the examples in the /examples folder. These folders initially only need an App.tsx, .bnexample.json and README.md file.

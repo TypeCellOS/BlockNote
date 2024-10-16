@@ -1,5 +1,5 @@
 import { Page } from "@playwright/test";
-import { SLASH_MENU_SELECTOR } from "./const";
+import { SLASH_MENU_SELECTOR } from "./const.js";
 
 export async function openSlashMenu(page: Page) {
   await page.keyboard.press("/");

@@ -3,9 +3,9 @@ import { ComponentProps } from "@blocknote/react";
 import { ChevronRight } from "lucide-react";
 import { forwardRef, useMemo } from "react";
 
-import type { DropdownMenuTrigger as ShadCNDropdownMenuTrigger } from "../components/ui/dropdown-menu";
-import { cn } from "../lib/utils";
-import { useShadCNComponentsContext } from "../ShadCNComponentsContext";
+import type { DropdownMenuTrigger as ShadCNDropdownMenuTrigger } from "../components/ui/dropdown-menu.js";
+import { cn } from "../lib/utils.js";
+import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
 
 // hacky HoC to change DropdownMenuTrigger to open a menu on PointerUp instead of PointerDown
 // Needed to fix this issue: https://github.com/radix-ui/primitives/issues/2867

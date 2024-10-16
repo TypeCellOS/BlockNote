@@ -1,14 +1,14 @@
-import { test } from "../../setup/setupScript";
+import { test } from "../../setup/setupScript.js";
 import {
   BASE_URL,
   H_ONE_BLOCK_SELECTOR,
   H_THREE_BLOCK_SELECTOR,
   H_TWO_BLOCK_SELECTOR,
   PARAGRAPH_SELECTOR,
-} from "../../utils/const";
-import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor";
-import { insertHeading, insertParagraph } from "../../utils/copypaste";
-import { dragAndDropBlock } from "../../utils/mouse";
+} from "../../utils/const.js";
+import { insertHeading, insertParagraph } from "../../utils/copypaste.js";
+import { compareDocToSnapshot, focusOnEditor } from "../../utils/editor.js";
+import { dragAndDropBlock } from "../../utils/mouse.js";
 
 test.describe.configure({ mode: "serial" });
 

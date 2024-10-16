@@ -1,19 +1,19 @@
-import type { BlockNoteEditor } from "../editor/BlockNoteEditor";
+import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import {
   BlockFromConfig,
   BlockSchema,
   FileBlockConfig,
   InlineContentSchema,
   StyleSchema,
-} from "../schema";
+} from "../schema/index.js";
 import {
   Block,
   DefaultBlockSchema,
+  DefaultInlineContentSchema,
   defaultBlockSchema,
   defaultInlineContentSchema,
-  DefaultInlineContentSchema,
-} from "./defaultBlocks";
-import { defaultProps } from "./defaultProps";
+} from "./defaultBlocks.js";
+import { defaultProps } from "./defaultProps.js";
 
 export function checkDefaultBlockTypeInSchema<
   BlockType extends keyof DefaultBlockSchema,
