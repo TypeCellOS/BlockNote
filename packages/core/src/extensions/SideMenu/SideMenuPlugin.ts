@@ -12,12 +12,8 @@ import {
 } from "../../schema/index.js";
 import { EventEmitter } from "../../util/EventEmitter.js";
 import { initializeESMDependencies } from "../../util/esmDependencies.js";
-import {
-  dragStart,
-  getDraggableBlockFromElement,
-  unsetDragImage,
-} from "./dragging.js";
-
+import { getDraggableBlockFromElement } from "../getDraggableBlockFromElement.js";
+import { dragStart, unsetDragImage } from "./dragging.js";
 export type SideMenuState<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -27,13 +23,43 @@ export type SideMenuState<
   block: Block<BSchema, I, S>;
 };
 
-const getBlockFromMousePos = (
+function getBlockFromCoords(
+  view: EditorView,
+  coords: { left: number; top: number },
+  adjustForColumns = true
+) {
+  const elements = view.root.elementsFromPoint(coords.left, coords.top);
+
+  for (const element of elements) {
+    if (!view.dom.contains(element)) {
+      // probably a ui overlay like formatting toolbar etc
+      continue;
+    }
+    if (adjustForColumns) {
+      const column = element.closest("[data-node-type=columnList]");
+      if (column) {
+        return getBlockFromCoords(
+          view,
+          {
+            left: coords.left + 50, // bit hacky, but if we're inside a column, offset x position to right to account for the width of sidemenu itself
+            top: coords.top,
+          },
+          false
+        );
+      }
+    }
+    return getDraggableBlockFromElement(element, view);
+  }
+  return undefined;
+}
+
+function getBlockFromMousePos(
   mousePos: {
     x: number;
     y: number;
   },
   view: EditorView
-): { node: HTMLElement; id: string } | undefined => {
+): { node: HTMLElement; id: string } | undefined {
   // Editor itself may have padding or other styling which affects
   // size/position, so we get the boundingRect of the first child (i.e. the
   // blockGroup that wraps all blocks in the editor) for more accurate side
@@ -84,7 +110,7 @@ const getBlockFromMousePos = (
   }
 
   return block;
-};
+}
 
 /**
  * With the sidemenu plugin we can position a menu next to a hovered block.
@@ -411,11 +437,14 @@ export class SideMenuProsemirrorPlugin<
   /**
    * Handles drag & drop events for blocks.
    */
-  blockDragStart = (event: {
-    dataTransfer: DataTransfer | null;
-    clientY: number;
-  }) => {
-    dragStart(event, this.editor);
+  blockDragStart = (
+    event: {
+      dataTransfer: DataTransfer | null;
+      clientY: number;
+    },
+    block: Block<BSchema, I, S>
+  ) => {
+    dragStart(event, block, this.editor);
   };
 
   /**
@@ -438,34 +467,4 @@ export class SideMenuProsemirrorPlugin<
     this.view!.state!.show = false;
     this.view!.emitUpdate(this.view!.state!);
   };
-}
-
-function getBlockFromCoords(
-  view: EditorView,
-  coords: { left: number; top: number },
-  adjustForColumns = true
-) {
-  const elements = view.root.elementsFromPoint(coords.left, coords.top);
-
-  for (const element of elements) {
-    if (!view.dom.contains(element)) {
-      // probably a ui overlay like formatting toolbar etc
-      continue;
-    }
-    if (adjustForColumns) {
-      const column = element.closest("[data-node-type=columnList]");
-      if (column) {
-        return getBlockFromCoords(
-          view,
-          {
-            left: coords.left + 50, // bit hacky, but if we're inside a column, offset x position to right to account for the width of sidemenu itself
-            top: coords.top,
-          },
-          false
-        );
-      }
-    }
-    return getDraggableBlockFromElement(element, view);
-  }
-  return undefined;
 }
