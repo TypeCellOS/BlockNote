@@ -50,18 +50,37 @@ const getBlockFromMousePos = (
 
   // Gets block at mouse cursor's vertical position.
   const coords = {
-    left: editorBoundingBox.left + editorBoundingBox.width / 2, // take middle of editor
+    left: mousePos.x,
     top: mousePos.y,
   };
 
-  const elements = view.root.elementsFromPoint(coords.left, coords.top);
-  let block = undefined;
+  const mouseLeftOfEditor = coords.left < editorBoundingBox.left;
+  const mouseRightOfEditor = coords.left > editorBoundingBox.right;
 
-  for (const element of elements) {
-    if (view.dom.contains(element)) {
-      block = getDraggableBlockFromElement(element, view);
-      break;
-    }
+  if (mouseLeftOfEditor) {
+    coords.left = editorBoundingBox.left + 10;
+  }
+
+  if (mouseRightOfEditor) {
+    coords.left = editorBoundingBox.right - 10;
+  }
+
+  let block = getBlockFromCoords(view, coords);
+
+  if (!mouseRightOfEditor && block) {
+    // note: this case is not necessary when we're on the right side of the editor
+
+    /* Now, because blocks can be nested
+    | BlockA        |
+    x | BlockB     y|
+    
+    hovering over position x (the "margin of block B") will return block A instead of block B.
+    to fix this, we get the block from the right side of block A (position y, which will fall in BlockB correctly)
+    */
+
+    const rect = block.node.getBoundingClientRect();
+    coords.left = rect.right - 10;
+    block = getBlockFromCoords(view, coords, false);
   }
 
   return block;
@@ -158,6 +177,7 @@ export class SideMenuView<
     this.hoveredBlock = block.node;
 
     // Gets the block's content node, which lets to ignore child blocks when determining the block menu's position.
+    // TODO: needed?
     const blockContent = block.node.firstChild as HTMLElement;
 
     if (!blockContent) {
@@ -168,15 +188,16 @@ export class SideMenuView<
 
     // Shows or updates elements.
     if (this.editor.isEditable) {
-      const editorBoundingBox = (
-        this.pmView.dom.firstChild as HTMLElement
-      ).getBoundingClientRect();
       const blockContentBoundingBox = blockContent.getBoundingClientRect();
-
+      const column = block.node.closest("[data-node-type=column]");
       this.updateState({
         show: true,
         referencePos: new DOMRect(
-          editorBoundingBox.x,
+          column
+            ? column.getBoundingClientRect().x
+            : (
+                this.pmView.dom.firstChild as HTMLElement
+              ).getBoundingClientRect().x,
           blockContentBoundingBox.y,
           blockContentBoundingBox.width,
           blockContentBoundingBox.height
@@ -192,6 +213,8 @@ export class SideMenuView<
    * If the event is outside the editor contents,
    * we dispatch a fake event, so that we can still drop the content
    * when dragging / dropping to the side of the editor
+   *
+   * // TODO: multi-column
    */
   onDrop = (event: DragEvent) => {
     this.editor._tiptapEditor.commands.blur();
@@ -234,6 +257,8 @@ export class SideMenuView<
    * If the event is outside the editor contents,
    * we dispatch a fake event, so that we can still drop the content
    * when dragging / dropping to the side of the editor
+   *
+   * // TODO: multi-column
    */
   onDragOver = (event: DragEvent) => {
     if (
@@ -413,4 +438,34 @@ export class SideMenuProsemirrorPlugin<
     this.view!.state!.show = false;
     this.view!.emitUpdate(this.view!.state!);
   };
+}
+
+function getBlockFromCoords(
+  view: EditorView,
+  coords: { left: number; top: number },
+  adjustForColumns = true
+) {
+  const elements = view.root.elementsFromPoint(coords.left, coords.top);
+
+  for (const element of elements) {
+    if (!view.dom.contains(element)) {
+      // probably a ui overlay like formatting toolbar etc
+      continue;
+    }
+    if (adjustForColumns) {
+      const column = element.closest("[data-node-type=columnList]");
+      if (column) {
+        return getBlockFromCoords(
+          view,
+          {
+            left: coords.left + 50, // bit hacky, but if we're inside a column, offset x position to right to account for the width of sidemenu itself
+            top: coords.top,
+          },
+          false
+        );
+      }
+    }
+    return getDraggableBlockFromElement(element, view);
+  }
+  return undefined;
 }
