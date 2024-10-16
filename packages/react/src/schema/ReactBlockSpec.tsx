@@ -138,10 +138,10 @@ export function createReactBlockSpec<
       // just render a placeholder div inside as the `blockContent` element
       // already has all the information needed for proper parsing.
       const div = document.createElement("div");
-      div.setAttribute("data-tmp-placeholder", "true");
       return wrapInBlockStructure(
         {
           dom: div,
+          contentDOM: blockConfig.content === "inline" ? div : undefined,
         },
         blockConfig.type,
         {},
