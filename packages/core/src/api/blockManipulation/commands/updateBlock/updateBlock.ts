@@ -11,7 +11,6 @@ import { InlineContentSchema } from "../../../../schema/inlineContent/types.js";
 import { StyleSchema } from "../../../../schema/styles/types.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import { getBlockInfoFromResolvedPos } from "../../../getBlockInfoFromPos.js";
-
 import {
   blockToNode,
   inlineContentToNodes,
