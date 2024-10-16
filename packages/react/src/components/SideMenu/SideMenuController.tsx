@@ -51,7 +51,15 @@ export const SideMenuController = <
   const Component = props.sideMenu || SideMenu;
 
   return (
-    <div ref={ref} style={style} {...getFloatingProps()}>
+    <div
+      ref={ref}
+      // style={{
+      //   ...style,
+      //   transitionDuration: "0.1s",
+      //   transitionProperty: "transform",
+      // }}
+      style={style}
+      {...getFloatingProps()}>
       <Component {...data} {...callbacks} editor={editor} />
     </div>
   );
