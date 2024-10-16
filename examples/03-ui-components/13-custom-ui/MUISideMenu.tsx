@@ -92,7 +92,7 @@ function MUIDragHandleButton(props: SideMenuProps<TextBlockSchema>) {
         component={"button"}
         draggable={"true"}
         onClick={onClick}
-        onDragStart={props.blockDragStart}
+        onDragStart={(e) => props.blockDragStart(e, props.block)}
         onDragEnd={props.blockDragEnd}>
         <DragIndicator
           sx={{

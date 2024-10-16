@@ -4,7 +4,6 @@ import type { BlockNoteEditor } from "./BlockNoteEditor.js";
 
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
-import { Dropcursor } from "@tiptap/extension-dropcursor";
 import { Gapcursor } from "@tiptap/extension-gapcursor";
 import { HardBreak } from "@tiptap/extension-hard-break";
 import { History } from "@tiptap/extension-history";
@@ -70,7 +69,8 @@ export const getBlockNoteExtensions = <
 
     // DropCursor,
     UniqueID.configure({
-      types: ["blockContainer"],
+      // everything from bnBlock group (nodes that represent a BlockNote block should have an id)
+      types: ["blockContainer", "columnList", "column"],
       setIdAttribute: opts.setIdAttribute,
     }),
     HardBreak.extend({ priority: 10 }),
@@ -155,7 +155,6 @@ export const getBlockNoteExtensions = <
     createPasteFromClipboardExtension(opts.editor),
     createDropFileExtension(opts.editor),
 
-    Dropcursor.configure({ width: 5, color: "#ddeeff" }),
     // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
     // should be handled before Enter handlers in other components like splitListItem
     ...(opts.trailingBlock === undefined || opts.trailingBlock

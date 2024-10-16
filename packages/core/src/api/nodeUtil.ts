@@ -17,7 +17,7 @@ export function getNodeById(
     }
 
     // Keeps traversing nodes if block with target ID has not been found.
-    if (node.type.name !== "blockContainer" || node.attrs.id !== id) {
+    if (!node.type.isInGroup("bnBlock") || node.attrs.id !== id) {
       return true;
     }
 

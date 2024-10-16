@@ -25,14 +25,10 @@ export const ParagraphBlockContent = createStronglyTypedTiptapNode({
         }
 
         return this.editor.commands.command(
-          updateBlockCommand(
-            this.options.editor,
-            blockInfo.blockContainer.beforePos,
-            {
-              type: "paragraph",
-              props: {},
-            }
-          )
+          updateBlockCommand(this.options.editor, blockInfo.bnBlock.beforePos, {
+            type: "paragraph",
+            props: {},
+          })
         );
       },
     };

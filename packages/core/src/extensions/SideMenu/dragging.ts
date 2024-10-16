@@ -6,6 +6,7 @@ import { EditorView } from "prosemirror-view";
 import { createExternalHTMLExporter } from "../../api/exporters/html/externalHTMLExporter.js";
 import { cleanHTMLToMarkdown } from "../../api/exporters/markdown/markdownExporter.js";
 import { fragmentToBlocks } from "../../api/nodeConversions/fragmentToBlocks.js";
+import { getNodeById } from "../../api/nodeUtil.js";
 import { Block } from "../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
@@ -26,39 +27,6 @@ export type SideMenuState<
   // The block that the side menu is attached to.
   block: Block<BSchema, I, S>;
 };
-
-export function getDraggableBlockFromElement(
-  element: Element,
-  view: EditorView
-) {
-  while (
-    element &&
-    element.parentElement &&
-    element.parentElement !== view.dom &&
-    element.getAttribute?.("data-node-type") !== "blockContainer"
-  ) {
-    element = element.parentElement;
-  }
-  if (element.getAttribute?.("data-node-type") !== "blockContainer") {
-    return undefined;
-  }
-  return { node: element as HTMLElement, id: element.getAttribute("data-id")! };
-}
-
-function blockPositionFromElement(element: Element, view: EditorView) {
-  const block = getDraggableBlockFromElement(element, view);
-
-  if (block && block.node.nodeType === 1) {
-    // TODO: this uses undocumented PM APIs? do we need this / let's add docs?
-    const docView = (view as any).docView;
-    const desc = docView.nearestDesc(block.node, true);
-    if (!desc || desc === docView) {
-      return null;
-    }
-    return desc.posBefore;
-  }
-  return null;
-}
 
 function blockPositionsFromSelection(selection: Selection, doc: Node) {
   // Absolute positions just before the first block spanned by the selection, and just after the last block. Having the
@@ -172,6 +140,7 @@ export function dragStart<
   S extends StyleSchema
 >(
   e: { dataTransfer: DataTransfer | null; clientY: number },
+  block: Block<BSchema, I, S>,
   editor: BlockNoteEditor<BSchema, I, S>
 ) {
   if (!e.dataTransfer) {
@@ -180,28 +149,8 @@ export function dragStart<
 
   const view = editor.prosemirrorView;
 
-  const editorBoundingBox = view.dom.getBoundingClientRect();
+  const pos = getNodeById(block.id, view.state.doc).posBeforeNode;
 
-  const coords = {
-    left: editorBoundingBox.left + editorBoundingBox.width / 2, // take middle of editor
-    top: e.clientY,
-  };
-
-  const elements = view.root.elementsFromPoint(coords.left, coords.top);
-  let blockEl = undefined;
-
-  for (const element of elements) {
-    if (view.dom.contains(element)) {
-      blockEl = getDraggableBlockFromElement(element, view);
-      break;
-    }
-  }
-
-  if (!blockEl) {
-    return;
-  }
-
-  const pos = blockPositionFromElement(blockEl.node, view);
   if (pos != null) {
     const selection = view.state.selection;
     const doc = view.state.doc;

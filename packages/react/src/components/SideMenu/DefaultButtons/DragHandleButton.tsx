@@ -39,7 +39,7 @@ export const DragHandleButton = <
         <Components.SideMenu.Button
           label={dict.side_menu.drag_handle_label}
           draggable={true}
-          onDragStart={props.blockDragStart}
+          onDragStart={(e) => props.blockDragStart(e, props.block)}
           onDragEnd={props.blockDragEnd}
           className={"bn-button"}
           icon={<MdDragIndicator size={24} data-test="dragHandle" />}

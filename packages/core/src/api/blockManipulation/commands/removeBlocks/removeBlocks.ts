@@ -45,7 +45,7 @@ export function removeBlocksWithCallback<
 
     // Keeps traversing nodes if block with target ID has not been found.
     if (
-      node.type.name !== "blockContainer" ||
+      !node.type.isInGroup("bnBlock") ||
       !idsOfBlocksToRemove.has(node.attrs.id)
     ) {
       return true;

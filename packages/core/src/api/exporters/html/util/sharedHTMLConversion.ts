@@ -70,6 +70,7 @@ function serializeBlock<
   toExternalHTML: boolean,
   options?: { document?: Document }
 ) {
+  // TODO
   const BC_NODE = editor.pmSchema.nodes["blockContainer"];
 
   let props = block.props;

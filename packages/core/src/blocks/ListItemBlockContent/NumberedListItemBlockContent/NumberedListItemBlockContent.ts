@@ -49,7 +49,7 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
             .command(
               updateBlockCommand(
                 this.options.editor,
-                blockInfo.blockContainer.beforePos,
+                blockInfo.bnBlock.beforePos,
                 {
                   type: "numberedListItem",
                   props: {},
@@ -73,14 +73,10 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
         }
 
         return this.editor.commands.command(
-          updateBlockCommand(
-            this.options.editor,
-            blockInfo.blockContainer.beforePos,
-            {
-              type: "numberedListItem",
-              props: {},
-            }
-          )
+          updateBlockCommand(this.options.editor, blockInfo.bnBlock.beforePos, {
+            type: "numberedListItem",
+            props: {},
+          })
         );
       },
     };

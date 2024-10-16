@@ -14,8 +14,8 @@ it("creates an editor", () => {
     editor._tiptapEditor.state.doc,
     2
   );
-  const { blockContent } = getBlockInfo(posInfo);
-  expect(blockContent.node.type.name).toEqual("paragraph");
+  const info = getBlockInfo(posInfo);
+  expect(info.blockNoteType).toEqual("paragraph");
 });
 
 it("immediately replaces doc", async () => {

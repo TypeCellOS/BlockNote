@@ -14,8 +14,8 @@ function mergeBlocks(posBetweenBlocks: number) {
 }
 
 function getPosBeforeSelectedBlock() {
-  return getBlockInfoFromSelection(getEditor()._tiptapEditor.state)
-    .blockContainer.beforePos;
+  return getBlockInfoFromSelection(getEditor()._tiptapEditor.state).bnBlock
+    .beforePos;
 }
 
 describe("Test mergeBlocks", () => {

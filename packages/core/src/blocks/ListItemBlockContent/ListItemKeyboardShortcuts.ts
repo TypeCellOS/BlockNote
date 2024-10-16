@@ -5,7 +5,7 @@ import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 export const handleEnter = (editor: BlockNoteEditor<any, any, any>) => {
   const ttEditor = editor._tiptapEditor;
-  const { blockContent, blockContainer } = getBlockInfoFromSelection(
+  const { blockContent, bnBlock: blockContainer } = getBlockInfoFromSelection(
     ttEditor.state
   );
 
