@@ -23,6 +23,8 @@ export type SideMenuState<
   block: Block<BSchema, I, S>;
 };
 
+const PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP = 0.1;
+
 function getBlockFromCoords(
   view: EditorView,
   coords: { left: number; top: number },
@@ -239,8 +241,6 @@ export class SideMenuView<
    * If the event is outside the editor contents,
    * we dispatch a fake event, so that we can still drop the content
    * when dragging / dropping to the side of the editor
-   *
-   * // TODO: multi-column
    */
   onDrop = (event: DragEvent) => {
     this.editor._tiptapEditor.commands.blur();
@@ -258,22 +258,7 @@ export class SideMenuView<
     });
 
     if (!pos || pos.inside === -1) {
-      const evt = new Event("drop", event) as any;
-      const editorBoundingBox = (
-        this.pmView.dom.firstChild as HTMLElement
-      ).getBoundingClientRect();
-      evt.clientX =
-        event.clientX < editorBoundingBox.left ||
-        event.clientX > editorBoundingBox.left + editorBoundingBox.width
-          ? editorBoundingBox.left + editorBoundingBox.width / 2
-          : event.clientX;
-      evt.clientY = Math.min(
-        Math.max(event.clientY, editorBoundingBox.top),
-        editorBoundingBox.top + editorBoundingBox.height
-      );
-      evt.dataTransfer = event.dataTransfer;
-      evt.preventDefault = () => event.preventDefault();
-      evt.synthetic = true; // prevent recursion
+      const evt = this.createSyntheticEvent(event);
       // console.log("dispatch fake drop");
       this.pmView.dom.dispatchEvent(evt);
     }
@@ -283,8 +268,6 @@ export class SideMenuView<
    * If the event is outside the editor contents,
    * we dispatch a fake event, so that we can still drop the content
    * when dragging / dropping to the side of the editor
-   *
-   * // TODO: multi-column
    */
   onDragOver = (event: DragEvent) => {
     if (
@@ -299,15 +282,7 @@ export class SideMenuView<
     });
 
     if (!pos || (pos.inside === -1 && this.pmView.dom.firstChild)) {
-      const evt = new Event("dragover", event) as any;
-      const editorBoundingBox = (
-        this.pmView.dom.firstChild as HTMLElement
-      ).getBoundingClientRect();
-      evt.clientX = editorBoundingBox.left + editorBoundingBox.width / 2;
-      evt.clientY = event.clientY;
-      evt.dataTransfer = event.dataTransfer;
-      evt.preventDefault = () => event.preventDefault();
-      evt.synthetic = true; // prevent recursion
+      const evt = this.createSyntheticEvent(event);
       // console.log("dispatch fake dragover");
       this.pmView.dom.dispatchEvent(evt);
     }
@@ -364,6 +339,62 @@ export class SideMenuView<
 
     this.updateStateFromMousePos();
   };
+
+  private createSyntheticEvent(event: DragEvent) {
+    const evt = new Event(event.type, event) as any;
+    const editorBoundingBox = (
+      this.pmView.dom.firstChild as HTMLElement
+    ).getBoundingClientRect();
+    evt.clientX = event.clientX;
+    evt.clientY = event.clientY;
+    if (
+      event.clientX < editorBoundingBox.left &&
+      event.clientX >
+        editorBoundingBox.left -
+          editorBoundingBox.width *
+            PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP
+    ) {
+      // when we're slightly left of the editor, we can drop to the side of the block
+      evt.clientX =
+        editorBoundingBox.left +
+        (editorBoundingBox.width *
+          PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP) /
+          2;
+    } else if (
+      event.clientX > editorBoundingBox.right &&
+      event.clientX <
+        editorBoundingBox.right +
+          editorBoundingBox.width *
+            PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP
+    ) {
+      // when we're slightly right of the editor, we can drop to the side of the block
+      evt.clientX =
+        editorBoundingBox.right -
+        (editorBoundingBox.width *
+          PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP) /
+          2;
+    } else if (
+      event.clientX < editorBoundingBox.left ||
+      event.clientX > editorBoundingBox.right
+    ) {
+      // when mouse is outside of the editor on x axis, drop it somewhere safe (but not to the side of a block)
+      evt.clientX =
+        editorBoundingBox.left +
+        PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP *
+          editorBoundingBox.width *
+          2; // put it somewhere in first block, but safe outside of the PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP margin
+    }
+
+    evt.clientY = Math.min(
+      Math.max(event.clientY, editorBoundingBox.top),
+      editorBoundingBox.top + editorBoundingBox.height
+    );
+
+    evt.dataTransfer = event.dataTransfer;
+    evt.preventDefault = () => event.preventDefault();
+    evt.synthetic = true; // prevent recursion
+    return evt;
+  }
 
   // Needed in cases where the editor state updates without the mouse cursor
   // moving, as some state updates can require a side menu update. For example,

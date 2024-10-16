@@ -9,6 +9,8 @@ import { EditorState, Plugin } from "prosemirror-state";
 import { dropPoint } from "prosemirror-transform";
 import { EditorView } from "prosemirror-view";
 
+const PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP = 0.1;
+
 function eventCoords(event: MouseEvent) {
   return { left: event.clientX, top: event.clientY };
 }
@@ -56,10 +58,18 @@ export function multiColumnDropCursor(
         const blockElement = view.nodeDOM(posInfo.posBeforeNode);
         const blockRect = (blockElement as HTMLElement).getBoundingClientRect();
         let position: "regular" | "left" | "right" = "regular";
-        if (event.clientX <= blockRect.left + blockRect.width * 0.1) {
+        if (
+          event.clientX <=
+          blockRect.left +
+            blockRect.width * PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP
+        ) {
           position = "left";
         }
-        if (event.clientX >= blockRect.right - blockRect.width * 0.1) {
+        if (
+          event.clientX >=
+          blockRect.right -
+            blockRect.width * PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP
+        ) {
           position = "right";
         }
 
@@ -360,20 +370,26 @@ class DropCursorView {
       let position: "regular" | "left" | "right" = "regular";
       let target: number | null = pos.pos;
 
-      if (!(event as any).synthetic) {
-        const posInfo = getTargetPosInfo(this.editorView.state, pos);
+      const posInfo = getTargetPosInfo(this.editorView.state, pos);
 
-        const block = this.editorView.nodeDOM(posInfo.posBeforeNode);
-        const blockRect = (block as HTMLElement).getBoundingClientRect();
+      const block = this.editorView.nodeDOM(posInfo.posBeforeNode);
+      const blockRect = (block as HTMLElement).getBoundingClientRect();
 
-        if (event.clientX <= blockRect.left + blockRect.width * 0.1) {
-          position = "left";
-          target = posInfo.posBeforeNode;
-        }
-        if (event.clientX >= blockRect.right - blockRect.width * 0.1) {
-          position = "right";
-          target = posInfo.posBeforeNode;
-        }
+      if (
+        event.clientX <=
+        blockRect.left +
+          blockRect.width * PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP
+      ) {
+        position = "left";
+        target = posInfo.posBeforeNode;
+      }
+      if (
+        event.clientX >=
+        blockRect.right -
+          blockRect.width * PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP
+      ) {
+        position = "right";
+        target = posInfo.posBeforeNode;
       }
 
       // "regular logic"
