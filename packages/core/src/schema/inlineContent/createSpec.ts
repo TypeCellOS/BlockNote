@@ -1,24 +1,23 @@
 import { Node } from "@tiptap/core";
+
 import { TagParseRule } from "@tiptap/pm/model";
-import {
-  inlineContentToNodes,
-  nodeToCustomInlineContent,
-} from "../../api/nodeConversions/nodeConversions";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { propsToAttributes } from "../blocks/internal";
-import { Props } from "../propTypes";
-import { StyleSchema } from "../styles/types";
+import { inlineContentToNodes } from "../../api/nodeConversions/blockToNode.js";
+import { nodeToCustomInlineContent } from "../../api/nodeConversions/nodeToBlock.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { propsToAttributes } from "../blocks/internal.js";
+import { Props } from "../propTypes.js";
+import { StyleSchema } from "../styles/types.js";
 import {
   addInlineContentAttributes,
   addInlineContentKeyboardShortcuts,
   createInlineContentSpecFromTipTapNode,
-} from "./internal";
+} from "./internal.js";
 import {
   CustomInlineContentConfig,
   InlineContentFromConfig,
   InlineContentSpec,
   PartialCustomInlineContentFromConfig,
-} from "./types";
+} from "./types.js";
 
 // TODO: support serialization
 

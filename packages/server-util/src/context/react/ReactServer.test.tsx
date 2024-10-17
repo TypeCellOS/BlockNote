@@ -6,7 +6,7 @@ import {
 import { createReactBlockSpec } from "@blocknote/react";
 import { createContext, useContext } from "react";
 import { describe, expect, it } from "vitest";
-import { ServerBlockNoteEditor } from "../ServerBlockNoteEditor";
+import { ServerBlockNoteEditor } from "../ServerBlockNoteEditor.js";
 
 const SimpleReactCustomParagraph = createReactBlockSpec(
   {
@@ -58,6 +58,7 @@ describe("Test ServerBlockNoteEditor with React blocks", () => {
     });
     const html = await editor.blocksToFullHTML([
       {
+        id: "1",
         type: "simpleReactCustomParagraph",
         content: "React Custom Paragraph",
       },
@@ -77,6 +78,7 @@ describe("Test ServerBlockNoteEditor with React blocks", () => {
       async () =>
         editor.blocksToFullHTML([
           {
+            id: "1",
             type: "reactContextParagraph",
             content: "React Context Paragraph",
           },

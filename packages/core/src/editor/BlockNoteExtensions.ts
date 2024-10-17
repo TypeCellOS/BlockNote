@@ -1,6 +1,6 @@
 import { Extension, Extensions, extensions } from "@tiptap/core";
 
-import type { BlockNoteEditor } from "./BlockNoteEditor";
+import type { BlockNoteEditor } from "./BlockNoteEditor.js";
 
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
@@ -11,15 +11,16 @@ import { History } from "@tiptap/extension-history";
 import { Link } from "@tiptap/extension-link";
 import { Text } from "@tiptap/extension-text";
 import * as Y from "yjs";
-import { createCopyToClipboardExtension } from "../api/clipboard/toClipboard/copyExtension";
-import { createDropFileExtension } from "../api/clipboard/fromClipboard/fileDropExtension";
-import { createPasteFromClipboardExtension } from "../api/clipboard/fromClipboard/pasteExtension";
-import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension";
-import { TextAlignmentExtension } from "../extensions/TextAlignment/TextAlignmentExtension";
-import { TextColorExtension } from "../extensions/TextColor/TextColorExtension";
-import { TrailingNode } from "../extensions/TrailingNode/TrailingNodeExtension";
-import UniqueID from "../extensions/UniqueID/UniqueID";
-import { BlockContainer, BlockGroup, Doc } from "../pm-nodes";
+import { createDropFileExtension } from "../api/clipboard/fromClipboard/fileDropExtension.js";
+import { createPasteFromClipboardExtension } from "../api/clipboard/fromClipboard/pasteExtension.js";
+import { createCopyToClipboardExtension } from "../api/clipboard/toClipboard/copyExtension.js";
+import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension.js";
+import { KeyboardShortcutsExtension } from "../extensions/KeyboardShortcuts/KeyboardShortcutsExtension.js";
+import { TextAlignmentExtension } from "../extensions/TextAlignment/TextAlignmentExtension.js";
+import { TextColorExtension } from "../extensions/TextColor/TextColorExtension.js";
+import { TrailingNode } from "../extensions/TrailingNode/TrailingNodeExtension.js";
+import UniqueID from "../extensions/UniqueID/UniqueID.js";
+import { BlockContainer, BlockGroup, Doc } from "../pm-nodes/index.js";
 import {
   BlockNoteDOMAttributes,
   BlockSchema,
@@ -28,7 +29,7 @@ import {
   InlineContentSpecs,
   StyleSchema,
   StyleSpecs,
-} from "../schema";
+} from "../schema/index.js";
 
 /**
  * Get all the Tiptap extensions BlockNote is configured with by default
@@ -119,6 +120,9 @@ export const getBlockNoteExtensions = <
     BlockContainer.configure({
       editor: opts.editor,
       domAttributes: opts.domAttributes,
+    }),
+    KeyboardShortcutsExtension.configure({
+      editor: opts.editor,
     }),
     BlockGroup.configure({
       domAttributes: opts.domAttributes,

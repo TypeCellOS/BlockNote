@@ -1,12 +1,12 @@
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   BlockFromConfig,
   createBlockSpec,
   FileBlockConfig,
   Props,
   PropSchema,
-} from "../../schema";
-import { defaultProps } from "../defaultProps";
+} from "../../schema/index.js";
+import { defaultProps } from "../defaultProps.js";
 
 import {
   createFigureWithCaption,
@@ -14,8 +14,8 @@ import {
   createFileBlockWrapper,
   createLinkWithCaption,
   parseFigureElement,
-} from "../FileBlockContent/fileBlockHelpers";
-import { parseAudioElement } from "./audioBlockHelpers";
+} from "../FileBlockContent/fileBlockHelpers.js";
+import { parseAudioElement } from "./audioBlockHelpers.js";
 
 export const audioPropSchema = {
   backgroundColor: defaultProps.backgroundColor,

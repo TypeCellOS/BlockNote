@@ -1,57 +1,40 @@
 import { Extension } from "@tiptap/core";
-import { Node } from "prosemirror-model";
+import { Fragment, Node } from "prosemirror-model";
 import { NodeSelection, Plugin } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
 import * as pmView from "prosemirror-view";
 
 import { EditorView } from "prosemirror-view";
-import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
-import { initializeESMDependencies } from "../../../util/esmDependencies";
-import { createExternalHTMLExporter } from "../../exporters/html/externalHTMLExporter";
-import { cleanHTMLToMarkdown } from "../../exporters/markdown/markdownExporter";
+import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../../schema/index.js";
+import { createExternalHTMLExporter } from "../../exporters/html/externalHTMLExporter.js";
+import { cleanHTMLToMarkdown } from "../../exporters/markdown/markdownExporter.js";
+import { fragmentToBlocks } from "../../nodeConversions/fragmentToBlocks.js";
+import {
+  contentNodeToInlineContent,
+  contentNodeToTableContent,
+} from "../../nodeConversions/nodeToBlock.js";
 
-export async function selectedFragmentToHTML<
+function fragmentToExternalHTML<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  view: EditorView,
+  view: pmView.EditorView,
+  selectedFragment: Fragment,
   editor: BlockNoteEditor<BSchema, I, S>
-): Promise<{
-  clipboardHTML: string;
-  externalHTML: string;
-  markdown: string;
-}> {
-  // Checks if a `blockContent` node is being copied and expands
-  // the selection to the parent `blockContainer` node. This is
-  // for the use-case in which only a block without content is
-  // selected, e.g. an image block.
-  if (
-    "node" in view.state.selection &&
-    (view.state.selection.node as Node).type.spec.group === "blockContent"
-  ) {
-    editor.dispatch(
-      editor._tiptapEditor.state.tr.setSelection(
-        new NodeSelection(view.state.doc.resolve(view.state.selection.from - 1))
-      )
-    );
-  }
-
-  // Uses default ProseMirror clipboard serialization.
-  const clipboardHTML: string = (pmView as any).__serializeForClipboard(
-    view,
-    view.state.selection.content()
-  ).dom.innerHTML;
-
-  let selectedFragment = view.state.selection.content().content;
-
-  // Checks whether block ancestry should be included when creating external
-  // HTML. If the selection is within a block content node, the block ancestry
-  // is excluded as we only care about the inline content.
+) {
   let isWithinBlockContent = false;
   const isWithinTable = view.state.selection instanceof CellSelection;
+
   if (!isWithinTable) {
+    // Checks whether block ancestry should be included when creating external
+    // HTML. If the selection is within a block content node, the block ancestry
+    // is excluded as we only care about the inline content.
     const fragmentWithoutParents = view.state.doc.slice(
       view.state.selection.from,
       view.state.selection.to,
@@ -75,14 +58,84 @@ export async function selectedFragmentToHTML<
     }
   }
 
-  await initializeESMDependencies();
+  let externalHTML: string;
+
   const externalHTMLExporter = createExternalHTMLExporter(
     view.state.schema,
     editor
   );
-  const externalHTML = externalHTMLExporter.exportProseMirrorFragment(
+
+  if (isWithinTable) {
+    if (selectedFragment.firstChild?.type.name === "table") {
+      // contentNodeToTableContent expects the fragment of the content of a table, not the table node itself
+      // but cellselection.content() returns the table node itself if all cells and columns are selected
+      selectedFragment = selectedFragment.firstChild.content;
+    }
+
+    // first convert selection to blocknote-style table content, and then
+    // pass this to the exporter
+    const ic = contentNodeToTableContent(
+      selectedFragment as any,
+      editor.schema.inlineContentSchema,
+      editor.schema.styleSchema
+    );
+
+    externalHTML = externalHTMLExporter.exportInlineContent(ic as any, {});
+  } else if (isWithinBlockContent) {
+    // first convert selection to blocknote-style inline content, and then
+    // pass this to the exporter
+    const ic = contentNodeToInlineContent(
+      selectedFragment as any,
+      editor.schema.inlineContentSchema,
+      editor.schema.styleSchema
+    );
+    externalHTML = externalHTMLExporter.exportInlineContent(ic, {});
+  } else {
+    const blocks = fragmentToBlocks(selectedFragment, editor.schema);
+    externalHTML = externalHTMLExporter.exportBlocks(blocks, {});
+  }
+  return externalHTML;
+}
+
+export function selectedFragmentToHTML<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  view: EditorView,
+  editor: BlockNoteEditor<BSchema, I, S>
+): {
+  clipboardHTML: string;
+  externalHTML: string;
+  markdown: string;
+} {
+  // Checks if a `blockContent` node is being copied and expands
+  // the selection to the parent `blockContainer` node. This is
+  // for the use-case in which only a block without content is
+  // selected, e.g. an image block.
+  if (
+    "node" in view.state.selection &&
+    (view.state.selection.node as Node).type.spec.group === "blockContent"
+  ) {
+    editor.dispatch(
+      editor._tiptapEditor.state.tr.setSelection(
+        new NodeSelection(view.state.doc.resolve(view.state.selection.from - 1))
+      )
+    );
+  }
+
+  // Uses default ProseMirror clipboard serialization.
+  const clipboardHTML: string = (pmView as any).__serializeForClipboard(
+    view,
+    view.state.selection.content()
+  ).dom.innerHTML;
+
+  const selectedFragment = view.state.selection.content().content;
+
+  const externalHTML = fragmentToExternalHTML<BSchema, I, S>(
+    view,
     selectedFragment,
-    { simplifyBlocks: !isWithinBlockContent && !isWithinTable }
+    editor
   );
 
   const markdown = cleanHTMLToMarkdown(externalHTML);
@@ -103,16 +156,16 @@ const copyToClipboard = <
   event.preventDefault();
   event.clipboardData!.clearData();
 
-  (async () => {
-    const { clipboardHTML, externalHTML, markdown } =
-      await selectedFragmentToHTML(view, editor);
+  const { clipboardHTML, externalHTML, markdown } = selectedFragmentToHTML(
+    view,
+    editor
+  );
 
-    // TODO: Writing to other MIME types not working in Safari for
-    //  some reason.
-    event.clipboardData!.setData("blocknote/html", clipboardHTML);
-    event.clipboardData!.setData("text/html", externalHTML);
-    event.clipboardData!.setData("text/plain", markdown);
-  })();
+  // TODO: Writing to other MIME types not working in Safari for
+  //  some reason.
+  event.clipboardData!.setData("blocknote/html", clipboardHTML);
+  event.clipboardData!.setData("text/html", externalHTML);
+  event.clipboardData!.setData("text/plain", markdown);
 };
 
 export const createCopyToClipboardExtension = <
@@ -170,16 +223,15 @@ export const createCopyToClipboardExtension = <
                 event.preventDefault();
                 event.dataTransfer!.clearData();
 
-                (async () => {
-                  const { clipboardHTML, externalHTML, markdown } =
-                    await selectedFragmentToHTML(view, editor);
+                const { clipboardHTML, externalHTML, markdown } =
+                  selectedFragmentToHTML(view, editor);
 
-                  // TODO: Writing to other MIME types not working in Safari for
-                  //  some reason.
-                  event.dataTransfer!.setData("blocknote/html", clipboardHTML);
-                  event.dataTransfer!.setData("text/html", externalHTML);
-                  event.dataTransfer!.setData("text/plain", markdown);
-                })();
+                // TODO: Writing to other MIME types not working in Safari for
+                //  some reason.
+                event.dataTransfer!.setData("blocknote/html", clipboardHTML);
+                event.dataTransfer!.setData("text/html", externalHTML);
+                event.dataTransfer!.setData("text/plain", markdown);
+
                 // Prevent default PM handler to be called
                 return true;
               },

@@ -1,6 +1,6 @@
 import { DefaultGridSuggestionItem } from "@blocknote/core";
 
-import { SuggestionMenuProps } from "../types";
+import { SuggestionMenuProps } from "../types.js";
 
 export type DefaultReactGridSuggestionItem = DefaultGridSuggestionItem & {
   icon?: JSX.Element;

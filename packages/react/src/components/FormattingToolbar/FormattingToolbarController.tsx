@@ -7,13 +7,13 @@ import {
 import { flip, offset } from "@floating-ui/react";
 import { FC, useMemo, useRef, useState } from "react";
 
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
-import { useEditorContentOrSelectionChange } from "../../hooks/useEditorContentOrSelectionChange";
-import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
-import { useUIPluginState } from "../../hooks/useUIPluginState";
-import { mergeRefs } from "../../util/mergeRefs";
-import { FormattingToolbar } from "./FormattingToolbar";
-import { FormattingToolbarProps } from "./FormattingToolbarProps";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { useEditorContentOrSelectionChange } from "../../hooks/useEditorContentOrSelectionChange.js";
+import { useUIElementPositioning } from "../../hooks/useUIElementPositioning.js";
+import { useUIPluginState } from "../../hooks/useUIPluginState.js";
+import { mergeRefs } from "../../util/mergeRefs.js";
+import { FormattingToolbar } from "./FormattingToolbar.js";
+import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 
 const textAlignmentToPlacement = (
   textAlignment: DefaultProps["textAlignment"]

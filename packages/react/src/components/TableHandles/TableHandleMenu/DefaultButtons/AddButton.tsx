@@ -7,10 +7,10 @@ import {
   TableContent,
 } from "@blocknote/core";
 
-import { useComponentsContext } from "../../../../editor/ComponentsContext";
-import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
-import { useDictionary } from "../../../../i18n/dictionary";
-import { TableHandleMenuProps } from "../TableHandleMenuProps";
+import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
+import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
+import { useDictionary } from "../../../../i18n/dictionary.js";
+import { TableHandleMenuProps } from "../TableHandleMenuProps.js";
 
 export const AddRowButton = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
@@ -45,6 +45,10 @@ export const AddRowButton = <
             rows,
           },
         });
+
+        // Have to reset text cursor position to the block as `updateBlock`
+        // moves the existing selection out of the block.
+        editor.setTextCursorPosition(props.block);
       }}>
       {dict.table_handle[`add_${props.side}_menuitem`]}
     </Components.Generic.Menu.Item>
@@ -82,6 +86,10 @@ export const AddColumnButton = <
           type: "table",
           content: content,
         });
+
+        // Have to reset text cursor position to the block as `updateBlock`
+        // moves the existing selection out of the block.
+        editor.setTextCursorPosition(props.block);
       }}>
       {dict.table_handle[`add_${props.side}_menuitem`]}
     </Components.Generic.Menu.Item>
