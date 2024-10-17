@@ -1,7 +1,10 @@
 import { Extension } from "@tiptap/core";
 
 import { TextSelection } from "prosemirror-state";
-import { mergeBlocksCommand } from "../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
+import {
+  getPrevBlockPos,
+  mergeBlocksCommand,
+} from "../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
 import { splitBlockCommand } from "../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import {
@@ -95,42 +98,56 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
-        // Deletes previous block if it contains no content, when the selection
-        // is empty and at the start of the block. The previous block also has
-        // to not have any parents or children, as otherwise the UX becomes
-        // confusing.
+        // Deletes previous block if it contains no content and isn't a table,
+        // when the selection is empty and at the start of the block. Moves the
+        // current block into the deleted block's place.
         () =>
           commands.command(({ state }) => {
-            const { blockContainer, blockContent } =
-              getBlockInfoFromSelection(state);
+            const blockInfo = getBlockInfoFromSelection(state);
+
+            const { depth } = state.doc.resolve(
+              blockInfo.blockContainer.beforePos
+            );
 
             const selectionAtBlockStart =
-              state.selection.from === blockContent.beforePos + 1;
+              state.selection.from === blockInfo.blockContent.beforePos + 1;
             const selectionEmpty = state.selection.empty;
-            const blockAtDocStart = blockContainer.beforePos === 1;
+            const blockAtDocStart = blockInfo.blockContainer.beforePos === 1;
 
-            const $currentBlockPos = state.doc.resolve(
-              blockContainer.beforePos
-            );
-            const prevBlockPos = $currentBlockPos.posAtIndex(
-              $currentBlockPos.index() - 1
+            const prevBlockPos = getPrevBlockPos(
+              state.doc,
+              state.doc.resolve(blockInfo.blockContainer.beforePos)
             );
             const prevBlockInfo = getBlockInfoFromResolvedPos(
-              state.doc.resolve(prevBlockPos)
+              state.doc.resolve(prevBlockPos.pos)
             );
+
+            const prevBlockNotTableAndNoContent =
+              prevBlockInfo.blockContent.node.type.spec.content === "" ||
+              (prevBlockInfo.blockContent.node.type.spec.content ===
+                "inline*" &&
+                prevBlockInfo.blockContent.node.childCount === 0);
 
             if (
               !blockAtDocStart &&
               selectionAtBlockStart &&
               selectionEmpty &&
-              $currentBlockPos.depth === 1 &&
-              prevBlockInfo.blockGroup === undefined &&
-              prevBlockInfo.blockContent.node.type.spec.content === ""
+              depth === 1 &&
+              prevBlockNotTableAndNoContent
             ) {
-              return commands.deleteRange({
-                from: prevBlockPos,
-                to: $currentBlockPos.pos,
-              });
+              return chain()
+                .cut(
+                  {
+                    from: blockInfo.blockContainer.beforePos,
+                    to: blockInfo.blockContainer.afterPos,
+                  },
+                  prevBlockInfo.blockContainer.afterPos
+                )
+                .deleteRange({
+                  from: prevBlockInfo.blockContainer.beforePos,
+                  to: prevBlockInfo.blockContainer.afterPos,
+                })
+                .run();
             }
 
             return false;

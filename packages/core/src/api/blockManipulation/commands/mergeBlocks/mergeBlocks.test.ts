@@ -42,6 +42,14 @@ describe("Test mergeBlocks", () => {
     expect(getEditor().document).toMatchSnapshot();
   });
 
+  it("Second block is empty", () => {
+    getEditor().setTextCursorPosition("empty-paragraph");
+
+    mergeBlocks(getPosBeforeSelectedBlock());
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
   it("Blocks have different types", () => {
     getEditor().setTextCursorPosition("paragraph-5");
 
@@ -71,6 +79,16 @@ describe("Test mergeBlocks", () => {
   // happen for blocks which both have inline content. We also expect
   // `mergeBlocks` to return false as TipTap commands should do that instead of
   // throwing an error, when the command cannot be executed.
+  it("First block is empty", () => {
+    getEditor().setTextCursorPosition("paragraph-8");
+
+    const originalDocument = getEditor().document;
+    const ret = mergeBlocks(getPosBeforeSelectedBlock());
+
+    expect(getEditor().document).toEqual(originalDocument);
+    expect(ret).toBeFalsy();
+  });
+
   it("Inline content & no content", () => {
     getEditor().setTextCursorPosition("image-0");
 
