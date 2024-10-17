@@ -6,14 +6,13 @@ import { useCreateBlockNote } from "@blocknote/react";
 
 export default function App() {
   // Disable the Audio and Image blocks from the built-in schema
+  // This is done by picking out the blocks you want to disable
+  const { audio, image, ...remainingBlockSpecs } = defaultBlockSpecs;
+
   const schema = BlockNoteSchema.create({
     blockSpecs: {
-      //first pass all the blockspecs from the built in, default block schema
-      ...defaultBlockSpecs,
-
-      // disable blocks you don't want
-      audio: undefined as any,
-      image: undefined as any,
+      // remainingBlockSpecs contains all the other blocks
+      ...remainingBlockSpecs,
     },
   });
 
