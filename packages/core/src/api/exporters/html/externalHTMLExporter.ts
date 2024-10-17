@@ -8,7 +8,6 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
-import { esmDependencies } from "../../../util/esmDependencies.js";
 import {
   serializeBlocksExternalHTML,
   serializeInlineContentExternalHTML,
@@ -38,14 +37,6 @@ export const createExternalHTMLExporter = <
   schema: Schema,
   editor: BlockNoteEditor<BSchema, I, S>
 ) => {
-  const deps = esmDependencies;
-
-  if (!deps) {
-    throw new Error(
-      "External HTML exporter requires ESM dependencies to be initialized"
-    );
-  }
-
   const serializer = DOMSerializer.fromSchema(schema);
 
   return {

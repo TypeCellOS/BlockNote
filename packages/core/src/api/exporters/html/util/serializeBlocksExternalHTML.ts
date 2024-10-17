@@ -69,7 +69,7 @@ export function serializeInlineContentExternalHTML<
   // a custom serializer here.
   const dom = serializer.serializeFragment(Fragment.from(nodes), options);
 
-  if (dom.nodeType === Node.ELEMENT_NODE) {
+  if (dom.nodeType === 1 /* Node.ELEMENT_NODE */) {
     addAttributesAndRemoveClasses(dom as HTMLElement);
   }
 
@@ -94,6 +94,7 @@ function serializeBlock<
   unorderedListItemBlockTypes: Set<string>,
   options?: { document?: Document }
 ) {
+  const doc = options?.document ?? document;
   const BC_NODE = editor.pmSchema.nodes["blockContainer"];
 
   let props = block.props;
@@ -125,7 +126,7 @@ function serializeBlock<
     block.type as any
   ].implementation.toExternalHTML({ ...block, props } as any, editor as any);
 
-  const elementFragment = document.createDocumentFragment();
+  const elementFragment = doc.createDocumentFragment();
   if (ret.dom.classList.contains("bn-block-content")) {
     const blockContentDataAttributes = [...attrs, ...ret.dom.attributes].filter(
       (attr) =>
@@ -170,10 +171,10 @@ function serializeBlock<
 
   if (listType) {
     if (fragment.lastChild?.nodeName !== listType) {
-      const list = document.createElement(listType);
+      const list = doc.createElement(listType);
       fragment.append(list);
     }
-    const li = document.createElement("li");
+    const li = doc.createElement("li");
     li.append(elementFragment);
     fragment.lastChild!.appendChild(li);
   } else {
@@ -181,7 +182,7 @@ function serializeBlock<
   }
 
   if (block.children && block.children.length > 0) {
-    const childFragment = document.createDocumentFragment();
+    const childFragment = doc.createDocumentFragment();
     serializeBlocksToFragment(
       childFragment,
       editor,
@@ -246,7 +247,8 @@ export const serializeBlocksExternalHTML = <
   unorderedListItemBlockTypes: Set<string>,
   options?: { document?: Document }
 ) => {
-  const fragment = document.createDocumentFragment();
+  const doc = options?.document ?? document;
+  const fragment = doc.createDocumentFragment();
 
   serializeBlocksToFragment(
     fragment,
