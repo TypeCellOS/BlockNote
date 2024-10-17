@@ -1,6 +1,6 @@
 import { Plugin, PluginKey, PluginView } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
-import { nodeToBlock } from "../../api/nodeConversions/nodeConversions.js";
+import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import { checkBlockIsDefaultType } from "../../blocks/defaultBlockTypeGuards.js";
 import { Block, DefaultBlockSchema } from "../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
@@ -387,6 +387,10 @@ export class TableHandlesView<
         rows: rows,
       },
     });
+
+    // Have to reset text cursor position to the block as `updateBlock` moves
+    // the existing selection out of the block.
+    this.editor.setTextCursorPosition(this.state.block.id);
   };
 
   scrollHandler = () => {

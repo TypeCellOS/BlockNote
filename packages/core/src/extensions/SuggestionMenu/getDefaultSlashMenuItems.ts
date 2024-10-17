@@ -51,6 +51,8 @@ export function insertOrUpdateBlock<
     throw new Error("Slash Menu open in a block that doesn't contain content.");
   }
 
+  let newBlock: Block<BSchema, I, S>;
+
   if (
     Array.isArray(currentBlock.content) &&
     ((currentBlock.content.length === 1 &&
@@ -59,19 +61,21 @@ export function insertOrUpdateBlock<
       currentBlock.content[0].text === "/") ||
       currentBlock.content.length === 0)
   ) {
-    editor.updateBlock(currentBlock, block);
+    newBlock = editor.updateBlock(currentBlock, block);
+
+    // Edge case for updating block content as `updateBlock` causes the
+    // selection to move into the next block, so we have to set it back.
+    if (block.content) {
+      editor.setTextCursorPosition(newBlock);
+    }
   } else {
-    editor.insertBlocks([block], currentBlock, "after");
-    editor.setTextCursorPosition(
-      editor.getTextCursorPosition().nextBlock!,
-      "end"
-    );
+    newBlock = editor.insertBlocks([block], currentBlock, "after")[0];
+    editor.setTextCursorPosition(editor.getTextCursorPosition().nextBlock!);
   }
 
-  const insertedBlock = editor.getTextCursorPosition().block;
   setSelectionToNextContentEditableBlock(editor);
 
-  return insertedBlock;
+  return newBlock;
 }
 
 export function getDefaultSlashMenuItems<
@@ -266,7 +270,7 @@ export function getDefaultSlashMenuItems<
           })
         );
       },
-      key: "image",
+      key: "file",
       ...editor.dictionary.slash_menu.file,
     });
   }

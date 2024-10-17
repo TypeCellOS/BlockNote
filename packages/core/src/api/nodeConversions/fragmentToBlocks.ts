@@ -6,7 +6,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
-import { nodeToBlock } from "./nodeConversions.js";
+import { nodeToBlock } from "./nodeToBlock.js";
 
 /**
  * Converts all Blocks within a fragment to BlockNote blocks.

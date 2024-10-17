@@ -1,5 +1,9 @@
 import { InputRule } from "@tiptap/core";
-import { getCurrentBlockContentType } from "../../../api/getCurrentBlockContentType.js";
+import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
+import {
+  getBlockInfoFromSelection,
+  getNearestBlockContainerPos,
+} from "../../../api/getBlockInfoFromPos.js";
 import {
   PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
@@ -44,17 +48,24 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
       new InputRule({
         find: new RegExp(`\\[\\s*\\]\\s$`),
         handler: ({ state, chain, range }) => {
-          if (getCurrentBlockContentType(this.editor) !== "inline*") {
+          const blockInfo = getBlockInfoFromSelection(state);
+          if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
             return;
           }
 
           chain()
-            .BNUpdateBlock(state.selection.from, {
-              type: "checkListItem",
-              props: {
-                checked: false as any,
-              },
-            })
+            .command(
+              updateBlockCommand(
+                this.options.editor,
+                blockInfo.blockContainer.beforePos,
+                {
+                  type: "checkListItem",
+                  props: {
+                    checked: false as any,
+                  },
+                }
+              )
+            )
             // Removes the characters used to set the list.
             .deleteRange({ from: range.from, to: range.to });
         },
@@ -62,17 +73,25 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
       new InputRule({
         find: new RegExp(`\\[[Xx]\\]\\s$`),
         handler: ({ state, chain, range }) => {
-          if (getCurrentBlockContentType(this.editor) !== "inline*") {
+          const blockInfo = getBlockInfoFromSelection(state);
+
+          if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
             return;
           }
 
           chain()
-            .BNUpdateBlock(state.selection.from, {
-              type: "checkListItem",
-              props: {
-                checked: true as any,
-              },
-            })
+            .command(
+              updateBlockCommand(
+                this.options.editor,
+                blockInfo.blockContainer.beforePos,
+                {
+                  type: "checkListItem",
+                  props: {
+                    checked: true as any,
+                  },
+                }
+              )
+            )
             // Removes the characters used to set the list.
             .deleteRange({ from: range.from, to: range.to });
         },
@@ -82,18 +101,22 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
 
   addKeyboardShortcuts() {
     return {
-      Enter: () => handleEnter(this.editor),
+      Enter: () => handleEnter(this.options.editor),
       "Mod-Shift-9": () => {
-        if (getCurrentBlockContentType(this.editor) !== "inline*") {
+        const blockInfo = getBlockInfoFromSelection(this.options.editor.state);
+        if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
           return true;
         }
 
-        return this.editor.commands.BNUpdateBlock(
-          this.editor.state.selection.anchor,
-          {
-            type: "checkListItem",
-            props: {},
-          }
+        return this.editor.commands.command(
+          updateBlockCommand(
+            this.options.editor,
+            blockInfo.blockContainer.beforePos,
+            {
+              type: "checkListItem",
+              props: {},
+            }
+          )
         );
       },
     };
@@ -211,13 +234,24 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
           return;
         }
 
+        // TODO: test
         if (typeof getPos !== "boolean") {
-          this.editor.commands.BNUpdateBlock(getPos(), {
-            type: "checkListItem",
-            props: {
-              checked: checkbox.checked as any,
-            },
-          });
+          const beforeBlockContainerPos = getNearestBlockContainerPos(
+            editor.state.doc,
+            getPos()
+          );
+          this.editor.commands.command(
+            updateBlockCommand(
+              this.options.editor,
+              beforeBlockContainerPos.posBeforeNode,
+              {
+                type: "checkListItem",
+                props: {
+                  checked: checkbox.checked as any,
+                },
+              }
+            )
+          );
         }
       };
       checkbox.addEventListener("change", changeHandler);

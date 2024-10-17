@@ -40,6 +40,10 @@ export const DeleteRowButton = <
           type: "table",
           content,
         });
+
+        // Have to reset text cursor position to the block as `updateBlock`
+        // moves the existing selection out of the block.
+        editor.setTextCursorPosition(props.block);
       }}>
       {dict.table_handle.delete_row_menuitem}
     </Components.Generic.Menu.Item>
@@ -75,6 +79,10 @@ export const DeleteColumnButton = <
           type: "table",
           content,
         });
+
+        // Have to reset text cursor position to the block as `updateBlock`
+        // moves the existing selection out of the block.
+        editor.setTextCursorPosition(props.block);
       }}>
       {dict.table_handle.delete_column_menuitem}
     </Components.Generic.Menu.Item>

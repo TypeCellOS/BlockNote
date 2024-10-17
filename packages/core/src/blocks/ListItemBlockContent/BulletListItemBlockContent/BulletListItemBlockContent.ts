@@ -1,5 +1,6 @@
 import { InputRule } from "@tiptap/core";
-import { getCurrentBlockContentType } from "../../../api/getCurrentBlockContentType.js";
+import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
+import { getBlockInfoFromSelection } from "../../../api/getBlockInfoFromPos.js";
 import {
   PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
@@ -26,15 +27,22 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
       new InputRule({
         find: new RegExp(`^[-+*]\\s$`),
         handler: ({ state, chain, range }) => {
-          if (getCurrentBlockContentType(this.editor) !== "inline*") {
+          const blockInfo = getBlockInfoFromSelection(state);
+          if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
             return;
           }
 
           chain()
-            .BNUpdateBlock(state.selection.from, {
-              type: "bulletListItem",
-              props: {},
-            })
+            .command(
+              updateBlockCommand(
+                this.options.editor,
+                blockInfo.blockContainer.beforePos,
+                {
+                  type: "bulletListItem",
+                  props: {},
+                }
+              )
+            )
             // Removes the "-", "+", or "*" character used to set the list.
             .deleteRange({ from: range.from, to: range.to });
         },
@@ -44,18 +52,22 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
 
   addKeyboardShortcuts() {
     return {
-      Enter: () => handleEnter(this.editor),
+      Enter: () => handleEnter(this.options.editor),
       "Mod-Shift-8": () => {
-        if (getCurrentBlockContentType(this.editor) !== "inline*") {
+        const blockInfo = getBlockInfoFromSelection(this.editor.state);
+        if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
           return true;
         }
 
-        return this.editor.commands.BNUpdateBlock(
-          this.editor.state.selection.anchor,
-          {
-            type: "bulletListItem",
-            props: {},
-          }
+        return this.options.editor.commands.command(
+          updateBlockCommand(
+            this.options.editor,
+            blockInfo.blockContainer.beforePos,
+            {
+              type: "bulletListItem",
+              props: {},
+            }
+          )
         );
       },
     };
