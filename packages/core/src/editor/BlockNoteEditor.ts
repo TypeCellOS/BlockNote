@@ -1104,7 +1104,12 @@ export class BlockNoteEditor<
    * Lifts the block containing the text cursor out of its parent.
    */
   public unnestBlock() {
-    this._tiptapEditor.commands.liftListItem("blockContainer");
+    const { startPos } = getBlockInfoFromPos(
+      this._tiptapEditor.state.doc,
+      this._tiptapEditor.state.selection.from
+    )!;
+
+    this._tiptapEditor.commands.BNUnnestBlock(startPos);
   }
 
   /**

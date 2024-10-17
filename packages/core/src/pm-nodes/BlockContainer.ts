@@ -56,6 +56,7 @@ declare module "@tiptap/core" {
         posInBlock: number,
         block: PartialBlock<BSchema, I, S>
       ) => ReturnType;
+      BNUnnestBlock: (posInBlock: number) => ReturnType;
     };
   }
 }
@@ -387,7 +388,6 @@ export const BlockContainer = Node.create<{
           }
 
           // Deletes next block and adds its text content to the nearest previous block.
-
           if (dispatch) {
             dispatch(
               state.tr
@@ -487,6 +487,79 @@ export const BlockContainer = Node.create<{
 
           return true;
         },
+      BNUnnestBlock:
+        (posInBlock) =>
+        ({ state, dispatch }) => {
+          const blockInfo = getBlockInfoFromPos(state.tr.doc, posInBlock)!;
+
+          if (blockInfo.depth > 2) {
+            if (dispatch) {
+              const parentBlockInfo = getBlockInfoFromPos(
+                state.tr.doc,
+                state.tr.doc.resolve(blockInfo.startPos).start(-2)
+              )!;
+
+              const blockChildren =
+                blockInfo.numChildBlocks > 0
+                  ? state.tr.doc
+                      .resolve(
+                        blockInfo.startPos + blockInfo.contentNode.nodeSize + 1
+                      )
+                      .node().content
+                  : Fragment.empty;
+              const siblingBlocksAfter = state.tr.doc.slice(
+                blockInfo.endPos + 1,
+                parentBlockInfo.endPos - 1
+              ).content;
+              // We need to move all siblings after the block into its children.
+              const children = blockChildren.append(siblingBlocksAfter);
+
+              // Checks if the block is the first child of its parent, as
+              // this means that we need to delete the entire `blockGroup`
+              // of the parent. Otherwise, we only need to delete the
+              // children after the block.
+              if (
+                parentBlockInfo.startPos +
+                  parentBlockInfo.contentNode.nodeSize +
+                  1 ===
+                blockInfo.startPos - 1
+              ) {
+                state.tr.delete(
+                  parentBlockInfo.startPos +
+                    parentBlockInfo.contentNode.nodeSize,
+                  parentBlockInfo.endPos
+                );
+              } else {
+                state.tr.delete(
+                  blockInfo.startPos - 1,
+                  parentBlockInfo.endPos - 1
+                );
+              }
+
+              const blockGroup = state.schema.nodes["blockGroup"].create(
+                null,
+                children
+              );
+              const block = state.schema.nodes["blockContainer"].create(
+                blockInfo.node.attrs,
+                [blockInfo.contentNode, blockGroup]
+              );
+
+              state.tr.insert(state.tr.selection.from - 2, block);
+              state.tr.setSelection(
+                new TextSelection(
+                  state.tr.doc.resolve(state.tr.selection.from - block.nodeSize)
+                )
+              );
+
+              dispatch(state.tr);
+            }
+
+            return true;
+          }
+
+          return false;
+        },
     };
   },
 
@@ -525,15 +598,15 @@ export const BlockContainer = Node.create<{
         // Removes a level of nesting if the block is indented if the selection is at the start of the block.
         () =>
           commands.command(({ state }) => {
-            const { startPos } = getBlockInfoFromPos(
-              state.doc,
+            const { startPos, depth } = getBlockInfoFromPos(
+              state.tr.doc,
               state.selection.from
             )!;
 
             const selectionAtBlockStart = state.selection.from === startPos + 1;
 
-            if (selectionAtBlockStart) {
-              return commands.liftListItem("blockContainer");
+            if (selectionAtBlockStart && depth > 2) {
+              return commands.BNUnnestBlock(startPos);
             }
 
             return false;
@@ -714,7 +787,7 @@ export const BlockContainer = Node.create<{
         this.editor.commands.sinkListItem("blockContainer");
         return true;
       },
-      "Shift-Tab": () => {
+      "Shift-Tab": ({ editor }) => {
         if (
           this.options.editor.formattingToolbar?.shown ||
           this.options.editor.linkToolbar?.shown ||
@@ -723,7 +796,7 @@ export const BlockContainer = Node.create<{
           // don't handle tabs if a toolbar is shown, so we can tab into / out of it
           return false;
         }
-        this.editor.commands.liftListItem("blockContainer");
+        this.editor.commands.BNUnnestBlock(editor.state.selection.from);
         return true;
       },
       "Shift-Mod-ArrowUp": () => {
