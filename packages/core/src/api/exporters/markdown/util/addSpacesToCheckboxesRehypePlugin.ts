@@ -11,7 +11,7 @@ export function addSpacesToCheckboxes() {
 
   if (!deps) {
     throw new Error(
-      "simplifyBlocks requires ESM dependencies to be initialized"
+      "addSpacesToCheckboxes requires ESM dependencies to be initialized"
     );
   }
 
