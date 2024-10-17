@@ -11,7 +11,7 @@ import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
   inlineContentToNodes,
   tableContentToNodes,
-} from "../../../nodeConversions/nodeConversions.js";
+} from "../../../nodeConversions/blockToNode.js";
 
 function addAttributesAndRemoveClasses(element: HTMLElement) {
   // Removes all BlockNote specific class names.
@@ -76,6 +76,11 @@ export function serializeInlineContentExternalHTML<
   return dom;
 }
 
+/**
+ * TODO: there's still quite some logic that handles getting and filtering properties,
+ * we should make sure the `toExternalHTML` methods of default blocks actually handle this,
+ * instead of the serializer.
+ */
 function serializeBlock<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
