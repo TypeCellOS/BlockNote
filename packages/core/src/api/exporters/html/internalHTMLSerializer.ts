@@ -6,7 +6,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
-import { serializeBlocks } from "./util/sharedHTMLConversion.js";
+import { serializeBlocksInternalHTML } from "./util/serializeBlocksInternalHTML.js";
 // Used to serialize BlockNote blocks and ProseMirror nodes to HTML without
 // losing data. Blocks are exported using the `toInternalHTML` method in their
 // `blockSpec`.
@@ -31,8 +31,13 @@ export const createInternalHTMLSerializer = <
       blocks: PartialBlock<BSchema, I, S>[],
       options: { document?: Document }
     ) => {
-      return serializeBlocks(editor, blocks, serializer, false, options)
-        .outerHTML;
+      return serializeBlocksInternalHTML(
+        editor,
+        blocks,
+        serializer,
+        false,
+        options
+      ).outerHTML;
     },
   };
 };

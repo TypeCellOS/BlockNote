@@ -9,7 +9,6 @@ import {
   addIdsToBlocks,
   createExternalHTMLExporter,
   createInternalHTMLSerializer,
-  initializeESMDependencies,
   partialBlocksToBlocksForTesting,
 } from "@blocknote/core";
 
@@ -56,7 +55,6 @@ async function convertToHTMLAndCompareSnapshots<
   expect(parsed).toStrictEqual(fullBlocks);
 
   // Create the "external" HTML, which is a cleaned up HTML representation, but lossy
-  await initializeESMDependencies();
   const exporter = createExternalHTMLExporter(editor.pmSchema, editor);
   const externalHTML = exporter.exportBlocks(blocks, {});
   const externalHTMLSnapshotPath =
