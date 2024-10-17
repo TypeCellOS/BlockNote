@@ -362,6 +362,34 @@ exports[`Test moveBlockDown > Basic 1`] = `
     "type": "paragraph",
   },
   {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
     "children": [
       {
         "children": [
@@ -805,6 +833,34 @@ exports[`Test moveBlockDown > Into children 1`] = `
     "type": "paragraph",
   },
   {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
     "children": [
       {
         "children": [
@@ -1240,6 +1296,34 @@ exports[`Test moveBlockDown > Last block 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -1692,6 +1776,34 @@ exports[`Test moveBlockDown > Out of children 1`] = `
   },
   {
     "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
     "content": [
       {
         "styles": {
@@ -2125,6 +2237,34 @@ exports[`Test moveBlockUp > Basic 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -2576,6 +2716,34 @@ exports[`Test moveBlockUp > First block 1`] = `
     "type": "paragraph",
   },
   {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
     "children": [
       {
         "children": [
@@ -3019,6 +3187,34 @@ exports[`Test moveBlockUp > Into children 1`] = `
     "type": "paragraph",
   },
   {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
     "children": [
       {
         "children": [
@@ -3454,6 +3650,34 @@ exports[`Test moveBlockUp > Out of children 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",

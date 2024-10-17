@@ -3,7 +3,7 @@ import { EditorState } from "prosemirror-state";
 
 import { getBlockInfoFromResolvedPos } from "../../../getBlockInfoFromPos.js";
 
-const getPrevBlockPos = (doc: Node, $nextBlockPos: ResolvedPos) => {
+export const getPrevBlockPos = (doc: Node, $nextBlockPos: ResolvedPos) => {
   const prevNode = $nextBlockPos.nodeBefore;
 
   if (!prevNode) {
@@ -38,7 +38,8 @@ const canMerge = ($prevBlockPos: ResolvedPos, $nextBlockPos: ResolvedPos) => {
 
   return (
     prevBlockInfo.blockContent.node.type.spec.content === "inline*" &&
-    nextBlockInfo.blockContent.node.type.spec.content === "inline*"
+    nextBlockInfo.blockContent.node.type.spec.content === "inline*" &&
+    prevBlockInfo.blockContent.node.childCount > 0
   );
 };
 
@@ -72,7 +73,7 @@ const mergeBlocks = (
     const prevBlockInfo = getBlockInfoFromResolvedPos($prevBlockPos);
 
     dispatch(
-      state.tr.deleteRange(
+      state.tr.delete(
         prevBlockInfo.blockContent.afterPos - 1,
         nextBlockInfo.blockContent.beforePos + 1
       )
