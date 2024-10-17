@@ -18,10 +18,6 @@ import {
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
 import { getBlockInfoFromSelection } from "../api/getBlockInfoFromPos.js";
-import {
-  inlineContentToNodes,
-  nodeToBlock,
-} from "../api/nodeConversions/nodeConversions.js";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
 import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown.js";
 import {
@@ -72,6 +68,8 @@ import { en } from "../i18n/locales/index.js";
 
 import { Transaction } from "@tiptap/pm/state";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
+import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
+import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
 import { NodeSelectionKeyboardPlugin } from "../extensions/NodeSelectionKeyboard/NodeSelectionKeyboardPlugin.js";
 import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin.js";
 import "../style.css";

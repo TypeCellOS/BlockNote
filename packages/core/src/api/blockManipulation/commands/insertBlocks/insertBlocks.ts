@@ -8,10 +8,8 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema/index.js";
-import {
-  blockToNode,
-  nodeToBlock,
-} from "../../../nodeConversions/nodeConversions.js";
+import { blockToNode } from "../../../nodeConversions/blockToNode.js";
+import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
 
 export function insertBlocks<

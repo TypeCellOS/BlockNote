@@ -9,7 +9,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema/index.js";
-import { nodeToBlock } from "../../../nodeConversions/nodeConversions.js";
+import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 
 export function removeBlocksWithCallback<
   BSchema extends BlockSchema,

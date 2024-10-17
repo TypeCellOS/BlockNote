@@ -14,9 +14,9 @@ import { getBlockInfoFromResolvedPos } from "../../../getBlockInfoFromPos.js";
 import {
   blockToNode,
   inlineContentToNodes,
-  nodeToBlock,
   tableContentToNodes,
-} from "../../../nodeConversions/nodeConversions.js";
+} from "../../../nodeConversions/blockToNode.js";
+import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
 
 export const updateBlockCommand =

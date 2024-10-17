@@ -7,7 +7,7 @@ import { Node } from "@tiptap/pm/model";
 import { EditorView } from "@tiptap/pm/view";
 
 import { EditorState, Transaction } from "@tiptap/pm/state";
-import { blockToNode } from "../api/nodeConversions/nodeConversions.js";
+import { blockToNode } from "../api/nodeConversions/blockToNode.js";
 import { PartialBlock } from "../blocks/defaultBlocks.js";
 import { StyleSchema } from "../schema/index.js";
 

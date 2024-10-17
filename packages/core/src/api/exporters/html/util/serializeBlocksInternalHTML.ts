@@ -11,7 +11,7 @@ import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
   inlineContentToNodes,
   tableContentToNodes,
-} from "../../../nodeConversions/nodeConversions.js";
+} from "../../../nodeConversions/blockToNode.js";
 
 export function serializeInlineContentInternalHTML<
   BSchema extends BlockSchema,
