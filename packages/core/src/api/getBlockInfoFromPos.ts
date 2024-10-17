@@ -227,7 +227,6 @@ export function getBlockInfoFromResolvedPos(resolvedPos: ResolvedPos) {
       `Attempted to get blockContainer node at position ${resolvedPos.pos} but a node at this position does not exist`
     );
   }
-
   return getBlockInfoWithManualOffset(resolvedPos.nodeAfter, resolvedPos.pos);
 }
 
