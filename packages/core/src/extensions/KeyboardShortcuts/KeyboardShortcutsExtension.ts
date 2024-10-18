@@ -114,40 +114,41 @@ export const KeyboardShortcutsExtension = Extension.create<{
             const selectionEmpty = state.selection.empty;
             const blockAtDocStart = blockInfo.blockContainer.beforePos === 1;
 
-            const prevBlockPos = getPrevBlockPos(
-              state.doc,
-              state.doc.resolve(blockInfo.blockContainer.beforePos)
-            );
-            const prevBlockInfo = getBlockInfoFromResolvedPos(
-              state.doc.resolve(prevBlockPos.pos)
-            );
-
-            const prevBlockNotTableAndNoContent =
-              prevBlockInfo.blockContent.node.type.spec.content === "" ||
-              (prevBlockInfo.blockContent.node.type.spec.content ===
-                "inline*" &&
-                prevBlockInfo.blockContent.node.childCount === 0);
-
             if (
               !blockAtDocStart &&
               selectionAtBlockStart &&
               selectionEmpty &&
-              depth === 1 &&
-              prevBlockNotTableAndNoContent
+              depth === 1
             ) {
-              return chain()
-                .cut(
-                  {
-                    from: blockInfo.blockContainer.beforePos,
-                    to: blockInfo.blockContainer.afterPos,
-                  },
-                  prevBlockInfo.blockContainer.afterPos
-                )
-                .deleteRange({
-                  from: prevBlockInfo.blockContainer.beforePos,
-                  to: prevBlockInfo.blockContainer.afterPos,
-                })
-                .run();
+              const prevBlockPos = getPrevBlockPos(
+                state.doc,
+                state.doc.resolve(blockInfo.blockContainer.beforePos)
+              );
+              const prevBlockInfo = getBlockInfoFromResolvedPos(
+                state.doc.resolve(prevBlockPos.pos)
+              );
+
+              const prevBlockNotTableAndNoContent =
+                prevBlockInfo.blockContent.node.type.spec.content === "" ||
+                (prevBlockInfo.blockContent.node.type.spec.content ===
+                  "inline*" &&
+                  prevBlockInfo.blockContent.node.childCount === 0);
+
+              if (prevBlockNotTableAndNoContent) {
+                return chain()
+                  .cut(
+                    {
+                      from: blockInfo.blockContainer.beforePos,
+                      to: blockInfo.blockContainer.afterPos,
+                    },
+                    prevBlockInfo.blockContainer.afterPos
+                  )
+                  .deleteRange({
+                    from: prevBlockInfo.blockContainer.beforePos,
+                    to: prevBlockInfo.blockContainer.afterPos,
+                  })
+                  .run();
+              }
             }
 
             return false;
