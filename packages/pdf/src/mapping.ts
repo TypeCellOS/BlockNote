@@ -25,7 +25,8 @@ export type BlockMapping<
     inlineContentTransformer: (
       inlineContent: InlineContent<InlineContentSchema, StyleSchema>[]
     ) => RI,
-    nestingLevel: number
+    nestingLevel: number,
+    numberedListIndex?: number
   ) => R;
 };
 

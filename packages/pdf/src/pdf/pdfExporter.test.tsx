@@ -157,7 +157,7 @@ describe("exporter", () => {
       pdfDefaultSchemaMappings
     );
 
-    const transformed = exporter.toReactPDFDocument(testDocument);
+    const transformed = await exporter.toReactPDFDocument(testDocument);
 
     await ReactPDF.render(transformed, `${__dirname}/example.pdf`);
   });

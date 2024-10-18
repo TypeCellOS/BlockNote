@@ -55,6 +55,16 @@ function partialContentToInlineContent(
         } as any;
       }
     });
+  } else if (content?.type === "tableContent") {
+    return {
+      type: "tableContent",
+      rows: content.rows.map((row) => ({
+        ...row,
+        cells: row.cells.map(
+          (cell) => partialContentToInlineContent(cell) as any
+        ),
+      })),
+    };
   }
 
   return content;

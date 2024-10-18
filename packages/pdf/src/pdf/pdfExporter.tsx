@@ -27,6 +27,8 @@ import {
 } from "../mapping.js";
 import { loadFontDataUrl } from "./util/loadFontDataUrl.js";
 
+const FONT_SIZE = 16;
+const PIXELS_PER_POINT = 0.75;
 export class PDFExporter<
   B extends BlockSchema,
   S extends StyleSchema,
@@ -80,14 +82,17 @@ export class PDFExporter<
     );
   }
 
+  // TODO: 3px top and bottom padding
   public transformBlock(
     block: BlockFromConfig<B[keyof B], I, S>,
-    nestingLevel: number
+    nestingLevel: number,
+    numberedListIndex: number
   ) {
     return this.mappings.blockMapping[block.type](
       block,
       this.transformInlineContentArray.bind(this) as any, // not ideal as any
-      nestingLevel
+      nestingLevel,
+      numberedListIndex
     );
   }
 
@@ -95,15 +100,27 @@ export class PDFExporter<
     blocks: Block<B, I, S>[], // Or BlockFromConfig<B[keyof B], I, S>?
     nestingLevel = 0
   ): React.ReactElement<Text>[] {
+    let numberedListIndex = 0;
     return blocks.map((b) => {
+      if (b.type === "numberedListItem") {
+        numberedListIndex++;
+      } else {
+        numberedListIndex = 0;
+      }
       const children = this.transformBlocks(b.children, nestingLevel + 1);
-      const self = this.transformBlock(b as any, nestingLevel); // TODO: any
+      const self = this.transformBlock(
+        b as any,
+        nestingLevel,
+        numberedListIndex
+      ); // TODO: any
 
       return (
         <>
-          {self}
+          <View style={{ paddingVertical: 3 * PIXELS_PER_POINT }}>{self}</View>
           {children.length > 0 && (
-            <View style={{ marginLeft: 10 }}>{children}</View>
+            <View style={{ marginLeft: FONT_SIZE * 1.5 * PIXELS_PER_POINT }}>
+              {children}
+            </View>
           )}
         </>
       );
@@ -113,61 +130,67 @@ export class PDFExporter<
   public createStyles() {
     return StyleSheet.create({
       page: {
+        paddingTop: 35,
+        paddingBottom: 65,
+        paddingHorizontal: 35,
         fontFamily: "Inter",
-        fontSize: 12,
+        fontSize: FONT_SIZE * PIXELS_PER_POINT, //  pixels
         lineHeight: 1.5,
         // flexDirection: "row",
         // backgroundColor: "#E4E4E4",
       },
       section: {
-        margin: 10,
-        padding: 10,
+        // margin: 10,
+        // padding: 10,
         // flexGrow: 1,
       },
     });
   }
 
-  public registerFonts() {
-    if (import.meta.env.NODE_ENV === "test") {
-      let font = loadFontDataUrl("./src/fonts/inter/Inter_18pt-Regular.ttf");
-      Font.register({
-        family: "Inter",
-        src: font,
-      });
+  public async registerFonts() {
+    let font = await loadFontDataUrl(
+      await import("../fonts/inter/Inter_18pt-Regular.ttf")
+    );
+    Font.register({
+      family: "Inter",
+      src: font,
+    });
 
-      font = loadFontDataUrl("./src/fonts/inter/Inter_18pt-Italic.ttf");
-      Font.register({
-        family: "Inter",
-        fontStyle: "italic",
-        src: font,
-      });
+    font = await loadFontDataUrl(
+      await import("../fonts/inter/Inter_18pt-Italic.ttf")
+    );
+    Font.register({
+      family: "Inter",
+      fontStyle: "italic",
+      src: font,
+    });
 
-      font = loadFontDataUrl("./src/fonts/inter/Inter_18pt-Bold.ttf");
-      Font.register({
-        family: "Inter",
-        src: font,
-        fontWeight: "bold",
-      });
+    font = await loadFontDataUrl(
+      await import("../fonts/inter/Inter_18pt-Bold.ttf")
+    );
+    Font.register({
+      family: "Inter",
+      src: font,
+      fontWeight: "bold",
+    });
 
-      font = loadFontDataUrl("./src/fonts/inter/Inter_18pt-BoldItalic.ttf");
-      Font.register({
-        family: "Inter",
-        fontStyle: "italic",
-        src: font,
-        fontWeight: "bold",
-      });
-    } else {
-      // eslint-disable-next-line no-console
-      console.error("TODO");
-    }
+    font = await loadFontDataUrl(
+      await import("../fonts/inter/Inter_18pt-BoldItalic.ttf")
+    );
+    Font.register({
+      family: "Inter",
+      fontStyle: "italic",
+      src: font,
+      fontWeight: "bold",
+    });
   }
 
-  public toReactPDFDocument(blocks: Block<B, I, S>[]) {
-    this.registerFonts();
+  public async toReactPDFDocument(blocks: Block<B, I, S>[]) {
+    await this.registerFonts();
     const styles = this.createStyles();
     return (
       <Document>
-        <Page size="A4" style={styles.page}>
+        <Page dpi={100} size="A4" style={styles.page}>
           <View style={styles.section}>{this.transformBlocks(blocks)}</View>
           {/* <View>
 
@@ -209,3 +232,18 @@ export class PDFExporter<
     );
   }
 }
+
+// TODO:
+// - add symbol font
+// - image widths, captions
+// - video / audio / files
+// - image downloader
+// - "templating" options
+// - alignment / bg color / ... (container props)
+// - create tests
+// - fix checklist
+// - colors
+
+// nice to haves?
+// - table widths
+// - multi-level bullet list indentation

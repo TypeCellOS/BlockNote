@@ -10,6 +10,7 @@ const deps = Object.keys(pkg.dependencies);
 export default defineConfig((conf) => ({
   test: {
     setupFiles: ["./vitestSetup.ts"],
+    // assetsInclude: ["**/*.woff", "**/*.woff2", "**/*.ttf", "**/*.otf"], // Add other font extensions if needed
   },
   plugins: [webpackStats() as any],
   // used so that vitest resolves the core package from the sources instead of the built version
@@ -24,11 +25,12 @@ export default defineConfig((conf) => ({
           } as Record<string, string>),
   },
   build: {
+    // assetsInclude: ["**/*.woff", "**/*.woff2", "**/*.ttf", "**/*.otf"], // Add other font extensions if needed
     sourcemap: true,
     lib: {
       entry: path.resolve(__dirname, "src/index.ts"),
-      name: "blocknote-server-util",
-      fileName: "blocknote-server-util",
+      name: "blocknote-pdf",
+      fileName: "blocknote-pdf",
     },
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled

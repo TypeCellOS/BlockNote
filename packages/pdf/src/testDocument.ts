@@ -62,7 +62,33 @@ export const testDocument = partialBlocksToBlocksForTesting(
     },
     {
       type: "bulletListItem",
-      content: "Bullet List Item",
+      content:
+        "Bullet List Item.  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+      children: [
+        {
+          type: "bulletListItem",
+          content:
+            "Bullet List Item.  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        },
+        {
+          type: "numberedListItem",
+          content: "Numbered List Item 1",
+        },
+        {
+          type: "numberedListItem",
+          content: "Numbered List Item 2",
+          children: [
+            {
+              type: "numberedListItem",
+              content: "Numbered List Item Nested 1",
+            },
+            {
+              type: "numberedListItem",
+              content: "Numbered List Item Nested 2",
+            },
+          ],
+        },
+      ],
     },
     {
       type: "numberedListItem",
@@ -155,7 +181,33 @@ export const testDocument = partialBlocksToBlocksForTesting(
       ],
     },
     {
-      type: "paragraph",
+      type: "table",
+      content: {
+        type: "tableContent",
+        rows: [
+          {
+            cells: ["Table Cell 1", "Table Cell 2", "Table Cell 3"],
+          },
+          {
+            cells: [
+              "Table Cell 4",
+              [
+                {
+                  type: "text",
+                  text: "Table Cell Bold 5",
+                  styles: {
+                    bold: true,
+                  },
+                },
+              ],
+              "Table Cell 6",
+            ],
+          },
+          {
+            cells: ["Table Cell 7", "Table Cell 8", "Table Cell 9"],
+          },
+        ],
+      },
     },
   ]
 );
