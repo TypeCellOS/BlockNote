@@ -140,7 +140,7 @@ export type BlockNoteEditorOptions<
    * implementing custom protocols / schemes
    * @returns The URL that's
    */
-  resolveFileUrl: (url: string) => Promise<string>;
+  resolveFileUrl: (url: string, blockId?: string) => Promise<string>;
 
   /**
    * When enabled, allows for collaboration between multiple users.
@@ -285,7 +285,10 @@ export class BlockNoteEditor<
   private onUploadStartCallbacks: ((blockId?: string) => void)[] = [];
   private onUploadEndCallbacks: ((blockId?: string) => void)[] = [];
 
-  public readonly resolveFileUrl: (url: string) => Promise<string>;
+  public readonly resolveFileUrl: (
+    url: string,
+    blockId?: string
+  ) => Promise<string>;
 
   public get pmSchema() {
     return this._pmSchema;
