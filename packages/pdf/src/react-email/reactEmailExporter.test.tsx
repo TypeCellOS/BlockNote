@@ -14,9 +14,9 @@ import {
   Text,
 } from "@react-email/components";
 import { render } from "@react-email/render";
-import { testDocument } from "../testDocument";
-import { reactEmailDefaultSchemaMappings } from "./defaultSchema";
-import { ReactEmailExporter } from "./reactEmailExporter";
+import { testDocument } from "../testDocument.js";
+import { reactEmailDefaultSchemaMappings } from "./defaultSchema/index.js";
+import { ReactEmailExporter } from "./reactEmailExporter.js";
 interface KoalaWelcomeEmailProps {
   userFirstname: string;
 }

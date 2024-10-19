@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
-import { Style } from "../types";
+import { Style } from "../types.js";
 
 // https://github.com/diegomura/react-pdf/issues/134
 

@@ -56,6 +56,7 @@
     "react-dom": "^18",
     "react-email": "^3.0.1",
     "@react-email/components": "^0.0.25",
+    "@react-email/render":"^1.0.1",
     "docx": "^8.5.0",
     "jspdf": "^2.5.2",
     "pdfmake": "^0.2.14",
