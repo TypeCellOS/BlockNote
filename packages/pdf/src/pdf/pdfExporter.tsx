@@ -232,18 +232,3 @@ export class PDFExporter<
     );
   }
 }
-
-// TODO:
-// - add symbol font
-// - image widths, captions
-// - video / audio / files
-// - image downloader
-// - "templating" options
-// - alignment / bg color / ... (container props)
-// - create tests
-// - fix checklist
-// - colors
-
-// nice to haves?
-// - table widths
-// - multi-level bullet list indentation

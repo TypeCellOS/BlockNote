@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
+import { Style } from "../types";
 
 // https://github.com/diegomura/react-pdf/issues/134
 
@@ -9,6 +10,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 8 * PIXELS_PER_POINT,
     // width: "100%",
+    // textAlign: "right",
+    // alignSelf: "flex-end",
+    // alignItems: "flex-end",
+    // justifyContent: "flex-end",
+    // textAlign: "right",
   },
   bullet: {
     fontFamily: "", // TODO: add symbol font
@@ -25,12 +31,14 @@ export const CHECK_MARKER_CHECKED = "\u2611";
 export const ListItem = ({
   listMarker,
   children,
+  style,
 }: {
   listMarker: string;
   children: React.ReactNode;
+  style?: Style;
 }) => {
   return (
-    <View style={styles.listItem}>
+    <View style={[styles.listItem, style || {}]}>
       <View style={styles.bullet}>
         {/* <Svg width={2} height={2}>
             <Circle cx="1" cy="1" r="2" fill="black" />

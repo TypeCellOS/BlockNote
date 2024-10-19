@@ -57,18 +57,38 @@ export const testDocument = partialBlocksToBlocksForTesting(
       content: "Heading",
     },
     {
+      type: "heading",
+      content: "Heading right",
+      props: {
+        textAlignment: "right",
+      },
+    },
+    {
       type: "paragraph",
-      content: "Paragraph",
+      content:
+        "justified paragraph. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+
+      props: {
+        textAlignment: "justify",
+      },
     },
     {
       type: "bulletListItem",
       content:
-        "Bullet List Item.  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        "Bullet List Item. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
       children: [
         {
           type: "bulletListItem",
           content:
             "Bullet List Item.  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        },
+        {
+          type: "bulletListItem",
+          content:
+            "Bullet List Item right. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+          props: {
+            textAlignment: "right",
+          },
         },
         {
           type: "numberedListItem",
@@ -85,6 +105,24 @@ export const testDocument = partialBlocksToBlocksForTesting(
             {
               type: "numberedListItem",
               content: "Numbered List Item Nested 2",
+            },
+            {
+              type: "numberedListItem",
+              content: "Numbered List Item Nested funky right",
+              props: {
+                textAlignment: "right",
+                backgroundColor: "red",
+                textColor: "blue",
+              },
+            },
+            {
+              type: "numberedListItem",
+              content: "Numbered List Item Nested funky center",
+              props: {
+                textAlignment: "center",
+                backgroundColor: "red",
+                textColor: "blue",
+              },
             },
           ],
         },
