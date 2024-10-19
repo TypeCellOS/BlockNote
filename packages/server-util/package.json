@@ -2,8 +2,11 @@
   "name": "@blocknote/server-util",
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
+  "sideEffects": [
+    "*.css"
+  ],
   "license": "MPL-2.0",
-  "version": "0.16.0",
+  "version": "0.17.1",
   "files": [
     "dist",
     "types",
@@ -47,8 +50,8 @@
     "test-watch": "vitest watch"
   },
   "dependencies": {
-    "@blocknote/core": "^0.16.0",
-    "@blocknote/react": "^0.16.0",
+    "@blocknote/core": "^0.17.1",
+    "@blocknote/react": "^0.17.1",
     "@tiptap/core": "^2.7.1",
     "@tiptap/pm": "^2.7.1",
     "jsdom": "^21.1.0",

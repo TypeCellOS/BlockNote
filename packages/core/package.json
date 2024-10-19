@@ -2,8 +2,11 @@
   "name": "@blocknote/core",
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
+  "sideEffects": [
+    "*.css"
+  ],
   "license": "MPL-2.0",
-  "version": "0.16.0",
+  "version": "0.17.1",
   "files": [
     "dist",
     "types",

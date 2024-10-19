@@ -11,16 +11,15 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
-import { initializeESMDependencies } from "../../../util/esmDependencies.js";
 import { createExternalHTMLExporter } from "../../exporters/html/externalHTMLExporter.js";
 import { cleanHTMLToMarkdown } from "../../exporters/markdown/markdownExporter.js";
 import { fragmentToBlocks } from "../../nodeConversions/fragmentToBlocks.js";
 import {
   contentNodeToInlineContent,
   contentNodeToTableContent,
-} from "../../nodeConversions/nodeConversions.js";
+} from "../../nodeConversions/nodeToBlock.js";
 
-async function fragmentToExternalHTML<
+function fragmentToExternalHTML<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
@@ -61,7 +60,6 @@ async function fragmentToExternalHTML<
 
   let externalHTML: string;
 
-  await initializeESMDependencies();
   const externalHTMLExporter = createExternalHTMLExporter(
     view.state.schema,
     editor
@@ -82,9 +80,7 @@ async function fragmentToExternalHTML<
       editor.schema.styleSchema
     );
 
-    externalHTML = externalHTMLExporter.exportInlineContent(ic as any, {
-      simplifyBlocks: false,
-    });
+    externalHTML = externalHTMLExporter.exportInlineContent(ic as any, {});
   } else if (isWithinBlockContent) {
     // first convert selection to blocknote-style inline content, and then
     // pass this to the exporter
@@ -93,9 +89,7 @@ async function fragmentToExternalHTML<
       editor.schema.inlineContentSchema,
       editor.schema.styleSchema
     );
-    externalHTML = externalHTMLExporter.exportInlineContent(ic, {
-      simplifyBlocks: false,
-    });
+    externalHTML = externalHTMLExporter.exportInlineContent(ic, {});
   } else {
     const blocks = fragmentToBlocks(selectedFragment, editor.schema);
     externalHTML = externalHTMLExporter.exportBlocks(blocks, {});
@@ -103,18 +97,18 @@ async function fragmentToExternalHTML<
   return externalHTML;
 }
 
-export async function selectedFragmentToHTML<
+export function selectedFragmentToHTML<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
   view: EditorView,
   editor: BlockNoteEditor<BSchema, I, S>
-): Promise<{
+): {
   clipboardHTML: string;
   externalHTML: string;
   markdown: string;
-}> {
+} {
   // Checks if a `blockContent` node is being copied and expands
   // the selection to the parent `blockContainer` node. This is
   // for the use-case in which only a block without content is
@@ -138,7 +132,7 @@ export async function selectedFragmentToHTML<
 
   const selectedFragment = view.state.selection.content().content;
 
-  const externalHTML = await fragmentToExternalHTML<BSchema, I, S>(
+  const externalHTML = fragmentToExternalHTML<BSchema, I, S>(
     view,
     selectedFragment,
     editor
@@ -162,16 +156,16 @@ const copyToClipboard = <
   event.preventDefault();
   event.clipboardData!.clearData();
 
-  (async () => {
-    const { clipboardHTML, externalHTML, markdown } =
-      await selectedFragmentToHTML(view, editor);
+  const { clipboardHTML, externalHTML, markdown } = selectedFragmentToHTML(
+    view,
+    editor
+  );
 
-    // TODO: Writing to other MIME types not working in Safari for
-    //  some reason.
-    event.clipboardData!.setData("blocknote/html", clipboardHTML);
-    event.clipboardData!.setData("text/html", externalHTML);
-    event.clipboardData!.setData("text/plain", markdown);
-  })();
+  // TODO: Writing to other MIME types not working in Safari for
+  //  some reason.
+  event.clipboardData!.setData("blocknote/html", clipboardHTML);
+  event.clipboardData!.setData("text/html", externalHTML);
+  event.clipboardData!.setData("text/plain", markdown);
 };
 
 export const createCopyToClipboardExtension = <
@@ -229,16 +223,15 @@ export const createCopyToClipboardExtension = <
                 event.preventDefault();
                 event.dataTransfer!.clearData();
 
-                (async () => {
-                  const { clipboardHTML, externalHTML, markdown } =
-                    await selectedFragmentToHTML(view, editor);
+                const { clipboardHTML, externalHTML, markdown } =
+                  selectedFragmentToHTML(view, editor);
 
-                  // TODO: Writing to other MIME types not working in Safari for
-                  //  some reason.
-                  event.dataTransfer!.setData("blocknote/html", clipboardHTML);
-                  event.dataTransfer!.setData("text/html", externalHTML);
-                  event.dataTransfer!.setData("text/plain", markdown);
-                })();
+                // TODO: Writing to other MIME types not working in Safari for
+                //  some reason.
+                event.dataTransfer!.setData("blocknote/html", clipboardHTML);
+                event.dataTransfer!.setData("text/html", externalHTML);
+                event.dataTransfer!.setData("text/plain", markdown);
+
                 // Prevent default PM handler to be called
                 return true;
               },

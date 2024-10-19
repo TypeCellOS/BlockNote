@@ -2,25 +2,22 @@ import { EditorOptions, Extension, getSchema } from "@tiptap/core";
 import { Node, Schema } from "prosemirror-model";
 // import "./blocknote.css";
 import * as Y from "yjs";
-import {
-  insertBlocks,
-  insertContentAt,
-  removeBlocks,
-  replaceBlocks,
-  updateBlock,
-} from "../api/blockManipulation/blockManipulation.js";
+import { insertBlocks } from "../api/blockManipulation/commands/insertBlocks/insertBlocks.js";
 import {
   moveBlockDown,
   moveBlockUp,
-} from "../api/blockManipulation/moveBlock.js";
+} from "../api/blockManipulation/commands/moveBlock/moveBlock.js";
+import { removeBlocks } from "../api/blockManipulation/commands/removeBlocks/removeBlocks.js";
+import { replaceBlocks } from "../api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
+import { updateBlock } from "../api/blockManipulation/commands/updateBlock/updateBlock.js";
+import { insertContentAt } from "../api/blockManipulation/insertContentAt.js";
+import {
+  getTextCursorPosition,
+  setTextCursorPosition,
+} from "../api/blockManipulation/selections/textCursorPosition/textCursorPosition.js";
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
-import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos.js";
-import {
-  inlineContentToNodes,
-  nodeToBlock,
-} from "../api/nodeConversions/nodeConversions.js";
-import { getNodeById } from "../api/nodeUtil.js";
+import { getBlockInfoFromSelection } from "../api/getBlockInfoFromPos.js";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
 import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown.js";
 import {
@@ -71,9 +68,11 @@ import { en } from "../i18n/locales/index.js";
 
 import { Transaction } from "@tiptap/pm/state";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
+import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
+import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
+import { NodeSelectionKeyboardPlugin } from "../extensions/NodeSelectionKeyboard/NodeSelectionKeyboardPlugin.js";
 import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin.js";
 import "../style.css";
-import { initializeESMDependencies } from "../util/esmDependencies.js";
 
 export type BlockNoteEditorOptions<
   BSchema extends BlockSchema,
@@ -382,6 +381,7 @@ export class BlockNoteEditor<
           ...(this.filePanel ? [this.filePanel.plugin] : []),
           ...(this.tableHandles ? [this.tableHandles.plugin] : []),
           PlaceholderPlugin(this, newOptions.placeholders),
+          NodeSelectionKeyboardPlugin(),
           ...(this.options.animations ?? true
             ? [PreviousBlockTypePlugin()]
             : []),
@@ -663,81 +663,7 @@ export class BlockNoteEditor<
     ISchema,
     SSchema
   > {
-    const { node, depth, startPos, endPos } = getBlockInfoFromPos(
-      this._tiptapEditor.state.doc,
-      this._tiptapEditor.state.selection.from
-    )!;
-
-    // Index of the current blockContainer node relative to its parent blockGroup.
-    const nodeIndex = this._tiptapEditor.state.doc
-      .resolve(endPos)
-      .index(depth - 1);
-    // Number of the parent blockGroup's child blockContainer nodes.
-    const numNodes = this._tiptapEditor.state.doc
-      .resolve(endPos + 1)
-      .node().childCount;
-    // Depth of the blockContainer node.
-    const nodeDepth = this._tiptapEditor.state.doc.resolve(startPos).depth;
-
-    // Gets previous blockContainer node at the same nesting level, if the current node isn't the first child.
-    let prevNode: Node | undefined = undefined;
-    if (nodeIndex > 0) {
-      prevNode = this._tiptapEditor.state.doc.resolve(startPos - 2).node();
-    }
-
-    // Gets next blockContainer node at the same nesting level, if the current node isn't the last child.
-    let nextNode: Node | undefined = undefined;
-    if (nodeIndex < numNodes - 1) {
-      nextNode = this._tiptapEditor.state.doc.resolve(endPos + 2).node();
-    }
-
-    // Gets parent blockContainer node, if the current node is nested.
-    let parentNode: Node | undefined = undefined;
-    if (nodeDepth > 2) {
-      parentNode = this._tiptapEditor.state.doc
-        .resolve(startPos - 1)
-        .node(nodeDepth - 2);
-    }
-
-    return {
-      block: nodeToBlock(
-        node,
-        this.schema.blockSchema,
-        this.schema.inlineContentSchema,
-        this.schema.styleSchema,
-        this.blockCache
-      ),
-      prevBlock:
-        prevNode === undefined
-          ? undefined
-          : nodeToBlock(
-              prevNode,
-              this.schema.blockSchema,
-              this.schema.inlineContentSchema,
-              this.schema.styleSchema,
-              this.blockCache
-            ),
-      nextBlock:
-        nextNode === undefined
-          ? undefined
-          : nodeToBlock(
-              nextNode,
-              this.schema.blockSchema,
-              this.schema.inlineContentSchema,
-              this.schema.styleSchema,
-              this.blockCache
-            ),
-      parentBlock:
-        parentNode === undefined
-          ? undefined
-          : nodeToBlock(
-              parentNode,
-              this.schema.blockSchema,
-              this.schema.inlineContentSchema,
-              this.schema.styleSchema,
-              this.blockCache
-            ),
-    };
+    return getTextCursorPosition(this);
   }
 
   /**
@@ -750,44 +676,7 @@ export class BlockNoteEditor<
     targetBlock: BlockIdentifier,
     placement: "start" | "end" = "start"
   ) {
-    const id = typeof targetBlock === "string" ? targetBlock : targetBlock.id;
-
-    const { posBeforeNode } = getNodeById(id, this._tiptapEditor.state.doc);
-    const { startPos, contentNode } = getBlockInfoFromPos(
-      this._tiptapEditor.state.doc,
-      posBeforeNode + 2
-    )!;
-
-    const contentType: "none" | "inline" | "table" =
-      this.schema.blockSchema[contentNode.type.name]!.content;
-
-    if (contentType === "none") {
-      this._tiptapEditor.commands.setNodeSelection(startPos);
-      return;
-    }
-
-    if (contentType === "inline") {
-      if (placement === "start") {
-        this._tiptapEditor.commands.setTextSelection(startPos + 1);
-      } else {
-        this._tiptapEditor.commands.setTextSelection(
-          startPos + contentNode.nodeSize - 1
-        );
-      }
-    } else if (contentType === "table") {
-      if (placement === "start") {
-        // Need to offset the position as we have to get through the `tableRow`
-        // and `tableCell` nodes to get to the `tableParagraph` node we want to
-        // set the selection in.
-        this._tiptapEditor.commands.setTextSelection(startPos + 4);
-      } else {
-        this._tiptapEditor.commands.setTextSelection(
-          startPos + contentNode.nodeSize - 4
-        );
-      }
-    } else {
-      throw new UnreachableCaseError(contentType);
-    }
+    setTextCursorPosition(this, targetBlock, placement);
   }
 
   /**
@@ -882,14 +771,14 @@ export class BlockNoteEditor<
    * @param blocksToInsert An array of partial blocks that should be inserted.
    * @param referenceBlock An identifier for an existing block, at which the new blocks should be inserted.
    * @param placement Whether the blocks should be inserted just before, just after, or nested inside the
-   * `referenceBlock`. Inserts the blocks at the start of the existing block's children if "nested" is used.
+   * `referenceBlock`.
    */
   public insertBlocks(
     blocksToInsert: PartialBlock<BSchema, ISchema, SSchema>[],
     referenceBlock: BlockIdentifier,
-    placement: "before" | "after" | "nested" = "before"
+    placement: "before" | "after" = "before"
   ) {
-    return insertBlocks(blocksToInsert, referenceBlock, placement, this);
+    return insertBlocks(this, blocksToInsert, referenceBlock, placement);
   }
 
   /**
@@ -903,7 +792,7 @@ export class BlockNoteEditor<
     blockToUpdate: BlockIdentifier,
     update: PartialBlock<BSchema, ISchema, SSchema>
   ) {
-    return updateBlock(blockToUpdate, update, this);
+    return updateBlock(this, blockToUpdate, update);
   }
 
   /**
@@ -911,7 +800,7 @@ export class BlockNoteEditor<
    * @param blocksToRemove An array of identifiers for existing blocks that should be removed.
    */
   public removeBlocks(blocksToRemove: BlockIdentifier[]) {
-    return removeBlocks(blocksToRemove, this);
+    return removeBlocks(this, blocksToRemove);
   }
 
   /**
@@ -925,7 +814,7 @@ export class BlockNoteEditor<
     blocksToRemove: BlockIdentifier[],
     blocksToInsert: PartialBlock<BSchema, ISchema, SSchema>[]
   ) {
-    return replaceBlocks(blocksToRemove, blocksToInsert, this);
+    return replaceBlocks(this, blocksToRemove, blocksToInsert);
   }
 
   /**
@@ -1073,12 +962,14 @@ export class BlockNoteEditor<
    * Checks if the block containing the text cursor can be nested.
    */
   public canNestBlock() {
-    const { startPos, depth } = getBlockInfoFromPos(
-      this._tiptapEditor.state.doc,
-      this._tiptapEditor.state.selection.from
-    )!;
+    const { blockContainer } = getBlockInfoFromSelection(
+      this._tiptapEditor.state
+    );
 
-    return this._tiptapEditor.state.doc.resolve(startPos).index(depth - 1) > 0;
+    return (
+      this._tiptapEditor.state.doc.resolve(blockContainer.beforePos)
+        .nodeBefore !== null
+    );
   }
 
   /**
@@ -1092,12 +983,13 @@ export class BlockNoteEditor<
    * Checks if the block containing the text cursor is nested.
    */
   public canUnnestBlock() {
-    const { depth } = getBlockInfoFromPos(
-      this._tiptapEditor.state.doc,
-      this._tiptapEditor.state.selection.from
-    )!;
+    const { blockContainer } = getBlockInfoFromSelection(
+      this._tiptapEditor.state
+    );
 
-    return depth > 2;
+    return (
+      this._tiptapEditor.state.doc.resolve(blockContainer.beforePos).depth > 1
+    );
   }
 
   /**
@@ -1135,7 +1027,6 @@ export class BlockNoteEditor<
   public async blocksToHTMLLossy(
     blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.document
   ): Promise<string> {
-    await initializeESMDependencies();
     const exporter = createExternalHTMLExporter(this.pmSchema, this);
     return exporter.exportBlocks(blocks, {});
   }

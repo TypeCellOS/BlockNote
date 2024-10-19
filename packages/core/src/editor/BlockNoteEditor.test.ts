@@ -1,5 +1,8 @@
 import { expect, it } from "vitest";
-import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos.js";
+import {
+  getBlockInfo,
+  getNearestBlockContainerPos,
+} from "../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "./BlockNoteEditor.js";
 
 /**
@@ -7,21 +10,12 @@ import { BlockNoteEditor } from "./BlockNoteEditor.js";
  */
 it("creates an editor", () => {
   const editor = BlockNoteEditor.create();
-  const blockInfo = getBlockInfoFromPos(editor._tiptapEditor.state.doc, 2);
-  expect(blockInfo?.contentNode.type.name).toEqual("paragraph");
-
-  const lastBlock = editor.document[editor.document.length - 1];
-  if (lastBlock) {
-    editor.insertBlocks(
-      [
-        {
-          type: "paragraph",
-          content: "",
-        },
-      ],
-      lastBlock?.id
-    );
-  }
+  const posInfo = getNearestBlockContainerPos(
+    editor._tiptapEditor.state.doc,
+    2
+  );
+  const { blockContent } = getBlockInfo(posInfo);
+  expect(blockContent.node.type.name).toEqual("paragraph");
 });
 
 it("immediately replaces doc", async () => {

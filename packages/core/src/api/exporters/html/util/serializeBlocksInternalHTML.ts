@@ -11,9 +11,9 @@ import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
   inlineContentToNodes,
   tableContentToNodes,
-} from "../../../nodeConversions/nodeConversions.js";
+} from "../../../nodeConversions/blockToNode.js";
 
-export function serializeInlineContent<
+export function serializeInlineContentInternalHTML<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
@@ -99,7 +99,7 @@ function serializeBlock<
     : impl.toInternalHTML({ ...block, props } as any, editor as any);
 
   if (ret.contentDOM && block.content) {
-    const ic = serializeInlineContent(
+    const ic = serializeInlineContentInternalHTML(
       editor,
       block.content as any, // TODO
       serializer,
@@ -113,7 +113,7 @@ function serializeBlock<
 
   if (block.children && block.children.length > 0) {
     bc.contentDOM?.appendChild(
-      serializeBlocks(
+      serializeBlocksInternalHTML(
         editor,
         block.children,
         serializer,
@@ -125,7 +125,7 @@ function serializeBlock<
   return bc.dom;
 }
 
-export const serializeBlocks = <
+export const serializeBlocksInternalHTML = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema

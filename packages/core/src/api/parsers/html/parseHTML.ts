@@ -6,7 +6,7 @@ import {
 } from "../../../schema/index.js";
 
 import { Block } from "../../../blocks/defaultBlocks.js";
-import { nodeToBlock } from "../../nodeConversions/nodeConversions.js";
+import { nodeToBlock } from "../../nodeConversions/nodeToBlock.js";
 import { nestedListsToBlockNoteStructure } from "./util/nestedLists.js";
 export async function HTMLToBlocks<
   BSchema extends BlockSchema,
