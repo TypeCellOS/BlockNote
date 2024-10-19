@@ -51,10 +51,26 @@ export default function App() {
         content: [
           {
             type: "text",
-            text: "Blocks:",
+            text: "This paragraph has a background color",
             styles: { bold: true },
           },
         ],
+        props: {
+          backgroundColor: "red",
+        },
+      },
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "This one too, but it's blue",
+            styles: { italic: true },
+          },
+        ],
+        props: {
+          backgroundColor: "blue",
+        },
       },
       {
         type: "paragraph",

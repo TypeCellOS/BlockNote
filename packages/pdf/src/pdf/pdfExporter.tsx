@@ -3,6 +3,7 @@ import {
   BlockFromConfig,
   BlockNoteSchema,
   BlockSchema,
+  DefaultProps,
   InlineContent,
   InlineContentSchema,
   StyleSchema,
@@ -25,6 +26,8 @@ import {
   InlineContentMapping,
   StyleMapping,
 } from "../mapping.js";
+
+import { Style } from "./types.js";
 import { loadFontDataUrl } from "./util/loadFontDataUrl.js";
 
 const FONT_SIZE = 16;
@@ -51,10 +54,8 @@ export class PDFExporter<
         React.ReactElement<Link> | React.ReactElement<Text>,
         React.ReactElement<Text>
       >;
-    }
-  ) // public readonly options: {
-  //   resolveFileUrl: (url: string) => Promise<string>;
-  // }
+    } // public readonly options: { //   resolveFileUrl: (url: string) => Promise<string>;
+  ) // }
   {}
 
   public transformStyledText(styledText: StyledText<S>) {
@@ -117,9 +118,12 @@ export class PDFExporter<
         numberedListIndex
       ); // TODO: any
 
+      const style = this.blocknoteDefaultPropsToReactPDFStyle(b.props as any);
       return (
         <>
-          <View style={{ paddingVertical: 3 * PIXELS_PER_POINT }}>{self}</View>
+          <View style={{ paddingVertical: 3 * PIXELS_PER_POINT, ...style }}>
+            {self}
+          </View>
           {children.length > 0 && (
             <View style={{ marginLeft: FONT_SIZE * 1.5 * PIXELS_PER_POINT }}>
               {children}
@@ -233,5 +237,28 @@ export class PDFExporter<
         </Page>
       </Document>
     );
+  }
+
+  protected blocknoteDefaultPropsToReactPDFStyle(
+    props: Partial<DefaultProps>
+  ): Style {
+    return {
+      textAlign: props.textAlignment,
+      backgroundColor:
+        props.backgroundColor === "default" ? undefined : props.backgroundColor,
+      color: props.textColor,
+      alignItems:
+        props.textAlignment === "right"
+          ? "flex-end"
+          : props.textAlignment === "center"
+          ? "center"
+          : undefined,
+      // alignSelf:
+      //   props.textAlignment === "right"
+      //     ? "flex-end"
+      //     : props.textAlignment === "center"
+      //     ? "center"
+      //     : undefined,
+    };
   }
 }

@@ -1,12 +1,10 @@
 import {
   DefaultBlockSchema,
-  DefaultProps,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { Image, Text } from "@react-pdf/renderer";
+import { Image, Link, Path, Svg, Text } from "@react-pdf/renderer";
 import { BlockMapping } from "../../mapping.js";
-import { Style } from "../types.js";
 import {
   BULLET_MARKER,
   CHECK_MARKER_CHECKED,
@@ -18,32 +16,15 @@ import { Table } from "../util/table/Table.js";
 const PIXELS_PER_POINT = 0.75;
 const FONT_SIZE = 16;
 
-export function blocknoteDefaultPropsToReactPDFStyle(
-  props: Partial<DefaultProps>
-): Style {
-  return {
-    textAlign: props.textAlignment,
-    backgroundColor:
-      props.backgroundColor === "default" ? undefined : props.backgroundColor,
-    color: props.textColor,
-    alignSelf:
-      props.textAlignment === "right"
-        ? "flex-end"
-        : props.textAlignment === "center"
-        ? "center"
-        : undefined,
-  };
-}
-
 export const pdfBlockMappingForDefaultSchema = {
   paragraph: (block, inlineContentTransformer) => {
-    const style = blocknoteDefaultPropsToReactPDFStyle(block.props);
-    return <Text style={style}>{inlineContentTransformer(block.content)}</Text>;
+    // const style = blocknoteDefaultPropsToReactPDFStyle(block.props);
+    return <Text style={{}}>{inlineContentTransformer(block.content)}</Text>;
   },
   bulletListItem: (block, inlineContentTransformer) => {
-    const style = blocknoteDefaultPropsToReactPDFStyle(block.props);
+    // const style = blocknoteDefaultPropsToReactPDFStyle(block.props);
     return (
-      <ListItem listMarker={BULLET_MARKER} style={style}>
+      <ListItem listMarker={BULLET_MARKER}>
         <Text>{inlineContentTransformer(block.content)}</Text>
       </ListItem>
     );
@@ -54,23 +35,21 @@ export const pdfBlockMappingForDefaultSchema = {
     _nestingLevel,
     numberedListIndex
   ) => {
-    const style = blocknoteDefaultPropsToReactPDFStyle(block.props);
+    // const style = blocknoteDefaultPropsToReactPDFStyle(block.props);
     // console.log("NUMBERED LIST ITEM", block.props.textAlignment, style);
     return (
-      <ListItem listMarker={`${numberedListIndex}.`} style={style}>
+      <ListItem listMarker={`${numberedListIndex}.`}>
         <Text>{inlineContentTransformer(block.content)}</Text>
       </ListItem>
     );
   },
   // TODO
   checkListItem: (block, inlineContentTransformer) => {
-    const style = blocknoteDefaultPropsToReactPDFStyle(block.props);
     return (
       <ListItem
         listMarker={
           block.props.checked ? CHECK_MARKER_CHECKED : CHECK_MARKER_UNCHECKED
-        }
-        style={style}>
+        }>
         <Text>{inlineContentTransformer(block.content)}</Text>
       </ListItem>
     );
@@ -78,12 +57,9 @@ export const pdfBlockMappingForDefaultSchema = {
   heading: (block, inlineContentTransformer) => {
     const fontSizeEM =
       block.props.level === 1 ? 2 : block.props.level === 2 ? 1.5 : 1.17;
-    const style = blocknoteDefaultPropsToReactPDFStyle(block.props);
     return (
       <Text
         style={{
-          ...style,
-
           fontSize: fontSizeEM * FONT_SIZE * PIXELS_PER_POINT,
           fontWeight: 700,
         }}>
@@ -100,10 +76,18 @@ export const pdfBlockMappingForDefaultSchema = {
     return <Text>{block.type + " not implemented"}</Text>;
   },
   file: (block) => {
-    return <Text>{block.type + " not implemented"}</Text>;
+    return (
+      // TODO: align, test link, etc
+      <Link src={block.props.url}>
+        <Svg viewBox="0 0 24 24" fill="currentColor">
+          <Path d="M3 8L9.00319 2H19.9978C20.5513 2 21 2.45531 21 2.9918V21.0082C21 21.556 20.5551 22 20.0066 22H3.9934C3.44476 22 3 21.5501 3 20.9932V8ZM10 4V9H5V20H19V4H10Z" />
+        </Svg>
+        {/* TODO: caption / name */}
+        <Text>{block.props.name}</Text>
+      </Link>
+    );
   },
   image: (block) => {
-    const style = blocknoteDefaultPropsToReactPDFStyle(block.props);
     return (
       // <View
       //   style={
@@ -116,7 +100,6 @@ export const pdfBlockMappingForDefaultSchema = {
         <Image
           src={block.props.url}
           style={{
-            ...style,
             width: block.props.previewWidth * PIXELS_PER_POINT,
           }}
         />

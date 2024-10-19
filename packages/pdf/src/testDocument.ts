@@ -43,10 +43,13 @@ export const testDocument = partialBlocksToBlocksForTesting(
       content: [
         {
           type: "text",
-          text: "Blocks:",
+          text: "This paragraph has a background color",
           styles: { bold: true },
         },
       ],
+      props: {
+        backgroundColor: "red",
+      },
     },
     {
       type: "paragraph",

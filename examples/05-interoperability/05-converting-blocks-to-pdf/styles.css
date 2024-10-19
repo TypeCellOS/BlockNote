@@ -7,7 +7,7 @@
 .item {
   border-radius: 0.5rem;
   flex: 1;
-  /* overflow: hidden; */
+  overflow: hidden;
 }
 
 .item.bordered {
