@@ -19,7 +19,7 @@ const PIXELS_PER_POINT = 0.75;
 const FONT_SIZE = 16;
 
 export function blocknoteDefaultPropsToReactPDFStyle(
-  props: DefaultProps
+  props: Partial<DefaultProps>
 ): Style {
   return {
     textAlign: props.textAlignment,
@@ -103,7 +103,34 @@ export const pdfBlockMappingForDefaultSchema = {
     return <Text>{block.type + " not implemented"}</Text>;
   },
   image: (block) => {
-    return <Image src={block.props.url} />;
+    const style = blocknoteDefaultPropsToReactPDFStyle(block.props);
+    return (
+      // <View
+      //   style={
+      //     {
+      //       // width: block.props.previewWidth * PIXELS_PER_POINT,
+      //       // ...style,
+      //     }
+      //   }>
+      <>
+        <Image
+          src={block.props.url}
+          style={{
+            ...style,
+            width: block.props.previewWidth * PIXELS_PER_POINT,
+          }}
+        />
+        {block.props.caption && (
+          <Text
+            style={{
+              width: block.props.previewWidth * PIXELS_PER_POINT,
+              fontSize: FONT_SIZE * 0.8 * PIXELS_PER_POINT,
+            }}>
+            {block.props.caption}
+          </Text>
+        )}
+      </>
+    );
   },
   table: (block, inlineContentTransformer) => {
     return (

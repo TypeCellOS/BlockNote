@@ -52,7 +52,10 @@ export class PDFExporter<
         React.ReactElement<Text>
       >;
     }
-  ) {}
+  ) // public readonly options: {
+  //   resolveFileUrl: (url: string) => Promise<string>;
+  // }
+  {}
 
   public transformStyledText(styledText: StyledText<S>) {
     const stylesArray = Object.entries(styledText.styles).map(

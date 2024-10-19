@@ -173,6 +173,14 @@ export default function App() {
         },
       },
       {
+        type: "image",
+        props: {
+          previewWidth: 200,
+          url: "https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg",
+          textAlignment: "right",
+        },
+      },
+      {
         type: "video",
         props: {
           url: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm",
