@@ -13,7 +13,6 @@ import {
   Section,
   Text,
 } from "@react-email/components";
-import { render } from "@react-email/render";
 import { testDocument } from "../testDocument.js";
 import { reactEmailDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { ReactEmailExporter } from "./reactEmailExporter.js";
@@ -124,10 +123,11 @@ describe("react email exporter", () => {
       reactEmailDefaultSchemaMappings
     );
 
-    const doc = exporter.toReactEmailDocument(testDocument);
+    exporter.toReactEmailDocument(testDocument);
 
-    const html = await render(doc);
-    console.log(html);
+    // const html = await render(doc);
+    // eslint-disable-next-line no-console
+    // console.log(html);
     // const buffer = await Packer.toBuffer(doc);
     // fs.writeFileSync(__dirname + "/My Document.docx", buffer);
   });
