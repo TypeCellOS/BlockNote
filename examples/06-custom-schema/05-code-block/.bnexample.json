@@ -1,0 +1,18 @@
+{
+  "playground": true,
+  "docs": true,
+  "author": "JaeungJayJang",
+  "tags": [
+    "Intermediate",
+    "Blocks",
+    "Custom Schemas",
+    "Suggestion Menus",
+    "Slash Menu"
+  ],
+  "dependencies": {
+    "@uiw/react-codemirror": "^4.23.3",
+    "@uiw/codemirror-extensions-langs": "^4.23.3",
+    "@uiw/codemirror-theme-material": "^4.23.3",
+    "lucide-react": "^0.407.0"
+  }
+}
