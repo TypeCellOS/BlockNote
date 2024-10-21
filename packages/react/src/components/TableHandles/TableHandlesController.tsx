@@ -8,16 +8,26 @@ import {
 import { FC, useMemo, useState } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import {
+  useExtendButtonsPositioning,
+  useTableHandlesPositioning,
+} from "./hooks/useTableHandlesPositioning.js";
 import { useUIPluginState } from "../../hooks/useUIPluginState.js";
+import { ExtendButton } from "./ExtendButton/ExtendButton.js";
 import { TableHandle } from "./TableHandle.js";
 import { TableHandleProps } from "./TableHandleProps.js";
-import { useTableHandlesPositioning } from "./hooks/useTableHandlesPositioning.js";
 
 export const TableHandlesController = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(props: {
   tableHandle?: FC<TableHandleProps<I, S>>;
+  extendButton?: FC<
+    Pick<
+      TableHandleProps<I, S>,
+      "block" | "editor" | "orientation" | "freezeHandles" | "unfreezeHandles"
+    >
+  >;
 }) => {
   const editor = useBlockNoteEditor<BlockSchema, I, S>();
 
@@ -60,6 +70,13 @@ export const TableHandlesController = <
     draggingState
   );
 
+  const { rowExtendButton, colExtendButton } = useExtendButtonsPositioning(
+    state?.show || false,
+    state?.referencePosCell || null,
+    state?.referencePosTable || null,
+    draggingState
+  );
+
   const [hideRow, setHideRow] = useState<boolean>(false);
   const [hideCol, setHideCol] = useState<boolean>(false);
 
@@ -67,13 +84,14 @@ export const TableHandlesController = <
     return null;
   }
 
-  const Component = props.tableHandle || TableHandle;
+  const TableHandleComponent = props.tableHandle || TableHandle;
+  const ExtendButtonComponent = props.extendButton || ExtendButton;
 
   return (
     <>
       {!hideRow && (
         <div ref={rowHandle.ref} style={rowHandle.style}>
-          <Component
+          <TableHandleComponent
             // This "as any" unfortunately seems complicated to fix
             editor={editor as any}
             orientation={"row"}
@@ -90,7 +108,7 @@ export const TableHandlesController = <
       )}
       {!hideCol && (
         <div ref={colHandle.ref} style={colHandle.style}>
-          <Component
+          <TableHandleComponent
             editor={editor as any}
             orientation={"column"}
             showOtherSide={() => setHideRow(false)}
@@ -103,6 +121,28 @@ export const TableHandlesController = <
             unfreezeHandles={callbacks.unfreezeHandles}
           />
         </div>
+      )}
+      {!draggingState && !hideCol && !hideRow && (
+        <>
+          <div ref={rowExtendButton.ref} style={rowExtendButton.style}>
+            <ExtendButtonComponent
+              editor={editor as any}
+              orientation={"row"}
+              block={state.block}
+              freezeHandles={callbacks.freezeHandles}
+              unfreezeHandles={callbacks.unfreezeHandles}
+            />
+          </div>
+          <div ref={colExtendButton.ref} style={colExtendButton.style}>
+            <ExtendButtonComponent
+              editor={editor as any}
+              orientation={"column"}
+              block={state.block}
+              freezeHandles={callbacks.freezeHandles}
+              unfreezeHandles={callbacks.unfreezeHandles}
+            />
+          </div>
+        </>
       )}
     </>
   );

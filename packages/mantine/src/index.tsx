@@ -90,6 +90,11 @@ export const components: Components = {
   },
   TableHandle: {
     Root: TableHandle,
+    ExtendButton: (props) => (
+      <button style={{ height: "100%", width: "100%" }} {...props}>
+        +
+      </button>
+    ),
   },
   Generic: {
     Form: {

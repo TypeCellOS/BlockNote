@@ -1,13 +1,40 @@
 import { callOrReturn, Extension, getExtensionField } from "@tiptap/core";
 import { columnResizing, tableEditing } from "prosemirror-tables";
+import { TableView } from "prosemirror-tables";
+import { Node as PMNode } from "prosemirror-model";
+import { mergeCSSClasses } from "../../util/browser.js";
 
 export const TableExtension = Extension.create({
   name: "BlockNoteTableExtension",
 
   addProseMirrorPlugins: () => {
+    class CustomTableView extends TableView {
+      constructor(public node: PMNode, public cellMinWidth: number) {
+        super(node, cellMinWidth);
+
+        const blockContent = document.createElement("div");
+        blockContent.className = mergeCSSClasses(
+          "bn-block-content"
+          // blockContentHTMLAttributes.class
+        );
+        blockContent.setAttribute("data-content-type", "table");
+        // for (const [attribute, value] of Object.entries(blockContentHTMLAttributes)) {
+        //   if (attribute !== "class") {
+        //     blockContent.setAttribute(attribute, value);
+        //   }
+        // }
+
+        const tableWrapper = this.dom;
+        blockContent.appendChild(tableWrapper);
+
+        this.dom = blockContent;
+      }
+    }
+
     return [
       columnResizing({
         cellMinWidth: 100,
+        View: CustomTableView,
       }),
       tableEditing(),
     ];

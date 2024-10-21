@@ -104,6 +104,7 @@ export class TableHandlesView<
 
   public tableId: string | undefined;
   public tablePos: number | undefined;
+  public tableElement: HTMLElement | undefined;
 
   public menuFrozen = false;
 
@@ -195,6 +196,7 @@ export class TableHandlesView<
     if (!blockEl) {
       return;
     }
+    this.tableElement = blockEl.node;
 
     let tableBlock: Block<any, any, any> | undefined = undefined;
 
@@ -409,6 +411,41 @@ export class TableHandlesView<
       this.emitUpdate();
     }
   };
+
+  // Updates drag handle positions on table content updates.
+  update() {
+    if (!this.state || !this.state.show) {
+      return;
+    }
+
+    // TODO: Can also just do down the DOM tree until we find it but this seems
+    //  cleaner.
+    const tableBody = this.tableElement!.querySelector("tbody");
+    if (!tableBody) {
+      return;
+    }
+
+    if (this.state.rowIndex >= tableBody.children.length) {
+      this.state.rowIndex = tableBody.children.length - 1;
+      this.emitUpdate();
+
+      return;
+    }
+    const row = tableBody.children[this.state.rowIndex];
+
+    if (this.state.colIndex >= tableBody.children[0].children.length) {
+      this.state.colIndex = tableBody.children[0].children.length - 1;
+      this.emitUpdate();
+
+      return;
+    }
+    const cell = row.children[this.state.colIndex];
+
+    // TODO: Check if DOMRects changed first?
+    this.state.referencePosCell = cell.getBoundingClientRect();
+    this.state.referencePosTable = tableBody.getBoundingClientRect();
+    this.emitUpdate();
+  }
 
   destroy() {
     this.pmView.dom.removeEventListener("mousemove", this.mouseMoveHandler);
