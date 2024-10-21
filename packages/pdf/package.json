@@ -48,15 +48,13 @@
     "email": "email dev"
   },
   "dependencies": {
-    "@blocknote/core": "^0.16.0",
-    "@blocknote/react": "^0.16.0",
-    "@tiptap/core": "^2.7.1",
-    "@tiptap/pm": "^2.7.1",
+    "@blocknote/core": "^0.17.1",
+    "@blocknote/react": "^0.17.1",
     "react": "^18",
     "react-dom": "^18",
     "react-email": "^3.0.1",
     "@react-email/components": "^0.0.25",
-    "@react-email/render":"^1.0.1",
+    "@react-email/render": "^1.0.1",
     "docx": "^8.5.0",
     "jspdf": "^2.5.2",
     "pdfmake": "^0.2.14",
