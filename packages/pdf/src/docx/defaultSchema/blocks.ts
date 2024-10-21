@@ -1,16 +1,25 @@
 import {
   DefaultBlockSchema,
   DefaultInlineContentSchema,
+  DefaultProps,
   DefaultStyleSchema,
+  InlineContent,
+  InlineContentSchema,
+  StyleSchema,
+  UnreachableCaseError,
 } from "@blocknote/core";
 import {
   CheckBox,
+  Table as DocxTable,
+  IParagraphOptions,
   Paragraph,
   ParagraphChild,
+  ShadingType,
   TabStopType,
   TextRun,
 } from "docx";
 import { BlockMapping } from "../../mapping.js";
+import { Table } from "../util/Table.js";
 
 function createTabStops(nestingLevel: number): any[] {
   const tabStops: any[] = [];
@@ -24,16 +33,50 @@ function createTabStops(nestingLevel: number): any[] {
   return tabStops;
 }
 
+function blockPropsToStyles(props: Partial<DefaultProps>): IParagraphOptions {
+  return {
+    shading:
+      props.backgroundColor === "default"
+        ? undefined
+        : {
+            type: ShadingType.SOLID,
+            color: "00ff00", // TODO
+          },
+    run:
+      props.textColor === "default"
+        ? undefined
+        : {
+            color: "ff0000", // TODO
+          },
+    alignment:
+      !props.textAlignment || props.textAlignment === "left"
+        ? undefined
+        : props.textAlignment === "center"
+        ? "center"
+        : props.textAlignment === "right"
+        ? "right"
+        : props.textAlignment === "justify"
+        ? "distribute"
+        : (() => {
+            throw new UnreachableCaseError(props.textAlignment);
+          })(),
+  };
+}
 export const docxBlockMappingForDefaultSchema = {
   paragraph: (block, inlineContentTransformer, nestingLevel) => {
     return new Paragraph({
+      ...blockPropsToStyles(block.props),
       children: inlineContentTransformer(block.content),
       style: "Normal",
+      run: {
+        font: "Inter",
+      },
       tabStops: createTabStops(nestingLevel),
     });
   },
   numberedListItem: (block, inlineContentTransformer) => {
     return new Paragraph({
+      ...blockPropsToStyles(block.props),
       children: inlineContentTransformer(block.content),
       numbering: {
         reference: "blocknote-numbering",
@@ -43,6 +86,7 @@ export const docxBlockMappingForDefaultSchema = {
   },
   bulletListItem: (block, inlineContentTransformer) => {
     return new Paragraph({
+      ...blockPropsToStyles(block.props),
       children: inlineContentTransformer(block.content),
       bullet: {
         level: 0,
@@ -62,12 +106,14 @@ export const docxBlockMappingForDefaultSchema = {
   },
   heading: (block, inlineContentTransformer) => {
     return new Paragraph({
+      ...blockPropsToStyles(block.props),
       children: inlineContentTransformer(block.content),
       heading: `Heading${block.props.level}`,
     });
   },
   audio: (block, _inlineContentTransformer) => {
     return new Paragraph({
+      ...blockPropsToStyles(block.props),
       children: [
         new TextRun({
           text: block.type + " not implemented",
@@ -77,6 +123,7 @@ export const docxBlockMappingForDefaultSchema = {
   },
   video: (block, _inlineContentTransformer) => {
     return new Paragraph({
+      ...blockPropsToStyles(block.props),
       children: [
         new TextRun({
           text: block.type + " not implemented",
@@ -86,6 +133,7 @@ export const docxBlockMappingForDefaultSchema = {
   },
   file: (block, _inlineContentTransformer) => {
     return new Paragraph({
+      ...blockPropsToStyles(block.props),
       children: [
         new TextRun({
           text: block.type + " not implemented",
@@ -95,6 +143,7 @@ export const docxBlockMappingForDefaultSchema = {
   },
   image: (block, _inlineContentTransformer) => {
     return new Paragraph({
+      ...blockPropsToStyles(block.props),
       children: [
         new TextRun({
           text: block.type + " not implemented",
@@ -102,19 +151,15 @@ export const docxBlockMappingForDefaultSchema = {
       ],
     });
   },
-  table: (block, _inlineContentTransformer) => {
-    return new Paragraph({
-      children: [
-        new TextRun({
-          text: block.type + " not implemented",
-        }),
-      ],
-    });
+  table: (block, inlineContentTransformer) => {
+    return Table(block.content.rows, inlineContentTransformer);
   },
 } satisfies BlockMapping<
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
-  Paragraph,
-  ParagraphChild[]
+  Paragraph | DocxTable,
+  (
+    inlineContent: InlineContent<InlineContentSchema, StyleSchema>[]
+  ) => ParagraphChild[]
 >;

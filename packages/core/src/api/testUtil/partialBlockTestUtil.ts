@@ -76,7 +76,7 @@ export function partialBlocksToBlocksForTesting<
   S extends StyleSchema
 >(
   schema: BlockNoteSchema<BSchema, I, S>,
-  partialBlocks: Array<PartialBlock<BSchema, I, S>>
+  partialBlocks: Array<PartialBlock<NoInfer<BSchema>, NoInfer<I>, NoInfer<S>>>
 ): Array<Block<BSchema, I, S>> {
   return partialBlocks.map((partialBlock) =>
     partialBlockToBlockForTesting(schema.blockSchema, partialBlock)

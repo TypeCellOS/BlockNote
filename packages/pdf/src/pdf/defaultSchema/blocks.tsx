@@ -1,5 +1,6 @@
 import {
   DefaultBlockSchema,
+  InlineContent,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -128,5 +129,7 @@ export const pdfBlockMappingForDefaultSchema = {
   InlineContentSchema,
   StyleSchema,
   React.ReactElement<Text>,
-  React.ReactElement<Text>
+  (
+    content: InlineContent<InlineContentSchema, StyleSchema>[]
+  ) => React.ReactElement<Text>
 >;

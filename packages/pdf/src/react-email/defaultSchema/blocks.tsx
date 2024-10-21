@@ -1,5 +1,6 @@
 import {
   DefaultBlockSchema,
+  InlineContent,
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
@@ -73,5 +74,7 @@ export const reactEmailBlockMappingForDefaultSchema = {
   InlineContentSchema,
   StyleSchema,
   React.ReactElement<any>,
-  React.ReactElement<typeof Link> | React.ReactElement<typeof Text>
+  (
+    inlineContent: InlineContent<InlineContentSchema, StyleSchema>[]
+  ) => React.ReactElement<typeof Link> | React.ReactElement<typeof Text>
 >;

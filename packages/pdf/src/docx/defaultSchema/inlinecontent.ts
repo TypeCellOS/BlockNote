@@ -1,6 +1,8 @@
 import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
+  StyleSchema,
+  StyledText,
 } from "@blocknote/core";
 import { ExternalHyperlink, ParagraphChild, TextRun } from "docx";
 import { InlineContentMapping } from "../../mapping.js";
@@ -9,7 +11,7 @@ export const docxInlineContentMappingForDefaultSchema = {
   link: (ic, styledTextTransformer) => {
     return new ExternalHyperlink({
       children: ic.content.map((content) => {
-        return styledTextTransformer(content);
+        return styledTextTransformer(content, true);
       }),
       link: ic.href,
     });
@@ -21,5 +23,5 @@ export const docxInlineContentMappingForDefaultSchema = {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   ParagraphChild,
-  TextRun
+  (styledText: StyledText<StyleSchema>, hyperlink?: boolean) => TextRun
 >;

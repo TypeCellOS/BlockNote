@@ -41,13 +41,15 @@ export class ReactEmailExporter<
         I,
         S,
         React.ReactElement<typeof Text>,
-        React.ReactElement<typeof Text>
+        (
+          ic: InlineContent<InlineContentSchema, StyleSchema>[]
+        ) => React.ReactElement<typeof Text>
       >;
       inlineContentMapping: InlineContentMapping<
         I,
         S,
         React.ReactElement<typeof Link> | React.ReactElement<HTMLSpanElement>,
-        React.ReactElement<HTMLSpanElement>
+        (s: StyledText<StyleSchema>) => React.ReactElement<HTMLSpanElement>
       >;
     }
   ) {}
@@ -66,7 +68,7 @@ export class ReactEmailExporter<
   public transformInlineContent(inlineContent: InlineContent<I, S>) {
     return this.mappings.inlineContentMapping[inlineContent.type](
       inlineContent,
-      this.transformStyledText.bind(this)
+      this.transformStyledText.bind(this) as any // TODO
     );
   }
 

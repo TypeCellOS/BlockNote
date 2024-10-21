@@ -1,6 +1,8 @@
 import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
+  StyleSchema,
+  StyledText,
 } from "@blocknote/core";
 import { Link, Text } from "@react-pdf/renderer";
 import { InlineContentMapping } from "../../mapping.js";
@@ -22,5 +24,5 @@ export const pdfInlineContentMappingForDefaultSchema = {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   React.ReactElement<Link> | React.ReactElement<Text>,
-  React.ReactElement<Text>
+  (styledText: StyledText<StyleSchema>) => React.ReactElement<Text>
 >;

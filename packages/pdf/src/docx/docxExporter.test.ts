@@ -11,7 +11,7 @@ describe("exporter", () => {
       BlockNoteSchema.create(),
       docxDefaultSchemaMappings
     );
-    const doc = exporter.toDocxJsDocument(testDocument);
+    const doc = await exporter.toDocxJsDocument(testDocument);
 
     const buffer = await Packer.toBuffer(doc);
     fs.writeFileSync(__dirname + "/My Document.docx", buffer);

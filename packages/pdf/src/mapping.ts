@@ -2,11 +2,9 @@ import {
   BlockFromConfig,
   BlockNoteSchema,
   BlockSchema,
-  InlineContent,
   InlineContentFromConfig,
   InlineContentSchema,
   StyleSchema,
-  StyledText,
   Styles,
 } from "@blocknote/core";
 
@@ -18,13 +16,11 @@ export type BlockMapping<
   I extends InlineContentSchema,
   S extends StyleSchema,
   R,
-  RI
+  IT
 > = {
   [K in keyof B]: (
     block: BlockFromConfig<B[K], I, S>,
-    inlineContentTransformer: (
-      inlineContent: InlineContent<InlineContentSchema, StyleSchema>[]
-    ) => RI,
+    inlineContentTransformer: IT,
     nestingLevel: number,
     numberedListIndex?: number
   ) => R;
@@ -37,11 +33,11 @@ export type InlineContentMapping<
   I extends InlineContentSchema,
   S extends StyleSchema,
   R,
-  RS
+  ST
 > = {
   [K in keyof I]: (
     inlineContent: InlineContentFromConfig<I[K], S>,
-    styledTextTransformer: (styledText: StyledText<S>) => RS
+    styledTextTransformer: ST
   ) => R;
 };
 

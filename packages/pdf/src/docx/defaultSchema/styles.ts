@@ -4,11 +4,17 @@ import { StyleMapping } from "../../mapping.js";
 
 export const docxStyleMappingForDefaultSchema = {
   bold: (val) => {
+    if (!val) {
+      return {};
+    }
     return {
       bold: val,
     };
   },
   italic: (val) => {
+    if (!val) {
+      return {};
+    }
     return {
       italics: val,
     };
@@ -32,19 +38,21 @@ export const docxStyleMappingForDefaultSchema = {
     };
   },
   backgroundColor: (val) => {
-    if (!val) {
+    if (!val || val === "default") {
       return {};
     }
     return {
-      // highlight: val,
+      shading: {
+        fill: "00ff00", // TODO
+      },
     };
   },
   textColor: (val) => {
-    if (!val) {
+    if (!val || val === "default") {
       return {};
     }
     return {
-      // color: val,
+      color: "dd0000", // TODO
     };
   },
   code: (val) => {
@@ -52,8 +60,7 @@ export const docxStyleMappingForDefaultSchema = {
       return {};
     }
     return {
-      // TODO
-      // font: "",
+      font: "Courier New",
     };
   },
 } satisfies StyleMapping<DefaultStyleSchema, IRunPropertiesOptions>;

@@ -27,8 +27,8 @@ import {
   StyleMapping,
 } from "../mapping.js";
 
+import { loadFontDataUrl } from "../util/fileUtil.js";
 import { Style } from "./types.js";
-import { loadFontDataUrl } from "./util/loadFontDataUrl.js";
 
 const FONT_SIZE = 16;
 const PIXELS_PER_POINT = 0.75;
@@ -46,17 +46,19 @@ export class PDFExporter<
         I,
         S,
         React.ReactElement<Text>,
-        React.ReactElement<Text>
+        (
+          // Would be nicer if this was I and S, but that breaks
+          content: InlineContent<InlineContentSchema, StyleSchema>[]
+        ) => React.ReactElement<Text>
       >;
       inlineContentMapping: InlineContentMapping<
         I,
         S,
         React.ReactElement<Link> | React.ReactElement<Text>,
-        React.ReactElement<Text>
+        (styledText: StyledText<S>) => React.ReactElement<Text>
       >;
-    } // public readonly options: { //   resolveFileUrl: (url: string) => Promise<string>;
-  ) // }
-  {}
+    } // public readonly options: { //   resolveFileUrl: (url: string) => Promise<string>; // }
+  ) {}
 
   public transformStyledText(styledText: StyledText<S>) {
     const stylesArray = Object.entries(styledText.styles).map(

@@ -13,12 +13,11 @@ import {
   Document,
   IRunPropertiesOptions,
   LevelFormat,
-  LineRuleType,
   Paragraph,
   ParagraphChild,
   Tab,
+  Table,
   TextRun,
-  UnderlineType,
 } from "docx";
 import { IPropertiesOptions } from "docx/build/file/core-properties";
 import {
@@ -35,13 +34,27 @@ export class DOCXExporter<
   public constructor(
     public readonly schema: BlockNoteSchema<B, I, S>,
     public readonly mappings: {
-      blockMapping: BlockMapping<B, I, S, Paragraph, ParagraphChild[]>;
-      inlineContentMapping: InlineContentMapping<I, S, ParagraphChild, TextRun>;
+      blockMapping: BlockMapping<
+        B,
+        I,
+        S,
+        Paragraph | Table,
+        (
+          // Would be nicer if this was I and S, but that breaks
+          inlineContentArray: InlineContent<InlineContentSchema, StyleSchema>[]
+        ) => ParagraphChild[]
+      >;
+      inlineContentMapping: InlineContentMapping<
+        I,
+        S,
+        ParagraphChild,
+        (styledText: StyledText<S>, hyperlink?: boolean) => TextRun
+      >;
       styleMapping: StyleMapping<S, IRunPropertiesOptions>;
     }
   ) {}
 
-  public transformStyledText(styledText: StyledText<S>) {
+  public transformStyledText(styledText: StyledText<S>, hyperlink?: boolean) {
     const stylesArray = Object.entries(styledText.styles).map(
       ([key, value]) => {
         const mappedStyle = this.mappings.styleMapping[key](value);
@@ -53,7 +66,11 @@ export class DOCXExporter<
       ...stylesArray
     );
 
-    return new TextRun({ ...styles, text: styledText.text });
+    return new TextRun({
+      ...styles,
+      style: hyperlink ? "Hyperlink" : undefined, // TODO: not working?
+      text: styledText.text,
+    });
   }
 
   public transformInlineContent(inlineContent: InlineContent<I, S>) {
@@ -75,20 +92,23 @@ export class DOCXExporter<
   ) {
     return this.mappings.blockMapping[block.type](
       block,
-      this.transformInlineContentArray.bind(this) as any, // not ideal as any
+      this.transformInlineContentArray.bind(this) as any, // TODO: any
       nestingLevel
     );
   }
 
-  public transformBlocks(blocks: Block<B, I, S>[]): Paragraph[] {
+  public transformBlocks(blocks: Block<B, I, S>[]): Array<Paragraph | Table> {
     return blocks.flatMap((b) => {
       let children = this.transformBlocks(b.children);
       children = children.map((c) => {
-        c.addRunToFront(
-          new TextRun({
-            children: [new Tab()],
-          })
-        );
+        // TODO: nested tables not supported
+        if (c instanceof Paragraph) {
+          c.addRunToFront(
+            new TextRun({
+              children: [new Tab()],
+            })
+          );
+        }
         return c;
       });
       const self = this.transformBlock(b as any, 0); // TODO: any
@@ -97,88 +117,18 @@ export class DOCXExporter<
     });
   }
 
-  public createDocumentProperties(): Partial<IPropertiesOptions> {
+  public async createDocumentProperties(): Promise<
+    Partial<IPropertiesOptions>
+  > {
+    // const externalStyles = await loadFilePlainText(
+    //   // @ts-ignore
+    //   await import("./template/word/styles.xml?raw")
+    // );
+
+    const externalStyles = (await import("./template/word/styles.xml?raw"))
+      .default;
+
     return {
-      styles: {
-        paragraphStyles: [
-          {
-            id: "Normal",
-            name: "Normal",
-            run: {
-              font: "Inter, SF Pro Display, BlinkMacSystemFont, Open Sans, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif",
-              size: "14pt",
-            },
-            paragraph: {
-              spacing: {
-                line: 288,
-                lineRule: LineRuleType.AUTO,
-
-                // before: 2808,
-                // after: 2808,
-              },
-            },
-            // next: "Normal",
-            // quickFormat: true,
-            // run: {
-            //   italics: true,
-            //   color: "999999",
-            // },
-            // paragraph: {
-            //   spacing: {
-            //     line: 276,
-            //   },
-            //   indent: {
-            //     left: 720,
-            //   },
-            // },
-          },
-
-          {
-            id: "Heading1",
-            name: "Heading 1",
-            basedOn: "Normal",
-            next: "Normal",
-            quickFormat: true,
-            run: {
-              size: 26,
-              bold: true,
-              color: "999999",
-              underline: {
-                type: UnderlineType.DOUBLE,
-                color: "FF0000",
-              },
-            },
-            paragraph: {
-              spacing: {
-                before: 240,
-                after: 120,
-              },
-            },
-          },
-          {
-            id: "Heading2",
-            name: "Heading 2",
-            basedOn: "Normal",
-            next: "Normal",
-            quickFormat: true,
-            run: {
-              size: 26,
-              bold: true,
-              color: "999999",
-              underline: {
-                type: UnderlineType.DOUBLE,
-                color: "FF0000",
-              },
-            },
-            paragraph: {
-              spacing: {
-                before: 240,
-                after: 120,
-              },
-            },
-          },
-        ],
-      },
       numbering: {
         config: [
           {
@@ -194,12 +144,20 @@ export class DOCXExporter<
           },
         ],
       },
+      // TODO: issue with docx
+      // fonts: [
+      //   {
+      //     name: "Inter",
+      //     data: fs.readFileSync("./src/fonts/Inter-VariableFont_opsz,wght.ttf"),
+      //   },
+      // ],
+      externalStyles,
     };
   }
 
-  public toDocxJsDocument(blocks: Block<B, I, S>[]) {
+  public async toDocxJsDocument(blocks: Block<B, I, S>[]) {
     return new Document({
-      ...this.createDocumentProperties(),
+      ...(await this.createDocumentProperties()),
       sections: [
         {
           properties: {},

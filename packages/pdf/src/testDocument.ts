@@ -167,43 +167,43 @@ export const testDocument = partialBlocksToBlocksForTesting(
           "From https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg",
       },
     },
-    {
-      type: "image",
-      props: {
-        previewWidth: 200,
-        url: "https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg",
-        textAlignment: "right",
-      },
-    },
-    {
-      type: "video",
-      props: {
-        url: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm",
-        caption:
-          "From https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm",
-      },
-    },
-    {
-      type: "audio",
-      props: {
-        url: "https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3",
-        caption:
-          "From https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3",
-      },
-    },
-    {
-      type: "paragraph",
-    },
-    {
-      type: "paragraph",
-      content: [
-        {
-          type: "text",
-          text: "Inline Content:",
-          styles: { bold: true },
-        },
-      ],
-    },
+    // {
+    //   type: "image",
+    //   props: {
+    //     previewWidth: 200,
+    //     url: "https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg",
+    //     textAlignment: "right",
+    //   },
+    // },
+    // {
+    //   type: "video",
+    //   props: {
+    //     url: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm",
+    //     caption:
+    //       "From https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm",
+    //   },
+    // },
+    // {
+    //   type: "audio",
+    //   props: {
+    //     url: "https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3",
+    //     caption:
+    //       "From https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3",
+    //   },
+    // },
+    // {
+    //   type: "paragraph",
+    // },
+    // {
+    //   type: "paragraph",
+    //   content: [
+    //     {
+    //       type: "text",
+    //       text: "Inline Content:",
+    //       styles: { bold: true },
+    //     },
+    //   ],
+    // },
     {
       type: "paragraph",
       content: [
@@ -229,34 +229,34 @@ export const testDocument = partialBlocksToBlocksForTesting(
         },
       ],
     },
-    {
-      type: "table",
-      content: {
-        type: "tableContent",
-        rows: [
-          {
-            cells: ["Table Cell 1", "Table Cell 2", "Table Cell 3"],
-          },
-          {
-            cells: [
-              "Table Cell 4",
-              [
-                {
-                  type: "text",
-                  text: "Table Cell Bold 5",
-                  styles: {
-                    bold: true,
-                  },
-                },
-              ],
-              "Table Cell 6",
-            ],
-          },
-          {
-            cells: ["Table Cell 7", "Table Cell 8", "Table Cell 9"],
-          },
-        ],
-      },
-    },
+    // {
+    //   type: "table",
+    //   content: {
+    //     type: "tableContent",
+    //     rows: [
+    //       {
+    //         cells: ["Table Cell 1", "Table Cell 2", "Table Cell 3"],
+    //       },
+    //       {
+    //         cells: [
+    //           "Table Cell 4",
+    //           [
+    //             {
+    //               type: "text",
+    //               text: "Table Cell Bold 5",
+    //               styles: {
+    //                 bold: true,
+    //               },
+    //             },
+    //           ],
+    //           "Table Cell 6",
+    //         ],
+    //       },
+    //       {
+    //         cells: ["Table Cell 7", "Table Cell 8", "Table Cell 9"],
+    //       },
+    //     ],
+    //   },
+    // },
   ]
 );

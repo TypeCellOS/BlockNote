@@ -1,0 +1,11 @@
+{
+  "playground": true,
+  "docs": true,
+  "author": "yousefed",
+  "tags": [""],
+  "dependencies": {
+    "@blocknote/pdf": "latest",
+    "docx": "^8.5.0"
+  },
+  "pro": true
+}
