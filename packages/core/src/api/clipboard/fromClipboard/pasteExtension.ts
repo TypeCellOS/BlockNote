@@ -10,6 +10,7 @@ import {
 import { nestedListsToBlockNoteStructure } from "../../parsers/html/util/nestedLists.js";
 import { acceptedMIMETypes } from "./acceptedMIMETypes.js";
 import { handleFileInsertion } from "./handleFileInsertion.js";
+import { handleVSCodePaste } from "./handleVSCodePaste.js";
 
 export const createPasteFromClipboardExtension = <
   BSchema extends BlockSchema,
@@ -40,6 +41,11 @@ export const createPasteFromClipboardExtension = <
                   }
                 }
                 if (!format) {
+                  return true;
+                }
+
+                if (format === "vscode-editor-data") {
+                  handleVSCodePaste(event, editor);
                   return true;
                 }
 

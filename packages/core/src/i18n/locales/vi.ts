@@ -51,6 +51,12 @@ export const vi: Dictionary = {
       aliases: ["p", "doanvan"],
       group: "Khối cơ bản",
     },
+    code_block: {
+      title: "Mã",
+      subtext: "Sử dụng để hiển thị mã với cú pháp",
+      aliases: ["code", "pre"],
+      group: "Khối cơ bản",
+    },
     table: {
       title: "Bảng",
       subtext: "Sử dụng để tạo bảng",

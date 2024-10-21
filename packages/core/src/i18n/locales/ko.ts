@@ -52,6 +52,12 @@ export const ko: Dictionary = {
       aliases: ["p", "paragraph", "본문"],
       group: "기본 블록",
     },
+    code_block: {
+      title: "코드 블록",
+      subtext: "구문 강조가 있는 코드 블록",
+      aliases: ["code", "pre"],
+      group: "기본 블록",
+    },
     table: {
       title: "표",
       subtext: "간단한 표를 추가합니다.",
