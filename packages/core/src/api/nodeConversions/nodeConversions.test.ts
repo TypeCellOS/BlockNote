@@ -11,7 +11,8 @@ import {
   addIdsToBlock,
   partialBlockToBlockForTesting,
 } from "../testUtil/partialBlockTestUtil.js";
-import { blockToNode, nodeToBlock } from "./nodeConversions.js";
+import { blockToNode } from "./blockToNode.js";
+import { nodeToBlock } from "./nodeToBlock.js";
 
 function validateConversion(
   block: PartialBlock<any, any, any>,

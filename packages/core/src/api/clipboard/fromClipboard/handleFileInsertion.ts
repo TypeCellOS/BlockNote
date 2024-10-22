@@ -6,7 +6,10 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
-import { getBlockInfoFromPos } from "../../getBlockInfoFromPos.js";
+import {
+  getBlockInfo,
+  getNearestBlockContainerPos,
+} from "../../getBlockInfoFromPos.js";
 import { acceptedMIMETypes } from "./acceptedMIMETypes.js";
 
 function checkFileExtensionsMatch(
@@ -132,14 +135,16 @@ export async function handleFileInsertion<
           return;
         }
 
-        const blockInfo = getBlockInfoFromPos(
+        const posInfo = getNearestBlockContainerPos(
           editor._tiptapEditor.state.doc,
           pos.pos
         );
 
+        const blockInfo = getBlockInfo(posInfo);
+
         insertedBlockId = editor.insertBlocks(
           [fileBlock],
-          blockInfo.id,
+          blockInfo.blockContainer.node.attrs.id,
           "after"
         )[0].id;
       } else {

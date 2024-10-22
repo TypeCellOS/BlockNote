@@ -1,10 +1,10 @@
 import { NodeSelection, Selection, TextSelection } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
 
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { BlockIdentifier } from "../../schema/index.js";
-import { getBlockInfoFromPos } from "../getBlockInfoFromPos.js";
-import { getNodeById } from "../nodeUtil.js";
+import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
+import { BlockIdentifier } from "../../../../schema/index.js";
+import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
+import { getNodeById } from "../../../nodeUtil.js";
 
 type BlockSelectionData = (
   | {
@@ -31,14 +31,13 @@ type BlockSelectionData = (
 function getBlockSelectionData(
   editor: BlockNoteEditor<any, any, any>
 ): BlockSelectionData {
-  const { id, startPos } = getBlockInfoFromPos(
-    editor._tiptapEditor.state.doc,
-    editor._tiptapEditor.state.selection.from
+  const { blockContainer } = getBlockInfoFromSelection(
+    editor._tiptapEditor.state
   );
 
   const selectionData = {
-    blockId: id,
-    blockPos: startPos - 1,
+    blockId: blockContainer.node.attrs.id,
+    blockPos: blockContainer.beforePos,
   };
 
   if (editor._tiptapEditor.state.selection instanceof CellSelection) {
