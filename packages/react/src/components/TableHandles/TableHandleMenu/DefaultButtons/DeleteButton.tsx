@@ -31,6 +31,9 @@ export const DeleteRowButton = <
       onClick={() => {
         const content: PartialTableContent<I, S> = {
           type: "tableContent",
+          columnWidths: props.block.content.columnWidths.filter(
+            (_, index) => index !== props.index
+          ),
           rows: props.block.content.rows.filter(
             (_, index) => index !== props.index
           ),
@@ -70,6 +73,9 @@ export const DeleteColumnButton = <
       onClick={() => {
         const content: PartialTableContent<I, S> = {
           type: "tableContent",
+          columnWidths: props.block.content.columnWidths.filter(
+            (_, index) => index !== props.index
+          ),
           rows: props.block.content.rows.map((row) => ({
             cells: row.cells.filter((_, index) => index !== props.index),
           })),

@@ -42,6 +42,7 @@ export const AddRowButton = <
           type: "table",
           content: {
             type: "tableContent",
+            columnWidths: props.block.content.columnWidths,
             rows,
           },
         });
@@ -75,6 +76,11 @@ export const AddColumnButton = <
       onClick={() => {
         const content: PartialTableContent<I, S> = {
           type: "tableContent",
+          columnWidths: props.block.content.columnWidths.toSpliced(
+            props.index + (props.side === "right" ? 1 : 0),
+            0,
+            100
+          ),
           rows: props.block.content.rows.map((row) => {
             const cells = [...row.cells];
             cells.splice(props.index + (props.side === "right" ? 1 : 0), 0, []);
