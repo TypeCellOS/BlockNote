@@ -29,14 +29,26 @@ export default function Editor() {
 
 ## Import as dynamic
 
-Now, you can use [Dynamic Imports](https://nextjs.org/docs/pages/building-your-application/optimizing/lazy-loading) to make sure BlockNote is only imported on the client-side.
+In the same directory, create a new file called `DyanmicEditor.tsx`:
+Here, we will use [Dynamic Imports](https://nextjs.org/docs/pages/building-your-application/optimizing/lazy-loading) to make sure BlockNote is only imported on the client-side.
 
 You can import the component we just created above using `next/dynamic` in your page:
 
 ```typescript jsx
+"use client";
+
 import dynamic from "next/dynamic";
 
-const Editor = dynamic(() => import("../components/Editor"), { ssr: false });
+export const Editor = dynamic(() => import("./Editor"), { ssr: false });
+```
+
+## Import in a page / app
+
+Now, you can import the dynamic editor in your page or app:
+
+```typescript jsx
+import { Editor } from "../components/DynamicEditor";
+
 
 function App() {
   return (
