@@ -40,6 +40,7 @@ import { SuggestionMenuItem } from "./suggestionMenu/SuggestionMenuItem.js";
 import { SuggestionMenuLabel } from "./suggestionMenu/SuggestionMenuLabel.js";
 import { SuggestionMenuLoader } from "./suggestionMenu/SuggestionMenuLoader.js";
 import { TableHandle } from "./tableHandle/TableHandle.js";
+import { ExtendButton } from "./tableHandle/ExtendButton.js";
 import { Toolbar, ToolbarButton, ToolbarSelect } from "./toolbar/Toolbar.js";
 
 import { PanelButton } from "./panel/PanelButton.js";
@@ -84,11 +85,7 @@ export const components: Components = {
   },
   TableHandle: {
     Root: TableHandle,
-    ExtendButton: (props) => (
-      <button style={{ height: "100%", width: "100%" }} {...props}>
-        +
-      </button>
-    ),
+    ExtendButton: ExtendButton,
   },
   Generic: {
     Form: {

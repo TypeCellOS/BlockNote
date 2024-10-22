@@ -2,13 +2,20 @@ import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   InlineContentSchema,
+  mergeCSSClasses,
   PartialTableContent,
   StyleSchema,
 } from "@blocknote/core";
-import { MouseEvent as ReactMouseEvent, useEffect, useState } from "react";
+import {
+  MouseEvent as ReactMouseEvent,
+  ReactNode,
+  useEffect,
+  useState,
+} from "react";
+import { RiAddFill } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
-import { TableHandleProps } from "../TableHandleProps.js";
+import { ExtendButtonProps } from "./ExtendButtonProps.js";
 
 const getContentWithAddedRows = <
   I extends InlineContentSchema,
@@ -61,10 +68,7 @@ export const ExtendButton = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(
-  props: Pick<
-    TableHandleProps<I, S>,
-    "block" | "editor" | "orientation" | "freezeHandles" | "unfreezeHandles"
-  >
+  props: ExtendButtonProps<I, S> & { children?: ReactNode }
 ) => {
   const Components = useComponentsContext()!;
 
@@ -172,10 +176,18 @@ export const ExtendButton = <
 
   return (
     <Components.TableHandle.ExtendButton
+      className={mergeCSSClasses(
+        "bn-extend-button",
+        props.orientation === "row"
+          ? "bn-extend-button-row"
+          : "bn-extend-button-column",
+        editingState !== null ? "bn-extend-button-editing" : ""
+      )}
       onDragStart={(event) => {
         event.preventDefault();
       }}
-      onMouseDown={mouseDownHandler}
-    />
+      onMouseDown={mouseDownHandler}>
+      {props.children || <RiAddFill size={18} data-test={"extendButton"} />}
+    </Components.TableHandle.ExtendButton>
   );
 };

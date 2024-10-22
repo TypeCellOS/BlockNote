@@ -187,6 +187,7 @@ export type ComponentProps = {
       className?: string;
       onDragStart: (e: React.DragEvent) => void;
       onMouseDown: (e: React.MouseEvent) => void;
+      children: ReactNode;
     };
   };
   // TODO: We should try to make everything as generic as we can
