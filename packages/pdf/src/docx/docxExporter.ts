@@ -108,7 +108,7 @@ export class DOCXExporter<
     const promises = await Promise.all(
       blocks.flatMap(async (b) => {
         let children = await this.transformBlocks(b.children, nestingLevel + 1);
-        children = children.map((c, i) => {
+        children = children.map((c, _i) => {
           // TODO: nested tables not supported
           if (
             c instanceof Paragraph &&

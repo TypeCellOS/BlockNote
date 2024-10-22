@@ -52,7 +52,7 @@ function blockPropsToStyles(props: Partial<DefaultProps>): IParagraphOptions {
   };
 }
 export const docxBlockMappingForDefaultSchema = {
-  paragraph: (block, inlineContentTransformer, nestingLevel) => {
+  paragraph: (block, inlineContentTransformer) => {
     return new Paragraph({
       ...blockPropsToStyles(block.props),
       children: inlineContentTransformer(block.content),
@@ -82,7 +82,7 @@ export const docxBlockMappingForDefaultSchema = {
       },
     });
   },
-  checkListItem: (block, inlineContentTransformer, nestingLevel) => {
+  checkListItem: (block, inlineContentTransformer) => {
     return new Paragraph({
       children: [
         new CheckBox({ checked: block.props.checked }),
@@ -93,7 +93,7 @@ export const docxBlockMappingForDefaultSchema = {
       ],
     });
   },
-  heading: (block, inlineContentTransformer, nestingLevel) => {
+  heading: (block, inlineContentTransformer) => {
     return new Paragraph({
       ...blockPropsToStyles(block.props),
       children: inlineContentTransformer(block.content),
