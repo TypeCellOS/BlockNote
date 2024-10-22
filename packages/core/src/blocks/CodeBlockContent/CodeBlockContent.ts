@@ -1,4 +1,4 @@
-import { Editor, InputRule, isTextSelection } from "@tiptap/core";
+import { InputRule, isTextSelection } from "@tiptap/core";
 import {
   BuiltinLanguage,
   bundledLanguagesInfo,
@@ -348,3 +348,12 @@ export const CodeBlock = createBlockSpecFromStronglyTypedTiptapNode(
   CodeBlockContent,
   codeBlockPropSchema
 );
+export function customizeCodeBlock(options: {
+  indentLineWithTab?: boolean;
+  supportedLanguages?: SupportedLanguageConfig[];
+}) {
+  return createBlockSpecFromStronglyTypedTiptapNode(
+    CodeBlockContent.configure(options),
+    codeBlockPropSchema
+  );
+}
