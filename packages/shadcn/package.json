@@ -67,8 +67,6 @@
     "clsx": "^2.1.1",
     "lucide-react": "^0.362.0",
     "postcss": "^8.4.38",
-    "react": "^18",
-    "react-dom": "^18",
     "react-hook-form": "^7.52.0",
     "tailwind-merge": "^2.3.0",
     "tailwindcss": "^3.4.3",
@@ -91,8 +89,8 @@
     "vite-plugin-externalize-deps": "^0.8.0"
   },
   "peerDependencies": {
-    "react": "^18",
-    "react-dom": "^18"
+    "react": "18 - 19",
+    "react-dom": "18 - 19"
   },
   "eslintConfig": {
     "extends": [

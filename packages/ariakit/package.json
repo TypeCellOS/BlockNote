@@ -53,9 +53,7 @@
   "dependencies": {
     "@ariakit/react": "^0.4.3",
     "@blocknote/core": "^0.17.1",
-    "@blocknote/react": "^0.17.1",
-    "react": "^18",
-    "react-dom": "^18"
+    "@blocknote/react": "^0.17.1"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",
@@ -71,8 +69,8 @@
     "vite-plugin-externalize-deps": "^0.8.0"
   },
   "peerDependencies": {
-    "react": "^18",
-    "react-dom": "^18"
+    "react": "18 - 19",
+    "react-dom": "18 - 19"
   },
   "eslintConfig": {
     "extends": [

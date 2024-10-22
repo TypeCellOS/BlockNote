@@ -32,11 +32,14 @@ export default defineConfig((conf) => ({
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: Object.keys({
-        ...pkg.dependencies,
-        ...pkg.peerDependencies,
-        ...pkg.devDependencies,
-      }),
+      external: [
+        ...Object.keys({
+          ...pkg.dependencies,
+          ...pkg.peerDependencies,
+          ...pkg.devDependencies,
+        }),
+        "react/jsx-runtime",
+      ],
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps

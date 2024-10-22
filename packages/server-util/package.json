@@ -55,8 +55,6 @@
     "@tiptap/core": "^2.7.1",
     "@tiptap/pm": "^2.7.1",
     "jsdom": "^21.1.0",
-    "react": "^18",
-    "react-dom": "^18",
     "y-prosemirror": "1.2.12",
     "y-protocols": "^1.0.6",
     "yjs": "^13.6.15"
@@ -74,8 +72,8 @@
     "vitest": "^2.0.3"
   },
   "peerDependencies": {
-    "react": "^18",
-    "react-dom": "^18"
+    "react": "18 - 19",
+    "react-dom": "18 - 19"
   },
   "eslintConfig": {
     "extends": [

@@ -56,8 +56,6 @@
     "@mantine/core": "^7.10.1",
     "@mantine/hooks": "^7.10.1",
     "@mantine/utils": "^6.0.21",
-    "react": "^18",
-    "react-dom": "^18",
     "react-icons": "^5.2.1"
   },
   "devDependencies": {
@@ -74,8 +72,8 @@
     "vite-plugin-externalize-deps": "^0.8.0"
   },
   "peerDependencies": {
-    "react": "^18",
-    "react-dom": "^18"
+    "react": "18 - 19",
+    "react-dom": "18 - 19"
   },
   "eslintConfig": {
     "extends": [
