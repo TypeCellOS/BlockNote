@@ -12,26 +12,15 @@ import {
   CheckBox,
   Table as DocxTable,
   IParagraphOptions,
+  ImageRun,
   Paragraph,
   ParagraphChild,
   ShadingType,
-  TabStopType,
   TextRun,
 } from "docx";
 import { BlockMapping } from "../../mapping.js";
+import { getImageDimensions } from "../../util/imageUtil.js";
 import { Table } from "../util/Table.js";
-
-function createTabStops(nestingLevel: number): any[] {
-  const tabStops: any[] = [];
-  for (let i = 0; i < Math.min(nestingLevel, 5); i++) {
-    // create min. 5 tabstops
-    tabStops.push({
-      position: 200 * (i + 1),
-      type: TabStopType.LEFT,
-    });
-  }
-  return tabStops;
-}
 
 function blockPropsToStyles(props: Partial<DefaultProps>): IParagraphOptions {
   return {
@@ -71,40 +60,40 @@ export const docxBlockMappingForDefaultSchema = {
       run: {
         font: "Inter",
       },
-      tabStops: createTabStops(nestingLevel),
     });
   },
-  numberedListItem: (block, inlineContentTransformer) => {
+  numberedListItem: (block, inlineContentTransformer, nestingLevel) => {
     return new Paragraph({
       ...blockPropsToStyles(block.props),
       children: inlineContentTransformer(block.content),
       numbering: {
-        reference: "blocknote-numbering",
-        level: 0,
+        reference: "blocknote-numbered-list",
+        level: nestingLevel,
       },
     });
   },
-  bulletListItem: (block, inlineContentTransformer) => {
+  bulletListItem: (block, inlineContentTransformer, nestingLevel) => {
     return new Paragraph({
       ...blockPropsToStyles(block.props),
       children: inlineContentTransformer(block.content),
-      bullet: {
-        level: 0,
+      numbering: {
+        reference: "blocknote-bullet-list",
+        level: nestingLevel,
       },
     });
   },
-  checkListItem: (block, inlineContentTransformer) => {
+  checkListItem: (block, inlineContentTransformer, nestingLevel) => {
     return new Paragraph({
       children: [
         new CheckBox({ checked: block.props.checked }),
+        new TextRun({
+          children: [" "],
+        }),
         ...inlineContentTransformer(block.content),
       ],
-      bullet: {
-        level: 0,
-      },
     });
   },
-  heading: (block, inlineContentTransformer) => {
+  heading: (block, inlineContentTransformer, nestingLevel) => {
     return new Paragraph({
       ...blockPropsToStyles(block.props),
       children: inlineContentTransformer(block.content),
@@ -141,15 +130,41 @@ export const docxBlockMappingForDefaultSchema = {
       ],
     });
   },
-  image: (block, _inlineContentTransformer) => {
-    return new Paragraph({
-      ...blockPropsToStyles(block.props),
-      children: [
-        new TextRun({
-          text: block.type + " not implemented",
-        }),
-      ],
-    });
+  image: async (block, _inlineContentTransformer) => {
+    const blob = await (await fetch(block.props.url)).blob();
+    const { width, height } = await getImageDimensions(blob);
+
+    return [
+      new Paragraph({
+        ...blockPropsToStyles(block.props),
+        children: [
+          new ImageRun({
+            data: await blob.arrayBuffer(),
+
+            altText: block.props.caption
+              ? {
+                  description: block.props.caption,
+                  name: block.props.caption,
+                  title: block.props.caption,
+                }
+              : undefined,
+            transformation: {
+              width: block.props.previewWidth,
+              height: (block.props.previewWidth / width) * height,
+            },
+          }),
+        ],
+      }),
+      new Paragraph({
+        ...blockPropsToStyles(block.props),
+        children: [
+          new TextRun({
+            text: block.props.caption,
+          }),
+        ],
+        style: "Caption",
+      }),
+    ];
   },
   table: (block, inlineContentTransformer) => {
     return Table(block.content.rows, inlineContentTransformer);
@@ -158,7 +173,10 @@ export const docxBlockMappingForDefaultSchema = {
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
-  Paragraph | DocxTable,
+  | Promise<Paragraph[] | Paragraph | DocxTable>
+  | Paragraph[]
+  | Paragraph
+  | DocxTable,
   (
     inlineContent: InlineContent<InlineContentSchema, StyleSchema>[]
   ) => ParagraphChild[]

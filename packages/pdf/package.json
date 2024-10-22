@@ -50,6 +50,7 @@
   "dependencies": {
     "@blocknote/core": "^0.17.1",
     "@blocknote/react": "^0.17.1",
+    "sharp": "^0.33.5",
     "react": "^18",
     "react-dom": "^18",
     "react-email": "^3.0.1",

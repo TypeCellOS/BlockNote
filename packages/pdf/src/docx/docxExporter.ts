@@ -26,6 +26,7 @@ import {
   StyleMapping,
 } from "../mapping.js";
 
+const DEFAULT_TAB_STOP = 16 * 0.75 * 1.5 * 20; /* twip */
 export class DOCXExporter<
   B extends BlockSchema,
   S extends StyleSchema,
@@ -38,7 +39,10 @@ export class DOCXExporter<
         B,
         I,
         S,
-        Paragraph | Table,
+        | Promise<Paragraph[] | Paragraph | Table>
+        | Paragraph[]
+        | Paragraph
+        | Table,
         (
           // Would be nicer if this was I and S, but that breaks
           inlineContentArray: InlineContent<InlineContentSchema, StyleSchema>[]
@@ -86,7 +90,7 @@ export class DOCXExporter<
     return inlineContentArray.map((ic) => this.transformInlineContent(ic));
   }
 
-  public transformBlock(
+  public async transformBlock(
     block: BlockFromConfig<B[keyof B], I, S>,
     nestingLevel: number
   ) {
@@ -97,24 +101,35 @@ export class DOCXExporter<
     );
   }
 
-  public transformBlocks(blocks: Block<B, I, S>[]): Array<Paragraph | Table> {
-    return blocks.flatMap((b) => {
-      let children = this.transformBlocks(b.children);
-      children = children.map((c) => {
-        // TODO: nested tables not supported
-        if (c instanceof Paragraph) {
-          c.addRunToFront(
-            new TextRun({
-              children: [new Tab()],
-            })
-          );
+  public async transformBlocks(
+    blocks: Block<B, I, S>[],
+    nestingLevel = 0
+  ): Promise<Array<Paragraph | Table>> {
+    const promises = await Promise.all(
+      blocks.flatMap(async (b) => {
+        let children = await this.transformBlocks(b.children, nestingLevel + 1);
+        children = children.map((c, i) => {
+          // TODO: nested tables not supported
+          if (
+            c instanceof Paragraph &&
+            !(c as any).properties.numberingReferences.length
+          ) {
+            c.addRunToFront(
+              new TextRun({
+                children: [new Tab()],
+              })
+            );
+          }
+          return c;
+        });
+        const self = await this.transformBlock(b as any, nestingLevel); // TODO: any
+        if (Array.isArray(self)) {
+          return [...self, ...children];
         }
-        return c;
-      });
-      const self = this.transformBlock(b as any, 0); // TODO: any
-
-      return [self, ...children];
-    });
+        return [self, ...children];
+      })
+    );
+    return promises.flat();
   }
 
   public async createDocumentProperties(): Promise<
@@ -128,19 +143,45 @@ export class DOCXExporter<
     const externalStyles = (await import("./template/word/styles.xml?raw"))
       .default;
 
+    const bullets = ["•"]; //, "◦", "▪"]; (these don't look great, just use solid bullet for now)
     return {
       numbering: {
         config: [
           {
-            reference: "blocknote-numbering",
-            levels: [
-              {
-                level: 0,
-                format: LevelFormat.DECIMAL,
-                text: "%1",
-                alignment: AlignmentType.START,
+            reference: "blocknote-numbered-list",
+            levels: Array.from({ length: 9 }, (_, i) => ({
+              start: 1,
+              level: i,
+              format: LevelFormat.DECIMAL,
+              text: `%${i + 1}.`,
+              alignment: AlignmentType.LEFT,
+              style: {
+                paragraph: {
+                  indent: {
+                    left: DEFAULT_TAB_STOP * (i + 1),
+                    hanging: DEFAULT_TAB_STOP,
+                  },
+                },
               },
-            ],
+            })),
+          },
+          {
+            reference: "blocknote-bullet-list",
+            levels: Array.from({ length: 9 }, (_, i) => ({
+              start: 1,
+              level: i,
+              format: LevelFormat.BULLET,
+              text: bullets[i % bullets.length],
+              alignment: AlignmentType.LEFT,
+              style: {
+                paragraph: {
+                  indent: {
+                    left: DEFAULT_TAB_STOP * (i + 1),
+                    hanging: DEFAULT_TAB_STOP,
+                  },
+                },
+              },
+            })),
           },
         ],
       },
@@ -151,6 +192,7 @@ export class DOCXExporter<
       //     data: fs.readFileSync("./src/fonts/Inter-VariableFont_opsz,wght.ttf"),
       //   },
       // ],
+      defaultTabStop: 200,
       externalStyles,
     };
   }
@@ -161,7 +203,7 @@ export class DOCXExporter<
       sections: [
         {
           properties: {},
-          children: this.transformBlocks(blocks),
+          children: await this.transformBlocks(blocks),
         },
       ],
     });
