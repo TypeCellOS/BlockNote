@@ -48,7 +48,7 @@ describe("exporter", () => {
     new PDFExporter(schema, {
       blockMapping: {
         ...pdfDefaultSchemaMappings.blockMapping,
-        extraBlock: (b, t) => {
+        extraBlock: (_b, _t) => {
           throw new Error("sdf");
         },
       },

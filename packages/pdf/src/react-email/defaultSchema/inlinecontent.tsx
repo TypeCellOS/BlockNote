@@ -1,28 +1,26 @@
 import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
-  StyleSchema,
-  StyledText,
 } from "@blocknote/core";
 import { Link } from "@react-email/components";
 import { InlineContentMapping } from "../../mapping.js";
 
-export const reactEmailInlineContentMappingForDefaultSchema = {
-  link: (ic, st) => {
+export const reactEmailInlineContentMappingForDefaultSchema: InlineContentMapping<
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+  React.ReactElement<typeof Link> | React.ReactElement<HTMLSpanElement>,
+  React.ReactElement<HTMLSpanElement>
+> = {
+  link: (ic, t) => {
     return (
       <Link href={ic.href}>
         {...ic.content.map((content) => {
-          return st(content);
+          return t.transformStyledText(content);
         })}
       </Link>
     );
   },
-  text: (ic, st) => {
-    return st(ic);
+  text: (ic, t) => {
+    return t.transformStyledText(ic);
   },
-} satisfies InlineContentMapping<
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  React.ReactElement<typeof Link> | React.ReactElement<HTMLSpanElement>,
-  (text: StyledText<StyleSchema>) => React.ReactElement<HTMLSpanElement>
->;
+};

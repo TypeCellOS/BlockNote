@@ -2,7 +2,10 @@ import { DefaultStyleSchema } from "@blocknote/core";
 import { CSSProperties } from "react";
 import { StyleMapping } from "../../mapping.js";
 
-export const reactEmailStyleMappingForDefaultSchema = {
+export const reactEmailStyleMappingForDefaultSchema: StyleMapping<
+  DefaultStyleSchema,
+  CSSProperties
+> = {
   bold: (val) => {
     if (!val) {
       return {};
@@ -57,4 +60,4 @@ export const reactEmailStyleMappingForDefaultSchema = {
       fontFamily: "Courier",
     };
   },
-} satisfies StyleMapping<DefaultStyleSchema, CSSProperties>;
+};

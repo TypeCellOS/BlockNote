@@ -1,19 +1,11 @@
 import {
   Block,
-  BlockFromConfig,
   BlockNoteSchema,
   BlockSchema,
-  InlineContent,
   InlineContentSchema,
   StyleSchema,
   StyledText,
 } from "@blocknote/core";
-
-import {
-  BlockMapping,
-  InlineContentMapping,
-  StyleMapping,
-} from "../mapping.js";
 
 import {
   Body,
@@ -23,70 +15,42 @@ import {
   Html,
   Link,
   Section,
-  Text,
 } from "@react-email/components";
 import { CSSProperties } from "react";
+import { Transformer } from "../Transformer.js";
 
 export class ReactEmailExporter<
   B extends BlockSchema,
   S extends StyleSchema,
   I extends InlineContentSchema
+> extends Transformer<
+  B,
+  I,
+  S,
+  React.ReactElement<any>,
+  React.ReactElement<typeof Link> | React.ReactElement<HTMLSpanElement>,
+  CSSProperties,
+  React.ReactElement<HTMLSpanElement>
 > {
   public constructor(
     public readonly schema: BlockNoteSchema<B, I, S>,
-    public readonly mappings: {
-      styleMapping: StyleMapping<NoInfer<S>, CSSProperties>;
-      blockMapping: BlockMapping<
-        B,
-        I,
-        S,
-        React.ReactElement<typeof Text>,
-        (
-          ic: InlineContent<InlineContentSchema, StyleSchema>[]
-        ) => React.ReactElement<typeof Text>
-      >;
-      inlineContentMapping: InlineContentMapping<
-        I,
-        S,
-        React.ReactElement<typeof Link> | React.ReactElement<HTMLSpanElement>,
-        (s: StyledText<StyleSchema>) => React.ReactElement<HTMLSpanElement>
-      >;
-    }
-  ) {}
+    mappings: Transformer<
+      NoInfer<B>,
+      NoInfer<I>,
+      NoInfer<S>,
+      React.ReactElement<any>,
+      React.ReactElement<typeof Link> | React.ReactElement<HTMLSpanElement>,
+      CSSProperties,
+      React.ReactElement<HTMLSpanElement>
+    >["mappings"]
+  ) {
+    super(schema, mappings);
+  }
 
   public transformStyledText(styledText: StyledText<S>) {
-    const stylesArray = Object.entries(styledText.styles).map(
-      ([key, value]) => {
-        const mappedStyle = this.mappings.styleMapping[key](value);
-        return mappedStyle;
-      }
-    );
+    const stylesArray = this.mapStyles(styledText.styles);
     const styles = Object.assign({}, ...stylesArray);
     return <span style={styles}>{styledText.text}</span>;
-  }
-
-  public transformInlineContent(inlineContent: InlineContent<I, S>) {
-    return this.mappings.inlineContentMapping[inlineContent.type](
-      inlineContent,
-      this.transformStyledText.bind(this) as any // TODO
-    );
-  }
-
-  public transformInlineContentArray(
-    inlineContentArray: InlineContent<I, S>[]
-  ) {
-    return inlineContentArray.map((ic) => this.transformInlineContent(ic));
-  }
-
-  public transformBlock(
-    block: BlockFromConfig<B[keyof B], I, S>,
-    nestingLevel: number
-  ) {
-    return this.mappings.blockMapping[block.type](
-      block,
-      this.transformInlineContentArray.bind(this) as any, // not ideal as any
-      nestingLevel
-    );
   }
 
   public transformBlocks(
@@ -95,7 +59,7 @@ export class ReactEmailExporter<
   ): React.ReactElement<Text>[] {
     return blocks.map((b) => {
       const children = this.transformBlocks(b.children, nestingLevel + 1);
-      const self = this.transformBlock(b as any, nestingLevel); // TODO: any
+      const self = this.mapBlock(b as any, nestingLevel, 0); // TODO: any
 
       return (
         <>

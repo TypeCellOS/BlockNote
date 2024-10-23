@@ -1,48 +1,49 @@
-import {
-  DefaultBlockSchema,
-  InlineContent,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
+import { DefaultBlockSchema } from "@blocknote/core";
 import { Heading, Img, Link, Text } from "@react-email/components";
 import { BlockMapping } from "../../mapping.js";
 
-export const reactEmailBlockMappingForDefaultSchema = {
-  paragraph: (block, inlineContentTransformer) => {
-    return <Text>{inlineContentTransformer(block.content)}</Text>;
+export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
+  DefaultBlockSchema,
+  any,
+  any,
+  React.ReactElement<any>,
+  React.ReactElement<typeof Link> | React.ReactElement<typeof Text>
+> = {
+  paragraph: (block, t) => {
+    return <Text>{t.transformInlineContent(block.content)}</Text>;
   },
-  bulletListItem: (block, inlineContentTransformer) => {
+  bulletListItem: (block, t) => {
     // TODO
     return (
       <Text>
         <Text>• </Text>
-        <Text>{inlineContentTransformer(block.content)}</Text>
+        <Text>{t.transformInlineContent(block.content)}</Text>
       </Text>
     );
   },
-  numberedListItem: (block, inlineContentTransformer) => {
+  numberedListItem: (block, t) => {
     // TODO
     return (
       <Text>
         <Text>•</Text>
-        <Text>{inlineContentTransformer(block.content)}</Text>
+        <Text>{t.transformInlineContent(block.content)}</Text>
       </Text>
     );
   },
   // TODO
-  checkListItem: (block, inlineContentTransformer) => {
+  checkListItem: (block, t) => {
     return (
       <Text>
         <Text>•</Text>
-        <Text>{inlineContentTransformer(block.content)}</Text>
+        <Text>{t.transformInlineContent(block.content)}</Text>
       </Text>
     );
   },
-  heading: (block, inlineContentTransformer) => {
+  heading: (block, t) => {
     // TODO
     return (
       <Heading as={`h${block.props.level}`}>
-        {inlineContentTransformer(block.content)}
+        {t.transformInlineContent(block.content)}
       </Heading>
     );
   },
@@ -69,12 +70,4 @@ export const reactEmailBlockMappingForDefaultSchema = {
   table: (block) => {
     return <Text>{block.type + " not implemented"}</Text>;
   },
-} satisfies BlockMapping<
-  DefaultBlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-  React.ReactElement<any>,
-  (
-    inlineContent: InlineContent<InlineContentSchema, StyleSchema>[]
-  ) => React.ReactElement<typeof Link> | React.ReactElement<typeof Text>
->;
+};
