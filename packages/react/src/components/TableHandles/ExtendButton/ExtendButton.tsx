@@ -198,9 +198,6 @@ export const ExtendButton = <
           : "bn-extend-button-column",
         editingState !== null ? "bn-extend-button-editing" : ""
       )}
-      onDragStart={(event) => {
-        event.preventDefault();
-      }}
       onMouseDown={mouseDownHandler}>
       {props.children || <RiAddFill size={18} data-test={"extendButton"} />}
     </Components.TableHandle.ExtendButton>

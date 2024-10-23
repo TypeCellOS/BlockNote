@@ -9,7 +9,7 @@ export const ExtendButton = forwardRef<
   HTMLButtonElement,
   ComponentProps["TableHandle"]["ExtendButton"]
 >((props, ref) => {
-  const { className, children, onDragStart, onMouseDown, ...rest } = props;
+  const { className, children, onMouseDown, ...rest } = props;
 
   // false, because rest props can be added by shadcn when button is used as a trigger
   // assertEmpty in this case is only used at typescript level, not runtime level
@@ -29,7 +29,6 @@ export const ExtendButton = forwardRef<
           : ""
       )}
       ref={ref}
-      onDragStart={onDragStart}
       onMouseDown={onMouseDown}
       {...rest}>
       {children}
