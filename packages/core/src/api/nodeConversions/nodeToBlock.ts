@@ -30,13 +30,23 @@ export function contentNodeToTableContent<
 >(contentNode: Node, inlineContentSchema: I, styleSchema: S) {
   const ret: TableContent<I, S> = {
     type: "tableContent",
+    columnWidths: [],
     rows: [],
   };
 
-  contentNode.content.forEach((rowNode) => {
+  contentNode.content.forEach((rowNode, _offset, index) => {
     const row: TableContent<I, S>["rows"][0] = {
       cells: [],
     };
+
+    if (index === 0) {
+      rowNode.content.forEach((cellNode) => {
+        // The colwidth array should have multiple values when the colspan of a
+        // cell is greater than 1. However, this is not yet implemented so we
+        // can always assume a length of 1.
+        ret.columnWidths.push(cellNode.attrs.colwidth?.[0] || undefined);
+      });
+    }
 
     rowNode.content.forEach((cellNode) => {
       row.cells.push(

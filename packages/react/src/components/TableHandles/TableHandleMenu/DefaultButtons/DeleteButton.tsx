@@ -3,8 +3,8 @@ import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   InlineContentSchema,
+  PartialTableContent,
   StyleSchema,
-  TableContent,
 } from "@blocknote/core";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
@@ -29,8 +29,9 @@ export const DeleteRowButton = <
   return (
     <Components.Generic.Menu.Item
       onClick={() => {
-        const content: TableContent<I, S> = {
+        const content: PartialTableContent<I, S> = {
           type: "tableContent",
+          columnWidths: props.block.content.columnWidths,
           rows: props.block.content.rows.filter(
             (_, index) => index !== props.index
           ),
@@ -68,8 +69,11 @@ export const DeleteColumnButton = <
   return (
     <Components.Generic.Menu.Item
       onClick={() => {
-        const content: TableContent<I, S> = {
+        const content: PartialTableContent<I, S> = {
           type: "tableContent",
+          columnWidths: props.block.content.columnWidths.filter(
+            (_, index) => index !== props.index
+          ),
           rows: props.block.content.rows.map((row) => ({
             cells: row.cells.filter((_, index) => index !== props.index),
           })),

@@ -160,8 +160,31 @@
 }
 
 .bn-ariakit .bn-side-menu,
-.bn-ariakit .bn-table-handle {
+.bn-ariakit .bn-table-handle,
+.bn-ariakit .bn-extend-button {
     color: gray;
+}
+
+.bn-ariakit .bn-extend-button-editing {
+    background-color: hsl(204 4% 0% / 0.05);
+}
+
+.bn-ariakit .bn-extend-button-editing:where(.dark, .dark *) {
+    background-color: hsl(204 20% 100% / 0.05);
+}
+
+.bn-ariakit .bn-extend-button-row {
+    height: 100%;
+    width: 18px;
+    padding: 0;
+    margin-left: 4px;
+}
+
+.bn-ariakit .bn-extend-button-column {
+    height: 18px;
+    width: 100%;
+    padding: 0;
+    margin-top: 4px;
 }
 
 .bn-ak-button:where(.dark, .dark *) {

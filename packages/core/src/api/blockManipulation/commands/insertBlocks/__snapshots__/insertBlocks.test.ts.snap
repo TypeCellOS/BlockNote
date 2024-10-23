@@ -309,6 +309,11 @@ exports[`Test insertBlocks > Insert multiple blocks after 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -831,6 +836,11 @@ exports[`Test insertBlocks > Insert multiple blocks before 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -1313,6 +1323,11 @@ exports[`Test insertBlocks > Insert single basic block after 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -1795,6 +1810,11 @@ exports[`Test insertBlocks > Insert single basic block before 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -2334,6 +2354,11 @@ exports[`Test insertBlocks > Insert single complex block after 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -2873,6 +2898,11 @@ exports[`Test insertBlocks > Insert single complex block before 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [

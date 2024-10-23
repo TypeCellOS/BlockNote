@@ -149,6 +149,7 @@ export type TableContent<
   S extends StyleSchema = StyleSchema
 > = {
   type: "tableContent";
+  columnWidths: (number | undefined)[];
   rows: {
     cells: InlineContent<I, S>[][];
   }[];
@@ -224,6 +225,7 @@ export type PartialTableContent<
   S extends StyleSchema = StyleSchema
 > = {
   type: "tableContent";
+  columnWidths?: (number | undefined)[];
   rows: {
     cells: PartialInlineContent<I, S>[];
   }[];

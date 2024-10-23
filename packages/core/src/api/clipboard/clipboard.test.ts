@@ -173,7 +173,7 @@ describe("Test ProseMirror selection clipboard HTML", () => {
       )
     );
 
-    const { clipboardHTML, externalHTML } = await selectedFragmentToHTML(
+    const { clipboardHTML, externalHTML } = selectedFragmentToHTML(
       editor._tiptapEditor.view,
       editor
     );

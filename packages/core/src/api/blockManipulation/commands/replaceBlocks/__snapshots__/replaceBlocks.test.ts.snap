@@ -171,6 +171,11 @@ exports[`Test replaceBlocks > Remove multiple consecutive blocks 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -922,6 +927,11 @@ exports[`Test replaceBlocks > Remove single block 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -1357,6 +1367,11 @@ exports[`Test replaceBlocks > Replace multiple consecutive blocks with multiple 
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -1752,6 +1767,11 @@ exports[`Test replaceBlocks > Replace multiple consecutive blocks with single ba
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -2204,6 +2224,11 @@ exports[`Test replaceBlocks > Replace multiple consecutive blocks with single co
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -3730,6 +3755,11 @@ exports[`Test replaceBlocks > Replace single block with multiple 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -4195,6 +4225,11 @@ exports[`Test replaceBlocks > Replace single block with single basic 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -4717,6 +4752,11 @@ exports[`Test replaceBlocks > Replace single block with single complex 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [

@@ -488,7 +488,8 @@
 }
 
 /* Table Handle styling */
-.bn-mantine .bn-table-handle {
+.bn-mantine .bn-table-handle,
+.bn-mantine .bn-extend-button {
   align-items: center;
   background-color: var(--bn-colors-menu-background);
   border: var(--bn-border);
@@ -508,8 +509,22 @@
 }
 
 .bn-mantine .bn-table-handle:hover,
-.bn-mantine .bn-table-handle-dragging {
+.bn-mantine .bn-table-handle-dragging,
+.bn-mantine .bn-extend-button:hover,
+.bn-mantine .bn-extend-button-editing {
   background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-mantine .bn-extend-button-row {
+  height: 100%;
+  width: 18px;
+  margin-left: 4px;
+}
+
+.bn-mantine .bn-extend-button-column {
+  height: 18px;
+  width: 100%;
+  margin-top: 4px;
 }
 
 /* Drag Handle & Table Handle Menu styling */
