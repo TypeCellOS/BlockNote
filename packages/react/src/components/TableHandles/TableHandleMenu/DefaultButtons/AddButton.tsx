@@ -79,7 +79,7 @@ export const AddColumnButton = <
           columnWidths: props.block.content.columnWidths.toSpliced(
             props.index + (props.side === "right" ? 1 : 0),
             0,
-            100
+            undefined
           ),
           rows: props.block.content.rows.map((row) => {
             const cells = [...row.cells];

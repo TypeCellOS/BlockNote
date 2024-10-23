@@ -8,10 +8,8 @@ import {
 import { FC, useMemo, useState } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import {
-  useExtendButtonsPositioning,
-  useTableHandlesPositioning,
-} from "./hooks/useTableHandlesPositioning.js";
+import { useExtendButtonsPositioning } from "./hooks/useExtendButtonsPositioning.js";
+import { useTableHandlesPositioning } from "./hooks/useTableHandlesPositioning.js";
 import { useUIPluginState } from "../../hooks/useUIPluginState.js";
 import { ExtendButton } from "./ExtendButton/ExtendButton.js";
 import { TableHandle } from "./TableHandle.js";
@@ -71,7 +69,8 @@ export const TableHandlesController = <
   );
 
   const { rowExtendButton, colExtendButton } = useExtendButtonsPositioning(
-    state?.show || false,
+    state?.showExtendButtonRow || false,
+    state?.showExtendButtonCol || false,
     state?.referencePosCell || null,
     state?.referencePosTable || null,
     draggingState

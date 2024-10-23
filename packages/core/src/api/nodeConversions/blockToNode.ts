@@ -178,11 +178,7 @@ export function tableContentToNodes<
           // The colwidth array should have multiple values when the colspan of
           // a cell is greater than 1. However, this is not yet implemented so
           // we can always assume a length of 1.
-          colwidth: [
-            tableContent.columnWidths
-              ? tableContent.columnWidths[i] || 100
-              : 100,
-          ],
+          colwidth: [tableContent.columnWidths?.[i] || null],
         },
         pNode
       );

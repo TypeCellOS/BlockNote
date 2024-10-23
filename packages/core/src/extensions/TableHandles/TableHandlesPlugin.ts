@@ -2,7 +2,7 @@ import { Plugin, PluginKey, PluginView } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import { checkBlockIsDefaultType } from "../../blocks/defaultBlockTypeGuards.js";
-import { Block, DefaultBlockSchema } from "../../blocks/defaultBlocks.js";
+import { DefaultBlockSchema } from "../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   BlockFromConfigNoChildren,
@@ -20,6 +20,8 @@ export type TableHandlesState<
   S extends StyleSchema
 > = {
   show: boolean;
+  showExtendButtonRow: boolean;
+  showExtendButtonCol: boolean;
   referencePosCell: DOMRect;
   referencePosTable: DOMRect;
 
@@ -164,6 +166,8 @@ export class TableHandlesView<
 
       if (this.state?.show) {
         this.state.show = false;
+        this.state.showExtendButtonRow = false;
+        this.state.showExtendButtonCol = false;
         this.emitUpdate();
       }
     }
@@ -177,6 +181,8 @@ export class TableHandlesView<
     if (!target || !this.editor.isEditable) {
       if (this.state?.show) {
         this.state.show = false;
+        this.state.showExtendButtonRow = false;
+        this.state.showExtendButtonCol = false;
         this.emitUpdate();
       }
       return;
@@ -198,7 +204,9 @@ export class TableHandlesView<
     }
     this.tableElement = blockEl.node;
 
-    let tableBlock: Block<any, any, any> | undefined = undefined;
+    let tableBlock:
+      | BlockFromConfigNoChildren<DefaultBlockSchema["table"], I, S>
+      | undefined;
 
     // Copied from `getBlock`. We don't use `getBlock` since we also need the PM
     // node for the table, so we would effectively be doing the same work twice.
@@ -245,6 +253,9 @@ export class TableHandlesView<
 
     this.state = {
       show: true,
+      showExtendButtonRow:
+        colIndex === tableBlock.content.rows[0].cells.length - 1,
+      showExtendButtonCol: rowIndex === tableBlock.content.rows.length - 1,
       referencePosCell: cellRect,
       referencePosTable: tableRect,
 
@@ -418,30 +429,32 @@ export class TableHandlesView<
       return;
     }
 
-    // TODO: Can also just do down the DOM tree until we find it but this seems
-    //  cleaner.
     const tableBody = this.tableElement!.querySelector("tbody");
     if (!tableBody) {
       return;
     }
 
+    // If rows or columns are deleted in the update, the hovered indices for
+    // those may now be out of bounds. If this is the case, they are moved to
+    // the new last row or column.
     if (this.state.rowIndex >= tableBody.children.length) {
       this.state.rowIndex = tableBody.children.length - 1;
       this.emitUpdate();
 
       return;
     }
-    const row = tableBody.children[this.state.rowIndex];
-
     if (this.state.colIndex >= tableBody.children[0].children.length) {
       this.state.colIndex = tableBody.children[0].children.length - 1;
       this.emitUpdate();
 
       return;
     }
+
+    const row = tableBody.children[this.state.rowIndex];
     const cell = row.children[this.state.colIndex];
 
     // TODO: Check if DOMRects changed first?
+    this.state.block = this.editor.getBlock(this.state.block.id)!;
     this.state.referencePosCell = cell.getBoundingClientRect();
     this.state.referencePosTable = tableBody.getBoundingClientRect();
     this.emitUpdate();

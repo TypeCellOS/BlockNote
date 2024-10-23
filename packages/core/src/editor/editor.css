@@ -106,6 +106,7 @@ Tippy popups that are appended to document.body directly
 
 /* table related: */
 .bn-editor table {
+  /* TODO: Do we want this? */
   width: auto !important;
   margin-bottom: 2em;
 }

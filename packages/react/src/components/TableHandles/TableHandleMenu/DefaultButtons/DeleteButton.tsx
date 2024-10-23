@@ -31,9 +31,7 @@ export const DeleteRowButton = <
       onClick={() => {
         const content: PartialTableContent<I, S> = {
           type: "tableContent",
-          columnWidths: props.block.content.columnWidths.filter(
-            (_, index) => index !== props.index
-          ),
+          columnWidths: props.block.content.columnWidths,
           rows: props.block.content.rows.filter(
             (_, index) => index !== props.index
           ),

@@ -1,4 +1,6 @@
 import {
+  BlockFromConfigNoChildren,
+  DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   InlineContentSchema,
@@ -9,6 +11,7 @@ import {
 import {
   MouseEvent as ReactMouseEvent,
   ReactNode,
+  useCallback,
   useEffect,
   useState,
 } from "react";
@@ -16,6 +19,21 @@ import { RiAddFill } from "react-icons/ri";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { ExtendButtonProps } from "./ExtendButtonProps.js";
+
+// Rounds a number up or down, depending on whether the value past the decimal
+// point is above or below a certain fraction. If no fraction is provided, it
+// behaves like Math.round.
+const roundUpAt = (num: number, fraction = 0.5) => {
+  if (fraction <= 0 || fraction >= 100) {
+    throw new Error("Percentage must be between 0 and 1");
+  }
+
+  if (num < fraction) {
+    return Math.floor(num);
+  }
+
+  return Math.ceil(num);
+};
 
 const getContentWithAddedRows = <
   I extends InlineContentSchema,
@@ -34,9 +52,7 @@ const getContentWithAddedRows = <
 
   return {
     type: "tableContent",
-    columnWidths: content.columnWidths
-      ? [...content.columnWidths, ...newRows.map(() => undefined)]
-      : undefined,
+    columnWidths: content.columnWidths,
     rows: [...content.rows, ...newRows],
   };
 };
@@ -57,7 +73,9 @@ const getContentWithAddedCols = <
 
   return {
     type: "tableContent",
-    columnWidths: content.columnWidths || undefined,
+    columnWidths: content.columnWidths
+      ? [...content.columnWidths, ...newCells.map(() => undefined)]
+      : undefined,
     rows: content.rows.map((row) => ({
       cells: [...row.cells, ...newCells],
     })),
@@ -73,22 +91,23 @@ export const ExtendButton = <
   const Components = useComponentsContext()!;
 
   const [editingState, setEditingState] = useState<{
+    originalBlock: BlockFromConfigNoChildren<DefaultBlockSchema["table"], I, S>;
     startPos: number;
-    numOriginalCells: number;
     clickOnly: boolean;
   } | null>(null);
 
-  const mouseDownHandler = (event: ReactMouseEvent) => {
-    props.freezeHandles();
-    setEditingState({
-      startPos: props.orientation === "row" ? event.clientX : event.clientY,
-      numOriginalCells:
-        props.orientation === "row"
-          ? props.block.content.rows[0].cells.length
-          : props.block.content.rows.length,
-      clickOnly: true,
-    });
-  };
+  // Lets the user start extending columns/rows by moving the mouse.
+  const mouseDownHandler = useCallback(
+    (event: ReactMouseEvent) => {
+      props.freezeHandles();
+      setEditingState({
+        originalBlock: props.block,
+        startPos: props.orientation === "row" ? event.clientX : event.clientY,
+        clickOnly: true,
+      });
+    },
+    [props]
+  );
 
   // Extends columns/rows on when moving the mouse.
   useEffect(() => {
@@ -101,35 +120,36 @@ export const ExtendButton = <
         (props.orientation === "row" ? event.clientX : event.clientY) -
         editingState.startPos;
 
-      const numCells =
-        editingState.numOriginalCells +
-        Math.floor(diff / (props.orientation === "row" ? 100 : 31));
-      const block = props.editor.getBlock(props.block)!;
-      const numCurrentCells =
+      const numOriginalCells =
         props.orientation === "row"
-          ? block.content.rows[0].cells.length
-          : block.content.rows.length;
+          ? editingState.originalBlock.content.rows[0].cells.length
+          : editingState.originalBlock.content.rows.length;
+      const oldNumCells =
+        props.orientation === "row"
+          ? props.block.content.rows[0].cells.length
+          : props.block.content.rows.length;
+      const newNumCells =
+        numOriginalCells +
+        roundUpAt(diff / (props.orientation === "row" ? 100 : 31), 0.3);
 
-      if (
-        editingState.numOriginalCells <= numCells &&
-        numCells !== numCurrentCells
-      ) {
+      if (numOriginalCells <= newNumCells && newNumCells !== oldNumCells) {
         props.editor.updateBlock(props.block, {
           type: "table",
           content:
             props.orientation === "row"
               ? getContentWithAddedCols(
-                  props.block.content,
-                  numCells - editingState.numOriginalCells
+                  editingState.originalBlock.content,
+                  newNumCells - numOriginalCells
                 )
               : getContentWithAddedRows(
-                  props.block.content,
-                  numCells - editingState.numOriginalCells
+                  editingState.originalBlock.content,
+                  newNumCells - numOriginalCells
                 ),
         });
+
         // Edge case for updating block content as `updateBlock` causes the
         // selection to move into the next block, so we have to set it back.
-        if (block.content) {
+        if (editingState.originalBlock.content) {
           props.editor.setTextCursorPosition(props.block);
         }
         setEditingState({ ...editingState, clickOnly: false });
@@ -153,8 +173,8 @@ export const ExtendButton = <
           type: "table",
           content:
             props.orientation === "row"
-              ? getContentWithAddedCols(props.block.content)
-              : getContentWithAddedRows(props.block.content),
+              ? getContentWithAddedCols(editingState.originalBlock.content)
+              : getContentWithAddedRows(editingState.originalBlock.content),
         });
       }
 
@@ -167,12 +187,7 @@ export const ExtendButton = <
     return () => {
       document.body.removeEventListener("mouseup", callback);
     };
-  }, [
-    editingState?.clickOnly,
-    getContentWithAddedCols,
-    getContentWithAddedRows,
-    props,
-  ]);
+  }, [editingState?.clickOnly, editingState?.originalBlock.content, props]);
 
   return (
     <Components.TableHandle.ExtendButton

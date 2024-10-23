@@ -149,7 +149,7 @@ export type TableContent<
   S extends StyleSchema = StyleSchema
 > = {
   type: "tableContent";
-  columnWidths: number[];
+  columnWidths: (number | undefined)[];
   rows: {
     cells: InlineContent<I, S>[][];
   }[];
