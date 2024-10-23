@@ -140,7 +140,7 @@ export const docxBlockMappingForDefaultSchema = {
         children: [
           new ImageRun({
             data: await blob.arrayBuffer(),
-
+            type: "gif", // TODO
             altText: block.props.caption
               ? {
                   description: block.props.caption,

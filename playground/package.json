@@ -18,7 +18,7 @@
     "@blocknote/react": "^0.17.1",
     "@blocknote/server-util": "^0.17.1",
     "@blocknote/shadcn": "^0.17.1",
-    "docx": "^8.5.0",
+    "docx": "^9.0.2",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@liveblocks/client": "^1.10.0",

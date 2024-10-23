@@ -19,12 +19,13 @@ import {
   Table,
   TextRun,
 } from "docx";
-import { IPropertiesOptions } from "docx/build/file/core-properties";
+
 import {
   BlockMapping,
   InlineContentMapping,
   StyleMapping,
 } from "../mapping.js";
+import { loadFileBuffer } from "../util/fileUtil.js";
 
 const DEFAULT_TAB_STOP = 16 * 0.75 * 1.5 * 20; /* twip */
 export class DOCXExporter<
@@ -131,15 +132,10 @@ export class DOCXExporter<
     );
     return promises.flat();
   }
-
   public async createDocumentProperties(): Promise<
-    Partial<IPropertiesOptions>
+    // get constructor arg type from Document
+    Partial<ConstructorParameters<typeof Document>[0]>
   > {
-    // const externalStyles = await loadFilePlainText(
-    //   // @ts-ignore
-    //   await import("./template/word/styles.xml?raw")
-    // );
-
     const externalStyles = (await import("./template/word/styles.xml?raw"))
       .default;
 
@@ -185,20 +181,24 @@ export class DOCXExporter<
           },
         ],
       },
-      // TODO: issue with docx
-      // fonts: [
-      //   {
-      //     name: "Inter",
-      //     data: fs.readFileSync("./src/fonts/Inter-VariableFont_opsz,wght.ttf"),
-      //   },
-      // ],
+
+      fonts: [
+        {
+          name: "Inter",
+          data: await loadFileBuffer(
+            await import("../fonts/inter/Inter_18pt-Regular.ttf")
+          ),
+          // Unfortunately, loading the variable font doesn't work
+          // data: fs.readFileSync("./src/fonts/Inter-VariableFont_opsz,wght.ttf"),
+        },
+      ],
       defaultTabStop: 200,
       externalStyles,
     };
   }
 
   public async toDocxJsDocument(blocks: Block<B, I, S>[]) {
-    return new Document({
+    const doc = new Document({
       ...(await this.createDocumentProperties()),
       sections: [
         {
@@ -207,5 +207,14 @@ export class DOCXExporter<
         },
       ],
     });
+
+    // fix https://github.com/dolanmiu/docx/pull/2800/files
+    doc.Document.Relationships.createRelationship(
+      doc.Document.Relationships.RelationshipCount + 1,
+      "http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable",
+      "fontTable.xml"
+    );
+
+    return doc;
   }
 }

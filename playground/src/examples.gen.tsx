@@ -820,7 +820,7 @@
           ],
           "dependencies": {
             "@blocknote/pdf": "latest",
-            "docx": "^8.5.0"
+            "docx": "^9.0.2"
           } as any,
           "pro": true
         },
