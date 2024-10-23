@@ -140,7 +140,7 @@ export const docxBlockMappingForDefaultSchema = {
         children: [
           new ImageRun({
             data: await blob.arrayBuffer(),
-            type: "mymedia" as any, // would be nice to add proper mime type, but not really necessary (atm docxjs only checks for svg vs others)
+            type: "gif", // TODO
             altText: block.props.caption
               ? {
                   description: block.props.caption,
