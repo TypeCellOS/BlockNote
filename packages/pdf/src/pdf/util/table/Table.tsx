@@ -4,7 +4,7 @@ import {
   TableContent,
 } from "@blocknote/core";
 import { StyleSheet, View } from "@react-pdf/renderer";
-import { Transformer } from "../../../Transformer.js";
+import { Exporter } from "../../../Exporter.js";
 const PIXELS_PER_POINT = 0.75;
 
 // ( impossible?) to make tables with flex that don't have a fixed / 100% width?
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
 
 export const Table = (props: {
   data: TableContent<InlineContentSchema>["rows"];
-  transformer: Transformer<
+  transformer: Exporter<
     any,
     InlineContentSchema,
     StyleSchema,

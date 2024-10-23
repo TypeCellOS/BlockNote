@@ -7,7 +7,7 @@ import {
   StyleSchema,
   Styles,
 } from "@blocknote/core";
-import { Transformer } from "./Transformer.js";
+import { Exporter } from "./Exporter.js";
 
 /**
  * Defines a mapping from all block types with a schema to a result type `R`.
@@ -21,10 +21,10 @@ export type BlockMapping<
 > = {
   [K in keyof B]: (
     block: BlockFromConfigNoChildren<B[K], I, S>,
-    transformer: Transformer<any, any, any, RB, RI, any, any>,
+    transformer: Exporter<any, any, any, RB, RI, any, any>,
     nestingLevel: number,
     numberedListIndex?: number
-  ) => RB;
+  ) => RB | Promise<RB>;
 };
 
 /**
@@ -38,7 +38,7 @@ export type InlineContentMapping<
 > = {
   [K in keyof I]: (
     inlineContent: InlineContentFromConfig<I[K], S>,
-    transformer: Transformer<any, I, S, any, RI, any, TS>
+    transformer: Exporter<any, I, S, any, RI, any, TS>
   ) => RI;
 };
 

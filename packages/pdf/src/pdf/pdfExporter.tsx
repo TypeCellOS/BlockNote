@@ -18,7 +18,7 @@ import {
   TextProps,
   View,
 } from "@react-pdf/renderer";
-import { Transformer } from "../Transformer.js";
+import { Exporter } from "../Exporter.js";
 import { loadFontDataUrl } from "../util/fileUtil.js";
 import { Style } from "./types.js";
 
@@ -29,7 +29,7 @@ export class PDFExporter<
   B extends BlockSchema,
   S extends StyleSchema,
   I extends InlineContentSchema
-> extends Transformer<
+> extends Exporter<
   B,
   I,
   S,
@@ -40,7 +40,7 @@ export class PDFExporter<
 > {
   public constructor(
     public readonly schema: BlockNoteSchema<B, I, S>,
-    mappings: Transformer<
+    mappings: Exporter<
       NoInfer<B>,
       NoInfer<I>,
       NoInfer<S>,
@@ -48,9 +48,12 @@ export class PDFExporter<
       React.ReactElement<Link> | React.ReactElement<Text>, // RI
       TextProps["style"], // RS
       React.ReactElement<Text> // TS
-    >["mappings"]
+    >["mappings"],
+    options?: {
+      resolveFileUrl: (url: string) => Promise<string | Blob>;
+    }
   ) {
-    super(schema, mappings);
+    super(schema, mappings, options || {});
   }
 
   public transformStyledText(styledText: StyledText<S>) {
@@ -59,19 +62,23 @@ export class PDFExporter<
     return <Text style={styles}>{styledText.text}</Text>;
   }
 
-  public transformBlocks(
+  public async transformBlocks(
     blocks: Block<B, I, S>[], // Or BlockFromConfig<B[keyof B], I, S>?
     nestingLevel = 0
-  ): React.ReactElement<Text>[] {
+  ): Promise<React.ReactElement<Text>[]> {
     let numberedListIndex = 0;
-    return blocks.map((b) => {
+    const promises = blocks.map(async (b) => {
       if (b.type === "numberedListItem") {
         numberedListIndex++;
       } else {
         numberedListIndex = 0;
       }
-      const children = this.transformBlocks(b.children, nestingLevel + 1);
-      const self = this.mapBlock(b as any, nestingLevel, numberedListIndex); // TODO: any
+      const children = await this.transformBlocks(b.children, nestingLevel + 1);
+      const self = await this.mapBlock(
+        b as any,
+        nestingLevel,
+        numberedListIndex
+      ); // TODO: any
 
       const style = this.blocknoteDefaultPropsToReactPDFStyle(b.props as any);
       return (
@@ -87,6 +94,8 @@ export class PDFExporter<
         </>
       );
     });
+    const ret = await Promise.all(promises);
+    return ret;
   }
 
   public createStyles() {
@@ -153,7 +162,9 @@ export class PDFExporter<
     return (
       <Document>
         <Page dpi={100} size="A4" style={styles.page}>
-          <View style={styles.section}>{this.transformBlocks(blocks)}</View>
+          <View style={styles.section}>
+            {await this.transformBlocks(blocks)}
+          </View>
         </Page>
       </Document>
     );

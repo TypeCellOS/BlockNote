@@ -134,8 +134,8 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       ],
     });
   },
-  image: async (block, _inlineContentTransformer) => {
-    const blob = await (await fetch(block.props.url)).blob();
+  image: async (block, t) => {
+    const blob = await t.resolveFile(block.props.url);
     const { width, height } = await getImageDimensions(blob);
 
     return [

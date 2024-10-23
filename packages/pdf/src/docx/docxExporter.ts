@@ -19,7 +19,7 @@ import {
   TextRun,
 } from "docx";
 
-import { Transformer } from "../Transformer.js";
+import { Exporter } from "../Exporter.js";
 import { loadFileBuffer } from "../util/fileUtil.js";
 
 const DEFAULT_TAB_STOP = 16 * 0.75 * 1.5 * 20; /* twip */
@@ -27,7 +27,7 @@ export class DOCXExporter<
   B extends BlockSchema,
   S extends StyleSchema,
   I extends InlineContentSchema
-> extends Transformer<
+> extends Exporter<
   B,
   I,
   S,
@@ -38,7 +38,7 @@ export class DOCXExporter<
 > {
   public constructor(
     public readonly schema: BlockNoteSchema<B, I, S>,
-    public readonly mappings: Transformer<
+    public readonly mappings: Exporter<
       NoInfer<B>,
       NoInfer<I>,
       NoInfer<S>,
@@ -49,9 +49,12 @@ export class DOCXExporter<
       ParagraphChild,
       IRunPropertiesOptions,
       TextRun
-    >["mappings"]
+    >["mappings"],
+    options?: {
+      resolveFileUrl: (url: string) => Promise<string | Blob>;
+    }
   ) {
-    super(schema, mappings);
+    super(schema, mappings, options || {});
   }
 
   public transformStyledText(styledText: StyledText<S>, hyperlink?: boolean) {

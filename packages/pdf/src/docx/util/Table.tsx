@@ -6,11 +6,11 @@ import {
   TableCell,
   TableRow,
 } from "docx";
-import { Transformer } from "../../Transformer.js";
+import { Exporter } from "../../Exporter.js";
 
 export const Table = (
   data: TableContent<InlineContentSchema>["rows"],
-  t: Transformer<any, any, any, any, ParagraphChild, any, any>
+  t: Exporter<any, any, any, any, ParagraphChild, any, any>
 ) => {
   return new DocxTable({
     rows: data.map(

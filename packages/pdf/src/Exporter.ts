@@ -11,7 +11,7 @@ import {
 
 import { BlockMapping, InlineContentMapping, StyleMapping } from "./mapping.js";
 
-export abstract class Transformer<
+export abstract class Exporter<
   B extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
@@ -26,8 +26,22 @@ export abstract class Transformer<
       blockMapping: BlockMapping<B, I, S, RB, RI>;
       inlineContentMapping: InlineContentMapping<I, S, RI, TS>;
       styleMapping: StyleMapping<S, RS>;
+    },
+    public readonly options: {
+      resolveFileUrl?: (url: string) => Promise<string | Blob>;
     }
   ) {}
+
+  public async resolveFile(url: string) {
+    if (!this.options?.resolveFileUrl) {
+      return (await fetch(url)).blob();
+    }
+    const ret = await this.options.resolveFileUrl(url);
+    if (ret instanceof Blob) {
+      return ret;
+    }
+    return (await fetch(ret)).blob();
+  }
 
   public mapStyles(styles: Styles<S>) {
     const stylesArray = Object.entries(styles).map(([key, value]) => {
@@ -50,7 +64,7 @@ export abstract class Transformer<
 
   public abstract transformStyledText(styledText: StyledText<S>): TS;
 
-  public mapBlock(
+  public async mapBlock(
     block: BlockFromConfig<B[keyof B], I, S>,
     nestingLevel: number,
     numberedListIndex: number

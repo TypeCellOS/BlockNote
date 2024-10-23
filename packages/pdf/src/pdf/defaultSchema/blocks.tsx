@@ -84,7 +84,7 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
       </Link>
     );
   },
-  image: (block) => {
+  image: async (block, t) => {
     return (
       // <View
       //   style={
@@ -95,7 +95,7 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
       //   }>
       <>
         <Image
-          src={block.props.url}
+          src={await t.resolveFile(block.props.url)}
           style={{
             width: block.props.previewWidth * PIXELS_PER_POINT,
           }}

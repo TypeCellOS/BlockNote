@@ -17,13 +17,13 @@ import {
   Section,
 } from "@react-email/components";
 import { CSSProperties } from "react";
-import { Transformer } from "../Transformer.js";
+import { Exporter } from "../Exporter.js";
 
 export class ReactEmailExporter<
   B extends BlockSchema,
   S extends StyleSchema,
   I extends InlineContentSchema
-> extends Transformer<
+> extends Exporter<
   B,
   I,
   S,
@@ -34,7 +34,7 @@ export class ReactEmailExporter<
 > {
   public constructor(
     public readonly schema: BlockNoteSchema<B, I, S>,
-    mappings: Transformer<
+    mappings: Exporter<
       NoInfer<B>,
       NoInfer<I>,
       NoInfer<S>,
@@ -42,9 +42,12 @@ export class ReactEmailExporter<
       React.ReactElement<typeof Link> | React.ReactElement<HTMLSpanElement>,
       CSSProperties,
       React.ReactElement<HTMLSpanElement>
-    >["mappings"]
+    >["mappings"],
+    options?: {
+      resolveFileUrl?: (url: string) => Promise<string | Blob>;
+    }
   ) {
-    super(schema, mappings);
+    super(schema, mappings, options || {});
   }
 
   public transformStyledText(styledText: StyledText<S>) {
