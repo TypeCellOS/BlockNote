@@ -42,12 +42,26 @@ function MUISuggestionMenuItem(
       return;
     }
 
-    const overflow = elementOverflow(
-      itemRef.current,
-      document.querySelector(
-        `.MuiPaper-root:has([aria-label="suggestion-menu"])`
-      )!
-    );
+    const overflow = elementOverflow(itemRef.current, () => {
+      if (!itemRef.current) {
+        return;
+      }
+
+      let container: HTMLElement = itemRef.current;
+
+      while (
+        !container.classList.contains("MuiPaper-root") &&
+        container.parentElement
+      ) {
+        container = container.parentElement;
+      }
+
+      if (!container.classList.contains("MuiPaper-root")) {
+        return;
+      }
+
+      return container;
+    });
 
     if (overflow === "top") {
       itemRef.current.scrollIntoView(true);
@@ -140,7 +154,7 @@ export function MUISuggestionMenu(
     <Paper
       sx={{
         height: "fit-content",
-        maxHeight: "100%",
+        maxHeight: "inherit",
         maxWidth: 360,
         overflow: "auto",
       }}>
