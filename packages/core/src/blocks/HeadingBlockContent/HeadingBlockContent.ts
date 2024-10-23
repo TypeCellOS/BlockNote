@@ -48,7 +48,11 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
           find: new RegExp(`^(#{${level}})\\s$`),
           handler: ({ state, chain, range }) => {
             const blockInfo = getBlockInfoFromSelection(state);
-            if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
+            if (
+              blockInfo.blockContent.node.type.spec.content !== "inline*" ||
+              (blockInfo.blockContent.node.type.name !== "paragraph" &&
+                blockInfo.blockContent.node.type.name !== "heading")
+            ) {
               return;
             }
 
@@ -78,7 +82,11 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
     return {
       "Mod-Alt-1": () => {
         const blockInfo = getBlockInfoFromSelection(this.editor.state);
-        if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
+        if (
+          blockInfo.blockContent.node.type.spec.content !== "inline*" ||
+          (blockInfo.blockContent.node.type.name !== "paragraph" &&
+            blockInfo.blockContent.node.type.name !== "heading")
+        ) {
           return true;
         }
 
@@ -98,7 +106,11 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
       },
       "Mod-Alt-2": () => {
         const blockInfo = getBlockInfoFromSelection(this.editor.state);
-        if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
+        if (
+          blockInfo.blockContent.node.type.spec.content !== "inline*" ||
+          (blockInfo.blockContent.node.type.name !== "paragraph" &&
+            blockInfo.blockContent.node.type.name !== "heading")
+        ) {
           return true;
         }
 
@@ -117,7 +129,11 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
       },
       "Mod-Alt-3": () => {
         const blockInfo = getBlockInfoFromSelection(this.editor.state);
-        if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
+        if (
+          blockInfo.blockContent.node.type.spec.content !== "inline*" ||
+          (blockInfo.blockContent.node.type.name !== "paragraph" &&
+            blockInfo.blockContent.node.type.name !== "heading")
+        ) {
           return true;
         }
 

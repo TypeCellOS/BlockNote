@@ -28,7 +28,10 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
         find: new RegExp(`^[-+*]\\s$`),
         handler: ({ state, chain, range }) => {
           const blockInfo = getBlockInfoFromSelection(state);
-          if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
+          if (
+            blockInfo.blockContent.node.type.spec.content !== "inline*" ||
+            blockInfo.blockContent.node.type.name !== "paragraph"
+          ) {
             return;
           }
 
@@ -55,7 +58,10 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
       Enter: () => handleEnter(this.options.editor),
       "Mod-Shift-8": () => {
         const blockInfo = getBlockInfoFromSelection(this.editor.state);
-        if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
+        if (
+          blockInfo.blockContent.node.type.spec.content !== "inline*" ||
+          blockInfo.blockContent.node.type.name !== "paragraph"
+        ) {
           return true;
         }
 

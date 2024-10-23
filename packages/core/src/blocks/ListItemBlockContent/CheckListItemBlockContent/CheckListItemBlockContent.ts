@@ -49,7 +49,10 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
         find: new RegExp(`\\[\\s*\\]\\s$`),
         handler: ({ state, chain, range }) => {
           const blockInfo = getBlockInfoFromSelection(state);
-          if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
+          if (
+            blockInfo.blockContent.node.type.spec.content !== "inline*" ||
+            blockInfo.blockContent.node.type.name !== "paragraph"
+          ) {
             return;
           }
 
@@ -75,7 +78,10 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
         handler: ({ state, chain, range }) => {
           const blockInfo = getBlockInfoFromSelection(state);
 
-          if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
+          if (
+            blockInfo.blockContent.node.type.spec.content !== "inline*" ||
+            blockInfo.blockContent.node.type.name !== "paragraph"
+          ) {
             return;
           }
 
@@ -104,7 +110,10 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
       Enter: () => handleEnter(this.options.editor),
       "Mod-Shift-9": () => {
         const blockInfo = getBlockInfoFromSelection(this.options.editor.state);
-        if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
+        if (
+          blockInfo.blockContent.node.type.spec.content !== "inline*" ||
+          blockInfo.blockContent.node.type.name !== "paragraph"
+        ) {
           return true;
         }
 
