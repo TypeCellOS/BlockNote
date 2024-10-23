@@ -25,6 +25,10 @@ import { Style } from "./types.js";
 const FONT_SIZE = 16;
 const PIXELS_PER_POINT = 0.75;
 
+type Options = {
+  resolveFileUrl?: (url: string) => Promise<string | Blob>;
+  emojiSource: false | ReturnType<typeof Font.getEmojiSource>;
+};
 export class PDFExporter<
   B extends BlockSchema,
   S extends StyleSchema,
@@ -38,6 +42,8 @@ export class PDFExporter<
   TextProps["style"],
   React.ReactElement<Text>
 > {
+  public readonly options: Options;
+
   public constructor(
     public readonly schema: BlockNoteSchema<B, I, S>,
     mappings: Exporter<
@@ -49,11 +55,21 @@ export class PDFExporter<
       TextProps["style"], // RS
       React.ReactElement<Text> // TS
     >["mappings"],
-    options?: {
-      resolveFileUrl: (url: string) => Promise<string | Blob>;
-    }
+    options?: Partial<Options>
   ) {
-    super(schema, mappings, options || {});
+    const defaults = {
+      emojiSource: {
+        format: "png",
+        url: "https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/",
+      },
+    } satisfies Partial<Options>;
+
+    const newOptions = {
+      ...defaults,
+      ...options,
+    };
+    super(schema, mappings, newOptions);
+    this.options = newOptions;
   }
 
   public transformStyledText(styledText: StyledText<S>) {
@@ -119,6 +135,9 @@ export class PDFExporter<
   }
 
   public async registerFonts() {
+    if (this.options.emojiSource) {
+      Font.registerEmojiSource(this.options.emojiSource);
+    }
     let font = await loadFontDataUrl(
       await import("../fonts/inter/Inter_18pt-Regular.ttf")
     );
