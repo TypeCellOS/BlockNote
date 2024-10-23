@@ -1,3 +1,5 @@
+import type Sharp from "sharp";
+
 export async function getImageDimensions(blob: Blob) {
   if (typeof window !== "undefined" && import.meta.env.NODE_ENV !== "test") {
     const bmp = await createImageBitmap(blob);
@@ -6,8 +8,8 @@ export async function getImageDimensions(blob: Blob) {
     return { width, height };
   } else {
     // node or vitest
-    const sharp = await import("sharp");
-    const metadata = await sharp.default(await blob.arrayBuffer()).metadata();
+    const sharp = (await require("sharp")) as typeof Sharp;
+    const metadata = await sharp(await blob.arrayBuffer()).metadata();
     if (!metadata.width || !metadata.height) {
       throw new Error("Image has no width or height");
     }
