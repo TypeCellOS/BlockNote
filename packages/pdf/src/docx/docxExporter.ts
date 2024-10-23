@@ -1,9 +1,7 @@
 import {
   Block,
-  BlockFromConfig,
   BlockNoteSchema,
   BlockSchema,
-  InlineContent,
   InlineContentSchema,
   StyleSchema,
   StyledText,
@@ -21,11 +19,7 @@ import {
   TextRun,
 } from "docx";
 
-import {
-  BlockMapping,
-  InlineContentMapping,
-  StyleMapping,
-} from "../mapping.js";
+import { Transformer } from "../Transformer.js";
 import { loadFileBuffer } from "../util/fileUtil.js";
 
 const DEFAULT_TAB_STOP = 16 * 0.75 * 1.5 * 20; /* twip */
@@ -33,40 +27,36 @@ export class DOCXExporter<
   B extends BlockSchema,
   S extends StyleSchema,
   I extends InlineContentSchema
+> extends Transformer<
+  B,
+  I,
+  S,
+  Promise<Paragraph[] | Paragraph | Table> | Paragraph[] | Paragraph | Table,
+  ParagraphChild,
+  IRunPropertiesOptions,
+  TextRun
 > {
   public constructor(
     public readonly schema: BlockNoteSchema<B, I, S>,
-    public readonly mappings: {
-      blockMapping: BlockMapping<
-        B,
-        I,
-        S,
-        | Promise<Paragraph[] | Paragraph | Table>
-        | Paragraph[]
-        | Paragraph
-        | Table,
-        (
-          // Would be nicer if this was I and S, but that breaks
-          inlineContentArray: InlineContent<InlineContentSchema, StyleSchema>[]
-        ) => ParagraphChild[]
-      >;
-      inlineContentMapping: InlineContentMapping<
-        I,
-        S,
-        ParagraphChild,
-        (styledText: StyledText<S>, hyperlink?: boolean) => TextRun
-      >;
-      styleMapping: StyleMapping<S, IRunPropertiesOptions>;
-    }
-  ) {}
+    public readonly mappings: Transformer<
+      NoInfer<B>,
+      NoInfer<I>,
+      NoInfer<S>,
+      | Promise<Paragraph[] | Paragraph | Table>
+      | Paragraph[]
+      | Paragraph
+      | Table,
+      ParagraphChild,
+      IRunPropertiesOptions,
+      TextRun
+    >["mappings"]
+  ) {
+    super(schema, mappings);
+  }
 
   public transformStyledText(styledText: StyledText<S>, hyperlink?: boolean) {
-    const stylesArray = Object.entries(styledText.styles).map(
-      ([key, value]) => {
-        const mappedStyle = this.mappings.styleMapping[key](value);
-        return mappedStyle;
-      }
-    );
+    const stylesArray = this.mapStyles(styledText.styles);
+
     const styles: IRunPropertiesOptions = Object.assign(
       {} as IRunPropertiesOptions,
       ...stylesArray
@@ -74,33 +64,9 @@ export class DOCXExporter<
 
     return new TextRun({
       ...styles,
-      style: hyperlink ? "Hyperlink" : undefined, // TODO: not working?
+      style: hyperlink ? "Hyperlink" : undefined, // TODO: add style?
       text: styledText.text,
     });
-  }
-
-  public transformInlineContent(inlineContent: InlineContent<I, S>) {
-    return this.mappings.inlineContentMapping[inlineContent.type](
-      inlineContent,
-      this.transformStyledText.bind(this)
-    );
-  }
-
-  public transformInlineContentArray(
-    inlineContentArray: InlineContent<I, S>[]
-  ) {
-    return inlineContentArray.map((ic) => this.transformInlineContent(ic));
-  }
-
-  public async transformBlock(
-    block: BlockFromConfig<B[keyof B], I, S>,
-    nestingLevel: number
-  ) {
-    return this.mappings.blockMapping[block.type](
-      block,
-      this.transformInlineContentArray.bind(this) as any, // TODO: any
-      nestingLevel
-    );
   }
 
   public async transformBlocks(
@@ -124,7 +90,7 @@ export class DOCXExporter<
           }
           return c;
         });
-        const self = await this.transformBlock(b as any, nestingLevel); // TODO: any
+        const self = await this.mapBlock(b as any, nestingLevel, 0 /*unused*/); // TODO: any
         if (Array.isArray(self)) {
           return [...self, ...children];
         }

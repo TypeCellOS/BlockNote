@@ -2,7 +2,10 @@ import { DefaultStyleSchema } from "@blocknote/core";
 import { IRunPropertiesOptions } from "docx";
 import { StyleMapping } from "../../mapping.js";
 
-export const docxStyleMappingForDefaultSchema = {
+export const docxStyleMappingForDefaultSchema: StyleMapping<
+  DefaultStyleSchema,
+  IRunPropertiesOptions
+> = {
   bold: (val) => {
     if (!val) {
       return {};
@@ -63,4 +66,4 @@ export const docxStyleMappingForDefaultSchema = {
       font: "Courier New",
     };
   },
-} satisfies StyleMapping<DefaultStyleSchema, IRunPropertiesOptions>;
+};

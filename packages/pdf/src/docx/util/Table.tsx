@@ -1,9 +1,4 @@
-import {
-  InlineContent,
-  InlineContentSchema,
-  StyleSchema,
-  TableContent,
-} from "@blocknote/core";
+import { InlineContentSchema, TableContent } from "@blocknote/core";
 import {
   Table as DocxTable,
   Paragraph,
@@ -11,12 +6,11 @@ import {
   TableCell,
   TableRow,
 } from "docx";
+import { Transformer } from "../../Transformer.js";
 
 export const Table = (
   data: TableContent<InlineContentSchema>["rows"],
-  inlineContentTransformer: (
-    inlineContent: InlineContent<InlineContentSchema, StyleSchema>[]
-  ) => ParagraphChild[]
+  t: Transformer<any, any, any, any, ParagraphChild, any, any>
 ) => {
   return new DocxTable({
     rows: data.map(
@@ -27,7 +21,7 @@ export const Table = (
               new TableCell({
                 children: [
                   new Paragraph({
-                    children: inlineContentTransformer(cell),
+                    children: t.transformInlineContent(cell),
                   }),
                 ],
               })

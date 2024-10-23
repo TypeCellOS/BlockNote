@@ -1,10 +1,8 @@
 import {
   Block,
-  BlockFromConfig,
   BlockNoteSchema,
   BlockSchema,
   DefaultProps,
-  InlineContent,
   InlineContentSchema,
   StyleSchema,
   StyledText,
@@ -20,86 +18,45 @@ import {
   TextProps,
   View,
 } from "@react-pdf/renderer";
-
-import {
-  BlockMapping,
-  InlineContentMapping,
-  StyleMapping,
-} from "../mapping.js";
-
+import { Transformer } from "../Transformer.js";
 import { loadFontDataUrl } from "../util/fileUtil.js";
 import { Style } from "./types.js";
 
 const FONT_SIZE = 16;
 const PIXELS_PER_POINT = 0.75;
+
 export class PDFExporter<
   B extends BlockSchema,
   S extends StyleSchema,
   I extends InlineContentSchema
+> extends Transformer<
+  B,
+  I,
+  S,
+  React.ReactElement<Text>,
+  React.ReactElement<Link> | React.ReactElement<Text>,
+  TextProps["style"],
+  React.ReactElement<Text>
 > {
   public constructor(
     public readonly schema: BlockNoteSchema<B, I, S>,
-    public readonly mappings: {
-      styleMapping: StyleMapping<NoInfer<S>, TextProps["style"]>;
-      blockMapping: BlockMapping<
-        B,
-        I,
-        S,
-        React.ReactElement<Text>,
-        (
-          // Would be nicer if this was I and S, but that breaks
-          content: InlineContent<InlineContentSchema, StyleSchema>[]
-        ) => React.ReactElement<Text>
-      >;
-      inlineContentMapping: InlineContentMapping<
-        I,
-        S,
-        React.ReactElement<Link> | React.ReactElement<Text>,
-        (styledText: StyledText<S>) => React.ReactElement<Text>
-      >;
-    } // public readonly options: { //   resolveFileUrl: (url: string) => Promise<string>; // }
-  ) {}
+    mappings: Transformer<
+      NoInfer<B>,
+      NoInfer<I>,
+      NoInfer<S>,
+      React.ReactElement<Text>, // RB
+      React.ReactElement<Link> | React.ReactElement<Text>, // RI
+      TextProps["style"], // RS
+      React.ReactElement<Text> // TS
+    >["mappings"]
+  ) {
+    super(schema, mappings);
+  }
 
   public transformStyledText(styledText: StyledText<S>) {
-    const stylesArray = Object.entries(styledText.styles).map(
-      ([key, value]) => {
-        const mappedStyle = this.mappings.styleMapping[key](value);
-        return mappedStyle;
-      }
-    );
+    const stylesArray = this.mapStyles(styledText.styles);
     const styles = Object.assign({}, ...stylesArray);
     return <Text style={styles}>{styledText.text}</Text>;
-  }
-
-  public transformInlineContent(inlineContent: InlineContent<I, S>) {
-    return this.mappings.inlineContentMapping[inlineContent.type](
-      inlineContent,
-      this.transformStyledText.bind(this)
-    );
-  }
-
-  public transformInlineContentArray(
-    inlineContentArray: InlineContent<I, S>[]
-  ) {
-    return (
-      <Text>
-        {inlineContentArray.map((ic) => this.transformInlineContent(ic))}
-      </Text>
-    );
-  }
-
-  // TODO: 3px top and bottom padding
-  public transformBlock(
-    block: BlockFromConfig<B[keyof B], I, S>,
-    nestingLevel: number,
-    numberedListIndex: number
-  ) {
-    return this.mappings.blockMapping[block.type](
-      block,
-      this.transformInlineContentArray.bind(this) as any, // not ideal as any
-      nestingLevel,
-      numberedListIndex
-    );
   }
 
   public transformBlocks(
@@ -114,11 +71,7 @@ export class PDFExporter<
         numberedListIndex = 0;
       }
       const children = this.transformBlocks(b.children, nestingLevel + 1);
-      const self = this.transformBlock(
-        b as any,
-        nestingLevel,
-        numberedListIndex
-      ); // TODO: any
+      const self = this.mapBlock(b as any, nestingLevel, numberedListIndex); // TODO: any
 
       const style = this.blocknoteDefaultPropsToReactPDFStyle(b.props as any);
       return (
@@ -201,41 +154,6 @@ export class PDFExporter<
       <Document>
         <Page dpi={100} size="A4" style={styles.page}>
           <View style={styles.section}>{this.transformBlocks(blocks)}</View>
-          {/* <View>
-
-        <Text>hello world no font set</Text>
-        <Text
-          style={{
-            fontFamily: "Inter",
-            // fontWeight: "bold",
-            // fontStyle: "italic",
-          }}>
-          hello world
-        </Text>
-        <Text
-          style={{
-            fontFamily: "Inter",
-            fontWeight: "bold",
-            // fontStyle: "italic",
-          }}>
-          hello world bold
-        </Text>
-        <Text
-          style={{
-            fontFamily: "Inter",
-            fontStyle: "italic",
-          }}>
-          hello world italic
-        </Text>
-
-        <Text>Section #1</Text>
-        <Text>Section #2</Text>
-      </View>
-      <View>
-
-        <Text>Section #3</Text>
-        <Text>Section #4</Text>
-      </View> */}
         </Page>
       </Document>
     );
@@ -255,12 +173,6 @@ export class PDFExporter<
           : props.textAlignment === "center"
           ? "center"
           : undefined,
-      // alignSelf:
-      //   props.textAlignment === "right"
-      //     ? "flex-end"
-      //     : props.textAlignment === "center"
-      //     ? "center"
-      //     : undefined,
     };
   }
 }

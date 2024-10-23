@@ -4,6 +4,6 @@ import { docxStyleMappingForDefaultSchema } from "./styles.js";
 
 export const docxDefaultSchemaMappings = {
   blockMapping: docxBlockMappingForDefaultSchema,
-  inlineContentMapping: docxInlineContentMappingForDefaultSchema as any,
-  styleMapping: docxStyleMappingForDefaultSchema as any,
+  inlineContentMapping: docxInlineContentMappingForDefaultSchema,
+  styleMapping: docxStyleMappingForDefaultSchema,
 };

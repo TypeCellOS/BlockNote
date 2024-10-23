@@ -48,8 +48,8 @@ describe("exporter", () => {
     new PDFExporter(schema, {
       blockMapping: {
         ...pdfDefaultSchemaMappings.blockMapping,
-        extraBlock: () => {
-          throw new Error("extraBlock not implemented");
+        extraBlock: (b, t) => {
+          throw new Error("sdf");
         },
       },
       inlineContentMapping: pdfDefaultSchemaMappings.inlineContentMapping,

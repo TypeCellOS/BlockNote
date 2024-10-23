@@ -1,9 +1,4 @@
-import {
-  DefaultBlockSchema,
-  InlineContent,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
+import { DefaultBlockSchema } from "@blocknote/core";
 import { Image, Link, Path, Svg, Text } from "@react-pdf/renderer";
 import { BlockMapping } from "../../mapping.js";
 import {
@@ -17,45 +12,46 @@ import { Table } from "../util/table/Table.js";
 const PIXELS_PER_POINT = 0.75;
 const FONT_SIZE = 16;
 
-export const pdfBlockMappingForDefaultSchema = {
-  paragraph: (block, inlineContentTransformer) => {
+export const pdfBlockMappingForDefaultSchema: BlockMapping<
+  DefaultBlockSchema,
+  any,
+  any,
+  React.ReactElement<Text>,
+  React.ReactElement<Text> | React.ReactElement<Link>
+> = {
+  paragraph: (block, t) => {
     // const style = blocknoteDefaultPropsToReactPDFStyle(block.props);
-    return <Text style={{}}>{inlineContentTransformer(block.content)}</Text>;
+    return <Text>{t.transformInlineContent(block.content)}</Text>;
   },
-  bulletListItem: (block, inlineContentTransformer) => {
-    // const style = blocknoteDefaultPropsToReactPDFStyle(block.props);
+  bulletListItem: (block, t) => {
+    // const style = t(block.props);
     return (
       <ListItem listMarker={BULLET_MARKER}>
-        <Text>{inlineContentTransformer(block.content)}</Text>
+        <Text>{t.transformInlineContent(block.content)}</Text>
       </ListItem>
     );
   },
-  numberedListItem: (
-    block,
-    inlineContentTransformer,
-    _nestingLevel,
-    numberedListIndex
-  ) => {
+  numberedListItem: (block, t, _nestingLevel, numberedListIndex) => {
     // const style = blocknoteDefaultPropsToReactPDFStyle(block.props);
     // console.log("NUMBERED LIST ITEM", block.props.textAlignment, style);
     return (
       <ListItem listMarker={`${numberedListIndex}.`}>
-        <Text>{inlineContentTransformer(block.content)}</Text>
+        <Text>{t.transformInlineContent(block.content)}</Text>
       </ListItem>
     );
   },
   // TODO
-  checkListItem: (block, inlineContentTransformer) => {
+  checkListItem: (block, t) => {
     return (
       <ListItem
         listMarker={
           block.props.checked ? CHECK_MARKER_CHECKED : CHECK_MARKER_UNCHECKED
         }>
-        <Text>{inlineContentTransformer(block.content)}</Text>
+        <Text>{t.transformInlineContent(block.content)}</Text>
       </ListItem>
     );
   },
-  heading: (block, inlineContentTransformer) => {
+  heading: (block, t) => {
     const fontSizeEM =
       block.props.level === 1 ? 2 : block.props.level === 2 ? 1.5 : 1.17;
     return (
@@ -64,7 +60,7 @@ export const pdfBlockMappingForDefaultSchema = {
           fontSize: fontSizeEM * FONT_SIZE * PIXELS_PER_POINT,
           fontWeight: 700,
         }}>
-        {inlineContentTransformer(block.content)}
+        {t.transformInlineContent(block.content)}
       </Text>
     );
   },
@@ -116,20 +112,7 @@ export const pdfBlockMappingForDefaultSchema = {
       </>
     );
   },
-  table: (block, inlineContentTransformer) => {
-    return (
-      <Table
-        data={block.content.rows}
-        inlineContentTransformer={inlineContentTransformer}
-      />
-    );
+  table: (block, t) => {
+    return <Table data={block.content.rows} transformer={t} />;
   },
-} satisfies BlockMapping<
-  DefaultBlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-  React.ReactElement<Text>,
-  (
-    content: InlineContent<InlineContentSchema, StyleSchema>[]
-  ) => React.ReactElement<Text>
->;
+};

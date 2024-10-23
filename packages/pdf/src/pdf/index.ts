@@ -1,2 +1,2 @@
 export * from "./defaultSchema/index.js";
-export * from "./pdfExporter.js";
+export * from "./pdfExporter.jsx";

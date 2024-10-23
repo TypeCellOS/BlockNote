@@ -1,5 +1,5 @@
 import {
-  BlockFromConfig,
+  BlockFromConfigNoChildren,
   BlockNoteSchema,
   BlockSchema,
   InlineContentFromConfig,
@@ -7,6 +7,7 @@ import {
   StyleSchema,
   Styles,
 } from "@blocknote/core";
+import { Transformer } from "./Transformer.js";
 
 /**
  * Defines a mapping from all block types with a schema to a result type `R`.
@@ -15,15 +16,15 @@ export type BlockMapping<
   B extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
-  R,
-  IT
+  RB,
+  RI
 > = {
   [K in keyof B]: (
-    block: BlockFromConfig<B[K], I, S>,
-    inlineContentTransformer: IT,
+    block: BlockFromConfigNoChildren<B[K], I, S>,
+    transformer: Transformer<any, any, any, RB, RI, any, any>,
     nestingLevel: number,
     numberedListIndex?: number
-  ) => R;
+  ) => RB;
 };
 
 /**
@@ -32,20 +33,20 @@ export type BlockMapping<
 export type InlineContentMapping<
   I extends InlineContentSchema,
   S extends StyleSchema,
-  R,
-  ST
+  RI,
+  TS
 > = {
   [K in keyof I]: (
     inlineContent: InlineContentFromConfig<I[K], S>,
-    styledTextTransformer: ST
-  ) => R;
+    transformer: Transformer<any, I, S, any, RI, any, TS>
+  ) => RI;
 };
 
 /**
  * Defines a mapping from all style types with a schema to a result type R.
  */
-export type StyleMapping<S extends StyleSchema, R> = {
-  [K in keyof S]: (style: Styles<S>[K]) => R;
+export type StyleMapping<S extends StyleSchema, RS> = {
+  [K in keyof S]: (style: Styles<S>[K]) => RS;
 };
 
 /**

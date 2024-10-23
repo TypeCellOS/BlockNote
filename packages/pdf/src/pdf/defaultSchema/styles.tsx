@@ -2,7 +2,10 @@ import { DefaultStyleSchema } from "@blocknote/core";
 import { TextProps } from "@react-pdf/renderer";
 import { StyleMapping } from "../../mapping.js";
 
-export const pdfStyleMappingForDefaultSchema = {
+export const pdfStyleMappingForDefaultSchema: StyleMapping<
+  DefaultStyleSchema,
+  TextProps["style"]
+> = {
   bold: (val) => {
     if (!val) {
       return {};
@@ -56,4 +59,4 @@ export const pdfStyleMappingForDefaultSchema = {
       fontFamily: "Courier",
     };
   },
-} satisfies StyleMapping<DefaultStyleSchema, TextProps["style"]>;
+};

@@ -1,11 +1,6 @@
 import {
   DefaultBlockSchema,
-  DefaultInlineContentSchema,
   DefaultProps,
-  DefaultStyleSchema,
-  InlineContent,
-  InlineContentSchema,
-  StyleSchema,
   UnreachableCaseError,
 } from "@blocknote/core";
 import {
@@ -51,52 +46,61 @@ function blockPropsToStyles(props: Partial<DefaultProps>): IParagraphOptions {
           })(),
   };
 }
-export const docxBlockMappingForDefaultSchema = {
-  paragraph: (block, inlineContentTransformer) => {
+export const docxBlockMappingForDefaultSchema: BlockMapping<
+  DefaultBlockSchema,
+  any,
+  any,
+  | Promise<Paragraph[] | Paragraph | DocxTable>
+  | Paragraph[]
+  | Paragraph
+  | DocxTable,
+  ParagraphChild
+> = {
+  paragraph: (block, t) => {
     return new Paragraph({
       ...blockPropsToStyles(block.props),
-      children: inlineContentTransformer(block.content),
+      children: t.transformInlineContent(block.content),
       style: "Normal",
       run: {
         font: "Inter",
       },
     });
   },
-  numberedListItem: (block, inlineContentTransformer, nestingLevel) => {
+  numberedListItem: (block, t, nestingLevel) => {
     return new Paragraph({
       ...blockPropsToStyles(block.props),
-      children: inlineContentTransformer(block.content),
+      children: t.transformInlineContent(block.content),
       numbering: {
         reference: "blocknote-numbered-list",
         level: nestingLevel,
       },
     });
   },
-  bulletListItem: (block, inlineContentTransformer, nestingLevel) => {
+  bulletListItem: (block, t, nestingLevel) => {
     return new Paragraph({
       ...blockPropsToStyles(block.props),
-      children: inlineContentTransformer(block.content),
+      children: t.transformInlineContent(block.content),
       numbering: {
         reference: "blocknote-bullet-list",
         level: nestingLevel,
       },
     });
   },
-  checkListItem: (block, inlineContentTransformer) => {
+  checkListItem: (block, t) => {
     return new Paragraph({
       children: [
         new CheckBox({ checked: block.props.checked }),
         new TextRun({
           children: [" "],
         }),
-        ...inlineContentTransformer(block.content),
+        ...t.transformInlineContent(block.content),
       ],
     });
   },
-  heading: (block, inlineContentTransformer) => {
+  heading: (block, t) => {
     return new Paragraph({
       ...blockPropsToStyles(block.props),
-      children: inlineContentTransformer(block.content),
+      children: t.transformInlineContent(block.content),
       heading: `Heading${block.props.level}`,
     });
   },
@@ -162,22 +166,11 @@ export const docxBlockMappingForDefaultSchema = {
             text: block.props.caption,
           }),
         ],
-        style: "Caption",
+        style: "Caption", // TODO: add style?
       }),
     ];
   },
-  table: (block, inlineContentTransformer) => {
-    return Table(block.content.rows, inlineContentTransformer);
+  table: (block, t) => {
+    return Table(block.content.rows, t);
   },
-} satisfies BlockMapping<
-  DefaultBlockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  | Promise<Paragraph[] | Paragraph | DocxTable>
-  | Paragraph[]
-  | Paragraph
-  | DocxTable,
-  (
-    inlineContent: InlineContent<InlineContentSchema, StyleSchema>[]
-  ) => ParagraphChild[]
->;
+};
