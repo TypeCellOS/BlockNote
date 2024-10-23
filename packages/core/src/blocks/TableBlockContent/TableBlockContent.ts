@@ -15,7 +15,8 @@ import { defaultProps } from "../defaultProps.js";
 import { EMPTY_CELL_WIDTH, TableExtension } from "./TableExtension.js";
 
 export const tablePropSchema = {
-  ...defaultProps,
+  backgroundColor: defaultProps.backgroundColor,
+  textColor: defaultProps.textColor,
 };
 
 export const TableBlockContent = createStronglyTypedTiptapNode({
