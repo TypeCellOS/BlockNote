@@ -797,7 +797,8 @@
             ""
           ],
           "dependencies": {
-            "@blocknote/pdf": "latest"
+            "@blocknote/pdf": "latest",
+            "@react-pdf/renderer": "^4.0.0"
           } as any,
           "pro": true
         },
