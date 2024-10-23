@@ -13,6 +13,7 @@ import {
   Document,
   IRunPropertiesOptions,
   LevelFormat,
+  Packer,
   Paragraph,
   ParagraphChild,
   Tab,
@@ -132,6 +133,26 @@ export class DOCXExporter<
     );
     return promises.flat();
   }
+
+  public async getFonts(): Promise<
+    ConstructorParameters<typeof Document>[0]["fonts"]
+  > {
+    // Unfortunately, loading the variable font doesn't work
+    // "./src/fonts/Inter-VariableFont_opsz,wght.ttf",
+
+    let font = await loadFileBuffer(
+      await import("../fonts/inter/Inter_18pt-Regular.ttf")
+    );
+
+    if (font instanceof ArrayBuffer) {
+      // conversionw with Polyfill needed because docxjs requires Buffer
+      const Buffer = (await import("buffer")).Buffer;
+      font = Buffer.from(font);
+    }
+
+    return [{ name: "Inter", data: font as Buffer }];
+  }
+
   public async createDocumentProperties(): Promise<
     // get constructor arg type from Document
     Partial<ConstructorParameters<typeof Document>[0]>
@@ -182,19 +203,24 @@ export class DOCXExporter<
         ],
       },
 
-      fonts: [
-        {
-          name: "Inter",
-          data: await loadFileBuffer(
-            await import("../fonts/inter/Inter_18pt-Regular.ttf")
-          ),
-          // Unfortunately, loading the variable font doesn't work
-          // data: fs.readFileSync("./src/fonts/Inter-VariableFont_opsz,wght.ttf"),
-        },
-      ],
+      fonts: await this.getFonts(),
       defaultTabStop: 200,
       externalStyles,
     };
+  }
+
+  public async toBlob(blocks: Block<B, I, S>[]) {
+    const doc = await this.toDocxJsDocument(blocks);
+    const prevBuffer = globalThis.Buffer;
+    try {
+      if (!globalThis.Buffer) {
+        // load Buffer polyfill because docxjs requires this
+        globalThis.Buffer = (await import("buffer")).Buffer;
+      }
+      return Packer.toBlob(doc);
+    } finally {
+      globalThis.Buffer = prevBuffer;
+    }
   }
 
   public async toDocxJsDocument(blocks: Block<B, I, S>[]) {

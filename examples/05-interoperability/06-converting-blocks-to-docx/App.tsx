@@ -3,7 +3,6 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { DOCXExporter, docxDefaultSchemaMappings } from "@blocknote/pdf";
 import { useCreateBlockNote } from "@blocknote/react";
-import { Packer } from "docx";
 import "./styles.css";
 
 export default function App() {
@@ -281,8 +280,7 @@ export default function App() {
   const onDownloadClick = async () => {
     const exporter = new DOCXExporter(editor.schema, docxDefaultSchemaMappings);
 
-    const doc = await exporter.toDocxJsDocument(editor.document);
-    const blob = await Packer.toBlob(doc);
+    const blob = await exporter.toBlob(editor.document);
 
     const link = document.createElement("a");
     link.href = window.URL.createObjectURL(blob);
@@ -297,15 +295,14 @@ export default function App() {
 
   // Renders the editor instance, and its contents as HTML below.
   return (
-    <div className="wrapper">
-      <div>Input (BlockNote Editor):</div>
+    <div>
+      <div className={"edit-buttons"}>
+        <button className={"edit-button"} onClick={onDownloadClick}>
+          Download .docx
+        </button>
+      </div>
       <div className="item">
         <BlockNoteView editor={editor} />
-      </div>
-      <div>
-        <a href="#" onClick={onDownloadClick}>
-          Download DOCX
-        </a>
       </div>
     </div>
   );

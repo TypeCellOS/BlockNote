@@ -295,7 +295,6 @@ export default function App() {
   };
 
   useEffect(() => {
-    console.log(editor.document);
     onChange();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -303,12 +302,12 @@ export default function App() {
   // Renders the editor instance, and its contents as HTML below.
   return (
     <div className="wrapper">
-      <div>Input (BlockNote Editor):</div>
-      <div className="item">
+      <div className="editor">
         <BlockNoteView editor={editor} onChange={onChange} />
       </div>
-      <div>Output (PDF):</div>
-      <PDFViewer height={1000}>{pdfDocument}</PDFViewer>
+      <div className="pdf">
+        <PDFViewer width={"100%"}>{pdfDocument}</PDFViewer>
+      </div>
     </div>
   );
 }

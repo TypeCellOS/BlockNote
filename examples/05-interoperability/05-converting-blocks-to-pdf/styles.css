@@ -1,25 +1,30 @@
 .wrapper {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   height: 100%;
 }
 
-.item {
-  border-radius: 0.5rem;
+@media (max-width: 800px) {
+  .wrapper {
+    flex-direction: column;
+  }
+
+  .editor {
+    max-height: 500px;
+    overflow-y: scroll;
+  }
+}
+
+.wrapper > div {
   flex: 1;
-  overflow: hidden;
 }
 
-.item.bordered {
+.pdf {
+  min-height: 500px;
+  display: flex;
+  align-items: stretch;
+}
+
+.editor.bordered {
   border: 1px solid gray;
-}
-
-.item pre {
-  border-radius: 0.5rem;
-  height: 100%;
-  overflow: auto;
-  padding-block: 1rem;
-  padding-inline: 54px;
-  width: 100%;
-  white-space: pre-wrap;
 }
