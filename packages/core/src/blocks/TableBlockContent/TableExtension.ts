@@ -1,40 +1,20 @@
 import { callOrReturn, Extension, getExtensionField } from "@tiptap/core";
 import { columnResizing, tableEditing } from "prosemirror-tables";
-import { TableView } from "prosemirror-tables";
-import { Node as PMNode } from "prosemirror-model";
-import { mergeCSSClasses } from "../../util/browser.js";
+
+export const EMPTY_CELL_WIDTH = 100;
+export const EMPTY_CELL_HEIGHT = 31;
 
 export const TableExtension = Extension.create({
   name: "BlockNoteTableExtension",
 
   addProseMirrorPlugins: () => {
-    class CustomTableView extends TableView {
-      constructor(public node: PMNode, public cellMinWidth: number) {
-        super(node, cellMinWidth);
-
-        const blockContent = document.createElement("div");
-        blockContent.className = mergeCSSClasses(
-          "bn-block-content"
-          // blockContentHTMLAttributes.class
-        );
-        blockContent.setAttribute("data-content-type", "table");
-        // for (const [attribute, value] of Object.entries(blockContentHTMLAttributes)) {
-        //   if (attribute !== "class") {
-        //     blockContent.setAttribute(attribute, value);
-        //   }
-        // }
-
-        const tableWrapper = this.dom;
-        blockContent.appendChild(tableWrapper);
-
-        this.dom = blockContent;
-      }
-    }
-
     return [
       columnResizing({
-        cellMinWidth: 100,
-        View: CustomTableView,
+        cellMinWidth: EMPTY_CELL_WIDTH,
+        // We set this to null as we implement our own node view in the table
+        // block content. This node view is the same as what's used by default,
+        // but is wrapped in a `blockContent` HTML element.
+        View: null,
       }),
       tableEditing(),
     ];

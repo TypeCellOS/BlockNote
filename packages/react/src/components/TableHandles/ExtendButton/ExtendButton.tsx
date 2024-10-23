@@ -3,6 +3,8 @@ import {
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
+  EMPTY_CELL_HEIGHT,
+  EMPTY_CELL_WIDTH,
   InlineContentSchema,
   mergeCSSClasses,
   PartialTableContent,
@@ -130,7 +132,13 @@ export const ExtendButton = <
           : props.block.content.rows.length;
       const newNumCells =
         numOriginalCells +
-        roundUpAt(diff / (props.orientation === "row" ? 100 : 31), 0.3);
+        roundUpAt(
+          diff /
+            (props.orientation === "row"
+              ? EMPTY_CELL_WIDTH
+              : EMPTY_CELL_HEIGHT),
+          0.3
+        );
 
       if (numOriginalCells <= newNumCells && newNumCells !== oldNumCells) {
         props.editor.updateBlock(props.block, {
