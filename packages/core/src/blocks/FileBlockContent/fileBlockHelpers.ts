@@ -108,6 +108,13 @@ export const createFileAndCaptionWrapper = (
   caption.className = "bn-file-caption";
   caption.textContent = block.props.caption;
 
+  if (typeof block.props.previewWidth === "number" &&
+    block.props.previewWidth > 0 &&
+    block.props.caption !== undefined
+  ) {
+    caption.style.width = `${block.props.previewWidth}px`
+  }
+
   fileAndCaptionWrapper.appendChild(file);
   fileAndCaptionWrapper.appendChild(caption);
 
@@ -266,10 +273,10 @@ export const createResizeHandlesWrapper = (
   // calculate the new width of the element.
   let resizeParams:
     | {
-        handleUsed: "left" | "right";
-        initialWidth: number;
-        initialClientX: number;
-      }
+      handleUsed: "left" | "right";
+      initialWidth: number;
+      initialClientX: number;
+    }
     | undefined;
 
   // Updates the element width with an updated width depending on the cursor X
@@ -331,6 +338,10 @@ export const createResizeHandlesWrapper = (
   // `width` prop to the new value.
   const windowMouseUpHandler = (event: MouseEvent) => {
     // Hides the drag handles if the cursor is no longer over the element.
+
+    // console.log("mouse up-- now ---", wrapper, editor, block)
+    // console.log("next to wrapper-- now ---", wrapper.nextSibling, element)
+    const caption = wrapper.nextSibling as HTMLElement;
     if (
       (!event.target ||
         !wrapper.contains(event.target as Node) ||
