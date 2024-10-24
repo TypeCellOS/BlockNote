@@ -93,9 +93,19 @@ const TableParagraph = Node.create({
   name: "tableParagraph",
   group: "tableContent",
   content: "inline*",
-
   parseHTML() {
     return [
+      {
+        preserveWhitespace: "full",
+        context: "tableContent",
+        priority: 210,
+        tag: "*",
+
+        getAttrs: (_element) => {
+          return {};
+        },
+        // consuming: true,
+      },
       {
         tag: "p",
         getAttrs: (element) => {
