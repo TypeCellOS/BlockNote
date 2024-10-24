@@ -339,9 +339,6 @@ export const createResizeHandlesWrapper = (
   const windowMouseUpHandler = (event: MouseEvent) => {
     // Hides the drag handles if the cursor is no longer over the element.
 
-    // console.log("mouse up-- now ---", wrapper, editor, block)
-    // console.log("next to wrapper-- now ---", wrapper.nextSibling, element)
-    const caption = wrapper.nextSibling as HTMLElement;
     if (
       (!event.target ||
         !wrapper.contains(event.target as Node) ||
