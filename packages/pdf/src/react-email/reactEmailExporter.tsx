@@ -2,6 +2,7 @@ import {
   Block,
   BlockNoteSchema,
   BlockSchema,
+  COLORS_DEFAULT,
   InlineContentSchema,
   StyleSchema,
   StyledText,
@@ -17,7 +18,7 @@ import {
   Section,
 } from "@react-email/components";
 import { CSSProperties } from "react";
-import { Exporter } from "../Exporter.js";
+import { Exporter, ExporterOptions } from "../Exporter.js";
 
 export class ReactEmailExporter<
   B extends BlockSchema,
@@ -43,11 +44,17 @@ export class ReactEmailExporter<
       CSSProperties,
       React.ReactElement<HTMLSpanElement>
     >["mappings"],
-    options?: {
-      resolveFileUrl?: (url: string) => Promise<string | Blob>;
-    }
+    options?: Partial<ExporterOptions>
   ) {
-    super(schema, mappings, options || {});
+    const defaults = {
+      colors: COLORS_DEFAULT,
+    } satisfies Partial<ExporterOptions>;
+
+    const newOptions = {
+      ...defaults,
+      ...options,
+    };
+    super(schema, mappings, newOptions);
   }
 
   public transformStyledText(styledText: StyledText<S>) {

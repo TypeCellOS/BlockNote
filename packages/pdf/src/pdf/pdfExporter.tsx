@@ -2,6 +2,7 @@ import {
   Block,
   BlockNoteSchema,
   BlockSchema,
+  COLORS_DEFAULT,
   DefaultProps,
   InlineContentSchema,
   StyleSchema,
@@ -18,15 +19,14 @@ import {
   TextProps,
   View,
 } from "@react-pdf/renderer";
-import { Exporter } from "../Exporter.js";
+import { Exporter, ExporterOptions } from "../Exporter.js";
 import { loadFontDataUrl } from "../util/fileUtil.js";
 import { Style } from "./types.js";
 
 const FONT_SIZE = 16;
 const PIXELS_PER_POINT = 0.75;
 
-type Options = {
-  resolveFileUrl?: (url: string) => Promise<string | Blob>;
+type Options = ExporterOptions & {
   emojiSource: false | ReturnType<typeof Font.getEmojiSource>;
 };
 export class PDFExporter<
@@ -62,6 +62,7 @@ export class PDFExporter<
         format: "png",
         url: "https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/",
       },
+      colors: COLORS_DEFAULT,
     } satisfies Partial<Options>;
 
     const newOptions = {
@@ -197,8 +198,17 @@ export class PDFExporter<
     return {
       textAlign: props.textAlignment,
       backgroundColor:
-        props.backgroundColor === "default" ? undefined : props.backgroundColor,
-      color: props.textColor,
+        props.backgroundColor === "default" || !props.backgroundColor
+          ? undefined
+          : this.options.colors[
+              props.backgroundColor as keyof typeof this.options.colors
+            ].background,
+      color:
+        props.textColor === "default" || !props.textColor
+          ? undefined
+          : this.options.colors[
+              props.textColor as keyof typeof this.options.colors
+            ].text,
       alignItems:
         props.textAlignment === "right"
           ? "flex-end"

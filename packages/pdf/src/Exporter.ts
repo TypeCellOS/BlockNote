@@ -2,6 +2,7 @@ import {
   BlockFromConfig,
   BlockNoteSchema,
   BlockSchema,
+  COLORS_DEFAULT,
   InlineContent,
   InlineContentSchema,
   StyleSchema,
@@ -11,6 +12,10 @@ import {
 
 import { BlockMapping, InlineContentMapping, StyleMapping } from "./mapping.js";
 
+export type ExporterOptions = {
+  resolveFileUrl?: (url: string) => Promise<string | Blob>;
+  colors: typeof COLORS_DEFAULT;
+};
 export abstract class Exporter<
   B extends BlockSchema,
   I extends InlineContentSchema,
@@ -27,9 +32,7 @@ export abstract class Exporter<
       inlineContentMapping: InlineContentMapping<I, S, RI, TS>;
       styleMapping: StyleMapping<S, RS>;
     },
-    public readonly options: {
-      resolveFileUrl?: (url: string) => Promise<string | Blob>;
-    }
+    public readonly options: ExporterOptions
   ) {}
 
   public async resolveFile(url: string) {
@@ -45,7 +48,7 @@ export abstract class Exporter<
 
   public mapStyles(styles: Styles<S>) {
     const stylesArray = Object.entries(styles).map(([key, value]) => {
-      const mappedStyle = this.mappings.styleMapping[key](value);
+      const mappedStyle = this.mappings.styleMapping[key](value, this);
       return mappedStyle;
     });
     return stylesArray;

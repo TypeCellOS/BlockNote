@@ -40,22 +40,27 @@ export const docxStyleMappingForDefaultSchema: StyleMapping<
       strike: val,
     };
   },
-  backgroundColor: (val) => {
-    if (!val || val === "default") {
+  backgroundColor: (val, exporter) => {
+    if (!val) {
       return {};
     }
     return {
       shading: {
-        fill: "00ff00", // TODO
+        fill: exporter.options.colors[
+          val as keyof typeof exporter.options.colors
+        ].background.slice(1),
       },
     };
   },
-  textColor: (val) => {
-    if (!val || val === "default") {
+  textColor: (val, exporter) => {
+    if (!val) {
       return {};
     }
     return {
-      color: "dd0000", // TODO
+      color:
+        exporter.options.colors[
+          val as keyof typeof exporter.options.colors
+        ].text.slice(1),
     };
   },
   code: (val) => {

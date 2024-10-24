@@ -12,10 +12,10 @@ export const docxInlineContentMappingForDefaultSchema: InlineContentMapping<
   ParagraphChild,
   TextRun
 > = {
-  link: (ic, t) => {
+  link: (ic, exporter) => {
     return new ExternalHyperlink({
       children: ic.content.map((content) => {
-        return (t as DOCXExporter<any, any, any>).transformStyledText(
+        return (exporter as DOCXExporter<any, any, any>).transformStyledText(
           content,
           true
         );

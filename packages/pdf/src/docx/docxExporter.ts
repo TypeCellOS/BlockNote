@@ -2,6 +2,7 @@ import {
   Block,
   BlockNoteSchema,
   BlockSchema,
+  COLORS_DEFAULT,
   InlineContentSchema,
   StyleSchema,
   StyledText,
@@ -19,7 +20,7 @@ import {
   TextRun,
 } from "docx";
 
-import { Exporter } from "../Exporter.js";
+import { Exporter, ExporterOptions } from "../Exporter.js";
 import { loadFileBuffer } from "../util/fileUtil.js";
 
 const DEFAULT_TAB_STOP = 16 * 0.75 * 1.5 * 20; /* twip */
@@ -50,11 +51,17 @@ export class DOCXExporter<
       IRunPropertiesOptions,
       TextRun
     >["mappings"],
-    options?: {
-      resolveFileUrl: (url: string) => Promise<string | Blob>;
-    }
+    options?: Partial<ExporterOptions>
   ) {
-    super(schema, mappings, options || {});
+    const defaults = {
+      colors: COLORS_DEFAULT,
+    } satisfies Partial<ExporterOptions>;
+
+    const newOptions = {
+      ...defaults,
+      ...options,
+    };
+    super(schema, mappings, newOptions);
   }
 
   public transformStyledText(styledText: StyledText<S>, hyperlink?: boolean) {

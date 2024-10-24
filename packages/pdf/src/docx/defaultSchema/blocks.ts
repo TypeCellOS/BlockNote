@@ -1,4 +1,5 @@
 import {
+  COLORS_DEFAULT,
   DefaultBlockSchema,
   DefaultProps,
   UnreachableCaseError,
@@ -17,20 +18,26 @@ import { BlockMapping } from "../../mapping.js";
 import { getImageDimensions } from "../../util/imageUtil.js";
 import { Table } from "../util/Table.js";
 
-function blockPropsToStyles(props: Partial<DefaultProps>): IParagraphOptions {
+function blockPropsToStyles(
+  props: Partial<DefaultProps>,
+  colors: typeof COLORS_DEFAULT
+): IParagraphOptions {
   return {
     shading:
-      props.backgroundColor === "default"
+      props.backgroundColor === "default" || !props.backgroundColor
         ? undefined
         : {
             type: ShadingType.SOLID,
-            color: "00ff00", // TODO
+            color:
+              colors[
+                props.backgroundColor as keyof typeof colors
+              ].background.slice(1),
           },
     run:
-      props.textColor === "default"
+      props.textColor === "default" || !props.textColor
         ? undefined
         : {
-            color: "ff0000", // TODO
+            color: colors[props.textColor as keyof typeof colors].text.slice(1),
           },
     alignment:
       !props.textAlignment || props.textAlignment === "left"
@@ -56,57 +63,58 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
   | DocxTable,
   ParagraphChild
 > = {
-  paragraph: (block, t) => {
+  paragraph: (block, exporter) => {
     return new Paragraph({
-      ...blockPropsToStyles(block.props),
-      children: t.transformInlineContent(block.content),
+      ...blockPropsToStyles(block.props, exporter.options.colors),
+      children: exporter.transformInlineContent(block.content),
       style: "Normal",
       run: {
         font: "Inter",
       },
     });
   },
-  numberedListItem: (block, t, nestingLevel) => {
+  numberedListItem: (block, exporter, nestingLevel) => {
     return new Paragraph({
-      ...blockPropsToStyles(block.props),
-      children: t.transformInlineContent(block.content),
+      ...blockPropsToStyles(block.props, exporter.options.colors),
+      children: exporter.transformInlineContent(block.content),
       numbering: {
         reference: "blocknote-numbered-list",
         level: nestingLevel,
       },
     });
   },
-  bulletListItem: (block, t, nestingLevel) => {
+  bulletListItem: (block, exporter, nestingLevel) => {
     return new Paragraph({
-      ...blockPropsToStyles(block.props),
-      children: t.transformInlineContent(block.content),
+      ...blockPropsToStyles(block.props, exporter.options.colors),
+      children: exporter.transformInlineContent(block.content),
       numbering: {
         reference: "blocknote-bullet-list",
         level: nestingLevel,
       },
     });
   },
-  checkListItem: (block, t) => {
+  checkListItem: (block, exporter) => {
     return new Paragraph({
+      ...blockPropsToStyles(block.props, exporter.options.colors),
       children: [
         new CheckBox({ checked: block.props.checked }),
         new TextRun({
           children: [" "],
         }),
-        ...t.transformInlineContent(block.content),
+        ...exporter.transformInlineContent(block.content),
       ],
     });
   },
-  heading: (block, t) => {
+  heading: (block, exporter) => {
     return new Paragraph({
-      ...blockPropsToStyles(block.props),
-      children: t.transformInlineContent(block.content),
+      ...blockPropsToStyles(block.props, exporter.options.colors),
+      children: exporter.transformInlineContent(block.content),
       heading: `Heading${block.props.level}`,
     });
   },
-  audio: (block, _inlineContentTransformer) => {
+  audio: (block, exporter) => {
     return new Paragraph({
-      ...blockPropsToStyles(block.props),
+      ...blockPropsToStyles(block.props, exporter.options.colors),
       children: [
         new TextRun({
           text: block.type + " not implemented",
@@ -114,9 +122,9 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       ],
     });
   },
-  video: (block, _inlineContentTransformer) => {
+  video: (block, exporter) => {
     return new Paragraph({
-      ...blockPropsToStyles(block.props),
+      ...blockPropsToStyles(block.props, exporter.options.colors),
       children: [
         new TextRun({
           text: block.type + " not implemented",
@@ -124,9 +132,9 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       ],
     });
   },
-  file: (block, _inlineContentTransformer) => {
+  file: (block, exporter) => {
     return new Paragraph({
-      ...blockPropsToStyles(block.props),
+      ...blockPropsToStyles(block.props, exporter.options.colors),
       children: [
         new TextRun({
           text: block.type + " not implemented",
@@ -134,13 +142,13 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       ],
     });
   },
-  image: async (block, t) => {
-    const blob = await t.resolveFile(block.props.url);
+  image: async (block, exporter) => {
+    const blob = await exporter.resolveFile(block.props.url);
     const { width, height } = await getImageDimensions(blob);
 
     return [
       new Paragraph({
-        ...blockPropsToStyles(block.props),
+        ...blockPropsToStyles(block.props, exporter.options.colors),
         children: [
           new ImageRun({
             data: await blob.arrayBuffer(),
@@ -160,7 +168,7 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
         ],
       }),
       new Paragraph({
-        ...blockPropsToStyles(block.props),
+        ...blockPropsToStyles(block.props, exporter.options.colors),
         children: [
           new TextRun({
             text: block.props.caption,
@@ -170,7 +178,7 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       }),
     ];
   },
-  table: (block, t) => {
-    return Table(block.content.rows, t);
+  table: (block, exporter) => {
+    return Table(block.content.rows, exporter);
   },
 };

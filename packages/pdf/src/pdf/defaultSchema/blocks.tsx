@@ -19,40 +19,40 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
   React.ReactElement<Text>,
   React.ReactElement<Text> | React.ReactElement<Link>
 > = {
-  paragraph: (block, t) => {
+  paragraph: (block, exporter) => {
     // const style = blocknoteDefaultPropsToReactPDFStyle(block.props);
-    return <Text>{t.transformInlineContent(block.content)}</Text>;
+    return <Text>{exporter.transformInlineContent(block.content)}</Text>;
   },
-  bulletListItem: (block, t) => {
+  bulletListItem: (block, exporter) => {
     // const style = t(block.props);
     return (
       <ListItem listMarker={BULLET_MARKER}>
-        <Text>{t.transformInlineContent(block.content)}</Text>
+        <Text>{exporter.transformInlineContent(block.content)}</Text>
       </ListItem>
     );
   },
-  numberedListItem: (block, t, _nestingLevel, numberedListIndex) => {
+  numberedListItem: (block, exporter, _nestingLevel, numberedListIndex) => {
     // const style = blocknoteDefaultPropsToReactPDFStyle(block.props);
     // console.log("NUMBERED LIST ITEM", block.props.textAlignment, style);
     return (
       <ListItem listMarker={`${numberedListIndex}.`}>
-        <Text>{t.transformInlineContent(block.content)}</Text>
+        <Text>{exporter.transformInlineContent(block.content)}</Text>
       </ListItem>
     );
   },
   // would be nice to have pdf checkboxes:
   // https://github.com/diegomura/react-pdf/issues/2103
-  checkListItem: (block, t) => {
+  checkListItem: (block, exporter) => {
     return (
       <ListItem
         listMarker={
           block.props.checked ? CHECK_MARKER_CHECKED : CHECK_MARKER_UNCHECKED
         }>
-        <Text>{t.transformInlineContent(block.content)}</Text>
+        <Text>{exporter.transformInlineContent(block.content)}</Text>
       </ListItem>
     );
   },
-  heading: (block, t) => {
+  heading: (block, exporter) => {
     const fontSizeEM =
       block.props.level === 1 ? 2 : block.props.level === 2 ? 1.5 : 1.17;
     return (
@@ -61,7 +61,7 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
           fontSize: fontSizeEM * FONT_SIZE * PIXELS_PER_POINT,
           fontWeight: 700,
         }}>
-        {t.transformInlineContent(block.content)}
+        {exporter.transformInlineContent(block.content)}
       </Text>
     );
   },

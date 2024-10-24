@@ -8,14 +8,14 @@ export const pdfInlineContentMappingForDefaultSchema: InlineContentMapping<
   React.ReactElement<Link> | React.ReactElement<Text>,
   React.ReactElement<Text>
 > = {
-  link: (ic, transformer) => {
+  link: (ic, exporter) => {
     return (
       <Link href={ic.href}>
-        {ic.content.map((content) => transformer.transformStyledText(content))}
+        {ic.content.map((content) => exporter.transformStyledText(content))}
       </Link>
     );
   },
-  text: (ic, t) => {
-    return t.transformStyledText(ic);
+  text: (ic, exporter) => {
+    return exporter.transformStyledText(ic);
   },
 };

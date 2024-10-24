@@ -21,7 +21,10 @@ export type BlockMapping<
 > = {
   [K in keyof B]: (
     block: BlockFromConfigNoChildren<B[K], I, S>,
-    transformer: Exporter<any, any, any, RB, RI, any, any>,
+    // we don't know the exact types that are supported by the exporter at this point,
+    // because the mapping only knows about converting certain types (which might be a subset of the supported types)
+    // this is why there are many `any` types here (same for types below)
+    exporter: Exporter<any, any, any, RB, RI, any, any>,
     nestingLevel: number,
     numberedListIndex?: number
   ) => RB | Promise<RB>;
@@ -38,7 +41,7 @@ export type InlineContentMapping<
 > = {
   [K in keyof I]: (
     inlineContent: InlineContentFromConfig<I[K], S>,
-    transformer: Exporter<any, I, S, any, RI, any, TS>
+    exporter: Exporter<any, I, S, any, RI, any, TS>
   ) => RI;
 };
 
@@ -46,7 +49,10 @@ export type InlineContentMapping<
  * Defines a mapping from all style types with a schema to a result type R.
  */
 export type StyleMapping<S extends StyleSchema, RS> = {
-  [K in keyof S]: (style: Styles<S>[K]) => RS;
+  [K in keyof S]: (
+    style: Styles<S>[K],
+    exporter: Exporter<any, any, any, any, any, RS, any>
+  ) => RS;
 };
 
 /**
