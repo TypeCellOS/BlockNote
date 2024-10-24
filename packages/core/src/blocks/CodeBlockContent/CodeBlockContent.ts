@@ -1,32 +1,34 @@
 import { InputRule, isTextSelection } from "@tiptap/core";
 import {
-  BuiltinLanguage,
-  bundledLanguagesInfo,
+  BundledLanguage,
   createHighlighter,
   Highlighter,
+  bundledLanguagesInfo,
 } from "shiki";
 import {
   PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
 } from "../../schema/index.js";
-import { defaultProps } from "../defaultProps.js";
 import { createHighlightPlugin, Parser } from "prosemirror-highlight";
 import { createParser } from "prosemirror-highlight/shiki";
 import { TextSelection } from "@tiptap/pm/state";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
+import {
+  defaultSupportedLanguages,
+  SupportedLanguageConfig,
+} from "./defaultSupportedLanguages.js";
 
-type SupportedLanguageConfig = {
-  id: string;
-  name: string;
-  match: string[];
-};
+interface CodeBlockOptions {
+  defaultLanguage: string;
+  indentLineWithTab: boolean;
+  supportedLanguages: SupportedLanguageConfig[];
+}
 
-export const codeBlockPropSchema = {
-  ...defaultProps,
+export const defaultCodeBlockPropSchema = {
   language: {
-    default: "",
-    values: [...bundledLanguagesInfo.map((lang) => lang.id), ""],
+    default: "javascript",
+    values: [...defaultSupportedLanguages.map((lang) => lang.id)],
   },
 } satisfies PropSchema;
 
@@ -39,25 +41,15 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
   defining: true,
   addOptions() {
     return {
+      defaultLanguage: "javascript",
       indentLineWithTab: true,
-      supportedLanguages: [
-        {
-          match: [""],
-          id: "",
-          name: "Code",
-        },
-        ...bundledLanguagesInfo.map((lang) => ({
-          match: [lang.id, ...(lang.aliases || [])],
-          id: lang.id,
-          name: lang.name,
-        })),
-      ],
+      supportedLanguages: defaultSupportedLanguages,
     };
   },
   addAttributes() {
     return {
       language: {
-        default: "",
+        default: this.options.defaultLanguage,
         parseHTML: (inputElement) => {
           let element = inputElement as HTMLElement | null;
 
@@ -67,8 +59,15 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
           ) {
             element = element.children[0] as HTMLElement | null;
           }
+
           if (element?.tagName === "PRE") {
             element = element?.children[0] as HTMLElement | null;
+          }
+
+          const dataLanguage = element?.getAttribute("data-language");
+
+          if (dataLanguage) {
+            return dataLanguage.toLowerCase();
           }
 
           const classNames = [...(element?.className.split(" ") || [])];
@@ -84,7 +83,7 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
           return language.toLowerCase();
         },
         renderHTML: (attributes) => {
-          return attributes.language
+          return attributes.language && attributes.language !== "text"
             ? {
                 class: `language-${attributes.language}`,
               }
@@ -161,7 +160,7 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
       });
 
       selectWrapper.contentEditable = "false";
-      select.value = node.attrs.language || "";
+      select.value = node.attrs.language || this.options.defaultLanguage;
       dom.removeChild(contentDOM);
       dom.appendChild(selectWrapper);
       dom.appendChild(pre);
@@ -201,14 +200,16 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
         });
       }
 
-      const language = options.language as BuiltinLanguage;
+      const language = options.language;
 
       if (
         language &&
+        language !== "text" &&
         !highlighter.getLoadedLanguages().includes(language) &&
-        supportedLanguages.find(({ id }) => id === language)
+        supportedLanguages.find(({ id }) => id === language) &&
+        bundledLanguagesInfo.find(({ id }) => id === language)
       ) {
-        return highlighter.loadLanguage(language);
+        return highlighter.loadLanguage(language as BundledLanguage);
       }
 
       if (!parser) {
@@ -240,7 +241,7 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
             language:
               supportedLanguages.find(({ match }) => {
                 return match.includes(languageName);
-              })?.id || "",
+              })?.id || this.options.defaultLanguage,
           };
 
           if (
@@ -271,11 +272,13 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
         const { selection } = editor.state;
         const { $from } = selection;
 
+        // When inside empty codeblock, on `DELETE` key press, delete the codeblock
         if (
           editor.isActive(this.name) &&
           !$from.parent.textContent &&
           isTextSelection(selection)
         ) {
+          // Get the start position of the codeblock for node selection
           const from = $from.pos - $from.parentOffset - 2;
 
           editor.chain().setNodeSelection(from).deleteSelection().run();
@@ -346,14 +349,20 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
 
 export const CodeBlock = createBlockSpecFromStronglyTypedTiptapNode(
   CodeBlockContent,
-  codeBlockPropSchema
+  defaultCodeBlockPropSchema
 );
-export function customizeCodeBlock(options: {
-  indentLineWithTab?: boolean;
-  supportedLanguages?: SupportedLanguageConfig[];
-}) {
+export function customizeCodeBlock(options: Partial<CodeBlockOptions>) {
   return createBlockSpecFromStronglyTypedTiptapNode(
     CodeBlockContent.configure(options),
-    codeBlockPropSchema
+    {
+      language: {
+        default:
+          options.defaultLanguage ||
+          defaultCodeBlockPropSchema.language.default,
+        values:
+          options.supportedLanguages?.map((lang) => lang.id) ||
+          defaultCodeBlockPropSchema.language.values,
+      },
+    }
   );
 }
