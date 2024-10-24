@@ -40,7 +40,8 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
       </ListItem>
     );
   },
-  // TODO
+  // would be nice to have pdf checkboxes:
+  // https://github.com/diegomura/react-pdf/issues/2103
   checkListItem: (block, t) => {
     return (
       <ListItem

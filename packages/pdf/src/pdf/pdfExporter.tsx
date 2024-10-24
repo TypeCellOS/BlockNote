@@ -82,8 +82,10 @@ export class PDFExporter<
     blocks: Block<B, I, S>[], // Or BlockFromConfig<B[keyof B], I, S>?
     nestingLevel = 0
   ): Promise<React.ReactElement<Text>[]> {
+    const ret: React.ReactElement<Text>[] = [];
     let numberedListIndex = 0;
-    const promises = blocks.map(async (b) => {
+
+    for (const b of blocks) {
       if (b.type === "numberedListItem") {
         numberedListIndex++;
       } else {
@@ -97,7 +99,7 @@ export class PDFExporter<
       ); // TODO: any
 
       const style = this.blocknoteDefaultPropsToReactPDFStyle(b.props as any);
-      return (
+      ret.push(
         <>
           <View style={{ paddingVertical: 3 * PIXELS_PER_POINT, ...style }}>
             {self}
@@ -109,8 +111,8 @@ export class PDFExporter<
           )}
         </>
       );
-    });
-    const ret = await Promise.all(promises);
+    }
+
     return ret;
   }
 

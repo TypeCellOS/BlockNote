@@ -76,31 +76,32 @@ export class DOCXExporter<
     blocks: Block<B, I, S>[],
     nestingLevel = 0
   ): Promise<Array<Paragraph | Table>> {
-    const promises = await Promise.all(
-      blocks.flatMap(async (b) => {
-        let children = await this.transformBlocks(b.children, nestingLevel + 1);
-        children = children.map((c, _i) => {
-          // TODO: nested tables not supported
-          if (
-            c instanceof Paragraph &&
-            !(c as any).properties.numberingReferences.length
-          ) {
-            c.addRunToFront(
-              new TextRun({
-                children: [new Tab()],
-              })
-            );
-          }
-          return c;
-        });
-        const self = await this.mapBlock(b as any, nestingLevel, 0 /*unused*/); // TODO: any
-        if (Array.isArray(self)) {
-          return [...self, ...children];
+    const ret: Array<Paragraph | Table> = [];
+
+    for (const b of blocks) {
+      let children = await this.transformBlocks(b.children, nestingLevel + 1);
+      children = children.map((c, _i) => {
+        // TODO: nested tables not supported
+        if (
+          c instanceof Paragraph &&
+          !(c as any).properties.numberingReferences.length
+        ) {
+          c.addRunToFront(
+            new TextRun({
+              children: [new Tab()],
+            })
+          );
         }
-        return [self, ...children];
-      })
-    );
-    return promises.flat();
+        return c;
+      });
+      const self = await this.mapBlock(b as any, nestingLevel, 0 /*unused*/); // TODO: any
+      if (Array.isArray(self)) {
+        ret.push(...self, ...children);
+      } else {
+        ret.push(self, ...children);
+      }
+    }
+    return ret;
   }
 
   public async getFonts(): Promise<
