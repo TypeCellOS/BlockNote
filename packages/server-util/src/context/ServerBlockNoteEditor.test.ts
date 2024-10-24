@@ -5,6 +5,7 @@ import { ServerBlockNoteEditor } from "./ServerBlockNoteEditor.js";
 
 describe("Test ServerBlockNoteEditor", () => {
   const editor = ServerBlockNoteEditor.create();
+
   const blocks: Block[] = [
     {
       id: "1",

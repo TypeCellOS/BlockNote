@@ -1,8 +1,8 @@
 import "@blocknote/core/fonts/inter.css";
-import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { useState } from "react";
+import { useCreateBlockNote } from "@blocknote/react";
+import { useEffect, useState } from "react";
 
 import "./styles.css";
 
@@ -34,6 +34,12 @@ export default function App() {
     const markdown = await editor.blocksToMarkdownLossy(editor.document);
     setMarkdown(markdown);
   };
+
+  useEffect(() => {
+    // on mount, trigger initial conversion of the initial content to md
+    onChange();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Renders the editor instance, and its contents as Markdown below.
   return (

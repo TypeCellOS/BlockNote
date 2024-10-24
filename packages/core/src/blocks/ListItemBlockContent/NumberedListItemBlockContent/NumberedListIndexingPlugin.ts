@@ -59,6 +59,7 @@ export const NumberedListIndexingPlugin = () => {
             modified = true;
 
             tr.setNodeMarkup(blockInfo.blockContent.beforePos, undefined, {
+              ...contentNode.attrs,
               index: newIndex,
             });
           }

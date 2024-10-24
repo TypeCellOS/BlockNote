@@ -17,6 +17,7 @@ export * from "./blocks/defaultProps.js";
 export * from "./editor/BlockNoteEditor.js";
 export * from "./editor/BlockNoteExtensions.js";
 export * from "./editor/BlockNoteSchema.js";
+export * from "./editor/defaultColors.js";
 export * from "./editor/selectionTypes.js";
 export * from "./extensions-shared/UiElementPosition.js";
 export * from "./extensions/FilePanel/FilePanelPlugin.js";
