@@ -196,7 +196,8 @@ NESTED BLOCKS
   cursor: pointer;
 }
 
-.bn-block-content[data-content-type="checkListItem"][data-checked="true"] .bn-inline-content {
+.bn-block-content[data-content-type="checkListItem"][data-checked="true"]
+  .bn-inline-content {
   text-decoration: line-through;
 }
 
@@ -257,6 +258,51 @@ NESTED BLOCKS
   > .bn-block
   > .bn-block-content[data-content-type="bulletListItem"]::before {
   content: "▪";
+}
+
+/* CODE BLOCKS */
+.bn-block-content[data-content-type="codeBlock"] {
+  position: relative;
+
+  background-color: rgb(22 22 22);
+  color: white;
+  border-radius: 8px;
+}
+.bn-block-content[data-content-type="codeBlock"] > pre {
+  white-space: pre;
+  overflow-x: auto;
+  margin: 0;
+  width: 100%;
+  tab-size: 2;
+
+  padding: 24px;
+}
+.bn-block-content[data-content-type="codeBlock"] > div {
+  outline: none !important;
+}
+.bn-block-content[data-content-type="codeBlock"] > div > select {
+  outline: none !important;
+  appearance: none;
+  user-select: none;
+  border: none;
+  cursor: pointer;
+  background-color: transparent;
+
+  position: absolute;
+  top: 8px;
+  left: 18px;
+
+  font-size: 0.8em;
+  color: white;
+
+  opacity: 0;
+  transition: opacity 0.3s;
+  transition-delay: 1s;
+}
+.bn-block-content[data-content-type="codeBlock"]:hover > div > select,
+.bn-block-content[data-content-type="codeBlock"] > div > select:focus {
+  opacity: 0.5;
+  transition-delay: 0.1s;
 }
 
 /* FILES */
@@ -349,7 +395,8 @@ NESTED BLOCKS
   cursor: ew-resize;
 }
 
-[data-content-type="audio"] > .bn-file-block-content-wrapper, .bn-audio {
+[data-content-type="audio"] > .bn-file-block-content-wrapper,
+.bn-audio {
   width: 100%;
 }
 

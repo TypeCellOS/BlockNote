@@ -8,6 +8,7 @@ export * from "./blocks/FileBlockContent/FileBlockContent.js";
 export * from "./blocks/FileBlockContent/fileBlockHelpers.js";
 export * from "./blocks/FileBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY.js";
 export * from "./blocks/ImageBlockContent/ImageBlockContent.js";
+export * from "./blocks/CodeBlockContent/CodeBlockContent.js";
 export { parseImageElement } from "./blocks/ImageBlockContent/imageBlockHelpers.js";
 export * from "./blocks/VideoBlockContent/VideoBlockContent.js";
 export * from "./blocks/defaultBlockHelpers.js";

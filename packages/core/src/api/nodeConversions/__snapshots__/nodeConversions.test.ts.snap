@@ -662,6 +662,75 @@ exports[`Test BlockNote-Prosemirror conversion > Case: custom style schema > Con
 }
 `;
 
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert codeBlock/defaultLanguage to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "language": "javascript",
+      },
+      "content": [
+        {
+          "text": "console.log('Hello, world!');",
+          "type": "text",
+        },
+      ],
+      "type": "codeBlock",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert codeBlock/empty to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "language": "javascript",
+      },
+      "type": "codeBlock",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert codeBlock/python to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "language": "python",
+      },
+      "content": [
+        {
+          "text": "print('Hello, world!')",
+          "type": "text",
+        },
+      ],
+      "type": "codeBlock",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
 exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert complex/misc to/from prosemirror 1`] = `
 {
   "attrs": {

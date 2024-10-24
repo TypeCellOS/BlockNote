@@ -52,6 +52,12 @@ export const ar: Dictionary = {
       aliases: ["ف", "فقرة"],
       group: "الكتل الأساسية",
     },
+    code_block: {
+      title: "كود",
+      subtext: "يستخدم لعرض الكود مع تحديد الصيغة",
+      aliases: ["كود", "مسبق"],
+      group: "الكتل الأساسية",
+    },
     table: {
       title: "جدول",
       subtext: "يستخدم للجداول",

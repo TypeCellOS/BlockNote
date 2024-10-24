@@ -69,6 +69,12 @@ export const ru: Dictionary = {
       aliases: ["p", "paragraph", "параграф"],
       group: "Базовые блоки",
     },
+    code_block: {
+      title: "Блок кода",
+      subtext: "Блок кода с подсветкой синтаксиса",
+      aliases: ["code", "pre", "блок кода"],
+      group: "Базовые блоки",
+    },
     table: {
       title: "Таблица",
       subtext: "Используется для таблиц",

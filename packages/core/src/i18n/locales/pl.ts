@@ -44,6 +44,12 @@ export const pl: Dictionary = {
       aliases: ["p", "akapit"],
       group: "Podstawowe bloki",
     },
+    code_block: {
+      title: "Blok kodu",
+      subtext: "Blok kodu z podświetleniem składni",
+      aliases: ["kod", "pre"],
+      group: "Podstawowe bloki",
+    },
     table: {
       title: "Tabela",
       subtext: "Używana do tworzenia tabel",

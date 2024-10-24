@@ -176,6 +176,33 @@ export const defaultSchemaTestCases: EditorTestCases<
       ],
     },
     {
+      name: "codeBlock/empty",
+      blocks: [
+        {
+          type: "codeBlock",
+        },
+      ],
+    },
+    {
+      name: "codeBlock/defaultLanguage",
+      blocks: [
+        {
+          type: "codeBlock",
+          content: "console.log('Hello, world!');",
+        },
+      ],
+    },
+    {
+      name: "codeBlock/python",
+      blocks: [
+        {
+          type: "codeBlock",
+          props: { language: "python" },
+          content: "print('Hello, world!')",
+        },
+      ],
+    },
+    {
       name: "file/button",
       blocks: [
         {

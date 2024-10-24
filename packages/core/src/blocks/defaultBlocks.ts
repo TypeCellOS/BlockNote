@@ -23,6 +23,7 @@ import {
 import { AudioBlock } from "./AudioBlockContent/AudioBlockContent.js";
 import { FileBlock } from "./FileBlockContent/FileBlockContent.js";
 import { Heading } from "./HeadingBlockContent/HeadingBlockContent.js";
+import { CodeBlock } from "./CodeBlockContent/CodeBlockContent.js";
 import { ImageBlock } from "./ImageBlockContent/ImageBlockContent.js";
 import { BulletListItem } from "./ListItemBlockContent/BulletListItemBlockContent/BulletListItemBlockContent.js";
 import { CheckListItem } from "./ListItemBlockContent/CheckListItemBlockContent/CheckListItemBlockContent.js";
@@ -34,6 +35,7 @@ import { VideoBlock } from "./VideoBlockContent/VideoBlockContent.js";
 export const defaultBlockSpecs = {
   paragraph: Paragraph,
   heading: Heading,
+  codeBlock: CodeBlock,
   bulletListItem: BulletListItem,
   numberedListItem: NumberedListItem,
   checkListItem: CheckListItem,

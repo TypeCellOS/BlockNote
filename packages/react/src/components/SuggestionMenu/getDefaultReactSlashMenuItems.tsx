@@ -19,6 +19,7 @@ import {
   RiTable2,
   RiText,
   RiVolumeUpFill,
+  RiCodeBlock,
 } from "react-icons/ri";
 import { DefaultReactSuggestionItem } from "./types.js";
 
@@ -36,6 +37,7 @@ const icons = {
   audio: RiVolumeUpFill,
   file: RiFile2Line,
   emoji: RiEmotionFill,
+  code_block: RiCodeBlock,
 };
 
 export function getDefaultReactSlashMenuItems<
