@@ -273,10 +273,10 @@ export const createResizeHandlesWrapper = (
   // calculate the new width of the element.
   let resizeParams:
     | {
-      handleUsed: "left" | "right";
-      initialWidth: number;
-      initialClientX: number;
-    }
+        handleUsed: "left" | "right";
+        initialWidth: number;
+        initialClientX: number;
+      }
     | undefined;
 
   // Updates the element width with an updated width depending on the cursor X
@@ -338,7 +338,6 @@ export const createResizeHandlesWrapper = (
   // `width` prop to the new value.
   const windowMouseUpHandler = (event: MouseEvent) => {
     // Hides the drag handles if the cursor is no longer over the element.
-
     if (
       (!event.target ||
         !wrapper.contains(event.target as Node) ||
