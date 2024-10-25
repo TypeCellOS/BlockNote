@@ -75,46 +75,42 @@ function getChildIndex(node: Element) {
 
 // Finds the DOM element corresponding to the table cell that the target element
 // is currently in. If the target element is not in a table cell, returns null.
-function domCellAround(target: Element | undefined) {
+function domCellAround(target: Element) {
+  let currentTarget: Element | undefined = target;
   while (
-    target &&
-    target.nodeName !== "TD" &&
-    target.nodeName !== "TH" &&
-    !target.classList.contains("tableWrapper")
+    currentTarget &&
+    currentTarget.nodeName !== "TD" &&
+    currentTarget.nodeName !== "TH" &&
+    !currentTarget.classList.contains("tableWrapper")
   ) {
-    target =
-      target.classList && target.classList.contains("ProseMirror")
+    currentTarget =
+      currentTarget.classList && currentTarget.classList.contains("ProseMirror")
         ? undefined
-        : (target.parentNode as Element);
+        : (currentTarget.parentNode as Element);
   }
-  if (!target) {
+  if (!currentTarget) {
     return undefined;
   }
-  return target?.nodeName === "TD" || target?.nodeName === "TH"
+  return currentTarget?.nodeName === "TD" || currentTarget?.nodeName === "TH"
     ? {
         type: "cell",
-        domNode: target,
-        tbodyNode: target.closest("tbody"),
+        domNode: currentTarget,
+        tbodyNode: currentTarget.closest("tbody"),
       }
     : {
         type: "wrapper",
-        domNode: target,
-        tbodyNode: target.querySelector("tbody"),
+        domNode: currentTarget,
+        tbodyNode: currentTarget.querySelector("tbody"),
       };
 }
 
 // Hides elements in the DOMwith the provided class names.
-function hideElementsWithClassNames(
-  classNames: string[],
-  rootEl: Document | ShadowRoot
-) {
-  classNames.forEach((className) => {
-    const elementsToHide = rootEl.querySelectorAll(className);
+function hideElements(selector: string, rootEl: Document | ShadowRoot) {
+  const elementsToHide = rootEl.querySelectorAll(selector);
 
-    for (let i = 0; i < elementsToHide.length; i++) {
-      (elementsToHide[i] as HTMLElement).style.visibility = "hidden";
-    }
-  });
+  for (let i = 0; i < elementsToHide.length; i++) {
+    (elementsToHide[i] as HTMLElement).style.visibility = "hidden";
+  }
 }
 
 export class TableHandlesView<
@@ -181,7 +177,11 @@ export class TableHandlesView<
       return;
     }
 
-    const target = domCellAround(event.target as HTMLElement);
+    if (!(event.target instanceof Element)) {
+      return;
+    }
+
+    const target = domCellAround(event.target);
 
     if (
       target?.type === "cell" &&
@@ -257,10 +257,15 @@ export class TableHandlesView<
       // if we're just to the right or below the table, show the extend buttons
       // (this is a bit hacky)
       const belowTable =
-        event.clientY > tableRect.bottom &&
+        event.clientY >= tableRect.bottom - 1 && // -1 to account for fractions of pixels in "bottom"
         event.clientY < tableRect.bottom + 20;
       const toRightOfTable =
-        event.clientX > tableRect.right && event.clientX < tableRect.right + 20;
+        event.clientX >= tableRect.right - 1 &&
+        event.clientX < tableRect.right + 20;
+
+      // without this check, we'd also hide draghandles when hovering over them
+      const hideHandles =
+        event.clientX > tableRect.right || event.clientY > tableRect.bottom;
 
       this.state = {
         ...this.state!,
@@ -270,6 +275,11 @@ export class TableHandlesView<
         referencePosTable: tableRect,
         block: tableBlock,
         widgetContainer,
+        colIndex: hideHandles ? undefined : this.state!.colIndex,
+        rowIndex: hideHandles ? undefined : this.state!.rowIndex,
+        referencePosCell: hideHandles
+          ? undefined
+          : this.state!.referencePosCell,
       };
     } else {
       const colIndex = getChildIndex(target.domNode);
@@ -317,12 +327,8 @@ export class TableHandlesView<
     event.preventDefault();
     event.dataTransfer!.dropEffect = "move";
 
-    hideElementsWithClassNames(
-      [
-        "column-resize-handle",
-        "prosemirror-dropcursor-block",
-        "prosemirror-dropcursor-inline",
-      ],
+    hideElements(
+      ".prosemirror-dropcursor-block, .prosemirror-dropcursor-inline",
       this.pmView.root
     );
 
@@ -410,6 +416,7 @@ export class TableHandlesView<
   };
 
   dropHandler = (event: DragEvent) => {
+    this.mouseState = "up";
     if (this.state === undefined || this.state.draggingState === undefined) {
       return;
     }
@@ -548,7 +555,7 @@ export class TableHandlesProsemirrorPlugin<
               ? this.view.state.rowIndex
               : this.view.state.colIndex;
 
-          if (!newIndex) {
+          if (newIndex === undefined) {
             return;
           }
 
@@ -632,6 +639,7 @@ export class TableHandlesProsemirrorPlugin<
                 (newIndex > this.view.state.draggingState.originalIndex
                   ? cellNode.nodeSize - 2
                   : 0);
+
               decorations.push(
                 // The widget is a small bar which spans the height of the cell.
                 Decoration.widget(decorationPos, () => {
