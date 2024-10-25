@@ -154,7 +154,7 @@ export class TableHandlesView<
 
     pmView.dom.addEventListener("mousemove", this.mouseMoveHandler);
     pmView.dom.addEventListener("mousedown", this.viewMousedownHandler);
-    pmView.dom.addEventListener("mouseup", this.viewMouseupHandler);
+    window.addEventListener("mouseup", this.mouseUpHandler);
 
     pmView.root.addEventListener(
       "dragover",
@@ -167,7 +167,7 @@ export class TableHandlesView<
     this.mouseState = "down";
   };
 
-  viewMouseupHandler = (event: MouseEvent) => {
+  mouseUpHandler = (event: MouseEvent) => {
     this.mouseState = "up";
     this.mouseMoveHandler(event);
   };
@@ -492,6 +492,8 @@ export class TableHandlesView<
 
   destroy() {
     this.pmView.dom.removeEventListener("mousemove", this.mouseMoveHandler);
+    window.removeEventListener("mouseup", this.mouseUpHandler);
+    this.pmView.dom.removeEventListener("mousedown", this.viewMousedownHandler);
     this.pmView.root.removeEventListener(
       "dragover",
       this.dragOverHandler as EventListener

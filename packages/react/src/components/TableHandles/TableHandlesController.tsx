@@ -147,36 +147,31 @@ export const TableHandlesController = <
               />
             </div>
           )}
-        {!draggingState && (
-          <>
-            {addOrRemoveRowsButton.isMounted && (
-              <div
-                ref={addOrRemoveRowsButton.ref}
-                style={addOrRemoveRowsButton.style}>
-                <ExtendButtonComponent
-                  editor={editor as any}
-                  orientation={"addOrRemoveRows"}
-                  block={state.block}
-                  onMouseDown={onStartExtend}
-                  onMouseUp={onEndExtend}
-                />
-              </div>
-            )}
-            {addOrRemoveColumnsButton.isMounted && (
-              <div
-                ref={addOrRemoveColumnsButton.ref}
-                style={addOrRemoveColumnsButton.style}>
-                <ExtendButtonComponent
-                  editor={editor as any}
-                  orientation={"addOrRemoveColumns"}
-                  block={state.block}
-                  onMouseDown={onStartExtend}
-                  onMouseUp={onEndExtend}
-                />
-              </div>
-            )}
-          </>
-        )}
+
+        {/* note that the extend buttons are always shown (we don't look at isMounted etc, 
+        because otherwise the table slightly shifts when they unmount  */}
+        <div
+          ref={addOrRemoveRowsButton.ref}
+          style={addOrRemoveRowsButton.style}>
+          <ExtendButtonComponent
+            editor={editor as any}
+            orientation={"addOrRemoveRows"}
+            block={state.block}
+            onMouseDown={onStartExtend}
+            onMouseUp={onEndExtend}
+          />
+        </div>
+        <div
+          ref={addOrRemoveColumnsButton.ref}
+          style={addOrRemoveColumnsButton.style}>
+          <ExtendButtonComponent
+            editor={editor as any}
+            orientation={"addOrRemoveColumns"}
+            block={state.block}
+            onMouseDown={onStartExtend}
+            onMouseUp={onEndExtend}
+          />
+        </div>
       </FloatingPortal>
     </>
   );
