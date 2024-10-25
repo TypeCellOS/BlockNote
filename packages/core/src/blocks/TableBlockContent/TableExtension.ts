@@ -1,7 +1,7 @@
 import { callOrReturn, Extension, getExtensionField } from "@tiptap/core";
 import { columnResizing, tableEditing } from "prosemirror-tables";
 
-export const MIN_CELL_WIDTH = 35;
+export const RESIZE_MIN_WIDTH = 35;
 export const EMPTY_CELL_WIDTH = 120;
 export const EMPTY_CELL_HEIGHT = 31;
 
@@ -11,7 +11,8 @@ export const TableExtension = Extension.create({
   addProseMirrorPlugins: () => {
     return [
       columnResizing({
-        cellMinWidth: MIN_CELL_WIDTH,
+        cellMinWidth: RESIZE_MIN_WIDTH,
+        defaultCellMinWidth: EMPTY_CELL_WIDTH,
         // We set this to null as we implement our own node view in the table
         // block content. This node view is the same as what's used by default,
         // but is wrapped in a `blockContent` HTML element.

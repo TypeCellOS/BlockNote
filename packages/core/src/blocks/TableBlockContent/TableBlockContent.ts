@@ -12,7 +12,7 @@ import {
 import { mergeCSSClasses } from "../../util/browser.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
-import { MIN_CELL_WIDTH, TableExtension } from "./TableExtension.js";
+import { EMPTY_CELL_WIDTH, TableExtension } from "./TableExtension.js";
 
 export const tablePropSchema = {
   backgroundColor: defaultProps.backgroundColor,
@@ -99,7 +99,7 @@ export const TableBlockContent = createStronglyTypedTiptapNode({
         }
       }
 
-      return new BlockNoteTableView(node, MIN_CELL_WIDTH, {
+      return new BlockNoteTableView(node, EMPTY_CELL_WIDTH, {
         ...(this.options.domAttributes?.blockContent || {}),
         ...HTMLAttributes,
       });
