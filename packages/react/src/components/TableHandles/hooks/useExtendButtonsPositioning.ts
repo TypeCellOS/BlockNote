@@ -61,11 +61,7 @@ function useExtendButtonPosition(
 export function useExtendButtonsPositioning(
   showExtendButtonRow: boolean,
   showExtendButtonCol: boolean,
-  referencePosTable: DOMRect | null,
-  draggingState?: {
-    draggedCellOrientation: "row" | "col";
-    mousePos: number;
-  }
+  referencePosTable: DOMRect | null
 ): {
   rowExtendButton: ReturnType<typeof useExtendButtonPosition>;
   colExtendButton: ReturnType<typeof useExtendButtonPosition>;
