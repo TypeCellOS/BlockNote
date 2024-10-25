@@ -1,6 +1,4 @@
 import {
-  BlockFromConfigNoChildren,
-  DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   EMPTY_CELL_HEIGHT,
@@ -15,6 +13,7 @@ import {
   ReactNode,
   useCallback,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { RiAddFill } from "react-icons/ri";
@@ -22,19 +21,65 @@ import { RiAddFill } from "react-icons/ri";
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { ExtendButtonProps } from "./ExtendButtonProps.js";
 
-// Rounds a number up or down, depending on whether the value past the decimal
-// point is above or below a certain fraction. If no fraction is provided, it
-// behaves like Math.round.
-const roundUpAt = (num: number, fraction = 0.5) => {
-  if (fraction <= 0 || fraction >= 100) {
-    throw new Error("Percentage must be between 0 and 1");
+function cropEmptyRowsOrColumns<
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  content: PartialTableContent<I, S>,
+  removeEmpty: "columns" | "rows"
+): PartialTableContent<I, S> {
+  let emptyColsOnRight = 0;
+
+  if (removeEmpty === "columns") {
+    // strips empty columns to the right and empty rows at the bottom
+    for (let i = content.rows[0].cells.length - 1; i >= 0; i--) {
+      const isEmpty = content.rows.every((row) => row.cells[i].length === 0);
+      if (!isEmpty) {
+        break;
+      }
+
+      emptyColsOnRight++;
+    }
   }
 
-  if (num < fraction) {
+  const rows: PartialTableContent<I, S>["rows"] = [];
+  for (let i = content.rows.length - 1; i >= 0; i--) {
+    if (removeEmpty === "rows") {
+      if (
+        rows.length === 0 &&
+        content.rows[i].cells.every((cell) => cell.length === 0)
+      ) {
+        // empty row at bottom
+        continue;
+      }
+    }
+
+    rows.unshift({
+      cells: content.rows[i].cells.slice(
+        0,
+        content.rows[0].cells.length - emptyColsOnRight
+      ),
+    });
+  }
+
+  return {
+    ...content,
+    rows,
+  };
+}
+// Rounds a number up or down, depending on whether we're close (as defined by
+// `margin`) to the next integer.
+const marginRound = (num: number, margin = 0.3) => {
+  const lowerBound = Math.floor(num) + margin;
+  const upperBound = Math.ceil(num) - margin;
+
+  if (num >= lowerBound && num <= upperBound) {
+    return Math.round(num);
+  } else if (num < lowerBound) {
     return Math.floor(num);
+  } else {
+    return Math.ceil(num);
   }
-
-  return Math.ceil(num);
 };
 
 const getContentWithAddedRows = <
@@ -51,7 +96,6 @@ const getContentWithAddedRows = <
   for (let i = 0; i < rowsToAdd; i++) {
     newRows.push(newRow);
   }
-
   return {
     type: "tableContent",
     columnWidths: content.columnWidths,
@@ -92,82 +136,123 @@ export const ExtendButton = <
 ) => {
   const Components = useComponentsContext()!;
 
-  const [editingState, setEditingState] = useState<{
-    originalBlock: BlockFromConfigNoChildren<DefaultBlockSchema["table"], I, S>;
-    startPos: number;
-    clickOnly: boolean;
-  } | null>(null);
+  // needs to be a ref because it's used immediately in the onClick handler
+  // (state would be async and only have effect after the next render
+  const movedMouse = useRef(false);
+
+  const [editingState, setEditingState] = useState<
+    | {
+        originalContent: PartialTableContent<I, S>;
+        originalCroppedContent: PartialTableContent<I, S>;
+        startPos: number;
+      }
+    | undefined
+  >();
 
   // Lets the user start extending columns/rows by moving the mouse.
   const mouseDownHandler = useCallback(
     (event: ReactMouseEvent) => {
-      props.freezeHandles();
+      props.onMouseDown();
       setEditingState({
-        originalBlock: props.block,
-        startPos: props.orientation === "row" ? event.clientX : event.clientY,
-        clickOnly: true,
+        originalContent: props.block.content,
+        originalCroppedContent: cropEmptyRowsOrColumns(
+          props.block.content,
+          props.orientation === "addOrRemoveColumns" ? "columns" : "rows"
+        ),
+        startPos:
+          props.orientation === "addOrRemoveColumns"
+            ? event.clientX
+            : event.clientY,
       });
+      movedMouse.current = false;
+
+      // preventdefault, otherwise text in the table might be selected
+      event.preventDefault();
     },
     [props]
   );
 
+  const onClickHandler = useCallback(() => {
+    if (movedMouse.current) {
+      return;
+    }
+    props.editor.updateBlock(props.block, {
+      type: "table",
+      content:
+        props.orientation === "addOrRemoveColumns"
+          ? getContentWithAddedCols(props.block.content)
+          : getContentWithAddedRows(props.block.content),
+    });
+  }, [props.block, props.orientation, props.editor]);
+
   // Extends columns/rows on when moving the mouse.
   useEffect(() => {
     const callback = (event: MouseEvent) => {
-      if (editingState === null) {
-        return;
+      // console.log("callback", event);
+      if (!editingState) {
+        throw new Error("editingState is undefined");
       }
 
+      movedMouse.current = true;
+
       const diff =
-        (props.orientation === "row" ? event.clientX : event.clientY) -
-        editingState.startPos;
+        (props.orientation === "addOrRemoveColumns"
+          ? event.clientX
+          : event.clientY) - editingState.startPos;
+
+      const numCroppedCells =
+        props.orientation === "addOrRemoveColumns"
+          ? editingState.originalCroppedContent.rows[0].cells.length
+          : editingState.originalCroppedContent.rows.length;
 
       const numOriginalCells =
-        props.orientation === "row"
-          ? editingState.originalBlock.content.rows[0].cells.length
-          : editingState.originalBlock.content.rows.length;
-      const oldNumCells =
-        props.orientation === "row"
+        props.orientation === "addOrRemoveColumns"
+          ? editingState.originalContent.rows[0].cells.length
+          : editingState.originalContent.rows.length;
+
+      const currentNumCells =
+        props.orientation === "addOrRemoveColumns"
           ? props.block.content.rows[0].cells.length
           : props.block.content.rows.length;
+
       const newNumCells =
         numOriginalCells +
-        roundUpAt(
+        marginRound(
           diff /
-            (props.orientation === "row"
+            (props.orientation === "addOrRemoveColumns"
               ? EMPTY_CELL_WIDTH
               : EMPTY_CELL_HEIGHT),
           0.3
         );
 
-      if (numOriginalCells <= newNumCells && newNumCells !== oldNumCells) {
+      if (newNumCells >= numCroppedCells && newNumCells !== currentNumCells) {
         props.editor.updateBlock(props.block, {
           type: "table",
           content:
-            props.orientation === "row"
+            props.orientation === "addOrRemoveColumns"
               ? getContentWithAddedCols(
-                  editingState.originalBlock.content,
-                  newNumCells - numOriginalCells
+                  editingState.originalCroppedContent,
+                  newNumCells - numCroppedCells
                 )
               : getContentWithAddedRows(
-                  editingState.originalBlock.content,
-                  newNumCells - numOriginalCells
+                  editingState.originalCroppedContent,
+                  newNumCells - numCroppedCells
                 ),
         });
 
         // Edge case for updating block content as `updateBlock` causes the
         // selection to move into the next block, so we have to set it back.
-        if (editingState.originalBlock.content) {
+        if (props.block.content) {
           props.editor.setTextCursorPosition(props.block);
         }
-        setEditingState({ ...editingState, clickOnly: false });
       }
     };
 
-    document.body.addEventListener("mousemove", callback);
-
+    if (editingState) {
+      window.addEventListener("mousemove", callback);
+    }
     return () => {
-      document.body.removeEventListener("mousemove", callback);
+      window.removeEventListener("mousemove", callback);
     };
   }, [editingState, props.block, props.editor, props.orientation]);
 
@@ -175,37 +260,32 @@ export const ExtendButton = <
   // released. Also extends columns/rows by 1 if the mouse wasn't moved enough
   // to add any, imitating a click.
   useEffect(() => {
-    const callback = () => {
-      if (editingState?.clickOnly) {
-        props.editor.updateBlock(props.block, {
-          type: "table",
-          content:
-            props.orientation === "row"
-              ? getContentWithAddedCols(editingState.originalBlock.content)
-              : getContentWithAddedRows(editingState.originalBlock.content),
-        });
-      }
+    const onMouseUp = props.onMouseUp;
 
-      setEditingState(null);
-      props.unfreezeHandles();
+    const callback = () => {
+      setEditingState(undefined);
+      onMouseUp();
     };
 
-    document.body.addEventListener("mouseup", callback);
+    if (editingState) {
+      window.addEventListener("mouseup", callback);
+    }
 
     return () => {
-      document.body.removeEventListener("mouseup", callback);
+      window.removeEventListener("mouseup", callback);
     };
-  }, [editingState?.clickOnly, editingState?.originalBlock.content, props]);
+  }, [editingState, props.onMouseUp]);
 
   return (
     <Components.TableHandle.ExtendButton
       className={mergeCSSClasses(
         "bn-extend-button",
-        props.orientation === "row"
-          ? "bn-extend-button-row"
-          : "bn-extend-button-column",
+        props.orientation === "addOrRemoveColumns"
+          ? "bn-extend-button-add-remove-columns"
+          : "bn-extend-button-add-remove-rows",
         editingState !== null ? "bn-extend-button-editing" : ""
       )}
+      onClick={onClickHandler}
       onMouseDown={mouseDownHandler}>
       {props.children || <RiAddFill size={18} data-test={"extendButton"} />}
     </Components.TableHandle.ExtendButton>

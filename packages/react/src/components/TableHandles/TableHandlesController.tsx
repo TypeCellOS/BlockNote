@@ -5,29 +5,29 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { FC, useMemo, useState } from "react";
+import { FC, useCallback, useMemo, useState } from "react";
 
+import { FloatingPortal } from "@floating-ui/react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
-import { useExtendButtonsPositioning } from "./hooks/useExtendButtonsPositioning.js";
-import { useTableHandlesPositioning } from "./hooks/useTableHandlesPositioning.js";
 import { useUIPluginState } from "../../hooks/useUIPluginState.js";
 import { ExtendButton } from "./ExtendButton/ExtendButton.js";
+import { ExtendButtonProps } from "./ExtendButton/ExtendButtonProps.js";
 import { TableHandle } from "./TableHandle.js";
 import { TableHandleProps } from "./TableHandleProps.js";
+import { useExtendButtonsPositioning } from "./hooks/useExtendButtonsPositioning.js";
+import { useTableHandlesPositioning } from "./hooks/useTableHandlesPositioning.js";
 
 export const TableHandlesController = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(props: {
   tableHandle?: FC<TableHandleProps<I, S>>;
-  extendButton?: FC<
-    Pick<
-      TableHandleProps<I, S>,
-      "block" | "editor" | "orientation" | "freezeHandles" | "unfreezeHandles"
-    >
-  >;
+  extendButton?: FC<ExtendButtonProps<I, S>>;
 }) => {
   const editor = useBlockNoteEditor<BlockSchema, I, S>();
+
+  const [menuContainerRef, setMenuContainerRef] =
+    useState<HTMLDivElement | null>(null);
 
   if (!editor.tableHandles) {
     throw new Error(
@@ -42,6 +42,20 @@ export const TableHandlesController = <
     freezeHandles: editor.tableHandles.freezeHandles,
     unfreezeHandles: editor.tableHandles.unfreezeHandles,
   };
+
+  const { freezeHandles, unfreezeHandles } = callbacks;
+
+  const onStartExtend = useCallback(() => {
+    freezeHandles();
+    setHideCol(true);
+    setHideRow(true);
+  }, [freezeHandles]);
+
+  const onEndExtend = useCallback(() => {
+    unfreezeHandles();
+    setHideCol(false);
+    setHideRow(false);
+  }, [unfreezeHandles]);
 
   const state = useUIPluginState(
     editor.tableHandles.onUpdate.bind(editor.tableHandles)
@@ -88,61 +102,69 @@ export const TableHandlesController = <
 
   return (
     <>
-      {!hideRow && (
-        <div ref={rowHandle.ref} style={rowHandle.style}>
-          <TableHandleComponent
-            // This "as any" unfortunately seems complicated to fix
-            editor={editor as any}
-            orientation={"row"}
-            showOtherSide={() => setHideCol(false)}
-            hideOtherSide={() => setHideCol(true)}
-            index={state.rowIndex}
-            block={state.block}
-            dragStart={callbacks.rowDragStart}
-            dragEnd={callbacks.dragEnd}
-            freezeHandles={callbacks.freezeHandles}
-            unfreezeHandles={callbacks.unfreezeHandles}
-          />
-        </div>
-      )}
-      {!hideCol && (
-        <div ref={colHandle.ref} style={colHandle.style}>
-          <TableHandleComponent
-            editor={editor as any}
-            orientation={"column"}
-            showOtherSide={() => setHideRow(false)}
-            hideOtherSide={() => setHideRow(true)}
-            index={state.colIndex}
-            block={state.block}
-            dragStart={callbacks.colDragStart}
-            dragEnd={callbacks.dragEnd}
-            freezeHandles={callbacks.freezeHandles}
-            unfreezeHandles={callbacks.unfreezeHandles}
-          />
-        </div>
-      )}
-      {!draggingState && !hideCol && !hideRow && (
-        <>
-          <div ref={rowExtendButton.ref} style={rowExtendButton.style}>
-            <ExtendButtonComponent
+      <div ref={setMenuContainerRef}></div>
+      {/* we want to make sure the elements are clipped by the .tableWrapper element (so that we scroll the table, widgets also dissappear)
+      we do this by rendering in a portal into the table's widget container (defined in TableBlockContent.ts)
+      */}
+      <FloatingPortal root={state.widgetContainer}>
+        {!hideRow && menuContainerRef && (
+          <div ref={rowHandle.ref} style={rowHandle.style}>
+            <TableHandleComponent
+              // This "as any" unfortunately seems complicated to fix
               editor={editor as any}
               orientation={"row"}
+              showOtherSide={() => setHideCol(false)}
+              hideOtherSide={() => setHideCol(true)}
+              index={state.rowIndex}
               block={state.block}
+              dragStart={callbacks.rowDragStart}
+              dragEnd={callbacks.dragEnd}
               freezeHandles={callbacks.freezeHandles}
               unfreezeHandles={callbacks.unfreezeHandles}
+              menuContainer={menuContainerRef}
             />
           </div>
-          <div ref={colExtendButton.ref} style={colExtendButton.style}>
-            <ExtendButtonComponent
+        )}
+        {!hideCol && menuContainerRef && (
+          <div ref={colHandle.ref} style={colHandle.style}>
+            <TableHandleComponent
               editor={editor as any}
               orientation={"column"}
+              showOtherSide={() => setHideRow(false)}
+              hideOtherSide={() => setHideRow(true)}
+              index={state.colIndex}
               block={state.block}
+              dragStart={callbacks.colDragStart}
+              dragEnd={callbacks.dragEnd}
               freezeHandles={callbacks.freezeHandles}
               unfreezeHandles={callbacks.unfreezeHandles}
+              menuContainer={menuContainerRef}
             />
           </div>
-        </>
-      )}
+        )}
+        {!draggingState && (
+          <>
+            <div ref={rowExtendButton.ref} style={rowExtendButton.style}>
+              <ExtendButtonComponent
+                editor={editor as any}
+                orientation={"addOrRemoveColumns"}
+                block={state.block}
+                onMouseDown={onStartExtend}
+                onMouseUp={onEndExtend}
+              />
+            </div>
+            <div ref={colExtendButton.ref} style={colExtendButton.style}>
+              <ExtendButtonComponent
+                editor={editor as any}
+                orientation={"addOrRemoveRows"}
+                block={state.block}
+                onMouseDown={onStartExtend}
+                onMouseUp={onEndExtend}
+              />
+            </div>
+          </>
+        )}
+      </FloatingPortal>
     </>
   );
 };

@@ -36,6 +36,8 @@ export type TableHandlesState<
         mousePos: number;
       }
     | undefined;
+
+  widgetContainer: HTMLElement | undefined;
 };
 
 function setHiddenDragImage(rootEl: Document | ShadowRoot) {
@@ -72,14 +74,30 @@ function getChildIndex(node: Element) {
 
 // Finds the DOM element corresponding to the table cell that the target element
 // is currently in. If the target element is not in a table cell, returns null.
-function domCellAround(target: Element | null): Element | null {
-  while (target && target.nodeName !== "TD" && target.nodeName !== "TH") {
+function domCellAround(target: Element | undefined) {
+  while (
+    target &&
+    target.nodeName !== "TD" &&
+    target.nodeName !== "TH" &&
+    !target.classList.contains("tableWrapper")
+  ) {
     target =
       target.classList && target.classList.contains("ProseMirror")
-        ? null
+        ? undefined
         : (target.parentNode as Element);
   }
-  return target;
+  if (!target) {
+    return undefined;
+  }
+  return target?.nodeName === "TD" || target?.nodeName === "TH"
+    ? {
+        type: "cell",
+        domNode: target,
+      }
+    : {
+        type: "wrapper",
+        domNode: target,
+      };
 }
 
 // Hides elements in the DOMwith the provided class names.
@@ -140,11 +158,6 @@ export class TableHandlesView<
       this.dragOverHandler as EventListener
     );
     pmView.root.addEventListener("drop", this.dropHandler as EventListener);
-
-    // Setting capture=true ensures that any parent container of the editor that
-    // gets scrolled will trigger the scroll event. Scroll events do not bubble
-    // and so won't propagate to the document by default.
-    pmView.root.addEventListener("scroll", this.scrollHandler, true);
   }
 
   viewMousedownHandler = () => {
@@ -161,7 +174,14 @@ export class TableHandlesView<
       return;
     }
 
-    if (this.mouseState === "down") {
+    const target = domCellAround(event.target as HTMLElement);
+
+    if (
+      target?.type === "cell" &&
+      this.mouseState === "down" &&
+      !this.state?.draggingState
+    ) {
+      // hide draghandles when selecting text as they could be in the way of the user
       this.mouseState = "selecting";
 
       if (this.state?.show) {
@@ -170,13 +190,16 @@ export class TableHandlesView<
         this.state.showExtendButtonCol = false;
         this.emitUpdate();
       }
+      return;
     }
 
     if (this.mouseState === "selecting") {
       return;
     }
 
-    const target = domCellAround(event.target as HTMLElement);
+    if (target?.type === "wrapper") {
+      return;
+    }
 
     if (!target || !this.editor.isEditable) {
       if (this.state?.show) {
@@ -188,21 +211,21 @@ export class TableHandlesView<
       return;
     }
 
-    const colIndex = getChildIndex(target);
-    const rowIndex = getChildIndex(target.parentElement!);
-    const cellRect = target.getBoundingClientRect();
-    const tableRect =
-      target.parentElement?.parentElement?.getBoundingClientRect();
+    const colIndex = getChildIndex(target.domNode);
+    const rowIndex = getChildIndex(target.domNode.parentElement!);
+    const cellRect = target.domNode.getBoundingClientRect();
+
+    const tableRect = target.domNode.closest("tbody")!.getBoundingClientRect();
 
     if (!tableRect) {
       return;
     }
 
-    const blockEl = getDraggableBlockFromElement(target, this.pmView);
+    const blockEl = getDraggableBlockFromElement(target.domNode, this.pmView);
     if (!blockEl) {
       return;
     }
-    this.tableElement = blockEl.node;
+    this.tableElement = blockEl.node; // TODO: needed?
 
     let tableBlock:
       | BlockFromConfigNoChildren<DefaultBlockSchema["table"], I, S>
@@ -264,6 +287,10 @@ export class TableHandlesView<
       rowIndex: rowIndex,
 
       draggingState: undefined,
+      widgetContainer:
+        target.domNode
+          .closest(".tableWrapper")
+          ?.querySelector(".table-widgets-container") || undefined,
     };
     this.emitUpdate();
 
@@ -405,24 +432,6 @@ export class TableHandlesView<
     // the existing selection out of the block.
     this.editor.setTextCursorPosition(this.state.block.id);
   };
-
-  scrollHandler = () => {
-    if (this.state?.show) {
-      const tableElement = this.pmView.root.querySelector(
-        `[data-node-type="blockContainer"][data-id="${this.tableId}"] table`
-      )!;
-      const cellElement = tableElement.querySelector(
-        `tr:nth-child(${this.state.rowIndex + 1}) > td:nth-child(${
-          this.state.colIndex + 1
-        })`
-      )!;
-
-      this.state.referencePosTable = tableElement.getBoundingClientRect();
-      this.state.referencePosCell = cellElement.getBoundingClientRect();
-      this.emitUpdate();
-    }
-  };
-
   // Updates drag handle positions on table content updates.
   update() {
     if (!this.state || !this.state.show) {
@@ -470,7 +479,6 @@ export class TableHandlesView<
       "drop",
       this.dropHandler as EventListener
     );
-    this.pmView.root.removeEventListener("scroll", this.scrollHandler, true);
   }
 }
 

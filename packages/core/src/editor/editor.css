@@ -104,18 +104,44 @@ Tippy popups that are appended to document.body directly
   white-space: nowrap;
 }
 
+/* .tableWrapper {
+  padding
+} */
+
+.ProseMirror .tableWrapper {
+  position: relative;
+  top: -16px;
+  left: -16px;
+  /* padding: 16px; */
+  min-width: calc(100% + 16px);
+  padding-bottom: 16px;
+  overflow-y: hidden;
+}
+
+.ProseMirror .tableWrapper-inner {
+  /* position: relative; */
+  /* top: -16px;
+  left: -16px; */
+  padding: 16px;
+}
+
 /* table related: */
 .bn-editor table {
   /* TODO: Do we want this? */
   width: auto !important;
-  margin-bottom: 2em;
+  word-break: break-word;
 }
 .bn-editor th,
 .bn-editor td {
-  min-width: 1em;
   border: 1px solid #ddd;
   padding: 3px 5px;
 }
+
+/* .bn-editor th:not([colwidth]),
+.bn-editor td:not([colwidth]) {
+  min-width: 120px;
+  max-width: 240px;
+} */
 
 .bn-editor th {
   font-weight: bold;

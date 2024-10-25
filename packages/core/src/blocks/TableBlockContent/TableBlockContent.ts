@@ -12,7 +12,7 @@ import {
 import { mergeCSSClasses } from "../../util/browser.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
-import { EMPTY_CELL_WIDTH, TableExtension } from "./TableExtension.js";
+import { MIN_CELL_WIDTH, TableExtension } from "./TableExtension.js";
 
 export const tablePropSchema = {
   backgroundColor: defaultProps.backgroundColor,
@@ -75,13 +75,31 @@ export const TableBlockContent = createStronglyTypedTiptapNode({
           }
 
           const tableWrapper = this.dom;
+
+          const tableWrapperInner = document.createElement("div");
+          tableWrapperInner.className = "tableWrapper-inner";
+          tableWrapperInner.appendChild(tableWrapper.firstChild!);
+
+          tableWrapper.appendChild(tableWrapperInner);
+
           blockContent.appendChild(tableWrapper);
+          const floatingContainer = document.createElement("div");
+          floatingContainer.className = "table-widgets-container";
+          floatingContainer.style.position = "relative";
+          tableWrapper.appendChild(floatingContainer);
 
           this.dom = blockContent;
         }
+
+        ignoreMutation(record: MutationRecord): boolean {
+          return (
+            !(record.target as HTMLElement).closest(".tableWrapper-inner") ||
+            super.ignoreMutation(record)
+          );
+        }
       }
 
-      return new BlockNoteTableView(node, EMPTY_CELL_WIDTH, {
+      return new BlockNoteTableView(node, MIN_CELL_WIDTH, {
         ...(this.options.domAttributes?.blockContent || {}),
         ...HTMLAttributes,
       });

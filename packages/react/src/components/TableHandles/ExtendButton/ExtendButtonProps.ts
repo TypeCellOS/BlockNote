@@ -1,16 +1,25 @@
 import {
+  BlockNoteEditor,
+  DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   InlineContentSchema,
   StyleSchema,
+  TableHandlesState,
 } from "@blocknote/core";
-
-import { TableHandleProps } from "../TableHandleProps.js";
 
 export type ExtendButtonProps<
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
-> = Pick<
-  TableHandleProps<I, S>,
-  "block" | "editor" | "orientation" | "freezeHandles" | "unfreezeHandles"
->;
+> = {
+  editor: BlockNoteEditor<
+    {
+      table: DefaultBlockSchema["table"];
+    },
+    I,
+    S
+  >;
+  onMouseDown: () => void;
+  onMouseUp: () => void;
+  orientation: "addOrRemoveRows" | "addOrRemoveColumns";
+} & Pick<TableHandlesState<I, S>, "block">;

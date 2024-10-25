@@ -185,6 +185,7 @@ export type ComponentProps = {
     );
     ExtendButton: {
       className?: string;
+      onClick: (e: React.MouseEvent) => void;
       onMouseDown: (e: React.MouseEvent) => void;
       children: ReactNode;
     };
