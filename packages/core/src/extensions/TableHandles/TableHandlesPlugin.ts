@@ -21,8 +21,8 @@ export type TableHandlesState<
   S extends StyleSchema
 > = {
   show: boolean;
-  showExtendButtonRow: boolean;
-  showExtendButtonCol: boolean;
+  showAddOrRemoveRowsButton: boolean;
+  showAddOrRemoveColumnsButton: boolean;
   referencePosCell: DOMRect | undefined;
   referencePosTable: DOMRect;
 
@@ -193,8 +193,8 @@ export class TableHandlesView<
 
       if (this.state?.show) {
         this.state.show = false;
-        this.state.showExtendButtonRow = false;
-        this.state.showExtendButtonCol = false;
+        this.state.showAddOrRemoveRowsButton = false;
+        this.state.showAddOrRemoveColumnsButton = false;
         this.emitUpdate();
       }
       return;
@@ -203,8 +203,8 @@ export class TableHandlesView<
     if (!target || !this.editor.isEditable) {
       if (this.state?.show) {
         this.state.show = false;
-        this.state.showExtendButtonRow = false;
-        this.state.showExtendButtonCol = false;
+        this.state.showAddOrRemoveRowsButton = false;
+        this.state.showAddOrRemoveColumnsButton = false;
         this.emitUpdate();
       }
       return;
@@ -265,8 +265,8 @@ export class TableHandlesView<
       this.state = {
         ...this.state!,
         show: true,
-        showExtendButtonRow: toRightOfTable,
-        showExtendButtonCol: belowTable,
+        showAddOrRemoveRowsButton: belowTable,
+        showAddOrRemoveColumnsButton: toRightOfTable,
         referencePosTable: tableRect,
         block: tableBlock,
         widgetContainer,
@@ -289,9 +289,10 @@ export class TableHandlesView<
 
       this.state = {
         show: true,
-        showExtendButtonRow:
+        showAddOrRemoveColumnsButton:
           colIndex === tableBlock.content.rows[0].cells.length - 1,
-        showExtendButtonCol: rowIndex === tableBlock.content.rows.length - 1,
+        showAddOrRemoveRowsButton:
+          rowIndex === tableBlock.content.rows.length - 1,
         referencePosTable: tableRect,
 
         block: tableBlock,

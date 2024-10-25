@@ -2,19 +2,19 @@ import { size, useFloating, useTransitionStyles } from "@floating-ui/react";
 import { useEffect, useMemo } from "react";
 
 function useExtendButtonPosition(
-  orientation: "row" | "col",
+  orientation: "addOrRemoveRows" | "addOrRemoveColumns",
   show: boolean,
   referencePosTable: DOMRect | null
 ) {
   const { refs, update, context, floatingStyles } = useFloating({
     open: show,
-    placement: orientation === "row" ? "right" : "bottom",
+    placement: orientation === "addOrRemoveColumns" ? "right" : "bottom",
     middleware: [
       size({
         apply({ rects, elements }) {
           Object.assign(
             elements.floating.style,
-            orientation === "row"
+            orientation === "addOrRemoveColumns"
               ? {
                   height: `${rects.reference.height}px`,
                 }
@@ -59,29 +59,29 @@ function useExtendButtonPosition(
 }
 
 export function useExtendButtonsPositioning(
-  showExtendButtonRow: boolean,
-  showExtendButtonCol: boolean,
+  showAddOrRemoveColumnsButton: boolean,
+  showAddOrRemoveRowsButton: boolean,
   referencePosTable: DOMRect | null
 ): {
-  rowExtendButton: ReturnType<typeof useExtendButtonPosition>;
-  colExtendButton: ReturnType<typeof useExtendButtonPosition>;
+  addOrRemoveRowsButton: ReturnType<typeof useExtendButtonPosition>;
+  addOrRemoveColumnsButton: ReturnType<typeof useExtendButtonPosition>;
 } {
-  const rowExtendButton = useExtendButtonPosition(
-    "row",
-    showExtendButtonRow,
+  const addOrRemoveRowsButton = useExtendButtonPosition(
+    "addOrRemoveRows",
+    showAddOrRemoveRowsButton,
     referencePosTable
   );
-  const colExtendButton = useExtendButtonPosition(
-    "col",
-    showExtendButtonCol,
+  const addOrRemoveColumnsButton = useExtendButtonPosition(
+    "addOrRemoveColumns",
+    showAddOrRemoveColumnsButton,
     referencePosTable
   );
 
   return useMemo(
     () => ({
-      rowExtendButton,
-      colExtendButton,
+      addOrRemoveRowsButton,
+      addOrRemoveColumnsButton,
     }),
-    [colExtendButton, rowExtendButton]
+    [addOrRemoveColumnsButton, addOrRemoveRowsButton]
   );
 }
