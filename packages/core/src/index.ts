@@ -2,6 +2,7 @@ import * as locales from "./i18n/locales/index.js";
 export * from "./api/exporters/html/externalHTMLExporter.js";
 export * from "./api/exporters/html/internalHTMLSerializer.js";
 export * from "./api/getBlockInfoFromPos.js";
+export * from "./api/nodeUtil.js";
 export * from "./api/testUtil/index.js";
 export * from "./blocks/AudioBlockContent/AudioBlockContent.js";
 export * from "./blocks/FileBlockContent/FileBlockContent.js";

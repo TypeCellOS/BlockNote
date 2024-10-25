@@ -3,6 +3,8 @@ import {
   mergeCSSClasses,
 } from "@blocknote/core";
 
+import { ColumnResizeExtension } from "../extensions/ColumnResize/ColumnResizeExtension.js";
+
 // TODO: necessary?
 const BlockAttributes: Record<string, string> = {
   blockColor: "data-block-color",
@@ -19,6 +21,45 @@ export const Column = createStronglyTypedTiptapNode({
   content: "blockContainer+",
   priority: 40,
   // defining: true, // TODO
+
+  addAttributes() {
+    return {
+      width: {
+        // Why does each column have a default width of 1, i.e. 100%? Because
+        // when creating a new column, we want to make sure that existing
+        // column widths are preserved, while the new one also has a sensible
+        // width. If we'd set it so all column widths must add up to 100%
+        // instead, then each time a new column is created, we'd have to assign
+        // it a width depending on the total number of columns and also adjust
+        // the widths of the other columns. The same can be said for using px
+        // instead of percent widths and making them add to the editor width. So
+        // using this method is both simpler and computationally cheaper. This
+        // is only possible because we can abuse the fact that the `flex-basis`
+        // CSS property doesn't care about the total sum value across flexbox
+        // children, only the relative values between them.
+        default: 1,
+        parseHTML: (element) => {
+          const attr = element.getAttribute("data-width");
+          if (attr === null) {
+            return null;
+          }
+
+          const parsed = parseFloat(attr);
+          if (isFinite(parsed)) {
+            return parsed;
+          }
+
+          return null;
+        },
+        renderHTML: (attributes) => {
+          return {
+            "data-width": (attributes.width as number).toString(),
+            style: `flex-basis: ${(attributes.width as number) * 100}%;`,
+          };
+        },
+      },
+    };
+  },
 
   // TODO
   parseHTML() {
@@ -47,35 +88,33 @@ export const Column = createStronglyTypedTiptapNode({
     ];
   },
 
-  // TODO, needed? + type of attributes
   renderHTML({ HTMLAttributes }) {
-    const blockOuter = document.createElement("div");
-    blockOuter.className = "bn-block-outer";
-    blockOuter.setAttribute("data-node-type", "blockOuter");
-    for (const [attribute, value] of Object.entries(HTMLAttributes)) {
-      if (attribute !== "class") {
-        blockOuter.setAttribute(attribute, value);
-      }
-    }
-
     const blockHTMLAttributes = {
+      // TODO: Should the block DOM attributes from the editor options be added
+      //  here?
       ...(this.options.domAttributes?.block || {}),
       ...HTMLAttributes,
     };
-    const block = document.createElement("div");
-    block.className = mergeCSSClasses("bn-block", blockHTMLAttributes.class);
-    block.setAttribute("data-node-type", this.name);
+
+    const column = document.createElement("div");
+    column.className = mergeCSSClasses(
+      "bn-block-column",
+      blockHTMLAttributes.class
+    );
+    column.setAttribute("data-node-type", this.name);
     for (const [attribute, value] of Object.entries(blockHTMLAttributes)) {
       if (attribute !== "class") {
-        block.setAttribute(attribute, value as any); // TODO as any
+        column.setAttribute(attribute, value as any); // TODO as any
       }
     }
 
-    blockOuter.appendChild(block);
-
     return {
-      dom: blockOuter,
-      contentDOM: block,
+      dom: column,
+      contentDOM: column,
     };
+  },
+
+  addExtensions() {
+    return [ColumnResizeExtension];
   },
 });
