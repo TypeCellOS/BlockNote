@@ -4,12 +4,7 @@ import { useEffect, useMemo } from "react";
 function useExtendButtonPosition(
   orientation: "row" | "col",
   show: boolean,
-  referencePosCell: DOMRect | null,
-  referencePosTable: DOMRect | null,
-  draggingState?: {
-    draggedCellOrientation: "row" | "col";
-    mousePos: number;
-  }
+  referencePosTable: DOMRect | null
 ) {
   const { refs, update, context, floatingStyles } = useFloating({
     open: show,
@@ -36,18 +31,18 @@ function useExtendButtonPosition(
 
   useEffect(() => {
     update();
-  }, [referencePosCell, referencePosTable, update]);
+  }, [referencePosTable, update]);
 
   useEffect(() => {
     // Will be null on initial render when used in UI component controllers.
-    if (referencePosCell === null || referencePosTable === null) {
+    if (referencePosTable === null) {
       return;
     }
 
     refs.setReference({
       getBoundingClientRect: () => referencePosTable,
     });
-  }, [draggingState, orientation, referencePosCell, referencePosTable, refs]);
+  }, [orientation, referencePosTable, refs]);
 
   return useMemo(
     () => ({
@@ -66,7 +61,6 @@ function useExtendButtonPosition(
 export function useExtendButtonsPositioning(
   showExtendButtonRow: boolean,
   showExtendButtonCol: boolean,
-  referencePosCell: DOMRect | null,
   referencePosTable: DOMRect | null,
   draggingState?: {
     draggedCellOrientation: "row" | "col";
@@ -79,16 +73,12 @@ export function useExtendButtonsPositioning(
   const rowExtendButton = useExtendButtonPosition(
     "row",
     showExtendButtonRow,
-    referencePosCell,
-    referencePosTable,
-    draggingState
+    referencePosTable
   );
   const colExtendButton = useExtendButtonPosition(
     "col",
     showExtendButtonCol,
-    referencePosCell,
-    referencePosTable,
-    draggingState
+    referencePosTable
   );
 
   return useMemo(

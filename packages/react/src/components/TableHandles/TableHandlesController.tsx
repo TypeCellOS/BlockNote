@@ -85,9 +85,7 @@ export const TableHandlesController = <
   const { rowExtendButton, colExtendButton } = useExtendButtonsPositioning(
     state?.showExtendButtonRow || false,
     state?.showExtendButtonCol || false,
-    state?.referencePosCell || null,
-    state?.referencePosTable || null,
-    draggingState
+    state?.referencePosTable || null
   );
 
   const [hideRow, setHideRow] = useState<boolean>(false);
@@ -107,7 +105,7 @@ export const TableHandlesController = <
       we do this by rendering in a portal into the table's widget container (defined in TableBlockContent.ts)
       */}
       <FloatingPortal root={state.widgetContainer}>
-        {!hideRow && menuContainerRef && (
+        {!hideRow && menuContainerRef && state.rowIndex !== undefined && (
           <div ref={rowHandle.ref} style={rowHandle.style}>
             <TableHandleComponent
               // This "as any" unfortunately seems complicated to fix
@@ -125,7 +123,7 @@ export const TableHandlesController = <
             />
           </div>
         )}
-        {!hideCol && menuContainerRef && (
+        {!hideCol && menuContainerRef && state.colIndex !== undefined && (
           <div ref={colHandle.ref} style={colHandle.style}>
             <TableHandleComponent
               editor={editor as any}

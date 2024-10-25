@@ -1,6 +1,7 @@
 import { Plugin, PluginKey, PluginView } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
+import { getNodeById } from "../../api/nodeUtil.js";
 import { checkBlockIsDefaultType } from "../../blocks/defaultBlockTypeGuards.js";
 import { DefaultBlockSchema } from "../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
@@ -22,12 +23,12 @@ export type TableHandlesState<
   show: boolean;
   showExtendButtonRow: boolean;
   showExtendButtonCol: boolean;
-  referencePosCell: DOMRect;
+  referencePosCell: DOMRect | undefined;
   referencePosTable: DOMRect;
 
   block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], I, S>;
-  colIndex: number;
-  rowIndex: number;
+  colIndex: number | undefined;
+  rowIndex: number | undefined;
 
   draggingState:
     | {
@@ -93,10 +94,12 @@ function domCellAround(target: Element | undefined) {
     ? {
         type: "cell",
         domNode: target,
+        tbodyNode: target.closest("tbody"),
       }
     : {
         type: "wrapper",
         domNode: target,
+        tbodyNode: target.querySelector("tbody"),
       };
 }
 
@@ -174,6 +177,10 @@ export class TableHandlesView<
       return;
     }
 
+    if (this.mouseState === "selecting") {
+      return;
+    }
+
     const target = domCellAround(event.target as HTMLElement);
 
     if (
@@ -193,14 +200,6 @@ export class TableHandlesView<
       return;
     }
 
-    if (this.mouseState === "selecting") {
-      return;
-    }
-
-    if (target?.type === "wrapper") {
-      return;
-    }
-
     if (!target || !this.editor.isEditable) {
       if (this.state?.show) {
         this.state.show = false;
@@ -211,87 +210,99 @@ export class TableHandlesView<
       return;
     }
 
-    const colIndex = getChildIndex(target.domNode);
-    const rowIndex = getChildIndex(target.domNode.parentElement!);
-    const cellRect = target.domNode.getBoundingClientRect();
-
-    const tableRect = target.domNode.closest("tbody")!.getBoundingClientRect();
-
-    if (!tableRect) {
+    if (!target.tbodyNode) {
       return;
     }
+
+    const tableRect = target.tbodyNode.getBoundingClientRect();
 
     const blockEl = getDraggableBlockFromElement(target.domNode, this.pmView);
     if (!blockEl) {
       return;
     }
-    this.tableElement = blockEl.node; // TODO: needed?
+    this.tableElement = blockEl.node;
 
     let tableBlock:
       | BlockFromConfigNoChildren<DefaultBlockSchema["table"], I, S>
       | undefined;
 
-    // Copied from `getBlock`. We don't use `getBlock` since we also need the PM
-    // node for the table, so we would effectively be doing the same work twice.
-    this.editor._tiptapEditor.state.doc.descendants((node, pos) => {
-      if (typeof tableBlock !== "undefined") {
-        return false;
-      }
+    const pmNodeInfo = getNodeById(
+      blockEl.id,
+      this.editor._tiptapEditor.state.doc
+    );
 
-      if (node.type.name !== "blockContainer" || node.attrs.id !== blockEl.id) {
-        return true;
-      }
+    const block = nodeToBlock(
+      pmNodeInfo.node,
+      this.editor.schema.blockSchema,
+      this.editor.schema.inlineContentSchema,
+      this.editor.schema.styleSchema,
+      this.editor.blockCache
+    );
 
-      const block = nodeToBlock(
-        node,
-        this.editor.schema.blockSchema,
-        this.editor.schema.inlineContentSchema,
-        this.editor.schema.styleSchema,
-        this.editor.blockCache
-      );
-
-      if (checkBlockIsDefaultType("table", block, this.editor)) {
-        this.tablePos = pos + 1;
-        tableBlock = block;
-      }
-
-      return false;
-    });
+    if (checkBlockIsDefaultType("table", block, this.editor)) {
+      this.tablePos = pmNodeInfo.posBeforeNode + 1;
+      tableBlock = block;
+    }
 
     if (!tableBlock) {
       return;
     }
 
     this.tableId = blockEl.id;
+    const widgetContainer = target.domNode
+      .closest(".tableWrapper")
+      ?.querySelector(".table-widgets-container") as HTMLElement;
 
-    if (
-      this.state !== undefined &&
-      this.state.show &&
-      this.tableId === blockEl.id &&
-      this.state.rowIndex === rowIndex &&
-      this.state.colIndex === colIndex
-    ) {
-      return;
+    if (target?.type === "wrapper") {
+      // if we're just to the right or below the table, show the extend buttons
+      // (this is a bit hacky)
+      const belowTable =
+        event.clientY > tableRect.bottom &&
+        event.clientY < tableRect.bottom + 20;
+      const toRightOfTable =
+        event.clientX > tableRect.right && event.clientX < tableRect.right + 20;
+
+      this.state = {
+        ...this.state!,
+        show: true,
+        showExtendButtonRow: toRightOfTable,
+        showExtendButtonCol: belowTable,
+        referencePosTable: tableRect,
+        block: tableBlock,
+        widgetContainer,
+      };
+    } else {
+      const colIndex = getChildIndex(target.domNode);
+      const rowIndex = getChildIndex(target.domNode.parentElement!);
+      const cellRect = target.domNode.getBoundingClientRect();
+
+      if (
+        this.state !== undefined &&
+        this.state.show &&
+        this.tableId === blockEl.id &&
+        this.state.rowIndex === rowIndex &&
+        this.state.colIndex === colIndex
+      ) {
+        // no update needed
+        return;
+      }
+
+      this.state = {
+        show: true,
+        showExtendButtonRow:
+          colIndex === tableBlock.content.rows[0].cells.length - 1,
+        showExtendButtonCol: rowIndex === tableBlock.content.rows.length - 1,
+        referencePosTable: tableRect,
+
+        block: tableBlock,
+        draggingState: undefined,
+        referencePosCell: cellRect,
+        colIndex: colIndex,
+        rowIndex: rowIndex,
+
+        widgetContainer,
+      };
     }
-
-    this.state = {
-      show: true,
-      showExtendButtonRow:
-        colIndex === tableBlock.content.rows[0].cells.length - 1,
-      showExtendButtonCol: rowIndex === tableBlock.content.rows.length - 1,
-      referencePosCell: cellRect,
-      referencePosTable: tableRect,
-
-      block: tableBlock,
-      colIndex: colIndex,
-      rowIndex: rowIndex,
-
-      draggingState: undefined,
-      widgetContainer:
-        target.domNode
-          .closest(".tableWrapper")
-          ?.querySelector(".table-widgets-container") || undefined,
-    };
     this.emitUpdate();
 
     return false;
@@ -402,21 +413,32 @@ export class TableHandlesView<
       return;
     }
 
+    if (
+      this.state.rowIndex === undefined ||
+      this.state.colIndex === undefined
+    ) {
+      throw new Error(
+        "Attempted to drop table row or column, but no table block was hovered prior."
+      );
+    }
+
     event.preventDefault();
+
+    const { draggingState, colIndex, rowIndex } = this.state;
 
     const rows = this.state.block.content.rows;
 
-    if (this.state.draggingState.draggedCellOrientation === "row") {
-      const rowToMove = rows[this.state.draggingState.originalIndex];
-      rows.splice(this.state.draggingState.originalIndex, 1);
-      rows.splice(this.state.rowIndex, 0, rowToMove);
+    if (draggingState.draggedCellOrientation === "row") {
+      const rowToMove = rows[draggingState.originalIndex];
+      rows.splice(draggingState.originalIndex, 1);
+      rows.splice(rowIndex, 0, rowToMove);
     } else {
       const cellsToMove = rows.map(
-        (row) => row.cells[this.state!.draggingState!.originalIndex]
+        (row) => row.cells[draggingState.originalIndex]
       );
       rows.forEach((row, rowIndex) => {
-        row.cells.splice(this.state!.draggingState!.originalIndex, 1);
-        row.cells.splice(this.state!.colIndex, 0, cellsToMove[rowIndex]);
+        row.cells.splice(draggingState.originalIndex, 1);
+        row.cells.splice(colIndex, 0, cellsToMove[rowIndex]);
       });
     }
 
@@ -443,28 +465,26 @@ export class TableHandlesView<
       return;
     }
 
-    // If rows or columns are deleted in the update, the hovered indices for
-    // those may now be out of bounds. If this is the case, they are moved to
-    // the new last row or column.
-    if (this.state.rowIndex >= tableBody.children.length) {
-      this.state.rowIndex = tableBody.children.length - 1;
-      this.emitUpdate();
+    if (
+      this.state.rowIndex !== undefined &&
+      this.state.colIndex !== undefined
+    ) {
+      // If rows or columns are deleted in the update, the hovered indices for
+      // those may now be out of bounds. If this is the case, they are moved to
+      // the new last row or column.
+      if (this.state.rowIndex >= tableBody.children.length) {
+        this.state.rowIndex = tableBody.children.length - 1;
+      }
+      if (this.state.colIndex >= tableBody.children[0].children.length) {
+        this.state.colIndex = tableBody.children[0].children.length - 1;
+      }
 
-      return;
+      const row = tableBody.children[this.state.rowIndex];
+      const cell = row.children[this.state.colIndex];
+      this.state.referencePosCell = cell.getBoundingClientRect();
     }
-    if (this.state.colIndex >= tableBody.children[0].children.length) {
-      this.state.colIndex = tableBody.children[0].children.length - 1;
-      this.emitUpdate();
 
-      return;
-    }
-
-    const row = tableBody.children[this.state.rowIndex];
-    const cell = row.children[this.state.colIndex];
-
-    // TODO: Check if DOMRects changed first?
     this.state.block = this.editor.getBlock(this.state.block.id)!;
-    this.state.referencePosCell = cell.getBoundingClientRect();
     this.state.referencePosTable = tableBody.getBoundingClientRect();
     this.emitUpdate();
   }
@@ -524,6 +544,10 @@ export class TableHandlesProsemirrorPlugin<
             this.view.state.draggingState.draggedCellOrientation === "row"
               ? this.view.state.rowIndex
               : this.view.state.colIndex;
+
+          if (!newIndex) {
+            return;
+          }
 
           const decorations: Decoration[] = [];
 
@@ -650,7 +674,10 @@ export class TableHandlesProsemirrorPlugin<
     dataTransfer: DataTransfer | null;
     clientX: number;
   }) => {
-    if (this.view!.state === undefined) {
+    if (
+      this.view!.state === undefined ||
+      this.view!.state.colIndex === undefined
+    ) {
       throw new Error(
         "Attempted to drag table column, but no table block was hovered prior."
       );
@@ -686,7 +713,10 @@ export class TableHandlesProsemirrorPlugin<
     dataTransfer: DataTransfer | null;
     clientY: number;
   }) => {
-    if (this.view!.state === undefined) {
+    if (
+      this.view!.state === undefined ||
+      this.view!.state.rowIndex === undefined
+    ) {
       throw new Error(
         "Attempted to drag table row, but no table block was hovered prior."
       );
