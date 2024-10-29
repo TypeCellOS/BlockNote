@@ -358,6 +358,7 @@ NESTED BLOCKS
 [data-file-block] .bn-file-caption {
   font-size: 0.8em;
   padding-block: 4px;
+  word-break: break-word;
 }
 
 [data-file-block] .bn-file-caption:empty {
@@ -483,6 +484,7 @@ NESTED BLOCKS
   padding-bottom: 12px;
   padding-left: 20px;
   padding-right: 20px;
+  overflow-x: hidden;
 }
 
 .bn-block[data-node-type="columnList"] > div:first-child {
