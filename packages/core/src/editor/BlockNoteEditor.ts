@@ -18,7 +18,6 @@ import {
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
 import { getBlockInfoFromSelection } from "../api/getBlockInfoFromPos.js";
-
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
 import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown.js";
 import {

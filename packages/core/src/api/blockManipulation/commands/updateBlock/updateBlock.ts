@@ -14,7 +14,6 @@ import {
   BlockInfo,
   getBlockInfoFromResolvedPos,
 } from "../../../getBlockInfoFromPos.js";
-
 import {
   blockToNode,
   inlineContentToNodes,

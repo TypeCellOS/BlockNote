@@ -1,4 +1,5 @@
 import { Node } from "prosemirror-model";
+
 import { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import {
@@ -7,7 +8,6 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema/index.js";
-
 import { blockToNode } from "../../../nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { removeBlocksWithCallback } from "../removeBlocks/removeBlocks.js";
