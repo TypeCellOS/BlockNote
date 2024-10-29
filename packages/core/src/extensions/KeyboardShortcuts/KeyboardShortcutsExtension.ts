@@ -3,7 +3,10 @@ import { Extension } from "@tiptap/core";
 import { Fragment, NodeType, Slice } from "prosemirror-model";
 import { EditorState, TextSelection } from "prosemirror-state";
 import { ReplaceAroundStep } from "prosemirror-transform";
-import { mergeBlocksCommand } from "../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
+import {
+  getPrevBlockPos,
+  mergeBlocksCommand,
+} from "../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
 import { splitBlockCommand } from "../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import {
@@ -17,10 +20,12 @@ export const KeyboardShortcutsExtension = Extension.create<{
 }>({
   priority: 50,
 
+  // TODO: The shortcuts need a refactor. Do we want to use a command priority
+  //  design as there is now, or clump the logic into a single function?
   addKeyboardShortcuts() {
     // handleBackspace is partially adapted from https://github.com/ueberdosis/tiptap/blob/ed56337470efb4fd277128ab7ef792b37cfae992/packages/core/src/extensions/keymap.ts
     const handleBackspace = () =>
-      this.editor.commands.first(({ commands }) => [
+      this.editor.commands.first(({ chain, commands }) => [
         // Deletes the selection if it's not empty.
         () => commands.deleteSelection(),
         // Undoes an input rule if one was triggered in the last editor state change.
@@ -87,46 +92,69 @@ export const KeyboardShortcutsExtension = Extension.create<{
               selectionEmpty &&
               depth === 1
             ) {
-              return commands.command(mergeBlocksCommand(posBetweenBlocks));
+              return chain()
+                .command(mergeBlocksCommand(posBetweenBlocks))
+                .scrollIntoView()
+                .run();
             }
 
             return false;
           }),
-        // Deletes previous block if it contains no content. If it has inline
-        // content, it's merged instead. Otherwise, it's a no-op.
+        // Deletes previous block if it contains no content and isn't a table,
+        // when the selection is empty and at the start of the block. Moves the
+        // current block into the deleted block's place.
         () =>
           commands.command(({ state }) => {
-            const { bnBlock: blockContainer, blockContent } =
-              getBlockInfoFromSelection(state);
+            const blockInfo = getBlockInfoFromSelection(state);
+
+            if (!blockInfo.isBlockContainer) {
+              return false; // TODO?
+            }
+            const { depth } = state.doc.resolve(blockInfo.bnBlock.beforePos);
 
             const selectionAtBlockStart =
-              state.selection.from === blockContent.beforePos + 1;
+              state.selection.from === blockInfo.blockContent.beforePos + 1;
             const selectionEmpty = state.selection.empty;
-            const blockAtDocStart = blockContainer.beforePos === 1;
+            const blockAtDocStart = blockInfo.bnBlock.beforePos === 1;
 
-            const $currentBlockPos = state.doc.resolve(
-              blockContainer.beforePos
-            );
-            const prevBlockPos = $currentBlockPos.posAtIndex(
-              $currentBlockPos.index() - 1
+            const prevBlockPos = getPrevBlockPos(
+              state.doc,
+              state.doc.resolve(blockInfo.bnBlock.beforePos)
             );
             const prevBlockInfo = getBlockInfoFromResolvedPos(
-              state.doc.resolve(prevBlockPos)
+              state.doc.resolve(prevBlockPos.pos)
             );
+
+            if (!prevBlockInfo.isBlockContainer) {
+              return false; // TODO?
+            }
+
+            const prevBlockNotTableAndNoContent =
+              prevBlockInfo.blockContent.node.type.spec.content === "" ||
+              (prevBlockInfo.blockContent.node.type.spec.content ===
+                "inline*" &&
+                prevBlockInfo.blockContent.node.childCount === 0);
 
             if (
               !blockAtDocStart &&
               selectionAtBlockStart &&
               selectionEmpty &&
-              $currentBlockPos.depth === 1 &&
-              prevBlockInfo.childContainer === undefined &&
-              prevBlockInfo.isBlockContainer &&
-              prevBlockInfo.blockContent.node.type.spec.content === ""
+              depth === 1 &&
+              prevBlockNotTableAndNoContent
             ) {
-              return commands.deleteRange({
-                from: prevBlockPos,
-                to: $currentBlockPos.pos,
-              });
+              return chain()
+                .cut(
+                  {
+                    from: blockInfo.bnBlock.beforePos,
+                    to: blockInfo.bnBlock.afterPos,
+                  },
+                  prevBlockInfo.bnBlock.afterPos
+                )
+                .deleteRange({
+                  from: prevBlockInfo.bnBlock.beforePos,
+                  to: prevBlockInfo.bnBlock.afterPos,
+                })
+                .run();
             }
 
             return false;

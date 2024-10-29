@@ -1,7 +1,7 @@
 import { Node } from "prosemirror-model";
+import { TextSelection } from "prosemirror-state";
 import { describe, expect, it } from "vitest";
 
-import { TextSelection } from "prosemirror-state";
 import {
   getBlockInfo,
   getBlockInfoFromSelection,
@@ -17,7 +17,6 @@ function splitBlock(
   keepType?: boolean,
   keepProps?: boolean
 ) {
-  // TODO: Replace with imported function after converting from TipTap command
   getEditor()._tiptapEditor.commands.command(
     splitBlockCommand(posInBlock, keepType, keepProps)
   );

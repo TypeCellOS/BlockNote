@@ -134,6 +134,16 @@ const testDocument: PartialBlock[] = [
     content: "Paragraph 7",
   },
   {
+    id: "empty-paragraph",
+    type: "paragraph",
+    content: "",
+  },
+  {
+    id: "paragraph-8",
+    type: "paragraph",
+    content: "Paragraph 8",
+  },
+  {
     id: "heading-with-everything",
     type: "heading",
     props: {
