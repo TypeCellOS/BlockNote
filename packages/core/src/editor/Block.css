@@ -474,9 +474,21 @@ NESTED BLOCKS
 .bn-block[data-node-type="columnList"] {
   display: flex;
   flex-direction: row;
-  gap: 10px;
+  /* gap: 10px; */
 }
 
 .bn-block[data-node-type="columnList"] > div {
   flex: 1;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.bn-block[data-node-type="columnList"] > div:first-child {
+  padding-left: 0;
+}
+
+.bn-block[data-node-type="columnList"] > div:last-child {
+  padding-right: 0;
 }

@@ -1,14 +1,14 @@
-import { Plugin, PluginKey, PluginView } from "prosemirror-state";
-import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import { getNodeById } from "@blocknote/core";
 import { Extension } from "@tiptap/core";
 import { Node } from "prosemirror-model";
+import { Plugin, PluginKey, PluginView } from "prosemirror-state";
+import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 
 type ColumnData = {
   element: HTMLElement;
   id: string;
   node: Node;
-  pos: number;
+  posBeforeNode: number;
 };
 
 type ColumnDataWithWidths = ColumnData & {
@@ -40,7 +40,7 @@ const columnResizePluginKey = new PluginKey<ColumnState>("ColumnResizePlugin");
 class ColumnResizePluginView implements PluginView {
   view: EditorView;
 
-  readonly RESIZE_MARGIN_WIDTH_PX = 100;
+  readonly RESIZE_MARGIN_WIDTH_PX = 20;
   readonly COLUMN_MIN_WIDTH_PERCENT = 0.5;
 
   constructor(view: EditorView) {
@@ -54,51 +54,49 @@ class ColumnResizePluginView implements PluginView {
   getColumnHoverOrDefaultState = (
     event: MouseEvent
   ): ColumnDefaultState | ColumnHoverState => {
-    let columnElement = event.target as HTMLElement;
+    const target = event.target as HTMLElement;
 
     // Do nothing if the event target is outside the editor.
-    if (!this.view.dom.contains(columnElement)) {
+    if (!this.view.dom.contains(target)) {
       return { type: "default" };
     }
 
-    // Traverse ancestors of event target until a column element is found.
-    while (
-      !columnElement.className.includes("bn-block-column") &&
-      columnElement.parentElement !== null
-    ) {
-      columnElement = columnElement.parentElement;
-    }
+    const columnElement = target.closest(
+      ".bn-block-column"
+    ) as HTMLElement | null;
 
     // Do nothing if a column element does not exist in the event target's
     // ancestors.
-    if (!columnElement.className.includes("bn-block-column")) {
+    if (!columnElement) {
       return { type: "default" };
     }
 
     const startPos = event.clientX;
     const columnElementDOMRect = columnElement.getBoundingClientRect();
 
-    // Which side of the column the cursor is on.
-    const cursorElementSide: "left" | "right" =
-      startPos < columnElementDOMRect.left + columnElementDOMRect.width / 2
-        ? "left"
-        : "right";
     // Whether the cursor is within the width margin to trigger a resize.
-    const cursorWithinResizeMargin =
-      cursorElementSide === "left"
-        ? startPos - columnElementDOMRect.left < this.RESIZE_MARGIN_WIDTH_PX
-        : columnElementDOMRect.right - startPos < this.RESIZE_MARGIN_WIDTH_PX;
+    const cursorElementSide =
+      startPos < columnElementDOMRect.left + this.RESIZE_MARGIN_WIDTH_PX
+        ? "left"
+        : startPos > columnElementDOMRect.right - this.RESIZE_MARGIN_WIDTH_PX
+        ? "right"
+        : "none";
+
     // The column element before or after the one hovered by the cursor,
     // depending on which side the cursor is on.
     const adjacentColumnElement =
       cursorElementSide === "left"
         ? columnElement.previousElementSibling
-        : columnElement.nextElementSibling;
+        : cursorElementSide === "right"
+        ? columnElement.nextElementSibling
+        : undefined;
 
+    console.log(cursorElementSide, columnElement);
     // Do nothing if the cursor is not within the resize margin or if there
     // is no column before or after the one hovered by the cursor, depending
     // on which side the cursor is on.
-    if (!cursorWithinResizeMargin || !adjacentColumnElement) {
+    if (!adjacentColumnElement) {
+      console.log("no adjacent column");
       return { type: "default" };
     }
 
@@ -106,6 +104,7 @@ class ColumnResizePluginView implements PluginView {
       cursorElementSide === "left"
         ? (adjacentColumnElement as HTMLElement)
         : columnElement;
+
     const rightColumnElement =
       cursorElementSide === "left"
         ? columnElement
@@ -114,34 +113,32 @@ class ColumnResizePluginView implements PluginView {
     const leftColumnId = leftColumnElement.getAttribute("data-id")!;
     const rightColumnId = rightColumnElement.getAttribute("data-id")!;
 
-    const leftColumnNodeAndPos = getNodeById(
-      leftColumnId,
-      this.view.state.doc
-    )!;
+    const leftColumnNodeAndPos = getNodeById(leftColumnId, this.view.state.doc);
+
     const rightColumnNodeAndPos = getNodeById(
       rightColumnId,
       this.view.state.doc
-    )!;
+    );
 
-    const leftColumnNode = leftColumnNodeAndPos.node;
-    const rightColumnNode = rightColumnNodeAndPos.node;
-
-    const leftColumnPos = leftColumnNodeAndPos.posBeforeNode;
-    const rightColumnPos = rightColumnNodeAndPos.posBeforeNode;
+    if (
+      !leftColumnNodeAndPos ||
+      !rightColumnNodeAndPos ||
+      !leftColumnNodeAndPos.posBeforeNode
+    ) {
+      throw new Error("Column not found");
+    }
 
     return {
       type: "hover",
       leftColumn: {
         element: leftColumnElement,
         id: leftColumnId,
-        node: leftColumnNode,
-        pos: leftColumnPos,
+        ...leftColumnNodeAndPos,
       },
       rightColumn: {
         element: rightColumnElement,
         id: rightColumnId,
-        node: rightColumnNode,
-        pos: rightColumnPos,
+        ...rightColumnNodeAndPos,
       },
     };
   };
@@ -184,7 +181,6 @@ class ColumnResizePluginView implements PluginView {
       },
     };
 
-    console.log(newState);
     this.view.dispatch(
       this.view.state.tr.setMeta(columnResizePluginKey, newState)
     );
@@ -219,7 +215,6 @@ class ColumnResizePluginView implements PluginView {
       }
 
       // Update the plugin state.
-      console.log(newState);
       this.view.dispatch(
         this.view.state.tr.setMeta(columnResizePluginKey, newState)
       );
@@ -254,20 +249,22 @@ class ColumnResizePluginView implements PluginView {
       newRightColumnWidth = this.COLUMN_MIN_WIDTH_PERCENT;
     }
 
-    console.log("newLeftColumnWidth", newLeftColumnWidth);
-    console.log("newRightColumnWidth", newRightColumnWidth);
+    // possible improvement: only dispatch on mouse up, and use a different way
+    // to update the column widths while dragging.
+    // this prevents a lot of document updates
     this.view.dispatch(
       this.view.state.tr
         .setNodeAttribute(
-          pluginState.leftColumn.pos,
+          pluginState.leftColumn.posBeforeNode,
           "width",
           newLeftColumnWidth
         )
         .setNodeAttribute(
-          pluginState.rightColumn.pos,
+          pluginState.rightColumn.posBeforeNode,
           "width",
           newRightColumnWidth
         )
+        .setMeta("addToHistory", false)
     );
   };
 
@@ -284,7 +281,6 @@ class ColumnResizePluginView implements PluginView {
 
     // Revert plugin state to default or hover, depending on where the mouse
     // cursor is.
-    console.log(newState);
     this.view.dispatch(
       this.view.state.tr.setMeta(columnResizePluginKey, newState)
     );
@@ -347,10 +343,19 @@ const columnResizePlugin = new Plugin({
 
       return DecorationSet.create(state.doc, [
         Decoration.node(
-          pluginState.leftColumn.pos,
-          pluginState.rightColumn.pos,
+          pluginState.leftColumn.posBeforeNode,
+          pluginState.leftColumn.posBeforeNode +
+            pluginState.leftColumn.node.nodeSize,
           {
-            style: "border-right: 1px solid blue",
+            style: "box-shadow: 4px 0 0 #ccc; cursor: col-resize",
+          }
+        ),
+        Decoration.node(
+          pluginState.rightColumn.posBeforeNode,
+          pluginState.rightColumn.posBeforeNode +
+            pluginState.rightColumn.node.nodeSize,
+          {
+            style: "cursor: col-resize",
           }
         ),
       ]);
@@ -370,6 +375,7 @@ const columnResizePlugin = new Plugin({
 });
 
 export const ColumnResizeExtension = Extension.create({
+  name: "columnResize",
   addProseMirrorPlugins() {
     return [columnResizePlugin];
   },
