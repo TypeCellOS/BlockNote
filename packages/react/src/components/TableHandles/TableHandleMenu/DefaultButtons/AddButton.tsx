@@ -74,13 +74,15 @@ export const AddColumnButton = <
   return (
     <Components.Generic.Menu.Item
       onClick={() => {
+        const columnWidths = [...props.block.content.columnWidths];
+        columnWidths.splice(
+          props.index + (props.side === "right" ? 1 : 0),
+          0,
+          undefined
+        );
         const content: PartialTableContent<I, S> = {
           type: "tableContent",
-          columnWidths: props.block.content.columnWidths.toSpliced(
-            props.index + (props.side === "right" ? 1 : 0),
-            0,
-            undefined
-          ),
+          columnWidths,
           rows: props.block.content.rows.map((row) => {
             const cells = [...row.cells];
             cells.splice(props.index + (props.side === "right" ? 1 : 0), 0, []);

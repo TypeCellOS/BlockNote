@@ -127,7 +127,6 @@ Tippy popups that are appended to document.body directly
 
 /* table related: */
 .bn-editor table {
-  /* TODO: Do we want this? */
   width: auto !important;
   word-break: break-word;
 }
@@ -136,12 +135,6 @@ Tippy popups that are appended to document.body directly
   border: 1px solid #ddd;
   padding: 3px 5px;
 }
-
-/* .bn-editor th:not([colwidth]),
-.bn-editor td:not([colwidth]) {
-  min-width: 120px;
-  max-width: 240px;
-} */
 
 .bn-editor th {
   font-weight: bold;
