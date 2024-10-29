@@ -255,7 +255,7 @@ export class TableHandlesView<
 
     if (target?.type === "wrapper") {
       // if we're just to the right or below the table, show the extend buttons
-      // (this is a bit hacky)
+      // (this is a bit hacky. It would probably be cleaner to render the extend buttons in the Table NodeView instead)
       const belowTable =
         event.clientY >= tableRect.bottom - 1 && // -1 to account for fractions of pixels in "bottom"
         event.clientY < tableRect.bottom + 20;
