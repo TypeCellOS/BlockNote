@@ -161,7 +161,8 @@ export function tableContentToNodes<
 
   for (const row of tableContent.rows) {
     const columnNodes: Node[] = [];
-    for (const cell of row.cells) {
+    for (let i = 0; i < row.cells.length; i++) {
+      const cell = row.cells[i];
       let pNode: Node;
       if (!cell) {
         pNode = schema.nodes["tableParagraph"].create({});
@@ -172,7 +173,17 @@ export function tableContentToNodes<
         pNode = schema.nodes["tableParagraph"].create({}, textNodes);
       }
 
-      const cellNode = schema.nodes["tableCell"].create({}, pNode);
+      const cellNode = schema.nodes["tableCell"].create(
+        {
+          // The colwidth array should have multiple values when the colspan of
+          // a cell is greater than 1. However, this is not yet implemented so
+          // we can always assume a length of 1.
+          colwidth: tableContent.columnWidths?.[i]
+            ? [tableContent.columnWidths[i]]
+            : null,
+        },
+        pNode
+      );
       columnNodes.push(cellNode);
     }
     const rowNode = schema.nodes["tableRow"].create({}, columnNodes);

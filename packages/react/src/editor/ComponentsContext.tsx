@@ -183,6 +183,12 @@ export type ComponentProps = {
       | { children: ReactNode; label?: string }
       | { children?: undefined; label: string }
     );
+    ExtendButton: {
+      className?: string;
+      onClick: (e: React.MouseEvent) => void;
+      onMouseDown: (e: React.MouseEvent) => void;
+      children: ReactNode;
+    };
   };
   // TODO: We should try to make everything as generic as we can
   Generic: {

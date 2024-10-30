@@ -29,6 +29,7 @@ export type TableHandleProps<
   dragStart: (e: DragEvent) => void;
   showOtherSide: () => void;
   hideOtherSide: () => void;
+  menuContainer: HTMLDivElement;
   tableHandleMenu?: FC<
     DragHandleMenuProps<
       {

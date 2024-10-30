@@ -7,6 +7,7 @@ import {
 } from "@blocknote/core";
 import { ReactNode, useState } from "react";
 
+import { createPortal } from "react-dom";
 import { MdDragIndicator } from "react-icons/md";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { TableHandleMenu } from "./TableHandleMenu/TableHandleMenu.js";
@@ -66,11 +67,15 @@ export const TableHandle = <
           )}
         </Components.TableHandle.Root>
       </Components.Generic.Menu.Trigger>
-      <Component
-        orientation={props.orientation}
-        block={props.block as any}
-        index={props.index}
-      />
+      {/* the menu can extend outside of the table, so we use a portal to prevent clipping */}
+      {createPortal(
+        <Component
+          orientation={props.orientation}
+          block={props.block as any}
+          index={props.index}
+        />,
+        props.menuContainer
+      )}
     </Components.Generic.Menu.Root>
   );
 };
