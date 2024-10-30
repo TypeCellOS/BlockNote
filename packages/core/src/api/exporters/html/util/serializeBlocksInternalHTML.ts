@@ -21,7 +21,6 @@ export function serializeInlineContentInternalHTML<
   editor: BlockNoteEditor<any, I, S>,
   blockContent: PartialBlock<BSchema, I, S>["content"],
   serializer: DOMSerializer,
-  _toExternalHTML: boolean, // TODO, externalHTML for IC
   options?: { document?: Document }
 ) {
   let nodes: any;
@@ -67,7 +66,7 @@ function serializeBlock<
   editor: BlockNoteEditor<BSchema, I, S>,
   block: PartialBlock<BSchema, I, S>,
   serializer: DOMSerializer,
-  toExternalHTML: boolean,
+  listIndex: number,
   options?: { document?: Document }
 ) {
   const BC_NODE = editor.pmSchema.nodes["blockContainer"];
@@ -94,16 +93,23 @@ function serializeBlock<
   };
 
   const impl = editor.blockImplementations[block.type as any].implementation;
-  const ret = toExternalHTML
-    ? impl.toExternalHTML({ ...block, props } as any, editor as any)
-    : impl.toInternalHTML({ ...block, props } as any, editor as any);
+  const ret = impl.toInternalHTML({ ...block, props } as any, editor as any);
+
+  if (block.type === "numberedListItem") {
+    // This is a workaround to make sure there's a list index set.
+    // Normally, this is set on the internal prosemirror nodes by the NumberedListIndexingPlugin,
+    // but:
+    // - (a) this information is not available on the Blocks passed to the serializer. (we only have access to BlockNote Blocks)
+    // - (b) the NumberedListIndexingPlugin might not even have run, because we can manually call blocksToFullHTML
+    //       with blocks that are not part of the active document
+    ret.dom.setAttribute("data-index", listIndex.toString());
+  }
 
   if (ret.contentDOM && block.content) {
     const ic = serializeInlineContentInternalHTML(
       editor,
       block.content as any, // TODO
       serializer,
-      toExternalHTML,
       options
     );
     ret.contentDOM.appendChild(ic);
@@ -113,13 +119,7 @@ function serializeBlock<
 
   if (block.children && block.children.length > 0) {
     bc.contentDOM?.appendChild(
-      serializeBlocksInternalHTML(
-        editor,
-        block.children,
-        serializer,
-        toExternalHTML,
-        options
-      )
+      serializeBlocksInternalHTML(editor, block.children, serializer, options)
     );
   }
   return bc.dom;
@@ -133,7 +133,6 @@ export const serializeBlocksInternalHTML = <
   editor: BlockNoteEditor<BSchema, I, S>,
   blocks: PartialBlock<BSchema, I, S>[],
   serializer: DOMSerializer,
-  toExternalHTML: boolean,
   options?: { document?: Document }
 ) => {
   const BG_NODE = editor.pmSchema.nodes["blockGroup"];
@@ -143,12 +142,18 @@ export const serializeBlocksInternalHTML = <
     contentDOM?: HTMLElement;
   };
 
+  let listIndex = 0;
   for (const block of blocks) {
+    if (block.type === "numberedListItem") {
+      listIndex++;
+    } else {
+      listIndex = 0;
+    }
     const blockDOM = serializeBlock(
       editor,
       block,
       serializer,
-      toExternalHTML,
+      listIndex,
       options
     );
     bg.contentDOM!.appendChild(blockDOM);

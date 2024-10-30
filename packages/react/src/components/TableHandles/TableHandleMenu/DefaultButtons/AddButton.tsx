@@ -3,8 +3,8 @@ import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   InlineContentSchema,
+  PartialTableContent,
   StyleSchema,
-  TableContent,
 } from "@blocknote/core";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
@@ -42,6 +42,7 @@ export const AddRowButton = <
           type: "table",
           content: {
             type: "tableContent",
+            columnWidths: props.block.content.columnWidths,
             rows,
           },
         });
@@ -73,8 +74,15 @@ export const AddColumnButton = <
   return (
     <Components.Generic.Menu.Item
       onClick={() => {
-        const content: TableContent<I, S> = {
+        const columnWidths = [...props.block.content.columnWidths];
+        columnWidths.splice(
+          props.index + (props.side === "right" ? 1 : 0),
+          0,
+          undefined
+        );
+        const content: PartialTableContent<I, S> = {
           type: "tableContent",
+          columnWidths,
           rows: props.block.content.rows.map((row) => {
             const cells = [...row.cells];
             cells.splice(props.index + (props.side === "right" ? 1 : 0), 0, []);

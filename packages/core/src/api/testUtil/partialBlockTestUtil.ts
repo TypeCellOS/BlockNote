@@ -80,12 +80,19 @@ export function partialBlockToBlockForTesting<
   schema: BSchema,
   partialBlock: PartialBlock<BSchema, I, S>
 ): Block<BSchema, I, S> {
+  const contentType: "inline" | "table" | "none" =
+    schema[partialBlock.type!].content;
+
   const withDefaults: Block<BSchema, I, S> = {
     id: "",
     type: partialBlock.type!,
     props: {} as any,
     content:
-      schema[partialBlock.type!].content === "inline" ? [] : (undefined as any),
+      contentType === "inline"
+        ? []
+        : contentType === "table"
+        ? { type: "tableContent", columnWidths: [], rows: [] }
+        : (undefined as any),
     children: [] as any,
     ...partialBlock,
   };
@@ -97,6 +104,24 @@ export function partialBlockToBlockForTesting<
       }
     }
   );
+
+  if (contentType === "inline") {
+    const content = withDefaults.content as InlineContent<I, S>[] | undefined;
+    withDefaults.content = partialContentToInlineContent(content) as any;
+  } else if (contentType === "table") {
+    const content = withDefaults.content as TableContent<I, S> | undefined;
+    withDefaults.content = {
+      type: "tableContent",
+      columnWidths:
+        content?.columnWidths ||
+        content?.rows[0]?.cells.map(() => undefined) ||
+        [],
+      rows:
+        content?.rows.map((row) => ({
+          cells: row.cells.map((cell) => partialContentToInlineContent(cell)),
+        })) || [],
+    } as any;
+  }
 
   return {
     ...withDefaults,

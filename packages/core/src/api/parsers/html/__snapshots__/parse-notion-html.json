@@ -370,6 +370,11 @@
     },
     "content": {
       "type": "tableContent",
+      "columnWidths": [
+        null,
+        null,
+        null
+      ],
       "rows": [
         {
           "cells": [

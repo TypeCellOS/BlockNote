@@ -360,6 +360,74 @@ export const defaultSchemaTestCases: EditorTestCases<
       ],
     },
     {
+      name: "table/basic",
+      blocks: [
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            rows: [
+              {
+                cells: ["Table Cell", "Table Cell", "Table Cell"],
+              },
+              {
+                cells: ["Table Cell", "Table Cell", "Table Cell"],
+              },
+              {
+                cells: ["Table Cell", "Table Cell", "Table Cell"],
+              },
+            ],
+          },
+        },
+      ],
+    },
+    {
+      name: "table/allColWidths",
+      blocks: [
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            columnWidths: [100, 200, 300],
+            rows: [
+              {
+                cells: ["Table Cell", "Table Cell", "Table Cell"],
+              },
+              {
+                cells: ["Table Cell", "Table Cell", "Table Cell"],
+              },
+              {
+                cells: ["Table Cell", "Table Cell", "Table Cell"],
+              },
+            ],
+          },
+        },
+      ],
+    },
+    {
+      name: "table/mixedColWidths",
+      blocks: [
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            columnWidths: [100, undefined, 300],
+            rows: [
+              {
+                cells: ["Table Cell", "Table Cell", "Table Cell"],
+              },
+              {
+                cells: ["Table Cell", "Table Cell", "Table Cell"],
+              },
+              {
+                cells: ["Table Cell", "Table Cell", "Table Cell"],
+              },
+            ],
+          },
+        },
+      ],
+    },
+    {
       name: "link/basic",
       blocks: [
         {
