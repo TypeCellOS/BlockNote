@@ -97,11 +97,13 @@
     "uuid": "^8.3.2",
     "y-prosemirror": "1.2.12",
     "y-protocols": "^1.0.6",
-    "yjs": "^13.6.15"
+    "yjs": "^13.6.15",
+    "prosemirror-highlight": "^0.9.0",
+    "shiki": "^1.22.0"
   },
   "devDependencies": {
     "@types/emoji-mart": "^3.0.14",
-    "@types/hast": "^2.3.4",
+    "@types/hast": "^3.0.0",
     "@types/uuid": "^8.3.4",
     "eslint": "^8.10.0",
     "jsdom": "^21.1.0",
