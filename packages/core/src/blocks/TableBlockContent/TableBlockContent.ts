@@ -115,6 +115,17 @@ const TableParagraph = Node.create({
   parseHTML() {
     return [
       {
+        preserveWhitespace: "full",
+        // set this rule as high priority so it takes precedence over the default paragraph rule,
+        // but only if we're in the tableContent context
+        priority: 210,
+        context: "tableContent",
+        tag: "p",
+        getAttrs: (_element) => {
+          return {};
+        },
+      },
+      {
         tag: "p",
         getAttrs: (element) => {
           if (typeof element === "string" || !element.textContent) {
