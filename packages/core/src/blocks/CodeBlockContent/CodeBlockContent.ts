@@ -1,18 +1,18 @@
 import { InputRule, isTextSelection } from "@tiptap/core";
-import {
-  BundledLanguage,
-  createHighlighter,
-  Highlighter,
-  bundledLanguagesInfo,
-} from "shiki";
-import {
-  PropSchema,
-  createBlockSpecFromStronglyTypedTiptapNode,
-  createStronglyTypedTiptapNode,
-} from "../../schema/index.js";
+import { TextSelection } from "@tiptap/pm/state";
 import { createHighlightPlugin, Parser } from "prosemirror-highlight";
 import { createParser } from "prosemirror-highlight/shiki";
-import { TextSelection } from "@tiptap/pm/state";
+import {
+  BundledLanguage,
+  bundledLanguagesInfo,
+  createHighlighter,
+  Highlighter,
+} from "shiki";
+import {
+  createBlockSpecFromStronglyTypedTiptapNode,
+  createStronglyTypedTiptapNode,
+  PropSchema,
+} from "../../schema/index.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import {
   defaultSupportedLanguages,
@@ -351,6 +351,7 @@ export const CodeBlock = createBlockSpecFromStronglyTypedTiptapNode(
   CodeBlockContent,
   defaultCodeBlockPropSchema
 );
+
 export function customizeCodeBlock(options: Partial<CodeBlockOptions>) {
   return createBlockSpecFromStronglyTypedTiptapNode(
     CodeBlockContent.configure(options),

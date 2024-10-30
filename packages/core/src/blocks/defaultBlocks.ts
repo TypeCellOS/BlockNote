@@ -21,9 +21,9 @@ import {
 } from "../schema/index.js";
 
 import { AudioBlock } from "./AudioBlockContent/AudioBlockContent.js";
+import { CodeBlock } from "./CodeBlockContent/CodeBlockContent.js";
 import { FileBlock } from "./FileBlockContent/FileBlockContent.js";
 import { Heading } from "./HeadingBlockContent/HeadingBlockContent.js";
-import { CodeBlock } from "./CodeBlockContent/CodeBlockContent.js";
 import { ImageBlock } from "./ImageBlockContent/ImageBlockContent.js";
 import { BulletListItem } from "./ListItemBlockContent/BulletListItemBlockContent/BulletListItemBlockContent.js";
 import { CheckListItem } from "./ListItemBlockContent/CheckListItemBlockContent/CheckListItemBlockContent.js";
@@ -31,6 +31,8 @@ import { NumberedListItem } from "./ListItemBlockContent/NumberedListItemBlockCo
 import { Paragraph } from "./ParagraphBlockContent/ParagraphBlockContent.js";
 import { Table } from "./TableBlockContent/TableBlockContent.js";
 import { VideoBlock } from "./VideoBlockContent/VideoBlockContent.js";
+
+export { customizeCodeBlock } from "./CodeBlockContent/CodeBlockContent.js";
 
 export const defaultBlockSpecs = {
   paragraph: Paragraph,
