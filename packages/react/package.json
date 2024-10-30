@@ -58,8 +58,6 @@
     "@tiptap/core": "^2.7.1",
     "@tiptap/react": "^2.7.1",
     "lodash.merge": "^4.6.2",
-    "react": "^18",
-    "react-dom": "^18",
     "react-icons": "^5.2.1"
   },
   "devDependencies": {
@@ -80,8 +78,8 @@
     "vitest": "^2.0.3"
   },
   "peerDependencies": {
-    "react": "^18",
-    "react-dom": "^18"
+    "react": "18 - 19",
+    "react-dom": "18 - 19"
   },
   "eslintConfig": {
     "extends": [

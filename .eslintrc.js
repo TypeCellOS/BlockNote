@@ -33,8 +33,8 @@ module.exports = {
       "error",
       {
         devDependencies: true,
+        peerDependencies: true,
         optionalDependencies: false,
-        peerDependencies: false,
         bundledDependencies: false,
       },
     ],
