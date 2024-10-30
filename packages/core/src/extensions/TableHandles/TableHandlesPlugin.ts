@@ -83,15 +83,18 @@ function domCellAround(target: Element) {
     currentTarget.nodeName !== "TH" &&
     !currentTarget.classList.contains("tableWrapper")
   ) {
-    currentTarget =
-      currentTarget.classList && currentTarget.classList.contains("ProseMirror")
-        ? undefined
-        : (currentTarget.parentNode as Element);
+    if (currentTarget.classList.contains("ProseMirror")) {
+      return undefined;
+    }
+    const parent: ParentNode | null = currentTarget.parentNode;
+
+    if (!parent || !(parent instanceof Element)) {
+      return undefined;
+    }
+    currentTarget = parent;
   }
-  if (!currentTarget) {
-    return undefined;
-  }
-  return currentTarget?.nodeName === "TD" || currentTarget?.nodeName === "TH"
+
+  return currentTarget.nodeName === "TD" || currentTarget.nodeName === "TH"
     ? {
         type: "cell",
         domNode: currentTarget,
@@ -177,7 +180,10 @@ export class TableHandlesView<
       return;
     }
 
-    if (!(event.target instanceof Element)) {
+    if (
+      !(event.target instanceof Element) ||
+      !this.pmView.dom.contains(event.target)
+    ) {
       return;
     }
 
