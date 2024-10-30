@@ -31,13 +31,8 @@ export const createInternalHTMLSerializer = <
       blocks: PartialBlock<BSchema, I, S>[],
       options: { document?: Document }
     ) => {
-      return serializeBlocksInternalHTML(
-        editor,
-        blocks,
-        serializer,
-        false,
-        options
-      ).outerHTML;
+      return serializeBlocksInternalHTML(editor, blocks, serializer, options)
+        .outerHTML;
     },
   };
 };

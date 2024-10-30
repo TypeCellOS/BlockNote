@@ -68,6 +68,12 @@ export const ja: Dictionary = {
       aliases: ["p", "paragraph", "標準テキスト"],
       group: "基本ブロック",
     },
+    code_block: {
+      title: "コードブロック",
+      subtext: "シンタックスハイライト付きのコードブロック",
+      aliases: ["code", "pre", "コード", "コードブロック"],
+      group: "基本ブロック",
+    },
     table: {
       title: "表",
       subtext: "表に使用",

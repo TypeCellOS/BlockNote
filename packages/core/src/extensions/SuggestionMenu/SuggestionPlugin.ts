@@ -202,6 +202,11 @@ export class SuggestionMenuProseMirrorPlugin<
             return prev;
           }
 
+          // Ignore transactions in code blocks.
+          if (transaction.selection.$from.parent.type.spec.code) {
+            return prev;
+          }
+
           // Either contains the trigger character if the menu should be shown,
           // or null if it should be hidden.
           const suggestionPluginTransactionMeta: {

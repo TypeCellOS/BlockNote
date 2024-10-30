@@ -50,6 +50,12 @@ export const en = {
       aliases: ["p", "paragraph"],
       group: "Basic blocks",
     },
+    code_block: {
+      title: "Code Block",
+      subtext: "Code block with syntax highlighting",
+      aliases: ["code", "pre"],
+      group: "Basic blocks",
+    },
     table: {
       title: "Table",
       subtext: "Table with editable cells",

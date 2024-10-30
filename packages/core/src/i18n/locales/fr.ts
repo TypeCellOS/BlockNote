@@ -51,6 +51,12 @@ export const fr: Dictionary = {
       aliases: ["p", "paragraphe"],
       group: "Blocs de base",
     },
+    code_block: {
+      title: "Bloc de code",
+      subtext: "Bloc de code avec coloration syntaxique",
+      aliases: ["code", "pre"],
+      group: "Blocs de base",
+    },
     table: {
       title: "Tableau",
       subtext: "Utilisé pour les tableaux",

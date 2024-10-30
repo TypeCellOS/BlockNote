@@ -171,6 +171,11 @@ exports[`Test removeBlocks > Remove multiple consecutive blocks 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -922,6 +927,11 @@ exports[`Test removeBlocks > Remove single block 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
