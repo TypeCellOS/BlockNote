@@ -87,11 +87,13 @@ const getContentWithAddedRows = <
   S extends StyleSchema
 >(
   content: PartialTableContent<I, S>,
-  rowsToAdd = 1
+  rowsToAdd: number,
+  numCols: number
 ): PartialTableContent<I, S> => {
   const newRow: PartialTableContent<I, S>["rows"][number] = {
-    cells: content.rows[0].cells.map(() => []),
+    cells: Array(numCols).fill([]),
   };
+
   const newRows: PartialTableContent<I, S>["rows"] = [];
   for (let i = 0; i < rowsToAdd; i++) {
     newRows.push(newRow);
@@ -108,7 +110,7 @@ const getContentWithAddedCols = <
   S extends StyleSchema
 >(
   content: PartialTableContent<I, S>,
-  colsToAdd = 1
+  colsToAdd: number
 ): PartialTableContent<I, S> => {
   const newCell: PartialTableContent<I, S>["rows"][number]["cells"][number] =
     [];
@@ -180,8 +182,12 @@ export const ExtendButton = <
       type: "table",
       content:
         props.orientation === "addOrRemoveColumns"
-          ? getContentWithAddedCols(props.block.content)
-          : getContentWithAddedRows(props.block.content),
+          ? getContentWithAddedCols(props.block.content, 1)
+          : getContentWithAddedRows(
+              props.block.content,
+              1,
+              props.block.content.rows[0].cells.length
+            ),
     });
   }, [props.block, props.orientation, props.editor]);
 
@@ -202,12 +208,12 @@ export const ExtendButton = <
 
       const numCroppedCells =
         props.orientation === "addOrRemoveColumns"
-          ? editingState.originalCroppedContent.rows[0].cells.length
+          ? editingState.originalCroppedContent.rows[0]?.cells.length ?? 0
           : editingState.originalCroppedContent.rows.length;
 
       const numOriginalCells =
         props.orientation === "addOrRemoveColumns"
-          ? editingState.originalContent.rows[0].cells.length
+          ? editingState.originalContent.rows[0]?.cells.length ?? 0
           : editingState.originalContent.rows.length;
 
       const currentNumCells =
@@ -225,7 +231,11 @@ export const ExtendButton = <
           0.3
         );
 
-      if (newNumCells >= numCroppedCells && newNumCells !== currentNumCells) {
+      if (
+        newNumCells >= numCroppedCells &&
+        newNumCells > 0 &&
+        newNumCells !== currentNumCells
+      ) {
         props.editor.updateBlock(props.block, {
           type: "table",
           content:
@@ -236,7 +246,8 @@ export const ExtendButton = <
                 )
               : getContentWithAddedRows(
                   editingState.originalCroppedContent,
-                  newNumCells - numCroppedCells
+                  newNumCells - numCroppedCells,
+                  editingState.originalContent.rows[0].cells.length
                 ),
         });
 
