@@ -82,7 +82,7 @@
     "hast-util-from-dom": "^4.2.0",
     "prosemirror-model": "^1.21.0",
     "prosemirror-state": "^1.4.3",
-    "prosemirror-tables": "^1.6.0",
+    "prosemirror-tables": "^1.6.1",
     "prosemirror-transform": "^1.9.0",
     "prosemirror-view": "^1.33.7",
     "rehype-format": "^5.0.0",
