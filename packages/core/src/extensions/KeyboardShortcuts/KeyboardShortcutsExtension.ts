@@ -4,15 +4,13 @@ import { Fragment, NodeType, Slice } from "prosemirror-model";
 import { EditorState, TextSelection } from "prosemirror-state";
 import { ReplaceAroundStep } from "prosemirror-transform";
 import {
-  getPrevBlockPos,
+  getBottomNestedBlockInfo,
+  getPrevBlockInfo,
   mergeBlocksCommand,
 } from "../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
 import { splitBlockCommand } from "../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import {
-  getBlockInfoFromResolvedPos,
-  getBlockInfoFromSelection,
-} from "../../api/getBlockInfoFromPos.js";
+import { getBlockInfoFromSelection } from "../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 export const KeyboardShortcutsExtension = Extension.create<{
@@ -69,29 +67,20 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
-        // Merges block with the previous one if it isn't indented, isn't the
-        // first block in the doc, and the selection is at the start of the
+        // Merges block with the previous one if it isn't indented, and the selection is at the start of the
         // block. The target block for merging must contain inline content.
         () =>
           commands.command(({ state }) => {
             const { bnBlock: blockContainer, blockContent } =
               getBlockInfoFromSelection(state);
 
-            const { depth } = state.doc.resolve(blockContainer.beforePos);
-
             const selectionAtBlockStart =
               state.selection.from === blockContent.beforePos + 1;
             const selectionEmpty = state.selection.empty;
-            const blockAtDocStart = blockContainer.beforePos === 1;
 
             const posBetweenBlocks = blockContainer.beforePos;
 
-            if (
-              !blockAtDocStart &&
-              selectionAtBlockStart &&
-              selectionEmpty &&
-              depth === 1
-            ) {
+            if (selectionAtBlockStart && selectionEmpty) {
               return chain()
                 .command(mergeBlocksCommand(posBetweenBlocks))
                 .scrollIntoView()
@@ -112,37 +101,28 @@ export const KeyboardShortcutsExtension = Extension.create<{
               throw new Error(`todo`);
             }
 
-            const { depth } = state.doc.resolve(blockInfo.bnBlock.beforePos);
-
             const selectionAtBlockStart =
               state.selection.from === blockInfo.blockContent.beforePos + 1;
             const selectionEmpty = state.selection.empty;
-            const blockAtDocStart = blockInfo.bnBlock.beforePos === 1;
 
-            if (
-              !blockAtDocStart &&
-              selectionAtBlockStart &&
-              selectionEmpty &&
-              depth === 1
-            ) {
-              const prevBlockPos = getPrevBlockPos(
+            const prevBlockInfo = getPrevBlockInfo(state, blockInfo);
+
+            if (prevBlockInfo && selectionAtBlockStart && selectionEmpty) {
+              const bottomBlock = getBottomNestedBlockInfo(
                 state.doc,
-                state.doc.resolve(blockInfo.bnBlock.beforePos)
-              );
-              const prevBlockInfo = getBlockInfoFromResolvedPos(
-                state.doc.resolve(prevBlockPos.pos)
+                prevBlockInfo
               );
 
-              if (!prevBlockInfo.isBlockContainer) {
+              if (!bottomBlock.isBlockContainer) {
                 // TODO
                 throw new Error(`todo`);
               }
 
               const prevBlockNotTableAndNoContent =
-                prevBlockInfo.blockContent.node.type.spec.content === "" ||
-                (prevBlockInfo.blockContent.node.type.spec.content ===
+                bottomBlock.blockContent.node.type.spec.content === "" ||
+                (bottomBlock.blockContent.node.type.spec.content ===
                   "inline*" &&
-                  prevBlockInfo.blockContent.node.childCount === 0);
+                  bottomBlock.blockContent.node.childCount === 0);
 
               if (prevBlockNotTableAndNoContent) {
                 return chain()
@@ -151,11 +131,11 @@ export const KeyboardShortcutsExtension = Extension.create<{
                       from: blockInfo.bnBlock.beforePos,
                       to: blockInfo.bnBlock.afterPos,
                     },
-                    prevBlockInfo.bnBlock.afterPos
+                    bottomBlock.bnBlock.afterPos
                   )
                   .deleteRange({
-                    from: prevBlockInfo.bnBlock.beforePos,
-                    to: prevBlockInfo.bnBlock.afterPos,
+                    from: bottomBlock.bnBlock.beforePos,
+                    to: bottomBlock.bnBlock.afterPos,
                   })
                   .run();
               }
