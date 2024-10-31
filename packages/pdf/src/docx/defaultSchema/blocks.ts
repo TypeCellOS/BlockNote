@@ -142,6 +142,15 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       ],
     });
   },
+  codeBlock: (block, _exporter) => {
+    return new Paragraph({
+      children: [
+        new TextRun({
+          text: block.type + " not implemented",
+        }),
+      ],
+    });
+  },
   image: async (block, exporter) => {
     const blob = await exporter.resolveFile(block.props.url);
     const { width, height } = await getImageDimensions(blob);

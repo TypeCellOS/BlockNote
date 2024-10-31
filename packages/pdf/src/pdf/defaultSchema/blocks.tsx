@@ -73,6 +73,9 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
   video: (block) => {
     return <Text>{block.type + " not implemented"}</Text>;
   },
+  codeBlock: (block) => {
+    return <Text>{block.type + " not implemented"}</Text>;
+  },
   file: (block) => {
     return (
       // TODO: align, test link, etc

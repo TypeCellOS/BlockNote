@@ -48,7 +48,7 @@
     "email": "email dev"
   },
   "dependencies": {
-    "@blocknote/core": "^0.18.0",
+    "@blocknote/core": "^0.18.1",
     "@blocknote/react": "^0.18.1",
     "buffer": "^6.0.3",
     "sharp": "^0.33.5",

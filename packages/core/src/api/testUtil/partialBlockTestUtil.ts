@@ -58,6 +58,7 @@ function partialContentToInlineContent(
   } else if (content?.type === "tableContent") {
     return {
       type: "tableContent",
+      columnWidths: content.columnWidths,
       rows: content.rows.map((row) => ({
         ...row,
         cells: row.cells.map(

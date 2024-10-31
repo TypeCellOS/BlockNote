@@ -7,7 +7,7 @@ export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
   any,
   any,
   React.ReactElement<any>,
-  React.ReactElement<typeof Link> | React.ReactElement<typeof Text>
+  React.ReactElement<typeof Link> | React.ReactElement<HTMLSpanElement>
 > = {
   paragraph: (block, t) => {
     return <Text>{t.transformInlineContent(block.content)}</Text>;
@@ -48,6 +48,9 @@ export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
     );
   },
 
+  codeBlock: (block) => {
+    return <Text>{block.type + " not implemented"}</Text>;
+  },
   audio: (block) => {
     // TODO
     return <Text>{block.type + " not implemented"}</Text>;
