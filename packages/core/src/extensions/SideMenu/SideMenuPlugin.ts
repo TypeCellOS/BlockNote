@@ -222,7 +222,11 @@ export class SideMenuView<
         show: true,
         referencePos: new DOMRect(
           column
-            ? column.getBoundingClientRect().x
+            ? // We take the first child as column elements have some default
+              // padding. This is a little weird since this child element will
+              // be the first block, but since it's always non-nested and we
+              // only take the x coordinate, it's ok.
+              column.firstElementChild!.getBoundingClientRect().x
             : (
                 this.pmView.dom.firstChild as HTMLElement
               ).getBoundingClientRect().x,

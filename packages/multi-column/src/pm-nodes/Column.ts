@@ -3,7 +3,7 @@ import {
   mergeCSSClasses,
 } from "@blocknote/core";
 
-import { ColumnResizeExtension } from "../extensions/ColumnResize/ColumnResizeExtension.js";
+import { createColumnResizeExtension } from "../extensions/ColumnResize/ColumnResizeExtension.js";
 
 // TODO: necessary?
 const BlockAttributes: Record<string, string> = {
@@ -115,6 +115,6 @@ export const Column = createStronglyTypedTiptapNode({
   },
 
   addExtensions() {
-    return [ColumnResizeExtension];
+    return [createColumnResizeExtension(this.options.editor)];
   },
 });

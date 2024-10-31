@@ -481,7 +481,8 @@ NESTED BLOCKS
 .bn-block[data-node-type="columnList"] > div {
   flex: 1;
   padding: 12px 20px;
-  overflow-x: hidden;
+  /* Important that we use scroll instead of hidden for tables */
+  overflow-x: scroll;
 }
 
 .bn-block[data-node-type="columnList"] > div:first-child {

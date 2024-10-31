@@ -1,4 +1,4 @@
-import { getNodeById } from "@blocknote/core";
+import { BlockNoteEditor, getNodeById } from "@blocknote/core";
 import { Extension } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 import { Plugin, PluginKey, PluginView } from "prosemirror-state";
@@ -38,12 +38,14 @@ type ColumnState = ColumnDefaultState | ColumnHoverState | ColumnResizeState;
 const columnResizePluginKey = new PluginKey<ColumnState>("ColumnResizePlugin");
 
 class ColumnResizePluginView implements PluginView {
+  editor: BlockNoteEditor<any, any, any>;
   view: EditorView;
 
   readonly RESIZE_MARGIN_WIDTH_PX = 20;
   readonly COLUMN_MIN_WIDTH_PERCENT = 0.5;
 
-  constructor(view: EditorView) {
+  constructor(editor: BlockNoteEditor<any, any, any>, view: EditorView) {
+    this.editor = editor;
     this.view = view;
 
     this.view.dom.addEventListener("mousedown", this.mouseDownHandler);
@@ -182,6 +184,8 @@ class ColumnResizePluginView implements PluginView {
     this.view.dispatch(
       this.view.state.tr.setMeta(columnResizePluginKey, newState)
     );
+
+    this.editor.sideMenu.freezeMenu();
   };
 
   // If the plugin isn't in a resize state, we want to update it to either a
@@ -209,6 +213,12 @@ class ColumnResizePluginView implements PluginView {
         pluginState.leftColumn.id === newState.leftColumn.id &&
         pluginState.rightColumn.id === newState.rightColumn.id;
       if (bothDefaultStates || sameColumnIds) {
+        return;
+      }
+
+      // Since the resize bar overlaps the side menu, we don't want to show it
+      // if the side menu is already open.
+      if (newState.type === "hover" && this.editor.sideMenu.view?.state?.show) {
         return;
       }
 
@@ -282,6 +292,8 @@ class ColumnResizePluginView implements PluginView {
     this.view.dispatch(
       this.view.state.tr.setMeta(columnResizePluginKey, newState)
     );
+
+    this.editor.sideMenu.unfreezeMenu();
   };
 
   // This is a required method for PluginView, so we get a type error if we
@@ -289,53 +301,57 @@ class ColumnResizePluginView implements PluginView {
   update: undefined;
 }
 
-const columnResizePlugin = new Plugin({
-  key: columnResizePluginKey,
-  props: {
-    // This adds a border between the columns when the user is
-    // resizing them or when the cursor is near their boundary.
-    decorations: (state) => {
-      const pluginState = columnResizePluginKey.getState(state);
-      if (!pluginState || pluginState.type === "default") {
-        return DecorationSet.empty;
-      }
+const createColumnResizePlugin = (editor: BlockNoteEditor<any, any, any>) =>
+  new Plugin({
+    key: columnResizePluginKey,
+    props: {
+      // This adds a border between the columns when the user is
+      // resizing them or when the cursor is near their boundary.
+      decorations: (state) => {
+        const pluginState = columnResizePluginKey.getState(state);
+        if (!pluginState || pluginState.type === "default") {
+          return DecorationSet.empty;
+        }
 
-      return DecorationSet.create(state.doc, [
-        Decoration.node(
-          pluginState.leftColumn.posBeforeNode,
-          pluginState.leftColumn.posBeforeNode +
-            pluginState.leftColumn.node.nodeSize,
-          {
-            style: "box-shadow: 4px 0 0 #ccc; cursor: col-resize",
-          }
-        ),
-        Decoration.node(
-          pluginState.rightColumn.posBeforeNode,
-          pluginState.rightColumn.posBeforeNode +
-            pluginState.rightColumn.node.nodeSize,
-          {
-            style: "cursor: col-resize",
-          }
-        ),
-      ]);
+        return DecorationSet.create(state.doc, [
+          Decoration.node(
+            pluginState.leftColumn.posBeforeNode,
+            pluginState.leftColumn.posBeforeNode +
+              pluginState.leftColumn.node.nodeSize,
+            {
+              style: "box-shadow: 4px 0 0 #ccc; cursor: col-resize",
+            }
+          ),
+          Decoration.node(
+            pluginState.rightColumn.posBeforeNode,
+            pluginState.rightColumn.posBeforeNode +
+              pluginState.rightColumn.node.nodeSize,
+            {
+              style: "cursor: col-resize",
+            }
+          ),
+        ]);
+      },
     },
-  },
-  state: {
-    init: () => ({ type: "default" } as ColumnState),
-    apply: (tr, oldPluginState) => {
-      const newPluginState = tr.getMeta(columnResizePluginKey) as
-        | ColumnState
-        | undefined;
+    state: {
+      init: () => ({ type: "default" } as ColumnState),
+      apply: (tr, oldPluginState) => {
+        const newPluginState = tr.getMeta(columnResizePluginKey) as
+          | ColumnState
+          | undefined;
 
-      return newPluginState === undefined ? oldPluginState : newPluginState;
+        return newPluginState === undefined ? oldPluginState : newPluginState;
+      },
     },
-  },
-  view: (view) => new ColumnResizePluginView(view),
-});
+    view: (view) => new ColumnResizePluginView(editor, view),
+  });
 
-export const ColumnResizeExtension = Extension.create({
-  name: "columnResize",
-  addProseMirrorPlugins() {
-    return [columnResizePlugin];
-  },
-});
+export const createColumnResizeExtension = (
+  editor: BlockNoteEditor<any, any, any>
+) =>
+  Extension.create({
+    name: "columnResize",
+    addProseMirrorPlugins() {
+      return [createColumnResizePlugin(editor)];
+    },
+  });
