@@ -91,12 +91,10 @@ class ColumnResizePluginView implements PluginView {
         ? columnElement.nextElementSibling
         : undefined;
 
-    console.log(cursorElementSide, columnElement);
     // Do nothing if the cursor is not within the resize margin or if there
     // is no column before or after the one hovered by the cursor, depending
     // on which side the cursor is on.
     if (!adjacentColumnElement) {
-      console.log("no adjacent column");
       return { type: "default" };
     }
 
@@ -286,48 +284,9 @@ class ColumnResizePluginView implements PluginView {
     );
   };
 
-  // In a `columnList` node, we expect that the average width of each column
-  // is 1. However, there are cases in which this stops being true. For
-  // example, making one really wide column and then removing it will cause
-  // the width average to go down. This isn't really an issue until the user
-  // tries to add a new column, which will, in this case, be wider than
-  // expected. Therefore, this function traverses the document and
-  // normalizes the average column width to 1 whenever and wherever
-  // necessary.
-  update = (view: EditorView) => {
-    let tr = view.state.tr;
-
-    view.state.doc.descendants((node, pos) => {
-      if (node.type.name !== "columnList") {
-        return true;
-      }
-
-      let sumColumnWidthPercent = 0;
-      node.forEach((node) => {
-        sumColumnWidthPercent += node.attrs.width as number;
-      });
-      const avgColumnWidthPercent = sumColumnWidthPercent / node.childCount;
-
-      // If the average column width is not 1, normalize it. We're dealing
-      // with floats so we need a small margin to account for precision
-      // errors.
-      if (avgColumnWidthPercent < 0.99 || avgColumnWidthPercent > 1.01) {
-        const scalingFactor = 1 / avgColumnWidthPercent;
-
-        node.forEach((node, offset) => {
-          tr = tr.setNodeAttribute(
-            pos + offset + 1,
-            "width",
-            node.attrs.width * scalingFactor
-          );
-        });
-
-        view.dispatch(tr);
-      }
-
-      return false;
-    });
-  };
+  // This is a required method for PluginView, so we get a type error if we
+  // don't implement it.
+  update: undefined;
 }
 
 const columnResizePlugin = new Plugin({

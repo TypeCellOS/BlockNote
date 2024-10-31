@@ -100,6 +100,32 @@ export function multiColumnDropCursor(
             editor.schema.styleSchema
           );
 
+          // In a `columnList`, we expect that the average width of each column
+          // is 1. However, there are cases in which this stops being true. For
+          // example, having one wider column and then removing it will cause
+          // the average width to go down. This isn't really an issue until the
+          // user tries to add a new column, which will, in this case, be wider
+          // than expected. Therefore, we normalize the column widths to an
+          // average of 1 here to avoid this issue.
+          let sumColumnWidthPercent = 0;
+          columnList.children.forEach((column) => {
+            sumColumnWidthPercent += column.props.width as number;
+          });
+          const avgColumnWidthPercent =
+            sumColumnWidthPercent / columnList.children.length;
+
+          // If the average column width is not 1, normalize it. We're dealing
+          // with floats so we need a small margin to account for precision
+          // errors.
+          if (avgColumnWidthPercent < 0.99 || avgColumnWidthPercent > 1.01) {
+            const scalingFactor = 1 / avgColumnWidthPercent;
+
+            columnList.children.forEach((column) => {
+              column.props.width =
+                (column.props.width as number) * scalingFactor;
+            });
+          }
+
           const index = columnList.children.findIndex(
             (b) => b.id === blockInfo.bnBlock.node.attrs.id
           );

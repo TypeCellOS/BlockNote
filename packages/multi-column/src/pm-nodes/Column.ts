@@ -34,9 +34,9 @@ export const Column = createStronglyTypedTiptapNode({
         // the widths of the other columns. The same can be said for using px
         // instead of percent widths and making them add to the editor width. So
         // using this method is both simpler and computationally cheaper. This
-        // is only possible because we can abuse the fact that the `flex-basis`
-        // CSS property doesn't care about the total sum value across flexbox
-        // children, only the relative values between them.
+        // is possible because we can set the `flex-grow` property to the width
+        // value, which handles all the resizing for us, instead of manually
+        // having to set the `width` property of each column.
         default: 1,
         parseHTML: (element) => {
           const attr = element.getAttribute("data-width");
@@ -54,7 +54,7 @@ export const Column = createStronglyTypedTiptapNode({
         renderHTML: (attributes) => {
           return {
             "data-width": (attributes.width as number).toString(),
-            style: `flex-basis: ${(attributes.width as number) * 100}%;`,
+            style: `flex-grow: ${attributes.width as number};`,
           };
         },
       },

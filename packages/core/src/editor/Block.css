@@ -480,10 +480,7 @@ NESTED BLOCKS
 
 .bn-block[data-node-type="columnList"] > div {
   flex: 1;
-  padding-top: 12px;
-  padding-bottom: 12px;
-  padding-left: 20px;
-  padding-right: 20px;
+  padding: 12px 20px;
   overflow-x: hidden;
 }
 
