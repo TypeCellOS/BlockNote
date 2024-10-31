@@ -45,6 +45,11 @@ export default function App() {
         content: "Check List Item",
       },
       {
+        type: "codeBlock",
+        props: { language: "javascript" },
+        content: "console.log('Hello, world!');",
+      },
+      {
         type: "table",
         content: {
           type: "tableContent",

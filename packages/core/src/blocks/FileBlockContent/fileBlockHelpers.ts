@@ -108,6 +108,13 @@ export const createFileAndCaptionWrapper = (
   caption.className = "bn-file-caption";
   caption.textContent = block.props.caption;
 
+  if (typeof block.props.previewWidth === "number" &&
+    block.props.previewWidth > 0 &&
+    block.props.caption !== undefined
+  ) {
+    caption.style.width = `${block.props.previewWidth}px`
+  }
+
   fileAndCaptionWrapper.appendChild(file);
   fileAndCaptionWrapper.appendChild(caption);
 

@@ -88,6 +88,11 @@ export const PlaceholderPlugin = (
           return;
         }
 
+        // Don't show placeholder when the cursor is inside a code block
+        if (selection.$from.parent.type.spec.code) {
+          return;
+        }
+
         const $pos = selection.$anchor;
         const node = $pos.parent;
 

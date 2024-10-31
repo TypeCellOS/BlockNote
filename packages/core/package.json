@@ -6,7 +6,7 @@
     "*.css"
   ],
   "license": "MPL-2.0",
-  "version": "0.17.1",
+  "version": "0.18.0",
   "files": [
     "dist",
     "types",
@@ -80,9 +80,10 @@
     "@tiptap/pm": "^2.7.1",
     "emoji-mart": "^5.6.0",
     "hast-util-from-dom": "^4.2.0",
+    "prosemirror-highlight": "^0.9.0",
     "prosemirror-model": "^1.21.0",
     "prosemirror-state": "^1.4.3",
-    "prosemirror-tables": "^1.3.7",
+    "prosemirror-tables": "^1.6.1",
     "prosemirror-transform": "^1.9.0",
     "prosemirror-view": "^1.33.7",
     "rehype-format": "^5.0.0",
@@ -93,6 +94,7 @@
     "remark-parse": "^10.0.1",
     "remark-rehype": "^10.1.0",
     "remark-stringify": "^10.0.2",
+    "shiki": "^1.22.0",
     "unified": "^10.1.2",
     "uuid": "^8.3.2",
     "y-prosemirror": "1.2.12",
@@ -101,7 +103,7 @@
   },
   "devDependencies": {
     "@types/emoji-mart": "^3.0.14",
-    "@types/hast": "^2.3.4",
+    "@types/hast": "^3.0.0",
     "@types/uuid": "^8.3.4",
     "eslint": "^8.10.0",
     "jsdom": "^21.1.0",
