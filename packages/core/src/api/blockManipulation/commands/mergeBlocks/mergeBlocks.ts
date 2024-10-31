@@ -7,11 +7,34 @@ import {
 } from "../../../getBlockInfoFromPos.js";
 
 /**
+ * Returns the block info from the parent block
+ * or undefined if we're at the root
+ */
+export const getParentBlockInfo = (doc: Node, beforePos: number) => {
+  const $pos = doc.resolve(beforePos);
+
+  if ($pos.depth <= 1) {
+    return undefined;
+  }
+
+  // get start pos of parent
+  const parentBeforePos = $pos.posAtIndex(
+    $pos.index($pos.depth - 1),
+    $pos.depth - 1
+  );
+
+  const parentBlockInfo = getBlockInfoFromResolvedPos(
+    doc.resolve(parentBeforePos)
+  );
+  return parentBlockInfo;
+};
+
+/**
  * Returns the block info from the sibling block before (above) the given block,
  * or undefined if the given block is the first sibling.
  */
-export const getPrevBlockInfo = (state: EditorState, blockInfo: BlockInfo) => {
-  const $pos = state.doc.resolve(blockInfo.bnBlock.beforePos);
+export const getPrevBlockInfo = (doc: Node, beforePos: number) => {
+  const $pos = doc.resolve(beforePos);
 
   const indexInParent = $pos.index();
 
@@ -22,7 +45,7 @@ export const getPrevBlockInfo = (state: EditorState, blockInfo: BlockInfo) => {
   const prevBlockBeforePos = $pos.posAtIndex(indexInParent - 1);
 
   const prevBlockInfo = getBlockInfoFromResolvedPos(
-    state.doc.resolve(prevBlockBeforePos)
+    doc.resolve(prevBlockBeforePos)
   );
   return prevBlockInfo;
 };
@@ -123,7 +146,10 @@ export const mergeBlocksCommand =
     const $pos = state.doc.resolve(posBetweenBlocks);
     const nextBlockInfo = getBlockInfoFromResolvedPos($pos);
 
-    const prevBlockInfo = getPrevBlockInfo(state, nextBlockInfo);
+    const prevBlockInfo = getPrevBlockInfo(
+      state.doc,
+      nextBlockInfo.bnBlock.beforePos
+    );
 
     if (!prevBlockInfo) {
       return false;
