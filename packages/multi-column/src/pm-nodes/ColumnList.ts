@@ -1,16 +1,4 @@
-import {
-  createStronglyTypedTiptapNode,
-  mergeCSSClasses,
-} from "@blocknote/core";
-
-// TODO: necessary?
-const BlockAttributes: Record<string, string> = {
-  blockColor: "data-block-color",
-  blockStyle: "data-block-style",
-  id: "data-id",
-  depth: "data-depth",
-  depthChange: "data-depth-change",
-};
+import { createStronglyTypedTiptapNode } from "@blocknote/core";
 
 export const ColumnList = createStronglyTypedTiptapNode({
   name: "columnList",
@@ -29,16 +17,8 @@ export const ColumnList = createStronglyTypedTiptapNode({
             return false;
           }
 
-          // TODO: needed? also fix typing
-          const attrs: Record<string, string> = {};
-          for (const [nodeAttr, HTMLAttr] of Object.entries(BlockAttributes)) {
-            if (element.getAttribute(HTMLAttr)) {
-              attrs[nodeAttr] = element.getAttribute(HTMLAttr)!;
-            }
-          }
-
           if (element.getAttribute("data-node-type") === this.name) {
-            return attrs;
+            return {};
           }
 
           return false;
@@ -47,35 +27,17 @@ export const ColumnList = createStronglyTypedTiptapNode({
     ];
   },
 
-  // TODO: needed? also fix typing of attributes
   renderHTML({ HTMLAttributes }) {
-    const blockOuter = document.createElement("div");
-    blockOuter.className = "bn-block-outer";
-    blockOuter.setAttribute("data-node-type", "blockOuter");
+    const columnList = document.createElement("div");
+    columnList.className = "bn-block-column-list";
+    columnList.setAttribute("data-node-type", this.name);
     for (const [attribute, value] of Object.entries(HTMLAttributes)) {
-      if (attribute !== "class") {
-        blockOuter.setAttribute(attribute, value);
-      }
+      columnList.setAttribute(attribute, value as any); // TODO as any
     }
-
-    const blockHTMLAttributes = {
-      ...(this.options.domAttributes?.block || {}),
-      ...HTMLAttributes,
-    };
-    const block = document.createElement("div");
-    block.className = mergeCSSClasses("bn-block", blockHTMLAttributes.class);
-    block.setAttribute("data-node-type", this.name);
-    for (const [attribute, value] of Object.entries(blockHTMLAttributes)) {
-      if (attribute !== "class") {
-        block.setAttribute(attribute, value as any); // TODO as any
-      }
-    }
-
-    blockOuter.appendChild(block);
 
     return {
-      dom: blockOuter,
-      contentDOM: block,
+      dom: columnList,
+      contentDOM: columnList,
     };
   },
 });

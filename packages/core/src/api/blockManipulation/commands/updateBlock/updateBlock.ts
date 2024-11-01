@@ -179,23 +179,6 @@ function updateBlockContentNode<
         content
       )
     );
-    // TODO: This seems off - the selection is not necessarily in the block
-    //  being updated but this will set it anyway.
-    // If the node doesn't contain editable content, we want to
-    // select the whole node. But if it does have editable content,
-    // we want to set the selection to the start of it.
-    // .setSelection(
-    //   state.schema.nodes[newType].spec.content === ""
-    //     ? new NodeSelection(state.tr.doc.resolve(blockContent.beforePos))
-    //     : state.schema.nodes[newType].spec.content === "inline*"
-    //     ? new TextSelection(state.tr.doc.resolve(blockContent.beforePos))
-    //     : // Need to offset the position as we have to get through the
-    //       // `tableRow` and `tableCell` nodes to get to the
-    //       // `tableParagraph` node we want to set the selection in.
-    //       new TextSelection(
-    //         state.tr.doc.resolve(blockContent.beforePos + 4)
-    //       )
-    // );
   }
 }
 

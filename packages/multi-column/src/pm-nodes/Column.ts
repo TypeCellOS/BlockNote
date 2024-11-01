@@ -73,9 +73,7 @@ export const Column = createStronglyTypedTiptapNode({
     column.className = "bn-block-column";
     column.setAttribute("data-node-type", this.name);
     for (const [attribute, value] of Object.entries(HTMLAttributes)) {
-      if (attribute !== "class") {
-        column.setAttribute(attribute, value as any); // TODO as any
-      }
+      column.setAttribute(attribute, value as any); // TODO as any
     }
 
     return {

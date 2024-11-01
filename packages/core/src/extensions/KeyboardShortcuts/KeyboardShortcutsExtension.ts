@@ -138,7 +138,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
               shouldRemoveColumn &&
               columnList.childContainer!.node.childCount === 2;
 
-            const first =
+            const isFirstColumn =
               columnList.childContainer!.node.firstChild ===
               column.bnBlock.node;
 
@@ -159,7 +159,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
               or at the start of a non-first column.
               */
               if (shouldRemoveColumnList) {
-                if (first) {
+                if (isFirstColumn) {
                   state.tr.step(
                     new ReplaceAroundStep(
                       // replace entire column list
@@ -196,7 +196,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
                   state.tr.setSelection(TextSelection.between(pos, pos));
                 }
               } else if (shouldRemoveColumn) {
-                if (first) {
+                if (isFirstColumn) {
                   // delete column
                   state.tr.delete(
                     column.bnBlock.beforePos,
@@ -226,7 +226,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
                   blockInfo.bnBlock.beforePos,
                   blockInfo.bnBlock.afterPos
                 );
-                if (first) {
+                if (isFirstColumn) {
                   // move before columnlist
                   state.tr.insert(
                     columnList.bnBlock.beforePos - 1,
