@@ -39,6 +39,9 @@ export default function App() {
         children: [
           {
             type: "column",
+            props: {
+              width: 0.8,
+            },
             children: [
               {
                 type: "paragraph",
@@ -48,6 +51,9 @@ export default function App() {
           },
           {
             type: "column",
+            props: {
+              width: 1.2,
+            },
             children: [
               {
                 type: "paragraph",
