@@ -6,6 +6,13 @@ import {
 } from "@blocknote/core";
 import { ColumnBlock, ColumnListBlock } from "./Columns/index.js";
 
+export const multiColumnSchema = BlockNoteSchema.create({
+  blockSpecs: {
+    column: ColumnBlock,
+    columnList: ColumnListBlock,
+  },
+});
+
 /**
  * Adds multi-column support to the given schema.
  */

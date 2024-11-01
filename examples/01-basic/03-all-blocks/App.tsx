@@ -1,12 +1,18 @@
-import { BlockNoteSchema } from "@blocknote/core";
+import { BlockNoteSchema, filterSuggestionItems } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
   multiColumnDropCursor,
   withMultiColumn,
+  getMultiColumnSlashMenuItems,
 } from "@blocknote/multi-column";
-import { useCreateBlockNote } from "@blocknote/react";
+import {
+  getDefaultReactSlashMenuItems,
+  SuggestionMenuController,
+  useCreateBlockNote,
+} from "@blocknote/react";
+import { useMemo } from "react";
 export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
@@ -172,6 +178,28 @@ export default function App() {
     ],
   });
 
+  const slashMenuItems = useMemo(() => {
+    const defaultSlashMenuItems = getDefaultReactSlashMenuItems(editor);
+    const multiColumnSlashMenuItems = getMultiColumnSlashMenuItems(editor);
+
+    const lastBasicBlockItemIndex = defaultSlashMenuItems.findLastIndex(
+      (item) => item.group === "Basic blocks"
+    );
+
+    return defaultSlashMenuItems.toSpliced(
+      lastBasicBlockItemIndex + 1,
+      0,
+      ...multiColumnSlashMenuItems
+    );
+  }, [editor]);
+
   // Renders the editor instance using a React component.
-  return <BlockNoteView editor={editor} />;
+  return (
+    <BlockNoteView editor={editor} slashMenu={false}>
+      <SuggestionMenuController
+        triggerCharacter={"/"}
+        getItems={async (query) => filterSuggestionItems(slashMenuItems, query)}
+      />
+    </BlockNoteView>
+  );
 }

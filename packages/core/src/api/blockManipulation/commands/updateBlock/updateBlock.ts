@@ -73,6 +73,8 @@ export const updateBlockCommand =
         // No op, we just update the bnBlock below (at end of function) and have already updated the children
       } else {
         // switching between blockContainer and non-blockContainer or v.v.
+        // currently breaking for column slash menu items converting empty block
+        // to column.
         throw new Error("Not implemented"); // TODO
       }
 
