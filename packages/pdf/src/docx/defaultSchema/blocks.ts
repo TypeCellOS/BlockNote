@@ -188,6 +188,6 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
     ];
   },
   table: (block, exporter) => {
-    return Table(block.content.rows, exporter);
+    return Table(block.content, exporter);
   },
 };

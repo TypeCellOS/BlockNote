@@ -23,7 +23,11 @@ import {
 import { Exporter, ExporterOptions } from "../Exporter.js";
 import { loadFileBuffer } from "../util/fileUtil.js";
 
-const DEFAULT_TAB_STOP = 16 * 0.75 * 1.5 * 20; /* twip */
+const DEFAULT_TAB_STOP =
+  /* default font size */ 16 *
+  /* 1 pixel is 0.75 points */ 0.75 *
+  /* 1.5em*/ 1.5 *
+  /* 1 point is 20 twips */ 20;
 export class DOCXExporter<
   B extends BlockSchema,
   S extends StyleSchema,
@@ -88,7 +92,7 @@ export class DOCXExporter<
     for (const b of blocks) {
       let children = await this.transformBlocks(b.children, nestingLevel + 1);
       children = children.map((c, _i) => {
-        // TODO: nested tables not supported
+        // NOTE: nested tables not supported (we can't insert the new Tab before a table)
         if (
           c instanceof Paragraph &&
           !(c as any).properties.numberingReferences.length

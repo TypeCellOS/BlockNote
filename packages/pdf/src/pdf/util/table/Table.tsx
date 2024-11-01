@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     flexWrap: "wrap",
-    width: "100%",
+    // width: "100%",
     // justifyContent: "space-between",
     display: "flex",
   },
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
 });
 
 export const Table = (props: {
-  data: TableContent<InlineContentSchema>["rows"];
+  data: TableContent<InlineContentSchema>;
   transformer: Exporter<
     any,
     InlineContentSchema,
@@ -55,11 +55,11 @@ export const Table = (props: {
   >;
 }) => (
   <View style={styles.tableContainer}>
-    {props.data.map((row, index) => (
+    {props.data.rows.map((row, index) => (
       <View
         style={[
           styles.row,
-          index === props.data.length - 1 ? styles.bottomCell : {},
+          index === props.data.rows.length - 1 ? styles.bottomCell : {},
         ]}
         key={index}>
         {row.cells.map((cell, index) => (
@@ -67,6 +67,9 @@ export const Table = (props: {
             style={[
               styles.cell,
               index === row.cells.length - 1 ? styles.rightCell : {},
+              props.data.columnWidths[index]
+                ? { width: props.data.columnWidths[index] }
+                : {},
             ]}
             key={index}>
             {props.transformer.transformInlineContent(cell)}

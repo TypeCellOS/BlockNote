@@ -143,15 +143,16 @@ export const testDocument = partialBlocksToBlocksForTesting(
       type: "table",
       content: {
         type: "tableContent",
+        columnWidths: [200, undefined, undefined],
         rows: [
           {
-            cells: ["Table Cell", "Table Cell", "Table Cell"],
+            cells: ["Wide Cell", "Table Cell", "Table Cell"],
           },
           {
-            cells: ["Table Cell", "Table Cell", "Table Cell"],
+            cells: ["Wide Cell", "Table Cell", "Table Cell"],
           },
           {
-            cells: ["Table Cell", "Table Cell", "Table Cell"],
+            cells: ["Wide Cell", "Table Cell", "Table Cell"],
           },
         ],
       },
