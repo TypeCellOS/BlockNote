@@ -517,23 +517,23 @@ NESTED BLOCKS
   text-align: justify;
 }
 
-.bn-block[data-node-type="columnList"] {
+.bn-block-column-list {
   display: flex;
   flex-direction: row;
   /* gap: 10px; */
 }
 
-.bn-block[data-node-type="columnList"] > div {
+.bn-block-column {
   flex: 1;
   padding: 12px 20px;
   /* Important that we use scroll instead of hidden for tables */
   overflow-x: scroll;
 }
 
-.bn-block[data-node-type="columnList"] > div:first-child {
+.bn-block-column:first-child {
   padding-left: 0;
 }
 
-.bn-block[data-node-type="columnList"] > div:last-child {
+.bn-block-column:last-child {
   padding-right: 0;
 }

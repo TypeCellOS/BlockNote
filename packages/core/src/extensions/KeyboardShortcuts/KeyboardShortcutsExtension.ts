@@ -8,7 +8,7 @@ import {
   getPrevBlockInfo,
   mergeBlocksCommand,
 } from "../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
-import { sinkListItem } from "../../api/blockManipulation/commands/nestBlock/nestBlock.js";
+import { nestBlock } from "../../api/blockManipulation/commands/nestBlock/nestBlock.js";
 import { splitBlockCommand } from "../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromSelection } from "../../api/getBlockInfoFromPos.js";
@@ -459,12 +459,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
           // don't handle tabs if a toolbar is shown, so we can tab into / out of it
           return false;
         }
-        return this.editor.commands.command(
-          sinkListItem(
-            this.editor.schema.nodes["blockContainer"],
-            this.editor.schema.nodes["blockGroup"]
-          )
-        );
+        return nestBlock(this.options.editor);
         // return true;
       },
       "Shift-Tab": () => {

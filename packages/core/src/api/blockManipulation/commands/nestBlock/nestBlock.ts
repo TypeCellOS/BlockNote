@@ -11,7 +11,7 @@ import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
  *
  * The original function derives too many information from the parentnode and itemtype
  */
-export function sinkListItem(itemType: NodeType, groupType: NodeType) {
+function sinkListItem(itemType: NodeType, groupType: NodeType) {
   return function ({ state, dispatch }: { state: EditorState; dispatch: any }) {
     const { $from, $to } = state.selection;
     const range = $from.blockRange(
@@ -67,9 +67,11 @@ export function sinkListItem(itemType: NodeType, groupType: NodeType) {
 }
 
 export function nestBlock(editor: BlockNoteEditor<any, any, any>) {
-  sinkListItem(
-    editor._tiptapEditor.schema.nodes["blockContainer"],
-    editor._tiptapEditor.schema.nodes["blockGroup"]
+  return editor._tiptapEditor.commands.command(
+    sinkListItem(
+      editor._tiptapEditor.schema.nodes["blockContainer"],
+      editor._tiptapEditor.schema.nodes["blockGroup"]
+    )
   );
 }
 
