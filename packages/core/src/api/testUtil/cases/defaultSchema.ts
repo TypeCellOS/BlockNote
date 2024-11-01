@@ -176,6 +176,33 @@ export const defaultSchemaTestCases: EditorTestCases<
       ],
     },
     {
+      name: "codeBlock/empty",
+      blocks: [
+        {
+          type: "codeBlock",
+        },
+      ],
+    },
+    {
+      name: "codeBlock/defaultLanguage",
+      blocks: [
+        {
+          type: "codeBlock",
+          content: "console.log('Hello, world!');",
+        },
+      ],
+    },
+    {
+      name: "codeBlock/python",
+      blocks: [
+        {
+          type: "codeBlock",
+          props: { language: "python" },
+          content: "print('Hello, world!')",
+        },
+      ],
+    },
+    {
       name: "file/button",
       blocks: [
         {
@@ -329,6 +356,74 @@ export const defaultSchemaTestCases: EditorTestCases<
               },
             },
           ],
+        },
+      ],
+    },
+    {
+      name: "table/basic",
+      blocks: [
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            rows: [
+              {
+                cells: ["Table Cell", "Table Cell", "Table Cell"],
+              },
+              {
+                cells: ["Table Cell", "Table Cell", "Table Cell"],
+              },
+              {
+                cells: ["Table Cell", "Table Cell", "Table Cell"],
+              },
+            ],
+          },
+        },
+      ],
+    },
+    {
+      name: "table/allColWidths",
+      blocks: [
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            columnWidths: [100, 200, 300],
+            rows: [
+              {
+                cells: ["Table Cell", "Table Cell", "Table Cell"],
+              },
+              {
+                cells: ["Table Cell", "Table Cell", "Table Cell"],
+              },
+              {
+                cells: ["Table Cell", "Table Cell", "Table Cell"],
+              },
+            ],
+          },
+        },
+      ],
+    },
+    {
+      name: "table/mixedColWidths",
+      blocks: [
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            columnWidths: [100, undefined, 300],
+            rows: [
+              {
+                cells: ["Table Cell", "Table Cell", "Table Cell"],
+              },
+              {
+                cells: ["Table Cell", "Table Cell", "Table Cell"],
+              },
+              {
+                cells: ["Table Cell", "Table Cell", "Table Cell"],
+              },
+            ],
+          },
         },
       ],
     },

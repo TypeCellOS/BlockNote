@@ -69,6 +69,12 @@ export const zh: Dictionary = {
       aliases: ["p", "paragraph", "text", "正文"],
       group: "基础",
     },
+    code_block: {
+      title: "代码块",
+      subtext: "用于显示带有语法高亮的代码块",
+      aliases: ["code", "pre", "代码", "预格式"],
+      group: "基础",
+    },
     table: {
       title: "表格",
       subtext: "使用表格",

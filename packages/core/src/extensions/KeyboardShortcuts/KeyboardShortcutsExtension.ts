@@ -3,13 +3,15 @@ import { Extension } from "@tiptap/core";
 import { Fragment, NodeType, Slice } from "prosemirror-model";
 import { EditorState, TextSelection } from "prosemirror-state";
 import { ReplaceAroundStep } from "prosemirror-transform";
-import { mergeBlocksCommand } from "../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
+import {
+  getBottomNestedBlockInfo,
+  getParentBlockInfo,
+  getPrevBlockInfo,
+  mergeBlocksCommand,
+} from "../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
 import { splitBlockCommand } from "../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import {
-  getBlockInfoFromResolvedPos,
-  getBlockInfoFromSelection,
-} from "../../api/getBlockInfoFromPos.js";
+import { getBlockInfoFromSelection } from "../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 export const KeyboardShortcutsExtension = Extension.create<{
@@ -17,10 +19,12 @@ export const KeyboardShortcutsExtension = Extension.create<{
 }>({
   priority: 50,
 
+  // TODO: The shortcuts need a refactor. Do we want to use a command priority
+  //  design as there is now, or clump the logic into a single function?
   addKeyboardShortcuts() {
     // handleBackspace is partially adapted from https://github.com/ueberdosis/tiptap/blob/ed56337470efb4fd277128ab7ef792b37cfae992/packages/core/src/extensions/keymap.ts
     const handleBackspace = () =>
-      this.editor.commands.first(({ commands }) => [
+      this.editor.commands.first(({ chain, commands }) => [
         // Deletes the selection if it's not empty.
         () => commands.deleteSelection(),
         // Undoes an input rule if one was triggered in the last editor state change.
@@ -64,69 +68,237 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
-        // Merges block with the previous one if it isn't indented, isn't the
-        // first block in the doc, and the selection is at the start of the
+        // Merges block with the previous one if it isn't indented, and the selection is at the start of the
         // block. The target block for merging must contain inline content.
         () =>
           commands.command(({ state }) => {
             const { bnBlock: blockContainer, blockContent } =
               getBlockInfoFromSelection(state);
 
-            const { depth } = state.doc.resolve(blockContainer.beforePos);
-
             const selectionAtBlockStart =
               state.selection.from === blockContent.beforePos + 1;
             const selectionEmpty = state.selection.empty;
-            const blockAtDocStart = blockContainer.beforePos === 1;
 
             const posBetweenBlocks = blockContainer.beforePos;
 
-            if (
-              !blockAtDocStart &&
-              selectionAtBlockStart &&
-              selectionEmpty &&
-              depth === 1
-            ) {
-              return commands.command(mergeBlocksCommand(posBetweenBlocks));
+            if (selectionAtBlockStart && selectionEmpty) {
+              return chain()
+                .command(mergeBlocksCommand(posBetweenBlocks))
+                .scrollIntoView()
+                .run();
             }
 
             return false;
           }),
-        // Deletes previous block if it contains no content. If it has inline
-        // content, it's merged instead. Otherwise, it's a no-op.
         () =>
-          commands.command(({ state }) => {
-            const { bnBlock: blockContainer, blockContent } =
-              getBlockInfoFromSelection(state);
+          commands.command(({ state, dispatch }) => {
+            // when at the start of a first block in a column
+            const blockInfo = getBlockInfoFromSelection(state);
 
             const selectionAtBlockStart =
-              state.selection.from === blockContent.beforePos + 1;
+              state.selection.from === blockInfo.blockContent.beforePos + 1;
+
+            if (!selectionAtBlockStart) {
+              return false;
+            }
+
+            const prevBlockInfo = getPrevBlockInfo(
+              state.doc,
+              blockInfo.bnBlock.beforePos
+            );
+
+            if (prevBlockInfo) {
+              // should be no previous block
+              return false;
+            }
+
+            const parentBlockInfo = getParentBlockInfo(
+              state.doc,
+              blockInfo.bnBlock.beforePos
+            );
+
+            if (parentBlockInfo?.blockNoteType !== "column") {
+              return false;
+            }
+
+            const column = parentBlockInfo;
+
+            const columnList = getParentBlockInfo(
+              state.doc,
+              column.bnBlock.beforePos
+            );
+            if (columnList?.blockNoteType !== "columnList") {
+              throw new Error("parent of column is not a column list");
+            }
+
+            const shouldRemoveColumn =
+              column.childContainer!.node.childCount === 1;
+
+            const shouldRemoveColumnList =
+              shouldRemoveColumn &&
+              columnList.childContainer!.node.childCount === 2;
+
+            const first =
+              columnList.childContainer!.node.firstChild ===
+              column.bnBlock.node;
+
+            if (dispatch) {
+              const blockToMove = state.doc.slice(
+                blockInfo.bnBlock.beforePos,
+                blockInfo.bnBlock.afterPos,
+                false
+              );
+
+              /*
+              There are 3 different cases:
+              a) remove entire column list (if no columns would be remaining)
+              b) remove just a column (if no blocks inside a column would be remaining)
+              c) keep columns (if there are blocks remaining inside a column)
+
+              Each of these 3 cases has 2 sub-cases, depending on whether the backspace happens at the start of the first (most-left) column,
+              or at the start of a non-first column.
+              */
+              if (shouldRemoveColumnList) {
+                if (first) {
+                  state.tr.step(
+                    new ReplaceAroundStep(
+                      // replace entire column list
+                      columnList.bnBlock.beforePos,
+                      columnList.bnBlock.afterPos,
+                      // select content of remaining column:
+                      column.bnBlock.afterPos + 1,
+                      columnList.bnBlock.afterPos - 2,
+                      blockToMove,
+                      blockToMove.size, // append existing content to blockToMove
+                      false
+                    )
+                  );
+                  const pos = state.tr.doc.resolve(column.bnBlock.beforePos);
+                  state.tr.setSelection(TextSelection.between(pos, pos));
+                } else {
+                  // replaces the column list with the blockToMove slice, prepended with the content of the remaining column
+                  state.tr.step(
+                    new ReplaceAroundStep(
+                      // replace entire column list
+                      columnList.bnBlock.beforePos,
+                      columnList.bnBlock.afterPos,
+                      // select content of existing column:
+                      columnList.bnBlock.beforePos + 2,
+                      column.bnBlock.beforePos - 1,
+                      blockToMove,
+                      0, // prepend existing content to blockToMove
+                      false
+                    )
+                  );
+                  const pos = state.tr.doc.resolve(
+                    state.tr.mapping.map(column.bnBlock.beforePos - 1)
+                  );
+                  state.tr.setSelection(TextSelection.between(pos, pos));
+                }
+              } else if (shouldRemoveColumn) {
+                if (first) {
+                  // delete column
+                  state.tr.delete(
+                    column.bnBlock.beforePos,
+                    column.bnBlock.afterPos
+                  );
+
+                  // move before columnlist
+                  state.tr.insert(
+                    columnList.bnBlock.beforePos,
+                    blockToMove.content
+                  );
+
+                  const pos = state.tr.doc.resolve(
+                    columnList.bnBlock.beforePos
+                  );
+                  state.tr.setSelection(TextSelection.between(pos, pos));
+                } else {
+                  // just delete the </column><column> closing and opening tags to merge the columns
+                  state.tr.delete(
+                    column.bnBlock.beforePos - 1,
+                    column.bnBlock.beforePos + 1
+                  );
+                }
+              } else {
+                // delete block
+                state.tr.delete(
+                  blockInfo.bnBlock.beforePos,
+                  blockInfo.bnBlock.afterPos
+                );
+                if (first) {
+                  // move before columnlist
+                  state.tr.insert(
+                    columnList.bnBlock.beforePos - 1,
+                    blockToMove.content
+                  );
+                } else {
+                  // append block to previous column
+                  state.tr.insert(
+                    column.bnBlock.beforePos - 1,
+                    blockToMove.content
+                  );
+                }
+                const pos = state.tr.doc.resolve(column.bnBlock.beforePos - 1);
+                state.tr.setSelection(TextSelection.between(pos, pos));
+              }
+            }
+
+            return true;
+          }),
+        // Deletes previous block if it contains no content and isn't a table,
+        // when the selection is empty and at the start of the block. Moves the
+        // current block into the deleted block's place.
+        () =>
+          commands.command(({ state }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+
+            if (!blockInfo.isBlockContainer) {
+              // TODO
+              throw new Error(`todo`);
+            }
+
+            const selectionAtBlockStart =
+              state.selection.from === blockInfo.blockContent.beforePos + 1;
             const selectionEmpty = state.selection.empty;
-            const blockAtDocStart = blockContainer.beforePos === 1;
 
-            const $currentBlockPos = state.doc.resolve(
-              blockContainer.beforePos
-            );
-            const prevBlockPos = $currentBlockPos.posAtIndex(
-              $currentBlockPos.index() - 1
-            );
-            const prevBlockInfo = getBlockInfoFromResolvedPos(
-              state.doc.resolve(prevBlockPos)
+            const prevBlockInfo = getPrevBlockInfo(
+              state.doc,
+              blockInfo.bnBlock.beforePos
             );
 
-            if (
-              !blockAtDocStart &&
-              selectionAtBlockStart &&
-              selectionEmpty &&
-              $currentBlockPos.depth === 1 &&
-              prevBlockInfo.childContainer === undefined &&
-              prevBlockInfo.isBlockContainer &&
-              prevBlockInfo.blockContent.node.type.spec.content === ""
-            ) {
-              return commands.deleteRange({
-                from: prevBlockPos,
-                to: $currentBlockPos.pos,
-              });
+            if (prevBlockInfo && selectionAtBlockStart && selectionEmpty) {
+              const bottomBlock = getBottomNestedBlockInfo(
+                state.doc,
+                prevBlockInfo
+              );
+
+              if (!bottomBlock.isBlockContainer) {
+                // TODO
+                throw new Error(`todo`);
+              }
+
+              const prevBlockNotTableAndNoContent =
+                bottomBlock.blockContent.node.type.spec.content === "" ||
+                (bottomBlock.blockContent.node.type.spec.content ===
+                  "inline*" &&
+                  bottomBlock.blockContent.node.childCount === 0);
+
+              if (prevBlockNotTableAndNoContent) {
+                return chain()
+                  .cut(
+                    {
+                      from: blockInfo.bnBlock.beforePos,
+                      to: blockInfo.bnBlock.afterPos,
+                    },
+                    bottomBlock.bnBlock.afterPos
+                  )
+                  .deleteRange({
+                    from: bottomBlock.bnBlock.beforePos,
+                    to: bottomBlock.bnBlock.afterPos,
+                  })
+                  .run();
+              }
             }
 
             return false;

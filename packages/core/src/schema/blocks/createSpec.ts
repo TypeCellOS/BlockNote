@@ -161,10 +161,10 @@ export function createBlockSpec<
       // just render a placeholder div inside as the `blockContent` element
       // already has all the information needed for proper parsing.
       const div = document.createElement("div");
-      div.setAttribute("data-tmp-placeholder", "true");
       return wrapInBlockStructure(
         {
           dom: div,
+          contentDOM: blockConfig.content === "inline" ? div : undefined,
         },
         blockConfig.type,
         {},
@@ -231,6 +231,8 @@ export function createBlockSpec<
         blockContentDOMAttributes
       );
     },
+    // TODO: this should not have wrapInBlockStructure and generally be a lot simpler
+    // post-processing in externalHTMLExporter should not be necessary
     toExternalHTML: (block, editor) => {
       const blockContentDOMAttributes =
         node.options.domAttributes?.blockContent || {};
@@ -242,7 +244,6 @@ export function createBlockSpec<
       if (output === undefined) {
         output = blockImplementation.render(block as any, editor as any);
       }
-
       return wrapInBlockStructure(
         output,
         block.type,

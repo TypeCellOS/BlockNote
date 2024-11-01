@@ -8,12 +8,10 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
-import { esmDependencies } from "../../../util/esmDependencies.js";
 import {
-  serializeBlocks,
-  serializeInlineContent,
-} from "./util/sharedHTMLConversion.js";
-import { simplifyBlocks } from "./util/simplifyBlocksRehypePlugin.js";
+  serializeBlocksExternalHTML,
+  serializeInlineContentExternalHTML,
+} from "./util/serializeBlocksExternalHTML.js";
 
 // Used to export BlockNote blocks and ProseMirror nodes to HTML for use outside
 // the editor. Blocks are exported using the `toExternalHTML` method in their
@@ -39,14 +37,6 @@ export const createExternalHTMLExporter = <
   schema: Schema,
   editor: BlockNoteEditor<BSchema, I, S>
 ) => {
-  const deps = esmDependencies;
-
-  if (!deps) {
-    throw new Error(
-      "External HTML exporter requires ESM dependencies to be initialized"
-    );
-  }
-
   const serializer = DOMSerializer.fromSchema(schema);
 
   return {
@@ -54,49 +44,27 @@ export const createExternalHTMLExporter = <
       blocks: PartialBlock<BSchema, I, S>[],
       options: { document?: Document }
     ) => {
-      const html = serializeBlocks(
+      const html = serializeBlocksExternalHTML(
         editor,
         blocks,
         serializer,
-        true,
+        new Set<string>(["numberedListItem"]),
+        new Set<string>(["bulletListItem", "checkListItem"]),
         options
-      ).outerHTML;
-
-      // Possible improvement: now, we first use the serializeBlocks function
-      // which adds blockcontainer and blockgroup wrappers. We then pass the
-      // result to simplifyBlocks, which then cleans the wrappers.
-      //
-      // It might be easier if we create a version of serializeBlocks that
-      // doesn't add the wrappers in the first place, then we can get rid of
-      // the more complex simplifyBlocks plugin.
-      let externalHTML: any = deps.unified
-        .unified()
-        .use(deps.rehypeParse.default, { fragment: true });
-      if ((options as any).simplifyBlocks !== false) {
-        externalHTML = externalHTML.use(simplifyBlocks, {
-          orderedListItemBlockTypes: new Set<string>(["numberedListItem"]),
-          unorderedListItemBlockTypes: new Set<string>([
-            "bulletListItem",
-            "checkListItem",
-          ]),
-        });
-      }
-      externalHTML = externalHTML
-        .use(deps.rehypeStringify.default)
-        .processSync(html);
-
-      return externalHTML.value as string;
+      );
+      const div = document.createElement("div");
+      div.append(html);
+      return div.innerHTML;
     },
 
     exportInlineContent: (
       inlineContent: InlineContent<I, S>[],
-      options: { simplifyBlocks: boolean; document?: Document }
+      options: { document?: Document }
     ) => {
-      const domFragment = serializeInlineContent(
+      const domFragment = serializeInlineContentExternalHTML(
         editor,
         inlineContent as any,
         serializer,
-        true,
         options
       );
 

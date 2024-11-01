@@ -53,7 +53,7 @@ export type BlockInfo = {
  * is returned. If the position is beyond the last blockContainer, the position
  * just before the last blockContainer is returned.
  * @param doc The ProseMirror doc.
- * @param pos An integer position.
+ * @param pos An integer position in the document.
  * @returns The position just before the nearest blockContainer node.
  */
 export function getNearestBlockContainerPos(doc: Node, pos: number) {
@@ -111,6 +111,17 @@ export function getNearestBlockContainerPos(doc: Node, pos: number) {
   };
 }
 
+/**
+ * Gets information regarding the ProseMirror nodes that make up a block in a
+ * BlockNote document. This includes the main `blockContainer` node, the
+ * `blockContent` node with the block's main body, and the optional `blockGroup`
+ * node which contains the block's children. As well as the nodes, also returns
+ * the ProseMirror positions just before & after each node.
+ * @param node The main `blockContainer` node that the block information should
+ * be retrieved from,
+ * @param blockContainerBeforePosOffset the position just before the
+ * `blockContainer` node in the document.
+ */
 export function getBlockInfoWithManualOffset(
   node: Node,
   bnBlockBeforePosOffset: number
@@ -189,20 +200,42 @@ export function getBlockInfoWithManualOffset(
   }
 }
 
+/**
+ * Gets information regarding the ProseMirror nodes that make up a block in a
+ * BlockNote document. This includes the main `blockContainer` node, the
+ * `blockContent` node with the block's main body, and the optional `blockGroup`
+ * node which contains the block's children. As well as the nodes, also returns
+ * the ProseMirror positions just before & after each node.
+ * @param posInfo An object with the main `blockContainer` node that the block
+ * information should be retrieved from, and the position just before it in the
+ * document.
+ */
 export function getBlockInfo(posInfo: { posBeforeNode: number; node: Node }) {
   return getBlockInfoWithManualOffset(posInfo.node, posInfo.posBeforeNode);
 }
 
+/**
+ * Gets information regarding the ProseMirror nodes that make up a block from a
+ * resolved position just before the `blockContainer` node in the document that
+ * corresponds to it.
+ * @param resolvedPos The resolved position just before the `blockContainer`
+ * node.
+ */
 export function getBlockInfoFromResolvedPos(resolvedPos: ResolvedPos) {
   if (!resolvedPos.nodeAfter) {
     throw new Error(
       `Attempted to get blockContainer node at position ${resolvedPos.pos} but a node at this position does not exist`
     );
   }
-
   return getBlockInfoWithManualOffset(resolvedPos.nodeAfter, resolvedPos.pos);
 }
 
+/**
+ * Gets information regarding the ProseMirror nodes that make up a block. The
+ * block chosen is the one currently containing the current ProseMirror
+ * selection.
+ * @param state The ProseMirror editor state.
+ */
 export function getBlockInfoFromSelection(state: EditorState) {
   const posInfo = getNearestBlockContainerPos(
     state.doc,

@@ -662,6 +662,75 @@ exports[`Test BlockNote-Prosemirror conversion > Case: custom style schema > Con
 }
 `;
 
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert codeBlock/defaultLanguage to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "language": "javascript",
+      },
+      "content": [
+        {
+          "text": "console.log('Hello, world!');",
+          "type": "text",
+        },
+      ],
+      "type": "codeBlock",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert codeBlock/empty to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "language": "javascript",
+      },
+      "type": "codeBlock",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert codeBlock/python to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "language": "python",
+      },
+      "content": [
+        {
+          "text": "print('Hello, world!')",
+          "type": "text",
+        },
+      ],
+      "type": "codeBlock",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
 exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert complex/misc to/from prosemirror 1`] = `
 {
   "attrs": {
@@ -1747,6 +1816,648 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
         },
       ],
       "type": "paragraph",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert table/allColWidths to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": [
+                  100,
+                ],
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": [
+                  200,
+                ],
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": [
+                  300,
+                ],
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+          ],
+          "type": "tableRow",
+        },
+        {
+          "content": [
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": [
+                  100,
+                ],
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": [
+                  200,
+                ],
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": [
+                  300,
+                ],
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+          ],
+          "type": "tableRow",
+        },
+        {
+          "content": [
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": [
+                  100,
+                ],
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": [
+                  200,
+                ],
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": [
+                  300,
+                ],
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+          ],
+          "type": "tableRow",
+        },
+      ],
+      "type": "table",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert table/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": null,
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": null,
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": null,
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+          ],
+          "type": "tableRow",
+        },
+        {
+          "content": [
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": null,
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": null,
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": null,
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+          ],
+          "type": "tableRow",
+        },
+        {
+          "content": [
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": null,
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": null,
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": null,
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+          ],
+          "type": "tableRow",
+        },
+      ],
+      "type": "table",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert table/mixedColWidths to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "content": [
+        {
+          "content": [
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": [
+                  100,
+                ],
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": null,
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": [
+                  300,
+                ],
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+          ],
+          "type": "tableRow",
+        },
+        {
+          "content": [
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": [
+                  100,
+                ],
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": null,
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": [
+                  300,
+                ],
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+          ],
+          "type": "tableRow",
+        },
+        {
+          "content": [
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": [
+                  100,
+                ],
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": null,
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+            {
+              "attrs": {
+                "colspan": 1,
+                "colwidth": [
+                  300,
+                ],
+                "rowspan": 1,
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+          ],
+          "type": "tableRow",
+        },
+      ],
+      "type": "table",
     },
   ],
   "type": "blockContainer",

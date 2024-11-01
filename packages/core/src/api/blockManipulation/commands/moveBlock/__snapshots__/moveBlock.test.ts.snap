@@ -258,6 +258,11 @@ exports[`Test moveBlockDown > Basic 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -354,6 +359,34 @@ exports[`Test moveBlockDown > Basic 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -701,6 +734,11 @@ exports[`Test moveBlockDown > Into children 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -797,6 +835,34 @@ exports[`Test moveBlockDown > Into children 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -1144,6 +1210,11 @@ exports[`Test moveBlockDown > Last block 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -1240,6 +1311,34 @@ exports[`Test moveBlockDown > Last block 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -1587,6 +1686,11 @@ exports[`Test moveBlockDown > Out of children 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -1683,6 +1787,34 @@ exports[`Test moveBlockDown > Out of children 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -2029,6 +2161,11 @@ exports[`Test moveBlockUp > Basic 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -2125,6 +2262,34 @@ exports[`Test moveBlockUp > Basic 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -2472,6 +2637,11 @@ exports[`Test moveBlockUp > First block 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -2568,6 +2738,34 @@ exports[`Test moveBlockUp > First block 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -2915,6 +3113,11 @@ exports[`Test moveBlockUp > Into children 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -3011,6 +3214,34 @@ exports[`Test moveBlockUp > Into children 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -3358,6 +3589,11 @@ exports[`Test moveBlockUp > Out of children 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -3454,6 +3690,34 @@ exports[`Test moveBlockUp > Out of children 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",

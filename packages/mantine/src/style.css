@@ -396,7 +396,7 @@
 }
 
 .bn-mantine .bn-grid-suggestion-menu-empty-item,
-.bn-mantine .bn-grid-suggestion-menu-loader{
+.bn-mantine .bn-grid-suggestion-menu-loader {
   align-items: center;
   color: var(--bn-colors-menu-text);
   display: flex;
@@ -488,7 +488,8 @@
 }
 
 /* Table Handle styling */
-.bn-mantine .bn-table-handle {
+.bn-mantine .bn-table-handle,
+.bn-mantine .bn-extend-button {
   align-items: center;
   background-color: var(--bn-colors-menu-background);
   border: var(--bn-border);
@@ -508,8 +509,24 @@
 }
 
 .bn-mantine .bn-table-handle:hover,
-.bn-mantine .bn-table-handle-dragging {
+.bn-mantine .bn-table-handle-dragging,
+.bn-mantine .bn-extend-button:hover,
+.bn-mantine .bn-extend-button-editing {
   background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-mantine .bn-extend-button-add-remove-columns {
+  height: 100%;
+  width: 18px;
+  margin-left: 4px;
+  cursor: col-resize;
+}
+
+.bn-mantine .bn-extend-button-add-remove-rows {
+  height: 18px;
+  width: 100%;
+  margin-top: 4px;
+  cursor: row-resize;
 }
 
 /* Drag Handle & Table Handle Menu styling */

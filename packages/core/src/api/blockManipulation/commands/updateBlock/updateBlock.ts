@@ -14,7 +14,6 @@ import {
   BlockInfo,
   getBlockInfoFromResolvedPos,
 } from "../../../getBlockInfoFromPos.js";
-
 import {
   blockToNode,
   inlineContentToNodes,
@@ -74,7 +73,7 @@ export const updateBlockCommand =
         // No op, we just update the bnBlock below (at end of function) and have already updated the children
       } else {
         // switching between blockContainer and non-blockContainer or v.v.
-        throw new Error("Not implemented");
+        throw new Error("Not implemented"); // TODO
       }
 
       // Adds all provided props as attributes to the parent blockContainer node too, and also preserves existing

@@ -2,8 +2,11 @@
   "name": "@blocknote/server-util",
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
+  "sideEffects": [
+    "*.css"
+  ],
   "license": "MPL-2.0",
-  "version": "0.16.0",
+  "version": "0.18.1",
   "files": [
     "dist",
     "types",
@@ -47,13 +50,11 @@
     "test-watch": "vitest watch"
   },
   "dependencies": {
-    "@blocknote/core": "^0.16.0",
-    "@blocknote/react": "^0.16.0",
+    "@blocknote/core": "^0.18.0",
+    "@blocknote/react": "^0.18.1",
     "@tiptap/core": "^2.7.1",
     "@tiptap/pm": "^2.7.1",
     "jsdom": "^21.1.0",
-    "react": "^18",
-    "react-dom": "^18",
     "y-prosemirror": "1.2.12",
     "y-protocols": "^1.0.6",
     "yjs": "^13.6.15"
@@ -71,8 +72,8 @@
     "vitest": "^2.0.3"
   },
   "peerDependencies": {
-    "react": "^18",
-    "react-dom": "^18"
+    "react": "^18.0 || ^19.0 || >= 19.0.0-rc",
+    "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc"
   },
   "eslintConfig": {
     "extends": [

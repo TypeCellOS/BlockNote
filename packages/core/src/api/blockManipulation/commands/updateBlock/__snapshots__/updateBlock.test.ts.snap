@@ -258,6 +258,11 @@ exports[`Test updateBlock > Revert all props 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -354,6 +359,34 @@ exports[`Test updateBlock > Revert all props 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -701,6 +734,11 @@ exports[`Test updateBlock > Revert single prop 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -797,6 +835,34 @@ exports[`Test updateBlock > Revert single prop 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -1144,6 +1210,11 @@ exports[`Test updateBlock > Update all props 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -1240,6 +1311,34 @@ exports[`Test updateBlock > Update all props 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -1587,6 +1686,11 @@ exports[`Test updateBlock > Update children 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -1691,6 +1795,34 @@ exports[`Test updateBlock > Update children 1`] = `
     "type": "paragraph",
   },
   {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
     "children": [
       {
         "children": [
@@ -1777,6 +1909,7 @@ exports[`Test updateBlock > Update inline content to empty table content 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [],
       "rows": [],
       "type": "tableContent",
     },
@@ -2026,6 +2159,11 @@ exports[`Test updateBlock > Update inline content to empty table content 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -2122,6 +2260,34 @@ exports[`Test updateBlock > Update inline content to empty table content 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -2467,6 +2633,11 @@ exports[`Test updateBlock > Update inline content to no content 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -2571,6 +2742,34 @@ exports[`Test updateBlock > Update inline content to no content 1`] = `
     "type": "paragraph",
   },
   {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
     "children": [
       {
         "children": [
@@ -2657,6 +2856,11 @@ exports[`Test updateBlock > Update inline content to table content 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -2982,6 +3186,11 @@ exports[`Test updateBlock > Update inline content to table content 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -3078,6 +3287,34 @@ exports[`Test updateBlock > Update inline content to table content 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -3421,6 +3658,11 @@ exports[`Test updateBlock > Update no content to empty inline content 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -3517,6 +3759,34 @@ exports[`Test updateBlock > Update no content to empty inline content 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -3832,6 +4102,7 @@ exports[`Test updateBlock > Update no content to empty table content 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [],
       "rows": [],
       "type": "tableContent",
     },
@@ -3862,6 +4133,11 @@ exports[`Test updateBlock > Update no content to empty table content 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -3958,6 +4234,34 @@ exports[`Test updateBlock > Update no content to empty table content 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -4307,6 +4611,11 @@ exports[`Test updateBlock > Update no content to inline content 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -4403,6 +4712,34 @@ exports[`Test updateBlock > Update no content to inline content 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -4718,6 +5055,11 @@ exports[`Test updateBlock > Update no content to table content 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -4824,6 +5166,11 @@ exports[`Test updateBlock > Update no content to table content 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -4920,6 +5267,34 @@ exports[`Test updateBlock > Update no content to table content 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -5267,6 +5642,11 @@ exports[`Test updateBlock > Update single prop 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -5363,6 +5743,34 @@ exports[`Test updateBlock > Update single prop 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -5728,6 +6136,34 @@ exports[`Test updateBlock > Update table content to empty inline content 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -6107,6 +6543,34 @@ exports[`Test updateBlock > Update table content to inline content 1`] = `
     "type": "paragraph",
   },
   {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
     "children": [
       {
         "children": [
@@ -6476,6 +6940,34 @@ exports[`Test updateBlock > Update table content to no content 1`] = `
     "type": "paragraph",
   },
   {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
     "children": [
       {
         "children": [
@@ -6815,6 +7307,11 @@ exports[`Test updateBlock > Update type 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -6911,6 +7408,34 @@ exports[`Test updateBlock > Update type 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -7257,6 +7782,11 @@ exports[`Test updateBlock > Update with plain content 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -7353,6 +7883,34 @@ exports[`Test updateBlock > Update with plain content 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -7686,6 +8244,11 @@ exports[`Test updateBlock > Update with styled content 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -7782,6 +8345,34 @@ exports[`Test updateBlock > Update with styled content 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",

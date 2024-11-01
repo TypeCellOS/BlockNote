@@ -298,31 +298,3 @@ describe("Test updateBlock", () => {
     expect(getEditor().document).toMatchSnapshot();
   });
 });
-
-// TODO: This seems like it really tests converting strings to inline content?
-// describe("Update Line Breaks", () => {
-//   it("Update paragraph with line break", () => {
-//     const existingBlock = editor.document[0];
-//     editor.insertBlocks(blocksWithLineBreaks, existingBlock);
-//
-//     const newBlock = editor.document[0];
-//     editor.updateBlock(newBlock, {
-//       type: "paragraph",
-//       content: "Updated Custom Block with \nline \nbreak",
-//     });
-//
-//     expect(editor.document).toMatchSnapshot();
-//   });
-//   it("Update custom block with line break", () => {
-//     const existingBlock = editor.document[0];
-//     editor.insertBlocks(blocksWithLineBreaks, existingBlock);
-//
-//     const newBlock = editor.document[1];
-//     editor.updateBlock(newBlock, {
-//       type: "customBlock",
-//       content: "Updated Custom Block with \nline \nbreak",
-//     });
-//
-//     expect(editor.document).toMatchSnapshot();
-//   });
-// });

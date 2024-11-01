@@ -171,6 +171,11 @@ exports[`Test replaceBlocks > Remove multiple consecutive blocks 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -267,6 +272,34 @@ exports[`Test replaceBlocks > Remove multiple consecutive blocks 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -614,6 +647,34 @@ exports[`Test replaceBlocks > Remove multiple non-consecutive blocks 1`] = `
   {
     "children": [],
     "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
     "id": "trailing-paragraph",
     "props": {
       "backgroundColor": "default",
@@ -866,6 +927,11 @@ exports[`Test replaceBlocks > Remove single block 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -962,6 +1028,34 @@ exports[`Test replaceBlocks > Remove single block 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -1273,6 +1367,11 @@ exports[`Test replaceBlocks > Replace multiple consecutive blocks with multiple 
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -1369,6 +1468,34 @@ exports[`Test replaceBlocks > Replace multiple consecutive blocks with multiple 
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -1640,6 +1767,11 @@ exports[`Test replaceBlocks > Replace multiple consecutive blocks with single ba
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -1736,6 +1868,34 @@ exports[`Test replaceBlocks > Replace multiple consecutive blocks with single ba
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -2064,6 +2224,11 @@ exports[`Test replaceBlocks > Replace multiple consecutive blocks with single co
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -2160,6 +2325,34 @@ exports[`Test replaceBlocks > Replace multiple consecutive blocks with single co
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -2558,6 +2751,34 @@ exports[`Test replaceBlocks > Replace multiple non-consecutive blocks with multi
   {
     "children": [],
     "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
     "id": "trailing-paragraph",
     "props": {
       "backgroundColor": "default",
@@ -2828,6 +3049,34 @@ exports[`Test replaceBlocks > Replace multiple non-consecutive blocks with singl
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -3175,6 +3424,34 @@ exports[`Test replaceBlocks > Replace multiple non-consecutive blocks with singl
   {
     "children": [],
     "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
     "id": "trailing-paragraph",
     "props": {
       "backgroundColor": "default",
@@ -3478,6 +3755,11 @@ exports[`Test replaceBlocks > Replace single block with multiple 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -3574,6 +3856,34 @@ exports[`Test replaceBlocks > Replace single block with multiple 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -3915,6 +4225,11 @@ exports[`Test replaceBlocks > Replace single block with single basic 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -4011,6 +4326,34 @@ exports[`Test replaceBlocks > Replace single block with single basic 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -4409,6 +4752,11 @@ exports[`Test replaceBlocks > Replace single block with single complex 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -4505,6 +4853,34 @@ exports[`Test replaceBlocks > Replace single block with single complex 1`] = `
       },
     ],
     "id": "paragraph-7",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "empty-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 8",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",

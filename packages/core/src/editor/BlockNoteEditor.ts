@@ -18,7 +18,6 @@ import {
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
 import { getBlockInfoFromSelection } from "../api/getBlockInfoFromPos.js";
-
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
 import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown.js";
 import {
@@ -71,12 +70,10 @@ import { Plugin, Transaction } from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
-
 import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
 import { NodeSelectionKeyboardPlugin } from "../extensions/NodeSelectionKeyboard/NodeSelectionKeyboardPlugin.js";
 import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin.js";
 import "../style.css";
-import { initializeESMDependencies } from "../util/esmDependencies.js";
 
 export type BlockNoteEditorOptions<
   BSchema extends BlockSchema,
@@ -1035,7 +1032,6 @@ export class BlockNoteEditor<
   public async blocksToHTMLLossy(
     blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.document
   ): Promise<string> {
-    await initializeESMDependencies();
     const exporter = createExternalHTMLExporter(this.pmSchema, this);
     return exporter.exportBlocks(blocks, {});
   }

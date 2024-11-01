@@ -3,6 +3,7 @@ export * from "./de.js";
 export * from "./en.js";
 export * from "./es.js";
 export * from "./fr.js";
+export * from "./hr.js";
 export * from "./is.js";
 export * from "./ja.js";
 export * from "./ko.js";
