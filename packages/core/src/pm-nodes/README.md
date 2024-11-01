@@ -63,6 +63,9 @@ These are only used for "regular" blocks that are represented as `blockContainer
 
 ## Multi-column
 
+The `multi-column` package makes it possible to order blocks side by side in
+columns. It adds the `columnList` and `column` nodes to the schema.
+
 ### ColumnList
 
 ```typescript

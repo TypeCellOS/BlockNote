@@ -7,6 +7,12 @@ import {
   moveBlockDown,
   moveBlockUp,
 } from "../api/blockManipulation/commands/moveBlock/moveBlock.js";
+import {
+  canNestBlock,
+  canUnnestBlock,
+  nestBlock,
+  unnestBlock,
+} from "../api/blockManipulation/commands/nestBlock/nestBlock.js";
 import { removeBlocks } from "../api/blockManipulation/commands/removeBlocks/removeBlocks.js";
 import { replaceBlocks } from "../api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
 import { updateBlock } from "../api/blockManipulation/commands/updateBlock/updateBlock.js";
@@ -17,7 +23,6 @@ import {
 } from "../api/blockManipulation/selections/textCursorPosition/textCursorPosition.js";
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
-import { getBlockInfoFromSelection } from "../api/getBlockInfoFromPos.js";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
 import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown.js";
 import {
@@ -967,41 +972,28 @@ export class BlockNoteEditor<
    * Checks if the block containing the text cursor can be nested.
    */
   public canNestBlock() {
-    const { bnBlock: blockContainer } = getBlockInfoFromSelection(
-      this._tiptapEditor.state
-    );
-
-    return (
-      this._tiptapEditor.state.doc.resolve(blockContainer.beforePos)
-        .nodeBefore !== null
-    );
+    return canNestBlock(this);
   }
 
   /**
    * Nests the block containing the text cursor into the block above it.
    */
   public nestBlock() {
-    this._tiptapEditor.commands.sinkListItem("blockContainer");
+    nestBlock(this);
   }
 
   /**
    * Checks if the block containing the text cursor is nested.
    */
   public canUnnestBlock() {
-    const { bnBlock: blockContainer } = getBlockInfoFromSelection(
-      this._tiptapEditor.state
-    );
-
-    return (
-      this._tiptapEditor.state.doc.resolve(blockContainer.beforePos).depth > 1
-    );
+    return canUnnestBlock(this);
   }
 
   /**
    * Lifts the block containing the text cursor out of its parent.
    */
   public unnestBlock() {
-    this._tiptapEditor.commands.liftListItem("blockContainer");
+    unnestBlock(this);
   }
 
   /**
