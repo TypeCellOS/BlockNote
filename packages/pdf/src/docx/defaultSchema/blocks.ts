@@ -161,7 +161,10 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
         children: [
           new ImageRun({
             data: await blob.arrayBuffer(),
-            type: "gif", // TODO
+            // it would be nicer to set the actual data type here, but then we'd need to use a mime type / image type
+            // detector. atm passing gif does not seem to be causing issues as the "type" is mainly used by docxjs internally
+            // (i.e.: to make sure it's not svg)
+            type: "gif",
             altText: block.props.caption
               ? {
                   description: block.props.caption,
@@ -183,7 +186,7 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
             text: block.props.caption,
           }),
         ],
-        style: "Caption", // TODO: add style?
+        style: "Caption",
       }),
     ];
   },

@@ -155,7 +155,7 @@
             </w:r>
             <w:proofErr w:type="spellEnd" />
         </w:p>
-        <w:p w14:paraId="0C617DBD" w14:textId="07F92126" w:rsidR="005B06B8" w:rsidRPr="005B06B8"
+        <w:p w14:paraId="0C617DBD" w14:textId="1E9AEF48" w:rsidR="005B06B8" w:rsidRPr="005B06B8"
             w:rsidRDefault="005B06B8" w:rsidP="005B06B8">
             <w:pPr>
                 <w:rPr>
@@ -166,8 +166,17 @@
                 <w:rPr>
                     <w:lang w:val="nl-NL" />
                 </w:rPr>
-                <w:t>New block</w:t>
+                <w:t xml:space="preserve">New </w:t>
             </w:r>
+            <w:hyperlink r:id="rId4" w:history="1">
+                <w:r w:rsidRPr="00F64863">
+                    <w:rPr>
+                        <w:rStyle w:val="Hyperlink" />
+                        <w:lang w:val="nl-NL" />
+                    </w:rPr>
+                    <w:t>block</w:t>
+                </w:r>
+            </w:hyperlink>
         </w:p>
         <w:p w14:paraId="04113760" w14:textId="13217F8C" w:rsidR="005B06B8" w:rsidRPr="005B06B8"
             w:rsidRDefault="005B06B8" w:rsidP="00996C0B">
@@ -182,29 +191,120 @@
             <w:pPr>
                 <w:pStyle w:val="Heading1" />
             </w:pPr>
-            <w:proofErr w:type="spellStart" />
             <w:r>
                 <w:t>Title</w:t>
             </w:r>
-            <w:proofErr w:type="spellEnd" />
         </w:p>
-        <w:p w14:paraId="0CA94C06" w14:textId="24B72B33" w:rsidR="00996C0B" w:rsidRPr="00996C0B"
-            w:rsidRDefault="00996C0B" w:rsidP="00996C0B">
+        <w:p w14:paraId="0CA94C06" w14:textId="606BBD69" w:rsidR="00996C0B"
+            w:rsidRDefault="00F64863" w:rsidP="00996C0B">
             <w:pPr>
                 <w:rPr>
                     <w:lang w:val="nl-NL" />
                 </w:rPr>
             </w:pPr>
             <w:proofErr w:type="spellStart" />
-            <w:proofErr w:type="gramStart" />
             <w:r>
                 <w:rPr>
                     <w:lang w:val="nl-NL" />
                 </w:rPr>
-                <w:t>sdfsdfdsfdf</w:t>
+                <w:t>S</w:t>
+            </w:r>
+            <w:r w:rsidR="00996C0B">
+                <w:rPr>
+                    <w:lang w:val="nl-NL" />
+                </w:rPr>
+                <w:t>dfsdfdsfdf</w:t>
             </w:r>
             <w:proofErr w:type="spellEnd" />
-            <w:proofErr w:type="gramEnd" />
+        </w:p>
+        <w:p w14:paraId="76F399E4" w14:textId="77777777" w:rsidR="00F64863"
+            w:rsidRDefault="00F64863" w:rsidP="00996C0B">
+            <w:pPr>
+                <w:rPr>
+                    <w:lang w:val="nl-NL" />
+                </w:rPr>
+            </w:pPr>
+        </w:p>
+        <w:p w14:paraId="3E48D37E" w14:textId="77777777" w:rsidR="00F64863"
+            w:rsidRDefault="00F64863" w:rsidP="00F64863">
+            <w:pPr>
+                <w:keepNext />
+            </w:pPr>
+            <w:r>
+                <w:rPr>
+                    <w:noProof />
+                    <w:lang w:val="nl-NL" />
+                </w:rPr>
+                <w:drawing>
+                    <wp:inline distT="0" distB="0" distL="0" distR="0" wp14:anchorId="0B534BD3"
+                        wp14:editId="52434271">
+                        <wp:extent cx="1917981" cy="2637064" />
+                        <wp:effectExtent l="0" t="0" r="0" b="5080" />
+                        <wp:docPr id="1998791571" name="Picture 1" descr="Cow in pasture" />
+                        <wp:cNvGraphicFramePr>
+                            <a:graphicFrameLocks
+                                xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+                                noChangeAspect="1" />
+                        </wp:cNvGraphicFramePr>
+                        <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+                            <a:graphicData
+                                uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                                <pic:pic
+                                    xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                                    <pic:nvPicPr>
+                                        <pic:cNvPr id="1998791571" name="Picture 1998791571"
+                                            descr="Cow in pasture" />
+                                        <pic:cNvPicPr />
+                                    </pic:nvPicPr>
+                                    <pic:blipFill>
+                                        <a:blip r:embed="rId5" cstate="print">
+                                            <a:extLst>
+                                                <a:ext uri="{28A0092B-C50C-407E-A947-70E740481C1C}">
+                                                    <a14:useLocalDpi
+                                                        xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main"
+                                                        val="0" />
+                                                </a:ext>
+                                            </a:extLst>
+                                        </a:blip>
+                                        <a:stretch>
+                                            <a:fillRect />
+                                        </a:stretch>
+                                    </pic:blipFill>
+                                    <pic:spPr>
+                                        <a:xfrm>
+                                            <a:off x="0" y="0" />
+                                            <a:ext cx="1938860" cy="2665771" />
+                                        </a:xfrm>
+                                        <a:prstGeom prst="rect">
+                                            <a:avLst />
+                                        </a:prstGeom>
+                                    </pic:spPr>
+                                </pic:pic>
+                            </a:graphicData>
+                        </a:graphic>
+                    </wp:inline>
+                </w:drawing>
+            </w:r>
+        </w:p>
+        <w:p w14:paraId="75B910DF" w14:textId="7940F280" w:rsidR="00F64863" w:rsidRPr="00996C0B"
+            w:rsidRDefault="00F64863" w:rsidP="00F64863">
+            <w:pPr>
+                <w:pStyle w:val="Caption" />
+                <w:rPr>
+                    <w:lang w:val="nl-NL" />
+                </w:rPr>
+            </w:pPr>
+            <w:r>
+                <w:t xml:space="preserve">Caption </w:t>
+            </w:r>
+            <w:fldSimple w:instr=" SEQ Figuur \* ARABIC ">
+                <w:r>
+                    <w:rPr>
+                        <w:noProof />
+                    </w:rPr>
+                    <w:t>1</w:t>
+                </w:r>
+            </w:fldSimple>
         </w:p>
         <w:p w14:paraId="2148A42C" w14:textId="59EB18E2" w:rsidR="005B06B8" w:rsidRPr="005B06B8"
             w:rsidRDefault="005B06B8" w:rsidP="005B06B8">

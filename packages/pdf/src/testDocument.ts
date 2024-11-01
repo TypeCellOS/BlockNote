@@ -18,7 +18,7 @@ export const testDocument = partialBlocksToBlocksForTesting(
         },
         {
           type: "text",
-          text: "demo!",
+          text: "demo 🙌!",
           styles: {
             italic: true,
             bold: true,

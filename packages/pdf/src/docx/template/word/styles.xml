@@ -19,6 +19,7 @@
                 <w:kern w:val="2" />
                 <w:sz w:val="24" />
                 <w:szCs w:val="24" />
+                <w:lang w:val="en-NL" w:eastAsia="en-GB" w:bidi="ar-SA" />
                 <w14:ligatures w14:val="standardContextual" />
             </w:rPr>
         </w:rPrDefault>
@@ -437,10 +438,13 @@
         <w:link w:val="Heading1Char" />
         <w:uiPriority w:val="9" />
         <w:rsid w:val="00D078F7" />
+        <w:pPr>
+            <w:outlineLvl w:val="0" />
+        </w:pPr>
         <w:rPr>
+            <w:b />
             <w:sz w:val="48" />
             <w:szCs w:val="48" />
-            <w:b />
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:styleId="Heading2">
@@ -452,10 +456,13 @@
         <w:semiHidden />
         <w:unhideWhenUsed />
         <w:rsid w:val="005B06B8" />
+        <w:pPr>
+            <w:outlineLvl w:val="1" />
+        </w:pPr>
         <w:rPr>
+            <w:b />
             <w:sz w:val="36" />
             <w:szCs w:val="36" />
-            <w:b />
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:styleId="Heading3">
@@ -468,10 +475,13 @@
         <w:unhideWhenUsed />
         <w:qFormat />
         <w:rsid w:val="005B06B8" />
+        <w:pPr>
+            <w:outlineLvl w:val="2" />
+        </w:pPr>
         <w:rPr>
+            <w:b />
             <w:sz w:val="28" />
             <w:szCs w:val="28" />
-            <w:b />
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:styleId="Heading4">
@@ -925,6 +935,48 @@
             <w:smallCaps />
             <w:color w:val="0F4761" w:themeColor="accent1" w:themeShade="BF" />
             <w:spacing w:val="5" />
+        </w:rPr>
+    </w:style>
+    <w:style w:type="character" w:styleId="Hyperlink">
+        <w:name w:val="Hyperlink" />
+        <w:basedOn w:val="DefaultParagraphFont" />
+        <w:uiPriority w:val="99" />
+        <w:unhideWhenUsed />
+        <w:rsid w:val="00F64863" />
+        <w:rPr>
+            <w:color w:val="0000EF" />
+            <w:u w:val="single" />
+        </w:rPr>
+    </w:style>
+    <w:style w:type="character" w:styleId="UnresolvedMention">
+        <w:name w:val="Unresolved Mention" />
+        <w:basedOn w:val="DefaultParagraphFont" />
+        <w:uiPriority w:val="99" />
+        <w:semiHidden />
+        <w:unhideWhenUsed />
+        <w:rsid w:val="00F64863" />
+        <w:rPr>
+            <w:color w:val="605E5C" />
+            <w:shd w:val="clear" w:color="auto" w:fill="E1DFDD" />
+        </w:rPr>
+    </w:style>
+    <w:style w:type="paragraph" w:styleId="Caption">
+        <w:name w:val="caption" />
+        <w:basedOn w:val="Normal" />
+        <w:next w:val="Normal" />
+        <w:uiPriority w:val="35" />
+        <w:unhideWhenUsed />
+        <w:qFormat />
+        <w:rsid w:val="00F64863" />
+        <w:pPr>
+            <w:spacing w:before="0" w:after="200" w:line="240" w:lineRule="auto" />
+        </w:pPr>
+        <w:rPr>
+            <w:i />
+            <w:iCs />
+            <w:color w:val="0E2841" w:themeColor="text2" />
+            <w:sz w:val="18" />
+            <w:szCs w:val="18" />
         </w:rPr>
     </w:style>
 </w:styles>
