@@ -1,18 +1,6 @@
-import {
-  createStronglyTypedTiptapNode,
-  mergeCSSClasses,
-} from "@blocknote/core";
+import { createStronglyTypedTiptapNode } from "@blocknote/core";
 
 import { createColumnResizeExtension } from "../extensions/ColumnResize/ColumnResizeExtension.js";
-
-// TODO: necessary?
-const BlockAttributes: Record<string, string> = {
-  blockColor: "data-block-color",
-  blockStyle: "data-block-style",
-  id: "data-id",
-  depth: "data-depth",
-  depthChange: "data-depth-change",
-};
 
 export const Column = createStronglyTypedTiptapNode({
   name: "column",
@@ -61,7 +49,6 @@ export const Column = createStronglyTypedTiptapNode({
     };
   },
 
-  // TODO
   parseHTML() {
     return [
       {
@@ -71,15 +58,8 @@ export const Column = createStronglyTypedTiptapNode({
             return false;
           }
 
-          const attrs: Record<string, string> = {};
-          for (const [nodeAttr, HTMLAttr] of Object.entries(BlockAttributes)) {
-            if (element.getAttribute(HTMLAttr)) {
-              attrs[nodeAttr] = element.getAttribute(HTMLAttr)!;
-            }
-          }
-
           if (element.getAttribute("data-node-type") === this.name) {
-            return attrs;
+            return {};
           }
 
           return false;
@@ -89,20 +69,10 @@ export const Column = createStronglyTypedTiptapNode({
   },
 
   renderHTML({ HTMLAttributes }) {
-    const blockHTMLAttributes = {
-      // TODO: Should the block DOM attributes from the editor options be added
-      //  here?
-      ...(this.options.domAttributes?.block || {}),
-      ...HTMLAttributes,
-    };
-
     const column = document.createElement("div");
-    column.className = mergeCSSClasses(
-      "bn-block-column",
-      blockHTMLAttributes.class
-    );
+    column.className = "bn-block-column";
     column.setAttribute("data-node-type", this.name);
-    for (const [attribute, value] of Object.entries(blockHTMLAttributes)) {
+    for (const [attribute, value] of Object.entries(HTMLAttributes)) {
       if (attribute !== "class") {
         column.setAttribute(attribute, value as any); // TODO as any
       }
