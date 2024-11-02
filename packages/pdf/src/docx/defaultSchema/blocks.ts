@@ -7,6 +7,7 @@ import {
 import {
   CheckBox,
   Table as DocxTable,
+  ExternalHyperlink,
   IParagraphOptions,
   ImageRun,
   Paragraph,
@@ -113,42 +114,34 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
     });
   },
   audio: (block, exporter) => {
-    return new Paragraph({
-      ...blockPropsToStyles(block.props, exporter.options.colors),
-      children: [
-        new TextRun({
-          text: block.type + " not implemented",
-        }),
-      ],
-    });
+    return [
+      file(block.props, "Open audio", exporter),
+      ...caption(block.props, exporter),
+    ];
   },
   video: (block, exporter) => {
-    return new Paragraph({
-      ...blockPropsToStyles(block.props, exporter.options.colors),
-      children: [
-        new TextRun({
-          text: block.type + " not implemented",
-        }),
-      ],
-    });
+    return [
+      file(block.props, "Open video", exporter),
+      ...caption(block.props, exporter),
+    ];
   },
   file: (block, exporter) => {
-    return new Paragraph({
-      ...blockPropsToStyles(block.props, exporter.options.colors),
-      children: [
-        new TextRun({
-          text: block.type + " not implemented",
-        }),
-      ],
-    });
+    return [
+      file(block.props, "Open file", exporter),
+      ...caption(block.props, exporter),
+    ];
   },
-  codeBlock: (block, _exporter) => {
+  // TODO
+  codeBlock: (block, exporter) => {
     return new Paragraph({
-      children: [
-        new TextRun({
-          text: block.type + " not implemented",
-        }),
-      ],
+      // ...blockPropsToStyles(block.props, exporter.options.colors),
+      style: "Codeblock",
+      children: exporter.transformInlineContent(block.content),
+      // children: [
+      //   new TextRun({
+      //     text: block..type + " not implemented",
+      //   }),
+      // ],
     });
   },
   image: async (block, exporter) => {
@@ -179,18 +172,51 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
           }),
         ],
       }),
-      new Paragraph({
-        ...blockPropsToStyles(block.props, exporter.options.colors),
-        children: [
-          new TextRun({
-            text: block.props.caption,
-          }),
-        ],
-        style: "Caption",
-      }),
+      ...caption(block.props, exporter),
     ];
   },
   table: (block, exporter) => {
     return Table(block.content, exporter);
   },
 };
+
+function file(
+  props: Partial<DefaultProps & { name: string; url: string }>,
+  defaultText: string,
+  exporter: any
+) {
+  return new Paragraph({
+    ...blockPropsToStyles(props, exporter.options.colors),
+    children: [
+      new ExternalHyperlink({
+        children: [
+          new TextRun({
+            text: props.name || defaultText,
+            style: "Hyperlink",
+          }),
+        ],
+        link: props.url!,
+      }),
+    ],
+  });
+}
+
+function caption(
+  props: Partial<DefaultProps & { caption: string }>,
+  exporter: any
+) {
+  if (!props.caption) {
+    return [];
+  }
+  return [
+    new Paragraph({
+      ...blockPropsToStyles(props, exporter.options.colors),
+      children: [
+        new TextRun({
+          text: props.caption,
+        }),
+      ],
+      style: "Caption",
+    }),
+  ];
+}

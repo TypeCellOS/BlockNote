@@ -619,7 +619,6 @@
     <w:style w:type="character" w:default="1" w:styleId="DefaultParagraphFont">
         <w:name w:val="Default Paragraph Font" />
         <w:uiPriority w:val="1" />
-        <w:semiHidden />
         <w:unhideWhenUsed />
     </w:style>
     <w:style w:type="table" w:default="1" w:styleId="TableNormal">
@@ -977,6 +976,15 @@
             <w:color w:val="0E2841" w:themeColor="text2" />
             <w:sz w:val="18" />
             <w:szCs w:val="18" />
+        </w:rPr>
+    </w:style>
+    <w:style w:type="paragraph" w:styleId="Codeblock">
+        <w:name w:val="Codeblock" />
+        <w:basedOn w:val="Normal" />
+        <w:rPr>
+            <w:noProof />
+            <w:color w:val="e1e4e8" />
+            <w:shd w:fill="161616" />
         </w:rPr>
     </w:style>
 </w:styles>

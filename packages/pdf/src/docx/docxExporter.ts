@@ -183,7 +183,6 @@ export class DOCXExporter<
           },
         ],
       },
-
       fonts: await this.getFonts(),
       defaultTabStop: 200,
       externalStyles,
