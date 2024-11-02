@@ -4,24 +4,16 @@ import { Style } from "../types.js";
 // https://github.com/diegomura/react-pdf/issues/134
 
 const PIXELS_PER_POINT = 0.75;
+
 const styles = StyleSheet.create({
   listItem: {
     display: "flex",
     flexDirection: "row",
     gap: 8 * PIXELS_PER_POINT,
-    // width: "100%",
-    // textAlign: "right",
-    // alignSelf: "flex-end",
-    // alignItems: "flex-end",
-    // justifyContent: "flex-end",
-    // textAlign: "right",
   },
   bullet: {
     fontFamily: "", // TODO: add symbol font
   },
-  //   bullet: {
-  //     marginTop: FONT_SIZE,
-  //   },
 });
 
 export const BULLET_MARKER = "\u2022";

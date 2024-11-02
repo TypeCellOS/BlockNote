@@ -200,6 +200,13 @@ export const testDocument = partialBlocksToBlocksForTesting(
       type: "paragraph",
     },
     {
+      type: "audio",
+      props: {
+        caption: "Audio file caption",
+        name: "audio.mp3",
+      },
+    },
+    {
       type: "paragraph",
       content: [
         {

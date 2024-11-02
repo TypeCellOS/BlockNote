@@ -54,7 +54,7 @@ export const Table = (props: {
     any
   >;
 }) => (
-  <View style={styles.tableContainer}>
+  <View style={styles.tableContainer} wrap={false}>
     {props.data.rows.map((row, index) => (
       <View
         style={[
