@@ -1,8 +1,11 @@
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { DOCXExporter, docxDefaultSchemaMappings } from "@blocknote/pdf";
 import { useCreateBlockNote } from "@blocknote/react";
+import {
+  DOCXExporter,
+  docxDefaultSchemaMappings,
+} from "@blocknote/xl-docx-exporter";
 import "./styles.css";
 
 async function resolveFileUrl_DEV_ONLY(url: string) {

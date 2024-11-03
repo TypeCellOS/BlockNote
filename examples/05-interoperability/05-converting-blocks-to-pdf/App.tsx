@@ -1,8 +1,11 @@
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { PDFExporter, pdfDefaultSchemaMappings } from "@blocknote/pdf";
 import { useCreateBlockNote } from "@blocknote/react";
+import {
+  PDFExporter,
+  pdfDefaultSchemaMappings,
+} from "@blocknote/xl-pdf-exporter";
 import { PDFViewer } from "@react-pdf/renderer";
 import { useEffect, useState } from "react";
 import "./styles.css";

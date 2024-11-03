@@ -4,7 +4,7 @@
   "author": "yousefed",
   "tags": [""],
   "dependencies": {
-    "@blocknote/pdf": "latest",
+    "@blocknote/xl-docx-exporter": "latest",
     "docx": "^9.0.2"
   },
   "pro": true

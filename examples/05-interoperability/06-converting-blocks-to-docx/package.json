@@ -18,7 +18,7 @@
     "@blocknote/shadcn": "latest",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "@blocknote/pdf": "latest",
+    "@blocknote/xl-docx-exporter": "latest",
     "docx": "^9.0.2"
   },
   "devDependencies": {

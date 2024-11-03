@@ -797,7 +797,7 @@
             ""
           ],
           "dependencies": {
-            "@blocknote/pdf": "latest",
+            "@blocknote/xl-pdf-exporter": "latest",
             "@react-pdf/renderer": "^4.0.0"
           } as any,
           "pro": true
@@ -820,7 +820,7 @@
             ""
           ],
           "dependencies": {
-            "@blocknote/pdf": "latest",
+            "@blocknote/xl-docx-exporter": "latest",
             "docx": "^9.0.2"
           } as any,
           "pro": true
