@@ -8,7 +8,7 @@ export async function loadFileDataUrl(
   requireUrl: { default: string },
   mimeType: string
 ) {
-  if ((import.meta as any).env.NODE_ENV === "test") {
+  if (import.meta.env.NODE_ENV === "test") {
     const buffer = await loadFileBuffer(requireUrl);
     const fileBase64 = buffer.toString("base64");
 
@@ -27,11 +27,12 @@ export async function loadFontDataUrl(requireUrl: { default: string }) {
 export async function loadFileBuffer(requireUrl: {
   default: string;
 }): Promise<Buffer | ArrayBuffer> {
-  if ((import.meta as any).env.NODE_ENV === "test") {
+  if (import.meta.env.NODE_ENV === "test") {
     // in vitest, this is the url we need to load with readfilesync
     // eslint-disable-next-line
     const fs = require("fs");
     let url = requireUrl.default;
+
     if (url.startsWith("/@fs/")) {
       url = url.substring("/@fs".length);
     }
