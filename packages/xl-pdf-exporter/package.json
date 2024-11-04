@@ -57,9 +57,10 @@
     "@react-pdf/renderer": "^4.0.0"
   },
   "devDependencies": {
-    "@types/jsdom": "^21.1.6",
+    "@types/jsdom": "^21.1.7",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",
+    "@testing-library/react": "^16.0.1",
     "pdf-to-img": "^4.2.0",
     "@types/jest-image-snapshot": "^6.4.0",
     "jest-image-snapshot": "^6.4.0",

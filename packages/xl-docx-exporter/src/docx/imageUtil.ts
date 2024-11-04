@@ -9,7 +9,10 @@ export async function getImageDimensions(blob: Blob) {
   } else {
     // node or vitest
     const sharp = (await require("sharp")) as typeof Sharp;
-    const metadata = await sharp(await blob.arrayBuffer()).metadata();
+    const buffer = await blob.arrayBuffer();
+
+    // const buffer2 = Buffer.from(buffer); for jsdom, currently disabled
+    const metadata = await sharp(buffer).metadata();
     if (!metadata.width || !metadata.height) {
       throw new Error("Image has no width or height");
     }

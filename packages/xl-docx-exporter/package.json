@@ -55,7 +55,9 @@
     "docx": "^9.0.2"
   },
   "devDependencies": {
-    "@types/jsdom": "^21.1.6",
+    "@types/adm-zip": "^0.5.6",
+    "xml-formatter": "^3.6.3",
+    "adm-zip": "^0.5.16",
     "eslint": "^8.10.0",
     "prettier": "^2.7.1",
     "rollup-plugin-webpack-stats": "^0.2.2",

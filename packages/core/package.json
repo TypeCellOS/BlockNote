@@ -106,7 +106,7 @@
     "@types/hast": "^3.0.0",
     "@types/uuid": "^8.3.4",
     "eslint": "^8.10.0",
-    "jsdom": "^21.1.0",
+    "jsdom": "^25.0.1",
     "prettier": "^2.7.1",
     "rimraf": "^5.0.5",
     "rollup-plugin-webpack-stats": "^0.2.2",

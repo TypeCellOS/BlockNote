@@ -58,7 +58,7 @@
     "@react-email/render": "^1.0.1"
   },
   "devDependencies": {
-    "@types/jsdom": "^21.1.6",
+    "@types/jsdom": "^21.1.7",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",
     "eslint": "^8.10.0",
