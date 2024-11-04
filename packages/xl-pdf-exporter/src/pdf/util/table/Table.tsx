@@ -26,13 +26,8 @@ const styles = StyleSheet.create({
     // paddingBottom: 1 * PIXELS_PER_POINT, should be 3px but looks odd, better with no padding Bottom
     borderLeft: "1px solid #ddd",
     borderTop: "1px solid #ddd",
-    // @ts-ignore
-    justifyContent: "stretch",
-    // alignContent: "stretch",
     wordWrap: "break-word",
     whiteSpace: "pre-wrap",
-    // flex: 0.3,
-    flex: 1,
   },
   bottomCell: {
     borderBottom: "1px solid #ddd",
@@ -69,7 +64,7 @@ export const Table = (props: {
               index === row.cells.length - 1 ? styles.rightCell : {},
               props.data.columnWidths[index]
                 ? { width: props.data.columnWidths[index] }
-                : {},
+                : { flex: 1 },
             ]}
             key={index}>
             {props.transformer.transformInlineContent(cell)}

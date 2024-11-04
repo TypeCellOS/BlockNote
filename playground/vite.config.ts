@@ -50,6 +50,11 @@ export default defineConfig((conf) => ({
               __dirname,
               "../packages/shadcn/src/"
             ),
+            "@blocknote/xl-pdf-exporter": path.resolve(
+              __dirname,
+              "../packages/xl-pdf-exporter/src/"
+            ),
+            "@shared": path.resolve(__dirname, "../shared/"),
           },
   },
 }));

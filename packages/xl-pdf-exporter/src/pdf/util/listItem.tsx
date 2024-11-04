@@ -10,6 +10,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     gap: 8 * PIXELS_PER_POINT,
+    paddingRight: 10, // otherwise text overflows, seems like a react-pdf / yoga bug
   },
   bullet: {
     fontFamily: "", // TODO: add symbol font
