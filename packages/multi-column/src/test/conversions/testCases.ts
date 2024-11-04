@@ -38,9 +38,9 @@ export const multiColumnSchemaTestCases: EditorTestCases<
               children: [
                 {
                   type: "paragraph",
+                  content: "Column Paragraph 2",
                 },
                 {
-                  id: "column-paragraph-3",
                   type: "paragraph",
                   content: "Column Paragraph 3",
                 },

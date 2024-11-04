@@ -76,6 +76,12 @@ exports[`Test BlockNote-Prosemirror conversion > Case: multi-column-schema > Con
               "attrs": {
                 "textAlignment": "left",
               },
+              "content": [
+                {
+                  "text": "Column Paragraph 2",
+                  "type": "text",
+                },
+              ],
               "type": "paragraph",
             },
           ],
@@ -84,7 +90,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: multi-column-schema > Con
         {
           "attrs": {
             "backgroundColor": "default",
-            "id": "column-paragraph-3",
+            "id": "7",
             "textColor": "default",
           },
           "content": [
