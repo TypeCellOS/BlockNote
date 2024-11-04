@@ -152,7 +152,7 @@ describe("exporter", () => {
     new PDFExporter(schema, pdfDefaultSchemaMappings);
   });
 
-  it("should export a document", async (a) => {
+  it("should export a document", async () => {
     const exporter = new PDFExporter(
       BlockNoteSchema.create(),
       pdfDefaultSchemaMappings
