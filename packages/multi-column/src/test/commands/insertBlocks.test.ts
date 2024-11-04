@@ -1,40 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { setupTestEnv, testEditorSchema } from "./setupTestEnv.js";
-import {
-  BlockIdentifier,
-  BlockNoteEditor,
-  PartialBlock,
-} from "@blocknote/core";
+
+import { setupTestEnv } from "../setupTestEnv.js";
 
 const getEditor = setupTestEnv();
 
-function insertBlocks(
-  editor: BlockNoteEditor<
-    typeof testEditorSchema.blockSchema,
-    typeof testEditorSchema.inlineContentSchema,
-    typeof testEditorSchema.styleSchema
-  >,
-  blocksToInsert: PartialBlock<
-    typeof testEditorSchema.blockSchema,
-    typeof testEditorSchema.inlineContentSchema,
-    typeof testEditorSchema.styleSchema
-  >[],
-  referenceBlock: BlockIdentifier,
-  placement: "before" | "after" = "before"
-) {
-  return editor.insertBlocks(blocksToInsert, referenceBlock, placement);
-}
-
 describe("Test insertBlocks", () => {
   it("Insert empty column list", () => {
-    insertBlocks(getEditor(), [{ type: "columnList" }], "paragraph-0", "after");
+    getEditor().insertBlocks([{ type: "columnList" }], "paragraph-0", "after");
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Insert column list with empty column", () => {
-    insertBlocks(
-      getEditor(),
+    getEditor().insertBlocks(
       [
         {
           type: "columnList",
@@ -53,8 +31,7 @@ describe("Test insertBlocks", () => {
   });
 
   it("Insert column list with paragraph", () => {
-    insertBlocks(
-      getEditor(),
+    getEditor().insertBlocks(
       [
         {
           type: "columnList",
@@ -79,8 +56,7 @@ describe("Test insertBlocks", () => {
   });
 
   it("Insert empty column into column list", () => {
-    insertBlocks(
-      getEditor(),
+    getEditor().insertBlocks(
       [
         {
           type: "column",
@@ -94,8 +70,7 @@ describe("Test insertBlocks", () => {
   });
 
   it("Insert column with paragraph into column list", () => {
-    insertBlocks(
-      getEditor(),
+    getEditor().insertBlocks(
       [
         {
           type: "column",
@@ -115,8 +90,7 @@ describe("Test insertBlocks", () => {
   });
 
   it("Insert column list into paragraph", () => {
-    insertBlocks(
-      getEditor(),
+    getEditor().insertBlocks(
       [
         {
           type: "columnList",
@@ -141,8 +115,7 @@ describe("Test insertBlocks", () => {
   });
 
   it("Insert column into paragraph", () => {
-    insertBlocks(
-      getEditor(),
+    getEditor().insertBlocks(
       [
         {
           type: "column",
@@ -162,8 +135,7 @@ describe("Test insertBlocks", () => {
   });
 
   it("Insert paragraph into column list", () => {
-    insertBlocks(
-      getEditor(),
+    getEditor().insertBlocks(
       [
         {
           type: "paragraph",
@@ -178,8 +150,7 @@ describe("Test insertBlocks", () => {
   });
 
   it("Insert paragraph into column", () => {
-    insertBlocks(
-      getEditor(),
+    getEditor().insertBlocks(
       [
         {
           type: "paragraph",

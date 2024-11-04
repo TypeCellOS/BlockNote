@@ -6,7 +6,6 @@ import {
 import { afterAll, beforeAll, beforeEach } from "vitest";
 
 import { withMultiColumn } from "../blocks/schema.js";
-import { multiColumnDropCursor } from "../extensions/DropCursor/MultiColumnDropCursorPlugin.js";
 
 export const testEditorSchema = withMultiColumn(BlockNoteSchema.create());
 
@@ -21,7 +20,6 @@ export function setupTestEnv() {
   beforeAll(() => {
     editor = BlockNoteEditor.create({
       schema: testEditorSchema,
-      dropCursor: multiColumnDropCursor,
     });
     editor.mount(div);
   });
