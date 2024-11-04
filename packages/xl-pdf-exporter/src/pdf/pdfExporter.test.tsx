@@ -7,13 +7,12 @@ import {
   defaultInlineContentSpecs,
   defaultStyleSpecs,
 } from "@blocknote/core";
-import * as ReactPDF from "@react-pdf/renderer";
 import { testDocument } from "@shared/testDocument.js";
-
 import { prettyDOM, render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { pdfDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { PDFExporter } from "./pdfExporter.js";
+// import * as ReactPDF from "@react-pdf/renderer";
 // expect.extend({ toMatchImageSnapshot });
 // import { toMatchImageSnapshot } from "jest-image-snapshot";
 // import { pdf } from "pdf-to-img";
