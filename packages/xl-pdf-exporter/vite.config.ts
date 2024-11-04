@@ -9,6 +9,7 @@ const deps = Object.keys(pkg.dependencies);
 // https://vitejs.dev/config/
 export default defineConfig((conf) => ({
   test: {
+    environment: "jsdom",
     setupFiles: ["./vitestSetup.ts"],
     // assetsInclude: [
     //   "**/*.woff",
