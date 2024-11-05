@@ -2,5 +2,8 @@
   "playground": true,
   "docs": true,
   "author": "yousefed",
-  "tags": ["Basic", "Blocks", "Inline Content"]
+  "tags": ["Basic", "Blocks", "Inline Content"],
+  "dependencies": {
+    "@blocknote/multi-column": "latest"
+  }
 }

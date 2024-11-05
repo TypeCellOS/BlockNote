@@ -12,13 +12,13 @@
   },
   "dependencies": {
     "@blocknote/core": "latest",
-    "@blocknote/multi-column": "latest",
     "@blocknote/react": "latest",
     "@blocknote/ariakit": "latest",
     "@blocknote/mantine": "latest",
     "@blocknote/shadcn": "latest",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "@blocknote/multi-column": "latest"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",

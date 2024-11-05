@@ -14,7 +14,6 @@ const template = (project: Project) => ({
   },
   dependencies: {
     "@blocknote/core": "latest",
-    "@blocknote/multi-column": "latest",
     "@blocknote/react": "latest",
     "@blocknote/ariakit": "latest",
     "@blocknote/mantine": "latest",
