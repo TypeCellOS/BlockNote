@@ -7,6 +7,7 @@ import {
   defaultInlineContentSpecs,
   defaultStyleSpecs,
 } from "@blocknote/core";
+import ReactPDF, { Text } from "@react-pdf/renderer";
 import { testDocument } from "@shared/testDocument.js";
 import { prettyDOM, render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
@@ -181,5 +182,27 @@ describe("exporter", () => {
     // for await (const page of doc) {
     //   expect(page).toMatchImageSnapshot();
     // }
+  });
+
+  it("should export a document with header and footer", async () => {
+    const exporter = new PDFExporter(
+      BlockNoteSchema.create(),
+      pdfDefaultSchemaMappings
+    );
+
+    const transformed = await exporter.toReactPDFDocument(testDocument, {
+      header: <Text>Header</Text>,
+      footer: <Text>Footer</Text>,
+    });
+    const view = render(transformed);
+    const str = prettyDOM(view.container, undefined, { highlight: false });
+    expect(str).toMatchFileSnapshot(
+      "__snapshots__/exampleWithHeaderAndFooter.jsx"
+    );
+
+    await ReactPDF.render(
+      transformed,
+      `${__dirname}/exampleWithHeaderAndFooter.pdf`
+    );
   });
 });

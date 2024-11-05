@@ -42,10 +42,31 @@ export class PDFExporter<
   TextProps["style"],
   React.ReactElement<Text>
 > {
+  private fontsRegistered = false;
+
+  public styles = StyleSheet.create({
+    page: {
+      paddingTop: 35,
+      paddingBottom: 65,
+      paddingHorizontal: 35,
+      fontFamily: "Inter",
+      fontSize: FONT_SIZE * PIXELS_PER_POINT, //  pixels
+      lineHeight: 1.5,
+    },
+    section: {},
+    block: {},
+    blockChildren: {},
+    header: {},
+    footer: {
+      // @ts-ignore
+      position: "absolute",
+    },
+  });
+
   public readonly options: Options;
 
   public constructor(
-    public readonly schema: BlockNoteSchema<B, I, S>,
+    protected readonly schema: BlockNoteSchema<B, I, S>,
     mappings: Exporter<
       NoInfer<B>,
       NoInfer<I>,
@@ -102,11 +123,20 @@ export class PDFExporter<
       const style = this.blocknoteDefaultPropsToReactPDFStyle(b.props as any);
       ret.push(
         <>
-          <View style={{ paddingVertical: 3 * PIXELS_PER_POINT, ...style }}>
+          <View
+            style={{
+              paddingVertical: 3 * PIXELS_PER_POINT,
+              ...this.styles.block,
+              ...style,
+            }}>
             {self}
           </View>
           {children.length > 0 && (
-            <View style={{ marginLeft: FONT_SIZE * 1.5 * PIXELS_PER_POINT }}>
+            <View
+              style={{
+                marginLeft: FONT_SIZE * 1.5 * PIXELS_PER_POINT,
+                ...this.styles.blockChildren,
+              }}>
               {children}
             </View>
           )}
@@ -117,27 +147,11 @@ export class PDFExporter<
     return ret;
   }
 
-  public createStyles() {
-    return StyleSheet.create({
-      page: {
-        paddingTop: 35,
-        paddingBottom: 65,
-        paddingHorizontal: 35,
-        fontFamily: "Inter",
-        fontSize: FONT_SIZE * PIXELS_PER_POINT, //  pixels
-        lineHeight: 1.5,
-        // flexDirection: "row",
-        // backgroundColor: "#E4E4E4",
-      },
-      section: {
-        // margin: 10,
-        // padding: 10,
-        // flexGrow: 1,
-      },
-    });
-  }
-
   public async registerFonts() {
+    if (this.fontsRegistered) {
+      return;
+    }
+
     if (this.options.emojiSource) {
       Font.registerEmojiSource(this.options.emojiSource);
     }
@@ -176,17 +190,44 @@ export class PDFExporter<
       src: font,
       fontWeight: "bold",
     });
+
+    this.fontsRegistered = true;
   }
 
-  public async toReactPDFDocument(blocks: Block<B, I, S>[]) {
+  public async toReactPDFDocument(
+    blocks: Block<B, I, S>[],
+    options: {
+      header?: React.ReactElement;
+      footer?: React.ReactElement;
+    } = {}
+  ) {
     await this.registerFonts();
-    const styles = this.createStyles();
+
     return (
       <Document>
-        <Page dpi={100} size="A4" style={styles.page}>
-          <View style={styles.section}>
+        <Page dpi={100} size="A4" style={this.styles.page}>
+          {options.header && (
+            <View fixed style={this.styles.header}>
+              {options.header}
+            </View>
+          )}
+          <View style={this.styles.section}>
             {await this.transformBlocks(blocks)}
           </View>
+          {options.footer && (
+            <View
+              fixed
+              style={[
+                {
+                  left: this.styles.page.paddingHorizontal || 0,
+                  bottom: (this.styles.page.paddingBottom || 0) / 2,
+                  right: this.styles.page.paddingHorizontal || 0,
+                },
+                this.styles.footer,
+              ]}>
+              {options.footer}
+            </View>
+          )}
         </Page>
       </Document>
     );

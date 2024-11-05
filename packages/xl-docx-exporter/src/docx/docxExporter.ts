@@ -11,6 +11,7 @@ import {
   AlignmentType,
   Document,
   IRunPropertiesOptions,
+  ISectionOptions,
   LevelFormat,
   Packer,
   Paragraph,
@@ -22,6 +23,9 @@ import {
 
 import { Exporter, ExporterOptions } from "@blocknote/core";
 import { loadFileBuffer } from "../../../../shared/util/fileUtil.js";
+
+// get constructor arg type from Document
+type DocumentOptions = Partial<ConstructorParameters<typeof Document>[0]>;
 
 const DEFAULT_TAB_STOP =
   /* default font size */ 16 *
@@ -42,8 +46,8 @@ export class DOCXExporter<
   TextRun
 > {
   public constructor(
-    public readonly schema: BlockNoteSchema<B, I, S>,
-    public readonly mappings: Exporter<
+    protected readonly schema: BlockNoteSchema<B, I, S>,
+    protected readonly mappings: Exporter<
       NoInfer<B>,
       NoInfer<I>,
       NoInfer<S>,
@@ -115,9 +119,7 @@ export class DOCXExporter<
     return ret;
   }
 
-  public async getFonts(): Promise<
-    ConstructorParameters<typeof Document>[0]["fonts"]
-  > {
+  protected async getFonts(): Promise<DocumentOptions["fonts"]> {
     // Unfortunately, loading the variable font doesn't work
     // "./src/fonts/Inter-VariableFont_opsz,wght.ttf",
 
@@ -134,10 +136,7 @@ export class DOCXExporter<
     return [{ name: "Inter", data: font as Buffer }];
   }
 
-  public async createDocumentProperties(): Promise<
-    // get constructor arg type from Document
-    Partial<ConstructorParameters<typeof Document>[0]>
-  > {
+  protected async createDefaultDocumentOptions(): Promise<DocumentOptions> {
     const externalStyles = (await import("./template/word/styles.xml?raw"))
       .default;
 
@@ -203,13 +202,23 @@ export class DOCXExporter<
     }
   }
 
-  public async toDocxJsDocument(blocks: Block<B, I, S>[]) {
+  public async toDocxJsDocument(
+    blocks: Block<B, I, S>[],
+    options: {
+      sectionOptions: Omit<ISectionOptions, "children">;
+      documentOptions: DocumentOptions;
+    } = {
+      sectionOptions: {},
+      documentOptions: {},
+    }
+  ) {
     const doc = new Document({
-      ...(await this.createDocumentProperties()),
+      ...(await this.createDefaultDocumentOptions()),
+      ...options.documentOptions,
       sections: [
         {
-          properties: {},
           children: await this.transformBlocks(blocks),
+          ...options.sectionOptions,
         },
       ],
     });

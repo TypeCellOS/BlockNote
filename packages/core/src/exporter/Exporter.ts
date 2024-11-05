@@ -31,7 +31,7 @@ export abstract class Exporter<
 > {
   public constructor(
     _schema: BlockNoteSchema<B, I, S>, // only used for type inference
-    public readonly mappings: {
+    protected readonly mappings: {
       blockMapping: BlockMapping<B, I, S, RB, RI>;
       inlineContentMapping: InlineContentMapping<I, S, RI, TS>;
       styleMapping: StyleMapping<S, RS>;
