@@ -37,6 +37,8 @@ export function insertBlocks<
     editor._tiptapEditor.state.doc
   );
 
+  // TODO: we might want to use the ReplaceStep directly here instead of insert,
+  // because the fitting algorithm should not be necessary and might even cause unexpected behavior
   if (placement === "before") {
     editor.dispatch(
       editor._tiptapEditor.state.tr.insert(posBeforeNode, nodesToInsert)

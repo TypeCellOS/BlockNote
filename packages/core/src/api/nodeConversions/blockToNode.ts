@@ -54,7 +54,7 @@ function styledTextToNodes<T extends StyleSchema>(
       // Converts text & line breaks to nodes.
       .map((text) => {
         if (text === "\n") {
-          return schema.nodes["hardBreak"].create();
+          return schema.nodes["hardBreak"].createChecked();
         } else {
           return schema.text(text, marks);
         }
@@ -165,15 +165,18 @@ export function tableContentToNodes<
       const cell = row.cells[i];
       let pNode: Node;
       if (!cell) {
-        pNode = schema.nodes["tableParagraph"].create({});
+        pNode = schema.nodes["tableParagraph"].createChecked({});
       } else if (typeof cell === "string") {
-        pNode = schema.nodes["tableParagraph"].create({}, schema.text(cell));
+        pNode = schema.nodes["tableParagraph"].createChecked(
+          {},
+          schema.text(cell)
+        );
       } else {
         const textNodes = inlineContentToNodes(cell, schema, styleSchema);
-        pNode = schema.nodes["tableParagraph"].create({}, textNodes);
+        pNode = schema.nodes["tableParagraph"].createChecked({}, textNodes);
       }
 
-      const cellNode = schema.nodes["tableCell"].create(
+      const cellNode = schema.nodes["tableCell"].createChecked(
         {
           // The colwidth array should have multiple values when the colspan of
           // a cell is greater than 1. However, this is not yet implemented so
@@ -186,7 +189,7 @@ export function tableContentToNodes<
       );
       columnNodes.push(cellNode);
     }
-    const rowNode = schema.nodes["tableRow"].create({}, columnNodes);
+    const rowNode = schema.nodes["tableRow"].createChecked({}, columnNodes);
     rowNodes.push(rowNode);
   }
   return rowNodes;
@@ -212,16 +215,16 @@ function blockOrInlineContentToContentNode(
   }
 
   if (!block.content) {
-    contentNode = schema.nodes[type].create(block.props);
+    contentNode = schema.nodes[type].createChecked(block.props);
   } else if (typeof block.content === "string") {
     const nodes = inlineContentToNodes([block.content], schema, styleSchema);
-    contentNode = schema.nodes[type].create(block.props, nodes);
+    contentNode = schema.nodes[type].createChecked(block.props, nodes);
   } else if (Array.isArray(block.content)) {
     const nodes = inlineContentToNodes(block.content, schema, styleSchema);
-    contentNode = schema.nodes[type].create(block.props, nodes);
+    contentNode = schema.nodes[type].createChecked(block.props, nodes);
   } else if (block.content.type === "tableContent") {
     const nodes = tableContentToNodes(block.content, schema, styleSchema);
-    contentNode = schema.nodes[type].create(block.props, nodes);
+    contentNode = schema.nodes[type].createChecked(block.props, nodes);
   } else {
     throw new UnreachableCaseError(block.content.type);
   }
@@ -261,18 +264,21 @@ export function blockToNode(
       styleSchema
     );
 
-    const groupNode = schema.nodes["blockGroup"].create({}, children);
+    const groupNode =
+      children.length > 0
+        ? schema.nodes["blockGroup"].createChecked({}, children)
+        : undefined;
 
-    return schema.nodes["blockContainer"].create(
+    return schema.nodes["blockContainer"].createChecked(
       {
         id: id,
         ...block.props,
       },
-      children.length > 0 ? [contentNode, groupNode] : contentNode
+      groupNode ? [contentNode, groupNode] : contentNode
     );
   } else if (nodeTypeCorrespondingToBlock.isInGroup("bnBlock")) {
     // this is a bnBlock node like Column or ColumnList that directly translates to a prosemirror node
-    return schema.nodes[block.type].create(
+    return schema.nodes[block.type].createChecked(
       {
         id: id,
         ...block.props,

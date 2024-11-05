@@ -18,6 +18,15 @@ describe("Test updateBlock", () => {
             },
           ],
         },
+        {
+          type: "column",
+          children: [
+            {
+              type: "paragraph",
+              content: "Inserted Column Paragraph",
+            },
+          ],
+        },
       ],
     });
 
@@ -25,16 +34,18 @@ describe("Test updateBlock", () => {
   });
 
   it("Update column list new empty children", () => {
-    getEditor().updateBlock("column-list-0", {
-      type: "columnList",
-      children: [
-        {
-          type: "column",
-        },
-      ],
-    });
-
-    expect(getEditor().document).toMatchSnapshot();
+    // should throw because we don't allow empty columns / single columns
+    expect(() => {
+      getEditor().updateBlock("column-list-0", {
+        type: "columnList",
+        children: [
+          {
+            type: "paragraph",
+            content: "Inserted Column Paragraph",
+          },
+        ],
+      });
+    }).toThrow();
   });
 
   it("Update column new children", () => {
@@ -64,6 +75,15 @@ describe("Test updateBlock", () => {
             },
           ],
         },
+        {
+          type: "column",
+          children: [
+            {
+              type: "paragraph",
+              content: "Inserted Column Paragraph",
+            },
+          ],
+        },
       ],
     });
 
@@ -83,16 +103,6 @@ describe("Test updateBlock", () => {
             },
           ],
         },
-      ],
-    });
-
-    expect(getEditor().document).toMatchSnapshot();
-  });
-
-  it("Update column to column list", () => {
-    getEditor().updateBlock("column-0", {
-      type: "columnList",
-      children: [
         {
           type: "column",
           children: [
@@ -106,6 +116,35 @@ describe("Test updateBlock", () => {
     });
 
     expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Update column to column list", () => {
+    // should throw an error as we don't allow a column list inside a columnlist
+    expect(() => {
+      getEditor().updateBlock("column-0", {
+        type: "columnList",
+        children: [
+          {
+            type: "column",
+            children: [
+              {
+                type: "paragraph",
+                content: "Inserted Column Paragraph",
+              },
+            ],
+          },
+          {
+            type: "column",
+            children: [
+              {
+                type: "paragraph",
+                content: "Inserted Column Paragraph",
+              },
+            ],
+          },
+        ],
+      });
+    }).toThrow();
   });
 
   it("Update paragraph to column", () => {
@@ -137,26 +176,28 @@ describe("Test updateBlock", () => {
   });
 
   it("Update column list to column", () => {
-    getEditor().updateBlock("column-list-0", {
-      type: "column",
-      children: [
-        {
-          type: "paragraph",
-          content: "Inserted Column Paragraph",
-        },
-      ],
-    });
-
-    expect(getEditor().document).toMatchSnapshot();
+    // this would cause a column to become a child of a node that's not a column list, and should thus throw an error
+    expect(() => {
+      getEditor().updateBlock("column-list-0", {
+        type: "column",
+        children: [
+          {
+            type: "paragraph",
+            content: "Inserted Column Paragraph",
+          },
+        ],
+      });
+    }).toThrow();
   });
 
   it("Update column list to paragraph", () => {
-    getEditor().updateBlock("column-list-0", {
-      type: "paragraph",
-      content: "Inserted Column Paragraph",
-    });
-
-    expect(getEditor().document).toMatchSnapshot();
+    // this would cause columns to become children of a paragraph, and should thus throw an error
+    expect(() => {
+      getEditor().updateBlock("column-list-0", {
+        type: "paragraph",
+        content: "Inserted Column Paragraph",
+      });
+    }).toThrow();
   });
 
   it("Update column to paragraph", () => {

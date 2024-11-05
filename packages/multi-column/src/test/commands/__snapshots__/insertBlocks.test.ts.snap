@@ -253,6 +253,33 @@ exports[`Test insertBlocks > Insert column list into paragraph 1`] = `
             },
             "type": "column",
           },
+          {
+            "children": [
+              {
+                "children": [],
+                "content": [
+                  {
+                    "styles": {},
+                    "text": "Inserted Column Paragraph",
+                    "type": "text",
+                  },
+                ],
+                "id": "4",
+                "props": {
+                  "backgroundColor": "default",
+                  "textAlignment": "left",
+                  "textColor": "default",
+                },
+                "type": "paragraph",
+              },
+            ],
+            "content": undefined,
+            "id": "3",
+            "props": {
+              "width": 1,
+            },
+            "type": "column",
+          },
         ],
         "content": undefined,
         "id": "0",
@@ -385,413 +412,6 @@ exports[`Test insertBlocks > Insert column list into paragraph 1`] = `
 ]
 `;
 
-exports[`Test insertBlocks > Insert column list with empty column 1`] = `
-[
-  {
-    "children": [
-      {
-        "children": [],
-        "content": [
-          {
-            "styles": {},
-            "text": "Nested Paragraph 0",
-            "type": "text",
-          },
-        ],
-        "id": "nested-paragraph-0",
-        "props": {
-          "backgroundColor": "default",
-          "textAlignment": "left",
-          "textColor": "default",
-        },
-        "type": "paragraph",
-      },
-    ],
-    "content": [
-      {
-        "styles": {},
-        "text": "Paragraph 0",
-        "type": "text",
-      },
-    ],
-    "id": "paragraph-0",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [
-      {
-        "children": [],
-        "content": undefined,
-        "id": "1",
-        "props": {
-          "width": 1,
-        },
-        "type": "column",
-      },
-    ],
-    "content": undefined,
-    "id": "0",
-    "props": {},
-    "type": "columnList",
-  },
-  {
-    "children": [
-      {
-        "children": [
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 0",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-0",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 1",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-1",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": undefined,
-        "id": "column-0",
-        "props": {
-          "width": 1,
-        },
-        "type": "column",
-      },
-      {
-        "children": [
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 2",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-2",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 3",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-3",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": undefined,
-        "id": "column-1",
-        "props": {
-          "width": 1,
-        },
-        "type": "column",
-      },
-    ],
-    "content": undefined,
-    "id": "column-list-0",
-    "props": {},
-    "type": "columnList",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-]
-`;
-
-exports[`Test insertBlocks > Insert column list with paragraph 1`] = `
-[
-  {
-    "children": [
-      {
-        "children": [],
-        "content": [
-          {
-            "styles": {},
-            "text": "Nested Paragraph 0",
-            "type": "text",
-          },
-        ],
-        "id": "nested-paragraph-0",
-        "props": {
-          "backgroundColor": "default",
-          "textAlignment": "left",
-          "textColor": "default",
-        },
-        "type": "paragraph",
-      },
-    ],
-    "content": [
-      {
-        "styles": {},
-        "text": "Paragraph 0",
-        "type": "text",
-      },
-    ],
-    "id": "paragraph-0",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [
-      {
-        "children": [
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Inserted Column Paragraph",
-                "type": "text",
-              },
-            ],
-            "id": "7",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": undefined,
-        "id": "6",
-        "props": {
-          "width": 1,
-        },
-        "type": "column",
-      },
-    ],
-    "content": undefined,
-    "id": "5",
-    "props": {},
-    "type": "columnList",
-  },
-  {
-    "children": [
-      {
-        "children": [
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 0",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-0",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 1",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-1",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": undefined,
-        "id": "column-0",
-        "props": {
-          "width": 1,
-        },
-        "type": "column",
-      },
-      {
-        "children": [
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 2",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-2",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 3",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-3",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": undefined,
-        "id": "column-1",
-        "props": {
-          "width": 1,
-        },
-        "type": "column",
-      },
-    ],
-    "content": undefined,
-    "id": "column-list-0",
-    "props": {},
-    "type": "columnList",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [
-      {
-        "children": [
-          {
-            "children": [],
-            "content": [],
-            "id": "1",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": undefined,
-        "id": "0",
-        "props": {
-          "width": 1,
-        },
-        "type": "column",
-      },
-      {
-        "children": [
-          {
-            "children": [],
-            "content": [],
-            "id": "3",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": undefined,
-        "id": "2",
-        "props": {
-          "width": 1,
-        },
-        "type": "column",
-      },
-    ],
-    "content": undefined,
-    "id": "0",
-    "props": {},
-    "type": "columnList",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "4",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-]
-`;
-
 exports[`Test insertBlocks > Insert column with paragraph into column list 1`] = `
 [
   {
@@ -858,377 +478,6 @@ exports[`Test insertBlocks > Insert column with paragraph into column list 1`] =
         },
         "type": "column",
       },
-      {
-        "children": [
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 0",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-0",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 1",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-1",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": undefined,
-        "id": "column-0",
-        "props": {
-          "width": 1,
-        },
-        "type": "column",
-      },
-      {
-        "children": [
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 2",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-2",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 3",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-3",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": undefined,
-        "id": "column-1",
-        "props": {
-          "width": 1,
-        },
-        "type": "column",
-      },
-    ],
-    "content": undefined,
-    "id": "column-list-0",
-    "props": {},
-    "type": "columnList",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-]
-`;
-
-exports[`Test insertBlocks > Insert empty column into column list 1`] = `
-[
-  {
-    "children": [
-      {
-        "children": [],
-        "content": [
-          {
-            "styles": {},
-            "text": "Nested Paragraph 0",
-            "type": "text",
-          },
-        ],
-        "id": "nested-paragraph-0",
-        "props": {
-          "backgroundColor": "default",
-          "textAlignment": "left",
-          "textColor": "default",
-        },
-        "type": "paragraph",
-      },
-    ],
-    "content": [
-      {
-        "styles": {},
-        "text": "Paragraph 0",
-        "type": "text",
-      },
-    ],
-    "id": "paragraph-0",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [
-      {
-        "children": [],
-        "content": undefined,
-        "id": "5",
-        "props": {
-          "width": 1,
-        },
-        "type": "column",
-      },
-      {
-        "children": [
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 0",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-0",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 1",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-1",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": undefined,
-        "id": "column-0",
-        "props": {
-          "width": 1,
-        },
-        "type": "column",
-      },
-      {
-        "children": [
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 2",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-2",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 3",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-3",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": undefined,
-        "id": "column-1",
-        "props": {
-          "width": 1,
-        },
-        "type": "column",
-      },
-    ],
-    "content": undefined,
-    "id": "column-list-0",
-    "props": {},
-    "type": "columnList",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [
-      {
-        "children": [
-          {
-            "children": [],
-            "content": [],
-            "id": "1",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": undefined,
-        "id": "0",
-        "props": {
-          "width": 1,
-        },
-        "type": "column",
-      },
-      {
-        "children": [
-          {
-            "children": [],
-            "content": [],
-            "id": "3",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": undefined,
-        "id": "2",
-        "props": {
-          "width": 1,
-        },
-        "type": "column",
-      },
-    ],
-    "content": undefined,
-    "id": "5",
-    "props": {},
-    "type": "columnList",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "4",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-]
-`;
-
-exports[`Test insertBlocks > Insert empty column list 1`] = `
-[
-  {
-    "children": [
-      {
-        "children": [],
-        "content": [
-          {
-            "styles": {},
-            "text": "Nested Paragraph 0",
-            "type": "text",
-          },
-        ],
-        "id": "nested-paragraph-0",
-        "props": {
-          "backgroundColor": "default",
-          "textAlignment": "left",
-          "textColor": "default",
-        },
-        "type": "paragraph",
-      },
-    ],
-    "content": [
-      {
-        "styles": {},
-        "text": "Paragraph 0",
-        "type": "text",
-      },
-    ],
-    "id": "paragraph-0",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": undefined,
-    "id": "0",
-    "props": {},
-    "type": "columnList",
-  },
-  {
-    "children": [
       {
         "children": [
           {
@@ -1698,6 +947,215 @@ exports[`Test insertBlocks > Insert paragraph into column list 1`] = `
     ],
     "content": undefined,
     "id": "3",
+    "props": {},
+    "type": "columnList",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "trailing-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Test insertBlocks > Insert valid column list with two columns 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 0",
+            "type": "text",
+          },
+        ],
+        "id": "nested-paragraph-0",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 0",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Inserted Column Paragraph",
+                "type": "text",
+              },
+            ],
+            "id": "2",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "1",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Inserted Second Column Paragraph",
+                "type": "text",
+              },
+            ],
+            "id": "4",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "3",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+    ],
+    "content": undefined,
+    "id": "0",
+    "props": {},
+    "type": "columnList",
+  },
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 0",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-0",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 1",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-1",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "column-0",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 2",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-2",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 3",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-3",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "column-1",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+    ],
+    "content": undefined,
+    "id": "column-list-0",
     "props": {},
     "type": "columnList",
   },

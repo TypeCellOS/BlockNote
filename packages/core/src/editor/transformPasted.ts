@@ -32,7 +32,10 @@ export function wrapTableRows(f: Fragment, schema: Schema) {
         newItems[newItems.length - 1] = newTable;
       } else {
         // create new table to wrap tableRow with
-        const newTable = schema.nodes.table.create(undefined, f.child(i));
+        const newTable = schema.nodes.table.createChecked(
+          undefined,
+          f.child(i)
+        );
         newItems.push(newTable);
       }
     } else {
@@ -80,7 +83,7 @@ export function transformPasted(slice: Slice, view: EditorView) {
           f = removeChild(f, i + 1);
         }
       }
-      const container = view.state.schema.nodes.blockContainer.create(
+      const container = view.state.schema.nodes.blockContainer.createChecked(
         undefined,
         content
       );

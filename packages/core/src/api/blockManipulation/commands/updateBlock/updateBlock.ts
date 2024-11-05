@@ -1,6 +1,7 @@
 import { Fragment, NodeType, Node as PMNode, Slice } from "prosemirror-model";
 import { EditorState } from "prosemirror-state";
 
+import { ReplaceStep } from "prosemirror-transform";
 import { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import {
@@ -45,7 +46,6 @@ export const updateBlockCommand =
 
     if (dispatch) {
       // Adds blockGroup node with child blocks if necessary.
-      updateChildren(block, state, editor, blockInfo);
 
       const oldNodeType = state.schema.nodes[blockInfo.blockNoteType];
       const newNodeType =
@@ -55,6 +55,7 @@ export const updateBlockCommand =
         : state.schema.nodes["blockContainer"];
 
       if (blockInfo.isBlockContainer && newNodeType.isInGroup("blockContent")) {
+        updateChildren(block, state, editor, blockInfo);
         // The code below determines the new content of the block.
         // or "keep" to keep as-is
         updateBlockContentNode(
@@ -69,13 +70,38 @@ export const updateBlockCommand =
         !blockInfo.isBlockContainer &&
         newNodeType.isInGroup("bnBlock")
       ) {
+        updateChildren(block, state, editor, blockInfo);
         // old node was a bnBlock type (like column or columnList) and new block as well
         // No op, we just update the bnBlock below (at end of function) and have already updated the children
       } else {
-        // switching between blockContainer and non-blockContainer or v.v.
+        // switching from blockContainer to non-blockContainer or v.v.
         // currently breaking for column slash menu items converting empty block
         // to column.
-        throw new Error("Not implemented"); // TODO
+
+        // currently, we calculate the new node and replace the entire node with the desired new node.
+        // for this, we do a nodeToBlock on the existing block to get the children.
+        // it would be cleaner to use a ReplaceAroundStep, but this is a bit simpler and it's quite an edge case
+        const existingBlock = nodeToBlock(
+          blockInfo.bnBlock.node,
+          editor.schema.blockSchema,
+          editor.schema.inlineContentSchema,
+          editor.schema.styleSchema,
+          editor.blockCache
+        );
+        state.tr.replaceWith(
+          blockInfo.bnBlock.beforePos,
+          blockInfo.bnBlock.afterPos,
+          blockToNode(
+            {
+              children: existingBlock.children, // if no children are passed in, use existing children
+              ...block,
+            },
+            state.schema,
+            editor.schema.styleSchema
+          )
+        );
+
+        return true;
       }
 
       // Adds all provided props as attributes to the parent blockContainer node too, and also preserves existing
@@ -173,7 +199,7 @@ function updateBlockContentNode<
     state.tr.replaceWith(
       blockInfo.blockContent.beforePos,
       blockInfo.blockContent.afterPos,
-      newNodeType.create(
+      newNodeType.createChecked(
         {
           ...blockInfo.blockContent.node.attrs,
           ...block.props,
@@ -202,10 +228,14 @@ function updateChildren<
     // Checks if a blockGroup node already exists.
     if (blockInfo.childContainer) {
       // Replaces all child nodes in the existing blockGroup with the ones created earlier.
-      state.tr.replace(
-        blockInfo.childContainer.beforePos + 1,
-        blockInfo.childContainer.afterPos - 1,
-        new Slice(Fragment.from(childNodes), 0, 0)
+
+      // use a replacestep to avoid the fitting algorithm
+      state.tr.step(
+        new ReplaceStep(
+          blockInfo.childContainer.beforePos + 1,
+          blockInfo.childContainer.afterPos - 1,
+          new Slice(Fragment.from(childNodes), 0, 0)
+        )
       );
     } else {
       if (!blockInfo.isBlockContainer) {
@@ -214,7 +244,7 @@ function updateChildren<
       // Inserts a new blockGroup containing the child nodes created earlier.
       state.tr.insert(
         blockInfo.blockContent.afterPos,
-        state.schema.nodes["blockGroup"].create({}, childNodes)
+        state.schema.nodes["blockGroup"].createChecked({}, childNodes)
       );
     }
   }

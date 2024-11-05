@@ -189,11 +189,11 @@ describe("Test updateBlock", () => {
   });
 
   it("Update inline content to empty table content", () => {
-    updateBlock(getEditor(), "paragraph-0", {
-      type: "table",
-    });
-
-    expect(getEditor().document).toMatchSnapshot();
+    expect(() => {
+      updateBlock(getEditor(), "paragraph-0", {
+        type: "table",
+      });
+    }).toThrow();
   });
 
   it("Update table content to empty inline content", () => {
