@@ -69,7 +69,7 @@ export const defaultBlockToHTML = <
 } => {
   let node = blockToNode(block, editor.pmSchema, editor.schema.styleSchema);
 
-  if (!node.type.isInGroup("bnBlock")) {
+  if (node.type.name === "blockContainer") {
     // for regular blocks, get the toDOM spec from the blockContent node
     node = node.firstChild!;
   }
