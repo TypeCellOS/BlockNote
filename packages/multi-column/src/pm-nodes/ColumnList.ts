@@ -34,6 +34,7 @@ export const ColumnList = createStronglyTypedTiptapNode({
     for (const [attribute, value] of Object.entries(HTMLAttributes)) {
       columnList.setAttribute(attribute, value as any); // TODO as any
     }
+    columnList.style.display = "flex";
 
     return {
       dom: columnList,

@@ -205,7 +205,13 @@ function serializeBlock<
       }
     }
 
-    fragment.append(childFragment);
+    if (editor.pmSchema.nodes[block.type as any].isInGroup("blockContent")) {
+      // default "blockContainer" style blocks are flattened (no "nested block" support) for externalHTML, so append the child fragment to the outer fragment
+      fragment.append(childFragment);
+    } else {
+      // for columns / column lists, do use nesting
+      ret.contentDOM?.append(childFragment);
+    }
   }
 }
 
