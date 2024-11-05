@@ -520,14 +520,13 @@ NESTED BLOCKS
 .bn-block-column-list {
   display: flex;
   flex-direction: row;
-  /* gap: 10px; */
 }
 
 .bn-block-column {
   flex: 1;
   padding: 12px 20px;
-  /* Important that we use scroll instead of hidden for tables */
-  overflow-x: scroll;
+  /* scroll if we overflow, for example when tables or images are in the column */
+  overflow-x: auto;
 }
 
 .bn-block-column:first-child {
