@@ -8,8 +8,7 @@ export const Column = createStronglyTypedTiptapNode({
   // A block always contains content, and optionally a blockGroup which contains nested blocks
   content: "blockContainer+",
   priority: 40,
-  // defining: true, // TODO
-
+  defining: true,
   addAttributes() {
     return {
       width: {
