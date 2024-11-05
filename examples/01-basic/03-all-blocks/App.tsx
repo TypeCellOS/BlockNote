@@ -1,5 +1,6 @@
 import {
   BlockNoteSchema,
+  combineByGroup,
   filterSuggestionItems,
   locales,
 } from "@blocknote/core";
@@ -188,21 +189,9 @@ export default function App() {
   });
 
   const slashMenuItems = useMemo(() => {
-    const defaultSlashMenuItems = getDefaultReactSlashMenuItems(editor);
-    const multiColumnSlashMenuItems = getMultiColumnSlashMenuItems(editor);
-
-    if (multiColumnSlashMenuItems.length === 0) {
-      return defaultSlashMenuItems;
-    }
-
-    const lastBasicBlockItemIndex = defaultSlashMenuItems.findLastIndex(
-      (item) => item.group === multiColumnSlashMenuItems[0].group
-    );
-
-    return defaultSlashMenuItems.toSpliced(
-      lastBasicBlockItemIndex + 1,
-      0,
-      ...multiColumnSlashMenuItems
+    return combineByGroup(
+      getDefaultReactSlashMenuItems(editor),
+      getMultiColumnSlashMenuItems(editor)
     );
   }, [editor]);
 
