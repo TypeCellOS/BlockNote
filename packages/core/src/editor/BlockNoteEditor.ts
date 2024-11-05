@@ -96,7 +96,7 @@ export type BlockNoteEditorOptions<
   /**
    * A dictionary object containing translations for the editor.
    */
-  dictionary?: Dictionary;
+  dictionary?: Dictionary & Record<string, any>;
 
   /**
    * @deprecated, provide placeholders via dictionary instead
@@ -244,7 +244,7 @@ export class BlockNoteEditor<
   /**
    * The dictionary contains translations for the editor.
    */
-  public readonly dictionary: Dictionary;
+  public readonly dictionary: Dictionary & Record<string, any>;
 
   /**
    * The schema of the editor. The schema defines which Blocks, InlineContent, and Styles are available in the editor.

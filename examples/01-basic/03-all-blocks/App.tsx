@@ -1,20 +1,20 @@
 import {
   BlockNoteSchema,
-  locales,
   filterSuggestionItems,
+  locales,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
-  multiColumnDropCursor,
-  withMultiColumn,
   getMultiColumnSlashMenuItems,
+  multiColumnDropCursor,
   locales as multiColumnLocales,
+  withMultiColumn,
 } from "@blocknote/multi-column";
 import {
-  getDefaultReactSlashMenuItems,
   SuggestionMenuController,
+  getDefaultReactSlashMenuItems,
   useCreateBlockNote,
 } from "@blocknote/react";
 import { useMemo } from "react";
@@ -26,7 +26,7 @@ export default function App() {
     dictionary: {
       ...locales.en,
       multi_column: multiColumnLocales.en,
-    } as any,
+    },
     initialContent: [
       {
         type: "paragraph",
