@@ -2,7 +2,6 @@ import { BlockNoteSchema } from "@blocknote/core";
 import { testDocument } from "@shared/testDocument.js";
 import AdmZip from "adm-zip";
 import { Packer, Paragraph, TextRun } from "docx";
-import fs from "fs";
 import { describe, expect, it } from "vitest";
 import xmlFormat from "xml-formatter";
 import { docxDefaultSchemaMappings } from "./defaultSchema/index.js";
@@ -66,7 +65,7 @@ describe("exporter", () => {
 
       const buffer = await Packer.toBuffer(doc);
 
-      fs.writeFileSync(__dirname + "/My Document.docx", buffer);
+      // fs.writeFileSync(__dirname + "/My Document.docx", buffer);
 
       const zip = new AdmZip(buffer);
 

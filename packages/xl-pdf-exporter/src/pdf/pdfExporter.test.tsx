@@ -7,7 +7,7 @@ import {
   defaultInlineContentSpecs,
   defaultStyleSpecs,
 } from "@blocknote/core";
-import ReactPDF, { Text } from "@react-pdf/renderer";
+import { Text } from "@react-pdf/renderer";
 import { testDocument } from "@shared/testDocument.js";
 import { prettyDOM, render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
@@ -200,9 +200,9 @@ describe("exporter", () => {
       "__snapshots__/exampleWithHeaderAndFooter.jsx"
     );
 
-    await ReactPDF.render(
-      transformed,
-      `${__dirname}/exampleWithHeaderAndFooter.pdf`
-    );
+    // await ReactPDF.render(
+    //   transformed,
+    //   `${__dirname}/exampleWithHeaderAndFooter.pdf`
+    // );
   });
 });
