@@ -2,12 +2,10 @@
  * Combines items by group. This can be used to combine multiple slash menu item arrays,
  * while making sure that items from the same group are adjacent to each other.
  */
-export function combineByGroup(
-  items: {
-    group: string;
-  }[],
+export function combineByGroup<T extends { group?: string }>(
+  items: T[],
   ...additionalItemsArray: {
-    group: string;
+    group?: string;
   }[][]
 ) {
   const combinedItems = [...items];
@@ -17,9 +15,9 @@ export function combineByGroup(
         (item) => item.group === additionalItem.group
       );
       if (lastItemWithSameGroup === -1) {
-        combinedItems.push(additionalItem);
+        combinedItems.push(additionalItem as T);
       } else {
-        combinedItems.splice(lastItemWithSameGroup + 1, 0, additionalItem);
+        combinedItems.splice(lastItemWithSameGroup + 1, 0, additionalItem as T);
       }
     }
   }

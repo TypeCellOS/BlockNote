@@ -8,16 +8,16 @@ import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
-  getMultiColumnSlashMenuItems,
-  multiColumnDropCursor,
-  locales as multiColumnLocales,
-  withMultiColumn,
-} from "@blocknote/multi-column";
-import {
   SuggestionMenuController,
   getDefaultReactSlashMenuItems,
   useCreateBlockNote,
 } from "@blocknote/react";
+import {
+  getMultiColumnSlashMenuItems,
+  multiColumnDropCursor,
+  locales as multiColumnLocales,
+  withMultiColumn,
+} from "@blocknote/xl-multi-column";
 import { useMemo } from "react";
 export default function App() {
   // Creates a new editor instance.

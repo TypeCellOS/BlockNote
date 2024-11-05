@@ -26,8 +26,8 @@ export default defineConfig((conf) => ({
     sourcemap: true,
     lib: {
       entry: path.resolve(__dirname, "src/index.ts"),
-      name: "blocknote-multi-column",
-      fileName: "blocknote-multi-column",
+      name: "blocknote-xl-multi-column",
+      fileName: "blocknote-xl-multi-column",
     },
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled

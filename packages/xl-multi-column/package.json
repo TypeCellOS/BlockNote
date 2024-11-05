@@ -1,5 +1,5 @@
 {
-  "name": "@blocknote/multi-column",
+  "name": "@blocknote/xl-multi-column",
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
   "license": "AGPL-3.0 OR PROPRIETARY",
@@ -26,13 +26,13 @@
   "type": "module",
   "source": "src/index.ts",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-multi-column.umd.cjs",
-  "module": "./dist/blocknote-multi-column.js",
+  "main": "./dist/blocknote-xl-multi-column.umd.cjs",
+  "module": "./dist/blocknote-xl-multi-column.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-multi-column.js",
-      "require": "./dist/blocknote-multi-column.umd.cjs"
+      "import": "./dist/blocknote-xl-multi-column.js",
+      "require": "./dist/blocknote-xl-multi-column.umd.cjs"
     }
   },
   "scripts": {

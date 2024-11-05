@@ -18,7 +18,7 @@
     "@blocknote/shadcn": "latest",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "@blocknote/multi-column": "latest"
+    "@blocknote/xl-multi-column": "latest"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",

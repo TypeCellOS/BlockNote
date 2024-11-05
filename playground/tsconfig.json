@@ -24,6 +24,6 @@
     { "path": "../packages/core/" },
     { "path": "../packages/react/" },
     { "path": "../packages/shadcn/" },
-    { "path": "../packages/multi-column/" }
+    { "path": "../packages/xl-multi-column/" }
   ]
 }

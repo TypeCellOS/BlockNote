@@ -56,7 +56,7 @@
             "Inline Content"
           ],
           "dependencies": {
-            "@blocknote/multi-column": "latest"
+            "@blocknote/xl-multi-column": "latest"
           } as any
         },
         "title": "Default Schema Showcase",
