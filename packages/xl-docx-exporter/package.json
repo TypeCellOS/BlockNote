@@ -2,7 +2,7 @@
   "name": "@blocknote/xl-docx-exporter",
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": true,
-  "license": "AGPL-3.0",
+  "license": "AGPL-3.0 OR PROPRIETARY",
   "version": "0.18.1",
   "files": [
     "dist",
