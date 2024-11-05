@@ -39,98 +39,46 @@ exports[`Test getTextCursorPosition & setTextCursorPosition > Column 1`] = `
   "parentBlock": {
     "children": [
       {
-        "children": [
+        "children": [],
+        "content": [
           {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 0",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-0",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 1",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-1",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
+            "styles": {},
+            "text": "Column Paragraph 0",
+            "type": "text",
           },
         ],
-        "content": undefined,
-        "id": "column-0",
+        "id": "column-paragraph-0",
         "props": {
-          "width": 1,
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
         },
-        "type": "column",
+        "type": "paragraph",
       },
       {
-        "children": [
+        "children": [],
+        "content": [
           {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 2",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-2",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 3",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-3",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
+            "styles": {},
+            "text": "Column Paragraph 1",
+            "type": "text",
           },
         ],
-        "content": undefined,
-        "id": "column-1",
+        "id": "column-paragraph-1",
         "props": {
-          "width": 1,
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
         },
-        "type": "column",
+        "type": "paragraph",
       },
     ],
     "content": undefined,
-    "id": "column-list-0",
-    "props": {},
-    "type": "columnList",
+    "id": "column-0",
+    "props": {
+      "width": 1,
+    },
+    "type": "column",
   },
   "prevBlock": undefined,
 }
@@ -175,98 +123,46 @@ exports[`Test getTextCursorPosition & setTextCursorPosition > Column list 1`] = 
   "parentBlock": {
     "children": [
       {
-        "children": [
+        "children": [],
+        "content": [
           {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 0",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-0",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 1",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-1",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
+            "styles": {},
+            "text": "Column Paragraph 0",
+            "type": "text",
           },
         ],
-        "content": undefined,
-        "id": "column-0",
+        "id": "column-paragraph-0",
         "props": {
-          "width": 1,
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
         },
-        "type": "column",
+        "type": "paragraph",
       },
       {
-        "children": [
+        "children": [],
+        "content": [
           {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 2",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-2",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 3",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-3",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
+            "styles": {},
+            "text": "Column Paragraph 1",
+            "type": "text",
           },
         ],
-        "content": undefined,
-        "id": "column-1",
+        "id": "column-paragraph-1",
         "props": {
-          "width": 1,
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
         },
-        "type": "column",
+        "type": "paragraph",
       },
     ],
     "content": undefined,
-    "id": "column-list-0",
-    "props": {},
-    "type": "columnList",
+    "id": "column-0",
+    "props": {
+      "width": 1,
+    },
+    "type": "column",
   },
   "prevBlock": undefined,
 }

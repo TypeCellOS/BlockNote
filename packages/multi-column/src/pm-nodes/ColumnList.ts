@@ -6,7 +6,7 @@ export const ColumnList = createStronglyTypedTiptapNode({
   // A block always contains content, and optionally a blockGroup which contains nested blocks
   content: "column column+", // min two columns
   priority: 40, // should be below blockContainer
-  // defining: true, // TODO
+  defining: true,
 
   parseHTML() {
     return [
