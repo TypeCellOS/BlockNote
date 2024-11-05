@@ -35,7 +35,12 @@ export function getTextCursorPosition<
   // Gets parent blockContainer node, if the current node is nested.
   let parentNode: Node | undefined = undefined;
   if (resolvedPos.depth > 1) {
-    parentNode = resolvedPos.node(resolvedPos.depth - 1);
+    // for nodes nested in bnBlocks
+    parentNode = resolvedPos.node();
+    if (!parentNode.type.isInGroup("bnBlock")) {
+      // for blockGroups, we need to go one level up
+      parentNode = resolvedPos.node(resolvedPos.depth - 1);
+    }
   }
 
   return {
@@ -130,7 +135,6 @@ export function setTextCursorPosition<
       throw new UnreachableCaseError(contentType);
     }
   } else {
-    // TODO: test
     const child =
       placement === "start"
         ? info.childContainer.node.firstChild!
