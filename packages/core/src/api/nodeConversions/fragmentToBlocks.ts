@@ -43,6 +43,24 @@ export function fragmentToBlocks<
         // so we don't need to serialize this block, just descend into the children of the blockGroup
         return true;
       }
+    }
+
+    if (node.type.name === "columnList" && node.childCount === 1) {
+      // column lists with a single column should be flattened (not the entire column list has been selected)
+      node.firstChild?.forEach((child) => {
+        blocks.push(
+          nodeToBlock(
+            child,
+            schema.blockSchema,
+            schema.inlineContentSchema,
+            schema.styleSchema
+          )
+        );
+      });
+      return false;
+    }
+
+    if (node.type.isInGroup("bnBlock")) {
       blocks.push(
         nodeToBlock(
           node,
