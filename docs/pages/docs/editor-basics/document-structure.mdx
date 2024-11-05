@@ -43,6 +43,34 @@ type Block = {
 
 `children:` Any blocks nested inside the block. The nested blocks are also represented using `Block` objects.
 
+### Column Blocks
+
+The `@blocknote/xl-multi-column` package allows you to organize blocks side-by-side in columns. It introduces 2 additional block types, the column and column list:
+
+```typescript
+type ColumnBlock = {
+  id: string;
+  type: "column";
+  props: { width: number };
+  content: undefined;
+  children: Block[];
+};
+
+type ColumnListBlock = {
+  id: string;
+  type: "columnList";
+  props: {};
+  content: undefined;
+  children: ColumnBlock[];
+};
+```
+
+While both of these act as regular blocks, there are a few additional restrictions to have in mind when working with them:
+
+- Children of columns must be regular blocks
+- Children of column lists must be columns
+- There must be at least 2 columns in a column list
+
 ## Inline Content
 
 The `content` field of a block contains the rich-text content of a block. This is defined as an array of `InlineContent` objects. Inline content can either be styled text or a link (or a custom inline content type if you customize the editor schema).

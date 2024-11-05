@@ -1,7 +1,14 @@
-import { uploadToTmpFilesDotOrg_DEV_ONLY } from "@blocknote/core";
+import {
+  BlockNoteSchema,
+  uploadToTmpFilesDotOrg_DEV_ONLY,
+} from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
+import {
+  multiColumnDropCursor,
+  withMultiColumn,
+} from "@blocknote/xl-multi-column";
 import "@blocknote/mantine/style.css";
 import { useCallback, useMemo, useState } from "react";
 import YPartyKitProvider from "y-partykit/provider";
@@ -67,6 +74,8 @@ export default function DemoEditor(props: { theme?: "light" | "dark" }) {
 
   const editor = useCreateBlockNote(
     {
+      schema: withMultiColumn(BlockNoteSchema.create()),
+      dropCursor: multiColumnDropCursor,
       collaboration: {
         provider,
         fragment: doc.getXmlFragment("blocknote"),
