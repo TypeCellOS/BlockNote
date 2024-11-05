@@ -31,7 +31,7 @@ export default function App() {
     dictionary: {
       ...locales.en,
       multi_column: multiColumnLocales.en,
-    } as any,
+    },
     initialContent: [
       {
         type: "paragraph",
