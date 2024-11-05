@@ -9,6 +9,7 @@ import { DefaultReactSuggestionItem } from "@blocknote/react";
 import { TbColumns2, TbColumns3 } from "react-icons/tb";
 
 import { multiColumnSchema } from "../../blocks/schema.js";
+import { getMultiColumnDictionary } from "../../i18n/dictionary.js";
 
 export function checkMultiColumnBlocksInSchema<
   I extends InlineContentSchema,
@@ -36,10 +37,7 @@ export function getMultiColumnSlashMenuItems<
   if (checkMultiColumnBlocksInSchema(editor)) {
     items.push(
       {
-        title: "Two Columns",
-        subtext: "Two columns side by side",
-        aliases: ["columns", "row", "split"],
-        group: "Basic blocks",
+        ...getMultiColumnDictionary(editor).slash_menu.two_columns,
         icon: <TbColumns2 size={18} />,
         onItemClick: () => {
           insertOrUpdateBlock(editor, {
@@ -66,10 +64,7 @@ export function getMultiColumnSlashMenuItems<
         },
       },
       {
-        title: "Three Columns",
-        subtext: "Three columns side by side",
-        aliases: ["columns", "row", "split"],
-        group: "Basic blocks",
+        ...getMultiColumnDictionary(editor).slash_menu.three_columns,
         icon: <TbColumns3 size={18} />,
         onItemClick: () => {
           insertOrUpdateBlock(editor, {

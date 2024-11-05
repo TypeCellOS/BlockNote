@@ -1,4 +1,8 @@
-import { BlockNoteSchema, filterSuggestionItems } from "@blocknote/core";
+import {
+  BlockNoteSchema,
+  locales,
+  filterSuggestionItems,
+} from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
@@ -6,6 +10,7 @@ import {
   multiColumnDropCursor,
   withMultiColumn,
   getMultiColumnSlashMenuItems,
+  locales as multiColumnLocales,
 } from "@blocknote/multi-column";
 import {
   getDefaultReactSlashMenuItems,
@@ -18,6 +23,10 @@ export default function App() {
   const editor = useCreateBlockNote({
     schema: withMultiColumn(BlockNoteSchema.create()),
     dropCursor: multiColumnDropCursor,
+    dictionary: {
+      ...locales.en,
+      multi_column: multiColumnLocales.en,
+    } as any,
     initialContent: [
       {
         type: "paragraph",
@@ -182,8 +191,12 @@ export default function App() {
     const defaultSlashMenuItems = getDefaultReactSlashMenuItems(editor);
     const multiColumnSlashMenuItems = getMultiColumnSlashMenuItems(editor);
 
+    if (multiColumnSlashMenuItems.length === 0) {
+      return defaultSlashMenuItems;
+    }
+
     const lastBasicBlockItemIndex = defaultSlashMenuItems.findLastIndex(
-      (item) => item.group === "Basic blocks"
+      (item) => item.group === multiColumnSlashMenuItems[0].group
     );
 
     return defaultSlashMenuItems.toSpliced(
