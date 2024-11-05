@@ -17,7 +17,22 @@ import type {
 } from "./mapping.js";
 
 export type ExporterOptions = {
+  /**
+   * A function that can be used to resolve files, images, etc.
+   * Exporters might need the binary contents of files like images,
+   * which might not always be available from the same origin as the main page.
+   * You can use this option to proxy requests through a server you control
+   * to avoid cross-origin (CORS) issues.
+   *
+   * @default uses a BlockNote hosted proxy (https://corsproxy.api.blocknotejs.org/)
+   * @param url - The URL of the file to resolve
+   * @returns A Promise that resolves to a string (the URL to use instead of the original)
+   * or a Blob (you can return the Blob directly if you have already fetched it)
+   */
   resolveFileUrl?: (url: string) => Promise<string | Blob>;
+  /**
+   * Colors to use for background of blocks, font colors, and highlight colors
+   */
   colors: typeof COLORS_DEFAULT;
 };
 export abstract class Exporter<

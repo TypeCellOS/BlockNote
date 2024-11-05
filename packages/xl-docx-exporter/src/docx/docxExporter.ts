@@ -22,7 +22,8 @@ import {
 } from "docx";
 
 import { Exporter, ExporterOptions } from "@blocknote/core";
-import { loadFileBuffer } from "../../../../shared/util/fileUtil.js";
+import { corsProxyResolveFileUrl } from "@shared/api/corsProxy.js";
+import { loadFileBuffer } from "@shared/util/fileUtil.js";
 
 // get constructor arg type from Document
 type DocumentOptions = Partial<ConstructorParameters<typeof Document>[0]>;
@@ -32,6 +33,10 @@ const DEFAULT_TAB_STOP =
   /* 1 pixel is 0.75 points */ 0.75 *
   /* 1.5em*/ 1.5 *
   /* 1 point is 20 twips */ 20;
+
+/**
+ * Exports a BlockNote document to a .docx file using the docxjs library.
+ */
 export class DOCXExporter<
   B extends BlockSchema,
   S extends StyleSchema,
@@ -46,7 +51,14 @@ export class DOCXExporter<
   TextRun
 > {
   public constructor(
+    /**
+     * The schema of your editor. The mappings are automatically typed checked against this schema.
+     */
     protected readonly schema: BlockNoteSchema<B, I, S>,
+    /**
+     * The mappings that map the BlockNote schema to the docxjs content.
+     * Pass {@link docxDefaultSchemaMappings} for the default schema.
+     */
     protected readonly mappings: Exporter<
       NoInfer<B>,
       NoInfer<I>,
@@ -63,6 +75,7 @@ export class DOCXExporter<
   ) {
     const defaults = {
       colors: COLORS_DEFAULT,
+      resolveFileUrl: corsProxyResolveFileUrl,
     } satisfies Partial<ExporterOptions>;
 
     const newOptions = {
@@ -72,6 +85,9 @@ export class DOCXExporter<
     super(schema, mappings, newOptions);
   }
 
+  /**
+   * Mostly for internal use, you probably want to use `toBlob` or `toDocxJsDocument` instead.
+   */
   public transformStyledText(styledText: StyledText<S>, hyperlink?: boolean) {
     const stylesArray = this.mapStyles(styledText.styles);
 
@@ -87,6 +103,9 @@ export class DOCXExporter<
     });
   }
 
+  /**
+   * Mostly for internal use, you probably want to use `toBlob` or `toDocxJsDocument` instead.
+   */
   public async transformBlocks(
     blocks: Block<B, I, S>[],
     nestingLevel = 0
@@ -188,8 +207,20 @@ export class DOCXExporter<
     };
   }
 
-  public async toBlob(blocks: Block<B, I, S>[]) {
-    const doc = await this.toDocxJsDocument(blocks);
+  /**
+   * Convert a document (array of Blocks to a Blob representing a .docx file)
+   */
+  public async toBlob(
+    blocks: Block<B, I, S>[],
+    options: {
+      sectionOptions: Omit<ISectionOptions, "children">;
+      documentOptions: DocumentOptions;
+    } = {
+      sectionOptions: {},
+      documentOptions: {},
+    }
+  ) {
+    const doc = await this.toDocxJsDocument(blocks, options);
     const prevBuffer = globalThis.Buffer;
     try {
       if (!globalThis.Buffer) {
@@ -202,6 +233,9 @@ export class DOCXExporter<
     }
   }
 
+  /**
+   * Convert a document (array of Blocks to a docxjs Document)
+   */
   public async toDocxJsDocument(
     blocks: Block<B, I, S>[],
     options: {

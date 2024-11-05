@@ -4,12 +4,12 @@ import {
   BlockSchema,
   COLORS_DEFAULT,
   DefaultProps,
+  Exporter,
+  ExporterOptions,
   InlineContentSchema,
   StyleSchema,
   StyledText,
 } from "@blocknote/core";
-
-import { Exporter, ExporterOptions } from "@blocknote/core";
 import {
   Document,
   Font,
@@ -20,15 +20,25 @@ import {
   TextProps,
   View,
 } from "@react-pdf/renderer";
+import { corsProxyResolveFileUrl } from "@shared/api/corsProxy.js";
 import { loadFontDataUrl } from "../../../../shared/util/fileUtil.js";
+
 import { Style } from "./types.js";
 
 const FONT_SIZE = 16;
 const PIXELS_PER_POINT = 0.75;
 
 type Options = ExporterOptions & {
+  /**
+   *
+   * @default uses the remote emoji source hosted on cloudflare (https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/)
+   */
   emojiSource: false | ReturnType<typeof Font.getEmojiSource>;
 };
+
+/**
+ * Exports a BlockNote document to a .pdf file using the react-pdf library.
+ */
 export class PDFExporter<
   B extends BlockSchema,
   S extends StyleSchema,
@@ -66,7 +76,15 @@ export class PDFExporter<
   public readonly options: Options;
 
   public constructor(
+    /**
+     * The schema of your editor. The mappings are automatically typed checked against this schema.
+     */
     protected readonly schema: BlockNoteSchema<B, I, S>,
+    /**
+     * The mappings that map the BlockNote schema to the react-pdf content.
+     *
+     * Pass {@link pdfDefaultSchemaMappings} for the default schema.
+     */
     mappings: Exporter<
       NoInfer<B>,
       NoInfer<I>,
@@ -83,6 +101,7 @@ export class PDFExporter<
         format: "png",
         url: "https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/",
       },
+      resolveFileUrl: corsProxyResolveFileUrl,
       colors: COLORS_DEFAULT,
     } satisfies Partial<Options>;
 
@@ -94,12 +113,18 @@ export class PDFExporter<
     this.options = newOptions;
   }
 
+  /**
+   * Mostly for internal use, you probably want to use `toBlob` or `toReactPDFDocument` instead.
+   */
   public transformStyledText(styledText: StyledText<S>) {
     const stylesArray = this.mapStyles(styledText.styles);
     const styles = Object.assign({}, ...stylesArray);
     return <Text style={styles}>{styledText.text}</Text>;
   }
 
+  /**
+   * Mostly for internal use, you probably want to use `toBlob` or `toReactPDFDocument` instead.
+   */
   public async transformBlocks(
     blocks: Block<B, I, S>[], // Or BlockFromConfig<B[keyof B], I, S>?
     nestingLevel = 0
@@ -147,7 +172,7 @@ export class PDFExporter<
     return ret;
   }
 
-  public async registerFonts() {
+  protected async registerFonts() {
     if (this.fontsRegistered) {
       return;
     }
@@ -194,10 +219,21 @@ export class PDFExporter<
     this.fontsRegistered = true;
   }
 
+  /**
+   * Convert a document (array of Blocks) to a react-pdf Document.
+   */
   public async toReactPDFDocument(
     blocks: Block<B, I, S>[],
     options: {
+      /**
+       * Add a header to every page.
+       * The React component passed must be a React-PDF component
+       */
       header?: React.ReactElement;
+      /**
+       * Add a footer to every page.
+       * The React component passed must be a React-PDF component
+       */
       footer?: React.ReactElement;
     } = {}
   ) {

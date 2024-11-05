@@ -8,15 +8,6 @@ import {
 } from "@blocknote/xl-docx-exporter";
 import "./styles.css";
 
-async function resolveFileUrl_DEV_ONLY(url: string) {
-  // this passes image/file requests to corsproxy so we can fetch binary data on the client side,
-  // regardless of CORS policies. We need the binary data for the docx generation
-
-  // NOTE: this uses a 3rd party server and is meant for development purposes.
-  //       in production, replace with your own method to fetch files
-  return "https://corsproxy.io/?" + encodeURIComponent(url);
-}
-
 export default function App() {
   // Creates a new editor instance with some initial content.
   const editor = useCreateBlockNote({
@@ -290,13 +281,7 @@ export default function App() {
   });
 
   const onDownloadClick = async () => {
-    const exporter = new DOCXExporter(
-      editor.schema,
-      docxDefaultSchemaMappings,
-      {
-        resolveFileUrl: resolveFileUrl_DEV_ONLY,
-      }
-    );
+    const exporter = new DOCXExporter(editor.schema, docxDefaultSchemaMappings);
 
     const blob = await exporter.toBlob(editor.document);
 

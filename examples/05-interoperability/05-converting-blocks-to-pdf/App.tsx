@@ -10,15 +10,6 @@ import { PDFViewer } from "@react-pdf/renderer";
 import { useEffect, useState } from "react";
 import "./styles.css";
 
-async function resolveFileUrl_DEV_ONLY(url: string) {
-  // this passes image/file requests to corsproxy so we can fetch binary data on the client side,
-  // regardless of CORS policies. We need the binary data for the PDF generation
-
-  // NOTE: this uses a 3rd party server and is meant for development purposes.
-  //       in production, replace with your own method to fetch files
-  return "https://corsproxy.io/?" + encodeURIComponent(url);
-}
-
 export default function App() {
   // Stores the editor's contents as HTML.
   const [pdfDocument, setPDFDocument] = useState<any>();
@@ -295,9 +286,7 @@ export default function App() {
   });
 
   const onChange = async () => {
-    const exporter = new PDFExporter(editor.schema, pdfDefaultSchemaMappings, {
-      resolveFileUrl: resolveFileUrl_DEV_ONLY,
-    });
+    const exporter = new PDFExporter(editor.schema, pdfDefaultSchemaMappings);
     // Converts the editor's contents from Block objects to HTML and store to state.
     const pdfDocument = await exporter.toReactPDFDocument(editor.document);
     setPDFDocument(pdfDocument);
