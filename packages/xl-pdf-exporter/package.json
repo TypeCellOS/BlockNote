@@ -1,7 +1,7 @@
 {
   "name": "@blocknote/xl-pdf-exporter",
   "homepage": "https://github.com/TypeCellOS/BlockNote",
-  "private": true,
+  "private": false,
   "license": "AGPL-3.0 OR PROPRIETARY",
   "version": "0.18.1",
   "files": [
