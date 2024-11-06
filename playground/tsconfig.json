@@ -23,6 +23,7 @@
     { "path": "./tsconfig.node.json" },
     { "path": "../packages/core/" },
     { "path": "../packages/react/" },
-    { "path": "../packages/shadcn/" }
+    { "path": "../packages/shadcn/" },
+    { "path": "../packages/xl-multi-column/" }
   ]
 }

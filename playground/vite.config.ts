@@ -50,6 +50,10 @@ export default defineConfig((conf) => ({
               __dirname,
               "../packages/shadcn/src/"
             ),
+            "@blocknote/xl-multi-column": path.resolve(
+              __dirname,
+              "../packages/xl-multi-column/src/"
+            ),
           },
   },
 }));

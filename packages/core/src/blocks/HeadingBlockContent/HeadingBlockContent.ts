@@ -56,7 +56,7 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
               .command(
                 updateBlockCommand(
                   this.options.editor,
-                  blockInfo.blockContainer.beforePos,
+                  blockInfo.bnBlock.beforePos,
                   {
                     type: "heading",
                     props: {
@@ -84,16 +84,12 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
 
         // call updateBlockCommand
         return this.editor.commands.command(
-          updateBlockCommand(
-            this.options.editor,
-            blockInfo.blockContainer.beforePos,
-            {
-              type: "heading",
-              props: {
-                level: 1 as any,
-              },
-            }
-          )
+          updateBlockCommand(this.options.editor, blockInfo.bnBlock.beforePos, {
+            type: "heading",
+            props: {
+              level: 1 as any,
+            },
+          })
         );
       },
       "Mod-Alt-2": () => {
@@ -103,16 +99,12 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
         }
 
         return this.editor.commands.command(
-          updateBlockCommand(
-            this.options.editor,
-            blockInfo.blockContainer.beforePos,
-            {
-              type: "heading",
-              props: {
-                level: 2 as any,
-              },
-            }
-          )
+          updateBlockCommand(this.options.editor, blockInfo.bnBlock.beforePos, {
+            type: "heading",
+            props: {
+              level: 2 as any,
+            },
+          })
         );
       },
       "Mod-Alt-3": () => {
@@ -122,16 +114,12 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
         }
 
         return this.editor.commands.command(
-          updateBlockCommand(
-            this.options.editor,
-            blockInfo.blockContainer.beforePos,
-            {
-              type: "heading",
-              props: {
-                level: 3 as any,
-              },
-            }
-          )
+          updateBlockCommand(this.options.editor, blockInfo.bnBlock.beforePos, {
+            type: "heading",
+            props: {
+              level: 3 as any,
+            },
+          })
         );
       },
     };

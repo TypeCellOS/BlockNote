@@ -45,7 +45,7 @@ export const NodeSelectionKeyboardPlugin = () => {
               tr
                 .insert(
                   view.state.tr.selection.$to.after(),
-                  view.state.schema.nodes["paragraph"].create()
+                  view.state.schema.nodes["paragraph"].createChecked()
                 )
                 .setSelection(
                   new TextSelection(

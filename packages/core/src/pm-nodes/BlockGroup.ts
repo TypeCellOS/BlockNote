@@ -6,8 +6,8 @@ export const BlockGroup = Node.create<{
   domAttributes?: BlockNoteDOMAttributes;
 }>({
   name: "blockGroup",
-  group: "blockGroup",
-  content: "blockContainer+",
+  group: "childContainer",
+  content: "blockGroupChild+",
 
   parseHTML() {
     return [

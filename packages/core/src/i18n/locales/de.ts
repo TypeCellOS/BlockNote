@@ -22,13 +22,13 @@ export const de = {
       title: "Nummerierte Liste",
       subtext: "Liste mit nummerierten Elementen",
       aliases: ["ol", "li", "liste", "nummerierteliste", "nummerierte liste"],
-      group: "Grundlegende Blöcke",
+      group: "Grundlegende blöcke",
     },
     bullet_list: {
       title: "Aufzählungsliste",
       subtext: "Liste mit unnummerierten Elementen",
       aliases: ["ul", "li", "liste", "aufzählungsliste", "aufzählung liste"],
-      group: "Grundlegende Blöcke",
+      group: "Grundlegende blöcke",
     },
     check_list: {
       title: "Checkliste",
@@ -42,19 +42,19 @@ export const de = {
         "geprüfte liste",
         "kontrollkästchen",
       ],
-      group: "Grundlegende Blöcke",
+      group: "Grundlegende blöcke",
     },
     paragraph: {
       title: "Absatz",
       subtext: "Der Hauptteil Ihres Dokuments",
       aliases: ["p", "absatz"],
-      group: "Grundlegende Blöcke",
+      group: "Grundlegende blöcke",
     },
     code_block: {
       title: "Codeblock",
       subtext: "Codeblock mit Syntaxhervorhebung",
       aliases: ["code", "pre"],
-      group: "Grundlegende Blöcke",
+      group: "Grundlegende blöcke",
     },
     table: {
       title: "Tabelle",

@@ -82,16 +82,6 @@ function serializeBlock<
     }
   }
 
-  const bc = BC_NODE.spec?.toDOM?.(
-    BC_NODE.create({
-      id: block.id,
-      ...props,
-    })
-  ) as {
-    dom: HTMLElement;
-    contentDOM?: HTMLElement;
-  };
-
   const impl = editor.blockImplementations[block.type as any].implementation;
   const ret = impl.toInternalHTML({ ...block, props } as any, editor as any);
 
@@ -115,6 +105,33 @@ function serializeBlock<
     ret.contentDOM.appendChild(ic);
   }
 
+  const pmType = editor.pmSchema.nodes[block.type as any];
+
+  if (pmType.isInGroup("bnBlock")) {
+    if (block.children && block.children.length > 0) {
+      const fragment = serializeBlocks(
+        editor,
+        block.children,
+        serializer,
+        options
+      );
+
+      ret.contentDOM?.append(fragment);
+    }
+    return ret.dom;
+  }
+
+  // wrap the block in a blockContainer
+  const bc = BC_NODE.spec?.toDOM?.(
+    BC_NODE.create({
+      id: block.id,
+      ...props,
+    })
+  ) as {
+    dom: HTMLElement;
+    contentDOM?: HTMLElement;
+  };
+
   bc.contentDOM?.appendChild(ret.dom);
 
   if (block.children && block.children.length > 0) {
@@ -123,6 +140,39 @@ function serializeBlock<
     );
   }
   return bc.dom;
+}
+
+function serializeBlocks<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  editor: BlockNoteEditor<BSchema, I, S>,
+  blocks: PartialBlock<BSchema, I, S>[],
+  serializer: DOMSerializer,
+  options?: { document?: Document }
+) {
+  const doc = options?.document ?? document;
+  const fragment = doc.createDocumentFragment();
+
+  let listIndex = 0;
+  for (const block of blocks) {
+    if (block.type === "numberedListItem") {
+      listIndex++;
+    } else {
+      listIndex = 0;
+    }
+    const blockDOM = serializeBlock(
+      editor,
+      block,
+      serializer,
+      listIndex,
+      options
+    );
+    fragment.appendChild(blockDOM);
+  }
+
+  return fragment;
 }
 
 export const serializeBlocksInternalHTML = <
@@ -142,22 +192,9 @@ export const serializeBlocksInternalHTML = <
     contentDOM?: HTMLElement;
   };
 
-  let listIndex = 0;
-  for (const block of blocks) {
-    if (block.type === "numberedListItem") {
-      listIndex++;
-    } else {
-      listIndex = 0;
-    }
-    const blockDOM = serializeBlock(
-      editor,
-      block,
-      serializer,
-      listIndex,
-      options
-    );
-    bg.contentDOM!.appendChild(blockDOM);
-  }
+  const fragment = serializeBlocks(editor, blocks, serializer, options);
+
+  bg.contentDOM?.appendChild(fragment);
 
   return bg.dom;
 };
