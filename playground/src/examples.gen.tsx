@@ -809,6 +809,52 @@
           "pathFromRoot": "examples/05-interoperability",
           "slug": "interoperability"
         }
+      },
+      {
+        "projectSlug": "converting-blocks-to-pdf",
+        "fullSlug": "interoperability/converting-blocks-to-pdf",
+        "pathFromRoot": "examples/05-interoperability/05-converting-blocks-to-pdf",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            ""
+          ],
+          "dependencies": {
+            "@blocknote/xl-pdf-exporter": "latest",
+            "@react-pdf/renderer": "^4.0.0"
+          } as any,
+          "pro": true
+        },
+        "title": "Exporting documents to PDF",
+        "group": {
+          "pathFromRoot": "examples/05-interoperability",
+          "slug": "interoperability"
+        }
+      },
+      {
+        "projectSlug": "converting-blocks-to-docx",
+        "fullSlug": "interoperability/converting-blocks-to-docx",
+        "pathFromRoot": "examples/05-interoperability/06-converting-blocks-to-docx",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            ""
+          ],
+          "dependencies": {
+            "@blocknote/xl-docx-exporter": "latest",
+            "docx": "^9.0.2"
+          } as any,
+          "pro": true
+        },
+        "title": "Exporting documents to .docx (Office Open XML)",
+        "group": {
+          "pathFromRoot": "examples/05-interoperability",
+          "slug": "interoperability"
+        }
       }
     ]
   },

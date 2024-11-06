@@ -42,10 +42,7 @@ async function convertToHTMLAndCompareSnapshots<
   expect(internalHTML).toMatchFileSnapshot(internalHTMLSnapshotPath);
 
   // turn the internalHTML back into blocks, and make sure no data was lost
-  const fullBlocks = partialBlocksToBlocksForTesting(
-    editor.schema.blockSchema,
-    blocks
-  );
+  const fullBlocks = partialBlocksToBlocksForTesting(editor.schema, blocks);
   const parsed = await editor.tryParseHTMLToBlocks(internalHTML);
 
   expect(parsed).toStrictEqual(fullBlocks);
