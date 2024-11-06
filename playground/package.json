@@ -16,6 +16,7 @@
     "@blocknote/ariakit": "^0.18.1",
     "@blocknote/core": "^0.18.0",
     "@blocknote/mantine": "^0.18.1",
+    "@blocknote/xl-multi-column": "^0.18.1",
     "@blocknote/react": "^0.18.1",
     "@blocknote/server-util": "^0.18.1",
     "@blocknote/shadcn": "^0.18.1",

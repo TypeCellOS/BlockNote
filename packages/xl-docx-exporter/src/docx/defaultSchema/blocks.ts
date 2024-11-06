@@ -1,10 +1,10 @@
 import {
+  BlockMapping,
   COLORS_DEFAULT,
   DefaultBlockSchema,
   DefaultProps,
   UnreachableCaseError,
 } from "@blocknote/core";
-import { BlockMapping } from "@blocknote/core/src/exporter/mapping.js";
 import {
   CheckBox,
   Table as DocxTable,

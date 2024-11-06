@@ -1,8 +1,8 @@
 import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
+  InlineContentMapping,
 } from "@blocknote/core";
-import { InlineContentMapping } from "@blocknote/core/src/exporter/mapping.js";
 import { ExternalHyperlink, ParagraphChild, TextRun } from "docx";
 import type { DOCXExporter } from "../docxExporter.js";
 

@@ -1,5 +1,4 @@
-import { InlineContentSchema, TableContent } from "@blocknote/core";
-import { Exporter } from "@blocknote/core/src/exporter/Exporter.js";
+import { Exporter, InlineContentSchema, TableContent } from "@blocknote/core";
 import {
   Table as DocxTable,
   Paragraph,

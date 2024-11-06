@@ -12,12 +12,8 @@ import {
 } from "../../schema/index.js";
 import { EventEmitter } from "../../util/EventEmitter.js";
 import { initializeESMDependencies } from "../../util/esmDependencies.js";
-import {
-  dragStart,
-  getDraggableBlockFromElement,
-  unsetDragImage,
-} from "./dragging.js";
-
+import { getDraggableBlockFromElement } from "../getDraggableBlockFromElement.js";
+import { dragStart, unsetDragImage } from "./dragging.js";
 export type SideMenuState<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -27,13 +23,45 @@ export type SideMenuState<
   block: Block<BSchema, I, S>;
 };
 
-const getBlockFromMousePos = (
+const PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP = 0.1;
+
+function getBlockFromCoords(
+  view: EditorView,
+  coords: { left: number; top: number },
+  adjustForColumns = true
+) {
+  const elements = view.root.elementsFromPoint(coords.left, coords.top);
+
+  for (const element of elements) {
+    if (!view.dom.contains(element)) {
+      // probably a ui overlay like formatting toolbar etc
+      continue;
+    }
+    if (adjustForColumns) {
+      const column = element.closest("[data-node-type=columnList]");
+      if (column) {
+        return getBlockFromCoords(
+          view,
+          {
+            left: coords.left + 50, // bit hacky, but if we're inside a column, offset x position to right to account for the width of sidemenu itself
+            top: coords.top,
+          },
+          false
+        );
+      }
+    }
+    return getDraggableBlockFromElement(element, view);
+  }
+  return undefined;
+}
+
+function getBlockFromMousePos(
   mousePos: {
     x: number;
     y: number;
   },
   view: EditorView
-): { node: HTMLElement; id: string } | undefined => {
+): { node: HTMLElement; id: string } | undefined {
   // Editor itself may have padding or other styling which affects
   // size/position, so we get the boundingRect of the first child (i.e. the
   // blockGroup that wraps all blocks in the editor) for more accurate side
@@ -50,22 +78,41 @@ const getBlockFromMousePos = (
 
   // Gets block at mouse cursor's vertical position.
   const coords = {
-    left: editorBoundingBox.left + editorBoundingBox.width / 2, // take middle of editor
+    left: mousePos.x,
     top: mousePos.y,
   };
 
-  const elements = view.root.elementsFromPoint(coords.left, coords.top);
-  let block = undefined;
+  const mouseLeftOfEditor = coords.left < editorBoundingBox.left;
+  const mouseRightOfEditor = coords.left > editorBoundingBox.right;
 
-  for (const element of elements) {
-    if (view.dom.contains(element)) {
-      block = getDraggableBlockFromElement(element, view);
-      break;
-    }
+  if (mouseLeftOfEditor) {
+    coords.left = editorBoundingBox.left + 10;
+  }
+
+  if (mouseRightOfEditor) {
+    coords.left = editorBoundingBox.right - 10;
+  }
+
+  let block = getBlockFromCoords(view, coords);
+
+  if (!mouseRightOfEditor && block) {
+    // note: this case is not necessary when we're on the right side of the editor
+
+    /* Now, because blocks can be nested
+    | BlockA        |
+    x | BlockB     y|
+    
+    hovering over position x (the "margin of block B") will return block A instead of block B.
+    to fix this, we get the block from the right side of block A (position y, which will fall in BlockB correctly)
+    */
+
+    const rect = block.node.getBoundingClientRect();
+    coords.left = rect.right - 10;
+    block = getBlockFromCoords(view, coords, false);
   }
 
   return block;
-};
+}
 
 /**
  * With the sidemenu plugin we can position a menu next to a hovered block.
@@ -158,6 +205,7 @@ export class SideMenuView<
     this.hoveredBlock = block.node;
 
     // Gets the block's content node, which lets to ignore child blocks when determining the block menu's position.
+    // TODO: needed?
     const blockContent = block.node.firstChild as HTMLElement;
 
     if (!blockContent) {
@@ -168,15 +216,20 @@ export class SideMenuView<
 
     // Shows or updates elements.
     if (this.editor.isEditable) {
-      const editorBoundingBox = (
-        this.pmView.dom.firstChild as HTMLElement
-      ).getBoundingClientRect();
       const blockContentBoundingBox = blockContent.getBoundingClientRect();
-
+      const column = block.node.closest("[data-node-type=column]");
       this.updateState({
         show: true,
         referencePos: new DOMRect(
-          editorBoundingBox.x,
+          column
+            ? // We take the first child as column elements have some default
+              // padding. This is a little weird since this child element will
+              // be the first block, but since it's always non-nested and we
+              // only take the x coordinate, it's ok.
+              column.firstElementChild!.getBoundingClientRect().x
+            : (
+                this.pmView.dom.firstChild as HTMLElement
+              ).getBoundingClientRect().x,
           blockContentBoundingBox.y,
           blockContentBoundingBox.width,
           blockContentBoundingBox.height
@@ -209,22 +262,7 @@ export class SideMenuView<
     });
 
     if (!pos || pos.inside === -1) {
-      const evt = new Event("drop", event) as any;
-      const editorBoundingBox = (
-        this.pmView.dom.firstChild as HTMLElement
-      ).getBoundingClientRect();
-      evt.clientX =
-        event.clientX < editorBoundingBox.left ||
-        event.clientX > editorBoundingBox.left + editorBoundingBox.width
-          ? editorBoundingBox.left + editorBoundingBox.width / 2
-          : event.clientX;
-      evt.clientY = Math.min(
-        Math.max(event.clientY, editorBoundingBox.top),
-        editorBoundingBox.top + editorBoundingBox.height
-      );
-      evt.dataTransfer = event.dataTransfer;
-      evt.preventDefault = () => event.preventDefault();
-      evt.synthetic = true; // prevent recursion
+      const evt = this.createSyntheticEvent(event);
       // console.log("dispatch fake drop");
       this.pmView.dom.dispatchEvent(evt);
     }
@@ -248,15 +286,7 @@ export class SideMenuView<
     });
 
     if (!pos || (pos.inside === -1 && this.pmView.dom.firstChild)) {
-      const evt = new Event("dragover", event) as any;
-      const editorBoundingBox = (
-        this.pmView.dom.firstChild as HTMLElement
-      ).getBoundingClientRect();
-      evt.clientX = editorBoundingBox.left + editorBoundingBox.width / 2;
-      evt.clientY = event.clientY;
-      evt.dataTransfer = event.dataTransfer;
-      evt.preventDefault = () => event.preventDefault();
-      evt.synthetic = true; // prevent recursion
+      const evt = this.createSyntheticEvent(event);
       // console.log("dispatch fake dragover");
       this.pmView.dom.dispatchEvent(evt);
     }
@@ -313,6 +343,62 @@ export class SideMenuView<
 
     this.updateStateFromMousePos();
   };
+
+  private createSyntheticEvent(event: DragEvent) {
+    const evt = new Event(event.type, event) as any;
+    const editorBoundingBox = (
+      this.pmView.dom.firstChild as HTMLElement
+    ).getBoundingClientRect();
+    evt.clientX = event.clientX;
+    evt.clientY = event.clientY;
+    if (
+      event.clientX < editorBoundingBox.left &&
+      event.clientX >
+        editorBoundingBox.left -
+          editorBoundingBox.width *
+            PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP
+    ) {
+      // when we're slightly left of the editor, we can drop to the side of the block
+      evt.clientX =
+        editorBoundingBox.left +
+        (editorBoundingBox.width *
+          PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP) /
+          2;
+    } else if (
+      event.clientX > editorBoundingBox.right &&
+      event.clientX <
+        editorBoundingBox.right +
+          editorBoundingBox.width *
+            PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP
+    ) {
+      // when we're slightly right of the editor, we can drop to the side of the block
+      evt.clientX =
+        editorBoundingBox.right -
+        (editorBoundingBox.width *
+          PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP) /
+          2;
+    } else if (
+      event.clientX < editorBoundingBox.left ||
+      event.clientX > editorBoundingBox.right
+    ) {
+      // when mouse is outside of the editor on x axis, drop it somewhere safe (but not to the side of a block)
+      evt.clientX =
+        editorBoundingBox.left +
+        PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP *
+          editorBoundingBox.width *
+          2; // put it somewhere in first block, but safe outside of the PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP margin
+    }
+
+    evt.clientY = Math.min(
+      Math.max(event.clientY, editorBoundingBox.top),
+      editorBoundingBox.top + editorBoundingBox.height
+    );
+
+    evt.dataTransfer = event.dataTransfer;
+    evt.preventDefault = () => event.preventDefault();
+    evt.synthetic = true; // prevent recursion
+    return evt;
+  }
 
   // Needed in cases where the editor state updates without the mouse cursor
   // moving, as some state updates can require a side menu update. For example,
@@ -386,11 +472,14 @@ export class SideMenuProsemirrorPlugin<
   /**
    * Handles drag & drop events for blocks.
    */
-  blockDragStart = (event: {
-    dataTransfer: DataTransfer | null;
-    clientY: number;
-  }) => {
-    dragStart(event, this.editor);
+  blockDragStart = (
+    event: {
+      dataTransfer: DataTransfer | null;
+      clientY: number;
+    },
+    block: Block<BSchema, I, S>
+  ) => {
+    dragStart(event, block, this.editor);
   };
 
   /**

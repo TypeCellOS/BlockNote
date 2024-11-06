@@ -1,5 +1,4 @@
-import { DefaultStyleSchema } from "@blocknote/core";
-import { StyleMapping } from "@blocknote/core/src/exporter/mapping.js";
+import { DefaultStyleSchema, StyleMapping } from "@blocknote/core";
 import { IRunPropertiesOptions } from "docx";
 
 export const docxStyleMappingForDefaultSchema: StyleMapping<

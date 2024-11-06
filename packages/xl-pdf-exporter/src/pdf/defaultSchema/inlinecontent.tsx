@@ -1,5 +1,7 @@
-import { DefaultInlineContentSchema } from "@blocknote/core";
-import { InlineContentMapping } from "@blocknote/core/src/exporter/mapping.js";
+import {
+  DefaultInlineContentSchema,
+  InlineContentMapping,
+} from "@blocknote/core";
 import { Link, Text } from "@react-pdf/renderer";
 
 export const pdfInlineContentMappingForDefaultSchema: InlineContentMapping<

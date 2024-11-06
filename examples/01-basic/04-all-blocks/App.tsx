@@ -1,11 +1,33 @@
+import {
+  BlockNoteSchema,
+  combineByGroup,
+  filterSuggestionItems,
+  locales,
+} from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
-import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-
+import {
+  SuggestionMenuController,
+  getDefaultReactSlashMenuItems,
+  useCreateBlockNote,
+} from "@blocknote/react";
+import {
+  getMultiColumnSlashMenuItems,
+  multiColumnDropCursor,
+  locales as multiColumnLocales,
+  withMultiColumn,
+} from "@blocknote/xl-multi-column";
+import { useMemo } from "react";
 export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
+    schema: withMultiColumn(BlockNoteSchema.create()),
+    dropCursor: multiColumnDropCursor,
+    dictionary: {
+      ...locales.en,
+      multi_column: multiColumnLocales.en,
+    },
     initialContent: [
       {
         type: "paragraph",
@@ -27,6 +49,35 @@ export default function App() {
       {
         type: "paragraph",
         content: "Paragraph",
+      },
+      {
+        type: "columnList",
+        children: [
+          {
+            type: "column",
+            props: {
+              width: 0.8,
+            },
+            children: [
+              {
+                type: "paragraph",
+                content: "Hello to the left!",
+              },
+            ],
+          },
+          {
+            type: "column",
+            props: {
+              width: 1.2,
+            },
+            children: [
+              {
+                type: "paragraph",
+                content: "Hello to the right!",
+              },
+            ],
+          },
+        ],
       },
       {
         type: "heading",
@@ -137,6 +188,20 @@ export default function App() {
     ],
   });
 
+  const slashMenuItems = useMemo(() => {
+    return combineByGroup(
+      getDefaultReactSlashMenuItems(editor),
+      getMultiColumnSlashMenuItems(editor)
+    );
+  }, [editor]);
+
   // Renders the editor instance using a React component.
-  return <BlockNoteView editor={editor} />;
+  return (
+    <BlockNoteView editor={editor} slashMenu={false}>
+      <SuggestionMenuController
+        triggerCharacter={"/"}
+        getItems={async (query) => filterSuggestionItems(slashMenuItems, query)}
+      />
+    </BlockNoteView>
+  );
 }

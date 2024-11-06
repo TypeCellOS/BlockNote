@@ -1,5 +1,8 @@
-import { DefaultBlockSchema, DefaultProps } from "@blocknote/core";
-import { BlockMapping } from "@blocknote/core/src/exporter/mapping.js";
+import {
+  BlockMapping,
+  DefaultBlockSchema,
+  DefaultProps,
+} from "@blocknote/core";
 import { Image, Link, Path, Svg, Text, View } from "@react-pdf/renderer";
 import {
   BULLET_MARKER,

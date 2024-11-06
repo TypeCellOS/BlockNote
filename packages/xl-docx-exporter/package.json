@@ -10,6 +10,8 @@
     "src"
   ],
   "keywords": [
+    "docx",
+    "ooxml",
     "react",
     "javascript",
     "editor",
@@ -49,7 +51,6 @@
   },
   "dependencies": {
     "@blocknote/core": "^0.18.1",
-    "@blocknote/react": "^0.18.1",
     "buffer": "^6.0.3",
     "sharp": "^0.33.5",
     "docx": "^9.0.2"
@@ -65,10 +66,6 @@
     "vite": "^5.3.4",
     "vite-plugin-eslint": "^1.8.1",
     "vitest": "^2.0.3"
-  },
-  "peerDependencies": {
-    "react": "^18",
-    "react-dom": "^18"
   },
   "eslintConfig": {
     "extends": [

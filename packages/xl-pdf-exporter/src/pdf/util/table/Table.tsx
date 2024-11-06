@@ -1,9 +1,9 @@
 import {
+  Exporter,
   InlineContentSchema,
   StyleSchema,
   TableContent,
 } from "@blocknote/core";
-import { Exporter } from "@blocknote/core/src/exporter/Exporter.js";
 import { StyleSheet, View } from "@react-pdf/renderer";
 const PIXELS_PER_POINT = 0.75;
 

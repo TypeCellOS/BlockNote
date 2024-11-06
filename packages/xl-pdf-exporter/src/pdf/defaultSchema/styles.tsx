@@ -1,5 +1,4 @@
-import { DefaultStyleSchema } from "@blocknote/core";
-import { StyleMapping } from "@blocknote/core/src/exporter/mapping.js";
+import { DefaultStyleSchema, StyleMapping } from "@blocknote/core";
 import { TextProps } from "@react-pdf/renderer";
 
 export const pdfStyleMappingForDefaultSchema: StyleMapping<

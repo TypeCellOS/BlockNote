@@ -151,3 +151,13 @@ Tippy popups that are appended to document.body directly
   /* if there's no explicit width set and the column is not being resized, set a default width */
   min-width: var(--default-cell-min-width) !important;
 }
+
+.prosemirror-dropcursor-block {
+  transition-property: top, bottom;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 0.15s;
+}
+
+.prosemirror-dropcursor-vertical {
+  transition-property: left, right;
+}

@@ -7,6 +7,12 @@ import {
   moveBlockDown,
   moveBlockUp,
 } from "../api/blockManipulation/commands/moveBlock/moveBlock.js";
+import {
+  canNestBlock,
+  canUnnestBlock,
+  nestBlock,
+  unnestBlock,
+} from "../api/blockManipulation/commands/nestBlock/nestBlock.js";
 import { removeBlocks } from "../api/blockManipulation/commands/removeBlocks/removeBlocks.js";
 import { replaceBlocks } from "../api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
 import { updateBlock } from "../api/blockManipulation/commands/updateBlock/updateBlock.js";
@@ -17,7 +23,6 @@ import {
 } from "../api/blockManipulation/selections/textCursorPosition/textCursorPosition.js";
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
-import { getBlockInfoFromSelection } from "../api/getBlockInfoFromPos.js";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
 import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown.js";
 import {
@@ -66,7 +71,8 @@ import { PlaceholderPlugin } from "../extensions/Placeholder/PlaceholderPlugin.j
 import { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
 
-import { Transaction } from "@tiptap/pm/state";
+import { Plugin, Transaction } from "@tiptap/pm/state";
+import { dropCursor } from "prosemirror-dropcursor";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
@@ -90,7 +96,7 @@ export type BlockNoteEditorOptions<
   /**
    * A dictionary object containing translations for the editor.
    */
-  dictionary?: Dictionary;
+  dictionary?: Dictionary & Record<string, any>;
 
   /**
    * @deprecated, provide placeholders via dictionary instead
@@ -190,6 +196,8 @@ export type BlockNoteEditorOptions<
    * (note that the id is always set on the `data-id` attribute)
    */
   setIdAttribute?: boolean;
+
+  dropCursor?: (opts: any) => Plugin;
 };
 
 const blockNoteTipTapOptions = {
@@ -236,7 +244,7 @@ export class BlockNoteEditor<
   /**
    * The dictionary contains translations for the editor.
    */
-  public readonly dictionary: Dictionary;
+  public readonly dictionary: Dictionary & Record<string, any>;
 
   /**
    * The schema of the editor. The schema defines which Blocks, InlineContent, and Styles are available in the editor.
@@ -369,6 +377,7 @@ export class BlockNoteEditor<
       setIdAttribute: newOptions.setIdAttribute,
     });
 
+    const dropCursorPlugin: any = this.options.dropCursor ?? dropCursor;
     const blockNoteUIExtension = Extension.create({
       name: "BlockNoteUIExtension",
 
@@ -380,6 +389,7 @@ export class BlockNoteEditor<
           this.suggestionMenus.plugin,
           ...(this.filePanel ? [this.filePanel.plugin] : []),
           ...(this.tableHandles ? [this.tableHandles.plugin] : []),
+          dropCursorPlugin({ width: 5, color: "#ddeeff", editor: this }),
           PlaceholderPlugin(this, newOptions.placeholders),
           NodeSelectionKeyboardPlugin(),
           ...(this.options.animations ?? true
@@ -962,41 +972,28 @@ export class BlockNoteEditor<
    * Checks if the block containing the text cursor can be nested.
    */
   public canNestBlock() {
-    const { blockContainer } = getBlockInfoFromSelection(
-      this._tiptapEditor.state
-    );
-
-    return (
-      this._tiptapEditor.state.doc.resolve(blockContainer.beforePos)
-        .nodeBefore !== null
-    );
+    return canNestBlock(this);
   }
 
   /**
    * Nests the block containing the text cursor into the block above it.
    */
   public nestBlock() {
-    this._tiptapEditor.commands.sinkListItem("blockContainer");
+    nestBlock(this);
   }
 
   /**
    * Checks if the block containing the text cursor is nested.
    */
   public canUnnestBlock() {
-    const { blockContainer } = getBlockInfoFromSelection(
-      this._tiptapEditor.state
-    );
-
-    return (
-      this._tiptapEditor.state.doc.resolve(blockContainer.beforePos).depth > 1
-    );
+    return canUnnestBlock(this);
   }
 
   /**
    * Lifts the block containing the text cursor out of its parent.
    */
   public unnestBlock() {
-    this._tiptapEditor.commands.liftListItem("blockContainer");
+    unnestBlock(this);
   }
 
   /**
