@@ -43,7 +43,6 @@ export const defaultSupportedLanguages: SupportedLanguageConfig[] = [
         "shellscript",
         "sql",
         "svelte",
-        "tsx",
         "typescript",
         "vue",
         "vue-html",
@@ -58,6 +57,7 @@ export const defaultSupportedLanguages: SupportedLanguageConfig[] = [
       id: lang.id,
       name: lang.name,
     })),
+  { id: "tsx", name: "TSX", match: ["tsx", "typescriptreact"] },
   {
     id: "haskell",
     name: "Haskell",
