@@ -9,7 +9,8 @@
     "src"
   ],
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "clean": "tsc --build --clean"
   },
   "dependencies": {
     "@blocknote/core": "^0.18.1"
