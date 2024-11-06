@@ -1,0 +1,108 @@
+---
+title: Export to PDF
+description: Export BlockNote documents to a PDF.
+imageTitle: Export to PDF
+path: /docs/export-to-pdf
+---
+
+import { Example } from "@/components/example";
+import { Callout } from "nextra/components";
+
+# Exporting blocks to PDF
+
+It's possible to export BlockNote documents to PDF, completely client-side.
+
+<Callout type={"info"}>
+  This feature is provided by the `@blocknote/xl-pdf-exporter`. `xl-` packages
+  are fully open source, but released under a copyleft license. A commercial
+  license for usage in closed source, proprietary products comes as part of the
+  [Business subscription](/pricing).
+</Callout>
+
+First, install the `@blocknote/xl-pdf-exporter` and `@react-pdf/renderer` packages:
+
+```bash
+npm install @blocknote/xl-pdf-exporter @react-pdf/renderer
+```
+
+Then, create an instance of the `PDFExporter` class. This exposes the following methods:
+
+```typescript
+import {
+  PDFExporter,
+  pdfDefaultSchemaMappings,
+} from "@blocknote/xl-pdf-exporter";
+import * as ReactPDF from "@react-pdf/renderer";
+
+// Create the exporter
+const exporter = new PDFExporter(editor.schema, pdfDefaultSchemaMappings);
+
+// Convert the blocks to a react-pdf document
+const pdfDocument = await exporter.toReactPDFDocument(editor.document);
+
+// Use react-pdf to write to file:
+await ReactPDF.render(pdfDocument, `filename.pdf`);
+```
+
+See the [full example](/examples/interoperability/converting-blocks-to-pdf) with live PDF preview below:
+
+<Example name="interoperability/converting-blocks-to-pdf" />
+
+### Customizing the PDF
+
+`toReactPDFDocument` takes an optional `options` parameter, which allows you to customize the header and footer of the PDF:
+
+Example usage:
+
+```typescript
+import { Text } from "@react-pdf/renderer";
+const pdfDocument = await exporter.toReactPDFDocument(editor.document, {
+  header: <Text>Header</Text>,
+  footer: <Text>Footer</Text>,
+});
+```
+
+### Custom mappings / custom schemas
+
+The `PDFExporter` constructor takes a `schema` and `mappings` parameter.
+A _mapping_ defines how to convert a BlockNote schema element (a Block, Inline Content, or Style) to a React-PDF element.
+If you're using a [custom schema](/docs/custom-schemas) in your editor, or if you want to overwrite how default BlockNote elements are converted to PDF, you can pass your own `mappings`:
+
+For example, use the following code in case your schema has an `extraBlock` type:
+
+```typescript
+import { PDFExporter, pdfDefaultSchemaMappings } from "@blocknote/xl-pdf-exporter";
+import { Text } from "@react-pdf/renderer";
+
+new PDFExporter(schema, {
+    blockMapping: {
+        ...pdfDefaultSchemaMappings.blockMapping,
+        myCustomBlock: (block, exporter) => {
+            return <Text>My custom block</Text>;
+        },
+    },
+    inlineContentMapping: pdfDefaultSchemaMappings.inlineContentMapping,
+    styleMapping: pdfDefaultSchemaMappings.styleMapping,
+});
+```
+
+### Exporter options
+
+The `PDFExporter` constructor takes an optional `options` parameter.
+While conversion happens on the client-side, the default setup uses two server based resources:
+
+```typescript
+const defaultOptions = {
+  // emoji source, this is passed to the react-pdf library (https://react-pdf.org/fonts#registeremojisource)
+  // these are loaded from cloudflare + twemoji by default
+  emojiSource: {
+    format: "png",
+    url: "https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/",
+  },
+  // a function to resolve external resources in order to avoid CORS issues
+  // by default, this calls a BlockNote hosted server-side proxy to resolve files
+  resolveFileUrl: corsProxyResolveFileUrl,
+  // the colors to use in the PDF for things like highlighting, background colors and font colors.
+  colors: COLORS_DEFAULT, // defaults from @blocknote/core
+};
+```

@@ -17,7 +17,7 @@ const faqs = [
     question:
       "What License is BlockNote using? Can I use it for commercial projects?",
     answer: `BlockNote is open source software licensed under the MPL 2.0 license, which allows you to use BlockNote in commercial (and closed-source) applications - even without a subscription. 
-    If you make changes to the BlockNote source files, you're expected to publish these changes so the wider community can benefit as well.`,
+    If you make changes to the BlockNote source files, you're expected to publish these changes so the wider community can benefit as well. \nThe XL packages are dual-licensed and available under AGPL-3.0 or a commercial license as part of the BlockNote Business subscription or above.`,
   },
   // More questions...
 ];
