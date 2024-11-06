@@ -96,12 +96,16 @@ export default function App() {
     ],
   });
 
-  // Merges the default slash menu items with the multi-column ones.
-  const slashMenuItems = useMemo(() => {
-    return combineByGroup(
-      getDefaultReactSlashMenuItems(editor),
-      getMultiColumnSlashMenuItems(editor)
-    );
+  // Gets the default slash menu items merged with the multi-column ones.
+  const getSlashMenuItems = useMemo(() => {
+    return async (query: string) =>
+      filterSuggestionItems(
+        combineByGroup(
+          getDefaultReactSlashMenuItems(editor),
+          getMultiColumnSlashMenuItems(editor)
+        ),
+        query
+      );
   }, [editor]);
 
   // Renders the editor instance using a React component.
@@ -111,7 +115,7 @@ export default function App() {
       items and the multi-column ones. */}
       <SuggestionMenuController
         triggerCharacter={"/"}
-        getItems={async (query) => filterSuggestionItems(slashMenuItems, query)}
+        getItems={getSlashMenuItems}
       />
     </BlockNoteView>
   );
