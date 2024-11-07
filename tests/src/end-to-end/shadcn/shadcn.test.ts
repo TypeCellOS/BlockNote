@@ -29,6 +29,7 @@ test.describe("Check ShadCN UI", () => {
     await focusOnEditor(page);
     await page.keyboard.type("Paragraph");
     await page.keyboard.press("Shift+Home");
+    await page.keyboard.press("ArrowLeft");
 
     await page.waitForSelector(LINK_BUTTON_SELECTOR);
     await page.click(LINK_BUTTON_SELECTOR, { position: { x: 5, y: 5 } });
