@@ -57,6 +57,17 @@ export const imageRender = (
   block: BlockFromConfig<typeof imageBlockConfig, any, any>,
   editor: BlockNoteEditor<any, any, any>
 ) => {
+  // Immediately updates & re-renders the block if it's wider than the editor.
+  if (
+    block.props.previewWidth > editor.domElement.firstElementChild!.clientWidth
+  ) {
+    editor.updateBlock(block, {
+      props: {
+        previewWidth: editor.domElement.firstElementChild!.clientWidth,
+      },
+    });
+  }
+
   const icon = document.createElement("div");
   icon.innerHTML = FILE_IMAGE_ICON_SVG;
 
@@ -68,25 +79,19 @@ export const imageRender = (
   image.alt = block.props.name || block.props.caption || "BlockNote image";
   image.contentEditable = "false";
   image.draggable = false;
-  image.width = Math.min(
-    block.props.previewWidth,
-    editor.domElement.firstElementChild!.clientWidth
-  );
 
-  const file = createResizeHandlesWrapper(
+  const fileAndCaptionWrapper = createFileAndCaptionWrapper(block, image);
+
+  const resizeHandlesWrapper = createResizeHandlesWrapper(
     block,
     editor,
-    image,
-    () => image.width,
-    (width) => (image.width = width)
+    fileAndCaptionWrapper.dom
   );
-
-  const element = createFileAndCaptionWrapper(block, file.dom);
 
   return createFileBlockWrapper(
     block,
     editor,
-    element,
+    resizeHandlesWrapper,
     editor.dictionary.file_blocks.image.add_button_text,
     icon.firstElementChild as HTMLElement
   );

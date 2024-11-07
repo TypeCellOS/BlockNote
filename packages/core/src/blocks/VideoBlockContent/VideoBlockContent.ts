@@ -58,6 +58,17 @@ export const videoRender = (
   block: BlockFromConfig<typeof videoBlockConfig, any, any>,
   editor: BlockNoteEditor<any, any, any>
 ) => {
+  // Immediately updates & re-renders the block if it's wider than the editor.
+  if (
+    block.props.previewWidth > editor.domElement.firstElementChild!.clientWidth
+  ) {
+    editor.updateBlock(block, {
+      props: {
+        previewWidth: editor.domElement.firstElementChild!.clientWidth,
+      },
+    });
+  }
+
   const icon = document.createElement("div");
   icon.innerHTML = FILE_VIDEO_ICON_SVG;
 
@@ -67,25 +78,19 @@ export const videoRender = (
   video.controls = true;
   video.contentEditable = "false";
   video.draggable = false;
-  video.width = Math.min(
-    block.props.previewWidth,
-    editor.domElement.firstElementChild!.clientWidth
-  );
 
-  const file = createResizeHandlesWrapper(
+  const fileAndCaptionWrapper = createFileAndCaptionWrapper(block, video);
+
+  const resizeHandlesWrapper = createResizeHandlesWrapper(
     block,
     editor,
-    video,
-    () => video.width,
-    (width) => (video.width = width)
+    fileAndCaptionWrapper.dom
   );
-
-  const element = createFileAndCaptionWrapper(block, file.dom);
 
   return createFileBlockWrapper(
     block,
     editor,
-    element,
+    resizeHandlesWrapper,
     editor.dictionary.file_blocks.video.add_button_text,
     icon.firstElementChild as HTMLElement
   );

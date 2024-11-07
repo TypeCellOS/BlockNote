@@ -1,5 +1,5 @@
 import { FileBlockConfig, imageBlockConfig, imageParse } from "@blocknote/core";
-import { useState } from "react";
+import { useEffect } from "react";
 import { RiImage2Fill } from "react-icons/ri";
 
 import {
@@ -8,6 +8,7 @@ import {
 } from "../../schema/ReactBlockSpec.js";
 import {
   FigureWithCaption,
+  FileAndCaptionWrapper,
   FileBlockWrapper,
   LinkWithCaption,
   ResizeHandlesWrapper,
@@ -20,12 +21,24 @@ export const ImagePreview = (
     "contentRef"
   >
 ) => {
-  const [width, setWidth] = useState<number>(
-    Math.min(
-      props.block.props.previewWidth!,
-      props.editor.domElement.firstElementChild!.clientWidth
-    )
-  );
+  // Immediately updates & re-renders the block if it's wider than the editor.
+  useEffect(() => {
+    // Have to wait for initial render.
+    setTimeout(() => {
+      if (
+        props.editor.domElement.firstElementChild &&
+        props.block.props.previewWidth! >
+          props.editor.domElement.firstElementChild.clientWidth
+      ) {
+        props.editor.updateBlock(props.block, {
+          props: {
+            previewWidth: props.editor.domElement.firstElementChild
+              .clientWidth as any,
+          },
+        });
+      }
+    });
+  }, [props.block, props.editor]);
 
   const resolved = useResolveUrl(props.block.props.url!);
 
@@ -34,15 +47,16 @@ export const ImagePreview = (
   }
 
   return (
-    <ResizeHandlesWrapper {...props} width={width} setWidth={setWidth}>
-      <img
-        className={"bn-visual-media"}
-        src={resolved.downloadUrl}
-        alt={props.block.props.caption || "BlockNote image"}
-        contentEditable={false}
-        draggable={false}
-        width={width}
-      />
+    <ResizeHandlesWrapper {...props}>
+      <FileAndCaptionWrapper {...props}>
+        <img
+          className={"bn-visual-media"}
+          src={resolved.downloadUrl}
+          alt={props.block.props.caption || "BlockNote image"}
+          contentEditable={false}
+          draggable={false}
+        />
+      </FileAndCaptionWrapper>
     </ResizeHandlesWrapper>
   );
 };
@@ -94,7 +108,7 @@ export const ImageBlock = (
       {...(props as any)}
       buttonText={props.editor.dictionary.file_blocks.image.add_button_text}
       buttonIcon={<RiImage2Fill size={24} />}>
-      <ImagePreview block={props.block} editor={props.editor as any} />
+      <ImagePreview {...(props as any)} />
     </FileBlockWrapper>
   );
 };

@@ -108,14 +108,6 @@ export const createFileAndCaptionWrapper = (
   caption.className = "bn-file-caption";
   caption.textContent = block.props.caption;
 
-  if (
-    typeof block.props.previewWidth === "number" &&
-    block.props.previewWidth > 0 &&
-    block.props.caption !== undefined
-  ) {
-    caption.style.width = `${block.props.previewWidth}px`;
-  }
-
   fileAndCaptionWrapper.appendChild(file);
   fileAndCaptionWrapper.appendChild(caption);
 
@@ -250,9 +242,7 @@ export const createFigureWithCaption = (
 export const createResizeHandlesWrapper = (
   block: BlockFromConfig<FileBlockConfig, any, any>,
   editor: BlockNoteEditor<any, any, any>,
-  element: HTMLElement,
-  getWidth: () => number,
-  setWidth: (width: number) => void
+  element: HTMLElement
 ): { dom: HTMLElement; destroy: () => void } => {
   if (!block.props.previewWidth) {
     throw new Error("Block must have a `previewWidth` prop.");
@@ -260,14 +250,15 @@ export const createResizeHandlesWrapper = (
 
   // Wrapper element for rendered element and resize handles.
   const wrapper = document.createElement("div");
-  wrapper.className = "bn-visual-media-wrapper";
+  wrapper.className = "bn-resize-handles-wrapper";
+  wrapper.style.width = `${block.props.previewWidth}px`;
 
   // Resize handle elements.
   const leftResizeHandle = document.createElement("div");
-  leftResizeHandle.className = "bn-visual-media-resize-handle";
+  leftResizeHandle.className = "bn-resize-handle";
   leftResizeHandle.style.left = "4px";
   const rightResizeHandle = document.createElement("div");
-  rightResizeHandle.className = "bn-visual-media-resize-handle";
+  rightResizeHandle.className = "bn-resize-handle";
   rightResizeHandle.style.right = "4px";
 
   // Temporary parameters set when the user begins resizing the element, used to
@@ -328,11 +319,13 @@ export const createResizeHandlesWrapper = (
     // Ensures the element is not wider than the editor and not smaller than a
     // predetermined minimum width.
     if (newWidth < minWidth) {
-      setWidth(minWidth);
+      wrapper.style.width = `${minWidth}`;
     } else if (newWidth > editor.domElement.firstElementChild!.clientWidth) {
-      setWidth(editor.domElement.firstElementChild!.clientWidth);
+      wrapper.style.width = `${
+        editor.domElement.firstElementChild!.clientWidth
+      }px`;
     } else {
-      setWidth(newWidth);
+      wrapper.style.width = `${newWidth}px`;
     }
   };
   // Stops mouse movements from resizing the element and updates the block's
@@ -358,7 +351,7 @@ export const createResizeHandlesWrapper = (
 
     editor.updateBlock(block, {
       props: {
-        previewWidth: getWidth(),
+        previewWidth: parseInt(wrapper.style.width.replace("px", "")),
       },
     });
   };

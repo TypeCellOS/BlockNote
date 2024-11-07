@@ -1,5 +1,5 @@
 import { FileBlockConfig, videoBlockConfig, videoParse } from "@blocknote/core";
-import { useState } from "react";
+import { useEffect } from "react";
 import { RiVideoFill } from "react-icons/ri";
 
 import {
@@ -8,6 +8,7 @@ import {
 } from "../../schema/ReactBlockSpec.js";
 import {
   FigureWithCaption,
+  FileAndCaptionWrapper,
   FileBlockWrapper,
   LinkWithCaption,
   ResizeHandlesWrapper,
@@ -20,12 +21,24 @@ export const VideoPreview = (
     "contentRef"
   >
 ) => {
-  const [width, setWidth] = useState<number>(
-    Math.min(
-      props.block.props.previewWidth!,
-      props.editor.domElement.firstElementChild!.clientWidth
-    )
-  );
+  // Immediately updates & re-renders the block if it's wider than the editor.
+  useEffect(() => {
+    // Have to wait for initial render.
+    setTimeout(() => {
+      if (
+        props.editor.domElement.firstElementChild &&
+        props.block.props.previewWidth! >
+          props.editor.domElement.firstElementChild.clientWidth
+      ) {
+        props.editor.updateBlock(props.block, {
+          props: {
+            previewWidth: props.editor.domElement.firstElementChild
+              .clientWidth as any,
+          },
+        });
+      }
+    });
+  }, [props.block, props.editor]);
 
   const resolved = useResolveUrl(props.block.props.url!);
 
@@ -34,15 +47,16 @@ export const VideoPreview = (
   }
 
   return (
-    <ResizeHandlesWrapper {...props} width={width} setWidth={setWidth}>
-      <video
-        className={"bn-visual-media"}
-        src={resolved.downloadUrl}
-        controls={true}
-        contentEditable={false}
-        draggable={false}
-        width={width}
-      />
+    <ResizeHandlesWrapper {...props}>
+      <FileAndCaptionWrapper {...props}>
+        <video
+          className={"bn-visual-media"}
+          src={resolved.downloadUrl}
+          controls={true}
+          contentEditable={false}
+          draggable={false}
+        />
+      </FileAndCaptionWrapper>
     </ResizeHandlesWrapper>
   );
 };
@@ -88,7 +102,7 @@ export const VideoBlock = (
       {...(props as any)}
       buttonText={props.editor.dictionary.file_blocks.video.add_button_text}
       buttonIcon={<RiVideoFill size={24} />}>
-      <VideoPreview block={props.block} editor={props.editor as any} />
+      <VideoPreview {...(props as any)} />
     </FileBlockWrapper>
   );
 };

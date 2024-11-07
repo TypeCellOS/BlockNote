@@ -350,6 +350,7 @@ NESTED BLOCKS
   display: flex;
   flex-direction: column;
   border-radius: 4px;
+  width: 100%;
 }
 
 [data-file-block] .bn-file-default-preview {
@@ -372,12 +373,11 @@ NESTED BLOCKS
   height: 24px;
 }
 
-[data-file-block] .bn-visual-media-wrapper {
+[data-file-block] .bn-resize-handles-wrapper {
   display: flex;
   flex-direction: row;
   align-items: center;
   position: relative;
-  width: fit-content;
 }
 
 [data-file-block] .bn-visual-media {
@@ -385,7 +385,7 @@ NESTED BLOCKS
   max-width: 100%;
 }
 
-[data-file-block] .bn-visual-media-resize-handle {
+[data-file-block] .bn-resize-handle {
   position: absolute;
   width: 8px;
   height: 30px;

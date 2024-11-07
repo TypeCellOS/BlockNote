@@ -30,9 +30,7 @@ export const FileBlockWrapper = (
           />
         </FileAndCaptionWrapper>
       ) : (
-        <FileAndCaptionWrapper block={props.block} editor={props.editor as any}>
-          {props.children}
-        </FileAndCaptionWrapper>
+        props.children
       )}
     </div>
   );
@@ -142,11 +140,10 @@ export const ResizeHandlesWrapper = (
   props: Required<
     Omit<ReactCustomBlockRenderProps<FileBlockConfig, any, any>, "contentRef">
   > & {
-    width: number;
-    setWidth: (width: number) => void;
     children: ReactNode;
   }
 ) => {
+  const [width, setWidth] = useState(props.block.props.previewWidth! as number);
   const [childHovered, setChildHovered] = useState<boolean>(false);
   const [resizeParams, setResizeParams] = useState<
     | {
@@ -193,13 +190,13 @@ export const ResizeHandlesWrapper = (
       // Ensures the child is not wider than the editor and not smaller than a
       // predetermined minimum width.
       if (newWidth < minWidth) {
-        props.setWidth(minWidth);
+        setWidth(minWidth);
       } else if (
         newWidth > props.editor.domElement.firstElementChild!.clientWidth
       ) {
-        props.setWidth(props.editor.domElement.firstElementChild!.clientWidth);
+        setWidth(props.editor.domElement.firstElementChild!.clientWidth);
       } else {
-        props.setWidth(newWidth);
+        setWidth(newWidth);
       }
     };
     // Stops mouse movements from resizing the child and updates the block's
@@ -209,7 +206,7 @@ export const ResizeHandlesWrapper = (
 
       (props.editor as any).updateBlock(props.block, {
         props: {
-          previewWidth: props.width,
+          previewWidth: width,
         },
       });
     };
@@ -223,7 +220,7 @@ export const ResizeHandlesWrapper = (
       window.removeEventListener("mousemove", windowMouseMoveHandler);
       window.removeEventListener("mouseup", windowMouseUpHandler);
     };
-  }, [props, resizeParams]);
+  }, [props, resizeParams, width]);
 
   // Shows the resize handles when hovering over the child with the cursor.
   const childWrapperMouseEnterHandler = useCallback(() => {
@@ -246,11 +243,11 @@ export const ResizeHandlesWrapper = (
 
       setResizeParams({
         handleUsed: "left",
-        initialWidth: props.width,
+        initialWidth: width,
         initialClientX: event.clientX,
       });
     },
-    [props.width]
+    [width]
   );
   const rightResizeHandleMouseDownHandler = useCallback(
     (event: React.MouseEvent) => {
@@ -258,28 +255,29 @@ export const ResizeHandlesWrapper = (
 
       setResizeParams({
         handleUsed: "right",
-        initialWidth: props.width,
+        initialWidth: width,
         initialClientX: event.clientX,
       });
     },
-    [props.width]
+    [width]
   );
 
   return (
     <div
-      className={"bn-visual-media-wrapper"}
+      className={"bn-resize-handles-wrapper"}
       onMouseEnter={childWrapperMouseEnterHandler}
-      onMouseLeave={childWrapperMouseLeaveHandler}>
+      onMouseLeave={childWrapperMouseLeaveHandler}
+      style={{ width }}>
       {props.children}
       {(childHovered || resizeParams) && (
         <>
           <div
-            className={"bn-visual-media-resize-handle"}
+            className={"bn-resize-handle"}
             style={{ left: "4px" }}
             onMouseDown={leftResizeHandleMouseDownHandler}
           />
           <div
-            className={"bn-visual-media-resize-handle"}
+            className={"bn-resize-handle"}
             style={{ right: "4px" }}
             onMouseDown={rightResizeHandleMouseDownHandler}
           />

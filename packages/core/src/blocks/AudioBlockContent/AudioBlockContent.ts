@@ -64,12 +64,12 @@ export const audioRender = (
   audio.contentEditable = "false";
   audio.draggable = false;
 
-  const element = createFileAndCaptionWrapper(block, audio);
+  const fileAndCaptionWrapper = createFileAndCaptionWrapper(block, audio);
 
   return createFileBlockWrapper(
     block,
     editor,
-    element,
+    fileAndCaptionWrapper,
     editor.dictionary.file_blocks.audio.add_button_text,
     icon.firstElementChild as HTMLElement
   );
