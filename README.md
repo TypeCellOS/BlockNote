@@ -11,6 +11,7 @@ React rich text editor. Easily add a modern text editing experience to your app.
 
 <p align="center">
 <a href="https://discord.gg/Qc2QTTH5dF"><img alt="Discord" src="https://img.shields.io/badge/Chat on discord%20-%237289DA.svg?&style=for-the-badge&logo=discord&logoColor=white"/></a> 
+<a href="https://gurubase.io/g/blocknote"><img alt="Gurubase" src="https://img.shields.io/badge/Gurubase-Ask%20BlockNote%20Guru-006BFF"/></a>
 </p>
 
 <p align="center">
