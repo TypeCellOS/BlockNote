@@ -13,6 +13,7 @@ import * as Y from "yjs";
 import { createDropFileExtension } from "../api/clipboard/fromClipboard/fileDropExtension.js";
 import { createPasteFromClipboardExtension } from "../api/clipboard/fromClipboard/pasteExtension.js";
 import { createCopyToClipboardExtension } from "../api/clipboard/toClipboard/copyExtension.js";
+import { autolink } from "../extensions/Autolink/autolink.js";
 import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension.js";
 import { KeyboardShortcutsExtension } from "../extensions/KeyboardShortcuts/KeyboardShortcutsExtension.js";
 import { TextAlignmentExtension } from "../extensions/TextAlignment/TextAlignmentExtension.js";
@@ -80,7 +81,20 @@ export const getBlockNoteExtensions = <
     Text,
 
     // marks:
-    Link.extend({
+    Link.configure({
+      autolink: false,
+      openOnClick: false,
+      linkOnPaste: false,
+    }).extend({
+      addProseMirrorPlugins() {
+        return [
+          autolink({
+            type: this.type,
+            defaultProtocol: this.options.defaultProtocol,
+            validate: this.options.validate,
+          }),
+        ];
+      },
       addKeyboardShortcuts() {
         return {
           "Mod-k": () => {
