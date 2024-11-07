@@ -82,19 +82,10 @@ export const getBlockNoteExtensions = <
 
     // marks:
     Link.configure({
-      autolink: false,
-      openOnClick: false,
-      linkOnPaste: false,
+      autolink: false, // Replaced by local version of the plugin
+      openOnClick: true, // TODO: consider setting false
+      linkOnPaste: false, // Already handled by paste extension
     }).extend({
-      addProseMirrorPlugins() {
-        return [
-          autolink({
-            type: this.type,
-            defaultProtocol: this.options.defaultProtocol,
-            validate: this.options.validate,
-          }),
-        ];
-      },
       addKeyboardShortcuts() {
         return {
           "Mod-k": () => {
@@ -106,6 +97,18 @@ export const getBlockNoteExtensions = <
     }),
     ...Object.values(opts.styleSpecs).map((styleSpec) => {
       return styleSpec.implementation.mark;
+    }),
+    Extension.create({
+      name: "autolink",
+      addProseMirrorPlugins() {
+        return [
+          autolink({
+            type: this.editor.schema.marks.link,
+            defaultProtocol: this.options.defaultProtocol,
+            validate: this.options.validate,
+          }),
+        ];
+      },
     }),
 
     TextColorExtension,
