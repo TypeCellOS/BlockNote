@@ -29,13 +29,13 @@ test.describe("Check ShadCN UI", () => {
     await focusOnEditor(page);
     await page.keyboard.type("Paragraph");
     await page.keyboard.press("Shift+Home");
-    await page.keyboard.press("ArrowLeft");
 
     await page.waitForSelector(LINK_BUTTON_SELECTOR);
     await page.click(LINK_BUTTON_SELECTOR, { position: { x: 5, y: 5 } });
 
     await page.keyboard.type("link");
     await page.keyboard.press("Enter");
+    await page.keyboard.press("ArrowLeft");
 
     await page.waitForTimeout(500);
     expect(await page.screenshot()).toMatchSnapshot("shadcn-link-toolbar.png");
