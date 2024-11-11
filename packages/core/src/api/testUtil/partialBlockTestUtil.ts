@@ -1,4 +1,5 @@
 import { Block, PartialBlock } from "../../blocks/defaultBlocks.js";
+import { BlockNoteSchema } from "../../editor/BlockNoteSchema.js";
 import UniqueID from "../../extensions/UniqueID/UniqueID.js";
 import { BlockSchema, TableContent } from "../../schema/blocks/types.js";
 import {
@@ -54,6 +55,17 @@ function partialContentToInlineContent(
         } as any;
       }
     });
+  } else if (content?.type === "tableContent") {
+    return {
+      type: "tableContent",
+      columnWidths: content.columnWidths,
+      rows: content.rows.map((row) => ({
+        ...row,
+        cells: row.cells.map(
+          (cell) => partialContentToInlineContent(cell) as any
+        ),
+      })),
+    };
   }
 
   return content;
@@ -64,11 +76,11 @@ export function partialBlocksToBlocksForTesting<
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  schema: BSchema,
-  partialBlocks: Array<PartialBlock<BSchema, I, S>>
+  schema: BlockNoteSchema<BSchema, I, S>,
+  partialBlocks: Array<PartialBlock<NoInfer<BSchema>, NoInfer<I>, NoInfer<S>>>
 ): Array<Block<BSchema, I, S>> {
   return partialBlocks.map((partialBlock) =>
-    partialBlockToBlockForTesting(schema, partialBlock)
+    partialBlockToBlockForTesting(schema.blockSchema, partialBlock)
   );
 }
 

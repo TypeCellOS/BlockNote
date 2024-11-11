@@ -104,7 +104,7 @@ export type BlockSpec<
   S extends StyleSchema
 > = {
   config: T;
-  implementation: TiptapBlockImplementation<T, B, I, S>;
+  implementation: TiptapBlockImplementation<NoInfer<T>, B, I, S>;
 };
 
 // Utility type. For a given object block schema, ensures that the key of each
