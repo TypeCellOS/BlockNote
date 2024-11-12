@@ -45,22 +45,21 @@ export type BlockInfo = {
 );
 
 /**
- * Retrieves the position just before the nearest blockContainer node in a
- * ProseMirror doc, relative to a position. If the position is within a
- * blockContainer node or its descendants, the position just before it is
- * returned. If the position is not within a blockContainer node or its
- * descendants, the position just before the next closest blockContainer node
- * is returned. If the position is beyond the last blockContainer, the position
- * just before the last blockContainer is returned.
+ * Retrieves the position just before the nearest block node in a ProseMirror
+ * doc, relative to a position. If the position is within a block node or its
+ * descendants, the position just before it is returned. If the position is not
+ * within a block node or its descendants, the position just before the next
+ * closest block node is returned. If the position is beyond the last block, the
+ * position just before the last block is returned.
  * @param doc The ProseMirror doc.
  * @param pos An integer position in the document.
  * @returns The position just before the nearest blockContainer node.
  */
-export function getNearestBlockContainerPos(doc: Node, pos: number) {
+export function getNearestBlockPos(doc: Node, pos: number) {
   const $pos = doc.resolve(pos);
 
-  // Checks if the position provided is already just before a blockContainer
-  // node, in which case we return the position.
+  // Checks if the position provided is already just before a block node, in
+  // which case we return the position.
   if ($pos.nodeAfter && $pos.nodeAfter.type.isInGroup("bnBlock")) {
     return {
       posBeforeNode: $pos.pos,
@@ -69,7 +68,7 @@ export function getNearestBlockContainerPos(doc: Node, pos: number) {
   }
 
   // Checks the node containing the position and its ancestors until a
-  // blockContainer node is found and returned.
+  // block node is found and returned.
   let depth = $pos.depth;
   let node = $pos.node(depth);
   while (depth > 0) {
@@ -84,13 +83,12 @@ export function getNearestBlockContainerPos(doc: Node, pos: number) {
     node = $pos.node(depth);
   }
 
-  // If the position doesn't lie within a blockContainer node, we instead find
-  // the position of the next closest one. If the position is beyond the last
-  // blockContainer, we return the position of the last blockContainer. While
-  // running `doc.descendants` is expensive, this case should be very rarely
-  // triggered. However, it's possible for the position to sometimes be beyond
-  // the last blockContainer node. This is a problem specifically when using the
-  // collaboration plugin.
+  // If the position doesn't lie within a block node, we instead find the
+  // position of the next closest one. If the position is beyond the last block,
+  // we return the position of the last block. While running `doc.descendants`
+  // is expensive, this case should be very rarely triggered. However, it's
+  // possible for the position to sometimes be beyond the last block node. This
+  // is a problem specifically when using the collaboration plugin.
   const allBlockContainerPositions: number[] = [];
   doc.descendants((node, pos) => {
     if (node.type.isInGroup("bnBlock")) {
@@ -119,7 +117,7 @@ export function getNearestBlockContainerPos(doc: Node, pos: number) {
  * the ProseMirror positions just before & after each node.
  * @param node The main `blockContainer` node that the block information should
  * be retrieved from,
- * @param blockContainerBeforePosOffset the position just before the
+ * @param bnBlockBeforePosOffset the position just before the
  * `blockContainer` node in the document.
  */
 export function getBlockInfoWithManualOffset(
@@ -237,15 +235,7 @@ export function getBlockInfoFromResolvedPos(resolvedPos: ResolvedPos) {
  * @param state The ProseMirror editor state.
  */
 export function getBlockInfoFromSelection(state: EditorState) {
-  const posInfo = getNearestBlockContainerPos(
-    state.doc,
-    state.selection.anchor
-  );
-  const ret = getBlockInfo(posInfo);
-  if (!ret.isBlockContainer) {
-    throw new Error(
-      `selection always expected to return blockContainer ${state.selection.anchor}`
-    );
-  }
-  return ret;
+  const posInfo = getNearestBlockPos(state.doc, state.selection.anchor);
+
+  return getBlockInfo(posInfo);
 }

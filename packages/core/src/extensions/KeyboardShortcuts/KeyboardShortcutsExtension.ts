@@ -33,6 +33,9 @@ export const KeyboardShortcutsExtension = Extension.create<{
         () =>
           commands.command(({ state }) => {
             const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
 
             const selectionAtBlockStart =
               state.selection.from === blockInfo.blockContent.beforePos + 1;
@@ -57,7 +60,11 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // Removes a level of nesting if the block is indented if the selection is at the start of the block.
         () =>
           commands.command(({ state }) => {
-            const { blockContent } = getBlockInfoFromSelection(state);
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+            const { blockContent } = blockInfo;
 
             const selectionAtBlockStart =
               state.selection.from === blockContent.beforePos + 1;
@@ -72,8 +79,11 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // block. The target block for merging must contain inline content.
         () =>
           commands.command(({ state }) => {
-            const { bnBlock: blockContainer, blockContent } =
-              getBlockInfoFromSelection(state);
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+            const { bnBlock: blockContainer, blockContent } = blockInfo;
 
             const selectionAtBlockStart =
               state.selection.from === blockContent.beforePos + 1;
@@ -94,6 +104,9 @@ export const KeyboardShortcutsExtension = Extension.create<{
           commands.command(({ state, dispatch }) => {
             // when at the start of a first block in a column
             const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
 
             const selectionAtBlockStart =
               state.selection.from === blockInfo.blockContent.beforePos + 1;
@@ -315,11 +328,15 @@ export const KeyboardShortcutsExtension = Extension.create<{
         () =>
           commands.command(({ state }) => {
             // TODO: Change this to not rely on offsets & schema assumptions
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
             const {
               bnBlock: blockContainer,
               blockContent,
               childContainer,
-            } = getBlockInfoFromSelection(state);
+            } = blockInfo;
 
             const { depth } = state.doc.resolve(blockContainer.beforePos);
             const blockAtDocEnd =
@@ -358,8 +375,11 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // of the block.
         () =>
           commands.command(({ state }) => {
-            const { blockContent, bnBlock: blockContainer } =
-              getBlockInfoFromSelection(state);
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+            const { bnBlock: blockContainer, blockContent } = blockInfo;
 
             const { depth } = state.doc.resolve(blockContainer.beforePos);
 
@@ -385,8 +405,11 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // empty & at the start of the block.
         () =>
           commands.command(({ state, dispatch }) => {
-            const { bnBlock: blockContainer, blockContent } =
-              getBlockInfoFromSelection(state);
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+            const { bnBlock: blockContainer, blockContent } = blockInfo;
 
             const selectionAtBlockStart =
               state.selection.$anchor.parentOffset === 0;
@@ -419,7 +442,11 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // deletes the selection beforehand, if it's not empty.
         () =>
           commands.command(({ state, chain }) => {
-            const { blockContent } = getBlockInfoFromSelection(state);
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+            const { blockContent } = blockInfo;
 
             const selectionAtBlockStart =
               state.selection.$anchor.parentOffset === 0;
