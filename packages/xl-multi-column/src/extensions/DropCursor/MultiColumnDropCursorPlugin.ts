@@ -130,17 +130,24 @@ export function multiColumnDropCursor(
             (b) => b.id === blockInfo.bnBlock.node.attrs.id
           );
 
-          const newChildren = columnList.children.toSpliced(
-            position === "left" ? index : index + 1,
-            0,
-            {
+          const newChildren = columnList.children
+            // If the dragged block is in one of the columns, remove it.
+            .map((column) => ({
+              ...column,
+              children: column.children.filter(
+                (block) => block.id !== draggedBlock.id
+              ),
+            }))
+            // Remove empty columns (can happen when dragged block is removed).
+            .filter((column) => column.children.length > 0)
+            // Insert the dragged block in the correct position.
+            .toSpliced(position === "left" ? index : index + 1, 0, {
               type: "column",
               children: [draggedBlock],
               props: {},
               content: undefined,
               id: UniqueID.options.generateID(),
-            }
-          );
+            });
 
           editor.removeBlocks([draggedBlock]);
 
@@ -267,20 +274,22 @@ class DropCursorView {
         ) {
           const block = this.editorView.nodeDOM(this.cursorPos.pos);
 
-          const blockRect = (block as HTMLElement).getBoundingClientRect();
-          const halfWidth = (this.width / 2) * scaleY;
-          const left =
-            this.cursorPos.position === "left"
-              ? blockRect.left
-              : blockRect.right;
-          rect = {
-            left: left - halfWidth,
-            right: left + halfWidth,
-            top: blockRect.top,
-            bottom: blockRect.bottom,
-            // left: blockRect.left,
-            // right: blockRect.right,
-          };
+          if (block !== null) {
+            const blockRect = (block as HTMLElement).getBoundingClientRect();
+            const halfWidth = (this.width / 2) * scaleY;
+            const left =
+              this.cursorPos.position === "left"
+                ? blockRect.left
+                : blockRect.right;
+            rect = {
+              left: left - halfWidth,
+              right: left + halfWidth,
+              top: blockRect.top,
+              bottom: blockRect.bottom,
+              // left: blockRect.left,
+              // right: blockRect.right,
+            };
+          }
         } else {
           // regular logic
           const node = this.editorView.nodeDOM(

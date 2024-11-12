@@ -39,12 +39,12 @@ export function replaceBlocks<
     editor,
     blocksToRemove,
     (node, pos, tr, removedSize) => {
-      if (node.attrs.id === idOfFirstBlock) {
+      if (blocksToInsert.length > 0 && node.attrs.id === idOfFirstBlock) {
         const oldDocSize = tr.doc.nodeSize;
         tr.insert(pos, nodesToInsert);
         const newDocSize = tr.doc.nodeSize;
 
-        return removedSize + oldDocSize - newDocSize;
+        return removedSize + oldDocSize - newDocSize + 1;
       }
 
       return removedSize;
