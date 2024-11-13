@@ -245,6 +245,13 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
             editor.state.doc,
             getPos()
           );
+
+          if (beforeBlockContainerPos.node.type.name !== "blockContainer") {
+            throw new Error(
+              `Expected blockContainer node, got ${beforeBlockContainerPos.node.type.name}`
+            );
+          }
+
           this.editor.commands.command(
             updateBlockCommand(
               this.options.editor,
