@@ -50,6 +50,10 @@ export async function handleFileInsertion<
   S extends StyleSchema
 >(event: DragEvent | ClipboardEvent, editor: BlockNoteEditor<BSchema, I, S>) {
   if (!editor.uploadFile) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      "Attempted ot insert file, but uploadFile is not set in the BlockNote editor options"
+    );
     return;
   }
 
