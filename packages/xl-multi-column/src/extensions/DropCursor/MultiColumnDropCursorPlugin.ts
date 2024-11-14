@@ -208,14 +208,25 @@ class DropCursorView {
       const handler = (e: Event) => {
         (this as any)[name](e);
       };
-      editorView.dom.addEventListener(name, handler);
+      editorView.dom.addEventListener(
+        name,
+        handler,
+        // drop event captured in bubbling phase to make sure
+        // "cursorPos" is set to undefined before the "handleDrop" handler is called
+        // (otherwise an error could be thrown, see https://github.com/TypeCellOS/BlockNote/pull/1240)
+        name === "drop" ? true : undefined
+      );
       return { name, handler };
     });
   }
 
   destroy() {
     this.handlers.forEach(({ name, handler }) =>
-      this.editorView.dom.removeEventListener(name, handler)
+      this.editorView.dom.removeEventListener(
+        name,
+        handler,
+        name === "drop" ? true : undefined
+      )
     );
   }
 
@@ -274,22 +285,24 @@ class DropCursorView {
         ) {
           const block = this.editorView.nodeDOM(this.cursorPos.pos);
 
-          if (block !== null) {
-            const blockRect = (block as HTMLElement).getBoundingClientRect();
-            const halfWidth = (this.width / 2) * scaleY;
-            const left =
-              this.cursorPos.position === "left"
-                ? blockRect.left
-                : blockRect.right;
-            rect = {
-              left: left - halfWidth,
-              right: left + halfWidth,
-              top: blockRect.top,
-              bottom: blockRect.bottom,
-              // left: blockRect.left,
-              // right: blockRect.right,
-            };
+          if (!block) {
+            throw new Error("nodeDOM returned null in updateOverlay");
           }
+
+          const blockRect = (block as HTMLElement).getBoundingClientRect();
+          const halfWidth = (this.width / 2) * scaleY;
+          const left =
+            this.cursorPos.position === "left"
+              ? blockRect.left
+              : blockRect.right;
+          rect = {
+            left: left - halfWidth,
+            right: left + halfWidth,
+            top: blockRect.top,
+            bottom: blockRect.bottom,
+            // left: blockRect.left,
+            // right: blockRect.right,
+          };
         } else {
           // regular logic
           const node = this.editorView.nodeDOM(
@@ -443,7 +456,7 @@ class DropCursorView {
           target = point;
         }
       }
-      //   console.log("target", target);
+
       this.setCursor({ pos: target, position });
       this.scheduleRemoval(5000);
     }
@@ -454,7 +467,7 @@ class DropCursorView {
   }
 
   drop() {
-    this.scheduleRemoval(20);
+    this.setCursor(undefined);
   }
 
   dragleave(event: DragEvent) {
