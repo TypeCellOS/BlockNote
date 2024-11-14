@@ -3,7 +3,8 @@ import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { TableRow } from "@tiptap/extension-table-row";
 import { Node as PMNode } from "prosemirror-model";
-import { TableView } from "prosemirror-tables";
+import { Plugin } from "prosemirror-state";
+import { columnResizingPluginKey, TableView } from "prosemirror-tables";
 
 import {
   createBlockSpecFromStronglyTypedTiptapNode,
@@ -13,6 +14,8 @@ import { mergeCSSClasses } from "../../util/browser.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
 import { EMPTY_CELL_WIDTH, TableExtension } from "./TableExtension.js";
+
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 export const tablePropSchema = {
   textColor: defaultProps.textColor,
@@ -40,6 +43,25 @@ export const TableBlockContent = createStronglyTypedTiptapNode({
       },
       this.options.domAttributes?.inlineContent || {}
     );
+  },
+
+  // Since we're using ProseMirror's default table column resizing plugin, we
+  // can't easily modify the code to prevent it from functioning when the editor
+  // isn't editable. Therefore, we instead filter out transactions that are
+  // created by the plugin as a workaround.
+  addProseMirrorPlugins() {
+    const editor: BlockNoteEditor<any, any, any> = this.options.editor;
+    return [
+      new Plugin({
+        filterTransaction(tr) {
+          if (!editor.isEditable) {
+            return !tr.getMeta(columnResizingPluginKey);
+          }
+
+          return true;
+        },
+      }),
+    ];
   },
 
   // This node view is needed for the `columnResizing` plugin. By default, the
