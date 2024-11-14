@@ -6,10 +6,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
-import {
-  getBlockInfo,
-  getNearestBlockContainerPos,
-} from "../../getBlockInfoFromPos.js";
+import { getBlockInfo, getNearestBlockPos } from "../../getBlockInfoFromPos.js";
 import { acceptedMIMETypes } from "./acceptedMIMETypes.js";
 
 function checkFileExtensionsMatch(
@@ -139,7 +136,7 @@ export async function handleFileInsertion<
           return;
         }
 
-        const posInfo = getNearestBlockContainerPos(
+        const posInfo = getNearestBlockPos(
           editor._tiptapEditor.state.doc,
           pos.pos
         );
