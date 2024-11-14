@@ -81,6 +81,7 @@ export const getBlockNoteExtensions = <
 
     // marks:
     Link.extend({
+      inclusive: false,
       addKeyboardShortcuts() {
         return {
           "Mod-k": () => {
