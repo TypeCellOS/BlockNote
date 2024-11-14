@@ -169,7 +169,13 @@ export const MenuItem = forwardRef<
 
   if (subTrigger) {
     return (
-      <div ref={ref} {...rest}>
+      <div
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+        ref={ref}
+        {...rest}>
         {children}
         <HiChevronRight size={15} />
       </div>

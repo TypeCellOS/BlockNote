@@ -2,7 +2,7 @@ import { EditorState } from "prosemirror-state";
 
 import {
   getBlockInfo,
-  getNearestBlockContainerPos,
+  getNearestBlockPos,
 } from "../../../getBlockInfoFromPos.js";
 
 export const splitBlockCommand = (
@@ -17,10 +17,7 @@ export const splitBlockCommand = (
     state: EditorState;
     dispatch: ((args?: any) => any) | undefined;
   }) => {
-    const nearestBlockContainerPos = getNearestBlockContainerPos(
-      state.doc,
-      posInBlock
-    );
+    const nearestBlockContainerPos = getNearestBlockPos(state.doc, posInBlock);
 
     const info = getBlockInfo(nearestBlockContainerPos);
 

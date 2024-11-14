@@ -2,7 +2,7 @@ import type { BlockNoteEditor } from "@blocknote/core";
 import {
   UniqueID,
   getBlockInfo,
-  getNearestBlockContainerPos,
+  getNearestBlockPos,
   nodeToBlock,
 } from "@blocknote/core";
 import { EditorState, Plugin } from "prosemirror-state";
@@ -465,7 +465,7 @@ function getTargetPosInfo(
   state: EditorState,
   eventPos: { pos: number; inside: number }
 ) {
-  const blockPos = getNearestBlockContainerPos(state.doc, eventPos.pos);
+  const blockPos = getNearestBlockPos(state.doc, eventPos.pos);
 
   // if we're at a block that's in a column, we want to compare the mouse position to the column, not the block inside it
   // why? because we want to insert a new column in the columnList, instead of a new columnList inside of the column

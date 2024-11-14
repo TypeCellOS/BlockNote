@@ -48,7 +48,10 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
           find: new RegExp(`^(#{${level}})\\s$`),
           handler: ({ state, chain, range }) => {
             const blockInfo = getBlockInfoFromSelection(state);
-            if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
+            if (
+              !blockInfo.isBlockContainer ||
+              blockInfo.blockContent.node.type.spec.content !== "inline*"
+            ) {
               return;
             }
 
@@ -78,7 +81,10 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
     return {
       "Mod-Alt-1": () => {
         const blockInfo = getBlockInfoFromSelection(this.editor.state);
-        if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
+        if (
+          !blockInfo.isBlockContainer ||
+          blockInfo.blockContent.node.type.spec.content !== "inline*"
+        ) {
           return true;
         }
 
@@ -94,7 +100,10 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
       },
       "Mod-Alt-2": () => {
         const blockInfo = getBlockInfoFromSelection(this.editor.state);
-        if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
+        if (
+          !blockInfo.isBlockContainer ||
+          blockInfo.blockContent.node.type.spec.content !== "inline*"
+        ) {
           return true;
         }
 
@@ -109,7 +118,10 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
       },
       "Mod-Alt-3": () => {
         const blockInfo = getBlockInfoFromSelection(this.editor.state);
-        if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
+        if (
+          !blockInfo.isBlockContainer ||
+          blockInfo.blockContent.node.type.spec.content !== "inline*"
+        ) {
           return true;
         }
 
