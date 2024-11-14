@@ -176,14 +176,9 @@ export function getDefaultSlashMenuItems<
   if (checkDefaultBlockTypeInSchema("codeBlock", editor)) {
     items.push({
       onItemClick: () => {
-        const pos = editor._tiptapEditor.state.selection.from;
-
         insertOrUpdateBlock(editor, {
           type: "codeBlock",
         });
-
-        // Move the cursor inside the code block
-        editor._tiptapEditor.commands.setTextSelection(pos);
       },
       badge: formatKeyboardShortcut("Mod-Alt-c"),
       key: "code_block",
