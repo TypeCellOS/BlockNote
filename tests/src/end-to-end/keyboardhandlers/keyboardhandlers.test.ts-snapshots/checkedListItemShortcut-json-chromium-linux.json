@@ -1,0 +1,49 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "blockGroup",
+      "content": [
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": "0",
+            "textColor": "default",
+            "backgroundColor": "default"
+          },
+          "content": [
+            {
+              "type": "checkListItem",
+              "attrs": {
+                "textAlignment": "left",
+                "checked": false
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Paragraph"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "blockContainer",
+          "attrs": {
+            "id": "1",
+            "textColor": "default",
+            "backgroundColor": "default"
+          },
+          "content": [
+            {
+              "type": "paragraph",
+              "attrs": {
+                "textAlignment": "left"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
