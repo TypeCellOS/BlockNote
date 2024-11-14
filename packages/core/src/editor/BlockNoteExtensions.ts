@@ -13,7 +13,6 @@ import * as Y from "yjs";
 import { createDropFileExtension } from "../api/clipboard/fromClipboard/fileDropExtension.js";
 import { createPasteFromClipboardExtension } from "../api/clipboard/fromClipboard/pasteExtension.js";
 import { createCopyToClipboardExtension } from "../api/clipboard/toClipboard/copyExtension.js";
-import { autolink } from "../extensions/Autolink/autolink.js";
 import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension.js";
 import { KeyboardShortcutsExtension } from "../extensions/KeyboardShortcuts/KeyboardShortcutsExtension.js";
 import { TextAlignmentExtension } from "../extensions/TextAlignment/TextAlignmentExtension.js";
@@ -82,10 +81,11 @@ export const getBlockNoteExtensions = <
 
     // marks:
     Link.configure({
-      autolink: false, // Replaced by local version of the plugin
+      autolink: true, // Replaced by local version of the plugin
       openOnClick: true, // TODO: consider setting false
       linkOnPaste: false, // Already handled by paste extension
     }).extend({
+      inclusive: false,
       addKeyboardShortcuts() {
         return {
           "Mod-k": () => {
@@ -97,18 +97,6 @@ export const getBlockNoteExtensions = <
     }),
     ...Object.values(opts.styleSpecs).map((styleSpec) => {
       return styleSpec.implementation.mark;
-    }),
-    Extension.create({
-      name: "autolink",
-      addProseMirrorPlugins() {
-        return [
-          autolink({
-            type: this.editor.schema.marks.link,
-            defaultProtocol: this.options.defaultProtocol,
-            validate: this.options.validate,
-          }),
-        ];
-      },
     }),
 
     TextColorExtension,
