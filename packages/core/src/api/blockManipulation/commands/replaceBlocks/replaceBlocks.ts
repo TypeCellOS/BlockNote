@@ -87,6 +87,7 @@ export function removeAndInsertBlocks<
     // `blockContainer`.
     const $pos = tr.doc.resolve(pos - removedSize);
     if (
+      $pos.node().type.name === "blockGroup" &&
       $pos.node($pos.depth - 1).type.name !== "doc" &&
       $pos.node().childCount === 1
     ) {
