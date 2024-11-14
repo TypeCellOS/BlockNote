@@ -80,11 +80,7 @@ export const getBlockNoteExtensions = <
     Text,
 
     // marks:
-    Link.configure({
-      autolink: true, // Replaced by local version of the plugin
-      openOnClick: true, // TODO: consider setting false
-      linkOnPaste: false, // Already handled by paste extension
-    }).extend({
+    Link.extend({
       inclusive: false,
       addKeyboardShortcuts() {
         return {
