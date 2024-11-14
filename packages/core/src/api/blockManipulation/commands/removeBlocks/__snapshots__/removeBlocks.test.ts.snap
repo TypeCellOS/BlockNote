@@ -257,7 +257,6 @@ exports[`Test removeBlocks > Remove multiple consecutive blocks 1`] = `
     },
     "id": "table-0",
     "props": {
-      "backgroundColor": "default",
       "textColor": "default",
     },
     "type": "table",
@@ -1013,7 +1012,6 @@ exports[`Test removeBlocks > Remove single block 1`] = `
     },
     "id": "table-0",
     "props": {
-      "backgroundColor": "default",
       "textColor": "default",
     },
     "type": "table",
