@@ -296,9 +296,11 @@ class ColumnResizePluginView implements PluginView {
     this.editor.sideMenu.unfreezeMenu();
   };
 
-  // This is a required method for PluginView, so we get a type error if we
-  // don't implement it.
-  update: undefined;
+  destroy() {
+    this.view.dom.removeEventListener("mousedown", this.mouseDownHandler);
+    document.body.removeEventListener("mousemove", this.mouseMoveHandler);
+    document.body.removeEventListener("mouseup", this.mouseUpHandler);
+  }
 }
 
 const createColumnResizePlugin = (editor: BlockNoteEditor<any, any, any>) =>
