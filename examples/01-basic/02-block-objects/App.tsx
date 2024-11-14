@@ -1,8 +1,8 @@
 import { Block } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
-import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
+import { useCreateBlockNote } from "@blocknote/react";
 import { useState } from "react";
 
 import "./styles.css";
@@ -38,6 +38,7 @@ export default function App() {
       <div>BlockNote Editor:</div>
       <div className={"item"}>
         <BlockNoteView
+          slashMenu={false}
           editor={editor}
           onChange={() => {
             // Saves the document JSON to state.

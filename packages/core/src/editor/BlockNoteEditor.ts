@@ -419,7 +419,15 @@ export class BlockNoteEditor<
     this.resolveFileUrl = newOptions.resolveFileUrl || (async (url) => url);
     this.headless = newOptions._headless;
 
-    if (newOptions.collaboration && newOptions.initialContent) {
+    const collaborationEnabled =
+      !!extensions.find((ext) => ext.name === "Collaboration") ||
+      !!newOptions._tiptapOptions?.extensions?.find(
+        (ext) => ext.name === "liveblocksExtension"
+      );
+
+    debugger;
+
+    if (collaborationEnabled && newOptions.initialContent) {
       // eslint-disable-next-line no-console
       console.warn(
         "When using Collaboration, initialContent might cause conflicts, because changes should come from the collaboration provider"
@@ -428,7 +436,7 @@ export class BlockNoteEditor<
 
     const initialContent =
       newOptions.initialContent ||
-      (options.collaboration
+      (collaborationEnabled
         ? [
             {
               type: "paragraph",
@@ -500,8 +508,11 @@ export class BlockNoteEditor<
    *
    * @warning Not needed to call manually when using React, use BlockNoteView to take care of mounting
    */
-  public mount = (parentElement?: HTMLElement | null) => {
-    this._tiptapEditor.mount(parentElement);
+  public mount = (
+    parentElement?: HTMLElement | null,
+    contentComponent?: any
+  ) => {
+    this._tiptapEditor.mount(parentElement, contentComponent);
   };
 
   public get prosemirrorView() {

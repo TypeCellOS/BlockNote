@@ -130,6 +130,10 @@ export function contentNodeToInlineContent<
       } else {
         const config = styleSchema[mark.type.name];
         if (!config) {
+          if (mark.type.name === "liveblocksCommentMark") {
+            // TODO
+            continue;
+          }
           throw new Error(`style ${mark.type.name} not found in styleSchema`);
         }
         if (config.propSchema === "boolean") {

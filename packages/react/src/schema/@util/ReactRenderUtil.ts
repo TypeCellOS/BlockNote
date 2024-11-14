@@ -25,6 +25,7 @@ export function renderToDOMSpec(
     // We also use this if _tiptapEditor or _tiptapEditor.contentComponent is undefined, use a temporary root.
     // This is actually a fallback / temporary fix, as normally this shouldn't happen (see #755). TODO: find cause
     root = createRoot(div);
+    throw new Error("No editor provided");
     flushSync(() => {
       root!.render(fc((el) => (contentDOM = el || undefined)));
     });
