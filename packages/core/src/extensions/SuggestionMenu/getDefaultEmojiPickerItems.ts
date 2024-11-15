@@ -32,7 +32,8 @@ export async function getDefaultEmojiPickerItems<
   if (!data) {
     // use a dynamic import to encourage bundle-splitting
     // and a smaller initial client bundle size
-    data = import("@emoji-mart/data", { assert: { type: "json" } }) as any;
+
+    data = import("@emoji-mart/data") as any;
 
     // load dynamically because emoji-mart doesn't specify type: module and breaks in nodejs
     emojiMart = await import("emoji-mart");

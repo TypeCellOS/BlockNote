@@ -1,0 +1,169 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Test getTextCursorPosition & setTextCursorPosition > Column 1`] = `
+{
+  "block": {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Column Paragraph 0",
+        "type": "text",
+      },
+    ],
+    "id": "column-paragraph-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  "nextBlock": {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Column Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "column-paragraph-1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  "parentBlock": {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Column Paragraph 0",
+            "type": "text",
+          },
+        ],
+        "id": "column-paragraph-0",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Column Paragraph 1",
+            "type": "text",
+          },
+        ],
+        "id": "column-paragraph-1",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": undefined,
+    "id": "column-0",
+    "props": {
+      "width": 1,
+    },
+    "type": "column",
+  },
+  "prevBlock": undefined,
+}
+`;
+
+exports[`Test getTextCursorPosition & setTextCursorPosition > Column list 1`] = `
+{
+  "block": {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Column Paragraph 0",
+        "type": "text",
+      },
+    ],
+    "id": "column-paragraph-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  "nextBlock": {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Column Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "column-paragraph-1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  "parentBlock": {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Column Paragraph 0",
+            "type": "text",
+          },
+        ],
+        "id": "column-paragraph-0",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Column Paragraph 1",
+            "type": "text",
+          },
+        ],
+        "id": "column-paragraph-1",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": undefined,
+    "id": "column-0",
+    "props": {
+      "width": 1,
+    },
+    "type": "column",
+  },
+  "prevBlock": undefined,
+}
+`;

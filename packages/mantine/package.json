@@ -6,7 +6,7 @@
     "*.css"
   ],
   "license": "MPL-2.0",
-  "version": "0.17.0",
+  "version": "0.19.0",
   "files": [
     "dist",
     "types",
@@ -45,19 +45,16 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build-bundled": "tsc && vite build --config vite.config.bundled.ts && git checkout tmp-releases && rm -rf ../../release && mv ../../release-tmp ../../release",
     "preview": "vite preview",
     "lint": "eslint src --max-warnings 0",
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "^0.17.0",
-    "@blocknote/react": "^0.17.0",
+    "@blocknote/core": "^0.19.0",
+    "@blocknote/react": "^0.19.0",
     "@mantine/core": "^7.10.1",
     "@mantine/hooks": "^7.10.1",
     "@mantine/utils": "^6.0.21",
-    "react": "^18",
-    "react-dom": "^18",
     "react-icons": "^5.2.1"
   },
   "devDependencies": {
@@ -74,8 +71,8 @@
     "vite-plugin-externalize-deps": "^0.8.0"
   },
   "peerDependencies": {
-    "react": "^18",
-    "react-dom": "^18"
+    "react": "^18.0 || ^19.0 || >= 19.0.0-rc",
+    "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc"
   },
   "eslintConfig": {
     "extends": [

@@ -21,30 +21,31 @@ export function getTextCursorPosition<
   I extends InlineContentSchema,
   S extends StyleSchema
 >(editor: BlockNoteEditor<BSchema, I, S>): TextCursorPosition<BSchema, I, S> {
-  const { blockContainer } = getBlockInfoFromSelection(
-    editor._tiptapEditor.state
-  );
+  const { bnBlock } = getBlockInfoFromSelection(editor._tiptapEditor.state);
 
-  const resolvedPos = editor._tiptapEditor.state.doc.resolve(
-    blockContainer.beforePos
-  );
+  const resolvedPos = editor._tiptapEditor.state.doc.resolve(bnBlock.beforePos);
   // Gets previous blockContainer node at the same nesting level, if the current node isn't the first child.
   const prevNode = resolvedPos.nodeBefore;
 
   // Gets next blockContainer node at the same nesting level, if the current node isn't the last child.
   const nextNode = editor._tiptapEditor.state.doc.resolve(
-    blockContainer.afterPos
+    bnBlock.afterPos
   ).nodeAfter;
 
   // Gets parent blockContainer node, if the current node is nested.
   let parentNode: Node | undefined = undefined;
   if (resolvedPos.depth > 1) {
-    parentNode = resolvedPos.node(resolvedPos.depth - 1);
+    // for nodes nested in bnBlocks
+    parentNode = resolvedPos.node();
+    if (!parentNode.type.isInGroup("bnBlock")) {
+      // for blockGroups, we need to go one level up
+      parentNode = resolvedPos.node(resolvedPos.depth - 1);
+    }
   }
 
   return {
     block: nodeToBlock(
-      blockContainer.node,
+      bnBlock.node,
       editor.schema.blockSchema,
       editor.schema.inlineContentSchema,
       editor.schema.styleSchema,
@@ -95,36 +96,50 @@ export function setTextCursorPosition<
   const id = typeof targetBlock === "string" ? targetBlock : targetBlock.id;
 
   const posInfo = getNodeById(id, editor._tiptapEditor.state.doc);
-  const { blockContent } = getBlockInfo(posInfo);
+  const info = getBlockInfo(posInfo);
 
   const contentType: "none" | "inline" | "table" =
-    editor.schema.blockSchema[blockContent.node.type.name]!.content;
+    editor.schema.blockSchema[info.blockNoteType]!.content;
 
-  if (contentType === "none") {
-    editor._tiptapEditor.commands.setNodeSelection(blockContent.beforePos);
-    return;
-  }
-
-  if (contentType === "inline") {
-    if (placement === "start") {
-      editor._tiptapEditor.commands.setTextSelection(
-        blockContent.beforePos + 1
-      );
-    } else {
-      editor._tiptapEditor.commands.setTextSelection(blockContent.afterPos - 1);
+  if (info.isBlockContainer) {
+    const blockContent = info.blockContent;
+    if (contentType === "none") {
+      editor._tiptapEditor.commands.setNodeSelection(blockContent.beforePos);
+      return;
     }
-  } else if (contentType === "table") {
-    if (placement === "start") {
-      // Need to offset the position as we have to get through the `tableRow`
-      // and `tableCell` nodes to get to the `tableParagraph` node we want to
-      // set the selection in.
-      editor._tiptapEditor.commands.setTextSelection(
-        blockContent.beforePos + 4
-      );
+
+    if (contentType === "inline") {
+      if (placement === "start") {
+        editor._tiptapEditor.commands.setTextSelection(
+          blockContent.beforePos + 1
+        );
+      } else {
+        editor._tiptapEditor.commands.setTextSelection(
+          blockContent.afterPos - 1
+        );
+      }
+    } else if (contentType === "table") {
+      if (placement === "start") {
+        // Need to offset the position as we have to get through the `tableRow`
+        // and `tableCell` nodes to get to the `tableParagraph` node we want to
+        // set the selection in.
+        editor._tiptapEditor.commands.setTextSelection(
+          blockContent.beforePos + 4
+        );
+      } else {
+        editor._tiptapEditor.commands.setTextSelection(
+          blockContent.afterPos - 4
+        );
+      }
     } else {
-      editor._tiptapEditor.commands.setTextSelection(blockContent.afterPos - 4);
+      throw new UnreachableCaseError(contentType);
     }
   } else {
-    throw new UnreachableCaseError(contentType);
+    const child =
+      placement === "start"
+        ? info.childContainer.node.firstChild!
+        : info.childContainer.node.lastChild!;
+
+    setTextCursorPosition(editor, child.attrs.id, placement);
   }
 }

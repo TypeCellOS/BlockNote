@@ -104,7 +104,7 @@ export type BlockSpec<
   S extends StyleSchema
 > = {
   config: T;
-  implementation: TiptapBlockImplementation<T, B, I, S>;
+  implementation: TiptapBlockImplementation<NoInfer<T>, B, I, S>;
 };
 
 // Utility type. For a given object block schema, ensures that the key of each
@@ -149,6 +149,7 @@ export type TableContent<
   S extends StyleSchema = StyleSchema
 > = {
   type: "tableContent";
+  columnWidths: (number | undefined)[];
   rows: {
     cells: InlineContent<I, S>[][];
   }[];
@@ -224,6 +225,7 @@ export type PartialTableContent<
   S extends StyleSchema = StyleSchema
 > = {
   type: "tableContent";
+  columnWidths?: (number | undefined)[];
   rows: {
     cells: PartialInlineContent<I, S>[];
   }[];

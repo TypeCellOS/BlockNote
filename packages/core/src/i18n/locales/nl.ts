@@ -44,6 +44,12 @@ export const nl: Dictionary = {
       aliases: ["p", "paragraaf"],
       group: "Basisblokken",
     },
+    code_block: {
+      title: "Codeblok",
+      subtext: "Codeblok met syntax highlighting",
+      aliases: ["code", "pre"],
+      group: "Basisblokken",
+    },
     table: {
       title: "Tabel",
       subtext: "Gebruikt voor tabellen",

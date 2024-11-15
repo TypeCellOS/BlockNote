@@ -30,13 +30,23 @@ export function contentNodeToTableContent<
 >(contentNode: Node, inlineContentSchema: I, styleSchema: S) {
   const ret: TableContent<I, S> = {
     type: "tableContent",
+    columnWidths: [],
     rows: [],
   };
 
-  contentNode.content.forEach((rowNode) => {
+  contentNode.content.forEach((rowNode, _offset, index) => {
     const row: TableContent<I, S>["rows"][0] = {
       cells: [],
     };
+
+    if (index === 0) {
+      rowNode.content.forEach((cellNode) => {
+        // The colwidth array should have multiple values when the colspan of a
+        // cell is greater than 1. However, this is not yet implemented so we
+        // can always assume a length of 1.
+        ret.columnWidths.push(cellNode.attrs.colwidth?.[0] || undefined);
+      });
+    }
 
     rowNode.content.forEach((cellNode) => {
       row.cells.push(
@@ -296,7 +306,9 @@ export function nodeToCustomInlineContent<
 }
 
 /**
- * Convert a TipTap node to a BlockNote block.
+ * Convert a Prosemirror node to a BlockNote block.
+ *
+ * TODO: test changes
  */
 export function nodeToBlock<
   BSchema extends BlockSchema,
@@ -309,11 +321,9 @@ export function nodeToBlock<
   styleSchema: S,
   blockCache?: WeakMap<Node, Block<BSchema, I, S>>
 ): Block<BSchema, I, S> {
-  if (node.type.name !== "blockContainer") {
+  if (!node.type.isInGroup("bnBlock")) {
     throw Error(
-      "Node must be of type blockContainer, but is of type" +
-        node.type.name +
-        "."
+      "Node must be in bnBlock group, but is of type" + node.type.name
     );
   }
 
@@ -323,29 +333,26 @@ export function nodeToBlock<
     return cachedBlock;
   }
 
-  const { blockContainer, blockContent, blockGroup } =
-    getBlockInfoWithManualOffset(node, 0);
+  const blockInfo = getBlockInfoWithManualOffset(node, 0);
 
-  let id = blockContainer.node.attrs.id;
+  let id = blockInfo.bnBlock.node.attrs.id;
 
   // Only used for blocks converted from other formats.
   if (id === null) {
     id = UniqueID.options.generateID();
   }
 
+  const blockSpec = blockSchema[blockInfo.blockNoteType];
+
+  if (!blockSpec) {
+    throw Error("Block is of an unrecognized type: " + blockInfo.blockNoteType);
+  }
+
   const props: any = {};
   for (const [attr, value] of Object.entries({
     ...node.attrs,
-    ...blockContent.node.attrs,
+    ...(blockInfo.isBlockContainer ? blockInfo.blockContent.node.attrs : {}),
   })) {
-    const blockSpec = blockSchema[blockContent.node.type.name];
-
-    if (!blockSpec) {
-      throw Error(
-        "Block is of an unrecognized type: " + blockContent.node.type.name
-      );
-    }
-
     const propSchema = blockSpec.propSchema;
 
     if (attr in propSchema) {
@@ -353,10 +360,10 @@ export function nodeToBlock<
     }
   }
 
-  const blockConfig = blockSchema[blockContent.node.type.name];
+  const blockConfig = blockSchema[blockInfo.blockNoteType];
 
   const children: Block<BSchema, I, S>[] = [];
-  blockGroup?.node.forEach((child) => {
+  blockInfo.childContainer?.node.forEach((child) => {
     children.push(
       nodeToBlock(
         child,
@@ -371,14 +378,20 @@ export function nodeToBlock<
   let content: Block<any, any, any>["content"];
 
   if (blockConfig.content === "inline") {
+    if (!blockInfo.isBlockContainer) {
+      throw new Error("impossible");
+    }
     content = contentNodeToInlineContent(
-      blockContent.node,
+      blockInfo.blockContent.node,
       inlineContentSchema,
       styleSchema
     );
   } else if (blockConfig.content === "table") {
+    if (!blockInfo.isBlockContainer) {
+      throw new Error("impossible");
+    }
     content = contentNodeToTableContent(
-      blockContent.node,
+      blockInfo.blockContent.node,
       inlineContentSchema,
       styleSchema
     );

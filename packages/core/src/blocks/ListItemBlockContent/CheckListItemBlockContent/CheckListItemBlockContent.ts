@@ -2,7 +2,7 @@ import { InputRule } from "@tiptap/core";
 import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import {
   getBlockInfoFromSelection,
-  getNearestBlockContainerPos,
+  getNearestBlockPos,
 } from "../../../api/getBlockInfoFromPos.js";
 import {
   PropSchema,
@@ -49,7 +49,10 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
         find: new RegExp(`\\[\\s*\\]\\s$`),
         handler: ({ state, chain, range }) => {
           const blockInfo = getBlockInfoFromSelection(state);
-          if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
+          if (
+            !blockInfo.isBlockContainer ||
+            blockInfo.blockContent.node.type.spec.content !== "inline*"
+          ) {
             return;
           }
 
@@ -57,7 +60,7 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
             .command(
               updateBlockCommand(
                 this.options.editor,
-                blockInfo.blockContainer.beforePos,
+                blockInfo.bnBlock.beforePos,
                 {
                   type: "checkListItem",
                   props: {
@@ -75,7 +78,10 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
         handler: ({ state, chain, range }) => {
           const blockInfo = getBlockInfoFromSelection(state);
 
-          if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
+          if (
+            !blockInfo.isBlockContainer ||
+            blockInfo.blockContent.node.type.spec.content !== "inline*"
+          ) {
             return;
           }
 
@@ -83,7 +89,7 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
             .command(
               updateBlockCommand(
                 this.options.editor,
-                blockInfo.blockContainer.beforePos,
+                blockInfo.bnBlock.beforePos,
                 {
                   type: "checkListItem",
                   props: {
@@ -103,20 +109,19 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
     return {
       Enter: () => handleEnter(this.options.editor),
       "Mod-Shift-9": () => {
-        const blockInfo = getBlockInfoFromSelection(this.options.editor.state);
-        if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
+        const blockInfo = getBlockInfoFromSelection(this.editor.state);
+        if (
+          !blockInfo.isBlockContainer ||
+          blockInfo.blockContent.node.type.spec.content !== "inline*"
+        ) {
           return true;
         }
 
         return this.editor.commands.command(
-          updateBlockCommand(
-            this.options.editor,
-            blockInfo.blockContainer.beforePos,
-            {
-              type: "checkListItem",
-              props: {},
-            }
-          )
+          updateBlockCommand(this.options.editor, blockInfo.bnBlock.beforePos, {
+            type: "checkListItem",
+            props: {},
+          })
         );
       },
     };
@@ -236,10 +241,17 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
 
         // TODO: test
         if (typeof getPos !== "boolean") {
-          const beforeBlockContainerPos = getNearestBlockContainerPos(
+          const beforeBlockContainerPos = getNearestBlockPos(
             editor.state.doc,
             getPos()
           );
+
+          if (beforeBlockContainerPos.node.type.name !== "blockContainer") {
+            throw new Error(
+              `Expected blockContainer node, got ${beforeBlockContainerPos.node.type.name}`
+            );
+          }
+
           this.editor.commands.command(
             updateBlockCommand(
               this.options.editor,

@@ -5,6 +5,7 @@ import {
   FileBlockConfig,
 } from "../../schema/index.js";
 
+export const FILE_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 8L9.00319 2H19.9978C20.5513 2 21 2.45531 21 2.9918V21.0082C21 21.556 20.5551 22 20.0066 22H3.9934C3.44476 22 3 21.5501 3 20.9932V8ZM10 4V9H5V20H19V4H10Z"></path></svg>`;
 export const createFileBlockWrapper = (
   block: BlockFromConfig<FileBlockConfig, any, any>,
   editor: BlockNoteEditor<
@@ -81,8 +82,7 @@ export const createDefaultFilePreview = (
 
   const icon = document.createElement("div");
   icon.className = "bn-file-default-preview-icon";
-  icon.innerHTML =
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 8L9.00319 2H19.9978C20.5513 2 21 2.45531 21 2.9918V21.0082C21 21.556 20.5551 22 20.0066 22H3.9934C3.44476 22 3 21.5501 3 20.9932V8ZM10 4V9H5V20H19V4H10Z"></path></svg>';
+  icon.innerHTML = FILE_ICON_SVG;
 
   const fileName = document.createElement("p");
   fileName.className = "bn-file-default-preview-name";
@@ -107,6 +107,14 @@ export const createFileAndCaptionWrapper = (
   const caption = document.createElement("p");
   caption.className = "bn-file-caption";
   caption.textContent = block.props.caption;
+
+  if (
+    typeof block.props.previewWidth === "number" &&
+    block.props.previewWidth > 0 &&
+    block.props.caption !== undefined
+  ) {
+    caption.style.width = `${block.props.previewWidth}px`;
+  }
 
   fileAndCaptionWrapper.appendChild(file);
   fileAndCaptionWrapper.appendChild(caption);

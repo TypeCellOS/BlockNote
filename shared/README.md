@@ -1,0 +1,1 @@
+This directory contains shared source files. It is not built into a separate package, so consumers should not add it as a dependency in package.json. Instead, use Typescript project references to re-use files from this directory.

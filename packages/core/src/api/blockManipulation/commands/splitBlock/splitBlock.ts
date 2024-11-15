@@ -2,7 +2,7 @@ import { EditorState } from "prosemirror-state";
 
 import {
   getBlockInfo,
-  getNearestBlockContainerPos,
+  getNearestBlockPos,
 } from "../../../getBlockInfoFromPos.js";
 
 export const splitBlockCommand = (
@@ -17,25 +17,26 @@ export const splitBlockCommand = (
     state: EditorState;
     dispatch: ((args?: any) => any) | undefined;
   }) => {
-    const nearestBlockContainerPos = getNearestBlockContainerPos(
-      state.doc,
-      posInBlock
-    );
+    const nearestBlockContainerPos = getNearestBlockPos(state.doc, posInBlock);
 
-    const { blockContainer, blockContent } = getBlockInfo(
-      nearestBlockContainerPos
-    );
+    const info = getBlockInfo(nearestBlockContainerPos);
+
+    if (!info.isBlockContainer) {
+      throw new Error(
+        `BlockContainer expected when calling splitBlock, position ${posInBlock}`
+      );
+    }
 
     const types = [
       {
-        type: blockContainer.node.type, // always keep blockcontainer type
-        attrs: keepProps ? { ...blockContainer.node.attrs, id: undefined } : {},
+        type: info.bnBlock.node.type, // always keep blockcontainer type
+        attrs: keepProps ? { ...info.bnBlock.node.attrs, id: undefined } : {},
       },
       {
         type: keepType
-          ? blockContent.node.type
+          ? info.blockContent.node.type
           : state.schema.nodes["paragraph"],
-        attrs: keepProps ? { ...blockContent.node.attrs } : {},
+        attrs: keepProps ? { ...info.blockContent.node.attrs } : {},
       },
     ];
 

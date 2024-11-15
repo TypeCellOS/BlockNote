@@ -1,0 +1,11 @@
+{
+  "playground": true,
+  "docs": true,
+  "author": "yousefed",
+  "tags": [""],
+  "dependencies": {
+    "@blocknote/xl-pdf-exporter": "latest",
+    "@react-pdf/renderer": "^4.0.0"
+  },
+  "pro": true
+}

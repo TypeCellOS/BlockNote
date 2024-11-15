@@ -44,6 +44,12 @@ export const is: Dictionary = {
       aliases: ["p", "malsgrein"],
       group: "Grunnblokkar",
     },
+    code_block: {
+      title: "Kóðablokk",
+      subtext: "Kóðablokkur með litskiptingu",
+      aliases: ["kóði", "pre"],
+      group: "Grunnblokkar",
+    },
     table: {
       title: "Tafla",
       subtext: "Notað fyrir töflur",

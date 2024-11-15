@@ -24,7 +24,7 @@ export type BlockNoteTipTapEditorOptions = Partial<
 // @ts-ignore
 export class BlockNoteTipTapEditor extends TiptapEditor {
   private _state: EditorState;
-
+  private _creating = false;
   public static create = (
     options: BlockNoteTipTapEditorOptions,
     styleSchema: StyleSchema
@@ -151,8 +151,12 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
    * Replace the default `createView` method with a custom one - which we call on mount
    */
   private createViewAlternative() {
+    this._creating = true;
     // Without queueMicrotask, custom IC / styles will give a React FlushSync error
     queueMicrotask(() => {
+      if (!this._creating) {
+        return;
+      }
       this.view = new EditorView(
         { mount: this.options.element as any }, // use mount option so that we reuse the existing element instead of creating a new one
         {
@@ -178,6 +182,7 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
       this.commands.focus(this.options.autofocus);
       this.emit("create", { editor: this });
       this.isInitialized = true;
+      this._creating = false;
     });
   }
 
@@ -189,6 +194,8 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
   public mount = (element?: HTMLElement | null) => {
     if (!element) {
       this.destroy();
+      // cancel pending microtask
+      this._creating = false;
     } else {
       this.options.element = element;
       // @ts-ignore

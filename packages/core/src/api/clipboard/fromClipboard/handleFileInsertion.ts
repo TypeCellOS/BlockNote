@@ -6,10 +6,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
-import {
-  getBlockInfo,
-  getNearestBlockContainerPos,
-} from "../../getBlockInfoFromPos.js";
+import { getBlockInfo, getNearestBlockPos } from "../../getBlockInfoFromPos.js";
 import { acceptedMIMETypes } from "./acceptedMIMETypes.js";
 
 function checkFileExtensionsMatch(
@@ -50,6 +47,10 @@ export async function handleFileInsertion<
   S extends StyleSchema
 >(event: DragEvent | ClipboardEvent, editor: BlockNoteEditor<BSchema, I, S>) {
   if (!editor.uploadFile) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      "Attempted ot insert file, but uploadFile is not set in the BlockNote editor options"
+    );
     return;
   }
 
@@ -135,7 +136,7 @@ export async function handleFileInsertion<
           return;
         }
 
-        const posInfo = getNearestBlockContainerPos(
+        const posInfo = getNearestBlockPos(
           editor._tiptapEditor.state.doc,
           pos.pos
         );
@@ -144,7 +145,7 @@ export async function handleFileInsertion<
 
         insertedBlockId = editor.insertBlocks(
           [fileBlock],
-          blockInfo.blockContainer.node.attrs.id,
+          blockInfo.bnBlock.node.attrs.id,
           "after"
         )[0].id;
       } else {

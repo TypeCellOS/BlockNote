@@ -22,10 +22,7 @@ async function convertToMarkdownAndCompareSnapshots<
   snapshotDirectory: string,
   snapshotName: string
 ) {
-  const fullBlocks = partialBlocksToBlocksForTesting(
-    editor.schema.blockSchema,
-    blocks
-  );
+  const fullBlocks = partialBlocksToBlocksForTesting(editor.schema, blocks);
   const md = await editor.blocksToMarkdownLossy(fullBlocks);
   const snapshotPath =
     "./__snapshots__/" +

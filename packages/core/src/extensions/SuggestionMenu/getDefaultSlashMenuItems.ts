@@ -62,12 +62,10 @@ export function insertOrUpdateBlock<
       currentBlock.content.length === 0)
   ) {
     newBlock = editor.updateBlock(currentBlock, block);
-
-    // Edge case for updating block content as `updateBlock` causes the
-    // selection to move into the next block, so we have to set it back.
-    if (block.content) {
-      editor.setTextCursorPosition(newBlock);
-    }
+    // We make sure to reset the cursor position to the new block as calling
+    // `updateBlock` may move it out. This generally happens when the content
+    // changes, or the update makes the block multi-column.
+    editor.setTextCursorPosition(newBlock);
   } else {
     newBlock = editor.insertBlocks([block], currentBlock, "after")[0];
     editor.setTextCursorPosition(editor.getTextCursorPosition().nextBlock!);
@@ -172,6 +170,24 @@ export function getDefaultSlashMenuItems<
       badge: formatKeyboardShortcut("Mod-Alt-0"),
       key: "paragraph",
       ...editor.dictionary.slash_menu.paragraph,
+    });
+  }
+
+  if (checkDefaultBlockTypeInSchema("codeBlock", editor)) {
+    items.push({
+      onItemClick: () => {
+        const pos = editor._tiptapEditor.state.selection.from;
+
+        insertOrUpdateBlock(editor, {
+          type: "codeBlock",
+        });
+
+        // Move the cursor inside the code block
+        editor._tiptapEditor.commands.setTextSelection(pos);
+      },
+      badge: formatKeyboardShortcut("Mod-Alt-c"),
+      key: "code_block",
+      ...editor.dictionary.slash_menu.code_block,
     });
   }
 

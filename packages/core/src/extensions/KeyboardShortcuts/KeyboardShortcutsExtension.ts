@@ -1,16 +1,17 @@
 import { Extension } from "@tiptap/core";
 
 import { TextSelection } from "prosemirror-state";
+import { ReplaceAroundStep } from "prosemirror-transform";
 import {
-  getPrevBlockPos,
+  getBottomNestedBlockInfo,
+  getParentBlockInfo,
+  getPrevBlockInfo,
   mergeBlocksCommand,
 } from "../../api/blockManipulation/commands/mergeBlocks/mergeBlocks.js";
+import { nestBlock } from "../../api/blockManipulation/commands/nestBlock/nestBlock.js";
 import { splitBlockCommand } from "../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import {
-  getBlockInfoFromResolvedPos,
-  getBlockInfoFromSelection,
-} from "../../api/getBlockInfoFromPos.js";
+import { getBlockInfoFromSelection } from "../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 export const KeyboardShortcutsExtension = Extension.create<{
@@ -32,6 +33,9 @@ export const KeyboardShortcutsExtension = Extension.create<{
         () =>
           commands.command(({ state }) => {
             const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
 
             const selectionAtBlockStart =
               state.selection.from === blockInfo.blockContent.beforePos + 1;
@@ -42,7 +46,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
               return commands.command(
                 updateBlockCommand(
                   this.options.editor,
-                  blockInfo.blockContainer.beforePos,
+                  blockInfo.bnBlock.beforePos,
                   {
                     type: "paragraph",
                     props: {},
@@ -56,7 +60,11 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // Removes a level of nesting if the block is indented if the selection is at the start of the block.
         () =>
           commands.command(({ state }) => {
-            const { blockContent } = getBlockInfoFromSelection(state);
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+            const { blockContent } = blockInfo;
 
             const selectionAtBlockStart =
               state.selection.from === blockContent.beforePos + 1;
@@ -67,29 +75,23 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
-        // Merges block with the previous one if it isn't indented, isn't the
-        // first block in the doc, and the selection is at the start of the
+        // Merges block with the previous one if it isn't indented, and the selection is at the start of the
         // block. The target block for merging must contain inline content.
         () =>
           commands.command(({ state }) => {
-            const { blockContainer, blockContent } =
-              getBlockInfoFromSelection(state);
-
-            const { depth } = state.doc.resolve(blockContainer.beforePos);
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+            const { bnBlock: blockContainer, blockContent } = blockInfo;
 
             const selectionAtBlockStart =
               state.selection.from === blockContent.beforePos + 1;
             const selectionEmpty = state.selection.empty;
-            const blockAtDocStart = blockContainer.beforePos === 1;
 
             const posBetweenBlocks = blockContainer.beforePos;
 
-            if (
-              !blockAtDocStart &&
-              selectionAtBlockStart &&
-              selectionEmpty &&
-              depth === 1
-            ) {
+            if (selectionAtBlockStart && selectionEmpty) {
               return chain()
                 .command(mergeBlocksCommand(posBetweenBlocks))
                 .scrollIntoView()
@@ -98,6 +100,165 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             return false;
           }),
+        () =>
+          commands.command(({ state, dispatch }) => {
+            // when at the start of a first block in a column
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+
+            const selectionAtBlockStart =
+              state.selection.from === blockInfo.blockContent.beforePos + 1;
+
+            if (!selectionAtBlockStart) {
+              return false;
+            }
+
+            const prevBlockInfo = getPrevBlockInfo(
+              state.doc,
+              blockInfo.bnBlock.beforePos
+            );
+
+            if (prevBlockInfo) {
+              // should be no previous block
+              return false;
+            }
+
+            const parentBlockInfo = getParentBlockInfo(
+              state.doc,
+              blockInfo.bnBlock.beforePos
+            );
+
+            if (parentBlockInfo?.blockNoteType !== "column") {
+              return false;
+            }
+
+            const column = parentBlockInfo;
+
+            const columnList = getParentBlockInfo(
+              state.doc,
+              column.bnBlock.beforePos
+            );
+            if (columnList?.blockNoteType !== "columnList") {
+              throw new Error("parent of column is not a column list");
+            }
+
+            const shouldRemoveColumn =
+              column.childContainer!.node.childCount === 1;
+
+            const shouldRemoveColumnList =
+              shouldRemoveColumn &&
+              columnList.childContainer!.node.childCount === 2;
+
+            const isFirstColumn =
+              columnList.childContainer!.node.firstChild ===
+              column.bnBlock.node;
+
+            if (dispatch) {
+              const blockToMove = state.doc.slice(
+                blockInfo.bnBlock.beforePos,
+                blockInfo.bnBlock.afterPos,
+                false
+              );
+
+              /*
+              There are 3 different cases:
+              a) remove entire column list (if no columns would be remaining)
+              b) remove just a column (if no blocks inside a column would be remaining)
+              c) keep columns (if there are blocks remaining inside a column)
+
+              Each of these 3 cases has 2 sub-cases, depending on whether the backspace happens at the start of the first (most-left) column,
+              or at the start of a non-first column.
+              */
+              if (shouldRemoveColumnList) {
+                if (isFirstColumn) {
+                  state.tr.step(
+                    new ReplaceAroundStep(
+                      // replace entire column list
+                      columnList.bnBlock.beforePos,
+                      columnList.bnBlock.afterPos,
+                      // select content of remaining column:
+                      column.bnBlock.afterPos + 1,
+                      columnList.bnBlock.afterPos - 2,
+                      blockToMove,
+                      blockToMove.size, // append existing content to blockToMove
+                      false
+                    )
+                  );
+                  const pos = state.tr.doc.resolve(column.bnBlock.beforePos);
+                  state.tr.setSelection(TextSelection.between(pos, pos));
+                } else {
+                  // replaces the column list with the blockToMove slice, prepended with the content of the remaining column
+                  state.tr.step(
+                    new ReplaceAroundStep(
+                      // replace entire column list
+                      columnList.bnBlock.beforePos,
+                      columnList.bnBlock.afterPos,
+                      // select content of existing column:
+                      columnList.bnBlock.beforePos + 2,
+                      column.bnBlock.beforePos - 1,
+                      blockToMove,
+                      0, // prepend existing content to blockToMove
+                      false
+                    )
+                  );
+                  const pos = state.tr.doc.resolve(
+                    state.tr.mapping.map(column.bnBlock.beforePos - 1)
+                  );
+                  state.tr.setSelection(TextSelection.between(pos, pos));
+                }
+              } else if (shouldRemoveColumn) {
+                if (isFirstColumn) {
+                  // delete column
+                  state.tr.delete(
+                    column.bnBlock.beforePos,
+                    column.bnBlock.afterPos
+                  );
+
+                  // move before columnlist
+                  state.tr.insert(
+                    columnList.bnBlock.beforePos,
+                    blockToMove.content
+                  );
+
+                  const pos = state.tr.doc.resolve(
+                    columnList.bnBlock.beforePos
+                  );
+                  state.tr.setSelection(TextSelection.between(pos, pos));
+                } else {
+                  // just delete the </column><column> closing and opening tags to merge the columns
+                  state.tr.delete(
+                    column.bnBlock.beforePos - 1,
+                    column.bnBlock.beforePos + 1
+                  );
+                }
+              } else {
+                // delete block
+                state.tr.delete(
+                  blockInfo.bnBlock.beforePos,
+                  blockInfo.bnBlock.afterPos
+                );
+                if (isFirstColumn) {
+                  // move before columnlist
+                  state.tr.insert(
+                    columnList.bnBlock.beforePos - 1,
+                    blockToMove.content
+                  );
+                } else {
+                  // append block to previous column
+                  state.tr.insert(
+                    column.bnBlock.beforePos - 1,
+                    blockToMove.content
+                  );
+                }
+                const pos = state.tr.doc.resolve(column.bnBlock.beforePos - 1);
+                state.tr.setSelection(TextSelection.between(pos, pos));
+              }
+            }
+
+            return true;
+          }),
         // Deletes previous block if it contains no content and isn't a table,
         // when the selection is empty and at the start of the block. Moves the
         // current block into the deleted block's place.
@@ -105,49 +266,52 @@ export const KeyboardShortcutsExtension = Extension.create<{
           commands.command(({ state }) => {
             const blockInfo = getBlockInfoFromSelection(state);
 
-            const { depth } = state.doc.resolve(
-              blockInfo.blockContainer.beforePos
-            );
+            if (!blockInfo.isBlockContainer) {
+              // TODO
+              throw new Error(`todo`);
+            }
 
             const selectionAtBlockStart =
               state.selection.from === blockInfo.blockContent.beforePos + 1;
             const selectionEmpty = state.selection.empty;
-            const blockAtDocStart = blockInfo.blockContainer.beforePos === 1;
 
-            const prevBlockPos = getPrevBlockPos(
+            const prevBlockInfo = getPrevBlockInfo(
               state.doc,
-              state.doc.resolve(blockInfo.blockContainer.beforePos)
-            );
-            const prevBlockInfo = getBlockInfoFromResolvedPos(
-              state.doc.resolve(prevBlockPos.pos)
+              blockInfo.bnBlock.beforePos
             );
 
-            const prevBlockNotTableAndNoContent =
-              prevBlockInfo.blockContent.node.type.spec.content === "" ||
-              (prevBlockInfo.blockContent.node.type.spec.content ===
-                "inline*" &&
-                prevBlockInfo.blockContent.node.childCount === 0);
+            if (prevBlockInfo && selectionAtBlockStart && selectionEmpty) {
+              const bottomBlock = getBottomNestedBlockInfo(
+                state.doc,
+                prevBlockInfo
+              );
 
-            if (
-              !blockAtDocStart &&
-              selectionAtBlockStart &&
-              selectionEmpty &&
-              depth === 1 &&
-              prevBlockNotTableAndNoContent
-            ) {
-              return chain()
-                .cut(
-                  {
-                    from: blockInfo.blockContainer.beforePos,
-                    to: blockInfo.blockContainer.afterPos,
-                  },
-                  prevBlockInfo.blockContainer.afterPos
-                )
-                .deleteRange({
-                  from: prevBlockInfo.blockContainer.beforePos,
-                  to: prevBlockInfo.blockContainer.afterPos,
-                })
-                .run();
+              if (!bottomBlock.isBlockContainer) {
+                // TODO
+                throw new Error(`todo`);
+              }
+
+              const prevBlockNotTableAndNoContent =
+                bottomBlock.blockContent.node.type.spec.content === "" ||
+                (bottomBlock.blockContent.node.type.spec.content ===
+                  "inline*" &&
+                  bottomBlock.blockContent.node.childCount === 0);
+
+              if (prevBlockNotTableAndNoContent) {
+                return chain()
+                  .cut(
+                    {
+                      from: blockInfo.bnBlock.beforePos,
+                      to: blockInfo.bnBlock.afterPos,
+                    },
+                    bottomBlock.bnBlock.afterPos
+                  )
+                  .deleteRange({
+                    from: bottomBlock.bnBlock.beforePos,
+                    to: bottomBlock.bnBlock.afterPos,
+                  })
+                  .run();
+              }
             }
 
             return false;
@@ -164,8 +328,15 @@ export const KeyboardShortcutsExtension = Extension.create<{
         () =>
           commands.command(({ state }) => {
             // TODO: Change this to not rely on offsets & schema assumptions
-            const { blockContainer, blockContent, blockGroup } =
-              getBlockInfoFromSelection(state);
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+            const {
+              bnBlock: blockContainer,
+              blockContent,
+              childContainer,
+            } = blockInfo;
 
             const { depth } = state.doc.resolve(blockContainer.beforePos);
             const blockAtDocEnd =
@@ -173,7 +344,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             const selectionAtBlockEnd =
               state.selection.from === blockContent.afterPos - 1;
             const selectionEmpty = state.selection.empty;
-            const hasChildBlocks = blockGroup !== undefined;
+            const hasChildBlocks = childContainer !== undefined;
 
             if (
               !blockAtDocEnd &&
@@ -204,8 +375,11 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // of the block.
         () =>
           commands.command(({ state }) => {
-            const { blockContent, blockContainer } =
-              getBlockInfoFromSelection(state);
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+            const { bnBlock: blockContainer, blockContent } = blockInfo;
 
             const { depth } = state.doc.resolve(blockContainer.beforePos);
 
@@ -231,8 +405,11 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // empty & at the start of the block.
         () =>
           commands.command(({ state, dispatch }) => {
-            const { blockContainer, blockContent } =
-              getBlockInfoFromSelection(state);
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+            const { bnBlock: blockContainer, blockContent } = blockInfo;
 
             const selectionAtBlockStart =
               state.selection.$anchor.parentOffset === 0;
@@ -265,7 +442,11 @@ export const KeyboardShortcutsExtension = Extension.create<{
         // deletes the selection beforehand, if it's not empty.
         () =>
           commands.command(({ state, chain }) => {
-            const { blockContent } = getBlockInfoFromSelection(state);
+            const blockInfo = getBlockInfoFromSelection(state);
+            if (!blockInfo.isBlockContainer) {
+              return false;
+            }
+            const { blockContent } = blockInfo;
 
             const selectionAtBlockStart =
               state.selection.$anchor.parentOffset === 0;
@@ -305,8 +486,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
           // don't handle tabs if a toolbar is shown, so we can tab into / out of it
           return false;
         }
-        this.editor.commands.sinkListItem("blockContainer");
-        return true;
+        return nestBlock(this.options.editor);
+        // return true;
       },
       "Shift-Tab": () => {
         if (

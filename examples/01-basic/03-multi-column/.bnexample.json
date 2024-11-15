@@ -1,0 +1,9 @@
+{
+  "playground": true,
+  "docs": true,
+  "author": "yousefed",
+  "tags": ["Basic", "Blocks"],
+  "dependencies": {
+    "@blocknote/xl-multi-column": "latest"
+  }
+}

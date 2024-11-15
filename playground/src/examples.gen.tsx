@@ -43,9 +43,31 @@
         }
       },
       {
+        "projectSlug": "multi-column",
+        "fullSlug": "basic/multi-column",
+        "pathFromRoot": "examples/01-basic/03-multi-column",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "Basic",
+            "Blocks"
+          ],
+          "dependencies": {
+            "@blocknote/xl-multi-column": "latest"
+          } as any
+        },
+        "title": "Multi-Column Blocks",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
         "projectSlug": "all-blocks",
         "fullSlug": "basic/all-blocks",
-        "pathFromRoot": "examples/01-basic/03-all-blocks",
+        "pathFromRoot": "examples/01-basic/04-all-blocks",
         "config": {
           "playground": true,
           "docs": true,
@@ -54,7 +76,10 @@
             "Basic",
             "Blocks",
             "Inline Content"
-          ]
+          ],
+          "dependencies": {
+            "@blocknote/xl-multi-column": "latest"
+          } as any
         },
         "title": "Default Schema Showcase",
         "group": {
@@ -65,7 +90,7 @@
       {
         "projectSlug": "removing-default-blocks",
         "fullSlug": "basic/removing-default-blocks",
-        "pathFromRoot": "examples/01-basic/04-removing-default-blocks",
+        "pathFromRoot": "examples/01-basic/05-removing-default-blocks",
         "config": {
           "playground": true,
           "docs": true,
@@ -85,7 +110,7 @@
       {
         "projectSlug": "block-manipulation",
         "fullSlug": "basic/block-manipulation",
-        "pathFromRoot": "examples/01-basic/05-block-manipulation",
+        "pathFromRoot": "examples/01-basic/06-block-manipulation",
         "config": {
           "playground": true,
           "docs": true,
@@ -104,7 +129,7 @@
       {
         "projectSlug": "selection-blocks",
         "fullSlug": "basic/selection-blocks",
-        "pathFromRoot": "examples/01-basic/06-selection-blocks",
+        "pathFromRoot": "examples/01-basic/07-selection-blocks",
         "config": {
           "playground": true,
           "docs": true,
@@ -123,7 +148,7 @@
       {
         "projectSlug": "ariakit",
         "fullSlug": "basic/ariakit",
-        "pathFromRoot": "examples/01-basic/07-ariakit",
+        "pathFromRoot": "examples/01-basic/08-ariakit",
         "config": {
           "playground": true,
           "docs": true,
@@ -141,7 +166,7 @@
       {
         "projectSlug": "shadcn",
         "fullSlug": "basic/shadcn",
-        "pathFromRoot": "examples/01-basic/08-shadcn",
+        "pathFromRoot": "examples/01-basic/09-shadcn",
         "config": {
           "playground": true,
           "docs": true,
@@ -159,7 +184,7 @@
       {
         "projectSlug": "localization",
         "fullSlug": "basic/localization",
-        "pathFromRoot": "examples/01-basic/09-localization",
+        "pathFromRoot": "examples/01-basic/10-localization",
         "config": {
           "playground": true,
           "docs": true,
@@ -780,6 +805,52 @@
           ]
         },
         "title": "Parsing Markdown to Blocks",
+        "group": {
+          "pathFromRoot": "examples/05-interoperability",
+          "slug": "interoperability"
+        }
+      },
+      {
+        "projectSlug": "converting-blocks-to-pdf",
+        "fullSlug": "interoperability/converting-blocks-to-pdf",
+        "pathFromRoot": "examples/05-interoperability/05-converting-blocks-to-pdf",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            ""
+          ],
+          "dependencies": {
+            "@blocknote/xl-pdf-exporter": "latest",
+            "@react-pdf/renderer": "^4.0.0"
+          } as any,
+          "pro": true
+        },
+        "title": "Exporting documents to PDF",
+        "group": {
+          "pathFromRoot": "examples/05-interoperability",
+          "slug": "interoperability"
+        }
+      },
+      {
+        "projectSlug": "converting-blocks-to-docx",
+        "fullSlug": "interoperability/converting-blocks-to-docx",
+        "pathFromRoot": "examples/05-interoperability/06-converting-blocks-to-docx",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            ""
+          ],
+          "dependencies": {
+            "@blocknote/xl-docx-exporter": "latest",
+            "docx": "^9.0.2"
+          } as any,
+          "pro": true
+        },
+        "title": "Exporting documents to .docx (Office Open XML)",
         "group": {
           "pathFromRoot": "examples/05-interoperability",
           "slug": "interoperability"

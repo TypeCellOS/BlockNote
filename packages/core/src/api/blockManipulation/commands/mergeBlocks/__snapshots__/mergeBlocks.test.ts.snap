@@ -241,6 +241,11 @@ exports[`Test mergeBlocks > Basic 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -322,7 +327,6 @@ exports[`Test mergeBlocks > Basic 1`] = `
     },
     "id": "table-0",
     "props": {
-      "backgroundColor": "default",
       "textColor": "default",
     },
     "type": "table",
@@ -695,6 +699,11 @@ exports[`Test mergeBlocks > Blocks have different types 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -776,7 +785,6 @@ exports[`Test mergeBlocks > Blocks have different types 1`] = `
     },
     "id": "table-0",
     "props": {
-      "backgroundColor": "default",
       "textColor": "default",
     },
     "type": "table",
@@ -1149,6 +1157,11 @@ exports[`Test mergeBlocks > First block has children 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -1230,7 +1243,6 @@ exports[`Test mergeBlocks > First block has children 1`] = `
     },
     "id": "table-0",
     "props": {
-      "backgroundColor": "default",
       "textColor": "default",
     },
     "type": "table",
@@ -1602,6 +1614,11 @@ exports[`Test mergeBlocks > Second block has children 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -1683,7 +1700,6 @@ exports[`Test mergeBlocks > Second block has children 1`] = `
     },
     "id": "table-0",
     "props": {
-      "backgroundColor": "default",
       "textColor": "default",
     },
     "type": "table",
@@ -2073,6 +2089,11 @@ exports[`Test mergeBlocks > Second block is empty 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -2154,7 +2175,6 @@ exports[`Test mergeBlocks > Second block is empty 1`] = `
     },
     "id": "table-0",
     "props": {
-      "backgroundColor": "default",
       "textColor": "default",
     },
     "type": "table",

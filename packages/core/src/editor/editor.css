@@ -104,22 +104,60 @@ Tippy popups that are appended to document.body directly
   white-space: nowrap;
 }
 
+/* .tableWrapper {
+  padding
+} */
+
+.ProseMirror .tableWrapper {
+  position: relative;
+  top: -16px;
+  left: -16px;
+  /* padding: 16px; */
+  min-width: calc(100% + 16px);
+  padding-bottom: 16px;
+  overflow-y: hidden;
+}
+
+.ProseMirror .tableWrapper-inner {
+  /* position: relative; */
+  /* top: -16px;
+  left: -16px; */
+  padding: 16px;
+}
+
 /* table related: */
 .bn-editor table {
   width: auto !important;
+  word-break: break-word;
 }
 .bn-editor th,
 .bn-editor td {
-  min-width: 1em;
   border: 1px solid #ddd;
   padding: 3px 5px;
-}
-
-.bn-editor .tableWrapper {
-  margin: 1em 0;
 }
 
 .bn-editor th {
   font-weight: bold;
   text-align: left;
+}
+
+/* tiptap uses colwidth instead of data-colwidth, se we need to adjust this style from prosemirror-tables */
+.ProseMirror td,
+.ProseMirror th {
+  min-width: auto !important;
+}
+.ProseMirror td:not([colwidth]):not(.column-resize-dragging),
+.ProseMirror th:not([colwidth]):not(.column-resize-dragging) {
+  /* if there's no explicit width set and the column is not being resized, set a default width */
+  min-width: var(--default-cell-min-width) !important;
+}
+
+.prosemirror-dropcursor-block {
+  transition-property: top, bottom;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 0.15s;
+}
+
+.prosemirror-dropcursor-vertical {
+  transition-property: left, right;
 }

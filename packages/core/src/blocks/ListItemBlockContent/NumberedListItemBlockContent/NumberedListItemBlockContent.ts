@@ -41,7 +41,10 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
         find: new RegExp(`^1\\.\\s$`),
         handler: ({ state, chain, range }) => {
           const blockInfo = getBlockInfoFromSelection(state);
-          if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
+          if (
+            !blockInfo.isBlockContainer ||
+            blockInfo.blockContent.node.type.spec.content !== "inline*"
+          ) {
             return;
           }
 
@@ -49,7 +52,7 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
             .command(
               updateBlockCommand(
                 this.options.editor,
-                blockInfo.blockContainer.beforePos,
+                blockInfo.bnBlock.beforePos,
                 {
                   type: "numberedListItem",
                   props: {},
@@ -68,19 +71,18 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
       Enter: () => handleEnter(this.options.editor),
       "Mod-Shift-7": () => {
         const blockInfo = getBlockInfoFromSelection(this.editor.state);
-        if (blockInfo.blockContent.node.type.spec.content !== "inline*") {
+        if (
+          !blockInfo.isBlockContainer ||
+          blockInfo.blockContent.node.type.spec.content !== "inline*"
+        ) {
           return true;
         }
 
         return this.editor.commands.command(
-          updateBlockCommand(
-            this.options.editor,
-            blockInfo.blockContainer.beforePos,
-            {
-              type: "numberedListItem",
-              props: {},
-            }
-          )
+          updateBlockCommand(this.options.editor, blockInfo.bnBlock.beforePos, {
+            type: "numberedListItem",
+            props: {},
+          })
         );
       },
     };

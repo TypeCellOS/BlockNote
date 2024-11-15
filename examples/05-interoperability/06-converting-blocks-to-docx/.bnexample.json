@@ -1,0 +1,11 @@
+{
+  "playground": true,
+  "docs": true,
+  "author": "yousefed",
+  "tags": [""],
+  "dependencies": {
+    "@blocknote/xl-docx-exporter": "latest",
+    "docx": "^9.0.2"
+  },
+  "pro": true
+}

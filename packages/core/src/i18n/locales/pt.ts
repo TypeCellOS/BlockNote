@@ -24,13 +24,13 @@ export const pt: Dictionary = {
       title: "Lista Numerada",
       subtext: "Usado para exibir uma lista numerada",
       aliases: ["ol", "li", "lista", "listanumerada", "lista numerada"],
-      group: "Blocos Básicos",
+      group: "Blocos básicos",
     },
     bullet_list: {
       title: "Lista com Marcadores",
       subtext: "Usado para exibir uma lista não ordenada",
       aliases: ["ul", "li", "lista", "listamarcadores", "lista com marcadores"],
-      group: "Blocos Básicos",
+      group: "Blocos básicos",
     },
     check_list: {
       title: "Lista de verificação",
@@ -43,13 +43,19 @@ export const pt: Dictionary = {
         "lista marcada",
         "caixa de seleção",
       ],
-      group: "Blocos Básicos",
+      group: "Blocos básicos",
     },
     paragraph: {
       title: "Parágrafo",
       subtext: "Usado para o corpo do seu documento",
       aliases: ["p", "paragrafo"],
-      group: "Blocos Básicos",
+      group: "Blocos básicos",
+    },
+    code_block: {
+      title: "Bloco de Código",
+      subtext: "Usado para exibir código com destaque de sintaxe",
+      aliases: ["codigo", "pre"],
+      group: "Blocos básicos",
     },
     table: {
       title: "Tabela",

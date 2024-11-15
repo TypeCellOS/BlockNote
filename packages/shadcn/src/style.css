@@ -147,7 +147,7 @@
 }
 
 .bn-shadcn .bn-grid-suggestion-menu-empty-item,
-.bn-shadcn .bn-grid-suggestion-menu-loader{
+.bn-shadcn .bn-grid-suggestion-menu-loader {
   align-items: center;
   color: var(--bn-colors-menu-text);
   display: flex;
@@ -159,4 +159,12 @@
 
 .bn-shadcn .bn-grid-suggestion-menu-loader span {
   background-color: hsl(var(--accent));
+}
+
+.bn-shadcn .bn-extend-button-add-remove-columns {
+  cursor: col-resize;
+}
+
+.bn-shadcn .bn-extend-button-add-remove-rows {
+  cursor: row-resize;
 }

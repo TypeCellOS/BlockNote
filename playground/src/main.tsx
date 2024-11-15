@@ -96,9 +96,9 @@ const App = (props: { project: (typeof examples.basic)["projects"][0] }) => {
   React.useEffect(() => {
     (async () => {
       // load app async
-      const c: any = await modules[
-        "../../" + props.project.pathFromRoot + "/App.tsx"
-      ]();
+      const moduleName = "../../" + props.project.pathFromRoot + "/App.tsx";
+      const module = modules[moduleName];
+      const c: any = await module();
       setExampleComponent(c);
     })();
   }, [props.project.pathFromRoot]);

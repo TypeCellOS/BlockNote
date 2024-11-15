@@ -258,6 +258,11 @@ exports[`Test moveBlockDown > Basic 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -339,7 +344,6 @@ exports[`Test moveBlockDown > Basic 1`] = `
     },
     "id": "table-0",
     "props": {
-      "backgroundColor": "default",
       "textColor": "default",
     },
     "type": "table",
@@ -729,6 +733,11 @@ exports[`Test moveBlockDown > Into children 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -810,7 +819,6 @@ exports[`Test moveBlockDown > Into children 1`] = `
     },
     "id": "table-0",
     "props": {
-      "backgroundColor": "default",
       "textColor": "default",
     },
     "type": "table",
@@ -1200,6 +1208,11 @@ exports[`Test moveBlockDown > Last block 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -1281,7 +1294,6 @@ exports[`Test moveBlockDown > Last block 1`] = `
     },
     "id": "table-0",
     "props": {
-      "backgroundColor": "default",
       "textColor": "default",
     },
     "type": "table",
@@ -1671,6 +1683,11 @@ exports[`Test moveBlockDown > Out of children 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -1752,7 +1769,6 @@ exports[`Test moveBlockDown > Out of children 1`] = `
     },
     "id": "table-0",
     "props": {
-      "backgroundColor": "default",
       "textColor": "default",
     },
     "type": "table",
@@ -2141,6 +2157,11 @@ exports[`Test moveBlockUp > Basic 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -2222,7 +2243,6 @@ exports[`Test moveBlockUp > Basic 1`] = `
     },
     "id": "table-0",
     "props": {
-      "backgroundColor": "default",
       "textColor": "default",
     },
     "type": "table",
@@ -2612,6 +2632,11 @@ exports[`Test moveBlockUp > First block 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -2693,7 +2718,6 @@ exports[`Test moveBlockUp > First block 1`] = `
     },
     "id": "table-0",
     "props": {
-      "backgroundColor": "default",
       "textColor": "default",
     },
     "type": "table",
@@ -3083,6 +3107,11 @@ exports[`Test moveBlockUp > Into children 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -3164,7 +3193,6 @@ exports[`Test moveBlockUp > Into children 1`] = `
     },
     "id": "table-0",
     "props": {
-      "backgroundColor": "default",
       "textColor": "default",
     },
     "type": "table",
@@ -3554,6 +3582,11 @@ exports[`Test moveBlockUp > Out of children 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -3635,7 +3668,6 @@ exports[`Test moveBlockUp > Out of children 1`] = `
     },
     "id": "table-0",
     "props": {
-      "backgroundColor": "default",
       "textColor": "default",
     },
     "type": "table",

@@ -1,4 +1,11 @@
-import { EditorOptions, Extension, getSchema } from "@tiptap/core";
+import {
+  AnyExtension,
+  EditorOptions,
+  Extension,
+  getSchema,
+  Mark,
+  Node as TipTapNode,
+} from "@tiptap/core";
 import { Node, Schema } from "prosemirror-model";
 // import "./blocknote.css";
 import * as Y from "yjs";
@@ -7,6 +14,12 @@ import {
   moveBlockDown,
   moveBlockUp,
 } from "../api/blockManipulation/commands/moveBlock/moveBlock.js";
+import {
+  canNestBlock,
+  canUnnestBlock,
+  nestBlock,
+  unnestBlock,
+} from "../api/blockManipulation/commands/nestBlock/nestBlock.js";
 import { removeBlocks } from "../api/blockManipulation/commands/removeBlocks/removeBlocks.js";
 import { replaceBlocks } from "../api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
 import { updateBlock } from "../api/blockManipulation/commands/updateBlock/updateBlock.js";
@@ -17,7 +30,6 @@ import {
 } from "../api/blockManipulation/selections/textCursorPosition/textCursorPosition.js";
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
-import { getBlockInfoFromSelection } from "../api/getBlockInfoFromPos.js";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
 import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown.js";
 import {
@@ -42,9 +54,9 @@ import {
   InlineContentSchema,
   InlineContentSpecs,
   PartialInlineContent,
+  Styles,
   StyleSchema,
   StyleSpecs,
-  Styles,
 } from "../schema/index.js";
 import { mergeCSSClasses } from "../util/browser.js";
 import { NoInfer, UnreachableCaseError } from "../util/typescript.js";
@@ -62,17 +74,21 @@ import {
   BlockNoteTipTapEditorOptions,
 } from "./BlockNoteTipTapEditor.js";
 
-import { PlaceholderPlugin } from "../extensions/Placeholder/PlaceholderPlugin.js";
 import { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
 
-import { Transaction } from "@tiptap/pm/state";
+import { Plugin, Transaction } from "@tiptap/pm/state";
+import { dropCursor } from "prosemirror-dropcursor";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
-import { NodeSelectionKeyboardPlugin } from "../extensions/NodeSelectionKeyboard/NodeSelectionKeyboardPlugin.js";
-import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin.js";
 import "../style.css";
+
+export type BlockNoteExtension =
+  | AnyExtension
+  | {
+      plugin: Plugin;
+    };
 
 export type BlockNoteEditorOptions<
   BSchema extends BlockSchema,
@@ -86,11 +102,15 @@ export type BlockNoteEditorOptions<
    */
   animations?: boolean;
 
+  /**
+   * Disable internal extensions (based on keys / extension name)
+   */
   disableExtensions: string[];
+
   /**
    * A dictionary object containing translations for the editor.
    */
-  dictionary?: Dictionary;
+  dictionary?: Dictionary & Record<string, any>;
 
   /**
    * @deprecated, provide placeholders via dictionary instead
@@ -167,8 +187,15 @@ export type BlockNoteEditorOptions<
     renderCursor?: (user: any) => HTMLElement;
   };
 
-  // tiptap options, undocumented
+  /**
+   * additional tiptap options, undocumented
+   */
   _tiptapOptions: Partial<EditorOptions>;
+
+  /**
+   * (experimental) add extra prosemirror plugins or tiptap extensions to the editor
+   */
+  _extensions: Record<string, BlockNoteExtension>;
 
   trailingBlock?: boolean;
 
@@ -190,6 +217,8 @@ export type BlockNoteEditorOptions<
    * (note that the id is always set on the `data-id` attribute)
    */
   setIdAttribute?: boolean;
+
+  dropCursor?: (opts: any) => Plugin;
 };
 
 const blockNoteTipTapOptions = {
@@ -204,6 +233,11 @@ export class BlockNoteEditor<
   SSchema extends StyleSchema = DefaultStyleSchema
 > {
   private readonly _pmSchema: Schema;
+
+  /**
+   * extensions that are added to the editor, can be tiptap extensions or prosemirror plugins
+   */
+  public readonly extensions: Record<string, BlockNoteExtension> = {};
 
   /**
    * Boolean indicating whether the editor is in headless mode.
@@ -236,7 +270,7 @@ export class BlockNoteEditor<
   /**
    * The dictionary contains translations for the editor.
    */
-  public readonly dictionary: Dictionary;
+  public readonly dictionary: Dictionary & Record<string, any>;
 
   /**
    * The schema of the editor. The schema defines which Blocks, InlineContent, and Styles are available in the editor.
@@ -347,17 +381,7 @@ export class BlockNoteEditor<
     this.inlineContentImplementations = newOptions.schema.inlineContentSpecs;
     this.styleImplementations = newOptions.schema.styleSpecs;
 
-    this.formattingToolbar = new FormattingToolbarProsemirrorPlugin(this);
-    this.linkToolbar = new LinkToolbarProsemirrorPlugin(this);
-    this.sideMenu = new SideMenuProsemirrorPlugin(this);
-    this.suggestionMenus = new SuggestionMenuProseMirrorPlugin(this);
-    this.filePanel = new FilePanelProsemirrorPlugin(this as any);
-
-    if (checkDefaultBlockTypeInSchema("table", this)) {
-      this.tableHandles = new TableHandlesProsemirrorPlugin(this as any);
-    }
-
-    const extensions = getBlockNoteExtensions({
+    this.extensions = getBlockNoteExtensions({
       editor: this,
       domAttributes: newOptions.domAttributes || {},
       blockSpecs: this.schema.blockSpecs,
@@ -367,28 +391,28 @@ export class BlockNoteEditor<
       trailingBlock: newOptions.trailingBlock,
       disableExtensions: newOptions.disableExtensions,
       setIdAttribute: newOptions.setIdAttribute,
+      animations: newOptions.animations ?? true,
+      tableHandles: checkDefaultBlockTypeInSchema("table", this),
+      dropCursor: this.options.dropCursor ?? dropCursor,
+      placeholders: newOptions.placeholders,
     });
 
-    const blockNoteUIExtension = Extension.create({
-      name: "BlockNoteUIExtension",
-
-      addProseMirrorPlugins: () => {
-        return [
-          this.formattingToolbar.plugin,
-          this.linkToolbar.plugin,
-          this.sideMenu.plugin,
-          this.suggestionMenus.plugin,
-          ...(this.filePanel ? [this.filePanel.plugin] : []),
-          ...(this.tableHandles ? [this.tableHandles.plugin] : []),
-          PlaceholderPlugin(this, newOptions.placeholders),
-          NodeSelectionKeyboardPlugin(),
-          ...(this.options.animations ?? true
-            ? [PreviousBlockTypePlugin()]
-            : []),
-        ];
-      },
+    // add extensions from _tiptapOptions
+    (newOptions._tiptapOptions?.extensions || []).forEach((ext) => {
+      this.extensions[ext.name] = ext;
     });
-    extensions.push(blockNoteUIExtension);
+
+    // add extensions from options
+    Object.entries(newOptions._extensions || {}).forEach(([key, ext]) => {
+      this.extensions[key] = ext;
+    });
+
+    this.formattingToolbar = this.extensions["formattingToolbar"] as any;
+    this.linkToolbar = this.extensions["linkToolbar"] as any;
+    this.sideMenu = this.extensions["sideMenu"] as any;
+    this.suggestionMenus = this.extensions["suggestionMenus"] as any;
+    this.filePanel = this.extensions["filePanel"] as any;
+    this.tableHandles = this.extensions["tableHandles"] as any;
 
     if (newOptions.uploadFile) {
       const uploadFile = newOptions.uploadFile;
@@ -439,14 +463,29 @@ export class BlockNoteEditor<
       );
     }
 
+    const tiptapExtensions = [
+      ...Object.entries(this.extensions).map(([key, ext]) => {
+        if (
+          ext instanceof Extension ||
+          ext instanceof TipTapNode ||
+          ext instanceof Mark
+        ) {
+          // tiptap extension
+          return ext;
+        }
+
+        // "blocknote" extensions (prosemirror plugins)
+        return Extension.create({
+          name: key,
+          addProseMirrorPlugins: () => [ext.plugin],
+        });
+      }),
+    ];
     const tiptapOptions: BlockNoteTipTapEditorOptions = {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
       content: initialContent,
-      extensions: [
-        ...(newOptions._tiptapOptions?.extensions || []),
-        ...extensions,
-      ],
+      extensions: tiptapExtensions,
       editorProps: {
         ...newOptions._tiptapOptions?.editorProps,
         attributes: {
@@ -962,41 +1001,28 @@ export class BlockNoteEditor<
    * Checks if the block containing the text cursor can be nested.
    */
   public canNestBlock() {
-    const { blockContainer } = getBlockInfoFromSelection(
-      this._tiptapEditor.state
-    );
-
-    return (
-      this._tiptapEditor.state.doc.resolve(blockContainer.beforePos)
-        .nodeBefore !== null
-    );
+    return canNestBlock(this);
   }
 
   /**
    * Nests the block containing the text cursor into the block above it.
    */
   public nestBlock() {
-    this._tiptapEditor.commands.sinkListItem("blockContainer");
+    nestBlock(this);
   }
 
   /**
    * Checks if the block containing the text cursor is nested.
    */
   public canUnnestBlock() {
-    const { blockContainer } = getBlockInfoFromSelection(
-      this._tiptapEditor.state
-    );
-
-    return (
-      this._tiptapEditor.state.doc.resolve(blockContainer.beforePos).depth > 1
-    );
+    return canUnnestBlock(this);
   }
 
   /**
    * Lifts the block containing the text cursor out of its parent.
    */
   public unnestBlock() {
-    this._tiptapEditor.commands.liftListItem("blockContainer");
+    unnestBlock(this);
   }
 
   /**

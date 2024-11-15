@@ -275,6 +275,11 @@ exports[`Test splitBlocks > Basic 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -356,7 +361,6 @@ exports[`Test splitBlocks > Basic 1`] = `
     },
     "id": "table-0",
     "props": {
-      "backgroundColor": "default",
       "textColor": "default",
     },
     "type": "table",
@@ -763,6 +767,11 @@ exports[`Test splitBlocks > Block has children 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -844,7 +853,6 @@ exports[`Test splitBlocks > Block has children 1`] = `
     },
     "id": "table-0",
     "props": {
-      "backgroundColor": "default",
       "textColor": "default",
     },
     "type": "table",
@@ -1251,6 +1259,11 @@ exports[`Test splitBlocks > Don't keep props 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -1332,7 +1345,6 @@ exports[`Test splitBlocks > Don't keep props 1`] = `
     },
     "id": "table-0",
     "props": {
-      "backgroundColor": "default",
       "textColor": "default",
     },
     "type": "table",
@@ -1739,6 +1751,11 @@ exports[`Test splitBlocks > Don't keep type 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -1820,7 +1837,6 @@ exports[`Test splitBlocks > Don't keep type 1`] = `
     },
     "id": "table-0",
     "props": {
-      "backgroundColor": "default",
       "textColor": "default",
     },
     "type": "table",
@@ -2221,6 +2237,11 @@ exports[`Test splitBlocks > End of content 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -2302,7 +2323,6 @@ exports[`Test splitBlocks > End of content 1`] = `
     },
     "id": "table-0",
     "props": {
-      "backgroundColor": "default",
       "textColor": "default",
     },
     "type": "table",
@@ -2710,6 +2730,11 @@ exports[`Test splitBlocks > Keep type 1`] = `
   {
     "children": [],
     "content": {
+      "columnWidths": [
+        undefined,
+        undefined,
+        undefined,
+      ],
       "rows": [
         {
           "cells": [
@@ -2791,7 +2816,6 @@ exports[`Test splitBlocks > Keep type 1`] = `
     },
     "id": "table-0",
     "props": {
-      "backgroundColor": "default",
       "textColor": "default",
     },
     "type": "table",

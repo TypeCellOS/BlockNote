@@ -49,7 +49,7 @@ function fragmentToExternalHTML<
     isWithinBlockContent =
       children.find(
         (child) =>
-          child.type.name === "blockContainer" ||
+          child.type.isInGroup("bnBlock") ||
           child.type.name === "blockGroup" ||
           child.type.spec.group === "blockContent"
       ) === undefined;

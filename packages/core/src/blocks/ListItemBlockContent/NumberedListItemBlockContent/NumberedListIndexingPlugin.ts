@@ -27,24 +27,30 @@ export const NumberedListIndexingPlugin = () => {
             node,
           });
 
+          if (!blockInfo.isBlockContainer) {
+            throw new Error("impossible");
+          }
+
           // Checks if this block is the start of a new ordered list, i.e. if it's the first block in the document, the
           // first block in its nesting level, or the previous block is not an ordered list item.
 
           const prevBlock = tr.doc.resolve(
-            blockInfo.blockContainer.beforePos
+            blockInfo.bnBlock.beforePos
           ).nodeBefore;
 
           if (prevBlock) {
             const prevBlockInfo = getBlockInfo({
-              posBeforeNode:
-                blockInfo.blockContainer.beforePos - prevBlock.nodeSize,
+              posBeforeNode: blockInfo.bnBlock.beforePos - prevBlock.nodeSize,
               node: prevBlock,
             });
 
             const isPrevBlockOrderedListItem =
-              prevBlockInfo.blockContent.node.type.name === "numberedListItem";
+              prevBlockInfo.blockNoteType === "numberedListItem";
 
             if (isPrevBlockOrderedListItem) {
+              if (!prevBlockInfo.isBlockContainer) {
+                throw new Error("impossible");
+              }
               const prevBlockIndex =
                 prevBlockInfo.blockContent.node.attrs["index"];
 
@@ -59,6 +65,7 @@ export const NumberedListIndexingPlugin = () => {
             modified = true;
 
             tr.setNodeMarkup(blockInfo.blockContent.beforePos, undefined, {
+              ...contentNode.attrs,
               index: newIndex,
             });
           }

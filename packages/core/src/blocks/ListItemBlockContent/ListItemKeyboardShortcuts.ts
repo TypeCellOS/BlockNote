@@ -5,9 +5,11 @@ import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 export const handleEnter = (editor: BlockNoteEditor<any, any, any>) => {
   const ttEditor = editor._tiptapEditor;
-  const { blockContent, blockContainer } = getBlockInfoFromSelection(
-    ttEditor.state
-  );
+  const blockInfo = getBlockInfoFromSelection(ttEditor.state);
+  if (!blockInfo.isBlockContainer) {
+    return false;
+  }
+  const { bnBlock: blockContainer, blockContent } = blockInfo;
 
   const selectionEmpty =
     ttEditor.state.selection.anchor === ttEditor.state.selection.head;
