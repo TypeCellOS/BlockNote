@@ -308,7 +308,6 @@ exports[`Test removeBlocks > Remove all child blocks 1`] = `
     },
     "id": "table-0",
     "props": {
-      "backgroundColor": "default",
       "textColor": "default",
     },
     "type": "table",
