@@ -109,7 +109,7 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
     return {
       Enter: () => handleEnter(this.options.editor),
       "Mod-Shift-9": () => {
-        const blockInfo = getBlockInfoFromSelection(this.options.editor.state);
+        const blockInfo = getBlockInfoFromSelection(this.editor.state);
         if (
           !blockInfo.isBlockContainer ||
           blockInfo.blockContent.node.type.spec.content !== "inline*"

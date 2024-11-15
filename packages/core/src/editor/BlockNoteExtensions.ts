@@ -157,6 +157,7 @@ const getTipTapExtensions = <
 
     // marks:
     Link.extend({
+      inclusive: false,
       addKeyboardShortcuts() {
         return {
           "Mod-k": () => {

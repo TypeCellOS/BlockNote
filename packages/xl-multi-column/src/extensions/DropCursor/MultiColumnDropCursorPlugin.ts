@@ -130,17 +130,24 @@ export function multiColumnDropCursor(
             (b) => b.id === blockInfo.bnBlock.node.attrs.id
           );
 
-          const newChildren = columnList.children.toSpliced(
-            position === "left" ? index : index + 1,
-            0,
-            {
+          const newChildren = columnList.children
+            // If the dragged block is in one of the columns, remove it.
+            .map((column) => ({
+              ...column,
+              children: column.children.filter(
+                (block) => block.id !== draggedBlock.id
+              ),
+            }))
+            // Remove empty columns (can happen when dragged block is removed).
+            .filter((column) => column.children.length > 0)
+            // Insert the dragged block in the correct position.
+            .toSpliced(position === "left" ? index : index + 1, 0, {
               type: "column",
               children: [draggedBlock],
               props: {},
               content: undefined,
               id: UniqueID.options.generateID(),
-            }
-          );
+            });
 
           editor.removeBlocks([draggedBlock]);
 
@@ -201,14 +208,25 @@ class DropCursorView {
       const handler = (e: Event) => {
         (this as any)[name](e);
       };
-      editorView.dom.addEventListener(name, handler);
+      editorView.dom.addEventListener(
+        name,
+        handler,
+        // drop event captured in bubbling phase to make sure
+        // "cursorPos" is set to undefined before the "handleDrop" handler is called
+        // (otherwise an error could be thrown, see https://github.com/TypeCellOS/BlockNote/pull/1240)
+        name === "drop" ? true : undefined
+      );
       return { name, handler };
     });
   }
 
   destroy() {
     this.handlers.forEach(({ name, handler }) =>
-      this.editorView.dom.removeEventListener(name, handler)
+      this.editorView.dom.removeEventListener(
+        name,
+        handler,
+        name === "drop" ? true : undefined
+      )
     );
   }
 
@@ -266,6 +284,10 @@ class DropCursorView {
           this.cursorPos.position === "right"
         ) {
           const block = this.editorView.nodeDOM(this.cursorPos.pos);
+
+          if (!block) {
+            throw new Error("nodeDOM returned null in updateOverlay");
+          }
 
           const blockRect = (block as HTMLElement).getBoundingClientRect();
           const halfWidth = (this.width / 2) * scaleY;
@@ -434,7 +456,7 @@ class DropCursorView {
           target = point;
         }
       }
-      //   console.log("target", target);
+
       this.setCursor({ pos: target, position });
       this.scheduleRemoval(5000);
     }
@@ -445,7 +467,7 @@ class DropCursorView {
   }
 
   drop() {
-    this.scheduleRemoval(20);
+    this.setCursor(undefined);
   }
 
   dragleave(event: DragEvent) {
