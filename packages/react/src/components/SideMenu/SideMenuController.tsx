@@ -8,6 +8,7 @@ import {
 } from "@blocknote/core";
 import { FC } from "react";
 
+import { UseFloatingOptions } from "@floating-ui/react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning.js";
 import { useUIPluginState } from "../../hooks/useUIPluginState.js";
@@ -20,6 +21,7 @@ export const SideMenuController = <
   S extends StyleSchema = DefaultStyleSchema
 >(props: {
   sideMenu?: FC<SideMenuProps<BSchema, I, S>>;
+  floatingOptions?: Partial<UseFloatingOptions>;
 }) => {
   const editor = useBlockNoteEditor<BSchema, I, S>();
 
@@ -39,6 +41,7 @@ export const SideMenuController = <
     1000,
     {
       placement: "left-start",
+      ...props.floatingOptions,
     }
   );
 
