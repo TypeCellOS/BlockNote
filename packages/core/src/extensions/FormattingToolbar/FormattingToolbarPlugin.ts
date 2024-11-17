@@ -68,46 +68,7 @@ export class FormattingToolbarView implements PluginView {
 
     pmView.dom.addEventListener("mousedown", this.viewMousedownHandler);
     pmView.dom.addEventListener("mouseup", this.viewMouseupHandler);
-    pmView.dom.addEventListener("dragstart", this.dragHandler);
-    pmView.dom.addEventListener("dragover", this.dragHandler);
-    pmView.dom.addEventListener("blur", this.blurHandler);
-
-    // Setting capture=true ensures that any parent container of the editor that
-    // gets scrolled will trigger the scroll event. Scroll events do not bubble
-    // and so won't propagate to the document by default.
-    pmView.root.addEventListener("scroll", this.scrollHandler, true);
   }
-
-  blurHandler = (event: FocusEvent) => {
-    if (this.preventHide) {
-      this.preventHide = false;
-
-      return;
-    }
-
-    const editorWrapper = this.pmView.dom.parentElement!;
-
-    // Checks if the focus is moving to an element outside the editor. If it is,
-    // the toolbar is hidden.
-    if (
-      // An element is clicked.
-      event &&
-      event.relatedTarget &&
-      // Element is inside the editor.
-      (editorWrapper === (event.relatedTarget as Node) ||
-        editorWrapper.contains(event.relatedTarget as Node) ||
-        (event.relatedTarget as HTMLElement).matches(
-          ".bn-ui-container, .bn-ui-container *"
-        ))
-    ) {
-      return;
-    }
-
-    if (this.state?.show) {
-      this.state.show = false;
-      this.emitUpdate();
-    }
-  };
 
   viewMousedownHandler = () => {
     this.preventShow = true;
@@ -116,21 +77,6 @@ export class FormattingToolbarView implements PluginView {
   viewMouseupHandler = () => {
     this.preventShow = false;
     setTimeout(() => this.update(this.pmView));
-  };
-
-  // For dragging the whole editor.
-  dragHandler = () => {
-    if (this.state?.show) {
-      this.state.show = false;
-      this.emitUpdate();
-    }
-  };
-
-  scrollHandler = () => {
-    if (this.state?.show) {
-      this.state.referencePos = this.getSelectionBoundingBox();
-      this.emitUpdate();
-    }
   };
 
   update(view: EditorView, oldState?: EditorState) {
@@ -192,11 +138,6 @@ export class FormattingToolbarView implements PluginView {
   destroy() {
     this.pmView.dom.removeEventListener("mousedown", this.viewMousedownHandler);
     this.pmView.dom.removeEventListener("mouseup", this.viewMouseupHandler);
-    this.pmView.dom.removeEventListener("dragstart", this.dragHandler);
-    this.pmView.dom.removeEventListener("dragover", this.dragHandler);
-    this.pmView.dom.removeEventListener("blur", this.blurHandler);
-
-    this.pmView.root.removeEventListener("scroll", this.scrollHandler, true);
   }
 
   closeMenu = () => {
