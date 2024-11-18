@@ -46,6 +46,7 @@ export * from "./util/string.js";
 export * from "./util/typescript.js";
 export { UnreachableCaseError, assertEmpty } from "./util/typescript.js";
 export { locales };
+export * from "./api/blockManipulation/commands/updateBlock/updateBlock.js";
 
 // for testing from react (TODO: move):
 export * from "./api/nodeConversions/blockToNode.js";
