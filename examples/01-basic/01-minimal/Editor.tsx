@@ -11,6 +11,7 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import { useLiveblocksExtension } from "@liveblocks/react-tiptap";
+import { Threads } from "./Threads";
 
 export function CustomFormattingToolbar(props: {
   editor: BlockNoteEditor<any, any, any>;
@@ -24,7 +25,6 @@ export function CustomFormattingToolbar(props: {
       <ctx.FormattingToolbar.Button
         mainTooltip="Add comment"
         onClick={() => {
-          debugger;
           props.editor?._tiptapEditor.chain().focus().addPendingComment().run();
         }}>
         Comment
@@ -37,38 +37,16 @@ export function Editor() {
   const liveblocks = useLiveblocksExtension();
 
   const editor = useCreateBlockNote({
-    _tiptapOptions: {
-      extensions: [liveblocks],
-    },
+    _extensions: { liveblocksExtension: liveblocks },
     disableExtensions: ["history"],
   });
 
-  // const [x, setX] = useState<any>();
-
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     setX(Math.random());
-  //   }, 1000);
-  //   return () => clearInterval(interval);
-  // }, []);
-
   return (
     <BlockNoteView editor={editor} formattingToolbar={false}>
-      {/* {editor.prosemirrorView && editor.domElement && ( */}
-      <div>
-        HELLO
-        {/* <Test editor={editor._tiptapEditor} />
-        <Threads editor={editor._tiptapEditor} /> */}
-      </div>
-      {/* )} */}
+      <Threads editor={editor._tiptapEditor} />
       <FormattingToolbarController
         formattingToolbar={() => <CustomFormattingToolbar editor={editor} />}
       />
     </BlockNoteView>
   );
-}
-
-function Test(props: { editor: Editor }) {
-  debugger;
-  return <div>TEST</div>;
 }

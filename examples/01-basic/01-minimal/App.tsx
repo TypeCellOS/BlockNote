@@ -1,7 +1,9 @@
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
-import "@liveblocks/react-tiptap/styles.css";
-import "@liveblocks/react-ui/styles.css";
+import "@liveblocks/react-ui/../styles.css";
+
+import "@liveblocks/react-tiptap/../styles.css";
+
 import { Editor } from "./Editor.jsx";
 import { Room } from "./Room.jsx";
 import "./globals.css";
@@ -19,15 +21,15 @@ export default function App() {
  *
  * TODO:
  * - blocking: DOM updates
- * - blocking: Extension API
  * - fix mount issue
  * - - (domelement)
- * - - position out of range
+ * - - make with with queueMicrotask
  * - versioning
  * - automatic comment button?
- * - animation performance
  * - Even simpler API?
- * - side menu visibility when composing
- * - hide composing box when clicking outside
- * - users / mentions / history / notifications
+ * - History
+ * - mentions:
+ * -- paste handler
+ * -- "change" API to trigger code from document changes
+ * -- hook up blocknote mentions, create default mention API that adds inline content + menu
  */

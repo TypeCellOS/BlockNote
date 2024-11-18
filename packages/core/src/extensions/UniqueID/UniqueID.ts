@@ -53,7 +53,6 @@ const UniqueID = Extension.create({
       setIdAttribute: false,
       generateID: () => {
         // Use mock ID if tests are running.
-        debugger;
         if (typeof window !== "undefined" && (window as any).__TEST_OPTIONS) {
           const testOptions = (window as any).__TEST_OPTIONS;
           if (testOptions.mockID === undefined) {

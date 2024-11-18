@@ -434,12 +434,8 @@ export class BlockNoteEditor<
     this.headless = newOptions._headless;
 
     const collaborationEnabled =
-      !!extensions.find((ext) => ext.name === "Collaboration") ||
-      !!newOptions._tiptapOptions?.extensions?.find(
-        (ext) => ext.name === "liveblocksExtension"
-      );
-
-    debugger;
+      "Collaboration" in this.extensions ||
+      "liveblocksExtension" in this.extensions;
 
     if (collaborationEnabled && newOptions.initialContent) {
       // eslint-disable-next-line no-console
@@ -480,6 +476,12 @@ export class BlockNoteEditor<
         ) {
           // tiptap extension
           return ext;
+        }
+
+        if (!ext.plugin) {
+          throw new Error(
+            "Extension should either be a TipTap extension or a ProseMirror plugin in a plugin property"
+          );
         }
 
         // "blocknote" extensions (prosemirror plugins)
