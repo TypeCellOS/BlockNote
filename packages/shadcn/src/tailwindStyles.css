@@ -36,22 +36,22 @@
     -moz-tab-size: 4; /* 3 */
     tab-size: 4; /* 3 */
     font-family: theme(
-      "fontFamily.sans",
-      ui-sans-serif,
-      system-ui,
-      sans-serif,
-      "Apple Color Emoji",
-      "Segoe UI Emoji",
-      "Segoe UI Symbol",
-      "Noto Color Emoji"
+            "fontFamily.sans",
+            ui-sans-serif,
+            system-ui,
+            sans-serif,
+            "Apple Color Emoji",
+            "Segoe UI Emoji",
+            "Segoe UI Symbol",
+            "Noto Color Emoji"
     ); /* 4 */
     font-feature-settings: theme(
-      "fontFamily.sans[1].fontFeatureSettings",
-      normal
+            "fontFamily.sans[1].fontFeatureSettings",
+            normal
     ); /* 5 */
     font-variation-settings: theme(
-      "fontFamily.sans[1].fontVariationSettings",
-      normal
+            "fontFamily.sans[1].fontVariationSettings",
+            normal
     ); /* 6 */
     -webkit-tap-highlight-color: transparent; /* 7 */
   }
@@ -101,6 +101,15 @@
   }
 
   /*
+    Reset links to optimize for opt-in styling instead of opt-out.
+    */
+
+  a {
+    color: inherit;
+    text-decoration: inherit;
+  }
+
+  /*
     Add the correct font weight in Edge and Safari.
     */
 
@@ -121,23 +130,23 @@
   samp,
   pre {
     font-family: theme(
-      "fontFamily.mono",
-      ui-monospace,
-      SFMono-Regular,
-      Menlo,
-      Monaco,
-      Consolas,
-      "Liberation Mono",
-      "Courier New",
-      monospace
+            "fontFamily.mono",
+            ui-monospace,
+            SFMono-Regular,
+            Menlo,
+            Monaco,
+            Consolas,
+            "Liberation Mono",
+            "Courier New",
+            monospace
     ); /* 1 */
     font-feature-settings: theme(
-      "fontFamily.mono[1].fontFeatureSettings",
-      normal
+            "fontFamily.mono[1].fontFeatureSettings",
+            normal
     ); /* 2 */
     font-variation-settings: theme(
-      "fontFamily.mono[1].fontVariationSettings",
-      normal
+            "fontFamily.mono[1].fontVariationSettings",
+            normal
     ); /* 3 */
     font-size: 1em; /* 4 */
   }

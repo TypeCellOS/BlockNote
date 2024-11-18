@@ -74,6 +74,11 @@
   @apply bn-bg-background bn-text-foreground;
 }
 
+.bn-shadcn .bn-editor a {
+  color: revert;
+  text-decoration: revert;
+}
+
 .bn-shadcn [data-radix-popper-content-wrapper] {
   z-index: 99999 !important;
 }
