@@ -13,9 +13,13 @@ import {
 const getEditor = setupTestEnv();
 
 function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
-  const { blockContent } = getBlockInfoFromSelection(
-    getEditor()._tiptapEditor.state
-  );
+  const blockInfo = getBlockInfoFromSelection(getEditor()._tiptapEditor.state);
+  if (!blockInfo.isBlockContainer) {
+    throw new Error(
+      `Selection points to a ${blockInfo.blockNoteType} node, not a blockContainer node`
+    );
+  }
+  const { blockContent } = blockInfo;
 
   if (selectionType === "cell") {
     getEditor()._tiptapEditor.view.dispatch(

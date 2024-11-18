@@ -3,7 +3,7 @@
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
   "license": "AGPL-3.0 OR PROPRIETARY",
-  "version": "0.19.0",
+  "version": "0.19.1",
   "files": [
     "dist",
     "types",
@@ -49,8 +49,8 @@
     "email": "email dev"
   },
   "dependencies": {
-    "@blocknote/core": "^0.19.0",
-    "@blocknote/react": "^0.19.0",
+    "@blocknote/core": "^0.19.1",
+    "@blocknote/react": "^0.19.1",
     "@react-pdf/renderer": "^4.0.0",
     "buffer": "^6.0.3",
     "docx": "^9.0.2"

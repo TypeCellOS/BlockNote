@@ -6,7 +6,7 @@
     "*.css"
   ],
   "license": "MPL-2.0",
-  "version": "0.19.0",
+  "version": "0.19.1",
   "files": [
     "dist",
     "types",
@@ -50,8 +50,8 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "^0.19.0",
-    "@blocknote/react": "^0.19.0",
+    "@blocknote/core": "^0.19.1",
+    "@blocknote/react": "^0.19.1",
     "@hookform/resolvers": "^3.6.0",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
     "@radix-ui/react-label": "^2.0.2",
