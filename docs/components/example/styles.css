@@ -1,28 +1,34 @@
 :focus-visible {
-  box-shadow: unset !important;
+    box-shadow: unset !important;
 }
 
 .demo .nextra-code-block pre {
-  background-color: transparent !important;
-  margin: 0 !important;
-  padding: 0 !important;
+    background-color: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .demo .nextra-code-block code > span {
-  padding: 0 !important;
+    padding: 0 !important;
 }
 
 .demo .bn-container,
 .demo .bn-editor {
-  height: 100%;
+    height: 100%;
 }
 
 .demo .bn-editor {
-  overflow: auto;
-  padding-block: 1rem;
+    overflow: auto;
+    padding-block: 1rem;
 }
 
 .demo-contents a {
-  color: revert;
-  text-decoration: revert;
+    color: revert;
+    text-decoration: revert;
+}
+
+.demo code.bn-inline-content {
+    font-size: 1em;
+    line-height: 1.5;
+    display: block;
 }

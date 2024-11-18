@@ -131,4 +131,46 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
 
     await compareDocToSnapshot(page, "backspacePreservesNestedBlocks.json");
   });
+  test("Check heading 1 shortcut", async ({ page }) => {
+    await focusOnEditor(page);
+    await page.keyboard.type("Paragraph");
+    await page.keyboard.press("ControlOrMeta+Alt+1");
+
+    await compareDocToSnapshot(page, "heading1Shortcut.json");
+  });
+  test("Check heading 2 shortcut", async ({ page }) => {
+    await focusOnEditor(page);
+    await page.keyboard.type("Paragraph");
+    await page.keyboard.press("ControlOrMeta+Alt+2");
+
+    await compareDocToSnapshot(page, "heading2Shortcut.json");
+  });
+  test("Check heading 3 shortcut", async ({ page }) => {
+    await focusOnEditor(page);
+    await page.keyboard.type("Paragraph");
+    await page.keyboard.press("ControlOrMeta+Alt+3");
+
+    await compareDocToSnapshot(page, "heading3Shortcut.json");
+  });
+  test("Check numbered list item shortcut", async ({ page }) => {
+    await focusOnEditor(page);
+    await page.keyboard.type("Paragraph");
+    await page.keyboard.press("ControlOrMeta+Shift+7");
+
+    await compareDocToSnapshot(page, "numberedListItemShortcut.json");
+  });
+  test("Check bullet list item shortcut", async ({ page }) => {
+    await focusOnEditor(page);
+    await page.keyboard.type("Paragraph");
+    await page.keyboard.press("ControlOrMeta+Shift+8");
+
+    await compareDocToSnapshot(page, "bulletListItemShortcut.json");
+  });
+  test("Check checked list item shortcut", async ({ page }) => {
+    await focusOnEditor(page);
+    await page.keyboard.type("Paragraph");
+    await page.keyboard.press("ControlOrMeta+Shift+9");
+
+    await compareDocToSnapshot(page, "checkedListItemShortcut.json");
+  });
 });

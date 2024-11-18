@@ -31,4 +31,10 @@ describe("Test removeBlocks", () => {
 
     expect(getEditor().document).toMatchSnapshot();
   });
+
+  it("Remove all child blocks", () => {
+    removeBlocks(getEditor(), ["nested-paragraph-0"]);
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
 });
