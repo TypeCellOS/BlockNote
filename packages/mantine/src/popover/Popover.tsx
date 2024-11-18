@@ -18,7 +18,7 @@ export const Popover = (
   return (
     <MantinePopover
       withinPortal={false}
-      zIndex={10000}
+      zIndex={100}
       opened={opened}
       position={position}>
       {children}
