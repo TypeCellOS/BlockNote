@@ -25,6 +25,7 @@
     "@tiptap/core": "^2.7.1",
     "@tiptap/react": "^2.7.1",
     "@liveblocks/client": "^2.11.0",
+    "@liveblocks/react-blocknote": "^2.11.0",
     "@liveblocks/react": "^2.11.0",
     "@liveblocks/react-tiptap": "^2.11.0",
     "@liveblocks/react-ui": "^2.11.0",

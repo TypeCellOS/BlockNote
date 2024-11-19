@@ -104,11 +104,12 @@ export function contentNodeToInlineContent<
       return;
     }
 
-    if (
-      node.type.name !== "link" &&
-      node.type.name !== "text" &&
-      inlineContentSchema[node.type.name]
-    ) {
+    if (node.type.name !== "link" && node.type.name !== "text") {
+      if (!inlineContentSchema[node.type.name]) {
+        // @eslint-disable-next-line no-console
+        console.warn("unrecognized inline content type", node.type.name);
+        return;
+      }
       if (currentContent) {
         content.push(currentContent);
         currentContent = undefined;

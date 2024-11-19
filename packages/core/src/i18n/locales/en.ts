@@ -269,6 +269,9 @@ export const en = {
     align_justify: {
       tooltip: "Justify text",
     },
+    comment: {
+      tooltip: "Add comment",
+    },
   },
   file_panel: {
     upload: {

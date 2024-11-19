@@ -116,7 +116,7 @@ export const getBlockNoteExtensions = <
   ret["nodeSelectionKeyboard"] = new NodeSelectionKeyboardPlugin();
 
   const disableExtensions: string[] = opts.disableExtensions || [];
-  for (const ext of Object.keys(disableExtensions)) {
+  for (const ext of disableExtensions) {
     delete ret[ext];
   }
 

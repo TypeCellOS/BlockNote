@@ -63,6 +63,7 @@ export default defineConfig((conf) => ({
               __dirname,
               "../packages/xl-multi-column/src/"
             ),
+
             "@liveblocks/core": path.resolve(
               __dirname,
               "../../liveblocks/packages/liveblocks-core/src/"
@@ -75,10 +76,23 @@ export default defineConfig((conf) => ({
               __dirname,
               "../../liveblocks/packages/liveblocks-react-tiptap/src/"
             ),
+            "@liveblocks/react-blocknote/styles.css": path.resolve(
+              __dirname,
+              "../../liveblocks/packages/liveblocks-react-blocknote/styles.css"
+            ),
+            "@liveblocks/react-blocknote": path.resolve(
+              __dirname,
+              "../../liveblocks/packages/liveblocks-react-blocknote/src/"
+            ),
+            "@liveblocks/react-ui/styles.css": path.resolve(
+              __dirname,
+              "../../liveblocks/packages/liveblocks-react-ui/styles.css"
+            ),
             "@liveblocks/react-ui": path.resolve(
               __dirname,
               "../../liveblocks/packages/liveblocks-react-ui/src/"
             ),
+
             "@liveblocks/client": path.resolve(
               __dirname,
               "../../liveblocks/packages/liveblocks-client/src/"
