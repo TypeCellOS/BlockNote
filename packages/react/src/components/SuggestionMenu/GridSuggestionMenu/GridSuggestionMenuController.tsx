@@ -4,7 +4,7 @@ import {
   StyleSchema,
   SuggestionMenuState,
 } from "@blocknote/core";
-import { flip, offset, size } from "@floating-ui/react";
+import { flip, offset, size, UseFloatingOptions } from "@floating-ui/react";
 import { FC, useCallback, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../../hooks/useBlockNoteEditor.js";
@@ -35,6 +35,7 @@ export function GridSuggestionMenuController<
     getItems?: GetItemsType;
     columns: number;
     minQueryLength?: number;
+    floatingOptions?: Partial<UseFloatingOptions>;
   } & (ItemType<GetItemsType> extends DefaultReactGridSuggestionItem
     ? {
         // can be undefined
@@ -64,6 +65,7 @@ export function GridSuggestionMenuController<
     minQueryLength,
     onItemClick,
     getItems,
+    floatingOptions,
   } = props;
 
   const onItemClickOrDefault = useMemo(() => {
@@ -124,6 +126,7 @@ export function GridSuggestionMenuController<
           editor.suggestionMenus.closeMenu();
         }
       },
+      ...floatingOptions,
     }
   );
 

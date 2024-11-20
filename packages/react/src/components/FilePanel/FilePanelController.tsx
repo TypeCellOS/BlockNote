@@ -6,7 +6,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { flip, offset } from "@floating-ui/react";
+import { UseFloatingOptions, flip, offset } from "@floating-ui/react";
 import { FC } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -21,6 +21,7 @@ export const FilePanelController = <
   S extends StyleSchema = DefaultStyleSchema
 >(props: {
   filePanel?: FC<FilePanelProps<I, S>>;
+  floatingOptions?: Partial<UseFloatingOptions>;
 }) => {
   const editor = useBlockNoteEditor<B, I, S>();
 
@@ -47,6 +48,7 @@ export const FilePanelController = <
           editor.focus();
         }
       },
+      ...props.floatingOptions,
     }
   );
 
