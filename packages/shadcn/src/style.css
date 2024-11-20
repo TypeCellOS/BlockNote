@@ -79,10 +79,6 @@
   text-decoration: revert;
 }
 
-.bn-shadcn [data-radix-popper-content-wrapper] {
-  z-index: 99999 !important;
-}
-
 .bn-shadcn .bn-editor:focus-visible {
   outline: none;
 }
