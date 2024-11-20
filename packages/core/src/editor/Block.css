@@ -299,6 +299,9 @@ NESTED BLOCKS
   transition: opacity 0.3s;
   transition-delay: 1s;
 }
+.bn-block-content[data-content-type="codeBlock"] > div > select > option {
+  color: black;
+}
 .bn-block-content[data-content-type="codeBlock"]:hover > div > select,
 .bn-block-content[data-content-type="codeBlock"] > div > select:focus {
   opacity: 0.5;
