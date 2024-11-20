@@ -7,11 +7,7 @@ export function Editor() {
   const editor = useCreateBlockNoteWithLiveblocks({});
 
   return (
-    <BlockNoteView
-      onChange={() => {
-        console.log(editor.document);
-      }}
-      editor={editor}>
+    <BlockNoteView editor={editor}>
       <Threads editor={editor} />
     </BlockNoteView>
   );
