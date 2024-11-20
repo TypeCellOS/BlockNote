@@ -56,6 +56,10 @@ class ColumnResizePluginView implements PluginView {
   getColumnHoverOrDefaultState = (
     event: MouseEvent
   ): ColumnDefaultState | ColumnHoverState => {
+    if (!this.editor.isEditable) {
+      return { type: "default" };
+    }
+
     const target = event.target as HTMLElement;
 
     // Do nothing if the event target is outside the editor.
