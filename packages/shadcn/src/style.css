@@ -74,10 +74,6 @@
   @apply bn-bg-background bn-text-foreground;
 }
 
-.bn-shadcn [data-radix-popper-content-wrapper] {
-  z-index: 300 !important;
-}
-
 .bn-shadcn .bn-editor:focus-visible {
   outline: none;
 }

@@ -16,11 +16,7 @@ export const Popover = (
   assertEmpty(rest);
 
   return (
-    <MantinePopover
-      withinPortal={false}
-      zIndex={100}
-      opened={opened}
-      position={position}>
+    <MantinePopover withinPortal={false} opened={opened} position={position}>
       {children}
     </MantinePopover>
   );
