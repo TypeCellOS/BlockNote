@@ -27,7 +27,6 @@
     "@liveblocks/client": "^2.11.0",
     "@liveblocks/react-blocknote": "^2.11.0",
     "@liveblocks/react": "^2.11.0",
-    "@liveblocks/react-tiptap": "^2.11.0",
     "@liveblocks/react-ui": "^2.11.0",
     "@liveblocks/yjs": "^2.11.0",
     "@mantine/core": "^7.10.1",

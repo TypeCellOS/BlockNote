@@ -63,7 +63,9 @@ export default defineConfig((conf) => ({
               __dirname,
               "../packages/xl-multi-column/src/"
             ),
-
+            /*
+            This can be used when developing against a local version of liveblocks:
+            
             "@liveblocks/core": path.resolve(
               __dirname,
               "../../liveblocks/packages/liveblocks-core/src/"
@@ -105,7 +107,7 @@ export default defineConfig((conf) => ({
               __dirname,
               "../node_modules/@tiptap/suggestion/"
             ),
-            yjs: path.resolve(__dirname, "../node_modules/yjs/"),
+            yjs: path.resolve(__dirname, "../node_modules/yjs/"),*/
           },
   },
 }));
