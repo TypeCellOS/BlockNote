@@ -1,24 +1,10 @@
 "use client";
 
-import { BlockNoteSchema } from "@blocknote/core";
 import { BlockNoteView } from "@blocknote/mantine";
-import { useCreateBlockNote } from "@blocknote/react";
-import {
-  useLiveblocksExtension,
-  withLiveblocks,
-} from "@liveblocks/react-blocknote";
+import { useCreateBlockNoteWithLiveblocks } from "@liveblocks/react-blocknote";
 import { Threads } from "./Threads";
-
 export function Editor() {
-  const liveblocks = useLiveblocksExtension();
-
-  const schema = withLiveblocks(BlockNoteSchema.create());
-
-  const editor = useCreateBlockNote({
-    schema,
-    _extensions: { liveblocksExtension: liveblocks },
-    disableExtensions: ["history"],
-  });
+  const editor = useCreateBlockNoteWithLiveblocks({});
 
   return (
     <BlockNoteView
