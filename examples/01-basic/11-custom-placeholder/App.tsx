@@ -1,8 +1,8 @@
+import { locales } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
-import { locales } from "@blocknote/core";
 
 export default function App() {
   // We use the English, default dictionary
