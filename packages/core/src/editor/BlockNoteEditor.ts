@@ -474,6 +474,12 @@ export class BlockNoteEditor<
           return ext;
         }
 
+        if (!ext.plugin) {
+          throw new Error(
+            "Extension should either be a TipTap extension or a ProseMirror plugin in a plugin property"
+          );
+        }
+
         // "blocknote" extensions (prosemirror plugins)
         return Extension.create({
           name: key,
