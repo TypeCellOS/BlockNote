@@ -38,7 +38,6 @@ export default function App() {
       <div>BlockNote Editor:</div>
       <div className={"item"}>
         <BlockNoteView
-          slashMenu={false}
           editor={editor}
           onChange={() => {
             // Saves the document JSON to state.
