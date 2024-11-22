@@ -121,3 +121,5 @@ BlockNote is built as part of [TypeCell](https://www.typecell.org). TypeCell is 
 Hosting and deployments powered by Vercel:
 
 <a href="https://vercel.com/?utm_source=TypeCell&utm_campaign=oss"><img src="https://images.ctfassets.net/e5382hct74si/78Olo8EZRdUlcDUFQvnzG7/fa4cdb6dc04c40fceac194134788a0e2/1618983297-powered-by-vercel.svg" alt="NLNet" width="150"></a>
+
+This project is tested with BrowserStack

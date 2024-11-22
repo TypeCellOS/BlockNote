@@ -15,7 +15,6 @@ import { defaultProps } from "../defaultProps.js";
 import { EMPTY_CELL_WIDTH, TableExtension } from "./TableExtension.js";
 
 export const tablePropSchema = {
-  backgroundColor: defaultProps.backgroundColor,
   textColor: defaultProps.textColor,
 };
 

@@ -56,6 +56,10 @@ class ColumnResizePluginView implements PluginView {
   getColumnHoverOrDefaultState = (
     event: MouseEvent
   ): ColumnDefaultState | ColumnHoverState => {
+    if (!this.editor.isEditable) {
+      return { type: "default" };
+    }
+
     const target = event.target as HTMLElement;
 
     // Do nothing if the event target is outside the editor.
@@ -296,9 +300,11 @@ class ColumnResizePluginView implements PluginView {
     this.editor.sideMenu.unfreezeMenu();
   };
 
-  // This is a required method for PluginView, so we get a type error if we
-  // don't implement it.
-  update: undefined;
+  destroy() {
+    this.view.dom.removeEventListener("mousedown", this.mouseDownHandler);
+    document.body.removeEventListener("mousemove", this.mouseMoveHandler);
+    document.body.removeEventListener("mouseup", this.mouseUpHandler);
+  }
 }
 
 const createColumnResizePlugin = (editor: BlockNoteEditor<any, any, any>) =>

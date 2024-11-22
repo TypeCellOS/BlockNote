@@ -365,8 +365,7 @@
     "id": "19",
     "type": "table",
     "props": {
-      "textColor": "default",
-      "backgroundColor": "default"
+      "textColor": "default"
     },
     "content": {
       "type": "tableContent",

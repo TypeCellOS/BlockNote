@@ -6,7 +6,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { flip, offset } from "@floating-ui/react";
+import { UseFloatingOptions, flip, offset } from "@floating-ui/react";
 import { FC } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -21,6 +21,7 @@ export const LinkToolbarController = <
   S extends StyleSchema = DefaultStyleSchema
 >(props: {
   linkToolbar?: FC<LinkToolbarProps>;
+  floatingOptions?: Partial<UseFloatingOptions>;
 }) => {
   const editor = useBlockNoteEditor<BSchema, I, S>();
 
@@ -47,6 +48,7 @@ export const LinkToolbarController = <
           editor.focus();
         }
       },
+      ...props.floatingOptions,
     }
   );
 

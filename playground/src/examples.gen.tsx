@@ -200,6 +200,24 @@
         }
       },
       {
+        "projectSlug": "custom-placeholder",
+        "fullSlug": "basic/custom-placeholder",
+        "pathFromRoot": "examples/01-basic/11-custom-placeholder",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "ezhil56x",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Change placeholder text",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
         "projectSlug": "testing",
         "fullSlug": "basic/testing",
         "pathFromRoot": "examples/01-basic/testing",
