@@ -1,6 +1,8 @@
 import { callOrReturn, Extension, getExtensionField } from "@tiptap/core";
 import { columnResizing, tableEditing } from "prosemirror-tables";
 
+import { setSelectionToAdjacentCell } from "./helpers/setSelectionToAdjacentCell.js";
+
 export const RESIZE_MIN_WIDTH = 35;
 export const EMPTY_CELL_WIDTH = 120;
 export const EMPTY_CELL_HEIGHT = 31;
@@ -52,6 +54,13 @@ export const TableExtension = Extension.create({
           selectionIsAtStartOfNode &&
           selectionIsInTableParagraphNode
         );
+      },
+      // Enables navigating cells using the tab key.
+      Tab: () => {
+        return setSelectionToAdjacentCell(this.editor, "next");
+      },
+      "Shift-Tab": () => {
+        return setSelectionToAdjacentCell(this.editor, "prev");
       },
     };
   },
