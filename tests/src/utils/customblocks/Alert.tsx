@@ -138,7 +138,7 @@ export const insertAlert = (editor: BlockNoteEditor<any, any, any>) => ({
       type: "alert",
     };
 
-    editor.insertBlocks([block], editor.getTextCursorPosition().block, "after");
+    editor.insertBlocks([block], editor.getSelection().blocks[0], "after");
   },
   subtext: "Insert an alert block to emphasize text",
   icon: <RiAlertFill />,

@@ -106,15 +106,13 @@ function MUIToolbarSelect<Item extends { name: string; icon?: FC }>(props: {
 function MUIBlockTypeSelect() {
   const editor = useBlockNoteEditor<TextBlockSchema>();
 
-  // The block currently containing the text cursor.
-  const [block, setBlock] = useState<Block>(
-    editor.getTextCursorPosition().block
-  );
+  // The block currently containing the selection.
+  const [block, setBlock] = useState<Block>(editor.getSelection().blocks[0]);
 
-  // Updates the block currently containing the text cursor whenever the editor
+  // Updates the block currently containing the selection whenever the editor
   // content or selection changes.
   useEditorContentOrSelectionChange(
-    () => setBlock(editor.getTextCursorPosition().block),
+    () => setBlock(editor.getSelection().blocks[0]),
     editor
   );
 
@@ -146,7 +144,7 @@ function MUIBlockTypeSelect() {
       });
       editor.focus();
 
-      setBlock(editor.getTextCursorPosition().block);
+      setBlock(editor.getSelection().blocks[0]);
     },
     [block, defaultBlockTypeSelectItems, editor]
   );
@@ -261,16 +259,16 @@ function MUITextAlignButton(props: {
   const Icon = textAlignIcons[props.textAlignment];
   const editor = useBlockNoteEditor<TextBlockSchema>();
 
-  // The text alignment of the block currently containing the text cursor.
+  // The text alignment of the block currently containing the selection.
   const [activeTextAlignment, setActiveTextAlignment] = useState(
-    () => editor.getTextCursorPosition().block.props.textAlignment
+    () => editor.getSelection().blocks[0].props.textAlignment
   );
 
   // Updates the text alignment when the editor content or selection changes.
   useEditorContentOrSelectionChange(
     () =>
       setActiveTextAlignment(
-        editor.getTextCursorPosition().block.props.textAlignment
+        editor.getSelection().blocks[0].props.textAlignment
       ),
     editor
   );
@@ -287,7 +285,7 @@ function MUITextAlignButton(props: {
   // Sets the text alignment of the block currently containing the text cursor
   // when the button is clicked.
   const onClick = useCallback(() => {
-    editor.updateBlock(editor.getTextCursorPosition().block, {
+    editor.updateBlock(editor.getSelection().blocks[0], {
       props: { textAlignment: props.textAlignment },
     });
     editor.focus();

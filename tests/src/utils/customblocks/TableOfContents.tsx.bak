@@ -78,7 +78,7 @@ export const insertTableOfContents: ReactSlashMenuItem<
           type: "toc",
         },
       ],
-      editor.getTextCursorPosition().block,
+      editor.getSelection().blocks[0],
       "after"
     );
   },

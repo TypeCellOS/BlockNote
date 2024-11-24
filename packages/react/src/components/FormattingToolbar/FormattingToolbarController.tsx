@@ -44,7 +44,7 @@ export const FormattingToolbarController = (props: {
 
   const [placement, setPlacement] = useState<"top-start" | "top" | "top-end">(
     () => {
-      const block = editor.getTextCursorPosition().block;
+      const block = editor.getSelection().blocks[0];
 
       if (!("textAlignment" in block.props)) {
         return "top-start";
@@ -57,7 +57,7 @@ export const FormattingToolbarController = (props: {
   );
 
   useEditorContentOrSelectionChange(() => {
-    const block = editor.getTextCursorPosition().block;
+    const block = editor.getSelection().blocks[0];
 
     if (!("textAlignment" in block.props)) {
       setPlacement("top-start");

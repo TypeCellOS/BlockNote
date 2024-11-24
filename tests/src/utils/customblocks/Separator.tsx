@@ -39,7 +39,7 @@ export const insertSeparator = {
           type: "separator",
         },
       ],
-      editor.getTextCursorPosition().block,
+      editor.getSelection().blocks[0],
       "after"
     );
   },

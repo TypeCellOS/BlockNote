@@ -34,18 +34,7 @@ export default function App() {
       <div className={"item"}>
         <BlockNoteView
           editor={editor}
-          onSelectionChange={() => {
-            const selection = editor.getSelection();
-
-            // Get the blocks in the current selection and store on the state. If
-            // the selection is empty, store the block containing the text cursor
-            // instead.
-            if (selection !== undefined) {
-              setBlocks(selection.blocks);
-            } else {
-              setBlocks([editor.getTextCursorPosition().block]);
-            }
-          }}
+          onSelectionChange={() => setBlocks(editor.getSelection().blocks)}
         />
       </div>
       <div>Selection JSON:</div>

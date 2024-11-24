@@ -120,9 +120,10 @@ export async function handleFileInsertion<
       let insertedBlockId: string | undefined = undefined;
 
       if (event.type === "paste") {
+        const { blocks } = editor.getSelection();
         insertedBlockId = editor.insertBlocks(
           [fileBlock],
-          editor.getTextCursorPosition().block,
+          blocks[blocks.length - 1],
           "after"
         )[0].id;
       } else if (event.type === "drop") {

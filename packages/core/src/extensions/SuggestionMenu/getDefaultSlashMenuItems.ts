@@ -20,11 +20,11 @@ function setSelectionToNextContentEditableBlock<
   I extends InlineContentSchema,
   S extends StyleSchema
 >(editor: BlockNoteEditor<BSchema, I, S>) {
-  let block = editor.getTextCursorPosition().block;
+  let block = editor.getSelection().blocks[0];
   let contentType = editor.schema.blockSchema[block.type].content;
 
   while (contentType === "none") {
-    block = editor.getTextCursorPosition().nextBlock!;
+    block = editor.getSelection().nextBlock!;
     contentType = editor.schema.blockSchema[block.type].content as
       | "inline"
       | "table"
@@ -45,7 +45,7 @@ export function insertOrUpdateBlock<
   editor: BlockNoteEditor<BSchema, I, S>,
   block: PartialBlock<BSchema, I, S>
 ): Block<BSchema, I, S> {
-  const currentBlock = editor.getTextCursorPosition().block;
+  const currentBlock = editor.getSelection().blocks[0];
 
   if (currentBlock.content === undefined) {
     throw new Error("Slash Menu open in a block that doesn't contain content.");
@@ -68,7 +68,7 @@ export function insertOrUpdateBlock<
     editor.setTextCursorPosition(newBlock);
   } else {
     newBlock = editor.insertBlocks([block], currentBlock, "after")[0];
-    editor.setTextCursorPosition(editor.getTextCursorPosition().nextBlock!);
+    editor.setTextCursorPosition(newBlock);
   }
 
   setSelectionToNextContentEditableBlock(editor);

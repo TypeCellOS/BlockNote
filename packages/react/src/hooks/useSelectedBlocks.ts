@@ -29,13 +29,10 @@ export function useSelectedBlocks<
 
   const [selectedBlocks, setSelectedBlocks] = useState<
     Block<BSchema, ISchema, SSchema>[]
-  >(() => e.getSelection()?.blocks || [e.getTextCursorPosition().block]);
+  >(() => e.getSelection().blocks);
 
   useEditorContentOrSelectionChange(
-    () =>
-      setSelectedBlocks(
-        e.getSelection()?.blocks || [e.getTextCursorPosition().block]
-      ),
+    () => setSelectedBlocks(e.getSelection().blocks),
     e
   );
 

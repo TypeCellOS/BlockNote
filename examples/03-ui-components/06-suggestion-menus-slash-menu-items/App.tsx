@@ -18,8 +18,8 @@ import { HiOutlineGlobeAlt } from "react-icons/hi";
 const insertHelloWorldItem = (editor: BlockNoteEditor) => ({
   title: "Insert Hello World",
   onItemClick: () => {
-    // Block that the text cursor is currently in.
-    const currentBlock = editor.getTextCursorPosition().block;
+    // Block that the selection is currently in.
+    const currentBlock = editor.getSelection().blocks[0];
 
     // New block we want to insert.
     const helloWorldBlock: PartialBlock = {

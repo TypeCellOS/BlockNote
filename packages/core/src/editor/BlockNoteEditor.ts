@@ -25,9 +25,9 @@ import { replaceBlocks } from "../api/blockManipulation/commands/replaceBlocks/r
 import { updateBlock } from "../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { insertContentAt } from "../api/blockManipulation/insertContentAt.js";
 import {
-  getTextCursorPosition,
+  getSelection,
   setTextCursorPosition,
-} from "../api/blockManipulation/selections/textCursorPosition/textCursorPosition.js";
+} from "../api/blockManipulation/selections/selection.js";
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
@@ -62,7 +62,6 @@ import { mergeCSSClasses } from "../util/browser.js";
 import { NoInfer, UnreachableCaseError } from "../util/typescript.js";
 
 import { getBlockNoteExtensions } from "./BlockNoteExtensions.js";
-import { TextCursorPosition } from "./cursorPositionTypes.js";
 
 import { Selection } from "./selectionTypes.js";
 import { transformPasted } from "./transformPasted.js";
@@ -700,18 +699,6 @@ export class BlockNoteEditor<
   }
 
   /**
-   * Gets a snapshot of the current text cursor position.
-   * @returns A snapshot of the current text cursor position.
-   */
-  public getTextCursorPosition(): TextCursorPosition<
-    BSchema,
-    ISchema,
-    SSchema
-  > {
-    return getTextCursorPosition(this);
-  }
-
-  /**
    * Sets the text cursor position to the start or end of an existing block. Throws an error if the target block could
    * not be found.
    * @param targetBlock The identifier of an existing block that the text cursor should be moved to.
@@ -727,54 +714,8 @@ export class BlockNoteEditor<
   /**
    * Gets a snapshot of the current selection.
    */
-  public getSelection(): Selection<BSchema, ISchema, SSchema> | undefined {
-    // Either the TipTap selection is empty, or it's a node selection. In either
-    // case, it only spans one block, so we return undefined.
-    if (
-      this._tiptapEditor.state.selection.from ===
-        this._tiptapEditor.state.selection.to ||
-      "node" in this._tiptapEditor.state.selection
-    ) {
-      return undefined;
-    }
-
-    const blocks: Block<BSchema, ISchema, SSchema>[] = [];
-
-    // TODO: This adds all child blocks to the same array. Needs to find min
-    //  depth and only add blocks at that depth.
-    this._tiptapEditor.state.doc.descendants((node, pos) => {
-      if (node.type.spec.group !== "blockContent") {
-        return true;
-      }
-
-      // Fixed the block pos and size
-      // all block is wrapped with a blockContent wrapper
-      // and blockContent wrapper pos = inner block pos - 1
-      // blockContent wrapper end = inner block pos + nodeSize + 1
-      // need to add 1 to start and -1 to end
-      const end = pos + node.nodeSize - 1;
-      const start = pos + 1;
-      if (
-        end <= this._tiptapEditor.state.selection.from ||
-        start >= this._tiptapEditor.state.selection.to
-      ) {
-        return true;
-      }
-
-      blocks.push(
-        nodeToBlock(
-          this._tiptapEditor.state.doc.resolve(pos).node(),
-          this.schema.blockSchema,
-          this.schema.inlineContentSchema,
-          this.schema.styleSchema,
-          this.blockCache
-        )
-      );
-
-      return false;
-    });
-
-    return { blocks: blocks };
+  public getSelection(): Selection<BSchema, ISchema, SSchema> {
+    return getSelection(this);
   }
 
   /**

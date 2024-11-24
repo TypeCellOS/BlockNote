@@ -107,7 +107,7 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
 
   const selectedBlocks = useSelectedBlocks(editor);
 
-  const [block, setBlock] = useState(editor.getTextCursorPosition().block);
+  const [block, setBlock] = useState(editor.getSelection().blocks[0]);
 
   const filteredItems: BlockTypeSelectItem[] = useMemo(() => {
     return (props.items || blockTypeSelectItems(dict)).filter(
@@ -146,7 +146,7 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
     }, [block, filteredItems, editor, selectedBlocks]);
 
   useEditorContentOrSelectionChange(() => {
-    setBlock(editor.getTextCursorPosition().block);
+    setBlock(editor.getSelection().blocks[0]);
   }, editor);
 
   if (!shouldShow || !editor.isEditable) {

@@ -46,7 +46,7 @@ export const insertButton = {
           type: "button",
         },
       ],
-      editor.getTextCursorPosition().block,
+      editor.getSelection().blocks[0],
       "after"
     );
   },

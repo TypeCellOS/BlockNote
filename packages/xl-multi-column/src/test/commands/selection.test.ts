@@ -4,16 +4,16 @@ import { setupTestEnv } from "../setupTestEnv.js";
 
 const getEditor = setupTestEnv();
 
-describe("Test getTextCursorPosition & setTextCursorPosition", () => {
+describe("Test getSelection & setTextCursorPosition", () => {
   it("Column list", () => {
     getEditor().setTextCursorPosition("column-list-0");
 
-    expect(getEditor().getTextCursorPosition()).toMatchSnapshot();
+    expect(getEditor().getSelection()).toMatchSnapshot();
   });
 
   it("Column", () => {
     getEditor().setTextCursorPosition("column-0");
 
-    expect(getEditor().getTextCursorPosition()).toMatchSnapshot();
+    expect(getEditor().getSelection()).toMatchSnapshot();
   });
 });

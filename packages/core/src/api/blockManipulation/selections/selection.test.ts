@@ -1,36 +1,33 @@
 import { describe, expect, it } from "vitest";
 
-import { setupTestEnv } from "../../setupTestEnv.js";
-import {
-  getTextCursorPosition,
-  setTextCursorPosition,
-} from "./textCursorPosition.js";
+import { setupTestEnv } from "../setupTestEnv.js";
+import { getSelection, setTextCursorPosition } from "./selection.js";
 
 const getEditor = setupTestEnv();
 
-describe("Test getTextCursorPosition & setTextCursorPosition", () => {
+describe("Test getSelection & setTextCursorPosition", () => {
   it("Basic", () => {
     setTextCursorPosition(getEditor(), "paragraph-1");
 
-    expect(getTextCursorPosition(getEditor())).toMatchSnapshot();
+    expect(getSelection(getEditor())).toMatchSnapshot();
   });
 
   it("First block", () => {
     setTextCursorPosition(getEditor(), "paragraph-0");
 
-    expect(getTextCursorPosition(getEditor())).toMatchSnapshot();
+    expect(getSelection(getEditor())).toMatchSnapshot();
   });
 
   it("Last block", () => {
     setTextCursorPosition(getEditor(), "trailing-paragraph");
 
-    expect(getTextCursorPosition(getEditor())).toMatchSnapshot();
+    expect(getSelection(getEditor())).toMatchSnapshot();
   });
 
   it("Nested block", () => {
     setTextCursorPosition(getEditor(), "nested-paragraph-0");
 
-    expect(getTextCursorPosition(getEditor())).toMatchSnapshot();
+    expect(getSelection(getEditor())).toMatchSnapshot();
   });
 
   it("Set to start", () => {

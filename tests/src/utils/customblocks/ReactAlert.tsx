@@ -123,7 +123,7 @@ export const insertReactAlert = {
           type: "reactAlert",
         },
       ],
-      editor.getTextCursorPosition().block,
+      editor.getSelection().blocks[0],
       "after"
     );
   },

@@ -23,7 +23,7 @@ function MUIRemoveBlockItem(
   const onClick = useCallback(() => {
     props.unfreezeMenu();
     props.closeDragHandleMenu();
-    props.editor.removeBlocks([props.editor.getTextCursorPosition().block]);
+    props.editor.removeBlocks([props.block]);
     props.editor.focus();
   }, [props]);
 
