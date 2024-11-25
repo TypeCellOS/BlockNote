@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Test getSelection & setTextCursorPosition > Column 1`] = `
+exports[`Test getSelection & setSelection > Column 1`] = `
 {
   "blocks": [
     {
@@ -38,6 +38,320 @@ exports[`Test getSelection & setTextCursorPosition > Column 1`] = `
     },
     "type": "paragraph",
   },
+  "parentBlock": {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Column Paragraph 0",
+            "type": "text",
+          },
+        ],
+        "id": "column-paragraph-0",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Column Paragraph 1",
+            "type": "text",
+          },
+        ],
+        "id": "column-paragraph-1",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": undefined,
+    "id": "column-0",
+    "props": {
+      "width": 1,
+    },
+    "type": "column",
+  },
+  "prevBlock": undefined,
+}
+`;
+
+exports[`Test getSelection & setSelection > Column list 1`] = `
+{
+  "blocks": [
+    {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Column Paragraph 0",
+          "type": "text",
+        },
+      ],
+      "id": "column-paragraph-0",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+  ],
+  "nextBlock": {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Column Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "column-paragraph-1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  "parentBlock": {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Column Paragraph 0",
+            "type": "text",
+          },
+        ],
+        "id": "column-paragraph-0",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Column Paragraph 1",
+            "type": "text",
+          },
+        ],
+        "id": "column-paragraph-1",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": undefined,
+    "id": "column-0",
+    "props": {
+      "width": 1,
+    },
+    "type": "column",
+  },
+  "prevBlock": undefined,
+}
+`;
+
+exports[`Test getSelection & setSelection > Column multiple blocks 1`] = `
+{
+  "blocks": [
+    {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Column Paragraph 0",
+          "type": "text",
+        },
+      ],
+      "id": "column-paragraph-0",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Column Paragraph 1",
+          "type": "text",
+        },
+      ],
+      "id": "column-paragraph-1",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+  ],
+  "nextBlock": undefined,
+  "parentBlock": {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Column Paragraph 0",
+            "type": "text",
+          },
+        ],
+        "id": "column-paragraph-0",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Column Paragraph 1",
+            "type": "text",
+          },
+        ],
+        "id": "column-paragraph-1",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": undefined,
+    "id": "column-0",
+    "props": {
+      "width": 1,
+    },
+    "type": "column",
+  },
+  "prevBlock": undefined,
+}
+`;
+
+exports[`Test getSelection & setSelection > Multiple blocks across columns 1`] = `
+{
+  "blocks": [
+    {
+      "children": [
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "Column Paragraph 0",
+              "type": "text",
+            },
+          ],
+          "id": "column-paragraph-0",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "Column Paragraph 1",
+              "type": "text",
+            },
+          ],
+          "id": "column-paragraph-1",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "content": undefined,
+      "id": "column-0",
+      "props": {
+        "width": 1,
+      },
+      "type": "column",
+    },
+    {
+      "children": [
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "Column Paragraph 2",
+              "type": "text",
+            },
+          ],
+          "id": "column-paragraph-2",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "Column Paragraph 3",
+              "type": "text",
+            },
+          ],
+          "id": "column-paragraph-3",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "content": undefined,
+      "id": "column-1",
+      "props": {
+        "width": 1,
+      },
+      "type": "column",
+    },
+  ],
+  "nextBlock": undefined,
   "parentBlock": {
     "children": [
       {
@@ -138,19 +452,37 @@ exports[`Test getSelection & setTextCursorPosition > Column 1`] = `
 }
 `;
 
-exports[`Test getSelection & setTextCursorPosition > Column list 1`] = `
+exports[`Test getSelection & setSelection > Multiple blocks including blocks within columns 1`] = `
 {
   "blocks": [
     {
-      "children": [],
+      "children": [
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "Nested Paragraph 0",
+              "type": "text",
+            },
+          ],
+          "id": "nested-paragraph-0",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ],
       "content": [
         {
           "styles": {},
-          "text": "Column Paragraph 0",
+          "text": "Paragraph 0",
           "type": "text",
         },
       ],
-      "id": "column-paragraph-0",
+      "id": "paragraph-0",
       "props": {
         "backgroundColor": "default",
         "textAlignment": "left",
@@ -158,17 +490,107 @@ exports[`Test getSelection & setTextCursorPosition > Column list 1`] = `
       },
       "type": "paragraph",
     },
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [],
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Column Paragraph 0",
+                  "type": "text",
+                },
+              ],
+              "id": "column-paragraph-0",
+              "props": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "paragraph",
+            },
+            {
+              "children": [],
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Column Paragraph 1",
+                  "type": "text",
+                },
+              ],
+              "id": "column-paragraph-1",
+              "props": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "paragraph",
+            },
+          ],
+          "content": undefined,
+          "id": "column-0",
+          "props": {
+            "width": 1,
+          },
+          "type": "column",
+        },
+        {
+          "children": [
+            {
+              "children": [],
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Column Paragraph 2",
+                  "type": "text",
+                },
+              ],
+              "id": "column-paragraph-2",
+              "props": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "paragraph",
+            },
+            {
+              "children": [],
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Column Paragraph 3",
+                  "type": "text",
+                },
+              ],
+              "id": "column-paragraph-3",
+              "props": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "paragraph",
+            },
+          ],
+          "content": undefined,
+          "id": "column-1",
+          "props": {
+            "width": 1,
+          },
+          "type": "column",
+        },
+      ],
+      "content": undefined,
+      "id": "column-list-0",
+      "props": {},
+      "type": "columnList",
+    },
   ],
   "nextBlock": {
     "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Column Paragraph 1",
-        "type": "text",
-      },
-    ],
-    "id": "column-paragraph-1",
+    "content": [],
+    "id": "trailing-paragraph",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -176,102 +598,309 @@ exports[`Test getSelection & setTextCursorPosition > Column list 1`] = `
     },
     "type": "paragraph",
   },
-  "parentBlock": {
-    "children": [
-      {
-        "children": [
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 0",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-0",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
+  "parentBlock": undefined,
+  "prevBlock": undefined,
+}
+`;
+
+exports[`Test getSelection & setSelection > Multiple blocks including column 1`] = `
+{
+  "blocks": [
+    {
+      "children": [
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "Nested Paragraph 0",
+              "type": "text",
             },
-            "type": "paragraph",
+          ],
+          "id": "nested-paragraph-0",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
           },
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 1",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-1",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": undefined,
-        "id": "column-0",
-        "props": {
-          "width": 1,
+          "type": "paragraph",
         },
-        "type": "column",
-      },
-      {
-        "children": [
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 2",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-2",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 3",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-3",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": undefined,
-        "id": "column-1",
-        "props": {
-          "width": 1,
+      ],
+      "content": [
+        {
+          "styles": {},
+          "text": "Paragraph 0",
+          "type": "text",
         },
-        "type": "column",
+      ],
+      "id": "paragraph-0",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
       },
-    ],
-    "content": undefined,
-    "id": "column-list-0",
-    "props": {},
-    "type": "columnList",
+      "type": "paragraph",
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [],
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Column Paragraph 0",
+                  "type": "text",
+                },
+              ],
+              "id": "column-paragraph-0",
+              "props": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "paragraph",
+            },
+            {
+              "children": [],
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Column Paragraph 1",
+                  "type": "text",
+                },
+              ],
+              "id": "column-paragraph-1",
+              "props": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "paragraph",
+            },
+          ],
+          "content": undefined,
+          "id": "column-0",
+          "props": {
+            "width": 1,
+          },
+          "type": "column",
+        },
+        {
+          "children": [
+            {
+              "children": [],
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Column Paragraph 2",
+                  "type": "text",
+                },
+              ],
+              "id": "column-paragraph-2",
+              "props": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "paragraph",
+            },
+            {
+              "children": [],
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Column Paragraph 3",
+                  "type": "text",
+                },
+              ],
+              "id": "column-paragraph-3",
+              "props": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "paragraph",
+            },
+          ],
+          "content": undefined,
+          "id": "column-1",
+          "props": {
+            "width": 1,
+          },
+          "type": "column",
+        },
+      ],
+      "content": undefined,
+      "id": "column-list-0",
+      "props": {},
+      "type": "columnList",
+    },
+  ],
+  "nextBlock": {
+    "children": [],
+    "content": [],
+    "id": "trailing-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
   },
+  "parentBlock": undefined,
+  "prevBlock": undefined,
+}
+`;
+
+exports[`Test getSelection & setSelection > Multiple blocks including column list 1`] = `
+{
+  "blocks": [
+    {
+      "children": [
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "Nested Paragraph 0",
+              "type": "text",
+            },
+          ],
+          "id": "nested-paragraph-0",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "content": [
+        {
+          "styles": {},
+          "text": "Paragraph 0",
+          "type": "text",
+        },
+      ],
+      "id": "paragraph-0",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [],
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Column Paragraph 0",
+                  "type": "text",
+                },
+              ],
+              "id": "column-paragraph-0",
+              "props": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "paragraph",
+            },
+            {
+              "children": [],
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Column Paragraph 1",
+                  "type": "text",
+                },
+              ],
+              "id": "column-paragraph-1",
+              "props": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "paragraph",
+            },
+          ],
+          "content": undefined,
+          "id": "column-0",
+          "props": {
+            "width": 1,
+          },
+          "type": "column",
+        },
+        {
+          "children": [
+            {
+              "children": [],
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Column Paragraph 2",
+                  "type": "text",
+                },
+              ],
+              "id": "column-paragraph-2",
+              "props": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "paragraph",
+            },
+            {
+              "children": [],
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Column Paragraph 3",
+                  "type": "text",
+                },
+              ],
+              "id": "column-paragraph-3",
+              "props": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "paragraph",
+            },
+          ],
+          "content": undefined,
+          "id": "column-1",
+          "props": {
+            "width": 1,
+          },
+          "type": "column",
+        },
+      ],
+      "content": undefined,
+      "id": "column-list-0",
+      "props": {},
+      "type": "columnList",
+    },
+  ],
+  "nextBlock": {
+    "children": [],
+    "content": [],
+    "id": "trailing-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  "parentBlock": undefined,
   "prevBlock": undefined,
 }
 `;

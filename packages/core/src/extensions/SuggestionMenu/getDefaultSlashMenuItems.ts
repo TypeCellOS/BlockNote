@@ -29,7 +29,7 @@ function setSelectionToNextContentEditableBlock<
       | "inline"
       | "table"
       | "none";
-    editor.setTextCursorPosition(block, "end");
+    editor.setSelection({ block, selectionType: "collapsedEnd" });
   }
 }
 
@@ -65,10 +65,10 @@ export function insertOrUpdateBlock<
     // We make sure to reset the cursor position to the new block as calling
     // `updateBlock` may move it out. This generally happens when the content
     // changes, or the update makes the block multi-column.
-    editor.setTextCursorPosition(newBlock);
+    editor.setSelection(newBlock);
   } else {
     newBlock = editor.insertBlocks([block], currentBlock, "after")[0];
-    editor.setTextCursorPosition(newBlock);
+    editor.setSelection(newBlock);
   }
 
   setSelectionToNextContentEditableBlock(editor);

@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Test getSelection & setTextCursorPosition > Basic 1`] = `
+exports[`Test getSelection & setSelection > Basic 1`] = `
 {
   "blocks": [
     {
@@ -95,7 +95,7 @@ exports[`Test getSelection & setTextCursorPosition > Basic 1`] = `
 }
 `;
 
-exports[`Test getSelection & setTextCursorPosition > First block 1`] = `
+exports[`Test getSelection & setSelection > First block 1`] = `
 {
   "blocks": [
     {
@@ -138,7 +138,7 @@ exports[`Test getSelection & setTextCursorPosition > First block 1`] = `
 }
 `;
 
-exports[`Test getSelection & setTextCursorPosition > Last block 1`] = `
+exports[`Test getSelection & setSelection > Last block 1`] = `
 {
   "blocks": [
     {
@@ -226,7 +226,249 @@ exports[`Test getSelection & setTextCursorPosition > Last block 1`] = `
 }
 `;
 
-exports[`Test getSelection & setTextCursorPosition > Nested block 1`] = `
+exports[`Test getSelection & setSelection > Multiple blocks 1`] = `
+{
+  "blocks": [
+    {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Paragraph 0",
+          "type": "text",
+        },
+      ],
+      "id": "paragraph-0",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Paragraph 1",
+          "type": "text",
+        },
+      ],
+      "id": "paragraph-1",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [],
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Double Nested Paragraph 0",
+                  "type": "text",
+                },
+              ],
+              "id": "double-nested-paragraph-0",
+              "props": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "paragraph",
+            },
+          ],
+          "content": [
+            {
+              "styles": {},
+              "text": "Nested Paragraph 0",
+              "type": "text",
+            },
+          ],
+          "id": "nested-paragraph-0",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "content": [
+        {
+          "styles": {},
+          "text": "Paragraph with children",
+          "type": "text",
+        },
+      ],
+      "id": "paragraph-with-children",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Paragraph 2",
+          "type": "text",
+        },
+      ],
+      "id": "paragraph-2",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+  ],
+  "nextBlock": {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph with props",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-with-props",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "center",
+      "textColor": "red",
+    },
+    "type": "paragraph",
+  },
+  "parentBlock": undefined,
+  "prevBlock": undefined,
+}
+`;
+
+exports[`Test getSelection & setSelection > Multiple blocks with nesting 1`] = `
+{
+  "blocks": [
+    {
+      "children": [
+        {
+          "children": [
+            {
+              "children": [],
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Double Nested Paragraph 0",
+                  "type": "text",
+                },
+              ],
+              "id": "double-nested-paragraph-0",
+              "props": {
+                "backgroundColor": "default",
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "paragraph",
+            },
+          ],
+          "content": [
+            {
+              "styles": {},
+              "text": "Nested Paragraph 0",
+              "type": "text",
+            },
+          ],
+          "id": "nested-paragraph-0",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "content": [
+        {
+          "styles": {},
+          "text": "Paragraph with children",
+          "type": "text",
+        },
+      ],
+      "id": "paragraph-with-children",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Paragraph 2",
+          "type": "text",
+        },
+      ],
+      "id": "paragraph-2",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+  ],
+  "nextBlock": {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph with props",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-with-props",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "center",
+      "textColor": "red",
+    },
+    "type": "paragraph",
+  },
+  "parentBlock": undefined,
+  "prevBlock": {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+}
+`;
+
+exports[`Test getSelection & setSelection > Nested block 1`] = `
 {
   "blocks": [
     {

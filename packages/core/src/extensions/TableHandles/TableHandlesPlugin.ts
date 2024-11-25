@@ -466,7 +466,7 @@ export class TableHandlesView<
 
     // Have to reset text cursor position to the block as `updateBlock` moves
     // the existing selection out of the block.
-    this.editor.setTextCursorPosition(this.state.block.id);
+    this.editor.setSelection(this.state.block.id);
   };
   // Updates drag handle positions on table content updates.
   update() {

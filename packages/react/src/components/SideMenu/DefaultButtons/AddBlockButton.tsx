@@ -34,7 +34,7 @@ export const AddBlockButton = <
       blockContent.length === 0;
 
     if (isBlockEmpty) {
-      editor.setTextCursorPosition(props.block);
+      editor.setSelection(props.block);
       editor.openSuggestionMenu("/");
     } else {
       const insertedBlock = editor.insertBlocks(
@@ -42,7 +42,7 @@ export const AddBlockButton = <
         props.block,
         "after"
       )[0];
-      editor.setTextCursorPosition(insertedBlock);
+      editor.setSelection(insertedBlock);
       editor.openSuggestionMenu("/");
     }
   }, [editor, props.block]);

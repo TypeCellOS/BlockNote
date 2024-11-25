@@ -1,5 +1,6 @@
 import { Block } from "../blocks/defaultBlocks.js";
 import {
+  BlockIdentifier,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
@@ -15,3 +16,14 @@ export type Selection<
   nextBlock: Block<BSchema, I, S> | undefined;
   parentBlock: Block<BSchema, I, S> | undefined;
 };
+
+export type PartialSelection =
+  | BlockIdentifier
+  | {
+      block: BlockIdentifier;
+      selectionType: "span" | "collapsedStart" | "collapsedEnd";
+    }
+  | {
+      startBlock: BlockIdentifier;
+      endBlock: BlockIdentifier;
+    };

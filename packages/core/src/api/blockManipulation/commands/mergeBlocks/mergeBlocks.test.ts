@@ -19,7 +19,7 @@ function getPosBeforeSelectedBlock() {
 
 describe("Test mergeBlocks", () => {
   it("Basic", () => {
-    getEditor().setTextCursorPosition("paragraph-1");
+    getEditor().setSelection("paragraph-1");
 
     mergeBlocks(getPosBeforeSelectedBlock());
 
@@ -27,7 +27,7 @@ describe("Test mergeBlocks", () => {
   });
 
   it("First block has children", () => {
-    getEditor().setTextCursorPosition("paragraph-2");
+    getEditor().setSelection("paragraph-2");
 
     mergeBlocks(getPosBeforeSelectedBlock());
 
@@ -35,7 +35,7 @@ describe("Test mergeBlocks", () => {
   });
 
   it("Second block has children", () => {
-    getEditor().setTextCursorPosition("paragraph-with-children");
+    getEditor().setSelection("paragraph-with-children");
 
     mergeBlocks(getPosBeforeSelectedBlock());
 
@@ -43,7 +43,7 @@ describe("Test mergeBlocks", () => {
   });
 
   it("Second block is empty", () => {
-    getEditor().setTextCursorPosition("empty-paragraph");
+    getEditor().setSelection("empty-paragraph");
 
     mergeBlocks(getPosBeforeSelectedBlock());
 
@@ -51,7 +51,7 @@ describe("Test mergeBlocks", () => {
   });
 
   it("Blocks have different types", () => {
-    getEditor().setTextCursorPosition("paragraph-5");
+    getEditor().setSelection("paragraph-5");
 
     mergeBlocks(getPosBeforeSelectedBlock());
 
@@ -59,12 +59,15 @@ describe("Test mergeBlocks", () => {
   });
 
   it("Selection is updated", () => {
-    getEditor().setTextCursorPosition("paragraph-0", "end");
+    getEditor().setSelection({
+      block: "paragraph-0",
+      selectionType: "collapsedEnd",
+    });
 
     const firstBlockEndOffset =
       getEditor()._tiptapEditor.state.selection.$anchor.parentOffset;
 
-    getEditor().setTextCursorPosition("paragraph-1");
+    getEditor().setSelection("paragraph-1");
 
     mergeBlocks(getPosBeforeSelectedBlock());
 
@@ -80,7 +83,7 @@ describe("Test mergeBlocks", () => {
   // `mergeBlocks` to return false as TipTap commands should do that instead of
   // throwing an error, when the command cannot be executed.
   it("First block is empty", () => {
-    getEditor().setTextCursorPosition("paragraph-8");
+    getEditor().setSelection("paragraph-8");
 
     const originalDocument = getEditor().document;
     const ret = mergeBlocks(getPosBeforeSelectedBlock());
@@ -90,7 +93,7 @@ describe("Test mergeBlocks", () => {
   });
 
   it("Inline content & no content", () => {
-    getEditor().setTextCursorPosition("image-0");
+    getEditor().setSelection("image-0");
 
     const originalDocument = getEditor().document;
     const ret = mergeBlocks(getPosBeforeSelectedBlock());
@@ -100,7 +103,7 @@ describe("Test mergeBlocks", () => {
   });
 
   it("Inline content & table content", () => {
-    getEditor().setTextCursorPosition("table-0");
+    getEditor().setSelection("table-0");
 
     const originalDocument = getEditor().document;
     const ret = mergeBlocks(getPosBeforeSelectedBlock());
@@ -110,7 +113,7 @@ describe("Test mergeBlocks", () => {
   });
 
   it("No content & inline content", () => {
-    getEditor().setTextCursorPosition("paragraph-6");
+    getEditor().setSelection("paragraph-6");
 
     const originalDocument = getEditor().document;
     const ret = mergeBlocks(getPosBeforeSelectedBlock());
@@ -120,7 +123,7 @@ describe("Test mergeBlocks", () => {
   });
 
   it("Table content & inline content", () => {
-    getEditor().setTextCursorPosition("paragraph-7");
+    getEditor().setSelection("paragraph-7");
 
     const originalDocument = getEditor().document;
     const ret = mergeBlocks(getPosBeforeSelectedBlock());

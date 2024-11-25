@@ -82,13 +82,13 @@ function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
 
 describe("Test moveSelectedBlockAndSelection", () => {
   it("Text selection", () => {
-    getEditor().setTextCursorPosition("paragraph-1");
+    getEditor().setSelection("paragraph-1");
     makeSelectionSpanContent("text");
 
     moveSelectedBlockAndSelection(getEditor(), "paragraph-0", "before");
 
     const selection = getEditor()._tiptapEditor.state.selection;
-    getEditor().setTextCursorPosition("paragraph-1");
+    getEditor().setSelection("paragraph-1");
     makeSelectionSpanContent("text");
 
     expect(
@@ -97,13 +97,13 @@ describe("Test moveSelectedBlockAndSelection", () => {
   });
 
   it("Node selection", () => {
-    getEditor().setTextCursorPosition("image-0");
+    getEditor().setSelection("image-0");
     makeSelectionSpanContent("node");
 
     moveSelectedBlockAndSelection(getEditor(), "paragraph-0", "before");
 
     const selection = getEditor()._tiptapEditor.state.selection;
-    getEditor().setTextCursorPosition("image-0");
+    getEditor().setSelection("image-0");
     makeSelectionSpanContent("node");
 
     expect(
@@ -112,13 +112,13 @@ describe("Test moveSelectedBlockAndSelection", () => {
   });
 
   it("Cell selection", () => {
-    getEditor().setTextCursorPosition("table-0");
+    getEditor().setSelection("table-0");
     makeSelectionSpanContent("cell");
 
     moveSelectedBlockAndSelection(getEditor(), "paragraph-0", "before");
 
     const selection = getEditor()._tiptapEditor.state.selection;
-    getEditor().setTextCursorPosition("table-0");
+    getEditor().setSelection("table-0");
     makeSelectionSpanContent("cell");
 
     expect(
@@ -129,7 +129,7 @@ describe("Test moveSelectedBlockAndSelection", () => {
 
 describe("Test moveBlocksUp", () => {
   it("Basic", () => {
-    getEditor().setTextCursorPosition("paragraph-1");
+    getEditor().setSelection("paragraph-1");
 
     moveBlocksUp(getEditor());
 
@@ -137,7 +137,7 @@ describe("Test moveBlocksUp", () => {
   });
 
   it("Into children", () => {
-    getEditor().setTextCursorPosition("paragraph-2");
+    getEditor().setSelection("paragraph-2");
 
     moveBlocksUp(getEditor());
 
@@ -145,7 +145,7 @@ describe("Test moveBlocksUp", () => {
   });
 
   it("Out of children", () => {
-    getEditor().setTextCursorPosition("nested-paragraph-1");
+    getEditor().setSelection("nested-paragraph-1");
 
     moveBlocksUp(getEditor());
 
@@ -153,7 +153,7 @@ describe("Test moveBlocksUp", () => {
   });
 
   it("First block", () => {
-    getEditor().setTextCursorPosition("paragraph-0");
+    getEditor().setSelection("paragraph-0");
 
     moveBlocksUp(getEditor());
 
@@ -163,7 +163,7 @@ describe("Test moveBlocksUp", () => {
 
 describe("Test moveBlocksDown", () => {
   it("Basic", () => {
-    getEditor().setTextCursorPosition("paragraph-0");
+    getEditor().setSelection("paragraph-0");
 
     moveBlocksDown(getEditor());
 
@@ -171,7 +171,7 @@ describe("Test moveBlocksDown", () => {
   });
 
   it("Into children", () => {
-    getEditor().setTextCursorPosition("paragraph-1");
+    getEditor().setSelection("paragraph-1");
 
     moveBlocksDown(getEditor());
 
@@ -179,7 +179,7 @@ describe("Test moveBlocksDown", () => {
   });
 
   it("Out of children", () => {
-    getEditor().setTextCursorPosition("nested-paragraph-1");
+    getEditor().setSelection("nested-paragraph-1");
 
     moveBlocksDown(getEditor());
 
@@ -187,7 +187,7 @@ describe("Test moveBlocksDown", () => {
   });
 
   it("Last block", () => {
-    getEditor().setTextCursorPosition("trailing-paragraph");
+    getEditor().setSelection("trailing-paragraph");
 
     moveBlocksDown(getEditor());
 

@@ -254,7 +254,7 @@ export const ExtendButton = <
         // Edge case for updating block content as `updateBlock` causes the
         // selection to move into the next block, so we have to set it back.
         if (props.block.content) {
-          props.editor.setTextCursorPosition(props.block);
+          props.editor.setSelection(props.block);
         }
       }
     };

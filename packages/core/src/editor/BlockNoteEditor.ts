@@ -26,7 +26,7 @@ import { updateBlock } from "../api/blockManipulation/commands/updateBlock/updat
 import { insertContentAt } from "../api/blockManipulation/insertContentAt.js";
 import {
   getSelection,
-  setTextCursorPosition,
+  setSelection,
 } from "../api/blockManipulation/selections/selection.js";
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
@@ -63,7 +63,7 @@ import { NoInfer, UnreachableCaseError } from "../util/typescript.js";
 
 import { getBlockNoteExtensions } from "./BlockNoteExtensions.js";
 
-import { Selection } from "./selectionTypes.js";
+import { PartialSelection, Selection } from "./selectionTypes.js";
 import { transformPasted } from "./transformPasted.js";
 
 import { checkDefaultBlockTypeInSchema } from "../blocks/defaultBlockTypeGuards.js";
@@ -699,16 +699,15 @@ export class BlockNoteEditor<
   }
 
   /**
-   * Sets the text cursor position to the start or end of an existing block. Throws an error if the target block could
-   * not be found.
-   * @param targetBlock The identifier of an existing block that the text cursor should be moved to.
-   * @param placement Whether the text cursor should be placed at the start or end of the block.
+   * Sets the selection inside a block or spanning multiple blocks.
+   * @param selection The selection to set, including the blocks to set the
+   * selection in. If the selection is set inside a single block, you can choose
+   * whether it should be collapsed at the start/end of the block, or if it
+   * should span it. If the selection spans multiple blocks, it will always span
+   * them.
    */
-  public setTextCursorPosition(
-    targetBlock: BlockIdentifier,
-    placement: "start" | "end" = "start"
-  ) {
-    setTextCursorPosition(this, targetBlock, placement);
+  public setSelection(selection: PartialSelection) {
+    setSelection(this, selection);
   }
 
   /**
