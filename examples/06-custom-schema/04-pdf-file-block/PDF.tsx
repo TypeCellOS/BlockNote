@@ -23,7 +23,7 @@ export const PDFPreview = (
       src={props.block.props.url}
       contentEditable={false}
       draggable={false}
-      onClick={() => props.editor.setTextCursorPosition(props.block)}
+      onClick={() => props.editor.setSelection(props.block)}
     />
   );
 };
