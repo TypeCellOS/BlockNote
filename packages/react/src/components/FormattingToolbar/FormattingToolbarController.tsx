@@ -75,7 +75,7 @@ export const FormattingToolbarController = (props: {
   );
 
   const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
-    state?.show || false,
+    state?.show || true,
     state?.referencePos || null,
     3000,
     {

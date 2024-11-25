@@ -5,7 +5,7 @@ import {
   useInteractions,
   useTransitionStyles,
 } from "@floating-ui/react";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export function useUIElementPositioning(
   show: boolean,
@@ -17,7 +17,7 @@ export function useUIElementPositioning(
     open: show,
     ...options,
   });
-
+  const [transform, setTransform] = useState("none");
   const { isMounted, styles } = useTransitionStyles(context);
 
   // handle "escape" and other dismiss events, these will add some listeners to
@@ -40,28 +40,63 @@ export function useUIElementPositioning(
       getBoundingClientRect: () => referencePos,
     });
   }, [referencePos, refs]);
+  useEffect(() => {
+    const viewport = window.visualViewport!;
 
-  return useMemo(
-    () => ({
+    function viewportHandler() {
+      const layoutViewport = document.body;
+
+      // Since the bar is position: fixed we need to offset it by the visual
+      // viewport's offset from the layout viewport origin.
+      const offsetLeft = viewport.offsetLeft;
+      const offsetTop =
+        viewport.height -
+        layoutViewport.getBoundingClientRect().height +
+        viewport.offsetTop;
+
+      // You could also do this by setting style.left and style.top if you
+      // use width: 100% instead.
+
+      setTransform(
+        `translate(${offsetLeft}px, ${offsetTop}px) scale(${
+          1 / viewport.scale
+        })`
+      );
+    }
+    window.visualViewport!.addEventListener("scroll", viewportHandler);
+    window.visualViewport!.addEventListener("resize", viewportHandler);
+    viewportHandler();
+  }, []);
+
+  return useMemo(() => {
+    return {
       isMounted,
       ref: refs.setFloating,
       style: {
         display: "flex",
         ...styles,
         ...floatingStyles,
+        position: "absolute",
+        transition: "none",
+        transform: transform,
+        maxWidth: "100vw",
+        overflowX: "auto",
+        bottom: 0,
+        top: "unset",
         zIndex: zIndex,
+        opacity: 1,
       },
       getFloatingProps,
       getReferenceProps,
-    }),
-    [
-      floatingStyles,
-      isMounted,
-      refs.setFloating,
-      styles,
-      zIndex,
-      getFloatingProps,
-      getReferenceProps,
-    ]
-  );
+    };
+  }, [
+    floatingStyles,
+    isMounted,
+    refs.setFloating,
+    styles,
+    zIndex,
+    getFloatingProps,
+    getReferenceProps,
+    transform,
+  ]);
 }
