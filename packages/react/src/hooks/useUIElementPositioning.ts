@@ -5,7 +5,7 @@ import {
   useInteractions,
   useTransitionStyles,
 } from "@floating-ui/react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export function useUIElementPositioning(
   show: boolean,
@@ -13,24 +13,26 @@ export function useUIElementPositioning(
   zIndex: number,
   options?: Partial<UseFloatingOptions>
 ) {
-  const { refs, update, context, floatingStyles } = useFloating({
+  /*const { refs, update, context, floatingStyles } = useFloating({
     open: show,
     ...options,
-  });
-  const [transform, setTransform] = useState("none");
-  const { isMounted, styles } = useTransitionStyles(context);
+  });*/
+  //const [transform, setTransform] = useState("none");
+  const ref = useRef<HTMLDivElement | null>(null);
+  const viewportHandlerRef = useRef<() => void>(() => {});
+  //const { isMounted, styles } = useTransitionStyles(context);
 
   // handle "escape" and other dismiss events, these will add some listeners to
   // getFloatingProps which need to be attached to the floating element
-  const dismiss = useDismiss(context);
+  //const dismiss = useDismiss(context);
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([dismiss]);
+  //const { getReferenceProps, getFloatingProps } = useInteractions([dismiss]);
 
-  useEffect(() => {
+  /*useEffect(() => {
     update();
-  }, [referencePos, update]);
+  }, [referencePos, update]);*/
 
-  useEffect(() => {
+  /*useEffect(() => {
     // Will be null on initial render when used in UI component controllers.
     if (referencePos === null) {
       return;
@@ -39,7 +41,7 @@ export function useUIElementPositioning(
     refs.setReference({
       getBoundingClientRect: () => referencePos,
     });
-  }, [referencePos, refs]);
+  }, [referencePos, refs]);*/
   useEffect(() => {
     const viewport = window.visualViewport!;
 
@@ -56,29 +58,33 @@ export function useUIElementPositioning(
 
       // You could also do this by setting style.left and style.top if you
       // use width: 100% instead.
-
-      setTransform(
-        `translate(${offsetLeft}px, ${offsetTop}px) scale(${
+      if (ref.current) {
+        ref.current.style.transform = `translate(${offsetLeft}px, ${offsetTop}px) scale(${
           1 / viewport.scale
-        })`
-      );
+        })`;
+      }
     }
     window.visualViewport!.addEventListener("scroll", viewportHandler);
     window.visualViewport!.addEventListener("resize", viewportHandler);
     viewportHandler();
+    viewportHandlerRef.current = viewportHandler;
   }, []);
 
   return useMemo(() => {
     return {
-      isMounted,
-      ref: refs.setFloating,
+      isMounted: true,
+      ref: (el) => {
+        ref.current = el;
+        viewportHandlerRef.current!();
+      },
       style: {
         display: "flex",
-        ...styles,
-        ...floatingStyles,
+        /*...styles,
+        ...floatingStyles,*/
         position: "absolute",
-        transition: "none",
-        transform: transform,
+        transition: "transform 0.1s",
+
+        //transform: transform,
         maxWidth: "100vw",
         overflowX: "auto",
         bottom: 0,
@@ -86,17 +92,17 @@ export function useUIElementPositioning(
         zIndex: zIndex,
         opacity: 1,
       },
-      getFloatingProps,
-      getReferenceProps,
+      getFloatingProps: () => ({}),
+      getReferenceProps: () => ({}),
     };
   }, [
-    floatingStyles,
+    /*floatingStyles,
     isMounted,
     refs.setFloating,
-    styles,
+    styles,*/
     zIndex,
-    getFloatingProps,
-    getReferenceProps,
-    transform,
+    /*getFloatingProps,
+    getReferenceProps,*/
+    //transform,
   ]);
 }
