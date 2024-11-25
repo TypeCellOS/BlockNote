@@ -125,11 +125,7 @@ export function moveBlockUp(editor: BlockNoteEditor<any, any, any>) {
       referenceBlockId = parentBlock.id;
       placement = "before";
     }
-  } else if (
-    prevBlock.type !== "columnList" &&
-    prevBlock.type !== "column" &&
-    prevBlock.children.length > 0
-  ) {
+  } else if (prevBlock.children.length > 0) {
     referenceBlockId = prevBlock.children[prevBlock.children.length - 1].id;
     placement = "after";
   } else {
@@ -156,11 +152,7 @@ export function moveBlockDown(editor: BlockNoteEditor<any, any, any>) {
       referenceBlockId = parentBlock.id;
       placement = "after";
     }
-  } else if (
-    nextBlock.type !== "columnList" &&
-    nextBlock.type !== "column" &&
-    nextBlock.children.length > 0
-  ) {
+  } else if (nextBlock.children.length > 0) {
     referenceBlockId = nextBlock.children[0].id;
     placement = "before";
   } else {
