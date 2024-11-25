@@ -11,4 +11,7 @@ export type Selection<
   S extends StyleSchema
 > = {
   blocks: Block<BSchema, I, S>[];
+  nextBlock?: Block<BSchema, I, S>;
+  prevBlock?: Block<BSchema, I, S>;
+  parentBlock?: Block<BSchema, I, S>;
 };
