@@ -63,7 +63,7 @@ export function getSelection<
 
   const prevBlock = startIndex > 0 ? indexToBlock(startIndex - 1) : undefined;
   const nextBlock =
-    endIndex < $startBlockBeforePos.node().childCount - 1
+    endIndex < $startBlockBeforePos.node(sharedDepth).childCount - 1
       ? indexToBlock(endIndex + 1)
       : undefined;
 

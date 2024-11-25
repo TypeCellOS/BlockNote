@@ -231,11 +231,12 @@ export function getBlockInfoFromResolvedPos(resolvedPos: ResolvedPos) {
 /**
  * Gets information regarding the ProseMirror nodes that make up a block. The
  * block chosen is the one currently containing the current ProseMirror
- * selection.
+ * selection. If the selection spans multiple blocks, the block chosen is the
+ * one that contains the start of the selection.
  * @param state The ProseMirror editor state.
  */
 export function getBlockInfoFromSelection(state: EditorState) {
-  const posInfo = getNearestBlockPos(state.doc, state.selection.anchor);
+  const posInfo = getNearestBlockPos(state.doc, state.selection.from);
 
   return getBlockInfo(posInfo);
 }

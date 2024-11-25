@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Test moveBlockDown > Basic 1`] = `
+exports[`Test moveBlocksDown > Basic 1`] = `
 [
   {
     "children": [],
@@ -475,7 +475,7 @@ exports[`Test moveBlockDown > Basic 1`] = `
 ]
 `;
 
-exports[`Test moveBlockDown > Into children 1`] = `
+exports[`Test moveBlocksDown > Into children 1`] = `
 [
   {
     "children": [],
@@ -950,7 +950,7 @@ exports[`Test moveBlockDown > Into children 1`] = `
 ]
 `;
 
-exports[`Test moveBlockDown > Last block 1`] = `
+exports[`Test moveBlocksDown > Last block 1`] = `
 [
   {
     "children": [],
@@ -1425,7 +1425,7 @@ exports[`Test moveBlockDown > Last block 1`] = `
 ]
 `;
 
-exports[`Test moveBlockDown > Out of children 1`] = `
+exports[`Test moveBlocksDown > Out of children 1`] = `
 [
   {
     "children": [],
@@ -1899,7 +1899,7 @@ exports[`Test moveBlockDown > Out of children 1`] = `
 ]
 `;
 
-exports[`Test moveBlockUp > Basic 1`] = `
+exports[`Test moveBlocksUp > Basic 1`] = `
 [
   {
     "children": [],
@@ -2374,7 +2374,7 @@ exports[`Test moveBlockUp > Basic 1`] = `
 ]
 `;
 
-exports[`Test moveBlockUp > First block 1`] = `
+exports[`Test moveBlocksUp > First block 1`] = `
 [
   {
     "children": [],
@@ -2849,7 +2849,7 @@ exports[`Test moveBlockUp > First block 1`] = `
 ]
 `;
 
-exports[`Test moveBlockUp > Into children 1`] = `
+exports[`Test moveBlocksUp > Into children 1`] = `
 [
   {
     "children": [],
@@ -3324,7 +3324,7 @@ exports[`Test moveBlockUp > Into children 1`] = `
 ]
 `;
 
-exports[`Test moveBlockUp > Out of children 1`] = `
+exports[`Test moveBlocksUp > Out of children 1`] = `
 [
   {
     "children": [],

@@ -102,22 +102,16 @@ export function moveSelectedBlockAndSelection(
   referenceBlock: BlockIdentifier,
   placement: "before" | "after"
 ) {
-  const block = editor.getSelection().blocks[0];
+  const { blocks } = editor.getSelection();
   const selectionData = getBlockSelectionData(editor);
 
-  editor.removeBlocks([block]);
-  editor.insertBlocks([block], referenceBlock, placement);
+  editor.removeBlocks(blocks);
+  editor.insertBlocks(blocks, referenceBlock, placement);
 
   updateBlockSelectionFromData(editor, selectionData);
 }
 
-export function moveBlockUp(editor: BlockNoteEditor<any, any, any>) {
-  // This function currently only supports moving a single block.
-  const editorSelection = editor.getSelection();
-  if (editorSelection.blocks.length > 1) {
-    return;
-  }
-
+export function moveBlocksUp(editor: BlockNoteEditor<any, any, any>) {
   const { prevBlock, parentBlock } = editor.getSelection();
 
   let referenceBlockId: string | undefined;
@@ -143,13 +137,7 @@ export function moveBlockUp(editor: BlockNoteEditor<any, any, any>) {
   moveSelectedBlockAndSelection(editor, referenceBlockId, placement);
 }
 
-export function moveBlockDown(editor: BlockNoteEditor<any, any, any>) {
-  // This function currently only supports moving a single block.
-  const editorSelection = editor.getSelection();
-  if (editorSelection && editorSelection.blocks.length > 1) {
-    return;
-  }
-
+export function moveBlocksDown(editor: BlockNoteEditor<any, any, any>) {
   const { nextBlock, parentBlock } = editor.getSelection();
 
   let referenceBlockId: string | undefined;
