@@ -502,11 +502,11 @@ export const KeyboardShortcutsExtension = Extension.create<{
         return true;
       },
       "Shift-Mod-ArrowUp": () => {
-        this.options.editor.moveBlockUp();
+        this.options.editor.moveBlocksUp();
         return true;
       },
       "Shift-Mod-ArrowDown": () => {
-        this.options.editor.moveBlockDown();
+        this.options.editor.moveBlocksDown();
         return true;
       },
     };

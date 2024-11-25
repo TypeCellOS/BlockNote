@@ -11,9 +11,9 @@ import { Node, Schema } from "prosemirror-model";
 import * as Y from "yjs";
 import { insertBlocks } from "../api/blockManipulation/commands/insertBlocks/insertBlocks.js";
 import {
-  moveBlockDown,
-  moveBlockUp,
-} from "../api/blockManipulation/commands/moveBlock/moveBlock.js";
+  moveBlocksDown,
+  moveBlocksUp,
+} from "../api/blockManipulation/commands/moveBlocks/moveBlocks";
 import {
   canNestBlock,
   canUnnestBlock,
@@ -987,21 +987,21 @@ export class BlockNoteEditor<
   }
 
   /**
-   * Moves the block containing the text cursor up. If the previous block has
-   * children, moves it to the end of its children. If there is no previous
-   * block, but the current block is nested, moves it out of & before its parent.
+   * Moves the selected blocks up. If the previous block has children, moves
+   * them to the end of its children. If there is no previous block, but the
+   * current blocks share a common parent, moves them out of & before it.
    */
-  public moveBlockUp() {
-    moveBlockUp(this);
+  public moveBlocksUp() {
+    moveBlocksUp(this);
   }
 
   /**
-   * Moves the block containing the text cursor down. If the next block has
-   * children, moves it to the start of its children. If there is no next block,
-   * but the current block is nested, moves it out of & after its parent.
+   * Moves the selected blocks down. If the next block has children, moves
+   * them to the start of its children. If there is no next block, but the
+   * current blocks share a common parent, moves them out of & after it.
    */
-  public moveBlockDown() {
-    moveBlockDown(this);
+  public moveBlocksDown() {
+    moveBlocksDown(this);
   }
 
   /**

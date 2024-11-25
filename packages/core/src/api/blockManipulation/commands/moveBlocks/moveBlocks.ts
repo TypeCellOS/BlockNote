@@ -22,8 +22,8 @@ type BlockSelectionData = (
       headCell: number;
     }
 ) & {
-  blockId: string;
-  blockPos: number;
+  firstBlockId: string;
+  firstBlockPos: number;
 };
 
 // `getBlockSelectionData` and `updateBlockSelectionFromData` are used to save
@@ -34,8 +34,8 @@ function getBlockSelectionData(
   const { bnBlock } = getBlockInfoFromSelection(editor._tiptapEditor.state);
 
   const selectionData = {
-    blockId: bnBlock.node.attrs.id,
-    blockPos: bnBlock.beforePos,
+    firstBlockId: bnBlock.node.attrs.id,
+    firstBlockPos: bnBlock.beforePos,
   };
 
   if (editor._tiptapEditor.state.selection instanceof CellSelection) {
@@ -68,7 +68,7 @@ function updateBlockSelectionFromData(
   data: BlockSelectionData
 ) {
   const blockPos = getNodeById(
-    data.blockId,
+    data.firstBlockId,
     editor._tiptapEditor.state.doc
   ).posBeforeNode;
 
@@ -76,19 +76,19 @@ function updateBlockSelectionFromData(
   if (data.type === "cell") {
     selection = CellSelection.create(
       editor._tiptapEditor.state.doc,
-      data.anchorCell + (blockPos - data.blockPos),
-      data.headCell + (blockPos - data.blockPos)
+      data.anchorCell + (blockPos - data.firstBlockPos),
+      data.headCell + (blockPos - data.firstBlockPos)
     );
   } else if (data.type === "node") {
     selection = NodeSelection.create(
       editor._tiptapEditor.state.doc,
-      data.from + (blockPos - data.blockPos)
+      data.from + (blockPos - data.firstBlockPos)
     );
   } else {
     selection = TextSelection.create(
       editor._tiptapEditor.state.doc,
-      data.anchor + (blockPos - data.blockPos),
-      data.head + (blockPos - data.blockPos)
+      data.anchor + (blockPos - data.firstBlockPos),
+      data.head + (blockPos - data.firstBlockPos)
     );
   }
 
@@ -97,7 +97,7 @@ function updateBlockSelectionFromData(
   );
 }
 
-export function moveSelectedBlockAndSelection(
+export function moveSelectedBlocksAndSelection(
   editor: BlockNoteEditor<any, any, any>,
   referenceBlock: BlockIdentifier,
   placement: "before" | "after"
@@ -113,7 +113,7 @@ export function moveSelectedBlockAndSelection(
   updateBlockSelectionFromData(editor, selectionData);
 }
 
-export function moveBlockUp(editor: BlockNoteEditor<any, any, any>) {
+export function moveBlocksUp(editor: BlockNoteEditor<any, any, any>) {
   const { prevBlock, parentBlock } =
     editor.getSelection() || editor.getTextCursorPosition();
 
@@ -137,10 +137,10 @@ export function moveBlockUp(editor: BlockNoteEditor<any, any, any>) {
     return;
   }
 
-  moveSelectedBlockAndSelection(editor, referenceBlockId, placement);
+  moveSelectedBlocksAndSelection(editor, referenceBlockId, placement);
 }
 
-export function moveBlockDown(editor: BlockNoteEditor<any, any, any>) {
+export function moveBlocksDown(editor: BlockNoteEditor<any, any, any>) {
   const { nextBlock, parentBlock } =
     editor.getSelection() || editor.getTextCursorPosition();
 
@@ -164,5 +164,5 @@ export function moveBlockDown(editor: BlockNoteEditor<any, any, any>) {
     return;
   }
 
-  moveSelectedBlockAndSelection(editor, referenceBlockId, placement);
+  moveSelectedBlocksAndSelection(editor, referenceBlockId, placement);
 }

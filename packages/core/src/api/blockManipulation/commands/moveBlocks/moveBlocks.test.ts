@@ -5,10 +5,10 @@ import { describe, expect, it } from "vitest";
 import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
 import {
-  moveBlockDown,
-  moveBlockUp,
-  moveSelectedBlockAndSelection,
-} from "./moveBlock.js";
+  moveBlocksDown,
+  moveBlocksUp,
+  moveSelectedBlocksAndSelection,
+} from "./moveBlocks.js";
 
 const getEditor = setupTestEnv();
 
@@ -85,7 +85,7 @@ describe("Test moveSelectedBlockAndSelection", () => {
     getEditor().setTextCursorPosition("paragraph-1");
     makeSelectionSpanContent("text");
 
-    moveSelectedBlockAndSelection(getEditor(), "paragraph-0", "before");
+    moveSelectedBlocksAndSelection(getEditor(), "paragraph-0", "before");
 
     const selection = getEditor()._tiptapEditor.state.selection;
     getEditor().setTextCursorPosition("paragraph-1");
@@ -100,7 +100,7 @@ describe("Test moveSelectedBlockAndSelection", () => {
     getEditor().setTextCursorPosition("image-0");
     makeSelectionSpanContent("node");
 
-    moveSelectedBlockAndSelection(getEditor(), "paragraph-0", "before");
+    moveSelectedBlocksAndSelection(getEditor(), "paragraph-0", "before");
 
     const selection = getEditor()._tiptapEditor.state.selection;
     getEditor().setTextCursorPosition("image-0");
@@ -115,7 +115,7 @@ describe("Test moveSelectedBlockAndSelection", () => {
     getEditor().setTextCursorPosition("table-0");
     makeSelectionSpanContent("cell");
 
-    moveSelectedBlockAndSelection(getEditor(), "paragraph-0", "before");
+    moveSelectedBlocksAndSelection(getEditor(), "paragraph-0", "before");
 
     const selection = getEditor()._tiptapEditor.state.selection;
     getEditor().setTextCursorPosition("table-0");
@@ -127,11 +127,11 @@ describe("Test moveSelectedBlockAndSelection", () => {
   });
 });
 
-describe("Test moveBlockUp", () => {
+describe("Test moveBlocksUp", () => {
   it("Basic", () => {
     getEditor().setTextCursorPosition("paragraph-1");
 
-    moveBlockUp(getEditor());
+    moveBlocksUp(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -139,7 +139,7 @@ describe("Test moveBlockUp", () => {
   it("Into children", () => {
     getEditor().setTextCursorPosition("paragraph-2");
 
-    moveBlockUp(getEditor());
+    moveBlocksUp(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -147,7 +147,7 @@ describe("Test moveBlockUp", () => {
   it("Out of children", () => {
     getEditor().setTextCursorPosition("nested-paragraph-1");
 
-    moveBlockUp(getEditor());
+    moveBlocksUp(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -155,17 +155,17 @@ describe("Test moveBlockUp", () => {
   it("First block", () => {
     getEditor().setTextCursorPosition("paragraph-0");
 
-    moveBlockUp(getEditor());
+    moveBlocksUp(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
 });
 
-describe("Test moveBlockDown", () => {
+describe("Test moveBlocksDown", () => {
   it("Basic", () => {
     getEditor().setTextCursorPosition("paragraph-0");
 
-    moveBlockDown(getEditor());
+    moveBlocksDown(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -173,7 +173,7 @@ describe("Test moveBlockDown", () => {
   it("Into children", () => {
     getEditor().setTextCursorPosition("paragraph-1");
 
-    moveBlockDown(getEditor());
+    moveBlocksDown(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -181,7 +181,7 @@ describe("Test moveBlockDown", () => {
   it("Out of children", () => {
     getEditor().setTextCursorPosition("nested-paragraph-1");
 
-    moveBlockDown(getEditor());
+    moveBlocksDown(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -189,7 +189,7 @@ describe("Test moveBlockDown", () => {
   it("Last block", () => {
     getEditor().setTextCursorPosition("trailing-paragraph");
 
-    moveBlockDown(getEditor());
+    moveBlocksDown(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
