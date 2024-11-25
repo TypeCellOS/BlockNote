@@ -234,23 +234,6 @@ exports[`Test getSelection & setSelection > Multiple blocks 1`] = `
       "content": [
         {
           "styles": {},
-          "text": "Paragraph 0",
-          "type": "text",
-        },
-      ],
-      "id": "paragraph-0",
-      "props": {
-        "backgroundColor": "default",
-        "textAlignment": "left",
-        "textColor": "default",
-      },
-      "type": "paragraph",
-    },
-    {
-      "children": [],
-      "content": [
-        {
-          "styles": {},
           "text": "Paragraph 1",
           "type": "text",
         },
@@ -352,7 +335,23 @@ exports[`Test getSelection & setSelection > Multiple blocks 1`] = `
     "type": "paragraph",
   },
   "parentBlock": undefined,
-  "prevBlock": undefined,
+  "prevBlock": {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 0",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
 }
 `;
 
@@ -429,21 +428,69 @@ exports[`Test getSelection & setSelection > Multiple blocks with nesting 1`] = `
       },
       "type": "paragraph",
     },
+    {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Paragraph with props",
+          "type": "text",
+        },
+      ],
+      "id": "paragraph-with-props",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "center",
+        "textColor": "red",
+      },
+      "type": "paragraph",
+    },
+    {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Paragraph 3",
+          "type": "text",
+        },
+      ],
+      "id": "paragraph-3",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
   ],
   "nextBlock": {
     "children": [],
     "content": [
       {
+        "styles": {
+          "bold": true,
+        },
+        "text": "Paragraph",
+        "type": "text",
+      },
+      {
         "styles": {},
-        "text": "Paragraph with props",
+        "text": " with styled ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "italic": true,
+        },
+        "text": "content",
         "type": "text",
       },
     ],
-    "id": "paragraph-with-props",
+    "id": "paragraph-with-styled-content",
     "props": {
       "backgroundColor": "default",
-      "textAlignment": "center",
-      "textColor": "red",
+      "textAlignment": "left",
+      "textColor": "default",
     },
     "type": "paragraph",
   },
