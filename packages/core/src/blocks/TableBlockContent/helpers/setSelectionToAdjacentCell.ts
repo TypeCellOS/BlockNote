@@ -29,22 +29,7 @@ function getCellSelectionForNextCell(
   selection: CellSelection,
   doc: Node
 ): CellSelection | undefined {
-  const $anchorCell = selection.$anchorCell;
-  const anchorCellRowIndex = $anchorCell.index(-1);
-  const anchorCellColIndex = $anchorCell.index();
-
-  const $headCell = selection.$headCell;
-  const headCellRowIndex = $headCell.index(-1);
-  const headCellColIndex = $headCell.index();
-
-  const anchorIsBeforeHead =
-    anchorCellRowIndex === headCellRowIndex
-      ? // Selection is within a single row.
-        anchorCellColIndex < headCellColIndex
-      : // Selection spans multiple rows.
-        anchorCellRowIndex < headCellRowIndex;
-  const $cellBeforePos = anchorIsBeforeHead ? $headCell : $anchorCell;
-  const nextCellBeforePos = getNextCellBeforePos($cellBeforePos);
+  const nextCellBeforePos = getNextCellBeforePos(selection.$headCell);
 
   if (nextCellBeforePos) {
     return CellSelection.create(doc, nextCellBeforePos);
@@ -140,22 +125,7 @@ function getCellSelectionForPrevCell(
   selection: CellSelection,
   doc: Node
 ): CellSelection | undefined {
-  const $anchorCell = selection.$anchorCell;
-  const anchorCellRowIndex = $anchorCell.index(-1);
-  const anchorCellColIndex = $anchorCell.index();
-
-  const $headCell = selection.$headCell;
-  const headCellRowIndex = $headCell.index(-1);
-  const headCellColIndex = $headCell.index();
-
-  const anchorIsBeforeHead =
-    anchorCellRowIndex === headCellRowIndex
-      ? // Selection is within a single row.
-        anchorCellColIndex < headCellColIndex
-      : // Selection spans multiple rows.
-        anchorCellRowIndex < headCellRowIndex;
-  const $cellBeforePos = anchorIsBeforeHead ? $anchorCell : $headCell;
-  const prevCellBeforePos = getPrevCellBeforePos($cellBeforePos);
+  const prevCellBeforePos = getPrevCellBeforePos(selection.$headCell);
 
   if (prevCellBeforePos) {
     return CellSelection.create(doc, prevCellBeforePos);
