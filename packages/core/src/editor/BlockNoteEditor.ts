@@ -13,7 +13,7 @@ import { insertBlocks } from "../api/blockManipulation/commands/insertBlocks/ins
 import {
   moveBlocksDown,
   moveBlocksUp,
-} from "../api/blockManipulation/commands/moveBlocks/moveBlocks";
+} from "../api/blockManipulation/commands/moveBlocks/moveBlocks.js";
 import {
   canNestBlock,
   canUnnestBlock,
