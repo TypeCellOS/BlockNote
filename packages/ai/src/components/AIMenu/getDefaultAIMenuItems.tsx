@@ -17,10 +17,10 @@ import {
   RiText,
   RiTextWrap,
 } from "react-icons/ri";
-import { callLLMStreaming } from "../../api/api";
-import { addFunction } from "../../api/functions/add";
-import { getAIDictionary } from "../../i18n/dictionary";
-import { BlockNoteAIContextValue } from "../BlockNoteAIContext";
+import { callLLMStreaming } from "../../api/api.js";
+import { addFunction } from "../../api/functions/add.js";
+import { getAIDictionary } from "../../i18n/dictionary.js";
+import { BlockNoteAIContextValue } from "../BlockNoteAIContext.js";
 
 export type AIMenuSuggestionItem = Omit<
   DefaultReactSuggestionItem,
@@ -46,7 +46,7 @@ export function getDefaultAIAddMenuItems<
 
   return [
     {
-      name: "continue_writing",
+      key: "continue_writing",
       title: dict.ai_menu.continue_writing.title,
       aliases: dict.ai_menu.continue_writing.aliases,
       icon: <RiBallPenLine size={18} />,
@@ -61,7 +61,7 @@ export function getDefaultAIAddMenuItems<
     },
 
     {
-      name: "summarize",
+      key: "summarize",
       title: dict.ai_menu.summarize.title,
       aliases: dict.ai_menu.summarize.aliases,
       icon: <RiTextWrap size={18} />,
@@ -79,7 +79,7 @@ export function getDefaultAIAddMenuItems<
       size: "small",
     },
     {
-      name: "action_items",
+      key: "action_items",
       title: dict.ai_menu.add_action_items.title,
       aliases: dict.ai_menu.add_action_items.aliases,
       icon: <RiListCheck3 size={18} />,
@@ -89,7 +89,7 @@ export function getDefaultAIAddMenuItems<
       size: "small",
     },
     {
-      name: "write_anything",
+      key: "write_anything",
       title: dict.ai_menu.write_anything.title,
       aliases: dict.ai_menu.write_anything.aliases,
       icon: <RiBallPenLine size={18} />,
@@ -110,7 +110,7 @@ export function getDefaultAIEditMenuItems<
 
   return [
     {
-      name: "improve_writing",
+      key: "improve_writing",
       title: dict.ai_menu.improve_writing.title,
       aliases: dict.ai_menu.improve_writing.aliases,
       icon: <RiText size={18} />,
@@ -120,7 +120,7 @@ export function getDefaultAIEditMenuItems<
       size: "small",
     },
     {
-      name: "fix_spelling",
+      key: "fix_spelling",
       title: dict.ai_menu.fix_spelling.title,
       aliases: dict.ai_menu.fix_spelling.aliases,
       icon: <RiCheckLine size={18} />,
@@ -130,7 +130,7 @@ export function getDefaultAIEditMenuItems<
       size: "small",
     },
     {
-      name: "translate",
+      key: "translate",
       title: dict.ai_menu.translate.title,
       aliases: dict.ai_menu.translate.aliases,
       icon: <RiEarthLine size={18} />,
@@ -140,7 +140,7 @@ export function getDefaultAIEditMenuItems<
       size: "small",
     },
     {
-      name: "simplify",
+      key: "simplify",
       title: dict.ai_menu.simplify.title,
       aliases: dict.ai_menu.simplify.aliases,
       icon: <RiMagicLine size={18} />,
@@ -164,7 +164,7 @@ export function getDefaultAIActionMenuItems<
 
   return [
     {
-      name: "accept",
+      key: "accept",
       title: dict.ai_menu.accept.title,
       aliases: dict.ai_menu.accept.aliases,
       icon: <RiCheckFill size={18} />,
@@ -175,7 +175,7 @@ export function getDefaultAIActionMenuItems<
       size: "small",
     },
     {
-      name: "retry",
+      key: "retry",
       title: dict.ai_menu.retry.title,
       aliases: dict.ai_menu.retry.aliases,
       icon: <RiLoopLeftFill size={18} />,
@@ -185,7 +185,7 @@ export function getDefaultAIActionMenuItems<
       size: "small",
     },
     {
-      name: "revert",
+      key: "revert",
       title: dict.ai_menu.revert.title,
       aliases: dict.ai_menu.revert.aliases,
       icon: <RiArrowGoBackFill size={18} />,

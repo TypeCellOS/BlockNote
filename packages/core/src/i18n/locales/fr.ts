@@ -1,4 +1,4 @@
-import { Dictionary } from "../dictionary";
+import { Dictionary } from "../dictionary.js";
 
 export const fr: Dictionary = {
   slash_menu: {
@@ -49,6 +49,12 @@ export const fr: Dictionary = {
       title: "Paragraphe",
       subtext: "Utilisé pour le corps de votre document",
       aliases: ["p", "paragraphe"],
+      group: "Blocs de base",
+    },
+    code_block: {
+      title: "Bloc de code",
+      subtext: "Bloc de code avec coloration syntaxique",
+      aliases: ["code", "pre"],
       group: "Blocs de base",
     },
     table: {

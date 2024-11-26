@@ -3,14 +3,14 @@ import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   InlineContentSchema,
+  PartialTableContent,
   StyleSchema,
-  TableContent,
 } from "@blocknote/core";
 
-import { useComponentsContext } from "../../../../editor/ComponentsContext";
-import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor";
-import { useDictionary } from "../../../../i18n/dictionary";
-import { TableHandleMenuProps } from "../TableHandleMenuProps";
+import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
+import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
+import { useDictionary } from "../../../../i18n/dictionary.js";
+import { TableHandleMenuProps } from "../TableHandleMenuProps.js";
 
 export const AddRowButton = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
@@ -42,9 +42,14 @@ export const AddRowButton = <
           type: "table",
           content: {
             type: "tableContent",
+            columnWidths: props.block.content.columnWidths,
             rows,
           },
         });
+
+        // Have to reset text cursor position to the block as `updateBlock`
+        // moves the existing selection out of the block.
+        editor.setTextCursorPosition(props.block);
       }}>
       {dict.table_handle[`add_${props.side}_menuitem`]}
     </Components.Generic.Menu.Item>
@@ -69,8 +74,15 @@ export const AddColumnButton = <
   return (
     <Components.Generic.Menu.Item
       onClick={() => {
-        const content: TableContent<I, S> = {
+        const columnWidths = [...props.block.content.columnWidths];
+        columnWidths.splice(
+          props.index + (props.side === "right" ? 1 : 0),
+          0,
+          undefined
+        );
+        const content: PartialTableContent<I, S> = {
           type: "tableContent",
+          columnWidths,
           rows: props.block.content.rows.map((row) => {
             const cells = [...row.cells];
             cells.splice(props.index + (props.side === "right" ? 1 : 0), 0, []);
@@ -82,6 +94,10 @@ export const AddColumnButton = <
           type: "table",
           content: content,
         });
+
+        // Have to reset text cursor position to the block as `updateBlock`
+        // moves the existing selection out of the block.
+        editor.setTextCursorPosition(props.block);
       }}>
       {dict.table_handle[`add_${props.side}_menuitem`]}
     </Components.Generic.Menu.Item>

@@ -5,13 +5,13 @@ import {
   insertOrUpdateBlock,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
 import {
   SuggestionMenuController,
   getDefaultReactSlashMenuItems,
   useCreateBlockNote,
 } from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
 
 import { RiAlertFill } from "react-icons/ri";
 import { Alert } from "./Alert";
@@ -29,7 +29,7 @@ const schema = BlockNoteSchema.create({
 
 // Slash menu item to insert an Alert block
 const insertAlert = (editor: typeof schema.BlockNoteEditor) => ({
-  name: "alert",
+  key: "alert",
   title: "Alert",
   onItemClick: () => {
     insertOrUpdateBlock(editor, {

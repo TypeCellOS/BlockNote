@@ -1,16 +1,16 @@
 import fs from "node:fs";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { PartialBlock } from "../../../blocks/defaultBlocks";
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
-import { BlockSchema } from "../../../schema/blocks/types";
-import { InlineContentSchema } from "../../../schema/inlineContent/types";
-import { StyleSchema } from "../../../schema/styles/types";
-import { customBlocksTestCases } from "../../testUtil/cases/customBlocks";
-import { customInlineContentTestCases } from "../../testUtil/cases/customInlineContent";
-import { customStylesTestCases } from "../../testUtil/cases/customStyles";
-import { defaultSchemaTestCases } from "../../testUtil/cases/defaultSchema";
-import { partialBlocksToBlocksForTesting } from "../../testUtil/partialBlockTestUtil";
+import { PartialBlock } from "../../../blocks/defaultBlocks.js";
+import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import { BlockSchema } from "../../../schema/blocks/types.js";
+import { InlineContentSchema } from "../../../schema/inlineContent/types.js";
+import { StyleSchema } from "../../../schema/styles/types.js";
+import { customBlocksTestCases } from "../../testUtil/cases/customBlocks.js";
+import { customInlineContentTestCases } from "../../testUtil/cases/customInlineContent.js";
+import { customStylesTestCases } from "../../testUtil/cases/customStyles.js";
+import { defaultSchemaTestCases } from "../../testUtil/cases/defaultSchema.js";
+import { partialBlocksToBlocksForTesting } from "../../testUtil/partialBlockTestUtil.js";
 
 async function convertToMarkdownAndCompareSnapshots<
   B extends BlockSchema,
@@ -22,10 +22,7 @@ async function convertToMarkdownAndCompareSnapshots<
   snapshotDirectory: string,
   snapshotName: string
 ) {
-  const fullBlocks = partialBlocksToBlocksForTesting(
-    editor.schema.blockSchema,
-    blocks
-  );
+  const fullBlocks = partialBlocksToBlocksForTesting(editor.schema, blocks);
   const md = await editor.blocksToMarkdownLossy(fullBlocks);
   const snapshotPath =
     "./__snapshots__/" +

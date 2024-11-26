@@ -1,9 +1,9 @@
-import { Badge as ShadCNBadge } from "./components/ui/badge";
-import { Button as ShadCNButton } from "./components/ui/button";
+import { Badge as ShadCNBadge } from "./components/ui/badge.js";
+import { Button as ShadCNButton } from "./components/ui/button.js";
 import {
   Card as ShadCNCard,
   CardContent as ShadCNCardContent,
-} from "./components/ui/card";
+} from "./components/ui/card.js";
 import {
   DropdownMenu as ShadCNDropdownMenu,
   DropdownMenuCheckboxItem as ShadCNDropdownMenuCheckboxItem,
@@ -15,35 +15,35 @@ import {
   DropdownMenuSubContent as ShadCNDropdownMenuSubContent,
   DropdownMenuSubTrigger as ShadCNDropdownMenuSubTrigger,
   DropdownMenuTrigger as ShadCNDropdownMenuTrigger,
-} from "./components/ui/dropdown-menu";
-import { Form as ShadCNForm } from "./components/ui/form";
-import { Input as ShadCNInput } from "./components/ui/input";
-import { Label as ShadCNLabel } from "./components/ui/label";
+} from "./components/ui/dropdown-menu.js";
+import { Form as ShadCNForm } from "./components/ui/form.js";
+import { Input as ShadCNInput } from "./components/ui/input.js";
+import { Label as ShadCNLabel } from "./components/ui/label.js";
 import {
   Popover as ShadCNPopover,
   PopoverContent as ShadCNPopoverContent,
   PopoverTrigger as ShadCNPopoverTrigger,
-} from "./components/ui/popover";
+} from "./components/ui/popover.js";
 import {
   Select as ShadCNSelect,
   SelectContent as ShadCNSelectContent,
   SelectItem as ShadCNSelectItem,
   SelectTrigger as ShadCNSelectTrigger,
   SelectValue as ShadCNSelectValue,
-} from "./components/ui/select";
+} from "./components/ui/select.js";
 import {
   Tabs as ShadCNTabs,
   TabsContent as ShadCNTabsContent,
   TabsList as ShadCNTabsList,
   TabsTrigger as ShadCNTabsTrigger,
-} from "./components/ui/tabs";
-import { Toggle as ShadCNToggle } from "./components/ui/toggle";
+} from "./components/ui/tabs.js";
+import { Toggle as ShadCNToggle } from "./components/ui/toggle.js";
 import {
   Tooltip as ShadCNTooltip,
   TooltipContent as ShadCNTooltipContent,
   TooltipProvider as ShadCNTooltipProvider,
   TooltipTrigger as ShadCNTooltipTrigger,
-} from "./components/ui/tooltip";
+} from "./components/ui/tooltip.js";
 
 import { createContext, useContext } from "react";
 

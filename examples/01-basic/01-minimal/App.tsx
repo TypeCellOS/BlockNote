@@ -6,7 +6,7 @@ import {
   BlockNoteAIContextProvider,
   BlockNoteAIUI,
   aiBlockTypeSelectItems,
-  en as aiEN,
+  locales as aiLocales,
   getAISlashMenuItems,
   useBlockNoteAIContext,
 } from "@blocknote/ai";
@@ -16,8 +16,8 @@ import {
   BlockNoteEditor,
   BlockNoteSchema,
   defaultBlockSpecs,
-  en,
   filterSuggestionItems,
+  locales,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
@@ -43,10 +43,10 @@ export default function App() {
   const editor = useCreateBlockNote({
     schema,
     dictionary: {
-      ...en,
-      ai: aiEN,
+      ...locales,
+      ai: aiLocales,
     } as any,
-    extensions: {
+    _extensions: {
       // TODO: things will break when user provides different keys. Define name on plugins instead?
       aiBlockToolbar: new AIBlockToolbarProsemirrorPlugin(),
       aiSelection: new AIShowSelectionPlugin(),
@@ -63,7 +63,7 @@ export default function App() {
             <FormattingToolbar>
               {...getFormattingToolbarItems([
                 ...blockTypeSelectItems(editor.dictionary),
-                ...aiBlockTypeSelectItems(aiEN),
+                ...aiBlockTypeSelectItems(aiLocales.en),
               ])}
               <AIButton />
             </FormattingToolbar>

@@ -7,9 +7,9 @@ import {
 import { flip, offset } from "@floating-ui/react";
 import { FC } from "react";
 
-import { AIBlockToolbarProsemirrorPlugin } from "../../extensions/AIBlockToolbar/AIBlockToolbarPlugin";
-import { AIBlockToolbar } from "./AIBlockToolbar";
-import { AIBlockToolbarProps } from "./AIBlockToolbarProps";
+import { AIBlockToolbarProsemirrorPlugin } from "../../extensions/AIBlockToolbar/AIBlockToolbarPlugin.js";
+import { AIBlockToolbar } from "./AIBlockToolbar.js";
+import { AIBlockToolbarProps } from "./AIBlockToolbarProps.js";
 
 export const AIBlockToolbarController = (props: {
   aiToolbar?: FC<AIBlockToolbarProps>;

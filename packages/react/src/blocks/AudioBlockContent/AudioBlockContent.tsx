@@ -1,16 +1,17 @@
 import { FileBlockConfig, audioBlockConfig, audioParse } from "@blocknote/core";
+
 import { RiVolumeUpFill } from "react-icons/ri";
 
 import {
   ReactCustomBlockRenderProps,
   createReactBlockSpec,
-} from "../../schema/ReactBlockSpec";
+} from "../../schema/ReactBlockSpec.js";
 import {
   FigureWithCaption,
   FileBlockWrapper,
   LinkWithCaption,
-} from "../FileBlockContent/fileBlockHelpers";
-import { useResolveUrl } from "../FileBlockContent/useResolveUrl";
+} from "../FileBlockContent/fileBlockHelpers.js";
+import { useResolveUrl } from "../FileBlockContent/useResolveUrl.js";
 
 export const AudioPreview = (
   props: Omit<

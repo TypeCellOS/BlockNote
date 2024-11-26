@@ -25,9 +25,8 @@ const nodeAttributes: Record<string, string> = {
  */
 export class PreviousBlockTypePlugin {
   public readonly plugin: Plugin;
-
   constructor() {
-    let timeout: ReturnType<typeof setTimeout> | undefined;
+    let timeout: ReturnType<typeof setTimeout>;
     this.plugin = new Plugin({
       key: PLUGIN_KEY,
       view(_editorView) {

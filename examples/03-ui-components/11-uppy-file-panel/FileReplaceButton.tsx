@@ -11,6 +11,7 @@ import {
   useSelectedBlocks,
 } from "@blocknote/react";
 import { useEffect, useState } from "react";
+
 import { RiImageEditFill } from "react-icons/ri";
 import { UppyFilePanel } from "./UppyFilePanel";
 

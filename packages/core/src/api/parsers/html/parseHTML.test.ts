@@ -1,21 +1,18 @@
+import * as pmView from "prosemirror-view";
 import { describe, expect, it } from "vitest";
-import { BlockNoteEditor } from "../../..";
-import { nestedListsToBlockNoteStructure } from "./util/nestedLists";
+import { BlockNoteEditor } from "../../../index.js";
+import { nestedListsToBlockNoteStructure } from "./util/nestedLists.js";
 
 async function parseHTMLAndCompareSnapshots(
   html: string,
   snapshotName: string
 ) {
-  // use a dynamic import because we want to access
-  // __parseFromClipboard which is not exposed in types
-  const view: any = await import("prosemirror-view");
-
   const editor = BlockNoteEditor.create();
   const div = document.createElement("div");
   editor.mount(div);
   const blocks = await editor.tryParseHTMLToBlocks(html);
 
-  const snapshotPath = "./__snapshots__/paste/" + snapshotName + ".json";
+  const snapshotPath = "./__snapshots__/" + snapshotName + ".json";
   expect(JSON.stringify(blocks, undefined, 2)).toMatchFileSnapshot(
     snapshotPath
   );
@@ -34,7 +31,7 @@ async function parseHTMLAndCompareSnapshots(
   (window as any).__TEST_OPTIONS.mockID = 0; // reset id counter
   const htmlNode = nestedListsToBlockNoteStructure(html);
 
-  const slice = view.__parseFromClipboard(
+  const slice = (pmView as any).__parseFromClipboard(
     editor.prosemirrorView,
     "",
     htmlNode.innerHTML,

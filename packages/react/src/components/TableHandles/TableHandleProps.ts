@@ -9,7 +9,7 @@ import {
 } from "@blocknote/core";
 import { DragEvent, FC } from "react";
 
-import { DragHandleMenuProps } from "../SideMenu/DragHandleMenu/DragHandleMenuProps";
+import { DragHandleMenuProps } from "../SideMenu/DragHandleMenu/DragHandleMenuProps.js";
 
 type NonUndefined<T> = T extends undefined ? never : T;
 
@@ -29,6 +29,7 @@ export type TableHandleProps<
   dragStart: (e: DragEvent) => void;
   showOtherSide: () => void;
   hideOtherSide: () => void;
+  menuContainer: HTMLDivElement;
   tableHandleMenu?: FC<
     DragHandleMenuProps<
       {

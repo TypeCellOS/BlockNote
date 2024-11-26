@@ -1,5 +1,5 @@
 import { expect } from "@playwright/test";
-import { test } from "../../setup/setupScript";
+import { test } from "../../setup/setupScript.js";
 import {
   BASE_URL,
   BLOCK_CONTAINER_SELECTOR,
@@ -10,13 +10,13 @@ import {
   H_TWO_BLOCK_SELECTOR,
   NUMBERED_LIST_SELECTOR,
   TYPE_DELAY,
-} from "../../utils/const";
+} from "../../utils/const.js";
 import {
+  compareDocToSnapshot,
   focusOnEditor,
   waitForSelectorInEditor,
-  compareDocToSnapshot,
-} from "../../utils/editor";
-import { executeSlashCommand, openSlashMenu } from "../../utils/slashmenu";
+} from "../../utils/editor.js";
+import { executeSlashCommand, openSlashMenu } from "../../utils/slashmenu.js";
 
 test.beforeEach(async ({ page }) => {
   await page.goto(BASE_URL);

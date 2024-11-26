@@ -5,9 +5,9 @@ import { FC } from "react";
 
 import { useBlockNoteEditor } from "@blocknote/react";
 
-import { AIInlineToolbarProsemirrorPlugin } from "../../extensions/AIInlineToolbar/AIInlineToolbarPlugin";
-import { AIInlineToolbar } from "./AIInlineToolbar";
-import { AIInlineToolbarProps } from "./AIInlineToolbarProps";
+import { AIInlineToolbarProsemirrorPlugin } from "../../extensions/AIInlineToolbar/AIInlineToolbarPlugin.js";
+import { AIInlineToolbar } from "./AIInlineToolbar.js";
+import { AIInlineToolbarProps } from "./AIInlineToolbarProps.js";
 
 export const AIInlineToolbarController = (props: {
   aiToolbar?: FC<AIInlineToolbarProps>;

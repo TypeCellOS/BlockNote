@@ -6,14 +6,14 @@ import {
   Node,
   NodeConfig,
 } from "@tiptap/core";
-import { defaultBlockToHTML } from "../../blocks/defaultBlockHelpers";
-import { inheritedProps } from "../../blocks/defaultProps";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { mergeCSSClasses } from "../../util/browser";
-import { camelToDataKebab } from "../../util/string";
-import { InlineContentSchema } from "../inlineContent/types";
-import { PropSchema, Props } from "../propTypes";
-import { StyleSchema } from "../styles/types";
+import { defaultBlockToHTML } from "../../blocks/defaultBlockHelpers.js";
+import { inheritedProps } from "../../blocks/defaultProps.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { mergeCSSClasses } from "../../util/browser.js";
+import { camelToDataKebab } from "../../util/string.js";
+import { InlineContentSchema } from "../inlineContent/types.js";
+import { PropSchema, Props } from "../propTypes.js";
+import { StyleSchema } from "../styles/types.js";
 import {
   BlockConfig,
   BlockSchemaFromSpecs,
@@ -22,7 +22,7 @@ import {
   BlockSpecs,
   SpecificBlock,
   TiptapBlockImplementation,
-} from "./types";
+} from "./types.js";
 
 // Function that uses the 'propSchema' of a blockConfig to create a TipTap
 // node's `addAttributes` property.
@@ -201,12 +201,22 @@ export function wrapInBlockStructure<
 // Helper type to keep track of the `name` and `content` properties after calling Node.create.
 type StronglyTypedTipTapNode<
   Name extends string,
-  Content extends "inline*" | "tableRow+" | ""
+  Content extends
+    | "inline*"
+    | "tableRow+"
+    | "blockContainer+"
+    | "column column+"
+    | ""
 > = Node & { name: Name; config: { content: Content } };
 
 export function createStronglyTypedTiptapNode<
   Name extends string,
-  Content extends "inline*" | "tableRow+" | ""
+  Content extends
+    | "inline*"
+    | "tableRow+"
+    | "blockContainer+"
+    | "column column+"
+    | ""
 >(config: NodeConfig & { name: Name; content: Content }) {
   return Node.create(config) as StronglyTypedTipTapNode<Name, Content>; // force re-typing (should be safe as it's type-checked from the config)
 }

@@ -1,6 +1,6 @@
 import { Page } from "@playwright/test";
-import { DRAG_HANDLE_ADD_SELECTOR, DRAG_HANDLE_SELECTOR } from "./const";
-import { moveMouseOverElement } from "./mouse";
+import { DRAG_HANDLE_ADD_SELECTOR, DRAG_HANDLE_SELECTOR } from "./const.js";
+import { moveMouseOverElement } from "./mouse.js";
 
 export async function addBlockFromDragHandle(page: Page, command: string) {
   await page.click(DRAG_HANDLE_ADD_SELECTOR);

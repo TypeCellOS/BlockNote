@@ -6,6 +6,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import {
+  RiCodeBlock,
   RiEmotionFill,
   RiFile2Line,
   RiFilmLine,
@@ -22,7 +23,7 @@ import {
 } from "react-icons/ri";
 
 import { IconType } from "react-icons";
-import { DefaultReactSuggestionItem } from "./types";
+import { DefaultReactSuggestionItem } from "./types.js";
 
 const icons: Record<string, IconType> = {
   heading: RiH1,
@@ -38,6 +39,7 @@ const icons: Record<string, IconType> = {
   audio: RiVolumeUpFill,
   file: RiFile2Line,
   emoji: RiEmotionFill,
+  code_block: RiCodeBlock,
 };
 
 export function getDefaultReactSlashMenuItems<
@@ -46,7 +48,7 @@ export function getDefaultReactSlashMenuItems<
   S extends StyleSchema
 >(editor: BlockNoteEditor<BSchema, I, S>): DefaultReactSuggestionItem[] {
   return getDefaultSlashMenuItems(editor).map((item) => {
-    const Icon = icons[item.name];
+    const Icon = icons[item.key];
     return {
       ...item,
       icon: <Icon size={18} />,

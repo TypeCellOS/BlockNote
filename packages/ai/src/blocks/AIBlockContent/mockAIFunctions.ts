@@ -1,6 +1,6 @@
 import { Block, BlockIdentifier, BlockNoteEditor } from "@blocknote/core";
 import { TextSelection } from "prosemirror-state";
-import { AIInlineToolbarProsemirrorPlugin } from "../../extensions/AIInlineToolbar/AIInlineToolbarPlugin";
+import { AIInlineToolbarProsemirrorPlugin } from "../../extensions/AIInlineToolbar/AIInlineToolbarPlugin.js";
 
 const flattenBlocks = (
   blocks: Block<any, any, any>[]

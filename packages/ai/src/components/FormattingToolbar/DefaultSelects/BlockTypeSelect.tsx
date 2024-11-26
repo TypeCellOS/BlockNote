@@ -1,7 +1,7 @@
 import { RiSparkling2Fill } from "react-icons/ri";
 
 import { BlockTypeSelectItem } from "@blocknote/react";
-import { AIDictionary } from "../../../i18n/dictionary";
+import { AIDictionary } from "../../../i18n/dictionary.js";
 
 // TODO: rename?
 export const aiBlockTypeSelectItems = (

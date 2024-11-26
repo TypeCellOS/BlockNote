@@ -1,12 +1,12 @@
-import { expect, test } from "../setup/setupScriptComponent";
-import EditorWithTextArea from "../utils/components/EditorWithTextArea";
+import { expect, test } from "../setup/setupScriptComponent.js";
+import EditorWithTextArea from "../utils/components/EditorWithTextArea.js";
 import {
   copyPasteAllExternal,
   removeClassesFromHTML,
   removeMetaFromHTML,
-} from "../utils/copypaste";
-import { focusOnEditor } from "../utils/editor";
-import { executeSlashCommand } from "../utils/slashmenu";
+} from "../utils/copypaste.js";
+import { focusOnEditor } from "../utils/editor.js";
+import { executeSlashCommand } from "../utils/slashmenu.js";
 
 test.describe.configure({ mode: "serial" });
 

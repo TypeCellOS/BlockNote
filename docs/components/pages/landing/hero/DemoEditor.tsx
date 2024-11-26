@@ -1,7 +1,23 @@
-import { uploadToTmpFilesDotOrg_DEV_ONLY } from "@blocknote/core";
+import {
+  BlockNoteSchema,
+  combineByGroup,
+  filterSuggestionItems,
+  locales,
+  uploadToTmpFilesDotOrg_DEV_ONLY,
+} from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
-import { useCreateBlockNote } from "@blocknote/react";
+import {
+  getDefaultReactSlashMenuItems,
+  SuggestionMenuController,
+  useCreateBlockNote,
+} from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
+import {
+  getMultiColumnSlashMenuItems,
+  locales as multiColumnLocales,
+  multiColumnDropCursor,
+  withMultiColumn,
+} from "@blocknote/xl-multi-column";
 import "@blocknote/mantine/style.css";
 import { useCallback, useMemo, useState } from "react";
 import YPartyKitProvider from "y-partykit/provider";
@@ -67,6 +83,12 @@ export default function DemoEditor(props: { theme?: "light" | "dark" }) {
 
   const editor = useCreateBlockNote(
     {
+      dictionary: {
+        ...locales.en,
+        multi_column: multiColumnLocales.en,
+      },
+      schema: withMultiColumn(BlockNoteSchema.create()),
+      dropCursor: multiColumnDropCursor,
       collaboration: {
         provider,
         fragment: doc.getXmlFragment("blocknote"),
@@ -91,5 +113,27 @@ export default function DemoEditor(props: { theme?: "light" | "dark" }) {
     }
   }, [warningShown]);
 
-  return <BlockNoteView onFocus={focus} editor={editor} theme={props.theme} />;
+  const getSlashMenuItems = useMemo(() => {
+    return async (query: string) =>
+      filterSuggestionItems(
+        combineByGroup(
+          getDefaultReactSlashMenuItems(editor),
+          getMultiColumnSlashMenuItems(editor),
+        ),
+        query,
+      );
+  }, [editor]);
+
+  return (
+    <BlockNoteView
+      onFocus={focus}
+      editor={editor}
+      theme={props.theme}
+      slashMenu={false}>
+      <SuggestionMenuController
+        triggerCharacter={"/"}
+        getItems={getSlashMenuItems}
+      />
+    </BlockNoteView>
+  );
 }

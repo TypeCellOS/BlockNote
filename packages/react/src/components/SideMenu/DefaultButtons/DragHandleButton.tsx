@@ -8,10 +8,10 @@ import {
 } from "@blocknote/core";
 import { MdDragIndicator } from "react-icons/md";
 
-import { useComponentsContext } from "../../../editor/ComponentsContext";
-import { useDictionary } from "../../../i18n/dictionary";
-import { DragHandleMenu } from "../DragHandleMenu/DragHandleMenu";
-import { SideMenuProps } from "../SideMenuProps";
+import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { useDictionary } from "../../../i18n/dictionary.js";
+import { DragHandleMenu } from "../DragHandleMenu/DragHandleMenu.js";
+import { SideMenuProps } from "../SideMenuProps.js";
 
 export const DragHandleButton = <
   BSchema extends BlockSchema = DefaultBlockSchema,
@@ -32,8 +32,6 @@ export const DragHandleButton = <
           props.freezeMenu();
         } else {
           props.unfreezeMenu();
-          // TODO
-          props.editor.focus();
         }
       }}
       position={"left"}>
@@ -41,7 +39,7 @@ export const DragHandleButton = <
         <Components.SideMenu.Button
           label={dict.side_menu.drag_handle_label}
           draggable={true}
-          onDragStart={props.blockDragStart}
+          onDragStart={(e) => props.blockDragStart(e, props.block)}
           onDragEnd={props.blockDragEnd}
           className={"bn-button"}
           icon={<MdDragIndicator size={24} data-test="dragHandle" />}

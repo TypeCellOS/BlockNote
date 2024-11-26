@@ -6,11 +6,11 @@ import { useBlockNoteEditor } from "@blocknote/react";
 import {
   mockAIInsertAfterSelection,
   mockAIReplaceSelection,
-} from "../../blocks/AIBlockContent/mockAIFunctions";
-import { AIInlineToolbarProps } from "./AIInlineToolbarProps";
-import { AcceptButton } from "./DefaultButtons/AcceptButton";
-import { RetryButton } from "./DefaultButtons/RetryButton";
-import { RevertButton } from "./DefaultButtons/RevertButton";
+} from "../../blocks/AIBlockContent/mockAIFunctions.js";
+import { AIInlineToolbarProps } from "./AIInlineToolbarProps.js";
+import { AcceptButton } from "./DefaultButtons/AcceptButton.js";
+import { RetryButton } from "./DefaultButtons/RetryButton.js";
+import { RevertButton } from "./DefaultButtons/RevertButton.js";
 
 export const getAIInlineToolbarItems = (
   props: AIInlineToolbarProps & {

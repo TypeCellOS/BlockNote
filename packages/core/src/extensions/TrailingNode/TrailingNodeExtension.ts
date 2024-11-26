@@ -62,7 +62,7 @@ export const TrailingNode = Extension.create<TrailingNodeOptions>({
             lastNode = lastNode.lastChild;
 
             if (!lastNode || lastNode.type.name !== "blockContainer") {
-              throw new Error("Expected blockContainer");
+              return true; // not a blockContainer, but for example Columns. Insert trailing node
             }
 
             const lastContentNode = lastNode.firstChild;

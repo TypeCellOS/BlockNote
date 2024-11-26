@@ -7,12 +7,12 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { CoreMessage, StreamObjectResult, jsonSchema, streamObject } from "ai";
-import { AIFunction } from "./functions";
-import { addFunction } from "./functions/add";
-import { deleteFunction } from "./functions/delete";
-import { updateFunction } from "./functions/update";
-import { createOperationsArraySchema } from "./schema/operations";
-import { blockNoteSchemaToJSONSchema } from "./schema/schemaToJSONSchema";
+import { addFunction } from "./functions/add.js";
+import { deleteFunction } from "./functions/delete.js";
+import { AIFunction } from "./functions/index.js";
+import { updateFunction } from "./functions/update.js";
+import { createOperationsArraySchema } from "./schema/operations.js";
+import { blockNoteSchemaToJSONSchema } from "./schema/schemaToJSONSchema.js";
 
 // TODO don't include child block
 export function createMessagesForLLM(opts: {

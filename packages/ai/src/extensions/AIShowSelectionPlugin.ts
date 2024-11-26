@@ -1,4 +1,3 @@
-import type { BlockNoteEditor } from "@blocknote/core";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 
@@ -7,7 +6,7 @@ const PLUGIN_KEY = new PluginKey(`blocknote-ai-show-selection`);
 export class AIShowSelectionPlugin {
   public readonly plugin: Plugin;
 
-  public constructor(_editor: BlockNoteEditor<any, any, any>) {
+  public constructor() {
     this.plugin = new Plugin({
       key: PLUGIN_KEY,
       props: {

@@ -113,12 +113,12 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
         id={"ai-suggestion-menu"}>
         {items.map((item, index) => (
           <Components.SuggestionMenu.Item
-            key={item.name}
+            key={item.key}
             className={mergeCSSClasses(
               "bn-suggestion-menu-item",
               item.size === "small" ? "bn-suggestion-menu-item-small" : ""
             )}
-            id={item.name}
+            id={item.key}
             isSelected={index === selectedIndex}
             onClick={item.onItemClick}
             item={item}

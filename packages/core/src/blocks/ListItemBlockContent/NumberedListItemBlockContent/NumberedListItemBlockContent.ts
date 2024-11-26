@@ -1,14 +1,15 @@
 import { InputRule } from "@tiptap/core";
+import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
+import { getBlockInfoFromSelection } from "../../../api/getBlockInfoFromPos.js";
 import {
   PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
-} from "../../../schema";
-import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers";
-import { defaultProps } from "../../defaultProps";
-import { handleEnter } from "../ListItemKeyboardShortcuts";
-import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin";
-import { getCurrentBlockContentType } from "../../../api/getCurrentBlockContentType";
+} from "../../../schema/index.js";
+import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers.js";
+import { defaultProps } from "../../defaultProps.js";
+import { handleEnter } from "../ListItemKeyboardShortcuts.js";
+import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin.js";
 
 export const numberedListItemPropSchema = {
   ...defaultProps,
@@ -39,15 +40,25 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
       new InputRule({
         find: new RegExp(`^1\\.\\s$`),
         handler: ({ state, chain, range }) => {
-          if (getCurrentBlockContentType(this.editor) !== "inline*") {
+          const blockInfo = getBlockInfoFromSelection(state);
+          if (
+            !blockInfo.isBlockContainer ||
+            blockInfo.blockContent.node.type.spec.content !== "inline*"
+          ) {
             return;
           }
 
           chain()
-            .BNUpdateBlock(state.selection.from, {
-              type: "numberedListItem",
-              props: {},
-            })
+            .command(
+              updateBlockCommand(
+                this.options.editor,
+                blockInfo.bnBlock.beforePos,
+                {
+                  type: "numberedListItem",
+                  props: {},
+                }
+              )
+            )
             // Removes the "1." characters used to set the list.
             .deleteRange({ from: range.from, to: range.to });
         },
@@ -57,18 +68,21 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
 
   addKeyboardShortcuts() {
     return {
-      Enter: () => handleEnter(this.editor),
+      Enter: () => handleEnter(this.options.editor),
       "Mod-Shift-7": () => {
-        if (getCurrentBlockContentType(this.editor) !== "inline*") {
+        const blockInfo = getBlockInfoFromSelection(this.editor.state);
+        if (
+          !blockInfo.isBlockContainer ||
+          blockInfo.blockContent.node.type.spec.content !== "inline*"
+        ) {
           return true;
         }
 
-        return this.editor.commands.BNUpdateBlock(
-          this.editor.state.selection.anchor,
-          {
+        return this.editor.commands.command(
+          updateBlockCommand(this.options.editor, blockInfo.bnBlock.beforePos, {
             type: "numberedListItem",
             props: {},
-          }
+          })
         );
       },
     };

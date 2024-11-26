@@ -1,14 +1,14 @@
 import { expect } from "@playwright/test";
-import { test } from "../../setup/setupScript";
+import { test } from "../../setup/setupScript.js";
 import {
   BASE_URL,
   DRAG_HANDLE_SELECTOR,
   LINK_BUTTON_SELECTOR,
   PARAGRAPH_SELECTOR,
-} from "../../utils/const";
-import { focusOnEditor } from "../../utils/editor";
-import { moveMouseOverElement } from "../../utils/mouse";
-import { executeSlashCommand } from "../../utils/slashmenu";
+} from "../../utils/const.js";
+import { focusOnEditor } from "../../utils/editor.js";
+import { moveMouseOverElement } from "../../utils/mouse.js";
+import { executeSlashCommand } from "../../utils/slashmenu.js";
 
 test.use({
   colorScheme: "dark",
@@ -45,6 +45,7 @@ test.describe("Check Dark Theme is Automatically Applied", () => {
 
     await page.keyboard.type("link");
     await page.keyboard.press("Enter");
+    await page.keyboard.press("ArrowLeft");
 
     await page.waitForTimeout(500);
     expect(await page.screenshot()).toMatchSnapshot("dark-link-toolbar.png");

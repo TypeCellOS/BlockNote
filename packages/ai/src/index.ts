@@ -1,30 +1,30 @@
 import "./style.css";
 
-export * from "./blocks/AIBlockContent/AIBlockContent";
-export * from "./blocks/AIBlockContent/mockAIFunctions";
-export * from "./extensions/AIBlockToolbar/AIBlockToolbarPlugin";
-export * from "./extensions/AIShowSelectionPlugin";
+export * from "./blocks/AIBlockContent/AIBlockContent.js";
+export * from "./blocks/AIBlockContent/mockAIFunctions.js";
+export * from "./extensions/AIBlockToolbar/AIBlockToolbarPlugin.js";
+export * from "./extensions/AIShowSelectionPlugin.js";
 
-export * from "./components/AIBlockToolbar/AIBlockToolbar";
-export * from "./components/AIBlockToolbar/AIBlockToolbarController";
-export * from "./components/AIBlockToolbar/AIBlockToolbarProps";
-export * from "./components/AIBlockToolbar/DefaultButtons/ShowPromptButton";
-export * from "./components/AIBlockToolbar/DefaultButtons/UpdateButton";
-export * from "./components/BlockNoteAIContext";
+export * from "./components/AIBlockToolbar/AIBlockToolbar.js";
+export * from "./components/AIBlockToolbar/AIBlockToolbarController.js";
+export * from "./components/AIBlockToolbar/AIBlockToolbarProps.js";
+export * from "./components/AIBlockToolbar/DefaultButtons/ShowPromptButton.js";
+export * from "./components/AIBlockToolbar/DefaultButtons/UpdateButton.js";
+export * from "./components/BlockNoteAIContext.js";
 
-export * from "./components/AIInlineToolbar/AIInlineToolbar";
-export * from "./components/AIInlineToolbar/AIInlineToolbarController";
-export * from "./components/AIInlineToolbar/AIInlineToolbarProps";
-export * from "./components/AIInlineToolbar/DefaultButtons/AcceptButton";
-export * from "./components/AIInlineToolbar/DefaultButtons/RetryButton";
-export * from "./components/AIInlineToolbar/DefaultButtons/RevertButton";
+export * from "./components/AIInlineToolbar/AIInlineToolbar.js";
+export * from "./components/AIInlineToolbar/AIInlineToolbarController.js";
+export * from "./components/AIInlineToolbar/AIInlineToolbarProps.js";
+export * from "./components/AIInlineToolbar/DefaultButtons/AcceptButton.js";
+export * from "./components/AIInlineToolbar/DefaultButtons/RetryButton.js";
+export * from "./components/AIInlineToolbar/DefaultButtons/RevertButton.js";
 
-export * from "./components/FormattingToolbar/DefaultButtons/AIButton";
-export * from "./components/FormattingToolbar/DefaultSelects/BlockTypeSelect";
+export * from "./components/FormattingToolbar/DefaultButtons/AIButton.js";
+export * from "./components/FormattingToolbar/DefaultSelects/BlockTypeSelect.js";
 
-export * from "./components/SuggestionMenu/getAISlashMenuItems";
+export * from "./components/SuggestionMenu/getAISlashMenuItems.js";
 
-export * from "./components/BlockNoteAIUI";
+export * from "./components/BlockNoteAIUI.js";
 
-export * from "./i18n/dictionary";
-export * from "./i18n/locales";
+export * from "./i18n/dictionary.js";
+export * as locales from "./i18n/locales/index.js";

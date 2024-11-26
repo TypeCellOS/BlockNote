@@ -1,12 +1,12 @@
-import { blockToNode } from "../api/nodeConversions/nodeConversions";
-import type { BlockNoteEditor } from "../editor/BlockNoteEditor";
+import { blockToNode } from "../api/nodeConversions/blockToNode.js";
+import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import type {
   BlockNoDefaults,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
-} from "../schema";
-import { mergeCSSClasses } from "../util/browser";
+} from "../schema/index.js";
+import { mergeCSSClasses } from "../util/browser.js";
 
 // Function that creates a ProseMirror `DOMOutputSpec` for a default block.
 // Since all default blocks have the same structure (`blockContent` div with a
@@ -67,8 +67,13 @@ export const defaultBlockToHTML = <
   dom: HTMLElement;
   contentDOM?: HTMLElement;
 } => {
-  const node = blockToNode(block, editor.pmSchema, editor.schema.styleSchema)
-    .firstChild!;
+  let node = blockToNode(block, editor.pmSchema, editor.schema.styleSchema);
+
+  if (node.type.name === "blockContainer") {
+    // for regular blocks, get the toDOM spec from the blockContent node
+    node = node.firstChild!;
+  }
+
   const toDOM = editor.pmSchema.nodes[node.type.name].spec.toDOM;
 
   if (toDOM === undefined) {

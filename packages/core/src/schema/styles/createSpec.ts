@@ -1,12 +1,13 @@
 import { Mark } from "@tiptap/core";
+
 import { ParseRule } from "@tiptap/pm/model";
+import { UnreachableCaseError } from "../../util/typescript.js";
 import {
   addStyleAttributes,
   createInternalStyleSpec,
   stylePropsToAttributes,
-} from "./internal";
-import { StyleConfig, StyleSpec } from "./types";
-import {UnreachableCaseError} from "../../util/typescript";
+} from "./internal.js";
+import { StyleConfig, StyleSpec } from "./types.js";
 
 export type CustomStyleImplementation<T extends StyleConfig> = {
   render: T["propSchema"] extends "boolean"

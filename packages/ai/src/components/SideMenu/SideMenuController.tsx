@@ -6,12 +6,12 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { FC } from "react";
 import {
   SideMenuController as SideMenuCoreController,
   SideMenuProps,
 } from "@blocknote/react";
-import { SideMenu } from "./SideMenu";
+import { FC } from "react";
+import { SideMenu } from "./SideMenu.js";
 
 export const SideMenuController = <
   BSchema extends BlockSchema = DefaultBlockSchema,

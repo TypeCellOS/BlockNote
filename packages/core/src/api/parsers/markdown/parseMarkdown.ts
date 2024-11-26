@@ -1,14 +1,18 @@
 import { Schema } from "prosemirror-model";
 
-import { Block } from "../../../blocks/defaultBlocks";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../../../schema";
-import { initializeESMDependencies } from "../../../util/esmDependencies";
-import { HTMLToBlocks } from "../html/parseHTML";
+import { Block } from "../../../blocks/defaultBlocks.js";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../../schema/index.js";
+import { initializeESMDependencies } from "../../../util/esmDependencies.js";
+import { HTMLToBlocks } from "../html/parseHTML.js";
 
 // modified version of https://github.com/syntax-tree/mdast-util-to-hast/blob/main/lib/handlers/code.js
 // that outputs a data-language attribute instead of a CSS class (e.g.: language-typescript)
 function code(state: any, node: any) {
-  const value = node.value ? node.value + "\n" : "";
+  const value = node.value ? node.value : "";
   /** @type {Properties} */
   const properties: any = {};
 

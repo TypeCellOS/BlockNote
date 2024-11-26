@@ -1,0 +1,118 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Test BlockNote-Prosemirror conversion > Case: multi-column-schema > Convert multi-column to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "id": "1",
+  },
+  "content": [
+    {
+      "attrs": {
+        "id": "2",
+        "width": 1,
+      },
+      "content": [
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "3",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "text": "Column Paragraph 0",
+                  "type": "text",
+                },
+              ],
+              "type": "paragraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "4",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "text": "Column Paragraph 1",
+                  "type": "text",
+                },
+              ],
+              "type": "paragraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+      ],
+      "type": "column",
+    },
+    {
+      "attrs": {
+        "id": "5",
+        "width": 1,
+      },
+      "content": [
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "6",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "text": "Column Paragraph 2",
+                  "type": "text",
+                },
+              ],
+              "type": "paragraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "7",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "text": "Column Paragraph 3",
+                  "type": "text",
+                },
+              ],
+              "type": "paragraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+      ],
+      "type": "column",
+    },
+  ],
+  "type": "columnList",
+}
+`;

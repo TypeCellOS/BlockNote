@@ -1,4 +1,4 @@
-import type { Dictionary } from "../dictionary";
+import type { Dictionary } from "../dictionary.js";
 
 export const is: Dictionary = {
   slash_menu: {
@@ -42,6 +42,12 @@ export const is: Dictionary = {
       title: "Málsgrein",
       subtext: "Notað fyrir meginmál skjalsins",
       aliases: ["p", "malsgrein"],
+      group: "Grunnblokkar",
+    },
+    code_block: {
+      title: "Kóðablokk",
+      subtext: "Kóðablokkur með litskiptingu",
+      aliases: ["kóði", "pre"],
       group: "Grunnblokkar",
     },
     table: {

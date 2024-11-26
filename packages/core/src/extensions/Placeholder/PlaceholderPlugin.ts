@@ -1,13 +1,12 @@
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 const PLUGIN_KEY = new PluginKey(`blocknote-placeholder`);
 
 export class PlaceholderPlugin {
   public readonly plugin: Plugin;
-
-  public constructor(
+  constructor(
     editor: BlockNoteEditor<any, any, any>,
     placeholders: Record<string | "default", string>
   ) {
@@ -92,24 +91,23 @@ export class PlaceholderPlugin {
             return;
           }
 
+          // Don't show placeholder when the cursor is inside a code block
+          if (selection.$from.parent.type.spec.code) {
+            return;
+          }
+
           const $pos = selection.$anchor;
           const node = $pos.parent;
 
-          if ($pos.pos === 0) {
-            return;
+          if (node.content.size > 0) {
+            return null;
           }
 
           const before = $pos.before();
 
-          const dec = Decoration.node(
-            before,
-            before + node.nodeSize,
-            node.content.size > 0
-              ? { "data-is-focused": "true" }
-              : {
-                  "data-is-empty-and-focused": "true",
-                }
-          );
+          const dec = Decoration.node(before, before + node.nodeSize, {
+            "data-is-empty-and-focused": "true",
+          });
 
           return DecorationSet.create(doc, [dec]);
         },

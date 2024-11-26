@@ -28,12 +28,13 @@ module.exports = {
   rules: {
     "no-console": "error",
     curly: 1,
+    "import/extensions": ["error", "always", { ignorePackages: true }],
     "import/no-extraneous-dependencies": [
       "error",
       {
         devDependencies: true,
+        peerDependencies: true,
         optionalDependencies: false,
-        peerDependencies: false,
         bundledDependencies: false,
       },
     ],

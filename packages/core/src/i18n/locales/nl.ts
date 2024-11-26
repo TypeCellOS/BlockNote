@@ -1,4 +1,4 @@
-import type { Dictionary } from "../dictionary";
+import type { Dictionary } from "../dictionary.js";
 
 export const nl: Dictionary = {
   slash_menu: {
@@ -42,6 +42,12 @@ export const nl: Dictionary = {
       title: "Paragraaf",
       subtext: "Gebruikt voor de hoofdtekst van uw document",
       aliases: ["p", "paragraaf"],
+      group: "Basisblokken",
+    },
+    code_block: {
+      title: "Codeblok",
+      subtext: "Codeblok met syntax highlighting",
+      aliases: ["code", "pre"],
       group: "Basisblokken",
     },
     table: {

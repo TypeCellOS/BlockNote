@@ -1,5 +1,5 @@
 export type DefaultSuggestionItem = {
-  name: string;
+  key: string;
   title: string;
   onItemClick: () => void;
   subtext?: string;

@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { it } from "vitest";
-import { SuggestionMenuController } from "./SuggestionMenuController";
+import { SuggestionMenuController } from "./SuggestionMenuController.js";
 
 it("has good typing", () => {
   // invalid, because DefaultSuggestionItem doesn't have a title property, so the default MantineSuggestionMenu doesn't wrok
   let menu = (
     // @ts-expect-error
     <SuggestionMenuController
-      getItems={async () => [{ name: "hello" }]}
+      getItems={async () => [{ key: "hello" }]}
       triggerCharacter="/"
     />
   );
@@ -17,7 +17,7 @@ it("has good typing", () => {
     <SuggestionMenuController
       getItems={async () => [
         {
-          name: "hello",
+          key: "hello",
           title: "hello",
           onItemClick: () => {
             return;

@@ -1,5 +1,5 @@
-import { AIFunction } from "../functions";
-import { SimpleJSONObjectSchema } from "../util/JSONSchema";
+import { AIFunction } from "../functions/index.js";
+import { SimpleJSONObjectSchema } from "../util/JSONSchema.js";
 
 export function functionToOperationJSONSchema(func: AIFunction) {
   return {

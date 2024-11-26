@@ -1,13 +1,17 @@
 import { InputRule } from "@tiptap/core";
+import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
+import {
+  getBlockInfoFromSelection,
+  getNearestBlockPos,
+} from "../../../api/getBlockInfoFromPos.js";
 import {
   PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
-} from "../../../schema";
-import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers";
-import { defaultProps } from "../../defaultProps";
-import { handleEnter } from "../ListItemKeyboardShortcuts";
-import { getCurrentBlockContentType } from "../../../api/getCurrentBlockContentType";
+} from "../../../schema/index.js";
+import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers.js";
+import { defaultProps } from "../../defaultProps.js";
+import { handleEnter } from "../ListItemKeyboardShortcuts.js";
 
 export const checkListItemPropSchema = {
   ...defaultProps,
@@ -44,17 +48,27 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
       new InputRule({
         find: new RegExp(`\\[\\s*\\]\\s$`),
         handler: ({ state, chain, range }) => {
-          if (getCurrentBlockContentType(this.editor) !== "inline*") {
+          const blockInfo = getBlockInfoFromSelection(state);
+          if (
+            !blockInfo.isBlockContainer ||
+            blockInfo.blockContent.node.type.spec.content !== "inline*"
+          ) {
             return;
           }
 
           chain()
-            .BNUpdateBlock(state.selection.from, {
-              type: "checkListItem",
-              props: {
-                checked: false as any,
-              },
-            })
+            .command(
+              updateBlockCommand(
+                this.options.editor,
+                blockInfo.bnBlock.beforePos,
+                {
+                  type: "checkListItem",
+                  props: {
+                    checked: false as any,
+                  },
+                }
+              )
+            )
             // Removes the characters used to set the list.
             .deleteRange({ from: range.from, to: range.to });
         },
@@ -62,17 +76,28 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
       new InputRule({
         find: new RegExp(`\\[[Xx]\\]\\s$`),
         handler: ({ state, chain, range }) => {
-          if (getCurrentBlockContentType(this.editor) !== "inline*") {
+          const blockInfo = getBlockInfoFromSelection(state);
+
+          if (
+            !blockInfo.isBlockContainer ||
+            blockInfo.blockContent.node.type.spec.content !== "inline*"
+          ) {
             return;
           }
 
           chain()
-            .BNUpdateBlock(state.selection.from, {
-              type: "checkListItem",
-              props: {
-                checked: true as any,
-              },
-            })
+            .command(
+              updateBlockCommand(
+                this.options.editor,
+                blockInfo.bnBlock.beforePos,
+                {
+                  type: "checkListItem",
+                  props: {
+                    checked: true as any,
+                  },
+                }
+              )
+            )
             // Removes the characters used to set the list.
             .deleteRange({ from: range.from, to: range.to });
         },
@@ -82,18 +107,21 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
 
   addKeyboardShortcuts() {
     return {
-      Enter: () => handleEnter(this.editor),
+      Enter: () => handleEnter(this.options.editor),
       "Mod-Shift-9": () => {
-        if (getCurrentBlockContentType(this.editor) !== "inline*") {
+        const blockInfo = getBlockInfoFromSelection(this.editor.state);
+        if (
+          !blockInfo.isBlockContainer ||
+          blockInfo.blockContent.node.type.spec.content !== "inline*"
+        ) {
           return true;
         }
 
-        return this.editor.commands.BNUpdateBlock(
-          this.editor.state.selection.anchor,
-          {
+        return this.editor.commands.command(
+          updateBlockCommand(this.options.editor, blockInfo.bnBlock.beforePos, {
             type: "checkListItem",
             props: {},
-          }
+          })
         );
       },
     };
@@ -211,13 +239,31 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
           return;
         }
 
+        // TODO: test
         if (typeof getPos !== "boolean") {
-          this.editor.commands.BNUpdateBlock(getPos(), {
-            type: "checkListItem",
-            props: {
-              checked: checkbox.checked as any,
-            },
-          });
+          const beforeBlockContainerPos = getNearestBlockPos(
+            editor.state.doc,
+            getPos()
+          );
+
+          if (beforeBlockContainerPos.node.type.name !== "blockContainer") {
+            throw new Error(
+              `Expected blockContainer node, got ${beforeBlockContainerPos.node.type.name}`
+            );
+          }
+
+          this.editor.commands.command(
+            updateBlockCommand(
+              this.options.editor,
+              beforeBlockContainerPos.posBeforeNode,
+              {
+                type: "checkListItem",
+                props: {
+                  checked: checkbox.checked as any,
+                },
+              }
+            )
+          );
         }
       };
       checkbox.addEventListener("change", changeHandler);

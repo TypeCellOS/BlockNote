@@ -1,8 +1,8 @@
-import { expect, test } from "../setup/setupScriptComponent";
-import Editor from "../utils/components/Editor";
-import { copyPasteAll } from "../utils/copypaste";
-import { compareDocToSnapshot, focusOnEditor } from "../utils/editor";
-import { executeSlashCommand } from "../utils/slashmenu";
+import { expect, test } from "../setup/setupScriptComponent.js";
+import Editor from "../utils/components/Editor.js";
+import { copyPasteAll } from "../utils/copypaste.js";
+import { compareDocToSnapshot, focusOnEditor } from "../utils/editor.js";
+import { executeSlashCommand } from "../utils/slashmenu.js";
 
 test.describe.configure({ mode: "serial" });
 
@@ -32,7 +32,7 @@ test("Alert Copy/Paste Internal", async ({ browserName, mount, page }) => {
   );
   await button.first().click();
 
-  await copyPasteAll(page, "mac");
+  await copyPasteAll(page);
   await page.waitForTimeout(50);
 
   await compareDocToSnapshot(page, "alert-internal");
@@ -52,7 +52,7 @@ test("Button Copy/Paste Internal", async ({ browserName, mount, page }) => {
   await page.keyboard.press("ArrowDown");
   await page.keyboard.type("Paragraph 2");
 
-  await copyPasteAll(page, "mac");
+  await copyPasteAll(page);
   await page.waitForTimeout(50);
 
   const button = await page.locator("button");
@@ -76,7 +76,7 @@ test("Embed Copy/Paste Internal", async ({ browserName, mount, page }) => {
   await page.keyboard.press("ArrowDown");
   await page.keyboard.type("Paragraph 2");
 
-  await copyPasteAll(page, "mac");
+  await copyPasteAll(page);
   await page.waitForTimeout(50);
 
   await compareDocToSnapshot(page, "embed-internal");
@@ -98,7 +98,7 @@ test("Image Copy/Paste Internal", async ({ browserName, mount, page }) => {
   await page.keyboard.press("ArrowDown");
   await page.keyboard.type("Paragraph 2");
 
-  await copyPasteAll(page, "mac");
+  await copyPasteAll(page);
   await page.waitForTimeout(50);
 
   await compareDocToSnapshot(page, "image-internal");
@@ -118,7 +118,7 @@ test("Separator Copy/Paste Internal", async ({ browserName, mount, page }) => {
   await page.keyboard.press("ArrowDown");
   await page.keyboard.type("Paragraph 2");
 
-  await copyPasteAll(page, "mac");
+  await copyPasteAll(page);
   await page.waitForTimeout(50);
 
   await compareDocToSnapshot(page, "separator-internal");
@@ -144,7 +144,7 @@ test("Table of Contents Copy/Paste Internal", async ({
   await executeSlashCommand(page, "h2");
   await page.keyboard.type("Heading 2");
 
-  await copyPasteAll(page, "mac");
+  await copyPasteAll(page);
   await page.waitForTimeout(50);
 
   const expectedToC =

@@ -1,5 +1,5 @@
 import { Page } from "@playwright/test";
-import { EMOJI_PICKER_SELECTOR } from "./const";
+import { EMOJI_PICKER_SELECTOR } from "./const.js";
 
 export async function openEmojiPicker(page: Page) {
   await page.keyboard.press(":");

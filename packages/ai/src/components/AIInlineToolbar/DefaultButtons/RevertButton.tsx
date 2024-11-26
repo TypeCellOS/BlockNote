@@ -3,10 +3,10 @@ import { useBlockNoteEditor, useComponentsContext } from "@blocknote/react";
 import { TextSelection } from "prosemirror-state";
 import { RiArrowGoBackFill } from "react-icons/ri";
 
-import { useAIDictionary } from "../../../i18n/useAIDictionary";
+import { useAIDictionary } from "../../../i18n/useAIDictionary.js";
 
-import { AIInlineToolbarProsemirrorPlugin } from "../../../extensions/AIInlineToolbar/AIInlineToolbarPlugin";
-import { AIInlineToolbarProps } from "../AIInlineToolbarProps";
+import { AIInlineToolbarProsemirrorPlugin } from "../../../extensions/AIInlineToolbar/AIInlineToolbarPlugin.js";
+import { AIInlineToolbarProps } from "../AIInlineToolbarProps.js";
 
 export const RevertButton = (
   props: AIInlineToolbarProps & {

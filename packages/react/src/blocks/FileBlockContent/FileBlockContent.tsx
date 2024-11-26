@@ -3,12 +3,12 @@ import { fileBlockConfig, fileParse } from "@blocknote/core";
 import {
   createReactBlockSpec,
   ReactCustomBlockRenderProps,
-} from "../../schema/ReactBlockSpec";
+} from "../../schema/ReactBlockSpec.js";
 import {
   DefaultFilePreview,
   FileBlockWrapper,
   LinkWithCaption,
-} from "./fileBlockHelpers";
+} from "./fileBlockHelpers.js";
 
 export const FileToExternalHTML = (
   props: Omit<

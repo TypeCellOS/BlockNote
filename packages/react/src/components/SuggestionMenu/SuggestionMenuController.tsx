@@ -8,13 +8,13 @@ import {
 import { flip, offset, shift, size } from "@floating-ui/react";
 import { FC, useCallback, useMemo } from "react";
 
-import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor";
-import { useUIElementPositioning } from "../../hooks/useUIElementPositioning";
-import { useUIPluginState } from "../../hooks/useUIPluginState";
-import { SuggestionMenu } from "./SuggestionMenu";
-import { SuggestionMenuWrapper } from "./SuggestionMenuWrapper";
-import { getDefaultReactSlashMenuItems } from "./getDefaultReactSlashMenuItems";
-import { DefaultReactSuggestionItem, SuggestionMenuProps } from "./types";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { useUIElementPositioning } from "../../hooks/useUIElementPositioning.js";
+import { useUIPluginState } from "../../hooks/useUIPluginState.js";
+import { SuggestionMenu } from "./SuggestionMenu.js";
+import { SuggestionMenuWrapper } from "./SuggestionMenuWrapper.js";
+import { getDefaultReactSlashMenuItems } from "./getDefaultReactSlashMenuItems.js";
+import { DefaultReactSuggestionItem, SuggestionMenuProps } from "./types.js";
 
 type ArrayElement<A> = A extends readonly (infer T)[] ? T : never;
 

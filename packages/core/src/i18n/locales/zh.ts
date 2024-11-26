@@ -1,4 +1,4 @@
-import type { Dictionary } from "../dictionary";
+import type { Dictionary } from "../dictionary.js";
 
 export const zh: Dictionary = {
   slash_menu: {
@@ -67,6 +67,12 @@ export const zh: Dictionary = {
       title: "段落",
       subtext: "用于文档正文",
       aliases: ["p", "paragraph", "text", "正文"],
+      group: "基础",
+    },
+    code_block: {
+      title: "代码块",
+      subtext: "用于显示带有语法高亮的代码块",
+      aliases: ["code", "pre", "代码", "预格式"],
       group: "基础",
     },
     table: {

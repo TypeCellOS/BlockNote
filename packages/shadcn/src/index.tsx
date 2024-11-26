@@ -11,16 +11,8 @@ import {
 } from "@blocknote/react";
 import { ComponentProps, useMemo } from "react";
 
-import {
-  ShadCNComponents,
-  ShadCNComponentsContext,
-  ShadCNDefaultComponents,
-} from "./ShadCNComponentsContext";
-import { Form } from "./form/Form";
-import { GridSuggestionMenu } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenu";
-import { GridSuggestionMenuEmptyItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuEmptyItem";
-import { GridSuggestionMenuItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuItem";
-import { GridSuggestionMenuLoader } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuLoader";
+import { Form } from "./form/Form.js";
+import { TextInput } from "./form/TextInput.js";
 import {
   Menu,
   MenuDivider,
@@ -28,25 +20,34 @@ import {
   MenuItem,
   MenuLabel,
   MenuTrigger,
-} from "./menu/Menu";
-import { Panel } from "./panel/Panel";
-import { PanelButton } from "./panel/PanelButton";
-import { PanelFileInput } from "./panel/PanelFileInput";
-import { PanelTab } from "./panel/PanelTab";
-import { PanelTextInput } from "./panel/PanelTextInput";
-import { Popover, PopoverContent, PopoverTrigger } from "./popover/popover";
-import { SideMenu } from "./sideMenu/SideMenu";
-import { SideMenuButton } from "./sideMenu/SideMenuButton";
-import { SuggestionMenu } from "./suggestionMenu/SuggestionMenu";
-import { SuggestionMenuEmptyItem } from "./suggestionMenu/SuggestionMenuEmptyItem";
-import { SuggestionMenuItem } from "./suggestionMenu/SuggestionMenuItem";
-import { SuggestionMenuLabel } from "./suggestionMenu/SuggestionMenuLabel";
-import { SuggestionMenuLoader } from "./suggestionMenu/SuggestionMenuLoader";
-import { TableHandle } from "./tableHandle/TableHandle";
-import { TextInput } from "./form/TextInput";
-import { Toolbar, ToolbarButton, ToolbarSelect } from "./toolbar/Toolbar";
+} from "./menu/Menu.js";
+import { Panel } from "./panel/Panel.js";
+import { PanelTab } from "./panel/PanelTab.js";
+import { PanelTextInput } from "./panel/PanelTextInput.js";
+import { Popover, PopoverContent, PopoverTrigger } from "./popover/popover.js";
+import {
+  ShadCNComponents,
+  ShadCNComponentsContext,
+  ShadCNDefaultComponents,
+} from "./ShadCNComponentsContext.js";
+import { SideMenu } from "./sideMenu/SideMenu.js";
+import { SideMenuButton } from "./sideMenu/SideMenuButton.js";
+import { GridSuggestionMenu } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenu.js";
+import { GridSuggestionMenuEmptyItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuEmptyItem.js";
+import { SuggestionMenu } from "./suggestionMenu/SuggestionMenu.js";
+import { SuggestionMenuEmptyItem } from "./suggestionMenu/SuggestionMenuEmptyItem.js";
+import { SuggestionMenuItem } from "./suggestionMenu/SuggestionMenuItem.js";
+import { SuggestionMenuLabel } from "./suggestionMenu/SuggestionMenuLabel.js";
+import { SuggestionMenuLoader } from "./suggestionMenu/SuggestionMenuLoader.js";
+import { TableHandle } from "./tableHandle/TableHandle.js";
+import { ExtendButton } from "./tableHandle/ExtendButton.js";
+import { Toolbar, ToolbarButton, ToolbarSelect } from "./toolbar/Toolbar.js";
 
+import { PanelButton } from "./panel/PanelButton.js";
+import { PanelFileInput } from "./panel/PanelFileInput.js";
 import "./style.css";
+import { GridSuggestionMenuItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuItem.js";
+import { GridSuggestionMenuLoader } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuLoader.js";
 
 export const components: Components = {
   Toolbar: {
@@ -80,6 +81,7 @@ export const components: Components = {
   },
   TableHandle: {
     Root: TableHandle,
+    ExtendButton: ExtendButton,
   },
   Generic: {
     Form: {

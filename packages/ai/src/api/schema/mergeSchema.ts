@@ -1,4 +1,4 @@
-import type { SimpleJSONObjectSchema } from "../util/JSONSchema";
+import type { SimpleJSONObjectSchema } from "../util/JSONSchema.js";
 
 /**
  * Merges schemas that only differ by the "type" field.

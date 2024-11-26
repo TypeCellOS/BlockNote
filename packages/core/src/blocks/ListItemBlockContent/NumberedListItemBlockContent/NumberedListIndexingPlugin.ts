@@ -1,5 +1,5 @@
 import { Plugin, PluginKey } from "prosemirror-state";
-import { getBlockInfoFromPos } from "../../../api/getBlockInfoFromPos";
+import { getBlockInfo } from "../../../api/getBlockInfoFromPos.js";
 
 // ProseMirror Plugin which automatically assigns indices to ordered list items per nesting level.
 const PLUGIN_KEY = new PluginKey(`numbered-list-indexing`);
@@ -21,46 +21,51 @@ export const NumberedListIndexingPlugin = () => {
           node.firstChild!.type.name === "numberedListItem"
         ) {
           let newIndex = "1";
-          const isFirstBlockInDoc = pos === 1;
 
-          const blockInfo = getBlockInfoFromPos(tr.doc, pos + 1)!;
-          if (blockInfo === undefined) {
-            return;
+          const blockInfo = getBlockInfo({
+            posBeforeNode: pos,
+            node,
+          });
+
+          if (!blockInfo.isBlockContainer) {
+            throw new Error("impossible");
           }
 
           // Checks if this block is the start of a new ordered list, i.e. if it's the first block in the document, the
           // first block in its nesting level, or the previous block is not an ordered list item.
-          if (!isFirstBlockInDoc) {
-            const prevBlockInfo = getBlockInfoFromPos(tr.doc, pos - 2)!;
-            if (prevBlockInfo === undefined) {
-              return;
-            }
 
-            const isFirstBlockInNestingLevel =
-              blockInfo.depth !== prevBlockInfo.depth;
+          const prevBlock = tr.doc.resolve(
+            blockInfo.bnBlock.beforePos
+          ).nodeBefore;
 
-            if (!isFirstBlockInNestingLevel) {
-              const prevBlockContentNode = prevBlockInfo.contentNode;
-              const prevBlockContentType = prevBlockInfo.contentType;
+          if (prevBlock) {
+            const prevBlockInfo = getBlockInfo({
+              posBeforeNode: blockInfo.bnBlock.beforePos - prevBlock.nodeSize,
+              node: prevBlock,
+            });
 
-              const isPrevBlockOrderedListItem =
-                prevBlockContentType.name === "numberedListItem";
+            const isPrevBlockOrderedListItem =
+              prevBlockInfo.blockNoteType === "numberedListItem";
 
-              if (isPrevBlockOrderedListItem) {
-                const prevBlockIndex = prevBlockContentNode.attrs["index"];
-
-                newIndex = (parseInt(prevBlockIndex) + 1).toString();
+            if (isPrevBlockOrderedListItem) {
+              if (!prevBlockInfo.isBlockContainer) {
+                throw new Error("impossible");
               }
+              const prevBlockIndex =
+                prevBlockInfo.blockContent.node.attrs["index"];
+
+              newIndex = (parseInt(prevBlockIndex) + 1).toString();
             }
           }
 
-          const contentNode = blockInfo.contentNode;
+          const contentNode = blockInfo.blockContent.node;
           const index = contentNode.attrs["index"];
 
           if (index !== newIndex) {
             modified = true;
 
-            tr.setNodeMarkup(pos + 1, undefined, {
+            tr.setNodeMarkup(blockInfo.blockContent.beforePos, undefined, {
+              ...contentNode.attrs,
               index: newIndex,
             });
           }

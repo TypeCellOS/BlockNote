@@ -1,0 +1,129 @@
+---
+title: Export to docx (Office Open XML)
+description: Export BlockNote documents to a docx word (Office Open XML) file.
+imageTitle: Export to docx
+path: /docs/export-to-docx
+---
+
+import { Example } from "@/components/example";
+import { Callout } from "nextra/components";
+
+# Exporting blocks to docx
+
+It's possible to export BlockNote documents to docx, completely client-side.
+
+<Callout type={"info"}>
+  This feature is provided by the `@blocknote/xl-docx-exporter`. `xl-` packages
+  are fully open source, but released under a copyleft license. A commercial
+  license for usage in closed source, proprietary products comes as part of the
+  [Business subscription](/pricing).
+</Callout>
+
+First, install the `@blocknote/xl-docx-exporter` and `docx` packages:
+
+```bash
+npm install @blocknote/xl-docx-exporter docx
+```
+
+Then, create an instance of the `DOCXExporter` class. This exposes the following methods:
+
+```typescript
+import {
+  DOCXExporter,
+  docxDefaultSchemaMappings,
+} from "@blocknote/xl-docx-exporter";
+import { Packer } from "docx";
+
+// Create the exporter
+const exporter = new DOCXExporter(editor.schema, docxDefaultSchemaMappings);
+
+// Convert the blocks to a docxjs document
+const docxDocument = await exporter.toDocxJsDocument(editor.document);
+
+// Use docx to write to file:
+await Packer.toBuffer(docxDocument);
+```
+
+See the [full example](/examples/interoperability/converting-blocks-to-docx) below:
+
+<Example name="interoperability/converting-blocks-to-docx" />
+
+### Customizing the Docx output file
+
+`toDocxJsDocument` takes an optional `options` parameter, which allows you to customize document metadata (like the author) and section options (like headers and footers).
+
+Example usage:
+
+```typescript
+import { Paragraph, TextRun } from "docx";
+
+const doc = await exporter.toDocxJsDocument(testDocument, {
+  documentOptions: {
+    creator: "John Doe",
+  },
+  sectionOptions: {
+    headers: {
+      default: {
+        options: {
+          children: [new Paragraph({ children: [new TextRun("Header")] })],
+        },
+      },
+    },
+    footers: {
+      default: {
+        options: {
+          children: [new Paragraph({ children: [new TextRun("Footer")] })],
+        },
+      },
+    },
+  },
+});
+```
+
+### Custom mappings / custom schemas
+
+The `DOCXExporter` constructor takes a `schema`, `mappings` and `options` parameter.
+A _mapping_ defines how to convert a BlockNote schema element (a Block, Inline Content, or Style) to a [docxjs](https://docx.js.org/) element.
+If you're using a [custom schema](/docs/custom-schemas) in your editor, or if you want to overwrite how default BlockNote elements are converted to docx, you can pass your own `mappings`:
+
+For example, use the following code in case your schema has an `extraBlock` type:
+
+```typescript
+import {
+  DOCXExporter,
+  docxDefaultSchemaMappings,
+} from "@blocknote/xl-docx-exporter";
+import { Paragraph, TextRun } from "docx";
+
+new DOCXExporter(schema, {
+  blockMapping: {
+    ...docxDefaultSchemaMappings.blockMapping,
+    myCustomBlock: (block, exporter) => {
+      return new Paragraph({
+        children: [
+          new TextRun({
+            text: "My custom block",
+          }),
+        ],
+      });
+    },
+  },
+  inlineContentMapping: docxDefaultSchemaMappings.inlineContentMapping,
+  styleMapping: docxDefaultSchemaMappings.styleMapping,
+});
+```
+
+### Exporter options
+
+The `DOCXExporter` constructor takes an optional `options` parameter.
+While conversion happens on the client-side, the default setup uses a server hosted proxy to resolve files:
+
+```typescript
+const defaultOptions = {
+  // a function to resolve external resources in order to avoid CORS issues
+  // by default, this calls a BlockNote hosted server-side proxy to resolve files
+  resolveFileUrl: corsProxyResolveFileUrl,
+  // the colors to use in the Docx for things like highlighting, background colors and font colors.
+  colors: COLORS_DEFAULT, // defaults from @blocknote/core
+};
+```

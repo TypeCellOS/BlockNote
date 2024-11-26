@@ -6,6 +6,7 @@ import {
   FileAndCaptionWrapper,
   ReactCustomBlockRenderProps,
 } from "@blocknote/react";
+
 import { RiFilePdfFill } from "react-icons/ri";
 
 import "./styles.css";

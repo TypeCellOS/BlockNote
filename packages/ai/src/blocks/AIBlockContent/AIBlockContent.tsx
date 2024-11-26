@@ -1,12 +1,12 @@
 import { BlockConfig, PropSchema, defaultProps } from "@blocknote/core";
 import {
-  createReactBlockSpec,
   ReactCustomBlockRenderProps,
+  createReactBlockSpec,
 } from "@blocknote/react";
 import { KeyboardEvent, useCallback, useState } from "react";
 import { RiSparkling2Fill } from "react-icons/ri";
 
-import { mockAIReplaceBlockContent } from "./mockAIFunctions";
+import { mockAIReplaceBlockContent } from "./mockAIFunctions.js";
 
 export const aiPropSchema = {
   ...defaultProps,

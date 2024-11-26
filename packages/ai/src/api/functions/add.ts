@@ -1,5 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { validateBlockFunction } from "./validate";
+import { validateBlockFunction } from "./validate.js";
 
 const schema = {
   name: "add",

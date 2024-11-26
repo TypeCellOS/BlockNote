@@ -3,5 +3,7 @@
   "manipulating-inline-content": "",
   "cursor-selections": "",
   "converting-blocks": "",
-  "server-processing": ""
+  "server-processing": "",
+  "export-to-pdf": "",
+  "export-to-docx": ""
 }

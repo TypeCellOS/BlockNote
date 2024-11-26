@@ -1,4 +1,4 @@
-import { Dictionary } from "../dictionary";
+import { Dictionary } from "../dictionary.js";
 
 export const ko: Dictionary = {
   slash_menu: {
@@ -50,6 +50,12 @@ export const ko: Dictionary = {
       title: "본문",
       subtext: "일반 텍스트",
       aliases: ["p", "paragraph", "본문"],
+      group: "기본 블록",
+    },
+    code_block: {
+      title: "코드 블록",
+      subtext: "구문 강조가 있는 코드 블록",
+      aliases: ["code", "pre"],
       group: "기본 블록",
     },
     table: {

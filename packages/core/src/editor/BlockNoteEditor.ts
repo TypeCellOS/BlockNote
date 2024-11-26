@@ -2,46 +2,50 @@ import {
   AnyExtension,
   EditorOptions,
   Extension,
+  getSchema,
   Mark,
   Node as TipTapNode,
-  getSchema,
 } from "@tiptap/core";
 import { Node, Schema } from "prosemirror-model";
 // import "./blocknote.css";
 import * as Y from "yjs";
+import { insertBlocks } from "../api/blockManipulation/commands/insertBlocks/insertBlocks.js";
 import {
-  insertBlocks,
-  insertContentAt,
-  removeBlocks,
-  replaceBlocks,
-  updateBlock,
-} from "../api/blockManipulation/blockManipulation";
-import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter";
-import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter";
-import { getBlockInfoFromPos } from "../api/getBlockInfoFromPos";
+  moveBlockDown,
+  moveBlockUp,
+} from "../api/blockManipulation/commands/moveBlock/moveBlock.js";
 import {
-  inlineContentToNodes,
-  nodeToBlock,
-  prosemirrorSliceToSlicedBlocks,
-  withSelectionMarkers,
-} from "../api/nodeConversions/nodeConversions";
-import { getNodeById } from "../api/nodeUtil";
-import { HTMLToBlocks } from "../api/parsers/html/parseHTML";
-import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown";
+  canNestBlock,
+  canUnnestBlock,
+  nestBlock,
+  unnestBlock,
+} from "../api/blockManipulation/commands/nestBlock/nestBlock.js";
+import { removeBlocks } from "../api/blockManipulation/commands/removeBlocks/removeBlocks.js";
+import { replaceBlocks } from "../api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
+import { updateBlock } from "../api/blockManipulation/commands/updateBlock/updateBlock.js";
+import { insertContentAt } from "../api/blockManipulation/insertContentAt.js";
+import {
+  getTextCursorPosition,
+  setTextCursorPosition,
+} from "../api/blockManipulation/selections/textCursorPosition/textCursorPosition.js";
+import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
+import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
+import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
+import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown.js";
 import {
   Block,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   PartialBlock,
-} from "../blocks/defaultBlocks";
-import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin";
-import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin";
-import { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkToolbarPlugin";
-import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin";
-import { SuggestionMenuProseMirrorPlugin } from "../extensions/SuggestionMenu/SuggestionPlugin";
-import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin";
-import { UniqueID } from "../extensions/UniqueID/UniqueID";
+} from "../blocks/defaultBlocks.js";
+import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin.js";
+import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin.js";
+import { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkToolbarPlugin.js";
+import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin.js";
+import { SuggestionMenuProseMirrorPlugin } from "../extensions/SuggestionMenu/SuggestionPlugin.js";
+import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin.js";
+import { UniqueID } from "../extensions/UniqueID/UniqueID.js";
 import {
   BlockIdentifier,
   BlockNoteDOMAttributes,
@@ -50,33 +54,45 @@ import {
   InlineContentSchema,
   InlineContentSpecs,
   PartialInlineContent,
+  Styles,
   StyleSchema,
   StyleSpecs,
-  Styles,
-} from "../schema";
-import { mergeCSSClasses } from "../util/browser";
-import { NoInfer, UnreachableCaseError } from "../util/typescript";
+} from "../schema/index.js";
+import { mergeCSSClasses } from "../util/browser.js";
+import { NoInfer, UnreachableCaseError } from "../util/typescript.js";
 
-import { getBlockNoteExtensions } from "./BlockNoteExtensions";
-import { TextCursorPosition } from "./cursorPositionTypes";
+import { getBlockNoteExtensions } from "./BlockNoteExtensions.js";
+import { TextCursorPosition } from "./cursorPositionTypes.js";
 
-import { Selection } from "./selectionTypes";
-import { transformPasted } from "./transformPasted";
+import { Selection } from "./selectionTypes.js";
+import { transformPasted } from "./transformPasted.js";
 
-import { checkDefaultBlockTypeInSchema } from "../blocks/defaultBlockTypeGuards";
-import { BlockNoteSchema } from "./BlockNoteSchema";
+import { checkDefaultBlockTypeInSchema } from "../blocks/defaultBlockTypeGuards.js";
+import { BlockNoteSchema } from "./BlockNoteSchema.js";
 import {
   BlockNoteTipTapEditor,
   BlockNoteTipTapEditorOptions,
-} from "./BlockNoteTipTapEditor";
+} from "./BlockNoteTipTapEditor.js";
 
-import { Dictionary } from "../i18n/dictionary";
-import { en } from "../i18n/locales";
+import { Dictionary } from "../i18n/dictionary.js";
+import { en } from "../i18n/locales/index.js";
 
 import { Plugin, Transaction } from "@tiptap/pm/state";
-import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer";
+import { dropCursor } from "prosemirror-dropcursor";
+import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
+import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
+import {
+  nodeToBlock,
+  prosemirrorSliceToSlicedBlocks,
+  withSelectionMarkers,
+} from "../api/nodeConversions/nodeToBlock.js";
 import "../style.css";
-import { initializeESMDependencies } from "../util/esmDependencies";
+
+export type BlockNoteExtension =
+  | AnyExtension
+  | {
+      plugin: Plugin;
+    };
 
 export type BlockNoteEditorOptions<
   BSchema extends BlockSchema,
@@ -90,11 +106,15 @@ export type BlockNoteEditorOptions<
    */
   animations?: boolean;
 
+  /**
+   * Disable internal extensions (based on keys / extension name)
+   */
   disableExtensions: string[];
+
   /**
    * A dictionary object containing translations for the editor.
    */
-  dictionary?: Dictionary;
+  dictionary?: Dictionary & Record<string, any>;
 
   /**
    * @deprecated, provide placeholders via dictionary instead
@@ -171,8 +191,15 @@ export type BlockNoteEditorOptions<
     renderCursor?: (user: any) => HTMLElement;
   };
 
-  // tiptap options, undocumented
+  /**
+   * additional tiptap options, undocumented
+   */
   _tiptapOptions: Partial<EditorOptions>;
+
+  /**
+   * (experimental) add extra prosemirror plugins or tiptap extensions to the editor
+   */
+  _extensions: Record<string, BlockNoteExtension>;
 
   trailingBlock?: boolean;
 
@@ -196,6 +223,8 @@ export type BlockNoteEditorOptions<
    * (note that the id is always set on the `data-id` attribute)
    */
   setIdAttribute?: boolean;
+
+  dropCursor?: (opts: any) => Plugin;
 };
 
 const blockNoteTipTapOptions = {
@@ -204,12 +233,6 @@ const blockNoteTipTapOptions = {
   enableCoreExtensions: false,
 };
 
-export type BlockNoteExtension =
-  | AnyExtension
-  | {
-      plugin: Plugin;
-    };
-
 export class BlockNoteEditor<
   BSchema extends BlockSchema = DefaultBlockSchema,
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
@@ -217,6 +240,9 @@ export class BlockNoteEditor<
 > {
   private readonly _pmSchema: Schema;
 
+  /**
+   * extensions that are added to the editor, can be tiptap extensions or prosemirror plugins
+   */
   public readonly extensions: Record<string, BlockNoteExtension> = {};
 
   /**
@@ -250,7 +276,7 @@ export class BlockNoteEditor<
   /**
    * The dictionary contains translations for the editor.
    */
-  public readonly dictionary: Dictionary;
+  public readonly dictionary: Dictionary & Record<string, any>;
 
   /**
    * The schema of the editor. The schema defines which Blocks, InlineContent, and Styles are available in the editor.
@@ -261,45 +287,29 @@ export class BlockNoteEditor<
   public readonly inlineContentImplementations: InlineContentSpecs;
   public readonly styleImplementations: StyleSpecs;
 
-  public get formattingToolbar() {
-    return this.extensions[
-      "formattingToolbar"
-    ] as FormattingToolbarProsemirrorPlugin;
-  }
+  public readonly formattingToolbar: FormattingToolbarProsemirrorPlugin;
 
-  public get linkToolbar() {
-    return this.extensions["linkToolbar"] as LinkToolbarProsemirrorPlugin<
-      BSchema,
-      ISchema,
-      SSchema
-    >;
-  }
+  public readonly linkToolbar: LinkToolbarProsemirrorPlugin<
+    BSchema,
+    ISchema,
+    SSchema
+  >;
 
-  public get sideMenu() {
-    return this.extensions["sideMenu"] as SideMenuProsemirrorPlugin<
-      BSchema,
-      ISchema,
-      SSchema
-    >;
-  }
+  public readonly sideMenu: SideMenuProsemirrorPlugin<
+    BSchema,
+    ISchema,
+    SSchema
+  >;
 
-  public get suggestionMenus() {
-    return this.extensions[
-      "suggestionMenus"
-    ] as SuggestionMenuProseMirrorPlugin<BSchema, ISchema, SSchema>;
-  }
+  public readonly suggestionMenus: SuggestionMenuProseMirrorPlugin<
+    BSchema,
+    ISchema,
+    SSchema
+  >;
 
-  public get filePanel() {
-    return this.extensions["filePanel"] as
-      | FilePanelProsemirrorPlugin<ISchema, SSchema>
-      | undefined;
-  }
+  public readonly filePanel: FilePanelProsemirrorPlugin<ISchema, SSchema>;
 
-  public get tableHandles() {
-    return this.extensions["tableHandles"] as
-      | TableHandlesProsemirrorPlugin<ISchema, SSchema>
-      | undefined;
-  }
+  public readonly tableHandles: TableHandlesProsemirrorPlugin<ISchema, SSchema>;
 
   /**
    * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
@@ -389,9 +399,10 @@ export class BlockNoteEditor<
       trailingBlock: newOptions.trailingBlock,
       disableExtensions: newOptions.disableExtensions,
       setIdAttribute: newOptions.setIdAttribute,
-      tableHandles: checkDefaultBlockTypeInSchema("table", this),
-      placeholders: newOptions.placeholders,
       animations: newOptions.animations ?? true,
+      tableHandles: checkDefaultBlockTypeInSchema("table", this),
+      dropCursor: this.options.dropCursor ?? dropCursor,
+      placeholders: newOptions.placeholders,
     });
 
     // add extensions from _tiptapOptions
@@ -400,9 +411,16 @@ export class BlockNoteEditor<
     });
 
     // add extensions from options
-    Object.entries(newOptions.extensions || {}).forEach(([key, ext]) => {
+    Object.entries(newOptions._extensions || {}).forEach(([key, ext]) => {
       this.extensions[key] = ext;
     });
+
+    this.formattingToolbar = this.extensions["formattingToolbar"] as any;
+    this.linkToolbar = this.extensions["linkToolbar"] as any;
+    this.sideMenu = this.extensions["sideMenu"] as any;
+    this.suggestionMenus = this.extensions["suggestionMenus"] as any;
+    this.filePanel = this.extensions["filePanel"] as any;
+    this.tableHandles = this.extensions["tableHandles"] as any;
 
     if (newOptions.uploadFile) {
       const uploadFile = newOptions.uploadFile;
@@ -453,28 +471,29 @@ export class BlockNoteEditor<
       );
     }
 
+    const tiptapExtensions = [
+      ...Object.entries(this.extensions).map(([key, ext]) => {
+        if (
+          ext instanceof Extension ||
+          ext instanceof TipTapNode ||
+          ext instanceof Mark
+        ) {
+          // tiptap extension
+          return ext;
+        }
+
+        // "blocknote" extensions (prosemirror plugins)
+        return Extension.create({
+          name: key,
+          addProseMirrorPlugins: () => [ext.plugin],
+        });
+      }),
+    ];
     const tiptapOptions: BlockNoteTipTapEditorOptions = {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
       content: initialContent,
-      extensions: [
-        ...Object.entries(this.extensions).map(([key, ext]) => {
-          if (
-            ext instanceof Extension ||
-            ext instanceof TipTapNode ||
-            ext instanceof Mark
-          ) {
-            // tiptap extension
-            return ext;
-          }
-
-          // "blocknote" extensions (prosemirror plugins)
-          return Extension.create({
-            name: key,
-            addProseMirrorPlugins: () => [ext.plugin],
-          });
-        }),
-      ],
+      extensions: tiptapExtensions,
       editorProps: {
         ...newOptions._tiptapOptions?.editorProps,
         attributes: {
@@ -495,7 +514,7 @@ export class BlockNoteEditor<
     };
 
     if (!this.headless) {
-      this._tiptapEditor = new BlockNoteTipTapEditor(
+      this._tiptapEditor = BlockNoteTipTapEditor.create(
         tiptapOptions,
         this.schema.styleSchema
       ) as BlockNoteTipTapEditor & {
@@ -691,61 +710,7 @@ export class BlockNoteEditor<
     ISchema,
     SSchema
   > {
-    const { node, depth, startPos, endPos } = getBlockInfoFromPos(
-      this._tiptapEditor.state.doc,
-      this._tiptapEditor.state.selection.from
-    )!;
-
-    // Index of the current blockContainer node relative to its parent blockGroup.
-    const nodeIndex = this._tiptapEditor.state.doc
-      .resolve(endPos)
-      .index(depth - 1);
-    // Number of the parent blockGroup's child blockContainer nodes.
-    const numNodes = this._tiptapEditor.state.doc
-      .resolve(endPos + 1)
-      .node().childCount;
-
-    // Gets previous blockContainer node at the same nesting level, if the current node isn't the first child.
-    let prevNode: Node | undefined = undefined;
-    if (nodeIndex > 0) {
-      prevNode = this._tiptapEditor.state.doc.resolve(startPos - 2).node();
-    }
-
-    // Gets next blockContainer node at the same nesting level, if the current node isn't the last child.
-    let nextNode: Node | undefined = undefined;
-    if (nodeIndex < numNodes - 1) {
-      nextNode = this._tiptapEditor.state.doc.resolve(endPos + 2).node();
-    }
-
-    return {
-      block: nodeToBlock(
-        node,
-        this.schema.blockSchema,
-        this.schema.inlineContentSchema,
-        this.schema.styleSchema,
-        this.blockCache
-      ),
-      prevBlock:
-        prevNode === undefined
-          ? undefined
-          : nodeToBlock(
-              prevNode,
-              this.schema.blockSchema,
-              this.schema.inlineContentSchema,
-              this.schema.styleSchema,
-              this.blockCache
-            ),
-      nextBlock:
-        nextNode === undefined
-          ? undefined
-          : nodeToBlock(
-              nextNode,
-              this.schema.blockSchema,
-              this.schema.inlineContentSchema,
-              this.schema.styleSchema,
-              this.blockCache
-            ),
-    };
+    return getTextCursorPosition(this);
   }
 
   /**
@@ -758,50 +723,13 @@ export class BlockNoteEditor<
     targetBlock: BlockIdentifier,
     placement: "start" | "end" = "start"
   ) {
-    const id = typeof targetBlock === "string" ? targetBlock : targetBlock.id;
-
-    const { posBeforeNode } = getNodeById(id, this._tiptapEditor.state.doc);
-    const { startPos, contentNode } = getBlockInfoFromPos(
-      this._tiptapEditor.state.doc,
-      posBeforeNode + 2
-    )!;
-
-    const contentType: "none" | "inline" | "table" =
-      this.schema.blockSchema[contentNode.type.name]!.content;
-
-    if (contentType === "none") {
-      this._tiptapEditor.commands.setNodeSelection(startPos);
-      return;
-    }
-
-    if (contentType === "inline") {
-      if (placement === "start") {
-        this._tiptapEditor.commands.setTextSelection(startPos + 1);
-      } else {
-        this._tiptapEditor.commands.setTextSelection(
-          startPos + contentNode.nodeSize - 1
-        );
-      }
-    } else if (contentType === "table") {
-      if (placement === "start") {
-        // Need to offset the position as we have to get through the `tableRow`
-        // and `tableCell` nodes to get to the `tableParagraph` node we want to
-        // set the selection in.
-        this._tiptapEditor.commands.setTextSelection(startPos + 4);
-      } else {
-        this._tiptapEditor.commands.setTextSelection(
-          startPos + contentNode.nodeSize - 4
-        );
-      }
-    } else {
-      throw new UnreachableCaseError(contentType);
-    }
+    setTextCursorPosition(this, targetBlock, placement);
   }
 
   // TODO: what about node selections?
   public getSelectionWithMarkers() {
-    let start = this._tiptapEditor.state.selection.$from;
-    let end = this._tiptapEditor.state.selection.$to;
+    const start = this._tiptapEditor.state.selection.$from;
+    const end = this._tiptapEditor.state.selection.$to;
 
     // if the end is at the end of a node (|</span></p>) move it forward so we include all closing tags (</span></p>|)
     // while (end.parentOffset >= end.parent.nodeSize - 2 && end.depth > 0) {
@@ -960,14 +888,14 @@ export class BlockNoteEditor<
    * @param blocksToInsert An array of partial blocks that should be inserted.
    * @param referenceBlock An identifier for an existing block, at which the new blocks should be inserted.
    * @param placement Whether the blocks should be inserted just before, just after, or nested inside the
-   * `referenceBlock`. Inserts the blocks at the start of the existing block's children if "nested" is used.
+   * `referenceBlock`.
    */
   public insertBlocks(
     blocksToInsert: PartialBlock<BSchema, ISchema, SSchema>[],
     referenceBlock: BlockIdentifier,
-    placement: "before" | "after" | "nested" = "before"
+    placement: "before" | "after" = "before"
   ) {
-    return insertBlocks(blocksToInsert, referenceBlock, placement, this);
+    return insertBlocks(this, blocksToInsert, referenceBlock, placement);
   }
 
   /**
@@ -981,7 +909,7 @@ export class BlockNoteEditor<
     blockToUpdate: BlockIdentifier,
     update: PartialBlock<BSchema, ISchema, SSchema>
   ) {
-    return updateBlock(blockToUpdate, update, this);
+    return updateBlock(this, blockToUpdate, update);
   }
 
   /**
@@ -989,7 +917,7 @@ export class BlockNoteEditor<
    * @param blocksToRemove An array of identifiers for existing blocks that should be removed.
    */
   public removeBlocks(blocksToRemove: BlockIdentifier[]) {
-    return removeBlocks(blocksToRemove, this);
+    return removeBlocks(this, blocksToRemove);
   }
 
   /**
@@ -1003,7 +931,7 @@ export class BlockNoteEditor<
     blocksToRemove: BlockIdentifier[],
     blocksToInsert: PartialBlock<BSchema, ISchema, SSchema>[]
   ) {
-    return replaceBlocks(blocksToRemove, blocksToInsert, this);
+    return replaceBlocks(this, blocksToRemove, blocksToInsert);
   }
 
   /**
@@ -1151,38 +1079,46 @@ export class BlockNoteEditor<
    * Checks if the block containing the text cursor can be nested.
    */
   public canNestBlock() {
-    const { startPos, depth } = getBlockInfoFromPos(
-      this._tiptapEditor.state.doc,
-      this._tiptapEditor.state.selection.from
-    )!;
-
-    return this._tiptapEditor.state.doc.resolve(startPos).index(depth - 1) > 0;
+    return canNestBlock(this);
   }
 
   /**
    * Nests the block containing the text cursor into the block above it.
    */
   public nestBlock() {
-    this._tiptapEditor.commands.sinkListItem("blockContainer");
+    nestBlock(this);
   }
 
   /**
    * Checks if the block containing the text cursor is nested.
    */
   public canUnnestBlock() {
-    const { depth } = getBlockInfoFromPos(
-      this._tiptapEditor.state.doc,
-      this._tiptapEditor.state.selection.from
-    )!;
-
-    return depth > 2;
+    return canUnnestBlock(this);
   }
 
   /**
    * Lifts the block containing the text cursor out of its parent.
    */
   public unnestBlock() {
-    this._tiptapEditor.commands.liftListItem("blockContainer");
+    unnestBlock(this);
+  }
+
+  /**
+   * Moves the block containing the text cursor up. If the previous block has
+   * children, moves it to the end of its children. If there is no previous
+   * block, but the current block is nested, moves it out of & before its parent.
+   */
+  public moveBlockUp() {
+    moveBlockUp(this);
+  }
+
+  /**
+   * Moves the block containing the text cursor down. If the next block has
+   * children, moves it to the start of its children. If there is no next block,
+   * but the current block is nested, moves it out of & after its parent.
+   */
+  public moveBlockDown() {
+    moveBlockDown(this);
   }
 
   /**
@@ -1195,7 +1131,6 @@ export class BlockNoteEditor<
   public async blocksToHTMLLossy(
     blocks: PartialBlock<BSchema, ISchema, SSchema>[] = this.document
   ): Promise<string> {
-    await initializeESMDependencies();
     const exporter = createExternalHTMLExporter(this.pmSchema, this);
     return exporter.exportBlocks(blocks, {});
   }

@@ -1,8 +1,8 @@
 import {
   BlockInfo,
-  UiElementPosition,
-  getBlockInfoFromPos,
   EventEmitter,
+  UiElementPosition,
+  getBlockInfoFromSelection,
 } from "@blocknote/core";
 import { Plugin, PluginKey, PluginView } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
@@ -79,15 +79,12 @@ export class AIBlockToolbarView implements PluginView {
   };
 
   update(view: EditorView) {
-    const blockInfo = getBlockInfoFromPos(
-      view.state.doc,
-      view.state.selection.from
-    );
+    const blockInfo = getBlockInfoFromSelection(view.state);
 
     // Return if the selection remains in a non-AI block.
     if (
-      blockInfo.contentType.name !== "ai" &&
-      this.oldBlockInfo?.contentType.name !== "ai"
+      blockInfo.blockNoteType !== "ai" &&
+      this.oldBlockInfo?.blockNoteType !== "ai"
     ) {
       this.oldBlockInfo = blockInfo;
       return;
@@ -97,15 +94,15 @@ export class AIBlockToolbarView implements PluginView {
 
     // Selection is in an AI block that wasn't previously selected.
     if (
-      blockInfo.contentType.name === "ai" &&
-      blockInfo.contentNode.attrs.prompt !== "" &&
+      blockInfo.blockNoteType === "ai" &&
+      blockInfo.bnBlock.node.attrs.prompt !== "" &&
       view.state.selection.$from.sameParent(view.state.selection.$to)
     ) {
-      this.domElement = view.domAtPos(blockInfo.startPos).node
+      this.domElement = view.domAtPos(blockInfo.bnBlock.beforePos).node
         .firstChild as HTMLElement;
 
       this.state = {
-        prompt: blockInfo.contentNode.attrs.prompt,
+        prompt: blockInfo.bnBlock.node.attrs.prompt,
         show: true,
         referencePos: this.domElement.getBoundingClientRect(),
       };

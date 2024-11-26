@@ -1,10 +1,11 @@
 import { Block } from "@blocknote/core";
 import { describe, expect, it } from "vitest";
 import * as Y from "yjs";
-import { ServerBlockNoteEditor } from "./ServerBlockNoteEditor";
+import { ServerBlockNoteEditor } from "./ServerBlockNoteEditor.js";
 
 describe("Test ServerBlockNoteEditor", () => {
   const editor = ServerBlockNoteEditor.create();
+
   const blocks: Block[] = [
     {
       id: "1",

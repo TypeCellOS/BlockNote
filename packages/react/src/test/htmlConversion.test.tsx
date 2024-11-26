@@ -9,20 +9,19 @@ import {
   addIdsToBlocks,
   createExternalHTMLExporter,
   createInternalHTMLSerializer,
-  initializeESMDependencies,
   partialBlocksToBlocksForTesting,
 } from "@blocknote/core";
 
 import { flushSync } from "react-dom";
 import { Root, createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { BlockNoteViewRaw } from "../editor/BlockNoteView";
+import { BlockNoteViewRaw } from "../editor/BlockNoteView.js";
 import {
   TestContext,
   customReactBlockSchemaTestCases,
-} from "./testCases/customReactBlocks";
-import { customReactInlineContentTestCases } from "./testCases/customReactInlineContent";
-import { customReactStylesTestCases } from "./testCases/customReactStyles";
+} from "./testCases/customReactBlocks.js";
+import { customReactInlineContentTestCases } from "./testCases/customReactInlineContent.js";
+import { customReactStylesTestCases } from "./testCases/customReactStyles.js";
 
 // TODO: code same from @blocknote/core, maybe create separate test util package
 async function convertToHTMLAndCompareSnapshots<
@@ -47,16 +46,12 @@ async function convertToHTMLAndCompareSnapshots<
   expect(internalHTML).toMatchFileSnapshot(internalHTMLSnapshotPath);
 
   // turn the internalHTML back into blocks, and make sure no data was lost
-  const fullBlocks = partialBlocksToBlocksForTesting(
-    editor.schema.blockSchema,
-    blocks
-  );
+  const fullBlocks = partialBlocksToBlocksForTesting(editor.schema, blocks);
   const parsed = await editor.tryParseHTMLToBlocks(internalHTML);
 
   expect(parsed).toStrictEqual(fullBlocks);
 
   // Create the "external" HTML, which is a cleaned up HTML representation, but lossy
-  await initializeESMDependencies();
   const exporter = createExternalHTMLExporter(editor.pmSchema, editor);
   const externalHTML = exporter.exportBlocks(blocks, {});
   const externalHTMLSnapshotPath =

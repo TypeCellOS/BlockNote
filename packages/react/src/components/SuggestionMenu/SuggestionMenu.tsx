@@ -1,9 +1,9 @@
 import { mergeCSSClasses } from "@blocknote/core";
 import { useMemo } from "react";
 
-import { useComponentsContext } from "../../editor/ComponentsContext";
-import { useDictionary } from "../../i18n/dictionary";
-import { DefaultReactSuggestionItem, SuggestionMenuProps } from "./types";
+import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { useDictionary } from "../../i18n/dictionary.js";
+import { DefaultReactSuggestionItem, SuggestionMenuProps } from "./types.js";
 
 export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
   props: SuggestionMenuProps<T>

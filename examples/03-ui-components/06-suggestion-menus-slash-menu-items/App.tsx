@@ -4,19 +4,19 @@ import {
   PartialBlock,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
 import {
   DefaultReactSuggestionItem,
   getDefaultReactSlashMenuItems,
   SuggestionMenuController,
   useCreateBlockNote,
 } from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
 import { HiOutlineGlobeAlt } from "react-icons/hi";
 
 // Custom Slash Menu item to insert a block after the current one.
 const insertHelloWorldItem = (editor: BlockNoteEditor) => ({
-  name: "hello_world",
+  key: "hello_world",
   title: "Insert Hello World",
   onItemClick: () => {
     // Block that the text cursor is currently in.

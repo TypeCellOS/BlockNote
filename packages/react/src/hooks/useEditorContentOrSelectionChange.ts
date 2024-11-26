@@ -1,6 +1,6 @@
 import type { BlockNoteEditor } from "@blocknote/core";
-import { useEditorChange } from "./useEditorChange";
-import { useEditorSelectionChange } from "./useEditorSelectionChange";
+import { useEditorChange } from "./useEditorChange.js";
+import { useEditorSelectionChange } from "./useEditorSelectionChange.js";
 
 export function useEditorContentOrSelectionChange(
   callback: () => void,

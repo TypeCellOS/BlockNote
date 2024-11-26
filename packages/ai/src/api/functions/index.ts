@@ -1,6 +1,6 @@
-import { addFunction } from "./add";
-import { deleteFunction } from "./delete";
-import { updateFunction } from "./update";
+import { addFunction } from "./add.js";
+import { deleteFunction } from "./delete.js";
+import { updateFunction } from "./update.js";
 
 export type AIFunction =
   | typeof addFunction

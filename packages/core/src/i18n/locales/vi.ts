@@ -1,4 +1,4 @@
-import type { Dictionary } from "../dictionary";
+import type { Dictionary } from "../dictionary.js";
 
 export const vi: Dictionary = {
   slash_menu: {
@@ -49,6 +49,12 @@ export const vi: Dictionary = {
       title: "Đoạn văn",
       subtext: "Sử dụng cho nội dung chính của tài liệu",
       aliases: ["p", "doanvan"],
+      group: "Khối cơ bản",
+    },
+    code_block: {
+      title: "Mã",
+      subtext: "Sử dụng để hiển thị mã với cú pháp",
+      aliases: ["code", "pre"],
       group: "Khối cơ bản",
     },
     table: {

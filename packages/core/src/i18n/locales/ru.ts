@@ -1,4 +1,4 @@
-import { Dictionary } from "../dictionary";
+import { Dictionary } from "../dictionary.js";
 
 export const ru: Dictionary = {
   slash_menu: {
@@ -67,6 +67,12 @@ export const ru: Dictionary = {
       title: "Параграф",
       subtext: "Основной текст",
       aliases: ["p", "paragraph", "параграф"],
+      group: "Базовые блоки",
+    },
+    code_block: {
+      title: "Блок кода",
+      subtext: "Блок кода с подсветкой синтаксиса",
+      aliases: ["code", "pre", "блок кода"],
       group: "Базовые блоки",
     },
     table: {

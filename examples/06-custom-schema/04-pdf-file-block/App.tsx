@@ -5,13 +5,13 @@ import {
   insertOrUpdateBlock,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
 import {
   SuggestionMenuController,
   getDefaultReactSlashMenuItems,
   useCreateBlockNote,
 } from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
 
 import { RiFilePdfFill } from "react-icons/ri";
 
@@ -30,7 +30,7 @@ const schema = BlockNoteSchema.create({
 
 // Slash menu item to insert a PDF block
 const insertPDF = (editor: typeof schema.BlockNoteEditor) => ({
-  name: "pdf",
+  key: "pdf",
   title: "PDF",
   onItemClick: () => {
     insertOrUpdateBlock(editor, {

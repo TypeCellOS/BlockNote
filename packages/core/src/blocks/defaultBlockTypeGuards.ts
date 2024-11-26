@@ -1,4 +1,4 @@
-import type { BlockNoteEditor } from "../editor/BlockNoteEditor";
+import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import {
   BlockConfig,
   BlockFromConfig,
@@ -6,15 +6,15 @@ import {
   FileBlockConfig,
   InlineContentSchema,
   StyleSchema,
-} from "../schema";
+} from "../schema/index.js";
 import {
   Block,
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   defaultBlockSchema,
   defaultInlineContentSchema,
-} from "./defaultBlocks";
-import { defaultProps } from "./defaultProps";
+} from "./defaultBlocks.js";
+import { defaultProps } from "./defaultProps.js";
 
 // TODO: check
 export function checkBlockTypeInSchema<

@@ -1,4 +1,4 @@
-import type { Dictionary } from "../dictionary";
+import type { Dictionary } from "../dictionary.js";
 
 export const ar: Dictionary = {
   slash_menu: {
@@ -50,6 +50,12 @@ export const ar: Dictionary = {
       title: "فقرة",
       subtext: "تستخدم لنص الوثيقة الأساسي",
       aliases: ["ف", "فقرة"],
+      group: "الكتل الأساسية",
+    },
+    code_block: {
+      title: "كود",
+      subtext: "يستخدم لعرض الكود مع تحديد الصيغة",
+      aliases: ["كود", "مسبق"],
       group: "الكتل الأساسية",
     },
     table: {

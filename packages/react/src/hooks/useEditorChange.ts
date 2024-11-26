@@ -1,6 +1,6 @@
 import type { BlockNoteEditor } from "@blocknote/core";
 import { useEffect } from "react";
-import { useBlockNoteContext } from "../editor/BlockNoteContext";
+import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
 
 export function useEditorChange(
   callback: () => void,

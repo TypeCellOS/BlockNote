@@ -1,15 +1,15 @@
-import { Block, PartialBlock } from "../../blocks/defaultBlocks";
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { Block, PartialBlock } from "../../blocks/defaultBlocks.js";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
-import { checkDefaultBlockTypeInSchema } from "../../blocks/defaultBlockTypeGuards";
+import { checkDefaultBlockTypeInSchema } from "../../blocks/defaultBlockTypeGuards.js";
 import {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
   isStyledTextInlineContent,
-} from "../../schema";
-import { formatKeyboardShortcut } from "../../util/browser";
-import { DefaultSuggestionItem } from "./DefaultSuggestionItem";
+} from "../../schema/index.js";
+import { formatKeyboardShortcut } from "../../util/browser.js";
+import { DefaultSuggestionItem } from "./DefaultSuggestionItem.js";
 
 // Sets the editor's text cursor position to the next content editable block,
 // so either a block with inline content or a table. The last block is always a
@@ -51,6 +51,8 @@ export function insertOrUpdateBlock<
     throw new Error("Slash Menu open in a block that doesn't contain content.");
   }
 
+  let newBlock: Block<BSchema, I, S>;
+
   if (
     Array.isArray(currentBlock.content) &&
     ((currentBlock.content.length === 1 &&
@@ -59,19 +61,19 @@ export function insertOrUpdateBlock<
       currentBlock.content[0].text === "/") ||
       currentBlock.content.length === 0)
   ) {
-    editor.updateBlock(currentBlock, block);
+    newBlock = editor.updateBlock(currentBlock, block);
+    // We make sure to reset the cursor position to the new block as calling
+    // `updateBlock` may move it out. This generally happens when the content
+    // changes, or the update makes the block multi-column.
+    editor.setTextCursorPosition(newBlock);
   } else {
-    editor.insertBlocks([block], currentBlock, "after");
-    editor.setTextCursorPosition(
-      editor.getTextCursorPosition().nextBlock!,
-      "end"
-    );
+    newBlock = editor.insertBlocks([block], currentBlock, "after")[0];
+    editor.setTextCursorPosition(editor.getTextCursorPosition().nextBlock!);
   }
 
-  const insertedBlock = editor.getTextCursorPosition().block;
   setSelectionToNextContentEditableBlock(editor);
 
-  return insertedBlock;
+  return newBlock;
 }
 
 export function getDefaultSlashMenuItems<
@@ -91,7 +93,7 @@ export function getDefaultSlashMenuItems<
           });
         },
         badge: formatKeyboardShortcut("Mod-Alt-1"),
-        name: "heading",
+        key: "heading",
         ...editor.dictionary.slash_menu.heading,
       },
       {
@@ -102,7 +104,7 @@ export function getDefaultSlashMenuItems<
           });
         },
         badge: formatKeyboardShortcut("Mod-Alt-2"),
-        name: "heading_2",
+        key: "heading_2",
         ...editor.dictionary.slash_menu.heading_2,
       },
       {
@@ -113,7 +115,7 @@ export function getDefaultSlashMenuItems<
           });
         },
         badge: formatKeyboardShortcut("Mod-Alt-3"),
-        name: "heading_3",
+        key: "heading_3",
         ...editor.dictionary.slash_menu.heading_3,
       }
     );
@@ -127,7 +129,7 @@ export function getDefaultSlashMenuItems<
         });
       },
       badge: formatKeyboardShortcut("Mod-Shift-7"),
-      name: "numbered_list",
+      key: "numbered_list",
       ...editor.dictionary.slash_menu.numbered_list,
     });
   }
@@ -140,7 +142,7 @@ export function getDefaultSlashMenuItems<
         });
       },
       badge: formatKeyboardShortcut("Mod-Shift-8"),
-      name: "bullet_list",
+      key: "bullet_list",
       ...editor.dictionary.slash_menu.bullet_list,
     });
   }
@@ -153,7 +155,7 @@ export function getDefaultSlashMenuItems<
         });
       },
       badge: formatKeyboardShortcut("Mod-Shift-9"),
-      name: "check_list",
+      key: "check_list",
       ...editor.dictionary.slash_menu.check_list,
     });
   }
@@ -166,8 +168,26 @@ export function getDefaultSlashMenuItems<
         });
       },
       badge: formatKeyboardShortcut("Mod-Alt-0"),
-      name: "paragraph",
+      key: "paragraph",
       ...editor.dictionary.slash_menu.paragraph,
+    });
+  }
+
+  if (checkDefaultBlockTypeInSchema("codeBlock", editor)) {
+    items.push({
+      onItemClick: () => {
+        const pos = editor._tiptapEditor.state.selection.from;
+
+        insertOrUpdateBlock(editor, {
+          type: "codeBlock",
+        });
+
+        // Move the cursor inside the code block
+        editor._tiptapEditor.commands.setTextSelection(pos);
+      },
+      badge: formatKeyboardShortcut("Mod-Alt-c"),
+      key: "code_block",
+      ...editor.dictionary.slash_menu.code_block,
     });
   }
 
@@ -190,7 +210,7 @@ export function getDefaultSlashMenuItems<
         });
       },
       badge: undefined,
-      name: "table",
+      key: "table",
       ...editor.dictionary.slash_menu.table,
     });
   }
@@ -209,7 +229,7 @@ export function getDefaultSlashMenuItems<
           })
         );
       },
-      name: "image",
+      key: "image",
       ...editor.dictionary.slash_menu.image,
     });
   }
@@ -228,7 +248,7 @@ export function getDefaultSlashMenuItems<
           })
         );
       },
-      name: "video",
+      key: "video",
       ...editor.dictionary.slash_menu.video,
     });
   }
@@ -247,7 +267,7 @@ export function getDefaultSlashMenuItems<
           })
         );
       },
-      name: "audio",
+      key: "audio",
       ...editor.dictionary.slash_menu.audio,
     });
   }
@@ -266,7 +286,7 @@ export function getDefaultSlashMenuItems<
           })
         );
       },
-      name: "image",
+      key: "file",
       ...editor.dictionary.slash_menu.file,
     });
   }
@@ -278,7 +298,7 @@ export function getDefaultSlashMenuItems<
         ignoreQueryLength: true,
       });
     },
-    name: "emoji",
+    key: "emoji",
     ...editor.dictionary.slash_menu.emoji,
   });
 

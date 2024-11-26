@@ -2,10 +2,14 @@ import { findParentNode } from "@tiptap/core";
 import { EditorState, Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-import { UiElementPosition } from "../../extensions-shared/UiElementPosition";
-import { BlockSchema, InlineContentSchema, StyleSchema } from "../../schema";
-import { EventEmitter } from "../../util/EventEmitter";
+import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../schema/index.js";
+import { EventEmitter } from "../../util/EventEmitter.js";
 
 const findBlock = findParentNode((node) => node.type.name === "blockContainer");
 
@@ -195,6 +199,11 @@ export class SuggestionMenuProseMirrorPlugin<
         apply(transaction, prev, _oldState, newState): SuggestionPluginState {
           // TODO: More clearly define which transactions should be ignored.
           if (transaction.getMeta("orderedListIndexing") !== undefined) {
+            return prev;
+          }
+
+          // Ignore transactions in code blocks.
+          if (transaction.selection.$from.parent.type.spec.code) {
             return prev;
           }
 

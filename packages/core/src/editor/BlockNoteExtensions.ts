@@ -1,34 +1,35 @@
 import { AnyExtension, Extension, extensions } from "@tiptap/core";
 
-import type { BlockNoteEditor, BlockNoteExtension } from "./BlockNoteEditor";
+import type { BlockNoteEditor, BlockNoteExtension } from "./BlockNoteEditor.js";
 
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
-import { Dropcursor } from "@tiptap/extension-dropcursor";
 import { Gapcursor } from "@tiptap/extension-gapcursor";
 import { HardBreak } from "@tiptap/extension-hard-break";
 import { History } from "@tiptap/extension-history";
 import { Link } from "@tiptap/extension-link";
 import { Text } from "@tiptap/extension-text";
+import { Plugin } from "prosemirror-state";
 import * as Y from "yjs";
-import { createCopyToClipboardExtension } from "../api/exporters/copyExtension";
-import { createDropFileExtension } from "../api/parsers/fileDropExtension";
-import { createPasteFromClipboardExtension } from "../api/parsers/pasteExtension";
-import { checkDefaultBlockTypeInSchema } from "../blocks/defaultBlockTypeGuards";
-import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension";
-import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin";
-import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin";
-import { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkToolbarPlugin";
-import { PlaceholderPlugin } from "../extensions/Placeholder/PlaceholderPlugin";
-import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin";
-import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin";
-import { SuggestionMenuProseMirrorPlugin } from "../extensions/SuggestionMenu/SuggestionPlugin";
-import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin";
-import { TextAlignmentExtension } from "../extensions/TextAlignment/TextAlignmentExtension";
-import { TextColorExtension } from "../extensions/TextColor/TextColorExtension";
-import { TrailingNode } from "../extensions/TrailingNode/TrailingNodeExtension";
-import UniqueID from "../extensions/UniqueID/UniqueID";
-import { BlockContainer, BlockGroup, Doc } from "../pm-nodes";
+import { createDropFileExtension } from "../api/clipboard/fromClipboard/fileDropExtension.js";
+import { createPasteFromClipboardExtension } from "../api/clipboard/fromClipboard/pasteExtension.js";
+import { createCopyToClipboardExtension } from "../api/clipboard/toClipboard/copyExtension.js";
+import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension.js";
+import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin.js";
+import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin.js";
+import { KeyboardShortcutsExtension } from "../extensions/KeyboardShortcuts/KeyboardShortcutsExtension.js";
+import { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkToolbarPlugin.js";
+import { NodeSelectionKeyboardPlugin } from "../extensions/NodeSelectionKeyboard/NodeSelectionKeyboardPlugin.js";
+import { PlaceholderPlugin } from "../extensions/Placeholder/PlaceholderPlugin.js";
+import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin.js";
+import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin.js";
+import { SuggestionMenuProseMirrorPlugin } from "../extensions/SuggestionMenu/SuggestionPlugin.js";
+import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin.js";
+import { TextAlignmentExtension } from "../extensions/TextAlignment/TextAlignmentExtension.js";
+import { TextColorExtension } from "../extensions/TextColor/TextColorExtension.js";
+import { TrailingNode } from "../extensions/TrailingNode/TrailingNodeExtension.js";
+import UniqueID from "../extensions/UniqueID/UniqueID.js";
+import { BlockContainer, BlockGroup, Doc } from "../pm-nodes/index.js";
 import {
   BlockNoteDOMAttributes,
   BlockSchema,
@@ -37,16 +38,13 @@ import {
   InlineContentSpecs,
   StyleSchema,
   StyleSpecs,
-} from "../schema";
+} from "../schema/index.js";
 
-/**
- * Get all the Tiptap extensions BlockNote is configured with by default
- */
-export const getBlockNoteExtensions = <
+type ExtensionOptions<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
->(opts: {
+> = {
   editor: BlockNoteEditor<BSchema, I, S>;
   domAttributes: Partial<BlockNoteDOMAttributes>;
   blockSpecs: BlockSpecs;
@@ -64,11 +62,77 @@ export const getBlockNoteExtensions = <
     renderCursor?: (user: any) => HTMLElement;
   };
   disableExtensions: string[] | undefined;
-  tableHandles: boolean;
-  placeholders: Record<string | "default", string>;
   setIdAttribute?: boolean;
   animations: boolean;
-}) => {
+  tableHandles: boolean;
+  dropCursor: (opts: any) => Plugin;
+  placeholders: Record<string | "default", string>;
+};
+
+/**
+ * Get all the Tiptap extensions BlockNote is configured with by default
+ */
+export const getBlockNoteExtensions = <
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  opts: ExtensionOptions<BSchema, I, S>
+) => {
+  const ret: Record<string, BlockNoteExtension> = {};
+  const tiptapExtensions = getTipTapExtensions(opts);
+
+  for (const ext of tiptapExtensions) {
+    ret[ext.name] = ext;
+  }
+
+  // Note: this is pretty hardcoded and will break when user provides plugins with same keys.
+  // Define name on plugins instead and not make this a map?
+  ret["formattingToolbar"] = new FormattingToolbarProsemirrorPlugin(
+    opts.editor
+  );
+  ret["linkToolbar"] = new LinkToolbarProsemirrorPlugin(opts.editor);
+  ret["sideMenu"] = new SideMenuProsemirrorPlugin(opts.editor);
+  ret["suggestionMenus"] = new SuggestionMenuProseMirrorPlugin(opts.editor);
+  ret["filePanel"] = new FilePanelProsemirrorPlugin(opts.editor as any);
+  ret["placeholder"] = new PlaceholderPlugin(opts.editor, opts.placeholders);
+
+  if (opts.animations ?? true) {
+    ret["animations"] = new PreviousBlockTypePlugin();
+  }
+
+  if (opts.tableHandles) {
+    ret["tableHandles"] = new TableHandlesProsemirrorPlugin(opts.editor as any);
+  }
+
+  ret["dropCursor"] = {
+    plugin: opts.dropCursor({
+      width: 5,
+      color: "#ddeeff",
+      editor: opts.editor,
+    }),
+  };
+
+  ret["nodeSelectionKeyboard"] = new NodeSelectionKeyboardPlugin();
+
+  const disableExtensions: string[] = opts.disableExtensions || [];
+  for (const ext of Object.keys(disableExtensions)) {
+    delete ret[ext];
+  }
+
+  return ret;
+};
+
+/**
+ * Get all the Tiptap extensions BlockNote is configured with by default
+ */
+const getTipTapExtensions = <
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  opts: ExtensionOptions<BSchema, I, S>
+) => {
   const tiptapExtensions: AnyExtension[] = [
     extensions.ClipboardTextSerializer,
     extensions.Commands,
@@ -81,7 +145,8 @@ export const getBlockNoteExtensions = <
 
     // DropCursor,
     UniqueID.configure({
-      types: ["blockContainer"],
+      // everything from bnBlock group (nodes that represent a BlockNote block should have an id)
+      types: ["blockContainer", "columnList", "column"],
       setIdAttribute: opts.setIdAttribute,
     }),
     HardBreak.extend({ priority: 10 }),
@@ -92,6 +157,7 @@ export const getBlockNoteExtensions = <
 
     // marks:
     Link.extend({
+      inclusive: false,
       addKeyboardShortcuts() {
         return {
           "Mod-k": () => {
@@ -132,6 +198,9 @@ export const getBlockNoteExtensions = <
       editor: opts.editor,
       domAttributes: opts.domAttributes,
     }),
+    KeyboardShortcutsExtension.configure({
+      editor: opts.editor,
+    }),
     BlockGroup.configure({
       domAttributes: opts.domAttributes,
     }),
@@ -163,7 +232,6 @@ export const getBlockNoteExtensions = <
     createPasteFromClipboardExtension(opts.editor),
     createDropFileExtension(opts.editor),
 
-    Dropcursor.configure({ width: 5, color: "#ddeeff" }),
     // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),
     // should be handled before Enter handlers in other components like splitListItem
     ...(opts.trailingBlock === undefined || opts.trailingBlock
@@ -210,33 +278,5 @@ export const getBlockNoteExtensions = <
     tiptapExtensions.push(History);
   }
 
-  const ret: Record<string, BlockNoteExtension> = {};
-
-  for (const ext of tiptapExtensions) {
-    ret[ext.name] = ext;
-  }
-
-  // TODO: things will break when user provides different keys. Define name on plugins instead?
-  ret["formattingToolbar"] = new FormattingToolbarProsemirrorPlugin(
-    opts.editor
-  );
-  ret["linkToolbar"] = new LinkToolbarProsemirrorPlugin(opts.editor);
-  ret["sideMenu"] = new SideMenuProsemirrorPlugin(opts.editor);
-  ret["suggestionMenus"] = new SuggestionMenuProseMirrorPlugin(opts.editor);
-  ret["filePanel"] = new FilePanelProsemirrorPlugin(opts.editor as any);
-  ret["placeholder"] = new PlaceholderPlugin(opts.editor, opts.placeholders);
-
-  if (opts.animations ?? true) {
-    ret["animations"] = new PreviousBlockTypePlugin();
-  }
-
-  if (checkDefaultBlockTypeInSchema("table", opts.editor)) {
-    ret["tableHandles"] = new TableHandlesProsemirrorPlugin(opts.editor as any);
-  }
-
-  const disableExtensions: string[] = opts.disableExtensions || [];
-  for (const ext of Object.keys(disableExtensions)) {
-    delete ret[ext];
-  }
-  return ret;
+  return tiptapExtensions;
 };

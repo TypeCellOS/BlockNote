@@ -1,4 +1,4 @@
-import type { Dictionary } from "../dictionary";
+import type { Dictionary } from "../dictionary.js";
 
 export const pl: Dictionary = {
   slash_menu: {
@@ -42,6 +42,12 @@ export const pl: Dictionary = {
       title: "Akapit",
       subtext: "Używany dla treści dokumentu",
       aliases: ["p", "akapit"],
+      group: "Podstawowe bloki",
+    },
+    code_block: {
+      title: "Blok kodu",
+      subtext: "Blok kodu z podświetleniem składni",
+      aliases: ["kod", "pre"],
       group: "Podstawowe bloki",
     },
     table: {

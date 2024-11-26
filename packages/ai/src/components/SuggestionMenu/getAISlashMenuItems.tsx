@@ -9,9 +9,9 @@ import {
 import { DefaultReactSuggestionItem } from "@blocknote/react";
 import { RiSparkling2Fill } from "react-icons/ri";
 
-import { aiBlockConfig } from "../../blocks/AIBlockContent/AIBlockContent";
-import { getAIDictionary } from "../../i18n/dictionary";
-import { BlockNoteAIContextValue } from "../BlockNoteAIContext";
+import { aiBlockConfig } from "../../blocks/AIBlockContent/AIBlockContent.js";
+import { getAIDictionary } from "../../i18n/dictionary.js";
+import { BlockNoteAIContextValue } from "../BlockNoteAIContext.js";
 
 const Icons = {
   AI: RiSparkling2Fill,
@@ -27,7 +27,7 @@ export function getAISlashMenuItems<
 ): DefaultReactSuggestionItem[] {
   const items = [
     {
-      name: "ai",
+      key: "ai",
       onItemClick: () => {
         const cursor = editor.getTextCursorPosition();
         if (
@@ -48,7 +48,7 @@ export function getAISlashMenuItems<
 
   if (checkBlockTypeInSchema(aiBlockConfig, editor)) {
     items.push({
-      name: "ai_block",
+      key: "ai_block",
       onItemClick: () => {
         insertOrUpdateBlock(editor, {
           type: "ai",

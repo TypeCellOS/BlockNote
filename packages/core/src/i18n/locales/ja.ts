@@ -1,4 +1,4 @@
-import { Dictionary } from "../dictionary";
+import { Dictionary } from "../dictionary.js";
 
 export const ja: Dictionary = {
   slash_menu: {
@@ -66,6 +66,12 @@ export const ja: Dictionary = {
       title: "標準テキスト",
       subtext: "本文に使用",
       aliases: ["p", "paragraph", "標準テキスト"],
+      group: "基本ブロック",
+    },
+    code_block: {
+      title: "コードブロック",
+      subtext: "シンタックスハイライト付きのコードブロック",
+      aliases: ["code", "pre", "コード", "コードブロック"],
       group: "基本ブロック",
     },
     table: {

@@ -1,9 +1,9 @@
 import { useBlockNoteEditor } from "@blocknote/react";
-import { AIBlockToolbarController } from "./AIBlockToolbar/AIBlockToolbarController";
+import { AIBlockToolbarController } from "./AIBlockToolbar/AIBlockToolbarController.js";
 
-import { AIMenu } from "./AIMenu/AIMenu";
-import { BlockPositioner } from "./AIMenu/BlockPositioner";
-import { useBlockNoteAIContext } from "./BlockNoteAIContext";
+import { AIMenu } from "./AIMenu/AIMenu.js";
+import { BlockPositioner } from "./AIMenu/BlockPositioner.js";
+import { useBlockNoteAIContext } from "./BlockNoteAIContext.js";
 
 export type BlockNoteAIUIProps = {
   aiBlockToolbar?: boolean;
