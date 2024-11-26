@@ -21,7 +21,7 @@
   "include": ["src", "../examples"],
   "references": [
     { "path": "./tsconfig.node.json" },
-    { "path": "../packages/ai/" },
+    { "path": "../packages/xl-ai/" },
     { "path": "../packages/core/" },
     { "path": "../packages/react/" },
     { "path": "../packages/shadcn/" },

@@ -18,7 +18,7 @@
     "@blocknote/shadcn": "latest",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "blocknote/ai": "latest"
+    "@blocknote/xl-ai": "latest"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",

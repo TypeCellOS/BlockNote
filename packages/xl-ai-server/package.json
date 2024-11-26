@@ -1,5 +1,5 @@
 {
-  "name": "@blocknote/ai",
+  "name": "@blocknote/xl-ai-server",
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
   "license": "AGPL-3.0 OR PROPRIETARY",
@@ -26,62 +26,39 @@
   "type": "module",
   "source": "src/index.ts",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-ai.umd.cjs",
-  "module": "./dist/blocknote-ai.js",
+  "main": "./dist/blocknote-xl-ai-server.umd.cjs",
+  "module": "./dist/blocknote-xl-ai-server.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
-      "import": "./dist/blocknote-ai.js",
-      "require": "./dist/blocknote-ai.umd.cjs"
-    },
-    "./style.css": {
-      "import": "./dist/style.css",
-      "require": "./dist/style.css"
+      "import": "./dist/blocknote-xl-ai-server.js",
+      "require": "./dist/blocknote-xl-ai-server.umd.cjs"
     }
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "vite-node src/index.ts",
     "build": "tsc && vite build",
-    "build-bundled": "tsc && vite build --config vite.config.bundled.ts && git checkout tmp-releases && rm -rf ../../release && mv ../../release-tmp ../../release",
-    "preview": "vite preview",
+    "start": "node dist/index.js",
     "lint": "eslint src --max-warnings 0",
     "clean": "rimraf dist && rimraf types",
     "test": "vitest --run",
     "test-watch": "vitest watch"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^0.0.60",
-    "@blocknote/core": "^0.19.1",
-    "@blocknote/mantine": "^0.19.1",
-    "@blocknote/react": "^0.19.1",
-    "@floating-ui/react": "^0.26.4",
-    "@tiptap/core": "^2.7.1",
-    "ai": "^3.4.5",
-    "prosemirror-state": "^1.4.3",
-    "prosemirror-view": "^1.33.7",
-    "react": "^18",
-    "react-dom": "^18",
-    "react-icons": "^5.2.1"
+    "@hono/node-server": "^1.13.7",
+    "hono": "^4.6.12"
   },
   "devDependencies": {
-    "@types/react": "^18.0.25",
-    "@types/react-dom": "^18.0.9",
-    "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^8.10.0",
-    "msw": "^2.4.8",
-    "msw-snapshot": "^5.2.0",
     "prettier": "^2.7.1",
     "rimraf": "^5.0.5",
     "rollup-plugin-webpack-stats": "^0.2.2",
     "typescript": "^5.3.3",
     "vite": "^5.3.4",
+    "vite-node": "^2.1.6",
     "vite-plugin-eslint": "^1.8.1",
     "vite-plugin-externalize-deps": "^0.8.0",
     "vitest": "^2.0.3"
-  },
-  "peerDependencies": {
-    "react": "^18",
-    "react-dom": "^18"
   },
   "eslintConfig": {
     "extends": [

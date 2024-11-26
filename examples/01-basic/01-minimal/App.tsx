@@ -9,9 +9,8 @@ import {
   locales as aiLocales,
   getAISlashMenuItems,
   useBlockNoteAIContext,
-} from "@blocknote/ai";
+} from "@blocknote/xl-ai";
 
-import "@blocknote/ai/style.css";
 import {
   BlockNoteEditor,
   BlockNoteSchema,
@@ -31,6 +30,7 @@ import {
   getFormattingToolbarItems,
   useCreateBlockNote,
 } from "@blocknote/react";
+import "@blocknote/xl-ai/style.css";
 
 const schema = BlockNoteSchema.create({
   blockSpecs: {
@@ -43,8 +43,8 @@ export default function App() {
   const editor = useCreateBlockNote({
     schema,
     dictionary: {
-      ...locales,
-      ai: aiLocales,
+      ...locales.en,
+      ai: aiLocales.en,
     } as any,
     _extensions: {
       // TODO: things will break when user provides different keys. Define name on plugins instead?

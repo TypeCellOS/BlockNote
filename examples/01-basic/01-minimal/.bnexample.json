@@ -4,6 +4,6 @@
   "author": "matthewlipski",
   "tags": ["Basic"],
   "dependencies": {
-    "blocknote/ai": "latest"
+    "@blocknote/xl-ai": "latest"
   }
 }

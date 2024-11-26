@@ -34,3 +34,4 @@ release
 /playwright-report/
 /playwright/.cache/
 .env
+*.pem

@@ -33,7 +33,10 @@ export default defineConfig((conf) => ({
         : {
             // Comment out the lines below to load a built version of blocknote
             // or, keep as is to load live from sources with live reload working
-            "@blocknote/ai": path.resolve(__dirname, "../packages/ai/src/"),
+            "@blocknote/xl-ai": path.resolve(
+              __dirname,
+              "../packages/xl-ai/src/"
+            ),
             "@blocknote/core": path.resolve(__dirname, "../packages/core/src/"),
             "@blocknote/react": path.resolve(
               __dirname,

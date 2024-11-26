@@ -28,8 +28,8 @@ export default defineConfig((conf) => ({
     sourcemap: true,
     lib: {
       entry: path.resolve(__dirname, "src/index.ts"),
-      name: "blocknote-ai",
-      fileName: "blocknote-ai",
+      name: "blocknote-xl-ai",
+      fileName: "blocknote-xl-ai",
     },
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled

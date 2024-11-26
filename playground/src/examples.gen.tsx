@@ -16,7 +16,7 @@
             "Basic"
           ],
           "dependencies": {
-            "blocknote/ai": "latest"
+            "@blocknote/xl-ai": "latest"
           } as any
         },
         "title": "Basic Setup",

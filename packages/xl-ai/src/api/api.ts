@@ -107,6 +107,25 @@ type CallLLMOptions = {
     }
 );
 
+const fetchViaBlockNoteAIServer =
+  () => (input: string | URL | Request, init?: RequestInit) => {
+    const request = new Request(input, init);
+
+    const newRequest = new Request(
+      `https://localhost:3000/ai?service=openai&url=${encodeURIComponent(
+        request.url
+      )}`,
+      {
+        headers: request.headers,
+        body: request.body,
+        method: request.method,
+        duplex: "half",
+      } as any
+    );
+
+    return fetch(newRequest);
+  };
+
 export async function callLLMStreaming(
   editor: BlockNoteEditor<any, any, any>,
   options: CallLLMOptions & {
@@ -126,14 +145,10 @@ export async function callLLMStreaming(
       }),
     ...options,
   };
-  // options.streamObjectOptions!.
-  const apiKey = (import.meta as any).env.VITE_OPEN_AI_API_KEY;
-  if (!apiKey) {
-    throw new Error("OpenAI API key not found");
-  }
 
   const model = createOpenAI({
-    apiKey,
+    apiKey: "PLACEHOLDER",
+    fetch: fetchViaBlockNoteAIServer(),
   })("gpt-4o-2024-08-06", {});
 
   const ret = await streamObject<any>({
