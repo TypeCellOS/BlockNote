@@ -1078,6 +1078,29 @@
           "pathFromRoot": "examples/07-collaboration",
           "slug": "collaboration"
         }
+      },
+      {
+        "projectSlug": "y-sweet",
+        "fullSlug": "collaboration/y-sweet",
+        "pathFromRoot": "examples/07-collaboration/03-y-sweet",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "jakelazaroff",
+          "tags": [
+            "Advanced",
+            "Saving/Loading",
+            "Collaboration"
+          ],
+          "dependencies": {
+            "@y-sweet/react": "^0.6.3"
+          } as any
+        },
+        "title": "Collaborative Editing with Y-Sweet",
+        "group": {
+          "pathFromRoot": "examples/07-collaboration",
+          "slug": "collaboration"
+        }
       }
     ]
   },
