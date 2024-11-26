@@ -3,27 +3,26 @@ import { CellSelection } from "prosemirror-tables";
 
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import { BlockIdentifier } from "../../../../schema/index.js";
-import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
+import { getNearestBlockPos } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
 
 type BlockSelectionData = (
   | {
       type: "text";
-      anchor: number;
-      head: number;
+      headBlockId: string;
+      anchorOffset: number;
+      headOffset: number;
     }
   | {
       type: "node";
-      from: number;
     }
   | {
       type: "cell";
-      anchorCell: number;
-      headCell: number;
+      anchorCellOffset: number;
+      headCellOffset: number;
     }
 ) & {
-  firstBlockId: string;
-  firstBlockPos: number;
+  anchorBlockId: string;
 };
 
 // `getBlockSelectionData` and `updateBlockSelectionFromData` are used to save
@@ -31,34 +30,34 @@ type BlockSelectionData = (
 function getBlockSelectionData(
   editor: BlockNoteEditor<any, any, any>
 ): BlockSelectionData {
-  const { bnBlock } = getBlockInfoFromSelection(editor._tiptapEditor.state);
+  const state = editor._tiptapEditor.state;
+  const selection = state.selection;
 
-  const selectionData = {
-    firstBlockId: bnBlock.node.attrs.id,
-    firstBlockPos: bnBlock.beforePos,
-  };
+  const anchorBlockPosInfo = getNearestBlockPos(state.doc, selection.anchor);
 
-  if (editor._tiptapEditor.state.selection instanceof CellSelection) {
+  if (selection instanceof CellSelection) {
     return {
-      ...selectionData,
       type: "cell" as const,
-      anchorCell: (editor._tiptapEditor.state.selection as CellSelection)
-        .$anchorCell.pos,
-      headCell: (editor._tiptapEditor.state.selection as CellSelection)
-        .$headCell.pos,
+      anchorBlockId: anchorBlockPosInfo.node.attrs.id,
+      anchorCellOffset:
+        selection.$anchorCell.pos - anchorBlockPosInfo.posBeforeNode,
+      headCellOffset:
+        selection.$headCell.pos - anchorBlockPosInfo.posBeforeNode,
     };
   } else if (editor._tiptapEditor.state.selection instanceof NodeSelection) {
     return {
-      ...selectionData,
       type: "node" as const,
-      from: editor._tiptapEditor.state.selection.from,
+      anchorBlockId: anchorBlockPosInfo.node.attrs.id,
     };
   } else {
+    const headBlockPosInfo = getNearestBlockPos(state.doc, selection.head);
+
     return {
-      ...selectionData,
       type: "text" as const,
-      anchor: editor._tiptapEditor.state.selection.anchor,
-      head: editor._tiptapEditor.state.selection.head,
+      anchorBlockId: anchorBlockPosInfo.node.attrs.id,
+      headBlockId: headBlockPosInfo.node.attrs.id,
+      anchorOffset: selection.anchor - anchorBlockPosInfo.posBeforeNode,
+      headOffset: selection.head - headBlockPosInfo.posBeforeNode,
     };
   }
 }
@@ -67,8 +66,8 @@ function updateBlockSelectionFromData(
   editor: BlockNoteEditor<any, any, any>,
   data: BlockSelectionData
 ) {
-  const blockPos = getNodeById(
-    data.firstBlockId,
+  const anchorBlockPos = getNodeById(
+    data.anchorBlockId,
     editor._tiptapEditor.state.doc
   ).posBeforeNode;
 
@@ -76,19 +75,24 @@ function updateBlockSelectionFromData(
   if (data.type === "cell") {
     selection = CellSelection.create(
       editor._tiptapEditor.state.doc,
-      data.anchorCell + (blockPos - data.firstBlockPos),
-      data.headCell + (blockPos - data.firstBlockPos)
+      anchorBlockPos + data.anchorCellOffset,
+      anchorBlockPos + data.headCellOffset
     );
   } else if (data.type === "node") {
     selection = NodeSelection.create(
       editor._tiptapEditor.state.doc,
-      data.from + (blockPos - data.firstBlockPos)
+      anchorBlockPos + 1
     );
   } else {
+    const headBlockPos = getNodeById(
+      data.headBlockId,
+      editor._tiptapEditor.state.doc
+    ).posBeforeNode;
+
     selection = TextSelection.create(
       editor._tiptapEditor.state.doc,
-      data.anchor + (blockPos - data.firstBlockPos),
-      data.head + (blockPos - data.firstBlockPos)
+      anchorBlockPos + data.anchorOffset,
+      headBlockPos + data.headOffset
     );
   }
 
@@ -114,8 +118,10 @@ export function moveSelectedBlocksAndSelection(
 }
 
 export function moveBlocksUp(editor: BlockNoteEditor<any, any, any>) {
-  const { prevBlock, parentBlock } =
-    editor.getSelection() || editor.getTextCursorPosition();
+  const selection = editor.getSelection();
+  const block = selection?.blocks[0] || editor.getTextCursorPosition().block;
+  const prevBlock = editor.getPrevBlock(block);
+  const parentBlock = editor.getParentBlock(block);
 
   let referenceBlockId: string | undefined;
   let placement: "before" | "after" | undefined;
@@ -141,8 +147,12 @@ export function moveBlocksUp(editor: BlockNoteEditor<any, any, any>) {
 }
 
 export function moveBlocksDown(editor: BlockNoteEditor<any, any, any>) {
-  const { nextBlock, parentBlock } =
-    editor.getSelection() || editor.getTextCursorPosition();
+  const selection = editor.getSelection();
+  const block =
+    selection?.blocks[selection?.blocks.length - 1] ||
+    editor.getTextCursorPosition().block;
+  const nextBlock = editor.getNextBlock(block);
+  const parentBlock = editor.getParentBlock(block);
 
   let referenceBlockId: string | undefined;
   let placement: "before" | "after" | undefined;

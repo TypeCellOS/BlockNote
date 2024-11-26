@@ -468,16 +468,25 @@ export class TableHandlesView<
     // the existing selection out of the block.
     this.editor.setTextCursorPosition(this.state.block.id);
   };
-  // Updates drag handle positions on table content updates.
+  // Updates drag handles when the table is modified or removed.
   update() {
     if (!this.state || !this.state.show) {
       return;
     }
 
-    const tableBody = this.tableElement!.querySelector("tbody");
-    if (!tableBody) {
+    // Hide handles if the table block has been removed.
+    this.state.block = this.editor.getBlock(this.state.block.id)!;
+    if (!this.state.block) {
+      this.state.show = false;
+      this.state.showAddOrRemoveRowsButton = false;
+      this.state.showAddOrRemoveColumnsButton = false;
+      this.emitUpdate();
+
       return;
     }
+
+    const rowCount = this.state.block.content.rows.length;
+    const colCount = this.state.block.content.rows[0].cells.length;
 
     if (
       this.state.rowIndex !== undefined &&
@@ -486,20 +495,28 @@ export class TableHandlesView<
       // If rows or columns are deleted in the update, the hovered indices for
       // those may now be out of bounds. If this is the case, they are moved to
       // the new last row or column.
-      if (this.state.rowIndex >= tableBody.children.length) {
-        this.state.rowIndex = tableBody.children.length - 1;
+      if (this.state.rowIndex >= rowCount) {
+        this.state.rowIndex = rowCount - 1;
       }
-      if (this.state.colIndex >= tableBody.children[0].children.length) {
-        this.state.colIndex = tableBody.children[0].children.length - 1;
+      if (this.state.colIndex >= colCount) {
+        this.state.colIndex = colCount - 1;
       }
-
-      const row = tableBody.children[this.state.rowIndex];
-      const cell = row.children[this.state.colIndex];
-      this.state.referencePosCell = cell.getBoundingClientRect();
     }
 
-    this.state.block = this.editor.getBlock(this.state.block.id)!;
-    this.state.referencePosTable = tableBody.getBoundingClientRect();
+    // Update bounding boxes.
+    const tableBody = this.tableElement!.querySelector("tbody");
+    if (tableBody) {
+      if (
+        this.state.rowIndex !== undefined &&
+        this.state.colIndex !== undefined
+      ) {
+        const row = tableBody.children[this.state.rowIndex];
+        const cell = row.children[this.state.colIndex];
+        this.state.referencePosCell = cell.getBoundingClientRect();
+      }
+      this.state.referencePosTable = tableBody.getBoundingClientRect();
+    }
+
     this.emitUpdate();
   }
 

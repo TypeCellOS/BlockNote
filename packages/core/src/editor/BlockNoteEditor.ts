@@ -646,6 +646,124 @@ export class BlockNoteEditor<
     return newBlock;
   }
 
+  // TODO: Extract duplicate code
+  public getPrevBlock(
+    blockIdentifier: BlockIdentifier
+  ): Block<BSchema, ISchema, SSchema> | undefined {
+    const id =
+      typeof blockIdentifier === "string"
+        ? blockIdentifier
+        : blockIdentifier.id;
+    let newBlock: Block<BSchema, ISchema, SSchema> | undefined = undefined;
+
+    this._tiptapEditor.state.doc.descendants((node, pos) => {
+      if (typeof newBlock !== "undefined") {
+        return false;
+      }
+
+      if (node.type.name !== "blockContainer" || node.attrs.id !== id) {
+        return true;
+      }
+
+      const $posBeforeNode = this._tiptapEditor.state.doc.resolve(pos);
+      const prevNode = $posBeforeNode.nodeBefore;
+      if (prevNode) {
+        newBlock = nodeToBlock(
+          prevNode,
+          this.schema.blockSchema,
+          this.schema.inlineContentSchema,
+          this.schema.styleSchema,
+          this.blockCache
+        );
+      }
+
+      return false;
+    });
+
+    return newBlock;
+  }
+
+  public getNextBlock(
+    blockIdentifier: BlockIdentifier
+  ): Block<BSchema, ISchema, SSchema> | undefined {
+    const id =
+      typeof blockIdentifier === "string"
+        ? blockIdentifier
+        : blockIdentifier.id;
+    let newBlock: Block<BSchema, ISchema, SSchema> | undefined = undefined;
+
+    this._tiptapEditor.state.doc.descendants((node, pos) => {
+      if (typeof newBlock !== "undefined") {
+        return false;
+      }
+
+      if (node.type.name !== "blockContainer" || node.attrs.id !== id) {
+        return true;
+      }
+
+      const $posAfterNode = this._tiptapEditor.state.doc.resolve(
+        pos + node.nodeSize
+      );
+      const nextNode = $posAfterNode.nodeAfter;
+      if (nextNode) {
+        newBlock = nodeToBlock(
+          nextNode,
+          this.schema.blockSchema,
+          this.schema.inlineContentSchema,
+          this.schema.styleSchema,
+          this.blockCache
+        );
+      }
+
+      return false;
+    });
+
+    return newBlock;
+  }
+
+  public getParentBlock(
+    blockIdentifier: BlockIdentifier
+  ): Block<BSchema, ISchema, SSchema> | undefined {
+    const id =
+      typeof blockIdentifier === "string"
+        ? blockIdentifier
+        : blockIdentifier.id;
+    let newBlock: Block<BSchema, ISchema, SSchema> | undefined = undefined;
+
+    this._tiptapEditor.state.doc.descendants((node, pos) => {
+      if (typeof newBlock !== "undefined") {
+        return false;
+      }
+
+      if (node.type.name !== "blockContainer" || node.attrs.id !== id) {
+        return true;
+      }
+
+      const $pos = this._tiptapEditor.state.doc.resolve(pos);
+      const parentNode = $pos.node();
+      const grandparentNode = $pos.node(-1);
+      const parentBlockNode =
+        grandparentNode.type.name !== "doc"
+          ? parentNode.type.name === "blockGroup"
+            ? grandparentNode
+            : parentNode
+          : undefined;
+      if (parentBlockNode) {
+        newBlock = nodeToBlock(
+          parentBlockNode,
+          this.schema.blockSchema,
+          this.schema.inlineContentSchema,
+          this.schema.styleSchema,
+          this.blockCache
+        );
+      }
+
+      return false;
+    });
+
+    return newBlock;
+  }
+
   /**
    * Traverses all blocks in the editor depth-first, and executes a callback for each.
    * @param callback The callback to execute for each block. Returning `false` stops the traversal.
