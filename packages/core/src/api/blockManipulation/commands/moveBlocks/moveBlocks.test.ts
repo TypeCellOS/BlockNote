@@ -36,44 +36,21 @@ function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
       )
     );
   } else if (selectionType === "node") {
-    const resolvedContentStartPos = getEditor()._tiptapEditor.state.doc.resolve(
-      blockContent.beforePos
-    );
-
     getEditor()._tiptapEditor.view.dispatch(
       getEditor()._tiptapEditor.state.tr.setSelection(
         NodeSelection.create(
           getEditor()._tiptapEditor.state.doc,
-          getEditor()
-            ._tiptapEditor.state.doc.resolve(
-              resolvedContentStartPos.after(resolvedContentStartPos.depth + 1)
-            )
-            .start()
+          blockContent.beforePos
         )
       )
     );
   } else {
-    const resolvedContentStartPos = getEditor()._tiptapEditor.state.doc.resolve(
-      blockContent.beforePos
-    );
-    const resolvedContentEndPos = getEditor()._tiptapEditor.state.doc.resolve(
-      blockContent.afterPos
-    );
-
     getEditor()._tiptapEditor.view.dispatch(
       getEditor()._tiptapEditor.state.tr.setSelection(
         TextSelection.create(
           getEditor()._tiptapEditor.state.doc,
-          getEditor()
-            ._tiptapEditor.state.doc.resolve(
-              resolvedContentStartPos.after(resolvedContentStartPos.depth + 1)
-            )
-            .start(),
-          getEditor()
-            ._tiptapEditor.state.doc.resolve(
-              resolvedContentEndPos.before(resolvedContentEndPos.depth + 1)
-            )
-            .end()
+          blockContent.beforePos + 1,
+          blockContent.afterPos - 1
         )
       )
     );
@@ -125,6 +102,32 @@ describe("Test moveSelectedBlockAndSelection", () => {
       selection.eq(getEditor()._tiptapEditor.state.selection)
     ).toBeTruthy();
   });
+
+  it("Multiple block selection", () => {
+    getEditor().setSelection("paragraph-1", "paragraph-2");
+
+    moveSelectedBlocksAndSelection(getEditor(), "paragraph-0", "before");
+
+    const selection = getEditor()._tiptapEditor.state.selection;
+    getEditor().setSelection("paragraph-1", "paragraph-2");
+
+    expect(
+      selection.eq(getEditor()._tiptapEditor.state.selection)
+    ).toBeTruthy();
+  });
+
+  it("Multiple block selection with table", () => {
+    getEditor().setSelection("paragraph-6", "table-0");
+
+    moveSelectedBlocksAndSelection(getEditor(), "paragraph-0", "before");
+
+    const selection = getEditor()._tiptapEditor.state.selection;
+    getEditor().setSelection("paragraph-6", "table-0");
+
+    expect(
+      selection.eq(getEditor()._tiptapEditor.state.selection)
+    ).toBeTruthy();
+  });
 });
 
 describe("Test moveBlocksUp", () => {
@@ -159,6 +162,54 @@ describe("Test moveBlocksUp", () => {
 
     expect(getEditor().document).toMatchSnapshot();
   });
+
+  it("Multiple blocks", () => {
+    getEditor().setSelection("paragraph-1", "paragraph-2");
+
+    moveBlocksUp(getEditor());
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Multiple blocks starting in block with children", () => {
+    getEditor().setSelection("paragraph-with-children", "paragraph-2");
+
+    moveBlocksUp(getEditor());
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Multiple blocks starting in nested block", () => {
+    getEditor().setSelection("nested-paragraph-0", "paragraph-2");
+
+    moveBlocksUp(getEditor());
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Multiple blocks ending in block with children", () => {
+    getEditor().setSelection("paragraph-1", "paragraph-with-children");
+
+    moveBlocksUp(getEditor());
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Multiple blocks ending in nested block", () => {
+    getEditor().setSelection("paragraph-1", "nested-paragraph-0");
+
+    moveBlocksUp(getEditor());
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Multiple blocks starting and ending in nested block", () => {
+    getEditor().setSelection("nested-paragraph-0", "nested-paragraph-1");
+
+    moveBlocksUp(getEditor());
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
 });
 
 describe("Test moveBlocksDown", () => {
@@ -188,6 +239,54 @@ describe("Test moveBlocksDown", () => {
 
   it("Last block", () => {
     getEditor().setTextCursorPosition("trailing-paragraph");
+
+    moveBlocksDown(getEditor());
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Multiple blocks", () => {
+    getEditor().setSelection("paragraph-1", "paragraph-2");
+
+    moveBlocksDown(getEditor());
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Multiple blocks starting in block with children", () => {
+    getEditor().setSelection("paragraph-with-children", "paragraph-2");
+
+    moveBlocksDown(getEditor());
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Multiple blocks starting in nested block", () => {
+    getEditor().setSelection("nested-paragraph-0", "paragraph-2");
+
+    moveBlocksDown(getEditor());
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Multiple blocks ending in block with children", () => {
+    getEditor().setSelection("paragraph-1", "paragraph-with-children");
+
+    moveBlocksDown(getEditor());
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Multiple blocks ending in nested block", () => {
+    getEditor().setSelection("paragraph-1", "nested-paragraph-0");
+
+    moveBlocksDown(getEditor());
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
+  it("Multiple blocks starting and ending in nested block", () => {
+    getEditor().setSelection("nested-paragraph-0", "nested-paragraph-1");
 
     moveBlocksDown(getEditor());
 

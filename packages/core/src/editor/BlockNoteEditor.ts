@@ -28,7 +28,10 @@ import {
   getTextCursorPosition,
   setTextCursorPosition,
 } from "../api/blockManipulation/selections/textCursorPosition/textCursorPosition.js";
-import { getSelection } from "../api/blockManipulation/selections/selection.js";
+import {
+  getSelection,
+  setSelection,
+} from "../api/blockManipulation/selections/selection.js";
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
@@ -848,6 +851,10 @@ export class BlockNoteEditor<
    */
   public getSelection(): Selection<BSchema, ISchema, SSchema> | undefined {
     return getSelection(this);
+  }
+
+  public setSelection(startBlock: BlockIdentifier, endBlock: BlockIdentifier) {
+    setSelection(this, startBlock, endBlock);
   }
 
   /**

@@ -1,13 +1,18 @@
+import { TextSelection } from "prosemirror-state";
+import { TableMap } from "prosemirror-tables";
+
 import { Block } from "../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
 import { Selection } from "../../../editor/selectionTypes.js";
 import {
+  BlockIdentifier,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
-import { getNearestBlockPos } from "../../getBlockInfoFromPos.js";
+import { getBlockInfo, getNearestBlockPos } from "../../getBlockInfoFromPos.js";
 import { nodeToBlock } from "../../nodeConversions/nodeToBlock.js";
+import { getNodeById } from "../../nodeUtil.js";
 
 export function getSelection<
   BSchema extends BlockSchema,
@@ -117,4 +122,91 @@ export function getSelection<
   return {
     blocks,
   };
+}
+
+export function setSelection<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  editor: BlockNoteEditor<BSchema, I, S>,
+  startBlock: BlockIdentifier,
+  endBlock: BlockIdentifier
+) {
+  const startBlockId =
+    typeof startBlock === "string" ? startBlock : startBlock.id;
+  const endBlockId = typeof endBlock === "string" ? endBlock : endBlock.id;
+
+  if (startBlockId === endBlockId) {
+    throw new Error(
+      `Attempting to set selection with the same anchor and head blocks (id ${startBlockId})`
+    );
+  }
+
+  const doc = editor._tiptapEditor.state.doc;
+
+  const anchorPosInfo = getNodeById(startBlockId, doc);
+  const headPosInfo = getNodeById(endBlockId, doc);
+
+  const anchorBlockInfo = getBlockInfo(anchorPosInfo);
+  const headBlockInfo = getBlockInfo(headPosInfo);
+
+  const anchorBlockConfig =
+    editor.schema.blockSchema[
+      anchorBlockInfo.blockNoteType as keyof typeof editor.schema.blockSchema
+    ];
+  const headBlockConfig =
+    editor.schema.blockSchema[
+      headBlockInfo.blockNoteType as keyof typeof editor.schema.blockSchema
+    ];
+
+  if (
+    !anchorBlockInfo.isBlockContainer ||
+    anchorBlockConfig.content === "none"
+  ) {
+    throw new Error(
+      `Attempting to set selection anchor in block without content (id ${startBlockId})`
+    );
+  }
+  if (!headBlockInfo.isBlockContainer || headBlockConfig.content === "none") {
+    throw new Error(
+      `Attempting to set selection anchor in block without content (id ${endBlockId})`
+    );
+  }
+
+  let startPos: number;
+  let endPos: number;
+
+  if (anchorBlockConfig.content === "table") {
+    const tableMap = TableMap.get(anchorBlockInfo.blockContent.node);
+    const firstCellPos =
+      anchorBlockInfo.blockContent.beforePos +
+      tableMap.positionAt(0, 0, anchorBlockInfo.blockContent.node) +
+      1;
+    startPos = firstCellPos + 2;
+  } else {
+    startPos = anchorBlockInfo.blockContent.beforePos + 1;
+  }
+
+  if (headBlockConfig.content === "table") {
+    const tableMap = TableMap.get(headBlockInfo.blockContent.node);
+    const lastCellPos =
+      headBlockInfo.blockContent.beforePos +
+      tableMap.positionAt(
+        tableMap.height - 1,
+        tableMap.width - 1,
+        headBlockInfo.blockContent.node
+      ) +
+      1;
+    const lastCellNodeSize = doc.resolve(lastCellPos).nodeAfter!.nodeSize;
+    endPos = lastCellPos + lastCellNodeSize - 2;
+  } else {
+    endPos = headBlockInfo.blockContent.afterPos - 1;
+  }
+
+  editor._tiptapEditor.dispatch(
+    editor._tiptapEditor.state.tr.setSelection(
+      TextSelection.create(editor._tiptapEditor.state.doc, startPos, endPos)
+    )
+  );
 }
