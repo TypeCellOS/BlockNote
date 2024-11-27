@@ -203,8 +203,6 @@ export type BlockNoteEditorOptions<
 
   trailingBlock?: boolean;
 
-  extensions: Record<string, BlockNoteExtension>;
-
   /**
    * Boolean indicating whether the editor is in headless mode.
    * Headless mode means we can use features like importing / exporting blocks,
@@ -288,28 +286,26 @@ export class BlockNoteEditor<
   public readonly styleImplementations: StyleSpecs;
 
   public readonly formattingToolbar: FormattingToolbarProsemirrorPlugin;
-
   public readonly linkToolbar: LinkToolbarProsemirrorPlugin<
     BSchema,
     ISchema,
     SSchema
   >;
-
   public readonly sideMenu: SideMenuProsemirrorPlugin<
     BSchema,
     ISchema,
     SSchema
   >;
-
   public readonly suggestionMenus: SuggestionMenuProseMirrorPlugin<
     BSchema,
     ISchema,
     SSchema
   >;
-
-  public readonly filePanel: FilePanelProsemirrorPlugin<ISchema, SSchema>;
-
-  public readonly tableHandles: TableHandlesProsemirrorPlugin<ISchema, SSchema>;
+  public readonly filePanel?: FilePanelProsemirrorPlugin<ISchema, SSchema>;
+  public readonly tableHandles?: TableHandlesProsemirrorPlugin<
+    ISchema,
+    SSchema
+  >;
 
   /**
    * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
