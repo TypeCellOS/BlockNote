@@ -1,6 +1,7 @@
 import { NodeSelection, Selection, TextSelection } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
 
+import { Block } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import { BlockIdentifier } from "../../../../schema/index.js";
 import { getNearestBlockPos } from "../../../getBlockInfoFromPos.js";
@@ -26,7 +27,11 @@ type BlockSelectionData = (
 };
 
 // `getBlockSelectionData` and `updateBlockSelectionFromData` are used to save
-// and restore the selection within a block, when the block is moved.
+// and restore the selection within a block, when the block is moved. This is
+// done by first saving the offsets of the anchor and head from the before
+// positions of their surrounding blocks, as well as the IDs of those blocks. We
+// can then recreate the selection by finding the blocks with those IDs, getting
+// their before positions, and adding the offsets to those positions.
 function getBlockSelectionData(
   editor: BlockNoteEditor<any, any, any>
 ): BlockSelectionData {
@@ -62,6 +67,12 @@ function getBlockSelectionData(
   }
 }
 
+// `getBlockSelectionData` and `updateBlockSelectionFromData` are used to save
+// and restore the selection within a block, when the block is moved. This is
+// done by first saving the offsets of the anchor and head from the before
+// positions of their surrounding blocks, as well as the IDs of those blocks. We
+// can then recreate the selection by finding the blocks with those IDs, getting
+// their before positions, and adding the offsets to those positions.
 function updateBlockSelectionFromData(
   editor: BlockNoteEditor<any, any, any>,
   data: BlockSelectionData
@@ -101,6 +112,31 @@ function updateBlockSelectionFromData(
   );
 }
 
+// Replaces any `columnList` blocks with the children of their columns. This is
+// done here instead of in `getSelection` as we still need to remove the entire
+// `columnList` node but only insert the `blockContainer` nodes inside it.
+function flattenColumns(
+  blocks: Block<any, any, any>[]
+): Block<any, any, any>[] {
+  return blocks
+    .map((block) => {
+      if (block.type === "columnList") {
+        return block.children
+          .map((column) => flattenColumns(column.children))
+          .flat();
+      }
+
+      return {
+        ...block,
+        children: flattenColumns(block.children),
+      };
+    })
+    .flat();
+}
+
+// Removes the selected blocks from the editor, then inserts them before/after a
+// reference block. Also updates the selection to match the original selection
+// using `getBlockSelectionData` and `updateBlockSelectionFromData`.
 export function moveSelectedBlocksAndSelection(
   editor: BlockNoteEditor<any, any, any>,
   referenceBlock: BlockIdentifier,
@@ -112,38 +148,141 @@ export function moveSelectedBlocksAndSelection(
   const selectionData = getBlockSelectionData(editor);
 
   editor.removeBlocks(blocks);
-  editor.insertBlocks(blocks, referenceBlock, placement);
+  editor.insertBlocks(flattenColumns(blocks), referenceBlock, placement);
 
   updateBlockSelectionFromData(editor, selectionData);
+}
+
+// Checks if a block is in a valid place after being moved. This check is
+// primitive at the moment and only returns false if the block's parent is a
+// `columnList` block. This is because when moving blocks, columns are flattened
+// into regular blocks and therefore can only be nested inside `column` or
+// other regular blocks.
+function checkPlacementIsValid(parentBlock?: Block<any, any, any>): boolean {
+  return !parentBlock || parentBlock.type !== "columnList";
+}
+
+// Gets the placement for moving a block up. This has 3 cases:
+// 1. If the block has a previous sibling without children, the placement is
+// before it.
+// 2. If the block has a previous sibling with children, the placement is after
+// the last child.
+// 3. If the block has no previous sibling, but is nested, the placement is
+// before its parent.
+// If the placement is invalid, the function is called recursively until a valid
+// placement is found. Returns undefined if no valid placement is found or if
+// the block is already at the top of the document.
+function getMoveUpPlacement(
+  editor: BlockNoteEditor<any, any, any>,
+  prevBlock?: Block<any, any, any>,
+  parentBlock?: Block<any, any, any>
+):
+  | { referenceBlock: BlockIdentifier; placement: "before" | "after" }
+  | undefined {
+  let referenceBlock: Block<any, any, any> | undefined;
+  let placement: "before" | "after" | undefined;
+
+  if (!prevBlock) {
+    if (parentBlock) {
+      referenceBlock = parentBlock;
+      placement = "before";
+    }
+  } else if (prevBlock.children.length > 0) {
+    referenceBlock = prevBlock.children[prevBlock.children.length - 1];
+    placement = "after";
+  } else {
+    referenceBlock = prevBlock;
+    placement = "before";
+  }
+
+  if (!referenceBlock || !placement) {
+    return undefined;
+  }
+
+  const referenceBlockParent = editor.getParentBlock(referenceBlock);
+  if (!checkPlacementIsValid(referenceBlockParent)) {
+    return getMoveUpPlacement(
+      editor,
+      placement === "after"
+        ? referenceBlock
+        : editor.getPrevBlock(referenceBlock),
+      referenceBlockParent
+    );
+  }
+
+  return { referenceBlock, placement };
+}
+
+// Gets the placement for moving a block down. This has 3 cases:
+// 1. If the block has a next sibling without children, the placement is  after
+// it.
+// 2. If the block has a next sibling with children, the placement is before the
+// first child.
+// 3. If the block has no next sibling, but is nested, the placement is
+// after its parent.
+// If the placement is invalid, the function is called recursively until a valid
+// placement is found. Returns undefined if no valid placement is found or if
+// the block is already at the bottom of the document.
+function getMoveDownPlacement(
+  editor: BlockNoteEditor<any, any, any>,
+  nextBlock?: Block<any, any, any>,
+  parentBlock?: Block<any, any, any>
+):
+  | { referenceBlock: BlockIdentifier; placement: "before" | "after" }
+  | undefined {
+  let referenceBlock: Block<any, any, any> | undefined;
+  let placement: "before" | "after" | undefined;
+
+  if (!nextBlock) {
+    if (parentBlock) {
+      referenceBlock = parentBlock;
+      placement = "after";
+    }
+  } else if (nextBlock.children.length > 0) {
+    referenceBlock = nextBlock.children[0];
+    placement = "before";
+  } else {
+    referenceBlock = nextBlock;
+    placement = "after";
+  }
+
+  if (!referenceBlock || !placement) {
+    return undefined;
+  }
+
+  const referenceBlockParent = editor.getParentBlock(referenceBlock);
+  if (!checkPlacementIsValid(referenceBlockParent)) {
+    return getMoveDownPlacement(
+      editor,
+      placement === "before"
+        ? referenceBlock
+        : editor.getNextBlock(referenceBlock),
+      referenceBlockParent
+    );
+  }
+
+  return { referenceBlock, placement };
 }
 
 export function moveBlocksUp(editor: BlockNoteEditor<any, any, any>) {
   const selection = editor.getSelection();
   const block = selection?.blocks[0] || editor.getTextCursorPosition().block;
-  const prevBlock = editor.getPrevBlock(block);
-  const parentBlock = editor.getParentBlock(block);
 
-  let referenceBlockId: string | undefined;
-  let placement: "before" | "after" | undefined;
+  const moveUpPlacement = getMoveUpPlacement(
+    editor,
+    editor.getPrevBlock(block),
+    editor.getParentBlock(block)
+  );
 
-  if (!prevBlock) {
-    if (parentBlock) {
-      referenceBlockId = parentBlock.id;
-      placement = "before";
-    }
-  } else if (prevBlock.children.length > 0) {
-    referenceBlockId = prevBlock.children[prevBlock.children.length - 1].id;
-    placement = "after";
-  } else {
-    referenceBlockId = prevBlock.id;
-    placement = "before";
-  }
-
-  if (!referenceBlockId || !placement) {
+  if (!moveUpPlacement) {
     return;
   }
 
-  moveSelectedBlocksAndSelection(editor, referenceBlockId, placement);
+  moveSelectedBlocksAndSelection(
+    editor,
+    moveUpPlacement.referenceBlock,
+    moveUpPlacement.placement
+  );
 }
 
 export function moveBlocksDown(editor: BlockNoteEditor<any, any, any>) {
@@ -151,28 +290,20 @@ export function moveBlocksDown(editor: BlockNoteEditor<any, any, any>) {
   const block =
     selection?.blocks[selection?.blocks.length - 1] ||
     editor.getTextCursorPosition().block;
-  const nextBlock = editor.getNextBlock(block);
-  const parentBlock = editor.getParentBlock(block);
 
-  let referenceBlockId: string | undefined;
-  let placement: "before" | "after" | undefined;
+  const moveDownPlacement = getMoveDownPlacement(
+    editor,
+    editor.getNextBlock(block),
+    editor.getParentBlock(block)
+  );
 
-  if (!nextBlock) {
-    if (parentBlock) {
-      referenceBlockId = parentBlock.id;
-      placement = "after";
-    }
-  } else if (nextBlock.children.length > 0) {
-    referenceBlockId = nextBlock.children[0].id;
-    placement = "before";
-  } else {
-    referenceBlockId = nextBlock.id;
-    placement = "after";
-  }
-
-  if (!referenceBlockId || !placement) {
+  if (!moveDownPlacement) {
     return;
   }
 
-  moveSelectedBlocksAndSelection(editor, referenceBlockId, placement);
+  moveSelectedBlocksAndSelection(
+    editor,
+    moveDownPlacement.referenceBlock,
+    moveDownPlacement.placement
+  );
 }
