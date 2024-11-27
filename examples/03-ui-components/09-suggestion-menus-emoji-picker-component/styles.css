@@ -8,7 +8,7 @@
   flex-direction: column;
   gap: 8px;
   height: fit-content;
-  max-height: 100%;
+  max-height: inherit;
 
   overflow: auto;
 
