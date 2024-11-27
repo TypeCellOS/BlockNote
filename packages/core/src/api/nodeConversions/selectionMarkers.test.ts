@@ -1,9 +1,9 @@
 import { Node } from "prosemirror-model";
 import { Selection, TextSelection } from "prosemirror-state";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
-import { PartialBlock } from "../../blocks/defaultBlocks";
+import { PartialBlock } from "../../blocks/defaultBlocks.js";
 
 // These tests are meant to test the copying of user selections in the editor.
 // The test cases used for the other HTML conversion tests are not suitable here

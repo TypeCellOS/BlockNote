@@ -13,12 +13,13 @@ import type {
   TableContent,
 } from "../../schema/index.js";
 import {
-  getBlockInfoFromResolvedPos,
   getBlockInfoWithManualOffset,
+  getNearestBlockPos,
 } from "../getBlockInfoFromPos.js";
 
 import { EditorState, Transaction } from "prosemirror-state";
 import { ReplaceAroundStep, ReplaceStep } from "prosemirror-transform";
+import { getBlockInfo } from "../../api/getBlockInfoFromPos.js";
 import type { Block } from "../../blocks/defaultBlocks.js";
 import {
   isLinkInlineContent,
@@ -514,8 +515,10 @@ function getBlocksBetween<
   styleSchema: S,
   blockCache?: WeakMap<Node, Block<BSchema, I, S>>
 ) {
-  const startNode = getBlockInfoFromResolvedPos(doc.resolve(start));
-  const endNode = getBlockInfoFromResolvedPos(doc.resolve(end));
+  const startPosInfo = getNearestBlockPos(doc, start);
+  const endPosInfo = getNearestBlockPos(doc, end);
+  const startNode = getBlockInfo(startPosInfo);
+  const endNode = getBlockInfo(endPosInfo);
 
   const slice = doc.slice(
     startNode.bnBlock.beforePos,
