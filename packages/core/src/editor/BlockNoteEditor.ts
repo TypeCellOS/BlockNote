@@ -628,7 +628,7 @@ export class BlockNoteEditor<
         return false;
       }
 
-      if (node.type.name !== "blockContainer" || node.attrs.id !== id) {
+      if (!node.type.isInGroup("bnBlock") || node.attrs.id !== id) {
         return true;
       }
 
@@ -661,7 +661,7 @@ export class BlockNoteEditor<
         return false;
       }
 
-      if (node.type.name !== "blockContainer" || node.attrs.id !== id) {
+      if (!node.type.isInGroup("bnBlock") || node.attrs.id !== id) {
         return true;
       }
 
@@ -697,7 +697,7 @@ export class BlockNoteEditor<
         return false;
       }
 
-      if (node.type.name !== "blockContainer" || node.attrs.id !== id) {
+      if (!node.type.isInGroup("bnBlock") || node.attrs.id !== id) {
         return true;
       }
 
@@ -735,7 +735,7 @@ export class BlockNoteEditor<
         return false;
       }
 
-      if (node.type.name !== "blockContainer" || node.attrs.id !== id) {
+      if (!node.type.isInGroup("bnBlock") || node.attrs.id !== id) {
         return true;
       }
 
