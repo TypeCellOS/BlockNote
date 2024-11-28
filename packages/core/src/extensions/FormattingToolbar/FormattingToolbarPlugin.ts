@@ -153,7 +153,6 @@ export class FormattingToolbarView implements PluginView {
     const { ranges } = selection;
     const from = Math.min(...ranges.map((range) => range.$from.pos));
     const to = Math.max(...ranges.map((range) => range.$to.pos));
-    console.log("from", from, "to", to);
 
     const shouldShow = this.shouldShow?.({
       view,
