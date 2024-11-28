@@ -67,6 +67,7 @@ type ExtensionOptions<
   tableHandles: boolean;
   dropCursor: (opts: any) => Plugin;
   placeholders: Record<string | "default", string>;
+  tabKeyboardNavigation?: boolean;
 };
 
 /**
@@ -200,6 +201,7 @@ const getTipTapExtensions = <
     }),
     KeyboardShortcutsExtension.configure({
       editor: opts.editor,
+      tabKeyboardNavigation: opts.tabKeyboardNavigation,
     }),
     BlockGroup.configure({
       domAttributes: opts.domAttributes,

@@ -219,6 +219,8 @@ export type BlockNoteEditorOptions<
   setIdAttribute?: boolean;
 
   dropCursor?: (opts: any) => Plugin;
+
+  tabKeyboardNavigation?: boolean;
 };
 
 const blockNoteTipTapOptions = {
@@ -395,6 +397,7 @@ export class BlockNoteEditor<
       tableHandles: checkDefaultBlockTypeInSchema("table", this),
       dropCursor: this.options.dropCursor ?? dropCursor,
       placeholders: newOptions.placeholders,
+      tabKeyboardNavigation: newOptions.tabKeyboardNavigation,
     });
 
     // add extensions from _tiptapOptions
