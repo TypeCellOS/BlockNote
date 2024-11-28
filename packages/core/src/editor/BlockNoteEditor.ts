@@ -9,6 +9,12 @@ import {
 import { Node, Schema } from "prosemirror-model";
 // import "./blocknote.css";
 import * as Y from "yjs";
+import {
+  getBlock,
+  getNextBlock,
+  getParentBlock,
+  getPrevBlock,
+} from "../api/blockManipulation/commands/getBlock/getBlock.js";
 import { insertBlocks } from "../api/blockManipulation/commands/insertBlocks/insertBlocks.js";
 import {
   moveBlocksDown,
@@ -614,157 +620,57 @@ export class BlockNoteEditor<
 
   /**
    * Gets a snapshot of an existing block from the editor.
-   * @param blockIdentifier The identifier of an existing block that should be retrieved.
-   * @returns The block that matches the identifier, or `undefined` if no matching block was found.
+   * @param blockIdentifier The identifier of an existing block that should be
+   * retrieved.
+   * @returns The block that matches the identifier, or `undefined` if no
+   * matching block was found.
    */
   public getBlock(
     blockIdentifier: BlockIdentifier
   ): Block<BSchema, ISchema, SSchema> | undefined {
-    const id =
-      typeof blockIdentifier === "string"
-        ? blockIdentifier
-        : blockIdentifier.id;
-    let newBlock: Block<BSchema, ISchema, SSchema> | undefined = undefined;
-
-    this._tiptapEditor.state.doc.firstChild!.descendants((node) => {
-      if (typeof newBlock !== "undefined") {
-        return false;
-      }
-
-      if (!node.type.isInGroup("bnBlock") || node.attrs.id !== id) {
-        return true;
-      }
-
-      newBlock = nodeToBlock(
-        node,
-        this.schema.blockSchema,
-        this.schema.inlineContentSchema,
-        this.schema.styleSchema,
-        this.blockCache
-      );
-
-      return false;
-    });
-
-    return newBlock;
+    return getBlock(this, blockIdentifier);
   }
 
-  // TODO: Extract duplicate code
+  /**
+   * Gets a snapshot of the previous sibling of an existing block from the
+   * editor.
+   * @param blockIdentifier The identifier of an existing block for which the
+   * previous sibling should be retrieved.
+   * @returns The previous sibling of the block that matches the identifier.
+   * `undefined` if no matching block was found, or it's the first child/block
+   * in the document.
+   */
   public getPrevBlock(
     blockIdentifier: BlockIdentifier
   ): Block<BSchema, ISchema, SSchema> | undefined {
-    const id =
-      typeof blockIdentifier === "string"
-        ? blockIdentifier
-        : blockIdentifier.id;
-    let newBlock: Block<BSchema, ISchema, SSchema> | undefined = undefined;
-
-    this._tiptapEditor.state.doc.descendants((node, pos) => {
-      if (typeof newBlock !== "undefined") {
-        return false;
-      }
-
-      if (!node.type.isInGroup("bnBlock") || node.attrs.id !== id) {
-        return true;
-      }
-
-      const $posBeforeNode = this._tiptapEditor.state.doc.resolve(pos);
-      const prevNode = $posBeforeNode.nodeBefore;
-      if (prevNode) {
-        newBlock = nodeToBlock(
-          prevNode,
-          this.schema.blockSchema,
-          this.schema.inlineContentSchema,
-          this.schema.styleSchema,
-          this.blockCache
-        );
-      }
-
-      return false;
-    });
-
-    return newBlock;
+    return getPrevBlock(this, blockIdentifier);
   }
 
+  /**
+   * Gets a snapshot of the next sibling of an existing block from the editor.
+   * @param blockIdentifier The identifier of an existing block for which the
+   * next sibling should be retrieved.
+   * @returns The next sibling of the block that matches the identifier.
+   * `undefined` if no matching block was found, or it's the last child/block in
+   * the document.
+   */
   public getNextBlock(
     blockIdentifier: BlockIdentifier
   ): Block<BSchema, ISchema, SSchema> | undefined {
-    const id =
-      typeof blockIdentifier === "string"
-        ? blockIdentifier
-        : blockIdentifier.id;
-    let newBlock: Block<BSchema, ISchema, SSchema> | undefined = undefined;
-
-    this._tiptapEditor.state.doc.descendants((node, pos) => {
-      if (typeof newBlock !== "undefined") {
-        return false;
-      }
-
-      if (!node.type.isInGroup("bnBlock") || node.attrs.id !== id) {
-        return true;
-      }
-
-      const $posAfterNode = this._tiptapEditor.state.doc.resolve(
-        pos + node.nodeSize
-      );
-      const nextNode = $posAfterNode.nodeAfter;
-      if (nextNode) {
-        newBlock = nodeToBlock(
-          nextNode,
-          this.schema.blockSchema,
-          this.schema.inlineContentSchema,
-          this.schema.styleSchema,
-          this.blockCache
-        );
-      }
-
-      return false;
-    });
-
-    return newBlock;
+    return getNextBlock(this, blockIdentifier);
   }
 
+  /**
+   * Gets a snapshot of the parent of an existing block from the editor.
+   * @param blockIdentifier The identifier of an existing block for which the
+   * parent should be retrieved.
+   * @returns The parent of the block that matches the identifier. `undefined`
+   * if no matching block was found, or the block isn't nested.
+   */
   public getParentBlock(
     blockIdentifier: BlockIdentifier
   ): Block<BSchema, ISchema, SSchema> | undefined {
-    const id =
-      typeof blockIdentifier === "string"
-        ? blockIdentifier
-        : blockIdentifier.id;
-    let newBlock: Block<BSchema, ISchema, SSchema> | undefined = undefined;
-
-    this._tiptapEditor.state.doc.descendants((node, pos) => {
-      if (typeof newBlock !== "undefined") {
-        return false;
-      }
-
-      if (!node.type.isInGroup("bnBlock") || node.attrs.id !== id) {
-        return true;
-      }
-
-      const $pos = this._tiptapEditor.state.doc.resolve(pos);
-      const parentNode = $pos.node();
-      const grandparentNode = $pos.node(-1);
-      const parentBlockNode =
-        grandparentNode.type.name !== "doc"
-          ? parentNode.type.name === "blockGroup"
-            ? grandparentNode
-            : parentNode
-          : undefined;
-      if (parentBlockNode) {
-        newBlock = nodeToBlock(
-          parentBlockNode,
-          this.schema.blockSchema,
-          this.schema.inlineContentSchema,
-          this.schema.styleSchema,
-          this.blockCache
-        );
-      }
-
-      return false;
-    });
-
-    return newBlock;
+    return getParentBlock(this, blockIdentifier);
   }
 
   /**
