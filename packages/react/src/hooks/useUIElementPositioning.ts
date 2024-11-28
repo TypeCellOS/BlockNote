@@ -45,8 +45,6 @@ export function useUIElementPositioning(
       ref: refs.setFloating,
       style: {
         display: "flex",
-        maxWidth: "100vw",
-        overflowX: "auto",
         ...styles,
         ...floatingStyles,
         zIndex: zIndex,
