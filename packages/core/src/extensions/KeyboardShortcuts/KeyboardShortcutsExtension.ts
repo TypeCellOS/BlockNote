@@ -16,7 +16,7 @@ import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 export const KeyboardShortcutsExtension = Extension.create<{
   editor: BlockNoteEditor<any, any, any>;
-  tabKeyboardNavigation?: boolean;
+  tabBehavior: "prefer-navigate-ui" | "prefer-indent";
 }>({
   priority: 50,
 
@@ -480,7 +480,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
       // editor since the browser will try to use tab for keyboard navigation.
       Tab: () => {
         if (
-          this.options.tabKeyboardNavigation !== false &&
+          this.options.tabBehavior !== "prefer-indent" &&
           (this.options.editor.formattingToolbar?.shown ||
             this.options.editor.linkToolbar?.shown ||
             this.options.editor.filePanel?.shown)
@@ -493,7 +493,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
       },
       "Shift-Tab": () => {
         if (
-          this.options.tabKeyboardNavigation !== false &&
+          this.options.tabBehavior !== "prefer-indent" &&
           (this.options.editor.formattingToolbar?.shown ||
             this.options.editor.linkToolbar?.shown ||
             this.options.editor.filePanel?.shown)
