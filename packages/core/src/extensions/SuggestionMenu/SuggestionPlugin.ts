@@ -85,7 +85,7 @@ class SuggestionMenuView<
 
     this.pluginState = stopped ? prev : next;
 
-    if (stopped || !this.editor.isEditable) {
+    if (stopped || !this.editor.isEditable || this.pluginState?.composing) {
       this.state!.show = false;
       this.emitUpdate(this.pluginState!.triggerCharacter);
 
@@ -148,6 +148,7 @@ type SuggestionPluginState =
       query: string;
       decorationId: string;
       ignoreQueryLength?: boolean;
+      composing: boolean;
     }
   | undefined;
 
@@ -192,7 +193,15 @@ export class SuggestionMenuProseMirrorPlugin<
       state: {
         // Initialize the plugin's internal state.
         init(): SuggestionPluginState {
-          return undefined;
+          return {
+            triggerCharacter: "",
+            deleteTriggerCharacter: false,
+            queryStartPos: 0,
+            query: "",
+            decorationId: "",
+            ignoreQueryLength: false,
+            composing: false
+          };
         },
 
         // Apply changes to the plugin state from an editor transaction.
@@ -232,6 +241,7 @@ export class SuggestionMenuProseMirrorPlugin<
               decorationId: `id_${Math.floor(Math.random() * 0xffffffff)}`,
               ignoreQueryLength:
                 suggestionPluginTransactionMeta?.ignoreQueryLength,
+              composing: false,
             };
           }
 
@@ -265,6 +275,8 @@ export class SuggestionMenuProseMirrorPlugin<
             prev.queryStartPos!,
             newState.selection.from
           );
+
+          next.composing = true;
 
           return next;
         },
