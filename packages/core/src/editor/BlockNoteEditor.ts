@@ -14,7 +14,7 @@ import {
   getNextBlock,
   getParentBlock,
   getPrevBlock,
-} from "../api/blockManipulation/commands/getBlock/getBlock.js";
+} from "../api/blockManipulation/getBlock/getBlock.js";
 import { insertBlocks } from "../api/blockManipulation/commands/insertBlocks/insertBlocks.js";
 import {
   moveBlocksDown,

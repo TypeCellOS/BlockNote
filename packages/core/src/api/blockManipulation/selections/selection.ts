@@ -69,11 +69,33 @@ export function getSelection<
   // In most cases, we want to return the blocks spanned by the selection at the
   // shared depth. However, when the block in which the selection starts is at a
   // higher depth than the shared depth, we omit the first block at the shared
-  // depth. Instead, we include nested blocks of the first block at the shared
-  // depth, from the start block onwards and up to its depth. This sounds a bit
-  // confusing, but basically it's to mimic Notion's behaviour (which you can
-  // see when moving multiple selected blocks up/down using
-  // Cmd+Shift+ArrowUp/ArrowDown).
+  // depth. Instead, we include the first block at its depth, and any blocks at
+  // a higher index up to the shared depth. The following  example illustrates
+  // this:
+  // - id-0
+  //   - id-1
+  //     - >|id-2
+  //     - id-3
+  //   - id-4
+  //     - id-5
+  //   - id-6
+  // - id-7
+  // - id-8
+  // - id-9|<
+  //   - id-10
+  // Here, each block is represented by its ID, and the selection is represented
+  // by the `>|` and `|<` markers. So the selection starts in block `id-2` and
+  // ends in block `id-8`. In this case, the shared depth is 0, since the blocks
+  // `id-6`, `id-7`, and `id-8` set the shared depth, as they are the least
+  // nested blocks spanned by the selection. Therefore, these blocks are all
+  // added to the `blocks` array. However, the selection starts in block `id-2`,
+  // which is at a higher depth than the shared depth. So we add block `id-2` to
+  // the `blocks` array, as well as any later siblings (in this case, `id-3`),
+  // and move up one level of depth. The ancestor of block `id-2` at this depth
+  // is block `id-1`, so we add all its later siblings to the `blocks` array as
+  // well, again moving up one level of depth. Since we're now at the shared
+  // depth, we are done. The final `blocks` array for this example would be:
+  // [ id-2, id-3, id-4, id-6, id-7, id-8, id-9 ]
   if ($startBlockBeforePos.depth > sharedDepth) {
     // Adds the block that the selection starts in.
     blocks.push(
@@ -204,6 +226,10 @@ export function setSelection<
     endPos = headBlockInfo.blockContent.afterPos - 1;
   }
 
+  // TODO: We should polish up the `MultipleNodeSelection` and use that instead.
+  //  Right now it's missing a few things like a jsonID and styling to show
+  //  which nodes are selected. `TextSelection` is ok for now, but has the
+  //  restriction that the start/end blocks must have content.
   editor._tiptapEditor.dispatch(
     editor._tiptapEditor.state.tr.setSelection(
       TextSelection.create(editor._tiptapEditor.state.doc, startPos, endPos)

@@ -505,17 +505,22 @@ export class TableHandlesView<
 
     // Update bounding boxes.
     const tableBody = this.tableElement!.querySelector("tbody");
-    if (tableBody) {
-      if (
-        this.state.rowIndex !== undefined &&
-        this.state.colIndex !== undefined
-      ) {
-        const row = tableBody.children[this.state.rowIndex];
-        const cell = row.children[this.state.colIndex];
-        this.state.referencePosCell = cell.getBoundingClientRect();
-      }
-      this.state.referencePosTable = tableBody.getBoundingClientRect();
+    if (!tableBody) {
+      throw new Error(
+        "Table block does not contain a 'tbody' HTML element. This should never happen."
+      );
     }
+
+    if (
+      this.state.rowIndex !== undefined &&
+      this.state.colIndex !== undefined
+    ) {
+      const row = tableBody.children[this.state.rowIndex];
+      const cell = row.children[this.state.colIndex];
+
+      this.state.referencePosCell = cell.getBoundingClientRect();
+    }
+    this.state.referencePosTable = tableBody.getBoundingClientRect();
 
     this.emitUpdate();
   }
