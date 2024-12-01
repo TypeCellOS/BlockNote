@@ -6,6 +6,12 @@ import { useUIPluginState } from "../../hooks/useUIPluginState.js";
 import { FormattingToolbar } from "./FormattingToolbar.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 
+/**
+ * Experimental formatting toolbar controller for mobile devices.
+ * Uses Visual Viewport API to position the toolbar above the virtual keyboard.
+ *
+ * Currently marked experimental due to the flickering issue with positioning cause by the use of the API (and likely a delay in its updates).
+ */
 export const ExperimentalMobileFormattingToolbarController = (props: {
   formattingToolbar?: FC<FormattingToolbarProps>;
   floatingOptions?: Partial<UseFloatingOptions>;
@@ -36,6 +42,7 @@ export const ExperimentalMobileFormattingToolbarController = (props: {
   useEffect(() => {
     const viewport = window.visualViewport!;
     function viewportHandler() {
+      // Calculate the offset necessary to set the toolbar above the virtual keyboard (using the offset info from the visualViewport)
       const layoutViewport = document.body;
       const offsetLeft = viewport.offsetLeft;
       const offsetTop =
