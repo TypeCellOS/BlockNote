@@ -622,6 +622,27 @@
         }
       },
       {
+        "projectSlug": "experimental-mobile-formatting-toolbar",
+        "fullSlug": "ui-components/experimental-mobile-formatting-toolbar",
+        "pathFromRoot": "examples/03-ui-components/14-experimental-mobile-formatting-toolbar",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "areknawo",
+          "tags": [
+            "Intermediate",
+            "UI Components",
+            "Formatting Toolbar",
+            "Appearance & Styling"
+          ]
+        },
+        "title": "Experimental Mobile Formatting Toolbar",
+        "group": {
+          "pathFromRoot": "examples/03-ui-components",
+          "slug": "ui-components"
+        }
+      },
+      {
         "projectSlug": "link-toolbar-buttons",
         "fullSlug": "ui-components/link-toolbar-buttons",
         "pathFromRoot": "examples/03-ui-components/link-toolbar-buttons",
