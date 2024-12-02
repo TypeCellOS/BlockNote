@@ -163,6 +163,7 @@ const suggestionMenuPluginKey = new PluginKey("SuggestionMenuPlugin");
  * - This version hides some unnecessary complexity from the user of the plugin.
  * - This version handles key events differently
  */
+let _isComposing = false;
 export class SuggestionMenuProseMirrorPlugin<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -197,6 +198,9 @@ export class SuggestionMenuProseMirrorPlugin<
 
         // Apply changes to the plugin state from an editor transaction.
         apply(transaction, prev, _oldState, newState): SuggestionPluginState {
+          if (_isComposing) {
+            return prev;
+          }
           // TODO: More clearly define which transactions should be ignored.
           if (transaction.getMeta("orderedListIndexing") !== undefined) {
             return prev;
@@ -271,6 +275,18 @@ export class SuggestionMenuProseMirrorPlugin<
       },
 
       props: {
+        handleDOMEvents:{
+          compositionstart:(view)=>{
+            _isComposing = true;
+            view.dispatch(view.state.tr.setMeta("isComposing", true));
+            return false;
+          },
+          compositionend:(view)=>{
+            _isComposing = false;
+            view.dispatch(view.state.tr.setMeta("isComposing", false));
+            return false;
+          }
+        },
         handleTextInput(view, _from, _to, text) {
           const suggestionPluginState: SuggestionPluginState = (
             this as Plugin
