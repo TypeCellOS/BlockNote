@@ -29,11 +29,8 @@ export const ExperimentalMobileFormattingToolbarController = (props: {
   const style = useMemo<CSSProperties>(() => {
     return {
       display: "flex",
-      position: "absolute",
-      maxWidth: "100vw",
-      overflowX: "auto",
+      position: "fixed",
       bottom: 0,
-      top: "unset",
       zIndex: 3000,
       transform,
     };

@@ -18,7 +18,8 @@ export default function App() {
       },
       {
         type: "paragraph",
-        content: "Check out the static formatting toolbar above!",
+        content:
+          "Check out the experimental mobile formatting toolbar by selecting some text (best experienced on a mobile device).",
       },
       {
         type: "paragraph",
