@@ -67,6 +67,7 @@ type ExtensionOptions<
   tableHandles: boolean;
   dropCursor: (opts: any) => Plugin;
   placeholders: Record<string | "default", string>;
+  tabBehavior?: "prefer-navigate-ui" | "prefer-indent";
 };
 
 /**
@@ -200,6 +201,7 @@ const getTipTapExtensions = <
     }),
     KeyboardShortcutsExtension.configure({
       editor: opts.editor,
+      tabBehavior: opts.tabBehavior,
     }),
     BlockGroup.configure({
       domAttributes: opts.domAttributes,

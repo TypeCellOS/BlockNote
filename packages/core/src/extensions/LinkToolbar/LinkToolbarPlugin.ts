@@ -2,7 +2,7 @@ import { getMarkRange, posToDOMRect, Range } from "@tiptap/core";
 
 import { EditorView } from "@tiptap/pm/view";
 import { Mark } from "prosemirror-model";
-import { Plugin, PluginKey, PluginView } from "prosemirror-state";
+import { EditorState, Plugin, PluginKey, PluginView } from "prosemirror-state";
 
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
@@ -52,7 +52,7 @@ class LinkToolbarView implements PluginView {
 
     this.startMenuUpdateTimer = () => {
       this.menuUpdateTimer = setTimeout(() => {
-        this.update();
+        this.update(this.pmView);
       }, 250);
     };
 
@@ -190,8 +190,15 @@ class LinkToolbarView implements PluginView {
     }
   }
 
-  update() {
-    if (!this.pmView.hasFocus()) {
+  update(view: EditorView, oldState?: EditorState) {
+    const { state } = view;
+
+    const isSame =
+      oldState &&
+      oldState.selection.from === state.selection.from &&
+      oldState.selection.to === state.selection.to;
+
+    if (isSame || !this.pmView.hasFocus()) {
       return;
     }
 

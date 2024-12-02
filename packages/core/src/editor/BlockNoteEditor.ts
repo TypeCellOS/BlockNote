@@ -219,6 +219,21 @@ export type BlockNoteEditorOptions<
   setIdAttribute?: boolean;
 
   dropCursor?: (opts: any) => Plugin;
+
+  /**
+   Select desired behavior when pressing `Tab` (or `Shift-Tab`). Specifically,
+   what should happen when a user has selected multiple blocks while a toolbar
+   is open:
+   - `"prefer-navigate-ui"`: Change focus to the toolbar. The user needs to
+   first press `Escape` to close the toolbar, and can then indent multiple
+   blocks. Better for keyboard accessibility.
+   - `"prefer-indent"`: Regardless of whether toolbars are open, indent the
+   selection of blocks. In this case, it's not possible to navigate toolbars
+   with the keyboard.
+
+   @default "prefer-navigate-ui"
+   */
+  tabBehavior: "prefer-navigate-ui" | "prefer-indent";
 };
 
 const blockNoteTipTapOptions = {
@@ -395,6 +410,7 @@ export class BlockNoteEditor<
       tableHandles: checkDefaultBlockTypeInSchema("table", this),
       dropCursor: this.options.dropCursor ?? dropCursor,
       placeholders: newOptions.placeholders,
+      tabBehavior: newOptions.tabBehavior,
     });
 
     // add extensions from _tiptapOptions
