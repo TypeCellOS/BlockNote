@@ -96,6 +96,10 @@ export function setTextCursorPosition<
   const id = typeof targetBlock === "string" ? targetBlock : targetBlock.id;
 
   const posInfo = getNodeById(id, editor._tiptapEditor.state.doc);
+  if (!posInfo) {
+    throw new Error(`Block with ID ${id} not found`);
+  }
+
   const info = getBlockInfo(posInfo);
 
   const contentType: "none" | "inline" | "table" =

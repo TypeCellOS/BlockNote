@@ -168,7 +168,13 @@ export function setSelection<
   const doc = editor._tiptapEditor.state.doc;
 
   const anchorPosInfo = getNodeById(startBlockId, doc);
+  if (!anchorPosInfo) {
+    throw new Error(`Block with ID ${startBlockId} not found`);
+  }
   const headPosInfo = getNodeById(endBlockId, doc);
+  if (!headPosInfo) {
+    throw new Error(`Block with ID ${endBlockId} not found`);
+  }
 
   const anchorBlockInfo = getBlockInfo(anchorPosInfo);
   const headBlockInfo = getBlockInfo(headPosInfo);

@@ -88,7 +88,12 @@ function updateBlockSelectionFromData(
   const anchorBlockPos = getNodeById(
     data.anchorBlockId,
     editor._tiptapEditor.state.doc
-  ).posBeforeNode;
+  )?.posBeforeNode;
+  if (anchorBlockPos === undefined) {
+    throw new Error(
+      `Could not find block with ID ${data.anchorBlockId} to update selection`
+    );
+  }
 
   let selection: Selection;
   if (data.type === "cell") {
@@ -106,7 +111,12 @@ function updateBlockSelectionFromData(
     const headBlockPos = getNodeById(
       data.headBlockId,
       editor._tiptapEditor.state.doc
-    ).posBeforeNode;
+    )?.posBeforeNode;
+    if (headBlockPos === undefined) {
+      throw new Error(
+        `Could not find block with ID ${data.headBlockId} to update selection`
+      );
+    }
 
     selection = TextSelection.create(
       editor._tiptapEditor.state.doc,

@@ -263,15 +263,23 @@ export function updateBlock<
 
   const id =
     typeof blockToUpdate === "string" ? blockToUpdate : blockToUpdate.id;
-  const { posBeforeNode } = getNodeById(id, ttEditor.state.doc);
+
+  const posInfo = getNodeById(id, ttEditor.state.doc);
+  if (!posInfo) {
+    throw new Error(`Block with ID ${id} not found`);
+  }
 
   ttEditor.commands.command(({ state, dispatch }) => {
-    updateBlockCommand(editor, posBeforeNode, update)({ state, dispatch });
+    updateBlockCommand(
+      editor,
+      posInfo.posBeforeNode,
+      update
+    )({ state, dispatch });
     return true;
   });
 
   const blockContainerNode = ttEditor.state.doc
-    .resolve(posBeforeNode + 1) // TODO: clean?
+    .resolve(posInfo.posBeforeNode + 1) // TODO: clean?
     .node();
 
   return nodeToBlock(

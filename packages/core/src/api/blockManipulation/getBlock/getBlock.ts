@@ -20,19 +20,18 @@ export function getBlock<
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
 
-  try {
-    const { node } = getNodeById(id, editor._tiptapEditor.state.doc);
-
-    return nodeToBlock(
-      node,
-      editor.schema.blockSchema,
-      editor.schema.inlineContentSchema,
-      editor.schema.styleSchema,
-      editor.blockCache
-    );
-  } catch (e) {
+  const posInfo = getNodeById(id, editor._tiptapEditor.state.doc);
+  if (!posInfo) {
     return undefined;
   }
+
+  return nodeToBlock(
+    posInfo.node,
+    editor.schema.blockSchema,
+    editor.schema.inlineContentSchema,
+    editor.schema.styleSchema,
+    editor.blockCache
+  );
 }
 
 export function getPrevBlock<
@@ -46,26 +45,26 @@ export function getPrevBlock<
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
 
-  try {
-    const { posBeforeNode } = getNodeById(id, editor._tiptapEditor.state.doc);
-
-    const $posBeforeNode =
-      editor._tiptapEditor.state.doc.resolve(posBeforeNode);
-    const nodeToConvert = $posBeforeNode.nodeBefore;
-    if (!nodeToConvert) {
-      return undefined;
-    }
-
-    return nodeToBlock(
-      nodeToConvert,
-      editor.schema.blockSchema,
-      editor.schema.inlineContentSchema,
-      editor.schema.styleSchema,
-      editor.blockCache
-    );
-  } catch (e) {
+  const posInfo = getNodeById(id, editor._tiptapEditor.state.doc);
+  if (!posInfo) {
     return undefined;
   }
+
+  const $posBeforeNode = editor._tiptapEditor.state.doc.resolve(
+    posInfo.posBeforeNode
+  );
+  const nodeToConvert = $posBeforeNode.nodeBefore;
+  if (!nodeToConvert) {
+    return undefined;
+  }
+
+  return nodeToBlock(
+    nodeToConvert,
+    editor.schema.blockSchema,
+    editor.schema.inlineContentSchema,
+    editor.schema.styleSchema,
+    editor.blockCache
+  );
 }
 
 export function getNextBlock<
@@ -79,30 +78,26 @@ export function getNextBlock<
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
 
-  try {
-    const { node, posBeforeNode } = getNodeById(
-      id,
-      editor._tiptapEditor.state.doc
-    );
-
-    const $posAfterNode = editor._tiptapEditor.state.doc.resolve(
-      posBeforeNode + node.nodeSize
-    );
-    const nodeToConvert = $posAfterNode.nodeAfter;
-    if (!nodeToConvert) {
-      return undefined;
-    }
-
-    return nodeToBlock(
-      nodeToConvert,
-      editor.schema.blockSchema,
-      editor.schema.inlineContentSchema,
-      editor.schema.styleSchema,
-      editor.blockCache
-    );
-  } catch (e) {
+  const posInfo = getNodeById(id, editor._tiptapEditor.state.doc);
+  if (!posInfo) {
     return undefined;
   }
+
+  const $posAfterNode = editor._tiptapEditor.state.doc.resolve(
+    posInfo.posBeforeNode + posInfo.node.nodeSize
+  );
+  const nodeToConvert = $posAfterNode.nodeAfter;
+  if (!nodeToConvert) {
+    return undefined;
+  }
+
+  return nodeToBlock(
+    nodeToConvert,
+    editor.schema.blockSchema,
+    editor.schema.inlineContentSchema,
+    editor.schema.styleSchema,
+    editor.blockCache
+  );
 }
 
 export function getParentBlock<
@@ -116,30 +111,31 @@ export function getParentBlock<
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
 
-  try {
-    const { posBeforeNode } = getNodeById(id, editor._tiptapEditor.state.doc);
-    const $posBeforeNode =
-      editor._tiptapEditor.state.doc.resolve(posBeforeNode);
-    const parentNode = $posBeforeNode.node();
-    const grandparentNode = $posBeforeNode.node(-1);
-    const nodeToConvert =
-      grandparentNode.type.name !== "doc"
-        ? parentNode.type.name === "blockGroup"
-          ? grandparentNode
-          : parentNode
-        : undefined;
-    if (!nodeToConvert) {
-      return undefined;
-    }
-
-    return nodeToBlock(
-      nodeToConvert,
-      editor.schema.blockSchema,
-      editor.schema.inlineContentSchema,
-      editor.schema.styleSchema,
-      editor.blockCache
-    );
-  } catch (e) {
+  const posInfo = getNodeById(id, editor._tiptapEditor.state.doc);
+  if (!posInfo) {
     return undefined;
   }
+
+  const $posBeforeNode = editor._tiptapEditor.state.doc.resolve(
+    posInfo.posBeforeNode
+  );
+  const parentNode = $posBeforeNode.node();
+  const grandparentNode = $posBeforeNode.node(-1);
+  const nodeToConvert =
+    grandparentNode.type.name !== "doc"
+      ? parentNode.type.name === "blockGroup"
+        ? grandparentNode
+        : parentNode
+      : undefined;
+  if (!nodeToConvert) {
+    return undefined;
+  }
+
+  return nodeToBlock(
+    nodeToConvert,
+    editor.schema.blockSchema,
+    editor.schema.inlineContentSchema,
+    editor.schema.styleSchema,
+    editor.blockCache
+  );
 }

@@ -236,6 +236,9 @@ export class TableHandlesView<
       blockEl.id,
       this.editor._tiptapEditor.state.doc
     );
+    if (!pmNodeInfo) {
+      throw new Error(`Block with ID ${blockEl.id} not found`);
+    }
 
     const block = nodeToBlock(
       pmNodeInfo.node,
