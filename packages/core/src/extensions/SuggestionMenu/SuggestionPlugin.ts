@@ -153,6 +153,7 @@ type SuggestionPluginState =
   | undefined;
 
 const suggestionMenuPluginKey = new PluginKey("SuggestionMenuPlugin");
+let isComposing = false;
 
 /**
  * A ProseMirror plugin for suggestions, designed to make '/'-commands possible as well as mentions.
@@ -206,6 +207,12 @@ export class SuggestionMenuProseMirrorPlugin<
 
         // Apply changes to the plugin state from an editor transaction.
         apply(transaction, prev, _oldState, newState): SuggestionPluginState {
+
+          if (isComposing) {
+            // Ensure the menu stays open by keeping the previous state.
+            return prev;
+          }
+
           // TODO: More clearly define which transactions should be ignored.
           if (transaction.getMeta("orderedListIndexing") !== undefined) {
             return prev;
@@ -283,6 +290,18 @@ export class SuggestionMenuProseMirrorPlugin<
       },
 
       props: {
+        handleDOMEvents: {
+            compositionstart: (view) => {
+              isComposing = true;
+              view.dispatch(view.state.tr.setMeta("isComposing", true));
+              return false;
+            },
+            compositionend: (view) => {
+              isComposing = false;
+              view.dispatch(view.state.tr.setMeta("isComposing", false));
+              return false;
+            },
+        },
         handleTextInput(view, _from, _to, text) {
           const suggestionPluginState: SuggestionPluginState = (
             this as Plugin
