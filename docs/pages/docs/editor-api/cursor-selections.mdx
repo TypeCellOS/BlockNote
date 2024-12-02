@@ -87,6 +87,23 @@ const selection = editor.getSelection();
 
 `returns:` A snapshot of the current selection, or `undefined` if no selection is active.
 
+### Setting Selection
+
+You update the selection to span from one block to another using the following call:
+
+```typescript
+setSelection(startBlock: BlockIdentifier, endBlock: BlockIdentifier): void;
+
+// Usage
+editor.setSelection(startBlockIdentifier, endBlockIdentifier);
+```
+
+`startBlock:` The [identifier](/docs/editor-api/manipulating-blocks#block-identifiers) of the block where the selection should start.
+
+`endBlock:` The [identifier](/docs/editor-api/manipulating-blocks#block-identifiers) of the block where the selection should end.
+
+Both `startBlock` and `endBlock` must point to a block with content. The updated selection will span from the start of the first block to the end of the last block.
+
 ## Getting Selected Blocks
 
 The demo below displays the blocks in the current [selection](/docs/editor-api/cursor-selections#selections) as JSON below the editor. If a selection isn't active, it displays the block containing the [text cursor](/docs/editor-api/cursor-selections#text-cursor) instead.
