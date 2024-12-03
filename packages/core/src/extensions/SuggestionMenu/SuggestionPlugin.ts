@@ -164,6 +164,7 @@ const suggestionMenuPluginKey = new PluginKey("SuggestionMenuPlugin");
  * - This version handles key events differently
  */
 let _isComposing = false;
+let _compositionEndFlag = false;
 export class SuggestionMenuProseMirrorPlugin<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -198,9 +199,6 @@ export class SuggestionMenuProseMirrorPlugin<
 
         // Apply changes to the plugin state from an editor transaction.
         apply(transaction, prev, _oldState, newState): SuggestionPluginState {
-          if (_isComposing) {
-            return prev;
-          }
           // TODO: More clearly define which transactions should be ignored.
           if (transaction.getMeta("orderedListIndexing") !== undefined) {
             return prev;
@@ -247,7 +245,8 @@ export class SuggestionMenuProseMirrorPlugin<
           // Checks if the menu should be hidden.
           if (
             // Highlighting text should hide the menu.
-            newState.selection.from !== newState.selection.to ||
+            // In safari,when in composition event,this condition will match.
+            (!_isComposing && newState.selection.from !== newState.selection.to) ||
             // Transactions with plugin metadata should hide the menu.
             suggestionPluginTransactionMeta === null ||
             // Certain mouse events should hide the menu.
@@ -265,10 +264,22 @@ export class SuggestionMenuProseMirrorPlugin<
           const next = { ...prev };
 
           // Updates the current query.
-          next.query = newState.doc.textBetween(
-            prev.queryStartPos!,
-            newState.selection.from
-          );
+          if(_compositionEndFlag){
+            _compositionEndFlag = false
+            next.query = newState.doc.textBetween(
+              prev.queryStartPos!,
+              newState.selection.from
+            );
+            return next;
+          }
+          if(!_isComposing)
+          {
+            next.query = newState.doc.textBetween(
+              prev.queryStartPos!,
+              newState.selection.from
+            );
+            return next;
+          }
 
           return next;
         },
@@ -276,13 +287,13 @@ export class SuggestionMenuProseMirrorPlugin<
 
       props: {
         handleDOMEvents:{
-          compositionstart:(view)=>{
+          compositionstart:()=>{
             _isComposing = true;
-            view.dispatch(view.state.tr.setMeta("isComposing", true));
             return false;
           },
           compositionend:(view)=>{
             _isComposing = false;
+            _compositionEndFlag = true;
             view.dispatch(view.state.tr.setMeta("isComposing", false));
             return false;
           }
