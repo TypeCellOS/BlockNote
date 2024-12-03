@@ -5,9 +5,9 @@ import { setupTestEnv } from "../setupTestEnv.js";
 const getEditor = setupTestEnv();
 
 describe("Test replaceBlocks", () => {
-  it("Replace paragraph with column list above column list empty column list", () => {
+  it("Replace paragraph with column list above column list", () => {
     getEditor().replaceBlocks(
-      ["paragraph-0"],
+      ["paragraph-1"],
       [
         {
           type: "columnList",

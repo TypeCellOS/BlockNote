@@ -271,7 +271,7 @@ export const ru: Dictionary = {
         image: "Удалить картинку",
         video: "Удалить видео",
         audio: "Удалить аудио",
-        file: "Скачать файл",
+        file: "Удалить файл",
       },
     },
     file_preview_toggle: {

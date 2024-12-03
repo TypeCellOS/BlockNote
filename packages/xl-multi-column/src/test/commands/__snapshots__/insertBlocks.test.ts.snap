@@ -100,6 +100,23 @@ exports[`Test insertBlocks > Insert column list into paragraph 1`] = `
     "type": "paragraph",
   },
   {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
     "children": [
       {
         "children": [
@@ -197,6 +214,23 @@ exports[`Test insertBlocks > Insert column list into paragraph 1`] = `
   },
   {
     "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 2",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
     "content": [],
     "id": "trailing-paragraph",
     "props": {
@@ -239,6 +273,23 @@ exports[`Test insertBlocks > Insert column with paragraph into column list 1`] =
       },
     ],
     "id": "paragraph-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-1",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -371,6 +422,23 @@ exports[`Test insertBlocks > Insert column with paragraph into column list 1`] =
   },
   {
     "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 2",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
     "content": [],
     "id": "trailing-paragraph",
     "props": {
@@ -413,6 +481,23 @@ exports[`Test insertBlocks > Insert paragraph into column 1`] = `
       },
     ],
     "id": "paragraph-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-1",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -535,6 +620,23 @@ exports[`Test insertBlocks > Insert paragraph into column 1`] = `
   },
   {
     "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 2",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
     "content": [],
     "id": "trailing-paragraph",
     "props": {
@@ -647,6 +749,23 @@ exports[`Test insertBlocks > Insert valid column list with two columns 1`] = `
     "type": "columnList",
   },
   {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
     "children": [
       {
         "children": [
@@ -741,6 +860,23 @@ exports[`Test insertBlocks > Insert valid column list with two columns 1`] = `
     "id": "column-list-0",
     "props": {},
     "type": "columnList",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 2",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
   },
   {
     "children": [],

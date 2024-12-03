@@ -1,5 +1,5 @@
 import { callOrReturn, Extension, getExtensionField } from "@tiptap/core";
-import { columnResizing, tableEditing } from "prosemirror-tables";
+import { columnResizing, goToNextCell, tableEditing } from "prosemirror-tables";
 
 export const RESIZE_MIN_WIDTH = 35;
 export const EMPTY_CELL_WIDTH = 120;
@@ -51,6 +51,17 @@ export const TableExtension = Extension.create({
           selectionIsEmpty &&
           selectionIsAtStartOfNode &&
           selectionIsInTableParagraphNode
+        );
+      },
+      // Enables navigating cells using the tab key.
+      Tab: () => {
+        return this.editor.commands.command(({ state, dispatch, view }) =>
+          goToNextCell(1)(state, dispatch, view)
+        );
+      },
+      "Shift-Tab": () => {
+        return this.editor.commands.command(({ state, dispatch, view }) =>
+          goToNextCell(-1)(state, dispatch, view)
         );
       },
     };

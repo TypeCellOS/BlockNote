@@ -28,6 +28,10 @@ function setSelectionWithOffset(
   offset: number
 ) {
   const posInfo = getNodeById(targetBlockId, doc);
+  if (!posInfo) {
+    throw new Error(`Block with ID ${targetBlockId} not found`);
+  }
+
   const info = getBlockInfo(posInfo);
 
   if (!info.isBlockContainer) {

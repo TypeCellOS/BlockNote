@@ -55,7 +55,7 @@
     "@tiptap/core": "^2.7.1",
     "@tiptap/pm": "^2.7.1",
     "jsdom": "^25.0.1",
-    "y-prosemirror": "1.2.12",
+    "y-prosemirror": "1.2.13",
     "y-protocols": "^1.0.6",
     "yjs": "^13.6.15"
   },

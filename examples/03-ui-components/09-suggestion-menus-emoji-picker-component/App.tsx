@@ -22,7 +22,7 @@ function CustomEmojiPicker(
       }>
       {props.items.map((item, index) => (
         <div
-          className={`emoji-picker-item${
+          className={`emoji-picker-item ${
             props.selectedIndex === index ? " selected" : ""
           }`}
           onClick={() => {
