@@ -1,6 +1,187 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Test updateBlock > Update column list new children 1`] = `
+exports[`Test moveBlocksDown > Move into column list 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 0",
+            "type": "text",
+          },
+        ],
+        "id": "nested-paragraph-0",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 0",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Paragraph 1",
+                "type": "text",
+              },
+            ],
+            "id": "paragraph-1",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 0",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-0",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 1",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-1",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "column-0",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 2",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-2",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 3",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-3",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": undefined,
+        "id": "column-1",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+    ],
+    "content": undefined,
+    "id": "column-list-0",
+    "props": {},
+    "type": "columnList",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 2",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [],
+    "id": "trailing-paragraph",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Test moveBlocksDown > Move into next column 1`] = `
 [
   {
     "children": [
@@ -63,11 +244,11 @@ exports[`Test updateBlock > Update column list new children 1`] = `
             "content": [
               {
                 "styles": {},
-                "text": "Inserted Column Paragraph",
+                "text": "Column Paragraph 0",
                 "type": "text",
               },
             ],
-            "id": "1",
+            "id": "column-paragraph-0",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -77,7 +258,7 @@ exports[`Test updateBlock > Update column list new children 1`] = `
           },
         ],
         "content": undefined,
-        "id": "0",
+        "id": "column-0",
         "props": {
           "width": 1,
         },
@@ -90,11 +271,45 @@ exports[`Test updateBlock > Update column list new children 1`] = `
             "content": [
               {
                 "styles": {},
-                "text": "Inserted Column Paragraph",
+                "text": "Column Paragraph 1",
                 "type": "text",
               },
             ],
-            "id": "3",
+            "id": "column-paragraph-1",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 2",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-2",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 3",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-3",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -104,7 +319,7 @@ exports[`Test updateBlock > Update column list new children 1`] = `
           },
         ],
         "content": undefined,
-        "id": "2",
+        "id": "column-1",
         "props": {
           "width": 1,
         },
@@ -147,7 +362,7 @@ exports[`Test updateBlock > Update column list new children 1`] = `
 ]
 `;
 
-exports[`Test updateBlock > Update column new children 1`] = `
+exports[`Test moveBlocksDown > Move out of column list 1`] = `
 [
   {
     "children": [
@@ -210,11 +425,28 @@ exports[`Test updateBlock > Update column new children 1`] = `
             "content": [
               {
                 "styles": {},
-                "text": "Inserted Column Paragraph",
+                "text": "Column Paragraph 0",
                 "type": "text",
               },
             ],
-            "id": "0",
+            "id": "column-paragraph-0",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Column Paragraph 1",
+                "type": "text",
+              },
+            ],
+            "id": "column-paragraph-1",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -249,23 +481,6 @@ exports[`Test updateBlock > Update column new children 1`] = `
             },
             "type": "paragraph",
           },
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 3",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-3",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
         ],
         "content": undefined,
         "id": "column-1",
@@ -279,6 +494,23 @@ exports[`Test updateBlock > Update column new children 1`] = `
     "id": "column-list-0",
     "props": {},
     "type": "columnList",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Column Paragraph 3",
+        "type": "text",
+      },
+    ],
+    "id": "column-paragraph-3",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
   },
   {
     "children": [],
@@ -311,65 +543,26 @@ exports[`Test updateBlock > Update column new children 1`] = `
 ]
 `;
 
-exports[`Test updateBlock > Update nested paragraph to column 1`] = `
+exports[`Test moveBlocksUp > Move into column list 1`] = `
 [
   {
     "children": [
       {
-        "children": [
+        "children": [],
+        "content": [
           {
-            "children": [
-              {
-                "children": [],
-                "content": [
-                  {
-                    "styles": {},
-                    "text": "Inserted Column Paragraph",
-                    "type": "text",
-                  },
-                ],
-                "id": "1",
-                "props": {
-                  "backgroundColor": "default",
-                  "textAlignment": "left",
-                  "textColor": "default",
-                },
-                "type": "paragraph",
-              },
-            ],
-            "content": undefined,
-            "id": "0",
-            "props": {
-              "width": 1,
-            },
-            "type": "column",
-          },
-          {
-            "children": [
-              {
-                "children": [],
-                "content": [],
-                "id": "4",
-                "props": {
-                  "backgroundColor": "default",
-                  "textAlignment": "left",
-                  "textColor": "default",
-                },
-                "type": "paragraph",
-              },
-            ],
-            "content": undefined,
-            "id": "3",
-            "props": {
-              "width": 1,
-            },
-            "type": "column",
+            "styles": {},
+            "text": "Nested Paragraph 0",
+            "type": "text",
           },
         ],
-        "content": undefined,
-        "id": "2",
-        "props": {},
-        "type": "columnList",
+        "id": "nested-paragraph-0",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
       },
     ],
     "content": [
@@ -486,6 +679,23 @@ exports[`Test updateBlock > Update nested paragraph to column 1`] = `
             },
             "type": "paragraph",
           },
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Paragraph 2",
+                "type": "text",
+              },
+            ],
+            "id": "paragraph-2",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
         ],
         "content": undefined,
         "id": "column-1",
@@ -502,23 +712,6 @@ exports[`Test updateBlock > Update nested paragraph to column 1`] = `
   },
   {
     "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Paragraph 2",
-        "type": "text",
-      },
-    ],
-    "id": "paragraph-2",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
     "content": [],
     "id": "trailing-paragraph",
     "props": {
@@ -531,71 +724,26 @@ exports[`Test updateBlock > Update nested paragraph to column 1`] = `
 ]
 `;
 
-exports[`Test updateBlock > Update nested paragraph to column list 1`] = `
+exports[`Test moveBlocksUp > Move into previous column 1`] = `
 [
   {
     "children": [
       {
-        "children": [
+        "children": [],
+        "content": [
           {
-            "children": [
-              {
-                "children": [],
-                "content": [
-                  {
-                    "styles": {},
-                    "text": "Inserted Column Paragraph",
-                    "type": "text",
-                  },
-                ],
-                "id": "2",
-                "props": {
-                  "backgroundColor": "default",
-                  "textAlignment": "left",
-                  "textColor": "default",
-                },
-                "type": "paragraph",
-              },
-            ],
-            "content": undefined,
-            "id": "1",
-            "props": {
-              "width": 1,
-            },
-            "type": "column",
-          },
-          {
-            "children": [
-              {
-                "children": [],
-                "content": [
-                  {
-                    "styles": {},
-                    "text": "Inserted Column Paragraph",
-                    "type": "text",
-                  },
-                ],
-                "id": "4",
-                "props": {
-                  "backgroundColor": "default",
-                  "textAlignment": "left",
-                  "textColor": "default",
-                },
-                "type": "paragraph",
-              },
-            ],
-            "content": undefined,
-            "id": "3",
-            "props": {
-              "width": 1,
-            },
-            "type": "column",
+            "styles": {},
+            "text": "Nested Paragraph 0",
+            "type": "text",
           },
         ],
-        "content": undefined,
-        "id": "0",
-        "props": {},
-        "type": "columnList",
+        "id": "nested-paragraph-0",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
       },
     ],
     "content": [
@@ -668,16 +816,6 @@ exports[`Test updateBlock > Update nested paragraph to column list 1`] = `
             },
             "type": "paragraph",
           },
-        ],
-        "content": undefined,
-        "id": "column-0",
-        "props": {
-          "width": 1,
-        },
-        "type": "column",
-      },
-      {
-        "children": [
           {
             "children": [],
             "content": [
@@ -695,6 +833,16 @@ exports[`Test updateBlock > Update nested paragraph to column list 1`] = `
             },
             "type": "paragraph",
           },
+        ],
+        "content": undefined,
+        "id": "column-0",
+        "props": {
+          "width": 1,
+        },
+        "type": "column",
+      },
+      {
+        "children": [
           {
             "children": [],
             "content": [
@@ -757,63 +905,42 @@ exports[`Test updateBlock > Update nested paragraph to column list 1`] = `
 ]
 `;
 
-exports[`Test updateBlock > Update paragraph to column 1`] = `
+exports[`Test moveBlocksUp > Move out of column list 1`] = `
 [
   {
     "children": [
       {
-        "children": [
+        "children": [],
+        "content": [
           {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Inserted Column Paragraph",
-                "type": "text",
-              },
-            ],
-            "id": "1",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
+            "styles": {},
+            "text": "Nested Paragraph 0",
+            "type": "text",
           },
         ],
-        "content": undefined,
-        "id": "0",
+        "id": "nested-paragraph-0",
         "props": {
-          "width": 1,
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
         },
-        "type": "column",
-      },
-      {
-        "children": [
-          {
-            "children": [],
-            "content": [],
-            "id": "4",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": undefined,
-        "id": "3",
-        "props": {
-          "width": 1,
-        },
-        "type": "column",
+        "type": "paragraph",
       },
     ],
-    "content": undefined,
-    "id": "2",
-    "props": {},
-    "type": "columnList",
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 0",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
   },
   {
     "children": [],
@@ -833,206 +960,15 @@ exports[`Test updateBlock > Update paragraph to column 1`] = `
     "type": "paragraph",
   },
   {
-    "children": [
-      {
-        "children": [
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 0",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-0",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 1",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-1",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": undefined,
-        "id": "column-0",
-        "props": {
-          "width": 1,
-        },
-        "type": "column",
-      },
-      {
-        "children": [
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 2",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-2",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 3",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-3",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": undefined,
-        "id": "column-1",
-        "props": {
-          "width": 1,
-        },
-        "type": "column",
-      },
-    ],
-    "content": undefined,
-    "id": "column-list-0",
-    "props": {},
-    "type": "columnList",
-  },
-  {
     "children": [],
     "content": [
       {
         "styles": {},
-        "text": "Paragraph 2",
+        "text": "Column Paragraph 0",
         "type": "text",
       },
     ],
-    "id": "paragraph-2",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [],
-    "id": "trailing-paragraph",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-]
-`;
-
-exports[`Test updateBlock > Update paragraph to column list 1`] = `
-[
-  {
-    "children": [
-      {
-        "children": [
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Inserted Column Paragraph",
-                "type": "text",
-              },
-            ],
-            "id": "2",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": undefined,
-        "id": "1",
-        "props": {
-          "width": 1,
-        },
-        "type": "column",
-      },
-      {
-        "children": [
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Inserted Column Paragraph",
-                "type": "text",
-              },
-            ],
-            "id": "4",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
-        ],
-        "content": undefined,
-        "id": "3",
-        "props": {
-          "width": 1,
-        },
-        "type": "column",
-      },
-    ],
-    "content": undefined,
-    "id": "0",
-    "props": {},
-    "type": "columnList",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Paragraph 1",
-        "type": "text",
-      },
-    ],
-    "id": "paragraph-1",
+    "id": "column-paragraph-0",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -1044,23 +980,6 @@ exports[`Test updateBlock > Update paragraph to column list 1`] = `
     "children": [
       {
         "children": [
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Column Paragraph 0",
-                "type": "text",
-              },
-            ],
-            "id": "column-paragraph-0",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "paragraph",
-          },
           {
             "children": [],
             "content": [

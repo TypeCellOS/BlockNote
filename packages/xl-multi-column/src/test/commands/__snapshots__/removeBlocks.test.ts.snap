@@ -38,6 +38,23 @@ exports[`Test removeBlocks > Remove all blocks in column 1`] = `
     "type": "paragraph",
   },
   {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
     "children": [
       {
         "children": [
@@ -112,6 +129,23 @@ exports[`Test removeBlocks > Remove all blocks in column 1`] = `
   },
   {
     "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 2",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
     "content": [],
     "id": "trailing-paragraph",
     "props": {
@@ -154,6 +188,23 @@ exports[`Test removeBlocks > Remove all columns in columnList 1`] = `
       },
     ],
     "id": "paragraph-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-1",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -210,6 +261,23 @@ exports[`Test removeBlocks > Remove all columns in columnList 1`] = `
     "id": "column-list-0",
     "props": {},
     "type": "columnList",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 2",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
   },
   {
     "children": [],

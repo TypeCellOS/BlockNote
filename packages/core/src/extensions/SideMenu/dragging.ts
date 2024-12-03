@@ -149,7 +149,11 @@ export function dragStart<
 
   const view = editor.prosemirrorView;
 
-  const pos = getNodeById(block.id, view.state.doc).posBeforeNode;
+  const posInfo = getNodeById(block.id, view.state.doc);
+  if (!posInfo) {
+    throw new Error(`Block with ID ${block.id} not found`);
+  }
+  const pos = posInfo.posBeforeNode;
 
   if (pos != null) {
     const selection = view.state.selection;
