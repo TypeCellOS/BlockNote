@@ -67,6 +67,7 @@ type ExtensionOptions<
   tableHandles: boolean;
   dropCursor: (opts: any) => Plugin;
   placeholders: Record<string | "default", string>;
+  tabBehavior?: "prefer-navigate-ui" | "prefer-indent";
 };
 
 /**
@@ -116,7 +117,7 @@ export const getBlockNoteExtensions = <
   ret["nodeSelectionKeyboard"] = new NodeSelectionKeyboardPlugin();
 
   const disableExtensions: string[] = opts.disableExtensions || [];
-  for (const ext of Object.keys(disableExtensions)) {
+  for (const ext of disableExtensions) {
     delete ret[ext];
   }
 
@@ -200,6 +201,7 @@ const getTipTapExtensions = <
     }),
     KeyboardShortcutsExtension.configure({
       editor: opts.editor,
+      tabBehavior: opts.tabBehavior,
     }),
     BlockGroup.configure({
       domAttributes: opts.domAttributes,

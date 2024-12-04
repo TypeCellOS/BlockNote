@@ -47,11 +47,15 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
     };
   },
   addAttributes() {
+    const supportedLanguages = this.options
+      .supportedLanguages as SupportedLanguageConfig[];
+
     return {
       language: {
         default: this.options.defaultLanguage,
         parseHTML: (inputElement) => {
           let element = inputElement as HTMLElement | null;
+          let language: string | null = null;
 
           if (
             element?.tagName === "DIV" &&
@@ -67,20 +71,26 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
           const dataLanguage = element?.getAttribute("data-language");
 
           if (dataLanguage) {
-            return dataLanguage.toLowerCase();
-          }
+            language = dataLanguage.toLowerCase();
+          } else {
+            const classNames = [...(element?.className.split(" ") || [])];
+            const languages = classNames
+              .filter((className) => className.startsWith("language-"))
+              .map((className) => className.replace("language-", ""));
+            const [classLanguage] = languages;
 
-          const classNames = [...(element?.className.split(" ") || [])];
-          const languages = classNames
-            .filter((className) => className.startsWith("language-"))
-            .map((className) => className.replace("language-", ""));
-          const [language] = languages;
+            language = classLanguage.toLowerCase();
+          }
 
           if (!language) {
             return null;
           }
 
-          return language.toLowerCase();
+          return (
+            supportedLanguages.find(({ match }) => {
+              return match.includes(language);
+            })?.id || this.options.defaultLanguage
+          );
         },
         renderHTML: (attributes) => {
           return attributes.language && attributes.language !== "text"

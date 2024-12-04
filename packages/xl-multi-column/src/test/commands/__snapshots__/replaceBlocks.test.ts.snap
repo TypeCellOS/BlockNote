@@ -1,7 +1,42 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Test replaceBlocks > Replace paragraph with column list above column list empty column list 1`] = `
+exports[`Test replaceBlocks > Replace paragraph with column list above column list 1`] = `
 [
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 0",
+            "type": "text",
+          },
+        ],
+        "id": "nested-paragraph-0",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 0",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
   {
     "children": [
       {
@@ -159,6 +194,23 @@ exports[`Test replaceBlocks > Replace paragraph with column list above column li
     "id": "column-list-0",
     "props": {},
     "type": "columnList",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 2",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
   },
   {
     "children": [],

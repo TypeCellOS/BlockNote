@@ -18,9 +18,6 @@ export async function handleVSCodePaste<
   }
 
   const text = event.clipboardData!.getData("text/plain");
-  const vscode = event.clipboardData!.getData("vscode-editor-data");
-  const vscodeData = vscode ? JSON.parse(vscode) : undefined;
-  const language = vscodeData?.mode;
 
   if (!text) {
     return false;
@@ -28,9 +25,12 @@ export async function handleVSCodePaste<
 
   if (!schema.nodes.codeBlock) {
     view.pasteText(text);
-
     return true;
   }
+
+  const vscode = event.clipboardData!.getData("vscode-editor-data");
+  const vscodeData = vscode ? JSON.parse(vscode) : undefined;
+  const language = vscodeData?.mode;
 
   if (!language) {
     return false;

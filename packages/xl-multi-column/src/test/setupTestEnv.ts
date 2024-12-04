@@ -55,6 +55,11 @@ const testDocument: PartialBlock<
     ],
   },
   {
+    id: "paragraph-1",
+    type: "paragraph",
+    content: "Paragraph 1",
+  },
+  {
     id: "column-list-0",
     type: "columnList",
     children: [
@@ -91,6 +96,11 @@ const testDocument: PartialBlock<
         ],
       },
     ],
+  },
+  {
+    id: "paragraph-2",
+    type: "paragraph",
+    content: "Paragraph 2",
   },
   {
     id: "trailing-paragraph",
