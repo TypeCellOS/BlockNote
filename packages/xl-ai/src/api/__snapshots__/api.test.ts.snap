@@ -1,0 +1,464 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Test AI operations > Delete > deletes a paragraph 1`] = `
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "World",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Test AI operations > Delete > deletes a paragraph 2`] = `
+{
+  "operations": [
+    {
+      "id": "0$",
+      "type": "delete",
+    },
+  ],
+}
+`;
+
+exports[`Test AI operations > Insert > inserts a paragraph at end 1`] = `
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Hello",
+        "type": "text",
+      },
+    ],
+    "id": "0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Test",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Test AI operations > Insert > inserts a paragraph at end 2`] = `
+{
+  "operations": [
+    {
+      "blocks": [
+        {
+          "content": [
+            {
+              "styles": {},
+              "text": "Test",
+              "type": "text",
+            },
+          ],
+          "type": "paragraph",
+        },
+      ],
+      "position": "after",
+      "referenceId": "0$",
+      "type": "add",
+    },
+  ],
+}
+`;
+
+exports[`Test AI operations > Insert > inserts a paragraph at start 1`] = `
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Test",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Hello",
+        "type": "text",
+      },
+    ],
+    "id": "0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Test AI operations > Insert > inserts a paragraph at start 2`] = `
+{
+  "operations": [
+    {
+      "blocks": [
+        {
+          "content": [
+            {
+              "styles": {},
+              "text": "Test",
+              "type": "text",
+            },
+          ],
+          "type": "paragraph",
+        },
+      ],
+      "position": "before",
+      "referenceId": "0$",
+      "type": "add",
+    },
+  ],
+}
+`;
+
+exports[`Test AI operations > Update > changes simple formatting (paragraph) 1`] = `
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "Hello",
+        "type": "text",
+      },
+    ],
+    "id": "0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "World",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Test AI operations > Update > changes simple formatting (paragraph) 2`] = `
+{
+  "operations": [
+    {
+      "block": {
+        "content": [
+          {
+            "styles": {
+              "bold": true,
+            },
+            "text": "Hello",
+            "type": "text",
+          },
+        ],
+        "type": "paragraph",
+      },
+      "id": "0$",
+      "type": "update",
+    },
+  ],
+}
+`;
+
+exports[`Test AI operations > Update > changes simple formatting (word) 1`] = `
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "Hello",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " world",
+        "type": "text",
+      },
+    ],
+    "id": "0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Test AI operations > Update > changes simple formatting (word) 2`] = `
+{
+  "operations": [
+    {
+      "block": {
+        "content": [
+          {
+            "styles": {
+              "bold": true,
+            },
+            "text": "Hello",
+            "type": "text",
+          },
+          {
+            "styles": {},
+            "text": " world",
+            "type": "text",
+          },
+        ],
+        "type": "paragraph",
+      },
+      "id": "0$",
+      "type": "update",
+    },
+  ],
+}
+`;
+
+exports[`Test AI operations > Update > translates simple paragraphs 1`] = `
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Hallo",
+        "type": "text",
+      },
+    ],
+    "id": "0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Welt",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Test AI operations > Update > translates simple paragraphs 2`] = `
+{
+  "operations": [
+    {
+      "block": {
+        "content": [
+          {
+            "styles": {},
+            "text": "Hallo",
+            "type": "text",
+          },
+        ],
+        "type": "paragraph",
+      },
+      "id": "0$",
+      "type": "update",
+    },
+    {
+      "block": {
+        "content": [
+          {
+            "styles": {},
+            "text": "Welt",
+            "type": "text",
+          },
+        ],
+        "type": "paragraph",
+      },
+      "id": "1$",
+      "type": "update",
+    },
+  ],
+}
+`;
+
+exports[`Test AI operations > changes simple formatting (paragraph) 1`] = `
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "Hello",
+        "type": "text",
+      },
+    ],
+    "id": "0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "World",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Test AI operations > changes simple formatting (word) 1`] = `
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "Hello",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " world",
+        "type": "text",
+      },
+    ],
+    "id": "0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Test AI operations > translates simple paragraphs 1`] = `
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Hallo",
+        "type": "text",
+      },
+    ],
+    "id": "0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Welt",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;

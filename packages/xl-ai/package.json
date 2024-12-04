@@ -46,7 +46,7 @@
     "preview": "vite preview",
     "lint": "eslint src --max-warnings 0",
     "clean": "rimraf dist && rimraf types",
-    "test": "vitest --run",
+    "test": "NODE_EXTRA_CA_CERTS=\"$(mkcert -CAROOT)/rootCA.pem\" vitest --run",
     "test-watch": "vitest watch"
   },
   "dependencies": {

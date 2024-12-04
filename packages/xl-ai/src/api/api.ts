@@ -151,7 +151,7 @@ export async function callLLMStreaming(
     fetch: fetchViaBlockNoteAIServer(),
   })("gpt-4o-2024-08-06", {});
 
-  const ret = await streamObject<any>({
+  const ret = streamObject<any>({
     model,
     mode: "tool",
     schema: jsonSchema({
@@ -161,7 +161,7 @@ export async function callLLMStreaming(
     messages: withDefaults.messages,
     ...(options._streamObjectOptions as any),
   });
-  await applyLLMResponse(editor, ret, withDefaults.functions);
+  return await applyLLMResponse(editor, ret, withDefaults.functions);
 }
 
 export function applyAIOperation(
@@ -199,8 +199,10 @@ export async function applyLLMResponse(
       );
       isFirst = false;
     }
+
     numOperationsAppliedCompletely = operations.length - 1;
   }
+  return response;
 }
 
 // - cursor position
