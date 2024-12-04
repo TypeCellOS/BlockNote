@@ -51,9 +51,9 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "^0.0.60",
-    "@blocknote/core": "^0.19.1",
-    "@blocknote/mantine": "^0.19.1",
-    "@blocknote/react": "^0.19.1",
+    "@blocknote/core": "^0.20.0",
+    "@blocknote/mantine": "^0.20.0",
+    "@blocknote/react": "^0.20.0",
     "@floating-ui/react": "^0.26.4",
     "@tiptap/core": "^2.7.1",
     "ai": "^3.4.5",
