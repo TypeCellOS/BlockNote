@@ -1,8 +1,10 @@
-import { createContext, useContext, useState } from "react";
 import { Block } from "@blocknote/core";
 import { useBlockNoteEditor } from "@blocknote/react";
+import { LanguageModel } from "ai";
+import { createContext, useContext, useState } from "react";
 
 export type BlockNoteAIContextValue = {
+  model: LanguageModel;
   aiMenuBlockID: ReturnType<typeof useState<string | undefined>>[0];
   setAiMenuBlockID: ReturnType<typeof useState<string | undefined>>[1];
   prevDocument: ReturnType<
@@ -30,6 +32,7 @@ export function useBlockNoteAIContext(): BlockNoteAIContextValue {
 }
 
 export function BlockNoteAIContextProvider(props: {
+  model: LanguageModel;
   children: React.ReactNode;
 }) {
   const editor = useBlockNoteEditor();
@@ -44,6 +47,7 @@ export function BlockNoteAIContextProvider(props: {
   return (
     <BlockNoteAIContext.Provider
       value={{
+        model: props.model,
         aiMenuBlockID,
         setAiMenuBlockID,
         prevDocument,

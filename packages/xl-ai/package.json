@@ -50,7 +50,8 @@
     "test-watch": "vitest watch"
   },
   "dependencies": {
-    "@ai-sdk/openai": "^0.0.60",
+    "@ai-sdk/openai": "^1.0.6",
+    "@ai-sdk/groq": "^1.0.5",
     "@blocknote/core": "^0.20.0",
     "@blocknote/mantine": "^0.20.0",
     "@blocknote/react": "^0.20.0",

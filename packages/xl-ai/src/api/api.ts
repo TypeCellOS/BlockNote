@@ -1,4 +1,3 @@
-import { createOpenAI } from "@ai-sdk/openai";
 import {
   Block,
   BlockNoteEditor,
@@ -6,7 +5,13 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { CoreMessage, StreamObjectResult, jsonSchema, streamObject } from "ai";
+import {
+  CoreMessage,
+  LanguageModel,
+  StreamObjectResult,
+  jsonSchema,
+  streamObject,
+} from "ai";
 import { addFunction } from "./functions/add.js";
 import { deleteFunction } from "./functions/delete.js";
 import { AIFunction } from "./functions/index.js";
@@ -97,6 +102,7 @@ export function suffixIDs<
 }
 
 type CallLLMOptions = {
+  model: LanguageModel;
   functions?: AIFunction[];
 } & (
   | {
@@ -106,25 +112,6 @@ type CallLLMOptions = {
       messages: Array<CoreMessage>;
     }
 );
-
-const fetchViaBlockNoteAIServer =
-  () => (input: string | URL | Request, init?: RequestInit) => {
-    const request = new Request(input, init);
-
-    const newRequest = new Request(
-      `https://localhost:3000/ai?service=openai&url=${encodeURIComponent(
-        request.url
-      )}`,
-      {
-        headers: request.headers,
-        body: request.body,
-        method: request.method,
-        duplex: "half",
-      } as any
-    );
-
-    return fetch(newRequest);
-  };
 
 export async function callLLMStreaming(
   editor: BlockNoteEditor<any, any, any>,
@@ -143,16 +130,12 @@ export async function callLLMStreaming(
         prompt: (options as any).prompt,
         document: editor.document,
       }),
+
     ...options,
   };
 
-  const model = createOpenAI({
-    apiKey: "PLACEHOLDER",
-    fetch: fetchViaBlockNoteAIServer(),
-  })("gpt-4o-2024-08-06", {});
-
   const ret = streamObject<any>({
-    model,
+    model: withDefaults.model,
     mode: "tool",
     schema: jsonSchema({
       ...createOperationsArraySchema(withDefaults.functions),

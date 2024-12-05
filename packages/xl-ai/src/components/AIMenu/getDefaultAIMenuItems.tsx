@@ -52,6 +52,7 @@ export function getDefaultAIAddMenuItems<
       icon: <RiBallPenLine size={18} />,
       onItemClick: () => {
         callLLMStreaming(editor, {
+          model: contextValue.model,
           prompt: "Continue writing",
           // By default, LLM will be able to add / update / delete blocks. For "continue writing", we only want to allow adding new blocks.
           functions: [addFunction],
@@ -70,6 +71,7 @@ export function getDefaultAIAddMenuItems<
         contextValue.setPrevDocument(editor.document);
         setAIResponseStatus("generating");
         await callLLMStreaming(editor, {
+          model: contextValue.model,
           prompt: "Summarize",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
           functions: [addFunction],

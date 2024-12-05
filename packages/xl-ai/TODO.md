@@ -1,2 +1,3 @@
-- context for slash menu
-- selection tests
+- context for slash menu (i.e.: don't pass entire document)
+- selection tests + API
+- what about nested blocks?
