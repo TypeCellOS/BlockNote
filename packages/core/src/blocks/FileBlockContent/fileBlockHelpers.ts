@@ -329,8 +329,6 @@ export const createResizeHandlesWrapper = (
     // predetermined minimum width.
     if (newWidth < minWidth) {
       setWidth(minWidth);
-    } else if (newWidth > editor.domElement.firstElementChild!.clientWidth) {
-      setWidth(editor.domElement.firstElementChild!.clientWidth);
     } else {
       setWidth(newWidth);
     }

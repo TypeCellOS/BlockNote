@@ -64,12 +64,15 @@ export const videoRender = (
   const video = document.createElement("video");
   video.className = "bn-visual-media";
   video.src = block.props.url;
+  editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
+    video.src = downloadUrl;
+  });
   video.controls = true;
   video.contentEditable = "false";
   video.draggable = false;
   video.width = Math.min(
-    block.props.previewWidth,
-    editor.domElement.firstElementChild!.clientWidth
+    // Width is 0 if the video is not rendered yet.
+    video.getBoundingClientRect().width || Number.MAX_VALUE
   );
 
   const file = createResizeHandlesWrapper(

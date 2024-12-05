@@ -62,6 +62,7 @@ export const imageRender = (
 
   const image = document.createElement("img");
   image.className = "bn-visual-media";
+  image.src = block.props.url;
   editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
     image.src = downloadUrl;
   });
@@ -70,7 +71,8 @@ export const imageRender = (
   image.draggable = false;
   image.width = Math.min(
     block.props.previewWidth,
-    editor.domElement.firstElementChild!.clientWidth
+    // Width is 0 if the image is not rendered yet.
+    image.getBoundingClientRect().width || Number.MAX_VALUE
   );
 
   const file = createResizeHandlesWrapper(

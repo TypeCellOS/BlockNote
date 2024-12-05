@@ -21,14 +21,14 @@ export const AudioPreview = (
 ) => {
   const resolved = useResolveUrl(props.block.props.url!);
 
-  if (resolved.loadingState === "loading") {
-    return null;
-  }
-
   return (
     <audio
       className={"bn-audio"}
-      src={resolved.downloadUrl}
+      src={
+        resolved.loadingState === "loading"
+          ? props.block.props.url
+          : resolved.downloadUrl
+      }
       controls={true}
       contentEditable={false}
       draggable={false}

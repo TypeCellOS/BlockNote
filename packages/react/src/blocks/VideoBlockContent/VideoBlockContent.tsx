@@ -1,5 +1,5 @@
 import { FileBlockConfig, videoBlockConfig, videoParse } from "@blocknote/core";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { RiVideoFill } from "react-icons/ri";
 
 import {
@@ -20,28 +20,31 @@ export const VideoPreview = (
     "contentRef"
   >
 ) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
   const [width, setWidth] = useState<number>(
     Math.min(
       props.block.props.previewWidth!,
-      props.editor.domElement.firstElementChild!.clientWidth
+      videoRef.current?.getBoundingClientRect().width || Number.MAX_VALUE
     )
   );
 
   const resolved = useResolveUrl(props.block.props.url!);
 
-  if (resolved.loadingState === "loading") {
-    return null;
-  }
-
   return (
     <ResizeHandlesWrapper {...props} width={width} setWidth={setWidth}>
       <video
         className={"bn-visual-media"}
-        src={resolved.downloadUrl}
+        src={
+          resolved.loadingState === "loading"
+            ? props.block.props.url
+            : resolved.downloadUrl
+        }
         controls={true}
         contentEditable={false}
         draggable={false}
         width={width}
+        ref={videoRef}
       />
     </ResizeHandlesWrapper>
   );
