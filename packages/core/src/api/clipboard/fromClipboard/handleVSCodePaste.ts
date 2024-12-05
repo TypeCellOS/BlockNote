@@ -11,6 +11,10 @@ export async function handleVSCodePaste<
   S extends StyleSchema
 >(event: ClipboardEvent, editor: BlockNoteEditor<BSchema, I, S>) {
   const view = editor.prosemirrorView;
+  if (!view) {
+    return false;
+  }
+
   const { schema } = view.state;
 
   if (!event.clipboardData) {
@@ -38,7 +42,7 @@ export async function handleVSCodePaste<
 
   // strip carriage return chars from text pasted as code
   // see: https://github.com/ProseMirror/prosemirror-view/commit/a50a6bcceb4ce52ac8fcc6162488d8875613aacd
-  editor._tiptapEditor.view.pasteHTML(
+  view.pasteHTML(
     `<pre><code class="language-${language}">${text.replace(
       /\r\n?/g,
       "\n"

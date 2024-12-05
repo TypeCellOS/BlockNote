@@ -18,10 +18,10 @@ export class PlaceholderPlugin {
         if (nonce) {
           styleEl.setAttribute("nonce", nonce);
         }
-        if (editor._tiptapEditor.view.root instanceof ShadowRoot) {
+        if (editor._tiptapEditor.view?.root instanceof ShadowRoot) {
           editor._tiptapEditor.view.root.append(styleEl);
         } else {
-          editor._tiptapEditor.view.root.head.appendChild(styleEl);
+          editor._tiptapEditor.view?.root.head.appendChild(styleEl);
         }
 
         const styleSheet = styleEl.sheet!;
@@ -78,10 +78,10 @@ export class PlaceholderPlugin {
 
         return {
           destroy: () => {
-            if (editor._tiptapEditor.view.root instanceof ShadowRoot) {
+            if (editor._tiptapEditor.view?.root instanceof ShadowRoot) {
               editor._tiptapEditor.view.root.removeChild(styleEl);
             } else {
-              editor._tiptapEditor.view.root.head.removeChild(styleEl);
+              editor._tiptapEditor.view?.root.head.removeChild(styleEl);
             }
           },
         };

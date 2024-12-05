@@ -16,6 +16,10 @@ async function parseMarkdownAndCompareSnapshots(
     snapshotPath
   );
 
+  if (!editor._tiptapEditor.view) {
+    throw new Error("Editor view not initialized.");
+  }
+
   doPaste(
     editor._tiptapEditor.view,
     md,

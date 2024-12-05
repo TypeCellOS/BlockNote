@@ -125,7 +125,7 @@ function updateBlockSelectionFromData(
     );
   }
 
-  editor._tiptapEditor.view.dispatch(
+  editor._tiptapEditor.view?.dispatch(
     editor._tiptapEditor.state.tr.setSelection(selection)
   );
 }

@@ -45,12 +45,12 @@ class SuggestionMenuView<
       });
     };
 
-    this.rootEl = this.editor._tiptapEditor.view.root;
+    this.rootEl = this.editor._tiptapEditor.view?.root;
 
     // Setting capture=true ensures that any parent container of the editor that
     // gets scrolled will trigger the scroll event. Scroll events do not bubble
     // and so won't propagate to the document by default.
-    this.rootEl.addEventListener("scroll", this.handleScroll, true);
+    this.rootEl?.addEventListener("scroll", this.handleScroll, true);
   }
 
   handleScroll = () => {
@@ -113,10 +113,7 @@ class SuggestionMenuView<
 
   closeMenu = () => {
     this.editor.dispatch(
-      this.editor._tiptapEditor.view.state.tr.setMeta(
-        suggestionMenuPluginKey,
-        null
-      )
+      this.editor._tiptapEditor.state.tr.setMeta(suggestionMenuPluginKey, null)
     );
   };
 

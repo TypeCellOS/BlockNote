@@ -167,6 +167,10 @@ describe("Test ProseMirror selection clipboard HTML", () => {
   // Sets the editor selection to the given start and end positions, then
   // exports the selected content to HTML and compares it to a snapshot.
   async function testSelection(testCase: SelectionTestCase) {
+    if (!editor._tiptapEditor.view) {
+      throw new Error("Editor view not initialized.");
+    }
+
     editor.dispatch(
       editor._tiptapEditor.state.tr.setSelection(
         testCase.createSelection(editor._tiptapEditor.view.state.doc)

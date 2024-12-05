@@ -57,18 +57,18 @@ export const createPasteFromClipboardExtension = <
                 let data = event.clipboardData!.getData(format);
 
                 if (format === "blocknote/html") {
-                  editor._tiptapEditor.view.pasteHTML(data);
+                  editor._tiptapEditor.view?.pasteHTML(data);
                   return true;
                 }
 
                 if (format === "text/html") {
                   const htmlNode = nestedListsToBlockNoteStructure(data.trim());
                   data = htmlNode.innerHTML;
-                  editor._tiptapEditor.view.pasteHTML(data);
+                  editor._tiptapEditor.view?.pasteHTML(data);
                   return true;
                 }
 
-                editor._tiptapEditor.view.pasteText(data);
+                editor._tiptapEditor.view?.pasteText(data);
 
                 return true;
               },

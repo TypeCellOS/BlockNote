@@ -194,10 +194,6 @@ export const ResizeHandlesWrapper = (
       // predetermined minimum width.
       if (newWidth < minWidth) {
         props.setWidth(minWidth);
-      } else if (
-        newWidth > props.editor.domElement.firstElementChild!.clientWidth
-      ) {
-        props.setWidth(props.editor.domElement.firstElementChild!.clientWidth);
       } else {
         props.setWidth(newWidth);
       }

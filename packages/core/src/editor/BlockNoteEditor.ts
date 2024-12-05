@@ -93,6 +93,7 @@ import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTML
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
 import "../style.css";
+import { EditorView } from "prosemirror-view";
 
 export type BlockNoteExtension =
   | AnyExtension
@@ -274,7 +275,8 @@ export class BlockNoteEditor<
   public readonly headless: boolean = false;
 
   public readonly _tiptapEditor:
-    | BlockNoteTipTapEditor & {
+    | Omit<BlockNoteTipTapEditor, "view"> & {
+        view: EditorView | undefined;
         contentComponent: any;
       } = undefined as any; // TODO: Type should actually reflect that it can be `undefined` in headless mode
 
@@ -542,6 +544,7 @@ export class BlockNoteEditor<
         tiptapOptions,
         this.schema.styleSchema
       ) as BlockNoteTipTapEditor & {
+        view: any;
         contentComponent: any;
       };
       this._pmSchema = this._tiptapEditor.schema;
@@ -570,15 +573,15 @@ export class BlockNoteEditor<
   }
 
   public get domElement() {
-    return this._tiptapEditor.view.dom as HTMLDivElement;
+    return this._tiptapEditor.view?.dom as HTMLDivElement | undefined;
   }
 
-  public isFocused() {
-    return this._tiptapEditor.view.hasFocus();
+  public isFocused(): boolean | undefined {
+    return this._tiptapEditor.view?.hasFocus();
   }
 
   public focus() {
-    this._tiptapEditor.view.focus();
+    this._tiptapEditor.view?.focus();
   }
 
   public onUploadStart(callback: (blockId?: string) => void) {
@@ -1198,7 +1201,11 @@ export class BlockNoteEditor<
       ignoreQueryLength?: boolean;
     }
   ) {
-    const tr = this.prosemirrorView.state.tr;
+    const tr = this.prosemirrorView?.state.tr;
+    if (!tr) {
+      return;
+    }
+
     const transaction =
       pluginState && pluginState.deleteTriggerCharacter
         ? tr.insertText(triggerCharacter)
