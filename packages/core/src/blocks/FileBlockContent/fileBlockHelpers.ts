@@ -361,16 +361,16 @@ export const createResizeHandlesWrapper = (
     });
   };
 
-  // Shows the resize handles when hovering over the element with the cursor.
-  const elementMouseEnterHandler = () => {
+  // Shows the resize handles when hovering over the wrapper with the cursor.
+  const wrapperMouseEnterHandler = () => {
     if (editor.isEditable) {
       wrapper.appendChild(leftResizeHandle);
       wrapper.appendChild(rightResizeHandle);
     }
   };
-  // Hides the resize handles when the cursor leaves the element, unless the
+  // Hides the resize handles when the cursor leaves the wrapper, unless the
   // cursor moves to one of the resize handles.
-  const elementMouseLeaveHandler = (event: MouseEvent) => {
+  const wrapperMouseLeaveHandler = (event: MouseEvent) => {
     if (
       event.relatedTarget === leftResizeHandle ||
       event.relatedTarget === rightResizeHandle
@@ -402,7 +402,7 @@ export const createResizeHandlesWrapper = (
 
     resizeParams = {
       handleUsed: "left",
-      initialWidth: block.props.previewWidth!,
+      initialWidth: wrapper.clientWidth,
       initialClientX: event.clientX,
     };
   };
@@ -414,7 +414,7 @@ export const createResizeHandlesWrapper = (
 
     resizeParams = {
       handleUsed: "right",
-      initialWidth: block.props.previewWidth!,
+      initialWidth: wrapper.clientWidth,
       initialClientX: event.clientX,
     };
   };
@@ -423,8 +423,8 @@ export const createResizeHandlesWrapper = (
 
   window.addEventListener("mousemove", windowMouseMoveHandler);
   window.addEventListener("mouseup", windowMouseUpHandler);
-  element.addEventListener("mouseenter", elementMouseEnterHandler);
-  element.addEventListener("mouseleave", elementMouseLeaveHandler);
+  wrapper.addEventListener("mouseenter", wrapperMouseEnterHandler);
+  wrapper.addEventListener("mouseleave", wrapperMouseLeaveHandler);
   leftResizeHandle.addEventListener(
     "mousedown",
     leftResizeHandleMouseDownHandler
@@ -439,8 +439,8 @@ export const createResizeHandlesWrapper = (
     destroy: () => {
       window.removeEventListener("mousemove", windowMouseMoveHandler);
       window.removeEventListener("mouseup", windowMouseUpHandler);
-      element.removeEventListener("mouseenter", elementMouseEnterHandler);
-      element.removeEventListener("mouseleave", elementMouseLeaveHandler);
+      wrapper.removeEventListener("mouseenter", wrapperMouseEnterHandler);
+      wrapper.removeEventListener("mouseleave", wrapperMouseLeaveHandler);
       leftResizeHandle.removeEventListener(
         "mousedown",
         leftResizeHandleMouseDownHandler

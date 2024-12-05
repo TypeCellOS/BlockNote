@@ -69,11 +69,7 @@ export const imageRender = (
   image.alt = block.props.name || block.props.caption || "BlockNote image";
   image.contentEditable = "false";
   image.draggable = false;
-  image.width = Math.min(
-    block.props.previewWidth,
-    // Width is 0 if the image is not rendered yet.
-    image.getBoundingClientRect().width || Number.MAX_VALUE
-  );
+  image.width = block.props.previewWidth;
 
   const file = createResizeHandlesWrapper(
     block,

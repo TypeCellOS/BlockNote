@@ -1,5 +1,5 @@
 import { FileBlockConfig } from "@blocknote/core";
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { RiFile2Line } from "react-icons/ri";
 
 import { useUploadLoading } from "../../hooks/useUploadLoading.js";
@@ -157,6 +157,8 @@ export const ResizeHandlesWrapper = (
     | undefined
   >(undefined);
 
+  const ref = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     // Updates the child width with an updated width depending on the cursor X
     // offset from when the resize began, and which resize handle is being used.
@@ -242,11 +244,11 @@ export const ResizeHandlesWrapper = (
 
       setResizeParams({
         handleUsed: "left",
-        initialWidth: props.width,
+        initialWidth: ref.current!.clientWidth,
         initialClientX: event.clientX,
       });
     },
-    [props.width]
+    []
   );
   const rightResizeHandleMouseDownHandler = useCallback(
     (event: React.MouseEvent) => {
@@ -254,18 +256,19 @@ export const ResizeHandlesWrapper = (
 
       setResizeParams({
         handleUsed: "right",
-        initialWidth: props.width,
+        initialWidth: ref.current!.clientWidth,
         initialClientX: event.clientX,
       });
     },
-    [props.width]
+    []
   );
 
   return (
     <div
       className={"bn-visual-media-wrapper"}
       onMouseEnter={childWrapperMouseEnterHandler}
-      onMouseLeave={childWrapperMouseLeaveHandler}>
+      onMouseLeave={childWrapperMouseLeaveHandler}
+      ref={ref}>
       {props.children}
       {(childHovered || resizeParams) && (
         <>

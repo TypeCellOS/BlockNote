@@ -22,12 +22,7 @@ export const VideoPreview = (
 ) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const [width, setWidth] = useState<number>(
-    Math.min(
-      props.block.props.previewWidth!,
-      videoRef.current?.getBoundingClientRect().width || Number.MAX_VALUE
-    )
-  );
+  const [width, setWidth] = useState<number>(props.block.props.previewWidth!);
 
   const resolved = useResolveUrl(props.block.props.url!);
 

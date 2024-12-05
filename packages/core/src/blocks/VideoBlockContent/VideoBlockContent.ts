@@ -70,10 +70,7 @@ export const videoRender = (
   video.controls = true;
   video.contentEditable = "false";
   video.draggable = false;
-  video.width = Math.min(
-    // Width is 0 if the video is not rendered yet.
-    video.getBoundingClientRect().width || Number.MAX_VALUE
-  );
+  video.width = block.props.previewWidth;
 
   const file = createResizeHandlesWrapper(
     block,

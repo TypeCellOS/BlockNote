@@ -22,12 +22,7 @@ export const ImagePreview = (
 ) => {
   const imgRef = useRef<HTMLImageElement>(null);
 
-  const [width, setWidth] = useState<number>(
-    Math.min(
-      props.block.props.previewWidth!,
-      imgRef.current?.getBoundingClientRect().width || Number.MAX_VALUE
-    )
-  );
+  const [width, setWidth] = useState<number>(props.block.props.previewWidth!);
 
   const resolved = useResolveUrl(props.block.props.url!);
 
