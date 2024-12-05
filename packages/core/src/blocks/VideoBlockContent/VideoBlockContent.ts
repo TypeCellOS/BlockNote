@@ -61,6 +61,9 @@ export const videoRender = (
   const icon = document.createElement("div");
   icon.innerHTML = FILE_VIDEO_ICON_SVG;
 
+  const videoWrapper = document.createElement("div");
+  videoWrapper.className = "bn-visual-media-wrapper";
+
   const video = document.createElement("video");
   video.className = "bn-visual-media";
   video.src = block.props.url;
@@ -72,20 +75,23 @@ export const videoRender = (
   video.draggable = false;
   video.width = block.props.previewWidth;
 
-  const file = createResizeHandlesWrapper(
+  videoWrapper.appendChild(video);
+
+  const fileAndCaptionWrapper = createFileAndCaptionWrapper(
+    block,
+    videoWrapper
+  );
+  const resizeHandlesWrapper = createResizeHandlesWrapper(
     block,
     editor,
-    video,
-    () => video.width,
-    (width) => (video.width = width)
+    fileAndCaptionWrapper.dom,
+    videoWrapper
   );
-
-  const element = createFileAndCaptionWrapper(block, file.dom);
 
   return createFileBlockWrapper(
     block,
     editor,
-    element,
+    resizeHandlesWrapper,
     editor.dictionary.file_blocks.video.add_button_text,
     icon.firstElementChild as HTMLElement
   );

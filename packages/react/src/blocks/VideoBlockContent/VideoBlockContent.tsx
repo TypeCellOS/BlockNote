@@ -1,5 +1,5 @@
 import { FileBlockConfig, videoBlockConfig, videoParse } from "@blocknote/core";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { RiVideoFill } from "react-icons/ri";
 
 import {
@@ -8,8 +8,10 @@ import {
 } from "../../schema/ReactBlockSpec.js";
 import {
   FigureWithCaption,
+  FileAndCaptionWrapper,
   FileBlockWrapper,
   LinkWithCaption,
+  ResizeHandles,
   ResizeHandlesWrapper,
 } from "../FileBlockContent/fileBlockHelpers.js";
 import { useResolveUrl } from "../FileBlockContent/useResolveUrl.js";
@@ -22,25 +24,27 @@ export const VideoPreview = (
 ) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const [width, setWidth] = useState<number>(props.block.props.previewWidth!);
-
   const resolved = useResolveUrl(props.block.props.url!);
 
   return (
-    <ResizeHandlesWrapper {...props} width={width} setWidth={setWidth}>
-      <video
-        className={"bn-visual-media"}
-        src={
-          resolved.loadingState === "loading"
-            ? props.block.props.url
-            : resolved.downloadUrl
-        }
-        controls={true}
-        contentEditable={false}
-        draggable={false}
-        width={width}
-        ref={videoRef}
-      />
+    <ResizeHandlesWrapper {...props}>
+      <FileAndCaptionWrapper {...props}>
+        <div className={"bn-visual-media-wrapper"}>
+          <video
+            className={"bn-visual-media"}
+            src={
+              resolved.loadingState === "loading"
+                ? props.block.props.url
+                : resolved.downloadUrl
+            }
+            controls={true}
+            contentEditable={false}
+            draggable={false}
+            ref={videoRef}
+          />
+          <ResizeHandles />
+        </div>
+      </FileAndCaptionWrapper>
     </ResizeHandlesWrapper>
   );
 };

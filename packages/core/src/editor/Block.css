@@ -321,6 +321,7 @@ NESTED BLOCKS
   display: flex;
   flex-direction: column;
   justify-content: stretch;
+  max-width: 100%;
   user-select: none;
 }
 
@@ -353,6 +354,7 @@ NESTED BLOCKS
   display: flex;
   flex-direction: column;
   border-radius: 4px;
+  width: 100%;
 }
 
 [data-file-block] .bn-file-default-preview {
@@ -375,20 +377,25 @@ NESTED BLOCKS
   height: 24px;
 }
 
+[data-file-block] .bn-resize-handles-wrapper {
+  position: relative;
+  max-width: 100%;
+}
+
 [data-file-block] .bn-visual-media-wrapper {
   display: flex;
   flex-direction: row;
   align-items: center;
   position: relative;
-  width: fit-content;
+  width: 100%;
 }
 
 [data-file-block] .bn-visual-media {
   border-radius: 4px;
-  max-width: 100%;
+  width: 100%;
 }
 
-[data-file-block] .bn-visual-media-resize-handle {
+[data-file-block] .bn-resize-handle {
   position: absolute;
   width: 8px;
   height: 30px;

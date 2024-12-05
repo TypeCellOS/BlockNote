@@ -1,5 +1,5 @@
 import { FileBlockConfig, imageBlockConfig, imageParse } from "@blocknote/core";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { RiImage2Fill } from "react-icons/ri";
 
 import {
@@ -8,8 +8,10 @@ import {
 } from "../../schema/ReactBlockSpec.js";
 import {
   FigureWithCaption,
+  FileAndCaptionWrapper,
   FileBlockWrapper,
   LinkWithCaption,
+  ResizeHandles,
   ResizeHandlesWrapper,
 } from "../FileBlockContent/fileBlockHelpers.js";
 import { useResolveUrl } from "../FileBlockContent/useResolveUrl.js";
@@ -22,25 +24,27 @@ export const ImagePreview = (
 ) => {
   const imgRef = useRef<HTMLImageElement>(null);
 
-  const [width, setWidth] = useState<number>(props.block.props.previewWidth!);
-
   const resolved = useResolveUrl(props.block.props.url!);
 
   return (
-    <ResizeHandlesWrapper {...props} width={width} setWidth={setWidth}>
-      <img
-        className={"bn-visual-media"}
-        src={
-          resolved.loadingState === "loading"
-            ? props.block.props.url
-            : resolved.downloadUrl
-        }
-        alt={props.block.props.caption || "BlockNote image"}
-        contentEditable={false}
-        draggable={false}
-        width={width}
-        ref={imgRef}
-      />
+    <ResizeHandlesWrapper {...props}>
+      <FileAndCaptionWrapper {...props}>
+        <div className={"bn-visual-media-wrapper"}>
+          <img
+            className={"bn-visual-media"}
+            src={
+              resolved.loadingState === "loading"
+                ? props.block.props.url
+                : resolved.downloadUrl
+            }
+            alt={props.block.props.caption || "BlockNote image"}
+            contentEditable={false}
+            draggable={false}
+            ref={imgRef}
+          />
+          <ResizeHandles />
+        </div>
+      </FileAndCaptionWrapper>
     </ResizeHandlesWrapper>
   );
 };

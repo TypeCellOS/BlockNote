@@ -8,6 +8,7 @@ import {
 } from "../../schema/ReactBlockSpec.js";
 import {
   FigureWithCaption,
+  FileAndCaptionWrapper,
   FileBlockWrapper,
   LinkWithCaption,
 } from "../FileBlockContent/fileBlockHelpers.js";
@@ -22,17 +23,19 @@ export const AudioPreview = (
   const resolved = useResolveUrl(props.block.props.url!);
 
   return (
-    <audio
-      className={"bn-audio"}
-      src={
-        resolved.loadingState === "loading"
-          ? props.block.props.url
-          : resolved.downloadUrl
-      }
-      controls={true}
-      contentEditable={false}
-      draggable={false}
-    />
+    <FileAndCaptionWrapper {...props}>
+      <audio
+        className={"bn-audio"}
+        src={
+          resolved.loadingState === "loading"
+            ? props.block.props.url
+            : resolved.downloadUrl
+        }
+        controls={true}
+        contentEditable={false}
+        draggable={false}
+      />
+    </FileAndCaptionWrapper>
   );
 };
 

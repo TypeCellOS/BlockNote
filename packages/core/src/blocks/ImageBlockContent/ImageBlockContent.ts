@@ -60,6 +60,9 @@ export const imageRender = (
   const icon = document.createElement("div");
   icon.innerHTML = FILE_IMAGE_ICON_SVG;
 
+  const imageWrapper = document.createElement("div");
+  imageWrapper.className = "bn-visual-media-wrapper";
+
   const image = document.createElement("img");
   image.className = "bn-visual-media";
   image.src = block.props.url;
@@ -69,22 +72,24 @@ export const imageRender = (
   image.alt = block.props.name || block.props.caption || "BlockNote image";
   image.contentEditable = "false";
   image.draggable = false;
-  image.width = block.props.previewWidth;
 
-  const file = createResizeHandlesWrapper(
+  imageWrapper.appendChild(image);
+
+  const fileAndCaptionWrapper = createFileAndCaptionWrapper(
+    block,
+    imageWrapper
+  );
+  const resizeHandlesWrapper = createResizeHandlesWrapper(
     block,
     editor,
-    image,
-    () => image.width,
-    (width) => (image.width = width)
+    fileAndCaptionWrapper.dom,
+    imageWrapper
   );
-
-  const element = createFileAndCaptionWrapper(block, file.dom);
 
   return createFileBlockWrapper(
     block,
     editor,
-    element,
+    resizeHandlesWrapper,
     editor.dictionary.file_blocks.image.add_button_text,
     icon.firstElementChild as HTMLElement
   );

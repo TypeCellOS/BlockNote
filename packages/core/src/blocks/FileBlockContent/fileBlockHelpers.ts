@@ -108,14 +108,6 @@ export const createFileAndCaptionWrapper = (
   caption.className = "bn-file-caption";
   caption.textContent = block.props.caption;
 
-  if (
-    typeof block.props.previewWidth === "number" &&
-    block.props.previewWidth > 0 &&
-    block.props.caption !== undefined
-  ) {
-    caption.style.width = `${block.props.previewWidth}px`;
-  }
-
   fileAndCaptionWrapper.appendChild(file);
   fileAndCaptionWrapper.appendChild(caption);
 
@@ -250,9 +242,8 @@ export const createFigureWithCaption = (
 export const createResizeHandlesWrapper = (
   block: BlockFromConfig<FileBlockConfig, any, any>,
   editor: BlockNoteEditor<any, any, any>,
-  element: HTMLElement,
-  getWidth: () => number,
-  setWidth: (width: number) => void
+  childElement: HTMLElement,
+  resizeHandlesContainerElement?: HTMLElement
 ): { dom: HTMLElement; destroy: () => void } => {
   if (!block.props.previewWidth) {
     throw new Error("Block must have a `previewWidth` prop.");
@@ -260,14 +251,20 @@ export const createResizeHandlesWrapper = (
 
   // Wrapper element for rendered element and resize handles.
   const wrapper = document.createElement("div");
-  wrapper.className = "bn-visual-media-wrapper";
+  wrapper.className = "bn-resize-handles-wrapper";
+  wrapper.style.width = `${block.props.previewWidth}px`;
+
+  // Container for resize handles, defaults to the wrapper element. This allows
+  // e.g. images with captions to have the resize handles centered vertically on
+  // the image.
+  const resizeHandlesContainer = resizeHandlesContainerElement || wrapper;
 
   // Resize handle elements.
   const leftResizeHandle = document.createElement("div");
-  leftResizeHandle.className = "bn-visual-media-resize-handle";
+  leftResizeHandle.className = "bn-resize-handle";
   leftResizeHandle.style.left = "4px";
   const rightResizeHandle = document.createElement("div");
-  rightResizeHandle.className = "bn-visual-media-resize-handle";
+  rightResizeHandle.className = "bn-resize-handle";
   rightResizeHandle.style.right = "4px";
 
   // Temporary parameters set when the user begins resizing the element, used to
@@ -286,11 +283,11 @@ export const createResizeHandlesWrapper = (
     if (!resizeParams) {
       if (
         !editor.isEditable &&
-        wrapper.contains(leftResizeHandle) &&
-        wrapper.contains(rightResizeHandle)
+        resizeHandlesContainer.contains(leftResizeHandle) &&
+        resizeHandlesContainer.contains(rightResizeHandle)
       ) {
-        wrapper.removeChild(leftResizeHandle);
-        wrapper.removeChild(rightResizeHandle);
+        resizeHandlesContainer.removeChild(leftResizeHandle);
+        resizeHandlesContainer.removeChild(rightResizeHandle);
       }
 
       return;
@@ -328,9 +325,9 @@ export const createResizeHandlesWrapper = (
     // Ensures the element is not wider than the editor and not smaller than a
     // predetermined minimum width.
     if (newWidth < minWidth) {
-      setWidth(minWidth);
+      wrapper.style.width = `${minWidth}px`;
     } else {
-      setWidth(newWidth);
+      wrapper.style.width = `${newWidth}px`;
     }
   };
   // Stops mouse movements from resizing the element and updates the block's
@@ -341,11 +338,11 @@ export const createResizeHandlesWrapper = (
       (!event.target ||
         !wrapper.contains(event.target as Node) ||
         !editor.isEditable) &&
-      wrapper.contains(leftResizeHandle) &&
-      wrapper.contains(rightResizeHandle)
+      resizeHandlesContainer.contains(leftResizeHandle) &&
+      resizeHandlesContainer.contains(rightResizeHandle)
     ) {
-      wrapper.removeChild(leftResizeHandle);
-      wrapper.removeChild(rightResizeHandle);
+      resizeHandlesContainer.removeChild(leftResizeHandle);
+      resizeHandlesContainer.removeChild(rightResizeHandle);
     }
 
     if (!resizeParams) {
@@ -356,7 +353,7 @@ export const createResizeHandlesWrapper = (
 
     editor.updateBlock(block, {
       props: {
-        previewWidth: getWidth(),
+        previewWidth: parseInt(wrapper.style.width.replace("px", "")),
       },
     });
   };
@@ -364,8 +361,8 @@ export const createResizeHandlesWrapper = (
   // Shows the resize handles when hovering over the wrapper with the cursor.
   const wrapperMouseEnterHandler = () => {
     if (editor.isEditable) {
-      wrapper.appendChild(leftResizeHandle);
-      wrapper.appendChild(rightResizeHandle);
+      resizeHandlesContainer.appendChild(leftResizeHandle);
+      resizeHandlesContainer.appendChild(rightResizeHandle);
     }
   };
   // Hides the resize handles when the cursor leaves the wrapper, unless the
@@ -384,11 +381,11 @@ export const createResizeHandlesWrapper = (
 
     if (
       editor.isEditable &&
-      wrapper.contains(leftResizeHandle) &&
-      wrapper.contains(rightResizeHandle)
+      resizeHandlesContainer.contains(leftResizeHandle) &&
+      resizeHandlesContainer.contains(rightResizeHandle)
     ) {
-      wrapper.removeChild(leftResizeHandle);
-      wrapper.removeChild(rightResizeHandle);
+      resizeHandlesContainer.removeChild(leftResizeHandle);
+      resizeHandlesContainer.removeChild(rightResizeHandle);
     }
   };
 
@@ -396,9 +393,6 @@ export const createResizeHandlesWrapper = (
   // moving the cursor left or right.
   const leftResizeHandleMouseDownHandler = (event: MouseEvent) => {
     event.preventDefault();
-
-    wrapper.appendChild(leftResizeHandle);
-    wrapper.appendChild(rightResizeHandle);
 
     resizeParams = {
       handleUsed: "left",
@@ -409,9 +403,6 @@ export const createResizeHandlesWrapper = (
   const rightResizeHandleMouseDownHandler = (event: MouseEvent) => {
     event.preventDefault();
 
-    wrapper.appendChild(leftResizeHandle);
-    wrapper.appendChild(rightResizeHandle);
-
     resizeParams = {
       handleUsed: "right",
       initialWidth: wrapper.clientWidth,
@@ -419,7 +410,7 @@ export const createResizeHandlesWrapper = (
     };
   };
 
-  wrapper.appendChild(element);
+  wrapper.appendChild(childElement);
 
   window.addEventListener("mousemove", windowMouseMoveHandler);
   window.addEventListener("mouseup", windowMouseUpHandler);

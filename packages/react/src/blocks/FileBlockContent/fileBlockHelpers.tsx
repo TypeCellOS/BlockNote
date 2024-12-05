@@ -1,5 +1,13 @@
 import { FileBlockConfig } from "@blocknote/core";
-import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { RiFile2Line } from "react-icons/ri";
 
 import { useUploadLoading } from "../../hooks/useUploadLoading.js";
@@ -30,9 +38,7 @@ export const FileBlockWrapper = (
           />
         </FileAndCaptionWrapper>
       ) : (
-        <FileAndCaptionWrapper block={props.block} editor={props.editor as any}>
-          {props.children}
-        </FileAndCaptionWrapper>
+        props.children
       )}
     </div>
   );
@@ -66,9 +72,7 @@ export const FileAndCaptionWrapper = (
   return (
     <div className={"bn-file-and-caption-wrapper"}>
       {props.children}
-      {props.block.props.caption && (
-        <p className={"bn-file-caption"}>{props.block.props.caption}</p>
-      )}
+      <p className={"bn-file-caption"}>{props.block.props.caption}</p>
     </div>
   );
 };
@@ -138,15 +142,26 @@ export const FigureWithCaption = (props: {
   </figure>
 );
 
+const ResizeHandlesContext = createContext<{
+  show: boolean;
+  leftResizeHandleMouseDownHandler: (event: React.MouseEvent) => void;
+  rightResizeHandleMouseDownHandler: (event: React.MouseEvent) => void;
+}>({
+  show: false,
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  leftResizeHandleMouseDownHandler: () => {},
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  rightResizeHandleMouseDownHandler: () => {},
+});
+
 export const ResizeHandlesWrapper = (
   props: Required<
     Omit<ReactCustomBlockRenderProps<FileBlockConfig, any, any>, "contentRef">
   > & {
-    width: number;
-    setWidth: (width: number) => void;
     children: ReactNode;
   }
 ) => {
+  const [width, setWidth] = useState(props.block.props.previewWidth! as number);
   const [childHovered, setChildHovered] = useState<boolean>(false);
   const [resizeParams, setResizeParams] = useState<
     | {
@@ -195,9 +210,9 @@ export const ResizeHandlesWrapper = (
       // Ensures the child is not wider than the editor and not smaller than a
       // predetermined minimum width.
       if (newWidth < minWidth) {
-        props.setWidth(minWidth);
+        setWidth(minWidth);
       } else {
-        props.setWidth(newWidth);
+        setWidth(newWidth);
       }
     };
     // Stops mouse movements from resizing the child and updates the block's
@@ -207,7 +222,7 @@ export const ResizeHandlesWrapper = (
 
       (props.editor as any).updateBlock(props.block, {
         props: {
-          previewWidth: props.width,
+          previewWidth: width,
         },
       });
     };
@@ -221,7 +236,7 @@ export const ResizeHandlesWrapper = (
       window.removeEventListener("mousemove", windowMouseMoveHandler);
       window.removeEventListener("mouseup", windowMouseUpHandler);
     };
-  }, [props, resizeParams]);
+  }, [props, resizeParams, width]);
 
   // Shows the resize handles when hovering over the child with the cursor.
   const childWrapperMouseEnterHandler = useCallback(() => {
@@ -265,25 +280,46 @@ export const ResizeHandlesWrapper = (
 
   return (
     <div
-      className={"bn-visual-media-wrapper"}
+      className={"bn-resize-handles-wrapper"}
       onMouseEnter={childWrapperMouseEnterHandler}
       onMouseLeave={childWrapperMouseLeaveHandler}
+      style={{ width: `${width}px` }}
       ref={ref}>
-      {props.children}
-      {(childHovered || resizeParams) && (
-        <>
-          <div
-            className={"bn-visual-media-resize-handle"}
-            style={{ left: "4px" }}
-            onMouseDown={leftResizeHandleMouseDownHandler}
-          />
-          <div
-            className={"bn-visual-media-resize-handle"}
-            style={{ right: "4px" }}
-            onMouseDown={rightResizeHandleMouseDownHandler}
-          />
-        </>
-      )}
+      <ResizeHandlesContext.Provider
+        value={{
+          show: !!(childHovered || resizeParams),
+          leftResizeHandleMouseDownHandler,
+          rightResizeHandleMouseDownHandler,
+        }}>
+        {props.children}
+      </ResizeHandlesContext.Provider>
     </div>
+  );
+};
+
+export const ResizeHandles = () => {
+  const {
+    show,
+    leftResizeHandleMouseDownHandler,
+    rightResizeHandleMouseDownHandler,
+  } = useContext(ResizeHandlesContext);
+
+  if (!show) {
+    return null;
+  }
+
+  return (
+    <>
+      <div
+        className={"bn-resize-handle"}
+        style={{ left: "4px" }}
+        onMouseDown={leftResizeHandleMouseDownHandler}
+      />
+      <div
+        className={"bn-resize-handle"}
+        style={{ right: "4px" }}
+        onMouseDown={rightResizeHandleMouseDownHandler}
+      />
+    </>
   );
 };

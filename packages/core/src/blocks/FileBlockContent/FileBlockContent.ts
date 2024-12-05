@@ -43,9 +43,10 @@ export const fileRender = (
   editor: BlockNoteEditor<any, any, any>
 ) => {
   const file = createDefaultFilePreview(block).dom;
-  const element = createFileAndCaptionWrapper(block, file);
 
-  return createFileBlockWrapper(block, editor, element);
+  const fileAndCaptionWrapper = createFileAndCaptionWrapper(block, file);
+
+  return createFileBlockWrapper(block, editor, fileAndCaptionWrapper);
 };
 
 export const fileParse = (element: HTMLElement) => {
