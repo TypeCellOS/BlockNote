@@ -4,7 +4,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { UseFloatingOptions, flip, offset } from "@floating-ui/react";
+import { UseFloatingOptions, flip, offset, shift } from "@floating-ui/react";
 import { FC, useMemo, useRef, useState } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -80,7 +80,7 @@ export const FormattingToolbarController = (props: {
     3000,
     {
       placement,
-      middleware: [offset(10), flip()],
+      middleware: [offset(10), shift(), flip()],
       onOpenChange: (open, _event) => {
         // console.log("change", event);
         if (!open) {

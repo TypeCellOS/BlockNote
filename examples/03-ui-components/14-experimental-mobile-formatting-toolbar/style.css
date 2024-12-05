@@ -1,0 +1,9 @@
+.bn-container {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 8px;
+}
+
+.bn-formatting-toolbar {
+    margin-inline: auto;
+}

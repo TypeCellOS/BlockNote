@@ -11,6 +11,10 @@
   gap: 0.5rem;
 }
 
+.bn-toolbar.bn-ak-toolbar {
+  overflow-x: auto;
+  max-width: 100vw;
+}
 .bn-toolbar .bn-ak-button {
   width: unset;
 }

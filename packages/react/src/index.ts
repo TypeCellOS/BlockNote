@@ -26,6 +26,7 @@ export * from "./components/FormattingToolbar/DefaultButtons/TextAlignButton.js"
 export * from "./components/FormattingToolbar/DefaultSelects/BlockTypeSelect.js";
 export * from "./components/FormattingToolbar/FormattingToolbar.js";
 export * from "./components/FormattingToolbar/FormattingToolbarController.js";
+export * from "./components/FormattingToolbar/ExperimentalMobileFormattingToolbarController.js";
 export * from "./components/FormattingToolbar/FormattingToolbarProps.js";
 
 export * from "./components/LinkToolbar/DefaultButtons/DeleteLinkButton.js";
