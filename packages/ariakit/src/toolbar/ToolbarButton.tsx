@@ -9,8 +9,7 @@ import { assertEmpty, isSafari, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
-type ToolbarButtonProps = ComponentProps["FormattingToolbar"]["Button"] &
-  ComponentProps["LinkToolbar"]["Button"];
+type ToolbarButtonProps = ComponentProps["Toolbar"]["Button"];
 
 /**
  * Helper for basic buttons that show in the formatting toolbar.
@@ -34,45 +33,49 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
     // assertEmpty in this case is only used at typescript level, not runtime level
     assertEmpty(rest, false);
 
-    return (
-      <AriakitTooltipProvider>
-        <AriakitTooltipAnchor
-          className="link"
-          render={
-            <AriakitToolbarItem
-              aria-label={label}
-              className={mergeCSSClasses(
-                "bn-ak-button bn-ak-secondary",
-                className || ""
-              )}
-              // Needed as Safari doesn't focus button elements on mouse down
-              // unlike other browsers.
-              onMouseDown={(e) => {
-                if (isSafari()) {
-                  (e.currentTarget as HTMLButtonElement).focus();
-                }
-              }}
-              onClick={onClick}
-              aria-pressed={isSelected}
-              data-selected={isSelected ? "true" : undefined}
-              data-test={
-                props.mainTooltip.slice(0, 1).toLowerCase() +
-                props.mainTooltip.replace(/\s+/g, "").slice(1)
-              }
-              //   size={"xs"}
-              disabled={isDisabled || false}
-              ref={ref}
-              {...rest}>
-              {icon}
-              {children}
-            </AriakitToolbarItem>
+    const Button = (
+      <AriakitToolbarItem
+        aria-label={label}
+        className={mergeCSSClasses(
+          "bn-ak-button bn-ak-secondary",
+          className || ""
+        )}
+        // Needed as Safari doesn't focus button elements on mouse down
+        // unlike other browsers.
+        onMouseDown={(e) => {
+          if (isSafari()) {
+            (e.currentTarget as HTMLButtonElement).focus();
           }
-        />
-        <AriakitTooltip className="bn-ak-tooltip">
-          <span>{mainTooltip}</span>
-          {secondaryTooltip && <span>{secondaryTooltip}</span>}
-        </AriakitTooltip>
-      </AriakitTooltipProvider>
+        }}
+        onClick={onClick}
+        aria-pressed={isSelected}
+        data-selected={isSelected ? "true" : undefined}
+        data-test={
+          mainTooltip &&
+          mainTooltip.slice(0, 1).toLowerCase() +
+            mainTooltip.replace(/\s+/g, "").slice(1)
+        }
+        //   size={"xs"}
+        disabled={isDisabled || false}
+        ref={ref}
+        {...rest}>
+        {icon}
+        {children}
+      </AriakitToolbarItem>
     );
+
+    if (mainTooltip) {
+      return (
+        <AriakitTooltipProvider>
+          <AriakitTooltipAnchor className="link" render={Button} />
+          <AriakitTooltip className="bn-ak-tooltip">
+            <span>{mainTooltip}</span>
+            {secondaryTooltip && <span>{secondaryTooltip}</span>}
+          </AriakitTooltip>
+        </AriakitTooltipProvider>
+      );
+    }
+
+    return Button;
   }
 );

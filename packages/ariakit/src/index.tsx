@@ -47,7 +47,7 @@ import { ToolbarSelect } from "./toolbar/ToolbarSelect.js";
 import "./style.css";
 
 export const components: Components = {
-  FormattingToolbar: {
+  Toolbar: {
     Root: Toolbar,
     Button: ToolbarButton,
     Select: ToolbarSelect,
@@ -64,10 +64,6 @@ export const components: Components = {
     Item: GridSuggestionMenuItem,
     EmptyItem: GridSuggestionMenuEmptyItem,
     Loader: GridSuggestionMenuLoader,
-  },
-  LinkToolbar: {
-    Root: Toolbar,
-    Button: ToolbarButton,
   },
   SideMenu: {
     Root: SideMenu,

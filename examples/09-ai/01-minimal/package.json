@@ -1,0 +1,42 @@
+{
+  "name": "@blocknote/example-minimal",
+  "description": "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
+  "private": true,
+  "version": "0.12.4",
+  "scripts": {
+    "start": "vite",
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --max-warnings 0"
+  },
+  "dependencies": {
+    "@blocknote/core": "latest",
+    "@blocknote/react": "latest",
+    "@blocknote/ariakit": "latest",
+    "@blocknote/mantine": "latest",
+    "@blocknote/shadcn": "latest",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "@blocknote/xl-ai": "latest",
+    "@mantine/core": "^7.10.1",
+    "ai": "^4.0.11",
+    "@ai-sdk/openai": "^1.0.6",
+    "@ai-sdk/groq": "^1.0.5"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.25",
+    "@types/react-dom": "^18.0.9",
+    "@vitejs/plugin-react": "^4.3.1",
+    "eslint": "^8.10.0",
+    "vite": "^5.3.4"
+  },
+  "eslintConfig": {
+    "extends": [
+      "../../../.eslintrc.js"
+    ]
+  },
+  "eslintIgnore": [
+    "dist"
+  ]
+}

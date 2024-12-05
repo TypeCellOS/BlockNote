@@ -14,7 +14,10 @@
           "author": "matthewlipski",
           "tags": [
             "Basic"
-          ]
+          ],
+          "dependencies": {
+            "@blocknote/xl-ai": "latest"
+          } as any
         },
         "title": "Basic Setup",
         "group": {
@@ -1125,6 +1128,38 @@
         "group": {
           "pathFromRoot": "examples/08-extensions",
           "slug": "extensions"
+        }
+      }
+    ]
+  },
+  "ai": {
+    "pathFromRoot": "examples/09-ai",
+    "slug": "ai",
+    "projects": [
+      {
+        "projectSlug": "minimal",
+        "fullSlug": "ai/minimal",
+        "pathFromRoot": "examples/09-ai/01-minimal",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "AI",
+            "llm"
+          ],
+          "dependencies": {
+            "@blocknote/xl-ai": "latest",
+            "@mantine/core": "^7.10.1",
+            "ai": "^4.0.11",
+            "@ai-sdk/openai": "^1.0.6",
+            "@ai-sdk/groq": "^1.0.5"
+          } as any
+        },
+        "title": "AI integration",
+        "group": {
+          "pathFromRoot": "examples/09-ai",
+          "slug": "ai"
         }
       }
     ]

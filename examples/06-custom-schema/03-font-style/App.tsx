@@ -45,7 +45,7 @@ const SetFontStyleButton = () => {
   const Components = useComponentsContext()!;
 
   return (
-    <Components.FormattingToolbar.Button
+    <Components.Toolbar.Button
       label="Set Font"
       mainTooltip={"Set Font"}
       icon={<RiText />}

@@ -5,8 +5,7 @@ import { forwardRef } from "react";
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
 
-type ToolbarProps = ComponentProps["FormattingToolbar"]["Root"] &
-  ComponentProps["LinkToolbar"]["Root"];
+type ToolbarProps = ComponentProps["Toolbar"]["Root"];
 
 export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
   (props, ref) => {
@@ -33,8 +32,7 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
   }
 );
 
-type ToolbarButtonProps = ComponentProps["FormattingToolbar"]["Button"] &
-  ComponentProps["LinkToolbar"]["Button"];
+type ToolbarButtonProps = ComponentProps["Toolbar"]["Button"];
 
 export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
   (props, ref) => {
@@ -89,24 +87,28 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         </ShadCNComponents.Toggle.Toggle>
       );
 
-    return (
-      <ShadCNComponents.Tooltip.Tooltip>
-        <ShadCNComponents.Tooltip.TooltipTrigger asChild>
-          {trigger}
-        </ShadCNComponents.Tooltip.TooltipTrigger>
-        <ShadCNComponents.Tooltip.TooltipContent
-          className={"bn-flex bn-flex-col bn-items-center"}>
-          <span>{mainTooltip}</span>
-          {secondaryTooltip && <span>{secondaryTooltip}</span>}
-        </ShadCNComponents.Tooltip.TooltipContent>
-      </ShadCNComponents.Tooltip.Tooltip>
-    );
+    if (mainTooltip) {
+      return (
+        <ShadCNComponents.Tooltip.Tooltip>
+          <ShadCNComponents.Tooltip.TooltipTrigger asChild>
+            {trigger}
+          </ShadCNComponents.Tooltip.TooltipTrigger>
+          <ShadCNComponents.Tooltip.TooltipContent
+            className={"bn-flex bn-flex-col bn-items-center"}>
+            <span>{mainTooltip}</span>
+            {secondaryTooltip && <span>{secondaryTooltip}</span>}
+          </ShadCNComponents.Tooltip.TooltipContent>
+        </ShadCNComponents.Tooltip.Tooltip>
+      );
+    }
+
+    return trigger;
   }
 );
 
 export const ToolbarSelect = forwardRef<
   HTMLDivElement,
-  ComponentProps["FormattingToolbar"]["Select"]
+  ComponentProps["Toolbar"]["Select"]
 >((props, ref) => {
   const { className, items, isDisabled, ...rest } = props;
 

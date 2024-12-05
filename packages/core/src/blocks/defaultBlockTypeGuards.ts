@@ -1,5 +1,6 @@
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import {
+  BlockConfig,
   BlockFromConfig,
   BlockSchema,
   FileBlockConfig,
@@ -15,6 +16,22 @@ import {
 } from "./defaultBlocks.js";
 import { defaultProps } from "./defaultProps.js";
 
+// TODO: check
+export function checkBlockTypeInSchema<
+  Config extends BlockConfig,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  blockConfig: Config,
+  editor: BlockNoteEditor<any, I, S>
+): editor is BlockNoteEditor<{ Type: Config }, I, S> {
+  return (
+    blockConfig.type in editor.schema.blockSchema &&
+    editor.schema.blockSchema[blockConfig.type] === blockConfig
+  );
+}
+
+// TODO: can we reuse checkBlockTypeInSchema?
 export function checkDefaultBlockTypeInSchema<
   BlockType extends keyof DefaultBlockSchema,
   I extends InlineContentSchema,

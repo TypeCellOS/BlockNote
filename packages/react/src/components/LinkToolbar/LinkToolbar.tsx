@@ -24,14 +24,14 @@ export const LinkToolbar = (
 
   if (props.children) {
     return (
-      <Components.LinkToolbar.Root className={"bn-toolbar bn-link-toolbar"}>
+      <Components.Toolbar.Root className={"bn-toolbar bn-link-toolbar"}>
         {props.children}
-      </Components.LinkToolbar.Root>
+      </Components.Toolbar.Root>
     );
   }
 
   return (
-    <Components.LinkToolbar.Root
+    <Components.Toolbar.Root
       className={"bn-toolbar bn-link-toolbar"}
       onMouseEnter={props.stopHideTimer}
       onMouseLeave={props.startHideTimer}>
@@ -42,6 +42,6 @@ export const LinkToolbar = (
       />
       <OpenLinkButton url={props.url} />
       <DeleteLinkButton deleteLink={props.deleteLink} />
-    </Components.LinkToolbar.Root>
+    </Components.Toolbar.Root>
   );
 };

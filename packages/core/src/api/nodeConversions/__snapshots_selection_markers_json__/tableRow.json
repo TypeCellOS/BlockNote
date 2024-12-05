@@ -1,0 +1,71 @@
+[
+  {
+    "id": "11",
+    "type": "table",
+    "props": {
+      "textColor": "default"
+    },
+    "content": {
+      "type": "tableContent",
+      "columnWidths": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "rows": [
+        {
+          "cells": [
+            [
+              {
+                "type": "text",
+                "text": "Table Cell",
+                "styles": {}
+              }
+            ],
+            [
+              {
+                "type": "text",
+                "text": "[$!",
+                "styles": {}
+              }
+            ],
+            [
+              {
+                "type": "text",
+                "text": "Table Cell",
+                "styles": {}
+              }
+            ],
+            [
+              {
+                "type": "text",
+                "text": "!$]",
+                "styles": {}
+              }
+            ]
+          ]
+        },
+        {
+          "cells": [
+            [
+              {
+                "type": "text",
+                "text": "Table Cell",
+                "styles": {}
+              }
+            ],
+            [
+              {
+                "type": "text",
+                "text": "Table Cell",
+                "styles": {}
+              }
+            ]
+          ]
+        }
+      ]
+    },
+    "children": []
+  }
+]
