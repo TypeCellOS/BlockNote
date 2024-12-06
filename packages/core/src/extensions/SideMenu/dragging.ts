@@ -148,6 +148,9 @@ export function dragStart<
   }
 
   const view = editor.prosemirrorView;
+  if (!view) {
+    return;
+  }
 
   const posInfo = getNodeById(block.id, view.state.doc);
   if (!posInfo) {

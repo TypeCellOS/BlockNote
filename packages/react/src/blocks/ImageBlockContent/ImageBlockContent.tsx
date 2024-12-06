@@ -1,5 +1,5 @@
 import { FileBlockConfig, imageBlockConfig, imageParse } from "@blocknote/core";
-import { useState } from "react";
+import { useRef } from "react";
 import { RiImage2Fill } from "react-icons/ri";
 
 import {
@@ -8,9 +8,8 @@ import {
 } from "../../schema/ReactBlockSpec.js";
 import {
   FigureWithCaption,
-  FileBlockWrapper,
   LinkWithCaption,
-  ResizeHandlesWrapper,
+  ResizableFileBlockWrapper,
 } from "../FileBlockContent/fileBlockHelpers.js";
 import { useResolveUrl } from "../FileBlockContent/useResolveUrl.js";
 
@@ -20,30 +19,23 @@ export const ImagePreview = (
     "contentRef"
   >
 ) => {
-  const [width, setWidth] = useState<number>(
-    Math.min(
-      props.block.props.previewWidth!,
-      props.editor.domElement.firstElementChild!.clientWidth
-    )
-  );
+  const imgRef = useRef<HTMLImageElement>(null);
 
   const resolved = useResolveUrl(props.block.props.url!);
 
-  if (resolved.loadingState === "loading") {
-    return null;
-  }
-
   return (
-    <ResizeHandlesWrapper {...props} width={width} setWidth={setWidth}>
-      <img
-        className={"bn-visual-media"}
-        src={resolved.downloadUrl}
-        alt={props.block.props.caption || "BlockNote image"}
-        contentEditable={false}
-        draggable={false}
-        width={width}
-      />
-    </ResizeHandlesWrapper>
+    <img
+      className={"bn-visual-media"}
+      src={
+        resolved.loadingState === "loading"
+          ? props.block.props.url
+          : resolved.downloadUrl
+      }
+      alt={props.block.props.caption || "BlockNote image"}
+      contentEditable={false}
+      draggable={false}
+      ref={imgRef}
+    />
   );
 };
 
@@ -90,12 +82,12 @@ export const ImageBlock = (
   props: ReactCustomBlockRenderProps<typeof imageBlockConfig, any, any>
 ) => {
   return (
-    <FileBlockWrapper
+    <ResizableFileBlockWrapper
       {...(props as any)}
       buttonText={props.editor.dictionary.file_blocks.image.add_button_text}
       buttonIcon={<RiImage2Fill size={24} />}>
-      <ImagePreview block={props.block} editor={props.editor as any} />
-    </FileBlockWrapper>
+      <ImagePreview {...(props as any)} />
+    </ResizableFileBlockWrapper>
   );
 };
 

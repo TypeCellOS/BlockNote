@@ -10,10 +10,8 @@ import { defaultProps } from "../defaultProps.js";
 
 import {
   createFigureWithCaption,
-  createFileAndCaptionWrapper,
-  createFileBlockWrapper,
   createLinkWithCaption,
-  createResizeHandlesWrapper,
+  createResizableFileBlockWrapper,
   parseFigureElement,
 } from "../FileBlockContent/fileBlockHelpers.js";
 import { parseVideoElement } from "./videoBlockHelpers.js";
@@ -61,31 +59,29 @@ export const videoRender = (
   const icon = document.createElement("div");
   icon.innerHTML = FILE_VIDEO_ICON_SVG;
 
+  const videoWrapper = document.createElement("div");
+  videoWrapper.className = "bn-visual-media-wrapper";
+
   const video = document.createElement("video");
   video.className = "bn-visual-media";
-  video.src = block.props.url;
+  if (editor.resolveFileUrl) {
+    editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
+      video.src = downloadUrl;
+    });
+  } else {
+    video.src = block.props.url;
+  }
   video.controls = true;
   video.contentEditable = "false";
   video.draggable = false;
-  video.width = Math.min(
-    block.props.previewWidth,
-    editor.domElement.firstElementChild!.clientWidth
-  );
+  video.width = block.props.previewWidth;
+  videoWrapper.appendChild(video);
 
-  const file = createResizeHandlesWrapper(
+  return createResizableFileBlockWrapper(
     block,
     editor,
-    video,
-    () => video.width,
-    (width) => (video.width = width)
-  );
-
-  const element = createFileAndCaptionWrapper(block, file.dom);
-
-  return createFileBlockWrapper(
-    block,
-    editor,
-    element,
+    { dom: videoWrapper },
+    videoWrapper,
     editor.dictionary.file_blocks.video.add_button_text,
     icon.firstElementChild as HTMLElement
   );

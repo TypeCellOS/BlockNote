@@ -9,10 +9,8 @@ import {
 import { defaultProps } from "../defaultProps.js";
 import {
   createFigureWithCaption,
-  createFileAndCaptionWrapper,
-  createFileBlockWrapper,
   createLinkWithCaption,
-  createResizeHandlesWrapper,
+  createResizableFileBlockWrapper,
   parseFigureElement,
 } from "../FileBlockContent/fileBlockHelpers.js";
 import { parseImageElement } from "./imageBlockHelpers.js";
@@ -60,33 +58,29 @@ export const imageRender = (
   const icon = document.createElement("div");
   icon.innerHTML = FILE_IMAGE_ICON_SVG;
 
+  const imageWrapper = document.createElement("div");
+  imageWrapper.className = "bn-visual-media-wrapper";
+
   const image = document.createElement("img");
   image.className = "bn-visual-media";
-  editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
-    image.src = downloadUrl;
-  });
+  if (editor.resolveFileUrl) {
+    editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
+      image.src = downloadUrl;
+    });
+  } else {
+    image.src = block.props.url;
+  }
+
   image.alt = block.props.name || block.props.caption || "BlockNote image";
   image.contentEditable = "false";
   image.draggable = false;
-  image.width = Math.min(
-    block.props.previewWidth,
-    editor.domElement.firstElementChild!.clientWidth
-  );
+  imageWrapper.appendChild(image);
 
-  const file = createResizeHandlesWrapper(
+  return createResizableFileBlockWrapper(
     block,
     editor,
-    image,
-    () => image.width,
-    (width) => (image.width = width)
-  );
-
-  const element = createFileAndCaptionWrapper(block, file.dom);
-
-  return createFileBlockWrapper(
-    block,
-    editor,
-    element,
+    { dom: imageWrapper },
+    imageWrapper,
     editor.dictionary.file_blocks.image.add_button_text,
     icon.firstElementChild as HTMLElement
   );

@@ -6,125 +6,7 @@ import {
 } from "../../schema/index.js";
 
 export const FILE_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 8L9.00319 2H19.9978C20.5513 2 21 2.45531 21 2.9918V21.0082C21 21.556 20.5551 22 20.0066 22H3.9934C3.44476 22 3 21.5501 3 20.9932V8ZM10 4V9H5V20H19V4H10Z"></path></svg>`;
-export const createFileBlockWrapper = (
-  block: BlockFromConfig<FileBlockConfig, any, any>,
-  editor: BlockNoteEditor<
-    BlockSchemaWithBlock<FileBlockConfig["type"], FileBlockConfig>,
-    any,
-    any
-  >,
-  // TODO: Maybe make optional for default preview
-  element: { dom: HTMLElement; destroy?: () => void },
-  buttonText?: string,
-  buttonIcon?: HTMLElement
-) => {
-  const wrapper = document.createElement("div");
-  wrapper.className = "bn-file-block-content-wrapper";
 
-  if (block.props.url === "") {
-    const addFileButton = createAddFileButton(
-      block,
-      editor,
-      buttonText,
-      buttonIcon
-    );
-    wrapper.appendChild(addFileButton.dom);
-
-    const loading = document.createElement("div");
-    loading.className = "bn-file-loading-preview";
-    loading.textContent = "Loading...";
-
-    const destroyUploadStartHandler = editor.onUploadStart((blockId) => {
-      if (blockId === block.id) {
-        wrapper.removeChild(addFileButton.dom);
-        wrapper.appendChild(loading);
-      }
-    });
-    const destroyUploadEndHandler = editor.onUploadEnd((blockId) => {
-      if (blockId === block.id) {
-        wrapper.removeChild(loading);
-        wrapper.appendChild(addFileButton.dom);
-      }
-    });
-
-    return {
-      dom: wrapper,
-      destroy: () => {
-        addFileButton.destroy?.();
-        destroyUploadStartHandler();
-        destroyUploadEndHandler();
-      },
-    };
-  } else if (block.props.showPreview === false) {
-    // TODO: Not using the wrapper element here?
-    const file = createDefaultFilePreview(block).dom;
-    const element = createFileAndCaptionWrapper(block, file);
-
-    return {
-      dom: element.dom,
-    };
-  } else {
-    wrapper.appendChild(element.dom);
-
-    return {
-      dom: wrapper,
-      destroy: element.destroy,
-    };
-  }
-};
-
-// Default file preview, displaying a file icon and file name.
-export const createDefaultFilePreview = (
-  block: BlockFromConfig<FileBlockConfig, any, any>
-): { dom: HTMLElement; destroy?: () => void } => {
-  const file = document.createElement("div");
-  file.className = "bn-file-default-preview";
-
-  const icon = document.createElement("div");
-  icon.className = "bn-file-default-preview-icon";
-  icon.innerHTML = FILE_ICON_SVG;
-
-  const fileName = document.createElement("p");
-  fileName.className = "bn-file-default-preview-name";
-  fileName.textContent = block.props.name || "";
-
-  file.appendChild(icon);
-  file.appendChild(fileName);
-
-  return {
-    dom: file,
-  };
-};
-
-// Wrapper element containing file preview and caption.
-export const createFileAndCaptionWrapper = (
-  block: BlockFromConfig<FileBlockConfig, any, any>,
-  file: HTMLElement
-) => {
-  const fileAndCaptionWrapper = document.createElement("div");
-  fileAndCaptionWrapper.className = "bn-file-and-caption-wrapper";
-
-  const caption = document.createElement("p");
-  caption.className = "bn-file-caption";
-  caption.textContent = block.props.caption;
-
-  if (
-    typeof block.props.previewWidth === "number" &&
-    block.props.previewWidth > 0 &&
-    block.props.caption !== undefined
-  ) {
-    caption.style.width = `${block.props.previewWidth}px`;
-  }
-
-  fileAndCaptionWrapper.appendChild(file);
-  fileAndCaptionWrapper.appendChild(caption);
-
-  return {
-    dom: fileAndCaptionWrapper,
-  };
-};
-
-// Button element that acts as a placeholder for files with no src.
 export const createAddFileButton = (
   block: BlockFromConfig<FileBlockConfig, any, any>,
   editor: BlockNoteEditor<any, any, any>,
@@ -142,11 +24,13 @@ export const createAddFileButton = (
     addFileButtonIcon.innerHTML =
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 8L9.00319 2H19.9978C20.5513 2 21 2.45531 21 2.9918V21.0082C21 21.556 20.5551 22 20.0066 22H3.9934C3.44476 22 3 21.5501 3 20.9932V8ZM10 4V9H5V20H19V4H10Z"></path></svg>';
   }
+  addFileButton.appendChild(addFileButtonIcon);
 
   const addFileButtonText = document.createElement("p");
   addFileButtonText.className = "bn-add-file-button-text";
   addFileButtonText.innerHTML =
     buttonText || editor.dictionary.file_blocks.file.add_button_text;
+  addFileButton.appendChild(addFileButtonText);
 
   // Prevents focus from moving to the button.
   const addFileButtonMouseDownHandler = (event: MouseEvent) => {
@@ -160,10 +44,6 @@ export const createAddFileButton = (
       })
     );
   };
-
-  addFileButton.appendChild(addFileButtonIcon);
-  addFileButton.appendChild(addFileButtonText);
-
   addFileButton.addEventListener(
     "mousedown",
     addFileButtonMouseDownHandler,
@@ -183,6 +63,298 @@ export const createAddFileButton = (
         "click",
         addFileButtonClickHandler,
         true
+      );
+    },
+  };
+};
+
+export const createFileNameWithIcon = (
+  block: BlockFromConfig<FileBlockConfig, any, any>
+): { dom: HTMLElement; destroy?: () => void } => {
+  const file = document.createElement("div");
+  file.className = "bn-file-name-with-icon";
+
+  const icon = document.createElement("div");
+  icon.className = "bn-file-icon";
+  icon.innerHTML = FILE_ICON_SVG;
+  file.appendChild(icon);
+
+  const fileName = document.createElement("p");
+  fileName.className = "bn-file-name";
+  fileName.textContent = block.props.name;
+  file.appendChild(fileName);
+
+  return {
+    dom: file,
+  };
+};
+
+export const createFileBlockWrapper = (
+  block: BlockFromConfig<FileBlockConfig, any, any>,
+  editor: BlockNoteEditor<
+    BlockSchemaWithBlock<FileBlockConfig["type"], FileBlockConfig>,
+    any,
+    any
+  >,
+  element?: { dom: HTMLElement; destroy?: () => void },
+  buttonText?: string,
+  buttonIcon?: HTMLElement
+) => {
+  const wrapper = document.createElement("div");
+  wrapper.className = "bn-file-block-content-wrapper";
+
+  const loading = document.createElement("div");
+  loading.className = "bn-file-loading-preview";
+  loading.textContent = "Loading...";
+
+  const addFileButton = createAddFileButton(
+    block,
+    editor,
+    buttonText,
+    buttonIcon
+  );
+
+  const fileNameWithIcon = createFileNameWithIcon(block);
+
+  const caption = document.createElement("p");
+  caption.className = "bn-file-caption";
+  caption.textContent = block.props.caption;
+
+  const destroyUploadStartHandler = editor.onUploadStart((blockId) => {
+    if (blockId === block.id) {
+      wrapper.removeChild(addFileButton.dom);
+      wrapper.appendChild(loading);
+    }
+  });
+
+  if (block.props.url === "") {
+    // Show the add file button if the file has not been uploaded yet.
+    wrapper.appendChild(addFileButton.dom);
+  } else {
+    // Show the file preview and caption if the file has been uploaded.
+    if (block.props.showPreview === false || !element) {
+      // Use default preview.
+      wrapper.appendChild(fileNameWithIcon.dom);
+    } else {
+      // Use custom preview.
+      wrapper.appendChild(element.dom);
+    }
+    if (block.props.caption) {
+      // Show the caption if there is one.
+      wrapper.appendChild(caption);
+    }
+  }
+
+  return {
+    dom: wrapper,
+    destroy: () => {
+      destroyUploadStartHandler();
+      addFileButton.destroy();
+      fileNameWithIcon.destroy?.();
+    },
+  };
+};
+
+export const createResizableFileBlockWrapper = (
+  block: BlockFromConfig<FileBlockConfig, any, any>,
+  editor: BlockNoteEditor<any, any, any>,
+  element?: { dom: HTMLElement; destroy?: () => void },
+  resizeHandlesContainerElement?: HTMLElement,
+  buttonText?: string,
+  buttonIcon?: HTMLElement
+): { dom: HTMLElement; destroy: () => void } => {
+  const { dom, destroy } = createFileBlockWrapper(
+    block,
+    editor,
+    element,
+    buttonText,
+    buttonIcon
+  );
+  const wrapper = dom;
+  if (block.props.url && block.props.showPreview) {
+    wrapper.style.width = `${block.props.previewWidth}px`;
+  }
+
+  const resizeHandlesContainer = resizeHandlesContainerElement || wrapper;
+
+  const leftResizeHandle = document.createElement("div");
+  leftResizeHandle.className = "bn-resize-handle";
+  leftResizeHandle.style.left = "4px";
+  const rightResizeHandle = document.createElement("div");
+  rightResizeHandle.className = "bn-resize-handle";
+  rightResizeHandle.style.right = "4px";
+
+  // Temporary parameters set when the user begins resizing the element, used to
+  // calculate the new width of the element.
+  let resizeParams:
+    | {
+        handleUsed: "left" | "right";
+        initialWidth: number;
+        initialClientX: number;
+      }
+    | undefined;
+
+  // Updates the element width with an updated width depending on the cursor X
+  // offset from when the resize began, and which resize handle is being used.
+  const windowMouseMoveHandler = (event: MouseEvent) => {
+    if (!resizeParams) {
+      if (
+        !editor.isEditable &&
+        resizeHandlesContainer.contains(leftResizeHandle) &&
+        resizeHandlesContainer.contains(rightResizeHandle)
+      ) {
+        resizeHandlesContainer.removeChild(leftResizeHandle);
+        resizeHandlesContainer.removeChild(rightResizeHandle);
+      }
+
+      return;
+    }
+
+    let newWidth: number;
+
+    if (block.props.textAlignment === "center") {
+      if (resizeParams.handleUsed === "left") {
+        newWidth =
+          resizeParams.initialWidth +
+          (resizeParams.initialClientX - event.clientX) * 2;
+      } else {
+        newWidth =
+          resizeParams.initialWidth +
+          (event.clientX - resizeParams.initialClientX) * 2;
+      }
+    } else {
+      if (resizeParams.handleUsed === "left") {
+        newWidth =
+          resizeParams.initialWidth +
+          resizeParams.initialClientX -
+          event.clientX;
+      } else {
+        newWidth =
+          resizeParams.initialWidth +
+          event.clientX -
+          resizeParams.initialClientX;
+      }
+    }
+
+    // Min element width in px.
+    const minWidth = 64;
+
+    // Ensures the element is not wider than the editor and not narrower than a
+    // predetermined minimum width.
+    if (newWidth < minWidth) {
+      wrapper.style.width = `${minWidth}px`;
+    } else {
+      wrapper.style.width = `${newWidth}px`;
+    }
+  };
+  // Stops mouse movements from resizing the element and updates the block's
+  // `width` prop to the new value.
+  const windowMouseUpHandler = (event: MouseEvent) => {
+    // Hides the drag handles if the cursor is no longer over the element.
+    if (
+      (!event.target ||
+        !wrapper.contains(event.target as Node) ||
+        !editor.isEditable) &&
+      resizeHandlesContainer.contains(leftResizeHandle) &&
+      resizeHandlesContainer.contains(rightResizeHandle)
+    ) {
+      resizeHandlesContainer.removeChild(leftResizeHandle);
+      resizeHandlesContainer.removeChild(rightResizeHandle);
+    }
+
+    if (!resizeParams) {
+      return;
+    }
+
+    resizeParams = undefined;
+
+    editor.updateBlock(block, {
+      props: {
+        previewWidth: parseInt(wrapper.style.width.replace("px", "")),
+      },
+    });
+  };
+
+  // Shows the resize handles when hovering over the wrapper with the cursor.
+  const wrapperMouseEnterHandler = () => {
+    if (editor.isEditable) {
+      resizeHandlesContainer.appendChild(leftResizeHandle);
+      resizeHandlesContainer.appendChild(rightResizeHandle);
+    }
+  };
+  // Hides the resize handles when the cursor leaves the wrapper, unless the
+  // cursor moves to one of the resize handles.
+  const wrapperMouseLeaveHandler = (event: MouseEvent) => {
+    if (
+      event.relatedTarget === leftResizeHandle ||
+      event.relatedTarget === rightResizeHandle
+    ) {
+      return;
+    }
+
+    if (resizeParams) {
+      return;
+    }
+
+    if (
+      editor.isEditable &&
+      resizeHandlesContainer.contains(leftResizeHandle) &&
+      resizeHandlesContainer.contains(rightResizeHandle)
+    ) {
+      resizeHandlesContainer.removeChild(leftResizeHandle);
+      resizeHandlesContainer.removeChild(rightResizeHandle);
+    }
+  };
+
+  // Sets the resize params, allowing the user to begin resizing the element by
+  // moving the cursor left or right.
+  const leftResizeHandleMouseDownHandler = (event: MouseEvent) => {
+    event.preventDefault();
+
+    resizeParams = {
+      handleUsed: "left",
+      initialWidth: wrapper.clientWidth,
+      initialClientX: event.clientX,
+    };
+  };
+  const rightResizeHandleMouseDownHandler = (event: MouseEvent) => {
+    event.preventDefault();
+
+    resizeParams = {
+      handleUsed: "right",
+      initialWidth: wrapper.clientWidth,
+      initialClientX: event.clientX,
+    };
+  };
+
+  window.addEventListener("mousemove", windowMouseMoveHandler);
+  window.addEventListener("mouseup", windowMouseUpHandler);
+  wrapper.addEventListener("mouseenter", wrapperMouseEnterHandler);
+  wrapper.addEventListener("mouseleave", wrapperMouseLeaveHandler);
+  leftResizeHandle.addEventListener(
+    "mousedown",
+    leftResizeHandleMouseDownHandler
+  );
+  rightResizeHandle.addEventListener(
+    "mousedown",
+    rightResizeHandleMouseDownHandler
+  );
+
+  return {
+    dom: wrapper,
+    destroy: () => {
+      destroy();
+      window.removeEventListener("mousemove", windowMouseMoveHandler);
+      window.removeEventListener("mouseup", windowMouseUpHandler);
+      wrapper.removeEventListener("mouseenter", wrapperMouseEnterHandler);
+      wrapper.removeEventListener("mouseleave", wrapperMouseLeaveHandler);
+      leftResizeHandle.removeEventListener(
+        "mousedown",
+        leftResizeHandleMouseDownHandler
+      );
+      rightResizeHandle.removeEventListener(
+        "mousedown",
+        rightResizeHandleMouseDownHandler
       );
     },
   };
@@ -243,214 +415,4 @@ export const createFigureWithCaption = (
   figure.appendChild(captionElement);
 
   return { dom: figure };
-};
-
-// Wrapper element which adds resize handles & logic for visual media file
-// previews.
-export const createResizeHandlesWrapper = (
-  block: BlockFromConfig<FileBlockConfig, any, any>,
-  editor: BlockNoteEditor<any, any, any>,
-  element: HTMLElement,
-  getWidth: () => number,
-  setWidth: (width: number) => void
-): { dom: HTMLElement; destroy: () => void } => {
-  if (!block.props.previewWidth) {
-    throw new Error("Block must have a `previewWidth` prop.");
-  }
-
-  // Wrapper element for rendered element and resize handles.
-  const wrapper = document.createElement("div");
-  wrapper.className = "bn-visual-media-wrapper";
-
-  // Resize handle elements.
-  const leftResizeHandle = document.createElement("div");
-  leftResizeHandle.className = "bn-visual-media-resize-handle";
-  leftResizeHandle.style.left = "4px";
-  const rightResizeHandle = document.createElement("div");
-  rightResizeHandle.className = "bn-visual-media-resize-handle";
-  rightResizeHandle.style.right = "4px";
-
-  // Temporary parameters set when the user begins resizing the element, used to
-  // calculate the new width of the element.
-  let resizeParams:
-    | {
-        handleUsed: "left" | "right";
-        initialWidth: number;
-        initialClientX: number;
-      }
-    | undefined;
-
-  // Updates the element width with an updated width depending on the cursor X
-  // offset from when the resize began, and which resize handle is being used.
-  const windowMouseMoveHandler = (event: MouseEvent) => {
-    if (!resizeParams) {
-      if (
-        !editor.isEditable &&
-        wrapper.contains(leftResizeHandle) &&
-        wrapper.contains(rightResizeHandle)
-      ) {
-        wrapper.removeChild(leftResizeHandle);
-        wrapper.removeChild(rightResizeHandle);
-      }
-
-      return;
-    }
-
-    let newWidth: number;
-
-    if (block.props.textAlignment === "center") {
-      if (resizeParams.handleUsed === "left") {
-        newWidth =
-          resizeParams.initialWidth +
-          (resizeParams.initialClientX - event.clientX) * 2;
-      } else {
-        newWidth =
-          resizeParams.initialWidth +
-          (event.clientX - resizeParams.initialClientX) * 2;
-      }
-    } else {
-      if (resizeParams.handleUsed === "left") {
-        newWidth =
-          resizeParams.initialWidth +
-          resizeParams.initialClientX -
-          event.clientX;
-      } else {
-        newWidth =
-          resizeParams.initialWidth +
-          event.clientX -
-          resizeParams.initialClientX;
-      }
-    }
-
-    // Min element width in px.
-    const minWidth = 64;
-
-    // Ensures the element is not wider than the editor and not smaller than a
-    // predetermined minimum width.
-    if (newWidth < minWidth) {
-      setWidth(minWidth);
-    } else if (newWidth > editor.domElement.firstElementChild!.clientWidth) {
-      setWidth(editor.domElement.firstElementChild!.clientWidth);
-    } else {
-      setWidth(newWidth);
-    }
-  };
-  // Stops mouse movements from resizing the element and updates the block's
-  // `width` prop to the new value.
-  const windowMouseUpHandler = (event: MouseEvent) => {
-    // Hides the drag handles if the cursor is no longer over the element.
-    if (
-      (!event.target ||
-        !wrapper.contains(event.target as Node) ||
-        !editor.isEditable) &&
-      wrapper.contains(leftResizeHandle) &&
-      wrapper.contains(rightResizeHandle)
-    ) {
-      wrapper.removeChild(leftResizeHandle);
-      wrapper.removeChild(rightResizeHandle);
-    }
-
-    if (!resizeParams) {
-      return;
-    }
-
-    resizeParams = undefined;
-
-    editor.updateBlock(block, {
-      props: {
-        previewWidth: getWidth(),
-      },
-    });
-  };
-
-  // Shows the resize handles when hovering over the element with the cursor.
-  const elementMouseEnterHandler = () => {
-    if (editor.isEditable) {
-      wrapper.appendChild(leftResizeHandle);
-      wrapper.appendChild(rightResizeHandle);
-    }
-  };
-  // Hides the resize handles when the cursor leaves the element, unless the
-  // cursor moves to one of the resize handles.
-  const elementMouseLeaveHandler = (event: MouseEvent) => {
-    if (
-      event.relatedTarget === leftResizeHandle ||
-      event.relatedTarget === rightResizeHandle
-    ) {
-      return;
-    }
-
-    if (resizeParams) {
-      return;
-    }
-
-    if (
-      editor.isEditable &&
-      wrapper.contains(leftResizeHandle) &&
-      wrapper.contains(rightResizeHandle)
-    ) {
-      wrapper.removeChild(leftResizeHandle);
-      wrapper.removeChild(rightResizeHandle);
-    }
-  };
-
-  // Sets the resize params, allowing the user to begin resizing the element by
-  // moving the cursor left or right.
-  const leftResizeHandleMouseDownHandler = (event: MouseEvent) => {
-    event.preventDefault();
-
-    wrapper.appendChild(leftResizeHandle);
-    wrapper.appendChild(rightResizeHandle);
-
-    resizeParams = {
-      handleUsed: "left",
-      initialWidth: block.props.previewWidth!,
-      initialClientX: event.clientX,
-    };
-  };
-  const rightResizeHandleMouseDownHandler = (event: MouseEvent) => {
-    event.preventDefault();
-
-    wrapper.appendChild(leftResizeHandle);
-    wrapper.appendChild(rightResizeHandle);
-
-    resizeParams = {
-      handleUsed: "right",
-      initialWidth: block.props.previewWidth!,
-      initialClientX: event.clientX,
-    };
-  };
-
-  wrapper.appendChild(element);
-
-  window.addEventListener("mousemove", windowMouseMoveHandler);
-  window.addEventListener("mouseup", windowMouseUpHandler);
-  element.addEventListener("mouseenter", elementMouseEnterHandler);
-  element.addEventListener("mouseleave", elementMouseLeaveHandler);
-  leftResizeHandle.addEventListener(
-    "mousedown",
-    leftResizeHandleMouseDownHandler
-  );
-  rightResizeHandle.addEventListener(
-    "mousedown",
-    rightResizeHandleMouseDownHandler
-  );
-
-  return {
-    dom: wrapper,
-    destroy: () => {
-      window.removeEventListener("mousemove", windowMouseMoveHandler);
-      window.removeEventListener("mouseup", windowMouseUpHandler);
-      element.removeEventListener("mouseenter", elementMouseEnterHandler);
-      element.removeEventListener("mouseleave", elementMouseLeaveHandler);
-      leftResizeHandle.removeEventListener(
-        "mousedown",
-        leftResizeHandleMouseDownHandler
-      );
-      rightResizeHandle.removeEventListener(
-        "mousedown",
-        rightResizeHandleMouseDownHandler
-      );
-    },
-  };
 };

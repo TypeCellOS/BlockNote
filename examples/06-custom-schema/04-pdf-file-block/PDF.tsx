@@ -1,13 +1,11 @@
 import { FileBlockConfig } from "@blocknote/core";
 import {
-  AddFileButton,
   createReactBlockSpec,
-  DefaultFilePreview,
-  FileAndCaptionWrapper,
   ReactCustomBlockRenderProps,
+  ResizableFileBlockWrapper,
 } from "@blocknote/react";
 
-import { RiFilePdfFill } from "react-icons/ri";
+import { RiImage2Fill } from "react-icons/ri";
 
 import "./styles.css";
 
@@ -53,31 +51,12 @@ export const PDF = createReactBlockSpec(
   },
   {
     render: (props) => (
-      <div className={"bn-file-block-content-wrapper"}>
-        {props.block.props.url === "" ? (
-          <AddFileButton
-            {...props}
-            editor={props.editor as any}
-            buttonText={"Add PDF"}
-            buttonIcon={<RiFilePdfFill size={24} />}
-          />
-        ) : !props.block.props.showPreview ? (
-          <FileAndCaptionWrapper
-            block={props.block}
-            editor={props.editor as any}>
-            <DefaultFilePreview
-              block={props.block}
-              editor={props.editor as any}
-            />
-          </FileAndCaptionWrapper>
-        ) : (
-          <FileAndCaptionWrapper
-            block={props.block}
-            editor={props.editor as any}>
-            <PDFPreview block={props.block} editor={props.editor as any} />
-          </FileAndCaptionWrapper>
-        )}
-      </div>
+      <ResizableFileBlockWrapper
+        {...(props as any)}
+        buttonText={props.editor.dictionary.file_blocks.image.add_button_text}
+        buttonIcon={<RiImage2Fill size={24} />}>
+        <PDFPreview {...(props as any)} />
+      </ResizableFileBlockWrapper>
     ),
   }
 );

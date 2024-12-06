@@ -10,7 +10,6 @@ import { defaultProps } from "../defaultProps.js";
 
 import {
   createFigureWithCaption,
-  createFileAndCaptionWrapper,
   createFileBlockWrapper,
   createLinkWithCaption,
   parseFigureElement,
@@ -57,19 +56,21 @@ export const audioRender = (
 
   const audio = document.createElement("audio");
   audio.className = "bn-audio";
-  editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
-    audio.src = downloadUrl;
-  });
+  if (editor.resolveFileUrl) {
+    editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
+      audio.src = downloadUrl;
+    });
+  } else {
+    audio.src = block.props.url;
+  }
   audio.controls = true;
   audio.contentEditable = "false";
   audio.draggable = false;
 
-  const element = createFileAndCaptionWrapper(block, audio);
-
   return createFileBlockWrapper(
     block,
     editor,
-    element,
+    { dom: audio },
     editor.dictionary.file_blocks.audio.add_button_text,
     icon.firstElementChild as HTMLElement
   );

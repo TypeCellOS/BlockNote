@@ -1,77 +1,18 @@
 import { FileBlockConfig } from "@blocknote/core";
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import {
+  CSSProperties,
+  forwardRef,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { RiFile2Line } from "react-icons/ri";
 
 import { useUploadLoading } from "../../hooks/useUploadLoading.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { ReactCustomBlockRenderProps } from "../../schema/ReactBlockSpec.js";
-
-export const FileBlockWrapper = (
-  props: Omit<
-    ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
-    "contentRef"
-  > & { buttonText?: string; buttonIcon?: ReactNode; children: ReactNode }
-) => {
-  const showLoader = useUploadLoading(props.block.id);
-
-  if (showLoader) {
-    return <div className={"bn-file-loading-preview"}>Loading...</div>;
-  }
-
-  return (
-    <div className={"bn-file-block-content-wrapper"}>
-      {props.block.props.url === "" ? (
-        <AddFileButton {...props} />
-      ) : props.block.props.showPreview === false ? (
-        <FileAndCaptionWrapper block={props.block} editor={props.editor as any}>
-          <DefaultFilePreview
-            block={props.block}
-            editor={props.editor as any}
-          />
-        </FileAndCaptionWrapper>
-      ) : (
-        <FileAndCaptionWrapper block={props.block} editor={props.editor as any}>
-          {props.children}
-        </FileAndCaptionWrapper>
-      )}
-    </div>
-  );
-};
-
-export const DefaultFilePreview = (
-  props: Omit<
-    ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
-    "contentRef"
-  >
-) => (
-  <div
-    className={"bn-file-default-preview"}
-    contentEditable={false}
-    draggable={false}>
-    <div className={"bn-file-default-preview-icon"}>
-      <RiFile2Line size={24} />
-    </div>
-    <p className={"bn-file-default-preview-name"}>{props.block.props.name}</p>
-  </div>
-);
-
-export const FileAndCaptionWrapper = (
-  props: Omit<
-    ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
-    "contentRef"
-  > & {
-    children: ReactNode;
-  }
-) => {
-  return (
-    <div className={"bn-file-and-caption-wrapper"}>
-      {props.children}
-      {props.block.props.caption && (
-        <p className={"bn-file-caption"}>{props.block.props.caption}</p>
-      )}
-    </div>
-  );
-};
 
 export const AddFileButton = (
   props: Omit<
@@ -118,36 +59,83 @@ export const AddFileButton = (
   );
 };
 
-export const LinkWithCaption = (props: {
-  caption: string;
-  children: ReactNode;
-}) => (
-  <div>
-    {props.children}
-    <p>{props.caption}</p>
+export const FileNameWithIcon = (
+  props: Omit<
+    ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
+    "editor" | "contentRef"
+  >
+) => (
+  <div
+    className={"bn-file-name-with-icon"}
+    contentEditable={false}
+    draggable={false}>
+    <div className={"bn-file-icon"}>
+      <RiFile2Line size={24} />
+    </div>
+    <p className={"bn-file-name"}>{props.block.props.name}</p>
   </div>
 );
 
-export const FigureWithCaption = (props: {
-  caption: string;
-  children: ReactNode;
-}) => (
-  <figure>
-    {props.children}
-    <figcaption>{props.caption}</figcaption>
-  </figure>
-);
+export const FileBlockWrapper = forwardRef<
+  HTMLDivElement,
+  Omit<ReactCustomBlockRenderProps<FileBlockConfig, any, any>, "contentRef"> & {
+    buttonText?: string;
+    buttonIcon?: ReactNode;
+    children?: ReactNode;
+  } & {
+    // These props & the `forwardRef` are just here so we can reuse this
+    // component in `ResizableFileBlockWrapper`.
+    onMouseEnter?: () => void;
+    onMouseLeave?: () => void;
+    style?: CSSProperties;
+  }
+>((props, ref) => {
+  const showLoader = useUploadLoading(props.block.id);
 
-export const ResizeHandlesWrapper = (
-  props: Required<
-    Omit<ReactCustomBlockRenderProps<FileBlockConfig, any, any>, "contentRef">
+  return (
+    <div
+      className={"bn-file-block-content-wrapper"}
+      onMouseEnter={props.onMouseEnter}
+      onMouseLeave={props.onMouseLeave}
+      style={props.style}
+      ref={ref}>
+      {showLoader ? (
+        // Show loader while a file is being uploaded.
+        <div className={"bn-file-loading-preview"}>Loading...</div>
+      ) : props.block.props.url === "" ? (
+        // Show the add file button if the file has not been uploaded yet.
+        <AddFileButton {...props} />
+      ) : (
+        // Show the file preview and caption if the file has been uploaded.
+        <>
+          {props.block.props.showPreview === false || !props.children ? (
+            // Use default preview.
+            <FileNameWithIcon {...props} />
+          ) : (
+            // Use custom preview.
+            props.children
+          )}
+          {props.block.props.caption && (
+            <p className={"bn-file-caption"}>{props.block.props.caption}</p>
+          )}
+        </>
+      )}
+    </div>
+  );
+});
+
+export const ResizableFileBlockWrapper = (
+  props: Omit<
+    ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
+    "contentRef"
   > & {
-    width: number;
-    setWidth: (width: number) => void;
+    buttonText?: string;
+    buttonIcon?: ReactNode;
     children: ReactNode;
   }
 ) => {
-  const [childHovered, setChildHovered] = useState<boolean>(false);
+  // Temporary parameters set when the user begins resizing the element, used to
+  // calculate the new width of the element.
   const [resizeParams, setResizeParams] = useState<
     | {
         initialWidth: number;
@@ -156,6 +144,11 @@ export const ResizeHandlesWrapper = (
       }
     | undefined
   >(undefined);
+
+  const [width, setWidth] = useState(props.block.props.previewWidth! as number);
+  const [hovered, setHovered] = useState<boolean>(false);
+
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Updates the child width with an updated width depending on the cursor X
@@ -190,16 +183,12 @@ export const ResizeHandlesWrapper = (
       // Min child width in px.
       const minWidth = 64;
 
-      // Ensures the child is not wider than the editor and not smaller than a
+      // Ensures the child is not wider than the editor and not narrower than a
       // predetermined minimum width.
       if (newWidth < minWidth) {
-        props.setWidth(minWidth);
-      } else if (
-        newWidth > props.editor.domElement.firstElementChild!.clientWidth
-      ) {
-        props.setWidth(props.editor.domElement.firstElementChild!.clientWidth);
+        setWidth(minWidth);
       } else {
-        props.setWidth(newWidth);
+        setWidth(newWidth);
       }
     };
     // Stops mouse movements from resizing the child and updates the block's
@@ -209,7 +198,7 @@ export const ResizeHandlesWrapper = (
 
       (props.editor as any).updateBlock(props.block, {
         props: {
-          previewWidth: props.width,
+          previewWidth: width,
         },
       });
     };
@@ -223,19 +212,19 @@ export const ResizeHandlesWrapper = (
       window.removeEventListener("mousemove", windowMouseMoveHandler);
       window.removeEventListener("mouseup", windowMouseUpHandler);
     };
-  }, [props, resizeParams]);
+  }, [props, resizeParams, width]);
 
   // Shows the resize handles when hovering over the child with the cursor.
-  const childWrapperMouseEnterHandler = useCallback(() => {
+  const wrapperMouseEnterHandler = useCallback(() => {
     if (props.editor.isEditable) {
-      setChildHovered(true);
+      setHovered(true);
     }
   }, [props.editor.isEditable]);
 
   // Hides the resize handles when the cursor leaves the child, unless the
   // cursor moves to one of the resize handles.
-  const childWrapperMouseLeaveHandler = useCallback(() => {
-    setChildHovered(false);
+  const wrapperMouseLeaveHandler = useCallback(() => {
+    setHovered(false);
   }, []);
 
   // Sets the resize params, allowing the user to begin resizing the child by
@@ -246,11 +235,11 @@ export const ResizeHandlesWrapper = (
 
       setResizeParams({
         handleUsed: "left",
-        initialWidth: props.width,
+        initialWidth: ref.current!.clientWidth,
         initialClientX: event.clientX,
       });
     },
-    [props.width]
+    []
   );
   const rightResizeHandleMouseDownHandler = useCallback(
     (event: React.MouseEvent) => {
@@ -258,33 +247,63 @@ export const ResizeHandlesWrapper = (
 
       setResizeParams({
         handleUsed: "right",
-        initialWidth: props.width,
+        initialWidth: ref.current!.clientWidth,
         initialClientX: event.clientX,
       });
     },
-    [props.width]
+    []
   );
 
+  const showLoader = useUploadLoading(props.block.id);
+
   return (
-    <div
-      className={"bn-visual-media-wrapper"}
-      onMouseEnter={childWrapperMouseEnterHandler}
-      onMouseLeave={childWrapperMouseLeaveHandler}>
-      {props.children}
-      {(childHovered || resizeParams) && (
-        <>
-          <div
-            className={"bn-visual-media-resize-handle"}
-            style={{ left: "4px" }}
-            onMouseDown={leftResizeHandleMouseDownHandler}
-          />
-          <div
-            className={"bn-visual-media-resize-handle"}
-            style={{ right: "4px" }}
-            onMouseDown={rightResizeHandleMouseDownHandler}
-          />
-        </>
-      )}
-    </div>
+    <FileBlockWrapper
+      {...props}
+      onMouseEnter={wrapperMouseEnterHandler}
+      onMouseLeave={wrapperMouseLeaveHandler}
+      style={
+        props.block.props.url && !showLoader && props.block.props.showPreview
+          ? { width: `${width}px` }
+          : undefined
+      }
+      ref={ref}>
+      <div className={"bn-visual-media-wrapper"}>
+        {props.children}
+        {(hovered || resizeParams) && (
+          <>
+            <div
+              className={"bn-resize-handle"}
+              style={{ left: "4px" }}
+              onMouseDown={leftResizeHandleMouseDownHandler}
+            />
+            <div
+              className={"bn-resize-handle"}
+              style={{ right: "4px" }}
+              onMouseDown={rightResizeHandleMouseDownHandler}
+            />
+          </>
+        )}
+      </div>
+    </FileBlockWrapper>
   );
 };
+
+export const LinkWithCaption = (props: {
+  caption: string;
+  children: ReactNode;
+}) => (
+  <div>
+    {props.children}
+    <p>{props.caption}</p>
+  </div>
+);
+
+export const FigureWithCaption = (props: {
+  caption: string;
+  children: ReactNode;
+}) => (
+  <figure>
+    {props.children}
+    <figcaption>{props.caption}</figcaption>
+  </figure>
+);

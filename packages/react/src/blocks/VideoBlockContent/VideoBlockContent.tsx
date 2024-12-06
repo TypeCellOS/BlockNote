@@ -1,5 +1,5 @@
 import { FileBlockConfig, videoBlockConfig, videoParse } from "@blocknote/core";
-import { useState } from "react";
+import { useRef } from "react";
 import { RiVideoFill } from "react-icons/ri";
 
 import {
@@ -8,9 +8,8 @@ import {
 } from "../../schema/ReactBlockSpec.js";
 import {
   FigureWithCaption,
-  FileBlockWrapper,
   LinkWithCaption,
-  ResizeHandlesWrapper,
+  ResizableFileBlockWrapper,
 } from "../FileBlockContent/fileBlockHelpers.js";
 import { useResolveUrl } from "../FileBlockContent/useResolveUrl.js";
 
@@ -20,30 +19,23 @@ export const VideoPreview = (
     "contentRef"
   >
 ) => {
-  const [width, setWidth] = useState<number>(
-    Math.min(
-      props.block.props.previewWidth!,
-      props.editor.domElement.firstElementChild!.clientWidth
-    )
-  );
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const resolved = useResolveUrl(props.block.props.url!);
 
-  if (resolved.loadingState === "loading") {
-    return null;
-  }
-
   return (
-    <ResizeHandlesWrapper {...props} width={width} setWidth={setWidth}>
-      <video
-        className={"bn-visual-media"}
-        src={resolved.downloadUrl}
-        controls={true}
-        contentEditable={false}
-        draggable={false}
-        width={width}
-      />
-    </ResizeHandlesWrapper>
+    <video
+      className={"bn-visual-media"}
+      src={
+        resolved.loadingState === "loading"
+          ? props.block.props.url
+          : resolved.downloadUrl
+      }
+      controls={true}
+      contentEditable={false}
+      draggable={false}
+      ref={videoRef}
+    />
   );
 };
 
@@ -84,12 +76,12 @@ export const VideoBlock = (
   props: ReactCustomBlockRenderProps<typeof videoBlockConfig, any, any>
 ) => {
   return (
-    <FileBlockWrapper
+    <ResizableFileBlockWrapper
       {...(props as any)}
       buttonText={props.editor.dictionary.file_blocks.video.add_button_text}
       buttonIcon={<RiVideoFill size={24} />}>
-      <VideoPreview block={props.block} editor={props.editor as any} />
-    </FileBlockWrapper>
+      <VideoPreview {...(props as any)} />
+    </ResizableFileBlockWrapper>
   );
 };
 

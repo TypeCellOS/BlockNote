@@ -21,14 +21,14 @@ export const AudioPreview = (
 ) => {
   const resolved = useResolveUrl(props.block.props.url!);
 
-  if (resolved.loadingState === "loading") {
-    return null;
-  }
-
   return (
     <audio
       className={"bn-audio"}
-      src={resolved.downloadUrl}
+      src={
+        resolved.loadingState === "loading"
+          ? props.block.props.url
+          : resolved.downloadUrl
+      }
       controls={true}
       contentEditable={false}
       draggable={false}
@@ -77,7 +77,7 @@ export const AudioBlock = (
       {...(props as any)}
       buttonText={props.editor.dictionary.file_blocks.audio.add_button_text}
       buttonIcon={<RiVolumeUpFill size={24} />}>
-      <AudioPreview block={props.block} editor={props.editor as any} />
+      <AudioPreview {...(props as any)} />
     </FileBlockWrapper>
   );
 };
