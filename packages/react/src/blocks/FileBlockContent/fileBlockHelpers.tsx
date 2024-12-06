@@ -1,6 +1,8 @@
 import { FileBlockConfig } from "@blocknote/core";
 import {
+  ComponentPropsWithoutRef,
   createContext,
+  forwardRef,
   ReactNode,
   useCallback,
   useContext,
@@ -13,69 +15,6 @@ import { RiFile2Line } from "react-icons/ri";
 import { useUploadLoading } from "../../hooks/useUploadLoading.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { ReactCustomBlockRenderProps } from "../../schema/ReactBlockSpec.js";
-
-export const FileBlockWrapper = (
-  props: Omit<
-    ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
-    "contentRef"
-  > & { buttonText?: string; buttonIcon?: ReactNode; children: ReactNode }
-) => {
-  const showLoader = useUploadLoading(props.block.id);
-
-  if (showLoader) {
-    return <div className={"bn-file-loading-preview"}>Loading...</div>;
-  }
-
-  return (
-    <div className={"bn-file-block-content-wrapper"}>
-      {props.block.props.url === "" ? (
-        <AddFileButton {...props} />
-      ) : props.block.props.showPreview === false ? (
-        <FileAndCaptionWrapper block={props.block} editor={props.editor as any}>
-          <DefaultFilePreview
-            block={props.block}
-            editor={props.editor as any}
-          />
-        </FileAndCaptionWrapper>
-      ) : (
-        props.children
-      )}
-    </div>
-  );
-};
-
-export const DefaultFilePreview = (
-  props: Omit<
-    ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
-    "contentRef"
-  >
-) => (
-  <div
-    className={"bn-file-default-preview"}
-    contentEditable={false}
-    draggable={false}>
-    <div className={"bn-file-default-preview-icon"}>
-      <RiFile2Line size={24} />
-    </div>
-    <p className={"bn-file-default-preview-name"}>{props.block.props.name}</p>
-  </div>
-);
-
-export const FileAndCaptionWrapper = (
-  props: Omit<
-    ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
-    "contentRef"
-  > & {
-    children: ReactNode;
-  }
-) => {
-  return (
-    <div className={"bn-file-and-caption-wrapper"}>
-      {props.children}
-      <p className={"bn-file-caption"}>{props.block.props.caption}</p>
-    </div>
-  );
-};
 
 export const AddFileButton = (
   props: Omit<
@@ -122,25 +61,69 @@ export const AddFileButton = (
   );
 };
 
-export const LinkWithCaption = (props: {
-  caption: string;
-  children: ReactNode;
-}) => (
-  <div>
-    {props.children}
-    <p>{props.caption}</p>
+export const DefaultFilePreview = (
+  props: Omit<
+    ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
+    "contentRef"
+  >
+) => (
+  <div
+    className={"bn-file-default-preview"}
+    contentEditable={false}
+    draggable={false}>
+    <div className={"bn-file-default-preview-icon"}>
+      <RiFile2Line size={24} />
+    </div>
+    <p className={"bn-file-default-preview-name"}>{props.block.props.name}</p>
   </div>
 );
 
-export const FigureWithCaption = (props: {
-  caption: string;
-  children: ReactNode;
-}) => (
-  <figure>
-    {props.children}
-    <figcaption>{props.caption}</figcaption>
-  </figure>
-);
+export const FileCaption = (
+  props: Omit<
+    ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
+    "contentRef"
+  >
+) => {
+  return props.block.props.caption ? (
+    <p className={"bn-file-caption"}>{props.block.props.caption}</p>
+  ) : null;
+};
+
+export const FileBlockWrapper = forwardRef<
+  HTMLDivElement,
+  Omit<ReactCustomBlockRenderProps<FileBlockConfig, any, any>, "contentRef"> &
+    ComponentPropsWithoutRef<"div"> & {
+      buttonText?: string;
+      buttonIcon?: ReactNode;
+      children: ReactNode;
+    }
+>((props, ref) => {
+  const showLoader = useUploadLoading(props.block.id);
+
+  return (
+    <div className={"bn-file-block-content-wrapper"} ref={ref}>
+      {props.block.props.url === "" ? (
+        // Show the add file button if the file has not been uploaded yet.
+        <AddFileButton {...props} />
+      ) : showLoader ? (
+        // Show loader while a file is being uploaded.
+        <div className={"bn-file-loading-preview"}>Loading...</div>
+      ) : (
+        // Show the file preview and caption if the file has been uploaded.
+        <>
+          {props.block.props.showPreview === false ? (
+            // Use default preview.
+            <DefaultFilePreview {...props} />
+          ) : (
+            // Use custom preview.
+            props.children
+          )}
+          <FileCaption {...props} />
+        </>
+      )}
+    </div>
+  );
+});
 
 const ResizeHandlesContext = createContext<{
   show: boolean;
@@ -154,10 +137,13 @@ const ResizeHandlesContext = createContext<{
   rightResizeHandleMouseDownHandler: () => {},
 });
 
-export const ResizeHandlesWrapper = (
-  props: Required<
-    Omit<ReactCustomBlockRenderProps<FileBlockConfig, any, any>, "contentRef">
+export const ResizableFileBlockWrapper = (
+  props: Omit<
+    ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
+    "contentRef"
   > & {
+    buttonText?: string;
+    buttonIcon?: ReactNode;
     children: ReactNode;
   }
 ) => {
@@ -278,21 +264,45 @@ export const ResizeHandlesWrapper = (
     []
   );
 
+  const showLoader = useUploadLoading(props.block.id);
+
   return (
     <div
-      className={"bn-resize-handles-wrapper"}
+      className={"bn-file-block-content-wrapper"}
       onMouseEnter={childWrapperMouseEnterHandler}
       onMouseLeave={childWrapperMouseLeaveHandler}
-      style={{ width: `${width}px` }}
+      style={
+        props.block.props.url && !showLoader && props.block.props.showPreview
+          ? { width: `${width}px` }
+          : undefined
+      }
       ref={ref}>
-      <ResizeHandlesContext.Provider
-        value={{
-          show: !!(childHovered || resizeParams),
-          leftResizeHandleMouseDownHandler,
-          rightResizeHandleMouseDownHandler,
-        }}>
-        {props.children}
-      </ResizeHandlesContext.Provider>
+      {props.block.props.url === "" ? (
+        // Show the add file button if the file has not been uploaded yet.
+        <AddFileButton {...props} />
+      ) : showLoader ? (
+        // Show loader while a file is being uploaded.
+        <div className={"bn-file-loading-preview"}>Loading...</div>
+      ) : (
+        // Show the file preview and caption if the file has been uploaded.
+        <>
+          {props.block.props.showPreview === false ? (
+            // Use default preview.
+            <DefaultFilePreview {...props} />
+          ) : (
+            // Use custom preview.
+            <ResizeHandlesContext.Provider
+              value={{
+                show: !!(childHovered || resizeParams),
+                leftResizeHandleMouseDownHandler,
+                rightResizeHandleMouseDownHandler,
+              }}>
+              {props.children}
+            </ResizeHandlesContext.Provider>
+          )}
+          <FileCaption {...props} />
+        </>
+      )}
     </div>
   );
 };
@@ -323,3 +333,23 @@ export const ResizeHandles = () => {
     </>
   );
 };
+
+export const LinkWithCaption = (props: {
+  caption: string;
+  children: ReactNode;
+}) => (
+  <div>
+    {props.children}
+    <p>{props.caption}</p>
+  </div>
+);
+
+export const FigureWithCaption = (props: {
+  caption: string;
+  children: ReactNode;
+}) => (
+  <figure>
+    {props.children}
+    <figcaption>{props.caption}</figcaption>
+  </figure>
+);

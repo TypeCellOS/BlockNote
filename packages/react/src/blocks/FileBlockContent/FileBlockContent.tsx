@@ -1,4 +1,4 @@
-import { FileBlockConfig, fileBlockConfig, fileParse } from "@blocknote/core";
+import { fileBlockConfig, fileParse } from "@blocknote/core";
 
 import {
   createReactBlockSpec,
@@ -6,21 +6,9 @@ import {
 } from "../../schema/ReactBlockSpec.js";
 import {
   DefaultFilePreview,
-  FileAndCaptionWrapper,
   FileBlockWrapper,
   LinkWithCaption,
 } from "./fileBlockHelpers.js";
-
-export const FilePreview = (
-  props: Omit<
-    ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
-    "contentRef"
-  >
-) => (
-  <FileAndCaptionWrapper {...props}>
-    <DefaultFilePreview {...props} />
-  </FileAndCaptionWrapper>
-);
 
 export const FileToExternalHTML = (
   props: Omit<
@@ -54,7 +42,7 @@ export const FileBlock = (
 ) => {
   return (
     <FileBlockWrapper {...(props as any)}>
-      <FilePreview {...(props as any)} />
+      <DefaultFilePreview {...(props as any)} />
     </FileBlockWrapper>
   );
 };

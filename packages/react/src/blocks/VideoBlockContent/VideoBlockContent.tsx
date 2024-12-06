@@ -8,11 +8,9 @@ import {
 } from "../../schema/ReactBlockSpec.js";
 import {
   FigureWithCaption,
-  FileAndCaptionWrapper,
-  FileBlockWrapper,
   LinkWithCaption,
+  ResizableFileBlockWrapper,
   ResizeHandles,
-  ResizeHandlesWrapper,
 } from "../FileBlockContent/fileBlockHelpers.js";
 import { useResolveUrl } from "../FileBlockContent/useResolveUrl.js";
 
@@ -27,25 +25,21 @@ export const VideoPreview = (
   const resolved = useResolveUrl(props.block.props.url!);
 
   return (
-    <ResizeHandlesWrapper {...props}>
-      <FileAndCaptionWrapper {...props}>
-        <div className={"bn-visual-media-wrapper"}>
-          <video
-            className={"bn-visual-media"}
-            src={
-              resolved.loadingState === "loading"
-                ? props.block.props.url
-                : resolved.downloadUrl
-            }
-            controls={true}
-            contentEditable={false}
-            draggable={false}
-            ref={videoRef}
-          />
-          <ResizeHandles />
-        </div>
-      </FileAndCaptionWrapper>
-    </ResizeHandlesWrapper>
+    <div className={"bn-visual-media-wrapper"}>
+      <video
+        className={"bn-visual-media"}
+        src={
+          resolved.loadingState === "loading"
+            ? props.block.props.url
+            : resolved.downloadUrl
+        }
+        controls={true}
+        contentEditable={false}
+        draggable={false}
+        ref={videoRef}
+      />
+      <ResizeHandles />
+    </div>
   );
 };
 
@@ -86,12 +80,12 @@ export const VideoBlock = (
   props: ReactCustomBlockRenderProps<typeof videoBlockConfig, any, any>
 ) => {
   return (
-    <FileBlockWrapper
+    <ResizableFileBlockWrapper
       {...(props as any)}
       buttonText={props.editor.dictionary.file_blocks.video.add_button_text}
       buttonIcon={<RiVideoFill size={24} />}>
       <VideoPreview block={props.block} editor={props.editor as any} />
-    </FileBlockWrapper>
+    </ResizableFileBlockWrapper>
   );
 };
 

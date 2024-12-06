@@ -8,11 +8,9 @@ import {
 } from "../../schema/ReactBlockSpec.js";
 import {
   FigureWithCaption,
-  FileAndCaptionWrapper,
-  FileBlockWrapper,
   LinkWithCaption,
+  ResizableFileBlockWrapper,
   ResizeHandles,
-  ResizeHandlesWrapper,
 } from "../FileBlockContent/fileBlockHelpers.js";
 import { useResolveUrl } from "../FileBlockContent/useResolveUrl.js";
 
@@ -27,25 +25,21 @@ export const ImagePreview = (
   const resolved = useResolveUrl(props.block.props.url!);
 
   return (
-    <ResizeHandlesWrapper {...props}>
-      <FileAndCaptionWrapper {...props}>
-        <div className={"bn-visual-media-wrapper"}>
-          <img
-            className={"bn-visual-media"}
-            src={
-              resolved.loadingState === "loading"
-                ? props.block.props.url
-                : resolved.downloadUrl
-            }
-            alt={props.block.props.caption || "BlockNote image"}
-            contentEditable={false}
-            draggable={false}
-            ref={imgRef}
-          />
-          <ResizeHandles />
-        </div>
-      </FileAndCaptionWrapper>
-    </ResizeHandlesWrapper>
+    <div className={"bn-visual-media-wrapper"}>
+      <img
+        className={"bn-visual-media"}
+        src={
+          resolved.loadingState === "loading"
+            ? props.block.props.url
+            : resolved.downloadUrl
+        }
+        alt={props.block.props.caption || "BlockNote image"}
+        contentEditable={false}
+        draggable={false}
+        ref={imgRef}
+      />
+      <ResizeHandles />
+    </div>
   );
 };
 
@@ -92,12 +86,12 @@ export const ImageBlock = (
   props: ReactCustomBlockRenderProps<typeof imageBlockConfig, any, any>
 ) => {
   return (
-    <FileBlockWrapper
+    <ResizableFileBlockWrapper
       {...(props as any)}
       buttonText={props.editor.dictionary.file_blocks.image.add_button_text}
       buttonIcon={<RiImage2Fill size={24} />}>
       <ImagePreview block={props.block} editor={props.editor as any} />
-    </FileBlockWrapper>
+    </ResizableFileBlockWrapper>
   );
 };
 
