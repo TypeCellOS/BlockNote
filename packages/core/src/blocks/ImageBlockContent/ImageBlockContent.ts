@@ -63,10 +63,14 @@ export const imageRender = (
 
   const image = document.createElement("img");
   image.className = "bn-visual-media";
-  image.src = block.props.url;
-  editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
-    image.src = downloadUrl;
-  });
+  if (editor.resolveFileUrl) {
+    editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
+      image.src = downloadUrl;
+    });
+  } else {
+    image.src = block.props.url;
+  }
+
   image.alt = block.props.name || block.props.caption || "BlockNote image";
   image.contentEditable = "false";
   image.draggable = false;

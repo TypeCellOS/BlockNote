@@ -1,11 +1,9 @@
 import { FileBlockConfig } from "@blocknote/core";
 import {
-  createContext,
   CSSProperties,
   forwardRef,
   ReactNode,
   useCallback,
-  useContext,
   useEffect,
   useRef,
   useState,
@@ -61,20 +59,20 @@ export const AddFileButton = (
   );
 };
 
-export const DefaultFilePreview = (
+export const FileNameWithIcon = (
   props: Omit<
     ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
     "editor" | "contentRef"
   >
 ) => (
   <div
-    className={"bn-file-default-preview"}
+    className={"bn-file-name-with-icon"}
     contentEditable={false}
     draggable={false}>
-    <div className={"bn-file-default-preview-icon"}>
+    <div className={"bn-file-icon"}>
       <RiFile2Line size={24} />
     </div>
-    <p className={"bn-file-default-preview-name"}>{props.block.props.name}</p>
+    <p className={"bn-file-name"}>{props.block.props.name}</p>
   </div>
 );
 
@@ -112,7 +110,7 @@ export const FileBlockWrapper = forwardRef<
         <>
           {props.block.props.showPreview === false || !props.children ? (
             // Use default preview.
-            <DefaultFilePreview {...props} />
+            <FileNameWithIcon {...props} />
           ) : (
             // Use custom preview.
             props.children
@@ -124,18 +122,6 @@ export const FileBlockWrapper = forwardRef<
       )}
     </div>
   );
-});
-
-const ResizeHandlesContext = createContext<{
-  show: boolean;
-  leftResizeHandleMouseDownHandler: (event: React.MouseEvent) => void;
-  rightResizeHandleMouseDownHandler: (event: React.MouseEvent) => void;
-}>({
-  show: false,
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  leftResizeHandleMouseDownHandler: () => {},
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  rightResizeHandleMouseDownHandler: () => {},
 });
 
 export const ResizableFileBlockWrapper = (
@@ -281,42 +267,24 @@ export const ResizableFileBlockWrapper = (
           : undefined
       }
       ref={ref}>
-      <ResizeHandlesContext.Provider
-        value={{
-          show: !!(hovered || resizeParams),
-          leftResizeHandleMouseDownHandler,
-          rightResizeHandleMouseDownHandler,
-        }}>
+      <div className={"bn-visual-media-wrapper"}>
         {props.children}
-      </ResizeHandlesContext.Provider>
+        {(hovered || resizeParams) && (
+          <>
+            <div
+              className={"bn-resize-handle"}
+              style={{ left: "4px" }}
+              onMouseDown={leftResizeHandleMouseDownHandler}
+            />
+            <div
+              className={"bn-resize-handle"}
+              style={{ right: "4px" }}
+              onMouseDown={rightResizeHandleMouseDownHandler}
+            />
+          </>
+        )}
+      </div>
     </FileBlockWrapper>
-  );
-};
-
-export const ResizeHandles = () => {
-  const {
-    show,
-    leftResizeHandleMouseDownHandler,
-    rightResizeHandleMouseDownHandler,
-  } = useContext(ResizeHandlesContext);
-
-  if (!show) {
-    return null;
-  }
-
-  return (
-    <>
-      <div
-        className={"bn-resize-handle"}
-        style={{ left: "4px" }}
-        onMouseDown={leftResizeHandleMouseDownHandler}
-      />
-      <div
-        className={"bn-resize-handle"}
-        style={{ right: "4px" }}
-        onMouseDown={rightResizeHandleMouseDownHandler}
-      />
-    </>
   );
 };
 

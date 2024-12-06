@@ -64,10 +64,13 @@ export const videoRender = (
 
   const video = document.createElement("video");
   video.className = "bn-visual-media";
-  video.src = block.props.url;
-  editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
-    video.src = downloadUrl;
-  });
+  if (editor.resolveFileUrl) {
+    editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
+      video.src = downloadUrl;
+    });
+  } else {
+    video.src = block.props.url;
+  }
   video.controls = true;
   video.contentEditable = "false";
   video.draggable = false;

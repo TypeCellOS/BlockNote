@@ -318,9 +318,9 @@ NESTED BLOCKS
   user-select: none;
 }
 
-/* Add block button & default preview */
+/* Add block button & default element (name with icon) */
 [data-file-block] .bn-file-block-content-wrapper:has(.bn-add-file-button),
-[data-file-block] .bn-file-block-content-wrapper:has(.bn-file-default-preview) {
+[data-file-block] .bn-file-block-content-wrapper:has(.bn-file-name-with-icon) {
   width: 100%;
 }
 
@@ -334,12 +334,14 @@ NESTED BLOCKS
   padding: 12px;
 }
 
-.bn-editor[contenteditable="true"] [data-file-block] .bn-add-file-button:hover {
+.bn-editor[contenteditable="true"] [data-file-block] .bn-add-file-button:hover,
+[data-file-block] .bn-file-name-with-icon:hover,
+.ProseMirror-selectednode .bn-file-name-with-icon{
   background-color: rgb(225, 225, 225);
 }
 
 [data-file-block] .bn-add-file-button-icon,
-[data-file-block] .bn-file-default-preview-icon {
+[data-file-block] .bn-file-icon {
   width: 24px;
   height: 24px;
 }
@@ -348,16 +350,11 @@ NESTED BLOCKS
   font-size: 0.9rem;
 }
 
-[data-file-block] .bn-file-default-preview {
+[data-file-block] .bn-file-name-with-icon {
   border-radius: 4px;
   display: flex;
   gap: 4px;
   padding: 4px;
-}
-
-[data-file-block] .bn-file-default-preview:hover,
-.ProseMirror-selectednode .bn-file-default-preview {
-  background-color: rgb(225, 225, 225);
 }
 
 /* File captions */

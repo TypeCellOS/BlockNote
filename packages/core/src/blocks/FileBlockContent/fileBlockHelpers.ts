@@ -68,19 +68,19 @@ export const createAddFileButton = (
   };
 };
 
-export const createDefaultFilePreview = (
+export const createFileNameWithIcon = (
   block: BlockFromConfig<FileBlockConfig, any, any>
 ): { dom: HTMLElement; destroy?: () => void } => {
   const file = document.createElement("div");
-  file.className = "bn-file-default-preview";
+  file.className = "bn-file-name-with-icon";
 
   const icon = document.createElement("div");
-  icon.className = "bn-file-default-preview-icon";
+  icon.className = "bn-file-icon";
   icon.innerHTML = FILE_ICON_SVG;
   file.appendChild(icon);
 
   const fileName = document.createElement("p");
-  fileName.className = "bn-file-default-preview-name";
+  fileName.className = "bn-file-name";
   fileName.textContent = block.props.name;
   file.appendChild(fileName);
 
@@ -114,7 +114,7 @@ export const createFileBlockWrapper = (
     buttonIcon
   );
 
-  const defaultFilePreview = createDefaultFilePreview(block);
+  const fileNameWithIcon = createFileNameWithIcon(block);
 
   const caption = document.createElement("p");
   caption.className = "bn-file-caption";
@@ -126,12 +126,6 @@ export const createFileBlockWrapper = (
       wrapper.appendChild(loading);
     }
   });
-  const destroyUploadEndHandler = editor.onUploadEnd((blockId) => {
-    if (blockId === block.id) {
-      wrapper.removeChild(loading);
-      wrapper.appendChild(element ? element.dom : defaultFilePreview.dom);
-    }
-  });
 
   if (block.props.url === "") {
     // Show the add file button if the file has not been uploaded yet.
@@ -140,7 +134,7 @@ export const createFileBlockWrapper = (
     // Show the file preview and caption if the file has been uploaded.
     if (block.props.showPreview === false || !element) {
       // Use default preview.
-      wrapper.appendChild(defaultFilePreview.dom);
+      wrapper.appendChild(fileNameWithIcon.dom);
     } else {
       // Use custom preview.
       wrapper.appendChild(element.dom);
@@ -155,9 +149,8 @@ export const createFileBlockWrapper = (
     dom: wrapper,
     destroy: () => {
       destroyUploadStartHandler();
-      destroyUploadEndHandler();
       addFileButton.destroy();
-      defaultFilePreview.destroy?.();
+      fileNameWithIcon.destroy?.();
     },
   };
 };

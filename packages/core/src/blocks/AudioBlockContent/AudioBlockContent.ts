@@ -56,10 +56,13 @@ export const audioRender = (
 
   const audio = document.createElement("audio");
   audio.className = "bn-audio";
-  audio.src = block.props.url;
-  editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
-    audio.src = downloadUrl;
-  });
+  if (editor.resolveFileUrl) {
+    editor.resolveFileUrl(block.props.url).then((downloadUrl) => {
+      audio.src = downloadUrl;
+    });
+  } else {
+    audio.src = block.props.url;
+  }
   audio.controls = true;
   audio.contentEditable = "false";
   audio.draggable = false;

@@ -10,7 +10,6 @@ import {
   FigureWithCaption,
   LinkWithCaption,
   ResizableFileBlockWrapper,
-  ResizeHandles,
 } from "../FileBlockContent/fileBlockHelpers.js";
 import { useResolveUrl } from "../FileBlockContent/useResolveUrl.js";
 
@@ -25,21 +24,18 @@ export const ImagePreview = (
   const resolved = useResolveUrl(props.block.props.url!);
 
   return (
-    <div className={"bn-visual-media-wrapper"}>
-      <img
-        className={"bn-visual-media"}
-        src={
-          resolved.loadingState === "loading"
-            ? props.block.props.url
-            : resolved.downloadUrl
-        }
-        alt={props.block.props.caption || "BlockNote image"}
-        contentEditable={false}
-        draggable={false}
-        ref={imgRef}
-      />
-      <ResizeHandles />
-    </div>
+    <img
+      className={"bn-visual-media"}
+      src={
+        resolved.loadingState === "loading"
+          ? props.block.props.url
+          : resolved.downloadUrl
+      }
+      alt={props.block.props.caption || "BlockNote image"}
+      contentEditable={false}
+      draggable={false}
+      ref={imgRef}
+    />
   );
 };
 
