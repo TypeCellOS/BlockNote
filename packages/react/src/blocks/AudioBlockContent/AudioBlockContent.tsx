@@ -77,7 +77,7 @@ export const AudioBlock = (
       {...(props as any)}
       buttonText={props.editor.dictionary.file_blocks.audio.add_button_text}
       buttonIcon={<RiVolumeUpFill size={24} />}>
-      <AudioPreview block={props.block} editor={props.editor as any} />
+      <AudioPreview {...(props as any)} />
     </FileBlockWrapper>
   );
 };
