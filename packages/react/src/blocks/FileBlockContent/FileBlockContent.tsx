@@ -4,11 +4,7 @@ import {
   createReactBlockSpec,
   ReactCustomBlockRenderProps,
 } from "../../schema/ReactBlockSpec.js";
-import {
-  DefaultFilePreview,
-  FileBlockWrapper,
-  LinkWithCaption,
-} from "./fileBlockHelpers.js";
+import { FileBlockWrapper, LinkWithCaption } from "./fileBlockHelpers.js";
 
 export const FileToExternalHTML = (
   props: Omit<
@@ -40,11 +36,7 @@ export const FileToExternalHTML = (
 export const FileBlock = (
   props: ReactCustomBlockRenderProps<typeof fileBlockConfig, any, any>
 ) => {
-  return (
-    <FileBlockWrapper {...(props as any)}>
-      <DefaultFilePreview {...(props as any)} />
-    </FileBlockWrapper>
-  );
+  return <FileBlockWrapper {...(props as any)} />;
 };
 
 export const ReactFileBlock = createReactBlockSpec(fileBlockConfig, {
