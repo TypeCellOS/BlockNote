@@ -9,10 +9,8 @@ import {
 import { defaultProps } from "../defaultProps.js";
 import {
   createFigureWithCaption,
-  createFileAndCaptionWrapper,
-  createFileBlockWrapper,
   createLinkWithCaption,
-  createResizeHandlesWrapper,
+  createResizableFileBlockWrapper,
   parseFigureElement,
 } from "../FileBlockContent/fileBlockHelpers.js";
 import { parseImageElement } from "./imageBlockHelpers.js";
@@ -72,24 +70,13 @@ export const imageRender = (
   image.alt = block.props.name || block.props.caption || "BlockNote image";
   image.contentEditable = "false";
   image.draggable = false;
-
   imageWrapper.appendChild(image);
 
-  const fileAndCaptionWrapper = createFileAndCaptionWrapper(
-    block,
-    imageWrapper
-  );
-  const resizeHandlesWrapper = createResizeHandlesWrapper(
+  return createResizableFileBlockWrapper(
     block,
     editor,
-    fileAndCaptionWrapper.dom,
-    imageWrapper
-  );
-
-  return createFileBlockWrapper(
-    block,
-    editor,
-    resizeHandlesWrapper,
+    { dom: imageWrapper },
+    imageWrapper,
     editor.dictionary.file_blocks.image.add_button_text,
     icon.firstElementChild as HTMLElement
   );

@@ -10,7 +10,6 @@ import { defaultProps } from "../defaultProps.js";
 
 import {
   createFigureWithCaption,
-  createFileAndCaptionWrapper,
   createFileBlockWrapper,
   createLinkWithCaption,
   parseFigureElement,
@@ -65,12 +64,10 @@ export const audioRender = (
   audio.contentEditable = "false";
   audio.draggable = false;
 
-  const fileAndCaptionWrapper = createFileAndCaptionWrapper(block, audio);
-
   return createFileBlockWrapper(
     block,
     editor,
-    fileAndCaptionWrapper,
+    { dom: audio },
     editor.dictionary.file_blocks.audio.add_button_text,
     icon.firstElementChild as HTMLElement
   );

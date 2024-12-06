@@ -7,8 +7,6 @@ import {
 } from "../../schema/index.js";
 import { defaultProps } from "../defaultProps.js";
 import {
-  createDefaultFilePreview,
-  createFileAndCaptionWrapper,
   createFileBlockWrapper,
   createLinkWithCaption,
   parseEmbedElement,
@@ -42,11 +40,7 @@ export const fileRender = (
   block: BlockFromConfig<typeof fileBlockConfig, any, any>,
   editor: BlockNoteEditor<any, any, any>
 ) => {
-  const file = createDefaultFilePreview(block).dom;
-
-  const fileAndCaptionWrapper = createFileAndCaptionWrapper(block, file);
-
-  return createFileBlockWrapper(block, editor, fileAndCaptionWrapper);
+  return createFileBlockWrapper(block, editor);
 };
 
 export const fileParse = (element: HTMLElement) => {

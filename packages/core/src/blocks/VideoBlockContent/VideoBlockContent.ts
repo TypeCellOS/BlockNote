@@ -10,10 +10,8 @@ import { defaultProps } from "../defaultProps.js";
 
 import {
   createFigureWithCaption,
-  createFileAndCaptionWrapper,
-  createFileBlockWrapper,
   createLinkWithCaption,
-  createResizeHandlesWrapper,
+  createResizableFileBlockWrapper,
   parseFigureElement,
 } from "../FileBlockContent/fileBlockHelpers.js";
 import { parseVideoElement } from "./videoBlockHelpers.js";
@@ -74,24 +72,13 @@ export const videoRender = (
   video.contentEditable = "false";
   video.draggable = false;
   video.width = block.props.previewWidth;
-
   videoWrapper.appendChild(video);
 
-  const fileAndCaptionWrapper = createFileAndCaptionWrapper(
-    block,
-    videoWrapper
-  );
-  const resizeHandlesWrapper = createResizeHandlesWrapper(
+  return createResizableFileBlockWrapper(
     block,
     editor,
-    fileAndCaptionWrapper.dom,
-    videoWrapper
-  );
-
-  return createFileBlockWrapper(
-    block,
-    editor,
-    resizeHandlesWrapper,
+    { dom: videoWrapper },
+    videoWrapper,
     editor.dictionary.file_blocks.video.add_button_text,
     icon.firstElementChild as HTMLElement
   );

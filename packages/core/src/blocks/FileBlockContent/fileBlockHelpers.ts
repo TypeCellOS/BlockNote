@@ -6,117 +6,7 @@ import {
 } from "../../schema/index.js";
 
 export const FILE_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 8L9.00319 2H19.9978C20.5513 2 21 2.45531 21 2.9918V21.0082C21 21.556 20.5551 22 20.0066 22H3.9934C3.44476 22 3 21.5501 3 20.9932V8ZM10 4V9H5V20H19V4H10Z"></path></svg>`;
-export const createFileBlockWrapper = (
-  block: BlockFromConfig<FileBlockConfig, any, any>,
-  editor: BlockNoteEditor<
-    BlockSchemaWithBlock<FileBlockConfig["type"], FileBlockConfig>,
-    any,
-    any
-  >,
-  // TODO: Maybe make optional for default preview
-  element: { dom: HTMLElement; destroy?: () => void },
-  buttonText?: string,
-  buttonIcon?: HTMLElement
-) => {
-  const wrapper = document.createElement("div");
-  wrapper.className = "bn-file-block-content-wrapper";
 
-  if (block.props.url === "") {
-    const addFileButton = createAddFileButton(
-      block,
-      editor,
-      buttonText,
-      buttonIcon
-    );
-    wrapper.appendChild(addFileButton.dom);
-
-    const loading = document.createElement("div");
-    loading.className = "bn-file-loading-preview";
-    loading.textContent = "Loading...";
-
-    const destroyUploadStartHandler = editor.onUploadStart((blockId) => {
-      if (blockId === block.id) {
-        wrapper.removeChild(addFileButton.dom);
-        wrapper.appendChild(loading);
-      }
-    });
-    const destroyUploadEndHandler = editor.onUploadEnd((blockId) => {
-      if (blockId === block.id) {
-        wrapper.removeChild(loading);
-        wrapper.appendChild(addFileButton.dom);
-      }
-    });
-
-    return {
-      dom: wrapper,
-      destroy: () => {
-        addFileButton.destroy?.();
-        destroyUploadStartHandler();
-        destroyUploadEndHandler();
-      },
-    };
-  } else if (block.props.showPreview === false) {
-    // TODO: Not using the wrapper element here?
-    const file = createDefaultFilePreview(block).dom;
-    const element = createFileAndCaptionWrapper(block, file);
-
-    return {
-      dom: element.dom,
-    };
-  } else {
-    wrapper.appendChild(element.dom);
-
-    return {
-      dom: wrapper,
-      destroy: element.destroy,
-    };
-  }
-};
-
-// Default file preview, displaying a file icon and file name.
-export const createDefaultFilePreview = (
-  block: BlockFromConfig<FileBlockConfig, any, any>
-): { dom: HTMLElement; destroy?: () => void } => {
-  const file = document.createElement("div");
-  file.className = "bn-file-default-preview";
-
-  const icon = document.createElement("div");
-  icon.className = "bn-file-default-preview-icon";
-  icon.innerHTML = FILE_ICON_SVG;
-
-  const fileName = document.createElement("p");
-  fileName.className = "bn-file-default-preview-name";
-  fileName.textContent = block.props.name || "";
-
-  file.appendChild(icon);
-  file.appendChild(fileName);
-
-  return {
-    dom: file,
-  };
-};
-
-// Wrapper element containing file preview and caption.
-export const createFileAndCaptionWrapper = (
-  block: BlockFromConfig<FileBlockConfig, any, any>,
-  file: HTMLElement
-) => {
-  const fileAndCaptionWrapper = document.createElement("div");
-  fileAndCaptionWrapper.className = "bn-file-and-caption-wrapper";
-
-  const caption = document.createElement("p");
-  caption.className = "bn-file-caption";
-  caption.textContent = block.props.caption;
-
-  fileAndCaptionWrapper.appendChild(file);
-  fileAndCaptionWrapper.appendChild(caption);
-
-  return {
-    dom: fileAndCaptionWrapper,
-  };
-};
-
-// Button element that acts as a placeholder for files with no src.
 export const createAddFileButton = (
   block: BlockFromConfig<FileBlockConfig, any, any>,
   editor: BlockNoteEditor<any, any, any>,
@@ -134,11 +24,13 @@ export const createAddFileButton = (
     addFileButtonIcon.innerHTML =
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 8L9.00319 2H19.9978C20.5513 2 21 2.45531 21 2.9918V21.0082C21 21.556 20.5551 22 20.0066 22H3.9934C3.44476 22 3 21.5501 3 20.9932V8ZM10 4V9H5V20H19V4H10Z"></path></svg>';
   }
+  addFileButton.appendChild(addFileButtonIcon);
 
   const addFileButtonText = document.createElement("p");
   addFileButtonText.className = "bn-add-file-button-text";
   addFileButtonText.innerHTML =
     buttonText || editor.dictionary.file_blocks.file.add_button_text;
+  addFileButton.appendChild(addFileButtonText);
 
   // Prevents focus from moving to the button.
   const addFileButtonMouseDownHandler = (event: MouseEvent) => {
@@ -152,10 +44,6 @@ export const createAddFileButton = (
       })
     );
   };
-
-  addFileButton.appendChild(addFileButtonIcon);
-  addFileButton.appendChild(addFileButtonText);
-
   addFileButton.addEventListener(
     "mousedown",
     addFileButtonMouseDownHandler,
@@ -180,86 +68,122 @@ export const createAddFileButton = (
   };
 };
 
-export const parseEmbedElement = (embedElement: HTMLEmbedElement) => {
-  const url = embedElement.src || undefined;
+export const createDefaultFilePreview = (
+  block: BlockFromConfig<FileBlockConfig, any, any>
+): { dom: HTMLElement; destroy?: () => void } => {
+  const file = document.createElement("div");
+  file.className = "bn-file-default-preview";
 
-  return { url };
-};
+  const icon = document.createElement("div");
+  icon.className = "bn-file-default-preview-icon";
+  icon.innerHTML = FILE_ICON_SVG;
+  file.appendChild(icon);
 
-export const parseFigureElement = (
-  figureElement: HTMLElement,
-  targetTag: string
-) => {
-  const targetElement = figureElement.querySelector(
-    targetTag
-  ) as HTMLElement | null;
-  if (!targetElement) {
-    return undefined;
-  }
-
-  const captionElement = figureElement.querySelector("figcaption");
-  const caption = captionElement?.textContent ?? undefined;
-
-  return { targetElement, caption };
-};
-
-// Wrapper figure element to display file link with caption. Used for external
-// HTML
-export const createLinkWithCaption = (
-  element: HTMLElement,
-  caption: string
-) => {
-  const wrapper = document.createElement("div");
-  const fileCaption = document.createElement("p");
-  fileCaption.textContent = caption;
-
-  wrapper.appendChild(element);
-  wrapper.appendChild(fileCaption);
+  const fileName = document.createElement("p");
+  fileName.className = "bn-file-default-preview-name";
+  fileName.textContent = block.props.name;
+  file.appendChild(fileName);
 
   return {
-    dom: wrapper,
+    dom: file,
   };
 };
 
-// Wrapper figure element to display file preview with caption. Used for
-// external HTML.
-export const createFigureWithCaption = (
-  element: HTMLElement,
-  caption: string
-) => {
-  const figure = document.createElement("figure");
-  const captionElement = document.createElement("figcaption");
-  captionElement.textContent = caption;
-
-  figure.appendChild(element);
-  figure.appendChild(captionElement);
-
-  return { dom: figure };
-};
-
-// Wrapper element which adds resize handles & logic for visual media file
-// previews.
-export const createResizeHandlesWrapper = (
+export const createFileBlockWrapper = (
   block: BlockFromConfig<FileBlockConfig, any, any>,
-  editor: BlockNoteEditor<any, any, any>,
-  childElement: HTMLElement,
-  resizeHandlesContainerElement?: HTMLElement
-): { dom: HTMLElement; destroy: () => void } => {
-  if (!block.props.previewWidth) {
-    throw new Error("Block must have a `previewWidth` prop.");
+  editor: BlockNoteEditor<
+    BlockSchemaWithBlock<FileBlockConfig["type"], FileBlockConfig>,
+    any,
+    any
+  >,
+  element?: { dom: HTMLElement; destroy?: () => void },
+  buttonText?: string,
+  buttonIcon?: HTMLElement
+) => {
+  const wrapper = document.createElement("div");
+  wrapper.className = "bn-file-block-content-wrapper";
+
+  const loading = document.createElement("div");
+  loading.className = "bn-file-loading-preview";
+  loading.textContent = "Loading...";
+
+  const addFileButton = createAddFileButton(
+    block,
+    editor,
+    buttonText,
+    buttonIcon
+  );
+
+  const defaultFilePreview = createDefaultFilePreview(block);
+
+  const caption = document.createElement("p");
+  caption.className = "bn-file-caption";
+  caption.textContent = block.props.caption;
+
+  const destroyUploadStartHandler = editor.onUploadStart((blockId) => {
+    if (blockId === block.id) {
+      wrapper.removeChild(addFileButton.dom);
+      wrapper.appendChild(loading);
+    }
+  });
+  const destroyUploadEndHandler = editor.onUploadEnd((blockId) => {
+    if (blockId === block.id) {
+      wrapper.removeChild(loading);
+      wrapper.appendChild(element ? element.dom : defaultFilePreview.dom);
+    }
+  });
+
+  if (block.props.url === "") {
+    // Show the add file button if the file has not been uploaded yet.
+    wrapper.appendChild(addFileButton.dom);
+  } else {
+    // Show the file preview and caption if the file has been uploaded.
+    if (block.props.showPreview === false || !element) {
+      // Use default preview.
+      wrapper.appendChild(defaultFilePreview.dom);
+    } else {
+      // Use custom preview.
+      wrapper.appendChild(element.dom);
+    }
+    if (block.props.caption) {
+      // Show the caption if there is one.
+      wrapper.appendChild(caption);
+    }
   }
 
-  // Wrapper element for rendered element and resize handles.
-  const wrapper = document.createElement("div");
-  wrapper.className = "bn-resize-handles-wrapper";
-  wrapper.style.width = `${block.props.previewWidth}px`;
+  return {
+    dom: wrapper,
+    destroy: () => {
+      destroyUploadStartHandler();
+      destroyUploadEndHandler();
+      addFileButton.destroy();
+      defaultFilePreview.destroy?.();
+    },
+  };
+};
 
-  // Container for resize handles, defaults to the wrapper element. This allows
-  // e.g. images with captions to have the resize handles centered vertically on
-  // the image.
+export const createResizableFileBlockWrapper = (
+  block: BlockFromConfig<FileBlockConfig, any, any>,
+  editor: BlockNoteEditor<any, any, any>,
+  element?: { dom: HTMLElement; destroy?: () => void },
+  resizeHandlesContainerElement?: HTMLElement,
+  buttonText?: string,
+  buttonIcon?: HTMLElement
+): { dom: HTMLElement; destroy: () => void } => {
+  const { dom, destroy } = createFileBlockWrapper(
+    block,
+    editor,
+    element,
+    buttonText,
+    buttonIcon
+  );
+  const wrapper = dom;
+  if (block.props.url && block.props.showPreview) {
+    wrapper.style.width = `${block.props.previewWidth}px`;
+  }
+
   const resizeHandlesContainer = resizeHandlesContainerElement || wrapper;
 
-  // Resize handle elements.
   const leftResizeHandle = document.createElement("div");
   leftResizeHandle.className = "bn-resize-handle";
   leftResizeHandle.style.left = "4px";
@@ -322,7 +246,7 @@ export const createResizeHandlesWrapper = (
     // Min element width in px.
     const minWidth = 64;
 
-    // Ensures the element is not wider than the editor and not smaller than a
+    // Ensures the element is not wider than the editor and not narrower than a
     // predetermined minimum width.
     if (newWidth < minWidth) {
       wrapper.style.width = `${minWidth}px`;
@@ -410,8 +334,6 @@ export const createResizeHandlesWrapper = (
     };
   };
 
-  wrapper.appendChild(childElement);
-
   window.addEventListener("mousemove", windowMouseMoveHandler);
   window.addEventListener("mouseup", windowMouseUpHandler);
   wrapper.addEventListener("mouseenter", wrapperMouseEnterHandler);
@@ -428,6 +350,7 @@ export const createResizeHandlesWrapper = (
   return {
     dom: wrapper,
     destroy: () => {
+      destroy();
       window.removeEventListener("mousemove", windowMouseMoveHandler);
       window.removeEventListener("mouseup", windowMouseUpHandler);
       wrapper.removeEventListener("mouseenter", wrapperMouseEnterHandler);
@@ -442,4 +365,61 @@ export const createResizeHandlesWrapper = (
       );
     },
   };
+};
+
+export const parseEmbedElement = (embedElement: HTMLEmbedElement) => {
+  const url = embedElement.src || undefined;
+
+  return { url };
+};
+
+export const parseFigureElement = (
+  figureElement: HTMLElement,
+  targetTag: string
+) => {
+  const targetElement = figureElement.querySelector(
+    targetTag
+  ) as HTMLElement | null;
+  if (!targetElement) {
+    return undefined;
+  }
+
+  const captionElement = figureElement.querySelector("figcaption");
+  const caption = captionElement?.textContent ?? undefined;
+
+  return { targetElement, caption };
+};
+
+// Wrapper figure element to display file link with caption. Used for external
+// HTML
+export const createLinkWithCaption = (
+  element: HTMLElement,
+  caption: string
+) => {
+  const wrapper = document.createElement("div");
+  const fileCaption = document.createElement("p");
+  fileCaption.textContent = caption;
+
+  wrapper.appendChild(element);
+  wrapper.appendChild(fileCaption);
+
+  return {
+    dom: wrapper,
+  };
+};
+
+// Wrapper figure element to display file preview with caption. Used for
+// external HTML.
+export const createFigureWithCaption = (
+  element: HTMLElement,
+  caption: string
+) => {
+  const figure = document.createElement("figure");
+  const captionElement = document.createElement("figcaption");
+  captionElement.textContent = caption;
+
+  figure.appendChild(element);
+  figure.appendChild(captionElement);
+
+  return { dom: figure };
 };
