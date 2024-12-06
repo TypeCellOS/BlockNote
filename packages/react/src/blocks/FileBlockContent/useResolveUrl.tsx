@@ -2,7 +2,7 @@ import { BlockSchema, InlineContentSchema, StyleSchema } from "@blocknote/core";
 import { useEffect, useState } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 
-export function useResolveUrl(fetchUrl: string) {
+export function useResolveUrl(fetchUrl: string, blockId?: string) {
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
@@ -21,7 +21,7 @@ export function useResolveUrl(fetchUrl: string) {
       setLoadingState("loading");
 
       try {
-        url = await editor.resolveFileUrl(fetchUrl);
+        url = await editor.resolveFileUrl(fetchUrl, blockId);
       } catch (error) {
         setLoadingState("error");
         return;
