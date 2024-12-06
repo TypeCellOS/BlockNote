@@ -1,20 +1,9 @@
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
-import {
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "../../../schema/index.js";
+import { EditorView } from "prosemirror-view";
 
-export async function handleVSCodePaste<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(event: ClipboardEvent, editor: BlockNoteEditor<BSchema, I, S>) {
-  const view = editor.prosemirrorView;
-  if (!view) {
-    return false;
-  }
-
+export async function handleVSCodePaste(
+  event: ClipboardEvent,
+  view: EditorView
+) {
   const { schema } = view.state;
 
   if (!event.clipboardData) {

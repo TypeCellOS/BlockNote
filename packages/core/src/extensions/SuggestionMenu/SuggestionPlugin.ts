@@ -45,7 +45,7 @@ class SuggestionMenuView<
       });
     };
 
-    this.rootEl = this.editor._tiptapEditor.view?.root;
+    this.rootEl = this.editor.prosemirrorView?.root;
 
     // Setting capture=true ensures that any parent container of the editor that
     // gets scrolled will trigger the scroll event. Scroll events do not bubble

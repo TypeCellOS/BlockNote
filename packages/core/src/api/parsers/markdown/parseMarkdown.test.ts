@@ -16,17 +16,11 @@ async function parseMarkdownAndCompareSnapshots(
     snapshotPath
   );
 
-  if (!editor._tiptapEditor.view) {
+  if (!editor.prosemirrorView) {
     throw new Error("Editor view not initialized.");
   }
 
-  doPaste(
-    editor._tiptapEditor.view,
-    md,
-    null,
-    true,
-    new ClipboardEvent("paste")
-  );
+  doPaste(editor.prosemirrorView, md, null, true, new ClipboardEvent("paste"));
 
   const pastedSnapshotPath = "./__snapshots__/pasted/" + snapshotName + ".json";
   expect(JSON.stringify(editor.document, undefined, 2)).toMatchFileSnapshot(

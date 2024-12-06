@@ -573,15 +573,15 @@ export class BlockNoteEditor<
   }
 
   public get domElement() {
-    return this._tiptapEditor.view?.dom as HTMLDivElement | undefined;
+    return this.prosemirrorView?.dom as HTMLDivElement | undefined;
   }
 
-  public isFocused(): boolean | undefined {
-    return this._tiptapEditor.view?.hasFocus();
+  public isFocused() {
+    return this.prosemirrorView?.hasFocus() || false;
   }
 
   public focus() {
-    this._tiptapEditor.view?.focus();
+    this.prosemirrorView?.focus();
   }
 
   public onUploadStart(callback: (blockId?: string) => void) {

@@ -131,7 +131,7 @@ export async function handleFileInsertion<
           top: (event as DragEvent).clientY,
         };
 
-        const pos = editor._tiptapEditor.view?.posAtCoords(coords);
+        const pos = editor.prosemirrorView?.posAtCoords(coords);
         if (!pos) {
           return;
         }

@@ -22,7 +22,7 @@ function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
   const { blockContent } = blockInfo;
 
   if (selectionType === "cell") {
-    getEditor()._tiptapEditor.view?.dispatch(
+    getEditor().dispatch(
       getEditor()._tiptapEditor.state.tr.setSelection(
         CellSelection.create(
           getEditor()._tiptapEditor.state.doc,
@@ -36,7 +36,7 @@ function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
       )
     );
   } else if (selectionType === "node") {
-    getEditor()._tiptapEditor.view?.dispatch(
+    getEditor().dispatch(
       getEditor()._tiptapEditor.state.tr.setSelection(
         NodeSelection.create(
           getEditor()._tiptapEditor.state.doc,
@@ -45,7 +45,7 @@ function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
       )
     );
   } else {
-    getEditor()._tiptapEditor.view?.dispatch(
+    getEditor().dispatch(
       getEditor()._tiptapEditor.state.tr.setSelection(
         TextSelection.create(
           getEditor()._tiptapEditor.state.doc,
