@@ -86,6 +86,7 @@ Tippy popups that are appended to document.body directly
   pointer-events: none;
   position: relative;
   word-break: normal;
+  white-space: nowrap !important;
 }
 
 /* Render the username above the caret */
