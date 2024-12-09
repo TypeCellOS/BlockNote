@@ -13,6 +13,7 @@ import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin.js";
 
 export const numberedListItemPropSchema = {
   ...defaultProps,
+  index: { default: 1 },
 } satisfies PropSchema;
 
 const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
@@ -38,8 +39,8 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
     return [
       // Creates an ordered list when starting with "1.".
       new InputRule({
-        find: new RegExp(`^1\\.\\s$`),
-        handler: ({ state, chain, range }) => {
+        find: new RegExp(`^(\\d+)\\.\\s$`),
+        handler: ({ state, chain, range, match }) => {
           const blockInfo = getBlockInfoFromSelection(state);
           if (
             !blockInfo.isBlockContainer ||
@@ -55,7 +56,9 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
                 blockInfo.bnBlock.beforePos,
                 {
                   type: "numberedListItem",
-                  props: {},
+                  props: {
+                    index: parseInt(match[1]) as any,
+                  },
                 }
               )
             )

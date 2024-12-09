@@ -172,6 +172,14 @@ function serializeBlock<
   if (listType) {
     if (fragment.lastChild?.nodeName !== listType) {
       const list = doc.createElement(listType);
+
+      if (listType === "OL") {
+        const index = block.props?.index;
+
+        if (index !== undefined) {
+          list.setAttribute("start", index.toString());
+        }
+      }
       fragment.append(list);
     }
     const li = doc.createElement("li");
