@@ -346,7 +346,7 @@ export class BlockNoteEditor<
   private onUploadStartCallbacks: ((blockId?: string) => void)[] = [];
   private onUploadEndCallbacks: ((blockId?: string) => void)[] = [];
 
-  public readonly resolveFileUrl: (url: string) => Promise<string>;
+  public readonly resolveFileUrl?: (url: string) => Promise<string>;
 
   public get pmSchema() {
     return this._pmSchema;
@@ -458,7 +458,7 @@ export class BlockNoteEditor<
       };
     }
 
-    this.resolveFileUrl = newOptions.resolveFileUrl || (async (url) => url);
+    this.resolveFileUrl = newOptions.resolveFileUrl;
     this.headless = newOptions._headless;
 
     if (newOptions.collaboration && newOptions.initialContent) {

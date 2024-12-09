@@ -1,5 +1,4 @@
 import { FileBlockConfig, videoBlockConfig, videoParse } from "@blocknote/core";
-import { useRef } from "react";
 import { RiVideoFill } from "react-icons/ri";
 
 import {
@@ -19,8 +18,6 @@ export const VideoPreview = (
     "contentRef"
   >
 ) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-
   const resolved = useResolveUrl(props.block.props.url!);
 
   return (
@@ -34,7 +31,6 @@ export const VideoPreview = (
       controls={true}
       contentEditable={false}
       draggable={false}
-      ref={videoRef}
     />
   );
 };

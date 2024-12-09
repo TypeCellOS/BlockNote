@@ -1,5 +1,4 @@
 import { FileBlockConfig, imageBlockConfig, imageParse } from "@blocknote/core";
-import { useRef } from "react";
 import { RiImage2Fill } from "react-icons/ri";
 
 import {
@@ -19,8 +18,6 @@ export const ImagePreview = (
     "contentRef"
   >
 ) => {
-  const imgRef = useRef<HTMLImageElement>(null);
-
   const resolved = useResolveUrl(props.block.props.url!);
 
   return (
@@ -34,7 +31,6 @@ export const ImagePreview = (
       alt={props.block.props.caption || "BlockNote image"}
       contentEditable={false}
       draggable={false}
-      ref={imgRef}
     />
   );
 };

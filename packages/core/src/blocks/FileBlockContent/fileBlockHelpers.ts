@@ -103,65 +103,71 @@ export const createFileBlockWrapper = (
   const wrapper = document.createElement("div");
   wrapper.className = "bn-file-block-content-wrapper";
 
-  const loading = document.createElement("div");
-  loading.className = "bn-file-loading-preview";
-  loading.textContent = "Loading...";
-
-  const addFileButton = createAddFileButton(
-    block,
-    editor,
-    buttonText,
-    buttonIcon
-  );
-
-  const fileNameWithIcon = createFileNameWithIcon(block);
-
-  const caption = document.createElement("p");
-  caption.className = "bn-file-caption";
-  caption.textContent = block.props.caption;
-
-  const destroyUploadStartHandler = editor.onUploadStart((blockId) => {
-    if (blockId === block.id) {
-      wrapper.removeChild(addFileButton.dom);
-      wrapper.appendChild(loading);
-    }
-  });
-
+  // Show the add file button if the file has not been uploaded yet. Change to
+  // show a loader if a file upload for the block begins.
   if (block.props.url === "") {
-    // Show the add file button if the file has not been uploaded yet.
+    const addFileButton = createAddFileButton(
+      block,
+      editor,
+      buttonText,
+      buttonIcon
+    );
     wrapper.appendChild(addFileButton.dom);
-  } else {
-    // Show the file preview and caption if the file has been uploaded.
-    if (block.props.showPreview === false || !element) {
-      // Use default preview.
-      wrapper.appendChild(fileNameWithIcon.dom);
-    } else {
-      // Use custom preview.
-      wrapper.appendChild(element.dom);
-    }
-    if (block.props.caption) {
-      // Show the caption if there is one.
-      wrapper.appendChild(caption);
-    }
+
+    const destroyUploadStartHandler = editor.onUploadStart((blockId) => {
+      if (blockId === block.id) {
+        wrapper.removeChild(addFileButton.dom);
+
+        const loading = document.createElement("div");
+        loading.className = "bn-file-loading-preview";
+        loading.textContent = "Loading...";
+        wrapper.appendChild(loading);
+      }
+    });
+
+    return {
+      dom: wrapper,
+      destroy: () => {
+        destroyUploadStartHandler();
+        addFileButton.destroy();
+      },
+    };
   }
 
-  return {
-    dom: wrapper,
-    destroy: () => {
-      destroyUploadStartHandler();
-      addFileButton.destroy();
+  const ret: { dom: HTMLElement; destroy?: () => void } = { dom: wrapper };
+
+  // Show the file preview, or the file name and icon.
+  if (block.props.showPreview === false || !element) {
+    // Show file name and icon.
+    const fileNameWithIcon = createFileNameWithIcon(block);
+    wrapper.appendChild(fileNameWithIcon.dom);
+
+    ret.destroy = () => {
       fileNameWithIcon.destroy?.();
-    },
-  };
+    };
+  } else {
+    // Show file preview.
+    wrapper.appendChild(element.dom);
+  }
+
+  // Show the caption if there is one.
+  if (block.props.caption) {
+    const caption = document.createElement("p");
+    caption.className = "bn-file-caption";
+    caption.textContent = block.props.caption;
+    wrapper.appendChild(caption);
+  }
+
+  return ret;
 };
 
 export const createResizableFileBlockWrapper = (
   block: BlockFromConfig<FileBlockConfig, any, any>,
   editor: BlockNoteEditor<any, any, any>,
-  element?: { dom: HTMLElement; destroy?: () => void },
-  resizeHandlesContainerElement?: HTMLElement,
-  buttonText?: string,
-  buttonIcon?: HTMLElement
+  element: { dom: HTMLElement; destroy?: () => void },
+  resizeHandlesContainerElement: HTMLElement,
+  buttonText: string,
+  buttonIcon: HTMLElement
 ): { dom: HTMLElement; destroy: () => void } => {
   const { dom, destroy } = createFileBlockWrapper(
     block,
@@ -174,8 +180,6 @@ export const createResizableFileBlockWrapper = (
   if (block.props.url && block.props.showPreview) {
     wrapper.style.width = `${block.props.previewWidth}px`;
   }
-
-  const resizeHandlesContainer = resizeHandlesContainerElement || wrapper;
 
   const leftResizeHandle = document.createElement("div");
   leftResizeHandle.className = "bn-resize-handle";
@@ -193,6 +197,7 @@ export const createResizableFileBlockWrapper = (
         initialClientX: number;
       }
     | undefined;
+  let width = block.props.previewWidth! as number;
 
   // Updates the element width with an updated width depending on the cursor X
   // offset from when the resize began, and which resize handle is being used.
@@ -200,11 +205,11 @@ export const createResizableFileBlockWrapper = (
     if (!resizeParams) {
       if (
         !editor.isEditable &&
-        resizeHandlesContainer.contains(leftResizeHandle) &&
-        resizeHandlesContainer.contains(rightResizeHandle)
+        resizeHandlesContainerElement.contains(leftResizeHandle) &&
+        resizeHandlesContainerElement.contains(rightResizeHandle)
       ) {
-        resizeHandlesContainer.removeChild(leftResizeHandle);
-        resizeHandlesContainer.removeChild(rightResizeHandle);
+        resizeHandlesContainerElement.removeChild(leftResizeHandle);
+        resizeHandlesContainerElement.removeChild(rightResizeHandle);
       }
 
       return;
@@ -241,11 +246,8 @@ export const createResizableFileBlockWrapper = (
 
     // Ensures the element is not wider than the editor and not narrower than a
     // predetermined minimum width.
-    if (newWidth < minWidth) {
-      wrapper.style.width = `${minWidth}px`;
-    } else {
-      wrapper.style.width = `${newWidth}px`;
-    }
+    width = Math.max(newWidth, minWidth);
+    wrapper.style.width = `${width}px`;
   };
   // Stops mouse movements from resizing the element and updates the block's
   // `width` prop to the new value.
@@ -255,11 +257,11 @@ export const createResizableFileBlockWrapper = (
       (!event.target ||
         !wrapper.contains(event.target as Node) ||
         !editor.isEditable) &&
-      resizeHandlesContainer.contains(leftResizeHandle) &&
-      resizeHandlesContainer.contains(rightResizeHandle)
+      resizeHandlesContainerElement.contains(leftResizeHandle) &&
+      resizeHandlesContainerElement.contains(rightResizeHandle)
     ) {
-      resizeHandlesContainer.removeChild(leftResizeHandle);
-      resizeHandlesContainer.removeChild(rightResizeHandle);
+      resizeHandlesContainerElement.removeChild(leftResizeHandle);
+      resizeHandlesContainerElement.removeChild(rightResizeHandle);
     }
 
     if (!resizeParams) {
@@ -270,7 +272,7 @@ export const createResizableFileBlockWrapper = (
 
     editor.updateBlock(block, {
       props: {
-        previewWidth: parseInt(wrapper.style.width.replace("px", "")),
+        previewWidth: width,
       },
     });
   };
@@ -278,8 +280,8 @@ export const createResizableFileBlockWrapper = (
   // Shows the resize handles when hovering over the wrapper with the cursor.
   const wrapperMouseEnterHandler = () => {
     if (editor.isEditable) {
-      resizeHandlesContainer.appendChild(leftResizeHandle);
-      resizeHandlesContainer.appendChild(rightResizeHandle);
+      resizeHandlesContainerElement.appendChild(leftResizeHandle);
+      resizeHandlesContainerElement.appendChild(rightResizeHandle);
     }
   };
   // Hides the resize handles when the cursor leaves the wrapper, unless the
@@ -298,11 +300,11 @@ export const createResizableFileBlockWrapper = (
 
     if (
       editor.isEditable &&
-      resizeHandlesContainer.contains(leftResizeHandle) &&
-      resizeHandlesContainer.contains(rightResizeHandle)
+      resizeHandlesContainerElement.contains(leftResizeHandle) &&
+      resizeHandlesContainerElement.contains(rightResizeHandle)
     ) {
-      resizeHandlesContainer.removeChild(leftResizeHandle);
-      resizeHandlesContainer.removeChild(rightResizeHandle);
+      resizeHandlesContainerElement.removeChild(leftResizeHandle);
+      resizeHandlesContainerElement.removeChild(rightResizeHandle);
     }
   };
 
@@ -343,7 +345,7 @@ export const createResizableFileBlockWrapper = (
   return {
     dom: wrapper,
     destroy: () => {
-      destroy();
+      destroy?.();
       window.removeEventListener("mousemove", windowMouseMoveHandler);
       window.removeEventListener("mouseup", windowMouseUpHandler);
       wrapper.removeEventListener("mouseenter", wrapperMouseEnterHandler);

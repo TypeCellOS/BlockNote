@@ -5,7 +5,7 @@ import {
   ResizableFileBlockWrapper,
 } from "@blocknote/react";
 
-import { RiImage2Fill } from "react-icons/ri";
+import { RiFilePdfFill } from "react-icons/ri";
 
 import "./styles.css";
 
@@ -53,8 +53,8 @@ export const PDF = createReactBlockSpec(
     render: (props) => (
       <ResizableFileBlockWrapper
         {...(props as any)}
-        buttonText={props.editor.dictionary.file_blocks.image.add_button_text}
-        buttonIcon={<RiImage2Fill size={24} />}>
+        bbuttonText={"Add PDF"}
+        buttonIcon={<RiFilePdfFill size={24} />}>
         <PDFPreview {...(props as any)} />
       </ResizableFileBlockWrapper>
     ),

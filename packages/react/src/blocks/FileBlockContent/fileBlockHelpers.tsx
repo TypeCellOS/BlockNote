@@ -1,7 +1,6 @@
 import { FileBlockConfig } from "@blocknote/core";
 import {
   CSSProperties,
-  forwardRef,
   ReactNode,
   useCallback,
   useEffect,
@@ -76,9 +75,11 @@ export const FileNameWithIcon = (
   </div>
 );
 
-export const FileBlockWrapper = forwardRef<
-  HTMLDivElement,
-  Omit<ReactCustomBlockRenderProps<FileBlockConfig, any, any>, "contentRef"> & {
+export const FileBlockWrapper = (
+  props: Omit<
+    ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
+    "contentRef"
+  > & {
     buttonText?: string;
     buttonIcon?: ReactNode;
     children?: ReactNode;
@@ -89,7 +90,7 @@ export const FileBlockWrapper = forwardRef<
     onMouseLeave?: () => void;
     style?: CSSProperties;
   }
->((props, ref) => {
+) => {
   const showLoader = useUploadLoading(props.block.id);
 
   return (
@@ -97,8 +98,7 @@ export const FileBlockWrapper = forwardRef<
       className={"bn-file-block-content-wrapper"}
       onMouseEnter={props.onMouseEnter}
       onMouseLeave={props.onMouseLeave}
-      style={props.style}
-      ref={ref}>
+      style={props.style}>
       {showLoader ? (
         // Show loader while a file is being uploaded.
         <div className={"bn-file-loading-preview"}>Loading...</div>
@@ -106,31 +106,32 @@ export const FileBlockWrapper = forwardRef<
         // Show the add file button if the file has not been uploaded yet.
         <AddFileButton {...props} />
       ) : (
-        // Show the file preview and caption if the file has been uploaded.
+        // Show the file preview, or the file name and icon.
         <>
           {props.block.props.showPreview === false || !props.children ? (
-            // Use default preview.
+            // Show file name and icon.
             <FileNameWithIcon {...props} />
           ) : (
-            // Use custom preview.
+            // Show preview.
             props.children
           )}
           {props.block.props.caption && (
+            // Show the caption if there is one.
             <p className={"bn-file-caption"}>{props.block.props.caption}</p>
           )}
         </>
       )}
     </div>
   );
-});
+};
 
 export const ResizableFileBlockWrapper = (
   props: Omit<
     ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
     "contentRef"
   > & {
-    buttonText?: string;
-    buttonIcon?: ReactNode;
+    buttonText: string;
+    buttonIcon: ReactNode;
     children: ReactNode;
   }
 ) => {
@@ -265,9 +266,8 @@ export const ResizableFileBlockWrapper = (
         props.block.props.url && !showLoader && props.block.props.showPreview
           ? { width: `${width}px` }
           : undefined
-      }
-      ref={ref}>
-      <div className={"bn-visual-media-wrapper"}>
+      }>
+      <div className={"bn-visual-media-wrapper"} ref={ref}>
         {props.children}
         {(hovered || resizeParams) && (
           <>
