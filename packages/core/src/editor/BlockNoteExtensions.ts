@@ -207,6 +207,18 @@ const getTipTapExtensions = <
       },
     }).configure({
       defaultProtocol: "https",
+      protocols: [
+        "http",
+        "https",
+        "ftp",
+        "ftps",
+        "mailto",
+        "tel",
+        "callto",
+        "sms",
+        "cid",
+        "xmpp",
+      ],
     }),
     ...Object.values(opts.styleSpecs).map((styleSpec) => {
       return styleSpec.implementation.mark;
