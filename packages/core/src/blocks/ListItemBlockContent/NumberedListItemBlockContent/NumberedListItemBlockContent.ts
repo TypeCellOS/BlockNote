@@ -13,7 +13,7 @@ import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin.js";
 
 export const numberedListItemPropSchema = {
   ...defaultProps,
-  index: { default: 1 },
+  start: { default: 1 },
 } satisfies PropSchema;
 
 const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
@@ -29,6 +29,15 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
         renderHTML: (attributes) => {
           return {
             "data-index": attributes.index,
+          };
+        },
+      },
+      start: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-start"),
+        renderHTML: (attributes) => {
+          return {
+            "data-start": attributes.index,
           };
         },
       },
@@ -57,7 +66,7 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
                 {
                   type: "numberedListItem",
                   props: {
-                    index: parseInt(match[1]) as any,
+                    start: parseInt(match[1]) as any,
                   },
                 }
               )
@@ -120,7 +129,7 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
             (parent.tagName === "DIV" && parent.parentElement!.tagName === "OL")
           ) {
             return {
-              index: parseInt(parent.getAttribute("start") || "1") || 1,
+              start: parseInt(parent.getAttribute("start") || "1") || 1,
             };
           }
 

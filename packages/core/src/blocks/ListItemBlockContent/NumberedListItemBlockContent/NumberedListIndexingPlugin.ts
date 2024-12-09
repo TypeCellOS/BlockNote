@@ -20,7 +20,7 @@ export const NumberedListIndexingPlugin = () => {
           node.type.name === "blockContainer" &&
           node.firstChild!.type.name === "numberedListItem"
         ) {
-          let newIndex = `${node.firstChild!.attrs["index"] || 1}`;
+          let newIndex = `${node.firstChild!.attrs["start"] || 1}`;
 
           const blockInfo = getBlockInfo({
             posBeforeNode: pos,

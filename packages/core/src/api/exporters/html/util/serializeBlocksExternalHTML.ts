@@ -174,10 +174,10 @@ function serializeBlock<
       const list = doc.createElement(listType);
 
       if (listType === "OL") {
-        const index = block.props?.index;
+        const index = `${block.props?.index || 1}`;
 
-        if (index !== undefined) {
-          list.setAttribute("start", index.toString());
+        if (index && index !== "1") {
+          list.setAttribute("start", index);
         }
       }
       fragment.append(list);
