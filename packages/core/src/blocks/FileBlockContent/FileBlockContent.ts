@@ -6,12 +6,10 @@ import {
   createBlockSpec,
 } from "../../schema/index.js";
 import { defaultProps } from "../defaultProps.js";
-import {
-  createFileBlockWrapper,
-  createLinkWithCaption,
-  parseEmbedElement,
-  parseFigureElement,
-} from "./fileBlockHelpers.js";
+import { parseEmbedElement } from "./helpers/parse/parseEmbedElement.js";
+import { parseFigureElement } from "./helpers/parse/parseFigureElement.js";
+import { createFileBlockWrapper } from "./helpers/render/createFileBlockWrapper.js";
+import { createLinkWithCaption } from "./helpers/toExternalHTML/createLinkWithCaption.js";
 
 export const filePropSchema = {
   backgroundColor: defaultProps.backgroundColor,

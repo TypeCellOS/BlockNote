@@ -6,12 +6,10 @@ import {
   ReactCustomBlockRenderProps,
   createReactBlockSpec,
 } from "../../schema/ReactBlockSpec.js";
-import {
-  FigureWithCaption,
-  FileBlockWrapper,
-  LinkWithCaption,
-} from "../FileBlockContent/fileBlockHelpers.js";
 import { useResolveUrl } from "../FileBlockContent/useResolveUrl.js";
+import { FigureWithCaption } from "../FileBlockContent/helpers/toExternalHTML/FigureWithCaption.js";
+import { FileBlockWrapper } from "../FileBlockContent/helpers/render/FileBlockWrapper.js";
+import { LinkWithCaption } from "../FileBlockContent/helpers/toExternalHTML/LinkWithCaption.js";
 
 export const AudioPreview = (
   props: Omit<

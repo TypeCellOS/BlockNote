@@ -5,12 +5,10 @@ import {
   createReactBlockSpec,
   ReactCustomBlockRenderProps,
 } from "../../schema/ReactBlockSpec.js";
-import {
-  FigureWithCaption,
-  LinkWithCaption,
-  ResizableFileBlockWrapper,
-} from "../FileBlockContent/fileBlockHelpers.js";
 import { useResolveUrl } from "../FileBlockContent/useResolveUrl.js";
+import { FigureWithCaption } from "../FileBlockContent/helpers/toExternalHTML/FigureWithCaption.js";
+import { ResizableFileBlockWrapper } from "../FileBlockContent/helpers/render/ResizableFileBlockWrapper.js";
+import { LinkWithCaption } from "../FileBlockContent/helpers/toExternalHTML/LinkWithCaption.js";
 
 export const ImagePreview = (
   props: Omit<
