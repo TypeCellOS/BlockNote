@@ -205,6 +205,8 @@ const getTipTapExtensions = <
           0,
         ];
       },
+    }).configure({
+      defaultProtocol: "https",
     }),
     ...Object.values(opts.styleSpecs).map((styleSpec) => {
       return styleSpec.implementation.mark;
