@@ -7,10 +7,16 @@ export * from "./api/testUtil/index.js";
 export * from "./blocks/AudioBlockContent/AudioBlockContent.js";
 export * from "./blocks/CodeBlockContent/CodeBlockContent.js";
 export * from "./blocks/FileBlockContent/FileBlockContent.js";
-export * from "./blocks/FileBlockContent/fileBlockHelpers.js";
+export * from "./blocks/FileBlockContent/helpers/parse/parseEmbedElement.js";
+export * from "./blocks/FileBlockContent/helpers/parse/parseFigureElement.js";
+export * from "./blocks/FileBlockContent/helpers/render/createAddFileButton.js";
+export * from "./blocks/FileBlockContent/helpers/render/createFileBlockWrapper.js";
+export * from "./blocks/FileBlockContent/helpers/render/createFileNameWithIcon.js";
+export * from "./blocks/FileBlockContent/helpers/render/createResizableFileBlockWrapper.js";
+export * from "./blocks/FileBlockContent/helpers/toExternalHTML/createFigureWithCaption.js";
+export * from "./blocks/FileBlockContent/helpers/toExternalHTML/createLinkWithCaption.js";
 export * from "./blocks/FileBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY.js";
 export * from "./blocks/ImageBlockContent/ImageBlockContent.js";
-export { parseImageElement } from "./blocks/ImageBlockContent/imageBlockHelpers.js";
 export {
   EMPTY_CELL_HEIGHT,
   EMPTY_CELL_WIDTH,

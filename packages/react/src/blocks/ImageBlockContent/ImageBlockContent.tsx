@@ -1,18 +1,14 @@
 import { FileBlockConfig, imageBlockConfig, imageParse } from "@blocknote/core";
-import { useState } from "react";
 import { RiImage2Fill } from "react-icons/ri";
 
 import {
   createReactBlockSpec,
   ReactCustomBlockRenderProps,
 } from "../../schema/ReactBlockSpec.js";
-import {
-  FigureWithCaption,
-  FileBlockWrapper,
-  LinkWithCaption,
-  ResizeHandlesWrapper,
-} from "../FileBlockContent/fileBlockHelpers.js";
 import { useResolveUrl } from "../FileBlockContent/useResolveUrl.js";
+import { FigureWithCaption } from "../FileBlockContent/helpers/toExternalHTML/FigureWithCaption.js";
+import { ResizableFileBlockWrapper } from "../FileBlockContent/helpers/render/ResizableFileBlockWrapper.js";
+import { LinkWithCaption } from "../FileBlockContent/helpers/toExternalHTML/LinkWithCaption.js";
 
 export const ImagePreview = (
   props: Omit<
@@ -20,30 +16,20 @@ export const ImagePreview = (
     "contentRef"
   >
 ) => {
-  const [width, setWidth] = useState<number>(
-    Math.min(
-      props.block.props.previewWidth!,
-      props.editor.domElement.firstElementChild!.clientWidth
-    )
-  );
-
   const resolved = useResolveUrl(props.block.props.url!);
 
-  if (resolved.loadingState === "loading") {
-    return null;
-  }
-
   return (
-    <ResizeHandlesWrapper {...props} width={width} setWidth={setWidth}>
-      <img
-        className={"bn-visual-media"}
-        src={resolved.downloadUrl}
-        alt={props.block.props.caption || "BlockNote image"}
-        contentEditable={false}
-        draggable={false}
-        width={width}
-      />
-    </ResizeHandlesWrapper>
+    <img
+      className={"bn-visual-media"}
+      src={
+        resolved.loadingState === "loading"
+          ? props.block.props.url
+          : resolved.downloadUrl
+      }
+      alt={props.block.props.caption || "BlockNote image"}
+      contentEditable={false}
+      draggable={false}
+    />
   );
 };
 
@@ -90,12 +76,12 @@ export const ImageBlock = (
   props: ReactCustomBlockRenderProps<typeof imageBlockConfig, any, any>
 ) => {
   return (
-    <FileBlockWrapper
+    <ResizableFileBlockWrapper
       {...(props as any)}
       buttonText={props.editor.dictionary.file_blocks.image.add_button_text}
       buttonIcon={<RiImage2Fill size={24} />}>
-      <ImagePreview block={props.block} editor={props.editor as any} />
-    </FileBlockWrapper>
+      <ImagePreview {...(props as any)} />
+    </ResizableFileBlockWrapper>
   );
 };
 

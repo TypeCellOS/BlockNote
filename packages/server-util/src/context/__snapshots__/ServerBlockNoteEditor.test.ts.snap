@@ -1,8 +1,8 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Test ServerBlockNoteEditor > converts to HTML (blocksToFullHTML) 1`] = `"<div class="bn-block-group" data-node-type="blockGroup"><div class="bn-block-outer" data-node-type="blockOuter" data-id="1" data-text-color="yellow" data-background-color="blue"><div class="bn-block" data-node-type="blockContainer" data-id="1" data-text-color="yellow" data-background-color="blue"><div class="bn-block-content" data-content-type="heading" data-text-alignment="right" data-level="2"><h2 class="bn-inline-content"><strong><u>Heading </u></strong><em><s>2</s></em></h2></div><div class="bn-block-group" data-node-type="blockGroup"><div class="bn-block-outer" data-node-type="blockOuter" data-id="2" data-background-color="red"><div class="bn-block" data-node-type="blockContainer" data-id="2" data-background-color="red"><div class="bn-block-content" data-content-type="paragraph"><p class="bn-inline-content">Paragraph</p></div></div></div><div class="bn-block-outer" data-node-type="blockOuter" data-id="3"><div class="bn-block" data-node-type="blockContainer" data-id="3"><div class="bn-block-content" data-content-type="bulletListItem"><p class="bn-inline-content">list item</p></div></div></div></div></div></div></div>"`;
+exports[`Test ServerBlockNoteEditor > converts to HTML (blocksToFullHTML) 1`] = `"<div class="bn-block-group" data-node-type="blockGroup"><div class="bn-block-outer" data-node-type="blockOuter" data-id="1" data-text-color="yellow" data-background-color="blue"><div class="bn-block" data-node-type="blockContainer" data-id="1" data-text-color="yellow" data-background-color="blue"><div class="bn-block-content" data-content-type="heading" data-text-alignment="right" data-level="2"><h2 class="bn-inline-content"><strong><u>Heading </u></strong><em><s>2</s></em></h2></div><div class="bn-block-group" data-node-type="blockGroup"><div class="bn-block-outer" data-node-type="blockOuter" data-id="2" data-background-color="red"><div class="bn-block" data-node-type="blockContainer" data-id="2" data-background-color="red"><div class="bn-block-content" data-content-type="paragraph"><p class="bn-inline-content">Paragraph</p></div></div></div><div class="bn-block-outer" data-node-type="blockOuter" data-id="3"><div class="bn-block" data-node-type="blockContainer" data-id="3"><div class="bn-block-content" data-content-type="bulletListItem"><p class="bn-inline-content">list item</p></div></div></div></div></div></div><div class="bn-block-outer" data-node-type="blockOuter" data-id="4"><div class="bn-block" data-node-type="blockContainer" data-id="4"><div class="bn-block-content" data-content-type="image" data-name="Example" data-url="exampleURL" data-caption="Caption" data-preview-width="256" data-file-block=""><div class="bn-file-block-content-wrapper" style="width: 256px;"><div class="bn-visual-media-wrapper"><img class="bn-visual-media" src="exampleURL" alt="Example" draggable="false"></div><p class="bn-file-caption">Caption</p></div></div></div></div><div class="bn-block-outer" data-node-type="blockOuter" data-id="5"><div class="bn-block" data-node-type="blockContainer" data-id="5"><div class="bn-block-content" data-content-type="image" data-name="Example" data-url="exampleURL" data-caption="Caption" data-show-preview="false" data-preview-width="256" data-file-block=""><div class="bn-file-block-content-wrapper"><div class="bn-file-name-with-icon"><div class="bn-file-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 8L9.00319 2H19.9978C20.5513 2 21 2.45531 21 2.9918V21.0082C21 21.556 20.5551 22 20.0066 22H3.9934C3.44476 22 3 21.5501 3 20.9932V8ZM10 4V9H5V20H19V4H10Z"></path></svg></div><p class="bn-file-name">Example</p></div><p class="bn-file-caption">Caption</p></div></div></div></div></div>"`;
 
-exports[`Test ServerBlockNoteEditor > converts to and from HTML (blocksToHTMLLossy) 1`] = `"<h2 data-text-color="yellow" data-background-color="blue" data-text-alignment="right" data-level="2"><strong><u>Heading </u></strong><em><s>2</s></em></h2><p data-background-color="red">Paragraph</p><ul><li><p>list item</p></li></ul>"`;
+exports[`Test ServerBlockNoteEditor > converts to and from HTML (blocksToHTMLLossy) 1`] = `"<h2 data-text-color="yellow" data-background-color="blue" data-text-alignment="right" data-level="2"><strong><u>Heading </u></strong><em><s>2</s></em></h2><p data-background-color="red">Paragraph</p><ul><li><p>list item</p></li></ul><figure data-name="Example" data-url="exampleURL" data-caption="Caption" data-preview-width="256"><img src="exampleURL" alt="Example" width="256"><figcaption>Caption</figcaption></figure><div data-name="Example" data-url="exampleURL" data-caption="Caption" data-show-preview="false" data-preview-width="256"><a href="exampleURL">Example</a><p>Caption</p></div>"`;
 
 exports[`Test ServerBlockNoteEditor > converts to and from HTML (blocksToHTMLLossy) 2`] = `
 [
@@ -69,6 +69,61 @@ exports[`Test ServerBlockNoteEditor > converts to and from HTML (blocksToHTMLLos
     },
     "type": "bulletListItem",
   },
+  {
+    "children": [],
+    "content": undefined,
+    "id": "3",
+    "props": {
+      "backgroundColor": "default",
+      "caption": "Caption",
+      "name": "Example",
+      "previewWidth": 256,
+      "showPreview": true,
+      "textAlignment": "left",
+      "url": "exampleURL",
+    },
+    "type": "image",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "content": [
+          {
+            "styles": {},
+            "text": "Example",
+            "type": "text",
+          },
+        ],
+        "href": "exampleURL",
+        "type": "link",
+      },
+    ],
+    "id": "4",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Caption",
+        "type": "text",
+      },
+    ],
+    "id": "5",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
 ]
 `;
 
@@ -78,6 +133,14 @@ exports[`Test ServerBlockNoteEditor > converts to and from markdown (blocksToMar
 Paragraph
 
 *   list item
+
+![Example](exampleURL)
+
+Caption
+
+[Example](exampleURL)
+
+Caption
 "
 `;
 
@@ -142,6 +205,78 @@ exports[`Test ServerBlockNoteEditor > converts to and from markdown (blocksToMar
       "textColor": "default",
     },
     "type": "bulletListItem",
+  },
+  {
+    "children": [],
+    "content": undefined,
+    "id": "3",
+    "props": {
+      "backgroundColor": "default",
+      "caption": "",
+      "name": "",
+      "previewWidth": 512,
+      "showPreview": true,
+      "textAlignment": "left",
+      "url": "exampleURL",
+    },
+    "type": "image",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Caption",
+        "type": "text",
+      },
+    ],
+    "id": "4",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "content": [
+          {
+            "styles": {},
+            "text": "Example",
+            "type": "text",
+          },
+        ],
+        "href": "exampleURL",
+        "type": "link",
+      },
+    ],
+    "id": "5",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Caption",
+        "type": "text",
+      },
+    ],
+    "id": "6",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
   },
 ]
 `;
