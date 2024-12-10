@@ -22,7 +22,7 @@ import { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkTool
 import {
   DEFAULT_LINK_PROTOCOL,
   VALID_LINK_PROTOCOLS,
-} from "../extensions/LinkToolbar/protocols";
+} from "../extensions/LinkToolbar/protocols.js";
 import { NodeSelectionKeyboardPlugin } from "../extensions/NodeSelectionKeyboard/NodeSelectionKeyboardPlugin.js";
 import { PlaceholderPlugin } from "../extensions/Placeholder/PlaceholderPlugin.js";
 import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin.js";
