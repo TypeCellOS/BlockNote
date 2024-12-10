@@ -30,6 +30,7 @@ export * from "./extensions-shared/UiElementPosition.js";
 export * from "./extensions/FilePanel/FilePanelPlugin.js";
 export * from "./extensions/FormattingToolbar/FormattingToolbarPlugin.js";
 export * from "./extensions/LinkToolbar/LinkToolbarPlugin.js";
+export * from "./extensions/LinkToolbar/protocols.js";
 export * from "./extensions/SideMenu/SideMenuPlugin.js";
 export * from "./extensions/SuggestionMenu/DefaultGridSuggestionItem.js";
 export * from "./extensions/SuggestionMenu/DefaultSuggestionItem.js";

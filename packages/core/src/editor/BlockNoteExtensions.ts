@@ -1,9 +1,4 @@
-import {
-  AnyExtension,
-  Extension,
-  extensions,
-  mergeAttributes,
-} from "@tiptap/core";
+import { AnyExtension, Extension, extensions } from "@tiptap/core";
 
 import type { BlockNoteEditor, BlockNoteExtension } from "./BlockNoteEditor.js";
 
@@ -24,6 +19,10 @@ import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlu
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin.js";
 import { KeyboardShortcutsExtension } from "../extensions/KeyboardShortcuts/KeyboardShortcutsExtension.js";
 import { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkToolbarPlugin.js";
+import {
+  DEFAULT_LINK_PROTOCOL,
+  VALID_LINK_PROTOCOLS,
+} from "../extensions/LinkToolbar/protocols";
 import { NodeSelectionKeyboardPlugin } from "../extensions/NodeSelectionKeyboard/NodeSelectionKeyboardPlugin.js";
 import { PlaceholderPlugin } from "../extensions/Placeholder/PlaceholderPlugin.js";
 import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin.js";
@@ -44,7 +43,6 @@ import {
   StyleSchema,
   StyleSpecs,
 } from "../schema/index.js";
-import { isAllowedUri } from "../util/isAllowedUri.js";
 
 type ExtensionOptions<
   BSchema extends BlockSchema,
@@ -165,60 +163,9 @@ const getTipTapExtensions = <
     // marks:
     Link.extend({
       inclusive: false,
-      // Adapted from https://github.com/ueberdosis/tiptap/blob/a0d2f2803652851bbe2f06f124a70bc01cfb0dab/packages/extension-link/src/link.ts#L301
-      // Fixes hrefs without a protocol prefix. Normally, these are treated as
-      // relative URLs, which doesn't make much sense for users. So if href is
-      // e.g. "www.google.com", it will now redirect users to:
-      // "https://www.google.com"
-      // instead of
-      // "<protocol>://<current-domain>/www.google.com".
-      renderHTML({ HTMLAttributes }) {
-        // prevent XSS attacks
-        if (!isAllowedUri(HTMLAttributes.href, this.options.protocols)) {
-          // strip out the href
-          return [
-            "a",
-            mergeAttributes(this.options.HTMLAttributes, {
-              ...HTMLAttributes,
-              href: "",
-            }),
-            0,
-          ];
-        }
-
-        // Modified section
-        // If the href does not start with a protocol, prefix with default one.
-        let prefix = this.options.defaultProtocol + "://";
-        for (const protocol of this.options.protocols) {
-          if (HTMLAttributes.href.startsWith(protocol)) {
-            prefix = "";
-            break;
-          }
-        }
-
-        return [
-          "a",
-          mergeAttributes(this.options.HTMLAttributes, {
-            ...HTMLAttributes,
-            href: prefix + HTMLAttributes.href,
-          }),
-          0,
-        ];
-      },
     }).configure({
-      defaultProtocol: "https",
-      protocols: [
-        "http",
-        "https",
-        "ftp",
-        "ftps",
-        "mailto",
-        "tel",
-        "callto",
-        "sms",
-        "cid",
-        "xmpp",
-      ],
+      defaultProtocol: DEFAULT_LINK_PROTOCOL,
+      protocols: VALID_LINK_PROTOCOLS,
     }),
     ...Object.values(opts.styleSpecs).map((styleSpec) => {
       return styleSpec.implementation.mark;
