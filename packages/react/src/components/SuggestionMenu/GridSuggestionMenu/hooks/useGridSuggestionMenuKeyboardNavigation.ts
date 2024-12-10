@@ -65,14 +65,14 @@ export function useGridSuggestionMenuKeyboardNavigation<Item>(
       return false;
     };
 
-    editor.domElement.addEventListener(
+    editor.domElement?.addEventListener(
       "keydown",
       handleMenuNavigationKeys,
       true
     );
 
     return () => {
-      editor.domElement.removeEventListener(
+      editor.domElement?.removeEventListener(
         "keydown",
         handleMenuNavigationKeys,
         true

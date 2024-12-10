@@ -174,8 +174,8 @@ export function createReactInlineContentSpec<
                       editor.schema.styleSchema
                     );
 
-                    editor._tiptapEditor.view.dispatch(
-                      editor._tiptapEditor.view.state.tr.replaceWith(
+                    editor.dispatch(
+                      editor.prosemirrorView.state.tr.replaceWith(
                         props.getPos(),
                         props.getPos() + props.node.nodeSize,
                         content
