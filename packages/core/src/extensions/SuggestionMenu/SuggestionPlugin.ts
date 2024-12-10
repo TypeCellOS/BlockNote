@@ -85,7 +85,7 @@ class SuggestionMenuView<
 
     this.pluginState = stopped ? prev : next;
 
-    if (stopped || !this.editor.isEditable) {
+    if (stopped || !this.editor.isEditable || this.pluginState?.composing) {
       this.state!.show = false;
       this.emitUpdate(this.pluginState!.triggerCharacter);
 
@@ -145,10 +145,12 @@ type SuggestionPluginState =
       query: string;
       decorationId: string;
       ignoreQueryLength?: boolean;
+      composing: boolean;
     }
   | undefined;
 
 const suggestionMenuPluginKey = new PluginKey("SuggestionMenuPlugin");
+let isComposing = false;
 
 /**
  * A ProseMirror plugin for suggestions, designed to make '/'-commands possible as well as mentions.
@@ -189,11 +191,25 @@ export class SuggestionMenuProseMirrorPlugin<
       state: {
         // Initialize the plugin's internal state.
         init(): SuggestionPluginState {
-          return undefined;
+          return {
+            triggerCharacter: "",
+            deleteTriggerCharacter: false,
+            queryStartPos: 0,
+            query: "",
+            decorationId: "",
+            ignoreQueryLength: false,
+            composing: false
+          };
         },
 
         // Apply changes to the plugin state from an editor transaction.
         apply(transaction, prev, _oldState, newState): SuggestionPluginState {
+
+          if (isComposing) {
+            // Ensure the menu stays open by keeping the previous state.
+            return prev;
+          }
+
           // TODO: More clearly define which transactions should be ignored.
           if (transaction.getMeta("orderedListIndexing") !== undefined) {
             return prev;
@@ -229,6 +245,7 @@ export class SuggestionMenuProseMirrorPlugin<
               decorationId: `id_${Math.floor(Math.random() * 0xffffffff)}`,
               ignoreQueryLength:
                 suggestionPluginTransactionMeta?.ignoreQueryLength,
+              composing: false,
             };
           }
 
@@ -263,11 +280,25 @@ export class SuggestionMenuProseMirrorPlugin<
             newState.selection.from
           );
 
+          next.composing = true;
+
           return next;
         },
       },
 
       props: {
+        handleDOMEvents: {
+            compositionstart: (view) => {
+              isComposing = true;
+              view.dispatch(view.state.tr.setMeta("isComposing", true));
+              return false;
+            },
+            compositionend: (view) => {
+              isComposing = false;
+              view.dispatch(view.state.tr.setMeta("isComposing", false));
+              return false;
+            },
+        },
         handleTextInput(view, _from, _to, text) {
           const suggestionPluginState: SuggestionPluginState = (
             this as Plugin
