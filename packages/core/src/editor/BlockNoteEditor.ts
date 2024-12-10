@@ -461,7 +461,11 @@ export class BlockNoteEditor<
     this.resolveFileUrl = newOptions.resolveFileUrl;
     this.headless = newOptions._headless;
 
-    if (newOptions.collaboration && newOptions.initialContent) {
+    const collaborationEnabled =
+      "Collaboration" in this.extensions ||
+      "liveblocksExtension" in this.extensions;
+
+    if (collaborationEnabled && newOptions.initialContent) {
       // eslint-disable-next-line no-console
       console.warn(
         "When using Collaboration, initialContent might cause conflicts, because changes should come from the collaboration provider"
@@ -470,7 +474,7 @@ export class BlockNoteEditor<
 
     const initialContent =
       newOptions.initialContent ||
-      (options.collaboration
+      (collaborationEnabled
         ? [
             {
               type: "paragraph",
@@ -564,8 +568,11 @@ export class BlockNoteEditor<
    *
    * @warning Not needed to call manually when using React, use BlockNoteView to take care of mounting
    */
-  public mount = (parentElement?: HTMLElement | null) => {
-    this._tiptapEditor.mount(parentElement);
+  public mount = (
+    parentElement?: HTMLElement | null,
+    contentComponent?: any
+  ) => {
+    this._tiptapEditor.mount(parentElement, contentComponent);
   };
 
   public get prosemirrorView() {
@@ -899,7 +906,12 @@ export class BlockNoteEditor<
     for (const mark of marks) {
       const config = this.schema.styleSchema[mark.type.name];
       if (!config) {
-        if (mark.type.name !== "link") {
+        if (
+          // In BlockNote, links are represented as inline content instead of "styles"
+          mark.type.name !== "link" &&
+          // We don't expose comments in the blocknote schema, as we consider them content "outside" of the document
+          mark.type.name !== "liveblocksCommentMark"
+        ) {
           // eslint-disable-next-line no-console
           console.warn("mark not found in styleschema", mark.type.name);
         }
