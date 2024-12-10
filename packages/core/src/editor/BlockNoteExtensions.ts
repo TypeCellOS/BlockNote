@@ -19,6 +19,10 @@ import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlu
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin.js";
 import { KeyboardShortcutsExtension } from "../extensions/KeyboardShortcuts/KeyboardShortcutsExtension.js";
 import { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkToolbarPlugin.js";
+import {
+  DEFAULT_LINK_PROTOCOL,
+  VALID_LINK_PROTOCOLS,
+} from "../extensions/LinkToolbar/protocols.js";
 import { NodeSelectionKeyboardPlugin } from "../extensions/NodeSelectionKeyboard/NodeSelectionKeyboardPlugin.js";
 import { PlaceholderPlugin } from "../extensions/Placeholder/PlaceholderPlugin.js";
 import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin.js";
@@ -159,14 +163,9 @@ const getTipTapExtensions = <
     // marks:
     Link.extend({
       inclusive: false,
-      addKeyboardShortcuts() {
-        return {
-          "Mod-k": () => {
-            this.editor.commands.toggleLink({ href: "" });
-            return true;
-          },
-        };
-      },
+    }).configure({
+      defaultProtocol: DEFAULT_LINK_PROTOCOL,
+      protocols: VALID_LINK_PROTOCOLS,
     }),
     ...Object.values(opts.styleSpecs).map((styleSpec) => {
       return styleSpec.implementation.mark;

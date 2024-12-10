@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { RiLink } from "react-icons/ri";
 
 import {
@@ -48,13 +48,30 @@ export const CreateLinkButton = () => {
 
   const selectedBlocks = useSelectedBlocks(editor);
 
+  const [opened, setOpened] = useState(false);
   const [url, setUrl] = useState<string>(editor.getSelectedLinkUrl() || "");
   const [text, setText] = useState<string>(editor.getSelectedText());
 
   useEditorContentOrSelectionChange(() => {
+    setOpened(false);
     setText(editor.getSelectedText() || "");
     setUrl(editor.getSelectedLinkUrl() || "");
   }, editor);
+
+  useEffect(() => {
+    const callback = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "k") {
+        setOpened(true);
+        event.preventDefault();
+      }
+    };
+
+    editor.prosemirrorView.dom.addEventListener("keydown", callback);
+
+    return () => {
+      editor.prosemirrorView.dom.removeEventListener("keydown", callback);
+    };
+  }, [editor.prosemirrorView.dom]);
 
   const update = useCallback(
     (url: string, text: string) => {
@@ -87,7 +104,7 @@ export const CreateLinkButton = () => {
   }
 
   return (
-    <Components.Generic.Popover.Root>
+    <Components.Generic.Popover.Root opened={opened}>
       <Components.Generic.Popover.Trigger>
         {/* TODO: hide tooltip on click */}
         <Components.FormattingToolbar.Button
@@ -100,6 +117,7 @@ export const CreateLinkButton = () => {
             dict.generic.ctrl_shortcut
           )}
           icon={<RiLink />}
+          onClick={() => setOpened(true)}
         />
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content
