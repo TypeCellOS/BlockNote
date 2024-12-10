@@ -91,7 +91,11 @@ import { Plugin, Transaction } from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
-import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
+import {
+  nodeToBlock,
+  prosemirrorSliceToSlicedBlocks,
+  withSelectionMarkers,
+} from "../api/nodeConversions/nodeToBlock.js";
 import "../style.css";
 
 export type BlockNoteExtension =
@@ -766,6 +770,76 @@ export class BlockNoteEditor<
     placement: "start" | "end" = "start"
   ) {
     setTextCursorPosition(this, targetBlock, placement);
+  }
+
+  // TODO: what about node selections?
+  public getSelectionWithMarkers() {
+    const start = this._tiptapEditor.state.selection.$from;
+    const end = this._tiptapEditor.state.selection.$to;
+
+    // if the end is at the end of a node (|</span></p>) move it forward so we include all closing tags (</span></p>|)
+    // while (end.parentOffset >= end.parent.nodeSize - 2 && end.depth > 0) {
+    //   end = this._tiptapEditor.state.doc.resolve(end.pos + 1);
+    // }
+
+    // // if the end is at the start of an empty node (</span></p><p>|) move it backwards so we drop empty start tags (</span></p>|)
+    // while (end.parentOffset === 0 && end.depth > 0) {
+    //   end = this._tiptapEditor.state.doc.resolve(end.pos - 1);
+    // }
+
+    // // if the start is at the start of a node (<p><span>|) move it backwards so we include all open tags (|<p><span>)
+    // while (start.parentOffset === 0 && start.depth > 0) {
+    //   start = this._tiptapEditor.state.doc.resolve(start.pos - 1);
+    // }
+
+    // // if the start is at the end of a node (|</p><p><span>) move it forwards so we drop all closing tags (|<p><span>)
+    // while (start.parentOffset >= start.parent.nodeSize - 2 && start.depth > 0) {
+    //   start = this._tiptapEditor.state.doc.resolve(start.pos + 1);
+    // }
+
+    return withSelectionMarkers(
+      this._tiptapEditor.state,
+      start.pos,
+      end.pos,
+      this.schema.blockSchema,
+      this.schema.inlineContentSchema,
+      this.schema.styleSchema
+    );
+  }
+
+  // TODO: fix image node selection
+  public getSelection2() {
+    let start = this._tiptapEditor.state.selection.$from;
+    let end = this._tiptapEditor.state.selection.$to;
+
+    // if the end is at the end of a node (|</span></p>) move it forward so we include all closing tags (</span></p>|)
+    while (end.parentOffset >= end.parent.nodeSize - 2 && end.depth > 0) {
+      end = this._tiptapEditor.state.doc.resolve(end.pos + 1);
+    }
+
+    // if the end is at the start of an empty node (</span></p><p>|) move it backwards so we drop empty start tags (</span></p>|)
+    while (end.parentOffset === 0 && end.depth > 0) {
+      end = this._tiptapEditor.state.doc.resolve(end.pos - 1);
+    }
+
+    // if the start is at the start of a node (<p><span>|) move it backwards so we include all open tags (|<p><span>)
+    while (start.parentOffset === 0 && start.depth > 0) {
+      start = this._tiptapEditor.state.doc.resolve(start.pos - 1);
+    }
+
+    // if the start is at the end of a node (|</p><p><span>|) move it forwards so we drop all closing tags (|<p><span>)
+    while (start.parentOffset >= start.parent.nodeSize - 2 && start.depth > 0) {
+      start = this._tiptapEditor.state.doc.resolve(start.pos + 1);
+    }
+
+    // console.log(start.pos, end.pos);
+    return prosemirrorSliceToSlicedBlocks(
+      this._tiptapEditor.state.doc.slice(start.pos, end.pos, true),
+      this.schema.blockSchema,
+      this.schema.inlineContentSchema,
+      this.schema.styleSchema,
+      this.blockCache
+    );
   }
 
   /**

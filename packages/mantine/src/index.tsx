@@ -56,7 +56,7 @@ export * from "./BlockNoteTheme.js";
 export * from "./defaultThemes.js";
 
 export const components: Components = {
-  FormattingToolbar: {
+  Toolbar: {
     Root: Toolbar,
     Button: ToolbarButton,
     Select: ToolbarSelect,
@@ -73,10 +73,6 @@ export const components: Components = {
     Item: GridSuggestionMenuItem,
     EmptyItem: GridSuggestionMenuEmptyItem,
     Loader: GridSuggestionMenuLoader,
-  },
-  LinkToolbar: {
-    Root: Toolbar,
-    Button: ToolbarButton,
   },
   SideMenu: {
     Root: SideMenu,

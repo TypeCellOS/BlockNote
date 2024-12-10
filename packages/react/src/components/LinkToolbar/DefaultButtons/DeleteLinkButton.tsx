@@ -10,7 +10,7 @@ export const DeleteLinkButton = (
   const Components = useComponentsContext()!;
   const dict = useDictionary();
   return (
-    <Components.LinkToolbar.Button
+    <Components.Toolbar.Button
       className={"bn-button"}
       label={dict.link_toolbar.delete.tooltip}
       mainTooltip={dict.link_toolbar.delete.tooltip}

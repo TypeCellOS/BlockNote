@@ -1,7 +1,5 @@
-import type { Dictionary } from "../../i18n/dictionary.js";
-
 export type DefaultSuggestionItem = {
-  key: keyof Dictionary["slash_menu"];
+  key: string;
   title: string;
   onItemClick: () => void;
   subtext?: string;
