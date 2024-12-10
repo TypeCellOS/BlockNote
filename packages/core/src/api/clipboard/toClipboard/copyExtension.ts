@@ -189,7 +189,9 @@ export const createCopyToClipboardExtension = <
               },
               cut(view, event) {
                 copyToClipboard(editor, view, event);
-                view.dispatch(view.state.tr.deleteSelection());
+                if (view.editable) {
+                  view.dispatch(view.state.tr.deleteSelection());
+                }
                 // Prevent default PM handler to be called
                 return true;
               },
