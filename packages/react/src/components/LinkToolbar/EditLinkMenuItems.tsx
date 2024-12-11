@@ -1,3 +1,4 @@
+import { DEFAULT_LINK_PROTOCOL, VALID_LINK_PROTOCOLS } from "@blocknote/core";
 import {
   ChangeEvent,
   KeyboardEvent,
@@ -9,6 +10,16 @@ import { RiLink, RiText } from "react-icons/ri";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { LinkToolbarProps } from "./LinkToolbarProps.js";
+
+const validateUrl = (url: string) => {
+  for (const protocol of VALID_LINK_PROTOCOLS) {
+    if (url.startsWith(protocol)) {
+      return url;
+    }
+  }
+
+  return `${DEFAULT_LINK_PROTOCOL}://${url}`;
+};
 
 export const EditLinkMenuItems = (
   props: Pick<LinkToolbarProps, "url" | "text" | "editLink">
@@ -30,7 +41,7 @@ export const EditLinkMenuItems = (
     (event: KeyboardEvent) => {
       if (event.key === "Enter") {
         event.preventDefault();
-        editLink(currentUrl, currentText);
+        editLink(validateUrl(currentUrl), currentText);
       }
     },
     [editLink, currentUrl, currentText]
@@ -49,7 +60,7 @@ export const EditLinkMenuItems = (
   );
 
   const handleSubmit = useCallback(
-    () => editLink(currentUrl, currentText),
+    () => editLink(validateUrl(currentUrl), currentText),
     [editLink, currentUrl, currentText]
   );
 

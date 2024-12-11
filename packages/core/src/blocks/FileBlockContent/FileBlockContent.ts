@@ -6,14 +6,10 @@ import {
   createBlockSpec,
 } from "../../schema/index.js";
 import { defaultProps } from "../defaultProps.js";
-import {
-  createDefaultFilePreview,
-  createFileAndCaptionWrapper,
-  createFileBlockWrapper,
-  createLinkWithCaption,
-  parseEmbedElement,
-  parseFigureElement,
-} from "./fileBlockHelpers.js";
+import { parseEmbedElement } from "./helpers/parse/parseEmbedElement.js";
+import { parseFigureElement } from "./helpers/parse/parseFigureElement.js";
+import { createFileBlockWrapper } from "./helpers/render/createFileBlockWrapper.js";
+import { createLinkWithCaption } from "./helpers/toExternalHTML/createLinkWithCaption.js";
 
 export const filePropSchema = {
   backgroundColor: defaultProps.backgroundColor,
@@ -42,10 +38,7 @@ export const fileRender = (
   block: BlockFromConfig<typeof fileBlockConfig, any, any>,
   editor: BlockNoteEditor<any, any, any>
 ) => {
-  const file = createDefaultFilePreview(block).dom;
-  const element = createFileAndCaptionWrapper(block, file);
-
-  return createFileBlockWrapper(block, editor, element);
+  return createFileBlockWrapper(block, editor);
 };
 
 export const fileParse = (element: HTMLElement) => {

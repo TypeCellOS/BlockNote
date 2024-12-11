@@ -140,6 +140,10 @@
   overflow: auto;
 }
 
+.bn-mantine .mantine-Button-root[aria-controls*="dropdown"] {
+  min-width: fit-content;
+}
+
 /* Toolbar styling */
 .bn-mantine .bn-toolbar {
   background-color: var(--bn-colors-menu-background);
@@ -150,6 +154,8 @@
   gap: 2px;
   padding: 2px;
   width: fit-content;
+  overflow-x: auto;
+  max-width: 100vw;
 }
 
 .bn-mantine .bn-toolbar:empty {

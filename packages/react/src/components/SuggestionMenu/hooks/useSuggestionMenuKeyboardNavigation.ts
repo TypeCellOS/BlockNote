@@ -1,6 +1,6 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { useEffect } from "react";
-import { useSuggestionMenuKeyboardHandler } from "./useSuggestionMenuKeyboardHandler";
+import { useSuggestionMenuKeyboardHandler } from "./useSuggestionMenuKeyboardHandler.js";
 
 // Hook which handles keyboard navigation of a suggestion menu. Up & down arrow
 // keys are used to select a menu item, enter is used to execute it.
@@ -15,10 +15,10 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
     useSuggestionMenuKeyboardHandler(items, onItemClick);
 
   useEffect(() => {
-    (element || editor.domElement).addEventListener("keydown", handler, true);
+    (element || editor.domElement)?.addEventListener("keydown", handler, true);
 
     return () => {
-      (element || editor.domElement).removeEventListener(
+      (element || editor.domElement)?.removeEventListener(
         "keydown",
         handler,
         true
