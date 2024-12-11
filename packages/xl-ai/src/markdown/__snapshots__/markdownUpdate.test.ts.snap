@@ -1,0 +1,32 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`markdownUpdateToBlockUpdate > change text 1`] = `
+{
+  "content": [
+    {
+      "styles": {},
+      "text": "hello world",
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`markdownUpdateToBlockUpdate > change type 1`] = `
+{
+  "props": {
+    "level": 1,
+  },
+  "type": "heading",
+}
+`;
+
+exports[`markdownUpdateToBlockUpdate > change unchecked to checked 1`] = `
+{
+  "props": {
+    "checked": true,
+  },
+}
+`;
+
+exports[`markdownUpdateToBlockUpdate > no change 1`] = `{}`;

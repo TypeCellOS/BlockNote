@@ -1,15 +1,18 @@
-import remarkStringify from "remark-stringify";
-import { unified } from "unified";
 import { describe, expect, it } from "vitest";
-import { DiffResult, markdownOperationDiff } from "./markdownDiff.js";
+import {
+  MarkdownNodeDiffResult,
+  markdownNodeDiff,
+} from "./markdownNodeDiff.js";
+import { markdownNodeToString } from "./util.js";
 
-async function operationsToReadableString(operations: DiffResult[]) {
+async function operationsToReadableString(
+  operations: MarkdownNodeDiffResult[]
+) {
   return operations
     .map((op) => {
-      // convert ast to md using unified
-      const md = unified()
-        .use(remarkStringify)
-        .stringify(op.type === "remove" ? op.oldBlock : op.newBlock);
+      const md = markdownNodeToString(
+        op.type === "remove" ? op.oldBlock : op.newBlock
+      );
       return `${op.type.toUpperCase()}: ${md}`;
     })
     .join("\n");
@@ -27,7 +30,7 @@ hello
 
 world`;
 
-    const operations = await markdownOperationDiff(md1, md2);
+    const operations = await markdownNodeDiff(md1, md2);
     const diff = await operationsToReadableString(operations);
     expect(diff).toMatchSnapshot();
   });
@@ -43,7 +46,7 @@ world`;
 
 hello`;
 
-    const operations = await markdownOperationDiff(md1, md2);
+    const operations = await markdownNodeDiff(md1, md2);
     const diff = await operationsToReadableString(operations);
     expect(diff).toMatchSnapshot();
   });
@@ -62,7 +65,7 @@ hello
 
 world`;
 
-    const operations = await markdownOperationDiff(md1, md2);
+    const operations = await markdownNodeDiff(md1, md2);
     const diff = await operationsToReadableString(operations);
     expect(diff).toMatchSnapshot();
   });
@@ -78,7 +81,7 @@ world`;
 
 world`;
 
-    const operations = await markdownOperationDiff(md1, md2);
+    const operations = await markdownNodeDiff(md1, md2);
     const diff = await operationsToReadableString(operations);
     expect(diff).toMatchSnapshot();
   });
@@ -98,7 +101,7 @@ beautiful
 
 world`;
 
-    const operations = await markdownOperationDiff(md1, md2);
+    const operations = await markdownNodeDiff(md1, md2);
     const diff = await operationsToReadableString(operations);
     expect(diff).toMatchSnapshot();
   });
@@ -114,7 +117,7 @@ world`;
 
 world`;
 
-    const operations = await markdownOperationDiff(md1, md2);
+    const operations = await markdownNodeDiff(md1, md2);
     const diff = await operationsToReadableString(operations);
     expect(diff).toMatchSnapshot();
   });
@@ -132,7 +135,7 @@ hello
 
 wold`;
 
-    const operations = await markdownOperationDiff(md1, md2);
+    const operations = await markdownNodeDiff(md1, md2);
     const diff = await operationsToReadableString(operations);
     expect(diff).toMatchSnapshot();
   });
@@ -150,7 +153,7 @@ hello
 
 # world`;
 
-    const operations = await markdownOperationDiff(md1, md2);
+    const operations = await markdownNodeDiff(md1, md2);
     const diff = await operationsToReadableString(operations);
     expect(diff).toMatchSnapshot();
   });
@@ -168,7 +171,7 @@ hello
 
 worlds`;
 
-    const operations = await markdownOperationDiff(md1, md2);
+    const operations = await markdownNodeDiff(md1, md2);
     const diff = await operationsToReadableString(operations);
     expect(diff).toMatchSnapshot();
   });
@@ -186,7 +189,7 @@ hello
 
 world`;
 
-    const operations = await markdownOperationDiff(md1, md2);
+    const operations = await markdownNodeDiff(md1, md2);
     const diff = await operationsToReadableString(operations);
     expect(diff).toMatchSnapshot();
   });
@@ -204,7 +207,7 @@ hello there,
 
 world`;
 
-    const operations = await markdownOperationDiff(md1, md2);
+    const operations = await markdownNodeDiff(md1, md2);
     const diff = await operationsToReadableString(operations);
     expect(diff).toMatchSnapshot();
   });
@@ -224,7 +227,7 @@ beautiful
 
 wold`;
 
-    const operations = await markdownOperationDiff(md1, md2);
+    const operations = await markdownNodeDiff(md1, md2);
     const diff = await operationsToReadableString(operations);
     expect(diff).toMatchSnapshot();
   });
@@ -244,11 +247,8 @@ hello
 
 wold`;
 
-    const operations = await markdownOperationDiff(md1, md2);
+    const operations = await markdownNodeDiff(md1, md2);
     const diff = await operationsToReadableString(operations);
     expect(diff).toMatchSnapshot();
   });
 });
-
-// investigate streaming
-// inline content etc

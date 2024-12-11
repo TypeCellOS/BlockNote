@@ -1,0 +1,147 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`markdownNodeDiffToBlockOperations > add word at end of sentence 1`] = `
+[
+  {
+    "block": {
+      "content": [
+        {
+          "styles": {},
+          "text": "hello world",
+          "type": "text",
+        },
+      ],
+    },
+    "id": "0",
+    "type": "update",
+  },
+]
+`;
+
+exports[`markdownNodeDiffToBlockOperations > change type 1`] = `
+[
+  {
+    "block": {
+      "props": {
+        "level": 1,
+      },
+      "type": "heading",
+    },
+    "id": "0",
+    "type": "update",
+  },
+]
+`;
+
+exports[`markdownNodeDiffToBlockOperations > complex change 1 1`] = `
+[
+  {
+    "blocks": [
+      [
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "prefix",
+              "type": "text",
+            },
+          ],
+          "id": "3",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ],
+    ],
+    "position": "before",
+    "referenceId": "0",
+    "type": "add",
+  },
+  {
+    "block": {
+      "content": [
+        {
+          "styles": {},
+          "text": "hello",
+          "type": "text",
+        },
+      ],
+      "props": {
+        "level": 2,
+      },
+    },
+    "id": "0",
+    "type": "update",
+  },
+  {
+    "id": "1",
+    "type": "delete",
+  },
+]
+`;
+
+exports[`markdownNodeDiffToBlockOperations > complex change 2 1`] = `
+[
+  {
+    "blocks": [
+      [
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "prefix",
+              "type": "text",
+            },
+          ],
+          "id": "3",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ],
+    ],
+    "position": "before",
+    "referenceId": "0",
+    "type": "add",
+  },
+  {
+    "block": {
+      "content": [
+        {
+          "styles": {},
+          "text": "## hello
+
+world",
+          "type": "text",
+        },
+      ],
+      "props": {
+        "backgroundColor": undefined,
+        "language": "javascript",
+        "level": undefined,
+        "textAlignment": undefined,
+        "textColor": undefined,
+      },
+      "type": "codeBlock",
+    },
+    "id": "0",
+    "type": "update",
+  },
+  {
+    "id": "1",
+    "type": "delete",
+  },
+  {
+    "id": "2",
+    "type": "delete",
+  },
+]
+`;

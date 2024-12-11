@@ -1,32 +1,38 @@
 import * as Diff from "diff";
+import type { Content } from "mdast";
 import remarkParse from "remark-parse";
 import { unified } from "unified";
 
-export type DiffResult =
+export type MarkdownNodeDiffResult =
   | {
       type: "changed" | "unchanged";
-      newBlock: any;
-      oldBlock: any;
+      newBlock: Content;
+      oldBlock: Content;
     }
   | {
       type: "add";
-      newBlock: any;
+      newBlock: Content;
     }
   | {
       type: "remove";
-      oldBlock: any;
+      oldBlock: Content;
     };
 
-export async function markdownOperationDiff(
+/**
+ * Takes two versions of a markdown document, and
+ * returns a list of `DiffResult` objects indicating
+ * whether a markdown node has been added, removed, changed, or unchanged
+ */
+export async function markdownNodeDiff(
   oldMarkdown: string,
   newMarkdown: string
-): Promise<DiffResult[]> {
+): Promise<MarkdownNodeDiffResult[]> {
   const oldAst = unified().use(remarkParse).parse(oldMarkdown);
   const newAst = unified().use(remarkParse).parse(newMarkdown);
 
   const charDiffs = Diff.diffChars(oldMarkdown, newMarkdown);
 
-  const results: DiffResult[] = [];
+  const results: MarkdownNodeDiffResult[] = [];
   let oldIndex = 0;
   let newIndex = 0;
 
@@ -49,12 +55,14 @@ export async function markdownOperationDiff(
           newBlocks.shift();
           newBlockChanged = false;
         } else if (block.position!.start!.offset! < endPos) {
-          newBlockChanged = true;
+          const oldBlock = oldBlocks.shift()!;
+          const newBlock = newBlocks.shift()!;
           results.push({
             type: "changed",
-            newBlock: block,
-            oldBlock: oldBlocks[0],
+            newBlock,
+            oldBlock,
           });
+          // newBlockChanged = true;
           break;
         } else {
           break;
@@ -76,11 +84,13 @@ export async function markdownOperationDiff(
           oldBlocks.shift();
           oldBlockChanged = false;
         } else if (block.position!.start!.offset! < endPos) {
-          oldBlockChanged = true;
+          // oldBlockChanged = true;
+          const oldBlock = oldBlocks.shift()!;
+          const newBlock = newBlocks.shift()!;
           results.push({
             type: "changed",
-            newBlock: newBlocks[0],
-            oldBlock: block,
+            newBlock,
+            oldBlock,
           });
           break;
         } else {
