@@ -355,7 +355,7 @@ export function nodeToBlock<
   })) {
     const propSchema = blockSpec.propSchema;
 
-    if (attr in propSchema) {
+    if (attr in propSchema && value !== null) {
       props[attr] = value;
     }
   }

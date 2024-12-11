@@ -53,10 +53,12 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
           const blockInfo = getBlockInfoFromSelection(state);
           if (
             !blockInfo.isBlockContainer ||
-            blockInfo.blockContent.node.type.spec.content !== "inline*"
+            blockInfo.blockContent.node.type.spec.content !== "inline*" ||
+            blockInfo.blockNoteType === "numberedListItem"
           ) {
             return;
           }
+          const startIndex = parseInt(match[1]) as any;
 
           chain()
             .command(
@@ -65,7 +67,7 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
                 blockInfo.bnBlock.beforePos,
                 {
                   type: "numberedListItem",
-                  props: {
+                  props: (startIndex === 1 && {}) || {
                     start: parseInt(match[1]) as any,
                   },
                 }
@@ -128,8 +130,15 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
             parent.tagName === "OL" ||
             (parent.tagName === "DIV" && parent.parentElement!.tagName === "OL")
           ) {
+            const startIndex =
+              parseInt(parent.getAttribute("start") || "1") || 1;
+
+            if (element.previousSibling || startIndex === 1) {
+              return {};
+            }
+
             return {
-              start: parseInt(parent.getAttribute("start") || "1") || 1,
+              start: startIndex,
             };
           }
 
