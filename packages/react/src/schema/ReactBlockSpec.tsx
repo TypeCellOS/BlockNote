@@ -21,10 +21,10 @@ import {
 } from "@blocknote/core";
 import {
   NodeView,
-  NodeViewContent,
   NodeViewProps,
   NodeViewWrapper,
   ReactNodeViewRenderer,
+  useReactNodeView,
 } from "@tiptap/react";
 import { FC, ReactNode } from "react";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
@@ -168,8 +168,11 @@ export function createReactBlockSpec<
             const blockContentDOMAttributes =
               this.options.domAttributes?.blockContent || {};
 
-            // hacky, should export `useReactNodeView` from tiptap to get access to ref
-            const ref = (NodeViewContent({}) as any).ref;
+            const ref = useReactNodeView().nodeViewContentRef;
+
+            if (!ref) {
+              throw new Error("nodeViewContentRef is not set");
+            }
 
             const BlockContent = blockImplementation.render;
             return (
