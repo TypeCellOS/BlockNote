@@ -19,6 +19,23 @@ export type MarkdownNodeDiffResult =
     };
 
 /**
+ * Flatten lists
+ *
+ * TODO: add support for nested lists
+ */
+export function flattenAst(ast: Content[]): Content[] {
+  const result: Content[] = [];
+  for (const node of ast) {
+    if (node.type === "list") {
+      result.push(...node.children);
+    } else {
+      result.push(node);
+    }
+  }
+  return result;
+}
+
+/**
  * Takes two versions of a markdown document, and
  * returns a list of `DiffResult` objects indicating
  * whether a markdown node has been added, removed, changed, or unchanged
@@ -36,8 +53,8 @@ export async function markdownNodeDiff(
   let oldIndex = 0;
   let newIndex = 0;
 
-  const oldBlocks = [...oldAst.children];
-  const newBlocks = [...newAst.children];
+  const oldBlocks = [...flattenAst(oldAst.children)];
+  const newBlocks = [...flattenAst(newAst.children)];
   let oldBlockChanged = false;
   let newBlockChanged = false;
   for (const diff of charDiffs) {

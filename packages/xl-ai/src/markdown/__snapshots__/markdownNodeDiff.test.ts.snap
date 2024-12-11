@@ -76,23 +76,57 @@ CHANGED: wold
 "
 `;
 
+exports[`markdown AI util > lists: add list 1`] = `
+"UNCHANGED: # title
+
+ADD: *   hello there
+
+ADD: *   world
+"
+`;
+
+exports[`markdown AI util > lists: add list item 1`] = `
+"UNCHANGED: # title
+
+UNCHANGED: *   hello
+
+ADD: *   world
+"
+`;
+
+exports[`markdown AI util > lists: remove list 1`] = `
+"UNCHANGED: # title
+
+REMOVE: *   hello there
+
+REMOVE: *   world
+"
+`;
+
+exports[`markdown AI util > lists: remove list item 1`] = `
+"UNCHANGED: # title
+
+UNCHANGED: *   hello
+
+REMOVE: *   world
+"
+`;
+
+exports[`markdown AI util > lists: update list item 1`] = `
+"UNCHANGED: # title
+
+CHANGED: *   hello there
+
+UNCHANGED: *   world
+"
+`;
+
 exports[`markdown AI util > mixed: change and insert 1`] = `
 "UNCHANGED: # title
 
 CHANGED: hello there
 
 ADD: beautiful
-
-CHANGED: wold
-"
-`;
-
-exports[`markdown AI util > mixed: insert and change 1`] = `
-"UNCHANGED: # title
-
-ADD: well,
-
-UNCHANGED: hello
 
 CHANGED: wold
 "

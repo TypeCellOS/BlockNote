@@ -34,6 +34,10 @@ export async function markdownNodeDiffToBlockOperations(
         markdownNodeToString(diff.newBlock)
       );
 
+      if (block.length !== 0) {
+        throw new Error("Expected single block to be added");
+      }
+
       // new node has been added
       if (
         operations.length > 0 &&

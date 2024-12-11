@@ -232,20 +232,72 @@ wold`;
     expect(diff).toMatchSnapshot();
   });
 
-  it("mixed: insert and change", async () => {
+  it("lists: remove list item", async () => {
     const md1 = `# title
 
-hello
-
-world`;
+- hello
+- world`;
 
     const md2 = `# title
 
-well,
+- hello`;
 
-hello
+    const operations = await markdownNodeDiff(md1, md2);
+    const diff = await operationsToReadableString(operations);
+    expect(diff).toMatchSnapshot();
+  });
 
-wold`;
+  it("lists: add list item", async () => {
+    const md1 = `# title
+
+- hello`;
+
+    const md2 = `# title
+
+- hello
+- world`;
+
+    const operations = await markdownNodeDiff(md1, md2);
+    const diff = await operationsToReadableString(operations);
+    expect(diff).toMatchSnapshot();
+  });
+
+  it("lists: update list item", async () => {
+    const md1 = `# title
+
+- hello
+- world`;
+
+    const md2 = `# title
+
+- hello there
+- world`;
+
+    const operations = await markdownNodeDiff(md1, md2);
+    const diff = await operationsToReadableString(operations);
+    expect(diff).toMatchSnapshot();
+  });
+
+  it("lists: add list", async () => {
+    const md1 = `# title`;
+
+    const md2 = `# title
+
+- hello there
+- world`;
+
+    const operations = await markdownNodeDiff(md1, md2);
+    const diff = await operationsToReadableString(operations);
+    expect(diff).toMatchSnapshot();
+  });
+
+  it("lists: remove list", async () => {
+    const md1 = `# title
+
+- hello there
+- world`;
+
+    const md2 = `# title`;
 
     const operations = await markdownNodeDiff(md1, md2);
     const diff = await operationsToReadableString(operations);
