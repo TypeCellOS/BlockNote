@@ -9,15 +9,19 @@ import {
   CoreMessage,
   LanguageModel,
   StreamObjectResult,
+  generateText,
   jsonSchema,
   streamObject,
 } from "ai";
+import { markdownNodeDiff } from "../markdown/markdownNodeDiff.js";
+import { markdownNodeDiffToBlockOperations } from "../markdown/markdownOperations.js";
 import { addFunction } from "./functions/add.js";
 import { deleteFunction } from "./functions/delete.js";
 import { AIFunction } from "./functions/index.js";
 import { updateFunction } from "./functions/update.js";
 import { createOperationsArraySchema } from "./schema/operations.js";
 import { blockNoteSchemaToJSONSchema } from "./schema/schemaToJSONSchema.js";
+import { trimArray } from "./util/trimArray.js";
 
 // TODO don't include child block
 export function createMessagesForLLM(opts: {
@@ -113,6 +117,68 @@ type CallLLMOptions = {
     }
 );
 
+export async function callLLMStreamingMD(
+  editor: BlockNoteEditor<any, any, any>,
+  options: CallLLMOptions & {
+    _streamObjectOptions?: Partial<Parameters<typeof streamObject<any>>[0]>;
+  }
+) {
+  const markdown = await editor.blocksToMarkdownLossy();
+
+  const withDefaults: Required<
+    Omit<CallLLMOptions, "prompt"> & { messages: CoreMessage[] }
+  > = {
+    messages: [
+      {
+        role: "system",
+        content:
+          "You're manipulating a markdown document. Send me the updated markdown. Existing document:",
+      },
+      {
+        role: "system",
+        content: markdown,
+      },
+      {
+        role: "user",
+        content: (options as any).prompt,
+      },
+    ],
+    ...options,
+  };
+
+  const ret = await generateText<any>({
+    model: withDefaults.model,
+    messages: withDefaults.messages,
+    ...(options._streamObjectOptions as any),
+  });
+
+  const blocks = trimArray(editor.document, (block) => {
+    return (
+      block.type === "paragraph" &&
+      Array.isArray(block.content) &&
+      block.content.length === 0
+    );
+  });
+  const newMarkdown = ret.text.trim();
+
+  const diff = await markdownNodeDiff(markdown, newMarkdown);
+  const operations = await markdownNodeDiffToBlockOperations(
+    editor,
+    blocks,
+    diff
+  );
+
+  for (const operation of operations) {
+    await applyAIOperation(
+      operation,
+      editor,
+      [updateFunction, addFunction, deleteFunction],
+      undefined,
+      { idsSuffixed: false }
+    );
+  }
+}
+
 export async function callLLMStreaming(
   editor: BlockNoteEditor<any, any, any>,
   options: CallLLMOptions & {
@@ -151,14 +217,19 @@ export function applyAIOperation(
   operation: any,
   editor: BlockNoteEditor,
   functions: AIFunction[],
-  operationContext: any
+  operationContext: any,
+  options: {
+    idsSuffixed: boolean;
+  } = {
+    idsSuffixed: false,
+  }
 ) {
   const func = functions.find((func) => func.schema.name === operation.type);
-  if (!func || !func.validate(operation, editor)) {
+  if (!func || !func.validate(operation, editor, options)) {
     console.log("INVALID OPERATION", operation);
     return operationContext;
   }
-  return func.apply(operation, editor, operationContext);
+  return func.apply(operation, editor, operationContext, options);
 }
 
 export async function applyLLMResponse(

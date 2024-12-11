@@ -1,5 +1,5 @@
 import { Block, BlockNoteEditor } from "@blocknote/core";
-import { diff as jsonDiff } from "json-diff";
+import { diff as jsonDiff } from "../json-diff/json-diff.js";
 
 /**
  * Calculate an update operation to an existing block to apply the changes

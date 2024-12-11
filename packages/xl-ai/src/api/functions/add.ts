@@ -31,9 +31,15 @@ const schema = {
 function applyOperation(
   operation: any,
   editor: BlockNoteEditor,
-  operationContext: any
+  operationContext: any,
+  options: {
+    idsSuffixed: boolean;
+  }
 ) {
-  const referenceId = operation.referenceId.slice(0, -1);
+  let referenceId = operation.referenceId;
+  if (options.idsSuffixed) {
+    referenceId = referenceId.slice(0, -1);
+  }
 
   const idsAdded = operationContext || [];
   const toUpdate = operation.blocks.slice(0, idsAdded.length);
@@ -60,7 +66,13 @@ function applyOperation(
   return idsAdded;
 }
 
-function validateOperation(operation: any, editor: BlockNoteEditor) {
+function validateOperation(
+  operation: any,
+  editor: BlockNoteEditor,
+  options: {
+    idsSuffixed: boolean;
+  }
+) {
   if (operation.type !== schema.name) {
     return false;
   }
@@ -69,12 +81,16 @@ function validateOperation(operation: any, editor: BlockNoteEditor) {
     return false;
   }
 
-  if (!operation.referenceId?.endsWith("$")) {
-    return false;
+  let referenceId = operation.referenceId;
+  if (options.idsSuffixed) {
+    if (!referenceId?.endsWith("$")) {
+      return false;
+    }
+
+    referenceId = referenceId.slice(0, -1);
   }
 
-  const id = operation.referenceId.slice(0, -1);
-  const block = editor.getBlock(id);
+  const block = editor.getBlock(referenceId);
 
   if (!block) {
     return false;

@@ -1,6 +1,6 @@
 import { useBlockNoteEditor } from "@blocknote/react";
 import { useCallback, useMemo, useState } from "react";
-import { callLLMStreaming } from "../../api/api";
+import { callLLMStreamingMD } from "../../api/api";
 // import { useAIDictionary } from "../../i18n/useAIDictionary";
 import { BlockNoteEditor } from "@blocknote/core";
 import { useAIDictionary } from "../../i18n/useAIDictionary";
@@ -69,7 +69,7 @@ export const AIMenu = (props: {
   const onManualPromptSubmitDefault = useCallback(
     async (prompt: string) => {
       setAIResponseStatus("generating");
-      await callLLMStreaming(editor, {
+      await callLLMStreamingMD(editor, {
         prompt,
         model: ctx.model,
       });

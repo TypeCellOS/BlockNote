@@ -50,6 +50,7 @@
     "test-watch": "vitest watch"
   },
   "dependencies": {
+    "@ewoudenberg/difflib": "^0.1.0",
     "@ai-sdk/openai": "^1.0.6",
     "@ai-sdk/groq": "^1.0.5",
     "@blocknote/core": "^0.20.0",

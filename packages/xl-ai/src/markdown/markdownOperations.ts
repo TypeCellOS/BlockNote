@@ -5,6 +5,12 @@ import { MarkdownNodeDiffResult } from "./markdownNodeDiff.js";
 import { markdownUpdateToBlockUpdate } from "./markdownUpdate.js";
 import { markdownNodeToString } from "./util.js";
 
+function flattenBlocks(blocks: Block<any, any, any>[]): Block<any, any, any>[] {
+  return blocks.flatMap((block) => {
+    return [block, ...flattenBlocks(block.children)];
+  });
+}
+
 /**
  * Takes a list of markdown node diffs and converts them into a list of block operations
  * to perform on the blocks to get to the target markdown
@@ -16,6 +22,7 @@ export async function markdownNodeDiffToBlockOperations(
 ) {
   const operations: any[] = [];
 
+  blocks = flattenBlocks(blocks);
   if (
     markdownNodeDiff.filter((diff) => diff.type !== "add").length !==
     blocks.length
@@ -34,7 +41,7 @@ export async function markdownNodeDiffToBlockOperations(
         markdownNodeToString(diff.newBlock)
       );
 
-      if (block.length !== 0) {
+      if (block.length !== 1) {
         throw new Error("Expected single block to be added");
       }
 

@@ -14,23 +14,40 @@ const schema = {
 
 function applyOperation(
   operation: any,
-  editor: BlockNoteEditor
-  // operationContext: any
+  editor: BlockNoteEditor,
+  _operationContext: any,
+  options: {
+    idsSuffixed: boolean;
+  }
 ) {
-  const id: string = operation.id.slice(0, -1);
+  let id = operation.id;
+  if (options.idsSuffixed) {
+    id = id.slice(0, -1);
+  }
+
   editor.removeBlocks([id]);
 }
 
-function validateOperation(operation: any, editor: BlockNoteEditor) {
+function validateOperation(
+  operation: any,
+  editor: BlockNoteEditor,
+  options: {
+    idsSuffixed: boolean;
+  }
+) {
   if (operation.type !== schema.name) {
     return false;
   }
 
-  if (!operation.id?.endsWith("$")) {
-    return false;
+  let id = operation.id;
+  if (options.idsSuffixed) {
+    if (!id?.endsWith("$")) {
+      return false;
+    }
+
+    id = id.slice(0, -1);
   }
 
-  const id = operation.id.slice(0, -1);
   const block = editor.getBlock(id);
 
   if (!block) {
