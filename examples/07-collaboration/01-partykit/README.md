@@ -2,7 +2,7 @@
 
 In this example, we use PartyKit to let multiple users collaborate on a single BlockNote document in real-time.
 
-**Try it out:** Open this page ion a new browser tab or window to see it in action!
+**Try it out:** Open this page in a new browser tab or window to see it in action!
 
 **Relevant Docs:**
 

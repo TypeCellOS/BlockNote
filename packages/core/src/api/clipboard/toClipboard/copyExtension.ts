@@ -80,7 +80,10 @@ function fragmentToExternalHTML<
       editor.schema.styleSchema
     );
 
-    externalHTML = externalHTMLExporter.exportInlineContent(ic as any, {});
+    externalHTML = `<table>${externalHTMLExporter.exportInlineContent(
+      ic as any,
+      {}
+    )}</table>`;
   } else if (isWithinBlockContent) {
     // first convert selection to blocknote-style inline content, and then
     // pass this to the exporter
@@ -189,7 +192,9 @@ export const createCopyToClipboardExtension = <
               },
               cut(view, event) {
                 copyToClipboard(editor, view, event);
-                view.dispatch(view.state.tr.deleteSelection());
+                if (view.editable) {
+                  view.dispatch(view.state.tr.deleteSelection());
+                }
                 // Prevent default PM handler to be called
                 return true;
               },

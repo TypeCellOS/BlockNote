@@ -1,0 +1,9 @@
+{
+  "playground": true,
+  "docs": true,
+  "author": "jakelazaroff",
+  "tags": ["Advanced", "Saving/Loading", "Collaboration"],
+  "dependencies": {
+    "@y-sweet/react": "^0.6.3"
+  }
+}

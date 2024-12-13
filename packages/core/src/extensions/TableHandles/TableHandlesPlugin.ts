@@ -742,7 +742,11 @@ export class TableHandlesProsemirrorPlugin<
       })
     );
 
-    setHiddenDragImage(this.editor._tiptapEditor.view.root);
+    if (!this.editor.prosemirrorView) {
+      throw new Error("Editor view not initialized.");
+    }
+
+    setHiddenDragImage(this.editor.prosemirrorView.root);
     event.dataTransfer!.setDragImage(dragImageElement!, 0, 0);
     event.dataTransfer!.effectAllowed = "move";
   };
@@ -781,7 +785,11 @@ export class TableHandlesProsemirrorPlugin<
       })
     );
 
-    setHiddenDragImage(this.editor._tiptapEditor.view.root);
+    if (!this.editor.prosemirrorView) {
+      throw new Error("Editor view not initialized.");
+    }
+
+    setHiddenDragImage(this.editor.prosemirrorView.root);
     event.dataTransfer!.setDragImage(dragImageElement!, 0, 0);
     event.dataTransfer!.effectAllowed = "copyMove";
   };
@@ -804,7 +812,11 @@ export class TableHandlesProsemirrorPlugin<
       this.editor._tiptapEditor.state.tr.setMeta(tableHandlesPluginKey, null)
     );
 
-    unsetHiddenDragImage(this.editor._tiptapEditor.view.root);
+    if (!this.editor.prosemirrorView) {
+      throw new Error("Editor view not initialized.");
+    }
+
+    unsetHiddenDragImage(this.editor.prosemirrorView.root);
   };
 
   /**

@@ -38,7 +38,7 @@ function setSelectionWithOffset(
     throw new Error("Target block is not a block container");
   }
 
-  getEditor()._tiptapEditor.view.dispatch(
+  getEditor().dispatch(
     getEditor()._tiptapEditor.state.tr.setSelection(
       TextSelection.create(doc, info.blockContent.beforePos + offset + 1)
     )
