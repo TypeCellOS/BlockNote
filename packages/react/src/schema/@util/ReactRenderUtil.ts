@@ -19,13 +19,17 @@ export function renderToDOMSpec(
       div
     );
   } else {
-    // If no editor is provided, use a temporary root. This is currently only used for Styles (see ReactStyleSpec).
-    // In this case, react context etc. won't be available inside `fc`
+    // If no editor is provided, use a temporary root.
+    // This is currently only used for when we use ServerBlockNoteEditor (@blocknote/server-util)
+    // and without using `withReactContext`
 
-    // We also use this if _tiptapEditor or _tiptapEditor.contentComponent is undefined, use a temporary root.
-    // This is actually a fallback / temporary fix, as normally this shouldn't happen (see #755). TODO: find cause
+    if (!editor?.headless) {
+      throw new Error(
+        "elementRenderer not available, expected headless editor"
+      );
+    }
     root = createRoot(div);
-    throw new Error("No editor provided");
+
     flushSync(() => {
       root!.render(fc((el) => (contentDOM = el || undefined)));
     });
