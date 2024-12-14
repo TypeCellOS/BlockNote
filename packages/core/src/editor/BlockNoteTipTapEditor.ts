@@ -158,6 +158,21 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
       return;
     }
     (this as any).contentComponent = contentComponent;
+
+    const markViews: any = {};
+    this.extensionManager.extensions.forEach((extension) => {
+      if (extension.type === "mark" && extension.config.addMarkView) {
+        markViews[extension.name] = extension.config.addMarkView;
+      }
+    });
+
+    // if (Object.keys(markViews).length > 0) {
+    //   debugger;
+    //   this.view.setProps({
+    //     markViews,
+    //   });
+    // }
+
     this.view = new EditorView(
       { mount: this.options.element as any }, // use mount option so that we reuse the existing element instead of creating a new one
       {
@@ -165,6 +180,7 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
         // @ts-ignore
         dispatchTransaction: this.dispatchTransaction.bind(this),
         state: this.state,
+        markViews,
       }
     );
 
