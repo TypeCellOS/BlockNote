@@ -59,6 +59,21 @@ export function transformPasted(slice: Slice, view: EditorView) {
   let f = Fragment.from(slice.content);
   f = wrapTableRows(f, view.state.schema);
 
+  if (
+    // single node
+    f.childCount === 1 &&
+    // external content (internal copy/paste always wrapped in an outer blockGroup)
+    f.firstChild?.type.name !== "blockGroup"
+  ) {
+    // we're copying a single node of external content
+    // in this case we don't need the fix below (to wrap every node in a blockContainer)
+    // actually, this would break things
+    // (try pasting from a spreadsheets into an existing table without the next line)
+
+    return new Slice(f, slice.openStart, slice.openEnd);
+  }
+
+  // the actual fix:
   for (let i = 0; i < f.childCount; i++) {
     if (f.child(i).type.spec.group === "blockContent") {
       const content = [f.child(i)];
