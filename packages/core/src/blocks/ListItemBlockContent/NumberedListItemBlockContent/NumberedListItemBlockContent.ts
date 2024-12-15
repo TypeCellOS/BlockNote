@@ -5,6 +5,7 @@ import {
   PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
+  propsToAttributes,
 } from "../../../schema/index.js";
 import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers.js";
 import { defaultProps } from "../../defaultProps.js";
@@ -13,7 +14,7 @@ import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin.js";
 
 export const numberedListItemPropSchema = {
   ...defaultProps,
-  start: { default: 1 },
+  start: { optional: true, type: "number" },
 } satisfies PropSchema;
 
 const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
@@ -22,26 +23,7 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
   group: "blockContent",
   priority: 90,
   addAttributes() {
-    return {
-      index: {
-        default: null,
-        parseHTML: (element) => element.getAttribute("data-index"),
-        renderHTML: (attributes) => {
-          return {
-            "data-index": attributes.index,
-          };
-        },
-      },
-      start: {
-        default: null,
-        parseHTML: (element) => element.getAttribute("data-start"),
-        renderHTML: (attributes) => {
-          return {
-            "data-start": attributes.index,
-          };
-        },
-      },
-    };
+    return propsToAttributes(numberedListItemPropSchema);
   },
 
   addInputRules() {

@@ -355,7 +355,10 @@ export function nodeToBlock<
   })) {
     const propSchema = blockSpec.propSchema;
 
-    if (attr in propSchema && value !== null) {
+    if (
+      attr in propSchema &&
+      !("optional" in propSchema[attr] && value === undefined)
+    ) {
       props[attr] = value;
     }
   }
