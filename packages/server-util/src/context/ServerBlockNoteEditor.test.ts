@@ -71,6 +71,36 @@ describe("Test ServerBlockNoteEditor", () => {
         },
       ],
     },
+    {
+      id: "4",
+      type: "image",
+      props: {
+        backgroundColor: "default",
+        textAlignment: "left",
+        name: "Example",
+        url: "exampleURL",
+        caption: "Caption",
+        showPreview: true,
+        previewWidth: 256,
+      },
+      content: undefined,
+      children: [],
+    },
+    {
+      id: "5",
+      type: "image",
+      props: {
+        backgroundColor: "default",
+        textAlignment: "left",
+        name: "Example",
+        url: "exampleURL",
+        caption: "Caption",
+        showPreview: false,
+        previewWidth: 256,
+      },
+      content: undefined,
+      children: [],
+    },
   ];
 
   it("converts to and from prosemirror (doc)", async () => {

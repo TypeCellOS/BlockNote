@@ -44,11 +44,16 @@ export const FileDownloadButton = () => {
   const onClick = useCallback(() => {
     if (fileBlock && fileBlock.props.url) {
       editor.focus();
-      editor
-        .resolveFileUrl(fileBlock.props.url)
-        .then((downloadUrl) =>
-          window.open(sanitizeUrl(downloadUrl, window.location.href))
-        );
+
+      if (!editor.resolveFileUrl) {
+        window.open(sanitizeUrl(fileBlock.props.url, window.location.href));
+      } else {
+        editor
+          .resolveFileUrl(fileBlock.props.url)
+          .then((downloadUrl) =>
+            window.open(sanitizeUrl(downloadUrl, window.location.href))
+          );
+      }
     }
   }, [editor, fileBlock]);
 
