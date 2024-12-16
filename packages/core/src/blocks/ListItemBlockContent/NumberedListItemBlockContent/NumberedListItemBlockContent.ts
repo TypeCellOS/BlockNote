@@ -23,7 +23,20 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
   group: "blockContent",
   priority: 90,
   addAttributes() {
-    return propsToAttributes(numberedListItemPropSchema);
+    return {
+      ...propsToAttributes(numberedListItemPropSchema),
+      // the index attribute is only used internally (it's not part of the blocknote schema)
+      // that's why it's defined explicitly here, and not part of the prop schema
+      index: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-index"),
+        renderHTML: (attributes) => {
+          return {
+            "data-index": attributes.index,
+          };
+        },
+      },
+    };
   },
 
   addInputRules() {
