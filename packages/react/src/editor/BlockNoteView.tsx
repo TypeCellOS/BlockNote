@@ -7,7 +7,6 @@ import {
 } from "@blocknote/core";
 
 import React, {
-  ComponentProps,
   HTMLAttributes,
   ReactNode,
   Ref,
@@ -185,9 +184,7 @@ export const BlockNoteViewRaw = React.forwardRef(BlockNoteViewComponent) as <
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema
 >(
-  props: ComponentProps<
-    typeof BlockNoteViewComponent<BSchema, ISchema, SSchema>
-  > & {
+  props: BlockNoteViewProps<BSchema, ISchema, SSchema> & {
     ref?: React.ForwardedRef<HTMLDivElement>;
   }
 ) => ReturnType<typeof BlockNoteViewComponent<BSchema, ISchema, SSchema>>;

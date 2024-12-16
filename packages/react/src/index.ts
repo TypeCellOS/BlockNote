@@ -7,7 +7,12 @@ export * from "./i18n/dictionary.js";
 
 export * from "./blocks/AudioBlockContent/AudioBlockContent.js";
 export * from "./blocks/FileBlockContent/FileBlockContent.js";
-export * from "./blocks/FileBlockContent/fileBlockHelpers.js";
+export * from "./blocks/FileBlockContent/helpers/render/AddFileButton.js";
+export * from "./blocks/FileBlockContent/helpers/render/FileBlockWrapper.js";
+export * from "./blocks/FileBlockContent/helpers/render/FileNameWithIcon.js";
+export * from "./blocks/FileBlockContent/helpers/render/ResizableFileBlockWrapper.js";
+export * from "./blocks/FileBlockContent/helpers/toExternalHTML/FigureWithCaption.js";
+export * from "./blocks/FileBlockContent/helpers/toExternalHTML/LinkWithCaption.js";
 export * from "./blocks/FileBlockContent/useResolveUrl.js";
 export * from "./blocks/ImageBlockContent/ImageBlockContent.js";
 export * from "./blocks/VideoBlockContent/VideoBlockContent.js";
@@ -26,6 +31,7 @@ export * from "./components/FormattingToolbar/DefaultButtons/TextAlignButton.js"
 export * from "./components/FormattingToolbar/DefaultSelects/BlockTypeSelect.js";
 export * from "./components/FormattingToolbar/FormattingToolbar.js";
 export * from "./components/FormattingToolbar/FormattingToolbarController.js";
+export * from "./components/FormattingToolbar/ExperimentalMobileFormattingToolbarController.js";
 export * from "./components/FormattingToolbar/FormattingToolbarProps.js";
 
 export * from "./components/LinkToolbar/DefaultButtons/DeleteLinkButton.js";

@@ -142,8 +142,8 @@ export function createInlineContentSpec<
               editor.schema.styleSchema
             );
 
-            editor._tiptapEditor.view.dispatch(
-              editor._tiptapEditor.view.state.tr.replaceWith(
+            editor.dispatch(
+              editor.prosemirrorView.state.tr.replaceWith(
                 getPos(),
                 getPos() + node.nodeSize,
                 content

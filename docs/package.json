@@ -1,6 +1,6 @@
 {
   "name": "docs",
-  "version": "0.20.0",
+  "version": "0.21.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,12 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@blocknote/ariakit": "^0.20.0",
-    "@blocknote/core": "^0.20.0",
-    "@blocknote/mantine": "^0.20.0",
-    "@blocknote/react": "^0.20.0",
-    "@blocknote/shadcn": "^0.20.0",
-    "@blocknote/xl-multi-column": "^0.20.0",
+    "@blocknote/ariakit": "^0.21.0",
+    "@blocknote/core": "^0.21.0",
+    "@blocknote/mantine": "^0.21.0",
+    "@blocknote/react": "^0.21.0",
+    "@blocknote/shadcn": "^0.21.0",
+    "@blocknote/xl-multi-column": "^0.21.0",
     "@headlessui/react": "^1.7.18",
     "@heroicons/react": "^2.1.4",
     "@mantine/core": "^7.10.1",

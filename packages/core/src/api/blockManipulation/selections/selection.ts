@@ -23,17 +23,17 @@ export function getSelection<
 ): Selection<BSchema, I, S> | undefined {
   const state = editor._tiptapEditor.state;
 
+  // Return undefined if the selection is collapsed or a node is selected.
+  if (state.selection.empty || "node" in state.selection) {
+    return undefined;
+  }
+
   const $startBlockBeforePos = state.doc.resolve(
     getNearestBlockPos(state.doc, state.selection.from).posBeforeNode
   );
   const $endBlockBeforePos = state.doc.resolve(
     getNearestBlockPos(state.doc, state.selection.to).posBeforeNode
   );
-
-  // Return undefined if anchor and head are in the same block.
-  if ($startBlockBeforePos.pos === $endBlockBeforePos.pos) {
-    return undefined;
-  }
 
   // Converts the node at the given index and depth around `$startBlockBeforePos`
   // to a block. Used to get blocks at given indices at the shared depth and

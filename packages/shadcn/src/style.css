@@ -169,3 +169,7 @@
 .bn-shadcn .bn-extend-button-add-remove-rows {
   cursor: row-resize;
 }
+.bn-shadcn .bn-toolbar {
+  overflow-x: auto;
+  max-width: 100vw;
+}
