@@ -1,14 +1,23 @@
-// Defines a single prop spec, which includes the default value the prop should
-// take and possible values it can take.
+// The PropSpec specifies the type of a prop and possibly a default value.
+// Note that props are always optional when used as "input"
+// (i.e., when creating a PartialBlock, for example by calling `insertBlocks({...})`)
+//
+// However, internally they're always set to `default`, unless a prop is marked optional
+//
+// At some point we should migrate this to zod or effect-schema
 export type PropSpec<PType extends boolean | number | string> =
   | {
-      values?: readonly PType[];
+      // We infer the type of the prop from the default value
       default: PType;
+      // a list of possible values, for example for a string prop (this will then be used as a string union type)
+      values?: readonly PType[];
     }
   | {
-      values?: readonly PType[];
-      type: "string" | "number" | "boolean";
       optional: true;
+      // Because there is no default value (for an optional prop, the default value is undefined),
+      // we need to specify the type of the prop manually (we can't infer it from the default value)
+      type: "string" | "number" | "boolean";
+      values?: readonly PType[];
     };
 
 // Defines multiple block prop specs. The key of each prop is the name of the

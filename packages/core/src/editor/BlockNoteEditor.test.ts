@@ -76,18 +76,19 @@ it("adds id attribute when requested", async () => {
 });
 
 it("block prop types", () => {
+  // this test checks whether the block props are correctly typed in typescript
   const editor = BlockNoteEditor.create();
   const block = editor.document[0];
   if (block.type === "paragraph") {
     // @ts-expect-error
-    const level = block.props.level;
+    const level = block.props.level; // doesn't have level prop
 
     // eslint-disable-next-line
     expect(level).toBe(undefined);
   }
 
   if (block.type === "heading") {
-    const level = block.props.level;
+    const level = block.props.level; // does have level prop
 
     // eslint-disable-next-line
     expect(level).toBe(1);
