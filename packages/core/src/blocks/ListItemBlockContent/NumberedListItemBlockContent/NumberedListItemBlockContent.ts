@@ -40,7 +40,7 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
           ) {
             return;
           }
-          const startIndex = parseInt(match[1]) as any;
+          const startIndex = parseInt(match[1]);
 
           chain()
             .command(
@@ -49,9 +49,11 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
                 blockInfo.bnBlock.beforePos,
                 {
                   type: "numberedListItem",
-                  props: (startIndex === 1 && {}) || {
-                    start: parseInt(match[1]) as any,
-                  },
+                  props:
+                    (startIndex === 1 && {}) ||
+                    ({
+                      start: startIndex,
+                    } as any),
                 }
               )
             )
