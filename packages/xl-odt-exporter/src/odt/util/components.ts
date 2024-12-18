@@ -96,3 +96,10 @@ export const ManifestFileEntry = ({
     "manifest:full-path": fullPath,
     ...props,
   });
+
+// Style elements
+export const StyleStyle = ({ children, ...props }: Props) =>
+  createElement("style:style", props, children);
+
+export const StyleTextProperties = ({ children, ...props }: Props) =>
+  createElement("style:text-properties", props, children);

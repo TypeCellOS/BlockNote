@@ -10,7 +10,6 @@ import {
   StyledText,
 } from "@blocknote/core";
 import AdmZip from "adm-zip";
-import { createElement } from "react";
 import { renderToString } from "react-dom/server";
 import stylesXml from "./template/styles.xml?raw";
 import {
@@ -19,6 +18,9 @@ import {
   OfficeBody,
   OfficeDocument,
   OfficeText,
+  StyleStyle,
+  StyleTextProperties,
+  TextSpan,
 } from "./util/components.js";
 
 export class ODTExporter<
@@ -34,6 +36,9 @@ export class ODTExporter<
   Record<string, string>,
   React.ReactNode
 > {
+  private automaticStyles: Map<string, React.ReactNode> = new Map();
+  private styleCounter = 0;
+
   public readonly options: ExporterOptions;
 
   constructor(
@@ -60,7 +65,22 @@ export class ODTExporter<
   public transformStyledText(styledText: StyledText<S>): React.ReactNode {
     const stylesArray = this.mapStyles(styledText.styles);
     const styles = Object.assign({}, ...stylesArray);
-    return createElement("text:span", styles, styledText.text);
+
+    if (Object.keys(styles).length === 0) {
+      return styledText.text;
+    }
+
+    const styleName = `T${++this.styleCounter}`;
+
+    // Store the complete style element
+    this.automaticStyles.set(
+      styleName,
+      <StyleStyle style:name={styleName} style:family="text">
+        <StyleTextProperties {...styles} />
+      </StyleStyle>
+    );
+
+    return <TextSpan text:style-name={styleName}>{styledText.text}</TextSpan>;
   }
 
   public async transformBlocks(
@@ -97,10 +117,14 @@ export class ODTExporter<
   }
 
   public async toODTDocument(blocks: Block<B, I, S>[]): Promise<Blob> {
+    const blockcontent = await this.transformBlocks(blocks);
+    const styles = Array.from(this.automaticStyles.values());
+
     const content = (
       <OfficeDocument>
+        <office:automatic-styles>{styles}</office:automatic-styles>
         <OfficeBody>
-          <OfficeText>{await this.transformBlocks(blocks)}</OfficeText>
+          <OfficeText>{blockcontent}</OfficeText>
         </OfficeBody>
       </OfficeDocument>
     );
@@ -124,12 +148,8 @@ export class ODTExporter<
       Buffer.from("application/vnd.oasis.opendocument.text")
     );
 
-    // Then add other files
     const contentXml = renderToString(content);
     const manifestXml = renderToString(manifest);
-
-    // console.log("Styles XML:", stylesXml);
-    // console.log("Content XML before zip:", contentXml);
 
     zip.addFile("content.xml", Buffer.from(contentXml));
     zip.addFile("styles.xml", Buffer.from(stylesXml));

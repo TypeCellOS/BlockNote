@@ -3,6 +3,9 @@ declare namespace JSX {
     "office:document-content": any;
     "office:body": any;
     "office:text": any;
+    "office:automatic-styles": any;
+    "style:style": any;
+    "style:text-properties": any;
     "text:p": any;
     "text:h": any;
     "text:list-item": any;
@@ -21,5 +24,7 @@ declare namespace JSX {
   interface IntrinsicAttributes {
     "text:style-name"?: string;
     "style:style-name"?: string;
+    "style:name"?: string;
+    "style:family"?: string;
   }
 }
