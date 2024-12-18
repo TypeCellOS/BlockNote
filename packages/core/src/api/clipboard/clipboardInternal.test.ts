@@ -183,7 +183,7 @@ describe("Test ProseMirror selection clipboard HTML", () => {
     );
 
     expect(externalHTML).toMatchFileSnapshot(
-      `./__snapshots__/${testCase.testName}.html`
+      `./__snapshots__/internal/${testCase.testName}.html`
     );
 
     const originalDocument = editor.document;
