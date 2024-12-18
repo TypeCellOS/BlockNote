@@ -101,7 +101,7 @@
               "type": "heading",
               "attrs": {
                 "textAlignment": "left",
-                "level": 1
+                "level": null
               },
               "content": [
                 {

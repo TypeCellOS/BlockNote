@@ -71,6 +71,26 @@ it("adds id attribute when requested", async () => {
   );
   editor.replaceBlocks(editor.document, blocks);
   expect(await editor.blocksToFullHTML(editor.document)).toMatchInlineSnapshot(
-    `"<div class="bn-block-group" data-node-type="blockGroup"><div class="bn-block-outer" data-node-type="blockOuter" data-id="1" id="1"><div class="bn-block" data-node-type="blockContainer" data-id="1" id="1"><div class="bn-block-content" data-content-type="paragraph"><p class="bn-inline-content">This is a normal text</p></div></div></div><div class="bn-block-outer" data-node-type="blockOuter" data-id="2" id="2"><div class="bn-block" data-node-type="blockContainer" data-id="2" id="2"><div class="bn-block-content" data-content-type="heading" data-level="1"><h1 class="bn-inline-content">And this is a large heading</h1></div></div></div></div>"`
+    `"<div class="bn-block-group" data-node-type="blockGroup"><div class="bn-block-outer" data-node-type="blockOuter" data-id="1" id="1"><div class="bn-block" data-node-type="blockContainer" data-id="1" id="1"><div class="bn-block-content" data-content-type="paragraph"><p class="bn-inline-content">This is a normal text</p></div></div></div><div class="bn-block-outer" data-node-type="blockOuter" data-id="2" id="2"><div class="bn-block" data-node-type="blockContainer" data-id="2" id="2"><div class="bn-block-content" data-content-type="heading"><h1 class="bn-inline-content">And this is a large heading</h1></div></div></div></div>"`
   );
+});
+
+it("block prop types", () => {
+  // this test checks whether the block props are correctly typed in typescript
+  const editor = BlockNoteEditor.create();
+  const block = editor.document[0];
+  if (block.type === "paragraph") {
+    // @ts-expect-error
+    const level = block.props.level; // doesn't have level prop
+
+    // eslint-disable-next-line
+    expect(level).toBe(undefined);
+  }
+
+  if (block.type === "heading") {
+    const level = block.props.level; // does have level prop
+
+    // eslint-disable-next-line
+    expect(level).toBe(1);
+  }
 });
