@@ -20,10 +20,9 @@
     "composite": true,
     "skipLibCheck": true,
     "baseUrl": ".",
+    "emitDeclarationOnly": true,
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src"],
