@@ -80,7 +80,10 @@ function fragmentToExternalHTML<
       editor.schema.styleSchema
     );
 
-    externalHTML = externalHTMLExporter.exportInlineContent(ic as any, {});
+    externalHTML = `<table>${externalHTMLExporter.exportInlineContent(
+      ic as any,
+      {}
+    )}</table>`;
   } else if (isWithinBlockContent) {
     // first convert selection to blocknote-style inline content, and then
     // pass this to the exporter
