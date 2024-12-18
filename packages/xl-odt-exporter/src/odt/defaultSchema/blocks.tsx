@@ -10,7 +10,12 @@ import {
   TextListItem,
   TextP,
   TextSpan,
+  TextTab,
 } from "../util/components.js";
+
+export const getTabs = (nestingLevel: number) => {
+  return Array.from({ length: nestingLevel }, () => <TextTab />);
+};
 
 export const odtBlockMappingForDefaultSchema: BlockMapping<
   DefaultBlockSchema,
@@ -19,14 +24,18 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
   React.ReactNode,
   React.ReactNode
 > = {
-  paragraph: (block, exporter) => (
-    <TextP>{exporter.transformInlineContent(block.content)}</TextP>
+  paragraph: (block, exporter, nestingLevel) => (
+    <TextP>
+      {getTabs(nestingLevel)}
+      {exporter.transformInlineContent(block.content)}
+    </TextP>
   ),
 
-  heading: (block, exporter) => (
+  heading: (block, exporter, nestingLevel) => (
     <TextH
       level={block.props.level}
       text:style-name={`Heading${block.props.level}`}>
+      {getTabs(nestingLevel)}
       {exporter.transformInlineContent(block.content)}
     </TextH>
   ),

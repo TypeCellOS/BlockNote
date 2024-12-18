@@ -32,6 +32,9 @@ export const OfficeText = ({ children, ...props }: Props) =>
 export const TextP = ({ children, ...props }: Props) =>
   createElement("text:p", props, children);
 
+export const TextTab = ({ children, ...props }: Props) =>
+  createElement("text:tab", props, children);
+
 export const TextH = ({
   children,
   level,
