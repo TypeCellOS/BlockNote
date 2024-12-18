@@ -1,6 +1,8 @@
 import { Fragment, Schema, Slice } from "@tiptap/pm/model";
 import { EditorView } from "@tiptap/pm/view";
 
+import { getBlockInfoFromSelection } from "../api/getBlockInfoFromPos.js";
+
 // helper function to remove a child from a fragment
 function removeChild(node: Fragment, n: number) {
   const children: any[] = [];
@@ -49,31 +51,45 @@ export function wrapTableRows(f: Fragment, schema: Schema) {
 /**
  * fix for https://github.com/ProseMirror/prosemirror/issues/1430#issuecomment-1822570821
  *
- * Without this fix, pasting two paragraphs would cause the second one to be indented in the other
- * this fix wraps every element in the slice in it's own blockContainer, to prevent Prosemirror from nesting the
- * elements on paste.
+ * This fix wraps pasted ProseMirror nodes in their own `blockContainer` nodes
+ * in some cases. This is to ensure that ProseMirror inserts them as separate
+ * blocks, which it sometimes doesn't do because it doesn't have enough context
+ * about the hierarchy of the pasted nodes. This can be seen when pasting e.g.
+ * an image or two consecutive paragraphs, where PM tries to nest the pasted
+ * block(s) when it shouldn't. However, this fix is not applied in a few cases.
  *
- * The exception is when we encounter blockGroups with listitems, because those actually should be nested
+ * The first case is when we paste a single node with inline content, e.g. a
+ * paragraph or heading. This is because we want to insert the content in-line
+ * for better UX instead of a separate block below.
+ *
+ * The second case is when we paste a single node with table content, i.e. a
+ * table, inside an existing table. This is because the fix would tell instead
+ * want to add its content to the existing table, again for better UX.
  */
 export function transformPasted(slice: Slice, view: EditorView) {
   let f = Fragment.from(slice.content);
   f = wrapTableRows(f, view.state.schema);
 
-  if (
-    // single node
-    f.childCount === 1 &&
-    // external content (internal copy/paste always wrapped in an outer blockGroup)
-    f.firstChild?.type.name !== "blockGroup"
-  ) {
-    // we're copying a single node of external content
-    // in this case we don't need the fix below (to wrap every node in a blockContainer)
-    // actually, this would break things
-    // (try pasting from a spreadsheets into an existing table without the next line)
+  const nodeHasSingleChild = f.childCount === 1;
+  const nodeHasInlineContent = f.firstChild?.type.spec.content === "inline*";
+  const nodeHasTableContent = f.firstChild?.type.spec.content === "tableRow+";
 
+  const blockInfo = getBlockInfoFromSelection(view.state);
+  if (!blockInfo.isBlockContainer) {
+    return new Slice(f, slice.openStart, slice.openEnd);
+  }
+  const selectedBlockHasTableContent =
+    blockInfo.blockContent.node.type.spec.content === "tableRow+";
+
+  // Fix is not applied
+  if (
+    nodeHasSingleChild &&
+    (nodeHasInlineContent ||
+      (nodeHasTableContent && selectedBlockHasTableContent))
+  ) {
     return new Slice(f, slice.openStart, slice.openEnd);
   }
 
-  // the actual fix:
   for (let i = 0; i < f.childCount; i++) {
     if (f.child(i).type.spec.group === "blockContent") {
       const content = [f.child(i)];
