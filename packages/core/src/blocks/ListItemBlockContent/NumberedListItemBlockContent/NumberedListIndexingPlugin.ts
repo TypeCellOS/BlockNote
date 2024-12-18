@@ -60,8 +60,10 @@ export const NumberedListIndexingPlugin = () => {
 
           const contentNode = blockInfo.blockContent.node;
           const index = contentNode.attrs["index"];
+          const isFirst =
+            prevBlock?.firstChild?.type.name !== "numberedListItem";
 
-          if (index !== newIndex) {
+          if (index !== newIndex || (contentNode.attrs.start && !isFirst)) {
             modified = true;
 
             const { start, ...attrs } = contentNode.attrs;
@@ -69,9 +71,9 @@ export const NumberedListIndexingPlugin = () => {
             tr.setNodeMarkup(blockInfo.blockContent.beforePos, undefined, {
               ...attrs,
               index: newIndex,
-              ...(start &&
-                Number(start) === Number(newIndex) && {
-                  start: Number(newIndex),
+              ...(typeof start === "number" &&
+                isFirst && {
+                  start,
                 }),
             });
           }
