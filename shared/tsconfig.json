@@ -15,7 +15,8 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "composite": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "emitDeclarationOnly": true
   },
   "include": ["."],
   "references": [
