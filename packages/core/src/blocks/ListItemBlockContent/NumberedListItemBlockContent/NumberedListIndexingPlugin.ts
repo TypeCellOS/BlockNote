@@ -67,8 +67,8 @@ export const NumberedListIndexingPlugin = () => {
             const { start, ...attrs } = contentNode.attrs;
 
             tr.setNodeMarkup(blockInfo.blockContent.beforePos, undefined, {
-              index: newIndex,
               ...attrs,
+              index: newIndex,
               ...(start &&
                 Number(start) === Number(newIndex) && {
                   start: Number(newIndex),
