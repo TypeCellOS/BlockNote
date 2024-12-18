@@ -118,16 +118,24 @@ export class ODTExporter<
 
     const zip = new AdmZip();
 
+    // Add mimetype first, uncompressed
+    zip.addFile(
+      "mimetype",
+      Buffer.from("application/vnd.oasis.opendocument.text")
+    );
+
+    // Then add other files
     const contentXml = renderToString(content);
     const manifestXml = renderToString(manifest);
+
+    // console.log("Styles XML:", stylesXml);
+    // console.log("Content XML before zip:", contentXml);
 
     zip.addFile("content.xml", Buffer.from(contentXml));
     zip.addFile("styles.xml", Buffer.from(stylesXml));
     zip.addFile("META-INF/manifest.xml", Buffer.from(manifestXml));
 
     zip.writeZip("test.zip.odt");
-    let x = stylesXml;
-    debugger;
     return new Blob([zip.toBuffer()], {
       type: "application/vnd.oasis.opendocument.text",
     });

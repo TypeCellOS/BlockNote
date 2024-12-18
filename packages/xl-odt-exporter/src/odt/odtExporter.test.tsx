@@ -111,6 +111,7 @@ describe("ODT Exporter", () => {
     const entries = zip.getEntries();
     console.log(entries);
     const contentXml = zip.getEntry("content.xml")?.getData().toString();
+    console.log("Content XML:", contentXml);
     const manifestXml = zip
       .getEntry("META-INF/manifest.xml")
       ?.getData()

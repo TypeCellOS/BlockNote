@@ -26,7 +26,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
   heading: (block, exporter) => (
     <TextH
       level={block.props.level}
-      style:style-name={`Heading${block.props.level}`}>
+      text:style-name={`Heading${block.props.level}`}>
       {exporter.transformInlineContent(block.content)}
     </TextH>
   ),

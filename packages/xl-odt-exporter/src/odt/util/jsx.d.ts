@@ -6,6 +6,7 @@ declare namespace JSX {
     "text:p": any;
     "text:h": any;
     "text:list-item": any;
+    "text:list": any;
     "text:a": any;
     "text:span": any;
     "draw:frame": any;
@@ -15,5 +16,10 @@ declare namespace JSX {
     "table:table-cell": any;
     "manifest:manifest": any;
     "manifest:file-entry": any;
+  }
+
+  interface IntrinsicAttributes {
+    "text:style-name"?: string;
+    "style:style-name"?: string;
   }
 }
