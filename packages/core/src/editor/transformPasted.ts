@@ -73,32 +73,8 @@ export function transformPasted(slice: Slice, view: EditorView) {
   let f = Fragment.from(slice.content);
   f = wrapTableRows(f, view.state.schema);
 
-  const nodeHasSingleChild = f.childCount === 1;
-  const nodeHasInlineContent = f.firstChild?.type.spec.content === "inline*";
-  const nodeHasTableContent = f.firstChild?.type.spec.content === "tableRow+";
-
   // Check if fix should be applied.
-  let applyFix = true;
-  if (nodeHasSingleChild) {
-    if (nodeHasInlineContent) {
-      applyFix = false;
-    }
-
-    if (nodeHasTableContent) {
-      const blockInfo = getBlockInfoFromSelection(view.state);
-      if (blockInfo.isBlockContainer) {
-        const selectedBlockHasTableContent =
-          blockInfo.blockContent.node.type.spec.content === "tableRow+";
-
-        if (selectedBlockHasTableContent) {
-          applyFix = false;
-        }
-      } else {
-        applyFix = false;
-      }
-    }
-  }
-  if (!applyFix) {
+  if (!shouldApplyFix(f, view)) {
     return new Slice(f, slice.openStart, slice.openEnd);
   }
 
@@ -134,4 +110,32 @@ export function transformPasted(slice: Slice, view: EditorView) {
     }
   }
   return new Slice(f, slice.openStart, slice.openEnd);
+}
+
+function shouldApplyFix(fragment: Fragment, view: EditorView) {
+  const nodeHasSingleChild = fragment.childCount === 1;
+  const nodeHasInlineContent =
+    fragment.firstChild?.type.spec.content === "inline*";
+  const nodeHasTableContent =
+    fragment.firstChild?.type.spec.content === "tableRow+";
+
+  if (nodeHasSingleChild) {
+    if (nodeHasInlineContent) {
+      return false;
+    }
+
+    if (nodeHasTableContent) {
+      const blockInfo = getBlockInfoFromSelection(view.state);
+      if (blockInfo.isBlockContainer) {
+        const selectedBlockHasTableContent =
+          blockInfo.blockContent.node.type.spec.content === "tableRow+";
+
+        return !selectedBlockHasTableContent;
+      }
+
+      return false;
+    }
+  }
+
+  return true;
 }
