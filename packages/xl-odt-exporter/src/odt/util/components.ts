@@ -103,3 +103,16 @@ export const StyleStyle = ({ children, ...props }: Props) =>
 
 export const StyleTextProperties = ({ children, ...props }: Props) =>
   createElement("style:text-properties", props, children);
+
+export const StyleBackgroundFill = ({
+  color,
+  ...props
+}: Props & { color: string }) =>
+  createElement("style:background-fill", {
+    "draw:fill": "solid",
+    "draw:fill-color": color,
+    ...props,
+  });
+
+export const StyleParagraphProperties = ({ children, ...props }: Props) =>
+  createElement("style:paragraph-properties", props, children);

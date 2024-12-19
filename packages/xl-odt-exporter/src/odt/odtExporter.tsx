@@ -62,6 +62,44 @@ export class ODTExporter<
     this.options = { ...defaults, ...options };
   }
 
+  private blockPropsToStyles(
+    props: Record<string, any>
+  ): Record<string, string> {
+    const styles: Record<string, string> = {};
+
+    if (props.textAlignment) {
+      styles["fo:text-align"] = props.textAlignment;
+    }
+
+    if (props.backgroundColor && props.backgroundColor !== "default") {
+      const color =
+        this.options.colors[
+          props.backgroundColor as keyof typeof this.options.colors
+        ].background;
+      styles["fo:background-fill"] = color;
+    }
+
+    return styles;
+  }
+
+  private getBlockStyleName(props: Record<string, any>): string | undefined {
+    const styles = this.blockPropsToStyles(props);
+    if (Object.keys(styles).length === 0) {
+      return undefined;
+    }
+
+    const styleName = `P${++this.styleCounter}`;
+
+    this.automaticStyles.set(
+      styleName,
+      <StyleStyle style:name={styleName} style:family="paragraph">
+        <style:paragraph-properties {...styles} />
+      </StyleStyle>
+    );
+
+    return styleName;
+  }
+
   public transformStyledText(styledText: StyledText<S>): React.ReactNode {
     const stylesArray = this.mapStyles(styledText.styles);
     const styles = Object.assign({}, ...stylesArray);
@@ -101,8 +139,9 @@ export class ODTExporter<
         block.children,
         nestingLevel + 1
       );
+
       const content = await this.mapBlock(
-        block as any,
+        block,
         nestingLevel,
         numberedListIndex
       );
@@ -159,5 +198,11 @@ export class ODTExporter<
     return new Blob([zip.toBuffer()], {
       type: "application/vnd.oasis.opendocument.text",
     });
+  }
+
+  public registerStyle(style: (name: string) => React.ReactNode): string {
+    const styleName = `S${++this.styleCounter}`;
+    this.automaticStyles.set(styleName, style(styleName));
+    return styleName;
   }
 }

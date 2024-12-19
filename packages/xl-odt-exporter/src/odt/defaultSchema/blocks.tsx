@@ -1,7 +1,11 @@
 import { BlockMapping, DefaultBlockSchema } from "@blocknote/core";
+import { ODTExporter } from "../odtExporter.js";
 import {
   DrawFrame,
   DrawImage,
+  StyleBackgroundFill,
+  StyleParagraphProperties,
+  StyleStyle,
   Table,
   TableCell,
   TableRow,
@@ -17,6 +21,38 @@ export const getTabs = (nestingLevel: number) => {
   return Array.from({ length: nestingLevel }, () => <TextTab />);
 };
 
+const createParagraphStyle = (
+  exporter: ODTExporter<any, any, any>,
+  props: Record<string, any>
+) => {
+  const styles: Record<string, string> = {};
+  const children: React.ReactNode[] = [];
+
+  if (props.textAlignment !== "default") {
+    styles["fo:text-align"] = props.textAlignment;
+  }
+
+  if (props.backgroundColor && props.backgroundColor !== "default") {
+    const color =
+      exporter.options.colors[
+        props.backgroundColor as keyof typeof exporter.options.colors
+      ].background;
+    children.push(<StyleBackgroundFill color={color} />);
+  }
+
+  if (Object.keys(styles).length === 0 && children.length === 0) {
+    return undefined;
+  }
+
+  return exporter.registerStyle((name) => (
+    <StyleStyle style:family="paragraph" style:name={name}>
+      <StyleParagraphProperties {...styles}>
+        {children}
+      </StyleParagraphProperties>
+    </StyleStyle>
+  ));
+};
+
 export const odtBlockMappingForDefaultSchema: BlockMapping<
   DefaultBlockSchema,
   any,
@@ -24,21 +60,33 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
   React.ReactNode,
   React.ReactNode
 > = {
-  paragraph: (block, exporter, nestingLevel) => (
-    <TextP>
-      {getTabs(nestingLevel)}
-      {exporter.transformInlineContent(block.content)}
-    </TextP>
-  ),
+  paragraph: (block, exporter, nestingLevel) => {
+    const styleName = createParagraphStyle(
+      exporter as ODTExporter<any, any, any>,
+      block.props
+    );
+    return (
+      <TextP text:style-name={styleName}>
+        {getTabs(nestingLevel)}
+        {exporter.transformInlineContent(block.content)}
+      </TextP>
+    );
+  },
 
-  heading: (block, exporter, nestingLevel) => (
-    <TextH
-      level={block.props.level}
-      text:style-name={`Heading${block.props.level}`}>
-      {getTabs(nestingLevel)}
-      {exporter.transformInlineContent(block.content)}
-    </TextH>
-  ),
+  heading: (block, exporter, nestingLevel) => {
+    const customStyleName = createParagraphStyle(
+      exporter as ODTExporter<any, any, any>,
+      block.props
+    );
+    const styleName = customStyleName;
+
+    return (
+      <TextH level={block.props.level} text:style-name={styleName}>
+        {getTabs(nestingLevel)}
+        {exporter.transformInlineContent(block.content)}
+      </TextH>
+    );
+  },
 
   bulletListItem: (block, exporter) => (
     <TextList text:style-name="List_1">
