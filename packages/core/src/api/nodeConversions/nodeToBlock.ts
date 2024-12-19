@@ -357,7 +357,7 @@ export function nodeToBlock<
 
     if (
       attr in propSchema &&
-      !("optional" in propSchema[attr] && value === undefined)
+      !(propSchema[attr].default === undefined && value === undefined)
     ) {
       props[attr] = value;
     }

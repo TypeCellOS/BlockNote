@@ -14,7 +14,7 @@ import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin.js";
 
 export const numberedListItemPropSchema = {
   ...defaultProps,
-  start: { optional: true, type: "number" },
+  start: { default: undefined, type: "number" },
 } satisfies PropSchema;
 
 const NumberedListItemBlockContent = createStronglyTypedTiptapNode({

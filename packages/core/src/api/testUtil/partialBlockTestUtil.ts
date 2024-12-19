@@ -113,7 +113,7 @@ export function partialBlockToBlockForTesting<
     ([propKey, propValue]) => {
       if (
         withDefaults.props[propKey] === undefined &&
-        !("optional" in propValue)
+        propValue.default !== undefined
       ) {
         (withDefaults.props as any)[propKey] = propValue.default;
       }

@@ -104,7 +104,7 @@ function serializeBlock<
     for (const [name, spec] of Object.entries(
       editor.schema.blockSchema[block.type as any].propSchema
     )) {
-      if ("default" in spec) {
+      if (spec.default !== undefined) {
         (props as any)[name] = spec.default;
       }
     }
@@ -176,7 +176,7 @@ function serializeBlock<
       const list = doc.createElement(listType);
 
       if (listType === "OL" && props?.start && props?.start !== 1) {
-        list.setAttribute("start", block.props!.start + "");
+        list.setAttribute("start", props.start + "");
       }
       fragment.append(list);
     }

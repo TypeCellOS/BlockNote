@@ -78,7 +78,7 @@ function serializeBlock<
     for (const [name, spec] of Object.entries(
       editor.schema.blockSchema[block.type as any].propSchema
     )) {
-      if ("default" in spec) {
+      if (spec.default !== undefined) {
         (props as any)[name] = spec.default;
       }
     }

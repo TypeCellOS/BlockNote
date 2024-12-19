@@ -13,7 +13,7 @@ export type PropSpec<PType extends boolean | number | string> =
       values?: readonly PType[];
     }
   | {
-      optional: true;
+      default: undefined;
       // Because there is no default value (for an optional prop, the default value is undefined),
       // we need to specify the type of the prop manually (we can't infer it from the default value)
       type: "string" | "number" | "boolean";

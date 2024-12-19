@@ -36,8 +36,7 @@ export function addInlineContentAttributes<
   Object.entries(inlineContentProps)
     .filter(([prop, value]) => {
       const spec = propSchema[prop];
-      const defaultValue = "default" in spec ? spec.default : undefined;
-      return value !== defaultValue;
+      return value !== spec.default;
     })
     .map(([prop, value]) => {
       return [camelToDataKebab(prop), value];

@@ -34,7 +34,7 @@ export function propsToAttributes(propSchema: PropSchema): Attributes {
     .filter(([name, _spec]) => !inheritedProps.includes(name))
     .forEach(([name, spec]) => {
       tiptapAttributes[name] = {
-        default: "optional" in spec ? undefined : spec.default,
+        default: spec.default,
         keepOnSplit: true,
         // Props are displayed in kebab-case as HTML attributes. If a prop's
         // value is the same as its default, we don't display an HTML
@@ -47,8 +47,8 @@ export function propsToAttributes(propSchema: PropSchema): Attributes {
           }
 
           if (
-            ("type" in spec && spec.type === "boolean") ||
-            ("default" in spec && typeof spec.default === "boolean")
+            (spec.default === undefined && spec.type === "boolean") ||
+            (spec.default !== undefined && typeof spec.default === "boolean")
           ) {
             if (value === "true") {
               return true;
@@ -62,8 +62,8 @@ export function propsToAttributes(propSchema: PropSchema): Attributes {
           }
 
           if (
-            ("type" in spec && spec.type === "number") ||
-            ("default" in spec && typeof spec.default === "number")
+            (spec.default === undefined && spec.type === "number") ||
+            (spec.default !== undefined && typeof spec.default === "number")
           ) {
             const asNumber = parseFloat(value);
             const isNumeric =
@@ -79,9 +79,8 @@ export function propsToAttributes(propSchema: PropSchema): Attributes {
           return value;
         },
         renderHTML: (attributes) => {
-          const defaultValue = "default" in spec ? spec.default : undefined;
           // don't render to html if the value is the same as the default
-          return attributes[name] !== defaultValue
+          return attributes[name] !== spec.default
             ? {
                 [camelToDataKebab(name)]: attributes[name],
               }
@@ -183,7 +182,7 @@ export function wrapInBlockStructure<
   // element (inheritedProps) and props set to their default values.
   for (const [prop, value] of Object.entries(blockProps)) {
     const spec = propSchema[prop];
-    const defaultValue = "default" in spec ? spec.default : undefined;
+    const defaultValue = spec.default;
     if (!inheritedProps.includes(prop) && value !== defaultValue) {
       blockContent.setAttribute(camelToDataKebab(prop), value);
     }
