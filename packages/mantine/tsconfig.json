@@ -19,6 +19,7 @@
     "declarationDir": "types",
     "composite": true,
     "skipLibCheck": true,
+    "emitDeclarationOnly": true
   },
   "include": ["src"],
   "references": [
