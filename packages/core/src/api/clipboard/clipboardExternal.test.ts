@@ -2,12 +2,11 @@ import { Node } from "prosemirror-model";
 import { Selection, TextSelection } from "prosemirror-state";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 
-import { defaultBlockSpecs, PartialBlock } from "../../blocks/defaultBlocks.js";
+import { PartialBlock } from "../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { BlockNoteSchema } from "../../editor/BlockNoteSchema.js";
-import { createBlockSpec } from "../../schema/index.js";
 import { initializeESMDependencies } from "../../util/esmDependencies.js";
 import { doPaste } from "../testUtil/paste.js";
+import { schema } from "./testUtil.js";
 
 type SelectionTestCase = {
   testName: string;
@@ -19,30 +18,6 @@ type SelectionTestCase = {
 // Each test case has an HTML string to be pasted, and a selection in the editor
 // to paste at.
 describe("Test external clipboard HTML", () => {
-  const CustomParagraph = createBlockSpec(
-    {
-      type: "customParagraph",
-      content: "inline",
-      propSchema: {},
-    },
-    {
-      render: () => {
-        const customParagraph = document.createElement("p");
-
-        return {
-          dom: customParagraph,
-          contentDOM: customParagraph,
-        };
-      },
-    }
-  );
-  const schema = BlockNoteSchema.create({
-    blockSpecs: {
-      ...defaultBlockSpecs,
-      customParagraph: CustomParagraph as any,
-    },
-  });
-
   const initialContent: PartialBlock<typeof schema.blockSchema>[] = [
     {
       type: "paragraph",
@@ -122,6 +97,11 @@ describe("Test external clipboard HTML", () => {
   }
 
   const testCases: SelectionTestCase[] = [
+    {
+      testName: "pasteEndOfParagraph",
+      createSelection: (doc) => TextSelection.create(doc, 12),
+      html: `<p>Paragraph</p>`,
+    },
     {
       testName: "pasteImage",
       createSelection: (doc) => TextSelection.create(doc, 12),
