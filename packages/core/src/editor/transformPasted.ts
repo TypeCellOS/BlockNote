@@ -125,6 +125,9 @@ function shouldApplyFix(fragment: Fragment, view: EditorView) {
     }
 
     if (nodeHasTableContent) {
+      // Not ideal that we check selection here, as `transformPasted` is called
+      // for both paste and drop events. Drop events can potentially cause
+      // issues as they don't always happen at the current selection.
       const blockInfo = getBlockInfoFromSelection(view.state);
       if (blockInfo.isBlockContainer) {
         const selectedBlockHasTableContent =
