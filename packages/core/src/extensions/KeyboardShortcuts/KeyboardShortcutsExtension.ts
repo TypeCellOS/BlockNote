@@ -298,7 +298,12 @@ export const KeyboardShortcutsExtension = Extension.create<{
                   "inline*" &&
                   bottomBlock.blockContent.node.childCount === 0);
 
-              if (prevBlockNotTableAndNoContent) {
+              const isFileBlock =
+                bottomBlock.blockNoteType === "image" ||
+                bottomBlock.blockNoteType === "file" ||
+                bottomBlock.blockNoteType === "audio";
+
+              if (prevBlockNotTableAndNoContent && !isFileBlock) {
                 return chain()
                   .cut(
                     {
