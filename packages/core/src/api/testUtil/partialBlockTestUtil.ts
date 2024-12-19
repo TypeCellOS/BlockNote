@@ -111,7 +111,10 @@ export function partialBlockToBlockForTesting<
 
   Object.entries(schema[partialBlock.type!].propSchema).forEach(
     ([propKey, propValue]) => {
-      if (withDefaults.props[propKey] === undefined) {
+      if (
+        withDefaults.props[propKey] === undefined &&
+        propValue.default !== undefined
+      ) {
         (withDefaults.props as any)[propKey] = propValue.default;
       }
     }

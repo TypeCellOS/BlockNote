@@ -34,7 +34,10 @@ export function addInlineContentAttributes<
   // Adds props as HTML attributes in kebab-case with "data-" prefix. Skips props
   // set to their default values.
   Object.entries(inlineContentProps)
-    .filter(([prop, value]) => value !== propSchema[prop].default)
+    .filter(([prop, value]) => {
+      const spec = propSchema[prop];
+      return value !== spec.default;
+    })
     .map(([prop, value]) => {
       return [camelToDataKebab(prop), value];
     })
