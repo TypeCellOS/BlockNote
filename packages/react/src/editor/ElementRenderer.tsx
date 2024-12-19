@@ -17,6 +17,7 @@ export const ElementRenderer = forwardRef<
     ref,
     () => {
       return (node: React.ReactNode, container: HTMLElement) => {
+        debugger;
         flushSync(() => {
           setSingleRenderData({ node, container });
         });

@@ -7,6 +7,7 @@ import {
 } from "@blocknote/core";
 import { Mark } from "@tiptap/react";
 import { FC } from "react";
+import { ReactMarkView } from "./@util/ReactMarkViewRenderer.js";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
 
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
@@ -43,9 +44,10 @@ export function createReactStyleSpec<T extends StyleConfig>(
       }
 
       const Content = styleImplementation.render;
+
       const renderResult = renderToDOMSpec(
         (refCB) => <Content {...props} contentRef={refCB} />,
-        undefined
+        this.options.editor
       );
 
       return addStyleAttributes(
@@ -57,6 +59,21 @@ export function createReactStyleSpec<T extends StyleConfig>(
     },
   });
 
+  let x = mark;
+  (mark as any).config.addMarkView = (mark: any, view: any) => {
+    const markView = new ReactMarkView({
+      editor: x.child?.options.editor,
+      inline: true,
+      mark,
+      options: {
+        component: styleImplementation.render,
+        contentAs: "span",
+      },
+      view,
+    });
+    markView.render();
+    return markView;
+  };
   return createInternalStyleSpec(styleConfig, {
     mark,
   });
