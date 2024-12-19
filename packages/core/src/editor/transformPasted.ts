@@ -1,6 +1,8 @@
 import { Fragment, Schema, Slice } from "@tiptap/pm/model";
 import { EditorView } from "@tiptap/pm/view";
 
+import { getBlockInfoFromSelection } from "../api/getBlockInfoFromPos.js";
+
 // helper function to remove a child from a fragment
 function removeChild(node: Fragment, n: number) {
   const children: any[] = [];
@@ -49,15 +51,32 @@ export function wrapTableRows(f: Fragment, schema: Schema) {
 /**
  * fix for https://github.com/ProseMirror/prosemirror/issues/1430#issuecomment-1822570821
  *
- * Without this fix, pasting two paragraphs would cause the second one to be indented in the other
- * this fix wraps every element in the slice in it's own blockContainer, to prevent Prosemirror from nesting the
- * elements on paste.
+ * This fix wraps pasted ProseMirror nodes in their own `blockContainer` nodes
+ * in some cases. This is to ensure that ProseMirror inserts them as separate
+ * blocks, which it sometimes doesn't do because it doesn't have enough context
+ * about the hierarchy of the pasted nodes. The issue can be seen when pasting
+ * e.g. an image or two consecutive paragraphs, where PM tries to nest the
+ * pasted block(s) when it shouldn't. However, the fix is not applied in a few
+ * cases.
  *
- * The exception is when we encounter blockGroups with listitems, because those actually should be nested
+ * The first case is when we paste a single node with inline content, e.g. a
+ * paragraph or heading. This is because we want to insert the content in-line
+ * for better UX instead of a separate block below.
+ *
+ * The second case is when we paste a single node with table content, i.e. a
+ * table, inside an existing table. This is because the fix would cause the
+ * pasted table to be inserted in a new block, splitting the existing table.
+ * Instead, the content of the pasted table should be added to the existing one
+ * for better UX.
  */
 export function transformPasted(slice: Slice, view: EditorView) {
   let f = Fragment.from(slice.content);
   f = wrapTableRows(f, view.state.schema);
+
+  // Check if fix should be applied.
+  if (!shouldApplyFix(f, view)) {
+    return new Slice(f, slice.openStart, slice.openEnd);
+  }
 
   for (let i = 0; i < f.childCount; i++) {
     if (f.child(i).type.spec.group === "blockContent") {
@@ -91,4 +110,35 @@ export function transformPasted(slice: Slice, view: EditorView) {
     }
   }
   return new Slice(f, slice.openStart, slice.openEnd);
+}
+
+function shouldApplyFix(fragment: Fragment, view: EditorView) {
+  const nodeHasSingleChild = fragment.childCount === 1;
+  const nodeHasInlineContent =
+    fragment.firstChild?.type.spec.content === "inline*";
+  const nodeHasTableContent =
+    fragment.firstChild?.type.spec.content === "tableRow+";
+
+  if (nodeHasSingleChild) {
+    if (nodeHasInlineContent) {
+      return false;
+    }
+
+    if (nodeHasTableContent) {
+      // Not ideal that we check selection here, as `transformPasted` is called
+      // for both paste and drop events. Drop events can potentially cause
+      // issues as they don't always happen at the current selection.
+      const blockInfo = getBlockInfoFromSelection(view.state);
+      if (blockInfo.isBlockContainer) {
+        const selectedBlockHasTableContent =
+          blockInfo.blockContent.node.type.spec.content === "tableRow+";
+
+        return !selectedBlockHasTableContent;
+      }
+
+      return false;
+    }
+  }
+
+  return true;
 }

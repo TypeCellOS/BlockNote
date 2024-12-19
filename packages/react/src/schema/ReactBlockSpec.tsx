@@ -122,7 +122,7 @@ export function createReactBlockSpec<
       : "") as T["content"] extends "inline" ? "inline*" : "",
     group: "blockContent",
     selectable: blockConfig.isSelectable ?? true,
-
+    isolating: true,
     addAttributes() {
       return propsToAttributes(blockConfig.propSchema);
     },
