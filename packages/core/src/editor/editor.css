@@ -127,17 +127,17 @@ Tippy popups that are appended to document.body directly
 }
 
 /* table related: */
-.bn-editor table {
+.bn-editor .tableWrapper  table {
   width: auto !important;
   word-break: break-word;
 }
-.bn-editor th,
-.bn-editor td {
+.bn-editor .tableWrapper th,
+.bn-editor .tableWrapper td {
   border: 1px solid #ddd;
   padding: 3px 5px;
 }
 
-.bn-editor th {
+.bn-editor .tableWrapper th {
   font-weight: bold;
   text-align: left;
 }
