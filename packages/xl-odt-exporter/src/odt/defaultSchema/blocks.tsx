@@ -131,7 +131,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
   },
 
   bulletListItem: (block, exporter) => (
-    <TextList text:style-name="List_1">
+    <TextList text:style-name="LFO1">
       <TextListItem>
         <TextP>{exporter.transformInlineContent(block.content)}</TextP>
       </TextListItem>
@@ -139,7 +139,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
   ),
 
   numberedListItem: (block, exporter) => (
-    <TextList text:style-name="Numbering_1">
+    <TextList text:style-name="LFO3">
       <TextListItem>
         <TextP>{exporter.transformInlineContent(block.content)}</TextP>
       </TextListItem>
