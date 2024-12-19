@@ -1,4 +1,8 @@
-import { BlockMapping, DefaultBlockSchema } from "@blocknote/core";
+import {
+  BlockMapping,
+  DefaultBlockSchema,
+  DefaultProps,
+} from "@blocknote/core";
 import { ODTExporter } from "../odtExporter.js";
 import {
   DrawFrame,
@@ -6,6 +10,7 @@ import {
   StyleBackgroundFill,
   StyleParagraphProperties,
   StyleStyle,
+  StyleTableCellProperties,
   Table,
   TableCell,
   TableRow,
@@ -23,13 +28,21 @@ export const getTabs = (nestingLevel: number) => {
 
 const createParagraphStyle = (
   exporter: ODTExporter<any, any, any>,
-  props: Record<string, any>
+  props: Partial<DefaultProps>,
+  parentStyleName?: string
 ) => {
   const styles: Record<string, string> = {};
   const children: React.ReactNode[] = [];
 
-  if (props.textAlignment !== "default") {
-    styles["fo:text-align"] = props.textAlignment;
+  if (props.textAlignment && props.textAlignment !== "left") {
+    const alignmentMap = {
+      left: "start",
+      center: "center",
+      right: "end",
+      justify: "justify",
+    };
+    styles["fo:text-align"] =
+      alignmentMap[props.textAlignment as keyof typeof alignmentMap];
   }
 
   if (props.backgroundColor && props.backgroundColor !== "default") {
@@ -40,17 +53,45 @@ const createParagraphStyle = (
     children.push(<StyleBackgroundFill color={color} />);
   }
 
+  if (props.textColor && props.textColor !== "default") {
+    const color =
+      exporter.options.colors[
+        props.textColor as keyof typeof exporter.options.colors
+      ].text;
+    styles["fo:color"] = color;
+  }
+
   if (Object.keys(styles).length === 0 && children.length === 0) {
-    return undefined;
+    return parentStyleName;
   }
 
   return exporter.registerStyle((name) => (
-    <StyleStyle style:family="paragraph" style:name={name}>
+    <StyleStyle
+      style:family="paragraph"
+      style:name={name}
+      style:parent-style-name={parentStyleName}>
       <StyleParagraphProperties {...styles}>
         {children}
       </StyleParagraphProperties>
     </StyleStyle>
   ));
+};
+
+const createTableStyle = (exporter: ODTExporter<any, any, any>) => {
+  const cellName = exporter.registerStyle((name) => (
+    <StyleStyle style:family="table-cell" style:name={name}>
+      <StyleTableCellProperties
+        fo:border="0.0069in solid #000000"
+        style:writing-mode="lr-tb"
+        fo:padding-top="0in"
+        fo:padding-left="0.075in"
+        fo:padding-bottom="0in"
+        fo:padding-right="0.075in"
+      />
+    </StyleStyle>
+  ));
+
+  return cellName;
 };
 
 export const odtBlockMappingForDefaultSchema: BlockMapping<
@@ -76,7 +117,8 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
   heading: (block, exporter, nestingLevel) => {
     const customStyleName = createParagraphStyle(
       exporter as ODTExporter<any, any, any>,
-      block.props
+      block.props,
+      "Heading" + block.props.level
     );
     const styleName = customStyleName;
 
@@ -120,19 +162,23 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     );
   },
 
-  table: (block, exporter) => (
-    <Table>
-      {block.content.rows.map((row) => (
-        <TableRow>
-          {row.cells.map((cell) => (
-            <TableCell>
-              <TextP>{exporter.transformInlineContent(cell)}</TextP>
-            </TableCell>
-          ))}
-        </TableRow>
-      ))}
-    </Table>
-  ),
+  table: (block, exporter) => {
+    const styleName = createTableStyle(exporter as ODTExporter<any, any, any>);
+
+    return (
+      <Table>
+        {block.content.rows.map((row) => (
+          <TableRow>
+            {row.cells.map((cell) => (
+              <TableCell table:style-name={styleName}>
+                <TextP>{exporter.transformInlineContent(cell)}</TextP>
+              </TableCell>
+            ))}
+          </TableRow>
+        ))}
+      </Table>
+    );
+  },
 
   codeBlock: (block, exporter) => (
     <TextP>

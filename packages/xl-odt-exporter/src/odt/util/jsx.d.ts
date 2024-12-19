@@ -21,6 +21,10 @@ declare namespace JSX {
     "manifest:file-entry": any;
     "style:paragraph-properties": any;
     "style:background-fill": any;
+    "style:table-properties": any;
+    "style:table-cell-properties": any;
+    "style:table-column-properties": any;
+    "style:table-row-properties": any;
   }
 
   interface IntrinsicAttributes {
@@ -31,5 +35,7 @@ declare namespace JSX {
     "style:background-fill"?: string;
     "draw:fill"?: string;
     "draw:fill-color"?: string;
+    "fo:border"?: string;
+    "fo:padding"?: string;
   }
 }

@@ -82,24 +82,6 @@ export class ODTExporter<
     return styles;
   }
 
-  private getBlockStyleName(props: Record<string, any>): string | undefined {
-    const styles = this.blockPropsToStyles(props);
-    if (Object.keys(styles).length === 0) {
-      return undefined;
-    }
-
-    const styleName = `P${++this.styleCounter}`;
-
-    this.automaticStyles.set(
-      styleName,
-      <StyleStyle style:name={styleName} style:family="paragraph">
-        <style:paragraph-properties {...styles} />
-      </StyleStyle>
-    );
-
-    return styleName;
-  }
-
   public transformStyledText(styledText: StyledText<S>): React.ReactNode {
     const stylesArray = this.mapStyles(styledText.styles);
     const styles = Object.assign({}, ...stylesArray);

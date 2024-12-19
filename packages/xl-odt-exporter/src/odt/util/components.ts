@@ -116,3 +116,15 @@ export const StyleBackgroundFill = ({
 
 export const StyleParagraphProperties = ({ children, ...props }: Props) =>
   createElement("style:paragraph-properties", props, children);
+
+export const StyleTableProperties = ({ children, ...props }: Props) =>
+  createElement("style:table-properties", props, children);
+
+export const StyleTableCellProperties = ({ children, ...props }: Props) =>
+  createElement("style:table-cell-properties", props, children);
+
+export const StyleTableColumnProperties = ({ children, ...props }: Props) =>
+  createElement("style:table-column-properties", props, children);
+
+export const StyleTableRowProperties = ({ children, ...props }: Props) =>
+  createElement("style:table-row-properties", props, children);
