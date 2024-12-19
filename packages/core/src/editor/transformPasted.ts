@@ -52,29 +52,21 @@ export function wrapTableRows(f: Fragment, schema: Schema) {
  * fix for https://github.com/ProseMirror/prosemirror/issues/1430#issuecomment-1822570821
  *
  * This fix wraps pasted ProseMirror nodes in their own `blockContainer` nodes
- * in some cases. This is to ensure that ProseMirror inserts them as separate
+ * in most cases. This is to ensure that ProseMirror inserts them as separate
  * blocks, which it sometimes doesn't do because it doesn't have enough context
  * about the hierarchy of the pasted nodes. The issue can be seen when pasting
  * e.g. an image or two consecutive paragraphs, where PM tries to nest the
- * pasted block(s) when it shouldn't. However, the fix is not applied in a few
- * cases.
+ * pasted block(s) when it shouldn't.
  *
- * The first case is when we paste a single node with inline content, e.g. a
- * paragraph or heading. This is because we want to insert the content in-line
- * for better UX instead of a separate block below.
- *
- * The second case is when we paste a single node with table content, i.e. a
- * table, inside an existing table. This is because the fix would cause the
- * pasted table to be inserted in a new block, splitting the existing table.
- * Instead, the content of the pasted table should be added to the existing one
- * for better UX.
+ * However, the fix is not applied in a few cases. See `shouldApplyFix` for
+ * which cases are excluded.
  */
 export function transformPasted(slice: Slice, view: EditorView) {
   let f = Fragment.from(slice.content);
   f = wrapTableRows(f, view.state.schema);
 
-  // Check if fix should be applied.
   if (!shouldApplyFix(f, view)) {
+    // Don't apply the fix.
     return new Slice(f, slice.openStart, slice.openEnd);
   }
 
@@ -112,6 +104,11 @@ export function transformPasted(slice: Slice, view: EditorView) {
   return new Slice(f, slice.openStart, slice.openEnd);
 }
 
+/**
+ * Used in `transformPasted` to check if the fix there should be applied, i.e.
+ * if the pasted fragment should be wrapped in a `blockContainer` node. This
+ * will explicitly tell ProseMirror to treat it as a separate block.
+ */
 function shouldApplyFix(fragment: Fragment, view: EditorView) {
   const nodeHasSingleChild = fragment.childCount === 1;
   const nodeHasInlineContent =
@@ -121,6 +118,9 @@ function shouldApplyFix(fragment: Fragment, view: EditorView) {
 
   if (nodeHasSingleChild) {
     if (nodeHasInlineContent) {
+      // Case when we paste a single node with inline content, e.g. a paragraph
+      // or heading. We want to insert the content in-line for better UX instead
+      // of a separate block, so we return false.
       return false;
     }
 
@@ -133,10 +133,13 @@ function shouldApplyFix(fragment: Fragment, view: EditorView) {
         const selectedBlockHasTableContent =
           blockInfo.blockContent.node.type.spec.content === "tableRow+";
 
+        // Case for when we paste a single node with table content, i.e. a
+        // table. Normally, we return true as we want to ensure the table is
+        // inserted as a separate block. However, if the selection is in an
+        // existing table, we return false, as we want the content of the pasted
+        // table to be added to the existing one for better UX.
         return !selectedBlockHasTableContent;
       }
-
-      return false;
     }
   }
 
