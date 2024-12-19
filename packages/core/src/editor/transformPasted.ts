@@ -54,17 +54,20 @@ export function wrapTableRows(f: Fragment, schema: Schema) {
  * This fix wraps pasted ProseMirror nodes in their own `blockContainer` nodes
  * in some cases. This is to ensure that ProseMirror inserts them as separate
  * blocks, which it sometimes doesn't do because it doesn't have enough context
- * about the hierarchy of the pasted nodes. This can be seen when pasting e.g.
- * an image or two consecutive paragraphs, where PM tries to nest the pasted
- * block(s) when it shouldn't. However, this fix is not applied in a few cases.
+ * about the hierarchy of the pasted nodes. The issue can be seen when pasting
+ * e.g. an image or two consecutive paragraphs, where PM tries to nest the
+ * pasted block(s) when it shouldn't. However, the fix is not applied in a few
+ * cases.
  *
  * The first case is when we paste a single node with inline content, e.g. a
  * paragraph or heading. This is because we want to insert the content in-line
  * for better UX instead of a separate block below.
  *
  * The second case is when we paste a single node with table content, i.e. a
- * table, inside an existing table. This is because the fix would tell instead
- * want to add its content to the existing table, again for better UX.
+ * table, inside an existing table. This is because the fix would cause the
+ * pasted table to be inserted in a new block, splitting the existing table.
+ * Instead, the content of the pasted table should be added to the existing one
+ * for better UX.
  */
 export function transformPasted(slice: Slice, view: EditorView) {
   let f = Fragment.from(slice.content);
@@ -74,19 +77,28 @@ export function transformPasted(slice: Slice, view: EditorView) {
   const nodeHasInlineContent = f.firstChild?.type.spec.content === "inline*";
   const nodeHasTableContent = f.firstChild?.type.spec.content === "tableRow+";
 
-  const blockInfo = getBlockInfoFromSelection(view.state);
-  if (!blockInfo.isBlockContainer) {
-    return new Slice(f, slice.openStart, slice.openEnd);
-  }
-  const selectedBlockHasTableContent =
-    blockInfo.blockContent.node.type.spec.content === "tableRow+";
+  // Check if fix should be applied.
+  let applyFix = true;
+  if (nodeHasSingleChild) {
+    if (nodeHasInlineContent) {
+      applyFix = false;
+    }
 
-  // Fix is not applied
-  if (
-    nodeHasSingleChild &&
-    (nodeHasInlineContent ||
-      (nodeHasTableContent && selectedBlockHasTableContent))
-  ) {
+    if (nodeHasTableContent) {
+      const blockInfo = getBlockInfoFromSelection(view.state);
+      if (blockInfo.isBlockContainer) {
+        const selectedBlockHasTableContent =
+          blockInfo.blockContent.node.type.spec.content === "tableRow+";
+
+        if (selectedBlockHasTableContent) {
+          applyFix = false;
+        }
+      } else {
+        applyFix = false;
+      }
+    }
+  }
+  if (!applyFix) {
     return new Slice(f, slice.openStart, slice.openEnd);
   }
 
