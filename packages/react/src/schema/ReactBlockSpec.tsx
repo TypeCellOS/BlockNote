@@ -90,11 +90,10 @@ export function BlockContentWrapper<
       // values
       {...Object.fromEntries(
         Object.entries(props.blockProps)
-          .filter(
-            ([prop, value]) =>
-              !inheritedProps.includes(prop) &&
-              value !== props.propSchema[prop].default
-          )
+          .filter(([prop, value]) => {
+            const spec = props.propSchema[prop];
+            return !inheritedProps.includes(prop) && value !== spec.default;
+          })
           .map(([prop, value]) => {
             return [camelToDataKebab(prop), value];
           })

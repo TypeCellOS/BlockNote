@@ -46,7 +46,10 @@ export function propsToAttributes(propSchema: PropSchema): Attributes {
             return null;
           }
 
-          if (typeof spec.default === "boolean") {
+          if (
+            (spec.default === undefined && spec.type === "boolean") ||
+            (spec.default !== undefined && typeof spec.default === "boolean")
+          ) {
             if (value === "true") {
               return true;
             }
@@ -58,7 +61,10 @@ export function propsToAttributes(propSchema: PropSchema): Attributes {
             return null;
           }
 
-          if (typeof spec.default === "number") {
+          if (
+            (spec.default === undefined && spec.type === "number") ||
+            (spec.default !== undefined && typeof spec.default === "number")
+          ) {
             const asNumber = parseFloat(value);
             const isNumeric =
               !Number.isNaN(asNumber) && Number.isFinite(asNumber);
@@ -72,12 +78,14 @@ export function propsToAttributes(propSchema: PropSchema): Attributes {
 
           return value;
         },
-        renderHTML: (attributes) =>
-          attributes[name] !== spec.default
+        renderHTML: (attributes) => {
+          // don't render to html if the value is the same as the default
+          return attributes[name] !== spec.default
             ? {
                 [camelToDataKebab(name)]: attributes[name],
               }
-            : {},
+            : {};
+        },
       };
     });
 
@@ -173,7 +181,9 @@ export function wrapInBlockStructure<
   // which are already added as HTML attributes to the parent `blockContent`
   // element (inheritedProps) and props set to their default values.
   for (const [prop, value] of Object.entries(blockProps)) {
-    if (!inheritedProps.includes(prop) && value !== propSchema[prop].default) {
+    const spec = propSchema[prop];
+    const defaultValue = spec.default;
+    if (!inheritedProps.includes(prop) && value !== defaultValue) {
       blockContent.setAttribute(camelToDataKebab(prop), value);
     }
   }
