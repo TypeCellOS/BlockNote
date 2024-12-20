@@ -11,8 +11,14 @@ import { schema } from "./testUtil.js";
 type SelectionTestCase = {
   testName: string;
   createSelection: (doc: Node) => Selection;
-  html: string;
-};
+} & (
+  | {
+      html: string;
+    }
+  | {
+      plainText: string;
+    }
+);
 
 // These tests are meant to test the pasting of external HTML in the editor.
 // Each test case has an HTML string to be pasted, and a selection in the editor
@@ -85,9 +91,9 @@ describe("Test external clipboard HTML", () => {
 
     doPaste(
       editor.prosemirrorView,
-      "text",
-      testCase.html,
-      false,
+      "plainText" in testCase ? testCase.plainText : "",
+      "html" in testCase ? testCase.html : "",
+      "plainText" in testCase,
       new ClipboardEvent("paste")
     );
 
@@ -101,6 +107,11 @@ describe("Test external clipboard HTML", () => {
       testName: "pasteEndOfParagraph",
       createSelection: (doc) => TextSelection.create(doc, 12),
       html: `<p>Paragraph</p>`,
+    },
+    {
+      testName: "pasteEndOfParagraphText",
+      createSelection: (doc) => TextSelection.create(doc, 12),
+      plainText: `Paragraph`,
     },
     {
       testName: "pasteImage",
