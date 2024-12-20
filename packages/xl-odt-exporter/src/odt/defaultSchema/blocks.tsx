@@ -7,7 +7,7 @@ import { ODTExporter } from "../odtExporter.js";
 import {
   DrawFrame,
   DrawImage,
-  StyleBackgroundFill,
+  LoextGraphicProperties,
   StyleParagraphProperties,
   StyleStyle,
   StyleTableCellProperties,
@@ -32,7 +32,8 @@ const createParagraphStyle = (
   parentStyleName?: string
 ) => {
   const styles: Record<string, string> = {};
-  const children: React.ReactNode[] = [];
+  const styleChildren: React.ReactNode[] = [];
+  const paragraphChildren: React.ReactNode[] = [];
 
   if (props.textAlignment && props.textAlignment !== "left") {
     const alignmentMap = {
@@ -50,7 +51,12 @@ const createParagraphStyle = (
       exporter.options.colors[
         props.backgroundColor as keyof typeof exporter.options.colors
       ].background;
-    children.push(<StyleBackgroundFill color={color} />);
+    styleChildren.push(
+      <>
+        <LoextGraphicProperties draw:fill="solid" draw:fill-color={color} />
+        <StyleParagraphProperties fo:background-color={color} />
+      </>
+    );
   }
 
   if (props.textColor && props.textColor !== "default") {
@@ -61,7 +67,11 @@ const createParagraphStyle = (
     styles["fo:color"] = color;
   }
 
-  if (Object.keys(styles).length === 0 && children.length === 0) {
+  if (
+    Object.keys(styles).length === 0 &&
+    styleChildren.length === 0
+    // && paragraphChildren.length === 0
+  ) {
     return parentStyleName;
   }
 
@@ -70,9 +80,13 @@ const createParagraphStyle = (
       style:family="paragraph"
       style:name={name}
       style:parent-style-name={parentStyleName}>
-      <StyleParagraphProperties {...styles}>
-        {children}
-      </StyleParagraphProperties>
+      {styleChildren}
+      {paragraphChildren.length > 0 ||
+        (Object.keys(styles).length > 0 && (
+          <StyleParagraphProperties {...styles}>
+            {paragraphChildren}
+          </StyleParagraphProperties>
+        ))}
     </StyleStyle>
   ));
 };
@@ -118,7 +132,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     const customStyleName = createParagraphStyle(
       exporter as ODTExporter<any, any, any>,
       block.props,
-      "Heading" + block.props.level
+      "Heading_20_" + block.props.level
     );
     const styleName = customStyleName;
 
@@ -131,7 +145,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
   },
 
   bulletListItem: (block, exporter) => (
-    <TextList text:style-name="LFO1">
+    <TextList text:style-name="WWNum1">
       <TextListItem>
         <TextP>{exporter.transformInlineContent(block.content)}</TextP>
       </TextListItem>
@@ -139,7 +153,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
   ),
 
   numberedListItem: (block, exporter) => (
-    <TextList text:style-name="LFO3">
+    <TextList text:style-name="No_20_List">
       <TextListItem>
         <TextP>{exporter.transformInlineContent(block.content)}</TextP>
       </TextListItem>
@@ -163,10 +177,35 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
   },
 
   table: (block, exporter) => {
-    const styleName = createTableStyle(exporter as ODTExporter<any, any, any>);
+    const ex = exporter as ODTExporter<any, any, any>;
+    const styleName = createTableStyle(ex);
 
     return (
       <Table>
+        {block.content.rows[0]?.cells.map((el, i) => {
+          let width: any = block.content.columnWidths[i];
+
+          if (!width) {
+            // width = "3in";
+          } else {
+            width = "5in";
+          }
+          if (width) {
+            const style = ex.registerStyle((name) => (
+              <StyleStyle style:name={name} style:family="table-column">
+                <style:table-column-properties style:column-width={width} />
+              </StyleStyle>
+            ));
+            return <table:table-column table:style-name={style} />;
+          } else {
+            const style = ex.registerStyle((name) => (
+              <StyleStyle style:name={name} style:family="table-column">
+                <style:table-column-properties style:use-optimal-column-width="true" />
+              </StyleStyle>
+            ));
+            return <table:table-column table:style-name={style} />;
+          }
+        })}
         {block.content.rows.map((row) => (
           <TableRow>
             {row.cells.map((cell) => (

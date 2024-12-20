@@ -17,6 +17,8 @@ export const OfficeDocument = ({ children, ...props }: Props) =>
       "xmlns:xlink": "http://www.w3.org/1999/xlink",
       "xmlns:style": "urn:oasis:names:tc:opendocument:xmlns:style:1.0",
       "xmlns:fo": "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0",
+      "xmlns:loext":
+        "urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0",
       ...props,
     },
     children
@@ -117,8 +119,8 @@ export const StyleBackgroundFill = ({
 export const StyleParagraphProperties = ({ children, ...props }: Props) =>
   createElement("style:paragraph-properties", props, children);
 
-export const StyleTableProperties = ({ children, ...props }: Props) =>
-  createElement("style:table-properties", props, children);
+export const LoextGraphicProperties = ({ children, ...props }: Props) =>
+  createElement("loext:graphic-properties", props, children);
 
 export const StyleTableCellProperties = ({ children, ...props }: Props) =>
   createElement("style:table-cell-properties", props, children);

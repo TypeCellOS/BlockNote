@@ -90,7 +90,7 @@ export class ODTExporter<
       return styledText.text;
     }
 
-    const styleName = `T${++this.styleCounter}`;
+    const styleName = `BN_T${++this.styleCounter}`;
 
     // Store the complete style element
     this.automaticStyles.set(
@@ -183,7 +183,7 @@ export class ODTExporter<
   }
 
   public registerStyle(style: (name: string) => React.ReactNode): string {
-    const styleName = `S${++this.styleCounter}`;
+    const styleName = `BN_S${++this.styleCounter}`;
     this.automaticStyles.set(styleName, style(styleName));
     return styleName;
   }
