@@ -1,0 +1,3 @@
+- `template blocknote.docx` is used as a source file to get the default styles that Word uses (created with Word on Mac)
+- the extracted files have been formatted (using vs code xml formatter) so we can see diffs across commits
+- the `styles.xml` file is the only file actually used by the docx exporter
