@@ -108,6 +108,20 @@ const createTableStyle = (exporter: ODTExporter<any, any, any>) => {
   return cellName;
 };
 
+const wrapWithLists = (
+  content: React.ReactNode,
+  level: number
+): React.ReactNode => {
+  if (level <= 0) {
+    return content;
+  }
+  return (
+    <TextList>
+      <TextListItem>{wrapWithLists(content, level - 1)}</TextListItem>
+    </TextList>
+  );
+};
+
 export const odtBlockMappingForDefaultSchema: BlockMapping<
   DefaultBlockSchema,
   any,
@@ -144,21 +158,57 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     );
   },
 
-  bulletListItem: (block, exporter) => (
-    <TextList text:style-name="WWNum1">
-      <TextListItem>
-        <TextP>{exporter.transformInlineContent(block.content)}</TextP>
-      </TextListItem>
-    </TextList>
-  ),
+  /**
+   * Note: we wrap each list item in it's own list element.
+   * This is not the cleanest solution, it would be nicer to recognize subsequent
+   * list items and wrap them in the same list element.
+   *
+   * However, Word DocX -> ODT export actually does the same thing, so
+   * for now it seems reasonable.
+   *
+   * (LibreOffice does nicely wrap the list items in the same list element)
+   */
+  bulletListItem: (block, exporter, nestingLevel) => {
+    const styleName = createParagraphStyle(
+      exporter as ODTExporter<any, any, any>,
+      block.props
+    );
+    return (
+      <TextList text:style-name="WWNum1">
+        <TextListItem>
+          {wrapWithLists(
+            <TextP text:style-name={styleName}>
+              {exporter.transformInlineContent(block.content)}
+            </TextP>,
+            nestingLevel
+          )}
+        </TextListItem>
+      </TextList>
+    );
+  },
 
-  numberedListItem: (block, exporter) => (
-    <TextList text:style-name="No_20_List">
-      <TextListItem>
-        <TextP>{exporter.transformInlineContent(block.content)}</TextP>
-      </TextListItem>
-    </TextList>
-  ),
+  numberedListItem: (block, exporter, nestingLevel, numberedListIndex) => {
+    const styleName = createParagraphStyle(
+      exporter as ODTExporter<any, any, any>,
+      block.props
+    );
+    // continue numbering from the previous list item if this is not the first item
+    const continueNumbering = (numberedListIndex || 0) > 1 ? "true" : "false";
+    return (
+      <TextList
+        text:style-name="No_20_List"
+        text:continue-numbering={continueNumbering}>
+        <TextListItem>
+          {wrapWithLists(
+            <TextP text:style-name={styleName}>
+              {exporter.transformInlineContent(block.content)}
+            </TextP>,
+            nestingLevel
+          )}
+        </TextListItem>
+      </TextList>
+    );
+  },
 
   checkListItem: (block, exporter) => (
     <TextP>

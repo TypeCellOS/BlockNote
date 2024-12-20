@@ -123,7 +123,7 @@ export class ODTExporter<
       );
 
       const content = await this.mapBlock(
-        block,
+        block as any,
         nestingLevel,
         numberedListIndex
       );
