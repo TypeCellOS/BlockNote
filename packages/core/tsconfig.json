@@ -17,6 +17,7 @@
     "outDir": "dist",
     "declaration": true,
     "declarationDir": "types",
+    "emitDeclarationOnly": true,
     "composite": true,
     "skipLibCheck": true
   },

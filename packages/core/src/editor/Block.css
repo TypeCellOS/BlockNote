@@ -114,13 +114,13 @@ NESTED BLOCKS
 }
 
 /* HEADINGS*/
-[data-level="1"] {
+[data-content-type="heading"] {
   --level: 3em;
 }
-[data-level="2"] {
+[data-content-type="heading"][data-level="2"] {
   --level: 2em;
 }
-[data-level="3"] {
+[data-content-type="heading"][data-level="3"] {
   --level: 1.3em;
 }
 

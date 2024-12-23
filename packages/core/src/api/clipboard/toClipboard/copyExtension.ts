@@ -80,6 +80,7 @@ function fragmentToExternalHTML<
       editor.schema.styleSchema
     );
 
+    // Wrap in table to ensure correct parsing by spreadsheet applications
     externalHTML = `<table>${externalHTMLExporter.exportInlineContent(
       ic as any,
       {}

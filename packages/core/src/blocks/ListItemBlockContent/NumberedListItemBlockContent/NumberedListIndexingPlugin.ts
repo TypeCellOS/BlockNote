@@ -20,7 +20,7 @@ export const NumberedListIndexingPlugin = () => {
           node.type.name === "blockContainer" &&
           node.firstChild!.type.name === "numberedListItem"
         ) {
-          let newIndex = "1";
+          let newIndex = `${node.firstChild!.attrs["start"] || 1}`;
 
           const blockInfo = getBlockInfo({
             posBeforeNode: pos,
@@ -60,13 +60,21 @@ export const NumberedListIndexingPlugin = () => {
 
           const contentNode = blockInfo.blockContent.node;
           const index = contentNode.attrs["index"];
+          const isFirst =
+            prevBlock?.firstChild?.type.name !== "numberedListItem";
 
-          if (index !== newIndex) {
+          if (index !== newIndex || (contentNode.attrs.start && !isFirst)) {
             modified = true;
 
+            const { start, ...attrs } = contentNode.attrs;
+
             tr.setNodeMarkup(blockInfo.blockContent.beforePos, undefined, {
-              ...contentNode.attrs,
+              ...attrs,
               index: newIndex,
+              ...(typeof start === "number" &&
+                isFirst && {
+                  start,
+                }),
             });
           }
         }

@@ -71,7 +71,10 @@ export function InlineContentWrapper<
       // props set to their default values.
       {...Object.fromEntries(
         Object.entries(props.inlineContentProps)
-          .filter(([prop, value]) => value !== props.propSchema[prop].default)
+          .filter(([prop, value]) => {
+            const spec = props.propSchema[prop];
+            return value !== spec.default;
+          })
           .map(([prop, value]) => {
             return [camelToDataKebab(prop), value];
           })
