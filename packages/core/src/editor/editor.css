@@ -134,7 +134,7 @@ Tippy popups that are appended to document.body directly
 .bn-editor [data-content-type="table"] th,
 .bn-editor [data-content-type="table"] td {
   border: 1px solid #ddd;
-  padding: 3px 5px;
+  padding: 5px 10px;
 }
 
 .bn-editor [data-content-type="table"] th {
