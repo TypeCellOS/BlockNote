@@ -731,22 +731,6 @@ export class BlockNoteEditor<
   }
 
   /**
-   * Executes a callback whenever the editor's contents change.
-   * @param callback The callback to execute.
-   */
-  public onEditorContentChange(callback: () => void) {
-    this._tiptapEditor.on("update", callback);
-  }
-
-  /**
-   * Executes a callback whenever the editor's selection changes.
-   * @param callback The callback to execute.
-   */
-  public onEditorSelectionChange(callback: () => void) {
-    this._tiptapEditor.on("selectionUpdate", callback);
-  }
-
-  /**
    * Gets a snapshot of the current text cursor position.
    * @returns A snapshot of the current text cursor position.
    */
@@ -1188,9 +1172,11 @@ export class BlockNoteEditor<
     };
 
     this._tiptapEditor.on("selectionUpdate", cb);
+    this._tiptapEditor.on("focus", cb);
 
     return () => {
       this._tiptapEditor.off("selectionUpdate", cb);
+      this._tiptapEditor.off("focus", cb);
     };
   }
 
