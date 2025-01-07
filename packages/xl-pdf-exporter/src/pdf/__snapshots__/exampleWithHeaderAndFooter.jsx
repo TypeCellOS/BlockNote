@@ -266,14 +266,66 @@
           <view>
             <view>
               <text>
-                1.
+                10.
               </text>
             </view>
             <text>
               <text>
-                Numbered List Item
+                Numbered List Item starting at 10
               </text>
             </text>
+          </view>
+        </view>
+        <view
+          style="text-align: left;"
+        >
+          <view>
+            <view>
+              <text>
+                11.
+              </text>
+            </view>
+            <text>
+              <text>
+                Numbered List Item continuing from 10
+              </text>
+            </text>
+          </view>
+        </view>
+        <view
+          style="margin-left: 18px;"
+        >
+          <view
+            style="text-align: left;"
+          >
+            <view>
+              <view>
+                <text>
+                  1.
+                </text>
+              </view>
+              <text>
+                <text>
+                  Numbered List Item Nested 1
+                </text>
+              </text>
+            </view>
+          </view>
+          <view
+            style="text-align: left;"
+          >
+            <view>
+              <view>
+                <text>
+                  2.
+                </text>
+              </view>
+              <text>
+                <text>
+                  Numbered List Item Nested 2
+                </text>
+              </text>
+            </view>
           </view>
         </view>
         <view
