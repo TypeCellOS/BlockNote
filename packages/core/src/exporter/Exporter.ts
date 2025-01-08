@@ -44,6 +44,8 @@ export abstract class Exporter<
   RS,
   TS
 > {
+  public numberingSectionStarts: Set<number> = new Set();
+
   public constructor(
     _schema: BlockNoteSchema<B, I, S>, // only used for type inference
     protected readonly mappings: {
@@ -86,16 +88,24 @@ export abstract class Exporter<
 
   public abstract transformStyledText(styledText: StyledText<S>): TS;
 
+  public addNumberingSectionStart(number: number) {
+    this.numberingSectionStarts.add(number);
+  }
+
   public async mapBlock(
     block: BlockFromConfig<B[keyof B], I, S>,
     nestingLevel: number,
-    numberedListIndex: number
+    numberedListIndex?: number,
+    numberedListStart?: number,
+    numberedListIntance?: number
   ) {
     return this.mappings.blockMapping[block.type](
       block,
       this,
       nestingLevel,
-      numberedListIndex
+      numberedListIndex,
+      numberedListStart,
+      numberedListIntance
     );
   }
 }

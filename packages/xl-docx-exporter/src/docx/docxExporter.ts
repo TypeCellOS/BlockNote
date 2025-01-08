@@ -111,8 +111,25 @@ export class DOCXExporter<
     nestingLevel = 0
   ): Promise<Array<Paragraph | Table>> {
     const ret: Array<Paragraph | Table> = [];
+    let currentNumberingStart = 1;
+    let numberingInstanceCount = 0;
+    let isFirstNumberedListItem = false;
 
     for (const b of blocks) {
+      if (b.type === "numberedListItem") {
+        if (!isFirstNumberedListItem) {
+          currentNumberingStart = 1;
+          numberingInstanceCount += 1;
+          isFirstNumberedListItem = true;
+        }
+        if (b.props.start !== undefined) {
+          currentNumberingStart = b.props.start as number;
+          numberingInstanceCount += 1;
+        }
+      } else {
+        isFirstNumberedListItem = false;
+      }
+
       let children = await this.transformBlocks(b.children, nestingLevel + 1);
       children = children.map((c, _i) => {
         // NOTE: nested tables not supported (we can't insert the new Tab before a table)
@@ -128,7 +145,13 @@ export class DOCXExporter<
         }
         return c;
       });
-      const self = await this.mapBlock(b as any, nestingLevel, 0 /*unused*/); // TODO: any
+      const self = await this.mapBlock(
+        b as any,
+        nestingLevel,
+        0 /* unused */,
+        currentNumberingStart,
+        numberingInstanceCount
+      ); // TODO: any
       if (Array.isArray(self)) {
         ret.push(...self, ...children);
       } else {
@@ -160,27 +183,29 @@ export class DOCXExporter<
       .default;
 
     const bullets = ["•"]; //, "◦", "▪"]; (these don't look great, just use solid bullet for now)
+    const generateNumberingConfig = (start: number) => ({
+      reference: `blocknote-numbered-list-${start}`,
+      levels: Array.from({ length: 9 }, (_, i) => ({
+        start,
+        level: i,
+        format: LevelFormat.DECIMAL,
+        text: `%${i + 1}.`,
+        alignment: AlignmentType.LEFT,
+        style: {
+          paragraph: {
+            indent: {
+              left: DEFAULT_TAB_STOP * (i + 1),
+              hanging: DEFAULT_TAB_STOP,
+            },
+          },
+        },
+      })),
+    });
+
     return {
       numbering: {
         config: [
-          {
-            reference: "blocknote-numbered-list",
-            levels: Array.from({ length: 9 }, (_, i) => ({
-              start: 1,
-              level: i,
-              format: LevelFormat.DECIMAL,
-              text: `%${i + 1}.`,
-              alignment: AlignmentType.LEFT,
-              style: {
-                paragraph: {
-                  indent: {
-                    left: DEFAULT_TAB_STOP * (i + 1),
-                    hanging: DEFAULT_TAB_STOP,
-                  },
-                },
-              },
-            })),
-          },
+          ...[...this.numberingSectionStarts].map(generateNumberingConfig),
           {
             reference: "blocknote-bullet-list",
             levels: Array.from({ length: 9 }, (_, i) => ({
@@ -246,12 +271,13 @@ export class DOCXExporter<
       documentOptions: {},
     }
   ) {
+    const transformedBlocks = await this.transformBlocks(blocks);
     const doc = new Document({
       ...(await this.createDefaultDocumentOptions()),
       ...options.documentOptions,
       sections: [
         {
-          children: await this.transformBlocks(blocks),
+          children: transformedBlocks,
           ...options.sectionOptions,
         },
       ],
