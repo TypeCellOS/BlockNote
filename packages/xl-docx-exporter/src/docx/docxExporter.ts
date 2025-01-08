@@ -58,6 +58,8 @@ export class DOCXExporter<
   IRunPropertiesOptions,
   TextRun
 > {
+  public numberingSectionStarts: Set<number> = new Set();
+
   public constructor(
     /**
      * The schema of your editor. The mappings are automatically typed checked against this schema.
@@ -116,6 +118,10 @@ export class DOCXExporter<
             ),
           }),
     });
+  }
+
+  public addNumberingSectionStart(number: number) {
+    this.numberingSectionStarts.add(number);
   }
 
   /**
@@ -274,6 +280,25 @@ export class DOCXExporter<
     // (#2226). These Unicode glyphs render in the document font, so they don't
     // depend on Symbol/Wingdings being installed.
     const bullets = ["•", "○", "▪"];
+    const generateNumberingConfig = (start: number) => ({
+      reference: `blocknote-numbered-list-${start}`,
+      levels: Array.from({ length: DOCX_LIST_LEVEL_COUNT }, (_, i) => ({
+        start,
+        level: i,
+        format: LevelFormat.DECIMAL,
+        text: `%${i + 1}.`,
+        alignment: AlignmentType.LEFT,
+        style: {
+          paragraph: {
+            indent: {
+              left: DEFAULT_TAB_STOP * (i + 1),
+              hanging: DEFAULT_TAB_STOP,
+            },
+          },
+        },
+      })),
+    });
+
     return {
       numbering: {
         config: [
@@ -295,6 +320,7 @@ export class DOCXExporter<
               },
             })),
           },
+          ...[...this.numberingSectionStarts].map(generateNumberingConfig),
           {
             reference: "blocknote-bullet-list",
             levels: Array.from({ length: DOCX_LIST_LEVEL_COUNT }, (_, i) => ({
@@ -373,12 +399,13 @@ export class DOCXExporter<
       documentOptions: {},
     },
   ) {
+    const transformedBlocks = await this.transformBlocks(blocks);
     const doc = new Document({
       ...(await this.createDefaultDocumentOptions(options.locale)),
       ...options.documentOptions,
       sections: [
         {
-          children: await this.transformBlocks(blocks),
+          children: transformedBlocks,
           ...options.sectionOptions,
         },
       ],
