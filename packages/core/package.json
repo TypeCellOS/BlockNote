@@ -6,7 +6,7 @@
     "*.css"
   ],
   "license": "MPL-2.0",
-  "version": "0.19.1",
+  "version": "0.22.0",
   "files": [
     "dist",
     "types",
@@ -84,8 +84,8 @@
     "prosemirror-model": "^1.23.0",
     "prosemirror-state": "^1.4.3",
     "prosemirror-tables": "^1.6.1",
-    "prosemirror-transform": "^1.9.0",
-    "prosemirror-view": "^1.37.1",
+    "prosemirror-transform": "^1.10.2",
+    "prosemirror-view":"^1.37.1",
     "rehype-format": "^5.0.0",
     "rehype-parse": "^8.0.4",
     "rehype-remark": "^9.1.2",
@@ -97,7 +97,7 @@
     "shiki": "^1.22.0",
     "unified": "^10.1.2",
     "uuid": "^8.3.2",
-    "y-prosemirror": "1.2.12",
+    "y-prosemirror": "1.2.13",
     "y-protocols": "^1.0.6",
     "yjs": "^13.6.15"
   },

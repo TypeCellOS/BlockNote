@@ -13,3 +13,13 @@ body {
 .mantine-AppShell-navbar {
   background-color: #f7f7f5;
 }
+
+@media (max-width: 767px) {
+  .mantine-AppShell-navbar {
+    display: none !important;
+  }
+
+  .mantine-AppShell-main {
+    padding: 0 !important;
+  }
+}

@@ -86,6 +86,7 @@ Tippy popups that are appended to document.body directly
   pointer-events: none;
   position: relative;
   word-break: normal;
+  white-space: nowrap !important;
 }
 
 /* Render the username above the caret */
@@ -108,7 +109,7 @@ Tippy popups that are appended to document.body directly
   padding
 } */
 
-.ProseMirror .tableWrapper {
+.bn-editor [data-content-type="table"] .tableWrapper {
   position: relative;
   top: -16px;
   left: -16px;
@@ -118,7 +119,7 @@ Tippy popups that are appended to document.body directly
   overflow-y: hidden;
 }
 
-.ProseMirror .tableWrapper-inner {
+.bn-editor [data-content-type="table"] .tableWrapper-inner {
   /* position: relative; */
   /* top: -16px;
   left: -16px; */
@@ -126,17 +127,17 @@ Tippy popups that are appended to document.body directly
 }
 
 /* table related: */
-.bn-editor table {
+.bn-editor [data-content-type="table"] table {
   width: auto !important;
   word-break: break-word;
 }
-.bn-editor th,
-.bn-editor td {
+.bn-editor [data-content-type="table"] th,
+.bn-editor [data-content-type="table"] td {
   border: 1px solid #ddd;
-  padding: 3px 5px;
+  padding: 5px 10px;
 }
 
-.bn-editor th {
+.bn-editor [data-content-type="table"] th {
   font-weight: bold;
   text-align: left;
 }

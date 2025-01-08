@@ -21,10 +21,10 @@ import {
 } from "@blocknote/core";
 import {
   NodeView,
-  NodeViewContent,
   NodeViewProps,
   NodeViewWrapper,
   ReactNodeViewRenderer,
+  useReactNodeView,
 } from "@tiptap/react";
 import { FC, ReactNode } from "react";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
@@ -90,11 +90,10 @@ export function BlockContentWrapper<
       // values
       {...Object.fromEntries(
         Object.entries(props.blockProps)
-          .filter(
-            ([prop, value]) =>
-              !inheritedProps.includes(prop) &&
-              value !== props.propSchema[prop].default
-          )
+          .filter(([prop, value]) => {
+            const spec = props.propSchema[prop];
+            return !inheritedProps.includes(prop) && value !== spec.default;
+          })
           .map(([prop, value]) => {
             return [camelToDataKebab(prop), value];
           })
@@ -122,7 +121,7 @@ export function createReactBlockSpec<
       : "") as T["content"] extends "inline" ? "inline*" : "",
     group: "blockContent",
     selectable: blockConfig.isSelectable ?? true,
-
+    isolating: true,
     addAttributes() {
       return propsToAttributes(blockConfig.propSchema);
     },
@@ -168,8 +167,11 @@ export function createReactBlockSpec<
             const blockContentDOMAttributes =
               this.options.domAttributes?.blockContent || {};
 
-            // hacky, should export `useReactNodeView` from tiptap to get access to ref
-            const ref = (NodeViewContent({}) as any).ref;
+            const ref = useReactNodeView().nodeViewContentRef;
+
+            if (!ref) {
+              throw new Error("nodeViewContentRef is not set");
+            }
 
             const BlockContent = blockImplementation.render;
             return (

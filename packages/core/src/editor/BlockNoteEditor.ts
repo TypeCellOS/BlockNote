@@ -9,11 +9,17 @@ import {
 import { Node, Schema } from "prosemirror-model";
 // import "./blocknote.css";
 import * as Y from "yjs";
+import {
+  getBlock,
+  getNextBlock,
+  getParentBlock,
+  getPrevBlock,
+} from "../api/blockManipulation/getBlock/getBlock.js";
 import { insertBlocks } from "../api/blockManipulation/commands/insertBlocks/insertBlocks.js";
 import {
-  moveBlockDown,
-  moveBlockUp,
-} from "../api/blockManipulation/commands/moveBlock/moveBlock.js";
+  moveBlocksDown,
+  moveBlocksUp,
+} from "../api/blockManipulation/commands/moveBlocks/moveBlocks.js";
 import {
   canNestBlock,
   canUnnestBlock,
@@ -28,6 +34,10 @@ import {
   getTextCursorPosition,
   setTextCursorPosition,
 } from "../api/blockManipulation/selections/textCursorPosition/textCursorPosition.js";
+import {
+  getSelection,
+  setSelection,
+} from "../api/blockManipulation/selections/selection.js";
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
@@ -83,6 +93,7 @@ import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTML
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
 import "../style.css";
+import { EditorView } from "prosemirror-view";
 
 export type BlockNoteExtension =
   | AnyExtension
@@ -219,6 +230,21 @@ export type BlockNoteEditorOptions<
   setIdAttribute?: boolean;
 
   dropCursor?: (opts: any) => Plugin;
+
+  /**
+   Select desired behavior when pressing `Tab` (or `Shift-Tab`). Specifically,
+   what should happen when a user has selected multiple blocks while a toolbar
+   is open:
+   - `"prefer-navigate-ui"`: Change focus to the toolbar. The user needs to
+   first press `Escape` to close the toolbar, and can then indent multiple
+   blocks. Better for keyboard accessibility.
+   - `"prefer-indent"`: Regardless of whether toolbars are open, indent the
+   selection of blocks. In this case, it's not possible to navigate toolbars
+   with the keyboard.
+
+   @default "prefer-navigate-ui"
+   */
+  tabBehavior: "prefer-navigate-ui" | "prefer-indent";
 };
 
 const blockNoteTipTapOptions = {
@@ -249,7 +275,8 @@ export class BlockNoteEditor<
   public readonly headless: boolean = false;
 
   public readonly _tiptapEditor:
-    | BlockNoteTipTapEditor & {
+    | Omit<BlockNoteTipTapEditor, "view"> & {
+        view: EditorView | undefined;
         contentComponent: any;
       } = undefined as any; // TODO: Type should actually reflect that it can be `undefined` in headless mode
 
@@ -319,7 +346,7 @@ export class BlockNoteEditor<
   private onUploadStartCallbacks: ((blockId?: string) => void)[] = [];
   private onUploadEndCallbacks: ((blockId?: string) => void)[] = [];
 
-  public readonly resolveFileUrl: (url: string) => Promise<string>;
+  public readonly resolveFileUrl?: (url: string) => Promise<string>;
 
   public get pmSchema() {
     return this._pmSchema;
@@ -395,6 +422,7 @@ export class BlockNoteEditor<
       tableHandles: checkDefaultBlockTypeInSchema("table", this),
       dropCursor: this.options.dropCursor ?? dropCursor,
       placeholders: newOptions.placeholders,
+      tabBehavior: newOptions.tabBehavior,
     });
 
     // add extensions from _tiptapOptions
@@ -430,7 +458,7 @@ export class BlockNoteEditor<
       };
     }
 
-    this.resolveFileUrl = newOptions.resolveFileUrl || (async (url) => url);
+    this.resolveFileUrl = newOptions.resolveFileUrl;
     this.headless = newOptions._headless;
 
     const collaborationEnabled =
@@ -520,6 +548,7 @@ export class BlockNoteEditor<
         tiptapOptions,
         this.schema.styleSchema
       ) as BlockNoteTipTapEditor & {
+        view: any;
         contentComponent: any;
       };
       this._pmSchema = this._tiptapEditor.schema;
@@ -551,15 +580,15 @@ export class BlockNoteEditor<
   }
 
   public get domElement() {
-    return this._tiptapEditor.view.dom as HTMLDivElement;
+    return this.prosemirrorView?.dom as HTMLDivElement | undefined;
   }
 
   public isFocused() {
-    return this._tiptapEditor.view.hasFocus();
+    return this.prosemirrorView?.hasFocus() || false;
   }
 
   public focus() {
-    this._tiptapEditor.view.focus();
+    this.prosemirrorView?.focus();
   }
 
   public onUploadStart(callback: (blockId?: string) => void) {
@@ -617,39 +646,57 @@ export class BlockNoteEditor<
 
   /**
    * Gets a snapshot of an existing block from the editor.
-   * @param blockIdentifier The identifier of an existing block that should be retrieved.
-   * @returns The block that matches the identifier, or `undefined` if no matching block was found.
+   * @param blockIdentifier The identifier of an existing block that should be
+   * retrieved.
+   * @returns The block that matches the identifier, or `undefined` if no
+   * matching block was found.
    */
   public getBlock(
     blockIdentifier: BlockIdentifier
   ): Block<BSchema, ISchema, SSchema> | undefined {
-    const id =
-      typeof blockIdentifier === "string"
-        ? blockIdentifier
-        : blockIdentifier.id;
-    let newBlock: Block<BSchema, ISchema, SSchema> | undefined = undefined;
+    return getBlock(this, blockIdentifier);
+  }
 
-    this._tiptapEditor.state.doc.firstChild!.descendants((node) => {
-      if (typeof newBlock !== "undefined") {
-        return false;
-      }
+  /**
+   * Gets a snapshot of the previous sibling of an existing block from the
+   * editor.
+   * @param blockIdentifier The identifier of an existing block for which the
+   * previous sibling should be retrieved.
+   * @returns The previous sibling of the block that matches the identifier.
+   * `undefined` if no matching block was found, or it's the first child/block
+   * in the document.
+   */
+  public getPrevBlock(
+    blockIdentifier: BlockIdentifier
+  ): Block<BSchema, ISchema, SSchema> | undefined {
+    return getPrevBlock(this, blockIdentifier);
+  }
 
-      if (node.type.name !== "blockContainer" || node.attrs.id !== id) {
-        return true;
-      }
+  /**
+   * Gets a snapshot of the next sibling of an existing block from the editor.
+   * @param blockIdentifier The identifier of an existing block for which the
+   * next sibling should be retrieved.
+   * @returns The next sibling of the block that matches the identifier.
+   * `undefined` if no matching block was found, or it's the last child/block in
+   * the document.
+   */
+  public getNextBlock(
+    blockIdentifier: BlockIdentifier
+  ): Block<BSchema, ISchema, SSchema> | undefined {
+    return getNextBlock(this, blockIdentifier);
+  }
 
-      newBlock = nodeToBlock(
-        node,
-        this.schema.blockSchema,
-        this.schema.inlineContentSchema,
-        this.schema.styleSchema,
-        this.blockCache
-      );
-
-      return false;
-    });
-
-    return newBlock;
+  /**
+   * Gets a snapshot of the parent of an existing block from the editor.
+   * @param blockIdentifier The identifier of an existing block for which the
+   * parent should be retrieved.
+   * @returns The parent of the block that matches the identifier. `undefined`
+   * if no matching block was found, or the block isn't nested.
+   */
+  public getParentBlock(
+    blockIdentifier: BlockIdentifier
+  ): Block<BSchema, ISchema, SSchema> | undefined {
+    return getParentBlock(this, blockIdentifier);
   }
 
   /**
@@ -735,53 +782,11 @@ export class BlockNoteEditor<
    * Gets a snapshot of the current selection.
    */
   public getSelection(): Selection<BSchema, ISchema, SSchema> | undefined {
-    // Either the TipTap selection is empty, or it's a node selection. In either
-    // case, it only spans one block, so we return undefined.
-    if (
-      this._tiptapEditor.state.selection.from ===
-        this._tiptapEditor.state.selection.to ||
-      "node" in this._tiptapEditor.state.selection
-    ) {
-      return undefined;
-    }
+    return getSelection(this);
+  }
 
-    const blocks: Block<BSchema, ISchema, SSchema>[] = [];
-
-    // TODO: This adds all child blocks to the same array. Needs to find min
-    //  depth and only add blocks at that depth.
-    this._tiptapEditor.state.doc.descendants((node, pos) => {
-      if (node.type.spec.group !== "blockContent") {
-        return true;
-      }
-
-      // Fixed the block pos and size
-      // all block is wrapped with a blockContent wrapper
-      // and blockContent wrapper pos = inner block pos - 1
-      // blockContent wrapper end = inner block pos + nodeSize + 1
-      // need to add 1 to start and -1 to end
-      const end = pos + node.nodeSize - 1;
-      const start = pos + 1;
-      if (
-        end <= this._tiptapEditor.state.selection.from ||
-        start >= this._tiptapEditor.state.selection.to
-      ) {
-        return true;
-      }
-
-      blocks.push(
-        nodeToBlock(
-          this._tiptapEditor.state.doc.resolve(pos).node(),
-          this.schema.blockSchema,
-          this.schema.inlineContentSchema,
-          this.schema.styleSchema,
-          this.blockCache
-        )
-      );
-
-      return false;
-    });
-
-    return { blocks: blocks };
+  public setSelection(startBlock: BlockIdentifier, endBlock: BlockIdentifier) {
+    setSelection(this, startBlock, endBlock);
   }
 
   /**
@@ -1044,21 +1049,21 @@ export class BlockNoteEditor<
   }
 
   /**
-   * Moves the block containing the text cursor up. If the previous block has
-   * children, moves it to the end of its children. If there is no previous
-   * block, but the current block is nested, moves it out of & before its parent.
+   * Moves the selected blocks up. If the previous block has children, moves
+   * them to the end of its children. If there is no previous block, but the
+   * current blocks share a common parent, moves them out of & before it.
    */
-  public moveBlockUp() {
-    moveBlockUp(this);
+  public moveBlocksUp() {
+    moveBlocksUp(this);
   }
 
   /**
-   * Moves the block containing the text cursor down. If the next block has
-   * children, moves it to the start of its children. If there is no next block,
-   * but the current block is nested, moves it out of & after its parent.
+   * Moves the selected blocks down. If the next block has children, moves
+   * them to the start of its children. If there is no next block, but the
+   * current blocks share a common parent, moves them out of & after it.
    */
-  public moveBlockDown() {
-    moveBlockDown(this);
+  public moveBlocksDown() {
+    moveBlocksDown(this);
   }
 
   /**
@@ -1208,7 +1213,11 @@ export class BlockNoteEditor<
       ignoreQueryLength?: boolean;
     }
   ) {
-    const tr = this.prosemirrorView.state.tr;
+    const tr = this.prosemirrorView?.state.tr;
+    if (!tr) {
+      return;
+    }
+
     const transaction =
       pluginState && pluginState.deleteTriggerCharacter
         ? tr.insertText(triggerCharacter)

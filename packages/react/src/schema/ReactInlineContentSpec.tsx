@@ -16,10 +16,10 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import {
-  NodeViewContent,
   NodeViewProps,
   NodeViewWrapper,
   ReactNodeViewRenderer,
+  useReactNodeView,
 } from "@tiptap/react";
 // import { useReactNodeView } from "@tiptap/react/dist/packages/react/src/useReactNodeView";
 import { FC } from "react";
@@ -71,7 +71,10 @@ export function InlineContentWrapper<
       // props set to their default values.
       {...Object.fromEntries(
         Object.entries(props.inlineContentProps)
-          .filter(([prop, value]) => value !== props.propSchema[prop].default)
+          .filter(([prop, value]) => {
+            const spec = props.propSchema[prop];
+            return value !== spec.default;
+          })
           .map(([prop, value]) => {
             return [camelToDataKebab(prop), value];
           })
@@ -149,8 +152,11 @@ export function createReactInlineContentSpec<
       return (props) =>
         ReactNodeViewRenderer(
           (props: NodeViewProps) => {
-            // hacky, should export `useReactNodeView` from tiptap to get access to ref
-            const ref = (NodeViewContent({}) as any).ref;
+            const ref = useReactNodeView().nodeViewContentRef;
+
+            if (!ref) {
+              throw new Error("nodeViewContentRef is not set");
+            }
 
             const Content = inlineContentImplementation.render;
             return (
@@ -174,8 +180,8 @@ export function createReactInlineContentSpec<
                       editor.schema.styleSchema
                     );
 
-                    editor._tiptapEditor.view.dispatch(
-                      editor._tiptapEditor.view.state.tr.replaceWith(
+                    editor.dispatch(
+                      editor.prosemirrorView.state.tr.replaceWith(
                         props.getPos(),
                         props.getPos() + props.node.nodeSize,
                         content

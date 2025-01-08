@@ -19,14 +19,14 @@ export const createPasteFromClipboardExtension = <
 >(
   editor: BlockNoteEditor<BSchema, I, S>
 ) =>
-  Extension.create<{ editor: BlockNoteEditor<BSchema, I, S> }, undefined>({
+  Extension.create({
     name: "pasteFromClipboard",
     addProseMirrorPlugins() {
       return [
         new Plugin({
           props: {
             handleDOMEvents: {
-              paste(_view, event) {
+              paste(view, event) {
                 event.preventDefault();
 
                 if (!editor.isEditable) {
@@ -45,7 +45,7 @@ export const createPasteFromClipboardExtension = <
                 }
 
                 if (format === "vscode-editor-data") {
-                  handleVSCodePaste(event, editor);
+                  handleVSCodePaste(event, view);
                   return true;
                 }
 
@@ -57,18 +57,18 @@ export const createPasteFromClipboardExtension = <
                 let data = event.clipboardData!.getData(format);
 
                 if (format === "blocknote/html") {
-                  editor._tiptapEditor.view.pasteHTML(data);
+                  view.pasteHTML(data);
                   return true;
                 }
 
                 if (format === "text/html") {
                   const htmlNode = nestedListsToBlockNoteStructure(data.trim());
                   data = htmlNode.innerHTML;
-                  editor._tiptapEditor.view.pasteHTML(data);
+                  view.pasteHTML(data);
                   return true;
                 }
 
-                editor._tiptapEditor.view.pasteText(data);
+                view.pasteText(data);
 
                 return true;
               },

@@ -5,7 +5,13 @@ import {
   SuggestionMenuState,
   filterSuggestionItems,
 } from "@blocknote/core";
-import { flip, offset, shift, size } from "@floating-ui/react";
+import {
+  UseFloatingOptions,
+  flip,
+  offset,
+  shift,
+  size,
+} from "@floating-ui/react";
 import { FC, useCallback, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -32,6 +38,7 @@ export function SuggestionMenuController<
     triggerCharacter: string;
     getItems?: GetItemsType;
     minQueryLength?: number;
+    floatingOptions?: Partial<UseFloatingOptions>;
   } & (ItemType<GetItemsType> extends DefaultReactSuggestionItem
     ? {
         // can be undefined
@@ -60,6 +67,7 @@ export function SuggestionMenuController<
     minQueryLength,
     onItemClick,
     getItems,
+    floatingOptions,
   } = props;
 
   const onItemClickOrDefault = useMemo(() => {
@@ -124,6 +132,7 @@ export function SuggestionMenuController<
           editor.suggestionMenus.closeMenu();
         }
       },
+      ...floatingOptions,
     }
   );
 

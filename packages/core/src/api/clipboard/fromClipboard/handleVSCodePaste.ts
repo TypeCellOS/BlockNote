@@ -1,16 +1,9 @@
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
-import {
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "../../../schema/index.js";
+import { EditorView } from "prosemirror-view";
 
-export async function handleVSCodePaste<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(event: ClipboardEvent, editor: BlockNoteEditor<BSchema, I, S>) {
-  const view = editor.prosemirrorView;
+export async function handleVSCodePaste(
+  event: ClipboardEvent,
+  view: EditorView
+) {
   const { schema } = view.state;
 
   if (!event.clipboardData) {
@@ -18,9 +11,6 @@ export async function handleVSCodePaste<
   }
 
   const text = event.clipboardData!.getData("text/plain");
-  const vscode = event.clipboardData!.getData("vscode-editor-data");
-  const vscodeData = vscode ? JSON.parse(vscode) : undefined;
-  const language = vscodeData?.mode;
 
   if (!text) {
     return false;
@@ -28,9 +18,12 @@ export async function handleVSCodePaste<
 
   if (!schema.nodes.codeBlock) {
     view.pasteText(text);
-
     return true;
   }
+
+  const vscode = event.clipboardData!.getData("vscode-editor-data");
+  const vscodeData = vscode ? JSON.parse(vscode) : undefined;
+  const language = vscodeData?.mode;
 
   if (!language) {
     return false;
@@ -38,7 +31,7 @@ export async function handleVSCodePaste<
 
   // strip carriage return chars from text pasted as code
   // see: https://github.com/ProseMirror/prosemirror-view/commit/a50a6bcceb4ce52ac8fcc6162488d8875613aacd
-  editor._tiptapEditor.view.pasteHTML(
+  view.pasteHTML(
     `<pre><code class="language-${language}">${text.replace(
       /\r\n?/g,
       "\n"

@@ -360,7 +360,10 @@ export function nodeToBlock<
   })) {
     const propSchema = blockSpec.propSchema;
 
-    if (attr in propSchema) {
+    if (
+      attr in propSchema &&
+      !(propSchema[attr].default === undefined && value === undefined)
+    ) {
       props[attr] = value;
     }
   }

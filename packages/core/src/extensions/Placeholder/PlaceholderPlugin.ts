@@ -18,10 +18,10 @@ export class PlaceholderPlugin {
         if (nonce) {
           styleEl.setAttribute("nonce", nonce);
         }
-        if (editor._tiptapEditor.view.root instanceof ShadowRoot) {
-          editor._tiptapEditor.view.root.append(styleEl);
+        if (editor.prosemirrorView?.root instanceof ShadowRoot) {
+          editor.prosemirrorView.root.append(styleEl);
         } else {
-          editor._tiptapEditor.view.root.head.appendChild(styleEl);
+          editor.prosemirrorView?.root.head.appendChild(styleEl);
         }
 
         const styleSheet = styleEl.sheet!;
@@ -48,32 +48,40 @@ export class PlaceholderPlugin {
         for (const [blockType, placeholder] of Object.entries(placeholders)) {
           const mustBeFocused = blockType === "default";
 
-          styleSheet.insertRule(
-            `${getSelector(
-              blockType,
-              mustBeFocused
-            )}{ content: ${JSON.stringify(placeholder)}; }`
-          );
-
-          // For some reason, the placeholders which show when the block is focused
-          // take priority over ones which show depending on block type, so we need
-          // to make sure the block specific ones are also used when the block is
-          // focused.
-          if (!mustBeFocused) {
+          try {
             styleSheet.insertRule(
-              `${getSelector(blockType, true)}{ content: ${JSON.stringify(
-                placeholder
-              )}; }`
+              `${getSelector(
+                blockType,
+                mustBeFocused
+              )} { content: ${JSON.stringify(placeholder)}; }`
+            );
+
+            // For some reason, the placeholders which show when the block is focused
+            // take priority over ones which show depending on block type, so we need
+            // to make sure the block specific ones are also used when the block is
+            // focused.
+            if (!mustBeFocused) {
+              styleSheet.insertRule(
+                `${getSelector(blockType, true)} { content: ${JSON.stringify(
+                  placeholder
+                )}; }`
+              );
+            }
+          } catch (e) {
+            // eslint-disable-next-line no-console
+            console.warn(
+              `Failed to insert placeholder CSS rule - this is likely due to the browser not supporting certain CSS pseudo-element selectors (:has, :only-child:, or :before)`,
+              e
             );
           }
         }
 
         return {
           destroy: () => {
-            if (editor._tiptapEditor.view.root instanceof ShadowRoot) {
-              editor._tiptapEditor.view.root.removeChild(styleEl);
+            if (editor.prosemirrorView?.root instanceof ShadowRoot) {
+              editor.prosemirrorView.root.removeChild(styleEl);
             } else {
-              editor._tiptapEditor.view.root.head.removeChild(styleEl);
+              editor.prosemirrorView?.root.head.removeChild(styleEl);
             }
           },
         };

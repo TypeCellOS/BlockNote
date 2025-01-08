@@ -1,6 +1,6 @@
 [
   {
-    "id": "2",
+    "id": "0",
     "type": "paragraph",
     "props": {
       "textColor": "default",
@@ -48,7 +48,7 @@
     "children": []
   },
   {
-    "id": "3",
+    "id": "2",
     "type": "paragraph",
     "props": {
       "textColor": "default",

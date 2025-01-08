@@ -6,7 +6,7 @@ import { Node } from "prosemirror-model";
 export function getNodeById(
   id: string,
   doc: Node
-): { node: Node; posBeforeNode: number } {
+): { node: Node; posBeforeNode: number } | undefined {
   let targetNode: Node | undefined = undefined;
   let posBeforeNode: number | undefined = undefined;
 
@@ -28,7 +28,7 @@ export function getNodeById(
   });
 
   if (targetNode === undefined || posBeforeNode === undefined) {
-    throw Error("Could not find block in the editor with matching ID.");
+    return undefined;
   }
 
   return {

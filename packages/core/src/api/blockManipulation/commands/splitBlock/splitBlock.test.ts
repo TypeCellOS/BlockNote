@@ -28,13 +28,17 @@ function setSelectionWithOffset(
   offset: number
 ) {
   const posInfo = getNodeById(targetBlockId, doc);
+  if (!posInfo) {
+    throw new Error(`Block with ID ${targetBlockId} not found`);
+  }
+
   const info = getBlockInfo(posInfo);
 
   if (!info.isBlockContainer) {
     throw new Error("Target block is not a block container");
   }
 
-  getEditor()._tiptapEditor.view.dispatch(
+  getEditor().dispatch(
     getEditor()._tiptapEditor.state.tr.setSelection(
       TextSelection.create(doc, info.blockContent.beforePos + offset + 1)
     )

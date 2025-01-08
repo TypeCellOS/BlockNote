@@ -200,6 +200,24 @@
         }
       },
       {
+        "projectSlug": "custom-placeholder",
+        "fullSlug": "basic/custom-placeholder",
+        "pathFromRoot": "examples/01-basic/11-custom-placeholder",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "ezhil56x",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Change placeholder text",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
         "projectSlug": "testing",
         "fullSlug": "basic/testing",
         "pathFromRoot": "examples/01-basic/testing",
@@ -598,6 +616,27 @@
           "pro": true
         },
         "title": "UI With Third-Party Components",
+        "group": {
+          "pathFromRoot": "examples/03-ui-components",
+          "slug": "ui-components"
+        }
+      },
+      {
+        "projectSlug": "experimental-mobile-formatting-toolbar",
+        "fullSlug": "ui-components/experimental-mobile-formatting-toolbar",
+        "pathFromRoot": "examples/03-ui-components/14-experimental-mobile-formatting-toolbar",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "areknawo",
+          "tags": [
+            "Intermediate",
+            "UI Components",
+            "Formatting Toolbar",
+            "Appearance & Styling"
+          ]
+        },
+        "title": "Experimental Mobile Formatting Toolbar",
         "group": {
           "pathFromRoot": "examples/03-ui-components",
           "slug": "ui-components"
@@ -1056,6 +1095,29 @@
           } as any
         },
         "title": "Collaborative Editing with Liveblocks",
+        "group": {
+          "pathFromRoot": "examples/07-collaboration",
+          "slug": "collaboration"
+        }
+      },
+      {
+        "projectSlug": "y-sweet",
+        "fullSlug": "collaboration/y-sweet",
+        "pathFromRoot": "examples/07-collaboration/03-y-sweet",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "jakelazaroff",
+          "tags": [
+            "Advanced",
+            "Saving/Loading",
+            "Collaboration"
+          ],
+          "dependencies": {
+            "@y-sweet/react": "^0.6.3"
+          } as any
+        },
+        "title": "Collaborative Editing with Y-Sweet",
         "group": {
           "pathFromRoot": "examples/07-collaboration",
           "slug": "collaboration"

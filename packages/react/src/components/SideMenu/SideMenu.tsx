@@ -37,7 +37,7 @@ export const SideMenu = <
     };
 
     if (props.block.type === "heading") {
-      attrs["data-level"] = props.block.props.level.toString();
+      attrs["data-level"] = (props.block.props as any).level.toString();
     }
 
     if (props.editor.schema.blockSchema[props.block.type].isFileBlock) {

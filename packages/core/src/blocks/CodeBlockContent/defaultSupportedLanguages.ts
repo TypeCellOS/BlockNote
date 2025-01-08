@@ -1,4 +1,4 @@
-import { bundledLanguagesInfo } from "shiki/bundle/web";
+import { bundledLanguagesInfo } from "shiki";
 
 export type SupportedLanguageConfig = {
   id: string;
@@ -14,23 +14,42 @@ export const defaultSupportedLanguages: SupportedLanguageConfig[] = [
   },
   ...bundledLanguagesInfo
     .filter((lang) => {
-      return ![
-        "angular-html",
-        "angular-ts",
-        "astro",
-        "blade",
-        "coffee",
-        "handlebars",
-        "html-derivative",
-        "http",
-        "imba",
-        "jinja",
-        "jison",
-        "json5",
-        "marko",
-        "mdc",
-        "stylus",
-        "ts-tags",
+      return [
+        "c",
+        "cpp",
+        "css",
+        "glsl",
+        "graphql",
+        "haml",
+        "html",
+        "java",
+        "javascript",
+        "json",
+        "jsonc",
+        "jsonl",
+        "jsx",
+        "julia",
+        "less",
+        "markdown",
+        "mdx",
+        "php",
+        "postcss",
+        "pug",
+        "python",
+        "r",
+        "regexp",
+        "sass",
+        "scss",
+        "shellscript",
+        "sql",
+        "svelte",
+        "typescript",
+        "vue",
+        "vue-html",
+        "wasm",
+        "wgsl",
+        "xml",
+        "yaml",
       ].includes(lang.id);
     })
     .map((lang) => ({
@@ -38,6 +57,7 @@ export const defaultSupportedLanguages: SupportedLanguageConfig[] = [
       id: lang.id,
       name: lang.name,
     })),
+  { id: "tsx", name: "TSX", match: ["tsx", "typescriptreact"] },
   {
     id: "haskell",
     name: "Haskell",

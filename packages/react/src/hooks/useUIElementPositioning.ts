@@ -17,7 +17,6 @@ export function useUIElementPositioning(
     open: show,
     ...options,
   });
-
   const { isMounted, styles } = useTransitionStyles(context);
 
   // handle "escape" and other dismiss events, these will add some listeners to
@@ -35,14 +34,13 @@ export function useUIElementPositioning(
     if (referencePos === null) {
       return;
     }
-
     refs.setReference({
       getBoundingClientRect: () => referencePos,
     });
   }, [referencePos, refs]);
 
-  return useMemo(
-    () => ({
+  return useMemo(() => {
+    return {
       isMounted,
       ref: refs.setFloating,
       style: {
@@ -53,15 +51,14 @@ export function useUIElementPositioning(
       },
       getFloatingProps,
       getReferenceProps,
-    }),
-    [
-      floatingStyles,
-      isMounted,
-      refs.setFloating,
-      styles,
-      zIndex,
-      getFloatingProps,
-      getReferenceProps,
-    ]
-  );
+    };
+  }, [
+    floatingStyles,
+    isMounted,
+    refs.setFloating,
+    styles,
+    zIndex,
+    getFloatingProps,
+    getReferenceProps,
+  ]);
 }

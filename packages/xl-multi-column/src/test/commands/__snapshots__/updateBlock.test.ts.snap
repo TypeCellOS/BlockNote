@@ -38,6 +38,23 @@ exports[`Test updateBlock > Update column list new children 1`] = `
     "type": "paragraph",
   },
   {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
     "children": [
       {
         "children": [
@@ -101,6 +118,23 @@ exports[`Test updateBlock > Update column list new children 1`] = `
   },
   {
     "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 2",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
     "content": [],
     "id": "trailing-paragraph",
     "props": {
@@ -143,6 +177,23 @@ exports[`Test updateBlock > Update column new children 1`] = `
       },
     ],
     "id": "paragraph-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-1",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -231,6 +282,23 @@ exports[`Test updateBlock > Update column new children 1`] = `
   },
   {
     "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 2",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
     "content": [],
     "id": "trailing-paragraph",
     "props": {
@@ -312,6 +380,23 @@ exports[`Test updateBlock > Update nested paragraph to column 1`] = `
       },
     ],
     "id": "paragraph-0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-1",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -414,6 +499,23 @@ exports[`Test updateBlock > Update nested paragraph to column 1`] = `
     "id": "column-list-0",
     "props": {},
     "type": "columnList",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 2",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
   },
   {
     "children": [],
@@ -512,6 +614,23 @@ exports[`Test updateBlock > Update nested paragraph to column list 1`] = `
     "type": "paragraph",
   },
   {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
     "children": [
       {
         "children": [
@@ -609,6 +728,23 @@ exports[`Test updateBlock > Update nested paragraph to column list 1`] = `
   },
   {
     "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 2",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
     "content": [],
     "id": "trailing-paragraph",
     "props": {
@@ -678,6 +814,23 @@ exports[`Test updateBlock > Update paragraph to column 1`] = `
     "id": "2",
     "props": {},
     "type": "columnList",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
   },
   {
     "children": [
@@ -774,6 +927,23 @@ exports[`Test updateBlock > Update paragraph to column 1`] = `
     "id": "column-list-0",
     "props": {},
     "type": "columnList",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 2",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
   },
   {
     "children": [],
@@ -854,6 +1024,23 @@ exports[`Test updateBlock > Update paragraph to column list 1`] = `
     "type": "columnList",
   },
   {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
     "children": [
       {
         "children": [
@@ -948,6 +1135,23 @@ exports[`Test updateBlock > Update paragraph to column list 1`] = `
     "id": "column-list-0",
     "props": {},
     "type": "columnList",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 2",
+        "type": "text",
+      },
+    ],
+    "id": "paragraph-2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
   },
   {
     "children": [],

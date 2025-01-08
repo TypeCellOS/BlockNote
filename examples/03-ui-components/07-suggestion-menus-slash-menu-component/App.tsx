@@ -18,7 +18,7 @@ function CustomSlashMenu(
     <div className={"slash-menu"}>
       {props.items.map((item, index) => (
         <div
-          className={`slash-menu-item${
+          className={`slash-menu-item ${
             props.selectedIndex === index ? " selected" : ""
           }`}
           onClick={() => {

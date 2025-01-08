@@ -485,13 +485,21 @@ export class SideMenuProsemirrorPlugin<
   /**
    * Handles drag & drop events for blocks.
    */
-  blockDragEnd = () => unsetDragImage(this.editor.prosemirrorView.root);
+  blockDragEnd = () => {
+    if (this.editor.prosemirrorView) {
+      unsetDragImage(this.editor.prosemirrorView.root);
+    }
+  };
   /**
    * Freezes the side menu. When frozen, the side menu will stay
    * attached to the same block regardless of which block is hovered by the
    * mouse cursor.
    */
-  freezeMenu = () => (this.view!.menuFrozen = true);
+  freezeMenu = () => {
+    this.view!.menuFrozen = true;
+    this.view!.state!.show = true;
+    this.view!.emitUpdate(this.view!.state!);
+  };
   /**
    * Unfreezes the side menu. When frozen, the side menu will stay
    * attached to the same block regardless of which block is hovered by the

@@ -4,7 +4,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { flip, offset } from "@floating-ui/react";
+import { UseFloatingOptions, flip, offset, shift } from "@floating-ui/react";
 import { FC, useMemo, useRef, useState } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -32,6 +32,7 @@ const textAlignmentToPlacement = (
 
 export const FormattingToolbarController = (props: {
   formattingToolbar?: FC<FormattingToolbarProps>;
+  floatingOptions?: Partial<UseFloatingOptions>;
 }) => {
   const divRef = useRef<HTMLDivElement>(null);
 
@@ -79,7 +80,7 @@ export const FormattingToolbarController = (props: {
     3000,
     {
       placement,
-      middleware: [offset(10), flip()],
+      middleware: [offset(10), shift(), flip()],
       onOpenChange: (open, _event) => {
         // console.log("change", event);
         if (!open) {
@@ -87,6 +88,7 @@ export const FormattingToolbarController = (props: {
           editor.focus();
         }
       },
+      ...props.floatingOptions,
     }
   );
 

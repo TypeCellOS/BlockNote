@@ -114,13 +114,13 @@ NESTED BLOCKS
 }
 
 /* HEADINGS*/
-[data-level="1"] {
+[data-content-type="heading"] {
   --level: 3em;
 }
-[data-level="2"] {
+[data-content-type="heading"][data-level="2"] {
   --level: 2em;
 }
-[data-level="3"] {
+[data-content-type="heading"][data-level="3"] {
   --level: 1.3em;
 }
 
@@ -299,6 +299,9 @@ NESTED BLOCKS
   transition: opacity 0.3s;
   transition-delay: 1s;
 }
+.bn-block-content[data-content-type="codeBlock"] > div > select > option {
+  color: black;
+}
 .bn-block-content[data-content-type="codeBlock"]:hover > div > select,
 .bn-block-content[data-content-type="codeBlock"] > div > select:focus {
   opacity: 0.5;
@@ -307,18 +310,18 @@ NESTED BLOCKS
 
 /* FILES */
 
-/* Add block button & default preview */
-[data-file-block] .bn-file-block-content-wrapper:has(.bn-add-file-button),
-[data-file-block] .bn-file-block-content-wrapper:has(.bn-file-default-preview) {
-  width: 100%;
-}
-
+/* Element that wraps content for all file blocks */
 [data-file-block] .bn-file-block-content-wrapper {
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  justify-content: stretch;
   user-select: none;
+}
+
+/* Add block button & default element (name with icon) */
+[data-file-block] .bn-file-block-content-wrapper:has(.bn-add-file-button),
+[data-file-block] .bn-file-block-content-wrapper:has(.bn-file-name-with-icon) {
+  width: 100%;
 }
 
 [data-file-block] .bn-add-file-button {
@@ -327,65 +330,46 @@ NESTED BLOCKS
   border-radius: 4px;
   color: rgb(125, 121, 122);
   display: flex;
-  flex-direction: row;
   gap: 10px;
   padding: 12px;
-  width: 100%;
 }
 
-.bn-editor[contenteditable="true"] [data-file-block] .bn-add-file-button:hover {
+.bn-editor[contenteditable="true"] [data-file-block] .bn-add-file-button:hover,
+[data-file-block] .bn-file-name-with-icon:hover,
+.ProseMirror-selectednode .bn-file-name-with-icon{
   background-color: rgb(225, 225, 225);
 }
 
-[data-file-block] .bn-add-file-button-icon {
+[data-file-block] .bn-add-file-button-icon,
+[data-file-block] .bn-file-icon {
   width: 24px;
   height: 24px;
 }
 
-[data-file-block] .bn-add-file-button .bn-add-file-button-text {
+[data-file-block] .bn-add-file-button-text {
   font-size: 0.9rem;
 }
 
-[data-file-block] .bn-file-and-caption-wrapper {
-  display: flex;
-  flex-direction: column;
-  border-radius: 4px;
-}
-
-[data-file-block] .bn-file-default-preview {
-  align-items: center;
+[data-file-block] .bn-file-name-with-icon {
   border-radius: 4px;
   display: flex;
-  flex-direction: row;
   gap: 4px;
   padding: 4px;
-  width: 100%;
 }
 
-[data-file-block] .bn-file-default-preview:hover,
-.ProseMirror-selectednode .bn-file-default-preview {
-  background-color: rgb(225, 225, 225);
+/* File captions */
+[data-file-block] .bn-file-caption {
+  font-size: 0.8em;
+  padding-block: 4px;
+  word-break: break-word;
 }
 
-[data-file-block] .bn-file-default-preview-icon {
-  width: 24px;
-  height: 24px;
+[data-file-block] .bn-file-caption:empty {
+  padding-block: 0;
 }
 
-[data-file-block] .bn-visual-media-wrapper {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  position: relative;
-  width: fit-content;
-}
-
-[data-file-block] .bn-visual-media {
-  border-radius: 4px;
-  max-width: 100%;
-}
-
-[data-file-block] .bn-visual-media-resize-handle {
+/* Resize handles */
+[data-file-block] .bn-resize-handle {
   position: absolute;
   width: 8px;
   height: 30px;
@@ -395,19 +379,22 @@ NESTED BLOCKS
   cursor: ew-resize;
 }
 
-[data-content-type="audio"] > .bn-file-block-content-wrapper,
-.bn-audio {
+/* Visual media file blocks, e.g. images & videos */
+[data-file-block] .bn-visual-media-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+[data-file-block] .bn-visual-media {
+  border-radius: 4px;
   width: 100%;
 }
 
-[data-file-block] .bn-file-caption {
-  font-size: 0.8em;
-  padding-block: 4px;
-  word-break: break-word;
-}
-
-[data-file-block] .bn-file-caption:empty {
-  padding-block: 0;
+/* Block-specific styles */
+[data-content-type="audio"] > .bn-file-block-content-wrapper,
+.bn-audio {
+  width: 100%;
 }
 
 /* PLACEHOLDERS*/

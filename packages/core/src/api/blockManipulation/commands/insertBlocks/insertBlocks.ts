@@ -32,23 +32,23 @@ export function insertBlocks<
     );
   }
 
-  const { node, posBeforeNode } = getNodeById(
-    id,
-    editor._tiptapEditor.state.doc
-  );
+  const posInfo = getNodeById(id, editor._tiptapEditor.state.doc);
+  if (!posInfo) {
+    throw new Error(`Block with ID ${id} not found`);
+  }
 
   // TODO: we might want to use the ReplaceStep directly here instead of insert,
   // because the fitting algorithm should not be necessary and might even cause unexpected behavior
   if (placement === "before") {
     editor.dispatch(
-      editor._tiptapEditor.state.tr.insert(posBeforeNode, nodesToInsert)
+      editor._tiptapEditor.state.tr.insert(posInfo.posBeforeNode, nodesToInsert)
     );
   }
 
   if (placement === "after") {
     editor.dispatch(
       editor._tiptapEditor.state.tr.insert(
-        posBeforeNode + node.nodeSize,
+        posInfo.posBeforeNode + posInfo.node.nodeSize,
         nodesToInsert
       )
     );
