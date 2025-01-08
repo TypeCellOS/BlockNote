@@ -29,6 +29,8 @@ export const GridSuggestionMenuItem = forwardRef<
     }
   }, [isSelected]);
 
+  const Icon = item.icon;
+
   return (
     <div
       className={className}
@@ -37,7 +39,7 @@ export const GridSuggestionMenuItem = forwardRef<
       role="option"
       onClick={onClick}
       aria-selected={isSelected || undefined}>
-      {item.icon}
+      {Icon && <Icon />}
     </div>
   );
 });

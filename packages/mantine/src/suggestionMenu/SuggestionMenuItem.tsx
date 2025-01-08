@@ -37,6 +37,8 @@ export const SuggestionMenuItem = forwardRef<
     }
   }, [isSelected]);
 
+  const Icon = item.icon;
+
   return (
     <MantineGroup
       gap={0}
@@ -46,11 +48,11 @@ export const SuggestionMenuItem = forwardRef<
       role="option"
       onClick={onClick}
       aria-selected={isSelected || undefined}>
-      {item.icon && (
+      {Icon && (
         <MantineGroup
           className="bn-mt-suggestion-menu-item-section"
           data-position="left">
-          {item.icon}
+          <Icon />
         </MantineGroup>
       )}
       <MantineStack gap={0} className="bn-mt-suggestion-menu-item-body">

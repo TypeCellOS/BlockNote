@@ -42,12 +42,22 @@ export default function App() {
           // Replaces default file replace button with one that opens Uppy.
           const items = getFormattingToolbarItems();
           items.splice(
-            items.findIndex((c) => c.key === "replaceFileButton"),
+            items.findIndex((c) => c.itemName === "replaceFileButton"),
             1,
-            <FileReplaceButton key={"fileReplaceButton"} />
+            {
+              itemName: "replaceFileButton",
+              Component: () => <FileReplaceButton key={"fileReplaceButton"} />,
+            }
           );
 
-          return <FormattingToolbar {...props}>{items}</FormattingToolbar>;
+          return (
+            <FormattingToolbar {...props}>
+              {items.map((item) => {
+                const Item = item.Component;
+                return <Item key={item.itemName} />;
+              })}
+            </FormattingToolbar>
+          );
         }}
       />
       {/* Replaces default file panel with Uppy one. */}

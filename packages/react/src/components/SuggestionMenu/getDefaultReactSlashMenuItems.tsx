@@ -49,7 +49,7 @@ export function getDefaultReactSlashMenuItems<
     const Icon = icons[item.key];
     return {
       ...item,
-      icon: <Icon size={18} />,
+      icon: () => <Icon size={18} />,
     };
   });
 }

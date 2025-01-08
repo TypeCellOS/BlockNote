@@ -29,6 +29,8 @@ export const SuggestionMenuItem = forwardRef<
     }
   }, [isSelected]);
 
+  const Icon = item.icon;
+
   return (
     <div
       className={mergeCSSClasses("bn-ak-menu-item", className || "")}
@@ -37,11 +39,11 @@ export const SuggestionMenuItem = forwardRef<
       onClick={onClick}
       role="option"
       aria-selected={isSelected || undefined}>
-      {item.icon && (
+      {Icon && (
         <div
           className="bn-ak-suggestion-menu-item-section"
           data-position="left">
-          {item.icon}
+          <Icon />
         </div>
       )}
       <div className="bn-ak-suggestion-menu-item-body">

@@ -32,7 +32,7 @@ const insertHelloWorldItem = (editor: BlockNoteEditor) => ({
   },
   aliases: ["helloworld", "hw"],
   group: "Other",
-  icon: <HiOutlineGlobeAlt size={18} />,
+  icon: () => <HiOutlineGlobeAlt size={18} />,
   subtext: "Used to insert a block with 'Hello World' below.",
 });
 

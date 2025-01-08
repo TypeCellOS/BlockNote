@@ -70,7 +70,11 @@ function MUISuggestionMenuItem(
           props.onItemClick?.(props.item);
           editor.focus();
         }}>
-        <ListItemIcon>{Icon}</ListItemIcon>
+        {Icon && (
+          <ListItemIcon>
+            <Icon />
+          </ListItemIcon>
+        )}
         <ListItemText
           primary={props.item.title}
           secondary={props.item.subtext}

@@ -33,6 +33,8 @@ export const SuggestionMenuItem = forwardRef<
     }
   }, [isSelected]);
 
+  const Icon = item.icon;
+
   return (
     <div
       // Styles from ShadCN DropdownMenuItem component
@@ -45,9 +47,9 @@ export const SuggestionMenuItem = forwardRef<
       onClick={onClick}
       role="option"
       aria-selected={isSelected || undefined}>
-      {item.icon && (
+      {Icon && (
         <div className="bn-p-3" data-position="left">
-          {item.icon}
+          <Icon />
         </div>
       )}
       <div className="bn-flex-1">

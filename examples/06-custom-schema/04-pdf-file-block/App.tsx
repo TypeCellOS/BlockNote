@@ -38,7 +38,7 @@ const insertPDF = (editor: typeof schema.BlockNoteEditor) => ({
   },
   aliases: ["pdf", "document", "embed", "file"],
   group: "Other",
-  icon: <RiFilePdfFill />,
+  icon: () => <RiFilePdfFill />,
 });
 
 export default function App() {

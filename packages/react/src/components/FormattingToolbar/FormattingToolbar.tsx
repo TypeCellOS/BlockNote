@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { FC, ReactNode } from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { BasicTextStyleButton } from "./DefaultButtons/BasicTextStyleButton.js";
@@ -24,28 +24,104 @@ import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 
 export const getFormattingToolbarItems = (
   blockTypeSelectItems?: BlockTypeSelectItem[]
-): JSX.Element[] => [
-  <BlockTypeSelect key={"blockTypeSelect"} items={blockTypeSelectItems} />,
-  <FileCaptionButton key={"fileCaptionButton"} />,
-  <FileReplaceButton key={"replaceFileButton"} />,
-  <FileRenameButton key={"fileRenameButton"} />,
-  <FileDeleteButton key={"fileDeleteButton"} />,
-  <FileDownloadButton key={"fileDownloadButton"} />,
-  <FilePreviewButton key={"filePreviewButton"} />,
-  <BasicTextStyleButton basicTextStyle={"bold"} key={"boldStyleButton"} />,
-  <BasicTextStyleButton basicTextStyle={"italic"} key={"italicStyleButton"} />,
-  <BasicTextStyleButton
-    basicTextStyle={"underline"}
-    key={"underlineStyleButton"}
-  />,
-  <BasicTextStyleButton basicTextStyle={"strike"} key={"strikeStyleButton"} />,
-  <TextAlignButton textAlignment={"left"} key={"textAlignLeftButton"} />,
-  <TextAlignButton textAlignment={"center"} key={"textAlignCenterButton"} />,
-  <TextAlignButton textAlignment={"right"} key={"textAlignRightButton"} />,
-  <ColorStyleButton key={"colorStyleButton"} />,
-  <NestBlockButton key={"nestBlockButton"} />,
-  <UnnestBlockButton key={"unnestBlockButton"} />,
-  <CreateLinkButton key={"createLinkButton"} />,
+): { itemName: string; Component: FC }[] => [
+  {
+    itemName: "blockTypeSelect",
+    Component: () => (
+      <BlockTypeSelect key={"blockTypeSelect"} items={blockTypeSelectItems} />
+    ),
+  },
+  {
+    itemName: "fileCaptionButton",
+    Component: () => <FileCaptionButton key={"fileCaptionButton"} />,
+  },
+  {
+    itemName: "replaceFileButton",
+    Component: () => <FileReplaceButton key={"replaceFileButton"} />,
+  },
+  {
+    itemName: "fileRenameButton",
+    Component: () => <FileRenameButton key={"fileRenameButton"} />,
+  },
+  {
+    itemName: "fileDeleteButton",
+    Component: () => <FileDeleteButton key={"fileDeleteButton"} />,
+  },
+  {
+    itemName: "fileDownloadButton",
+    Component: () => <FileDownloadButton key={"fileDownloadButton"} />,
+  },
+  {
+    itemName: "filePreviewButton",
+    Component: () => <FilePreviewButton key={"filePreviewButton"} />,
+  },
+  {
+    itemName: "boldStyleButton",
+    Component: () => (
+      <BasicTextStyleButton basicTextStyle={"bold"} key={"boldStyleButton"} />
+    ),
+  },
+  {
+    itemName: "italicStyleButton",
+    Component: () => (
+      <BasicTextStyleButton
+        basicTextStyle={"italic"}
+        key={"italicStyleButton"}
+      />
+    ),
+  },
+  {
+    itemName: "underlineStyleButton",
+    Component: () => (
+      <BasicTextStyleButton
+        basicTextStyle={"underline"}
+        key={"underlineStyleButton"}
+      />
+    ),
+  },
+  {
+    itemName: "strikeStyleButton",
+    Component: () => (
+      <BasicTextStyleButton
+        basicTextStyle={"strike"}
+        key={"strikeStyleButton"}
+      />
+    ),
+  },
+  {
+    itemName: "textAlignLeftButton",
+    Component: () => (
+      <TextAlignButton textAlignment={"left"} key={"textAlignLeftButton"} />
+    ),
+  },
+  {
+    itemName: "textAlignCenterButton",
+    Component: () => (
+      <TextAlignButton textAlignment={"center"} key={"textAlignCenterButton"} />
+    ),
+  },
+  {
+    itemName: "textAlignRightButton",
+    Component: () => (
+      <TextAlignButton textAlignment={"right"} key={"textAlignRightButton"} />
+    ),
+  },
+  {
+    itemName: "colorStyleButton",
+    Component: () => <ColorStyleButton key={"colorStyleButton"} />,
+  },
+  {
+    itemName: "nestBlockButton",
+    Component: () => <NestBlockButton key={"nestBlockButton"} />,
+  },
+  {
+    itemName: "unnestBlockButton",
+    Component: () => <UnnestBlockButton key={"unnestBlockButton"} />,
+  },
+  {
+    itemName: "createLinkButton",
+    Component: () => <CreateLinkButton key={"createLinkButton"} />,
+  },
 ];
 
 // TODO: props.blockTypeSelectItems should only be available if no children
@@ -70,7 +146,11 @@ export const FormattingToolbar = (
   return (
     <Components.FormattingToolbar.Root
       className={"bn-toolbar bn-formatting-toolbar"}>
-      {props.children || getFormattingToolbarItems(props.blockTypeSelectItems)}
+      {props.children ||
+        getFormattingToolbarItems(props.blockTypeSelectItems).map((item) => {
+          const Item = item.Component;
+          return <Item />;
+        })}
     </Components.FormattingToolbar.Root>
   );
 };

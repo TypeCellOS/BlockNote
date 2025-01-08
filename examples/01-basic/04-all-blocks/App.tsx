@@ -195,9 +195,16 @@ export default function App() {
     );
   }, [editor]);
 
+  console.log(slashMenuItems);
+
   // Renders the editor instance using a React component.
   return (
-    <BlockNoteView editor={editor} slashMenu={false}>
+    <BlockNoteView
+      editor={editor}
+      slashMenu={false}
+      onSelectionChange={() => console.log("change")}
+      onFocus={() => console.log("focus")}
+      onBlur={() => console.log("blur")}>
       <SuggestionMenuController
         triggerCharacter={"/"}
         getItems={async (query) => filterSuggestionItems(slashMenuItems, query)}

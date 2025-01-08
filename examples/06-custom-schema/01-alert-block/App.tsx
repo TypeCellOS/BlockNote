@@ -45,7 +45,7 @@ const insertAlert = (editor: typeof schema.BlockNoteEditor) => ({
     "success",
   ],
   group: "Other",
-  icon: <RiAlertFill />,
+  icon: () => <RiAlertFill />,
 });
 
 export default function App() {

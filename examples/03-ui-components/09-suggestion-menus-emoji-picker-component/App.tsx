@@ -20,17 +20,21 @@ function CustomEmojiPicker(
       style={
         { gridTemplateColumns: `repeat(${props.columns || 1}, 1fr)` } as any
       }>
-      {props.items.map((item, index) => (
-        <div
-          className={`emoji-picker-item ${
-            props.selectedIndex === index ? " selected" : ""
-          }`}
-          onClick={() => {
-            props.onItemClick?.(item);
-          }}>
-          {item.icon}
-        </div>
-      ))}
+      {props.items.map((item, index) => {
+        const Icon = item.icon;
+
+        return (
+          <div
+            className={`emoji-picker-item ${
+              props.selectedIndex === index ? " selected" : ""
+            }`}
+            onClick={() => {
+              props.onItemClick?.(item);
+            }}>
+            {Icon && <Icon />}
+          </div>
+        );
+      })}
     </div>
   );
 }

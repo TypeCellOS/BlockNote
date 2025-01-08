@@ -38,7 +38,7 @@ export function getMultiColumnSlashMenuItems<
     items.push(
       {
         ...getMultiColumnDictionary(editor).slash_menu.two_columns,
-        icon: <TbColumns2 size={18} />,
+        icon: () => <TbColumns2 size={18} />,
         onItemClick: () => {
           insertOrUpdateBlock(editor, {
             type: "columnList",
@@ -65,7 +65,7 @@ export function getMultiColumnSlashMenuItems<
       },
       {
         ...getMultiColumnDictionary(editor).slash_menu.three_columns,
-        icon: <TbColumns3 size={18} />,
+        icon: () => <TbColumns3 size={18} />,
         onItemClick: () => {
           insertOrUpdateBlock(editor, {
             type: "columnList",

@@ -19,7 +19,7 @@ export async function getDefaultReactEmojiPickerItems<
     ({ id, onItemClick }) => ({
       id,
       onItemClick,
-      icon: id as any,
+      icon: () => <>{id}</>,
     })
   );
 }

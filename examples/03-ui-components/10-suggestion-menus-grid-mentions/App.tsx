@@ -44,7 +44,7 @@ const getMentionMenuItems = (
         " ", // add a space after the mention
       ]);
     },
-    icon: <p>{user.substring(0, 1)}</p>,
+    icon: () => <p>{user.substring(0, 1)}</p>,
   }));
 };
 
