@@ -79,7 +79,7 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
               .map((className) => className.replace("language-", ""));
             const [classLanguage] = languages;
 
-            language = classLanguage.toLowerCase();
+            language = classLanguage?.toLowerCase() || null;
           }
 
           if (!language) {
