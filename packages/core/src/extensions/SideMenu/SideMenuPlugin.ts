@@ -334,9 +334,6 @@ export class SideMenuView<
         topNode: this.pmView.state.schema.nodes["blockGroup"].create(),
       });
 
-      console.log(html);
-      console.log(node);
-
       this.pmView.dragging = {
         slice: new Slice(node.content, 0, 0),
         move: true,
