@@ -130,7 +130,9 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
           }
 
           return {
-            level: element.getAttribute("data-level"),
+            level:
+              element.getAttribute("data-level") ||
+              headingPropSchema.level.default,
           };
         },
       },

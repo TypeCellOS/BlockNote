@@ -145,6 +145,8 @@ export class SideMenuView<
 
   public menuFrozen = false;
 
+  public isDragOrigin = false;
+
   constructor(
     private readonly editor: BlockNoteEditor<BSchema, I, S>,
     private readonly sideMenuDetection: "viewport" | "editor",
@@ -275,11 +277,7 @@ export class SideMenuView<
     // the editor (e.g. to other editors), so we need to do it manually. Since
     // the dragged content is the same as the selected content, we can just
     // delete the selection.
-    if (
-      // TODO
-      event.dataTransfer?.types.includes("blocknote/html") &&
-      !this.pmView.dom.contains(event.target as Node)
-    ) {
+    if (this.isDragOrigin && !this.pmView.dom.contains(event.target as Node)) {
       this.pmView.dispatch(this.pmView.state.tr.deleteSelection());
     }
 
@@ -335,6 +333,9 @@ export class SideMenuView<
       const node = parser.parse(element, {
         topNode: this.pmView.state.schema.nodes["blockGroup"].create(),
       });
+
+      console.log(html);
+      console.log(node);
 
       this.pmView.dragging = {
         slice: new Slice(node.content, 0, 0),
@@ -506,6 +507,10 @@ export class SideMenuView<
       this.onDragStart as EventListener
     );
     this.pmView.root.removeEventListener(
+      "dragover",
+      this.onDragOver as EventListener
+    );
+    this.pmView.root.removeEventListener(
       "drop",
       this.onDrop as EventListener,
       true
@@ -563,6 +568,10 @@ export class SideMenuProsemirrorPlugin<
     },
     block: Block<BSchema, I, S>
   ) => {
+    if (this.view) {
+      this.view.isDragOrigin = true;
+    }
+
     dragStart(event, block, this.editor);
   };
 
@@ -572,6 +581,10 @@ export class SideMenuProsemirrorPlugin<
   blockDragEnd = () => {
     if (this.editor.prosemirrorView) {
       unsetDragImage(this.editor.prosemirrorView.root);
+    }
+
+    if (this.view) {
+      this.view.isDragOrigin = false;
     }
   };
   /**

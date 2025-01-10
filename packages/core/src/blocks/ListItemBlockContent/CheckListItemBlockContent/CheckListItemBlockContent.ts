@@ -119,6 +119,17 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
     return [
       {
         tag: "div[data-content-type=" + this.name + "]", // TODO: remove if we can't come up with test case that needs this
+        getAttrs: (element) => {
+          if (typeof element === "string") {
+            return false;
+          }
+
+          return {
+            checked:
+              element.getAttribute("data-index") ||
+              checkListItemPropSchema.checked.default,
+          };
+        },
       },
       // Checkbox only.
       {
