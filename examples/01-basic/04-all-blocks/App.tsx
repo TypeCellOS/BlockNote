@@ -179,6 +179,7 @@ const options = {
       type: "paragraph",
     },
   ],
+  // sideMenuDetection: "editor",
 } satisfies Partial<
   BlockNoteEditorOptions<
     typeof schema.blockSchema,
@@ -196,7 +197,7 @@ export default function App() {
   return (
     <div style={{ display: "flex", gap: "10px" }}>
       <BlockNoteView editor={editor1} />
-      <BlockNoteView editor={editor2} />
+      {/*<BlockNoteView editor={editor2} />*/}
     </div>
   );
 }

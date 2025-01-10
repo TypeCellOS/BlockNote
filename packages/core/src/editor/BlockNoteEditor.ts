@@ -245,6 +245,15 @@ export type BlockNoteEditorOptions<
    @default "prefer-navigate-ui"
    */
   tabBehavior: "prefer-navigate-ui" | "prefer-indent";
+
+  /**
+   * The detection mode for showing the side menu - "viewport" always shows the
+   * side menu for the block next to the mouse cursor, while "editor" only shows
+   * it when hovering the editor or the side menu itself.
+   *
+   * @default "viewport"
+   */
+  sideMenuDetection: "viewport" | "editor";
 };
 
 const blockNoteTipTapOptions = {
@@ -423,6 +432,7 @@ export class BlockNoteEditor<
       dropCursor: this.options.dropCursor ?? dropCursor,
       placeholders: newOptions.placeholders,
       tabBehavior: newOptions.tabBehavior,
+      sideMenuDetection: newOptions.sideMenuDetection || "viewport",
     });
 
     // add extensions from _tiptapOptions

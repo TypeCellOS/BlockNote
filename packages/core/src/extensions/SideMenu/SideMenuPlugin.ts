@@ -26,13 +26,19 @@ export type SideMenuState<
   block: Block<BSchema, I, S>;
 };
 
+const PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP = 0.1;
+
 function getBlockFromCoords(
   view: EditorView,
   coords: { left: number; top: number },
+  sideMenuDetection: "viewport" | "editor",
   adjustForColumns = true
 ) {
-  // bit hacky - offset x position to right to account for the width of sidemenu itself
-  const elements = view.root.elementsFromPoint(coords.left + 50, coords.top);
+  const elements = view.root.elementsFromPoint(
+    // bit hacky - offset x position to right to account for the width of sidemenu itself
+    coords.left + (sideMenuDetection === "editor" ? 50 : 0),
+    coords.top
+  );
 
   for (const element of elements) {
     if (!view.dom.contains(element)) {
@@ -45,9 +51,10 @@ function getBlockFromCoords(
         return getBlockFromCoords(
           view,
           {
-            left: coords.left,
+            left: coords.left + 50, // bit hacky, but if we're inside a column, offset x position to right to account for the width of sidemenu itself
             top: coords.top,
           },
+          sideMenuDetection,
           false
         );
       }
@@ -62,14 +69,62 @@ function getBlockFromMousePos(
     x: number;
     y: number;
   },
-  view: EditorView
+  view: EditorView,
+  sideMenuDetection: "viewport" | "editor"
 ): { node: HTMLElement; id: string } | undefined {
+  // Editor itself may have padding or other styling which affects
+  // size/position, so we get the boundingRect of the first child (i.e. the
+  // blockGroup that wraps all blocks in the editor) for more accurate side
+  // menu placement.
+  if (!view.dom.firstChild) {
+    return;
+  }
+
+  const editorBoundingBox = (
+    view.dom.firstChild as HTMLElement
+  ).getBoundingClientRect();
+
+  // this.horizontalPosAnchor = editorBoundingBox.x;
+
+  // Gets block at mouse cursor's position.
   const coords = {
     left: mousePos.x,
     top: mousePos.y,
   };
 
-  return getBlockFromCoords(view, coords);
+  const mouseLeftOfEditor = coords.left < editorBoundingBox.left;
+  const mouseRightOfEditor = coords.left > editorBoundingBox.right;
+
+  // Clamps the x position to the editor's bounding box.
+  if (sideMenuDetection === "viewport") {
+    if (mouseLeftOfEditor) {
+      coords.left = editorBoundingBox.left + 10;
+    }
+
+    if (mouseRightOfEditor) {
+      coords.left = editorBoundingBox.right - 10;
+    }
+  }
+
+  let block = getBlockFromCoords(view, coords, sideMenuDetection);
+
+  if (!mouseRightOfEditor && block) {
+    // note: this case is not necessary when we're on the right side of the editor
+
+    /* Now, because blocks can be nested
+    | BlockA        |
+    x | BlockB     y|
+
+    hovering over position x (the "margin of block B") will return block A instead of block B.
+    to fix this, we get the block from the right side of block A (position y, which will fall in BlockB correctly)
+    */
+
+    const rect = block.node.getBoundingClientRect();
+    coords.left = rect.right - 10;
+    block = getBlockFromCoords(view, coords, "viewport", false);
+  }
+
+  return block;
 }
 
 /**
@@ -92,6 +147,7 @@ export class SideMenuView<
 
   constructor(
     private readonly editor: BlockNoteEditor<BSchema, I, S>,
+    private readonly sideMenuDetection: "viewport" | "editor",
     private readonly pmView: EditorView,
     emitUpdate: (state: SideMenuState<BSchema, I, S>) => void
   ) {
@@ -103,6 +159,10 @@ export class SideMenuView<
       emitUpdate(this.state);
     };
 
+    this.pmView.root.addEventListener(
+      "dragstart",
+      this.onDragStart as EventListener
+    );
     this.pmView.root.addEventListener(
       "drop",
       this.onDrop as EventListener,
@@ -123,35 +183,11 @@ export class SideMenuView<
       this.onKeyDown as EventListener,
       true
     );
-
     this.pmView.root.addEventListener(
-      "dragstart",
-      this.dragStart as EventListener
+      "dragover",
+      this.onDragOver as EventListener
     );
   }
-
-  dragStart = (event: DragEvent) => {
-    const html = event.dataTransfer?.getData("blocknote/html");
-
-    if (!html) {
-      return;
-    }
-
-    const element = document.createElement("div");
-    element.innerHTML = html;
-
-    const parser = DOMParser.fromSchema(this.pmView.state.schema);
-    const node = parser.parse(element, {
-      topNode: this.pmView.state.schema.nodes["blockGroup"].create(),
-    });
-    console.log(html);
-    console.log(node);
-
-    this.pmView.dragging = {
-      slice: new Slice(node.content, 0, 0),
-      move: true,
-    };
-  };
 
   updateState = (state: SideMenuState<BSchema, I, S>) => {
     this.state = state;
@@ -163,7 +199,11 @@ export class SideMenuView<
       return;
     }
 
-    const block = getBlockFromMousePos(this.mousePos, this.pmView);
+    const block = getBlockFromMousePos(
+      this.mousePos,
+      this.pmView,
+      this.sideMenuDetection
+    );
 
     // Closes the menu if the mouse cursor is beyond the editor vertically.
     if (!block || !this.editor.isEditable) {
@@ -223,17 +263,110 @@ export class SideMenuView<
     }
   };
 
+  /**
+   * If the event is outside the editor contents,
+   * we dispatch a fake event, so that we can still drop the content
+   * when dragging / dropping to the side of the editor
+   */
   onDrop = (event: DragEvent) => {
+    this.editor._tiptapEditor.commands.blur();
+
+    // ProseMirror doesn't remove the dragged content if it's dropped outside
+    // the editor (e.g. to other editors), so we need to do it manually. Since
+    // the dragged content is the same as the selected content, we can just
+    // delete the selection.
     if (
-      this.pmView.dragging &&
-      this.pmView.dom.contains(event.target as Node)
+      // TODO
+      event.dataTransfer?.types.includes("blocknote/html") &&
+      !this.pmView.dom.contains(event.target as Node)
+    ) {
+      this.pmView.dispatch(this.pmView.state.tr.deleteSelection());
+    }
+
+    if (
+      this.sideMenuDetection === "editor" ||
+      (event as any).synthetic ||
+      !event.dataTransfer?.types.includes("blocknote/html")
     ) {
       return;
     }
 
-    this.pmView.dispatch(this.pmView.state.tr.deleteSelection());
+    const pos = this.pmView.posAtCoords({
+      left: event.clientX,
+      top: event.clientY,
+    });
 
-    return;
+    if (!pos || pos.inside === -1) {
+      const evt = this.createSyntheticEvent(event);
+      // console.log("dispatch fake drop");
+      this.pmView.dom.dispatchEvent(evt);
+    }
+  };
+
+  /**
+   * If a block is being dragged, ProseMirror usually gets the context of what's
+   * being dragged from `view.dragging`, which is automatically set when a
+   * `dragstart` event fires in the editor. However, if the user tries to drag
+   * and drop blocks between multiple editors, only the one in which the drag
+   * began has that context, so we need to set it on the others manually. This
+   * ensures that PM always drops the blocks in between other blocks, and not
+   * inside them.
+   *
+   * After the `dragstart` event fires on the drag handle, it sets
+   * `blocknote/html` data on the clipboard. This handler fires right after,
+   * parsing the `blocknote/html` data into nodes and setting them on
+   * `view.dragging`.
+   *
+   * Note: Setting `view.dragging` on `dragover` would be better as the user
+   * could then drag between editors in different windows, but you can only
+   * access `dataTransfer` contents on `dragstart` and `drop` events.
+   */
+  onDragStart = (event: DragEvent) => {
+    if (!this.pmView.dragging) {
+      const html = event.dataTransfer?.getData("blocknote/html");
+      if (!html) {
+        return;
+      }
+
+      const element = document.createElement("div");
+      element.innerHTML = html;
+
+      const parser = DOMParser.fromSchema(this.pmView.state.schema);
+      const node = parser.parse(element, {
+        topNode: this.pmView.state.schema.nodes["blockGroup"].create(),
+      });
+
+      this.pmView.dragging = {
+        slice: new Slice(node.content, 0, 0),
+        move: true,
+      };
+    }
+  };
+
+  /**
+   * If the event is outside the editor contents,
+   * we dispatch a fake event, so that we can still drop the content
+   * when dragging / dropping to the side of the editor
+   */
+  onDragOver = (event: DragEvent) => {
+    if (
+      this.sideMenuDetection === "editor" ||
+      (event as any).synthetic ||
+      !event.dataTransfer?.types.includes("blocknote/html")
+    ) {
+      return;
+    }
+
+    const pos = this.pmView.posAtCoords({
+      left: event.clientX,
+      top: event.clientY,
+    });
+
+    if (!pos || (pos.inside === -1 && this.pmView.dom.firstChild)) {
+      const evt = this.createSyntheticEvent(event);
+      // console.log("dispatch fake dragover");
+      this.pmView.dom.dispatchEvent(evt);
+    }
   };
 
   onKeyDown = (_event: KeyboardEvent) => {
@@ -243,6 +376,62 @@ export class SideMenuView<
       this.emitUpdate(this.state);
     }
   };
+
+  private createSyntheticEvent(event: DragEvent) {
+    const evt = new Event(event.type, event) as any;
+    const editorBoundingBox = (
+      this.pmView.dom.firstChild as HTMLElement
+    ).getBoundingClientRect();
+    evt.clientX = event.clientX;
+    evt.clientY = event.clientY;
+    if (
+      event.clientX < editorBoundingBox.left &&
+      event.clientX >
+        editorBoundingBox.left -
+          editorBoundingBox.width *
+            PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP
+    ) {
+      // when we're slightly left of the editor, we can drop to the side of the block
+      evt.clientX =
+        editorBoundingBox.left +
+        (editorBoundingBox.width *
+          PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP) /
+          2;
+    } else if (
+      event.clientX > editorBoundingBox.right &&
+      event.clientX <
+        editorBoundingBox.right +
+          editorBoundingBox.width *
+            PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP
+    ) {
+      // when we're slightly right of the editor, we can drop to the side of the block
+      evt.clientX =
+        editorBoundingBox.right -
+        (editorBoundingBox.width *
+          PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP) /
+          2;
+    } else if (
+      event.clientX < editorBoundingBox.left ||
+      event.clientX > editorBoundingBox.right
+    ) {
+      // when mouse is outside of the editor on x axis, drop it somewhere safe (but not to the side of a block)
+      evt.clientX =
+        editorBoundingBox.left +
+        PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP *
+          editorBoundingBox.width *
+          2; // put it somewhere in first block, but safe outside of the PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP margin
+    }
+
+    evt.clientY = Math.min(
+      Math.max(event.clientY, editorBoundingBox.top),
+      editorBoundingBox.top + editorBoundingBox.height
+    );
+
+    evt.dataTransfer = event.dataTransfer;
+    evt.preventDefault = () => event.preventDefault();
+    evt.synthetic = true; // prevent recursion
+    return evt;
+  }
 
   onMouseMove = (event: MouseEvent) => {
     if (this.menuFrozen) {
@@ -312,7 +501,10 @@ export class SideMenuView<
       this.onMouseMove as EventListener,
       true
     );
-
+    this.pmView.root.removeEventListener(
+      "dragstart",
+      this.onDragStart as EventListener
+    );
     this.pmView.root.removeEventListener(
       "drop",
       this.onDrop as EventListener,
@@ -336,14 +528,22 @@ export class SideMenuProsemirrorPlugin<
   public view: SideMenuView<BSchema, I, S> | undefined;
   public readonly plugin: Plugin;
 
-  constructor(private readonly editor: BlockNoteEditor<BSchema, I, S>) {
+  constructor(
+    private readonly editor: BlockNoteEditor<BSchema, I, S>,
+    sideMenuDetection: "viewport" | "editor"
+  ) {
     super();
     this.plugin = new Plugin({
       key: sideMenuPluginKey,
       view: (editorView) => {
-        this.view = new SideMenuView(editor, editorView, (state) => {
-          this.emit("update", state);
-        });
+        this.view = new SideMenuView(
+          editor,
+          sideMenuDetection,
+          editorView,
+          (state) => {
+            this.emit("update", state);
+          }
+        );
         return this.view;
       },
     });
