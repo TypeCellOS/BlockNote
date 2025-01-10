@@ -20,6 +20,7 @@ import {
   removeBlockNoteCSSVariables,
   Theme,
 } from "./BlockNoteTheme.js";
+import { Composer } from "./comments/Composer.js";
 import { TextInput } from "./form/TextInput.js";
 import {
   Menu,
@@ -52,7 +53,6 @@ import { TableHandle } from "./tableHandle/TableHandle.js";
 import { Toolbar } from "./toolbar/Toolbar.js";
 import { ToolbarButton } from "./toolbar/ToolbarButton.js";
 import { ToolbarSelect } from "./toolbar/ToolbarSelect.js";
-
 export * from "./BlockNoteTheme.js";
 export * from "./defaultThemes.js";
 
@@ -112,6 +112,9 @@ export const components: Components = {
       Trigger: PopoverTrigger,
       Content: PopoverContent,
     },
+  },
+  Comments: {
+    Composer,
   },
 };
 

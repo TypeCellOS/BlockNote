@@ -3,18 +3,14 @@ import {
   EditorOptions,
   Extension,
   getSchema,
+  isNodeSelection,
   Mark,
+  posToDOMRect,
   Node as TipTapNode,
 } from "@tiptap/core";
 import { Node, Schema } from "prosemirror-model";
 // import "./blocknote.css";
 import * as Y from "yjs";
-import {
-  getBlock,
-  getNextBlock,
-  getParentBlock,
-  getPrevBlock,
-} from "../api/blockManipulation/getBlock/getBlock.js";
 import { insertBlocks } from "../api/blockManipulation/commands/insertBlocks/insertBlocks.js";
 import {
   moveBlocksDown,
@@ -29,15 +25,21 @@ import {
 import { removeBlocks } from "../api/blockManipulation/commands/removeBlocks/removeBlocks.js";
 import { replaceBlocks } from "../api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
 import { updateBlock } from "../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { insertContentAt } from "../api/blockManipulation/insertContentAt.js";
 import {
-  getTextCursorPosition,
-  setTextCursorPosition,
-} from "../api/blockManipulation/selections/textCursorPosition/textCursorPosition.js";
+  getBlock,
+  getNextBlock,
+  getParentBlock,
+  getPrevBlock,
+} from "../api/blockManipulation/getBlock/getBlock.js";
+import { insertContentAt } from "../api/blockManipulation/insertContentAt.js";
 import {
   getSelection,
   setSelection,
 } from "../api/blockManipulation/selections/selection.js";
+import {
+  getTextCursorPosition,
+  setTextCursorPosition,
+} from "../api/blockManipulation/selections/textCursorPosition/textCursorPosition.js";
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
@@ -89,11 +91,12 @@ import { en } from "../i18n/locales/index.js";
 
 import { Plugin, Transaction } from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
+import { EditorView } from "prosemirror-view";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
+import { CommentsPlugin } from "../extensions/Comments/CommentsPlugin.js";
 import "../style.css";
-import { EditorView } from "prosemirror-view";
 
 export type BlockNoteExtension =
   | AnyExtension
@@ -329,6 +332,7 @@ export class BlockNoteEditor<
     ISchema,
     SSchema
   >;
+  public readonly comments?: CommentsPlugin;
 
   /**
    * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
@@ -441,6 +445,7 @@ export class BlockNoteEditor<
     this.suggestionMenus = this.extensions["suggestionMenus"] as any;
     this.filePanel = this.extensions["filePanel"] as any;
     this.tableHandles = this.extensions["tableHandles"] as any;
+    this.comments = this.extensions["comments"] as any;
 
     if (newOptions.uploadFile) {
       const uploadFile = newOptions.uploadFile;
@@ -1204,6 +1209,28 @@ export class BlockNoteEditor<
     return () => {
       this._tiptapEditor.off("selectionUpdate", cb);
     };
+  }
+
+  public getSelectionBoundingBox() {
+    if (!this.prosemirrorView) {
+      return undefined;
+    }
+    const state = this.prosemirrorView?.state;
+    const { selection } = state;
+
+    // support for CellSelections
+    const { ranges } = selection;
+    const from = Math.min(...ranges.map((range) => range.$from.pos));
+    const to = Math.max(...ranges.map((range) => range.$to.pos));
+
+    if (isNodeSelection(selection)) {
+      const node = this.prosemirrorView.nodeDOM(from) as HTMLElement;
+      if (node) {
+        return node.getBoundingClientRect();
+      }
+    }
+
+    return posToDOMRect(this.prosemirrorView, from, to);
   }
 
   public openSuggestionMenu(

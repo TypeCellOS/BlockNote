@@ -10,6 +10,10 @@
   --N40: #dfe1e6; /* Light neutral used for subtle borders and text on dark background */
 }
 
+.bn-comment-composer .bn-editor {
+  padding: 0;
+}
+
 /*
 bn-root should be applied to all top-level elements
 

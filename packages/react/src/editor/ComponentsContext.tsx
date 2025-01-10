@@ -9,6 +9,7 @@ import {
   useContext,
 } from "react";
 
+import { BlockNoteEditor } from "@blocknote/core";
 import { DefaultReactGridSuggestionItem } from "../components/SuggestionMenu/GridSuggestionMenu/types.js";
 import { DefaultReactSuggestionItem } from "../components/SuggestionMenu/types.js";
 
@@ -256,6 +257,13 @@ export type ComponentProps = {
       Trigger: {
         children?: ReactNode;
       };
+    };
+  };
+  Comments: {
+    Composer: {
+      className?: string;
+      editor: BlockNoteEditor<any, any, any>;
+      onSubmit: () => void;
     };
   };
 };

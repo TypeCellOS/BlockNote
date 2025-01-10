@@ -131,7 +131,10 @@ export function contentNodeToInlineContent<
       } else {
         const config = styleSchema[mark.type.name];
         if (!config) {
-          if (mark.type.name === "liveblocksCommentMark") {
+          if (
+            mark.type.spec.group?.includes("blocknoteIgnore") ||
+            mark.type.name === "liveblocksCommentMark"
+          ) {
             // TODO
             continue;
           }

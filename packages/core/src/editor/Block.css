@@ -336,7 +336,7 @@ NESTED BLOCKS
 
 .bn-editor[contenteditable="true"] [data-file-block] .bn-add-file-button:hover,
 [data-file-block] .bn-file-name-with-icon:hover,
-.ProseMirror-selectednode .bn-file-name-with-icon{
+.ProseMirror-selectednode .bn-file-name-with-icon {
   background-color: rgb(225, 225, 225);
 }
 
@@ -522,4 +522,12 @@ NESTED BLOCKS
 
 .bn-block-column:last-child {
   padding-right: 0;
+}
+
+.bn-thread-mark {
+  background: rgba(255, 200, 0, 0.15);
+}
+
+.bn-thread-mark-selected {
+  background: rgba(255, 200, 0, 0.25);
 }

@@ -17,13 +17,14 @@ export const AddCommentButton = () => {
   >();
 
   const onClick = useCallback(() => {
-    (editor._tiptapEditor as any).chain().focus().addPendingComment().run();
+    editor.comments?.addPendingComment();
+    editor.formattingToolbar.closeMenu();
   }, [editor]);
 
   if (
     // We manually check if a comment extension (like liveblocks) is installed
     // By adding default support for this, the user doesn't need to customize the formatting toolbar
-    !(editor._tiptapEditor.commands as any)["addPendingComment"] ||
+    !editor.comments ||
     !editor.isEditable
   ) {
     return null;
