@@ -1,7 +1,6 @@
 import {
   BlockNoteEditorOptions,
   BlockNoteSchema,
-  getBlockInfoFromSelection,
   locales,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
@@ -13,8 +12,6 @@ import {
   locales as multiColumnLocales,
   withMultiColumn,
 } from "@blocknote/xl-multi-column";
-import { Slice, Node } from "@tiptap/pm/model";
-import { useState } from "react";
 
 const schema = withMultiColumn(BlockNoteSchema.create());
 const options = {
@@ -195,61 +192,11 @@ export default function App() {
   const editor1 = useCreateBlockNote(options);
   const editor2 = useCreateBlockNote(options);
 
-  const [node, setNode] = useState<Node | undefined>(undefined);
-
   // Renders the editor instance using a React component.
   return (
-    <div
-      style={{ display: "flex" }}
-      // onDragStart={(e) => {
-      //   editor2.prosemirrorView!.dragging = editor1.prosemirrorView!.dragging;
-      //   // editor2.prosemirrorView.dragging = true;
-      // }}
-      // onDrag={() => {
-      //   // console.log("editor1", editor1.prosemirrorView!.dragging);
-      //   console.log("editor2", editor2.prosemirrorView!.dragging);
-      // }}
-    >
-      <button
-        onClick={() => {
-          setNode(
-            getBlockInfoFromSelection(editor1.prosemirrorView!.state).bnBlock
-              .node
-          );
-        }}>
-        Set Slice
-      </button>
-      <button
-        onClick={() => {
-          if (!node) {
-            return;
-          }
-
-          editor2.prosemirrorView!.dispatch(
-            editor2.prosemirrorView!.state.tr.insert(
-              // editor2.prosemirrorView!.state.selection.from,
-              // editor2.prosemirrorView!.state.selection.to,
-              26,
-              node
-            )
-          );
-
-          console.log("Slice:", node);
-        }}>
-        Insert Slice
-      </button>
+    <div style={{ display: "flex", gap: "10px" }}>
       <BlockNoteView editor={editor1} />
-      <BlockNoteView
-        editor={editor2}
-        onDrop={(e) => {
-          editor2.prosemirrorView!.props.handleDrop?.(
-            editor2.prosemirrorView!,
-            e,
-            editor2.prosemirrorView!.dragging!.slice,
-            false
-          );
-        }}
-      />
+      <BlockNoteView editor={editor2} />
     </div>
   );
 }
