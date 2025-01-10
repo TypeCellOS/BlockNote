@@ -218,6 +218,24 @@
         }
       },
       {
+        "projectSlug": "multi-editor",
+        "fullSlug": "basic/multi-editor",
+        "pathFromRoot": "examples/01-basic/12-multi-editor",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "areknawo",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Multi-Editor Setup",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
         "projectSlug": "testing",
         "fullSlug": "basic/testing",
         "pathFromRoot": "examples/01-basic/testing",
