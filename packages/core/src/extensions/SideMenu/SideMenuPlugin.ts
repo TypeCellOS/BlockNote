@@ -164,6 +164,10 @@ export class SideMenuView<
       this.onDragStart as EventListener
     );
     this.pmView.root.addEventListener(
+      "dragover",
+      this.onDragOver as EventListener
+    );
+    this.pmView.root.addEventListener(
       "drop",
       this.onDrop as EventListener,
       true
@@ -182,10 +186,6 @@ export class SideMenuView<
       "keydown",
       this.onKeyDown as EventListener,
       true
-    );
-    this.pmView.root.addEventListener(
-      "dragover",
-      this.onDragOver as EventListener
     );
   }
 
@@ -377,6 +377,50 @@ export class SideMenuView<
     }
   };
 
+  onMouseMove = (event: MouseEvent) => {
+    if (this.menuFrozen) {
+      return;
+    }
+
+    this.mousePos = { x: event.clientX, y: event.clientY };
+
+    // We want the full area of the editor to check if the cursor is hovering
+    // above it though.
+    const editorOuterBoundingBox = this.pmView.dom.getBoundingClientRect();
+    const cursorWithinEditor =
+      this.mousePos.x > editorOuterBoundingBox.left &&
+      this.mousePos.x < editorOuterBoundingBox.right &&
+      this.mousePos.y > editorOuterBoundingBox.top &&
+      this.mousePos.y < editorOuterBoundingBox.bottom;
+
+    // TODO: remove parentElement, but then we need to remove padding from boundingbox or find a different solution
+    const editorWrapper = this.pmView.dom!.parentElement!;
+
+    // Doesn't update if the mouse hovers an element that's over the editor but
+    // isn't a part of it or the side menu.
+    if (
+      // Cursor is within the editor area
+      cursorWithinEditor &&
+      // An element is hovered
+      event &&
+      event.target &&
+      // Element is outside the editor
+      !(
+        editorWrapper === event.target ||
+        editorWrapper.contains(event.target as HTMLElement)
+      )
+    ) {
+      if (this.state?.show) {
+        this.state.show = false;
+        this.emitUpdate(this.state);
+      }
+
+      return;
+    }
+
+    this.updateStateFromMousePos();
+  };
+
   private createSyntheticEvent(event: DragEvent) {
     const evt = new Event(event.type, event) as any;
     const editorBoundingBox = (
@@ -432,50 +476,6 @@ export class SideMenuView<
     evt.synthetic = true; // prevent recursion
     return evt;
   }
-
-  onMouseMove = (event: MouseEvent) => {
-    if (this.menuFrozen) {
-      return;
-    }
-
-    this.mousePos = { x: event.clientX, y: event.clientY };
-
-    // We want the full area of the editor to check if the cursor is hovering
-    // above it though.
-    const editorOuterBoundingBox = this.pmView.dom.getBoundingClientRect();
-    const cursorWithinEditor =
-      this.mousePos.x > editorOuterBoundingBox.left &&
-      this.mousePos.x < editorOuterBoundingBox.right &&
-      this.mousePos.y > editorOuterBoundingBox.top &&
-      this.mousePos.y < editorOuterBoundingBox.bottom;
-
-    // TODO: remove parentElement, but then we need to remove padding from boundingbox or find a different solution
-    const editorWrapper = this.pmView.dom!.parentElement!;
-
-    // Doesn't update if the mouse hovers an element that's over the editor but
-    // isn't a part of it or the side menu.
-    if (
-      // Cursor is within the editor area
-      cursorWithinEditor &&
-      // An element is hovered
-      event &&
-      event.target &&
-      // Element is outside the editor
-      !(
-        editorWrapper === event.target ||
-        editorWrapper.contains(event.target as HTMLElement)
-      )
-    ) {
-      if (this.state?.show) {
-        this.state.show = false;
-        this.emitUpdate(this.state);
-      }
-
-      return;
-    }
-
-    this.updateStateFromMousePos();
-  };
 
   // Needed in cases where the editor state updates without the mouse cursor
   // moving, as some state updates can require a side menu update. For example,
