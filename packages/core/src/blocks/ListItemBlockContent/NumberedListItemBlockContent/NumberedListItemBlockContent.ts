@@ -106,18 +106,7 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
   parseHTML() {
     return [
       {
-        tag: "div[data-content-type=" + this.name + "]", // TODO: remove if we can't come up with test case that needs this
-        getAttrs: (element) => {
-          if (typeof element === "string") {
-            return false;
-          }
-
-          return {
-            index:
-              element.getAttribute("data-index") ||
-              numberedListItemPropSchema.start.default,
-          };
-        },
+        tag: "div[data-content-type=" + this.name + "]",
       },
       // Case for regular HTML list structure.
       // (e.g.: when pasting from other apps)

@@ -124,17 +124,6 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
     return [
       {
         tag: "div[data-content-type=" + this.name + "]",
-        getAttrs: (element) => {
-          if (typeof element === "string") {
-            return false;
-          }
-
-          return {
-            level:
-              element.getAttribute("data-level") ||
-              headingPropSchema.level.default,
-          };
-        },
       },
       {
         tag: "h1",

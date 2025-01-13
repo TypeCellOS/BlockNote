@@ -1,6 +1,6 @@
-import { PluginView } from "@tiptap/pm/state";
-import { EditorState, Plugin, PluginKey } from "prosemirror-state";
-import { EditorView } from "prosemirror-view";
+import { DOMParser, Slice } from "@tiptap/pm/model";
+import { EditorState, Plugin, PluginKey, PluginView } from "@tiptap/pm/state";
+import { EditorView } from "@tiptap/pm/view";
 
 import { Block } from "../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
@@ -14,8 +14,6 @@ import { EventEmitter } from "../../util/EventEmitter.js";
 import { initializeESMDependencies } from "../../util/esmDependencies.js";
 import { getDraggableBlockFromElement } from "../getDraggableBlockFromElement.js";
 import { dragStart, unsetDragImage } from "./dragging.js";
-import { DOMParser } from "prosemirror-model";
-import { Slice } from "@tiptap/pm/model";
 
 export type SideMenuState<
   BSchema extends BlockSchema,
