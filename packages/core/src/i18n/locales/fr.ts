@@ -16,7 +16,8 @@ export const fr: Dictionary = {
     },
     heading_3: {
       title: "Titre 3",
-      subtext: "Titre de troisième niveau utilisé pour les sous-sections et les titres de groupe",
+      subtext:
+        "Titre de troisième niveau utilisé pour les sous-sections et les titres de groupe",
       aliases: ["h3", "titre3", "sous-titre"],
       group: "Titres",
     },
@@ -29,7 +30,15 @@ export const fr: Dictionary = {
     bullet_list: {
       title: "Liste à puces",
       subtext: "Utilisé pour afficher une liste à puce non numérotée",
-      aliases: ["ul", "li", "liste", "listeàpuces", "liste à puces", "bullet points", "bulletpoints"]
+      aliases: [
+        "ul",
+        "li",
+        "liste",
+        "listeàpuces",
+        "liste à puces",
+        "bullet points",
+        "bulletpoints",
+      ],
       group: "Blocs de base",
     },
     check_list: {
@@ -76,7 +85,7 @@ export const fr: Dictionary = {
         "uploadImage",
         "télécharger image",
         "téléverser image",
-        "uploader image"
+        "uploader image",
         "img",
         "photo",
         "média",
@@ -115,7 +124,14 @@ export const fr: Dictionary = {
     file: {
       title: "Fichier",
       subtext: "Insérer un fichier",
-      aliases: ["fichier", "téléverser fichier", "intégrer fichier", "insérer fichier", "média", "url"],
+      aliases: [
+        "fichier",
+        "téléverser fichier",
+        "intégrer fichier",
+        "insérer fichier",
+        "média",
+        "url",
+      ],
       group: "Média",
     },
     emoji: {
@@ -126,7 +142,8 @@ export const fr: Dictionary = {
     },
   },
   placeholders: {
-    default: "Entrez du texte ou tapez '/' pour faire apparaître les options de mise en page",
+    default:
+      "Entrez du texte ou tapez '/' pour faire apparaître les options de mise en page",
     heading: "Titre",
     bulletListItem: "Liste",
     numberedListItem: "Liste",
