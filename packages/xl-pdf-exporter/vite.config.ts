@@ -53,7 +53,16 @@ export default defineConfig((conf) => ({
         if (deps.includes(source)) {
           return true;
         }
-        return source.startsWith("prosemirror-");
+
+        if (source === "react/jsx-runtime") {
+          return true;
+        }
+
+        if (source.startsWith("prosemirror-")) {
+          return true;
+        }
+
+        return false;
       },
       output: {
         // Provide global variables to use in the UMD build
