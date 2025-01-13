@@ -67,7 +67,7 @@ export const docxStyleMappingForDefaultSchema: StyleMapping<
       return {};
     }
     return {
-      font: "Courier New",
+      font: "GeistMono",
     };
   },
 };
