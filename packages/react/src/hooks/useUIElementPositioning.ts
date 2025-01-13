@@ -15,6 +15,7 @@ export function useUIElementPositioning(
 ) {
   const { refs, update, context, floatingStyles } = useFloating({
     open: show,
+    strategy: "fixed",
     ...options,
   });
   const { isMounted, styles } = useTransitionStyles(context);
@@ -43,6 +44,7 @@ export function useUIElementPositioning(
     return {
       isMounted,
       ref: refs.setFloating,
+      setReference: refs.setReference,
       style: {
         display: "flex",
         ...styles,
@@ -56,6 +58,7 @@ export function useUIElementPositioning(
     floatingStyles,
     isMounted,
     refs.setFloating,
+    refs.setReference,
     styles,
     zIndex,
     getFloatingProps,

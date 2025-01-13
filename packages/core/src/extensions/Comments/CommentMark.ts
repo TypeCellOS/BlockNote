@@ -23,10 +23,10 @@ export const CommentMark = Mark.create({
         default: false,
       },
       threadId: {
-        parseHTML: (element) => element.getAttribute("data-lb-thread-id"),
+        parseHTML: (element) => element.getAttribute("data-bn-thread-id"),
         renderHTML: (attributes) => {
           return {
-            "data-lb-thread-id": (attributes as { threadId: string }).threadId,
+            "data-bn-thread-id": (attributes as { threadId: string }).threadId,
           };
         },
         default: "",

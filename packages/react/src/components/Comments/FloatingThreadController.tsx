@@ -7,13 +7,21 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { UseFloatingOptions, flip, offset } from "@floating-ui/react";
-import { FC, useMemo } from "react";
+import { FC, useCallback, useEffect, useLayoutEffect } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning.js";
 import { useUIPluginState } from "../../hooks/useUIPluginState.js";
-import { Composer } from "./Composer.js";
+import { Thread } from "./Thread.js";
 
+/**
+ * This component is pretty close to the LiveBlocks FloatingThreads one.
+ * We have a bit of a different approach to communicating data to / from the plugin
+ */
+
+/**
+ * TODO: docs
+ */
 export const FloatingThreadController = <
   B extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
@@ -34,21 +42,9 @@ export const FloatingThreadController = <
     editor.comments.onUpdate.bind(editor.comments)
   );
 
-  const referencePos = useMemo(() => {
-    if (!state?.pendingComment) {
-      return null;
-    }
-
-    // TODO: update referencepos when doc changes (remote updates)
-    return editor.getSelectionBoundingBox();
-  }, [editor, state?.pendingComment]);
-
   // TODO: review
-  const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
-    state?.pendingComment || false,
-    referencePos || null,
-    5000,
-    {
+  const { isMounted, ref, style, getFloatingProps, setReference } =
+    useUIElementPositioning(!!state?.selectedThreadId, null, 5000, {
       placement: "bottom",
       middleware: [offset(10), flip()],
       onOpenChange: (open) => {
@@ -58,19 +54,51 @@ export const FloatingThreadController = <
         }
       },
       ...props.floatingOptions,
+    });
+
+  // TODO: could also use thread position from the state. prefer this?
+  const updateRef = useCallback(() => {
+    if (!state?.selectedThreadId) {
+      return;
     }
-  );
+
+    const el = editor.domElement?.querySelector(
+      `[data-bn-thread-id="${state?.selectedThreadId}"]`
+    );
+    if (el) {
+      setReference(el);
+    }
+  }, [setReference, editor, state?.selectedThreadId]);
+
+  // Remote cursor updates and other edits can cause the ref to break
+  useEffect(() => {
+    if (!state?.selectedThreadId) {
+      return;
+    }
+
+    return editor.onChange(() => {
+      updateRef();
+    });
+  }, [editor, updateRef, state?.selectedThreadId]);
+
+  useLayoutEffect(updateRef, [updateRef]);
 
   if (!isMounted || !state) {
     return null;
   }
 
-  const Component = props.filePanel || Composer;
+  if (!state.selectedThreadId) {
+    return null; // TODO
+  }
+
+  const Component = props.filePanel || Thread;
+
+  const thread = editor.comments.store.getThread(state.selectedThreadId);
 
   return (
     <div ref={ref} style={style} {...getFloatingProps()}>
       {/* <div>hello</div> */}
-      <Component />
+      <Component thread={thread} />
     </div>
   );
 };

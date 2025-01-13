@@ -1,0 +1,32 @@
+export type CommentBody = any;
+
+export type CommentReactionData = {
+  emoji: string;
+  createdAt: Date;
+  users: {
+    id: string;
+  }[];
+};
+
+export type CommentData = {
+  type: "comment";
+  id: string;
+  userId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  reactions: CommentReactionData[];
+  // attachments: CommentAttachment[];
+  metadata: any;
+  body: CommentBody;
+};
+
+export type ThreadData = {
+  type: "thread";
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  comments: CommentData[];
+  resolved: boolean;
+  resolvedUpdatedAt?: Date;
+  metadata: any;
+};

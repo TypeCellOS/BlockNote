@@ -260,10 +260,23 @@ export type ComponentProps = {
     };
   };
   Comments: {
+    Card: {
+      className?: string;
+      children?: ReactNode;
+    };
+    CardSection: {
+      className?: string;
+      children?: ReactNode;
+    };
     Composer: {
       className?: string;
       editor: BlockNoteEditor<any, any, any>;
       onSubmit: () => void;
+    };
+    Comment: {
+      className?: string;
+      editable: boolean;
+      editor: BlockNoteEditor<any, any, any>;
     };
   };
 };

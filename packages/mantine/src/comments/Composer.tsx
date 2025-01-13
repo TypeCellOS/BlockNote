@@ -2,7 +2,7 @@ import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { Button, Flex, Paper } from "@mantine/core";
 import { forwardRef } from "react";
-import { BlockNoteView } from "../index.js";
+import { BlockNoteView } from "../BlockNoteView.js";
 
 export const Composer = forwardRef<
   HTMLDivElement,

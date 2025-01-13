@@ -5,6 +5,7 @@ import { v4 } from "uuid";
 import * as Y from "yjs";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { EventEmitter } from "../../util/EventEmitter.js";
+import { CommentBody, CommentData, ThreadData } from "./types.js";
 const PLUGIN_KEY = new PluginKey(`blocknote-comments`);
 
 enum CommentsPluginActions {
@@ -18,14 +19,14 @@ type CommentsPluginAction = {
 
 type CommentsPluginState = {
   threadPositions: Map<string, { from: number; to: number }>;
-  selectedThreadId: string | null;
+  // selectedThreadId: string | null;
   // selectedThreadPos: number | null;
   decorations: DecorationSet;
 };
 
 function updateState(
   doc: Node,
-  selectedThreadId: string | null,
+  selectedThreadId: string | undefined,
   markType: string
 ) {
   const threadPositions = new Map<string, { from: number; to: number }>();
@@ -65,19 +66,22 @@ function updateState(
   });
   return {
     decorations: DecorationSet.create(doc, decorations),
-    selectedThreadId,
     threadPositions,
-    selectedThreadPos:
-      selectedThreadId !== null
-        ? threadPositions.get(selectedThreadId)?.to ?? null
-        : null,
   };
 }
 
 export class CommentsPlugin extends EventEmitter<any> {
   public readonly plugin: Plugin;
-  private provider: CommentProvider;
+  public readonly store: ThreadStore;
   private pendingComment = false;
+  private selectedThreadId: string | undefined;
+
+  private emitStateUpdate() {
+    this.emit("update", {
+      selectedThreadId: this.selectedThreadId,
+      pendingComment: this.pendingComment,
+    });
+  }
 
   constructor(
     private readonly editor: BlockNoteEditor<any, any, any>,
@@ -86,7 +90,7 @@ export class CommentsPlugin extends EventEmitter<any> {
     super();
 
     const doc = new Y.Doc();
-    this.provider = new YjsCommentProvider(
+    this.store = new YjsThreadStore(
       editor,
       "blablauserid",
       doc.getMap("threads")
@@ -98,12 +102,12 @@ export class CommentsPlugin extends EventEmitter<any> {
         // TODO: filter out yjs transactions
         if (this.pendingComment) {
           this.pendingComment = false;
-          this.emit("update", {
-            pendingComment: this.pendingComment,
-          });
+          this.emitStateUpdate();
         }
       });
     }, 600);
+
+    const self = this;
 
     this.plugin = new Plugin<CommentsPluginState>({
       key: PLUGIN_KEY,
@@ -111,7 +115,6 @@ export class CommentsPlugin extends EventEmitter<any> {
         init() {
           return {
             threadPositions: new Map<string, { from: number; to: number }>(),
-            selectedThreadId: null,
             decorations: DecorationSet.empty,
           } satisfies CommentsPluginState;
         },
@@ -121,19 +124,8 @@ export class CommentsPlugin extends EventEmitter<any> {
             return state;
           }
 
-          if (!action) {
-            // Doc changed, but no action, just update rects
-            return updateState(tr.doc, state.selectedThreadId, markType);
-          }
-          // handle actions, possibly support more actions
-          if (
-            action.name === CommentsPluginActions.SET_SELECTED_THREAD_ID &&
-            state.selectedThreadId !== action.data
-          ) {
-            return updateState(tr.doc, action.data, markType);
-          }
-
-          return state;
+          // Doc changed, but no action, just update rects
+          return updateState(tr.doc, self.selectedThreadId, markType);
         },
       },
       props: {
@@ -145,18 +137,19 @@ export class CommentsPlugin extends EventEmitter<any> {
             return;
           }
 
-          const selectThread = (threadId: string | null) => {
+          const selectThread = (threadId: string | undefined) => {
+            self.selectedThreadId = threadId;
+            self.emitStateUpdate();
             view.dispatch(
               view.state.tr.setMeta(PLUGIN_KEY, {
                 name: CommentsPluginActions.SET_SELECTED_THREAD_ID,
-                data: threadId,
               })
             );
           };
 
           const node = view.state.doc.nodeAt(pos);
           if (!node) {
-            selectThread(null);
+            selectThread(undefined);
             return;
           }
           const commentMark = node.marks.find(
@@ -164,83 +157,57 @@ export class CommentsPlugin extends EventEmitter<any> {
           );
           // don't allow selecting orphaned threads
           if (commentMark?.attrs.orphan) {
-            selectThread(null);
+            selectThread(undefined);
             return;
           }
           const threadId = commentMark?.attrs.threadId as string | undefined;
-          selectThread(threadId ?? null);
+          selectThread(threadId);
         },
       },
     });
   }
 
-  public onUpdate(callback: (state: { pendingComment: boolean }) => void) {
+  public onUpdate(
+    callback: (state: {
+      pendingComment: boolean;
+      selectedThreadId: string | undefined;
+    }) => void
+  ) {
     return this.on("update", callback);
   }
 
   public addPendingComment() {
     this.pendingComment = true;
-    this.emit("update", {
-      pendingComment: this.pendingComment,
-    });
+    this.emitStateUpdate();
   }
 
-  public async createThread(body: CommentBody) {
-    const thread = await this.provider.createThread({
-      initialComment: {
-        body,
-      },
-    });
+  public async createThread(options: {
+    initialComment: {
+      body: CommentBody;
+      metadata?: any;
+    };
+    metadata?: any;
+  }) {
+    const thread = await this.store.createThread(options);
     this.editor._tiptapEditor.commands.setMark(this.markType, {
       threadId: thread.id,
     });
   }
 }
 
-type CommentBody = any;
-
-type CommentReaction = {
-  emoji: string;
-  createdAt: Date;
-  users: {
-    id: string;
-  }[];
-};
-
-type Comment = {
-  type: "comment";
-  id: string;
-  userId: string;
-  createdAt: Date;
-  updatedAt: Date;
-  reactions: CommentReaction[];
-  // attachments: CommentAttachment[];
-  metadata: any;
-  body: CommentBody;
-};
-
-type Thread = {
-  type: "thread";
-  id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  comments: Comment[];
-  resolved: boolean;
-  resolvedUpdatedAt?: Date;
-  metadata: any;
-};
-
-export abstract class CommentProvider {
+export abstract class ThreadStore {
   abstract createThread(options: {
     initialComment: {
       body: CommentBody;
       metadata?: any;
     };
     metadata?: any;
-  }): Promise<Thread>;
+  }): Promise<ThreadData>;
+
+  abstract getThread(threadId: string): ThreadData;
 }
 
-export class YjsCommentProvider extends CommentProvider {
+export class YjsThreadStore extends ThreadStore {
   constructor(
     private readonly editor: BlockNoteEditor<any, any, any>,
     private readonly userId: string,
@@ -249,7 +216,7 @@ export class YjsCommentProvider extends CommentProvider {
     super();
   }
 
-  private commentToYMap(comment: Comment) {
+  private commentToYMap(comment: CommentData) {
     const yMap = new Y.Map<any>();
     yMap.set("id", comment.id);
     yMap.set("userId", comment.userId);
@@ -264,7 +231,7 @@ export class YjsCommentProvider extends CommentProvider {
     return yMap;
   }
 
-  private threadToYMap(thread: Thread) {
+  private threadToYMap(thread: ThreadData) {
     const yMap = new Y.Map();
     yMap.set("id", thread.id);
     yMap.set("createdAt", thread.createdAt.toISOString());
@@ -282,6 +249,40 @@ export class YjsCommentProvider extends CommentProvider {
     return yMap;
   }
 
+  private yMapToComment(yMap: Y.Map<any>): CommentData {
+    return {
+      type: "comment",
+      id: yMap.get("id"),
+      userId: yMap.get("userId"),
+      createdAt: new Date(yMap.get("createdAt")),
+      updatedAt: new Date(yMap.get("updatedAt")),
+      reactions: [],
+      metadata: yMap.get("metadata"),
+      body: yMap.get("body"),
+    };
+  }
+
+  private yMapToThread(yMap: Y.Map<any>): ThreadData {
+    return {
+      type: "thread",
+      id: yMap.get("id"),
+      createdAt: new Date(yMap.get("createdAt")),
+      updatedAt: new Date(yMap.get("updatedAt")),
+      comments: ((yMap.get("comments") as Y.Array<Y.Map<any>>) || []).map(
+        (comment) => this.yMapToComment(comment)
+      ),
+      resolved: yMap.get("resolved"),
+      resolvedUpdatedAt: yMap.get("resolvedUpdatedAt"),
+      metadata: yMap.get("metadata"),
+    };
+  }
+
+  // TODO: async / reactive interface?
+  public getThread(threadId: string) {
+    const thread = this.yMapToThread(this.threadsYMap.get(threadId));
+    return thread;
+  }
+
   public async createThread(options: {
     initialComment: {
       body: CommentBody;
@@ -291,7 +292,7 @@ export class YjsCommentProvider extends CommentProvider {
   }) {
     const date = new Date();
 
-    const comment: Comment = {
+    const comment: CommentData = {
       type: "comment",
       id: v4(),
       userId: this.userId,
@@ -302,7 +303,7 @@ export class YjsCommentProvider extends CommentProvider {
       body: options.initialComment.body,
     };
 
-    const thread: Thread = {
+    const thread: ThreadData = {
       type: "thread",
       id: v4(),
       createdAt: date,
@@ -318,7 +319,7 @@ export class YjsCommentProvider extends CommentProvider {
   }
 }
 
-export class LiveblocksCommentProvider {
+export class LiveblocksThreadStore {
   constructor(private readonly editor: BlockNoteEditor<any, any, any>) {}
 
   public async createThread() {
@@ -327,7 +328,7 @@ export class LiveblocksCommentProvider {
   }
 }
 
-export class TiptapCommentProvider {
+export class TiptapThreadStore {
   constructor(private readonly editor: BlockNoteEditor<any, any, any>) {}
 
   public async createThread() {
