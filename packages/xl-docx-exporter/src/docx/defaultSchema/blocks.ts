@@ -3,6 +3,7 @@ import {
   COLORS_DEFAULT,
   DefaultBlockSchema,
   DefaultProps,
+  StyledText,
   UnreachableCaseError,
 } from "@blocknote/core";
 import {
@@ -133,15 +134,26 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
   },
   // TODO
   codeBlock: (block, exporter) => {
+    const textContent = (block.content as StyledText<any>[])[0]?.text || "";
+
     return new Paragraph({
-      // ...blockPropsToStyles(block.props, exporter.options.colors),
-      style: "Codeblock",
-      children: exporter.transformInlineContent(block.content),
-      // children: [
-      //   new TextRun({
-      //     text: block..type + " not implemented",
-      //   }),
-      // ],
+      run: {
+        highlight: "none",
+      },
+      shading: {
+        type: ShadingType.SOLID,
+        fill: exporter.options.colors.gray.background.slice(1),
+        color: exporter.options.colors.gray.background.slice(1),
+      },
+      children: [
+        ...textContent.split("\n").map((line, index) => {
+          return new TextRun({
+            text: line,
+            break: index > 0 ? 1 : 0,
+            font: "GeistMono",
+          });
+        }),
+      ],
     });
   },
   image: async (block, exporter) => {
