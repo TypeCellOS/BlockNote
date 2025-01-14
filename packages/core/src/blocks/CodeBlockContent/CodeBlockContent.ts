@@ -81,9 +81,10 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
             const languages = classNames
               .filter((className) => className.startsWith("language-"))
               .map((className) => className.replace("language-", ""));
-            const [classLanguage] = languages;
 
-            language = classLanguage.toLowerCase();
+            if (languages.length > 0) {
+              language = languages[0].toLowerCase();
+            }
           }
 
           if (!language) {
@@ -97,6 +98,7 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
           );
         },
         renderHTML: (attributes) => {
+          // TODO: Use `data-language="..."` instead for easier parsing
           return attributes.language && attributes.language !== "text"
             ? {
                 class: `language-${attributes.language}`,
@@ -110,9 +112,11 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
     return [
       {
         tag: "div[data-content-type=" + this.name + "]",
+        contentElement: "code",
       },
       {
         tag: "pre",
+        contentElement: "code",
         preserveWhitespace: "full",
       },
     ];
