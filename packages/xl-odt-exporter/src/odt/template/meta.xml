@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<office:document-meta xmlns:grddl="http://www.w3.org/2003/g/data-view#"
+    xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0"
+    xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:ooo="http://openoffice.org/2004/office"
+    xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" office:version="1.3">
+    <office:meta>
+        <meta:initial-creator>Un-named</meta:initial-creator>
+        <meta:editing-cycles>2</meta:editing-cycles>
+        <meta:creation-date>2024-12-20T08:34:19.813000000</meta:creation-date>
+        <dc:date>2024-12-20T09:39:32.235059975</dc:date>
+        <meta:editing-duration>PT4M44S</meta:editing-duration>
+        <meta:document-statistic meta:table-count="2" meta:image-count="2" meta:object-count="0"
+            meta:page-count="3" meta:paragraph-count="48" meta:word-count="291"
+            meta:character-count="1899" meta:non-whitespace-character-count="1657" />
+        <meta:generator>LibreOffice/24.8.4.2$MacOSX_AARCH64
+            LibreOffice_project/bb3cfa12c7b1bf994ecc5649a80400d06cd71002</meta:generator>
+    </office:meta>
+</office:document-meta>
