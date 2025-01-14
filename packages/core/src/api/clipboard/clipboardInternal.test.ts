@@ -148,6 +148,122 @@ describe("Test ProseMirror selection clipboard HTML", () => {
       type: "customParagraph",
       content: "Paragraph",
     },
+    {
+      type: "paragraph",
+      content: "Paragraph",
+    },
+    {
+      type: "heading",
+      content: "Heading",
+    },
+    {
+      type: "numberedListItem",
+      content: "Numbered List Item",
+    },
+    {
+      type: "bulletListItem",
+      content: "Bullet List Item",
+    },
+    {
+      type: "checkListItem",
+      content: "Check List Item",
+    },
+    {
+      type: "codeBlock",
+      content: 'console.log("Hello World");',
+    },
+    {
+      type: "table",
+      content: {
+        type: "tableContent",
+        rows: [
+          {
+            cells: [["Table Cell"], ["Table Cell"], ["Table Cell"]],
+          },
+          {
+            cells: [["Table Cell"], ["Table Cell"], ["Table Cell"]],
+          },
+          {
+            cells: [["Table Cell"], ["Table Cell"], ["Table Cell"]],
+          },
+        ],
+      },
+    },
+    {
+      type: "image",
+    },
+    {
+      type: "paragraph",
+      props: {
+        textColor: "red",
+      },
+      content: "Paragraph",
+    },
+    {
+      type: "heading",
+      props: {
+        level: 2,
+      },
+      content: "Heading",
+    },
+    {
+      type: "numberedListItem",
+      props: {
+        start: 2,
+      },
+      content: "Numbered List Item",
+    },
+    {
+      type: "bulletListItem",
+      props: {
+        backgroundColor: "red",
+      },
+      content: "Bullet List Item",
+    },
+    {
+      type: "checkListItem",
+      props: {
+        checked: true,
+      },
+      content: "Check List Item",
+    },
+    {
+      type: "codeBlock",
+      props: {
+        language: "typescript",
+      },
+      content: 'console.log("Hello World");',
+    },
+    {
+      type: "table",
+      content: {
+        type: "tableContent",
+        rows: [
+          {
+            cells: [["Table Cell"], ["Table Cell"], ["Table Cell"]],
+          },
+          {
+            cells: [["Table Cell"], ["Table Cell"], ["Table Cell"]],
+          },
+          {
+            cells: [["Table Cell"], ["Table Cell"], ["Table Cell"]],
+          },
+        ],
+      },
+    },
+    {
+      type: "image",
+      props: {
+        name: "1280px-Placeholder_view_vector.svg.png",
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Placeholder_view_vector.svg/1280px-Placeholder_view_vector.svg.png",
+        caption: "Placeholder",
+        showPreview: true,
+        previewWidth: 256,
+      },
+    },
+    {
+      type: "paragraph",
+    },
   ];
 
   let editor: BlockNoteEditor<typeof schema.blockSchema>;
@@ -298,6 +414,16 @@ describe("Test ProseMirror selection clipboard HTML", () => {
       testName: "paragraphInCustomBlock",
       createCopySelection: (doc) => TextSelection.create(doc, 277, 286),
       createPasteSelection: (doc) => TextSelection.create(doc, 290, 299),
+    },
+    // Copy/paste basic blocks.
+    {
+      testName: "basicBlocks",
+      createCopySelection: (doc) => TextSelection.create(doc, 303, 558),
+    },
+    // Copy/paste basic blocks with props.
+    {
+      testName: "basicBlocksWithProps",
+      createCopySelection: (doc) => TextSelection.create(doc, 558, 813),
     },
   ];
 

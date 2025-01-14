@@ -202,6 +202,5 @@ export function dragStart<
     e.dataTransfer.setData("text/plain", plainText);
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setDragImage(dragImageElement!, 0, 0);
-    view.dragging = { slice: selectedSlice, move: true };
   }
 }

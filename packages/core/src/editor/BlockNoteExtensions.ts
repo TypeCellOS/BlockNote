@@ -72,6 +72,7 @@ type ExtensionOptions<
   dropCursor: (opts: any) => Plugin;
   placeholders: Record<string | "default", string>;
   tabBehavior?: "prefer-navigate-ui" | "prefer-indent";
+  sideMenuDetection: "viewport" | "editor";
 };
 
 /**
@@ -97,7 +98,10 @@ export const getBlockNoteExtensions = <
     opts.editor
   );
   ret["linkToolbar"] = new LinkToolbarProsemirrorPlugin(opts.editor);
-  ret["sideMenu"] = new SideMenuProsemirrorPlugin(opts.editor);
+  ret["sideMenu"] = new SideMenuProsemirrorPlugin(
+    opts.editor,
+    opts.sideMenuDetection
+  );
   ret["suggestionMenus"] = new SuggestionMenuProseMirrorPlugin(opts.editor);
   ret["filePanel"] = new FilePanelProsemirrorPlugin(opts.editor as any);
   ret["placeholder"] = new PlaceholderPlugin(opts.editor, opts.placeholders);
