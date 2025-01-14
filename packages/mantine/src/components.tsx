@@ -3,6 +3,7 @@ import { Components } from "@blocknote/react";
 import { Card, CardSection } from "./comments/Card.js";
 import { Comment } from "./comments/Comment.js";
 import { Composer } from "./comments/Composer.js";
+import { Editor } from "./comments/Editor.js";
 import { TextInput } from "./form/TextInput.js";
 import {
   Menu,
@@ -94,9 +95,14 @@ export const components: Components = {
       Trigger: PopoverTrigger,
       Content: PopoverContent,
     },
+    Toolbar: {
+      Root: Toolbar,
+      Button: ToolbarButton,
+    },
   },
   Comments: {
     Comment,
+    Editor,
     Composer,
     Card,
     CardSection,

@@ -1,14 +1,13 @@
 "use client";
 
 import { ThreadData, mergeCSSClasses } from "@blocknote/core";
-import type {
-  ComponentPropsWithoutRef,
-  ForwardedRef,
-  SyntheticEvent,
-} from "react";
+import type { ComponentPropsWithoutRef, ForwardedRef } from "react";
 import { forwardRef, useCallback, useMemo } from "react";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
+import { useDictionary } from "../../i18n/dictionary.js";
 import { Comment, CommentProps } from "./Comment.js";
+import { schema } from "./schema.js";
 
 export interface ThreadProps extends ComponentPropsWithoutRef<"div"> {
   /**
@@ -146,6 +145,19 @@ export const Thread = forwardRef(
     // const markThreadAsUnresolved = useMarkRoomThreadAsUnresolved(thread.roomId);
 
     const ctx = useComponentsContext()!;
+    const dict = useDictionary();
+    const newCommentEditor = useCreateBlockNote({
+      trailingBlock: false,
+      dictionary: {
+        ...dict,
+        placeholders: {
+          ...dict.placeholders,
+          default: "Add comment...", // TODO: only for empty doc
+        },
+      },
+      schema,
+    });
+
     const firstCommentIndex = useMemo(() => {
       return showDeletedComments
         ? 0
@@ -273,6 +285,7 @@ export const Thread = forwardRef(
             roomId={thread.roomId}
           />
         )} */}
+          <ctx.Comments.Editor editable={true} editor={newCommentEditor} />
         </ctx.Comments.CardSection>
       </ctx.Comments.Card>
     );
