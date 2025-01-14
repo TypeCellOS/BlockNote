@@ -67,6 +67,10 @@
     "vitest": "^2.0.3",
     "xml-formatter": "^3.6.3"
   },
+  "peerDependencies": {
+    "react": "^18.0 || ^19.0 || >= 19.0.0-rc",
+    "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc"
+  },
   "eslintConfig": {
     "extends": [
       "../../.eslintrc.js"
