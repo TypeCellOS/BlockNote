@@ -245,11 +245,47 @@ Line 2</w:t>
                 <w:pStyle w:val="ListParagraph"/>
                 <w:numPr>
                     <w:ilvl w:val="0"/>
+                    <w:numId w:val="4"/>
+                </w:numPr>
+            </w:pPr>
+            <w:r>
+                <w:t xml:space="preserve">Numbered List Item starting at 10</w:t>
+            </w:r>
+        </w:p>
+        <w:p>
+            <w:pPr>
+                <w:pStyle w:val="ListParagraph"/>
+                <w:numPr>
+                    <w:ilvl w:val="0"/>
+                    <w:numId w:val="4"/>
+                </w:numPr>
+            </w:pPr>
+            <w:r>
+                <w:t xml:space="preserve">Numbered List Item continuing from 10</w:t>
+            </w:r>
+        </w:p>
+        <w:p>
+            <w:pPr>
+                <w:pStyle w:val="ListParagraph"/>
+                <w:numPr>
+                    <w:ilvl w:val="1"/>
                     <w:numId w:val="3"/>
                 </w:numPr>
             </w:pPr>
             <w:r>
-                <w:t xml:space="preserve">Numbered List Item</w:t>
+                <w:t xml:space="preserve">Numbered List Item Nested 1</w:t>
+            </w:r>
+        </w:p>
+        <w:p>
+            <w:pPr>
+                <w:pStyle w:val="ListParagraph"/>
+                <w:numPr>
+                    <w:ilvl w:val="1"/>
+                    <w:numId w:val="3"/>
+                </w:numPr>
+            </w:pPr>
+            <w:r>
+                <w:t xml:space="preserve">Numbered List Item Nested 2</w:t>
             </w:r>
         </w:p>
         <w:p>

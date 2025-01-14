@@ -74,13 +74,23 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       },
     });
   },
-  numberedListItem: (block, exporter, nestingLevel) => {
+  numberedListItem: (
+    block,
+    exporter,
+    nestingLevel,
+    _numberedListIndex,
+    numberedListStart,
+    numberedListInstance
+  ) => {
+    exporter.addNumberingSectionStart(numberedListStart!);
+
     return new Paragraph({
       ...blockPropsToStyles(block.props, exporter.options.colors),
       children: exporter.transformInlineContent(block.content),
       numbering: {
-        reference: "blocknote-numbered-list",
+        reference: `blocknote-numbered-list-${numberedListStart}`,
         level: nestingLevel,
+        instance: numberedListInstance,
       },
     });
   },

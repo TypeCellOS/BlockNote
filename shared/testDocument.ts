@@ -137,7 +137,24 @@ export const testDocument = partialBlocksToBlocksForTesting(
     },
     {
       type: "numberedListItem",
-      content: "Numbered List Item",
+      content: "Numbered List Item starting at 10",
+      props: {
+        start: 10,
+      },
+    },
+    {
+      type: "numberedListItem",
+      content: "Numbered List Item continuing from 10",
+      children: [
+        {
+          type: "numberedListItem",
+          content: "Numbered List Item Nested 1",
+        },
+        {
+          type: "numberedListItem",
+          content: "Numbered List Item Nested 2",
+        },
+      ],
     },
     {
       type: "checkListItem",
