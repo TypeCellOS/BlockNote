@@ -4,7 +4,11 @@ import { defineConfig } from "vite";
 import pkg from "./package.json";
 // import eslintPlugin from "vite-plugin-eslint";
 
-const deps = Object.keys(pkg.dependencies);
+const deps = Object.keys({
+  ...pkg.dependencies,
+  ...pkg.peerDependencies,
+  ...pkg.devDependencies,
+});
 
 // https://vitejs.dev/config/
 export default defineConfig((conf) => ({
