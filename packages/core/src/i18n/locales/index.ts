@@ -13,3 +13,4 @@ export * from "./pt.js";
 export * from "./ru.js";
 export * from "./vi.js";
 export * from "./zh.js";
+export * from "./it.js"
