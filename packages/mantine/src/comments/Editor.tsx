@@ -7,12 +7,13 @@ export const Editor = forwardRef<
   HTMLDivElement,
   ComponentProps["Comments"]["Editor"]
 >((props, ref) => {
-  const { className, editor, editable, ...rest } = props;
+  const { className, onFocus, onBlur, editor, editable, ...rest } = props;
 
   assertEmpty(rest, false);
 
   return (
     <BlockNoteView
+      className={className}
       editor={props.editor}
       sideMenu={false}
       slashMenu={false}
@@ -20,6 +21,8 @@ export const Editor = forwardRef<
       filePanel={false}
       editable={editable}
       ref={ref}
+      onFocus={onFocus}
+      onBlur={onBlur}
     />
   );
 });

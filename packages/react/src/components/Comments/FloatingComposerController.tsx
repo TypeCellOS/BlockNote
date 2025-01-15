@@ -53,6 +53,7 @@ export const FloatingComposerController = <
       middleware: [offset(10), flip()],
       onOpenChange: (open) => {
         if (!open) {
+          // TODO
           editor.filePanel!.closeMenu();
           editor.focus();
         }
@@ -69,7 +70,6 @@ export const FloatingComposerController = <
 
   return (
     <div ref={ref} style={style} {...getFloatingProps()}>
-      {/* <div>hello</div> */}
       <Component />
     </div>
   );

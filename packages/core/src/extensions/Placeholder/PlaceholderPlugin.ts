@@ -1,5 +1,6 @@
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
+import { v4 } from "uuid";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 const PLUGIN_KEY = new PluginKey(`blocknote-placeholder`);
@@ -12,7 +13,9 @@ export class PlaceholderPlugin {
   ) {
     this.plugin = new Plugin({
       key: PLUGIN_KEY,
-      view: () => {
+      view: (view) => {
+        const uniqueEditorSelector = `placeholder-selector-${v4()}`;
+        view.dom.classList.add(uniqueEditorSelector);
         const styleEl = document.createElement("style");
         const nonce = editor._tiptapEditor.options.injectNonce;
         if (nonce) {
@@ -27,7 +30,7 @@ export class PlaceholderPlugin {
         const styleSheet = styleEl.sheet!;
 
         const getBaseSelector = (additionalSelectors = "") =>
-          `.bn-block-content${additionalSelectors} .bn-inline-content:has(> .ProseMirror-trailingBreak:only-child):before`;
+          `.${uniqueEditorSelector} .bn-block-content${additionalSelectors} .bn-inline-content:has(> .ProseMirror-trailingBreak:only-child):before`;
 
         const getSelector = (
           blockType: string | "default",

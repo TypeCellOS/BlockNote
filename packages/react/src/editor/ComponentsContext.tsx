@@ -18,6 +18,7 @@ type ToolbarRootType = {
   children?: ReactNode;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
+  variant?: "default" | "action-toolbar";
 };
 
 type ToolbarButtonType = {
@@ -28,6 +29,7 @@ type ToolbarButtonType = {
   onClick?: (e: MouseEvent) => void;
   isSelected?: boolean;
   isDisabled?: boolean;
+  variant?: "default" | "compact";
 } & (
   | { children: ReactNode; label?: string }
   | { children?: undefined; label: string }
@@ -271,6 +273,8 @@ export type ComponentProps = {
       className?: string;
       editable: boolean;
       editor: BlockNoteEditor<any, any, any>;
+      onFocus?: () => void;
+      onBlur?: () => void;
     };
     Comment: {
       className?: string;

@@ -7,6 +7,7 @@ import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { Comment, CommentProps } from "./Comment.js";
+import { CommentEditor } from "./CommentEditor.js";
 import { schema } from "./schema.js";
 
 export interface ThreadProps extends ComponentPropsWithoutRef<"div"> {
@@ -144,8 +145,9 @@ export const Thread = forwardRef(
     // const markThreadAsResolved = useMarkRoomThreadAsResolved(thread.roomId);
     // const markThreadAsUnresolved = useMarkRoomThreadAsUnresolved(thread.roomId);
 
-    const ctx = useComponentsContext()!;
+    const Components = useComponentsContext()!;
     const dict = useDictionary();
+
     const newCommentEditor = useCreateBlockNote({
       trailingBlock: false,
       dictionary: {
@@ -205,16 +207,16 @@ export const Thread = forwardRef(
 
     //  TODO: extract component
     return (
-      <ctx.Comments.Card
+      <Components.Comments.Card
         className={mergeCSSClasses(
-          "lb-root lb-thread",
+          "bn-thread",
           showActions === "hover" && "lb-thread:show-actions-hover",
           className
         )}
         // data-resolved={thread.resolved ? "" : undefined} TODO
         {...props}
         ref={forwardedRef}>
-        <ctx.Comments.CardSection className="lb-thread-comments">
+        <Components.Comments.CardSection className="lb-thread-comments">
           {thread.comments.map((comment, index) => {
             const isFirstComment = index === firstCommentIndex;
 
@@ -268,26 +270,32 @@ export const Thread = forwardRef(
               />
             );
           })}
-        </ctx.Comments.CardSection>
-        <ctx.Comments.CardSection>
-          {/* {showComposer && (
-          <Composer
-            // className="lb-thread-composer"
-            threadId={thread.id}
-            defaultCollapsed={showComposer === "collapsed" ? true : undefined}
-            showAttachments={showAttachments}
-            showFormattingControls={showComposerFormattingControls}
-            onComposerSubmit={onComposerSubmit}
-            // overrides={{
-            //   COMPOSER_PLACEHOLDER: $.THREAD_COMPOSER_PLACEHOLDER,
-            //   COMPOSER_SEND: $.THREAD_COMPOSER_SEND,
-            // }}
-            roomId={thread.roomId}
+        </Components.Comments.CardSection>
+        <Components.Comments.CardSection>
+          <CommentEditor
+            editable={true}
+            editor={newCommentEditor}
+            actions={({ isFocused, isEmpty }) => {
+              if (!isFocused && isEmpty) {
+                return null;
+              }
+
+              return (
+                <Components.Generic.Toolbar.Root
+                  variant="action-toolbar"
+                  className={mergeCSSClasses("bn-comment-actions")}>
+                  <Components.Generic.Toolbar.Button
+                    mainTooltip="Save"
+                    variant="compact"
+                    isDisabled={isEmpty}>
+                    Save
+                  </Components.Generic.Toolbar.Button>
+                </Components.Generic.Toolbar.Root>
+              );
+            }}
           />
-        )} */}
-          <ctx.Comments.Editor editable={true} editor={newCommentEditor} />
-        </ctx.Comments.CardSection>
-      </ctx.Comments.Card>
+        </Components.Comments.CardSection>
+      </Components.Comments.Card>
     );
   }
 ) as (props: ThreadProps & RefAttributes<HTMLDivElement>) => JSX.Element;

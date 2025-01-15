@@ -49,8 +49,8 @@ export const FloatingThreadController = <
       middleware: [offset(10), flip()],
       onOpenChange: (open) => {
         if (!open) {
-          editor.filePanel!.closeMenu();
-          editor.focus();
+          // editor.filePanel!.closeMenu();
+          // editor.focus();
         }
       },
       ...props.floatingOptions,

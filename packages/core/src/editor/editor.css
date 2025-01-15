@@ -10,7 +10,12 @@
   --N40: #dfe1e6; /* Light neutral used for subtle borders and text on dark background */
 }
 
-.bn-comment-composer .bn-editor {
+.bn-comment-editor {
+  width: 100%;
+  padding: 0;
+}
+
+.bn-comment-editor .bn-editor {
   padding: 0;
 }
 

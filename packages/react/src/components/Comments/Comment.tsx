@@ -3,7 +3,6 @@
 import { CommentData, mergeCSSClasses } from "@blocknote/core";
 import type {
   ComponentPropsWithoutRef,
-  FormEvent,
   MouseEvent,
   ReactNode,
   SyntheticEvent,
@@ -13,6 +12,7 @@ import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { mergeRefs } from "../../util/mergeRefs.js";
+import { CommentEditor } from "./CommentEditor.js";
 import { schema } from "./schema.js";
 
 /**
@@ -298,18 +298,15 @@ export const Comment = forwardRef<HTMLDivElement, CommentProps>(
     }, []);
 
     const handleEditCancel = useCallback(
-      (event: MouseEvent<HTMLButtonElement>) => {
+      (event: MouseEvent) => {
         event.stopPropagation();
         setEditing(false);
       },
-      []
+      [setEditing]
     );
 
     const handleEditSubmit = useCallback(
-      (
-        { body, attachments }: ComposerSubmitComment,
-        event: FormEvent<HTMLFormElement>
-      ) => {
+      (_event: MouseEvent) => {
         // TODO: Add a way to preventDefault from within this callback, to override the default behavior (e.g. showing a confirmation dialog)
         onCommentEdit?.(comment);
 
@@ -423,15 +420,21 @@ export const Comment = forwardRef<HTMLDivElement, CommentProps>(
           </Tooltip>
         </EmojiPicker>
       )} */}
-          <Components.Generic.Toolbar.Button mainTooltip="Add reaction">
+          <Components.Generic.Toolbar.Button
+            mainTooltip="Add reaction"
+            variant="compact">
             R1
           </Components.Generic.Toolbar.Button>
-          <Components.Generic.Toolbar.Button mainTooltip="Resolve">
+          <Components.Generic.Toolbar.Button
+            mainTooltip="Resolve"
+            variant="compact">
             R2
           </Components.Generic.Toolbar.Button>
           <Components.Generic.Menu.Root>
             <Components.Generic.Menu.Trigger>
-              <Components.Generic.Toolbar.Button mainTooltip="More actions">
+              <Components.Generic.Toolbar.Button
+                mainTooltip="More actions"
+                variant="compact">
                 ...
               </Components.Generic.Toolbar.Button>
             </Components.Generic.Menu.Trigger>
@@ -444,40 +447,6 @@ export const Comment = forwardRef<HTMLDivElement, CommentProps>(
               </Components.Generic.Menu.Item>
             </Components.Generic.Menu.Dropdown>
           </Components.Generic.Menu.Root>
-          {/* {comment.userId === currentUserId && (
-        <Dropdown
-          open={isMoreActionOpen}
-          onOpenChange={setMoreActionOpen}
-          align="end"
-          content={
-            <>
-              <DropdownItem
-                onSelect={handleEdit}
-                onClick={stopPropagation}>
-                <EditIcon className="lb-dropdown-item-icon" />
-                {$.COMMENT_EDIT}
-              </DropdownItem>
-              <DropdownItem
-                onSelect={handleDelete}
-                onClick={stopPropagation}>
-                <DeleteIcon className="lb-dropdown-item-icon" />
-                {$.COMMENT_DELETE}
-              </DropdownItem>
-            </>
-          }>
-          <Tooltip content={$.COMMENT_MORE}>
-            <DropdownTrigger asChild>
-              <Button
-                className="lb-comment-action"
-                disabled={!comment.body}
-                onClick={stopPropagation}
-                aria-label={$.COMMENT_MORE}>
-                <EllipsisIcon className="lb-button-icon" />
-              </Button>
-            </DropdownTrigger>
-          </Tooltip>
-        </Dropdown>
-      )} */}
         </Components.Generic.Toolbar.Root>
       );
     }
@@ -498,51 +467,38 @@ export const Comment = forwardRef<HTMLDivElement, CommentProps>(
         timeString={timeString}
         actions={actions}>
         {isEditing ? (
-          <Components.Comments.Editor editor={commentEditor} editable={true} />
-        ) : // <Composer
-        //   // className="lb-comment-composer"
-        //   onComposerSubmit={handleEditSubmit}
-        //   defaultValue={comment.body}
-        //   autoFocus
-        //   showAttribution={false}
-        //   showFormattingControls={showComposerFormattingControls}
-        // actions={
-        //   <>
-        //     <Tooltip
-        //       content={$.COMMENT_EDIT_COMPOSER_CANCEL}
-        //       aria-label={$.COMMENT_EDIT_COMPOSER_CANCEL}>
-        //       <Button
-        //         className="lb-composer-action"
-        //         onClick={handleEditCancel}>
-        //         <CrossIcon className="lb-button-icon" />
-        //       </Button>
-        //     </Tooltip>
-        //     <ShortcutTooltip
-        //       content={$.COMMENT_EDIT_COMPOSER_SAVE}
-        //       shortcut={<ShortcutTooltipKey name="enter" />}>
-        //       <ComposerPrimitive.Submit asChild>
-        //         <Button
-        //           variant="primary"
-        //           className="lb-composer-action"
-        //           onClick={stopPropagation}
-        //           aria-label={$.COMMENT_EDIT_COMPOSER_SAVE}>
-        //           <CheckIcon className="lb-button-icon" />
-        //         </Button>
-        //       </ComposerPrimitive.Submit>
-        //     </ShortcutTooltip>
-        //   </>
-        // }
-        // overrides={{
-        //   COMPOSER_PLACEHOLDER: $.COMMENT_EDIT_COMPOSER_PLACEHOLDER,
-        // }}
-        // roomId={comment.roomId}
-        // />
-        comment.body ? (
+          <>
+            <CommentEditor
+              editor={commentEditor}
+              editable={true}
+              actions={({ isEmpty }) => (
+                <Components.Generic.Toolbar.Root
+                  variant="action-toolbar"
+                  className={mergeCSSClasses("bn-comment-actions")}>
+                  <Components.Generic.Toolbar.Button
+                    mainTooltip="Cancel"
+                    variant="compact"
+                    onClick={handleEditCancel}>
+                    X
+                  </Components.Generic.Toolbar.Button>
+                  <Components.Generic.Toolbar.Button
+                    mainTooltip="Save"
+                    variant="compact"
+                    onClick={handleEditSubmit}
+                    isDisabled={isEmpty}>
+                    Save
+                  </Components.Generic.Toolbar.Button>
+                </Components.Generic.Toolbar.Root>
+              )}
+            />
+          </>
+        ) : comment.body ? (
           <>
             <Components.Comments.Editor
               editor={commentEditor}
               editable={false}
             />
+
             {showReactions && comment.reactions.length > 0 && (
               <div className="lb-comment-reactions">
                 {/* {comment.reactions.map((reaction) => (
