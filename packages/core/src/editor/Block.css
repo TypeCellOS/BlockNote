@@ -322,6 +322,12 @@ NESTED BLOCKS
   background-repeat: repeat-x;
 }
 
+@media print {
+  .bn-block-content[data-content-type="pageBreak"] > div {
+    page-break-after: always;
+  }
+}
+
 /* FILES */
 
 /* Element that wraps content for all file blocks */
