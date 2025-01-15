@@ -284,7 +284,7 @@ export default function App() {
         },
         content: `const helloWorld = (message) => {
   console.log("Hello World", message);
-  };`,
+};`,
       },
     ],
   });

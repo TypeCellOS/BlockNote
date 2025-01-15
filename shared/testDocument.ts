@@ -272,7 +272,7 @@ export const testDocument = partialBlocksToBlocksForTesting(
         language: "javascript",
       },
       content: `const helloWorld = (message) => {
-console.log("Hello World", message);
+  console.log("Hello World", message);
 };`,
     },
   ]

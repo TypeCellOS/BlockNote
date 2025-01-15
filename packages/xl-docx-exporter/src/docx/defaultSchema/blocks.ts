@@ -133,24 +133,21 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
     ];
   },
   // TODO
-  codeBlock: (block, exporter) => {
+  codeBlock: (block) => {
     const textContent = (block.content as StyledText<any>[])[0]?.text || "";
 
     return new Paragraph({
-      run: {
-        highlight: "none",
-      },
+      style: "Codeblock",
       shading: {
         type: ShadingType.SOLID,
-        fill: exporter.options.colors.gray.background.slice(1),
-        color: exporter.options.colors.gray.background.slice(1),
+        fill: "161616",
+        color: "161616",
       },
       children: [
         ...textContent.split("\n").map((line, index) => {
           return new TextRun({
             text: line,
             break: index > 0 ? 1 : 0,
-            font: "GeistMono",
           });
         }),
       ],

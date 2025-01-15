@@ -90,7 +90,8 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
         wrap={false}
         style={{
           padding: 24 * PIXELS_PER_POINT,
-          backgroundColor: "#ebeced",
+          backgroundColor: "#161616",
+          color: "#ffffff",
           lineHeight: 1.25,
           fontSize: FONT_SIZE * PIXELS_PER_POINT,
           fontFamily: "GeistMono",

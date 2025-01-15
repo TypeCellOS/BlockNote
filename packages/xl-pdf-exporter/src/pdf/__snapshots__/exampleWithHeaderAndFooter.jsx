@@ -588,7 +588,7 @@
         </view>
         <view>
           <view
-            style="padding: 18px; background-color: rgb(235, 236, 237); line-height: 1.25; font-size: 12px; font-family: GeistMono;"
+            style="padding: 18px; background-color: rgb(22, 22, 22); color: rgb(255, 255, 255); line-height: 1.25; font-size: 12px; font-family: GeistMono;"
           >
             <text
               style="margin-left: 0px;"
@@ -596,7 +596,7 @@
               const helloWorld = (message) =&gt; {
             </text>
             <text
-              style="margin-left: 0px;"
+              style="margin-left: 14.25px;"
             >
               console.log("Hello World", message);
             </text>
