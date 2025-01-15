@@ -104,11 +104,12 @@ export function contentNodeToInlineContent<
       return;
     }
 
-    if (
-      node.type.name !== "link" &&
-      node.type.name !== "text" &&
-      inlineContentSchema[node.type.name]
-    ) {
+    if (node.type.name !== "link" && node.type.name !== "text") {
+      if (!inlineContentSchema[node.type.name]) {
+        // @eslint-disable-next-line no-console
+        console.warn("unrecognized inline content type", node.type.name);
+        return;
+      }
       if (currentContent) {
         content.push(currentContent);
         currentContent = undefined;
@@ -130,6 +131,10 @@ export function contentNodeToInlineContent<
       } else {
         const config = styleSchema[mark.type.name];
         if (!config) {
+          if (mark.type.name === "liveblocksCommentMark") {
+            // TODO
+            continue;
+          }
           throw new Error(`style ${mark.type.name} not found in styleSchema`);
         }
         if (config.propSchema === "boolean") {
