@@ -83,7 +83,6 @@ Tippy popups that are appended to document.body directly
   border-right: 1px solid #0d0d0d;
   margin-left: -1px;
   margin-right: -1px;
-  pointer-events: none;
   position: relative;
   word-break: normal;
   white-space: nowrap !important;

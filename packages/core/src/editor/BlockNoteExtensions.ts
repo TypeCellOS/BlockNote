@@ -1,4 +1,5 @@
 import { AnyExtension, Extension, extensions } from "@tiptap/core";
+import { Awareness } from "y-protocols/awareness";
 
 import type { BlockNoteEditor, BlockNoteExtension } from "./BlockNoteEditor.js";
 
@@ -251,7 +252,11 @@ const getTipTapExtensions = <
       })
     );
     if (opts.collaboration.provider?.awareness) {
-      const defaultRender = (user: { color: string; name: string }) => {
+      const defaultRender = (user: {
+        clientID: number;
+        color: string;
+        name: string;
+      }) => {
         const cursor = document.createElement("span");
 
         cursor.classList.add("collaboration-cursor__caret");
@@ -265,14 +270,72 @@ const getTipTapExtensions = <
 
         const nonbreakingSpace1 = document.createTextNode("\u2060");
         const nonbreakingSpace2 = document.createTextNode("\u2060");
-        cursor.insertBefore(nonbreakingSpace1, null);
-        cursor.insertBefore(label, null);
-        cursor.insertBefore(nonbreakingSpace2, null);
+
+        let hideTimeout: NodeJS.Timeout | undefined = undefined;
+        let oldDoc = opts.editor.document;
+        const awareness = opts.collaboration!.provider.awareness as Awareness;
+
+        awareness.on(
+          "change",
+          (a: {
+            added: Array<number>;
+            updated: Array<number>;
+            removed: Array<number>;
+          }) => {
+            if (!a.updated.includes(user.clientID)) {
+              return;
+            }
+
+            if (hideTimeout) {
+              clearTimeout(hideTimeout);
+            }
+
+            if (
+              JSON.stringify(opts.editor.document) !== JSON.stringify(oldDoc)
+            ) {
+              cursor.insertBefore(nonbreakingSpace1, null);
+              cursor.insertBefore(label, null);
+              cursor.insertBefore(nonbreakingSpace2, null);
+
+              hideTimeout = setTimeout(() => {
+                label.remove();
+                nonbreakingSpace1.remove();
+                nonbreakingSpace2.remove();
+              }, 500);
+            }
+
+            oldDoc = opts.editor.document;
+          }
+        );
+
+        cursor.addEventListener("mouseenter", () => {
+          if (hideTimeout) {
+            clearTimeout(hideTimeout);
+            hideTimeout = undefined;
+          }
+
+          cursor.insertBefore(nonbreakingSpace1, null);
+          cursor.insertBefore(label, null);
+          cursor.insertBefore(nonbreakingSpace2, null);
+        });
+
+        cursor.addEventListener("mouseleave", () => {
+          hideTimeout = setTimeout(() => {
+            label.remove();
+            nonbreakingSpace1.remove();
+            nonbreakingSpace2.remove();
+          }, 250);
+        });
+
         return cursor;
       };
       tiptapExtensions.push(
         CollaborationCursor.configure({
-          user: opts.collaboration.user,
+          user: {
+            clientID: opts.collaboration.provider.awareness.clientID,
+            name: opts.collaboration.user.name,
+            color: opts.collaboration.user.color,
+          },
           render: opts.collaboration.renderCursor || defaultRender,
           provider: opts.collaboration.provider,
         })
