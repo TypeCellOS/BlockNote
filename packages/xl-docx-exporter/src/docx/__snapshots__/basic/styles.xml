@@ -953,8 +953,8 @@
         <w:basedOn w:val="Normal"/>
         <w:rPr>
             <w:noProof/>
-            <w:color w:val="e1e4e8"/>
-            <w:shd w:fill="161616"/>
+            <w:color w:val="ffffff"/>
+            <w:rFonts w:ascii="GeistMono" w:cs="GeistMono" w:eastAsia="GeistMono" w:hAnsi="GeistMono"/>
         </w:rPr>
     </w:style>
 </w:styles>

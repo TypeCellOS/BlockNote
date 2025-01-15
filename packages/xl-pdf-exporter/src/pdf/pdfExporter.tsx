@@ -216,6 +216,14 @@ export class PDFExporter<
       fontWeight: "bold",
     });
 
+    font = await loadFontDataUrl(
+      await import("@shared/assets/fonts/GeistMono-Regular.ttf")
+    );
+    Font.register({
+      family: "GeistMono",
+      src: font,
+    });
+
     this.fontsRegistered = true;
   }
 

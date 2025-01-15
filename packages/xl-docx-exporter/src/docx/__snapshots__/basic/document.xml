@@ -114,15 +114,6 @@
         </w:p>
         <w:p>
             <w:pPr>
-                <w:pStyle w:val="Codeblock"/>
-            </w:pPr>
-            <w:r>
-                <w:t xml:space="preserve">Code Block
-Line 2</w:t>
-            </w:r>
-        </w:p>
-        <w:p>
-            <w:pPr>
                 <w:pStyle w:val="ListParagraph"/>
                 <w:numPr>
                     <w:ilvl w:val="0"/>
@@ -675,6 +666,23 @@ Line 2</w:t>
                 </w:tc>
             </w:tr>
         </w:tbl>
+        <w:p>
+            <w:pPr>
+                <w:pStyle w:val="Codeblock"/>
+                <w:shd w:fill="161616" w:color="161616" w:val="solid"/>
+            </w:pPr>
+            <w:r>
+                <w:t xml:space="preserve">const helloWorld = (message) =&gt; {</w:t>
+            </w:r>
+            <w:r>
+                <w:br/>
+                <w:t xml:space="preserve">  console.log(&quot;Hello World&quot;, message);</w:t>
+            </w:r>
+            <w:r>
+                <w:br/>
+                <w:t xml:space="preserve">};</w:t>
+            </w:r>
+        </w:p>
         <w:sectPr>
             <w:pgSz w:w="11906" w:h="16838" w:orient="portrait"/>
             <w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="708" w:footer="708" w:gutter="0"/>
