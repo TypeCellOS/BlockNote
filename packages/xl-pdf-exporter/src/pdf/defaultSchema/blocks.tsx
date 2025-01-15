@@ -71,6 +71,9 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
   codeBlock: (block) => {
     return <Text>{block.type + " not implemented"}</Text>;
   },
+  pageBreak: () => {
+    return <View break />;
+  },
   audio: (block, exporter) => {
     return (
       <View wrap={false}>

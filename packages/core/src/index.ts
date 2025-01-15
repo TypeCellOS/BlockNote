@@ -6,6 +6,7 @@ export * from "./api/nodeUtil.js";
 export * from "./api/testUtil/index.js";
 export * from "./blocks/AudioBlockContent/AudioBlockContent.js";
 export * from "./blocks/CodeBlockContent/CodeBlockContent.js";
+export * from "./blocks/PageBreakBlockContent/PageBreakBlockContent.js";
 export * from "./blocks/FileBlockContent/FileBlockContent.js";
 export * from "./blocks/FileBlockContent/helpers/parse/parseEmbedElement.js";
 export * from "./blocks/FileBlockContent/helpers/parse/parseFigureElement.js";

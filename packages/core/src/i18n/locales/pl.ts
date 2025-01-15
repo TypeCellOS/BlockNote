@@ -50,6 +50,12 @@ export const pl: Dictionary = {
       aliases: ["kod", "pre"],
       group: "Podstawowe bloki",
     },
+    page_break: {
+      title: "Podział strony",
+      subtext: "Separator strony",
+      aliases: ["page", "break", "separator", "podział", "separator"],
+      group: "Podstawowe bloki",
+    },
     table: {
       title: "Tabela",
       subtext: "Używana do tworzenia tabel",

@@ -1605,6 +1605,22 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
 }
 `;
 
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert pageBreak/basic to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "type": "pageBreak",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
 exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert paragraph/basic to/from prosemirror 1`] = `
 {
   "attrs": {

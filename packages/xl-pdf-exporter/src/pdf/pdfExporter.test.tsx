@@ -9,7 +9,7 @@ import {
 } from "@blocknote/core";
 import { Text } from "@react-pdf/renderer";
 import { testDocument } from "@shared/testDocument.js";
-import { prettyDOM, render } from "@testing-library/react";
+import reactElementToJSXString from "react-element-to-jsx-string";
 import { describe, expect, it } from "vitest";
 import { pdfDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { PDFExporter } from "./pdfExporter.js";
@@ -160,8 +160,8 @@ describe("exporter", () => {
     );
 
     const transformed = await exporter.toReactPDFDocument(testDocument);
-    const view = render(transformed);
-    const str = prettyDOM(view.container, undefined, { highlight: false });
+    const str = reactElementToJSXString(transformed);
+
     expect(str).toMatchFileSnapshot("__snapshots__/example.jsx");
 
     // would be nice to compare pdf images, but currently doesn't work on mac os (due to node canvas installation issue)
@@ -194,8 +194,7 @@ describe("exporter", () => {
       header: <Text>Header</Text>,
       footer: <Text>Footer</Text>,
     });
-    const view = render(transformed);
-    const str = prettyDOM(view.container, undefined, { highlight: false });
+    const str = reactElementToJSXString(transformed);
     expect(str).toMatchFileSnapshot(
       "__snapshots__/exampleWithHeaderAndFooter.jsx"
     );

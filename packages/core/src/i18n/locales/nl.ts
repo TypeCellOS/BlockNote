@@ -50,6 +50,12 @@ export const nl: Dictionary = {
       aliases: ["code", "pre"],
       group: "Basisblokken",
     },
+    page_break: {
+      title: "Pagina-einde",
+      subtext: "Paginascheiding",
+      aliases: ["page", "break", "separator", "pagina", "scheiding"],
+      group: "Basisblokken",
+    },
     table: {
       title: "Tabel",
       subtext: "Gebruikt voor tabellen",

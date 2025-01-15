@@ -186,6 +186,18 @@ export function getDefaultSlashMenuItems<
     });
   }
 
+  if (checkDefaultBlockTypeInSchema("pageBreak", editor)) {
+    items.push({
+      onItemClick: () => {
+        insertOrUpdateBlock(editor, {
+          type: "pageBreak",
+        });
+      },
+      key: "page_break",
+      ...editor.dictionary.slash_menu.page_break,
+    });
+  }
+
   if (checkDefaultBlockTypeInSchema("table", editor)) {
     items.push({
       onItemClick: () => {

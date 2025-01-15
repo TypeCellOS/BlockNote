@@ -75,6 +75,12 @@ export const zh: Dictionary = {
       aliases: ["code", "pre", "代码", "预格式"],
       group: "基础",
     },
+    page_break: {
+      title: "分页符",
+      subtext: "页面分隔符",
+      aliases: ["page", "break", "separator", "分页", "分隔符"],
+      group: "基础",
+    },
     table: {
       title: "表格",
       subtext: "使用表格",

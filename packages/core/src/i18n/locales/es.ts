@@ -55,6 +55,12 @@ export const es = {
       aliases: ["code", "pre"],
       group: "Bloques básicos",
     },
+    page_break: {
+      title: "Salto de página",
+      subtext: "Separador de página",
+      aliases: ["page", "break", "separator", "salto", "separador"],
+      group: "Bloques básicos",
+    },
     table: {
       title: "Tabla",
       subtext: "Tabla con celdas editables",

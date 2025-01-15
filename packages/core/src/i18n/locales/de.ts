@@ -56,6 +56,12 @@ export const de = {
       aliases: ["code", "pre"],
       group: "Grundlegende blöcke",
     },
+    page_break: {
+      title: "Seitenumbruch",
+      subtext: "Seitentrenner",
+      aliases: ["page", "break", "separator", "seitenumbruch", "trenner"],
+      group: "Grundlegende Blöcke",
+    },
     table: {
       title: "Tabelle",
       subtext: "Tabelle mit editierbaren Zellen",

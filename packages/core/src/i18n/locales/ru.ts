@@ -75,6 +75,12 @@ export const ru: Dictionary = {
       aliases: ["code", "pre", "блок кода"],
       group: "Базовые блоки",
     },
+    page_break: {
+      title: "Разрыв страницы",
+      subtext: "Разделитель страницы",
+      aliases: ["page", "break", "separator", "разрыв", "разделитель"],
+      group: "Основные блоки",
+    },
     table: {
       title: "Таблица",
       subtext: "Используется для таблиц",
