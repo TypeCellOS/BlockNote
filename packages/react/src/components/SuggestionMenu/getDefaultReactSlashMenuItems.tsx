@@ -21,6 +21,7 @@ import {
   RiVolumeUpFill,
   RiCodeBlock,
 } from "react-icons/ri";
+import { TbPageBreak } from "react-icons/tb";
 import { DefaultReactSuggestionItem } from "./types.js";
 
 const icons = {
@@ -38,6 +39,7 @@ const icons = {
   file: RiFile2Line,
   emoji: RiEmotionFill,
   code_block: RiCodeBlock,
+  page_break: TbPageBreak,
 };
 
 export function getDefaultReactSlashMenuItems<

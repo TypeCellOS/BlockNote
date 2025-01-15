@@ -79,6 +79,7 @@ export const testDocument = partialBlocksToBlocksForTesting(
       type: "codeBlock",
       content: "Code Block\nLine 2",
     },
+    { type: "pageBreak" },
     {
       type: "bulletListItem",
       content:

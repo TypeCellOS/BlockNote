@@ -203,6 +203,14 @@ export const defaultSchemaTestCases: EditorTestCases<
       ],
     },
     {
+      name: "pageBreak/basic",
+      blocks: [
+        {
+          type: "pageBreak",
+        },
+      ],
+    },
+    {
       name: "file/button",
       blocks: [
         {

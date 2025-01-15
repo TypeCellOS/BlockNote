@@ -118,6 +118,7 @@ export default function App() {
           ],
         },
       },
+      { type: "pageBreak" },
       {
         type: "file",
       },

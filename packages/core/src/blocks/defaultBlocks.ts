@@ -22,6 +22,7 @@ import {
 
 import { AudioBlock } from "./AudioBlockContent/AudioBlockContent.js";
 import { CodeBlock } from "./CodeBlockContent/CodeBlockContent.js";
+import { PageBreak } from "./PageBreakBlockContent/PageBreakBlockContent.js";
 import { FileBlock } from "./FileBlockContent/FileBlockContent.js";
 import { Heading } from "./HeadingBlockContent/HeadingBlockContent.js";
 import { ImageBlock } from "./ImageBlockContent/ImageBlockContent.js";
@@ -38,6 +39,7 @@ export const defaultBlockSpecs = {
   paragraph: Paragraph,
   heading: Heading,
   codeBlock: CodeBlock,
+  pageBreak: PageBreak,
   bulletListItem: BulletListItem,
   numberedListItem: NumberedListItem,
   checkListItem: CheckListItem,
