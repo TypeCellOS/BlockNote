@@ -11,6 +11,7 @@ import {
   ExternalHyperlink,
   IParagraphOptions,
   ImageRun,
+  PageBreak,
   Paragraph,
   ParagraphChild,
   ShadingType,
@@ -142,6 +143,11 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       //     text: block..type + " not implemented",
       //   }),
       // ],
+    });
+  },
+  pageBreak: () => {
+    return new Paragraph({
+      children: [new PageBreak()],
     });
   },
   image: async (block, exporter) => {
