@@ -50,7 +50,7 @@ export class YjsThreadStore extends ThreadStore {
         createdAt: date,
         updatedAt: date,
         reactions: [],
-        metadata: options.metadata,
+        metadata: options.initialComment.metadata,
         body: options.initialComment.body,
       };
 
