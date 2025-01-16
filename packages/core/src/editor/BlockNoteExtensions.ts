@@ -15,6 +15,8 @@ import { createDropFileExtension } from "../api/clipboard/fromClipboard/fileDrop
 import { createPasteFromClipboardExtension } from "../api/clipboard/fromClipboard/pasteExtension.js";
 import { createCopyToClipboardExtension } from "../api/clipboard/toClipboard/copyExtension.js";
 import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension.js";
+import { CommentMark } from "../extensions/Comments/CommentMark.js";
+import { CommentsPlugin } from "../extensions/Comments/CommentsPlugin.js";
 import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin.js";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin.js";
 import { KeyboardShortcutsExtension } from "../extensions/KeyboardShortcuts/KeyboardShortcutsExtension.js";
@@ -119,6 +121,9 @@ export const getBlockNoteExtensions = <
   };
 
   ret["nodeSelectionKeyboard"] = new NodeSelectionKeyboardPlugin();
+
+  // TODO
+  ret["comments"] = new CommentsPlugin(opts.editor, CommentMark.name);
 
   const disableExtensions: string[] = opts.disableExtensions || [];
   for (const ext of disableExtensions) {
@@ -240,6 +245,7 @@ const getTipTapExtensions = <
     ...(opts.trailingBlock === undefined || opts.trailingBlock
       ? [TrailingNode]
       : []),
+    CommentMark,
   ];
 
   if (opts.collaboration) {

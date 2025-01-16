@@ -40,6 +40,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       isDisabled,
       onClick,
       label,
+      variant,
       ...rest
     } = props;
 
@@ -75,7 +76,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
               mainTooltip.slice(0, 1).toLowerCase() +
               mainTooltip.replace(/\s+/g, "").slice(1)
             }
-            size={"xs"}
+            size={variant === "compact" ? "compact-xs" : "xs"}
             disabled={isDisabled || false}
             ref={ref}
             {...rest}>
@@ -99,7 +100,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
               mainTooltip.slice(0, 1).toLowerCase() +
               mainTooltip.replace(/\s+/g, "").slice(1)
             }
-            size={30}
+            size={variant === "compact" ? 20 : 30}
             disabled={isDisabled || false}
             ref={ref}
             {...rest}>
