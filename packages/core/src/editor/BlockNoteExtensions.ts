@@ -251,13 +251,14 @@ const getTipTapExtensions = <
         fragment: opts.collaboration.fragment,
       })
     );
-    if (opts.collaboration.provider?.awareness) {
+
+    const awareness = opts.collaboration?.provider.awareness as Awareness;
+
+    if (awareness) {
       const cursors = new Map<
         number,
         { element: HTMLElement; hideTimeout: NodeJS.Timeout | undefined }
       >();
-
-      const awareness = opts.collaboration!.provider.awareness as Awareness;
 
       awareness.on(
         "change",
@@ -282,7 +283,7 @@ const getTipTapExtensions = <
                 element: cursor.element,
                 hideTimeout: setTimeout(() => {
                   cursor.element.removeAttribute("data-active");
-                }, 1000),
+                }, 2000),
               });
             }
           }
@@ -330,7 +331,7 @@ const getTipTapExtensions = <
             element: cursor.element,
             hideTimeout: setTimeout(() => {
               cursor.element.removeAttribute("data-active");
-            }, 1000),
+            }, 2000),
           });
         });
 
@@ -354,10 +355,7 @@ const getTipTapExtensions = <
       };
       tiptapExtensions.push(
         CollaborationCursor.configure({
-          user: {
-            name: opts.collaboration.user.name,
-            color: opts.collaboration.user.color,
-          },
+          user: opts.collaboration.user,
           render: opts.collaboration.renderCursor || defaultRender,
           provider: opts.collaboration.provider,
         })

@@ -88,31 +88,9 @@ Tippy popups that are appended to document.body directly
   white-space: nowrap !important;
 }
 
-@keyframes label-collapse {
-  from {
-    border-radius: 3px 3px 3px 0;
-    color: #0d0d0d;
-    max-height: 1.1rem;
-    max-width: 10rem;
-    padding: 0.1rem 0.3rem;
-    top: -1.1rem;
-  }
-
-  to {
-    border-radius: 0 3px 3px 0;
-    color: transparent;
-    max-height: 4px;
-    max-width: 4px;
-    padding: 0;
-    top: 0;
-  }
-}
-
 /* Render the username above the caret */
 .collaboration-cursor__label {
-  animation-name: label-collapse;
-  animation-duration: 0.2s;
-  border-radius: 0 3px 3px 0;
+  border-radius: 3px 3px 3px 0;
   color: transparent;
   font-size: 12px;
   font-style: normal;
@@ -124,39 +102,18 @@ Tippy popups that are appended to document.body directly
   overflow: hidden;
   padding: 0;
   position: absolute;
-  top: 0;
-  user-select: none;
-}
-
-@keyframes label-expand {
-  from {
-    border-radius: 0 3px 3px 0;
-    color: transparent;
-    max-height: 4px;
-    max-width: 4px;
-    padding: 0;
-    top: -4px;
-  }
-
-  to {
-    border-radius: 3px 3px 3px 0;
-    color: #0d0d0d;
-    max-height: 1.1rem;
-    max-width: 20rem;
-    padding: 0.1rem 0.3rem;
-    top: -1.1rem;
-  }
+  transform: translateY(3px);
+  transition: all 0.2s;
 }
 
 .collaboration-cursor__caret[data-active] > .collaboration-cursor__label {
-  animation-name: label-expand;
-  animation-duration: 0.2s;
   border-radius: 3px 3px 3px 0;
   color: #0d0d0d;
   max-height: 1.1rem;
   max-width: 20rem;
   padding: 0.1rem 0.3rem;
-  top: -1.1rem;
+  transform: translateY(-14px);
+  transition: all 0.2s;
   white-space: nowrap;
 }
 
