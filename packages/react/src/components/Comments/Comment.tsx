@@ -9,6 +9,7 @@ import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { CommentEditor } from "./CommentEditor.js";
 import { schema } from "./schema.js";
+import { useUser } from "./useUsers.js";
 
 /**
  * Liveblocks, but changed:
@@ -292,6 +293,8 @@ export const Comment = ({
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const user = useUser(editor, comment.userId);
+
   if (!showDeleted && !comment.body) {
     return null;
   }
@@ -357,11 +360,7 @@ export const Comment = ({
 
   return (
     <Components.Comments.Comment
-      authorInfo={{
-        username: "hello world",
-        avatarUrl:
-          "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-2.png",
-      }}
+      authorInfo={user ?? "loading"}
       timeString={timeString}
       showActions={showActions}
       actions={actions}>

@@ -11,6 +11,7 @@ import { Comment, CommentProps } from "./Comment.js";
 import { CommentEditor } from "./CommentEditor.js";
 import { schema } from "./schema.js";
 import { useThreadStore } from "./useThreadStore.js";
+import { useUsers } from "./useUsers.js";
 
 export interface ThreadProps extends ComponentPropsWithoutRef<"div"> {
   /**
@@ -42,24 +43,8 @@ export interface ThreadProps extends ComponentPropsWithoutRef<"div"> {
    * Whether to show deleted comments.
    */
   showDeletedComments?: CommentProps["showDeleted"];
-
-  /**
-   * Whether to show attachments.
-   */
-  showAttachments?: boolean;
 }
 
-/**
- * Displays a thread of comments, with a composer to reply
- * to it.
- *
- * @example
- * <>
- *   {threads.map((thread) => (
- *     <Thread key={thread.id} thread={thread} />
- *   ))}
- * </>
- */
 export const Thread = ({
   threadId,
   showActions = "hover",
@@ -82,6 +67,16 @@ export const Thread = ({
     throw new Error("Thread not found");
   }
 
+  const userIds = useMemo(() => {
+    return thread.comments.flatMap((c) => [
+      c.userId,
+      ...c.reactions.flatMap((r) => r.usersIds),
+    ]);
+  }, [thread.comments]);
+
+  // load all user data
+  useUsers(editor, userIds);
+
   const newCommentEditor = useCreateBlockNote({
     trailingBlock: false,
     dictionary: {
@@ -99,41 +94,6 @@ export const Thread = ({
       ? 0
       : thread.comments.findIndex((comment) => comment.body);
   }, [showDeletedComments, thread.comments]);
-
-  // const handleResolvedChange = useCallback(
-  //   (resolved: boolean) => {
-  //     onResolvedChange?.(resolved);
-
-  //     if (resolved) {
-  //       markThreadAsResolved(thread.id);
-  //     } else {
-  //       markThreadAsUnresolved(thread.id);
-  //     }
-  //   },
-  //   [
-  //     markThreadAsResolved,
-  //     markThreadAsUnresolved,
-  //     onResolvedChange,
-  //     thread.id,
-  //   ]
-  // );
-
-  // TODO: thread deletion
-
-  // const handleCommentDelete = useCallback(
-  //   (comment: Comment) => {
-  //     onCommentDelete?.(comment);
-
-  //     const filteredComments = thread.comments.filter(
-  //       (comment) => comment.body
-  //     );
-
-  //     if (filteredComments.length <= 1) {
-  //       onThreadDelete?.(thread);
-  //     }
-  //   },
-  //   [onCommentDelete, onThreadDelete, thread]
-  // );
 
   const onNewCommentSave = useCallback(async () => {
     await editor.comments!.store.addComment({

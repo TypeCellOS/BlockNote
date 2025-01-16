@@ -9,7 +9,7 @@ import {
   useContext,
 } from "react";
 
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor, User } from "@blocknote/core";
 import { DefaultReactGridSuggestionItem } from "../components/SuggestionMenu/GridSuggestionMenu/types.js";
 import { DefaultReactSuggestionItem } from "../components/SuggestionMenu/types.js";
 
@@ -273,12 +273,7 @@ export type ComponentProps = {
     Comment: {
       className?: string;
       children?: ReactNode;
-      authorInfo:
-        | "loading"
-        | {
-            username: string;
-            avatarUrl?: string;
-          };
+      authorInfo: "loading" | User;
       timeString: string;
       actions?: ReactNode;
       showActions?: boolean | "hover";

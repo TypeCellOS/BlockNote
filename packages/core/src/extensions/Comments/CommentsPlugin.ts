@@ -4,9 +4,10 @@ import { Decoration, DecorationSet } from "prosemirror-view";
 import * as Y from "yjs";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { EventEmitter } from "../../util/EventEmitter.js";
-import { ThreadStore } from "./store/ThreadStore.js";
-import { YjsThreadStore } from "./store/YjsThreadStore.js";
-import { CommentBody, ThreadData } from "./types.js";
+import { ThreadStore } from "./threadstore/ThreadStore.js";
+import { YjsThreadStore } from "./threadstore/YjsThreadStore.js";
+import { CommentBody, ThreadData, User } from "./types.js";
+import { UserStore } from "./userstore/UserStore.js";
 const PLUGIN_KEY = new PluginKey(`blocknote-comments`);
 
 enum CommentsPluginActions {
@@ -139,7 +140,21 @@ export class CommentsPlugin extends EventEmitter<any> {
 
   constructor(
     private readonly editor: BlockNoteEditor<any, any, any>,
-    private readonly markType: string
+    private readonly markType: string,
+    public readonly userStore = new UserStore<User>(async (userIds) => {
+      // fake slow network request
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // random username
+      const names = ["John Doe", "Jane Doe", "John Smith", "Jane Smith"];
+      const username = names[Math.floor(Math.random() * names.length)];
+
+      return userIds.map((id) => ({
+        id,
+        username,
+        avatarUrl: `https://placehold.co/100x100?text=${username}`,
+      }));
+    })
   ) {
     super();
 
