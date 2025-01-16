@@ -6,7 +6,7 @@ import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { EventEmitter } from "../../util/EventEmitter.js";
 import { ThreadStore } from "./store/ThreadStore.js";
 import { YjsThreadStore } from "./store/YjsThreadStore.js";
-import { CommentBody } from "./types.js";
+import { CommentBody, ThreadData } from "./types.js";
 const PLUGIN_KEY = new PluginKey(`blocknote-comments`);
 
 enum CommentsPluginActions {
@@ -84,6 +84,59 @@ export class CommentsPlugin extends EventEmitter<any> {
     });
   }
 
+  /**
+   * when a thread is resolved or deleted, we need to update the marks to reflect the new state
+   */
+  private updateMarksFromThreads = (threads: Map<string, ThreadData>) => {
+    const doc = new Y.Doc();
+    const threadMap = doc.getMap("threads");
+    threads.forEach((thread) => {
+      threadMap.set(thread.id, thread);
+    });
+
+    const ttEditor = this.editor._tiptapEditor;
+    if (!ttEditor) {
+      // TODO: better lifecycle management
+      return;
+    }
+
+    ttEditor.state.doc.descendants((node, pos) => {
+      node.marks.forEach((mark) => {
+        if (mark.type.name === this.markType) {
+          const markType = mark.type;
+          const markThreadId = mark.attrs.threadId;
+          const thread = threads.get(markThreadId);
+          const isOrphan = !thread || thread.resolved || thread.deletedAt;
+
+          if (isOrphan !== mark.attrs.orphan) {
+            const { tr } = ttEditor.state;
+            const trimmedFrom = Math.max(pos, 0);
+            const trimmedTo = Math.min(
+              pos + node.nodeSize,
+              ttEditor.state.doc.content.size - 1
+            );
+            tr.removeMark(trimmedFrom, trimmedTo, markType);
+            tr.addMark(
+              trimmedFrom,
+              trimmedTo,
+              markType.create({
+                ...mark.attrs,
+                orphan: isOrphan,
+              })
+            );
+            ttEditor.dispatch(tr);
+
+            if (isOrphan && this.selectedThreadId === markThreadId) {
+              // unselect
+              this.selectedThreadId = undefined;
+              this.emitStateUpdate();
+            }
+          }
+        }
+      });
+    });
+  };
+
   constructor(
     private readonly editor: BlockNoteEditor<any, any, any>,
     private readonly markType: string
@@ -97,7 +150,13 @@ export class CommentsPlugin extends EventEmitter<any> {
       doc.getMap("threads")
     );
 
-    // TODO
+    // TODO: unsubscribe
+    this.store.subscribe(this.updateMarksFromThreads);
+
+    // initial
+    this.updateMarksFromThreads(this.store.getThreads());
+
+    // TODO: remove settimeout
     setTimeout(() => {
       editor.onSelectionChange(() => {
         // TODO: filter out yjs transactions

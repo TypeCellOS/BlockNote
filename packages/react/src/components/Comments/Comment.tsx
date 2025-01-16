@@ -1,6 +1,6 @@
 "use client";
 
-import { CommentData, mergeCSSClasses } from "@blocknote/core";
+import { CommentData, ThreadData, mergeCSSClasses } from "@blocknote/core";
 import type { ComponentPropsWithoutRef, MouseEvent, ReactNode } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
@@ -16,7 +16,7 @@ import { schema } from "./schema.js";
  * - removed read status
  * ...
  */
-const REACTIONS_TRUNCATE = 5;
+// const REACTIONS_TRUNCATE = 5;
 
 export interface CommentProps extends ComponentPropsWithoutRef<"div"> {
   /**
@@ -27,12 +27,17 @@ export interface CommentProps extends ComponentPropsWithoutRef<"div"> {
   /**
    * The thread id.
    */
-  threadId: string;
+  thread: ThreadData;
 
   /**
    * How to show or hide the actions.
    */
   showActions?: boolean | "hover";
+
+  /**
+   * Whether to show the resolve action.
+   */
+  showResolveAction?: boolean;
 
   /**
    * Whether to show the comment if it was deleted. If set to `false`, it will render deleted comments as `null`.
@@ -45,54 +50,9 @@ export interface CommentProps extends ComponentPropsWithoutRef<"div"> {
   showReactions?: boolean;
 
   /**
-   * Whether to show the composer's formatting controls when editing the comment.
-   */
-  // showComposerFormattingControls?: ComposerProps["showFormattingControls"];
-
-  /**
-   * Whether to indent the comment's content.
-   */
-  indentContent?: boolean;
-
-  /**
-   * The event handler called when the comment is edited.
-   */
-  onCommentEdit?: (comment: CommentData) => void;
-
-  /**
-   * The event handler called when the comment is deleted.
-   */
-  onCommentDelete?: (comment: CommentData) => void;
-
-  /**
-   * The event handler called when clicking on the author.
-   */
-  onAuthorClick?: (userId: string, event: MouseEvent<HTMLElement>) => void;
-
-  /**
-   * The event handler called when clicking on a mention.
-   */
-  onMentionClick?: (userId: string, event: MouseEvent<HTMLElement>) => void;
-
-  /**
-   * Override the component's strings.
-   */
-  // overrides?: Partial<GlobalOverrides & CommentOverrides & ComposerOverrides>;
-
-  /**
-   * @internal
-   */
-  autoMarkReadThreadId?: string;
-
-  /**
    * @internal
    */
   additionalActions?: ReactNode;
-
-  /**
-   * @internal
-   */
-  additionalActionsClassName?: string;
 }
 
 // interface CommentReactionButtonProps
@@ -230,22 +190,13 @@ export interface CommentProps extends ComponentPropsWithoutRef<"div"> {
 
 export const Comment = ({
   comment,
-  threadId,
-  indentContent = true,
+  thread,
   showDeleted,
   showActions = "hover",
   showReactions = true,
-  // showComposerFormattingControls = true,
-  onAuthorClick,
-  onMentionClick,
-  onCommentEdit,
-  onCommentDelete,
-  // overrides,
+  showResolveAction = false,
   className,
   additionalActions,
-  additionalActionsClassName,
-  autoMarkReadThreadId,
-  ...props
 }: CommentProps) => {
   const dict = useDictionary();
 
@@ -296,28 +247,36 @@ export const Comment = ({
         comment: {
           body: commentEditor.document,
         },
-        threadId: threadId,
+        threadId: thread.id,
       });
 
       setEditing(false);
     },
-    [comment, threadId, commentEditor, editor.comments]
+    [comment, thread.id, commentEditor, editor.comments]
   );
 
   const onDelete = useCallback(() => {
     editor.comments!.store.deleteComment({
       commentId: comment.id,
-      threadId: threadId,
+      threadId: thread.id,
     });
-  }, [comment, threadId, editor.comments]);
+  }, [comment, thread.id, editor.comments]);
 
   const onReactionSelect = useCallback(() => {
     console.log("reaction select");
   }, []);
 
   const onResolve = useCallback(() => {
-    console.log("resolve");
-  }, []);
+    editor.comments!.store.resolveThread({
+      threadId: thread.id,
+    });
+  }, [thread.id, editor.comments]);
+
+  const onReopen = useCallback(() => {
+    editor.comments!.store.unresolveThread({
+      threadId: thread.id,
+    });
+  }, [thread.id, editor.comments]);
 
   useEffect(() => {
     const isWindowDefined = typeof window !== "undefined";
@@ -342,11 +301,7 @@ export const Comment = ({
   if (showActions && !isEditing) {
     actions = (
       <Components.Generic.Toolbar.Root
-        className={mergeCSSClasses(
-          "bn-comment-actions",
-          "bn-toolbar",
-          additionalActionsClassName
-        )}>
+        className={mergeCSSClasses("bn-comment-actions", "bn-toolbar")}>
         {additionalActions ?? null}
         <Components.Generic.Toolbar.Button
           mainTooltip="Add reaction"
@@ -354,12 +309,22 @@ export const Comment = ({
           onClick={onReactionSelect}>
           R1
         </Components.Generic.Toolbar.Button>
-        <Components.Generic.Toolbar.Button
-          mainTooltip="Resolve"
-          variant="compact"
-          onClick={onResolve}>
-          R2
-        </Components.Generic.Toolbar.Button>
+        {showResolveAction &&
+          (thread.resolved ? (
+            <Components.Generic.Toolbar.Button
+              mainTooltip="Re-open"
+              variant="compact"
+              onClick={onReopen}>
+              R2
+            </Components.Generic.Toolbar.Button>
+          ) : (
+            <Components.Generic.Toolbar.Button
+              mainTooltip="Resolve"
+              variant="compact"
+              onClick={onResolve}>
+              R2
+            </Components.Generic.Toolbar.Button>
+          ))}
         <Components.Generic.Menu.Root>
           <Components.Generic.Menu.Trigger>
             <Components.Generic.Toolbar.Button
