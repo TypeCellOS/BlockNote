@@ -107,7 +107,8 @@ export const Thread = ({
     newCommentEditor.removeBlocks(newCommentEditor.document);
   }, [editor.comments, newCommentEditor, thread.id]);
 
-  //  TODO: extract component
+  const showComposer = editor.comments!.store.auth.canAddComment(thread);
+
   return (
     <Components.Comments.Card
       className={mergeCSSClasses("bn-thread", className)}
@@ -115,8 +116,7 @@ export const Thread = ({
       <Components.Comments.CardSection className="bn-thread-comments">
         {thread.comments.map((comment, index) => {
           const isFirstComment = index === firstCommentIndex;
-          const hasRightToResolve = true; // TODO
-          const showResolveAction = isFirstComment && hasRightToResolve;
+
           return (
             <Comment
               key={comment.id}
@@ -126,36 +126,38 @@ export const Thread = ({
               showDeleted={showDeletedComments}
               showActions={showActions}
               showReactions={showReactions}
-              showResolveAction={showResolveAction}
+              showResolveAction={isFirstComment}
             />
           );
         })}
       </Components.Comments.CardSection>
-      <Components.Comments.CardSection>
-        <CommentEditor
-          editable={true}
-          editor={newCommentEditor}
-          actions={({ isFocused, isEmpty }) => {
-            if (!isFocused && isEmpty) {
-              return null;
-            }
+      {showComposer && (
+        <Components.Comments.CardSection>
+          <CommentEditor
+            editable={true}
+            editor={newCommentEditor}
+            actions={({ isFocused, isEmpty }) => {
+              if (!isFocused && isEmpty) {
+                return null;
+              }
 
-            return (
-              <Components.Generic.Toolbar.Root
-                variant="action-toolbar"
-                className={mergeCSSClasses("bn-comment-actions")}>
-                <Components.Generic.Toolbar.Button
-                  mainTooltip="Save"
-                  variant="compact"
-                  isDisabled={isEmpty}
-                  onClick={onNewCommentSave}>
-                  Save
-                </Components.Generic.Toolbar.Button>
-              </Components.Generic.Toolbar.Root>
-            );
-          }}
-        />
-      </Components.Comments.CardSection>
+              return (
+                <Components.Generic.Toolbar.Root
+                  variant="action-toolbar"
+                  className={mergeCSSClasses("bn-comment-actions")}>
+                  <Components.Generic.Toolbar.Button
+                    mainTooltip="Save"
+                    variant="compact"
+                    isDisabled={isEmpty}
+                    onClick={onNewCommentSave}>
+                    Save
+                  </Components.Generic.Toolbar.Button>
+                </Components.Generic.Toolbar.Root>
+              );
+            }}
+          />
+        </Components.Comments.CardSection>
+      )}
     </Components.Comments.Card>
   );
 };

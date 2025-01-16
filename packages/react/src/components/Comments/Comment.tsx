@@ -300,19 +300,30 @@ export const Comment = ({
   }
 
   let actions: ReactNode | undefined = undefined;
+  const canAddReaction = true; //editor.comments!.store.auth.canAddReaction(comment);
+  const canDeleteComment =
+    editor.comments!.store.auth.canDeleteComment(comment);
+  const canEditComment = editor.comments!.store.auth.canUpdateComment(comment);
+
+  const showResolveOrReopen =
+    showResolveAction &&
+    (thread.resolved
+      ? editor.comments!.store.auth.canUnresolveThread(thread)
+      : editor.comments!.store.auth.canResolveThread(thread));
 
   if (showActions && !isEditing) {
     actions = (
       <Components.Generic.Toolbar.Root
         className={mergeCSSClasses("bn-comment-actions", "bn-toolbar")}>
-        {additionalActions ?? null}
-        <Components.Generic.Toolbar.Button
-          mainTooltip="Add reaction"
-          variant="compact"
-          onClick={onReactionSelect}>
-          R1
-        </Components.Generic.Toolbar.Button>
-        {showResolveAction &&
+        {canAddReaction && (
+          <Components.Generic.Toolbar.Button
+            mainTooltip="Add reaction"
+            variant="compact"
+            onClick={onReactionSelect}>
+            R1
+          </Components.Generic.Toolbar.Button>
+        )}
+        {showResolveOrReopen &&
           (thread.resolved ? (
             <Components.Generic.Toolbar.Button
               mainTooltip="Re-open"
@@ -328,23 +339,29 @@ export const Comment = ({
               R2
             </Components.Generic.Toolbar.Button>
           ))}
-        <Components.Generic.Menu.Root>
-          <Components.Generic.Menu.Trigger>
-            <Components.Generic.Toolbar.Button
-              mainTooltip="More actions"
-              variant="compact">
-              ...
-            </Components.Generic.Toolbar.Button>
-          </Components.Generic.Menu.Trigger>
-          <Components.Generic.Menu.Dropdown className={"bn-menu-dropdown"}>
-            <Components.Generic.Menu.Item onClick={handleEdit}>
-              Edit comment
-            </Components.Generic.Menu.Item>
-            <Components.Generic.Menu.Item onClick={onDelete}>
-              Delete comment
-            </Components.Generic.Menu.Item>
-          </Components.Generic.Menu.Dropdown>
-        </Components.Generic.Menu.Root>
+        {(canDeleteComment || canEditComment) && (
+          <Components.Generic.Menu.Root>
+            <Components.Generic.Menu.Trigger>
+              <Components.Generic.Toolbar.Button
+                mainTooltip="More actions"
+                variant="compact">
+                ...
+              </Components.Generic.Toolbar.Button>
+            </Components.Generic.Menu.Trigger>
+            <Components.Generic.Menu.Dropdown className={"bn-menu-dropdown"}>
+              {canEditComment && (
+                <Components.Generic.Menu.Item onClick={handleEdit}>
+                  Edit comment
+                </Components.Generic.Menu.Item>
+              )}
+              {canDeleteComment && (
+                <Components.Generic.Menu.Item onClick={onDelete}>
+                  Delete comment
+                </Components.Generic.Menu.Item>
+              )}
+            </Components.Generic.Menu.Dropdown>
+          </Components.Generic.Menu.Root>
+        )}
       </Components.Generic.Toolbar.Root>
     );
   }

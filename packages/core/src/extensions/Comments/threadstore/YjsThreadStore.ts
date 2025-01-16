@@ -3,24 +3,16 @@ import * as Y from "yjs";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { CommentBody, CommentData, ThreadData } from "../types.js";
 import { ThreadStore } from "./ThreadStore.js";
-
-// type YjsType<T> = {
-//   [K in keyof T]: T[K] extends Date ? string : T[K]; // TODO: dates as string?
-// };
-
-// type YjsTypeConvertArrays<T> = {
-//   [K in keyof T]: T[K] extends Array<infer A>
-//     ? Y.Array<YjsTypeConvertArrays<A>>
-//     : YjsType<T[K]>;
-// };
+import { ThreadStoreAuth } from "./ThreadStoreAuth.js";
 
 export class YjsThreadStore extends ThreadStore {
   constructor(
     private readonly editor: BlockNoteEditor<any, any, any>,
     private readonly userId: string,
-    private readonly threadsYMap: Y.Map<any>
+    private readonly threadsYMap: Y.Map<any>,
+    auth: ThreadStoreAuth
   ) {
-    super();
+    super(auth);
   }
 
   private transact = <T, R>(
@@ -41,6 +33,10 @@ export class YjsThreadStore extends ThreadStore {
       };
       metadata?: any;
     }) => {
+      if (!this.auth.canCreateThread()) {
+        throw new Error("Not authorized");
+      }
+
       const date = new Date();
 
       const comment: CommentData = {
@@ -81,6 +77,10 @@ export class YjsThreadStore extends ThreadStore {
       const yThread = this.threadsYMap.get(options.threadId);
       if (!yThread) {
         throw new Error("Thread not found");
+      }
+
+      if (!this.auth.canAddComment(yMapToThread(yThread))) {
+        throw new Error("Not authorized");
       }
 
       const date = new Date();
@@ -129,6 +129,11 @@ export class YjsThreadStore extends ThreadStore {
       }
 
       const yComment = yThread.get("comments").get(yCommentIndex);
+
+      if (!this.auth.canUpdateComment(yMapToComment(yComment))) {
+        throw new Error("Not authorized");
+      }
+
       yComment.set("body", options.comment.body);
       yComment.set("updatedAt", new Date().getTime());
       yComment.set("metadata", options.comment.metadata);
@@ -156,6 +161,10 @@ export class YjsThreadStore extends ThreadStore {
       }
 
       const yComment = yThread.get("comments").get(yCommentIndex);
+
+      if (!this.auth.canDeleteComment(yMapToComment(yComment))) {
+        throw new Error("Not authorized");
+      }
 
       if (yComment.get("deletedAt")) {
         throw new Error("Comment already deleted");
@@ -186,6 +195,14 @@ export class YjsThreadStore extends ThreadStore {
   );
 
   public deleteThread = this.transact((options: { threadId: string }) => {
+    if (
+      !this.auth.canDeleteThread(
+        yMapToThread(this.threadsYMap.get(options.threadId))
+      )
+    ) {
+      throw new Error("Not authorized");
+    }
+
     this.threadsYMap.delete(options.threadId);
   });
 
@@ -193,6 +210,10 @@ export class YjsThreadStore extends ThreadStore {
     const yThread = this.threadsYMap.get(options.threadId);
     if (!yThread) {
       throw new Error("Thread not found");
+    }
+
+    if (!this.auth.canResolveThread(yMapToThread(yThread))) {
+      throw new Error("Not authorized");
     }
 
     yThread.set("resolved", true);
@@ -203,6 +224,10 @@ export class YjsThreadStore extends ThreadStore {
     const yThread = this.threadsYMap.get(options.threadId);
     if (!yThread) {
       throw new Error("Thread not found");
+    }
+
+    if (!this.auth.canUnresolveThread(yMapToThread(yThread))) {
+      throw new Error("Not authorized");
     }
 
     yThread.set("resolved", false);

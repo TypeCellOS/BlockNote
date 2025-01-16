@@ -4,6 +4,7 @@ import { Decoration, DecorationSet } from "prosemirror-view";
 import * as Y from "yjs";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { EventEmitter } from "../../util/EventEmitter.js";
+import { DefaultThreadStoreAuth } from "./threadstore/DefaultThreadStoreAuth.js";
 import { ThreadStore } from "./threadstore/ThreadStore.js";
 import { YjsThreadStore } from "./threadstore/YjsThreadStore.js";
 import { CommentBody, ThreadData, User } from "./types.js";
@@ -162,7 +163,8 @@ export class CommentsPlugin extends EventEmitter<any> {
     this.store = new YjsThreadStore(
       editor,
       "blablauserid",
-      doc.getMap("threads")
+      doc.getMap("threads"),
+      new DefaultThreadStoreAuth("blablauserid", "comment")
     );
 
     // TODO: unsubscribe
