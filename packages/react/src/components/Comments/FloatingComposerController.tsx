@@ -7,19 +7,19 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { UseFloatingOptions, flip, offset } from "@floating-ui/react";
-import { FC, useMemo } from "react";
+import { ComponentProps, FC, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning.js";
 import { useUIPluginState } from "../../hooks/useUIPluginState.js";
-import { Composer } from "./Composer.js";
+import { FloatingComposer } from "./FloatingComposer.js";
 
 export const FloatingComposerController = <
   B extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(props: {
-  filePanel?: FC<any>;
+  floatingComposer?: FC<ComponentProps<typeof FloatingComposer>>;
   floatingOptions?: Partial<UseFloatingOptions>;
 }) => {
   const editor = useBlockNoteEditor<B, I, S>();
@@ -54,7 +54,7 @@ export const FloatingComposerController = <
       onOpenChange: (open) => {
         if (!open) {
           // TODO
-          editor.filePanel!.closeMenu();
+          editor.comments!.stopPendingComment();
           editor.focus();
         }
       },
@@ -66,7 +66,7 @@ export const FloatingComposerController = <
     return null;
   }
 
-  const Component = props.filePanel || Composer;
+  const Component = props.floatingComposer || FloatingComposer;
 
   return (
     <div ref={ref} style={style} {...getFloatingProps()}>

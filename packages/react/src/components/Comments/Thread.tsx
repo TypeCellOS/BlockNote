@@ -1,20 +1,22 @@
 "use client";
 
 import { ThreadData, mergeCSSClasses } from "@blocknote/core";
-import type { ComponentPropsWithoutRef, ForwardedRef } from "react";
-import { forwardRef, useCallback, useMemo } from "react";
+import type { ComponentPropsWithoutRef } from "react";
+import { useCallback, useMemo } from "react";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { Comment, CommentProps } from "./Comment.js";
 import { CommentEditor } from "./CommentEditor.js";
 import { schema } from "./schema.js";
+import { useThreadStore } from "./useThreadStore.js";
 
 export interface ThreadProps extends ComponentPropsWithoutRef<"div"> {
   /**
    * The thread to display.
    */
-  thread: ThreadData;
+  threadId: string;
 
   /**
    * How to show or hide the composer to reply to the thread.
@@ -116,186 +118,188 @@ export interface ThreadProps extends ComponentPropsWithoutRef<"div"> {
  *   ))}
  * </>
  */
-export const Thread = forwardRef(
-  (
-    {
-      thread,
-      indentCommentContent = true,
-      showActions = "hover",
-      showDeletedComments,
-      showResolveAction = true,
-      showReactions = true,
-      showComposer = "collapsed",
-      showAttachments = true,
-      //   showComposerFormattingControls = true,
-      onResolvedChange,
-      onCommentEdit,
-      onCommentDelete,
-      onThreadDelete,
-      onAuthorClick,
-      onMentionClick,
-      //   onAttachmentClick,
-      //   onComposerSubmit,
-      //   overrides,
-      className,
-      ...props
-    }: ThreadProps,
-    forwardedRef: ForwardedRef<HTMLDivElement>
-  ) => {
-    // const markThreadAsResolved = useMarkRoomThreadAsResolved(thread.roomId);
-    // const markThreadAsUnresolved = useMarkRoomThreadAsUnresolved(thread.roomId);
+export const Thread = ({
+  threadId,
+  indentCommentContent = true,
+  showActions = "hover",
+  showDeletedComments,
+  showResolveAction = true,
+  showReactions = true,
+  showComposer = "collapsed",
+  showAttachments = true,
+  //   showComposerFormattingControls = true,
+  onResolvedChange,
+  onCommentEdit,
+  onCommentDelete,
+  onThreadDelete,
+  onAuthorClick,
+  onMentionClick,
+  //   onAttachmentClick,
+  //   onComposerSubmit,
+  //   overrides,
+  className,
+  ...props
+}: ThreadProps) => {
+  // const markThreadAsResolved = useMarkRoomThreadAsResolved(thread.roomId);
+  // const markThreadAsUnresolved = useMarkRoomThreadAsUnresolved(thread.roomId);
+  const editor = useBlockNoteEditor();
+  const Components = useComponentsContext()!;
+  const dict = useDictionary();
 
-    const Components = useComponentsContext()!;
-    const dict = useDictionary();
+  const threadMap = useThreadStore(editor);
+  const thread = threadMap.get(threadId);
 
-    const newCommentEditor = useCreateBlockNote({
-      trailingBlock: false,
-      dictionary: {
-        ...dict,
-        placeholders: {
-          ...dict.placeholders,
-          default: "Add comment...", // TODO: only for empty doc
-        },
+  if (!thread) {
+    throw new Error("Thread not found");
+  }
+
+  const newCommentEditor = useCreateBlockNote({
+    trailingBlock: false,
+    dictionary: {
+      ...dict,
+      placeholders: {
+        ...dict.placeholders,
+        default: "Add comment...", // TODO: only for empty doc
       },
-      schema,
+    },
+    schema,
+  });
+
+  const firstCommentIndex = useMemo(() => {
+    return showDeletedComments
+      ? 0
+      : thread.comments.findIndex((comment) => comment.body);
+  }, [showDeletedComments, thread.comments]);
+
+  // const handleResolvedChange = useCallback(
+  //   (resolved: boolean) => {
+  //     onResolvedChange?.(resolved);
+
+  //     if (resolved) {
+  //       markThreadAsResolved(thread.id);
+  //     } else {
+  //       markThreadAsUnresolved(thread.id);
+  //     }
+  //   },
+  //   [
+  //     markThreadAsResolved,
+  //     markThreadAsUnresolved,
+  //     onResolvedChange,
+  //     thread.id,
+  //   ]
+  // );
+
+  // TODO: thread deletion
+
+  // const handleCommentDelete = useCallback(
+  //   (comment: Comment) => {
+  //     onCommentDelete?.(comment);
+
+  //     const filteredComments = thread.comments.filter(
+  //       (comment) => comment.body
+  //     );
+
+  //     if (filteredComments.length <= 1) {
+  //       onThreadDelete?.(thread);
+  //     }
+  //   },
+  //   [onCommentDelete, onThreadDelete, thread]
+  // );
+
+  const onNewCommentSave = useCallback(async () => {
+    await editor.comments!.store.addComment({
+      comment: {
+        body: newCommentEditor.document,
+      },
+      threadId: thread.id,
     });
 
-    const firstCommentIndex = useMemo(() => {
-      return showDeletedComments
-        ? 0
-        : thread.comments.findIndex((comment) => comment.body);
-    }, [showDeletedComments, thread.comments]);
+    // reset editor
+    newCommentEditor.removeBlocks(newCommentEditor.document);
+  }, [editor.comments, newCommentEditor, thread.id]);
 
-    const stopPropagation = useCallback((event: SyntheticEvent) => {
-      event.stopPropagation();
-    }, []);
+  //  TODO: extract component
+  return (
+    <Components.Comments.Card
+      className={mergeCSSClasses("bn-thread", className)}
+      // data-resolved={thread.resolved ? "" : undefined} TODO
+      {...props}>
+      <Components.Comments.CardSection className="bn-thread-comments">
+        {thread.comments.map((comment, index) => {
+          const isFirstComment = index === firstCommentIndex;
 
-    // const handleResolvedChange = useCallback(
-    //   (resolved: boolean) => {
-    //     onResolvedChange?.(resolved);
-
-    //     if (resolved) {
-    //       markThreadAsResolved(thread.id);
-    //     } else {
-    //       markThreadAsUnresolved(thread.id);
-    //     }
-    //   },
-    //   [
-    //     markThreadAsResolved,
-    //     markThreadAsUnresolved,
-    //     onResolvedChange,
-    //     thread.id,
-    //   ]
-    // );
-
-    // TODO: thread deletion
-
-    // const handleCommentDelete = useCallback(
-    //   (comment: Comment) => {
-    //     onCommentDelete?.(comment);
-
-    //     const filteredComments = thread.comments.filter(
-    //       (comment) => comment.body
-    //     );
-
-    //     if (filteredComments.length <= 1) {
-    //       onThreadDelete?.(thread);
-    //     }
-    //   },
-    //   [onCommentDelete, onThreadDelete, thread]
-    // );
-
-    //  TODO: extract component
-    return (
-      <Components.Comments.Card
-        className={mergeCSSClasses(
-          "bn-thread",
-          showActions === "hover" && "lb-thread:show-actions-hover",
-          className
-        )}
-        // data-resolved={thread.resolved ? "" : undefined} TODO
-        {...props}
-        ref={forwardedRef}>
-        <Components.Comments.CardSection className="lb-thread-comments">
-          {thread.comments.map((comment, index) => {
-            const isFirstComment = index === firstCommentIndex;
+          return (
+            <Comment
+              key={comment.id}
+              threadId={threadId}
+              className="bn-thread-comment"
+              comment={comment}
+              indentContent={indentCommentContent}
+              showDeleted={showDeletedComments}
+              showActions={showActions}
+              showReactions={showReactions}
+              // showAttachments={showAttachments}
+              // showComposerFormattingControls={showComposerFormattingControls}
+              additionalActionsClassName={
+                isFirstComment ? "lb-thread-actions" : undefined
+              }
+              // additionalActions={
+              //   isFirstComment && showResolveAction ? (
+              //     <Tooltip
+              //       content={
+              //         thread.resolved ? $.THREAD_UNRESOLVE : $.THREAD_RESOLVE
+              //       }>
+              //       <TogglePrimitive.Root
+              //         pressed={thread.resolved}
+              //         onPressedChange={handleResolvedChange}
+              //         asChild>
+              //         <Button
+              //           className="lb-comment-action"
+              //           onClick={stopPropagation}
+              //           aria-label={
+              //             thread.resolved
+              //               ? $.THREAD_UNRESOLVE
+              //               : $.THREAD_RESOLVE
+              //           }>
+              //           {thread.resolved ? (
+              //             <ResolvedIcon className="lb-button-icon" />
+              //           ) : (
+              //             <ResolveIcon className="lb-button-icon" />
+              //           )}
+              //         </Button>
+              //       </TogglePrimitive.Root>
+              //     </Tooltip>
+              //   ) : null
+              // }
+            />
+          );
+        })}
+      </Components.Comments.CardSection>
+      <Components.Comments.CardSection>
+        <CommentEditor
+          editable={true}
+          editor={newCommentEditor}
+          actions={({ isFocused, isEmpty }) => {
+            if (!isFocused && isEmpty) {
+              return null;
+            }
 
             return (
-              <Comment
-                key={comment.id}
-                className="lb-thread-comment"
-                comment={comment}
-                indentContent={indentCommentContent}
-                showDeleted={showDeletedComments}
-                showActions={showActions}
-                showReactions={showReactions}
-                // showAttachments={showAttachments}
-                // showComposerFormattingControls={showComposerFormattingControls}
-                onCommentEdit={onCommentEdit}
-                onCommentDelete={onCommentDelete}
-                onAuthorClick={onAuthorClick}
-                onMentionClick={onMentionClick}
-                // onAttachmentClick={onAttachmentClick}
-                additionalActionsClassName={
-                  isFirstComment ? "lb-thread-actions" : undefined
-                }
-                // additionalActions={
-                //   isFirstComment && showResolveAction ? (
-                //     <Tooltip
-                //       content={
-                //         thread.resolved ? $.THREAD_UNRESOLVE : $.THREAD_RESOLVE
-                //       }>
-                //       <TogglePrimitive.Root
-                //         pressed={thread.resolved}
-                //         onPressedChange={handleResolvedChange}
-                //         asChild>
-                //         <Button
-                //           className="lb-comment-action"
-                //           onClick={stopPropagation}
-                //           aria-label={
-                //             thread.resolved
-                //               ? $.THREAD_UNRESOLVE
-                //               : $.THREAD_RESOLVE
-                //           }>
-                //           {thread.resolved ? (
-                //             <ResolvedIcon className="lb-button-icon" />
-                //           ) : (
-                //             <ResolveIcon className="lb-button-icon" />
-                //           )}
-                //         </Button>
-                //       </TogglePrimitive.Root>
-                //     </Tooltip>
-                //   ) : null
-                // }
-              />
+              <Components.Generic.Toolbar.Root
+                variant="action-toolbar"
+                className={mergeCSSClasses("bn-comment-actions")}>
+                <Components.Generic.Toolbar.Button
+                  mainTooltip="Save"
+                  variant="compact"
+                  isDisabled={isEmpty}
+                  onClick={onNewCommentSave}>
+                  Save
+                </Components.Generic.Toolbar.Button>
+              </Components.Generic.Toolbar.Root>
             );
-          })}
-        </Components.Comments.CardSection>
-        <Components.Comments.CardSection>
-          <CommentEditor
-            editable={true}
-            editor={newCommentEditor}
-            actions={({ isFocused, isEmpty }) => {
-              if (!isFocused && isEmpty) {
-                return null;
-              }
-
-              return (
-                <Components.Generic.Toolbar.Root
-                  variant="action-toolbar"
-                  className={mergeCSSClasses("bn-comment-actions")}>
-                  <Components.Generic.Toolbar.Button
-                    mainTooltip="Save"
-                    variant="compact"
-                    isDisabled={isEmpty}>
-                    Save
-                  </Components.Generic.Toolbar.Button>
-                </Components.Generic.Toolbar.Root>
-              );
-            }}
-          />
-        </Components.Comments.CardSection>
-      </Components.Comments.Card>
-    );
-  }
-) as (props: ThreadProps & RefAttributes<HTMLDivElement>) => JSX.Element;
+          }}
+        />
+      </Components.Comments.CardSection>
+    </Components.Comments.Card>
+  );
+};

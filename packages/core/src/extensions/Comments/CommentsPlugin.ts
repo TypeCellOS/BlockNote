@@ -1,11 +1,12 @@
 import { Node } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
-import { v4 } from "uuid";
 import * as Y from "yjs";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { EventEmitter } from "../../util/EventEmitter.js";
-import { CommentBody, CommentData, ThreadData } from "./types.js";
+import { ThreadStore } from "./store/ThreadStore.js";
+import { YjsThreadStore } from "./store/YjsThreadStore.js";
+import { CommentBody } from "./types.js";
 const PLUGIN_KEY = new PluginKey(`blocknote-comments`);
 
 enum CommentsPluginActions {
@@ -176,8 +177,13 @@ export class CommentsPlugin extends EventEmitter<any> {
     return this.on("update", callback);
   }
 
-  public addPendingComment() {
+  public startPendingComment() {
     this.pendingComment = true;
+    this.emitStateUpdate();
+  }
+
+  public stopPendingComment() {
+    this.pendingComment = false;
     this.emitStateUpdate();
   }
 
@@ -192,146 +198,5 @@ export class CommentsPlugin extends EventEmitter<any> {
     this.editor._tiptapEditor.commands.setMark(this.markType, {
       threadId: thread.id,
     });
-  }
-}
-
-export abstract class ThreadStore {
-  abstract createThread(options: {
-    initialComment: {
-      body: CommentBody;
-      metadata?: any;
-    };
-    metadata?: any;
-  }): Promise<ThreadData>;
-
-  abstract getThread(threadId: string): ThreadData;
-}
-
-export class YjsThreadStore extends ThreadStore {
-  constructor(
-    private readonly editor: BlockNoteEditor<any, any, any>,
-    private readonly userId: string,
-    private readonly threadsYMap: Y.Map<any>
-  ) {
-    super();
-  }
-
-  private commentToYMap(comment: CommentData) {
-    const yMap = new Y.Map<any>();
-    yMap.set("id", comment.id);
-    yMap.set("userId", comment.userId);
-    yMap.set("createdAt", comment.createdAt.toISOString());
-    yMap.set("updatedAt", comment.updatedAt.toISOString());
-    if (comment.reactions.length > 0) {
-      throw new Error("Reactions should be empty in commentToYMap");
-    }
-    yMap.set("reactions", new Y.Array());
-    yMap.set("metadata", comment.metadata);
-    yMap.set("body", comment.body);
-    return yMap;
-  }
-
-  private threadToYMap(thread: ThreadData) {
-    const yMap = new Y.Map();
-    yMap.set("id", thread.id);
-    yMap.set("createdAt", thread.createdAt.toISOString());
-    yMap.set("updatedAt", thread.updatedAt.toISOString());
-    const commentsArray = new Y.Array<Y.Map<any>>();
-
-    commentsArray.push(
-      thread.comments.map((comment) => this.commentToYMap(comment))
-    );
-
-    yMap.set("comments", commentsArray);
-    yMap.set("resolved", thread.resolved);
-    yMap.set("resolvedUpdatedAt", thread.resolvedUpdatedAt?.toISOString());
-    yMap.set("metadata", thread.metadata);
-    return yMap;
-  }
-
-  private yMapToComment(yMap: Y.Map<any>): CommentData {
-    return {
-      type: "comment",
-      id: yMap.get("id"),
-      userId: yMap.get("userId"),
-      createdAt: new Date(yMap.get("createdAt")),
-      updatedAt: new Date(yMap.get("updatedAt")),
-      reactions: [],
-      metadata: yMap.get("metadata"),
-      body: yMap.get("body"),
-    };
-  }
-
-  private yMapToThread(yMap: Y.Map<any>): ThreadData {
-    return {
-      type: "thread",
-      id: yMap.get("id"),
-      createdAt: new Date(yMap.get("createdAt")),
-      updatedAt: new Date(yMap.get("updatedAt")),
-      comments: ((yMap.get("comments") as Y.Array<Y.Map<any>>) || []).map(
-        (comment) => this.yMapToComment(comment)
-      ),
-      resolved: yMap.get("resolved"),
-      resolvedUpdatedAt: yMap.get("resolvedUpdatedAt"),
-      metadata: yMap.get("metadata"),
-    };
-  }
-
-  // TODO: async / reactive interface?
-  public getThread(threadId: string) {
-    const thread = this.yMapToThread(this.threadsYMap.get(threadId));
-    return thread;
-  }
-
-  public async createThread(options: {
-    initialComment: {
-      body: CommentBody;
-      metadata?: any;
-    };
-    metadata?: any;
-  }) {
-    const date = new Date();
-
-    const comment: CommentData = {
-      type: "comment",
-      id: v4(),
-      userId: this.userId,
-      createdAt: date,
-      updatedAt: date,
-      reactions: [],
-      metadata: options.metadata,
-      body: options.initialComment.body,
-    };
-
-    const thread: ThreadData = {
-      type: "thread",
-      id: v4(),
-      createdAt: date,
-      updatedAt: date,
-      comments: [comment],
-      resolved: false,
-      metadata: options.metadata,
-    };
-
-    this.threadsYMap.set(thread.id, this.threadToYMap(thread));
-
-    return thread;
-  }
-}
-
-export class LiveblocksThreadStore {
-  constructor(private readonly editor: BlockNoteEditor<any, any, any>) {}
-
-  public async createThread() {
-    const x = useCreateThread();
-    return x;
-  }
-}
-
-export class TiptapThreadStore {
-  constructor(private readonly editor: BlockNoteEditor<any, any, any>) {}
-
-  public async createThread() {
-    this.editor._tiptapEditor.commands.setMark(this.markType, { threadId: id });
   }
 }

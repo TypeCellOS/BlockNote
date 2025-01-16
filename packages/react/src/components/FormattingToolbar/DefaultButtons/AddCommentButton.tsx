@@ -17,7 +17,7 @@ export const AddCommentButton = () => {
   >();
 
   const onClick = useCallback(() => {
-    editor.comments?.addPendingComment();
+    editor.comments?.startPendingComment();
     editor.formattingToolbar.closeMenu();
   }, [editor]);
 

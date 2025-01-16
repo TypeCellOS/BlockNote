@@ -5,7 +5,7 @@ import { useDictionary } from "../../i18n/dictionary.js";
 import { CommentEditor } from "./CommentEditor.js";
 import { schema } from "./schema.js";
 
-export function Composer() {
+export function FloatingComposer() {
   const editor = useBlockNoteEditor();
   const Components = useComponentsContext()!;
   const dict = useDictionary();
@@ -33,12 +33,13 @@ export function Composer() {
               mainTooltip="Save"
               variant="compact"
               isDisabled={isEmpty}
-              onClick={() => {
-                editor.comments!.createThread({
+              onClick={async () => {
+                await editor.comments!.createThread({
                   initialComment: {
                     body: newCommentEditor.document,
                   },
                 });
+                editor.comments!.stopPendingComment();
               }}>
               Save
             </Components.Generic.Toolbar.Button>

@@ -27,7 +27,7 @@ export const FloatingThreadController = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(props: {
-  filePanel?: FC<any>;
+  filePanel?: FC<any>; // TODO
   floatingOptions?: Partial<UseFloatingOptions>;
 }) => {
   const editor = useBlockNoteEditor<B, I, S>();
@@ -93,12 +93,10 @@ export const FloatingThreadController = <
 
   const Component = props.filePanel || Thread;
 
-  const thread = editor.comments.store.getThread(state.selectedThreadId);
-
   return (
     <div ref={ref} style={style} {...getFloatingProps()}>
       {/* <div>hello</div> */}
-      <Component thread={thread} />
+      <Component threadId={state.selectedThreadId} />
     </div>
   );
 };

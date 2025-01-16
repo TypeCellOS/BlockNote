@@ -17,8 +17,16 @@ export type CommentData = {
   reactions: CommentReactionData[];
   // attachments: CommentAttachment[];
   metadata: any;
-  body: CommentBody;
-};
+} & (
+  | {
+      deletedAt: Date;
+      body: undefined;
+    }
+  | {
+      deletedAt?: never;
+      body: CommentBody;
+    }
+);
 
 export type ThreadData = {
   type: "thread";
@@ -29,4 +37,5 @@ export type ThreadData = {
   resolved: boolean;
   resolvedUpdatedAt?: Date;
   metadata: any;
+  deletedAt?: Date;
 };

@@ -1,17 +1,12 @@
 "use client";
 
 import { CommentData, mergeCSSClasses } from "@blocknote/core";
-import type {
-  ComponentPropsWithoutRef,
-  MouseEvent,
-  ReactNode,
-  SyntheticEvent,
-} from "react";
-import { forwardRef, useCallback, useEffect, useRef, useState } from "react";
+import type { ComponentPropsWithoutRef, MouseEvent, ReactNode } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
 import { useDictionary } from "../../i18n/dictionary.js";
-import { mergeRefs } from "../../util/mergeRefs.js";
 import { CommentEditor } from "./CommentEditor.js";
 import { schema } from "./schema.js";
 
@@ -19,6 +14,7 @@ import { schema } from "./schema.js";
  * Liveblocks, but changed:
  * - removed attachments
  * - removed read status
+ * ...
  */
 const REACTIONS_TRUNCATE = 5;
 
@@ -27,6 +23,11 @@ export interface CommentProps extends ComponentPropsWithoutRef<"div"> {
    * The comment to display.
    */
   comment: CommentData;
+
+  /**
+   * The thread id.
+   */
+  threadId: string;
 
   /**
    * How to show or hide the actions.
@@ -227,41 +228,29 @@ export interface CommentProps extends ComponentPropsWithoutRef<"div"> {
 //   );
 // });
 
-/**
- * Displays a single comment.
- *
- * @example
- * <>
- *   {thread.comments.map((comment) => (
- *     <Comment key={comment.id} comment={comment} />
- *   ))}
- * </>
- */
-export const Comment = forwardRef<HTMLDivElement, CommentProps>(
-  (
-    {
-      comment,
-      indentContent = true,
-      showDeleted,
-      showActions = "hover",
-      showReactions = true,
-      // showComposerFormattingControls = true,
-      onAuthorClick,
-      onMentionClick,
-      onCommentEdit,
-      onCommentDelete,
-      // overrides,
-      className,
-      additionalActions,
-      additionalActionsClassName,
-      autoMarkReadThreadId,
-      ...props
-    },
-    forwardedRef
-  ) => {
-    const dict = useDictionary();
+export const Comment = ({
+  comment,
+  threadId,
+  indentContent = true,
+  showDeleted,
+  showActions = "hover",
+  showReactions = true,
+  // showComposerFormattingControls = true,
+  onAuthorClick,
+  onMentionClick,
+  onCommentEdit,
+  onCommentDelete,
+  // overrides,
+  className,
+  additionalActions,
+  additionalActionsClassName,
+  autoMarkReadThreadId,
+  ...props
+}: CommentProps) => {
+  const dict = useDictionary();
 
-    const commentEditor = useCreateBlockNote({
+  const commentEditor = useCreateBlockNote(
+    {
       initialContent: comment.body,
       trailingBlock: false,
       dictionary: {
@@ -272,265 +261,186 @@ export const Comment = forwardRef<HTMLDivElement, CommentProps>(
         },
       },
       schema,
+    },
+    [comment.body]
+  );
+
+  const Components = useComponentsContext()!;
+
+  // const currentUserId = useCurrentUserId();
+  // const deleteComment = useDeleteRoomComment(comment.roomId);
+  // const editComment = useEditRoomComment(com ment.roomId);
+  // const addReaction = useAddRoomCommentReaction(comment.roomId);
+  // const removeReaction = useRemoveRoomCommentReaction(comment.roomId);
+  // const $ = useOverrides(overrides);
+  const [isEditing, setEditing] = useState(false);
+  const [isTarget, setTarget] = useState(false);
+  const [isMoreActionOpen, setMoreActionOpen] = useState(false);
+  const [isReactionActionOpen, setReactionActionOpen] = useState(false);
+
+  const editor = useBlockNoteEditor();
+
+  const handleEdit = useCallback(() => {
+    setEditing(true);
+  }, []);
+
+  const onEditCancel = useCallback(() => {
+    commentEditor.replaceBlocks(commentEditor.document, comment.body);
+    setEditing(false);
+  }, [commentEditor, comment.body]);
+
+  const onEditSubmit = useCallback(
+    async (_event: MouseEvent) => {
+      await editor.comments!.store.updateComment({
+        commentId: comment.id,
+        comment: {
+          body: commentEditor.document,
+        },
+        threadId: threadId,
+      });
+
+      setEditing(false);
+    },
+    [comment, threadId, commentEditor, editor.comments]
+  );
+
+  const onDelete = useCallback(() => {
+    editor.comments!.store.deleteComment({
+      commentId: comment.id,
+      threadId: threadId,
     });
+  }, [comment, threadId, editor.comments]);
 
-    const Components = useComponentsContext()!;
+  const onReactionSelect = useCallback(() => {
+    console.log("reaction select");
+  }, []);
 
-    const ref = useRef<HTMLDivElement>(null);
-    const mergedRefs = mergeRefs([forwardedRef, ref]);
-    // const currentUserId = useCurrentUserId();
-    // const deleteComment = useDeleteRoomComment(comment.roomId);
-    // const editComment = useEditRoomComment(comment.roomId);
-    // const addReaction = useAddRoomCommentReaction(comment.roomId);
-    // const removeReaction = useRemoveRoomCommentReaction(comment.roomId);
-    // const $ = useOverrides(overrides);
-    const [isEditing, setEditing] = useState(false);
-    const [isTarget, setTarget] = useState(false);
-    const [isMoreActionOpen, setMoreActionOpen] = useState(false);
-    const [isReactionActionOpen, setReactionActionOpen] = useState(false);
+  const onResolve = useCallback(() => {
+    console.log("resolve");
+  }, []);
 
-    const stopPropagation = useCallback((event: SyntheticEvent) => {
-      event.stopPropagation();
-    }, []);
-
-    const handleEdit = useCallback(() => {
-      setEditing(true);
-    }, []);
-
-    const handleEditCancel = useCallback(
-      (event: MouseEvent) => {
-        event.stopPropagation();
-        setEditing(false);
-      },
-      [setEditing]
-    );
-
-    const handleEditSubmit = useCallback(
-      (_event: MouseEvent) => {
-        // TODO: Add a way to preventDefault from within this callback, to override the default behavior (e.g. showing a confirmation dialog)
-        onCommentEdit?.(comment);
-
-        // event.preventDefault();
-        // setEditing(false);
-        // editComment({
-        //   commentId: comment.id,
-        //   threadId: comment.threadId,
-        //   body,
-        //   attachments,
-        // });
-      },
-      [comment, onCommentEdit]
-    );
-
-    const handleDelete = useCallback(() => {
-      // TODO: Add a way to preventDefault from within this callback, to override the default behavior (e.g. showing a confirmation dialog)
-      onCommentDelete?.(comment);
-
-      // deleteComment({
-      //   commentId: comment.id,
-      //   threadId: comment.threadId,
-      // });
-    }, [comment, onCommentDelete]);
-
-    // const handleAuthorClick = useCallback(
-    //   (event: MouseEvent<HTMLElement>) => {
-    //     onAuthorClick?.(comment.userId, event);
-    //   },
-    //   [comment.userId, onAuthorClick]
-    // );
-
-    // const handleReactionSelect = useCallback(
-    //   (emoji: string) => {
-    //     const reactionIndex = comment.reactions.findIndex(
-    //       (reaction) => reaction.emoji === emoji
-    //     );
-
-    //     if (
-    //       reactionIndex >= 0 &&
-    //       currentUserId &&
-    //       comment.reactions[reactionIndex]?.users.some(
-    //         (user) => user.id === currentUserId
-    //       )
-    //     ) {
-    //       removeReaction({
-    //         threadId: comment.threadId,
-    //         commentId: comment.id,
-    //         emoji,
-    //       });
-    //     } else {
-    //       addReaction({
-    //         threadId: comment.threadId,
-    //         commentId: comment.id,
-    //         emoji,
-    //       });
-    //     }
-    //   },
-    //   [
-    //     addReaction,
-    //     comment.id,
-    //     comment.reactions,
-    //     comment.threadId,
-    //     removeReaction,
-    //     currentUserId,
-    //   ]
-    // );
-
-    useEffect(() => {
-      const isWindowDefined = typeof window !== "undefined";
-      if (!isWindowDefined) {
-        return;
-      }
-
-      const hash = window.location.hash;
-      const commentId = hash.slice(1);
-
-      if (commentId === comment.id) {
-        setTarget(true);
-      }
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-    if (!showDeleted && !comment.body) {
-      return null;
+  useEffect(() => {
+    const isWindowDefined = typeof window !== "undefined";
+    if (!isWindowDefined) {
+      return;
     }
 
-    let actions: ReactNode | undefined = undefined;
+    const hash = window.location.hash;
+    const commentId = hash.slice(1);
 
-    if (showActions && !isEditing) {
-      actions = (
-        <Components.Generic.Toolbar.Root
-          className={mergeCSSClasses(
-            "bn-comment-actions",
-            "bn-toolbar",
-            additionalActionsClassName
-          )}>
-          {additionalActions ?? null}
-          {/* {showReactions && (
-        <EmojiPicker
-          onEmojiSelect={handleReactionSelect}
-          onOpenChange={setReactionActionOpen}>
-          <Tooltip content={$.COMMENT_ADD_REACTION}>
-            <EmojiPickerTrigger asChild>
-              <Button
-                className="lb-comment-action"
-                onClick={stopPropagation}
-                aria-label={$.COMMENT_ADD_REACTION}>
-                <EmojiAddIcon className="lb-button-icon" />
-              </Button>
-            </EmojiPickerTrigger>
-          </Tooltip>
-        </EmojiPicker>
-      )} */}
-          <Components.Generic.Toolbar.Button
-            mainTooltip="Add reaction"
-            variant="compact">
-            R1
-          </Components.Generic.Toolbar.Button>
-          <Components.Generic.Toolbar.Button
-            mainTooltip="Resolve"
-            variant="compact">
-            R2
-          </Components.Generic.Toolbar.Button>
-          <Components.Generic.Menu.Root>
-            <Components.Generic.Menu.Trigger>
-              <Components.Generic.Toolbar.Button
-                mainTooltip="More actions"
-                variant="compact">
-                ...
-              </Components.Generic.Toolbar.Button>
-            </Components.Generic.Menu.Trigger>
-            <Components.Generic.Menu.Dropdown className={"bn-menu-dropdown"}>
-              <Components.Generic.Menu.Item onClick={handleEdit}>
-                Edit comment
-              </Components.Generic.Menu.Item>
-              <Components.Generic.Menu.Item>
-                Delete comment
-              </Components.Generic.Menu.Item>
-            </Components.Generic.Menu.Dropdown>
-          </Components.Generic.Menu.Root>
-        </Components.Generic.Toolbar.Root>
-      );
+    if (commentId === comment.id) {
+      setTarget(true);
     }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const timeString =
-      comment.createdAt.toLocaleDateString(undefined, {
-        month: "short",
-        day: "numeric",
-      }) + (comment.updatedAt !== comment.createdAt ? " (edited)" : ""); // TODO: needs editedAt?
+  if (!showDeleted && !comment.body) {
+    return null;
+  }
 
-    return (
-      <Components.Comments.Comment
-        authorInfo={{
-          username: "hello world",
-          avatarUrl:
-            "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-2.png",
-        }}
-        timeString={timeString}
-        actions={actions}>
-        {isEditing ? (
-          <>
-            <CommentEditor
-              editor={commentEditor}
-              editable={true}
-              actions={({ isEmpty }) => (
-                <Components.Generic.Toolbar.Root
-                  variant="action-toolbar"
-                  className={mergeCSSClasses("bn-comment-actions")}>
-                  <Components.Generic.Toolbar.Button
-                    mainTooltip="Cancel"
-                    variant="compact"
-                    onClick={handleEditCancel}>
-                    X
-                  </Components.Generic.Toolbar.Button>
-                  <Components.Generic.Toolbar.Button
-                    mainTooltip="Save"
-                    variant="compact"
-                    onClick={handleEditSubmit}
-                    isDisabled={isEmpty}>
-                    Save
-                  </Components.Generic.Toolbar.Button>
-                </Components.Generic.Toolbar.Root>
-              )}
-            />
-          </>
-        ) : comment.body ? (
-          <>
-            <Components.Comments.Editor
-              editor={commentEditor}
-              editable={false}
-            />
+  let actions: ReactNode | undefined = undefined;
 
-            {showReactions && comment.reactions.length > 0 && (
-              <div className="lb-comment-reactions">
-                {/* {comment.reactions.map((reaction) => (
-                    <CommentReaction
-                      key={reaction.emoji}
-                      comment={comment}
-                      reaction={reaction}
-                      overrides={overrides}
-                    />
-                  ))} */}
-                {/* <EmojiPicker onEmojiSelect={handleReactionSelect}>
-                    <Tooltip content={$.COMMENT_ADD_REACTION}>
-                      <EmojiPickerTrigger asChild>
-                        <Button
-                          className="lb-comment-reaction lb-comment-reaction-add"
-                          variant="outline"
-                          onClick={stopPropagation}
-                          aria-label={$.COMMENT_ADD_REACTION}>
-                          <EmojiAddIcon className="lb-button-icon" />
-                        </Button>
-                      </EmojiPickerTrigger>
-                    </Tooltip>
-                  </EmojiPicker> */}
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="lb-comment-body">
-            {/* <p className="lb-comment-deleted">{$.COMMENT_DELETED}</p> */}
-          </div>
-        )}
-      </Components.Comments.Comment>
+  if (showActions && !isEditing) {
+    actions = (
+      <Components.Generic.Toolbar.Root
+        className={mergeCSSClasses(
+          "bn-comment-actions",
+          "bn-toolbar",
+          additionalActionsClassName
+        )}>
+        {additionalActions ?? null}
+        <Components.Generic.Toolbar.Button
+          mainTooltip="Add reaction"
+          variant="compact"
+          onClick={onReactionSelect}>
+          R1
+        </Components.Generic.Toolbar.Button>
+        <Components.Generic.Toolbar.Button
+          mainTooltip="Resolve"
+          variant="compact"
+          onClick={onResolve}>
+          R2
+        </Components.Generic.Toolbar.Button>
+        <Components.Generic.Menu.Root>
+          <Components.Generic.Menu.Trigger>
+            <Components.Generic.Toolbar.Button
+              mainTooltip="More actions"
+              variant="compact">
+              ...
+            </Components.Generic.Toolbar.Button>
+          </Components.Generic.Menu.Trigger>
+          <Components.Generic.Menu.Dropdown className={"bn-menu-dropdown"}>
+            <Components.Generic.Menu.Item onClick={handleEdit}>
+              Edit comment
+            </Components.Generic.Menu.Item>
+            <Components.Generic.Menu.Item onClick={onDelete}>
+              Delete comment
+            </Components.Generic.Menu.Item>
+          </Components.Generic.Menu.Dropdown>
+        </Components.Generic.Menu.Root>
+      </Components.Generic.Toolbar.Root>
     );
   }
-);
+
+  const timeString =
+    comment.createdAt.toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+    }) +
+    (comment.updatedAt.getTime() !== comment.createdAt.getTime()
+      ? " (edited)"
+      : ""); // TODO: needs editedAt?
+
+  return (
+    <Components.Comments.Comment
+      authorInfo={{
+        username: "hello world",
+        avatarUrl:
+          "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-2.png",
+      }}
+      timeString={timeString}
+      showActions={showActions}
+      actions={actions}>
+      {isEditing ? (
+        <>
+          <CommentEditor
+            editor={commentEditor}
+            editable={true}
+            actions={({ isEmpty }) => (
+              <Components.Generic.Toolbar.Root
+                variant="action-toolbar"
+                className={mergeCSSClasses("bn-comment-actions")}>
+                <Components.Generic.Toolbar.Button
+                  mainTooltip="Cancel"
+                  variant="compact"
+                  onClick={onEditCancel}>
+                  X
+                </Components.Generic.Toolbar.Button>
+                <Components.Generic.Toolbar.Button
+                  mainTooltip="Save"
+                  variant="compact"
+                  onClick={onEditSubmit}
+                  isDisabled={isEmpty}>
+                  Save
+                </Components.Generic.Toolbar.Button>
+              </Components.Generic.Toolbar.Root>
+            )}
+          />
+        </>
+      ) : comment.body ? (
+        <>
+          <CommentEditor editor={commentEditor} editable={false} />
+
+          {showReactions && comment.reactions.length > 0 && (
+            <div className="bn-comment-reactions"></div>
+          )}
+        </>
+      ) : (
+        // Soft deletes
+        // TODO, test
+        <div className="bn-comment-body">
+          <p className="bn-comment-deleted">Deleted</p>
+        </div>
+      )}
+    </Components.Comments.Comment>
+  );
+};

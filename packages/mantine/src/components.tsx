@@ -2,7 +2,7 @@ import { Components } from "@blocknote/react";
 
 import { Card, CardSection } from "./comments/Card.js";
 import { Comment } from "./comments/Comment.js";
-import { Composer } from "./comments/Composer.js";
+
 import { Editor } from "./comments/Editor.js";
 import { TextInput } from "./form/TextInput.js";
 import {
@@ -103,7 +103,6 @@ export const components: Components = {
   Comments: {
     Comment,
     Editor,
-    Composer,
     Card,
     CardSection,
   },

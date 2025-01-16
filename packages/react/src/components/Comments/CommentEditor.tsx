@@ -59,7 +59,9 @@ export const CommentEditor = (props: {
         editable={props.editable}
       />
       {props.actions && (
-        <props.actions isFocused={isFocused} isEmpty={isEmpty} />
+        <div style={{ width: "100%" }}>
+          <props.actions isFocused={isFocused} isEmpty={isEmpty} />
+        </div>
       )}
     </>
   );

@@ -263,12 +263,6 @@ export type ComponentProps = {
       className?: string;
       children?: ReactNode;
     };
-    // TODO: same as editor?
-    Composer: {
-      className?: string;
-      editor: BlockNoteEditor<any, any, any>;
-      onSubmit: () => void;
-    };
     Editor: {
       className?: string;
       editable: boolean;
@@ -287,6 +281,7 @@ export type ComponentProps = {
           };
       timeString: string;
       actions?: ReactNode;
+      showActions?: boolean | "hover";
     };
   };
 };

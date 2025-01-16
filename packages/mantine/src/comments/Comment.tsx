@@ -1,14 +1,14 @@
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
+import { ComponentProps, mergeRefs } from "@blocknote/react";
 import { Avatar, Group, Skeleton, Text } from "@mantine/core";
+import { useHover } from "@mantine/hooks";
 import { forwardRef } from "react";
 
 const AuthorInfo = forwardRef<
   HTMLDivElement,
-  ComponentProps["Comments"]["Comment"]
+  Pick<ComponentProps["Comments"]["Comment"], "authorInfo" | "timeString">
 >((props, ref) => {
-  const { className, authorInfo, timeString, actions, children, ...rest } =
-    props;
+  const { authorInfo, timeString, ...rest } = props;
 
   assertEmpty(rest, false);
 
@@ -48,24 +48,41 @@ export const Comment = forwardRef<
   HTMLDivElement,
   ComponentProps["Comments"]["Comment"]
 >((props, ref) => {
-  const { className, authorInfo, timeString, actions, children, ...rest } =
-    props;
+  const {
+    className,
+    showActions,
+    authorInfo,
+    timeString,
+    actions,
+    children,
+    ...rest
+  } = props;
 
+  const { hovered, ref: hoverRef } = useHover();
+  const mergedRef = mergeRefs([ref, hoverRef]);
   assertEmpty(rest, false);
 
+  const doShowActions =
+    actions &&
+    (showActions === true ||
+      showActions === undefined ||
+      (showActions === "hover" && hovered));
+
   return (
-    <>
-      <div
-        style={{
-          position: "absolute",
-          right: "var(--mantine-spacing-xs)",
-          top: "var(--mantine-spacing-xs)",
-          zIndex: 10,
-        }}>
-        {actions}
-      </div>
+    <Group pos="relative" ref={mergedRef} className={className}>
+      {doShowActions ? (
+        <Group
+          style={{
+            position: "absolute",
+            right: 0,
+            top: 0,
+            zIndex: 10,
+          }}>
+          {actions}
+        </Group>
+      ) : null}
       <AuthorInfo {...props} />
       {children}
-    </>
+    </Group>
   );
 });
