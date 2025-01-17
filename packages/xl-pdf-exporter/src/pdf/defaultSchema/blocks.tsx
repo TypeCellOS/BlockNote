@@ -2,6 +2,7 @@ import {
   BlockMapping,
   DefaultBlockSchema,
   DefaultProps,
+  StyledText,
 } from "@blocknote/core";
 import { Image, Link, Path, Svg, Text, View } from "@react-pdf/renderer";
 import {
@@ -69,7 +70,35 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
     );
   },
   codeBlock: (block) => {
-    return <Text>{block.type + " not implemented"}</Text>;
+    const textContent = (block.content as StyledText<any>[])[0]?.text || "";
+    const lines = textContent.split("\n").map((line, index) => {
+      const indent = line.match(/^\s*/)?.[0].length || 0;
+
+      return (
+        <Text
+          key={`line_${index}`}
+          style={{
+            marginLeft: indent * 9.5 * PIXELS_PER_POINT,
+          }}>
+          {line.trimStart() || <>&nbsp;</>}
+        </Text>
+      );
+    });
+
+    return (
+      <View
+        wrap={false}
+        style={{
+          padding: 24 * PIXELS_PER_POINT,
+          backgroundColor: "#161616",
+          color: "#ffffff",
+          lineHeight: 1.25,
+          fontSize: FONT_SIZE * PIXELS_PER_POINT,
+          fontFamily: "GeistMono",
+        }}>
+        {lines}
+      </View>
+    );
   },
   audio: (block, exporter) => {
     return (
