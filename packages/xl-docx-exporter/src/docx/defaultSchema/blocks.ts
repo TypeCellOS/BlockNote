@@ -132,7 +132,6 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       ...caption(block.props, exporter),
     ];
   },
-  // TODO
   codeBlock: (block) => {
     const textContent = (block.content as StyledText<any>[])[0]?.text || "";
 
