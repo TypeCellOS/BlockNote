@@ -6,8 +6,12 @@ import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
 } from "../../../blocks/defaultBlocks.js";
-import { pageBreakSchema } from "../../../blocks/PageBreakBlockContent/schema.js";
+import {
+  pageBreakSchema,
+  withPageBreak,
+} from "../../../blocks/PageBreakBlockContent/schema.js";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import { BlockNoteSchema } from "../../../editor/BlockNoteSchema";
 
 export const defaultSchemaTestCases: EditorTestCases<
   DefaultBlockSchema & typeof pageBreakSchema.blockSchema,
@@ -17,6 +21,7 @@ export const defaultSchemaTestCases: EditorTestCases<
   name: "default schema",
   createEditor: () => {
     return BlockNoteEditor.create({
+      schema: withPageBreak(BlockNoteSchema.create()),
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
     });
   },
