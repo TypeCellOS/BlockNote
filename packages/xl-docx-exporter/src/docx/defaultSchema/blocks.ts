@@ -3,6 +3,7 @@ import {
   COLORS_DEFAULT,
   DefaultBlockSchema,
   DefaultProps,
+  pageBreakSchema,
   StyledText,
   UnreachableCaseError,
 } from "@blocknote/core";
@@ -57,7 +58,7 @@ function blockPropsToStyles(
   };
 }
 export const docxBlockMappingForDefaultSchema: BlockMapping<
-  DefaultBlockSchema,
+  DefaultBlockSchema & typeof pageBreakSchema.blockSchema,
   any,
   any,
   | Promise<Paragraph[] | Paragraph | DocxTable>

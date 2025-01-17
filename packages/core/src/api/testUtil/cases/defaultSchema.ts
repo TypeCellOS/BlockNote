@@ -6,10 +6,11 @@ import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
 } from "../../../blocks/defaultBlocks.js";
+import { pageBreakSchema } from "../../../blocks/PageBreakBlockContent/schema.js";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 
 export const defaultSchemaTestCases: EditorTestCases<
-  DefaultBlockSchema,
+  DefaultBlockSchema & typeof pageBreakSchema.blockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema
 > = {

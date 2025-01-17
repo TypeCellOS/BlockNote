@@ -1,10 +1,14 @@
 import {
   BlockNoteSchema,
+  defaultBlockSpecs,
+  PageBreak,
   partialBlocksToBlocksForTesting,
 } from "@blocknote/core";
 
 export const testDocument = partialBlocksToBlocksForTesting(
-  BlockNoteSchema.create(),
+  BlockNoteSchema.create({
+    blockSpecs: { ...defaultBlockSpecs, pageBreak: PageBreak },
+  }),
   [
     {
       type: "paragraph",

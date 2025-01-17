@@ -6,6 +6,7 @@ import {
   defaultBlockSpecs,
   defaultInlineContentSpecs,
   defaultStyleSpecs,
+  PageBreak,
 } from "@blocknote/core";
 import { Text } from "@react-pdf/renderer";
 import { testDocument } from "@shared/testDocument.js";
@@ -26,6 +27,7 @@ describe("exporter", () => {
     const schema = BlockNoteSchema.create({
       blockSpecs: {
         ...defaultBlockSpecs,
+        pageBreak: PageBreak,
         extraBlock: createBlockSpec(
           {
             content: "none",
@@ -155,7 +157,9 @@ describe("exporter", () => {
 
   it("should export a document", async () => {
     const exporter = new PDFExporter(
-      BlockNoteSchema.create(),
+      BlockNoteSchema.create({
+        blockSpecs: { ...defaultBlockSpecs, pageBreak: PageBreak },
+      }),
       pdfDefaultSchemaMappings
     );
 
@@ -186,7 +190,9 @@ describe("exporter", () => {
 
   it("should export a document with header and footer", async () => {
     const exporter = new PDFExporter(
-      BlockNoteSchema.create(),
+      BlockNoteSchema.create({
+        blockSpecs: { ...defaultBlockSpecs, pageBreak: PageBreak },
+      }),
       pdfDefaultSchemaMappings
     );
 

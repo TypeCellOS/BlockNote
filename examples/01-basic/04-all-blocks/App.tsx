@@ -3,6 +3,7 @@ import {
   combineByGroup,
   filterSuggestionItems,
   locales,
+  withPageBreak,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
@@ -11,6 +12,7 @@ import {
   SuggestionMenuController,
   getDefaultReactSlashMenuItems,
   useCreateBlockNote,
+  getPageBreakReactSlashMenuItems,
 } from "@blocknote/react";
 import {
   getMultiColumnSlashMenuItems,
@@ -23,7 +25,7 @@ import { useMemo } from "react";
 export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
-    schema: withMultiColumn(BlockNoteSchema.create()),
+    schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())),
     dropCursor: multiColumnDropCursor,
     dictionary: {
       ...locales.en,
@@ -193,6 +195,7 @@ export default function App() {
   const slashMenuItems = useMemo(() => {
     return combineByGroup(
       getDefaultReactSlashMenuItems(editor),
+      getPageBreakReactSlashMenuItems(editor),
       getMultiColumnSlashMenuItems(editor)
     );
   }, [editor]);
