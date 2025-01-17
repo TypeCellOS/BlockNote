@@ -174,7 +174,9 @@ const getTipTapExtensions = <
       protocols: VALID_LINK_PROTOCOLS,
     }),
     ...Object.values(opts.styleSpecs).map((styleSpec) => {
-      return styleSpec.implementation.mark;
+      return styleSpec.implementation.mark.configure({
+        editor: opts.editor as any,
+      });
     }),
 
     TextColorExtension,
