@@ -9,6 +9,7 @@ export const pageBreakConfig = {
   propSchema: {},
   content: "none",
   isFileBlock: false,
+  isSelectable: false,
 } satisfies CustomBlockConfig;
 export const pageBreakRender = () => {
   const pageBreak = document.createElement("div");

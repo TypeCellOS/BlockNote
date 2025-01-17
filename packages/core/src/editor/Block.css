@@ -313,9 +313,9 @@ NESTED BLOCKS
   width: 100%;
   height: 8px;
   background: linear-gradient(
-    to right,
-    rgb(22 22 22) 50%,
-    rgb(255, 255, 255, 0) 0%
+          to right,
+          rgb(125, 121, 122) 50%,
+          rgb(125, 121, 122, 0) 0%
   );
   background-position: center;
   background-size: 16px 1.5px;
