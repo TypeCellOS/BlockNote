@@ -91,30 +91,33 @@ Tippy popups that are appended to document.body directly
 /* Render the username above the caret */
 .collaboration-cursor__label {
   border-radius: 3px 3px 3px 0;
-  color: transparent;
   font-size: 12px;
   font-style: normal;
   font-weight: 600;
   line-height: normal;
   left: -1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+
+  color: transparent;
   max-height: 4px;
   max-width: 4px;
-  overflow: hidden;
   padding: 0;
-  position: absolute;
   transform: translateY(3px);
+  
   transition: all 0.2s;
+
 }
 
 .collaboration-cursor__caret[data-active] > .collaboration-cursor__label {
-  border-radius: 3px 3px 3px 0;
   color: #0d0d0d;
   max-height: 1.1rem;
   max-width: 20rem;
   padding: 0.1rem 0.3rem;
   transform: translateY(-14px);
+
   transition: all 0.2s;
-  white-space: nowrap;
 }
 
 /* .tableWrapper {

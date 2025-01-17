@@ -65,6 +65,7 @@ type ExtensionOptions<
     };
     provider: any;
     renderCursor?: (user: any) => HTMLElement;
+    showCursorLabels?: "always" | "activity";
   };
   disableExtensions: string[] | undefined;
   setIdAttribute?: boolean;
@@ -260,41 +261,46 @@ const getTipTapExtensions = <
         { element: HTMLElement; hideTimeout: NodeJS.Timeout | undefined }
       >();
 
-      awareness.on(
-        "change",
-        ({
-          updated,
-        }: {
-          added: Array<number>;
-          updated: Array<number>;
-          removed: Array<number>;
-        }) => {
-          for (const clientID of updated) {
-            const cursor = cursors.get(clientID);
+      if (opts.collaboration.showCursorLabels !== "always") {
+        awareness.on(
+          "change",
+          ({
+            updated,
+          }: {
+            added: Array<number>;
+            updated: Array<number>;
+            removed: Array<number>;
+          }) => {
+            for (const clientID of updated) {
+              const cursor = cursors.get(clientID);
 
-            if (cursor) {
-              cursor.element.setAttribute("data-active", "");
+              if (cursor) {
+                cursor.element.setAttribute("data-active", "");
 
-              if (cursor.hideTimeout) {
-                clearTimeout(cursor.hideTimeout);
+                if (cursor.hideTimeout) {
+                  clearTimeout(cursor.hideTimeout);
+                }
+
+                cursors.set(clientID, {
+                  element: cursor.element,
+                  hideTimeout: setTimeout(() => {
+                    cursor.element.removeAttribute("data-active");
+                  }, 2000),
+                });
               }
-
-              cursors.set(clientID, {
-                element: cursor.element,
-                hideTimeout: setTimeout(() => {
-                  cursor.element.removeAttribute("data-active");
-                }, 2000),
-              });
             }
           }
-        }
-      );
+        );
+      }
 
       const createCursor = (clientID: number, name: string, color: string) => {
         const cursorElement = document.createElement("span");
 
         cursorElement.classList.add("collaboration-cursor__caret");
         cursorElement.setAttribute("style", `border-color: ${color}`);
+        if (opts.collaboration?.showCursorLabels !== "always") {
+          cursorElement.setAttribute("data-active", "");
+        }
 
         const labelElement = document.createElement("span");
 
@@ -311,29 +317,31 @@ const getTipTapExtensions = <
           hideTimeout: undefined,
         });
 
-        cursorElement.addEventListener("mouseenter", () => {
-          const cursor = cursors.get(clientID)!;
-          cursor.element.setAttribute("data-active", "");
+        if (opts.collaboration?.showCursorLabels !== "always") {
+          cursorElement.addEventListener("mouseenter", () => {
+            const cursor = cursors.get(clientID)!;
+            cursor.element.setAttribute("data-active", "");
 
-          if (cursor.hideTimeout) {
-            clearTimeout(cursor.hideTimeout);
+            if (cursor.hideTimeout) {
+              clearTimeout(cursor.hideTimeout);
+              cursors.set(clientID, {
+                element: cursor.element,
+                hideTimeout: undefined,
+              });
+            }
+          });
+
+          cursorElement.addEventListener("mouseleave", () => {
+            const cursor = cursors.get(clientID)!;
+
             cursors.set(clientID, {
               element: cursor.element,
-              hideTimeout: undefined,
+              hideTimeout: setTimeout(() => {
+                cursor.element.removeAttribute("data-active");
+              }, 2000),
             });
-          }
-        });
-
-        cursorElement.addEventListener("mouseleave", () => {
-          const cursor = cursors.get(clientID)!;
-
-          cursors.set(clientID, {
-            element: cursor.element,
-            hideTimeout: setTimeout(() => {
-              cursor.element.removeAttribute("data-active");
-            }, 2000),
           });
-        });
+        }
 
         return cursors.get(clientID)!;
       };
