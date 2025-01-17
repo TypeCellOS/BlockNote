@@ -196,6 +196,13 @@ export type BlockNoteEditorOptions<
      * Optional function to customize how cursors of users are rendered
      */
     renderCursor?: (user: any) => HTMLElement;
+    /**
+     * Optional flag to set when the user label should be shown with the default
+     * collaboration cursor. Setting to "always" will always show the label,
+     * while "activity" will only show the label when the user moves the cursor
+     * or types. Defaults to "activity".
+     */
+    showCursorLabels?: "always" | "activity";
   };
 
   /**

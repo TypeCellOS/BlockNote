@@ -35,6 +35,7 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
 
       if (event.key === "Enter" && !event.isComposing) {
         event.preventDefault();
+        event.stopPropagation();
 
         if (items.length) {
           onItemClick?.(items[selectedIndex]);

@@ -277,6 +277,15 @@ export default function App() {
           ],
         },
       },
+      {
+        type: "codeBlock",
+        props: {
+          language: "javascript",
+        },
+        content: `const helloWorld = (message) => {
+  console.log("Hello World", message);
+};`,
+      },
     ],
   });
 
