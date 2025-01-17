@@ -11,7 +11,7 @@ import {
   withPageBreak,
 } from "../../../blocks/PageBreakBlockContent/schema.js";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
-import { BlockNoteSchema } from "../../../editor/BlockNoteSchema";
+import { BlockNoteSchema } from "../../../editor/BlockNoteSchema.js";
 
 export const defaultSchemaTestCases: EditorTestCases<
   DefaultBlockSchema & typeof pageBreakSchema.blockSchema,
