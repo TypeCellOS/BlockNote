@@ -1,13 +1,25 @@
+import {
+  BlockNoteSchema,
+  combineByGroup,
+  filterSuggestionItems,
+  withPageBreak,
+} from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { useCreateBlockNote } from "@blocknote/react";
+import {
+  getDefaultReactSlashMenuItems,
+  getPageBreakReactSlashMenuItems,
+  SuggestionMenuController,
+  useCreateBlockNote,
+} from "@blocknote/react";
 import {
   PDFExporter,
   pdfDefaultSchemaMappings,
 } from "@blocknote/xl-pdf-exporter";
 import { PDFViewer } from "@react-pdf/renderer";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
 import "./styles.css";
 
 export default function App() {
@@ -16,6 +28,7 @@ export default function App() {
 
   // Creates a new editor instance with some initial content.
   const editor = useCreateBlockNote({
+    schema: withPageBreak(BlockNoteSchema.create()),
     initialContent: [
       {
         type: "paragraph",
@@ -181,6 +194,9 @@ export default function App() {
         },
       },
       {
+        type: "pageBreak",
+      },
+      {
         type: "file",
       },
       {
@@ -308,11 +324,25 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const slashMenuItems = useMemo(() => {
+    return combineByGroup(
+      getDefaultReactSlashMenuItems(editor),
+      getPageBreakReactSlashMenuItems(editor)
+    );
+  }, [editor]);
+
   // Renders the editor instance, and its contents as HTML below.
   return (
     <div className="wrapper">
       <div className="editor">
-        <BlockNoteView editor={editor} onChange={onChange} />
+        <BlockNoteView editor={editor} slashMenu={false} onChange={onChange}>
+          <SuggestionMenuController
+            triggerCharacter={"/"}
+            getItems={async (query) =>
+              filterSuggestionItems(slashMenuItems, query)
+            }
+          />
+        </BlockNoteView>
       </div>
       <div className="pdf">
         <PDFViewer width={"100%"}>{pdfDocument}</PDFViewer>
