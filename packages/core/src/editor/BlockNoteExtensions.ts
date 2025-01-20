@@ -298,7 +298,7 @@ const getTipTapExtensions = <
 
         cursorElement.classList.add("collaboration-cursor__caret");
         cursorElement.setAttribute("style", `border-color: ${color}`);
-        if (opts.collaboration?.showCursorLabels !== "always") {
+        if (opts.collaboration?.showCursorLabels === "always") {
           cursorElement.setAttribute("data-active", "");
         }
 

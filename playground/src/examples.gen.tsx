@@ -65,9 +65,9 @@
         }
       },
       {
-        "projectSlug": "all-blocks",
-        "fullSlug": "basic/all-blocks",
-        "pathFromRoot": "examples/01-basic/04-all-blocks",
+        "projectSlug": "default-blocks",
+        "fullSlug": "basic/default-blocks",
+        "pathFromRoot": "examples/01-basic/04-default-blocks",
         "config": {
           "playground": true,
           "docs": true,
@@ -76,10 +76,7 @@
             "Basic",
             "Blocks",
             "Inline Content"
-          ],
-          "dependencies": {
-            "@blocknote/xl-multi-column": "latest"
-          } as any
+          ]
         },
         "title": "Default Schema Showcase",
         "group": {
