@@ -104,7 +104,7 @@ Tippy popups that are appended to document.body directly
   max-height: 4px;
   max-width: 4px;
   padding: 0;
-  top: -3px;
+  top: 0;
   
   transition: all 0.2s;
 
@@ -115,7 +115,7 @@ Tippy popups that are appended to document.body directly
   max-height: 1.1rem;
   max-width: 20rem;
   padding: 0.1rem 0.3rem;
-  top: -17px;
+  top: -14px;
 
   transition: all 0.2s;
 }
