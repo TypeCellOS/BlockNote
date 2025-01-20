@@ -58,6 +58,12 @@ export const ko: Dictionary = {
       aliases: ["code", "pre"],
       group: "기본 블록",
     },
+    page_break: {
+      title: "페이지 나누기",
+      subtext: "페이지 구분자",
+      aliases: ["page", "break", "separator", "페이지", "구분자"],
+      group: "기본 블록",
+    },
     table: {
       title: "표",
       subtext: "간단한 표를 추가합니다.",

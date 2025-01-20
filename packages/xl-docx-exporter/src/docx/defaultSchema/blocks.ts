@@ -3,6 +3,7 @@ import {
   COLORS_DEFAULT,
   DefaultBlockSchema,
   DefaultProps,
+  pageBreakSchema,
   StyledText,
   UnreachableCaseError,
 } from "@blocknote/core";
@@ -12,6 +13,7 @@ import {
   ExternalHyperlink,
   IParagraphOptions,
   ImageRun,
+  PageBreak,
   Paragraph,
   ParagraphChild,
   ShadingType,
@@ -56,7 +58,7 @@ function blockPropsToStyles(
   };
 }
 export const docxBlockMappingForDefaultSchema: BlockMapping<
-  DefaultBlockSchema,
+  DefaultBlockSchema & typeof pageBreakSchema.blockSchema,
   any,
   any,
   | Promise<Paragraph[] | Paragraph | DocxTable>
@@ -150,6 +152,11 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
           });
         }),
       ],
+    });
+  },
+  pageBreak: () => {
+    return new Paragraph({
+      children: [new PageBreak()],
     });
   },
   image: async (block, exporter) => {

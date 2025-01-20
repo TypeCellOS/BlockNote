@@ -71,6 +71,12 @@ export const fr: Dictionary = {
       aliases: ["code", "pre"],
       group: "Blocs de base",
     },
+    page_break: {
+      title: "Saut de page",
+      subtext: "Séparateur de page",
+      aliases: ["page", "break", "separator", "saut", "séparateur"],
+      group: "Blocs de base",
+    },
     table: {
       title: "Tableau",
       subtext: "Utilisé pour les tableaux",

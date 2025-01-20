@@ -2,6 +2,7 @@ import {
   BlockMapping,
   DefaultBlockSchema,
   DefaultProps,
+  pageBreakSchema,
   StyledText,
 } from "@blocknote/core";
 import { Image, Link, Path, Svg, Text, View } from "@react-pdf/renderer";
@@ -17,7 +18,7 @@ const PIXELS_PER_POINT = 0.75;
 const FONT_SIZE = 16;
 
 export const pdfBlockMappingForDefaultSchema: BlockMapping<
-  DefaultBlockSchema,
+  DefaultBlockSchema & typeof pageBreakSchema.blockSchema,
   any,
   any,
   React.ReactElement<Text>,
@@ -99,6 +100,9 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
         {lines}
       </View>
     );
+  },
+  pageBreak: () => {
+    return <View break />;
   },
   audio: (block, exporter) => {
     return (
