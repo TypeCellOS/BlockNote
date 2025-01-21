@@ -238,7 +238,3 @@
 .bn-side-menu[data-url="false"] {
   height: 54px;
 }
-
-.bn-side-menu[data-block-type="pageBreak"] {
-  transform: translateY(-10px);
-}

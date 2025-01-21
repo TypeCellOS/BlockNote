@@ -312,7 +312,8 @@ NESTED BLOCKS
 .bn-block-content[data-content-type="pageBreak"] > div {
   width: 100%;
   height: 0;
-  border-top: dotted rgb(125, 121, 122) 4px;
+  border-top: dotted rgb(125, 121, 122) 2px;
+  margin-block: 11px;
 }
 
 @media print {
