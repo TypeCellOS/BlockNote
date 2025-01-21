@@ -25,6 +25,10 @@ interface CodeBlockOptions {
   supportedLanguages: SupportedLanguageConfig[];
 }
 
+export const shikiParserSymbol = Symbol.for("blocknote.shikiParser");
+export const shikiHighlighterPromiseSymbol = Symbol.for(
+  "blocknote.shikiHighlighterPromise"
+);
 export const defaultCodeBlockPropSchema = {
   language: {
     default: "javascript",
@@ -77,9 +81,10 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
             const languages = classNames
               .filter((className) => className.startsWith("language-"))
               .map((className) => className.replace("language-", ""));
-            const [classLanguage] = languages;
 
-            language = classLanguage?.toLowerCase();
+            if (languages.length > 0) {
+              language = languages[0].toLowerCase();
+            }
           }
 
           if (!language) {
@@ -93,6 +98,7 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
           );
         },
         renderHTML: (attributes) => {
+          // TODO: Use `data-language="..."` instead for easier parsing
           return attributes.language && attributes.language !== "text"
             ? {
                 class: `language-${attributes.language}`,
@@ -106,9 +112,11 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
     return [
       {
         tag: "div[data-content-type=" + this.name + "]",
+        contentElement: "code",
       },
       {
         tag: "pre",
+        contentElement: "code",
         preserveWhitespace: "full",
       },
     ];
@@ -195,19 +203,30 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
     };
   },
   addProseMirrorPlugins() {
+    const supportedLanguages = this.options
+      .supportedLanguages as SupportedLanguageConfig[];
+    const globalThisForShiki = globalThis as {
+      [shikiHighlighterPromiseSymbol]?: Promise<Highlighter>;
+      [shikiParserSymbol]?: Parser;
+    };
+
     let highlighter: Highlighter | undefined;
     let parser: Parser | undefined;
 
-    const supportedLanguages = this.options
-      .supportedLanguages as SupportedLanguageConfig[];
     const lazyParser: Parser = (options) => {
       if (!highlighter) {
-        return createHighlighter({
-          themes: ["github-dark"],
-          langs: [],
-        }).then((createdHighlighter) => {
-          highlighter = createdHighlighter;
-        });
+        globalThisForShiki[shikiHighlighterPromiseSymbol] =
+          globalThisForShiki[shikiHighlighterPromiseSymbol] ||
+          createHighlighter({
+            themes: ["github-dark"],
+            langs: [],
+          });
+
+        return globalThisForShiki[shikiHighlighterPromiseSymbol].then(
+          (createdHighlighter) => {
+            highlighter = createdHighlighter;
+          }
+        );
       }
 
       const language = options.language;
@@ -223,7 +242,9 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
       }
 
       if (!parser) {
-        parser = createParser(highlighter);
+        parser =
+          globalThisForShiki[shikiParserSymbol] || createParser(highlighter);
+        globalThisForShiki[shikiParserSymbol] = parser;
       }
 
       return parser(options);

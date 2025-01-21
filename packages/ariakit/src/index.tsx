@@ -5,11 +5,11 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import {
+  BlockNoteViewProps,
   BlockNoteViewRaw,
   Components,
   ComponentsContext,
 } from "@blocknote/react";
-import { ComponentProps } from "react";
 
 import { Form } from "./input/Form.js";
 import { TextInput } from "./input/TextInput.js";
@@ -38,8 +38,8 @@ import { SuggestionMenuEmptyItem } from "./suggestionMenu/SuggestionMenuEmptyIte
 import { SuggestionMenuItem } from "./suggestionMenu/SuggestionMenuItem.js";
 import { SuggestionMenuLabel } from "./suggestionMenu/SuggestionMenuLabel.js";
 import { SuggestionMenuLoader } from "./suggestionMenu/SuggestionMenuLoader.js";
-import { TableHandle } from "./tableHandle/TableHandle.js";
 import { ExtendButton } from "./tableHandle/ExtendButton.js";
+import { TableHandle } from "./tableHandle/TableHandle.js";
 import { Toolbar } from "./toolbar/Toolbar.js";
 import { ToolbarButton } from "./toolbar/ToolbarButton.js";
 import { ToolbarSelect } from "./toolbar/ToolbarSelect.js";
@@ -106,7 +106,7 @@ export const BlockNoteView = <
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema
 >(
-  props: ComponentProps<typeof BlockNoteViewRaw<BSchema, ISchema, SSchema>>
+  props: BlockNoteViewProps<BSchema, ISchema, SSchema>
 ) => {
   const { className, ...rest } = props;
 

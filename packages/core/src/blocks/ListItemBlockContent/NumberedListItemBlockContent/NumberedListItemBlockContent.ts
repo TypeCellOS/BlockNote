@@ -5,6 +5,7 @@ import {
   PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
+  propsToAttributes,
 } from "../../../schema/index.js";
 import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers.js";
 import { defaultProps } from "../../defaultProps.js";
@@ -13,6 +14,7 @@ import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin.js";
 
 export const numberedListItemPropSchema = {
   ...defaultProps,
+  start: { default: undefined, type: "number" },
 } satisfies PropSchema;
 
 const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
@@ -22,6 +24,9 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
   priority: 90,
   addAttributes() {
     return {
+      ...propsToAttributes(numberedListItemPropSchema),
+      // the index attribute is only used internally (it's not part of the blocknote schema)
+      // that's why it's defined explicitly here, and not part of the prop schema
       index: {
         default: null,
         parseHTML: (element) => element.getAttribute("data-index"),
@@ -38,15 +43,17 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
     return [
       // Creates an ordered list when starting with "1.".
       new InputRule({
-        find: new RegExp(`^1\\.\\s$`),
-        handler: ({ state, chain, range }) => {
+        find: new RegExp(`^(\\d+)\\.\\s$`),
+        handler: ({ state, chain, range, match }) => {
           const blockInfo = getBlockInfoFromSelection(state);
           if (
             !blockInfo.isBlockContainer ||
-            blockInfo.blockContent.node.type.spec.content !== "inline*"
+            blockInfo.blockContent.node.type.spec.content !== "inline*" ||
+            blockInfo.blockNoteType === "numberedListItem"
           ) {
             return;
           }
+          const startIndex = parseInt(match[1]);
 
           chain()
             .command(
@@ -55,7 +62,11 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
                 blockInfo.bnBlock.beforePos,
                 {
                   type: "numberedListItem",
-                  props: {},
+                  props:
+                    (startIndex === 1 && {}) ||
+                    ({
+                      start: startIndex,
+                    } as any),
                 }
               )
             )
@@ -95,7 +106,7 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
   parseHTML() {
     return [
       {
-        tag: "div[data-content-type=" + this.name + "]", // TODO: remove if we can't come up with test case that needs this
+        tag: "div[data-content-type=" + this.name + "]",
       },
       // Case for regular HTML list structure.
       // (e.g.: when pasting from other apps)
@@ -116,7 +127,16 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
             parent.tagName === "OL" ||
             (parent.tagName === "DIV" && parent.parentElement!.tagName === "OL")
           ) {
-            return {};
+            const startIndex =
+              parseInt(parent.getAttribute("start") || "1") || 1;
+
+            if (element.previousSibling || startIndex === 1) {
+              return {};
+            }
+
+            return {
+              start: startIndex,
+            };
           }
 
           return false;

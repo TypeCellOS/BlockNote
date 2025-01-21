@@ -8,6 +8,7 @@ import {
   PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
+  propsToAttributes,
 } from "../../../schema/index.js";
 import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers.js";
 import { defaultProps } from "../../defaultProps.js";
@@ -24,22 +25,9 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
   name: "checkListItem",
   content: "inline*",
   group: "blockContent",
+
   addAttributes() {
-    return {
-      checked: {
-        default: false,
-        // instead of "checked" attributes, use "data-checked"
-        parseHTML: (element) =>
-          element.getAttribute("data-checked") === "true" || undefined,
-        renderHTML: (attributes) => {
-          return attributes.checked
-            ? {
-                "data-checked": (attributes.checked as boolean).toString(),
-              }
-            : {};
-        },
-      },
-    };
+    return propsToAttributes(checkListItemPropSchema);
   },
 
   addInputRules() {
@@ -130,7 +118,7 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
   parseHTML() {
     return [
       {
-        tag: "div[data-content-type=" + this.name + "]", // TODO: remove if we can't come up with test case that needs this
+        tag: "div[data-content-type=" + this.name + "]",
       },
       // Checkbox only.
       {

@@ -5,6 +5,7 @@ import {
   PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
+  propsToAttributes,
 } from "../../schema/index.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
@@ -18,26 +19,9 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
   name: "heading",
   content: "inline*",
   group: "blockContent",
+
   addAttributes() {
-    return {
-      level: {
-        default: 1,
-        // instead of "level" attributes, use "data-level"
-        parseHTML: (element) => {
-          const attr = element.getAttribute("data-level")!;
-          const parsed = parseInt(attr);
-          if (isFinite(parsed)) {
-            return parsed;
-          }
-          return undefined;
-        },
-        renderHTML: (attributes) => {
-          return {
-            "data-level": (attributes.level as number).toString(),
-          };
-        },
-      },
-    };
+    return propsToAttributes(headingPropSchema);
   },
 
   addInputRules() {
@@ -140,15 +124,6 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
     return [
       {
         tag: "div[data-content-type=" + this.name + "]",
-        getAttrs: (element) => {
-          if (typeof element === "string") {
-            return false;
-          }
-
-          return {
-            level: element.getAttribute("data-level"),
-          };
-        },
       },
       {
         tag: "h1",

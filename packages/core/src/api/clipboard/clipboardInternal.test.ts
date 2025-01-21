@@ -7,11 +7,13 @@ import { PartialBlock } from "../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { initializeESMDependencies } from "../../util/esmDependencies.js";
 import { doPaste } from "../testUtil/paste.js";
+import { schema } from "./testUtil.js";
 import { selectedFragmentToHTML } from "./toClipboard/copyExtension.js";
 
 type SelectionTestCase = {
   testName: string;
-  createSelection: (doc: Node) => Selection;
+  createCopySelection: (doc: Node) => Selection;
+  createPasteSelection?: (doc: Node) => Selection;
 };
 
 // These tests are meant to test the copying of user selections in the editor.
@@ -19,7 +21,7 @@ type SelectionTestCase = {
 // as they are represented in the BlockNote API, whereas here we want to test
 // ProseMirror/TipTap selections directly.
 describe("Test ProseMirror selection clipboard HTML", () => {
-  const initialContent: PartialBlock[] = [
+  const initialContent: PartialBlock<typeof schema.blockSchema>[] = [
     {
       type: "heading",
       props: {
@@ -138,9 +140,133 @@ describe("Test ProseMirror selection clipboard HTML", () => {
       //   },
       // ],
     },
+    {
+      type: "paragraph",
+      content: "Paragraph",
+    },
+    {
+      type: "customParagraph",
+      content: "Paragraph",
+    },
+    {
+      type: "paragraph",
+      content: "Paragraph",
+    },
+    {
+      type: "heading",
+      content: "Heading",
+    },
+    {
+      type: "numberedListItem",
+      content: "Numbered List Item",
+    },
+    {
+      type: "bulletListItem",
+      content: "Bullet List Item",
+    },
+    {
+      type: "checkListItem",
+      content: "Check List Item",
+    },
+    {
+      type: "codeBlock",
+      content: 'console.log("Hello World");',
+    },
+    {
+      type: "table",
+      content: {
+        type: "tableContent",
+        rows: [
+          {
+            cells: [["Table Cell"], ["Table Cell"], ["Table Cell"]],
+          },
+          {
+            cells: [["Table Cell"], ["Table Cell"], ["Table Cell"]],
+          },
+          {
+            cells: [["Table Cell"], ["Table Cell"], ["Table Cell"]],
+          },
+        ],
+      },
+    },
+    {
+      type: "image",
+    },
+    {
+      type: "paragraph",
+      props: {
+        textColor: "red",
+      },
+      content: "Paragraph",
+    },
+    {
+      type: "heading",
+      props: {
+        level: 2,
+      },
+      content: "Heading",
+    },
+    {
+      type: "numberedListItem",
+      props: {
+        start: 2,
+      },
+      content: "Numbered List Item",
+    },
+    {
+      type: "bulletListItem",
+      props: {
+        backgroundColor: "red",
+      },
+      content: "Bullet List Item",
+    },
+    {
+      type: "checkListItem",
+      props: {
+        checked: true,
+      },
+      content: "Check List Item",
+    },
+    {
+      type: "codeBlock",
+      props: {
+        language: "typescript",
+      },
+      content: 'console.log("Hello World");',
+    },
+    {
+      type: "table",
+      content: {
+        type: "tableContent",
+        rows: [
+          {
+            cells: [["Table Cell"], ["Table Cell"], ["Table Cell"]],
+          },
+          {
+            cells: [["Table Cell"], ["Table Cell"], ["Table Cell"]],
+          },
+          {
+            cells: [["Table Cell"], ["Table Cell"], ["Table Cell"]],
+          },
+        ],
+      },
+    },
+    {
+      type: "image",
+      props: {
+        name: "1280px-Placeholder_view_vector.svg.png",
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Placeholder_view_vector.svg/1280px-Placeholder_view_vector.svg.png",
+        caption: "Placeholder",
+        showPreview: true,
+        previewWidth: 256,
+      },
+    },
+    {
+      type: "paragraph",
+    },
   ];
 
-  let editor: BlockNoteEditor;
+  let editor: BlockNoteEditor<typeof schema.blockSchema>;
   const div = document.createElement("div");
 
   beforeEach(() => {
@@ -150,7 +276,7 @@ describe("Test ProseMirror selection clipboard HTML", () => {
   beforeAll(async () => {
     (window as any).__TEST_OPTIONS = (window as any).__TEST_OPTIONS || {};
 
-    editor = BlockNoteEditor.create();
+    editor = BlockNoteEditor.create({ schema });
     editor.mount(div);
 
     await initializeESMDependencies();
@@ -173,7 +299,7 @@ describe("Test ProseMirror selection clipboard HTML", () => {
 
     editor.dispatch(
       editor._tiptapEditor.state.tr.setSelection(
-        testCase.createSelection(editor.prosemirrorView.state.doc)
+        testCase.createCopySelection(editor.prosemirrorView.state.doc)
       )
     );
 
@@ -183,8 +309,16 @@ describe("Test ProseMirror selection clipboard HTML", () => {
     );
 
     expect(externalHTML).toMatchFileSnapshot(
-      `./__snapshots__/${testCase.testName}.html`
+      `./__snapshots__/internal/${testCase.testName}.html`
     );
+
+    if (testCase.createPasteSelection) {
+      editor.dispatch(
+        editor._tiptapEditor.state.tr.setSelection(
+          testCase.createPasteSelection(editor.prosemirrorView.state.doc)
+        )
+      );
+    }
 
     const originalDocument = editor.document;
     doPaste(
@@ -201,81 +335,95 @@ describe("Test ProseMirror selection clipboard HTML", () => {
 
   const testCases: SelectionTestCase[] = [
     // TODO: Consider adding test cases for nested blocks & double nested blocks.
-    // Selection spans all of first heading's children.
+    // Copy/paste all of first heading's children.
     {
       testName: "multipleChildren",
-      createSelection: (doc) => TextSelection.create(doc, 16, 78),
+      createCopySelection: (doc) => TextSelection.create(doc, 16, 78),
     },
-    // Selection spans from start of first heading to end of its first child.
+    // Copy/paste from start of first heading to end of its first child.
     {
       testName: "childToParent",
-      createSelection: (doc) => TextSelection.create(doc, 3, 34),
+      createCopySelection: (doc) => TextSelection.create(doc, 3, 34),
     },
-    // Selection spans from middle of first heading to the middle of its first
-    // child.
+    // Copy/paste from middle of first heading to the middle of its first child.
     {
       testName: "partialChildToParent",
-      createSelection: (doc) => TextSelection.create(doc, 6, 23),
+      createCopySelection: (doc) => TextSelection.create(doc, 6, 23),
     },
-    // Selection spans from start of first heading's first child to end of
-    // second heading's content (does not include second heading's children).
+    // Copy/paste from start of first heading's first child to end of second
+    // heading's content (does not include second heading's children).
     {
       testName: "childrenToNextParent",
-      createSelection: (doc) => TextSelection.create(doc, 16, 93),
+      createCopySelection: (doc) => TextSelection.create(doc, 16, 93),
     },
-    // Selection spans from start of first heading's first child to end of
-    // second heading's last child.
+    // Copy/paste from start of first heading's first child to end of second
+    // heading's last child.
     {
       testName: "childrenToNextParentsChildren",
-      createSelection: (doc) => TextSelection.create(doc, 16, 159),
+      createCopySelection: (doc) => TextSelection.create(doc, 16, 159),
     },
-    // Selection spans "Regular" text inside third heading.
+    // Copy/paste "Regular" text inside third heading.
     {
       testName: "unstyledText",
-      createSelection: (doc) => TextSelection.create(doc, 175, 182),
+      createCopySelection: (doc) => TextSelection.create(doc, 175, 182),
     },
-    // Selection spans "Italic" text inside third heading.
+    // Copy/paste "Italic" text inside third heading.
     {
       testName: "styledText",
-      createSelection: (doc) => TextSelection.create(doc, 169, 175),
+      createCopySelection: (doc) => TextSelection.create(doc, 169, 175),
     },
-    // Selection spans third heading's content (does not include third heading's
+    // Copy/paste third heading's content (does not include third heading's
     // children).
     {
       testName: "multipleStyledText",
-      createSelection: (doc) => TextSelection.create(doc, 165, 182),
+      createCopySelection: (doc) => TextSelection.create(doc, 165, 182),
     },
-    // Selection spans the image block content.
+    // Copy/paste the image block content.
     {
       testName: "image",
-      createSelection: (doc) => NodeSelection.create(doc, 185),
+      createCopySelection: (doc) => NodeSelection.create(doc, 185),
     },
-    // Selection spans from start of third heading to end of it's last
-    // descendant.
+    // Copy/paste from start of third heading to end of it's last descendant.
     {
       testName: "nestedImage",
-      createSelection: (doc) => TextSelection.create(doc, 165, 205),
+      createCopySelection: (doc) => TextSelection.create(doc, 165, 205),
     },
-    // Selection spans text in first cell of the table.
+    // Copy/paste text in first cell of the table.
     {
       testName: "tableCellText",
-      createSelection: (doc) => TextSelection.create(doc, 216, 226),
+      createCopySelection: (doc) => TextSelection.create(doc, 216, 226),
     },
-    // Selection spans first cell of the table.
+    // Copy/paste first cell of the table.
     // TODO: External HTML is wrapped in unnecessary `tr` element.
     {
       testName: "tableCell",
-      createSelection: (doc) => CellSelection.create(doc, 214),
+      createCopySelection: (doc) => CellSelection.create(doc, 214),
     },
-    // Selection spans first row of the table.
+    // Copy/paste first row of the table.
     {
       testName: "tableRow",
-      createSelection: (doc) => CellSelection.create(doc, 214, 228),
+      createCopySelection: (doc) => CellSelection.create(doc, 214, 228),
     },
-    // Selection spans all cells of the table.
+    // Copy/paste all cells of the table.
     {
       testName: "tableAllCells",
-      createSelection: (doc) => CellSelection.create(doc, 214, 258),
+      createCopySelection: (doc) => CellSelection.create(doc, 214, 258),
+    },
+    // Copy regular paragraph content and paste over custom block content.
+    {
+      testName: "paragraphInCustomBlock",
+      createCopySelection: (doc) => TextSelection.create(doc, 277, 286),
+      createPasteSelection: (doc) => TextSelection.create(doc, 290, 299),
+    },
+    // Copy/paste basic blocks.
+    {
+      testName: "basicBlocks",
+      createCopySelection: (doc) => TextSelection.create(doc, 303, 558),
+    },
+    // Copy/paste basic blocks with props.
+    {
+      testName: "basicBlocksWithProps",
+      createCopySelection: (doc) => TextSelection.create(doc, 558, 813),
     },
   ];
 

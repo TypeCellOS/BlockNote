@@ -38,6 +38,9 @@ const editor = useCreateBlockNote({
       name: "My Username",
       color: "#ff0000",
     },
+    // When to show user labels on the collaboration cursor. Set by default to
+    // "activity" (show when the cursor moves), but can also be set to "always".
+    showCursorLabels: "activity"
   },
   // ...
 });

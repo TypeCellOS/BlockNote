@@ -10,13 +10,14 @@ export const fr: Dictionary = {
     },
     heading_2: {
       title: "Titre 2",
-      subtext: "Utilisé pour les sections clés",
+      subtext: "Titre de deuxième niveau Utilisé pour les sections clés",
       aliases: ["h2", "titre2", "sous-titre"],
       group: "Titres",
     },
     heading_3: {
       title: "Titre 3",
-      subtext: "Utilisé pour les sous-sections et les titres de groupe",
+      subtext:
+        "Titre de troisième niveau utilisé pour les sous-sections et les titres de groupe",
       aliases: ["h3", "titre3", "sous-titre"],
       group: "Titres",
     },
@@ -27,13 +28,21 @@ export const fr: Dictionary = {
       group: "Blocs de base",
     },
     bullet_list: {
-      title: "Liste à Puces",
-      subtext: "Utilisé pour afficher une liste non ordonnée",
-      aliases: ["ul", "li", "liste", "listeàpuces", "liste à puces"],
+      title: "Liste à puces",
+      subtext: "Utilisé pour afficher une liste à puce non numérotée",
+      aliases: [
+        "ul",
+        "li",
+        "liste",
+        "listeàpuces",
+        "liste à puces",
+        "bullet points",
+        "bulletpoints",
+      ],
       group: "Blocs de base",
     },
     check_list: {
-      title: "Liste de vérification",
+      title: "Liste de tâches",
       subtext: "Utilisé pour afficher une liste avec des cases à cocher",
       aliases: [
         "ul",
@@ -42,13 +51,18 @@ export const fr: Dictionary = {
         "liste de vérification",
         "liste cochée",
         "case à cocher",
+        "checklist",
+        "checkbox",
+        "check box",
+        "to do",
+        "todo",
       ],
       group: "Blocs de base",
     },
     paragraph: {
       title: "Paragraphe",
       subtext: "Utilisé pour le corps de votre document",
-      aliases: ["p", "paragraphe"],
+      aliases: ["p", "paragraphe", "texte"],
       group: "Blocs de base",
     },
     code_block: {
@@ -57,10 +71,16 @@ export const fr: Dictionary = {
       aliases: ["code", "pre"],
       group: "Blocs de base",
     },
+    page_break: {
+      title: "Saut de page",
+      subtext: "Séparateur de page",
+      aliases: ["page", "break", "separator", "saut", "séparateur"],
+      group: "Blocs de base",
+    },
     table: {
       title: "Tableau",
       subtext: "Utilisé pour les tableaux",
-      aliases: ["tableau"],
+      aliases: ["tableau", "grille"],
       group: "Avancé",
     },
     image: {
@@ -69,7 +89,9 @@ export const fr: Dictionary = {
       aliases: [
         "image",
         "uploadImage",
-        "télécharger",
+        "télécharger image",
+        "téléverser image",
+        "uploader image",
         "img",
         "photo",
         "média",
@@ -82,8 +104,8 @@ export const fr: Dictionary = {
       subtext: "Insérer une vidéo",
       aliases: [
         "vidéo",
-        "téléchargerVidéo",
-        "téléverser",
+        "télécharger vidéo",
+        "téléverser vidéo",
         "mp4",
         "film",
         "média",
@@ -96,8 +118,8 @@ export const fr: Dictionary = {
       subtext: "Insérer un audio",
       aliases: [
         "audio",
-        "téléchargerAudio",
-        "téléverser",
+        "télécharger audio",
+        "téléverser audio",
         "mp3",
         "son",
         "média",
@@ -108,18 +130,26 @@ export const fr: Dictionary = {
     file: {
       title: "Fichier",
       subtext: "Insérer un fichier",
-      aliases: ["fichier", "téléverser", "intégrer", "média", "url"],
+      aliases: [
+        "fichier",
+        "téléverser fichier",
+        "intégrer fichier",
+        "insérer fichier",
+        "média",
+        "url",
+      ],
       group: "Média",
     },
     emoji: {
       title: "Emoji",
       subtext: "Utilisé pour insérer un emoji",
-      aliases: ["emoji", "émoticône", "émotion", "visage"],
+      aliases: ["emoji", "émoticône", "émotion", "visage", "smiley"],
       group: "Autres",
     },
   },
   placeholders: {
-    default: "Entrez du texte ou tapez '/' pour les commandes",
+    default:
+      "Entrez du texte ou tapez '/' pour faire apparaître les options de mise en page",
     heading: "Titre",
     bulletListItem: "Liste",
     numberedListItem: "Liste",
@@ -280,7 +310,7 @@ export const fr: Dictionary = {
         audio: "Télécharger un fichier audio",
         file: "Télécharger un fichier",
       },
-      upload_error: "Erreur : Échec du téléchargement",
+      upload_error: "Erreur : échec du téléchargement",
     },
     embed: {
       title: "Intégrer",
