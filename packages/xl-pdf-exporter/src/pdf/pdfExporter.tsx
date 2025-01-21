@@ -63,7 +63,6 @@ export class PDFExporter<
       fontSize: FONT_SIZE * PIXELS_PER_POINT, //  pixels
       lineHeight: 1.5,
     },
-    section: {},
     block: {},
     blockChildren: {},
     header: {},
@@ -145,6 +144,11 @@ export class PDFExporter<
         numberedListIndex
       ); // TODO: any
 
+      if (b.type === "pageBreak") {
+        ret.push(self);
+        continue;
+      }
+
       const style = this.blocknoteDefaultPropsToReactPDFStyle(b.props as any);
       ret.push(
         <>
@@ -216,6 +220,14 @@ export class PDFExporter<
       fontWeight: "bold",
     });
 
+    font = await loadFontDataUrl(
+      await import("@shared/assets/fonts/GeistMono-Regular.ttf")
+    );
+    Font.register({
+      family: "GeistMono",
+      src: font,
+    });
+
     this.fontsRegistered = true;
   }
 
@@ -247,9 +259,7 @@ export class PDFExporter<
               {options.header}
             </View>
           )}
-          <View style={this.styles.section}>
-            {await this.transformBlocks(blocks)}
-          </View>
+          {await this.transformBlocks(blocks)}
           {options.footer && (
             <View
               fixed

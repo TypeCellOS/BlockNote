@@ -74,6 +74,12 @@ export const ja: Dictionary = {
       aliases: ["code", "pre", "コード", "コードブロック"],
       group: "基本ブロック",
     },
+    page_break: {
+      title: "改ページ",
+      subtext: "ページ区切り",
+      aliases: ["page", "break", "separator", "改ページ", "区切り"],
+      group: "基本ブロック",
+    },
     table: {
       title: "表",
       subtext: "表に使用",

@@ -62,7 +62,7 @@ export const pdfStyleMappingForDefaultSchema: StyleMapping<
       return {};
     }
     return {
-      fontFamily: "Courier",
+      fontFamily: "GeistMono",
     };
   },
 };

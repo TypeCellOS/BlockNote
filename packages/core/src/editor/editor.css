@@ -83,7 +83,6 @@ Tippy popups that are appended to document.body directly
   border-right: 1px solid #0d0d0d;
   margin-left: -1px;
   margin-right: -1px;
-  pointer-events: none;
   position: relative;
   word-break: normal;
   white-space: nowrap !important;
@@ -92,17 +91,33 @@ Tippy popups that are appended to document.body directly
 /* Render the username above the caret */
 .collaboration-cursor__label {
   border-radius: 3px 3px 3px 0;
-  color: #0d0d0d;
   font-size: 12px;
   font-style: normal;
   font-weight: 600;
-  left: -1px;
   line-height: normal;
-  padding: 0.1rem 0.3rem;
+  left: -1px;
+  overflow: hidden;
   position: absolute;
-  top: -1.4em;
-  user-select: none;
   white-space: nowrap;
+
+  color: transparent;
+  max-height: 4px;
+  max-width: 4px;
+  padding: 0;
+  top: 0;
+  
+  transition: all 0.2s;
+
+}
+
+.collaboration-cursor__caret[data-active] > .collaboration-cursor__label {
+  color: #0d0d0d;
+  max-height: 1.1rem;
+  max-width: 20rem;
+  padding: 0.1rem 0.3rem;
+  top: -14px;
+
+  transition: all 0.2s;
 }
 
 /* .tableWrapper {
@@ -134,7 +149,7 @@ Tippy popups that are appended to document.body directly
 .bn-editor [data-content-type="table"] th,
 .bn-editor [data-content-type="table"] td {
   border: 1px solid #ddd;
-  padding: 3px 5px;
+  padding: 5px 10px;
 }
 
 .bn-editor [data-content-type="table"] th {

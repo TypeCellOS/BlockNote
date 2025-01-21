@@ -1,0 +1,62 @@
+[
+  {
+    "id": "1",
+    "type": "codeBlock",
+    "props": {
+      "language": "javascript"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "console.log(\"Should default to JS\")",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "2",
+    "type": "codeBlock",
+    "props": {
+      "language": "typescript"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "console.log(\"Should parse TS from data-language\")",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "3",
+    "type": "codeBlock",
+    "props": {
+      "language": "python"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "print(\"Should parse Python from language- class\")",
+        "styles": {}
+      }
+    ],
+    "children": []
+  },
+  {
+    "id": "4",
+    "type": "codeBlock",
+    "props": {
+      "language": "typescript"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "console.log(\"Should prioritize TS from data-language over language- class\")",
+        "styles": {}
+      }
+    ],
+    "children": []
+  }
+]

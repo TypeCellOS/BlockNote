@@ -142,17 +142,35 @@ export class DOCXExporter<
     // Unfortunately, loading the variable font doesn't work
     // "./src/fonts/Inter-VariableFont_opsz,wght.ttf",
 
-    let font = await loadFileBuffer(
+    let interFont = await loadFileBuffer(
       await import("@shared/assets/fonts/inter/Inter_18pt-Regular.ttf")
     );
+    let geistMonoFont = await loadFileBuffer(
+      await import("@shared/assets/fonts/GeistMono-Regular.ttf")
+    );
 
-    if (font instanceof ArrayBuffer) {
-      // conversionw with Polyfill needed because docxjs requires Buffer
+    if (
+      interFont instanceof ArrayBuffer ||
+      geistMonoFont instanceof Uint8Array
+    ) {
+      // conversion with Polyfill needed because docxjs requires Buffer
       const Buffer = (await import("buffer")).Buffer;
-      font = Buffer.from(font);
+
+      if (interFont instanceof ArrayBuffer) {
+        interFont = Buffer.from(interFont);
+      }
+      if (geistMonoFont instanceof ArrayBuffer) {
+        geistMonoFont = Buffer.from(geistMonoFont);
+      }
     }
 
-    return [{ name: "Inter", data: font as Buffer }];
+    return [
+      { name: "Inter", data: interFont as Buffer },
+      {
+        name: "GeistMono",
+        data: geistMonoFont as Buffer,
+      },
+    ];
   }
 
   protected async createDefaultDocumentOptions(): Promise<DocumentOptions> {
