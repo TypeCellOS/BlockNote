@@ -144,7 +144,7 @@ world`
     expect(update).toMatchSnapshot();
   });
 
-  it.skip("large change", async () => {
+  it.only("large change", async () => {
     const editor = BlockNoteEditor.create({
       initialContent: [
         {
