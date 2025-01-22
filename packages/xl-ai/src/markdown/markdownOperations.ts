@@ -37,13 +37,15 @@ export async function markdownNodeDiffToBlockOperations(
 
   for (const diff of markdownNodeDiff) {
     if (diff.type === "add") {
-      const block = await editor.tryParseMarkdownToBlocks(
+      const blocks = await editor.tryParseMarkdownToBlocks(
         markdownNodeToString(diff.newBlock)
       );
 
-      if (block.length !== 1) {
+      if (blocks.length !== 1) {
         throw new Error("Expected single block to be added");
       }
+
+      const block = blocks[0];
 
       // new node has been added
       if (

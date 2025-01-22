@@ -10,10 +10,10 @@ export function promptManipulateDocumentUseMarkdown(opts: {
     {
       role: "system",
       content:
-        "You're manipulating a markdown document. Send me the updated markdown. Existing document:",
+        "You're manipulating a markdown document. Send me the new markdown of the entire updated document. Don't include any other text, comments or wrapping marks. Next message is the existing document in markdown:",
     },
     {
-      role: "system",
+      role: "user",
       content: opts.markdown,
     },
     {
