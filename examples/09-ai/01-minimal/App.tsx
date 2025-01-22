@@ -34,6 +34,7 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import "@blocknote/xl-ai/style.css";
+import { Group } from "@mantine/core";
 import { useMemo, useState } from "react";
 import { BasicAutocomplete } from "./AutoComplete.js";
 
@@ -84,7 +85,9 @@ export default function App() {
   // Renders the editor instance using a React component.
   return (
     <div>
-      <BasicAutocomplete value={aiModelString} onChange={setAiModelString} />
+      <Group style={{ maxWidth: "500px" }}>
+        <BasicAutocomplete value={aiModelString} onChange={setAiModelString} />
+      </Group>
       <BlockNoteView
         editor={editor}
         formattingToolbar={false}

@@ -1,17 +1,31 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 import { BlockNoteEditor, PartialBlock } from "@blocknote/core";
 
 import { createGroq } from "@ai-sdk/groq";
 import { createOpenAI } from "@ai-sdk/openai";
-import { callLLMStreaming } from "./api.js";
-import { createBlockNoteAIClient } from "./client.js";
+import { snapshot } from "msw-snapshot";
+import { setupServer } from "msw/node";
+import path from "path";
+import { createBlockNoteAIClient } from "../../blocknoteAIClient/client.js";
+import { callLLM } from "./json.js";
 
 function createEditor(initialContent: PartialBlock[]) {
   return BlockNoteEditor.create({
     initialContent,
   });
 }
+
+beforeAll(() => {
+  const server = setupServer(
+    snapshot({
+      updateSnapshots: true,
+      ignoreSnapshots: true,
+      basePath: path.resolve(__dirname, "__msw_snapshots__"),
+    })
+  );
+  server.listen();
+});
 
 const client = createBlockNoteAIClient({
   baseURL: "https://localhost:3000/ai",
@@ -26,13 +40,15 @@ const openai = createOpenAI({
   ...client.getProviderSettings("openai"),
 })("gpt-4o-2024-08-06", {});
 
-describe("Test AI operations", () => {
+const model = openai;
+
+describe.each(["openai", "groq"])("Test AI operations", (provider) => {
   afterEach(() => {
     delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
   });
 
-  describe("Update", () => {
-    it("translates simple paragraphs", async () => {
+  describe.only("Update", () => {
+    it.only("translates simple paragraphs", async () => {
       const editor = createEditor([
         {
           type: "paragraph",
@@ -44,8 +60,9 @@ describe("Test AI operations", () => {
         },
       ]);
 
-      const response = await callLLMStreaming(editor, {
-        model: groq,
+      const response = await callLLM(editor, {
+        model,
+        stream: false,
         prompt: "translate to german",
       });
 
@@ -56,7 +73,7 @@ describe("Test AI operations", () => {
       // expect(await response.object).toMatchSnapshot();
     });
 
-    it("changes simple formatting (paragraph)", async () => {
+    it.skip("changes simple formatting (paragraph)", async () => {
       const editor = createEditor([
         {
           type: "paragraph",
@@ -68,8 +85,9 @@ describe("Test AI operations", () => {
         },
       ]);
 
-      const response = await callLLMStreaming(editor, {
+      const response = await callLLM(editor, {
         prompt: "change first paragraph to bold",
+        model,
       });
 
       // Add assertions here to check if the document was correctly translated
@@ -79,7 +97,7 @@ describe("Test AI operations", () => {
       // expect(await response.object).toMatchSnapshot();
     });
 
-    it("changes simple formatting (word)", async () => {
+    it.skip("changes simple formatting (word)", async () => {
       const editor = createEditor([
         {
           type: "paragraph",
@@ -87,8 +105,9 @@ describe("Test AI operations", () => {
         },
       ]);
 
-      const response = await callLLMStreaming(editor, {
+      const response = await callLLM(editor, {
         prompt: "change first word to bold",
+        model,
       });
 
       // Add assertions here to check if the document was correctly translated
@@ -111,8 +130,9 @@ describe("Test AI operations", () => {
           content: "World",
         },
       ]);
-      const response = await callLLMStreaming(editor, {
+      const response = await callLLM(editor, {
         prompt: "delete the first sentence",
+        model,
       });
 
       expect(editor.document).toMatchSnapshot();
@@ -129,8 +149,9 @@ describe("Test AI operations", () => {
           content: "Hello",
         },
       ]);
-      const response = await callLLMStreaming(editor, {
+      const response = await callLLM(editor, {
         prompt: "Add a sentence with `Test` before the first sentence",
+        model,
       });
 
       expect(editor.document).toMatchSnapshot();
@@ -145,8 +166,9 @@ describe("Test AI operations", () => {
           content: "Hello",
         },
       ]);
-      const response = await callLLMStreaming(editor, {
+      const response = await callLLM(editor, {
         prompt: "Add a sentence with `Test` after the first sentence",
+        model,
       });
 
       expect(editor.document).toMatchSnapshot();

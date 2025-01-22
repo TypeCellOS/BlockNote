@@ -19,13 +19,14 @@ export const proxyFetch: typeof fetch = async (request, options) => {
   req.headers.delete("accept-encoding"); // TBD: there may be cases where you want to explicitly specify
   const res = await fetch(req);
 
+  const headers: HeadersInit = [...res.headers.entries()].filter(
+    ([k]) => !ignoreHeadersRe.test(k) && k !== "strict-transport-security"
+  );
   return new Response(res.body, {
     ...res,
     status: res.status,
     statusText: res.statusText,
-    headers: [...res.headers.entries()].filter(
-      ([k]) => !ignoreHeadersRe.test(k) && k !== "strict-transport-security"
-    ),
+    headers,
   });
 };
 

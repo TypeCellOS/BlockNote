@@ -1,0 +1,79 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Test AI operations > Update > translates simple paragraphs 1`] = `
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Hallo",
+        "type": "text",
+      },
+    ],
+    "id": "0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Welt",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Test AI operations > Update > translates simple paragraphs 2`] = `
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Hallo",
+        "type": "text",
+      },
+    ],
+    "id": "0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Welt",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;

@@ -1,6 +1,6 @@
 import "./style.css";
 
-export * from "./api/client.js";
+export * from "./api/blocknoteAIClient/client.js";
 export * from "./blocks/AIBlockContent/AIBlockContent.js";
 export * from "./blocks/AIBlockContent/mockAIFunctions.js";
 export * from "./extensions/AIBlockToolbar/AIBlockToolbarPlugin.js";

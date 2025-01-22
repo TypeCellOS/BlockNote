@@ -6,8 +6,8 @@ import {
   StyleSchema,
   defaultProps,
 } from "@blocknote/core";
-import { SimpleJSONObjectSchema } from "../util/JSONSchema";
-import { mergeSchemas } from "./mergeSchema";
+import { SimpleJSONObjectSchema } from "../util/JSONSchema.js";
+import { mergeSchemas } from "./mergeSchema.js";
 /*
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -127,15 +127,20 @@ export function propSchemaToJSONSchema(
   return {
     type: "object",
     properties: Object.fromEntries(
-      Object.entries(propSchema).map(([key, val]) => {
-        return [
-          key,
-          {
-            type: typeof val.default,
-            enum: val.values,
-          },
-        ];
-      })
+      Object.entries(propSchema)
+        .filter(([_key, val]) => {
+          // for now skip optional props
+          return val.default !== undefined;
+        })
+        .map(([key, val]) => {
+          return [
+            key,
+            {
+              type: typeof val.default,
+              enum: val.values,
+            },
+          ];
+        })
     ),
     additionalProperties: false,
   };

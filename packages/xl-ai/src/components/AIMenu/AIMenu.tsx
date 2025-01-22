@@ -1,6 +1,6 @@
 import { useBlockNoteEditor } from "@blocknote/react";
 import { useCallback, useMemo, useState } from "react";
-import { callLLMStreamingMD } from "../../api/api";
+import { callLLMStreamingMD } from "../../api/executor/executor";
 // import { useAIDictionary } from "../../i18n/useAIDictionary";
 import { BlockNoteEditor } from "@blocknote/core";
 import { useAIDictionary } from "../../i18n/useAIDictionary";

@@ -1187,9 +1187,9 @@
           "dependencies": {
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^7.10.1",
-            "ai": "^4.0.11",
-            "@ai-sdk/openai": "^1.0.6",
-            "@ai-sdk/groq": "^1.0.5"
+            "ai": "^4.1.0",
+            "@ai-sdk/openai": "^1.1.0",
+            "@ai-sdk/groq": "^1.1.0"
           } as any
         },
         "title": "AI integration",

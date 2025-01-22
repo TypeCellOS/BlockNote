@@ -17,7 +17,7 @@ import {
   RiText,
   RiTextWrap,
 } from "react-icons/ri";
-import { callLLMStreaming } from "../../api/api.js";
+import { callLLMStreaming } from "../../api/executor/executor.js";
 import { addFunction } from "../../api/functions/add.js";
 import { getAIDictionary } from "../../i18n/dictionary.js";
 import { BlockNoteAIContextValue } from "../BlockNoteAIContext.js";
