@@ -1,5 +1,34 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`markdownNodeDiffToBlockOperations > add sentence at start 1`] = `
+[
+  {
+    "blocks": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "test",
+            "type": "text",
+          },
+        ],
+        "id": "1",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "position": "before",
+    "referenceId": "0",
+    "type": "add",
+  },
+]
+`;
+
 exports[`markdownNodeDiffToBlockOperations > add word at end of sentence 1`] = `
 [
   {
@@ -37,25 +66,23 @@ exports[`markdownNodeDiffToBlockOperations > complex change 1 1`] = `
 [
   {
     "blocks": [
-      [
-        {
-          "children": [],
-          "content": [
-            {
-              "styles": {},
-              "text": "prefix",
-              "type": "text",
-            },
-          ],
-          "id": "3",
-          "props": {
-            "backgroundColor": "default",
-            "textAlignment": "left",
-            "textColor": "default",
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "prefix",
+            "type": "text",
           },
-          "type": "paragraph",
+        ],
+        "id": "3",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
         },
-      ],
+        "type": "paragraph",
+      },
     ],
     "position": "before",
     "referenceId": "0",
@@ -88,25 +115,23 @@ exports[`markdownNodeDiffToBlockOperations > complex change 2 1`] = `
 [
   {
     "blocks": [
-      [
-        {
-          "children": [],
-          "content": [
-            {
-              "styles": {},
-              "text": "prefix",
-              "type": "text",
-            },
-          ],
-          "id": "3",
-          "props": {
-            "backgroundColor": "default",
-            "textAlignment": "left",
-            "textColor": "default",
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "prefix",
+            "type": "text",
           },
-          "type": "paragraph",
+        ],
+        "id": "3",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
         },
-      ],
+        "type": "paragraph",
+      },
     ],
     "position": "before",
     "referenceId": "0",
