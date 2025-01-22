@@ -19,8 +19,8 @@ function createEditor(initialContent: PartialBlock[]) {
 beforeAll(() => {
   const server = setupServer(
     snapshot({
-      updateSnapshots: true,
-      ignoreSnapshots: true,
+      updateSnapshots: "missing",
+      // ignoreSnapshots: true,
       basePath: path.resolve(__dirname, "__msw_snapshots__"),
     })
   );
@@ -42,13 +42,60 @@ const openai = createOpenAI({
 
 const model = openai;
 
-describe.each(["openai", "groq"])("Test AI operations", (provider) => {
+function matchFileSnapshot(data: any, postFix = "") {
+  expect(data).toMatchFileSnapshot(
+    path.resolve(
+      __dirname,
+      "__snapshots__",
+      path.basename(__filename),
+      expect.getState().currentTestName! +
+        (postFix ? `_${postFix}` : "") +
+        ".json"
+    )
+  );
+}
+
+describe.each([
+  {
+    model: openai,
+    stream: true,
+  },
+  {
+    model: openai,
+    stream: false,
+  },
+])("Test AI operations", (params) => {
   afterEach(() => {
     delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
   });
 
-  describe.only("Update", () => {
-    it.only("translates simple paragraphs", async () => {
+  describe("Update", () => {
+    // it("translates simple paragraphs (non-streaming)", async () => {
+    //   const editor = createEditor([
+    //     {
+    //       type: "paragraph",
+    //       content: "Hello",
+    //     },
+    //     {
+    //       type: "paragraph",
+    //       content: "World",
+    //     },
+    //   ]);
+
+    //   const response = await callLLM(editor, {
+    //     model,
+    //     stream: false,
+    //     prompt: "translate to german",
+    //   });
+
+    //   // Add assertions here to check if the document was correctly translated
+    //   // For example:
+    //   expect(editor.document).toMatchSnapshot();
+
+    //   // expect(await response.object).toMatchSnapshot();
+    // });
+
+    it("translates simple paragraphs", async () => {
       const editor = createEditor([
         {
           type: "paragraph",
@@ -61,19 +108,21 @@ describe.each(["openai", "groq"])("Test AI operations", (provider) => {
       ]);
 
       const response = await callLLM(editor, {
+        stream: params.stream,
         model,
-        stream: false,
         prompt: "translate to german",
       });
 
       // Add assertions here to check if the document was correctly translated
       // For example:
-      expect(editor.document).toMatchSnapshot();
+      // pass test name
+
+      matchFileSnapshot(editor.document);
 
       // expect(await response.object).toMatchSnapshot();
     });
 
-    it.skip("changes simple formatting (paragraph)", async () => {
+    it("changes simple formatting (paragraph)", async () => {
       const editor = createEditor([
         {
           type: "paragraph",
@@ -86,18 +135,19 @@ describe.each(["openai", "groq"])("Test AI operations", (provider) => {
       ]);
 
       const response = await callLLM(editor, {
+        stream: params.stream,
         prompt: "change first paragraph to bold",
         model,
       });
 
       // Add assertions here to check if the document was correctly translated
       // For example:
-      expect(editor.document).toMatchSnapshot();
+      matchFileSnapshot(editor.document);
 
       // expect(await response.object).toMatchSnapshot();
     });
 
-    it.skip("changes simple formatting (word)", async () => {
+    it("changes simple formatting (word)", async () => {
       const editor = createEditor([
         {
           type: "paragraph",
@@ -106,13 +156,14 @@ describe.each(["openai", "groq"])("Test AI operations", (provider) => {
       ]);
 
       const response = await callLLM(editor, {
+        stream: params.stream,
         prompt: "change first word to bold",
         model,
       });
 
       // Add assertions here to check if the document was correctly translated
       // For example:
-      expect(editor.document).toMatchSnapshot();
+      matchFileSnapshot(editor.document);
 
       // expect(await response.object).toMatchSnapshot();
     });
@@ -131,11 +182,12 @@ describe.each(["openai", "groq"])("Test AI operations", (provider) => {
         },
       ]);
       const response = await callLLM(editor, {
+        stream: params.stream,
         prompt: "delete the first sentence",
         model,
       });
 
-      expect(editor.document).toMatchSnapshot();
+      matchFileSnapshot(editor.document);
 
       // expect(await response.object).toMatchSnapshot();
     });
@@ -150,11 +202,12 @@ describe.each(["openai", "groq"])("Test AI operations", (provider) => {
         },
       ]);
       const response = await callLLM(editor, {
+        stream: params.stream,
         prompt: "Add a sentence with `Test` before the first sentence",
         model,
       });
 
-      expect(editor.document).toMatchSnapshot();
+      matchFileSnapshot(editor.document);
 
       // expect(await response.object).toMatchSnapshot();
     });
@@ -167,11 +220,12 @@ describe.each(["openai", "groq"])("Test AI operations", (provider) => {
         },
       ]);
       const response = await callLLM(editor, {
+        stream: params.stream,
         prompt: "Add a sentence with `Test` after the first sentence",
         model,
       });
 
-      expect(editor.document).toMatchSnapshot();
+      matchFileSnapshot(editor.document);
 
       // expect(await response.object).toMatchSnapshot();
     });

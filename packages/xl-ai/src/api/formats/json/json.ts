@@ -22,14 +22,16 @@ import { blockNoteSchemaToJSONSchema } from "../../schema/schemaToJSONSchema.js"
 type PromptOrMessages =
   | {
       prompt: string;
+      messages?: never;
     }
   | {
+      prompt?: never;
       messages: Array<CoreMessage>;
     };
 
 type BasicLLMRequestOptions = {
   model: LanguageModel;
-  functions?: AIFunction[];
+  functions: AIFunction[];
 } & PromptOrMessages;
 
 type StreamLLMRequestOptions = BasicLLMRequestOptions & {
@@ -38,40 +40,41 @@ type StreamLLMRequestOptions = BasicLLMRequestOptions & {
 };
 
 type NoStreamLLMRequestOptions = BasicLLMRequestOptions & {
-  stream?: false;
+  stream: false;
   _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]>;
 };
 
 type CallLLMOptions = StreamLLMRequestOptions | NoStreamLLMRequestOptions;
 
+type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
+
+type CallLLMOptionsWithOptional = Optional<
+  CallLLMOptions,
+  "functions" | "stream"
+>;
+
 export async function callLLM(
   editor: BlockNoteEditor<any, any, any>,
-  options: CallLLMOptions
+  opts: CallLLMOptionsWithOptional
 ) {
-  const withDefaults: Required<
-    Omit<
-      CallLLMOptions & {
-        messages: Array<CoreMessage>;
-      },
-      "prompt"
-    >
-  > = {
+  const { prompt, ...rest } = opts;
+
+  const options: CallLLMOptions = {
     functions: [updateFunction, addFunction, deleteFunction],
     stream: true,
     messages:
-      "messages" in options
-        ? options.messages
+      "messages" in opts && opts.messages !== undefined
+        ? opts.messages
         : promptManipulateDocumentUseJSONSchema({
             editor,
-            userPrompt: options.prompt,
+            userPrompt: opts.prompt!,
             document: editor.document,
           }),
-
-    ...options,
+    ...rest,
   };
 
   const schema = jsonSchema({
-    ...createOperationsArraySchema(withDefaults.functions),
+    ...createOperationsArraySchema(options.functions),
     $defs: blockNoteSchemaToJSONSchema(editor.schema).$defs as any,
   });
 
@@ -79,16 +82,16 @@ export async function callLLM(
     const ret = streamObject<{
       operations: any[];
     }>({
-      model: withDefaults.model,
+      model: options.model,
       mode: "tool",
       schema,
-      messages: withDefaults.messages,
+      messages: options.messages,
       ...(options._streamObjectOptions as any),
     });
     await executeAIOperationStream(
       editor,
       ret.partialObjectStream,
-      withDefaults.functions
+      options.functions
     );
     return ret;
   }
@@ -97,10 +100,10 @@ export async function callLLM(
   const ret = await generateObject<{
     operations: any[];
   }>({
-    model: withDefaults.model,
+    model: options.model,
     mode: "tool",
     schema,
-    messages: withDefaults.messages,
+    messages: options.messages,
     ...(options._generateObjectOptions as any),
   });
 
@@ -109,15 +112,9 @@ export async function callLLM(
   }
 
   for (const operation of ret.object.operations) {
-    await executeAIOperation(
-      operation,
-      editor,
-      withDefaults.functions,
-      undefined,
-      {
-        idsSuffixed: true, // TODO: not needed for this, but would need to refactor promptbuilding
-      }
-    );
+    await executeAIOperation(operation, editor, options.functions, undefined, {
+      idsSuffixed: true, // TODO: not needed for this, but would need to refactor promptbuilding
+    });
   }
   return ret;
 }
