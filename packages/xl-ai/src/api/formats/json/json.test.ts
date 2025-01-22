@@ -22,6 +22,12 @@ beforeAll(() => {
       updateSnapshots: "missing",
       // ignoreSnapshots: true,
       basePath: path.resolve(__dirname, "__msw_snapshots__"),
+      onFetchFromSnapshot(info, snapshot) {
+        // console.log("onFetchFromSnapshot", info, snapshot);
+      },
+      onFetchFromServer(info, snapshot) {
+        // console.log("onFetchFromServer", info, snapshot);
+      },
     })
   );
   server.listen();
@@ -39,8 +45,6 @@ const groq = createGroq({
 const openai = createOpenAI({
   ...client.getProviderSettings("openai"),
 })("gpt-4o-2024-08-06", {});
-
-const model = openai;
 
 function matchFileSnapshot(data: any, postFix = "") {
   expect(data).toMatchFileSnapshot(
@@ -64,37 +68,20 @@ describe.each([
     model: openai,
     stream: false,
   },
+  {
+    model: groq,
+    stream: true,
+  },
+  {
+    model: groq,
+    stream: false,
+  },
 ])("Test AI operations", (params) => {
   afterEach(() => {
     delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
   });
 
   describe("Update", () => {
-    // it("translates simple paragraphs (non-streaming)", async () => {
-    //   const editor = createEditor([
-    //     {
-    //       type: "paragraph",
-    //       content: "Hello",
-    //     },
-    //     {
-    //       type: "paragraph",
-    //       content: "World",
-    //     },
-    //   ]);
-
-    //   const response = await callLLM(editor, {
-    //     model,
-    //     stream: false,
-    //     prompt: "translate to german",
-    //   });
-
-    //   // Add assertions here to check if the document was correctly translated
-    //   // For example:
-    //   expect(editor.document).toMatchSnapshot();
-
-    //   // expect(await response.object).toMatchSnapshot();
-    // });
-
     it("translates simple paragraphs", async () => {
       const editor = createEditor([
         {
@@ -109,8 +96,8 @@ describe.each([
 
       const response = await callLLM(editor, {
         stream: params.stream,
-        model,
-        prompt: "translate to german",
+        model: params.model,
+        prompt: "translate existing document to german",
       });
 
       // Add assertions here to check if the document was correctly translated
@@ -137,7 +124,7 @@ describe.each([
       const response = await callLLM(editor, {
         stream: params.stream,
         prompt: "change first paragraph to bold",
-        model,
+        model: params.model,
       });
 
       // Add assertions here to check if the document was correctly translated
@@ -158,7 +145,7 @@ describe.each([
       const response = await callLLM(editor, {
         stream: params.stream,
         prompt: "change first word to bold",
-        model,
+        model: params.model,
       });
 
       // Add assertions here to check if the document was correctly translated
@@ -184,7 +171,7 @@ describe.each([
       const response = await callLLM(editor, {
         stream: params.stream,
         prompt: "delete the first sentence",
-        model,
+        model: params.model,
       });
 
       matchFileSnapshot(editor.document);
@@ -202,9 +189,9 @@ describe.each([
         },
       ]);
       const response = await callLLM(editor, {
-        stream: params.stream,
         prompt: "Add a sentence with `Test` before the first sentence",
-        model,
+        model: params.model,
+        stream: params.stream,
       });
 
       matchFileSnapshot(editor.document);
@@ -222,7 +209,7 @@ describe.each([
       const response = await callLLM(editor, {
         stream: params.stream,
         prompt: "Add a sentence with `Test` after the first sentence",
-        model,
+        model: params.model,
       });
 
       matchFileSnapshot(editor.document);

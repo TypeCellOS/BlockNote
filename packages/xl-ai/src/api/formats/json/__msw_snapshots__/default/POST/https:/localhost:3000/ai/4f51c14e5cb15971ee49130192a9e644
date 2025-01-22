@@ -7,9 +7,9 @@
     "cookies": []
   },
   "response": {
-    "status": 429,
+    "status": 200,
     "statusText": "",
-    "body": "{\"error\":{\"message\":\"Rate limit reached for model `llama-3.1-70b-versatile` in organization `org_01j9ypc1y8fkmtvsa6cf7x95qm` service tier `on_demand` on tokens per minute (TPM): Limit 6000, Used 5955, Requested 155. Please try again in 1.095s. Visit https://console.groq.com/docs/rate-limits for more information.\",\"type\":\"tokens\",\"code\":\"rate_limit_exceeded\"}}\n",
+    "body": "data: {\"id\":\"chatcmpl-d3ba6c37-443c-4a2f-bc25-3ca2c9011bed\",\"object\":\"chat.completion.chunk\",\"created\":1737559105,\"model\":\"llama-3.1-70b-versatile\",\"system_fingerprint\":\"fp_4e32347616\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":null},\"logprobs\":null,\"finish_reason\":null}],\"x_groq\":{\"id\":\"req_01jj79fqxkfm1tg84wea4qkqve\"}}\n\ndata: {\"id\":\"chatcmpl-d3ba6c37-443c-4a2f-bc25-3ca2c9011bed\",\"object\":\"chat.completion.chunk\",\"created\":1737559105,\"model\":\"llama-3.1-70b-versatile\",\"system_fingerprint\":\"fp_4e32347616\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"id\":\"call_a9qw\",\"type\":\"function\",\"function\":{\"name\":\"json\",\"arguments\":\"{\\\"operations\\\":[{\\\"type\\\":\\\"add\\\",\\\"referenceId\\\":\\\"0$\\\",\\\"position\\\":\\\"before\\\",\\\"blocks\\\":[{\\\"type\\\":\\\"paragraph\\\",\\\"props\\\":{},\\\"content\\\":[{\\\"type\\\":\\\"text\\\",\\\"text\\\":\\\"Test\\\",\\\"styles\\\":{}}]}]}]}\"},\"index\":0}]},\"logprobs\":null,\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-d3ba6c37-443c-4a2f-bc25-3ca2c9011bed\",\"object\":\"chat.completion.chunk\",\"created\":1737559105,\"model\":\"llama-3.1-70b-versatile\",\"system_fingerprint\":\"fp_4e32347616\",\"choices\":[{\"index\":0,\"delta\":{},\"logprobs\":null,\"finish_reason\":\"tool_calls\"}],\"x_groq\":{\"id\":\"req_01jj79fqxkfm1tg84wea4qkqve\",\"usage\":{\"queue_time\":0.024902311999999982,\"prompt_tokens\":1174,\"prompt_time\":0.162396897,\"completion_tokens\":47,\"completion_time\":0.170909091,\"total_tokens\":1221,\"total_time\":0.333305988}}}\n\ndata: [DONE]\n\n",
     "headers": []
   }
 }

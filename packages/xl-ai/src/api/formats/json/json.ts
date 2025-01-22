@@ -6,6 +6,7 @@ import {
   jsonSchema,
   streamObject,
 } from "ai";
+
 import {
   executeAIOperation,
   executeAIOperationStream,
@@ -34,19 +35,20 @@ type BasicLLMRequestOptions = {
   functions: AIFunction[];
 } & PromptOrMessages;
 
-type StreamLLMRequestOptions = BasicLLMRequestOptions & {
+type StreamLLMRequestOptions = {
   stream: true;
   _streamObjectOptions?: Partial<Parameters<typeof streamObject<any>>[0]>;
 };
 
-type NoStreamLLMRequestOptions = BasicLLMRequestOptions & {
+type NoStreamLLMRequestOptions = {
   stream: false;
   _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]>;
 };
 
-type CallLLMOptions = StreamLLMRequestOptions | NoStreamLLMRequestOptions;
+type CallLLMOptions = BasicLLMRequestOptions &
+  (StreamLLMRequestOptions | NoStreamLLMRequestOptions);
 
-type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
+type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 type CallLLMOptionsWithOptional = Optional<
   CallLLMOptions,
@@ -88,6 +90,7 @@ export async function callLLM(
       messages: options.messages,
       ...(options._streamObjectOptions as any),
     });
+
     await executeAIOperationStream(
       editor,
       ret.partialObjectStream,
@@ -95,7 +98,6 @@ export async function callLLM(
     );
     return ret;
   }
-
   // non streaming
   const ret = await generateObject<{
     operations: any[];
