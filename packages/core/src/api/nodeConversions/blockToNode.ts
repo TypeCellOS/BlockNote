@@ -25,7 +25,10 @@ import { UnreachableCaseError } from "../../util/typescript.js";
 function styledTextToNodes<T extends StyleSchema>(
   styledText: StyledText<T>,
   schema: Schema,
-  styleSchema: T
+  styleSchema: T,
+  block?:
+    | PartialBlock<any, any, any>
+    | PartialCustomInlineContentFromConfig<any, any>
 ): Node[] {
   const marks: Mark[] = [];
 
@@ -53,7 +56,8 @@ function styledTextToNodes<T extends StyleSchema>(
       .filter((text) => text.length > 0)
       // Converts text & line breaks to nodes.
       .map((text) => {
-        if (text === "\n") {
+        // Code blocks don't support hard breaks--use the standard \n instead
+        if (text === "\n" && block?.type !== "codeBlock") {
           return schema.nodes["hardBreak"].createChecked();
         } else {
           return schema.text(text, marks);
@@ -69,13 +73,16 @@ function styledTextToNodes<T extends StyleSchema>(
 function linkToNodes(
   link: PartialLink<StyleSchema>,
   schema: Schema,
-  styleSchema: StyleSchema
+  styleSchema: StyleSchema,
+  block?:
+    | PartialBlock<any, any, any>
+    | PartialCustomInlineContentFromConfig<any, any>
 ): Node[] {
   const linkMark = schema.marks.link.create({
     href: link.href,
   });
 
-  return styledTextArrayToNodes(link.content, schema, styleSchema).map(
+  return styledTextArrayToNodes(link.content, schema, styleSchema, block).map(
     (node) => {
       if (node.type.name === "text") {
         return node.mark([...node.marks, linkMark]);
@@ -96,7 +103,10 @@ function linkToNodes(
 function styledTextArrayToNodes<S extends StyleSchema>(
   content: string | StyledText<S>[],
   schema: Schema,
-  styleSchema: S
+  styleSchema: S,
+  block?:
+    | PartialBlock<any, any, any>
+    | PartialCustomInlineContentFromConfig<any, any>
 ): Node[] {
   const nodes: Node[] = [];
 
@@ -105,14 +115,15 @@ function styledTextArrayToNodes<S extends StyleSchema>(
       ...styledTextToNodes(
         { type: "text", text: content, styles: {} },
         schema,
-        styleSchema
+        styleSchema,
+        block
       )
     );
     return nodes;
   }
 
   for (const styledText of content) {
-    nodes.push(...styledTextToNodes(styledText, schema, styleSchema));
+    nodes.push(...styledTextToNodes(styledText, schema, styleSchema, block));
   }
   return nodes;
 }
@@ -126,17 +137,24 @@ export function inlineContentToNodes<
 >(
   blockContent: PartialInlineContent<I, S>,
   schema: Schema,
-  styleSchema: S
+  styleSchema: S,
+  block?:
+    | PartialBlock<any, any, any>
+    | PartialCustomInlineContentFromConfig<any, any>
 ): Node[] {
   const nodes: Node[] = [];
 
   for (const content of blockContent) {
     if (typeof content === "string") {
-      nodes.push(...styledTextArrayToNodes(content, schema, styleSchema));
+      nodes.push(
+        ...styledTextArrayToNodes(content, schema, styleSchema, block)
+      );
     } else if (isPartialLinkInlineContent(content)) {
-      nodes.push(...linkToNodes(content, schema, styleSchema));
+      nodes.push(...linkToNodes(content, schema, styleSchema, block));
     } else if (isStyledTextInlineContent(content)) {
-      nodes.push(...styledTextArrayToNodes([content], schema, styleSchema));
+      nodes.push(
+        ...styledTextArrayToNodes([content], schema, styleSchema, block)
+      );
     } else {
       nodes.push(
         blockOrInlineContentToContentNode(content, schema, styleSchema)
@@ -155,7 +173,10 @@ export function tableContentToNodes<
 >(
   tableContent: PartialTableContent<I, S>,
   schema: Schema,
-  styleSchema: StyleSchema
+  styleSchema: S,
+  block?:
+    | PartialBlock<any, any, any>
+    | PartialCustomInlineContentFromConfig<any, any>
 ): Node[] {
   const rowNodes: Node[] = [];
 
@@ -172,7 +193,12 @@ export function tableContentToNodes<
           schema.text(cell)
         );
       } else {
-        const textNodes = inlineContentToNodes(cell, schema, styleSchema);
+        const textNodes = inlineContentToNodes(
+          cell,
+          schema,
+          styleSchema,
+          block
+        );
         pNode = schema.nodes["tableParagraph"].createChecked({}, textNodes);
       }
 
@@ -217,13 +243,28 @@ function blockOrInlineContentToContentNode(
   if (!block.content) {
     contentNode = schema.nodes[type].createChecked(block.props);
   } else if (typeof block.content === "string") {
-    const nodes = inlineContentToNodes([block.content], schema, styleSchema);
+    const nodes = inlineContentToNodes(
+      [block.content],
+      schema,
+      styleSchema,
+      block
+    );
     contentNode = schema.nodes[type].createChecked(block.props, nodes);
   } else if (Array.isArray(block.content)) {
-    const nodes = inlineContentToNodes(block.content, schema, styleSchema);
+    const nodes = inlineContentToNodes(
+      block.content,
+      schema,
+      styleSchema,
+      block
+    );
     contentNode = schema.nodes[type].createChecked(block.props, nodes);
   } else if (block.content.type === "tableContent") {
-    const nodes = tableContentToNodes(block.content, schema, styleSchema);
+    const nodes = tableContentToNodes(
+      block.content,
+      schema,
+      styleSchema,
+      block
+    );
     contentNode = schema.nodes[type].createChecked(block.props, nodes);
   } else {
     throw new UnreachableCaseError(block.content.type);

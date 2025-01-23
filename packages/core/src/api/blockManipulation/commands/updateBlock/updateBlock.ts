@@ -141,7 +141,8 @@ function updateBlockContentNode<
       content = inlineContentToNodes(
         [block.content],
         state.schema,
-        editor.schema.styleSchema
+        editor.schema.styleSchema,
+        block
       );
     } else if (Array.isArray(block.content)) {
       // Adds a text node with the provided styles converted into marks to the content,
@@ -149,13 +150,15 @@ function updateBlockContentNode<
       content = inlineContentToNodes(
         block.content,
         state.schema,
-        editor.schema.styleSchema
+        editor.schema.styleSchema,
+        block
       );
     } else if (block.content.type === "tableContent") {
       content = tableContentToNodes(
         block.content,
         state.schema,
-        editor.schema.styleSchema
+        editor.schema.styleSchema,
+        block
       );
     } else {
       throw new UnreachableCaseError(block.content.type);
