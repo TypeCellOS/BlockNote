@@ -1,5 +1,71 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`markdown AI util > 1 line -> large text 1`] = `
+"ADD: # Document Title
+
+ADD: Test
+
+CHANGED: This is the first sentence of the document.
+
+ADD: ## Introduction
+
+ADD: The introduction provides an overview of the document's purpose and structure.
+
+ADD: ## Main Content
+
+ADD: The main content section contains the bulk of the information.
+
+ADD: ### Subsection 1
+
+ADD: Details about the first subsection are provided here.
+
+ADD: ### Subsection 2
+
+ADD: Details about the second subsection are provided here.
+
+ADD: ## Conclusion
+
+ADD: The conclusion summarizes the key points discussed in the document.
+
+ADD: ## References
+
+ADD: A list of references and resources used in the document.
+"
+`;
+
+exports[`markdown AI util > 3 lines -> large text 1`] = `
+"CHANGED: # Document Title
+
+ADD: Test
+
+CHANGED: This is the first sentence of the document.
+
+ADD: ## Introduction
+
+ADD: The introduction provides an overview of the document's purpose and structure.
+
+ADD: ## Main Content
+
+ADD: The main content section contains the bulk of the information.
+
+ADD: ### Subsection 1
+
+ADD: Details about the first subsection are provided here.
+
+CHANGED: ### Subsection 2
+
+ADD: Details about the second subsection are provided here.
+
+ADD: ## Conclusion
+
+ADD: The conclusion summarizes the key points discussed in the document.
+
+ADD: ## References
+
+ADD: A list of references and resources used in the document.
+"
+`;
+
 exports[`markdown AI util > add sentence at end 1`] = `
 "UNCHANGED: # title
 
@@ -73,6 +139,13 @@ exports[`markdown AI util > change: type at start 1`] = `
 UNCHANGED: hello
 
 CHANGED: wold
+"
+`;
+
+exports[`markdown AI util > collapse lines 1`] = `
+"CHANGED: # titleworldhello
+
+REMOVE: hello
 "
 `;
 

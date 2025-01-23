@@ -174,24 +174,25 @@ world",
 exports[`markdownNodeDiffToBlockOperations > large change 1`] = `
 [
   {
-    "block": {
-      "content": [
-        {
-          "styles": {},
-          "text": "Document Title",
-          "type": "text",
-        },
-      ],
-      "props": {
-        "level": 1,
-      },
-      "type": "heading",
-    },
-    "id": "0",
-    "type": "update",
-  },
-  {
     "blocks": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Document Title",
+            "type": "text",
+          },
+        ],
+        "id": "1",
+        "props": {
+          "backgroundColor": "default",
+          "level": 1,
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "heading",
+      },
       {
         "children": [],
         "content": [
@@ -201,7 +202,7 @@ exports[`markdownNodeDiffToBlockOperations > large change 1`] = `
             "type": "text",
           },
         ],
-        "id": "3",
+        "id": "2",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -209,23 +210,26 @@ exports[`markdownNodeDiffToBlockOperations > large change 1`] = `
         },
         "type": "paragraph",
       },
-      {
-        "children": [],
-        "content": [
-          {
-            "styles": {},
-            "text": "This is the first sentence of the document.",
-            "type": "text",
-          },
-        ],
-        "id": "4",
-        "props": {
-          "backgroundColor": "default",
-          "textAlignment": "left",
-          "textColor": "default",
+    ],
+    "position": "before",
+    "referenceId": "0",
+    "type": "add",
+  },
+  {
+    "block": {
+      "content": [
+        {
+          "styles": {},
+          "text": "This is the first sentence of the document.",
+          "type": "text",
         },
-        "type": "paragraph",
-      },
+      ],
+    },
+    "id": "0",
+    "type": "update",
+  },
+  {
+    "blocks": [
       {
         "children": [],
         "content": [
