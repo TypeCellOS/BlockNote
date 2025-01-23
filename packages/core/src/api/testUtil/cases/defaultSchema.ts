@@ -209,6 +209,15 @@ export const defaultSchemaTestCases: EditorTestCases<
       ],
     },
     {
+      name: "codeBlock/contains-newlines",
+      blocks: [
+        {
+          type: "codeBlock",
+          content: "const hello = 'world';\nconsole.log(hello);\n",
+        },
+      ],
+    },
+    {
       name: "pageBreak/basic",
       blocks: [
         {
