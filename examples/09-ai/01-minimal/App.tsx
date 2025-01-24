@@ -82,6 +82,7 @@ export default function App() {
     throw new Error(`Unknown model: ${aiModelString}`);
   }, [aiModelString]);
 
+  debugger;
   // Renders the editor instance using a React component.
   return (
     <div>
@@ -130,3 +131,14 @@ function SuggestionMenu(props: { editor: BlockNoteEditor<any, any, any> }) {
     />
   );
 }
+
+/**
+ * Global options:
+ * - model
+ * - format (md, json)
+ * - stream / non-stream
+ *
+ * Action specific:
+ * - messages
+ * - prompt
+ */

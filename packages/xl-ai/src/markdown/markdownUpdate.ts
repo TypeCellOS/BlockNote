@@ -16,7 +16,7 @@ import { diff as jsonDiff } from "../json-diff/json-diff.js";
  */
 export async function markdownUpdateToBlockUpdate(
   editor: BlockNoteEditor<any, any, any>,
-  oldBlock: Block<any, any, any>,
+  _oldBlock: Block<any, any, any>,
   oldMarkdown: string,
   newMarkdown: string
 ) {
