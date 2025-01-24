@@ -167,7 +167,7 @@ describe.each([
   });
 
   describe("Insert", () => {
-    it.only("inserts a paragraph at start", async () => {
+    it("inserts a paragraph at start", async () => {
       const editor = createEditor([
         {
           type: "paragraph",
@@ -192,7 +192,7 @@ describe.each([
         },
       ]);
       const response = await callLLM(editor, {
-        prompt: "Add a single sentence with `Test` after the first sentence",
+        prompt: "Add a paragraph with `Test` after the first paragraph",
         model: params.model,
       });
 

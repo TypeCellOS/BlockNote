@@ -208,7 +208,7 @@ describe.each([
       ]);
       const response = await callLLM(editor, {
         stream: params.stream,
-        prompt: "Add a sentence with `Test` after the first sentence",
+        prompt: "Add a paragraph with `Test` after the first paragraph",
         model: params.model,
       });
 
