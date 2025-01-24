@@ -6,23 +6,23 @@ import { FadeIn } from "@/components/pages/landing/shared/FadeIn";
 import { SectionSubHeader } from "@/components/pages/landing/shared/Headings";
 
 import atuin from "../../../../public/img/sponsors/atuin.png";
-import capitolDark from "../../../../public/img/sponsors/capitol-dark.svg";
-import capitolLight from "../../../../public/img/sponsors/capitol-light.svg";
-import deepOrigin from "../../../../public/img/sponsors/deeporigin.svg";
-import dinumDark from "../../../../public/img/sponsors/dinum-dark.svg";
-import dinumLight from "../../../../public/img/sponsors/dinum-light.svg";
-import fermatDark from "../../../../public/img/sponsors/fermat-dark.svg";
-import fermatLight from "../../../../public/img/sponsors/fermat.svg";
-import nlnetDark from "../../../../public/img/sponsors/nlnet-dark.svg";
-import nlnetLight from "../../../../public/img/sponsors/nlnet.svg";
-import notePlanDark from "../../../../public/img/sponsors/notePlan-dark.png";
-import notePlanLight from "../../../../public/img/sponsors/notePlan.png";
-import poggioDark from "../../../../public/img/sponsors/poggio-dark.svg";
-import poggioLight from "../../../../public/img/sponsors/poggio.svg";
-import twentyDark from "../../../../public/img/sponsors/twenty-dark.png";
-import twentyLight from "../../../../public/img/sponsors/twenty.png";
-import typecellDark from "../../../../public/img/sponsors/typecell-dark.svg";
-import typecellLight from "../../../../public/img/sponsors/typecell.svg";
+import capitolDark from "../../../../public/img/sponsors/capitolDark.svg";
+import capitolLight from "../../../../public/img/sponsors/capitolLight.svg";
+import deepOrigin from "../../../../public/img/sponsors/deepOrigin.svg";
+import dinumDark from "../../../../public/img/sponsors/dinumDark.svg";
+import dinumLight from "../../../../public/img/sponsors/dinumLight.svg";
+import fermatDark from "../../../../public/img/sponsors/fermatDark.svg";
+import fermatLight from "../../../../public/img/sponsors/fermatLight.svg";
+import nlnetDark from "../../../../public/img/sponsors/nlnetDark.svg";
+import nlnetLight from "../../../../public/img/sponsors/nlnetLight.svg";
+import notePlanDark from "../../../../public/img/sponsors/notePlanDark.png";
+import notePlanLight from "../../../../public/img/sponsors/notePlanLight.png";
+import poggioDark from "../../../../public/img/sponsors/poggioDark.svg";
+import poggioLight from "../../../../public/img/sponsors/poggioLight.svg";
+import twentyDark from "../../../../public/img/sponsors/twentyDark.png";
+import twentyLight from "../../../../public/img/sponsors/twentyLight.png";
+import typeCellDark from "../../../../public/img/sponsors/typeCellDark.svg";
+import typeCellLight from "../../../../public/img/sponsors/typeCellLight.svg";
 import zendis from "../../../../public/img/sponsors/zendis.svg";
 
 export const sponsorsCardData: SponsorCardProps[] = [
@@ -102,8 +102,8 @@ export const sponsorsCardData: SponsorCardProps[] = [
   },
   {
     logo: {
-      light: typecellLight,
-      dark: typecellDark,
+      light: typeCellLight,
+      dark: typeCellDark,
     },
     name: "TypeCell",
     link: "https://www.typecell.org/",
