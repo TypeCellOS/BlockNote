@@ -50,33 +50,14 @@ exports[`markdownNodeDiffToBlockOperations > add word at end of sentence 1`] = `
 exports[`markdownNodeDiffToBlockOperations > change type 1`] = `
 [
   {
-    "blocks": [
-      {
-        "children": [],
-        "content": [
-          {
-            "styles": {},
-            "text": "hello",
-            "type": "text",
-          },
-        ],
-        "id": "1",
-        "props": {
-          "backgroundColor": "default",
-          "level": 1,
-          "textAlignment": "left",
-          "textColor": "default",
-        },
-        "type": "heading",
+    "block": {
+      "props": {
+        "level": 1,
       },
-    ],
-    "position": "before",
-    "referenceId": "0",
-    "type": "add",
-  },
-  {
+      "type": "heading",
+    },
     "id": "0",
-    "type": "delete",
+    "type": "update",
   },
 ]
 `;
@@ -126,6 +107,343 @@ exports[`markdownNodeDiffToBlockOperations > complex change 1 1`] = `
   {
     "id": "1",
     "type": "delete",
+  },
+]
+`;
+
+exports[`markdownNodeDiffToBlockOperations > complex change 2 1`] = `
+[
+  {
+    "blocks": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "prefix",
+            "type": "text",
+          },
+        ],
+        "id": "3",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "position": "before",
+    "referenceId": "0",
+    "type": "add",
+  },
+  {
+    "block": {
+      "content": [
+        {
+          "styles": {},
+          "text": "## hello
+
+world",
+          "type": "text",
+        },
+      ],
+      "props": {
+        "backgroundColor": undefined,
+        "language": "javascript",
+        "level": undefined,
+        "textAlignment": undefined,
+        "textColor": undefined,
+      },
+      "type": "codeBlock",
+    },
+    "id": "0",
+    "type": "update",
+  },
+  {
+    "id": "1",
+    "type": "delete",
+  },
+  {
+    "id": "2",
+    "type": "delete",
+  },
+]
+`;
+
+exports[`markdownNodeDiffToBlockOperations > large change 1`] = `
+[
+  {
+    "blocks": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Document Title",
+            "type": "text",
+          },
+        ],
+        "id": "1",
+        "props": {
+          "backgroundColor": "default",
+          "level": 1,
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "heading",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Test",
+            "type": "text",
+          },
+        ],
+        "id": "2",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "position": "before",
+    "referenceId": "0",
+    "type": "add",
+  },
+  {
+    "block": {
+      "content": [
+        {
+          "styles": {},
+          "text": "This is the first sentence of the document.",
+          "type": "text",
+        },
+      ],
+    },
+    "id": "0",
+    "type": "update",
+  },
+  {
+    "blocks": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Introduction",
+            "type": "text",
+          },
+        ],
+        "id": "5",
+        "props": {
+          "backgroundColor": "default",
+          "level": 2,
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "heading",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "The introduction provides an overview of the document's purpose and structure.",
+            "type": "text",
+          },
+        ],
+        "id": "6",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Main Content",
+            "type": "text",
+          },
+        ],
+        "id": "7",
+        "props": {
+          "backgroundColor": "default",
+          "level": 2,
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "heading",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "The main content section contains the bulk of the information.",
+            "type": "text",
+          },
+        ],
+        "id": "8",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Subsection 1",
+            "type": "text",
+          },
+        ],
+        "id": "9",
+        "props": {
+          "backgroundColor": "default",
+          "level": 3,
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "heading",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Details about the first subsection are provided here.",
+            "type": "text",
+          },
+        ],
+        "id": "10",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Subsection 2",
+            "type": "text",
+          },
+        ],
+        "id": "11",
+        "props": {
+          "backgroundColor": "default",
+          "level": 3,
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "heading",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Details about the second subsection are provided here.",
+            "type": "text",
+          },
+        ],
+        "id": "12",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Conclusion",
+            "type": "text",
+          },
+        ],
+        "id": "13",
+        "props": {
+          "backgroundColor": "default",
+          "level": 2,
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "heading",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "The conclusion summarizes the key points discussed in the document.",
+            "type": "text",
+          },
+        ],
+        "id": "14",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "References",
+            "type": "text",
+          },
+        ],
+        "id": "15",
+        "props": {
+          "backgroundColor": "default",
+          "level": 2,
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "heading",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "A list of references and resources used in the document.",
+            "type": "text",
+          },
+        ],
+        "id": "16",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "position": "after",
+    "referenceId": "0",
+    "type": "add",
   },
 ]
 `;
