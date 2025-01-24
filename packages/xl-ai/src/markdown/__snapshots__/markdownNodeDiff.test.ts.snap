@@ -13,11 +13,7 @@ ADD: The introduction provides an overview of the document's purpose and structu
 
 ADD: ## Main Content
 
-ADD: The main content section contains the bulk of the information.
-
 ADD: ### Subsection 1
-
-ADD: Details about the first subsection are provided here.
 
 ADD: ### Subsection 2
 
@@ -30,6 +26,15 @@ ADD: The conclusion summarizes the key points discussed in the document.
 ADD: ## References
 
 ADD: A list of references and resources used in the document.
+"
+`;
+
+exports[`markdown AI util > 3 lines -> 1 line 1`] = `
+"CHANGED: mestis
+
+REMOVE: Test
+
+REMOVE: This
 "
 `;
 
@@ -46,19 +51,9 @@ ADD: The introduction provides an overview of the document's purpose and structu
 
 ADD: ## Main Content
 
-ADD: The main content section contains the bulk of the information.
-
 ADD: ### Subsection 1
 
-ADD: Details about the first subsection are provided here.
-
 CHANGED: ### Subsection 2
-
-ADD: Details about the second subsection are provided here.
-
-ADD: ## Conclusion
-
-ADD: The conclusion summarizes the key points discussed in the document.
 
 ADD: ## References
 
@@ -146,6 +141,72 @@ exports[`markdown AI util > collapse lines 1`] = `
 "CHANGED: # titleworldhello
 
 REMOVE: hello
+"
+`;
+
+exports[`markdown AI util > large text -> 1 line 1`] = `
+"REMOVE: # Document Title
+
+REMOVE: Test
+
+CHANGED: hello
+
+REMOVE: ## Introduction
+
+REMOVE: The introduction provides an overview of the document's purpose and structure.
+
+REMOVE: ## Main Content
+
+REMOVE: The main content section contains the bulk of the information.
+
+REMOVE: ### Subsection 1
+
+REMOVE: Details about the first subsection are provided here.
+
+REMOVE: ### Subsection 2
+
+REMOVE: Details about the second subsection are provided here.
+
+REMOVE: ## Conclusion
+
+REMOVE: The conclusion summarizes the key points discussed in the document.
+
+REMOVE: ## References
+
+REMOVE: A list of references and resources used in the document.
+"
+`;
+
+exports[`markdown AI util > large text -> 3 lines 1`] = `
+"CHANGED: # title
+
+REMOVE: Test
+
+CHANGED: hello
+
+REMOVE: ## Introduction
+
+REMOVE: The introduction provides an overview of the document's purpose and structure.
+
+REMOVE: ## Main Content
+
+REMOVE: The main content section contains the bulk of the information.
+
+REMOVE: ### Subsection 1
+
+REMOVE: Details about the first subsection are provided here.
+
+CHANGED: world
+
+REMOVE: Details about the second subsection are provided here.
+
+REMOVE: ## Conclusion
+
+REMOVE: The conclusion summarizes the key points discussed in the document.
+
+REMOVE: ## References
+
+REMOVE: A list of references and resources used in the document.
 "
 `;
 

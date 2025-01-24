@@ -43,11 +43,6 @@ export function flattenAst(ast: Content[]): Content[] {
   return result;
 }
 
-// a
-// b
-
-// adb
-
 /**
  * Takes two versions of a markdown document, and
  * returns a list of `DiffResult` objects indicating
@@ -209,13 +204,140 @@ export async function markdownNodeDiff(
   */
   const newBlocks = [...flattenAst(newAst.children)];
 
-  let oldBlockChanged = false;
-  let newBlockChanged = false;
+  // const mapping: [number, number][] = [];
+  // let pos = 0;
+  // for (const diff of charDiffs) {
+  //   if (diff.added) {
+  //     mapping.push([pos, -diff.count!]);
+  //     pos += diff.count!;
+  //   } else if (diff.removed) {
+  //     mapping.push([pos, diff.count!]);
+  //   } else {
+  //     pos += diff.count!;
+  //   }
+  // }
 
-  // let diffsByOldBlocks = new Map<any, any>();
+  // function altMap(newPos: number) {
+  //   let oldPos = newPos;
+  //   for (const [start, val] of mapping) {
+  //     if (newPos > start) {
+  //       oldPos += val;
+  //     }
+  //   }
+  //   return oldPos;
+  // }
 
-  // let oldIndex = 0;
-  // let newIndex = 0;
+  // function map(newPos: number) {
+  //   let oldPos = 0;
+  //   let currentPos = 0;
+
+  //   for (const diff of charDiffs) {
+  //     if (currentPos + diff.count! <= newPos) {
+  //       // For positions before our target:
+  //       // - Added text in new version means we need to subtract from old position
+  //       // - Removed text in old version means we need to add to old position
+  //       if (diff.added) {
+  //         oldPos -= diff.count!;
+  //       } else if (diff.removed) {
+  //         oldPos += diff.count!;
+  //       }
+  //       currentPos += diff.count!;
+  //     } else {
+  //       break;
+  //     }
+  //   }
+
+  //   return oldPos;
+  // }
+
+  // function map(newPos: number) {
+  //   let oldPos = newPos;
+  //   let currentPos = 0;
+
+  //   for (const diff of charDiffs) {
+  //     if (currentPos + diff.count! <= newPos) {
+  //       // For positions before our target:
+  //       // - Added text in new version means we need to subtract from old position
+  //       // - Removed text in old version means we need to add to old position
+  //       if (diff.added) {
+  //         oldPos -= diff.count!;
+  //       } else if (diff.removed) {
+  //         oldPos += diff.count!;
+  //       }
+  //       currentPos += diff.count!;
+  //     } else {
+  //       break;
+  //     }
+  //   }
+
+  //   return oldPos;
+  // }
+  /*
+  for (const block of newBlocks) {
+    const startPos = block.position!.start!.offset!;
+    const endPos = block.position!.end!.offset!;
+
+    const startPosMapped = map(startPos);
+    const endPosMapped = map(endPos);
+    const altStartPosMapped = altMap(startPos);
+    const altEndPosMapped = altMap(endPos);
+
+    const blocks = takeWhile(oldBlocks, (block) => {
+      const blockStartPos = block.position!.start!.offset!;
+      const blockEndPos = block.position!.end!.offset!;
+      return blockStartPos < endPosMapped && blockEndPos > startPosMapped;
+    });
+
+    block.oldBlocks = blocks;
+  }
+
+  for (const block of newBlocks) {
+    if (block.oldBlocks.length) {
+      const oldBlock = block.oldBlocks.shift();
+      if (block.oldBlocks.length === 0) {
+        // exactly 1 block overlaps, maybe it's the same (unchanged)
+        const oldMd = oldMarkdown.substring(
+          oldBlock.position!.start!.offset!,
+          oldBlock.position!.end!.offset!
+        );
+        const newMd = newMarkdown.substring(
+          block.position!.start!.offset!,
+          block.position!.end!.offset!
+        );
+
+        if (oldMd === newMd) {
+          results.push({
+            type: "unchanged",
+            newBlock: block,
+            oldBlock,
+          });
+          continue;
+        }
+      }
+
+      results.push({
+        type: "changed",
+        newBlock: block,
+        oldBlock: oldBlock,
+      });
+
+      for (const oldBlock of block.oldBlocks) {
+        results.push({
+          type: "remove",
+          oldBlock,
+        });
+      }
+    } else {
+      results.push({
+        type: "add",
+        newBlock: block,
+      });
+    }
+  }*/
+
+  // return results;
+  // debugger;
+
   for (let diff of charDiffs) {
     let endIndexOldMD = oldIndex;
     let endIndexNewMD = newIndex;
@@ -261,10 +383,63 @@ export async function markdownNodeDiff(
   }
 
   for (const diff of charDiffs) {
+    if (diff.added) {
+      const matchingNewBlocks = takeWhile(
+        newBlocks,
+        (block) =>
+          block.diffs?.some((d) => d === diff) && block.diffs?.length === 1
+      );
+      for (const block of matchingNewBlocks) {
+        results.push({ type: "add", newBlock: block });
+      }
+      continue;
+    }
+
+    if (diff.removed) {
+      const matchingOldBlocks = takeWhile(
+        oldBlocks,
+        (block) =>
+          block.diffs?.some((d) => d === diff) && block.diffs?.length === 1
+      );
+      for (const block of matchingOldBlocks) {
+        results.push({ type: "remove", oldBlock: block });
+      }
+      continue;
+    }
+
     const matchingNewBlocks = takeWhile(newBlocks, (block) =>
       block.diffs?.some((d) => d === diff)
     );
 
+    const matchingOldBlocks = takeWhile(oldBlocks, (block) =>
+      block.diffs?.some((d) => diff === d)
+    );
+
+    while (matchingNewBlocks.length || matchingOldBlocks.length) {
+      const newBlock = matchingNewBlocks.shift();
+      const oldBlock = matchingOldBlocks.shift();
+
+      if (!newBlock && !oldBlock) {
+        throw new Error("No matching blocks found");
+      }
+
+      if (!newBlock) {
+        results.push({ type: "remove", oldBlock });
+      } else if (!oldBlock) {
+        // results.push({ type: "add", newBlock });
+      } else {
+        if (
+          oldBlock.diffs?.every((d) => !d.added && !d.removed) &&
+          newBlock.diffs?.every((d) => !d.added && !d.removed)
+        ) {
+          results.push({ type: "unchanged", newBlock, oldBlock });
+        } else {
+          results.push({ type: "changed", newBlock, oldBlock });
+        }
+      }
+    }
+  }
+  /*
     if (!matchingNewBlocks.length) {
       // it's a remove diff so there's no matching "new block".
       // let's see if there are old blocks that need to be completely removed
@@ -279,11 +454,22 @@ export async function markdownNodeDiff(
     }
 
     // const matchingOldBlocks = takeWhile(oldBlocks, (block) =>
-    //   block.diffs?.some((d) => d === diff)
+    //   block.diffs?.some((d) => diff === d)
     // );
+
+    let matchingOldBlocks = takeWhile(oldBlocks, (block) =>
+      block.diffs?.some((d) => diff === d)
+    );
 
     // loop the "new blocks" that are affected by this diff
     for (const newBlock of matchingNewBlocks) {
+      matchingOldBlocks = [
+        ...matchingOldBlocks,
+        ...takeWhile(oldBlocks, (block) =>
+          block.diffs?.some((d) => newBlock.diffs?.includes(d))
+        ),
+      ];
+
       if (newBlock.diffs?.every((d) => d.added)) {
         // this block is completely added
         if (newBlock.diffs.length !== 1) {
@@ -292,7 +478,7 @@ export async function markdownNodeDiff(
         results.push({ type: "add", newBlock });
       } else if (newBlock.diffs?.every((d) => !d.added && !d.removed)) {
         // this block might be unchanged; check if we can find a matching old block that's also completely unchanged
-        const oldBlock = oldBlocks.shift();
+        const oldBlock = matchingOldBlocks.shift();
         if (!oldBlock) {
           throw new Error("No old block found");
         }
@@ -312,146 +498,31 @@ export async function markdownNodeDiff(
         if (newBlock.diffs.length < 2) {
           throw new Error("expected multiple diffs to indicate a change");
         }
-        const oldBlock = oldBlocks.shift();
-        if (
-          !oldBlock ||
-          !oldBlock.diffs?.some((d) => newBlock.diffs.includes(d))
-        ) {
+        const oldBlock = matchingOldBlocks.shift();
+        // TODO: comment / reason
+        if (!oldBlock) {
           results.push({ type: "add", newBlock });
-          if (oldBlock) {
-            oldBlocks.unshift(oldBlock);
-          }
         } else {
           results.push({ type: "changed", newBlock, oldBlock });
         }
       }
     }
 
-    // if (matchingNewBlocks.length > 0) {
-    //   for (const oldBlock of matchingOldBlocks) {
-    //     results.push({ type: "remove", oldBlock });
-    //   }
-    // }
+    for (const oldBlock of matchingOldBlocks) {
+      // delete remaining old blocks that also match the new block.
+      // in this case multiple old blocks have been changed to the new block, but
+      // we only want to use the first one in a "changed" operation
+      results.push({ type: "remove", oldBlock });
+    }
   }
 
   if (oldBlocks.length > 0) {
-    throw new Error("Old blocks left over");
+    // throw new Error("Old blocks left over");
   }
+
   if (newBlocks.length > 0) {
-    throw new Error("New blocks left over");
-  }
-
-  // while (charDiffs.length > 0) {
-  //   const diff = charDiffs.shift()!;
-
-  //   if (diff.added) {
-  //     // hello WORLD
-  //     // HELLO WORLD
-  //     // HELLO beautiful WORLD today
-
-  //     const updatedNewIndex = newIndex + diff.value.length;
-
-  //     const block = newBlocks.shift();
-  //     if (!block) {
-  //       throw new Error("No block found");
-  //     }
-
-  //     const blockEnd = block.position!.end!.offset!;
-  //     if (updatedNewIndex < blockEnd) {
-  //       const oldBlock = oldBlocks.shift();
-  //       if (!oldBlock) {
-  //         throw new Error("No old block found");
-  //       }
-  //       results.push({
-  //         type: "changed",
-  //         newBlock: block,
-  //         oldBlock,
-  //       });
-  //     } else {
-  //       results.push({ type: "add", newBlock: block });
-  //     }
-  //     newIndex = updatedNewIndex;
-  //   } else if (diff.removed) {
-  //     const endPos = oldIndex + diff.value.length;
-
-  //     while (oldBlocks.length > 0) {
-  //       const block = oldBlocks[0];
-  //       const blockEnd = block.position!.end!.offset!;
-
-  //       if (blockEnd <= endPos) {
-  //         if (!oldBlockChanged) {
-  //           results.push({ type: "remove", oldBlock: block });
-  //         }
-  //         oldBlocks.shift();
-  //         oldBlockChanged = false;
-  //       } else if (block.position!.start!.offset! < endPos) {
-  //         // oldBlockChanged = true;
-  //         const oldBlock = oldBlocks.shift()!;
-  //         const newBlock = newBlocks.shift()!;
-  //         results.push({
-  //           type: "changed",
-  //           newBlock,
-  //           oldBlock,
-  //         });
-  //         break;
-  //       } else {
-  //         break;
-  //       }
-  //     }
-
-  //     oldIndex = endPos;
-  //   } else {
-  //     const endPosOld = oldIndex + diff.value.length;
-  //     const endPosNew = newIndex + diff.value.length;
-  //     while (oldBlocks.length > 0 && newBlocks.length > 0) {
-  //       const oldBlock = oldBlocks[0];
-  //       const newBlock = newBlocks[0];
-  //       const oldBlockEnd = oldBlock.position!.end!.offset!;
-  //       const newBlockEnd = newBlock.position!.end!.offset!;
-
-  //       // Only consider blocks unchanged if both blocks end within this unchanged section
-  //       // and we haven't seen any changes to these blocks yet
-  //       if (oldBlockEnd <= endPosOld && newBlockEnd <= endPosNew) {
-  //         if (!oldBlockChanged && !newBlockChanged) {
-  //           results.push({
-  //             type: "unchanged",
-  //             oldBlock: oldBlock,
-  //             newBlock: newBlock,
-  //           });
-  //         }
-  //         oldBlocks.shift();
-  //         newBlocks.shift();
-  //         oldBlockChanged = false;
-  //         newBlockChanged = false;
-  //       } else if (
-  //         oldBlock.position!.start!.offset! < endPosOld ||
-  //         newBlock.position!.start!.offset! < endPosNew
-  //       ) {
-  //         // If either block overlaps with this section but doesn't end within it,
-  //         // mark it as changed
-  //         results.push({
-  //           type: "changed",
-  //           oldBlock: oldBlock,
-  //           newBlock: newBlock,
-  //         });
-  //         if (oldBlock.position!.start!.offset! < endPosOld) {
-  //           oldBlocks.shift();
-  //           oldBlockChanged = false;
-  //         }
-  //         if (newBlock.position!.start!.offset! < endPosNew) {
-  //           newBlocks.shift();
-  //           newBlockChanged = false;
-  //         }
-  //         break;
-  //       } else {
-  //         break;
-  //       }
-  //     }
-
-  //     oldIndex = endPosOld;
-  //     newIndex = endPosNew;
-  //   }
-  // }
+    // throw new Error("New blocks left over");
+  }*/
 
   return results;
 }
