@@ -564,3 +564,79 @@
   display: flex;
   justify-content: space-between;
 }
+
+/* TODO: Clean up */
+.bn-mantine .bn-thread {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+  color: var(--bn-colors-menu-text);
+  overflow: visible;
+}
+
+.bn-mantine .bn-thread .bn-grid-suggestion-menu {
+  gap: 0;
+  max-height: 300px;
+  padding: 6px;
+}
+
+.bn-mantine .bn-thread .bn-grid-suggestion-menu-item {
+  border-radius: var(--bn-border-radius-small);
+  font-size: 20px;
+  height: 32px;
+  margin: 0;
+  width: 32px;
+}
+
+.bn-mantine .bn-thread-comments {
+  border-bottom: var(--bn-border);
+}
+
+.bn-mantine .bn-comment-actions-wrapper {
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.bn-mantine .bn-action-toolbar {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  gap: 0;
+  padding: 2px;
+}
+
+.bn-action-toolbar .mantine-Button-root,
+.bn-action-toolbar .mantine-ActionIcon-root {
+  background-color: var(--bn-colors-menu-background);
+  border: none;
+  border-radius: var(--bn-border-radius-small);
+  color: var(--bn-colors-menu-text);
+}
+
+.bn-action-toolbar .mantine-Button-root:hover,
+.bn-action-toolbar .mantine-ActionIcon-root:hover {
+  background-color: var(--bn-colors-hovered-background);
+  border: none;
+  color: var(--bn-colors-hovered-text);
+}
+
+.bn-action-toolbar .mantine-Button-root[data-selected],
+.bn-action-toolbar .mantine-ActionIcon-root[data-selected] {
+  background-color: var(--bn-colors-selected-background);
+  border: none;
+  color: var(--bn-colors-selected-text);
+}
+
+.bn-action-toolbar .mantine-Button-root[data-disabled],
+.bn-action-toolbar .mantine-ActionIcon-root[data-disabled] {
+  background-color: var(--bn-colors-disabled-background);
+  border: none;
+  color: var(--bn-colors-disabled-text);
+}
+
+.bn-mantine .bn-action-toolbar .mantine-Menu-itemLabel {
+  font-size: 12px;
+}

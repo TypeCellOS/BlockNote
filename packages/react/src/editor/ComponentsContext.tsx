@@ -184,6 +184,19 @@ export type ComponentProps = {
   };
   // TODO: We should try to make everything as generic as we can
   Generic: {
+    Badge: {
+      Root: {
+        className?: string;
+        text: string;
+        icon?: ReactNode;
+        isSelected?: boolean;
+        onClick?: () => void;
+      };
+      Group: {
+        className?: string;
+        children: ReactNode;
+      };
+    };
     Form: {
       Root: {
         children?: ReactNode;

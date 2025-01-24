@@ -1,3 +1,5 @@
+import { mergeCSSClasses } from "@blocknote/core";
+
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
@@ -23,13 +25,19 @@ export function FloatingComposer() {
   });
 
   return (
-    <Components.Comments.Card>
+    <Components.Comments.Card className={"bn-thread"}>
       <CommentEditor
         editable={true}
         editor={newCommentEditor}
         actions={({ isEmpty }) => (
-          <Components.Generic.Toolbar.Root variant="action-toolbar">
+          <Components.Generic.Toolbar.Root
+            className={mergeCSSClasses(
+              "bn-action-toolbar",
+              "bn-comment-actions"
+            )}
+            variant="action-toolbar">
             <Components.Generic.Toolbar.Button
+              className={"bn-button"}
               mainTooltip="Save"
               variant="compact"
               isDisabled={isEmpty}

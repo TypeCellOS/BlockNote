@@ -12,14 +12,7 @@ export const Card = forwardRef<
   assertEmpty(rest, false);
 
   return (
-    <MantineCard
-      shadow="md"
-      withBorder
-      p="md"
-      radius="md"
-      w={350}
-      className={className}
-      ref={ref}>
+    <MantineCard w={350} p={"md"} className={className} ref={ref}>
       {children}
     </MantineCard>
   );
@@ -34,12 +27,7 @@ export const CardSection = forwardRef<
   assertEmpty(rest, false);
 
   return (
-    <MantineCard.Section
-      p="xs"
-      inheritPadding
-      withBorder
-      className={className}
-      ref={ref}>
+    <MantineCard.Section p={"md"} className={className} ref={ref}>
       {children}
     </MantineCard.Section>
   );

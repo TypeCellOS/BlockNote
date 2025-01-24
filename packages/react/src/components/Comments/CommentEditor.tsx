@@ -59,7 +59,7 @@ export const CommentEditor = (props: {
         editable={props.editable}
       />
       {props.actions && (
-        <div style={{ width: "100%" }}>
+        <div className={"bn-comment-actions-wrapper"}>
           <props.actions isFocused={isFocused} isEmpty={isEmpty} />
         </div>
       )}

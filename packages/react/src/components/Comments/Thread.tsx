@@ -144,7 +144,10 @@ export const Thread = ({
               return (
                 <Components.Generic.Toolbar.Root
                   variant="action-toolbar"
-                  className={mergeCSSClasses("bn-comment-actions")}>
+                  className={mergeCSSClasses(
+                    "bn-action-toolbar",
+                    "bn-comment-actions"
+                  )}>
                   <Components.Generic.Toolbar.Button
                     mainTooltip="Save"
                     variant="compact"

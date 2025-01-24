@@ -157,8 +157,14 @@ function BlockNoteViewComponent<
   const mount = useCallback(
     (element: HTMLElement | null) => {
       editor.mount(element, portalManager);
+
+      // Since we mount the editor ourselves, we also have to manually
+      // autofocus it on mount.
+      if (rest.autoFocus) {
+        element?.focus();
+      }
     },
-    [editor, portalManager]
+    [editor, portalManager, rest.autoFocus]
   );
 
   return (

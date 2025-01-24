@@ -77,7 +77,7 @@ export abstract class ThreadStore {
   abstract addReaction(options: {
     threadId: string;
     commentId: string;
-    // reaction: string; TODO
+    reaction: string;
   }): Promise<void>;
 
   /**

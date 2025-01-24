@@ -1,7 +1,12 @@
 import { v4 } from "uuid";
 import * as Y from "yjs";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
-import { CommentBody, CommentData, ThreadData } from "../types.js";
+import {
+  CommentBody,
+  CommentData,
+  CommentReactionData,
+  ThreadData,
+} from "../types.js";
 import { ThreadStore } from "./ThreadStore.js";
 import { ThreadStoreAuth } from "./ThreadStoreAuth.js";
 
@@ -234,19 +239,76 @@ export class YjsThreadStore extends ThreadStore {
     yThread.set("resolvedUpdatedAt", new Date().getTime());
   });
 
-  public addReaction = this.transact(
-    (options: {
-      threadId: string;
-      commentId: string;
-      // reaction: string; TODO
-    }) => {
-      throw new Error("Not implemented");
-    }
-  );
+  public toggleReaction = this.transact(
+    (options: { threadId: string; commentId: string; reaction: string }) => {
+      const yThread = this.threadsYMap.get(options.threadId);
+      if (!yThread) {
+        throw new Error("Thread not found");
+      }
 
-  public deleteReaction = this.transact(
-    (options: { threadId: string; commentId: string; reactionId: string }) => {
-      throw new Error("Not implemented");
+      const yCommentIndex = yArrayFindIndex(
+        yThread.get("comments"),
+        (comment) => comment.get("id") === options.commentId
+      );
+      if (yCommentIndex === -1) {
+        throw new Error("Comment not found");
+      }
+
+      const yComment = yThread.get("comments").get(yCommentIndex);
+      if (!this.auth.canUpdateComment(yMapToComment(yComment))) {
+        throw new Error("Not authorized");
+      }
+
+      const yReactionIndex = yArrayFindIndex(
+        yComment.get("reactions"),
+        (reaction) => reaction.get("emoji") === options.reaction
+      );
+
+      if (yReactionIndex !== -1) {
+        const yReaction = yComment.get("reactions").get(yReactionIndex);
+
+        const yUserIdIndex = yArrayFindIndex(
+          yReaction.get("usersIds"),
+          (userId) => userId === this.userId
+        );
+        if (yUserIdIndex !== -1) {
+          // This user already reacted with this emoji, so it should be toggled
+          // off.
+
+          // Reaction exists and contains user ID, so the user ID should be
+          // removed from the list. If the list is now empty, remove the reaction
+          // altogether.
+          yReaction.get("usersIds").delete(yUserIdIndex);
+
+          if (yReaction.get("usersIds").length === 0) {
+            yComment.get("reactions").delete(yReactionIndex);
+            yComment.set("updatedAt", new Date().getTime());
+          }
+
+          return;
+        }
+        // Other users have reacted with this emoji, but this user has not, so
+        // it should be toggled on.
+
+        // Reaction exists but does not contain user ID, so the user ID should
+        // be added to the list.
+        yReaction.get("usersIds").push([this.userId]);
+
+        return;
+      }
+      // No one has reacted with this emoji, so it should again be toggled on.
+
+      // Reaction does not exist, and so a new one should be created and this
+      // user should be added to the list.
+      const date = new Date();
+      const reaction: CommentReactionData = {
+        emoji: options.reaction,
+        createdAt: date,
+        usersIds: [this.userId, "fesfes"],
+      };
+
+      yComment.get("reactions").push([reactionToYMap(reaction)]);
+      yComment.set("updatedAt", date.getTime());
     }
   );
 
@@ -282,6 +344,22 @@ export class YjsThreadStore extends ThreadStore {
 }
 
 // HELPERS
+
+function reactionToYMap(reaction: CommentReactionData) {
+  const yMap = new Y.Map<any>();
+  yMap.set("emoji", reaction.emoji);
+  yMap.set("createdAt", reaction.createdAt.getTime());
+  if (reaction.usersIds.length === 0) {
+    throw new Error("Need at least one user ID in reactionToYMap");
+  }
+  const usersIdsArray = new Y.Array();
+
+  usersIdsArray.push([...reaction.usersIds]);
+
+  yMap.set("usersIds", usersIdsArray);
+
+  return yMap;
+}
 
 function commentToYMap(comment: CommentData) {
   const yMap = new Y.Map<any>();
@@ -320,6 +398,14 @@ function threadToYMap(thread: ThreadData) {
   return yMap;
 }
 
+function yMapToReaction(yMap: Y.Map<any>): CommentReactionData {
+  return {
+    emoji: yMap.get("emoji"),
+    createdAt: yMap.get("createdAt"),
+    usersIds: yMap.get("usersIds").toArray(),
+  };
+}
+
 function yMapToComment(yMap: Y.Map<any>): CommentData {
   return {
     type: "comment",
@@ -330,7 +416,9 @@ function yMapToComment(yMap: Y.Map<any>): CommentData {
     deletedAt: yMap.get("deletedAt")
       ? new Date(yMap.get("deletedAt"))
       : undefined,
-    reactions: [],
+    reactions: yMap
+      .get("reactions")
+      .map((reaction: Y.Map<any>) => yMapToReaction(reaction)),
     metadata: yMap.get("metadata"),
     body: yMap.get("body"),
   };

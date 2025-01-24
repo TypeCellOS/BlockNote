@@ -36,8 +36,7 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
         // TODO: aria-label
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
-        justify={variant === "action-toolbar" ? "flex-end" : undefined}
-        gap={variant === "action-toolbar" ? "xs" : undefined}>
+        gap={variant === "action-toolbar" ? 2 : undefined}>
         {children}
       </Flex>
     );
