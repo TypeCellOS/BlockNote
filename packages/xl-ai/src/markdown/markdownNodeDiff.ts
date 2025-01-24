@@ -261,6 +261,9 @@ export async function markdownNodeDiff(
   for (const diff of charDiffs) {
     if (diff.added) {
       // if it's an add diff, check if it's an add that indicates one or more complete blocks have been added
+
+      // we're not interested in other cases here, e.g. some text has been added to an existing block
+      // this will be handled by the "keep" diff below
       const matchingNewBlocks = takeWhile(
         newBlocks,
         (block) =>
@@ -275,6 +278,9 @@ export async function markdownNodeDiff(
 
     if (diff.removed) {
       // if it's a remove diff, check if it's a remove that indicates one or more complete blocks have been removed
+
+      // we're not interested in other cases here, e.g. some text has been removed from an existing block
+      // this will be handled by the "keep" diff below
       const matchingOldBlocks = takeWhile(
         oldBlocks,
         (block) =>
