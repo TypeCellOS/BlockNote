@@ -208,8 +208,10 @@ export async function markdownNodeDiff(
   */
   const newBlocks = [...flattenAst(newAst.children)];
 
+  const diffsByBlock: Map<any, Diff.Change[]> = new Map();
+
   // assign all diffs to blocks, this is used later
-  for (let diff of charDiffs) {
+  for (const diff of charDiffs) {
     let endIndexOldMD = oldIndex;
     let endIndexNewMD = newIndex;
     if (diff.added) {
@@ -228,9 +230,10 @@ export async function markdownNodeDiff(
           block.position!.start!.offset! < endIndexOldMD &&
           block.position!.end!.offset! > oldIndex
         ) {
-          block.diffs = [...(block.diffs || []), diff];
-        } else {
-          // break;
+          diffsByBlock.set(block, [...(diffsByBlock.get(block) || []), diff]);
+        } else if (block.position!.start!.offset! > endIndexOldMD) {
+          // not interested in other blocks past the end of the diff
+          break;
         }
       }
     }
@@ -242,9 +245,10 @@ export async function markdownNodeDiff(
           block.position!.start!.offset! < endIndexNewMD &&
           block.position!.end!.offset! > newIndex
         ) {
-          block.diffs = [...(block.diffs || []), diff];
-        } else {
-          // break;
+          diffsByBlock.set(block, [...(diffsByBlock.get(block) || []), diff]);
+        } else if (block.position!.start!.offset! > endIndexNewMD) {
+          // not interested in other blocks past the end of the diff
+          break;
         }
       }
     }
@@ -260,7 +264,8 @@ export async function markdownNodeDiff(
       const matchingNewBlocks = takeWhile(
         newBlocks,
         (block) =>
-          block.diffs?.some((d) => d === diff) && block.diffs?.length === 1 // the only diff on a block is this "add", so add the block
+          diffsByBlock.get(block)!.some((d) => d === diff) &&
+          diffsByBlock.get(block)!.length === 1 // the only diff on a block is this "add", so add the block
       );
       for (const block of matchingNewBlocks) {
         results.push({ type: "add", newBlock: block });
@@ -273,7 +278,8 @@ export async function markdownNodeDiff(
       const matchingOldBlocks = takeWhile(
         oldBlocks,
         (block) =>
-          block.diffs?.some((d) => d === diff) && block.diffs?.length === 1 // the only diff on a block is this "remove", so remove the block
+          diffsByBlock.get(block)!.some((d) => d === diff) &&
+          diffsByBlock.get(block)!.length === 1 // the only diff on a block is this "remove", so remove the block
       );
       for (const block of matchingOldBlocks) {
         results.push({ type: "remove", oldBlock: block });
@@ -284,11 +290,11 @@ export async function markdownNodeDiff(
     // it's a "keep" diff (no add / remove)
     // let's process all old / new blocks that have this diff
     const matchingNewBlocks = takeWhile(newBlocks, (block) =>
-      block.diffs?.some((d) => d === diff)
+      diffsByBlock.get(block)!.some((d) => d === diff)
     );
 
     const matchingOldBlocks = takeWhile(oldBlocks, (block) =>
-      block.diffs?.some((d) => diff === d)
+      diffsByBlock.get(block)!.some((d) => diff === d)
     );
 
     while (matchingNewBlocks.length || matchingOldBlocks.length) {
@@ -315,7 +321,7 @@ export async function markdownNodeDiff(
         but then in the next iterations there will be old blocks (2) left
         these are processed and removed here
         */
-        results.push({ type: "remove", oldBlock });
+        results.push({ type: "remove", oldBlock: oldBlock! });
       } else if (!oldBlock) {
         /**
         this can happen in the case we change 1 block into 3 blocks, e.g.:
@@ -331,8 +337,8 @@ export async function markdownNodeDiff(
         results.push({ type: "add", newBlock });
       } else {
         if (
-          oldBlock.diffs?.every((d) => !d.added && !d.removed) &&
-          newBlock.diffs?.every((d) => !d.added && !d.removed)
+          diffsByBlock.get(oldBlock)!.every((d) => !d.added && !d.removed) &&
+          diffsByBlock.get(newBlock)!.every((d) => !d.added && !d.removed)
         ) {
           results.push({ type: "unchanged", newBlock, oldBlock });
         } else {
