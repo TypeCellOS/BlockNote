@@ -5,28 +5,58 @@ import {
 import { FadeIn } from "@/components/pages/landing/shared/FadeIn";
 import { SectionSubHeader } from "@/components/pages/landing/shared/Headings";
 
-import deeporigin from "../../../../public/img/sponsors/deeporigin.svg";
+import atuin from "../../../../public/img/sponsors/atuin.png";
+import capitolDark from "../../../../public/img/sponsors/capitol-dark.svg";
+import capitolLight from "../../../../public/img/sponsors/capitol-light.svg";
+import deepOrigin from "../../../../public/img/sponsors/deeporigin.svg";
+import dinumDark from "../../../../public/img/sponsors/dinum-dark.svg";
+import dinumLight from "../../../../public/img/sponsors/dinum-light.svg";
 import fermatDark from "../../../../public/img/sponsors/fermat-dark.svg";
 import fermatLight from "../../../../public/img/sponsors/fermat.svg";
 import nlnetDark from "../../../../public/img/sponsors/nlnet-dark.svg";
 import nlnetLight from "../../../../public/img/sponsors/nlnet.svg";
-import noteplanDark from "../../../../public/img/sponsors/noteplan-dark.png";
-import noteplanLight from "../../../../public/img/sponsors/noteplan.png";
+import notePlanDark from "../../../../public/img/sponsors/notePlan-dark.png";
+import notePlanLight from "../../../../public/img/sponsors/notePlan.png";
 import poggioDark from "../../../../public/img/sponsors/poggio-dark.svg";
 import poggioLight from "../../../../public/img/sponsors/poggio.svg";
 import twentyDark from "../../../../public/img/sponsors/twenty-dark.png";
 import twentyLight from "../../../../public/img/sponsors/twenty.png";
 import typecellDark from "../../../../public/img/sponsors/typecell-dark.svg";
 import typecellLight from "../../../../public/img/sponsors/typecell.svg";
+import zendis from "../../../../public/img/sponsors/zendis.svg";
 
 export const sponsorsCardData: SponsorCardProps[] = [
   {
     logo: {
-      light: deeporigin,
-      dark: deeporigin,
+      light: atuin,
+      dark: atuin,
+    },
+    name: "Atuin",
+    link: "https://atuin.sh/",
+  },
+  {
+    logo: {
+      light: capitolLight,
+      dark: capitolDark,
+    },
+    name: "Capitol",
+    link: "https://www.capitol.ai/",
+  },
+  {
+    logo: {
+      light: deepOrigin,
+      dark: deepOrigin,
     },
     name: "Deep Origin",
     link: "https://www.deeporigin.com/",
+  },
+  {
+    logo: {
+      light: dinumLight,
+      dark: dinumDark,
+    },
+    name: "DINUM",
+    link: "https://www.numerique.gouv.fr/dinum/",
   },
   {
     logo: {
@@ -46,10 +76,10 @@ export const sponsorsCardData: SponsorCardProps[] = [
   },
   {
     logo: {
-      light: noteplanLight,
-      dark: noteplanDark,
+      light: notePlanLight,
+      dark: notePlanDark,
     },
-    name: "Noteplan",
+    name: "NotePlan",
     link: "https://noteplan.co/",
     tagline: "Apple Top Notes Apps",
   },
@@ -77,6 +107,14 @@ export const sponsorsCardData: SponsorCardProps[] = [
     },
     name: "TypeCell",
     link: "https://www.typecell.org/",
+  },
+  {
+    logo: {
+      light: zendis,
+      dark: zendis,
+    },
+    name: "ZenDiS",
+    link: "https://zendis.de/",
   },
 ];
 
