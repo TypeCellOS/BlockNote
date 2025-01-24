@@ -57,6 +57,7 @@ export async function markdownNodeDiff(
   const newAst = unified().use(remarkParse).parse(newMarkdown);
 
   /*
+  e.g.:
   [
   {
     count: 7,
@@ -92,6 +93,8 @@ export async function markdownNodeDiff(
   let oldIndex = 0;
   let newIndex = 0;
   /*
+  e.g.:
+
   [
   {
     type: "heading",
@@ -165,6 +168,7 @@ export async function markdownNodeDiff(
   const oldBlocks = [...flattenAst(oldAst.children)];
 
   /*
+  e.g.: 
 [
   {
     type: "heading",
@@ -204,140 +208,7 @@ export async function markdownNodeDiff(
   */
   const newBlocks = [...flattenAst(newAst.children)];
 
-  // const mapping: [number, number][] = [];
-  // let pos = 0;
-  // for (const diff of charDiffs) {
-  //   if (diff.added) {
-  //     mapping.push([pos, -diff.count!]);
-  //     pos += diff.count!;
-  //   } else if (diff.removed) {
-  //     mapping.push([pos, diff.count!]);
-  //   } else {
-  //     pos += diff.count!;
-  //   }
-  // }
-
-  // function altMap(newPos: number) {
-  //   let oldPos = newPos;
-  //   for (const [start, val] of mapping) {
-  //     if (newPos > start) {
-  //       oldPos += val;
-  //     }
-  //   }
-  //   return oldPos;
-  // }
-
-  // function map(newPos: number) {
-  //   let oldPos = 0;
-  //   let currentPos = 0;
-
-  //   for (const diff of charDiffs) {
-  //     if (currentPos + diff.count! <= newPos) {
-  //       // For positions before our target:
-  //       // - Added text in new version means we need to subtract from old position
-  //       // - Removed text in old version means we need to add to old position
-  //       if (diff.added) {
-  //         oldPos -= diff.count!;
-  //       } else if (diff.removed) {
-  //         oldPos += diff.count!;
-  //       }
-  //       currentPos += diff.count!;
-  //     } else {
-  //       break;
-  //     }
-  //   }
-
-  //   return oldPos;
-  // }
-
-  // function map(newPos: number) {
-  //   let oldPos = newPos;
-  //   let currentPos = 0;
-
-  //   for (const diff of charDiffs) {
-  //     if (currentPos + diff.count! <= newPos) {
-  //       // For positions before our target:
-  //       // - Added text in new version means we need to subtract from old position
-  //       // - Removed text in old version means we need to add to old position
-  //       if (diff.added) {
-  //         oldPos -= diff.count!;
-  //       } else if (diff.removed) {
-  //         oldPos += diff.count!;
-  //       }
-  //       currentPos += diff.count!;
-  //     } else {
-  //       break;
-  //     }
-  //   }
-
-  //   return oldPos;
-  // }
-  /*
-  for (const block of newBlocks) {
-    const startPos = block.position!.start!.offset!;
-    const endPos = block.position!.end!.offset!;
-
-    const startPosMapped = map(startPos);
-    const endPosMapped = map(endPos);
-    const altStartPosMapped = altMap(startPos);
-    const altEndPosMapped = altMap(endPos);
-
-    const blocks = takeWhile(oldBlocks, (block) => {
-      const blockStartPos = block.position!.start!.offset!;
-      const blockEndPos = block.position!.end!.offset!;
-      return blockStartPos < endPosMapped && blockEndPos > startPosMapped;
-    });
-
-    block.oldBlocks = blocks;
-  }
-
-  for (const block of newBlocks) {
-    if (block.oldBlocks.length) {
-      const oldBlock = block.oldBlocks.shift();
-      if (block.oldBlocks.length === 0) {
-        // exactly 1 block overlaps, maybe it's the same (unchanged)
-        const oldMd = oldMarkdown.substring(
-          oldBlock.position!.start!.offset!,
-          oldBlock.position!.end!.offset!
-        );
-        const newMd = newMarkdown.substring(
-          block.position!.start!.offset!,
-          block.position!.end!.offset!
-        );
-
-        if (oldMd === newMd) {
-          results.push({
-            type: "unchanged",
-            newBlock: block,
-            oldBlock,
-          });
-          continue;
-        }
-      }
-
-      results.push({
-        type: "changed",
-        newBlock: block,
-        oldBlock: oldBlock,
-      });
-
-      for (const oldBlock of block.oldBlocks) {
-        results.push({
-          type: "remove",
-          oldBlock,
-        });
-      }
-    } else {
-      results.push({
-        type: "add",
-        newBlock: block,
-      });
-    }
-  }*/
-
-  // return results;
-  // debugger;
-
+  // assign all diffs to blocks, this is used later
   for (let diff of charDiffs) {
     let endIndexOldMD = oldIndex;
     let endIndexNewMD = newIndex;
@@ -382,12 +253,14 @@ export async function markdownNodeDiff(
     newIndex = endIndexNewMD;
   }
 
+  // now, main algorithm to process diffs
   for (const diff of charDiffs) {
     if (diff.added) {
+      // if it's an add diff, check if it's an add that indicates one or more complete blocks have been added
       const matchingNewBlocks = takeWhile(
         newBlocks,
         (block) =>
-          block.diffs?.some((d) => d === diff) && block.diffs?.length === 1
+          block.diffs?.some((d) => d === diff) && block.diffs?.length === 1 // the only diff on a block is this "add", so add the block
       );
       for (const block of matchingNewBlocks) {
         results.push({ type: "add", newBlock: block });
@@ -396,10 +269,11 @@ export async function markdownNodeDiff(
     }
 
     if (diff.removed) {
+      // if it's a remove diff, check if it's a remove that indicates one or more complete blocks have been removed
       const matchingOldBlocks = takeWhile(
         oldBlocks,
         (block) =>
-          block.diffs?.some((d) => d === diff) && block.diffs?.length === 1
+          block.diffs?.some((d) => d === diff) && block.diffs?.length === 1 // the only diff on a block is this "remove", so remove the block
       );
       for (const block of matchingOldBlocks) {
         results.push({ type: "remove", oldBlock: block });
@@ -407,6 +281,8 @@ export async function markdownNodeDiff(
       continue;
     }
 
+    // it's a "keep" diff (no add / remove)
+    // let's process all old / new blocks that have this diff
     const matchingNewBlocks = takeWhile(newBlocks, (block) =>
       block.diffs?.some((d) => d === diff)
     );
@@ -424,9 +300,35 @@ export async function markdownNodeDiff(
       }
 
       if (!newBlock) {
+        /*
+        this can happen in the case we change 3 blocks into 1 block, e.g.:
+
+        old:
+        # title
+        hello
+        world
+
+        new:
+        # titleworld
+
+        for the first iteration we'll dispatch a "changed" operation,
+        but then in the next iterations there will be old blocks (2) left
+        these are processed and removed here
+        */
         results.push({ type: "remove", oldBlock });
       } else if (!oldBlock) {
-        // results.push({ type: "add", newBlock });
+        /**
+        this can happen in the case we change 1 block into 3 blocks, e.g.:
+
+        old:
+        hello
+
+        new:
+        he
+        l
+        lo
+         */
+        results.push({ type: "add", newBlock });
       } else {
         if (
           oldBlock.diffs?.every((d) => !d.added && !d.removed) &&
@@ -439,90 +341,6 @@ export async function markdownNodeDiff(
       }
     }
   }
-  /*
-    if (!matchingNewBlocks.length) {
-      // it's a remove diff so there's no matching "new block".
-      // let's see if there are old blocks that need to be completely removed
-      const oldBlocksToRemove = takeWhile(
-        oldBlocks,
-        (block) => block.diffs?.every((d) => d === diff) // all diffs are remove diffs, so remove entire block
-      );
-      for (const oldBlock of oldBlocksToRemove) {
-        results.push({ type: "remove", oldBlock });
-      }
-      continue;
-    }
-
-    // const matchingOldBlocks = takeWhile(oldBlocks, (block) =>
-    //   block.diffs?.some((d) => diff === d)
-    // );
-
-    let matchingOldBlocks = takeWhile(oldBlocks, (block) =>
-      block.diffs?.some((d) => diff === d)
-    );
-
-    // loop the "new blocks" that are affected by this diff
-    for (const newBlock of matchingNewBlocks) {
-      matchingOldBlocks = [
-        ...matchingOldBlocks,
-        ...takeWhile(oldBlocks, (block) =>
-          block.diffs?.some((d) => newBlock.diffs?.includes(d))
-        ),
-      ];
-
-      if (newBlock.diffs?.every((d) => d.added)) {
-        // this block is completely added
-        if (newBlock.diffs.length !== 1) {
-          throw new Error("expected only one add diff if all diffs are adds");
-        }
-        results.push({ type: "add", newBlock });
-      } else if (newBlock.diffs?.every((d) => !d.added && !d.removed)) {
-        // this block might be unchanged; check if we can find a matching old block that's also completely unchanged
-        const oldBlock = matchingOldBlocks.shift();
-        if (!oldBlock) {
-          throw new Error("No old block found");
-        }
-
-        if (!oldBlock.diffs?.includes(diff)) {
-          throw new Error("Old block doesn't match new block");
-        }
-
-        if (oldBlock.diffs?.every((d) => !d.added && !d.removed)) {
-          // nothing in the old block was changed either
-          results.push({ type: "unchanged", newBlock, oldBlock });
-        } else {
-          // something in the old block was removed
-          results.push({ type: "changed", newBlock, oldBlock });
-        }
-      } else {
-        if (newBlock.diffs.length < 2) {
-          throw new Error("expected multiple diffs to indicate a change");
-        }
-        const oldBlock = matchingOldBlocks.shift();
-        // TODO: comment / reason
-        if (!oldBlock) {
-          results.push({ type: "add", newBlock });
-        } else {
-          results.push({ type: "changed", newBlock, oldBlock });
-        }
-      }
-    }
-
-    for (const oldBlock of matchingOldBlocks) {
-      // delete remaining old blocks that also match the new block.
-      // in this case multiple old blocks have been changed to the new block, but
-      // we only want to use the first one in a "changed" operation
-      results.push({ type: "remove", oldBlock });
-    }
-  }
-
-  if (oldBlocks.length > 0) {
-    // throw new Error("Old blocks left over");
-  }
-
-  if (newBlocks.length > 0) {
-    // throw new Error("New blocks left over");
-  }*/
 
   return results;
 }

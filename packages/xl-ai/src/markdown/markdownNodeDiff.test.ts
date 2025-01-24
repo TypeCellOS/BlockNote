@@ -31,6 +31,18 @@ hello`;
     expect(diff).toMatchSnapshot();
   });
 
+  it("expand lines", async () => {
+    const md1 = `# titleworldhello`;
+
+    const md2 = `# title
+
+hello`;
+
+    const operations = await markdownNodeDiff(md1, md2);
+    const diff = await operationsToReadableString(operations);
+    expect(diff).toMatchSnapshot();
+  });
+
   it("add sentence at end", async () => {
     const md1 = `# title
 

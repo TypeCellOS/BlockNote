@@ -13,7 +13,11 @@ ADD: The introduction provides an overview of the document's purpose and structu
 
 ADD: ## Main Content
 
+ADD: The main content section contains the bulk of the information.
+
 ADD: ### Subsection 1
+
+ADD: Details about the first subsection are provided here.
 
 ADD: ### Subsection 2
 
@@ -51,9 +55,19 @@ ADD: The introduction provides an overview of the document's purpose and structu
 
 ADD: ## Main Content
 
+ADD: The main content section contains the bulk of the information.
+
 ADD: ### Subsection 1
 
+ADD: Details about the first subsection are provided here.
+
 CHANGED: ### Subsection 2
+
+ADD: Details about the second subsection are provided here.
+
+ADD: ## Conclusion
+
+ADD: The conclusion summarizes the key points discussed in the document.
 
 ADD: ## References
 
@@ -141,6 +155,13 @@ exports[`markdown AI util > collapse lines 1`] = `
 "CHANGED: # titleworldhello
 
 REMOVE: hello
+"
+`;
+
+exports[`markdown AI util > expand lines 1`] = `
+"CHANGED: # title
+
+ADD: hello
 "
 `;
 
