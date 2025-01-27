@@ -9,12 +9,6 @@ import {
 import { Node, Schema } from "prosemirror-model";
 // import "./blocknote.css";
 import * as Y from "yjs";
-import {
-  getBlock,
-  getNextBlock,
-  getParentBlock,
-  getPrevBlock,
-} from "../api/blockManipulation/getBlock/getBlock.js";
 import { insertBlocks } from "../api/blockManipulation/commands/insertBlocks/insertBlocks.js";
 import {
   moveBlocksDown,
@@ -29,15 +23,21 @@ import {
 import { removeBlocks } from "../api/blockManipulation/commands/removeBlocks/removeBlocks.js";
 import { replaceBlocks } from "../api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
 import { updateBlock } from "../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { insertContentAt } from "../api/blockManipulation/insertContentAt.js";
 import {
-  getTextCursorPosition,
-  setTextCursorPosition,
-} from "../api/blockManipulation/selections/textCursorPosition/textCursorPosition.js";
+  getBlock,
+  getNextBlock,
+  getParentBlock,
+  getPrevBlock,
+} from "../api/blockManipulation/getBlock/getBlock.js";
+import { insertContentAt } from "../api/blockManipulation/insertContentAt.js";
 import {
   getSelection,
   setSelection,
 } from "../api/blockManipulation/selections/selection.js";
+import {
+  getTextCursorPosition,
+  setTextCursorPosition,
+} from "../api/blockManipulation/selections/textCursorPosition/textCursorPosition.js";
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
@@ -89,11 +89,15 @@ import { en } from "../i18n/locales/index.js";
 
 import { Plugin, Transaction } from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
+import { EditorView } from "prosemirror-view";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
 import "../style.css";
-import { EditorView } from "prosemirror-view";
+
+export type BlockNoteExtensionFactory = (
+  editor: BlockNoteEditor<any, any, any>
+) => BlockNoteExtension;
 
 export type BlockNoteExtension =
   | AnyExtension
@@ -213,7 +217,7 @@ export type BlockNoteEditorOptions<
   /**
    * (experimental) add extra prosemirror plugins or tiptap extensions to the editor
    */
-  _extensions: Record<string, BlockNoteExtension>;
+  _extensions: Record<string, BlockNoteExtension | BlockNoteExtensionFactory>;
 
   trailingBlock?: boolean;
 
@@ -449,6 +453,10 @@ export class BlockNoteEditor<
 
     // add extensions from options
     Object.entries(newOptions._extensions || {}).forEach(([key, ext]) => {
+      if (typeof ext === "function") {
+        // factory
+        ext = ext(this);
+      }
       this.extensions[key] = ext;
     });
 
