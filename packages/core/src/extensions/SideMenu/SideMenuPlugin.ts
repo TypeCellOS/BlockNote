@@ -187,6 +187,11 @@ export class SideMenuView<
       this.onKeyDown as EventListener,
       true
     );
+
+    // Setting capture=true ensures that any parent container of the editor that
+    // gets scrolled will trigger the scroll event. Scroll events do not bubble
+    // and so won't propagate to the document by default.
+    pmView.root.addEventListener("scroll", this.onScroll, true);
   }
 
   updateState = (state: SideMenuState<BSchema, I, S>) => {
@@ -473,6 +478,13 @@ export class SideMenuView<
     return evt;
   }
 
+  onScroll = () => {
+    if (this.state?.show) {
+      this.state.referencePos = this.hoveredBlock!.getBoundingClientRect();
+      this.emitUpdate(this.state);
+    }
+  };
+
   // Needed in cases where the editor state updates without the mouse cursor
   // moving, as some state updates can require a side menu update. For example,
   // adding a button to the side menu which removes the block can cause the
@@ -515,6 +527,7 @@ export class SideMenuView<
       this.onKeyDown as EventListener,
       true
     );
+    this.pmView.root.removeEventListener("scroll", this.onScroll, true);
   }
 }
 
