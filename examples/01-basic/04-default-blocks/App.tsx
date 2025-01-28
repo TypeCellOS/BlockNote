@@ -138,13 +138,5 @@ export default function App() {
   });
 
   // Renders the editor instance using a React component.
-  return (
-    <div
-      style={{
-        height: "50vh",
-        overflow: "scroll",
-      }}>
-      <BlockNoteView editor={editor} />
-    </div>
-  );
+  return <BlockNoteView editor={editor} />;
 }
