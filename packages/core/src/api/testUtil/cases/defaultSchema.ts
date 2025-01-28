@@ -6,16 +6,22 @@ import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
 } from "../../../blocks/defaultBlocks.js";
+import {
+  pageBreakSchema,
+  withPageBreak,
+} from "../../../blocks/PageBreakBlockContent/schema.js";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import { BlockNoteSchema } from "../../../editor/BlockNoteSchema.js";
 
 export const defaultSchemaTestCases: EditorTestCases<
-  DefaultBlockSchema,
+  DefaultBlockSchema & typeof pageBreakSchema.blockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema
 > = {
   name: "default schema",
   createEditor: () => {
     return BlockNoteEditor.create({
+      schema: withPageBreak(BlockNoteSchema.create()),
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
     });
   },
@@ -199,6 +205,14 @@ export const defaultSchemaTestCases: EditorTestCases<
           type: "codeBlock",
           props: { language: "python" },
           content: "print('Hello, world!')",
+        },
+      ],
+    },
+    {
+      name: "pageBreak/basic",
+      blocks: [
+        {
+          type: "pageBreak",
         },
       ],
     },

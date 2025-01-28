@@ -1,4 +1,4 @@
-import { BlockNoteSchema } from "@blocknote/core";
+import { BlockNoteSchema, defaultBlockSpecs, PageBreak } from "@blocknote/core";
 import { testDocument } from "@shared/testDocument.js";
 import AdmZip from "adm-zip";
 import { Packer, Paragraph, TextRun } from "docx";
@@ -10,7 +10,9 @@ import { DOCXExporter } from "./docxExporter.js";
 describe("exporter", () => {
   it("should export a document", { timeout: 10000 }, async () => {
     const exporter = new DOCXExporter(
-      BlockNoteSchema.create(),
+      BlockNoteSchema.create({
+        blockSpecs: { ...defaultBlockSpecs, pageBreak: PageBreak },
+      }),
       docxDefaultSchemaMappings
     );
     const doc = await exporter.toDocxJsDocument(testDocument);
@@ -33,7 +35,9 @@ describe("exporter", () => {
     { timeout: 10000 },
     async () => {
       const exporter = new DOCXExporter(
-        BlockNoteSchema.create(),
+        BlockNoteSchema.create({
+          blockSpecs: { ...defaultBlockSpecs, pageBreak: PageBreak },
+        }),
         docxDefaultSchemaMappings
       );
 

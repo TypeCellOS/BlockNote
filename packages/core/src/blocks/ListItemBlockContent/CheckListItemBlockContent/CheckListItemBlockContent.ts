@@ -118,7 +118,7 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
   parseHTML() {
     return [
       {
-        tag: "div[data-content-type=" + this.name + "]", // TODO: remove if we can't come up with test case that needs this
+        tag: "div[data-content-type=" + this.name + "]",
       },
       // Checkbox only.
       {

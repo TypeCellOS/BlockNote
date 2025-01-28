@@ -79,7 +79,7 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
     return [
       // Case for regular HTML list structure.
       {
-        tag: "div[data-content-type=" + this.name + "]", // TODO: remove if we can't come up with test case that needs this
+        tag: "div[data-content-type=" + this.name + "]",
       },
       {
         tag: "li",

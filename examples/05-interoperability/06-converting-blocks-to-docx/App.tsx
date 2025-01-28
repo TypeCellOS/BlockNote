@@ -1,16 +1,30 @@
+import {
+  BlockNoteSchema,
+  combineByGroup,
+  filterSuggestionItems,
+  withPageBreak,
+} from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { useCreateBlockNote } from "@blocknote/react";
+import {
+  getDefaultReactSlashMenuItems,
+  getPageBreakReactSlashMenuItems,
+  SuggestionMenuController,
+  useCreateBlockNote,
+} from "@blocknote/react";
 import {
   DOCXExporter,
   docxDefaultSchemaMappings,
 } from "@blocknote/xl-docx-exporter";
+import { useMemo } from "react";
+
 import "./styles.css";
 
 export default function App() {
   // Creates a new editor instance with some initial content.
   const editor = useCreateBlockNote({
+    schema: withPageBreak(BlockNoteSchema.create()),
     initialContent: [
       {
         type: "paragraph",
@@ -176,6 +190,9 @@ export default function App() {
         },
       },
       {
+        type: "pageBreak",
+      },
+      {
         type: "file",
       },
       {
@@ -277,6 +294,15 @@ export default function App() {
           ],
         },
       },
+      {
+        type: "codeBlock",
+        props: {
+          language: "javascript",
+        },
+        content: `const helloWorld = (message) => {
+  console.log("Hello World", message);
+};`,
+      },
     ],
   });
 
@@ -296,6 +322,13 @@ export default function App() {
     window.URL.revokeObjectURL(link.href);
   };
 
+  const slashMenuItems = useMemo(() => {
+    return combineByGroup(
+      getDefaultReactSlashMenuItems(editor),
+      getPageBreakReactSlashMenuItems(editor)
+    );
+  }, [editor]);
+
   // Renders the editor instance, and its contents as HTML below.
   return (
     <div>
@@ -305,7 +338,14 @@ export default function App() {
         </button>
       </div>
       <div className="item">
-        <BlockNoteView editor={editor} />
+        <BlockNoteView editor={editor} slashMenu={false}>
+          <SuggestionMenuController
+            triggerCharacter={"/"}
+            getItems={async (query) =>
+              filterSuggestionItems(slashMenuItems, query)
+            }
+          />
+        </BlockNoteView>
       </div>
     </div>
   );

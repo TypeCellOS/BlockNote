@@ -50,6 +50,12 @@ export const is: Dictionary = {
       aliases: ["kóði", "pre"],
       group: "Grunnblokkar",
     },
+    page_break: {
+      title: "Síðubrot",
+      subtext: "Síðuskil",
+      aliases: ["page", "break", "separator", "síðubrot", "síðuskil"],
+      group: "Grunnblokkir",
+    },
     table: {
       title: "Tafla",
       subtext: "Notað fyrir töflur",
