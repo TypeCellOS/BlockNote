@@ -15,9 +15,13 @@ export const TooltipContent = (props: {
   secondaryTooltip?: string;
 }) => (
   <MantineStack gap={0} className={"bn-tooltip"}>
-    <MantineText size={"sm"}>{props.mainTooltip}</MantineText>
+    <MantineText size={"sm"} lineClamp={5}>
+      {props.mainTooltip}
+    </MantineText>
     {props.secondaryTooltip && (
-      <MantineText size={"xs"}>{props.secondaryTooltip}</MantineText>
+      <MantineText size={"xs"} lineClamp={5}>
+        {props.secondaryTooltip}
+      </MantineText>
     )}
   </MantineStack>
 );

@@ -549,6 +549,7 @@
   color: var(--bn-colors-tooltip-text);
   padding: 4px 10px;
   text-align: center;
+  white-space: pre-wrap;
 }
 
 /* Additional menu styles */
@@ -596,11 +597,48 @@
 .bn-mantine .bn-comment-actions-wrapper {
   width: 100%;
   display: flex;
-  align-items: flex-end;
   justify-content: flex-end;
 }
 
+.bn-mantine .bn-badge-group {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.bn-mantine .bn-badge {
+  flex-grow: 0;
+}
+
+.bn-mantine .bn-badge .mantine-Chip-label {
+
+  padding: 0 8px;
+}
+
+.bn-mantine .bn-badge .mantine-Chip-label:not([data-checked="true"]) {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  color: var(--bn-colors-menu-text);
+}
+
+.bn-mantine .bn-badge .mantine-Chip-label > span:not(.mantine-Chip-iconWrapper) {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.bn-mantine .bn-badge .mantine-Chip-label > span:not(.mantine-Chip-iconWrapper) > span {
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+}
+
+.bn-mantine .bn-badge .mantine-Chip-iconWrapper {
+  display: none;
+}
+
 .bn-mantine .bn-action-toolbar {
+  align-self: flex-end;
   background-color: var(--bn-colors-menu-background);
   border: var(--bn-border);
   border-radius: var(--bn-border-radius-medium);

@@ -304,7 +304,7 @@ export class YjsThreadStore extends ThreadStore {
       const reaction: CommentReactionData = {
         emoji: options.reaction,
         createdAt: date,
-        usersIds: [this.userId, "fesfes"],
+        usersIds: [this.userId],
       };
 
       yComment.get("reactions").push([reactionToYMap(reaction)]);

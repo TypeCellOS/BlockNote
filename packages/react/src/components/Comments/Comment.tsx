@@ -1,12 +1,9 @@
 "use client";
 
-import {
-  CommentData,
-  ThreadData,
-  mergeCSSClasses,
-  getDefaultEmojiPickerItems,
-  DefaultGridSuggestionItem,
-} from "@blocknote/core";
+import { CommentData, ThreadData, mergeCSSClasses } from "@blocknote/core";
+import data from "@emoji-mart/data";
+import Picker from "@emoji-mart/react";
+import type { EmojiData } from "emoji-mart";
 import {
   ComponentPropsWithoutRef,
   MouseEvent,
@@ -14,7 +11,6 @@ import {
   useCallback,
   useEffect,
   useState,
-  useRef,
 } from "react";
 import {
   RiArrowGoBackFill,
@@ -25,11 +21,11 @@ import {
   RiMoreFill,
 } from "react-icons/ri";
 
+import { useBlockNoteContext } from "../../editor/BlockNoteContext.js";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
 import { useDictionary } from "../../i18n/dictionary.js";
-import { GridSuggestionMenu } from "../SuggestionMenu/GridSuggestionMenu/GridSuggestionMenu.js";
 import { CommentEditor } from "./CommentEditor.js";
 import { schema } from "./schema.js";
 import { useUser } from "./useUsers.js";
@@ -325,15 +321,7 @@ export const Comment = ({
 
   const user = useUser(editor, comment.userId);
 
-  // TODO: Change emoji picker implementation to premade component?
-  const emojis = useRef<DefaultGridSuggestionItem[] | undefined>(undefined);
-  useEffect(() => {
-    const getEmojis = async () => {
-      emojis.current = await getDefaultEmojiPickerItems(editor, "");
-    };
-
-    getEmojis();
-  }, [editor]);
+  const blockNoteContext = useBlockNoteContext();
 
   if (!showDeleted && !comment.body) {
     return null;
@@ -365,18 +353,12 @@ export const Comment = ({
               </Components.Generic.Toolbar.Button>
             </Components.Generic.Popover.Trigger>
             <Components.Generic.Popover.Content variant={"form-popover"}>
-              {/* TODO: Change emoji picker implementation to premade component? */}
-              <GridSuggestionMenu
-                items={
-                  emojis.current?.map((item) => ({
-                    ...item,
-                    icon: <>{item.id}</>,
-                  })) || []
+              <Picker
+                data={data}
+                onEmojiSelect={(emoji: EmojiData) =>
+                  onReactionSelect(emoji.native)
                 }
-                loadingState={"loaded"}
-                selectedIndex={-1}
-                columns={6}
-                onItemClick={(item) => onReactionSelect(item.id)}
+                theme={blockNoteContext?.colorSchemePreference}
               />
             </Components.Generic.Popover.Content>
           </Components.Generic.Popover.Root>
@@ -443,73 +425,86 @@ export const Comment = ({
       timeString={timeString}
       showActions={showActions}
       actions={actions}>
-      {isEditing ? (
+      {comment.body ? (
         <>
           <CommentEditor
             editor={commentEditor}
             editable={true}
             actions={({ isEmpty }) => (
-              <Components.Generic.Toolbar.Root
-                variant="action-toolbar"
-                className={mergeCSSClasses(
-                  "bn-action-toolbar",
-                  "bn-comment-actions"
-                )}>
-                <Components.Generic.Toolbar.Button
-                  mainTooltip="Save"
-                  variant="compact"
-                  onClick={onEditSubmit}
-                  isDisabled={isEmpty}>
-                  Save
-                </Components.Generic.Toolbar.Button>
-                <Components.Generic.Toolbar.Button
-                  className={"bn-button"}
-                  mainTooltip="Cancel"
-                  variant="compact"
-                  onClick={onEditCancel}>
-                  Cancel
-                </Components.Generic.Toolbar.Button>
-              </Components.Generic.Toolbar.Root>
-            )}
-          />
-        </>
-      ) : comment.body ? (
-        <>
-          <CommentEditor
-            editor={commentEditor}
-            editable={false}
-            actions={
-              showReactions && comment.reactions.length > 0
-                ? () => (
-                    <Components.Generic.Badge.Group
-                      className={mergeCSSClasses(
-                        "bn-badge-group",
-                        "bn-comment-reactions"
-                      )}>
-                      {comment.reactions.map((reaction) => (
+              <>
+                {showReactions && comment.reactions.length > 0 && (
+                  <Components.Generic.Badge.Group
+                    className={mergeCSSClasses(
+                      "bn-badge-group",
+                      "bn-comment-reactions"
+                    )}>
+                    {comment.reactions.map((reaction) => (
+                      <Components.Generic.Badge.Root
+                        key={reaction.emoji}
+                        className={mergeCSSClasses(
+                          "bn-badge",
+                          "bn-comment-reaction"
+                        )}
+                        text={reaction.usersIds.length.toString()}
+                        icon={reaction.emoji}
+                        isSelected={user && reaction.usersIds.includes(user.id)}
+                        onClick={() => onReactionSelect(reaction.emoji)}
+                        mainTooltip={"Reacted by"}
+                        secondaryTooltip={`${reaction.usersIds.map(
+                          (userId) => userId + "\n"
+                        )}`}
+                      />
+                    ))}
+                    <Components.Generic.Popover.Root>
+                      <Components.Generic.Popover.Trigger>
                         <Components.Generic.Badge.Root
                           className={mergeCSSClasses(
                             "bn-badge",
-                            "bn-comment-reaction"
+                            "bn-comment-add-reaction"
                           )}
-                          text={reaction.usersIds.length.toString()}
-                          icon={reaction.emoji}
-                          isSelected={
-                            user && reaction.usersIds.includes(user.id)
+                          text={"+"}
+                          icon={<RiEmotionFill size={16} />}
+                        />
+                      </Components.Generic.Popover.Trigger>
+                      <Components.Generic.Popover.Content
+                        variant={"form-popover"}>
+                        <Picker
+                          data={data}
+                          onEmojiSelect={(emoji: EmojiData) =>
+                            onReactionSelect(emoji.native)
                           }
-                          onClick={() =>
-                            onReactionSelect(reaction.emoji)
-                          }></Components.Generic.Badge.Root>
-                      ))}
-                    </Components.Generic.Badge.Group>
-                  )
-                : undefined
-            }
+                          theme={blockNoteContext?.colorSchemePreference}
+                        />
+                      </Components.Generic.Popover.Content>
+                    </Components.Generic.Popover.Root>
+                  </Components.Generic.Badge.Group>
+                )}
+                {isEditing && (
+                  <Components.Generic.Toolbar.Root
+                    variant="action-toolbar"
+                    className={mergeCSSClasses(
+                      "bn-action-toolbar",
+                      "bn-comment-actions"
+                    )}>
+                    <Components.Generic.Toolbar.Button
+                      mainTooltip="Save"
+                      variant="compact"
+                      onClick={onEditSubmit}
+                      isDisabled={isEmpty}>
+                      Save
+                    </Components.Generic.Toolbar.Button>
+                    <Components.Generic.Toolbar.Button
+                      className={"bn-button"}
+                      mainTooltip="Cancel"
+                      variant="compact"
+                      onClick={onEditCancel}>
+                      Cancel
+                    </Components.Generic.Toolbar.Button>
+                  </Components.Generic.Toolbar.Root>
+                )}
+              </>
+            )}
           />
-
-          {showReactions && comment.reactions.length > 0 && (
-            <div className="bn-comment-reactions"></div>
-          )}
         </>
       ) : (
         // Soft deletes

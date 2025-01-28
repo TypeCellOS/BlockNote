@@ -190,6 +190,8 @@ export type ComponentProps = {
         text: string;
         icon?: ReactNode;
         isSelected?: boolean;
+        mainTooltip?: string;
+        secondaryTooltip?: string;
         onClick?: () => void;
       };
       Group: {
