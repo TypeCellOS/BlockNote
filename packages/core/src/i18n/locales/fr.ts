@@ -281,11 +281,11 @@ export const fr: Dictionary = {
       tooltip: "Basculer l'aperçu",
     },
     nest: {
-      tooltip: "Emboîter le bloc",
+      tooltip: "Augmenter le retrait du bloc",
       secondary_tooltip: "Tab",
     },
     unnest: {
-      tooltip: "Démboîter le bloc",
+      tooltip: "Diminuer le retait du bloc",
       secondary_tooltip: "Shift+Tab",
     },
     align_left: {
