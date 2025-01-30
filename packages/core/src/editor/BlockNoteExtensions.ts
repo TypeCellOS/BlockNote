@@ -253,7 +253,9 @@ const getTipTapExtensions = <
       })
     );
 
-    const awareness = opts.collaboration?.provider.awareness as Awareness;
+    const awareness = opts.collaboration?.provider?.awareness as
+      | Awareness
+      | undefined;
 
     if (awareness) {
       const cursors = new Map<
@@ -293,11 +295,11 @@ const getTipTapExtensions = <
         );
       }
 
-      const createCursor = (clientID: number, name: string, color: string) => {
+      const renderCursor = (user: { name: string; color: string }) => {
         const cursorElement = document.createElement("span");
 
         cursorElement.classList.add("collaboration-cursor__caret");
-        cursorElement.setAttribute("style", `border-color: ${color}`);
+        cursorElement.setAttribute("style", `border-color: ${user.color}`);
         if (opts.collaboration?.showCursorLabels === "always") {
           cursorElement.setAttribute("data-active", "");
         }
@@ -305,48 +307,17 @@ const getTipTapExtensions = <
         const labelElement = document.createElement("span");
 
         labelElement.classList.add("collaboration-cursor__label");
-        labelElement.setAttribute("style", `background-color: ${color}`);
-        labelElement.insertBefore(document.createTextNode(name), null);
+        labelElement.setAttribute("style", `background-color: ${user.color}`);
+        labelElement.insertBefore(document.createTextNode(user.name), null);
 
         cursorElement.insertBefore(document.createTextNode("\u2060"), null); // Non-breaking space
         cursorElement.insertBefore(labelElement, null);
         cursorElement.insertBefore(document.createTextNode("\u2060"), null); // Non-breaking space
 
-        cursors.set(clientID, {
-          element: cursorElement,
-          hideTimeout: undefined,
-        });
-
-        if (opts.collaboration?.showCursorLabels !== "always") {
-          cursorElement.addEventListener("mouseenter", () => {
-            const cursor = cursors.get(clientID)!;
-            cursor.element.setAttribute("data-active", "");
-
-            if (cursor.hideTimeout) {
-              clearTimeout(cursor.hideTimeout);
-              cursors.set(clientID, {
-                element: cursor.element,
-                hideTimeout: undefined,
-              });
-            }
-          });
-
-          cursorElement.addEventListener("mouseleave", () => {
-            const cursor = cursors.get(clientID)!;
-
-            cursors.set(clientID, {
-              element: cursor.element,
-              hideTimeout: setTimeout(() => {
-                cursor.element.removeAttribute("data-active");
-              }, 2000),
-            });
-          });
-        }
-
-        return cursors.get(clientID)!;
+        return cursorElement;
       };
 
-      const defaultRender = (user: { color: string; name: string }) => {
+      const render = (user: { color: string; name: string }) => {
         const clientState = [...awareness.getStates().entries()].find(
           (state) => state[1].user === user
         );
@@ -357,14 +328,53 @@ const getTipTapExtensions = <
 
         const clientID = clientState[0];
 
-        return (
-          cursors.get(clientID) || createCursor(clientID, user.name, user.color)
-        ).element;
+        let cursorData = cursors.get(clientID);
+
+        if (!cursorData) {
+          const cursorElement =
+            opts.collaboration?.renderCursor?.(user) || renderCursor(user);
+
+          if (opts.collaboration?.showCursorLabels !== "always") {
+            cursorElement.addEventListener("mouseenter", () => {
+              const cursor = cursors.get(clientID)!;
+              cursor.element.setAttribute("data-active", "");
+
+              if (cursor.hideTimeout) {
+                clearTimeout(cursor.hideTimeout);
+                cursors.set(clientID, {
+                  element: cursor.element,
+                  hideTimeout: undefined,
+                });
+              }
+            });
+
+            cursorElement.addEventListener("mouseleave", () => {
+              const cursor = cursors.get(clientID)!;
+
+              cursors.set(clientID, {
+                element: cursor.element,
+                hideTimeout: setTimeout(() => {
+                  cursor.element.removeAttribute("data-active");
+                }, 2000),
+              });
+            });
+          }
+
+          cursorData = {
+            element: cursorElement,
+            hideTimeout: undefined,
+          };
+
+          cursors.set(clientID, cursorData);
+        }
+
+        return cursorData.element;
       };
+
       tiptapExtensions.push(
         CollaborationCursor.configure({
           user: opts.collaboration.user,
-          render: opts.collaboration.renderCursor || defaultRender,
+          render,
           provider: opts.collaboration.provider,
         })
       );
