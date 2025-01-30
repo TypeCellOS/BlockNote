@@ -34,9 +34,10 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import "@blocknote/xl-ai/style.css";
-import { Group } from "@mantine/core";
+import { Fieldset, Switch } from "@mantine/core";
 import { useMemo, useState } from "react";
 import { BasicAutocomplete } from "./AutoComplete.js";
+import RadioGroupComponent from "./components/RadioGroupComponent.js";
 
 const schema = BlockNoteSchema.create({
   blockSpecs: {
@@ -82,13 +83,41 @@ export default function App() {
     throw new Error(`Unknown model: ${aiModelString}`);
   }, [aiModelString]);
 
-  debugger;
+  const [dataFormat, setDataFormat] = useState<"json" | "md">("json");
+  let [stream, setStream] = useState(true);
+
+  if (dataFormat === "md") {
+    stream = false;
+  }
+
   // Renders the editor instance using a React component.
   return (
     <div>
-      <Group style={{ maxWidth: "500px" }}>
+      <Fieldset legend="Model settings" style={{ maxWidth: "500px" }}>
         <BasicAutocomplete value={aiModelString} onChange={setAiModelString} />
-      </Group>
+
+        <RadioGroupComponent
+          label="Data format"
+          items={[
+            { name: "JSON", description: "JSON format", value: "json" },
+            { name: "Markdown", description: "Markdown format", value: "md" },
+          ]}
+          value={dataFormat}
+          onChange={(value) => setDataFormat(value as "json" | "md")}
+        />
+
+        <Switch
+          checked={stream}
+          disabled={dataFormat === "md"}
+          onChange={(e) => setStream(e.target.checked)}
+          label="Streaming"
+        />
+
+        {/* <Group justify="flex-end" mt="md">
+        <Button>Submit</Button>
+      </Group> */}
+      </Fieldset>
+
       <BlockNoteView
         editor={editor}
         formattingToolbar={false}
@@ -141,4 +170,7 @@ function SuggestionMenu(props: { editor: BlockNoteEditor<any, any, any> }) {
  * Action specific:
  * - messages
  * - prompt
+ * - context
+ * - based on selection
+ *
  */

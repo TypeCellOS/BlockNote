@@ -1,20 +1,20 @@
 import { useBlockNoteEditor } from "@blocknote/react";
 import { useCallback, useMemo, useState } from "react";
-import { callLLMStreamingMD } from "../../api/executor/executor";
+import { llm } from "../../api/index.js";
 // import { useAIDictionary } from "../../i18n/useAIDictionary";
 import { BlockNoteEditor } from "@blocknote/core";
-import { useAIDictionary } from "../../i18n/useAIDictionary";
+import { useAIDictionary } from "../../i18n/useAIDictionary.js";
 import {
   BlockNoteAIContextValue,
   useBlockNoteAIContext,
-} from "../BlockNoteAIContext";
-import { PromptSuggestionMenu } from "./PromptSuggestionMenu";
+} from "../BlockNoteAIContext.js";
+import { PromptSuggestionMenu } from "./PromptSuggestionMenu.js";
 import {
   AIMenuSuggestionItem,
   getDefaultAIActionMenuItems,
   getDefaultAIAddMenuItems,
   getDefaultAIEditMenuItems,
-} from "./getDefaultAIMenuItems";
+} from "./getDefaultAIMenuItems.js";
 
 export const AIMenu = (props: {
   items?: (
@@ -69,7 +69,7 @@ export const AIMenu = (props: {
   const onManualPromptSubmitDefault = useCallback(
     async (prompt: string) => {
       setAIResponseStatus("generating");
-      await callLLMStreamingMD(editor, {
+      await llm.markdown.call(editor, {
         prompt,
         model: ctx.model,
       });

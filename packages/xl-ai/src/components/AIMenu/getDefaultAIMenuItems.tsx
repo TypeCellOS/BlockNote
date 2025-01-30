@@ -17,8 +17,8 @@ import {
   RiText,
   RiTextWrap,
 } from "react-icons/ri";
-import { callLLMStreaming } from "../../api/executor/executor.js";
 import { addFunction } from "../../api/functions/add.js";
+import { llm } from "../../api/index.js";
 import { getAIDictionary } from "../../i18n/dictionary.js";
 import { BlockNoteAIContextValue } from "../BlockNoteAIContext.js";
 
@@ -50,8 +50,8 @@ export function getDefaultAIAddMenuItems<
       title: dict.ai_menu.continue_writing.title,
       aliases: dict.ai_menu.continue_writing.aliases,
       icon: <RiBallPenLine size={18} />,
-      onItemClick: () => {
-        callLLMStreaming(editor, {
+      onItemClick: async () => {
+        await llm.json.call(editor, {
           model: contextValue.model,
           prompt: "Continue writing",
           // By default, LLM will be able to add / update / delete blocks. For "continue writing", we only want to allow adding new blocks.
@@ -70,7 +70,7 @@ export function getDefaultAIAddMenuItems<
         // setPrompt(dict.ai_menu.summarize.prompt_placeholder);
         contextValue.setPrevDocument(editor.document);
         setAIResponseStatus("generating");
-        await callLLMStreaming(editor, {
+        await llm.json.call(editor, {
           model: contextValue.model,
           prompt: "Summarize",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
