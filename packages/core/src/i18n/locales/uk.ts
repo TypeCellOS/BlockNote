@@ -233,13 +233,13 @@ export const uk: Dictionary = {
           secondary_tooltip: "Shift+Tab",
         },
         align_left: {
-          tooltip: "Вирівняти ліворуч",
+          tooltip: "Вирівняти за лівим краєм",
         },
         align_center: {
           tooltip: "Вирівняти по центру",
         },
         align_right: {
-          tooltip: "Вирівняти праворуч",
+          tooltip: "Вирівняти за правим краєм",
         },
         align_justify: {
           tooltip: "Вирівняти за шириною",
