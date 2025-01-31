@@ -27,7 +27,7 @@ export const uk: Dictionary = {
           group: "Базові блоки",
         },
         bullet_list: {
-          title: "Маркірований список",
+          title: "Маркований список",
           subtext: "Список із невпорядкованими елементами",
           aliases: ["ul", "li", "list", "bulletlist", "bullet list"],
           group: "Базові блоки",
