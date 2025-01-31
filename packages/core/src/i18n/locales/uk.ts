@@ -126,8 +126,8 @@ export const uk: Dictionary = {
       table_handle: {
         delete_column_menuitem: "Видалити стовпець",
         delete_row_menuitem: "Видалити рядок",
-        add_left_menuitem: "Додати стовпець зліва",
-        add_right_menuitem: "Додати стовпець справа",
+        add_left_menuitem: "Додати стовпець ліворуч",
+        add_right_menuitem: "Додати стовпець праворуч",
         add_above_menuitem: "Додати рядок вище",
         add_below_menuitem: "Додати рядок нижче",
       },
