@@ -61,9 +61,16 @@ function applyOperation(
       idsAdded[idsAdded.length - 1],
       "after"
     );
-    return [...idsAdded, ...ret.map((block) => block.id)];
+    return {
+      operationContext: [...idsAdded, ...ret.map((block) => block.id)],
+      lastAffectedBlockId: ret[ret.length - 1],
+    };
   }
-  return idsAdded;
+  return {
+    operationContext: idsAdded,
+    lastAffectedBlockId:
+      idsAdded.length > 0 ? idsAdded[idsAdded.length - 1] : undefined,
+  };
 }
 
 function validateOperation(

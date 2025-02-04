@@ -2,8 +2,6 @@
 
 # dependencies
 node_modules
-dist
-packages/*/types
 examples/*/types
 /.pnp
 .pnp.js
