@@ -41,6 +41,11 @@ function getProviderInfo(provider: string) {
       key: process.env.GROQ_API_KEY,
     };
   }
+  if (provider === "albert-etalab") {
+    return {
+      key: process.env.ALBERT_ETALAB_API_KEY,
+    };
+  }
   return "not-found";
 }
 

@@ -47,7 +47,8 @@
     "build": "tsc && vite build",
     "lint": "eslint src --max-warnings 0",
     "test": "vitest --run",
-    "test-watch": "vitest watch"
+    "test-watch": "vitest watch",
+    "_prepare": "npm run build"
   },
   "dependencies": {
     "@blocknote/core": "^0.23.0",

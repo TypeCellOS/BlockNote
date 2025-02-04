@@ -3,6 +3,7 @@ import { Decoration, DecorationSet } from "prosemirror-view";
 
 const PLUGIN_KEY = new PluginKey(`blocknote-ai-show-selection`);
 
+// TODO: only enable when needed
 export class AIShowSelectionPlugin {
   public readonly plugin: Plugin;
 

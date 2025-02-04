@@ -47,7 +47,8 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint src --max-warnings 0",
-    "clean": "rimraf dist && rimraf types"
+    "clean": "rimraf dist && rimraf types",
+    "_prepare": "npm run build"
   },
   "dependencies": {
     "@ariakit/react": "^0.4.3",
