@@ -77,7 +77,7 @@ app.use("/ai", cors(), async (c) => {
 serve(
   {
     fetch: app.fetch,
-    createServer: createSecureServer,
+    createServer: existsSync("localhost.pem") ? createSecureServer : undefined,
 
     serverOptions: {
       key: existsSync("localhost-key.pem")
