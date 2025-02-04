@@ -64,7 +64,12 @@ app.use("/ai", cors(), async (c) => {
   const providerInfo = getProviderInfo(provider);
 
   if (providerInfo === "not-found" || !providerInfo.key?.length) {
-    return c.json({ error: "provider / key not found" }, 404);
+    return c.json(
+      {
+        error: `provider / key not found for provider ${provider}. Make sure to load correct env variables.`,
+      },
+      404
+    );
   }
 
   // eslint-disable-next-line no-console
@@ -74,23 +79,22 @@ app.use("/ai", cors(), async (c) => {
   return proxyFetch(request);
 });
 
+const http2 = existsSync("localhost.pem");
 serve(
   {
     fetch: app.fetch,
-    createServer: existsSync("localhost.pem") ? createSecureServer : undefined,
+    createServer: http2 ? createSecureServer : undefined,
 
     serverOptions: {
-      key: existsSync("localhost-key.pem")
-        ? readFileSync("localhost-key.pem")
-        : undefined,
-      cert: existsSync("localhost.pem")
-        ? readFileSync("localhost.pem")
-        : undefined,
+      key: http2 ? readFileSync("localhost-key.pem") : undefined,
+      cert: http2 ? readFileSync("localhost.pem") : undefined,
     },
     port: Number(process.env.PORT) || 3000,
   },
   (info) => {
     // eslint-disable-next-line no-console
-    console.log(`Server is running on ${info.address}${info.port}`);
+    console.log(
+      `Server is running on ${info.address}${info.port}, http2: ${http2}`
+    );
   }
 );

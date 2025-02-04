@@ -44,7 +44,12 @@ export function validateBlockFunction(
       return false;
     }
   } else {
-    if (!block.content || !Array.isArray(block.content)) {
+    if (!block.content) {
+      // return false;
+      return true; // this is ok for update operations where we only update the type
+    }
+
+    if (!Array.isArray(block.content)) {
       // content expected for this block
       return false;
     }

@@ -97,6 +97,30 @@ describe.each([
       // expect(await response.object).toMatchSnapshot();
     });
 
+    it("changes block type (paragraph -> heading)", async () => {
+      const editor = createEditor([
+        {
+          type: "paragraph",
+          content: "Hello",
+        },
+        {
+          type: "paragraph",
+          content: "World",
+        },
+      ]);
+
+      await callLLM(editor, {
+        prompt: "change first paragraph to a heading",
+        model: params.model,
+      });
+
+      // Add assertions here to check if the document was correctly translated
+      // For example:
+      matchFileSnapshot(editor.document);
+
+      // expect(await response.object).toMatchSnapshot();
+    });
+
     it("changes simple formatting (paragraph)", async () => {
       const editor = createEditor([
         {
