@@ -17,7 +17,7 @@ export function useUIElementPositioning(
   show: boolean,
   referencePos: DOMRect | HTMLElement | VirtualElement | null,
   zIndex: number,
-  options?: Partial<UseFloatingOptions>
+  options?: Partial<UseFloatingOptions & { canDismiss: boolean }>
 ) {
   const { refs, update, context, floatingStyles } = useFloating({
     open: show,
@@ -27,7 +27,7 @@ export function useUIElementPositioning(
 
   // handle "escape" and other dismiss events, these will add some listeners to
   // getFloatingProps which need to be attached to the floating element
-  const dismiss = useDismiss(context);
+  const dismiss = useDismiss(context, { enabled: options?.canDismiss });
 
   const { getReferenceProps, getFloatingProps } = useInteractions([dismiss]);
 

@@ -39,6 +39,7 @@ export const BlockPositioner = (props: {
     reference,
     3000,
     {
+      canDismiss: false,
       placement: "bottom",
       middleware: [
         offset(10),
