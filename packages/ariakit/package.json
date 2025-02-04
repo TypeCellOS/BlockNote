@@ -48,7 +48,7 @@
     "preview": "vite preview",
     "lint": "eslint src --max-warnings 0",
     "clean": "rimraf dist && rimraf types",
-    "prepare": "npm run build"
+    "_prepare": "npm run build"
   },
   "dependencies": {
     "@ariakit/react": "^0.4.3",

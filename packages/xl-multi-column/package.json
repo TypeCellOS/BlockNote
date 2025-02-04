@@ -43,7 +43,7 @@
     "test": "vitest",
     "test-watch": "vitest watch",
     "clean": "rimraf dist && rimraf types",
-    "prepare": "npm run build"
+    "_prepare": "npm run build"
   },
   "dependencies": {
     "@blocknote/core": "^0.23.0",

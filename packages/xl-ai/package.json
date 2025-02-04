@@ -48,7 +48,7 @@
     "clean": "rimraf dist && rimraf types",
     "test": "NODE_EXTRA_CA_CERTS=\"$(mkcert -CAROOT)/rootCA.pem\" vitest --run",
     "test-watch": "vitest watch",
-    "prepare": "npm run build"
+    "_prepare": "npm run build"
   },
   "dependencies": {
     "@ewoudenberg/difflib": "^0.1.0",
