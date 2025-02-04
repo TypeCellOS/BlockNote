@@ -92,6 +92,7 @@ export function BlockNoteAIContextProvider(
           });
         } else {
           if (options.functions) {
+            // eslint-disable-next-line no-console
             console.warn(
               "functions are not supported for markdown, ignoring them"
             );
@@ -103,6 +104,7 @@ export function BlockNoteAIContextProvider(
       } catch (e) {
         setAIResponseStatus("initial");
         setPrevDocument(undefined);
+        // eslint-disable-next-line no-console
         console.error(e);
       }
     },

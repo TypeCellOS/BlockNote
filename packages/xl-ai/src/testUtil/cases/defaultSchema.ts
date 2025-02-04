@@ -4,7 +4,7 @@ import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
 } from "@blocknote/core";
-import { EditorTestCases } from "../index";
+import { EditorTestCases } from "../index.js";
 
 export const defaultSchemaTestCases: EditorTestCases<
   DefaultBlockSchema,

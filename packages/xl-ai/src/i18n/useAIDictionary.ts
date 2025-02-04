@@ -1,6 +1,6 @@
 import { useBlockNoteContext } from "@blocknote/react";
 
-import { getAIDictionary } from "./dictionary";
+import { getAIDictionary } from "./dictionary.js";
 
 export function useAIDictionary() {
   const ctx = useBlockNoteContext();

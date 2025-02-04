@@ -14,6 +14,8 @@ export function executeAIOperation(
 ) {
   const func = functions.find((func) => func.schema.name === operation.type);
   if (!func || !func.validate(operation, editor, options)) {
+    // TODO?
+    // eslint-disable-next-line no-console
     console.log("INVALID OPERATION", operation);
     return operationContext;
   }

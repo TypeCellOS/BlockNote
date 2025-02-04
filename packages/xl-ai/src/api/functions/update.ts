@@ -62,7 +62,8 @@ function validateOperation(
   const block = editor.getBlock(id);
 
   if (!block) {
-    console.log("BLOCK NOT FOUND", id);
+    // eslint-disable-next-line no-console
+    console.error("BLOCK NOT FOUND", id);
     return false;
   }
 

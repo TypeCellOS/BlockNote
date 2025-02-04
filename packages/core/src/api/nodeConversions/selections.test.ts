@@ -1,8 +1,7 @@
 import { TextSelection } from "prosemirror-state";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor";
-
-import { PartialBlock } from "../../blocks/defaultBlocks";
+import { PartialBlock } from "../../blocks/defaultBlocks.js";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 // These tests are meant to test the copying of user selections in the editor.
 // The test cases used for the other HTML conversion tests are not suitable here
@@ -259,6 +258,8 @@ describe("Test ProseMirror selection HTML conversion", () => {
   ];
 
   for (const testCase of testCases) {
+    // (TODO?)
+    // eslint-disable-next-line jest/valid-title
     it(testCase.testName, () => {
       testSelection(testCase.testName, testCase.startPos, testCase.endPos);
     });

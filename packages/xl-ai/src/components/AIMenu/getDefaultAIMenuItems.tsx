@@ -77,6 +77,8 @@ export function getDefaultAIMenuItemsWithoutSelection<
       aliases: dict.ai_menu.add_action_items.aliases,
       icon: <RiListCheck3 size={18} />,
       onItemClick: () => {
+        // TODO
+        // eslint-disable-next-line no-console
         console.log("ADD ACTION ITEMS");
       },
       size: "small",
@@ -112,6 +114,8 @@ export function getDefaultAIMenuItemsWithSelection<
       aliases: dict.ai_menu.improve_writing.aliases,
       icon: <RiText size={18} />,
       onItemClick: () => {
+        // TODO
+        // eslint-disable-next-line no-console
         console.log("MAKE SHORTER");
       },
       size: "small",
@@ -122,6 +126,8 @@ export function getDefaultAIMenuItemsWithSelection<
       aliases: dict.ai_menu.fix_spelling.aliases,
       icon: <RiCheckLine size={18} />,
       onItemClick: () => {
+        // TODO
+        // eslint-disable-next-line no-console
         console.log("FIX SPELLING");
       },
       size: "small",
@@ -142,6 +148,8 @@ export function getDefaultAIMenuItemsWithSelection<
       aliases: dict.ai_menu.simplify.aliases,
       icon: <RiMagicLine size={18} />,
       onItemClick: () => {
+        // TODO
+        // eslint-disable-next-line no-console
         console.log("SIMPLIFY");
       },
       size: "small",

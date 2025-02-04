@@ -2,8 +2,8 @@ import { afterEach, beforeEach, describe, it } from "vitest";
 
 import { BlockNoteEditor } from "@blocknote/core";
 
-import { defaultSchemaTestCases } from "../../testUtil/cases/defaultSchema";
-import { blockNoteSchemaToJSONSchema } from "./schemaToJSONSchema";
+import { defaultSchemaTestCases } from "../../testUtil/cases/defaultSchema.js";
+import { blockNoteSchemaToJSONSchema } from "./schemaToJSONSchema.js";
 
 const testCases = [defaultSchemaTestCases];
 
@@ -34,6 +34,7 @@ describe("Test BlockNote-Prosemirror conversion", () => {
       });
 
       it.only("creates json schema", async () => {
+        // eslint-disable-next-line no-console
         console.log(JSON.stringify(blockNoteSchemaToJSONSchema(editor.schema)));
         // }
       });

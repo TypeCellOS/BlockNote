@@ -266,6 +266,8 @@ describe("Test ProseMirror selection HTML conversion", () => {
   // });
 
   for (const testCase of testCases) {
+    // (TODO?)
+    // eslint-disable-next-line jest/valid-title
     it(testCase.testName, () => {
       testSelection(testCase.testName, testCase.startPos, testCase.endPos);
     });

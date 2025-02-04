@@ -63,6 +63,7 @@ app.use("/ai", cors(), async (c) => {
     return c.json({ error: "provider / key not found" }, 404);
   }
 
+  // eslint-disable-next-line no-console
   console.log("Proxying request to", url);
   const request = new Request(url, c.req.raw);
   request.headers.set("Authorization", `Bearer ${providerInfo.key}`);
@@ -80,6 +81,7 @@ serve(
     },
   },
   (info) => {
+    // eslint-disable-next-line no-console
     console.log(`Server is running on ${info.address}${info.port}`);
   }
 );

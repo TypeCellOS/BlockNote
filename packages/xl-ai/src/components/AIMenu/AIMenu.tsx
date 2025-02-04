@@ -29,15 +29,17 @@ export const AIMenu = (props: {
 
   const ctx = useBlockNoteAIContext();
 
+  const { aiResponseStatus } = ctx;
+  const { items: externalItems } = props;
   // note, technically there might be a bug with this useMemo when quickly changing the selection and opening the menu
   // would not call getDefaultAIMenuItems with the correct selection, because the component is reused and the memo not retriggered
   // practically this should not happen (you can test it by using a high transition duration in useUIElementPositioning)
   const items = useMemo(() => {
     let items: AIMenuSuggestionItem[] = [];
-    if (props.items) {
-      items = props.items(editor, ctx, ctx.aiResponseStatus);
+    if (externalItems) {
+      items = externalItems(editor, ctx, aiResponseStatus);
     } else {
-      if (ctx.aiResponseStatus === "initial") {
+      if (aiResponseStatus === "initial") {
         items = editor.getSelection()
           ? getDefaultAIMenuItemsWithSelection(editor)
           : getDefaultAIMenuItemsWithoutSelection(editor, ctx);
@@ -55,7 +57,7 @@ export const AIMenu = (props: {
         },
       };
     });
-  }, [props, props.items, ctx.aiResponseStatus, editor, ctx]);
+  }, [externalItems, aiResponseStatus, editor, ctx]);
 
   const onManualPromptSubmitDefault = useCallback(
     async (prompt: string) => {
@@ -68,10 +70,10 @@ export const AIMenu = (props: {
 
   useEffect(() => {
     // TODO: this is a bit hacky to run a useeffect to reset the prompt when the AI response is done
-    if (ctx.aiResponseStatus === "done") {
+    if (aiResponseStatus === "done") {
       setPrompt("");
     }
-  }, [ctx.aiResponseStatus]);
+  }, [aiResponseStatus]);
 
   return (
     <PromptSuggestionMenu
@@ -82,11 +84,11 @@ export const AIMenu = (props: {
       promptText={prompt}
       onPromptTextChange={setPrompt}
       placeholder={
-        ctx.aiResponseStatus === "generating"
+        aiResponseStatus === "generating"
           ? "Generating..."
           : dict.formatting_toolbar.ai.input_placeholder
       }
-      disabled={ctx.aiResponseStatus === "generating"}
+      disabled={aiResponseStatus === "generating"}
     />
   );
 };
