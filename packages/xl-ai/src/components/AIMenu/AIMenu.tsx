@@ -41,7 +41,7 @@ export const AIMenu = (props: {
     } else {
       if (aiResponseStatus === "initial") {
         items = editor.getSelection()
-          ? getDefaultAIMenuItemsWithSelection(editor)
+          ? getDefaultAIMenuItemsWithSelection(editor, ctx)
           : getDefaultAIMenuItemsWithoutSelection(editor, ctx);
       } else if (ctx.aiResponseStatus === "done") {
         items = getDefaultAIActionMenuItems(editor, ctx);

@@ -17,6 +17,7 @@ import {
   RiTextWrap,
 } from "react-icons/ri";
 import { addFunction } from "../../api/functions/add.js";
+import { updateFunction } from "../../api/functions/update.js";
 import { getAIDictionary } from "../../i18n/dictionary.js";
 import { BlockNoteAIContextValue } from "../BlockNoteAIContext.js";
 
@@ -76,10 +77,12 @@ export function getDefaultAIMenuItemsWithoutSelection<
       title: dict.ai_menu.add_action_items.title,
       aliases: dict.ai_menu.add_action_items.aliases,
       icon: <RiListCheck3 size={18} />,
-      onItemClick: () => {
-        // TODO
-        // eslint-disable-next-line no-console
-        console.log("ADD ACTION ITEMS");
+      onItemClick: async () => {
+        await contextValue.callLLM({
+          prompt: "Add action items",
+          // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
+          functions: [addFunction],
+        });
       },
       size: "small",
     },
@@ -104,7 +107,10 @@ export function getDefaultAIMenuItemsWithSelection<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
->(editor: BlockNoteEditor<BSchema, I, S>): AIMenuSuggestionItem[] {
+>(
+  editor: BlockNoteEditor<BSchema, I, S>,
+  contextValue: BlockNoteAIContextValue
+): AIMenuSuggestionItem[] {
   const dict = getAIDictionary(editor);
 
   return [
@@ -113,10 +119,12 @@ export function getDefaultAIMenuItemsWithSelection<
       title: dict.ai_menu.improve_writing.title,
       aliases: dict.ai_menu.improve_writing.aliases,
       icon: <RiText size={18} />,
-      onItemClick: () => {
-        // TODO
-        // eslint-disable-next-line no-console
-        console.log("MAKE SHORTER");
+      onItemClick: async () => {
+        await contextValue.callLLM({
+          prompt: "Improve writing",
+          // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
+          functions: [updateFunction],
+        });
       },
       size: "small",
     },
@@ -125,10 +133,12 @@ export function getDefaultAIMenuItemsWithSelection<
       title: dict.ai_menu.fix_spelling.title,
       aliases: dict.ai_menu.fix_spelling.aliases,
       icon: <RiCheckLine size={18} />,
-      onItemClick: () => {
-        // TODO
-        // eslint-disable-next-line no-console
-        console.log("FIX SPELLING");
+      onItemClick: async () => {
+        await contextValue.callLLM({
+          prompt: "Fix spelling",
+          // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
+          functions: [updateFunction],
+        });
       },
       size: "small",
     },
@@ -147,10 +157,12 @@ export function getDefaultAIMenuItemsWithSelection<
       title: dict.ai_menu.simplify.title,
       aliases: dict.ai_menu.simplify.aliases,
       icon: <RiMagicLine size={18} />,
-      onItemClick: () => {
-        // TODO
-        // eslint-disable-next-line no-console
-        console.log("SIMPLIFY");
+      onItemClick: async () => {
+        await contextValue.callLLM({
+          prompt: "Simplify",
+          // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
+          functions: [updateFunction],
+        });
       },
       size: "small",
     },
