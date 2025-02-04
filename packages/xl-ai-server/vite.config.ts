@@ -1,4 +1,3 @@
-import react from "@vitejs/plugin-react";
 import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
 import { defineConfig } from "vite";
@@ -11,7 +10,7 @@ export default defineConfig((conf) => ({
     environment: "jsdom",
     setupFiles: ["./vitestSetup.ts"],
   },
-  plugins: [react(), webpackStats()],
+  plugins: [webpackStats()],
   // used so that vitest resolves the core package from the sources instead of the built version
   resolve: {
     alias:
