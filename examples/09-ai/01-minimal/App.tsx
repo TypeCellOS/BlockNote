@@ -44,8 +44,10 @@ const schema = BlockNoteSchema.create({
 });
 
 const client = createBlockNoteAIClient({
-  apiKey: "PLACEHOLDER",
-  baseURL: "https://localhost:3000/ai",
+  apiKey: import.meta.env.VITE_BLOCKNOTE_AI_SERVER_API_KEY || "PLACEHOLDER",
+  baseURL:
+    import.meta.env.VITE_BLOCKNOTE_AI_SERVER_BASE_URL ||
+    "https://localhost:3000/ai",
 });
 
 export default function App() {
