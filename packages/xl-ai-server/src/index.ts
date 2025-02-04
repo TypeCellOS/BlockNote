@@ -46,6 +46,10 @@ function getProviderInfo(provider: string) {
 
 const app = new Hono();
 
+app.use("/health", async (c) => {
+  return c.json({ status: "ok" });
+});
+
 app.use("/ai", cors(), async (c) => {
   const url = c.req.query("url");
   if (!url) {
@@ -83,6 +87,7 @@ serve(
         ? readFileSync("localhost.pem")
         : undefined,
     },
+    port: Number(process.env.PORT) || 3000,
   },
   (info) => {
     // eslint-disable-next-line no-console
