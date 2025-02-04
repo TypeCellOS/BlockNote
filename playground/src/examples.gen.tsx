@@ -14,10 +14,7 @@
           "author": "matthewlipski",
           "tags": [
             "Basic"
-          ],
-          "dependencies": {
-            "@blocknote/xl-ai": "latest"
-          } as any
+          ]
         },
         "title": "Basic Setup",
         "group": {
