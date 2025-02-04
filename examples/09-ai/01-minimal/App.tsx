@@ -1,11 +1,8 @@
 import {
-  AIBlock,
-  AIBlockToolbarProsemirrorPlugin,
-  AIButton,
   AIShowSelectionPlugin,
+  AIToolbarButton,
   BlockNoteAIContextProvider,
   BlockNoteAIUI,
-  aiBlockTypeSelectItems,
   locales as aiLocales,
   createBlockNoteAIClient,
   getAISlashMenuItems,
@@ -42,7 +39,7 @@ import RadioGroupComponent from "./components/RadioGroupComponent.js";
 const schema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
-    ai: AIBlock,
+    // ai: AIBlock,
   },
 });
 
@@ -64,7 +61,7 @@ export default function App() {
     } as any,
     _extensions: {
       // TODO: things will break when user provides different keys. Define name on plugins instead?
-      aiBlockToolbar: new AIBlockToolbarProsemirrorPlugin(),
+      // aiBlockToolbar: new AIBlockToolbarProsemirrorPlugin(),
       aiSelection: new AIShowSelectionPlugin(),
     },
   });
@@ -115,10 +112,6 @@ export default function App() {
           onChange={(e) => setStream(e.target.checked)}
           label="Streaming"
         />
-
-        {/* <Group justify="flex-end" mt="md">
-        <Button>Submit</Button>
-      </Group> */}
       </Fieldset>
 
       <BlockNoteView
@@ -136,9 +129,9 @@ export default function App() {
               <FormattingToolbar>
                 {...getFormattingToolbarItems([
                   ...blockTypeSelectItems(editor.dictionary),
-                  ...aiBlockTypeSelectItems(aiLocales.en),
+                  // ...aiBlockTypeSelectItems(aiLocales.en),
                 ])}
-                <AIButton />
+                <AIToolbarButton />
               </FormattingToolbar>
             )}
           />
@@ -159,7 +152,7 @@ function SuggestionMenu(props: { editor: BlockNoteEditor<any, any, any> }) {
         filterSuggestionItems(
           [
             ...getDefaultReactSlashMenuItems(props.editor),
-            ...getAISlashMenuItems(props.editor as any, ctx), // TODO
+            ...getAISlashMenuItems(props.editor, ctx),
           ],
           query
         )
@@ -169,15 +162,13 @@ function SuggestionMenu(props: { editor: BlockNoteEditor<any, any, any> }) {
 }
 
 /**
- * Global options:
- * - model
- * - format (md, json)
- * - stream / non-stream
+ * - correct commands
+ * - FIX UI
  *
- * Action specific:
- * - messages
- * - prompt
- * - context
+ * API:
+ * - context (which part of document to pass along)
  * - based on selection
+ *
+ * - box with proposal
  *
  */

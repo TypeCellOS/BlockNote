@@ -1,15 +1,12 @@
 import {
   BlockNoteEditor,
   BlockSchema,
-  checkBlockTypeInSchema,
   InlineContentSchema,
-  insertOrUpdateBlock,
   StyleSchema,
 } from "@blocknote/core";
 import { DefaultReactSuggestionItem } from "@blocknote/react";
 import { RiSparkling2Fill } from "react-icons/ri";
 
-import { aiBlockConfig } from "../../blocks/AIBlockContent/AIBlockContent.js";
 import { getAIDictionary } from "../../i18n/dictionary.js";
 import { BlockNoteAIContextValue } from "../BlockNoteAIContext.js";
 
@@ -17,6 +14,9 @@ const Icons = {
   AI: RiSparkling2Fill,
 };
 
+/**
+ * Returns AI related items that can be added to the slash menu
+ */
 export function getAISlashMenuItems<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -46,18 +46,18 @@ export function getAISlashMenuItems<
     },
   ];
 
-  if (checkBlockTypeInSchema(aiBlockConfig, editor)) {
-    items.push({
-      key: "ai_block",
-      onItemClick: () => {
-        insertOrUpdateBlock(editor, {
-          type: "ai",
-        });
-      },
-      ...getAIDictionary(editor).slash_menu.ai_block,
-      icon: <Icons.AI />,
-    });
-  }
+  // if (checkBlockTypeInSchema(aiBlockConfig, editor)) {
+  //   items.push({
+  //     key: "ai_block",
+  //     onItemClick: () => {
+  //       insertOrUpdateBlock(editor, {
+  //         type: "ai",
+  //       });
+  //     },
+  //     ...getAIDictionary(editor).slash_menu.ai_block,
+  //     icon: <Icons.AI />,
+  //   });
+  // }
 
   return items;
 }

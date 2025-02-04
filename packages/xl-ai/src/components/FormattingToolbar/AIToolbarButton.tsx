@@ -4,11 +4,10 @@ import { RiSparkling2Fill } from "react-icons/ri";
 
 import { useBlockNoteEditor } from "@blocknote/react";
 
-import { useAIDictionary } from "../../../i18n/useAIDictionary.js";
-import { useBlockNoteAIContext } from "../../BlockNoteAIContext.js";
+import { useAIDictionary } from "../../i18n/useAIDictionary.js";
+import { useBlockNoteAIContext } from "../BlockNoteAIContext.js";
 
-// TODO: name?
-export const AIButton = () => {
+export const AIToolbarButton = () => {
   const dict = useAIDictionary();
   const Components = useComponentsContext()!;
   const ctx = useBlockNoteAIContext();

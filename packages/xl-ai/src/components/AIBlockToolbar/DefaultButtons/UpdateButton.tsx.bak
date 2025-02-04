@@ -6,10 +6,10 @@ import {
 import { useComponentsContext } from "@blocknote/react";
 
 import { useBlockNoteEditor } from "@blocknote/react";
-import { aiBlockConfig } from "../../../blocks/AIBlockContent/AIBlockContent.js";
+import { aiBlockConfig } from "../../../blocks/AIBlock.tsx.bak";
 import { mockAIReplaceBlockContent } from "../../../blocks/AIBlockContent/mockAIFunctions.js";
 import { useAIDictionary } from "../../../i18n/useAIDictionary.js";
-import { AIBlockToolbarProps } from "../AIBlockToolbarProps.js";
+import { AIBlockToolbarProps } from "../AIBlockToolbarProps.ts.bak";
 
 export const UpdateButton = (
   props: AIBlockToolbarProps & {

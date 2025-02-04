@@ -1,5 +1,5 @@
 import { useBlockNoteEditor } from "@blocknote/react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 // import { useAIDictionary } from "../../i18n/useAIDictionary";
 import { BlockNoteEditor } from "@blocknote/core";
 import { useAIDictionary } from "../../i18n/useAIDictionary.js";
@@ -11,8 +11,8 @@ import { PromptSuggestionMenu } from "./PromptSuggestionMenu.js";
 import {
   AIMenuSuggestionItem,
   getDefaultAIActionMenuItems,
-  getDefaultAIAddMenuItems,
-  getDefaultAIEditMenuItems,
+  getDefaultAIMenuItemsWithSelection,
+  getDefaultAIMenuItemsWithoutSelection,
 } from "./getDefaultAIMenuItems.js";
 
 export const AIMenu = (props: {
@@ -25,9 +25,6 @@ export const AIMenu = (props: {
 }) => {
   const editor = useBlockNoteEditor();
   const [prompt, setPrompt] = useState("");
-  const [aiResponseStatus, setAIResponseStatus] = useState<
-    "initial" | "generating" | "done"
-  >("initial");
   const dict = useAIDictionary();
 
   const ctx = useBlockNoteAIContext();
@@ -38,13 +35,13 @@ export const AIMenu = (props: {
   const items = useMemo(() => {
     let items: AIMenuSuggestionItem[] = [];
     if (props.items) {
-      items = props.items(editor, ctx, aiResponseStatus);
+      items = props.items(editor, ctx, ctx.aiResponseStatus);
     } else {
-      if (aiResponseStatus === "initial") {
+      if (ctx.aiResponseStatus === "initial") {
         items = editor.getSelection()
-          ? getDefaultAIEditMenuItems(editor)
-          : getDefaultAIAddMenuItems(editor, ctx);
-      } else if (aiResponseStatus === "done") {
+          ? getDefaultAIMenuItemsWithSelection(editor)
+          : getDefaultAIMenuItemsWithoutSelection(editor, ctx);
+      } else if (ctx.aiResponseStatus === "done") {
         items = getDefaultAIActionMenuItems(editor, ctx);
       }
     }
@@ -54,27 +51,27 @@ export const AIMenu = (props: {
       return {
         ...item,
         onItemClick: () => {
-          item.onItemClick(setPrompt, (aiResponseStatus) => {
-            setAIResponseStatus(aiResponseStatus);
-            if (aiResponseStatus === "initial") {
-              ctx.setAiMenuBlockID(undefined);
-            }
-          });
+          item.onItemClick(setPrompt);
         },
       };
     });
-  }, [props.items, aiResponseStatus, editor, ctx]);
+  }, [props, props.items, ctx.aiResponseStatus, editor, ctx]);
 
   const onManualPromptSubmitDefault = useCallback(
     async (prompt: string) => {
-      setAIResponseStatus("generating");
       await ctx.callLLM({
         prompt,
       });
-      setAIResponseStatus("done");
     },
     [ctx]
   );
+
+  useEffect(() => {
+    // TODO: this is a bit hacky to run a useeffect to reset the prompt when the AI response is done
+    if (ctx.aiResponseStatus === "done") {
+      setPrompt("");
+    }
+  }, [ctx.aiResponseStatus]);
 
   return (
     <PromptSuggestionMenu
@@ -85,11 +82,11 @@ export const AIMenu = (props: {
       promptText={prompt}
       onPromptTextChange={setPrompt}
       placeholder={
-        aiResponseStatus === "generating"
+        ctx.aiResponseStatus === "generating"
           ? "Generating..."
           : dict.formatting_toolbar.ai.input_placeholder
       }
-      disabled={aiResponseStatus === "generating"}
+      disabled={ctx.aiResponseStatus === "generating"}
     />
   );
 };

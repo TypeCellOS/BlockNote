@@ -61,10 +61,9 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
     [onPromptTextChange, setInternalPromptText, promptText]
   );
 
-  const items: DefaultReactSuggestionItem[] = useMemo(
-    () => filterSuggestionItems(props.items, promptTextToUse),
-    [promptTextToUse, props.items]
-  );
+  const items: DefaultReactSuggestionItem[] = useMemo(() => {
+    return filterSuggestionItems(props.items, promptTextToUse);
+  }, [promptTextToUse, props.items]);
 
   const { selectedIndex, setSelectedIndex, handler } =
     useSuggestionMenuKeyboardHandler(items, (item) => item.onItemClick());
@@ -95,6 +94,8 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
     <div className={"bn-combobox"}>
       <Components.Generic.Form.Root>
         <Components.Generic.Form.TextInput
+          // Change the key when disabled change, so that autofocus is retriggered
+          key={"input-" + props.disabled}
           className={"bn-combobox-input"}
           name={"ai-prompt"}
           variant={"large"}

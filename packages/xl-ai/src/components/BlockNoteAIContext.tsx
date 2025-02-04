@@ -29,6 +29,10 @@ export type BlockNoteAIContextValue = {
   callLLM: (options: CallSpecificCallLLMOptions) => Promise<any>; // TODO: figure out return value
   aiMenuBlockID: ReturnType<typeof useState<string | undefined>>[0];
   setAiMenuBlockID: ReturnType<typeof useState<string | undefined>>[1];
+  aiResponseStatus: "initial" | "generating" | "done";
+  setAIResponseStatus: (
+    aiResponseStatus: "initial" | "generating" | "done"
+  ) => void;
   prevDocument: ReturnType<
     typeof useState<Block<any, any, any>[] | undefined>
   >[0];
@@ -69,18 +73,37 @@ export function BlockNoteAIContextProvider(
 
   const { model, dataFormat, stream } = globalLLMCallOptions;
 
+  const [aiResponseStatus, setAIResponseStatus] = useState<
+    "initial" | "generating" | "done"
+  >("initial");
+
   // We provide a function that uses the global options to call LLM functions
   const callLLM = useCallback(
     async (options: CallSpecificCallLLMOptions) => {
-      if (dataFormat === "json") {
-        return llm.json.call(editor, { model, stream, ...options });
-      } else {
-        if (options.functions) {
-          console.warn(
-            "functions are not supported for markdown, ignoring them"
-          );
+      setPrevDocument(editor.document);
+      setAIResponseStatus("generating");
+      let ret: any;
+      try {
+        if (dataFormat === "json") {
+          ret = await llm.json.call(editor, {
+            model,
+            stream,
+            ...options,
+          });
+        } else {
+          if (options.functions) {
+            console.warn(
+              "functions are not supported for markdown, ignoring them"
+            );
+          }
+          ret = await llm.markdown.call(editor, { model, ...options });
         }
-        return llm.markdown.call(editor, { model, ...options });
+        setAIResponseStatus("done");
+        return ret;
+      } catch (e) {
+        setAIResponseStatus("initial");
+        setPrevDocument(undefined);
+        console.error(e);
       }
     },
     [model, dataFormat, stream, editor]
@@ -95,6 +118,8 @@ export function BlockNoteAIContextProvider(
         setAiMenuBlockID,
         prevDocument,
         setPrevDocument,
+        aiResponseStatus,
+        setAIResponseStatus,
       }}>
       {props.children}
     </BlockNoteAIContext.Provider>

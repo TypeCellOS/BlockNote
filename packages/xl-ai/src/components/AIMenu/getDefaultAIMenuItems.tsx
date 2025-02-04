@@ -12,7 +12,6 @@ import {
   RiCheckLine,
   RiEarthLine,
   RiListCheck3,
-  RiLoopLeftFill,
   RiMagicLine,
   RiText,
   RiTextWrap,
@@ -25,15 +24,14 @@ export type AIMenuSuggestionItem = Omit<
   DefaultReactSuggestionItem,
   "onItemClick"
 > & {
-  onItemClick: (
-    setPrompt: (prompt: string) => void,
-    setAIResponseStatus: (
-      aiResponseStatus: "initial" | "generating" | "done"
-    ) => void
-  ) => void;
+  onItemClick: (setPrompt: (prompt: string) => void) => void;
 };
 
-export function getDefaultAIAddMenuItems<
+/**
+ * Default items we show in the AI Menu when there is no selection active.
+ * For example, when the AI menu is triggered via the slash menu
+ */
+export function getDefaultAIMenuItemsWithoutSelection<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
@@ -64,16 +62,12 @@ export function getDefaultAIAddMenuItems<
       title: dict.ai_menu.summarize.title,
       aliases: dict.ai_menu.summarize.aliases,
       icon: <RiTextWrap size={18} />,
-      onItemClick: async (_setPrompt, setAIResponseStatus) => {
-        // setPrompt(dict.ai_menu.summarize.prompt_placeholder);
-        contextValue.setPrevDocument(editor.document);
-        setAIResponseStatus("generating");
+      onItemClick: async () => {
         await contextValue.callLLM({
           prompt: "Summarize",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
           functions: [addFunction],
         });
-        setAIResponseStatus("done");
       },
       size: "small",
     },
@@ -100,7 +94,11 @@ export function getDefaultAIAddMenuItems<
   ];
 }
 
-export function getDefaultAIEditMenuItems<
+/**
+ * Default items we show in the AI Menu when there is a selection active.
+ * For example, when the AI menu is triggered via formatting toolbar (AIToolbarButton)
+ */
+export function getDefaultAIMenuItemsWithSelection<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
@@ -151,6 +149,9 @@ export function getDefaultAIEditMenuItems<
   ];
 }
 
+/**
+ * Default items we show in the AI Menu when the AI response is done.
+ */
 export function getDefaultAIActionMenuItems<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -170,19 +171,21 @@ export function getDefaultAIActionMenuItems<
       onItemClick: (_setPrompt) => {
         contextValue.setAiMenuBlockID(undefined);
         contextValue.setPrevDocument(undefined);
+        contextValue.setAIResponseStatus("initial");
       },
       size: "small",
     },
-    {
-      key: "retry",
-      title: dict.ai_menu.retry.title,
-      aliases: dict.ai_menu.retry.aliases,
-      icon: <RiLoopLeftFill size={18} />,
-      onItemClick: () => {
-        console.log("RETRY");
-      },
-      size: "small",
-    },
+    // TODO: retry UX
+    // {
+    //   key: "retry",
+    //   title: dict.ai_menu.retry.title,
+    //   aliases: dict.ai_menu.retry.aliases,
+    //   icon: <RiLoopLeftFill size={18} />,
+    //   onItemClick: () => {
+    //     console.log("RETRY");
+    //   },
+    //   size: "small",
+    // },
     {
       key: "revert",
       title: dict.ai_menu.revert.title,
@@ -192,6 +195,7 @@ export function getDefaultAIActionMenuItems<
         editor.replaceBlocks(editor.document, contextValue.prevDocument as any);
         contextValue.setAiMenuBlockID(undefined);
         contextValue.setPrevDocument(undefined);
+        contextValue.setAIResponseStatus("initial");
       },
       size: "small",
     },

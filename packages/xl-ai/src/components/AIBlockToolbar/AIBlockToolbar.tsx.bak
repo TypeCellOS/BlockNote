@@ -1,9 +1,9 @@
 import { useComponentsContext } from "@blocknote/react";
 import { ReactNode, useState } from "react";
 
-import { AIBlockToolbarProps } from "./AIBlockToolbarProps";
-import { ShowPromptButton } from "./DefaultButtons/ShowPromptButton";
-import { UpdateButton } from "./DefaultButtons/UpdateButton";
+import { AIBlockToolbarProps } from "./AIBlockToolbarProps.ts.bak";
+import { ShowPromptButton } from "./DefaultButtons/ShowPromptButton.tsx.bak";
+import { UpdateButton } from "./DefaultButtons/UpdateButton.tsx.bak";
 
 export const getAIBlockToolbarItems = (
   props: AIBlockToolbarProps & {
