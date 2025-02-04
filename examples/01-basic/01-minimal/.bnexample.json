@@ -2,8 +2,5 @@
   "playground": true,
   "docs": true,
   "author": "matthewlipski",
-  "tags": ["Basic"],
-  "dependencies": {
-    "@blocknote/xl-ai": "latest"
-  }
+  "tags": ["Basic"]
 }

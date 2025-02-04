@@ -22,12 +22,12 @@ beforeAll(() => {
       updateSnapshots: "missing",
       // ignoreSnapshots: true,
       basePath: path.resolve(__dirname, "__msw_snapshots__"),
-      onFetchFromSnapshot(info, snapshot) {
-        // console.log("onFetchFromSnapshot", info, snapshot);
-      },
-      onFetchFromServer(info, snapshot) {
-        // console.log("onFetchFromServer", info, snapshot);
-      },
+      // onFetchFromSnapshot(info, snapshot) {
+      //   // console.log("onFetchFromSnapshot", info, snapshot);
+      // },
+      // onFetchFromServer(info, snapshot) {
+      //   // console.log("onFetchFromServer", info, snapshot);
+      // },
     })
   );
   server.listen();
@@ -94,7 +94,7 @@ describe.each([
         },
       ]);
 
-      const response = await callLLM(editor, {
+      await callLLM(editor, {
         stream: params.stream,
         model: params.model,
         prompt: "translate existing document to german",
@@ -121,7 +121,7 @@ describe.each([
         },
       ]);
 
-      const response = await callLLM(editor, {
+      await callLLM(editor, {
         stream: params.stream,
         prompt: "change first paragraph to bold",
         model: params.model,
@@ -142,7 +142,7 @@ describe.each([
         },
       ]);
 
-      const response = await callLLM(editor, {
+      await callLLM(editor, {
         stream: params.stream,
         prompt: "change first word to bold",
         model: params.model,
@@ -168,7 +168,7 @@ describe.each([
           content: "World",
         },
       ]);
-      const response = await callLLM(editor, {
+      await callLLM(editor, {
         stream: params.stream,
         prompt: "delete the first sentence",
         model: params.model,
@@ -188,7 +188,7 @@ describe.each([
           content: "Hello",
         },
       ]);
-      const response = await callLLM(editor, {
+      await callLLM(editor, {
         prompt: "Add a sentence with `Test` before the first sentence",
         model: params.model,
         stream: params.stream,
@@ -206,7 +206,7 @@ describe.each([
           content: "Hello",
         },
       ]);
-      const response = await callLLM(editor, {
+      await callLLM(editor, {
         stream: params.stream,
         prompt: "Add a paragraph with `Test` after the first paragraph",
         model: params.model,

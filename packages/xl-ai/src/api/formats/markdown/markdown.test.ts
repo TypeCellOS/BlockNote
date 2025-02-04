@@ -2,7 +2,6 @@ import { afterEach, beforeAll, describe, expect, it } from "vitest";
 
 import { BlockNoteEditor, PartialBlock } from "@blocknote/core";
 
-import { createGroq } from "@ai-sdk/groq";
 import { createOpenAI } from "@ai-sdk/openai";
 import { snapshot } from "msw-snapshot";
 import { setupServer } from "msw/node";
@@ -22,12 +21,12 @@ beforeAll(() => {
       updateSnapshots: "missing",
       ignoreSnapshots: false,
       basePath: path.resolve(__dirname, "__msw_snapshots__"),
-      onFetchFromSnapshot(info, snapshot) {
-        // console.log("onFetchFromSnapshot", info, snapshot);
-      },
-      onFetchFromServer(info, snapshot) {
-        // console.log("onFetchFromServer", info, snapshot);
-      },
+      // onFetchFromSnapshot(info, snapshot) {
+      //   // console.log("onFetchFromSnapshot", info, snapshot);
+      // },
+      // onFetchFromServer(info, snapshot) {
+      //   // console.log("onFetchFromServer", info, snapshot);
+      // },
     })
   );
   server.listen();
@@ -38,9 +37,9 @@ const client = createBlockNoteAIClient({
   apiKey: "PLACEHOLDER",
 });
 
-const groq = createGroq({
-  ...client.getProviderSettings("groq"),
-})("llama-3.1-70b-versatile");
+// const groq = createGroq({
+//   ...client.getProviderSettings("groq"),
+// })("llama-3.1-70b-versatile");
 
 const openai = createOpenAI({
   ...client.getProviderSettings("openai"),
@@ -84,7 +83,7 @@ describe.each([
         },
       ]);
 
-      const response = await callLLM(editor, {
+      await callLLM(editor, {
         model: params.model,
         prompt: "translate existing document to german",
       });
@@ -110,7 +109,7 @@ describe.each([
         },
       ]);
 
-      const response = await callLLM(editor, {
+      await callLLM(editor, {
         prompt: "change first paragraph to bold",
         model: params.model,
       });
@@ -130,7 +129,7 @@ describe.each([
         },
       ]);
 
-      const response = await callLLM(editor, {
+      await callLLM(editor, {
         prompt: "change first word to bold",
         model: params.model,
       });
@@ -155,7 +154,7 @@ describe.each([
           content: "World",
         },
       ]);
-      const response = await callLLM(editor, {
+      await callLLM(editor, {
         prompt: "delete the first sentence",
         model: params.model,
       });
@@ -174,7 +173,7 @@ describe.each([
           content: "Hello",
         },
       ]);
-      const response = await callLLM(editor, {
+      await callLLM(editor, {
         prompt: "Add a single sentence with `Test` before the first sentence",
         model: params.model,
       });
@@ -191,7 +190,7 @@ describe.each([
           content: "Hello",
         },
       ]);
-      const response = await callLLM(editor, {
+      await callLLM(editor, {
         prompt: "Add a paragraph with `Test` after the first paragraph",
         model: params.model,
       });
