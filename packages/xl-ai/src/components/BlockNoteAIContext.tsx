@@ -1,10 +1,32 @@
 import { Block } from "@blocknote/core";
 import { useBlockNoteEditor } from "@blocknote/react";
 import { LanguageModel } from "ai";
-import { createContext, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useState } from "react";
+import { PromptOrMessages, llm } from "../api/index.js";
+
+// parameters that are shared across all calls and can be configured on the context as "application wide" settings
+type GlobalLLMCallOptions = {
+  model: LanguageModel;
+} & (
+  | {
+      dataFormat?: "json";
+      stream?: boolean;
+    }
+  | {
+      dataFormat?: "markdown";
+      stream?: false;
+    }
+);
+
+// parameters that are specific to each call
+type CallSpecificCallLLMOptions = Omit<
+  Parameters<typeof llm.json.call>[1] & Parameters<typeof llm.markdown.call>[1],
+  "model" | "stream" | "prompt" | "messages"
+> &
+  PromptOrMessages;
 
 export type BlockNoteAIContextValue = {
-  model: LanguageModel;
+  callLLM: (options: CallSpecificCallLLMOptions) => Promise<any>; // TODO: figure out return value
   aiMenuBlockID: ReturnType<typeof useState<string | undefined>>[0];
   setAiMenuBlockID: ReturnType<typeof useState<string | undefined>>[1];
   prevDocument: ReturnType<
@@ -13,7 +35,7 @@ export type BlockNoteAIContextValue = {
   setPrevDocument: ReturnType<
     typeof useState<Block<any, any, any>[] | undefined>
   >[1];
-};
+} & GlobalLLMCallOptions;
 
 export const BlockNoteAIContext = createContext<
   BlockNoteAIContextValue | undefined
@@ -31,12 +53,13 @@ export function useBlockNoteAIContext(): BlockNoteAIContextValue {
   return context;
 }
 
-export function BlockNoteAIContextProvider(props: {
-  model: LanguageModel;
-  children: React.ReactNode;
-}) {
+export function BlockNoteAIContextProvider(
+  props: {
+    children: React.ReactNode;
+  } & GlobalLLMCallOptions
+) {
   const editor = useBlockNoteEditor();
-
+  const { children, ...globalLLMCallOptions } = props;
   const [aiMenuBlockID, setAiMenuBlockID] = useState<string | undefined>(
     undefined
   );
@@ -44,10 +67,30 @@ export function BlockNoteAIContextProvider(props: {
     Block<any, any, any>[] | undefined
   >(editor.document);
 
+  const { model, dataFormat, stream } = globalLLMCallOptions;
+
+  // We provide a function that uses the global options to call LLM functions
+  const callLLM = useCallback(
+    async (options: CallSpecificCallLLMOptions) => {
+      if (dataFormat === "json") {
+        return llm.json.call(editor, { model, stream, ...options });
+      } else {
+        if (options.functions) {
+          console.warn(
+            "functions are not supported for markdown, ignoring them"
+          );
+        }
+        return llm.markdown.call(editor, { model, ...options });
+      }
+    },
+    [model, dataFormat, stream, editor]
+  );
+
   return (
     <BlockNoteAIContext.Provider
       value={{
-        model: props.model,
+        ...globalLLMCallOptions,
+        callLLM,
         aiMenuBlockID,
         setAiMenuBlockID,
         prevDocument,

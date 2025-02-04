@@ -1,6 +1,5 @@
 import { useBlockNoteEditor } from "@blocknote/react";
 import { useCallback, useMemo, useState } from "react";
-import { llm } from "../../api/index.js";
 // import { useAIDictionary } from "../../i18n/useAIDictionary";
 import { BlockNoteEditor } from "@blocknote/core";
 import { useAIDictionary } from "../../i18n/useAIDictionary.js";
@@ -69,13 +68,12 @@ export const AIMenu = (props: {
   const onManualPromptSubmitDefault = useCallback(
     async (prompt: string) => {
       setAIResponseStatus("generating");
-      await llm.markdown.call(editor, {
+      await ctx.callLLM({
         prompt,
-        model: ctx.model,
       });
       setAIResponseStatus("done");
     },
-    [editor]
+    [ctx]
   );
 
   return (

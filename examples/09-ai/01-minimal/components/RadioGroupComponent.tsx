@@ -21,7 +21,7 @@ const RadioGroupComponent: React.FC<RadioGroupComponentProps> = ({
   <Radio.Group label={label} value={value} onChange={onChange}>
     <Stack pt="md" gap="xs">
       {items.map((item) => (
-        <Radio value={item.value} label={item.name} />
+        <Radio value={item.value} label={item.name} key={item.value} />
         // TODO: doesn't work well with our mantive version or styles
         // <Radio.Card
         //   className={styles.root}

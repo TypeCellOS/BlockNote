@@ -6,16 +6,9 @@ import { executeAIOperation } from "../../executor/executor.js";
 import { addFunction } from "../../functions/add.js";
 import { deleteFunction } from "../../functions/delete.js";
 import { updateFunction } from "../../functions/update.js";
+import type { PromptOrMessages } from "../../index.js";
 import { promptManipulateDocumentUseMarkdown } from "../../prompts/markdownPrompts.js";
 import { trimArray } from "../../util/trimArray.js";
-
-type PromptOrMessages =
-  | {
-      prompt: string;
-    }
-  | {
-      messages: Array<CoreMessage>;
-    };
 
 type BasicLLMRequestOptions = {
   model: LanguageModel;

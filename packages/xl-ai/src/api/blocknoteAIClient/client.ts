@@ -12,7 +12,9 @@ const fetchViaBlockNoteAIServer =
       )}&url=${encodeURIComponent(request.url)}`,
       {
         headers: request.headers,
-        body: request.body,
+        // if we just pass request.body, it's a readablestream which is not visible in chrome inspector,
+        // so use init?.body instead if it's available to make debugging easier
+        body: init?.body || request.body,
         method: request.method,
         duplex: "half",
       } as any

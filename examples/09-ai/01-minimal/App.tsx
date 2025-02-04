@@ -74,21 +74,20 @@ export default function App() {
     if (provider === "openai") {
       return createOpenAI({
         ...client.getProviderSettings("openai"),
-      })("gpt-4o-2024-08-06", {});
+      })(modelName, {});
     } else if (provider === "groq") {
       return createGroq({
         ...client.getProviderSettings("groq"),
-      })("llama-3.1-70b-versatile");
+      })(modelName);
     }
     throw new Error(`Unknown model: ${aiModelString}`);
   }, [aiModelString]);
 
-  const [dataFormat, setDataFormat] = useState<"json" | "md">("json");
-  let [stream, setStream] = useState(true);
+  const [dataFormat, setDataFormat] = useState<"json" | "markdown">("json");
 
-  if (dataFormat === "md") {
-    stream = false;
-  }
+  const [streamStateValue, setStream] = useState(true);
+
+  const stream = dataFormat === "markdown" ? false : streamStateValue;
 
   // Renders the editor instance using a React component.
   return (
@@ -100,15 +99,19 @@ export default function App() {
           label="Data format"
           items={[
             { name: "JSON", description: "JSON format", value: "json" },
-            { name: "Markdown", description: "Markdown format", value: "md" },
+            {
+              name: "Markdown",
+              description: "Markdown format",
+              value: "markdown",
+            },
           ]}
           value={dataFormat}
-          onChange={(value) => setDataFormat(value as "json" | "md")}
+          onChange={(value) => setDataFormat(value as "json" | "markdown")}
         />
 
         <Switch
           checked={stream}
-          disabled={dataFormat === "md"}
+          disabled={dataFormat === "markdown"}
           onChange={(e) => setStream(e.target.checked)}
           label="Streaming"
         />
@@ -122,7 +125,11 @@ export default function App() {
         editor={editor}
         formattingToolbar={false}
         slashMenu={false}>
-        <BlockNoteAIContextProvider model={model}>
+        <BlockNoteAIContextProvider
+          model={model}
+          dataFormat={dataFormat}
+          // TODO: doesn't work well with typings
+          stream={streamStateValue as any}>
           <BlockNoteAIUI />
           <FormattingToolbarController
             formattingToolbar={() => (

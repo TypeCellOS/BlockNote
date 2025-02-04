@@ -1,11 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import {
-  CoreMessage,
-  LanguageModel,
-  generateObject,
-  jsonSchema,
-  streamObject,
-} from "ai";
+import { LanguageModel, generateObject, jsonSchema, streamObject } from "ai";
 
 import {
   executeAIOperation,
@@ -15,20 +9,10 @@ import { addFunction } from "../../functions/add.js";
 import { deleteFunction } from "../../functions/delete.js";
 import { AIFunction } from "../../functions/index.js";
 import { updateFunction } from "../../functions/update.js";
+import type { PromptOrMessages } from "../../index.js";
 import { promptManipulateDocumentUseJSONSchema } from "../../prompts/jsonSchemaPrompts.js";
 import { createOperationsArraySchema } from "../../schema/operations.js";
 import { blockNoteSchemaToJSONSchema } from "../../schema/schemaToJSONSchema.js";
-
-// TODO: makes sense?
-type PromptOrMessages =
-  | {
-      prompt: string;
-      messages?: never;
-    }
-  | {
-      prompt?: never;
-      messages: Array<CoreMessage>;
-    };
 
 type BasicLLMRequestOptions = {
   model: LanguageModel;
