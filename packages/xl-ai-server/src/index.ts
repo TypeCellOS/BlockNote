@@ -1,7 +1,7 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { createSecureServer } from "node:http2";
 import { Agent, setGlobalDispatcher } from "undici";
 
@@ -76,8 +76,12 @@ serve(
     createServer: createSecureServer,
 
     serverOptions: {
-      key: readFileSync("localhost-key.pem"),
-      cert: readFileSync("localhost.pem"),
+      key: existsSync("localhost-key.pem")
+        ? readFileSync("localhost-key.pem")
+        : undefined,
+      cert: existsSync("localhost.pem")
+        ? readFileSync("localhost.pem")
+        : undefined,
     },
   },
   (info) => {
