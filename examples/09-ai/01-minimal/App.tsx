@@ -69,7 +69,8 @@ export default function App() {
   });
 
   const model = useMemo(() => {
-    const [provider, modelName] = aiModelString.split("/");
+    const [provider, ...modelNameParts] = aiModelString.split("/");
+    const modelName = modelNameParts.join("/");
     if (provider === "openai") {
       return createOpenAI({
         ...client.getProviderSettings("openai"),
@@ -77,6 +78,13 @@ export default function App() {
     } else if (provider === "groq") {
       return createGroq({
         ...client.getProviderSettings("groq"),
+      })(modelName);
+    } else if (provider === "albert-etalab") {
+      return createOpenAI({
+        // albert-etalab/neuralmagic/Meta-Llama-3.1-70B-Instruct-FP8
+        baseURL: "https://albert.api.staging.etalab.gouv.fr/v1",
+        ...client.getProviderSettings("albert-etalab"),
+        compatibility: "compatible",
       })(modelName);
     }
     throw new Error(`Unknown model: ${aiModelString}`);
