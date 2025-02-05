@@ -275,12 +275,17 @@ export class SideMenuView<
   };
 
   onDrop = (event: DragEvent) => {
+    // Content from outside a BlockNote editor is being dropped - just let
+    // ProseMirror's default behaviour handle it.
     if (this.pmView.dragging === null) {
       return;
     }
 
     this.editor._tiptapEditor.commands.blur();
 
+    // Right now, multiple editors on the same page are only supported when
+    // `sideMenuDetection === "editor"`, so we only need to handle cases where
+    // blocks are dragged & dropped between editors then.
     if (this.sideMenuDetection === "editor") {
       // When ProseMirror handles a drop event on the editor while
       // `view.dragging` is set, it deletes the selected content. However, if
@@ -323,8 +328,10 @@ export class SideMenuView<
         );
       }
 
-      // PM only clears `dragging` on the editor that the block was dropped, so
-      // we manually have to clear it on all the others.
+      // PM only clears `view.dragging` on the editor that the block was
+      // dropped, so we manually have to clear it on all the others. However,
+      // PM also needs to read `view.dragging` while handling the event, so we
+      // use a `setTimeout` to ensure it's only cleared after that.
       setTimeout(() => (this.pmView.dragging = null), 0);
 
       return;
