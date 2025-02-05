@@ -234,7 +234,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
   },
 
   image: async (block, exporter) => {
-    const { Buffer } = await import("buffer");
+    const Buffer = (await import("buffer")).Buffer;
     const blob = await exporter.resolveFile(block.props.url);
     const arrayBuffer = await blob.arrayBuffer();
     const base64 = Buffer.from(arrayBuffer).toString("base64");
