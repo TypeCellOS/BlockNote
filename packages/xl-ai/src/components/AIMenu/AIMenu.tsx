@@ -63,9 +63,10 @@ export const AIMenu = (props: {
     async (prompt: string) => {
       await ctx.callLLM({
         prompt,
+        useSelection: editor.getSelection() !== undefined,
       });
     },
-    [ctx]
+    [ctx, editor]
   );
 
   useEffect(() => {

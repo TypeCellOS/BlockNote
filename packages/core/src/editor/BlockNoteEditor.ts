@@ -9,12 +9,6 @@ import {
 import { Node, Schema } from "prosemirror-model";
 // import "./blocknote.css";
 import * as Y from "yjs";
-import {
-  getBlock,
-  getNextBlock,
-  getParentBlock,
-  getPrevBlock,
-} from "../api/blockManipulation/getBlock/getBlock.js";
 import { insertBlocks } from "../api/blockManipulation/commands/insertBlocks/insertBlocks.js";
 import {
   moveBlocksDown,
@@ -29,15 +23,21 @@ import {
 import { removeBlocks } from "../api/blockManipulation/commands/removeBlocks/removeBlocks.js";
 import { replaceBlocks } from "../api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
 import { updateBlock } from "../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { insertContentAt } from "../api/blockManipulation/insertContentAt.js";
 import {
-  getTextCursorPosition,
-  setTextCursorPosition,
-} from "../api/blockManipulation/selections/textCursorPosition/textCursorPosition.js";
+  getBlock,
+  getNextBlock,
+  getParentBlock,
+  getPrevBlock,
+} from "../api/blockManipulation/getBlock/getBlock.js";
+import { insertContentAt } from "../api/blockManipulation/insertContentAt.js";
 import {
   getSelection,
   setSelection,
 } from "../api/blockManipulation/selections/selection.js";
+import {
+  getTextCursorPosition,
+  setTextCursorPosition,
+} from "../api/blockManipulation/selections/textCursorPosition/textCursorPosition.js";
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
@@ -89,15 +89,16 @@ import { en } from "../i18n/locales/index.js";
 
 import { Plugin, Transaction } from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
+import { EditorView } from "prosemirror-view";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
 import {
-  nodeToBlock,
+  docToBlocks,
+  getDocumentWithSelectionMarkers,
+  getSelectedBlocksWithSelectionMarkers,
   prosemirrorSliceToSlicedBlocks,
-  withSelectionMarkers,
 } from "../api/nodeConversions/nodeToBlock.js";
 import "../style.css";
-import { EditorView } from "prosemirror-view";
 
 export type BlockNoteExtension =
   | AnyExtension
@@ -639,23 +640,13 @@ export class BlockNoteEditor<
    * @returns A snapshot of all top-level (non-nested) blocks in the editor.
    */
   public get document(): Block<BSchema, ISchema, SSchema>[] {
-    const blocks: Block<BSchema, ISchema, SSchema>[] = [];
-
-    this._tiptapEditor.state.doc.firstChild!.descendants((node) => {
-      blocks.push(
-        nodeToBlock(
-          node,
-          this.schema.blockSchema,
-          this.schema.inlineContentSchema,
-          this.schema.styleSchema,
-          this.blockCache
-        )
-      );
-
-      return false;
-    });
-
-    return blocks;
+    return docToBlocks(
+      this._tiptapEditor.state.doc,
+      this.schema.blockSchema,
+      this.schema.inlineContentSchema,
+      this.schema.styleSchema,
+      this.blockCache
+    );
   }
 
   /**
@@ -792,8 +783,19 @@ export class BlockNoteEditor<
     setTextCursorPosition(this, targetBlock, placement);
   }
 
+  public getDocumentWithSelectionMarkers() {
+    return getDocumentWithSelectionMarkers(
+      this._tiptapEditor.state,
+      this._tiptapEditor.state.selection.from,
+      this._tiptapEditor.state.selection.to,
+      this.schema.blockSchema,
+      this.schema.inlineContentSchema,
+      this.schema.styleSchema
+    );
+  }
+
   // TODO: what about node selections?
-  public getSelectionWithMarkers() {
+  public getSelectedBlocksWithSelectionMarkers() {
     const start = this._tiptapEditor.state.selection.$from;
     const end = this._tiptapEditor.state.selection.$to;
 
@@ -817,7 +819,7 @@ export class BlockNoteEditor<
     //   start = this._tiptapEditor.state.doc.resolve(start.pos + 1);
     // }
 
-    return withSelectionMarkers(
+    return getSelectedBlocksWithSelectionMarkers(
       this._tiptapEditor.state,
       start.pos,
       end.pos,

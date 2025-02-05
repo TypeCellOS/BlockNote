@@ -22,3 +22,30 @@ export function promptManipulateDocumentUseMarkdown(opts: {
     },
   ];
 }
+
+export function promptManipulateDocumentUseMarkdownWithSelection(opts: {
+  editor: BlockNoteEditor;
+  userPrompt: string;
+  markdown: string;
+}): Array<CoreMessage> {
+  return [
+    {
+      role: "system",
+      content:
+        "You're manipulating a markdown document. The user selected everything between [$! and !$], including blocks in between. Don't include any other text, comments or wrapping marks. Next message is the existing document in markdown:",
+    },
+    {
+      role: "user",
+      content: opts.markdown,
+    },
+    {
+      role: "system",
+      content:
+        "Return the ENTIRE markdown document (including parts outside the selection), but make sure to ONLY change the selected text (text between [$! and !$]), keep the rest of the document unchanged. DO NOT include the markers in the response.",
+    },
+    {
+      role: "user",
+      content: opts.userPrompt,
+    },
+  ];
+}

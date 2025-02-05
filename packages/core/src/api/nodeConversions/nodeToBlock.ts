@@ -425,6 +425,36 @@ export function nodeToBlock<
   return block;
 }
 
+/**
+ * Convert a Prosemirror document to a BlockNote document (array of blocks)
+ */
+export function docToBlocks<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  doc: Node,
+  blockSchema: BSchema,
+  inlineContentSchema: I,
+  styleSchema: S,
+  blockCache?: WeakMap<Node, Block<BSchema, I, S>>
+) {
+  const blocks: Block<BSchema, I, S>[] = [];
+  doc.firstChild!.descendants((node) => {
+    blocks.push(
+      nodeToBlock(
+        node,
+        blockSchema,
+        inlineContentSchema,
+        styleSchema,
+        blockCache
+      )
+    );
+    return false;
+  });
+  return blocks;
+}
+
 export type SlicedBlock<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -462,18 +492,18 @@ export function selectionToInsertionEnd(tr: Transaction, startLen: number) {
   return end;
 }
 
-export function withSelectionMarkers<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(
+/**
+ * Create a transaction that adds selection markers to the document at the given positions.
+ *
+ * @param state - The editor state.
+ * @param from - The start position of the selection.
+ * @param to - The end position of the selection.
+ * @returns The transaction and the new end position.
+ */
+export function addSelectionMarkersTr(
   state: EditorState,
   from: number,
-  to: number,
-  blockSchema: BSchema,
-  inlineContentSchema: I,
-  styleSchema: S,
-  blockCache?: WeakMap<Node, Block<BSchema, I, S>>
+  to: number
 ) {
   if (from >= to) {
     throw new Error("from must be less than to");
@@ -490,6 +520,52 @@ export function withSelectionMarkers<
       "tr.docChanged is false or insertText was not applied. Was a valid textselection passed?"
     );
   }
+  return {
+    tr,
+    newEnd,
+  };
+}
+
+export function getDocumentWithSelectionMarkers<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  state: EditorState,
+  from: number,
+  to: number,
+  blockSchema: BSchema,
+  inlineContentSchema: I,
+  styleSchema: S,
+  blockCache?: WeakMap<Node, Block<BSchema, I, S>>
+) {
+  const { tr } = addSelectionMarkersTr(state, from, to);
+  return docToBlocks(
+    tr.doc,
+    blockSchema,
+    inlineContentSchema,
+    styleSchema,
+    blockCache
+  );
+}
+
+/**
+ * Add selection markers to the document at the given positions and return the blocks that span the selection.
+ */
+export function getSelectedBlocksWithSelectionMarkers<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  state: EditorState,
+  from: number,
+  to: number,
+  blockSchema: BSchema,
+  inlineContentSchema: I,
+  styleSchema: S,
+  blockCache?: WeakMap<Node, Block<BSchema, I, S>>
+) {
+  const { tr, newEnd } = addSelectionMarkersTr(state, from, to);
 
   return getBlocksBetween(
     from,
@@ -597,6 +673,8 @@ export function withoutSliceMetadata<
  *     childrenCutAtEnd: true,
  *   },
  * ]
+ *
+ * TODO: do we actually need / use this?
  */
 export function prosemirrorSliceToSlicedBlocks<
   BSchema extends BlockSchema,

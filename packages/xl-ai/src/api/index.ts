@@ -14,10 +14,12 @@ export const llm = {
 // TODO: good practice like this?
 export type PromptOrMessages =
   | {
+      useSelection?: boolean;
       prompt: string;
       messages?: never;
     }
   | {
+      useSelection?: never;
       prompt?: never;
       messages: Array<CoreMessage>;
     };

@@ -19,9 +19,7 @@ export function promptManipulateSelectionJSONSchema(opts: {
     },
     {
       role: "system",
-      content: JSON.stringify(
-        suffixIDs(opts.editor.getSelectionWithMarkers() as any)
-      ),
+      content: JSON.stringify(suffixIDs(opts.document)),
     },
     {
       role: "system",
