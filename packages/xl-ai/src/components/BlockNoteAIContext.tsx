@@ -99,7 +99,10 @@ export function BlockNoteAIContextProvider(
           }
           ret = await llm.markdown.call(editor, { model, ...options });
         }
-        setAIResponseStatus("done");
+        // if the menu has been closed already, don't set it to done
+        if (aiMenuBlockID !== undefined) {
+          setAIResponseStatus("done");
+        }
         return ret;
       } catch (e) {
         setAIResponseStatus("initial");
@@ -108,7 +111,7 @@ export function BlockNoteAIContextProvider(
         console.error(e);
       }
     },
-    [model, dataFormat, stream, editor]
+    [model, dataFormat, stream, editor, aiMenuBlockID]
   );
 
   // TODO: Revisit - this pattern might be a bit iffy
