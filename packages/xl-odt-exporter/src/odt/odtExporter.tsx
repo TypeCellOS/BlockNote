@@ -9,7 +9,7 @@ import {
   StyleSchema,
   StyledText,
 } from "@blocknote/core";
-import AdmZip from "adm-zip";
+import { BlobWriter, TextReader, ZipWriter, BlobReader } from "@zip.js/zip.js";
 import { renderToString } from "react-dom/server";
 import stylesXml from "./template/styles.xml?raw";
 import {
@@ -22,6 +22,7 @@ import {
   StyleTextProperties,
   TextSpan,
 } from "./util/components.js";
+import { loadFileBuffer } from "@shared/util/fileUtil.js";
 
 export class ODTExporter<
   B extends BlockSchema,
@@ -62,24 +63,26 @@ export class ODTExporter<
     this.options = { ...defaults, ...options };
   }
 
-  private blockPropsToStyles(
-    props: Record<string, any>
-  ): Record<string, string> {
-    const styles: Record<string, string> = {};
+  protected async loadFonts() {
+    const interFont = await loadFileBuffer(
+      await import("@shared/assets/fonts/inter/Inter_18pt-Regular.ttf")
+    );
+    const geistMonoFont = await loadFileBuffer(
+      await import("@shared/assets/fonts/GeistMono-Regular.ttf")
+    );
 
-    if (props.textAlignment) {
-      styles["fo:text-align"] = props.textAlignment;
-    }
-
-    if (props.backgroundColor && props.backgroundColor !== "default") {
-      const color =
-        this.options.colors[
-          props.backgroundColor as keyof typeof this.options.colors
-        ].background;
-      styles["fo:background-fill"] = color;
-    }
-
-    return styles;
+    return [
+      {
+        name: "Inter",
+        fileName: "Inter_18pt-Regular.ttf",
+        data: new Blob([interFont], { type: "font/ttf" }),
+      },
+      {
+        name: "Geist Mono",
+        fileName: "GeistMono-Regular.ttf",
+        data: new Blob([geistMonoFont], { type: "font/ttf" }),
+      },
+    ];
   }
 
   public transformStyledText(styledText: StyledText<S>): React.ReactNode {
@@ -137,13 +140,54 @@ export class ODTExporter<
     return ret;
   }
 
-  public async toODTDocument(blocks: Block<B, I, S>[]): Promise<Blob> {
+  public async toODTDocument(
+    blocks: Block<B, I, S>[],
+    options?: {
+      header?: string;
+      footer?: string;
+    }
+  ): Promise<Blob> {
     const blockcontent = await this.transformBlocks(blocks);
     const styles = Array.from(this.automaticStyles.values());
+    const fonts = await this.loadFonts();
 
     const content = (
       <OfficeDocument>
         <office:automatic-styles>{styles}</office:automatic-styles>
+        {(options?.header || options?.footer) && (
+          <office:master-styles>
+            <style:master-page
+              style:name="Standard"
+              style:page-layout-name="Mpm1"
+              draw:style-name="Mdp1">
+              {options.header && (
+                <style:header>
+                  <text:p text:style-name="MP1">{options.header}</text:p>
+                </style:header>
+              )}
+              {options.footer && (
+                <style:footer>
+                  <text:p text:style-name="MP2">{options.footer}</text:p>
+                </style:footer>
+              )}
+            </style:master-page>
+          </office:master-styles>
+        )}
+        <office:font-face-decls>
+          {fonts.map((font) => {
+            return (
+              <style:font-face
+                style:name={font.name}
+                svg:font-family={font.name}>
+                <svg:font-face-src>
+                  <svg:font-face-uri xlink:href={font.fileName}>
+                    <svg:font-face-format svg:string="truetype" />
+                  </svg:font-face-uri>
+                </svg:font-face-src>
+              </style:font-face>
+            );
+          })}
+        </office:font-face-decls>
         <OfficeBody>
           <OfficeText>{blockcontent}</OfficeText>
         </OfficeBody>
@@ -160,26 +204,27 @@ export class ODTExporter<
         <ManifestFileEntry mediaType="text/xml" fullPath="styles.xml" />
       </Manifest>
     );
-
-    const zip = new AdmZip();
+    const zipWriter = new ZipWriter(
+      new BlobWriter("application/vnd.oasis.opendocument.text")
+    );
 
     // Add mimetype first, uncompressed
-    zip.addFile(
+    zipWriter.add(
       "mimetype",
-      Buffer.from("application/vnd.oasis.opendocument.text")
+      new TextReader("application/vnd.oasis.opendocument.text")
     );
 
     const contentXml = renderToString(content);
     const manifestXml = renderToString(manifest);
 
-    zip.addFile("content.xml", Buffer.from(contentXml));
-    zip.addFile("styles.xml", Buffer.from(stylesXml));
-    zip.addFile("META-INF/manifest.xml", Buffer.from(manifestXml));
-
-    zip.writeZip("test.zip.odt");
-    return new Blob([zip.toBuffer()], {
-      type: "application/vnd.oasis.opendocument.text",
+    zipWriter.add("content.xml", new TextReader(contentXml));
+    zipWriter.add("styles.xml", new TextReader(stylesXml));
+    zipWriter.add("META-INF/manifest.xml", new TextReader(manifestXml));
+    fonts.forEach((font) => {
+      zipWriter.add(`fonts/${font.fileName}`, new BlobReader(font.data));
     });
+
+    return zipWriter.close();
   }
 
   public registerStyle(style: (name: string) => React.ReactNode): string {

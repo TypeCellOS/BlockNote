@@ -4,8 +4,13 @@ declare namespace JSX {
     "office:body": any;
     "office:text": any;
     "office:automatic-styles": any;
+    "office:font-face-decls": any;
+    "office:master-styles": any;
     "style:style": any;
     "style:text-properties": any;
+    "style:master-page": any;
+    "style:header": any;
+    "style:footer": any;
     "text:p": any;
     "text:h": any;
     "text:list-item": any;
@@ -25,6 +30,10 @@ declare namespace JSX {
     "style:table-cell-properties": any;
     "style:table-column-properties": any;
     "style:table-row-properties": any;
+    "style:font-face": any;
+    "svg:font-face-src": any;
+    "svg:font-face-uri": any;
+    "svg:font-face-format": any;
   }
 
   interface IntrinsicAttributes {

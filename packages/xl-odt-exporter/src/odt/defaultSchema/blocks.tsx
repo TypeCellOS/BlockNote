@@ -2,25 +2,33 @@ import {
   BlockMapping,
   DefaultBlockSchema,
   DefaultProps,
+  pageBreakSchema,
+  StyledText,
 } from "@blocknote/core";
 import { ODTExporter } from "../odtExporter.js";
 import {
   DrawFrame,
   DrawImage,
+  DrawTextBox,
   LoextGraphicProperties,
+  OfficeBinaryData,
   StyleParagraphProperties,
   StyleStyle,
   StyleTableCellProperties,
   Table,
   TableCell,
+  TableColumn,
   TableRow,
+  TextA,
   TextH,
+  TextLineBreak,
   TextList,
   TextListItem,
   TextP,
   TextSpan,
   TextTab,
 } from "../util/components.js";
+//import { getImageDimensions } from "../imageUtil.js";
 
 export const getTabs = (nestingLevel: number) => {
   return Array.from({ length: nestingLevel }, () => <TextTab />);
@@ -123,7 +131,7 @@ const wrapWithLists = (
 };
 
 export const odtBlockMappingForDefaultSchema: BlockMapping<
-  DefaultBlockSchema,
+  DefaultBlockSchema & typeof pageBreakSchema.blockSchema,
   any,
   any,
   React.ReactNode,
@@ -194,11 +202,15 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     );
     // continue numbering from the previous list item if this is not the first item
     const continueNumbering = (numberedListIndex || 0) > 1 ? "true" : "false";
+
     return (
       <TextList
         text:style-name="No_20_List"
         text:continue-numbering={continueNumbering}>
-        <TextListItem>
+        <TextListItem
+          {...(continueNumbering === "false" && {
+            "text:start-value": block.props.start,
+          })}>
           {wrapWithLists(
             <TextP text:style-name={styleName}>
               {exporter.transformInlineContent(block.content)}
@@ -212,18 +224,60 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
 
   checkListItem: (block, exporter) => (
     <TextP>
-      <TextSpan>{block.props.checked ? "☒" : "☐"}</TextSpan>
+      <TextSpan>{block.props.checked ? "☒" : "☐"} </TextSpan>
       {exporter.transformInlineContent(block.content)}
     </TextP>
   ),
 
+  pageBreak: async () => {
+    return <TextP text:style-name="PageBreak" />;
+  },
+
   image: async (block, exporter) => {
-    await exporter.resolveFile(block.props.url);
-    return (
-      <DrawFrame>
-        <DrawImage href={`Pictures/${block.props.url}`} />
-      </DrawFrame>
+    const { Buffer } = await import("buffer");
+    const blob = await exporter.resolveFile(block.props.url);
+    const arrayBuffer = await blob.arrayBuffer();
+    const base64 = Buffer.from(arrayBuffer).toString("base64");
+    //const dimensions = await getImageDimensions(blob);
+    const styleName = createParagraphStyle(
+      exporter as ODTExporter<any, any, any>,
+      block.props
     );
+    const editorWidth = 623;
+    const width = `${(block.props.previewWidth / editorWidth) * 100}%`;
+    const imageFrame = (
+      <TextP text:style-name={block.props.caption ? "Caption" : styleName}>
+        <DrawFrame
+          style:rel-height="scale"
+          style:rel-width={block.props.caption ? "100%" : width}
+          {...(!block.props.caption && {
+            "text:anchor-type": "as-char",
+          })}>
+          <DrawImage
+            xlink:type="simple"
+            xlink:show="embed"
+            xlink:actuate="onLoad">
+            <OfficeBinaryData>{base64}</OfficeBinaryData>
+          </DrawImage>
+        </DrawFrame>
+        <TextSpan text:style-name="Caption">{block.props.caption}</TextSpan>
+      </TextP>
+    );
+
+    if (block.props.caption) {
+      return (
+        <TextP text:style-name={styleName}>
+          <DrawFrame
+            style:rel-height="scale"
+            style:rel-width={width}
+            text:anchor-type="as-char">
+            <DrawTextBox>{imageFrame}</DrawTextBox>
+          </DrawFrame>
+        </TextP>
+      );
+    }
+
+    return imageFrame;
   },
 
   table: (block, exporter) => {
@@ -232,7 +286,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
 
     return (
       <Table>
-        {block.content.rows[0]?.cells.map((el, i) => {
+        {block.content.rows[0]?.cells.map((_, i) => {
           let width: any = block.content.columnWidths[i];
 
           if (!width) {
@@ -246,14 +300,14 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
                 <style:table-column-properties style:column-width={width} />
               </StyleStyle>
             ));
-            return <table:table-column table:style-name={style} />;
+            return <TableColumn table:style-name={style} />;
           } else {
             const style = ex.registerStyle((name) => (
               <StyleStyle style:name={name} style:family="table-column">
                 <style:table-column-properties style:use-optimal-column-width="true" />
               </StyleStyle>
             ));
-            return <table:table-column table:style-name={style} />;
+            return <TableColumn table:style-name={style} />;
           }
         })}
         {block.content.rows.map((row) => (
@@ -269,27 +323,55 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     );
   },
 
-  codeBlock: (block, exporter) => (
-    <TextP>
-      <TextSpan style:style-name="Preformatted_20_Text">
-        {exporter.transformInlineContent(block.content)}
-      </TextSpan>
-    </TextP>
-  ),
+  codeBlock: (block) => {
+    const textContent = (block.content as StyledText<any>[])[0]?.text || "";
 
-  file: async (block, exporter) => {
-    return <TextP>Not implemented</TextP>;
+    return (
+      <TextP text:style-name="Codeblock">
+        {...textContent.split("\n").map((line, index) => {
+          return (
+            <>
+              {index !== 0 && <TextLineBreak />}
+              {line}
+            </>
+          );
+        })}
+      </TextP>
+    );
+  },
+
+  file: async (block) => {
+    return (
+      <>
+        <TextP>
+          <TextA href={block.props.url}>Open file</TextA>
+        </TextP>
+        {block.props.caption && (
+          <TextP text:style-name="Caption">{block.props.caption}</TextP>
+        )}
+      </>
+    );
   },
 
   video: (block) => (
-    <TextP>
-      <TextSpan>[Video: {block.props.url}]</TextSpan>
-    </TextP>
+    <>
+      <TextP>
+        <TextA href={block.props.url}>Open video</TextA>
+      </TextP>
+      {block.props.caption && (
+        <TextP text:style-name="Caption">{block.props.caption}</TextP>
+      )}
+    </>
   ),
 
   audio: (block) => (
-    <TextP>
-      <TextSpan>[Audio: {block.props.url}]</TextSpan>
-    </TextP>
+    <>
+      <TextP>
+        <TextA href={block.props.url}>Open audio</TextA>
+      </TextP>
+      {block.props.caption && (
+        <TextP text:style-name="Caption">{block.props.caption}</TextP>
+      )}
+    </>
   ),
 };

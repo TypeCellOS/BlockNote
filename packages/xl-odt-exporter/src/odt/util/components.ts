@@ -34,6 +34,9 @@ export const OfficeText = ({ children, ...props }: Props) =>
 export const TextP = ({ children, ...props }: Props) =>
   createElement("text:p", props, children);
 
+export const TextLineBreak = ({ ...props }: Props) =>
+  createElement("text:line-break", props);
+
 export const TextTab = ({ children, ...props }: Props) =>
   createElement("text:tab", props, children);
 
@@ -70,12 +73,24 @@ export const TableRow = ({ children, ...props }: Props) =>
 export const TableCell = ({ children, ...props }: Props) =>
   createElement("table:table-cell", props, children);
 
+export const TableColumn = ({ children, ...props }: Props) =>
+  createElement("table:table-column", props, children);
+
 // Draw elements
 export const DrawFrame = ({ children, ...props }: Props) =>
   createElement("draw:frame", props, children);
 
-export const DrawImage = ({ href, ...props }: Props & { href: string }) =>
-  createElement("draw:image", { "xlink:href": href, ...props });
+export const DrawImage = ({ children, ...props }: Props) => {
+  return createElement("draw:image", { ...props }, children);
+};
+
+export const DrawTextBox = ({ children, ...props }: Props) => {
+  return createElement("draw:text-box", { ...props }, children);
+};
+
+export const OfficeBinaryData = ({ children, ...props }: Props) => {
+  return createElement("office:binary-data", props, children);
+};
 
 // Manifest elements
 export const Manifest = ({ children, ...props }: Props) =>

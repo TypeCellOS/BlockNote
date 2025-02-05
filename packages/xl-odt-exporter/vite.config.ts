@@ -36,7 +36,6 @@ export default defineConfig((conf) => ({
       external: (source: string) =>
         source.startsWith("@blocknote/") ||
         source === "react" ||
-        source === "adm-zip" ||
         source === "jsx-xml",
       output: {
         globals: {},

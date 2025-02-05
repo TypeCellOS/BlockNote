@@ -2,7 +2,6 @@ import {
   DefaultInlineContentSchema,
   InlineContentMapping,
 } from "@blocknote/core";
-import { createElement } from "react";
 
 export const odtInlineContentMappingForDefaultSchema: InlineContentMapping<
   DefaultInlineContentSchema,

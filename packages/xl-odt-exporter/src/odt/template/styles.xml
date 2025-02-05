@@ -38,9 +38,6 @@
             style:font-pitch="variable" />
         <style:font-face style:name="F2" svg:font-family="" style:font-family-generic="system"
             style:font-pitch="variable" />
-        <style:font-face style:name="Inter" svg:font-family="Inter" style:font-pitch="variable" />
-        <style:font-face style:name="Inter1" svg:font-family="Inter"
-            style:font-family-generic="system" style:font-pitch="variable" />
         <style:font-face style:name="Liberation Sans" svg:font-family="&apos;Liberation Sans&apos;"
             style:font-family-generic="swiss" style:font-pitch="variable" />
         <style:font-face style:name="MS Gothic" svg:font-family="&apos;MS Gothic&apos;"
@@ -121,7 +118,7 @@
             style:class="text">
             <style:paragraph-properties fo:margin-top="0.1665in" fo:margin-bottom="0.0835in"
                 style:contextual-spacing="false" fo:keep-with-next="always" />
-            <style:text-properties style:font-name="Liberation Sans"
+            <style:text-properties style:font-name="Inter"
                 fo:font-family="&apos;Liberation Sans&apos;" style:font-family-generic="swiss"
                 style:font-pitch="variable" fo:font-size="14pt" style:font-name-asian="PingFang SC"
                 style:font-family-asian="&apos;PingFang SC&apos;"
@@ -289,7 +286,7 @@
             style:class="chapter">
             <style:paragraph-properties fo:margin-top="0.0311in" fo:margin-bottom="0.0555in"
                 style:contextual-spacing="true" fo:line-height="100%" />
-            <style:text-properties style:font-name="F" style:font-pitch="variable"
+            <style:text-properties style:font-name="Inter" style:font-pitch="variable"
                 fo:font-size="28pt" fo:letter-spacing="-0.0071in" style:letter-kerning="true"
                 style:font-name-asian="F2" style:font-family-generic-asian="system"
                 style:font-pitch-asian="variable" style:font-size-asian="28pt"
@@ -343,17 +340,24 @@
                 </loext:char-complex-color>
             </style:text-properties>
         </style:style>
+        <style:style style:name="PageBreak" style:family="paragraph"
+            style:parent-style-name="Standard">
+            <style:paragraph-properties fo:break-before="page" />
+        </style:style>
         <style:style style:name="Codeblock" style:family="paragraph"
             style:parent-style-name="Standard">
+            <loext:graphic-properties draw:fill="solid" draw:fill-color="#161616" />
+            <style:paragraph-properties fo:line-height="100%" />
             <style:text-properties fo:color="#e1e4e8" loext:opacity="100%"
-                fo:background-color="#161616" />
+                style:font-name="Geist Mono"
+                fo:font-family="Geist Mono" />
         </style:style>
         <style:style style:name="Default_20_Paragraph_20_Font"
             style:display-name="Default Paragraph Font" style:family="text" />
         <style:style style:name="Heading_20_1_20_Char" style:display-name="Heading 1 Char"
             style:family="text" style:parent-style-name="Default_20_Paragraph_20_Font"
             loext:linked-style-name="Heading_20_1">
-            <style:text-properties style:font-name="F1" style:font-family-generic="roman"
+            <style:text-properties style:font-name="Inter" style:font-family-generic="roman"
                 style:font-pitch="variable" fo:font-size="20pt" style:font-name-asian="F2"
                 style:font-family-generic-asian="system" style:font-pitch-asian="variable"
                 style:font-size-asian="20pt" style:font-name-complex="F2"
@@ -363,7 +367,7 @@
         <style:style style:name="Heading_20_2_20_Char" style:display-name="Heading 2 Char"
             style:family="text" style:parent-style-name="Default_20_Paragraph_20_Font"
             loext:linked-style-name="Heading_20_2">
-            <style:text-properties fo:color="#0f4761" loext:opacity="100%" style:font-name="F1"
+            <style:text-properties fo:color="#0f4761" loext:opacity="100%" style:font-name="Inter"
                 style:font-family-generic="roman" style:font-pitch="variable" fo:font-size="16pt"
                 style:font-name-asian="F2" style:font-family-generic-asian="system"
                 style:font-pitch-asian="variable" style:font-size-asian="16pt"
@@ -464,7 +468,7 @@
         </style:style>
         <style:style style:name="Title_20_Char" style:display-name="Title Char" style:family="text"
             style:parent-style-name="Default_20_Paragraph_20_Font" loext:linked-style-name="Title">
-            <style:text-properties style:font-name="F1" style:font-family-generic="roman"
+            <style:text-properties style:font-name="Inter" style:font-family-generic="roman"
                 style:font-pitch="variable" fo:font-size="28pt" fo:letter-spacing="-0.0071in"
                 style:letter-kerning="true" style:font-name-asian="F2"
                 style:font-family-generic-asian="system" style:font-pitch-asian="variable"
@@ -1027,6 +1031,12 @@
         </loext:theme>
     </office:styles>
     <office:automatic-styles>
+        <style:style style:name="MP1" style:family="paragraph" style:parent-style-name="Header">
+            <style:text-properties officeooo:rsid="0008951b" officeooo:paragraph-rsid="0008951b" />
+        </style:style>
+        <style:style style:name="MP2" style:family="paragraph" style:parent-style-name="Footer">
+            <style:text-properties officeooo:rsid="0008951b" officeooo:paragraph-rsid="0008951b" />
+        </style:style>
         <style:page-layout style:name="Mpm1">
             <style:page-layout-properties fo:page-width="8.2681in" fo:page-height="11.6929in"
                 style:num-format="1" style:print-orientation="portrait" fo:margin-top="1in"
@@ -1042,8 +1052,14 @@
                     style:distance-after-sep="0.0398in" style:line-style="solid"
                     style:adjustment="left" style:rel-width="25%" style:color="#000000" />
             </style:page-layout-properties>
-            <style:header-style />
-            <style:footer-style />
+            <style:header-style>
+                <style:header-footer-properties fo:min-height="0in" fo:margin-bottom="0.1965in"
+                    fo:background-color="transparent" draw:fill="none" />
+            </style:header-style>
+            <style:footer-style>
+                <style:header-footer-properties fo:min-height="0in" fo:margin-top="0.1965in"
+                    fo:background-color="transparent" draw:fill="none" />
+            </style:footer-style>
         </style:page-layout>
         <style:style style:name="Mdp1" style:family="drawing-page">
             <style:drawing-page-properties draw:background-size="full" />
