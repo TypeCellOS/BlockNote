@@ -7,7 +7,10 @@ import { addFunction } from "../../functions/add.js";
 import { deleteFunction } from "../../functions/delete.js";
 import { updateFunction } from "../../functions/update.js";
 import type { PromptOrMessages } from "../../index.js";
-import { promptManipulateDocumentUseMarkdown } from "../../prompts/markdownPrompts.js";
+import {
+  promptManipulateDocumentUseMarkdown,
+  promptManipulateDocumentUseMarkdownWithSelection,
+} from "../../prompts/markdownPrompts.js";
 import { trimArray } from "../../util/trimArray.js";
 
 type BasicLLMRequestOptions = {
@@ -22,19 +25,31 @@ export async function callLLM(
   editor: BlockNoteEditor<any, any, any>,
   options: MarkdownLLMRequestOptions
 ) {
+  let messages: CoreMessage[];
   const markdown = await editor.blocksToMarkdownLossy();
+
+  if ("messages" in options && options.messages) {
+    messages = options.messages;
+  } else if (options.useSelection) {
+    const selection = editor.getDocumentWithSelectionMarkers();
+    const markdown = await editor.blocksToMarkdownLossy(selection);
+    messages = promptManipulateDocumentUseMarkdownWithSelection({
+      editor,
+      markdown,
+      userPrompt: (options as any).prompt,
+    });
+  } else {
+    messages = promptManipulateDocumentUseMarkdown({
+      editor,
+      markdown,
+      userPrompt: (options as any).prompt,
+    });
+  }
 
   const withDefaults: Required<
     Omit<MarkdownLLMRequestOptions & { messages: CoreMessage[] }, "prompt">
   > = {
-    messages:
-      "messages" in options
-        ? options.messages
-        : promptManipulateDocumentUseMarkdown({
-            editor,
-            markdown,
-            userPrompt: (options as any).prompt,
-          }),
+    messages,
     ...(options as any), // TODO
   };
 

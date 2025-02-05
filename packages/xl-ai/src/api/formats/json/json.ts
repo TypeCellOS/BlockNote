@@ -1,5 +1,11 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { LanguageModel, generateObject, jsonSchema, streamObject } from "ai";
+import {
+  CoreMessage,
+  LanguageModel,
+  generateObject,
+  jsonSchema,
+  streamObject,
+} from "ai";
 
 import {
   executeAIOperation,
@@ -10,7 +16,10 @@ import { deleteFunction } from "../../functions/delete.js";
 import { AIFunction } from "../../functions/index.js";
 import { updateFunction } from "../../functions/update.js";
 import type { PromptOrMessages } from "../../index.js";
-import { promptManipulateDocumentUseJSONSchema } from "../../prompts/jsonSchemaPrompts.js";
+import {
+  promptManipulateDocumentUseJSONSchema,
+  promptManipulateSelectionJSONSchema,
+} from "../../prompts/jsonSchemaPrompts.js";
 import { createOperationsArraySchema } from "../../schema/operations.js";
 import { blockNoteSchemaToJSONSchema } from "../../schema/schemaToJSONSchema.js";
 
@@ -43,19 +52,30 @@ export async function callLLM(
   editor: BlockNoteEditor<any, any, any>,
   opts: CallLLMOptionsWithOptional
 ) {
-  const { prompt, ...rest } = opts;
+  const { prompt, useSelection, ...rest } = opts;
+
+  let messages: CoreMessage[];
+
+  if ("messages" in opts && opts.messages) {
+    messages = opts.messages;
+  } else if (useSelection) {
+    messages = promptManipulateSelectionJSONSchema({
+      editor,
+      userPrompt: opts.prompt!,
+      document: editor.getDocumentWithSelectionMarkers(),
+    });
+  } else {
+    messages = promptManipulateDocumentUseJSONSchema({
+      editor,
+      userPrompt: opts.prompt!,
+      document: editor.document,
+    });
+  }
 
   const options: CallLLMOptions = {
     functions: [updateFunction, addFunction, deleteFunction],
     stream: true,
-    messages:
-      "messages" in opts && opts.messages !== undefined
-        ? opts.messages
-        : promptManipulateDocumentUseJSONSchema({
-            editor,
-            userPrompt: opts.prompt!,
-            document: editor.document,
-          }),
+    messages,
     ...rest,
   };
 

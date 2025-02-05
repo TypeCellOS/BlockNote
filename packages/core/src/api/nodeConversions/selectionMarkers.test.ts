@@ -160,7 +160,7 @@ describe("Test ProseMirror selection HTML conversion", () => {
 
     // const slice = editor._tiptapEditor.state.selection.content();
 
-    const blockNoteSelection = editor.getSelectionWithMarkers();
+    const blockNoteSelection = editor.getSelectedBlocksWithSelectionMarkers();
 
     expect(
       JSON.stringify(blockNoteSelection, undefined, 2)
@@ -282,7 +282,7 @@ describe("Test ProseMirror selection HTML conversion", () => {
       }
       editor.dispatch(editor._tiptapEditor.state.tr.setSelection(selection));
 
-      const blockNoteSelection = editor.getSelectionWithMarkers();
+      const blockNoteSelection = editor.getSelectedBlocksWithSelectionMarkers();
       const JSONString = JSON.stringify(blockNoteSelection);
       ret += JSONString + "\n";
     });
@@ -301,7 +301,7 @@ describe("Test ProseMirror selection HTML conversion", () => {
       }
       editor.dispatch(editor._tiptapEditor.state.tr.setSelection(selection));
 
-      const blockNoteSelection = editor.getSelectionWithMarkers();
+      const blockNoteSelection = editor.getSelectedBlocksWithSelectionMarkers();
       const JSONString = JSON.stringify(blockNoteSelection);
       ret += JSONString + "\n";
     });

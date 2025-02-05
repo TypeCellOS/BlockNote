@@ -99,7 +99,14 @@ export function BlockNoteAIContextProvider(
           }
           ret = await llm.markdown.call(editor, { model, ...options });
         }
-        setAIResponseStatus("done");
+        setAIResponseStatus((old) => {
+          // if the menu has been closed already, it's probably set to "initial" and not "generating" anymore,
+          // in that case, don't set it to "done"
+          if (old === "generating") {
+            return "done";
+          }
+          return old;
+        });
         return ret;
       } catch (e) {
         setAIResponseStatus("initial");

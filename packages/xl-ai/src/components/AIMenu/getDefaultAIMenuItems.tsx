@@ -121,6 +121,7 @@ export function getDefaultAIMenuItemsWithSelection<
       icon: <RiText size={18} />,
       onItemClick: async () => {
         await contextValue.callLLM({
+          useSelection: true,
           prompt: "Improve writing",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
           functions: [updateFunction],
@@ -135,6 +136,7 @@ export function getDefaultAIMenuItemsWithSelection<
       icon: <RiCheckLine size={18} />,
       onItemClick: async () => {
         await contextValue.callLLM({
+          useSelection: true,
           prompt: "Fix spelling",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
           functions: [updateFunction],
@@ -159,6 +161,7 @@ export function getDefaultAIMenuItemsWithSelection<
       icon: <RiMagicLine size={18} />,
       onItemClick: async () => {
         await contextValue.callLLM({
+          useSelection: true,
           prompt: "Simplify",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
           functions: [updateFunction],
