@@ -1570,7 +1570,9 @@ function Qr(t) {
     },
     {
       role: "system",
-      content: "Return the ENTIRE markdown document (including parts outside the selection), but make sure to ONLY change the selected text (text between [$! and !$]), keep the rest of the document unchanged. DO NOT include the markers in the response."
+      content: `You MUST return the ENTIRE markdown document (from start to end, INCLUDING parts outside the selection). 
+        But, the next user prompt ONLY applies to the selectiom so make sure to ONLY change the selected text (text between [$! and !$]) and keep the rest of the document unchanged. 
+        DO NOT include the markers in the response.`
     },
     {
       role: "user",
@@ -1588,11 +1590,11 @@ function en(t, e) {
 }
 async function tn(t, e) {
   let n;
-  const i = await t.blocksToMarkdownLossy();
+  const i = (await t.blocksToMarkdownLossy()).trim();
   if ("messages" in e && e.messages)
     n = e.messages;
   else if (e.useSelection) {
-    const f = t.getDocumentWithSelectionMarkers(), A = await t.blocksToMarkdownLossy(f);
+    const f = t.getDocumentWithSelectionMarkers(), A = (await t.blocksToMarkdownLossy(f)).trim();
     n = Qr({
       editor: t,
       markdown: A,
