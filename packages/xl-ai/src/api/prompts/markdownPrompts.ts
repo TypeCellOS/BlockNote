@@ -40,8 +40,9 @@ export function promptManipulateDocumentUseMarkdownWithSelection(opts: {
     },
     {
       role: "system",
-      content:
-        "Return the ENTIRE markdown document (including parts outside the selection), but make sure to ONLY change the selected text (text between [$! and !$]), keep the rest of the document unchanged. DO NOT include the markers in the response.",
+      content: `You MUST return the ENTIRE markdown document (from start to end, INCLUDING parts outside the selection). 
+        But, the next user prompt ONLY applies to the selectiom so make sure to ONLY change the selected text (text between [$! and !$]) and keep the rest of the document unchanged. 
+        DO NOT include the markers in the response.`,
     },
     {
       role: "user",

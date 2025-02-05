@@ -26,13 +26,14 @@ export async function callLLM(
   options: MarkdownLLMRequestOptions
 ) {
   let messages: CoreMessage[];
-  const markdown = await editor.blocksToMarkdownLossy();
+  // TODO: add test with empty paragraphs at end, this should break without trim()
+  const markdown = (await editor.blocksToMarkdownLossy()).trim();
 
   if ("messages" in options && options.messages) {
     messages = options.messages;
   } else if (options.useSelection) {
     const selection = editor.getDocumentWithSelectionMarkers();
-    const markdown = await editor.blocksToMarkdownLossy(selection);
+    const markdown = (await editor.blocksToMarkdownLossy(selection)).trim();
     messages = promptManipulateDocumentUseMarkdownWithSelection({
       editor,
       markdown,
