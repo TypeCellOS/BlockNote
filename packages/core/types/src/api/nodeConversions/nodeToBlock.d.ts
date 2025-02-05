@@ -17,6 +17,10 @@ export declare function nodeToCustomInlineContent<I extends InlineContentSchema,
  * TODO: test changes
  */
 export declare function nodeToBlock<BSchema extends BlockSchema, I extends InlineContentSchema, S extends StyleSchema>(node: Node, blockSchema: BSchema, inlineContentSchema: I, styleSchema: S, blockCache?: WeakMap<Node, Block<BSchema, I, S>>): Block<BSchema, I, S>;
+/**
+ * Convert a Prosemirror document to a BlockNote document (array of blocks)
+ */
+export declare function docToBlocks<BSchema extends BlockSchema, I extends InlineContentSchema, S extends StyleSchema>(doc: Node, blockSchema: BSchema, inlineContentSchema: I, styleSchema: S, blockCache?: WeakMap<Node, Block<BSchema, I, S>>): Block<BSchema, I, S>[];
 export type SlicedBlock<BSchema extends BlockSchema, I extends InlineContentSchema, S extends StyleSchema> = {
     block: Block<BSchema, I, S> & {
         children: SlicedBlock<BSchema, I, S>[];
@@ -25,7 +29,23 @@ export type SlicedBlock<BSchema extends BlockSchema, I extends InlineContentSche
     contentCutAtEnd: boolean;
 };
 export declare function selectionToInsertionEnd(tr: Transaction, startLen: number): number | undefined;
-export declare function withSelectionMarkers<BSchema extends BlockSchema, I extends InlineContentSchema, S extends StyleSchema>(state: EditorState, from: number, to: number, blockSchema: BSchema, inlineContentSchema: I, styleSchema: S, blockCache?: WeakMap<Node, Block<BSchema, I, S>>): Block<BSchema, I, S>[];
+/**
+ * Create a transaction that adds selection markers to the document at the given positions.
+ *
+ * @param state - The editor state.
+ * @param from - The start position of the selection.
+ * @param to - The end position of the selection.
+ * @returns The transaction and the new end position.
+ */
+export declare function addSelectionMarkersTr(state: EditorState, from: number, to: number): {
+    tr: Transaction;
+    newEnd: number;
+};
+export declare function getDocumentWithSelectionMarkers<BSchema extends BlockSchema, I extends InlineContentSchema, S extends StyleSchema>(state: EditorState, from: number, to: number, blockSchema: BSchema, inlineContentSchema: I, styleSchema: S, blockCache?: WeakMap<Node, Block<BSchema, I, S>>): Block<BSchema, I, S>[];
+/**
+ * Add selection markers to the document at the given positions and return the blocks that span the selection.
+ */
+export declare function getSelectedBlocksWithSelectionMarkers<BSchema extends BlockSchema, I extends InlineContentSchema, S extends StyleSchema>(state: EditorState, from: number, to: number, blockSchema: BSchema, inlineContentSchema: I, styleSchema: S, blockCache?: WeakMap<Node, Block<BSchema, I, S>>): Block<BSchema, I, S>[];
 export declare function withoutSliceMetadata<BSchema extends BlockSchema, I extends InlineContentSchema, S extends StyleSchema>(blocks: SlicedBlock<BSchema, I, S>[]): Block<BSchema, I, S>[];
 /**
  *
@@ -70,6 +90,8 @@ export declare function withoutSliceMetadata<BSchema extends BlockSchema, I exte
  *     childrenCutAtEnd: true,
  *   },
  * ]
+ *
+ * TODO: do we actually need / use this?
  */
 export declare function prosemirrorSliceToSlicedBlocks<BSchema extends BlockSchema, I extends InlineContentSchema, S extends StyleSchema>(slice: Slice, blockSchema: BSchema, inlineContentSchema: I, styleSchema: S, blockCache?: WeakMap<Node, Block<BSchema, I, S>>): {
     blocks: SlicedBlock<BSchema, I, S>[];

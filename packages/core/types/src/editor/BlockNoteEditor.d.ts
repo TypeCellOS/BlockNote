@@ -16,8 +16,8 @@ import { BlockNoteSchema } from "./BlockNoteSchema.js";
 import { BlockNoteTipTapEditor } from "./BlockNoteTipTapEditor.js";
 import { Dictionary } from "../i18n/dictionary.js";
 import { Plugin, Transaction } from "@tiptap/pm/state";
-import "../style.css";
 import { EditorView } from "prosemirror-view";
+import "../style.css";
 export type BlockNoteExtension = AnyExtension | {
     plugin: Plugin;
 };
@@ -302,7 +302,8 @@ export declare class BlockNoteEditor<BSchema extends BlockSchema = DefaultBlockS
      * @param placement Whether the text cursor should be placed at the start or end of the block.
      */
     setTextCursorPosition(targetBlock: BlockIdentifier, placement?: "start" | "end"): void;
-    getSelectionWithMarkers(): Block<BSchema, ISchema, SSchema>[];
+    getDocumentWithSelectionMarkers(): Block<BSchema, ISchema, SSchema>[];
+    getSelectedBlocksWithSelectionMarkers(): Block<BSchema, ISchema, SSchema>[];
     getSelection2(): {
         blocks: import("../api/nodeConversions/nodeToBlock.js").SlicedBlock<any, any, any>[];
     };

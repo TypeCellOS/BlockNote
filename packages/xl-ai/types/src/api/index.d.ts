@@ -10,9 +10,11 @@ export declare const llm: {
     };
 };
 export type PromptOrMessages = {
+    useSelection?: boolean;
     prompt: string;
     messages?: never;
 } | {
+    useSelection?: never;
     prompt?: never;
     messages: Array<CoreMessage>;
 };

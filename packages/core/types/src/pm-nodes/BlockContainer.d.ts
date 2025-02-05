@@ -5,8 +5,8 @@ import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
  */
 export declare const BlockContainer: Node<{
     domAttributes?: Partial<{
-        blockContent: Record<string, string>;
         blockGroup: Record<string, string>;
+        blockContent: Record<string, string>;
         editor: Record<string, string>;
         block: Record<string, string>;
         inlineContent: Record<string, string>;
