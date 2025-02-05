@@ -16,6 +16,7 @@ export const BlockPositioner = (props: {
     event: Event,
     reason: OpenChangeReason
   ) => void;
+  canDismiss?: boolean;
 }) => {
   // TODO: desirable to do like this?
   const element = document.querySelector(
@@ -39,7 +40,7 @@ export const BlockPositioner = (props: {
     reference,
     3000,
     {
-      // canDismiss: false,
+      canDismiss: props.canDismiss,
       placement: "bottom",
       middleware: [
         offset(10),

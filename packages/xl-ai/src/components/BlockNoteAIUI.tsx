@@ -44,7 +44,8 @@ const AIMenuController = () => {
           editor.focus();
           // TODO: doesn't work with esc?
         }
-      }}>
+      }}
+      canDismiss={ctx.aiResponseStatus === "initial"}>
       <AIMenu />
     </BlockPositioner>
   );

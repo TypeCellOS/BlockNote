@@ -1,7 +1,13 @@
 import { Block } from "@blocknote/core";
 import { useBlockNoteEditor } from "@blocknote/react";
 import { LanguageModel } from "ai";
-import { createContext, useCallback, useContext, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { PromptOrMessages, llm } from "../api/index.js";
 
 // parameters that are shared across all calls and can be configured on the context as "application wide" settings
@@ -121,9 +127,9 @@ export function BlockNoteAIContextProvider(
   // TODO: Revisit - this pattern might be a bit iffy
   // Make editor non-editable after calling the LLM, until the user accepts or
   // reverts the changes.
-  // useEffect(() => {
-  //   editor.isEditable = aiResponseStatus === "initial";
-  // }, [aiResponseStatus, editor]);
+  useEffect(() => {
+    editor.isEditable = aiResponseStatus === "initial";
+  }, [aiResponseStatus, editor]);
 
   return (
     <BlockNoteAIContext.Provider
