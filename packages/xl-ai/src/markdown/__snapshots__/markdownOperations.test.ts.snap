@@ -171,6 +171,354 @@ world",
 ]
 `;
 
+exports[`markdownNodeDiffToBlockOperations > empty paragraph and table 1`] = `
+[
+  {
+    "block": {
+      "content": [
+        {
+          "styles": {
+            "bold": true,
+          },
+          "text": "A Call to Action: Empowering Europe's Public Agents with an Open-Source Alternative to Notion",
+          "type": "text",
+        },
+      ],
+    },
+    "id": "0",
+    "type": "update",
+  },
+  {
+    "blocks": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Dear President Ursula Von der Leyen,",
+            "type": "text",
+          },
+        ],
+        "id": "5",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "position": "before",
+    "referenceId": "1",
+    "type": "add",
+  },
+  {
+    "block": {
+      "content": [
+        {
+          "styles": {},
+          "text": "As the European Union continues to strive for innovation and digital transformation, I strongly believe that creating an open-source alternative to Notion for public agents is a crucial step forward. This initiative would not only enhance the productivity and collaboration of our public servants but also ensure the sovereignty and security of our data.",
+          "type": "text",
+        },
+      ],
+    },
+    "id": "1",
+    "type": "update",
+  },
+  {
+    "blocks": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "By developing an open-source platform, we can guarantee that our public agents' data remains within the EU's borders, protected by our stringent data protection laws. This would alleviate concerns about data privacy and security, allowing our agents to focus on their critical work without worrying about the risks associated with proprietary software.",
+            "type": "text",
+          },
+        ],
+        "id": "8",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Moreover, an open-source platform would foster a culture of collaboration and transparency. Public agents from different member states could work together seamlessly, sharing knowledge and best practices to drive progress and innovation. This would be particularly beneficial in areas such as policy-making, research, and crisis management, where collaboration is essential.",
+            "type": "text",
+          },
+        ],
+        "id": "9",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Furthermore, an open-source alternative to Notion would be a powerful symbol of the EU's commitment to digital sovereignty and its determination to shape the future of technology. By taking control of our digital tools, we can ensure that our values and principles are reflected in the software we use.",
+            "type": "text",
+          },
+        ],
+        "id": "10",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "I urge you to consider the benefits of creating an open-source alternative to Notion for Europe's public agents. Together, we can empower our public servants, enhance collaboration, and drive innovation while protecting our data and promoting digital sovereignty.",
+            "type": "text",
+          },
+        ],
+        "id": "11",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "position": "before",
+    "referenceId": "2",
+    "type": "add",
+  },
+  {
+    "block": {
+      "content": [
+        {
+          "styles": {},
+          "text": "Sincerely, [Your Name]",
+          "type": "text",
+        },
+      ],
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+      },
+      "type": "paragraph",
+    },
+    "id": "2",
+    "type": "update",
+  },
+  {
+    "blocks": [
+      {
+        "children": [],
+        "content": {
+          "columnWidths": [
+            undefined,
+            undefined,
+            undefined,
+          ],
+          "rows": [
+            {
+              "cells": [
+                [],
+                [],
+                [],
+              ],
+            },
+            {
+              "cells": [
+                [],
+                [
+                  {
+                    "styles": {},
+                    "text": "Notion",
+                    "type": "text",
+                  },
+                ],
+                [
+                  {
+                    "styles": {},
+                    "text": "Open source",
+                    "type": "text",
+                  },
+                ],
+              ],
+            },
+            {
+              "cells": [
+                [
+                  {
+                    "styles": {},
+                    "text": "Cost",
+                    "type": "text",
+                  },
+                ],
+                [
+                  {
+                    "styles": {},
+                    "text": "30€/cs",
+                    "type": "text",
+                  },
+                ],
+                [
+                  {
+                    "styles": {},
+                    "text": "1€/cs",
+                    "type": "text",
+                  },
+                ],
+              ],
+            },
+            {
+              "cells": [
+                [
+                  {
+                    "styles": {},
+                    "text": "People in-house",
+                    "type": "text",
+                  },
+                ],
+                [
+                  {
+                    "styles": {},
+                    "text": "0",
+                    "type": "text",
+                  },
+                ],
+                [
+                  {
+                    "styles": {},
+                    "text": "5 developers (100k€ a year)",
+                    "type": "text",
+                  },
+                ],
+              ],
+            },
+            {
+              "cells": [
+                [
+                  {
+                    "styles": {},
+                    "text": "Number of civil servant (cs)",
+                    "type": "text",
+                  },
+                ],
+                [
+                  {
+                    "styles": {},
+                    "text": "36 million",
+                    "type": "text",
+                  },
+                ],
+                [
+                  {
+                    "styles": {},
+                    "text": "36 million",
+                    "type": "text",
+                  },
+                ],
+              ],
+            },
+          ],
+          "type": "tableContent",
+        },
+        "id": "14",
+        "props": {
+          "textColor": "default",
+        },
+        "type": "table",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {
+              "bold": true,
+            },
+            "text": "Summary of Costs and Benefits",
+            "type": "text",
+          },
+        ],
+        "id": "15",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "The proposed open-source alternative to Notion would significantly reduce costs, from 30€ per civil servant to 1€ per civil servant, while also creating in-house jobs for 5 developers. This initiative would not only save the EU a substantial amount of money but also promote digital sovereignty and enhance collaboration among public agents.",
+            "type": "text",
+          },
+        ],
+        "id": "16",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {
+              "bold": true,
+            },
+            "text": "Summary",
+            "type": "text",
+          },
+        ],
+        "id": "17",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "In conclusion, creating an open-source alternative to Notion for Europe's public agents is a crucial step towards digital transformation, data sovereignty, and enhanced collaboration. With significant cost savings and the creation of in-house jobs, this initiative has the potential to drive innovation and progress in the EU while protecting our values and principles.",
+            "type": "text",
+          },
+        ],
+        "id": "18",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "position": "after",
+    "referenceId": "2",
+    "type": "add",
+  },
+]
+`;
+
 exports[`markdownNodeDiffToBlockOperations > large change 1`] = `
 [
   {
@@ -444,6 +792,62 @@ exports[`markdownNodeDiffToBlockOperations > large change 1`] = `
     "position": "after",
     "referenceId": "0",
     "type": "add",
+  },
+]
+`;
+
+exports[`markdownNodeDiffToBlockOperations > one empty paragraph 1`] = `
+[
+  {
+    "block": {
+      "content": [
+        {
+          "styles": {},
+          "text": "hello world",
+          "type": "text",
+        },
+      ],
+    },
+    "id": "0",
+    "type": "update",
+  },
+  {
+    "id": "1",
+    "type": "delete",
+  },
+  {
+    "id": "2",
+    "type": "delete",
+  },
+]
+`;
+
+exports[`markdownNodeDiffToBlockOperations > two empty paragraphs 1`] = `
+[
+  {
+    "block": {
+      "content": [
+        {
+          "styles": {},
+          "text": "hello world",
+          "type": "text",
+        },
+      ],
+    },
+    "id": "0",
+    "type": "update",
+  },
+  {
+    "id": "1",
+    "type": "delete",
+  },
+  {
+    "id": "2",
+    "type": "delete",
+  },
+  {
+    "id": "3",
+    "type": "delete",
   },
 ]
 `;

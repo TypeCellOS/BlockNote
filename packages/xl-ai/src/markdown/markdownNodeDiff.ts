@@ -43,6 +43,18 @@ export function flattenAst(ast: Content[]): Content[] {
   return result;
 }
 
+function recursiveRegexpReplace(
+  str: string,
+  pattern: RegExp,
+  replacement: string
+): string {
+  const result = str.replace(pattern, replacement);
+  if (result === str) {
+    return result;
+  }
+  return recursiveRegexpReplace(result, pattern, replacement);
+}
+
 /**
  * Takes two versions of a markdown document, and
  * returns a list of `DiffResult` objects indicating
@@ -53,6 +65,20 @@ export async function markdownNodeDiff(
   newMarkdown: string
 ): Promise<MarkdownNodeDiffResult[]> {
   // The asts will hold character positions in the original markdown
+
+  // preprocess the markdown to replace multiple newlines with a single [EMPTY-LINE]
+  // otherwise remarkParse will collapse multiple newlines into a single one,
+  // and we lose information about empty blocks
+  oldMarkdown = recursiveRegexpReplace(
+    oldMarkdown,
+    /\n\n\n\n/g,
+    "\n\n[EMPTY-LINE]\n\n"
+  );
+  newMarkdown = recursiveRegexpReplace(
+    newMarkdown,
+    /\n\n\n\n/g,
+    "\n\n[EMPTY-LINE]\n\n"
+  );
   const oldAst = unified().use(remarkParse).parse(oldMarkdown);
   const newAst = unified().use(remarkParse).parse(newMarkdown);
 
@@ -354,5 +380,29 @@ export async function markdownNodeDiff(
     }
   }
 
+  // remove [EMPTY-LINE] hacks we added at beginning of function
+  function removeFakeEmptyLines(node: any) {
+    if (
+      node.oldBlock?.type === "paragraph" &&
+      node.oldBlock.children.length === 1 &&
+      node.oldBlock.children[0].type === "text" &&
+      node.oldBlock.children[0].value === "[EMPTY-LINE]"
+    ) {
+      node.oldBlock.children[0].value = "";
+    }
+    if (
+      node.newBlock?.type === "paragraph" &&
+      node.newBlock.children.length === 1 &&
+      node.newBlock.children[0].type === "text" &&
+      node.newBlock.children[0].value === "[EMPTY-LINE]"
+    ) {
+      node.newBlock.children[0].value = "";
+    }
+    return node;
+  }
+
+  for (const result of results) {
+    removeFakeEmptyLines(result);
+  }
   return results;
 }
