@@ -2,7 +2,7 @@ var vo = Object.defineProperty;
 var xo = (e, t, o) => t in e ? vo(e, t, { enumerable: !0, configurable: !0, writable: !0, value: o }) : e[t] = o;
 var p = (e, t, o) => xo(e, typeof t != "symbol" ? t + "" : t, o);
 import { Slice as q, Fragment as j, DOMSerializer as yt, DOMParser as wt, Node as Co } from "prosemirror-model";
-import { Extension as L, combineTransactionSteps as So, getChangedRanges as Eo, findChildrenInRange as Bo, Node as X, Mark as Ce, InputRule as te, isTextSelection as vt, callOrReturn as To, getExtensionField as Mo, selectionToInsertionEnd as Io, isNodeSelection as Ye, posToDOMRect as De, getMarkRange as Qe, findChildren as et, findParentNode as Lo, extensions as re, Editor as Ao, createDocument as Po, getSchema as No } from "@tiptap/core";
+import { Extension as L, combineTransactionSteps as Eo, getChangedRanges as So, findChildrenInRange as Bo, Node as X, Mark as Ce, InputRule as te, isTextSelection as vt, callOrReturn as To, getExtensionField as Mo, selectionToInsertionEnd as Io, isNodeSelection as Ye, posToDOMRect as De, getMarkRange as Qe, findChildren as et, findParentNode as Lo, extensions as re, Editor as Po, createDocument as Ao, getSchema as No } from "@tiptap/core";
 import { Plugin as B, PluginKey as N, TextSelection as V, NodeSelection as ce, Selection as Ie, EditorState as jo } from "prosemirror-state";
 import { v4 as Do } from "uuid";
 import { createHighlightPlugin as Ho } from "prosemirror-highlight";
@@ -25,7 +25,7 @@ import { HardBreak as ei } from "@tiptap/extension-hard-break";
 import { History as ti } from "@tiptap/extension-history";
 import { Link as oi } from "@tiptap/extension-link";
 import { Text as ii } from "@tiptap/extension-text";
-import * as St from "prosemirror-view";
+import * as Et from "prosemirror-view";
 import { Decoration as oe, DecorationSet as ie, EditorView as ni } from "prosemirror-view";
 import { dropCursor as ri } from "prosemirror-dropcursor";
 const ai = {
@@ -647,7 +647,7 @@ const ai = {
   generic: {
     ctrl_shortcut: "Strg"
   }
-}, Et = {
+}, St = {
   slash_menu: {
     heading: {
       title: "Heading 1",
@@ -5173,7 +5173,7 @@ const ai = {
   __proto__: null,
   ar: ai,
   de: si,
-  en: Et,
+  en: St,
   es: li,
   fr: di,
   hr: ci,
@@ -5295,19 +5295,19 @@ const ue = L.create({
           });
           if (!r || a)
             return;
-          const { tr: s } = n, { types: l, attributeName: c, generateID: d } = this.options, u = So(
+          const { tr: s } = n, { types: l, attributeName: c, generateID: d } = this.options, u = Eo(
             i.doc,
             o
           ), { mapping: h } = u;
-          if (Eo(u).forEach(({ newRange: m }) => {
+          if (So(u).forEach(({ newRange: m }) => {
             const g = Bo(
               n.doc,
               m,
               (C) => l.includes(C.type.name)
             ), b = g.map(({ node: C }) => C.attrs[c]).filter((C) => C !== null), k = vi(b);
             g.forEach(({ node: C, pos: y }) => {
-              let P;
-              const J = (P = s.doc.nodeAt(y)) === null || P === void 0 ? void 0 : P.attrs[c];
+              let A;
+              const J = (A = s.doc.nodeAt(y)) === null || A === void 0 ? void 0 : A.attrs[c];
               if (J === null) {
                 const v = i.doc.type.createAndFill().content;
                 if (i.doc.content.findDiffStart(v) === null) {
@@ -5461,7 +5461,7 @@ function H(e, t, o) {
     );
   return i;
 }
-function Se(e, t, o) {
+function Ee(e, t, o) {
   var n;
   const i = [];
   for (const r of e.rows) {
@@ -5509,7 +5509,7 @@ function Tt(e, t, o) {
     const r = H(e.content, t, o);
     i = t.nodes[n].createChecked(e.props, r);
   } else if (e.content.type === "tableContent") {
-    const r = Se(e.content, t, o);
+    const r = Ee(e.content, t, o);
     i = t.nodes[n].createChecked(e.props, r);
   } else
     throw new D(e.content.type);
@@ -5572,7 +5572,7 @@ function It(e, t, o, i) {
         e.schema.styleSchema
       );
     else if (t.type === "tableContent")
-      n = Se(
+      n = Ee(
         t,
         e.pmSchema,
         e.schema.styleSchema
@@ -5584,15 +5584,15 @@ function It(e, t, o, i) {
   return r.nodeType === 1 && Mt(r), r;
 }
 function Ci(e, t, o, i, n, r, a) {
-  var g, b, k, C, y, P, J, ge;
+  var g, b, k, C, y, A, J, ge;
   const s = (a == null ? void 0 : a.document) ?? document, l = t.pmSchema.nodes.blockContainer;
   let c = o.props;
   if (!o.props) {
     c = {};
-    for (const [S, v] of Object.entries(
+    for (const [E, v] of Object.entries(
       t.schema.blockSchema[o.type].propSchema
     ))
-      v.default !== void 0 && (c[S] = v.default);
+      v.default !== void 0 && (c[E] = v.default);
   }
   const u = [...((b = (g = l.spec) == null ? void 0 : g.toDOM) == null ? void 0 : b.call(
     g,
@@ -5602,23 +5602,23 @@ function Ci(e, t, o, i, n, r, a) {
     })
   )).dom.attributes], h = t.blockImplementations[o.type].implementation.toExternalHTML({ ...o, props: c }, t), f = s.createDocumentFragment();
   if (h.dom.classList.contains("bn-block-content")) {
-    const S = [...u, ...h.dom.attributes].filter(
+    const E = [...u, ...h.dom.attributes].filter(
       (v) => v.name.startsWith("data") && v.name !== "data-content-type" && v.name !== "data-file-block" && v.name !== "data-node-view-wrapper" && v.name !== "data-node-type" && v.name !== "data-id" && v.name !== "data-index" && v.name !== "data-editable"
     );
-    for (const v of S)
+    for (const v of E)
       h.dom.firstChild.setAttribute(v.name, v.value);
     Mt(h.dom.firstChild), f.append(...h.dom.childNodes);
   } else
     f.append(h.dom);
   if (h.contentDOM && o.content) {
-    const S = It(
+    const E = It(
       t,
       o.content,
       // TODO
       i,
       a
     );
-    h.contentDOM.appendChild(S);
+    h.contentDOM.appendChild(E);
   }
   let m;
   if (n.has(o.type) ? m = "OL" : r.has(o.type) && (m = "UL"), m) {
@@ -5626,14 +5626,14 @@ function Ci(e, t, o, i, n, r, a) {
       const v = s.createElement(m);
       m === "OL" && (c != null && c.start) && (c == null ? void 0 : c.start) !== 1 && v.setAttribute("start", c.start + ""), e.append(v);
     }
-    const S = s.createElement("li");
-    S.append(f), e.lastChild.appendChild(S);
+    const E = s.createElement("li");
+    E.append(f), e.lastChild.appendChild(E);
   } else
     e.append(f);
   if (o.children && o.children.length > 0) {
-    const S = s.createDocumentFragment();
+    const E = s.createDocumentFragment();
     if (Lt(
-      S,
+      E,
       t,
       o.children,
       i,
@@ -5641,9 +5641,9 @@ function Ci(e, t, o, i, n, r, a) {
       r,
       a
     ), ((C = e.lastChild) == null ? void 0 : C.nodeName) === "UL" || ((y = e.lastChild) == null ? void 0 : y.nodeName) === "OL")
-      for (; ((P = S.firstChild) == null ? void 0 : P.nodeName) === "UL" || ((J = S.firstChild) == null ? void 0 : J.nodeName) === "OL"; )
-        e.lastChild.lastChild.appendChild(S.firstChild);
-    t.pmSchema.nodes[o.type].isInGroup("blockContent") ? e.append(S) : (ge = h.contentDOM) == null || ge.append(S);
+      for (; ((A = E.firstChild) == null ? void 0 : A.nodeName) === "UL" || ((J = E.firstChild) == null ? void 0 : J.nodeName) === "OL"; )
+        e.lastChild.lastChild.appendChild(E.firstChild);
+    t.pmSchema.nodes[o.type].isInGroup("blockContent") ? e.append(E) : (ge = h.contentDOM) == null || ge.append(E);
   }
 }
 const Lt = (e, t, o, i, n, r, a) => {
@@ -5657,7 +5657,7 @@ const Lt = (e, t, o, i, n, r, a) => {
       r,
       a
     );
-}, Si = (e, t, o, i, n, r) => {
+}, Ei = (e, t, o, i, n, r) => {
   const s = ((r == null ? void 0 : r.document) ?? document).createDocumentFragment();
   return Lt(
     s,
@@ -5668,11 +5668,11 @@ const Lt = (e, t, o, i, n, r, a) => {
     n,
     r
   ), s;
-}, Ee = (e, t) => {
+}, Se = (e, t) => {
   const o = yt.fromSchema(e);
   return {
     exportBlocks: (i, n) => {
-      const r = Si(
+      const r = Ei(
         t,
         i,
         o,
@@ -5693,7 +5693,7 @@ const Lt = (e, t, o, i, n, r, a) => {
     }
   };
 };
-function Ei(e, t, o, i) {
+function Si(e, t, o, i) {
   let n;
   if (t)
     if (typeof t == "string")
@@ -5709,7 +5709,7 @@ function Ei(e, t, o, i) {
         e.schema.styleSchema
       );
     else if (t.type === "tableContent")
-      n = Se(
+      n = Ee(
         t,
         e.pmSchema,
         e.schema.styleSchema
@@ -5732,7 +5732,7 @@ function Bi(e, t, o, i, n) {
   }
   const l = e.blockImplementations[t.type].implementation.toInternalHTML({ ...t, props: a }, e);
   if (t.type === "numberedListItem" && l.dom.setAttribute("data-index", i.toString()), l.contentDOM && t.content) {
-    const b = Ei(
+    const b = Si(
       e,
       t.content,
       // TODO
@@ -5743,7 +5743,7 @@ function Bi(e, t, o, i, n) {
   }
   if (e.pmSchema.nodes[t.type].isInGroup("bnBlock")) {
     if (t.children && t.children.length > 0) {
-      const b = At(
+      const b = Pt(
         e,
         t.children,
         o,
@@ -5761,10 +5761,10 @@ function Bi(e, t, o, i, n) {
     })
   );
   return (m = d.contentDOM) == null || m.appendChild(l.dom), t.children && t.children.length > 0 && ((g = d.contentDOM) == null || g.appendChild(
-    Pt(e, t.children, o, n)
+    At(e, t.children, o, n)
   )), d.dom;
 }
-function At(e, t, o, i) {
+function Pt(e, t, o, i) {
   const r = ((i == null ? void 0 : i.document) ?? document).createDocumentFragment();
   let a = 0;
   for (const s of t) {
@@ -5780,14 +5780,14 @@ function At(e, t, o, i) {
   }
   return r;
 }
-const Pt = (e, t, o, i) => {
+const At = (e, t, o, i) => {
   var s;
-  const n = e.pmSchema.nodes.blockGroup, r = n.spec.toDOM(n.create({})), a = At(e, t, o, i);
+  const n = e.pmSchema.nodes.blockGroup, r = n.spec.toDOM(n.create({})), a = Pt(e, t, o, i);
   return (s = r.contentDOM) == null || s.appendChild(a), r.dom;
 }, Ti = (e, t) => {
   const o = yt.fromSchema(e);
   return {
-    serializeBlocks: (i, n) => Pt(t, i, o, n).outerHTML
+    serializeBlocks: (i, n) => At(t, i, o, n).outerHTML
   };
 };
 function O(e, t) {
@@ -5884,7 +5884,7 @@ function _(e) {
   const t = O(e.doc, e.selection.anchor);
   return R(t);
 }
-function A(e, t) {
+function P(e, t) {
   let o, i;
   if (t.firstChild.descendants((n, r) => o ? !1 : !n.type.isInGroup("bnBlock") || n.attrs.id !== e ? !0 : (o = n, i = r + 1, !1)), !(o === void 0 || i === void 0))
     return {
@@ -6052,7 +6052,7 @@ function Li(e, t) {
     t.view.dom.blur();
   }, 10), !0);
 }
-function Ai(e, t) {
+function Pi(e, t) {
   const o = [
     {
       tag: "[data-content-type=" + e.type + "]",
@@ -6080,7 +6080,7 @@ function me(e, t) {
       return he(e.propSchema);
     },
     parseHTML() {
-      return Ai(e, t.parse);
+      return Pi(e, t.parse);
     },
     renderHTML({ HTMLAttributes: i }) {
       const n = document.createElement("div");
@@ -6371,7 +6371,7 @@ function Ut(e, t, o, i, n) {
     )
   ), !1)), r;
 }
-function Pi(e, t) {
+function Ai(e, t) {
   const o = e.steps.length - 1;
   if (o < t)
     return;
@@ -6387,7 +6387,7 @@ function Pi(e, t) {
 function Ot(e, t, o) {
   if (t >= o)
     throw new Error("from must be less than to");
-  let i = e.tr.insertText("!$]", o), n = Pi(i, i.steps.length - 1);
+  let i = e.tr.insertText("!$]", o), n = Ai(i, i.steps.length - 1);
   if (i = i.insertText("[$!", t), n = i.mapping.maps[i.mapping.maps.length - 1].map(n), !i.docChanged || i.steps.length !== 2)
     throw new Error(
       "tr.docChanged is false or insertText was not applied. Was a valid textselection passed?"
@@ -7330,7 +7330,7 @@ function Kt(e, t, o, i) {
     ...i.props
   }), t;
 }
-const E = (e, t, o) => ({
+const S = (e, t, o) => ({
   state: i,
   dispatch: n
 }) => (n && (Kt(e, i.tr, t, o), n(i.tr)), !0);
@@ -7350,7 +7350,7 @@ function bn(e, t, o, i, n, r) {
         o.schema.styleSchema
       );
     else if (e.content.type === "tableContent")
-      a = Se(
+      a = Ee(
         e.content,
         o.pmSchema,
         o.schema.styleSchema
@@ -7403,7 +7403,7 @@ function ct(e, t, o, i) {
 function kn(e, t, o) {
   const i = e._tiptapEditor;
   let n = i.state.tr;
-  const r = typeof t == "string" ? t : t.id, a = A(r, i.state.doc);
+  const r = typeof t == "string" ? t : t.id, a = P(r, i.state.doc);
   if (!a)
     throw new Error(`Block with ID ${r} not found`);
   n = Kt(e, n, a.posBeforeNode, o), e.dispatch(n);
@@ -7433,7 +7433,7 @@ const qt = {
         handler: ({ state: t, chain: o, range: i }) => {
           const n = _(t);
           !n.isBlockContainer || n.blockContent.node.type.spec.content !== "inline*" || o().command(
-            E(
+            S(
               this.options.editor,
               n.bnBlock.beforePos,
               {
@@ -7453,7 +7453,7 @@ const qt = {
       "Mod-Alt-1": () => {
         const e = _(this.editor.state);
         return !e.isBlockContainer || e.blockContent.node.type.spec.content !== "inline*" ? !0 : this.editor.commands.command(
-          E(this.options.editor, e.bnBlock.beforePos, {
+          S(this.options.editor, e.bnBlock.beforePos, {
             type: "heading",
             props: {
               level: 1
@@ -7464,7 +7464,7 @@ const qt = {
       "Mod-Alt-2": () => {
         const e = _(this.editor.state);
         return !e.isBlockContainer || e.blockContent.node.type.spec.content !== "inline*" ? !0 : this.editor.commands.command(
-          E(this.options.editor, e.bnBlock.beforePos, {
+          S(this.options.editor, e.bnBlock.beforePos, {
             type: "heading",
             props: {
               level: 2
@@ -7475,7 +7475,7 @@ const qt = {
       "Mod-Alt-3": () => {
         const e = _(this.editor.state);
         return !e.isBlockContainer || e.blockContent.node.type.spec.content !== "inline*" ? !0 : this.editor.commands.command(
-          E(this.options.editor, e.bnBlock.beforePos, {
+          S(this.options.editor, e.bnBlock.beforePos, {
             type: "heading",
             props: {
               level: 3
@@ -7541,8 +7541,8 @@ const qt = {
       !t.isEditable && i.contains(c) && i.contains(d) && (i.removeChild(c), i.removeChild(d));
       return;
     }
-    let P;
-    e.props.textAlignment === "center" ? u.handleUsed === "left" ? P = u.initialWidth + (u.initialClientX - y.clientX) * 2 : P = u.initialWidth + (y.clientX - u.initialClientX) * 2 : u.handleUsed === "left" ? P = u.initialWidth + u.initialClientX - y.clientX : P = u.initialWidth + y.clientX - u.initialClientX, h = Math.max(P, 64), l.style.width = `${h}px`;
+    let A;
+    e.props.textAlignment === "center" ? u.handleUsed === "left" ? A = u.initialWidth + (u.initialClientX - y.clientX) * 2 : A = u.initialWidth + (y.clientX - u.initialClientX) * 2 : u.handleUsed === "left" ? A = u.initialWidth + u.initialClientX - y.clientX : A = u.initialWidth + y.clientX - u.initialClientX, h = Math.max(A, 64), l.style.width = `${h}px`;
   }, m = (y) => {
     (!y.target || !l.contains(y.target) || !t.isEditable) && i.contains(c) && i.contains(d) && (i.removeChild(c), i.removeChild(d)), u && (u = void 0, t.updateBlock(e, {
       props: {
@@ -7631,7 +7631,7 @@ const qt = {
     t.dictionary.file_blocks.image.add_button_text,
     o.firstElementChild
   );
-}, Sn = (e) => {
+}, En = (e) => {
   if (e.tagName === "IMG")
     return ut(e);
   if (e.tagName === "FIGURE") {
@@ -7644,7 +7644,7 @@ const qt = {
       caption: i
     };
   }
-}, En = (e) => {
+}, Sn = (e) => {
   if (!e.props.url) {
     const o = document.createElement("p");
     return o.textContent = "Add image", {
@@ -7657,8 +7657,8 @@ const qt = {
   };
 }, Bn = me(xn, {
   render: Cn,
-  parse: Sn,
-  toExternalHTML: En
+  parse: En,
+  toExternalHTML: Sn
 }), Zt = (e, t, o) => ({
   state: i,
   dispatch: n
@@ -7689,7 +7689,7 @@ const qt = {
     () => (
       // Changes list item block to a paragraph block if the content is empty.
       l.command(() => n.node.childCount === 0 ? l.command(
-        E(e, i.beforePos, {
+        S(e, i.beforePos, {
           type: "paragraph",
           props: {}
         })
@@ -7718,7 +7718,7 @@ const qt = {
         handler: ({ state: e, chain: t, range: o }) => {
           const i = _(e);
           !i.isBlockContainer || i.blockContent.node.type.spec.content !== "inline*" || t().command(
-            E(
+            S(
               this.options.editor,
               i.bnBlock.beforePos,
               {
@@ -7737,7 +7737,7 @@ const qt = {
       "Mod-Shift-8": () => {
         const e = _(this.editor.state);
         return !e.isBlockContainer || e.blockContent.node.type.spec.content !== "inline*" ? !0 : this.editor.commands.command(
-          E(this.options.editor, e.bnBlock.beforePos, {
+          S(this.options.editor, e.bnBlock.beforePos, {
             type: "bulletListItem",
             props: {}
           })
@@ -7813,7 +7813,7 @@ const qt = {
         handler: ({ state: e, chain: t, range: o }) => {
           const i = _(e);
           !i.isBlockContainer || i.blockContent.node.type.spec.content !== "inline*" || t().command(
-            E(
+            S(
               this.options.editor,
               i.bnBlock.beforePos,
               {
@@ -7831,7 +7831,7 @@ const qt = {
         handler: ({ state: e, chain: t, range: o }) => {
           const i = _(e);
           !i.isBlockContainer || i.blockContent.node.type.spec.content !== "inline*" || t().command(
-            E(
+            S(
               this.options.editor,
               i.bnBlock.beforePos,
               {
@@ -7852,7 +7852,7 @@ const qt = {
       "Mod-Shift-9": () => {
         const e = _(this.editor.state);
         return !e.isBlockContainer || e.blockContent.node.type.spec.content !== "inline*" ? !0 : this.editor.commands.command(
-          E(this.options.editor, e.bnBlock.beforePos, {
+          S(this.options.editor, e.bnBlock.beforePos, {
             type: "checkListItem",
             props: {}
           })
@@ -7936,7 +7936,7 @@ const qt = {
               `Expected blockContainer node, got ${h.node.type.name}`
             );
           this.editor.commands.command(
-            E(
+            S(
               this.options.editor,
               h.posBeforeNode,
               {
@@ -7972,11 +7972,11 @@ const qt = {
       };
     };
   }
-}), An = W(
+}), Pn = W(
   Ln,
   Jt
-), Pn = new N("numbered-list-indexing"), Nn = () => new B({
-  key: Pn,
+), An = new N("numbered-list-indexing"), Nn = () => new B({
+  key: An,
   appendTransaction: (e, t, o) => {
     const i = o.tr;
     i.setMeta("numberedListIndexing", !0);
@@ -8054,7 +8054,7 @@ const qt = {
             return;
           const r = parseInt(i[1]);
           t().command(
-            E(
+            S(
               this.options.editor,
               n.bnBlock.beforePos,
               {
@@ -8075,7 +8075,7 @@ const qt = {
       "Mod-Shift-7": () => {
         const e = _(this.editor.state);
         return !e.isBlockContainer || e.blockContent.node.type.spec.content !== "inline*" ? !0 : this.editor.commands.command(
-          E(this.options.editor, e.bnBlock.beforePos, {
+          S(this.options.editor, e.bnBlock.beforePos, {
             type: "numberedListItem",
             props: {}
           })
@@ -8155,7 +8155,7 @@ const qt = {
       "Mod-Alt-0": () => {
         const e = _(this.editor.state);
         return !e.isBlockContainer || e.blockContent.node.type.spec.content !== "inline*" ? !0 : this.editor.commands.command(
-          E(this.options.editor, e.bnBlock.beforePos, {
+          S(this.options.editor, e.bnBlock.beforePos, {
             type: "paragraph",
             props: {}
           })
@@ -8420,7 +8420,7 @@ const qt = {
   codeBlock: en,
   bulletListItem: In,
   numberedListItem: Dn,
-  checkListItem: An,
+  checkListItem: Pn,
   table: $n,
   file: gn,
   image: Bn,
@@ -8464,7 +8464,7 @@ function Cs(e, t) {
 function ir(e, t, o) {
   return t in o.schema.blockSchema && e in o.schema.blockSchema[t].propSchema && o.schema.blockSchema[t].propSchema[e] === x[e];
 }
-function Ss(e, t, o) {
+function Es(e, t, o) {
   return ir(e, t.type, o);
 }
 function nr(e) {
@@ -8479,7 +8479,7 @@ function T(e, t) {
   let i;
   return Array.isArray(o.content) && (o.content.length === 1 && de(o.content[0]) && o.content[0].type === "text" && o.content[0].text === "/" || o.content.length === 0) ? (i = e.updateBlock(o, t), e.setTextCursorPosition(i)) : (i = e.insertBlocks([t], o, "after")[0], e.setTextCursorPosition(e.getTextCursorPosition().nextBlock)), nr(e), i;
 }
-function Es(e) {
+function Ss(e) {
   const t = [];
   return I("heading", e) && t.push(
     {
@@ -8650,7 +8650,7 @@ function Bs(e, t) {
     ).length !== 0
   );
 }
-function Ae(e) {
+function Pe(e) {
   return e && Object.fromEntries(
     Object.entries(e).filter(([, t]) => t !== void 0)
   );
@@ -8667,7 +8667,7 @@ class fe {
     p(this, "BlockNoteEditor", "only for types");
     p(this, "Block", "only for types");
     p(this, "PartialBlock", "only for types");
-    this.blockSpecs = Ae(t == null ? void 0 : t.blockSpecs) || eo, this.inlineContentSpecs = Ae(t == null ? void 0 : t.inlineContentSpecs) || oo, this.styleSpecs = Ae(t == null ? void 0 : t.styleSpecs) || to, this.blockSchema = Dt(this.blockSpecs), this.inlineContentSchema = zt(
+    this.blockSpecs = Pe(t == null ? void 0 : t.blockSpecs) || eo, this.inlineContentSpecs = Pe(t == null ? void 0 : t.inlineContentSpecs) || oo, this.styleSpecs = Pe(t == null ? void 0 : t.styleSpecs) || to, this.blockSchema = Dt(this.blockSpecs), this.inlineContentSchema = zt(
       this.inlineContentSpecs
     ), this.styleSchema = Gt(this.styleSpecs);
   }
@@ -8718,7 +8718,7 @@ function ar(e, t, o, i = "before") {
     r.push(
       Z(l, e.pmSchema, e.schema.styleSchema)
     );
-  const a = A(n, e._tiptapEditor.state.doc);
+  const a = P(n, e._tiptapEditor.state.doc);
   if (!a)
     throw new Error(`Block with ID ${n} not found`);
   i === "before" && e.dispatch(
@@ -8769,7 +8769,7 @@ function sr(e) {
 }
 function lr(e, t) {
   var n, r;
-  const o = (n = A(
+  const o = (n = P(
     t.anchorBlockId,
     e._tiptapEditor.state.doc
   )) == null ? void 0 : n.posBeforeNode;
@@ -8790,7 +8790,7 @@ function lr(e, t) {
       o + 1
     );
   else {
-    const a = (r = A(
+    const a = (r = P(
       t.headBlockId,
       e._tiptapEditor.state.doc
     )) == null ? void 0 : r.posBeforeNode;
@@ -8997,7 +8997,7 @@ function gr(e, t) {
   return co(e, t, []).removedBlocks;
 }
 function br(e, t) {
-  const o = typeof t == "string" ? t : t.id, i = A(o, e._tiptapEditor.state.doc);
+  const o = typeof t == "string" ? t : t.id, i = P(o, e._tiptapEditor.state.doc);
   if (i)
     return w(
       i.node,
@@ -9008,7 +9008,7 @@ function br(e, t) {
     );
 }
 function kr(e, t) {
-  const o = typeof t == "string" ? t : t.id, i = A(o, e._tiptapEditor.state.doc);
+  const o = typeof t == "string" ? t : t.id, i = P(o, e._tiptapEditor.state.doc);
   if (!i)
     return;
   const r = e._tiptapEditor.state.doc.resolve(
@@ -9024,7 +9024,7 @@ function kr(e, t) {
     );
 }
 function _r(e, t) {
-  const o = typeof t == "string" ? t : t.id, i = A(o, e._tiptapEditor.state.doc);
+  const o = typeof t == "string" ? t : t.id, i = P(o, e._tiptapEditor.state.doc);
   if (!i)
     return;
   const r = e._tiptapEditor.state.doc.resolve(
@@ -9040,7 +9040,7 @@ function _r(e, t) {
     );
 }
 function yr(e, t) {
-  const o = typeof t == "string" ? t : t.id, i = A(o, e._tiptapEditor.state.doc);
+  const o = typeof t == "string" ? t : t.id, i = P(o, e._tiptapEditor.state.doc);
   if (!i)
     return;
   const n = e._tiptapEditor.state.doc.resolve(
@@ -9122,10 +9122,10 @@ function xr(e, t, o) {
     throw new Error(
       `Attempting to set selection with the same anchor and head blocks (id ${i})`
     );
-  const r = e._tiptapEditor.state.doc, a = A(i, r);
+  const r = e._tiptapEditor.state.doc, a = P(i, r);
   if (!a)
     throw new Error(`Block with ID ${i} not found`);
-  const s = A(n, r);
+  const s = P(n, r);
   if (!s)
     throw new Error(`Block with ID ${n} not found`);
   const l = R(a), c = R(s), d = e.schema.blockSchema[l.blockNoteType], u = e.schema.blockSchema[c.blockNoteType];
@@ -9195,7 +9195,7 @@ function Cr(e) {
   };
 }
 function uo(e, t, o = "start") {
-  const i = typeof t == "string" ? t : t.id, n = A(i, e._tiptapEditor.state.doc);
+  const i = typeof t == "string" ? t : t.id, n = P(i, e._tiptapEditor.state.doc);
   if (!n)
     throw new Error(`Block with ID ${i} not found`);
   const r = R(n), a = e.schema.blockSchema[r.blockNoteType].content;
@@ -9253,7 +9253,7 @@ async function qe() {
     rehypeFormat: e[9]
   }, Y;
 }
-function Sr() {
+function Er() {
   const e = (t) => {
     let o = t.children.length;
     for (let i = 0; i < o; i++) {
@@ -9269,7 +9269,7 @@ function Sr() {
   };
   return e;
 }
-function Er() {
+function Sr() {
   const e = Y;
   if (!e)
     throw new Error(
@@ -9291,20 +9291,29 @@ function Er() {
   };
   return t;
 }
-function Xe(e) {
-  const t = Y;
-  if (!t)
+function Xe(e, t) {
+  const o = Y;
+  if (!o)
     throw new Error(
       "cleanHTMLToMarkdown requires ESM dependencies to be initialized"
     );
-  return t.unified.unified().use(t.rehypeParse.default, { fragment: !0 }).use(Sr).use(Er).use(t.rehypeRemark.default).use(t.remarkGfm.default).use(t.remarkStringify.default, {
-    handlers: { text: (i) => i.value }
+  t != null && t.keepEmptyParagraphs && (e = e.replace(
+    /<p><\/p>/g,
+    "<p>[EMPTY-LINE]</p>"
+  ));
+  let n = o.unified.unified().use(o.rehypeParse.default, { fragment: !0 }).use(Er).use(Sr).use(o.rehypeRemark.default).use(o.remarkGfm.default).use(o.remarkStringify.default, {
+    handlers: { text: (r) => r.value }
   }).processSync(e).value;
+  return t != null && t.keepEmptyParagraphs && (n = n.replace(/\n\[EMPTY-LINE\]\n/g, `
+
+`)), n;
 }
 async function Br(e, t, o, i) {
   await qe();
-  const r = Ee(t, o).exportBlocks(e, i);
-  return Xe(r);
+  const r = Se(t, o).exportBlocks(e, i);
+  return Xe(r, {
+    keepEmptyParagraphs: !0
+  });
 }
 function Tr(e) {
   return Array.prototype.indexOf.call(e.parentElement.childNodes, e);
@@ -9338,12 +9347,12 @@ function Lr(e) {
   });
 }
 let ht = null;
-function Ar() {
+function Pr() {
   return ht || (ht = document.implementation.createHTMLDocument("title"));
 }
 function po(e) {
   if (typeof e == "string") {
-    const t = Ar().createElement("div");
+    const t = Pr().createElement("div");
     t.innerHTML = e, e = t;
   }
   return Ir(e), Lr(e), e;
@@ -9358,7 +9367,7 @@ async function ho(e, t, o, i, n) {
     );
   return l;
 }
-function Pr(e, t) {
+function Ar(e, t) {
   const o = t.value ? t.value : "", i = {};
   t.lang && (i["data-language"] = t.lang);
   let n = {
@@ -9378,7 +9387,7 @@ async function Nr(e, t, o, i, n) {
   const r = await qe(), a = r.unified.unified().use(r.remarkParse.default).use(r.remarkGfm.default).use(r.remarkRehype.default, {
     handlers: {
       ...r.remarkRehype.defaultHandlers,
-      code: Pr
+      code: Ar
     }
   }).use(r.rehypeStringify.default).processSync(e);
   return ho(
@@ -9603,7 +9612,7 @@ function Rr(e, t, o) {
     ) === void 0, i && (t = l);
   }
   let r;
-  const a = Ee(
+  const a = Se(
     e.state.schema,
     o
   );
@@ -9637,7 +9646,7 @@ function go(e, t) {
       new ce(e.state.doc.resolve(e.state.selection.from - 1))
     )
   );
-  const o = St.__serializeForClipboard(
+  const o = Et.__serializeForClipboard(
     e,
     e.state.selection.content()
   ).dom.innerHTML, i = e.state.selection.content().content, n = Rr(
@@ -9783,7 +9792,7 @@ class Fr {
     this.pmView.dom.removeEventListener("mousedown", this.mouseDownHandler), this.pmView.dom.removeEventListener("dragstart", this.dragstartHandler), this.pmView.root.removeEventListener("scroll", this.scrollHandler, !0);
   }
 }
-const Pe = new N("FilePanelPlugin");
+const Ae = new N("FilePanelPlugin");
 class Gr extends ne {
   constructor(o) {
     super();
@@ -9794,10 +9803,10 @@ class Gr extends ne {
       return (o = this.view) == null ? void 0 : o.closeMenu();
     });
     this.plugin = new B({
-      key: Pe,
+      key: Ae,
       view: (i) => (this.view = new Fr(
         o,
-        Pe,
+        Ae,
         i,
         (n) => {
           this.emit("update", n);
@@ -9816,7 +9825,7 @@ class Gr extends ne {
         apply: (i) => {
           var r;
           return {
-            block: (r = i.getMeta(Pe)) == null ? void 0 : r.block
+            block: (r = i.getMeta(Ae)) == null ? void 0 : r.block
           };
         }
       }
@@ -10030,7 +10039,7 @@ const ft = (e, t) => {
             return !1;
           const s = r.selection.from === a.blockContent.beforePos + 1, l = a.blockContent.node.type.name === "paragraph";
           return s && !l ? n.command(
-            E(
+            S(
               this.options.editor,
               a.bnBlock.beforePos,
               {
@@ -10736,7 +10745,7 @@ function da(e, t, o) {
   const i = o.prosemirrorView;
   if (!i)
     return;
-  const n = A(t.id, i.state.doc);
+  const n = P(t.id, i.state.doc);
   if (!n)
     throw new Error(`Block with ID ${t.id} not found`);
   const r = n.posBeforeNode;
@@ -10747,10 +10756,10 @@ function da(e, t, o) {
     ), kt(i, l, c)) : (i.dispatch(
       i.state.tr.setSelection(ce.create(i.state.doc, r))
     ), kt(i, r));
-    const h = i.state.selection.content(), f = o.pmSchema, m = St.__serializeForClipboard(
+    const h = i.state.selection.content(), f = o.pmSchema, m = Et.__serializeForClipboard(
       i,
       h
-    ).dom.innerHTML, g = Ee(f, o), b = fo(h.content, o.schema), k = g.exportBlocks(b, {}), C = Xe(k);
+    ).dom.innerHTML, g = Se(f, o), b = fo(h.content, o.schema), k = g.exportBlocks(b, {}), C = Xe(k);
     e.dataTransfer.clearData(), e.dataTransfer.setData("blocknote/html", m), e.dataTransfer.setData("text/html", k), e.dataTransfer.setData("text/plain", C), e.dataTransfer.effectAllowed = "move", e.dataTransfer.setDragImage(U, 0, 0);
   }
 }
@@ -11300,7 +11309,7 @@ class ya {
         return;
       this.tableElement = n.node;
       let r;
-      const a = A(
+      const a = P(
         n.id,
         this.editor._tiptapEditor.state.doc
       );
@@ -11672,13 +11681,13 @@ const va = L.create({
       })
     ];
   }
-}), Sa = {
+}), Ea = {
   blockColor: "data-block-color",
   blockStyle: "data-block-style",
   id: "data-id",
   depth: "data-depth",
   depthChange: "data-depth-change"
-}, Ea = X.create({
+}, Sa = X.create({
   name: "blockContainer",
   group: "blockGroupChild bnBlock",
   // A block always contains content, and optionally a blockGroup which contains nested blocks
@@ -11694,7 +11703,7 @@ const va = L.create({
           if (typeof e == "string")
             return !1;
           const t = {};
-          for (const [o, i] of Object.entries(Sa))
+          for (const [o, i] of Object.entries(Ea))
             e.getAttribute(i) && (t[o] = e.getAttribute(i));
           return e.getAttribute("data-node-type") === "blockContainer" ? t : !1;
         }
@@ -11814,7 +11823,7 @@ const va = L.create({
     }),
     // nodes
     Ta,
-    Ea.configure({
+    Sa.configure({
       editor: e.editor,
       domAttributes: e.domAttributes
     }),
@@ -11924,7 +11933,7 @@ function La(e, t) {
     r !== t && o.push(i);
   }), j.from(o);
 }
-function Aa(e, t) {
+function Pa(e, t) {
   const o = [];
   for (let i = 0; i < e.childCount; i++)
     if (e.child(i).type.name === "tableRow")
@@ -11942,9 +11951,9 @@ function Aa(e, t) {
       o.push(e.child(i));
   return e = j.from(o), e;
 }
-function Pa(e, t) {
+function Aa(e, t) {
   let o = j.from(e.content);
-  if (o = Aa(o, t.state.schema), !Na(o, t))
+  if (o = Pa(o, t.state.schema), !Na(o, t))
     return new q(o, e.openStart, e.openEnd);
   for (let i = 0; i < o.childCount; i++)
     if (o.child(i).type.spec.group === "blockContent") {
@@ -11975,7 +11984,7 @@ function Na(e, t) {
   }
   return !0;
 }
-const xe = class xe extends Ao {
+const xe = class xe extends Po {
   constructor(o, i) {
     super({ ...o, content: void 0 });
     p(this, "_state");
@@ -12002,7 +12011,7 @@ const xe = class xe extends Ao {
       const l = o == null ? void 0 : o.content.map(
         (c) => Z(c, this.schema, i).toJSON()
       );
-      s = Po(
+      s = Ao(
         {
           type: "doc",
           content: [
@@ -12163,7 +12172,7 @@ class yo {
       throw new Error(
         "editable initialization option is deprecated, use <BlockNoteView editable={true/false} />, or alternatively editor.isEditable = true/false"
       );
-    this.dictionary = t.dictionary || Et;
+    this.dictionary = t.dictionary || St;
     const i = {
       defaultStyles: !0,
       schema: t.schema || fe.create(),
@@ -12260,7 +12269,7 @@ class yo {
             ((f = (h = i.domAttributes) == null ? void 0 : h.editor) == null ? void 0 : f.class) || ""
           )
         },
-        transformPasted: Pa
+        transformPasted: Aa
       }
     };
     this.headless ? this._pmSchema = No(a.extensions) : (this._tiptapEditor = ve.create(
@@ -12683,7 +12692,7 @@ class yo {
    * @returns The blocks, serialized as an HTML string.
    */
   async blocksToHTMLLossy(t = this.document) {
-    return Ee(this.pmSchema, this).exportBlocks(t, {});
+    return Se(this.pmSchema, this).exportBlocks(t, {});
   }
   /**
    * Serializes blocks into an HTML string in the format that would normally be rendered by the editor.
@@ -12795,7 +12804,7 @@ class yo {
     );
   }
 }
-const As = {
+const Ps = {
   gray: {
     text: "#9b9a97",
     background: "#ebeced"
@@ -12832,7 +12841,7 @@ const As = {
     text: "#ad1a72",
     background: "#f4dfeb"
   }
-}, Ps = {
+}, As = {
   gray: {
     text: "#bebdb8",
     background: "#9b9a97"
@@ -13013,8 +13022,8 @@ export {
   Qi as AudioBlock,
   yo as BlockNoteEditor,
   fe as BlockNoteSchema,
-  Ps as COLORS_DARK_MODE_DEFAULT,
-  As as COLORS_DEFAULT,
+  As as COLORS_DARK_MODE_DEFAULT,
+  Ps as COLORS_DEFAULT,
   en as CodeBlock,
   ta as DEFAULT_LINK_PROTOCOL,
   _s as EMPTY_CELL_HEIGHT,
@@ -13059,7 +13068,7 @@ export {
   Z as blockToNode,
   Br as blocksToMarkdown,
   we as camelToDataKebab,
-  Ss as checkBlockHasDefaultProp,
+  Es as checkBlockHasDefaultProp,
   or as checkBlockIsDefaultType,
   vs as checkBlockIsFileBlock,
   Cs as checkBlockIsFileBlockWithPlaceholder,
@@ -13077,7 +13086,7 @@ export {
   me as createBlockSpec,
   W as createBlockSpecFromStronglyTypedTiptapNode,
   z as createDefaultBlockDOMOutputSpec,
-  Ee as createExternalHTMLExporter,
+  Se as createExternalHTMLExporter,
   We as createFigureWithCaption,
   $e as createFileBlockWrapper,
   Wi as createFileNameWithIcon,
@@ -13122,22 +13131,22 @@ export {
   Ma as getBlockNoteExtensions,
   Dt as getBlockSchemaFromSpecs,
   Ds as getDefaultEmojiPickerItems,
-  Es as getDefaultSlashMenuItems,
+  Ss as getDefaultSlashMenuItems,
   Ni as getDocumentWithSelectionMarkers,
   Ri as getInlineContentParseRules,
   zt as getInlineContentSchemaFromSpecs,
   O as getNearestBlockPos,
-  A as getNodeById,
+  P as getNodeById,
   Ms as getPageBreakSlashMenuItems,
-  Ai as getParseRules,
+  Pi as getParseRules,
   ji as getSelectedBlocksWithSelectionMarkers,
   Fi as getStyleParseRules,
   Gt as getStyleSchemaFromSpecs,
   xn as imageBlockConfig,
-  Sn as imageParse,
+  En as imageParse,
   vn as imagePropSchema,
   Cn as imageRender,
-  En as imageToExternalHTML,
+  Sn as imageToExternalHTML,
   Nt as inheritedProps,
   qe as initializeESMDependencies,
   H as inlineContentToNodes,
@@ -13165,15 +13174,15 @@ export {
   Us as partialBlocksToBlocksForTesting,
   he as propsToAttributes,
   Vt as prosemirrorSliceToSlicedBlocks,
-  Pi as selectionToInsertionEnd,
+  Ai as selectionToInsertionEnd,
   Le as shikiHighlighterPromiseSymbol,
   lt as shikiParserSymbol,
   pa as sideMenuPluginKey,
   Vi as stylePropsToAttributes,
-  Se as tableContentToNodes,
+  Ee as tableContentToNodes,
   se as tableHandlesPluginKey,
   kn as updateBlock,
-  E as updateBlockCommand,
+  S as updateBlockCommand,
   Is as uploadToTmpFilesDotOrg_DEV_ONLY,
   qn as videoBlockConfig,
   Zn as videoParse,
