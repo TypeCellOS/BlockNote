@@ -1,5 +1,7 @@
 import {
   AIShowSelectionPlugin,
+  AIDiffView,
+  createAIDiffView,
   AIToolbarButton,
   BlockNoteAIContextProvider,
   BlockNoteAIUI,
@@ -32,9 +34,10 @@ import {
 } from "@blocknote/react";
 import "@blocknote/xl-ai/style.css";
 import { Fieldset, Switch } from "@mantine/core";
-import { useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { BasicAutocomplete } from "./AutoComplete.js";
 import RadioGroupComponent from "./components/RadioGroupComponent.js";
+import { callLLM } from "@blocknote/xl-ai/types/src/api/formats/json/json.js";
 
 const schema = BlockNoteSchema.create({
   blockSpecs: {
@@ -50,6 +53,7 @@ const client = createBlockNoteAIClient({
     "https://localhost:3000/ai",
 });
 
+const xyz = 0;
 export default function App() {
   const [aiModelString, setAiModelString] = useState(
     "openai/gpt-4o-2024-08-06"
@@ -65,8 +69,25 @@ export default function App() {
       // TODO: things will break when user provides different keys. Define name on plugins instead?
       // aiBlockToolbar: new AIBlockToolbarProsemirrorPlugin(),
       aiSelection: new AIShowSelectionPlugin(),
+      aiDiffView: (editor) => createAIDiffView(editor),
     },
   });
+  console.log(editor._tiptapEditor.extensionManager.extensions);
+
+  // useEffect(() => {
+  //   if (xyz === 0) {
+  //     xyz++;
+  //     return;
+  //   }
+  //   editor.onChange(() => {
+  //     console.log(editor);
+  //   });
+  //   setTimeout(() => {
+  //     // bullshit
+  //     // editor._tiptapEditor.unregisterPlugin(new AIDiffView(editor).plugin);
+  //     editor._tiptapEditor.registerPlugin(new AIDiffView(editor).plugin);
+  //   }, 10);
+  // }, [editor]);
 
   const model = useMemo(() => {
     const [provider, ...modelNameParts] = aiModelString.split("/");
@@ -123,6 +144,20 @@ export default function App() {
           label="Streaming"
         />
       </Fieldset>
+
+      <button
+        onClick={() => {
+          editor._tiptapEditor.commands.setMeta("showDiff", true);
+        }}>
+        diff on
+      </button>
+      <button
+        onClick={() => {
+          editor._tiptapEditor.commands.setMeta("showDiff", false);
+          callLLM(editor, {});
+        }}>
+        diff off
+      </button>
 
       <BlockNoteView
         editor={editor}

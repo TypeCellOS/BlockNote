@@ -104,7 +104,8 @@ export type BlockNoteExtension =
   | AnyExtension
   | {
       plugin: Plugin;
-    };
+    }
+  | ((editor: BlockNoteEditor<any, any, any>) => AnyExtension);
 
 export type BlockNoteEditorOptions<
   BSchema extends BlockSchema,
@@ -350,6 +351,7 @@ export class BlockNoteEditor<
     ISchema,
     SSchema
   >;
+  public readonly aiDiffView?: any;
 
   /**
    * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
@@ -366,6 +368,7 @@ export class BlockNoteEditor<
 
   private onUploadStartCallbacks: ((blockId?: string) => void)[] = [];
   private onUploadEndCallbacks: ((blockId?: string) => void)[] = [];
+  private _originalOptions: Partial<BlockNoteEditorOptions<any, any, any>>;
 
   public readonly resolveFileUrl?: (url: string) => Promise<string>;
 
@@ -381,9 +384,25 @@ export class BlockNoteEditor<
     return new BlockNoteEditor<BSchema, ISchema, SSchema>(options);
   }
 
+  public diffView(blocksToDiff: BlockIdentifier[]): {
+    options: Partial<BlockNoteEditorOptions<any, any, any>>;
+  } {
+    const blocks = blocksToDiff.map((blockId) => {
+      return this.getBlock(blockId)!;
+    });
+    const newOptions = {
+      ...this._originalOptions,
+      initialContent: blocks,
+      isDiffView: true,
+    };
+
+    return { options: newOptions };
+  }
+
   protected constructor(
     protected readonly options: Partial<BlockNoteEditorOptions<any, any, any>>
   ) {
+    this._originalOptions = options;
     const anyOpts = options as any;
     if (anyOpts.onEditorContentChange) {
       throw new Error(
@@ -463,6 +482,7 @@ export class BlockNoteEditor<
     this.suggestionMenus = this.extensions["suggestionMenus"] as any;
     this.filePanel = this.extensions["filePanel"] as any;
     this.tableHandles = this.extensions["tableHandles"] as any;
+    this.aiDiffView = this.extensions["aiDiffView"] as any;
 
     if (newOptions.uploadFile) {
       const uploadFile = newOptions.uploadFile;
@@ -515,6 +535,10 @@ export class BlockNoteEditor<
 
     const tiptapExtensions = [
       ...Object.entries(this.extensions).map(([key, ext]) => {
+        if (typeof ext === "function") {
+          return ext(this);
+        }
+
         if (
           ext instanceof Extension ||
           ext instanceof TipTapNode ||

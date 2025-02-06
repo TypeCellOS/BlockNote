@@ -1,0 +1,18 @@
+{
+  "id": "chatcmpl-AxuV3GfUim8GktpU3Gk4Ex25z3GtG",
+  "object": "chat.completion.chunk",
+  "created": 1738841901,
+  "model": "gpt-4o-2024-08-06",
+  "service_tier": "default",
+  "system_fingerprint": "fp_50cad350e4",
+  "choices": [
+    {
+      "index": 0,
+      "delta": {
+        "tool_calls": [{ "index": 0, "function": { "arguments": ".\"" } }]
+      },
+      "logprobs": null,
+      "finish_reason": null
+    }
+  ]
+}
