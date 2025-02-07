@@ -368,7 +368,6 @@ export class BlockNoteEditor<
 
   private onUploadStartCallbacks: ((blockId?: string) => void)[] = [];
   private onUploadEndCallbacks: ((blockId?: string) => void)[] = [];
-  private _originalOptions: Partial<BlockNoteEditorOptions<any, any, any>>;
 
   public readonly resolveFileUrl?: (url: string) => Promise<string>;
 
@@ -384,25 +383,9 @@ export class BlockNoteEditor<
     return new BlockNoteEditor<BSchema, ISchema, SSchema>(options);
   }
 
-  public diffView(blocksToDiff: BlockIdentifier[]): {
-    options: Partial<BlockNoteEditorOptions<any, any, any>>;
-  } {
-    const blocks = blocksToDiff.map((blockId) => {
-      return this.getBlock(blockId)!;
-    });
-    const newOptions = {
-      ...this._originalOptions,
-      initialContent: blocks,
-      isDiffView: true,
-    };
-
-    return { options: newOptions };
-  }
-
   protected constructor(
-    protected readonly options: Partial<BlockNoteEditorOptions<any, any, any>>
+    public readonly options: Partial<BlockNoteEditorOptions<any, any, any>>
   ) {
-    this._originalOptions = options;
     const anyOpts = options as any;
     if (anyOpts.onEditorContentChange) {
       throw new Error(

@@ -1,12 +1,22 @@
-import { BlockNoteEditor, EventEmitter } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  BlockNoteEditorOptions,
+  EventEmitter,
+} from "@blocknote/core";
 import { Extension } from "@tiptap/core";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
+import { callLLM } from "../api/formats/json/json";
 
 const PLUGIN_KEY = new PluginKey(`blocknote-ai-diff-view`);
 
+type DiffEditorView = {
+  left: BlockNoteEditor<any, any, any>;
+  right: BlockNoteEditor<any, any, any>;
+};
+
 export class AIDiffView extends EventEmitter<{
-  showDiff: boolean;
+  addDiffView: DiffEditorView;
 }> {
   public readonly plugin: Plugin;
   private editor: BlockNoteEditor<any, any, any>;
@@ -20,61 +30,76 @@ export class AIDiffView extends EventEmitter<{
       key: PLUGIN_KEY,
       state: {
         init() {
-          console.log("init plugin state");
           return { decorations: null };
         },
-        apply(tr, value, _old, state) {
-          console.log("applying tr");
-          const shouldShowDiff = tr.getMeta("showDiff") as boolean | undefined;
-          if (shouldShowDiff === undefined) {
+        apply: (tr, value, _old, state) => {
+          const diffId = tr.getMeta(PLUGIN_KEY) as string | undefined;
+          if (diffId === undefined) {
             return value;
           }
 
-          if (shouldShowDiff) {
+          if (diffId) {
             if (!value.decorations) {
-              console.log("creating a new one");
               return {
                 decorations: DecorationSet.create(state.doc, [
                   // TODO extract the decoration creation
                   // TODO how do we know what position to put the diff view?
-                  Decoration.widget(12, (view, getPos) => {
-                    const el = document.createElement("div");
+                  Decoration.widget(
+                    0,
+                    () => {
+                      const el = document.createElement("div");
 
-                    const leftSide = document.createElement("div");
-                    const rightSide = document.createElement("div");
+                      const leftSide = document.createElement("div");
+                      const rightSide = document.createElement("div");
 
-                    el.appendChild(leftSide);
-                    el.appendChild(rightSide);
-                    el.style.display = "flex";
+                      el.appendChild(leftSide);
+                      el.appendChild(rightSide);
+                      el.style.display = "flex";
 
-                    const leftOptions = editor.diffView(
-                      editor.document
-                    ).options;
+                      const blocks = editor.document.map((blockId) => {
+                        return editor.getBlock(blockId)!;
+                      });
+                      const leftOptions: Partial<
+                        BlockNoteEditorOptions<any, any, any>
+                      > = {
+                        ...editor.options,
+                        initialContent: blocks,
+                      };
 
-                    const leftEditor = BlockNoteEditor.create(leftOptions);
-                    leftEditor.mount(leftSide);
+                      const leftEditor = BlockNoteEditor.create(leftOptions);
+                      leftEditor.mount(leftSide);
 
-                    const rightOptions = editor.diffView(
-                      editor.document
-                    ).options;
+                      const rightOptions: Partial<
+                        BlockNoteEditorOptions<any, any, any>
+                      > = {
+                        ...editor.options,
+                        // initialContent: [],
+                      };
 
-                    const rightEditor = BlockNoteEditor.create(rightOptions);
-                    rightEditor.mount(rightSide);
+                      const rightEditor = BlockNoteEditor.create(rightOptions);
+                      rightEditor.mount(rightSide);
 
-                    rightSide.style.flex = "1";
-                    leftSide.style.flex = "1";
+                      rightSide.style.flex = "1";
+                      rightSide.style.minWidth = "0";
+                      leftSide.style.flex = "1";
+                      leftSide.style.minWidth = "0";
 
-                    return el;
-                  }),
+                      this.instances.set(diffId, {
+                        left: leftEditor,
+                        right: rightEditor,
+                      });
+
+                      return el;
+                    },
+                    {
+                      key: diffId,
+                    }
+                  ),
                 ]),
               };
             } else {
               return {
-                decorations: value.decorations.map(tr.mapping, tr.doc, {
-                  onRemove: () => {
-                    alert("did thing");
-                  },
-                }),
+                decorations: value.decorations.map(tr.mapping, tr.doc),
               };
             }
           }
@@ -94,19 +119,27 @@ export class AIDiffView extends EventEmitter<{
     });
   }
 
-  // public diffAt(blocks: string[]) {}
+  public instances = new Map<
+    string,
+    {
+      left: BlockNoteEditor<any, any, any>;
+      right: BlockNoteEditor<any, any, any>;
+    }
+  >();
 
-  // public showDiff() {
-  //   this.editor._tiptapEditor.commands.setMeta("showDiff", true);
-  // }
+  public showDiff(id = Math.random().toString(16).slice(2)) {
+    this.editor._tiptapEditor.commands.setMeta(PLUGIN_KEY, id);
+  }
 
-  // public hideDiff() {
-  //   this.editor._tiptapEditor.commands.setMeta("showDiff", false);
-  // }
+  public hideDiff(id: string) {
+    this.editor._tiptapEditor.commands.setMeta(PLUGIN_KEY, id);
+  }
+
+  public startLLM() {}
 
   // public onUpdate(cb: () => void) {
   //   this.editor._tiptapEditor.on("transaction", ({ transaction }) => {
-  //     if (transaction.getMeta("showDiff") !== undefined) {
+  //     if (transaction.getMeta(PLUGIN_KEY) !== undefined) {
   //       cb();
   //     }
   //   });

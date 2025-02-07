@@ -37,7 +37,6 @@ import { Fieldset, Switch } from "@mantine/core";
 import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { BasicAutocomplete } from "./AutoComplete.js";
 import RadioGroupComponent from "./components/RadioGroupComponent.js";
-import { callLLM } from "@blocknote/xl-ai/types/src/api/formats/json/json.js";
 
 const schema = BlockNoteSchema.create({
   blockSpecs: {
@@ -154,7 +153,6 @@ export default function App() {
       <button
         onClick={() => {
           editor._tiptapEditor.commands.setMeta("showDiff", false);
-          callLLM(editor, {});
         }}>
         diff off
       </button>
