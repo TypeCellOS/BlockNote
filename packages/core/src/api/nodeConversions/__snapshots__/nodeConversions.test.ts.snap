@@ -677,8 +677,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
       "content": [
         {
           "text": "const hello = 'world';
-console.log(hello);
-",
+console.log(hello);",
           "type": "text",
         },
       ],
