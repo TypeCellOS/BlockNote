@@ -45,6 +45,12 @@ function styledTextToNodes<T extends StyleSchema>(
     }
   }
 
+  const parseHardBreaks = !blockType || !schema.nodes[blockType].spec.code;
+
+  if (!parseHardBreaks) {
+    return [schema.text(styledText.text, marks)];
+  }
+
   return (
     styledText.text
       // Splits text & line breaks.
@@ -54,10 +60,7 @@ function styledTextToNodes<T extends StyleSchema>(
       .filter((text) => text.length > 0)
       // Converts text & line breaks to nodes.
       .map((text) => {
-        const parseHardBreaks =
-          !blockType || !schema.nodes[blockType].spec.code;
-
-        if (parseHardBreaks && text === "\n") {
+        if (text === "\n") {
           return schema.nodes["hardBreak"].createChecked();
         } else {
           return schema.text(text, marks);
