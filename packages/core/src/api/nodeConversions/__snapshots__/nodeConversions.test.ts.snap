@@ -662,6 +662,33 @@ exports[`Test BlockNote-Prosemirror conversion > Case: custom style schema > Con
 }
 `;
 
+exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert codeBlock/contains-newlines to/from prosemirror 1`] = `
+{
+  "attrs": {
+    "backgroundColor": "default",
+    "id": "1",
+    "textColor": "default",
+  },
+  "content": [
+    {
+      "attrs": {
+        "language": "javascript",
+      },
+      "content": [
+        {
+          "text": "const hello = 'world';
+console.log(hello);
+",
+          "type": "text",
+        },
+      ],
+      "type": "codeBlock",
+    },
+  ],
+  "type": "blockContainer",
+}
+`;
+
 exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert codeBlock/defaultLanguage to/from prosemirror 1`] = `
 {
   "attrs": {
