@@ -100,7 +100,7 @@ export const no: Dictionary = {
     },
     audio: {
       title: "Lyd",
-      subtext: "Innebygd lyd med bildetekst",
+      subtext: "legg til lyd med bildetekst",
       aliases: [
         "lyd",
         "lydopplasting",
