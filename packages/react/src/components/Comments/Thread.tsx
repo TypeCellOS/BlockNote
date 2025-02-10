@@ -1,5 +1,3 @@
-"use client";
-
 import { mergeCSSClasses } from "@blocknote/core";
 import type { ComponentPropsWithoutRef } from "react";
 import { useCallback, useMemo } from "react";
@@ -10,7 +8,7 @@ import { useDictionary } from "../../i18n/dictionary.js";
 import { Comment, CommentProps } from "./Comment.js";
 import { CommentEditor } from "./CommentEditor.js";
 import { schema } from "./schema.js";
-import { useThreadStore } from "./useThreadStore.js";
+import { useThreads } from "./useThreads.js";
 import { useUsers } from "./useUsers.js";
 
 export interface ThreadProps extends ComponentPropsWithoutRef<"div"> {
@@ -20,9 +18,9 @@ export interface ThreadProps extends ComponentPropsWithoutRef<"div"> {
   threadId: string;
 
   /**
-   * How to show or hide the composer to reply to the thread.
+   * Whether to show the composer to reply to the thread.
    */
-  showComposer?: boolean | "collapsed";
+  showComposer?: boolean;
 
   /**
    * Whether to show the action to resolve the thread.
@@ -45,22 +43,26 @@ export interface ThreadProps extends ComponentPropsWithoutRef<"div"> {
   showDeletedComments?: CommentProps["showDeleted"];
 }
 
+/**
+ * The Thread component displays a (main) comment with a list of replies (other comments).
+ *
+ * It also includes a composer to reply to the thread.
+ */
 export const Thread = ({
   threadId,
   showActions = "hover",
   showDeletedComments,
   showResolveAction = true,
   showReactions = true,
+  showComposer = true,
   className,
   ...props
 }: ThreadProps) => {
-  // const markThreadAsResolved = useMarkRoomThreadAsResolved(thread.roomId);
-  // const markThreadAsUnresolved = useMarkRoomThreadAsUnresolved(thread.roomId);
   const editor = useBlockNoteEditor();
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const threadMap = useThreadStore(editor);
+  const threadMap = useThreads(editor);
   const thread = threadMap.get(threadId);
 
   if (!thread) {
@@ -77,6 +79,7 @@ export const Thread = ({
   // load all user data
   useUsers(editor, userIds);
 
+  // TODO: review use of sub-editor
   const newCommentEditor = useCreateBlockNote({
     trailingBlock: false,
     dictionary: {
@@ -96,6 +99,7 @@ export const Thread = ({
   }, [showDeletedComments, thread.comments]);
 
   const onNewCommentSave = useCallback(async () => {
+    // TODO: show error on failure?
     await editor.comments!.store.addComment({
       comment: {
         body: newCommentEditor.document,
@@ -107,7 +111,8 @@ export const Thread = ({
     newCommentEditor.removeBlocks(newCommentEditor.document);
   }, [editor.comments, newCommentEditor, thread.id]);
 
-  const showComposer = editor.comments!.store.auth.canAddComment(thread);
+  showComposer =
+    showComposer && editor.comments!.store.auth.canAddComment(thread);
 
   return (
     <Components.Comments.Card

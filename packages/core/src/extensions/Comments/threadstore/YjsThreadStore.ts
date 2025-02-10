@@ -277,8 +277,6 @@ export class YjsThreadStore extends ThreadStore {
         reaction.set("userId", this.userId);
         reactionsByUser.set(key, reaction);
       }
-
-      yComment.set("updatedAt", date.getTime());
     }
   );
 
@@ -304,15 +302,11 @@ export class YjsThreadStore extends ThreadStore {
         throw new Error("Not authorized");
       }
 
-      const date = new Date();
-
       const key = `${this.userId}-${options.emoji}`;
 
       const reactionsByUser = yComment.get("reactionsByUser");
 
       reactionsByUser.delete(key);
-
-      yComment.set("updatedAt", date.getTime());
     }
   );
   // TODO: async / reactive interface?

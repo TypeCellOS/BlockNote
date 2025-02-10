@@ -9,7 +9,6 @@ import {
   MouseEvent,
   ReactNode,
   useCallback,
-  useEffect,
   useState,
 } from "react";
 import {
@@ -30,14 +29,6 @@ import { CommentEditor } from "./CommentEditor.js";
 import { schema } from "./schema.js";
 import { useUser } from "./useUsers.js";
 
-/**
- * Liveblocks, but changed:
- * - removed attachments
- * - removed read status
- * ...
- */
-// const REACTIONS_TRUNCATE = 5;
-
 export interface CommentProps extends ComponentPropsWithoutRef<"div"> {
   /**
    * The comment to display.
@@ -45,7 +36,7 @@ export interface CommentProps extends ComponentPropsWithoutRef<"div"> {
   comment: CommentData;
 
   /**
-   * The thread id.
+   * The thread the comment belongs to.
    */
   thread: ThreadData;
 
@@ -68,146 +59,13 @@ export interface CommentProps extends ComponentPropsWithoutRef<"div"> {
    * Whether to show reactions.
    */
   showReactions?: boolean;
-
-  /**
-   * @internal
-   */
-  additionalActions?: ReactNode;
 }
 
-// interface CommentReactionButtonProps
-//   extends ComponentPropsWithoutRef<typeof Button> {
-//   reaction: CommentReactionData;
-//   // overrides?: Partial<GlobalOverrides & CommentOverrides>;
-// }
-
-// interface CommentReactionProps extends ComponentPropsWithoutRef<"button"> {
-//   comment: CommentData;
-//   reaction: CommentReactionData;
-//   // overrides?: Partial<GlobalOverrides & CommentOverrides>;
-// }
-
-// type CommentNonInteractiveReactionProps = Omit<CommentReactionProps, "comment">;
-
-// const CommentReactionButton = forwardRef<
-//   HTMLButtonElement,
-//   CommentReactionButtonProps
-// >(({ reaction, overrides, className, ...props }, forwardedRef) => {
-//   const $ = useOverrides(overrides);
-//   return (
-//     <Button
-//       className={classNames("lb-comment-reaction", className)}
-//       variant="outline"
-//       aria-label={$.COMMENT_REACTION_DESCRIPTION(
-//         reaction.emoji,
-//         reaction.users.length
-//       )}
-//       {...props}
-//       ref={forwardedRef}>
-//       <Emoji className="lb-comment-reaction-emoji" emoji={reaction.emoji} />
-//       <span className="lb-comment-reaction-count">{reaction.users.length}</span>
-//     </Button>
-//   );
-// });
-
-// export const CommentReaction = forwardRef<
-//   HTMLButtonElement,
-//   CommentReactionProps
-// >(({ comment, reaction, overrides, disabled, ...props }, forwardedRef) => {
-//   const addReaction = useAddRoomCommentReaction(comment.roomId);
-//   const removeReaction = useRemoveRoomCommentReaction(comment.roomId);
-//   const currentId = useCurrentUserId();
-//   const isActive = useMemo(() => {
-//     return reaction.users.some((users) => users.id === currentId);
-//   }, [currentId, reaction]);
-//   const $ = useOverrides(overrides);
-//   const tooltipContent = useMemo(
-//     () => (
-//       <span>
-//         {$.COMMENT_REACTION_LIST(
-//           <List
-//             values={reaction.users.map((users) => (
-//               <User key={users.id} userId={users.id} replaceSelf />
-//             ))}
-//             formatRemaining={$.LIST_REMAINING_USERS}
-//             truncate={REACTIONS_TRUNCATE}
-//             locale={$.locale}
-//           />,
-//           reaction.emoji,
-//           reaction.users.length
-//         )}
-//       </span>
-//     ),
-//     [$, reaction]
-//   );
-
-//   const stopPropagation = useCallback((event: SyntheticEvent) => {
-//     event.stopPropagation();
-//   }, []);
-
-//   const handlePressedChange = useCallback(
-//     (isPressed: boolean) => {
-//       if (isPressed) {
-//         addReaction({
-//           threadId: comment.threadId,
-//           commentId: comment.id,
-//           emoji: reaction.emoji,
-//         });
-//       } else {
-//         removeReaction({
-//           threadId: comment.threadId,
-//           commentId: comment.id,
-//           emoji: reaction.emoji,
-//         });
-//       }
-//     },
-//     [addReaction, comment.threadId, comment.id, reaction.emoji, removeReaction]
-//   );
-
-//   return (
-//     <Tooltip
-//       content={tooltipContent}
-//       multiline
-//       className="lb-comment-reaction-tooltip">
-//       <TogglePrimitive.Root
-//         asChild
-//         pressed={isActive}
-//         onPressedChange={handlePressedChange}
-//         onClick={stopPropagation}
-//         disabled={disabled}
-//         ref={forwardedRef}>
-//         <CommentReactionButton
-//           data-self={isActive ? "" : undefined}
-//           reaction={reaction}
-//           overrides={overrides}
-//           {...props}
-//         />
-//       </TogglePrimitive.Root>
-//     </Tooltip>
-//   );
-// });
-
-// export const CommentNonInteractiveReaction = forwardRef<
-//   HTMLButtonElement,
-//   CommentNonInteractiveReactionProps
-// >(({ reaction, overrides, ...props }, forwardedRef) => {
-//   const currentId = useCurrentUserId();
-//   const isActive = useMemo(() => {
-//     return reaction.users.some((users) => users.id === currentId);
-//   }, [currentId, reaction]);
-
-//   return (
-//     <CommentReactionButton
-//       disableable={false}
-//       data-self={isActive ? "" : undefined}
-//       reaction={reaction}
-//       overrides={overrides}
-//       {...props}
-//       ref={forwardedRef}
-//     />
-//   );
-// });
-
+/**
+ * The Comment component displays a single comment with actions,
+ * a reaction list and an editor when editing.
+ *
+ */
 export const Comment = ({
   comment,
   thread,
@@ -216,10 +74,10 @@ export const Comment = ({
   showReactions = true,
   showResolveAction = false,
   className,
-  additionalActions,
 }: CommentProps) => {
   const dict = useDictionary();
 
+  // TODO: review use of sub-editor
   const commentEditor = useCreateBlockNote(
     {
       initialContent: comment.body,
@@ -238,18 +96,11 @@ export const Comment = ({
 
   const Components = useComponentsContext()!;
 
-  // const currentUserId = useCurrentUserId();
-  // const deleteComment = useDeleteRoomComment(comment.roomId);
-  // const editComment = useEditRoomComment(com ment.roomId);
-  // const addReaction = useAddRoomCommentReaction(comment.roomId);
-  // const removeReaction = useRemoveRoomCommentReaction(comment.roomId);
-  // const $ = useOverrides(overrides);
   const [isEditing, setEditing] = useState(false);
-  const [isTarget, setTarget] = useState(false);
-  const [isMoreActionOpen, setMoreActionOpen] = useState(false);
-  const [isReactionActionOpen, setReactionActionOpen] = useState(false);
 
   const editor = useBlockNoteEditor();
+
+  const commentStore = editor.comments!.store;
 
   const handleEdit = useCallback(() => {
     setEditing(true);
@@ -262,7 +113,8 @@ export const Comment = ({
 
   const onEditSubmit = useCallback(
     async (_event: MouseEvent) => {
-      await editor.comments!.store.updateComment({
+      // TODO: show error on failure?
+      await commentStore.updateComment({
         commentId: comment.id,
         comment: {
           body: commentEditor.document,
@@ -272,52 +124,42 @@ export const Comment = ({
 
       setEditing(false);
     },
-    [comment, thread.id, commentEditor, editor.comments]
+    [comment, thread.id, commentEditor, commentStore]
   );
 
-  const onDelete = useCallback(() => {
-    editor.comments!.store.deleteComment({
+  const onDelete = useCallback(async () => {
+    // TODO: show error on failure?
+    await commentStore.deleteComment({
       commentId: comment.id,
       threadId: thread.id,
     });
-  }, [comment, thread.id, editor.comments]);
+  }, [comment, thread.id, commentStore]);
 
   const onReactionSelect = useCallback(
-    (emoji: string) => {
-      editor.comments?.store.addReaction({
+    async (emoji: string) => {
+      // TODO: show error on failure?
+      await commentStore.addReaction({
         threadId: thread.id,
         commentId: comment.id,
         emoji,
       });
     },
-    [comment.id, editor.comments?.store, thread.id]
+    [comment.id, commentStore, thread.id]
   );
 
-  const onResolve = useCallback(() => {
-    editor.comments!.store.resolveThread({
+  const onResolve = useCallback(async () => {
+    // TODO: show error on failure?
+    await commentStore.resolveThread({
       threadId: thread.id,
     });
-  }, [thread.id, editor.comments]);
+  }, [thread.id, commentStore]);
 
-  const onReopen = useCallback(() => {
-    editor.comments!.store.unresolveThread({
+  const onReopen = useCallback(async () => {
+    // TODO: show error on failure?
+    await commentStore.unresolveThread({
       threadId: thread.id,
     });
-  }, [thread.id, editor.comments]);
-
-  useEffect(() => {
-    const isWindowDefined = typeof window !== "undefined";
-    if (!isWindowDefined) {
-      return;
-    }
-
-    const hash = window.location.hash;
-    const commentId = hash.slice(1);
-
-    if (commentId === comment.id) {
-      setTarget(true);
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [thread.id, commentStore]);
 
   const user = useUser(editor, comment.userId);
 
@@ -328,16 +170,15 @@ export const Comment = ({
   }
 
   let actions: ReactNode | undefined = undefined;
-  const canAddReaction = true; //editor.comments!.store.auth.canAddReaction(comment);
-  const canDeleteComment =
-    editor.comments!.store.auth.canDeleteComment(comment);
-  const canEditComment = editor.comments!.store.auth.canUpdateComment(comment);
+  const canAddReaction = commentStore.auth.canAddReaction(comment);
+  const canDeleteComment = commentStore.auth.canDeleteComment(comment);
+  const canEditComment = commentStore.auth.canUpdateComment(comment);
 
   const showResolveOrReopen =
     showResolveAction &&
     (thread.resolved
-      ? editor.comments!.store.auth.canUnresolveThread(thread)
-      : editor.comments!.store.auth.canResolveThread(thread));
+      ? commentStore.auth.canUnresolveThread(thread)
+      : commentStore.auth.canResolveThread(thread));
 
   if (showActions && !isEditing) {
     actions = (
@@ -417,19 +258,20 @@ export const Comment = ({
     }) +
     (comment.updatedAt.getTime() !== comment.createdAt.getTime()
       ? " (edited)"
-      : ""); // TODO: needs editedAt?
+      : "");
 
   return (
     <Components.Comments.Comment
       authorInfo={user ?? "loading"}
       timeString={timeString}
       showActions={showActions}
-      actions={actions}>
+      actions={actions}
+      className={className}>
       {comment.body ? (
         <>
           <CommentEditor
             editor={commentEditor}
-            editable={true}
+            editable={true} // TODO
             actions={({ isEmpty }) => (
               <>
                 {showReactions && comment.reactions.length > 0 && (

@@ -12,6 +12,7 @@ export function FloatingComposer() {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
+  // TODO: review use of sub-editor
   const newCommentEditor = useCreateBlockNote({
     trailingBlock: false,
     dictionary: {
@@ -42,6 +43,7 @@ export function FloatingComposer() {
               variant="compact"
               isDisabled={isEmpty}
               onClick={async () => {
+                // TODO: handle errors?
                 await editor.comments!.createThread({
                   initialComment: {
                     body: newCommentEditor.document,

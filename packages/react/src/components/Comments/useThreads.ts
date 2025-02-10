@@ -1,7 +1,7 @@
 import { BlockNoteEditor, ThreadData } from "@blocknote/core";
 import { useCallback, useRef, useSyncExternalStore } from "react";
 
-export function useThreadStore(editor: BlockNoteEditor<any, any, any>) {
+export function useThreads(editor: BlockNoteEditor<any, any, any>) {
   const store = editor.comments!.store;
 
   // this ref works around this error:
