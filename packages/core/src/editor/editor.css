@@ -79,21 +79,22 @@ Tippy popups that are appended to document.body directly
 
 /* Give a remote user a caret */
 .collaboration-cursor__caret {
-  outline: 1px solid #0d0d0d;
+  /* Chrome needs this to be inline to not wrap text */
+  display: inline;
+  border-left: 1px solid #0d0d0d;
+  border-right: 1px solid #0d0d0d;
+  margin-left: -1px;
+  margin-right: -1px;
   position: relative;
   word-break: normal;
   white-space: nowrap !important;
 }
 
-/* Allow the caret to be hovered over */
-.collaboration-cursor__caret::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  bottom: 0;
-  width: 2px;
+@-moz-document url-prefix() {
+  .collaboration-cursor__caret {
+    /* Firefox needs this to be inline-block to not have whitespace wrap the caret to a new line */
+    display: inline-block;
+  }
 }
 
 /* Render the username above the caret */
