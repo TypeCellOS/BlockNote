@@ -85,6 +85,17 @@ Tippy popups that are appended to document.body directly
   white-space: nowrap !important;
 }
 
+/* Allow the caret to be hovered over */
+.collaboration-cursor__caret::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  width: 2px;
+}
+
 /* Render the username above the caret */
 .collaboration-cursor__label {
   border-radius: 0 1.5px 1.5px 0;
