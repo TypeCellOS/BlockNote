@@ -51,8 +51,7 @@
   "dependencies": {
     "@blocknote/core": "^0.23.1",
     "@zip.js/zip.js": "^2.7.57",
-    "buffer": "^6.0.3",
-    "sharp": "^0.33.5"
+    "buffer": "^6.0.3"
   },
   "devDependencies": {
     "@testing-library/react": "^16.0.1",
