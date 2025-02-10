@@ -66,7 +66,7 @@ export const createCollaborationExtensions = (collaboration: {
       const cursorElement = document.createElement("span");
 
       cursorElement.classList.add("collaboration-cursor__caret");
-      cursorElement.setAttribute("style", `border-color: ${user.color}`);
+      cursorElement.setAttribute("style", `outline-color: ${user.color}`);
       if (collaboration?.showCursorLabels === "always") {
         cursorElement.setAttribute("data-active", "");
       }
