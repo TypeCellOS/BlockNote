@@ -79,21 +79,21 @@ Tippy popups that are appended to document.body directly
 
 /* Give a remote user a caret */
 .collaboration-cursor__caret {
-  outline: 1px solid #0d0d0d;
   position: relative;
   word-break: normal;
   white-space: nowrap !important;
 }
 
-/* Allow the caret to be hovered over */
-.collaboration-cursor__caret::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  bottom: 0;
-  width: 2px;
+/* Allow the caret to be colored & hovered over */
+.collaboration-cursor__caret::before {
+  /* Use currentColor to grab the color from the caret in set by JS */
+  border-left: 2px solid currentColor;
+}
+
+/* Add nbsp; to each side of the caret */
+.collaboration-cursor__caret::after,
+.collaboration-cursor__caret::before {
+  content: "⁠";
 }
 
 /* Render the username above the caret */
