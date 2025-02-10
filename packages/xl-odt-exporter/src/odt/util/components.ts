@@ -17,8 +17,10 @@ export const OfficeDocument = ({ children, ...props }: Props) =>
       "xmlns:xlink": "http://www.w3.org/1999/xlink",
       "xmlns:style": "urn:oasis:names:tc:opendocument:xmlns:style:1.0",
       "xmlns:fo": "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0",
+      "xmlns:svg": "urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0",
       "xmlns:loext":
         "urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0",
+      "office:version": "1.3",
       ...props,
     },
     children
@@ -55,7 +57,11 @@ export const TextSpan = ({ children, ...props }: Props) =>
   createElement("text:span", props, children);
 
 export const TextA = ({ children, href, ...props }: Props & { href: string }) =>
-  createElement("text:a", { "xlink:href": href, ...props }, children);
+  createElement(
+    "text:a",
+    { "xlink:type": "simple", "xlink:href": href, ...props },
+    children
+  );
 
 export const TextListItem = ({ children, ...props }: Props) =>
   createElement("text:list-item", props, children);
@@ -81,15 +87,11 @@ export const DrawFrame = ({ children, ...props }: Props) =>
   createElement("draw:frame", props, children);
 
 export const DrawImage = ({ children, ...props }: Props) => {
-  return createElement("draw:image", { ...props }, children);
+  return createElement("draw:image", { "xlink:href": "", ...props }, children);
 };
 
 export const DrawTextBox = ({ children, ...props }: Props) => {
   return createElement("draw:text-box", { ...props }, children);
-};
-
-export const OfficeBinaryData = ({ children, ...props }: Props) => {
-  return createElement("office:binary-data", props, children);
 };
 
 // Manifest elements

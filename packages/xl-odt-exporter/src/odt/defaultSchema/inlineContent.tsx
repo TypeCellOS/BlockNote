@@ -2,6 +2,7 @@ import {
   DefaultInlineContentSchema,
   InlineContentMapping,
 } from "@blocknote/core";
+import { TextA } from "../util/components.js";
 
 export const odtInlineContentMappingForDefaultSchema: InlineContentMapping<
   DefaultInlineContentSchema,
@@ -13,7 +14,7 @@ export const odtInlineContentMappingForDefaultSchema: InlineContentMapping<
     const content = ic.content
       .map((c) => exporter.transformStyledText(c))
       .join("");
-    return <text:a xlink:href={ic.href}>{content}</text:a>;
+    return <TextA href={ic.href}>{content}</TextA>;
   },
 
   text: (ic, exporter) => {

@@ -38,6 +38,10 @@ export class ODTExporter<
   React.ReactNode
 > {
   private automaticStyles: Map<string, React.ReactNode> = new Map();
+  private pictures: Set<{
+    file: Blob;
+    fileName: string;
+  }> = new Set();
   private styleCounter = 0;
 
   public readonly options: ExporterOptions;
@@ -149,10 +153,28 @@ export class ODTExporter<
   ): Promise<Blob> {
     const blockcontent = await this.transformBlocks(blocks);
     const styles = Array.from(this.automaticStyles.values());
+    const pictures = Array.from(this.pictures.values());
     const fonts = await this.loadFonts();
 
     const content = (
       <OfficeDocument>
+        <office:font-face-decls>
+          {fonts.map((font) => {
+            return (
+              <style:font-face
+                style:name={font.name}
+                svg:font-family={font.name}>
+                <svg:font-face-src>
+                  <svg:font-face-uri
+                    xlink:href={`Fonts/${font.fileName}`}
+                    xlink:type="simple">
+                    <svg:font-face-format svg:string="truetype" />
+                  </svg:font-face-uri>
+                </svg:font-face-src>
+              </style:font-face>
+            );
+          })}
+        </office:font-face-decls>
         <office:automatic-styles>{styles}</office:automatic-styles>
         {(options?.header || options?.footer) && (
           <office:master-styles>
@@ -173,21 +195,6 @@ export class ODTExporter<
             </style:master-page>
           </office:master-styles>
         )}
-        <office:font-face-decls>
-          {fonts.map((font) => {
-            return (
-              <style:font-face
-                style:name={font.name}
-                svg:font-family={font.name}>
-                <svg:font-face-src>
-                  <svg:font-face-uri xlink:href={font.fileName}>
-                    <svg:font-face-format svg:string="truetype" />
-                  </svg:font-face-uri>
-                </svg:font-face-src>
-              </style:font-face>
-            );
-          })}
-        </office:font-face-decls>
         <OfficeBody>
           <OfficeText>{blockcontent}</OfficeText>
         </OfficeBody>
@@ -195,13 +202,29 @@ export class ODTExporter<
     );
 
     const manifest = (
-      <Manifest>
+      <Manifest manifest:version="1.3">
         <ManifestFileEntry
           mediaType="application/vnd.oasis.opendocument.text"
           fullPath="/"
         />
         <ManifestFileEntry mediaType="text/xml" fullPath="content.xml" />
         <ManifestFileEntry mediaType="text/xml" fullPath="styles.xml" />
+        {pictures.map((picture) => {
+          return (
+            <ManifestFileEntry
+              mediaType={picture.file.type}
+              fullPath={`Pictures/${picture.fileName}`}
+            />
+          );
+        })}
+        {fonts.map((font) => {
+          return (
+            <ManifestFileEntry
+              mediaType="application/x-font-ttf"
+              fullPath={`Fonts/${font.fileName}`}
+            />
+          );
+        })}
       </Manifest>
     );
     const zipWriter = new ZipWriter(
@@ -211,7 +234,13 @@ export class ODTExporter<
     // Add mimetype first, uncompressed
     zipWriter.add(
       "mimetype",
-      new TextReader("application/vnd.oasis.opendocument.text")
+      new TextReader("application/vnd.oasis.opendocument.text"),
+      {
+        compressionMethod: 0,
+        level: 0,
+        dataDescriptor: false,
+        extendedTimestamp: false,
+      }
     );
 
     const contentXml = renderToString(content);
@@ -221,7 +250,13 @@ export class ODTExporter<
     zipWriter.add("styles.xml", new TextReader(stylesXml));
     zipWriter.add("META-INF/manifest.xml", new TextReader(manifestXml));
     fonts.forEach((font) => {
-      zipWriter.add(`fonts/${font.fileName}`, new BlobReader(font.data));
+      zipWriter.add(`Fonts/${font.fileName}`, new BlobReader(font.data));
+    });
+    pictures.forEach((picture) => {
+      zipWriter.add(
+        `Pictures/${picture.fileName}`,
+        new BlobReader(picture.file)
+      );
     });
 
     return zipWriter.close();
@@ -231,5 +266,10 @@ export class ODTExporter<
     const styleName = `BN_S${++this.styleCounter}`;
     this.automaticStyles.set(styleName, style(styleName));
     return styleName;
+  }
+  public registerPicture(picture: { file: Blob; fileName: string }): string {
+    this.pictures.add(picture);
+
+    return `Pictures/${picture.fileName}`;
   }
 }

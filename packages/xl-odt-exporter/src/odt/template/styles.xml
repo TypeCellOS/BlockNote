@@ -1054,11 +1054,11 @@
             </style:page-layout-properties>
             <style:header-style>
                 <style:header-footer-properties fo:min-height="0in" fo:margin-bottom="0.1965in"
-                    fo:background-color="transparent" draw:fill="none" />
+                    fo:background-color="transparent" />
             </style:header-style>
             <style:footer-style>
                 <style:header-footer-properties fo:min-height="0in" fo:margin-top="0.1965in"
-                    fo:background-color="transparent" draw:fill="none" />
+                    fo:background-color="transparent" />
             </style:footer-style>
         </style:page-layout>
         <style:style style:name="Mdp1" style:family="drawing-page">

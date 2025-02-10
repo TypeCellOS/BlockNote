@@ -11,10 +11,10 @@ import {
   DrawImage,
   DrawTextBox,
   LoextGraphicProperties,
-  OfficeBinaryData,
   StyleParagraphProperties,
   StyleStyle,
   StyleTableCellProperties,
+  StyleTextProperties,
   Table,
   TableCell,
   TableColumn,
@@ -28,7 +28,6 @@ import {
   TextSpan,
   TextTab,
 } from "../util/components.js";
-//import { getImageDimensions } from "../imageUtil.js";
 
 export const getTabs = (nestingLevel: number) => {
   return Array.from({ length: nestingLevel }, () => <TextTab />);
@@ -39,9 +38,8 @@ const createParagraphStyle = (
   props: Partial<DefaultProps>,
   parentStyleName?: string
 ) => {
-  const styles: Record<string, string> = {};
-  const styleChildren: React.ReactNode[] = [];
-  const paragraphChildren: React.ReactNode[] = [];
+  const paragraphStyles: Record<string, string> = {};
+  const textStyles: Record<string, string> = {};
 
   if (props.textAlignment && props.textAlignment !== "left") {
     const alignmentMap = {
@@ -50,37 +48,23 @@ const createParagraphStyle = (
       right: "end",
       justify: "justify",
     };
-    styles["fo:text-align"] =
+    paragraphStyles["fo:text-align"] =
       alignmentMap[props.textAlignment as keyof typeof alignmentMap];
   }
 
-  if (props.backgroundColor && props.backgroundColor !== "default") {
-    const color =
-      exporter.options.colors[
-        props.backgroundColor as keyof typeof exporter.options.colors
-      ].background;
-    styleChildren.push(
-      <>
-        <LoextGraphicProperties draw:fill="solid" draw:fill-color={color} />
-        <StyleParagraphProperties fo:background-color={color} />
-      </>
-    );
-  }
+  const color =
+    props.backgroundColor && props.backgroundColor !== "default"
+      ? exporter.options.colors[
+          props.backgroundColor as keyof typeof exporter.options.colors
+        ].background
+      : undefined;
 
   if (props.textColor && props.textColor !== "default") {
     const color =
       exporter.options.colors[
         props.textColor as keyof typeof exporter.options.colors
       ].text;
-    styles["fo:color"] = color;
-  }
-
-  if (
-    Object.keys(styles).length === 0 &&
-    styleChildren.length === 0
-    // && paragraphChildren.length === 0
-  ) {
-    return parentStyleName;
+    textStyles["fo:color"] = color;
   }
 
   return exporter.registerStyle((name) => (
@@ -88,13 +72,19 @@ const createParagraphStyle = (
       style:family="paragraph"
       style:name={name}
       style:parent-style-name={parentStyleName}>
-      {styleChildren}
-      {paragraphChildren.length > 0 ||
-        (Object.keys(styles).length > 0 && (
-          <StyleParagraphProperties {...styles}>
-            {paragraphChildren}
-          </StyleParagraphProperties>
-        ))}
+      {color && (
+        <LoextGraphicProperties draw:fill="solid" draw:fill-color={color} />
+      )}
+      {Object.keys(paragraphStyles).length > 0 && (
+        <StyleParagraphProperties
+          {...paragraphStyles}
+          {...(color && {
+            "fo:background-color": color,
+          })}></StyleParagraphProperties>
+      )}
+      {Object.keys(textStyles).length > 0 && (
+        <StyleTextProperties {...textStyles}></StyleTextProperties>
+      )}
     </StyleStyle>
   ));
 };
@@ -234,17 +224,21 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
   },
 
   image: async (block, exporter) => {
-    const Buffer = (await import("buffer")).Buffer;
+    const odtExporter = exporter as ODTExporter<any, any, any>;
     const blob = await exporter.resolveFile(block.props.url);
-    const arrayBuffer = await blob.arrayBuffer();
-    const base64 = Buffer.from(arrayBuffer).toString("base64");
-    //const dimensions = await getImageDimensions(blob);
+    const fileExtension = block.props.url.split(".").pop();
+    const fileName =
+      block.props.url.split("/").pop()?.split(".")[0] || block.id;
+    const path = await odtExporter.registerPicture({
+      fileName: `${fileName}.${fileExtension}`,
+      file: blob,
+    });
     const styleName = createParagraphStyle(
       exporter as ODTExporter<any, any, any>,
       block.props
     );
-    const editorWidth = 623;
-    const width = `${(block.props.previewWidth / editorWidth) * 100}%`;
+    const editorWidthPX = 623;
+    const width = `${(block.props.previewWidth / editorWidthPX) * 100}%`;
     const imageFrame = (
       <TextP text:style-name={block.props.caption ? "Caption" : styleName}>
         <DrawFrame
@@ -256,9 +250,10 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
           <DrawImage
             xlink:type="simple"
             xlink:show="embed"
-            xlink:actuate="onLoad">
-            <OfficeBinaryData>{base64}</OfficeBinaryData>
-          </DrawImage>
+            xlink:actuate="onLoad"
+            xlink:href={path}
+            draw:mime-type={blob.type}
+          />
         </DrawFrame>
         <TextSpan text:style-name="Caption">{block.props.caption}</TextSpan>
       </TextP>
