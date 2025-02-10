@@ -58,7 +58,6 @@ export class ReactMarkView extends CoreMarkView<ReactMarkViewComponent> {
     if (this.mark.attrs.stringValue) {
       props.value = this.mark.attrs.stringValue;
     }
-    debugger;
 
     return {
       reactElement: (

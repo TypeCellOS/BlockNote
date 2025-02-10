@@ -59,10 +59,10 @@ export function createReactStyleSpec<T extends StyleConfig>(
     },
   });
 
-  let x = mark;
-  (mark as any).config.addMarkView = (mark: any, view: any) => {
+  const markType = mark;
+  (markType as any).config.addMarkView = (mark: any, view: any) => {
     const markView = new ReactMarkView({
-      editor: x.child?.options.editor,
+      editor: markType.child?.options.editor,
       inline: true,
       mark,
       options: {

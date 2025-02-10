@@ -284,10 +284,10 @@ export const Comment = ({
 
   const onReactionSelect = useCallback(
     (emoji: string) => {
-      editor.comments?.store.toggleReaction({
+      editor.comments?.store.addReaction({
         threadId: thread.id,
         commentId: comment.id,
-        reaction: emoji,
+        emoji,
       });
     },
     [comment.id, editor.comments?.store, thread.id]
