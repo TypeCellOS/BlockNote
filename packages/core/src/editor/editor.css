@@ -79,7 +79,7 @@ Tippy popups that are appended to document.body directly
 
 /* Give a remote user a caret */
 .collaboration-cursor__caret {
-  outline: 0.5px solid #0d0d0d;
+  outline: 1px solid #0d0d0d;
   position: relative;
   word-break: normal;
   white-space: nowrap !important;
@@ -87,22 +87,21 @@ Tippy popups that are appended to document.body directly
 
 /* Render the username above the caret */
 .collaboration-cursor__label {
-  border-radius: 3px;
+  border-radius: 0 1.5px 1.5px 0;
   font-size: 12px;
   font-style: normal;
   font-weight: 600;
   line-height: normal;
   left: 0;
-  transform: translate(-2px, -2px);
   overflow: hidden;
   position: absolute;
   white-space: nowrap;
 
   color: transparent;
-  max-height: 4px;
+  max-height: 5px;
   max-width: 4px;
   padding: 0;
-  top: 0;
+  top: -1px;
   transition: all 0.2s;
 }
 
@@ -112,6 +111,7 @@ Tippy popups that are appended to document.body directly
   max-width: 20rem;
   padding: 0.1rem 0.3rem;
   top: -14px;
+  border-radius: 3px;
 
   transition: all 0.2s;
 }
