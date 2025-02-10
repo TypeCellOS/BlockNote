@@ -445,12 +445,12 @@ export const Comment = ({
                           "bn-badge",
                           "bn-comment-reaction"
                         )}
-                        text={reaction.usersIds.length.toString()}
+                        text={reaction.userIds.length.toString()}
                         icon={reaction.emoji}
-                        isSelected={user && reaction.usersIds.includes(user.id)}
+                        isSelected={user && reaction.userIds.includes(user.id)}
                         onClick={() => onReactionSelect(reaction.emoji)}
                         mainTooltip={"Reacted by"}
-                        secondaryTooltip={`${reaction.usersIds.map(
+                        secondaryTooltip={`${reaction.userIds.map(
                           (userId) => userId + "\n"
                         )}`}
                       />

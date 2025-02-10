@@ -240,7 +240,7 @@ export class YjsThreadStore extends ThreadStore {
   });
 
   public toggleReaction = this.transact(
-    (options: { threadId: string; commentId: string; reaction: string }) => {
+    (options: { threadId: string; commentId: string; emoji: string }) => {
       const yThread = this.threadsYMap.get(options.threadId);
       if (!yThread) {
         throw new Error("Thread not found");
@@ -250,64 +250,33 @@ export class YjsThreadStore extends ThreadStore {
         yThread.get("comments"),
         (comment) => comment.get("id") === options.commentId
       );
+
       if (yCommentIndex === -1) {
         throw new Error("Comment not found");
       }
 
       const yComment = yThread.get("comments").get(yCommentIndex);
-      if (!this.auth.canUpdateComment(yMapToComment(yComment))) {
+
+      if (!this.auth.canLeaveReaction(yMapToComment(yComment))) {
         throw new Error("Not authorized");
       }
 
-      const yReactionIndex = yArrayFindIndex(
-        yComment.get("reactions"),
-        (reaction) => reaction.get("emoji") === options.reaction
-      );
-
-      if (yReactionIndex !== -1) {
-        const yReaction = yComment.get("reactions").get(yReactionIndex);
-
-        const yUserIdIndex = yArrayFindIndex(
-          yReaction.get("usersIds"),
-          (userId) => userId === this.userId
-        );
-        if (yUserIdIndex !== -1) {
-          // This user already reacted with this emoji, so it should be toggled
-          // off.
-
-          // Reaction exists and contains user ID, so the user ID should be
-          // removed from the list. If the list is now empty, remove the reaction
-          // altogether.
-          yReaction.get("usersIds").delete(yUserIdIndex);
-
-          if (yReaction.get("usersIds").length === 0) {
-            yComment.get("reactions").delete(yReactionIndex);
-            yComment.set("updatedAt", new Date().getTime());
-          }
-
-          return;
-        }
-        // Other users have reacted with this emoji, but this user has not, so
-        // it should be toggled on.
-
-        // Reaction exists but does not contain user ID, so the user ID should
-        // be added to the list.
-        yReaction.get("usersIds").push([this.userId]);
-
-        return;
-      }
-      // No one has reacted with this emoji, so it should again be toggled on.
-
-      // Reaction does not exist, and so a new one should be created and this
-      // user should be added to the list.
       const date = new Date();
-      const reaction: CommentReactionData = {
-        emoji: options.reaction,
-        createdAt: date,
-        usersIds: [this.userId],
-      };
 
-      yComment.get("reactions").push([reactionToYMap(reaction)]);
+      const key = `${this.userId}-${options.emoji}`;
+
+      const reactionsByUser = yComment.get("reactionsByUser");
+
+      if (reactionsByUser.has(key)) {
+        reactionsByUser.delete(key);
+      } else {
+        const reaction = new Y.Map();
+        reaction.set("emoji", options.emoji);
+        reaction.set("createdAt", date.getTime());
+        reaction.set("userId", this.userId);
+        reactionsByUser.set(key, reaction);
+      }
+
       yComment.set("updatedAt", date.getTime());
     }
   );
@@ -345,22 +314,6 @@ export class YjsThreadStore extends ThreadStore {
 
 // HELPERS
 
-function reactionToYMap(reaction: CommentReactionData) {
-  const yMap = new Y.Map<any>();
-  yMap.set("emoji", reaction.emoji);
-  yMap.set("createdAt", reaction.createdAt.getTime());
-  if (reaction.usersIds.length === 0) {
-    throw new Error("Need at least one user ID in reactionToYMap");
-  }
-  const usersIdsArray = new Y.Array();
-
-  usersIdsArray.push([...reaction.usersIds]);
-
-  yMap.set("usersIds", usersIdsArray);
-
-  return yMap;
-}
-
 function commentToYMap(comment: CommentData) {
   const yMap = new Y.Map<any>();
   yMap.set("id", comment.id);
@@ -376,7 +329,17 @@ function commentToYMap(comment: CommentData) {
   if (comment.reactions.length > 0) {
     throw new Error("Reactions should be empty in commentToYMap");
   }
-  yMap.set("reactions", new Y.Array());
+
+  /**
+   * Reactions are stored in a map keyed by {userId-emoji},
+   * this makes it easy to add / remove reactions and in a way that works local-first.
+   * The cost is that "reading" the reactions is a bit more complex (see yMapToReactions).
+   *
+   * Alternative could be to store it in the same format as CommentReactionData,
+   * but in that case we should not never delete an emoji entry, because when a user "thinks" he has deleted
+   * the last reaction with a specific emoji, perhaps another user (offline) has reacted with that emoji.
+   */
+  yMap.set("reactionsByUser", new Y.Map());
   yMap.set("metadata", comment.metadata);
 
   return yMap;
@@ -398,12 +361,47 @@ function threadToYMap(thread: ThreadData) {
   return yMap;
 }
 
-function yMapToReaction(yMap: Y.Map<any>): CommentReactionData {
+type SingleUserCommentReactionData = {
+  emoji: string;
+  createdAt: Date;
+  userId: string;
+};
+
+function yMapToReaction(yMap: Y.Map<any>): SingleUserCommentReactionData {
   return {
     emoji: yMap.get("emoji"),
-    createdAt: yMap.get("createdAt"),
-    usersIds: yMap.get("usersIds").toArray(),
+    createdAt: new Date(yMap.get("createdAt")),
+    userId: yMap.get("userId"),
   };
+}
+
+function yMapToReactions(yMap: Y.Map<any>): CommentReactionData[] {
+  const flatReactions = [...yMap.values()].map((reaction: Y.Map<any>) =>
+    yMapToReaction(reaction)
+  );
+  // combine reactions by the same emoji
+  return flatReactions.reduce(
+    (acc: CommentReactionData[], reaction: SingleUserCommentReactionData) => {
+      const existingReaction = acc.find((r) => r.emoji === reaction.emoji);
+      if (existingReaction) {
+        existingReaction.userIds.push(reaction.userId);
+        existingReaction.createdAt = new Date(
+          Math.min(
+            existingReaction.createdAt.getTime(),
+            reaction.createdAt.getTime()
+          )
+        );
+      } else {
+        acc.push({
+          emoji: reaction.emoji,
+          createdAt: reaction.createdAt,
+          userIds: [reaction.userId],
+        });
+      }
+      return acc;
+    },
+    [] as CommentReactionData[]
+  );
 }
 
 function yMapToComment(yMap: Y.Map<any>): CommentData {
@@ -416,9 +414,7 @@ function yMapToComment(yMap: Y.Map<any>): CommentData {
     deletedAt: yMap.get("deletedAt")
       ? new Date(yMap.get("deletedAt"))
       : undefined,
-    reactions: yMap
-      .get("reactions")
-      .map((reaction: Y.Map<any>) => yMapToReaction(reaction)),
+    reactions: yMapToReactions(yMap.get("reactionsByUser")),
     metadata: yMap.get("metadata"),
     body: yMap.get("body"),
   };

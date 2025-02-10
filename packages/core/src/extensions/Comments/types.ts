@@ -3,7 +3,7 @@ export type CommentBody = any;
 export type CommentReactionData = {
   emoji: string;
   createdAt: Date;
-  usersIds: string[];
+  userIds: string[];
 };
 
 export type CommentData = {

@@ -70,7 +70,7 @@ export const Thread = ({
   const userIds = useMemo(() => {
     return thread.comments.flatMap((c) => [
       c.userId,
-      ...c.reactions.flatMap((r) => r.usersIds),
+      ...c.reactions.flatMap((r) => r.userIds),
     ]);
   }, [thread.comments]);
 
