@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as Y from "yjs";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { CommentBody } from "../types.js";
+import { DefaultThreadStoreAuth } from "./DefaultThreadStoreAuth.js";
 import { YjsThreadStore } from "./YjsThreadStore.js";
 
 // Mock UUID to generate sequential IDs
@@ -23,7 +24,12 @@ describe("YjsThreadStore", () => {
     doc = new Y.Doc();
     threadsYMap = doc.getMap("threads");
     editor = {} as BlockNoteEditor<any, any, any>;
-    store = new YjsThreadStore(editor, "test-user", threadsYMap);
+    store = new YjsThreadStore(
+      editor,
+      "test-user",
+      threadsYMap,
+      new DefaultThreadStoreAuth("test-user", "editor")
+    );
   });
 
   describe("createThread", () => {
@@ -231,35 +237,44 @@ describe("YjsThreadStore", () => {
   });
 
   describe("reactions", () => {
-    it("throws not implemented error when adding reaction", async () => {
+    it("adds a reaction to a comment", async () => {
       const thread = await store.createThread({
         initialComment: {
           body: "Test comment" as CommentBody,
         },
       });
 
-      await expect(
-        store.addReaction({
-          threadId: thread.id,
-          commentId: thread.comments[0].id,
-        })
-      ).rejects.toThrow("Not implemented");
+      await store.addReaction({
+        threadId: thread.id,
+        commentId: thread.comments[0].id,
+        emoji: "👍",
+      });
+
+      expect(store.getThread(thread.id).comments[0].reactions).toHaveLength(1);
     });
 
-    it("throws not implemented error when deleting reaction", async () => {
+    it("deletes a reaction from a comment", async () => {
       const thread = await store.createThread({
         initialComment: {
           body: "Test comment" as CommentBody,
         },
       });
 
-      await expect(
-        store.deleteReaction({
-          threadId: thread.id,
-          commentId: thread.comments[0].id,
-          reactionId: "some-reaction",
-        })
-      ).rejects.toThrow("Not implemented");
+      await store.addReaction({
+        threadId: thread.id,
+        commentId: thread.comments[0].id,
+        emoji: "👍",
+      });
+
+      expect(store.getThread(thread.id).comments[0].reactions).toHaveLength(1);
+
+      await store.deleteReaction({
+        threadId: thread.id,
+        commentId: thread.comments[0].id,
+        emoji: "👍",
+      });
+
+      expect(store.getThread(thread.id).comments[0].reactions).toHaveLength(0);
     });
   });
 

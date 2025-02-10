@@ -34,13 +34,6 @@ export class DefaultThreadStoreAuth extends ThreadStoreAuth {
   }
 
   /**
-   * Auth: should be possible by anyone with comment access
-   */
-  canLeaveReaction(_comment: CommentData): boolean {
-    return true;
-  }
-
-  /**
    * Auth: should only be possible by the comment author
    */
   canUpdateComment(comment: CommentData): boolean {
@@ -72,6 +65,20 @@ export class DefaultThreadStoreAuth extends ThreadStoreAuth {
    * Auth: should be possible by anyone with comment access
    */
   canUnresolveThread(_thread: ThreadData): boolean {
+    return true;
+  }
+
+  /**
+   * Auth: should be possible by anyone with comment access
+   */
+  canAddReaction(_comment: CommentData): boolean {
+    return true;
+  }
+
+  /**
+   * Auth: should be possible by anyone with comment access
+   */
+  canDeleteReaction(_comment: CommentData): boolean {
     return true;
   }
 }

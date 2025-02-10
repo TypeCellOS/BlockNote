@@ -239,7 +239,7 @@ export class YjsThreadStore extends ThreadStore {
     yThread.set("resolvedUpdatedAt", new Date().getTime());
   });
 
-  public toggleReaction = this.transact(
+  public addReaction = this.transact(
     (options: { threadId: string; commentId: string; emoji: string }) => {
       const yThread = this.threadsYMap.get(options.threadId);
       if (!yThread) {
@@ -257,7 +257,7 @@ export class YjsThreadStore extends ThreadStore {
 
       const yComment = yThread.get("comments").get(yCommentIndex);
 
-      if (!this.auth.canLeaveReaction(yMapToComment(yComment))) {
+      if (!this.auth.canAddReaction(yMapToComment(yComment))) {
         throw new Error("Not authorized");
       }
 
@@ -268,7 +268,8 @@ export class YjsThreadStore extends ThreadStore {
       const reactionsByUser = yComment.get("reactionsByUser");
 
       if (reactionsByUser.has(key)) {
-        reactionsByUser.delete(key);
+        // already exists
+        return;
       } else {
         const reaction = new Y.Map();
         reaction.set("emoji", options.emoji);
@@ -281,6 +282,39 @@ export class YjsThreadStore extends ThreadStore {
     }
   );
 
+  public deleteReaction = this.transact(
+    (options: { threadId: string; commentId: string; emoji: string }) => {
+      const yThread = this.threadsYMap.get(options.threadId);
+      if (!yThread) {
+        throw new Error("Thread not found");
+      }
+
+      const yCommentIndex = yArrayFindIndex(
+        yThread.get("comments"),
+        (comment) => comment.get("id") === options.commentId
+      );
+
+      if (yCommentIndex === -1) {
+        throw new Error("Comment not found");
+      }
+
+      const yComment = yThread.get("comments").get(yCommentIndex);
+
+      if (!this.auth.canDeleteReaction(yMapToComment(yComment))) {
+        throw new Error("Not authorized");
+      }
+
+      const date = new Date();
+
+      const key = `${this.userId}-${options.emoji}`;
+
+      const reactionsByUser = yComment.get("reactionsByUser");
+
+      reactionsByUser.delete(key);
+
+      yComment.set("updatedAt", date.getTime());
+    }
+  );
   // TODO: async / reactive interface?
   public getThread(threadId: string) {
     const yThread = this.threadsYMap.get(threadId);
@@ -334,10 +368,6 @@ function commentToYMap(comment: CommentData) {
    * Reactions are stored in a map keyed by {userId-emoji},
    * this makes it easy to add / remove reactions and in a way that works local-first.
    * The cost is that "reading" the reactions is a bit more complex (see yMapToReactions).
-   *
-   * Alternative could be to store it in the same format as CommentReactionData,
-   * but in that case we should not never delete an emoji entry, because when a user "thinks" he has deleted
-   * the last reaction with a specific emoji, perhaps another user (offline) has reacted with that emoji.
    */
   yMap.set("reactionsByUser", new Y.Map());
   yMap.set("metadata", comment.metadata);
