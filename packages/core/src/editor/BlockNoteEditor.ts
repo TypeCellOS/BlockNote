@@ -508,7 +508,7 @@ export class BlockNoteEditor<
     this.headless = newOptions._headless;
 
     const collaborationEnabled =
-      "Collaboration" in this.extensions ||
+      "collaboration" in this.extensions ||
       "liveblocksExtension" in this.extensions;
 
     if (collaborationEnabled && newOptions.initialContent) {
