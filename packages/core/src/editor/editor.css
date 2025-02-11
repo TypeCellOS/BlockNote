@@ -89,6 +89,7 @@ Tippy popups that are appended to document.body directly
   /* Use currentColor to grab the color from the caret in set by JS */
   border-left: 2px solid currentColor;
   margin-left: -2px;
+  position: relative;
 }
 
 /* Add nbsp; to each side of the caret */
