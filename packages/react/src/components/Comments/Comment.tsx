@@ -3,7 +3,7 @@
 import { CommentData, ThreadData, mergeCSSClasses } from "@blocknote/core";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
-import type { EmojiData } from "emoji-mart";
+
 import {
   ComponentPropsWithoutRef,
   MouseEvent,
@@ -196,9 +196,7 @@ export const Comment = ({
             <Components.Generic.Popover.Content variant={"form-popover"}>
               <Picker
                 data={data}
-                onEmojiSelect={(emoji: EmojiData) =>
-                  onReactionSelect(emoji.native)
-                }
+                onEmojiSelect={(emoji: any) => onReactionSelect(emoji.native)}
                 theme={blockNoteContext?.colorSchemePreference}
               />
             </Components.Generic.Popover.Content>
@@ -312,7 +310,7 @@ export const Comment = ({
                         variant={"form-popover"}>
                         <Picker
                           data={data}
-                          onEmojiSelect={(emoji: EmojiData) =>
+                          onEmojiSelect={(emoji: any) =>
                             onReactionSelect(emoji.native)
                           }
                           theme={blockNoteContext?.colorSchemePreference}

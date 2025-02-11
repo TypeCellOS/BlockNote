@@ -1137,6 +1137,29 @@
           "pathFromRoot": "examples/07-collaboration",
           "slug": "collaboration"
         }
+      },
+      {
+        "projectSlug": "comments",
+        "fullSlug": "collaboration/comments",
+        "pathFromRoot": "examples/07-collaboration/04-comments",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "jakelazaroff",
+          "tags": [
+            "Advanced",
+            "Saving/Loading",
+            "Collaboration"
+          ],
+          "dependencies": {
+            "@y-sweet/react": "^0.6.3"
+          } as any
+        },
+        "title": "Comments & Threads",
+        "group": {
+          "pathFromRoot": "examples/07-collaboration",
+          "slug": "collaboration"
+        }
       }
     ]
   },

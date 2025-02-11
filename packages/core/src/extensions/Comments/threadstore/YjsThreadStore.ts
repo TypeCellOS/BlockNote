@@ -12,6 +12,7 @@ import { ThreadStoreAuth } from "./ThreadStoreAuth.js";
 
 export class YjsThreadStore extends ThreadStore {
   constructor(
+    // @ts-ignore
     private readonly editor: BlockNoteEditor<any, any, any>,
     private readonly userId: string,
     private readonly threadsYMap: Y.Map<any>,
