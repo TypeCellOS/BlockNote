@@ -108,6 +108,7 @@ Tippy popups that are appended to document.body directly
   overflow: hidden;
   position: absolute;
   white-space: nowrap;
+  user-select: none;
 
   color: transparent;
   max-height: 5px;
