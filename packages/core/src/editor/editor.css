@@ -94,6 +94,13 @@ Tippy popups that are appended to document.body directly
   position: relative;
 }
 
+/* Firefox will split a word that is wrapping if not displayed as inline-block */
+@-moz-document url-prefix() {
+  .collaboration-cursor__caret::before {
+    display: inline-block;
+  }
+}
+
 /* Add nbsp; to each side of the caret */
 .collaboration-cursor__caret::after,
 .collaboration-cursor__caret::before {
