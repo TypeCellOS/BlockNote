@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as Y from "yjs";
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import { CommentBody } from "../types.js";
 import { DefaultThreadStoreAuth } from "./DefaultThreadStoreAuth.js";
 import { YjsThreadStore } from "./YjsThreadStore.js";
@@ -15,7 +14,6 @@ describe("YjsThreadStore", () => {
   let store: YjsThreadStore;
   let doc: Y.Doc;
   let threadsYMap: Y.Map<any>;
-  let editor: BlockNoteEditor<any, any, any>;
 
   beforeEach(() => {
     // Reset mocks and create fresh instances
@@ -23,9 +21,8 @@ describe("YjsThreadStore", () => {
     mockUuidCounter = 0;
     doc = new Y.Doc();
     threadsYMap = doc.getMap("threads");
-    editor = {} as BlockNoteEditor<any, any, any>;
+
     store = new YjsThreadStore(
-      editor,
       "test-user",
       threadsYMap,
       new DefaultThreadStoreAuth("test-user", "editor")

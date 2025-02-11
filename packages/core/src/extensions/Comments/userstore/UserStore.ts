@@ -1,5 +1,5 @@
+import { User } from "../../../models/User.js";
 import { EventEmitter } from "../../../util/EventEmitter.js";
-import { User } from "../types.js";
 export class UserStore<U extends User> extends EventEmitter<any> {
   private userCache: Map<string, U> = new Map();
 

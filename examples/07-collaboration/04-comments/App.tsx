@@ -38,6 +38,18 @@ const HARDCODED_USERS: MyUserType[] = [
     id: "2",
     username: "Jane Doe",
     avatarUrl: "https://placehold.co/100x100?text=Jane",
+    role: "editor",
+  },
+  {
+    id: "3",
+    username: "Bob Smith",
+    avatarUrl: "https://placehold.co/100x100?text=Bob",
+    role: "comment",
+  },
+  {
+    id: "4",
+    username: "Betty Smith",
+    avatarUrl: "https://placehold.co/100x100?text=Betty",
     role: "comment",
   },
 ];
@@ -104,6 +116,7 @@ function Document() {
     <div>
       <Select
         style={{ maxWidth: "300px" }}
+        required
         label="Active user:"
         placeholder="Pick value"
         data={HARDCODED_USERS.map((user) => ({
@@ -111,6 +124,9 @@ function Document() {
           label: user.username + " (" + user.role + ")",
         }))}
         onChange={(value) => {
+          if (!value) {
+            return;
+          }
           setUser(HARDCODED_USERS.find((user) => user.id === value)!);
         }}
         value={user.id}
