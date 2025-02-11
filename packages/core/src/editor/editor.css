@@ -88,7 +88,9 @@ Tippy popups that are appended to document.body directly
 .collaboration-cursor__caret::before {
   /* Use currentColor to grab the color from the caret in set by JS */
   border-left: 2px solid currentColor;
+  /* Make the cursor not actually take up the 2px of space within the element */
   margin-left: -2px;
+  /* Fixes Safari's rendering of negative margin elements */
   position: relative;
 }
 
