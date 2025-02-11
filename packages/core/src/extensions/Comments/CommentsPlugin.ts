@@ -168,6 +168,7 @@ export class CommentsPlugin extends EventEmitter<any> {
       });
     }, 600);
 
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
 
     this.plugin = new Plugin<CommentsPluginState>({
