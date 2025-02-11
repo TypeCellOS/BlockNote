@@ -24,8 +24,7 @@ export const AddCommentButton = () => {
   if (
     // We manually check if a comment extension (like liveblocks) is installed
     // By adding default support for this, the user doesn't need to customize the formatting toolbar
-    !editor.comments ||
-    !editor.isEditable
+    !editor.comments
   ) {
     return null;
   }

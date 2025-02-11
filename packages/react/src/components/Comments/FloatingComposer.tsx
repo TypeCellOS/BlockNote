@@ -14,6 +14,13 @@ import { schema } from "./schema.js";
  */
 export function FloatingComposer() {
   const editor = useBlockNoteEditor();
+
+  if (!editor.comments) {
+    throw new Error("Comments plugin not found");
+  }
+
+  const comments = editor.comments;
+
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
@@ -49,12 +56,12 @@ export function FloatingComposer() {
               isDisabled={isEmpty}
               onClick={async () => {
                 // TODO: handle errors?
-                await editor.comments!.createThread({
+                await comments.createThread({
                   initialComment: {
                     body: newCommentEditor.document,
                   },
                 });
-                editor.comments!.stopPendingComment();
+                comments.stopPendingComment();
               }}>
               Save
             </Components.Generic.Toolbar.Button>

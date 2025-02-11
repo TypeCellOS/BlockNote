@@ -7,13 +7,14 @@ import { Text } from "@tiptap/extension-text";
 import { Plugin } from "prosemirror-state";
 import * as Y from "yjs";
 
-import type { BlockNoteEditor, BlockNoteExtension } from "./BlockNoteEditor.js";
 import { createDropFileExtension } from "../api/clipboard/fromClipboard/fileDropExtension.js";
 import { createPasteFromClipboardExtension } from "../api/clipboard/fromClipboard/pasteExtension.js";
 import { createCopyToClipboardExtension } from "../api/clipboard/toClipboard/copyExtension.js";
 import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension.js";
+import { createCollaborationExtensions } from "../extensions/Collaboration/createCollaborationExtensions.js";
 import { CommentMark } from "../extensions/Comments/CommentMark.js";
 import { CommentsPlugin } from "../extensions/Comments/CommentsPlugin.js";
+import { ThreadStore } from "../extensions/Comments/threadstore/ThreadStore.js";
 import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin.js";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin.js";
 import { KeyboardShortcutsExtension } from "../extensions/KeyboardShortcuts/KeyboardShortcutsExtension.js";
@@ -42,7 +43,7 @@ import {
   StyleSchema,
   StyleSpecs,
 } from "../schema/index.js";
-import { createCollaborationExtensions } from "../extensions/Collaboration/createCollaborationExtensions.js";
+import type { BlockNoteEditor, BlockNoteExtension } from "./BlockNoteEditor.js";
 
 type ExtensionOptions<
   BSchema extends BlockSchema,
@@ -74,6 +75,9 @@ type ExtensionOptions<
   placeholders: Record<string | "default", string>;
   tabBehavior?: "prefer-navigate-ui" | "prefer-indent";
   sideMenuDetection: "viewport" | "editor";
+  comments?: {
+    threadStore: ThreadStore;
+  };
 };
 
 /**
@@ -125,8 +129,13 @@ export const getBlockNoteExtensions = <
 
   ret["nodeSelectionKeyboard"] = new NodeSelectionKeyboardPlugin();
 
-  // TODO
-  ret["comments"] = new CommentsPlugin(opts.editor, CommentMark.name);
+  if (opts.comments) {
+    ret["comments"] = new CommentsPlugin(
+      opts.editor,
+      opts.comments.threadStore,
+      CommentMark.name
+    );
+  }
 
   const disableExtensions: string[] = opts.disableExtensions || [];
   for (const ext of disableExtensions) {

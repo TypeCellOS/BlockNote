@@ -7,7 +7,7 @@ import { forwardRef } from "react";
 const AuthorInfo = forwardRef<
   HTMLDivElement,
   Pick<ComponentProps["Comments"]["Comment"], "authorInfo" | "timeString">
->((props, ref) => {
+>((props, _ref) => {
   const { authorInfo, timeString, ...rest } = props;
 
   assertEmpty(rest, false);

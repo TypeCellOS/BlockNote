@@ -100,7 +100,11 @@ export const Comment = ({
 
   const editor = useBlockNoteEditor();
 
-  const commentStore = editor.comments!.store;
+  if (!editor.comments) {
+    throw new Error("Comments plugin not found");
+  }
+
+  const threadStore = editor.comments.threadStore;
 
   const handleEdit = useCallback(() => {
     setEditing(true);
@@ -114,7 +118,7 @@ export const Comment = ({
   const onEditSubmit = useCallback(
     async (_event: MouseEvent) => {
       // TODO: show error on failure?
-      await commentStore.updateComment({
+      await threadStore.updateComment({
         commentId: comment.id,
         comment: {
           body: commentEditor.document,
@@ -124,42 +128,42 @@ export const Comment = ({
 
       setEditing(false);
     },
-    [comment, thread.id, commentEditor, commentStore]
+    [comment, thread.id, commentEditor, threadStore]
   );
 
   const onDelete = useCallback(async () => {
     // TODO: show error on failure?
-    await commentStore.deleteComment({
+    await threadStore.deleteComment({
       commentId: comment.id,
       threadId: thread.id,
     });
-  }, [comment, thread.id, commentStore]);
+  }, [comment, thread.id, threadStore]);
 
   const onReactionSelect = useCallback(
     async (emoji: string) => {
       // TODO: show error on failure?
-      await commentStore.addReaction({
+      await threadStore.addReaction({
         threadId: thread.id,
         commentId: comment.id,
         emoji,
       });
     },
-    [comment.id, commentStore, thread.id]
+    [comment.id, threadStore, thread.id]
   );
 
   const onResolve = useCallback(async () => {
     // TODO: show error on failure?
-    await commentStore.resolveThread({
+    await threadStore.resolveThread({
       threadId: thread.id,
     });
-  }, [thread.id, commentStore]);
+  }, [thread.id, threadStore]);
 
   const onReopen = useCallback(async () => {
     // TODO: show error on failure?
-    await commentStore.unresolveThread({
+    await threadStore.unresolveThread({
       threadId: thread.id,
     });
-  }, [thread.id, commentStore]);
+  }, [thread.id, threadStore]);
 
   const user = useUser(editor, comment.userId);
 
@@ -170,15 +174,15 @@ export const Comment = ({
   }
 
   let actions: ReactNode | undefined = undefined;
-  const canAddReaction = commentStore.auth.canAddReaction(comment);
-  const canDeleteComment = commentStore.auth.canDeleteComment(comment);
-  const canEditComment = commentStore.auth.canUpdateComment(comment);
+  const canAddReaction = threadStore.auth.canAddReaction(comment);
+  const canDeleteComment = threadStore.auth.canDeleteComment(comment);
+  const canEditComment = threadStore.auth.canUpdateComment(comment);
 
   const showResolveOrReopen =
     showResolveAction &&
     (thread.resolved
-      ? commentStore.auth.canUnresolveThread(thread)
-      : commentStore.auth.canResolveThread(thread));
+      ? threadStore.auth.canUnresolveThread(thread)
+      : threadStore.auth.canResolveThread(thread));
 
   if (showActions && !isEditing) {
     actions = (

@@ -84,6 +84,8 @@ export const components: Components = {
     Root: TableHandle,
     ExtendButton: ExtendButton,
   },
+  // TODO
+  // @ts-ignore
   Generic: {
     Form: {
       Root: Form,

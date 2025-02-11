@@ -59,6 +59,13 @@ export const Thread = ({
   ...props
 }: ThreadProps) => {
   const editor = useBlockNoteEditor();
+
+  const comments = editor.comments;
+
+  if (!comments) {
+    throw new Error("Comments plugin not found");
+  }
+
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
@@ -100,7 +107,7 @@ export const Thread = ({
 
   const onNewCommentSave = useCallback(async () => {
     // TODO: show error on failure?
-    await editor.comments!.store.addComment({
+    await comments.threadStore.addComment({
       comment: {
         body: newCommentEditor.document,
       },
@@ -109,10 +116,10 @@ export const Thread = ({
 
     // reset editor
     newCommentEditor.removeBlocks(newCommentEditor.document);
-  }, [editor.comments, newCommentEditor, thread.id]);
+  }, [comments, newCommentEditor, thread.id]);
 
   showComposer =
-    showComposer && editor.comments!.store.auth.canAddComment(thread);
+    showComposer && comments.threadStore.auth.canAddComment(thread);
 
   return (
     <Components.Comments.Card

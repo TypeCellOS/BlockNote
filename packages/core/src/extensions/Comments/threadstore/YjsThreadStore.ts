@@ -1,6 +1,5 @@
 import { v4 } from "uuid";
 import * as Y from "yjs";
-import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import {
   CommentBody,
   CommentData,
@@ -12,8 +11,6 @@ import { ThreadStoreAuth } from "./ThreadStoreAuth.js";
 
 export class YjsThreadStore extends ThreadStore {
   constructor(
-    // @ts-ignore
-    private readonly editor: BlockNoteEditor<any, any, any>,
     private readonly userId: string,
     private readonly threadsYMap: Y.Map<any>,
     auth: ThreadStoreAuth

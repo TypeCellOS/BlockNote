@@ -37,9 +37,3 @@ export type ThreadData = {
   metadata: any;
   deletedAt?: Date;
 };
-
-export type User = {
-  id: string;
-  username: string;
-  avatarUrl: string;
-};
