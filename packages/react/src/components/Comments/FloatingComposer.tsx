@@ -7,6 +7,11 @@ import { useDictionary } from "../../i18n/dictionary.js";
 import { CommentEditor } from "./CommentEditor.js";
 import { schema } from "./schema.js";
 
+/**
+ * The FloatingComposer component displays a comment editor "floating" card.
+ *
+ * It's used when the user highlights a parts of the document to create a new comment / thread.
+ */
 export function FloatingComposer() {
   const editor = useBlockNoteEditor();
   const Components = useComponentsContext()!;
