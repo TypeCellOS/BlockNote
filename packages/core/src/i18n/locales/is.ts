@@ -268,6 +268,9 @@ export const is: Dictionary = {
     align_justify: {
       tooltip: "Jafna texta",
     },
+    comment: {
+      tooltip: "Bæta við athugasemd",
+    },
   },
   file_panel: {
     upload: {

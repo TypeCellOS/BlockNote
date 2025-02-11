@@ -30,9 +30,9 @@ export const FloatingComposerController = <
     );
   }
 
-  const state = useUIPluginState(
-    editor.comments.onUpdate.bind(editor.comments)
-  );
+  const comments = editor.comments;
+
+  const state = useUIPluginState(comments.onUpdate.bind(comments));
 
   const referencePos = useMemo(() => {
     if (!state?.pendingComment) {
@@ -54,7 +54,7 @@ export const FloatingComposerController = <
       onOpenChange: (open) => {
         if (!open) {
           // TODO
-          editor.comments!.stopPendingComment();
+          comments.stopPendingComment();
           editor.focus();
         }
       },

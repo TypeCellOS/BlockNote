@@ -3,7 +3,7 @@ export type CommentBody = any;
 export type CommentReactionData = {
   emoji: string;
   createdAt: Date;
-  usersIds: string[];
+  userIds: string[];
 };
 
 export type CommentData = {
@@ -36,10 +36,4 @@ export type ThreadData = {
   resolvedUpdatedAt?: Date;
   metadata: any;
   deletedAt?: Date;
-};
-
-export type User = {
-  id: string;
-  username: string;
-  avatarUrl: string;
 };

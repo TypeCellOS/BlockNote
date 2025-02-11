@@ -12,7 +12,12 @@ export function useUsers(
   editor: BlockNoteEditor<any, any, any>,
   userIds: string[]
 ) {
-  const store = editor.comments!.userStore;
+  const comments = editor.comments;
+  if (!comments) {
+    throw new Error("Comments plugin not found");
+  }
+
+  const store = comments.userStore;
 
   // this ref works around this error:
   // https://react.dev/reference/react/useSyncExternalStore#im-getting-an-error-the-result-of-getsnapshot-should-be-cached

@@ -7,11 +7,24 @@ import { useDictionary } from "../../i18n/dictionary.js";
 import { CommentEditor } from "./CommentEditor.js";
 import { schema } from "./schema.js";
 
+/**
+ * The FloatingComposer component displays a comment editor "floating" card.
+ *
+ * It's used when the user highlights a parts of the document to create a new comment / thread.
+ */
 export function FloatingComposer() {
   const editor = useBlockNoteEditor();
+
+  if (!editor.comments) {
+    throw new Error("Comments plugin not found");
+  }
+
+  const comments = editor.comments;
+
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
+  // TODO: review use of sub-editor
   const newCommentEditor = useCreateBlockNote({
     trailingBlock: false,
     dictionary: {
@@ -42,12 +55,13 @@ export function FloatingComposer() {
               variant="compact"
               isDisabled={isEmpty}
               onClick={async () => {
-                await editor.comments!.createThread({
+                // TODO: handle errors?
+                await comments.createThread({
                   initialComment: {
                     body: newCommentEditor.document,
                   },
                 });
-                editor.comments!.stopPendingComment();
+                comments.stopPendingComment();
               }}>
               Save
             </Components.Generic.Toolbar.Button>

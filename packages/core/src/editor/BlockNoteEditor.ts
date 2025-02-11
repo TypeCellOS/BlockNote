@@ -96,6 +96,8 @@ import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTML
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
 import { CommentsPlugin } from "../extensions/Comments/CommentsPlugin.js";
+import { ThreadStore } from "../extensions/Comments/threadstore/ThreadStore.js";
+import { User } from "../models/User.js";
 import "../style.css";
 
 export type BlockNoteExtensionFactory = (
@@ -180,6 +182,12 @@ export type BlockNoteEditorOptions<
    */
   resolveFileUrl: (url: string) => Promise<string>;
 
+  resolveUsers: (userIds: string[]) => Promise<User[]>;
+
+  // TODO: decide "comments" or "threads"?
+  comments: {
+    threadStore: ThreadStore;
+  };
   /**
    * When enabled, allows for collaboration between multiple users.
    */
@@ -371,6 +379,7 @@ export class BlockNoteEditor<
   private onUploadEndCallbacks: ((blockId?: string) => void)[] = [];
 
   public readonly resolveFileUrl?: (url: string) => Promise<string>;
+  public readonly resolveUsers?: (userIds: string[]) => Promise<User[]>;
 
   public get pmSchema() {
     return this._pmSchema;
@@ -426,6 +435,12 @@ export class BlockNoteEditor<
       },
     };
 
+    if (newOptions.comments && !newOptions.resolveUsers) {
+      throw new Error("resolveUsers is required when using comments");
+    }
+
+    this.resolveUsers = newOptions.resolveUsers;
+
     // @ts-ignore
     this.schema = newOptions.schema;
     this.blockImplementations = newOptions.schema.blockSpecs;
@@ -448,6 +463,7 @@ export class BlockNoteEditor<
       placeholders: newOptions.placeholders,
       tabBehavior: newOptions.tabBehavior,
       sideMenuDetection: newOptions.sideMenuDetection || "viewport",
+      comments: newOptions.comments,
     });
 
     // add extensions from _tiptapOptions
@@ -492,7 +508,7 @@ export class BlockNoteEditor<
     this.headless = newOptions._headless;
 
     const collaborationEnabled =
-      "Collaboration" in this.extensions ||
+      "collaboration" in this.extensions ||
       "liveblocksExtension" in this.extensions;
 
     if (collaborationEnabled && newOptions.initialContent) {

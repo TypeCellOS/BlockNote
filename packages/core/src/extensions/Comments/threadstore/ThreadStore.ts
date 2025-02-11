@@ -77,7 +77,7 @@ export abstract class ThreadStore {
   abstract addReaction(options: {
     threadId: string;
     commentId: string;
-    reaction: string;
+    emoji: string;
   }): Promise<void>;
 
   /**
@@ -88,7 +88,7 @@ export abstract class ThreadStore {
   abstract deleteReaction(options: {
     threadId: string;
     commentId: string;
-    reactionId: string;
+    emoji: string;
   }): Promise<void>;
 
   abstract getThread(threadId: string): ThreadData;

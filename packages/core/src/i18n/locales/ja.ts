@@ -296,6 +296,9 @@ export const ja: Dictionary = {
     align_justify: {
       tooltip: "両端揃え",
     },
+    comment: {
+      tooltip: "コメントを追加",
+    },
   },
   file_panel: {
     upload: {

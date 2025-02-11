@@ -68,7 +68,17 @@ export class DefaultThreadStoreAuth extends ThreadStoreAuth {
     return true;
   }
 
-  // TODO: reactions
-  // abstract canAddReaction(comment: CommentData): boolean;
-  // abstract canDeleteReaction(comment: CommentData): boolean;
+  /**
+   * Auth: should be possible by anyone with comment access
+   */
+  canAddReaction(_comment: CommentData): boolean {
+    return true;
+  }
+
+  /**
+   * Auth: should be possible by anyone with comment access
+   */
+  canDeleteReaction(_comment: CommentData): boolean {
+    return true;
+  }
 }

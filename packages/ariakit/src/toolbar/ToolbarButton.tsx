@@ -1,7 +1,7 @@
 import {
+  ToolbarItem as AriakitToolbarItem,
   Tooltip as AriakitTooltip,
   TooltipAnchor as AriakitTooltipAnchor,
-  ToolbarItem as AriakitToolbarItem,
   TooltipProvider as AriakitTooltipProvider,
 } from "@ariakit/react";
 
@@ -32,6 +32,9 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
 
     // false, because rest props can be added by ariakit when button is used as a trigger
     // assertEmpty in this case is only used at typescript level, not runtime level
+
+    // TODO
+    // @ts-ignore
     assertEmpty(rest, false);
 
     return (

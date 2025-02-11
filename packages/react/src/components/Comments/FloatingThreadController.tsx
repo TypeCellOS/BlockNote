@@ -7,7 +7,13 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { UseFloatingOptions, flip, offset } from "@floating-ui/react";
-import { FC, useCallback, useEffect, useLayoutEffect } from "react";
+import {
+  ComponentProps,
+  FC,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+} from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning.js";
@@ -15,19 +21,15 @@ import { useUIPluginState } from "../../hooks/useUIPluginState.js";
 import { Thread } from "./Thread.js";
 
 /**
- * This component is pretty close to the LiveBlocks FloatingThreads one.
- * We have a bit of a different approach to communicating data to / from the plugin
- */
-
-/**
- * TODO: docs
+ * This component is used to display a thread in a floating card.
+ * It can be used when the user clicks on a thread / comment in the document.
  */
 export const FloatingThreadController = <
   B extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(props: {
-  filePanel?: FC<any>; // TODO
+  floatingThread?: FC<ComponentProps<typeof Thread>>;
   floatingOptions?: Partial<UseFloatingOptions>;
 }) => {
   const editor = useBlockNoteEditor<B, I, S>();
@@ -91,11 +93,10 @@ export const FloatingThreadController = <
     return null; // TODO
   }
 
-  const Component = props.filePanel || Thread;
+  const Component = props.floatingThread || Thread;
 
   return (
     <div ref={ref} style={style} {...getFloatingProps()}>
-      {/* <div>hello</div> */}
       <Component threadId={state.selectedThreadId} />
     </div>
   );

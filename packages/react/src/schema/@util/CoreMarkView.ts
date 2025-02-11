@@ -12,6 +12,8 @@ import type {
   MarkViewDOMSpec,
 } from "./CoreMarkViewOptions";
 
+/* eslint-disable curly */
+
 export class CoreMarkView<ComponentType> implements MarkView {
   dom: HTMLElement;
   contentDOM: HTMLElement | undefined;

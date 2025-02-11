@@ -3,11 +3,10 @@ import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import * as Y from "yjs";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { User } from "../../models/User.js";
 import { EventEmitter } from "../../util/EventEmitter.js";
-import { DefaultThreadStoreAuth } from "./threadstore/DefaultThreadStoreAuth.js";
 import { ThreadStore } from "./threadstore/ThreadStore.js";
-import { YjsThreadStore } from "./threadstore/YjsThreadStore.js";
-import { CommentBody, ThreadData, User } from "./types.js";
+import { CommentBody, ThreadData } from "./types.js";
 import { UserStore } from "./userstore/UserStore.js";
 const PLUGIN_KEY = new PluginKey(`blocknote-comments`);
 
@@ -75,7 +74,8 @@ function updateState(
 
 export class CommentsPlugin extends EventEmitter<any> {
   public readonly plugin: Plugin;
-  public readonly store: ThreadStore;
+  public readonly userStore: UserStore<User>;
+
   private pendingComment = false;
   private selectedThreadId: string | undefined;
 
@@ -141,37 +141,21 @@ export class CommentsPlugin extends EventEmitter<any> {
 
   constructor(
     private readonly editor: BlockNoteEditor<any, any, any>,
-    private readonly markType: string,
-    public readonly userStore = new UserStore<User>(async (userIds) => {
-      // fake slow network request
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // random username
-      const names = ["John Doe", "Jane Doe", "John Smith", "Jane Smith"];
-      const username = names[Math.floor(Math.random() * names.length)];
-
-      return userIds.map((id) => ({
-        id,
-        username,
-        avatarUrl: `https://placehold.co/100x100?text=${username}`,
-      }));
-    })
+    public readonly threadStore: ThreadStore,
+    private readonly markType: string
   ) {
     super();
 
-    const doc = new Y.Doc();
-    this.store = new YjsThreadStore(
-      editor,
-      "blablauserid",
-      doc.getMap("threads"),
-      new DefaultThreadStoreAuth("blablauserid", "comment")
-    );
+    if (!editor.resolveUsers) {
+      throw new Error("resolveUsers is required for comments");
+    }
+    this.userStore = new UserStore<User>(editor.resolveUsers);
 
     // TODO: unsubscribe
-    this.store.subscribe(this.updateMarksFromThreads);
+    this.threadStore.subscribe(this.updateMarksFromThreads);
 
     // initial
-    this.updateMarksFromThreads(this.store.getThreads());
+    this.updateMarksFromThreads(this.threadStore.getThreads());
 
     // TODO: remove settimeout
     setTimeout(() => {
@@ -184,6 +168,7 @@ export class CommentsPlugin extends EventEmitter<any> {
       });
     }, 600);
 
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
 
     this.plugin = new Plugin<CommentsPluginState>({
@@ -270,7 +255,7 @@ export class CommentsPlugin extends EventEmitter<any> {
     };
     metadata?: any;
   }) {
-    const thread = await this.store.createThread(options);
+    const thread = await this.threadStore.createThread(options);
     this.editor._tiptapEditor.commands.setMark(this.markType, {
       threadId: thread.id,
     });

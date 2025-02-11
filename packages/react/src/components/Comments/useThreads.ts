@@ -1,8 +1,13 @@
 import { BlockNoteEditor, ThreadData } from "@blocknote/core";
 import { useCallback, useRef, useSyncExternalStore } from "react";
 
-export function useThreadStore(editor: BlockNoteEditor<any, any, any>) {
-  const store = editor.comments!.store;
+export function useThreads(editor: BlockNoteEditor<any, any, any>) {
+  const comments = editor.comments;
+  if (!comments) {
+    throw new Error("Comments plugin not found");
+  }
+
+  const store = comments.threadStore;
 
   // this ref works around this error:
   // https://react.dev/reference/react/useSyncExternalStore#im-getting-an-error-the-result-of-getsnapshot-should-be-cached

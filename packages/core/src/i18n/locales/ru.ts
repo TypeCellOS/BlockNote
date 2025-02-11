@@ -303,6 +303,9 @@ export const ru: Dictionary = {
     align_justify: {
       tooltip: "По середине текст",
     },
+    comment: {
+      tooltip: "Добавить комментарий",
+    },
   },
   file_panel: {
     upload: {
