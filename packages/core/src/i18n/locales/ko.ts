@@ -289,6 +289,9 @@ export const ko: Dictionary = {
     align_justify: {
       tooltip: "텍스트 양쪽 맞춤",
     },
+    comment: {
+      tooltip: "댓글 추가",
+    },
   },
   file_panel: {
     upload: {

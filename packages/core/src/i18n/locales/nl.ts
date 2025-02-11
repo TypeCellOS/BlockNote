@@ -275,6 +275,9 @@ export const nl: Dictionary = {
     align_justify: {
       tooltip: "Tekst uitvullen",
     },
+    comment: {
+      tooltip: "Opmerking toevoegen",
+    },
   },
   file_panel: {
     upload: {

@@ -128,6 +128,9 @@ export const hr = {
       aliases: ["emoji", "emotikon", "emocija", "lice"],
       group: "Ostalo",
     },
+    comment: {
+      tooltip: "Dodaj komentar",
+    },
   },
   placeholders: {
     default: "Unesi tekst ili upiši ‘/’ za naredbe",

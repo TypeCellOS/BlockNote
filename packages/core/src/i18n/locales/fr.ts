@@ -300,6 +300,9 @@ export const fr: Dictionary = {
     align_justify: {
       tooltip: "Justifier le texte",
     },
+    comment: {
+      tooltip: "Ajouter un commentaire",
+    },
   },
   file_panel: {
     upload: {

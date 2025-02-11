@@ -309,6 +309,9 @@ export const zh: Dictionary = {
     align_justify: {
       tooltip: "文本对齐",
     },
+    comment: {
+      tooltip: "添加评论",
+    },
   },
   file_panel: {
     upload: {
