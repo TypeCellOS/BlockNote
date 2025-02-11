@@ -145,6 +145,8 @@ export const getBlockNoteExtensions = <
   return ret;
 };
 
+let LINKIFY_INITIALIZED = false;
+
 /**
  * Get all the Tiptap extensions BlockNote is configured with by default
  */
@@ -182,7 +184,8 @@ const getTipTapExtensions = <
       inclusive: false,
     }).configure({
       defaultProtocol: DEFAULT_LINK_PROTOCOL,
-      protocols: VALID_LINK_PROTOCOLS,
+      // only call this once if we have multiple editors installed. Or fix https://github.com/ueberdosis/tiptap/issues/5450
+      protocols: LINKIFY_INITIALIZED ? [] : VALID_LINK_PROTOCOLS,
     }),
     ...Object.values(opts.styleSpecs).map((styleSpec) => {
       return styleSpec.implementation.mark.configure({
@@ -259,6 +262,8 @@ const getTipTapExtensions = <
       : []),
     CommentMark,
   ];
+
+  LINKIFY_INITIALIZED = true;
 
   if (opts.collaboration) {
     tiptapExtensions.push(...createCollaborationExtensions(opts.collaboration));

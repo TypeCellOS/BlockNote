@@ -65,6 +65,7 @@ export interface CommentProps extends ComponentPropsWithoutRef<"div"> {
  * The Comment component displays a single comment with actions,
  * a reaction list and an editor when editing.
  *
+ * It's generally used in the `Thread` component for comments that have already been created.
  */
 export const Comment = ({
   comment,
@@ -273,7 +274,7 @@ export const Comment = ({
         <>
           <CommentEditor
             editor={commentEditor}
-            editable={true} // TODO
+            editable={isEditing}
             actions={({ isEmpty }) => (
               <>
                 {showReactions && comment.reactions.length > 0 && (
