@@ -88,6 +88,7 @@ Tippy popups that are appended to document.body directly
 .collaboration-cursor__caret::before {
   /* Use currentColor to grab the color from the caret in set by JS */
   border-left: 2px solid currentColor;
+  margin-left: -2px;
 }
 
 /* Add nbsp; to each side of the caret */
@@ -103,7 +104,7 @@ Tippy popups that are appended to document.body directly
   font-style: normal;
   font-weight: 600;
   line-height: normal;
-  left: 0;
+  left: -2px;
   overflow: hidden;
   position: absolute;
   white-space: nowrap;
