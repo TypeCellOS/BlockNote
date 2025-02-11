@@ -566,7 +566,7 @@
   justify-content: space-between;
 }
 
-/* TODO: Clean up */
+/* Comment styling */
 .bn-mantine .bn-thread {
   background-color: var(--bn-colors-menu-background);
   border: var(--bn-border);
@@ -574,20 +574,6 @@
   box-shadow: var(--bn-shadow-medium);
   color: var(--bn-colors-menu-text);
   overflow: visible;
-}
-
-.bn-mantine .bn-thread .bn-grid-suggestion-menu {
-  gap: 0;
-  max-height: 300px;
-  padding: 6px;
-}
-
-.bn-mantine .bn-thread .bn-grid-suggestion-menu-item {
-  border-radius: var(--bn-border-radius-small);
-  font-size: 20px;
-  height: 32px;
-  margin: 0;
-  width: 32px;
 }
 
 .bn-mantine .bn-thread-comments {
@@ -600,43 +586,7 @@
   justify-content: flex-end;
 }
 
-.bn-mantine .bn-badge-group {
-  display: flex;
-  gap: 4px;
-  justify-content: flex-start;
-  width: 100%;
-}
-
-.bn-mantine .bn-badge {
-  flex-grow: 0;
-}
-
-.bn-mantine .bn-badge .mantine-Chip-label {
-
-  padding: 0 8px;
-}
-
-.bn-mantine .bn-badge .mantine-Chip-label:not([data-checked="true"]) {
-  background-color: var(--bn-colors-menu-background);
-  border: var(--bn-border);
-  color: var(--bn-colors-menu-text);
-}
-
-.bn-mantine .bn-badge .mantine-Chip-label > span:not(.mantine-Chip-iconWrapper) {
-  display: inline-flex;
-  gap: 4px;
-}
-
-.bn-mantine .bn-badge .mantine-Chip-label > span:not(.mantine-Chip-iconWrapper) > span {
-  align-items: center;
-  display: inline-flex;
-  justify-content: center;
-}
-
-.bn-mantine .bn-badge .mantine-Chip-iconWrapper {
-  display: none;
-}
-
+/* Comment action toolbar styling */
 .bn-mantine .bn-action-toolbar {
   align-self: flex-end;
   background-color: var(--bn-colors-menu-background);
@@ -677,4 +627,44 @@
 
 .bn-mantine .bn-action-toolbar .mantine-Menu-itemLabel {
   font-size: 12px;
+}
+
+/* Badge styling */
+.bn-mantine .bn-badge-group {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.bn-mantine .bn-badge {
+  flex-grow: 0;
+}
+
+.bn-mantine .bn-badge .mantine-Chip-label {
+  padding: 0 8px;
+}
+
+.bn-mantine .bn-badge .mantine-Chip-label:not([data-checked="true"]) {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  color: var(--bn-colors-menu-text);
+}
+
+.bn-mantine .bn-badge .mantine-Chip-label > span:not(.mantine-Chip-iconWrapper) {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.bn-mantine .bn-badge .mantine-Chip-label > span:not(.mantine-Chip-iconWrapper) > span {
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+}
+
+/* We need to get rid of the checked icon - you can set the icon prop to an
+empty element (<></>), but even so Mantine leaves extra space for the icon, so
+we just don't display it in CSS instead. */
+.bn-mantine .bn-badge .mantine-Chip-iconWrapper {
+  display: none;
 }

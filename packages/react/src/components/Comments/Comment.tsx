@@ -1,7 +1,7 @@
 "use client";
 
 import { CommentData, ThreadData, mergeCSSClasses } from "@blocknote/core";
-import data from "@emoji-mart/data";
+import { type EmojiMartData } from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 import type { EmojiData } from "emoji-mart";
 import {
@@ -29,6 +29,12 @@ import { useDictionary } from "../../i18n/dictionary.js";
 import { CommentEditor } from "./CommentEditor.js";
 import { schema } from "./schema.js";
 import { useUser } from "./useUsers.js";
+
+let data: EmojiMartData | undefined;
+async function initData() {
+  const fullData = await import("@emoji-mart/data");
+  data = fullData.default as EmojiMartData;
+}
 
 /**
  * Liveblocks, but changed:
@@ -339,6 +345,12 @@ export const Comment = ({
       ? editor.comments!.store.auth.canUnresolveThread(thread)
       : editor.comments!.store.auth.canResolveThread(thread));
 
+  if (!data) {
+    // TODO: Is this safe? we should technically wait for this to load before
+    //  rendering emoji picker
+    initData();
+  }
+
   if (showActions && !isEditing) {
     actions = (
       <Components.Generic.Toolbar.Root
@@ -450,9 +462,7 @@ export const Comment = ({
                         isSelected={user && reaction.usersIds.includes(user.id)}
                         onClick={() => onReactionSelect(reaction.emoji)}
                         mainTooltip={"Reacted by"}
-                        secondaryTooltip={`${reaction.usersIds.map(
-                          (userId) => userId + "\n"
-                        )}`}
+                        secondaryTooltip={`${reaction.usersIds.join("\n")}`}
                       />
                     ))}
                     <Components.Generic.Popover.Root>
