@@ -90,7 +90,7 @@ The caret is a span which has a before and after pseudo element.
 The before element is what actually takes up space in the dom, and is colored via a border.
 The color is actually set by reading the current color from the `.collaboration-cursor__caret` element. Allowing for dynamic coloring from JS.
 
-There are a number of browser specific quirks with this hacks:
+There are a number of browser specific quirks with these hacks:
  - Firefox differs from Chrome & Safari in that it will split a word that is wrapping if not displayed as inline-block (whereas the others need display: inline)
  - Safari differs from Chrome & Firefox in that it needs the pseudo element to be position: relative to display a pseudo-element element with a negative margin
 
