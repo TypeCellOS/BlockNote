@@ -92,7 +92,7 @@ The color is actually set by reading the current color from the `.collaboration-
 
 There are a number of browser specific quirks with these hacks:
  - Firefox differs from Chrome & Safari in that it will split a word that is wrapping if not displayed as inline-block (whereas the others need display: inline)
- - Safari differs from Chrome & Firefox in that it needs the pseudo element to be position: relative to display a pseudo-element element with a negative margin
+ - Safari differs from Chrome & Firefox in that it needs the pseudo element to be position: absolute to display a pseudo-element element with a negative margin
 
 The word-joiner char (\u2060) is used to make sure the caret doesn't wrap around the text.
 
@@ -113,7 +113,10 @@ Therefore if modifying this code, please test in all major browsers to ensure th
   /* Make the cursor not actually take up the 2px of space within the element */
   margin-left: -2px;
   /* Fixes Safari's rendering of negative margin elements */
-  position: relative;
+  position: absolute;
+  /* Position the caret's height */
+  top: 1px;
+  bottom: -2px;
 }
 
 /* Firefox will split a word that is wrapping if not displayed as inline-block */
