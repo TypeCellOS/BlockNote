@@ -5,6 +5,8 @@ import { CoreMarkView } from "./CoreMarkView.js";
 import type { MarkViewContext } from "./markViewContext.js";
 import type { ReactMarkViewComponent } from "./ReactMarkViewOptions.js";
 
+/* eslint-disable curly */
+
 export class ReactMarkView extends CoreMarkView<ReactMarkViewComponent> {
   // implements ReactRenderer<MarkViewContext>
   // key: string = nanoid();
