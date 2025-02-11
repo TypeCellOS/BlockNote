@@ -86,37 +86,77 @@ Tippy popups that are appended to document.body directly
   opacity: 0.001;
 }
 
+/**
+Here be dragons!
+
+The collaboration cursor caret needs to:
+ - exist in the dom as a non-zero width element, so that when hovering over it, the label can display
+ - yet, effectively not take up space in the dom, so that it doesn't cause wrapping or otherwise effect layout of the page
+
+To achieve this, it took quite a bit of fiddling to figure out how to do this.
+
+The caret is a span which has a before and after pseudo element.
+The before element is what actually takes up space in the dom, and is colored via a border.
+The color is actually set by reading the current color from the `.collaboration-cursor__caret` element. Allowing for dynamic coloring from JS.
+
+There are a number of browser specific quirks with these hacks:
+ - Firefox differs from Chrome & Safari in that it will split a word that is wrapping if not displayed as inline-block (whereas the others need display: inline)
+ - Safari differs from Chrome & Firefox in that it needs the pseudo element to be position: relative to display a pseudo-element element with a negative margin
+
+The word-joiner char (\u2060) is used to make sure the caret doesn't wrap around the text.
+
+Therefore if modifying this code, please test in all major browsers to ensure that the caret is rendered correctly in all browsers.
+**/
+
 /* Give a remote user a caret */
 .collaboration-cursor__caret {
-  border-left: 1px solid #0d0d0d;
-  border-right: 1px solid #0d0d0d;
-  margin-left: -1px;
-  margin-right: -1px;
   position: relative;
   word-break: normal;
   white-space: nowrap !important;
 }
 
+/* Allow the caret to be colored & hovered over */
+.collaboration-cursor__caret::before {
+  /* Use currentColor to grab the color from the caret in set by JS */
+  border-left: 2px solid currentColor;
+  /* Make the cursor not actually take up the 2px of space within the element */
+  margin-left: -2px;
+  /* Fixes Safari's rendering of negative margin elements */
+  position: relative;
+}
+
+/* Firefox will split a word that is wrapping if not displayed as inline-block */
+@-moz-document url-prefix() {
+  .collaboration-cursor__caret::before {
+    display: inline-block;
+  }
+}
+
+/* Add a word-joiner (\u2060) char to each side of the caret */
+.collaboration-cursor__caret::after,
+.collaboration-cursor__caret::before {
+  content: "⁠";
+}
+
 /* Render the username above the caret */
 .collaboration-cursor__label {
-  border-radius: 3px 3px 3px 0;
+  border-radius: 0 1.5px 1.5px 0;
   font-size: 12px;
   font-style: normal;
   font-weight: 600;
   line-height: normal;
-  left: -1px;
+  left: -2px;
   overflow: hidden;
   position: absolute;
   white-space: nowrap;
+  user-select: none;
 
   color: transparent;
-  max-height: 4px;
+  max-height: 5px;
   max-width: 4px;
   padding: 0;
-  top: 0;
-  
+  top: -1px;
   transition: all 0.2s;
-
 }
 
 .collaboration-cursor__caret[data-active] > .collaboration-cursor__label {
@@ -124,7 +164,9 @@ Tippy popups that are appended to document.body directly
   max-height: 1.1rem;
   max-width: 20rem;
   padding: 0.1rem 0.3rem;
-  top: -14px;
+  top: -17px;
+  left: -2px;
+  border-radius: 3px 3px 3px 0;
 
   transition: all 0.2s;
 }

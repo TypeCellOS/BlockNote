@@ -1,10 +1,4 @@
 import { AnyExtension, Extension, extensions } from "@tiptap/core";
-import { Awareness } from "y-protocols/awareness";
-
-import type { BlockNoteEditor, BlockNoteExtension } from "./BlockNoteEditor.js";
-
-import Collaboration from "@tiptap/extension-collaboration";
-import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import { Gapcursor } from "@tiptap/extension-gapcursor";
 import { HardBreak } from "@tiptap/extension-hard-break";
 import { History } from "@tiptap/extension-history";
@@ -12,6 +6,8 @@ import { Link } from "@tiptap/extension-link";
 import { Text } from "@tiptap/extension-text";
 import { Plugin } from "prosemirror-state";
 import * as Y from "yjs";
+
+import type { BlockNoteEditor, BlockNoteExtension } from "./BlockNoteEditor.js";
 import { createDropFileExtension } from "../api/clipboard/fromClipboard/fileDropExtension.js";
 import { createPasteFromClipboardExtension } from "../api/clipboard/fromClipboard/pasteExtension.js";
 import { createCopyToClipboardExtension } from "../api/clipboard/toClipboard/copyExtension.js";
@@ -46,6 +42,7 @@ import {
   StyleSchema,
   StyleSpecs,
 } from "../schema/index.js";
+import { createCollaborationExtensions } from "../extensions/Collaboration/createCollaborationExtensions.js";
 
 type ExtensionOptions<
   BSchema extends BlockSchema,
@@ -255,128 +252,7 @@ const getTipTapExtensions = <
   ];
 
   if (opts.collaboration) {
-    tiptapExtensions.push(
-      Collaboration.configure({
-        fragment: opts.collaboration.fragment,
-      })
-    );
-
-    const awareness = opts.collaboration?.provider.awareness as Awareness;
-
-    if (awareness) {
-      const cursors = new Map<
-        number,
-        { element: HTMLElement; hideTimeout: NodeJS.Timeout | undefined }
-      >();
-
-      if (opts.collaboration.showCursorLabels !== "always") {
-        awareness.on(
-          "change",
-          ({
-            updated,
-          }: {
-            added: Array<number>;
-            updated: Array<number>;
-            removed: Array<number>;
-          }) => {
-            for (const clientID of updated) {
-              const cursor = cursors.get(clientID);
-
-              if (cursor) {
-                cursor.element.setAttribute("data-active", "");
-
-                if (cursor.hideTimeout) {
-                  clearTimeout(cursor.hideTimeout);
-                }
-
-                cursors.set(clientID, {
-                  element: cursor.element,
-                  hideTimeout: setTimeout(() => {
-                    cursor.element.removeAttribute("data-active");
-                  }, 2000),
-                });
-              }
-            }
-          }
-        );
-      }
-
-      const createCursor = (clientID: number, name: string, color: string) => {
-        const cursorElement = document.createElement("span");
-
-        cursorElement.classList.add("collaboration-cursor__caret");
-        cursorElement.setAttribute("style", `border-color: ${color}`);
-        if (opts.collaboration?.showCursorLabels === "always") {
-          cursorElement.setAttribute("data-active", "");
-        }
-
-        const labelElement = document.createElement("span");
-
-        labelElement.classList.add("collaboration-cursor__label");
-        labelElement.setAttribute("style", `background-color: ${color}`);
-        labelElement.insertBefore(document.createTextNode(name), null);
-
-        cursorElement.insertBefore(document.createTextNode("\u2060"), null); // Non-breaking space
-        cursorElement.insertBefore(labelElement, null);
-        cursorElement.insertBefore(document.createTextNode("\u2060"), null); // Non-breaking space
-
-        cursors.set(clientID, {
-          element: cursorElement,
-          hideTimeout: undefined,
-        });
-
-        if (opts.collaboration?.showCursorLabels !== "always") {
-          cursorElement.addEventListener("mouseenter", () => {
-            const cursor = cursors.get(clientID)!;
-            cursor.element.setAttribute("data-active", "");
-
-            if (cursor.hideTimeout) {
-              clearTimeout(cursor.hideTimeout);
-              cursors.set(clientID, {
-                element: cursor.element,
-                hideTimeout: undefined,
-              });
-            }
-          });
-
-          cursorElement.addEventListener("mouseleave", () => {
-            const cursor = cursors.get(clientID)!;
-
-            cursors.set(clientID, {
-              element: cursor.element,
-              hideTimeout: setTimeout(() => {
-                cursor.element.removeAttribute("data-active");
-              }, 2000),
-            });
-          });
-        }
-
-        return cursors.get(clientID)!;
-      };
-
-      const defaultRender = (user: { color: string; name: string }) => {
-        const clientState = [...awareness.getStates().entries()].find(
-          (state) => state[1].user === user
-        );
-
-        if (!clientState) {
-          throw new Error("Could not find client state for user");
-        }
-
-        const clientID = clientState[0];
-
-        return (
-          cursors.get(clientID) || createCursor(clientID, user.name, user.color)
-        ).element;
-      };
-      tiptapExtensions.push(
-        CollaborationCursor.configure({
-          user: opts.collaboration.user,
-          render: opts.collaboration.renderCursor || defaultRender,
-          provider: opts.collaboration.provider,
-        })
-      );
-    }
+    tiptapExtensions.push(...createCollaborationExtensions(opts.collaboration));
   } else {
     // disable history extension when collaboration is enabled as Yjs takes care of undo / redo
     tiptapExtensions.push(History);
