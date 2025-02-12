@@ -38,10 +38,13 @@ export class ODTExporter<
   React.ReactNode
 > {
   private automaticStyles: Map<string, React.ReactNode> = new Map();
-  private pictures: Set<{
-    file: Blob;
-    fileName: string;
-  }> = new Set();
+  private pictures: Map<
+    string,
+    {
+      file: Blob;
+      fileName: string;
+    }
+  > = new Map();
   private styleCounter = 0;
 
   public readonly options: ExporterOptions;
@@ -267,9 +270,28 @@ export class ODTExporter<
     this.automaticStyles.set(styleName, style(styleName));
     return styleName;
   }
-  public registerPicture(picture: { file: Blob; fileName: string }): string {
-    this.pictures.add(picture);
+  public async registerPicture(url: string): Promise<{
+    path: string;
+    mimeType: string;
+  }> {
+    if (this.pictures.has(url)) {
+      const picture = this.pictures.get(url)!;
 
-    return `Pictures/${picture.fileName}`;
+      return {
+        path: `Pictures/${picture.fileName}`,
+        mimeType: picture.file.type,
+      };
+    }
+
+    const blob = await this.resolveFile(url);
+    const fileExtension = url.split(".").pop();
+    const fileName = `picture-${this.pictures.size}.${fileExtension}`;
+
+    this.pictures.set(url, {
+      file: blob,
+      fileName: fileName,
+    });
+
+    return { path: `Pictures/${fileName}`, mimeType: blob.type };
   }
 }

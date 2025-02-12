@@ -132,6 +132,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
       exporter as ODTExporter<any, any, any>,
       block.props
     );
+
     return (
       <TextP text:style-name={styleName}>
         {getTabs(nestingLevel)}
@@ -225,14 +226,10 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
 
   image: async (block, exporter) => {
     const odtExporter = exporter as ODTExporter<any, any, any>;
-    const blob = await exporter.resolveFile(block.props.url);
-    const fileExtension = block.props.url.split(".").pop();
-    const fileName =
-      block.props.url.split("/").pop()?.split(".")[0] || block.id;
-    const path = await odtExporter.registerPicture({
-      fileName: `${fileName}.${fileExtension}`,
-      file: blob,
-    });
+
+    const { path, mimeType } = await odtExporter.registerPicture(
+      block.props.url
+    );
     const styleName = createParagraphStyle(
       exporter as ODTExporter<any, any, any>,
       block.props
@@ -242,6 +239,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     const imageFrame = (
       <TextP text:style-name={block.props.caption ? "Caption" : styleName}>
         <DrawFrame
+          draw:style-name="Frame"
           style:rel-height="scale"
           style:rel-width={block.props.caption ? "100%" : width}
           {...(!block.props.caption && {
@@ -252,7 +250,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
             xlink:show="embed"
             xlink:actuate="onLoad"
             xlink:href={path}
-            draw:mime-type={blob.type}
+            draw:mime-type={mimeType}
           />
         </DrawFrame>
         <TextSpan text:style-name="Caption">{block.props.caption}</TextSpan>
@@ -263,6 +261,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
       return (
         <TextP text:style-name={styleName}>
           <DrawFrame
+            draw:style-name="Frame"
             style:rel-height="scale"
             style:rel-width={width}
             text:anchor-type="as-char">
@@ -280,19 +279,21 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     const styleName = createTableStyle(ex);
 
     return (
-      <Table>
+      <Table table:name={block.id}>
         {block.content.rows[0]?.cells.map((_, i) => {
-          let width: any = block.content.columnWidths[i];
+          const pageWidthIN = 8.2681;
+          const editorWidthPX = 623;
 
-          if (!width) {
-            // width = "3in";
-          } else {
-            width = "5in";
+          let widthPX: any = block.content.columnWidths[i];
+
+          if (widthPX) {
+            widthPX = `${(widthPX / editorWidthPX) * pageWidthIN}in`;
           }
-          if (width) {
+
+          if (widthPX) {
             const style = ex.registerStyle((name) => (
               <StyleStyle style:name={name} style:family="table-column">
-                <style:table-column-properties style:column-width={width} />
+                <style:table-column-properties style:column-width={widthPX} />
               </StyleStyle>
             ));
             return <TableColumn table:style-name={style} />;
@@ -308,7 +309,9 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
         {block.content.rows.map((row) => (
           <TableRow>
             {row.cells.map((cell) => (
-              <TableCell table:style-name={styleName}>
+              <TableCell
+                table:style-name={styleName}
+                office:value-type="string">
                 <TextP>{exporter.transformInlineContent(cell)}</TextP>
               </TableCell>
             ))}

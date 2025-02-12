@@ -34,5 +34,6 @@
     "prepublishOnly": "npm run build && cp README.md packages/core/README.md && cp README.md packages/react/README.md",
     "postpublish": "rm -rf packages/core/README.md && rm -rf packages/react/README.md",
     "clean": "lerna run --stream clean"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610"
 }
