@@ -129,8 +129,7 @@ export function selectedFragmentToHTML<
   }
 
   // Uses default ProseMirror clipboard serialization.
-  const clipboardHTML: string = (pmView as any).__serializeForClipboard(
-    view,
+  const clipboardHTML: string = view.serializeForClipboard(
     view.state.selection.content()
   ).dom.innerHTML;
 
