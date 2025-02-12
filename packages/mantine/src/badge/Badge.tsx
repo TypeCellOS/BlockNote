@@ -34,6 +34,7 @@ export const Badge = forwardRef<
       checked={isSelected === true}
       onClick={onClick}
       variant={"light"}
+      icon={<></>}
       ref={ref}>
       <span>{icon}</span>
       <span>{text}</span>
