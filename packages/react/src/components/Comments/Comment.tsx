@@ -92,8 +92,7 @@ export const Comment = ({
       dictionary: {
         ...dict,
         placeholders: {
-          ...dict.placeholders,
-          default: "Edit comment...", // TODO: only for empty doc
+          emptyDocument: "Edit comment...",
         },
       },
       schema,

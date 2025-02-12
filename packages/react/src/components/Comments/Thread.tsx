@@ -93,7 +93,6 @@ export const Thread = ({
       ...dict,
       placeholders: {
         emptyDocument: "Add comment...",
-        default: undefined,
       },
     },
     schema,

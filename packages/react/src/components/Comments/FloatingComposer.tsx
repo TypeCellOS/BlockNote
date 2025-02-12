@@ -30,8 +30,7 @@ export function FloatingComposer() {
     dictionary: {
       ...dict,
       placeholders: {
-        ...dict.placeholders,
-        default: "Write a comment...", // TODO: only for empty doc
+        emptyDocument: "Write a comment...",
       },
     },
     schema,
