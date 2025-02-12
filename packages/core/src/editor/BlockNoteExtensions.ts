@@ -309,8 +309,8 @@ const getTipTapExtensions = <
         labelElement.insertBefore(document.createTextNode(name), null);
 
         cursorElement.insertBefore(document.createTextNode("\u2060"), null); // Non-breaking space
-        cursorElement.insertBefore(labelElement, null);
-        cursorElement.insertBefore(document.createTextNode("\u2060"), null); // Non-breaking space
+        // cursorElement.insertBefore(labelElement, null);
+        // cursorElement.insertBefore(document.createTextNode("\u2060"), null); // Non-breaking space
 
         cursors.set(clientID, {
           element: cursorElement,

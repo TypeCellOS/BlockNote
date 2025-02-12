@@ -14,7 +14,9 @@ import { createOpenAI } from "@ai-sdk/openai";
 import {
   BlockNoteEditor,
   BlockNoteSchema,
+  createStyleSpec,
   defaultBlockSpecs,
+  defaultStyleSpecs,
   filterSuggestionItems,
   locales,
 } from "@blocknote/core";
@@ -40,6 +42,41 @@ const schema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
     // ai: AIBlock,
+  },
+  styleSpecs: {
+    ...defaultStyleSpecs,
+    ins: createStyleSpec(
+      {
+        type: "ins",
+        propSchema: "boolean",
+      },
+      {
+        render: () => {
+          const el = document.createElement("span");
+          // el.style.backgroundColor = "green";
+          el.style.color = "green";
+          el.textContent = "ins";
+          return { dom: el };
+        },
+      }
+    ),
+    del: createStyleSpec(
+      {
+        type: "del",
+        propSchema: "boolean",
+      },
+      {
+        render: () => {
+          const el = document.createElement("span");
+          // el.style.backgroundColor = "red";
+          el.style.textDecoration = "line-through";
+          el.style.textDecorationColor = "green";
+          el.style.textDecorationThickness = "2px";
+          el.textContent = "del";
+          return { dom: el };
+        },
+      }
+    ),
   },
 });
 

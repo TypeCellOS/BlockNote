@@ -1,8 +1,9 @@
-import { Block } from "@blocknote/core";
+import { Block, InlineContent } from "@blocknote/core";
 import { useBlockNoteEditor } from "@blocknote/react";
 import { LanguageModel } from "ai";
 import { createContext, useCallback, useContext, useState } from "react";
 import { PromptOrMessages, llm } from "../api/index.js";
+import { getDiffs } from "./diff/diffUpdate.js";
 
 // parameters that are shared across all calls and can be configured on the context as "application wide" settings
 type GlobalLLMCallOptions = {
@@ -90,6 +91,45 @@ export function BlockNoteAIContextProvider(
             stream,
             ...options,
           });
+
+          if (ret.length !== 1 || ret[0].type !== "update") {
+            throw new Error("not supported");
+          }
+
+          const id = ret[0].id.replace("$", "");
+          const diffs = getDiffs(editor.getBlock(id)!, ret[0].block);
+
+          const content: InlineContent<any, any>[] = [];
+          for (const diff of diffs) {
+            if (diff.added) {
+              content.push({
+                type: "text",
+                text: diff.value,
+                styles: {
+                  ins: true,
+                },
+              });
+            } else if (diff.removed) {
+              content.push({
+                type: "text",
+                text: diff.value,
+                styles: {
+                  del: true,
+                },
+              });
+            } else {
+              content.push({
+                type: "text",
+                text: diff.value,
+                styles: {},
+              });
+            }
+          }
+
+          editor.updateBlock(id, {
+            content,
+          });
+          // console.log(diffs);
         } else {
           if (options.functions) {
             // eslint-disable-next-line no-console

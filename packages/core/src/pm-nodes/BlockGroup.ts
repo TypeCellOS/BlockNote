@@ -7,7 +7,7 @@ export const BlockGroup = Node.create<{
 }>({
   name: "blockGroup",
   group: "childContainer",
-  content: "blockGroupChild+",
+  content: "blockGroupChild",
 
   parseHTML() {
     return [

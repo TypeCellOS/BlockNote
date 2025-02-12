@@ -117,6 +117,7 @@ export async function callLLM(
     throw new Error("No operations returned");
   }
 
+  return ret.object.operations;
   for (const operation of ret.object.operations) {
     await executeAIOperation(operation, editor, options.functions, undefined, {
       idsSuffixed: true, // TODO: not needed for this, but would need to refactor promptbuilding
