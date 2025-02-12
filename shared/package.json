@@ -2,7 +2,7 @@
   "name": "@blocknote/shared",
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": true,
-  "version": "0.23.5",
+  "version": "0.23.6",
   "files": [
     "dist",
     "types",
@@ -13,7 +13,7 @@
     "clean": "tsc --build --clean"
   },
   "dependencies": {
-    "@blocknote/core": "^0.23.5"
+    "@blocknote/core": "^0.23.6"
   },
   "devDependencies": {
     "typescript": "^5.3.3"
