@@ -7,7 +7,7 @@ export const BackgroundColorExtension = Extension.create({
   addGlobalAttributes() {
     return [
       {
-        types: ["blockContainer"],
+        types: ["blockContainer", "tableCell"],
         attributes: {
           backgroundColor: {
             default: defaultProps.backgroundColor.default,

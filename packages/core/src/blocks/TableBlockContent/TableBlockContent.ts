@@ -1,5 +1,4 @@
-import { Node } from "@tiptap/core";
-import { TableCell } from "@tiptap/extension-table-cell";
+import { TableCell as TiptapTableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { TableRow } from "@tiptap/extension-table-row";
 import { Node as PMNode } from "prosemirror-model";
@@ -14,10 +13,18 @@ import { mergeCSSClasses } from "../../util/browser.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
 import { EMPTY_CELL_WIDTH, TableExtension } from "./TableExtension.js";
+import { PropSchema } from "../../schema/index.js";
+import { NodeView } from "prosemirror-view";
 
 export const tablePropSchema = {
   textColor: defaultProps.textColor,
 };
+
+export const tableCellPropSchema = {
+  ...defaultProps,
+  colspan: { default: 1 },
+  rowspan: { default: 1 },
+} satisfies PropSchema;
 
 export const TableBlockContent = createStronglyTypedTiptapNode({
   name: "table",
@@ -107,7 +114,7 @@ export const TableBlockContent = createStronglyTypedTiptapNode({
   },
 });
 
-const TableParagraph = Node.create({
+const TableParagraph = createStronglyTypedTiptapNode({
   name: "tableParagraph",
   group: "tableContent",
   content: "inline*",
@@ -153,16 +160,20 @@ const TableParagraph = Node.create({
   },
 });
 
+export const TableCell = createBlockSpecFromStronglyTypedTiptapNode(
+  TableParagraph,
+  tableCellPropSchema
+);
+
 export const Table = createBlockSpecFromStronglyTypedTiptapNode(
   TableBlockContent,
   tablePropSchema,
   [
     TableExtension,
-    TableParagraph,
     TableHeader.extend({
       content: "tableContent",
     }),
-    TableCell.extend({
+    TiptapTableCell.extend({
       content: "tableContent",
     }),
     TableRow,

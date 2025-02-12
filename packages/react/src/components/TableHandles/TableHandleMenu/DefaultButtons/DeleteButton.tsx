@@ -2,9 +2,11 @@ import {
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
+  InlineContentFromConfig,
   InlineContentSchema,
   PartialTableContent,
   StyleSchema,
+  TableCell,
 } from "@blocknote/core";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
@@ -75,7 +77,9 @@ export const DeleteColumnButton = <
             (_, index) => index !== props.index
           ),
           rows: props.block.content.rows.map((row) => ({
-            cells: row.cells.filter((_, index) => index !== props.index),
+            cells: row.cells.filter((_, index) => index !== props.index) as
+              | InlineContentFromConfig<I[keyof I], S>[]
+              | TableCell<I, S>[],
           })),
         };
 

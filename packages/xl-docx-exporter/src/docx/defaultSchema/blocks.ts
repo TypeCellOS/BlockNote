@@ -193,6 +193,10 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
   table: (block, exporter) => {
     return Table(block.content, exporter);
   },
+  tableCell: () => {
+    throw new Error("tableCell is not supported");
+    // return TableCell(block.content, exporter);
+  },
 };
 
 function file(

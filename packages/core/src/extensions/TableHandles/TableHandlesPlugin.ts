@@ -455,7 +455,7 @@ export class TableHandlesView<
       );
       rows.forEach((row, rowIndex) => {
         row.cells.splice(draggingState.originalIndex, 1);
-        row.cells.splice(colIndex, 0, cellsToMove[rowIndex]);
+        row.cells.splice(colIndex, 0, cellsToMove[rowIndex] as any);
       });
     }
 

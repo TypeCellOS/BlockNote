@@ -10,6 +10,7 @@ import type {
   InlineContentSchema,
   StyleSchema,
   Styles,
+  TableCell,
   TableContent,
 } from "../../schema/index.js";
 import { getBlockInfoWithManualOffset } from "../getBlockInfoFromPos.js";
@@ -41,6 +42,7 @@ export function contentNodeToTableContent<
 
     if (index === 0) {
       rowNode.content.forEach((cellNode) => {
+        // TODO implement
         // The colwidth array should have multiple values when the colspan of a
         // cell is greater than 1. However, this is not yet implemented so we
         // can always assume a length of 1.
@@ -48,14 +50,22 @@ export function contentNodeToTableContent<
       });
     }
 
-    rowNode.content.forEach((cellNode) => {
-      row.cells.push(
-        contentNodeToInlineContent(
+    row.cells = rowNode.content.content.map((cellNode) => {
+      return {
+        type: "tableCell",
+        content: contentNodeToInlineContent(
           cellNode.firstChild!,
           inlineContentSchema,
           styleSchema
-        )
-      );
+        ),
+        props: {
+          colspan: cellNode.attrs.colspan,
+          rowspan: cellNode.attrs.rowspan,
+          backgroundColor: cellNode.attrs.backgroundColor,
+          textColor: cellNode.attrs.textColor,
+          textAlignment: cellNode.attrs.textAlignment,
+        },
+      } satisfies TableCell<I, S>;
     });
 
     ret.rows.push(row);

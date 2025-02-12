@@ -29,7 +29,7 @@ import { BulletListItem } from "./ListItemBlockContent/BulletListItemBlockConten
 import { CheckListItem } from "./ListItemBlockContent/CheckListItemBlockContent/CheckListItemBlockContent.js";
 import { NumberedListItem } from "./ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContent.js";
 import { Paragraph } from "./ParagraphBlockContent/ParagraphBlockContent.js";
-import { Table } from "./TableBlockContent/TableBlockContent.js";
+import { Table, TableCell } from "./TableBlockContent/TableBlockContent.js";
 import { VideoBlock } from "./VideoBlockContent/VideoBlockContent.js";
 
 export { customizeCodeBlock } from "./CodeBlockContent/CodeBlockContent.js";
@@ -42,6 +42,7 @@ export const defaultBlockSpecs = {
   numberedListItem: NumberedListItem,
   checkListItem: CheckListItem,
   table: Table,
+  tableCell: TableCell,
   file: FileBlock,
   image: ImageBlock,
   video: VideoBlock,

@@ -1,4 +1,4 @@
-import { Mark, Node, Schema } from "@tiptap/pm/model";
+import { Attrs, Fragment, Mark, Node, Schema } from "@tiptap/pm/model";
 
 import UniqueID from "../../extensions/UniqueID/UniqueID.js";
 import type {
@@ -16,6 +16,7 @@ import {
   isPartialLinkInlineContent,
   isStyledTextInlineContent,
 } from "../../schema/inlineContent/types.js";
+import { isPartialTableCell } from "../../schema/blocks/types.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
 
 /**
@@ -179,29 +180,48 @@ export function tableContentToNodes<
     const columnNodes: Node[] = [];
     for (let i = 0; i < row.cells.length; i++) {
       const cell = row.cells[i];
-      let pNode: Node;
+      let attrs: Attrs | null = null;
+      let content: Fragment | Node | readonly Node[] | null = null;
+      const marks: undefined | readonly Mark[] = undefined;
       if (!cell) {
-        pNode = schema.nodes["tableParagraph"].createChecked({});
+        attrs = {};
       } else if (typeof cell === "string") {
-        pNode = schema.nodes["tableParagraph"].createChecked(
-          {},
-          schema.text(cell)
-        );
+        content = schema.text(cell);
+      } else if (isPartialTableCell(cell)) {
+        if (cell.content) {
+          content = inlineContentToNodes(cell.content, schema, styleSchema);
+        } else if (cell.props) {
+          attrs = cell.props;
+        }
       } else {
-        const textNodes = inlineContentToNodes(cell, schema, styleSchema);
-        pNode = schema.nodes["tableParagraph"].createChecked({}, textNodes);
+        content = inlineContentToNodes(cell, schema, styleSchema);
       }
 
       const cellNode = schema.nodes["tableCell"].createChecked(
         {
+          // TODO modify
           // The colwidth array should have multiple values when the colspan of
           // a cell is greater than 1. However, this is not yet implemented so
           // we can always assume a length of 1.
           colwidth: tableContent.columnWidths?.[i]
             ? [tableContent.columnWidths[i]]
             : null,
+          ...(isPartialTableCell(cell) && cell.props
+            ? {
+                rowspan: cell.props.rowspan,
+                colspan: cell.props.colspan,
+                textColor: cell.props.textColor,
+              }
+            : {}),
         },
-        pNode
+        schema.nodes["tableParagraph"].createChecked(attrs, content, marks),
+        [
+          isPartialTableCell(cell) && cell.props?.backgroundColor
+            ? schema.marks["backgroundColor"].create({
+                stringValue: cell.props.backgroundColor,
+              })
+            : false,
+        ].filter((a): a is Mark => Boolean(a))
       );
       columnNodes.push(cellNode);
     }

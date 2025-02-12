@@ -1,7 +1,12 @@
 import { Block, PartialBlock } from "../../blocks/defaultBlocks.js";
 import { BlockNoteSchema } from "../../editor/BlockNoteSchema.js";
 import UniqueID from "../../extensions/UniqueID/UniqueID.js";
-import { BlockSchema, TableContent } from "../../schema/blocks/types.js";
+import {
+  BlockSchema,
+  PartialTableCell,
+  TableCell,
+  TableContent,
+} from "../../schema/blocks/types.js";
 import {
   InlineContent,
   InlineContentSchema,
@@ -28,8 +33,16 @@ function textShorthandToStyledText(
 }
 
 function partialContentToInlineContent(
-  content: PartialInlineContent<any, any> | TableContent<any> | undefined
-): InlineContent<any, any>[] | TableContent<any> | undefined {
+  content:
+    | PartialInlineContent<any, any>
+    | PartialTableCell<any, any>
+    | TableContent<any>
+    | undefined
+):
+  | InlineContent<any, any>[]
+  | TableContent<any>
+  | TableCell<any, any>
+  | undefined {
   if (typeof content === "string") {
     return textShorthandToStyledText(content);
   }
@@ -66,6 +79,18 @@ function partialContentToInlineContent(
         ),
       })),
     };
+  } else if (content?.type === "tableCell") {
+    return {
+      type: "tableCell",
+      content: partialContentToInlineContent(content.content) as any[],
+      props: {
+        backgroundColor: content.props?.backgroundColor ?? "default",
+        textColor: content.props?.textColor ?? "default",
+        textAlignment: content.props?.textAlignment ?? "left",
+        colspan: content.props?.colspan ?? 1,
+        rowspan: content.props?.rowspan ?? 1,
+      },
+    } satisfies TableCell<any, any>;
   }
 
   return content;

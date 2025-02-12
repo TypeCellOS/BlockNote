@@ -2,9 +2,11 @@ import {
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
+  InlineContentFromConfig,
   InlineContentSchema,
   PartialTableContent,
   StyleSchema,
+  TableCell,
 } from "@blocknote/core";
 
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
@@ -84,8 +86,14 @@ export const AddColumnButton = <
           type: "tableContent",
           columnWidths,
           rows: props.block.content.rows.map((row) => {
-            const cells = [...row.cells];
-            cells.splice(props.index + (props.side === "right" ? 1 : 0), 0, []);
+            const cells = [...row.cells] as
+              | InlineContentFromConfig<I[keyof I], S>[]
+              | TableCell<I, S>[];
+            cells.splice(
+              props.index + (props.side === "right" ? 1 : 0),
+              0,
+              [] as any
+            );
             return { cells };
           }),
         };

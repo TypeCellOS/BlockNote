@@ -4,6 +4,7 @@ import {
   EMPTY_CELL_HEIGHT,
   EMPTY_CELL_WIDTH,
   InlineContentSchema,
+  isPartialTableCell,
   mergeCSSClasses,
   PartialTableContent,
   StyleSchema,
@@ -21,6 +22,16 @@ import { RiAddFill } from "react-icons/ri";
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { ExtendButtonProps } from "./ExtendButtonProps.js";
 
+function isCellEmpty<I extends InlineContentSchema, S extends StyleSchema>(
+  cell: PartialTableContent<I, S>["rows"][number]["cells"][number]
+): boolean {
+  if (isPartialTableCell(cell)) {
+    return (cell.content?.length ?? 0) === 0;
+  } else {
+    return cell.length === 0;
+  }
+}
+
 function cropEmptyRowsOrColumns<
   I extends InlineContentSchema,
   S extends StyleSchema
@@ -33,7 +44,7 @@ function cropEmptyRowsOrColumns<
   if (removeEmpty === "columns") {
     // strips empty columns to the right and empty rows at the bottom
     for (let i = content.rows[0].cells.length - 1; i >= 0; i--) {
-      const isEmpty = content.rows.every((row) => row.cells[i].length === 0);
+      const isEmpty = content.rows.every((row) => isCellEmpty(row.cells[i]));
       if (!isEmpty) {
         break;
       }
@@ -47,7 +58,7 @@ function cropEmptyRowsOrColumns<
     if (removeEmpty === "rows") {
       if (
         rows.length === 0 &&
-        content.rows[i].cells.every((cell) => cell.length === 0)
+        content.rows[i].cells.every((cell) => isCellEmpty(cell))
       ) {
         // empty row at bottom
         continue;
@@ -116,7 +127,8 @@ const getContentWithAddedCols = <
     [];
   const newCells: PartialTableContent<I, S>["rows"][number]["cells"] = [];
   for (let i = 0; i < colsToAdd; i++) {
-    newCells.push(newCell);
+    // TODO: fix this
+    newCells.push(newCell as any);
   }
 
   return {
@@ -125,7 +137,8 @@ const getContentWithAddedCols = <
       ? [...content.columnWidths, ...newCells.map(() => undefined)]
       : undefined,
     rows: content.rows.map((row) => ({
-      cells: [...row.cells, ...newCells],
+      // TODO: fix this
+      cells: [...row.cells, ...newCells] as any[],
     })),
   };
 };

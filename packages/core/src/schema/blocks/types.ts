@@ -144,14 +144,33 @@ export type BlockSchemaWithBlock<
   [k in BType]: C;
 };
 
+export type TableItemProps = {
+  backgroundColor: string;
+  textColor: string;
+  textAlignment: "left" | "center" | "right" | "justify";
+  colspan?: number;
+  rowspan?: number;
+};
+
+export type TableCell<
+  I extends InlineContentSchema,
+  S extends StyleSchema = StyleSchema
+> = {
+  type: "tableCell";
+  props: TableItemProps;
+  content: InlineContent<I, S>[];
+};
+
 export type TableContent<
   I extends InlineContentSchema,
   S extends StyleSchema = StyleSchema
 > = {
   type: "tableContent";
   columnWidths: (number | undefined)[];
+  headerRows?: number;
+  headerCols?: number;
   rows: {
-    cells: InlineContent<I, S>[][];
+    cells: InlineContent<I, S>[][] | TableCell<I, S>[];
   }[];
 };
 
@@ -220,14 +239,25 @@ export type SpecificBlock<
  *
  */
 
+export type PartialTableCell<
+  I extends InlineContentSchema,
+  S extends StyleSchema = StyleSchema
+> = {
+  type: "tableCell";
+  props?: Partial<TableItemProps>;
+  content?: PartialInlineContent<I, S>;
+};
+
 export type PartialTableContent<
   I extends InlineContentSchema,
   S extends StyleSchema = StyleSchema
 > = {
   type: "tableContent";
   columnWidths?: (number | undefined)[];
+  headerRows?: number;
+  headerCols?: number;
   rows: {
-    cells: PartialInlineContent<I, S>[];
+    cells: PartialInlineContent<I, S>[] | PartialTableCell<I, S>[];
   }[];
 };
 
@@ -289,3 +319,23 @@ export type PartialBlockFromConfig<
 };
 
 export type BlockIdentifier = { id: string } | string;
+
+export function isPartialTableCell<T extends InlineContentSchema>(
+  content: PartialInlineContent<T, any> | PartialTableCell<T, any>
+): content is PartialTableCell<T, any> {
+  return (
+    typeof content !== "string" &&
+    !Array.isArray(content) &&
+    content.type === "tableCell"
+  );
+}
+
+export function isTableCell<T extends InlineContentSchema>(
+  content: InlineContent<T, any>[] | TableCell<T, any>
+): content is TableCell<T> {
+  return (
+    isPartialTableCell(content) &&
+    content.props !== undefined &&
+    content.content !== undefined
+  );
+}
