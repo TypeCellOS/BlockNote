@@ -65,11 +65,12 @@ export const createCollaborationExtensions = (collaboration: {
     const renderCursor = (user: { name: string; color: string }) => {
       const cursorElement = document.createElement("span");
 
-      cursorElement.classList.add("collaboration-cursor__caret");
-      cursorElement.setAttribute("style", `color: ${user.color}`);
-      if (collaboration?.showCursorLabels === "always") {
-        cursorElement.setAttribute("data-active", "");
-      }
+      cursorElement.classList.add("collaboration-cursor__base");
+
+      const caretElement = document.createElement("span");
+      caretElement.setAttribute("contentedEditable", "false");
+      caretElement.classList.add("collaboration-cursor__caret");
+      caretElement.setAttribute("style", `background-color: ${user.color}`);
 
       const labelElement = document.createElement("span");
 
@@ -77,7 +78,11 @@ export const createCollaborationExtensions = (collaboration: {
       labelElement.setAttribute("style", `background-color: ${user.color}`);
       labelElement.insertBefore(document.createTextNode(user.name), null);
 
-      cursorElement.insertBefore(labelElement, null);
+      caretElement.insertBefore(labelElement, null);
+
+      cursorElement.insertBefore(document.createTextNode("\u2060"), null); // Non-breaking space
+      cursorElement.insertBefore(caretElement, null);
+      cursorElement.insertBefore(document.createTextNode("\u2060"), null); // Non-breaking space
 
       return cursorElement;
     };
