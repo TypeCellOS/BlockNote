@@ -20,7 +20,6 @@ import {
   wrapInBlockStructure,
 } from "@blocknote/core";
 import {
-  NodeView,
   NodeViewProps,
   NodeViewWrapper,
   ReactNodeViewRenderer,
@@ -192,7 +191,7 @@ export function createReactBlockSpec<
           {
             className: "bn-react-node-view-renderer",
           }
-        )(props) as NodeView<any>;
+        )(props);
 
         if (blockConfig.isSelectable === false) {
           applyNonSelectableBlockFix(nodeView, this.editor);
