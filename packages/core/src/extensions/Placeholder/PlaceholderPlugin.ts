@@ -9,7 +9,10 @@ export class PlaceholderPlugin {
   public readonly plugin: Plugin;
   constructor(
     editor: BlockNoteEditor<any, any, any>,
-    placeholders: Record<string | "default" | "emptyDocument", string>
+    placeholders: Record<
+      string | "default" | "emptyDocument",
+      string | undefined
+    >
   ) {
     this.plugin = new Plugin({
       key: PLUGIN_KEY,

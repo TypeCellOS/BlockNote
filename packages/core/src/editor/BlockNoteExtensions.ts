@@ -72,7 +72,10 @@ type ExtensionOptions<
   animations: boolean;
   tableHandles: boolean;
   dropCursor: (opts: any) => Plugin;
-  placeholders: Record<string | "default", string>;
+  placeholders: Record<
+    string | "default" | "emptyDocument",
+    string | undefined
+  >;
   tabBehavior?: "prefer-navigate-ui" | "prefer-indent";
   sideMenuDetection: "viewport" | "editor";
   comments?: {

@@ -135,7 +135,10 @@ export type BlockNoteEditorOptions<
   /**
    * @deprecated, provide placeholders via dictionary instead
    */
-  placeholders: Record<string | "default" | "emptyDocument", string>;
+  placeholders: Record<
+    string | "default" | "emptyDocument",
+    string | undefined
+  >;
 
   /**
    * An object containing attributes that should be added to HTML elements of the editor.
