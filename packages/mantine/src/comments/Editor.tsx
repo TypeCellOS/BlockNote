@@ -1,5 +1,10 @@
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
+import {
+  ComponentProps,
+  FormattingToolbar,
+  FormattingToolbarController,
+  getFormattingToolbarItems,
+} from "@blocknote/react";
 import { forwardRef, useEffect } from "react";
 import { BlockNoteView } from "../BlockNoteView.js";
 
@@ -28,10 +33,23 @@ export const Editor = forwardRef<
       slashMenu={false}
       tableHandles={false}
       filePanel={false}
+      formattingToolbar={false}
       editable={editable}
       ref={ref}
       onFocus={onFocus}
-      onBlur={onBlur}
-    />
+      onBlur={onBlur}>
+      <FormattingToolbarController
+        formattingToolbar={CustomFormattingToolbar}
+      />
+    </BlockNoteView>
   );
 });
+
+const CustomFormattingToolbar = () => {
+  const items = getFormattingToolbarItems([]).filter(
+    (el) => el.key !== "nestBlockButton" && el.key !== "unnestBlockButton"
+  );
+  return (
+    <FormattingToolbar blockTypeSelectItems={[]}>{items}</FormattingToolbar>
+  );
+};
