@@ -14,7 +14,7 @@ export const TextAlignmentExtension = Extension.create({
           "bulletListItem",
           "numberedListItem",
           "checkListItem",
-          "tableParagraph",
+          "tableCell",
         ],
         attributes: {
           textAlignment: {

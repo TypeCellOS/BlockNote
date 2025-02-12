@@ -190,8 +190,6 @@ export function tableContentToNodes<
       } else if (isPartialTableCell(cell)) {
         if (cell.content) {
           content = inlineContentToNodes(cell.content, schema, styleSchema);
-        } else if (cell.props) {
-          attrs = cell.props;
         }
       } else {
         content = inlineContentToNodes(cell, schema, styleSchema);
@@ -206,22 +204,9 @@ export function tableContentToNodes<
           colwidth: tableContent.columnWidths?.[i]
             ? [tableContent.columnWidths[i]]
             : null,
-          ...(isPartialTableCell(cell) && cell.props
-            ? {
-                rowspan: cell.props.rowspan,
-                colspan: cell.props.colspan,
-                textColor: cell.props.textColor,
-              }
-            : {}),
+          ...(isPartialTableCell(cell) ? cell.props : {}),
         },
-        schema.nodes["tableParagraph"].createChecked(attrs, content, marks),
-        [
-          isPartialTableCell(cell) && cell.props?.backgroundColor
-            ? schema.marks["backgroundColor"].create({
-                stringValue: cell.props.backgroundColor,
-              })
-            : false,
-        ].filter((a): a is Mark => Boolean(a))
+        schema.nodes["tableParagraph"].createChecked(attrs, content, marks)
       );
       columnNodes.push(cellNode);
     }

@@ -67,7 +67,11 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
   );
 
   const show = useMemo(() => {
-    return !!selectedBlocks.find((block) => "textAlignment" in block.props);
+    return !!selectedBlocks.find(
+      (block) =>
+        "textAlignment" in block.props ||
+        (block.type === "table" && block.children)
+    );
   }, [selectedBlocks]);
 
   if (!show || !editor.isEditable) {

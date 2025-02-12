@@ -377,77 +377,158 @@
       "rows": [
         {
           "cells": [
-            [
-              {
-                "type": "text",
-                "text": "Cell 1",
-                "styles": {}
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Cell 1",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1
               }
-            ],
-            [
-              {
-                "type": "text",
-                "text": "Cell 2",
-                "styles": {}
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Cell 2",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1
               }
-            ],
-            [
-              {
-                "type": "text",
-                "text": "Cell 3",
-                "styles": {}
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Cell 3",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1
               }
-            ]
+            }
           ]
         },
         {
           "cells": [
-            [
-              {
-                "type": "text",
-                "text": "Cell 4",
-                "styles": {}
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Cell 4",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
               }
-            ],
-            [
-              {
-                "type": "text",
-                "text": "Cell 5",
-                "styles": {}
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Cell 5",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
               }
-            ],
-            [
-              {
-                "type": "text",
-                "text": "Cell 6",
-                "styles": {}
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Cell 6",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
               }
-            ]
+            }
           ]
         },
         {
           "cells": [
-            [
-              {
-                "type": "text",
-                "text": "Cell 7",
-                "styles": {}
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Cell 7",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
               }
-            ],
-            [
-              {
-                "type": "text",
-                "text": "Cell 8",
-                "styles": {}
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Cell 8",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
               }
-            ],
-            [
-              {
-                "type": "text",
-                "text": "Cell 9",
-                "styles": {}
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Cell 9",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
               }
-            ]
+            }
           ]
         }
       ]

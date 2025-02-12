@@ -266,77 +266,167 @@ exports[`Test moveBlocksDown > Basic 1`] = `
       "rows": [
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 1",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 1",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 2",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 2",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 3",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 3",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 4",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 4",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 5",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 5",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 6",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 6",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 7",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 7",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 8",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 8",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 9",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 9",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
       ],
@@ -741,77 +831,167 @@ exports[`Test moveBlocksDown > Into children 1`] = `
       "rows": [
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 1",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 1",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 2",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 2",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 3",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 3",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 4",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 4",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 5",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 5",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 6",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 6",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 7",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 7",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 8",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 8",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 9",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 9",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
       ],
@@ -1216,77 +1396,167 @@ exports[`Test moveBlocksDown > Last block 1`] = `
       "rows": [
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 1",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 1",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 2",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 2",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 3",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 3",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 4",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 4",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 5",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 5",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 6",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 6",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 7",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 7",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 8",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 8",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 9",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 9",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
       ],
@@ -1691,77 +1961,167 @@ exports[`Test moveBlocksDown > Multiple blocks 1`] = `
       "rows": [
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 1",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 1",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 2",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 2",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 3",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 3",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 4",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 4",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 5",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 5",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 6",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 6",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 7",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 7",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 8",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 8",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 9",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 9",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
       ],
@@ -2166,77 +2526,167 @@ exports[`Test moveBlocksDown > Multiple blocks ending in block with children 1`]
       "rows": [
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 1",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 1",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 2",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 2",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 3",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 3",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 4",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 4",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 5",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 5",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 6",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 6",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 7",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 7",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 8",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 8",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 9",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 9",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
       ],
@@ -2641,77 +3091,167 @@ exports[`Test moveBlocksDown > Multiple blocks ending in nested block 1`] = `
       "rows": [
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 1",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 1",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 2",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 2",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 3",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 3",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 4",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 4",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 5",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 5",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 6",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 6",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 7",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 7",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 8",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 8",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 9",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 9",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
       ],
@@ -3126,77 +3666,167 @@ exports[`Test moveBlocksDown > Multiple blocks starting and ending in nested blo
       "rows": [
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 1",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 1",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 2",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 2",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 3",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 3",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 4",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 4",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 5",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 5",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 6",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 6",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 7",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 7",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 8",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 8",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 9",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 9",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
       ],
@@ -3601,77 +4231,167 @@ exports[`Test moveBlocksDown > Multiple blocks starting in block with children 1
       "rows": [
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 1",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 1",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 2",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 2",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 3",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 3",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 4",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 4",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 5",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 5",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 6",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 6",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 7",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 7",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 8",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 8",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 9",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 9",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
       ],
@@ -4075,77 +4795,167 @@ exports[`Test moveBlocksDown > Multiple blocks starting in nested block 1`] = `
       "rows": [
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 1",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 1",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 2",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 2",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 3",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 3",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 4",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 4",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 5",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 5",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 6",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 6",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 7",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 7",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 8",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 8",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 9",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 9",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
       ],
@@ -4550,77 +5360,167 @@ exports[`Test moveBlocksDown > Out of children 1`] = `
       "rows": [
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 1",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 1",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 2",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 2",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 3",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 3",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 4",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 4",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 5",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 5",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 6",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 6",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 7",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 7",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 8",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 8",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 9",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 9",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
       ],
@@ -5024,77 +5924,167 @@ exports[`Test moveBlocksUp > Basic 1`] = `
       "rows": [
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 1",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 1",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 2",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 2",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 3",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 3",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 4",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 4",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 5",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 5",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 6",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 6",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 7",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 7",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 8",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 8",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 9",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 9",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
       ],
@@ -5499,77 +6489,167 @@ exports[`Test moveBlocksUp > First block 1`] = `
       "rows": [
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 1",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 1",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 2",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 2",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 3",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 3",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 4",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 4",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 5",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 5",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 6",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 6",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 7",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 7",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 8",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 8",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 9",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 9",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
       ],
@@ -5974,77 +7054,167 @@ exports[`Test moveBlocksUp > Into children 1`] = `
       "rows": [
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 1",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 1",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 2",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 2",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 3",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 3",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 4",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 4",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 5",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 5",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 6",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 6",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 7",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 7",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 8",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 8",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 9",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 9",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
       ],
@@ -6449,77 +7619,167 @@ exports[`Test moveBlocksUp > Multiple blocks 1`] = `
       "rows": [
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 1",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 1",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 2",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 2",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 3",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 3",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 4",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 4",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 5",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 5",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 6",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 6",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 7",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 7",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 8",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 8",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 9",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 9",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
       ],
@@ -6924,77 +8184,167 @@ exports[`Test moveBlocksUp > Multiple blocks ending in block with children 1`] =
       "rows": [
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 1",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 1",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 2",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 2",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 3",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 3",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 4",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 4",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 5",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 5",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 6",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 6",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 7",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 7",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 8",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 8",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 9",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 9",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
       ],
@@ -7399,77 +8749,167 @@ exports[`Test moveBlocksUp > Multiple blocks ending in nested block 1`] = `
       "rows": [
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 1",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 1",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 2",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 2",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 3",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 3",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 4",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 4",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 5",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 5",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 6",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 6",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 7",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 7",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 8",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 8",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 9",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 9",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
       ],
@@ -7856,77 +9296,167 @@ exports[`Test moveBlocksUp > Multiple blocks starting and ending in nested block
       "rows": [
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 1",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 1",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 2",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 2",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 3",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 3",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 4",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 4",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 5",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 5",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 6",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 6",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 7",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 7",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 8",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 8",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 9",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 9",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
       ],
@@ -8348,77 +9878,167 @@ exports[`Test moveBlocksUp > Multiple blocks starting in block with children 1`]
       "rows": [
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 1",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 1",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 2",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 2",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 3",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 3",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 4",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 4",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 5",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 5",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 6",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 6",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 7",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 7",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 8",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 8",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 9",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 9",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
       ],
@@ -8822,77 +10442,167 @@ exports[`Test moveBlocksUp > Multiple blocks starting in nested block 1`] = `
       "rows": [
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 1",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 1",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 2",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 2",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 3",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 3",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 4",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 4",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 5",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 5",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 6",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 6",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 7",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 7",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 8",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 8",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 9",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 9",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
       ],
@@ -9297,77 +11007,167 @@ exports[`Test moveBlocksUp > Out of children 1`] = `
       "rows": [
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 1",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 1",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 2",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 2",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 3",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 3",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 4",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 4",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 5",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 5",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 6",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 6",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
         {
           "cells": [
-            [
-              {
-                "styles": {},
-                "text": "Cell 7",
-                "type": "text",
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 7",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 8",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 8",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
-            [
-              {
-                "styles": {},
-                "text": "Cell 9",
-                "type": "text",
+              "type": "tableCell",
+            },
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Cell 9",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
               },
-            ],
+              "type": "tableCell",
+            },
           ],
         },
       ],
