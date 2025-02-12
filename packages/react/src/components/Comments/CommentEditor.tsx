@@ -4,21 +4,6 @@ import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useEditorChange } from "../../hooks/useEditorChange.js";
 import { schema } from "./schema.js";
 
-function isDocumentEmpty(
-  editor: BlockNoteEditor<
-    typeof schema.blockSchema,
-    typeof schema.inlineContentSchema,
-    typeof schema.styleSchema
-  >
-) {
-  return (
-    editor.document.length === 0 ||
-    (editor.document.length === 1 &&
-      editor.document[0].type === "paragraph" &&
-      editor.document[0].content.length === 0)
-  );
-}
-
 /**
  * The CommentEditor component displays an editor for creating or editing a comment.
  * Currently, we also use the non-editable version for displaying a comment.
@@ -42,12 +27,12 @@ export const CommentEditor = (props: {
   >;
 }) => {
   const [isFocused, setIsFocused] = useState(false);
-  const [isEmpty, setIsEmpty] = useState(isDocumentEmpty(props.editor));
+  const [isEmpty, setIsEmpty] = useState(props.editor.isEmpty);
 
   const components = useComponentsContext()!;
 
   useEditorChange(() => {
-    setIsEmpty(isDocumentEmpty(props.editor));
+    setIsEmpty(props.editor.isEmpty);
   }, props.editor);
 
   const onFocus = useCallback(() => {

@@ -129,7 +129,8 @@ export const en = {
     bulletListItem: "List",
     numberedListItem: "List",
     checkListItem: "List",
-  },
+    emptyDocument: undefined,
+  } as Record<string | "default" | "emptyDocument", string | undefined>,
   file_blocks: {
     image: {
       add_button_text: "Add image",

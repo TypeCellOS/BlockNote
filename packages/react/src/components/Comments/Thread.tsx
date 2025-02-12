@@ -92,8 +92,8 @@ export const Thread = ({
     dictionary: {
       ...dict,
       placeholders: {
-        ...dict.placeholders,
-        default: "Add comment...", // TODO: only for empty doc
+        emptyDocument: "Add comment...",
+        default: undefined,
       },
     },
     schema,

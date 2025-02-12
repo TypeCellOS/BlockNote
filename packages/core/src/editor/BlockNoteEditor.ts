@@ -135,7 +135,7 @@ export type BlockNoteEditorOptions<
   /**
    * @deprecated, provide placeholders via dictionary instead
    */
-  placeholders: Record<string | "default", string>;
+  placeholders: Record<string | "default" | "emptyDocument", string>;
 
   /**
    * An object containing attributes that should be added to HTML elements of the editor.
@@ -1272,6 +1272,18 @@ export class BlockNoteEditor<
     }
 
     return posToDOMRect(this.prosemirrorView, from, to);
+  }
+
+  public get isEmpty() {
+    const doc = this.document;
+    // Note: only works for paragraphs as default blocks (but for now this is default in blocknote)
+    // checking prosemirror directly might be faster
+    return (
+      doc.length === 0 ||
+      (doc.length === 1 &&
+        doc[0].type === "paragraph" &&
+        (doc[0].content as any).length === 0)
+    );
   }
 
   public openSuggestionMenu(

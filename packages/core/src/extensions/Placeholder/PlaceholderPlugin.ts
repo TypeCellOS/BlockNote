@@ -9,7 +9,7 @@ export class PlaceholderPlugin {
   public readonly plugin: Plugin;
   constructor(
     editor: BlockNoteEditor<any, any, any>,
-    placeholders: Record<string | "default", string>
+    placeholders: Record<string | "default" | "emptyDocument", string>
   ) {
     this.plugin = new Plugin({
       key: PLUGIN_KEY,
@@ -17,10 +17,12 @@ export class PlaceholderPlugin {
         const uniqueEditorSelector = `placeholder-selector-${v4()}`;
         view.dom.classList.add(uniqueEditorSelector);
         const styleEl = document.createElement("style");
+
         const nonce = editor._tiptapEditor.options.injectNonce;
         if (nonce) {
           styleEl.setAttribute("nonce", nonce);
         }
+
         if (editor.prosemirrorView?.root instanceof ShadowRoot) {
           editor.prosemirrorView.root.append(styleEl);
         } else {
@@ -29,54 +31,50 @@ export class PlaceholderPlugin {
 
         const styleSheet = styleEl.sheet!;
 
-        const getBaseSelector = (additionalSelectors = "") =>
+        const getSelector = (additionalSelectors = "") =>
           `.${uniqueEditorSelector} .bn-block-content${additionalSelectors} .bn-inline-content:has(> .ProseMirror-trailingBreak:only-child):before`;
 
-        const getSelector = (
-          blockType: string | "default",
-          mustBeFocused = true
-        ) => {
-          const mustBeFocusedSelector = mustBeFocused
-            ? `[data-is-empty-and-focused]`
-            : ``;
+        try {
+          // FIXME: the names "default" and "emptyDocument" are hardcoded
+          const {
+            default: defaultPlaceholder,
+            emptyDocument: emptyPlaceholder,
+            ...rest
+          } = placeholders;
 
-          if (blockType === "default") {
-            return getBaseSelector(mustBeFocusedSelector);
-          }
+          // add block specific placeholders
+          for (const [blockType, placeholder] of Object.entries(rest)) {
+            const blockTypeSelector = `[data-content-type="${blockType}"]`;
 
-          const blockTypeSelector = `[data-content-type="${blockType}"]`;
-          return getBaseSelector(mustBeFocusedSelector + blockTypeSelector);
-        };
-
-        for (const [blockType, placeholder] of Object.entries(placeholders)) {
-          const mustBeFocused = blockType === "default";
-
-          try {
             styleSheet.insertRule(
-              `${getSelector(
-                blockType,
-                mustBeFocused
-              )} { content: ${JSON.stringify(placeholder)}; }`
-            );
-
-            // For some reason, the placeholders which show when the block is focused
-            // take priority over ones which show depending on block type, so we need
-            // to make sure the block specific ones are also used when the block is
-            // focused.
-            if (!mustBeFocused) {
-              styleSheet.insertRule(
-                `${getSelector(blockType, true)} { content: ${JSON.stringify(
-                  placeholder
-                )}; }`
-              );
-            }
-          } catch (e) {
-            // eslint-disable-next-line no-console
-            console.warn(
-              `Failed to insert placeholder CSS rule - this is likely due to the browser not supporting certain CSS pseudo-element selectors (:has, :only-child:, or :before)`,
-              e
+              `${getSelector(blockTypeSelector)} { content: ${JSON.stringify(
+                placeholder
+              )}; }`
             );
           }
+
+          const onlyBlockSelector = `[data-is-only-empty-block]`;
+          const mustBeFocusedSelector = `[data-is-empty-and-focused]`;
+
+          // placeholder for when there's only one empty block
+          styleSheet.insertRule(
+            `${getSelector(onlyBlockSelector)} { content: ${JSON.stringify(
+              emptyPlaceholder
+            )}; }`
+          );
+
+          // placeholder for default blocks, only when the cursor is in the block (mustBeFocused)
+          styleSheet.insertRule(
+            `${getSelector(mustBeFocusedSelector)} { content: ${JSON.stringify(
+              defaultPlaceholder
+            )}; }`
+          );
+        } catch (e) {
+          // eslint-disable-next-line no-console
+          console.warn(
+            `Failed to insert placeholder CSS rule - this is likely due to the browser not supporting certain CSS pseudo-element selectors (:has, :only-child:, or :before)`,
+            e
+          );
         }
 
         return {
@@ -90,7 +88,6 @@ export class PlaceholderPlugin {
         };
       },
       props: {
-        // TODO: maybe also add placeholder for empty document ("e.g.: start writing..")
         decorations: (state) => {
           const { doc, selection } = state;
 
@@ -107,20 +104,32 @@ export class PlaceholderPlugin {
             return;
           }
 
+          const decs = [];
+
+          // decoration for when there's only one empty block
+          // positions are hardcoded for now
+          if (state.doc.content.size === 6) {
+            decs.push(
+              Decoration.node(2, 4, {
+                "data-is-only-empty-block": "true",
+              })
+            );
+          }
+
           const $pos = selection.$anchor;
           const node = $pos.parent;
 
-          if (node.content.size > 0) {
-            return null;
+          if (node.content.size === 0) {
+            const before = $pos.before();
+
+            decs.push(
+              Decoration.node(before, before + node.nodeSize, {
+                "data-is-empty-and-focused": "true",
+              })
+            );
           }
 
-          const before = $pos.before();
-
-          const dec = Decoration.node(before, before + node.nodeSize, {
-            "data-is-empty-and-focused": "true",
-          });
-
-          return DecorationSet.create(doc, [dec]);
+          return DecorationSet.create(doc, decs);
         },
       },
     });
