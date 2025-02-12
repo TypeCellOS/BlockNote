@@ -1,6 +1,5 @@
 import { Node } from "prosemirror-model";
 import { NodeSelection, Selection } from "prosemirror-state";
-import * as pmView from "prosemirror-view";
 import { EditorView } from "prosemirror-view";
 
 import { createExternalHTMLExporter } from "../../api/exporters/html/externalHTMLExporter.js";
@@ -177,10 +176,8 @@ export function dragStart<
     const selectedSlice = view.state.selection.content();
     const schema = editor.pmSchema;
 
-    const clipboardHTML = (pmView as any).__serializeForClipboard(
-      view,
-      selectedSlice
-    ).dom.innerHTML;
+    const clipboardHTML =
+      view.serializeForClipboard(selectedSlice).dom.innerHTML;
 
     const externalHTMLExporter = createExternalHTMLExporter(schema, editor);
 
