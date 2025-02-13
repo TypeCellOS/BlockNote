@@ -549,7 +549,6 @@
   color: var(--bn-colors-tooltip-text);
   padding: 4px 10px;
   text-align: center;
-  white-space: pre-wrap;
 }
 
 /* Additional menu styles */
@@ -578,6 +577,13 @@
 
 .bn-mantine .bn-thread-comments {
   border-bottom: var(--bn-border);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.bn-mantine .bn-thread-comment {
+  gap: 0.25rem;
 }
 
 .bn-mantine .bn-comment-actions-wrapper {

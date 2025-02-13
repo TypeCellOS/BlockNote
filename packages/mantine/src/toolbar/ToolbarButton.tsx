@@ -8,10 +8,10 @@ import {
 
 import { assertEmpty, isSafari } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
-import { forwardRef } from "react";
+import { forwardRef, useMemo } from "react";
 
 export const TooltipContent = (props: {
-  mainTooltip: string;
+  mainTooltip?: string;
   secondaryTooltip?: string;
 }) => (
   <MantineStack gap={0} className={"bn-tooltip"}>
@@ -52,17 +52,10 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
     // assertEmpty in this case is only used at typescript level, not runtime level
     assertEmpty(rest, false);
 
-    return (
-      <MantineTooltip
-        withinPortal={false}
-        label={
-          <TooltipContent
-            mainTooltip={mainTooltip}
-            secondaryTooltip={secondaryTooltip}
-          />
-        }>
-        {/*Creates an ActionIcon instead of a Button if only an icon is provided as content.*/}
-        {children ? (
+    const button = useMemo(
+      () =>
+        // Creates an ActionIcon instead of a Button if only an icon is provided as content.
+        children ? (
           <MantineButton
             aria-label={label}
             className={className}
@@ -77,8 +70,10 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             aria-pressed={isSelected}
             data-selected={isSelected || undefined}
             data-test={
-              mainTooltip.slice(0, 1).toLowerCase() +
-              mainTooltip.replace(/\s+/g, "").slice(1)
+              mainTooltip
+                ? mainTooltip.slice(0, 1).toLowerCase() +
+                  mainTooltip.replace(/\s+/g, "").slice(1)
+                : undefined
             }
             size={variant === "compact" ? "compact-xs" : "xs"}
             disabled={isDisabled || false}
@@ -101,8 +96,10 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             aria-pressed={isSelected}
             data-selected={isSelected || undefined}
             data-test={
-              mainTooltip.slice(0, 1).toLowerCase() +
-              mainTooltip.replace(/\s+/g, "").slice(1)
+              mainTooltip
+                ? mainTooltip.slice(0, 1).toLowerCase() +
+                  mainTooltip.replace(/\s+/g, "").slice(1)
+                : undefined
             }
             size={variant === "compact" ? 20 : 30}
             disabled={isDisabled || false}
@@ -110,7 +107,36 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             {...rest}>
             {icon}
           </MantineActionIcon>
-        )}
+        ),
+      [
+        children,
+        className,
+        icon,
+        isDisabled,
+        isSelected,
+        label,
+        mainTooltip,
+        onClick,
+        ref,
+        rest,
+        variant,
+      ]
+    );
+
+    if (!mainTooltip) {
+      return button;
+    }
+
+    return (
+      <MantineTooltip
+        withinPortal={false}
+        label={
+          <TooltipContent
+            mainTooltip={mainTooltip}
+            secondaryTooltip={secondaryTooltip}
+          />
+        }>
+        {button}
       </MantineTooltip>
     );
   }

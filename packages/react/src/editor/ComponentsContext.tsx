@@ -23,7 +23,7 @@ type ToolbarRootType = {
 
 type ToolbarButtonType = {
   className?: string;
-  mainTooltip: string;
+  mainTooltip?: string;
   secondaryTooltip?: string;
   icon?: ReactNode;
   onClick?: (e: MouseEvent) => void;
@@ -192,7 +192,7 @@ export type ComponentProps = {
         isSelected?: boolean;
         mainTooltip?: string;
         secondaryTooltip?: string;
-        onClick?: () => void;
+        onClick?: (event: React.MouseEvent) => void;
       };
       Group: {
         className?: string;
@@ -219,7 +219,12 @@ export type ComponentProps = {
     Menu: {
       Root: {
         sub?: boolean;
-        position?: "top" | "right" | "bottom" | "left";
+        position?:
+          | "top"
+          | "right"
+          | "bottom"
+          | "left"
+          | `${"top" | "right" | "bottom" | "left"}-${"start" | "end"}`;
         onOpenChange?: (open: boolean) => void;
         children?: ReactNode;
       };

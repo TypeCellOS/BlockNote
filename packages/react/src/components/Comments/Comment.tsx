@@ -16,7 +16,7 @@ import {
   RiCheckFill,
   RiDeleteBinFill,
   RiEditFill,
-  RiEmotionFill,
+  RiEmotionLine,
   RiMoreFill,
 } from "react-icons/ri";
 
@@ -103,6 +103,14 @@ export const Comment = ({
   const Components = useComponentsContext()!;
 
   const [isEditing, setEditing] = useState(false);
+  // We need to keep a state so we can close the picker after selecting an emoji
+  const [showReactionsPicker, setShowReactionsPicker] = useState<
+    undefined | "toolbar" | "badge"
+  >(undefined);
+
+  const [moreActionsTooltip, setMoreActionsTooltip] = useState<
+    string | undefined
+  >("More actions");
 
   const editor = useBlockNoteEditor();
 
@@ -201,18 +209,33 @@ export const Comment = ({
       <Components.Generic.Toolbar.Root
         className={mergeCSSClasses("bn-action-toolbar", "bn-comment-actions")}>
         {canAddReaction && (
-          <Components.Generic.Popover.Root>
+          <Components.Generic.Popover.Root
+            opened={showReactionsPicker === "toolbar"}>
             <Components.Generic.Popover.Trigger>
               <Components.Generic.Toolbar.Button
-                mainTooltip="Add reaction"
-                variant="compact">
-                <RiEmotionFill size={16} />
+                mainTooltip={showReactionsPicker ? undefined : "Add reaction"}
+                variant="compact"
+                onClick={(e) => {
+                  setShowReactionsPicker(
+                    showReactionsPicker === "toolbar" ? undefined : "toolbar"
+                  );
+                  // Needed as the Picker component's onClickOutside handler
+                  // fires immediately after otherwise, preventing the popover
+                  // from opening.
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}>
+                <RiEmotionLine size={16} />
               </Components.Generic.Toolbar.Button>
             </Components.Generic.Popover.Trigger>
             <Components.Generic.Popover.Content variant={"form-popover"}>
               <Picker
                 data={data}
-                onEmojiSelect={(emoji: any) => onReactionSelect(emoji.native)}
+                onEmojiSelect={(emoji: EmojiData) => {
+                  onReactionSelect(emoji.native);
+                  setShowReactionsPicker(undefined);
+                }}
+                onClickOutside={() => setShowReactionsPicker(undefined)}
                 theme={blockNoteContext?.colorSchemePreference}
               />
             </Components.Generic.Popover.Content>
@@ -235,10 +258,14 @@ export const Comment = ({
             </Components.Generic.Toolbar.Button>
           ))}
         {(canDeleteComment || canEditComment) && (
-          <Components.Generic.Menu.Root>
+          <Components.Generic.Menu.Root
+            position={"bottom-start"}
+            onOpenChange={(open) =>
+              setMoreActionsTooltip(open ? undefined : "More actions")
+            }>
             <Components.Generic.Menu.Trigger>
               <Components.Generic.Toolbar.Button
-                mainTooltip="More actions"
+                mainTooltip={moreActionsTooltip}
                 variant="compact">
                 <RiMoreFill size={16} />
               </Components.Generic.Toolbar.Button>
@@ -286,78 +313,108 @@ export const Comment = ({
           <CommentEditor
             editor={commentEditor}
             editable={isEditing}
-            actions={({ isEmpty }) => (
-              <>
-                {showReactions && comment.reactions.length > 0 && (
-                  <Components.Generic.Badge.Group
-                    className={mergeCSSClasses(
-                      "bn-badge-group",
-                      "bn-comment-reactions"
-                    )}>
-                    {comment.reactions.map((reaction) => (
-                      <Components.Generic.Badge.Root
-                        key={reaction.emoji}
-                        className={mergeCSSClasses(
-                          "bn-badge",
-                          "bn-comment-reaction"
-                        )}
-                        text={reaction.userIds.length.toString()}
-                        icon={reaction.emoji}
-                        isSelected={user && reaction.userIds.includes(user.id)}
-                        onClick={() => onReactionSelect(reaction.emoji)}
-                        mainTooltip={"Reacted by"}
-                        secondaryTooltip={`${reaction.userIds.join("\n")}`}
-                      />
-                    ))}
-                    <Components.Generic.Popover.Root>
-                      <Components.Generic.Popover.Trigger>
-                        <Components.Generic.Badge.Root
+            actions={
+              (showReactions && comment.reactions.length > 0) || isEditing
+                ? ({ isEmpty }) => (
+                    <>
+                      {showReactions && comment.reactions.length > 0 && (
+                        <Components.Generic.Badge.Group
                           className={mergeCSSClasses(
-                            "bn-badge",
-                            "bn-comment-add-reaction"
-                          )}
-                          text={"+"}
-                          icon={<RiEmotionFill size={16} />}
-                        />
-                      </Components.Generic.Popover.Trigger>
-                      <Components.Generic.Popover.Content
-                        variant={"form-popover"}>
-                        <Picker
-                          data={data}
-                          onEmojiSelect={(emoji: EmojiData) =>
-                            onReactionSelect(emoji.native)
-                          }
-                          theme={blockNoteContext?.colorSchemePreference}
-                        />
-                      </Components.Generic.Popover.Content>
-                    </Components.Generic.Popover.Root>
-                  </Components.Generic.Badge.Group>
-                )}
-                {isEditing && (
-                  <Components.Generic.Toolbar.Root
-                    variant="action-toolbar"
-                    className={mergeCSSClasses(
-                      "bn-action-toolbar",
-                      "bn-comment-actions"
-                    )}>
-                    <Components.Generic.Toolbar.Button
-                      mainTooltip="Save"
-                      variant="compact"
-                      onClick={onEditSubmit}
-                      isDisabled={isEmpty}>
-                      Save
-                    </Components.Generic.Toolbar.Button>
-                    <Components.Generic.Toolbar.Button
-                      className={"bn-button"}
-                      mainTooltip="Cancel"
-                      variant="compact"
-                      onClick={onEditCancel}>
-                      Cancel
-                    </Components.Generic.Toolbar.Button>
-                  </Components.Generic.Toolbar.Root>
-                )}
-              </>
-            )}
+                            "bn-badge-group",
+                            "bn-comment-reactions"
+                          )}>
+                          {comment.reactions.map((reaction) => (
+                            <Components.Generic.Badge.Root
+                              key={reaction.emoji}
+                              className={mergeCSSClasses(
+                                "bn-badge",
+                                "bn-comment-reaction"
+                              )}
+                              text={reaction.userIds.length.toString()}
+                              icon={reaction.emoji}
+                              isSelected={
+                                user && reaction.userIds.includes(user.id)
+                              }
+                              onClick={() => onReactionSelect(reaction.emoji)}
+                              mainTooltip={"Reacted by"}
+                              secondaryTooltip={`${reaction.userIds.join(
+                                "\n"
+                              )}`}
+                            />
+                          ))}
+                          <Components.Generic.Popover.Root
+                            opened={showReactionsPicker === "badge"}>
+                            <Components.Generic.Popover.Trigger>
+                              <Components.Generic.Badge.Root
+                                className={mergeCSSClasses(
+                                  "bn-badge",
+                                  "bn-comment-add-reaction"
+                                )}
+                                text={"+"}
+                                icon={<RiEmotionLine size={16} />}
+                                onClick={(e) => {
+                                  setShowReactionsPicker(
+                                    showReactionsPicker === "badge"
+                                      ? undefined
+                                      : "badge"
+                                  );
+                                  // Needed as the Picker component's onClickOutside handler
+                                  // fires immediately after otherwise, preventing the popover
+                                  // from opening.
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                }}
+                                mainTooltip={
+                                  showReactionsPicker === "badge"
+                                    ? undefined
+                                    : "Add reaction"
+                                }
+                              />
+                            </Components.Generic.Popover.Trigger>
+                            <Components.Generic.Popover.Content
+                              variant={"form-popover"}>
+                              <Picker
+                                data={data}
+                                onEmojiSelect={(emoji: EmojiData) => {
+                                  onReactionSelect(emoji.native);
+                                  setShowReactionsPicker(undefined);
+                                }}
+                                onClickOutside={() =>
+                                  setShowReactionsPicker(undefined)
+                                }
+                                theme={blockNoteContext?.colorSchemePreference}
+                              />
+                            </Components.Generic.Popover.Content>
+                          </Components.Generic.Popover.Root>
+                        </Components.Generic.Badge.Group>
+                      )}
+                      {isEditing && (
+                        <Components.Generic.Toolbar.Root
+                          variant="action-toolbar"
+                          className={mergeCSSClasses(
+                            "bn-action-toolbar",
+                            "bn-comment-actions"
+                          )}>
+                          <Components.Generic.Toolbar.Button
+                            mainTooltip="Save"
+                            variant="compact"
+                            onClick={onEditSubmit}
+                            isDisabled={isEmpty}>
+                            Save
+                          </Components.Generic.Toolbar.Button>
+                          <Components.Generic.Toolbar.Button
+                            className={"bn-button"}
+                            mainTooltip="Cancel"
+                            variant="compact"
+                            onClick={onEditCancel}>
+                            Cancel
+                          </Components.Generic.Toolbar.Button>
+                        </Components.Generic.Toolbar.Root>
+                      )}
+                    </>
+                  )
+                : undefined
+            }
           />
         </>
       ) : (
