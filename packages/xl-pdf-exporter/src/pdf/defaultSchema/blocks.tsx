@@ -165,9 +165,6 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
   table: (block, t) => {
     return <Table data={block.content} transformer={t} />;
   },
-  tableCell: () => {
-    throw new Error("tableCell is not supported");
-  },
 };
 
 function file(

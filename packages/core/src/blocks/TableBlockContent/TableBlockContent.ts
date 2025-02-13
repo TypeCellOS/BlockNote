@@ -14,7 +14,6 @@ import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
 import { EMPTY_CELL_WIDTH, TableExtension } from "./TableExtension.js";
 import { PropSchema } from "../../schema/index.js";
-import { NodeView } from "prosemirror-view";
 
 export const tablePropSchema = {
   textColor: defaultProps.textColor,
