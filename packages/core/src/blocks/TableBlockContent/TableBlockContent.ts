@@ -159,16 +159,12 @@ const TableParagraph = createStronglyTypedTiptapNode({
   },
 });
 
-export const TableCell = createBlockSpecFromStronglyTypedTiptapNode(
-  TableParagraph,
-  tableCellPropSchema
-);
-
 export const Table = createBlockSpecFromStronglyTypedTiptapNode(
   TableBlockContent,
   tablePropSchema,
   [
     TableExtension,
+    TableParagraph,
     TableHeader.extend({
       content: "tableContent",
     }),
