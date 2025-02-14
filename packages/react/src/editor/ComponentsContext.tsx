@@ -219,13 +219,13 @@ export type ComponentProps = {
     Menu: {
       Root: {
         sub?: boolean;
+        onOpenChange?: (open: boolean) => void;
         position?:
           | "top"
           | "right"
           | "bottom"
           | "left"
           | `${"top" | "right" | "bottom" | "left"}-${"start" | "end"}`;
-        onOpenChange?: (open: boolean) => void;
         children?: ReactNode;
       };
       Divider: {
@@ -256,9 +256,15 @@ export type ComponentProps = {
     };
     Popover: {
       Root: {
-        children?: ReactNode;
         opened?: boolean;
-        position?: "top" | "right" | "bottom" | "left";
+        onOpenChange?: (open: boolean) => void;
+        position?:
+          | "top"
+          | "right"
+          | "bottom"
+          | "left"
+          | `${"top" | "right" | "bottom" | "left"}-${"start" | "end"}`;
+        children?: ReactNode;
       };
       Content: {
         className?: string;

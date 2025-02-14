@@ -1,13 +1,15 @@
-import { forwardRef } from "react";
-import { ComponentProps } from "@blocknote/react";
 import {
   Chip as MantineChip,
   Group as MantineGroup,
   Tooltip as MantineTooltip,
 } from "@mantine/core";
+
 import { assertEmpty } from "@blocknote/core";
+import { ComponentProps } from "@blocknote/react";
+import { forwardRef, useContext } from "react";
 
 import { TooltipContent } from "../toolbar/ToolbarButton.js";
+import { PopoverContext } from "../popover/Popover.js";
 
 export const Badge = forwardRef<
   HTMLInputElement,
@@ -28,6 +30,8 @@ export const Badge = forwardRef<
   // assertEmpty in this case is only used at typescript level, not runtime level
   assertEmpty(rest, false);
 
+  const { isOpened } = useContext(PopoverContext);
+
   const badge = (
     <MantineChip
       className={className}
@@ -41,7 +45,7 @@ export const Badge = forwardRef<
     </MantineChip>
   );
 
-  if (!mainTooltip) {
+  if (!mainTooltip || isOpened) {
     return badge;
   }
 
@@ -54,8 +58,7 @@ export const Badge = forwardRef<
           mainTooltip={mainTooltip}
           secondaryTooltip={secondaryTooltip}
         />
-      }
-      multiline>
+      }>
       {badge}
     </MantineTooltip>
   );

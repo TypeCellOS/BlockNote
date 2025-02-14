@@ -6,19 +6,36 @@ import {
 
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
-import { forwardRef } from "react";
+import { createContext, forwardRef, useState } from "react";
+
+export const PopoverContext = createContext<{
+  isOpened: boolean;
+}>({
+  isOpened: false,
+});
 
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"]
 ) => {
-  const { children, opened, position, ...rest } = props;
+  const { opened, onOpenChange, position, children, ...rest } = props;
 
   assertEmpty(rest);
 
+  const [isOpened, setIsOpened] = useState(false);
+
   return (
-    <MantinePopover withinPortal={false} opened={opened} position={position}>
-      {children}
-    </MantinePopover>
+    <PopoverContext.Provider value={{ isOpened }}>
+      <MantinePopover
+        withinPortal={false}
+        opened={opened}
+        onChange={(open) => {
+          setIsOpened(open);
+          onOpenChange?.(open);
+        }}
+        position={position}>
+        {children}
+      </MantinePopover>
+    </PopoverContext.Provider>
   );
 };
 

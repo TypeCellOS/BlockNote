@@ -8,10 +8,12 @@ import {
 
 import { assertEmpty, isSafari } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
-import { forwardRef, useMemo } from "react";
+import { forwardRef, useContext } from "react";
+
+import { PopoverContext } from "../popover/Popover.js";
 
 export const TooltipContent = (props: {
-  mainTooltip?: string;
+  mainTooltip: string;
   secondaryTooltip?: string;
 }) => (
   <MantineStack gap={0} className={"bn-tooltip"}>
@@ -52,78 +54,63 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
     // assertEmpty in this case is only used at typescript level, not runtime level
     assertEmpty(rest, false);
 
-    const button = useMemo(
-      () =>
-        // Creates an ActionIcon instead of a Button if only an icon is provided as content.
-        children ? (
-          <MantineButton
-            aria-label={label}
-            className={className}
-            // Needed as Safari doesn't focus button elements on mouse down
-            // unlike other browsers.
-            onMouseDown={(e) => {
-              if (isSafari()) {
-                (e.currentTarget as HTMLButtonElement).focus();
-              }
-            }}
-            onClick={onClick}
-            aria-pressed={isSelected}
-            data-selected={isSelected || undefined}
-            data-test={
-              mainTooltip
-                ? mainTooltip.slice(0, 1).toLowerCase() +
-                  mainTooltip.replace(/\s+/g, "").slice(1)
-                : undefined
-            }
-            size={variant === "compact" ? "compact-xs" : "xs"}
-            disabled={isDisabled || false}
-            ref={ref}
-            {...rest}>
-            {children}
-          </MantineButton>
-        ) : (
-          <MantineActionIcon
-            className={className}
-            aria-label={label}
-            // Needed as Safari doesn't focus button elements on mouse down
-            // unlike other browsers.
-            onMouseDown={(e) => {
-              if (isSafari()) {
-                (e.currentTarget as HTMLButtonElement).focus();
-              }
-            }}
-            onClick={onClick}
-            aria-pressed={isSelected}
-            data-selected={isSelected || undefined}
-            data-test={
-              mainTooltip
-                ? mainTooltip.slice(0, 1).toLowerCase() +
-                  mainTooltip.replace(/\s+/g, "").slice(1)
-                : undefined
-            }
-            size={variant === "compact" ? 20 : 30}
-            disabled={isDisabled || false}
-            ref={ref}
-            {...rest}>
-            {icon}
-          </MantineActionIcon>
-        ),
-      [
-        children,
-        className,
-        icon,
-        isDisabled,
-        isSelected,
-        label,
-        mainTooltip,
-        onClick,
-        ref,
-        rest,
-        variant,
-      ]
+    const { isOpened } = useContext(PopoverContext);
+
+    const button = children ? (
+      <MantineButton
+        aria-label={label}
+        className={className}
+        // Needed as Safari doesn't focus button elements on mouse down
+        // unlike other browsers.
+        onMouseDown={(e) => {
+          if (isSafari()) {
+            (e.currentTarget as HTMLButtonElement).focus();
+          }
+        }}
+        onClick={onClick}
+        aria-pressed={isSelected}
+        data-selected={isSelected || undefined}
+        data-test={
+          mainTooltip
+            ? mainTooltip.slice(0, 1).toLowerCase() +
+              mainTooltip.replace(/\s+/g, "").slice(1)
+            : undefined
+        }
+        size={variant === "compact" ? "compact-xs" : "xs"}
+        disabled={isDisabled || false}
+        ref={ref}
+        {...rest}>
+        {children}
+      </MantineButton>
+    ) : (
+      <MantineActionIcon
+        className={className}
+        aria-label={label}
+        // Needed as Safari doesn't focus button elements on mouse down
+        // unlike other browsers.
+        onMouseDown={(e) => {
+          if (isSafari()) {
+            (e.currentTarget as HTMLButtonElement).focus();
+          }
+        }}
+        onClick={onClick}
+        aria-pressed={isSelected}
+        data-selected={isSelected || undefined}
+        data-test={
+          mainTooltip
+            ? mainTooltip.slice(0, 1).toLowerCase() +
+              mainTooltip.replace(/\s+/g, "").slice(1)
+            : undefined
+        }
+        size={variant === "compact" ? 20 : 30}
+        disabled={isDisabled || false}
+        ref={ref}
+        {...rest}>
+        {icon}
+      </MantineActionIcon>
     );
 
-    if (!mainTooltip) {
+    if (!mainTooltip || isOpened) {
       return button;
     }
 

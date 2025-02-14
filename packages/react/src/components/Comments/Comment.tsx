@@ -1,9 +1,7 @@
 "use client";
 
 import { CommentData, ThreadData, mergeCSSClasses } from "@blocknote/core";
-import { type EmojiMartData } from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
-import type { EmojiData } from "emoji-mart";
 import {
   ComponentPropsWithoutRef,
   MouseEvent,
@@ -28,12 +26,6 @@ import { useDictionary } from "../../i18n/dictionary.js";
 import { CommentEditor } from "./CommentEditor.js";
 import { schema } from "./schema.js";
 import { useUser } from "./useUsers.js";
-
-let data: EmojiMartData | undefined;
-async function initData() {
-  const fullData = await import("@emoji-mart/data");
-  data = fullData.default as EmojiMartData;
-}
 
 export interface CommentProps extends ComponentPropsWithoutRef<"div"> {
   /**
@@ -103,14 +95,6 @@ export const Comment = ({
   const Components = useComponentsContext()!;
 
   const [isEditing, setEditing] = useState(false);
-  // We need to keep a state so we can close the picker after selecting an emoji
-  const [showReactionsPicker, setShowReactionsPicker] = useState<
-    undefined | "toolbar" | "badge"
-  >(undefined);
-
-  const [moreActionsTooltip, setMoreActionsTooltip] = useState<
-    string | undefined
-  >("More actions");
 
   const editor = useBlockNoteEditor();
 
@@ -198,44 +182,24 @@ export const Comment = ({
       ? threadStore.auth.canUnresolveThread(thread)
       : threadStore.auth.canResolveThread(thread));
 
-  if (!data) {
-    // TODO: Is this safe? we should technically wait for this to load before
-    //  rendering emoji picker
-    initData();
-  }
-
   if (showActions && !isEditing) {
     actions = (
       <Components.Generic.Toolbar.Root
         className={mergeCSSClasses("bn-action-toolbar", "bn-comment-actions")}>
         {canAddReaction && (
-          <Components.Generic.Popover.Root
-            opened={showReactionsPicker === "toolbar"}>
+          <Components.Generic.Popover.Root>
             <Components.Generic.Popover.Trigger>
               <Components.Generic.Toolbar.Button
-                mainTooltip={showReactionsPicker ? undefined : "Add reaction"}
-                variant="compact"
-                onClick={(e) => {
-                  setShowReactionsPicker(
-                    showReactionsPicker === "toolbar" ? undefined : "toolbar"
-                  );
-                  // Needed as the Picker component's onClickOutside handler
-                  // fires immediately after otherwise, preventing the popover
-                  // from opening.
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}>
+                mainTooltip="Add reaction"
+                variant="compact">
                 <RiEmotionLine size={16} />
               </Components.Generic.Toolbar.Button>
             </Components.Generic.Popover.Trigger>
             <Components.Generic.Popover.Content variant={"form-popover"}>
               <Picker
-                data={data}
-                onEmojiSelect={(emoji: EmojiData) => {
-                  onReactionSelect(emoji.native);
-                  setShowReactionsPicker(undefined);
-                }}
-                onClickOutside={() => setShowReactionsPicker(undefined)}
+                onEmojiSelect={(emoji: { native: string }) =>
+                  onReactionSelect(emoji.native)
+                }
                 theme={blockNoteContext?.colorSchemePreference}
               />
             </Components.Generic.Popover.Content>
@@ -258,14 +222,10 @@ export const Comment = ({
             </Components.Generic.Toolbar.Button>
           ))}
         {(canDeleteComment || canEditComment) && (
-          <Components.Generic.Menu.Root
-            position={"bottom-start"}
-            onOpenChange={(open) =>
-              setMoreActionsTooltip(open ? undefined : "More actions")
-            }>
+          <Components.Generic.Menu.Root position={"bottom-start"}>
             <Components.Generic.Menu.Trigger>
               <Components.Generic.Toolbar.Button
-                mainTooltip={moreActionsTooltip}
+                mainTooltip="More actions"
                 variant="compact">
                 <RiMoreFill size={16} />
               </Components.Generic.Toolbar.Button>
@@ -342,8 +302,7 @@ export const Comment = ({
                               )}`}
                             />
                           ))}
-                          <Components.Generic.Popover.Root
-                            opened={showReactionsPicker === "badge"}>
+                          <Components.Generic.Popover.Root>
                             <Components.Generic.Popover.Trigger>
                               <Components.Generic.Badge.Root
                                 className={mergeCSSClasses(
@@ -352,35 +311,14 @@ export const Comment = ({
                                 )}
                                 text={"+"}
                                 icon={<RiEmotionLine size={16} />}
-                                onClick={(e) => {
-                                  setShowReactionsPicker(
-                                    showReactionsPicker === "badge"
-                                      ? undefined
-                                      : "badge"
-                                  );
-                                  // Needed as the Picker component's onClickOutside handler
-                                  // fires immediately after otherwise, preventing the popover
-                                  // from opening.
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                }}
-                                mainTooltip={
-                                  showReactionsPicker === "badge"
-                                    ? undefined
-                                    : "Add reaction"
-                                }
+                                mainTooltip="Add reaction"
                               />
                             </Components.Generic.Popover.Trigger>
                             <Components.Generic.Popover.Content
                               variant={"form-popover"}>
                               <Picker
-                                data={data}
-                                onEmojiSelect={(emoji: EmojiData) => {
-                                  onReactionSelect(emoji.native);
-                                  setShowReactionsPicker(undefined);
-                                }}
-                                onClickOutside={() =>
-                                  setShowReactionsPicker(undefined)
+                                onEmojiSelect={(emoji: { native: string }) =>
+                                  onReactionSelect(emoji.native)
                                 }
                                 theme={blockNoteContext?.colorSchemePreference}
                               />
