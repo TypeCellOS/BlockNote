@@ -59,7 +59,9 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
               aria-pressed={isSelected}
               data-selected={isSelected ? "true" : undefined}
               data-test={
+                // @ts-ignore TODO
                 props.mainTooltip.slice(0, 1).toLowerCase() +
+                // @ts-ignore TODO
                 props.mainTooltip.replace(/\s+/g, "").slice(1)
               }
               //   size={"xs"}

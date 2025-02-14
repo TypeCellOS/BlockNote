@@ -1152,7 +1152,8 @@
             "Collaboration"
           ],
           "dependencies": {
-            "@y-sweet/react": "^0.6.3"
+            "@y-sweet/react": "^0.6.3",
+            "@mantine/core": "^7.10.1"
           } as any
         },
         "title": "Comments & Threads",
