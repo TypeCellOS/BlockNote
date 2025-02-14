@@ -1,7 +1,6 @@
 import { Node } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
-import * as Y from "yjs";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { User } from "../../models/User.js";
 import { EventEmitter } from "../../util/EventEmitter.js";
@@ -10,13 +9,10 @@ import { CommentBody, ThreadData } from "./types.js";
 import { UserStore } from "./userstore/UserStore.js";
 const PLUGIN_KEY = new PluginKey(`blocknote-comments`);
 
-enum CommentsPluginActions {
-  SET_SELECTED_THREAD_ID = "SET_SELECTED_THREAD_ID",
-}
+const SET_SELECTED_THREAD_ID = "SET_SELECTED_THREAD_ID";
 
 type CommentsPluginAction = {
-  name: CommentsPluginActions;
-  data: string | null;
+  name: typeof SET_SELECTED_THREAD_ID;
 };
 
 type CommentsPluginState = {
@@ -90,12 +86,6 @@ export class CommentsPlugin extends EventEmitter<any> {
    * when a thread is resolved or deleted, we need to update the marks to reflect the new state
    */
   private updateMarksFromThreads = (threads: Map<string, ThreadData>) => {
-    const doc = new Y.Doc();
-    const threadMap = doc.getMap("threads");
-    threads.forEach((thread) => {
-      threadMap.set(thread.id, thread);
-    });
-
     const ttEditor = this.editor._tiptapEditor;
     if (!ttEditor) {
       // TODO: better lifecycle management
@@ -204,7 +194,7 @@ export class CommentsPlugin extends EventEmitter<any> {
             self.emitStateUpdate();
             view.dispatch(
               view.state.tr.setMeta(PLUGIN_KEY, {
-                name: CommentsPluginActions.SET_SELECTED_THREAD_ID,
+                name: SET_SELECTED_THREAD_ID,
               })
             );
           };
