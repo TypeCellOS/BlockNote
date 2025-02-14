@@ -7,10 +7,6 @@ export * from "./api/nodeUtil.js";
 export * from "./api/testUtil/index.js";
 export * from "./blocks/AudioBlockContent/AudioBlockContent.js";
 export * from "./blocks/CodeBlockContent/CodeBlockContent.js";
-export * from "./blocks/defaultBlockHelpers.js";
-export * from "./blocks/defaultBlocks.js";
-export * from "./blocks/defaultBlockTypeGuards.js";
-export * from "./blocks/defaultProps.js";
 export * from "./blocks/FileBlockContent/FileBlockContent.js";
 export * from "./blocks/FileBlockContent/helpers/parse/parseEmbedElement.js";
 export * from "./blocks/FileBlockContent/helpers/parse/parseFigureElement.js";
@@ -22,14 +18,18 @@ export * from "./blocks/FileBlockContent/helpers/toExternalHTML/createFigureWith
 export * from "./blocks/FileBlockContent/helpers/toExternalHTML/createLinkWithCaption.js";
 export * from "./blocks/FileBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY.js";
 export * from "./blocks/ImageBlockContent/ImageBlockContent.js";
-export * from "./blocks/PageBreakBlockContent/getPageBreakSlashMenuItems.js";
 export * from "./blocks/PageBreakBlockContent/PageBreakBlockContent.js";
+export * from "./blocks/PageBreakBlockContent/getPageBreakSlashMenuItems.js";
 export * from "./blocks/PageBreakBlockContent/schema.js";
 export {
   EMPTY_CELL_HEIGHT,
   EMPTY_CELL_WIDTH,
 } from "./blocks/TableBlockContent/TableExtension.js";
 export * from "./blocks/VideoBlockContent/VideoBlockContent.js";
+export * from "./blocks/defaultBlockHelpers.js";
+export * from "./blocks/defaultBlockTypeGuards.js";
+export * from "./blocks/defaultBlocks.js";
+export * from "./blocks/defaultProps.js";
 export * from "./editor/BlockNoteEditor.js";
 export * from "./editor/BlockNoteExtensions.js";
 export * from "./editor/BlockNoteSchema.js";
@@ -44,9 +44,9 @@ export * from "./extensions/LinkToolbar/protocols.js";
 export * from "./extensions/SideMenu/SideMenuPlugin.js";
 export * from "./extensions/SuggestionMenu/DefaultGridSuggestionItem.js";
 export * from "./extensions/SuggestionMenu/DefaultSuggestionItem.js";
+export * from "./extensions/SuggestionMenu/SuggestionPlugin.js";
 export * from "./extensions/SuggestionMenu/getDefaultEmojiPickerItems.js";
 export * from "./extensions/SuggestionMenu/getDefaultSlashMenuItems.js";
-export * from "./extensions/SuggestionMenu/SuggestionPlugin.js";
 export * from "./extensions/TableHandles/TableHandlesPlugin.js";
 export * from "./i18n/dictionary.js";
 export * from "./schema/index.js";
@@ -78,5 +78,6 @@ export * from "./extensions/Comments/types.js";
 export * from "./extensions/Comments/threadstore/DefaultThreadStoreAuth.js";
 export * from "./extensions/Comments/threadstore/ThreadStore.js";
 export * from "./extensions/Comments/threadstore/ThreadStoreAuth.js";
+export * from "./extensions/Comments/threadstore/TipTapThreadStore.js";
 export * from "./extensions/Comments/threadstore/YjsThreadStore.js";
 export * from "./models/User.js";
