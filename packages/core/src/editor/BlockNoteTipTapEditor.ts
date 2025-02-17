@@ -21,7 +21,6 @@ export type BlockNoteTipTapEditorOptions = Partial<
  * Custom Editor class that extends TiptapEditor and separates
  * the creation of the view from the constructor.
  */
-// @ts-ignore
 export class BlockNoteTipTapEditor extends TiptapEditor {
   private _state: EditorState;
 
@@ -190,7 +189,6 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
       this.destroy();
     } else {
       this.options.element = element;
-      // @ts-ignore
       this.createViewAlternative(contentComponent);
     }
   };
