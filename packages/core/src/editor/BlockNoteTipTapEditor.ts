@@ -21,10 +21,9 @@ export type BlockNoteTipTapEditorOptions = Partial<
  * Custom Editor class that extends TiptapEditor and separates
  * the creation of the view from the constructor.
  */
-// @ts-ignore
 export class BlockNoteTipTapEditor extends TiptapEditor {
   private _state: EditorState;
-  private _creating = false;
+
   public static create = (
     options: BlockNoteTipTapEditorOptions,
     styleSchema: StyleSchema
@@ -150,40 +149,34 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
   /**
    * Replace the default `createView` method with a custom one - which we call on mount
    */
-  private createViewAlternative() {
-    this._creating = true;
-    // Without queueMicrotask, custom IC / styles will give a React FlushSync error
-    queueMicrotask(() => {
-      if (!this._creating) {
-        return;
+  private createViewAlternative(contentComponent?: any) {
+    (this as any).contentComponent = contentComponent;
+
+    this.view = new EditorView(
+      { mount: this.options.element as any }, // use mount option so that we reuse the existing element instead of creating a new one
+      {
+        ...this.options.editorProps,
+        // @ts-ignore
+        dispatchTransaction: this.dispatchTransaction.bind(this),
+        state: this.state,
       }
-      this.view = new EditorView(
-        { mount: this.options.element as any }, // use mount option so that we reuse the existing element instead of creating a new one
-        {
-          ...this.options.editorProps,
-          // @ts-ignore
-          dispatchTransaction: this.dispatchTransaction.bind(this),
-          state: this.state,
-        }
-      );
+    );
 
-      // `editor.view` is not yet available at this time.
-      // Therefore we will add all plugins and node views directly afterwards.
-      const newState = this.state.reconfigure({
-        plugins: this.extensionManager.plugins,
-      });
-
-      this.view.updateState(newState);
-
-      this.createNodeViews();
-
-      // emit the created event, call here manually because we blocked the default call in the constructor
-      // (https://github.com/ueberdosis/tiptap/blob/45bac803283446795ad1b03f43d3746fa54a68ff/packages/core/src/Editor.ts#L117)
-      this.commands.focus(this.options.autofocus);
-      this.emit("create", { editor: this });
-      this.isInitialized = true;
-      this._creating = false;
+    // `editor.view` is not yet available at this time.
+    // Therefore we will add all plugins and node views directly afterwards.
+    const newState = this.state.reconfigure({
+      plugins: this.extensionManager.plugins,
     });
+
+    this.view.updateState(newState);
+
+    this.createNodeViews();
+
+    // emit the created event, call here manually because we blocked the default call in the constructor
+    // (https://github.com/ueberdosis/tiptap/blob/45bac803283446795ad1b03f43d3746fa54a68ff/packages/core/src/Editor.ts#L117)
+    this.commands.focus(this.options.autofocus);
+    this.emit("create", { editor: this });
+    this.isInitialized = true;
   }
 
   /**
@@ -191,15 +184,12 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
    *
    * @param element DOM element to mount to, ur null / undefined to destroy
    */
-  public mount = (element?: HTMLElement | null) => {
+  public mount = (element?: HTMLElement | null, contentComponent?: any) => {
     if (!element) {
       this.destroy();
-      // cancel pending microtask
-      this._creating = false;
     } else {
       this.options.element = element;
-      // @ts-ignore
-      this.createViewAlternative();
+      this.createViewAlternative(contentComponent);
     }
   };
 }
@@ -210,5 +200,6 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
   // We should call `createView` manually only when a DOM element is available
 
   // additional fix because onPaste and onDrop depend on installing plugins in constructor which we don't support
+  // (note: can probably be removed after tiptap upgrade fixed in 2.8.0)
   this.options.onPaste = this.options.onDrop = undefined;
 };
