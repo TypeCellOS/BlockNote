@@ -1,5 +1,9 @@
-import { Block, DefaultBlockSchema } from "../../../blocks/defaultBlocks.js";
-import { isTableCell, TableContent } from "../../../schema/blocks/types.js";
+import { DefaultBlockSchema } from "../../../blocks/defaultBlocks.js";
+import {
+  BlockFromConfigNoChildren,
+  isTableCell,
+  TableContent,
+} from "../../../schema/blocks/types.js";
 
 /**
  * This will resolve the relative cell indices within the table block to the absolute cell indices within the table.
@@ -15,13 +19,7 @@ export function resolveRelativeTableCellIndices(
   /**
    * The table block containing the cell.
    */
-  block: Block<
-    {
-      table: DefaultBlockSchema["table"];
-    },
-    any,
-    any
-  >
+  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>
 ): { row: number; col: number } {
   // Calculate column index by summing colspan values of previous cells in the row
   let colIndex = 0;
@@ -46,7 +44,7 @@ export function resolveRelativeTableCellIndices(
  * @returns The height and width of the table.
  */
 export function getDimensionsOfTable(
-  block: Block<{ table: DefaultBlockSchema["table"] }, any, any>
+  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>
 ) {
   const height = block.content.rows.length;
   const width = block.content.rows.reduce((acc, { cells }) => {
@@ -75,13 +73,7 @@ export function resolveAbsoluteTableCellIndices(
   /**
    * The table block containing the cell.
    */
-  block: Block<
-    {
-      table: DefaultBlockSchema["table"];
-    },
-    any,
-    any
-  >
+  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>
 ): {
   row: number;
   col: number;
@@ -166,7 +158,7 @@ export function resolveAbsoluteTableCellIndices(
  * @returns The row of the table.
  */
 export function getRow(
-  block: Block<{ table: DefaultBlockSchema["table"] }, any, any>,
+  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
   relativeRowIndex: number
 ) {
   const { width } = getDimensionsOfTable(block);
@@ -195,7 +187,7 @@ export function getRow(
  * @returns The column of the table.
  */
 export function getColumn(
-  block: Block<{ table: DefaultBlockSchema["table"] }, any, any>,
+  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
   relativeColumnIndex: number
 ) {
   const { height } = getDimensionsOfTable(block);

@@ -498,7 +498,7 @@ export class TableHandlesView<
     }
 
     const { height: rowCount, width: colCount } = getDimensionsOfTable(
-      this.state.block as any
+      this.state.block
     );
 
     if (
