@@ -1,10 +1,14 @@
 import {
   BlockNoteSchema,
+  defaultBlockSpecs,
+  PageBreak,
   partialBlocksToBlocksForTesting,
 } from "@blocknote/core";
 
 export const testDocument = partialBlocksToBlocksForTesting(
-  BlockNoteSchema.create(),
+  BlockNoteSchema.create({
+    blockSpecs: { ...defaultBlockSpecs, pageBreak: PageBreak },
+  }),
   [
     {
       type: "paragraph",
@@ -75,10 +79,7 @@ export const testDocument = partialBlocksToBlocksForTesting(
         textAlignment: "justify",
       },
     },
-    {
-      type: "codeBlock",
-      content: "Code Block\nLine 2",
-    },
+    { type: "pageBreak" },
     {
       type: "bulletListItem",
       content:
@@ -269,6 +270,15 @@ export const testDocument = partialBlocksToBlocksForTesting(
           },
         ],
       },
+    },
+    {
+      type: "codeBlock",
+      props: {
+        language: "javascript",
+      },
+      content: `const helloWorld = (message) => {
+  console.log("Hello World", message);
+};`,
     },
   ]
 );

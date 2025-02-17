@@ -1,9 +1,4 @@
 import { AnyExtension, Extension, extensions } from "@tiptap/core";
-
-import type { BlockNoteEditor, BlockNoteExtension } from "./BlockNoteEditor.js";
-
-import Collaboration from "@tiptap/extension-collaboration";
-import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 import { Gapcursor } from "@tiptap/extension-gapcursor";
 import { HardBreak } from "@tiptap/extension-hard-break";
 import { History } from "@tiptap/extension-history";
@@ -11,6 +6,8 @@ import { Link } from "@tiptap/extension-link";
 import { Text } from "@tiptap/extension-text";
 import { Plugin } from "prosemirror-state";
 import * as Y from "yjs";
+
+import type { BlockNoteEditor, BlockNoteExtension } from "./BlockNoteEditor.js";
 import { createDropFileExtension } from "../api/clipboard/fromClipboard/fileDropExtension.js";
 import { createPasteFromClipboardExtension } from "../api/clipboard/fromClipboard/pasteExtension.js";
 import { createCopyToClipboardExtension } from "../api/clipboard/toClipboard/copyExtension.js";
@@ -43,6 +40,7 @@ import {
   StyleSchema,
   StyleSpecs,
 } from "../schema/index.js";
+import { createCollaborationExtensions } from "../extensions/Collaboration/createCollaborationExtensions.js";
 
 type ExtensionOptions<
   BSchema extends BlockSchema,
@@ -64,6 +62,7 @@ type ExtensionOptions<
     };
     provider: any;
     renderCursor?: (user: any) => HTMLElement;
+    showCursorLabels?: "always" | "activity";
   };
   disableExtensions: string[] | undefined;
   setIdAttribute?: boolean;
@@ -72,6 +71,7 @@ type ExtensionOptions<
   dropCursor: (opts: any) => Plugin;
   placeholders: Record<string | "default", string>;
   tabBehavior?: "prefer-navigate-ui" | "prefer-indent";
+  sideMenuDetection: "viewport" | "editor";
 };
 
 /**
@@ -97,7 +97,10 @@ export const getBlockNoteExtensions = <
     opts.editor
   );
   ret["linkToolbar"] = new LinkToolbarProsemirrorPlugin(opts.editor);
-  ret["sideMenu"] = new SideMenuProsemirrorPlugin(opts.editor);
+  ret["sideMenu"] = new SideMenuProsemirrorPlugin(
+    opts.editor,
+    opts.sideMenuDetection
+  );
   ret["suggestionMenus"] = new SuggestionMenuProseMirrorPlugin(opts.editor);
   ret["filePanel"] = new FilePanelProsemirrorPlugin(opts.editor as any);
   ret["placeholder"] = new PlaceholderPlugin(opts.editor, opts.placeholders);
@@ -243,39 +246,7 @@ const getTipTapExtensions = <
   ];
 
   if (opts.collaboration) {
-    tiptapExtensions.push(
-      Collaboration.configure({
-        fragment: opts.collaboration.fragment,
-      })
-    );
-    if (opts.collaboration.provider?.awareness) {
-      const defaultRender = (user: { color: string; name: string }) => {
-        const cursor = document.createElement("span");
-
-        cursor.classList.add("collaboration-cursor__caret");
-        cursor.setAttribute("style", `border-color: ${user.color}`);
-
-        const label = document.createElement("span");
-
-        label.classList.add("collaboration-cursor__label");
-        label.setAttribute("style", `background-color: ${user.color}`);
-        label.insertBefore(document.createTextNode(user.name), null);
-
-        const nonbreakingSpace1 = document.createTextNode("\u2060");
-        const nonbreakingSpace2 = document.createTextNode("\u2060");
-        cursor.insertBefore(nonbreakingSpace1, null);
-        cursor.insertBefore(label, null);
-        cursor.insertBefore(nonbreakingSpace2, null);
-        return cursor;
-      };
-      tiptapExtensions.push(
-        CollaborationCursor.configure({
-          user: opts.collaboration.user,
-          render: opts.collaboration.renderCursor || defaultRender,
-          provider: opts.collaboration.provider,
-        })
-      );
-    }
+    tiptapExtensions.push(...createCollaborationExtensions(opts.collaboration));
   } else {
     // disable history extension when collaboration is enabled as Yjs takes care of undo / redo
     tiptapExtensions.push(History);

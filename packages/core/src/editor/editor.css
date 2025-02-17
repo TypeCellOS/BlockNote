@@ -77,32 +77,49 @@ Tippy popups that are appended to document.body directly
   opacity: 0.001;
 }
 
-/* Give a remote user a caret */
-.collaboration-cursor__caret {
-  border-left: 1px solid #0d0d0d;
-  border-right: 1px solid #0d0d0d;
-  margin-left: -1px;
-  margin-right: -1px;
-  pointer-events: none;
+.collaboration-cursor__base {
   position: relative;
-  word-break: normal;
-  white-space: nowrap !important;
 }
 
-/* Render the username above the caret */
+.collaboration-cursor__caret {
+  position: absolute;
+  width: 2px;
+  top: 1px;
+  bottom: -2px;
+  left: -1px;
+}
+
 .collaboration-cursor__label {
-  border-radius: 3px 3px 3px 0;
-  color: #0d0d0d;
+  pointer-events: none;
+  border-radius: 0 1.5px 1.5px 0;
   font-size: 12px;
   font-style: normal;
   font-weight: 600;
-  left: -1px;
   line-height: normal;
-  padding: 0.1rem 0.3rem;
+  left: 0;
+  overflow: hidden;
   position: absolute;
-  top: -1.4em;
-  user-select: none;
   white-space: nowrap;
+  user-select: none;
+
+  color: transparent;
+  max-height: 5px;
+  max-width: 4px;
+  padding: 0;
+  top: -1px;
+  transition: all 0.2s;
+}
+
+.collaboration-cursor__base[data-active] .collaboration-cursor__label {
+  color: #0d0d0d;
+  max-height: 1.1rem;
+  max-width: 20rem;
+  padding: 0.1rem 0.3rem;
+  top: -17px;
+  left: 0;
+  border-radius: 3px 3px 3px 0;
+
+  transition: all 0.2s;
 }
 
 /* .tableWrapper {

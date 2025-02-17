@@ -516,4 +516,13 @@ With Hard Break</p>
 
     await parseHTMLAndCompareSnapshots(html, "parse-google-docs-html");
   });
+
+  it("Parse codeblocks", async () => {
+    const html = `<pre><code>console.log("Should default to JS")</code></pre>
+    <pre><code data-language="typescript">console.log("Should parse TS from data-language")</code></pre>
+    <pre><code class="language-python">print("Should parse Python from language- class")</code></pre>
+    <pre><code class="language-ruby" data-language="typescript">console.log("Should prioritize TS from data-language over language- class")</code></pre>`;
+
+    await parseHTMLAndCompareSnapshots(html, "parse-codeblocks");
+  });
 });

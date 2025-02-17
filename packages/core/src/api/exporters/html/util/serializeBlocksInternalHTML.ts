@@ -21,6 +21,7 @@ export function serializeInlineContentInternalHTML<
   editor: BlockNoteEditor<any, I, S>,
   blockContent: PartialBlock<BSchema, I, S>["content"],
   serializer: DOMSerializer,
+  blockType?: string,
   options?: { document?: Document }
 ) {
   let nodes: any;
@@ -32,13 +33,15 @@ export function serializeInlineContentInternalHTML<
     nodes = inlineContentToNodes(
       [blockContent],
       editor.pmSchema,
-      editor.schema.styleSchema
+      editor.schema.styleSchema,
+      blockType
     );
   } else if (Array.isArray(blockContent)) {
     nodes = inlineContentToNodes(
       blockContent,
       editor.pmSchema,
-      editor.schema.styleSchema
+      editor.schema.styleSchema,
+      blockType
     );
   } else if (blockContent.type === "tableContent") {
     nodes = tableContentToNodes(
@@ -102,6 +105,7 @@ function serializeBlock<
       editor,
       block.content as any, // TODO
       serializer,
+      block.type,
       options
     );
     ret.contentDOM.appendChild(ic);

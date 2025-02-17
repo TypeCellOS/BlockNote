@@ -28,5 +28,13 @@
       "toc": true
     }
   },
-  "about": "About"
+  "about": "About",
+  "legal": {
+    "title": "Legal",
+    "display": "hidden",
+    "theme": {
+      "sidebar": false,
+      "toc": false
+    }
+  }
 }

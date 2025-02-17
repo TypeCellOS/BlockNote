@@ -56,6 +56,12 @@ export const en = {
       aliases: ["code", "pre"],
       group: "Basic blocks",
     },
+    page_break: {
+      title: "Page Break",
+      subtext: "Page separator",
+      aliases: ["page", "break", "separator"],
+      group: "Basic blocks",
+    },
     table: {
       title: "Table",
       subtext: "Table with editable cells",
