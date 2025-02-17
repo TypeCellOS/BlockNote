@@ -59,10 +59,14 @@ export function createReactStyleSpec<T extends StyleConfig>(
     },
   });
 
-  let x = mark;
-  (mark as any).config.addMarkView = (mark: any, view: any) => {
+  const markType = mark;
+
+  // this is a bit of a hack to register an `addMarkView` function on the mark type
+  //
+  // we can clean this once MarkViews land in tiptap
+  (markType as any).config.addMarkView = (mark: any, view: any) => {
     const markView = new ReactMarkView({
-      editor: x.child?.options.editor,
+      editor: markType.child?.options.editor,
       inline: true,
       mark,
       options: {

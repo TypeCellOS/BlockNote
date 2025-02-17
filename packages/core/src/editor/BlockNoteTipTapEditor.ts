@@ -21,7 +21,6 @@ export type BlockNoteTipTapEditorOptions = Partial<
  * Custom Editor class that extends TiptapEditor and separates
  * the creation of the view from the constructor.
  */
-// @ts-ignore
 export class BlockNoteTipTapEditor extends TiptapEditor {
   private _state: EditorState;
 
@@ -200,7 +199,6 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
       this.destroy();
     } else {
       this.options.element = element;
-      // @ts-ignore
       this.createViewAlternative(contentComponent);
     }
   };
@@ -212,5 +210,6 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
   // We should call `createView` manually only when a DOM element is available
 
   // additional fix because onPaste and onDrop depend on installing plugins in constructor which we don't support
+  // (note: can probably be removed after tiptap upgrade fixed in 2.8.0)
   this.options.onPaste = this.options.onDrop = undefined;
 };
