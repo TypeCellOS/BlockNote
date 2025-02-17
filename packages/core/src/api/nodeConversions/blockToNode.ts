@@ -1,4 +1,4 @@
-import { Mark, Node, NodeType, Schema } from "@tiptap/pm/model";
+import { Mark, Node, Schema } from "@tiptap/pm/model";
 
 import UniqueID from "../../extensions/UniqueID/UniqueID.js";
 import type {
@@ -279,13 +279,11 @@ export function blockToNode(
     }
   }
 
-  const nodeTypeCorrespondingToBlock: NodeType | undefined =
-    schema.nodes[block.type];
+  const isBlockContent =
+    !block.type || // can happen if block.type is not defined (this should create the default node)
+    schema.nodes[block.type].isInGroup("blockContent");
 
-  if (
-    !nodeTypeCorrespondingToBlock || // can happen if block.type is not (this should create the default node)
-    nodeTypeCorrespondingToBlock.isInGroup("blockContent")
-  ) {
+  if (isBlockContent) {
     // Blocks with a type that matches "blockContent" group always need to be wrapped in a blockContainer
 
     const contentNode = blockOrInlineContentToContentNode(
