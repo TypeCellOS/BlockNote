@@ -281,7 +281,10 @@ export function blockToNode(
 
   const nodeTypeCorrespondingToBlock = schema.nodes[block.type];
 
-  if (nodeTypeCorrespondingToBlock.isInGroup("blockContent")) {
+  if (
+    !nodeTypeCorrespondingToBlock || // can happen if block.type is not (this should create the default node)
+    nodeTypeCorrespondingToBlock.isInGroup("blockContent")
+  ) {
     // Blocks with a type that matches "blockContent" group always need to be wrapped in a blockContainer
 
     const contentNode = blockOrInlineContentToContentNode(
