@@ -45,4 +45,13 @@ export const CommentMark = Mark.create({
       }),
     ];
   },
+
+  extendMarkSchema(extension) {
+    if (extension.name === "comment") {
+      return {
+        blocknoteIgnore: true,
+      };
+    }
+    return {};
+  },
 });
