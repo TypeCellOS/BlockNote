@@ -260,6 +260,9 @@ export const pl: Dictionary = {
     align_justify: {
       tooltip: "Wyjustuj tekst",
     },
+    comment: {
+      tooltip: "Dodaj komentarz",
+    },
   },
   file_panel: {
     upload: {

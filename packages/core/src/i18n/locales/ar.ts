@@ -261,6 +261,9 @@ export const ar: Dictionary = {
     align_justify: {
       tooltip: "ضبط النص",
     },
+    comment: {
+      tooltip: "إضافة ملاحظة",
+    },
   },
   file_panel: {
     upload: {
