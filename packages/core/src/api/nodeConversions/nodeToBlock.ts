@@ -131,9 +131,9 @@ export function contentNodeToInlineContent<
       } else {
         const config = styleSchema[mark.type.name];
         if (!config) {
-          if (mark.type.spec.group?.includes("blocknoteIgnore")) {
+          if (mark.type.spec.blocknoteIgnore) {
             // at this point, we don't want to show certain marks (such as comments)
-            // in the BlockNote JSON output. These marks should have "blocknoteIgnore" in their group
+            // in the BlockNote JSON output. These marks should be tagged with "blocknoteIgnore" in the spec
             continue;
           }
           throw new Error(`style ${mark.type.name} not found in styleSchema`);

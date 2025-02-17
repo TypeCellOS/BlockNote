@@ -938,7 +938,7 @@ export class BlockNoteEditor<
           // Links are not considered styles in blocknote
           mark.type.name !== "link" &&
           // "blocknoteIgnore" tagged marks (such as comments) are also not considered BlockNote "styles"
-          !mark.type.spec.group?.includes("blocknoteIgnore")
+          !mark.type.spec.blocknoteIgnore
         ) {
           // eslint-disable-next-line no-console
           console.warn("mark not found in styleschema", mark.type.name);
