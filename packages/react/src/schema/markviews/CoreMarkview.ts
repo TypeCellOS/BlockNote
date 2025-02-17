@@ -10,7 +10,7 @@ import type {
   CoreMarkViewSpec,
   CoreMarkViewUserOptions,
   MarkViewDOMSpec,
-} from "./CoreMarkViewOptions";
+} from "./CoreMarkViewOptions.js";
 
 /* eslint-disable curly */
 

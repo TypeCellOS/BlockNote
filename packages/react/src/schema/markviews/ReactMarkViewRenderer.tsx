@@ -1,7 +1,4 @@
-// import { nanoid } from "nanoid";
 import { CoreMarkView } from "./CoreMarkView.js";
-
-// import type { ReactRenderer } from "../ReactRenderer";
 import type { MarkViewContext } from "./markViewContext.js";
 import type { ReactMarkViewComponent } from "./ReactMarkViewOptions.js";
 
