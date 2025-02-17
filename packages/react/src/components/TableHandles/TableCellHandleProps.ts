@@ -7,11 +7,10 @@ import {
   StyleSchema,
   TableHandlesState,
 } from "@blocknote/core";
-import { DragEvent, FC } from "react";
+import { TableCellHandleMenuProps } from "./TableCellHandleMenu/TableCellHandleMenuProps.js";
+import { FC } from "react";
 
-import { DragHandleMenuProps } from "../SideMenu/DragHandleMenu/DragHandleMenuProps.js";
-
-export type TableHandleProps<
+export type TableCellHandleProps<
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 > = {
@@ -22,21 +21,10 @@ export type TableHandleProps<
     I,
     S
   >;
-  orientation: "row" | "column";
-  index: number;
-  dragStart: (e: DragEvent) => void;
-  showOtherSide: () => void;
-  hideOtherSide: () => void;
+  rowIndex: number;
+  colIndex: number;
   menuContainer: HTMLDivElement;
-  tableHandleMenu?: FC<
-    DragHandleMenuProps<
-      {
-        table: DefaultBlockSchema["table"];
-      },
-      I,
-      S
-    >
-  >;
+  tableCellHandleMenu?: FC<TableCellHandleMenuProps<I, S>>;
 } & Pick<TableHandlesState<I, S>, "block"> &
   Pick<
     Exclude<
@@ -49,5 +37,5 @@ export type TableHandleProps<
       >["tableHandles"],
       undefined
     >,
-    "dragEnd" | "freezeHandles" | "unfreezeHandles"
+    "freezeHandles" | "unfreezeHandles"
   >;

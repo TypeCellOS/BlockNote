@@ -51,8 +51,17 @@ function getBoundingClientRectCol(
   );
 }
 
+function getBoundingClientRectCell(referencePosCell: DOMRect | null) {
+  return new DOMRect(
+    referencePosCell!.x,
+    referencePosCell!.y,
+    referencePosCell!.width,
+    0
+  );
+}
+
 function useTableHandlePosition(
-  orientation: "row" | "col",
+  orientation: "row" | "col" | "cell",
   show: boolean,
   referencePosCell: DOMRect | null,
   referencePosTable: DOMRect | null,
@@ -63,8 +72,15 @@ function useTableHandlePosition(
 ) {
   const { refs, update, context, floatingStyles } = useFloating({
     open: show,
-    placement: orientation === "row" ? "left" : "top",
-    middleware: [offset(orientation === "row" ? -10 : -12)],
+    placement:
+      orientation === "row"
+        ? "left"
+        : orientation === "col"
+        ? "top"
+        : "bottom-end",
+    middleware: [
+      offset(orientation === "row" ? -10 : orientation === "col" ? -12 : 0),
+    ],
   });
 
   const { isMounted, styles } = useTransitionStyles(context);
@@ -75,7 +91,12 @@ function useTableHandlePosition(
 
   useEffect(() => {
     // Will be null on initial render when used in UI component controllers.
-    if (referencePosCell === null || referencePosTable === null) {
+    if (
+      referencePosCell === null ||
+      referencePosTable === null ||
+      // Ignore cell handle when dragging
+      (draggingState && orientation === "cell")
+    ) {
       return;
     }
 
@@ -84,7 +105,9 @@ function useTableHandlePosition(
         const fn =
           orientation === "row"
             ? getBoundingClientRectRow
-            : getBoundingClientRectCol;
+            : orientation === "col"
+            ? getBoundingClientRectCol
+            : getBoundingClientRectCell;
         return fn(referencePosCell, referencePosTable, draggingState);
       },
     });
@@ -115,6 +138,7 @@ export function useTableHandlesPositioning(
 ): {
   rowHandle: ReturnType<typeof useTableHandlePosition>;
   colHandle: ReturnType<typeof useTableHandlePosition>;
+  cellHandle: ReturnType<typeof useTableHandlePosition>;
 } {
   const rowHandle = useTableHandlePosition(
     "row",
@@ -130,12 +154,20 @@ export function useTableHandlesPositioning(
     referencePosTable,
     draggingState
   );
+  const cellHandle = useTableHandlePosition(
+    "cell",
+    show,
+    referencePosCell,
+    referencePosTable,
+    draggingState
+  );
 
   return useMemo(
     () => ({
       rowHandle,
       colHandle,
+      cellHandle,
     }),
-    [colHandle, rowHandle]
+    [colHandle, rowHandle, cellHandle]
   );
 }

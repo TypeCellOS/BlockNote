@@ -1,0 +1,41 @@
+import {
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "@blocknote/core";
+import { ReactNode } from "react";
+
+import { useComponentsContext } from "../../../editor/ComponentsContext.js";
+import { ColorPickerButton } from "./DefaultButtons/ColorPicker.js";
+import { SplitButton } from "./DefaultButtons/SplitButton.js";
+import { TableCellHandleMenuProps } from "./TableCellHandleMenuProps.js";
+
+export const TableCellHandleMenu = <
+  I extends InlineContentSchema = DefaultInlineContentSchema,
+  S extends StyleSchema = DefaultStyleSchema
+>(
+  props: TableCellHandleMenuProps<I, S> & { children?: ReactNode }
+) => {
+  const Components = useComponentsContext()!;
+
+  return (
+    <Components.Generic.Menu.Dropdown
+      className={"bn-menu-dropdown bn-drag-handle-menu"}>
+      {props.children || (
+        <>
+          <SplitButton
+            block={props.block}
+            rowIndex={props.rowIndex}
+            colIndex={props.colIndex}
+          />
+          <ColorPickerButton
+            block={props.block}
+            rowIndex={props.rowIndex}
+            colIndex={props.colIndex}
+          />
+        </>
+      )}
+    </Components.Generic.Menu.Dropdown>
+  );
+};

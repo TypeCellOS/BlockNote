@@ -160,6 +160,9 @@ export const en = {
     add_right_menuitem: "Add column right",
     add_above_menuitem: "Add row above",
     add_below_menuitem: "Add row below",
+    split_cell_menuitem: "Split cell",
+    merge_cells_menuitem: "Merge cells",
+    background_color_menuitem: "Background color",
   },
   suggestion_menu: {
     no_items_title: "No items found",
@@ -274,6 +277,9 @@ export const en = {
     },
     align_justify: {
       tooltip: "Justify text",
+    },
+    table_cell_merge: {
+      tooltip: "Merge cells",
     },
   },
   file_panel: {

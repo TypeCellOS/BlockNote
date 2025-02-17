@@ -1,9 +1,16 @@
 import { Plugin, PluginKey, PluginView } from "prosemirror-state";
+import { CellSelection, mergeCells, splitCell } from "prosemirror-tables";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
+import {
+  getColumn,
+  getDimensionsOfTable,
+  getRow,
+  resolveRelativeTableCellIndices,
+} from "../../api/blockManipulation/tables/tables.js";
 import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../api/nodeUtil.js";
 import { checkBlockIsDefaultType } from "../../blocks/defaultBlockTypeGuards.js";
-import { DefaultBlockSchema } from "../../blocks/defaultBlocks.js";
+import { Block, DefaultBlockSchema } from "../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   BlockFromConfigNoChildren,
@@ -16,6 +23,7 @@ import { getDraggableBlockFromElement } from "../getDraggableBlockFromElement.js
 
 let dragImageElement: HTMLElement | undefined;
 
+// TODO consider switching this to jotai, it is a bit messy and noisy
 export type TableHandlesState<
   I extends InlineContentSchema,
   S extends StyleSchema
@@ -445,6 +453,7 @@ export class TableHandlesView<
 
     const rows = this.state.block.content.rows;
 
+    // TODO need to handle rowspan and colspan, by resolving relative indices
     if (draggingState.draggedCellOrientation === "row") {
       const rowToMove = rows[draggingState.originalIndex];
       rows.splice(draggingState.originalIndex, 1);
@@ -488,8 +497,9 @@ export class TableHandlesView<
       return;
     }
 
-    const rowCount = this.state.block.content.rows.length;
-    const colCount = this.state.block.content.rows[0].cells.length;
+    const { height: rowCount, width: colCount } = getDimensionsOfTable(
+      this.state.block as any
+    );
 
     if (
       this.state.rowIndex !== undefined &&
@@ -833,5 +843,98 @@ export class TableHandlesProsemirrorPlugin<
    */
   unfreezeHandles = () => {
     this.view!.menuFrozen = false;
+  };
+
+  resolveRelativeTableCellIndices = (
+    relativeCellIndices: { row: number; col: number },
+    block: Block<{ table: DefaultBlockSchema["table"] }, any, any>
+  ) => {
+    return resolveRelativeTableCellIndices(relativeCellIndices, block);
+  };
+
+  getRow = (
+    block: Block<{ table: DefaultBlockSchema["table"] }, any, any>,
+    relativeRowIndex: number
+  ) => {
+    return getRow(block, relativeRowIndex);
+  };
+
+  /**
+   * Get all the cells in a column of the table block.
+   */
+  getColumn = (
+    block: Block<{ table: DefaultBlockSchema["table"] }, any, any>,
+    relativeColumnIndex: number
+  ) => {
+    return getColumn(block, relativeColumnIndex);
+  };
+
+  /**
+   * Sets the selection to the given cell or a range of cells.
+   * @returns The new state after the selection has been set.
+   */
+  private setCellSelection = (
+    startCell: { row: number; col: number },
+    endCell: { row: number; col: number } = startCell
+  ) => {
+    const view = this.view;
+
+    if (!view) {
+      throw new Error("Table handles view not initialized");
+    }
+
+    const state = this.editor.prosemirrorState;
+    const tableResolvedPos = state.doc.resolve(view.tablePos! + 1);
+    const startRowResolvedPos = state.doc.resolve(
+      tableResolvedPos.posAtIndex(startCell.row) + 1
+    );
+    const startCellResolvedPos = state.doc.resolve(
+      // No need for +1, since CellSelection expects the position before the cell
+      startRowResolvedPos.posAtIndex(startCell.col)
+    );
+    const endRowResolvedPos = state.doc.resolve(
+      tableResolvedPos.posAtIndex(endCell.row) + 1
+    );
+    const endCellResolvedPos = state.doc.resolve(
+      // No need for +1, since CellSelection expects the position before the cell
+      endRowResolvedPos.posAtIndex(endCell.col)
+    );
+
+    // Begin a new transaction to set the selection
+    const tr = state.tr;
+
+    // Set the selection to the given cell or a range of cells
+    tr.setSelection(
+      new CellSelection(startCellResolvedPos, endCellResolvedPos)
+    );
+
+    // Quickly apply the transaction to get the new state to update the selection before splitting the cell
+    return state.apply(tr);
+  };
+
+  /**
+   * Merges the cells in the table block.
+   */
+  mergeCells = (cellsToMerge?: {
+    start: { row: number; col: number };
+    end: { row: number; col: number };
+  }) => {
+    const state = cellsToMerge
+      ? this.setCellSelection(cellsToMerge.start, cellsToMerge.end)
+      : this.editor.prosemirrorState;
+
+    return mergeCells(state, this.editor.dispatch);
+  };
+
+  /**
+   * Splits the cell in the table block.
+   * If no cell is provided, the current cell selected will be split.
+   */
+  splitCell = (cellToSplit?: { row: number; col: number }) => {
+    const state = cellToSplit
+      ? this.setCellSelection(cellToSplit)
+      : this.editor.prosemirrorState;
+
+    return splitCell(state, this.editor.dispatch);
   };
 }

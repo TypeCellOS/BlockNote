@@ -580,9 +580,9 @@ export class BlockNoteEditor<
     }
   }
 
-  dispatch(tr: Transaction) {
+  dispatch = (tr: Transaction) => {
     this._tiptapEditor.dispatch(tr);
-  }
+  };
 
   /**
    * Mount the editor to a parent DOM element. Call mount(undefined) to clean up
@@ -593,8 +593,18 @@ export class BlockNoteEditor<
     this._tiptapEditor.mount(parentElement);
   };
 
+  /**
+   * Get the underlying prosemirror view
+   */
   public get prosemirrorView() {
     return this._tiptapEditor.view;
+  }
+
+  /**
+   * Get the underlying prosemirror state
+   */
+  public get prosemirrorState() {
+    return this._tiptapEditor.state;
   }
 
   public get domElement() {
@@ -645,7 +655,7 @@ export class BlockNoteEditor<
   public get document(): Block<BSchema, ISchema, SSchema>[] {
     const blocks: Block<BSchema, ISchema, SSchema>[] = [];
 
-    this._tiptapEditor.state.doc.firstChild!.descendants((node) => {
+    this.prosemirrorState.doc.firstChild!.descendants((node) => {
       blocks.push(
         nodeToBlock(
           node,

@@ -1,4 +1,4 @@
-import { TableCell as TiptapTableCell } from "@tiptap/extension-table-cell";
+import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { TableRow } from "@tiptap/extension-table-row";
 import { Node as PMNode } from "prosemirror-model";
@@ -168,7 +168,7 @@ export const Table = createBlockSpecFromStronglyTypedTiptapNode(
     TableHeader.extend({
       content: "tableContent",
     }),
-    TiptapTableCell.extend({
+    TableCell.extend({
       content: "tableContent",
     }),
     TableRow,

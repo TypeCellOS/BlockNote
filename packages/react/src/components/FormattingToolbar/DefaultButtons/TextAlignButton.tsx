@@ -4,6 +4,7 @@ import {
   checkBlockTypeHasDefaultProp,
   DefaultProps,
   InlineContentSchema,
+  isTableCellSelection,
   StyleSchema,
 } from "@blocknote/core";
 import { useCallback, useMemo } from "react";
@@ -67,12 +68,14 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
   );
 
   const show = useMemo(() => {
-    return !!selectedBlocks.find(
-      (block) =>
-        "textAlignment" in block.props ||
-        (block.type === "table" && block.children)
+    return (
+      !!selectedBlocks.find(
+        (block) =>
+          "textAlignment" in block.props ||
+          (block.type === "table" && block.children)
+      ) && !isTableCellSelection(editor._tiptapEditor.state.selection)
     );
-  }, [selectedBlocks]);
+  }, [editor._tiptapEditor.state.selection, selectedBlocks]);
 
   if (!show || !editor.isEditable) {
     return null;

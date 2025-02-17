@@ -536,7 +536,8 @@
 }
 
 /* Drag Handle & Table Handle Menu styling */
-.bn-mantine .bn-drag-handle-menu {
+.bn-mantine .bn-drag-handle-menu,
+.bn-mantine .bn-table-handle-menu {
   overflow: visible;
 }
 

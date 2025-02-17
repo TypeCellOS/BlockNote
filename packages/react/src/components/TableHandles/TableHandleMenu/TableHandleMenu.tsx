@@ -10,6 +10,7 @@ import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { AddButton } from "./DefaultButtons/AddButton.js";
 import { DeleteButton } from "./DefaultButtons/DeleteButton.js";
 import { TableHandleMenuProps } from "./TableHandleMenuProps.js";
+import { ColorPickerButton } from "./DefaultButtons/ColorPicker.js";
 
 export const TableHandleMenu = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
@@ -39,6 +40,11 @@ export const TableHandleMenu = <
             block={props.block}
             index={props.index}
             side={props.orientation === "row" ? "below" : ("right" as any)}
+          />
+          <ColorPickerButton
+            orientation={props.orientation}
+            block={props.block}
+            index={props.index}
           />
         </>
       )}
