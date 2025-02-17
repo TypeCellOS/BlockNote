@@ -210,6 +210,6 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
   // We should call `createView` manually only when a DOM element is available
 
   // additional fix because onPaste and onDrop depend on installing plugins in constructor which we don't support
-  // (note: can probably be removed after tiptap upgrade)
+  // (note: can probably be removed after tiptap upgrade fixed in 2.8.0)
   this.options.onPaste = this.options.onDrop = undefined;
 };
