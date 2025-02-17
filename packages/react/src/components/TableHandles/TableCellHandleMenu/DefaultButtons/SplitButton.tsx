@@ -3,6 +3,7 @@ import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   InlineContentSchema,
+  isTableCell,
   StyleSchema,
 } from "@blocknote/core";
 
@@ -24,6 +25,18 @@ export const SplitButton = <
     I,
     S
   >();
+
+  const currentCell =
+    props.block.content.rows[props.rowIndex]?.cells?.[props.colIndex];
+
+  if (
+    !currentCell ||
+    !isTableCell(currentCell) ||
+    ((currentCell.props.rowspan ?? 1) === 1 &&
+      (currentCell.props.colspan ?? 1) === 1)
+  ) {
+    return null;
+  }
 
   return (
     <Components.Generic.Menu.Item
