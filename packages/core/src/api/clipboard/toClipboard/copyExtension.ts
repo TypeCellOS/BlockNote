@@ -129,8 +129,7 @@ export function selectedFragmentToHTML<
   }
 
   // Uses default ProseMirror clipboard serialization.
-  const clipboardHTML: string = (pmView as any).__serializeForClipboard(
-    view,
+  const clipboardHTML: string = view.serializeForClipboard(
     view.state.selection.content()
   ).dom.innerHTML;
 
@@ -146,6 +145,34 @@ export function selectedFragmentToHTML<
 
   return { clipboardHTML, externalHTML, markdown };
 }
+
+const checkIfSelectionInNonEditableBlock = () => {
+  // Let browser handle event if selection is empty (nothing
+  // happens).
+  const selection = window.getSelection();
+  if (!selection || selection.isCollapsed) {
+    return true;
+  }
+
+  // Let browser handle event if it's within a non-editable
+  // "island". This means it's in selectable content within a
+  // non-editable block. We only need to check one node as it's
+  // not possible for the browser selection to start in an
+  // editable block and end in a non-editable one.
+  let node = selection.focusNode;
+  while (node) {
+    if (
+      node instanceof HTMLElement &&
+      node.getAttribute("contenteditable") === "false"
+    ) {
+      return true;
+    }
+
+    node = node.parentElement;
+  }
+
+  return false;
+};
 
 const copyToClipboard = <
   BSchema extends BlockSchema,
@@ -187,11 +214,19 @@ export const createCopyToClipboardExtension = <
           props: {
             handleDOMEvents: {
               copy(view, event) {
+                if (checkIfSelectionInNonEditableBlock()) {
+                  return true;
+                }
+
                 copyToClipboard(editor, view, event);
                 // Prevent default PM handler to be called
                 return true;
               },
               cut(view, event) {
+                if (checkIfSelectionInNonEditableBlock()) {
+                  return true;
+                }
+
                 copyToClipboard(editor, view, event);
                 if (view.editable) {
                   view.dispatch(view.state.tr.deleteSelection());

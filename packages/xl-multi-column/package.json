@@ -3,7 +3,7 @@
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
   "license": "AGPL-3.0 OR PROPRIETARY",
-  "version": "0.23.4",
+  "version": "0.23.6",
   "files": [
     "dist",
     "types",
@@ -45,14 +45,14 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "^0.23.4",
-    "@blocknote/react": "^0.23.4",
+    "@blocknote/core": "^0.23.6",
+    "@blocknote/react": "^0.23.6",
     "@tiptap/core": "^2.7.1",
     "prosemirror-model": "^1.23.0",
     "prosemirror-state": "^1.4.3",
     "prosemirror-tables": "^1.3.7",
     "prosemirror-transform": "^1.9.0",
-    "prosemirror-view": "^1.37.1",
+    "prosemirror-view": "^1.38.0",
     "react-icons": "^5.2.1"
   },
   "devDependencies": {
