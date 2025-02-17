@@ -5,7 +5,7 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 import { Select } from "@mantine/core";
-import { useYDoc, useYjsProvider, YDocProvider } from "@y-sweet/react";
+import { YDocProvider, useYDoc, useYjsProvider } from "@y-sweet/react";
 import { useMemo, useState } from "react";
 
 const colors = [
@@ -88,6 +88,17 @@ function Document() {
 
   // setup the thread store which stores / and syncs thread / comment data
   const threadStore = useMemo(() => {
+    // const provider = new TiptapCollabProvider({
+    //   name: "test",
+    //   baseUrl: "https://collab.yourdomain.com",
+    //   appId: "test",
+    //   document: doc,
+    // });
+    // return new TiptapThreadStore(
+    //   user.id,
+    //   provider,
+    //   new DefaultThreadStoreAuth(user.id, user.role)
+    // );
     return new YjsThreadStore(
       user.id,
       doc.getMap("threads"),
