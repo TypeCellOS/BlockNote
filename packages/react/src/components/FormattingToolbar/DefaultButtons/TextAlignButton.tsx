@@ -5,7 +5,9 @@ import {
   DefaultProps,
   InlineContentSchema,
   isTableCellSelection,
+  mapTableCell,
   StyleSchema,
+  TableContent,
 } from "@blocknote/core";
 import { useCallback, useMemo } from "react";
 import { IconType } from "react-icons";
@@ -61,6 +63,78 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
           editor.updateBlock(block, {
             props: { textAlignment: textAlignment },
           });
+        } else if (block.type === "table") {
+          // TODO document this, it is a mess
+          const state = editor.prosemirrorState;
+          const selection = state.selection;
+
+          let $fromCell = selection.$from;
+          let $toCell = selection.$to;
+          if (isTableCellSelection(selection)) {
+            const { ranges } = selection;
+            ranges.forEach((range) => {
+              $fromCell = range.$from.min($fromCell ?? range.$from);
+              $toCell = range.$to.max($toCell ?? range.$to);
+            });
+          } else {
+            // Assumes we are within a tableParagraph
+            $fromCell = state.doc.resolve(
+              selection.$from.pos - selection.$from.parentOffset - 1
+            );
+            $toCell = state.doc.resolve(
+              selection.$to.pos - selection.$to.parentOffset - 1
+            );
+          }
+
+          const $fromRow = state.doc.resolve(
+            $fromCell.pos - $fromCell.parentOffset - 1
+          );
+          const $toRow = state.doc.resolve(
+            $toCell.pos - $toCell.parentOffset - 1
+          );
+          const $table = state.doc.resolve(
+            $fromRow.pos - $fromRow.parentOffset - 1
+          );
+
+          const fromColIndex = $fromCell.index($fromRow.depth);
+          const fromRowIndex = $fromRow.index($table.depth);
+          const toColIndex = $toCell.index($toRow.depth);
+          const toRowIndex = $toRow.index($table.depth);
+
+          const newTable = (block.content as TableContent<any, any>).rows.map(
+            (row, r) => {
+              return {
+                ...row,
+                cells: row.cells.map((cell, c) => {
+                  const mappedCell = mapTableCell(cell);
+                  // If the cell is within the selected range, update the text alignment
+                  if (
+                    fromRowIndex <= r &&
+                    r <= toRowIndex &&
+                    fromColIndex <= c &&
+                    c <= toColIndex
+                  ) {
+                    return {
+                      ...mappedCell,
+                      props: {
+                        ...mappedCell.props,
+                        textAlignment: textAlignment,
+                      },
+                    };
+                  }
+                  return mappedCell;
+                }),
+              };
+            }
+          );
+
+          editor.updateBlock(block, {
+            type: "table",
+            content: {
+              type: "tableContent",
+              rows: newTable,
+            } as any,
+          });
         }
       }
     },
@@ -68,14 +142,12 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
   );
 
   const show = useMemo(() => {
-    return (
-      !!selectedBlocks.find(
-        (block) =>
-          "textAlignment" in block.props ||
-          (block.type === "table" && block.children)
-      ) && !isTableCellSelection(editor._tiptapEditor.state.selection)
+    return !!selectedBlocks.find(
+      (block) =>
+        "textAlignment" in block.props ||
+        (block.type === "table" && block.children)
     );
-  }, [editor._tiptapEditor.state.selection, selectedBlocks]);
+  }, [selectedBlocks]);
 
   if (!show || !editor.isEditable) {
     return null;
