@@ -284,9 +284,8 @@ export class SideMenuView<
     this.editor._tiptapEditor.commands.blur();
 
     let parentEditorElement =
-      event.target instanceof Node ? event.target.parentElement : null;
+      event.target instanceof Node ? event.target : null;
     while (
-      parentEditorElement &&
       parentEditorElement instanceof HTMLElement &&
       !parentEditorElement.classList.contains("bn-editor")
     ) {
