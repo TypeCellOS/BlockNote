@@ -304,7 +304,7 @@ export function blockToNode(
       },
       groupNode ? [contentNode, groupNode] : contentNode
     );
-  } else if (nodeTypeCorrespondingToBlock.isInGroup("bnBlock")) {
+  } else if (schema.nodes[block.type].isInGroup("bnBlock")) {
     // this is a bnBlock node like Column or ColumnList that directly translates to a prosemirror node
     return schema.nodes[block.type].createChecked(
       {
