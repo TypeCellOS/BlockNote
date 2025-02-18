@@ -298,11 +298,11 @@ export class TableHandlesView<
         referencePosTable: tableRect,
         block: tableBlock,
         widgetContainer,
-        colIndex: hideHandles ? undefined : this.state!.colIndex,
-        rowIndex: hideHandles ? undefined : this.state!.rowIndex,
+        colIndex: hideHandles ? undefined : this.state?.colIndex,
+        rowIndex: hideHandles ? undefined : this.state?.rowIndex,
         referencePosCell: hideHandles
           ? undefined
-          : this.state!.referencePosCell,
+          : this.state?.referencePosCell,
       };
     } else {
       const colIndex = getChildIndex(target.domNode);
