@@ -8,9 +8,7 @@ import {
 
 import { assertEmpty, isSafari } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
-import { forwardRef, useContext } from "react";
-
-import { PopoverContext } from "../popover/Popover.js";
+import { forwardRef, useState } from "react";
 
 export const TooltipContent = (props: {
   mainTooltip: string;
@@ -54,7 +52,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
     // assertEmpty in this case is only used at typescript level, not runtime level
     assertEmpty(rest, false);
 
-    const { isOpened } = useContext(PopoverContext);
+    const [hideTooltip, setHideTooltip] = useState(false);
 
     const button = children ? (
       <MantineButton
@@ -67,7 +65,13 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             (e.currentTarget as HTMLButtonElement).focus();
           }
         }}
-        onClick={onClick}
+        onClick={(event) => {
+          setHideTooltip(true);
+          onClick?.(event);
+        }}
+        // Mantine Menu.Target elements block mouseleave events for some reason,
+        // but pointerleave events work fine.
+        onPointerLeave={() => setHideTooltip(false)}
         aria-pressed={isSelected}
         data-selected={isSelected || undefined}
         data-test={
@@ -110,7 +114,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       </MantineActionIcon>
     );
 
-    if (!mainTooltip || isOpened) {
+    if (!mainTooltip || hideTooltip) {
       return button;
     }
 

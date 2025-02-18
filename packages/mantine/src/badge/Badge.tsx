@@ -6,10 +6,9 @@ import {
 
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
-import { forwardRef, useContext } from "react";
+import { forwardRef, useState } from "react";
 
 import { TooltipContent } from "../toolbar/ToolbarButton.js";
-import { PopoverContext } from "../popover/Popover.js";
 
 export const Badge = forwardRef<
   HTMLInputElement,
@@ -30,13 +29,19 @@ export const Badge = forwardRef<
   // assertEmpty in this case is only used at typescript level, not runtime level
   assertEmpty(rest, false);
 
-  const { isOpened } = useContext(PopoverContext);
+  const [hideTooltip, setHideTooltip] = useState(false);
 
   const badge = (
     <MantineChip
       className={className}
       checked={isSelected === true}
-      onClick={onClick}
+      onClick={(event) => {
+        setHideTooltip(true);
+        onClick?.(event);
+      }}
+      wrapperProps={{
+        onMouseLeave: () => setHideTooltip(false),
+      }}
       variant={"light"}
       icon={<></>}
       ref={ref}>
@@ -45,7 +50,7 @@ export const Badge = forwardRef<
     </MantineChip>
   );
 
-  if (!mainTooltip || isOpened) {
+  if (!mainTooltip || hideTooltip) {
     return badge;
   }
 

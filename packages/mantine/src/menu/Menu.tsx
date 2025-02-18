@@ -16,8 +16,6 @@ import {
 } from "react";
 import { HiChevronRight } from "react-icons/hi";
 
-import { PopoverContext } from "../popover/Popover.js";
-
 const SubMenuContext = createContext<
   | {
       onMenuMouseOver: () => void;
@@ -108,33 +106,31 @@ const SubMenu = forwardRef<
   }, []);
 
   return (
-    <PopoverContext.Provider value={{ isOpened: opened }}>
-      <SubMenuContext.Provider
-        value={{
-          onMenuMouseOver: mouseOver,
-          onMenuMouseLeave: mouseLeave,
-        }}>
-        <MantineMenu.Item
-          className="bn-menu-item bn-mt-sub-menu-item"
-          ref={mergeRefs(ref, itemRef)}
-          onMouseOver={mouseOver}
-          onMouseLeave={mouseLeave}>
-          <MantineMenu
-            portalProps={{
-              target: itemRef.current
-                ? itemRef.current.parentElement!
-                : undefined,
-            }}
-            middlewares={{ flip: true, shift: true, inline: false, size: true }}
-            trigger={"hover"}
-            opened={opened}
-            onChange={onOpenChange}
-            position={position}>
-            {children}
-          </MantineMenu>
-        </MantineMenu.Item>
-      </SubMenuContext.Provider>
-    </PopoverContext.Provider>
+    <SubMenuContext.Provider
+      value={{
+        onMenuMouseOver: mouseOver,
+        onMenuMouseLeave: mouseLeave,
+      }}>
+      <MantineMenu.Item
+        className="bn-menu-item bn-mt-sub-menu-item"
+        ref={mergeRefs(ref, itemRef)}
+        onMouseOver={mouseOver}
+        onMouseLeave={mouseLeave}>
+        <MantineMenu
+          portalProps={{
+            target: itemRef.current
+              ? itemRef.current.parentElement!
+              : undefined,
+          }}
+          middlewares={{ flip: true, shift: true, inline: false, size: true }}
+          trigger={"hover"}
+          opened={opened}
+          onChange={onOpenChange}
+          position={position}>
+          {children}
+        </MantineMenu>
+      </MantineMenu.Item>
+    </SubMenuContext.Provider>
   );
 });
 
@@ -143,25 +139,18 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
 
   assertEmpty(rest);
 
-  const [isOpened, setIsOpened] = useState(false);
-
   if (sub) {
     return <SubMenu {...props} />;
   }
 
   return (
-    <PopoverContext.Provider value={{ isOpened: isOpened }}>
-      <MantineMenu
-        withinPortal={false}
-        middlewares={{ flip: true, shift: true, inline: false, size: true }}
-        onChange={(open) => {
-          setIsOpened(open);
-          onOpenChange?.(open);
-        }}
-        position={position}>
-        {children}
-      </MantineMenu>
-    </PopoverContext.Provider>
+    <MantineMenu
+      withinPortal={false}
+      // middlewares={{ flip: true, shift: true, inline: false, size: true }}
+      // onChange={onOpenChange}
+      position={position}>
+      {children}
+    </MantineMenu>
   );
 };
 
