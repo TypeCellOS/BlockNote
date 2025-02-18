@@ -10,12 +10,15 @@ import {
 import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../api/nodeUtil.js";
 import { checkBlockIsDefaultType } from "../../blocks/defaultBlockTypeGuards.js";
-import { Block, DefaultBlockSchema } from "../../blocks/defaultBlocks.js";
+import { DefaultBlockSchema } from "../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   BlockFromConfigNoChildren,
   BlockSchemaWithBlock,
+  getColspan,
+  getRowspan,
   InlineContentSchema,
+  mapTableCell,
   StyleSchema,
 } from "../../schema/index.js";
 import { EventEmitter } from "../../util/EventEmitter.js";
@@ -451,18 +454,50 @@ export class TableHandlesView<
 
     const { draggingState, colIndex, rowIndex } = this.state;
 
-    const rows = this.state.block.content.rows;
+    const newTable = this.state.block.content.rows.map((row) => {
+      return {
+        ...row,
+        cells: row.cells.map((cell) => mapTableCell(cell)),
+      };
+    });
 
-    // TODO need to handle rowspan and colspan, by resolving relative indices
     if (draggingState.draggedCellOrientation === "row") {
-      const rowToMove = rows[draggingState.originalIndex];
-      rows.splice(draggingState.originalIndex, 1);
-      rows.splice(rowIndex, 0, rowToMove);
+      const row = getRow(this.state.block, rowIndex);
+      // TODO need to work on this logic
+      if (
+        row.some((cell) => {
+          const rowspan = getRowspan(cell.cell);
+          if (rowspan === 1) {
+            return false;
+          }
+          return cell.row <= rowIndex && rowIndex <= cell.row + rowspan - 1;
+        })
+      ) {
+        // If the row has cells with different row indices, don't move the row
+        return false;
+      }
+      const rowToMove = newTable[draggingState.originalIndex];
+      newTable.splice(draggingState.originalIndex, 1);
+      newTable.splice(rowIndex, 0, rowToMove);
     } else {
-      const cellsToMove = rows.map(
+      const col = getColumn(this.state.block, colIndex);
+      // TODO need to work on this logic
+      if (
+        col.some((cell) => {
+          const colspan = getColspan(cell.cell);
+          if (colspan === 1) {
+            return false;
+          }
+          return cell.col <= colIndex && colIndex <= cell.col + colspan - 1;
+        })
+      ) {
+        // If the column has cells with different col indices, don't move the column
+        return false;
+      }
+      const cellsToMove = newTable.map(
         (row) => row.cells[draggingState.originalIndex]
       );
-      rows.forEach((row, rowIndex) => {
+      newTable.forEach((row, rowIndex) => {
         row.cells.splice(draggingState.originalIndex, 1);
         row.cells.splice(colIndex, 0, cellsToMove[rowIndex] as any);
       });
@@ -471,8 +506,8 @@ export class TableHandlesView<
     this.editor.updateBlock(this.state.block, {
       type: "table",
       content: {
-        type: "tableContent",
-        rows: rows,
+        ...this.state.block.content,
+        rows: newTable,
       },
     });
 
