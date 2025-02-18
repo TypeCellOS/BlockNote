@@ -64,20 +64,24 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
             props: { textAlignment: textAlignment },
           });
         } else if (block.type === "table") {
-          // TODO document this, it is a mess
+          // Based on the current selection, find the table cells that are within the selected range
           const state = editor.prosemirrorState;
           const selection = state.selection;
 
           let $fromCell = selection.$from;
           let $toCell = selection.$to;
           if (isTableCellSelection(selection)) {
+            // When the selection is a table cell selection, we can find the
+            // from and to cells by iterating over the ranges in the selection
             const { ranges } = selection;
             ranges.forEach((range) => {
               $fromCell = range.$from.min($fromCell ?? range.$from);
               $toCell = range.$to.max($toCell ?? range.$to);
             });
           } else {
+            // When the selection is a normal text selection
             // Assumes we are within a tableParagraph
+            // And find the from and to cells by resolving the positions
             $fromCell = state.doc.resolve(
               selection.$from.pos - selection.$from.parentOffset - 1
             );
@@ -86,16 +90,20 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
             );
           }
 
+          // Find the row and table that the from and to cells are in
           const $fromRow = state.doc.resolve(
             $fromCell.pos - $fromCell.parentOffset - 1
           );
           const $toRow = state.doc.resolve(
             $toCell.pos - $toCell.parentOffset - 1
           );
+
+          // Find the table
           const $table = state.doc.resolve(
             $fromRow.pos - $fromRow.parentOffset - 1
           );
 
+          // Find the column and row indices of the from and to cells
           const fromColIndex = $fromCell.index($fromRow.depth);
           const fromRowIndex = $fromRow.index($table.depth);
           const toColIndex = $toCell.index($toRow.depth);
@@ -107,7 +115,7 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
                 ...row,
                 cells: row.cells.map((cell, c) => {
                   const mappedCell = mapTableCell(cell);
-                  // If the cell is within the selected range, update the text alignment
+                  // If the cell is within the selected range of cells, update the text alignment
                   if (
                     fromRowIndex <= r &&
                     r <= toRowIndex &&
@@ -131,6 +139,7 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
           editor.updateBlock(block, {
             type: "table",
             content: {
+              ...(block.content as TableContent<any, any>),
               type: "tableContent",
               rows: newTable,
             } as any,

@@ -144,7 +144,7 @@ export type BlockSchemaWithBlock<
   [k in BType]: C;
 };
 
-export type TableItemProps = {
+export type TableCellProps = {
   backgroundColor: string;
   textColor: string;
   textAlignment: "left" | "center" | "right" | "justify";
@@ -157,7 +157,7 @@ export type TableCell<
   S extends StyleSchema = StyleSchema
 > = {
   type: "tableCell";
-  props: TableItemProps;
+  props: TableCellProps;
   content: InlineContent<I, S>[];
 };
 
@@ -166,7 +166,7 @@ export type TableContent<
   S extends StyleSchema = StyleSchema
 > = {
   type: "tableContent";
-  columnWidths: (number | undefined)[];
+  columnWidths: (number | null)[];
   headerRows?: number;
   headerCols?: number;
   rows: {
@@ -244,7 +244,7 @@ export type PartialTableCell<
   S extends StyleSchema = StyleSchema
 > = {
   type: "tableCell";
-  props?: Partial<TableItemProps>;
+  props?: Partial<TableCellProps>;
   content?: PartialInlineContent<I, S>;
 };
 
@@ -253,7 +253,7 @@ export type PartialTableContent<
   S extends StyleSchema = StyleSchema
 > = {
   type: "tableContent";
-  columnWidths?: (number | undefined)[];
+  columnWidths?: (number | null)[];
   headerRows?: number;
   headerCols?: number;
   rows: {

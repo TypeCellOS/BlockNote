@@ -170,7 +170,10 @@ export class TableHandlesView<
       "dragover",
       this.dragOverHandler as EventListener
     );
-    pmView.root.addEventListener("drop", this.dropHandler as EventListener);
+    pmView.root.addEventListener(
+      "drop",
+      this.dropHandler as unknown as EventListener
+    );
   }
 
   viewMousedownHandler = () => {
@@ -438,7 +441,7 @@ export class TableHandlesView<
   dropHandler = (event: DragEvent) => {
     this.mouseState = "up";
     if (this.state === undefined || this.state.draggingState === undefined) {
-      return;
+      return false;
     }
 
     if (
@@ -514,6 +517,8 @@ export class TableHandlesView<
     // Have to reset text cursor position to the block as `updateBlock` moves
     // the existing selection out of the block.
     this.editor.setTextCursorPosition(this.state.block.id);
+
+    return true;
   };
   // Updates drag handles when the table is modified or removed.
   update() {
@@ -583,7 +588,7 @@ export class TableHandlesView<
     );
     this.pmView.root.removeEventListener(
       "drop",
-      this.dropHandler as EventListener
+      this.dropHandler as unknown as EventListener
     );
   }
 }

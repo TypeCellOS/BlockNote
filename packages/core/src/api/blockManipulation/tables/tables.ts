@@ -3,6 +3,8 @@ import {
   BlockFromConfigNoChildren,
   getColspan,
   getRowspan,
+  mapTableCell,
+  TableCell,
   TableContent,
 } from "../../../schema/blocks/types.js";
 
@@ -59,27 +61,41 @@ export function getDimensionsOfTable(
 
   return { height, width };
 }
+/**
+ * An occupancy grid is a grid of the occupied cells in the table.
+ * It is used to track the occupied cells in the table to know where to place the next cell.
+ */
+type OccupancyGrid = {
+  /**
+   * The row index of the cell.
+   */
+  row: number;
+  /**
+   * The column index of the cell.
+   */
+  col: number;
+  /**
+   * The rowspan of the cell.
+   */
+  rowspan: number;
+  /**
+   * The colspan of the cell.
+   */
+  colspan: number;
+  /**
+   * The cell.
+   */
+  cell: TableCell<any, any>;
+}[][];
 
 /**
- * This will resolve the absolute cell indices within the table block to the relative cell indices within the table.
- * Accounts for colspan and rowspan.
+ * This will return a grid of the occupied cells in the table.
  *
- * @returns The relative cell indices (row and column).
+ * @returns The grid of occupied cells.
  */
-export function resolveAbsoluteTableCellIndices(
-  /**
-   * The absolute position of the cell in the table.
-   */
-  absoluteCellIndices: { row: number; col: number },
-  /**
-   * The table block containing the cell.
-   */
+export function getTableCellOccupancyGrid(
   block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>
-): {
-  row: number;
-  col: number;
-  cell: TableContent<any, any>["rows"][number]["cells"][number];
-} | null {
+): OccupancyGrid | null {
   const { height, width } = getDimensionsOfTable(block);
 
   /*
@@ -87,13 +103,15 @@ export function resolveAbsoluteTableCellIndices(
    * This is used because rowspans and colspans take up multiple spaces
    * So, we need to track the occupied cells in the grid to know where to place the next cell
    */
-  const grid: boolean[][] = new Array(height)
+  const grid: ({
+    row: number;
+    col: number;
+    rowspan: number;
+    colspan: number;
+    cell: TableCell<any, any>;
+  } | null)[][] = new Array(height)
     .fill(false)
-    .map(() => new Array(width).fill(false));
-
-  if (absoluteCellIndices.row >= height || absoluteCellIndices.col >= width) {
-    return null;
-  }
+    .map(() => new Array(width).fill(null));
 
   // Find the next unoccupied cell in the table, row-major order
   function findNextAvailable(row: number, col: number) {
@@ -110,7 +128,7 @@ export function resolveAbsoluteTableCellIndices(
   // Build up the grid, trying to fill in the cells with the correct relative row and column indices
   for (let row = 0; row < block.content.rows.length; row++) {
     for (let col = 0; col < block.content.rows[row].cells.length; col++) {
-      const cell = block.content.rows[row].cells[col];
+      const cell = mapTableCell(block.content.rows[row].cells[col]);
       const rowspan = getRowspan(cell);
       const colspan = getColspan(cell);
 
@@ -134,23 +152,75 @@ export function resolveAbsoluteTableCellIndices(
             return null;
           }
 
-          grid[i][j] = true;
-
-          if (i === absoluteCellIndices.row && j === absoluteCellIndices.col) {
-            // If the cell is occupied, return the relative cell indices
-            return {
-              row,
-              col,
-              cell,
-            };
-          }
+          grid[i][j] = {
+            row,
+            col,
+            rowspan,
+            colspan,
+            cell,
+          };
         }
       }
     }
   }
 
-  // We did not find the cell, so return null
-  return null;
+  function isOccupancyGrid(grid: any[][]): grid is OccupancyGrid {
+    return grid.every((row) =>
+      row.every((cell) => cell !== null && typeof cell === "object")
+    );
+  }
+
+  if (!isOccupancyGrid(grid)) {
+    // The table is missing cells, so it is invalid
+    return null;
+  }
+
+  return grid;
+}
+
+/**
+ * This will resolve the absolute cell indices within the table block to the relative cell indices within the table.
+ * Accounts for colspan and rowspan.
+ *
+ * @returns The relative cell indices (row and column).
+ */
+export function resolveAbsoluteTableCellIndices(
+  /**
+   * The absolute position of the cell in the table.
+   */
+  absoluteCellIndices: { row: number; col: number },
+  /**
+   * The table block containing the cell.
+   */
+  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+  /**
+   * The occupancy grid of the table.
+   */
+  occupancyGrid: OccupancyGrid | null = getTableCellOccupancyGrid(block)
+): {
+  row: number;
+  col: number;
+  cell: TableContent<any, any>["rows"][number]["cells"][number];
+} | null {
+  if (!occupancyGrid) {
+    // The table is missing cells, so it is invalid
+    return null;
+  }
+
+  const occupancyCell =
+    occupancyGrid[absoluteCellIndices.row]?.[absoluteCellIndices.col];
+
+  // Double check that the cell can be accessed
+  if (!occupancyCell) {
+    // The cell is not occupied, so it is invalid
+    return null;
+  }
+
+  return {
+    row: occupancyCell.row,
+    col: occupancyCell.col,
+    cell: occupancyCell.cell,
+  };
 }
 
 /**
@@ -162,6 +232,10 @@ export function getRow(
   block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
   relativeRowIndex: number
 ) {
+  const occupancyGrid = getTableCellOccupancyGrid(block);
+  if (!occupancyGrid) {
+    throw new Error("Table is malformed");
+  }
   const { width } = getDimensionsOfTable(block);
   // First need to resolve the relative row index to an absolute row index
   const { row: absoluteRow } = resolveRelativeTableCellIndices(
@@ -171,7 +245,11 @@ export function getRow(
 
   // Then for each column, get the cell at the absolute row index as a relative cell index
   const cells = new Array(width).fill(false).map((_v, col) => {
-    return resolveAbsoluteTableCellIndices({ row: absoluteRow, col }, block)!;
+    return resolveAbsoluteTableCellIndices(
+      { row: absoluteRow, col },
+      block,
+      occupancyGrid
+    );
   });
 
   // Filter out duplicates based on row and col properties
@@ -193,6 +271,10 @@ export function getColumn(
   block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
   relativeColumnIndex: number
 ) {
+  const occupancyGrid = getTableCellOccupancyGrid(block);
+  if (!occupancyGrid) {
+    throw new Error("Table is malformed");
+  }
   const { height } = getDimensionsOfTable(block);
   // First need to resolve the relative column index to an absolute column index
   const { col: absoluteCol } = resolveRelativeTableCellIndices(
@@ -202,7 +284,11 @@ export function getColumn(
 
   // Then for each row, get the cell at the absolute column index as a relative cell index
   const cells = new Array(height).fill(false).map((_v, row) => {
-    return resolveAbsoluteTableCellIndices({ row, col: absoluteCol }, block)!;
+    return resolveAbsoluteTableCellIndices(
+      { row, col: absoluteCol },
+      block,
+      occupancyGrid
+    );
   });
 
   // Filter out duplicates based on row and col properties

@@ -50,11 +50,11 @@ export function contentNodeToTableContent<
 
     if (rowIndex === 0) {
       rowNode.content.forEach((cellNode) => {
-        // TODO implement
-        // The colwidth array should have multiple values when the colspan of a
-        // cell is greater than 1. However, this is not yet implemented so we
-        // can always assume a length of 1.
-        ret.columnWidths.push(cellNode.attrs.colwidth?.[0] || undefined);
+        let colWidth = cellNode.attrs.colwidth as null | number[];
+        if (colWidth === null) {
+          colWidth = new Array(cellNode.attrs.colspan ?? 1).fill(null);
+        }
+        ret.columnWidths.push(...colWidth);
       });
     }
 

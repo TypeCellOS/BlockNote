@@ -12,12 +12,13 @@ import type {
 } from "../../schema";
 
 import type { PartialBlock } from "../../blocks/defaultBlocks";
+import { isPartialTableCell } from "../../schema/blocks/types.js";
 import {
   isPartialLinkInlineContent,
   isStyledTextInlineContent,
 } from "../../schema/inlineContent/types.js";
-import { isPartialTableCell } from "../../schema/blocks/types.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
+import { resolveRelativeTableCellIndices } from "../blockManipulation/tables/tables.js";
 
 /**
  * Convert a StyledText inline element to a
@@ -175,8 +176,13 @@ export function tableContentToNodes<
   styleSchema: StyleSchema
 ): Node[] {
   const rowNodes: Node[] = [];
+  // Header rows and columns are used to determine the type of the cell
+  // If headerRows is 1, then the first row is a header row
   const headerRows = new Array(tableContent.headerRows ?? 0).fill(true);
+  // If headerCols is 1, then the first column is a header column
   const headerCols = new Array(tableContent.headerCols ?? 0).fill(true);
+
+  const columnWidths: (number | null)[] = tableContent.columnWidths ?? [];
 
   for (let rowIndex = 0; rowIndex < tableContent.rows.length; rowIndex++) {
     const row = tableContent.rows[rowIndex];
@@ -185,16 +191,44 @@ export function tableContentToNodes<
     for (let cellIndex = 0; cellIndex < row.cells.length; cellIndex++) {
       const cell = row.cells[cellIndex];
       const isHeaderCol = headerCols[cellIndex];
-      let attrs: Attrs | null = null;
+      /**
+       * The attributes of the cell to apply to the node
+       */
+      const attrs: Attrs | null = null;
+      /**
+       * The content of the cell to apply to the node
+       */
       let content: Fragment | Node | readonly Node[] | null = null;
-      const marks: undefined | readonly Mark[] = undefined;
+
+      // Colwidths are absolutely referenced to the table, so we need to resolve the relative cell index to the absolute cell index
+      const absoluteCellIndex = resolveRelativeTableCellIndices(
+        {
+          row: rowIndex,
+          col: cellIndex,
+        },
+        { type: "table", content: tableContent } as any
+      );
+      // Assume the column width is the width of the cell at the absolute cell index
+      let colwidth: (number | null)[] = [
+        columnWidths[absoluteCellIndex.col] ?? null,
+      ];
+
       if (!cell) {
-        attrs = {};
+        // No-op
       } else if (typeof cell === "string") {
         content = schema.text(cell);
       } else if (isPartialTableCell(cell)) {
         if (cell.content) {
           content = inlineContentToNodes(cell.content, schema, styleSchema);
+        }
+        const colSpan = cell.props?.colspan;
+
+        if (colSpan && colSpan > 1) {
+          // If the cell has a > 1 colspan, we need to get the column width for each cell in the span
+          colwidth = new Array(colSpan).fill(null).map((_, i) => {
+            // Starting from the absolute cell index, get the column width for each cell in the span
+            return columnWidths[absoluteCellIndex.col + i] ?? null;
+          });
         }
       } else {
         content = inlineContentToNodes(cell, schema, styleSchema);
@@ -204,16 +238,10 @@ export function tableContentToNodes<
         isHeaderCol || isHeaderRow ? "tableHeader" : "tableCell"
       ].createChecked(
         {
-          // TODO modify
-          // The colwidth array should have multiple values when the colspan of
-          // a cell is greater than 1. However, this is not yet implemented so
-          // we can always assume a length of 1.
-          colwidth: tableContent.columnWidths?.[cellIndex]
-            ? [tableContent.columnWidths[cellIndex]]
-            : null,
           ...(isPartialTableCell(cell) ? cell.props : {}),
+          colwidth,
         },
-        schema.nodes["tableParagraph"].createChecked(attrs, content, marks)
+        schema.nodes["tableParagraph"].createChecked(attrs, content)
       );
       columnNodes.push(cellNode);
     }
