@@ -251,11 +251,10 @@ export function getRow(
       occupancyGrid
     );
   });
-
   // Filter out duplicates based on row and col properties
-  return cells.filter((cell, index) => {
+  return cells.filter((cell, index): cell is NonNullable<typeof cell> => {
     return (
-      cell &&
+      cell !== null &&
       cells.findIndex((c) => c && c.row === cell.row && c.col === cell.col) ===
         index
     );
@@ -292,9 +291,9 @@ export function getColumn(
   });
 
   // Filter out duplicates based on row and col properties
-  return cells.filter((cell, index) => {
+  return cells.filter((cell, index): cell is NonNullable<typeof cell> => {
     return (
-      cell &&
+      cell !== null &&
       cells.findIndex((c) => c && c.row === cell.row && c.col === cell.col) ===
         index
     );
