@@ -1,8 +1,6 @@
 import { Components } from "@blocknote/react";
-import { Badge, BadgeGroup } from "./badge/Badge.js";
-import { Card, CardSection } from "./comments/Card.js";
-import { Comment } from "./comments/Comment.js";
-import { Editor } from "./comments/Editor.js";
+
+import { Form } from "./form/Form.js";
 import { TextInput } from "./form/TextInput.js";
 import {
   Menu,
@@ -13,28 +11,27 @@ import {
   MenuTrigger,
 } from "./menu/Menu.js";
 import { Panel } from "./panel/Panel.js";
-import { PanelButton } from "./panel/PanelButton.js";
-import { PanelFileInput } from "./panel/PanelFileInput.js";
 import { PanelTab } from "./panel/PanelTab.js";
 import { PanelTextInput } from "./panel/PanelTextInput.js";
-import { Popover, PopoverContent, PopoverTrigger } from "./popover/Popover.js";
+import { Popover, PopoverContent, PopoverTrigger } from "./popover/popover.js";
 import { SideMenu } from "./sideMenu/SideMenu.js";
 import { SideMenuButton } from "./sideMenu/SideMenuButton.js";
-import "./style.css";
+import { GridSuggestionMenu } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenu.js";
+import { GridSuggestionMenuEmptyItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuEmptyItem.js";
 import { SuggestionMenu } from "./suggestionMenu/SuggestionMenu.js";
 import { SuggestionMenuEmptyItem } from "./suggestionMenu/SuggestionMenuEmptyItem.js";
 import { SuggestionMenuItem } from "./suggestionMenu/SuggestionMenuItem.js";
 import { SuggestionMenuLabel } from "./suggestionMenu/SuggestionMenuLabel.js";
 import { SuggestionMenuLoader } from "./suggestionMenu/SuggestionMenuLoader.js";
-import { GridSuggestionMenu } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenu.js";
-import { GridSuggestionMenuEmptyItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuEmptyItem.js";
-import { GridSuggestionMenuItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuItem.js";
-import { GridSuggestionMenuLoader } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuLoader.js";
 import { ExtendButton } from "./tableHandle/ExtendButton.js";
 import { TableHandle } from "./tableHandle/TableHandle.js";
-import { Toolbar } from "./toolbar/Toolbar.js";
-import { ToolbarButton } from "./toolbar/ToolbarButton.js";
-import { ToolbarSelect } from "./toolbar/ToolbarSelect.js";
+import { Toolbar, ToolbarButton, ToolbarSelect } from "./toolbar/Toolbar.js";
+
+import { PanelButton } from "./panel/PanelButton.js";
+import { PanelFileInput } from "./panel/PanelFileInput.js";
+import "./style.css";
+import { GridSuggestionMenuItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuItem.js";
+import { GridSuggestionMenuLoader } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuLoader.js";
 
 export const components: Components = {
   FormattingToolbar: {
@@ -48,12 +45,6 @@ export const components: Components = {
     FileInput: PanelFileInput,
     TabPanel: PanelTab,
     TextInput: PanelTextInput,
-  },
-  GridSuggestionMenu: {
-    Root: GridSuggestionMenu,
-    Item: GridSuggestionMenuItem,
-    EmptyItem: GridSuggestionMenuEmptyItem,
-    Loader: GridSuggestionMenuLoader,
   },
   LinkToolbar: {
     Root: Toolbar,
@@ -70,17 +61,24 @@ export const components: Components = {
     Label: SuggestionMenuLabel,
     Loader: SuggestionMenuLoader,
   },
+  GridSuggestionMenu: {
+    Root: GridSuggestionMenu,
+    Item: GridSuggestionMenuItem,
+    EmptyItem: GridSuggestionMenuEmptyItem,
+    Loader: GridSuggestionMenuLoader,
+  },
   TableHandle: {
     Root: TableHandle,
     ExtendButton: ExtendButton,
   },
+  // @ts-ignore TODO
   Generic: {
-    Badge: {
-      Root: Badge,
-      Group: BadgeGroup,
+    Toolbar: {
+      Root: Toolbar,
+      Button: ToolbarButton,
     },
     Form: {
-      Root: (props) => <div>{props.children}</div>,
+      Root: Form,
       TextInput: TextInput,
     },
     Menu: {
@@ -96,15 +94,5 @@ export const components: Components = {
       Trigger: PopoverTrigger,
       Content: PopoverContent,
     },
-    Toolbar: {
-      Root: Toolbar,
-      Button: ToolbarButton,
-    },
-  },
-  Comments: {
-    Comment,
-    Editor,
-    Card,
-    CardSection,
   },
 };

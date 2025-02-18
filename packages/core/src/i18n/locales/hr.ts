@@ -284,6 +284,9 @@ export const hr = {
     align_justify: {
       tooltip: "Poravnaj tekst obostrano",
     },
+    comment: {
+      tooltip: "Dodaj komentar",
+    },
   },
   file_panel: {
     upload: {

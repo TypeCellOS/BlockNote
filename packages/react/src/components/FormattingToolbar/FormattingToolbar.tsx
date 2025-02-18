@@ -18,6 +18,7 @@ import {
 } from "./DefaultSelects/BlockTypeSelect.js";
 
 import { AddCommentButton } from "./DefaultButtons/AddCommentButton.js";
+import { AddTiptapCommentButton } from "./DefaultButtons/AddTiptapCommentButton.js";
 import { FileDownloadButton } from "./DefaultButtons/FileDownloadButton.js";
 import { FilePreviewButton } from "./DefaultButtons/FilePreviewButton.js";
 import { TextAlignButton } from "./DefaultButtons/TextAlignButton.js";
@@ -48,6 +49,7 @@ export const getFormattingToolbarItems = (
   <UnnestBlockButton key={"unnestBlockButton"} />,
   <CreateLinkButton key={"createLinkButton"} />,
   <AddCommentButton key={"addCommentButton"} />,
+  <AddTiptapCommentButton key={"addTiptapCommentButton"} />,
 ];
 
 // TODO: props.blockTypeSelectItems should only be available if no children

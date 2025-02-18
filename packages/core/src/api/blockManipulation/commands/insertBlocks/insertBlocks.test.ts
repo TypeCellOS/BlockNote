@@ -6,6 +6,12 @@ import { insertBlocks } from "./insertBlocks.js";
 const getEditor = setupTestEnv();
 
 describe("Test insertBlocks", () => {
+  it("Insert single basic block before (without type)", () => {
+    insertBlocks(getEditor(), [{ content: "test" }], "paragraph-0", "before");
+
+    expect(getEditor().document).toMatchSnapshot();
+  });
+
   it("Insert single basic block before", () => {
     insertBlocks(getEditor(), [{ type: "paragraph" }], "paragraph-0", "before");
 

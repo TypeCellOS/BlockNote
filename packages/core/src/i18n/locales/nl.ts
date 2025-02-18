@@ -276,7 +276,7 @@ export const nl: Dictionary = {
       tooltip: "Tekst uitvullen",
     },
     comment: {
-      tooltip: "Opmerking toevoegen",
+      tooltip: "Commentaar toevoegen",
     },
   },
   file_panel: {

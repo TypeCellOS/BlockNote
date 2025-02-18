@@ -956,10 +956,10 @@ export class BlockNoteEditor<
       const config = this.schema.styleSchema[mark.type.name];
       if (!config) {
         if (
-          // In BlockNote, links are represented as inline content instead of "styles"
+          // Links are not considered styles in blocknote
           mark.type.name !== "link" &&
-          // We don't expose comments in the blocknote schema, as we consider them content "outside" of the document
-          mark.type.name !== "liveblocksCommentMark"
+          // "blocknoteIgnore" tagged marks (such as comments) are also not considered BlockNote "styles"
+          !mark.type.spec.blocknoteIgnore
         ) {
           // eslint-disable-next-line no-console
           console.warn("mark not found in styleschema", mark.type.name);

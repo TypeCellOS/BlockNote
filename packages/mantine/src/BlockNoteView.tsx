@@ -13,7 +13,6 @@ import {
 } from "@blocknote/react";
 import { MantineProvider } from "@mantine/core";
 import { useCallback } from "react";
-
 import {
   applyBlockNoteCSSVariablesFromTheme,
   removeBlockNoteCSSVariables,
@@ -21,8 +20,6 @@ import {
 } from "./BlockNoteTheme.js";
 import { components } from "./components.js";
 import "./style.css";
-export * from "./BlockNoteTheme.js";
-export * from "./defaultThemes.js";
 
 const mantineTheme = {
   // Removes button press effect

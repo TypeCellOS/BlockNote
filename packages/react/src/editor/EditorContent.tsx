@@ -2,7 +2,10 @@ import { ReactRenderer } from "@tiptap/react";
 import { useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 
-export function getInstance() {
+// this file takes the methods we need from
+// https://github.com/ueberdosis/tiptap/blob/develop/packages/react/src/EditorContent.tsx
+
+export function getContentComponent() {
   const subscribers = new Set<() => void>();
   let renderers: Record<string, React.ReactPortal> = {};
 
@@ -46,7 +49,7 @@ export function getInstance() {
   };
 }
 
-type ContentComponent = ReturnType<typeof getInstance>;
+type ContentComponent = ReturnType<typeof getContentComponent>;
 
 /**
  * This component renders all of the editor's node views.

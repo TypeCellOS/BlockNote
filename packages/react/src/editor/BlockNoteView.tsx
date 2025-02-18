@@ -23,7 +23,7 @@ import {
   BlockNoteDefaultUI,
   BlockNoteDefaultUIProps,
 } from "./BlockNoteDefaultUI.js";
-import { Portals, getInstance } from "./EditorContent.js";
+import { Portals, getContentComponent } from "./EditorContent.js";
 import { ElementRenderer } from "./ElementRenderer.js";
 import "./styles.css";
 
@@ -151,20 +151,14 @@ function BlockNoteViewComponent<
   );
 
   const portalManager = useMemo(() => {
-    return getInstance();
+    return getContentComponent();
   }, []);
 
   const mount = useCallback(
     (element: HTMLElement | null) => {
       editor.mount(element, portalManager);
-
-      // Since we mount the editor ourselves, we also have to manually
-      // autofocus it on mount.
-      if (rest.autoFocus) {
-        element?.focus();
-      }
     },
-    [editor, portalManager, rest.autoFocus]
+    [editor, portalManager]
   );
 
   return (
@@ -190,8 +184,6 @@ function BlockNoteViewComponent<
             />
             {renderChildren}
           </div>
-
-          {/* </EditorContent> */}
         </>
       )}
     </BlockNoteContext.Provider>

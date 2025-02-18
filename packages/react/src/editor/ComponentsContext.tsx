@@ -182,6 +182,31 @@ export type ComponentProps = {
       children: ReactNode;
     };
   };
+  Comments: {
+    Card: {
+      className?: string;
+      children?: ReactNode;
+    };
+    CardSection: {
+      className?: string;
+      children?: ReactNode;
+    };
+    Editor: {
+      className?: string;
+      editable: boolean;
+      editor: BlockNoteEditor<any, any, any>;
+      onFocus?: () => void;
+      onBlur?: () => void;
+    };
+    Comment: {
+      className?: string;
+      children?: ReactNode;
+      authorInfo: "loading" | User;
+      timeString: string;
+      actions?: ReactNode;
+      showActions?: boolean | "hover";
+    };
+  };
   // TODO: We should try to make everything as generic as we can
   Generic: {
     Badge: {
@@ -278,31 +303,6 @@ export type ComponentProps = {
     Toolbar: {
       Root: ToolbarRootType;
       Button: ToolbarButtonType;
-    };
-  };
-  Comments: {
-    Card: {
-      className?: string;
-      children?: ReactNode;
-    };
-    CardSection: {
-      className?: string;
-      children?: ReactNode;
-    };
-    Editor: {
-      className?: string;
-      editable: boolean;
-      editor: BlockNoteEditor<any, any, any>;
-      onFocus?: () => void;
-      onBlur?: () => void;
-    };
-    Comment: {
-      className?: string;
-      children?: ReactNode;
-      authorInfo: "loading" | User;
-      timeString: string;
-      actions?: ReactNode;
-      showActions?: boolean | "hover";
     };
   };
 };
