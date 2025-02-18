@@ -1,8 +1,9 @@
 import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
+  getColspan,
+  getRowspan,
   InlineContentSchema,
-  isTableCell,
   mergeCSSClasses,
   StyleSchema,
 } from "@blocknote/core";
@@ -39,14 +40,12 @@ export const TableHandle = <
     if (props.orientation === "column") {
       return tableHandles
         .getColumn(props.block, props.index)
-        .every(({ cell }) =>
-          isTableCell(cell) ? (cell.props.colspan ?? 1) <= 1 : true
-        );
+        .every(({ cell }) => getColspan(cell) === 1);
     }
 
     return tableHandles
       .getRow(props.block, props.index)
-      .every(({ cell }) => isTableCell(cell) && (cell.props.rowspan ?? 1) <= 1);
+      .every(({ cell }) => getRowspan(cell) === 1);
   }, [props.block, props.editor.tableHandles, props.index, props.orientation]);
 
   return (

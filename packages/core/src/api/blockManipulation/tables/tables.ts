@@ -1,7 +1,8 @@
 import { DefaultBlockSchema } from "../../../blocks/defaultBlocks.js";
 import {
   BlockFromConfigNoChildren,
-  isTableCell,
+  getColspan,
+  getRowspan,
   TableContent,
 } from "../../../schema/blocks/types.js";
 
@@ -25,14 +26,14 @@ export function resolveRelativeTableCellIndices(
   let colIndex = 0;
   for (let i = 0; i < relativeCellIndices.col; i++) {
     const cell = block.content.rows[relativeCellIndices.row].cells[i];
-    colIndex += isTableCell(cell) ? cell.props?.colspan ?? 1 : 1;
+    colIndex += getColspan(cell);
   }
 
   // Calculate row index by summing rowspan values of cells in previous rows
   let rowIndex = 0;
   for (let i = 0; i < relativeCellIndices.row; i++) {
     const cell = block.content.rows[i].cells[relativeCellIndices.col];
-    rowIndex += isTableCell(cell) ? cell.props?.rowspan ?? 1 : 1;
+    rowIndex += getRowspan(cell);
   }
 
   return { row: rowIndex, col: colIndex };
@@ -51,7 +52,7 @@ export function getDimensionsOfTable(
     return Math.max(
       acc,
       cells.reduce((acc, cell) => {
-        return acc + (isTableCell(cell) ? cell.props?.colspan ?? 1 : 1);
+        return acc + getColspan(cell);
       }, 0)
     );
   }, 0);
@@ -110,8 +111,8 @@ export function resolveAbsoluteTableCellIndices(
   for (let row = 0; row < block.content.rows.length; row++) {
     for (let col = 0; col < block.content.rows[row].cells.length; col++) {
       const cell = block.content.rows[row].cells[col];
-      const rowspan = isTableCell(cell) ? cell.props?.rowspan ?? 1 : 1;
-      const colspan = isTableCell(cell) ? cell.props?.colspan ?? 1 : 1;
+      const rowspan = getRowspan(cell);
+      const colspan = getColspan(cell);
 
       // Rowspan and colspan complicate things, by taking up multiple cells in the grid
       // We need to iterate over the cells that the rowspan and colspan take up
@@ -176,7 +177,9 @@ export function getRow(
   // Filter out duplicates based on row and col properties
   return cells.filter((cell, index) => {
     return (
-      cells.findIndex((c) => c.row === cell.row && c.col === cell.col) === index
+      cell &&
+      cells.findIndex((c) => c && c.row === cell.row && c.col === cell.col) ===
+        index
     );
   });
 }
@@ -205,7 +208,9 @@ export function getColumn(
   // Filter out duplicates based on row and col properties
   return cells.filter((cell, index) => {
     return (
-      cells.findIndex((c) => c.row === cell.row && c.col === cell.col) === index
+      cell &&
+      cells.findIndex((c) => c && c.row === cell.row && c.col === cell.col) ===
+        index
     );
   });
 }

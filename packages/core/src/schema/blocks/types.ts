@@ -395,3 +395,27 @@ export function isTableCell<
     content.content !== undefined
   );
 }
+
+export function getColspan(
+  cell:
+    | TableCell<any, any>
+    | PartialTableCell<any, any>
+    | PartialInlineContent<any, any>
+): number {
+  if (isTableCell(cell)) {
+    return cell.props.colspan ?? 1;
+  }
+  return 1;
+}
+
+export function getRowspan(
+  cell:
+    | TableCell<any, any>
+    | PartialTableCell<any, any>
+    | PartialInlineContent<any, any>
+): number {
+  if (isTableCell(cell)) {
+    return cell.props.rowspan || 1;
+  }
+  return 1;
+}

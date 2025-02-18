@@ -2,6 +2,8 @@ import {
   DefaultBlockSchema,
   DefaultInlineContentSchema,
   DefaultStyleSchema,
+  getColspan,
+  getRowspan,
   InlineContentSchema,
   isTableCell,
   StyleSchema,
@@ -32,8 +34,7 @@ export const SplitButton = <
   if (
     !currentCell ||
     !isTableCell(currentCell) ||
-    ((currentCell.props.rowspan ?? 1) === 1 &&
-      (currentCell.props.colspan ?? 1) === 1)
+    (getRowspan(currentCell) === 1 && getColspan(currentCell) === 1)
   ) {
     return null;
   }
