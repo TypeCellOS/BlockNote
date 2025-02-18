@@ -463,6 +463,7 @@ export class TableHandlesView<
         cells: row.cells.map((cell) => mapTableCell(cell)),
       };
     });
+    const columnWidths = this.state.block.content.columnWidths;
 
     if (draggingState.draggedCellOrientation === "row") {
       const row = getRow(this.state.block, rowIndex);
@@ -504,12 +505,15 @@ export class TableHandlesView<
         row.cells.splice(draggingState.originalIndex, 1);
         row.cells.splice(colIndex, 0, cellsToMove[rowIndex] as any);
       });
+      const [columnWidth] = columnWidths.splice(draggingState.originalIndex, 1);
+      columnWidths.splice(colIndex, 0, columnWidth);
     }
 
     this.editor.updateBlock(this.state.block, {
       type: "table",
       content: {
         ...this.state.block.content,
+        columnWidths,
         rows: newTable,
       },
     });
