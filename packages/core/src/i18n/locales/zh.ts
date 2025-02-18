@@ -186,6 +186,8 @@ export const zh: Dictionary = {
   drag_handle: {
     delete_menuitem: "删除",
     colors_menuitem: "颜色",
+    header_row_menuitem: "行标题",
+    header_column_menuitem: "列标题",
   },
   table_handle: {
     delete_column_menuitem: "删除列",
@@ -194,6 +196,9 @@ export const zh: Dictionary = {
     add_right_menuitem: "右侧添加列",
     add_above_menuitem: "上方添加行",
     add_below_menuitem: "下方添加行",
+    split_cell_menuitem: "拆分单元格",
+    merge_cells_menuitem: "合并单元格",
+    background_color_menuitem: "背景色",
   },
   suggestion_menu: {
     no_items_title: "无匹配项",
@@ -308,6 +313,9 @@ export const zh: Dictionary = {
     },
     align_justify: {
       tooltip: "文本对齐",
+    },
+    table_cell_merge: {
+      tooltip: "合并单元格",
     },
     comment: {
       tooltip: "添加评论",

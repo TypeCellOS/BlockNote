@@ -166,6 +166,8 @@ export const ko: Dictionary = {
   drag_handle: {
     delete_menuitem: "삭제",
     colors_menuitem: "색깔",
+    header_row_menuitem: "행 제목",
+    header_column_menuitem: "열 제목",
   },
   table_handle: {
     delete_column_menuitem: "열 1개 삭제",
@@ -174,6 +176,9 @@ export const ko: Dictionary = {
     add_right_menuitem: "오른쪽에 열 1개 추가",
     add_above_menuitem: "위에 행 1개 추가",
     add_below_menuitem: "아래에 행 1개 추가",
+    split_cell_menuitem: "셀 분할",
+    merge_cells_menuitem: "셀 병합",
+    background_color_menuitem: "배경색 변경",
   },
   suggestion_menu: {
     no_items_title: "항목을 찾을 수 없음",
@@ -288,6 +293,9 @@ export const ko: Dictionary = {
     },
     align_justify: {
       tooltip: "텍스트 양쪽 맞춤",
+    },
+    table_cell_merge: {
+      tooltip: "셀 병합",
     },
     comment: {
       tooltip: "코멘트 추가",

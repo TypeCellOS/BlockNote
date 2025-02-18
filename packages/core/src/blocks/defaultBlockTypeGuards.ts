@@ -162,6 +162,8 @@ export function checkBlockHasDefaultProp<
   return checkBlockTypeHasDefaultProp(prop, block.type, editor);
 }
 
-export function isTableCellSelection(selection: Selection) {
+export function isTableCellSelection(
+  selection: Selection
+): selection is CellSelection {
   return selection instanceof CellSelection;
 }

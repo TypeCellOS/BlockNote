@@ -182,7 +182,8 @@ export function tableContentToNodes<
   // If headerCols is 1, then the first column is a header column
   const headerCols = new Array(tableContent.headerCols ?? 0).fill(true);
 
-  const columnWidths: (number | null)[] = tableContent.columnWidths ?? [];
+  const columnWidths: (number | null | undefined)[] =
+    tableContent.columnWidths ?? [];
 
   for (let rowIndex = 0; rowIndex < tableContent.rows.length; rowIndex++) {
     const row = tableContent.rows[rowIndex];

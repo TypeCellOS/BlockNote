@@ -153,6 +153,8 @@ export const nl: Dictionary = {
   drag_handle: {
     delete_menuitem: "Verwijder",
     colors_menuitem: "Kleuren",
+    header_row_menuitem: "Kopregel",
+    header_column_menuitem: "Kopkolom",
   },
   table_handle: {
     delete_column_menuitem: "Verwijder kolom",
@@ -161,6 +163,9 @@ export const nl: Dictionary = {
     add_right_menuitem: "Voeg kolom rechts toe",
     add_above_menuitem: "Voeg rij boven toe",
     add_below_menuitem: "Voeg rij onder toe",
+    split_cell_menuitem: "Splits cel",
+    merge_cells_menuitem: "Voeg cellen samen",
+    background_color_menuitem: "Achtergrondkleur wijzigen",
   },
   suggestion_menu: {
     no_items_title: "Geen items gevonden",
@@ -274,6 +279,9 @@ export const nl: Dictionary = {
     },
     align_justify: {
       tooltip: "Tekst uitvullen",
+    },
+    table_cell_merge: {
+      tooltip: "Voeg cellen samen",
     },
     comment: {
       tooltip: "Commentaar toevoegen",

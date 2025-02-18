@@ -63,7 +63,7 @@ export const Table = (props: {
               styles.cell,
               index === row.cells.length - 1 ? styles.rightCell : {},
               props.data.columnWidths[index]
-                ? { width: props.data.columnWidths[index] }
+                ? { width: props.data.columnWidths[index] ?? undefined }
                 : { flex: 1 },
             ]}
             key={index}>

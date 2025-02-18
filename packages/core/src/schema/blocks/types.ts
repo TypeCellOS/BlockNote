@@ -166,7 +166,7 @@ export type TableContent<
   S extends StyleSchema = StyleSchema
 > = {
   type: "tableContent";
-  columnWidths: (number | null)[];
+  columnWidths: (number | null | undefined)[];
   headerRows?: number;
   headerCols?: number;
   rows: {
@@ -253,7 +253,7 @@ export type PartialTableContent<
   S extends StyleSchema = StyleSchema
 > = {
   type: "tableContent";
-  columnWidths?: (number | null)[];
+  columnWidths?: (number | null | undefined)[];
   headerRows?: number;
   headerCols?: number;
   rows: {
