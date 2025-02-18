@@ -319,9 +319,11 @@ export function blockToNode(
     }
   }
 
-  const nodeTypeCorrespondingToBlock = schema.nodes[block.type];
+  const isBlockContent =
+    !block.type || // can happen if block.type is not defined (this should create the default node)
+    schema.nodes[block.type].isInGroup("blockContent");
 
-  if (nodeTypeCorrespondingToBlock.isInGroup("blockContent")) {
+  if (isBlockContent) {
     // Blocks with a type that matches "blockContent" group always need to be wrapped in a blockContainer
 
     const contentNode = blockOrInlineContentToContentNode(
@@ -342,7 +344,7 @@ export function blockToNode(
       },
       groupNode ? [contentNode, groupNode] : contentNode
     );
-  } else if (nodeTypeCorrespondingToBlock.isInGroup("bnBlock")) {
+  } else if (schema.nodes[block.type].isInGroup("bnBlock")) {
     // this is a bnBlock node like Column or ColumnList that directly translates to a prosemirror node
     return schema.nodes[block.type].createChecked(
       {
