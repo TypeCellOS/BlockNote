@@ -2,10 +2,11 @@ import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   InlineContentSchema,
+  isTableCell,
   mergeCSSClasses,
   StyleSchema,
 } from "@blocknote/core";
-import { ReactNode, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
 
 import { createPortal } from "react-dom";
 import { MdDragIndicator } from "react-icons/md";
@@ -29,6 +30,25 @@ export const TableHandle = <
 
   const Component = props.tableHandleMenu || TableHandleMenu;
 
+  const isDraggable = useMemo(() => {
+    const tableHandles = props.editor.tableHandles;
+    if (!tableHandles) {
+      return false;
+    }
+
+    if (props.orientation === "column") {
+      return tableHandles
+        .getColumn(props.block, props.index)
+        .every(({ cell }) =>
+          isTableCell(cell) ? (cell.props.colspan ?? 1) <= 1 : true
+        );
+    }
+
+    return tableHandles
+      .getRow(props.block, props.index)
+      .every(({ cell }) => isTableCell(cell) && (cell.props.rowspan ?? 1) <= 1);
+  }, [props.block, props.editor.tableHandles, props.index, props.orientation]);
+
   return (
     <Components.Generic.Menu.Root
       onOpenChange={(open: boolean) => {
@@ -46,9 +66,10 @@ export const TableHandle = <
         <Components.TableHandle.Root
           className={mergeCSSClasses(
             "bn-table-handle",
-            isDragging ? "bn-table-handle-dragging" : ""
+            isDragging ? "bn-table-handle-dragging" : "",
+            !isDraggable ? "bn-table-handle-not-draggable" : ""
           )}
-          draggable={true}
+          draggable={isDraggable}
           onDragStart={(e) => {
             setIsDragging(true);
             props.dragStart(e);

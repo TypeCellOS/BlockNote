@@ -514,6 +514,10 @@
   margin-inline: -4px;
 }
 
+.bn-mantine .bn-table-handle-not-draggable {
+  cursor: default;
+}
+
 .bn-mantine .bn-table-handle:hover,
 .bn-mantine .bn-table-handle-dragging,
 .bn-mantine .bn-extend-button:hover,

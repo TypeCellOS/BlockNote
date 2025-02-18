@@ -847,13 +847,13 @@ export class TableHandlesProsemirrorPlugin<
 
   resolveRelativeTableCellIndices = (
     relativeCellIndices: { row: number; col: number },
-    block: Block<{ table: DefaultBlockSchema["table"] }, any, any>
+    block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>
   ) => {
     return resolveRelativeTableCellIndices(relativeCellIndices, block);
   };
 
   getRow = (
-    block: Block<{ table: DefaultBlockSchema["table"] }, any, any>,
+    block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
     relativeRowIndex: number
   ) => {
     return getRow(block, relativeRowIndex);
@@ -863,7 +863,7 @@ export class TableHandlesProsemirrorPlugin<
    * Get all the cells in a column of the table block.
    */
   getColumn = (
-    block: Block<{ table: DefaultBlockSchema["table"] }, any, any>,
+    block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
     relativeColumnIndex: number
   ) => {
     return getColumn(block, relativeColumnIndex);
