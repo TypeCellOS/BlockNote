@@ -175,11 +175,16 @@ export function tableContentToNodes<
   styleSchema: StyleSchema
 ): Node[] {
   const rowNodes: Node[] = [];
+  const headerRows = new Array(tableContent.headerRows ?? 0).fill(true);
+  const headerCols = new Array(tableContent.headerCols ?? 0).fill(true);
 
-  for (const row of tableContent.rows) {
+  for (let rowIndex = 0; rowIndex < tableContent.rows.length; rowIndex++) {
+    const row = tableContent.rows[rowIndex];
     const columnNodes: Node[] = [];
-    for (let i = 0; i < row.cells.length; i++) {
-      const cell = row.cells[i];
+    const isHeaderRow = headerRows[rowIndex];
+    for (let cellIndex = 0; cellIndex < row.cells.length; cellIndex++) {
+      const cell = row.cells[cellIndex];
+      const isHeaderCol = headerCols[cellIndex];
       let attrs: Attrs | null = null;
       let content: Fragment | Node | readonly Node[] | null = null;
       const marks: undefined | readonly Mark[] = undefined;
@@ -195,14 +200,16 @@ export function tableContentToNodes<
         content = inlineContentToNodes(cell, schema, styleSchema);
       }
 
-      const cellNode = schema.nodes["tableCell"].createChecked(
+      const cellNode = schema.nodes[
+        isHeaderCol || isHeaderRow ? "tableHeader" : "tableCell"
+      ].createChecked(
         {
           // TODO modify
           // The colwidth array should have multiple values when the colspan of
           // a cell is greater than 1. However, this is not yet implemented so
           // we can always assume a length of 1.
-          colwidth: tableContent.columnWidths?.[i]
-            ? [tableContent.columnWidths[i]]
+          colwidth: tableContent.columnWidths?.[cellIndex]
+            ? [tableContent.columnWidths[cellIndex]]
             : null,
           ...(isPartialTableCell(cell) ? cell.props : {}),
         },

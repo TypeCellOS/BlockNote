@@ -15,6 +15,7 @@ export const TextAlignmentExtension = Extension.create({
           "numberedListItem",
           "checkListItem",
           "tableCell",
+          "tableHeader",
         ],
         attributes: {
           textAlignment: {

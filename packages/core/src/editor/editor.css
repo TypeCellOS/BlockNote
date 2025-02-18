@@ -156,7 +156,6 @@ Tippy popups that are appended to document.body directly
 
 .bn-editor [data-content-type="table"] th {
   font-weight: bold;
-  text-align: left;
 }
 
 /* tiptap uses colwidth instead of data-colwidth, se we need to adjust this style from prosemirror-tables */

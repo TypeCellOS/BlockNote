@@ -32,15 +32,23 @@ export function contentNodeToTableContent<
   const ret: TableContent<I, S> = {
     type: "tableContent",
     columnWidths: [],
+    headerRows: undefined,
+    headerCols: undefined,
     rows: [],
   };
 
-  contentNode.content.forEach((rowNode, _offset, index) => {
+  /**
+   * A matrix of boolean values indicating whether a cell is a header.
+   * The first index is the row index, the second index is the cell index.
+   */
+  const headerMatrix: boolean[][] = [];
+
+  contentNode.content.forEach((rowNode, _offset, rowIndex) => {
     const row: TableContent<I, S>["rows"][0] = {
       cells: [],
     };
 
-    if (index === 0) {
+    if (rowIndex === 0) {
       rowNode.content.forEach((cellNode) => {
         // TODO implement
         // The colwidth array should have multiple values when the colspan of a
@@ -50,7 +58,13 @@ export function contentNodeToTableContent<
       });
     }
 
-    row.cells = rowNode.content.content.map((cellNode) => {
+    row.cells = rowNode.content.content.map((cellNode, cellIndex) => {
+      if (!headerMatrix[rowIndex]) {
+        headerMatrix[rowIndex] = [];
+      }
+      // Mark the cell as a header if it is a tableHeader node.
+      headerMatrix[rowIndex][cellIndex] = cellNode.type.name === "tableHeader";
+
       return {
         type: "tableCell",
         content: contentNodeToInlineContent(
@@ -70,6 +84,18 @@ export function contentNodeToTableContent<
 
     ret.rows.push(row);
   });
+
+  for (let i = 0; i < headerMatrix.length; i++) {
+    if (headerMatrix[i].every((isHeader) => isHeader)) {
+      ret.headerRows = (ret.headerRows ?? 0) + 1;
+    }
+  }
+
+  for (let i = 0; i < headerMatrix[0].length; i++) {
+    if (headerMatrix.every((row) => row[i])) {
+      ret.headerCols = (ret.headerCols ?? 0) + 1;
+    }
+  }
 
   return ret;
 }

@@ -7,7 +7,7 @@ export const TextColorExtension = Extension.create({
   addGlobalAttributes() {
     return [
       {
-        types: ["blockContainer", "tableCell"],
+        types: ["blockContainer", "tableCell", "tableHeader"],
         attributes: {
           textColor: {
             default: defaultProps.textColor.default,

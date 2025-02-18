@@ -152,6 +152,8 @@ export const en = {
   drag_handle: {
     delete_menuitem: "Delete",
     colors_menuitem: "Colors",
+    header_row_menuitem: "Header row",
+    header_column_menuitem: "Header column",
   },
   table_handle: {
     delete_column_menuitem: "Delete column",
