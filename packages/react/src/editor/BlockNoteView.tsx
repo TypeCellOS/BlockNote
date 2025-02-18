@@ -86,6 +86,7 @@ function BlockNoteViewComponent<
     sideMenu,
     filePanel,
     tableHandles,
+    autoFocus,
     ...rest
   } = props;
 
@@ -179,6 +180,7 @@ function BlockNoteViewComponent<
             <div
               aria-autocomplete="list"
               aria-haspopup="listbox"
+              data-bn-autofocus={autoFocus}
               ref={mount}
               {...contentEditableProps}
             />
