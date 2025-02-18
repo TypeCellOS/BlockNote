@@ -388,7 +388,10 @@
               ],
               "props": {
                 "colspan": 1,
-                "rowspan": 1
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
               }
             },
             {
@@ -402,7 +405,10 @@
               ],
               "props": {
                 "colspan": 1,
-                "rowspan": 1
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
               }
             },
             {
@@ -416,7 +422,10 @@
               ],
               "props": {
                 "colspan": 1,
-                "rowspan": 1
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
               }
             }
           ]
@@ -531,7 +540,8 @@
             }
           ]
         }
-      ]
+      ],
+      "headerRows": 1
     },
     "children": []
   },

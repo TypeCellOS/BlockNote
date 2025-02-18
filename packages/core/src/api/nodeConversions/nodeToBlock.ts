@@ -32,8 +32,6 @@ export function contentNodeToTableContent<
   const ret: TableContent<I, S> = {
     type: "tableContent",
     columnWidths: [],
-    headerRows: undefined,
-    headerCols: undefined,
     rows: [],
   };
 
@@ -50,9 +48,9 @@ export function contentNodeToTableContent<
 
     if (rowIndex === 0) {
       rowNode.content.forEach((cellNode) => {
-        let colWidth = cellNode.attrs.colwidth as null | number[];
-        if (colWidth === null) {
-          colWidth = new Array(cellNode.attrs.colspan ?? 1).fill(null);
+        let colWidth = cellNode.attrs.colwidth as null | undefined | number[];
+        if (colWidth === undefined || colWidth === null) {
+          colWidth = new Array(cellNode.attrs.colspan ?? 1).fill(undefined);
         }
         ret.columnWidths.push(...colWidth);
       });
@@ -91,7 +89,7 @@ export function contentNodeToTableContent<
     }
   }
 
-  for (let i = 0; i < headerMatrix[0].length; i++) {
+  for (let i = 0; i < headerMatrix[0]?.length; i++) {
     if (headerMatrix.every((row) => row[i])) {
       ret.headerCols = (ret.headerCols ?? 0) + 1;
     }

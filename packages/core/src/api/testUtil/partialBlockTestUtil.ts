@@ -128,7 +128,13 @@ export function partialBlockToBlockForTesting<
       contentType === "inline"
         ? []
         : contentType === "table"
-        ? { type: "tableContent", columnWidths: [], rows: [] }
+        ? {
+            type: "tableContent",
+            columnWidths: [undefined, undefined, undefined],
+            headerRows: undefined,
+            headerCols: undefined,
+            rows: [],
+          }
         : (undefined as any),
     children: [] as any,
     ...partialBlock,

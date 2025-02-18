@@ -182,8 +182,7 @@ export function tableContentToNodes<
   // If headerCols is 1, then the first column is a header column
   const headerCols = new Array(tableContent.headerCols ?? 0).fill(true);
 
-  const columnWidths: (number | null | undefined)[] =
-    tableContent.columnWidths ?? [];
+  const columnWidths: (number | undefined)[] = tableContent.columnWidths ?? [];
 
   for (let rowIndex = 0; rowIndex < tableContent.rows.length; rowIndex++) {
     const row = tableContent.rows[rowIndex];
@@ -210,8 +209,8 @@ export function tableContentToNodes<
         { type: "table", content: tableContent } as any
       );
       // Assume the column width is the width of the cell at the absolute cell index
-      let colwidth: (number | null)[] = [
-        columnWidths[absoluteCellIndex.col] ?? null,
+      let colwidth: (number | undefined)[] = [
+        columnWidths[absoluteCellIndex.col] ?? undefined,
       ];
 
       if (!cell) {
@@ -226,9 +225,9 @@ export function tableContentToNodes<
 
         if (colSpan && colSpan > 1) {
           // If the cell has a > 1 colspan, we need to get the column width for each cell in the span
-          colwidth = new Array(colSpan).fill(null).map((_, i) => {
+          colwidth = new Array(colSpan).fill(false).map((_, i) => {
             // Starting from the absolute cell index, get the column width for each cell in the span
-            return columnWidths[absoluteCellIndex.col + i] ?? null;
+            return columnWidths[absoluteCellIndex.col + i] ?? undefined;
           });
         }
       } else {
