@@ -93,12 +93,12 @@ export const CreateLinkButton = () => {
       }
     }
 
-    if (isTableCellSelection(editor._tiptapEditor.state.selection)) {
+    if (isTableCellSelection(editor.prosemirrorState.selection)) {
       return false;
     }
 
     return true;
-  }, [linkInSchema, selectedBlocks, editor._tiptapEditor.state.selection]);
+  }, [linkInSchema, selectedBlocks, editor.prosemirrorState.selection]);
 
   if (
     !show ||

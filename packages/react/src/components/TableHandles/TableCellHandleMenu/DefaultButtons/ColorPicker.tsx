@@ -31,6 +31,41 @@ export const ColorPickerButton = <
     S
   >();
 
+  const updateColor = (color: string, type: "text" | "background") => {
+    editor.updateBlock(props.block, {
+      type: "table",
+      content: {
+        ...props.block.content,
+        rows: props.block.content.rows.map(
+          (row, rowIndex) =>
+            ({
+              ...row,
+              cells:
+                props.rowIndex === rowIndex
+                  ? row.cells.map(mapTableCell).map((cell, cellIndex) =>
+                      cellIndex === props.colIndex
+                        ? {
+                            ...cell,
+                            props:
+                              type === "text"
+                                ? {
+                                    ...cell.props,
+                                    textColor: color,
+                                  }
+                                : {
+                                    ...cell.props,
+                                    backgroundColor: color,
+                                  },
+                          }
+                        : cell
+                    )
+                  : row.cells.map(mapTableCell),
+            } as any)
+        ),
+      },
+    });
+  };
+
   const currentCell =
     props.block.content.rows[props.rowIndex]?.cells?.[props.colIndex];
 
@@ -58,69 +93,13 @@ export const ColorPickerButton = <
             color: isPartialTableCell(currentCell)
               ? currentCell.props.textColor
               : "default",
-            setColor: (color) =>
-              editor.updateBlock(props.block, {
-                type: "table",
-                content: {
-                  ...props.block.content,
-                  rows: props.block.content.rows.map(
-                    (row, rowIndex) =>
-                      ({
-                        ...row,
-                        cells:
-                          props.rowIndex === rowIndex
-                            ? row.cells
-                                .map(mapTableCell)
-                                .map((cell, cellIndex) =>
-                                  cellIndex === props.colIndex
-                                    ? {
-                                        ...cell,
-                                        props: {
-                                          ...cell.props,
-                                          textColor: color,
-                                        },
-                                      }
-                                    : cell
-                                )
-                            : row.cells.map(mapTableCell),
-                      } as any)
-                  ),
-                },
-              }),
+            setColor: (color) => updateColor(color, "text"),
           }}
           background={{
             color: isPartialTableCell(currentCell)
               ? currentCell.props.backgroundColor
               : "default",
-            setColor: (color) =>
-              editor.updateBlock(props.block, {
-                type: "table",
-                content: {
-                  ...props.block.content,
-                  rows: props.block.content.rows.map(
-                    (row, rowIndex) =>
-                      ({
-                        ...row,
-                        cells:
-                          props.rowIndex === rowIndex
-                            ? row.cells
-                                .map(mapTableCell)
-                                .map((cell, cellIndex) =>
-                                  cellIndex === props.colIndex
-                                    ? {
-                                        ...cell,
-                                        props: {
-                                          ...cell.props,
-                                          backgroundColor: color,
-                                        },
-                                      }
-                                    : cell
-                                )
-                            : row.cells.map(mapTableCell),
-                      } as any)
-                  ),
-                },
-              }),
+            setColor: (color) => updateColor(color, "background"),
           }}
         />
       </Components.Generic.Menu.Dropdown>
