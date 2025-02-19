@@ -190,13 +190,7 @@ export class CommentsPlugin extends EventEmitter<any> {
           }
 
           const selectThread = (threadId: string | undefined) => {
-            self.selectedThreadId = threadId;
-            self.emitStateUpdate();
-            view.dispatch(
-              view.state.tr.setMeta(PLUGIN_KEY, {
-                name: SET_SELECTED_THREAD_ID,
-              })
-            );
+            self.selectThread(threadId);
           };
 
           const node = view.state.doc.nodeAt(pos);
@@ -226,6 +220,16 @@ export class CommentsPlugin extends EventEmitter<any> {
     }) => void
   ) {
     return this.on("update", callback);
+  }
+
+  public selectThread(threadId: string | undefined) {
+    this.selectedThreadId = threadId;
+    this.emitStateUpdate();
+    this.editor.dispatch(
+      this.editor.prosemirrorView!.state.tr.setMeta(PLUGIN_KEY, {
+        name: SET_SELECTED_THREAD_ID,
+      })
+    );
   }
 
   public startPendingComment() {

@@ -9,10 +9,10 @@ export const Card = forwardRef<
 >((props, ref) => {
   const { className, children, ...rest } = props;
 
-  assertEmpty(rest, false);
+  // assertEmpty(rest, false);
 
   return (
-    <MantineCard w={350} p={"md"} className={className} ref={ref}>
+    <MantineCard w={350} p={"md"} {...rest} className={className} ref={ref}>
       {children}
     </MantineCard>
   );

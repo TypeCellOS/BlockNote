@@ -186,6 +186,7 @@ export type ComponentProps = {
     Card: {
       className?: string;
       children?: ReactNode;
+      onClick?: () => void;
     };
     CardSection: {
       className?: string;
