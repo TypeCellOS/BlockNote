@@ -26,6 +26,10 @@ import { SuggestionMenuLoader } from "./suggestionMenu/SuggestionMenuLoader.js";
 import { ExtendButton } from "./tableHandle/ExtendButton.js";
 import { TableHandle } from "./tableHandle/TableHandle.js";
 import { Toolbar, ToolbarButton, ToolbarSelect } from "./toolbar/Toolbar.js";
+import { Card, CardSection } from "./comments/Card.js";
+import { Comment } from "./comments/Comment.js";
+import { Editor } from "./comments/Editor.js";
+import { Badge, BadgeGroup } from "./badge/Badge.js";
 
 import { PanelButton } from "./panel/PanelButton.js";
 import { PanelFileInput } from "./panel/PanelFileInput.js";
@@ -71,8 +75,17 @@ export const components: Components = {
     Root: TableHandle,
     ExtendButton: ExtendButton,
   },
-  // @ts-ignore TODO
+  Comments: {
+    Comment: Comment,
+    Editor: Editor,
+    Card: Card,
+    CardSection: CardSection,
+  },
   Generic: {
+    Badge: {
+      Root: Badge,
+      Group: BadgeGroup,
+    },
     Toolbar: {
       Root: Toolbar,
       Button: ToolbarButton,
