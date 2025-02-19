@@ -194,7 +194,7 @@ export function tableContentToNodes<
       /**
        * The attributes of the cell to apply to the node
        */
-      const attrs: Attrs | null = null;
+      const attrs: Attrs | undefined = undefined;
       /**
        * The content of the cell to apply to the node
        */

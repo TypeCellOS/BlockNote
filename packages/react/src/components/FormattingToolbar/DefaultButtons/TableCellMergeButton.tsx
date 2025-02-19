@@ -34,7 +34,7 @@ function getMergeDirection(
         any
       >
     | undefined
-): null | "horizontal" | "vertical" {
+): undefined | "horizontal" | "vertical" {
   const tableHandles = editor.tableHandles;
 
   const cellSelection = isTableCellSelection(
@@ -50,7 +50,7 @@ function getMergeDirection(
     // Only offer the merge button if there is more than one cell selected.
     cellSelection.ranges.length <= 1
   ) {
-    return null;
+    return undefined;
   }
 
   const { $anchorCell, $headCell } = cellSelection;
@@ -91,7 +91,7 @@ export const TableCellMergeButton = () => {
   const mergeDirection = useMemo(() => {
     // Checks if only one block is selected.
     if (selectedBlocks.length !== 1) {
-      return null;
+      return undefined;
     }
 
     const block = selectedBlocks[0];
@@ -100,14 +100,14 @@ export const TableCellMergeButton = () => {
       return getMergeDirection(editor, block);
     }
 
-    return null;
+    return undefined;
   }, [editor, selectedBlocks]);
 
   const onClick = useCallback(() => {
     editor.tableHandles?.mergeCells();
   }, [editor]);
 
-  if (!editor.isEditable || mergeDirection === null) {
+  if (!editor.isEditable || mergeDirection === undefined) {
     return null;
   }
 
