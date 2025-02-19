@@ -415,7 +415,7 @@ export function getRowspan(
     | PartialInlineContent<any, any>
 ): number {
   if (isTableCell(cell)) {
-    return cell.props.rowspan || 1;
+    return cell.props.rowspan ?? 1;
   }
   return 1;
 }
