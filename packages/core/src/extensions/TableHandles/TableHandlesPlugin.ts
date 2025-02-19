@@ -5,11 +5,15 @@ import {
   getColumn,
   getDimensionsOfTable,
   getRow,
-  resolveRelativeTableCellIndices,
+  getAbsoluteTableCellIndices,
+  RelativeCellIndices,
 } from "../../api/blockManipulation/tables/tables.js";
 import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../api/nodeUtil.js";
-import { checkBlockIsDefaultType } from "../../blocks/defaultBlockTypeGuards.js";
+import {
+  checkBlockIsDefaultType,
+  isTableCellSelection,
+} from "../../blocks/defaultBlockTypeGuards.js";
 import { DefaultBlockSchema } from "../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
@@ -889,16 +893,9 @@ export class TableHandlesProsemirrorPlugin<
     this.view!.menuFrozen = false;
   };
 
-  resolveRelativeTableCellIndices = (
-    relativeCellIndices: { row: number; col: number },
-    block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>
-  ) => {
-    return resolveRelativeTableCellIndices(relativeCellIndices, block);
-  };
-
   getRow = (
     block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
-    relativeRowIndex: number
+    relativeRowIndex: RelativeCellIndices["row"]
   ) => {
     return getRow(block, relativeRowIndex);
   };
@@ -908,7 +905,7 @@ export class TableHandlesProsemirrorPlugin<
    */
   getColumn = (
     block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
-    relativeColumnIndex: number
+    relativeColumnIndex: RelativeCellIndices["col"]
   ) => {
     return getColumn(block, relativeColumnIndex);
   };
@@ -918,8 +915,8 @@ export class TableHandlesProsemirrorPlugin<
    * @returns The new state after the selection has been set.
    */
   private setCellSelection = (
-    startCell: { row: number; col: number },
-    endCell: { row: number; col: number } = startCell
+    relativeStartCell: RelativeCellIndices,
+    relativeEndCell: RelativeCellIndices = relativeStartCell
   ) => {
     const view = this.view;
 
@@ -930,18 +927,18 @@ export class TableHandlesProsemirrorPlugin<
     const state = this.editor.prosemirrorState;
     const tableResolvedPos = state.doc.resolve(view.tablePos! + 1);
     const startRowResolvedPos = state.doc.resolve(
-      tableResolvedPos.posAtIndex(startCell.row) + 1
+      tableResolvedPos.posAtIndex(relativeStartCell.row) + 1
     );
     const startCellResolvedPos = state.doc.resolve(
       // No need for +1, since CellSelection expects the position before the cell
-      startRowResolvedPos.posAtIndex(startCell.col)
+      startRowResolvedPos.posAtIndex(relativeStartCell.col)
     );
     const endRowResolvedPos = state.doc.resolve(
-      tableResolvedPos.posAtIndex(endCell.row) + 1
+      tableResolvedPos.posAtIndex(relativeEndCell.row) + 1
     );
     const endCellResolvedPos = state.doc.resolve(
       // No need for +1, since CellSelection expects the position before the cell
-      endRowResolvedPos.posAtIndex(endCell.col)
+      endRowResolvedPos.posAtIndex(relativeEndCell.col)
     );
 
     // Begin a new transaction to set the selection
@@ -960,11 +957,14 @@ export class TableHandlesProsemirrorPlugin<
    * Merges the cells in the table block.
    */
   mergeCells = (cellsToMerge?: {
-    start: { row: number; col: number };
-    end: { row: number; col: number };
+    relativeStartCell: RelativeCellIndices;
+    relativeEndCell: RelativeCellIndices;
   }) => {
     const state = cellsToMerge
-      ? this.setCellSelection(cellsToMerge.start, cellsToMerge.end)
+      ? this.setCellSelection(
+          cellsToMerge.relativeStartCell,
+          cellsToMerge.relativeEndCell
+        )
       : this.editor.prosemirrorState;
 
     return mergeCells(state, this.editor.dispatch);
@@ -974,11 +974,67 @@ export class TableHandlesProsemirrorPlugin<
    * Splits the cell in the table block.
    * If no cell is provided, the current cell selected will be split.
    */
-  splitCell = (cellToSplit?: { row: number; col: number }) => {
-    const state = cellToSplit
-      ? this.setCellSelection(cellToSplit)
+  splitCell = (relativeCellToSplit?: RelativeCellIndices) => {
+    const state = relativeCellToSplit
+      ? this.setCellSelection(relativeCellToSplit)
       : this.editor.prosemirrorState;
 
     return splitCell(state, this.editor.dispatch);
+  };
+
+  /**
+   * Gets the direction of the merge based on the current cell selection.
+   *
+   * Returns undefined when there is no cell selection, or the selection is not within a table.
+   */
+  getMergeDirection = (
+    block:
+      | BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>
+      | undefined
+  ) => {
+    const cellSelection = isTableCellSelection(
+      this.editor.prosemirrorState.selection
+    )
+      ? this.editor.prosemirrorState.selection
+      : undefined;
+
+    if (
+      !cellSelection ||
+      !block ||
+      // Only offer the merge button if there is more than one cell selected.
+      cellSelection.ranges.length <= 1
+    ) {
+      return undefined;
+    }
+
+    const { $anchorCell, $headCell } = cellSelection;
+    // Table indices are relative to the table, so we need to resolve the absolute cell indices
+    const absoluteCellIndices = getAbsoluteTableCellIndices(
+      {
+        // row index within the table
+        row: $anchorCell.index($anchorCell.depth - 1),
+        // column index within the row
+        col: $anchorCell.index(),
+      },
+      block
+    );
+
+    // Table indices are relative to the table, so we need to resolve the absolute cell indices
+    const headAbsoluteCellIndices = getAbsoluteTableCellIndices(
+      {
+        // row index within the table
+        row: $headCell.index($headCell.depth - 1),
+        // column index within the row
+        col: $headCell.index(),
+      },
+      block
+    );
+
+    // Compare the column indices to determine the merge direction
+    if (absoluteCellIndices.col === headAbsoluteCellIndices.col) {
+      return "vertical";
+    }
+
+    return "horizontal";
   };
 }

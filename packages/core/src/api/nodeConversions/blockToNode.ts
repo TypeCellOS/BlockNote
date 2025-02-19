@@ -12,13 +12,13 @@ import type {
 } from "../../schema";
 
 import type { PartialBlock } from "../../blocks/defaultBlocks";
-import { isPartialTableCell } from "../../schema/blocks/types.js";
+import { getColspan, isPartialTableCell } from "../../schema/blocks/types.js";
 import {
   isPartialLinkInlineContent,
   isStyledTextInlineContent,
 } from "../../schema/inlineContent/types.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
-import { resolveRelativeTableCellIndices } from "../blockManipulation/tables/tables.js";
+import { getAbsoluteTableCellIndices } from "../blockManipulation/tables/tables.js";
 
 /**
  * Convert a StyledText inline element to a
@@ -201,13 +201,14 @@ export function tableContentToNodes<
       let content: Fragment | Node | readonly Node[] | null = null;
 
       // Colwidths are absolutely referenced to the table, so we need to resolve the relative cell index to the absolute cell index
-      const absoluteCellIndex = resolveRelativeTableCellIndices(
+      const absoluteCellIndex = getAbsoluteTableCellIndices(
         {
           row: rowIndex,
           col: cellIndex,
         },
         { type: "table", content: tableContent } as any
       );
+
       // Assume the column width is the width of the cell at the absolute cell index
       let colwidth: (number | undefined)[] = [
         columnWidths[absoluteCellIndex.col] ?? undefined,
@@ -227,7 +228,7 @@ export function tableContentToNodes<
           // If the cell has a > 1 colspan, we need to get the column width for each cell in the span
           colwidth = new Array(colspan).fill(false).map((_, i) => {
             // Starting from the absolute column index, get the column width for each cell in the span
-            return columnWidths[absoluteColIndex + i] ?? undefined;
+            return columnWidths[absoluteCellIndex.col + i] ?? undefined;
           });
         }
       } else {
