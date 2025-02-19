@@ -13,17 +13,10 @@ import { mergeCSSClasses } from "../../util/browser.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
 import { EMPTY_CELL_WIDTH, TableExtension } from "./TableExtension.js";
-import { PropSchema } from "../../schema/index.js";
 
 export const tablePropSchema = {
   textColor: defaultProps.textColor,
 };
-
-export const tableCellPropSchema = {
-  ...defaultProps,
-  colspan: { default: 1 },
-  rowspan: { default: 1 },
-} satisfies PropSchema;
 
 export const TableBlockContent = createStronglyTypedTiptapNode({
   name: "table",
