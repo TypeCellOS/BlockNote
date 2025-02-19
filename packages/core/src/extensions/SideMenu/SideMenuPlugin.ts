@@ -283,14 +283,15 @@ export class SideMenuView<
 
     this.editor._tiptapEditor.commands.blur();
 
-    let parentEditorElement =
-      event.target instanceof Node ? event.target : null;
-    while (
-      parentEditorElement instanceof HTMLElement &&
-      !parentEditorElement.classList.contains("bn-editor")
-    ) {
-      parentEditorElement = parentEditorElement.parentElement;
-    }
+    // Finds the BlockNote editor element that the drop event occurred in (if
+    // any).
+    const parentEditorElement =
+      event.target instanceof Node
+        ? (event.target instanceof HTMLElement
+            ? event.target
+            : event.target.parentElement
+          )?.closest(".bn-editor") || null
+        : null;
 
     // Drop event occurred within an editor.
     if (parentEditorElement) {
