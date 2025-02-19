@@ -159,10 +159,10 @@ export const Table = createBlockSpecFromStronglyTypedTiptapNode(
     TableExtension,
     TableParagraph,
     TableHeader.extend({
-      content: "tableContent",
+      content: "tableContent*",
     }),
     TableCell.extend({
-      content: "tableContent",
+      content: "tableContent*",
     }),
     TableRow,
   ]

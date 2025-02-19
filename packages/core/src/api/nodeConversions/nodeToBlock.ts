@@ -67,10 +67,8 @@ export function contentNodeToTableContent<
 
       return {
         type: "tableCell",
-        content: contentNodeToInlineContent(
-          cellNode.firstChild!,
-          inlineContentSchema,
-          styleSchema
+        content: cellNode.content.content.flatMap((child) =>
+          contentNodeToInlineContent(child, inlineContentSchema, styleSchema)
         ),
         props: {
           colspan: cellNode.attrs.colspan,
