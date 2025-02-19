@@ -130,7 +130,7 @@ export function partialBlockToBlockForTesting<
         : contentType === "table"
         ? {
             type: "tableContent",
-            columnWidths: [undefined, undefined, undefined],
+            columnWidths: undefined,
             headerRows: undefined,
             headerCols: undefined,
             rows: [],
