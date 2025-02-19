@@ -221,13 +221,13 @@ export function tableContentToNodes<
         if (cell.content) {
           content = inlineContentToNodes(cell.content, schema, styleSchema);
         }
-        const colSpan = cell.props?.colspan;
+        const colspan = getColspan(cell);
 
-        if (colSpan && colSpan > 1) {
+        if (colspan > 1) {
           // If the cell has a > 1 colspan, we need to get the column width for each cell in the span
-          colwidth = new Array(colSpan).fill(false).map((_, i) => {
-            // Starting from the absolute cell index, get the column width for each cell in the span
-            return columnWidths[absoluteCellIndex.col + i] ?? undefined;
+          colwidth = new Array(colspan).fill(false).map((_, i) => {
+            // Starting from the absolute column index, get the column width for each cell in the span
+            return columnWidths[absoluteColIndex + i] ?? undefined;
           });
         }
       } else {
