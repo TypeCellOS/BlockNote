@@ -1,6 +1,6 @@
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
-import { forwardRef, useState } from "react";
+import { forwardRef } from "react";
 
 import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
@@ -24,8 +24,6 @@ export const Badge = forwardRef<
 
   const ShadCNComponents = useShadCNComponentsContext()!;
 
-  const [hideTooltip, setHideTooltip] = useState(false);
-
   const badge = (
     <ShadCNComponents.Button.Button
       variant={isSelected ? "secondary" : "outline"}
@@ -33,19 +31,14 @@ export const Badge = forwardRef<
         className,
         "bn-flex bn-items-center bn-gap-1 bn-rounded-full bn-h-7 bn-px-2.5"
       )}
-      // checked={isSelected === true}
-      onClick={(event) => {
-        setHideTooltip(true);
-        onClick?.(event);
-      }}
-      onMouseLeave={() => setHideTooltip(false)}
+      onClick={onClick}
       ref={ref}>
       <span>{icon}</span>
       <span>{text}</span>
     </ShadCNComponents.Button.Button>
   );
 
-  if (!mainTooltip || hideTooltip) {
+  if (!mainTooltip) {
     return badge;
   }
 
