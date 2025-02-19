@@ -152,7 +152,7 @@
         </style:style>
         <style:style style:name="Codeblock" style:family="paragraph" style:parent-style-name="Standard">
             <loext:graphic-properties draw:fill="solid" draw:fill-color="#161616"/>
-            <style:paragraph-properties fo:line-height="100%"/>
+            <style:paragraph-properties fo:line-height="100%" fo:background-color="#161616"/>
             <style:text-properties fo:color="#e1e4e8" loext:opacity="100%" style:font-name="Geist Mono" fo:font-family="Geist Mono"/>
         </style:style>
         <style:style style:name="Default_20_Paragraph_20_Font" style:display-name="Default Paragraph Font" style:family="text"/>
@@ -291,7 +291,7 @@
             <style:graphic-properties text:anchor-type="paragraph" svg:x="0in" svg:y="0in" style:wrap="dynamic" style:number-wrapped-paragraphs="no-limit" style:wrap-contour="false" style:vertical-pos="top" style:vertical-rel="paragraph" style:horizontal-pos="center" style:horizontal-rel="paragraph" draw:fill="none"/>
         </style:style>
         <style:style style:name="Frame" style:family="graphic">
-            <style:graphic-properties fo:margin-left="0in" fo:margin-right="0in" fo:margin-top="0in" fo:margin-bottom="0in" style:run-through="foreground" style:wrap="dynamic" style:number-wrapped-paragraphs="no-limit" style:vertical-pos="from-top" style:horizontal-pos="center" style:horizontal-rel="paragraph" fo:padding="0in" fo:border="none" style:shadow="none" draw:shadow-opacity="100%" loext:rel-width-rel="paragraph"/>
+            <style:graphic-properties fo:margin-left="0in" fo:margin-right="0in" fo:margin-top="0in" fo:margin-bottom="0in" style:run-through="foreground" style:wrap="dynamic" style:number-wrapped-paragraphs="no-limit" style:vertical-pos="from-top" style:horizontal-pos="center" style:horizontal-rel="paragraph" fo:padding="0in" draw:fill="none" draw:stroke="none" fo:border="none" style:shadow="none" svg:stroke-color="transparent" draw:shadow-opacity="100%" loext:rel-width-rel="paragraph"/>
         </style:style>
         <text:outline-style style:name="Outline">
             <text:outline-level-style text:level="1" style:num-format="">

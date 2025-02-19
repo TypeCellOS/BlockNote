@@ -347,7 +347,7 @@
         <style:style style:name="Codeblock" style:family="paragraph"
             style:parent-style-name="Standard">
             <loext:graphic-properties draw:fill="solid" draw:fill-color="#161616" />
-            <style:paragraph-properties fo:line-height="100%" />
+            <style:paragraph-properties fo:line-height="100%" fo:background-color="#161616" />
             <style:text-properties fo:color="#e1e4e8" loext:opacity="100%"
                 style:font-name="Geist Mono"
                 fo:font-family="Geist Mono" />
@@ -606,7 +606,11 @@
                 fo:margin-bottom="0in" style:run-through="foreground" style:wrap="dynamic"
                 style:number-wrapped-paragraphs="no-limit" style:vertical-pos="from-top"
                 style:horizontal-pos="center" style:horizontal-rel="paragraph" fo:padding="0in"
-                fo:border="none" style:shadow="none" draw:shadow-opacity="100%"
+                draw:fill="none"
+                draw:stroke="none"
+                fo:border="none"
+                style:shadow="none" svg:stroke-color="transparent"
+                draw:shadow-opacity="100%"
                 loext:rel-width-rel="paragraph" />
         </style:style>
         <text:outline-style style:name="Outline">

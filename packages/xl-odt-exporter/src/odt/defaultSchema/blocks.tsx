@@ -36,7 +36,8 @@ export const getTabs = (nestingLevel: number) => {
 const createParagraphStyle = (
   exporter: ODTExporter<any, any, any>,
   props: Partial<DefaultProps>,
-  parentStyleName?: string
+  parentStyleName = "Standard",
+  styleAttributes: Record<string, string> = {}
 ) => {
   const paragraphStyles: Record<string, string> = {};
   const textStyles: Record<string, string> = {};
@@ -66,21 +67,21 @@ const createParagraphStyle = (
       ].text;
     textStyles["fo:color"] = color;
   }
+  if (color) {
+    paragraphStyles["fo:background-color"] = color;
+  }
 
   return exporter.registerStyle((name) => (
     <StyleStyle
       style:family="paragraph"
       style:name={name}
-      style:parent-style-name={parentStyleName}>
+      style:parent-style-name={parentStyleName}
+      {...styleAttributes}>
       {color && (
         <LoextGraphicProperties draw:fill="solid" draw:fill-color={color} />
       )}
       {Object.keys(paragraphStyles).length > 0 && (
-        <StyleParagraphProperties
-          {...paragraphStyles}
-          {...(color && {
-            "fo:background-color": color,
-          })}></StyleParagraphProperties>
+        <StyleParagraphProperties {...paragraphStyles} />
       )}
       {Object.keys(textStyles).length > 0 && (
         <StyleTextProperties {...textStyles}></StyleTextProperties>
@@ -93,7 +94,7 @@ const createTableStyle = (exporter: ODTExporter<any, any, any>) => {
   const cellName = exporter.registerStyle((name) => (
     <StyleStyle style:family="table-cell" style:name={name}>
       <StyleTableCellProperties
-        fo:border="0.0069in solid #000000"
+        fo:border="0.5pt solid #000000"
         style:writing-mode="lr-tb"
         fo:padding-top="0in"
         fo:padding-left="0.075in"
@@ -170,7 +171,9 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
   bulletListItem: (block, exporter, nestingLevel) => {
     const styleName = createParagraphStyle(
       exporter as ODTExporter<any, any, any>,
-      block.props
+      block.props,
+      "Standard",
+      { "style:list-style-name": "WWNum1" }
     );
     return (
       <TextList text:style-name="WWNum1">
@@ -214,8 +217,8 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
   },
 
   checkListItem: (block, exporter) => (
-    <TextP>
-      <TextSpan>{block.props.checked ? "☒" : "☐"} </TextSpan>
+    <TextP text:style-name="Standard">
+      {block.props.checked ? "☒ " : "☐ "}
       {exporter.transformInlineContent(block.content)}
     </TextP>
   ),
@@ -227,21 +230,24 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
   image: async (block, exporter) => {
     const odtExporter = exporter as ODTExporter<any, any, any>;
 
-    const { path, mimeType } = await odtExporter.registerPicture(
-      block.props.url
-    );
+    const { path, mimeType, ...originalDimensions } =
+      await odtExporter.registerPicture(block.props.url);
     const styleName = createParagraphStyle(
       exporter as ODTExporter<any, any, any>,
       block.props
     );
-    const editorWidthPX = 623;
-    const width = `${(block.props.previewWidth / editorWidthPX) * 100}%`;
+    const width = block.props.previewWidth;
+    const height =
+      (originalDimensions.height / originalDimensions.width) * width;
+    const captionHeight = 20;
     const imageFrame = (
       <TextP text:style-name={block.props.caption ? "Caption" : styleName}>
         <DrawFrame
           draw:style-name="Frame"
           style:rel-height="scale"
-          style:rel-width={block.props.caption ? "100%" : width}
+          svg:width={`${width}px`}
+          svg:height={`${height}px`}
+          style:rel-width={block.props.caption ? "100%" : `${width}px`}
           {...(!block.props.caption && {
             "text:anchor-type": "as-char",
           })}>
@@ -253,6 +259,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
             draw:mime-type={mimeType}
           />
         </DrawFrame>
+        <TextLineBreak />
         <TextSpan text:style-name="Caption">{block.props.caption}</TextSpan>
       </TextP>
     );
@@ -263,7 +270,9 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
           <DrawFrame
             draw:style-name="Frame"
             style:rel-height="scale"
-            style:rel-width={width}
+            style:rel-width={`${width}px`}
+            svg:width={`${width}px`}
+            svg:height={`${height + captionHeight}px`}
             text:anchor-type="as-char">
             <DrawTextBox>{imageFrame}</DrawTextBox>
           </DrawFrame>
@@ -281,19 +290,14 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     return (
       <Table table:name={block.id}>
         {block.content.rows[0]?.cells.map((_, i) => {
-          const pageWidthIN = 8.2681;
-          const editorWidthPX = 623;
+          const colWidth = block.content.columnWidths[i];
 
-          let widthPX: any = block.content.columnWidths[i];
-
-          if (widthPX) {
-            widthPX = `${(widthPX / editorWidthPX) * pageWidthIN}in`;
-          }
-
-          if (widthPX) {
+          if (colWidth) {
             const style = ex.registerStyle((name) => (
               <StyleStyle style:name={name} style:family="table-column">
-                <style:table-column-properties style:column-width={widthPX} />
+                <style:table-column-properties
+                  style:column-width={`${colWidth}`}
+                />
               </StyleStyle>
             ));
             return <TableColumn table:style-name={style} />;
@@ -312,7 +316,9 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
               <TableCell
                 table:style-name={styleName}
                 office:value-type="string">
-                <TextP>{exporter.transformInlineContent(cell)}</TextP>
+                <TextP text:style-name="Standard">
+                  {exporter.transformInlineContent(cell)}
+                </TextP>
               </TableCell>
             ))}
           </TableRow>
@@ -341,8 +347,12 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
   file: async (block) => {
     return (
       <>
-        <TextP>
-          <TextA href={block.props.url}>Open file</TextA>
+        <TextP style:style-name="Standard">
+          {block.props.url ? (
+            <TextA href={block.props.url}>Open file</TextA>
+          ) : (
+            "Open file"
+          )}
         </TextP>
         {block.props.caption && (
           <TextP text:style-name="Caption">{block.props.caption}</TextP>
@@ -353,7 +363,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
 
   video: (block) => (
     <>
-      <TextP>
+      <TextP style:style-name="Standard">
         <TextA href={block.props.url}>Open video</TextA>
       </TextP>
       {block.props.caption && (
@@ -364,7 +374,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
 
   audio: (block) => (
     <>
-      <TextP>
+      <TextP style:style-name="Standard">
         <TextA href={block.props.url}>Open audio</TextA>
       </TextP>
       {block.props.caption && (

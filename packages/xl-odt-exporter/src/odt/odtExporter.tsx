@@ -23,6 +23,7 @@ import {
   TextSpan,
 } from "./util/components.js";
 import { loadFileBuffer } from "@shared/util/fileUtil.js";
+import { getImageDimensions } from "./imageUtil.js";
 
 export class ODTExporter<
   B extends BlockSchema,
@@ -43,6 +44,8 @@ export class ODTExporter<
     {
       file: Blob;
       fileName: string;
+      height: number;
+      width: number;
     }
   > = new Map();
   private styleCounter = 0;
@@ -273,6 +276,8 @@ export class ODTExporter<
   public async registerPicture(url: string): Promise<{
     path: string;
     mimeType: string;
+    height: number;
+    width: number;
   }> {
     if (this.pictures.has(url)) {
       const picture = this.pictures.get(url)!;
@@ -280,18 +285,23 @@ export class ODTExporter<
       return {
         path: `Pictures/${picture.fileName}`,
         mimeType: picture.file.type,
+        height: picture.height,
+        width: picture.width,
       };
     }
 
     const blob = await this.resolveFile(url);
     const fileExtension = url.split(".").pop();
     const fileName = `picture-${this.pictures.size}.${fileExtension}`;
+    const { width, height } = await getImageDimensions(blob);
 
     this.pictures.set(url, {
       file: blob,
       fileName: fileName,
+      height,
+      width,
     });
 
-    return { path: `Pictures/${fileName}`, mimeType: blob.type };
+    return { path: `Pictures/${fileName}`, mimeType: blob.type, height, width };
   }
 }
