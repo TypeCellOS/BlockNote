@@ -1,6 +1,6 @@
 import Collaboration from "@tiptap/extension-collaboration";
-import { Awareness } from "y-protocols/awareness";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
+import { Awareness } from "y-protocols/awareness";
 import * as Y from "yjs";
 
 export const createCollaborationExtensions = (collaboration: {
@@ -93,7 +93,9 @@ export const createCollaborationExtensions = (collaboration: {
       );
 
       if (!clientState) {
-        throw new Error("Could not find client state for user");
+        throw new Error(
+          "Could not find client state for user, " + JSON.stringify(user)
+        );
       }
 
       const clientID = clientState[0];
