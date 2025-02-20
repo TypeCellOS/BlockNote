@@ -25,7 +25,7 @@ export class FormattingToolbarView implements PluginView {
     state: EditorState;
     from: number;
     to: number;
-  }) => boolean = ({ state, from, to, view }) => {
+  }) => boolean = ({ state, from, to }) => {
     const { doc, selection } = state;
     const { empty } = selection;
 
@@ -43,8 +43,7 @@ export class FormattingToolbarView implements PluginView {
       return false;
     }
 
-    // check view.hasFocus so that the toolbar doesn't show up when the editor is not focused or when for example a code block is focused
-    return !(!view.hasFocus() || empty || isEmptyTextBlock);
+    return !(empty || isEmptyTextBlock);
   };
 
   constructor(
