@@ -1,11 +1,21 @@
 import { Plugin, PluginKey, PluginView } from "prosemirror-state";
-import { CellSelection, mergeCells, splitCell } from "prosemirror-tables";
+import {
+  addColumnAfter,
+  addColumnBefore,
+  addRowAfter,
+  addRowBefore,
+  CellSelection,
+  deleteColumn,
+  deleteRow,
+  mergeCells,
+  splitCell,
+} from "prosemirror-tables";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import {
-  getCellsAtColumnHandle,
-  getDimensionsOfTable,
-  getCellsAtRowHandle,
   getAbsoluteTableCellIndices,
+  getCellsAtColumnHandle,
+  getCellsAtRowHandle,
+  getDimensionsOfTable,
   RelativeCellIndices,
 } from "../../api/blockManipulation/tables/tables.js";
 import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
@@ -955,6 +965,53 @@ export class TableHandlesProsemirrorPlugin<
 
     // Quickly apply the transaction to get the new state to update the selection before splitting the cell
     return state.apply(tr);
+  };
+
+  /**
+   * Adds a row or column to the table using prosemirror-table commands
+   */
+  addRowOrColumn = (
+    index: RelativeCellIndices["row"] | RelativeCellIndices["col"],
+    direction:
+      | { orientation: "row"; side: "above" | "below" }
+      | { orientation: "column"; side: "left" | "right" }
+  ) => {
+    const state = this.setCellSelection(
+      direction.orientation === "row"
+        ? { row: index, col: 0 }
+        : { row: 0, col: index }
+    );
+    if (direction.orientation === "row") {
+      if (direction.side === "above") {
+        return addRowBefore(state, this.editor.dispatch);
+      } else {
+        return addRowAfter(state, this.editor.dispatch);
+      }
+    } else {
+      if (direction.side === "left") {
+        return addColumnBefore(state, this.editor.dispatch);
+      } else {
+        return addColumnAfter(state, this.editor.dispatch);
+      }
+    }
+  };
+
+  /**
+   * Removes a row or column from the table using prosemirror-table commands
+   */
+  removeRowOrColumn = (
+    index: RelativeCellIndices["row"] | RelativeCellIndices["col"],
+    direction: "row" | "column"
+  ) => {
+    const state = this.setCellSelection(
+      direction === "row" ? { row: index, col: 0 } : { row: 0, col: index }
+    );
+
+    if (direction === "row") {
+      return deleteRow(state, this.editor.dispatch);
+    } else {
+      return deleteColumn(state, this.editor.dispatch);
+    }
   };
 
   /**
