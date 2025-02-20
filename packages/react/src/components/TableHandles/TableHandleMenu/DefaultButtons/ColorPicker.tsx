@@ -3,7 +3,7 @@ import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   InlineContentSchema,
-  isPartialTableCell,
+  isTableCell,
   mapTableCell,
   StyleSchema,
 } from "@blocknote/core";
@@ -70,7 +70,7 @@ export const ColorPickerButton = <
             // All cells have the same text color
             color: currentCells.every(
               ({ cell }) =>
-                isPartialTableCell(cell) &&
+                isTableCell(cell) &&
                 cell.props.textColor === firstCell.props.textColor
             )
               ? firstCell.props.textColor
@@ -99,7 +99,7 @@ export const ColorPickerButton = <
           background={{
             color: currentCells.every(
               ({ cell }) =>
-                isPartialTableCell(cell) &&
+                isTableCell(cell) &&
                 cell.props.backgroundColor === firstCell.props.backgroundColor
             )
               ? firstCell.props.backgroundColor
