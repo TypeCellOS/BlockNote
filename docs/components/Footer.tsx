@@ -76,7 +76,7 @@ export function FooterContent() {
             {/* <SubmitForm /> */}
           </div>
           <div className="grid grid-cols-1 gap-8 xl:col-span-2">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 md:gap-8">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 md:gap-8">
               <div className="mt-12 xl:!mt-0">
                 <FooterHeader>Learn</FooterHeader>
                 <ul className="ml-0 mt-4 list-none space-y-1.5">
@@ -105,6 +105,17 @@ export function FooterContent() {
                       <FooterLink href={item.href}>{item.name}</FooterLink>
                     </li>
                   ))}
+                </ul>
+              </div>
+              <div className="mt-12 xl:!mt-0">
+                <FooterHeader>Legal</FooterHeader>
+                <ul className="ml-0 mt-4 list-none space-y-1.5">
+                  <li key={"terms-and-conditions"}>
+                    <FooterLink href={"/legal/terms-and-conditions"}>Terms & Conditions</FooterLink>
+                  </li>
+                  <li key={"privacy-policy"}>
+                    <FooterLink href={"/legal/privacy-policy"}>Privacy Policy</FooterLink>
+                  </li>
                 </ul>
               </div>
               <div className="mt-12 xl:!mt-0">

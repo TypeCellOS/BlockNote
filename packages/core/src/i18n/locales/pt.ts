@@ -268,6 +268,9 @@ export const pt: Dictionary = {
     align_justify: {
       tooltip: "Justificar texto",
     },
+    comment: {
+      tooltip: "Adicionar comentário",
+    },
   },
   file_panel: {
     upload: {

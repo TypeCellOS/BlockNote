@@ -275,6 +275,9 @@ export const vi: Dictionary = {
     align_justify: {
       tooltip: "Căn đều văn bản",
     },
+    comment: {
+      tooltip: "Thêm bình luận",
+    },
   },
   file_panel: {
     upload: {

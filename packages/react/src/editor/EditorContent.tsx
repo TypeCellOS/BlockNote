@@ -1,67 +1,69 @@
-import { BlockNoteEditor } from "@blocknote/core";
 import { ReactRenderer } from "@tiptap/react";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 
-const Portals: React.FC<{ renderers: Record<string, ReactRenderer> }> = ({
-  renderers,
-}) => {
-  return (
-    <>
-      {Object.entries(renderers).map(([key, renderer]) => {
-        return createPortal(renderer.reactElement, renderer.element, key);
-      })}
-    </>
-  );
-};
+// this file takes the methods we need from
+// https://github.com/ueberdosis/tiptap/blob/develop/packages/react/src/EditorContent.tsx
+
+export function getContentComponent() {
+  const subscribers = new Set<() => void>();
+  let renderers: Record<string, React.ReactPortal> = {};
+
+  return {
+    /**
+     * Subscribe to the editor instance's changes.
+     */
+    subscribe(callback: () => void) {
+      subscribers.add(callback);
+      return () => {
+        subscribers.delete(callback);
+      };
+    },
+    getSnapshot() {
+      return renderers;
+    },
+    getServerSnapshot() {
+      return renderers;
+    },
+    /**
+     * Adds a new NodeView Renderer to the editor.
+     */
+    setRenderer(id: string, renderer: ReactRenderer) {
+      renderers = {
+        ...renderers,
+        [id]: createPortal(renderer.reactElement, renderer.element, id),
+      };
+
+      subscribers.forEach((subscriber) => subscriber());
+    },
+    /**
+     * Removes a NodeView Renderer from the editor.
+     */
+    removeRenderer(id: string) {
+      const nextRenderers = { ...renderers };
+
+      delete nextRenderers[id];
+      renderers = nextRenderers;
+      subscribers.forEach((subscriber) => subscriber());
+    },
+  };
+}
+
+type ContentComponent = ReturnType<typeof getContentComponent>;
 
 /**
- * Replacement of https://github.com/ueberdosis/tiptap/blob/6676c7e034a46117afdde560a1b25fe75411a21d/packages/react/src/EditorContent.tsx
- * that only takes care of the Portals.
- *
- * Original implementation is messy, and we use a "mount" system in BlockNoteTiptapEditor.tsx that makes this cleaner
+ * This component renders all of the editor's node views.
  */
-export function EditorContent(props: {
-  editor: BlockNoteEditor<any, any, any>;
-  children: any;
-}) {
-  const [renderers, setRenderers] = useState<Record<string, ReactRenderer>>({});
-
-  useEffect(() => {
-    props.editor._tiptapEditor.contentComponent = {
-      /**
-       * Used by TipTap
-       */
-      setRenderer(id: string, renderer: ReactRenderer) {
-        setRenderers((renderers) => ({ ...renderers, [id]: renderer }));
-      },
-
-      /**
-       * Used by TipTap
-       */
-      removeRenderer(id: string) {
-        setRenderers((renderers) => {
-          const nextRenderers = { ...renderers };
-
-          delete nextRenderers[id];
-
-          return nextRenderers;
-        });
-      },
-    };
-    // Without queueMicrotask, custom IC / styles will give a React FlushSync error
-    queueMicrotask(() => {
-      props.editor._tiptapEditor.createNodeViews();
-    });
-    return () => {
-      props.editor._tiptapEditor.contentComponent = null;
-    };
-  }, [props.editor._tiptapEditor]);
-
-  return (
-    <>
-      <Portals renderers={renderers} />
-      {props.children}
-    </>
+export const Portals: React.FC<{ contentComponent: ContentComponent }> = ({
+  contentComponent,
+}) => {
+  // For performance reasons, we render the node view portals on state changes only
+  const renderers = useSyncExternalStore(
+    contentComponent.subscribe,
+    contentComponent.getSnapshot,
+    contentComponent.getServerSnapshot
   );
-}
+
+  // This allows us to directly render the portals without any additional wrapper
+  return <>{Object.values(renderers)}</>;
+};

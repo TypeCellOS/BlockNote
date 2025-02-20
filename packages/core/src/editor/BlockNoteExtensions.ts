@@ -7,11 +7,11 @@ import { Text } from "@tiptap/extension-text";
 import { Plugin } from "prosemirror-state";
 import * as Y from "yjs";
 
-import type { BlockNoteEditor, BlockNoteExtension } from "./BlockNoteEditor.js";
 import { createDropFileExtension } from "../api/clipboard/fromClipboard/fileDropExtension.js";
 import { createPasteFromClipboardExtension } from "../api/clipboard/fromClipboard/pasteExtension.js";
 import { createCopyToClipboardExtension } from "../api/clipboard/toClipboard/copyExtension.js";
 import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension.js";
+import { createCollaborationExtensions } from "../extensions/Collaboration/createCollaborationExtensions.js";
 import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin.js";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin.js";
 import { KeyboardShortcutsExtension } from "../extensions/KeyboardShortcuts/KeyboardShortcutsExtension.js";
@@ -40,7 +40,7 @@ import {
   StyleSchema,
   StyleSpecs,
 } from "../schema/index.js";
-import { createCollaborationExtensions } from "../extensions/Collaboration/createCollaborationExtensions.js";
+import type { BlockNoteEditor, BlockNoteExtension } from "./BlockNoteEditor.js";
 
 type ExtensionOptions<
   BSchema extends BlockSchema,
@@ -69,7 +69,10 @@ type ExtensionOptions<
   animations: boolean;
   tableHandles: boolean;
   dropCursor: (opts: any) => Plugin;
-  placeholders: Record<string | "default", string>;
+  placeholders: Record<
+    string | "default" | "emptyDocument",
+    string | undefined
+  >;
   tabBehavior?: "prefer-navigate-ui" | "prefer-indent";
   sideMenuDetection: "viewport" | "editor";
 };
@@ -171,7 +174,9 @@ const getTipTapExtensions = <
       protocols: VALID_LINK_PROTOCOLS,
     }),
     ...Object.values(opts.styleSpecs).map((styleSpec) => {
-      return styleSpec.implementation.mark;
+      return styleSpec.implementation.mark.configure({
+        editor: opts.editor as any,
+      });
     }),
 
     TextColorExtension,
