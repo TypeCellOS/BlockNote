@@ -109,6 +109,10 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
               rows: newTable,
             } as any,
           });
+
+          // Have to reset text cursor position to the block as `updateBlock`
+          // moves the existing selection out of the block.
+          editor.setTextCursorPosition(block);
         }
       }
     },

@@ -3,7 +3,7 @@ import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
   InlineContentSchema,
-  isPartialTableCell,
+  isTableCell,
   mapTableCell,
   StyleSchema,
 } from "@blocknote/core";
@@ -32,38 +32,31 @@ export const ColorPickerButton = <
   >();
 
   const updateColor = (color: string, type: "text" | "background") => {
+    const newTable = props.block.content.rows.map((row) => {
+      return {
+        ...row,
+        cells: row.cells.map((cell) => mapTableCell(cell)),
+      };
+    });
+
+    if (type === "text") {
+      newTable[props.rowIndex].cells[props.colIndex].props.textColor = color;
+    } else {
+      newTable[props.rowIndex].cells[props.colIndex].props.backgroundColor =
+        color;
+    }
+
     editor.updateBlock(props.block, {
       type: "table",
       content: {
         ...props.block.content,
-        rows: props.block.content.rows.map(
-          (row, rowIndex) =>
-            ({
-              ...row,
-              cells:
-                props.rowIndex === rowIndex
-                  ? row.cells.map(mapTableCell).map((cell, cellIndex) =>
-                      cellIndex === props.colIndex
-                        ? {
-                            ...cell,
-                            props:
-                              type === "text"
-                                ? {
-                                    ...cell.props,
-                                    textColor: color,
-                                  }
-                                : {
-                                    ...cell.props,
-                                    backgroundColor: color,
-                                  },
-                          }
-                        : cell
-                    )
-                  : row.cells.map(mapTableCell),
-            } as any)
-        ),
+        rows: newTable,
       },
     });
+
+    // Have to reset text cursor position to the block as `updateBlock`
+    // moves the existing selection out of the block.
+    editor.setTextCursorPosition(props.block);
   };
 
   const currentCell =
@@ -90,13 +83,13 @@ export const ColorPickerButton = <
         <ColorPicker
           iconSize={18}
           text={{
-            color: isPartialTableCell(currentCell)
+            color: isTableCell(currentCell)
               ? currentCell.props.textColor
               : "default",
             setColor: (color) => updateColor(color, "text"),
           }}
           background={{
-            color: isPartialTableCell(currentCell)
+            color: isTableCell(currentCell)
               ? currentCell.props.backgroundColor
               : "default",
             setColor: (color) => updateColor(color, "background"),

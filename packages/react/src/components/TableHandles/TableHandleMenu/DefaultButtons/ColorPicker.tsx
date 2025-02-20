@@ -44,6 +44,35 @@ export const ColorPickerButton = <
     return tableHandles.getCellsAtColumnHandle(props.block, props.index);
   }, [props.block, props.index, props.orientation, tableHandles]);
 
+  const updateColor = (color: string, type: "text" | "background") => {
+    const newTable = props.block.content.rows.map((row) => {
+      return {
+        ...row,
+        cells: row.cells.map((cell) => mapTableCell(cell)),
+      };
+    });
+
+    currentCells.forEach(({ row, col }) => {
+      if (type === "text") {
+        newTable[row].cells[col].props.textColor = color;
+      } else {
+        newTable[row].cells[col].props.backgroundColor = color;
+      }
+    });
+
+    editor.updateBlock(props.block, {
+      type: "table",
+      content: {
+        ...props.block.content,
+        rows: newTable,
+      },
+    });
+
+    // Have to reset text cursor position to the block as `updateBlock`
+    // moves the existing selection out of the block.
+    editor.setTextCursorPosition(props.block);
+  };
+
   if (!currentCells || !tableHandles) {
     return null;
   }
@@ -76,24 +105,7 @@ export const ColorPickerButton = <
               ? firstCell.props.textColor
               : "default",
             setColor: (color) => {
-              const newTable = props.block.content.rows.map((row) => {
-                return {
-                  ...row,
-                  cells: row.cells.map((cell) => mapTableCell(cell)),
-                };
-              });
-
-              currentCells.forEach(({ row, col }) => {
-                newTable[row].cells[col].props.textColor = color;
-              });
-
-              return editor.updateBlock(props.block, {
-                type: "table",
-                content: {
-                  ...props.block.content,
-                  rows: newTable,
-                },
-              });
+              updateColor(color, "text");
             },
           }}
           background={{
@@ -104,26 +116,7 @@ export const ColorPickerButton = <
             )
               ? firstCell.props.backgroundColor
               : "default",
-            setColor: (color) => {
-              const newTable = props.block.content.rows.map((row) => {
-                return {
-                  ...row,
-                  cells: row.cells.map((cell) => mapTableCell(cell)),
-                };
-              });
-
-              currentCells.forEach(({ row, col }) => {
-                newTable[row].cells[col].props.backgroundColor = color;
-              });
-
-              return editor.updateBlock(props.block, {
-                type: "table",
-                content: {
-                  ...props.block.content,
-                  rows: newTable,
-                },
-              });
-            },
+            setColor: (color) => updateColor(color, "background"),
           }}
         />
       </Components.Generic.Menu.Dropdown>
