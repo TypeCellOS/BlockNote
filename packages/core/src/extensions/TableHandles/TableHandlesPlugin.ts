@@ -578,8 +578,12 @@ export class TableHandlesView<
     ) {
       const row = tableBody.children[this.state.rowIndex];
       const cell = row.children[this.state.colIndex];
-
-      this.state.referencePosCell = cell.getBoundingClientRect();
+      if (cell) {
+        this.state.referencePosCell = cell.getBoundingClientRect();
+      } else {
+        this.state.rowIndex = undefined;
+        this.state.colIndex = undefined;
+      }
     }
     this.state.referencePosTable = tableBody.getBoundingClientRect();
 
@@ -983,6 +987,79 @@ export class TableHandlesProsemirrorPlugin<
   };
 
   /**
+   * Gets the start and end cells of the current cell selection.
+   * @returns The start and end cells of the current cell selection.
+   */
+  getCellSelection = (): {
+    from: RelativeCellIndices;
+    to: RelativeCellIndices;
+    /**
+     * All of the cells that are within the selected range.
+     */
+    cells: RelativeCellIndices[];
+  } => {
+    // Based on the current selection, find the table cells that are within the selected range
+    const state = this.editor.prosemirrorState;
+    const selection = state.selection;
+
+    let $fromCell = selection.$from;
+    let $toCell = selection.$to;
+    if (isTableCellSelection(selection)) {
+      // When the selection is a table cell selection, we can find the
+      // from and to cells by iterating over the ranges in the selection
+      const { ranges } = selection;
+      ranges.forEach((range) => {
+        $fromCell = range.$from.min($fromCell ?? range.$from);
+        $toCell = range.$to.max($toCell ?? range.$to);
+      });
+    } else {
+      // When the selection is a normal text selection
+      // Assumes we are within a tableParagraph
+      // And find the from and to cells by resolving the positions
+      $fromCell = state.doc.resolve(
+        selection.$from.pos - selection.$from.parentOffset - 1
+      );
+      $toCell = state.doc.resolve(
+        selection.$to.pos - selection.$to.parentOffset - 1
+      );
+    }
+
+    // Find the row and table that the from and to cells are in
+    const $fromRow = state.doc.resolve(
+      $fromCell.pos - $fromCell.parentOffset - 1
+    );
+    const $toRow = state.doc.resolve($toCell.pos - $toCell.parentOffset - 1);
+
+    // Find the table
+    const $table = state.doc.resolve($fromRow.pos - $fromRow.parentOffset - 1);
+
+    // Find the column and row indices of the from and to cells
+    const fromColIndex = $fromCell.index($fromRow.depth);
+    const fromRowIndex = $fromRow.index($table.depth);
+    const toColIndex = $toCell.index($toRow.depth);
+    const toRowIndex = $toRow.index($table.depth);
+
+    const cells: RelativeCellIndices[] = [];
+    for (let row = fromRowIndex; row <= toRowIndex; row++) {
+      for (let col = fromColIndex; col <= toColIndex; col++) {
+        cells.push({ row, col });
+      }
+    }
+
+    return {
+      from: {
+        row: fromRowIndex,
+        col: fromColIndex,
+      },
+      to: {
+        row: toRowIndex,
+        col: toColIndex,
+      },
+      cells,
+    };
+  };
+
+  /**
    * Gets the direction of the merge based on the current cell selection.
    *
    * Returns undefined when there is no cell selection, or the selection is not within a table.
@@ -1007,31 +1084,15 @@ export class TableHandlesProsemirrorPlugin<
       return undefined;
     }
 
-    const { $anchorCell, $headCell } = cellSelection;
+    const { from, to } = this.getCellSelection();
     // Table indices are relative to the table, so we need to resolve the absolute cell indices
-    const absoluteCellIndices = getAbsoluteTableCellIndices(
-      {
-        // row index within the table
-        row: $anchorCell.index($anchorCell.depth - 1),
-        // column index within the row
-        col: $anchorCell.index(),
-      },
-      block
-    );
+    const anchorAbsoluteCellIndices = getAbsoluteTableCellIndices(from, block);
 
     // Table indices are relative to the table, so we need to resolve the absolute cell indices
-    const headAbsoluteCellIndices = getAbsoluteTableCellIndices(
-      {
-        // row index within the table
-        row: $headCell.index($headCell.depth - 1),
-        // column index within the row
-        col: $headCell.index(),
-      },
-      block
-    );
+    const headAbsoluteCellIndices = getAbsoluteTableCellIndices(to, block);
 
     // Compare the column indices to determine the merge direction
-    if (absoluteCellIndices.col === headAbsoluteCellIndices.col) {
+    if (anchorAbsoluteCellIndices.col === headAbsoluteCellIndices.col) {
       return "vertical";
     }
 

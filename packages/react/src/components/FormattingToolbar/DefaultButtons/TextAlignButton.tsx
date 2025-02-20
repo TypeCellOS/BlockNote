@@ -4,7 +4,6 @@ import {
   checkBlockTypeHasDefaultProp,
   DefaultProps,
   InlineContentSchema,
-  isTableCellSelection,
   mapTableCell,
   StyleSchema,
   TableContent,
@@ -50,6 +49,23 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
     if (checkBlockHasDefaultProp("textAlignment", block, editor)) {
       return block.props.textAlignment;
     }
+    if (block.type === "table") {
+      const cellSelection = editor.tableHandles?.getCellSelection();
+      if (!cellSelection) {
+        return;
+      }
+      const allCellsInTable = cellSelection.cells.map(
+        ({ row, col }) =>
+          mapTableCell(
+            (block.content as TableContent<any, any>).rows[row].cells[col]
+          ).props.textAlignment
+      );
+      const firstAlignment = allCellsInTable[0];
+
+      if (allCellsInTable.every((alignment) => alignment === firstAlignment)) {
+        return firstAlignment;
+      }
+    }
 
     return;
   }, [editor, selectedBlocks]);
@@ -64,77 +80,26 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
             props: { textAlignment: textAlignment },
           });
         } else if (block.type === "table") {
-          // Based on the current selection, find the table cells that are within the selected range
-          const state = editor.prosemirrorState;
-          const selection = state.selection;
-
-          let $fromCell = selection.$from;
-          let $toCell = selection.$to;
-          if (isTableCellSelection(selection)) {
-            // When the selection is a table cell selection, we can find the
-            // from and to cells by iterating over the ranges in the selection
-            const { ranges } = selection;
-            ranges.forEach((range) => {
-              $fromCell = range.$from.min($fromCell ?? range.$from);
-              $toCell = range.$to.max($toCell ?? range.$to);
-            });
-          } else {
-            // When the selection is a normal text selection
-            // Assumes we are within a tableParagraph
-            // And find the from and to cells by resolving the positions
-            $fromCell = state.doc.resolve(
-              selection.$from.pos - selection.$from.parentOffset - 1
-            );
-            $toCell = state.doc.resolve(
-              selection.$to.pos - selection.$to.parentOffset - 1
-            );
+          const cellSelection = editor.tableHandles?.getCellSelection();
+          if (!cellSelection) {
+            continue;
           }
 
-          // Find the row and table that the from and to cells are in
-          const $fromRow = state.doc.resolve(
-            $fromCell.pos - $fromCell.parentOffset - 1
-          );
-          const $toRow = state.doc.resolve(
-            $toCell.pos - $toCell.parentOffset - 1
-          );
-
-          // Find the table
-          const $table = state.doc.resolve(
-            $fromRow.pos - $fromRow.parentOffset - 1
-          );
-
-          // Find the column and row indices of the from and to cells
-          const fromColIndex = $fromCell.index($fromRow.depth);
-          const fromRowIndex = $fromRow.index($table.depth);
-          const toColIndex = $toCell.index($toRow.depth);
-          const toRowIndex = $toRow.index($table.depth);
-
           const newTable = (block.content as TableContent<any, any>).rows.map(
-            (row, r) => {
+            (row) => {
               return {
                 ...row,
-                cells: row.cells.map((cell, c) => {
-                  const mappedCell = mapTableCell(cell);
-                  // If the cell is within the selected range of cells, update the text alignment
-                  if (
-                    fromRowIndex <= r &&
-                    r <= toRowIndex &&
-                    fromColIndex <= c &&
-                    c <= toColIndex
-                  ) {
-                    return {
-                      ...mappedCell,
-                      props: {
-                        ...mappedCell.props,
-                        textAlignment: textAlignment,
-                      },
-                    };
-                  }
-                  return mappedCell;
+                cells: row.cells.map((cell) => {
+                  return mapTableCell(cell);
                 }),
               };
             }
           );
+
+          // Apply the text alignment to the cells that are within the selected range
+          cellSelection.cells.forEach(({ row, col }) => {
+            newTable[row].cells[col].props.textAlignment = textAlignment;
+          });
 
           editor.updateBlock(block, {
             type: "table",
