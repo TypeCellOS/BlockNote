@@ -219,6 +219,7 @@ export type ComponentProps = {
         mainTooltip?: string;
         secondaryTooltip?: string;
         onClick?: (event: React.MouseEvent) => void;
+        onMouseEnter?: () => void;
       };
       Group: {
         className?: string;

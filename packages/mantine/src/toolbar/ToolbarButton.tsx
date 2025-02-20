@@ -97,7 +97,13 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             (e.currentTarget as HTMLButtonElement).focus();
           }
         }}
-        onClick={onClick}
+        onClick={(event) => {
+          setHideTooltip(true);
+          onClick?.(event);
+        }}
+        // Mantine Menu.Target elements block mouseleave events for some reason,
+        // but pointerleave events work fine.
+        onPointerLeave={() => setHideTooltip(false)}
         aria-pressed={isSelected}
         data-selected={isSelected || undefined}
         data-test={
@@ -114,12 +120,13 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       </MantineActionIcon>
     );
 
-    if (!mainTooltip || hideTooltip) {
+    if (!mainTooltip) {
       return button;
     }
 
     return (
       <MantineTooltip
+        disabled={hideTooltip}
         withinPortal={false}
         label={
           <TooltipContent

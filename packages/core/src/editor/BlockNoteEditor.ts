@@ -92,6 +92,7 @@ import { en } from "../i18n/locales/index.js";
 import { Plugin, Transaction } from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
 import { EditorView } from "prosemirror-view";
+import { ySyncPluginKey } from "y-prosemirror";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
@@ -789,6 +790,8 @@ export class BlockNoteEditor<
   /**
    * Executes a callback whenever the editor's contents change.
    * @param callback The callback to execute.
+   *
+   * @deprecated use `onChange` instead
    */
   public onEditorContentChange(callback: () => void) {
     this._tiptapEditor.on("update", callback);
@@ -797,6 +800,8 @@ export class BlockNoteEditor<
   /**
    * Executes a callback whenever the editor's selection changes.
    * @param callback The callback to execute.
+   *
+   * @deprecated use `onSelectionChange` instead
    */
   public onEditorSelectionChange(callback: () => void) {
     this._tiptapEditor.on("selectionUpdate", callback);
@@ -1244,7 +1249,12 @@ export class BlockNoteEditor<
       return;
     }
 
-    const cb = () => {
+    const cb = (e: { transaction: Transaction }) => {
+      if (e.transaction.getMeta(ySyncPluginKey)) {
+        // selection changed because of a yjs sync (i.e.: other user was typing)
+        // we don't want to trigger the callback in this case
+        return;
+      }
       callback(this);
     };
 

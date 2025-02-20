@@ -1,7 +1,6 @@
 "use client";
 
 import { CommentData, ThreadData, mergeCSSClasses } from "@blocknote/core";
-import Picker from "@emoji-mart/react";
 import {
   ComponentPropsWithoutRef,
   MouseEvent,
@@ -18,12 +17,13 @@ import {
   RiMoreFill,
 } from "react-icons/ri";
 
-import { useBlockNoteContext } from "../../editor/BlockNoteContext.js";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
 import { useDictionary } from "../../i18n/dictionary.js";
+import { EmojiPicker } from "./EmojiPicker.js";
 import { CommentEditor } from "./CommentEditor.js";
+import { ReactionBadge } from "./ReactionBadge.js";
 import { schema } from "./schema.js";
 import { useUser } from "./useUsers.js";
 
@@ -139,14 +139,22 @@ export const Comment = ({
 
   const onReactionSelect = useCallback(
     async (emoji: string) => {
-      // TODO: show error on failure?
-      await threadStore.addReaction({
-        threadId: thread.id,
-        commentId: comment.id,
-        emoji,
-      });
+      if (threadStore.auth.canAddReaction(comment, emoji)) {
+        // TODO: show error on failure?
+        await threadStore.addReaction({
+          threadId: thread.id,
+          commentId: comment.id,
+          emoji,
+        });
+      } else if (threadStore.auth.canDeleteReaction(comment, emoji)) {
+        await threadStore.deleteReaction({
+          threadId: thread.id,
+          commentId: comment.id,
+          emoji,
+        });
+      }
     },
-    [comment.id, threadStore, thread.id]
+    [threadStore, comment, thread.id]
   );
 
   const onResolve = useCallback(async () => {
@@ -164,8 +172,6 @@ export const Comment = ({
   }, [thread.id, threadStore]);
 
   const user = useUser(editor, comment.userId);
-
-  const blockNoteContext = useBlockNoteContext();
 
   if (!showDeleted && !comment.body) {
     return null;
@@ -185,25 +191,19 @@ export const Comment = ({
   if (showActions && !isEditing) {
     actions = (
       <Components.Generic.Toolbar.Root
-        className={mergeCSSClasses("bn-action-toolbar", "bn-comment-actions")}>
+        className={mergeCSSClasses("bn-action-toolbar", "bn-comment-actions")}
+        variant={"action-toolbar"}>
         {canAddReaction && (
-          <Components.Generic.Popover.Root>
-            <Components.Generic.Popover.Trigger>
-              <Components.Generic.Toolbar.Button
-                mainTooltip="Add reaction"
-                variant="compact">
-                <RiEmotionLine size={16} />
-              </Components.Generic.Toolbar.Button>
-            </Components.Generic.Popover.Trigger>
-            <Components.Generic.Popover.Content variant={"form-popover"}>
-              <Picker
-                onEmojiSelect={(emoji: { native: string }) =>
-                  onReactionSelect(emoji.native)
-                }
-                theme={blockNoteContext?.colorSchemePreference}
-              />
-            </Components.Generic.Popover.Content>
-          </Components.Generic.Popover.Root>
+          <EmojiPicker
+            onEmojiSelect={(emoji: { native: string }) =>
+              onReactionSelect(emoji.native)
+            }>
+            <Components.Generic.Toolbar.Button
+              mainTooltip="Add reaction"
+              variant="compact">
+              <RiEmotionLine size={16} />
+            </Components.Generic.Toolbar.Button>
+          </EmojiPicker>
         )}
         {showResolveOrReopen &&
           (thread.resolved ? (
@@ -284,46 +284,26 @@ export const Comment = ({
                             "bn-comment-reactions"
                           )}>
                           {comment.reactions.map((reaction) => (
-                            <Components.Generic.Badge.Root
-                              key={reaction.emoji}
-                              className={mergeCSSClasses(
-                                "bn-badge",
-                                "bn-comment-reaction"
-                              )}
-                              text={reaction.userIds.length.toString()}
-                              icon={reaction.emoji}
-                              isSelected={
-                                user && reaction.userIds.includes(user.id)
-                              }
-                              onClick={() => onReactionSelect(reaction.emoji)}
-                              mainTooltip={"Reacted by"}
-                              secondaryTooltip={`${reaction.userIds.join(
-                                "\n"
-                              )}`}
+                            <ReactionBadge
+                              comment={comment}
+                              emoji={reaction.emoji}
+                              onReactionSelect={onReactionSelect}
                             />
                           ))}
-                          <Components.Generic.Popover.Root>
-                            <Components.Generic.Popover.Trigger>
-                              <Components.Generic.Badge.Root
-                                className={mergeCSSClasses(
-                                  "bn-badge",
-                                  "bn-comment-add-reaction"
-                                )}
-                                text={"+"}
-                                icon={<RiEmotionLine size={16} />}
-                                mainTooltip="Add reaction"
-                              />
-                            </Components.Generic.Popover.Trigger>
-                            <Components.Generic.Popover.Content
-                              variant={"form-popover"}>
-                              <Picker
-                                onEmojiSelect={(emoji: { native: string }) =>
-                                  onReactionSelect(emoji.native)
-                                }
-                                theme={blockNoteContext?.colorSchemePreference}
-                              />
-                            </Components.Generic.Popover.Content>
-                          </Components.Generic.Popover.Root>
+                          <EmojiPicker
+                            onEmojiSelect={(emoji: { native: string }) =>
+                              onReactionSelect(emoji.native)
+                            }>
+                            <Components.Generic.Badge.Root
+                              className={mergeCSSClasses(
+                                "bn-badge",
+                                "bn-comment-add-reaction"
+                              )}
+                              text={"+"}
+                              icon={<RiEmotionLine size={16} />}
+                              mainTooltip="Add reaction"
+                            />
+                          </EmojiPicker>
                         </Components.Generic.Badge.Group>
                       )}
                       {isEditing && (

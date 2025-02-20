@@ -1,8 +1,8 @@
+import { Group as AriakitGroup } from "@ariakit/react";
+
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps, mergeRefs } from "@blocknote/react";
-import { Avatar, Group, Skeleton, Text } from "@mantine/core";
-import { useFocusWithin, useHover } from "@mantine/hooks";
-import { forwardRef } from "react";
+import { ComponentProps } from "@blocknote/react";
+import { forwardRef, useState } from "react";
 
 const AuthorInfo = forwardRef<
   HTMLDivElement,
@@ -14,33 +14,25 @@ const AuthorInfo = forwardRef<
 
   if (authorInfo === "loading") {
     return (
-      <Group>
-        <Skeleton height={24} width={24} />
-        <div>
-          <Skeleton height={12} width={100} />
-        </div>
-      </Group>
+      <AriakitGroup className={"bn-ak-author-info"}>
+        <div className={"bn-ak-avatar bn-ak-skeleton"} />
+        <div className={"bn-ak-username bn-ak-skeleton"} />
+      </AriakitGroup>
     );
   }
 
   return (
-    <Group>
-      <Avatar
+    <AriakitGroup className={"bn-ak-author-info"}>
+      <img
         src={authorInfo.avatarUrl}
         alt={authorInfo.username}
-        radius="xl"
-        size="sm"
-        // name={authorInfo.username} TODO: upgrade mantine?
-        color="initials"
+        className={"bn-ak-avatar"}
       />
-
-      <Text fz="sm" fw={"bold"}>
+      <div className={"bn-ak-username"}>
         {authorInfo.username}
-        <Text fz="xs" c="dimmed" span ml={"xs"}>
-          {timeString}
-        </Text>
-      </Text>
-    </Group>
+        <span>{timeString}</span>
+      </div>
+    </AriakitGroup>
   );
 });
 
@@ -58,23 +50,24 @@ export const Comment = forwardRef<
     ...rest
   } = props;
 
-  const { hovered, ref: hoverRef } = useHover();
-  const { focused, ref: focusRef } = useFocusWithin();
-  const mergedRef = mergeRefs([ref, hoverRef]);
   assertEmpty(rest, false);
+
+  const [hovered, setHovered] = useState(false);
 
   const doShowActions =
     actions &&
     (showActions === true ||
       showActions === undefined ||
-      (showActions === "hover" && hovered) ||
-      focused);
+      (showActions === "hover" && hovered));
 
   return (
-    <Group pos="relative" ref={mergedRef} className={className}>
+    <AriakitGroup
+      ref={ref}
+      className={className}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}>
       {doShowActions ? (
-        <Group
-          ref={focusRef}
+        <AriakitGroup
           style={{
             position: "absolute",
             right: 0,
@@ -82,10 +75,10 @@ export const Comment = forwardRef<
             zIndex: 10,
           }}>
           {actions}
-        </Group>
+        </AriakitGroup>
       ) : null}
       <AuthorInfo {...props} />
       {children}
-    </Group>
+    </AriakitGroup>
   );
 });
