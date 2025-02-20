@@ -7,7 +7,7 @@ import {
 import { ReactNode } from "react";
 
 import { createPortal } from "react-dom";
-import { MdSettings } from "react-icons/md";
+import { MdArrowDropDown } from "react-icons/md";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { TableCellHandleProps } from "./TableCellHandleProps.js";
 import { TableCellHandleMenu } from "./TableCellHandleMenu/TableCellHandleMenu.js";
@@ -40,7 +40,9 @@ export const TableCellHandle = <
       <Components.Generic.Menu.Trigger>
         {/* TODO we should probably make a generic button (wait for comments PR to land) */}
         <div>
-          {props.children || <MdSettings size={14} data-test={"tableHandle"} />}
+          {props.children || (
+            <MdArrowDropDown size={14} data-test={"tableHandle"} />
+          )}
         </div>
       </Components.Generic.Menu.Trigger>
       {/* the menu can extend outside of the table, so we use a portal to prevent clipping */}
