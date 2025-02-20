@@ -53,7 +53,7 @@ const createParagraphStyle = (
       alignmentMap[props.textAlignment as keyof typeof alignmentMap];
   }
 
-  const color =
+  const backgroundColor =
     props.backgroundColor && props.backgroundColor !== "default"
       ? exporter.options.colors[
           props.backgroundColor as keyof typeof exporter.options.colors
@@ -67,8 +67,17 @@ const createParagraphStyle = (
       ].text;
     textStyles["fo:color"] = color;
   }
-  if (color) {
-    paragraphStyles["fo:background-color"] = color;
+  if (backgroundColor) {
+    paragraphStyles["fo:background-color"] = backgroundColor;
+  }
+
+  if (
+    !backgroundColor &&
+    !Object.keys(styleAttributes).length &&
+    !Object.keys(paragraphStyles).length &&
+    !Object.keys(textStyles).length
+  ) {
+    return parentStyleName || "Standard";
   }
 
   return exporter.registerStyle((name) => (
@@ -77,8 +86,11 @@ const createParagraphStyle = (
       style:name={name}
       style:parent-style-name={parentStyleName}
       {...styleAttributes}>
-      {color && (
-        <LoextGraphicProperties draw:fill="solid" draw:fill-color={color} />
+      {backgroundColor && (
+        <LoextGraphicProperties
+          draw:fill="solid"
+          draw:fill-color={backgroundColor}
+        />
       )}
       {Object.keys(paragraphStyles).length > 0 && (
         <StyleParagraphProperties {...paragraphStyles} />
