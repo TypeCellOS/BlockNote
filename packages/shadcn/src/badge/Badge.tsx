@@ -17,6 +17,7 @@ export const Badge = forwardRef<
     mainTooltip,
     secondaryTooltip,
     onClick,
+    onMouseEnter,
     ...rest
   } = props;
 
@@ -32,6 +33,7 @@ export const Badge = forwardRef<
         "bn-flex bn-items-center bn-gap-1 bn-rounded-full bn-h-7 bn-px-2.5"
       )}
       onClick={onClick}
+      onMouseEnter={onMouseEnter}
       ref={ref}>
       <span>{icon}</span>
       <span>{text}</span>

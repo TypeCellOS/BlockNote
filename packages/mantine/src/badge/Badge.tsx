@@ -22,6 +22,7 @@ export const Badge = forwardRef<
     mainTooltip,
     secondaryTooltip,
     onClick,
+    onMouseEnter,
     ...rest
   } = props;
 
@@ -40,6 +41,7 @@ export const Badge = forwardRef<
         onClick?.(event);
       }}
       wrapperProps={{
+        onMouseEnter,
         onMouseLeave: () => setHideTooltip(false),
       }}
       variant={"light"}

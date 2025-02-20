@@ -22,6 +22,7 @@ export const Badge = forwardRef<
     mainTooltip,
     secondaryTooltip,
     onClick,
+    onMouseEnter,
     ...rest
   } = props;
 
@@ -36,6 +37,7 @@ export const Badge = forwardRef<
       )}
       aria-selected={isSelected === true}
       onClick={(event) => onClick?.(event)}
+      onMouseEnter={onMouseEnter}
       ref={ref}>
       <span>{icon}</span>
       <span>{text}</span>

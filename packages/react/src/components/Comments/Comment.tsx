@@ -23,6 +23,7 @@ import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { EmojiPicker } from "./EmojiPicker.js";
 import { CommentEditor } from "./CommentEditor.js";
+import { ReactionBadge } from "./ReactionBadge.js";
 import { schema } from "./schema.js";
 import { useUser } from "./useUsers.js";
 
@@ -138,14 +139,22 @@ export const Comment = ({
 
   const onReactionSelect = useCallback(
     async (emoji: string) => {
-      // TODO: show error on failure?
-      await threadStore.addReaction({
-        threadId: thread.id,
-        commentId: comment.id,
-        emoji,
-      });
+      if (threadStore.auth.canAddReaction(comment, emoji)) {
+        // TODO: show error on failure?
+        await threadStore.addReaction({
+          threadId: thread.id,
+          commentId: comment.id,
+          emoji,
+        });
+      } else if (threadStore.auth.canDeleteReaction(comment, emoji)) {
+        await threadStore.deleteReaction({
+          threadId: thread.id,
+          commentId: comment.id,
+          emoji,
+        });
+      }
     },
-    [comment.id, threadStore, thread.id]
+    [threadStore, comment, thread.id]
   );
 
   const onResolve = useCallback(async () => {
@@ -275,22 +284,10 @@ export const Comment = ({
                             "bn-comment-reactions"
                           )}>
                           {comment.reactions.map((reaction) => (
-                            <Components.Generic.Badge.Root
-                              key={reaction.emoji}
-                              className={mergeCSSClasses(
-                                "bn-badge",
-                                "bn-comment-reaction"
-                              )}
-                              text={reaction.userIds.length.toString()}
-                              icon={reaction.emoji}
-                              isSelected={
-                                user && reaction.userIds.includes(user.id)
-                              }
-                              onClick={() => onReactionSelect(reaction.emoji)}
-                              mainTooltip={"Reacted by"}
-                              secondaryTooltip={`${reaction.userIds.join(
-                                "\n"
-                              )}`}
+                            <ReactionBadge
+                              comment={comment}
+                              emoji={reaction.emoji}
+                              onReactionSelect={onReactionSelect}
                             />
                           ))}
                           <EmojiPicker
