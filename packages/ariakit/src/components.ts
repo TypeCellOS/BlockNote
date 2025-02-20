@@ -32,6 +32,10 @@ import { TableHandle } from "./tableHandle/TableHandle.js";
 import { Toolbar } from "./toolbar/Toolbar.js";
 import { ToolbarButton } from "./toolbar/ToolbarButton.js";
 import { ToolbarSelect } from "./toolbar/ToolbarSelect.js";
+import { Card, CardSection } from "./comments/Card.js";
+import { Comment } from "./comments/Comment.js";
+import { Editor } from "./comments/Editor.js";
+import { Badge, BadgeGroup } from "./badge/Badge.js";
 
 export const components: Components = {
   FormattingToolbar: {
@@ -71,8 +75,17 @@ export const components: Components = {
     Root: TableHandle,
     ExtendButton: ExtendButton,
   },
-  // @ts-ignore TODO
+  Comments: {
+    Comment: Comment,
+    Editor: Editor,
+    Card: Card,
+    CardSection: CardSection,
+  },
   Generic: {
+    Badge: {
+      Root: Badge,
+      Group: BadgeGroup,
+    },
     Toolbar: {
       Root: Toolbar,
       Button: ToolbarButton,
