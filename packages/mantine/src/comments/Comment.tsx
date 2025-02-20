@@ -1,7 +1,7 @@
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps, mergeRefs } from "@blocknote/react";
 import { Avatar, Group, Skeleton, Text } from "@mantine/core";
-import { useHover } from "@mantine/hooks";
+import { useFocusWithin, useHover } from "@mantine/hooks";
 import { forwardRef } from "react";
 
 const AuthorInfo = forwardRef<
@@ -59,6 +59,7 @@ export const Comment = forwardRef<
   } = props;
 
   const { hovered, ref: hoverRef } = useHover();
+  const { focused, ref: focusRef } = useFocusWithin();
   const mergedRef = mergeRefs([ref, hoverRef]);
   assertEmpty(rest, false);
 
@@ -66,12 +67,14 @@ export const Comment = forwardRef<
     actions &&
     (showActions === true ||
       showActions === undefined ||
-      (showActions === "hover" && hovered));
+      (showActions === "hover" && hovered) ||
+      focused);
 
   return (
     <Group pos="relative" ref={mergedRef} className={className}>
       {doShowActions ? (
         <Group
+          ref={focusRef}
           style={{
             position: "absolute",
             right: 0,

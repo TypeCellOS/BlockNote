@@ -125,6 +125,7 @@
   border-radius: 0;
   box-shadow: none;
   padding: 0;
+  white-space: pre-wrap;
 }
 
 /* UI element styling */
