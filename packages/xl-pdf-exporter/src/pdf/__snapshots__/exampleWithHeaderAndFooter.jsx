@@ -432,6 +432,8 @@
               undefined,
               undefined
             ],
+            headerCols: undefined,
+            headerRows: undefined,
             rows: [
               {
                 cells: [
@@ -810,6 +812,8 @@
               undefined,
               undefined
             ],
+            headerCols: undefined,
+            headerRows: undefined,
             rows: [
               {
                 cells: [

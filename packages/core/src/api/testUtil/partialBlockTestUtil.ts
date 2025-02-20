@@ -72,6 +72,8 @@ function partialContentToInlineContent(
     return {
       type: "tableContent",
       columnWidths: content.columnWidths,
+      headerRows: content.headerRows,
+      headerCols: content.headerCols,
       rows: content.rows.map((row) => ({
         ...row,
         cells: row.cells.map(
@@ -162,6 +164,8 @@ export function partialBlockToBlockForTesting<
         content?.columnWidths ||
         content?.rows[0]?.cells.map(() => undefined) ||
         [],
+      headerRows: content?.headerRows || undefined,
+      headerCols: content?.headerCols || undefined,
       rows:
         content?.rows.map((row) => ({
           cells: row.cells.map((cell) => partialContentToInlineContent(cell)),

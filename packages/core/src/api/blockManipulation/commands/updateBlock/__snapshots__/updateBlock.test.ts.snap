@@ -263,6 +263,8 @@ exports[`Test updateBlock > Revert all props 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -828,6 +830,8 @@ exports[`Test updateBlock > Revert single prop 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -1393,6 +1397,8 @@ exports[`Test updateBlock > Update all props 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -1958,6 +1964,8 @@ exports[`Test updateBlock > Update children 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -2521,6 +2529,8 @@ exports[`Test updateBlock > Update inline content to no content 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -2833,6 +2843,8 @@ exports[`Test updateBlock > Update inline content to table content 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -3252,6 +3264,8 @@ exports[`Test updateBlock > Update inline content to table content 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -3813,6 +3827,8 @@ exports[`Test updateBlock > Update no content to empty inline content 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -4374,6 +4390,8 @@ exports[`Test updateBlock > Update no content to empty table content 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -4941,6 +4959,8 @@ exports[`Test updateBlock > Update no content to inline content 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -5474,6 +5494,8 @@ exports[`Test updateBlock > Update no content to table content 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -5674,6 +5696,8 @@ exports[`Test updateBlock > Update no content to table content 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -6239,6 +6263,8 @@ exports[`Test updateBlock > Update single prop 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -7993,6 +8019,8 @@ exports[`Test updateBlock > Update type 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -8557,6 +8585,8 @@ exports[`Test updateBlock > Update with plain content 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -9108,6 +9138,8 @@ exports[`Test updateBlock > Update with styled content 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [

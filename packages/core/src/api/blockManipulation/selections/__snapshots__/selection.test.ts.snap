@@ -317,6 +317,8 @@ exports[`Test getSelection & setSelection > Ends in table 1`] = `
           undefined,
           undefined,
         ],
+        "headerCols": undefined,
+        "headerRows": undefined,
         "rows": [
           {
             "cells": [
@@ -643,6 +645,8 @@ exports[`Test getSelection & setSelection > Starts in table 1`] = `
           undefined,
           undefined,
         ],
+        "headerCols": undefined,
+        "headerRows": undefined,
         "rows": [
           {
             "cells": [

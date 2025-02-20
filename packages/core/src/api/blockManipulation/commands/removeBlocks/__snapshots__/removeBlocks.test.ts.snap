@@ -227,6 +227,8 @@ exports[`Test removeBlocks > Remove all child blocks 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -705,6 +707,8 @@ exports[`Test removeBlocks > Remove multiple consecutive blocks 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -1550,6 +1554,8 @@ exports[`Test removeBlocks > Remove single block 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [

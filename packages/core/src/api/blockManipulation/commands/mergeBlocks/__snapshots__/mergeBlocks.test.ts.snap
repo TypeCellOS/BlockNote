@@ -246,6 +246,8 @@ exports[`Test mergeBlocks > Basic 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -794,6 +796,8 @@ exports[`Test mergeBlocks > Blocks have different types 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -1342,6 +1346,8 @@ exports[`Test mergeBlocks > First block has children 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -1889,6 +1895,8 @@ exports[`Test mergeBlocks > Second block has children 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -2454,6 +2462,8 @@ exports[`Test mergeBlocks > Second block is empty 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [

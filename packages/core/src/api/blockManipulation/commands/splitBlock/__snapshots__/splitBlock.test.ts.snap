@@ -280,6 +280,8 @@ exports[`Test splitBlocks > Basic 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -862,6 +864,8 @@ exports[`Test splitBlocks > Block has children 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -1444,6 +1448,8 @@ exports[`Test splitBlocks > Don't keep props 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -2026,6 +2032,8 @@ exports[`Test splitBlocks > Don't keep type 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -2602,6 +2610,8 @@ exports[`Test splitBlocks > End of content 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -3185,6 +3195,8 @@ exports[`Test splitBlocks > Keep type 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [

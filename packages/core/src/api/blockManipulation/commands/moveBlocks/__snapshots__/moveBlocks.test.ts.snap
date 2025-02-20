@@ -263,6 +263,8 @@ exports[`Test moveBlocksDown > Basic 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -828,6 +830,8 @@ exports[`Test moveBlocksDown > Into children 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -1393,6 +1397,8 @@ exports[`Test moveBlocksDown > Last block 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -1958,6 +1964,8 @@ exports[`Test moveBlocksDown > Multiple blocks 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -2523,6 +2531,8 @@ exports[`Test moveBlocksDown > Multiple blocks ending in block with children 1`]
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -3088,6 +3098,8 @@ exports[`Test moveBlocksDown > Multiple blocks ending in nested block 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -3663,6 +3675,8 @@ exports[`Test moveBlocksDown > Multiple blocks starting and ending in nested blo
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -4228,6 +4242,8 @@ exports[`Test moveBlocksDown > Multiple blocks starting in block with children 1
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -4792,6 +4808,8 @@ exports[`Test moveBlocksDown > Multiple blocks starting in nested block 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -5357,6 +5375,8 @@ exports[`Test moveBlocksDown > Out of children 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -5921,6 +5941,8 @@ exports[`Test moveBlocksUp > Basic 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -6486,6 +6508,8 @@ exports[`Test moveBlocksUp > First block 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -7051,6 +7075,8 @@ exports[`Test moveBlocksUp > Into children 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -7616,6 +7642,8 @@ exports[`Test moveBlocksUp > Multiple blocks 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -8181,6 +8209,8 @@ exports[`Test moveBlocksUp > Multiple blocks ending in block with children 1`] =
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -8746,6 +8776,8 @@ exports[`Test moveBlocksUp > Multiple blocks ending in nested block 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -9293,6 +9325,8 @@ exports[`Test moveBlocksUp > Multiple blocks starting and ending in nested block
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -9875,6 +9909,8 @@ exports[`Test moveBlocksUp > Multiple blocks starting in block with children 1`]
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -10439,6 +10475,8 @@ exports[`Test moveBlocksUp > Multiple blocks starting in nested block 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -11004,6 +11042,8 @@ exports[`Test moveBlocksUp > Out of children 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [

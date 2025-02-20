@@ -314,6 +314,8 @@ exports[`Test insertBlocks > Insert multiple blocks after 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -930,6 +932,8 @@ exports[`Test insertBlocks > Insert multiple blocks before 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -1506,6 +1510,8 @@ exports[`Test insertBlocks > Insert single basic block after 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -2088,6 +2094,8 @@ exports[`Test insertBlocks > Insert single basic block before (without type) 1`]
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -2664,6 +2672,8 @@ exports[`Test insertBlocks > Insert single basic block before 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -3297,6 +3307,8 @@ exports[`Test insertBlocks > Insert single complex block after 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [
@@ -3930,6 +3942,8 @@ exports[`Test insertBlocks > Insert single complex block before 1`] = `
         undefined,
         undefined,
       ],
+      "headerCols": undefined,
+      "headerRows": undefined,
       "rows": [
         {
           "cells": [

@@ -374,6 +374,7 @@
         null,
         null
       ],
+      "headerRows": 1,
       "rows": [
         {
           "cells": [
@@ -540,8 +541,7 @@
             }
           ]
         }
-      ],
-      "headerRows": 1
+      ]
     },
     "children": []
   },
