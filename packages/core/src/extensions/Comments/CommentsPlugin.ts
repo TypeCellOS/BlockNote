@@ -150,7 +150,6 @@ export class CommentsPlugin extends EventEmitter<any> {
     // TODO: remove settimeout
     setTimeout(() => {
       editor.onSelectionChange(() => {
-        // TODO: filter out yjs transactions
         if (this.pendingComment) {
           this.pendingComment = false;
           this.emitStateUpdate();
