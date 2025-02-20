@@ -3,7 +3,7 @@
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
   "license": "AGPL-3.0 OR PROPRIETARY",
-  "version": "0.23.1",
+  "version": "0.24.0",
   "files": [
     "dist",
     "types",
@@ -46,10 +46,11 @@
     "build": "tsc --build && vite build",
     "lint": "eslint src --max-warnings 0",
     "test": "vitest --run",
-    "test-watch": "vitest watch"
+    "test-watch": "vitest watch",
+    "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "^0.23.1",
+    "@blocknote/core": "^0.24.0",
     "@zip.js/zip.js": "^2.7.57",
     "buffer": "^6.0.3",
     "sharp": "^0.33.5"

@@ -1,13 +1,22 @@
 import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
 import { defineConfig } from "vite";
+import pkg from "./package.json";
+// import eslintPlugin from "vite-plugin-eslint";
 
+const deps = Object.keys({
+  ...pkg.dependencies,
+  ...pkg.peerDependencies,
+  ...pkg.devDependencies,
+});
+
+// https://vitejs.dev/config/
 export default defineConfig((conf) => ({
   test: {
     environment: "jsdom",
     setupFiles: ["./vitestSetup.ts"],
   },
-  plugins: [webpackStats() as any],
+  plugins: [webpackStats()],
   resolve: {
     alias:
       conf.command === "build"
@@ -20,11 +29,6 @@ export default defineConfig((conf) => ({
             "@blocknote/react": path.resolve(__dirname, "../react/src/"),
           } as Record<string, string>),
   },
-  server: {
-    fs: {
-      allow: ["../../shared"],
-    },
-  },
   build: {
     sourcemap: true,
     lib: {
@@ -33,13 +37,32 @@ export default defineConfig((conf) => ({
       fileName: "blocknote-xl-odt-exporter",
     },
     rollupOptions: {
-      external: (source: string) =>
-        source.startsWith("@blocknote/") ||
-        source === "react" ||
-        source === "jsx-xml",
+      // make sure to externalize deps that shouldn't be bundled
+      // into your library
+      external: (source: string) => {
+        if (deps.includes(source)) {
+          return true;
+        }
+
+        if (source === "react/jsx-runtime") {
+          return true;
+        }
+
+        if (source === "react-dom/server") {
+          return true;
+        }
+
+        if (source.startsWith("prosemirror-")) {
+          return true;
+        }
+
+        return false;
+      },
       output: {
+        // Provide global variables to use in the UMD build
+        // for externalized deps
         globals: {},
-        interop: "compat",
+        interop: "compat", // https://rollupjs.org/migration/#changed-defaults
       },
     },
   },
