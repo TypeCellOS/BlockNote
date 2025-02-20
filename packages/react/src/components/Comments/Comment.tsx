@@ -269,15 +269,16 @@ export const Comment = ({
       actions={actions}
       className={className}>
       {comment.body ? (
-        <>
-          <CommentEditor
-            editor={commentEditor}
-            editable={isEditing}
-            actions={
-              (showReactions && comment.reactions.length > 0) || isEditing
-                ? ({ isEmpty }) => (
-                    <>
-                      {showReactions && comment.reactions.length > 0 && (
+        <CommentEditor
+          editor={commentEditor}
+          editable={isEditing}
+          actions={
+            (showReactions && comment.reactions.length > 0) || isEditing
+              ? ({ isEmpty }) => (
+                  <>
+                    {showReactions &&
+                      comment.reactions.length > 0 &&
+                      !isEditing && (
                         <Components.Generic.Badge.Group
                           className={mergeCSSClasses(
                             "bn-badge-group",
@@ -306,35 +307,34 @@ export const Comment = ({
                           </EmojiPicker>
                         </Components.Generic.Badge.Group>
                       )}
-                      {isEditing && (
-                        <Components.Generic.Toolbar.Root
-                          variant="action-toolbar"
-                          className={mergeCSSClasses(
-                            "bn-action-toolbar",
-                            "bn-comment-actions"
-                          )}>
-                          <Components.Generic.Toolbar.Button
-                            mainTooltip="Save"
-                            variant="compact"
-                            onClick={onEditSubmit}
-                            isDisabled={isEmpty}>
-                            Save
-                          </Components.Generic.Toolbar.Button>
-                          <Components.Generic.Toolbar.Button
-                            className={"bn-button"}
-                            mainTooltip="Cancel"
-                            variant="compact"
-                            onClick={onEditCancel}>
-                            Cancel
-                          </Components.Generic.Toolbar.Button>
-                        </Components.Generic.Toolbar.Root>
-                      )}
-                    </>
-                  )
-                : undefined
-            }
-          />
-        </>
+                    {isEditing && (
+                      <Components.Generic.Toolbar.Root
+                        variant="action-toolbar"
+                        className={mergeCSSClasses(
+                          "bn-action-toolbar",
+                          "bn-comment-actions"
+                        )}>
+                        <Components.Generic.Toolbar.Button
+                          mainTooltip="Save"
+                          variant="compact"
+                          onClick={onEditSubmit}
+                          isDisabled={isEmpty}>
+                          Save
+                        </Components.Generic.Toolbar.Button>
+                        <Components.Generic.Toolbar.Button
+                          className={"bn-button"}
+                          mainTooltip="Cancel"
+                          variant="compact"
+                          onClick={onEditCancel}>
+                          Cancel
+                        </Components.Generic.Toolbar.Button>
+                      </Components.Generic.Toolbar.Root>
+                    )}
+                  </>
+                )
+              : undefined
+          }
+        />
       ) : (
         // Soft deletes
         // TODO, test
