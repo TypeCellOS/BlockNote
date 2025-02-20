@@ -38,10 +38,10 @@ export const ColorPickerButton = <
     }
 
     if (props.orientation === "row") {
-      return tableHandles.getRow(props.block, props.index);
+      return tableHandles.getCellsAtRowHandle(props.block, props.index);
     }
 
-    return tableHandles.getColumn(props.block, props.index);
+    return tableHandles.getCellsAtColumnHandle(props.block, props.index);
   }, [props.block, props.index, props.orientation, tableHandles]);
 
   if (!currentCells || !tableHandles) {

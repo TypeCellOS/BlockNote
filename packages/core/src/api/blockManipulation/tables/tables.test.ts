@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import { Block, DefaultBlockSchema } from "../../../blocks/defaultBlocks.js";
 import {
-  getColumn,
-  getRow,
+  getCellsAtColumnHandle,
+  getCellsAtRowHandle,
   getRelativeTableCellIndices,
   getAbsoluteTableCellIndices,
 } from "./tables.js";
@@ -766,23 +766,30 @@ describe("Test getAbsoluteTableCellIndices", () => {
     expect(
       getAbsoluteTableCellIndices({ row: 1, col: 0 }, tableWithRowspan)
     ).toEqual({
+      row: 1,
+      col: 1,
+      cell: tableWithRowspan.content.rows[1].cells[0],
+    });
+    expect(
+      getAbsoluteTableCellIndices({ row: 1, col: 1 }, tableWithRowspan)
+    ).toEqual({
+      row: 1,
+      col: 2,
+      cell: tableWithRowspan.content.rows[1].cells[1],
+    });
+    expect(
+      getAbsoluteTableCellIndices({ row: 2, col: 0 }, tableWithRowspan)
+    ).toEqual({
       row: 2,
       col: 0,
       cell: tableWithRowspan.content.rows[2].cells[0],
     });
     expect(
-      getAbsoluteTableCellIndices({ row: 1, col: 1 }, tableWithRowspan)
+      getAbsoluteTableCellIndices({ row: 2, col: 1 }, tableWithRowspan)
     ).toEqual({
       row: 2,
       col: 1,
       cell: tableWithRowspan.content.rows[2].cells[1],
-    });
-    expect(
-      getAbsoluteTableCellIndices({ row: 1, col: 2 }, tableWithRowspan)
-    ).toEqual({
-      row: 2,
-      col: 2,
-      cell: tableWithRowspan.content.rows[2].cells[2],
     });
   });
 
@@ -823,13 +830,33 @@ describe("Test getAbsoluteTableCellIndices", () => {
         tableWithComplexRowspansAndColspans
       )
     ).toEqual({
+      row: 1,
+      col: 2,
+      cell: tableWithComplexRowspansAndColspans.content.rows[1].cells[0],
+    });
+    expect(
+      getAbsoluteTableCellIndices(
+        { row: 1, col: 1 },
+        tableWithComplexRowspansAndColspans
+      )
+    ).toEqual({
+      row: 1,
+      col: 3,
+      cell: tableWithComplexRowspansAndColspans.content.rows[1].cells[1],
+    });
+    expect(
+      getAbsoluteTableCellIndices(
+        { row: 2, col: 0 },
+        tableWithComplexRowspansAndColspans
+      )
+    ).toEqual({
       row: 2,
       col: 0,
       cell: tableWithComplexRowspansAndColspans.content.rows[2].cells[0],
     });
     expect(
       getAbsoluteTableCellIndices(
-        { row: 1, col: 1 },
+        { row: 2, col: 1 },
         tableWithComplexRowspansAndColspans
       )
     ).toEqual({
@@ -839,13 +866,13 @@ describe("Test getAbsoluteTableCellIndices", () => {
     });
     expect(
       getAbsoluteTableCellIndices(
-        { row: 1, col: 2 },
+        { row: 2, col: 2 },
         tableWithComplexRowspansAndColspans
       )
     ).toEqual({
       row: 2,
-      col: 2,
-      cell: tableWithComplexRowspansAndColspans.content.rows[1].cells[0],
+      col: 3,
+      cell: tableWithComplexRowspansAndColspans.content.rows[2].cells[2],
     });
   });
 });
@@ -1166,24 +1193,126 @@ describe("Test getRelativeTableCellIndices", () => {
 
 describe("resolveAbsoluteTableCellIndices and resolveRelativeTableCellIndices should be inverse functions", () => {
   it("should work for simple tables", () => {
-    expect(
-      getRelativeTableCellIndices(
-        getAbsoluteTableCellIndices({ row: 0, col: 0 }, simpleTable),
-        simpleTable
-      )
-    ).toEqual({ row: 0, col: 0, cell: simpleTable.content.rows[0].cells[0] });
-    expect(
-      getAbsoluteTableCellIndices(
-        getRelativeTableCellIndices({ row: 0, col: 1 }, simpleTable),
-        simpleTable
-      )
-    ).toEqual({ row: 0, col: 1, cell: simpleTable.content.rows[0].cells[1] });
+    for (let row = 0; row < simpleTable.content.rows.length; row++) {
+      for (
+        let col = 0;
+        col < simpleTable.content.rows[row].cells.length;
+        col++
+      ) {
+        expect(
+          getRelativeTableCellIndices(
+            getAbsoluteTableCellIndices({ row, col }, simpleTable),
+            simpleTable
+          )
+        ).toEqual({ row, col, cell: simpleTable.content.rows[row].cells[col] });
+      }
+    }
+  });
+  it("should work for tables with colspans", () => {
+    for (let row = 0; row < tableWithColspan.content.rows.length; row++) {
+      for (
+        let col = 0;
+        col < tableWithColspan.content.rows[row].cells.length;
+        col++
+      ) {
+        expect(
+          getRelativeTableCellIndices(
+            getAbsoluteTableCellIndices({ row, col }, tableWithColspan),
+            tableWithColspan
+          )
+        ).toEqual({
+          row,
+          col,
+          cell: tableWithColspan.content.rows[row].cells[col],
+        });
+      }
+    }
+  });
+
+  it("should work for tables with rowspans", () => {
+    for (let row = 0; row < tableWithRowspan.content.rows.length; row++) {
+      for (
+        let col = 0;
+        col < tableWithRowspan.content.rows[row].cells.length;
+        col++
+      ) {
+        expect(
+          getRelativeTableCellIndices(
+            getAbsoluteTableCellIndices({ row, col }, tableWithRowspan),
+            tableWithRowspan
+          )
+        ).toEqual({
+          row,
+          col,
+          cell: tableWithRowspan.content.rows[row].cells[col],
+        });
+      }
+    }
+  });
+
+  it("should work for tables with colspans and rowspans", () => {
+    for (
+      let row = 0;
+      row < tableWithColspanAndRowspan.content.rows.length;
+      row++
+    ) {
+      for (
+        let col = 0;
+        col < tableWithColspanAndRowspan.content.rows[row].cells.length;
+        col++
+      ) {
+        expect(
+          getRelativeTableCellIndices(
+            getAbsoluteTableCellIndices(
+              { row, col },
+              tableWithColspanAndRowspan
+            ),
+            tableWithColspanAndRowspan
+          )
+        ).toEqual({
+          row,
+          col,
+          cell: tableWithColspanAndRowspan.content.rows[row].cells[col],
+        });
+      }
+    }
+  });
+
+  it("should work for tables with complex rowspans and colspans", () => {
+    for (
+      let row = 0;
+      row < tableWithComplexRowspansAndColspans.content.rows.length;
+      row++
+    ) {
+      for (
+        let col = 0;
+        col <
+        tableWithComplexRowspansAndColspans.content.rows[row].cells.length;
+        col++
+      ) {
+        expect(
+          getRelativeTableCellIndices(
+            getAbsoluteTableCellIndices(
+              { row, col },
+              tableWithComplexRowspansAndColspans
+            ),
+            tableWithComplexRowspansAndColspans
+          )
+        ).toEqual({
+          row,
+          col,
+          cell: tableWithComplexRowspansAndColspans.content.rows[row].cells[
+            col
+          ],
+        });
+      }
+    }
   });
 });
 
 describe("Test getRow", () => {
   it("should get the row of the table", () => {
-    expect(getRow(simpleTable, 0)).toEqual(
+    expect(getCellsAtRowHandle(simpleTable, 0)).toEqual(
       simpleTable.content.rows[0].cells.map((cell, col) => ({
         row: 0,
         col,
@@ -1193,7 +1322,7 @@ describe("Test getRow", () => {
   });
 
   it("should get the row of the table with colspan", () => {
-    expect(getRow(tableWithColspan, 0)).toEqual([
+    expect(getCellsAtRowHandle(tableWithColspan, 0)).toEqual([
       {
         row: 0,
         col: 0,
@@ -1206,7 +1335,7 @@ describe("Test getRow", () => {
       },
     ]);
 
-    expect(getRow(tableWithColspan, 1)).toEqual([
+    expect(getCellsAtRowHandle(tableWithColspan, 1)).toEqual([
       {
         row: 1,
         col: 0,
@@ -1226,7 +1355,7 @@ describe("Test getRow", () => {
   });
 
   it("should get the row of the table with rowspan", () => {
-    expect(getRow(tableWithRowspan, 0)).toEqual([
+    expect(getCellsAtRowHandle(tableWithRowspan, 0)).toEqual([
       {
         row: 0,
         col: 0,
@@ -1244,7 +1373,7 @@ describe("Test getRow", () => {
       },
     ]);
 
-    expect(getRow(tableWithRowspan, 1)).toEqual([
+    expect(getCellsAtRowHandle(tableWithRowspan, 1)).toEqual([
       {
         row: 2,
         col: 0,
@@ -1264,52 +1393,58 @@ describe("Test getRow", () => {
   });
 
   it("should get the row of the table with complex rowspans and colspans", () => {
-    expect(getRow(tableWithComplexRowspansAndColspans, 0)).toEqual([
-      {
-        row: 0,
-        col: 0,
-        cell: tableWithComplexRowspansAndColspans.content.rows[0].cells[0],
-      },
-      {
-        row: 0,
-        col: 1,
-        cell: tableWithComplexRowspansAndColspans.content.rows[0].cells[1],
-      },
-      {
-        row: 0,
-        col: 2,
-        cell: tableWithComplexRowspansAndColspans.content.rows[0].cells[2],
-      },
-    ]);
-    expect(getRow(tableWithComplexRowspansAndColspans, 1)).toEqual([
-      {
-        row: 2,
-        col: 0,
-        cell: tableWithComplexRowspansAndColspans.content.rows[2].cells[0],
-      },
-      {
-        row: 2,
-        col: 1,
-        cell: tableWithComplexRowspansAndColspans.content.rows[2].cells[1],
-      },
-      {
-        row: 1,
-        col: 0,
-        cell: tableWithComplexRowspansAndColspans.content.rows[1].cells[0],
-      },
-      {
-        row: 2,
-        col: 2,
-        cell: tableWithComplexRowspansAndColspans.content.rows[2].cells[2],
-      },
-    ]);
-    expect(getRow(tableWithComplexRowspansAndColspans, 2)).toEqual([]);
+    expect(getCellsAtRowHandle(tableWithComplexRowspansAndColspans, 0)).toEqual(
+      [
+        {
+          row: 0,
+          col: 0,
+          cell: tableWithComplexRowspansAndColspans.content.rows[0].cells[0],
+        },
+        {
+          row: 0,
+          col: 1,
+          cell: tableWithComplexRowspansAndColspans.content.rows[0].cells[1],
+        },
+        {
+          row: 0,
+          col: 2,
+          cell: tableWithComplexRowspansAndColspans.content.rows[0].cells[2],
+        },
+      ]
+    );
+    expect(getCellsAtRowHandle(tableWithComplexRowspansAndColspans, 1)).toEqual(
+      [
+        {
+          row: 2,
+          col: 0,
+          cell: tableWithComplexRowspansAndColspans.content.rows[2].cells[0],
+        },
+        {
+          row: 2,
+          col: 1,
+          cell: tableWithComplexRowspansAndColspans.content.rows[2].cells[1],
+        },
+        {
+          row: 1,
+          col: 0,
+          cell: tableWithComplexRowspansAndColspans.content.rows[1].cells[0],
+        },
+        {
+          row: 2,
+          col: 2,
+          cell: tableWithComplexRowspansAndColspans.content.rows[2].cells[2],
+        },
+      ]
+    );
+    expect(getCellsAtRowHandle(tableWithComplexRowspansAndColspans, 2)).toEqual(
+      []
+    );
   });
 });
 
 describe("Test getColumn", () => {
   it("should get the column of the table", () => {
-    expect(getColumn(simpleTable, 0)).toEqual([
+    expect(getCellsAtColumnHandle(simpleTable, 0)).toEqual([
       {
         row: 0,
         col: 0,
@@ -1322,7 +1457,7 @@ describe("Test getColumn", () => {
       },
     ]);
 
-    expect(getColumn(simpleTable, 1)).toEqual([
+    expect(getCellsAtColumnHandle(simpleTable, 1)).toEqual([
       {
         row: 0,
         col: 1,
@@ -1334,11 +1469,11 @@ describe("Test getColumn", () => {
         cell: simpleTable.content.rows[1].cells[1],
       },
     ]);
-    expect(getColumn(simpleTable, 2)).toEqual([]);
+    expect(getCellsAtColumnHandle(simpleTable, 2)).toEqual([]);
   });
 
   it("should get the column of the table with colspan", () => {
-    expect(getColumn(tableWithColspan, 0)).toEqual([
+    expect(getCellsAtColumnHandle(tableWithColspan, 0)).toEqual([
       {
         row: 0,
         col: 0,
@@ -1351,7 +1486,7 @@ describe("Test getColumn", () => {
       },
     ]);
 
-    expect(getColumn(tableWithColspan, 1)).toEqual([
+    expect(getCellsAtColumnHandle(tableWithColspan, 1)).toEqual([
       {
         row: 0,
         col: 1,
@@ -1363,11 +1498,11 @@ describe("Test getColumn", () => {
         cell: tableWithColspan.content.rows[1].cells[2],
       },
     ]);
-    expect(getColumn(tableWithColspan, 2)).toEqual([]);
+    expect(getCellsAtColumnHandle(tableWithColspan, 2)).toEqual([]);
   });
 
   it("should get the column of the table with rowspan", () => {
-    expect(getColumn(tableWithRowspan, 0)).toEqual([
+    expect(getCellsAtColumnHandle(tableWithRowspan, 0)).toEqual([
       {
         row: 0,
         col: 0,
@@ -1380,7 +1515,7 @@ describe("Test getColumn", () => {
       },
     ]);
 
-    expect(getColumn(tableWithRowspan, 1)).toEqual([
+    expect(getCellsAtColumnHandle(tableWithRowspan, 1)).toEqual([
       {
         row: 0,
         col: 1,
@@ -1398,7 +1533,7 @@ describe("Test getColumn", () => {
       },
     ]);
 
-    expect(getColumn(tableWithRowspan, 2)).toEqual([
+    expect(getCellsAtColumnHandle(tableWithRowspan, 2)).toEqual([
       {
         row: 0,
         col: 2,
@@ -1415,11 +1550,13 @@ describe("Test getColumn", () => {
         cell: tableWithRowspan.content.rows[2].cells[2],
       },
     ]);
-    expect(getColumn(tableWithRowspan, 3)).toEqual([]);
+    expect(getCellsAtColumnHandle(tableWithRowspan, 3)).toEqual([]);
   });
 
   it("should get the column of the table with complex rowspans and colspans", () => {
-    expect(getColumn(tableWithComplexRowspansAndColspans, 0)).toEqual([
+    expect(
+      getCellsAtColumnHandle(tableWithComplexRowspansAndColspans, 0)
+    ).toEqual([
       {
         row: 0,
         col: 0,
@@ -1431,7 +1568,9 @@ describe("Test getColumn", () => {
         cell: tableWithComplexRowspansAndColspans.content.rows[2].cells[0],
       },
     ]);
-    expect(getColumn(tableWithComplexRowspansAndColspans, 1)).toEqual([
+    expect(
+      getCellsAtColumnHandle(tableWithComplexRowspansAndColspans, 1)
+    ).toEqual([
       {
         row: 0,
         col: 1,
@@ -1443,7 +1582,9 @@ describe("Test getColumn", () => {
         cell: tableWithComplexRowspansAndColspans.content.rows[1].cells[0],
       },
     ]);
-    expect(getColumn(tableWithComplexRowspansAndColspans, 2)).toEqual([
+    expect(
+      getCellsAtColumnHandle(tableWithComplexRowspansAndColspans, 2)
+    ).toEqual([
       {
         row: 0,
         col: 2,
@@ -1460,6 +1601,8 @@ describe("Test getColumn", () => {
         cell: tableWithComplexRowspansAndColspans.content.rows[2].cells[2],
       },
     ]);
-    expect(getColumn(tableWithComplexRowspansAndColspans, 3)).toEqual([]);
+    expect(
+      getCellsAtColumnHandle(tableWithComplexRowspansAndColspans, 3)
+    ).toEqual([]);
   });
 });

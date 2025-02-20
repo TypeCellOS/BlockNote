@@ -39,12 +39,12 @@ export const TableHandle = <
 
     if (props.orientation === "column") {
       return tableHandles
-        .getColumn(props.block, props.index)
+        .getCellsAtColumnHandle(props.block, props.index)
         .every(({ cell }) => getColspan(cell) === 1);
     }
 
     return tableHandles
-      .getRow(props.block, props.index)
+      .getCellsAtRowHandle(props.block, props.index)
       .every(({ cell }) => getRowspan(cell) === 1);
   }, [props.block, props.editor.tableHandles, props.index, props.orientation]);
 

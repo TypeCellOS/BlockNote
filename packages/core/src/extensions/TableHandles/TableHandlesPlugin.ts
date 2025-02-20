@@ -2,9 +2,9 @@ import { Plugin, PluginKey, PluginView } from "prosemirror-state";
 import { CellSelection, mergeCells, splitCell } from "prosemirror-tables";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import {
-  getColumn,
+  getCellsAtColumnHandle,
   getDimensionsOfTable,
-  getRow,
+  getCellsAtRowHandle,
   getAbsoluteTableCellIndices,
   RelativeCellIndices,
 } from "../../api/blockManipulation/tables/tables.js";
@@ -470,7 +470,7 @@ export class TableHandlesView<
     const columnWidths = this.state.block.content.columnWidths;
 
     if (draggingState.draggedCellOrientation === "row") {
-      const row = getRow(this.state.block, rowIndex);
+      const row = getCellsAtRowHandle(this.state.block, rowIndex);
       // TODO need to work on this logic
       if (
         row.some((cell) => {
@@ -488,7 +488,7 @@ export class TableHandlesView<
       newTable.splice(draggingState.originalIndex, 1);
       newTable.splice(rowIndex, 0, rowToMove);
     } else {
-      const col = getColumn(this.state.block, colIndex);
+      const col = getCellsAtColumnHandle(this.state.block, colIndex);
       // TODO need to work on this logic
       if (
         col.some((cell) => {
@@ -893,21 +893,21 @@ export class TableHandlesProsemirrorPlugin<
     this.view!.menuFrozen = false;
   };
 
-  getRow = (
+  getCellsAtRowHandle = (
     block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
     relativeRowIndex: RelativeCellIndices["row"]
   ) => {
-    return getRow(block, relativeRowIndex);
+    return getCellsAtRowHandle(block, relativeRowIndex);
   };
 
   /**
    * Get all the cells in a column of the table block.
    */
-  getColumn = (
+  getCellsAtColumnHandle = (
     block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
     relativeColumnIndex: RelativeCellIndices["col"]
   ) => {
-    return getColumn(block, relativeColumnIndex);
+    return getCellsAtColumnHandle(block, relativeColumnIndex);
   };
 
   /**
