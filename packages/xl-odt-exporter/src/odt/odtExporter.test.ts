@@ -37,8 +37,11 @@ describe("exporter", () => {
       );
 
       const odt = await exporter.toODTDocument(testDocument, {
-        footer: "FOOTER",
-        header: "HEADER",
+        footer: "<text:p>FOOTER</text:p>",
+        header: new DOMParser().parseFromString(
+          `<text:p xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0">HEADER</text:p>`,
+          "text/xml"
+        ),
       });
 
       await testODTDocumentAgainstSnapshot(odt, {

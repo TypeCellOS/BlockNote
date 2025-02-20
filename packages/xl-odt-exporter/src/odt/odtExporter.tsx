@@ -168,7 +168,10 @@ export class ODTExporter<
         stringifiedDoc = serializer.serializeToString(xmlDocument);
       }
 
-      return stringifiedDoc;
+      return stringifiedDoc.replace(
+        /<([a-zA-Z0-9:]+)\s+?(?:xml)ns(?::[a-zA-Z0-9]+)?=".*"(.*)>/g,
+        "<$1$2>"
+      );
     };
     const blockContent = await this.transformBlocks(blocks);
     const styles = Array.from(this.automaticStyles.values());
@@ -204,22 +207,16 @@ export class ODTExporter<
               style:page-layout-name="Mpm1"
               draw:style-name="Mdp1">
               {header && (
-                <style:header>
-                  <text:p
-                    text:style-name="MP1"
-                    dangerouslySetInnerHTML={{
-                      __html: header,
-                    }}></text:p>
-                </style:header>
+                <style:header
+                  dangerouslySetInnerHTML={{
+                    __html: header,
+                  }}></style:header>
               )}
               {footer && (
-                <style:footer>
-                  <text:p
-                    text:style-name="MP2"
-                    dangerouslySetInnerHTML={{
-                      __html: header,
-                    }}></text:p>
-                </style:footer>
+                <style:footer
+                  dangerouslySetInnerHTML={{
+                    __html: footer,
+                  }}></style:footer>
               )}
             </style:master-page>
           </office:master-styles>
@@ -302,6 +299,18 @@ export class ODTExporter<
     height: number;
     width: number;
   }> {
+    const mimeTypeFileExtensionMap = {
+      "image/apng": "apng",
+      "image/avif": "avif",
+      "image/bmp": "bmp",
+      "image/gif": "gif",
+      "image/vnd.microsoft.icon": "ico",
+      "image/jpeg": "jpg",
+      "image/png": "png",
+      "image/svg+xml": "svg",
+      "image/tiff": "tiff",
+      "image/webp": "webp",
+    };
     if (this.pictures.has(url)) {
       const picture = this.pictures.get(url)!;
 
@@ -314,7 +323,10 @@ export class ODTExporter<
     }
 
     const blob = await this.resolveFile(url);
-    const fileExtension = url.split(".").pop();
+    const fileExtension =
+      mimeTypeFileExtensionMap[
+        blob.type as keyof typeof mimeTypeFileExtensionMap
+      ] || "png";
     const fileName = `picture-${this.pictures.size}.${fileExtension}`;
     const { width, height } = await getImageDimensions(blob);
 

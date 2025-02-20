@@ -90,13 +90,13 @@
     <office:master-styles>
         <style:master-page style:name="Standard" style:page-layout-name="Mpm1" draw:style-name="Mdp1">
             <style:header>
-                <text:p text:style-name="MP1">
+                <text:p>
                     HEADER
                 </text:p>
             </style:header>
             <style:footer>
-                <text:p text:style-name="MP2">
-                    HEADER
+                <text:p>
+                    FOOTER
                 </text:p>
             </style:footer>
         </style:master-page>
