@@ -30,9 +30,6 @@ export const ReactionBadge = (props: {
 
   const [userIds, setUserIds] = useState<string[]>([]);
   const users = useUsers(editor, userIds);
-  if (users.size) {
-    debugger;
-  }
 
   return (
     <Components.Generic.Badge.Root
