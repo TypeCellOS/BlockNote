@@ -255,7 +255,7 @@ export class YjsThreadStore extends ThreadStore {
 
       const yComment = yThread.get("comments").get(yCommentIndex);
 
-      if (!this.auth.canAddReaction(yMapToComment(yComment))) {
+      if (!this.auth.canAddReaction(yMapToComment(yComment), options.emoji)) {
         throw new Error("Not authorized");
       }
 
@@ -296,7 +296,9 @@ export class YjsThreadStore extends ThreadStore {
 
       const yComment = yThread.get("comments").get(yCommentIndex);
 
-      if (!this.auth.canDeleteReaction(yMapToComment(yComment))) {
+      if (
+        !this.auth.canDeleteReaction(yMapToComment(yComment), options.emoji)
+      ) {
         throw new Error("Not authorized");
       }
 

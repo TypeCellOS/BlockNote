@@ -70,15 +70,25 @@ export class DefaultThreadStoreAuth extends ThreadStoreAuth {
 
   /**
    * Auth: should be possible by anyone with comment access
+   *
+   * Note: will also check if the user has already reacted with the same emoji. TBD: is that a nice design or should this responsibility be outside of auth?
    */
-  canAddReaction(_comment: CommentData): boolean {
-    return true;
+  canAddReaction(comment: CommentData, emoji: string): boolean {
+    return !comment.reactions.some(
+      (reaction) =>
+        reaction.emoji === emoji && reaction.userIds.includes(this.userId)
+    );
   }
 
   /**
    * Auth: should be possible by anyone with comment access
+   *
+   * Note: will also check if the user has already reacted with the same emoji. TBD: is that a nice design or should this responsibility be outside of auth?
    */
-  canDeleteReaction(_comment: CommentData): boolean {
-    return true;
+  canDeleteReaction(comment: CommentData, emoji: string): boolean {
+    return comment.reactions.some(
+      (reaction) =>
+        reaction.emoji === emoji && reaction.userIds.includes(this.userId)
+    );
   }
 }
