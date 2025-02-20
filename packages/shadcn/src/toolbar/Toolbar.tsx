@@ -10,10 +10,15 @@ type ToolbarProps = ComponentProps["FormattingToolbar"]["Root"] &
 
 export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
   (props, ref) => {
-    const { className, children, onMouseEnter, onMouseLeave, ...rest } = props;
+    const {
+      className,
+      children,
+      onMouseEnter,
+      onMouseLeave,
+      variant,
+      ...rest
+    } = props;
 
-    // TODO
-    // @ts-ignore
     assertEmpty(rest);
 
     const ShadCNComponents = useShadCNComponentsContext()!;
@@ -23,7 +28,8 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
         <div
           className={cn(
             className,
-            "bn-flex bn-gap-1 bn-p-1 bn-bg-popover bn-text-popover-foreground bn-border bn-rounded-lg bn-shadow-md"
+            "bn-flex bn-gap-1 bn-p-1 bn-bg-popover bn-text-popover-foreground bn-border bn-rounded-lg bn-shadow-md bn-h-fit",
+            variant === "action-toolbar" ? "bn-w-fit" : ""
           )}
           ref={ref}
           onMouseEnter={onMouseEnter}
@@ -50,6 +56,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       isDisabled,
       onClick,
       label,
+      variant,
       ...rest
     } = props;
 
@@ -64,10 +71,14 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
     const trigger =
       isSelected === undefined ? (
         <ShadCNComponents.Button.Button
-          className={className}
+          className={cn(
+            className,
+            variant === "compact" ? "bn-h-6 bn-min-w-6 bn-p-0" : ""
+          )}
           // TODO
           // @ts-ignore
           variant="ghost"
+          size={variant === "compact" ? "sm" : "default"}
           disabled={isDisabled}
           onClick={onClick}
           ref={ref}
@@ -82,8 +93,10 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         <ShadCNComponents.Toggle.Toggle
           className={cn(
             className,
-            "data-[state=open]:bg-accent data-[state=closed]:text-accent-foreground"
+            "data-[state=open]:bg-accent data-[state=closed]:text-accent-foreground",
+            variant === "compact" ? "bn-h-6 bn-min-w-6 bn-p-0" : ""
           )}
+          size={variant === "compact" ? "sm" : "default"}
           aria-label={label}
           onClick={onClick}
           pressed={isSelected}

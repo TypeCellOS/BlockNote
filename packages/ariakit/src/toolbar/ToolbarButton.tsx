@@ -40,7 +40,6 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
     return (
       <AriakitTooltipProvider>
         <AriakitTooltipAnchor
-          className="link"
           render={
             <AriakitToolbarItem
               aria-label={label}
@@ -73,7 +72,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             </AriakitToolbarItem>
           }
         />
-        <AriakitTooltip className="bn-ak-tooltip">
+        <AriakitTooltip className="bn-ak-tooltip" portal={false}>
           <span>{mainTooltip}</span>
           {secondaryTooltip && <span>{secondaryTooltip}</span>}
         </AriakitTooltip>
