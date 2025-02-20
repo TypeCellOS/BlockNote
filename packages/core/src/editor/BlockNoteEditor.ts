@@ -130,7 +130,10 @@ export type BlockNoteEditorOptions<
   /**
    * @deprecated, provide placeholders via dictionary instead
    */
-  placeholders: Record<string | "default", string>;
+  placeholders: Record<
+    string | "default" | "emptyDocument",
+    string | undefined
+  >;
 
   /**
    * An object containing attributes that should be added to HTML elements of the editor.
@@ -486,7 +489,11 @@ export class BlockNoteEditor<
     this.resolveFileUrl = newOptions.resolveFileUrl;
     this.headless = newOptions._headless;
 
-    if (newOptions.collaboration && newOptions.initialContent) {
+    const collaborationEnabled =
+      "collaboration" in this.extensions ||
+      "liveblocksExtension" in this.extensions;
+
+    if (collaborationEnabled && newOptions.initialContent) {
       // eslint-disable-next-line no-console
       console.warn(
         "When using Collaboration, initialContent might cause conflicts, because changes should come from the collaboration provider"
@@ -495,7 +502,7 @@ export class BlockNoteEditor<
 
     const initialContent =
       newOptions.initialContent ||
-      (options.collaboration
+      (collaborationEnabled
         ? [
             {
               type: "paragraph",
@@ -589,8 +596,11 @@ export class BlockNoteEditor<
    *
    * @warning Not needed to call manually when using React, use BlockNoteView to take care of mounting
    */
-  public mount = (parentElement?: HTMLElement | null) => {
-    this._tiptapEditor.mount(parentElement);
+  public mount = (
+    parentElement?: HTMLElement | null,
+    contentComponent?: any
+  ) => {
+    this._tiptapEditor.mount(parentElement, contentComponent);
   };
 
   public get prosemirrorView() {
@@ -924,7 +934,12 @@ export class BlockNoteEditor<
     for (const mark of marks) {
       const config = this.schema.styleSchema[mark.type.name];
       if (!config) {
-        if (mark.type.name !== "link") {
+        if (
+          // Links are not considered styles in blocknote
+          mark.type.name !== "link" &&
+          // "blocknoteIgnore" tagged marks (such as comments) are also not considered BlockNote "styles"
+          !mark.type.spec.blocknoteIgnore
+        ) {
           // eslint-disable-next-line no-console
           console.warn("mark not found in styleschema", mark.type.name);
         }

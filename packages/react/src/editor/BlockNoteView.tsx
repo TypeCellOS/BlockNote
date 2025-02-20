@@ -23,7 +23,7 @@ import {
   BlockNoteDefaultUI,
   BlockNoteDefaultUIProps,
 } from "./BlockNoteDefaultUI.js";
-import { EditorContent } from "./EditorContent.js";
+import { Portals, getContentComponent } from "./EditorContent.js";
 import { ElementRenderer } from "./ElementRenderer.js";
 import "./styles.css";
 
@@ -150,11 +150,23 @@ function BlockNoteViewComponent<
     [editor]
   );
 
+  const portalManager = useMemo(() => {
+    return getContentComponent();
+  }, []);
+
+  const mount = useCallback(
+    (element: HTMLElement | null) => {
+      editor.mount(element, portalManager);
+    },
+    [editor, portalManager]
+  );
+
   return (
     <BlockNoteContext.Provider value={context as any}>
       <ElementRenderer ref={setElementRenderer} />
       {!editor.headless && (
-        <EditorContent editor={editor}>
+        <>
+          <Portals contentComponent={portalManager} />
           <div
             className={mergeCSSClasses(
               "bn-container",
@@ -167,12 +179,12 @@ function BlockNoteViewComponent<
             <div
               aria-autocomplete="list"
               aria-haspopup="listbox"
-              ref={editor.mount}
+              ref={mount}
               {...contentEditableProps}
             />
             {renderChildren}
           </div>
-        </EditorContent>
+        </>
       )}
     </BlockNoteContext.Provider>
   );

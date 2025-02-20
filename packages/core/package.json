@@ -6,7 +6,7 @@
     "*.css"
   ],
   "license": "MPL-2.0",
-  "version": "0.23.1",
+  "version": "0.24.0",
   "files": [
     "dist",
     "types",
@@ -85,7 +85,7 @@
     "prosemirror-state": "^1.4.3",
     "prosemirror-tables": "^1.6.1",
     "prosemirror-transform": "^1.10.2",
-    "prosemirror-view": "^1.33.7",
+    "prosemirror-view": "^1.38.0",
     "rehype-format": "^5.0.0",
     "rehype-parse": "^8.0.4",
     "rehype-remark": "^9.1.2",

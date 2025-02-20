@@ -12,24 +12,29 @@ import {
 import { DefaultReactGridSuggestionItem } from "../components/SuggestionMenu/GridSuggestionMenu/types.js";
 import { DefaultReactSuggestionItem } from "../components/SuggestionMenu/types.js";
 
+type ToolbarRootType = {
+  className?: string;
+  children?: ReactNode;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+};
+
+type ToolbarButtonType = {
+  className?: string;
+  mainTooltip: string;
+  secondaryTooltip?: string;
+  icon?: ReactNode;
+  onClick?: (e: MouseEvent) => void;
+  isSelected?: boolean;
+  isDisabled?: boolean;
+} & (
+  | { children: ReactNode; label?: string }
+  | { children?: undefined; label: string }
+);
 export type ComponentProps = {
   FormattingToolbar: {
-    Root: {
-      className?: string;
-      children?: ReactNode;
-    };
-    Button: {
-      className?: string;
-      mainTooltip: string;
-      secondaryTooltip?: string;
-      icon?: ReactNode;
-      onClick?: (e: MouseEvent) => void;
-      isSelected?: boolean;
-      isDisabled?: boolean;
-    } & (
-      | { children: ReactNode; label?: string }
-      | { children?: undefined; label: string }
-    );
+    Root: ToolbarRootType;
+    Button: ToolbarButtonType;
     Select: {
       className?: string;
       items: {
@@ -81,24 +86,8 @@ export type ComponentProps = {
     };
   };
   LinkToolbar: {
-    Root: {
-      className?: string;
-      children?: ReactNode;
-      onMouseEnter?: () => void;
-      onMouseLeave?: () => void;
-    };
-    Button: {
-      className?: string;
-      mainTooltip: string;
-      secondaryTooltip?: string;
-      icon?: ReactNode;
-      onClick?: (e: MouseEvent) => void;
-      isSelected?: boolean;
-      isDisabled?: boolean;
-    } & (
-      | { children: ReactNode; label?: string }
-      | { children?: undefined; label: string }
-    );
+    Root: ToolbarRootType;
+    Button: ToolbarButtonType;
   };
   SideMenu: {
     Root: {
@@ -256,6 +245,10 @@ export type ComponentProps = {
       Trigger: {
         children?: ReactNode;
       };
+    };
+    Toolbar: {
+      Root: ToolbarRootType;
+      Button: ToolbarButtonType;
     };
   };
 };

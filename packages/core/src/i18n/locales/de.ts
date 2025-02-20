@@ -273,6 +273,9 @@ export const de = {
     align_justify: {
       tooltip: "Text Blocksatz",
     },
+    comment: {
+      tooltip: "Kommentar hinzufügen",
+    },
   },
   file_panel: {
     upload: {
