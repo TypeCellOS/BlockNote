@@ -153,14 +153,29 @@ export class ODTExporter<
   public async toODTDocument(
     blocks: Block<B, I, S>[],
     options?: {
-      header?: string;
-      footer?: string;
+      header?: string | XMLDocument;
+      footer?: string | XMLDocument;
     }
   ): Promise<Blob> {
-    const blockcontent = await this.transformBlocks(blocks);
+    const xmlOptionToString = (xmlDocument: string | XMLDocument) => {
+      let stringifiedDoc = "";
+
+      if (typeof xmlDocument === "string") {
+        stringifiedDoc = xmlDocument;
+      } else {
+        const serializer = new XMLSerializer();
+
+        stringifiedDoc = serializer.serializeToString(xmlDocument);
+      }
+
+      return stringifiedDoc;
+    };
+    const blockContent = await this.transformBlocks(blocks);
     const styles = Array.from(this.automaticStyles.values());
     const pictures = Array.from(this.pictures.values());
     const fonts = await this.loadFonts();
+    const header = xmlOptionToString(options?.header || "");
+    const footer = xmlOptionToString(options?.footer || "");
 
     const content = (
       <OfficeDocument>
@@ -182,27 +197,35 @@ export class ODTExporter<
           })}
         </office:font-face-decls>
         <office:automatic-styles>{styles}</office:automatic-styles>
-        {(options?.header || options?.footer) && (
+        {(header || footer) && (
           <office:master-styles>
             <style:master-page
               style:name="Standard"
               style:page-layout-name="Mpm1"
               draw:style-name="Mdp1">
-              {options.header && (
+              {header && (
                 <style:header>
-                  <text:p text:style-name="MP1">{options.header}</text:p>
+                  <text:p
+                    text:style-name="MP1"
+                    dangerouslySetInnerHTML={{
+                      __html: header,
+                    }}></text:p>
                 </style:header>
               )}
-              {options.footer && (
+              {footer && (
                 <style:footer>
-                  <text:p text:style-name="MP2">{options.footer}</text:p>
+                  <text:p
+                    text:style-name="MP2"
+                    dangerouslySetInnerHTML={{
+                      __html: header,
+                    }}></text:p>
                 </style:footer>
               )}
             </style:master-page>
           </office:master-styles>
         )}
         <OfficeBody>
-          <OfficeText>{blockcontent}</OfficeText>
+          <OfficeText>{blockContent}</OfficeText>
         </OfficeBody>
       </OfficeDocument>
     );
