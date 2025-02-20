@@ -8,6 +8,6 @@ export abstract class ThreadStoreAuth {
   abstract canDeleteThread(thread: ThreadData): boolean;
   abstract canResolveThread(thread: ThreadData): boolean;
   abstract canUnresolveThread(thread: ThreadData): boolean;
-  abstract canAddReaction(comment: CommentData, emoji: string): boolean;
-  abstract canDeleteReaction(comment: CommentData, emoji: string): boolean;
+  abstract canAddReaction(comment: CommentData, emoji?: string): boolean;
+  abstract canDeleteReaction(comment: CommentData, emoji?: string): boolean;
 }
