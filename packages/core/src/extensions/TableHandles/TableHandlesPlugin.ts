@@ -751,29 +751,23 @@ export class TableHandlesProsemirrorPlugin<
 
           // Gets the table to show the drop cursor in.
           const tableResolvedPos = state.doc.resolve(this.view.tablePos + 1);
-          const tableNode = tableResolvedPos.node();
+          const originalIndex = this.view.state.draggingState.originalIndex;
 
           if (this.view.state.draggingState.draggedCellOrientation === "row") {
-            // Gets the row at the new index.
-            const rowResolvedPos = state.doc.resolve(
-              tableResolvedPos.posAtIndex(newIndex) + 1
-            );
-            const rowNode = rowResolvedPos.node();
-
             const cellsInRow = getCellsAtRowHandle(
               this.view.state.block,
               newIndex
             );
 
-            // Iterates over all cells in the row.
-            for (let i = 0; i < rowNode.childCount; i++) {
-              if (!cellsInRow.some((cell) => cell.col === i)) {
-                // Skip columns that don't have a cell in that row (because of a rowspan)
-                continue;
-              }
-              // Gets each cell in the row.
+            cellsInRow.forEach(({ row, col }) => {
+              // Gets each row in the table.
+              const rowResolvedPos = state.doc.resolve(
+                tableResolvedPos.posAtIndex(row) + 1
+              );
+
+              // Gets the cell within the row.
               const cellResolvedPos = state.doc.resolve(
-                rowResolvedPos.posAtIndex(i) + 1
+                rowResolvedPos.posAtIndex(col) + 1
               );
               const cellNode = cellResolvedPos.node();
               // Creates a decoration at the start or end of each cell,
@@ -781,9 +775,7 @@ export class TableHandlesProsemirrorPlugin<
               // original index.
               const decorationPos =
                 cellResolvedPos.pos +
-                (newIndex > this.view.state.draggingState.originalIndex
-                  ? cellNode.nodeSize - 2
-                  : 0);
+                (newIndex > originalIndex ? cellNode.nodeSize - 2 : 0);
               decorations.push(
                 // The widget is a small bar which spans the width of the cell.
                 Decoration.widget(decorationPos, () => {
@@ -796,9 +788,7 @@ export class TableHandlesProsemirrorPlugin<
                   // table cells is an odd number of pixels. So this makes the
                   // positioning slightly more consistent regardless of where
                   // the row is being dropped.
-                  if (
-                    newIndex > this.view!.state!.draggingState!.originalIndex
-                  ) {
+                  if (newIndex > originalIndex) {
                     widget.style.bottom = "-2px";
                   } else {
                     widget.style.top = "-3px";
@@ -808,26 +798,22 @@ export class TableHandlesProsemirrorPlugin<
                   return widget;
                 })
               );
-            }
+            });
           } else {
             const cellsInColumn = getCellsAtColumnHandle(
               this.view.state.block,
               newIndex
             );
-            // Iterates over all rows in the table.
-            for (let i = 0; i < tableNode.childCount; i++) {
-              if (!cellsInColumn.some((cell) => cell.row === i)) {
-                // Skip rows that don't have a cell in that column (because of a colspan)
-                continue;
-              }
+
+            cellsInColumn.forEach(({ row, col }) => {
               // Gets each row in the table.
               const rowResolvedPos = state.doc.resolve(
-                tableResolvedPos.posAtIndex(i) + 1
+                tableResolvedPos.posAtIndex(row) + 1
               );
 
-              // Gets the cell at the new index in the row.
+              // Gets the cell within the row.
               const cellResolvedPos = state.doc.resolve(
-                rowResolvedPos.posAtIndex(newIndex) + 1
+                rowResolvedPos.posAtIndex(col) + 1
               );
               const cellNode = cellResolvedPos.node();
 
@@ -836,9 +822,7 @@ export class TableHandlesProsemirrorPlugin<
               // original index.
               const decorationPos =
                 cellResolvedPos.pos +
-                (newIndex > this.view.state.draggingState.originalIndex
-                  ? cellNode.nodeSize - 2
-                  : 0);
+                (newIndex > originalIndex ? cellNode.nodeSize - 2 : 0);
 
               decorations.push(
                 // The widget is a small bar which spans the height of the cell.
@@ -852,9 +836,7 @@ export class TableHandlesProsemirrorPlugin<
                   // table cells is an odd number of pixels. So this makes the
                   // positioning slightly more consistent regardless of where
                   // the column is being dropped.
-                  if (
-                    newIndex > this.view!.state!.draggingState!.originalIndex
-                  ) {
+                  if (newIndex > originalIndex) {
                     widget.style.right = "-2px";
                   } else {
                     widget.style.left = "-3px";
@@ -864,7 +846,7 @@ export class TableHandlesProsemirrorPlugin<
                   return widget;
                 })
               );
-            }
+            });
           }
 
           return DecorationSet.create(state.doc, decorations);
