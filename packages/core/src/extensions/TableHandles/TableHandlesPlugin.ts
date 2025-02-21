@@ -760,14 +760,22 @@ export class TableHandlesProsemirrorPlugin<
             );
             const rowNode = rowResolvedPos.node();
 
+            const cellsInRow = getCellsAtRowHandle(
+              this.view.state.block,
+              newIndex
+            );
+
             // Iterates over all cells in the row.
             for (let i = 0; i < rowNode.childCount; i++) {
+              if (!cellsInRow.some((cell) => cell.col === i)) {
+                // Skip columns that don't have a cell in that row (because of a rowspan)
+                continue;
+              }
               // Gets each cell in the row.
               const cellResolvedPos = state.doc.resolve(
                 rowResolvedPos.posAtIndex(i) + 1
               );
               const cellNode = cellResolvedPos.node();
-
               // Creates a decoration at the start or end of each cell,
               // depending on whether the new index is before or after the
               // original index.
@@ -802,8 +810,16 @@ export class TableHandlesProsemirrorPlugin<
               );
             }
           } else {
+            const cellsInColumn = getCellsAtColumnHandle(
+              this.view.state.block,
+              newIndex
+            );
             // Iterates over all rows in the table.
             for (let i = 0; i < tableNode.childCount; i++) {
+              if (!cellsInColumn.some((cell) => cell.row === i)) {
+                // Skip rows that don't have a cell in that column (because of a colspan)
+                continue;
+              }
               // Gets each row in the table.
               const rowResolvedPos = state.doc.resolve(
                 tableResolvedPos.posAtIndex(i) + 1
