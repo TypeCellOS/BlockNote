@@ -4,7 +4,7 @@ import { DefaultThreadStoreAuth, User, YjsThreadStore } from "@blocknote/core";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
-  BlockNoteContext,
+  BlockNoteViewEditor,
   ThreadStreamView,
   useCreateBlockNote,
 } from "@blocknote/react";
@@ -146,13 +146,20 @@ function Document() {
         }}
         value={user.id}
       />
-      <BlockNoteContext.Provider value={{ editor }}>
-        <div style={{ display: "flex", flexDirection: "row" }}>
-          <BlockNoteView editor={editor} editable={user.role === "editor"}>
+
+      <BlockNoteView
+        editor={editor}
+        editable={user.role === "editor"}
+        renderEditor={false}
+        formattingToolbar={false}>
+        <div style={{ display: "flex" }}>
+          <BlockNoteViewEditor />
+          <div>
+            <h1>Sidebar</h1>
             <ThreadStreamView />
-          </BlockNoteView>
+          </div>
         </div>
-      </BlockNoteContext.Provider>
+      </BlockNoteView>
     </div>
   );
 }
