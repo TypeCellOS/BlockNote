@@ -188,13 +188,9 @@ export class CommentsPlugin extends EventEmitter<any> {
             return;
           }
 
-          const selectThread = (threadId: string | undefined) => {
-            self.selectThread(threadId);
-          };
-
           const node = view.state.doc.nodeAt(pos);
           if (!node) {
-            selectThread(undefined);
+            self.selectThread(undefined);
             return;
           }
           const commentMark = node.marks.find(
@@ -202,11 +198,11 @@ export class CommentsPlugin extends EventEmitter<any> {
           );
           // don't allow selecting orphaned threads
           if (commentMark?.attrs.orphan) {
-            selectThread(undefined);
+            self.selectThread(undefined);
             return;
           }
           const threadId = commentMark?.attrs.threadId as string | undefined;
-          selectThread(threadId);
+          self.selectThread(threadId);
         },
       },
     });
@@ -222,6 +218,9 @@ export class CommentsPlugin extends EventEmitter<any> {
   }
 
   public selectThread(threadId: string | undefined) {
+    if (this.selectedThreadId === threadId) {
+      return;
+    }
     this.selectedThreadId = threadId;
     this.emitStateUpdate();
     this.editor.dispatch(
