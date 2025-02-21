@@ -265,7 +265,7 @@ export function getTableRowsFromOccupancyGrid(
           seen.add(cell.row + ":" + cell.col);
           return cell.cell;
         })
-        .filter((cell) => cell !== false),
+        .filter((cell): cell is TableCell<any, any> => cell !== false),
     };
   });
 }
