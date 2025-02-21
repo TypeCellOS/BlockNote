@@ -98,7 +98,7 @@ export class CommentsPlugin extends EventEmitter<any> {
           const markType = mark.type;
           const markThreadId = mark.attrs.threadId;
           const thread = threads.get(markThreadId);
-          const isOrphan = !thread || thread.resolved || thread.deletedAt;
+          const isOrphan = !!(!thread || thread.resolved || thread.deletedAt);
 
           if (isOrphan !== mark.attrs.orphan) {
             const { tr } = ttEditor.state;
@@ -204,13 +204,9 @@ export class CommentsPlugin extends EventEmitter<any> {
             return;
           }
           const commentMark = node.marks.find(
-            (mark) => mark.type.name === markType
+            (mark) => mark.type.name === markType && mark.attrs.orphan !== true
           );
-          // don't allow selecting orphaned threads
-          if (commentMark?.attrs.orphan) {
-            selectThread(undefined);
-            return;
-          }
+
           const threadId = commentMark?.attrs.threadId as string | undefined;
           selectThread(threadId);
         },
@@ -246,6 +242,7 @@ export class CommentsPlugin extends EventEmitter<any> {
   }) {
     const thread = await this.threadStore.createThread(options);
     this.editor._tiptapEditor.commands.setMark(this.markType, {
+      orphan: false,
       threadId: thread.id,
     });
   }
