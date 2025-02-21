@@ -41,8 +41,8 @@ export function ThreadStreamView(props: {
   }, [allThreads]);
 
   return (
-    <div>
-      <h1>ThreadStreamView</h1>
+    <div className={"bn-thread-stream"}>
+      {/*<h1>ThreadStreamView</h1>*/}
       {threads.map((thread) => (
         <Thread
           key={thread.id}
@@ -57,6 +57,18 @@ export function ThreadStreamView(props: {
           tabIndex={0}
         />
       ))}
+      {/*<Thread*/}
+      {/*  key={threads[0].id}*/}
+      {/*  threadId={threads[0].id}*/}
+      {/*  showComposer={selectedThreadId === threads[0].id}*/}
+      {/*  onFocus={() => {*/}
+      {/*    comments.selectThread(threads[0].id);*/}
+      {/*  }}*/}
+      {/*  onBlur={() => {*/}
+      {/*    comments.selectThread(undefined);*/}
+      {/*  }}*/}
+      {/*  tabIndex={0}*/}
+      {/*/>*/}
     </div>
   );
 }

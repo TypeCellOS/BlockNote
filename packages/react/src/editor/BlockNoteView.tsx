@@ -217,7 +217,7 @@ export const BlockNoteViewRaw = React.forwardRef(BlockNoteViewComponent) as <
 /**
  * Renders the editor itself and the default UI elements
  */
-export const BlockNoteViewEditor = (props: { children: ReactNode }) => {
+export const BlockNoteViewEditor = (props: { children?: ReactNode }) => {
   const ctx = useBlockNoteViewContext()!;
   return (
     <EditorElement {...ctx.editorProps} {...props}>

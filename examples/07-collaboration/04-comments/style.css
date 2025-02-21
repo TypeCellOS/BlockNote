@@ -1,0 +1,97 @@
+.bn-editor-and-thread-stream > .bn-thread-stream-wrapper {
+  /* TODO: Hack to work around the fact that we're outside of the BlockNote
+      theme context. This adds the CSS variables for the default dark theme to
+      the thread stream. */
+  --bn-colors-editor-text: #cfcfcf;
+  --bn-colors-editor-background: #1f1f1f;
+  --bn-colors-menu-text: #cfcfcf;
+  --bn-colors-menu-background: #1f1f1f;
+  --bn-colors-tooltip-text: #cfcfcf;
+  --bn-colors-tooltip-background: #161616;
+  --bn-colors-hovered-text: #cfcfcf;
+  --bn-colors-hovered-background: #161616;
+  --bn-colors-selected-text: #cfcfcf;
+  --bn-colors-selected-background: #0f0f0f;
+  --bn-colors-disabled-text: #3f3f3f;
+  --bn-colors-disabled-background: #161616;
+  --bn-colors-shadow: #0f0f0f;
+  --bn-colors-border: #161616;
+  --bn-colors-side-menu: #7f7f7f;
+  --bn-colors-highlights-gray-text: #bebdb8;
+  --bn-colors-highlights-gray-background: #9b9a97;
+  --bn-colors-highlights-brown-text: #8e6552;
+  --bn-colors-highlights-brown-background: #64473a;
+  --bn-colors-highlights-red-text: #ec4040;
+  --bn-colors-highlights-red-background: #be3434;
+  --bn-colors-highlights-orange-text: #e3790d;
+  --bn-colors-highlights-orange-background: #b7600a;
+  --bn-colors-highlights-yellow-text: #dfab01;
+  --bn-colors-highlights-yellow-background: #b58b00;
+  --bn-colors-highlights-green-text: #6b8b87;
+  --bn-colors-highlights-green-background: #4d6461;
+  --bn-colors-highlights-blue-text: #0e87bc;
+  --bn-colors-highlights-blue-background: #0b6e99;
+  --bn-colors-highlights-purple-text: #8552d7;
+  --bn-colors-highlights-purple-background: #6940a5;
+  --bn-colors-highlights-pink-text: #da208f;
+  --bn-colors-highlights-pink-background: #ad1a72;
+  --bn-font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  --bn-border-radius: 6px;
+  --bn-shadow-medium: 0 4px 12px var(--bn-colors-shadow);
+  --bn-shadow-light: 0 2px 6px var(--bn-colors-border);
+  --bn-border: 1px solid var(--bn-colors-border);
+  --bn-border-radius-small: max(var(--bn-border-radius) - 2px, 1px);
+  --bn-border-radius-medium: var(--bn-border-radius);
+  --bn-border-radius-large: max(var(--bn-border-radius) + 2px, 1px);
+}
+
+.bn-app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.bn-editor-and-thread-stream {
+  display: flex;
+  flex: 1;
+  gap: 10px;
+  height: 0;
+  padding: 10px;
+}
+
+.bn-editor-and-thread-stream > .bn-container {
+  flex: 1.5;
+  margin: 0;
+  max-width: none;
+  padding: 0;
+  width: 0;
+}
+
+.bn-editor-and-thread-stream > .bn-container > .bn-editor {
+  max-height: 100%;
+  overflow: auto;
+}
+
+.bn-editor-and-thread-stream > .bn-thread-stream-wrapper {
+  background-color: var(--bn-colors-disabled-background);
+  border-radius: var(--bn-border-radius-large);
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  padding: 10px;
+  width: 0;
+}
+
+.bn-editor-and-thread-stream > .bn-thread-stream-wrapper > h1 {
+  color: var(--bn-colors-menu-text);
+  margin: 0;
+}
+
+.bn-editor-and-thread-stream > .bn-thread-stream-wrapper > .bn-thread-stream {
+  border-radius: var(--bn-border-radius-medium);
+  flex: 1;
+  height: 0;
+  overflow: auto;
+}

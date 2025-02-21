@@ -12,6 +12,8 @@ import { Select } from "@mantine/core";
 import { YDocProvider, useYDoc, useYjsProvider } from "@y-sweet/react";
 import { useMemo, useState } from "react";
 
+import "./style.css";
+
 const colors = [
   "#958DF1",
   "#F98181",
@@ -128,7 +130,7 @@ function Document() {
 
   // TODO: make sure comment button / formatting toolbar appears for comment-only users
   return (
-    <div>
+    <div className={"bn-app"}>
       <Select
         style={{ maxWidth: "300px" }}
         required
@@ -152,10 +154,10 @@ function Document() {
         editable={user.role === "editor"}
         renderEditor={false}
         formattingToolbar={false}>
-        <div style={{ display: "flex" }}>
+        <div className={"bn-editor-and-thread-stream"}>
           <BlockNoteViewEditor />
-          <div>
-            <h1>Sidebar</h1>
+          <div className={"bn-thread-stream-wrapper bn-mantine"}>
+            <h1>Comments</h1>
             <ThreadStreamView />
           </div>
         </div>
