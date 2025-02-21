@@ -210,9 +210,11 @@ export function tableContentToNodes<
       );
 
       // Assume the column width is the width of the cell at the absolute cell index
-      let colwidth: (number | undefined)[] = [
-        columnWidths[absoluteCellIndex.col] ?? undefined,
-      ];
+      let colwidth: (number | undefined)[] | null = columnWidths[
+        absoluteCellIndex.col
+      ]
+        ? [columnWidths[absoluteCellIndex.col]]
+        : null;
 
       if (!cell) {
         // No-op

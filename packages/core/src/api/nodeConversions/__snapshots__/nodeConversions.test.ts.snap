@@ -2130,9 +2130,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -2154,9 +2152,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -2178,86 +2174,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
-                "rowspan": 1,
-                "textAlignment": "left",
-                "textColor": "default",
-              },
-              "content": [
-                {
-                  "content": [
-                    {
-                      "text": "Table Cell",
-                      "type": "text",
-                    },
-                  ],
-                  "type": "tableParagraph",
-                },
-              ],
-              "type": "tableCell",
-            },
-          ],
-          "type": "tableRow",
-        },
-        {
-          "content": [
-            {
-              "attrs": {
-                "backgroundColor": "default",
-                "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
-                "rowspan": 1,
-                "textAlignment": "left",
-                "textColor": "default",
-              },
-              "content": [
-                {
-                  "content": [
-                    {
-                      "text": "Table Cell",
-                      "type": "text",
-                    },
-                  ],
-                  "type": "tableParagraph",
-                },
-              ],
-              "type": "tableCell",
-            },
-            {
-              "attrs": {
-                "backgroundColor": "default",
-                "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
-                "rowspan": 1,
-                "textAlignment": "left",
-                "textColor": "default",
-              },
-              "content": [
-                {
-                  "content": [
-                    {
-                      "text": "Table Cell",
-                      "type": "text",
-                    },
-                  ],
-                  "type": "tableParagraph",
-                },
-              ],
-              "type": "tableCell",
-            },
-            {
-              "attrs": {
-                "backgroundColor": "default",
-                "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -2284,9 +2201,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -2308,9 +2223,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -2332,9 +2245,78 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+          ],
+          "type": "tableRow",
+        },
+        {
+          "content": [
+            {
+              "attrs": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "colwidth": null,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+            {
+              "attrs": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "colwidth": null,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "content": [
+                {
+                  "content": [
+                    {
+                      "text": "Table Cell",
+                      "type": "text",
+                    },
+                  ],
+                  "type": "tableParagraph",
+                },
+              ],
+              "type": "tableCell",
+            },
+            {
+              "attrs": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -2379,9 +2361,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -2403,9 +2383,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -2427,9 +2405,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -2456,9 +2432,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -2480,9 +2454,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -2504,9 +2476,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -2533,9 +2503,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -2557,9 +2525,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -2581,9 +2547,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -2628,9 +2592,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -2652,9 +2614,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -2676,9 +2636,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -2705,9 +2663,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -2729,9 +2685,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -2753,9 +2707,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -2782,9 +2734,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -2806,9 +2756,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -2830,258 +2778,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
-                "rowspan": 1,
-                "textAlignment": "left",
-                "textColor": "default",
-              },
-              "content": [
-                {
-                  "content": [
-                    {
-                      "text": "Table Cell",
-                      "type": "text",
-                    },
-                  ],
-                  "type": "tableParagraph",
-                },
-              ],
-              "type": "tableCell",
-            },
-          ],
-          "type": "tableRow",
-        },
-      ],
-      "type": "table",
-    },
-  ],
-  "type": "blockContainer",
-}
-`;
-
-exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert table/headers to/from prosemirror 1`] = `
-{
-  "attrs": {
-    "backgroundColor": "default",
-    "id": "1",
-    "textColor": "default",
-  },
-  "content": [
-    {
-      "content": [
-        {
-          "content": [
-            {
-              "attrs": {
-                "backgroundColor": "default",
-                "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
-                "rowspan": 1,
-                "textAlignment": "left",
-                "textColor": "default",
-              },
-              "content": [
-                {
-                  "content": [
-                    {
-                      "text": "Table Cell",
-                      "type": "text",
-                    },
-                  ],
-                  "type": "tableParagraph",
-                },
-              ],
-              "type": "tableHeader",
-            },
-            {
-              "attrs": {
-                "backgroundColor": "default",
-                "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
-                "rowspan": 1,
-                "textAlignment": "left",
-                "textColor": "default",
-              },
-              "content": [
-                {
-                  "content": [
-                    {
-                      "text": "Table Cell",
-                      "type": "text",
-                    },
-                  ],
-                  "type": "tableParagraph",
-                },
-              ],
-              "type": "tableHeader",
-            },
-            {
-              "attrs": {
-                "backgroundColor": "default",
-                "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
-                "rowspan": 1,
-                "textAlignment": "left",
-                "textColor": "default",
-              },
-              "content": [
-                {
-                  "content": [
-                    {
-                      "text": "Table Cell",
-                      "type": "text",
-                    },
-                  ],
-                  "type": "tableParagraph",
-                },
-              ],
-              "type": "tableHeader",
-            },
-          ],
-          "type": "tableRow",
-        },
-        {
-          "content": [
-            {
-              "attrs": {
-                "backgroundColor": "default",
-                "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
-                "rowspan": 1,
-                "textAlignment": "left",
-                "textColor": "default",
-              },
-              "content": [
-                {
-                  "content": [
-                    {
-                      "text": "Table Cell",
-                      "type": "text",
-                    },
-                  ],
-                  "type": "tableParagraph",
-                },
-              ],
-              "type": "tableCell",
-            },
-            {
-              "attrs": {
-                "backgroundColor": "default",
-                "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
-                "rowspan": 1,
-                "textAlignment": "left",
-                "textColor": "default",
-              },
-              "content": [
-                {
-                  "content": [
-                    {
-                      "text": "Table Cell",
-                      "type": "text",
-                    },
-                  ],
-                  "type": "tableParagraph",
-                },
-              ],
-              "type": "tableCell",
-            },
-            {
-              "attrs": {
-                "backgroundColor": "default",
-                "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
-                "rowspan": 1,
-                "textAlignment": "left",
-                "textColor": "default",
-              },
-              "content": [
-                {
-                  "content": [
-                    {
-                      "text": "Table Cell",
-                      "type": "text",
-                    },
-                  ],
-                  "type": "tableParagraph",
-                },
-              ],
-              "type": "tableCell",
-            },
-          ],
-          "type": "tableRow",
-        },
-        {
-          "content": [
-            {
-              "attrs": {
-                "backgroundColor": "default",
-                "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
-                "rowspan": 1,
-                "textAlignment": "left",
-                "textColor": "default",
-              },
-              "content": [
-                {
-                  "content": [
-                    {
-                      "text": "Table Cell",
-                      "type": "text",
-                    },
-                  ],
-                  "type": "tableParagraph",
-                },
-              ],
-              "type": "tableCell",
-            },
-            {
-              "attrs": {
-                "backgroundColor": "default",
-                "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
-                "rowspan": 1,
-                "textAlignment": "left",
-                "textColor": "default",
-              },
-              "content": [
-                {
-                  "content": [
-                    {
-                      "text": "Table Cell",
-                      "type": "text",
-                    },
-                  ],
-                  "type": "tableParagraph",
-                },
-              ],
-              "type": "tableCell",
-            },
-            {
-              "attrs": {
-                "backgroundColor": "default",
-                "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -3150,9 +2847,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "blue",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -3227,9 +2922,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -3304,9 +2997,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -3399,9 +3090,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -3476,9 +3165,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
@@ -3553,9 +3240,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
               "attrs": {
                 "backgroundColor": "default",
                 "colspan": 1,
-                "colwidth": [
-                  undefined,
-                ],
+                "colwidth": null,
                 "rowspan": 1,
                 "textAlignment": "left",
                 "textColor": "default",
