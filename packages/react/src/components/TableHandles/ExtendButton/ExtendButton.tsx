@@ -4,7 +4,6 @@ import {
   EMPTY_CELL_HEIGHT,
   EMPTY_CELL_WIDTH,
   InlineContentSchema,
-  isPartialTableCell,
   mergeCSSClasses,
   PartialTableContent,
   StyleSchema,
@@ -22,65 +21,6 @@ import { RiAddFill } from "react-icons/ri";
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { ExtendButtonProps } from "./ExtendButtonProps.js";
 
-function isCellEmpty<I extends InlineContentSchema, S extends StyleSchema>(
-  cell: PartialTableContent<I, S>["rows"][number]["cells"][number] | undefined
-): boolean {
-  if (!cell) {
-    return true;
-  }
-  if (isPartialTableCell(cell)) {
-    return isCellEmpty(cell.content);
-  } else {
-    return cell.length === 0;
-  }
-}
-
-function cropEmptyRowsOrColumns<
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(
-  content: PartialTableContent<I, S>,
-  removeEmpty: "columns" | "rows"
-): PartialTableContent<I, S> {
-  let emptyColsOnRight = 0;
-
-  if (removeEmpty === "columns") {
-    // strips empty columns to the right and empty rows at the bottom
-    for (let i = content.rows[0].cells.length - 1; i >= 0; i--) {
-      const isEmpty = content.rows.every((row) => isCellEmpty(row.cells[i]));
-      if (!isEmpty) {
-        break;
-      }
-
-      emptyColsOnRight++;
-    }
-  }
-
-  const rows: PartialTableContent<I, S>["rows"] = [];
-  for (let i = content.rows.length - 1; i >= 0; i--) {
-    if (removeEmpty === "rows") {
-      if (
-        rows.length === 0 &&
-        content.rows[i].cells.every((cell) => isCellEmpty(cell))
-      ) {
-        // empty row at bottom
-        continue;
-      }
-    }
-
-    rows.unshift({
-      cells: content.rows[i].cells.slice(
-        0,
-        content.rows[0].cells.length - emptyColsOnRight
-      ),
-    });
-  }
-
-  return {
-    ...content,
-    rows,
-  };
-}
 // Rounds a number up or down, depending on whether we're close (as defined by
 // `margin`) to the next integer.
 const marginRound = (num: number, margin = 0.3) => {
@@ -94,56 +34,6 @@ const marginRound = (num: number, margin = 0.3) => {
   } else {
     return Math.ceil(num);
   }
-};
-
-const getContentWithAddedRows = <
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(
-  content: PartialTableContent<I, S>,
-  rowsToAdd: number,
-  numCols: number
-): PartialTableContent<I, S> => {
-  const newRow: PartialTableContent<I, S>["rows"][number] = {
-    cells: Array(numCols).fill([]),
-  };
-
-  const newRows: PartialTableContent<I, S>["rows"] = [];
-  for (let i = 0; i < rowsToAdd; i++) {
-    newRows.push(newRow);
-  }
-  return {
-    type: "tableContent",
-    columnWidths: content.columnWidths,
-    rows: [...content.rows, ...newRows],
-  };
-};
-
-const getContentWithAddedCols = <
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(
-  content: PartialTableContent<I, S>,
-  colsToAdd: number
-): PartialTableContent<I, S> => {
-  const newCell: PartialTableContent<I, S>["rows"][number]["cells"][number] =
-    [];
-  const newCells: PartialTableContent<I, S>["rows"][number]["cells"] = [];
-  for (let i = 0; i < colsToAdd; i++) {
-    // TODO: fix this
-    newCells.push(newCell as any);
-  }
-
-  return {
-    type: "tableContent",
-    columnWidths: content.columnWidths
-      ? [...content.columnWidths, ...newCells.map(() => undefined)]
-      : undefined,
-    rows: content.rows.map((row) => ({
-      // TODO: fix this
-      cells: [...row.cells, ...newCells] as any[],
-    })),
-  };
 };
 
 export const ExtendButton = <
@@ -173,10 +63,12 @@ export const ExtendButton = <
       props.onMouseDown();
       setEditingState({
         originalContent: props.block.content,
-        originalCroppedContent: cropEmptyRowsOrColumns(
-          props.block.content,
-          props.orientation === "addOrRemoveColumns" ? "columns" : "rows"
-        ),
+        originalCroppedContent: {
+          rows: props.editor.tableHandles!.cropEmptyRowsOrColumns(
+            props.block,
+            props.orientation === "addOrRemoveColumns" ? "columns" : "rows"
+          ),
+        } as PartialTableContent<any, any>,
         startPos:
           props.orientation === "addOrRemoveColumns"
             ? event.clientX
@@ -196,21 +88,27 @@ export const ExtendButton = <
     }
     props.editor.updateBlock(props.block, {
       type: "table",
-      content:
-        props.orientation === "addOrRemoveColumns"
-          ? getContentWithAddedCols(props.block.content, 1)
-          : getContentWithAddedRows(
-              props.block.content,
-              1,
-              props.block.content.rows[0].cells.length
-            ),
+      content: {
+        ...props.block.content,
+        rows:
+          props.orientation === "addOrRemoveColumns"
+            ? props.editor.tableHandles!.addRowsOrColumns(
+                props.block,
+                "columns",
+                1
+              )
+            : props.editor.tableHandles!.addRowsOrColumns(
+                props.block,
+                "rows",
+                1
+              ),
+      } as any,
     });
   }, [props.block, props.orientation, props.editor]);
 
   // Extends columns/rows on when moving the mouse.
   useEffect(() => {
     const callback = (event: MouseEvent) => {
-      // console.log("callback", event);
       if (!editingState) {
         throw new Error("editingState is undefined");
       }
@@ -254,17 +152,27 @@ export const ExtendButton = <
       ) {
         props.editor.updateBlock(props.block, {
           type: "table",
-          content:
-            props.orientation === "addOrRemoveColumns"
-              ? getContentWithAddedCols(
-                  editingState.originalCroppedContent,
-                  newNumCells - numCroppedCells
-                )
-              : getContentWithAddedRows(
-                  editingState.originalCroppedContent,
-                  newNumCells - numCroppedCells,
-                  editingState.originalContent.rows[0].cells.length
-                ),
+          content: {
+            ...props.block.content,
+            rows:
+              props.orientation === "addOrRemoveColumns"
+                ? props.editor.tableHandles!.addRowsOrColumns(
+                    {
+                      type: "table",
+                      content: editingState.originalCroppedContent,
+                    } as any,
+                    "columns",
+                    newNumCells - numCroppedCells
+                  )
+                : props.editor.tableHandles!.addRowsOrColumns(
+                    {
+                      type: "table",
+                      content: editingState.originalCroppedContent,
+                    } as any,
+                    "rows",
+                    newNumCells - numCroppedCells
+                  ),
+          } as any,
         });
 
         // Edge case for updating block content as `updateBlock` causes the

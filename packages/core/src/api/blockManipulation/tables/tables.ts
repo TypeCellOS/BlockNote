@@ -3,7 +3,9 @@ import {
   BlockFromConfigNoChildren,
   getColspan,
   getRowspan,
+  isPartialTableCell,
   mapTableCell,
+  PartialTableContent,
   TableCell,
   TableContent,
 } from "../../../schema/blocks/types.js";
@@ -613,6 +615,117 @@ export function moveRow(
 
   const [sourceRow] = occupancyGrid.splice(absoluteSourceRow, 1);
   occupancyGrid.splice(absoluteTargetRow, 0, sourceRow);
+
+  return getTableRowsFromOccupancyGrid(occupancyGrid);
+}
+
+/**
+ * This will check if a cell is empty.
+ *
+ * @returns True if the cell is empty, false otherwise.
+ */
+function isCellEmpty(
+  cell:
+    | PartialTableContent<any, any>["rows"][number]["cells"][number]
+    | undefined
+): boolean {
+  if (!cell) {
+    return true;
+  }
+  if (isPartialTableCell(cell)) {
+    return isCellEmpty(cell.content);
+  } else {
+    return cell.length === 0;
+  }
+}
+
+/**
+ * This will remove empty rows or columns from the table.
+ *
+ * @note This is a destructive operation, it will modify the {@link OccupancyGrid} in place.
+ */
+export function cropEmptyRowsOrColumns(
+  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+  removeEmpty: "columns" | "rows",
+  occupancyGrid: OccupancyGrid = getTableCellOccupancyGrid(block)
+): TableContent<any, any>["rows"] {
+  let emptyColsOnRight = 0;
+
+  if (removeEmpty === "columns") {
+    // strips empty columns to the right and empty rows at the bottom
+    for (let i = occupancyGrid[0].length - 1; i >= 0; i--) {
+      const isEmpty = occupancyGrid.every((row) => isCellEmpty(row[i].cell));
+      if (!isEmpty) {
+        break;
+      }
+
+      emptyColsOnRight++;
+    }
+  }
+
+  for (let i = occupancyGrid.length - 1; i >= 0; i--) {
+    if (removeEmpty === "rows") {
+      if (
+        // rows.length === 0 &&
+        occupancyGrid[i].every((cell) => isCellEmpty(cell.cell))
+      ) {
+        // empty row at bottom
+        continue;
+      }
+    }
+
+    occupancyGrid[i] = occupancyGrid[i].slice(
+      0,
+      occupancyGrid[i].length - emptyColsOnRight
+    );
+  }
+
+  return getTableRowsFromOccupancyGrid(occupancyGrid);
+}
+
+/**
+ * This will add a specified number of rows or columns to the table (filling with empty cells).
+ *
+ * @note This is a destructive operation, it will modify the {@link OccupancyGrid} in place.
+ */
+export function addRowsOrColumns(
+  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+  addType: "columns" | "rows",
+  numToAdd: number,
+  occupancyGrid: OccupancyGrid = getTableCellOccupancyGrid(block)
+): TableContent<any, any>["rows"] {
+  if (numToAdd <= 0) {
+    return getTableRowsFromOccupancyGrid(occupancyGrid);
+  }
+
+  const { width, height } = getDimensionsOfTable(block);
+
+  if (addType === "columns") {
+    // Add empty columns to the right
+    occupancyGrid.forEach((row) => {
+      for (let i = 0; i < numToAdd; i++) {
+        row.push({
+          row: row[0].row,
+          col: width + i,
+          rowspan: 1,
+          colspan: 1,
+          cell: mapTableCell(""),
+        });
+      }
+    });
+  } else {
+    // Add empty rows to the bottom
+    for (let i = 0; i < numToAdd; i++) {
+      const newRow = new Array(width).fill(null).map((_, colIndex) => ({
+        row: height + i,
+        col: colIndex,
+        rowspan: 1,
+        colspan: 1,
+        cell: mapTableCell(""),
+      }));
+      occupancyGrid.push(newRow);
+    }
+  }
 
   return getTableRowsFromOccupancyGrid(occupancyGrid);
 }

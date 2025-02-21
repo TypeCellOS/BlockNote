@@ -12,6 +12,8 @@ import {
 } from "prosemirror-tables";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import {
+  addRowsOrColumns,
+  cropEmptyRowsOrColumns,
   getAbsoluteTableCellIndices,
   getCellsAtColumnHandle,
   getCellsAtRowHandle,
@@ -1233,5 +1235,20 @@ export class TableHandlesProsemirrorPlugin<
     }
 
     return "horizontal";
+  };
+
+  cropEmptyRowsOrColumns = (
+    block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+    removeEmpty: "columns" | "rows"
+  ) => {
+    return cropEmptyRowsOrColumns(block, removeEmpty);
+  };
+
+  addRowsOrColumns = (
+    block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+    addType: "columns" | "rows",
+    numToAdd: number
+  ) => {
+    return addRowsOrColumns(block, addType, numToAdd);
   };
 }
