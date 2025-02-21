@@ -16,6 +16,8 @@ import {
   getCellsAtColumnHandle,
   getCellsAtRowHandle,
   getDimensionsOfTable,
+  moveColumn,
+  moveRow,
   RelativeCellIndices,
 } from "../../api/blockManipulation/tables/tables.js";
 import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
@@ -32,7 +34,6 @@ import {
   getColspan,
   getRowspan,
   InlineContentSchema,
-  mapTableCell,
   StyleSchema,
 } from "../../schema/index.js";
 import { EventEmitter } from "../../util/EventEmitter.js";
@@ -541,12 +542,6 @@ export class TableHandlesView<
 
     const { draggingState, colIndex, rowIndex } = this.state;
 
-    const newTable = this.state.block.content.rows.map((row) => {
-      return {
-        ...row,
-        cells: row.cells.map((cell) => mapTableCell(cell)),
-      };
-    });
     const columnWidths = this.state.block.content.columnWidths;
 
     if (draggingState.draggedCellOrientation === "row") {
@@ -560,9 +555,18 @@ export class TableHandlesView<
         // If the target row is invalid, don't move the row
         return false;
       }
-      const rowToMove = newTable[draggingState.originalIndex];
-      newTable.splice(draggingState.originalIndex, 1);
-      newTable.splice(rowIndex, 0, rowToMove);
+      const newTable = moveRow(
+        this.state.block,
+        draggingState.originalIndex,
+        rowIndex
+      );
+      this.editor.updateBlock(this.state.block, {
+        type: "table",
+        content: {
+          ...this.state.block.content,
+          rows: newTable as any,
+        },
+      });
     } else {
       if (
         !canColumnBeDraggedInto(
@@ -574,26 +578,22 @@ export class TableHandlesView<
         // If the target column is invalid, don't move the column
         return false;
       }
-      const cellsToMove = newTable.map(
-        (row) => row.cells[draggingState.originalIndex]
+      const newTable = moveColumn(
+        this.state.block,
+        draggingState.originalIndex,
+        colIndex
       );
-      // TODO moving cells around is more complex than this
-      newTable.forEach((row, rowIndex) => {
-        row.cells.splice(draggingState.originalIndex, 1);
-        row.cells.splice(colIndex, 0, cellsToMove[rowIndex] as any);
-      });
       const [columnWidth] = columnWidths.splice(draggingState.originalIndex, 1);
       columnWidths.splice(colIndex, 0, columnWidth);
+      this.editor.updateBlock(this.state.block, {
+        type: "table",
+        content: {
+          ...this.state.block.content,
+          columnWidths,
+          rows: newTable as any,
+        },
+      });
     }
-
-    this.editor.updateBlock(this.state.block, {
-      type: "table",
-      content: {
-        ...this.state.block.content,
-        columnWidths,
-        rows: newTable,
-      },
-    });
 
     // Have to reset text cursor position to the block as `updateBlock` moves
     // the existing selection out of the block.

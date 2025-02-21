@@ -243,6 +243,34 @@ export function getTableCellOccupancyGrid(
 }
 
 /**
+ * Given an {@link OccupancyGrid}, this will return the {@link TableContent} rows.
+ *
+ * @note This will remove duplicates from the occupancy grid. And does no bounds checking for validity of the occupancy grid.
+ */
+export function getTableRowsFromOccupancyGrid(
+  occupancyGrid: OccupancyGrid
+): TableContent<any, any>["rows"] {
+  // Because a cell can have a rowspan or colspan, it can occupy multiple cells in the occupancy grid
+  // So, we need to remove duplicates from the occupancy grid before we can return the table rows
+  const seen = new Set<string>();
+
+  return occupancyGrid.map((row) => {
+    // Just read out the cells in the occupancy grid, removing duplicates
+    return {
+      cells: row
+        .map((cell) => {
+          if (seen.has(cell.row + ":" + cell.col)) {
+            return false;
+          }
+          seen.add(cell.row + ":" + cell.col);
+          return cell.cell;
+        })
+        .filter((cell) => cell !== false),
+    };
+  });
+}
+
+/**
  * This will resolve the relative cell indices within the table block to the absolute cell indices within the table, accounting for colspan and rowspan.
  *
  * @note It will return only the first cell (i.e. top-left) that matches the relative cell indices. To find the other absolute cell indices this cell occupies, you can assume it is the rowspan and colspan number of cells away from the top-left cell.
@@ -395,6 +423,7 @@ export function getCellsAtRowHandle(
   try {
     const occupancyGrid = getTableCellOccupancyGrid(block);
 
+    // First need to resolve the relative row index to an absolute row index
     let absoluteRow = 0;
 
     // Jump through the occupied cells ${relativeCellIndices.row} times to find the absolute row position
@@ -474,7 +503,6 @@ export function getCellsAtColumnHandle(
   try {
     const occupancyGrid = getTableCellOccupancyGrid(block);
     // First need to resolve the relative column index to an absolute column index
-
     let absoluteCol = 0;
 
     // Now that we've already resolved the absolute row position, we can jump through the occupied cells ${relativeCellIndices.col} times to find the absolute column position
@@ -512,4 +540,79 @@ export function getCellsAtColumnHandle(
     // In case of an invalid index, return an empty array
     return [];
   }
+}
+
+/**
+ * This moves a column from one index to another.
+ *
+ * @note This is a destructive operation, it will modify the {@link OccupancyGrid} in place.
+ */
+export function moveColumn(
+  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+  fromColIndex: RelativeCellIndices["col"],
+  toColIndex: RelativeCellIndices["col"],
+  occupancyGrid: OccupancyGrid = getTableCellOccupancyGrid(block)
+): TableContent<any, any>["rows"] {
+  // To move cells in a column, we need to layout the whole table
+  // and then move the cells accordingly.
+  const { col: absoluteSourceCol } = getAbsoluteTableCellIndices(
+    {
+      row: 0,
+      col: fromColIndex,
+    },
+    block,
+    occupancyGrid
+  );
+  const { col: absoluteTargetCol } = getAbsoluteTableCellIndices(
+    {
+      row: 0,
+      col: toColIndex,
+    },
+    block,
+    occupancyGrid
+  );
+
+  occupancyGrid.forEach((row) => {
+    // Move the cell to the target column
+    const [sourceCell] = row.splice(absoluteSourceCol, 1);
+    row.splice(absoluteTargetCol, 0, sourceCell);
+  });
+
+  return getTableRowsFromOccupancyGrid(occupancyGrid);
+}
+
+/**
+ * This moves a row from one index to another.
+ *
+ * @note This is a destructive operation, it will modify the {@link OccupancyGrid} in place.
+ */
+export function moveRow(
+  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+  fromRowIndex: RelativeCellIndices["row"],
+  toRowIndex: RelativeCellIndices["row"],
+  occupancyGrid: OccupancyGrid = getTableCellOccupancyGrid(block)
+): TableContent<any, any>["rows"] {
+  // To move cells in a column, we need to layout the whole table
+  // and then move the cells accordingly.
+  const { row: absoluteSourceRow } = getAbsoluteTableCellIndices(
+    {
+      row: fromRowIndex,
+      col: 0,
+    },
+    block,
+    occupancyGrid
+  );
+  const { row: absoluteTargetRow } = getAbsoluteTableCellIndices(
+    {
+      row: toRowIndex,
+      col: 0,
+    },
+    block,
+    occupancyGrid
+  );
+
+  const [sourceRow] = occupancyGrid.splice(absoluteSourceRow, 1);
+  occupancyGrid.splice(absoluteTargetRow, 0, sourceRow);
+
+  return getTableRowsFromOccupancyGrid(occupancyGrid);
 }
