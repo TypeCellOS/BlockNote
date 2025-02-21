@@ -6,7 +6,7 @@
     "*.css"
   ],
   "license": "MPL-2.0",
-  "version": "0.24.0",
+  "version": "0.24.1",
   "files": [
     "dist",
     "types",
@@ -54,7 +54,7 @@
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
     "@emoji-mart/react": "^1.1.1",
-    "@blocknote/core": "^0.24.0",
+    "@blocknote/core": "^0.24.1",
     "@floating-ui/react": "^0.26.4",
     "@tiptap/core": "^2.7.1",
     "@tiptap/react": "^2.7.1",

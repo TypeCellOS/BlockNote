@@ -283,47 +283,57 @@ export class SideMenuView<
 
     this.editor._tiptapEditor.commands.blur();
 
-    // When ProseMirror handles a drop event on the editor while
-    // `view.dragging` is set, it deletes the selected content. However, if
-    // a block from a different editor is being dropped, this causes some
-    // issues that the code below fixes:
-    if (!this.isDragOrigin && this.pmView.dom.contains(event.target as Node)) {
-      // 1. Because the editor selection is unrelated to the dragged content,
-      // we don't want PM to delete its content. Therefore, we collapse the
-      // selection.
-      this.pmView.dispatch(
-        this.pmView.state.tr.setSelection(
-          TextSelection.create(
-            this.pmView.state.tr.doc,
-            this.pmView.state.tr.selection.to
+    // Finds the BlockNote editor element that the drop event occurred in (if
+    // any).
+    const parentEditorElement =
+      event.target instanceof Node
+        ? (event.target instanceof HTMLElement
+            ? event.target
+            : event.target.parentElement
+          )?.closest(".bn-editor") || null
+        : null;
+
+    // Drop event occurred within an editor.
+    if (parentEditorElement) {
+      // When ProseMirror handles a drop event on the editor while
+      // `view.dragging` is set, it deletes the selected content. However, if
+      // a block from a different editor is being dropped, this causes some
+      // issues that the code below fixes:
+      if (!this.isDragOrigin && this.pmView.dom === parentEditorElement) {
+        // 1. Because the editor selection is unrelated to the dragged content,
+        // we don't want PM to delete its content. Therefore, we collapse the
+        // selection.
+        this.pmView.dispatch(
+          this.pmView.state.tr.setSelection(
+            TextSelection.create(
+              this.pmView.state.tr.doc,
+              this.pmView.state.tr.selection.to
+            )
           )
-        )
-      );
-    } else if (
-      this.isDragOrigin &&
-      !this.pmView.dom.contains(event.target as Node)
-    ) {
-      // 2. Because the editor from which the block originates doesn't get a
-      // drop event on it, PM doesn't delete its selected content. Therefore, we
-      // need to do so manually.
-      //
-      // Note: Deleting the selected content from the editor from which the
-      // block originates, may change its height. This can cause the position of
-      // the editor in which the block is being dropping to shift, before it
-      // can handle the drop event. That in turn can cause the drop to happen
-      // somewhere other than the user intended. To get around this, we delay
-      // deleting the selected content until all editors have had the chance to
-      // handle the event.
-      setTimeout(
-        () => this.pmView.dispatch(this.pmView.state.tr.deleteSelection()),
-        0
-      );
+        );
+      } else if (this.isDragOrigin && this.pmView.dom !== parentEditorElement) {
+        // 2. Because the editor from which the block originates doesn't get a
+        // drop event on it, PM doesn't delete its selected content. Therefore, we
+        // need to do so manually.
+        //
+        // Note: Deleting the selected content from the editor from which the
+        // block originates, may change its height. This can cause the position of
+        // the editor in which the block is being dropping to shift, before it
+        // can handle the drop event. That in turn can cause the drop to happen
+        // somewhere other than the user intended. To get around this, we delay
+        // deleting the selected content until all editors have had the chance to
+        // handle the event.
+        setTimeout(
+          () => this.pmView.dispatch(this.pmView.state.tr.deleteSelection()),
+          0
+        );
+      }
+      // 3. PM only clears `view.dragging` on the editor that the block was
+      // dropped, so we manually have to clear it on all the others. However,
+      // PM also needs to read `view.dragging` while handling the event, so we
+      // use a `setTimeout` to ensure it's only cleared after that.
+      setTimeout(() => (this.pmView.dragging = null), 0);
     }
-    // 3. PM only clears `view.dragging` on the editor that the block was
-    // dropped, so we manually have to clear it on all the others. However,
-    // PM also needs to read `view.dragging` while handling the event, so we
-    // use a `setTimeout` to ensure it's only cleared after that.
-    setTimeout(() => (this.pmView.dragging = null), 0);
 
     if (
       this.sideMenuDetection === "editor" ||
