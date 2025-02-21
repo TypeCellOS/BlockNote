@@ -23,10 +23,13 @@ import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { ExtendButtonProps } from "./ExtendButtonProps.js";
 
 function isCellEmpty<I extends InlineContentSchema, S extends StyleSchema>(
-  cell: PartialTableContent<I, S>["rows"][number]["cells"][number]
+  cell: PartialTableContent<I, S>["rows"][number]["cells"][number] | undefined
 ): boolean {
+  if (!cell) {
+    return true;
+  }
   if (isPartialTableCell(cell)) {
-    return (cell.content?.length ?? 0) === 0;
+    return isCellEmpty(cell.content);
   } else {
     return cell.length === 0;
   }
