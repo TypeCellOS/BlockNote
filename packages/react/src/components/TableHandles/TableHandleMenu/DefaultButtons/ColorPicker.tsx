@@ -73,7 +73,7 @@ export const ColorPickerButton = <
     editor.setTextCursorPosition(props.block);
   };
 
-  if (!currentCells || !tableHandles) {
+  if (!currentCells || !currentCells[0] || !tableHandles) {
     return null;
   }
 
