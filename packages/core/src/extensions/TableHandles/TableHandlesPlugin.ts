@@ -141,6 +141,76 @@ function hideElements(selector: string, rootEl: Document | ShadowRoot) {
   }
 }
 
+/**
+ * Checks if a row can be safely dropped at the target row index without splitting merged cells.
+ */
+function canRowBeDraggedInto(
+  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+  draggingIndex: RelativeCellIndices["row"],
+  targetRowIndex: RelativeCellIndices["row"]
+) {
+  // Check cells at the target row
+  const targetCells = getCellsAtRowHandle(block, targetRowIndex);
+
+  // If no cells have rowspans > 1, dragging is always allowed
+  const hasMergedCells = targetCells.some((cell) => getRowspan(cell.cell) > 1);
+  if (!hasMergedCells) {
+    return true;
+  }
+
+  let endRowIndex = targetRowIndex;
+  let startRowIndex = targetRowIndex;
+  targetCells.forEach((cell) => {
+    const rowspan = getRowspan(cell.cell);
+    endRowIndex = Math.max(endRowIndex, cell.row + rowspan - 1);
+    startRowIndex = Math.min(startRowIndex, cell.row);
+  });
+
+  // Check the direction of the drag
+  const isDraggingDown = draggingIndex < targetRowIndex;
+
+  // Allow dragging only at the start/end of merged cells
+  // Otherwise, the target row was within a merged cell which we don't allow
+  return isDraggingDown
+    ? targetRowIndex === endRowIndex
+    : targetRowIndex === startRowIndex;
+}
+
+/**
+ * Checks if a column can be safely dropped at the target column index without splitting merged cells.
+ */
+function canColumnBeDraggedInto(
+  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+  draggingIndex: RelativeCellIndices["col"],
+  targetColumnIndex: RelativeCellIndices["col"]
+) {
+  // Check cells at the target column
+  const targetCells = getCellsAtColumnHandle(block, targetColumnIndex);
+
+  // If no cells have colspans > 1, dragging is always allowed
+  const hasMergedCells = targetCells.some((cell) => getColspan(cell.cell) > 1);
+  if (!hasMergedCells) {
+    return true;
+  }
+
+  let endColumnIndex = targetColumnIndex;
+  let startColumnIndex = targetColumnIndex;
+  targetCells.forEach((cell) => {
+    const colspan = getColspan(cell.cell);
+    endColumnIndex = Math.max(endColumnIndex, cell.col + colspan - 1);
+    startColumnIndex = Math.min(startColumnIndex, cell.col);
+  });
+
+  // Check the direction of the drag
+  const isDraggingRight = draggingIndex < targetColumnIndex;
+
+  // Allow dragging only at the start/end of merged cells
+  // Otherwise, the target column was within a merged cell which we don't allow
+  return isDraggingRight
+    ? targetColumnIndex === endColumnIndex
+    : targetColumnIndex === startColumnIndex;
+}
+
 export class TableHandlesView<
   I extends InlineContentSchema,
   S extends StyleSchema
@@ -480,41 +550,34 @@ export class TableHandlesView<
     const columnWidths = this.state.block.content.columnWidths;
 
     if (draggingState.draggedCellOrientation === "row") {
-      const row = getCellsAtRowHandle(this.state.block, rowIndex);
-      // TODO need to work on this logic
       if (
-        row.some((cell) => {
-          const rowspan = getRowspan(cell.cell);
-          if (rowspan === 1) {
-            return false;
-          }
-          return cell.row <= rowIndex && rowIndex <= cell.row + rowspan - 1;
-        })
+        !canRowBeDraggedInto(
+          this.state.block,
+          draggingState.originalIndex,
+          rowIndex
+        )
       ) {
-        // If the row has cells with different row indices, don't move the row
+        // If the target row is invalid, don't move the row
         return false;
       }
       const rowToMove = newTable[draggingState.originalIndex];
       newTable.splice(draggingState.originalIndex, 1);
       newTable.splice(rowIndex, 0, rowToMove);
     } else {
-      const col = getCellsAtColumnHandle(this.state.block, colIndex);
-      // TODO need to work on this logic
       if (
-        col.some((cell) => {
-          const colspan = getColspan(cell.cell);
-          if (colspan === 1) {
-            return false;
-          }
-          return cell.col <= colIndex && colIndex <= cell.col + colspan - 1;
-        })
+        !canColumnBeDraggedInto(
+          this.state.block,
+          draggingState.originalIndex,
+          colIndex
+        )
       ) {
-        // If the column has cells with different col indices, don't move the column
+        // If the target column is invalid, don't move the column
         return false;
       }
       const cellsToMove = newTable.map(
         (row) => row.cells[draggingState.originalIndex]
       );
+      // TODO moving cells around is more complex than this
       newTable.forEach((row, rowIndex) => {
         row.cells.splice(draggingState.originalIndex, 1);
         row.cells.splice(colIndex, 0, cellsToMove[rowIndex] as any);
@@ -665,6 +728,24 @@ export class TableHandlesProsemirrorPlugin<
           const decorations: Decoration[] = [];
 
           if (newIndex === this.view.state.draggingState.originalIndex) {
+            return DecorationSet.create(state.doc, decorations);
+          } else if (
+            this.view.state.draggingState.draggedCellOrientation === "row" &&
+            !canRowBeDraggedInto(
+              this.view.state.block,
+              this.view.state.draggingState.originalIndex,
+              newIndex
+            )
+          ) {
+            return DecorationSet.create(state.doc, decorations);
+          } else if (
+            this.view.state.draggingState.draggedCellOrientation === "col" &&
+            !canColumnBeDraggedInto(
+              this.view.state.block,
+              this.view.state.draggingState.originalIndex,
+              newIndex
+            )
+          ) {
             return DecorationSet.create(state.doc, decorations);
           }
 
