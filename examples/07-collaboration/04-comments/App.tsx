@@ -99,6 +99,7 @@ function Document() {
     //   provider,
     //   new DefaultThreadStoreAuth(user.id, user.role)
     // );
+
     return new YjsThreadStore(
       user.id,
       doc.getMap("threads"),

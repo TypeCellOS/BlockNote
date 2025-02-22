@@ -76,6 +76,7 @@ export * from "./extensions/Comments/types.js";
 // - split to different package (@blocknote/comments)
 // - sub imports ( @blocknote/core/comments)
 export * from "./extensions/Comments/threadstore/DefaultThreadStoreAuth.js";
+export * from "./extensions/Comments/threadstore/LiveBlocksThreadStore.js";
 export * from "./extensions/Comments/threadstore/ThreadStore.js";
 export * from "./extensions/Comments/threadstore/ThreadStoreAuth.js";
 export * from "./extensions/Comments/threadstore/TipTapThreadStore.js";

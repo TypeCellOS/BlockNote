@@ -8,16 +8,15 @@
 // // Need to be imported after @liveblocks/react-ui styles
 // import "@liveblocks/react-blocknote/styles.css";
 
-// import { Editor } from "./Editor.jsx";
-// import { Room } from "./Room.jsx";
+import { Editor } from "./Editor.js";
+import { Room } from "./Room.js";
 // import "./globals.css";
 
 export default function App() {
   // Renders the editor instance using a React component.
   return (
-    <div>TODO</div>
-    // <Room>
-    //   <Editor />
-    // </Room>
+    <Room>
+      <Editor />
+    </Room>
   );
 }
