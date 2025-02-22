@@ -6,7 +6,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { UseFloatingOptions, flip, offset } from "@floating-ui/react";
+import { UseFloatingOptions, flip, offset, shift } from "@floating-ui/react";
 import { ComponentProps, FC, useMemo } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -50,7 +50,7 @@ export const FloatingComposerController = <
     5000,
     {
       placement: "bottom",
-      middleware: [offset(10), flip()],
+      middleware: [offset(10), shift(), flip()],
       onOpenChange: (open) => {
         if (!open) {
           // TODO
