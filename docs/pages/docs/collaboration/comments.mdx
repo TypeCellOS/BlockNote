@@ -54,7 +54,7 @@ const threadStore = new YjsThreadStore(
 );
 ```
 
-Note: While this is the easiest to implement, it requires users to have write access to the Yjs document to leave comments. Also, without proper server-side validation, any user could technically modify other users' comments.
+_Note: While this is the easiest to implement, it requires users to have write access to the Yjs document to leave comments. Also, without proper server-side validation, any user could technically modify other users' comments._
 
 ### `RESTYjsThreadStore`
 
@@ -76,6 +76,8 @@ const threadStore = new RESTYjsThreadStore(
 ```
 
 An example implementation of the REST API can be found in the [example repository](https://github.com/TypeCellOS/BlockNote-demo-nextjs-hocuspocus).
+
+_Note: Because writes are executed via a REST API, the `RESTYjsThreadStore` is not suitable for local-first applications that should be able to add and edit comments offline._
 
 ### `TiptapThreadStore`
 
@@ -107,7 +109,7 @@ The `ThreadStoreAuth` class defines the authorization rules for interacting with
 
 The `DefaultThreadStoreAuth` class provides a basic implementation of the `ThreadStoreAuth` class. It takes a user ID and a role ("comment" or "editor") and implements the rules. See the [source code](https://github.com/TypeCellOS/BlockNote/blob/main/packages/core/src/extensions/Comments/threadstore/DefaultThreadStoreAuth.ts) for more details.
 
-_Note:_ The `ThreadStoreAuth` only used to show / hide options in the UI. To secure comment related data, you still need to implement your own server-side validation (e.g. using `RESTYjsThreadStore` and a secure REST API).
+_Note: The `ThreadStoreAuth` only used to show / hide options in the UI. To secure comment related data, you still need to implement your own server-side validation (e.g. using `RESTYjsThreadStore` and a secure REST API)._
 
 ## `resolveUsers` function
 
