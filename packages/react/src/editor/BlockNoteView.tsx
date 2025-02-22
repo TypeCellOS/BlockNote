@@ -5,7 +5,6 @@ import {
   StyleSchema,
   mergeCSSClasses,
 } from "@blocknote/core";
-
 import React, {
   HTMLAttributes,
   ReactNode,
@@ -15,6 +14,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
+import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor.js";
 import { useEditorChange } from "../hooks/useEditorChange.js";
 import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange.js";
 import { usePrefersColorScheme } from "../hooks/usePrefersColorScheme.js";
@@ -105,11 +105,10 @@ function BlockNoteViewComponent<
     filePanel,
     tableHandles,
     autoFocus,
-    renderEditor,
+    renderEditor = !editor.headless,
     ...rest
   } = props;
 
-  const doRenderEditor = renderEditor ?? true;
   // Used so other components (suggestion menu) can set
   // aria related props to the contenteditable div
   const [contentEditableProps, setContentEditableProps] =
@@ -135,17 +134,6 @@ function BlockNoteViewComponent<
       editor.elementRenderer = ref;
     },
     [editor]
-  );
-
-  const portalManager = useMemo(() => {
-    return getContentComponent();
-  }, []);
-
-  const mount = useCallback(
-    (element: HTMLElement | null) => {
-      editor.mount(element, portalManager);
-    },
-    [editor, portalManager]
   );
 
   // The BlockNoteContext makes sure the editor and some helper methods
@@ -174,7 +162,6 @@ function BlockNoteViewComponent<
     autoFocus,
     className,
     editorColorScheme,
-    mount,
     contentEditableProps,
     ref,
     ...rest,
@@ -188,15 +175,10 @@ function BlockNoteViewComponent<
           defaultUIProps,
         }}>
         <ElementRenderer ref={setElementRenderer} />
-        {!editor.headless && (
-          <>
-            <Portals contentComponent={portalManager} />
-            {doRenderEditor ? (
-              <BlockNoteViewEditor>{children}</BlockNoteViewEditor>
-            ) : (
-              children
-            )}
-          </>
+        {renderEditor ? (
+          <BlockNoteViewEditor>{children}</BlockNoteViewEditor>
+        ) : (
+          children
         )}
       </BlockNoteViewContext.Provider>
     </BlockNoteContext.Provider>
@@ -219,13 +201,29 @@ export const BlockNoteViewRaw = React.forwardRef(BlockNoteViewComponent) as <
  */
 export const BlockNoteViewEditor = (props: { children: ReactNode }) => {
   const ctx = useBlockNoteViewContext()!;
+  const editor = useBlockNoteEditor();
+
+  const portalManager = useMemo(() => {
+    return getContentComponent();
+  }, []);
+
+  const mount = useCallback(
+    (element: HTMLElement | null) => {
+      editor.mount(element, portalManager);
+    },
+    [editor, portalManager]
+  );
+
   return (
-    <EditorElement {...ctx.editorProps} {...props}>
-      {/* Renders the UI elements such as formatting toolbar, etc, unless they have been explicitly disabled  in defaultUIProps */}
-      <BlockNoteDefaultUI {...ctx.defaultUIProps} />
-      {/* Manually passed in children, such as customized UI elements / controllers */}
-      {props.children}
-    </EditorElement>
+    <>
+      <Portals contentComponent={portalManager} />
+      <EditorElement {...ctx.editorProps} {...props} mount={mount}>
+        {/* Renders the UI elements such as formatting toolbar, etc, unless they have been explicitly disabled  in defaultUIProps */}
+        <BlockNoteDefaultUI {...ctx.defaultUIProps} />
+        {/* Manually passed in children, such as customized UI elements / controllers */}
+        {props.children}
+      </EditorElement>
+    </>
   );
 };
 
