@@ -52,6 +52,9 @@ export class TiptapThreadStore extends ThreadStore {
     return this.tiptapThreadToThreadData(thread);
   }
 
+  // TipTapThreadStore does not support addThreadToDocument
+  public addThreadToDocument = undefined;
+
   /**
    * Adds a comment to a thread.
    */
