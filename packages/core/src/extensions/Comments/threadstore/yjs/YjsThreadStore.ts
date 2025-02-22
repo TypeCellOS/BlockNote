@@ -1,21 +1,34 @@
 import { v4 } from "uuid";
 import * as Y from "yjs";
+import { CommentBody, CommentData, ThreadData } from "../../types.js";
+import { ThreadStoreAuth } from "../ThreadStoreAuth.js";
+import { YjsThreadStoreBase } from "./YjsThreadStoreBase.js";
 import {
-  CommentBody,
-  CommentData,
-  CommentReactionData,
-  ThreadData,
-} from "../types.js";
-import { ThreadStore } from "./ThreadStore.js";
-import { ThreadStoreAuth } from "./ThreadStoreAuth.js";
+  commentToYMap,
+  threadToYMap,
+  yMapToComment,
+  yMapToThread,
+} from "./yjsHelpers.js";
 
-export class YjsThreadStore extends ThreadStore {
+/**
+ * This is a Yjs-based implementation of the ThreadStore interface.
+ *
+ * It reads and writes thread / comments information directly to the underlying Yjs Document.
+ *
+ * @important While this is the easiest to add to your app, there are two challenges:
+ * - The user needs to be able to write to the Yjs document to store the information.
+ *   So a user without write access to the Yjs document cannot leave any comments.
+ * - Even with write access, the operations are not secure. Unless your Yjs server
+ *   guards against malicious operations, it's technically possible for one user to make changes to another user's comments, etc.
+ *   (even though these options are not visible in the UI, a malicious user can make unauthorized changes to the underlying Yjs document)
+ */
+export class YjsThreadStore extends YjsThreadStoreBase {
   constructor(
     private readonly userId: string,
-    private readonly threadsYMap: Y.Map<any>,
+    threadsYMap: Y.Map<any>,
     auth: ThreadStoreAuth
   ) {
-    super(auth);
+    super(threadsYMap, auth);
   }
 
   private transact = <T, R>(
@@ -68,6 +81,9 @@ export class YjsThreadStore extends ThreadStore {
       return thread;
     }
   );
+
+  // YjsThreadStore does not support addThreadToDocument
+  public addThreadToDocument = undefined;
 
   public addComment = this.transact(
     (options: {
@@ -309,154 +325,6 @@ export class YjsThreadStore extends ThreadStore {
       reactionsByUser.delete(key);
     }
   );
-  // TODO: async / reactive interface?
-  public getThread(threadId: string) {
-    const yThread = this.threadsYMap.get(threadId);
-    if (!yThread) {
-      throw new Error("Thread not found");
-    }
-    const thread = yMapToThread(yThread);
-    return thread;
-  }
-
-  public getThreads(): Map<string, ThreadData> {
-    const threadMap = new Map<string, ThreadData>();
-    this.threadsYMap.forEach((yThread, id) => {
-      threadMap.set(id, yMapToThread(yThread));
-    });
-    return threadMap;
-  }
-
-  public subscribe(cb: (threads: Map<string, ThreadData>) => void) {
-    const observer = () => {
-      cb(this.getThreads());
-    };
-
-    this.threadsYMap.observeDeep(observer);
-
-    return () => {
-      this.threadsYMap.unobserveDeep(observer);
-    };
-  }
-}
-
-// HELPERS
-
-function commentToYMap(comment: CommentData) {
-  const yMap = new Y.Map<any>();
-  yMap.set("id", comment.id);
-  yMap.set("userId", comment.userId);
-  yMap.set("createdAt", comment.createdAt.getTime());
-  yMap.set("updatedAt", comment.updatedAt.getTime());
-  if (comment.deletedAt) {
-    yMap.set("deletedAt", comment.deletedAt.getTime());
-    yMap.set("body", undefined);
-  } else {
-    yMap.set("body", comment.body);
-  }
-  if (comment.reactions.length > 0) {
-    throw new Error("Reactions should be empty in commentToYMap");
-  }
-
-  /**
-   * Reactions are stored in a map keyed by {userId-emoji},
-   * this makes it easy to add / remove reactions and in a way that works local-first.
-   * The cost is that "reading" the reactions is a bit more complex (see yMapToReactions).
-   */
-  yMap.set("reactionsByUser", new Y.Map());
-  yMap.set("metadata", comment.metadata);
-
-  return yMap;
-}
-
-function threadToYMap(thread: ThreadData) {
-  const yMap = new Y.Map();
-  yMap.set("id", thread.id);
-  yMap.set("createdAt", thread.createdAt.getTime());
-  yMap.set("updatedAt", thread.updatedAt.getTime());
-  const commentsArray = new Y.Array<Y.Map<any>>();
-
-  commentsArray.push(thread.comments.map((comment) => commentToYMap(comment)));
-
-  yMap.set("comments", commentsArray);
-  yMap.set("resolved", thread.resolved);
-  yMap.set("resolvedUpdatedAt", thread.resolvedUpdatedAt?.getTime());
-  yMap.set("metadata", thread.metadata);
-  return yMap;
-}
-
-type SingleUserCommentReactionData = {
-  emoji: string;
-  createdAt: Date;
-  userId: string;
-};
-
-function yMapToReaction(yMap: Y.Map<any>): SingleUserCommentReactionData {
-  return {
-    emoji: yMap.get("emoji"),
-    createdAt: new Date(yMap.get("createdAt")),
-    userId: yMap.get("userId"),
-  };
-}
-
-function yMapToReactions(yMap: Y.Map<any>): CommentReactionData[] {
-  const flatReactions = [...yMap.values()].map((reaction: Y.Map<any>) =>
-    yMapToReaction(reaction)
-  );
-  // combine reactions by the same emoji
-  return flatReactions.reduce(
-    (acc: CommentReactionData[], reaction: SingleUserCommentReactionData) => {
-      const existingReaction = acc.find((r) => r.emoji === reaction.emoji);
-      if (existingReaction) {
-        existingReaction.userIds.push(reaction.userId);
-        existingReaction.createdAt = new Date(
-          Math.min(
-            existingReaction.createdAt.getTime(),
-            reaction.createdAt.getTime()
-          )
-        );
-      } else {
-        acc.push({
-          emoji: reaction.emoji,
-          createdAt: reaction.createdAt,
-          userIds: [reaction.userId],
-        });
-      }
-      return acc;
-    },
-    [] as CommentReactionData[]
-  );
-}
-
-function yMapToComment(yMap: Y.Map<any>): CommentData {
-  return {
-    type: "comment",
-    id: yMap.get("id"),
-    userId: yMap.get("userId"),
-    createdAt: new Date(yMap.get("createdAt")),
-    updatedAt: new Date(yMap.get("updatedAt")),
-    deletedAt: yMap.get("deletedAt")
-      ? new Date(yMap.get("deletedAt"))
-      : undefined,
-    reactions: yMapToReactions(yMap.get("reactionsByUser")),
-    metadata: yMap.get("metadata"),
-    body: yMap.get("body"),
-  };
-}
-
-function yMapToThread(yMap: Y.Map<any>): ThreadData {
-  return {
-    type: "thread",
-    id: yMap.get("id"),
-    createdAt: new Date(yMap.get("createdAt")),
-    updatedAt: new Date(yMap.get("updatedAt")),
-    comments: ((yMap.get("comments") as Y.Array<Y.Map<any>>) || []).map(
-      (comment) => yMapToComment(comment)
-    ),
-    resolved: yMap.get("resolved"),
-    resolvedUpdatedAt: yMap.get("resolvedUpdatedAt"),
-    metadata: yMap.get("metadata"),
-  };
 }
 
 function yArrayFindIndex(

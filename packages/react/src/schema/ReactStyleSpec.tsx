@@ -7,8 +7,8 @@ import {
 } from "@blocknote/core";
 import { Mark } from "@tiptap/react";
 import { FC } from "react";
-import { ReactMarkView } from "./@util/ReactMarkViewRenderer.js";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
+import { ReactMarkView } from "./markviews/ReactMarkViewRenderer.js";
 
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 

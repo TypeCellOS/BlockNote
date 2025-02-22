@@ -6,7 +6,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { UseFloatingOptions, flip, offset } from "@floating-ui/react";
+import { UseFloatingOptions, flip, offset, shift } from "@floating-ui/react";
 import {
   ComponentProps,
   FC,
@@ -48,7 +48,7 @@ export const FloatingThreadController = <
   const { isMounted, ref, style, getFloatingProps, setReference } =
     useUIElementPositioning(!!state?.selectedThreadId, null, 5000, {
       placement: "bottom",
-      middleware: [offset(10), flip()],
+      middleware: [offset(10), shift(), flip()],
       onOpenChange: (open) => {
         if (!open) {
           // editor.filePanel!.closeMenu();

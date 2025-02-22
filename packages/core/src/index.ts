@@ -79,5 +79,7 @@ export * from "./extensions/Comments/threadstore/DefaultThreadStoreAuth.js";
 export * from "./extensions/Comments/threadstore/ThreadStore.js";
 export * from "./extensions/Comments/threadstore/ThreadStoreAuth.js";
 export * from "./extensions/Comments/threadstore/TipTapThreadStore.js";
-export * from "./extensions/Comments/threadstore/YjsThreadStore.js";
+export * from "./extensions/Comments/threadstore/yjs/RESTYjsThreadStore.js";
+export * from "./extensions/Comments/threadstore/yjs/YjsThreadStore.js";
+export * from "./extensions/Comments/threadstore/yjs/YjsThreadStoreBase.js";
 export * from "./models/User.js";

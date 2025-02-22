@@ -659,6 +659,11 @@
   color: var(--bn-colors-menu-text);
 }
 
+.bn-mantine .bn-badge .mantine-Chip-label:hover {
+  border: 1px solid var(--mantine-primary-color-filled-hover);
+  color: var(--mantine-primary-color-filled-hover);
+}
+
 .bn-mantine
   .bn-badge
   .mantine-Chip-label

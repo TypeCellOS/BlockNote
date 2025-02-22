@@ -2,8 +2,12 @@ import { CommentData, ThreadData } from "../types.js";
 import { ThreadStoreAuth } from "./ThreadStoreAuth.js";
 
 /*
- * The methods are annotated with the recommended auth pattern
- * (but of course this could be different in your app):
+ * The DefaultThreadStoreAuth class defines the authorization rules for interacting with comments.
+ * We take a role ("comment" or "editor") and implement the rules.
+ *
+ * This class is then used in the UI to show / hide specific interactions.
+ *
+ * Rules:
  * - View-only users should not be able to see any comments
  * - Comment-only users and editors can:
  * - - create new comments / replies / reactions

@@ -28,6 +28,11 @@ type BlockNoteEditorOptions = {
   schema?: BlockNoteSchema;
   trailingBlock?: boolean;
   animations?: boolean;
+  tabBehavior?: "prefer-navigate-ui" | "prefer-indent";
+  sideMenuDetection?: "viewport" | "editor";
+  resolveFileUrl?: (file: File) => Promise<string>;
+  resolveUsers?: (user: string) => Promise<UserInfo>;
+  comments?: CommentsConfig;
 };
 ```
 
@@ -52,6 +57,24 @@ The hook takes two optional parameters:
 `trailingBlock`: An option which user can pass with `false` value to disable the automatic creation of a trailing new block on the next line when the user types or edits any block. Defaults to `true` if undefined.
 
 `animations`: Whether changes to blocks (like indentation, creating lists, changing headings) should be animated or not. Defaults to `true`.
+
+`tabBehavior`: How Tab key behaves with multiple blocks selected and toolbar open:
+
+- `"prefer-navigate-ui"`: Focus moves to toolbar. User needs to press `Escape` to close toolbar before indenting blocks. Better for keyboard accessibility.
+- `"prefer-indent"`: Indents blocks regardless of toolbar state. Cannot navigate toolbars with keyboard.
+  Defaults to `"prefer-navigate-ui"`.
+
+`sideMenuDetection`: How the side menu detection works:
+
+- `"viewport"`: Shows menu for block next to mouse cursor
+- `"editor"`: Only shows when hovering editor or menu itself
+  Defaults to `"viewport"`.
+
+`resolveFileUrl`: Function to resolve file URLs for display/download. Useful for creating authenticated URLs or implementing custom protocols.
+
+`resolveUsers`: Function to resolve user information for comments. See [Comments](/docs/collaboration/comments) for more.
+
+`comments`: Configuration for the comments feature, requires a `threadStore`. See [Comments](/docs/collaboration/comments) for more.
 
 **deps:** Dependency array that's internally passed to `useMemo`. A new editor will only be created when this array changes.
 
@@ -102,6 +125,7 @@ export type BlockNoteViewProps = {
   emojiPicker?: boolean;
   filePanel?: boolean;
   tableHandles?: boolean;
+  comments?: boolean;
   children?:
 } & HTMLAttributes<HTMLDivElement>;
 ```
@@ -129,6 +153,8 @@ export type BlockNoteViewProps = {
 `filePanel`: Whether the File Toolbar should be enabled.
 
 `tableHandles`: Whether the Table Handles should be enabled.
+
+`comments`: Whether the default comments UI feature should be enabled.
 
 `children`: Pass child elements to the `BlockNoteView` to create or customize toolbars, menus, or other UI components. See [UI Components](/docs/ui-components) for more.
 

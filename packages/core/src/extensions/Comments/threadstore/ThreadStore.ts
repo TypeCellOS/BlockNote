@@ -13,6 +13,28 @@ export abstract class ThreadStore {
   }
 
   /**
+   * A "thread" in the ThreadStore only contains information about the content
+   * of the thread / comments. It does not contain information about the position.
+   *
+   * This function can be implemented to store the thread in the document (by creating a mark)
+   * If not implemented, default behavior will apply (creating the mark via TipTap)
+   * See CommentsPlugin.ts for more details.
+   */
+  abstract addThreadToDocument?(options: {
+    threadId: string;
+    selection: {
+      prosemirror: {
+        head: number;
+        anchor: number;
+      };
+      yjs: {
+        head: any;
+        anchor: any;
+      };
+    };
+  }): Promise<void>;
+
+  /**
    * Creates a new thread with an initial comment.
    */
   abstract createThread(options: {

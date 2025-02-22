@@ -46,6 +46,10 @@ export const CommentMark = Mark.create({
     ];
   },
 
+  parseHTML() {
+    return [{ tag: "span.bn-thread-mark" }];
+  },
+
   extendMarkSchema(extension) {
     if (extension.name === "comment") {
       return {

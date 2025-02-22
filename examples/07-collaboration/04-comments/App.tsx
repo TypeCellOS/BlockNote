@@ -1,6 +1,6 @@
 "use client";
 
-import { DefaultThreadStoreAuth, User, YjsThreadStore } from "@blocknote/core";
+import { DefaultThreadStoreAuth, YjsThreadStore } from "@blocknote/core";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
@@ -8,62 +8,17 @@ import {
   ThreadStreamView,
   useCreateBlockNote,
 } from "@blocknote/react";
-import { Select } from "@mantine/core";
+import { MantineProvider, Select } from "@mantine/core";
 import { YDocProvider, useYDoc, useYjsProvider } from "@y-sweet/react";
 import { useMemo, useState } from "react";
+import { HARDCODED_USERS, MyUserType, getRandomColor } from "./userdata";
 
 import "./style.css";
-
-const colors = [
-  "#958DF1",
-  "#F98181",
-  "#FBBC88",
-  "#FAF594",
-  "#70CFF8",
-  "#94FADB",
-  "#B9F18D",
-];
-
-const getRandomElement = (list: any[]) =>
-  list[Math.floor(Math.random() * list.length)];
-
-const getRandomColor = () => getRandomElement(colors);
-
-type MyUserType = User & {
-  role: "editor" | "comment";
-};
-
-const HARDCODED_USERS: MyUserType[] = [
-  {
-    id: "1",
-    username: "John Doe",
-    avatarUrl: "https://placehold.co/100x100?text=John",
-    role: "editor",
-  },
-  {
-    id: "2",
-    username: "Jane Doe",
-    avatarUrl: "https://placehold.co/100x100?text=Jane",
-    role: "editor",
-  },
-  {
-    id: "3",
-    username: "Bob Smith",
-    avatarUrl: "https://placehold.co/100x100?text=Bob",
-    role: "comment",
-  },
-  {
-    id: "4",
-    username: "Betty Smith",
-    avatarUrl: "https://placehold.co/100x100?text=Betty",
-    role: "comment",
-  },
-];
 
 // The resolveUsers function fetches information about your users
 // (e.g. their name, avatar, etc.). Usually, you'd fetch this from your
 // own database or user management system.
-// Here, we just return the hardcoded users.
+// Here, we just return the hardcoded users (from userdata.ts)
 async function resolveUsers(userIds: string[]) {
   // fake a (slow) network request
   await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -71,17 +26,20 @@ async function resolveUsers(userIds: string[]) {
   return HARDCODED_USERS.filter((user) => userIds.includes(user.id));
 }
 
-// This follows the Y-Sweet demo to setup a collabotive editor
-// (but of course, you also use other collaboration providers)
+// This follows the Y-Sweet example to setup a collabotive editor
+// (but of course, you also use other collaboration providers
+// see the docs for more information)
 export default function App() {
   const docId = "my-blocknote-document-with-comments";
 
   return (
-    <YDocProvider
-      docId={docId}
-      authEndpoint="https://demos.y-sweet.dev/api/auth">
-      <Document />
-    </YDocProvider>
+    <MantineProvider>
+      <YDocProvider
+        docId={docId}
+        authEndpoint="https://demos.y-sweet.dev/api/auth">
+        <Document />
+      </YDocProvider>
+    </MantineProvider>
   );
 }
 
@@ -94,6 +52,7 @@ function Document() {
 
   // setup the thread store which stores / and syncs thread / comment data
   const threadStore = useMemo(() => {
+    // (alternative, use TiptapCollabProvider)
     // const provider = new TiptapCollabProvider({
     //   name: "test",
     //   baseUrl: "https://collab.yourdomain.com",
@@ -128,9 +87,9 @@ function Document() {
     [user, threadStore]
   );
 
-  // TODO: make sure comment button / formatting toolbar appears for comment-only users
   return (
     <div className={"bn-app"}>
+      {/* This is a simple user selector to switch between users, for demo purposes */}
       <Select
         style={{ maxWidth: "300px" }}
         required
@@ -149,6 +108,7 @@ function Document() {
         value={user.id}
       />
 
+      {/* render the actual editor */}
       <BlockNoteView
         editor={editor}
         editable={user.role === "editor"}

@@ -1,6 +1,7 @@
 import { Node } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
+import { getRelativeSelection, ySyncPluginKey } from "y-prosemirror";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { User } from "../../models/User.js";
 import { EventEmitter } from "../../util/EventEmitter.js";
@@ -98,7 +99,7 @@ export class CommentsPlugin extends EventEmitter<any> {
           const markType = mark.type;
           const markThreadId = mark.attrs.threadId;
           const thread = threads.get(markThreadId);
-          const isOrphan = !thread || thread.resolved || thread.deletedAt;
+          const isOrphan = !!(!thread || thread.resolved || thread.deletedAt);
 
           if (isOrphan !== mark.attrs.orphan) {
             const { tr } = ttEditor.state;
@@ -193,14 +194,11 @@ export class CommentsPlugin extends EventEmitter<any> {
             self.selectThread(undefined);
             return;
           }
+
           const commentMark = node.marks.find(
-            (mark) => mark.type.name === markType
+            (mark) => mark.type.name === markType && mark.attrs.orphan !== true
           );
-          // don't allow selecting orphaned threads
-          if (commentMark?.attrs.orphan) {
-            self.selectThread(undefined);
-            return;
-          }
+
           const threadId = commentMark?.attrs.threadId as string | undefined;
           self.selectThread(threadId);
         },
@@ -248,8 +246,35 @@ export class CommentsPlugin extends EventEmitter<any> {
     metadata?: any;
   }) {
     const thread = await this.threadStore.createThread(options);
-    this.editor._tiptapEditor.commands.setMark(this.markType, {
-      threadId: thread.id,
-    });
+
+    if (this.threadStore.addThreadToDocument) {
+      // creating the mark is handled by the store
+      // this is useful if we don't have write-access to the document.
+      // We can then offload the responsibility of creating the mark to the server.
+      // (e.g.: RESTYjsThreadStore)
+      const view = this.editor.prosemirrorView!;
+      const pmSelection = view.state.selection;
+
+      const ystate = ySyncPluginKey.getState(view.state);
+
+      const selection = {
+        prosemirror: {
+          head: pmSelection.head,
+          anchor: pmSelection.anchor,
+        },
+        yjs: getRelativeSelection(ystate.binding, view.state),
+      };
+
+      await this.threadStore.addThreadToDocument({
+        threadId: thread.id,
+        selection,
+      });
+    } else {
+      // we create the mark directly in the document
+      this.editor._tiptapEditor.commands.setMark(this.markType, {
+        orphan: false,
+        threadId: thread.id,
+      });
+    }
   }
 }
