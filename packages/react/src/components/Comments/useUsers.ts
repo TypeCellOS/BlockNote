@@ -8,6 +8,9 @@ export function useUser(
   return useUsers(editor, [userId]).get(userId);
 }
 
+/**
+ * Bridges the UserStore to React using useSyncExternalStore.
+ */
 export function useUsers(
   editor: BlockNoteEditor<any, any, any>,
   userIds: string[]

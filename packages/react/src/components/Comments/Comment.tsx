@@ -64,6 +64,7 @@ export interface CommentProps extends ComponentPropsWithoutRef<"div"> {
  * a reaction list and an editor when editing.
  *
  * It's generally used in the `Thread` component for comments that have already been created.
+ *
  */
 export const Comment = ({
   comment,
@@ -74,9 +75,11 @@ export const Comment = ({
   showResolveAction = false,
   className,
 }: CommentProps) => {
+  // TODO: if REST API becomes popular, all interactions (click handlers) should implement a loading state and error state
+  // (or optimistic local updates)
+
   const dict = useDictionary();
 
-  // TODO: review use of sub-editor
   const commentEditor = useCreateBlockNote(
     {
       initialContent: comment.body,
@@ -115,7 +118,6 @@ export const Comment = ({
 
   const onEditSubmit = useCallback(
     async (_event: MouseEvent) => {
-      // TODO: show error on failure?
       await threadStore.updateComment({
         commentId: comment.id,
         comment: {
@@ -130,7 +132,6 @@ export const Comment = ({
   );
 
   const onDelete = useCallback(async () => {
-    // TODO: show error on failure?
     await threadStore.deleteComment({
       commentId: comment.id,
       threadId: thread.id,
@@ -140,7 +141,6 @@ export const Comment = ({
   const onReactionSelect = useCallback(
     async (emoji: string) => {
       if (threadStore.auth.canAddReaction(comment, emoji)) {
-        // TODO: show error on failure?
         await threadStore.addReaction({
           threadId: thread.id,
           commentId: comment.id,
@@ -158,14 +158,12 @@ export const Comment = ({
   );
 
   const onResolve = useCallback(async () => {
-    // TODO: show error on failure?
     await threadStore.resolveThread({
       threadId: thread.id,
     });
   }, [thread.id, threadStore]);
 
   const onReopen = useCallback(async () => {
-    // TODO: show error on failure?
     await threadStore.unresolveThread({
       threadId: thread.id,
     });

@@ -24,7 +24,6 @@ export function FloatingComposer() {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  // TODO: review use of sub-editor
   const newCommentEditor = useCreateBlockNote({
     trailingBlock: false,
     dictionary: {
@@ -54,7 +53,7 @@ export function FloatingComposer() {
               variant="compact"
               isDisabled={isEmpty}
               onClick={async () => {
-                // TODO: handle errors?
+                // (later) For REST API, we should implement a loading state and error state
                 await comments.createThread({
                   initialComment: {
                     body: newCommentEditor.document,

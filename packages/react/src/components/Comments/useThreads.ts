@@ -1,6 +1,9 @@
 import { BlockNoteEditor, ThreadData } from "@blocknote/core";
 import { useCallback, useRef, useSyncExternalStore } from "react";
 
+/**
+ * Bridges the ThreadStore to React using useSyncExternalStore.
+ */
 export function useThreads(editor: BlockNoteEditor<any, any, any>) {
   const comments = editor.comments;
   if (!comments) {

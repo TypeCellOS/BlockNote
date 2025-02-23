@@ -53,7 +53,6 @@ export const FloatingComposerController = <
       middleware: [offset(10), shift(), flip()],
       onOpenChange: (open) => {
         if (!open) {
-          // TODO
           comments.stopPendingComment();
           editor.focus();
         }
