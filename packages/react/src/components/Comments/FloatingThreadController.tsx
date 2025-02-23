@@ -91,8 +91,12 @@ export const FloatingThreadController = <
   }
 
   if (!state.selectedThreadId) {
-    return null; // TODO
+    return null;
   }
+
+  // nice to have improvements:
+  // - fade out on close
+  // - transition transform property so composer box animates when remote document is changed
 
   const Component = props.floatingThread || Thread;
 
