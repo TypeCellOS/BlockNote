@@ -44,22 +44,22 @@ export const FloatingThreadController = <
     editor.comments.onUpdate.bind(editor.comments)
   );
 
-  // TODO: review
   const { isMounted, ref, style, getFloatingProps, setReference } =
     useUIElementPositioning(!!state?.selectedThreadId, null, 5000, {
       placement: "bottom",
       middleware: [offset(10), shift(), flip()],
       onOpenChange: (open) => {
         if (!open) {
-          // TODO;
-          // editor.comments!.closeMenu();
+          editor.comments?.selectThread(undefined);
           editor.focus();
         }
       },
       ...props.floatingOptions,
     });
 
-  // TODO: could also use thread position from the state. prefer this?
+  // Positioning with [data-bn-thread-id] attribute is a bit hacky,
+  // we could probably also use the thread position from the plugin state?
+  // for now, this works ok
   const updateRef = useCallback(() => {
     if (!state?.selectedThreadId) {
       return;
