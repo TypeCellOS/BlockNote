@@ -16,7 +16,6 @@ export const Popover = (
     ...rest
   } = props;
 
-  // @ts-ignore TODO
   assertEmpty(rest);
 
   const ShadCNComponents = useShadCNComponentsContext()!;

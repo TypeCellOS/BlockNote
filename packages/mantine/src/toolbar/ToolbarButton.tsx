@@ -98,6 +98,9 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           }
         }}
         onClick={(event) => {
+          // We manually hide the tooltip onclick, because the click event
+          // might open a popover which would then show both the tooltip and the popover
+          // this is similar to default behavior of shadcn / radix
           setHideTooltip(true);
           onClick?.(event);
         }}
