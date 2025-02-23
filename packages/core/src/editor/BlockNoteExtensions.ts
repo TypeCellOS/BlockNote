@@ -26,6 +26,7 @@ import {
 import { NodeSelectionKeyboardPlugin } from "../extensions/NodeSelectionKeyboard/NodeSelectionKeyboardPlugin.js";
 import { PlaceholderPlugin } from "../extensions/Placeholder/PlaceholderPlugin.js";
 import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin.js";
+import { ShowSelectionPlugin } from "../extensions/ShowSelection/ShowSelectionPlugin.js";
 import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin.js";
 import { SuggestionMenuProseMirrorPlugin } from "../extensions/SuggestionMenu/SuggestionPlugin.js";
 import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin.js";
@@ -131,6 +132,8 @@ export const getBlockNoteExtensions = <
   };
 
   ret["nodeSelectionKeyboard"] = new NodeSelectionKeyboardPlugin();
+
+  ret["showSelection"] = new ShowSelectionPlugin(opts.editor);
 
   if (opts.comments) {
     ret["comments"] = new CommentsPlugin(

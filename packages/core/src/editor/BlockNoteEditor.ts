@@ -98,6 +98,7 @@ import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
 import { CommentsPlugin } from "../extensions/Comments/CommentsPlugin.js";
 import { ThreadStore } from "../extensions/Comments/threadstore/ThreadStore.js";
+import { ShowSelectionPlugin } from "../extensions/ShowSelection/ShowSelectionPlugin.js";
 import { User } from "../models/User.js";
 import "../style.css";
 import { EventEmitter } from "../util/EventEmitter.js";
@@ -369,6 +370,8 @@ export class BlockNoteEditor<
   >;
   public readonly comments?: CommentsPlugin;
 
+  private readonly showSelectionPlugin: ShowSelectionPlugin;
+
   /**
    * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
    * This method should set when creating the editor as this is application-specific.
@@ -495,6 +498,7 @@ export class BlockNoteEditor<
     this.filePanel = this.extensions["filePanel"] as any;
     this.tableHandles = this.extensions["tableHandles"] as any;
     this.comments = this.extensions["comments"] as any;
+    this.showSelectionPlugin = this.extensions["showSelection"] as any;
 
     if (newOptions.uploadFile) {
       const uploadFile = newOptions.uploadFile;
@@ -1348,5 +1352,13 @@ export class BlockNoteEditor<
         ignoreQueryLength: pluginState?.ignoreQueryLength || false,
       })
     );
+  }
+
+  public get ForceSelectionVisible() {
+    return this.showSelectionPlugin.ForceSelectionVisible;
+  }
+
+  public set ForceSelectionVisible(forceSelectionVisible: boolean) {
+    this.showSelectionPlugin.ForceSelectionVisible = forceSelectionVisible;
   }
 }

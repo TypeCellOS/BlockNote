@@ -36,8 +36,11 @@ export const FloatingComposerController = <
 
   const referencePos = useMemo(() => {
     if (!state?.pendingComment) {
+      editor.ForceSelectionVisible = false;
       return null;
     }
+
+    editor.ForceSelectionVisible = true;
 
     // TODO: update referencepos when doc changes (remote updates)
     return editor.getSelectionBoundingBox();
