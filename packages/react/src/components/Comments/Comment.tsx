@@ -21,8 +21,8 @@ import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
 import { useDictionary } from "../../i18n/dictionary.js";
-import { EmojiPicker } from "./EmojiPicker.js";
 import { CommentEditor } from "./CommentEditor.js";
+import { EmojiPicker } from "./EmojiPicker.js";
 import { ReactionBadge } from "./ReactionBadge.js";
 import { schema } from "./schema.js";
 import { useUser } from "./useUsers.js";
@@ -261,6 +261,10 @@ export const Comment = ({
       ? " (edited)"
       : "");
 
+  if (!comment.body) {
+    throw new Error("soft deletes are not yet supported");
+  }
+
   return (
     <Components.Comments.Comment
       authorInfo={user ?? "loading"}
@@ -268,80 +272,72 @@ export const Comment = ({
       showActions={showActions}
       actions={actions}
       className={className}>
-      {comment.body ? (
-        <CommentEditor
-          editor={commentEditor}
-          editable={isEditing}
-          actions={
-            (showReactions && comment.reactions.length > 0) || isEditing
-              ? ({ isEmpty }) => (
-                  <>
-                    {showReactions &&
-                      comment.reactions.length > 0 &&
-                      !isEditing && (
-                        <Components.Generic.Badge.Group
-                          className={mergeCSSClasses(
-                            "bn-badge-group",
-                            "bn-comment-reactions"
-                          )}>
-                          {comment.reactions.map((reaction) => (
-                            <ReactionBadge
-                              comment={comment}
-                              emoji={reaction.emoji}
-                              onReactionSelect={onReactionSelect}
-                            />
-                          ))}
-                          <EmojiPicker
-                            onEmojiSelect={(emoji: { native: string }) =>
-                              onReactionSelect(emoji.native)
-                            }>
-                            <Components.Generic.Badge.Root
-                              className={mergeCSSClasses(
-                                "bn-badge",
-                                "bn-comment-add-reaction"
-                              )}
-                              text={"+"}
-                              icon={<RiEmotionLine size={16} />}
-                              mainTooltip="Add reaction"
-                            />
-                          </EmojiPicker>
-                        </Components.Generic.Badge.Group>
-                      )}
-                    {isEditing && (
-                      <Components.Generic.Toolbar.Root
-                        variant="action-toolbar"
+      <CommentEditor
+        editor={commentEditor}
+        editable={isEditing}
+        actions={
+          (showReactions && comment.reactions.length > 0) || isEditing
+            ? ({ isEmpty }) => (
+                <>
+                  {showReactions &&
+                    comment.reactions.length > 0 &&
+                    !isEditing && (
+                      <Components.Generic.Badge.Group
                         className={mergeCSSClasses(
-                          "bn-action-toolbar",
-                          "bn-comment-actions"
+                          "bn-badge-group",
+                          "bn-comment-reactions"
                         )}>
-                        <Components.Generic.Toolbar.Button
-                          mainTooltip="Save"
-                          variant="compact"
-                          onClick={onEditSubmit}
-                          isDisabled={isEmpty}>
-                          Save
-                        </Components.Generic.Toolbar.Button>
-                        <Components.Generic.Toolbar.Button
-                          className={"bn-button"}
-                          mainTooltip="Cancel"
-                          variant="compact"
-                          onClick={onEditCancel}>
-                          Cancel
-                        </Components.Generic.Toolbar.Button>
-                      </Components.Generic.Toolbar.Root>
+                        {comment.reactions.map((reaction) => (
+                          <ReactionBadge
+                            comment={comment}
+                            emoji={reaction.emoji}
+                            onReactionSelect={onReactionSelect}
+                          />
+                        ))}
+                        <EmojiPicker
+                          onEmojiSelect={(emoji: { native: string }) =>
+                            onReactionSelect(emoji.native)
+                          }>
+                          <Components.Generic.Badge.Root
+                            className={mergeCSSClasses(
+                              "bn-badge",
+                              "bn-comment-add-reaction"
+                            )}
+                            text={"+"}
+                            icon={<RiEmotionLine size={16} />}
+                            mainTooltip="Add reaction"
+                          />
+                        </EmojiPicker>
+                      </Components.Generic.Badge.Group>
                     )}
-                  </>
-                )
-              : undefined
-          }
-        />
-      ) : (
-        // Soft deletes
-        // TODO, test
-        <div className="bn-comment-body">
-          <p className="bn-comment-deleted">Deleted</p>
-        </div>
-      )}
+                  {isEditing && (
+                    <Components.Generic.Toolbar.Root
+                      variant="action-toolbar"
+                      className={mergeCSSClasses(
+                        "bn-action-toolbar",
+                        "bn-comment-actions"
+                      )}>
+                      <Components.Generic.Toolbar.Button
+                        mainTooltip="Save"
+                        variant="compact"
+                        onClick={onEditSubmit}
+                        isDisabled={isEmpty}>
+                        Save
+                      </Components.Generic.Toolbar.Button>
+                      <Components.Generic.Toolbar.Button
+                        className={"bn-button"}
+                        mainTooltip="Cancel"
+                        variant="compact"
+                        onClick={onEditCancel}>
+                        Cancel
+                      </Components.Generic.Toolbar.Button>
+                    </Components.Generic.Toolbar.Root>
+                  )}
+                </>
+              )
+            : undefined
+        }
+      />
     </Components.Comments.Comment>
   );
 };

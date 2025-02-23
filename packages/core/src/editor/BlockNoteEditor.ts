@@ -522,6 +522,12 @@ export class BlockNoteEditor<
       );
     }
 
+    if (newOptions.comments && !collaborationEnabled) {
+      throw new Error(
+        "Comments are only supported when collaboration is enabled, please set the collaboration option"
+      );
+    }
+
     const initialContent =
       newOptions.initialContent ||
       (collaborationEnabled
