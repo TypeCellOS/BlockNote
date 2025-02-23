@@ -190,20 +190,10 @@ export class CommentsPlugin extends EventEmitter<any> {
             return;
           }
 
-          const selectThread = (threadId: string | undefined) => {
-            self.selectedThreadId = threadId;
-            self.emitStateUpdate();
-            view.dispatch(
-              view.state.tr.setMeta(PLUGIN_KEY, {
-                name: SET_SELECTED_THREAD_ID,
-              })
-            );
-          };
-
           const node = view.state.doc.nodeAt(pos);
 
           if (!node) {
-            selectThread(undefined);
+            self.selectThread(undefined);
             return;
           }
 
@@ -212,7 +202,7 @@ export class CommentsPlugin extends EventEmitter<any> {
           );
 
           const threadId = commentMark?.attrs.threadId as string | undefined;
-          selectThread(threadId);
+          self.selectThread(threadId);
         },
       },
     });
@@ -228,6 +218,22 @@ export class CommentsPlugin extends EventEmitter<any> {
     }) => void
   ) {
     return this.on("update", callback);
+  }
+
+  /**
+   * Set the selected thread
+   */
+  public selectThread(threadId: string | undefined) {
+    if (this.selectedThreadId === threadId) {
+      return;
+    }
+    this.selectedThreadId = threadId;
+    this.emitStateUpdate();
+    this.editor.dispatch(
+      this.editor.prosemirrorView!.state.tr.setMeta(PLUGIN_KEY, {
+        name: SET_SELECTED_THREAD_ID,
+      })
+    );
   }
 
   /**

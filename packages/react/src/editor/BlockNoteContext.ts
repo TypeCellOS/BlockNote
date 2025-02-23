@@ -10,7 +10,7 @@ import {
 } from "@blocknote/core";
 import { createContext, useContext, useState } from "react";
 
-type BlockNoteContextValue<
+export type BlockNoteContextValue<
   BSchema extends BlockSchema = DefaultBlockSchema,
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
   SSchema extends StyleSchema = DefaultStyleSchema

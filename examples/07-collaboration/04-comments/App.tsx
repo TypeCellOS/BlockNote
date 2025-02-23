@@ -3,11 +3,17 @@
 import { DefaultThreadStoreAuth, YjsThreadStore } from "@blocknote/core";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { useCreateBlockNote } from "@blocknote/react";
+import {
+  BlockNoteViewEditor,
+  ThreadStreamView,
+  useCreateBlockNote,
+} from "@blocknote/react";
 import { MantineProvider, Select } from "@mantine/core";
 import { YDocProvider, useYDoc, useYjsProvider } from "@y-sweet/react";
 import { useMemo, useState } from "react";
 import { HARDCODED_USERS, MyUserType, getRandomColor } from "./userdata";
+
+import "./style.css";
 
 // The resolveUsers function fetches information about your users
 // (e.g. their name, avatar, etc.). Usually, you'd fetch this from your
@@ -82,7 +88,7 @@ function Document() {
   );
 
   return (
-    <div>
+    <div className={"bn-app"}>
       {/* This is a simple user selector to switch between users, for demo purposes */}
       <Select
         style={{ maxWidth: "300px" }}
@@ -101,8 +107,21 @@ function Document() {
         }}
         value={user.id}
       />
+
       {/* render the actual editor */}
-      <BlockNoteView editor={editor} editable={user.role === "editor"} />
+      <BlockNoteView
+        editor={editor}
+        editable={user.role === "editor"}
+        renderEditor={false}
+        formattingToolbar={false}>
+        <div className={"bn-editor-and-thread-stream"}>
+          <BlockNoteViewEditor />
+          <div className={"bn-thread-stream-wrapper bn-mantine"}>
+            <h1>Comments</h1>
+            <ThreadStreamView />
+          </div>
+        </div>
+      </BlockNoteView>
     </div>
   );
 }
