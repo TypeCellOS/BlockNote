@@ -7,9 +7,10 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { UseFloatingOptions, flip, offset, shift } from "@floating-ui/react";
-import { ComponentProps, FC, useMemo } from "react";
+import { ComponentProps, FC, useEffect } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
+import { useEditorSelectionBoundingBox } from "../../hooks/useEditorSelectionBoundingBox.js";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning.js";
 import { useUIPluginState } from "../../hooks/useUIPluginState.js";
 import { FloatingComposer } from "./FloatingComposer.js";
@@ -34,19 +35,14 @@ export const FloatingComposerController = <
 
   const state = useUIPluginState(comments.onUpdate.bind(comments));
 
-  const referencePos = useMemo(() => {
-    if (!state?.pendingComment) {
-      editor.ForceSelectionVisible = false;
-      return null;
-    }
+  // the reference position is updated automatically when the selection moves,
+  // this can happen when the document is updated by a remote user
+  const referencePos = useEditorSelectionBoundingBox(state?.pendingComment);
 
-    editor.ForceSelectionVisible = true;
-
-    // TODO: update referencepos when doc changes (remote updates)
-    return editor.getSelectionBoundingBox();
+  useEffect(() => {
+    editor.ForceSelectionVisible = !!state?.pendingComment;
   }, [editor, state?.pendingComment]);
 
-  // TODO: review
   const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
     state?.pendingComment || false,
     referencePos || null,
@@ -67,6 +63,10 @@ export const FloatingComposerController = <
   if (!isMounted || !state) {
     return null;
   }
+
+  // nice to have improvements would be:
+  // - transition transform property so composer box animates when remote document is changed
+  // - fade out on close
 
   const Component = props.floatingComposer || FloatingComposer;
 

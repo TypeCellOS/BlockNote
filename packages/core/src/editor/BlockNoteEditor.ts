@@ -1258,14 +1258,18 @@ export class BlockNoteEditor<
    * @returns A function to remove the callback.
    */
   public onSelectionChange(
-    callback: (editor: BlockNoteEditor<BSchema, ISchema, SSchema>) => void
+    callback: (editor: BlockNoteEditor<BSchema, ISchema, SSchema>) => void,
+    includeSelectionChangedByRemote?: boolean
   ) {
     if (this.headless) {
       return;
     }
 
     const cb = (e: { transaction: Transaction }) => {
-      if (e.transaction.getMeta(ySyncPluginKey)) {
+      if (
+        e.transaction.getMeta(ySyncPluginKey) &&
+        !includeSelectionChangedByRemote
+      ) {
         // selection changed because of a yjs sync (i.e.: other user was typing)
         // we don't want to trigger the callback in this case
         return;
