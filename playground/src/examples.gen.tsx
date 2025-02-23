@@ -1099,14 +1099,14 @@
           "author": "yousefed",
           "tags": [
             "Advanced",
-            "Liveblocks",
+            "Saving/Loading",
             "Collaboration"
           ],
           "dependencies": {
-            "@liveblocks/client": "^2.11.0",
-            "@liveblocks/react": "^2.11.0",
-            "@liveblocks/react-ui": "^2.11.0",
-            "@liveblocks/react-blocknote": "^2.11.0"
+            "@liveblocks/client": "^1.10.0",
+            "@liveblocks/react": "^1.10.0",
+            "@liveblocks/yjs": "^1.10.0",
+            "yjs": "^13.6.15"
           } as any
         },
         "title": "Collaborative Editing with Liveblocks",
@@ -1145,10 +1145,10 @@
         "config": {
           "playground": true,
           "docs": true,
-          "author": "jakelazaroff",
+          "author": "yousefed",
           "tags": [
             "Advanced",
-            "Saving/Loading",
+            "Comments",
             "Collaboration"
           ],
           "dependencies": {

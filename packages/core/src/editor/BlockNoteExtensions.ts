@@ -263,7 +263,7 @@ const getTipTapExtensions = <
     ...(opts.trailingBlock === undefined || opts.trailingBlock
       ? [TrailingNode]
       : []),
-    CommentMark,
+    ...(opts.comments ? [CommentMark] : []),
   ];
 
   LINKIFY_INITIALIZED = true;
