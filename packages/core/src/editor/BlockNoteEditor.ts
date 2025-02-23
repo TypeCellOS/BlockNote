@@ -100,6 +100,7 @@ import { CommentsPlugin } from "../extensions/Comments/CommentsPlugin.js";
 import { ThreadStore } from "../extensions/Comments/threadstore/ThreadStore.js";
 import { User } from "../models/User.js";
 import "../style.css";
+import { EventEmitter } from "../util/EventEmitter.js";
 
 export type BlockNoteExtensionFactory = (
   editor: BlockNoteEditor<any, any, any>
@@ -292,7 +293,9 @@ export class BlockNoteEditor<
   BSchema extends BlockSchema = DefaultBlockSchema,
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
   SSchema extends StyleSchema = DefaultStyleSchema
-> {
+> extends EventEmitter<{
+  create: void;
+}> {
   private readonly _pmSchema: Schema;
 
   /**
@@ -400,6 +403,7 @@ export class BlockNoteEditor<
   protected constructor(
     protected readonly options: Partial<BlockNoteEditorOptions<any, any, any>>
   ) {
+    super();
     const anyOpts = options as any;
     if (anyOpts.onEditorContentChange) {
       throw new Error(
@@ -613,6 +617,7 @@ export class BlockNoteEditor<
       // but we still need the schema
       this._pmSchema = getSchema(tiptapOptions.extensions!);
     }
+    this.emit("create");
   }
 
   dispatch(tr: Transaction) {
@@ -1268,6 +1273,19 @@ export class BlockNoteEditor<
 
     return () => {
       this._tiptapEditor.off("selectionUpdate", cb);
+    };
+  }
+
+  /**
+   * A callback function that runs when the editor has been initialized.
+   *
+   * This can be useful for plugins to initialize themselves after the editor has been initialized.
+   */
+  public onCreate(callback: () => void) {
+    this.on("create", callback);
+
+    return () => {
+      this.off("create", callback);
     };
   }
 
