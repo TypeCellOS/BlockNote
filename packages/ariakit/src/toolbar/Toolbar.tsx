@@ -18,8 +18,6 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
       ...rest
     } = props;
 
-    // TODO
-    // @ts-ignore
     assertEmpty(rest);
 
     return (

@@ -98,8 +98,10 @@ import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
 import { CommentsPlugin } from "../extensions/Comments/CommentsPlugin.js";
 import { ThreadStore } from "../extensions/Comments/threadstore/ThreadStore.js";
+import { ShowSelectionPlugin } from "../extensions/ShowSelection/ShowSelectionPlugin.js";
 import { User } from "../models/User.js";
 import "../style.css";
+import { EventEmitter } from "../util/EventEmitter.js";
 
 export type BlockNoteExtensionFactory = (
   editor: BlockNoteEditor<any, any, any>
@@ -292,7 +294,9 @@ export class BlockNoteEditor<
   BSchema extends BlockSchema = DefaultBlockSchema,
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
   SSchema extends StyleSchema = DefaultStyleSchema
-> {
+> extends EventEmitter<{
+  create: void;
+}> {
   private readonly _pmSchema: Schema;
 
   /**
@@ -366,6 +370,8 @@ export class BlockNoteEditor<
   >;
   public readonly comments?: CommentsPlugin;
 
+  private readonly showSelectionPlugin: ShowSelectionPlugin;
+
   /**
    * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
    * This method should set when creating the editor as this is application-specific.
@@ -400,6 +406,7 @@ export class BlockNoteEditor<
   protected constructor(
     protected readonly options: Partial<BlockNoteEditorOptions<any, any, any>>
   ) {
+    super();
     const anyOpts = options as any;
     if (anyOpts.onEditorContentChange) {
       throw new Error(
@@ -491,6 +498,7 @@ export class BlockNoteEditor<
     this.filePanel = this.extensions["filePanel"] as any;
     this.tableHandles = this.extensions["tableHandles"] as any;
     this.comments = this.extensions["comments"] as any;
+    this.showSelectionPlugin = this.extensions["showSelection"] as any;
 
     if (newOptions.uploadFile) {
       const uploadFile = newOptions.uploadFile;
@@ -519,6 +527,12 @@ export class BlockNoteEditor<
       // eslint-disable-next-line no-console
       console.warn(
         "When using Collaboration, initialContent might cause conflicts, because changes should come from the collaboration provider"
+      );
+    }
+
+    if (newOptions.comments && !collaborationEnabled) {
+      throw new Error(
+        "Comments are only supported when collaboration is enabled, please set the collaboration option"
       );
     }
 
@@ -607,6 +621,7 @@ export class BlockNoteEditor<
       // but we still need the schema
       this._pmSchema = getSchema(tiptapOptions.extensions!);
     }
+    this.emit("create");
   }
 
   dispatch(tr: Transaction) {
@@ -1243,14 +1258,18 @@ export class BlockNoteEditor<
    * @returns A function to remove the callback.
    */
   public onSelectionChange(
-    callback: (editor: BlockNoteEditor<BSchema, ISchema, SSchema>) => void
+    callback: (editor: BlockNoteEditor<BSchema, ISchema, SSchema>) => void,
+    includeSelectionChangedByRemote?: boolean
   ) {
     if (this.headless) {
       return;
     }
 
     const cb = (e: { transaction: Transaction }) => {
-      if (e.transaction.getMeta(ySyncPluginKey)) {
+      if (
+        e.transaction.getMeta(ySyncPluginKey) &&
+        !includeSelectionChangedByRemote
+      ) {
         // selection changed because of a yjs sync (i.e.: other user was typing)
         // we don't want to trigger the callback in this case
         return;
@@ -1262,6 +1281,19 @@ export class BlockNoteEditor<
 
     return () => {
       this._tiptapEditor.off("selectionUpdate", cb);
+    };
+  }
+
+  /**
+   * A callback function that runs when the editor has been initialized.
+   *
+   * This can be useful for plugins to initialize themselves after the editor has been initialized.
+   */
+  public onCreate(callback: () => void) {
+    this.on("create", callback);
+
+    return () => {
+      this.off("create", callback);
     };
   }
 
@@ -1324,5 +1356,13 @@ export class BlockNoteEditor<
         ignoreQueryLength: pluginState?.ignoreQueryLength || false,
       })
     );
+  }
+
+  public get ForceSelectionVisible() {
+    return this.showSelectionPlugin.ForceSelectionVisible;
+  }
+
+  public set ForceSelectionVisible(forceSelectionVisible: boolean) {
+    this.showSelectionPlugin.ForceSelectionVisible = forceSelectionVisible;
   }
 }

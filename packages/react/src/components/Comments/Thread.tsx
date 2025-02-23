@@ -58,6 +58,9 @@ export const Thread = ({
   className,
   ...props
 }: ThreadProps) => {
+  // TODO: if REST API becomes popular, all interactions (click handlers) should implement a loading state and error state
+  // (or optimistic local updates)
+
   const editor = useBlockNoteEditor();
 
   const comments = editor.comments;
@@ -86,7 +89,6 @@ export const Thread = ({
   // load all user data
   useUsers(editor, userIds);
 
-  // TODO: review use of sub-editor
   const newCommentEditor = useCreateBlockNote({
     trailingBlock: false,
     dictionary: {
@@ -105,7 +107,6 @@ export const Thread = ({
   }, [showDeletedComments, thread.comments]);
 
   const onNewCommentSave = useCallback(async () => {
-    // TODO: show error on failure?
     await comments.threadStore.addComment({
       comment: {
         body: newCommentEditor.document,

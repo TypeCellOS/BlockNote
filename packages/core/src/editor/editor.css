@@ -188,3 +188,11 @@ Tippy popups that are appended to document.body directly
 .prosemirror-dropcursor-vertical {
   transition-property: left, right;
 }
+
+/*
+For the ShowSelectionPlugin
+*/
+[data-show-selection] {
+  background-color: highlight;
+  padding: 2px 0;
+}

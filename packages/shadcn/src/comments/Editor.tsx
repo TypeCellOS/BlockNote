@@ -5,7 +5,7 @@ import {
   FormattingToolbarController,
   getFormattingToolbarItems,
 } from "@blocknote/react";
-import { forwardRef, useEffect } from "react";
+import { forwardRef } from "react";
 
 import { BlockNoteView } from "../BlockNoteView.js";
 import { cn } from "../lib/utils.js";
@@ -17,14 +17,6 @@ export const Editor = forwardRef<
   const { className, onFocus, onBlur, editor, editable, ...rest } = props;
 
   assertEmpty(rest);
-
-  // When we click the edit button on a comment, we also want to focus the
-  // comment editor
-  useEffect(() => {
-    if (editable) {
-      editor.focus();
-    }
-  }, [editable, editor]);
 
   return (
     <BlockNoteView

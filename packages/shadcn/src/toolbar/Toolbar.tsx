@@ -62,8 +62,6 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
 
     // false, because rest props can be added by shadcn when button is used as a trigger
     // assertEmpty in this case is only used at typescript level, not runtime level
-    // TODO
-    // @ts-ignore
     assertEmpty(rest, false);
 
     const ShadCNComponents = useShadCNComponentsContext()!;
@@ -75,8 +73,6 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             className,
             variant === "compact" ? "bn-h-6 bn-min-w-6 bn-p-0" : ""
           )}
-          // TODO
-          // @ts-ignore
           variant="ghost"
           size={variant === "compact" ? "sm" : "default"}
           disabled={isDisabled}
@@ -88,8 +84,6 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           {children}
         </ShadCNComponents.Button.Button>
       ) : (
-        // TODO
-        // @ts-ignore
         <ShadCNComponents.Toggle.Toggle
           className={cn(
             className,

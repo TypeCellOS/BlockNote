@@ -51,8 +51,9 @@ export const FloatingThreadController = <
       middleware: [offset(10), shift(), flip()],
       onOpenChange: (open) => {
         if (!open) {
-          // editor.filePanel!.closeMenu();
-          // editor.focus();
+          // TODO;
+          // editor.comments!.closeMenu();
+          editor.focus();
         }
       },
       ...props.floatingOptions,
@@ -90,8 +91,12 @@ export const FloatingThreadController = <
   }
 
   if (!state.selectedThreadId) {
-    return null; // TODO
+    return null;
   }
+
+  // nice to have improvements:
+  // - fade out on close
+  // - transition transform property so composer box animates when remote document is changed
 
   const Component = props.floatingThread || Thread;
 

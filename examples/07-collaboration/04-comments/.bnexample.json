@@ -1,8 +1,8 @@
 {
   "playground": true,
   "docs": true,
-  "author": "jakelazaroff",
-  "tags": ["Advanced", "Saving/Loading", "Collaboration"],
+  "author": "yousefed",
+  "tags": ["Advanced", "Comments", "Collaboration"],
   "dependencies": {
     "@y-sweet/react": "^0.6.3",
     "@mantine/core": "^7.10.1"

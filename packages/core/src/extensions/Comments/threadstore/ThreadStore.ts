@@ -113,10 +113,21 @@ export abstract class ThreadStore {
     emoji: string;
   }): Promise<void>;
 
+  /**
+   * Retrieve data for a specific thread.
+   */
   abstract getThread(threadId: string): ThreadData;
 
+  /**
+   * Retrieve all threads.
+   */
   abstract getThreads(): Map<string, ThreadData>;
 
+  /**
+   * Subscribe to changes in the thread store.
+   *
+   * @returns a function to unsubscribe from the thread store
+   */
   abstract subscribe(
     cb: (threads: Map<string, ThreadData>) => void
   ): () => void;

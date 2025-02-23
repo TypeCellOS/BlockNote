@@ -18,6 +18,12 @@ type ReactionAsTiptapData = {
   userId: string;
 };
 
+/**
+ * The `TiptapThreadStore` integrates with Tiptap's collaboration provider for comment management.
+ * You can pass a `TiptapCollabProvider` to the constructor which takes care of storing the comments.
+ *
+ * Under the hood, this actually works similarly to the `YjsThreadStore` implementation. (comments are stored in the Yjs document)
+ */
 export class TiptapThreadStore extends ThreadStore {
   constructor(
     private readonly userId: string,

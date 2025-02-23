@@ -1,5 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { FC, useCallback, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useEditorChange } from "../../hooks/useEditorChange.js";
 import { schema } from "./schema.js";
@@ -42,6 +42,14 @@ export const CommentEditor = (props: {
   const onBlur = useCallback(() => {
     setIsFocused(false);
   }, []);
+
+  // When we click the edit button on a comment, we also want to focus the
+  // comment editor
+  useEffect(() => {
+    if (props.editable) {
+      props.editor.focus();
+    }
+  }, [props.editable, props.editor]);
 
   return (
     <>

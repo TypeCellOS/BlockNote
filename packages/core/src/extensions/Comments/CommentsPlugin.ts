@@ -8,26 +8,30 @@ import { EventEmitter } from "../../util/EventEmitter.js";
 import { ThreadStore } from "./threadstore/ThreadStore.js";
 import { CommentBody, ThreadData } from "./types.js";
 import { UserStore } from "./userstore/UserStore.js";
-const PLUGIN_KEY = new PluginKey(`blocknote-comments`);
 
+const PLUGIN_KEY = new PluginKey(`blocknote-comments`);
 const SET_SELECTED_THREAD_ID = "SET_SELECTED_THREAD_ID";
 
-type CommentsPluginAction = {
-  name: typeof SET_SELECTED_THREAD_ID;
-};
-
 type CommentsPluginState = {
+  /**
+   * Store the positions of all threads in the document.
+   * this can be used later to implement a floating sidebar
+   */
   threadPositions: Map<string, { from: number; to: number }>;
-  // selectedThreadId: string | null;
-  // selectedThreadPos: number | null;
+  /**
+   * Decorations to be rendered, specifically to indicate the selected thread
+   */
   decorations: DecorationSet;
 };
 
+/**
+ * Get a new state (theadPositions and decorations) from the current document state
+ */
 function updateState(
   doc: Node,
   selectedThreadId: string | undefined,
   markType: string
-) {
+): CommentsPluginState {
   const threadPositions = new Map<string, { from: number; to: number }>();
   const decorations: Decoration[] = [];
   // find all thread marks and store their position + create decoration for selected thread
@@ -88,10 +92,6 @@ export class CommentsPlugin extends EventEmitter<any> {
    */
   private updateMarksFromThreads = (threads: Map<string, ThreadData>) => {
     const ttEditor = this.editor._tiptapEditor;
-    if (!ttEditor) {
-      // TODO: better lifecycle management
-      return;
-    }
 
     ttEditor.state.doc.descendants((node, pos) => {
       node.marks.forEach((mark) => {
@@ -142,21 +142,19 @@ export class CommentsPlugin extends EventEmitter<any> {
     }
     this.userStore = new UserStore<User>(editor.resolveUsers);
 
-    // TODO: unsubscribe
+    // Note: Plugins are currently not destroyed when the editor is destroyed.
+    // We should unsubscribe from the threadStore when the editor is destroyed.
     this.threadStore.subscribe(this.updateMarksFromThreads);
 
-    // initial
-    this.updateMarksFromThreads(this.threadStore.getThreads());
-
-    // TODO: remove settimeout
-    setTimeout(() => {
+    editor.onCreate(() => {
+      this.updateMarksFromThreads(this.threadStore.getThreads());
       editor.onSelectionChange(() => {
         if (this.pendingComment) {
           this.pendingComment = false;
           this.emitStateUpdate();
         }
       });
-    }, 600);
+    });
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
@@ -168,15 +166,15 @@ export class CommentsPlugin extends EventEmitter<any> {
           return {
             threadPositions: new Map<string, { from: number; to: number }>(),
             decorations: DecorationSet.empty,
-          } satisfies CommentsPluginState;
+          };
         },
         apply(tr, state) {
-          const action = tr.getMeta(PLUGIN_KEY) as CommentsPluginAction;
+          const action = tr.getMeta(PLUGIN_KEY);
           if (!tr.docChanged && !action) {
             return state;
           }
 
-          // Doc changed, but no action, just update rects
+          // The doc changed or the selected thread changed
           return updateState(tr.doc, self.selectedThreadId, markType);
         },
       },
@@ -184,12 +182,16 @@ export class CommentsPlugin extends EventEmitter<any> {
         decorations(state) {
           return PLUGIN_KEY.getState(state)?.decorations ?? DecorationSet.empty;
         },
+        /**
+         * Handle click on a thread mark and mark it as selected
+         */
         handleClick: (view, pos, event) => {
           if (event.button !== 0) {
             return;
           }
 
           const node = view.state.doc.nodeAt(pos);
+
           if (!node) {
             self.selectThread(undefined);
             return;
@@ -206,6 +208,9 @@ export class CommentsPlugin extends EventEmitter<any> {
     });
   }
 
+  /**
+   * Subscribe to state updates
+   */
   public onUpdate(
     callback: (state: {
       pendingComment: boolean;
@@ -215,6 +220,9 @@ export class CommentsPlugin extends EventEmitter<any> {
     return this.on("update", callback);
   }
 
+  /**
+   * Set the selected thread
+   */
   public selectThread(threadId: string | undefined) {
     if (this.selectedThreadId === threadId) {
       return;
@@ -228,16 +236,25 @@ export class CommentsPlugin extends EventEmitter<any> {
     );
   }
 
+  /**
+   * Start a pending comment (e.g.: when clicking the "Add comment" button)
+   */
   public startPendingComment() {
     this.pendingComment = true;
     this.emitStateUpdate();
   }
 
+  /**
+   * Stop a pending comment (e.g.: user closes the comment composer)
+   */
   public stopPendingComment() {
     this.pendingComment = false;
     this.emitStateUpdate();
   }
 
+  /**
+   * Create a thread at the current selection
+   */
   public async createThread(options: {
     initialComment: {
       body: CommentBody;

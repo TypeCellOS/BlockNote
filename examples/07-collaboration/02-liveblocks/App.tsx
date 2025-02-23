@@ -1,23 +1,41 @@
-// import "@blocknote/core/fonts/inter.css";
-// import "@blocknote/mantine/style.css";
+import "@blocknote/core/fonts/inter.css";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
+import { useCreateBlockNote } from "@blocknote/react";
+import { createClient } from "@liveblocks/client";
+import LiveblocksProvider from "@liveblocks/yjs";
+import * as Y from "yjs";
 
-// // .. in imports are temporary for development (vite setup)
+// Sets up Liveblocks client.
+const client = createClient({
+  publicApiKey:
+    "pk_dev_lJAS4XHx3l1e0x_Gh9VMtrvo8PEB1vrNarC2YRtAOp4t6i9_QAcSX2U953GS6v7B",
+});
+// Enters a multiplayer room.
+// Use a unique name as a "room" for your application.
+const { room } = client.enterRoom("your-project-name", {
+  initialPresence: {},
+});
 
-// // Need to be imported before @liveblocks/react-blocknote styles
-// import "@liveblocks/react-ui/styles.css";
-// // Need to be imported after @liveblocks/react-ui styles
-// import "@liveblocks/react-blocknote/styles.css";
-
-// import { Editor } from "./Editor.jsx";
-// import { Room } from "./Room.jsx";
-// import "./globals.css";
+// Sets up Yjs document and Liveblocks Yjs provider.
+const doc = new Y.Doc();
+const provider = new LiveblocksProvider(room, doc);
 
 export default function App() {
-  // Renders the editor instance using a React component.
-  return (
-    <div>TODO</div>
-    // <Room>
-    //   <Editor />
-    // </Room>
-  );
+  const editor = useCreateBlockNote({
+    collaboration: {
+      // The Yjs Provider responsible for transporting updates:
+      provider,
+      // Where to store BlockNote data in the Y.Doc:
+      fragment: doc.getXmlFragment("document-store"),
+      // Information (name and color) for this user:
+      user: {
+        name: "My Username",
+        color: "#ff0000",
+      },
+    },
+  });
+
+  // Renders the editor instance.
+  return <BlockNoteView editor={editor} />;
 }
