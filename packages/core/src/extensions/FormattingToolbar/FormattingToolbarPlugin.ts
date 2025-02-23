@@ -228,7 +228,6 @@ export class FormattingToolbarView implements PluginView {
       }
     }
 
-    debugger;
     return posToDOMRect(this.pmView, from, to);
   }
 }
