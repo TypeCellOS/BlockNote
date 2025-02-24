@@ -60,15 +60,16 @@ const createParagraphStyle = (
         ].background
       : undefined;
 
+  if (backgroundColor) {
+    paragraphStyles["fo:background-color"] = backgroundColor;
+  }
+
   if (props.textColor && props.textColor !== "default") {
     const color =
       exporter.options.colors[
         props.textColor as keyof typeof exporter.options.colors
       ].text;
     textStyles["fo:color"] = color;
-  }
-  if (backgroundColor) {
-    paragraphStyles["fo:background-color"] = backgroundColor;
   }
 
   if (

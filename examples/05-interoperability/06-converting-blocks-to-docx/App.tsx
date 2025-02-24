@@ -8,9 +8,9 @@ import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
+  SuggestionMenuController,
   getDefaultReactSlashMenuItems,
   getPageBreakReactSlashMenuItems,
-  SuggestionMenuController,
   useCreateBlockNote,
 } from "@blocknote/react";
 import {
@@ -31,7 +31,7 @@ export default function App() {
         content: [
           {
             type: "text",
-            text: "Welcome to this",
+            text: "Welcome to this ",
             styles: {
               italic: true,
             },

@@ -11,9 +11,7 @@ export const odtInlineContentMappingForDefaultSchema: InlineContentMapping<
   JSX.Element
 > = {
   link: (ic, exporter) => {
-    const content = ic.content
-      .map((c) => exporter.transformStyledText(c))
-      .join("");
+    const content = ic.content.map((c) => exporter.transformStyledText(c));
     return <TextA href={ic.href}>{content}</TextA>;
   },
 

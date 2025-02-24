@@ -1,7 +1,7 @@
 import { BlockNoteSchema, defaultBlockSpecs, PageBreak } from "@blocknote/core";
 import { testDocument } from "@shared/testDocument.js";
 import { BlobReader, TextWriter, ZipReader } from "@zip.js/zip.js";
-import { describe, beforeAll, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import xmlFormat from "xml-formatter";
 import { odtDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { ODTExporter } from "./odtExporter.js";
@@ -10,6 +10,7 @@ beforeAll(async () => {
   // @ts-ignore
   globalThis.Blob = (await import("node:buffer")).Blob;
 });
+
 describe("exporter", () => {
   it("should export a document", { timeout: 10000 }, async () => {
     const exporter = new ODTExporter(
@@ -51,6 +52,7 @@ describe("exporter", () => {
     }
   );
 });
+
 async function testODTDocumentAgainstSnapshot(
   odt: globalThis.Blob,
   snapshots: {
