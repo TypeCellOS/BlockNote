@@ -197,6 +197,7 @@ export const Comment = ({
               onReactionSelect(emoji.native)
             }>
             <Components.Generic.Toolbar.Button
+              key={"add-reaction"}
               mainTooltip="Add reaction"
               variant="compact">
               <RiEmotionLine size={16} />
@@ -206,6 +207,7 @@ export const Comment = ({
         {showResolveOrReopen &&
           (thread.resolved ? (
             <Components.Generic.Toolbar.Button
+              key={"reopen"}
               mainTooltip="Re-open"
               variant="compact"
               onClick={onReopen}>
@@ -213,6 +215,7 @@ export const Comment = ({
             </Components.Generic.Toolbar.Button>
           ) : (
             <Components.Generic.Toolbar.Button
+              key={"resolve"}
               mainTooltip="Resolve"
               variant="compact"
               onClick={onResolve}>
@@ -223,6 +226,7 @@ export const Comment = ({
           <Components.Generic.Menu.Root position={"bottom-start"}>
             <Components.Generic.Menu.Trigger>
               <Components.Generic.Toolbar.Button
+                key={"more-actions"}
                 mainTooltip="More actions"
                 variant="compact">
                 <RiMoreFill size={16} />
@@ -231,6 +235,7 @@ export const Comment = ({
             <Components.Generic.Menu.Dropdown className={"bn-menu-dropdown"}>
               {canEditComment && (
                 <Components.Generic.Menu.Item
+                  key={"edit-comment"}
                   icon={<RiEditFill />}
                   onClick={handleEdit}>
                   Edit comment
@@ -238,6 +243,7 @@ export const Comment = ({
               )}
               {canDeleteComment && (
                 <Components.Generic.Menu.Item
+                  key={"delete-comment"}
                   icon={<RiDeleteBinFill />}
                   onClick={onDelete}>
                   Delete comment
