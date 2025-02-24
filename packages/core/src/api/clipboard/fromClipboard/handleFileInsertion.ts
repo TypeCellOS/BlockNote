@@ -120,11 +120,19 @@ export async function handleFileInsertion<
       let insertedBlockId: string | undefined = undefined;
 
       if (event.type === "paste") {
-        insertedBlockId = editor.insertBlocks(
-          [fileBlock],
-          editor.getTextCursorPosition().block,
-          "after"
-        )[0].id;
+        const currentBlock = editor.getTextCursorPosition().block;
+        if (
+          Array.isArray(currentBlock.content) &&
+          currentBlock.content.length === 0
+        ) {
+          insertedBlockId = editor.updateBlock(currentBlock, fileBlock).id;
+        } else {
+          insertedBlockId = editor.insertBlocks(
+            [fileBlock],
+            currentBlock,
+            "after"
+          )[0].id;
+        }
       } else if (event.type === "drop") {
         const coords = {
           left: (event as DragEvent).clientX,
@@ -143,11 +151,22 @@ export async function handleFileInsertion<
 
         const blockInfo = getBlockInfo(posInfo);
 
-        insertedBlockId = editor.insertBlocks(
-          [fileBlock],
-          blockInfo.bnBlock.node.attrs.id,
-          "after"
-        )[0].id;
+        if (
+          blockInfo.isBlockContainer &&
+          blockInfo.blockContent.node.type.spec.content === "inline*" &&
+          blockInfo.blockContent.node.content.size === 0
+        ) {
+          insertedBlockId = editor.updateBlock(
+            blockInfo.bnBlock.node.attrs.id,
+            fileBlock
+          ).id;
+        } else {
+          insertedBlockId = editor.insertBlocks(
+            [fileBlock],
+            blockInfo.bnBlock.node.attrs.id,
+            "after"
+          )[0].id;
+        }
       } else {
         return;
       }
