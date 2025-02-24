@@ -129,7 +129,7 @@ const UniqueID = Extension.create({
   // },
   addProseMirrorPlugins() {
     let dragSourceElement: any = null;
-    let transformPasted = false;
+    let transformPasted = true;
     return [
       new Plugin({
         key: new PluginKey("uniqueID"),
@@ -252,8 +252,9 @@ const UniqueID = Extension.create({
           };
         },
         props: {
-          // `handleDOMEvents` is called before `transformPasted`
-          // so we can do some checks before
+          // `handleDOMEvents` is called before `transformPasted` so we can do
+          // some checks before. However, `transformPasted` only runs when
+          // editor content is pasted - not external content.
           handleDOMEvents: {
             // only create new ids for dropped content while holding `alt`
             // or content is dragged from another editor
@@ -313,8 +314,7 @@ const UniqueID = Extension.create({
               });
               return Fragment.from(list);
             };
-            // reset check
-            transformPasted = false;
+
             return new Slice(
               removeId(slice.content),
               slice.openStart,
