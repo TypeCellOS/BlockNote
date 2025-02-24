@@ -129,7 +129,7 @@ const UniqueID = Extension.create({
   // },
   addProseMirrorPlugins() {
     let dragSourceElement: any = null;
-    let transformPasted = true;
+    let transformPasted = false;
     return [
       new Plugin({
         key: new PluginKey("uniqueID"),
