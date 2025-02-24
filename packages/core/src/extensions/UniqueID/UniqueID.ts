@@ -265,9 +265,13 @@ const UniqueID = Extension.create({
                   ? void 0
                   : _a.effectAllowed) === "copy"
               ) {
-                dragSourceElement = null;
                 transformPasted = true;
+              } else {
+                transformPasted = false;
               }
+
+              dragSourceElement = null;
+
               return false;
             },
             // always create new ids on pasted content
