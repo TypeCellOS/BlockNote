@@ -665,10 +665,7 @@ export function cropEmptyRowsOrColumns(
 
   for (let i = occupancyGrid.length - 1; i >= 0; i--) {
     if (removeEmpty === "rows") {
-      if (
-        // rows.length === 0 &&
-        occupancyGrid[i].every((cell) => isCellEmpty(cell.cell))
-      ) {
+      if (occupancyGrid[i].every((cell) => isCellEmpty(cell.cell))) {
         // empty row at bottom
         continue;
       }
@@ -676,6 +673,7 @@ export function cropEmptyRowsOrColumns(
 
     occupancyGrid[i] = occupancyGrid[i].slice(
       0,
+      // We maintain at least one cell, even if all the cells are empty
       Math.max(occupancyGrid[i].length - emptyColsOnRight, 1)
     );
   }
