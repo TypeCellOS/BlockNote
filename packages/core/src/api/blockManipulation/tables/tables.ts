@@ -676,7 +676,7 @@ export function cropEmptyRowsOrColumns(
 
     occupancyGrid[i] = occupancyGrid[i].slice(
       0,
-      occupancyGrid[i].length - emptyColsOnRight
+      Math.max(occupancyGrid[i].length - emptyColsOnRight, 1)
     );
   }
 
