@@ -13,26 +13,29 @@ import {
 import { DefaultReactGridSuggestionItem } from "../components/SuggestionMenu/GridSuggestionMenu/types.js";
 import { DefaultReactSuggestionItem } from "../components/SuggestionMenu/types.js";
 
+type ToolbarRootType = {
+  className?: string;
+  children?: ReactNode;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+};
+
+type ToolbarButtonType = {
+  className?: string;
+  mainTooltip: string;
+  secondaryTooltip?: string;
+  icon?: ReactNode;
+  onClick?: (e: MouseEvent) => void;
+  isSelected?: boolean;
+  isDisabled?: boolean;
+} & (
+  | { children: ReactNode; label?: string }
+  | { children?: undefined; label: string }
+);
 export type ComponentProps = {
-  Toolbar: {
-    Root: {
-      className?: string;
-      children?: ReactNode;
-      onMouseEnter?: () => void;
-      onMouseLeave?: () => void;
-    };
-    Button: {
-      className?: string;
-      mainTooltip?: string;
-      secondaryTooltip?: string;
-      icon?: ReactNode;
-      onClick?: (e: MouseEvent) => void;
-      isSelected?: boolean;
-      isDisabled?: boolean;
-    } & (
-      | { children: ReactNode; label?: string }
-      | { children?: undefined; label: string }
-    );
+  FormattingToolbar: {
+    Root: ToolbarRootType;
+    Button: ToolbarButtonType;
     Select: {
       className?: string;
       items: {
@@ -82,6 +85,10 @@ export type ComponentProps = {
       onChange: (event: ChangeEvent<HTMLInputElement>) => void;
       onKeyDown: (event: KeyboardEvent) => void;
     };
+  };
+  LinkToolbar: {
+    Root: ToolbarRootType;
+    Button: ToolbarButtonType;
   };
   SideMenu: {
     Root: {
@@ -242,6 +249,10 @@ export type ComponentProps = {
       Trigger: {
         children?: ReactNode;
       };
+    };
+    Toolbar: {
+      Root: ToolbarRootType;
+      Button: ToolbarButtonType;
     };
   };
 };

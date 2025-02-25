@@ -1,5 +1,11 @@
 import { DOMParser, Slice } from "@tiptap/pm/model";
-import { EditorState, Plugin, PluginKey, PluginView } from "@tiptap/pm/state";
+import {
+  EditorState,
+  Plugin,
+  PluginKey,
+  TextSelection,
+  PluginView,
+} from "@tiptap/pm/state";
 import { EditorView } from "@tiptap/pm/view";
 
 import { Block } from "../../blocks/defaultBlocks.js";
@@ -187,6 +193,11 @@ export class SideMenuView<
       this.onKeyDown as EventListener,
       true
     );
+
+    // Setting capture=true ensures that any parent container of the editor that
+    // gets scrolled will trigger the scroll event. Scroll events do not bubble
+    // and so won't propagate to the document by default.
+    pmView.root.addEventListener("scroll", this.onScroll, true);
   }
 
   updateState = (state: SideMenuState<BSchema, I, S>) => {
@@ -263,20 +274,65 @@ export class SideMenuView<
     }
   };
 
-  /**
-   * If the event is outside the editor contents,
-   * we dispatch a fake event, so that we can still drop the content
-   * when dragging / dropping to the side of the editor
-   */
   onDrop = (event: DragEvent) => {
+    // Content from outside a BlockNote editor is being dropped - just let
+    // ProseMirror's default behaviour handle it.
+    if (this.pmView.dragging === null) {
+      return;
+    }
+
     this.editor._tiptapEditor.commands.blur();
 
-    // ProseMirror doesn't remove the dragged content if it's dropped outside
-    // the editor (e.g. to other editors), so we need to do it manually. Since
-    // the dragged content is the same as the selected content, we can just
-    // delete the selection.
-    if (this.isDragOrigin && !this.pmView.dom.contains(event.target as Node)) {
-      this.pmView.dispatch(this.pmView.state.tr.deleteSelection());
+    // Finds the BlockNote editor element that the drop event occurred in (if
+    // any).
+    const parentEditorElement =
+      event.target instanceof Node
+        ? (event.target instanceof HTMLElement
+            ? event.target
+            : event.target.parentElement
+          )?.closest(".bn-editor") || null
+        : null;
+
+    // Drop event occurred within an editor.
+    if (parentEditorElement) {
+      // When ProseMirror handles a drop event on the editor while
+      // `view.dragging` is set, it deletes the selected content. However, if
+      // a block from a different editor is being dropped, this causes some
+      // issues that the code below fixes:
+      if (!this.isDragOrigin && this.pmView.dom === parentEditorElement) {
+        // 1. Because the editor selection is unrelated to the dragged content,
+        // we don't want PM to delete its content. Therefore, we collapse the
+        // selection.
+        this.pmView.dispatch(
+          this.pmView.state.tr.setSelection(
+            TextSelection.create(
+              this.pmView.state.tr.doc,
+              this.pmView.state.tr.selection.to
+            )
+          )
+        );
+      } else if (this.isDragOrigin && this.pmView.dom !== parentEditorElement) {
+        // 2. Because the editor from which the block originates doesn't get a
+        // drop event on it, PM doesn't delete its selected content. Therefore, we
+        // need to do so manually.
+        //
+        // Note: Deleting the selected content from the editor from which the
+        // block originates, may change its height. This can cause the position of
+        // the editor in which the block is being dropping to shift, before it
+        // can handle the drop event. That in turn can cause the drop to happen
+        // somewhere other than the user intended. To get around this, we delay
+        // deleting the selected content until all editors have had the chance to
+        // handle the event.
+        setTimeout(
+          () => this.pmView.dispatch(this.pmView.state.tr.deleteSelection()),
+          0
+        );
+      }
+      // 3. PM only clears `view.dragging` on the editor that the block was
+      // dropped, so we manually have to clear it on all the others. However,
+      // PM also needs to read `view.dragging` while handling the event, so we
+      // use a `setTimeout` to ensure it's only cleared after that.
+      setTimeout(() => (this.pmView.dragging = null), 0);
     }
 
     if (
@@ -293,6 +349,11 @@ export class SideMenuView<
     });
 
     if (!pos || pos.inside === -1) {
+      /**
+       * When `this.sideMenuSelection === "viewport"`, if the event is outside the
+       * editor contents, we dispatch a fake event, so that we can still drop the
+       * content when dragging / dropping to the side of the editor
+       */
       const evt = this.createSyntheticEvent(event);
       // console.log("dispatch fake drop");
       this.pmView.dom.dispatchEvent(evt);
@@ -318,25 +379,27 @@ export class SideMenuView<
    * access `dataTransfer` contents on `dragstart` and `drop` events.
    */
   onDragStart = (event: DragEvent) => {
-    if (!this.pmView.dragging) {
-      const html = event.dataTransfer?.getData("blocknote/html");
-      if (!html) {
-        return;
-      }
-
-      const element = document.createElement("div");
-      element.innerHTML = html;
-
-      const parser = DOMParser.fromSchema(this.pmView.state.schema);
-      const node = parser.parse(element, {
-        topNode: this.pmView.state.schema.nodes["blockGroup"].create(),
-      });
-
-      this.pmView.dragging = {
-        slice: new Slice(node.content, 0, 0),
-        move: true,
-      };
+    const html = event.dataTransfer?.getData("blocknote/html");
+    if (!html) {
+      return;
     }
+
+    if (this.pmView.dragging) {
+      throw new Error("New drag was started while an existing drag is ongoing");
+    }
+
+    const element = document.createElement("div");
+    element.innerHTML = html;
+
+    const parser = DOMParser.fromSchema(this.pmView.state.schema);
+    const node = parser.parse(element, {
+      topNode: this.pmView.state.schema.nodes["blockGroup"].create(),
+    });
+
+    this.pmView.dragging = {
+      slice: new Slice(node.content, 0, 0),
+      move: true,
+    };
   };
 
   /**
@@ -473,6 +536,13 @@ export class SideMenuView<
     return evt;
   }
 
+  onScroll = () => {
+    if (this.state?.show) {
+      this.state.referencePos = this.hoveredBlock!.getBoundingClientRect();
+      this.emitUpdate(this.state);
+    }
+  };
+
   // Needed in cases where the editor state updates without the mouse cursor
   // moving, as some state updates can require a side menu update. For example,
   // adding a button to the side menu which removes the block can cause the
@@ -515,6 +585,7 @@ export class SideMenuView<
       this.onKeyDown as EventListener,
       true
     );
+    this.pmView.root.removeEventListener("scroll", this.onScroll, true);
   }
 }
 

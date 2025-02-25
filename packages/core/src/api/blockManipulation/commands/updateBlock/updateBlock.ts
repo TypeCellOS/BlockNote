@@ -153,7 +153,8 @@ function updateBlockContentNode<
       content = inlineContentToNodes(
         [block.content],
         editor.pmSchema,
-        editor.schema.styleSchema
+        editor.schema.styleSchema,
+        newNodeType.name
       );
     } else if (Array.isArray(block.content)) {
       // Adds a text node with the provided styles converted into marks to the content,
@@ -161,7 +162,8 @@ function updateBlockContentNode<
       content = inlineContentToNodes(
         block.content,
         editor.pmSchema,
-        editor.schema.styleSchema
+        editor.schema.styleSchema,
+        newNodeType.name
       );
     } else if (block.content.type === "tableContent") {
       content = tableContentToNodes(
