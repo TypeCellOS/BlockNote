@@ -12,7 +12,7 @@ import {
   usePrefersColorScheme,
 } from "@blocknote/react";
 import { MantineProvider } from "@mantine/core";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import {
   applyBlockNoteCSSVariablesFromTheme,
   removeBlockNoteCSSVariables,
@@ -74,24 +74,28 @@ export const BlockNoteView = <
     [defaultColorScheme, theme]
   );
 
+  const mantineCssVariablesRef = useRef<HTMLDivElement>(null);
+
   return (
     <ComponentsContext.Provider value={components}>
-      {/* `cssVariablesSelector` scopes Mantine CSS variables to only the editor, */}
-      {/* as proposed here:  https://github.com/orgs/mantinedev/discussions/5685 */}
-      <MantineProvider
-        theme={mantineTheme}
-        cssVariablesSelector=".bn-mantine"
-        // This gets the element to set `data-mantine-color-scheme` on. Since we
-        // don't need this attribute (we use our own theming API), we return
-        // undefined here.
-        getRootElement={() => undefined}>
-        <BlockNoteViewRaw
-          className={mergeCSSClasses("bn-mantine", className || "")}
-          theme={typeof theme === "object" ? undefined : theme}
-          {...rest}
-          ref={ref}
-        />
-      </MantineProvider>
+      <div className={"bn-mantine-css-variables"} ref={mantineCssVariablesRef}>
+        {/* `cssVariablesSelector` scopes Mantine CSS variables to only the editor, */}
+        {/* as proposed here:  https://github.com/orgs/mantinedev/discussions/5685 */}
+        <MantineProvider
+          theme={mantineTheme}
+          cssVariablesSelector=".bn-mantine-css-variables"
+          // This gets the element to set `data-mantine-color-scheme` on. Since we
+          // don't need this attribute (we use our own theming API), we return
+          // undefined here.
+          getRootElement={() => mantineCssVariablesRef.current || undefined}>
+          <BlockNoteViewRaw
+            className={mergeCSSClasses("bn-mantine", className || "")}
+            theme={typeof theme === "object" ? undefined : theme}
+            {...rest}
+            ref={ref}
+          />
+        </MantineProvider>
+      </div>
     </ComponentsContext.Provider>
   );
 };
