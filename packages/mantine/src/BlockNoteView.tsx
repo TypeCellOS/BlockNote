@@ -78,9 +78,9 @@ export const BlockNoteView = <
 
   return (
     <ComponentsContext.Provider value={components}>
+      {/* `cssVariablesSelector` scopes Mantine CSS variables to only the editor, */}
+      {/* as proposed here:  https://github.com/orgs/mantinedev/discussions/5685 */}
       <div className={"bn-mantine-css-variables"} ref={mantineCssVariablesRef}>
-        {/* `cssVariablesSelector` scopes Mantine CSS variables to only the editor, */}
-        {/* as proposed here:  https://github.com/orgs/mantinedev/discussions/5685 */}
         <MantineProvider
           theme={mantineTheme}
           cssVariablesSelector=".bn-mantine-css-variables"
