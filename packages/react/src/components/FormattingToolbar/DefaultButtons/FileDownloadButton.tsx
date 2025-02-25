@@ -62,7 +62,7 @@ export const FileDownloadButton = () => {
   }
 
   return (
-    <Components.Toolbar.Button
+    <Components.FormattingToolbar.Button
       className={"bn-button"}
       label={
         dict.formatting_toolbar.file_download.tooltip[fileBlock.type] ||

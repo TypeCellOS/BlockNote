@@ -12,7 +12,7 @@ import { HiChevronDown } from "react-icons/hi";
 // TODO: Turn into select?
 export const ToolbarSelect = forwardRef<
   HTMLDivElement,
-  ComponentProps["Toolbar"]["Select"]
+  ComponentProps["FormattingToolbar"]["Select"]
 >((props, ref) => {
   const { className, items, isDisabled, ...rest } = props;
 

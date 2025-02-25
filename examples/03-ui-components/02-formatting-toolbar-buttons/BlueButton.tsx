@@ -1,9 +1,9 @@
+import "@blocknote/mantine/style.css";
 import {
   useBlockNoteEditor,
   useComponentsContext,
   useEditorContentOrSelectionChange,
 } from "@blocknote/react";
-import "@blocknote/mantine/style.css";
 import { useState } from "react";
 
 // Custom Formatting Toolbar Button to toggle blue text & background color.
@@ -27,7 +27,7 @@ export function BlueButton() {
   }, editor);
 
   return (
-    <Components.Toolbar.Button
+    <Components.FormattingToolbar.Button
       mainTooltip={"Blue Text & Background"}
       onClick={() => {
         editor.toggleStyles({
@@ -37,6 +37,6 @@ export function BlueButton() {
       }}
       isSelected={isSelected}>
       Blue
-    </Components.Toolbar.Button>
+    </Components.FormattingToolbar.Button>
   );
 }

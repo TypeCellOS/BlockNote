@@ -1,7 +1,7 @@
 import {
+  ToolbarItem as AriakitToolbarItem,
   Tooltip as AriakitTooltip,
   TooltipAnchor as AriakitTooltipAnchor,
-  ToolbarItem as AriakitToolbarItem,
   TooltipProvider as AriakitTooltipProvider,
 } from "@ariakit/react";
 
@@ -9,7 +9,7 @@ import { assertEmpty, isSafari, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
-type ToolbarButtonProps = ComponentProps["Toolbar"]["Button"];
+type ToolbarButtonProps = ComponentProps["Generic"]["Toolbar"]["Button"];
 
 /**
  * Helper for basic buttons that show in the formatting toolbar.

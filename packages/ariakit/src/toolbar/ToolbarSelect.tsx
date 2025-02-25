@@ -14,7 +14,7 @@ import { forwardRef } from "react";
 
 export const ToolbarSelect = forwardRef<
   HTMLDivElement,
-  ComponentProps["Toolbar"]["Select"]
+  ComponentProps["FormattingToolbar"]["Select"]
 >((props, ref) => {
   const { className, items, isDisabled, ...rest } = props;
 

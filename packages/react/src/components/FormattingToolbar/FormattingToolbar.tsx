@@ -70,8 +70,9 @@ export const FormattingToolbar = (
   const Components = useComponentsContext()!;
 
   return (
-    <Components.Toolbar.Root className={"bn-toolbar bn-formatting-toolbar"}>
+    <Components.Generic.Toolbar.Root
+      className={"bn-toolbar bn-formatting-toolbar"}>
       {props.children || getFormattingToolbarItems(props.blockTypeSelectItems)}
-    </Components.Toolbar.Root>
+    </Components.Generic.Toolbar.Root>
   );
 };

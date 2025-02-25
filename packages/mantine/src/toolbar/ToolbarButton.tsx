@@ -22,7 +22,7 @@ export const TooltipContent = (props: {
   </MantineStack>
 );
 
-type ToolbarButtonProps = ComponentProps["Toolbar"]["Button"];
+type ToolbarButtonProps = ComponentProps["Generic"]["Toolbar"]["Button"];
 
 /**
  * Helper for basic buttons that show in the formatting toolbar.

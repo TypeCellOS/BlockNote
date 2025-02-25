@@ -80,7 +80,7 @@ export const FileCaptionButton = () => {
   return (
     <Components.Generic.Popover.Root>
       <Components.Generic.Popover.Trigger>
-        <Components.Toolbar.Button
+        <Components.FormattingToolbar.Button
           className={"bn-button"}
           label={dict.formatting_toolbar.file_caption.tooltip}
           mainTooltip={dict.formatting_toolbar.file_caption.tooltip}

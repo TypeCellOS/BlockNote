@@ -54,7 +54,7 @@ export const FileDeleteButton = () => {
   }
 
   return (
-    <Components.Toolbar.Button
+    <Components.FormattingToolbar.Button
       className={"bn-button"}
       label={
         dict.formatting_toolbar.file_delete.tooltip[fileBlock.type] ||

@@ -5,7 +5,7 @@ import { ComponentProps } from "@blocknote/react";
 import { mergeRefs, useFocusTrap, useFocusWithin } from "@mantine/hooks";
 import { forwardRef } from "react";
 
-type ToolbarProps = ComponentProps["Toolbar"]["Root"];
+type ToolbarProps = ComponentProps["Generic"]["Toolbar"]["Root"];
 
 export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
   (props, ref) => {

@@ -5,12 +5,12 @@ export function AlertButton(props: LinkToolbarProps) {
   const Components = useComponentsContext()!;
 
   return (
-    <Components.Toolbar.Button
+    <Components.LinkToolbar.Button
       mainTooltip={"Open Alert with URL"}
       onClick={() => {
         window.alert(`Link URL: ${props.url}`);
       }}>
       Open Alert
-    </Components.Toolbar.Button>
+    </Components.LinkToolbar.Button>
   );
 }

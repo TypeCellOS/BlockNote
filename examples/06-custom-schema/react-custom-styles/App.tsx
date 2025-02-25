@@ -1,17 +1,17 @@
 import { BlockNoteSchema, defaultStyleSpecs } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
 import {
-  createReactStyleSpec,
   FormattingToolbar,
   FormattingToolbarController,
   FormattingToolbarProps,
+  createReactStyleSpec,
   useActiveStyles,
   useBlockNoteEditor,
   useComponentsContext,
   useCreateBlockNote,
 } from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
 
 const small = createReactStyleSpec(
   {
@@ -55,7 +55,7 @@ const CustomFormattingToolbar = (props: FormattingToolbarProps) => {
 
   return (
     <FormattingToolbar>
-      <Components.Toolbar.Button
+      <Components.FormattingToolbar.Button
         mainTooltip={"small"}
         onClick={() => {
           editor.toggleStyles({
@@ -64,8 +64,8 @@ const CustomFormattingToolbar = (props: FormattingToolbarProps) => {
         }}
         isSelected={activeStyles.small}>
         Small
-      </Components.Toolbar.Button>
-      <Components.Toolbar.Button
+      </Components.FormattingToolbar.Button>
+      <Components.FormattingToolbar.Button
         mainTooltip={"font size"}
         onClick={() => {
           editor.toggleStyles({
@@ -74,7 +74,7 @@ const CustomFormattingToolbar = (props: FormattingToolbarProps) => {
         }}
         isSelected={!!activeStyles.fontSize}>
         Font size
-      </Components.Toolbar.Button>
+      </Components.FormattingToolbar.Button>
     </FormattingToolbar>
   );
 };

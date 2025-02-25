@@ -107,7 +107,7 @@ export const CreateLinkButton = () => {
     <Components.Generic.Popover.Root opened={opened}>
       <Components.Generic.Popover.Trigger>
         {/* TODO: hide tooltip on click */}
-        <Components.Toolbar.Button
+        <Components.FormattingToolbar.Button
           className={"bn-button"}
           data-test="createLink"
           label={dict.formatting_toolbar.link.tooltip}
