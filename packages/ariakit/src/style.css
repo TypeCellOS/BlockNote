@@ -213,6 +213,7 @@
   align-items: center;
   display: flex;
   flex-direction: column;
+  white-space: pre-wrap;
 }
 
 .bn-ariakit .bn-thread-comments {

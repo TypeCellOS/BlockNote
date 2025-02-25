@@ -1,7 +1,7 @@
 import { Group as AriakitGroup } from "@ariakit/react";
 
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
+import { ComponentProps, useFocusWithin } from "@blocknote/react";
 import { forwardRef, useState } from "react";
 
 const AuthorInfo = forwardRef<
@@ -53,12 +53,14 @@ export const Comment = forwardRef<
   assertEmpty(rest, false);
 
   const [hovered, setHovered] = useState(false);
+  const { focused, ref: focusRef } = useFocusWithin();
 
   const doShowActions =
     actions &&
     (showActions === true ||
       showActions === undefined ||
-      (showActions === "hover" && hovered));
+      (showActions === "hover" && hovered) ||
+      focused);
 
   return (
     <AriakitGroup
@@ -68,6 +70,7 @@ export const Comment = forwardRef<
       onMouseLeave={() => setHovered(false)}>
       {doShowActions ? (
         <AriakitGroup
+          ref={focusRef}
           style={{
             position: "absolute",
             right: 0,

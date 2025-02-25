@@ -110,7 +110,9 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           {trigger}
         </ShadCNComponents.Tooltip.TooltipTrigger>
         <ShadCNComponents.Tooltip.TooltipContent
-          className={"bn-flex bn-flex-col bn-items-center"}>
+          className={
+            "bn-flex bn-flex-col bn-items-center bn-whitespace-pre-wrap"
+          }>
           <span>{mainTooltip}</span>
           {secondaryTooltip && <span>{secondaryTooltip}</span>}
         </ShadCNComponents.Tooltip.TooltipContent>
