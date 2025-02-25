@@ -56,6 +56,12 @@ export const it = {
       aliases: ["code", "pre"],
       group: "Blocchi Base",
     },
+    page_break: {
+      title: "Interruzione di Pagina",
+      subtext: "Separatore di pagina",
+      aliases: ["pagina", "interruzione", "separatore"],
+      group: "Blocchi base",
+    },
     table: {
       title: "Tabella",
       subtext: "Tabella con celle modificabili",
