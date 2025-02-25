@@ -1,4 +1,4 @@
-import { PartialBlock } from "../../../blocks/defaultBlocks.js";
+import { Block, PartialBlock } from "../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
 import {
   BlockSchema,
@@ -6,7 +6,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
-import { getBlockInfo, getNearestBlockPos } from "../../getBlockInfoFromPos.js";
+import { getNearestBlockPos } from "../../getBlockInfoFromPos.js";
 import { acceptedMIMETypes } from "./acceptedMIMETypes.js";
 
 function checkFileExtensionsMatch(
@@ -39,6 +39,33 @@ function checkMIMETypesMatch(mimeType1: string, mimeType2: string) {
   }
 
   return types1[0] === types2[0] && types1[1] === types2[1];
+}
+
+function insertOrUpdateBlock<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  editor: BlockNoteEditor<BSchema, I, S>,
+  referenceBlock: Block<BSchema, I, S>,
+  newBlock: PartialBlock<BSchema, I, S>
+) {
+  let insertedBlockId: string | undefined;
+
+  if (
+    Array.isArray(referenceBlock.content) &&
+    referenceBlock.content.length === 0
+  ) {
+    insertedBlockId = editor.updateBlock(referenceBlock, newBlock).id;
+  } else {
+    insertedBlockId = editor.insertBlocks(
+      [newBlock],
+      referenceBlock,
+      "after"
+    )[0].id;
+  }
+
+  return insertedBlockId;
 }
 
 export async function handleFileInsertion<
@@ -121,18 +148,7 @@ export async function handleFileInsertion<
 
       if (event.type === "paste") {
         const currentBlock = editor.getTextCursorPosition().block;
-        if (
-          Array.isArray(currentBlock.content) &&
-          currentBlock.content.length === 0
-        ) {
-          insertedBlockId = editor.updateBlock(currentBlock, fileBlock).id;
-        } else {
-          insertedBlockId = editor.insertBlocks(
-            [fileBlock],
-            currentBlock,
-            "after"
-          )[0].id;
-        }
+        insertedBlockId = insertOrUpdateBlock(editor, currentBlock, fileBlock);
       } else if (event.type === "drop") {
         const coords = {
           left: (event as DragEvent).clientX,
@@ -149,24 +165,11 @@ export async function handleFileInsertion<
           pos.pos
         );
 
-        const blockInfo = getBlockInfo(posInfo);
-
-        if (
-          blockInfo.isBlockContainer &&
-          blockInfo.blockContent.node.type.spec.content === "inline*" &&
-          blockInfo.blockContent.node.content.size === 0
-        ) {
-          insertedBlockId = editor.updateBlock(
-            blockInfo.bnBlock.node.attrs.id,
-            fileBlock
-          ).id;
-        } else {
-          insertedBlockId = editor.insertBlocks(
-            [fileBlock],
-            blockInfo.bnBlock.node.attrs.id,
-            "after"
-          )[0].id;
-        }
+        insertedBlockId = insertOrUpdateBlock(
+          editor,
+          editor.getBlock(posInfo.node.attrs.id)!,
+          fileBlock
+        );
       } else {
         return;
       }
