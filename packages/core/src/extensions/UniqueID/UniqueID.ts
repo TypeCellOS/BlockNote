@@ -314,7 +314,8 @@ const UniqueID = Extension.create({
               });
               return Fragment.from(list);
             };
-
+            // reset check
+            transformPasted = false;
             return new Slice(
               removeId(slice.content),
               slice.openStart,
