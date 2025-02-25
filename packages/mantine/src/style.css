@@ -584,7 +584,13 @@
 }
 
 .bn-mantine .bn-thread-comment {
+  align-items: flex-start;
+  flex-direction: column;
   gap: 0.25rem;
+}
+
+.bn-mantine .bn-thread-comment p {
+  color: var(--bn-colors-menu-text);
 }
 
 .bn-mantine .bn-comment-actions-wrapper {
@@ -663,12 +669,19 @@
   color: var(--mantine-primary-color-filled-hover);
 }
 
-.bn-mantine .bn-badge .mantine-Chip-label > span:not(.mantine-Chip-iconWrapper) {
+.bn-mantine
+  .bn-badge
+  .mantine-Chip-label
+  > span:not(.mantine-Chip-iconWrapper) {
   display: inline-flex;
   gap: 4px;
 }
 
-.bn-mantine .bn-badge .mantine-Chip-label > span:not(.mantine-Chip-iconWrapper) > span {
+.bn-mantine
+  .bn-badge
+  .mantine-Chip-label
+  > span:not(.mantine-Chip-iconWrapper)
+  > span {
   align-items: center;
   display: inline-flex;
   justify-content: center;
