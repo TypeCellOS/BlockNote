@@ -123,6 +123,9 @@ export const is: Dictionary = {
     bulletListItem: "Listi",
     numberedListItem: "Listi",
     checkListItem: "Listi",
+    new_comment: "Skrifaðu athugasemd...",
+    edit_comment: "Breyta athugasemd...",
+    comment_reply: "Bæta við athugasemd...",
   },
   file_blocks: {
     image: {
@@ -308,6 +311,18 @@ export const is: Dictionary = {
     form: {
       title_placeholder: "Breyta titli",
       url_placeholder: "Breyta URL",
+    },
+  },
+  comments: {
+    actions: {
+      add_reaction: "Bæta við viðbrögðum",
+      resolve: "Leysa",
+      edit_comment: "Breyta athugasemd",
+      delete_comment: "Eyða athugasemd",
+      more_actions: "Fleiri aðgerðir",
+    },
+    reactions: {
+      reacted_by: "Brást við af",
     },
   },
   generic: {

@@ -1,6 +1,7 @@
 import { CommentData, mergeCSSClasses } from "@blocknote/core";
 import { useState } from "react";
 
+import { useDictionary } from "../../i18n/dictionary.js";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useUsers } from "./useUsers.js";
@@ -11,6 +12,7 @@ export const ReactionBadge = (props: {
   onReactionSelect: (emoji: string) => void;
 }) => {
   const Components = useComponentsContext()!;
+  const dict = useDictionary();
 
   const editor = useBlockNoteEditor();
   if (!editor.comments) {
@@ -43,7 +45,7 @@ export const ReactionBadge = (props: {
       )}
       onClick={() => props.onReactionSelect(reaction.emoji)}
       onMouseEnter={() => setUserIds(reaction.userIds)}
-      mainTooltip={"Reacted by"}
+      mainTooltip={dict.comments.reactions.reacted_by}
       secondaryTooltip={`${Array.from(users.values())
         .map((user) => user.username)
         .join("\n")}`}

@@ -87,7 +87,7 @@ export const Comment = ({
       dictionary: {
         ...dict,
         placeholders: {
-          emptyDocument: "Edit comment...",
+          emptyDocument: dict.placeholders.edit_comment,
         },
       },
       schema,
@@ -198,7 +198,7 @@ export const Comment = ({
             }>
             <Components.Generic.Toolbar.Button
               key={"add-reaction"}
-              mainTooltip="Add reaction"
+              mainTooltip={dict.comments.actions.add_reaction}
               variant="compact">
               <RiEmotionLine size={16} />
             </Components.Generic.Toolbar.Button>
@@ -216,7 +216,7 @@ export const Comment = ({
           ) : (
             <Components.Generic.Toolbar.Button
               key={"resolve"}
-              mainTooltip="Resolve"
+              mainTooltip={dict.comments.actions.resolve}
               variant="compact"
               onClick={onResolve}>
               <RiCheckFill size={16} />
@@ -227,7 +227,7 @@ export const Comment = ({
             <Components.Generic.Menu.Trigger>
               <Components.Generic.Toolbar.Button
                 key={"more-actions"}
-                mainTooltip="More actions"
+                mainTooltip={dict.comments.actions.more_actions}
                 variant="compact">
                 <RiMoreFill size={16} />
               </Components.Generic.Toolbar.Button>
@@ -238,7 +238,7 @@ export const Comment = ({
                   key={"edit-comment"}
                   icon={<RiEditFill />}
                   onClick={handleEdit}>
-                  Edit comment
+                  {dict.comments.actions.edit_comment}
                 </Components.Generic.Menu.Item>
               )}
               {canDeleteComment && (
@@ -246,7 +246,7 @@ export const Comment = ({
                   key={"delete-comment"}
                   icon={<RiDeleteBinFill />}
                   onClick={onDelete}>
-                  Delete comment
+                  {dict.comments.actions.delete_comment}
                 </Components.Generic.Menu.Item>
               )}
             </Components.Generic.Menu.Dropdown>
@@ -309,7 +309,7 @@ export const Comment = ({
                             )}
                             text={"+"}
                             icon={<RiEmotionLine size={16} />}
-                            mainTooltip="Add reaction"
+                            mainTooltip={dict.comments.actions.add_reaction}
                           />
                         </EmojiPicker>
                       </Components.Generic.Badge.Group>

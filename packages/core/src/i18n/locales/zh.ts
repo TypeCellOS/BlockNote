@@ -163,6 +163,9 @@ export const zh: Dictionary = {
     bulletListItem: "列表",
     numberedListItem: "列表",
     checkListItem: "列表",
+    new_comment: "写评论...",
+    edit_comment: "编辑评论...",
+    comment_reply: "添加评论...",
   },
   file_blocks: {
     image: {
@@ -349,6 +352,18 @@ export const zh: Dictionary = {
     form: {
       title_placeholder: "编辑标题",
       url_placeholder: "编辑链接地址",
+    },
+  },
+  comments: {
+    actions: {
+      add_reaction: "添加反应",
+      resolve: "解决",
+      edit_comment: "编辑评论",
+      delete_comment: "删除评论",
+      more_actions: "更多操作",
+    },
+    reactions: {
+      reacted_by: "已回应",
     },
   },
   generic: {

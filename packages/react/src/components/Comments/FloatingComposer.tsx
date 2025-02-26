@@ -29,7 +29,7 @@ export function FloatingComposer() {
     dictionary: {
       ...dict,
       placeholders: {
-        emptyDocument: "Write a comment...",
+        emptyDocument: dict.placeholders.new_comment,
       },
     },
     schema,
