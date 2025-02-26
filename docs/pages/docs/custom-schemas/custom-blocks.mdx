@@ -146,3 +146,40 @@ const schema = BlockNoteSchema.create({
 ```
 
 You can then instantiate your editor with this custom schema, as explained on the [Custom Schemas](/docs/custom-schemas) page.
+
+### Creating a Custom LaTeX Equation Block
+
+You can create a custom block to input and render LaTeX equations within the text editor. This block will allow users to type LaTeX code and have it rendered properly as mathematical notation within the document.
+
+Here is an example of how to create a custom LaTeX equation block using `createReactBlockSpec`:
+
+```typescript
+import React from 'react';
+import { createReactBlockSpec } from '@blocknote/react';
+import { MathJax, MathJaxContext } from 'better-react-mathjax';
+
+const LaTeXBlock = createReactBlockSpec(
+  {
+    type: 'latex',
+    propSchema: {
+      content: {
+        default: '',
+      },
+    },
+    content: 'none',
+  },
+  {
+    render: (props) => {
+      return (
+        <MathJaxContext>
+          <MathJax>{props.block.props.content}</MathJax>
+        </MathJaxContext>
+      );
+    },
+  }
+);
+
+export { LaTeXBlock };
+```
+
+To see a full example of how to use this custom LaTeX equation block, check out the [LaTeX Block Example](https://github.com/TypeCellOS/BlockNote/tree/main/examples/06-custom-schema/latex-block).
