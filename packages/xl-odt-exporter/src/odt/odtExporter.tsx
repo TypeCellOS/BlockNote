@@ -12,16 +12,6 @@ import {
 import { BlobWriter, TextReader, ZipWriter, BlobReader } from "@zip.js/zip.js";
 import { renderToString } from "react-dom/server";
 import stylesXml from "./template/styles.xml?raw";
-import {
-  Manifest,
-  ManifestFileEntry,
-  OfficeBody,
-  OfficeDocument,
-  OfficeText,
-  StyleStyle,
-  StyleTextProperties,
-  TextSpan,
-} from "./util/components.js";
 import { loadFileBuffer } from "@shared/util/fileUtil.js";
 import { getImageDimensions } from "./imageUtil.js";
 
@@ -83,7 +73,7 @@ export class ODTExporter<
 
     return [
       {
-        name: "Inter",
+        name: "Inter 18pt",
         fileName: "Inter_18pt-Regular.ttf",
         data: new Blob([interFont], { type: "font/ttf" }),
       },
@@ -108,12 +98,12 @@ export class ODTExporter<
     // Store the complete style element
     this.automaticStyles.set(
       styleName,
-      <StyleStyle style:name={styleName} style:family="text">
-        <StyleTextProperties {...styles} />
-      </StyleStyle>
+      <style:style style:name={styleName} style:family="text">
+        <style:text-properties {...styles} />
+      </style:style>
     );
 
-    return <TextSpan text:style-name={styleName}>{styledText.text}</TextSpan>;
+    return <text:span text:style-name={styleName}>{styledText.text}</text:span>;
   }
 
   public async transformBlocks(
@@ -158,6 +148,8 @@ export class ODTExporter<
     }
   ): Promise<Blob> {
     const xmlOptionToString = (xmlDocument: string | XMLDocument) => {
+      const xmlNamespacesRegEx =
+        /<([a-zA-Z0-9:]+)\s+?(?:xml)ns(?::[a-zA-Z0-9]+)?=".*"(.*)>/g;
       let stringifiedDoc = "";
 
       if (typeof xmlDocument === "string") {
@@ -168,10 +160,8 @@ export class ODTExporter<
         stringifiedDoc = serializer.serializeToString(xmlDocument);
       }
 
-      return stringifiedDoc.replace(
-        /<([a-zA-Z0-9:]+)\s+?(?:xml)ns(?::[a-zA-Z0-9]+)?=".*"(.*)>/g,
-        "<$1$2>"
-      );
+      // Detect and remove XML namespaces (already defined in the root element)
+      return stringifiedDoc.replace(xmlNamespacesRegEx, "<$1$2>");
     };
     const blockContent = await this.transformBlocks(blocks);
     const styles = Array.from(this.automaticStyles.values());
@@ -181,17 +171,30 @@ export class ODTExporter<
     const footer = xmlOptionToString(options?.footer || "");
 
     const content = (
-      <OfficeDocument>
+      <office:document-content
+        xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"
+        xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0"
+        xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0"
+        xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0"
+        xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0"
+        xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0"
+        xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0"
+        office:version="1.3">
         <office:font-face-decls>
           {fonts.map((font) => {
             return (
               <style:font-face
                 style:name={font.name}
-                svg:font-family={font.name}>
+                svg:font-family={font.name}
+                style:font-pitch="variable">
                 <svg:font-face-src>
                   <svg:font-face-uri
                     xlink:href={`Fonts/${font.fileName}`}
-                    xlink:type="simple">
+                    xlink:type="simple"
+                    loext:font-style="normal"
+                    loext:font-weight="normal">
                     <svg:font-face-format svg:string="truetype" />
                   </svg:font-face-uri>
                 </svg:font-face-src>
@@ -221,37 +224,45 @@ export class ODTExporter<
             </style:master-page>
           </office:master-styles>
         )}
-        <OfficeBody>
-          <OfficeText>{blockContent}</OfficeText>
-        </OfficeBody>
-      </OfficeDocument>
+        <office:body>
+          <office:text>{blockContent}</office:text>
+        </office:body>
+      </office:document-content>
     );
 
     const manifest = (
-      <Manifest manifest:version="1.3">
-        <ManifestFileEntry
-          mediaType="application/vnd.oasis.opendocument.text"
-          fullPath="/"
+      <manifest:manifest
+        xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0"
+        manifest:version="1.3">
+        <manifest:file-entry
+          manifest:media-type="application/vnd.oasis.opendocument.text"
+          manifest:full-path="/"
         />
-        <ManifestFileEntry mediaType="text/xml" fullPath="content.xml" />
-        <ManifestFileEntry mediaType="text/xml" fullPath="styles.xml" />
+        <manifest:file-entry
+          manifest:media-type="text/xml"
+          manifest:full-path="content.xml"
+        />
+        <manifest:file-entry
+          manifest:media-type="text/xml"
+          manifest:full-path="styles.xml"
+        />
         {pictures.map((picture) => {
           return (
-            <ManifestFileEntry
-              mediaType={picture.file.type}
-              fullPath={`Pictures/${picture.fileName}`}
+            <manifest:file-entry
+              manifest:media-type={picture.file.type}
+              manifest:full-path={`Pictures/${picture.fileName}`}
             />
           );
         })}
         {fonts.map((font) => {
           return (
-            <ManifestFileEntry
-              mediaType="application/x-font-ttf"
-              fullPath={`Fonts/${font.fileName}`}
+            <manifest:file-entry
+              manifest:media-type="application/x-font-ttf"
+              manifest:full-path={`Fonts/${font.fileName}`}
             />
           );
         })}
-      </Manifest>
+      </manifest:manifest>
     );
     const zipWriter = new ZipWriter(
       new BlobWriter("application/vnd.oasis.opendocument.text")

@@ -6,31 +6,9 @@ import {
   StyledText,
 } from "@blocknote/core";
 import { ODTExporter } from "../odtExporter.js";
-import {
-  DrawFrame,
-  DrawImage,
-  DrawTextBox,
-  LoextGraphicProperties,
-  StyleParagraphProperties,
-  StyleStyle,
-  StyleTableCellProperties,
-  StyleTextProperties,
-  Table,
-  TableCell,
-  TableColumn,
-  TableRow,
-  TextA,
-  TextH,
-  TextLineBreak,
-  TextList,
-  TextListItem,
-  TextP,
-  TextSpan,
-  TextTab,
-} from "../util/components.js";
 
 export const getTabs = (nestingLevel: number) => {
-  return Array.from({ length: nestingLevel }, () => <TextTab />);
+  return Array.from({ length: nestingLevel }, () => <text:tab />);
 };
 
 const createParagraphStyle = (
@@ -82,31 +60,31 @@ const createParagraphStyle = (
   }
 
   return exporter.registerStyle((name) => (
-    <StyleStyle
+    <style:style
       style:family="paragraph"
       style:name={name}
       style:parent-style-name={parentStyleName}
       {...styleAttributes}>
       {backgroundColor && (
-        <LoextGraphicProperties
+        <loext:graphic-properties
           draw:fill="solid"
           draw:fill-color={backgroundColor}
         />
       )}
       {Object.keys(paragraphStyles).length > 0 && (
-        <StyleParagraphProperties {...paragraphStyles} />
+        <style:paragraph-properties {...paragraphStyles} />
       )}
       {Object.keys(textStyles).length > 0 && (
-        <StyleTextProperties {...textStyles}></StyleTextProperties>
+        <style:text-properties {...textStyles}></style:text-properties>
       )}
-    </StyleStyle>
+    </style:style>
   ));
 };
 
-const createTableStyle = (exporter: ODTExporter<any, any, any>) => {
-  const cellName = exporter.registerStyle((name) => (
-    <StyleStyle style:family="table-cell" style:name={name}>
-      <StyleTableCellProperties
+const createTableCellStyle = (exporter: ODTExporter<any, any, any>) => {
+  const cellStyleName = exporter.registerStyle((name) => (
+    <style:style style:family="table-cell" style:name={name}>
+      <style:table-cell-properties
         fo:border="0.5pt solid #000000"
         style:writing-mode="lr-tb"
         fo:padding-top="0in"
@@ -114,10 +92,26 @@ const createTableStyle = (exporter: ODTExporter<any, any, any>) => {
         fo:padding-bottom="0in"
         fo:padding-right="0.075in"
       />
-    </StyleStyle>
+    </style:style>
   ));
 
-  return cellName;
+  return cellStyleName;
+};
+const createTableStyle = (
+  exporter: ODTExporter<any, any, any>,
+  options: { width: number }
+) => {
+  const tableStyleName = exporter.registerStyle((name) => (
+    <style:style style:family="table" style:name={name}>
+      <style:table-properties
+        table:align="left"
+        style:writing-mode="lr-tb"
+        style:width={`${options.width}pt`}
+      />
+    </style:style>
+  ));
+
+  return tableStyleName;
 };
 
 const wrapWithLists = (
@@ -128,9 +122,9 @@ const wrapWithLists = (
     return content;
   }
   return (
-    <TextList>
-      <TextListItem>{wrapWithLists(content, level - 1)}</TextListItem>
-    </TextList>
+    <text:list>
+      <text:list-item>{wrapWithLists(content, level - 1)}</text:list-item>
+    </text:list>
   );
 };
 
@@ -148,10 +142,10 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     );
 
     return (
-      <TextP text:style-name={styleName}>
+      <text:p text:style-name={styleName}>
         {getTabs(nestingLevel)}
         {exporter.transformInlineContent(block.content)}
-      </TextP>
+      </text:p>
     );
   },
 
@@ -164,10 +158,12 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     const styleName = customStyleName;
 
     return (
-      <TextH level={block.props.level} text:style-name={styleName}>
+      <text:h
+        text:outline-level={`${block.props.level}`}
+        text:style-name={styleName}>
         {getTabs(nestingLevel)}
         {exporter.transformInlineContent(block.content)}
-      </TextH>
+      </text:h>
     );
   },
 
@@ -189,16 +185,16 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
       { "style:list-style-name": "WWNum1" }
     );
     return (
-      <TextList text:style-name="WWNum1">
-        <TextListItem>
+      <text:list text:style-name="WWNum1">
+        <text:list-item>
           {wrapWithLists(
-            <TextP text:style-name={styleName}>
+            <text:p text:style-name={styleName}>
               {exporter.transformInlineContent(block.content)}
-            </TextP>,
+            </text:p>,
             nestingLevel
           )}
-        </TextListItem>
-      </TextList>
+        </text:list-item>
+      </text:list>
     );
   },
 
@@ -211,33 +207,33 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     const continueNumbering = (numberedListIndex || 0) > 1 ? "true" : "false";
 
     return (
-      <TextList
+      <text:list
         text:style-name="No_20_List"
         text:continue-numbering={continueNumbering}>
-        <TextListItem
+        <text:list-item
           {...(continueNumbering === "false" && {
             "text:start-value": block.props.start,
           })}>
           {wrapWithLists(
-            <TextP text:style-name={styleName}>
+            <text:p text:style-name={styleName}>
               {exporter.transformInlineContent(block.content)}
-            </TextP>,
+            </text:p>,
             nestingLevel
           )}
-        </TextListItem>
-      </TextList>
+        </text:list-item>
+      </text:list>
     );
   },
 
   checkListItem: (block, exporter) => (
-    <TextP text:style-name="Standard">
+    <text:p text:style-name="Standard">
       {block.props.checked ? "☒ " : "☐ "}
       {exporter.transformInlineContent(block.content)}
-    </TextP>
+    </text:p>
   ),
 
   pageBreak: async () => {
-    return <TextP text:style-name="PageBreak" />;
+    return <text:p text:style-name="PageBreak" />;
   },
 
   image: async (block, exporter) => {
@@ -254,8 +250,8 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
       (originalDimensions.height / originalDimensions.width) * width;
     const captionHeight = 20;
     const imageFrame = (
-      <TextP text:style-name={block.props.caption ? "Caption" : styleName}>
-        <DrawFrame
+      <text:p text:style-name={block.props.caption ? "Caption" : styleName}>
+        <draw:frame
           draw:style-name="Frame"
           style:rel-height="scale"
           svg:width={`${width}px`}
@@ -264,32 +260,32 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
           {...(!block.props.caption && {
             "text:anchor-type": "as-char",
           })}>
-          <DrawImage
+          <draw:image
             xlink:type="simple"
             xlink:show="embed"
             xlink:actuate="onLoad"
             xlink:href={path}
             draw:mime-type={mimeType}
           />
-        </DrawFrame>
-        <TextLineBreak />
-        <TextSpan text:style-name="Caption">{block.props.caption}</TextSpan>
-      </TextP>
+        </draw:frame>
+        <text:line-break />
+        <text:span text:style-name="Caption">{block.props.caption}</text:span>
+      </text:p>
     );
 
     if (block.props.caption) {
       return (
-        <TextP text:style-name={styleName}>
-          <DrawFrame
+        <text:p text:style-name={styleName}>
+          <draw:frame
             draw:style-name="Frame"
             style:rel-height="scale"
             style:rel-width={`${width}px`}
             svg:width={`${width}px`}
             svg:height={`${height + captionHeight}px`}
             text:anchor-type="as-char">
-            <DrawTextBox>{imageFrame}</DrawTextBox>
-          </DrawFrame>
-        </TextP>
+            <draw:text-box>{imageFrame}</draw:text-box>
+          </draw:frame>
+        </text:p>
       );
     }
 
@@ -297,46 +293,47 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
   },
 
   table: (block, exporter) => {
+    const DEFAULT_COLUMN_WIDTH_PX = 120;
+    const tableWidthPX =
+      block.content.columnWidths.reduce(
+        (totalWidth, colWidth) =>
+          (totalWidth || 0) + (colWidth || DEFAULT_COLUMN_WIDTH_PX),
+        0
+      ) || 0;
+    const tableWidthPT = tableWidthPX * 0.75;
     const ex = exporter as ODTExporter<any, any, any>;
-    const styleName = createTableStyle(ex);
+    const cellStyleName = createTableCellStyle(ex);
+    const tableStyleName = createTableStyle(ex, { width: tableWidthPT });
 
     return (
-      <Table table:name={block.id}>
+      <table:table table:name={block.id} table:style-name={tableStyleName}>
         {block.content.rows[0]?.cells.map((_, i) => {
-          const colWidth = block.content.columnWidths[i];
-
-          if (colWidth) {
-            const style = ex.registerStyle((name) => (
-              <StyleStyle style:name={name} style:family="table-column">
-                <style:table-column-properties
-                  style:column-width={`${colWidth}`}
-                />
-              </StyleStyle>
-            ));
-            return <TableColumn table:style-name={style} />;
-          } else {
-            const style = ex.registerStyle((name) => (
-              <StyleStyle style:name={name} style:family="table-column">
-                <style:table-column-properties style:use-optimal-column-width="true" />
-              </StyleStyle>
-            ));
-            return <TableColumn table:style-name={style} />;
-          }
+          const colWidthPX =
+            block.content.columnWidths[i] || DEFAULT_COLUMN_WIDTH_PX;
+          const colWidthPT = colWidthPX * 0.75;
+          const style = ex.registerStyle((name) => (
+            <style:style style:name={name} style:family="table-column">
+              <style:table-column-properties
+                style:column-width={`${colWidthPT}pt`}
+              />
+            </style:style>
+          ));
+          return <table:table-column table:style-name={style} />;
         })}
         {block.content.rows.map((row) => (
-          <TableRow>
+          <table:table-row>
             {row.cells.map((cell) => (
-              <TableCell
-                table:style-name={styleName}
+              <table:table-cell
+                table:style-name={cellStyleName}
                 office:value-type="string">
-                <TextP text:style-name="Standard">
+                <text:p text:style-name="Standard">
                   {exporter.transformInlineContent(cell)}
-                </TextP>
-              </TableCell>
+                </text:p>
+              </table:table-cell>
             ))}
-          </TableRow>
+          </table:table-row>
         ))}
-      </Table>
+      </table:table>
     );
   },
 
@@ -344,31 +341,40 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     const textContent = (block.content as StyledText<any>[])[0]?.text || "";
 
     return (
-      <TextP text:style-name="Codeblock">
+      <text:p text:style-name="Codeblock">
         {...textContent.split("\n").map((line, index) => {
           return (
             <>
-              {index !== 0 && <TextLineBreak />}
+              {index !== 0 && <text:line-break />}
               {line}
             </>
           );
         })}
-      </TextP>
+      </text:p>
     );
   },
 
   file: async (block) => {
     return (
       <>
-        <TextP style:style-name="Standard">
+        <text:p style:style-name="Standard">
           {block.props.url ? (
-            <TextA href={block.props.url}>Open file</TextA>
+            <text:a
+              xlink:type="simple"
+              text:style-name="Internet_20_link"
+              office:target-frame-name="_top"
+              xlink:show="replace"
+              xlink:href={block.props.url}>
+              <text:span text:style-name="Internet_20_link">
+                Open file
+              </text:span>
+            </text:a>
           ) : (
             "Open file"
           )}
-        </TextP>
+        </text:p>
         {block.props.caption && (
-          <TextP text:style-name="Caption">{block.props.caption}</TextP>
+          <text:p text:style-name="Caption">{block.props.caption}</text:p>
         )}
       </>
     );
@@ -376,22 +382,36 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
 
   video: (block) => (
     <>
-      <TextP style:style-name="Standard">
-        <TextA href={block.props.url}>Open video</TextA>
-      </TextP>
+      <text:p style:style-name="Standard">
+        <text:a
+          xlink:type="simple"
+          text:style-name="Internet_20_link"
+          office:target-frame-name="_top"
+          xlink:show="replace"
+          xlink:href={block.props.url}>
+          <text:span text:style-name="Internet_20_link">Open video</text:span>
+        </text:a>
+      </text:p>
       {block.props.caption && (
-        <TextP text:style-name="Caption">{block.props.caption}</TextP>
+        <text:p text:style-name="Caption">{block.props.caption}</text:p>
       )}
     </>
   ),
 
   audio: (block) => (
     <>
-      <TextP style:style-name="Standard">
-        <TextA href={block.props.url}>Open audio</TextA>
-      </TextP>
+      <text:p style:style-name="Standard">
+        <text:a
+          xlink:type="simple"
+          text:style-name="Internet_20_link"
+          office:target-frame-name="_top"
+          xlink:show="replace"
+          xlink:href={block.props.url}>
+          <text:span text:style-name="Internet_20_link">Open audio</text:span>
+        </text:a>
+      </text:p>
       {block.props.caption && (
-        <TextP text:style-name="Caption">{block.props.caption}</TextP>
+        <text:p text:style-name="Caption">{block.props.caption}</text:p>
       )}
     </>
   ),

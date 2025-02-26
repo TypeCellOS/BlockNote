@@ -17,11 +17,15 @@ declare namespace JSX {
     "text:list": any;
     "text:a": any;
     "text:span": any;
+    "text:line-break": any;
+    "text:tab": any;
     "draw:frame": any;
     "draw:image": any;
+    "draw:text-box": any;
     "table:table": any;
     "table:table-row": any;
     "table:table-cell": any;
+    "table:table-column": any;
     "manifest:manifest": any;
     "manifest:file-entry": any;
     "style:paragraph-properties": any;
@@ -34,6 +38,7 @@ declare namespace JSX {
     "svg:font-face-src": any;
     "svg:font-face-uri": any;
     "svg:font-face-format": any;
+    "loext:graphic-properties": any;
   }
 
   interface IntrinsicAttributes {
