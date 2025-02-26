@@ -230,7 +230,7 @@ export class ODTExporter<
       </office:document-content>
     );
 
-    const manifest = (
+    const manifestNode = (
       <manifest:manifest
         xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0"
         manifest:version="1.3">
@@ -281,7 +281,7 @@ export class ODTExporter<
     );
 
     const contentXml = renderToString(content);
-    const manifestXml = renderToString(manifest);
+    const manifestXml = renderToString(manifestNode);
 
     zipWriter.add("content.xml", new TextReader(contentXml));
     zipWriter.add("styles.xml", new TextReader(stylesXml));
