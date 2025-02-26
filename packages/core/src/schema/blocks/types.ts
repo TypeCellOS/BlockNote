@@ -336,6 +336,7 @@ export function mapTableCell<
     : isPartialTableCell(content)
     ? {
         type: "tableCell",
+        content: ([] as InlineContent<T, S>[]).concat(content.content as any),
         props: {
           backgroundColor: content.props?.backgroundColor ?? "default",
           textColor: content.props?.textColor ?? "default",
@@ -343,10 +344,10 @@ export function mapTableCell<
           colspan: content.props?.colspan ?? 1,
           rowspan: content.props?.rowspan ?? 1,
         },
-        content: ([] as InlineContent<T, S>[]).concat(content.content as any),
       }
     : {
         type: "tableCell",
+        content: ([] as InlineContent<T, S>[]).concat(content as any),
         props: {
           backgroundColor: "default",
           textColor: "default",
@@ -354,7 +355,6 @@ export function mapTableCell<
           colspan: 1,
           rowspan: 1,
         },
-        content: ([] as InlineContent<T, S>[]).concat(content as any),
       };
 }
 

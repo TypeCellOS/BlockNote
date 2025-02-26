@@ -43,11 +43,15 @@ export const TableRowHeaderItem = <
       className={"bn-menu-item"}
       checked={isHeaderRow}
       onClick={() => {
-        editor.updateBlock(props.block, {
-          type: "table",
+        // The block may have been modified and out of date, so we get the latest block
+        const block = editor.getBlock(props.block.id);
+        if (!block) {
+          return;
+        }
+        editor.updateBlock(block, {
+          ...block,
           content: {
-            ...props.block.content,
-            type: "tableContent",
+            ...block.content,
             headerRows: isHeaderRow ? undefined : 1,
           },
         });
