@@ -457,7 +457,10 @@ export function getCellsAtRowHandle(
         occupancyGrid
       );
     })
-    .filter((a) => a !== undefined);
+    .filter(
+      (a): a is RelativeCellIndices & { cell: TableCell<any, any> } =>
+        a !== undefined
+    );
 
   // Filter out duplicates based on row and col properties
   return cells.filter((cell, index) => {
@@ -536,7 +539,10 @@ export function getCellsAtColumnHandle(
         occupancyGrid
       );
     })
-    .filter((a) => a !== undefined);
+    .filter(
+      (a): a is RelativeCellIndices & { cell: TableCell<any, any> } =>
+        a !== undefined
+    );
 
   // Filter out duplicates based on row and col properties
   return cells.filter((cell, index) => {
