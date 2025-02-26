@@ -15,13 +15,16 @@ export const TextInput = forwardRef<
     className,
     name,
     label,
+    variant,
     icon,
     value,
     autoFocus,
     placeholder,
+    disabled,
     onKeyDown,
     onChange,
     onSubmit,
+    autoComplete,
     ...rest
   } = props;
 
@@ -33,15 +36,21 @@ export const TextInput = forwardRef<
       <div className="bn-ak-input-wrapper">
         {icon}
         <AriakitFormInput
-          className={mergeCSSClasses("bn-ak-input", className || "")}
+          className={mergeCSSClasses(
+            "bn-ak-input",
+            className || "",
+            variant === "large" ? "bn-ak-input-large" : ""
+          )}
           ref={ref}
           name={name}
           value={value}
           autoFocus={autoFocus}
           placeholder={placeholder}
+          disabled={disabled}
           onKeyDown={onKeyDown}
           onChange={onChange}
           onSubmit={onSubmit}
+          autoComplete={autoComplete}
         />
       </div>
     </>

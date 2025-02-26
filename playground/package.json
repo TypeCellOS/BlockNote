@@ -10,6 +10,9 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
+    "ai": "^4.1.0",
+    "@ai-sdk/openai": "^1.1.0",
+    "@ai-sdk/groq": "^1.1.0",
     "@aws-sdk/client-s3": "^3.609.0",
     "@aws-sdk/s3-request-presigner": "^3.609.0",
     "@blocknote/ariakit": "^0.24.1",
@@ -18,6 +21,7 @@
     "@blocknote/react": "^0.24.1",
     "@blocknote/server-util": "^0.24.1",
     "@blocknote/shadcn": "^0.24.1",
+    "@blocknote/xl-ai": "^0.24.1",
     "@blocknote/xl-multi-column": "^0.24.1",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
