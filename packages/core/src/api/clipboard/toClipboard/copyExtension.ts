@@ -2,9 +2,8 @@ import { Extension } from "@tiptap/core";
 import { Fragment, Node } from "prosemirror-model";
 import { NodeSelection, Plugin } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
-import * as pmView from "prosemirror-view";
+import type { EditorView } from "prosemirror-view";
 
-import { EditorView } from "prosemirror-view";
 import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import {
   BlockSchema,
@@ -24,7 +23,7 @@ function fragmentToExternalHTML<
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  view: pmView.EditorView,
+  view: EditorView,
   selectedFragment: Fragment,
   editor: BlockNoteEditor<BSchema, I, S>
 ) {

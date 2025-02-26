@@ -67,7 +67,8 @@ export const Table = (props: {
                 : { flex: 1 },
             ]}
             key={index}>
-            {props.transformer.transformInlineContent(cell)}
+            {/* TODO: fix this */}
+            {props.transformer.transformInlineContent(cell as any)}
           </View>
         ))}
       </View>

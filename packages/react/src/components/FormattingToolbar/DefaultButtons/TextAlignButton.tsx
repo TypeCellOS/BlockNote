@@ -4,7 +4,9 @@ import {
   checkBlockTypeHasDefaultProp,
   DefaultProps,
   InlineContentSchema,
+  mapTableCell,
   StyleSchema,
+  TableContent,
 } from "@blocknote/core";
 import { useCallback, useMemo } from "react";
 import { IconType } from "react-icons";
@@ -47,6 +49,23 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
     if (checkBlockHasDefaultProp("textAlignment", block, editor)) {
       return block.props.textAlignment;
     }
+    if (block.type === "table") {
+      const cellSelection = editor.tableHandles?.getCellSelection();
+      if (!cellSelection) {
+        return;
+      }
+      const allCellsInTable = cellSelection.cells.map(
+        ({ row, col }) =>
+          mapTableCell(
+            (block.content as TableContent<any, any>).rows[row].cells[col]
+          ).props.textAlignment
+      );
+      const firstAlignment = allCellsInTable[0];
+
+      if (allCellsInTable.every((alignment) => alignment === firstAlignment)) {
+        return firstAlignment;
+      }
+    }
 
     return;
   }, [editor, selectedBlocks]);
@@ -60,6 +79,40 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
           editor.updateBlock(block, {
             props: { textAlignment: textAlignment },
           });
+        } else if (block.type === "table") {
+          const cellSelection = editor.tableHandles?.getCellSelection();
+          if (!cellSelection) {
+            continue;
+          }
+
+          const newTable = (block.content as TableContent<any, any>).rows.map(
+            (row) => {
+              return {
+                ...row,
+                cells: row.cells.map((cell) => {
+                  return mapTableCell(cell);
+                }),
+              };
+            }
+          );
+
+          // Apply the text alignment to the cells that are within the selected range
+          cellSelection.cells.forEach(({ row, col }) => {
+            newTable[row].cells[col].props.textAlignment = textAlignment;
+          });
+
+          editor.updateBlock(block, {
+            type: "table",
+            content: {
+              ...(block.content as TableContent<any, any>),
+              type: "tableContent",
+              rows: newTable,
+            } as any,
+          });
+
+          // Have to reset text cursor position to the block as `updateBlock`
+          // moves the existing selection out of the block.
+          editor.setTextCursorPosition(block);
         }
       }
     },
@@ -67,7 +120,11 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
   );
 
   const show = useMemo(() => {
-    return !!selectedBlocks.find((block) => "textAlignment" in block.props);
+    return !!selectedBlocks.find(
+      (block) =>
+        "textAlignment" in block.props ||
+        (block.type === "table" && block.children)
+    );
   }, [selectedBlocks]);
 
   if (!show || !editor.isEditable) {

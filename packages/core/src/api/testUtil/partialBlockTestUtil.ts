@@ -1,7 +1,12 @@
 import { Block, PartialBlock } from "../../blocks/defaultBlocks.js";
 import { BlockNoteSchema } from "../../editor/BlockNoteSchema.js";
 import UniqueID from "../../extensions/UniqueID/UniqueID.js";
-import { BlockSchema, TableContent } from "../../schema/blocks/types.js";
+import {
+  BlockSchema,
+  PartialTableCell,
+  TableCell,
+  TableContent,
+} from "../../schema/blocks/types.js";
 import {
   InlineContent,
   InlineContentSchema,
@@ -28,8 +33,16 @@ function textShorthandToStyledText(
 }
 
 function partialContentToInlineContent(
-  content: PartialInlineContent<any, any> | TableContent<any> | undefined
-): InlineContent<any, any>[] | TableContent<any> | undefined {
+  content:
+    | PartialInlineContent<any, any>
+    | PartialTableCell<any, any>
+    | TableContent<any>
+    | undefined
+):
+  | InlineContent<any, any>[]
+  | TableContent<any>
+  | TableCell<any, any>
+  | undefined {
   if (typeof content === "string") {
     return textShorthandToStyledText(content);
   }
@@ -59,6 +72,8 @@ function partialContentToInlineContent(
     return {
       type: "tableContent",
       columnWidths: content.columnWidths,
+      headerRows: content.headerRows,
+      headerCols: content.headerCols,
       rows: content.rows.map((row) => ({
         ...row,
         cells: row.cells.map(
@@ -66,6 +81,18 @@ function partialContentToInlineContent(
         ),
       })),
     };
+  } else if (content?.type === "tableCell") {
+    return {
+      type: "tableCell",
+      content: partialContentToInlineContent(content.content) as any[],
+      props: {
+        backgroundColor: content.props?.backgroundColor ?? "default",
+        textColor: content.props?.textColor ?? "default",
+        textAlignment: content.props?.textAlignment ?? "left",
+        colspan: content.props?.colspan ?? 1,
+        rowspan: content.props?.rowspan ?? 1,
+      },
+    } satisfies TableCell<any, any>;
   }
 
   return content;
@@ -103,7 +130,13 @@ export function partialBlockToBlockForTesting<
       contentType === "inline"
         ? []
         : contentType === "table"
-        ? { type: "tableContent", columnWidths: [], rows: [] }
+        ? {
+            type: "tableContent",
+            columnWidths: undefined,
+            headerRows: undefined,
+            headerCols: undefined,
+            rows: [],
+          }
         : (undefined as any),
     children: [] as any,
     ...partialBlock,
@@ -131,6 +164,8 @@ export function partialBlockToBlockForTesting<
         content?.columnWidths ||
         content?.rows[0]?.cells.map(() => undefined) ||
         [],
+      headerRows: content?.headerRows || undefined,
+      headerCols: content?.headerCols || undefined,
       rows:
         content?.rows.map((row) => ({
           cells: row.cells.map((cell) => partialContentToInlineContent(cell)),

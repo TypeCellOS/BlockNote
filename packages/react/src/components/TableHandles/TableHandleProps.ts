@@ -11,8 +11,6 @@ import { DragEvent, FC } from "react";
 
 import { DragHandleMenuProps } from "../SideMenu/DragHandleMenu/DragHandleMenuProps.js";
 
-type NonUndefined<T> = T extends undefined ? never : T;
-
 export type TableHandleProps<
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
@@ -41,14 +39,15 @@ export type TableHandleProps<
   >;
 } & Pick<TableHandlesState<I, S>, "block"> &
   Pick<
-    NonUndefined<
+    Exclude<
       BlockNoteEditor<
         {
           table: DefaultBlockSchema["table"];
         },
         I,
         S
-      >["tableHandles"]
+      >["tableHandles"],
+      undefined
     >,
     "dragEnd" | "freezeHandles" | "unfreezeHandles"
   >;

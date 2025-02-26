@@ -117,7 +117,20 @@ const testDocument: PartialBlock[] = [
       type: "tableContent",
       rows: [
         {
-          cells: ["Cell 1", "Cell 2", "Cell 3"],
+          cells: [
+            {
+              type: "tableCell",
+              content: ["Cell 1"],
+            },
+            {
+              type: "tableCell",
+              content: ["Cell 2"],
+            },
+            {
+              type: "tableCell",
+              content: ["Cell 3"],
+            },
+          ],
         },
         {
           cells: ["Cell 4", "Cell 5", "Cell 6"],

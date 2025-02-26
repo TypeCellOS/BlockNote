@@ -20,6 +20,7 @@ import {
 import { AddTiptapCommentButton } from "./DefaultButtons/AddTiptapCommentButton.js";
 import { FileDownloadButton } from "./DefaultButtons/FileDownloadButton.js";
 import { FilePreviewButton } from "./DefaultButtons/FilePreviewButton.js";
+import { TableCellMergeButton } from "./DefaultButtons/TableCellMergeButton.js";
 import { TextAlignButton } from "./DefaultButtons/TextAlignButton.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 
@@ -27,6 +28,7 @@ export const getFormattingToolbarItems = (
   blockTypeSelectItems?: BlockTypeSelectItem[]
 ): JSX.Element[] => [
   <BlockTypeSelect key={"blockTypeSelect"} items={blockTypeSelectItems} />,
+  <TableCellMergeButton key={"tableCellMergeButton"} />,
   <FileCaptionButton key={"fileCaptionButton"} />,
   <FileReplaceButton key={"replaceFileButton"} />,
   <FileRenameButton key={"fileRenameButton"} />,

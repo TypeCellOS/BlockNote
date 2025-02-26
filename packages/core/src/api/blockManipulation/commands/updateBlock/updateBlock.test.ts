@@ -275,7 +275,34 @@ describe("Test updateBlock", () => {
         type: "tableContent",
         rows: [
           {
-            cells: ["Cell 1", "Cell 2", "Cell 3"],
+            cells: [
+              {
+                type: "tableCell",
+                content: ["Cell 1"],
+              },
+              {
+                type: "tableCell",
+                content: ["Cell 2"],
+                props: {
+                  backgroundColor: "red",
+                  colspan: 1,
+                  rowspan: 1,
+                  textAlignment: "right",
+                  textColor: "red",
+                },
+              },
+              {
+                type: "tableCell",
+                content: ["Cell 3"],
+                props: {
+                  backgroundColor: "default",
+                  colspan: 1,
+                  rowspan: 1,
+                  textAlignment: "left",
+                  textColor: "default",
+                },
+              },
+            ],
           },
           {
             cells: ["Cell 4", "Cell 5", "Cell 6"],

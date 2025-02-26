@@ -178,6 +178,8 @@ export const uk: Dictionary = {
   drag_handle: {
     delete_menuitem: "Видалити",
     colors_menuitem: "Кольори",
+    header_row_menuitem: "Заголовок рядка",
+    header_column_menuitem: "Заголовок стовпця",
   },
   table_handle: {
     delete_column_menuitem: "Видалити стовпець",
@@ -186,6 +188,9 @@ export const uk: Dictionary = {
     add_right_menuitem: "Додати стовпець справа",
     add_above_menuitem: "Додати рядок вище",
     add_below_menuitem: "Додати рядок нижче",
+    split_cell_menuitem: "Розділити клітинку",
+    merge_cells_menuitem: "Об'єднати клітинки",
+    background_color_menuitem: "Змінити колір фону",
   },
   suggestion_menu: {
     no_items_title: "Нічого не знайдено",
@@ -299,6 +304,9 @@ export const uk: Dictionary = {
     },
     align_justify: {
       tooltip: "Вирівняти за шириною",
+    },
+    table_cell_merge: {
+      tooltip: "Об'єднати клітинки",
     },
     comment: {
       tooltip: "Додати коментар",

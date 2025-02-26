@@ -145,6 +145,8 @@ export const is: Dictionary = {
   drag_handle: {
     delete_menuitem: "Eyða",
     colors_menuitem: "Litir",
+    header_row_menuitem: "Höfuðröð",
+    header_column_menuitem: "Höfuðdálkur",
   },
   table_handle: {
     delete_column_menuitem: "Eyða dálki",
@@ -153,6 +155,9 @@ export const is: Dictionary = {
     add_right_menuitem: "Bæta dálki við til hægri",
     add_above_menuitem: "Bæta röð við fyrir ofan",
     add_below_menuitem: "Bæta röð við fyrir neðan",
+    split_cell_menuitem: "Splita dálk",
+    merge_cells_menuitem: "Sameina dálka",
+    background_color_menuitem: "Breyta bakgrunni",
   },
   suggestion_menu: {
     no_items_title: "Engir hlutir fundust",
@@ -267,6 +272,9 @@ export const is: Dictionary = {
     },
     align_justify: {
       tooltip: "Jafna texta",
+    },
+    table_cell_merge: {
+      tooltip: "Sameina dálka",
     },
     comment: {
       tooltip: "Bæta við athugun",
