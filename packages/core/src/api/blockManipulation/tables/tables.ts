@@ -855,3 +855,23 @@ export function canColumnBeDraggedInto(
     ? targetColumnIndex === endColumnIndex
     : targetColumnIndex === startColumnIndex;
 }
+
+/**
+ * Checks if two cells are in the same column.
+ *
+ * @returns True if the cells are in the same column, false otherwise.
+ */
+export function areInSameColumn(
+  from: RelativeCellIndices,
+  to: RelativeCellIndices,
+  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>
+) {
+  // Table indices are relative to the table, so we need to resolve the absolute cell indices
+  const anchorAbsoluteCellIndices = getAbsoluteTableCells(from, block);
+
+  // Table indices are relative to the table, so we need to resolve the absolute cell indices
+  const headAbsoluteCellIndices = getAbsoluteTableCells(to, block);
+
+  // Compare the column indices to determine the merge direction
+  return anchorAbsoluteCellIndices.col === headAbsoluteCellIndices.col;
+}
