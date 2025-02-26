@@ -1,13 +1,16 @@
 "use client";
 
-import { DefaultThreadStoreAuth, YjsThreadStore } from "@blocknote/core";
+import {
+  DefaultThreadStoreAuth,
+  YjsThreadStore,
+} from "@blocknote/core/comments";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 import { MantineProvider, Select } from "@mantine/core";
 import { YDocProvider, useYDoc, useYjsProvider } from "@y-sweet/react";
 import { useMemo, useState } from "react";
-import { HARDCODED_USERS, MyUserType, getRandomColor } from "./userdata";
+import { HARDCODED_USERS, MyUserType, getRandomColor } from "./userdata.js";
 
 // The resolveUsers function fetches information about your users
 // (e.g. their name, avatar, etc.). Usually, you'd fetch this from your

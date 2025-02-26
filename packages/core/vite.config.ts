@@ -16,9 +16,14 @@ export default defineConfig({
   build: {
     sourcemap: true,
     lib: {
-      entry: path.resolve(__dirname, "src/index.ts"),
+      entry: {
+        blocknote: path.resolve(__dirname, "src/index.ts"),
+        comments: path.resolve(__dirname, "src/extensions/Comments/index.ts"),
+      },
       name: "blocknote",
-      fileName: "blocknote",
+      formats: ["es", "cjs"],
+      fileName: (format, entryName) =>
+        format === "es" ? `${entryName}.js` : `${entryName}.cjs`,
     },
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled

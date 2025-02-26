@@ -1,4 +1,5 @@
-import { BlockNoteEditor, User } from "@blocknote/core";
+import { BlockNoteEditor } from "@blocknote/core";
+import { User } from "@blocknote/core/comments";
 import { useCallback, useMemo, useSyncExternalStore } from "react";
 
 export function useUser(
