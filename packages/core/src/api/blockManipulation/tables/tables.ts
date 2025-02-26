@@ -283,7 +283,7 @@ export function getTableRowsFromOccupancyGrid(
  *
  * @returns The {@link AbsoluteCellIndices} and the {@link TableCell} at the absolute position.
  */
-export function getAbsoluteTableCellIndices(
+export function getAbsoluteTableCells(
   /**
    * The relative position of the cell in the table.
    */
@@ -357,7 +357,7 @@ export function getDimensionsOfTable(
  *
  * @returns The {@link RelativeCellIndices} and the {@link TableCell} at the relative position.
  */
-export function getRelativeTableCellIndices(
+export function getRelativeTableCells(
   /**
    * The {@link AbsoluteCellIndices} of the cell in the table.
    */
@@ -451,7 +451,7 @@ export function getCellsAtRowHandle(
     const cells = new Array(occupancyGrid[0].length)
       .fill(false)
       .map((_v, col) => {
-        return getRelativeTableCellIndices(
+        return getRelativeTableCells(
           { row: absoluteRow, col },
           block,
           occupancyGrid
@@ -528,7 +528,7 @@ export function getCellsAtColumnHandle(
 
     // Then for each row, get the cell at the absolute column index as a relative cell index
     const cells = new Array(occupancyGrid.length).fill(false).map((_v, row) => {
-      return getRelativeTableCellIndices(
+      return getRelativeTableCells(
         { row, col: absoluteCol },
         block,
         occupancyGrid
@@ -561,7 +561,7 @@ export function moveColumn(
 ): TableContent<any, any>["rows"] {
   // To move cells in a column, we need to layout the whole table
   // and then move the cells accordingly.
-  const { col: absoluteSourceCol } = getAbsoluteTableCellIndices(
+  const { col: absoluteSourceCol } = getAbsoluteTableCells(
     {
       row: 0,
       col: fromColIndex,
@@ -569,7 +569,7 @@ export function moveColumn(
     block,
     occupancyGrid
   );
-  const { col: absoluteTargetCol } = getAbsoluteTableCellIndices(
+  const { col: absoluteTargetCol } = getAbsoluteTableCells(
     {
       row: 0,
       col: toColIndex,
@@ -600,7 +600,7 @@ export function moveRow(
 ): TableContent<any, any>["rows"] {
   // To move cells in a column, we need to layout the whole table
   // and then move the cells accordingly.
-  const { row: absoluteSourceRow } = getAbsoluteTableCellIndices(
+  const { row: absoluteSourceRow } = getAbsoluteTableCells(
     {
       row: fromRowIndex,
       col: 0,
@@ -608,7 +608,7 @@ export function moveRow(
     block,
     occupancyGrid
   );
-  const { row: absoluteTargetRow } = getAbsoluteTableCellIndices(
+  const { row: absoluteTargetRow } = getAbsoluteTableCells(
     {
       row: toRowIndex,
       col: 0,

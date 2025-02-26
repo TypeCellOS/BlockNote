@@ -14,7 +14,7 @@ import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import {
   addRowsOrColumns,
   cropEmptyRowsOrColumns,
-  getAbsoluteTableCellIndices,
+  getAbsoluteTableCells,
   getCellsAtColumnHandle,
   getCellsAtRowHandle,
   getDimensionsOfTable,
@@ -1224,10 +1224,10 @@ export class TableHandlesProsemirrorPlugin<
 
     const { from, to } = this.getCellSelection();
     // Table indices are relative to the table, so we need to resolve the absolute cell indices
-    const anchorAbsoluteCellIndices = getAbsoluteTableCellIndices(from, block);
+    const anchorAbsoluteCellIndices = getAbsoluteTableCells(from, block);
 
     // Table indices are relative to the table, so we need to resolve the absolute cell indices
-    const headAbsoluteCellIndices = getAbsoluteTableCellIndices(to, block);
+    const headAbsoluteCellIndices = getAbsoluteTableCells(to, block);
 
     // Compare the column indices to determine the merge direction
     if (anchorAbsoluteCellIndices.col === headAbsoluteCellIndices.col) {

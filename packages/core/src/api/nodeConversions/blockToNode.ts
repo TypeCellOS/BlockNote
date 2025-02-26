@@ -18,7 +18,7 @@ import {
   isStyledTextInlineContent,
 } from "../../schema/inlineContent/types.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
-import { getAbsoluteTableCellIndices } from "../blockManipulation/tables/tables.js";
+import { getAbsoluteTableCells } from "../blockManipulation/tables/tables.js";
 
 /**
  * Convert a StyledText inline element to a
@@ -201,7 +201,7 @@ export function tableContentToNodes<
       let content: Fragment | Node | readonly Node[] | null = null;
 
       // Colwidths are absolutely referenced to the table, so we need to resolve the relative cell index to the absolute cell index
-      const absoluteCellIndex = getAbsoluteTableCellIndices(
+      const absoluteCellIndex = getAbsoluteTableCells(
         {
           row: rowIndex,
           col: cellIndex,
