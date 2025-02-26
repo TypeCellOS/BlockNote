@@ -13,6 +13,8 @@ import {
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import {
   addRowsOrColumns,
+  canColumnBeDraggedInto,
+  canRowBeDraggedInto,
   cropEmptyRowsOrColumns,
   getAbsoluteTableCells,
   getCellsAtColumnHandle,
@@ -142,76 +144,6 @@ function hideElements(selector: string, rootEl: Document | ShadowRoot) {
   for (let i = 0; i < elementsToHide.length; i++) {
     (elementsToHide[i] as HTMLElement).style.visibility = "hidden";
   }
-}
-
-/**
- * Checks if a row can be safely dropped at the target row index without splitting merged cells.
- */
-function canRowBeDraggedInto(
-  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
-  draggingIndex: RelativeCellIndices["row"],
-  targetRowIndex: RelativeCellIndices["row"]
-) {
-  // Check cells at the target row
-  const targetCells = getCellsAtRowHandle(block, targetRowIndex);
-
-  // If no cells have rowspans > 1, dragging is always allowed
-  const hasMergedCells = targetCells.some((cell) => getRowspan(cell.cell) > 1);
-  if (!hasMergedCells) {
-    return true;
-  }
-
-  let endRowIndex = targetRowIndex;
-  let startRowIndex = targetRowIndex;
-  targetCells.forEach((cell) => {
-    const rowspan = getRowspan(cell.cell);
-    endRowIndex = Math.max(endRowIndex, cell.row + rowspan - 1);
-    startRowIndex = Math.min(startRowIndex, cell.row);
-  });
-
-  // Check the direction of the drag
-  const isDraggingDown = draggingIndex < targetRowIndex;
-
-  // Allow dragging only at the start/end of merged cells
-  // Otherwise, the target row was within a merged cell which we don't allow
-  return isDraggingDown
-    ? targetRowIndex === endRowIndex
-    : targetRowIndex === startRowIndex;
-}
-
-/**
- * Checks if a column can be safely dropped at the target column index without splitting merged cells.
- */
-function canColumnBeDraggedInto(
-  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
-  draggingIndex: RelativeCellIndices["col"],
-  targetColumnIndex: RelativeCellIndices["col"]
-) {
-  // Check cells at the target column
-  const targetCells = getCellsAtColumnHandle(block, targetColumnIndex);
-
-  // If no cells have colspans > 1, dragging is always allowed
-  const hasMergedCells = targetCells.some((cell) => getColspan(cell.cell) > 1);
-  if (!hasMergedCells) {
-    return true;
-  }
-
-  let endColumnIndex = targetColumnIndex;
-  let startColumnIndex = targetColumnIndex;
-  targetCells.forEach((cell) => {
-    const colspan = getColspan(cell.cell);
-    endColumnIndex = Math.max(endColumnIndex, cell.col + colspan - 1);
-    startColumnIndex = Math.min(startColumnIndex, cell.col);
-  });
-
-  // Check the direction of the drag
-  const isDraggingRight = draggingIndex < targetColumnIndex;
-
-  // Allow dragging only at the start/end of merged cells
-  // Otherwise, the target column was within a merged cell which we don't allow
-  return isDraggingRight
-    ? targetColumnIndex === endColumnIndex
-    : targetColumnIndex === startColumnIndex;
 }
 
 export class TableHandlesView<

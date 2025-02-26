@@ -551,7 +551,7 @@ export function getCellsAtColumnHandle(
 /**
  * This moves a column from one index to another.
  *
- * @note This is a destructive operation, it will modify the {@link OccupancyGrid} in place.
+ * @note This is a destructive operation, it will modify the provided {@link OccupancyGrid} in place.
  */
 export function moveColumn(
   block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
@@ -578,6 +578,11 @@ export function moveColumn(
     occupancyGrid
   );
 
+  /**
+   * Currently, this function assumes that the caller has already checked that the source and target columns are valid.
+   * Such as by using {@link canColumnBeDraggedInto}. In the future, we may want to have the move logic be smarter
+   * and handle invalid column indices in some way.
+   */
   occupancyGrid.forEach((row) => {
     // Move the cell to the target column
     const [sourceCell] = row.splice(absoluteSourceCol, 1);
@@ -617,6 +622,11 @@ export function moveRow(
     occupancyGrid
   );
 
+  /**
+   * Currently, this function assumes that the caller has already checked that the source and target rows are valid.
+   * Such as by using {@link canRowBeDraggedInto}. In the future, we may want to have the move logic be smarter
+   * and handle invalid row indices in some way.
+   */
   const [sourceRow] = occupancyGrid.splice(absoluteSourceRow, 1);
   occupancyGrid.splice(absoluteTargetRow, 0, sourceRow);
 
@@ -774,4 +784,74 @@ export function addRowsOrColumns(
   }
 
   return getTableRowsFromOccupancyGrid(occupancyGrid);
+}
+
+/**
+ * Checks if a row can be safely dropped at the target row index without splitting merged cells.
+ */
+export function canRowBeDraggedInto(
+  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+  draggingIndex: RelativeCellIndices["row"],
+  targetRowIndex: RelativeCellIndices["row"]
+) {
+  // Check cells at the target row
+  const targetCells = getCellsAtRowHandle(block, targetRowIndex);
+
+  // If no cells have rowspans > 1, dragging is always allowed
+  const hasMergedCells = targetCells.some((cell) => getRowspan(cell.cell) > 1);
+  if (!hasMergedCells) {
+    return true;
+  }
+
+  let endRowIndex = targetRowIndex;
+  let startRowIndex = targetRowIndex;
+  targetCells.forEach((cell) => {
+    const rowspan = getRowspan(cell.cell);
+    endRowIndex = Math.max(endRowIndex, cell.row + rowspan - 1);
+    startRowIndex = Math.min(startRowIndex, cell.row);
+  });
+
+  // Check the direction of the drag
+  const isDraggingDown = draggingIndex < targetRowIndex;
+
+  // Allow dragging only at the start/end of merged cells
+  // Otherwise, the target row was within a merged cell which we don't allow
+  return isDraggingDown
+    ? targetRowIndex === endRowIndex
+    : targetRowIndex === startRowIndex;
+}
+
+/**
+ * Checks if a column can be safely dropped at the target column index without splitting merged cells.
+ */
+export function canColumnBeDraggedInto(
+  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+  draggingIndex: RelativeCellIndices["col"],
+  targetColumnIndex: RelativeCellIndices["col"]
+) {
+  // Check cells at the target column
+  const targetCells = getCellsAtColumnHandle(block, targetColumnIndex);
+
+  // If no cells have colspans > 1, dragging is always allowed
+  const hasMergedCells = targetCells.some((cell) => getColspan(cell.cell) > 1);
+  if (!hasMergedCells) {
+    return true;
+  }
+
+  let endColumnIndex = targetColumnIndex;
+  let startColumnIndex = targetColumnIndex;
+  targetCells.forEach((cell) => {
+    const colspan = getColspan(cell.cell);
+    endColumnIndex = Math.max(endColumnIndex, cell.col + colspan - 1);
+    startColumnIndex = Math.min(startColumnIndex, cell.col);
+  });
+
+  // Check the direction of the drag
+  const isDraggingRight = draggingIndex < targetColumnIndex;
+
+  // Allow dragging only at the start/end of merged cells
+  // Otherwise, the target column was within a merged cell which we don't allow
+  return isDraggingRight
+    ? targetColumnIndex === endColumnIndex
+    : targetColumnIndex === startColumnIndex;
 }
