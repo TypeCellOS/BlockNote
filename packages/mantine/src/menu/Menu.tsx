@@ -146,8 +146,8 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
   return (
     <MantineMenu
       withinPortal={false}
-      // middlewares={{ flip: true, shift: true, inline: false, size: true }}
-      // onChange={onOpenChange}
+      middlewares={{ flip: true, shift: true, inline: false, size: true }}
+      onChange={onOpenChange}
       position={position}>
       {children}
     </MantineMenu>
