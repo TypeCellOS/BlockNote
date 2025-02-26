@@ -15,7 +15,7 @@ export const testDocument = partialBlocksToBlocksForTesting(
       content: [
         {
           type: "text",
-          text: "Welcome to this",
+          text: "Welcome to this ",
           styles: {
             italic: true,
           },

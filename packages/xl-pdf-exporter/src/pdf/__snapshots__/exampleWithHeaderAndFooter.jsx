@@ -35,7 +35,7 @@
               fontStyle: 'italic'
             }}
           >
-            Welcome to this
+            Welcome to this{' '}
           </TEXT>
           <TEXT
             style={{
