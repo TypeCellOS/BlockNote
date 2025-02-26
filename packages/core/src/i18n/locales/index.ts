@@ -9,6 +9,7 @@ export * from "./it.js";
 export * from "./ja.js";
 export * from "./ko.js";
 export * from "./nl.js";
+export * from "./no.js";
 export * from "./pl.js";
 export * from "./pt.js";
 export * from "./ru.js";
