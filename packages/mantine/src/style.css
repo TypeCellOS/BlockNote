@@ -125,7 +125,14 @@
   border-radius: 0;
   box-shadow: none;
   padding: 0;
+}
+
+.bn-mantine .mantine-Tooltip-tooltip p:last-child {
   white-space: pre-wrap;
+}
+
+.bn-mantine .mantine-Tooltip-tooltip p:first-child {
+  white-space: unset;
 }
 
 /* UI element styling */
