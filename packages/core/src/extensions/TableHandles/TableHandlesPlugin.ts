@@ -35,8 +35,6 @@ import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   BlockFromConfigNoChildren,
   BlockSchemaWithBlock,
-  getColspan,
-  getRowspan,
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
