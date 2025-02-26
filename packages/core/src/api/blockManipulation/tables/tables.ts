@@ -426,49 +426,47 @@ export function getCellsAtRowHandle(
   block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
   relativeRowIndex: RelativeCellIndices["row"]
 ) {
-  try {
-    const occupancyGrid = getTableCellOccupancyGrid(block);
+  const occupancyGrid = getTableCellOccupancyGrid(block);
 
-    // First need to resolve the relative row index to an absolute row index
-    let absoluteRow = 0;
-
-    // Jump through the occupied cells ${relativeCellIndices.row} times to find the absolute row position
-    for (let i = 0; i < relativeRowIndex; i++) {
-      const cell = occupancyGrid[absoluteRow]?.[0];
-
-      if (!cell) {
-        // As a sanity check, if the cell is not occupied, we should throw an error
-        throw new Error(
-          `Unable to resolve relative table cell indices for table, cell at ${absoluteRow},0 is not occupied`
-        );
-      }
-
-      // Skip the cells that the rowspan takes up
-      absoluteRow += cell.rowspan;
-    }
-
-    // Then for each column, get the cell at the absolute row index as a relative cell index
-    const cells = new Array(occupancyGrid[0].length)
-      .fill(false)
-      .map((_v, col) => {
-        return getRelativeTableCells(
-          { row: absoluteRow, col },
-          block,
-          occupancyGrid
-        );
-      });
-
-    // Filter out duplicates based on row and col properties
-    return cells.filter((cell, index) => {
-      return (
-        cells.findIndex((c) => c.row === cell.row && c.col === cell.col) ===
-        index
-      );
-    });
-  } catch (e) {
-    // In case of an invalid index, return an empty array
+  if (relativeRowIndex < 0 || relativeRowIndex >= occupancyGrid.length) {
     return [];
   }
+
+  // First need to resolve the relative row index to an absolute row index
+  let absoluteRow = 0;
+
+  // Jump through the occupied cells ${relativeCellIndices.row} times to find the absolute row position
+  for (let i = 0; i < relativeRowIndex; i++) {
+    const cell = occupancyGrid[absoluteRow]?.[0];
+
+    if (!cell) {
+      // As a sanity check, if the cell is not occupied, we should throw an error
+      throw new Error(
+        `Unable to resolve relative table cell indices for table, cell at ${absoluteRow},0 is not occupied`
+      );
+    }
+
+    // Skip the cells that the rowspan takes up
+    absoluteRow += cell.rowspan;
+  }
+
+  // Then for each column, get the cell at the absolute row index as a relative cell index
+  const cells = new Array(occupancyGrid[0].length)
+    .fill(false)
+    .map((_v, col) => {
+      return getRelativeTableCells(
+        { row: absoluteRow, col },
+        block,
+        occupancyGrid
+      );
+    });
+
+  // Filter out duplicates based on row and col properties
+  return cells.filter((cell, index) => {
+    return (
+      cells.findIndex((c) => c.row === cell.row && c.col === cell.col) === index
+    );
+  });
 }
 
 /**
@@ -506,46 +504,48 @@ export function getCellsAtColumnHandle(
   block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
   relativeColumnIndex: RelativeCellIndices["col"]
 ) {
-  try {
-    const occupancyGrid = getTableCellOccupancyGrid(block);
-    // First need to resolve the relative column index to an absolute column index
-    let absoluteCol = 0;
+  const occupancyGrid = getTableCellOccupancyGrid(block);
 
-    // Now that we've already resolved the absolute row position, we can jump through the occupied cells ${relativeCellIndices.col} times to find the absolute column position
-    for (let i = 0; i < relativeColumnIndex; i++) {
-      const cell = occupancyGrid[0]?.[absoluteCol];
-
-      if (!cell) {
-        // As a sanity check, if the cell is not occupied, we should throw an error
-        throw new Error(
-          `Unable to resolve relative table cell indices for table, cell at 0,${absoluteCol} is not occupied`
-        );
-      }
-
-      // Skip the cells that the colspan takes up
-      absoluteCol += cell.colspan;
-    }
-
-    // Then for each row, get the cell at the absolute column index as a relative cell index
-    const cells = new Array(occupancyGrid.length).fill(false).map((_v, row) => {
-      return getRelativeTableCells(
-        { row, col: absoluteCol },
-        block,
-        occupancyGrid
-      );
-    });
-
-    // Filter out duplicates based on row and col properties
-    return cells.filter((cell, index) => {
-      return (
-        cells.findIndex((c) => c.row === cell.row && c.col === cell.col) ===
-        index
-      );
-    });
-  } catch (e) {
-    // In case of an invalid index, return an empty array
+  if (
+    relativeColumnIndex < 0 ||
+    relativeColumnIndex >= occupancyGrid[0].length
+  ) {
     return [];
   }
+
+  // First need to resolve the relative column index to an absolute column index
+  let absoluteCol = 0;
+
+  // Now that we've already resolved the absolute row position, we can jump through the occupied cells ${relativeCellIndices.col} times to find the absolute column position
+  for (let i = 0; i < relativeColumnIndex; i++) {
+    const cell = occupancyGrid[0]?.[absoluteCol];
+
+    if (!cell) {
+      // As a sanity check, if the cell is not occupied, we should throw an error
+      throw new Error(
+        `Unable to resolve relative table cell indices for table, cell at 0,${absoluteCol} is not occupied`
+      );
+    }
+
+    // Skip the cells that the colspan takes up
+    absoluteCol += cell.colspan;
+  }
+
+  // Then for each row, get the cell at the absolute column index as a relative cell index
+  const cells = new Array(occupancyGrid.length).fill(false).map((_v, row) => {
+    return getRelativeTableCells(
+      { row, col: absoluteCol },
+      block,
+      occupancyGrid
+    );
+  });
+
+  // Filter out duplicates based on row and col properties
+  return cells.filter((cell, index) => {
+    return (
+      cells.findIndex((c) => c.row === cell.row && c.col === cell.col) === index
+    );
+  });
 }
 
 /**
