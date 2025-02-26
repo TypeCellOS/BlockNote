@@ -1604,6 +1604,17 @@ describe("Test moveRow", () => {
 });
 
 describe("Test cropEmptyRowsOrColumns", () => {
+  const emptyCell = {
+    type: "tableCell" as const,
+    props: {
+      backgroundColor: "red",
+      textColor: "blue",
+      textAlignment: "left" as const,
+      colspan: 1,
+      rowspan: 1,
+    },
+    content: [{ type: "text" as const, text: "", styles: {} }],
+  };
   it("should crop the empty rows of the table", () => {
     expect(
       cropEmptyRowsOrColumns(
@@ -1613,31 +1624,7 @@ describe("Test cropEmptyRowsOrColumns", () => {
             ...simpleTable.content,
             rows: simpleTable.content.rows.concat([
               {
-                cells: [
-                  {
-                    type: "tableCell",
-                    props: {
-                      backgroundColor: "red",
-                      textColor: "blue",
-                      textAlignment: "left",
-                      colspan: 1,
-                      rowspan: 1,
-                    },
-                    content: [{ type: "text", text: "", styles: {} }],
-                  },
-
-                  {
-                    type: "tableCell",
-                    props: {
-                      backgroundColor: "red",
-                      textColor: "blue",
-                      textAlignment: "left",
-                      colspan: 1,
-                      rowspan: 1,
-                    },
-                    content: [{ type: "text", text: "", styles: {} }],
-                  },
-                ],
+                cells: [emptyCell, emptyCell],
               },
             ]),
           },
@@ -1656,6 +1643,344 @@ describe("Test cropEmptyRowsOrColumns", () => {
           simpleTable.content.rows[1].cells[0],
           simpleTable.content.rows[1].cells[1],
         ],
+      },
+    ]);
+  });
+
+  it("should crop the empty rows of a table with colspan", () => {
+    expect(
+      cropEmptyRowsOrColumns(
+        {
+          ...tableWithColspan,
+          content: {
+            ...tableWithColspan.content,
+            rows: tableWithColspan.content.rows.concat([
+              {
+                cells: [emptyCell, emptyCell, emptyCell],
+              },
+            ]),
+          },
+        },
+        "rows"
+      )
+    ).toEqual(tableWithColspan.content.rows);
+  });
+
+  it("should crop the empty columns of a table with colspan", () => {
+    expect(
+      cropEmptyRowsOrColumns(
+        {
+          ...tableWithColspan,
+          content: {
+            ...tableWithColspan.content,
+            rows: [
+              {
+                cells: [...tableWithColspan.content.rows[0].cells, emptyCell],
+              },
+              {
+                cells: [...tableWithColspan.content.rows[1].cells, emptyCell],
+              },
+            ],
+          },
+        },
+        "columns"
+      )
+    ).toEqual(tableWithColspan.content.rows);
+  });
+
+  it("should crop the empty rows of a table with rowspan", () => {
+    expect(
+      cropEmptyRowsOrColumns(
+        {
+          ...tableWithRowspan,
+          content: {
+            ...tableWithRowspan.content,
+            rows: tableWithRowspan.content.rows.concat([
+              {
+                cells: [emptyCell, emptyCell, emptyCell],
+              },
+            ]),
+          },
+        },
+        "rows"
+      )
+    ).toEqual(tableWithRowspan.content.rows);
+  });
+
+  it("should crop the empty columns of a table with rowspan", () => {
+    expect(
+      cropEmptyRowsOrColumns(
+        {
+          ...tableWithRowspan,
+          content: {
+            ...tableWithRowspan.content,
+            rows: [
+              {
+                cells: [...tableWithRowspan.content.rows[0].cells, emptyCell],
+              },
+              {
+                cells: [...tableWithRowspan.content.rows[1].cells, emptyCell],
+              },
+              {
+                cells: [...tableWithRowspan.content.rows[2].cells, emptyCell],
+              },
+            ],
+          },
+        },
+        "columns"
+      )
+    ).toEqual(tableWithRowspan.content.rows);
+  });
+
+  it("should crop the empty rows of a table with colspan and rowspan", () => {
+    expect(
+      cropEmptyRowsOrColumns(
+        {
+          ...tableWithColspanAndRowspan,
+          content: {
+            ...tableWithColspanAndRowspan.content,
+            rows: tableWithColspanAndRowspan.content.rows.concat([
+              {
+                cells: [emptyCell, emptyCell, emptyCell],
+              },
+            ]),
+          },
+        },
+        "rows"
+      )
+    ).toEqual(tableWithColspanAndRowspan.content.rows);
+  });
+
+  it("should crop the empty columns of a table with colspan and rowspan", () => {
+    expect(
+      cropEmptyRowsOrColumns(
+        {
+          ...tableWithColspanAndRowspan,
+          content: {
+            ...tableWithColspanAndRowspan.content,
+            rows: [
+              {
+                cells: [
+                  ...tableWithColspanAndRowspan.content.rows[0].cells,
+                  emptyCell,
+                ],
+              },
+              {
+                cells: [
+                  ...tableWithColspanAndRowspan.content.rows[1].cells,
+                  emptyCell,
+                ],
+              },
+              {
+                cells: [
+                  ...tableWithColspanAndRowspan.content.rows[2].cells,
+                  emptyCell,
+                ],
+              },
+            ],
+          },
+        },
+        "columns"
+      )
+    ).toEqual(tableWithColspanAndRowspan.content.rows);
+  });
+
+  it("should crop the empty rows of a table with complex rowspans and colspans", () => {
+    expect(
+      cropEmptyRowsOrColumns(
+        {
+          ...tableWithComplexRowspansAndColspans,
+          content: {
+            ...tableWithComplexRowspansAndColspans.content,
+            rows: tableWithComplexRowspansAndColspans.content.rows.concat([
+              {
+                cells: [emptyCell, emptyCell, emptyCell, emptyCell],
+              },
+            ]),
+          },
+        },
+        "rows"
+      )
+    ).toEqual(tableWithComplexRowspansAndColspans.content.rows);
+  });
+
+  it("should crop the empty columns of a table with complex rowspans and colspans", () => {
+    expect(
+      cropEmptyRowsOrColumns(
+        {
+          ...tableWithComplexRowspansAndColspans,
+          content: {
+            ...tableWithComplexRowspansAndColspans.content,
+            rows: [
+              {
+                cells: [
+                  ...tableWithComplexRowspansAndColspans.content.rows[0].cells,
+                  emptyCell,
+                ],
+              },
+              {
+                cells: [
+                  ...tableWithComplexRowspansAndColspans.content.rows[1].cells,
+                  emptyCell,
+                ],
+              },
+              {
+                cells: [
+                  ...tableWithComplexRowspansAndColspans.content.rows[2].cells,
+                  emptyCell,
+                ],
+              },
+            ],
+          },
+        },
+        "columns"
+      )
+    ).toEqual(tableWithComplexRowspansAndColspans.content.rows);
+  });
+
+  it("should not crop out the last row of a table", () => {
+    expect(
+      cropEmptyRowsOrColumns(
+        {
+          ...simpleTable,
+          content: {
+            ...simpleTable.content,
+            rows: [
+              {
+                cells: [emptyCell, emptyCell],
+              },
+              {
+                cells: [emptyCell, emptyCell],
+              },
+            ],
+          },
+        },
+        "rows"
+      )
+    ).toEqual([
+      {
+        cells: [emptyCell, emptyCell],
+      },
+    ]);
+  });
+
+  it("should not crop out the last column of a table", () => {
+    expect(
+      cropEmptyRowsOrColumns(
+        {
+          ...simpleTable,
+          content: {
+            ...simpleTable.content,
+            rows: [
+              {
+                cells: [emptyCell, emptyCell],
+              },
+              {
+                cells: [emptyCell, emptyCell],
+              },
+            ],
+          },
+        },
+        "columns"
+      )
+    ).toEqual([
+      {
+        cells: [emptyCell],
+      },
+      {
+        cells: [emptyCell],
+      },
+    ]);
+  });
+
+  it("should preserve any colspan or rowspan on that last row", () => {
+    expect(
+      cropEmptyRowsOrColumns(
+        {
+          ...simpleTable,
+          content: {
+            ...simpleTable.content,
+            rows: [
+              {
+                cells: [
+                  {
+                    ...emptyCell,
+                    props: {
+                      ...emptyCell.props,
+                      rowspan: 2,
+                    },
+                  },
+                  emptyCell,
+                ],
+              },
+              {
+                cells: [emptyCell],
+              },
+            ],
+          },
+        },
+        "rows"
+      )
+    ).toEqual([
+      {
+        cells: [
+          {
+            ...emptyCell,
+            props: {
+              ...emptyCell.props,
+              rowspan: 2,
+            },
+          },
+          emptyCell,
+        ],
+      },
+      {
+        cells: [emptyCell],
+      },
+    ]);
+  });
+
+  it("should preserve any colspan or rowspan on that last column", () => {
+    expect(
+      cropEmptyRowsOrColumns(
+        {
+          ...simpleTable,
+          content: {
+            ...simpleTable.content,
+            rows: [
+              {
+                cells: [
+                  {
+                    ...emptyCell,
+                    props: {
+                      ...emptyCell.props,
+                      colspan: 2,
+                    },
+                  },
+                ],
+              },
+              {
+                cells: [emptyCell, emptyCell],
+              },
+            ],
+          },
+        },
+        "columns"
+      )
+    ).toEqual([
+      {
+        cells: [
+          {
+            ...emptyCell,
+            props: {
+              ...emptyCell.props,
+              colspan: 2,
+            },
+          },
+        ],
+      },
+      {
+        cells: [emptyCell, emptyCell],
       },
     ]);
   });

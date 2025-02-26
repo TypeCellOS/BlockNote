@@ -245,6 +245,8 @@ export function getTableCellOccupancyGrid(
     }
   }
 
+  // console.log(grid);
+
   return grid;
 }
 
@@ -301,6 +303,7 @@ export function getAbsoluteTableCells(
 } {
   for (let r = 0; r < occupancyGrid.length; r++) {
     for (let c = 0; c < occupancyGrid[r].length; c++) {
+      // console.log(r, c, occupancyGrid);
       const cell = occupancyGrid[r][c];
       if (
         cell.row === relativeCellIndices.row &&
@@ -689,8 +692,9 @@ export function cropEmptyRowsOrColumns(
       cellIndex >= 0;
       cellIndex--
     ) {
-      const isEmpty = occupancyGrid.every((row) =>
-        isCellEmpty(row[cellIndex].cell)
+      const isEmpty = occupancyGrid.every(
+        (row) =>
+          isCellEmpty(row[cellIndex].cell) && row[cellIndex].colspan === 1
       );
       if (!isEmpty) {
         break;
@@ -709,27 +713,27 @@ export function cropEmptyRowsOrColumns(
     }
 
     return getTableRowsFromOccupancyGrid(occupancyGrid);
-  } else {
-    // strips empty rows at the bottom
-    let emptyRowsOnBottom = 0;
-    for (let rowIndex = occupancyGrid.length - 1; rowIndex >= 0; rowIndex--) {
-      const isEmpty = occupancyGrid[rowIndex].every((cell) =>
-        isCellEmpty(cell.cell)
-      );
-      if (!isEmpty) {
-        break;
-      }
+  }
 
-      emptyRowsOnBottom++;
+  // strips empty rows at the bottom
+  let emptyRowsOnBottom = 0;
+  for (let rowIndex = occupancyGrid.length - 1; rowIndex >= 0; rowIndex--) {
+    const isEmpty = occupancyGrid[rowIndex].every(
+      (cell) => isCellEmpty(cell.cell) && cell.rowspan === 1
+    );
+    if (!isEmpty) {
+      break;
     }
 
-    // We maintain at least one row, even if all the rows are empty
-    const rowsToRemove = Math.min(emptyRowsOnBottom, occupancyGrid.length - 1);
-
-    occupancyGrid.splice(occupancyGrid.length - rowsToRemove, rowsToRemove);
-
-    return getTableRowsFromOccupancyGrid(occupancyGrid);
+    emptyRowsOnBottom++;
   }
+
+  // We maintain at least one row, even if all the rows are empty
+  const rowsToRemove = Math.min(emptyRowsOnBottom, occupancyGrid.length - 1);
+
+  occupancyGrid.splice(occupancyGrid.length - rowsToRemove, rowsToRemove);
+
+  return getTableRowsFromOccupancyGrid(occupancyGrid);
 }
 
 /**
@@ -752,12 +756,12 @@ export function addRowsOrColumns(
 
   if (addType === "columns") {
     // Add empty columns to the right
-    occupancyGrid.forEach((row) => {
+    occupancyGrid.forEach((row, rowIndex) => {
       if (numToAdd >= 0) {
         for (let i = 0; i < numToAdd; i++) {
           row.push({
-            row: row[0].row,
-            col: width + i,
+            row: rowIndex,
+            col: Math.max(...row.map((r) => r.col)) + 1,
             rowspan: 1,
             colspan: 1,
             cell: mapTableCell(""),
