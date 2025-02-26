@@ -67,7 +67,6 @@ export class PDFExporter<
     blockChildren: {},
     header: {},
     footer: {
-      // @ts-ignore
       position: "absolute",
     },
   });

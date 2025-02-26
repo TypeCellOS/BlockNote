@@ -128,6 +128,9 @@ export const es = {
     bulletListItem: "Lista",
     numberedListItem: "Lista",
     checkListItem: "Lista",
+    new_comment: "Escribe un comentario...",
+    edit_comment: "Editar comentario...",
+    comment_reply: "Agregar comentario...",
   },
   file_blocks: {
     image: {
@@ -273,7 +276,7 @@ export const es = {
       tooltip: "Justificar texto",
     },
     comment: {
-      tooltip: "Agregar comentario",
+      tooltip: "Añadir comentario",
     },
   },
   file_panel: {
@@ -312,6 +315,18 @@ export const es = {
     form: {
       title_placeholder: "Editar título",
       url_placeholder: "Editar URL",
+    },
+  },
+  comments: {
+    actions: {
+      add_reaction: "Agregar reacción",
+      resolve: "Resolver",
+      edit_comment: "Editar comentario",
+      delete_comment: "Eliminar comentario",
+      more_actions: "Más acciones",
+    },
+    reactions: {
+      reacted_by: "Reaccionado por",
     },
   },
   generic: {

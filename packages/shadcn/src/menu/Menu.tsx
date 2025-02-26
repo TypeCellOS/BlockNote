@@ -56,7 +56,9 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
     );
   } else {
     return (
-      <ShadCNComponents.DropdownMenu.DropdownMenu onOpenChange={onOpenChange}>
+      <ShadCNComponents.DropdownMenu.DropdownMenu
+        modal={false}
+        onOpenChange={onOpenChange}>
         {children}
       </ShadCNComponents.DropdownMenu.DropdownMenu>
     );

@@ -4,7 +4,8 @@ import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
 
 export function useEditorSelectionChange(
   callback: () => void,
-  editor?: BlockNoteEditor<any, any, any>
+  editor?: BlockNoteEditor<any, any, any>,
+  includeSelectionChangedByRemote?: boolean
 ) {
   const editorContext = useBlockNoteContext();
   if (!editor) {
@@ -17,6 +18,6 @@ export function useEditorSelectionChange(
         "'editor' is required, either from BlockNoteContext or as a function argument"
       );
     }
-    return editor.onSelectionChange(callback);
-  }, [callback, editor]);
+    return editor.onSelectionChange(callback, includeSelectionChangedByRemote);
+  }, [callback, editor, includeSelectionChangedByRemote]);
 }

@@ -11,12 +11,16 @@ import { forwardRef } from "react";
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"]
 ) => {
-  const { children, opened, position, ...rest } = props;
+  const { opened, onOpenChange, position, children, ...rest } = props;
 
   assertEmpty(rest);
 
   return (
-    <MantinePopover withinPortal={false} opened={opened} position={position}>
+    <MantinePopover
+      withinPortal={false}
+      opened={opened}
+      onChange={onOpenChange}
+      position={position}>
       {children}
     </MantinePopover>
   );

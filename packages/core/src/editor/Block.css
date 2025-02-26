@@ -537,3 +537,11 @@ NESTED BLOCKS
 .bn-block-column:last-child {
   padding-right: 0;
 }
+
+.bn-thread-mark:not([data-orphan="true"]) {
+  background: rgba(255, 200, 0, 0.15);
+}
+
+.bn-thread-mark:not([data-orphan="true"]) .bn-thread-mark-selected {
+  background: rgba(255, 200, 0, 0.25);
+}

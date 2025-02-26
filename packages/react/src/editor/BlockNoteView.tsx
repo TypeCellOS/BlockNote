@@ -238,6 +238,7 @@ const EditorElement = (
     mount: (element: HTMLElement | null) => void;
     contentEditableProps?: Record<string, any>;
     children: ReactNode;
+    ref?: React.Ref<HTMLDivElement>;
   } & HTMLAttributes<HTMLDivElement>
 ) => {
   const {

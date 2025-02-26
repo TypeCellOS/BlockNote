@@ -123,6 +123,11 @@ const nextConfig = withAnalyzer(
         destination: "/examples/basic/default-blocks",
         permanent: true,
       },
+      {
+        source: "/docs/advanced/real-time-collaboration",
+        destination: "/docs/collaboration",
+        permanent: true,
+      },
     ],
     experimental: {
       externalDir: true,

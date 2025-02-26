@@ -129,7 +129,11 @@ export const en = {
     bulletListItem: "List",
     numberedListItem: "List",
     checkListItem: "List",
-  } as Record<"default" | "emptyDocument" | string, string | undefined>,
+    emptyDocument: undefined,
+    new_comment: "Write a comment...",
+    edit_comment: "Edit comment...",
+    comment_reply: "Add comment...",
+  } as Record<string | "default" | "emptyDocument", string | undefined>,
   file_blocks: {
     image: {
       add_button_text: "Add image",
@@ -315,6 +319,18 @@ export const en = {
     form: {
       title_placeholder: "Edit title",
       url_placeholder: "Edit URL",
+    },
+  },
+  comments: {
+    actions: {
+      add_reaction: "Add reaction",
+      resolve: "Resolve",
+      edit_comment: "Edit comment",
+      delete_comment: "Delete comment",
+      more_actions: "More actions",
+    },
+    reactions: {
+      reacted_by: "Reacted by",
     },
   },
   generic: {

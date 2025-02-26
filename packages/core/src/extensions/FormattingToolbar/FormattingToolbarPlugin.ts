@@ -25,7 +25,7 @@ export class FormattingToolbarView implements PluginView {
     state: EditorState;
     from: number;
     to: number;
-  }) => boolean = ({ state, from, to, view }) => {
+  }) => boolean = ({ state, from, to }) => {
     const { doc, selection } = state;
     const { empty } = selection;
 
@@ -43,8 +43,7 @@ export class FormattingToolbarView implements PluginView {
       return false;
     }
 
-    // check view.hasFocus so that the toolbar doesn't show up when the editor is not focused or when for example a code block is focused
-    return !(!view.hasFocus() || empty || isEmptyTextBlock);
+    return !(empty || isEmptyTextBlock);
   };
 
   constructor(
@@ -156,15 +155,20 @@ export class FormattingToolbarView implements PluginView {
     const from = Math.min(...ranges.map((range) => range.$from.pos));
     const to = Math.max(...ranges.map((range) => range.$to.pos));
 
-    const shouldShow = this.shouldShow?.({
+    const shouldShow = this.shouldShow({
       view,
       state,
       from,
       to,
     });
 
+    // in jsdom, Range.prototype.getClientRects is not implemented,
+    // this would cause `getSelectionBoundingBox` to fail
+    // we can just ignore jsdom for now and not show the toolbar
+    const jsdom = typeof Range.prototype.getClientRects === "undefined";
+
     // Checks if menu should be shown/updated.
-    if (!this.preventShow && (shouldShow || this.preventHide)) {
+    if (!this.preventShow && (shouldShow || this.preventHide) && !jsdom) {
       // Unlike other UI elements, we don't prevent the formatting toolbar from
       // showing when the editor is not editable. This is because some buttons,
       // e.g. the download file button, should still be accessible. Therefore,

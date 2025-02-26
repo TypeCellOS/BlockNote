@@ -3,7 +3,9 @@ import {
   EditorOptions,
   Extension,
   getSchema,
+  isNodeSelection,
   Mark,
+  posToDOMRect,
   Node as TipTapNode,
 } from "@tiptap/core";
 import { Node, Schema } from "prosemirror-model";
@@ -90,10 +92,16 @@ import { en } from "../i18n/locales/index.js";
 import { Plugin, Transaction } from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
 import { EditorView } from "prosemirror-view";
+import { ySyncPluginKey } from "y-prosemirror";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
+import { CommentsPlugin } from "../extensions/Comments/CommentsPlugin.js";
+import { ThreadStore } from "../extensions/Comments/threadstore/ThreadStore.js";
+import { ShowSelectionPlugin } from "../extensions/ShowSelection/ShowSelectionPlugin.js";
+import { User } from "../models/User.js";
 import "../style.css";
+import { EventEmitter } from "../util/EventEmitter.js";
 
 export type BlockNoteExtensionFactory = (
   editor: BlockNoteEditor<any, any, any>
@@ -180,6 +188,12 @@ export type BlockNoteEditorOptions<
    */
   resolveFileUrl: (url: string) => Promise<string>;
 
+  resolveUsers: (userIds: string[]) => Promise<User[]>;
+
+  // TODO: decide "comments" or "threads"?
+  comments: {
+    threadStore: ThreadStore;
+  };
   /**
    * When enabled, allows for collaboration between multiple users.
    */
@@ -280,7 +294,9 @@ export class BlockNoteEditor<
   BSchema extends BlockSchema = DefaultBlockSchema,
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
   SSchema extends StyleSchema = DefaultStyleSchema
-> {
+> extends EventEmitter<{
+  create: void;
+}> {
   private readonly _pmSchema: Schema;
 
   /**
@@ -352,6 +368,9 @@ export class BlockNoteEditor<
     ISchema,
     SSchema
   >;
+  public readonly comments?: CommentsPlugin;
+
+  private readonly showSelectionPlugin: ShowSelectionPlugin;
 
   /**
    * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
@@ -370,6 +389,7 @@ export class BlockNoteEditor<
   private onUploadEndCallbacks: ((blockId?: string) => void)[] = [];
 
   public readonly resolveFileUrl?: (url: string) => Promise<string>;
+  public readonly resolveUsers?: (userIds: string[]) => Promise<User[]>;
 
   public get pmSchema() {
     return this._pmSchema;
@@ -386,6 +406,7 @@ export class BlockNoteEditor<
   protected constructor(
     protected readonly options: Partial<BlockNoteEditorOptions<any, any, any>>
   ) {
+    super();
     const anyOpts = options as any;
     if (anyOpts.onEditorContentChange) {
       throw new Error(
@@ -425,6 +446,12 @@ export class BlockNoteEditor<
       },
     };
 
+    if (newOptions.comments && !newOptions.resolveUsers) {
+      throw new Error("resolveUsers is required when using comments");
+    }
+
+    this.resolveUsers = newOptions.resolveUsers;
+
     // @ts-ignore
     this.schema = newOptions.schema;
     this.blockImplementations = newOptions.schema.blockSpecs;
@@ -447,6 +474,7 @@ export class BlockNoteEditor<
       placeholders: newOptions.placeholders,
       tabBehavior: newOptions.tabBehavior,
       sideMenuDetection: newOptions.sideMenuDetection || "viewport",
+      comments: newOptions.comments,
     });
 
     // add extensions from _tiptapOptions
@@ -469,6 +497,8 @@ export class BlockNoteEditor<
     this.suggestionMenus = this.extensions["suggestionMenus"] as any;
     this.filePanel = this.extensions["filePanel"] as any;
     this.tableHandles = this.extensions["tableHandles"] as any;
+    this.comments = this.extensions["comments"] as any;
+    this.showSelectionPlugin = this.extensions["showSelection"] as any;
 
     if (newOptions.uploadFile) {
       const uploadFile = newOptions.uploadFile;
@@ -497,6 +527,12 @@ export class BlockNoteEditor<
       // eslint-disable-next-line no-console
       console.warn(
         "When using Collaboration, initialContent might cause conflicts, because changes should come from the collaboration provider"
+      );
+    }
+
+    if (newOptions.comments && !collaborationEnabled) {
+      throw new Error(
+        "Comments are only supported when collaboration is enabled, please set the collaboration option"
       );
     }
 
@@ -585,6 +621,7 @@ export class BlockNoteEditor<
       // but we still need the schema
       this._pmSchema = getSchema(tiptapOptions.extensions!);
     }
+    this.emit("create");
   }
 
   dispatch(tr: Transaction) {
@@ -768,6 +805,8 @@ export class BlockNoteEditor<
   /**
    * Executes a callback whenever the editor's contents change.
    * @param callback The callback to execute.
+   *
+   * @deprecated use `onChange` instead
    */
   public onEditorContentChange(callback: () => void) {
     this._tiptapEditor.on("update", callback);
@@ -776,6 +815,8 @@ export class BlockNoteEditor<
   /**
    * Executes a callback whenever the editor's selection changes.
    * @param callback The callback to execute.
+   *
+   * @deprecated use `onSelectionChange` instead
    */
   public onEditorSelectionChange(callback: () => void) {
     this._tiptapEditor.on("selectionUpdate", callback);
@@ -1217,13 +1258,22 @@ export class BlockNoteEditor<
    * @returns A function to remove the callback.
    */
   public onSelectionChange(
-    callback: (editor: BlockNoteEditor<BSchema, ISchema, SSchema>) => void
+    callback: (editor: BlockNoteEditor<BSchema, ISchema, SSchema>) => void,
+    includeSelectionChangedByRemote?: boolean
   ) {
     if (this.headless) {
       return;
     }
 
-    const cb = () => {
+    const cb = (e: { transaction: Transaction }) => {
+      if (
+        e.transaction.getMeta(ySyncPluginKey) &&
+        !includeSelectionChangedByRemote
+      ) {
+        // selection changed because of a yjs sync (i.e.: other user was typing)
+        // we don't want to trigger the callback in this case
+        return;
+      }
       callback(this);
     };
 
@@ -1232,6 +1282,53 @@ export class BlockNoteEditor<
     return () => {
       this._tiptapEditor.off("selectionUpdate", cb);
     };
+  }
+
+  /**
+   * A callback function that runs when the editor has been initialized.
+   *
+   * This can be useful for plugins to initialize themselves after the editor has been initialized.
+   */
+  public onCreate(callback: () => void) {
+    this.on("create", callback);
+
+    return () => {
+      this.off("create", callback);
+    };
+  }
+
+  public getSelectionBoundingBox() {
+    if (!this.prosemirrorView) {
+      return undefined;
+    }
+    const state = this.prosemirrorView?.state;
+    const { selection } = state;
+
+    // support for CellSelections
+    const { ranges } = selection;
+    const from = Math.min(...ranges.map((range) => range.$from.pos));
+    const to = Math.max(...ranges.map((range) => range.$to.pos));
+
+    if (isNodeSelection(selection)) {
+      const node = this.prosemirrorView.nodeDOM(from) as HTMLElement;
+      if (node) {
+        return node.getBoundingClientRect();
+      }
+    }
+
+    return posToDOMRect(this.prosemirrorView, from, to);
+  }
+
+  public get isEmpty() {
+    const doc = this.document;
+    // Note: only works for paragraphs as default blocks (but for now this is default in blocknote)
+    // checking prosemirror directly might be faster
+    return (
+      doc.length === 0 ||
+      (doc.length === 1 &&
+        doc[0].type === "paragraph" &&
+        (doc[0].content as any).length === 0)
+    );
   }
 
   public openSuggestionMenu(
@@ -1259,5 +1356,13 @@ export class BlockNoteEditor<
         ignoreQueryLength: pluginState?.ignoreQueryLength || false,
       })
     );
+  }
+
+  public get ForceSelectionVisible() {
+    return this.showSelectionPlugin.ForceSelectionVisible;
+  }
+
+  public set ForceSelectionVisible(forceSelectionVisible: boolean) {
+    this.showSelectionPlugin.ForceSelectionVisible = forceSelectionVisible;
   }
 }

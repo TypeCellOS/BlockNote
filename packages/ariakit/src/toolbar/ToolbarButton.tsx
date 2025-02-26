@@ -1,7 +1,7 @@
 import {
+  ToolbarItem as AriakitToolbarItem,
   Tooltip as AriakitTooltip,
   TooltipAnchor as AriakitTooltipAnchor,
-  ToolbarItem as AriakitToolbarItem,
   TooltipProvider as AriakitTooltipProvider,
 } from "@ariakit/react";
 
@@ -32,12 +32,14 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
 
     // false, because rest props can be added by ariakit when button is used as a trigger
     // assertEmpty in this case is only used at typescript level, not runtime level
+
+    // TODO
+    // @ts-ignore
     assertEmpty(rest, false);
 
     return (
       <AriakitTooltipProvider>
         <AriakitTooltipAnchor
-          className="link"
           render={
             <AriakitToolbarItem
               aria-label={label}
@@ -56,7 +58,9 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
               aria-pressed={isSelected}
               data-selected={isSelected ? "true" : undefined}
               data-test={
+                // @ts-ignore TODO
                 props.mainTooltip.slice(0, 1).toLowerCase() +
+                // @ts-ignore TODO
                 props.mainTooltip.replace(/\s+/g, "").slice(1)
               }
               //   size={"xs"}
@@ -68,7 +72,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             </AriakitToolbarItem>
           }
         />
-        <AriakitTooltip className="bn-ak-tooltip">
+        <AriakitTooltip className="bn-ak-tooltip" portal={false}>
           <span>{mainTooltip}</span>
           {secondaryTooltip && <span>{secondaryTooltip}</span>}
         </AriakitTooltip>

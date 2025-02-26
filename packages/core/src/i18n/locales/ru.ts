@@ -157,6 +157,9 @@ export const ru: Dictionary = {
     bulletListItem: "Список",
     numberedListItem: "Список",
     checkListItem: "Список",
+    new_comment: "Напишите комментарий...",
+    edit_comment: "Редактировать комментарий...",
+    comment_reply: "Добавить комментарий...",
   },
   file_blocks: {
     image: {
@@ -343,6 +346,18 @@ export const ru: Dictionary = {
     form: {
       title_placeholder: "Изменить заголовок",
       url_placeholder: "Изменить URL",
+    },
+  },
+  comments: {
+    actions: {
+      add_reaction: "Добавить реакцию",
+      resolve: "Решить",
+      edit_comment: "Редактировать комментарий",
+      delete_comment: "Удалить комментарий",
+      more_actions: "Другие действия",
+    },
+    reactions: {
+      reacted_by: "Отреагировал(а)",
     },
   },
   generic: {

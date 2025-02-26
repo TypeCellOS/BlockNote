@@ -29,7 +29,11 @@ export const PopoverContent = forwardRef<
 
   return (
     <AriakitPopover
-      className={mergeCSSClasses("bn-ak-popover", className || "")}
+      className={mergeCSSClasses(
+        "bn-ak-popover",
+        className || "",
+        variant === "panel-popover" ? "bn-ak-panel-popover" : ""
+      )}
       ref={ref}>
       {children}
     </AriakitPopover>
@@ -41,6 +45,7 @@ export const Popover = (
 ) => {
   const { children, opened, position, ...rest } = props;
 
+  // @ts-ignore TODO
   assertEmpty(rest);
 
   return (

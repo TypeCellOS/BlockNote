@@ -10,6 +10,15 @@
   --N40: #dfe1e6; /* Light neutral used for subtle borders and text on dark background */
 }
 
+.bn-comment-editor {
+  width: 100%;
+  padding: 0;
+}
+
+.bn-comment-editor .bn-editor {
+  padding: 0;
+}
+
 /*
 bn-root should be applied to all top-level elements
 
@@ -178,4 +187,12 @@ Tippy popups that are appended to document.body directly
 
 .prosemirror-dropcursor-vertical {
   transition-property: left, right;
+}
+
+/*
+For the ShowSelectionPlugin
+*/
+[data-show-selection] {
+  background-color: highlight;
+  padding: 2px 0;
 }

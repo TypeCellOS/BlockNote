@@ -94,6 +94,7 @@ export * from "./hooks/useEditorChange.js";
 export * from "./hooks/useEditorContentOrSelectionChange.js";
 export * from "./hooks/useEditorForceUpdate.js";
 export * from "./hooks/useEditorSelectionChange.js";
+export * from "./hooks/useFocusWithin.js";
 export * from "./hooks/usePrefersColorScheme.js";
 export * from "./hooks/useSelectedBlocks.js";
 
