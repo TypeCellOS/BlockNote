@@ -589,6 +589,10 @@
   gap: 0.25rem;
 }
 
+.bn-mantine .bn-thread-comment > .mantine-Group-root {
+  gap: 12px;
+}
+
 .bn-mantine .bn-thread-comment p {
   color: var(--bn-colors-menu-text);
 }
