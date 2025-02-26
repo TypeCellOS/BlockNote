@@ -186,7 +186,8 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
     // (https://github.com/ueberdosis/tiptap/blob/45bac803283446795ad1b03f43d3746fa54a68ff/packages/core/src/Editor.ts#L117)
     this.commands.focus(
       this.options.autofocus ||
-        this.options.element.getAttribute("data-bn-autofocus") === "true"
+        this.options.element.getAttribute("data-bn-autofocus") === "true",
+      { scrollIntoView: false }
     );
     this.emit("create", { editor: this });
     this.isInitialized = true;
