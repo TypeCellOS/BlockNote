@@ -31,7 +31,6 @@ export const Badge = forwardRef<
   assertEmpty(rest, false);
 
   const [hideTooltip, setHideTooltip] = useState(false);
-  console.log("hideTooltip", hideTooltip);
 
   const badge = (
     <MantineChip

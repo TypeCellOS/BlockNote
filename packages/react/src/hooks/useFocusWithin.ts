@@ -30,6 +30,7 @@ export function useFocusWithin<T extends HTMLElement = any>({
     focusedRef.current = value;
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleFocusIn = (event: FocusEvent) => {
     if (!focusedRef.current) {
       _setFocused(true);
@@ -37,6 +38,7 @@ export function useFocusWithin<T extends HTMLElement = any>({
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleFocusOut = (event: FocusEvent) => {
     if (focusedRef.current && !containsRelatedTarget(event)) {
       _setFocused(false);
