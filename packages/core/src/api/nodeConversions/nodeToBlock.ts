@@ -64,14 +64,40 @@ export function contentNodeToTableContent<
       }
       // Mark the cell as a header if it is a tableHeader node.
       headerMatrix[rowIndex][cellIndex] = cellNode.type.name === "tableHeader";
+      // Convert cell content to inline content and merge adjacent styled text nodes
+      const content = cellNode.content.content
+        .map((child) =>
+          contentNodeToInlineContent(child, inlineContentSchema, styleSchema)
+        )
+        // The reason that we merge this content is that we allow table cells to contain multiple tableParagraph nodes
+        // So that we can leverage prosemirror-tables native merging
+        // If the schema only allowed a single tableParagraph node, then the merging would not work and cause prosemirror to fit the content into a new cell
+        .reduce((acc, contentPartial) => {
+          if (!acc.length) {
+            return contentPartial;
+          }
+
+          const last = acc[acc.length - 1];
+          const first = contentPartial[0];
+
+          // Only merge if the last and first content are both styled text nodes and have the same styles
+          if (
+            isStyledTextInlineContent(last) &&
+            isStyledTextInlineContent(first) &&
+            JSON.stringify(last.styles) === JSON.stringify(first.styles)
+          ) {
+            // Join them together if they have the same styles
+            last.text += "\n" + first.text;
+            acc.push(...contentPartial.slice(1));
+            return acc;
+          }
+          acc.push(...contentPartial);
+          return acc;
+        }, [] as InlineContent<I, S>[]);
 
       return {
         type: "tableCell",
-        content: contentNodeToInlineContent(
-          cellNode.firstChild!,
-          inlineContentSchema,
-          styleSchema
-        ),
+        content,
         props: {
           colspan: cellNode.attrs.colspan,
           rowspan: cellNode.attrs.rowspan,
