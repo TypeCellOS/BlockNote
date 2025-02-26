@@ -6,14 +6,13 @@ import {
   getCellsAtRowHandle,
   getRelativeTableCellIndices,
   getAbsoluteTableCellIndices,
+  moveColumn,
+  moveRow,
+  cropEmptyRowsOrColumns,
 } from "./tables.js";
 
 /**
- *  Normal table
- *  | 1-1 | 1-2 | 1-3 |
- *  | 2-1 | 2-2 | 2-3 |
- *
- *  Table with colspan
+ *  Simple table
  *  | 1-1 | 1-2 | 1-3 |
  *  | 2-1 | 2-2 | 2-3 |
  */
@@ -1604,5 +1603,101 @@ describe("Test getColumn", () => {
     expect(
       getCellsAtColumnHandle(tableWithComplexRowspansAndColspans, 3)
     ).toEqual([]);
+  });
+});
+
+describe("Test moveColumn", () => {
+  it("should move the column of the table", () => {
+    expect(moveColumn(simpleTable, 0, 1)).toEqual([
+      {
+        cells: [
+          simpleTable.content.rows[0].cells[1],
+          simpleTable.content.rows[0].cells[0],
+        ],
+      },
+      {
+        cells: [
+          simpleTable.content.rows[1].cells[1],
+          simpleTable.content.rows[1].cells[0],
+        ],
+      },
+    ]);
+  });
+});
+
+describe("Test moveRow", () => {
+  it("should move the row of the table", () => {
+    expect(moveRow(simpleTable, 0, 1)).toEqual([
+      {
+        cells: [
+          simpleTable.content.rows[1].cells[0],
+          simpleTable.content.rows[1].cells[1],
+        ],
+      },
+      {
+        cells: [
+          simpleTable.content.rows[0].cells[0],
+          simpleTable.content.rows[0].cells[1],
+        ],
+      },
+    ]);
+  });
+});
+
+describe("Test cropEmptyRowsOrColumns", () => {
+  it("should crop the empty rows of the table", () => {
+    expect(
+      cropEmptyRowsOrColumns(
+        {
+          ...simpleTable,
+          content: {
+            ...simpleTable.content,
+            rows: simpleTable.content.rows.concat([
+              {
+                cells: [
+                  {
+                    type: "tableCell",
+                    props: {
+                      backgroundColor: "red",
+                      textColor: "blue",
+                      textAlignment: "left",
+                      colspan: 1,
+                      rowspan: 1,
+                    },
+                    content: [{ type: "text", text: "", styles: {} }],
+                  },
+
+                  {
+                    type: "tableCell",
+                    props: {
+                      backgroundColor: "red",
+                      textColor: "blue",
+                      textAlignment: "left",
+                      colspan: 1,
+                      rowspan: 1,
+                    },
+                    content: [{ type: "text", text: "", styles: {} }],
+                  },
+                ],
+              },
+            ]),
+          },
+        },
+        "rows"
+      )
+    ).toEqual([
+      {
+        cells: [
+          simpleTable.content.rows[0].cells[0],
+          simpleTable.content.rows[0].cells[1],
+        ],
+      },
+      {
+        cells: [
+          simpleTable.content.rows[1].cells[0],
+          simpleTable.content.rows[1].cells[1],
+        ],
+      },
+    ]);
   });
 });
