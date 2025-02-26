@@ -495,7 +495,8 @@
 
 /* Table Handle styling */
 .bn-mantine .bn-table-handle,
-.bn-mantine .bn-extend-button {
+.bn-mantine .bn-extend-button,
+.bn-mantine .bn-table-cell-handle {
   align-items: center;
   background-color: var(--bn-colors-menu-background);
   border: var(--bn-border);
@@ -510,6 +511,10 @@
   padding: 0;
 }
 
+.bn-mantine .bn-table-cell-handle {
+  padding: 0 4px;
+}
+
 .bn-mantine .bn-table-handle svg {
   margin-inline: -4px;
 }
@@ -521,7 +526,8 @@
 .bn-mantine .bn-table-handle:hover,
 .bn-mantine .bn-table-handle-dragging,
 .bn-mantine .bn-extend-button:hover,
-.bn-mantine .bn-extend-button-editing {
+.bn-mantine .bn-extend-button-editing,
+.bn-mantine .bn-table-cell-handle:hover {
   background-color: var(--bn-colors-hovered-background);
 }
 

@@ -79,7 +79,13 @@ function useTableHandlePosition(
         ? "top"
         : "bottom-end",
     middleware: [
-      offset(orientation === "row" ? -10 : orientation === "col" ? -12 : 0),
+      offset(
+        orientation === "row"
+          ? -10
+          : orientation === "col"
+          ? -12
+          : { mainAxis: 1, crossAxis: -1 }
+      ),
     ],
   });
 

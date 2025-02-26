@@ -31,6 +31,19 @@ type ToolbarButtonType = {
   | { children: ReactNode; label?: string }
   | { children?: undefined; label: string }
 );
+
+type ButtonType = {
+  className?: string;
+  onClick?: (e: MouseEvent) => void;
+  icon?: ReactNode;
+  onDragStart?: (e: React.DragEvent) => void;
+  onDragEnd?: (e: React.DragEvent) => void;
+  draggable?: boolean;
+} & (
+  | { children: ReactNode; label?: string }
+  | { children?: undefined; label: string }
+);
+
 export type ComponentProps = {
   FormattingToolbar: {
     Root: ToolbarRootType;
@@ -230,6 +243,7 @@ export type ComponentProps = {
         children?: ReactNode;
         sub?: boolean;
       };
+      Button: ButtonType;
     };
     Popover: {
       Root: {

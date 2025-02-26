@@ -157,15 +157,18 @@
   box-shadow: none;
 }
 
-.bn-ariakit .bn-table-handle {
+.bn-ariakit .bn-table-handle,
+.bn-ariakit .bn-table-cell-handle {
   height: fit-content;
   padding: 0;
   width: fit-content;
+  cursor: pointer;
 }
 
 .bn-ariakit .bn-side-menu,
 .bn-ariakit .bn-table-handle,
-.bn-ariakit .bn-extend-button {
+.bn-ariakit .bn-extend-button,
+.bn-ariakit .bn-table-cell-handle {
   color: gray;
 }
 

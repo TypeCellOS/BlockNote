@@ -13,7 +13,7 @@ import { TableCellHandleProps } from "./TableCellHandleProps.js";
 import { TableCellHandleMenu } from "./TableCellHandleMenu/TableCellHandleMenu.js";
 
 /**
- * By default, the TableHandle component will render with the default icon.
+ * By default, the TableCellHandle component will render with the default icon.
  * However, you can override the icon to render by passing children.
  */
 export const TableCellHandle = <
@@ -38,12 +38,11 @@ export const TableCellHandle = <
       }}
       position={"right"}>
       <Components.Generic.Menu.Trigger>
-        {/* TODO we should probably make a generic button (wait for comments PR to land) */}
-        <div>
+        <Components.Generic.Menu.Button className={"bn-table-cell-handle"}>
           {props.children || (
-            <MdArrowDropDown size={14} data-test={"tableHandle"} />
+            <MdArrowDropDown size={12} data-test={"tableCellHandle"} />
           )}
-        </div>
+        </Components.Generic.Menu.Button>
       </Components.Generic.Menu.Trigger>
       {/* the menu can extend outside of the table, so we use a portal to prevent clipping */}
       {createPortal(
