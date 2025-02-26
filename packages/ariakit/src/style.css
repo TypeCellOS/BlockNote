@@ -45,6 +45,7 @@
 
 .bn-ak-button {
   outline-style: none;
+  cursor: pointer;
 }
 
 .bn-ak-menu-item[aria-selected="true"],
@@ -162,7 +163,6 @@
   height: fit-content;
   padding: 0;
   width: fit-content;
-  cursor: pointer;
 }
 
 .bn-ariakit .bn-side-menu,
