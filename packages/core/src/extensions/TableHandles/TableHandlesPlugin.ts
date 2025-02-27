@@ -1058,14 +1058,16 @@ export class TableHandlesProsemirrorPlugin<
    * Gets the start and end cells of the current cell selection.
    * @returns The start and end cells of the current cell selection.
    */
-  getCellSelection = (): {
-    from: RelativeCellIndices;
-    to: RelativeCellIndices;
-    /**
-     * All of the cells that are within the selected range.
-     */
-    cells: RelativeCellIndices[];
-  } => {
+  getCellSelection = ():
+    | undefined
+    | {
+        from: RelativeCellIndices;
+        to: RelativeCellIndices;
+        /**
+         * All of the cells that are within the selected range.
+         */
+        cells: RelativeCellIndices[];
+      } => {
     // Based on the current selection, find the table cells that are within the selected range
     const state = this.editor.prosemirrorState;
     const selection = state.selection;
@@ -1090,6 +1092,11 @@ export class TableHandlesProsemirrorPlugin<
       $toCell = state.doc.resolve(
         selection.$to.pos - selection.$to.parentOffset - 1
       );
+    }
+
+    // Opt-out when the selection is not over a range of cells
+    if ($fromCell.pos === $toCell.pos) {
+      return undefined;
     }
 
     // Find the row and table that the from and to cells are in
@@ -1137,24 +1144,28 @@ export class TableHandlesProsemirrorPlugin<
       | BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>
       | undefined
   ) => {
-    const cellSelection = isTableCellSelection(
+    const isSelectingTableCells = isTableCellSelection(
       this.editor.prosemirrorState.selection
     )
       ? this.editor.prosemirrorState.selection
       : undefined;
 
     if (
-      !cellSelection ||
+      !isSelectingTableCells ||
       !block ||
       // Only offer the merge button if there is more than one cell selected.
-      cellSelection.ranges.length <= 1
+      isSelectingTableCells.ranges.length <= 1
     ) {
       return undefined;
     }
 
-    const { from, to } = this.getCellSelection();
+    const cellSelection = this.getCellSelection();
 
-    if (areInSameColumn(from, to, block)) {
+    if (!cellSelection) {
+      return undefined;
+    }
+
+    if (areInSameColumn(cellSelection.from, cellSelection.to, block)) {
       return "vertical";
     }
 

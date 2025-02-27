@@ -33,7 +33,7 @@ export const ColorPickerButton = <
   const tableHandles = editor.tableHandles;
 
   const currentCells = useMemo(() => {
-    if (!tableHandles) {
+    if (!tableHandles || !props.block) {
       return [];
     }
 

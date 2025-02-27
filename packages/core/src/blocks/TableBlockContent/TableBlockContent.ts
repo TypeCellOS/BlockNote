@@ -166,10 +166,10 @@ export const Table = createBlockSpecFromStronglyTypedTiptapNode(
        *
        * So, we manually fix this up when reading back in the `nodeToBlock` and only ever place a single tableContent back into the cell.
        */
-      content: "tableContent*",
+      content: "tableContent+",
     }),
     TableCell.extend({
-      content: "tableContent*",
+      content: "tableContent+",
     }),
     TableRow,
   ]
