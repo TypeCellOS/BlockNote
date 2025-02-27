@@ -32,7 +32,7 @@ type ToolbarButtonType = {
   | { children?: undefined; label: string }
 );
 
-type ButtonType = {
+type MenuButtonType = {
   className?: string;
   onClick?: (e: MouseEvent) => void;
   icon?: ReactNode;
@@ -243,7 +243,7 @@ export type ComponentProps = {
         children?: ReactNode;
         sub?: boolean;
       };
-      Button: ButtonType;
+      Button: MenuButtonType;
     };
     Popover: {
       Root: {
