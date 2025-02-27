@@ -159,6 +159,13 @@ export const Table = createBlockSpecFromStronglyTypedTiptapNode(
     TableExtension,
     TableParagraph,
     TableHeader.extend({
+      /**
+       * We allow table headers and cells to have multiple tableContent nodes because
+       * when merging cells, prosemirror-tables will concat the contents of the cells naively.
+       * This would cause that content to overflow into other cells when prosemirror tries to enforce the cell structure.
+       *
+       * So, we manually fix this up when reading back in the `nodeToBlock` and only ever place a single tableContent back into the cell.
+       */
       content: "tableContent*",
     }),
     TableCell.extend({
