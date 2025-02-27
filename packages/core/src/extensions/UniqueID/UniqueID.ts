@@ -252,8 +252,9 @@ const UniqueID = Extension.create({
           };
         },
         props: {
-          // `handleDOMEvents` is called before `transformPasted`
-          // so we can do some checks before
+          // `handleDOMEvents` is called before `transformPasted` so we can do
+          // some checks before. However, `transformPasted` only runs when
+          // editor content is pasted - not external content.
           handleDOMEvents: {
             // only create new ids for dropped content while holding `alt`
             // or content is dragged from another editor
@@ -265,9 +266,13 @@ const UniqueID = Extension.create({
                   ? void 0
                   : _a.effectAllowed) === "copy"
               ) {
-                dragSourceElement = null;
                 transformPasted = true;
+              } else {
+                transformPasted = false;
               }
+
+              dragSourceElement = null;
+
               return false;
             },
             // always create new ids on pasted content
