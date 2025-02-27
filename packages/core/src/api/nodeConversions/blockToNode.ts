@@ -12,11 +12,11 @@ import type {
 } from "../../schema";
 
 import type { PartialBlock } from "../../blocks/defaultBlocks";
-import { getColspan, isPartialTableCell } from "../../schema/blocks/types.js";
 import {
   isPartialLinkInlineContent,
   isStyledTextInlineContent,
 } from "../../schema/inlineContent/types.js";
+import { getColspan, isPartialTableCell } from "../../util/table.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
 import { getAbsoluteTableCells } from "../blockManipulation/tables/tables.js";
 

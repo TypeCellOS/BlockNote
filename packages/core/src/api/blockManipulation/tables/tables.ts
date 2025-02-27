@@ -1,10 +1,6 @@
 import { DefaultBlockSchema } from "../../../blocks/defaultBlocks.js";
 import {
   BlockFromConfigNoChildren,
-  getColspan,
-  getRowspan,
-  isPartialTableCell,
-  mapTableCell,
   PartialTableContent,
   TableCell,
   TableContent,
@@ -13,6 +9,12 @@ import {
   isPartialLinkInlineContent,
   isStyledTextInlineContent,
 } from "../../../schema/index.js";
+import {
+  getColspan,
+  getRowspan,
+  isPartialTableCell,
+  mapTableCell,
+} from "../../../util/table.js";
 
 /**
  * Here be dragons.

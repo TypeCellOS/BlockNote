@@ -52,6 +52,7 @@ export * from "./schema/index.js";
 export * from "./util/browser.js";
 export * from "./util/combineByGroup.js";
 export * from "./util/esmDependencies.js";
+export * from "./util/table.js";
 export * from "./util/string.js";
 export * from "./util/typescript.js";
 export { UnreachableCaseError, assertEmpty } from "./util/typescript.js";
