@@ -6,5 +6,5 @@ In this example, we use PartyKit to let multiple users collaborate on a single B
 
 **Relevant Docs:**
 
-- [PartyKit](/docs/advanced/real-time-collaboration#partykit)
 - [Editor Setup](/docs/editor-basics/setup)
+- [PartyKit](/docs/collaboration/real-time-collaboration#partykit)

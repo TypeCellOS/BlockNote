@@ -45,7 +45,7 @@ export const Badge = forwardRef<
         },
       }}
       variant={"light"}
-      icon={<></>}
+      icon={null}
       ref={ref}>
       <span>{icon}</span>
       <span>{text}</span>

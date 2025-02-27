@@ -11,7 +11,7 @@ const PLUGIN_KEY = new PluginKey(`blocknote-show-selection`);
  */
 export class ShowSelectionPlugin {
   public readonly plugin: Plugin;
-  private forceSelectionVisible = false;
+  private enabled = false;
 
   public constructor(private readonly editor: BlockNoteEditor<any, any, any>) {
     this.plugin = new Plugin({
@@ -20,7 +20,7 @@ export class ShowSelectionPlugin {
         decorations: (state) => {
           const { doc, selection } = state;
 
-          if (!this.forceSelectionVisible) {
+          if (!this.enabled) {
             return DecorationSet.empty;
           }
 
@@ -34,19 +34,19 @@ export class ShowSelectionPlugin {
     });
   }
 
-  public set ForceSelectionVisible(forceSelectionVisible: boolean) {
-    if (this.forceSelectionVisible === forceSelectionVisible) {
+  public setEnabled(enabled: boolean) {
+    if (this.enabled === enabled) {
       return;
     }
 
-    this.forceSelectionVisible = forceSelectionVisible;
+    this.enabled = enabled;
 
     this.editor.prosemirrorView?.dispatch(
       this.editor.prosemirrorView?.state.tr.setMeta(PLUGIN_KEY, {})
     );
   }
 
-  public get ForceSelectionVisible() {
-    return this.forceSelectionVisible;
+  public getEnabled() {
+    return this.enabled;
   }
 }

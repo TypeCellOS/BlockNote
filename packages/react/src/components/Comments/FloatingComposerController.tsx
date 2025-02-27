@@ -40,7 +40,7 @@ export const FloatingComposerController = <
   const referencePos = useEditorSelectionBoundingBox(state?.pendingComment);
 
   useEffect(() => {
-    editor.ForceSelectionVisible = !!state?.pendingComment;
+    editor.setForceSelectionVisible(!!state?.pendingComment);
   }, [editor, state?.pendingComment]);
 
   const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(

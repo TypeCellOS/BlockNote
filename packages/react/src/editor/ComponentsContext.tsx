@@ -283,7 +283,6 @@ export type ComponentProps = {
     Popover: {
       Root: {
         opened?: boolean;
-        onOpenChange?: (open: boolean) => void;
         position?:
           | "top"
           | "right"

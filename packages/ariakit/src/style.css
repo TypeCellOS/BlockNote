@@ -13,7 +13,8 @@
 
 .bn-ak-toolbar {
   height: fit-content;
-  overflow: visible;
+  overflow: scroll;
+  max-width: 100vw;
 }
 
 .bn-toolbar .bn-ak-button {

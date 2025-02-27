@@ -1358,11 +1358,11 @@ export class BlockNoteEditor<
     );
   }
 
-  public get ForceSelectionVisible() {
-    return this.showSelectionPlugin.ForceSelectionVisible;
+  public getForceSelectionVisible() {
+    return this.showSelectionPlugin.getEnabled();
   }
 
-  public set ForceSelectionVisible(forceSelectionVisible: boolean) {
-    this.showSelectionPlugin.ForceSelectionVisible = forceSelectionVisible;
+  public setForceSelectionVisible(forceSelectionVisible: boolean) {
+    this.showSelectionPlugin.setEnabled(forceSelectionVisible);
   }
 }
