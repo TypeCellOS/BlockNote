@@ -503,7 +503,7 @@
   border-radius: var(--bn-border-radius-small);
   box-shadow: var(--bn-shadow-light);
   color: var(--bn-colors-side-menu);
-  cursor: pointer;
+  cursor: grab;
   display: flex;
   height: fit-content;
   justify-content: center;
@@ -520,7 +520,7 @@
 }
 
 .bn-mantine .bn-table-handle-not-draggable {
-  cursor: default;
+  cursor: pointer;
 }
 
 .bn-mantine .bn-table-handle:hover,
