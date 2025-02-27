@@ -12,14 +12,14 @@ import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
 import { useDictionary } from "../../../../i18n/dictionary.js";
 import { ColorPicker } from "../../../ColorPicker/ColorPicker.js";
-import { TableCellHandleMenuProps } from "../TableCellHandleMenuProps.js";
+import { TableCellMenuProps } from "../TableCellMenuProps.js";
 import { ReactNode } from "react";
 
 export const ColorPickerButton = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(
-  props: TableCellHandleMenuProps<I, S> & {
+  props: TableCellMenuProps<I, S> & {
     children?: ReactNode;
   }
 ) => {

@@ -7,7 +7,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 
-export type TableCellHandleMenuProps<
+export type TableCellMenuProps<
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 > = {

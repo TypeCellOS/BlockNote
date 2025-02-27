@@ -16,14 +16,14 @@ import { TableHandle } from "./TableHandle.js";
 import { TableHandleProps } from "./TableHandleProps.js";
 import { useExtendButtonsPositioning } from "./hooks/useExtendButtonsPositioning.js";
 import { useTableHandlesPositioning } from "./hooks/useTableHandlesPositioning.js";
-import { TableCellHandle } from "./TableCellHandle.js";
-import { TableCellHandleProps } from "./TableCellHandleProps.js";
+import { TableCellButton } from "./TableCellButton.js";
+import { TableCellButtonProps } from "./TableCellButtonProps.js";
 
 export const TableHandlesController = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(props: {
-  tableCellHandle?: FC<TableCellHandleProps<I, S>>;
+  tableCellHandle?: FC<TableCellButtonProps<I, S>>;
   tableHandle?: FC<TableHandleProps<I, S>>;
   extendButton?: FC<ExtendButtonProps<I, S>>;
 }) => {
@@ -101,7 +101,7 @@ export const TableHandlesController = <
 
   const TableHandleComponent = props.tableHandle || TableHandle;
   const ExtendButtonComponent = props.extendButton || ExtendButton;
-  const TableCellHandleComponent = props.tableCellHandle || TableCellHandle;
+  const TableCellHandleComponent = props.tableCellHandle || TableCellButton;
 
   return (
     <>

@@ -12,13 +12,13 @@ import {
 import { useComponentsContext } from "../../../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../../../hooks/useBlockNoteEditor.js";
 import { useDictionary } from "../../../../i18n/dictionary.js";
-import { TableCellHandleMenuProps } from "../TableCellHandleMenuProps.js";
+import { TableCellMenuProps } from "../TableCellMenuProps.js";
 
 export const SplitButton = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(
-  props: TableCellHandleMenuProps<I, S>
+  props: TableCellMenuProps<I, S>
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();

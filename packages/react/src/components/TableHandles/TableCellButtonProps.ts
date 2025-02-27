@@ -7,10 +7,10 @@ import {
   StyleSchema,
   TableHandlesState,
 } from "@blocknote/core";
-import { TableCellHandleMenuProps } from "./TableCellHandleMenu/TableCellHandleMenuProps.js";
+import { TableCellMenuProps } from "./TableCellHandleMenu/TableCellMenuProps.js";
 import { FC } from "react";
 
-export type TableCellHandleProps<
+export type TableCellButtonProps<
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 > = {
@@ -24,7 +24,7 @@ export type TableCellHandleProps<
   rowIndex: number;
   colIndex: number;
   menuContainer: HTMLDivElement;
-  tableCellHandleMenu?: FC<TableCellHandleMenuProps<I, S>>;
+  tableCellMenu?: FC<TableCellMenuProps<I, S>>;
 } & Pick<TableHandlesState<I, S>, "block"> &
   Pick<
     Exclude<

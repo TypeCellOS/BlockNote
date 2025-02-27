@@ -9,13 +9,13 @@ import { ReactNode } from "react";
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { ColorPickerButton } from "./DefaultButtons/ColorPicker.js";
 import { SplitButton } from "./DefaultButtons/SplitButton.js";
-import { TableCellHandleMenuProps } from "./TableCellHandleMenuProps.js";
+import { TableCellMenuProps } from "./TableCellMenuProps.js";
 
-export const TableCellHandleMenu = <
+export const TableCellMenu = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(
-  props: TableCellHandleMenuProps<I, S> & { children?: ReactNode }
+  props: TableCellMenuProps<I, S> & { children?: ReactNode }
 ) => {
   const Components = useComponentsContext()!;
 
