@@ -43,30 +43,7 @@
               "content": [
                 {
                   "type": "text",
-                  "text": "eading"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "blockContainer",
-          "attrs": {
-            "id": "1",
-            "textColor": "default",
-            "backgroundColor": "default"
-          },
-          "content": [
-            {
-              "type": "heading",
-              "attrs": {
-                "textAlignment": "left",
-                "level": 2
-              },
-              "content": [
-                {
-                  "type": "text",
-                  "text": "Heading"
+                  "text": "g"
                 }
               ]
             }

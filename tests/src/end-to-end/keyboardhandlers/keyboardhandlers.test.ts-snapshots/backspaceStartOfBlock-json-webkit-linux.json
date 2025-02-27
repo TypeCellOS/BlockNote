@@ -13,10 +13,9 @@
           },
           "content": [
             {
-              "type": "heading",
+              "type": "paragraph",
               "attrs": {
-                "textAlignment": "left",
-                "level": 1
+                "textAlignment": "left"
               },
               "content": [
                 {
