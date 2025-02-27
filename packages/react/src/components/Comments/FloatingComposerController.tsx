@@ -32,16 +32,17 @@ export const FloatingComposerController = <
   }
 
   const comments = editor.comments;
+  useEffect(() => {
+    comments.onUpdate((state) =>
+      editor.setForceSelectionVisible(state.pendingComment)
+    );
+  }, [comments, editor]);
 
   const state = useUIPluginState(comments.onUpdate.bind(comments));
 
   // the reference position is updated automatically when the selection moves,
   // this can happen when the document is updated by a remote user
   const referencePos = useEditorSelectionBoundingBox(state?.pendingComment);
-
-  useEffect(() => {
-    editor.setForceSelectionVisible(!!state?.pendingComment);
-  }, [editor, state?.pendingComment]);
 
   const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
     state?.pendingComment || false,
