@@ -76,7 +76,7 @@ jobs:
         run: |
           npm run start:built > /dev/null & 
           npx wait-on http://localhost:3000
-          cd tests && HOME=/root npx playwright test --browser ${{ matrix.browser }}
+          cd tests && HOME=/root npx playwright test --project ${{ matrix.browser }}
 
       - uses: actions/upload-artifact@v4
         if: always()
