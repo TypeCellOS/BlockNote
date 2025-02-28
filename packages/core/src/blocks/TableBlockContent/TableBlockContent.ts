@@ -5,6 +5,7 @@ import { TableRow } from "@tiptap/extension-table-row";
 import { Node as PMNode } from "prosemirror-model";
 import { TableView } from "prosemirror-tables";
 
+import { NodeView } from "prosemirror-view";
 import {
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
@@ -101,7 +102,7 @@ export const TableBlockContent = createStronglyTypedTiptapNode({
       return new BlockNoteTableView(node, EMPTY_CELL_WIDTH, {
         ...(this.options.domAttributes?.blockContent || {}),
         ...HTMLAttributes,
-      });
+      }) as NodeView;
     };
   },
 });

@@ -1,6 +1,12 @@
-import { PluginView } from "@tiptap/pm/state";
-import { EditorState, Plugin, PluginKey } from "prosemirror-state";
-import { EditorView } from "prosemirror-view";
+import { DOMParser, Slice } from "@tiptap/pm/model";
+import {
+  EditorState,
+  Plugin,
+  PluginKey,
+  TextSelection,
+  PluginView,
+} from "@tiptap/pm/state";
+import { EditorView } from "@tiptap/pm/view";
 
 import { Block } from "../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
@@ -14,6 +20,7 @@ import { EventEmitter } from "../../util/EventEmitter.js";
 import { initializeESMDependencies } from "../../util/esmDependencies.js";
 import { getDraggableBlockFromElement } from "../getDraggableBlockFromElement.js";
 import { dragStart, unsetDragImage } from "./dragging.js";
+
 export type SideMenuState<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -28,9 +35,14 @@ const PERCENTAGE_OF_BLOCK_WIDTH_CONSIDERED_SIDE_DROP = 0.1;
 function getBlockFromCoords(
   view: EditorView,
   coords: { left: number; top: number },
+  sideMenuDetection: "viewport" | "editor",
   adjustForColumns = true
 ) {
-  const elements = view.root.elementsFromPoint(coords.left, coords.top);
+  const elements = view.root.elementsFromPoint(
+    // bit hacky - offset x position to right to account for the width of sidemenu itself
+    coords.left + (sideMenuDetection === "editor" ? 50 : 0),
+    coords.top
+  );
 
   for (const element of elements) {
     if (!view.dom.contains(element)) {
@@ -46,6 +58,7 @@ function getBlockFromCoords(
             left: coords.left + 50, // bit hacky, but if we're inside a column, offset x position to right to account for the width of sidemenu itself
             top: coords.top,
           },
+          sideMenuDetection,
           false
         );
       }
@@ -60,7 +73,8 @@ function getBlockFromMousePos(
     x: number;
     y: number;
   },
-  view: EditorView
+  view: EditorView,
+  sideMenuDetection: "viewport" | "editor"
 ): { node: HTMLElement; id: string } | undefined {
   // Editor itself may have padding or other styling which affects
   // size/position, so we get the boundingRect of the first child (i.e. the
@@ -76,7 +90,7 @@ function getBlockFromMousePos(
 
   // this.horizontalPosAnchor = editorBoundingBox.x;
 
-  // Gets block at mouse cursor's vertical position.
+  // Gets block at mouse cursor's position.
   const coords = {
     left: mousePos.x,
     top: mousePos.y,
@@ -85,15 +99,18 @@ function getBlockFromMousePos(
   const mouseLeftOfEditor = coords.left < editorBoundingBox.left;
   const mouseRightOfEditor = coords.left > editorBoundingBox.right;
 
-  if (mouseLeftOfEditor) {
-    coords.left = editorBoundingBox.left + 10;
+  // Clamps the x position to the editor's bounding box.
+  if (sideMenuDetection === "viewport") {
+    if (mouseLeftOfEditor) {
+      coords.left = editorBoundingBox.left + 10;
+    }
+
+    if (mouseRightOfEditor) {
+      coords.left = editorBoundingBox.right - 10;
+    }
   }
 
-  if (mouseRightOfEditor) {
-    coords.left = editorBoundingBox.right - 10;
-  }
-
-  let block = getBlockFromCoords(view, coords);
+  let block = getBlockFromCoords(view, coords, sideMenuDetection);
 
   if (!mouseRightOfEditor && block) {
     // note: this case is not necessary when we're on the right side of the editor
@@ -101,14 +118,14 @@ function getBlockFromMousePos(
     /* Now, because blocks can be nested
     | BlockA        |
     x | BlockB     y|
-    
+
     hovering over position x (the "margin of block B") will return block A instead of block B.
     to fix this, we get the block from the right side of block A (position y, which will fall in BlockB correctly)
     */
 
     const rect = block.node.getBoundingClientRect();
     coords.left = rect.right - 10;
-    block = getBlockFromCoords(view, coords, false);
+    block = getBlockFromCoords(view, coords, "viewport", false);
   }
 
   return block;
@@ -132,8 +149,11 @@ export class SideMenuView<
 
   public menuFrozen = false;
 
+  public isDragOrigin = false;
+
   constructor(
     private readonly editor: BlockNoteEditor<BSchema, I, S>,
+    private readonly sideMenuDetection: "viewport" | "editor",
     private readonly pmView: EditorView,
     emitUpdate: (state: SideMenuState<BSchema, I, S>) => void
   ) {
@@ -146,13 +166,22 @@ export class SideMenuView<
     };
 
     this.pmView.root.addEventListener(
+      "dragstart",
+      this.onDragStart as EventListener
+    );
+    this.pmView.root.addEventListener(
+      "dragover",
+      this.onDragOver as EventListener
+    );
+    this.pmView.root.addEventListener(
       "drop",
       this.onDrop as EventListener,
       true
     );
     this.pmView.root.addEventListener(
-      "dragover",
-      this.onDragOver as EventListener
+      "dragend",
+      this.onDragEnd as EventListener,
+      true
     );
     initializeESMDependencies();
 
@@ -169,6 +198,11 @@ export class SideMenuView<
       this.onKeyDown as EventListener,
       true
     );
+
+    // Setting capture=true ensures that any parent container of the editor that
+    // gets scrolled will trigger the scroll event. Scroll events do not bubble
+    // and so won't propagate to the document by default.
+    pmView.root.addEventListener("scroll", this.onScroll, true);
   }
 
   updateState = (state: SideMenuState<BSchema, I, S>) => {
@@ -181,7 +215,11 @@ export class SideMenuView<
       return;
     }
 
-    const block = getBlockFromMousePos(this.mousePos, this.pmView);
+    const block = getBlockFromMousePos(
+      this.mousePos,
+      this.pmView,
+      this.sideMenuDetection
+    );
 
     // Closes the menu if the mouse cursor is beyond the editor vertically.
     if (!block || !this.editor.isEditable) {
@@ -241,15 +279,64 @@ export class SideMenuView<
     }
   };
 
-  /**
-   * If the event is outside the editor contents,
-   * we dispatch a fake event, so that we can still drop the content
-   * when dragging / dropping to the side of the editor
-   */
   onDrop = (event: DragEvent) => {
+    // Content from outside a BlockNote editor is being dropped - just let
+    // ProseMirror's default behaviour handle it.
+    if (this.pmView.dragging === null) {
+      return;
+    }
+
     this.editor._tiptapEditor.commands.blur();
 
+    // Finds the BlockNote editor element that the drop event occurred in (if
+    // any).
+    const parentEditorElement =
+      event.target instanceof Node
+        ? (event.target instanceof HTMLElement
+            ? event.target
+            : event.target.parentElement
+          )?.closest(".bn-editor") || null
+        : null;
+
+    // Drop event occurred within an editor.
+    if (parentEditorElement) {
+      // When ProseMirror handles a drop event on the editor while
+      // `view.dragging` is set, it deletes the selected content. However, if
+      // a block from a different editor is being dropped, this causes some
+      // issues that the code below fixes:
+      if (!this.isDragOrigin && this.pmView.dom === parentEditorElement) {
+        // Because the editor selection is unrelated to the dragged content, we
+        // don't want PM to delete its content. Therefore, we collapse the
+        // selection.
+        this.pmView.dispatch(
+          this.pmView.state.tr.setSelection(
+            TextSelection.create(
+              this.pmView.state.tr.doc,
+              this.pmView.state.tr.selection.to
+            )
+          )
+        );
+      } else if (this.isDragOrigin && this.pmView.dom !== parentEditorElement) {
+        // Because the editor from which the block originates doesn't get a drop
+        // event on it, PM doesn't delete its selected content. Therefore, we
+        // need to do so manually.
+        //
+        // Note: Deleting the selected content from the editor from which the
+        // block originates, may change its height. This can cause the position of
+        // the editor in which the block is being dropping to shift, before it
+        // can handle the drop event. That in turn can cause the drop to happen
+        // somewhere other than the user intended. To get around this, we delay
+        // deleting the selected content until all editors have had the chance to
+        // handle the event.
+        setTimeout(
+          () => this.pmView.dispatch(this.pmView.state.tr.deleteSelection()),
+          0
+        );
+      }
+    }
+
     if (
+      this.sideMenuDetection === "editor" ||
       (event as any).synthetic ||
       !event.dataTransfer?.types.includes("blocknote/html")
     ) {
@@ -262,10 +349,65 @@ export class SideMenuView<
     });
 
     if (!pos || pos.inside === -1) {
+      /**
+       * When `this.sideMenuSelection === "viewport"`, if the event is outside the
+       * editor contents, we dispatch a fake event, so that we can still drop the
+       * content when dragging / dropping to the side of the editor
+       */
       const evt = this.createSyntheticEvent(event);
       // console.log("dispatch fake drop");
       this.pmView.dom.dispatchEvent(evt);
     }
+  };
+
+  onDragEnd = () => {
+    // When the user starts dragging a block, `view.dragging` is set on all
+    // BlockNote editors. However, when the drag ends, only the editor that the
+    // drag originated in automatically clears `view.dragging`. Therefore, we
+    // have to manually clear it on all editors.
+    this.pmView.dragging = null;
+  };
+
+  /**
+   * If a block is being dragged, ProseMirror usually gets the context of what's
+   * being dragged from `view.dragging`, which is automatically set when a
+   * `dragstart` event fires in the editor. However, if the user tries to drag
+   * and drop blocks between multiple editors, only the one in which the drag
+   * began has that context, so we need to set it on the others manually. This
+   * ensures that PM always drops the blocks in between other blocks, and not
+   * inside them.
+   *
+   * After the `dragstart` event fires on the drag handle, it sets
+   * `blocknote/html` data on the clipboard. This handler fires right after,
+   * parsing the `blocknote/html` data into nodes and setting them on
+   * `view.dragging`.
+   *
+   * Note: Setting `view.dragging` on `dragover` would be better as the user
+   * could then drag between editors in different windows, but you can only
+   * access `dataTransfer` contents on `dragstart` and `drop` events.
+   */
+  onDragStart = (event: DragEvent) => {
+    const html = event.dataTransfer?.getData("blocknote/html");
+    if (!html) {
+      return;
+    }
+
+    if (this.pmView.dragging) {
+      throw new Error("New drag was started while an existing drag is ongoing");
+    }
+
+    const element = document.createElement("div");
+    element.innerHTML = html;
+
+    const parser = DOMParser.fromSchema(this.pmView.state.schema);
+    const node = parser.parse(element, {
+      topNode: this.pmView.state.schema.nodes["blockGroup"].create(),
+    });
+
+    this.pmView.dragging = {
+      slice: new Slice(node.content, 0, 0),
+      move: true,
+    };
   };
 
   /**
@@ -275,11 +417,13 @@ export class SideMenuView<
    */
   onDragOver = (event: DragEvent) => {
     if (
+      this.sideMenuDetection === "editor" ||
       (event as any).synthetic ||
       !event.dataTransfer?.types.includes("blocknote/html")
     ) {
       return;
     }
+
     const pos = this.pmView.posAtCoords({
       left: event.clientX,
       top: event.clientY,
@@ -400,6 +544,13 @@ export class SideMenuView<
     return evt;
   }
 
+  onScroll = () => {
+    if (this.state?.show) {
+      this.state.referencePos = this.hoveredBlock!.getBoundingClientRect();
+      this.emitUpdate(this.state);
+    }
+  };
+
   // Needed in cases where the editor state updates without the mouse cursor
   // moving, as some state updates can require a side menu update. For example,
   // adding a button to the side menu which removes the block can cause the
@@ -425,13 +576,21 @@ export class SideMenuView<
       true
     );
     this.pmView.root.removeEventListener(
+      "dragstart",
+      this.onDragStart as EventListener
+    );
+    this.pmView.root.removeEventListener(
       "dragover",
       this.onDragOver as EventListener
     );
-
     this.pmView.root.removeEventListener(
       "drop",
       this.onDrop as EventListener,
+      true
+    );
+    this.pmView.root.removeEventListener(
+      "dragend",
+      this.onDragEnd as EventListener,
       true
     );
     this.pmView.root.removeEventListener(
@@ -439,6 +598,7 @@ export class SideMenuView<
       this.onKeyDown as EventListener,
       true
     );
+    this.pmView.root.removeEventListener("scroll", this.onScroll, true);
   }
 }
 
@@ -452,14 +612,22 @@ export class SideMenuProsemirrorPlugin<
   public view: SideMenuView<BSchema, I, S> | undefined;
   public readonly plugin: Plugin;
 
-  constructor(private readonly editor: BlockNoteEditor<BSchema, I, S>) {
+  constructor(
+    private readonly editor: BlockNoteEditor<BSchema, I, S>,
+    sideMenuDetection: "viewport" | "editor"
+  ) {
     super();
     this.plugin = new Plugin({
       key: sideMenuPluginKey,
       view: (editorView) => {
-        this.view = new SideMenuView(editor, editorView, (state) => {
-          this.emit("update", state);
-        });
+        this.view = new SideMenuView(
+          editor,
+          sideMenuDetection,
+          editorView,
+          (state) => {
+            this.emit("update", state);
+          }
+        );
         return this.view;
       },
     });
@@ -479,6 +647,10 @@ export class SideMenuProsemirrorPlugin<
     },
     block: Block<BSchema, I, S>
   ) => {
+    if (this.view) {
+      this.view.isDragOrigin = true;
+    }
+
     dragStart(event, block, this.editor);
   };
 
@@ -488,6 +660,10 @@ export class SideMenuProsemirrorPlugin<
   blockDragEnd = () => {
     if (this.editor.prosemirrorView) {
       unsetDragImage(this.editor.prosemirrorView.root);
+    }
+
+    if (this.view) {
+      this.view.isDragOrigin = false;
     }
   };
   /**

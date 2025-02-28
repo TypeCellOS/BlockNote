@@ -9,12 +9,6 @@ import {
 import { Node, Schema } from "prosemirror-model";
 // import "./blocknote.css";
 import * as Y from "yjs";
-import {
-  getBlock,
-  getNextBlock,
-  getParentBlock,
-  getPrevBlock,
-} from "../api/blockManipulation/getBlock/getBlock.js";
 import { insertBlocks } from "../api/blockManipulation/commands/insertBlocks/insertBlocks.js";
 import {
   moveBlocksDown,
@@ -29,15 +23,21 @@ import {
 import { removeBlocks } from "../api/blockManipulation/commands/removeBlocks/removeBlocks.js";
 import { replaceBlocks } from "../api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
 import { updateBlock } from "../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { insertContentAt } from "../api/blockManipulation/insertContentAt.js";
 import {
-  getTextCursorPosition,
-  setTextCursorPosition,
-} from "../api/blockManipulation/selections/textCursorPosition/textCursorPosition.js";
+  getBlock,
+  getNextBlock,
+  getParentBlock,
+  getPrevBlock,
+} from "../api/blockManipulation/getBlock/getBlock.js";
+import { insertContentAt } from "../api/blockManipulation/insertContentAt.js";
 import {
   getSelection,
   setSelection,
 } from "../api/blockManipulation/selections/selection.js";
+import {
+  getTextCursorPosition,
+  setTextCursorPosition,
+} from "../api/blockManipulation/selections/textCursorPosition/textCursorPosition.js";
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
@@ -89,11 +89,15 @@ import { en } from "../i18n/locales/index.js";
 
 import { Plugin, Transaction } from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
+import { EditorView } from "prosemirror-view";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
 import "../style.css";
-import { EditorView } from "prosemirror-view";
+
+export type BlockNoteExtensionFactory = (
+  editor: BlockNoteEditor<any, any, any>
+) => BlockNoteExtension;
 
 export type BlockNoteExtension =
   | AnyExtension
@@ -126,7 +130,10 @@ export type BlockNoteEditorOptions<
   /**
    * @deprecated, provide placeholders via dictionary instead
    */
-  placeholders: Record<string | "default", string>;
+  placeholders: Record<
+    string | "default" | "emptyDocument",
+    string | undefined
+  >;
 
   /**
    * An object containing attributes that should be added to HTML elements of the editor.
@@ -196,6 +203,13 @@ export type BlockNoteEditorOptions<
      * Optional function to customize how cursors of users are rendered
      */
     renderCursor?: (user: any) => HTMLElement;
+    /**
+     * Optional flag to set when the user label should be shown with the default
+     * collaboration cursor. Setting to "always" will always show the label,
+     * while "activity" will only show the label when the user moves the cursor
+     * or types. Defaults to "activity".
+     */
+    showCursorLabels?: "always" | "activity";
   };
 
   /**
@@ -206,7 +220,7 @@ export type BlockNoteEditorOptions<
   /**
    * (experimental) add extra prosemirror plugins or tiptap extensions to the editor
    */
-  _extensions: Record<string, BlockNoteExtension>;
+  _extensions: Record<string, BlockNoteExtension | BlockNoteExtensionFactory>;
 
   trailingBlock?: boolean;
 
@@ -245,6 +259,15 @@ export type BlockNoteEditorOptions<
    @default "prefer-navigate-ui"
    */
   tabBehavior: "prefer-navigate-ui" | "prefer-indent";
+
+  /**
+   * The detection mode for showing the side menu - "viewport" always shows the
+   * side menu for the block next to the mouse cursor, while "editor" only shows
+   * it when hovering the editor or the side menu itself.
+   *
+   * @default "viewport"
+   */
+  sideMenuDetection: "viewport" | "editor";
 };
 
 const blockNoteTipTapOptions = {
@@ -423,6 +446,7 @@ export class BlockNoteEditor<
       dropCursor: this.options.dropCursor ?? dropCursor,
       placeholders: newOptions.placeholders,
       tabBehavior: newOptions.tabBehavior,
+      sideMenuDetection: newOptions.sideMenuDetection || "viewport",
     });
 
     // add extensions from _tiptapOptions
@@ -432,6 +456,10 @@ export class BlockNoteEditor<
 
     // add extensions from options
     Object.entries(newOptions._extensions || {}).forEach(([key, ext]) => {
+      if (typeof ext === "function") {
+        // factory
+        ext = ext(this);
+      }
       this.extensions[key] = ext;
     });
 
@@ -461,7 +489,11 @@ export class BlockNoteEditor<
     this.resolveFileUrl = newOptions.resolveFileUrl;
     this.headless = newOptions._headless;
 
-    if (newOptions.collaboration && newOptions.initialContent) {
+    const collaborationEnabled =
+      "collaboration" in this.extensions ||
+      "liveblocksExtension" in this.extensions;
+
+    if (collaborationEnabled && newOptions.initialContent) {
       // eslint-disable-next-line no-console
       console.warn(
         "When using Collaboration, initialContent might cause conflicts, because changes should come from the collaboration provider"
@@ -470,7 +502,7 @@ export class BlockNoteEditor<
 
     const initialContent =
       newOptions.initialContent ||
-      (options.collaboration
+      (collaborationEnabled
         ? [
             {
               type: "paragraph",
@@ -564,8 +596,11 @@ export class BlockNoteEditor<
    *
    * @warning Not needed to call manually when using React, use BlockNoteView to take care of mounting
    */
-  public mount = (parentElement?: HTMLElement | null) => {
-    this._tiptapEditor.mount(parentElement);
+  public mount = (
+    parentElement?: HTMLElement | null,
+    contentComponent?: any
+  ) => {
+    this._tiptapEditor.mount(parentElement, contentComponent);
   };
 
   public get prosemirrorView() {
@@ -899,7 +934,12 @@ export class BlockNoteEditor<
     for (const mark of marks) {
       const config = this.schema.styleSchema[mark.type.name];
       if (!config) {
-        if (mark.type.name !== "link") {
+        if (
+          // Links are not considered styles in blocknote
+          mark.type.name !== "link" &&
+          // "blocknoteIgnore" tagged marks (such as comments) are also not considered BlockNote "styles"
+          !mark.type.spec.blocknoteIgnore
+        ) {
           // eslint-disable-next-line no-console
           console.warn("mark not found in styleschema", mark.type.name);
         }

@@ -65,9 +65,9 @@
         }
       },
       {
-        "projectSlug": "all-blocks",
-        "fullSlug": "basic/all-blocks",
-        "pathFromRoot": "examples/01-basic/04-all-blocks",
+        "projectSlug": "default-blocks",
+        "fullSlug": "basic/default-blocks",
+        "pathFromRoot": "examples/01-basic/04-default-blocks",
         "config": {
           "playground": true,
           "docs": true,
@@ -76,10 +76,7 @@
             "Basic",
             "Blocks",
             "Inline Content"
-          ],
-          "dependencies": {
-            "@blocknote/xl-multi-column": "latest"
-          } as any
+          ]
         },
         "title": "Default Schema Showcase",
         "group": {
@@ -212,6 +209,24 @@
           ]
         },
         "title": "Change placeholder text",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
+        "projectSlug": "multi-editor",
+        "fullSlug": "basic/multi-editor",
+        "pathFromRoot": "examples/01-basic/12-multi-editor",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "areknawo",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Multi-Editor Setup",
         "group": {
           "pathFromRoot": "examples/01-basic",
           "slug": "basic"

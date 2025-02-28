@@ -58,6 +58,12 @@ export const ar: Dictionary = {
       aliases: ["كود", "مسبق"],
       group: "الكتل الأساسية",
     },
+    page_break: {
+      title: "فاصل الصفحة",
+      subtext: "فاصل الصفحة",
+      aliases: ["page", "break", "separator", "فاصل", "الصفحة"],
+      group: "الكتل الأساسية",
+    },
     table: {
       title: "جدول",
       subtext: "يستخدم للجداول",
@@ -254,6 +260,9 @@ export const ar: Dictionary = {
     },
     align_justify: {
       tooltip: "ضبط النص",
+    },
+    comment: {
+      tooltip: "إضافة ملاحظة",
     },
   },
   file_panel: {

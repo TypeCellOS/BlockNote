@@ -57,6 +57,12 @@ export const vi: Dictionary = {
       aliases: ["code", "pre"],
       group: "Khối cơ bản",
     },
+    page_break: {
+      title: "Ngắt trang",
+      subtext: "Phân cách trang",
+      aliases: ["page", "break", "separator", "ngắt", "phân cách"],
+      group: "Khối cơ bản",
+    },
     table: {
       title: "Bảng",
       subtext: "Sử dụng để tạo bảng",
@@ -268,6 +274,9 @@ export const vi: Dictionary = {
     },
     align_justify: {
       tooltip: "Căn đều văn bản",
+    },
+    comment: {
+      tooltip: "Thêm bình luận",
     },
   },
   file_panel: {

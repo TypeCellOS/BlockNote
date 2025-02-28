@@ -50,6 +50,12 @@ export const nl: Dictionary = {
       aliases: ["code", "pre"],
       group: "Basisblokken",
     },
+    page_break: {
+      title: "Pagina-einde",
+      subtext: "Paginascheiding",
+      aliases: ["page", "break", "separator", "pagina", "scheiding"],
+      group: "Basisblokken",
+    },
     table: {
       title: "Tabel",
       subtext: "Gebruikt voor tabellen",
@@ -268,6 +274,9 @@ export const nl: Dictionary = {
     },
     align_justify: {
       tooltip: "Tekst uitvullen",
+    },
+    comment: {
+      tooltip: "Commentaar toevoegen",
     },
   },
   file_panel: {

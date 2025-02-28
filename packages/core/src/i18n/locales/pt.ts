@@ -57,6 +57,12 @@ export const pt: Dictionary = {
       aliases: ["codigo", "pre"],
       group: "Blocos básicos",
     },
+    page_break: {
+      title: "Quebra de página",
+      subtext: "Separador de página",
+      aliases: ["page", "break", "separator", "quebra", "separador"],
+      group: "Blocos básicos",
+    },
     table: {
       title: "Tabela",
       subtext: "Usado para tabelas",
@@ -261,6 +267,9 @@ export const pt: Dictionary = {
     },
     align_justify: {
       tooltip: "Justificar texto",
+    },
+    comment: {
+      tooltip: "Adicionar comentário",
     },
   },
   file_panel: {

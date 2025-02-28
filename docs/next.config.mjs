@@ -118,6 +118,11 @@ const nextConfig = withAnalyzer(
         destination: "/docs/advanced/vanilla-js",
         permanent: true,
       },
+      {
+        source: "/examples/basic/all-blocks",
+        destination: "/examples/basic/default-blocks",
+        permanent: true,
+      },
     ],
     experimental: {
       externalDir: true,

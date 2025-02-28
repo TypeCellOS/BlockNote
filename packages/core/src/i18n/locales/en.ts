@@ -56,6 +56,12 @@ export const en = {
       aliases: ["code", "pre"],
       group: "Basic blocks",
     },
+    page_break: {
+      title: "Page Break",
+      subtext: "Page separator",
+      aliases: ["page", "break", "separator"],
+      group: "Basic blocks",
+    },
     table: {
       title: "Table",
       subtext: "Table with editable cells",
@@ -123,7 +129,7 @@ export const en = {
     bulletListItem: "List",
     numberedListItem: "List",
     checkListItem: "List",
-  },
+  } as Record<"default" | "emptyDocument" | string, string | undefined>,
   file_blocks: {
     image: {
       add_button_text: "Add image",
@@ -268,6 +274,9 @@ export const en = {
     },
     align_justify: {
       tooltip: "Justify text",
+    },
+    comment: {
+      tooltip: "Add comment",
     },
   },
   file_panel: {
