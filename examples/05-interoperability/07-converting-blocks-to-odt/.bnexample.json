@@ -1,0 +1,10 @@
+{
+  "playground": true,
+  "docs": true,
+  "author": "areknawo",
+  "tags": [""],
+  "dependencies": {
+    "@blocknote/xl-odt-exporter": "latest"
+  },
+  "pro": true
+}

@@ -14,9 +14,9 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import {
-  DOCXExporter,
-  docxDefaultSchemaMappings,
-} from "@blocknote/xl-docx-exporter";
+  ODTExporter,
+  odtDefaultSchemaMappings,
+} from "@blocknote/xl-odt-exporter";
 import { useMemo } from "react";
 
 import "./styles.css";
@@ -307,13 +307,13 @@ export default function App() {
   });
 
   const onDownloadClick = async () => {
-    const exporter = new DOCXExporter(editor.schema, docxDefaultSchemaMappings);
+    const exporter = new ODTExporter(editor.schema, odtDefaultSchemaMappings);
 
-    const blob = await exporter.toBlob(editor.document);
+    const blob = await exporter.toODTDocument(editor.document);
 
     const link = document.createElement("a");
     link.href = window.URL.createObjectURL(blob);
-    link.download = "My Document (blocknote export).docx";
+    link.download = "My Document (blocknote export).odt";
     document.body.appendChild(link);
     link.dispatchEvent(
       new MouseEvent("click", { bubbles: true, cancelable: true, view: window })
@@ -334,7 +334,7 @@ export default function App() {
     <div>
       <div className={"edit-buttons"}>
         <button className={"edit-button"} onClick={onDownloadClick}>
-          Download .docx
+          Download .odt
         </button>
       </div>
       <div className="item">
