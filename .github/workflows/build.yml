@@ -68,11 +68,10 @@ jobs:
         run: npm run build
 
       - name: Run server and Playwright tests
-        working-directory: ./tests
         run: |
           npm run start:built & 
           npx wait-on http://localhost:3000
-          npx playwright test
+          cd tests && npx playwright test
 
       - uses: actions/upload-artifact@v4
         if: always()
