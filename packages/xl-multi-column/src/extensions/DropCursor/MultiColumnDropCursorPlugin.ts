@@ -163,6 +163,12 @@ export function multiColumnDropCursor(
             editor.schema.styleSchema
           );
 
+          // The user is dropping next to the original block being dragged - do
+          // nothing.
+          if (block.id === draggedBlock.id) {
+            return;
+          }
+
           const blocks =
             position === "left" ? [draggedBlock, block] : [block, draggedBlock];
           editor.removeBlocks([draggedBlock]);

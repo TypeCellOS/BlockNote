@@ -178,6 +178,11 @@ export class SideMenuView<
       this.onDrop as EventListener,
       true
     );
+    this.pmView.root.addEventListener(
+      "dragend",
+      this.onDragEnd as EventListener,
+      true
+    );
     initializeESMDependencies();
 
     // Shows or updates menu position whenever the cursor moves, if the menu isn't frozen.
@@ -300,8 +305,8 @@ export class SideMenuView<
       // a block from a different editor is being dropped, this causes some
       // issues that the code below fixes:
       if (!this.isDragOrigin && this.pmView.dom === parentEditorElement) {
-        // 1. Because the editor selection is unrelated to the dragged content,
-        // we don't want PM to delete its content. Therefore, we collapse the
+        // Because the editor selection is unrelated to the dragged content, we
+        // don't want PM to delete its content. Therefore, we collapse the
         // selection.
         this.pmView.dispatch(
           this.pmView.state.tr.setSelection(
@@ -312,8 +317,8 @@ export class SideMenuView<
           )
         );
       } else if (this.isDragOrigin && this.pmView.dom !== parentEditorElement) {
-        // 2. Because the editor from which the block originates doesn't get a
-        // drop event on it, PM doesn't delete its selected content. Therefore, we
+        // Because the editor from which the block originates doesn't get a drop
+        // event on it, PM doesn't delete its selected content. Therefore, we
         // need to do so manually.
         //
         // Note: Deleting the selected content from the editor from which the
@@ -328,11 +333,6 @@ export class SideMenuView<
           0
         );
       }
-      // 3. PM only clears `view.dragging` on the editor that the block was
-      // dropped, so we manually have to clear it on all the others. However,
-      // PM also needs to read `view.dragging` while handling the event, so we
-      // use a `setTimeout` to ensure it's only cleared after that.
-      setTimeout(() => (this.pmView.dragging = null), 0);
     }
 
     if (
@@ -358,6 +358,14 @@ export class SideMenuView<
       // console.log("dispatch fake drop");
       this.pmView.dom.dispatchEvent(evt);
     }
+  };
+
+  onDragEnd = () => {
+    // When the user starts dragging a block, `view.dragging` is set on all
+    // BlockNote editors. However, when the drag ends, only the editor that the
+    // drag originated in automatically clears `view.dragging`. Therefore, we
+    // have to manually clear it on all editors.
+    this.pmView.dragging = null;
   };
 
   /**
@@ -578,6 +586,11 @@ export class SideMenuView<
     this.pmView.root.removeEventListener(
       "drop",
       this.onDrop as EventListener,
+      true
+    );
+    this.pmView.root.removeEventListener(
+      "dragend",
+      this.onDragEnd as EventListener,
       true
     );
     this.pmView.root.removeEventListener(
