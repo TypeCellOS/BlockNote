@@ -69,7 +69,7 @@ jobs:
 
       - name: Run server and Playwright tests
         run: |
-          npm run start:built & 
+          npm run start:built > /dev/null & 
           npx wait-on http://localhost:3000
           cd tests && HOME=/root npx playwright test
 
