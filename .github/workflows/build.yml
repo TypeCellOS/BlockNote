@@ -26,7 +26,7 @@ jobs:
       - name: Cache NX
         uses: actions/cache@v4
         with:
-          path: .nx/cache
+          path: node_modules/.cache/nx/
           key: nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-${{ github.sha }}
           restore-keys: |
             nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-
@@ -79,7 +79,7 @@ jobs:
       - name: Cache NX
         uses: actions/cache@v4
         with:
-          path: .nx/cache
+          path: node_modules/.cache/nx/
           key: nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-${{ github.sha }}
           restore-keys: |
             nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-
