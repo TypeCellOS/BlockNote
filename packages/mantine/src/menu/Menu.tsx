@@ -125,8 +125,7 @@ const SubMenu = forwardRef<
           middlewares={{ flip: true, shift: true, inline: false, size: true }}
           trigger={"hover"}
           opened={opened}
-          onClose={() => onOpenChange?.(false)}
-          onOpen={() => onOpenChange?.(true)}
+          onChange={onOpenChange}
           position={position}>
           {children}
         </MantineMenu>
@@ -148,8 +147,7 @@ export const Menu = (props: ComponentProps["Generic"]["Menu"]["Root"]) => {
     <MantineMenu
       withinPortal={false}
       middlewares={{ flip: true, shift: true, inline: false, size: true }}
-      onClose={() => onOpenChange?.(false)}
-      onOpen={() => onOpenChange?.(true)}
+      onChange={onOpenChange}
       position={position}>
       {children}
     </MantineMenu>

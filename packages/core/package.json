@@ -115,6 +115,14 @@
     "vite-plugin-eslint": "^1.8.1",
     "vitest": "^2.0.3"
   },
+  "peerDependencies": {
+    "@hocuspocus/provider": "^2.15.2"
+  },
+  "peerDependenciesMeta": {
+    "hocuspocus/provider": {
+      "optional": true
+    }
+  },
   "eslintConfig": {
     "extends": [
       "../../.eslintrc.js"

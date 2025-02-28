@@ -129,6 +129,9 @@ export const vi: Dictionary = {
     bulletListItem: "Danh sách",
     numberedListItem: "Danh sách",
     checkListItem: "Danh sách",
+    new_comment: "Viết bình luận...",
+    edit_comment: "Chỉnh sửa bình luận...",
+    comment_reply: "Thêm bình luận...",
   },
   file_blocks: {
     image: {
@@ -315,6 +318,18 @@ export const vi: Dictionary = {
     form: {
       title_placeholder: "Chỉnh sửa tiêu đề",
       url_placeholder: "Chỉnh sửa URL",
+    },
+  },
+  comments: {
+    actions: {
+      add_reaction: "Thêm phản ứng",
+      resolve: "Giải quyết",
+      edit_comment: "Chỉnh sửa bình luận",
+      delete_comment: "Xóa bình luận",
+      more_actions: "Thêm hành động",
+    },
+    reactions: {
+      reacted_by: "Phản ứng bởi",
     },
   },
   generic: {

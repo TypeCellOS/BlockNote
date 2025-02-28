@@ -102,7 +102,7 @@ export const TableBlockContent = createStronglyTypedTiptapNode({
       return new BlockNoteTableView(node, EMPTY_CELL_WIDTH, {
         ...(this.options.domAttributes?.blockContent || {}),
         ...HTMLAttributes,
-      }) as NodeView;
+      }) as NodeView; // needs cast, tiptap types (wrongly) doesn't support return tableview here
     };
   },
 });

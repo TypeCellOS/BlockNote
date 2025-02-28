@@ -1,3 +1,8 @@
+import {
+  Avatar as ShadCNAvatar,
+  AvatarFallback as ShadCNAvatarFallback,
+  AvatarImage as ShadCNAvatarImage,
+} from "./components/ui/avatar.js";
 import { Badge as ShadCNBadge } from "./components/ui/badge.js";
 import { Button as ShadCNButton } from "./components/ui/button.js";
 import {
@@ -31,6 +36,7 @@ import {
   SelectTrigger as ShadCNSelectTrigger,
   SelectValue as ShadCNSelectValue,
 } from "./components/ui/select.js";
+import { Skeleton as ShadCNSkeleton } from "./components/ui/skeleton.js";
 import {
   Tabs as ShadCNTabs,
   TabsContent as ShadCNTabsContent,
@@ -48,6 +54,11 @@ import {
 import { createContext, useContext } from "react";
 
 export const ShadCNDefaultComponents = {
+  Avatar: {
+    Avatar: ShadCNAvatar,
+    AvatarFallback: ShadCNAvatarFallback,
+    AvatarImage: ShadCNAvatarImage,
+  },
   Badge: {
     Badge: ShadCNBadge,
   },
@@ -90,6 +101,9 @@ export const ShadCNDefaultComponents = {
     SelectItem: ShadCNSelectItem,
     SelectTrigger: ShadCNSelectTrigger,
     SelectValue: ShadCNSelectValue,
+  },
+  Skeleton: {
+    Skeleton: ShadCNSkeleton,
   },
   Tabs: {
     Tabs: ShadCNTabs,

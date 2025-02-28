@@ -43,6 +43,7 @@ export function useUIElementPositioning(
     return {
       isMounted,
       ref: refs.setFloating,
+      setReference: refs.setReference,
       style: {
         display: "flex",
         ...styles,
@@ -56,6 +57,7 @@ export function useUIElementPositioning(
     floatingStyles,
     isMounted,
     refs.setFloating,
+    refs.setReference,
     styles,
     zIndex,
     getFloatingProps,

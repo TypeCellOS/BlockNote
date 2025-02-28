@@ -21,6 +21,7 @@ function useCreateBlockNote(
 type BlockNoteEditorOptions = {
   animations?: boolean;
   collaboration?: CollaborationOptions;
+  comments?: CommentsConfig;
   defaultStyles?: boolean;
   dictionary?: Dictionary;
   disableExtensions?: string[];
@@ -50,6 +51,8 @@ The hook takes two optional parameters:
 
 `collaboration`: Options for enabling real-time collaboration. See [Real-time Collaboration](/docs/advanced/real-time-collaboration) for more info.
 
+`comments`: Configuration for the comments feature, requires a `threadStore`. See [Comments](/docs/collaboration/comments) for more.
+
 `defaultStyles`: Whether to use the default font and reset the styles of `<p>`, `<li>`, `<h1>`, etc. elements that are used in BlockNote. Defaults to true if undefined.
 
 `dictionary`: Provide strings for localization. See the [Localization / i18n example](/examples/basic/localization) and [Custom Placeholders](/examples/basic/custom-placeholder).
@@ -62,7 +65,9 @@ The hook takes two optional parameters:
 
 `initialContent:` The content that should be in the editor when it's created, represented as an array of [Partial Blocks](/docs/manipulating-blocks#partial-blocks).
 
-`resolveFileUrl:` An async function that fetches the download URL of a file from an initial URL.
+`resolveFileUrl:` Function to resolve file URLs for display/download. Useful for creating authenticated URLs or implementing custom protocols.
+
+`resolveUsers`: Function to resolve user information for comments. See [Comments](/docs/collaboration/comments) for more.
 
 `schema`: The editor schema if you want to extend your editor with custom blocks, styles, or inline content [Custom Schemas](/docs/custom-schemas).
 
@@ -70,7 +75,7 @@ The hook takes two optional parameters:
 
 `sideMenuDetection`: Determines whether the mouse cursor position is locked to the editor bounding box for showing the [Block Side Menu](/docs/ui-components/side-menu) and block drag & drop. When set to `viewport`, the Side Menu will be shown next to the nearest block to the cursor, regardless of where it is in the viewport. Dropping blocks will also be locked to the editor bounding box. Otherwise, the Side Menu will only be shown when the cursor is within the editor bounds, and blocks can only be dropped when hovering the editor. In order to use multiple editors, must be set to `editor`. Defaults to `viewport`.
 
-`tabBehavior`: Determines whether pressing the tab key should navigate the UI for keyboard accessibility or indent the current block. Defaults to `prefer-navigate-ui`.
+`tabBehavior`: Determines whether pressing the tab key should navigate toolbars for keyboard accessibility. When set to `"prefer-navigate-ui`, the user can navigate toolbars using Tab. Pressing Escape re-focuses the editor, and Tab now indents blocks. `"prefer-indent"` causes Tab to always indent blocks. Defaults to `prefer-navigate-ui`.
 
 `trailingBlock`: An option which user can pass with `false` value to disable the automatic creation of a trailing new block on the next line when the user types or edits any block. Defaults to `true` if undefined.
 
@@ -125,6 +130,7 @@ export type BlockNoteViewProps = {
   emojiPicker?: boolean;
   filePanel?: boolean;
   tableHandles?: boolean;
+  comments?: boolean;
   children?:
 } & HTMLAttributes<HTMLDivElement>;
 ```
@@ -152,6 +158,8 @@ export type BlockNoteViewProps = {
 `filePanel`: Whether the File Toolbar should be enabled.
 
 `tableHandles`: Whether the Table Handles should be enabled.
+
+`comments`: Whether the default comments UI feature should be enabled.
 
 `children`: Pass child elements to the `BlockNoteView` to create or customize toolbars, menus, or other UI components. See [UI Components](/docs/ui-components) for more.
 

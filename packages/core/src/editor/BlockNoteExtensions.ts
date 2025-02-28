@@ -12,6 +12,9 @@ import { createPasteFromClipboardExtension } from "../api/clipboard/fromClipboar
 import { createCopyToClipboardExtension } from "../api/clipboard/toClipboard/copyExtension.js";
 import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension.js";
 import { createCollaborationExtensions } from "../extensions/Collaboration/createCollaborationExtensions.js";
+import { CommentMark } from "../extensions/Comments/CommentMark.js";
+import { CommentsPlugin } from "../extensions/Comments/CommentsPlugin.js";
+import { ThreadStore } from "../extensions/Comments/threadstore/ThreadStore.js";
 import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin.js";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin.js";
 import { KeyboardShortcutsExtension } from "../extensions/KeyboardShortcuts/KeyboardShortcutsExtension.js";
@@ -23,6 +26,7 @@ import {
 import { NodeSelectionKeyboardPlugin } from "../extensions/NodeSelectionKeyboard/NodeSelectionKeyboardPlugin.js";
 import { PlaceholderPlugin } from "../extensions/Placeholder/PlaceholderPlugin.js";
 import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/PreviousBlockTypePlugin.js";
+import { ShowSelectionPlugin } from "../extensions/ShowSelection/ShowSelectionPlugin.js";
 import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin.js";
 import { SuggestionMenuProseMirrorPlugin } from "../extensions/SuggestionMenu/SuggestionPlugin.js";
 import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin.js";
@@ -75,6 +79,9 @@ type ExtensionOptions<
   >;
   tabBehavior?: "prefer-navigate-ui" | "prefer-indent";
   sideMenuDetection: "viewport" | "editor";
+  comments?: {
+    threadStore: ThreadStore;
+  };
 };
 
 /**
@@ -126,6 +133,16 @@ export const getBlockNoteExtensions = <
 
   ret["nodeSelectionKeyboard"] = new NodeSelectionKeyboardPlugin();
 
+  ret["showSelection"] = new ShowSelectionPlugin(opts.editor);
+
+  if (opts.comments) {
+    ret["comments"] = new CommentsPlugin(
+      opts.editor,
+      opts.comments.threadStore,
+      CommentMark.name
+    );
+  }
+
   const disableExtensions: string[] = opts.disableExtensions || [];
   for (const ext of disableExtensions) {
     delete ret[ext];
@@ -133,6 +150,8 @@ export const getBlockNoteExtensions = <
 
   return ret;
 };
+
+let LINKIFY_INITIALIZED = false;
 
 /**
  * Get all the Tiptap extensions BlockNote is configured with by default
@@ -171,7 +190,8 @@ const getTipTapExtensions = <
       inclusive: false,
     }).configure({
       defaultProtocol: DEFAULT_LINK_PROTOCOL,
-      protocols: VALID_LINK_PROTOCOLS,
+      // only call this once if we have multiple editors installed. Or fix https://github.com/ueberdosis/tiptap/issues/5450
+      protocols: LINKIFY_INITIALIZED ? [] : VALID_LINK_PROTOCOLS,
     }),
     ...Object.values(opts.styleSpecs).map((styleSpec) => {
       return styleSpec.implementation.mark.configure({
@@ -246,7 +266,10 @@ const getTipTapExtensions = <
     ...(opts.trailingBlock === undefined || opts.trailingBlock
       ? [TrailingNode]
       : []),
+    ...(opts.comments ? [CommentMark] : []),
   ];
+
+  LINKIFY_INITIALIZED = true;
 
   if (opts.collaboration) {
     tiptapExtensions.push(...createCollaborationExtensions(opts.collaboration));

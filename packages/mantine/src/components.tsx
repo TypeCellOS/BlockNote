@@ -1,5 +1,8 @@
 import { Components } from "@blocknote/react";
-
+import { Badge, BadgeGroup } from "./badge/Badge.js";
+import { Card, CardSection } from "./comments/Card.js";
+import { Comment } from "./comments/Comment.js";
+import { Editor } from "./comments/Editor.js";
 import { TextInput } from "./form/TextInput.js";
 import {
   Menu,
@@ -18,15 +21,15 @@ import { Popover, PopoverContent, PopoverTrigger } from "./popover/Popover.js";
 import { SideMenu } from "./sideMenu/SideMenu.js";
 import { SideMenuButton } from "./sideMenu/SideMenuButton.js";
 import "./style.css";
-import { GridSuggestionMenu } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenu.js";
-import { GridSuggestionMenuEmptyItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuEmptyItem.js";
-import { GridSuggestionMenuItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuItem.js";
-import { GridSuggestionMenuLoader } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuLoader.js";
 import { SuggestionMenu } from "./suggestionMenu/SuggestionMenu.js";
 import { SuggestionMenuEmptyItem } from "./suggestionMenu/SuggestionMenuEmptyItem.js";
 import { SuggestionMenuItem } from "./suggestionMenu/SuggestionMenuItem.js";
 import { SuggestionMenuLabel } from "./suggestionMenu/SuggestionMenuLabel.js";
 import { SuggestionMenuLoader } from "./suggestionMenu/SuggestionMenuLoader.js";
+import { GridSuggestionMenu } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenu.js";
+import { GridSuggestionMenuEmptyItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuEmptyItem.js";
+import { GridSuggestionMenuItem } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuItem.js";
+import { GridSuggestionMenuLoader } from "./suggestionMenu/gridSuggestionMenu/GridSuggestionMenuLoader.js";
 import { ExtendButton } from "./tableHandle/ExtendButton.js";
 import { TableHandle } from "./tableHandle/TableHandle.js";
 import { Toolbar } from "./toolbar/Toolbar.js";
@@ -72,9 +75,9 @@ export const components: Components = {
     ExtendButton: ExtendButton,
   },
   Generic: {
-    Toolbar: {
-      Root: Toolbar,
-      Button: ToolbarButton,
+    Badge: {
+      Root: Badge,
+      Group: BadgeGroup,
     },
     Form: {
       Root: (props) => <div>{props.children}</div>,
@@ -93,5 +96,15 @@ export const components: Components = {
       Trigger: PopoverTrigger,
       Content: PopoverContent,
     },
+    Toolbar: {
+      Root: Toolbar,
+      Button: ToolbarButton,
+    },
+  },
+  Comments: {
+    Comment,
+    Editor,
+    Card,
+    CardSection,
   },
 };
