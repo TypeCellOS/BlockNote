@@ -126,75 +126,6 @@ export type BlockNoteEditorOptions<
   animations?: boolean;
 
   /**
-   * Disable internal extensions (based on keys / extension name)
-   */
-  disableExtensions: string[];
-
-  /**
-   * A dictionary object containing translations for the editor.
-   */
-  dictionary?: Dictionary & Record<string, any>;
-
-  /**
-   * @deprecated, provide placeholders via dictionary instead
-   */
-  placeholders: Record<
-    string | "default" | "emptyDocument",
-    string | undefined
-  >;
-
-  /**
-   * An object containing attributes that should be added to HTML elements of the editor.
-   *
-   * @example { editor: { class: "my-editor-class" } }
-   */
-  domAttributes: Partial<BlockNoteDOMAttributes>;
-
-  /**
-   * The content that should be in the editor when it's created, represented as an array of partial block objects.
-   */
-  initialContent: PartialBlock<
-    NoInfer<BSchema>,
-    NoInfer<ISchema>,
-    NoInfer<SSchema>
-  >[];
-  /**
-   * Use default BlockNote font and reset the styles of <p> <li> <h1> elements etc., that are used in BlockNote.
-   *
-   * @default true
-   */
-  defaultStyles: boolean;
-
-  schema: BlockNoteSchema<BSchema, ISchema, SSchema>;
-
-  /**
-   * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
-   * This method should set when creating the editor as this is application-specific.
-   *
-   * `undefined` means the application doesn't support file uploads.
-   *
-   * @param file The file that should be uploaded.
-   * @returns The URL of the uploaded file OR an object containing props that should be set on the file block (such as an id)
-   */
-  uploadFile: (
-    file: File,
-    blockId?: string
-  ) => Promise<string | Record<string, any>>;
-
-  /**
-   * Resolve a URL of a file block to one that can be displayed or downloaded. This can be used for creating authenticated URL or
-   * implementing custom protocols / schemes
-   * @returns The URL that's
-   */
-  resolveFileUrl: (url: string) => Promise<string>;
-
-  resolveUsers: (userIds: string[]) => Promise<User[]>;
-
-  // TODO: decide "comments" or "threads"?
-  comments: {
-    threadStore: ThreadStore;
-  };
-  /**
    * When enabled, allows for collaboration between multiple users.
    */
   collaboration: {
@@ -226,26 +157,72 @@ export type BlockNoteEditorOptions<
     showCursorLabels?: "always" | "activity";
   };
 
-  /**
-   * additional tiptap options, undocumented
-   */
-  _tiptapOptions: Partial<EditorOptions>;
+  comments: {
+    threadStore: ThreadStore;
+  };
 
   /**
-   * (experimental) add extra prosemirror plugins or tiptap extensions to the editor
-   */
-  _extensions: Record<string, BlockNoteExtension | BlockNoteExtensionFactory>;
-
-  trailingBlock?: boolean;
-
-  /**
-   * Boolean indicating whether the editor is in headless mode.
-   * Headless mode means we can use features like importing / exporting blocks,
-   * but there's no underlying editor (UI) instantiated.
+   * Use default BlockNote font and reset the styles of <p> <li> <h1> elements etc., that are used in BlockNote.
    *
-   * You probably don't need to set this manually, but use the `server-util` package instead that uses this option internally
+   * @default true
    */
-  _headless: boolean;
+  defaultStyles: boolean;
+
+  /**
+   * A dictionary object containing translations for the editor.
+   */
+  dictionary?: Dictionary & Record<string, any>;
+
+  /**
+   * Disable internal extensions (based on keys / extension name)
+   */
+  disableExtensions: string[];
+
+  /**
+   * An object containing attributes that should be added to HTML elements of the editor.
+   *
+   * @example { editor: { class: "my-editor-class" } }
+   */
+  domAttributes: Partial<BlockNoteDOMAttributes>;
+
+  dropCursor?: (opts: {
+    editor: BlockNoteEditor<
+      NoInfer<BSchema>,
+      NoInfer<ISchema>,
+      NoInfer<SSchema>
+    >;
+    color?: string | false;
+    width?: number;
+    class?: string;
+  }) => Plugin;
+
+  /**
+   * The content that should be in the editor when it's created, represented as an array of partial block objects.
+   */
+  initialContent: PartialBlock<
+    NoInfer<BSchema>,
+    NoInfer<ISchema>,
+    NoInfer<SSchema>
+  >[];
+
+  /**
+   * @deprecated, provide placeholders via dictionary instead
+   */
+  placeholders: Record<
+    string | "default" | "emptyDocument",
+    string | undefined
+  >;
+
+  /**
+   * Resolve a URL of a file block to one that can be displayed or downloaded. This can be used for creating authenticated URL or
+   * implementing custom protocols / schemes
+   * @returns The URL that's
+   */
+  resolveFileUrl: (url: string) => Promise<string>;
+
+  resolveUsers: (userIds: string[]) => Promise<User[]>;
+
+  schema: BlockNoteSchema<BSchema, ISchema, SSchema>;
 
   /**
    * A flag indicating whether to set an HTML ID for every block
@@ -257,7 +234,14 @@ export type BlockNoteEditorOptions<
    */
   setIdAttribute?: boolean;
 
-  dropCursor?: (opts: any) => Plugin;
+  /**
+   * The detection mode for showing the side menu - "viewport" always shows the
+   * side menu for the block next to the mouse cursor, while "editor" only shows
+   * it when hovering the editor or the side menu itself.
+   *
+   * @default "viewport"
+   */
+  sideMenuDetection: "viewport" | "editor";
 
   /**
    Select desired behavior when pressing `Tab` (or `Shift-Tab`). Specifically,
@@ -274,14 +258,40 @@ export type BlockNoteEditorOptions<
    */
   tabBehavior: "prefer-navigate-ui" | "prefer-indent";
 
+  trailingBlock?: boolean;
+
   /**
-   * The detection mode for showing the side menu - "viewport" always shows the
-   * side menu for the block next to the mouse cursor, while "editor" only shows
-   * it when hovering the editor or the side menu itself.
+   * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
+   * This method should set when creating the editor as this is application-specific.
    *
-   * @default "viewport"
+   * `undefined` means the application doesn't support file uploads.
+   *
+   * @param file The file that should be uploaded.
+   * @returns The URL of the uploaded file OR an object containing props that should be set on the file block (such as an id)
    */
-  sideMenuDetection: "viewport" | "editor";
+  uploadFile: (
+    file: File,
+    blockId?: string
+  ) => Promise<string | Record<string, any>>;
+
+  /**
+   * additional tiptap options, undocumented
+   */
+  _tiptapOptions: Partial<EditorOptions>;
+
+  /**
+   * (experimental) add extra prosemirror plugins or tiptap extensions to the editor
+   */
+  _extensions: Record<string, BlockNoteExtension | BlockNoteExtensionFactory>;
+
+  /**
+   * Boolean indicating whether the editor is in headless mode.
+   * Headless mode means we can use features like importing / exporting blocks,
+   * but there's no underlying editor (UI) instantiated.
+   *
+   * You probably don't need to set this manually, but use the `server-util` package instead that uses this option internally
+   */
+  _headless: boolean;
 };
 
 const blockNoteTipTapOptions = {
