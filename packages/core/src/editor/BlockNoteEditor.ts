@@ -258,6 +258,36 @@ export type BlockNoteEditorOptions<
    */
   tabBehavior: "prefer-navigate-ui" | "prefer-indent";
 
+  /**
+   * Allows enabling / disabling features of tables.
+   */
+  tables?: {
+    /**
+     * Whether to allow splitting and merging cells within a table.
+     *
+     * @default false
+     */
+    splitCells?: boolean;
+    /**
+     * Whether to allow changing the background color of cells.
+     *
+     * @default false
+     */
+    cellBackgroundColor?: boolean;
+    /**
+     * Whether to allow changing the text color of cells.
+     *
+     * @default false
+     */
+    cellTextColor?: boolean;
+    /**
+     * Whether to allow changing cells into headers.
+     *
+     * @default false
+     */
+    headers?: boolean;
+  };
+
   trailingBlock?: boolean;
 
   /**
@@ -307,7 +337,10 @@ export class BlockNoteEditor<
 > extends EventEmitter<{
   create: void;
 }> {
-  private readonly _pmSchema: Schema;
+  /**
+   * The underlying prosemirror schema
+   */
+  public readonly pmSchema: Schema;
 
   /**
    * extensions that are added to the editor, can be tiptap extensions or prosemirror plugins
@@ -400,10 +433,17 @@ export class BlockNoteEditor<
 
   public readonly resolveFileUrl?: (url: string) => Promise<string>;
   public readonly resolveUsers?: (userIds: string[]) => Promise<User[]>;
-
-  public get pmSchema() {
-    return this._pmSchema;
-  }
+  /**
+   * Editor settings
+   */
+  public readonly settings: {
+    tables: {
+      splitCells: boolean;
+      cellBackgroundColor: boolean;
+      cellTextColor: boolean;
+      headers: boolean;
+    };
+  };
 
   public static create<
     BSchema extends BlockSchema = DefaultBlockSchema,
@@ -443,6 +483,14 @@ export class BlockNoteEditor<
     }
 
     this.dictionary = options.dictionary || en;
+    this.settings = {
+      tables: {
+        splitCells: options?.tables?.splitCells ?? false,
+        cellBackgroundColor: options?.tables?.cellBackgroundColor ?? false,
+        cellTextColor: options?.tables?.cellTextColor ?? false,
+        headers: options?.tables?.headers ?? false,
+      },
+    };
 
     // apply defaults
     const newOptions = {
@@ -625,18 +673,18 @@ export class BlockNoteEditor<
         view: any;
         contentComponent: any;
       };
-      this._pmSchema = this._tiptapEditor.schema;
+      this.pmSchema = this._tiptapEditor.schema;
     } else {
       // In headless mode, we don't instantiate an underlying TipTap editor,
       // but we still need the schema
-      this._pmSchema = getSchema(tiptapOptions.extensions!);
+      this.pmSchema = getSchema(tiptapOptions.extensions!);
     }
     this.emit("create");
   }
 
-  dispatch(tr: Transaction) {
+  dispatch = (tr: Transaction) => {
     this._tiptapEditor.dispatch(tr);
-  }
+  };
 
   /**
    * Mount the editor to a parent DOM element. Call mount(undefined) to clean up
@@ -650,8 +698,18 @@ export class BlockNoteEditor<
     this._tiptapEditor.mount(parentElement, contentComponent);
   };
 
+  /**
+   * Get the underlying prosemirror view
+   */
   public get prosemirrorView() {
     return this._tiptapEditor.view;
+  }
+
+  /**
+   * Get the underlying prosemirror state
+   */
+  public get prosemirrorState() {
+    return this._tiptapEditor.state;
   }
 
   public get domElement() {
@@ -702,7 +760,7 @@ export class BlockNoteEditor<
   public get document(): Block<BSchema, ISchema, SSchema>[] {
     const blocks: Block<BSchema, ISchema, SSchema>[] = [];
 
-    this._tiptapEditor.state.doc.firstChild!.descendants((node) => {
+    this.prosemirrorState.doc.firstChild!.descendants((node) => {
       blocks.push(
         nodeToBlock(
           node,

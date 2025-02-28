@@ -141,6 +141,8 @@ export const ar: Dictionary = {
   drag_handle: {
     delete_menuitem: "حذف",
     colors_menuitem: "ألوان",
+    header_row_menuitem: "عنوان الصف",
+    header_column_menuitem: "عنوان العمود",
   },
   table_handle: {
     delete_column_menuitem: "حذف عمود",
@@ -149,6 +151,9 @@ export const ar: Dictionary = {
     add_right_menuitem: "إضافة عمود إلى اليمين",
     add_above_menuitem: "إضافة صف أعلى",
     add_below_menuitem: "إضافة صف أسفل",
+    split_cell_menuitem: "تقسيم الخلية",
+    merge_cells_menuitem: "جمع الخلايا",
+    background_color_menuitem: "لون الخلفية",
   },
   suggestion_menu: {
     no_items_title: "لم يتم العثور على عناصر",
@@ -263,6 +268,9 @@ export const ar: Dictionary = {
     },
     align_justify: {
       tooltip: "ضبط النص",
+    },
+    table_cell_merge: {
+      tooltip: "جمع الخلايا",
     },
     comment: {
       tooltip: "إضافة ملاحظة",

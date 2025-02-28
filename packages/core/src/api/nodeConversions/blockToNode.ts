@@ -1,4 +1,4 @@
-import { Mark, Node, Schema } from "@tiptap/pm/model";
+import { Attrs, Fragment, Mark, Node, Schema } from "@tiptap/pm/model";
 
 import UniqueID from "../../extensions/UniqueID/UniqueID.js";
 import type {
@@ -16,7 +16,9 @@ import {
   isPartialLinkInlineContent,
   isStyledTextInlineContent,
 } from "../../schema/inlineContent/types.js";
+import { getColspan, isPartialTableCell } from "../../util/table.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
+import { getAbsoluteTableCells } from "../blockManipulation/tables/tables.js";
 
 /**
  * Convert a StyledText inline element to a
@@ -174,34 +176,75 @@ export function tableContentToNodes<
   styleSchema: StyleSchema
 ): Node[] {
   const rowNodes: Node[] = [];
+  // Header rows and columns are used to determine the type of the cell
+  // If headerRows is 1, then the first row is a header row
+  const headerRows = new Array(tableContent.headerRows ?? 0).fill(true);
+  // If headerCols is 1, then the first column is a header column
+  const headerCols = new Array(tableContent.headerCols ?? 0).fill(true);
 
-  for (const row of tableContent.rows) {
+  const columnWidths: (number | undefined)[] = tableContent.columnWidths ?? [];
+
+  for (let rowIndex = 0; rowIndex < tableContent.rows.length; rowIndex++) {
+    const row = tableContent.rows[rowIndex];
     const columnNodes: Node[] = [];
-    for (let i = 0; i < row.cells.length; i++) {
-      const cell = row.cells[i];
-      let pNode: Node;
+    const isHeaderRow = headerRows[rowIndex];
+    for (let cellIndex = 0; cellIndex < row.cells.length; cellIndex++) {
+      const cell = row.cells[cellIndex];
+      const isHeaderCol = headerCols[cellIndex];
+      /**
+       * The attributes of the cell to apply to the node
+       */
+      const attrs: Attrs | undefined = undefined;
+      /**
+       * The content of the cell to apply to the node
+       */
+      let content: Fragment | Node | readonly Node[] | null = null;
+
+      // Colwidths are absolutely referenced to the table, so we need to resolve the relative cell index to the absolute cell index
+      const absoluteCellIndex = getAbsoluteTableCells(
+        {
+          row: rowIndex,
+          col: cellIndex,
+        },
+        { type: "table", content: tableContent } as any
+      );
+
+      // Assume the column width is the width of the cell at the absolute cell index
+      let colwidth: (number | undefined)[] | null = columnWidths[
+        absoluteCellIndex.col
+      ]
+        ? [columnWidths[absoluteCellIndex.col]]
+        : null;
+
       if (!cell) {
-        pNode = schema.nodes["tableParagraph"].createChecked({});
+        // No-op
       } else if (typeof cell === "string") {
-        pNode = schema.nodes["tableParagraph"].createChecked(
-          {},
-          schema.text(cell)
-        );
+        content = schema.text(cell);
+      } else if (isPartialTableCell(cell)) {
+        if (cell.content) {
+          content = inlineContentToNodes(cell.content, schema, styleSchema);
+        }
+        const colspan = getColspan(cell);
+
+        if (colspan > 1) {
+          // If the cell has a > 1 colspan, we need to get the column width for each cell in the span
+          colwidth = new Array(colspan).fill(false).map((_, i) => {
+            // Starting from the absolute column index, get the column width for each cell in the span
+            return columnWidths[absoluteCellIndex.col + i] ?? undefined;
+          });
+        }
       } else {
-        const textNodes = inlineContentToNodes(cell, schema, styleSchema);
-        pNode = schema.nodes["tableParagraph"].createChecked({}, textNodes);
+        content = inlineContentToNodes(cell, schema, styleSchema);
       }
 
-      const cellNode = schema.nodes["tableCell"].createChecked(
+      const cellNode = schema.nodes[
+        isHeaderCol || isHeaderRow ? "tableHeader" : "tableCell"
+      ].createChecked(
         {
-          // The colwidth array should have multiple values when the colspan of
-          // a cell is greater than 1. However, this is not yet implemented so
-          // we can always assume a length of 1.
-          colwidth: tableContent.columnWidths?.[i]
-            ? [tableContent.columnWidths[i]]
-            : null,
+          ...(isPartialTableCell(cell) ? cell.props : {}),
+          colwidth,
         },
-        pNode
+        schema.nodes["tableParagraph"].createChecked(attrs, content)
       );
       columnNodes.push(cellNode);
     }

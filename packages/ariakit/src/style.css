@@ -47,6 +47,7 @@
 
 .bn-ak-button {
   outline-style: none;
+  cursor: pointer;
 }
 
 .bn-ak-menu-item[aria-selected="true"],
@@ -159,7 +160,8 @@
   box-shadow: none;
 }
 
-.bn-ariakit .bn-table-handle {
+.bn-ariakit .bn-table-handle,
+.bn-ariakit .bn-table-cell-handle {
   height: fit-content;
   padding: 0;
   width: fit-content;
@@ -167,7 +169,8 @@
 
 .bn-ariakit .bn-side-menu,
 .bn-ariakit .bn-table-handle,
-.bn-ariakit .bn-extend-button {
+.bn-ariakit .bn-extend-button,
+.bn-ariakit .bn-table-cell-handle {
   color: gray;
 }
 

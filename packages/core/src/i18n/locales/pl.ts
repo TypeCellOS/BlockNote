@@ -140,6 +140,8 @@ export const pl: Dictionary = {
   drag_handle: {
     delete_menuitem: "Usuń",
     colors_menuitem: "Kolory",
+    header_row_menuitem: "Nagłówek wiersza",
+    header_column_menuitem: "Nagłówek kolumny",
   },
   table_handle: {
     delete_column_menuitem: "Usuń kolumnę",
@@ -148,6 +150,9 @@ export const pl: Dictionary = {
     add_right_menuitem: "Dodaj kolumnę po prawej",
     add_above_menuitem: "Dodaj wiersz powyżej",
     add_below_menuitem: "Dodaj wiersz poniżej",
+    split_cell_menuitem: "Podziel komórkę",
+    merge_cells_menuitem: "Połącz komórki",
+    background_color_menuitem: "Zmień kolor tła",
   },
   suggestion_menu: {
     no_items_title: "Nie znaleziono elementów",
@@ -262,6 +267,9 @@ export const pl: Dictionary = {
     },
     align_justify: {
       tooltip: "Wyjustuj tekst",
+    },
+    table_cell_merge: {
+      tooltip: "Połącz komórki",
     },
     comment: {
       tooltip: "Dodaj komentarz",

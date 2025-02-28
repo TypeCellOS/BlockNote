@@ -156,6 +156,8 @@ export const no: Dictionary = {
   drag_handle: {
     delete_menuitem: "Slett",
     colors_menuitem: "Farger",
+    header_row_menuitem: "Rad overskrift",
+    header_column_menuitem: "Kolonne overskrift",
   },
   table_handle: {
     delete_column_menuitem: "Slett kolonne",
@@ -164,6 +166,9 @@ export const no: Dictionary = {
     add_right_menuitem: "Legg til kolonne til høyre",
     add_above_menuitem: "Legg til rad over",
     add_below_menuitem: "Legg til rad under",
+    split_cell_menuitem: "Del celle",
+    merge_cells_menuitem: "Slå sammen celler",
+    background_color_menuitem: "Bakgrunnsfarge",
   },
   suggestion_menu: {
     no_items_title: "Ingen elementer funnet",
@@ -280,6 +285,9 @@ export const no: Dictionary = {
     },
     comment: {
       tooltip: "Legg til kommentar",
+    },
+    table_cell_merge: {
+      tooltip: "Slå sammen celler",
     },
   },
   file_panel: {

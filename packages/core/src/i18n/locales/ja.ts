@@ -176,6 +176,8 @@ export const ja: Dictionary = {
   drag_handle: {
     delete_menuitem: "削除",
     colors_menuitem: "色を変更",
+    header_row_menuitem: "行の見出し",
+    header_column_menuitem: "列の見出し",
   },
   table_handle: {
     delete_column_menuitem: "列を削除",
@@ -184,6 +186,9 @@ export const ja: Dictionary = {
     add_right_menuitem: "右に列を追加",
     add_above_menuitem: "上に行を追加",
     add_below_menuitem: "下に行を追加",
+    split_cell_menuitem: "セルを分割",
+    merge_cells_menuitem: "セルを結合",
+    background_color_menuitem: "背景色を変更",
   },
   suggestion_menu: {
     no_items_title: "アイテムが見つかりません",
@@ -298,6 +303,9 @@ export const ja: Dictionary = {
     },
     align_justify: {
       tooltip: "両端揃え",
+    },
+    table_cell_merge: {
+      tooltip: "セルを結合",
     },
     comment: {
       tooltip: "コメントを追加",
