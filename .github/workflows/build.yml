@@ -50,11 +50,16 @@ jobs:
         with:
           webpackStatsFile: ./playground/dist/webpack-stats.json
           artifactName: relative-ci-artifacts-editor
+
   playwright:
-    name: "Playwright Tests"
+    name: "Playwright Tests - ${{ matrix.browser }}"
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.49.1-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -71,11 +76,11 @@ jobs:
         run: |
           npm run start:built > /dev/null & 
           npx wait-on http://localhost:3000
-          cd tests && HOME=/root npx playwright test
+          cd tests && HOME=/root npx playwright test --browser ${{ matrix.browser }}
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report
+          name: playwright-report-${{ matrix.browser }}
           path: tests/playwright-report/
           retention-days: 30
