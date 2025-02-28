@@ -10,7 +10,7 @@ import { createPortal } from "react-dom";
 import { MdArrowDropDown } from "react-icons/md";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { TableCellButtonProps } from "./TableCellButtonProps.js";
-import { TableCellMenu } from "./TableCellHandleMenu/TableCellMenu.js";
+import { TableCellMenu } from "./TableCellMenu/TableCellMenu.js";
 
 /**
  * By default, the TableCellHandle component will render with the default icon.

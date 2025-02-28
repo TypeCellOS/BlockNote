@@ -7,7 +7,7 @@ import {
   StyleSchema,
   TableHandlesState,
 } from "@blocknote/core";
-import { TableCellMenuProps } from "./TableCellHandleMenu/TableCellMenuProps.js";
+import { TableCellMenuProps } from "./TableCellMenu/TableCellMenuProps.js";
 import { FC } from "react";
 
 export type TableCellButtonProps<
