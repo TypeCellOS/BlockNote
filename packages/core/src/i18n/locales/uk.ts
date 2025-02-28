@@ -155,6 +155,9 @@ export const uk: Dictionary = {
     bulletListItem: "Список",
     numberedListItem: "Список",
     checkListItem: "Список",
+    new_comment: "Напишіть коментар...",
+    edit_comment: "Редагувати коментар...",
+    comment_reply: "Додати коментар...",
   },
   file_blocks: {
     image: {
@@ -348,6 +351,18 @@ export const uk: Dictionary = {
     form: {
       title_placeholder: "Редагувати заголовок",
       url_placeholder: "Редагувати URL",
+    },
+  },
+  comments: {
+    actions: {
+      add_reaction: "Додати реакцію",
+      resolve: "Вирішити",
+      edit_comment: "Редагувати коментар",
+      delete_comment: "Видалити коментар",
+      more_actions: "Більше дій",
+    },
+    reactions: {
+      reacted_by: "Відреагував(ла)",
     },
   },
   generic: {

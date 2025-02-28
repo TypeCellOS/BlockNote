@@ -129,6 +129,9 @@ export const it = {
     bulletListItem: "Elenco",
     numberedListItem: "Elenco",
     checkListItem: "Elenco",
+    new_comment: "Scrivi un commento...",
+    edit_comment: "Modifica commento...",
+    comment_reply: "Aggiungi commento...",
   },
   file_blocks: {
     image: {
@@ -315,6 +318,18 @@ export const it = {
     form: {
       title_placeholder: "Modifica titolo",
       url_placeholder: "Modifica URL",
+    },
+  },
+  comments: {
+    actions: {
+      add_reaction: "Aggiungi reazione",
+      resolve: "Risolvi",
+      edit_comment: "Modifica commento",
+      delete_comment: "Elimina commento",
+      more_actions: "Altre azioni",
+    },
+    reactions: {
+      reacted_by: "Reagito da",
     },
   },
   generic: {

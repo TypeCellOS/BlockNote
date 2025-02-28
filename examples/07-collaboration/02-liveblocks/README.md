@@ -6,5 +6,5 @@ In this example, we use Liveblocks to let multiple users collaborate on a single
 
 **Relevant Docs:**
 
-- [Liveblocks](/docs/advanced/real-time-collaboration#liveblocks)
 - [Editor Setup](/docs/editor-basics/setup)
+- [Liveblocks](/docs/collaboration/real-time-collaboration#liveblocks)

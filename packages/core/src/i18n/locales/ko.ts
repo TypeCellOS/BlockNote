@@ -143,6 +143,9 @@ export const ko: Dictionary = {
     bulletListItem: "목록",
     numberedListItem: "목록",
     checkListItem: "목록",
+    new_comment: "댓글 작성...",
+    edit_comment: "댓글 수정...",
+    comment_reply: "댓글 추가...",
   },
   file_blocks: {
     image: {
@@ -337,6 +340,18 @@ export const ko: Dictionary = {
     form: {
       title_placeholder: "제목 수정",
       url_placeholder: "URL 수정",
+    },
+  },
+  comments: {
+    actions: {
+      add_reaction: "반응 추가",
+      resolve: "해결",
+      edit_comment: "댓글 수정",
+      delete_comment: "댓글 삭제",
+      more_actions: "더 많은 작업",
+    },
+    reactions: {
+      reacted_by: "반응한 사람",
     },
   },
   generic: {

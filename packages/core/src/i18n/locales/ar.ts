@@ -115,6 +115,9 @@ export const ar: Dictionary = {
     bulletListItem: "قائمة",
     numberedListItem: "قائمة",
     checkListItem: "قائمة",
+    new_comment: "اكتب تعليقًا...",
+    edit_comment: "تحرير التعليق...",
+    comment_reply: "أضف تعليقًا...",
   },
   file_blocks: {
     image: {
@@ -309,6 +312,18 @@ export const ar: Dictionary = {
     form: {
       title_placeholder: "تحرير العنوان",
       url_placeholder: "تحرير الرابط",
+    },
+  },
+  comments: {
+    actions: {
+      add_reaction: "أضف تفاعلًا",
+      resolve: "حل",
+      edit_comment: "تحرير التعليق",
+      delete_comment: "حذف التعليق",
+      more_actions: "المزيد من الإجراءات",
+    },
+    reactions: {
+      reacted_by: "تفاعل بواسطة",
     },
   },
   generic: {

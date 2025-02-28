@@ -130,6 +130,9 @@ export const nl: Dictionary = {
     bulletListItem: "Lijst",
     numberedListItem: "Lijst",
     checkListItem: "Lijst",
+    new_comment: "Schrijf een reactie...",
+    edit_comment: "Reactie bewerken...",
+    comment_reply: "Reactie toevoegen...",
   },
   file_blocks: {
     image: {
@@ -323,6 +326,18 @@ export const nl: Dictionary = {
     form: {
       title_placeholder: "Bewerk titel",
       url_placeholder: "Bewerk URL",
+    },
+  },
+  comments: {
+    actions: {
+      add_reaction: "Reactie toevoegen",
+      resolve: "Oplossen",
+      edit_comment: "Reactie bewerken",
+      delete_comment: "Reactie verwijderen",
+      more_actions: "Meer acties",
+    },
+    reactions: {
+      reacted_by: "Gereageerd door",
     },
   },
   generic: {

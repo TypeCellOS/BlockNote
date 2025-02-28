@@ -115,6 +115,9 @@ export const pl: Dictionary = {
     bulletListItem: "Lista",
     numberedListItem: "Lista",
     checkListItem: "Lista",
+    new_comment: "Napisz komentarz...",
+    edit_comment: "Edytuj komentarz...",
+    comment_reply: "Dodaj komentarz...",
   },
   file_blocks: {
     image: {
@@ -308,6 +311,18 @@ export const pl: Dictionary = {
     form: {
       title_placeholder: "Edytuj tytuł",
       url_placeholder: "Edytuj URL",
+    },
+  },
+  comments: {
+    actions: {
+      add_reaction: "Dodaj reakcję",
+      resolve: "Rozwiąż",
+      edit_comment: "Edytuj komentarz",
+      delete_comment: "Usuń komentarz",
+      more_actions: "Więcej akcji",
+    },
+    reactions: {
+      reacted_by: "Zareagowali",
     },
   },
   generic: {

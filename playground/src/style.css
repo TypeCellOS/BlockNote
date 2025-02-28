@@ -10,6 +10,10 @@ body {
   max-width: 731px;
 }
 
+.bn-comment-composer .bn-container {
+  padding-top: 0;
+}
+
 .mantine-AppShell-navbar {
   background-color: #f7f7f5;
 }

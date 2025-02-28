@@ -154,6 +154,9 @@ export const fr: Dictionary = {
     bulletListItem: "Liste",
     numberedListItem: "Liste",
     checkListItem: "Liste",
+    new_comment: "Écrire un commentaire...",
+    edit_comment: "Modifier le commentaire...",
+    comment_reply: "Ajouter un commentaire...",
   },
   file_blocks: {
     image: {
@@ -348,6 +351,18 @@ export const fr: Dictionary = {
     form: {
       title_placeholder: "Modifier le titre",
       url_placeholder: "Modifier l'URL",
+    },
+  },
+  comments: {
+    actions: {
+      add_reaction: "Ajouter une réaction",
+      resolve: "Résoudre",
+      edit_comment: "Modifier le commentaire",
+      delete_comment: "Supprimer le commentaire",
+      more_actions: "Plus d'actions",
+    },
+    reactions: {
+      reacted_by: "Réagi par",
     },
   },
   generic: {

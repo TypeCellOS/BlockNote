@@ -1158,6 +1158,30 @@
           "pathFromRoot": "examples/07-collaboration",
           "slug": "collaboration"
         }
+      },
+      {
+        "projectSlug": "comments",
+        "fullSlug": "collaboration/comments",
+        "pathFromRoot": "examples/07-collaboration/04-comments",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "Advanced",
+            "Comments",
+            "Collaboration"
+          ],
+          "dependencies": {
+            "@y-sweet/react": "^0.6.3",
+            "@mantine/core": "^7.10.1"
+          } as any
+        },
+        "title": "Comments & Threads",
+        "group": {
+          "pathFromRoot": "examples/07-collaboration",
+          "slug": "collaboration"
+        }
       }
     ]
   },
