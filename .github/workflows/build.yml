@@ -30,13 +30,6 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
 
-      - name: cache playwright
-        id: playwright-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: pw-new-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
-
       - name: Install Dependencies
         run: npm install
 
@@ -45,26 +38,41 @@ jobs:
 
       - name: Lint packages
         run: npm run lint
-        env:
-          CI: true
 
       - name: Build packages
         run: npm run build
-        env:
-          CI: true
 
       - name: Run unit tests
         run: npm run test
-        env:
-          CI: true
+
+      - name: Upload webpack stats artifact (editor)
+        uses: relative-ci/agent-upload-artifact-action@v2
+        with:
+          webpackStatsFile: ./playground/dist/webpack-stats.json
+          artifactName: relative-ci-artifacts-editor
+  playwright:
+    name: "Playwright Tests"
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.49.1-noble
+      options: --user 1001
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build packages
+        run: npm run build
 
       - name: Run server
         run: npm run start:built & npx wait-on http://localhost:3000
-        env:
-          CI: true
 
-      - name: Install Playwright
-        run: npm run install-playwright
+      - name: Run your tests
+        run: npx playwright test
 
       - name: Run Playwright tests
         working-directory: ./tests
@@ -76,9 +84,3 @@ jobs:
           name: playwright-report
           path: tests/playwright-report/
           retention-days: 30
-
-      - name: Upload webpack stats artifact (editor)
-        uses: relative-ci/agent-upload-artifact-action@v2
-        with:
-          webpackStatsFile: ./playground/dist/webpack-stats.json
-          artifactName: relative-ci-artifacts-editor
