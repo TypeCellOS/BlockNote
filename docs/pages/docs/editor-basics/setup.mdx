@@ -19,15 +19,26 @@ function useCreateBlockNote(
 ): BlockNoteEditor;
 
 type BlockNoteEditorOptions = {
-  initialContent?: PartialBlock[];
-  domAttributes?: Record<string, string>;
-  defaultStyles?: boolean;
-  uploadFile?: (file: File) => Promise<string>;
-  collaboration?: CollaborationOptions;
-  dictionary?: Dictionary;
-  schema?: BlockNoteSchema;
-  trailingBlock?: boolean;
   animations?: boolean;
+  collaboration?: CollaborationOptions;
+  defaultStyles?: boolean;
+  dictionary?: Dictionary;
+  disableExtensions?: string[];
+  domAttributes?: Record<string, string>;
+  dropCursor?: (opts: {
+    editor: BlockNoteEditor;
+    color?: string | false;
+    width?: number;
+    class?: string;
+  }) => Plugin;
+  initialContent?: PartialBlock[];
+  resolveFileUrl: (url: string) => Promise<string>
+  schema?: BlockNoteSchema;
+  setIdAttribute?: boolean;
+  sideMenuDetection?: "viewport" | "editor";
+  tabBehavior?: "prefer-navigate-ui" | "prefer-indent"
+  trailingBlock?: boolean;
+  uploadFile?: (file: File) => Promise<string>;
 };
 ```
 
@@ -35,23 +46,35 @@ The hook takes two optional parameters:
 
 **options:** An object containing options for the editor:
 
-`initialContent:` The content that should be in the editor when it's created, represented as an array of [partial block objects](/docs/manipulating-blocks#partial-blocks).
-
-`domAttributes:` An object containing HTML attributes that should be added to various DOM elements in the editor. See [Adding DOM Attributes](/docs/theming#adding-dom-attributes) for more.
-
-`defaultStyles`: Whether to use the default font and reset the styles of `<p>`, `<li>`, `<h1>`, etc. elements that are used in BlockNote. Defaults to true if undefined.
-
-`uploadFile`: A function which handles file uploads and eventually returns the URL to the uploaded file. Used for [Image blocks](/docs/editor-basics/default-schema#image).
+`animations`: Whether changes to blocks (like indentation, creating lists, changing headings) should be animated or not. Defaults to `true`.
 
 `collaboration`: Options for enabling real-time collaboration. See [Real-time Collaboration](/docs/advanced/real-time-collaboration) for more info.
 
+`defaultStyles`: Whether to use the default font and reset the styles of `<p>`, `<li>`, `<h1>`, etc. elements that are used in BlockNote. Defaults to true if undefined.
+
 `dictionary`: Provide strings for localization. See the [Localization / i18n example](/examples/basic/localization) and [Custom Placeholders](/examples/basic/custom-placeholder).
 
-`schema` (_advanced_): The editor schema if you want to extend your editor with custom blocks, styles, or inline content [Custom Schemas](/docs/custom-schemas).
+`disableExtensions` (_advanced_): Disables TipTap extensions used in BlockNote by default, based on their names.
+
+`domAttributes:` An object containing HTML attributes that should be added to various DOM elements in the editor. See [Adding DOM Attributes](/docs/theming#adding-dom-attributes) for more.
+
+`dropCursor`: A replacement indicator to use when dragging and dropping blocks. Uses the [ProseMirror drop cursor](https://github.com/ProseMirror/prosemirror-dropcursor), or a modified version when [Column Blocks](/docs/editor-basics/document-structure#column-blocks) are enabled.
+
+`initialContent:` The content that should be in the editor when it's created, represented as an array of [Partial Blocks](/docs/manipulating-blocks#partial-blocks).
+
+`resolveFileUrl:` An async function that fetches the download URL of a file from an initial URL.
+
+`schema`: The editor schema if you want to extend your editor with custom blocks, styles, or inline content [Custom Schemas](/docs/custom-schemas).
+
+`setIdAttribute`: Whether to render an `id` HTML attribute on blocks as well as a `data-id` attribute. Defaults to `false`.
+
+`sideMenuDetection`: Determines whether the mouse cursor position is locked to the editor bounding box for showing the [Block Side Menu](/docs/ui-components/side-menu) and block drag & drop. When set to `viewport`, the Side Menu will be shown next to the nearest block to the cursor, regardless of where it is in the viewport. Dropping blocks will also be locked to the editor bounding box. Otherwise, the Side Menu will only be shown when the cursor is within the editor bounds, and blocks can only be dropped when hovering the editor. In order to use multiple editors, must be set to `editor`. Defaults to `viewport`.
+
+`tabBehavior`: Determines whether pressing the tab key should navigate the UI for keyboard accessibility or indent the current block. Defaults to `prefer-navigate-ui`.
 
 `trailingBlock`: An option which user can pass with `false` value to disable the automatic creation of a trailing new block on the next line when the user types or edits any block. Defaults to `true` if undefined.
 
-`animations`: Whether changes to blocks (like indentation, creating lists, changing headings) should be animated or not. Defaults to `true`.
+`uploadFile`: A function which handles file uploads and eventually returns the URL to the uploaded file. Used for [Image blocks](/docs/editor-basics/default-schema#image).
 
 **deps:** Dependency array that's internally passed to `useMemo`. A new editor will only be created when this array changes.
 
