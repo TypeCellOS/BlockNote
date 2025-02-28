@@ -12,12 +12,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - uses: nrwl/nx-set-shas@v3
 
       - uses: actions/setup-node@v4
         with:
           node-version: "20.x"
           cache: "npm"
           cache-dependency-path: "**/package-lock.json"
+
+      - name: Cache NX
+        uses: actions/cache@v4
+        with:
+          path: .nx/cache
+          key: nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-${{ github.sha }}
+          restore-keys: |
+            nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-
+            nx-${{ env.NX_BRANCH }}-
+            nx-
 
       - name: Install Dependencies
         run: npm ci --prefer-offline --no-audit
@@ -51,12 +65,29 @@ jobs:
         browser: [chromium, firefox, webkit]
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - uses: nrwl/nx-set-shas@v3
+
       - uses: actions/setup-node@v4
         with:
           node-version: "20.x"
           cache: "npm"
           cache-dependency-path: "**/package-lock.json"
+
+      - name: Cache NX
+        uses: actions/cache@v4
+        with:
+          path: .nx/cache
+          key: nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-${{ github.sha }}
+          restore-keys: |
+            nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-
+            nx-${{ env.NX_BRANCH }}-
+            nx-
+
       - run: apt-get update && apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
+
       - name: Install dependencies
         run: npm ci --prefer-offline --no-audit
 
