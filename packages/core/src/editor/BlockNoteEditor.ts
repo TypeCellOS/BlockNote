@@ -268,6 +268,35 @@ export type BlockNoteEditorOptions<
    * @default "viewport"
    */
   sideMenuDetection: "viewport" | "editor";
+
+  /**
+   * Allows enabling / disabling features of the editor.
+   */
+  settings: {
+    /**
+     * Allows enabling / disabling features of tables.
+     */
+    tables?: {
+      /**
+       * Whether to allow splitting and merging cells within a table.
+       *
+       * @default false
+       */
+      splitCells?: boolean;
+      /**
+       * Whether to allow changing the background color of cells.
+       *
+       * @default false
+       */
+      cellBackgroundColor?: boolean;
+      /**
+       * Whether to allow changing the text color of cells.
+       *
+       * @default false
+       */
+      cellTextColor?: boolean;
+    };
+  };
 };
 
 const blockNoteTipTapOptions = {
@@ -281,7 +310,10 @@ export class BlockNoteEditor<
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
   SSchema extends StyleSchema = DefaultStyleSchema
 > {
-  private readonly _pmSchema: Schema;
+  /**
+   * The underlying prosemirror schema
+   */
+  public readonly pmSchema: Schema;
 
   /**
    * extensions that are added to the editor, can be tiptap extensions or prosemirror plugins
@@ -371,9 +403,16 @@ export class BlockNoteEditor<
 
   public readonly resolveFileUrl?: (url: string) => Promise<string>;
 
-  public get pmSchema() {
-    return this._pmSchema;
-  }
+  /**
+   * Editor settings
+   */
+  public readonly settings: {
+    tables: {
+      splitCells: boolean;
+      cellBackgroundColor: boolean;
+      cellTextColor: boolean;
+    };
+  };
 
   public static create<
     BSchema extends BlockSchema = DefaultBlockSchema,
@@ -412,6 +451,14 @@ export class BlockNoteEditor<
     }
 
     this.dictionary = options.dictionary || en;
+    this.settings = {
+      tables: {
+        splitCells: options.settings?.tables?.splitCells ?? false,
+        cellBackgroundColor:
+          options.settings?.tables?.cellBackgroundColor ?? false,
+        cellTextColor: options.settings?.tables?.cellTextColor ?? false,
+      },
+    };
 
     // apply defaults
     const newOptions = {
@@ -579,11 +626,11 @@ export class BlockNoteEditor<
         view: any;
         contentComponent: any;
       };
-      this._pmSchema = this._tiptapEditor.schema;
+      this.pmSchema = this._tiptapEditor.schema;
     } else {
       // In headless mode, we don't instantiate an underlying TipTap editor,
       // but we still need the schema
-      this._pmSchema = getSchema(tiptapOptions.extensions!);
+      this.pmSchema = getSchema(tiptapOptions.extensions!);
     }
   }
 

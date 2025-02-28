@@ -26,6 +26,15 @@ export const TableCellButton = <
 
   const Component = props.tableCellMenu || TableCellMenu;
 
+  if (
+    !props.editor.settings.tables.splitCells &&
+    !props.editor.settings.tables.cellBackgroundColor &&
+    !props.editor.settings.tables.cellTextColor
+  ) {
+    // Hide the button altogether if all table cell settings are disabled
+    return null;
+  }
+
   return (
     <Components.Generic.Menu.Root
       onOpenChange={(open: boolean) => {

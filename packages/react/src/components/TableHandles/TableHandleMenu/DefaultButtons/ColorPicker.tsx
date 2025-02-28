@@ -73,7 +73,13 @@ export const ColorPickerButton = <
     editor.setTextCursorPosition(props.block);
   };
 
-  if (!currentCells || !currentCells[0] || !tableHandles) {
+  if (
+    !currentCells ||
+    !currentCells[0] ||
+    !tableHandles ||
+    (editor.settings.tables.cellTextColor === false &&
+      editor.settings.tables.cellBackgroundColor === false)
+  ) {
     return null;
   }
 
@@ -95,29 +101,38 @@ export const ColorPickerButton = <
         className={"bn-menu-dropdown bn-color-picker-dropdown"}>
         <ColorPicker
           iconSize={18}
-          text={{
-            // All cells have the same text color
-            color: currentCells.every(
-              ({ cell }) =>
-                isTableCell(cell) &&
-                cell.props.textColor === firstCell.props.textColor
-            )
-              ? firstCell.props.textColor
-              : "default",
-            setColor: (color) => {
-              updateColor(color, "text");
-            },
-          }}
-          background={{
-            color: currentCells.every(
-              ({ cell }) =>
-                isTableCell(cell) &&
-                cell.props.backgroundColor === firstCell.props.backgroundColor
-            )
-              ? firstCell.props.backgroundColor
-              : "default",
-            setColor: (color) => updateColor(color, "background"),
-          }}
+          text={
+            editor.settings.tables.cellTextColor
+              ? {
+                  // All cells have the same text color
+                  color: currentCells.every(
+                    ({ cell }) =>
+                      isTableCell(cell) &&
+                      cell.props.textColor === firstCell.props.textColor
+                  )
+                    ? firstCell.props.textColor
+                    : "default",
+                  setColor: (color) => {
+                    updateColor(color, "text");
+                  },
+                }
+              : undefined
+          }
+          background={
+            editor.settings.tables.cellBackgroundColor
+              ? {
+                  color: currentCells.every(
+                    ({ cell }) =>
+                      isTableCell(cell) &&
+                      cell.props.backgroundColor ===
+                        firstCell.props.backgroundColor
+                  )
+                    ? firstCell.props.backgroundColor
+                    : "default",
+                  setColor: (color) => updateColor(color, "background"),
+                }
+              : undefined
+          }
         />
       </Components.Generic.Menu.Dropdown>
     </Components.Generic.Menu.Root>

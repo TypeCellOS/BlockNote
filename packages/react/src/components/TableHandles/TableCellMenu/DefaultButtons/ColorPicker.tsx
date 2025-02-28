@@ -62,7 +62,11 @@ export const ColorPickerButton = <
   const currentCell =
     props.block.content.rows[props.rowIndex]?.cells?.[props.colIndex];
 
-  if (!currentCell) {
+  if (
+    !currentCell ||
+    (editor.settings.tables.cellTextColor === false &&
+      editor.settings.tables.cellBackgroundColor === false)
+  ) {
     return null;
   }
 
@@ -72,7 +76,6 @@ export const ColorPickerButton = <
         <Components.Generic.Menu.Item
           className={"bn-menu-item"}
           subTrigger={true}>
-          {/* TODO should I be using the dictionary here? */}
           {props.children || dict.drag_handle.colors_menuitem}
         </Components.Generic.Menu.Item>
       </Components.Generic.Menu.Trigger>
@@ -82,18 +85,26 @@ export const ColorPickerButton = <
         className={"bn-menu-dropdown bn-color-picker-dropdown"}>
         <ColorPicker
           iconSize={18}
-          text={{
-            color: isTableCell(currentCell)
-              ? currentCell.props.textColor
-              : "default",
-            setColor: (color) => updateColor(color, "text"),
-          }}
-          background={{
-            color: isTableCell(currentCell)
-              ? currentCell.props.backgroundColor
-              : "default",
-            setColor: (color) => updateColor(color, "background"),
-          }}
+          text={
+            editor.settings.tables.cellTextColor
+              ? {
+                  color: isTableCell(currentCell)
+                    ? currentCell.props.textColor
+                    : "default",
+                  setColor: (color) => updateColor(color, "text"),
+                }
+              : undefined
+          }
+          background={
+            editor.settings.tables.cellBackgroundColor
+              ? {
+                  color: isTableCell(currentCell)
+                    ? currentCell.props.backgroundColor
+                    : "default",
+                  setColor: (color) => updateColor(color, "background"),
+                }
+              : undefined
+          }
         />
       </Components.Generic.Menu.Dropdown>
     </Components.Generic.Menu.Root>
