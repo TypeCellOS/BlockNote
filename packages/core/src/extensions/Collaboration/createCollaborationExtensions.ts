@@ -1,6 +1,6 @@
 import Collaboration from "@tiptap/extension-collaboration";
-import { Awareness } from "y-protocols/awareness";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
+import { Awareness } from "y-protocols/awareness";
 import * as Y from "yjs";
 
 export const createCollaborationExtensions = (collaboration: {
@@ -65,11 +65,12 @@ export const createCollaborationExtensions = (collaboration: {
     const renderCursor = (user: { name: string; color: string }) => {
       const cursorElement = document.createElement("span");
 
-      cursorElement.classList.add("collaboration-cursor__caret");
-      cursorElement.setAttribute("style", `border-color: ${user.color}`);
-      if (collaboration?.showCursorLabels === "always") {
-        cursorElement.setAttribute("data-active", "");
-      }
+      cursorElement.classList.add("collaboration-cursor__base");
+
+      const caretElement = document.createElement("span");
+      caretElement.setAttribute("contentedEditable", "false");
+      caretElement.classList.add("collaboration-cursor__caret");
+      caretElement.setAttribute("style", `background-color: ${user.color}`);
 
       const labelElement = document.createElement("span");
 
@@ -77,8 +78,10 @@ export const createCollaborationExtensions = (collaboration: {
       labelElement.setAttribute("style", `background-color: ${user.color}`);
       labelElement.insertBefore(document.createTextNode(user.name), null);
 
+      caretElement.insertBefore(labelElement, null);
+
       cursorElement.insertBefore(document.createTextNode("\u2060"), null); // Non-breaking space
-      cursorElement.insertBefore(labelElement, null);
+      cursorElement.insertBefore(caretElement, null);
       cursorElement.insertBefore(document.createTextNode("\u2060"), null); // Non-breaking space
 
       return cursorElement;
@@ -90,7 +93,9 @@ export const createCollaborationExtensions = (collaboration: {
       );
 
       if (!clientState) {
-        throw new Error("Could not find client state for user");
+        throw new Error(
+          "Could not find client state for user, " + JSON.stringify(user)
+        );
       }
 
       const clientID = clientState[0];

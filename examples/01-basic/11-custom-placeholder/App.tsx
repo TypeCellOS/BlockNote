@@ -15,10 +15,12 @@ export default function App() {
       ...locale,
       placeholders: {
         ...locale.placeholders,
+        // We override the empty document placeholder
+        emptyDocument: "Start typing..",
         // We override the default placeholder
-        default: "This is a custom placeholder",
+        default: "Custom default placeholder",
         // We override the heading placeholder
-        heading: "This is a custom heading",
+        heading: "Custom heading placeholder",
       },
     },
   });
