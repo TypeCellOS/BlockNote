@@ -270,32 +270,33 @@ export type BlockNoteEditorOptions<
   sideMenuDetection: "viewport" | "editor";
 
   /**
-   * Allows enabling / disabling features of the editor.
+   * Allows enabling / disabling features of tables.
    */
-  settings: {
+  tables?: {
     /**
-     * Allows enabling / disabling features of tables.
+     * Whether to allow splitting and merging cells within a table.
+     *
+     * @default false
      */
-    tables?: {
-      /**
-       * Whether to allow splitting and merging cells within a table.
-       *
-       * @default false
-       */
-      splitCells?: boolean;
-      /**
-       * Whether to allow changing the background color of cells.
-       *
-       * @default false
-       */
-      cellBackgroundColor?: boolean;
-      /**
-       * Whether to allow changing the text color of cells.
-       *
-       * @default false
-       */
-      cellTextColor?: boolean;
-    };
+    splitCells?: boolean;
+    /**
+     * Whether to allow changing the background color of cells.
+     *
+     * @default false
+     */
+    cellBackgroundColor?: boolean;
+    /**
+     * Whether to allow changing the text color of cells.
+     *
+     * @default false
+     */
+    cellTextColor?: boolean;
+    /**
+     * Whether to allow changing cells into headers.
+     *
+     * @default false
+     */
+    headers?: boolean;
   };
 };
 
@@ -411,6 +412,7 @@ export class BlockNoteEditor<
       splitCells: boolean;
       cellBackgroundColor: boolean;
       cellTextColor: boolean;
+      headers: boolean;
     };
   };
 
@@ -453,10 +455,10 @@ export class BlockNoteEditor<
     this.dictionary = options.dictionary || en;
     this.settings = {
       tables: {
-        splitCells: options.settings?.tables?.splitCells ?? false,
-        cellBackgroundColor:
-          options.settings?.tables?.cellBackgroundColor ?? false,
-        cellTextColor: options.settings?.tables?.cellTextColor ?? false,
+        splitCells: options?.tables?.splitCells ?? false,
+        cellBackgroundColor: options?.tables?.cellBackgroundColor ?? false,
+        cellTextColor: options?.tables?.cellTextColor ?? false,
+        headers: options?.tables?.headers ?? false,
       },
     };
 

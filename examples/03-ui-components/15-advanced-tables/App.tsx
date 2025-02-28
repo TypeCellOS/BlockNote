@@ -7,12 +7,11 @@ export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     // This enables the advanced table features
-    settings: {
-      tables: {
-        splitCells: true,
-        cellBackgroundColor: true,
-        cellTextColor: true,
-      },
+    tables: {
+      splitCells: true,
+      cellBackgroundColor: true,
+      cellTextColor: true,
+      headers: true,
     },
     initialContent: [
       {
