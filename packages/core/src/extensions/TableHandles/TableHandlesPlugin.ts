@@ -1092,11 +1092,11 @@ export class TableHandlesProsemirrorPlugin<
       $toCell = state.doc.resolve(
         selection.$to.pos - selection.$to.parentOffset - 1
       );
-    }
 
-    // Opt-out when the selection is not over a range of cells
-    if ($fromCell.pos === $toCell.pos) {
-      return undefined;
+      // Opt-out when the selection is not pointing into cells
+      if ($fromCell.pos === 0 || $toCell.pos === 0) {
+        return undefined;
+      }
     }
 
     // Find the row and table that the from and to cells are in
