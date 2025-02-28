@@ -182,7 +182,6 @@ export const no: Dictionary = {
       pink: "Rosa",
     },
   },
-
   formatting_toolbar: {
     bold: {
       tooltip: "Fet",
@@ -275,6 +274,9 @@ export const no: Dictionary = {
     },
     align_justify: {
       tooltip: "Juster tekst",
+    },
+    comment: {
+      tooltip: "Legg til kommentar",
     },
   },
   file_panel: {
