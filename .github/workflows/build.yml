@@ -50,6 +50,14 @@ jobs:
         with:
           webpackStatsFile: ./playground/dist/webpack-stats.json
           artifactName: relative-ci-artifacts-editor
+
+      - name: Send bundle stats and build information to RelativeCI (editor)
+        uses: relative-ci/agent-action@v2
+        with:
+          artifactName: relative-ci-artifacts-editor
+          key: ${{ secrets.RELATIVE_CI_KEY }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
   playwright:
     name: "Playwright Tests"
     runs-on: ubuntu-latest
