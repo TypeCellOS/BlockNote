@@ -34,7 +34,8 @@ export const SplitButton = <
   if (
     !currentCell ||
     !isTableCell(currentCell) ||
-    (getRowspan(currentCell) === 1 && getColspan(currentCell) === 1)
+    (getRowspan(currentCell) === 1 && getColspan(currentCell) === 1) ||
+    !editor.settings.tables.splitCells
   ) {
     return null;
   }

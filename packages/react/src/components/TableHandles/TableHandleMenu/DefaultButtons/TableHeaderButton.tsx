@@ -27,7 +27,12 @@ export const TableHeaderRowButton = <
   >();
   const tableHandles = editor.tableHandles;
 
-  if (!tableHandles || props.index !== 0 || props.orientation !== "row") {
+  if (
+    !tableHandles ||
+    props.index !== 0 ||
+    props.orientation !== "row" ||
+    !editor.settings.tables.headers
+  ) {
     return null;
   }
 
@@ -73,7 +78,12 @@ export const TableHeaderColumnButton = <
   >();
   const tableHandles = editor.tableHandles;
 
-  if (!tableHandles || props.index !== 0 || props.orientation !== "column") {
+  if (
+    !tableHandles ||
+    props.index !== 0 ||
+    props.orientation !== "column" ||
+    !editor.settings.tables.headers
+  ) {
     return null;
   }
 

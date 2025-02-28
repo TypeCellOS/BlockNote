@@ -31,7 +31,7 @@ export const TableRowHeaderItem = <
     S
   >();
 
-  if (props.block.type !== "table") {
+  if (props.block.type !== "table" || !editor.settings.tables.headers) {
     return null;
   }
 
@@ -79,7 +79,7 @@ export const TableColumnHeaderItem = <
     S
   >();
 
-  if (props.block.type !== "table") {
+  if (props.block.type !== "table" || !editor.settings.tables.headers) {
     return null;
   }
 

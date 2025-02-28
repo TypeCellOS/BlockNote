@@ -658,6 +658,27 @@
         }
       },
       {
+        "projectSlug": "advanced-tables",
+        "fullSlug": "ui-components/advanced-tables",
+        "pathFromRoot": "examples/03-ui-components/15-advanced-tables",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "nperez0111",
+          "tags": [
+            "Intermediate",
+            "UI Components",
+            "Tables",
+            "Appearance & Styling"
+          ]
+        },
+        "title": "Advanced Tables",
+        "group": {
+          "pathFromRoot": "examples/03-ui-components",
+          "slug": "ui-components"
+        }
+      },
+      {
         "projectSlug": "link-toolbar-buttons",
         "fullSlug": "ui-components/link-toolbar-buttons",
         "pathFromRoot": "examples/03-ui-components/link-toolbar-buttons",

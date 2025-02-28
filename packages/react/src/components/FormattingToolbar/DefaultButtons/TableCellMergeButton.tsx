@@ -43,7 +43,11 @@ export const TableCellMergeButton = () => {
     editor.tableHandles?.mergeCells();
   }, [editor]);
 
-  if (!editor.isEditable || mergeDirection === undefined) {
+  if (
+    !editor.isEditable ||
+    mergeDirection === undefined ||
+    !editor.settings.tables.splitCells
+  ) {
     return null;
   }
 
