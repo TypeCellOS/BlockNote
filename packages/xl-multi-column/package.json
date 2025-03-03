@@ -26,13 +26,13 @@
   "type": "module",
   "source": "src/index.ts",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-xl-multi-column.umd.cjs",
+  "main": "./dist/blocknote-xl-multi-column.cjs",
   "module": "./dist/blocknote-xl-multi-column.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
       "import": "./dist/blocknote-xl-multi-column.js",
-      "require": "./dist/blocknote-xl-multi-column.umd.cjs"
+      "require": "./dist/blocknote-xl-multi-column.cjs"
     }
   },
   "scripts": {

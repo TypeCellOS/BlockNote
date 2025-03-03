@@ -27,13 +27,13 @@
   "type": "module",
   "source": "src/index.ts",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-xl-pdf-exporter.umd.cjs",
+  "main": "./dist/blocknote-xl-pdf-exporter.cjs",
   "module": "./dist/blocknote-xl-pdf-exporter.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
       "import": "./dist/blocknote-xl-pdf-exporter.js",
-      "require": "./dist/blocknote-xl-pdf-exporter.umd.cjs"
+      "require": "./dist/blocknote-xl-pdf-exporter.cjs"
     },
     "./style.css": {
       "import": "./dist/style.css",

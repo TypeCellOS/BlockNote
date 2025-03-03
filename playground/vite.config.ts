@@ -13,7 +13,9 @@ export default defineConfig(
   (conf) =>
     ({
       plugins: [react(), webpackStats()],
-      optimizeDeps: {},
+      optimizeDeps: {
+        // link: ['vite-react-ts-components'],
+      },
       build: {
         sourcemap: true,
       },
@@ -25,12 +27,15 @@ export default defineConfig(
             auto,
           ],
         },
+        // postcss: "../packages/shadcn/postcss.config.js",
       },
       resolve: {
         alias:
           conf.command === "build"
             ? {}
             : {
+                // Comment out the lines below to load a built version of blocknote
+                // or, keep as is to load live from sources with live reload working
                 "@blocknote/core": path.resolve(
                   __dirname,
                   "../packages/core/src/"
