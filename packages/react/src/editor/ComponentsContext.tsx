@@ -198,6 +198,9 @@ export type ComponentProps = {
   Comments: {
     Card: {
       className?: string;
+      onFocus?: () => void;
+      onBlur?: () => void;
+      tabIndex?: number;
       children?: ReactNode;
     };
     CardSection: {

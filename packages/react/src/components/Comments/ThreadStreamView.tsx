@@ -9,7 +9,7 @@ import { useThreads } from "./useThreads.js";
  *
  * This component is similar to Google Docs "Show All Comments" sidebar (cmd+option+shift+A)
  */
-export function ThreadStreamView(props: {
+export function ThreadStreamView(_props: {
   maxCommentsPerThread?: number;
   sort?: "document-order" | "newest-first" | "oldest-first";
 }) {

@@ -1,5 +1,4 @@
 import { mergeCSSClasses } from "@blocknote/core";
-import type { ComponentPropsWithoutRef } from "react";
 import { useCallback, useMemo } from "react";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -11,7 +10,7 @@ import { schema } from "./schema.js";
 import { useThreads } from "./useThreads.js";
 import { useUsers } from "./useUsers.js";
 
-export interface ThreadProps extends ComponentPropsWithoutRef<"div"> {
+export type ThreadProps = {
   /**
    * The thread to display.
    */
@@ -41,7 +40,15 @@ export interface ThreadProps extends ComponentPropsWithoutRef<"div"> {
    * Whether to show deleted comments.
    */
   showDeletedComments?: CommentProps["showDeleted"];
-}
+
+  className?: string;
+
+  onFocus?: () => void;
+
+  onBlur?: () => void;
+
+  tabIndex?: number;
+};
 
 /**
  * The Thread component displays a (main) comment with a list of replies (other comments).
@@ -52,11 +59,13 @@ export const Thread = ({
   threadId,
   showActions = "hover",
   showDeletedComments,
-  showResolveAction = true,
+  // showResolveAction = true,
   showReactions = true,
   showComposer = true,
   className,
-  ...props
+  onFocus,
+  onBlur,
+  tabIndex,
 }: ThreadProps) => {
   // TODO: if REST API becomes popular, all interactions (click handlers) should implement a loading state and error state
   // (or optimistic local updates)
@@ -124,7 +133,9 @@ export const Thread = ({
   return (
     <Components.Comments.Card
       className={mergeCSSClasses("bn-thread", className)}
-      {...props}>
+      onFocus={onFocus}
+      onBlur={onBlur}
+      tabIndex={tabIndex}>
       <Components.Comments.CardSection className="bn-thread-comments">
         {thread.comments.map((comment, index) => {
           const isFirstComment = index === firstCommentIndex;
