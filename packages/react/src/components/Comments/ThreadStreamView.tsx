@@ -27,23 +27,29 @@ export function ThreadStreamView(_props: {
 
   const selectedThreadId = state?.selectedThreadId;
 
-  const allThreads = useThreads(editor);
+  const threads = useThreads(editor);
 
-  const threads = useMemo(() => {
-    const ret = Array.from(allThreads.values()).filter(
-      (thread) => !thread.resolved && !thread.deletedAt
-    );
+  const { open, resolved } = useMemo(() => {
+    const allThreads = Array.from(threads.values());
 
-    return ret;
-    //.sort((a, b) => {
-    //  return a.id.localeCompare(b.id);
-    //});
-  }, [allThreads]);
+    const open = [];
+    const resolved = [];
+
+    for (const thread of allThreads) {
+      if (!thread.resolved) {
+        open.push(thread);
+      } else {
+        resolved.push(thread);
+      }
+    }
+
+    return { open, resolved };
+  }, [threads]);
 
   return (
     <div className={"bn-thread-stream"}>
-      {/*<h1>ThreadStreamView</h1>*/}
-      {threads.map((thread) => (
+      <h2>Open</h2>
+      {open.map((thread) => (
         <Thread
           key={thread.id}
           threadId={thread.id}
@@ -52,6 +58,23 @@ export function ThreadStreamView(_props: {
             comments.selectThread(thread.id);
           }}
           onBlur={() => {
+            comments.selectThread(undefined);
+          }}
+          tabIndex={0}
+        />
+      ))}
+      <h2>Resolved</h2>
+      {resolved.map((thread) => (
+        <Thread
+          key={thread.id}
+          threadId={thread.id}
+          showComposer={selectedThreadId === thread.id}
+          onFocus={() => {
+            console.log("focus");
+            comments.selectThread(thread.id);
+          }}
+          onBlur={() => {
+            console.log("blur");
             comments.selectThread(undefined);
           }}
           tabIndex={0}

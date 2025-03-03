@@ -13,8 +13,6 @@ export const Card = forwardRef<
 
   return (
     <MantineCard
-      w={350}
-      p={"md"}
       className={className}
       onFocus={onFocus}
       onBlur={onBlur}

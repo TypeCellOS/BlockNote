@@ -256,23 +256,27 @@ export const Comment = ({
     );
   }
 
-  const timeString =
-    comment.createdAt.toLocaleDateString(undefined, {
-      month: "short",
-      day: "numeric",
-    }) +
-    (comment.updatedAt.getTime() !== comment.createdAt.getTime()
-      ? " (edited)"
-      : "");
+  const timeString = comment.createdAt.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
+  // (comment.updatedAt.getTime() !== comment.createdAt.getTime()
+  //   ? " (edited)"
+  //   : "");
 
   if (!comment.body) {
     throw new Error("soft deletes are not yet supported");
   }
 
+  const edited = comment.updatedAt.getTime() !== comment.createdAt.getTime();
+  const resolved = thread.resolved;
+
   return (
     <Components.Comments.Comment
       authorInfo={user ?? "loading"}
       timeString={timeString}
+      edited={edited}
+      resolved={resolved}
       showActions={showActions}
       actions={actions}
       className={className}>

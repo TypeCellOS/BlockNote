@@ -84,14 +84,18 @@
   width: 0;
 }
 
-.bn-editor-and-thread-stream > .bn-thread-stream-wrapper > h1 {
+.bn-editor-and-thread-stream > .bn-thread-stream-wrapper h1,
+.bn-editor-and-thread-stream > .bn-thread-stream-wrapper h2{
   color: var(--bn-colors-menu-text);
   margin: 0;
 }
 
 .bn-editor-and-thread-stream > .bn-thread-stream-wrapper > .bn-thread-stream {
   border-radius: var(--bn-border-radius-medium);
+  display: flex;
   flex: 1;
+  flex-direction: column;
+  gap: 8px;
   height: 0;
   overflow: auto;
 }

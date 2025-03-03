@@ -219,6 +219,8 @@ export type ComponentProps = {
       children?: ReactNode;
       authorInfo: "loading" | User;
       timeString: string;
+      edited: boolean;
+      resolved: boolean;
       actions?: ReactNode;
       showActions?: boolean | "hover";
     };

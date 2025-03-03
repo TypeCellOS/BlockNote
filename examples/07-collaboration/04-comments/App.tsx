@@ -30,7 +30,7 @@ async function resolveUsers(userIds: string[]) {
 // (but of course, you also use other collaboration providers
 // see the docs for more information)
 export default function App() {
-  const docId = "my-blocknote-document-with-comments";
+  const docId = "my-blocknote-document-with-comments-1";
 
   return (
     <MantineProvider>
@@ -112,8 +112,7 @@ function Document() {
       <BlockNoteView
         editor={editor}
         editable={user.role === "editor"}
-        renderEditor={false}
-        formattingToolbar={false}>
+        renderEditor={false}>
         <div className={"bn-editor-and-thread-stream"}>
           <BlockNoteViewEditor />
           <div className={"bn-thread-stream-wrapper bn-mantine"}>

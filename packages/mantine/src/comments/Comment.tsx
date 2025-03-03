@@ -6,9 +6,12 @@ import { forwardRef } from "react";
 
 const AuthorInfo = forwardRef<
   HTMLDivElement,
-  Pick<ComponentProps["Comments"]["Comment"], "authorInfo" | "timeString">
+  Pick<
+    ComponentProps["Comments"]["Comment"],
+    "authorInfo" | "timeString" | "edited" | "resolved"
+  >
 >((props, _ref) => {
-  const { authorInfo, timeString, ...rest } = props;
+  const { authorInfo, timeString, edited, resolved, ...rest } = props;
 
   assertEmpty(rest, false);
 
@@ -37,7 +40,7 @@ const AuthorInfo = forwardRef<
       <Text fz="sm" fw={"bold"}>
         {authorInfo.username}
         <Text fz="xs" c="dimmed" span ml={"xs"}>
-          {timeString}
+          {timeString} {edited && "(edited)"}
         </Text>
       </Text>
     </Group>
@@ -53,6 +56,8 @@ export const Comment = forwardRef<
     showActions,
     authorInfo,
     timeString,
+    edited,
+    resolved,
     actions,
     children,
     ...rest
