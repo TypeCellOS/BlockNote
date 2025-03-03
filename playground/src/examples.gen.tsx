@@ -658,6 +658,27 @@
         }
       },
       {
+        "projectSlug": "advanced-tables",
+        "fullSlug": "ui-components/advanced-tables",
+        "pathFromRoot": "examples/03-ui-components/15-advanced-tables",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "nperez0111",
+          "tags": [
+            "Intermediate",
+            "UI Components",
+            "Tables",
+            "Appearance & Styling"
+          ]
+        },
+        "title": "Advanced Tables",
+        "group": {
+          "pathFromRoot": "examples/03-ui-components",
+          "slug": "ui-components"
+        }
+      },
+      {
         "projectSlug": "link-toolbar-buttons",
         "fullSlug": "ui-components/link-toolbar-buttons",
         "pathFromRoot": "examples/03-ui-components/link-toolbar-buttons",
@@ -1155,6 +1176,30 @@
           } as any
         },
         "title": "Collaborative Editing with Y-Sweet",
+        "group": {
+          "pathFromRoot": "examples/07-collaboration",
+          "slug": "collaboration"
+        }
+      },
+      {
+        "projectSlug": "comments",
+        "fullSlug": "collaboration/comments",
+        "pathFromRoot": "examples/07-collaboration/04-comments",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "Advanced",
+            "Comments",
+            "Collaboration"
+          ],
+          "dependencies": {
+            "@y-sweet/react": "^0.6.3",
+            "@mantine/core": "^7.10.1"
+          } as any
+        },
+        "title": "Comments & Threads",
         "group": {
           "pathFromRoot": "examples/07-collaboration",
           "slug": "collaboration"

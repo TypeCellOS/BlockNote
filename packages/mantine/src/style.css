@@ -127,6 +127,14 @@
   padding: 0;
 }
 
+.bn-mantine .mantine-Tooltip-tooltip p:last-child {
+  white-space: pre-wrap;
+}
+
+.bn-mantine .mantine-Tooltip-tooltip p:first-child {
+  white-space: unset;
+}
+
 /* UI element styling */
 
 /* Select styling */
@@ -495,14 +503,15 @@
 
 /* Table Handle styling */
 .bn-mantine .bn-table-handle,
-.bn-mantine .bn-extend-button {
+.bn-mantine .bn-extend-button,
+.bn-mantine .bn-table-cell-handle {
   align-items: center;
   background-color: var(--bn-colors-menu-background);
   border: var(--bn-border);
   border-radius: var(--bn-border-radius-small);
   box-shadow: var(--bn-shadow-light);
   color: var(--bn-colors-side-menu);
-  cursor: pointer;
+  cursor: grab;
   display: flex;
   height: fit-content;
   justify-content: center;
@@ -510,14 +519,23 @@
   padding: 0;
 }
 
+.bn-mantine .bn-table-cell-handle {
+  padding: 0 4px;
+}
+
 .bn-mantine .bn-table-handle svg {
   margin-inline: -4px;
+}
+
+.bn-mantine .bn-table-handle-not-draggable {
+  cursor: pointer;
 }
 
 .bn-mantine .bn-table-handle:hover,
 .bn-mantine .bn-table-handle-dragging,
 .bn-mantine .bn-extend-button:hover,
-.bn-mantine .bn-extend-button-editing {
+.bn-mantine .bn-extend-button-editing,
+.bn-mantine .bn-table-cell-handle:hover {
   background-color: var(--bn-colors-hovered-background);
 }
 
@@ -536,7 +554,8 @@
 }
 
 /* Drag Handle & Table Handle Menu styling */
-.bn-mantine .bn-drag-handle-menu {
+.bn-mantine .bn-drag-handle-menu,
+.bn-mantine .bn-table-handle-menu {
   overflow: visible;
 }
 
@@ -563,4 +582,136 @@
   align-items: center;
   display: flex;
   justify-content: space-between;
+}
+
+/* Comment styling */
+.bn-mantine .bn-thread {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+  color: var(--bn-colors-menu-text);
+  overflow: visible;
+}
+
+.bn-mantine .bn-thread-comments {
+  border-bottom: var(--bn-border);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.bn-mantine .bn-thread-comment {
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.bn-mantine .bn-thread-comment > .mantine-Group-root {
+  gap: 12px;
+}
+
+.bn-mantine .bn-thread-comment p {
+  color: var(--bn-colors-menu-text);
+}
+
+.bn-mantine .bn-comment-actions-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Comment action toolbar styling */
+.bn-mantine .bn-action-toolbar {
+  align-self: flex-end;
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  gap: 0;
+  padding: 2px;
+}
+
+.bn-action-toolbar .mantine-Button-root,
+.bn-action-toolbar .mantine-ActionIcon-root {
+  background-color: var(--bn-colors-menu-background);
+  border: none;
+  border-radius: var(--bn-border-radius-small);
+  color: var(--bn-colors-menu-text);
+}
+
+.bn-action-toolbar .mantine-Button-root:hover,
+.bn-action-toolbar .mantine-ActionIcon-root:hover {
+  background-color: var(--bn-colors-hovered-background);
+  border: none;
+  color: var(--bn-colors-hovered-text);
+}
+
+.bn-action-toolbar .mantine-Button-root[data-selected],
+.bn-action-toolbar .mantine-ActionIcon-root[data-selected] {
+  background-color: var(--bn-colors-selected-background);
+  border: none;
+  color: var(--bn-colors-selected-text);
+}
+
+.bn-action-toolbar .mantine-Button-root[data-disabled],
+.bn-action-toolbar .mantine-ActionIcon-root[data-disabled] {
+  background-color: var(--bn-colors-disabled-background);
+  border: none;
+  color: var(--bn-colors-disabled-text);
+}
+
+.bn-mantine .bn-action-toolbar .mantine-Menu-itemLabel {
+  font-size: 12px;
+}
+
+/* Badge styling */
+.bn-mantine .bn-badge-group {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.bn-mantine .bn-badge {
+  flex-grow: 0;
+}
+
+.bn-mantine .bn-badge .mantine-Chip-label {
+  padding: 0 8px;
+}
+
+.bn-mantine .bn-badge .mantine-Chip-label:not([data-checked="true"]) {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  color: var(--bn-colors-menu-text);
+}
+
+.bn-mantine .bn-badge .mantine-Chip-label:hover {
+  border: 1px solid var(--mantine-primary-color-filled-hover);
+  color: var(--mantine-primary-color-filled-hover);
+}
+
+.bn-mantine
+  .bn-badge
+  .mantine-Chip-label
+  > span:not(.mantine-Chip-iconWrapper) {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.bn-mantine
+  .bn-badge
+  .mantine-Chip-label
+  > span:not(.mantine-Chip-iconWrapper)
+  > span {
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+}
+
+/* We need to get rid of the checked icon - you can set the icon prop to an
+empty element (<></>), but even so Mantine leaves extra space for the icon, so
+we just don't display it in CSS instead. */
+.bn-mantine .bn-badge .mantine-Chip-iconWrapper {
+  display: none;
 }

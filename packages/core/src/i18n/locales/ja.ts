@@ -150,6 +150,9 @@ export const ja: Dictionary = {
     bulletListItem: "リストを追加",
     numberedListItem: "リストを追加",
     checkListItem: "リストを追加",
+    new_comment: "コメントを書く...",
+    edit_comment: "コメントを編集...",
+    comment_reply: "コメントを追加...",
   },
   file_blocks: {
     image: {
@@ -173,6 +176,8 @@ export const ja: Dictionary = {
   drag_handle: {
     delete_menuitem: "削除",
     colors_menuitem: "色を変更",
+    header_row_menuitem: "行の見出し",
+    header_column_menuitem: "列の見出し",
   },
   table_handle: {
     delete_column_menuitem: "列を削除",
@@ -181,6 +186,9 @@ export const ja: Dictionary = {
     add_right_menuitem: "右に列を追加",
     add_above_menuitem: "上に行を追加",
     add_below_menuitem: "下に行を追加",
+    split_cell_menuitem: "セルを分割",
+    merge_cells_menuitem: "セルを結合",
+    background_color_menuitem: "背景色を変更",
   },
   suggestion_menu: {
     no_items_title: "アイテムが見つかりません",
@@ -296,6 +304,9 @@ export const ja: Dictionary = {
     align_justify: {
       tooltip: "両端揃え",
     },
+    table_cell_merge: {
+      tooltip: "セルを結合",
+    },
     comment: {
       tooltip: "コメントを追加",
     },
@@ -336,6 +347,18 @@ export const ja: Dictionary = {
     form: {
       title_placeholder: "タイトルを編集",
       url_placeholder: "URLを編集",
+    },
+  },
+  comments: {
+    actions: {
+      add_reaction: "リアクションを追加",
+      resolve: "解決",
+      edit_comment: "コメントを編集",
+      delete_comment: "コメントを削除",
+      more_actions: "その他の操作",
+    },
+    reactions: {
+      reacted_by: "リアクションした人",
     },
   },
   generic: {

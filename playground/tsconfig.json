@@ -23,6 +23,8 @@
     { "path": "./tsconfig.node.json" },
     { "path": "../packages/core/" },
     { "path": "../packages/react/" },
+    { "path": "../packages/ariakit/" },
+    { "path": "../packages/mantine/" },
     { "path": "../packages/shadcn/" },
     { "path": "../packages/xl-pdf-exporter/" },
     { "path": "../packages/xl-docx-exporter/" },

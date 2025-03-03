@@ -16,11 +16,14 @@ import { TableHandle } from "./TableHandle.js";
 import { TableHandleProps } from "./TableHandleProps.js";
 import { useExtendButtonsPositioning } from "./hooks/useExtendButtonsPositioning.js";
 import { useTableHandlesPositioning } from "./hooks/useTableHandlesPositioning.js";
+import { TableCellButton } from "./TableCellButton.js";
+import { TableCellButtonProps } from "./TableCellButtonProps.js";
 
 export const TableHandlesController = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(props: {
+  tableCellHandle?: FC<TableCellButtonProps<I, S>>;
   tableHandle?: FC<TableHandleProps<I, S>>;
   extendButton?: FC<ExtendButtonProps<I, S>>;
 }) => {
@@ -75,7 +78,7 @@ export const TableHandlesController = <
     state?.draggingState?.mousePos,
   ]);
 
-  const { rowHandle, colHandle } = useTableHandlesPositioning(
+  const { rowHandle, colHandle, cellHandle } = useTableHandlesPositioning(
     state?.show || false,
     state?.referencePosCell || null,
     state?.referencePosTable || null,
@@ -98,6 +101,7 @@ export const TableHandlesController = <
 
   const TableHandleComponent = props.tableHandle || TableHandle;
   const ExtendButtonComponent = props.extendButton || ExtendButton;
+  const TableCellHandleComponent = props.tableCellHandle || TableCellButton;
 
   return (
     <>
@@ -144,6 +148,23 @@ export const TableHandlesController = <
                 freezeHandles={callbacks.freezeHandles}
                 unfreezeHandles={callbacks.unfreezeHandles}
                 menuContainer={menuContainerRef}
+              />
+            </div>
+          )}
+
+        {menuContainerRef &&
+          cellHandle.isMounted &&
+          state.colIndex !== undefined &&
+          state.rowIndex !== undefined && (
+            <div ref={cellHandle.ref} style={cellHandle.style}>
+              <TableCellHandleComponent
+                editor={editor as any}
+                block={state.block}
+                rowIndex={state.rowIndex}
+                colIndex={state.colIndex}
+                menuContainer={menuContainerRef}
+                freezeHandles={callbacks.freezeHandles}
+                unfreezeHandles={callbacks.unfreezeHandles}
               />
             </div>
           )}

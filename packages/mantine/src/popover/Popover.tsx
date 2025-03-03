@@ -11,7 +11,7 @@ import { forwardRef } from "react";
 export const Popover = (
   props: ComponentProps["Generic"]["Popover"]["Root"]
 ) => {
-  const { children, opened, position, ...rest } = props;
+  const { opened, position, children, ...rest } = props;
 
   assertEmpty(rest);
 

@@ -10,6 +10,7 @@ import {
   MenuLabel,
   MenuTrigger,
 } from "./menu/Menu.js";
+import { MenuButton } from "./menu/Button.js";
 import { Panel } from "./panel/Panel.js";
 import { PanelTab } from "./panel/PanelTab.js";
 import { PanelTextInput } from "./panel/PanelTextInput.js";
@@ -26,6 +27,10 @@ import { SuggestionMenuLoader } from "./suggestionMenu/SuggestionMenuLoader.js";
 import { ExtendButton } from "./tableHandle/ExtendButton.js";
 import { TableHandle } from "./tableHandle/TableHandle.js";
 import { Toolbar, ToolbarButton, ToolbarSelect } from "./toolbar/Toolbar.js";
+import { Card, CardSection } from "./comments/Card.js";
+import { Comment } from "./comments/Comment.js";
+import { Editor } from "./comments/Editor.js";
+import { Badge, BadgeGroup } from "./badge/Badge.js";
 
 import { PanelButton } from "./panel/PanelButton.js";
 import { PanelFileInput } from "./panel/PanelFileInput.js";
@@ -71,7 +76,17 @@ export const components: Components = {
     Root: TableHandle,
     ExtendButton: ExtendButton,
   },
+  Comments: {
+    Comment: Comment,
+    Editor: Editor,
+    Card: Card,
+    CardSection: CardSection,
+  },
   Generic: {
+    Badge: {
+      Root: Badge,
+      Group: BadgeGroup,
+    },
     Toolbar: {
       Root: Toolbar,
       Button: ToolbarButton,
@@ -87,6 +102,7 @@ export const components: Components = {
       Divider: MenuDivider,
       Label: MenuLabel,
       Item: MenuItem,
+      Button: MenuButton,
     },
     Popover: {
       Root: Popover,

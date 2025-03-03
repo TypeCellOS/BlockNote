@@ -1,6 +1,7 @@
 import {
   Exporter,
   InlineContentSchema,
+  mapTableCell,
   StyleSchema,
   TableContent,
 } from "@blocknote/core";
@@ -67,7 +68,9 @@ export const Table = (props: {
                 : { flex: 1 },
             ]}
             key={index}>
-            {props.transformer.transformInlineContent(cell)}
+            {props.transformer.transformInlineContent(
+              mapTableCell(cell).content
+            )}
           </View>
         ))}
       </View>

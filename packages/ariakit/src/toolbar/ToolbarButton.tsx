@@ -1,7 +1,7 @@
 import {
+  ToolbarItem as AriakitToolbarItem,
   Tooltip as AriakitTooltip,
   TooltipAnchor as AriakitTooltipAnchor,
-  ToolbarItem as AriakitToolbarItem,
   TooltipProvider as AriakitTooltipProvider,
 } from "@ariakit/react";
 
@@ -27,6 +27,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       isDisabled,
       onClick,
       label,
+      variant,
       ...rest
     } = props;
 
@@ -37,7 +38,6 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
     return (
       <AriakitTooltipProvider>
         <AriakitTooltipAnchor
-          className="link"
           render={
             <AriakitToolbarItem
               aria-label={label}
@@ -55,11 +55,6 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
               onClick={onClick}
               aria-pressed={isSelected}
               data-selected={isSelected ? "true" : undefined}
-              data-test={
-                props.mainTooltip.slice(0, 1).toLowerCase() +
-                props.mainTooltip.replace(/\s+/g, "").slice(1)
-              }
-              //   size={"xs"}
               disabled={isDisabled || false}
               ref={ref}
               {...rest}>
@@ -68,7 +63,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             </AriakitToolbarItem>
           }
         />
-        <AriakitTooltip className="bn-ak-tooltip">
+        <AriakitTooltip className="bn-ak-tooltip" portal={false}>
           <span>{mainTooltip}</span>
           {secondaryTooltip && <span>{secondaryTooltip}</span>}
         </AriakitTooltip>

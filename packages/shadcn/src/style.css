@@ -173,3 +173,13 @@
   overflow-x: auto;
   max-width: 100vw;
 }
+
+.bn-shadcn .bn-comment-actions-wrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.bn-shadcn .bn-table-cell-handle {
+  padding: 0 4px;
+  height: 12px;
+}
