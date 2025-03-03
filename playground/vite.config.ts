@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import react from "@vitejs/plugin-react";
 import auto from "autoprefixer";
 import * as path from "path";
@@ -8,42 +9,62 @@ import nesting from "tailwindcss/nesting";
 import { defineConfig } from "vite";
 // import eslintPlugin from "vite-plugin-eslint";
 // https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [react(), webpackStats()],
-  optimizeDeps: {},
-  build: {
-    sourcemap: true,
-  },
-  css: {
-    postcss: {
-      plugins: [
-        nesting,
-        tailwindcss("../packages/shadcn/tailwind.config.js"), // Adjust the path as necessary
-        auto,
-      ],
-    },
-  },
-  resolve: {
-    alias: {
-      "@blocknote/core": path.resolve(__dirname, "../packages/core/src/"),
-      "@blocknote/react": path.resolve(__dirname, "../packages/react/src/"),
-      "@blocknote/ariakit": path.resolve(__dirname, "../packages/ariakit/src/"),
-      "@blocknote/mantine": path.resolve(__dirname, "../packages/mantine/src/"),
-      "@blocknote/shadcn": path.resolve(__dirname, "../packages/shadcn/src/"),
-      "@blocknote/xl-docx-exporter": path.resolve(
-        __dirname,
-        "../packages/xl-docx-exporter/src/"
-      ),
-      "@blocknote/xl-pdf-exporter": path.resolve(
-        __dirname,
-        "../packages/xl-pdf-exporter/src/"
-      ),
-      "@shared": path.resolve(__dirname, "../shared/"),
-      "@blocknote/xl-multi-column": path.resolve(
-        __dirname,
-        "../packages/xl-multi-column/src/"
-      ),
-      /*
+export default defineConfig(
+  (conf) =>
+    ({
+      plugins: [react(), webpackStats()],
+      optimizeDeps: {},
+      build: {
+        sourcemap: true,
+      },
+      css: {
+        postcss: {
+          plugins: [
+            nesting,
+            tailwindcss("../packages/shadcn/tailwind.config.js"), // Adjust the path as necessary
+            auto,
+          ],
+        },
+      },
+      resolve: {
+        alias:
+          conf.command === "build"
+            ? {}
+            : {
+                "@blocknote/core": path.resolve(
+                  __dirname,
+                  "../packages/core/src/"
+                ),
+                "@blocknote/react": path.resolve(
+                  __dirname,
+                  "../packages/react/src/"
+                ),
+                "@blocknote/ariakit": path.resolve(
+                  __dirname,
+                  "../packages/ariakit/src/"
+                ),
+                "@blocknote/mantine": path.resolve(
+                  __dirname,
+                  "../packages/mantine/src/"
+                ),
+                "@blocknote/shadcn": path.resolve(
+                  __dirname,
+                  "../packages/shadcn/src/"
+                ),
+                "@blocknote/xl-docx-exporter": path.resolve(
+                  __dirname,
+                  "../packages/xl-docx-exporter/src/"
+                ),
+                "@blocknote/xl-pdf-exporter": path.resolve(
+                  __dirname,
+                  "../packages/xl-pdf-exporter/src/"
+                ),
+                "@shared": path.resolve(__dirname, "../shared/"),
+                "@blocknote/xl-multi-column": path.resolve(
+                  __dirname,
+                  "../packages/xl-multi-column/src/"
+                ),
+                /*
       This can be used when developing against a local version of liveblocks:
       
       "@liveblocks/core": path.resolve(
@@ -88,6 +109,7 @@ export default defineConfig({
         "../node_modules/@tiptap/suggestion/"
       ),
       yjs: path.resolve(__dirname, "../node_modules/yjs/"),*/
-    },
-  },
-});
+              },
+      },
+    } as any)
+);
