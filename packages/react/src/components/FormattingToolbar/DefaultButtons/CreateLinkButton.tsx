@@ -6,6 +6,7 @@ import {
   BlockSchema,
   formatKeyboardShortcut,
   InlineContentSchema,
+  isTableCellSelection,
   StyleSchema,
 } from "@blocknote/core";
 
@@ -92,8 +93,12 @@ export const CreateLinkButton = () => {
       }
     }
 
+    if (isTableCellSelection(editor.prosemirrorState.selection)) {
+      return false;
+    }
+
     return true;
-  }, [linkInSchema, selectedBlocks]);
+  }, [linkInSchema, selectedBlocks, editor.prosemirrorState.selection]);
 
   if (
     !show ||

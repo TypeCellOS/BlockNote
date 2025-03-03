@@ -130,6 +130,9 @@ export const en = {
     numberedListItem: "List",
     checkListItem: "List",
     emptyDocument: undefined,
+    new_comment: "Write a comment...",
+    edit_comment: "Edit comment...",
+    comment_reply: "Add comment...",
   } as Record<string | "default" | "emptyDocument", string | undefined>,
   file_blocks: {
     image: {
@@ -153,6 +156,8 @@ export const en = {
   drag_handle: {
     delete_menuitem: "Delete",
     colors_menuitem: "Colors",
+    header_row_menuitem: "Header row",
+    header_column_menuitem: "Header column",
   },
   table_handle: {
     delete_column_menuitem: "Delete column",
@@ -161,6 +166,9 @@ export const en = {
     add_right_menuitem: "Add column right",
     add_above_menuitem: "Add row above",
     add_below_menuitem: "Add row below",
+    split_cell_menuitem: "Split cell",
+    merge_cells_menuitem: "Merge cells",
+    background_color_menuitem: "Background color",
   },
   suggestion_menu: {
     no_items_title: "No items found",
@@ -276,6 +284,9 @@ export const en = {
     align_justify: {
       tooltip: "Justify text",
     },
+    table_cell_merge: {
+      tooltip: "Merge cells",
+    },
     comment: {
       tooltip: "Add comment",
     },
@@ -316,6 +327,18 @@ export const en = {
     form: {
       title_placeholder: "Edit title",
       url_placeholder: "Edit URL",
+    },
+  },
+  comments: {
+    actions: {
+      add_reaction: "Add reaction",
+      resolve: "Resolve",
+      edit_comment: "Edit comment",
+      delete_comment: "Delete comment",
+      more_actions: "More actions",
+    },
+    reactions: {
+      reacted_by: "Reacted by",
     },
   },
   generic: {

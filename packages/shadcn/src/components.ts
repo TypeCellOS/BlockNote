@@ -10,6 +10,7 @@ import {
   MenuLabel,
   MenuTrigger,
 } from "./menu/Menu.js";
+import { MenuButton } from "./menu/Button.js";
 import { Panel } from "./panel/Panel.js";
 import { PanelTab } from "./panel/PanelTab.js";
 import { PanelTextInput } from "./panel/PanelTextInput.js";
@@ -101,6 +102,7 @@ export const components: Components = {
       Divider: MenuDivider,
       Label: MenuLabel,
       Item: MenuItem,
+      Button: MenuButton,
     },
     Popover: {
       Root: Popover,

@@ -64,8 +64,6 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           if (isSafari()) {
             (e.currentTarget as HTMLButtonElement).focus();
           }
-          e.preventDefault();
-          e.stopPropagation();
         }}
         onClick={(event) => {
           setHideTooltip(true);
@@ -98,8 +96,6 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           if (isSafari()) {
             (e.currentTarget as HTMLButtonElement).focus();
           }
-          e.preventDefault();
-          e.stopPropagation();
         }}
         onClick={(event) => {
           // We manually hide the tooltip onclick, because the click event

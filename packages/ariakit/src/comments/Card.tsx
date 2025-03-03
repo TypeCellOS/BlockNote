@@ -8,14 +8,13 @@ export const Card = forwardRef<
   HTMLDivElement,
   ComponentProps["Comments"]["Card"]
 >((props, ref) => {
-  const { className, children, onClick, ...rest } = props;
+  const { className, children, ...rest } = props;
 
   assertEmpty(rest, false);
 
   return (
     <AriakitGroup
       className={mergeCSSClasses(className, "bn-ak-hovercard")}
-      onClick={onClick}
       ref={ref}>
       {children}
     </AriakitGroup>

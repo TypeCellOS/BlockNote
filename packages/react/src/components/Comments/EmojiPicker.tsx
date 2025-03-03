@@ -17,12 +17,6 @@ export const EmojiPicker = (props: {
     <Components.Generic.Popover.Root opened={open}>
       <Components.Generic.Popover.Trigger>
         <div
-          onMouseDown={(event) => {
-            // Prevents event from bubbling up to the parent comment and
-            // selecting it in the thread stream view.
-            event.preventDefault();
-            event.stopPropagation();
-          }}
           onClick={(event) => {
             // Needed as the Picker component's onClickOutside handler
             // fires immediately after otherwise, preventing the popover

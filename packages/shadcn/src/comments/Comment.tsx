@@ -1,5 +1,5 @@
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
+import { ComponentProps, useFocusWithin } from "@blocknote/react";
 import { forwardRef, useState } from "react";
 
 import { cn } from "../lib/utils.js";
@@ -77,12 +77,14 @@ export const Comment = forwardRef<
   assertEmpty(rest);
 
   const [hovered, setHovered] = useState(false);
+  const { focused, ref: focusRef } = useFocusWithin();
 
   const doShowActions =
     actions &&
     (showActions === true ||
       showActions === undefined ||
-      (showActions === "hover" && hovered));
+      (showActions === "hover" && hovered) ||
+      focused);
 
   return (
     <div
@@ -95,7 +97,9 @@ export const Comment = forwardRef<
         setHovered(false);
       }}>
       {doShowActions ? (
-        <div className={"bn-absolute bn-right-0 bn-top-0 bn-z-10"}>
+        <div
+          className={"bn-absolute bn-right-0 bn-top-0 bn-z-10"}
+          ref={focusRef}>
           {actions}
         </div>
       ) : null}

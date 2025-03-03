@@ -56,6 +56,12 @@ export const it = {
       aliases: ["code", "pre"],
       group: "Blocchi Base",
     },
+    page_break: {
+      title: "Interruzione di Pagina",
+      subtext: "Separatore di pagina",
+      aliases: ["pagina", "interruzione", "separatore"],
+      group: "Blocchi base",
+    },
     table: {
       title: "Tabella",
       subtext: "Tabella con celle modificabili",
@@ -123,6 +129,9 @@ export const it = {
     bulletListItem: "Elenco",
     numberedListItem: "Elenco",
     checkListItem: "Elenco",
+    new_comment: "Scrivi un commento...",
+    edit_comment: "Modifica commento...",
+    comment_reply: "Aggiungi commento...",
   },
   file_blocks: {
     image: {
@@ -309,6 +318,18 @@ export const it = {
     form: {
       title_placeholder: "Modifica titolo",
       url_placeholder: "Modifica URL",
+    },
+  },
+  comments: {
+    actions: {
+      add_reaction: "Aggiungi reazione",
+      resolve: "Risolvi",
+      edit_comment: "Modifica commento",
+      delete_comment: "Elimina commento",
+      more_actions: "Altre azioni",
+    },
+    reactions: {
+      reacted_by: "Reagito da",
     },
   },
   generic: {

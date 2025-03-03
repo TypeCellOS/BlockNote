@@ -87,7 +87,7 @@ export const Comment = ({
       dictionary: {
         ...dict,
         placeholders: {
-          emptyDocument: "Edit comment...",
+          emptyDocument: dict.placeholders.edit_comment,
         },
       },
       schema,
@@ -197,7 +197,8 @@ export const Comment = ({
               onReactionSelect(emoji.native)
             }>
             <Components.Generic.Toolbar.Button
-              mainTooltip="Add reaction"
+              key={"add-reaction"}
+              mainTooltip={dict.comments.actions.add_reaction}
               variant="compact">
               <RiEmotionLine size={16} />
             </Components.Generic.Toolbar.Button>
@@ -206,6 +207,7 @@ export const Comment = ({
         {showResolveOrReopen &&
           (thread.resolved ? (
             <Components.Generic.Toolbar.Button
+              key={"reopen"}
               mainTooltip="Re-open"
               variant="compact"
               onClick={onReopen}>
@@ -213,7 +215,8 @@ export const Comment = ({
             </Components.Generic.Toolbar.Button>
           ) : (
             <Components.Generic.Toolbar.Button
-              mainTooltip="Resolve"
+              key={"resolve"}
+              mainTooltip={dict.comments.actions.resolve}
               variant="compact"
               onClick={onResolve}>
               <RiCheckFill size={16} />
@@ -223,7 +226,8 @@ export const Comment = ({
           <Components.Generic.Menu.Root position={"bottom-start"}>
             <Components.Generic.Menu.Trigger>
               <Components.Generic.Toolbar.Button
-                mainTooltip="More actions"
+                key={"more-actions"}
+                mainTooltip={dict.comments.actions.more_actions}
                 variant="compact">
                 <RiMoreFill size={16} />
               </Components.Generic.Toolbar.Button>
@@ -231,16 +235,18 @@ export const Comment = ({
             <Components.Generic.Menu.Dropdown className={"bn-menu-dropdown"}>
               {canEditComment && (
                 <Components.Generic.Menu.Item
+                  key={"edit-comment"}
                   icon={<RiEditFill />}
                   onClick={handleEdit}>
-                  Edit comment
+                  {dict.comments.actions.edit_comment}
                 </Components.Generic.Menu.Item>
               )}
               {canDeleteComment && (
                 <Components.Generic.Menu.Item
+                  key={"delete-comment"}
                   icon={<RiDeleteBinFill />}
                   onClick={onDelete}>
-                  Delete comment
+                  {dict.comments.actions.delete_comment}
                 </Components.Generic.Menu.Item>
               )}
             </Components.Generic.Menu.Dropdown>
@@ -303,7 +309,7 @@ export const Comment = ({
                             )}
                             text={"+"}
                             icon={<RiEmotionLine size={16} />}
-                            mainTooltip="Add reaction"
+                            mainTooltip={dict.comments.actions.add_reaction}
                           />
                         </EmojiPicker>
                       </Components.Generic.Badge.Group>

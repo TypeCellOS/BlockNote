@@ -115,6 +115,9 @@ export const pl: Dictionary = {
     bulletListItem: "Lista",
     numberedListItem: "Lista",
     checkListItem: "Lista",
+    new_comment: "Napisz komentarz...",
+    edit_comment: "Edytuj komentarz...",
+    comment_reply: "Dodaj komentarz...",
   },
   file_blocks: {
     image: {
@@ -137,6 +140,8 @@ export const pl: Dictionary = {
   drag_handle: {
     delete_menuitem: "Usuń",
     colors_menuitem: "Kolory",
+    header_row_menuitem: "Nagłówek wiersza",
+    header_column_menuitem: "Nagłówek kolumny",
   },
   table_handle: {
     delete_column_menuitem: "Usuń kolumnę",
@@ -145,6 +150,9 @@ export const pl: Dictionary = {
     add_right_menuitem: "Dodaj kolumnę po prawej",
     add_above_menuitem: "Dodaj wiersz powyżej",
     add_below_menuitem: "Dodaj wiersz poniżej",
+    split_cell_menuitem: "Podziel komórkę",
+    merge_cells_menuitem: "Połącz komórki",
+    background_color_menuitem: "Zmień kolor tła",
   },
   suggestion_menu: {
     no_items_title: "Nie znaleziono elementów",
@@ -260,6 +268,9 @@ export const pl: Dictionary = {
     align_justify: {
       tooltip: "Wyjustuj tekst",
     },
+    table_cell_merge: {
+      tooltip: "Połącz komórki",
+    },
     comment: {
       tooltip: "Dodaj komentarz",
     },
@@ -300,6 +311,18 @@ export const pl: Dictionary = {
     form: {
       title_placeholder: "Edytuj tytuł",
       url_placeholder: "Edytuj URL",
+    },
+  },
+  comments: {
+    actions: {
+      add_reaction: "Dodaj reakcję",
+      resolve: "Rozwiąż",
+      edit_comment: "Edytuj komentarz",
+      delete_comment: "Usuń komentarz",
+      more_actions: "Więcej akcji",
+    },
+    reactions: {
+      reacted_by: "Zareagowali",
     },
   },
   generic: {

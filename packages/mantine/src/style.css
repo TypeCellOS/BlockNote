@@ -125,7 +125,14 @@
   border-radius: 0;
   box-shadow: none;
   padding: 0;
+}
+
+.bn-mantine .mantine-Tooltip-tooltip p:last-child {
   white-space: pre-wrap;
+}
+
+.bn-mantine .mantine-Tooltip-tooltip p:first-child {
+  white-space: unset;
 }
 
 /* UI element styling */
@@ -496,14 +503,15 @@
 
 /* Table Handle styling */
 .bn-mantine .bn-table-handle,
-.bn-mantine .bn-extend-button {
+.bn-mantine .bn-extend-button,
+.bn-mantine .bn-table-cell-handle {
   align-items: center;
   background-color: var(--bn-colors-menu-background);
   border: var(--bn-border);
   border-radius: var(--bn-border-radius-small);
   box-shadow: var(--bn-shadow-light);
   color: var(--bn-colors-side-menu);
-  cursor: pointer;
+  cursor: grab;
   display: flex;
   height: fit-content;
   justify-content: center;
@@ -511,14 +519,23 @@
   padding: 0;
 }
 
+.bn-mantine .bn-table-cell-handle {
+  padding: 0 4px;
+}
+
 .bn-mantine .bn-table-handle svg {
   margin-inline: -4px;
+}
+
+.bn-mantine .bn-table-handle-not-draggable {
+  cursor: pointer;
 }
 
 .bn-mantine .bn-table-handle:hover,
 .bn-mantine .bn-table-handle-dragging,
 .bn-mantine .bn-extend-button:hover,
-.bn-mantine .bn-extend-button-editing {
+.bn-mantine .bn-extend-button-editing,
+.bn-mantine .bn-table-cell-handle:hover {
   background-color: var(--bn-colors-hovered-background);
 }
 
@@ -537,7 +554,8 @@
 }
 
 /* Drag Handle & Table Handle Menu styling */
-.bn-mantine .bn-drag-handle-menu {
+.bn-mantine .bn-drag-handle-menu,
+.bn-mantine .bn-table-handle-menu {
   overflow: visible;
 }
 
@@ -571,10 +589,9 @@
   background-color: var(--bn-colors-menu-background);
   border: var(--bn-border);
   border-radius: var(--bn-border-radius-medium);
-  /* box-shadow: var(--bn-shadow-medium); */
+  box-shadow: var(--bn-shadow-medium);
   color: var(--bn-colors-menu-text);
   overflow: visible;
-  margin-bottom: 1em;
 }
 
 .bn-mantine .bn-thread-comments {
@@ -585,7 +602,17 @@
 }
 
 .bn-mantine .bn-thread-comment {
+  align-items: flex-start;
+  flex-direction: column;
   gap: 0.25rem;
+}
+
+.bn-mantine .bn-thread-comment > .mantine-Group-root {
+  gap: 12px;
+}
+
+.bn-mantine .bn-thread-comment p {
+  color: var(--bn-colors-menu-text);
 }
 
 .bn-mantine .bn-comment-actions-wrapper {

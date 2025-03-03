@@ -9,7 +9,6 @@ import {
   useContext,
 } from "react";
 
-import { BlockNoteEditor, User } from "@blocknote/core";
 import { DefaultReactGridSuggestionItem } from "../components/SuggestionMenu/GridSuggestionMenu/types.js";
 import { DefaultReactSuggestionItem } from "../components/SuggestionMenu/types.js";
 
@@ -34,6 +33,19 @@ type ToolbarButtonType = {
   | { children: ReactNode; label?: string }
   | { children?: undefined; label: string }
 );
+
+type MenuButtonType = {
+  className?: string;
+  onClick?: (e: MouseEvent) => void;
+  icon?: ReactNode;
+  onDragStart?: (e: React.DragEvent) => void;
+  onDragEnd?: (e: React.DragEvent) => void;
+  draggable?: boolean;
+} & (
+  | { children: ReactNode; label?: string }
+  | { children?: undefined; label: string }
+);
+
 export type ComponentProps = {
   FormattingToolbar: {
     Root: ToolbarRootType;
@@ -186,7 +198,6 @@ export type ComponentProps = {
     Card: {
       className?: string;
       children?: ReactNode;
-      onClick?: () => void;
     };
     CardSection: {
       className?: string;
@@ -280,11 +291,11 @@ export type ComponentProps = {
         children?: ReactNode;
         sub?: boolean;
       };
+      Button: MenuButtonType;
     };
     Popover: {
       Root: {
         opened?: boolean;
-        onOpenChange?: (open: boolean) => void;
         position?:
           | "top"
           | "right"

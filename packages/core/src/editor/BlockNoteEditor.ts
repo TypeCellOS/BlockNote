@@ -100,8 +100,9 @@ import { CommentsPlugin } from "../extensions/Comments/CommentsPlugin.js";
 import { ThreadStore } from "../extensions/Comments/threadstore/ThreadStore.js";
 import { ShowSelectionPlugin } from "../extensions/ShowSelection/ShowSelectionPlugin.js";
 import { User } from "../models/User.js";
-import "../style.css";
 import { EventEmitter } from "../util/EventEmitter.js";
+
+import "../style.css";
 
 export type BlockNoteExtensionFactory = (
   editor: BlockNoteEditor<any, any, any>
@@ -125,75 +126,6 @@ export type BlockNoteEditorOptions<
    */
   animations?: boolean;
 
-  /**
-   * Disable internal extensions (based on keys / extension name)
-   */
-  disableExtensions: string[];
-
-  /**
-   * A dictionary object containing translations for the editor.
-   */
-  dictionary?: Dictionary & Record<string, any>;
-
-  /**
-   * @deprecated, provide placeholders via dictionary instead
-   */
-  placeholders: Record<
-    string | "default" | "emptyDocument",
-    string | undefined
-  >;
-
-  /**
-   * An object containing attributes that should be added to HTML elements of the editor.
-   *
-   * @example { editor: { class: "my-editor-class" } }
-   */
-  domAttributes: Partial<BlockNoteDOMAttributes>;
-
-  /**
-   * The content that should be in the editor when it's created, represented as an array of partial block objects.
-   */
-  initialContent: PartialBlock<
-    NoInfer<BSchema>,
-    NoInfer<ISchema>,
-    NoInfer<SSchema>
-  >[];
-  /**
-   * Use default BlockNote font and reset the styles of <p> <li> <h1> elements etc., that are used in BlockNote.
-   *
-   * @default true
-   */
-  defaultStyles: boolean;
-
-  schema: BlockNoteSchema<BSchema, ISchema, SSchema>;
-
-  /**
-   * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
-   * This method should set when creating the editor as this is application-specific.
-   *
-   * `undefined` means the application doesn't support file uploads.
-   *
-   * @param file The file that should be uploaded.
-   * @returns The URL of the uploaded file OR an object containing props that should be set on the file block (such as an id)
-   */
-  uploadFile: (
-    file: File,
-    blockId?: string
-  ) => Promise<string | Record<string, any>>;
-
-  /**
-   * Resolve a URL of a file block to one that can be displayed or downloaded. This can be used for creating authenticated URL or
-   * implementing custom protocols / schemes
-   * @returns The URL that's
-   */
-  resolveFileUrl: (url: string) => Promise<string>;
-
-  resolveUsers: (userIds: string[]) => Promise<User[]>;
-
-  // TODO: decide "comments" or "threads"?
-  comments: {
-    threadStore: ThreadStore;
-  };
   /**
    * When enabled, allows for collaboration between multiple users.
    */
@@ -226,26 +158,72 @@ export type BlockNoteEditorOptions<
     showCursorLabels?: "always" | "activity";
   };
 
-  /**
-   * additional tiptap options, undocumented
-   */
-  _tiptapOptions: Partial<EditorOptions>;
+  comments: {
+    threadStore: ThreadStore;
+  };
 
   /**
-   * (experimental) add extra prosemirror plugins or tiptap extensions to the editor
-   */
-  _extensions: Record<string, BlockNoteExtension | BlockNoteExtensionFactory>;
-
-  trailingBlock?: boolean;
-
-  /**
-   * Boolean indicating whether the editor is in headless mode.
-   * Headless mode means we can use features like importing / exporting blocks,
-   * but there's no underlying editor (UI) instantiated.
+   * Use default BlockNote font and reset the styles of <p> <li> <h1> elements etc., that are used in BlockNote.
    *
-   * You probably don't need to set this manually, but use the `server-util` package instead that uses this option internally
+   * @default true
    */
-  _headless: boolean;
+  defaultStyles: boolean;
+
+  /**
+   * A dictionary object containing translations for the editor.
+   */
+  dictionary?: Dictionary & Record<string, any>;
+
+  /**
+   * Disable internal extensions (based on keys / extension name)
+   */
+  disableExtensions: string[];
+
+  /**
+   * An object containing attributes that should be added to HTML elements of the editor.
+   *
+   * @example { editor: { class: "my-editor-class" } }
+   */
+  domAttributes: Partial<BlockNoteDOMAttributes>;
+
+  dropCursor?: (opts: {
+    editor: BlockNoteEditor<
+      NoInfer<BSchema>,
+      NoInfer<ISchema>,
+      NoInfer<SSchema>
+    >;
+    color?: string | false;
+    width?: number;
+    class?: string;
+  }) => Plugin;
+
+  /**
+   * The content that should be in the editor when it's created, represented as an array of partial block objects.
+   */
+  initialContent: PartialBlock<
+    NoInfer<BSchema>,
+    NoInfer<ISchema>,
+    NoInfer<SSchema>
+  >[];
+
+  /**
+   * @deprecated, provide placeholders via dictionary instead
+   */
+  placeholders: Record<
+    string | "default" | "emptyDocument",
+    string | undefined
+  >;
+
+  /**
+   * Resolve a URL of a file block to one that can be displayed or downloaded. This can be used for creating authenticated URL or
+   * implementing custom protocols / schemes
+   * @returns The URL that's
+   */
+  resolveFileUrl: (url: string) => Promise<string>;
+
+  resolveUsers: (userIds: string[]) => Promise<User[]>;
+
+  schema: BlockNoteSchema<BSchema, ISchema, SSchema>;
 
   /**
    * A flag indicating whether to set an HTML ID for every block
@@ -257,7 +235,14 @@ export type BlockNoteEditorOptions<
    */
   setIdAttribute?: boolean;
 
-  dropCursor?: (opts: any) => Plugin;
+  /**
+   * The detection mode for showing the side menu - "viewport" always shows the
+   * side menu for the block next to the mouse cursor, while "editor" only shows
+   * it when hovering the editor or the side menu itself.
+   *
+   * @default "viewport"
+   */
+  sideMenuDetection: "viewport" | "editor";
 
   /**
    Select desired behavior when pressing `Tab` (or `Shift-Tab`). Specifically,
@@ -275,13 +260,69 @@ export type BlockNoteEditorOptions<
   tabBehavior: "prefer-navigate-ui" | "prefer-indent";
 
   /**
-   * The detection mode for showing the side menu - "viewport" always shows the
-   * side menu for the block next to the mouse cursor, while "editor" only shows
-   * it when hovering the editor or the side menu itself.
-   *
-   * @default "viewport"
+   * Allows enabling / disabling features of tables.
    */
-  sideMenuDetection: "viewport" | "editor";
+  tables?: {
+    /**
+     * Whether to allow splitting and merging cells within a table.
+     *
+     * @default false
+     */
+    splitCells?: boolean;
+    /**
+     * Whether to allow changing the background color of cells.
+     *
+     * @default false
+     */
+    cellBackgroundColor?: boolean;
+    /**
+     * Whether to allow changing the text color of cells.
+     *
+     * @default false
+     */
+    cellTextColor?: boolean;
+    /**
+     * Whether to allow changing cells into headers.
+     *
+     * @default false
+     */
+    headers?: boolean;
+  };
+
+  trailingBlock?: boolean;
+
+  /**
+   * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
+   * This method should set when creating the editor as this is application-specific.
+   *
+   * `undefined` means the application doesn't support file uploads.
+   *
+   * @param file The file that should be uploaded.
+   * @returns The URL of the uploaded file OR an object containing props that should be set on the file block (such as an id)
+   */
+  uploadFile: (
+    file: File,
+    blockId?: string
+  ) => Promise<string | Record<string, any>>;
+
+  /**
+   * additional tiptap options, undocumented
+   */
+  _tiptapOptions: Partial<EditorOptions>;
+
+  /**
+   * (experimental) add extra prosemirror plugins or tiptap extensions to the editor
+   */
+  _extensions: Record<string, BlockNoteExtension | BlockNoteExtensionFactory>;
+
+  /**
+   * Boolean indicating whether the editor is in headless mode.
+   * Headless mode means we can use features like importing / exporting blocks,
+   * but there's no underlying editor (UI) instantiated.
+   *
+   * You probably don't need to set this manually, but use the `server-util` package instead that uses this option internally
+   */
+  _headless: boolean;
 };
 
 const blockNoteTipTapOptions = {
@@ -297,7 +338,10 @@ export class BlockNoteEditor<
 > extends EventEmitter<{
   create: void;
 }> {
-  private readonly _pmSchema: Schema;
+  /**
+   * The underlying prosemirror schema
+   */
+  public readonly pmSchema: Schema;
 
   /**
    * extensions that are added to the editor, can be tiptap extensions or prosemirror plugins
@@ -390,10 +434,17 @@ export class BlockNoteEditor<
 
   public readonly resolveFileUrl?: (url: string) => Promise<string>;
   public readonly resolveUsers?: (userIds: string[]) => Promise<User[]>;
-
-  public get pmSchema() {
-    return this._pmSchema;
-  }
+  /**
+   * Editor settings
+   */
+  public readonly settings: {
+    tables: {
+      splitCells: boolean;
+      cellBackgroundColor: boolean;
+      cellTextColor: boolean;
+      headers: boolean;
+    };
+  };
 
   public static create<
     BSchema extends BlockSchema = DefaultBlockSchema,
@@ -433,6 +484,14 @@ export class BlockNoteEditor<
     }
 
     this.dictionary = options.dictionary || en;
+    this.settings = {
+      tables: {
+        splitCells: options?.tables?.splitCells ?? false,
+        cellBackgroundColor: options?.tables?.cellBackgroundColor ?? false,
+        cellTextColor: options?.tables?.cellTextColor ?? false,
+        headers: options?.tables?.headers ?? false,
+      },
+    };
 
     // apply defaults
     const newOptions = {
@@ -615,18 +674,18 @@ export class BlockNoteEditor<
         view: any;
         contentComponent: any;
       };
-      this._pmSchema = this._tiptapEditor.schema;
+      this.pmSchema = this._tiptapEditor.schema;
     } else {
       // In headless mode, we don't instantiate an underlying TipTap editor,
       // but we still need the schema
-      this._pmSchema = getSchema(tiptapOptions.extensions!);
+      this.pmSchema = getSchema(tiptapOptions.extensions!);
     }
     this.emit("create");
   }
 
-  dispatch(tr: Transaction) {
+  dispatch = (tr: Transaction) => {
     this._tiptapEditor.dispatch(tr);
-  }
+  };
 
   /**
    * Mount the editor to a parent DOM element. Call mount(undefined) to clean up
@@ -640,8 +699,18 @@ export class BlockNoteEditor<
     this._tiptapEditor.mount(parentElement, contentComponent);
   };
 
+  /**
+   * Get the underlying prosemirror view
+   */
   public get prosemirrorView() {
     return this._tiptapEditor.view;
+  }
+
+  /**
+   * Get the underlying prosemirror state
+   */
+  public get prosemirrorState() {
+    return this._tiptapEditor.state;
   }
 
   public get domElement() {
@@ -692,7 +761,7 @@ export class BlockNoteEditor<
   public get document(): Block<BSchema, ISchema, SSchema>[] {
     const blocks: Block<BSchema, ISchema, SSchema>[] = [];
 
-    this._tiptapEditor.state.doc.firstChild!.descendants((node) => {
+    this.prosemirrorState.doc.firstChild!.descendants((node) => {
       blocks.push(
         nodeToBlock(
           node,
@@ -1358,11 +1427,11 @@ export class BlockNoteEditor<
     );
   }
 
-  public get ForceSelectionVisible() {
-    return this.showSelectionPlugin.ForceSelectionVisible;
+  public getForceSelectionVisible() {
+    return this.showSelectionPlugin.getEnabled();
   }
 
-  public set ForceSelectionVisible(forceSelectionVisible: boolean) {
-    this.showSelectionPlugin.ForceSelectionVisible = forceSelectionVisible;
+  public setForceSelectionVisible(forceSelectionVisible: boolean) {
+    this.showSelectionPlugin.setEnabled(forceSelectionVisible);
   }
 }

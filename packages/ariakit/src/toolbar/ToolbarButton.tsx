@@ -27,14 +27,12 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       isDisabled,
       onClick,
       label,
+      variant,
       ...rest
     } = props;
 
     // false, because rest props can be added by ariakit when button is used as a trigger
     // assertEmpty in this case is only used at typescript level, not runtime level
-
-    // TODO
-    // @ts-ignore
     assertEmpty(rest, false);
 
     return (
@@ -57,13 +55,6 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
               onClick={onClick}
               aria-pressed={isSelected}
               data-selected={isSelected ? "true" : undefined}
-              data-test={
-                // @ts-ignore TODO
-                props.mainTooltip.slice(0, 1).toLowerCase() +
-                // @ts-ignore TODO
-                props.mainTooltip.replace(/\s+/g, "").slice(1)
-              }
-              //   size={"xs"}
               disabled={isDisabled || false}
               ref={ref}
               {...rest}>

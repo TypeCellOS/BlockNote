@@ -6,7 +6,7 @@
     "*.css"
   ],
   "license": "MPL-2.0",
-  "version": "0.24.1",
+  "version": "0.24.2",
   "files": [
     "dist",
     "types",
@@ -51,8 +51,8 @@
   },
   "dependencies": {
     "@ariakit/react": "^0.4.3",
-    "@blocknote/core": "^0.24.1",
-    "@blocknote/react": "^0.24.1"
+    "@blocknote/core": "^0.24.2",
+    "@blocknote/react": "^0.24.2"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",

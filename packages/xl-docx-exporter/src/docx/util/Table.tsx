@@ -32,7 +32,8 @@ export const Table = (
                 : undefined,
               children: [
                 new Paragraph({
-                  children: t.transformInlineContent(cell),
+                  // TODO: fix this
+                  children: t.transformInlineContent(cell as any),
                 }),
               ],
             });

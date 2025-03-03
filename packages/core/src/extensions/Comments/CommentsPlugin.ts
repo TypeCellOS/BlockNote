@@ -147,6 +147,7 @@ export class CommentsPlugin extends EventEmitter<any> {
     this.threadStore.subscribe(this.updateMarksFromThreads);
 
     editor.onCreate(() => {
+      // Need to wait for TipTap editor state to be initialized
       this.updateMarksFromThreads(this.threadStore.getThreads());
       editor.onSelectionChange(() => {
         if (this.pendingComment) {

@@ -138,6 +138,9 @@ export const hr = {
     bulletListItem: "Lista",
     numberedListItem: "Lista",
     checkListItem: "Lista",
+    new_comment: "Napišite komentar...",
+    edit_comment: "Uredi komentar...",
+    comment_reply: "Dodaj komentar...",
   },
   file_blocks: {
     image: {
@@ -324,6 +327,18 @@ export const hr = {
     form: {
       title_placeholder: "Uredi naslov",
       url_placeholder: "Uredi URL",
+    },
+  },
+  comments: {
+    actions: {
+      add_reaction: "Dodaj reakciju",
+      resolve: "Riješi",
+      edit_comment: "Uredi komentar",
+      delete_comment: "Obriši komentar",
+      more_actions: "Više radnji",
+    },
+    reactions: {
+      reacted_by: "Reagirao/la",
     },
   },
   generic: {

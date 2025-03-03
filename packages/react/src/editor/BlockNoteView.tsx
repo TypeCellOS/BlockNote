@@ -5,7 +5,6 @@ import {
   StyleSchema,
   mergeCSSClasses,
 } from "@blocknote/core";
-
 import React, {
   HTMLAttributes,
   ReactNode,
@@ -15,6 +14,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
+import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor.js";
 import { useEditorChange } from "../hooks/useEditorChange.js";
 import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange.js";
 import { usePrefersColorScheme } from "../hooks/usePrefersColorScheme.js";
@@ -105,7 +105,7 @@ function BlockNoteViewComponent<
     filePanel,
     tableHandles,
     autoFocus,
-    renderEditor,
+    renderEditor = !editor.headless,
     ...rest
   } = props;
 

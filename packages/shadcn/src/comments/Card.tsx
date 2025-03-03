@@ -9,7 +9,7 @@ export const Card = forwardRef<
   HTMLDivElement,
   ComponentProps["Comments"]["Card"]
 >((props, ref) => {
-  const { className, children, onClick, ...rest } = props;
+  const { className, children, ...rest } = props;
 
   assertEmpty(rest);
 
@@ -18,7 +18,6 @@ export const Card = forwardRef<
   return (
     <ShadCNComponents.Card.Card
       className={cn(className, "bn-w-[300px]")}
-      onClick={onClick}
       ref={ref}>
       {children}
     </ShadCNComponents.Card.Card>

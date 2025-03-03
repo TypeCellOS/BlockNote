@@ -7,17 +7,12 @@ export const Card = forwardRef<
   HTMLDivElement,
   ComponentProps["Comments"]["Card"]
 >((props, ref) => {
-  const { className, children, onClick, ...rest } = props;
+  const { className, children, ...rest } = props;
 
   assertEmpty(rest, false);
 
   return (
-    <MantineCard
-      p={"md"}
-      onClick={onClick}
-      {...rest}
-      className={className}
-      ref={ref}>
+    <MantineCard w={350} p={"md"} className={className} ref={ref}>
       {children}
     </MantineCard>
   );

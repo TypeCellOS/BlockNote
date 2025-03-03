@@ -6,7 +6,7 @@ import {
 
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
-import { forwardRef, useState } from "react";
+import { MouseEvent, forwardRef, useState } from "react";
 
 import { TooltipContent } from "../toolbar/ToolbarButton.js";
 
@@ -36,16 +36,16 @@ export const Badge = forwardRef<
     <MantineChip
       className={className}
       checked={isSelected === true}
-      onClick={(event) => {
-        setHideTooltip(true);
-        onClick?.(event);
-      }}
       wrapperProps={{
         onMouseEnter,
         onMouseLeave: () => setHideTooltip(false),
+        onClick: (event: MouseEvent) => {
+          setHideTooltip(true);
+          onClick?.(event);
+        },
       }}
       variant={"light"}
-      icon={<></>}
+      icon={null}
       ref={ref}>
       <span>{icon}</span>
       <span>{text}</span>
