@@ -30,9 +30,9 @@ export * from "./components/FormattingToolbar/DefaultButtons/FileReplaceButton.j
 export * from "./components/FormattingToolbar/DefaultButtons/NestBlockButtons.js";
 export * from "./components/FormattingToolbar/DefaultButtons/TextAlignButton.js";
 export * from "./components/FormattingToolbar/DefaultSelects/BlockTypeSelect.js";
-export * from "./components/FormattingToolbar/ExperimentalMobileFormattingToolbarController.js";
 export * from "./components/FormattingToolbar/FormattingToolbar.js";
 export * from "./components/FormattingToolbar/FormattingToolbarController.js";
+export * from "./components/FormattingToolbar/ExperimentalMobileFormattingToolbarController.js";
 export * from "./components/FormattingToolbar/FormattingToolbarProps.js";
 
 export * from "./components/LinkToolbar/DefaultButtons/DeleteLinkButton.js";
@@ -74,11 +74,11 @@ export * from "./components/FilePanel/FilePanel.js";
 export * from "./components/FilePanel/FilePanelController.js";
 export * from "./components/FilePanel/FilePanelProps.js";
 
-export * from "./components/TableHandles/ExtendButton/ExtendButton.js";
-export * from "./components/TableHandles/ExtendButton/ExtendButtonProps.js";
 export * from "./components/TableHandles/TableHandle.js";
 export * from "./components/TableHandles/TableHandleProps.js";
 export * from "./components/TableHandles/TableHandlesController.js";
+export * from "./components/TableHandles/ExtendButton/ExtendButton.js";
+export * from "./components/TableHandles/ExtendButton/ExtendButtonProps.js";
 export * from "./components/TableHandles/hooks/useExtendButtonsPositioning.js";
 export * from "./components/TableHandles/hooks/useTableHandlesPositioning.js";
 

@@ -105,7 +105,6 @@
     "@types/emoji-mart": "^3.0.14",
     "@types/hast": "^3.0.0",
     "@types/uuid": "^8.3.4",
-    "@hocuspocus/provider": "^2.15.2",
     "eslint": "^8.10.0",
     "jsdom": "^25.0.1",
     "prettier": "^2.7.1",

@@ -45,7 +45,6 @@ export const Popover = (
 ) => {
   const { children, opened, position, ...rest } = props;
 
-  // @ts-ignore TODO
   assertEmpty(rest);
 
   return (
