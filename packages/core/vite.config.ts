@@ -18,7 +18,7 @@ export default defineConfig({
     lib: {
       entry: {
         blocknote: path.resolve(__dirname, "src/index.ts"),
-        comments: path.resolve(__dirname, "src/extensions/Comments/index.ts"),
+        comments: path.resolve(__dirname, "src/comments/index.ts"),
       },
       name: "blocknote",
       formats: ["es", "cjs"],
