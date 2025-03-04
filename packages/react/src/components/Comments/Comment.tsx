@@ -1,7 +1,7 @@
 "use client";
 
 import { mergeCSSClasses } from "@blocknote/core";
-import { CommentData, ThreadData } from "@blocknote/core/comments";
+import type { CommentData, ThreadData } from "@blocknote/core/comments";
 import {
   ComponentPropsWithoutRef,
   MouseEvent,

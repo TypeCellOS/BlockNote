@@ -46,7 +46,7 @@
       "require": "./src/fonts/inter.css"
     },
     "./comments": {
-      "types": "./types/src/extensions/Comments/index.d.ts",
+      "types": "./types/src/comments/index.d.ts",
       "import": "./dist/comments.js",
       "require": "./dist/comments.cjs"
     }

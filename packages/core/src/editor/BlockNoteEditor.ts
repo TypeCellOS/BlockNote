@@ -51,9 +51,11 @@ import {
   DefaultStyleSchema,
   PartialBlock,
 } from "../blocks/defaultBlocks.js";
+import type { CommentsPlugin } from "../extensions/Comments/CommentsPlugin.js";
 import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin.js";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin.js";
 import { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkToolbarPlugin.js";
+import { ShowSelectionPlugin } from "../extensions/ShowSelection/ShowSelectionPlugin.js";
 import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin.js";
 import { SuggestionMenuProseMirrorPlugin } from "../extensions/SuggestionMenu/SuggestionPlugin.js";
 import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin.js";
@@ -96,10 +98,7 @@ import { ySyncPluginKey } from "y-prosemirror";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
-import { CommentsPlugin } from "../extensions/Comments/CommentsPlugin.js";
-import { ThreadStore } from "../extensions/Comments/threadstore/ThreadStore.js";
-import { ShowSelectionPlugin } from "../extensions/ShowSelection/ShowSelectionPlugin.js";
-import { User } from "../models/User.js";
+import type { ThreadStore, User } from "../comments/index.js";
 import "../style.css";
 import { EventEmitter } from "../util/EventEmitter.js";
 

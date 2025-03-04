@@ -14,7 +14,7 @@ import { BackgroundColorExtension } from "../extensions/BackgroundColor/Backgrou
 import { createCollaborationExtensions } from "../extensions/Collaboration/createCollaborationExtensions.js";
 import { CommentMark } from "../extensions/Comments/CommentMark.js";
 import { CommentsPlugin } from "../extensions/Comments/CommentsPlugin.js";
-import { ThreadStore } from "../extensions/Comments/threadstore/ThreadStore.js";
+import type { ThreadStore } from "../comments/index.js";
 import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin.js";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin.js";
 import { KeyboardShortcutsExtension } from "../extensions/KeyboardShortcuts/KeyboardShortcutsExtension.js";
