@@ -29,13 +29,13 @@
   "type": "module",
   "source": "src/index.ts",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-server-util.umd.cjs",
+  "main": "./dist/blocknote-server-util.cjs",
   "module": "./dist/blocknote-server-util.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
       "import": "./dist/blocknote-server-util.js",
-      "require": "./dist/blocknote-server-util.umd.cjs"
+      "require": "./dist/blocknote-server-util.cjs"
     },
     "./style.css": {
       "import": "./dist/style.css",

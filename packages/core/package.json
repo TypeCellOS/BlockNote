@@ -29,13 +29,13 @@
   "type": "module",
   "source": "src/index.ts",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote.umd.cjs",
+  "main": "./dist/blocknote.cjs",
   "module": "./dist/blocknote.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
       "import": "./dist/blocknote.js",
-      "require": "./dist/blocknote.umd.cjs"
+      "require": "./dist/blocknote.cjs"
     },
     "./style.css": {
       "import": "./dist/style.css",
@@ -44,6 +44,11 @@
     "./fonts/inter.css": {
       "import": "./src/fonts/inter.css",
       "require": "./src/fonts/inter.css"
+    },
+    "./comments": {
+      "types": "./types/src/comments/index.d.ts",
+      "import": "./dist/comments.js",
+      "require": "./dist/comments.cjs"
     }
   },
   "scripts": {

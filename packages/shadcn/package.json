@@ -29,13 +29,13 @@
   "type": "module",
   "source": "src/index.tsx",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-shadcn.umd.cjs",
+  "main": "./dist/blocknote-shadcn.cjs",
   "module": "./dist/blocknote-shadcn.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
       "import": "./dist/blocknote-shadcn.js",
-      "require": "./dist/blocknote-shadcn.umd.cjs"
+      "require": "./dist/blocknote-shadcn.cjs"
     },
     "./style.css": {
       "import": "./dist/style.css",

@@ -70,17 +70,3 @@ export * from "./api/exporters/markdown/markdownExporter.js";
 export * from "./api/parsers/html/parseHTML.js";
 export * from "./api/parsers/markdown/parseMarkdown.js";
 
-export * from "./extensions/Comments/types.js";
-
-// TODO: how to organize this? The number of exports is growing
-// - we could namespaces things (i.e.: comments.yjs.YjsThreadStore)
-// - split to different package (@blocknote/comments)
-// - sub imports ( @blocknote/core/comments)
-export * from "./extensions/Comments/threadstore/DefaultThreadStoreAuth.js";
-export * from "./extensions/Comments/threadstore/ThreadStore.js";
-export * from "./extensions/Comments/threadstore/ThreadStoreAuth.js";
-export * from "./extensions/Comments/threadstore/TipTapThreadStore.js";
-export * from "./extensions/Comments/threadstore/yjs/RESTYjsThreadStore.js";
-export * from "./extensions/Comments/threadstore/yjs/YjsThreadStore.js";
-export * from "./extensions/Comments/threadstore/yjs/YjsThreadStoreBase.js";
-export * from "./models/User.js";

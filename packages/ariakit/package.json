@@ -29,13 +29,13 @@
   "type": "module",
   "source": "src/index.tsx",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-ariakit.umd.cjs",
+  "main": "./dist/blocknote-ariakit.cjs",
   "module": "./dist/blocknote-ariakit.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
       "import": "./dist/blocknote-ariakit.js",
-      "require": "./dist/blocknote-ariakit.umd.cjs"
+      "require": "./dist/blocknote-ariakit.cjs"
     },
     "./style.css": {
       "import": "./dist/style.css",

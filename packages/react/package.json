@@ -29,13 +29,13 @@
   "type": "module",
   "source": "src/index.ts",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-react.umd.cjs",
+  "main": "./dist/blocknote-react.cjs",
   "module": "./dist/blocknote-react.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
       "import": "./dist/blocknote-react.js",
-      "require": "./dist/blocknote-react.umd.cjs"
+      "require": "./dist/blocknote-react.cjs"
     },
     "./style.css": {
       "import": "./dist/style.css",

@@ -29,13 +29,13 @@
   "type": "module",
   "source": "src/index.tsx",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-mantine.umd.cjs",
+  "main": "./dist/blocknote-mantine.cjs",
   "module": "./dist/blocknote-mantine.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
       "import": "./dist/blocknote-mantine.js",
-      "require": "./dist/blocknote-mantine.umd.cjs"
+      "require": "./dist/blocknote-mantine.cjs"
     },
     "./style.css": {
       "import": "./dist/style.css",
