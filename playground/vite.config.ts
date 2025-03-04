@@ -58,6 +58,10 @@ export default defineConfig((conf) => ({
               __dirname,
               "../packages/xl-pdf-exporter/src/"
             ),
+            "@blocknote/xl-odt-exporter": path.resolve(
+              __dirname,
+              "../packages/xl-odt-exporter/src/"
+            ),
             "@shared": path.resolve(__dirname, "../shared/"),
             "@blocknote/xl-multi-column": path.resolve(
               __dirname,

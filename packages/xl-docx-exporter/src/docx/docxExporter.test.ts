@@ -1,12 +1,23 @@
 import { BlockNoteSchema, defaultBlockSpecs, PageBreak } from "@blocknote/core";
 import { testDocument } from "@shared/testDocument.js";
-import AdmZip from "adm-zip";
+import { BlobReader, Entry, TextWriter, ZipReader } from "@zip.js/zip.js";
 import { Packer, Paragraph, TextRun } from "docx";
 import { describe, expect, it } from "vitest";
 import xmlFormat from "xml-formatter";
 import { docxDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { DOCXExporter } from "./docxExporter.js";
 
+const getZIPEntryContent = (entries: Entry[], fileName: string) => {
+  const entry = entries.find((entry) => {
+    return entry.filename === fileName;
+  });
+
+  if (!entry) {
+    return "";
+  }
+
+  return entry.getData!(new TextWriter());
+};
 describe("exporter", () => {
   it("should export a document", { timeout: 10000 }, async () => {
     const exporter = new DOCXExporter(
@@ -17,14 +28,15 @@ describe("exporter", () => {
     );
     const doc = await exporter.toDocxJsDocument(testDocument);
 
-    const buffer = await Packer.toBuffer(doc);
-    const zip = new AdmZip(buffer);
+    const blob = await Packer.toBlob(doc);
+    const zip = new ZipReader(new BlobReader(blob));
+    const entries = await zip.getEntries();
 
     expect(
-      prettify(zip.getEntry("word/document.xml")!.getData().toString())
+      prettify(await getZIPEntryContent(entries, "word/document.xml"))
     ).toMatchFileSnapshot("__snapshots__/basic/document.xml");
     expect(
-      prettify(zip.getEntry("word/styles.xml")!.getData().toString())
+      prettify(await getZIPEntryContent(entries, "word/styles.xml"))
     ).toMatchFileSnapshot("__snapshots__/basic/styles.xml");
 
     // fs.writeFileSync(__dirname + "/My Document.docx", buffer);
@@ -67,32 +79,33 @@ describe("exporter", () => {
         },
       });
 
-      const buffer = await Packer.toBuffer(doc);
+      const blob = await Packer.toBlob(doc);
 
       // fs.writeFileSync(__dirname + "/My Document.docx", buffer);
 
-      const zip = new AdmZip(buffer);
+      const zip = new ZipReader(new BlobReader(blob));
+      const entries = await zip.getEntries();
 
       // files related to header / footer
       expect(
         prettify(
-          zip.getEntry("word/_rels/document.xml.rels")!.getData().toString()
+          await getZIPEntryContent(entries, "word/_rels/document.xml.rels")
         )
       ).toMatchFileSnapshot(
         "__snapshots__/withCustomOptions/document.xml.rels"
       );
 
       expect(
-        prettify(zip.getEntry("word/header1.xml")!.getData().toString())
+        prettify(await getZIPEntryContent(entries, "word/header1.xml"))
       ).toMatchFileSnapshot("__snapshots__/withCustomOptions/header1.xml");
 
       expect(
-        prettify(zip.getEntry("word/footer1.xml")!.getData().toString())
+        prettify(await getZIPEntryContent(entries, "word/footer1.xml"))
       ).toMatchFileSnapshot("__snapshots__/withCustomOptions/footer1.xml");
 
       // has author data
       expect(
-        prettify(zip.getEntry("docProps/core.xml")!.getData().toString())
+        prettify(await getZIPEntryContent(entries, "docProps/core.xml"))
       ).toMatchFileSnapshot("__snapshots__/withCustomOptions/core.xml");
     }
   );

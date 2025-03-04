@@ -18,6 +18,14 @@
   "devDependencies": {
     "typescript": "^5.3.3"
   },
+  "peerDependencies": {
+    "image-meta": "^0.2.1"
+  },
+  "peerDependenciesMeta": {
+    "image-meta": {
+      "optional": true
+    }
+  },
   "eslintConfig": {
     "extends": [
       "../.eslintrc.js"
