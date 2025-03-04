@@ -107,7 +107,7 @@ const threadStore = new TiptapThreadStore(
 
 The `ThreadStoreAuth` class defines the authorization rules for interacting with comments. Every ThreadStore implementation requires a `ThreadStoreAuth` instance. BlockNote uses the `ThreadStoreAuth` instance to deterine which interactions are allowed for the current user (for example, whether they can create a new comment, edit or delete a comment, etc.).
 
-The `DefaultThreadStoreAuth` class provides a basic implementation of the `ThreadStoreAuth` class. It takes a user ID and a role ("comment" or "editor") and implements the rules. See the [source code](https://github.com/TypeCellOS/BlockNote/blob/main/packages/core/src/extensions/Comments/threadstore/DefaultThreadStoreAuth.ts) for more details.
+The `DefaultThreadStoreAuth` class provides a basic implementation of the `ThreadStoreAuth` class. It takes a user ID and a role ("comment" or "editor") and implements the rules. See the [source code](https://github.com/TypeCellOS/BlockNote/blob/main/packages/core/src/comments/threadstore/DefaultThreadStoreAuth.ts) for more details.
 
 _Note: The `ThreadStoreAuth` only used to show / hide options in the UI. To secure comment related data, you still need to implement your own server-side validation (e.g. using `RESTYjsThreadStore` and a secure REST API)._
 
