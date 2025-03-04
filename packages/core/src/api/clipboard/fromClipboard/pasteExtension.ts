@@ -104,6 +104,7 @@ export const createPasteFromClipboardExtension = <
                     console.log(blocks);
                     const currentBlock = editor.getTextCursorPosition().block;
                     insertOrUpdateBlock(editor, currentBlock, blocks[0]);
+                    // TODO probably need to use pasteHTML instead of updating the block to handle inline content
                   });
                   return true;
                 }
