@@ -2,8 +2,10 @@ import {
   BlockMapping,
   DefaultBlockSchema,
   DefaultProps,
+  mapTableCell,
   pageBreakSchema,
   StyledText,
+  TableCell,
 } from "@blocknote/core";
 import { ODTExporter } from "../odtExporter.js";
 
@@ -81,21 +83,53 @@ const createParagraphStyle = (
   ));
 };
 
-const createTableCellStyle = (exporter: ODTExporter<any, any, any>) => {
-  const cellStyleName = exporter.registerStyle((name) => (
-    <style:style style:family="table-cell" style:name={name}>
-      <style:table-cell-properties
-        fo:border="0.5pt solid #000000"
-        style:writing-mode="lr-tb"
-        fo:padding-top="0in"
-        fo:padding-left="0.075in"
-        fo:padding-bottom="0in"
-        fo:padding-right="0.075in"
-      />
-    </style:style>
-  ));
+const createTableCellStyle = (
+  exporter: ODTExporter<any, any, any>
+): ((cell: TableCell<any, any>) => string) => {
+  // To not create a new style for each cell within a table, we cache the styles based on unique cell properties
+  const cellStyleCache = new Map<string, string>();
 
-  return cellStyleName;
+  return (cell: TableCell<any, any>) => {
+    const key = `${cell.props.backgroundColor}-${cell.props.textColor}-${cell.props.textAlignment}`;
+
+    if (cellStyleCache.has(key)) {
+      return cellStyleCache.get(key)!;
+    }
+
+    const styleName = exporter.registerStyle((name) => (
+      <style:style style:family="table-cell" style:name={name}>
+        <style:table-cell-properties
+          fo:border="0.5pt solid #000000"
+          style:writing-mode="lr-tb"
+          fo:padding-top="0in"
+          fo:padding-left="0.075in"
+          fo:padding-bottom="0in"
+          fo:padding-right="0.075in"
+          fo:background-color={
+            cell.props.backgroundColor !== "default" &&
+            cell.props.backgroundColor
+              ? exporter.options.colors[
+                  cell.props
+                    .backgroundColor as keyof typeof exporter.options.colors
+                ].background
+              : undefined
+          }
+          // TODO This is not applying because the children set their own colors
+          fo:color={
+            cell.props.textColor !== "default" && cell.props.textColor
+              ? exporter.options.colors[
+                  cell.props.textColor as keyof typeof exporter.options.colors
+                ].text
+              : undefined
+          }
+        />
+      </style:style>
+    ));
+
+    cellStyleCache.set(key, styleName);
+
+    return styleName;
+  };
 };
 const createTableStyle = (
   exporter: ODTExporter<any, any, any>,
@@ -302,7 +336,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
       ) || 0;
     const tableWidthPT = tableWidthPX * 0.75;
     const ex = exporter as ODTExporter<any, any, any>;
-    const cellStyleName = createTableCellStyle(ex);
+    const getCellStyleName = createTableCellStyle(ex);
     const tableStyleName = createTableStyle(ex, { width: tableWidthPT });
 
     return (
@@ -318,19 +352,27 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
               />
             </style:style>
           ));
-          return <table:table-column table:style-name={style} />;
+          return <table:table-column table:style-name={style} key={i} />;
         })}
-        {block.content.rows.map((row) => (
-          <table:table-row>
-            {row.cells.map((cell) => (
-              <table:table-cell
-                table:style-name={cellStyleName}
-                office:value-type="string">
-                <text:p text:style-name="Standard">
-                  {exporter.transformInlineContent(cell)}
-                </text:p>
-              </table:table-cell>
-            ))}
+        {block.content.rows.map((row, rowIndex) => (
+          <table:table-row key={rowIndex}>
+            {row.cells.map((c, colIndex) => {
+              const cell = mapTableCell(c);
+              return (
+                <table:table-cell
+                  key={`${rowIndex}-${colIndex}`}
+                  table:style-name={getCellStyleName(cell)}
+                  office:value-type="string"
+                  style:text-align-source="fix"
+                  style:paragraph-properties-text-align={
+                    cell.props.textAlignment
+                  }>
+                  <text:p text:style-name="Standard">
+                    {exporter.transformInlineContent(cell.content)}
+                  </text:p>
+                </table:table-cell>
+              );
+            })}
           </table:table-row>
         ))}
       </table:table>
