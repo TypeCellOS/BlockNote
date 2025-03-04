@@ -9,11 +9,11 @@ import {
   StyleSchema,
   StyledText,
 } from "@blocknote/core";
-import { BlobWriter, TextReader, ZipWriter, BlobReader } from "@zip.js/zip.js";
-import { renderToString } from "react-dom/server";
-import stylesXml from "./template/styles.xml?raw";
 import { loadFileBuffer } from "@shared/util/fileUtil.js";
+import { BlobReader, BlobWriter, TextReader, ZipWriter } from "@zip.js/zip.js";
+import { renderToString } from "react-dom/server";
 import { getImageDimensions } from "./imageUtil.js";
+import stylesXml from "./template/styles.xml?raw";
 
 export class ODTExporter<
   B extends BlockSchema,
@@ -28,8 +28,13 @@ export class ODTExporter<
   Record<string, string>,
   React.ReactNode
 > {
+  // "Styles" to be added to the AutomaticStyles section of the ODT file
+  // Keyed by the style name
   private automaticStyles: Map<string, React.ReactNode> = new Map();
-  private pictures: Map<
+
+  // "Pictures" to be added to the Pictures folder in the ODT file
+  // Keyed by the original image URL
+  private pictures = new Map<
     string,
     {
       file: Blob;
@@ -37,7 +42,8 @@ export class ODTExporter<
       height: number;
       width: number;
     }
-  > = new Map();
+  >();
+
   private styleCounter = 0;
 
   public readonly options: ExporterOptions;
@@ -304,6 +310,7 @@ export class ODTExporter<
     this.automaticStyles.set(styleName, style(styleName));
     return styleName;
   }
+
   public async registerPicture(url: string): Promise<{
     path: string;
     mimeType: string;
