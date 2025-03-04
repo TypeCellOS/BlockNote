@@ -73,6 +73,7 @@ export const Table = (props: {
             const isHeaderRow = headerRows[rowIndex];
             const isHeaderCol = headerCols[colIndex];
 
+            // TODO we need to support for colspan and rowspan, but at the moment are blocked by react-pdf
             return (
               <View
                 style={[

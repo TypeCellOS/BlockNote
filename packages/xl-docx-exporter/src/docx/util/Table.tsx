@@ -22,6 +22,8 @@ export const Table = (
 
   // If headerRows is 1, then the first row is a header row
   const headerRows = new Array(data.headerRows ?? 0).fill(true);
+  // If headerCols is 1, then the first column is a header column
+  const headerCols = new Array(data.headerCols ?? 0).fill(true);
 
   return new DocxTable({
     layout: "autofit",
@@ -36,6 +38,7 @@ export const Table = (
         children: row.cells.map((c, colIndex) => {
           const width = data.columnWidths?.[colIndex];
           const cell = mapTableCell(c);
+          const isHeaderColumn = headerCols[colIndex];
 
           return new TableCell({
             width: width
@@ -77,16 +80,18 @@ export const Table = (
                           cell.props.textAlignment
                         );
                       })(),
-                run:
-                  cell.props.textColor === "default" || !cell.props.textColor
-                    ? undefined
-                    : {
-                        color:
-                          t.options.colors[
-                            cell.props
-                              .textColor as keyof typeof t.options.colors
-                          ].text.slice(1),
-                      },
+                run: {
+                  // TODO add support for table headers exporting, bolding seems to not be working at the moment
+                  bold: isHeaderRow || isHeaderColumn,
+                  // TODO table paragraph color seems to not be working at the moment
+                  // Probably because the runs are setting their own color
+                  color:
+                    cell.props.textColor === "default" || !cell.props.textColor
+                      ? undefined
+                      : t.options.colors[
+                          cell.props.textColor as keyof typeof t.options.colors
+                        ].text.slice(1),
+                },
               }),
             ],
           });
