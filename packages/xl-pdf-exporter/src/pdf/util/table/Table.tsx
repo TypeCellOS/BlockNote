@@ -30,6 +30,9 @@ const styles = StyleSheet.create({
     wordWrap: "break-word",
     whiteSpace: "pre-wrap",
   },
+  headerCell: {
+    fontWeight: "bold",
+  },
   bottomCell: {
     borderBottom: "1px solid #ddd",
   },
@@ -49,31 +52,62 @@ export const Table = (props: {
     any,
     any
   >;
-}) => (
-  <View style={styles.tableContainer} wrap={false}>
-    {props.data.rows.map((row, index) => (
-      <View
-        style={[
-          styles.row,
-          index === props.data.rows.length - 1 ? styles.bottomCell : {},
-        ]}
-        key={index}>
-        {row.cells.map((cell, index) => (
-          <View
-            style={[
-              styles.cell,
-              index === row.cells.length - 1 ? styles.rightCell : {},
-              props.data.columnWidths[index]
-                ? { width: props.data.columnWidths[index] }
-                : { flex: 1 },
-            ]}
-            key={index}>
-            {props.transformer.transformInlineContent(
-              mapTableCell(cell).content
-            )}
-          </View>
-        ))}
-      </View>
-    ))}
-  </View>
-);
+}) => {
+  // If headerRows is 1, then the first row is a header row
+  const headerRows = new Array(props.data.headerRows ?? 0).fill(true);
+  // If headerCols is 1, then the first column is a header column
+  const headerCols = new Array(props.data.headerCols ?? 0).fill(true);
+
+  return (
+    <View style={styles.tableContainer} wrap={false}>
+      {props.data.rows.map((row, rowIndex) => (
+        <View
+          style={[
+            styles.row,
+            rowIndex === props.data.rows.length - 1 ? styles.bottomCell : {},
+          ]}
+          key={rowIndex}>
+          {row.cells.map((c, colIndex) => {
+            const cell = mapTableCell(c);
+
+            const isHeaderRow = headerRows[rowIndex];
+            const isHeaderCol = headerCols[colIndex];
+
+            // TODO we need to support for colspan and rowspan, but at the moment are blocked by react-pdf
+            return (
+              <View
+                style={[
+                  styles.cell,
+                  isHeaderRow || isHeaderCol ? styles.headerCell : {},
+                  colIndex === row.cells.length - 1 ? styles.rightCell : {},
+                  props.data.columnWidths[colIndex]
+                    ? { width: props.data.columnWidths[colIndex] }
+                    : { flex: 1 },
+                  {
+                    color:
+                      cell.props.textColor === "default"
+                        ? undefined
+                        : props.transformer.options.colors[
+                            cell.props
+                              .textColor as keyof typeof props.transformer.options.colors
+                          ].text,
+                    backgroundColor:
+                      cell.props.backgroundColor === "default"
+                        ? undefined
+                        : props.transformer.options.colors[
+                            cell.props
+                              .backgroundColor as keyof typeof props.transformer.options.colors
+                          ].background,
+                    textAlign: cell.props.textAlignment,
+                  },
+                ]}
+                key={colIndex}>
+                {props.transformer.transformInlineContent(cell.content)}
+              </View>
+            );
+          })}
+        </View>
+      ))}
+    </View>
+  );
+};
