@@ -1426,6 +1426,11 @@ export class BlockNoteEditor<
     );
   }
 
+  // `forceSelectionVisible` determines whether the editor selection is shows
+  // even when the editor is not focused. This is useful for e.g. creating new
+  // links, so the user still sees the affected content when an input field is
+  // focused.
+  // TODO: Reconsider naming?
   public getForceSelectionVisible() {
     return this.showSelectionPlugin.getEnabled();
   }
