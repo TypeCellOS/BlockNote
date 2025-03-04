@@ -11,7 +11,7 @@
     "build": {
       "cache": true,
       "dependsOn": ["^build"],
-      "outputs": ["{projectRoot}/dist"]
+      "outputs": ["{projectRoot}/dist", "{projectRoot}/types"]
     },
     "test": {
       "cache": true,
