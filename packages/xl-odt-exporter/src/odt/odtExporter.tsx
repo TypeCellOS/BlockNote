@@ -10,9 +10,9 @@ import {
   StyledText,
 } from "@blocknote/core";
 import { loadFileBuffer } from "@shared/util/fileUtil.js";
+import { getImageDimensions } from "@shared/util/imageUtil.js";
 import { BlobReader, BlobWriter, TextReader, ZipWriter } from "@zip.js/zip.js";
 import { renderToString } from "react-dom/server";
-import { getImageDimensions } from "./imageUtil.js";
 import stylesXml from "./template/styles.xml?raw";
 
 export class ODTExporter<

@@ -53,7 +53,7 @@
     "@blocknote/core": "^0.24.2",
     "buffer": "^6.0.3",
     "docx": "^9.0.2",
-    "sharp": "^0.33.5"
+    "image-meta": "^0.2.1"
   },
   "devDependencies": {
     "@zip.js/zip.js": "^2.7.57",
