@@ -1,10 +1,13 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import react from "@vitejs/plugin-react";
-import * as auto from "autoprefixer";
+// @ts-ignore
+import auto from "autoprefixer";
 import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
-import * as tailwindcss from "tailwindcss";
-import * as nesting from "tailwindcss/nesting";
+// @ts-ignore
+import tailwindcss from "tailwindcss";
+// @ts-ignore
+import nesting from "tailwindcss/nesting";
 
 import { defineConfig } from "vite";
 // import eslintPlugin from "vite-plugin-eslint";
