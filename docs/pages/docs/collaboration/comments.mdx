@@ -45,7 +45,7 @@ BlockNote comes with several built-in ThreadStore implementations:
 The `YjsThreadStore` provides direct Yjs-based storage for comments, storing thread data directly in the Yjs document. This implementation is ideal for simple collaborative setups where all users have write access to the document.
 
 ```tsx
-import { YjsThreadStore } from "@blocknote/core";
+import { YjsThreadStore } from "@blocknote/core/comments";
 
 const threadStore = new YjsThreadStore(
   userId, // The active user's ID
@@ -63,7 +63,7 @@ The `RESTYjsThreadStore` combines Yjs storage with a REST API backend, providing
 In this implementation, data is written to the Yjs document via a REST API which can handle access control. Data is still retrieved from the Yjs document directly (after it's been updated by the REST API), this way all comment information automatically syncs between clients using the existing collaboration provider.
 
 ```tsx
-import { RESTYjsThreadStore, DefaultThreadStoreAuth } from "@blocknote/core";
+import { RESTYjsThreadStore, DefaultThreadStoreAuth } from "@blocknote/core/comments";
 
 const threadStore = new RESTYjsThreadStore(
   "https://api.example.com/comments", // Base URL for the REST API
@@ -84,7 +84,7 @@ _Note: Because writes are executed via a REST API, the `RESTYjsThreadStore` is n
 The `TiptapThreadStore` integrates with Tiptap's collaboration provider for comment management. This implementation is designed specifically for use with Tiptap's collaborative editing features.
 
 ```tsx
-import { TiptapThreadStore, DefaultThreadStoreAuth } from "@blocknote/core";
+import { TiptapThreadStore, DefaultThreadStoreAuth } from "@blocknote/core/comments";
 import { TiptapCollabProvider } from "@hocuspocus/provider";
 
 // Create a TiptapCollabProvider (you probably have this already)
