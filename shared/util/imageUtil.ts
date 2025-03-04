@@ -9,6 +9,9 @@ export async function getImageDimensions(blob: Blob) {
     const imageMetaFunc = (await import("image-meta")).imageMeta;
     const bytes = new Uint8Array(await blob.arrayBuffer());
     const meta = imageMetaFunc(bytes);
+    if (!meta.width || !meta.height) {
+      throw new Error("Image dimensions not found");
+    }
     return { width: meta.width, height: meta.height };
   }
 }
