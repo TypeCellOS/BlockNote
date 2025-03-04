@@ -1,10 +1,10 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import react from "@vitejs/plugin-react";
-import auto from "autoprefixer";
+import * as auto from "autoprefixer";
 import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
-import tailwindcss from "tailwindcss";
-import nesting from "tailwindcss/nesting";
+import * as tailwindcss from "tailwindcss";
+import * as nesting from "tailwindcss/nesting";
 
 import { defineConfig } from "vite";
 // import eslintPlugin from "vite-plugin-eslint";
@@ -59,6 +59,10 @@ export default defineConfig(
                 "@blocknote/xl-docx-exporter": path.resolve(
                   __dirname,
                   "../packages/xl-docx-exporter/src/"
+                ),
+                "@blocknote/xl-odt-exporter": path.resolve(
+                  __dirname,
+                  "../packages/xl-odt-exporter/src/"
                 ),
                 "@blocknote/xl-pdf-exporter": path.resolve(
                   __dirname,

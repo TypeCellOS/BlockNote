@@ -42,6 +42,7 @@ export default defineConfig((conf) => ({
           ...pkg.peerDependencies,
           ...pkg.devDependencies,
         }),
+        "react-dom/client",
         "react/jsx-runtime",
       ],
       output: {

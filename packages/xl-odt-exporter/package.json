@@ -1,0 +1,81 @@
+{
+  "name": "@blocknote/xl-odt-exporter",
+  "homepage": "https://github.com/TypeCellOS/BlockNote",
+  "private": false,
+  "license": "AGPL-3.0 OR PROPRIETARY",
+  "version": "0.24.2",
+  "files": [
+    "dist",
+    "types",
+    "src"
+  ],
+  "keywords": [
+    "odt",
+    "opendocument",
+    "react",
+    "javascript",
+    "editor",
+    "typescript",
+    "prosemirror",
+    "wysiwyg",
+    "rich-text-editor",
+    "notion",
+    "yjs",
+    "block-based",
+    "tiptap"
+  ],
+  "description": "A \"Notion-style\" block-based extensible text editor built on top of Prosemirror and Tiptap.",
+  "type": "module",
+  "source": "src/index.ts",
+  "types": "./types/src/index.d.ts",
+  "main": "./dist/blocknote-xl-odt-exporter.umd.cjs",
+  "module": "./dist/blocknote-xl-odt-exporter.js",
+  "exports": {
+    ".": {
+      "types": "./types/src/index.d.ts",
+      "import": "./dist/blocknote-xl-odt-exporter.js",
+      "require": "./dist/blocknote-xl-odt-exporter.umd.cjs"
+    },
+    "./style.css": {
+      "import": "./dist/style.css",
+      "require": "./dist/style.css"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --build && vite build",
+    "lint": "eslint src --max-warnings 0",
+    "test": "vitest --run",
+    "test-watch": "vitest watch",
+    "clean": "rimraf dist && rimraf types"
+  },
+  "dependencies": {
+    "@blocknote/core": "^0.24.0",
+    "@zip.js/zip.js": "^2.7.57",
+    "buffer": "^6.0.3",
+    "image-meta": "^0.2.1"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.0.1",
+    "typescript": "^5.0.4",
+    "vite": "^5.3.4",
+    "vite-plugin-eslint": "^1.8.1",
+    "vitest": "^2.0.3",
+    "prettier": "^2.7.1",
+    "rollup-plugin-webpack-stats": "^0.2.2",
+    "xml-formatter": "^3.6.3"
+  },
+  "peerDependencies": {
+    "react": "^18.0 || ^19.0 || >= 19.0.0-rc",
+    "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc"
+  },
+  "eslintConfig": {
+    "extends": [
+      "../../.eslintrc.js"
+    ]
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

@@ -43,13 +43,13 @@ test.describe("Check Dark Theme is Automatically Applied", () => {
     await page.waitForSelector(LINK_BUTTON_SELECTOR);
     await page.click(LINK_BUTTON_SELECTOR);
 
+    await page.waitForTimeout(500);
     await page.keyboard.type("link");
     await page.keyboard.press("Enter");
     await page.keyboard.press("ArrowLeft");
 
     await page.waitForTimeout(500);
-    // expect(await page.screenshot()).toMatchSnapshot("dark-link-toolbar.png");
-    expect(Date.now() < new Date("2025-03-05").getTime()).toBeTruthy();
+    expect(await page.screenshot()).toMatchSnapshot("dark-link-toolbar.png");
   });
   test("Should show dark slash menu", async ({ page }) => {
     await focusOnEditor(page);

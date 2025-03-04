@@ -33,9 +33,11 @@ export const FloatingComposerController = <
 
   const comments = editor.comments;
   useEffect(() => {
-    comments.onUpdate((state) =>
+    const offUpdate = comments.onUpdate((state) =>
       editor.setForceSelectionVisible(state.pendingComment)
     );
+
+    return () => offUpdate();
   }, [comments, editor]);
 
   const state = useUIPluginState(comments.onUpdate.bind(comments));
