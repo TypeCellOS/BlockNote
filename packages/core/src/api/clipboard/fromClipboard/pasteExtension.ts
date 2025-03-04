@@ -11,7 +11,10 @@ import { nestedListsToBlockNoteStructure } from "../../parsers/html/util/nestedL
 import { acceptedMIMETypes } from "./acceptedMIMETypes.js";
 import { handleFileInsertion } from "./handleFileInsertion.js";
 import { handleVSCodePaste } from "./handleVSCodePaste.js";
-import { markdownToBlocks } from "../../parsers/markdown/parseMarkdown.js";
+import {
+  markdownToBlocks,
+  markdownToHTML,
+} from "../../parsers/markdown/parseMarkdown.js";
 import { Block } from "../../../blocks/defaultBlocks.js";
 import { PartialBlock } from "../../../blocks/defaultBlocks.js";
 
@@ -94,17 +97,8 @@ export const createPasteFromClipboardExtension = <
                 if (format === "text/plain") {
                   // TODO we probably need a heuristic to determine if the text is markdown or not
                   // Right now I cheated by checking text/plain first but, we should probably be checking html first
-                  markdownToBlocks(
-                    data,
-                    editor.schema.blockSchema,
-                    editor.schema.inlineContentSchema,
-                    editor.schema.styleSchema,
-                    editor.pmSchema
-                  ).then((blocks) => {
-                    console.log(blocks);
-                    const currentBlock = editor.getTextCursorPosition().block;
-                    insertOrUpdateBlock(editor, currentBlock, blocks[0]);
-                    // TODO probably need to use pasteHTML instead of updating the block to handle inline content
+                  markdownToHTML(data).then((html) => {
+                    view.pasteHTML(html);
                   });
                   return true;
                 }
