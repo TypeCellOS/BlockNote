@@ -2,11 +2,11 @@ import { withSentryConfig } from "@sentry/nextjs";
 /** @type {import('next').NextConfig} */
 import analyzer from "@next/bundle-analyzer";
 import nextra from "nextra";
-import path from "path";
-import { fileURLToPath } from "url";
+// import path from "path";
+// import { fileURLToPath } from "url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
 const withNextra = nextra({
   theme: "nextra-theme-docs",
@@ -133,7 +133,7 @@ const nextConfig = withAnalyzer(
     experimental: {
       externalDir: true,
     },
-    webpack: (config, { isServer }) => {
+    webpack: (config) => {
       config.externals.push({
         // "@blocknote/core": "bncore",
         // "@blocknote/react": "bnreact",
@@ -219,4 +219,5 @@ export default withSentryConfig(nextConfig, {
   // https://docs.sentry.io/product/crons/
   // https://vercel.com/docs/cron-jobs
   automaticVercelMonitors: true,
+  telemetry: false,
 });
