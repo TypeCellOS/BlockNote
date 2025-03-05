@@ -97,7 +97,12 @@ import { EditorView } from "prosemirror-view";
 import { ySyncPluginKey } from "y-prosemirror";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
-import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
+import {
+  docToBlocks,
+  getDocumentWithSelectionMarkers,
+  getSelectedBlocksWithSelectionMarkers,
+  prosemirrorSliceToSlicedBlocks,
+} from "../api/nodeConversions/nodeToBlock.js";
 import type { ThreadStore, User } from "../comments/index.js";
 import "../style.css";
 import { EventEmitter } from "../util/EventEmitter.js";
@@ -757,23 +762,13 @@ export class BlockNoteEditor<
    * @returns A snapshot of all top-level (non-nested) blocks in the editor.
    */
   public get document(): Block<BSchema, ISchema, SSchema>[] {
-    const blocks: Block<BSchema, ISchema, SSchema>[] = [];
-
-    this.prosemirrorState.doc.firstChild!.descendants((node) => {
-      blocks.push(
-        nodeToBlock(
-          node,
-          this.schema.blockSchema,
-          this.schema.inlineContentSchema,
-          this.schema.styleSchema,
-          this.blockCache
-        )
-      );
-
-      return false;
-    });
-
-    return blocks;
+    return docToBlocks(
+      this.prosemirrorState.doc,
+      this.schema.blockSchema,
+      this.schema.inlineContentSchema,
+      this.schema.styleSchema,
+      this.blockCache
+    );
   }
 
   /**
@@ -914,6 +909,87 @@ export class BlockNoteEditor<
     setTextCursorPosition(this, targetBlock, placement);
   }
 
+  public getDocumentWithSelectionMarkers() {
+    return getDocumentWithSelectionMarkers(
+      this.prosemirrorState,
+      this.prosemirrorState.selection.from,
+      this.prosemirrorState.selection.to,
+      this.schema.blockSchema,
+      this.schema.inlineContentSchema,
+      this.schema.styleSchema
+    );
+  }
+
+  // TODO: what about node selections?
+  public getSelectedBlocksWithSelectionMarkers() {
+    const start = this.prosemirrorState.selection.$from;
+    const end = this.prosemirrorState.selection.$to;
+
+    // if the end is at the end of a node (|</span></p>) move it forward so we include all closing tags (</span></p>|)
+    // while (end.parentOffset >= end.parent.nodeSize - 2 && end.depth > 0) {
+    //   end = this.prosemirrorState.doc.resolve(end.pos + 1);
+    // }
+
+    // // if the end is at the start of an empty node (</span></p><p>|) move it backwards so we drop empty start tags (</span></p>|)
+    // while (end.parentOffset === 0 && end.depth > 0) {
+    //   end = this.prosemirrorState.doc.resolve(end.pos - 1);
+    // }
+
+    // // if the start is at the start of a node (<p><span>|) move it backwards so we include all open tags (|<p><span>)
+    // while (start.parentOffset === 0 && start.depth > 0) {
+    //   start = this.prosemirrorState.doc.resolve(start.pos - 1);
+    // }
+
+    // // if the start is at the end of a node (|</p><p><span>) move it forwards so we drop all closing tags (|<p><span>)
+    // while (start.parentOffset >= start.parent.nodeSize - 2 && start.depth > 0) {
+    //   start = this.prosemirrorState.doc.resolve(start.pos + 1);
+    // }
+
+    return getSelectedBlocksWithSelectionMarkers(
+      this.prosemirrorState,
+      start.pos,
+      end.pos,
+      this.schema.blockSchema,
+      this.schema.inlineContentSchema,
+      this.schema.styleSchema
+    );
+  }
+
+  // TODO: fix image node selection
+  public getSelection2() {
+    let start = this.prosemirrorState.selection.$from;
+    let end = this.prosemirrorState.selection.$to;
+
+    // if the end is at the end of a node (|</span></p>) move it forward so we include all closing tags (</span></p>|)
+    while (end.parentOffset >= end.parent.nodeSize - 2 && end.depth > 0) {
+      end = this.prosemirrorState.doc.resolve(end.pos + 1);
+    }
+
+    // if the end is at the start of an empty node (</span></p><p>|) move it backwards so we drop empty start tags (</span></p>|)
+    while (end.parentOffset === 0 && end.depth > 0) {
+      end = this.prosemirrorState.doc.resolve(end.pos - 1);
+    }
+
+    // if the start is at the start of a node (<p><span>|) move it backwards so we include all open tags (|<p><span>)
+    while (start.parentOffset === 0 && start.depth > 0) {
+      start = this.prosemirrorState.doc.resolve(start.pos - 1);
+    }
+
+    // if the start is at the end of a node (|</p><p><span>|) move it forwards so we drop all closing tags (|<p><span>)
+    while (start.parentOffset >= start.parent.nodeSize - 2 && start.depth > 0) {
+      start = this.prosemirrorState.doc.resolve(start.pos + 1);
+    }
+
+    // console.log(start.pos, end.pos);
+    return prosemirrorSliceToSlicedBlocks(
+      this.prosemirrorState.doc.slice(start.pos, end.pos, true),
+      this.schema.blockSchema,
+      this.schema.inlineContentSchema,
+      this.schema.styleSchema,
+      this.blockCache
+    );
+  }
+
   /**
    * Gets a snapshot of the current selection.
    */
@@ -1024,8 +1100,8 @@ export class BlockNoteEditor<
 
     insertContentAt(
       {
-        from: this._tiptapEditor.state.selection.from,
-        to: this._tiptapEditor.state.selection.to,
+        from: this.prosemirrorState.selection.from,
+        to: this.prosemirrorState.selection.to,
       },
       nodes,
       this
@@ -1037,7 +1113,7 @@ export class BlockNoteEditor<
    */
   public getActiveStyles() {
     const styles: Styles<SSchema> = {};
-    const marks = this._tiptapEditor.state.selection.$to.marks();
+    const marks = this.prosemirrorState.selection.$to.marks();
 
     for (const mark of marks) {
       const config = this.schema.styleSchema[mark.type.name];
@@ -1118,9 +1194,9 @@ export class BlockNoteEditor<
    * Gets the currently selected text.
    */
   public getSelectedText() {
-    return this._tiptapEditor.state.doc.textBetween(
-      this._tiptapEditor.state.selection.from,
-      this._tiptapEditor.state.selection.to
+    return this.prosemirrorState.doc.textBetween(
+      this.prosemirrorState.selection.from,
+      this.prosemirrorState.selection.to
     );
   }
 
@@ -1141,16 +1217,16 @@ export class BlockNoteEditor<
       return;
     }
 
-    const { from, to } = this._tiptapEditor.state.selection;
+    const { from, to } = this.prosemirrorState.selection;
 
     if (!text) {
-      text = this._tiptapEditor.state.doc.textBetween(from, to);
+      text = this.prosemirrorState.doc.textBetween(from, to);
     }
 
     const mark = this.pmSchema.mark("link", { href: url });
 
     this.dispatch(
-      this._tiptapEditor.state.tr
+      this.prosemirrorState.tr
         .insertText(text, from, to)
         .addMark(from, from + text.length, mark)
     );
@@ -1368,8 +1444,8 @@ export class BlockNoteEditor<
     if (!this.prosemirrorView) {
       return undefined;
     }
-    const state = this.prosemirrorView?.state;
-    const { selection } = state;
+
+    const { selection } = this.prosemirrorState;
 
     // support for CellSelections
     const { ranges } = selection;
@@ -1405,8 +1481,9 @@ export class BlockNoteEditor<
       ignoreQueryLength?: boolean;
     }
   ) {
-    const tr = this.prosemirrorView?.state.tr;
-    if (!tr) {
+    const tr = this.prosemirrorState.tr;
+
+    if (!this.prosemirrorView) {
       return;
     }
 
