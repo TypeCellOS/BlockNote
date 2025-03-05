@@ -14,7 +14,12 @@ export const Card = forwardRef<
   return (
     <MantineCard
       className={className}
-      onFocus={onFocus}
+      onFocus={(event) => {
+        onFocus?.();
+        event.target.closest(".mantine-Card-root")!.scrollIntoView({
+          block: "start",
+        });
+      }}
       onBlur={onBlur}
       tabIndex={tabIndex}
       ref={ref}>

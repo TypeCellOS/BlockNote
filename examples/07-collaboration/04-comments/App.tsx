@@ -9,9 +9,10 @@ import "@blocknote/mantine/style.css";
 import {
   BlockNoteViewEditor,
   ThreadStreamView,
+  useComponentsContext,
   useCreateBlockNote,
 } from "@blocknote/react";
-import { MantineProvider, Select } from "@mantine/core";
+import { MantineProvider } from "@mantine/core";
 import { YDocProvider, useYDoc, useYjsProvider } from "@y-sweet/react";
 import { useMemo, useState } from "react";
 import { HARDCODED_USERS, MyUserType, getRandomColor } from "./userdata.js";
@@ -28,6 +29,59 @@ async function resolveUsers(userIds: string[]) {
 
   return HARDCODED_USERS.filter((user) => userIds.includes(user.id));
 }
+
+const UserSelect = (props: {
+  users: MyUserType[];
+  userId: string;
+  setUserId: (userId: string) => void;
+}) => {
+  const Components = useComponentsContext()!;
+
+  return (
+    <Components.FormattingToolbar.Root className={"bn-toolbar"}>
+      <h1>User Select</h1>
+      <Components.FormattingToolbar.Select
+        className={"bn-select"}
+        items={props.users.map((user) => ({
+          text: user.username,
+          icon: null,
+          onClick: () => props.setUserId(user.id),
+          isSelected: user.id === props.userId,
+        }))}
+      />
+    </Components.FormattingToolbar.Root>
+  );
+};
+
+const CommentTypeSelect = (props: {
+  commentType: "open" | "resolved";
+  setCommentType: (commentType: "open" | "resolved") => void;
+}) => {
+  const Components = useComponentsContext()!;
+
+  return (
+    <Components.FormattingToolbar.Root className={"bn-toolbar"}>
+      <h1>Comments</h1>
+      <Components.FormattingToolbar.Select
+        className={"bn-select"}
+        items={[
+          {
+            text: "Open",
+            icon: null,
+            onClick: () => props.setCommentType("open"),
+            isSelected: props.commentType === "open",
+          },
+          {
+            text: "Resolved",
+            icon: null,
+            onClick: () => props.setCommentType("resolved"),
+            isSelected: props.commentType === "resolved",
+          }
+        ]}
+      />
+    </Components.FormattingToolbar.Root>
+  );
+};
 
 // This follows the Y-Sweet example to setup a collabotive editor
 // (but of course, you also use other collaboration providers
@@ -48,6 +102,7 @@ export default function App() {
 
 function Document() {
   const [user, setUser] = useState<MyUserType>(HARDCODED_USERS[0]);
+  const [commentType, setCommentType] = useState<"open" | "resolved">("open");
   const provider = useYjsProvider();
 
   // take the Y.Doc collaborative document from Y-Sweet
@@ -91,39 +146,31 @@ function Document() {
   );
 
   return (
-    <div className={"bn-app"}>
-      {/* This is a simple user selector to switch between users, for demo purposes */}
-      <Select
-        style={{ maxWidth: "300px" }}
-        required
-        label="Active user:"
-        placeholder="Pick value"
-        data={HARDCODED_USERS.map((user) => ({
-          value: user.id,
-          label: user.username + " (" + user.role + ")",
-        }))}
-        onChange={(value) => {
-          if (!value) {
-            return;
-          }
-          setUser(HARDCODED_USERS.find((user) => user.id === value)!);
-        }}
-        value={user.id}
-      />
-
-      {/* render the actual editor */}
-      <BlockNoteView
-        editor={editor}
-        editable={user.role === "editor"}
-        renderEditor={false}>
-        <div className={"bn-editor-and-thread-stream"}>
-          <BlockNoteViewEditor />
-          <div className={"bn-thread-stream-wrapper bn-mantine"}>
-            <h1>Comments</h1>
-            <ThreadStreamView />
+    <BlockNoteView
+      className={"bn-main"}
+      editor={editor}
+      editable={user.role === "editor"}
+      renderEditor={false}>
+      <div className={"bn-editor-and-thread-stream"}>
+        <div className={"bn-editor-wrapper"}>
+          <div className={"bn-select-header"}>
+            <UserSelect
+              users={HARDCODED_USERS}
+              userId={user.id}
+              setUserId={(userId) =>
+                setUser(HARDCODED_USERS.find((user) => user.id === userId)!)
+              }
+            />
           </div>
+          <BlockNoteViewEditor />
         </div>
-      </BlockNoteView>
-    </div>
+        <div className={"bn-thread-stream-wrapper"}>
+          <div className={"bn-select-header"}>
+            <CommentTypeSelect commentType={commentType} setCommentType={setCommentType}/>
+          </div>
+          <ThreadStreamView commentType={commentType} />
+        </div>
+      </div>
+    </BlockNoteView>
   );
 }

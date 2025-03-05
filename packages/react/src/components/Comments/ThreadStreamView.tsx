@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useUIPluginState } from "../../hooks/useUIPluginState.js";
 import { Thread } from "./Thread.js";
@@ -9,7 +8,8 @@ import { useThreads } from "./useThreads.js";
  *
  * This component is similar to Google Docs "Show All Comments" sidebar (cmd+option+shift+A)
  */
-export function ThreadStreamView(_props: {
+export function ThreadStreamView(props: {
+  commentType?: "open" | "resolved";
   maxCommentsPerThread?: number;
   sort?: "document-order" | "newest-first" | "oldest-first";
 }) {
@@ -29,38 +29,13 @@ export function ThreadStreamView(_props: {
 
   const threads = useThreads(editor);
 
-  const { open, resolved } = useMemo(() => {
-    const allThreads = Array.from(threads.values());
-
-    const open = [];
-    const resolved = [];
-
-    for (const thread of allThreads) {
-      if (!thread.resolved) {
-        open.push(thread);
-      } else {
-        resolved.push(thread);
-      }
-    }
-
-    return { open, resolved };
-  }, [threads]);
+  const filteredThreads = Array.from(threads.values()).filter((thread) =>
+    props.commentType === "resolved" ? thread.resolved : !thread.resolved
+  );
 
   return (
     <div className={"bn-thread-stream"}>
-      <h2>Open</h2>
-      {open.map((thread) => (
-        <Thread
-          key={thread.id}
-          threadId={thread.id}
-          showComposer={selectedThreadId === thread.id}
-          onFocus={() => comments.selectThread(thread.id)}
-          onBlur={() => comments.selectThread(undefined)}
-          tabIndex={0}
-        />
-      ))}
-      <h2>Resolved</h2>
-      {resolved.map((thread) => (
+      {filteredThreads.map((thread) => (
         <Thread
           key={thread.id}
           threadId={thread.id}
