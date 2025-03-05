@@ -3,11 +3,19 @@ import type { EmojiMartData } from "@emoji-mart/data";
 import React, { useEffect, useRef } from "react";
 
 // Temporary fix for https://github.com/missive/emoji-mart/pull/929
-let emojiMart: typeof import("emoji-mart") | undefined;
-let emojiData: EmojiMartData | undefined;
+let emojiLoadingPromise:
+  | Promise<{
+      emojiMart: typeof import("emoji-mart");
+      emojiData: EmojiMartData;
+    }>
+  | undefined;
 
 async function loadEmojiMart() {
-  if (!emojiMart || !emojiData) {
+  if (emojiLoadingPromise) {
+    return emojiLoadingPromise;
+  }
+
+  emojiLoadingPromise = (async () => {
     // load dynamically because emoji-mart doesn't specify type: module and breaks in nodejs
     const [emojiMartModule, emojiDataModule] = await Promise.all([
       import("emoji-mart"),
@@ -16,17 +24,19 @@ async function loadEmojiMart() {
       import("@emoji-mart/data"),
     ]);
 
-    emojiMart =
+    const emojiMart =
       "default" in emojiMartModule ? emojiMartModule.default : emojiMartModule;
-    emojiData =
+    const emojiData =
       "default" in emojiDataModule
         ? (emojiDataModule.default as EmojiMartData)
         : (emojiDataModule as EmojiMartData);
 
-    emojiMart.init({ data: emojiData });
-  }
+    await emojiMart.init({ data: emojiData });
 
-  return { emojiMart, emojiData };
+    return { emojiMart, emojiData };
+  })();
+
+  return emojiLoadingPromise;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
