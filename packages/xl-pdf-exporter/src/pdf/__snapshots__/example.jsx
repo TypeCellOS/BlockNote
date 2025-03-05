@@ -27,7 +27,7 @@
               fontStyle: 'italic'
             }}
           >
-            Welcome to this
+            Welcome to this{' '}
           </TEXT>
           <TEXT
             style={{
@@ -424,6 +424,8 @@
               undefined,
               undefined
             ],
+            headerCols: undefined,
+            headerRows: undefined,
             rows: [
               {
                 cells: [
@@ -802,6 +804,8 @@
               undefined,
               undefined
             ],
+            headerCols: undefined,
+            headerRows: undefined,
             rows: [
               {
                 cells: [

@@ -10,6 +10,8 @@ import {
   useContext,
 } from "react";
 
+import { BlockNoteEditor } from "@blocknote/core";
+import { User } from "@blocknote/core/comments";
 import { DefaultReactGridSuggestionItem } from "../components/SuggestionMenu/GridSuggestionMenu/types.js";
 import { DefaultReactSuggestionItem } from "../components/SuggestionMenu/types.js";
 
@@ -18,20 +20,35 @@ type ToolbarRootType = {
   children?: ReactNode;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
+  variant?: "default" | "action-toolbar";
 };
 
 type ToolbarButtonType = {
   className?: string;
-  mainTooltip: string;
+  mainTooltip?: string;
   secondaryTooltip?: string;
   icon?: ReactNode;
   onClick?: (e: MouseEvent) => void;
   isSelected?: boolean;
   isDisabled?: boolean;
+  variant?: "default" | "compact";
 } & (
   | { children: ReactNode; label?: string }
   | { children?: undefined; label: string }
 );
+
+type MenuButtonType = {
+  className?: string;
+  onClick?: (e: MouseEvent) => void;
+  icon?: ReactNode;
+  onDragStart?: (e: React.DragEvent) => void;
+  onDragEnd?: (e: React.DragEvent) => void;
+  draggable?: boolean;
+} & (
+  | { children: ReactNode; label?: string }
+  | { children?: undefined; label: string }
+);
+
 export type ComponentProps = {
   FormattingToolbar: {
     Root: ToolbarRootType;
@@ -180,8 +197,49 @@ export type ComponentProps = {
       children: ReactNode;
     };
   };
+  Comments: {
+    Card: {
+      className?: string;
+      children?: ReactNode;
+    };
+    CardSection: {
+      className?: string;
+      children?: ReactNode;
+    };
+    Editor: {
+      className?: string;
+      editable: boolean;
+      editor: BlockNoteEditor<any, any, any>;
+      onFocus?: () => void;
+      onBlur?: () => void;
+    };
+    Comment: {
+      className?: string;
+      children?: ReactNode;
+      authorInfo: "loading" | User;
+      timeString: string;
+      actions?: ReactNode;
+      showActions?: boolean | "hover";
+    };
+  };
   // TODO: We should try to make everything as generic as we can
   Generic: {
+    Badge: {
+      Root: {
+        className?: string;
+        text: string;
+        icon?: ReactNode;
+        isSelected?: boolean;
+        mainTooltip?: string;
+        secondaryTooltip?: string;
+        onClick?: (event: React.MouseEvent) => void;
+        onMouseEnter?: () => void;
+      };
+      Group: {
+        className?: string;
+        children: ReactNode;
+      };
+    };
     Form: {
       Root: {
         children?: ReactNode;
@@ -205,8 +263,13 @@ export type ComponentProps = {
     Menu: {
       Root: {
         sub?: boolean;
-        position?: "top" | "right" | "bottom" | "left";
         onOpenChange?: (open: boolean) => void;
+        position?:
+          | "top"
+          | "right"
+          | "bottom"
+          | "left"
+          | `${"top" | "right" | "bottom" | "left"}-${"start" | "end"}`;
         children?: ReactNode;
       };
       Divider: {
@@ -234,12 +297,18 @@ export type ComponentProps = {
         children?: ReactNode;
         sub?: boolean;
       };
+      Button: MenuButtonType;
     };
     Popover: {
       Root: {
-        children?: ReactNode;
         opened?: boolean;
-        position?: "top" | "right" | "bottom" | "left";
+        position?:
+          | "top"
+          | "right"
+          | "bottom"
+          | "left"
+          | `${"top" | "right" | "bottom" | "left"}-${"start" | "end"}`;
+        children?: ReactNode;
       };
       Content: {
         className?: string;

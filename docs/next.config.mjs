@@ -123,6 +123,11 @@ const nextConfig = withAnalyzer(
         destination: "/examples/basic/default-blocks",
         permanent: true,
       },
+      {
+        source: "/docs/advanced/real-time-collaboration",
+        destination: "/docs/collaboration",
+        permanent: true,
+      },
     ],
     experimental: {
       externalDir: true,
@@ -133,6 +138,14 @@ const nextConfig = withAnalyzer(
         // "@blocknote/react": "bnreact",
         // ...
       });
+
+      // https://github.com/vercel/next.js/issues/59744#issuecomment-2442603644
+      config.resolve.extensionAlias = {
+        ".js": [".js", ".ts"],
+        ".mjs": [".mjs", ".mts"],
+        ".cjs": [".cjs", ".cts"],
+        ".jsx": [".jsx", ".tsx"],
+      };
 
       if (config.mode === "development") {
         // makes sure the local blocknote dependencies get their own chunk, and are not included in every page bundle

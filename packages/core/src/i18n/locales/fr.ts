@@ -154,6 +154,9 @@ export const fr: Dictionary = {
     bulletListItem: "Liste",
     numberedListItem: "Liste",
     checkListItem: "Liste",
+    new_comment: "Écrire un commentaire...",
+    edit_comment: "Modifier le commentaire...",
+    comment_reply: "Ajouter un commentaire...",
   },
   file_blocks: {
     image: {
@@ -177,6 +180,8 @@ export const fr: Dictionary = {
   drag_handle: {
     delete_menuitem: "Supprimer",
     colors_menuitem: "Couleurs",
+    header_row_menuitem: "En-tête de ligne",
+    header_column_menuitem: "En-tête de colonne",
   },
   table_handle: {
     delete_column_menuitem: "Supprimer la colonne",
@@ -185,6 +190,9 @@ export const fr: Dictionary = {
     add_right_menuitem: "Ajouter une colonne à droite",
     add_above_menuitem: "Ajouter une ligne au-dessus",
     add_below_menuitem: "Ajouter une ligne en dessous",
+    split_cell_menuitem: "Diviser la cellule",
+    merge_cells_menuitem: "Fusionner les cellules",
+    background_color_menuitem: "Couleur de fond",
   },
   suggestion_menu: {
     no_items_title: "Aucun élément trouvé",
@@ -300,6 +308,9 @@ export const fr: Dictionary = {
     align_justify: {
       tooltip: "Justifier le texte",
     },
+    table_cell_merge: {
+      tooltip: "Fusionner les cellules",
+    },
     comment: {
       tooltip: "Ajouter un commentaire",
     },
@@ -340,6 +351,18 @@ export const fr: Dictionary = {
     form: {
       title_placeholder: "Modifier le titre",
       url_placeholder: "Modifier l'URL",
+    },
+  },
+  comments: {
+    actions: {
+      add_reaction: "Ajouter une réaction",
+      resolve: "Résoudre",
+      edit_comment: "Modifier le commentaire",
+      delete_comment: "Supprimer le commentaire",
+      more_actions: "Plus d'actions",
+    },
+    reactions: {
+      reacted_by: "Réagi par",
     },
   },
   generic: {

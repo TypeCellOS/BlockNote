@@ -1,4 +1,5 @@
 import * as locales from "./i18n/locales/index.js";
+export * from "./api/blockManipulation/commands/updateBlock/updateBlock.js";
 export * from "./api/exporters/html/externalHTMLExporter.js";
 export * from "./api/exporters/html/internalHTMLSerializer.js";
 export * from "./api/getBlockInfoFromPos.js";
@@ -6,9 +7,6 @@ export * from "./api/nodeUtil.js";
 export * from "./api/testUtil/index.js";
 export * from "./blocks/AudioBlockContent/AudioBlockContent.js";
 export * from "./blocks/CodeBlockContent/CodeBlockContent.js";
-export * from "./blocks/PageBreakBlockContent/PageBreakBlockContent.js";
-export * from "./blocks/PageBreakBlockContent/getPageBreakSlashMenuItems.js";
-export * from "./blocks/PageBreakBlockContent/schema.js";
 export * from "./blocks/FileBlockContent/FileBlockContent.js";
 export * from "./blocks/FileBlockContent/helpers/parse/parseEmbedElement.js";
 export * from "./blocks/FileBlockContent/helpers/parse/parseFigureElement.js";
@@ -20,6 +18,9 @@ export * from "./blocks/FileBlockContent/helpers/toExternalHTML/createFigureWith
 export * from "./blocks/FileBlockContent/helpers/toExternalHTML/createLinkWithCaption.js";
 export * from "./blocks/FileBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY.js";
 export * from "./blocks/ImageBlockContent/ImageBlockContent.js";
+export * from "./blocks/PageBreakBlockContent/PageBreakBlockContent.js";
+export * from "./blocks/PageBreakBlockContent/getPageBreakSlashMenuItems.js";
+export * from "./blocks/PageBreakBlockContent/schema.js";
 export {
   EMPTY_CELL_HEIGHT,
   EMPTY_CELL_WIDTH,
@@ -52,11 +53,11 @@ export * from "./schema/index.js";
 export * from "./util/browser.js";
 export * from "./util/combineByGroup.js";
 export * from "./util/esmDependencies.js";
+export * from "./util/table.js";
 export * from "./util/string.js";
 export * from "./util/typescript.js";
 export { UnreachableCaseError, assertEmpty } from "./util/typescript.js";
 export { locales };
-export * from "./api/blockManipulation/commands/updateBlock/updateBlock.js";
 
 export * from "./util/EventEmitter.js";
 // for testing from react (TODO: move):
@@ -69,3 +70,4 @@ export * from "./extensions/UniqueID/UniqueID.js";
 export * from "./api/exporters/markdown/markdownExporter.js";
 export * from "./api/parsers/html/parseHTML.js";
 export * from "./api/parsers/markdown/parseMarkdown.js";
+

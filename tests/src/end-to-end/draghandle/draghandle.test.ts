@@ -54,7 +54,8 @@ test.describe("Check Draghandle functionality", () => {
     const h2y = await getDragHandleYCoord(page, H_TWO_BLOCK_SELECTOR);
     const h3y = await getDragHandleYCoord(page, H_THREE_BLOCK_SELECTOR);
 
-    expect(h1y < h2y && h1y < h3y && h2y < h3y).toBeTruthy();
+    expect(h1y < h2y).toBeTruthy();
+    expect(h2y < h3y).toBeTruthy();
   });
 
   test("Draghandle should display next to correct nested block", async () => {
@@ -69,7 +70,8 @@ test.describe("Check Draghandle functionality", () => {
     const h2y = await getDragHandleYCoord(page, H_TWO_BLOCK_SELECTOR);
     const h3y = await getDragHandleYCoord(page, H_THREE_BLOCK_SELECTOR);
 
-    expect(h1y < h2y && h1y < h3y && h2y < h3y).toBeTruthy();
+    expect(h1y < h2y).toBeTruthy();
+    expect(h2y < h3y).toBeTruthy();
   });
 
   test("Clicking draghandle should open menu", async () => {

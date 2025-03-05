@@ -1,0 +1,3 @@
+- `template blocknote.odt` is the demo docx export (https://www.blocknotejs.org/examples/interoperability/converting-blocks-to-docx), opened by libreoffice on mac and saved as odt
+- the extracted files have been formatted (using vs code xml formatter) so we can see diffs across commits
+- the `styles.xml` file is the only file actually used by the odt exporter

@@ -10,6 +10,7 @@ import type {
   InlineContentSchema,
   StyleSchema,
   Styles,
+  TableCell,
   TableContent,
 } from "../../schema/index.js";
 import {
@@ -37,37 +38,96 @@ export function contentNodeToTableContent<
   const ret: TableContent<I, S> = {
     type: "tableContent",
     columnWidths: [],
+    headerRows: undefined,
+    headerCols: undefined,
     rows: [],
   };
 
-  contentNode.content.forEach((rowNode, _offset, index) => {
+  /**
+   * A matrix of boolean values indicating whether a cell is a header.
+   * The first index is the row index, the second index is the cell index.
+   */
+  const headerMatrix: boolean[][] = [];
+
+  contentNode.content.forEach((rowNode, _offset, rowIndex) => {
     const row: TableContent<I, S>["rows"][0] = {
       cells: [],
     };
 
-    if (index === 0) {
+    if (rowIndex === 0) {
       rowNode.content.forEach((cellNode) => {
-        // The colwidth array should have multiple values when the colspan of a
-        // cell is greater than 1. However, this is not yet implemented so we
-        // can always assume a length of 1.
-        ret.columnWidths.push(cellNode.attrs.colwidth?.[0] || undefined);
+        let colWidth = cellNode.attrs.colwidth as null | undefined | number[];
+        if (colWidth === undefined || colWidth === null) {
+          colWidth = new Array(cellNode.attrs.colspan ?? 1).fill(undefined);
+        }
+        ret.columnWidths.push(...colWidth);
       });
     }
 
-    rowNode.content.forEach((cellNode) => {
-      row.cells.push(
-        cellNode.firstChild
-          ? contentNodeToInlineContent(
-              cellNode.firstChild,
-              inlineContentSchema,
-              styleSchema
-            )
-          : []
-      );
+    row.cells = rowNode.content.content.map((cellNode, cellIndex) => {
+      if (!headerMatrix[rowIndex]) {
+        headerMatrix[rowIndex] = [];
+      }
+      // Mark the cell as a header if it is a tableHeader node.
+      headerMatrix[rowIndex][cellIndex] = cellNode.type.name === "tableHeader";
+      // Convert cell content to inline content and merge adjacent styled text nodes
+      const content = cellNode.content.content
+        .map((child) =>
+          contentNodeToInlineContent(child, inlineContentSchema, styleSchema)
+        )
+        // The reason that we merge this content is that we allow table cells to contain multiple tableParagraph nodes
+        // So that we can leverage prosemirror-tables native merging
+        // If the schema only allowed a single tableParagraph node, then the merging would not work and cause prosemirror to fit the content into a new cell
+        .reduce((acc, contentPartial) => {
+          if (!acc.length) {
+            return contentPartial;
+          }
+
+          const last = acc[acc.length - 1];
+          const first = contentPartial[0];
+
+          // Only merge if the last and first content are both styled text nodes and have the same styles
+          if (
+            isStyledTextInlineContent(last) &&
+            isStyledTextInlineContent(first) &&
+            JSON.stringify(last.styles) === JSON.stringify(first.styles)
+          ) {
+            // Join them together if they have the same styles
+            last.text += "\n" + first.text;
+            acc.push(...contentPartial.slice(1));
+            return acc;
+          }
+          acc.push(...contentPartial);
+          return acc;
+        }, [] as InlineContent<I, S>[]);
+
+      return {
+        type: "tableCell",
+        content,
+        props: {
+          colspan: cellNode.attrs.colspan,
+          rowspan: cellNode.attrs.rowspan,
+          backgroundColor: cellNode.attrs.backgroundColor,
+          textColor: cellNode.attrs.textColor,
+          textAlignment: cellNode.attrs.textAlignment,
+        },
+      } satisfies TableCell<I, S>;
     });
 
     ret.rows.push(row);
   });
+
+  for (let i = 0; i < headerMatrix.length; i++) {
+    if (headerMatrix[i].every((isHeader) => isHeader)) {
+      ret.headerRows = (ret.headerRows ?? 0) + 1;
+    }
+  }
+
+  for (let i = 0; i < headerMatrix[0]?.length; i++) {
+    if (headerMatrix.every((row) => row[i])) {
+      ret.headerCols = (ret.headerCols ?? 0) + 1;
+    }
+  }
 
   return ret;
 }

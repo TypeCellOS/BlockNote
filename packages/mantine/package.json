@@ -6,7 +6,7 @@
     "*.css"
   ],
   "license": "MPL-2.0",
-  "version": "0.24.1",
+  "version": "0.25.0",
   "files": [
     "dist",
     "types",
@@ -29,13 +29,13 @@
   "type": "module",
   "source": "src/index.tsx",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-mantine.umd.cjs",
+  "main": "./dist/blocknote-mantine.cjs",
   "module": "./dist/blocknote-mantine.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
       "import": "./dist/blocknote-mantine.js",
-      "require": "./dist/blocknote-mantine.umd.cjs"
+      "require": "./dist/blocknote-mantine.cjs"
     },
     "./style.css": {
       "import": "./dist/style.css",
@@ -51,8 +51,8 @@
     "_prepare": "npm run build"
   },
   "dependencies": {
-    "@blocknote/core": "^0.24.1",
-    "@blocknote/react": "^0.24.1",
+    "@blocknote/core": "^0.25.0",
+    "@blocknote/react": "^0.25.0",
     "@mantine/core": "^7.10.1",
     "@mantine/hooks": "^7.10.1",
     "@mantine/utils": "^6.0.21",

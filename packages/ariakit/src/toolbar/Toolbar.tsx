@@ -8,7 +8,14 @@ type ToolbarProps = ComponentProps["Generic"]["Toolbar"]["Root"];
 
 export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
   (props, ref) => {
-    const { className, children, onMouseEnter, onMouseLeave, ...rest } = props;
+    const {
+      className,
+      children,
+      onMouseEnter,
+      onMouseLeave,
+      variant,
+      ...rest
+    } = props;
 
     assertEmpty(rest);
 

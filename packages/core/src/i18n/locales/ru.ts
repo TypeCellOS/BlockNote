@@ -157,6 +157,9 @@ export const ru: Dictionary = {
     bulletListItem: "Список",
     numberedListItem: "Список",
     checkListItem: "Список",
+    new_comment: "Напишите комментарий...",
+    edit_comment: "Редактировать комментарий...",
+    comment_reply: "Добавить комментарий...",
   },
   file_blocks: {
     image: {
@@ -180,6 +183,8 @@ export const ru: Dictionary = {
   drag_handle: {
     delete_menuitem: "Удалить",
     colors_menuitem: "Цвета",
+    header_row_menuitem: "Заголовок строки",
+    header_column_menuitem: "Заголовок столбца",
   },
   table_handle: {
     delete_column_menuitem: "Удалить столбец",
@@ -188,6 +193,9 @@ export const ru: Dictionary = {
     add_right_menuitem: "Добавить столбец справа",
     add_above_menuitem: "Добавить строку выше",
     add_below_menuitem: "Добавить строку ниже",
+    split_cell_menuitem: "Разделить ячейку",
+    merge_cells_menuitem: "Объединить ячейки",
+    background_color_menuitem: "Цвет фона",
   },
   suggestion_menu: {
     no_items_title: "ничего не найдено",
@@ -303,6 +311,9 @@ export const ru: Dictionary = {
     align_justify: {
       tooltip: "По середине текст",
     },
+    table_cell_merge: {
+      tooltip: "Объединить ячейки",
+    },
     comment: {
       tooltip: "Добавить комментарий",
     },
@@ -343,6 +354,18 @@ export const ru: Dictionary = {
     form: {
       title_placeholder: "Изменить заголовок",
       url_placeholder: "Изменить URL",
+    },
+  },
+  comments: {
+    actions: {
+      add_reaction: "Добавить реакцию",
+      resolve: "Решить",
+      edit_comment: "Редактировать комментарий",
+      delete_comment: "Удалить комментарий",
+      more_actions: "Другие действия",
+    },
+    reactions: {
+      reacted_by: "Отреагировал(а)",
     },
   },
   generic: {

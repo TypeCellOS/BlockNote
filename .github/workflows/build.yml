@@ -12,73 +12,97 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - uses: nrwl/nx-set-shas@v3
 
       - uses: actions/setup-node@v4
         with:
           node-version: "20.x"
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
 
-      - name: Cache node modules
+      - name: Cache NX
         uses: actions/cache@v4
-        env:
-          cache-name: cache-node-modules
         with:
-          # npm cache files are stored in `~/.npm` on Linux/macOS
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          path: node_modules/.cache/nx/
+          key: nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-
-      - name: cache playwright
-        id: playwright-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: pw-new-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+            nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-
+            nx-${{ env.NX_BRANCH }}-
+            nx-
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci --prefer-offline --no-audit
 
       - name: Bootstrap packages
         run: npm run bootstrap
 
       - name: Lint packages
         run: npm run lint
-        env:
-          CI: true
 
       - name: Build packages
         run: npm run build
-        env:
-          CI: true
 
       - name: Run unit tests
         run: npm run test
-        env:
-          CI: true
-
-      - name: Run server
-        run: npm run start:built & npx wait-on http://localhost:3000
-        env:
-          CI: true
-
-      - name: Install Playwright
-        run: npm run install-playwright
-
-      - name: Run Playwright tests
-        working-directory: ./tests
-        run: npx playwright test
-
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: playwright-report
-          path: tests/playwright-report/
-          retention-days: 30
 
       - name: Upload webpack stats artifact (editor)
         uses: relative-ci/agent-upload-artifact-action@v2
         with:
           webpackStatsFile: ./playground/dist/webpack-stats.json
           artifactName: relative-ci-artifacts-editor
+
+  playwright:
+    name: "Playwright Tests - ${{ matrix.browser }}"
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.49.1-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+
+      - uses: nrwl/nx-set-shas@v3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
+
+      - name: Cache NX
+        uses: actions/cache@v4
+        with:
+          path: node_modules/.cache/nx/
+          key: nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-${{ github.sha }}
+          restore-keys: |
+            nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-
+            nx-${{ env.NX_BRANCH }}-
+            nx-
+
+      - run: apt-get update && apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Build packages
+        run: npm run build
+
+      - name: Run server and Playwright tests
+        run: |
+          npm run start:built > /dev/null & 
+          npx wait-on http://localhost:3000
+          cd tests && HOME=/root npx playwright test --project ${{ matrix.browser }}
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: tests/playwright-report/
+          retention-days: 30

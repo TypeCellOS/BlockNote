@@ -1,3 +1,4 @@
+import { CellSelection } from "prosemirror-tables";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import {
   BlockConfig,
@@ -15,6 +16,7 @@ import {
   defaultInlineContentSchema,
 } from "./defaultBlocks.js";
 import { defaultProps } from "./defaultProps.js";
+import { Selection } from "prosemirror-state";
 
 // TODO: check
 export function checkBlockTypeInSchema<
@@ -175,4 +177,10 @@ export function checkBlockHasDefaultProp<
   S
 > {
   return checkBlockTypeHasDefaultProp(prop, block.type, editor);
+}
+
+export function isTableCellSelection(
+  selection: Selection
+): selection is CellSelection {
+  return selection instanceof CellSelection;
 }

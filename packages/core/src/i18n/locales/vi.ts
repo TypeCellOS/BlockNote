@@ -129,6 +129,9 @@ export const vi: Dictionary = {
     bulletListItem: "Danh sách",
     numberedListItem: "Danh sách",
     checkListItem: "Danh sách",
+    new_comment: "Viết bình luận...",
+    edit_comment: "Chỉnh sửa bình luận...",
+    comment_reply: "Thêm bình luận...",
   },
   file_blocks: {
     image: {
@@ -152,6 +155,8 @@ export const vi: Dictionary = {
   drag_handle: {
     delete_menuitem: "Xóa",
     colors_menuitem: "Màu sắc",
+    header_row_menuitem: "Tiêu đề hàng",
+    header_column_menuitem: "Tiêu đề cột",
   },
   table_handle: {
     delete_column_menuitem: "Xóa cột",
@@ -160,6 +165,9 @@ export const vi: Dictionary = {
     add_right_menuitem: "Thêm cột bên phải",
     add_above_menuitem: "Thêm hàng phía trên",
     add_below_menuitem: "Thêm hàng phía dưới",
+    split_cell_menuitem: "Chia ô",
+    merge_cells_menuitem: "Gộp ô",
+    background_color_menuitem: "Màu nền",
   },
   suggestion_menu: {
     no_items_title: "Không tìm thấy mục nào",
@@ -275,6 +283,9 @@ export const vi: Dictionary = {
     align_justify: {
       tooltip: "Căn đều văn bản",
     },
+    table_cell_merge: {
+      tooltip: "Gộp các ô",
+    },
     comment: {
       tooltip: "Thêm bình luận",
     },
@@ -315,6 +326,18 @@ export const vi: Dictionary = {
     form: {
       title_placeholder: "Chỉnh sửa tiêu đề",
       url_placeholder: "Chỉnh sửa URL",
+    },
+  },
+  comments: {
+    actions: {
+      add_reaction: "Thêm phản ứng",
+      resolve: "Giải quyết",
+      edit_comment: "Chỉnh sửa bình luận",
+      delete_comment: "Xóa bình luận",
+      more_actions: "Thêm hành động",
+    },
+    reactions: {
+      reacted_by: "Phản ứng bởi",
     },
   },
   generic: {

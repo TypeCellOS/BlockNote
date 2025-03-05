@@ -26,6 +26,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
       isDisabled,
       onClick,
       label,
+      variant,
       ...rest
     } = props;
 
@@ -33,49 +34,39 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
     // assertEmpty in this case is only used at typescript level, not runtime level
     assertEmpty(rest, false);
 
-    const Button = (
-      <AriakitToolbarItem
-        aria-label={label}
-        className={mergeCSSClasses(
-          "bn-ak-button bn-ak-secondary",
-          className || ""
-        )}
-        // Needed as Safari doesn't focus button elements on mouse down
-        // unlike other browsers.
-        onMouseDown={(e) => {
-          if (isSafari()) {
-            (e.currentTarget as HTMLButtonElement).focus();
+    return (
+      <AriakitTooltipProvider>
+        <AriakitTooltipAnchor
+          render={
+            <AriakitToolbarItem
+              aria-label={label}
+              className={mergeCSSClasses(
+                "bn-ak-button bn-ak-secondary",
+                className || ""
+              )}
+              // Needed as Safari doesn't focus button elements on mouse down
+              // unlike other browsers.
+              onMouseDown={(e) => {
+                if (isSafari()) {
+                  (e.currentTarget as HTMLButtonElement).focus();
+                }
+              }}
+              onClick={onClick}
+              aria-pressed={isSelected}
+              data-selected={isSelected ? "true" : undefined}
+              disabled={isDisabled || false}
+              ref={ref}
+              {...rest}>
+              {icon}
+              {children}
+            </AriakitToolbarItem>
           }
-        }}
-        onClick={onClick}
-        aria-pressed={isSelected}
-        data-selected={isSelected ? "true" : undefined}
-        data-test={
-          mainTooltip &&
-          mainTooltip.slice(0, 1).toLowerCase() +
-            mainTooltip.replace(/\s+/g, "").slice(1)
-        }
-        //   size={"xs"}
-        disabled={isDisabled || false}
-        ref={ref}
-        {...rest}>
-        {icon}
-        {children}
-      </AriakitToolbarItem>
+        />
+        <AriakitTooltip className="bn-ak-tooltip" portal={false}>
+          <span>{mainTooltip}</span>
+          {secondaryTooltip && <span>{secondaryTooltip}</span>}
+        </AriakitTooltip>
+      </AriakitTooltipProvider>
     );
-
-    if (mainTooltip) {
-      return (
-        <AriakitTooltipProvider>
-          <AriakitTooltipAnchor className="link" render={Button} />
-          <AriakitTooltip className="bn-ak-tooltip">
-            <span>{mainTooltip}</span>
-            {secondaryTooltip && <span>{secondaryTooltip}</span>}
-          </AriakitTooltip>
-        </AriakitTooltipProvider>
-      );
-    }
-
-    return Button;
   }
 );

@@ -6,7 +6,7 @@
     "*.css"
   ],
   "license": "MPL-2.0",
-  "version": "0.24.1",
+  "version": "0.25.0",
   "files": [
     "dist",
     "types",
@@ -29,13 +29,13 @@
   "type": "module",
   "source": "src/index.ts",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-server-util.umd.cjs",
+  "main": "./dist/blocknote-server-util.cjs",
   "module": "./dist/blocknote-server-util.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
       "import": "./dist/blocknote-server-util.js",
-      "require": "./dist/blocknote-server-util.umd.cjs"
+      "require": "./dist/blocknote-server-util.cjs"
     },
     "./style.css": {
       "import": "./dist/style.css",
@@ -51,8 +51,8 @@
     "_prepare": "npm run build"
   },
   "dependencies": {
-    "@blocknote/core": "^0.24.1",
-    "@blocknote/react": "^0.24.1",
+    "@blocknote/core": "^0.25.0",
+    "@blocknote/react": "^0.25.0",
     "@tiptap/core": "^2.7.1",
     "@tiptap/pm": "^2.7.1",
     "jsdom": "^25.0.1",

@@ -235,7 +235,7 @@ function updateChildren<
   editor: BlockNoteEditor<BSchema, I, S>,
   blockInfo: BlockInfo
 ) {
-  if (block.children !== undefined) {
+  if (block.children !== undefined && block.children.length > 0) {
     const childNodes = block.children.map((child) => {
       return blockToNode(child, editor.pmSchema, editor.schema.styleSchema);
     });

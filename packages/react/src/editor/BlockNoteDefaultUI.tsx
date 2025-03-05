@@ -1,3 +1,5 @@
+import { FloatingComposerController } from "../components/Comments/FloatingComposerController.js";
+import { FloatingThreadController } from "../components/Comments/FloatingThreadController.js";
 import { FilePanelController } from "../components/FilePanel/FilePanelController.js";
 import { FormattingToolbarController } from "../components/FormattingToolbar/FormattingToolbarController.js";
 import { LinkToolbarController } from "../components/LinkToolbar/LinkToolbarController.js";
@@ -15,6 +17,7 @@ export type BlockNoteDefaultUIProps = {
   filePanel?: boolean;
   tableHandles?: boolean;
   emojiPicker?: boolean;
+  comments?: boolean;
 };
 
 export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
@@ -44,6 +47,12 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
       {editor.filePanel && props.filePanel !== false && <FilePanelController />}
       {editor.tableHandles && props.tableHandles !== false && (
         <TableHandlesController />
+      )}
+      {editor.comments && props.comments !== false && (
+        <>
+          <FloatingComposerController />
+          <FloatingThreadController />
+        </>
       )}
     </>
   );

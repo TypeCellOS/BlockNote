@@ -43,6 +43,7 @@ test.describe("Check Dark Theme is Automatically Applied", () => {
     await page.waitForSelector(LINK_BUTTON_SELECTOR);
     await page.click(LINK_BUTTON_SELECTOR);
 
+    await page.waitForTimeout(500);
     await page.keyboard.type("link");
     await page.keyboard.press("Enter");
     await page.keyboard.press("ArrowLeft");

@@ -39,9 +39,13 @@ export default defineConfig((conf) => ({
     // assetsInclude: ["**/*.woff", "**/*.woff2", "**/*.ttf", "**/*.otf"], // Add other font extensions if needed
     sourcemap: true,
     lib: {
-      entry: path.resolve(__dirname, "src/index.ts"),
+      entry: {
+        "blocknote-xl-docx-exporter": path.resolve(__dirname, "src/index.ts"),
+      },
       name: "blocknote-xl-docx-exporter",
-      fileName: "blocknote-xl-docx-exporter",
+      formats: ["es", "cjs"],
+      fileName: (format, entryName) =>
+        format === "es" ? `${entryName}.js` : `${entryName}.cjs`,
     },
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled

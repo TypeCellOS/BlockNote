@@ -498,23 +498,23 @@ NESTED BLOCKS
 
 /* TEXT ALIGNMENT */
 [data-text-alignment="left"] {
-  justify-content: flex-start;
-  text-align: left;
+  justify-content: flex-start !important;
+  text-align: left !important;
 }
 
 [data-text-alignment="center"] {
-  justify-content: center;
-  text-align: center;
+  justify-content: center !important;
+  text-align: center !important;
 }
 
 [data-text-alignment="right"] {
-  justify-content: flex-end;
-  text-align: right;
+  justify-content: flex-end !important;
+  text-align: right !important;
 }
 
 [data-text-alignment="justify"] {
-  justify-content: flex-start;
-  text-align: justify;
+  justify-content: flex-start !important;
+  text-align: justify !important;
 }
 
 .bn-block-column-list {
@@ -535,4 +535,12 @@ NESTED BLOCKS
 
 .bn-block-column:last-child {
   padding-right: 0;
+}
+
+.bn-thread-mark:not([data-orphan="true"]) {
+  background: rgba(255, 200, 0, 0.15);
+}
+
+.bn-thread-mark:not([data-orphan="true"]) .bn-thread-mark-selected {
+  background: rgba(255, 200, 0, 0.25);
 }

@@ -8,9 +8,9 @@ import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
+  SuggestionMenuController,
   getDefaultReactSlashMenuItems,
   getPageBreakReactSlashMenuItems,
-  SuggestionMenuController,
   useCreateBlockNote,
 } from "@blocknote/react";
 import {
@@ -25,13 +25,19 @@ export default function App() {
   // Creates a new editor instance with some initial content.
   const editor = useCreateBlockNote({
     schema: withPageBreak(BlockNoteSchema.create()),
+    tables: {
+      splitCells: true,
+      cellBackgroundColor: true,
+      cellTextColor: true,
+      headers: true,
+    },
     initialContent: [
       {
         type: "paragraph",
         content: [
           {
             type: "text",
-            text: "Welcome to this",
+            text: "Welcome to this ",
             styles: {
               italic: true,
             },

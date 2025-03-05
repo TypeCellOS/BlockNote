@@ -1,8 +1,35 @@
 import { Plugin, PluginKey, PluginView } from "prosemirror-state";
+import {
+  addColumnAfter,
+  addColumnBefore,
+  addRowAfter,
+  addRowBefore,
+  CellSelection,
+  deleteColumn,
+  deleteRow,
+  mergeCells,
+  splitCell,
+} from "prosemirror-tables";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
+import {
+  addRowsOrColumns,
+  areInSameColumn,
+  canColumnBeDraggedInto,
+  canRowBeDraggedInto,
+  cropEmptyRowsOrColumns,
+  getCellsAtColumnHandle,
+  getCellsAtRowHandle,
+  getDimensionsOfTable,
+  moveColumn,
+  moveRow,
+  RelativeCellIndices,
+} from "../../api/blockManipulation/tables/tables.js";
 import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../api/nodeUtil.js";
-import { checkBlockIsDefaultType } from "../../blocks/defaultBlockTypeGuards.js";
+import {
+  checkBlockIsDefaultType,
+  isTableCellSelection,
+} from "../../blocks/defaultBlockTypeGuards.js";
 import { DefaultBlockSchema } from "../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
@@ -16,6 +43,7 @@ import { getDraggableBlockFromElement } from "../getDraggableBlockFromElement.js
 
 let dragImageElement: HTMLElement | undefined;
 
+// TODO consider switching this to jotai, it is a bit messy and noisy
 export type TableHandlesState<
   I extends InlineContentSchema,
   S extends StyleSchema
@@ -159,7 +187,10 @@ export class TableHandlesView<
       "dragover",
       this.dragOverHandler as EventListener
     );
-    pmView.root.addEventListener("drop", this.dropHandler as EventListener);
+    pmView.root.addEventListener(
+      "drop",
+      this.dropHandler as unknown as EventListener
+    );
   }
 
   viewMousedownHandler = () => {
@@ -284,11 +315,11 @@ export class TableHandlesView<
         referencePosTable: tableRect,
         block: tableBlock,
         widgetContainer,
-        colIndex: hideHandles ? undefined : this.state!.colIndex,
-        rowIndex: hideHandles ? undefined : this.state!.rowIndex,
+        colIndex: hideHandles ? undefined : this.state?.colIndex,
+        rowIndex: hideHandles ? undefined : this.state?.rowIndex,
         referencePosCell: hideHandles
           ? undefined
-          : this.state!.referencePosCell,
+          : this.state?.referencePosCell,
       };
     } else {
       const colIndex = getChildIndex(target.domNode);
@@ -427,7 +458,7 @@ export class TableHandlesView<
   dropHandler = (event: DragEvent) => {
     this.mouseState = "up";
     if (this.state === undefined || this.state.draggingState === undefined) {
-      return;
+      return false;
     }
 
     if (
@@ -443,33 +474,64 @@ export class TableHandlesView<
 
     const { draggingState, colIndex, rowIndex } = this.state;
 
-    const rows = this.state.block.content.rows;
+    const columnWidths = this.state.block.content.columnWidths;
 
     if (draggingState.draggedCellOrientation === "row") {
-      const rowToMove = rows[draggingState.originalIndex];
-      rows.splice(draggingState.originalIndex, 1);
-      rows.splice(rowIndex, 0, rowToMove);
-    } else {
-      const cellsToMove = rows.map(
-        (row) => row.cells[draggingState.originalIndex]
+      if (
+        !canRowBeDraggedInto(
+          this.state.block,
+          draggingState.originalIndex,
+          rowIndex
+        )
+      ) {
+        // If the target row is invalid, don't move the row
+        return false;
+      }
+      const newTable = moveRow(
+        this.state.block,
+        draggingState.originalIndex,
+        rowIndex
       );
-      rows.forEach((row, rowIndex) => {
-        row.cells.splice(draggingState.originalIndex, 1);
-        row.cells.splice(colIndex, 0, cellsToMove[rowIndex]);
+      this.editor.updateBlock(this.state.block, {
+        type: "table",
+        content: {
+          ...this.state.block.content,
+          rows: newTable as any,
+        },
+      });
+    } else {
+      if (
+        !canColumnBeDraggedInto(
+          this.state.block,
+          draggingState.originalIndex,
+          colIndex
+        )
+      ) {
+        // If the target column is invalid, don't move the column
+        return false;
+      }
+      const newTable = moveColumn(
+        this.state.block,
+        draggingState.originalIndex,
+        colIndex
+      );
+      const [columnWidth] = columnWidths.splice(draggingState.originalIndex, 1);
+      columnWidths.splice(colIndex, 0, columnWidth);
+      this.editor.updateBlock(this.state.block, {
+        type: "table",
+        content: {
+          ...this.state.block.content,
+          columnWidths,
+          rows: newTable as any,
+        },
       });
     }
-
-    this.editor.updateBlock(this.state.block, {
-      type: "table",
-      content: {
-        type: "tableContent",
-        rows: rows,
-      },
-    });
 
     // Have to reset text cursor position to the block as `updateBlock` moves
     // the existing selection out of the block.
     this.editor.setTextCursorPosition(this.state.block.id);
+
+    return true;
   };
   // Updates drag handles when the table is modified or removed.
   update() {
@@ -488,8 +550,9 @@ export class TableHandlesView<
       return;
     }
 
-    const rowCount = this.state.block.content.rows.length;
-    const colCount = this.state.block.content.rows[0].cells.length;
+    const { height: rowCount, width: colCount } = getDimensionsOfTable(
+      this.state.block
+    );
 
     if (
       this.state.rowIndex !== undefined &&
@@ -520,8 +583,12 @@ export class TableHandlesView<
     ) {
       const row = tableBody.children[this.state.rowIndex];
       const cell = row.children[this.state.colIndex];
-
-      this.state.referencePosCell = cell.getBoundingClientRect();
+      if (cell) {
+        this.state.referencePosCell = cell.getBoundingClientRect();
+      } else {
+        this.state.rowIndex = undefined;
+        this.state.colIndex = undefined;
+      }
     }
     this.state.referencePosTable = tableBody.getBoundingClientRect();
 
@@ -538,7 +605,7 @@ export class TableHandlesView<
     );
     this.pmView.root.removeEventListener(
       "drop",
-      this.dropHandler as EventListener
+      this.dropHandler as unknown as EventListener
     );
   }
 }
@@ -594,35 +661,53 @@ export class TableHandlesProsemirrorPlugin<
 
           if (newIndex === this.view.state.draggingState.originalIndex) {
             return DecorationSet.create(state.doc, decorations);
+          } else if (
+            this.view.state.draggingState.draggedCellOrientation === "row" &&
+            !canRowBeDraggedInto(
+              this.view.state.block,
+              this.view.state.draggingState.originalIndex,
+              newIndex
+            )
+          ) {
+            return DecorationSet.create(state.doc, decorations);
+          } else if (
+            this.view.state.draggingState.draggedCellOrientation === "col" &&
+            !canColumnBeDraggedInto(
+              this.view.state.block,
+              this.view.state.draggingState.originalIndex,
+              newIndex
+            )
+          ) {
+            return DecorationSet.create(state.doc, decorations);
           }
 
           // Gets the table to show the drop cursor in.
           const tableResolvedPos = state.doc.resolve(this.view.tablePos + 1);
-          const tableNode = tableResolvedPos.node();
+          const originalIndex = this.view.state.draggingState.originalIndex;
 
           if (this.view.state.draggingState.draggedCellOrientation === "row") {
-            // Gets the row at the new index.
-            const rowResolvedPos = state.doc.resolve(
-              tableResolvedPos.posAtIndex(newIndex) + 1
+            const cellsInRow = getCellsAtRowHandle(
+              this.view.state.block,
+              newIndex
             );
-            const rowNode = rowResolvedPos.node();
 
-            // Iterates over all cells in the row.
-            for (let i = 0; i < rowNode.childCount; i++) {
-              // Gets each cell in the row.
+            cellsInRow.forEach(({ row, col }) => {
+              // Gets each row in the table.
+              const rowResolvedPos = state.doc.resolve(
+                tableResolvedPos.posAtIndex(row) + 1
+              );
+
+              // Gets the cell within the row.
               const cellResolvedPos = state.doc.resolve(
-                rowResolvedPos.posAtIndex(i) + 1
+                rowResolvedPos.posAtIndex(col) + 1
               );
               const cellNode = cellResolvedPos.node();
-
               // Creates a decoration at the start or end of each cell,
               // depending on whether the new index is before or after the
               // original index.
               const decorationPos =
                 cellResolvedPos.pos +
-                (newIndex > this.view.state.draggingState.originalIndex
-                  ? cellNode.nodeSize - 2
-                  : 0);
+                (newIndex > originalIndex ? cellNode.nodeSize - 2 : 0);
               decorations.push(
                 // The widget is a small bar which spans the width of the cell.
                 Decoration.widget(decorationPos, () => {
@@ -635,9 +720,7 @@ export class TableHandlesProsemirrorPlugin<
                   // table cells is an odd number of pixels. So this makes the
                   // positioning slightly more consistent regardless of where
                   // the row is being dropped.
-                  if (
-                    newIndex > this.view!.state!.draggingState!.originalIndex
-                  ) {
+                  if (newIndex > originalIndex) {
                     widget.style.bottom = "-2px";
                   } else {
                     widget.style.top = "-3px";
@@ -647,18 +730,22 @@ export class TableHandlesProsemirrorPlugin<
                   return widget;
                 })
               );
-            }
+            });
           } else {
-            // Iterates over all rows in the table.
-            for (let i = 0; i < tableNode.childCount; i++) {
+            const cellsInColumn = getCellsAtColumnHandle(
+              this.view.state.block,
+              newIndex
+            );
+
+            cellsInColumn.forEach(({ row, col }) => {
               // Gets each row in the table.
               const rowResolvedPos = state.doc.resolve(
-                tableResolvedPos.posAtIndex(i) + 1
+                tableResolvedPos.posAtIndex(row) + 1
               );
 
-              // Gets the cell at the new index in the row.
+              // Gets the cell within the row.
               const cellResolvedPos = state.doc.resolve(
-                rowResolvedPos.posAtIndex(newIndex) + 1
+                rowResolvedPos.posAtIndex(col) + 1
               );
               const cellNode = cellResolvedPos.node();
 
@@ -667,9 +754,7 @@ export class TableHandlesProsemirrorPlugin<
               // original index.
               const decorationPos =
                 cellResolvedPos.pos +
-                (newIndex > this.view.state.draggingState.originalIndex
-                  ? cellNode.nodeSize - 2
-                  : 0);
+                (newIndex > originalIndex ? cellNode.nodeSize - 2 : 0);
 
               decorations.push(
                 // The widget is a small bar which spans the height of the cell.
@@ -683,9 +768,7 @@ export class TableHandlesProsemirrorPlugin<
                   // table cells is an odd number of pixels. So this makes the
                   // positioning slightly more consistent regardless of where
                   // the column is being dropped.
-                  if (
-                    newIndex > this.view!.state!.draggingState!.originalIndex
-                  ) {
+                  if (newIndex > originalIndex) {
                     widget.style.right = "-2px";
                   } else {
                     widget.style.left = "-3px";
@@ -695,7 +778,7 @@ export class TableHandlesProsemirrorPlugin<
                   return widget;
                 })
               );
-            }
+            });
           }
 
           return DecorationSet.create(state.doc, decorations);
@@ -833,5 +916,274 @@ export class TableHandlesProsemirrorPlugin<
    */
   unfreezeHandles = () => {
     this.view!.menuFrozen = false;
+  };
+
+  getCellsAtRowHandle = (
+    block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+    relativeRowIndex: RelativeCellIndices["row"]
+  ) => {
+    return getCellsAtRowHandle(block, relativeRowIndex);
+  };
+
+  /**
+   * Get all the cells in a column of the table block.
+   */
+  getCellsAtColumnHandle = (
+    block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+    relativeColumnIndex: RelativeCellIndices["col"]
+  ) => {
+    return getCellsAtColumnHandle(block, relativeColumnIndex);
+  };
+
+  /**
+   * Sets the selection to the given cell or a range of cells.
+   * @returns The new state after the selection has been set.
+   */
+  private setCellSelection = (
+    relativeStartCell: RelativeCellIndices,
+    relativeEndCell: RelativeCellIndices = relativeStartCell
+  ) => {
+    const view = this.view;
+
+    if (!view) {
+      throw new Error("Table handles view not initialized");
+    }
+
+    const state = this.editor.prosemirrorState;
+    const tableResolvedPos = state.doc.resolve(view.tablePos! + 1);
+    const startRowResolvedPos = state.doc.resolve(
+      tableResolvedPos.posAtIndex(relativeStartCell.row) + 1
+    );
+    const startCellResolvedPos = state.doc.resolve(
+      // No need for +1, since CellSelection expects the position before the cell
+      startRowResolvedPos.posAtIndex(relativeStartCell.col)
+    );
+    const endRowResolvedPos = state.doc.resolve(
+      tableResolvedPos.posAtIndex(relativeEndCell.row) + 1
+    );
+    const endCellResolvedPos = state.doc.resolve(
+      // No need for +1, since CellSelection expects the position before the cell
+      endRowResolvedPos.posAtIndex(relativeEndCell.col)
+    );
+
+    // Begin a new transaction to set the selection
+    const tr = state.tr;
+
+    // Set the selection to the given cell or a range of cells
+    tr.setSelection(
+      new CellSelection(startCellResolvedPos, endCellResolvedPos)
+    );
+
+    // Quickly apply the transaction to get the new state to update the selection before splitting the cell
+    return state.apply(tr);
+  };
+
+  /**
+   * Adds a row or column to the table using prosemirror-table commands
+   */
+  addRowOrColumn = (
+    index: RelativeCellIndices["row"] | RelativeCellIndices["col"],
+    direction:
+      | { orientation: "row"; side: "above" | "below" }
+      | { orientation: "column"; side: "left" | "right" }
+  ) => {
+    const state = this.setCellSelection(
+      direction.orientation === "row"
+        ? { row: index, col: 0 }
+        : { row: 0, col: index }
+    );
+    if (direction.orientation === "row") {
+      if (direction.side === "above") {
+        return addRowBefore(state, this.editor.dispatch);
+      } else {
+        return addRowAfter(state, this.editor.dispatch);
+      }
+    } else {
+      if (direction.side === "left") {
+        return addColumnBefore(state, this.editor.dispatch);
+      } else {
+        return addColumnAfter(state, this.editor.dispatch);
+      }
+    }
+  };
+
+  /**
+   * Removes a row or column from the table using prosemirror-table commands
+   */
+  removeRowOrColumn = (
+    index: RelativeCellIndices["row"] | RelativeCellIndices["col"],
+    direction: "row" | "column"
+  ) => {
+    const state = this.setCellSelection(
+      direction === "row" ? { row: index, col: 0 } : { row: 0, col: index }
+    );
+
+    if (direction === "row") {
+      return deleteRow(state, this.editor.dispatch);
+    } else {
+      return deleteColumn(state, this.editor.dispatch);
+    }
+  };
+
+  /**
+   * Merges the cells in the table block.
+   */
+  mergeCells = (cellsToMerge?: {
+    relativeStartCell: RelativeCellIndices;
+    relativeEndCell: RelativeCellIndices;
+  }) => {
+    const state = cellsToMerge
+      ? this.setCellSelection(
+          cellsToMerge.relativeStartCell,
+          cellsToMerge.relativeEndCell
+        )
+      : this.editor.prosemirrorState;
+
+    return mergeCells(state, this.editor.dispatch);
+  };
+
+  /**
+   * Splits the cell in the table block.
+   * If no cell is provided, the current cell selected will be split.
+   */
+  splitCell = (relativeCellToSplit?: RelativeCellIndices) => {
+    const state = relativeCellToSplit
+      ? this.setCellSelection(relativeCellToSplit)
+      : this.editor.prosemirrorState;
+
+    return splitCell(state, this.editor.dispatch);
+  };
+
+  /**
+   * Gets the start and end cells of the current cell selection.
+   * @returns The start and end cells of the current cell selection.
+   */
+  getCellSelection = ():
+    | undefined
+    | {
+        from: RelativeCellIndices;
+        to: RelativeCellIndices;
+        /**
+         * All of the cells that are within the selected range.
+         */
+        cells: RelativeCellIndices[];
+      } => {
+    // Based on the current selection, find the table cells that are within the selected range
+    const state = this.editor.prosemirrorState;
+    const selection = state.selection;
+
+    let $fromCell = selection.$from;
+    let $toCell = selection.$to;
+    if (isTableCellSelection(selection)) {
+      // When the selection is a table cell selection, we can find the
+      // from and to cells by iterating over the ranges in the selection
+      const { ranges } = selection;
+      ranges.forEach((range) => {
+        $fromCell = range.$from.min($fromCell ?? range.$from);
+        $toCell = range.$to.max($toCell ?? range.$to);
+      });
+    } else {
+      // When the selection is a normal text selection
+      // Assumes we are within a tableParagraph
+      // And find the from and to cells by resolving the positions
+      $fromCell = state.doc.resolve(
+        selection.$from.pos - selection.$from.parentOffset - 1
+      );
+      $toCell = state.doc.resolve(
+        selection.$to.pos - selection.$to.parentOffset - 1
+      );
+
+      // Opt-out when the selection is not pointing into cells
+      if ($fromCell.pos === 0 || $toCell.pos === 0) {
+        return undefined;
+      }
+    }
+
+    // Find the row and table that the from and to cells are in
+    const $fromRow = state.doc.resolve(
+      $fromCell.pos - $fromCell.parentOffset - 1
+    );
+    const $toRow = state.doc.resolve($toCell.pos - $toCell.parentOffset - 1);
+
+    // Find the table
+    const $table = state.doc.resolve($fromRow.pos - $fromRow.parentOffset - 1);
+
+    // Find the column and row indices of the from and to cells
+    const fromColIndex = $fromCell.index($fromRow.depth);
+    const fromRowIndex = $fromRow.index($table.depth);
+    const toColIndex = $toCell.index($toRow.depth);
+    const toRowIndex = $toRow.index($table.depth);
+
+    const cells: RelativeCellIndices[] = [];
+    for (let row = fromRowIndex; row <= toRowIndex; row++) {
+      for (let col = fromColIndex; col <= toColIndex; col++) {
+        cells.push({ row, col });
+      }
+    }
+
+    return {
+      from: {
+        row: fromRowIndex,
+        col: fromColIndex,
+      },
+      to: {
+        row: toRowIndex,
+        col: toColIndex,
+      },
+      cells,
+    };
+  };
+
+  /**
+   * Gets the direction of the merge based on the current cell selection.
+   *
+   * Returns undefined when there is no cell selection, or the selection is not within a table.
+   */
+  getMergeDirection = (
+    block:
+      | BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>
+      | undefined
+  ) => {
+    const isSelectingTableCells = isTableCellSelection(
+      this.editor.prosemirrorState.selection
+    )
+      ? this.editor.prosemirrorState.selection
+      : undefined;
+
+    if (
+      !isSelectingTableCells ||
+      !block ||
+      // Only offer the merge button if there is more than one cell selected.
+      isSelectingTableCells.ranges.length <= 1
+    ) {
+      return undefined;
+    }
+
+    const cellSelection = this.getCellSelection();
+
+    if (!cellSelection) {
+      return undefined;
+    }
+
+    if (areInSameColumn(cellSelection.from, cellSelection.to, block)) {
+      return "vertical";
+    }
+
+    return "horizontal";
+  };
+
+  cropEmptyRowsOrColumns = (
+    block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+    removeEmpty: "columns" | "rows"
+  ) => {
+    return cropEmptyRowsOrColumns(block, removeEmpty);
+  };
+
+  addRowsOrColumns = (
+    block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
+    addType: "columns" | "rows",
+    numToAdd: number
+  ) => {
+    return addRowsOrColumns(block, addType, numToAdd);
   };
 }

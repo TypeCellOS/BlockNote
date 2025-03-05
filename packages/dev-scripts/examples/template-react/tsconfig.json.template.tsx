@@ -13,7 +13,7 @@ const template = (project: Project) => ({
     strict: true,
     forceConsistentCasingInFileNames: true,
     module: "ESNext",
-    moduleResolution: "Node",
+    moduleResolution: "bundler",
     resolveJsonModule: true,
     isolatedModules: true,
     noEmit: true,

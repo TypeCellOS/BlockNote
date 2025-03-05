@@ -7,19 +7,19 @@ import {
   StyledText,
   UnreachableCaseError,
 } from "@blocknote/core";
+import { getImageDimensions } from "@shared/util/imageUtil.js";
 import {
   CheckBox,
   Table as DocxTable,
   ExternalHyperlink,
-  IParagraphOptions,
   ImageRun,
+  IParagraphOptions,
   PageBreak,
   Paragraph,
   ParagraphChild,
   ShadingType,
   TextRun,
 } from "docx";
-import { getImageDimensions } from "../imageUtil.js";
 import { Table } from "../util/Table.js";
 
 function blockPropsToStyles(

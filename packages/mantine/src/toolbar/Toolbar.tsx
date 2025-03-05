@@ -1,4 +1,4 @@
-import { Group as MantineGroup } from "@mantine/core";
+import { Flex } from "@mantine/core";
 
 import { assertEmpty } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
@@ -9,7 +9,14 @@ type ToolbarProps = ComponentProps["Generic"]["Toolbar"]["Root"];
 
 export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
   (props, ref) => {
-    const { className, children, onMouseEnter, onMouseLeave, ...rest } = props;
+    const {
+      className,
+      children,
+      onMouseEnter,
+      onMouseLeave,
+      variant,
+      ...rest
+    } = props;
 
     assertEmpty(rest);
 
@@ -21,15 +28,16 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
     const combinedRef = mergeRefs(ref, focusRef, trapRef);
 
     return (
-      <MantineGroup
+      <Flex
         className={className}
         ref={combinedRef}
         role="toolbar"
         // TODO: aria-label
         onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}>
+        onMouseLeave={onMouseLeave}
+        gap={variant === "action-toolbar" ? 2 : undefined}>
         {children}
-      </MantineGroup>
+      </Flex>
     );
   }
 );

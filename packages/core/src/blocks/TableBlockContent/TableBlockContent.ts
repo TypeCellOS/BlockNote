@@ -1,4 +1,3 @@
-import { Node } from "@tiptap/core";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { TableRow } from "@tiptap/extension-table-row";
@@ -102,12 +101,12 @@ export const TableBlockContent = createStronglyTypedTiptapNode({
       return new BlockNoteTableView(node, EMPTY_CELL_WIDTH, {
         ...(this.options.domAttributes?.blockContent || {}),
         ...HTMLAttributes,
-      }) as NodeView;
+      }) as NodeView; // needs cast, tiptap types (wrongly) doesn't support return tableview here
     };
   },
 });
 
-const TableParagraph = Node.create({
+const TableParagraph = createStronglyTypedTiptapNode({
   name: "tableParagraph",
   group: "tableContent",
   content: "inline*",
@@ -160,10 +159,17 @@ export const Table = createBlockSpecFromStronglyTypedTiptapNode(
     TableExtension,
     TableParagraph,
     TableHeader.extend({
-      content: "tableContent",
+      /**
+       * We allow table headers and cells to have multiple tableContent nodes because
+       * when merging cells, prosemirror-tables will concat the contents of the cells naively.
+       * This would cause that content to overflow into other cells when prosemirror tries to enforce the cell structure.
+       *
+       * So, we manually fix this up when reading back in the `nodeToBlock` and only ever place a single tableContent back into the cell.
+       */
+      content: "tableContent+",
     }),
     TableCell.extend({
-      content: "tableContent",
+      content: "tableContent+",
     }),
     TableRow,
   ]
