@@ -84,17 +84,10 @@ export const createCollaborationExtensions = (collaboration: {
       return cursorElement;
     };
 
-    const render = (user: { color: string; name: string }) => {
-      const clientState = [...awareness.getStates().entries()].find(
-        (state) => state[1].user === user
-      );
-
-      if (!clientState) {
-        throw new Error("Could not find client state for user");
-      }
-
-      const clientID = clientState[0];
-
+    const render = (
+      user: { color: string; name: string },
+      clientID: number
+    ) => {
       let cursorData = cursors.get(clientID);
 
       if (!cursorData) {
@@ -141,7 +134,7 @@ export const createCollaborationExtensions = (collaboration: {
     tiptapExtensions.push(
       CollaborationCursor.configure({
         user: collaboration.user,
-        render,
+        render: render as any, // tiptap type not compatible with latest y-prosemirror
         provider: collaboration.provider,
       })
     );
