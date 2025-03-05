@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
     paddingRight: 10, // otherwise text overflows, seems like a react-pdf / yoga bug
   },
   bullet: {
-    fontFamily: "", // TODO: add symbol font
+    // fontFamily: "", // we could add symbol font if we don't want to use inter (default font) here
   },
 });
 
