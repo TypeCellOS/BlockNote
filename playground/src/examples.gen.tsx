@@ -898,7 +898,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-pdf-exporter": "latest",
-            "@react-pdf/renderer": "^4.0.0"
+            "@react-pdf/renderer": "^4.3.0"
           } as any,
           "pro": true
         },
@@ -926,6 +926,28 @@
           "pro": true
         },
         "title": "Exporting documents to .docx (Office Open XML)",
+        "group": {
+          "pathFromRoot": "examples/05-interoperability",
+          "slug": "interoperability"
+        }
+      },
+      {
+        "projectSlug": "converting-blocks-to-odt",
+        "fullSlug": "interoperability/converting-blocks-to-odt",
+        "pathFromRoot": "examples/05-interoperability/07-converting-blocks-to-odt",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "areknawo",
+          "tags": [
+            ""
+          ],
+          "dependencies": {
+            "@blocknote/xl-odt-exporter": "latest"
+          } as any,
+          "pro": true
+        },
+        "title": "Exporting documents to .odt (Open Document Text)",
         "group": {
           "pathFromRoot": "examples/05-interoperability",
           "slug": "interoperability"

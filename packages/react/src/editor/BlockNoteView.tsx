@@ -14,6 +14,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
+import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor.js";
 import { useEditorChange } from "../hooks/useEditorChange.js";
 import { useEditorSelectionChange } from "../hooks/useEditorSelectionChange.js";
 import { usePrefersColorScheme } from "../hooks/usePrefersColorScheme.js";
@@ -108,7 +109,6 @@ function BlockNoteViewComponent<
     ...rest
   } = props;
 
-  const doRenderEditor = renderEditor ?? true;
   // Used so other components (suggestion menu) can set
   // aria related props to the contenteditable div
   const [contentEditableProps, setContentEditableProps] =
@@ -134,17 +134,6 @@ function BlockNoteViewComponent<
       editor.elementRenderer = ref;
     },
     [editor]
-  );
-
-  const portalManager = useMemo(() => {
-    return getContentComponent();
-  }, []);
-
-  const mount = useCallback(
-    (element: HTMLElement | null) => {
-      editor.mount(element, portalManager);
-    },
-    [editor, portalManager]
   );
 
   // The BlockNoteContext makes sure the editor and some helper methods
@@ -173,9 +162,7 @@ function BlockNoteViewComponent<
     autoFocus,
     className,
     editorColorScheme,
-    mount,
     contentEditableProps,
-    ref,
     ...rest,
   };
 
@@ -187,15 +174,10 @@ function BlockNoteViewComponent<
           defaultUIProps,
         }}>
         <ElementRenderer ref={setElementRenderer} />
-        {!editor.headless && (
-          <>
-            <Portals contentComponent={portalManager} />
-            {doRenderEditor ? (
-              <BlockNoteViewEditor>{children}</BlockNoteViewEditor>
-            ) : (
-              children
-            )}
-          </>
+        {renderEditor ? (
+          <BlockNoteViewEditor ref={ref}>{children}</BlockNoteViewEditor>
+        ) : (
+          children
         )}
       </BlockNoteViewContext.Provider>
     </BlockNoteContext.Provider>
@@ -216,57 +198,82 @@ export const BlockNoteViewRaw = React.forwardRef(BlockNoteViewComponent) as <
 /**
  * Renders the editor itself and the default UI elements
  */
-export const BlockNoteViewEditor = (props: { children?: ReactNode }) => {
-  const ctx = useBlockNoteViewContext()!;
-  return (
-    <EditorElement {...ctx.editorProps} {...props}>
-      {/* Renders the UI elements such as formatting toolbar, etc, unless they have been explicitly disabled  in defaultUIProps */}
-      <BlockNoteDefaultUI {...ctx.defaultUIProps} />
-      {/* Manually passed in children, such as customized UI elements / controllers */}
-      {props.children}
-    </EditorElement>
-  );
-};
+export const BlockNoteViewEditor = React.forwardRef(
+  (props: { children: ReactNode }, ref: React.Ref<HTMLDivElement>) => {
+    const ctx = useBlockNoteViewContext()!;
+    const editor = useBlockNoteEditor();
+
+    const portalManager = useMemo(() => {
+      return getContentComponent();
+    }, []);
+
+    const mount = useCallback(
+      (element: HTMLElement | null) => {
+        editor.mount(element, portalManager);
+      },
+      [editor, portalManager]
+    );
+
+    return (
+      <>
+        <Portals contentComponent={portalManager} />
+        <EditorElement {...ctx.editorProps} {...props} mount={mount} ref={ref}>
+          {/* Renders the UI elements such as formatting toolbar, etc, unless they have been explicitly disabled  in defaultUIProps */}
+          <BlockNoteDefaultUI {...ctx.defaultUIProps} />
+          {/* Manually passed in children, such as customized UI elements / controllers */}
+          {props.children}
+        </EditorElement>
+      </>
+    );
+  }
+);
 
 /**
  * Renders the container div + contentEditable div.
  */
-const EditorElement = (
-  props: {
-    className?: string;
-    editorColorScheme?: string;
-    autoFocus?: boolean;
-    mount: (element: HTMLElement | null) => void;
-    contentEditableProps?: Record<string, any>;
-    children: ReactNode;
-    ref?: React.Ref<HTMLDivElement>;
-  } & HTMLAttributes<HTMLDivElement>
-) => {
-  const {
-    className,
-    editorColorScheme,
-    autoFocus,
-    mount,
-    children,
-    contentEditableProps,
-    ...rest
-  } = props;
-  return (
-    // The container wraps the contentEditable div and UI Elements such as sidebar, formatting toolbar, etc.
-    <div
-      className={mergeCSSClasses("bn-container", editorColorScheme, className)}
-      data-color-scheme={editorColorScheme}
-      {...rest}>
-      {/* The actual contentEditable that Prosemirror mounts to */}
+const EditorElement = React.forwardRef(
+  (
+    props: {
+      className?: string;
+      editorColorScheme?: string;
+      autoFocus?: boolean;
+      mount: (element: HTMLElement | null) => void;
+      contentEditableProps?: Record<string, any>;
+      children: ReactNode;
+    } & HTMLAttributes<HTMLDivElement>,
+    ref: React.Ref<HTMLDivElement>
+  ) => {
+    const {
+      className,
+      editorColorScheme,
+      autoFocus,
+      mount,
+      children,
+      contentEditableProps,
+      ...rest
+    } = props;
+    return (
+      // The container wraps the contentEditable div and UI Elements such as sidebar, formatting toolbar, etc.
       <div
-        aria-autocomplete="list"
-        aria-haspopup="listbox"
-        data-bn-autofocus={autoFocus}
-        ref={mount}
-        {...contentEditableProps}
-      />
-      {/* The UI elements such as sidebar, formatting toolbar, etc. */}
-      {children}
-    </div>
-  );
-};
+        className={mergeCSSClasses(
+          "bn-container",
+          editorColorScheme,
+          className
+        )}
+        data-color-scheme={editorColorScheme}
+        {...rest}
+        ref={ref}>
+        {/* The actual contentEditable that Prosemirror mounts to */}
+        <div
+          aria-autocomplete="list"
+          aria-haspopup="listbox"
+          data-bn-autofocus={autoFocus}
+          ref={mount}
+          {...contentEditableProps}
+        />
+        {/* The UI elements such as sidebar, formatting toolbar, etc. */}
+        {children}
+      </div>
+    );
+  }
+);

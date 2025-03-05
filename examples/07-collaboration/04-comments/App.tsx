@@ -1,6 +1,9 @@
 "use client";
 
-import { DefaultThreadStoreAuth, YjsThreadStore } from "@blocknote/core";
+import {
+  DefaultThreadStoreAuth,
+  YjsThreadStore,
+} from "@blocknote/core/comments";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
@@ -11,7 +14,7 @@ import {
 import { MantineProvider, Select } from "@mantine/core";
 import { YDocProvider, useYDoc, useYjsProvider } from "@y-sweet/react";
 import { useMemo, useState } from "react";
-import { HARDCODED_USERS, MyUserType, getRandomColor } from "./userdata";
+import { HARDCODED_USERS, MyUserType, getRandomColor } from "./userdata.js";
 
 import "./style.css";
 

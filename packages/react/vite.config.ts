@@ -25,9 +25,13 @@ export default defineConfig((conf) => ({
   build: {
     sourcemap: true,
     lib: {
-      entry: path.resolve(__dirname, "src/index.ts"),
+      entry: {
+        "blocknote-react": path.resolve(__dirname, "src/index.ts"),
+      },
       name: "blocknote-react",
-      fileName: "blocknote-react",
+      formats: ["es", "cjs"],
+      fileName: (format, entryName) =>
+        format === "es" ? `${entryName}.js` : `${entryName}.cjs`,
     },
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
@@ -38,6 +42,7 @@ export default defineConfig((conf) => ({
           ...pkg.peerDependencies,
           ...pkg.devDependencies,
         }),
+        "react-dom/client",
         "react/jsx-runtime",
       ],
       output: {

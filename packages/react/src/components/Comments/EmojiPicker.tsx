@@ -1,8 +1,8 @@
-import Picker from "@emoji-mart/react";
 import { ReactNode, useState } from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useBlockNoteContext } from "../../editor/BlockNoteContext.js";
+import Picker from "./EmojiMartPicker.js";
 
 export const EmojiPicker = (props: {
   onEmojiSelect: (emoji: { native: string }) => void;

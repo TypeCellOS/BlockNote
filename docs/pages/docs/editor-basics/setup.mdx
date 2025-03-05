@@ -37,7 +37,8 @@ type BlockNoteEditorOptions = {
   schema?: BlockNoteSchema;
   setIdAttribute?: boolean;
   sideMenuDetection?: "viewport" | "editor";
-  tabBehavior?: "prefer-navigate-ui" | "prefer-indent"
+  tabBehavior?: "prefer-navigate-ui" | "prefer-indent";
+  tables?: TableFeatures;
   trailingBlock?: boolean;
   uploadFile?: (file: File) => Promise<string>;
 };
@@ -76,6 +77,8 @@ The hook takes two optional parameters:
 `sideMenuDetection`: Determines whether the mouse cursor position is locked to the editor bounding box for showing the [Block Side Menu](/docs/ui-components/side-menu) and block drag & drop. When set to `viewport`, the Side Menu will be shown next to the nearest block to the cursor, regardless of where it is in the viewport. Dropping blocks will also be locked to the editor bounding box. Otherwise, the Side Menu will only be shown when the cursor is within the editor bounds, and blocks can only be dropped when hovering the editor. In order to use multiple editors, must be set to `editor`. Defaults to `viewport`.
 
 `tabBehavior`: Determines whether pressing the tab key should navigate toolbars for keyboard accessibility. When set to `"prefer-navigate-ui`, the user can navigate toolbars using Tab. Pressing Escape re-focuses the editor, and Tab now indents blocks. `"prefer-indent"` causes Tab to always indent blocks. Defaults to `prefer-navigate-ui`.
+
+`tables`: Configuration for table features. Allowing you to enable more advanced table features like `splitCells`, `cellBackgroundColor`, `cellTextColor`, and `headers`.
 
 `trailingBlock`: An option which user can pass with `false` value to disable the automatic creation of a trailing new block on the next line when the user types or edits any block. Defaults to `true` if undefined.
 

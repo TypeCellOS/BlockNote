@@ -1,4 +1,4 @@
-import { User } from "../../../models/User.js";
+import type { User } from "../../../comments/index.js";
 import { EventEmitter } from "../../../util/EventEmitter.js";
 
 /**

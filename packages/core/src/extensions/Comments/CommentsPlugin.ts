@@ -2,11 +2,14 @@ import { Node } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { getRelativeSelection, ySyncPluginKey } from "y-prosemirror";
+import type {
+  CommentBody,
+  ThreadData,
+  ThreadStore,
+  User,
+} from "../../comments/index.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { User } from "../../models/User.js";
 import { EventEmitter } from "../../util/EventEmitter.js";
-import { ThreadStore } from "./threadstore/ThreadStore.js";
-import { CommentBody, ThreadData } from "./types.js";
 import { UserStore } from "./userstore/UserStore.js";
 
 const PLUGIN_KEY = new PluginKey(`blocknote-comments`);

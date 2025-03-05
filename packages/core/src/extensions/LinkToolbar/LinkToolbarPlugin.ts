@@ -52,7 +52,7 @@ class LinkToolbarView implements PluginView {
 
     this.startMenuUpdateTimer = () => {
       this.menuUpdateTimer = setTimeout(() => {
-        this.update(this.pmView);
+        this.update(this.pmView, undefined, true);
       }, 250);
     };
 
@@ -190,7 +190,7 @@ class LinkToolbarView implements PluginView {
     }
   }
 
-  update(view: EditorView, oldState?: EditorState) {
+  update(view: EditorView, oldState?: EditorState, fromMouseOver = false) {
     const { state } = view;
 
     const isSame =
@@ -235,7 +235,7 @@ class LinkToolbarView implements PluginView {
       }
     }
 
-    if (this.mouseHoveredLinkMark) {
+    if (this.mouseHoveredLinkMark && fromMouseOver) {
       this.linkMark = this.mouseHoveredLinkMark;
       this.linkMarkRange = this.mouseHoveredLinkMarkRange;
     }
