@@ -124,7 +124,7 @@
     "@hocuspocus/provider": "^2.15.2"
   },
   "peerDependenciesMeta": {
-    "hocuspocus/provider": {
+    "@hocuspocus/provider": {
       "optional": true
     }
   },
