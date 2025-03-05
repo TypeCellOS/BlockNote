@@ -51,7 +51,7 @@
   "dependencies": {
     "@blocknote/core": "^0.25.0",
     "@blocknote/react": "^0.25.0",
-    "@react-pdf/renderer": "^4.0.0",
+    "@react-pdf/renderer": "^4.3.0",
     "buffer": "^6.0.3",
     "docx": "^9.0.2"
   },
