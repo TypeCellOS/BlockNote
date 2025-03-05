@@ -43,7 +43,7 @@ const UserSelect = (props: {
       <Components.FormattingToolbar.Select
         className={"bn-select"}
         items={props.users.map((user) => ({
-          text: user.username,
+          text: `${user.username} (${user.role === "editor" ? "Editor" : "Commenter"})`,
           icon: null,
           onClick: () => props.setUserId(user.id),
           isSelected: user.id === props.userId,
