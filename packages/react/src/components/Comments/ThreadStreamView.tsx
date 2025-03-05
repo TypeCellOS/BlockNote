@@ -54,12 +54,8 @@ export function ThreadStreamView(_props: {
           key={thread.id}
           threadId={thread.id}
           showComposer={selectedThreadId === thread.id}
-          onFocus={() => {
-            comments.selectThread(thread.id);
-          }}
-          onBlur={() => {
-            comments.selectThread(undefined);
-          }}
+          onFocus={() => comments.selectThread(thread.id)}
+          onBlur={() => comments.selectThread(undefined)}
           tabIndex={0}
         />
       ))}
@@ -69,29 +65,11 @@ export function ThreadStreamView(_props: {
           key={thread.id}
           threadId={thread.id}
           showComposer={selectedThreadId === thread.id}
-          onFocus={() => {
-            console.log("focus");
-            comments.selectThread(thread.id);
-          }}
-          onBlur={() => {
-            console.log("blur");
-            comments.selectThread(undefined);
-          }}
+          onFocus={() => comments.selectThread(thread.id)}
+          onBlur={() => comments.selectThread(undefined)}
           tabIndex={0}
         />
       ))}
-      {/*<Thread*/}
-      {/*  key={threads[0].id}*/}
-      {/*  threadId={threads[0].id}*/}
-      {/*  showComposer={selectedThreadId === threads[0].id}*/}
-      {/*  onFocus={() => {*/}
-      {/*    comments.selectThread(threads[0].id);*/}
-      {/*  }}*/}
-      {/*  onBlur={() => {*/}
-      {/*    comments.selectThread(undefined);*/}
-      {/*  }}*/}
-      {/*  tabIndex={0}*/}
-      {/*/>*/}
     </div>
   );
 }
