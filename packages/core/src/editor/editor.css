@@ -86,11 +86,11 @@ Tippy popups that are appended to document.body directly
   opacity: 0.001;
 }
 
-.bn-editor .collaboration-cursor__base {
+.bn-editor .bn-collaboration-cursor__base {
   position: relative;
 }
 
-.bn-editor .collaboration-cursor__base .collaboration-cursor__caret {
+.bn-editor .bn-collaboration-cursor__base .bn-collaboration-cursor__caret {
   position: absolute;
   width: 2px;
   top: 1px;
@@ -98,7 +98,7 @@ Tippy popups that are appended to document.body directly
   left: -1px;
 }
 
-.bn-editor .collaboration-cursor__base .collaboration-cursor__label {
+.bn-editor .bn-collaboration-cursor__base .bn-collaboration-cursor__label {
   pointer-events: none;
   border-radius: 0 1.5px 1.5px 0;
   font-size: 12px;
@@ -120,8 +120,8 @@ Tippy popups that are appended to document.body directly
 }
 
 .bn-editor
-  .collaboration-cursor__base[data-active]
-  .collaboration-cursor__label {
+  .bn-collaboration-cursor__base[data-active]
+  .bn-collaboration-cursor__label {
   color: #0d0d0d;
   max-height: 1.1rem;
   max-width: 20rem;

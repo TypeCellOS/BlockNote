@@ -65,16 +65,16 @@ export const createCollaborationExtensions = (collaboration: {
     const renderCursor = (user: { name: string; color: string }) => {
       const cursorElement = document.createElement("span");
 
-      cursorElement.classList.add("collaboration-cursor__base");
+      cursorElement.classList.add("bn-collaboration-cursor__base");
 
       const caretElement = document.createElement("span");
       caretElement.setAttribute("contentedEditable", "false");
-      caretElement.classList.add("collaboration-cursor__caret");
+      caretElement.classList.add("bn-collaboration-cursor__caret");
       caretElement.setAttribute("style", `background-color: ${user.color}`);
 
       const labelElement = document.createElement("span");
 
-      labelElement.classList.add("collaboration-cursor__label");
+      labelElement.classList.add("bn-collaboration-cursor__label");
       labelElement.setAttribute("style", `background-color: ${user.color}`);
       labelElement.insertBefore(document.createTextNode(user.name), null);
 
