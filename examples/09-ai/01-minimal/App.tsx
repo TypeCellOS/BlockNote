@@ -1,5 +1,4 @@
 import {
-  AIShowSelectionPlugin,
   AIToolbarButton,
   BlockNoteAIContextProvider,
   BlockNoteAIUI,
@@ -61,11 +60,6 @@ export default function App() {
       ...locales.en,
       ai: aiLocales.en,
     } as any,
-    _extensions: {
-      // TODO: things will break when user provides different keys. Define name on plugins instead?
-      // aiBlockToolbar: new AIBlockToolbarProsemirrorPlugin(),
-      aiSelection: new AIShowSelectionPlugin(),
-    },
   });
 
   const model = useMemo(() => {
