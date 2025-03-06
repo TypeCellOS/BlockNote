@@ -394,9 +394,7 @@ export class TableHandlesView<
         (element) => element.tagName === "TD" || element.tagName === "TH"
       );
     if (tableCellElements.length === 0) {
-      throw new Error(
-        "Could not find table cell element that the mouse cursor is hovering over."
-      );
+      return;
     }
     const tableCellElement = tableCellElements[0];
 
