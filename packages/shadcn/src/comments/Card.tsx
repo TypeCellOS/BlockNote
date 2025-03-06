@@ -9,7 +9,7 @@ export const Card = forwardRef<
   HTMLDivElement,
   ComponentProps["Comments"]["Card"]
 >((props, ref) => {
-  const { className, children, ...rest } = props;
+  const { className, children, onFocus, onBlur, tabIndex, ...rest } = props;
 
   assertEmpty(rest);
 
@@ -18,6 +18,9 @@ export const Card = forwardRef<
   return (
     <ShadCNComponents.Card.Card
       className={cn(className, "bn-w-[300px]")}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      tabIndex={tabIndex}
       ref={ref}>
       {children}
     </ShadCNComponents.Card.Card>

@@ -199,6 +199,9 @@ export type ComponentProps = {
   Comments: {
     Card: {
       className?: string;
+      onFocus?: () => void;
+      onBlur?: () => void;
+      tabIndex?: number;
       children?: ReactNode;
     };
     CardSection: {
@@ -217,6 +220,7 @@ export type ComponentProps = {
       children?: ReactNode;
       authorInfo: "loading" | User;
       timeString: string;
+      edited: boolean;
       actions?: ReactNode;
       showActions?: boolean | "hover";
     };

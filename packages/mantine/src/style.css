@@ -591,6 +591,7 @@
   border-radius: var(--bn-border-radius-medium);
   box-shadow: var(--bn-shadow-medium);
   color: var(--bn-colors-menu-text);
+  min-width: 350px;
   overflow: visible;
 }
 

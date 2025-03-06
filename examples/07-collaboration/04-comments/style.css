@@ -1,0 +1,77 @@
+.bn-main-container {
+  background-color: var(--bn-colors-disabled-background);
+  display: flex;
+  gap: 10px;
+  height: 100%;
+  max-width: none;
+  padding: 10px;
+  width: 100%;
+}
+
+.bn-editor-layout-wrapper {
+  display: flex;
+  flex: 2;
+  justify-content: center;
+  width: 0;
+}
+
+.bn-editor-section, .bn-threads-sidebar-section {
+  border-radius: var(--bn-border-radius-large);
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 100%;
+  width: 0;
+}
+
+.bn-editor-section h1, .bn-threads-sidebar-section h1 {
+  color: var(--bn-colors-menu-text);
+  margin: 0;
+  font-size: 32px;
+}
+
+.bn-editor, .bn-threads-sidebar {
+  border-radius: var(--bn-border-radius-medium);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 100%;
+  overflow: auto;
+}
+
+.bn-editor-section {
+  max-width: 700px;
+}
+
+.bn-threads-sidebar-section{
+  max-width: 350px;
+}
+
+.bn-threads-sidebar .bn-thread {
+  box-shadow: none;
+  min-width: initial;
+}
+
+.bn-settings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.bn-settings-select {
+  display: flex;
+  gap: 10px;
+}
+
+.bn-settings-select .bn-toolbar {
+  align-items: center;
+  box-shadow: none;
+}
+
+.bn-settings-select h2 {
+  color: var(--bn-colors-menu-text);
+  margin: 0;
+  font-size: 12px;
+  padding-left: 14px;
+}

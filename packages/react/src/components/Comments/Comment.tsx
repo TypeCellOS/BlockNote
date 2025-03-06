@@ -257,14 +257,10 @@ export const Comment = ({
     );
   }
 
-  const timeString =
-    comment.createdAt.toLocaleDateString(undefined, {
-      month: "short",
-      day: "numeric",
-    }) +
-    (comment.updatedAt.getTime() !== comment.createdAt.getTime()
-      ? " (edited)"
-      : "");
+  const timeString = comment.createdAt.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
 
   if (!comment.body) {
     throw new Error("soft deletes are not yet supported");
@@ -274,6 +270,7 @@ export const Comment = ({
     <Components.Comments.Comment
       authorInfo={user ?? "loading"}
       timeString={timeString}
+      edited={comment.updatedAt.getTime() !== comment.createdAt.getTime()}
       showActions={showActions}
       actions={actions}
       className={className}>
