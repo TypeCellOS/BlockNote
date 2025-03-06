@@ -8,6 +8,7 @@ import {
   StyleSchema,
 } from "../../../schema/index.js";
 import { nestedListsToBlockNoteStructure } from "../../parsers/html/util/nestedLists.js";
+import { markdownToHTML } from "../../parsers/markdown/parseMarkdown.js";
 import { acceptedMIMETypes } from "./acceptedMIMETypes.js";
 import { handleFileInsertion } from "./handleFileInsertion.js";
 import { handleVSCodePaste } from "./handleVSCodePaste.js";
@@ -58,6 +59,15 @@ export const createPasteFromClipboardExtension = <
 
                 if (format === "blocknote/html") {
                   view.pasteHTML(data);
+                  return true;
+                }
+
+                if (format === "text/plain") {
+                  // TODO we probably need a heuristic to determine if the text is markdown or not
+                  // Right now I cheated by checking text/plain first but, we should probably be checking html first
+                  markdownToHTML(data).then((html) => {
+                    view.pasteHTML(html);
+                  });
                   return true;
                 }
 
