@@ -105,5 +105,5 @@ export * from "./schema/ReactStyleSpec.js";
 export * from "./util/elementOverflow.js";
 export * from "./util/mergeRefs.js";
 
-export * from "./components/Comments/ThreadStreamView.js";
+export * from "./components/Comments/ThreadsSidebar.js";
 // TODO: other exports

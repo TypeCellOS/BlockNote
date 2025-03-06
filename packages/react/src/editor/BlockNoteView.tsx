@@ -106,6 +106,7 @@ function BlockNoteViewComponent<
     sideMenu,
     filePanel,
     tableHandles,
+    comments,
     autoFocus,
     renderEditor = !editor.headless,
     ...rest
@@ -158,6 +159,7 @@ function BlockNoteViewComponent<
     sideMenu,
     filePanel,
     tableHandles,
+    comments,
   };
 
   const editorProps = {
