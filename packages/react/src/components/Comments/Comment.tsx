@@ -266,15 +266,11 @@ export const Comment = ({
     throw new Error("soft deletes are not yet supported");
   }
 
-  const edited = comment.updatedAt.getTime() !== comment.createdAt.getTime();
-  const resolved = thread.resolved;
-
   return (
     <Components.Comments.Comment
       authorInfo={user ?? "loading"}
       timeString={timeString}
-      edited={edited}
-      resolved={resolved}
+      edited={comment.updatedAt.getTime() !== comment.createdAt.getTime()}
       showActions={showActions}
       actions={actions}
       className={className}>

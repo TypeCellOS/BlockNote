@@ -221,7 +221,6 @@ export type ComponentProps = {
       authorInfo: "loading" | User;
       timeString: string;
       edited: boolean;
-      resolved: boolean;
       actions?: ReactNode;
       showActions?: boolean | "hover";
     };

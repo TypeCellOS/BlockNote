@@ -8,10 +8,10 @@ const AuthorInfo = forwardRef<
   HTMLDivElement,
   Pick<
     ComponentProps["Comments"]["Comment"],
-    "authorInfo" | "timeString" | "edited" | "resolved"
+    "authorInfo" | "timeString" | "edited"
   >
 >((props, _ref) => {
-  const { authorInfo, timeString, edited, resolved, ...rest } = props;
+  const { authorInfo, timeString, edited, ...rest } = props;
 
   assertEmpty(rest, false);
 
@@ -57,7 +57,6 @@ export const Comment = forwardRef<
     authorInfo,
     timeString,
     edited,
-    resolved,
     actions,
     children,
     ...rest
