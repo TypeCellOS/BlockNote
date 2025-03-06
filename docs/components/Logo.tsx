@@ -2,7 +2,11 @@ import { ThemedImage } from "./ThemedImage";
 
 export function Logo() {
   return (
-    <a href="/">
+    <a
+      href="/"
+      onClick={() => {
+        throw new Error("test");
+      }}>
       <ThemedImage
         height={32}
         width={170}
