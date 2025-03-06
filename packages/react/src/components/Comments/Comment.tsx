@@ -261,9 +261,6 @@ export const Comment = ({
     month: "short",
     day: "numeric",
   });
-  // (comment.updatedAt.getTime() !== comment.createdAt.getTime()
-  //   ? " (edited)"
-  //   : "");
 
   if (!comment.body) {
     throw new Error("soft deletes are not yet supported");

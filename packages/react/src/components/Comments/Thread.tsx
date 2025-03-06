@@ -41,12 +41,12 @@ export type ThreadProps = {
    */
   showDeletedComments?: CommentProps["showDeleted"];
 
+  /**
+   * Component element props.
+   */
   className?: string;
-
   onFocus?: () => void;
-
   onBlur?: () => void;
-
   tabIndex?: number;
 };
 

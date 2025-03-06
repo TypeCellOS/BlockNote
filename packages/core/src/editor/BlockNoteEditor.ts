@@ -102,8 +102,6 @@ import type { ThreadStore, User } from "../comments/index.js";
 import "../style.css";
 import { EventEmitter } from "../util/EventEmitter.js";
 
-import "../style.css";
-
 export type BlockNoteExtensionFactory = (
   editor: BlockNoteEditor<any, any, any>
 ) => BlockNoteExtension;
