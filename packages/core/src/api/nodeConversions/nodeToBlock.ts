@@ -112,13 +112,13 @@ export function contentNodeToTableContent<
   });
 
   for (let i = 0; i < headerMatrix.length; i++) {
-    if (headerMatrix[i].every((isHeader) => isHeader)) {
+    if (headerMatrix[i]?.every((isHeader) => isHeader)) {
       ret.headerRows = (ret.headerRows ?? 0) + 1;
     }
   }
 
   for (let i = 0; i < headerMatrix[0]?.length; i++) {
-    if (headerMatrix.every((row) => row[i])) {
+    if (headerMatrix?.every((row) => row[i])) {
       ret.headerCols = (ret.headerCols ?? 0) + 1;
     }
   }
