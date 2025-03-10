@@ -32,6 +32,7 @@ Suggestions are the ability to make changes to a document and have those changes
 
 - A user can turn on a mode, suggestion mode, which makes all of their edits to a document be tracked, but stored separately from the document itself.
   - The original document should be unmodified when suggestion mode is turned back off.
+  - If in suggestion mode, and the user has write access to the document, they should be able to make changes to the document without having to leave suggestion mode. Such as applying a suggestion to the document.
 - These stored changes, can be reviewed, and either approved or rejected separately.
   - Approving a suggestion should apply the change to the document, Rejecting should drop that suggestion
 - A suggestion may become "invalid" if the document that the change has been modified in a way that the change can no longer be applied (e.g. an insertion into a deleted paragraph, or a deletion of an already deleted paragraph)
@@ -68,11 +69,11 @@ This would be the most straightforward way to capture changes across versions of
 
 ### How should suggestions be stored
 
-There are a few different mental models we can use to represent or derive these changes:
+Suggestions are different from versioning in that, they are not a history of the document, but a set of pending changes that can be applied to the document. They may be rejected, or may be applied to the document. So, in a sense, they are a patch to the document. But, there are a few different mental models we can use to represent or store these changes to the document:
 
-- [_Branched document histories_, and diffs between them](./suggestions-as-history.md)
-- [Stored _patches_ and later applying that patch to a document](./suggestions-as-patches.md)
-- [New _content types_ which represent the changes within the document content](./suggestions-as-content.md)
+- [Seeing a suggestion as a _branch of the document history_, and the suggestion as being the diff between the two branches](./suggestions-as-history.md)
+- [Storing document _patches_ and later applying that patch to a document](./suggestions-as-patches.md)
+- [Suggestions as _document content_ which stores the changes within the document](./suggestions-as-content.md)
 
 ### AttributionManager
 
