@@ -23,10 +23,4 @@ Though, I question whether it _should_ be the responsibility of `y-prosemirror` 
 
 ## Changes as a _list of diffs_
 
-One approach for this would be for y-prosemirror to provide the `y-diff` between two documents as a list of modifications, which can then be interpreted by another program to choose how to display or render those sets of changes. This is similar in approach to the snapshot compare extension that I implemented.
-
-This is non-trivial, because the shape of the document is nested and almost arbitrary. Difficult, but doable - this is exactly the sort of approach that [Snapshot Compare feature](https://tiptap.dev/docs/collaboration/documents/snapshot-compare#page-title) works on. It diffs two snapshots of Y.js documents, and is able to create a list of diffs between them, which can be displayed within the editor content. But, this feature is view-only, how would we be able to apply only specific segments?
-
-> Also, it is worth noting that this feature not only did the diff based on the document content, but actually by diffing the Y.js data structure itself, to attribute specific changes to specific users.
-
-There is a neat little trick in how these diffs are generated, it was to not just a list of changes, but actually as granular Prosemirror steps. Why do it like this? This means, that to apply only a single diff, would be as easy as applying only a single step of a transform! I never actually got around to implementing that part of the feature for time constraints, but that should 'just work' ™. Another nice property of this, is that, theoretically, you could also replace `y-sync` to do diffs with the new update that came in and have granular updates to a prosemirror document, which gives a much nicer experience for prosemirror devs whose plugins do not have to be aware of Yjs replacing the document content on each update.
+One approach for this would be for y-prosemirror to provide the `y-diff` between two documents as a list of modifications, which can then be interpreted by another program to choose how to display or render those sets of changes. This de-couples the responsibility of showing the changes in the editor, from the responsibility of viewing, accepting or rejecting those changes.
