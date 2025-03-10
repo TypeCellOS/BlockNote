@@ -87,6 +87,9 @@ export * from "./components/TableHandles/TableHandleMenu/DefaultButtons/DeleteBu
 export * from "./components/TableHandles/TableHandleMenu/TableHandleMenu.js";
 export * from "./components/TableHandles/TableHandleMenu/TableHandleMenuProps.js";
 
+export * from "./components/Comments/ThreadsSidebar.js";
+// TODO: other comment exports
+
 export * from "./hooks/useActiveStyles.js";
 export * from "./hooks/useBlockNoteEditor.js";
 export * from "./hooks/useCreateBlockNote.js";

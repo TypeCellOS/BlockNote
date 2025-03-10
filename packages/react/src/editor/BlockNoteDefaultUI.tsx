@@ -48,10 +48,10 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
       {editor.tableHandles && props.tableHandles !== false && (
         <TableHandlesController />
       )}
-      {editor.comments && props.comments !== false && (
+      {editor.comments && (
         <>
           <FloatingComposerController />
-          <FloatingThreadController />
+          {props.comments !== false && <FloatingThreadController />}
         </>
       )}
     </>

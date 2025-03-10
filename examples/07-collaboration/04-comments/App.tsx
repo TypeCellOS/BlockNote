@@ -6,11 +6,19 @@ import {
 } from "@blocknote/core/comments";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { useCreateBlockNote } from "@blocknote/react";
-import { MantineProvider, Select } from "@mantine/core";
+import {
+  BlockNoteViewEditor,
+  ComponentProps,
+  ThreadsSidebar,
+  useComponentsContext,
+  useCreateBlockNote,
+} from "@blocknote/react";
+import { MantineProvider } from "@mantine/core";
 import { YDocProvider, useYDoc, useYjsProvider } from "@y-sweet/react";
 import { useMemo, useState } from "react";
 import { HARDCODED_USERS, MyUserType, getRandomColor } from "./userdata.js";
+
+import "./style.css";
 
 // The resolveUsers function fetches information about your users
 // (e.g. their name, avatar, etc.). Usually, you'd fetch this from your
@@ -27,7 +35,7 @@ async function resolveUsers(userIds: string[]) {
 // (but of course, you also use other collaboration providers
 // see the docs for more information)
 export default function App() {
-  const docId = "my-blocknote-document-with-comments";
+  const docId = "my-blocknote-document-with-comments-1";
 
   return (
     <MantineProvider>
@@ -40,8 +48,36 @@ export default function App() {
   );
 }
 
+const SettingsSelect = (props: {
+  label: string;
+  items: ComponentProps["FormattingToolbar"]["Select"]["items"];
+}) => {
+  const Components = useComponentsContext()!;
+
+  return (
+    <div className={"bn-settings-select"}>
+      <Components.FormattingToolbar.Root className={"bn-toolbar"}>
+        <h2>{props.label + ":"}</h2>
+        <Components.FormattingToolbar.Select
+          className={"bn-select"}
+          items={props.items}
+        />
+      </Components.FormattingToolbar.Root>
+    </div>
+  );
+};
+
 function Document() {
-  const [user, setUser] = useState<MyUserType>(HARDCODED_USERS[0]);
+  const [activeUser, setActiveUser] = useState<MyUserType>(HARDCODED_USERS[0]);
+  const [commentView, setCommentView] = useState<"floating" | "sidebar">(
+    "sidebar"
+  );
+  const [commentFilter, setCommentFilter] = useState<"open" | "resolved">(
+    "open"
+  );
+  const [commentSort, setCommentSort] = useState<
+    "position" | "newest" | "replies"
+  >("position");
   const provider = useYjsProvider();
 
   // take the Y.Doc collaborative document from Y-Sweet
@@ -62,11 +98,11 @@ function Document() {
     //   new DefaultThreadStoreAuth(user.id, user.role)
     // );
     return new YjsThreadStore(
-      user.id,
+      activeUser.id,
       doc.getMap("threads"),
-      new DefaultThreadStoreAuth(user.id, user.role)
+      new DefaultThreadStoreAuth(activeUser.id, activeUser.role)
     );
-  }, [doc, user]);
+  }, [doc, activeUser]);
 
   // setup the editor with comments and collaboration
   const editor = useCreateBlockNote(
@@ -78,34 +114,103 @@ function Document() {
       collaboration: {
         provider,
         fragment: doc.getXmlFragment("blocknote"),
-        user: { color: getRandomColor(), name: user.username },
+        user: { color: getRandomColor(), name: activeUser.username },
       },
     },
-    [user, threadStore]
+    [activeUser, threadStore]
   );
 
   return (
-    <div>
-      {/* This is a simple user selector to switch between users, for demo purposes */}
-      <Select
-        style={{ maxWidth: "300px" }}
-        required
-        label="Active user:"
-        placeholder="Pick value"
-        data={HARDCODED_USERS.map((user) => ({
-          value: user.id,
-          label: user.username + " (" + user.role + ")",
-        }))}
-        onChange={(value) => {
-          if (!value) {
-            return;
-          }
-          setUser(HARDCODED_USERS.find((user) => user.id === value)!);
-        }}
-        value={user.id}
-      />
-      {/* render the actual editor */}
-      <BlockNoteView editor={editor} editable={user.role === "editor"} />
-    </div>
+    <BlockNoteView
+      className={"bn-main-container"}
+      editor={editor}
+      editable={activeUser.role === "editor"}
+      renderEditor={false}
+      comments={commentView === "floating"}>
+        <div className={"bn-editor-layout-wrapper"}>
+          <div className={"bn-editor-section"}>
+            <h1>Editor</h1>
+            <div className={"bn-settings"}>
+              <SettingsSelect
+                label={"User"}
+                items={HARDCODED_USERS.map((user) => ({
+                  text: `${user.username} (${
+                    user.role === "editor" ? "Editor" : "Commenter"
+                  })`,
+                  icon: null,
+                  onClick: () => setActiveUser(user),
+                  isSelected: user.id === activeUser.id,
+                }))}
+              />
+              <SettingsSelect
+                label={"Comments"}
+                items={[
+                  {
+                    text: "Floating",
+                    icon: null,
+                    onClick: () => setCommentView("floating"),
+                    isSelected: commentView === "floating",
+                  },
+                  {
+                    text: "Sidebar",
+                    icon: null,
+                    onClick: () => setCommentView("sidebar"),
+                    isSelected: commentView === "sidebar",
+                  },
+                ]}
+              />
+            </div>
+            <BlockNoteViewEditor />
+          </div>
+        </div>
+        {commentView === "sidebar" && (
+          <div className={"bn-threads-sidebar-section"}>
+            <h1>Comments</h1>
+            <div className={"bn-settings"}>
+              <SettingsSelect
+                label={"Filter"}
+                items={[
+                  {
+                    text: "Open",
+                    icon: null,
+                    onClick: () => setCommentFilter("open"),
+                    isSelected: commentFilter === "open",
+                  },
+                  {
+                    text: "Resolved",
+                    icon: null,
+                    onClick: () => setCommentFilter("resolved"),
+                    isSelected: commentFilter === "resolved",
+                  },
+                ]}
+              />
+              <SettingsSelect
+                label={"Sort"}
+                items={[
+                  {
+                    text: "Position",
+                    icon: null,
+                    onClick: () => setCommentSort("position"),
+                    isSelected: commentSort === "position",
+                  },
+                  {
+                    text: "Newest",
+                    icon: null,
+                    onClick: () => setCommentSort("newest"),
+                    isSelected: commentSort === "newest",
+                  },
+                  {
+                    text: "Replies",
+                    icon: null,
+                    onClick: () => setCommentSort("replies"),
+                    isSelected: commentSort === "replies",
+                  },
+                ]}
+              />
+            </div>
+            <ThreadsSidebar filter={commentFilter} sort={commentSort} />
+          </div>
+        )}
+    </BlockNoteView>
   );
 }

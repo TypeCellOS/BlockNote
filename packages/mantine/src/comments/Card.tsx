@@ -7,12 +7,22 @@ export const Card = forwardRef<
   HTMLDivElement,
   ComponentProps["Comments"]["Card"]
 >((props, ref) => {
-  const { className, children, ...rest } = props;
+  const { className, children, onFocus, onBlur, tabIndex, ...rest } = props;
 
   assertEmpty(rest, false);
 
   return (
-    <MantineCard w={350} p={"md"} className={className} ref={ref}>
+    <MantineCard
+      className={className}
+      onFocus={(event) => {
+        onFocus?.();
+        event.target.closest(".mantine-Card-root")!.scrollIntoView({
+          block: "start",
+        });
+      }}
+      onBlur={onBlur}
+      tabIndex={tabIndex}
+      ref={ref}>
       {children}
     </MantineCard>
   );
