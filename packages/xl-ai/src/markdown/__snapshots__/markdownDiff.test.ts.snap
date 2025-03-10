@@ -1,0 +1,126 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`markdown AI util > add sentence at end 1`] = `
+"UNCHANGED: # title
+
+UNCHANGED: hello
+
+ADD: world
+"
+`;
+
+exports[`markdown AI util > add sentence at middle 1`] = `
+"UNCHANGED: # title
+
+UNCHANGED: hello
+
+ADD: beautiful
+
+UNCHANGED: world
+"
+`;
+
+exports[`markdown AI util > add sentence at start 1`] = `
+"ADD: prefix
+
+UNCHANGED: # title
+
+UNCHANGED: hello
+
+UNCHANGED: world
+"
+`;
+
+exports[`markdown AI util > change: text at end 1`] = `
+"UNCHANGED: # title
+
+UNCHANGED: hello
+
+CHANGED: worlds
+"
+`;
+
+exports[`markdown AI util > change: text at middle 1`] = `
+"UNCHANGED: # title
+
+CHANGED: hello there,
+
+UNCHANGED: world
+"
+`;
+
+exports[`markdown AI util > change: text at start 1`] = `
+"CHANGED: # title
+
+UNCHANGED: hello
+
+UNCHANGED: world
+"
+`;
+
+exports[`markdown AI util > change: type at end 1`] = `
+"UNCHANGED: # title
+
+UNCHANGED: hello
+
+CHANGED: # world
+"
+`;
+
+exports[`markdown AI util > change: type at start 1`] = `
+"CHANGED: title
+
+UNCHANGED: hello
+
+CHANGED: wold
+"
+`;
+
+exports[`markdown AI util > mixed: change and insert 1`] = `
+"UNCHANGED: # title
+
+CHANGED: hello there
+
+ADD: beautiful
+
+CHANGED: wold
+"
+`;
+
+exports[`markdown AI util > mixed: insert and change 1`] = `
+"UNCHANGED: # title
+
+ADD: well,
+
+UNCHANGED: hello
+
+CHANGED: wold
+"
+`;
+
+exports[`markdown AI util > remove sentence at end 1`] = `
+"UNCHANGED: # title
+
+UNCHANGED: hello
+
+REMOVE: world
+"
+`;
+
+exports[`markdown AI util > remove sentence at middle 1`] = `
+"UNCHANGED: # title
+
+REMOVE: hello
+
+UNCHANGED: world
+"
+`;
+
+exports[`markdown AI util > remove sentence at start 1`] = `
+"REMOVE: # title
+
+UNCHANGED: hello
+
+UNCHANGED: world
+"
+`;

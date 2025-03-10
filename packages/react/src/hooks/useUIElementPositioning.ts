@@ -4,14 +4,20 @@ import {
   UseFloatingOptions,
   useInteractions,
   useTransitionStyles,
+  VirtualElement,
 } from "@floating-ui/react";
 import { useEffect, useMemo } from "react";
 
+type ReferencePos = DOMRect | HTMLElement | VirtualElement | null;
+function isVirtualElement(element: ReferencePos): element is VirtualElement {
+  return (element as VirtualElement).getBoundingClientRect !== undefined;
+}
+
 export function useUIElementPositioning(
   show: boolean,
-  referencePos: DOMRect | null,
+  referencePos: DOMRect | HTMLElement | VirtualElement | null,
   zIndex: number,
-  options?: Partial<UseFloatingOptions>
+  options?: Partial<UseFloatingOptions & { canDismiss: boolean }>
 ) {
   const { refs, update, context, floatingStyles } = useFloating({
     open: show,
@@ -21,7 +27,7 @@ export function useUIElementPositioning(
 
   // handle "escape" and other dismiss events, these will add some listeners to
   // getFloatingProps which need to be attached to the floating element
-  const dismiss = useDismiss(context);
+  const dismiss = useDismiss(context, { enabled: options?.canDismiss });
 
   const { getReferenceProps, getFloatingProps } = useInteractions([dismiss]);
 
@@ -34,9 +40,16 @@ export function useUIElementPositioning(
     if (referencePos === null) {
       return;
     }
-    refs.setReference({
-      getBoundingClientRect: () => referencePos,
-    });
+
+    if (referencePos instanceof HTMLElement) {
+      refs.setReference(referencePos);
+    } else if (isVirtualElement(referencePos)) {
+      refs.setReference(referencePos);
+    } else {
+      refs.setReference({
+        getBoundingClientRect: () => referencePos,
+      });
+    }
   }, [referencePos, refs]);
 
   return useMemo(() => {

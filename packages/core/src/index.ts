@@ -59,6 +59,7 @@ export * from "./util/typescript.js";
 export { UnreachableCaseError, assertEmpty } from "./util/typescript.js";
 export { locales };
 
+export * from "./util/EventEmitter.js";
 // for testing from react (TODO: move):
 export * from "./api/nodeConversions/blockToNode.js";
 export * from "./api/nodeConversions/nodeToBlock.js";

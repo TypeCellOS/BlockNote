@@ -12,7 +12,7 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 
-import { Mention } from "./Mention";
+import { Mention } from "./Mention.js";
 
 // Our schema with inline content specs, which contain the configs and
 // implementations for inline content  that we want our editor to use.
@@ -32,6 +32,7 @@ const getMentionMenuItems = (
   const users = ["Steve", "Bob", "Joe", "Mike"];
 
   return users.map((user) => ({
+    key: user.toLowerCase(),
     title: user,
     onItemClick: () => {
       editor.insertInlineContent([
