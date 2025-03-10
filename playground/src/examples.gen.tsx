@@ -898,7 +898,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-pdf-exporter": "latest",
-            "@react-pdf/renderer": "^4.0.0"
+            "@react-pdf/renderer": "^4.3.0"
           } as any,
           "pro": true
         },

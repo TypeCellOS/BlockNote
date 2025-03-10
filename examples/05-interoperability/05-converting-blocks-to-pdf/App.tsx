@@ -322,7 +322,7 @@ export default function App() {
     const pdfDocument = await exporter.toReactPDFDocument(editor.document);
     setPDFDocument(pdfDocument);
 
-    // const buffer = await ReactPDF.renderToBuffer(pdfDocument);
+    // const blob = await ReactPDF.pdf(pdfDocument).toBlob();
   };
 
   useEffect(() => {

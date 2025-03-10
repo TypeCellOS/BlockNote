@@ -154,7 +154,7 @@ export class DOCXExporter<
       geistMonoFont instanceof Uint8Array
     ) {
       // conversion with Polyfill needed because docxjs requires Buffer
-      const Buffer = (await import("buffer")).Buffer;
+      const Buffer = (await import("buffer")).default.Buffer;
 
       if (interFont instanceof ArrayBuffer) {
         interFont = Buffer.from(interFont);
@@ -243,7 +243,7 @@ export class DOCXExporter<
     try {
       if (!globalThis.Buffer) {
         // load Buffer polyfill because docxjs requires this
-        globalThis.Buffer = (await import("buffer")).Buffer;
+        globalThis.Buffer = (await import("buffer")).default.Buffer;
       }
       return Packer.toBlob(doc);
     } finally {

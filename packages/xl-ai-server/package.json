@@ -3,7 +3,7 @@
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
   "license": "AGPL-3.0 OR PROPRIETARY",
-  "version": "0.25.0",
+  "version": "0.25.1",
   "files": [
     "dist",
     "types",

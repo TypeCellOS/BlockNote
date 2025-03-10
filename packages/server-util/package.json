@@ -6,7 +6,7 @@
     "*.css"
   ],
   "license": "MPL-2.0",
-  "version": "0.25.0",
+  "version": "0.25.1",
   "files": [
     "dist",
     "types",
@@ -51,12 +51,12 @@
     "_prepare": "npm run build"
   },
   "dependencies": {
-    "@blocknote/core": "^0.25.0",
-    "@blocknote/react": "^0.25.0",
+    "@blocknote/core": "^0.25.1",
+    "@blocknote/react": "^0.25.1",
     "@tiptap/core": "^2.7.1",
     "@tiptap/pm": "^2.7.1",
     "jsdom": "^25.0.1",
-    "y-prosemirror": "1.2.13",
+    "y-prosemirror": "1.2.17",
     "y-protocols": "^1.0.6",
     "yjs": "^13.6.15"
   },
