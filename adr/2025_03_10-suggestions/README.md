@@ -97,9 +97,9 @@ This document was purposefully written from the perspective that Y.js is one of 
 
 This is a collection of scattered thoughts on the _diff_-erent aspects of diffing  (sorry, had to), and their complications.
 
-### Diffing HTML
+### Keeping user intent, while diffing
 
-Diffing HTML is fundamentally different than diffing by the semantics of a document. This, is probably best described in an example:
+Diffing nested data structures (e.g. HTML) is fundamentally different than diffing by the semantics of a document. This, is probably best described in an example:
 
 Take the following document:
 
@@ -135,6 +135,8 @@ Yet, a diff would represent it like this:
 ```
 
 They ultimately result in the same in the final document but, the difference is in their semantics and user expectations. There are probably ways to simplify these changes in such a way that it is closer to what the user actually intended with the change (e.g. Prosemirror's [simplifyChanges](https://github.com/ProseMirror/prosemirror-changeset)), but it gets complicated rather quickly and we have to face that it may not always be easy to represent/display.
+
+Whatever the approach, we need to make sure that the changes are displayed in a way that is easy to understand and aligns with the user's intent.
 
 ### Displaying changes
 
