@@ -1,5 +1,6 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { AIFunction } from "../functions/index.js";
+import { AsyncIterableStream } from "../util/stream.js";
 
 export function executeAIOperation(
   operation: any,
@@ -22,9 +23,42 @@ export function executeAIOperation(
   return func.apply(operation, editor, operationContext, options);
 }
 
-type AsyncIterableStream<T> = AsyncIterable<T> & ReadableStream<T>;
+// Internal async generator function to process operations
+export async function* processOperations(
+  editor: BlockNoteEditor,
+  operationsStream: AsyncIterable<{
+    operations?: any[];
+  }>,
+  functions: AIFunction[]
+): AsyncGenerator<{
+  operations?: any[];
+  results: any[];
+}> {
+  let numOperationsAppliedCompletely = 0;
+  let operationContext: any = undefined;
 
-export async function executeAIOperationStream(
+  for await (const partialObject of operationsStream) {
+    const operations = partialObject.operations || [];
+    // console.log(operations);
+    let isFirst = true;
+    for (const operation of operations.slice(numOperationsAppliedCompletely)) {
+      operationContext = executeAIOperation(
+        operation,
+        editor,
+        functions,
+        isFirst ? operationContext : undefined,
+        { idsSuffixed: true }
+      );
+      isFirst = false;
+    }
+    yield { operations, results: [operationContext] };
+
+    numOperationsAppliedCompletely = operations.length - 1;
+  }
+}
+
+// Legacy version for backward compatibility
+export async function executeAIOperationStreamLegacy(
   editor: BlockNoteEditor,
   operationsStream: AsyncIterableStream<{
     operations?: any[];

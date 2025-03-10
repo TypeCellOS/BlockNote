@@ -1,16 +1,15 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import {
   CoreMessage,
+  GenerateObjectResult,
   LanguageModel,
+  StreamObjectResult,
   generateObject,
   jsonSchema,
   streamObject,
 } from "ai";
 
-import {
-  executeAIOperation,
-  executeAIOperationStream,
-} from "../../executor/executor.js";
+import { processOperations } from "../../executor/executor.js";
 import { addFunction } from "../../functions/add.js";
 import { deleteFunction } from "../../functions/delete.js";
 import { AIFunction } from "../../functions/index.js";
@@ -22,6 +21,13 @@ import {
 } from "../../prompts/jsonSchemaPrompts.js";
 import { createOperationsArraySchema } from "../../schema/operations.js";
 import { blockNoteSchemaToJSONSchema } from "../../schema/schemaToJSONSchema.js";
+
+import {
+  AsyncIterableStream,
+  asyncIterableToStream,
+  createAsyncIterableStream,
+} from "../../util/stream.js";
+// Import AsyncIterableStream utilities
 
 type BasicLLMRequestOptions = {
   model: LanguageModel;
@@ -48,10 +54,26 @@ type CallLLMOptionsWithOptional = Optional<
   "functions" | "stream"
 >;
 
+// Define the return type for streaming mode
+type StreamingReturnType = StreamObjectResult<any, any, any> & {
+  resultStream: AsyncIterableStream<{
+    operations?: any[];
+    results: any[];
+  }>;
+};
+
+// Define the return type for non-streaming mode
+type NonStreamingReturnType = GenerateObjectResult<any> & {
+  resultStream: AsyncIterableStream<{
+    operations?: any[];
+    results: any[];
+  }>;
+};
+
 export async function callLLM(
   editor: BlockNoteEditor<any, any, any>,
   opts: CallLLMOptionsWithOptional
-) {
+): Promise<StreamingReturnType | NonStreamingReturnType> {
   const { prompt, useSelection, ...rest } = opts;
 
   let messages: CoreMessage[];
@@ -95,12 +117,21 @@ export async function callLLM(
       ...(options._streamObjectOptions as any),
     });
 
-    await executeAIOperationStream(
+    // Use processOperations directly as an async generator
+    const resultGenerator = processOperations(
       editor,
       ret.partialObjectStream,
       options.functions
     );
-    return ret;
+
+    // Convert to AsyncIterableStream
+    const resultStream = asyncIterableToStream(resultGenerator);
+    const asyncIterableResultStream = createAsyncIterableStream(resultStream);
+
+    return {
+      ...ret,
+      resultStream: asyncIterableResultStream,
+    };
   }
   // non streaming
   const ret = await generateObject<{
@@ -117,10 +148,24 @@ export async function callLLM(
     throw new Error("No operations returned");
   }
 
-  for (const operation of ret.object.operations) {
-    await executeAIOperation(operation, editor, options.functions, undefined, {
-      idsSuffixed: true, // TODO: not needed for this, but would need to refactor promptbuilding
-    });
+  // Create a single-chunk async generator
+  async function* singleChunkGenerator() {
+    yield { operations: ret.object.operations };
   }
-  return ret;
+
+  // Use the same processing pipeline as streaming case
+  const resultGenerator = processOperations(
+    editor,
+    singleChunkGenerator(),
+    options.functions
+  );
+
+  // Convert to stream at the API boundary
+  const resultStream = asyncIterableToStream(resultGenerator);
+  const asyncIterableResultStream = createAsyncIterableStream(resultStream);
+
+  return {
+    ...ret,
+    resultStream: asyncIterableResultStream,
+  };
 }
