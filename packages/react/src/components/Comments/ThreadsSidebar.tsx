@@ -6,39 +6,44 @@ import { ThreadData } from "@blocknote/core/comments";
 import { BlockNoteEditor } from "@blocknote/core";
 import { useEffect, useMemo } from "react";
 
-function sortByPosition(
+function sortThreads(
   editor: BlockNoteEditor<any, any, any>,
-  threads: ThreadData[]
+  threads: ThreadData[],
+  sort?: "position" | "newest" | "oldest"
 ) {
-  const sortedThreads: ThreadData[] = [];
+  if (sort === "position") {
+    const sortedThreads: ThreadData[] = [];
 
-  editor.prosemirrorState.doc.descendants((node) => {
-    node.marks.forEach((mark) => {
-      if (mark.type.name === "comment") {
-        const thread = threads.find(
-          (thread) => thread.id === mark.attrs.threadId
-        );
+    editor.prosemirrorState.doc.descendants((node) => {
+      node.marks.forEach((mark) => {
+        if (mark.type.name === "comment") {
+          const thread = threads.find(
+            (thread) => thread.id === mark.attrs.threadId
+          );
 
-        if (thread) {
-          sortedThreads.push(thread);
+          if (thread) {
+            sortedThreads.push(thread);
+          }
         }
-      }
+      });
     });
-  });
 
-  return sortedThreads;
-}
+    return sortedThreads;
+  }
 
-function sortByNewest(threads: ThreadData[]) {
-  return threads.sort((a, b) => {
-    return b.createdAt.getTime() - a.createdAt.getTime();
-  });
-}
+  if (sort === "newest") {
+    return threads.sort((a, b) => {
+      return b.createdAt.getTime() - a.createdAt.getTime();
+    });
+  }
 
-function sortByOldest(threads: ThreadData[]) {
-  return threads.sort((a, b) => {
-    return a.createdAt.getTime() - b.createdAt.getTime();
-  });
+  if (sort === "oldest") {
+    return threads.sort((a, b) => {
+      return a.createdAt.getTime() - b.createdAt.getTime();
+    });
+  }
+
+  return threads;
 }
 
 /**
@@ -86,12 +91,7 @@ export function ThreadsSidebar(props: {
   const threadElements = useMemo(() => {
     const threadsArray = Array.from(threads.values());
 
-    const sortedThreads =
-      props.sort === "position"
-        ? sortByPosition(editor, threadsArray)
-        : props.sort === "newest"
-        ? sortByNewest(threadsArray)
-        : sortByOldest(threadsArray);
+    const sortedThreads = sortThreads(editor, threadsArray, props.sort);
 
     const openThreads: ThreadData[] = [];
     const resolvedThreads: ThreadData[] = [];
