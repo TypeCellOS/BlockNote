@@ -32,7 +32,11 @@ export default defineConfig({
         if (deps.includes(source)) {
           return true;
         }
-        return source.startsWith("prosemirror-") || source.startsWith("shiki/");
+        return (
+          source.startsWith("prosemirror-") ||
+          source.startsWith("@shikijs/lang") ||
+          source.startsWith("@shikijs/theme")
+        );
       },
       output: {
         // Provide global variables to use in the UMD build

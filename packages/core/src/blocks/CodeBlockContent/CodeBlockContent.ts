@@ -3,12 +3,6 @@ import { TextSelection } from "@tiptap/pm/state";
 import { createHighlightPlugin, Parser } from "prosemirror-highlight";
 import { createParser } from "prosemirror-highlight/shiki";
 import {
-  BundledLanguage,
-  bundledLanguagesInfo,
-  createHighlighter,
-  Highlighter,
-} from "shiki";
-import {
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
   PropSchema,
@@ -18,6 +12,12 @@ import {
   defaultSupportedLanguages,
   SupportedLanguageConfig,
 } from "./defaultSupportedLanguages.js";
+import {
+  bundledLanguages,
+  Highlighter,
+  BundledLanguage,
+  createHighlighter,
+} from "./shiki.bundle.js";
 
 interface CodeBlockOptions {
   defaultLanguage: string;
@@ -32,7 +32,7 @@ export const shikiHighlighterPromiseSymbol = Symbol.for(
 export const defaultCodeBlockPropSchema = {
   language: {
     default: "javascript",
-    values: [...defaultSupportedLanguages.map((lang) => lang.id)],
+    values: defaultSupportedLanguages.map((lang) => lang.id),
   },
 } satisfies PropSchema;
 
@@ -218,8 +218,8 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
         globalThisForShiki[shikiHighlighterPromiseSymbol] =
           globalThisForShiki[shikiHighlighterPromiseSymbol] ||
           createHighlighter({
-            themes: ["github-dark"],
             langs: [],
+            themes: ["github-dark"],
           });
 
         return globalThisForShiki[shikiHighlighterPromiseSymbol].then(
@@ -236,14 +236,15 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
         language !== "text" &&
         !highlighter.getLoadedLanguages().includes(language) &&
         supportedLanguages.find(({ id }) => id === language) &&
-        bundledLanguagesInfo.find(({ id }) => id === language)
+        language in bundledLanguages
       ) {
         return highlighter.loadLanguage(language as BundledLanguage);
       }
 
       if (!parser) {
         parser =
-          globalThisForShiki[shikiParserSymbol] || createParser(highlighter);
+          globalThisForShiki[shikiParserSymbol] ||
+          createParser(highlighter as any);
         globalThisForShiki[shikiParserSymbol] = parser;
       }
 
