@@ -19,8 +19,12 @@ export const AIToolbarButton = () => {
 
   const onClick = () => {
     editor.formattingToolbar.closeMenu();
-    const position = editor.getTextCursorPosition().block;
-    ctx.setAiMenuBlockID(position.id);
+    const selection = editor.getSelection();
+    if (!selection) {
+      throw new Error("No selection");
+    }
+    const position = selection.blocks[selection.blocks.length - 1].id;
+    ctx.setAiMenuBlockID(position);
   };
 
   if (!editor.isEditable) {

@@ -1,5 +1,6 @@
 import { useBlockNoteEditor } from "@blocknote/react";
 
+import { useEffect } from "react";
 import { AIMenu } from "./AIMenu/AIMenu.js";
 import { BlockPositioner } from "./AIMenu/BlockPositioner.js";
 import { useBlockNoteAIContext } from "./BlockNoteAIContext.js";
@@ -33,6 +34,12 @@ const AIMenuController = () => {
   const editor = useBlockNoteEditor();
   const ctx = useBlockNoteAIContext();
 
+  useEffect(() => {
+    if (ctx.aiMenuBlockID) {
+      editor.setForceSelectionVisible(true);
+    }
+  }, [ctx.aiMenuBlockID]);
+
   return (
     <BlockPositioner
       blockID={ctx.aiMenuBlockID}
@@ -41,6 +48,7 @@ const AIMenuController = () => {
           ctx.setAiMenuBlockID(undefined);
           ctx.setAIResponseStatus("initial");
           ctx.setPrevDocument(undefined);
+          editor.setForceSelectionVisible(false);
           editor.focus();
           // TODO: doesn't work with esc?
         }

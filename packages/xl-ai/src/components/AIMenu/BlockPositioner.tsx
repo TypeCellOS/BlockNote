@@ -1,11 +1,5 @@
 import { useUIElementPositioning } from "@blocknote/react";
-import {
-  OpenChangeReason,
-  autoUpdate,
-  flip,
-  offset,
-  size,
-} from "@floating-ui/react";
+import { OpenChangeReason, autoUpdate, offset, size } from "@floating-ui/react";
 import { useMemo } from "react";
 // The block positioner automattically positions it's children below the block with `blockID`
 export const BlockPositioner = (props: {
@@ -48,7 +42,7 @@ export const BlockPositioner = (props: {
       placement: "bottom",
       middleware: [
         offset(10),
-        flip(),
+        // flip(),
         size({
           apply({ rects, elements }) {
             Object.assign(elements.floating.style, {
