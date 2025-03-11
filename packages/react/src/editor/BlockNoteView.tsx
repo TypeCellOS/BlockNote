@@ -178,6 +178,7 @@ function BlockNoteViewComponent<
           className={className}
           renderEditor={renderEditor}
           editorColorScheme={editorColorScheme}
+          ref={ref}
           {...rest}>
           {children}
         </BlockNoteViewContainer>
