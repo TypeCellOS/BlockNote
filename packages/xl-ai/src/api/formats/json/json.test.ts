@@ -22,12 +22,12 @@ beforeAll(() => {
       updateSnapshots: "missing",
       // ignoreSnapshots: true,
       basePath: path.resolve(__dirname, "__msw_snapshots__"),
-      // onFetchFromSnapshot(info, snapshot) {
-      //   console.log("onFetchFromSnapshot", info, snapshot);
-      // },
-      // onFetchFromServer(info, snapshot) {
-      //   console.log("onFetchFromServer", info, snapshot);
-      // },
+      onFetchFromSnapshot(info, snapshot) {
+        console.log("onFetchFromSnapshot", info, snapshot);
+      },
+      onFetchFromServer(info, snapshot) {
+        console.log("onFetchFromServer", info, snapshot);
+      },
     })
   );
   server.listen();
@@ -240,7 +240,7 @@ describe.each([
       ]);
       const result = await callLLM(editor, {
         stream: params.stream,
-        prompt: "Add a paragraph with `Test` after the first paragraph",
+        prompt: `Add a paragraph with text "Test" after the first paragraph`,
         model: params.model,
       });
 

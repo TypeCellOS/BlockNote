@@ -7,9 +7,9 @@
     "cookies": []
   },
   "response": {
-    "status": 429,
+    "status": 200,
     "statusText": "",
-    "body": "{\"error\":{\"message\":\"Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01j9ypc1y8fkmtvsa6cf7x95qm` service tier `on_demand` on tokens per minute (TPM): Limit 6000, Used 5939, Requested 149. Please try again in 875.999999ms. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing\",\"type\":\"tokens\",\"code\":\"rate_limit_exceeded\"}}\n",
+    "body": "{\"id\":\"chatcmpl-deb5096f-fcf7-4680-aebc-891e91ac33e7\",\"object\":\"chat.completion\",\"created\":1741717214,\"model\":\"llama-3.3-70b-versatile\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"tool_calls\":[{\"id\":\"call_hpns\",\"type\":\"function\",\"function\":{\"name\":\"json\",\"arguments\":\"{\\\"operations\\\":[{\\\"type\\\":\\\"update\\\",\\\"id\\\":\\\"0$\\\",\\\"block\\\":{\\\"type\\\":\\\"paragraph\\\",\\\"props\\\":{},\\\"content\\\":[{\\\"type\\\":\\\"text\\\",\\\"text\\\":\\\"Hello\\\",\\\"styles\\\":{\\\"bold\\\":true}},{\\\"type\\\":\\\"text\\\",\\\"text\\\":\\\" world\\\",\\\"styles\\\":{}}]}}]}\"}}]},\"logprobs\":null,\"finish_reason\":\"tool_calls\"}],\"usage\":{\"queue_time\":0.12926824,\"prompt_tokens\":1167,\"prompt_time\":0.055586668,\"completion_tokens\":57,\"completion_time\":0.207272727,\"total_tokens\":1224,\"total_time\":0.262859395},\"system_fingerprint\":\"fp_f07de61dcd\",\"x_groq\":{\"id\":\"req_01jp36z5dtf91vyh8jn9gk0z17\"}}\n",
     "headers": []
   }
 }
