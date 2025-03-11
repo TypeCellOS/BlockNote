@@ -9,7 +9,7 @@ import {
   streamObject,
 } from "ai";
 
-import { processOperations } from "../../executor/executor.js";
+import { executeOperations } from "../../executor/executor.js";
 import { addFunction } from "../../functions/add.js";
 import { deleteFunction } from "../../functions/delete.js";
 import { AIFunction } from "../../functions/index.js";
@@ -57,16 +57,14 @@ type CallLLMOptionsWithOptional = Optional<
 // Define the return type for streaming mode
 type StreamingReturnType = StreamObjectResult<any, any, any> & {
   resultStream: AsyncIterableStream<{
-    operations?: any[];
-    results: any[];
+    operation: any;
   }>;
 };
 
 // Define the return type for non-streaming mode
 type NonStreamingReturnType = GenerateObjectResult<any> & {
   resultStream: AsyncIterableStream<{
-    operations?: any[];
-    results: any[];
+    operation: any[];
   }>;
 };
 
@@ -118,7 +116,7 @@ export async function callLLM(
     });
 
     // Use processOperations directly as an async generator
-    const resultGenerator = processOperations(
+    const resultGenerator = executeOperations(
       editor,
       ret.partialObjectStream,
       options.functions
@@ -154,7 +152,7 @@ export async function callLLM(
   }
 
   // Use the same processing pipeline as streaming case
-  const resultGenerator = processOperations(
+  const resultGenerator = executeOperations(
     editor,
     singleChunkGenerator(),
     options.functions

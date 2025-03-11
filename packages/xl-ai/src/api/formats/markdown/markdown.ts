@@ -2,10 +2,6 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { CoreMessage, LanguageModel, generateText } from "ai";
 import { markdownNodeDiff } from "../../../markdown/markdownNodeDiff.js";
 import { markdownNodeDiffToBlockOperations } from "../../../markdown/markdownOperations.js";
-import { executeAIOperation } from "../../executor/executor.js";
-import { addFunction } from "../../functions/add.js";
-import { deleteFunction } from "../../functions/delete.js";
-import { updateFunction } from "../../functions/update.js";
 import type { PromptOrMessages } from "../../index.js";
 import {
   promptManipulateDocumentUseMarkdown,
@@ -77,12 +73,12 @@ export async function callLLM(
   );
 
   for (const operation of operations) {
-    await executeAIOperation(
-      operation,
-      editor,
-      [updateFunction, addFunction, deleteFunction],
-      undefined,
-      { idsSuffixed: false }
-    );
+    // await executeAIOperation(
+    //   operation,
+    //   editor,
+    //   [updateFunction, addFunction, deleteFunction],
+    //   undefined,
+    //   { idsSuffixed: false }
+    // );
   }
 }

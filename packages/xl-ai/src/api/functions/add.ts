@@ -1,4 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
+import { InsertBlocksOperation, InvalidOrOk } from "./blocknoteFunctions.js";
 import { validateBlockFunction } from "./validate.js";
 
 const schema = {
@@ -13,7 +14,7 @@ const schema = {
       type: "string",
       enum: ["before", "after"],
       description:
-        "Whether new block(s) should be inserterd before or after `referenceId`",
+        "Whether new block(s) should be inserted before or after `referenceId`",
     },
     blocks: {
       items: {
@@ -45,6 +46,7 @@ function applyOperation(
   const toUpdate = operation.blocks.slice(0, idsAdded.length);
 
   for (let i = 0; i < toUpdate.length; i++) {
+    // instead of inserting the block, we're updating the block that was inserted in a previous call
     editor.updateBlock(idsAdded[i], toUpdate[i]);
   }
 
@@ -66,25 +68,34 @@ function applyOperation(
   return idsAdded;
 }
 
-function validateOperation(
+function toBlockNoteOperation(
   operation: any,
   editor: BlockNoteEditor,
   options: {
     idsSuffixed: boolean;
   }
-) {
+): InvalidOrOk<InsertBlocksOperation> {
   if (operation.type !== schema.name) {
-    return false;
+    return {
+      result: "invalid",
+      reason: "invalid operation type",
+    };
   }
 
   if (operation.position !== "before" && operation.position !== "after") {
-    return false;
+    return {
+      result: "invalid",
+      reason: "invalid position",
+    };
   }
 
   let referenceId = operation.referenceId;
   if (options.idsSuffixed) {
     if (!referenceId?.endsWith("$")) {
-      return false;
+      return {
+        result: "invalid",
+        reason: "referenceId must end with $",
+      };
     }
 
     referenceId = referenceId.slice(0, -1);
@@ -93,20 +104,42 @@ function validateOperation(
   const block = editor.getBlock(referenceId);
 
   if (!block) {
-    return false;
+    return {
+      result: "invalid",
+      reason: "referenceId not found",
+    };
   }
 
   if (!operation.blocks || operation.blocks.length === 0) {
-    return false;
+    return {
+      result: "invalid",
+      reason: "blocks is required",
+    };
   }
 
-  return (operation.blocks as []).every((block: any) =>
-    validateBlockFunction(block, editor)
+  const ret = (operation.blocks as []).every(
+    (block: any) => validateBlockFunction(block, editor).result === "ok"
   );
+
+  if (!ret) {
+    return {
+      result: "invalid",
+      reason: "invalid block",
+    };
+  }
+
+  return {
+    result: "ok",
+    value: {
+      type: "insert",
+      referenceId,
+      position: operation.position,
+      blocks: operation.blocks,
+    },
+  };
 }
 
 export const addFunction = {
   schema,
-  apply: applyOperation,
-  validate: validateOperation,
+  toBlockNoteOperation,
 };

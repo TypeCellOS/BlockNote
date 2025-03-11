@@ -1,4 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
+import { InvalidOrOk, UpdateBlocksOperation } from "./blocknoteFunctions.js";
 import { validateBlockFunction } from "./validate.js";
 
 const schema = {
@@ -18,45 +19,54 @@ const schema = {
   required: ["id", "block"],
 };
 
-function applyOperation(
+// function applyOperation(
+//   operation: any,
+//   editor: BlockNoteEditor,
+//   _operationContext: any,
+//   options: {
+//     idsSuffixed: boolean;
+//   }
+//   // operationContext: any
+// ) {
+//   let id = operation.id;
+//   if (options.idsSuffixed) {
+//     id = id.slice(0, -1);
+//   }
+
+//   editor.updateBlock(id, operation.block);
+// }
+
+function toBlockNoteOperation(
   operation: any,
   editor: BlockNoteEditor,
-  _operationContext: any,
   options: {
     idsSuffixed: boolean;
   }
-  // operationContext: any
-) {
-  let id = operation.id;
-  if (options.idsSuffixed) {
-    id = id.slice(0, -1);
-  }
-
-  editor.updateBlock(id, operation.block);
-}
-
-function validateOperation(
-  operation: any,
-  editor: BlockNoteEditor,
-  options: {
-    idsSuffixed: boolean;
-  }
-) {
+): InvalidOrOk<UpdateBlocksOperation> {
   if (operation.type !== schema.name) {
-    return false;
+    return {
+      result: "invalid",
+      reason: "invalid operation type",
+    };
   }
 
   let id = operation.id;
   if (options.idsSuffixed) {
     if (!id?.endsWith("$")) {
-      return false;
+      return {
+        result: "invalid",
+        reason: "id must end with $",
+      };
     }
 
     id = id.slice(0, -1);
   }
 
   if (!operation.block) {
-    return false;
+    return {
+      result: "invalid",
+      reason: "block is required",
+    };
   }
 
   const block = editor.getBlock(id);
@@ -64,14 +74,29 @@ function validateOperation(
   if (!block) {
     // eslint-disable-next-line no-console
     console.error("BLOCK NOT FOUND", id);
-    return false;
+    return {
+      result: "invalid",
+      reason: "block not found",
+    };
   }
 
-  return validateBlockFunction(operation.block, editor, block.type);
+  const ret = validateBlockFunction(operation.block, editor, block.type);
+
+  if (ret.result === "invalid") {
+    return ret;
+  }
+
+  return {
+    result: "ok",
+    value: {
+      type: "update",
+      block: operation.block,
+      id,
+    },
+  };
 }
 
 export const updateFunction = {
   schema,
-  apply: applyOperation,
-  validate: validateOperation,
+  toBlockNoteOperation,
 };

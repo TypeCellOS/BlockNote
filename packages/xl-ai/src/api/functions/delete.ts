@@ -1,4 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
+import { InvalidOrOk, RemoveBlocksOperation } from "./blocknoteFunctions.js";
 
 const schema = {
   name: "delete",
@@ -12,37 +13,43 @@ const schema = {
   required: ["id"],
 };
 
-function applyOperation(
+// function applyOperation(
+//   operation: any,
+//   editor: BlockNoteEditor,
+//   _operationContext: any,
+//   options: {
+//     idsSuffixed: boolean;
+//   }
+// ) {
+//   let id = operation.id;
+//   if (options.idsSuffixed) {
+//     id = id.slice(0, -1);
+//   }
+
+//   editor.removeBlocks([id]);
+// }
+
+function toBlockNoteOperation(
   operation: any,
   editor: BlockNoteEditor,
-  _operationContext: any,
   options: {
     idsSuffixed: boolean;
   }
-) {
-  let id = operation.id;
-  if (options.idsSuffixed) {
-    id = id.slice(0, -1);
-  }
-
-  editor.removeBlocks([id]);
-}
-
-function validateOperation(
-  operation: any,
-  editor: BlockNoteEditor,
-  options: {
-    idsSuffixed: boolean;
-  }
-) {
+): InvalidOrOk<RemoveBlocksOperation> {
   if (operation.type !== schema.name) {
-    return false;
+    return {
+      result: "invalid",
+      reason: "invalid operation type",
+    };
   }
 
   let id = operation.id;
   if (options.idsSuffixed) {
     if (!id?.endsWith("$")) {
-      return false;
+      return {
+        result: "invalid",
+        reason: "id must end with $",
+      };
     }
 
     id = id.slice(0, -1);
@@ -51,14 +58,22 @@ function validateOperation(
   const block = editor.getBlock(id);
 
   if (!block) {
-    return false;
+    return {
+      result: "invalid",
+      reason: "block not found",
+    };
   }
 
-  return true;
+  return {
+    result: "ok",
+    value: {
+      type: "remove",
+      ids: [id],
+    },
+  };
 }
 
 export const deleteFunction = {
   schema,
-  apply: applyOperation,
-  validate: validateOperation,
+  toBlockNoteOperation,
 };

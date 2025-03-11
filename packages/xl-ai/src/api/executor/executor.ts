@@ -1,90 +1,52 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { AIFunction } from "../functions/index.js";
-import { AsyncIterableStream } from "../util/stream.js";
+import {
+  applyOperations,
+  duplicateInsertsToUpdates,
+  filterNewOrUpdatedOperations,
+  filterValidOperations,
+  toBlockNoteOperations,
+} from "./streamOperations/index.js";
 
-export function executeAIOperation(
-  operation: any,
-  editor: BlockNoteEditor,
-  functions: AIFunction[],
-  operationContext: any,
-  options: {
-    idsSuffixed: boolean;
-  } = {
-    idsSuffixed: false,
-  }
-) {
-  const func = functions.find((func) => func.schema.name === operation.type);
-  if (!func || !func.validate(operation, editor, options)) {
-    // TODO?
-    // eslint-disable-next-line no-console
-    console.log("INVALID OPERATION", operation);
-    return operationContext;
-  }
-  return func.apply(operation, editor, operationContext, options);
-}
-
-// Internal async generator function to process operations
-export async function* processOperations(
+// Compose the generators
+export async function* executeOperations(
   editor: BlockNoteEditor,
   operationsStream: AsyncIterable<{
     operations?: any[];
   }>,
   functions: AIFunction[]
 ): AsyncGenerator<{
-  operations?: any[];
-  results: any[];
+  operation: any;
 }> {
-  let numOperationsAppliedCompletely = 0;
-  let operationContext: any = undefined;
+  // filter new or updated operations
+  const newOrUpdatedOperationsStream =
+    filterNewOrUpdatedOperations(operationsStream);
 
-  for await (const partialObject of operationsStream) {
-    const operations = partialObject.operations || [];
-    // console.log(operations);
-    let isFirst = true;
-    for (const operation of operations.slice(numOperationsAppliedCompletely)) {
-      operationContext = executeAIOperation(
-        operation,
-        editor,
-        functions,
-        isFirst ? operationContext : undefined,
-        { idsSuffixed: true }
-      );
-      isFirst = false;
-    }
-    yield { operations, results: [operationContext] };
+  // to blocknote operations
+  const blockNoteOperationsStream = toBlockNoteOperations(
+    editor,
+    newOrUpdatedOperationsStream,
+    functions
+  );
 
-    numOperationsAppliedCompletely = operations.length - 1;
-  }
-}
+  // filter valid operations
+  const validOperationsStream = filterValidOperations(
+    blockNoteOperationsStream
+  );
 
-// Legacy version for backward compatibility
-export async function executeAIOperationStreamLegacy(
-  editor: BlockNoteEditor,
-  operationsStream: AsyncIterableStream<{
-    operations?: any[];
-  }>,
-  functions: AIFunction[]
-) {
-  let numOperationsAppliedCompletely = 0;
-  let operationContext: any = undefined;
+  // duplicate inserts to updates
+  const duplicateInsertsToUpdatesStream = duplicateInsertsToUpdates(
+    validOperationsStream
+  );
 
-  for await (const partialObject of operationsStream) {
-    const operations = partialObject.operations || [];
-    // console.log(operations);
-    let isFirst = true;
-    for (const operation of operations.slice(numOperationsAppliedCompletely)) {
-      operationContext = executeAIOperation(
-        operation,
-        editor,
-        functions,
-        isFirst ? operationContext : undefined,
-        { idsSuffixed: true }
-      );
-      isFirst = false;
-    }
+  // apply operations
+  const appliedOperationsStream = applyOperations(
+    editor,
+    duplicateInsertsToUpdatesStream
+  );
 
-    numOperationsAppliedCompletely = operations.length - 1;
-  }
+  // yield results
+  yield* appliedOperationsStream;
 }
 
 // - cursor position

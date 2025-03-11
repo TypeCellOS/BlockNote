@@ -24,13 +24,23 @@ export function validateBlockFunction(
   block: any,
   editor: BlockNoteEditor<any, any, any>,
   fallbackType?: string
-): boolean {
+):
+  | {
+      result: "ok";
+    }
+  | {
+      result: "invalid";
+      reason: string;
+    } {
   const type = block.type || fallbackType;
   const blockConfig =
     editor.schema.blockSchema[type as keyof typeof editor.schema.blockSchema];
 
   if (!blockConfig) {
-    return false;
+    return {
+      result: "invalid",
+      reason: "block type not found in editor",
+    };
   }
 
   if (block.children) {
@@ -41,22 +51,32 @@ export function validateBlockFunction(
   if (blockConfig.content === "none") {
     if (block.content) {
       // no content expected for this block
-      return false;
+      return {
+        result: "invalid",
+        reason: "block content not expected for this block type",
+      };
     }
   } else {
     if (!block.content) {
       // return false;
-      return true; // this is ok for update operations where we only update the type
+      return {
+        result: "ok",
+      };
     }
 
     if (!Array.isArray(block.content)) {
       // content expected for this block
-      return false;
+      return {
+        result: "invalid",
+        reason: "block content must be an array",
+      };
     }
 
     if (blockConfig.content === "table") {
       // no validation for table content (TODO)
-      return true;
+      return {
+        result: "ok",
+      };
     }
 
     if (
@@ -64,9 +84,14 @@ export function validateBlockFunction(
         return validateInlineContent(content, editor);
       })
     ) {
-      return false;
+      return {
+        result: "invalid",
+        reason: "block content must be an array of inline content",
+      };
     }
   }
   // TODO: validate props
-  return true;
+  return {
+    result: "ok",
+  };
 }
