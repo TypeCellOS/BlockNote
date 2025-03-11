@@ -84,16 +84,15 @@ export function BlockNoteAIContextProvider(
       setAIResponseStatus("generating");
 
       try {
+        let resultStream: ReturnType<typeof llm.json.call>[0]["resultStream"];
+
         if (dataFormat === "json") {
           const ret = await llm.json.call(editor, {
             model,
             stream,
             ...options,
           });
-
-          for await (const operation of ret.resultStream) {
-            setAiMenuBlockID(operation.lastBlockId);
-          }
+          resultStream = ret.resultStream;
         } else {
           if (options.functions) {
             // eslint-disable-next-line no-console
@@ -101,8 +100,14 @@ export function BlockNoteAIContextProvider(
               "functions are not supported for markdown, ignoring them"
             );
           }
-          await llm.markdown.call(editor, { model, ...options });
+          const ret = await llm.markdown.call(editor, { model, ...options });
+          resultStream = ret.resultStream;
         }
+
+        for await (const operation of resultStream) {
+          setAiMenuBlockID(operation.lastBlockId);
+        }
+
         setAIResponseStatus((old) => {
           // if the menu has been closed already, it's probably set to "initial" and not "generating" anymore,
           // in that case, don't set it to "done"

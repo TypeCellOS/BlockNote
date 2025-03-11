@@ -1,6 +1,7 @@
 import { BlockNoteEditor } from "@blocknote/core";
 
 import { Block } from "@blocknote/core";
+import { BlockNoteOperation } from "../api/functions/blocknoteFunctions.js";
 import { MarkdownNodeDiffResult } from "./markdownNodeDiff.js";
 import { markdownUpdateToBlockUpdate } from "./markdownUpdate.js";
 import { markdownNodeToString } from "./util.js";
@@ -20,7 +21,7 @@ export async function markdownNodeDiffToBlockOperations(
   blocks: Block<any, any, any>[],
   markdownNodeDiff: MarkdownNodeDiffResult[]
 ) {
-  const operations: any[] = [];
+  const operations: BlockNoteOperation[] = [];
 
   blocks = flattenBlocks(blocks);
   if (
@@ -47,27 +48,26 @@ export async function markdownNodeDiffToBlockOperations(
 
       const block = newBlocks[0];
 
+      const lastOperation = operations[operations.length - 1];
+
       // new node has been added
-      if (
-        operations.length > 0 &&
-        operations[operations.length - 1].type === "add"
-      ) {
+      if (lastOperation && lastOperation.type === "insert") {
         // add to previous "add operation" (add can be a list of blocks)
-        operations[operations.length - 1].blocks.push(block);
+        lastOperation.blocks.push(block);
       } else {
         const positionInfo =
           currentBlockIndex < blocks.length
             ? {
-                position: "before",
+                position: "before" as const,
                 referenceId: blocks[currentBlockIndex].id,
               }
             : {
-                position: "after",
-                referenceId: lastBlockId,
+                position: "after" as const,
+                referenceId: lastBlockId!,
               };
 
         operations.push({
-          type: "add",
+          type: "insert",
           ...positionInfo,
           blocks: [block],
         });
@@ -75,8 +75,8 @@ export async function markdownNodeDiffToBlockOperations(
     } else if (diff.type === "remove") {
       // remove block
       operations.push({
-        type: "delete",
-        id: blocks[currentBlockIndex].id,
+        type: "remove",
+        ids: [blocks[currentBlockIndex].id],
       });
       currentBlockIndex++;
     } else if (diff.type === "unchanged") {

@@ -34,12 +34,12 @@ export async function* applyOperations(
         lastBlockId: chunk.operation.id,
       };
     } else if (chunk.operation.type === "remove") {
-      const prevBlock = editor.getPrevBlock(chunk.operation.ids[0])!;
+      const prevBlock = editor.getPrevBlock(chunk.operation.ids[0]);
       editor.removeBlocks(chunk.operation.ids);
       yield {
         operation: chunk.operation,
         result: "ok",
-        lastBlockId: prevBlock.id,
+        lastBlockId: prevBlock?.id ?? editor.document[0].id,
       };
     }
   }

@@ -24,7 +24,7 @@ exports[`markdownNodeDiffToBlockOperations > add sentence at start 1`] = `
     ],
     "position": "before",
     "referenceId": "0",
-    "type": "add",
+    "type": "insert",
   },
 ]
 `;
@@ -86,7 +86,7 @@ exports[`markdownNodeDiffToBlockOperations > complex change 1 1`] = `
     ],
     "position": "before",
     "referenceId": "0",
-    "type": "add",
+    "type": "insert",
   },
   {
     "block": {
@@ -105,8 +105,10 @@ exports[`markdownNodeDiffToBlockOperations > complex change 1 1`] = `
     "type": "update",
   },
   {
-    "id": "1",
-    "type": "delete",
+    "ids": [
+      "1",
+    ],
+    "type": "remove",
   },
 ]
 `;
@@ -135,7 +137,7 @@ exports[`markdownNodeDiffToBlockOperations > complex change 2 1`] = `
     ],
     "position": "before",
     "referenceId": "0",
-    "type": "add",
+    "type": "insert",
   },
   {
     "block": {
@@ -161,12 +163,16 @@ world",
     "type": "update",
   },
   {
-    "id": "1",
-    "type": "delete",
+    "ids": [
+      "1",
+    ],
+    "type": "remove",
   },
   {
-    "id": "2",
-    "type": "delete",
+    "ids": [
+      "2",
+    ],
+    "type": "remove",
   },
 ]
 `;
@@ -210,7 +216,7 @@ exports[`markdownNodeDiffToBlockOperations > empty paragraph and table 1`] = `
     ],
     "position": "before",
     "referenceId": "1",
-    "type": "add",
+    "type": "insert",
   },
   {
     "block": {
@@ -298,7 +304,7 @@ exports[`markdownNodeDiffToBlockOperations > empty paragraph and table 1`] = `
     ],
     "position": "before",
     "referenceId": "2",
-    "type": "add",
+    "type": "insert",
   },
   {
     "block": {
@@ -328,106 +334,258 @@ exports[`markdownNodeDiffToBlockOperations > empty paragraph and table 1`] = `
             undefined,
             undefined,
           ],
+          "headerCols": undefined,
+          "headerRows": 1,
           "rows": [
             {
               "cells": [
-                [],
-                [],
-                [],
+                {
+                  "content": [],
+                  "props": {
+                    "backgroundColor": "default",
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "textAlignment": "left",
+                    "textColor": "default",
+                  },
+                  "type": "tableCell",
+                },
+                {
+                  "content": [],
+                  "props": {
+                    "backgroundColor": "default",
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "textAlignment": "left",
+                    "textColor": "default",
+                  },
+                  "type": "tableCell",
+                },
+                {
+                  "content": [],
+                  "props": {
+                    "backgroundColor": "default",
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "textAlignment": "left",
+                    "textColor": "default",
+                  },
+                  "type": "tableCell",
+                },
               ],
             },
             {
               "cells": [
-                [],
-                [
-                  {
-                    "styles": {},
-                    "text": "Notion",
-                    "type": "text",
+                {
+                  "content": [],
+                  "props": {
+                    "backgroundColor": "default",
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "textAlignment": "left",
+                    "textColor": "default",
                   },
-                ],
-                [
-                  {
-                    "styles": {},
-                    "text": "Open source",
-                    "type": "text",
+                  "type": "tableCell",
+                },
+                {
+                  "content": [
+                    {
+                      "styles": {},
+                      "text": "Notion",
+                      "type": "text",
+                    },
+                  ],
+                  "props": {
+                    "backgroundColor": "default",
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "textAlignment": "left",
+                    "textColor": "default",
                   },
-                ],
+                  "type": "tableCell",
+                },
+                {
+                  "content": [
+                    {
+                      "styles": {},
+                      "text": "Open source",
+                      "type": "text",
+                    },
+                  ],
+                  "props": {
+                    "backgroundColor": "default",
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "textAlignment": "left",
+                    "textColor": "default",
+                  },
+                  "type": "tableCell",
+                },
               ],
             },
             {
               "cells": [
-                [
-                  {
-                    "styles": {},
-                    "text": "Cost",
-                    "type": "text",
+                {
+                  "content": [
+                    {
+                      "styles": {},
+                      "text": "Cost",
+                      "type": "text",
+                    },
+                  ],
+                  "props": {
+                    "backgroundColor": "default",
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "textAlignment": "left",
+                    "textColor": "default",
                   },
-                ],
-                [
-                  {
-                    "styles": {},
-                    "text": "30€/cs",
-                    "type": "text",
+                  "type": "tableCell",
+                },
+                {
+                  "content": [
+                    {
+                      "styles": {},
+                      "text": "30€/cs",
+                      "type": "text",
+                    },
+                  ],
+                  "props": {
+                    "backgroundColor": "default",
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "textAlignment": "left",
+                    "textColor": "default",
                   },
-                ],
-                [
-                  {
-                    "styles": {},
-                    "text": "1€/cs",
-                    "type": "text",
+                  "type": "tableCell",
+                },
+                {
+                  "content": [
+                    {
+                      "styles": {},
+                      "text": "1€/cs",
+                      "type": "text",
+                    },
+                  ],
+                  "props": {
+                    "backgroundColor": "default",
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "textAlignment": "left",
+                    "textColor": "default",
                   },
-                ],
+                  "type": "tableCell",
+                },
               ],
             },
             {
               "cells": [
-                [
-                  {
-                    "styles": {},
-                    "text": "People in-house",
-                    "type": "text",
+                {
+                  "content": [
+                    {
+                      "styles": {},
+                      "text": "People in-house",
+                      "type": "text",
+                    },
+                  ],
+                  "props": {
+                    "backgroundColor": "default",
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "textAlignment": "left",
+                    "textColor": "default",
                   },
-                ],
-                [
-                  {
-                    "styles": {},
-                    "text": "0",
-                    "type": "text",
+                  "type": "tableCell",
+                },
+                {
+                  "content": [
+                    {
+                      "styles": {},
+                      "text": "0",
+                      "type": "text",
+                    },
+                  ],
+                  "props": {
+                    "backgroundColor": "default",
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "textAlignment": "left",
+                    "textColor": "default",
                   },
-                ],
-                [
-                  {
-                    "styles": {},
-                    "text": "5 developers (100k€ a year)",
-                    "type": "text",
+                  "type": "tableCell",
+                },
+                {
+                  "content": [
+                    {
+                      "styles": {},
+                      "text": "5 developers (100k€ a year)",
+                      "type": "text",
+                    },
+                  ],
+                  "props": {
+                    "backgroundColor": "default",
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "textAlignment": "left",
+                    "textColor": "default",
                   },
-                ],
+                  "type": "tableCell",
+                },
               ],
             },
             {
               "cells": [
-                [
-                  {
-                    "styles": {},
-                    "text": "Number of civil servant (cs)",
-                    "type": "text",
+                {
+                  "content": [
+                    {
+                      "styles": {},
+                      "text": "Number of civil servant (cs)",
+                      "type": "text",
+                    },
+                  ],
+                  "props": {
+                    "backgroundColor": "default",
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "textAlignment": "left",
+                    "textColor": "default",
                   },
-                ],
-                [
-                  {
-                    "styles": {},
-                    "text": "36 million",
-                    "type": "text",
+                  "type": "tableCell",
+                },
+                {
+                  "content": [
+                    {
+                      "styles": {},
+                      "text": "36 million",
+                      "type": "text",
+                    },
+                  ],
+                  "props": {
+                    "backgroundColor": "default",
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "textAlignment": "left",
+                    "textColor": "default",
                   },
-                ],
-                [
-                  {
-                    "styles": {},
-                    "text": "36 million",
-                    "type": "text",
+                  "type": "tableCell",
+                },
+                {
+                  "content": [
+                    {
+                      "styles": {},
+                      "text": "36 million",
+                      "type": "text",
+                    },
+                  ],
+                  "props": {
+                    "backgroundColor": "default",
+                    "colspan": 1,
+                    "rowspan": 1,
+                    "textAlignment": "left",
+                    "textColor": "default",
                   },
-                ],
+                  "type": "tableCell",
+                },
               ],
             },
           ],
@@ -514,7 +672,7 @@ exports[`markdownNodeDiffToBlockOperations > empty paragraph and table 1`] = `
     ],
     "position": "after",
     "referenceId": "2",
-    "type": "add",
+    "type": "insert",
   },
 ]
 `;
@@ -561,7 +719,7 @@ exports[`markdownNodeDiffToBlockOperations > large change 1`] = `
     ],
     "position": "before",
     "referenceId": "0",
-    "type": "add",
+    "type": "insert",
   },
   {
     "block": {
@@ -791,7 +949,7 @@ exports[`markdownNodeDiffToBlockOperations > large change 1`] = `
     ],
     "position": "after",
     "referenceId": "0",
-    "type": "add",
+    "type": "insert",
   },
 ]
 `;
@@ -812,12 +970,16 @@ exports[`markdownNodeDiffToBlockOperations > one empty paragraph 1`] = `
     "type": "update",
   },
   {
-    "id": "1",
-    "type": "delete",
+    "ids": [
+      "1",
+    ],
+    "type": "remove",
   },
   {
-    "id": "2",
-    "type": "delete",
+    "ids": [
+      "2",
+    ],
+    "type": "remove",
   },
 ]
 `;
@@ -838,16 +1000,22 @@ exports[`markdownNodeDiffToBlockOperations > two empty paragraphs 1`] = `
     "type": "update",
   },
   {
-    "id": "1",
-    "type": "delete",
+    "ids": [
+      "1",
+    ],
+    "type": "remove",
   },
   {
-    "id": "2",
-    "type": "delete",
+    "ids": [
+      "2",
+    ],
+    "type": "remove",
   },
   {
-    "id": "3",
-    "type": "delete",
+    "ids": [
+      "3",
+    ],
+    "type": "remove",
   },
 ]
 `;

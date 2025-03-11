@@ -2,11 +2,16 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { CoreMessage, LanguageModel, generateText } from "ai";
 import { markdownNodeDiff } from "../../../markdown/markdownNodeDiff.js";
 import { markdownNodeDiffToBlockOperations } from "../../../markdown/markdownOperations.js";
+import { applyOperations } from "../../executor/streamOperations/applyOperations.js";
 import type { PromptOrMessages } from "../../index.js";
 import {
   promptManipulateDocumentUseMarkdown,
   promptManipulateDocumentUseMarkdownWithSelection,
 } from "../../prompts/markdownPrompts.js";
+import {
+  asyncIterableToStream,
+  createAsyncIterableStream,
+} from "../../util/stream.js";
 import { trimArray } from "../../util/trimArray.js";
 
 type BasicLLMRequestOptions = {
@@ -72,15 +77,19 @@ export async function callLLM(
     diff
   );
 
-  return operations;
+  async function* singleChunkGenerator() {
+    for (const operation of operations) {
+      yield { operation };
+    }
+  }
 
-  // for (const operation of operations) {
-  // await executeAIOperation(
-  //   operation,
-  //   editor,
-  //   [updateFunction, addFunction, deleteFunction],
-  //   undefined,
-  //   { idsSuffixed: false }
-  // );
-  // }
+  const resultGenerator = applyOperations(editor, singleChunkGenerator());
+
+  // Convert to stream at the API boundary
+  const resultStream = asyncIterableToStream(resultGenerator);
+  const asyncIterableResultStream = createAsyncIterableStream(resultStream);
+
+  return {
+    resultStream: asyncIterableResultStream,
+  };
 }
