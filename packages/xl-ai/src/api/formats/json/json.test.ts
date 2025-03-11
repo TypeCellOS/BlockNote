@@ -23,10 +23,10 @@ beforeAll(() => {
       // ignoreSnapshots: true,
       basePath: path.resolve(__dirname, "__msw_snapshots__"),
       // onFetchFromSnapshot(info, snapshot) {
-      //   // console.log("onFetchFromSnapshot", info, snapshot);
+      //   console.log("onFetchFromSnapshot", info, snapshot);
       // },
       // onFetchFromServer(info, snapshot) {
-      //   // console.log("onFetchFromServer", info, snapshot);
+      //   console.log("onFetchFromServer", info, snapshot);
       // },
     })
   );
@@ -40,7 +40,7 @@ const client = createBlockNoteAIClient({
 
 const groq = createGroq({
   ...client.getProviderSettings("groq"),
-})("llama-3.1-70b-versatile");
+})("llama-3.3-70b-versatile");
 
 const openai = createOpenAI({
   ...client.getProviderSettings("openai"),
@@ -58,6 +58,28 @@ function matchFileSnapshot(data: any, postFix = "") {
     )
   );
 }
+
+describe("Test environment", () => {
+  // doesn't appear to be needed
+  // it("should be running correct node version", () => {
+  //   expect(process.version).toBe("v20.11.0");
+  // });
+
+  it("should have certs installed to connect to localhost", () => {
+    expect(process.env.NODE_EXTRA_CA_CERTS).toBeDefined();
+
+    /* if this test fails, maybe you're running tests via vscode extension?
+
+    You'll need:
+
+    "vitest.nodeEnv": {
+      "NODE_EXTRA_CA_CERTS": "/Users/USERNAME/Library/Application Support/mkcert/rootCA.pem"
+    }
+
+    in your vscode settings (or other path to mkcert rootCA.pem)
+    */
+  });
+});
 
 describe.each([
   {
@@ -94,11 +116,13 @@ describe.each([
         },
       ]);
 
-      await callLLM(editor, {
+      const result = await callLLM(editor, {
         stream: params.stream,
         model: params.model,
         prompt: "translate existing document to german",
       });
+
+      await result.apply();
 
       // Add assertions here to check if the document was correctly translated
       // For example:
@@ -121,11 +145,13 @@ describe.each([
         },
       ]);
 
-      await callLLM(editor, {
+      const result = await callLLM(editor, {
         stream: params.stream,
         prompt: "change first paragraph to bold",
         model: params.model,
       });
+
+      await result.apply();
 
       // Add assertions here to check if the document was correctly translated
       // For example:
@@ -142,11 +168,13 @@ describe.each([
         },
       ]);
 
-      await callLLM(editor, {
+      const result = await callLLM(editor, {
         stream: params.stream,
         prompt: "change first word to bold",
         model: params.model,
       });
+
+      await result.apply();
 
       // Add assertions here to check if the document was correctly translated
       // For example:
@@ -168,11 +196,13 @@ describe.each([
           content: "World",
         },
       ]);
-      await callLLM(editor, {
+      const result = await callLLM(editor, {
         stream: params.stream,
         prompt: "delete the first sentence",
         model: params.model,
       });
+
+      await result.apply();
 
       matchFileSnapshot(editor.document);
 
@@ -188,11 +218,13 @@ describe.each([
           content: "Hello",
         },
       ]);
-      await callLLM(editor, {
+      const result = await callLLM(editor, {
         prompt: "Add a sentence with `Test` before the first sentence",
         model: params.model,
         stream: params.stream,
       });
+
+      await result.apply();
 
       matchFileSnapshot(editor.document);
 
@@ -206,11 +238,13 @@ describe.each([
           content: "Hello",
         },
       ]);
-      await callLLM(editor, {
+      const result = await callLLM(editor, {
         stream: params.stream,
         prompt: "Add a paragraph with `Test` after the first paragraph",
         model: params.model,
       });
+
+      await result.apply();
 
       matchFileSnapshot(editor.document);
 

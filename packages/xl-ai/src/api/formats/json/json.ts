@@ -60,6 +60,7 @@ type CallLLMOptionsWithOptional = Optional<
 type ReturnType = {
   resultStream: AsyncIterableStream<ExecuteOperationResult>;
   llmResult: StreamObjectResult<any, any, any> | GenerateObjectResult<any>;
+  apply: () => Promise<void>;
 };
 
 async function getLLMResponse(
@@ -79,7 +80,6 @@ async function getLLMResponse(
       ...baseParams,
       ...(options._streamObjectOptions as any),
     });
-
     return {
       result: ret,
       operationsSource: ret.partialObjectStream,
@@ -166,5 +166,11 @@ export async function callLLM(
   return {
     llmResult: result,
     resultStream: asyncIterableResultStream,
+    async apply() {
+      /* eslint-disable-next-line */
+      for await (const _result of asyncIterableResultStream) {
+        // no op
+      }
+    },
   };
 }

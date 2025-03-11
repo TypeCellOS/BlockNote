@@ -83,10 +83,12 @@ describe.each([
         },
       ]);
 
-      await callLLM(editor, {
+      const result = await callLLM(editor, {
         model: params.model,
         prompt: "translate existing document to german",
       });
+
+      await result.apply();
 
       // Add assertions here to check if the document was correctly translated
       // For example:
@@ -109,10 +111,12 @@ describe.each([
         },
       ]);
 
-      await callLLM(editor, {
+      const result = await callLLM(editor, {
         prompt: "change first paragraph to a heading",
         model: params.model,
       });
+
+      await result.apply();
 
       // Add assertions here to check if the document was correctly translated
       // For example:
@@ -133,10 +137,12 @@ describe.each([
         },
       ]);
 
-      await callLLM(editor, {
+      const result = await callLLM(editor, {
         prompt: "change first paragraph to bold",
         model: params.model,
       });
+
+      await result.apply();
 
       // Add assertions here to check if the document was correctly translated
       // For example:
@@ -153,10 +159,12 @@ describe.each([
         },
       ]);
 
-      await callLLM(editor, {
+      const result = await callLLM(editor, {
         prompt: "change first word to bold",
         model: params.model,
       });
+
+      await result.apply();
 
       // Add assertions here to check if the document was correctly translated
       // For example:
@@ -178,10 +186,12 @@ describe.each([
           content: "World",
         },
       ]);
-      await callLLM(editor, {
+      const result = await callLLM(editor, {
         prompt: "delete the first sentence",
         model: params.model,
       });
+
+      await result.apply();
 
       matchFileSnapshot(editor.document);
 
@@ -197,10 +207,12 @@ describe.each([
           content: "Hello",
         },
       ]);
-      await callLLM(editor, {
+      const result = await callLLM(editor, {
         prompt: "Add a single sentence with `Test` before the first sentence",
         model: params.model,
       });
+
+      await result.apply();
 
       matchFileSnapshot(editor.document);
 
@@ -214,10 +226,12 @@ describe.each([
           content: "Hello",
         },
       ]);
-      await callLLM(editor, {
+      const result = await callLLM(editor, {
         prompt: "Add a paragraph with `Test` after the first paragraph",
         model: params.model,
       });
+
+      await result.apply();
 
       matchFileSnapshot(editor.document);
 

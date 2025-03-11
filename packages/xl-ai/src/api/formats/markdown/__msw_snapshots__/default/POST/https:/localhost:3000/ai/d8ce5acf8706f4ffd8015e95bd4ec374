@@ -1,0 +1,15 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "https://localhost:3000/ai?provider=openai&url=https%3A%2F%2Fapi.openai.com%2Fv1%2Fchat%2Fcompletions",
+    "body": "{\"model\":\"gpt-4o-2024-08-06\",\"temperature\":0,\"messages\":[{\"role\":\"system\",\"content\":\"You're manipulating a markdown document. Send me the new markdown of the entire updated document. Don't include any other text, comments or wrapping marks. Next message is the existing document in markdown:\"},{\"role\":\"user\",\"content\":\"Hello\\n\\nWorld\"},{\"role\":\"user\",\"content\":\"translate existing document to german\"}]}",
+    "headers": [],
+    "cookies": []
+  },
+  "response": {
+    "status": 200,
+    "statusText": "",
+    "body": "{\n  \"id\": \"chatcmpl-B9vDnBbMqlmOaxKt3h5vjDjSo050B\",\n  \"object\": \"chat.completion\",\n  \"created\": 1741704611,\n  \"model\": \"gpt-4o-2024-08-06\",\n  \"choices\": [\n    {\n      \"index\": 0,\n      \"message\": {\n        \"role\": \"assistant\",\n        \"content\": \"Hallo\\n\\nWelt\",\n        \"refusal\": null\n      },\n      \"logprobs\": null,\n      \"finish_reason\": \"stop\"\n    }\n  ],\n  \"usage\": {\n    \"prompt_tokens\": 60,\n    \"completion_tokens\": 5,\n    \"total_tokens\": 65,\n    \"prompt_tokens_details\": {\n      \"cached_tokens\": 0,\n      \"audio_tokens\": 0\n    },\n    \"completion_tokens_details\": {\n      \"reasoning_tokens\": 0,\n      \"audio_tokens\": 0,\n      \"accepted_prediction_tokens\": 0,\n      \"rejected_prediction_tokens\": 0\n    }\n  },\n  \"service_tier\": \"default\",\n  \"system_fingerprint\": \"fp_f9f4fb6dbf\"\n}\n",
+    "headers": []
+  }
+}

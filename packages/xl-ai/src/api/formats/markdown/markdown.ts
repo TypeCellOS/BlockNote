@@ -91,5 +91,11 @@ export async function callLLM(
 
   return {
     resultStream: asyncIterableResultStream,
+    async apply() {
+      /* eslint-disable-next-line */
+      for await (const _result of asyncIterableResultStream) {
+        // no op
+      }
+    },
   };
 }

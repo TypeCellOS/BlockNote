@@ -1,6 +1,5 @@
 import { Agent, setGlobalDispatcher } from "undici";
 import { afterEach, beforeEach } from "vitest";
-
 // make sure our fetch request uses HTTP/2
 setGlobalDispatcher(
   new Agent({
@@ -8,7 +7,9 @@ setGlobalDispatcher(
   })
 );
 
-// https.globalAgent.options.ca = fs.readFileSync("../xl-ai-server/localhost.pem");
+// https.globalAgent.options.ca = fs.readFileSync(
+//   path.join(__dirname, "../xl-ai-server/localhost.pem")
+// );
 // debugger;
 beforeEach(() => {
   (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS = {};
