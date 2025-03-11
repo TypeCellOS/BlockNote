@@ -31,28 +31,18 @@ import {
   createAsyncIterableStream,
 } from "../../util/stream.js";
 
-type BasicLLMRequestOptions = {
+type LLMRequestOptions = {
   model: LanguageModel;
   functions: AIFunction[];
-} & PromptOrMessages;
-
-type StreamLLMRequestOptions = {
-  stream: true;
-  _streamObjectOptions?: Partial<Parameters<typeof streamObject<any>>[0]>;
-};
-
-type NoStreamLLMRequestOptions = {
-  stream: false;
+  stream: boolean;
   _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]>;
-};
-
-type CallLLMOptions = BasicLLMRequestOptions &
-  (StreamLLMRequestOptions | NoStreamLLMRequestOptions);
+  _streamObjectOptions?: Partial<Parameters<typeof streamObject<any>>[0]>;
+} & PromptOrMessages;
 
 type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 type CallLLMOptionsWithOptional = Optional<
-  CallLLMOptions,
+  LLMRequestOptions,
   "functions" | "stream"
 >;
 
@@ -70,20 +60,28 @@ async function getLLMResponse(
     schema: any;
     messages: CoreMessage[];
   },
-  options: CallLLMOptions
+  options: LLMRequestOptions
 ): Promise<{
   result: ReturnType["llmResult"];
   operationsSource: AsyncIterable<{ operations?: any[] }>;
 }> {
   if (options.stream) {
+    if (options._generateObjectOptions) {
+      throw new Error("Cannot provide _generateObjectOptions when streaming");
+    }
     const ret = streamObject<{ operations: any[] }>({
       ...baseParams,
       ...(options._streamObjectOptions as any),
     });
+
     return {
       result: ret,
       operationsSource: ret.partialObjectStream,
     };
+  }
+
+  if (options._streamObjectOptions) {
+    throw new Error("Cannot provide _streamObjectOptions when not streaming");
   }
 
   const ret = await generateObject<{ operations: any[] }>({
@@ -129,7 +127,7 @@ export async function callLLM(
     });
   }
 
-  const options: CallLLMOptions = {
+  const options: LLMRequestOptions = {
     functions: [updateFunction, addFunction, deleteFunction],
     stream: true,
     messages,
