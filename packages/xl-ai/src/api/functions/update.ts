@@ -19,23 +19,6 @@ const schema = {
   required: ["id", "block"],
 };
 
-// function applyOperation(
-//   operation: any,
-//   editor: BlockNoteEditor,
-//   _operationContext: any,
-//   options: {
-//     idsSuffixed: boolean;
-//   }
-//   // operationContext: any
-// ) {
-//   let id = operation.id;
-//   if (options.idsSuffixed) {
-//     id = id.slice(0, -1);
-//   }
-
-//   editor.updateBlock(id, operation.block);
-// }
-
 function toBlockNoteOperation(
   operation: any,
   editor: BlockNoteEditor,

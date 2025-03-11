@@ -72,13 +72,15 @@ export async function callLLM(
     diff
   );
 
-  for (const operation of operations) {
-    // await executeAIOperation(
-    //   operation,
-    //   editor,
-    //   [updateFunction, addFunction, deleteFunction],
-    //   undefined,
-    //   { idsSuffixed: false }
-    // );
-  }
+  return operations;
+
+  // for (const operation of operations) {
+  // await executeAIOperation(
+  //   operation,
+  //   editor,
+  //   [updateFunction, addFunction, deleteFunction],
+  //   undefined,
+  //   { idsSuffixed: false }
+  // );
+  // }
 }

@@ -101,7 +101,7 @@ export function BlockNoteAIContextProvider(
               "functions are not supported for markdown, ignoring them"
             );
           }
-          const ret = await llm.markdown.call(editor, { model, ...options });
+          await llm.markdown.call(editor, { model, ...options });
         }
         setAIResponseStatus((old) => {
           // if the menu has been closed already, it's probably set to "initial" and not "generating" anymore,
@@ -111,7 +111,6 @@ export function BlockNoteAIContextProvider(
           }
           return old;
         });
-        return ret;
       } catch (e) {
         setAIResponseStatus("initial");
         setPrevDocument(undefined);

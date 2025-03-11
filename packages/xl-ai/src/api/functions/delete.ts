@@ -13,22 +13,6 @@ const schema = {
   required: ["id"],
 };
 
-// function applyOperation(
-//   operation: any,
-//   editor: BlockNoteEditor,
-//   _operationContext: any,
-//   options: {
-//     idsSuffixed: boolean;
-//   }
-// ) {
-//   let id = operation.id;
-//   if (options.idsSuffixed) {
-//     id = id.slice(0, -1);
-//   }
-
-//   editor.removeBlocks([id]);
-// }
-
 function toBlockNoteOperation(
   operation: any,
   editor: BlockNoteEditor,

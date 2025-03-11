@@ -30,7 +30,6 @@ import {
   asyncIterableToStream,
   createAsyncIterableStream,
 } from "../../util/stream.js";
-// Import AsyncIterableStream utilities
 
 type BasicLLMRequestOptions = {
   model: LanguageModel;
@@ -58,19 +57,58 @@ type CallLLMOptionsWithOptional = Optional<
 >;
 
 // Define the return type for streaming mode
-type StreamingReturnType = StreamObjectResult<any, any, any> & {
+type ReturnType = {
   resultStream: AsyncIterableStream<ExecuteOperationResult>;
+  llmResult: StreamObjectResult<any, any, any> | GenerateObjectResult<any>;
 };
 
-// Define the return type for non-streaming mode
-type NonStreamingReturnType = GenerateObjectResult<any> & {
-  resultStream: AsyncIterableStream<ExecuteOperationResult>;
-};
+async function getLLMResponse(
+  baseParams: {
+    model: LanguageModel;
+    mode: "tool";
+    schema: any;
+    messages: CoreMessage[];
+  },
+  options: CallLLMOptions
+): Promise<{
+  result: ReturnType["llmResult"];
+  operationsSource: AsyncIterable<{ operations?: any[] }>;
+}> {
+  if (options.stream) {
+    const ret = streamObject<{ operations: any[] }>({
+      ...baseParams,
+      ...(options._streamObjectOptions as any),
+    });
+
+    return {
+      result: ret,
+      operationsSource: ret.partialObjectStream,
+    };
+  }
+
+  const ret = await generateObject<{ operations: any[] }>({
+    ...baseParams,
+    ...(options._generateObjectOptions as any),
+  });
+
+  if (!ret.object.operations) {
+    throw new Error("No operations returned");
+  }
+
+  async function* singleChunkGenerator() {
+    yield { operations: ret.object.operations };
+  }
+
+  return {
+    result: ret,
+    operationsSource: singleChunkGenerator(),
+  };
+}
 
 export async function callLLM(
   editor: BlockNoteEditor<any, any, any>,
   opts: CallLLMOptionsWithOptional
-): Promise<StreamingReturnType | NonStreamingReturnType> {
+): Promise<ReturnType> {
   const { prompt, useSelection, ...rest } = opts;
 
   let messages: CoreMessage[];
@@ -103,57 +141,21 @@ export async function callLLM(
     $defs: blockNoteSchemaToJSONSchema(editor.schema).$defs as any,
   });
 
-  if (options.stream) {
-    const ret = streamObject<{
-      operations: any[];
-    }>({
-      model: options.model,
-      mode: "tool",
-      schema,
-      messages: options.messages,
-      ...(options._streamObjectOptions as any),
-    });
-
-    // Use processOperations directly as an async generator
-    const resultGenerator = executeOperations(
-      editor,
-      ret.partialObjectStream,
-      options.functions
-    );
-
-    // Convert to AsyncIterableStream
-    const resultStream = asyncIterableToStream(resultGenerator);
-    const asyncIterableResultStream = createAsyncIterableStream(resultStream);
-
-    return {
-      ...ret,
-      resultStream: asyncIterableResultStream,
-    };
-  }
-  // non streaming
-  const ret = await generateObject<{
-    operations: any[];
-  }>({
+  const baseParams = {
     model: options.model,
-    mode: "tool",
+    mode: "tool" as const,
     schema,
-    messages: options.messages,
-    ...(options._generateObjectOptions as any),
-  });
+    messages,
+  };
 
-  if (!ret.object.operations) {
-    throw new Error("No operations returned");
-  }
+  const { result, operationsSource } = await getLLMResponse(
+    baseParams,
+    options
+  );
 
-  // Create a single-chunk async generator
-  async function* singleChunkGenerator() {
-    yield { operations: ret.object.operations };
-  }
-
-  // Use the same processing pipeline as streaming case
   const resultGenerator = executeOperations(
     editor,
-    singleChunkGenerator(),
+    operationsSource,
     options.functions
   );
 
@@ -162,7 +164,7 @@ export async function callLLM(
   const asyncIterableResultStream = createAsyncIterableStream(resultStream);
 
   return {
-    ...ret,
+    llmResult: result,
     resultStream: asyncIterableResultStream,
   };
 }
