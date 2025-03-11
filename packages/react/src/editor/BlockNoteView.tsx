@@ -174,25 +174,45 @@ function BlockNoteViewComponent<
           defaultUIProps,
         }}>
         <ElementRenderer ref={setElementRenderer} />
-        <div
-          className={mergeCSSClasses(
-            "bn-container",
-            editorColorScheme,
-            className
-          )}
-          data-color-scheme={editorColorScheme}
-          {...rest}
-          ref={ref}>
-          {renderEditor ? (
-            <BlockNoteViewEditor>{children}</BlockNoteViewEditor>
-          ) : (
-            children
-          )}
-        </div>
+        <BlockNoteViewContainer
+          className={className}
+          renderEditor={renderEditor}
+          editorColorScheme={editorColorScheme}
+          {...rest}>
+          {children}
+        </BlockNoteViewContainer>
       </BlockNoteViewContext.Provider>
     </BlockNoteContext.Provider>
   );
 }
+
+/**
+ * Renders the div that wraps the editor and all default UI elements
+ * (.bn-container element).
+ */
+const BlockNoteViewContainer = React.forwardRef<
+  HTMLDivElement,
+  {
+    renderEditor: boolean;
+    editorColorScheme: "light" | "dark";
+    children: ReactNode;
+  } & Omit<
+    HTMLAttributes<HTMLDivElement>,
+    "onChange" | "onSelectionChange" | "children"
+  >
+>(({ className, renderEditor, editorColorScheme, children, ...rest }, ref) => (
+  <div
+    className={mergeCSSClasses("bn-container", editorColorScheme, className)}
+    data-color-scheme={editorColorScheme}
+    {...rest}
+    ref={ref}>
+    {renderEditor ? (
+      <BlockNoteViewEditor>{children}</BlockNoteViewEditor>
+    ) : (
+      children
+    )}
+  </div>
+));
 
 // https://fettblog.eu/typescript-react-generic-forward-refs/
 export const BlockNoteViewRaw = React.forwardRef(BlockNoteViewComponent) as <
@@ -206,7 +226,8 @@ export const BlockNoteViewRaw = React.forwardRef(BlockNoteViewComponent) as <
 ) => ReturnType<typeof BlockNoteViewComponent<BSchema, ISchema, SSchema>>;
 
 /**
- * Renders the editor itself and the default UI elements
+ * Renders the contentEditable editor itself (.bn-editor element) and the
+ * default UI elements.
  */
 export const BlockNoteViewEditor = (props: { children?: ReactNode }) => {
   const ctx = useBlockNoteViewContext()!;
@@ -226,7 +247,7 @@ export const BlockNoteViewEditor = (props: { children?: ReactNode }) => {
   return (
     <>
       <Portals contentComponent={portalManager} />
-      <EditorElement {...ctx.editorProps} {...props} mount={mount} />
+      <ContentEditableElement {...ctx.editorProps} {...props} mount={mount} />
       {/* Renders the UI elements such as formatting toolbar, etc, unless they have been explicitly disabled  in defaultUIProps */}
       <BlockNoteDefaultUI {...ctx.defaultUIProps} />
       {/* Manually passed in children, such as customized UI elements / controllers */}
@@ -236,9 +257,9 @@ export const BlockNoteViewEditor = (props: { children?: ReactNode }) => {
 };
 
 /**
- * Renders the container div + contentEditable div.
+ * Renders the contentEditable editor itself (.bn-editor element).
  */
-const EditorElement = (props: {
+const ContentEditableElement = (props: {
   autoFocus?: boolean;
   mount: (element: HTMLElement | null) => void;
   contentEditableProps?: Record<string, any>;
