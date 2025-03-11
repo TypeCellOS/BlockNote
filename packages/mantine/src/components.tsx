@@ -59,6 +59,7 @@ export const components: Components = {
   LinkToolbar: {
     Root: Toolbar,
     Button: ToolbarButton,
+    Select: ToolbarSelect,
   },
   SideMenu: {
     Root: SideMenu,
@@ -101,6 +102,7 @@ export const components: Components = {
     Toolbar: {
       Root: Toolbar,
       Button: ToolbarButton,
+      Select: ToolbarSelect,
     },
   },
   Comments: {

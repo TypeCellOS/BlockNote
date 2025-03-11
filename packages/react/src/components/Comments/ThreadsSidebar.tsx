@@ -35,9 +35,9 @@ function sortByNewest(threads: ThreadData[]) {
   });
 }
 
-function sortByReplies(threads: ThreadData[]) {
+function sortByOldest(threads: ThreadData[]) {
   return threads.sort((a, b) => {
-    return b.comments.length - a.comments.length;
+    return a.createdAt.getTime() - b.createdAt.getTime();
   });
 }
 
@@ -50,7 +50,7 @@ export function ThreadsSidebar(props: {
   filter?: "open" | "resolved";
   // TODO: Should be implemented for both floating and sidebar views
   // maxCommentsPerThread?: number;
-  sort?: "position" | "newest" | "replies";
+  sort?: "position" | "newest" | "oldest";
 }) {
   const editor = useBlockNoteEditor();
 
@@ -91,7 +91,7 @@ export function ThreadsSidebar(props: {
         ? sortByPosition(editor, threadsArray)
         : props.sort === "newest"
         ? sortByNewest(threadsArray)
-        : sortByReplies(threadsArray);
+        : sortByOldest(threadsArray);
 
     const openThreads: ThreadData[] = [];
     const resolvedThreads: ThreadData[] = [];

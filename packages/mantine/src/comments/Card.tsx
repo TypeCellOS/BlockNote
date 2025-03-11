@@ -12,6 +12,7 @@ export const Card = forwardRef<
 
   assertEmpty(rest, false);
 
+  // Makes the card scroll into view when selected.
   const scrollRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (selected) {

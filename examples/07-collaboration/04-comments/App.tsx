@@ -6,16 +6,12 @@ import {
 } from "@blocknote/core/comments";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import {
-  BlockNoteViewEditor,
-  ComponentProps,
-  ThreadsSidebar,
-  useComponentsContext,
-  useCreateBlockNote,
-} from "@blocknote/react";
+import { BlockNoteViewEditor, useCreateBlockNote } from "@blocknote/react";
 import { MantineProvider } from "@mantine/core";
 import { YDocProvider, useYDoc, useYjsProvider } from "@y-sweet/react";
 import { useMemo, useState } from "react";
+
+import { SettingsSelect } from "./SettingsSelect.js";
 import { HARDCODED_USERS, MyUserType, getRandomColor } from "./userdata.js";
 
 import "./style.css";
@@ -48,36 +44,9 @@ export default function App() {
   );
 }
 
-const SettingsSelect = (props: {
-  label: string;
-  items: ComponentProps["FormattingToolbar"]["Select"]["items"];
-}) => {
-  const Components = useComponentsContext()!;
-
-  return (
-    <div className={"bn-settings-select"}>
-      <Components.FormattingToolbar.Root className={"bn-toolbar"}>
-        <h2>{props.label + ":"}</h2>
-        <Components.FormattingToolbar.Select
-          className={"bn-select"}
-          items={props.items}
-        />
-      </Components.FormattingToolbar.Root>
-    </div>
-  );
-};
-
 function Document() {
   const [activeUser, setActiveUser] = useState<MyUserType>(HARDCODED_USERS[0]);
-  const [commentView, setCommentView] = useState<"floating" | "sidebar">(
-    "sidebar"
-  );
-  const [commentFilter, setCommentFilter] = useState<
-    "open" | "resolved" | undefined
-  >("open");
-  const [commentSort, setCommentSort] = useState<
-    "position" | "newest" | "replies"
-  >("position");
+
   const provider = useYjsProvider();
 
   // take the Y.Doc collaborative document from Y-Sweet
@@ -122,101 +91,35 @@ function Document() {
 
   return (
     <BlockNoteView
-      className={"bn-main-container"}
+      className={"comments-main-container"}
       editor={editor}
       editable={activeUser.role === "editor"}
-      renderEditor={false}
-      comments={commentView === "floating"}>
-      <div className={"bn-editor-layout-wrapper"}>
-        <div className={"bn-editor-section"}>
-          <h1>Editor</h1>
-          <div className={"bn-settings"}>
-            <SettingsSelect
-              label={"User"}
-              items={HARDCODED_USERS.map((user) => ({
-                text: `${user.username} (${
-                  user.role === "editor" ? "Editor" : "Commenter"
-                })`,
-                icon: null,
-                onClick: () => setActiveUser(user),
-                isSelected: user.id === activeUser.id,
-              }))}
-            />
-            <SettingsSelect
-              label={"Comments"}
-              items={[
-                {
-                  text: "Floating",
-                  icon: null,
-                  onClick: () => setCommentView("floating"),
-                  isSelected: commentView === "floating",
-                },
-                {
-                  text: "Sidebar",
-                  icon: null,
-                  onClick: () => setCommentView("sidebar"),
-                  isSelected: commentView === "sidebar",
-                },
-              ]}
-            />
-          </div>
-          <BlockNoteViewEditor />
-        </div>
+      // In other examples, `BlockNoteView` renders both editor element itself,
+      // and the container element which contains the necessary context for
+      // BlockNote UI components. However, in this example, we want more control
+      // over the rendering of the editor, so we set `renderEditor` to `false`.
+      // Now, `BlockNoteView` will only render the container element, and we can
+      // render the editor element anywhere we want using `BlockNoteEditorView`.
+      renderEditor={false}>
+      {/* We place user settings select within `BlockNoteView` as it uses
+      BlockNote UI components and needs the context for them. */}
+      <div className={"settings"}>
+        <SettingsSelect
+          label={"User"}
+          items={HARDCODED_USERS.map((user) => ({
+            text: `${user.username} (${
+              user.role === "editor" ? "Editor" : "Commenter"
+            })`,
+            icon: null,
+            onClick: () => setActiveUser(user),
+            isSelected: user.id === activeUser.id,
+          }))}
+        />
       </div>
-      {commentView === "sidebar" && (
-        <div className={"bn-threads-sidebar-section"}>
-          <h1>Comments</h1>
-          <div className={"bn-settings"}>
-            <SettingsSelect
-              label={"Filter"}
-              items={[
-                {
-                  text: "All",
-                  icon: null,
-                  onClick: () => setCommentFilter(undefined),
-                  isSelected: commentFilter === undefined,
-                },
-                {
-                  text: "Open",
-                  icon: null,
-                  onClick: () => setCommentFilter("open"),
-                  isSelected: commentFilter === "open",
-                },
-                {
-                  text: "Resolved",
-                  icon: null,
-                  onClick: () => setCommentFilter("resolved"),
-                  isSelected: commentFilter === "resolved",
-                },
-              ]}
-            />
-            <SettingsSelect
-              label={"Sort"}
-              items={[
-                {
-                  text: "Position",
-                  icon: null,
-                  onClick: () => setCommentSort("position"),
-                  isSelected: commentSort === "position",
-                },
-                {
-                  text: "Newest",
-                  icon: null,
-                  onClick: () => setCommentSort("newest"),
-                  isSelected: commentSort === "newest",
-                },
-                {
-                  text: "Replies",
-                  icon: null,
-                  onClick: () => setCommentSort("replies"),
-                  isSelected: commentSort === "replies",
-                },
-              ]}
-            />
-          </div>
-          <ThreadsSidebar filter={commentFilter} sort={commentSort} />
-        </div>
-      )}
+      {/* Because we set `renderEditor` to false, we can now manually place
+      `BlockNoteViewEditor` (the actual editor component) below the user
+      settings select. */}
+      <BlockNoteViewEditor />
     </BlockNoteView>
   );
 }

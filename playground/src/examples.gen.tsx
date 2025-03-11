@@ -1204,6 +1204,30 @@
           "pathFromRoot": "examples/07-collaboration",
           "slug": "collaboration"
         }
+      },
+      {
+        "projectSlug": "comments-with-sidebar",
+        "fullSlug": "collaboration/comments-with-sidebar",
+        "pathFromRoot": "examples/07-collaboration/05-comments-with-sidebar",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "Advanced",
+            "Comments",
+            "Collaboration"
+          ],
+          "dependencies": {
+            "@y-sweet/react": "^0.6.3",
+            "@mantine/core": "^7.10.1"
+          } as any
+        },
+        "title": "Threads Sidebar",
+        "group": {
+          "pathFromRoot": "examples/07-collaboration",
+          "slug": "collaboration"
+        }
       }
     ]
   },

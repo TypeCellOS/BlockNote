@@ -1,6 +1,8 @@
-.bn-main-container {
+.comments-main-container {
+  align-items: center;
   background-color: var(--bn-colors-disabled-background);
   display: flex;
+  flex-direction: column;
   gap: 10px;
   height: 100%;
   max-width: none;
@@ -8,84 +10,30 @@
   width: 100%;
 }
 
-.bn-editor-layout-wrapper {
-  display: flex;
-  flex: 2;
-  justify-content: center;
-  width: 0;
-}
-
-.bn-editor-section, .bn-threads-sidebar-section {
-  border-radius: var(--bn-border-radius-large);
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 10px;
+.comments-main-container .bn-editor {
   max-height: 100%;
-  width: 0;
-}
-
-.bn-editor-section h1, .bn-threads-sidebar-section h1 {
-  color: var(--bn-colors-menu-text);
-  margin: 0;
-  font-size: 32px;
-}
-
-.bn-editor, .bn-threads-sidebar {
-  border-radius: var(--bn-border-radius-medium);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-height: 100%;
-  overflow: auto;
-}
-
-.bn-editor-section {
   max-width: 700px;
+  overflow: auto;
+  width: 100%;
 }
 
-.bn-threads-sidebar-section {
-  max-width: 350px;
-}
-
-.bn-threads-sidebar .bn-thread {
-  box-shadow: none;
-  min-width: initial;
-}
-
-.bn-threads-sidebar .bn-thread .bn-editor {
-  background-color: transparent;
-}
-
-.bn-threads-sidebar .bn-thread.selected {
-  background: var(--bn-colors-selected-background);
-}
-
-.bn-threads-sidebar .bn-thread.selected .bn-thread-comments {
-  border-bottom: none;
-}
-
-.bn-threads-sidebar .bn-thread.selected .bn-thread-comment p {
-  color: var(--bn-colors-selected-text);
-}
-
-.bn-settings {
+.comments-main-container .settings {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  max-width: 700px;
+  width: 100%;
 }
 
-.bn-settings-select {
+.comments-main-container .settings-select {
   display: flex;
   gap: 10px;
 }
 
-.bn-settings-select .bn-toolbar {
+.comments-main-container .settings-select .bn-toolbar {
   align-items: center;
   box-shadow: none;
 }
 
-.bn-settings-select h2 {
+.comments-main-container .settings-select h2 {
   color: var(--bn-colors-menu-text);
   margin: 0;
   font-size: 12px;
