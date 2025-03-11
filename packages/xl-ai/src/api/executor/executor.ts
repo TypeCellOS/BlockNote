@@ -1,4 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteOperation } from "../functions/blocknoteFunctions.js";
 import { AIFunction } from "../functions/index.js";
 import {
   applyOperations,
@@ -8,6 +9,12 @@ import {
   toBlockNoteOperations,
 } from "./streamOperations/index.js";
 
+export type ExecuteOperationResult = {
+  operation: BlockNoteOperation;
+  result: "ok";
+  lastBlockId: string;
+};
+
 // Compose the generators
 export async function* executeOperations(
   editor: BlockNoteEditor,
@@ -15,9 +22,7 @@ export async function* executeOperations(
     operations?: any[];
   }>,
   functions: AIFunction[]
-): AsyncGenerator<{
-  operation: any;
-}> {
+): AsyncGenerator<ExecuteOperationResult> {
   // filter new or updated operations
   const newOrUpdatedOperationsStream =
     filterNewOrUpdatedOperations(operationsStream);

@@ -92,7 +92,7 @@ export function BlockNoteAIContextProvider(
           });
 
           for await (const operation of ret.resultStream) {
-            console.log(operation);
+            setAiMenuBlockID(operation.lastBlockId);
           }
         } else {
           if (options.functions) {

@@ -9,7 +9,10 @@ import {
   streamObject,
 } from "ai";
 
-import { executeOperations } from "../../executor/executor.js";
+import {
+  ExecuteOperationResult,
+  executeOperations,
+} from "../../executor/executor.js";
 import { addFunction } from "../../functions/add.js";
 import { deleteFunction } from "../../functions/delete.js";
 import { AIFunction } from "../../functions/index.js";
@@ -56,16 +59,12 @@ type CallLLMOptionsWithOptional = Optional<
 
 // Define the return type for streaming mode
 type StreamingReturnType = StreamObjectResult<any, any, any> & {
-  resultStream: AsyncIterableStream<{
-    operation: any;
-  }>;
+  resultStream: AsyncIterableStream<ExecuteOperationResult>;
 };
 
 // Define the return type for non-streaming mode
 type NonStreamingReturnType = GenerateObjectResult<any> & {
-  resultStream: AsyncIterableStream<{
-    operation: any[];
-  }>;
+  resultStream: AsyncIterableStream<ExecuteOperationResult>;
 };
 
 export async function callLLM(
