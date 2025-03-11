@@ -19,6 +19,7 @@ import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning.js";
 import { useUIPluginState } from "../../hooks/useUIPluginState.js";
 import { Thread } from "./Thread.js";
+import { useThreads } from "./useThreads.js";
 
 /**
  * This component is used to display a thread in a floating card.
@@ -86,6 +87,8 @@ export const FloatingThreadController = <
 
   useLayoutEffect(updateRef, [updateRef]);
 
+  const threads = useThreads(editor);
+
   if (!isMounted || !state) {
     return null;
   }
@@ -102,7 +105,11 @@ export const FloatingThreadController = <
 
   return (
     <div ref={ref} style={style} {...getFloatingProps()}>
-      <Component threadId={state.selectedThreadId} />
+      <Component
+        thread={threads.get(state.selectedThreadId)!}
+        view={"floating"}
+        selected={true}
+      />
     </div>
   );
 };

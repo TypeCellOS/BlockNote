@@ -199,8 +199,9 @@ export type ComponentProps = {
   Comments: {
     Card: {
       className?: string;
+      selected?: boolean;
       onFocus?: () => void;
-      onBlur?: () => void;
+      onBlur?: (event: React.FocusEvent) => void;
       tabIndex?: number;
       children?: ReactNode;
     };
@@ -208,8 +209,14 @@ export type ComponentProps = {
       className?: string;
       children?: ReactNode;
     };
+    ExpandSectionsPrompt: {
+      className?: string;
+      onClick: (event: React.MouseEvent) => void;
+      children?: ReactNode;
+    };
     Editor: {
       className?: string;
+      autoFocus?: boolean;
       editable: boolean;
       editor: BlockNoteEditor<any, any, any>;
       onFocus?: () => void;

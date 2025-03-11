@@ -72,9 +72,9 @@ function Document() {
   const [commentView, setCommentView] = useState<"floating" | "sidebar">(
     "sidebar"
   );
-  const [commentFilter, setCommentFilter] = useState<"open" | "resolved">(
-    "open"
-  );
+  const [commentFilter, setCommentFilter] = useState<
+    "open" | "resolved" | undefined
+  >("open");
   const [commentSort, setCommentSort] = useState<
     "position" | "newest" | "replies"
   >("position");
@@ -127,90 +127,96 @@ function Document() {
       editable={activeUser.role === "editor"}
       renderEditor={false}
       comments={commentView === "floating"}>
-        <div className={"bn-editor-layout-wrapper"}>
-          <div className={"bn-editor-section"}>
-            <h1>Editor</h1>
-            <div className={"bn-settings"}>
-              <SettingsSelect
-                label={"User"}
-                items={HARDCODED_USERS.map((user) => ({
-                  text: `${user.username} (${
-                    user.role === "editor" ? "Editor" : "Commenter"
-                  })`,
+      <div className={"bn-editor-layout-wrapper"}>
+        <div className={"bn-editor-section"}>
+          <h1>Editor</h1>
+          <div className={"bn-settings"}>
+            <SettingsSelect
+              label={"User"}
+              items={HARDCODED_USERS.map((user) => ({
+                text: `${user.username} (${
+                  user.role === "editor" ? "Editor" : "Commenter"
+                })`,
+                icon: null,
+                onClick: () => setActiveUser(user),
+                isSelected: user.id === activeUser.id,
+              }))}
+            />
+            <SettingsSelect
+              label={"Comments"}
+              items={[
+                {
+                  text: "Floating",
                   icon: null,
-                  onClick: () => setActiveUser(user),
-                  isSelected: user.id === activeUser.id,
-                }))}
-              />
-              <SettingsSelect
-                label={"Comments"}
-                items={[
-                  {
-                    text: "Floating",
-                    icon: null,
-                    onClick: () => setCommentView("floating"),
-                    isSelected: commentView === "floating",
-                  },
-                  {
-                    text: "Sidebar",
-                    icon: null,
-                    onClick: () => setCommentView("sidebar"),
-                    isSelected: commentView === "sidebar",
-                  },
-                ]}
-              />
-            </div>
-            <BlockNoteViewEditor />
+                  onClick: () => setCommentView("floating"),
+                  isSelected: commentView === "floating",
+                },
+                {
+                  text: "Sidebar",
+                  icon: null,
+                  onClick: () => setCommentView("sidebar"),
+                  isSelected: commentView === "sidebar",
+                },
+              ]}
+            />
           </div>
+          <BlockNoteViewEditor />
         </div>
-        {commentView === "sidebar" && (
-          <div className={"bn-threads-sidebar-section"}>
-            <h1>Comments</h1>
-            <div className={"bn-settings"}>
-              <SettingsSelect
-                label={"Filter"}
-                items={[
-                  {
-                    text: "Open",
-                    icon: null,
-                    onClick: () => setCommentFilter("open"),
-                    isSelected: commentFilter === "open",
-                  },
-                  {
-                    text: "Resolved",
-                    icon: null,
-                    onClick: () => setCommentFilter("resolved"),
-                    isSelected: commentFilter === "resolved",
-                  },
-                ]}
-              />
-              <SettingsSelect
-                label={"Sort"}
-                items={[
-                  {
-                    text: "Position",
-                    icon: null,
-                    onClick: () => setCommentSort("position"),
-                    isSelected: commentSort === "position",
-                  },
-                  {
-                    text: "Newest",
-                    icon: null,
-                    onClick: () => setCommentSort("newest"),
-                    isSelected: commentSort === "newest",
-                  },
-                  {
-                    text: "Replies",
-                    icon: null,
-                    onClick: () => setCommentSort("replies"),
-                    isSelected: commentSort === "replies",
-                  },
-                ]}
-              />
-            </div>
-            <ThreadsSidebar filter={commentFilter} sort={commentSort} />
+      </div>
+      {commentView === "sidebar" && (
+        <div className={"bn-threads-sidebar-section"}>
+          <h1>Comments</h1>
+          <div className={"bn-settings"}>
+            <SettingsSelect
+              label={"Filter"}
+              items={[
+                {
+                  text: "All",
+                  icon: null,
+                  onClick: () => setCommentFilter(undefined),
+                  isSelected: commentFilter === undefined,
+                },
+                {
+                  text: "Open",
+                  icon: null,
+                  onClick: () => setCommentFilter("open"),
+                  isSelected: commentFilter === "open",
+                },
+                {
+                  text: "Resolved",
+                  icon: null,
+                  onClick: () => setCommentFilter("resolved"),
+                  isSelected: commentFilter === "resolved",
+                },
+              ]}
+            />
+            <SettingsSelect
+              label={"Sort"}
+              items={[
+                {
+                  text: "Position",
+                  icon: null,
+                  onClick: () => setCommentSort("position"),
+                  isSelected: commentSort === "position",
+                },
+                {
+                  text: "Newest",
+                  icon: null,
+                  onClick: () => setCommentSort("newest"),
+                  isSelected: commentSort === "newest",
+                },
+                {
+                  text: "Replies",
+                  icon: null,
+                  onClick: () => setCommentSort("replies"),
+                  isSelected: commentSort === "replies",
+                },
+              ]}
+            />
           </div>
-        )}
+          <ThreadsSidebar filter={commentFilter} sort={commentSort} />
+        </div>
+      )}
     </BlockNoteView>
   );
 }

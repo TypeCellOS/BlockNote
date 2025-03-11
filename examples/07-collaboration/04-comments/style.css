@@ -44,13 +44,29 @@
   max-width: 700px;
 }
 
-.bn-threads-sidebar-section{
+.bn-threads-sidebar-section {
   max-width: 350px;
 }
 
 .bn-threads-sidebar .bn-thread {
   box-shadow: none;
   min-width: initial;
+}
+
+.bn-threads-sidebar .bn-thread .bn-editor {
+  background-color: transparent;
+}
+
+.bn-threads-sidebar .bn-thread.selected {
+  background: var(--bn-colors-selected-background);
+}
+
+.bn-threads-sidebar .bn-thread.selected .bn-thread-comments {
+  border-bottom: none;
+}
+
+.bn-threads-sidebar .bn-thread.selected .bn-thread-comment p {
+  color: var(--bn-colors-selected-text);
 }
 
 .bn-settings {

@@ -38,6 +38,7 @@ export function FloatingComposer() {
   return (
     <Components.Comments.Card className={"bn-thread"}>
       <CommentEditor
+        autoFocus={true}
         editable={true}
         editor={newCommentEditor}
         actions={({ isEmpty }) => (

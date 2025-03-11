@@ -1,28 +1,34 @@
-import { assertEmpty } from "@blocknote/core";
-import { ComponentProps } from "@blocknote/react";
-import { Card as MantineCard } from "@mantine/core";
-import { forwardRef } from "react";
+import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
+import { ComponentProps, mergeRefs } from "@blocknote/react";
+import { Button as MantineButton, Card as MantineCard } from "@mantine/core";
+import { forwardRef, useEffect, useRef } from "react";
 
 export const Card = forwardRef<
   HTMLDivElement,
   ComponentProps["Comments"]["Card"]
 >((props, ref) => {
-  const { className, children, onFocus, onBlur, tabIndex, ...rest } = props;
+  const { className, children, selected, onFocus, onBlur, tabIndex, ...rest } =
+    props;
 
   assertEmpty(rest, false);
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (selected) {
+      scrollRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [selected]);
+
   return (
     <MantineCard
-      className={className}
-      onFocus={(event) => {
-        onFocus?.();
-        event.target.closest(".mantine-Card-root")!.scrollIntoView({
-          block: "start",
-        });
-      }}
+      className={mergeCSSClasses(className, selected ? "selected" : "")}
+      onFocus={onFocus}
       onBlur={onBlur}
       tabIndex={tabIndex}
-      ref={ref}>
+      ref={mergeRefs([ref, scrollRef])}>
       {children}
     </MantineCard>
   );
@@ -40,5 +46,24 @@ export const CardSection = forwardRef<
     <MantineCard.Section p={"md"} className={className} ref={ref}>
       {children}
     </MantineCard.Section>
+  );
+});
+
+export const ExpandSectionsPrompt = forwardRef<
+  HTMLButtonElement,
+  ComponentProps["Comments"]["ExpandSectionsPrompt"]
+>((props, ref) => {
+  const { className, children, onClick, ...rest } = props;
+
+  assertEmpty(rest, false);
+
+  return (
+    <MantineButton
+      className={className}
+      onMouseDown={(event) => event.preventDefault()}
+      onClick={onClick}
+      ref={ref}>
+      {children}
+    </MantineButton>
   );
 });

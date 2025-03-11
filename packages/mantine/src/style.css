@@ -256,8 +256,7 @@
   max-height: 100%;
   position: relative;
   box-shadow: var(--mantine-shadow-md);
-  border: calc(0.0625rem * var(--mantine-scale)) solid
-    var(--mantine-color-gray-2);
+  border: calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-gray-2);
   border-radius: var(--mantine-radius-default);
   padding: 4px;
 }
@@ -577,8 +576,8 @@
 }
 
 .bn-mt-sub-menu-item
-  > .mantine-Menu-itemLabel
-  > div:not(.mantine-Menu-dropdown) {
+> .mantine-Menu-itemLabel
+> div:not(.mantine-Menu-dropdown) {
   align-items: center;
   display: flex;
   justify-content: space-between;
@@ -616,10 +615,22 @@
   color: var(--bn-colors-menu-text);
 }
 
+.bn-mantine .bn-thread-comment .bn-resolved-text {
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
 .bn-mantine .bn-comment-actions-wrapper {
   width: 100%;
   display: flex;
   justify-content: flex-end;
+}
+
+.bn-mantine .bn-thread .bn-thread-expand-prompt {
+  background-color: transparent;
+  color: var(--bn-colors-menu-text);
+  display: flex;
+  padding: 0;
 }
 
 /* Comment action toolbar styling */
@@ -693,18 +704,18 @@
 }
 
 .bn-mantine
-  .bn-badge
-  .mantine-Chip-label
-  > span:not(.mantine-Chip-iconWrapper) {
+.bn-badge
+.mantine-Chip-label
+> span:not(.mantine-Chip-iconWrapper) {
   display: inline-flex;
   gap: 4px;
 }
 
 .bn-mantine
-  .bn-badge
-  .mantine-Chip-label
-  > span:not(.mantine-Chip-iconWrapper)
-  > span {
+.bn-badge
+.mantine-Chip-label
+> span:not(.mantine-Chip-iconWrapper)
+> span {
   align-items: center;
   display: inline-flex;
   justify-content: center;

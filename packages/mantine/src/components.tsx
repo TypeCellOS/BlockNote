@@ -1,6 +1,6 @@
 import { Components } from "@blocknote/react";
 import { Badge, BadgeGroup } from "./badge/Badge.js";
-import { Card, CardSection } from "./comments/Card.js";
+import { Card, CardSection, ExpandSectionsPrompt } from "./comments/Card.js";
 import { Comment } from "./comments/Comment.js";
 import { Editor } from "./comments/Editor.js";
 import { TextInput } from "./form/TextInput.js";
@@ -108,5 +108,6 @@ export const components: Components = {
     Editor,
     Card,
     CardSection,
+    ExpandSectionsPrompt,
   },
 };

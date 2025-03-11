@@ -1,53 +1,20 @@
 import { mergeCSSClasses } from "@blocknote/core";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
 import { useDictionary } from "../../i18n/dictionary.js";
-import { Comment, CommentProps } from "./Comment.js";
+import { Comment } from "./Comment.js";
 import { CommentEditor } from "./CommentEditor.js";
 import { schema } from "./schema.js";
-import { useThreads } from "./useThreads.js";
 import { useUsers } from "./useUsers.js";
+import { ThreadData } from "@blocknote/core/comments";
 
 export type ThreadProps = {
-  /**
-   * The thread to display.
-   */
-  threadId: string;
-
-  /**
-   * Whether to show the composer to reply to the thread.
-   */
-  showComposer?: boolean;
-
-  /**
-   * Whether to show the action to resolve the thread.
-   */
-  showResolveAction?: boolean;
-
-  /**
-   * How to show or hide the actions.
-   */
-  showActions?: CommentProps["showActions"];
-
-  /**
-   * Whether to show reactions.
-   */
-  showReactions?: CommentProps["showReactions"];
-
-  /**
-   * Whether to show deleted comments.
-   */
-  showDeletedComments?: CommentProps["showDeleted"];
-
-  /**
-   * Component element props.
-   */
-  className?: string;
-  onFocus?: () => void;
-  onBlur?: () => void;
-  tabIndex?: number;
+  thread: ThreadData;
+  view: "floating" | "sidebar";
+  selected: boolean;
+  maxCommentsBeforeCollapse?: number;
 };
 
 /**
@@ -56,36 +23,22 @@ export type ThreadProps = {
  * It also includes a composer to reply to the thread.
  */
 export const Thread = ({
-  threadId,
-  showActions = "hover",
-  showDeletedComments,
-  // showResolveAction = true,
-  showReactions = true,
-  showComposer = true,
-  className,
-  onFocus,
-  onBlur,
-  tabIndex,
+  thread,
+  view,
+  selected,
+  maxCommentsBeforeCollapse,
 }: ThreadProps) => {
   // TODO: if REST API becomes popular, all interactions (click handlers) should implement a loading state and error state
   // (or optimistic local updates)
 
-  const editor = useBlockNoteEditor();
-
-  const comments = editor.comments;
-
-  if (!comments) {
-    throw new Error("Comments plugin not found");
-  }
-
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const threadMap = useThreads(editor);
-  const thread = threadMap.get(threadId);
+  const editor = useBlockNoteEditor();
 
-  if (!thread) {
-    throw new Error("Thread not found");
+  const comments = editor.comments;
+  if (!comments) {
+    throw new Error("Comments plugin not found");
   }
 
   const userIds = useMemo(() => {
@@ -96,7 +49,7 @@ export const Thread = ({
   }, [thread.comments]);
 
   // load all user data
-  useUsers(editor, userIds);
+  const users = useUsers(editor, userIds);
 
   const newCommentEditor = useCreateBlockNote({
     trailingBlock: false,
@@ -108,12 +61,6 @@ export const Thread = ({
     },
     schema,
   });
-
-  const firstCommentIndex = useMemo(() => {
-    return showDeletedComments
-      ? 0
-      : thread.comments.findIndex((comment) => comment.body);
-  }, [showDeletedComments, thread.comments]);
 
   const onNewCommentSave = useCallback(async () => {
     await comments.threadStore.addComment({
@@ -127,40 +74,108 @@ export const Thread = ({
     newCommentEditor.removeBlocks(newCommentEditor.document);
   }, [comments, newCommentEditor, thread.id]);
 
-  showComposer =
-    showComposer && comments.threadStore.auth.canAddComment(thread);
+  const [showAllComments, setShowAllComments] = useState(
+    thread.comments.length <= (maxCommentsBeforeCollapse || 5)
+  );
+
+  const commentElements = useMemo(() => {
+    if (!showAllComments) {
+      return [
+        <Comment
+          key={thread.comments[0].id}
+          thread={thread}
+          comment={thread.comments[0]}
+          index={0}
+        />,
+        <Components.Comments.ExpandSectionsPrompt
+          className={"bn-thread-expand-prompt"}
+          onClick={(event) => {
+            setShowAllComments(true);
+            editor.comments?.selectThread(thread.id);
+            (
+              (event.target as Element).closest(
+                ".bn-thread"
+              ) as HTMLElement | null
+            )?.focus();
+          }}>
+          {`${thread.comments.length - 2} more replies`}
+        </Components.Comments.ExpandSectionsPrompt>,
+        <Comment
+          key={thread.comments[thread.comments.length - 1].id}
+          thread={thread}
+          comment={thread.comments[thread.comments.length - 1]}
+          index={thread.comments.length - 1}
+        />,
+      ];
+    }
+
+    return thread.comments.map((comment, index) => {
+      return (
+        <Comment
+          key={comment.id}
+          thread={thread}
+          comment={comment}
+          index={index}
+        />
+      );
+    });
+  }, [Components, editor.comments, showAllComments, thread]);
 
   return (
     <Components.Comments.Card
-      className={mergeCSSClasses("bn-thread", className)}
-      onFocus={onFocus}
-      onBlur={onBlur}
-      tabIndex={tabIndex}>
-      <Components.Comments.CardSection className="bn-thread-comments">
-        {thread.comments.map((comment, index) => {
-          const isFirstComment = index === firstCommentIndex;
+      className={"bn-thread"}
+      onFocus={() => {
+        if (view === "floating") {
+          return;
+        }
 
-          return (
-            <Comment
-              key={comment.id}
-              thread={thread}
-              className="bn-thread-comment"
-              comment={comment}
-              showDeleted={showDeletedComments}
-              showActions={showActions}
-              showReactions={showReactions}
-              showResolveAction={isFirstComment}
-            />
+        comments.selectThread(thread.id);
+      }}
+      onBlur={(event) => {
+        if (view === "floating") {
+          return;
+        }
+
+        if (
+          !(event.relatedTarget instanceof Node) ||
+          !(event.target instanceof Node) ||
+          !event.target.contains(event.relatedTarget)
+        ) {
+          setShowAllComments(
+            thread.comments.length <= (maxCommentsBeforeCollapse || 5)
           );
-        })}
+          comments.selectThread(undefined);
+        }
+      }}
+      selected={selected}
+      tabIndex={view === "sidebar" ? 0 : undefined}>
+      <Components.Comments.CardSection className="bn-thread-comments">
+        {commentElements}
+        {thread.resolved && (
+          <Components.Comments.Comment
+            className={"bn-thread-comment"}
+            authorInfo={users.get(thread.resolvedBy!)!}
+            timeString={thread.resolvedUpdatedAt!.toLocaleDateString(
+              undefined,
+              {
+                month: "short",
+                day: "numeric",
+              }
+            )}
+            edited={false}
+            showActions={false}>
+            <div className={"bn-resolved-text"}>Marked as resolved</div>
+          </Components.Comments.Comment>
+        )}
       </Components.Comments.CardSection>
-      {showComposer && (
+      {selected && (
         <Components.Comments.CardSection>
           <CommentEditor
+            autoFocus={false}
             editable={true}
             editor={newCommentEditor}
-            actions={({ isFocused, isEmpty }) => {
-              if (!isFocused && isEmpty) {
+            actions={({ isEmpty }) => {
+              if (isEmpty) {
                 return null;
               }
 
