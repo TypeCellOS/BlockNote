@@ -12,6 +12,7 @@ import { markdownToHTML } from "../../parsers/markdown/parseMarkdown.js";
 import { acceptedMIMETypes } from "./acceptedMIMETypes.js";
 import { handleFileInsertion } from "./handleFileInsertion.js";
 import { handleVSCodePaste } from "./handleVSCodePaste.js";
+import { is } from "../../parsers/markdown/is.js";
 
 export const createPasteFromClipboardExtension = <
   BSchema extends BlockSchema,
@@ -41,6 +42,7 @@ export const createPasteFromClipboardExtension = <
                     break;
                   }
                 }
+
                 if (!format) {
                   return true;
                 }
@@ -62,9 +64,7 @@ export const createPasteFromClipboardExtension = <
                   return true;
                 }
 
-                if (format === "text/plain") {
-                  // TODO we probably need a heuristic to determine if the text is markdown or not
-                  // Right now I cheated by checking text/plain first but, we should probably be checking html first
+                if (format === "text/markdown") {
                   markdownToHTML(data).then((html) => {
                     view.pasteHTML(html);
                   });
@@ -72,14 +72,29 @@ export const createPasteFromClipboardExtension = <
                 }
 
                 if (format === "text/html") {
+                  if (editor.settings.pasteBehavior === "prefer-markdown") {
+                    // Use plain text instead of HTML if it looks like Markdown
+                    const plainText =
+                      event.clipboardData!.getData("text/plain");
+
+                    if (is(plainText)) {
+                      // Convert Markdown to HTML first, then paste as HTML
+                      markdownToHTML(plainText).then((html) => {
+                        view.pasteHTML(html);
+                      });
+                      return true;
+                    }
+                  }
                   const htmlNode = nestedListsToBlockNoteStructure(data.trim());
                   data = htmlNode.innerHTML;
                   view.pasteHTML(data);
                   return true;
                 }
 
-                view.pasteText(data);
-
+                // Convert Markdown to HTML first, then paste as HTML
+                markdownToHTML(data).then((html) => {
+                  view.pasteHTML(html);
+                });
                 return true;
               },
             },

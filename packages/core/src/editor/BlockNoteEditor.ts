@@ -213,6 +213,14 @@ export type BlockNoteEditorOptions<
   >;
 
   /**
+   * Changes how to interpret reading data from the clipboard
+   * - `prefer-markdown` will attempt to detect markdown in the plain text representation and interpret the text as markdown
+   * - `prefer-html` will ovoid the markdown behavior and prefer to parse from HTML instead.
+   * @default 'prefer-markdown'
+   */
+  pasteBehavior: "prefer-markdown" | "prefer-html";
+
+  /**
    * Resolve a URL of a file block to one that can be displayed or downloaded. This can be used for creating authenticated URL or
    * implementing custom protocols / schemes
    * @returns The URL that's
@@ -442,6 +450,7 @@ export class BlockNoteEditor<
       cellTextColor: boolean;
       headers: boolean;
     };
+    pasteBehavior: "prefer-markdown" | "prefer-html";
   };
 
   public static create<
@@ -489,6 +498,7 @@ export class BlockNoteEditor<
         cellTextColor: options?.tables?.cellTextColor ?? false,
         headers: options?.tables?.headers ?? false,
       },
+      pasteBehavior: options.pasteBehavior ?? "prefer-markdown",
     };
 
     // apply defaults
