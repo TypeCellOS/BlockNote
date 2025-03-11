@@ -24,7 +24,9 @@ Versioning has already been implemented for Y.js & y-prosemirror, but to be expl
 
 **Prior Art:**
 
-- Google Docs [Video here]
+- Google Docs
+- [Upwelling](https://www.inkandswitch.com/upwelling/)
+- [Patchwork](https://www.inkandswitch.com/patchwork/notebook/)
 
 ### Suggestions Overview
 
@@ -47,7 +49,8 @@ Suggestions are the ability to make changes to a document and have those changes
 
 **Prior Art:**
 
-- Google Docs: [video here]
+- Google Docs
+- [Manuscripts Track Changes](https://github.com/Atypon-OpenSource/manuscripts-track-changes-plugin), [prosemirror-suggest-changes](https://github.com/handlewithcarecollective/prosemirror-suggest-changes), [prosemirror-suggestion-mode](https://github.com/davefowler/prosemirror-suggestion-mode/) and [wax prosemirror tracked changes](https://gitlab.coko.foundation/wax/wax-prosemirror/-/blob/master/wax-prosemirror-core/src/utilities/track-changes/trackedTransaction.js?ref_type=heads)
 
 ### Similarities
 
