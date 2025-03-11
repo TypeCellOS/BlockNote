@@ -15,12 +15,12 @@ function sortByPosition(
   editor.prosemirrorState.doc.descendants((node) => {
     node.marks.forEach((mark) => {
       if (mark.type.name === "comment") {
-        const threadIndex = threads.findIndex(
+        const thread = threads.find(
           (thread) => thread.id === mark.attrs.threadId
         );
 
-        if (threadIndex !== -1) {
-          sortedThreads.push(threads[threadIndex]);
+        if (thread) {
+          sortedThreads.push(thread);
         }
       }
     });
