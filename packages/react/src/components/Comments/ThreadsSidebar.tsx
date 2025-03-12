@@ -5,6 +5,7 @@ import { useThreads } from "./useThreads.js";
 import { ThreadData } from "@blocknote/core/comments";
 import { BlockNoteEditor } from "@blocknote/core";
 import { useEffect, useMemo } from "react";
+import { TextSelection } from "@tiptap/pm/state";
 
 function sortThreads(
   editor: BlockNoteEditor<any, any, any>,
@@ -12,23 +13,18 @@ function sortThreads(
   sort?: "position" | "newest" | "oldest"
 ) {
   if (sort === "position") {
-    const sortedThreads: ThreadData[] = [];
+    return threads.sort((a, b) => {
+      const threadA =
+        editor.comments?.plugin
+          .getState(editor.prosemirrorState)
+          .threadPositions.get(a.id)?.from || Number.MAX_VALUE;
+      const threadB =
+        editor.comments?.plugin
+          .getState(editor.prosemirrorState)
+          .threadPositions.get(b.id)?.from || Number.MAX_VALUE;
 
-    editor.prosemirrorState.doc.descendants((node) => {
-      node.marks.forEach((mark) => {
-        if (mark.type.name === "comment") {
-          const thread = threads.find(
-            (thread) => thread.id === mark.attrs.threadId
-          );
-
-          if (thread) {
-            sortedThreads.push(thread);
-          }
-        }
-      });
+      return threadA - threadB;
     });
-
-    return sortedThreads;
   }
 
   if (sort === "newest") {
@@ -70,23 +66,66 @@ export function ThreadsSidebar(props: {
 
   const threads = useThreads(editor);
 
-  useEffect(() => {
-    editor.prosemirrorState.doc.descendants((node, pos) => {
-      node.marks.forEach((mark) => {
-        if (
-          mark.type.name === "comment" &&
-          mark.attrs.threadId === selectedThreadId
-        ) {
-          (
-            editor.prosemirrorView?.domAtPos(pos).node as Element | undefined
-          )?.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          });
+  const threadPositions = useMemo<
+    | Map<
+        string,
+        {
+          from: number;
+          to: number;
         }
-      });
+      >
+    | undefined
+  >(
+    () =>
+      editor.comments?.plugin.getState(editor.prosemirrorState)
+        ?.threadPositions,
+    [editor.comments?.plugin, editor.prosemirrorState]
+  );
+
+  useEffect(() => {
+    if (!selectedThreadId) {
+      return;
+    }
+
+    const selectedThreadPosition = threadPositions?.get(selectedThreadId);
+    if (!selectedThreadPosition) {
+      return;
+    }
+
+    (
+      editor.prosemirrorView?.domAtPos(selectedThreadPosition.from).node as
+        | Element
+        | undefined
+    )?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
     });
-  }, [editor.prosemirrorState.doc, editor.prosemirrorView, selectedThreadId]);
+
+    const selectedThread = threads.get(selectedThreadId);
+    if (!selectedThread) {
+      return;
+    }
+
+    if (selectedThread.resolved) {
+      editor.prosemirrorView?.dispatch(
+        editor.prosemirrorState.tr.setSelection(
+          TextSelection.create(
+            editor.prosemirrorState.doc,
+            selectedThreadPosition.from,
+            selectedThreadPosition.to
+          )
+        )
+      );
+      editor.setForceSelectionVisible(true);
+    }
+  }, [
+    editor.comments.plugin,
+    editor.prosemirrorState,
+    editor.prosemirrorState.doc,
+    editor.prosemirrorView,
+    selectedThreadId,
+    threadPositions,
+  ]);
 
   const threadElements = useMemo(() => {
     const threadsArray = Array.from(threads.values());
@@ -104,14 +143,26 @@ export function ThreadsSidebar(props: {
       }
     }
 
-    const threadDataToElement = (thread: ThreadData) => (
-      <Thread
-        key={thread.id}
-        thread={thread}
-        view={"sidebar"}
-        selected={thread.id === selectedThreadId}
-      />
-    );
+    const threadDataToElement = (thread: ThreadData) => {
+      const threadPosition = threadPositions?.get(thread.id);
+
+      return (
+        <Thread
+          key={thread.id}
+          thread={thread}
+          view={"sidebar"}
+          selected={thread.id === selectedThreadId}
+          highlightedText={
+            threadPosition
+              ? `"${editor.prosemirrorState.doc.textBetween(
+                  threadPosition.from,
+                  threadPosition.to
+                )}"`
+              : "Original content deleted"
+          }
+        />
+      );
+    };
 
     if (props.filter === "open") {
       return openThreads.map(threadDataToElement);
@@ -122,7 +173,14 @@ export function ThreadsSidebar(props: {
     }
 
     return [...openThreads, ...resolvedThreads].map(threadDataToElement);
-  }, [editor, props.filter, props.sort, selectedThreadId, threads]);
+  }, [
+    editor,
+    props.filter,
+    props.sort,
+    selectedThreadId,
+    threadPositions,
+    threads,
+  ]);
 
   return <div className={"bn-threads-sidebar"}>{threadElements}</div>;
 }

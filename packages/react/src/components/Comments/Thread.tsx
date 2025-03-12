@@ -14,6 +14,7 @@ export type ThreadProps = {
   thread: ThreadData;
   view: "floating" | "sidebar";
   selected: boolean;
+  highlightedText?: string;
   maxCommentsBeforeCollapse?: number;
 };
 
@@ -26,6 +27,7 @@ export const Thread = ({
   thread,
   view,
   selected,
+  highlightedText,
   maxCommentsBeforeCollapse,
 }: ThreadProps) => {
   // TODO: if REST API becomes popular, all interactions (click handlers) should implement a loading state and error state
@@ -125,6 +127,7 @@ export const Thread = ({
   return (
     <Components.Comments.Card
       className={"bn-thread"}
+      headerText={highlightedText}
       onFocus={() => {
         if (view === "floating") {
           return;
@@ -155,7 +158,7 @@ export const Thread = ({
         {thread.resolved && (
           <Components.Comments.Comment
             className={"bn-thread-comment"}
-            authorInfo={users.get(thread.resolvedBy!)!}
+            authorInfo={users.get(thread.resolvedBy!) || "loading"}
             timeString={thread.resolvedUpdatedAt!.toLocaleDateString(
               undefined,
               {

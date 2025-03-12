@@ -1,14 +1,26 @@
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps, mergeRefs } from "@blocknote/react";
-import { Button as MantineButton, Card as MantineCard } from "@mantine/core";
+import {
+  Button as MantineButton,
+  Card as MantineCard,
+  Text as MantineText,
+} from "@mantine/core";
 import { forwardRef, useEffect, useRef } from "react";
 
 export const Card = forwardRef<
   HTMLDivElement,
   ComponentProps["Comments"]["Card"]
 >((props, ref) => {
-  const { className, children, selected, onFocus, onBlur, tabIndex, ...rest } =
-    props;
+  const {
+    className,
+    children,
+    headerText,
+    selected,
+    onFocus,
+    onBlur,
+    tabIndex,
+    ...rest
+  } = props;
 
   assertEmpty(rest, false);
 
@@ -30,6 +42,9 @@ export const Card = forwardRef<
       onBlur={onBlur}
       tabIndex={tabIndex}
       ref={mergeRefs([ref, scrollRef])}>
+      {headerText && (
+        <MantineText className={"bn-header-text"}>{headerText}</MantineText>
+      )}
       {children}
     </MantineCard>
   );

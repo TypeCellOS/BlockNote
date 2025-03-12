@@ -615,6 +615,7 @@
   color: var(--bn-colors-menu-text);
 }
 
+.bn-mantine .bn-thread .bn-header-text,
 .bn-mantine .bn-thread-comment .bn-resolved-text {
   font-size: 0.8rem;
   font-style: italic;

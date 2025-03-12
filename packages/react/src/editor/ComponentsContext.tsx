@@ -202,6 +202,7 @@ export type ComponentProps = {
   Comments: {
     Card: {
       className?: string;
+      headerText?: string;
       selected?: boolean;
       onFocus?: () => void;
       onBlur?: (event: React.FocusEvent) => void;

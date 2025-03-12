@@ -62,9 +62,9 @@ function Document() {
     //   document: doc,
     // });
     // return new TiptapThreadStore(
-    //   user.id,
+    //   activeUser.id,
     //   provider,
-    //   new DefaultThreadStoreAuth(user.id, user.role)
+    //   new DefaultThreadStoreAuth(activeUser.id, activeUser.role)
     // );
     return new YjsThreadStore(
       activeUser.id,
