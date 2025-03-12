@@ -1,0 +1,15 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "https://localhost:3000/ai?provider=openai&url=https%3A%2F%2Fapi.openai.com%2Fv1%2Fchat%2Fcompletions",
+    "body": "{\"model\":\"gpt-4o-2024-08-06\",\"temperature\":0,\"messages\":[{\"role\":\"system\",\"content\":\"You're manipulating a markdown document. Send me the new markdown of the entire updated document. Don't include any other text, comments or wrapping marks. Next message is the existing document in markdown:\"},{\"role\":\"user\",\"content\":\"Hello\"},{\"role\":\"user\",\"content\":\"Add a paragraph with `Test` after the first paragraph\"}]}",
+    "headers": [],
+    "cookies": []
+  },
+  "response": {
+    "status": 200,
+    "statusText": "",
+    "body": "{\n  \"id\": \"chatcmpl-B9vDqoyCksXFhWUKlsPgNidNdp2pw\",\n  \"object\": \"chat.completion\",\n  \"created\": 1741704614,\n  \"model\": \"gpt-4o-2024-08-06\",\n  \"choices\": [\n    {\n      \"index\": 0,\n      \"message\": {\n        \"role\": \"assistant\",\n        \"content\": \"Hello\\n\\nThis is a markdown document. It contains several paragraphs and other elements that demonstrate the use of markdown syntax.\\n\\nTest\\n\\nMarkdown is a lightweight markup language with plain text formatting syntax. It is designed so that it can be converted to HTML and many other formats using a tool by the same name. Markdown is often used to format readme files, for writing messages in online discussion forums, and to create rich text using a plain text editor.\",\n        \"refusal\": null\n      },\n      \"logprobs\": null,\n      \"finish_reason\": \"stop\"\n    }\n  ],\n  \"usage\": {\n    \"prompt_tokens\": 64,\n    \"completion_tokens\": 90,\n    \"total_tokens\": 154,\n    \"prompt_tokens_details\": {\n      \"cached_tokens\": 0,\n      \"audio_tokens\": 0\n    },\n    \"completion_tokens_details\": {\n      \"reasoning_tokens\": 0,\n      \"audio_tokens\": 0,\n      \"accepted_prediction_tokens\": 0,\n      \"rejected_prediction_tokens\": 0\n    }\n  },\n  \"service_tier\": \"default\",\n  \"system_fingerprint\": \"fp_f9f4fb6dbf\"\n}\n",
+    "headers": []
+  }
+}

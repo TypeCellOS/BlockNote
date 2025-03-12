@@ -59,6 +59,10 @@ export default defineConfig(
                   __dirname,
                   "../packages/shadcn/src/"
                 ),
+                "@blocknote/xl-ai": path.resolve(
+                  __dirname,
+                  "../packages/xl-ai/src/"
+                ),
                 "@blocknote/xl-docx-exporter": path.resolve(
                   __dirname,
                   "../packages/xl-docx-exporter/src/"

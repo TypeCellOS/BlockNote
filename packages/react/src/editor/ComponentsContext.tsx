@@ -3,6 +3,7 @@ import {
   ComponentType,
   createContext,
   CSSProperties,
+  HTMLInputAutoCompleteAttribute,
   KeyboardEvent,
   MouseEvent,
   ReactNode,
@@ -138,7 +139,7 @@ export type ComponentProps = {
       id: string;
       isSelected: boolean;
       onClick: () => void;
-      item: DefaultReactSuggestionItem;
+      item: Omit<DefaultReactSuggestionItem, "onItemClick">;
     };
     Label: {
       className?: string;
@@ -247,13 +248,16 @@ export type ComponentProps = {
         className?: string;
         name: string;
         label?: string;
+        variant?: "default" | "large";
         icon: ReactNode;
         autoFocus?: boolean;
-        placeholder: string;
+        placeholder?: string;
+        disabled?: boolean;
         value: string;
         onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
         onChange: (event: ChangeEvent<HTMLInputElement>) => void;
         onSubmit?: () => void;
+        autoComplete?: HTMLInputAutoCompleteAttribute;
       };
     };
     Menu: {
