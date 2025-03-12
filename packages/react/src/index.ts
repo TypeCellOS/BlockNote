@@ -54,6 +54,7 @@ export * from "./components/SideMenu/SideMenuProps.js";
 
 export * from "./components/SideMenu/DragHandleMenu/DefaultItems/BlockColorsItem.js";
 export * from "./components/SideMenu/DragHandleMenu/DefaultItems/RemoveBlockItem.js";
+export * from "./components/SideMenu/DragHandleMenu/DefaultItems/TableHeadersItem.js";
 export * from "./components/SideMenu/DragHandleMenu/DragHandleMenu.js";
 export * from "./components/SideMenu/DragHandleMenu/DragHandleMenuProps.js";
 
