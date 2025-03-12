@@ -75,7 +75,8 @@ export const Thread = ({
   }, [comments, newCommentEditor, thread.id]);
 
   const [showAllComments, setShowAllComments] = useState(
-    thread.comments.length <= (maxCommentsBeforeCollapse || 5)
+    view === "floating" ||
+      thread.comments.length <= (maxCommentsBeforeCollapse || 5)
   );
 
   const commentElements = useMemo(() => {

@@ -189,7 +189,7 @@ function Document() {
             ]}
           />
         </div>
-        {/* We also render the `ThreadsSidebar` component in its own section,
+        {/* We also place the `ThreadsSidebar` component in its own section,
         along with settings for filtering and sorting. */}
         <ThreadsSidebar filter={commentFilter} sort={commentSort} />
       </div>

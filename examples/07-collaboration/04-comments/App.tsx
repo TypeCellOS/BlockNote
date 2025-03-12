@@ -93,14 +93,7 @@ function Document() {
     <BlockNoteView
       className={"comments-main-container"}
       editor={editor}
-      editable={activeUser.role === "editor"}
-      // In other examples, `BlockNoteView` renders both editor element itself,
-      // and the container element which contains the necessary context for
-      // BlockNote UI components. However, in this example, we want more control
-      // over the rendering of the editor, so we set `renderEditor` to `false`.
-      // Now, `BlockNoteView` will only render the container element, and we can
-      // render the editor element anywhere we want using `BlockNoteEditorView`.
-      renderEditor={false}>
+      editable={activeUser.role === "editor"}>
       {/* We place user settings select within `BlockNoteView` as it uses
       BlockNote UI components and needs the context for them. */}
       <div className={"settings"}>
@@ -116,10 +109,6 @@ function Document() {
           }))}
         />
       </div>
-      {/* Because we set `renderEditor` to false, we can now manually place
-      `BlockNoteViewEditor` (the actual editor component) below the user
-      settings select. */}
-      <BlockNoteViewEditor />
     </BlockNoteView>
   );
 }
