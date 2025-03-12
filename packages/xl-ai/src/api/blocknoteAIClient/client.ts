@@ -6,6 +6,7 @@ const fetchViaBlockNoteAIServer =
   async (input: string | URL | Request, init?: RequestInit) => {
     const request = new Request(input, init);
 
+    // console.log("fetchViaBlockNoteAIServer", baseURL, provider, request);
     const newRequest = new Request(
       `${baseURL}?provider=${encodeURIComponent(
         provider

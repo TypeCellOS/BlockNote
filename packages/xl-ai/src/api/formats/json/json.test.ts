@@ -31,6 +31,13 @@ const openai = createOpenAI({
   ...client.getProviderSettings("openai"),
 })("gpt-4o-2024-08-06", {});
 
+// const albert = createOpenAI({
+//   // albert-etalab/neuralmagic/Meta-Llama-3.1-70B-Instruct-FP8
+//   baseURL: "https://albert.api.staging.etalab.gouv.fr/v1",
+//   ...client.getProviderSettings("albert-etalab"),
+//   compatibility: "compatible",
+// })("albert-etalab/neuralmagic/Meta-Llama-3.3-70B-Instruct-FP8");
+
 function matchFileSnapshot(data: any, postFix = "") {
   expect(data).toMatchFileSnapshot(
     path.resolve(
@@ -112,6 +119,10 @@ describe("Main tests", () => {
       model: groq,
       stream: false,
     },
+    // {
+    //   model: albert,
+    //   stream: true,
+    // },
   ])("Test AI operations", (params) => {
     describe("Update", () => {
       it("translates simple paragraphs", async () => {
