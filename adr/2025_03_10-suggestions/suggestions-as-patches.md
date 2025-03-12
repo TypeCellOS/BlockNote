@@ -19,5 +19,7 @@ One easy implementation of this is to have a suggestion be a serialization of a 
 
 ### Cons
 
+The main drawback of this approach is that it is significantly different from the approach we'd use for diffing versions of documents. Meaning that we'd have to come up with a different approach for storing the changes. Even so, relative positions also have some edge cases that we'd have to consider.
+
 - This stores the change in a separate data structure, which would need to be either maintained by mapping new positions through, or using relative positions.
 - Being in a different data structure presents risk for being invalidated by changes to the document (which may not have been intentional).  Imagine moving a paragraph that had a suggestion on it, it could result in the suggestion pointing into an element which no longer exists.

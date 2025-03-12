@@ -10,12 +10,16 @@ Due to the similarity between document versioning, red lining, track changes and
 
 Versioning has already been implemented for Y.js & y-prosemirror, but to be explicit about the sort of thing we are looking for it is good to explicitly state the feature set versioning should have:
 
-- A user can take _snapshots_ of the current document state, and store that in a separate data store
+- A document can be _snapshotted_ at any point in time.
+  - This is stored in a separate data store, in a Y.js document
+  - This can be done either by:
+    - A user manually choosing to save the document at a point in time (potentially with metadata like a version name, and a description of the changes made)
+    - Automatically when changes are made to the document
+    - Automatically on intervals (e.g. every 5 minutes or 100 changes)
 - These snapshots can be viewed independently at any point in time later
-- These snapshots can be _compared_ with each other
-  - This allows the user to see what changed between the two snapshots
-  - Changes should show:
-    - The content that was changed (i.e. additions or deletions)
+- These snapshots can be _compared_ with each other to see what changes were made between them
+  - Each change, should show:
+    - The content that was changed (i.e. additions or deletions or updates)
     - Updates to content (i.e. changing an attribute)
     - Which user identifiers modified the content
     - Ideally, a timestamp of when the content was modified
@@ -100,6 +104,17 @@ This document was purposefully written from the perspective that Y.js is one of 
 
 This is a collection of scattered thoughts on the _diff_-erent aspects of diffing  (sorry, had to), and their complications.
 
+### Timestamps
+
+While a timestamp seems like a simple thing to add to a change, it is actually a surprisingly difficult problem. Is a timestamp:
+
+- The time the change was made?
+  - From when they started typing? When they finished typing?
+- From when they started editing the document?
+- The time the change was accepted by the server?
+
+At what granularity should we be storing timestamps? Do we need to store them to millisecond precision?
+
 ### Keeping user intent, while diffing
 
 Diffing nested data structures (e.g. HTML) is fundamentally different than diffing by the semantics of a document. This, is probably best described in an example:
@@ -141,6 +156,9 @@ They ultimately result in the same in the final document but, the difference is 
 
 Whatever the approach, we need to make sure that the changes are displayed in a way that is easy to understand and aligns with the user's intent.
 
+> [!NOTE]
+We are specifically not trying to represent the content as a flat YText document even though it may make this easier. In the interest of re-using the work on y-prosemirror as is.
+
 ### Displaying changes
 
 There are actually a few different ways to display changes in a document. Above, I was describing changes in what is called a _unified diff_. where changes are inter-leaved into the document using inline content and markers for where the inserted and deleted content exists. But, that is just one way to display a diff, you can also display diffs using a _split diff_ like so:
@@ -175,4 +193,5 @@ The nice thing about these different ways of displaying diffs, is that they are 
 
 So, there are multiple ways to display diffs, and they can be advantageous in different situations. Ideally, our solution would have flexibility in displaying changes in any of these ways.
 
-> As a matter of practicality, we are also looking into using these different ways of displaying diffs for things like displaying LLM responses, like if an LLM were to rewrite some content, it could display in a split diff view to show the changes the LLM actually made. So, this is not just a theoretical want, but something we would want to build this year.
+> [!NOTE]
+As a matter of practicality, we are also looking into using these different ways of displaying diffs for things like displaying LLM responses, like if an LLM were to rewrite some content, it could display in a split diff view to show the changes the LLM actually made. So, this is not just a theoretical want, but something we would want to build this year.

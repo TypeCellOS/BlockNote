@@ -29,3 +29,12 @@ When viewing what suggestions are available on a document, the frontend would ha
   - If diffing on the JSON, are we just recreating the version snapshot comparison and duplicating the work involved?
 - Complicated to setup
   - Storage of the branched versions need to be kept up to date (i.e. must apply new updates since the branch) and need to store that document separately
+
+## To be determined
+
+- How can we sync the branched versions?
+- How does the editor know to edit the root document versus the suggestion document?
+  - It is unclear how to have 2 sources of truth for editing a single ProseMirror document.
+  - Who is responsible for synchronizing the change made?
+    - If it is the editor, then this potentially complicates a lot of the ProseMirror logic, forcing it to be "suggestion aware"
+    - If it is y-prosemirror, as the sync layer, how do we support different backends than Y.js? We'd still like to have suggestions usable on editors without Y.js

@@ -38,3 +38,8 @@ This would mean that the YDoc content would need to be serialized into a format 
 - Display those changes outside of the editor (e.g. in a side panel)
 
 This would be a more complex approach, but would allow for more flexibility in how the changes are displayed within the editor, and how those diffs can be used in the future.
+
+## To be determined
+
+- How do we represent a diff in the YDoc?
+  - At what level should we represent this diff? Yjs should probably have a low-level API for this to compare two documents. But, what should that look like at the Prosemirror level? There is already the Delta format, but would this have the metadata we need to fully represent the changes?

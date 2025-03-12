@@ -18,5 +18,7 @@ There will be additional metadata that could be tracked as attributes to these m
 
 ## Cons
 
+The main tradeoff of this approach is around permissions (e.g. a suggestion-only user), at least without resorting to some server-side inspection of content changes (like comments). Theoretically, to get around this, you could use cryptography to sign the content of these changes to ensure that they have not been tampered with across editors, but a suggestion user would still have enough permissions to write into the document when they should not be able to.
+
 - Adds complexity to displaying content in the editor, may need to rely on things like decorations to hide content we do not want to display
 - Since it is not a separate document, the permissions have to be the same as having write permissions to the document
