@@ -89,5 +89,6 @@
   color: var(--bn-colors-menu-text);
   margin: 0;
   font-size: 12px;
+  line-height: 12px;
   padding-left: 14px;
 }
