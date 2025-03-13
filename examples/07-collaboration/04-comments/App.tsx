@@ -6,8 +6,7 @@ import {
 } from "@blocknote/core/comments";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { BlockNoteViewEditor, useCreateBlockNote } from "@blocknote/react";
-import { MantineProvider } from "@mantine/core";
+import { useCreateBlockNote } from "@blocknote/react";
 import { YDocProvider, useYDoc, useYjsProvider } from "@y-sweet/react";
 import { useMemo, useState } from "react";
 
@@ -34,13 +33,11 @@ export default function App() {
   const docId = "my-blocknote-document-with-comments-1";
 
   return (
-    <MantineProvider>
-      <YDocProvider
-        docId={docId}
-        authEndpoint="https://demos.y-sweet.dev/api/auth">
-        <Document />
-      </YDocProvider>
-    </MantineProvider>
+    <YDocProvider
+      docId={docId}
+      authEndpoint="https://demos.y-sweet.dev/api/auth">
+      <Document />
+    </YDocProvider>
   );
 }
 

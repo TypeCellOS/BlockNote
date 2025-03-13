@@ -9,7 +9,16 @@ export const Card = forwardRef<
   HTMLDivElement,
   ComponentProps["Comments"]["Card"]
 >((props, ref) => {
-  const { className, children, onFocus, onBlur, tabIndex, ...rest } = props;
+  const {
+    className,
+    children,
+    selected,
+    headerText,
+    onFocus,
+    onBlur,
+    tabIndex,
+    ...rest
+  } = props;
 
   assertEmpty(rest);
 
@@ -17,11 +26,20 @@ export const Card = forwardRef<
 
   return (
     <ShadCNComponents.Card.Card
-      className={cn(className, "bn-w-[300px]")}
+      className={cn(
+        className,
+        "bn-w-[300px]",
+        selected ? "bn-bg-accent bn-text-accent-foreground" : ""
+      )}
       onFocus={onFocus}
       onBlur={onBlur}
       tabIndex={tabIndex}
       ref={ref}>
+      {headerText && (
+        <div className={"bn-px-4 bn-pt-4 bn-italic bn-text-sm"}>
+          {headerText}
+        </div>
+      )}
       {children}
     </ShadCNComponents.Card.Card>
   );
@@ -47,5 +65,29 @@ export const CardSection = forwardRef<
       ref={ref}>
       {children}
     </div>
+  );
+});
+
+export const ExpandSectionsPrompt = forwardRef<
+  HTMLButtonElement,
+  ComponentProps["Comments"]["ExpandSectionsPrompt"]
+>((props, ref) => {
+  const { className, children, onClick, ...rest } = props;
+
+  assertEmpty(rest, false);
+
+  const ShadCNComponents = useShadCNComponentsContext()!;
+
+  return (
+    <ShadCNComponents.Button.Button
+      className={cn(
+        className,
+        "bn-p-0 bn-w-fit bn-text-foreground bn-bg-transparent hover:bn-bg-transparent"
+      )}
+      onMouseDown={(event) => event.preventDefault()}
+      onClick={onClick}
+      ref={ref}>
+      {children}
+    </ShadCNComponents.Button.Button>
   );
 });

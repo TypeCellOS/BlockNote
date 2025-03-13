@@ -91,6 +91,7 @@ export const Thread = ({
           index={0}
         />,
         <Components.Comments.ExpandSectionsPrompt
+          key={"expand-prompt"}
           className={"bn-thread-expand-prompt"}
           onClick={(event) => {
             setShowAllComments(true);

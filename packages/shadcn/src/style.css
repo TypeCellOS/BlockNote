@@ -169,6 +169,7 @@
 .bn-shadcn .bn-extend-button-add-remove-rows {
   cursor: row-resize;
 }
+
 .bn-shadcn .bn-toolbar {
   overflow-x: auto;
   max-width: 100vw;
@@ -182,4 +183,9 @@
 .bn-shadcn .bn-table-cell-handle {
   padding: 0 4px;
   height: 12px;
+}
+
+.bn-shadcn .bn-thread .bn-resolved-text {
+  font-size: 14px;
+  font-style: italic;
 }

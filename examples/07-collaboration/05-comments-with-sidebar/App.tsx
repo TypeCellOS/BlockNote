@@ -11,7 +11,6 @@ import {
   ThreadsSidebar,
   useCreateBlockNote,
 } from "@blocknote/react";
-import { MantineProvider } from "@mantine/core";
 import { YDocProvider, useYDoc, useYjsProvider } from "@y-sweet/react";
 import { useMemo, useState } from "react";
 
@@ -38,13 +37,11 @@ export default function App() {
   const docId = "my-blocknote-document-with-comments-1";
 
   return (
-    <MantineProvider>
-      <YDocProvider
-        docId={docId}
-        authEndpoint="https://demos.y-sweet.dev/api/auth">
-        <Document />
-      </YDocProvider>
-    </MantineProvider>
+    <YDocProvider
+      docId={docId}
+      authEndpoint="https://demos.y-sweet.dev/api/auth">
+      <Document />
+    </YDocProvider>
   );
 }
 
