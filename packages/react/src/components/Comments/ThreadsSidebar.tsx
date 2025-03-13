@@ -119,12 +119,14 @@ export function ThreadsSidebar(props: {
       editor.setForceSelectionVisible(true);
     }
   }, [
+    editor,
     editor.comments.plugin,
     editor.prosemirrorState,
     editor.prosemirrorState.doc,
     editor.prosemirrorView,
     selectedThreadId,
     threadPositions,
+    threads,
   ]);
 
   const threadElements = useMemo(() => {
