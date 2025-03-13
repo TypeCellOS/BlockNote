@@ -12,7 +12,7 @@ import { markdownToHTML } from "../../parsers/markdown/parseMarkdown.js";
 import { acceptedMIMETypes } from "./acceptedMIMETypes.js";
 import { handleFileInsertion } from "./handleFileInsertion.js";
 import { handleVSCodePaste } from "./handleVSCodePaste.js";
-import { is } from "../../parsers/markdown/is.js";
+import { isMarkdown } from "../../parsers/markdown/detectMarkdown.js";
 
 export const createPasteFromClipboardExtension = <
   BSchema extends BlockSchema,
@@ -77,7 +77,7 @@ export const createPasteFromClipboardExtension = <
                     const plainText =
                       event.clipboardData!.getData("text/plain");
 
-                    if (is(plainText)) {
+                    if (isMarkdown(plainText)) {
                       // Convert Markdown to HTML first, then paste as HTML
                       markdownToHTML(plainText).then((html) => {
                         view.pasteHTML(html);

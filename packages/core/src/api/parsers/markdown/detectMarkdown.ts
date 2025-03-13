@@ -44,7 +44,7 @@ const tableRow = /^\s*\|(.+\|)+\s*$/m;
  *
  * @param src Source text to analyze.
  */
-export const is = (src: string): boolean =>
+export const isMarkdown = (src: string): boolean =>
   h1.test(src) ||
   bold.test(src) ||
   link.test(src) ||
