@@ -126,19 +126,27 @@ export type PartialInlineContent<
 > = PartialInlineContentElement<I, T>[] | string;
 
 export function isLinkInlineContent<T extends StyleSchema>(
-  content: InlineContent<any, T>
+  content: InlineContent<any, T> | undefined
 ): content is Link<T> {
-  return content.type === "link";
+  return content !== undefined && content.type === "link";
 }
 
 export function isPartialLinkInlineContent<T extends StyleSchema>(
-  content: PartialInlineContentElement<any, T>
+  content: PartialInlineContentElement<any, T> | undefined
 ): content is PartialLink<T> {
-  return typeof content !== "string" && content.type === "link";
+  return (
+    content !== undefined &&
+    typeof content !== "string" &&
+    content.type === "link"
+  );
 }
 
 export function isStyledTextInlineContent<T extends StyleSchema>(
-  content: PartialInlineContentElement<any, T>
+  content: PartialInlineContentElement<any, T> | undefined
 ): content is StyledText<T> {
-  return typeof content !== "string" && content.type === "text";
+  return (
+    content !== undefined &&
+    typeof content !== "string" &&
+    content.type === "text"
+  );
 }
