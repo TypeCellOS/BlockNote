@@ -107,7 +107,6 @@ export const FloatingThreadController = <
     <div ref={ref} style={style} {...getFloatingProps()}>
       <Component
         thread={threads.get(state.selectedThreadId)!}
-        view={"floating"}
         selected={true}
       />
     </div>

@@ -215,7 +215,6 @@ export type ComponentProps = {
     };
     ExpandSectionsPrompt: {
       className?: string;
-      onClick: (event: React.MouseEvent) => void;
       children?: ReactNode;
     };
     Editor: {

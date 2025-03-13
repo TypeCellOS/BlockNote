@@ -1,5 +1,5 @@
 import { mergeCSSClasses } from "@blocknote/core";
-import { useCallback, useMemo, useState } from "react";
+import { FocusEvent, useCallback, useMemo } from "react";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
@@ -12,10 +12,12 @@ import { ThreadData } from "@blocknote/core/comments";
 
 export type ThreadProps = {
   thread: ThreadData;
-  view: "floating" | "sidebar";
-  selected: boolean;
-  highlightedText?: string;
+  selected?: boolean;
+  referenceText?: string;
   maxCommentsBeforeCollapse?: number;
+  onFocus?: () => void;
+  onBlur?: (event: FocusEvent) => void;
+  tabIndex?: number;
 };
 
 /**
@@ -25,10 +27,12 @@ export type ThreadProps = {
  */
 export const Thread = ({
   thread,
-  view,
   selected,
-  highlightedText,
+  referenceText,
   maxCommentsBeforeCollapse,
+  onFocus,
+  onBlur,
+  tabIndex,
 }: ThreadProps) => {
   // TODO: if REST API becomes popular, all interactions (click handlers) should implement a loading state and error state
   // (or optimistic local updates)
@@ -76,39 +80,27 @@ export const Thread = ({
     newCommentEditor.removeBlocks(newCommentEditor.document);
   }, [comments, newCommentEditor, thread.id]);
 
-  const [showAllComments, setShowAllComments] = useState(
-    view === "floating" ||
-      thread.comments.length <= (maxCommentsBeforeCollapse || 5)
-  );
-
   const commentElements = useMemo(() => {
-    if (!showAllComments) {
+    if (
+      !selected &&
+      thread.comments.length > (maxCommentsBeforeCollapse || 5)
+    ) {
       return [
         <Comment
           key={thread.comments[0].id}
           thread={thread}
           comment={thread.comments[0]}
-          index={0}
+          showResolveButton={true}
         />,
         <Components.Comments.ExpandSectionsPrompt
           key={"expand-prompt"}
-          className={"bn-thread-expand-prompt"}
-          onClick={(event) => {
-            setShowAllComments(true);
-            editor.comments?.selectThread(thread.id);
-            (
-              (event.target as Element).closest(
-                ".bn-thread"
-              ) as HTMLElement | null
-            )?.focus();
-          }}>
+          className={"bn-thread-expand-prompt"}>
           {`${thread.comments.length - 2} more replies`}
         </Components.Comments.ExpandSectionsPrompt>,
         <Comment
           key={thread.comments[thread.comments.length - 1].id}
           thread={thread}
           comment={thread.comments[thread.comments.length - 1]}
-          index={thread.comments.length - 1}
         />,
       ];
     }
@@ -119,41 +111,20 @@ export const Thread = ({
           key={comment.id}
           thread={thread}
           comment={comment}
-          index={index}
+          showResolveButton={index === 0}
         />
       );
     });
-  }, [Components, editor.comments, showAllComments, thread]);
+  }, [Components, maxCommentsBeforeCollapse, selected, thread]);
 
   return (
     <Components.Comments.Card
       className={"bn-thread"}
-      headerText={highlightedText}
-      onFocus={() => {
-        if (view === "floating") {
-          return;
-        }
-
-        comments.selectThread(thread.id);
-      }}
-      onBlur={(event) => {
-        if (view === "floating") {
-          return;
-        }
-
-        if (
-          !(event.relatedTarget instanceof Node) ||
-          !(event.target instanceof Node) ||
-          !event.target.contains(event.relatedTarget)
-        ) {
-          setShowAllComments(
-            thread.comments.length <= (maxCommentsBeforeCollapse || 5)
-          );
-          comments.selectThread(undefined);
-        }
-      }}
+      headerText={referenceText}
+      onFocus={onFocus}
+      onBlur={onBlur}
       selected={selected}
-      tabIndex={view === "sidebar" ? 0 : undefined}>
+      tabIndex={tabIndex}>
       <Components.Comments.CardSection className="bn-thread-comments">
         {commentElements}
         {thread.resolved && (

@@ -1,10 +1,6 @@
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps, mergeRefs } from "@blocknote/react";
-import {
-  Button as MantineButton,
-  Card as MantineCard,
-  Text as MantineText,
-} from "@mantine/core";
+import { Card as MantineCard, Text as MantineText } from "@mantine/core";
 import { forwardRef, useEffect, useRef } from "react";
 
 export const Card = forwardRef<
@@ -66,20 +62,16 @@ export const CardSection = forwardRef<
 });
 
 export const ExpandSectionsPrompt = forwardRef<
-  HTMLButtonElement,
+  HTMLDivElement,
   ComponentProps["Comments"]["ExpandSectionsPrompt"]
 >((props, ref) => {
-  const { className, children, onClick, ...rest } = props;
+  const { className, children, ...rest } = props;
 
   assertEmpty(rest, false);
 
   return (
-    <MantineButton
-      className={className}
-      onMouseDown={(event) => event.preventDefault()}
-      onClick={onClick}
-      ref={ref}>
+    <MantineText className={className} ref={ref}>
       {children}
-    </MantineButton>
+    </MantineText>
   );
 });

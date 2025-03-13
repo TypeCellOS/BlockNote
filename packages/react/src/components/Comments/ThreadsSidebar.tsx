@@ -152,9 +152,8 @@ export function ThreadsSidebar(props: {
         <Thread
           key={thread.id}
           thread={thread}
-          view={"sidebar"}
           selected={thread.id === selectedThreadId}
-          highlightedText={
+          referenceText={
             threadPosition
               ? `"${editor.prosemirrorState.doc.textBetween(
                   threadPosition.from,
@@ -162,6 +161,24 @@ export function ThreadsSidebar(props: {
                 )}"`
               : "Original content deleted"
           }
+          onFocus={() => editor.comments?.selectThread(thread.id)}
+          onBlur={(event) => {
+            const targetElement =
+              event.target instanceof Node ? event.target : null;
+            const parentThreadElement =
+              event.relatedTarget instanceof Node
+                ? event.relatedTarget.closest(".bn-thread")
+                : null;
+
+            if (
+              !targetElement ||
+              !parentThreadElement ||
+              !parentThreadElement.contains(targetElement)
+            ) {
+              editor.comments?.selectThread(undefined);
+            }
+          }}
+          tabIndex={0}
         />
       );
     };

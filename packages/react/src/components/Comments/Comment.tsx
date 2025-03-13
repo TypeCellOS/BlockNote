@@ -25,7 +25,7 @@ import { useUser } from "./useUsers.js";
 export type CommentProps = {
   comment: CommentData;
   thread: ThreadData;
-  index: number;
+  showResolveButton?: boolean;
 };
 
 /**
@@ -35,7 +35,11 @@ export type CommentProps = {
  * It's generally used in the `Thread` component for comments that have already been created.
  *
  */
-export const Comment = ({ comment, thread, index }: CommentProps) => {
+export const Comment = ({
+  comment,
+  thread,
+  showResolveButton,
+}: CommentProps) => {
   // TODO: if REST API becomes popular, all interactions (click handlers) should implement a loading state and error state
   // (or optimistic local updates)
 
@@ -142,7 +146,7 @@ export const Comment = ({ comment, thread, index }: CommentProps) => {
   const canEditComment = threadStore.auth.canUpdateComment(comment);
 
   const showResolveOrReopen =
-    index === 0 &&
+    showResolveButton &&
     (thread.resolved
       ? threadStore.auth.canUnresolveThread(thread)
       : threadStore.auth.canResolveThread(thread));
