@@ -283,7 +283,9 @@ export class CommentsPlugin extends EventEmitter<any> {
           head: pmSelection.head,
           anchor: pmSelection.anchor,
         },
-        yjs: getRelativeSelection(ystate.binding, view.state),
+        yjs: ystate
+          ? getRelativeSelection(ystate.binding, view.state)
+          : undefined, // if we're not using yjs
       };
 
       await this.threadStore.addThreadToDocument({
