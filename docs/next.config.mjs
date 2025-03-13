@@ -142,7 +142,7 @@ const nextConfig = withAnalyzer(
 
       // https://github.com/vercel/next.js/issues/59744#issuecomment-2442603644
       config.resolve.extensionAlias = {
-        ".js": [".js", ".ts"],
+        ".js": [".js", ".ts", ".jsx", ".tsx"],
         ".mjs": [".mjs", ".mts"],
         ".cjs": [".cjs", ".cts"],
         ".jsx": [".jsx", ".tsx"],
