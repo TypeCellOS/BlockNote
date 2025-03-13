@@ -59,7 +59,7 @@ export const ExpandSectionsPrompt = forwardRef<
   HTMLButtonElement,
   ComponentProps["Comments"]["ExpandSectionsPrompt"]
 >((props, ref) => {
-  const { className, children, onClick, ...rest } = props;
+  const { className, children, ...rest } = props;
 
   assertEmpty(rest, false);
 
@@ -69,8 +69,6 @@ export const ExpandSectionsPrompt = forwardRef<
         className,
         "bn-ak-button bn-ak-secondary bn-ak-expand-sections-prompt"
       )}
-      onMouseDown={(event) => event.preventDefault()}
-      onClick={onClick}
       ref={ref}>
       {children}
     </AriakitButton>

@@ -72,7 +72,7 @@ export const ExpandSectionsPrompt = forwardRef<
   HTMLButtonElement,
   ComponentProps["Comments"]["ExpandSectionsPrompt"]
 >((props, ref) => {
-  const { className, children, onClick, ...rest } = props;
+  const { className, children, ...rest } = props;
 
   assertEmpty(rest, false);
 
@@ -84,8 +84,6 @@ export const ExpandSectionsPrompt = forwardRef<
         className,
         "bn-p-0 bn-w-fit bn-text-foreground bn-bg-transparent hover:bn-bg-transparent"
       )}
-      onMouseDown={(event) => event.preventDefault()}
-      onClick={onClick}
       ref={ref}>
       {children}
     </ShadCNComponents.Button.Button>

@@ -14,8 +14,8 @@ import {
 import { YDocProvider, useYDoc, useYjsProvider } from "@y-sweet/react";
 import { useMemo, useState } from "react";
 
-import { SettingsSelect } from "./SettingsSelect";
-import { HARDCODED_USERS, MyUserType, getRandomColor } from "./userdata";
+import { SettingsSelect } from "./SettingsSelect.js";
+import { HARDCODED_USERS, MyUserType, getRandomColor } from "./userdata.js";
 
 import "./style.css";
 
