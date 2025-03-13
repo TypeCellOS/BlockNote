@@ -1,6 +1,10 @@
 import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps, mergeRefs } from "@blocknote/react";
-import { Card as MantineCard, Text as MantineText } from "@mantine/core";
+import {
+  Card as MantineCard,
+  Divider as MantineDivider,
+  Text as MantineText,
+} from "@mantine/core";
 import { forwardRef, useEffect, useRef } from "react";
 
 export const Card = forwardRef<
@@ -70,8 +74,10 @@ export const ExpandSectionsPrompt = forwardRef<
   assertEmpty(rest, false);
 
   return (
-    <MantineText className={className} ref={ref}>
-      {children}
-    </MantineText>
+    <MantineDivider
+      className={className}
+      label={<MantineText>{children}</MantineText>}
+      ref={ref}
+    />
   );
 });

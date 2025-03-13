@@ -594,6 +594,10 @@
   overflow: visible;
 }
 
+.bn-mantine .bn-thread:not(.selected) {
+  cursor: pointer;
+}
+
 .bn-mantine .bn-thread-comments {
   border-bottom: var(--bn-border);
   display: flex;
@@ -625,13 +629,6 @@
   width: 100%;
   display: flex;
   justify-content: flex-end;
-}
-
-.bn-mantine .bn-thread .bn-thread-expand-prompt {
-  background-color: transparent;
-  color: var(--bn-colors-menu-text);
-  display: flex;
-  padding: 0;
 }
 
 /* Comment action toolbar styling */

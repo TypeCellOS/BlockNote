@@ -87,6 +87,8 @@ export class CommentsPlugin extends EventEmitter<any> {
     this.emit("update", {
       selectedThreadId: this.selectedThreadId,
       pendingComment: this.pendingComment,
+      threadPositions: this.plugin.getState(this.editor._tiptapEditor.state)!
+        .threadPositions,
     });
   }
 
@@ -219,6 +221,7 @@ export class CommentsPlugin extends EventEmitter<any> {
     callback: (state: {
       pendingComment: boolean;
       selectedThreadId: string | undefined;
+      threadPositions: Map<string, { from: number; to: number }>;
     }) => void
   ) {
     return this.on("update", callback);

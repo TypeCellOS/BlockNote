@@ -1,14 +1,15 @@
 import { mergeCSSClasses } from "@blocknote/core";
+import { ThreadData } from "@blocknote/core/comments";
 import { FocusEvent, useCallback, useMemo } from "react";
+
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
 import { useDictionary } from "../../i18n/dictionary.js";
-import { Comment } from "./Comment.js";
 import { CommentEditor } from "./CommentEditor.js";
+import { Comments } from "./Comments.js";
 import { schema } from "./schema.js";
 import { useUsers } from "./useUsers.js";
-import { ThreadData } from "@blocknote/core/comments";
 
 export type ThreadProps = {
   thread: ThreadData;
@@ -80,43 +81,6 @@ export const Thread = ({
     newCommentEditor.removeBlocks(newCommentEditor.document);
   }, [comments, newCommentEditor, thread.id]);
 
-  const commentElements = useMemo(() => {
-    if (
-      !selected &&
-      thread.comments.length > (maxCommentsBeforeCollapse || 5)
-    ) {
-      return [
-        <Comment
-          key={thread.comments[0].id}
-          thread={thread}
-          comment={thread.comments[0]}
-          showResolveButton={true}
-        />,
-        <Components.Comments.ExpandSectionsPrompt
-          key={"expand-prompt"}
-          className={"bn-thread-expand-prompt"}>
-          {`${thread.comments.length - 2} more replies`}
-        </Components.Comments.ExpandSectionsPrompt>,
-        <Comment
-          key={thread.comments[thread.comments.length - 1].id}
-          thread={thread}
-          comment={thread.comments[thread.comments.length - 1]}
-        />,
-      ];
-    }
-
-    return thread.comments.map((comment, index) => {
-      return (
-        <Comment
-          key={comment.id}
-          thread={thread}
-          comment={comment}
-          showResolveButton={index === 0}
-        />
-      );
-    });
-  }, [Components, maxCommentsBeforeCollapse, selected, thread]);
-
   return (
     <Components.Comments.Card
       className={"bn-thread"}
@@ -126,7 +90,13 @@ export const Thread = ({
       selected={selected}
       tabIndex={tabIndex}>
       <Components.Comments.CardSection className="bn-thread-comments">
-        {commentElements}
+        <Comments
+          thread={thread}
+          collapse={
+            !selected &&
+            thread.comments.length > (maxCommentsBeforeCollapse || 5)
+          }
+        />
         {thread.resolved && (
           <Components.Comments.Comment
             className={"bn-thread-comment"}
