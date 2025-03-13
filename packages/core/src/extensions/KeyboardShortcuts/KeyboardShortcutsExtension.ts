@@ -292,6 +292,24 @@ export const KeyboardShortcutsExtension = Extension.create<{
                 throw new Error(`todo`);
               }
 
+              const currentBlockNotTableAndNoContent =
+                blockInfo.blockContent.node.type.spec.content === "" ||
+                (blockInfo.blockContent.node.type.spec.content === "inline*" &&
+                  blockInfo.blockContent.node.childCount === 0);
+
+              if (currentBlockNotTableAndNoContent) {
+                const pos = state.tr.doc.resolve(
+                  blockInfo.bnBlock.beforePos - 2
+                );
+                state.tr.setSelection(new TextSelection(pos));
+                return chain()
+                  .deleteRange({
+                    from: blockInfo.bnBlock.beforePos,
+                    to: blockInfo.bnBlock.afterPos,
+                  })
+                  .run();
+              }
+
               const prevBlockNotTableAndNoContent =
                 bottomBlock.blockContent.node.type.spec.content === "" ||
                 (bottomBlock.blockContent.node.type.spec.content ===
