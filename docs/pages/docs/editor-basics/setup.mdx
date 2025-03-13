@@ -37,6 +37,9 @@ type BlockNoteEditorOptions = {
     view: EditorView;
     event: ClipboardEvent;
     editor: BlockNoteEditor;
+    defaultPasteHandler: (context: {
+      pasteBehavior?: "prefer-markdown" | "prefer-html";
+    }) => boolean | undefined;
     convertHtmlToBlockNoteHtml: (html: string) => string;
     convertMarkdownToBlockNoteHtml: (markdown: string) => Promise<string>;
   }) => boolean | undefined;
