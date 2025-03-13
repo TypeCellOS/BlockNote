@@ -213,12 +213,49 @@ export type BlockNoteEditorOptions<
   >;
 
   /**
-   * Changes how to interpret reading data from the clipboard
-   * - `prefer-markdown` will attempt to detect markdown in the plain text representation and interpret the text as markdown
-   * - `prefer-html` will ovoid the markdown behavior and prefer to parse from HTML instead.
-   * @default 'prefer-markdown'
+   * Custom paste handler that can be used to override the default paste behavior.
+   * @returns The function should return `true` if the paste event was handled, otherwise it should return `false` if it should be canceled or `undefined` if it should be handled by another handler.
+   *
+   * @example
+   * ```ts
+   * pasteHandler: ({ defaultPasteHandler }) => {
+   *   return defaultPasteHandler({ pasteBehavior: "prefer-html" });
+   * }
+   * ```
    */
-  pasteBehavior: "prefer-markdown" | "prefer-html";
+  pasteHandler?: (context: {
+    view: EditorView;
+    event: ClipboardEvent;
+    editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
+    /**
+     * Convert HTML into BlockNote-compatible HTML
+     * There can be cases where normal HTML is not supported by BlockNote, so this function can be used to convert the HTML into a format that is supported.
+     * @param html The HTML to convert
+     * @returns The converted HTML
+     */
+    convertHtmlToBlockNoteHtml: (html: string) => string;
+    /**
+     * Convert Markdown into BlockNote-compatible HTML
+     * There can be cases where normal Markdown is not supported by BlockNote, so this function can be used to convert the Markdown into a format that is supported.
+     * @param markdown The Markdown to convert
+     * @returns The converted HTML
+     */
+    convertMarkdownToBlockNoteHtml: (markdown: string) => Promise<string>;
+    /**
+     * The default paste handler
+     * @param context The context object
+     * @returns Whether the paste event was handled or not
+     */
+    defaultPasteHandler: (context: {
+      /**
+       * Changes how to interpret reading data from the clipboard
+       * - `prefer-markdown` will attempt to detect markdown in the plain text representation and interpret the text as markdown
+       * - `prefer-html` will ovoid the markdown behavior and prefer to parse from HTML instead.
+       * @default 'prefer-markdown'
+       */
+      pasteBehavior?: "prefer-markdown" | "prefer-html";
+    }) => boolean | undefined;
+  }) => boolean | undefined;
 
   /**
    * Resolve a URL of a file block to one that can be displayed or downloaded. This can be used for creating authenticated URL or
@@ -450,7 +487,10 @@ export class BlockNoteEditor<
       cellTextColor: boolean;
       headers: boolean;
     };
-    pasteBehavior: "prefer-markdown" | "prefer-html";
+    pasteHandler: Exclude<
+      BlockNoteEditorOptions<any, any, any>["pasteHandler"],
+      undefined
+    >;
   };
 
   public static create<
@@ -498,7 +538,14 @@ export class BlockNoteEditor<
         cellTextColor: options?.tables?.cellTextColor ?? false,
         headers: options?.tables?.headers ?? false,
       },
-      pasteBehavior: options.pasteBehavior ?? "prefer-markdown",
+      pasteHandler:
+        options.pasteHandler ||
+        ((context: {
+          defaultPasteHandler: (context: {
+            pasteBehavior?: "prefer-markdown" | "prefer-html";
+          }) => boolean | undefined;
+        }) =>
+          context.defaultPasteHandler({ pasteBehavior: "prefer-markdown" })),
     };
 
     // apply defaults
