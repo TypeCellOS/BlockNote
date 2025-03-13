@@ -16,7 +16,7 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 
-import { BlueButton } from "./BlueButton";
+import { BlueButton } from "./BlueButton.js";
 
 export default function App() {
   // Creates a new editor instance.

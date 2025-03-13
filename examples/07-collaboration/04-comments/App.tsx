@@ -7,10 +7,13 @@ import {
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
-import { MantineProvider, Select } from "@mantine/core";
 import { YDocProvider, useYDoc, useYjsProvider } from "@y-sweet/react";
 import { useMemo, useState } from "react";
+
+import { SettingsSelect } from "./SettingsSelect.js";
 import { HARDCODED_USERS, MyUserType, getRandomColor } from "./userdata.js";
+
+import "./style.css";
 
 // The resolveUsers function fetches information about your users
 // (e.g. their name, avatar, etc.). Usually, you'd fetch this from your
@@ -27,21 +30,20 @@ async function resolveUsers(userIds: string[]) {
 // (but of course, you also use other collaboration providers
 // see the docs for more information)
 export default function App() {
-  const docId = "my-blocknote-document-with-comments";
+  const docId = "my-blocknote-document-with-comments-1";
 
   return (
-    <MantineProvider>
-      <YDocProvider
-        docId={docId}
-        authEndpoint="https://demos.y-sweet.dev/api/auth">
-        <Document />
-      </YDocProvider>
-    </MantineProvider>
+    <YDocProvider
+      docId={docId}
+      authEndpoint="https://demos.y-sweet.dev/api/auth">
+      <Document />
+    </YDocProvider>
   );
 }
 
 function Document() {
-  const [user, setUser] = useState<MyUserType>(HARDCODED_USERS[0]);
+  const [activeUser, setActiveUser] = useState<MyUserType>(HARDCODED_USERS[0]);
+
   const provider = useYjsProvider();
 
   // take the Y.Doc collaborative document from Y-Sweet
@@ -57,16 +59,16 @@ function Document() {
     //   document: doc,
     // });
     // return new TiptapThreadStore(
-    //   user.id,
+    //   activeUser.id,
     //   provider,
-    //   new DefaultThreadStoreAuth(user.id, user.role)
+    //   new DefaultThreadStoreAuth(activeUser.id, activeUser.role)
     // );
     return new YjsThreadStore(
-      user.id,
+      activeUser.id,
       doc.getMap("threads"),
-      new DefaultThreadStoreAuth(user.id, user.role)
+      new DefaultThreadStoreAuth(activeUser.id, activeUser.role)
     );
-  }, [doc, user]);
+  }, [doc, activeUser]);
 
   // setup the editor with comments and collaboration
   const editor = useCreateBlockNote(
@@ -78,34 +80,32 @@ function Document() {
       collaboration: {
         provider,
         fragment: doc.getXmlFragment("blocknote"),
-        user: { color: getRandomColor(), name: user.username },
+        user: { color: getRandomColor(), name: activeUser.username },
       },
     },
-    [user, threadStore]
+    [activeUser, threadStore]
   );
 
   return (
-    <div>
-      {/* This is a simple user selector to switch between users, for demo purposes */}
-      <Select
-        style={{ maxWidth: "300px" }}
-        required
-        label="Active user:"
-        placeholder="Pick value"
-        data={HARDCODED_USERS.map((user) => ({
-          value: user.id,
-          label: user.username + " (" + user.role + ")",
-        }))}
-        onChange={(value) => {
-          if (!value) {
-            return;
-          }
-          setUser(HARDCODED_USERS.find((user) => user.id === value)!);
-        }}
-        value={user.id}
-      />
-      {/* render the actual editor */}
-      <BlockNoteView editor={editor} editable={user.role === "editor"} />
-    </div>
+    <BlockNoteView
+      className={"comments-main-container"}
+      editor={editor}
+      editable={activeUser.role === "editor"}>
+      {/* We place user settings select within `BlockNoteView` as it uses
+      BlockNote UI components and needs the context for them. */}
+      <div className={"settings"}>
+        <SettingsSelect
+          label={"User"}
+          items={HARDCODED_USERS.map((user) => ({
+            text: `${user.username} (${
+              user.role === "editor" ? "Editor" : "Commenter"
+            })`,
+            icon: null,
+            onClick: () => setActiveUser(user),
+            isSelected: user.id === activeUser.id,
+          }))}
+        />
+      </div>
+    </BlockNoteView>
   );
 }

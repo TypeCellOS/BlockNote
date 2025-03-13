@@ -12,13 +12,14 @@ export const Editor = forwardRef<
   HTMLDivElement,
   ComponentProps["Comments"]["Editor"]
 >((props, ref) => {
-  const { className, onFocus, onBlur, editor, editable, ...rest } = props;
+  const { className, onFocus, onBlur, autoFocus, editor, editable, ...rest } =
+    props;
 
   assertEmpty(rest, false);
 
   return (
     <BlockNoteView
-      autoFocus={true}
+      autoFocus={autoFocus}
       className={className}
       editor={props.editor}
       sideMenu={false}

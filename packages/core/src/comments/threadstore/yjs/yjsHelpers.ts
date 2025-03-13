@@ -40,6 +40,7 @@ export function threadToYMap(thread: ThreadData) {
   yMap.set("comments", commentsArray);
   yMap.set("resolved", thread.resolved);
   yMap.set("resolvedUpdatedAt", thread.resolvedUpdatedAt?.getTime());
+  yMap.set("resolvedBy", thread.resolvedBy);
   yMap.set("metadata", thread.metadata);
   return yMap;
 }
@@ -115,7 +116,8 @@ export function yMapToThread(yMap: Y.Map<any>): ThreadData {
       (comment) => yMapToComment(comment)
     ),
     resolved: yMap.get("resolved"),
-    resolvedUpdatedAt: yMap.get("resolvedUpdatedAt"),
+    resolvedUpdatedAt: new Date(yMap.get("resolvedUpdatedAt")),
+    resolvedBy: yMap.get("resolvedBy"),
     metadata: yMap.get("metadata"),
   };
 }

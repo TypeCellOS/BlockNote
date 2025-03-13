@@ -33,7 +33,7 @@ import { TableHandle } from "./tableHandle/TableHandle.js";
 import { Toolbar } from "./toolbar/Toolbar.js";
 import { ToolbarButton } from "./toolbar/ToolbarButton.js";
 import { ToolbarSelect } from "./toolbar/ToolbarSelect.js";
-import { Card, CardSection } from "./comments/Card.js";
+import { Card, CardSection, ExpandSectionsPrompt } from "./comments/Card.js";
 import { Comment } from "./comments/Comment.js";
 import { Editor } from "./comments/Editor.js";
 import { Badge, BadgeGroup } from "./badge/Badge.js";
@@ -60,6 +60,7 @@ export const components: Components = {
   LinkToolbar: {
     Root: Toolbar,
     Button: ToolbarButton,
+    Select: ToolbarSelect,
   },
   SideMenu: {
     Root: SideMenu,
@@ -81,6 +82,7 @@ export const components: Components = {
     Editor: Editor,
     Card: Card,
     CardSection: CardSection,
+    ExpandSectionsPrompt: ExpandSectionsPrompt,
   },
   Generic: {
     Badge: {
@@ -90,6 +92,7 @@ export const components: Components = {
     Toolbar: {
       Root: Toolbar,
       Button: ToolbarButton,
+      Select: ToolbarSelect,
     },
     Form: {
       Root: Form,

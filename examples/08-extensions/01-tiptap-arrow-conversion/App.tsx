@@ -2,14 +2,15 @@ import "@blocknote/core/fonts/inter.css";
 import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { ArrowConversionExtension } from "./ArrowConversionExtension";
+
+import { ArrowConversionExtension } from "./ArrowConversionExtension.js";
 
 export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     _tiptapOptions: {
-      extensions: [ArrowConversionExtension]
-    }
+      extensions: [ArrowConversionExtension],
+    },
   });
 
   // Renders the editor instance using a React component.

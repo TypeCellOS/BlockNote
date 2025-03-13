@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import { useEffect, useMemo, useRef } from "react";
 
-import { TextBlockSchema } from "./schema";
+import { TextBlockSchema } from "./schema.js";
 
 // If you want to change the items in a Suggestion Menu, like the Slash Menu,
 // you don't need to modify any of the components in this file. Instead, you

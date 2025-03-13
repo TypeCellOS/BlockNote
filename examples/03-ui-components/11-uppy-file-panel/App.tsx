@@ -9,8 +9,8 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 
-import { FileReplaceButton } from "./FileReplaceButton";
-import { uploadFile, UppyFilePanel } from "./UppyFilePanel";
+import { FileReplaceButton } from "./FileReplaceButton.js";
+import { uploadFile, UppyFilePanel } from "./UppyFilePanel.js";
 
 export default function App() {
   // Creates a new editor instance.

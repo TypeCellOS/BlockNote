@@ -42,7 +42,7 @@ import {
   ReactNode,
 } from "react";
 
-import { TextBlockSchema } from "./schema";
+import { TextBlockSchema } from "./schema.js";
 
 // This replaces the generic Mantine `ToolbarSelect` component with a simplified
 // MUI version:

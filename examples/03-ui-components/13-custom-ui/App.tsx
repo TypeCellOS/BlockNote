@@ -11,10 +11,10 @@ import "@blocknote/react/style.css";
 import { createTheme, ThemeProvider, useMediaQuery } from "@mui/material";
 import { useMemo } from "react";
 
-import { schema } from "./schema";
-import { CustomMUIFormattingToolbar } from "./MUIFormattingToolbar";
-import { CustomMUISideMenu } from "./MUISideMenu";
-import { MUISuggestionMenu } from "./MUISuggestionMenu";
+import { schema } from "./schema.js";
+import { CustomMUIFormattingToolbar } from "./MUIFormattingToolbar.js";
+import { CustomMUISideMenu } from "./MUISideMenu.js";
+import { MUISuggestionMenu } from "./MUISuggestionMenu.js";
 
 import "./style.css";
 

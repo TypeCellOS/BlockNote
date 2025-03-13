@@ -7,7 +7,7 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 
-import { AlertButton } from "./AlertButton";
+import { AlertButton } from "./AlertButton.js";
 
 export default function App() {
   // Creates a new editor instance.
