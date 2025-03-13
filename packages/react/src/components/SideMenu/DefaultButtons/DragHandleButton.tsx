@@ -18,7 +18,12 @@ export const DragHandleButton = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
   S extends StyleSchema = DefaultStyleSchema
 >(
-  props: Omit<SideMenuProps<BSchema, I, S>, "addBlock">
+  props: Omit<SideMenuProps<BSchema, I, S>, "addBlock"> & {
+    /**
+     * The menu items to render.
+     */
+    children?: React.ReactNode;
+  }
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
@@ -45,7 +50,7 @@ export const DragHandleButton = <
           icon={<MdDragIndicator size={24} data-test="dragHandle" />}
         />
       </Components.Generic.Menu.Trigger>
-      <Component block={props.block} />
+      <Component block={props.block}>{props.children}</Component>
     </Components.Generic.Menu.Root>
   );
 };
