@@ -58,15 +58,17 @@
 }
 
 .sidebar-comments-main-container .bn-threads-sidebar .bn-thread.selected {
-  background: var(--bn-colors-selected-background);
+  background-color: #F5F9FD;
+  border: 2px solid #C2DCF8;
+}
+
+.sidebar-comments-main-container.dark .bn-threads-sidebar .bn-thread.selected {
+  background-color: #20242A;
+  border: 2px solid #23405B;
 }
 
 .sidebar-comments-main-container .bn-threads-sidebar .bn-thread.selected .bn-thread-comments {
   border-bottom: none;
-}
-
-.sidebar-comments-main-container .bn-threads-sidebar .bn-thread.selected .bn-thread-comment p {
-  color: var(--bn-colors-selected-text);
 }
 
 .sidebar-comments-main-container .settings {
