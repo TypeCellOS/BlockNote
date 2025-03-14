@@ -51,6 +51,8 @@
     "_prepare": "npm run build"
   },
   "dependencies": {
+    "@emergence-engineering/prosemirror-text-map": "^0.1.4",
+    "prosemirror-changeset": "^2.2.1",
     "@ewoudenberg/difflib": "^0.1.0",
     "@ai-sdk/openai": "^1.1.0",
     "@ai-sdk/groq": "^1.1.0",

@@ -24,7 +24,7 @@ import {
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
 
-function updateBlockTr<
+export function updateBlockTr<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema

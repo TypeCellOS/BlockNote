@@ -59,7 +59,7 @@ describe("applyOperations", () => {
       operation: {
         type: "update",
         id: "ref1",
-        block: { content: "updated content" },
+        block: { content: "Hello, updated content" },
       } as UpdateBlocksOperation,
     };
 

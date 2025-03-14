@@ -1,0 +1,21 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`update complex paragraph  1`] = `[]`;
+
+exports[`update simple paragraph 1`] = `
+[
+  {
+    "from": 3,
+    "slice": {
+      "content": [
+        {
+          "text": "What's up",
+          "type": "text",
+        },
+      ],
+    },
+    "stepType": "replace",
+    "to": 8,
+  },
+]
+`;
