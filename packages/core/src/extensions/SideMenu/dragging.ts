@@ -66,7 +66,6 @@ function blockPositionsFromSelection(selection: Selection, doc: Node) {
 }
 
 function setDragImage(view: EditorView, from: number, to = from) {
-  // debugger;
   if (from === to) {
     // Moves to position to be just after the first (and only) selected block.
     to += view.state.doc.resolve(from + 1).node().nodeSize;
