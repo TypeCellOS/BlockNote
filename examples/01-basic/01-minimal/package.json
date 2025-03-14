@@ -11,6 +11,7 @@
     "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
+    "@blocknote/code-block": "latest",
     "@blocknote/core": "latest",
     "@blocknote/react": "latest",
     "@blocknote/ariakit": "latest",

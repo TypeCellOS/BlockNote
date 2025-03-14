@@ -4,23 +4,36 @@ import { defineConfig } from "vite";
 import pkg from "./package.json";
 // import eslintPlugin from "vite-plugin-eslint";
 
-const deps = Object.keys(pkg.dependencies);
+const deps = Object.keys({
+  ...pkg.dependencies,
+  ...pkg.peerDependencies,
+  ...pkg.devDependencies,
+});
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig((conf) => ({
   test: {
-    environment: "jsdom",
     setupFiles: ["./vitestSetup.ts"],
   },
-  plugins: [webpackStats()],
+  plugins: [webpackStats() as any],
+  // used so that vitest resolves the core package from the sources instead of the built version
+  resolve: {
+    alias:
+      conf.command === "build"
+        ? ({} as Record<string, string>)
+        : ({
+            // load live from sources with live reload working
+            "@blocknote/core": path.resolve(__dirname, "../core/src/"),
+            "@blocknote/react": path.resolve(__dirname, "../react/src/"),
+          } as Record<string, string>),
+  },
   build: {
     sourcemap: true,
     lib: {
       entry: {
-        blocknote: path.resolve(__dirname, "src/index.ts"),
-        comments: path.resolve(__dirname, "src/comments/index.ts"),
+        "blocknote-code-block": path.resolve(__dirname, "src/index.ts"),
       },
-      name: "blocknote",
+      name: "blocknote-code-block",
       formats: ["es", "cjs"],
       fileName: (format, entryName) =>
         format === "es" ? `${entryName}.js` : `${entryName}.cjs`,
@@ -32,11 +45,16 @@ export default defineConfig({
         if (deps.includes(source)) {
           return true;
         }
-        return (
-          source.startsWith("prosemirror-") ||
-          source.startsWith("@shikijs/lang") ||
-          source.startsWith("@shikijs/theme")
-        );
+
+        if (source === "react/jsx-runtime") {
+          return true;
+        }
+
+        if (source.startsWith("prosemirror-")) {
+          return true;
+        }
+
+        return false;
       },
       output: {
         // Provide global variables to use in the UMD build
@@ -46,4 +64,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));

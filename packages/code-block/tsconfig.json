@@ -17,9 +17,12 @@
     "outDir": "dist",
     "declaration": true,
     "declarationDir": "types",
-    "emitDeclarationOnly": true,
     "composite": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "emitDeclarationOnly": true,
+    "paths": {
+      "@shikijs/types": ["../../node_modules/@shikijs/types"]
+    }
   },
   "include": ["src"]
 }
