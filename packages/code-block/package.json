@@ -48,7 +48,8 @@
     "@shikijs/engine-javascript": "^3.2.1",
     "@shikijs/langs-precompiled": "^3.2.1",
     "@shikijs/langs": "^3.2.1",
-    "@shikijs/themes": "^3.2.1"
+    "@shikijs/themes": "^3.2.1",
+    "@shikijs/types": "^3.2.1"
   },
   "devDependencies": {
     "@blocknote/core": "^0.25.2",

@@ -86,7 +86,7 @@
     "emoji-mart": "^5.6.0",
     "hast-util-from-dom": "^4.2.0",
     "prosemirror-dropcursor": "^1.8.1",
-    "prosemirror-highlight": "https://pkg.pr.new/ocavue/prosemirror-highlight@80",
+    "prosemirror-highlight": "^0.13.0",
     "prosemirror-model": "^1.24.1",
     "prosemirror-state": "^1.4.3",
     "prosemirror-tables": "^1.6.4",
