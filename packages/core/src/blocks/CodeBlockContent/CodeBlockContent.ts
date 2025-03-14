@@ -8,22 +8,59 @@ import {
   PropSchema,
 } from "../../schema/index.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
-import {
-  defaultSupportedLanguages,
-  SupportedLanguageConfig,
-} from "./defaultSupportedLanguages.js";
-import {
-  bundledLanguages,
-  Highlighter,
-  BundledLanguage,
-  createHighlighter,
-} from "./shiki.bundle.js";
+import { HighlighterGeneric } from "@shikijs/types";
+import { BlockNoteEditor } from "../../index.js";
 
-interface CodeBlockOptions {
-  defaultLanguage: string;
-  indentLineWithTab: boolean;
-  supportedLanguages: SupportedLanguageConfig[];
-}
+export type CodeBlockOptions = {
+  /**
+   * Whether to indent lines with a tab when the user presses `Tab` in a code block.
+   *
+   * @default true
+   */
+  indentLineWithTab?: boolean;
+  /**
+   * The default language to use for code blocks.
+   *
+   * @default "text"
+   */
+  defaultLanguage?: string;
+  /**
+   * The languages that are supported in the editor.
+   *
+   * @example
+   * {
+   *   javascript: {
+   *     name: "JavaScript",
+   *     aliases: ["js"],
+   *   },
+   *   typescript: {
+   *     name: "TypeScript",
+   *     aliases: ["ts"],
+   *   },
+   * }
+   */
+  supportedLanguages: Record<
+    string,
+    {
+      /**
+       * The display name of the language.
+       */
+      name: string;
+      /**
+       * Aliases for this language.
+       */
+      aliases?: string[];
+    }
+  >;
+  /**
+   * The highlighter to use for code blocks.
+   */
+  createHighlighter?: () => Promise<HighlighterGeneric<any, any>>;
+};
+
+type CodeBlockConfigOptions = {
+  editor: BlockNoteEditor<any, any, any>;
+};
 
 export const shikiParserSymbol = Symbol.for("blocknote.shikiParser");
 export const shikiHighlighterPromiseSymbol = Symbol.for(
@@ -31,8 +68,7 @@ export const shikiHighlighterPromiseSymbol = Symbol.for(
 );
 export const defaultCodeBlockPropSchema = {
   language: {
-    default: "javascript",
-    values: defaultSupportedLanguages.map((lang) => lang.id),
+    default: "text",
   },
 } satisfies PropSchema;
 
@@ -45,18 +81,17 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
   defining: true,
   addOptions() {
     return {
-      defaultLanguage: "javascript",
+      defaultLanguage: "text",
       indentLineWithTab: true,
-      supportedLanguages: defaultSupportedLanguages,
+      supportedLanguages: {},
     };
   },
   addAttributes() {
-    const supportedLanguages = this.options
-      .supportedLanguages as SupportedLanguageConfig[];
+    const options = this.options as CodeBlockConfigOptions;
 
     return {
       language: {
-        default: this.options.defaultLanguage,
+        default: options.editor.settings.codeBlock.defaultLanguage,
         parseHTML: (inputElement) => {
           let element = inputElement as HTMLElement | null;
           let language: string | null = null;
@@ -91,11 +126,7 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
             return null;
           }
 
-          return (
-            supportedLanguages.find(({ match }) => {
-              return match.includes(language);
-            })?.id || this.options.defaultLanguage
-          );
+          return getLanguageId(options.editor.settings.codeBlock, language);
         },
         renderHTML: (attributes) => {
           // TODO: Use `data-language="..."` instead for easier parsing
@@ -143,8 +174,7 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
     };
   },
   addNodeView() {
-    const supportedLanguages = this.options
-      .supportedLanguages as SupportedLanguageConfig[];
+    const options = this.options as CodeBlockConfigOptions;
 
     return ({ editor, node, getPos, HTMLAttributes }) => {
       const pre = document.createElement("pre");
@@ -169,7 +199,9 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
         });
       };
 
-      supportedLanguages.forEach(({ id, name }) => {
+      Object.entries(
+        options.editor.settings.codeBlock.supportedLanguages
+      ).forEach(([id, { name }]) => {
         const option = document.createElement("option");
 
         option.value = id;
@@ -178,7 +210,9 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
       });
 
       selectWrapper.contentEditable = "false";
-      select.value = node.attrs.language || this.options.defaultLanguage;
+      select.value =
+        node.attrs.language ||
+        options.editor.settings.codeBlock.defaultLanguage;
       dom.removeChild(contentDOM);
       dom.appendChild(selectWrapper);
       dom.appendChild(pre);
@@ -203,24 +237,30 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
     };
   },
   addProseMirrorPlugins() {
-    const supportedLanguages = this.options
-      .supportedLanguages as SupportedLanguageConfig[];
+    const options = this.options as CodeBlockConfigOptions;
     const globalThisForShiki = globalThis as {
-      [shikiHighlighterPromiseSymbol]?: Promise<Highlighter>;
+      [shikiHighlighterPromiseSymbol]?: Promise<HighlighterGeneric<any, any>>;
       [shikiParserSymbol]?: Parser;
     };
 
-    let highlighter: Highlighter | undefined;
+    let highlighter: HighlighterGeneric<any, any> | undefined;
     let parser: Parser | undefined;
-
-    const lazyParser: Parser = (options) => {
+    let hasWarned = false;
+    const lazyParser: Parser = (parserOptions) => {
+      if (!options.editor.settings.codeBlock.createHighlighter) {
+        if (process.env.NODE_ENV === "development" && !hasWarned) {
+          // eslint-disable-next-line no-console
+          console.log(
+            "For syntax highlighting of code blocks, you must provide a highlighter function"
+          );
+          hasWarned = true;
+        }
+        return [];
+      }
       if (!highlighter) {
         globalThisForShiki[shikiHighlighterPromiseSymbol] =
           globalThisForShiki[shikiHighlighterPromiseSymbol] ||
-          createHighlighter({
-            langs: [],
-            themes: ["github-dark"],
-          });
+          options.editor.settings.codeBlock.createHighlighter();
 
         return globalThisForShiki[shikiHighlighterPromiseSymbol].then(
           (createdHighlighter) => {
@@ -229,16 +269,15 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
         );
       }
 
-      const language = options.language;
+      const language = parserOptions.language;
 
       if (
         language &&
         language !== "text" &&
         !highlighter.getLoadedLanguages().includes(language) &&
-        supportedLanguages.find(({ id }) => id === language) &&
-        language in bundledLanguages
+        language in options.editor.settings.codeBlock.supportedLanguages
       ) {
-        return highlighter.loadLanguage(language as BundledLanguage);
+        return highlighter.loadLanguage(language);
       }
 
       if (!parser) {
@@ -248,7 +287,7 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
         globalThisForShiki[shikiParserSymbol] = parser;
       }
 
-      return parser(options);
+      return parser(parserOptions);
     };
 
     const shikiLazyPlugin = createHighlightPlugin({
@@ -260,8 +299,7 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
     return [shikiLazyPlugin];
   },
   addInputRules() {
-    const supportedLanguages = this.options
-      .supportedLanguages as SupportedLanguageConfig[];
+    const options = this.options as CodeBlockConfigOptions;
 
     return [
       new InputRule({
@@ -270,10 +308,10 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
           const $start = state.doc.resolve(range.from);
           const languageName = match[1].trim();
           const attributes = {
-            language:
-              supportedLanguages.find(({ match }) => {
-                return match.includes(languageName);
-              })?.id || this.options.defaultLanguage,
+            language: getLanguageId(
+              options.editor.settings.codeBlock,
+              languageName
+            ),
           };
 
           if (
@@ -384,18 +422,10 @@ export const CodeBlock = createBlockSpecFromStronglyTypedTiptapNode(
   defaultCodeBlockPropSchema
 );
 
-export function customizeCodeBlock(options: Partial<CodeBlockOptions>) {
-  return createBlockSpecFromStronglyTypedTiptapNode(
-    CodeBlockContent.configure(options),
-    {
-      language: {
-        default:
-          options.defaultLanguage ||
-          defaultCodeBlockPropSchema.language.default,
-        values:
-          options.supportedLanguages?.map((lang) => lang.id) ||
-          defaultCodeBlockPropSchema.language.values,
-      },
-    }
+function getLanguageId(options: CodeBlockOptions, languageName: string) {
+  return (
+    Object.entries(options.supportedLanguages).find(([id, { aliases }]) => {
+      return aliases?.includes(languageName) || id === languageName;
+    })?.[0] || options.defaultLanguage
   );
 }

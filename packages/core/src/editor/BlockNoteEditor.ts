@@ -101,6 +101,7 @@ import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
 import type { ThreadStore, User } from "../comments/index.js";
 import "../style.css";
 import { EventEmitter } from "../util/EventEmitter.js";
+import { CodeBlockOptions } from "../blocks/CodeBlockContent/CodeBlockContent.js";
 
 export type BlockNoteExtensionFactory = (
   editor: BlockNoteEditor<any, any, any>
@@ -155,6 +156,11 @@ export type BlockNoteEditorOptions<
      */
     showCursorLabels?: "always" | "activity";
   };
+
+  /**
+   * Options for code blocks.
+   */
+  codeBlock?: CodeBlockOptions;
 
   comments: {
     threadStore: ThreadStore;
@@ -442,6 +448,7 @@ export class BlockNoteEditor<
       cellTextColor: boolean;
       headers: boolean;
     };
+    codeBlock: CodeBlockOptions;
   };
 
   public static create<
@@ -488,6 +495,12 @@ export class BlockNoteEditor<
         cellBackgroundColor: options?.tables?.cellBackgroundColor ?? false,
         cellTextColor: options?.tables?.cellTextColor ?? false,
         headers: options?.tables?.headers ?? false,
+      },
+      codeBlock: {
+        indentLineWithTab: options?.codeBlock?.indentLineWithTab ?? true,
+        defaultLanguage: options?.codeBlock?.defaultLanguage ?? "text",
+        supportedLanguages: options?.codeBlock?.supportedLanguages ?? {},
+        createHighlighter: options?.codeBlock?.createHighlighter ?? undefined,
       },
     };
 
