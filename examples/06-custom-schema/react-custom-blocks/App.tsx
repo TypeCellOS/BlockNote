@@ -1,8 +1,4 @@
-import {
-  BlockNoteSchema,
-  defaultBlockSpecs,
-  defaultProps,
-} from "@blocknote/core";
+import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { createReactBlockSpec, useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
@@ -10,108 +6,34 @@ import "@blocknote/mantine/style.css";
 
 import "./styles.css";
 
-// The types of alerts that users can choose from
-const alertTypes = {
-  warning: {
-    icon: "⚠️",
-    color: "#e69819",
-    backgroundColor: "#fff6e6",
-  },
-  error: {
-    icon: "⛔",
-    color: "#d80d0d",
-    backgroundColor: "#ffe6e6",
-  },
-  info: {
-    icon: "ℹ️",
-    color: "#507aff",
-    backgroundColor: "#e6ebff",
-  },
-  success: {
-    icon: "✅",
-    color: "#0bc10b",
-    backgroundColor: "#e6ffe6",
-  },
-};
-
-export const alertBlock = createReactBlockSpec(
+export const editableBlock = createReactBlockSpec(
   {
-    type: "alert",
-    propSchema: {
-      textAlignment: defaultProps.textAlignment,
-      textColor: defaultProps.textColor,
-      type: {
-        default: "warning",
-        values: ["warning", "error", "info", "success"],
-      },
-    },
+    type: "editable",
     content: "inline",
+    propSchema: {},
   },
   {
-    render: (props) => (
-      <div
-        className={"alert"}
-        style={{
-          backgroundColor: alertTypes[props.block.props.type].backgroundColor,
-        }}>
-        <select
-          contentEditable={false}
-          value={props.block.props.type}
-          onChange={(event) => {
-            props.editor.updateBlock(props.block, {
-              type: "alert",
-              props: { type: event.target.value as keyof typeof alertTypes },
-            });
-          }}>
-          <option value="warning">{alertTypes["warning"].icon}</option>
-          <option value="error">{alertTypes["error"].icon}</option>
-          <option value="info">{alertTypes["info"].icon}</option>
-          <option value="success">{alertTypes["success"].icon}</option>
-        </select>
-        <div className={"inline-content"} ref={props.contentRef} />
+    render: ({ contentRef }) => (
+      <div className={"editable-block"}>
+        <div className={"editable-block-non-editable-text"}>
+          This text is non-editable and is inside an editable block
+        </div>
+        <div className={"editable-block-editable-text"} ref={contentRef} />
       </div>
     ),
   }
 );
 
-const simpleImageBlock = createReactBlockSpec(
+export const nonEditableBlock = createReactBlockSpec(
   {
-    type: "simpleImage",
-    propSchema: {
-      src: {
-        default:
-          "https://www.pulsecarshalton.co.uk/wp-content/uploads/2016/08/jk-placeholder-image.jpg",
-      },
-    },
+    type: "nonEditable",
     content: "none",
+    propSchema: {},
   },
   {
-    render: (props) => (
-      <img
-        className={"simple-image"}
-        src={props.block.props.src}
-        alt="placeholder"
-      />
-    ),
-  }
-);
-
-export const bracketsParagraphBlock = createReactBlockSpec(
-  {
-    type: "bracketsParagraph",
-    content: "inline",
-    propSchema: {
-      ...defaultProps,
-    },
-  },
-  {
-    render: (props) => (
-      <div className={"brackets-paragraph"}>
-        <div contentEditable={"false"}>{"["}</div>
-        <span contentEditable={"false"}>{"{"}</span>
-        <div className={"inline-content"} ref={props.contentRef} />
-        <span contentEditable={"false"}>{"}"}</span>
-        <div contentEditable={"false"}>{"]"}</div>
+    render: () => (
+      <div className={"non-editable-block"}>
+        This text is non-editable and is inside a non-editable block
       </div>
     ),
   }
@@ -120,9 +42,8 @@ export const bracketsParagraphBlock = createReactBlockSpec(
 const schema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
-    alert: alertBlock,
-    simpleImage: simpleImageBlock,
-    bracketsParagraph: bracketsParagraphBlock,
+    editable: editableBlock,
+    nonEditable: nonEditableBlock,
   },
 });
 
@@ -131,21 +52,27 @@ export default function App() {
     schema,
     initialContent: [
       {
-        type: "alert",
-        props: {
-          type: "success",
-        },
-        content: "Alert",
+        type: "paragraph",
+        content:
+          "The block below is editable and contains non-editable text. The non-editable text is not selectable by the user.",
       },
       {
-        type: "simpleImage",
-        props: {
-          src: "https://t3.ftcdn.net/jpg/02/48/42/64/360_F_248426448_NVKLywWqArG2ADUxDq6QprtIzsF82dMF.jpg",
-        },
+        type: "editable",
+        content: "Try selecting the non-editable italic text above.",
       },
       {
-        type: "bracketsParagraph",
-        content: "Brackets Paragraph",
+        type: "paragraph",
+      },
+      {
+        type: "paragraph",
+        content:
+          "The block below is non-editable, and it's text is sometimes selectable by the user.",
+      },
+      {
+        type: "nonEditable",
+      },
+      {
+        type: "paragraph",
       },
     ],
   });
