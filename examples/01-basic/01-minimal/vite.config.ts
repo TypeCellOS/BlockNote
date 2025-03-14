@@ -27,6 +27,10 @@ export default defineConfig((conf) => ({
               __dirname,
               "../../packages/react/src/"
             ),
+            "@blocknote/code-block": path.resolve(
+              __dirname,
+              "../../packages/code-block/src/"
+            ),
           } as any),
   },
 }));
