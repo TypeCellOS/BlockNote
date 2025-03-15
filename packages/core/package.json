@@ -49,6 +49,11 @@
       "types": "./types/src/comments/index.d.ts",
       "import": "./dist/comments.js",
       "require": "./dist/comments.cjs"
+    },
+    "./locales": {
+      "types": "./types/src/i18n/index.d.ts",
+      "import": "./dist/locales.js",
+      "require": "./dist/locales.cjs"
     }
   },
   "scripts": {
