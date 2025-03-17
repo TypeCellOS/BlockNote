@@ -4,7 +4,7 @@ description: Learn how to enable comments in your BlockNote editor
 imageTitle: Comments
 ---
 
-import { Example } from "@/components/example";
+import {Example} from "@/components/example";
 
 # Comments
 
@@ -33,7 +33,7 @@ const editor = useCreateBlockNote({
 
 **Demo**
 
-<Example name="collaboration/comments" />
+<Example name="collaboration/comments"/>
 
 ## ThreadStores
 
@@ -136,7 +136,7 @@ async function myResolveUsers(userIds: string[]): Promise<User[]> {
   // fetch user information from your database / backend
   // and return an array of User objects
 
-  return await callYourBackend(userIds); //
+  return await callYourBackend(userIds);
 
   // Return a list of users
   return users;
@@ -147,12 +147,16 @@ async function myResolveUsers(userIds: string[]): Promise<User[]> {
 
 BlockNote also offers a different way of viewing and interacting with comments, via a sidebar instead of floating in the editor, using the `ThreadsSidebar` component:
 
-<Example name="collaboration/comments-with-sidebar" />
+<Example name="collaboration/comments-with-sidebar"/>
 
 The only requirement for `ThreadsSidebar` is that it should be placed somewhere within your `BlockNoteView`, other than that you can position and style it however you want.
 
 `ThreadsSidebar` also takes 2 props:
 
-**`filter`**: Filter the comments in the sidebar. Can pass either `"open"` or `"resolved"` to only show open or resolved comments. Shows all comments if undefined.
+**`filter`**: Filter the comments in the sidebar. Can pass `"open"`, `"resolved"`, or `"all"`, to only show open, resolved, or all comments. Defaults to `"all"`.
 
 **`sort`**: Sort the comments in the sidebar. Can pass `"position"`, `"recent-activity"`, or `"oldest"`. Sorting by `"recent-activity"` uses the most recently added comment to sort threads, while `"oldest"` uses the thread creation date. Sorting by `"position"` puts comments in the same order as their reference text in the editor. Defaults to `"position"`.
+
+**`maxCommentsBeforeCollapse`**: The maximum number of comments that can be in a thread before the replies get collapsed. Defaults to 5.
+
+See [here](https://playground.blocknotejs.org/collaboration/comments-with-sidebar?hideMenu=true) for a standalone example of the `ThreadsSidebar` component.

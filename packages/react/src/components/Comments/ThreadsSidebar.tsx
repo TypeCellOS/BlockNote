@@ -106,7 +106,7 @@ function sortThreads(
  * Note / TODO: it might be nicer to store and use the original content
  * when the thread was created, instead of taking the actual content from the editor
  */
-function getReferenceText(
+export function getReferenceText(
   editor: BlockNoteEditor<any, any, any>,
   threadPosition?: {
     from: number;
@@ -136,19 +136,25 @@ function getReferenceText(
  */
 export function ThreadsSidebar(props: {
   /**
-   * TODO: docs
+   * Filter the comments in the sidebar. Can pass `"open"`, `"resolved"`, or
+   * `"all"`, to only show open, resolved, or all comments.
    *
    * @default "all"
    */
   filter?: "open" | "resolved" | "all";
   /**
-   * TODO: docs
+   * The maximum number of comments that can be in a thread before the replies
+   * get collapsed.
    *
    * @default 5
    */
   maxCommentsBeforeCollapse?: number;
   /**
-   * TODO: docs
+   * Sort the comments in the sidebar. Can pass `"position"`,
+   * `"recent-activity"`, or `"oldest"`. Sorting by `"recent-activity"` uses the
+   * most recently added comment to sort threads, while `"oldest"` uses the
+   * thread creation date. Sorting by `"position"` puts comments in the same
+   * order as their reference text in the editor.
    *
    * @default "position"
    */

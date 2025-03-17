@@ -97,11 +97,7 @@ export const Comment = forwardRef<
       ref={ref}
       className={cn(className, "bn-relative bn-flex bn-flex-col bn-gap-2")}
       onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => {
-        // TODO: This is getting triggered when opening the "more actions"
-        //  popover?
-        setHovered(false);
-      }}>
+      onMouseLeave={() => setHovered(false)}>
       {doShowActions ? (
         <div
           className={"bn-absolute bn-right-0 bn-top-0 bn-z-10"}
