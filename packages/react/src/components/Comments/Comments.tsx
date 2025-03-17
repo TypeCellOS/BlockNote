@@ -1,8 +1,8 @@
 import { ThreadData } from "@blocknote/core/comments";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
+import { useDictionary } from "../../i18n/dictionary.js";
 import { Comment } from "./Comment.js";
-import { useDictionary } from "../../i18n/dictionary";
 
 export type CommentsProps = {
   thread: ThreadData;
