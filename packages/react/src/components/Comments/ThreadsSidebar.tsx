@@ -11,15 +11,6 @@ function sortThreads(
   threadPositions?: Map<string, { from: number; to: number }>,
   sort?: "position" | "newest" | "oldest"
 ) {
-  if (sort === "position") {
-    return threads.sort((a, b) => {
-      const threadA = threadPositions?.get(a.id)?.from || Number.MAX_VALUE;
-      const threadB = threadPositions?.get(b.id)?.from || Number.MAX_VALUE;
-
-      return threadA - threadB;
-    });
-  }
-
   if (sort === "newest") {
     return threads.sort(
       (a, b) =>
@@ -34,7 +25,12 @@ function sortThreads(
     );
   }
 
-  return threads;
+  return threads.sort((a, b) => {
+    const threadA = threadPositions?.get(a.id)?.from || Number.MAX_VALUE;
+    const threadB = threadPositions?.get(b.id)?.from || Number.MAX_VALUE;
+
+    return threadA - threadB;
+  });
 }
 
 /**

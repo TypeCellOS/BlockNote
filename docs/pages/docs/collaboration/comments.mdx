@@ -4,7 +4,7 @@ description: Learn how to enable comments in your BlockNote editor
 imageTitle: Comments
 ---
 
-import { Example } from "@/components/example";
+import {Example} from "@/components/example";
 
 # Comments
 
@@ -33,7 +33,7 @@ const editor = useCreateBlockNote({
 
 **Demo**
 
-<Example name="collaboration/comments" />
+<Example name="collaboration/comments"/>
 
 ## ThreadStores
 
@@ -136,3 +136,17 @@ async function myResolveUsers(userIds: string[]): Promise<User[]> {
   return users;
 }
 ```
+
+## Sidebar View
+
+BlockNote also offers a different way of viewing and interacting with comments, via a sidebar instead of floating in the editor, using the `ThreadsSidebar` component:
+
+<Example name="collaboration/comments-with-sidebar"/>
+
+The only requirement for `ThreadsSidebar` is that it should be placed somewhere within your `BlockNoteView`, other than that you can position and style it however you want.
+
+`ThreadsSidebar` also takes 2 props:
+
+**`filter`**: Filter the comments in the sidebar. Can pass either `"open"` or `"resolved"` to only show open or resolved comments. Shows all comments if undefined.
+
+**`sort`**: Sort the comments in the sidebar. Can pass `"position"`, `"newest"`, or `"oldest"`. Sorting by `"newest"` uses the most recently added comment to sort threads, while `"oldest"` uses the thread creation date. Sorting by `"position"` puts comments in the same order as their reference text in the editor. Defaults to `"position"`.

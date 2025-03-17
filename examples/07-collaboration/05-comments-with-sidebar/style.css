@@ -53,6 +53,11 @@
   min-width: initial;
 }
 
+.sidebar-comments-main-container .bn-thread-expand-prompt .mantine-Text-root,
+.sidebar-comments-main-container .bn-thread .bn-header-text {
+  color: var(--bn-colors-menu-text);
+}
+
 .sidebar-comments-main-container .bn-threads-sidebar .bn-thread .bn-editor {
   background-color: transparent;
 }
