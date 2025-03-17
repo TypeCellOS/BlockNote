@@ -2,6 +2,7 @@ import { ThreadData } from "@blocknote/core/comments";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { Comment } from "./Comment.js";
+import { useDictionary } from "../../i18n/dictionary";
 
 export type CommentsProps = {
   thread: ThreadData;
@@ -10,6 +11,7 @@ export type CommentsProps = {
 
 export const Comments = ({ thread, collapse }: CommentsProps) => {
   const Components = useComponentsContext()!;
+  const dict = useDictionary();
 
   if (collapse) {
     return [
@@ -22,7 +24,7 @@ export const Comments = ({ thread, collapse }: CommentsProps) => {
       <Components.Comments.ExpandSectionsPrompt
         key={"expand-prompt"}
         className={"bn-thread-expand-prompt"}>
-        {`${thread.comments.length - 2} more replies`}
+        {dict.comments.sidebar.more_replies(thread.comments.length - 2)}
       </Components.Comments.ExpandSectionsPrompt>,
       <Comment
         key={thread.comments[thread.comments.length - 1].id}

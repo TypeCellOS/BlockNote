@@ -110,7 +110,9 @@ export const Thread = ({
             )}
             edited={false}
             showActions={false}>
-            <div className={"bn-resolved-text"}>Marked as resolved</div>
+            <div className={"bn-resolved-text"}>
+              {dict.comments.sidebar.marked_as_resolved}
+            </div>
           </Components.Comments.Comment>
         )}
       </Components.Comments.CardSection>

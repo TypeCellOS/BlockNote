@@ -360,6 +360,10 @@ export const ja: Dictionary = {
     reactions: {
       reacted_by: "リアクションした人",
     },
+    sidebar: {
+      marked_as_resolved: "解決済みとしてマーク",
+      more_replies: (count) => `${count} 件の追加返信`,
+    },
   },
   generic: {
     ctrl_shortcut: "Ctrl",

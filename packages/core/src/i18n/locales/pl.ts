@@ -324,6 +324,10 @@ export const pl: Dictionary = {
     reactions: {
       reacted_by: "Zareagowali",
     },
+    sidebar: {
+      marked_as_resolved: "Oznaczone jako rozwiązane",
+      more_replies: (count) => `${count} więcej odpowiedzi`,
+    },
   },
   generic: {
     ctrl_shortcut: "Ctrl",
