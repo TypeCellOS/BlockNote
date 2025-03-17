@@ -1,7 +1,7 @@
-import { AnyExtension, Extension, extensions } from "@tiptap/core";
+import { /*AnyExtension,*/ Extension, extensions } from "@tiptap/core";
 import { Gapcursor } from "@tiptap/extension-gapcursor";
 import { HardBreak } from "@tiptap/extension-hard-break";
-import { History } from "@tiptap/extension-history";
+import { UndoRedo } from "@tiptap/extension-undo-redo";
 import { Link } from "@tiptap/extension-link";
 import { Text } from "@tiptap/extension-text";
 import { Plugin } from "prosemirror-state";
@@ -163,7 +163,8 @@ const getTipTapExtensions = <
 >(
   opts: ExtensionOptions<BSchema, I, S>
 ) => {
-  const tiptapExtensions: AnyExtension[] = [
+  // TODO just for now
+  const tiptapExtensions: any[] = [
     extensions.ClipboardTextSerializer,
     extensions.Commands,
     extensions.Editable,
@@ -275,7 +276,7 @@ const getTipTapExtensions = <
     tiptapExtensions.push(...createCollaborationExtensions(opts.collaboration));
   } else {
     // disable history extension when collaboration is enabled as Yjs takes care of undo / redo
-    tiptapExtensions.push(History);
+    tiptapExtensions.push(UndoRedo);
   }
 
   return tiptapExtensions;

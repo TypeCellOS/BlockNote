@@ -69,7 +69,6 @@ describe("Test external clipboard HTML", () => {
   });
 
   afterAll(() => {
-    editor.mount(undefined);
     editor._tiptapEditor.destroy();
     editor = undefined as any;
 

@@ -163,7 +163,11 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
         const language = (event.target as HTMLSelectElement).value;
 
         editor.commands.command(({ tr }) => {
-          tr.setNodeAttribute(getPos(), "language", language);
+          const pos = getPos();
+          if (!pos) {
+            return false;
+          }
+          tr.setNodeAttribute(pos, "language", language);
 
           return true;
         });

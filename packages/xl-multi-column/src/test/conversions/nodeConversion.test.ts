@@ -65,7 +65,7 @@ describe("Test BlockNote-Prosemirror conversion", () => {
       });
 
       afterEach(() => {
-        editor.mount(undefined);
+        editor.unmount();
         editor._tiptapEditor.destroy();
         editor = undefined as any;
 

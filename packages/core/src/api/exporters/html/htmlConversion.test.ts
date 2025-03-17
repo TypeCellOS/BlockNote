@@ -86,7 +86,6 @@ describe("Test HTML conversion", () => {
       });
 
       afterEach(() => {
-        editor.mount(undefined);
         editor._tiptapEditor.destroy();
         editor = undefined as any;
 

@@ -25,7 +25,7 @@ export function setupTestEnv() {
   });
 
   afterAll(() => {
-    editor.mount(undefined);
+    editor.unmount();
     editor._tiptapEditor.destroy();
     editor = undefined as any;
   });

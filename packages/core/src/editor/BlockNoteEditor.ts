@@ -612,6 +612,14 @@ export class BlockNoteEditor<
 
     const tiptapExtensions = [
       ...Object.entries(this.extensions).map(([key, ext]) => {
+        if ("plugin" in ext) {
+          // "blocknote" extensions (prosemirror plugins)
+          return Extension.create({
+            name: key,
+            addProseMirrorPlugins: () => [ext.plugin],
+          });
+        }
+
         if (
           ext instanceof Extension ||
           ext instanceof TipTapNode ||
@@ -621,17 +629,9 @@ export class BlockNoteEditor<
           return ext;
         }
 
-        if (!ext.plugin) {
-          throw new Error(
-            "Extension should either be a TipTap extension or a ProseMirror plugin in a plugin property"
-          );
-        }
-
-        // "blocknote" extensions (prosemirror plugins)
-        return Extension.create({
-          name: key,
-          addProseMirrorPlugins: () => [ext.plugin],
-        });
+        throw new Error(
+          "Extension should either be a TipTap extension or a ProseMirror plugin in a plugin property"
+        );
       }),
     ];
     const tiptapOptions: BlockNoteTipTapEditorOptions = {
@@ -680,15 +680,19 @@ export class BlockNoteEditor<
   };
 
   /**
-   * Mount the editor to a parent DOM element. Call mount(undefined) to clean up
+   * Mount the editor to a parent DOM element.
    *
    * @warning Not needed to call manually when using React, use BlockNoteView to take care of mounting
    */
-  public mount = (
-    parentElement?: HTMLElement | null,
-    contentComponent?: any
-  ) => {
-    this._tiptapEditor.mount(parentElement, contentComponent);
+  public mount = (parentElement: HTMLElement) => {
+    this._tiptapEditor.mount(parentElement);
+  };
+
+  /**
+   * Unmount the editor from the DOM element it is bound to
+   */
+  public unmount = () => {
+    this._tiptapEditor.unmount();
   };
 
   /**

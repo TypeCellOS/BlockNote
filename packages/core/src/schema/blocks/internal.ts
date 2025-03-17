@@ -101,18 +101,20 @@ export function getBlockFromPos<
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  getPos: (() => number) | boolean,
+  getPos: () => number | undefined,
   editor: BlockNoteEditor<BSchema, I, S>,
   tipTapEditor: Editor,
   type: BType
 ) {
   // Gets position of the node
-  if (typeof getPos === "boolean") {
+  const pos = getPos();
+
+  if (pos === undefined) {
     throw new Error(
       "Cannot find node position as getPos is a boolean, not a function."
     );
   }
-  const pos = getPos();
+
   // Gets parent blockContainer node
   const blockContainer = tipTapEditor.state.doc.resolve(pos!).node();
   // Gets block identifier

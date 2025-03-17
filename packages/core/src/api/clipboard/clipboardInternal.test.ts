@@ -283,7 +283,6 @@ describe("Test ProseMirror selection clipboard HTML", () => {
   });
 
   afterAll(() => {
-    editor.mount(undefined);
     editor._tiptapEditor.destroy();
     editor = undefined as any;
 
