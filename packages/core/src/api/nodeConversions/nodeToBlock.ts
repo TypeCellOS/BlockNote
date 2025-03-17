@@ -82,6 +82,7 @@ export function contentNodeToTableContent<
 
           // Only merge if the last and first content are both styled text nodes and have the same styles
           if (
+            first &&
             isStyledTextInlineContent(last) &&
             isStyledTextInlineContent(first) &&
             JSON.stringify(last.styles) === JSON.stringify(first.styles)

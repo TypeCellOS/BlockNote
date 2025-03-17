@@ -662,32 +662,27 @@ export class TableHandlesProsemirrorPlugin<
           }
 
           const decorations: Decoration[] = [];
+          const { block, draggingState } = this.view.state;
+          const { originalIndex, draggedCellOrientation } = draggingState;
 
-          if (newIndex === this.view.state.draggingState.originalIndex) {
-            return DecorationSet.create(state.doc, decorations);
-          } else if (
-            this.view.state.draggingState.draggedCellOrientation === "row" &&
-            !canRowBeDraggedInto(
-              this.view.state.block,
-              this.view.state.draggingState.originalIndex,
-              newIndex
-            )
-          ) {
-            return DecorationSet.create(state.doc, decorations);
-          } else if (
-            this.view.state.draggingState.draggedCellOrientation === "col" &&
-            !canColumnBeDraggedInto(
-              this.view.state.block,
-              this.view.state.draggingState.originalIndex,
-              newIndex
-            )
+          // Return empty decorations if:
+          // - Dragging to same position
+          // - No block exists
+          // - Row drag not allowed
+          // - Column drag not allowed
+          if (
+            newIndex === originalIndex ||
+            !block ||
+            (draggedCellOrientation === "row" &&
+              !canRowBeDraggedInto(block, originalIndex, newIndex)) ||
+            (draggedCellOrientation === "col" &&
+              !canColumnBeDraggedInto(block, originalIndex, newIndex))
           ) {
             return DecorationSet.create(state.doc, decorations);
           }
 
           // Gets the table to show the drop cursor in.
           const tableResolvedPos = state.doc.resolve(this.view.tablePos + 1);
-          const originalIndex = this.view.state.draggingState.originalIndex;
 
           if (this.view.state.draggingState.draggedCellOrientation === "row") {
             const cellsInRow = getCellsAtRowHandle(
