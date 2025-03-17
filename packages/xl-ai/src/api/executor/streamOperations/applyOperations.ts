@@ -1,8 +1,10 @@
 import { BlockNoteEditor, UnreachableCaseError } from "@blocknote/core";
+import { applySuggestions } from "@handlewithcare/prosemirror-suggest-changes";
 import { ChangeSet } from "prosemirror-changeset";
 import { applyStepsAsAgent } from "../../../prosemirror/agent.js";
 import { updateToReplaceSteps } from "../../../prosemirror/changeset.js";
 import { BlockNoteOperation } from "../../functions/blocknoteFunctions.js";
+
 /**
  * Applies the operations to the editor and yields the results.
  */
@@ -41,7 +43,7 @@ export async function* applyOperations(
         } else if (type === "insert") {
           await new Promise((resolve) => setTimeout(resolve, 10));
         } else if (type === "replace") {
-          await new Promise((resolve) => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, 20));
         } else {
           throw new UnreachableCaseError(type);
         }
@@ -49,9 +51,9 @@ export async function* applyOperations(
         editor.dispatch(tr);
       });
 
-      // applySuggestions(editor.prosemirrorState, (tr) => {
-      //   editor.dispatch(tr);
-      // });
+      applySuggestions(editor.prosemirrorState, (tr) => {
+        editor.dispatch(tr);
+      });
 
       yield {
         operation: chunk.operation,
