@@ -117,7 +117,7 @@ export const Thread = ({
         )}
       </Components.Comments.CardSection>
       {selected && (
-        <Components.Comments.CardSection>
+        <Components.Comments.CardSection className={"bn-thread-composer"}>
           <CommentEditor
             autoFocus={false}
             editable={true}
