@@ -59,7 +59,7 @@ export const CardSection = forwardRef<
   assertEmpty(rest, false);
 
   return (
-    <MantineCard.Section p={"md"} className={className} ref={ref}>
+    <MantineCard.Section className={className} ref={ref}>
       {children}
     </MantineCard.Section>
   );

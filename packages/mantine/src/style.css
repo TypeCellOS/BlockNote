@@ -590,6 +590,9 @@
   border-radius: var(--bn-border-radius-medium);
   box-shadow: var(--bn-shadow-medium);
   color: var(--bn-colors-menu-text);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   min-width: 350px;
   overflow: visible;
 }
@@ -598,10 +601,15 @@
   cursor: pointer;
 }
 
-.bn-mantine .bn-thread-comments {
-  border-bottom: var(--bn-border);
+.bn-mantine .bn-thread-comments,
+.bn-mantine .bn-thread-composer {
   display: flex;
   flex-direction: column;
+  margin: 0;
+  padding: 0;
+}
+
+.bn-mantine .bn-thread-comments {
   gap: 1rem;
 }
 
