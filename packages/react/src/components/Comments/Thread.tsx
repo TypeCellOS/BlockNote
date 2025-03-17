@@ -12,6 +12,9 @@ import { schema } from "./schema.js";
 import { useUsers } from "./useUsers.js";
 
 export type ThreadProps = {
+  /**
+   * TODO: DOCS
+   */
   thread: ThreadData;
   selected?: boolean;
   referenceText?: string;
@@ -67,6 +70,7 @@ export const Thread = ({
       },
     },
     schema,
+    sideMenuDetection: "editor",
   });
 
   const onNewCommentSave = useCallback(async () => {

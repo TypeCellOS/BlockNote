@@ -1,17 +1,18 @@
+import { BlockNoteEditor, UnreachableCaseError } from "@blocknote/core";
+import { ThreadData } from "@blocknote/core/comments";
+import { useMemo } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useUIPluginState } from "../../hooks/useUIPluginState.js";
 import { Thread } from "./Thread.js";
 import { useThreads } from "./useThreads.js";
-import { ThreadData } from "@blocknote/core/comments";
-import { useEffect, useMemo } from "react";
-import { TextSelection } from "@tiptap/pm/state";
 
 function sortThreads(
   threads: ThreadData[],
-  threadPositions?: Map<string, { from: number; to: number }>,
-  sort?: "position" | "newest" | "oldest"
+  sort: "position" | "recent-activity" | "oldest",
+  threadPositions?: Map<string, { from: number; to: number }>
 ) {
-  if (sort === "newest") {
+  if (sort === "recent-activity") {
+    // sort by latest comment in thread first
     return threads.sort(
       (a, b) =>
         b.comments[b.comments.length - 1].createdAt.getTime() -
@@ -20,17 +21,52 @@ function sortThreads(
   }
 
   if (sort === "oldest") {
+    // sort by oldest thread first
     return threads.sort(
       (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
     );
   }
 
-  return threads.sort((a, b) => {
-    const threadA = threadPositions?.get(a.id)?.from || Number.MAX_VALUE;
-    const threadB = threadPositions?.get(b.id)?.from || Number.MAX_VALUE;
+  if (sort === "position") {
+    // sort by position in document (when the comment mark is deleted, use Number.MAX_VALUE)
+    return threads.sort((a, b) => {
+      const threadA = threadPositions?.get(a.id)?.from || Number.MAX_VALUE;
+      const threadB = threadPositions?.get(b.id)?.from || Number.MAX_VALUE;
 
-    return threadA - threadB;
-  });
+      return threadA - threadB;
+    });
+  }
+
+  throw new UnreachableCaseError(sort);
+}
+
+/**
+ * Returns the text for a thread (basically, the text where the mark is).
+ *
+ * Note / TODO: it might be nicer to store and use the original content
+ * when the thread was created, instead of taking the actual content from the editor
+ */
+function getReferenceText(
+  editor: BlockNoteEditor<any, any, any>,
+  threadPosition?: {
+    from: number;
+    to: number;
+  }
+) {
+  if (!threadPosition) {
+    return "Original content deleted";
+  }
+
+  const referenceText = editor.prosemirrorState.doc.textBetween(
+    threadPosition.from,
+    threadPosition.to
+  );
+
+  if (referenceText.length > 15) {
+    return `${referenceText.slice(0, 15)}…`;
+  }
+
+  return referenceText;
 }
 
 /**
@@ -39,10 +75,24 @@ function sortThreads(
  * This component is similar to Google Docs "Show All Comments" sidebar (cmd+option+shift+A)
  */
 export function ThreadsSidebar(props: {
-  filter?: "open" | "resolved";
-  // TODO: Should be implemented for both floating and sidebar views
-  // maxCommentsPerThread?: number;
-  sort?: "position" | "newest" | "oldest";
+  /**
+   * TODO: docs
+   *
+   * @default "all"
+   */
+  filter?: "open" | "resolved" | "all";
+  /**
+   * TODO: docs
+   *
+   * @default 5
+   */
+  maxCommentsBeforeCollapse?: number;
+  /**
+   * TODO: docs
+   *
+   * @default "position"
+   */
+  sort?: "position" | "recent-activity" | "oldest";
 }) {
   const editor = useBlockNoteEditor();
 
@@ -57,68 +107,14 @@ export function ThreadsSidebar(props: {
 
   const threads = useThreads(editor);
 
-  useEffect(() => {
-    if (!selectedThreadId) {
-      return;
-    }
-
-    const selectedThreadPosition = state.threadPositions.get(selectedThreadId);
-    if (!selectedThreadPosition) {
-      return;
-    }
-
-    // When a new thread is selected, scrolls the page to its reference text in
-    // the editor.
-    (
-      editor.prosemirrorView?.domAtPos(selectedThreadPosition.from).node as
-        | Element
-        | undefined
-    )?.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
-
-    const selectedThread = threads.get(selectedThreadId);
-    if (!selectedThread) {
-      return;
-    }
-
-    // If the thread has been resolved, also select its reference text in the
-    // editor.
-    if (selectedThread.resolved) {
-      editor.prosemirrorView?.dispatch(
-        editor.prosemirrorState.tr.setSelection(
-          TextSelection.create(
-            editor.prosemirrorState.doc,
-            selectedThreadPosition.from,
-            selectedThreadPosition.to
-          )
-        )
-      );
-      // If the thread was selected by focusing it in the sidebar (instead of
-      // selecting its reference text in the editor), we also need to force the
-      // editor selection to be visible as we want the thread in the sidebar to
-      // remain focused.
-      editor.setForceSelectionVisible(true);
-    }
-  }, [
-    editor,
-    editor.comments.plugin,
-    editor.prosemirrorState,
-    editor.prosemirrorState.doc,
-    editor.prosemirrorView,
-    selectedThreadId,
-    state?.threadPositions,
-    threads,
-  ]);
-
+  // memo needed?
   const threadElements = useMemo(() => {
     const threadsArray = Array.from(threads.values());
 
     const sortedThreads = sortThreads(
       threadsArray,
-      state?.threadPositions,
-      props.sort
+      props.sort || "position",
+      state?.threadPositions
     );
 
     const openThreads: ThreadData[] = [];
@@ -132,32 +128,16 @@ export function ThreadsSidebar(props: {
       }
     }
 
-    const getReferenceText = (threadPosition?: {
-      from: number;
-      to: number;
-    }) => {
-      if (!threadPosition) {
-        return "Original content deleted";
-      }
-
-      const referenceText = editor.prosemirrorState.doc.textBetween(
-        threadPosition.from,
-        threadPosition.to
-      );
-
-      if (referenceText.length > 100) {
-        return `${referenceText.slice(0, 15)}...`;
-      }
-
-      return referenceText;
-    };
-
     const threadDataToElement = (thread: ThreadData) => (
       <Thread
         key={thread.id}
         thread={thread}
         selected={thread.id === selectedThreadId}
-        referenceText={getReferenceText(state?.threadPositions.get(thread.id))}
+        referenceText={getReferenceText(
+          editor,
+          state?.threadPositions.get(thread.id)
+        )}
+        maxCommentsBeforeCollapse={props.maxCommentsBeforeCollapse}
         onFocus={() => editor.comments?.selectThread(thread.id)}
         onBlur={(event) => {
           const targetElement =
@@ -192,6 +172,7 @@ export function ThreadsSidebar(props: {
     editor,
     props.filter,
     props.sort,
+    props.maxCommentsBeforeCollapse,
     selectedThreadId,
     state?.threadPositions,
     threads,

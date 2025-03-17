@@ -51,7 +51,7 @@ function Document() {
     "open" | "resolved" | undefined
   >("open");
   const [commentSort, setCommentSort] = useState<
-    "position" | "newest" | "oldest"
+    "position" | "recent-activity" | "oldest"
   >("position");
 
   const provider = useYjsProvider();
@@ -174,10 +174,10 @@ function Document() {
                 isSelected: commentSort === "position",
               },
               {
-                text: "Newest",
+                text: "Recent activity",
                 icon: null,
-                onClick: () => setCommentSort("newest"),
-                isSelected: commentSort === "newest",
+                onClick: () => setCommentSort("recent-activity"),
+                isSelected: commentSort === "recent-activity",
               },
               {
                 text: "Oldest",
