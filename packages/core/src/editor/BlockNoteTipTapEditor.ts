@@ -10,6 +10,7 @@ import { EditorState, Transaction } from "@tiptap/pm/state";
 import { blockToNode } from "../api/nodeConversions/blockToNode.js";
 import { PartialBlock } from "../blocks/defaultBlocks.js";
 import { StyleSchema } from "../schema/index.js";
+import type { BlockNoteEditor } from "./BlockNoteEditor.js";
 
 export type BlockNoteTipTapEditorOptions = Partial<
   Omit<EditorOptions, "content">
@@ -149,7 +150,10 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
   /**
    * Replace the default `createView` method with a custom one - which we call on mount
    */
-  private createViewAlternative(contentComponent?: any) {
+  private createViewAlternative(
+    blockNoteEditor: BlockNoteEditor<any, any, any>,
+    contentComponent?: any
+  ) {
     (this as any).contentComponent = contentComponent;
 
     const markViews: any = {};
@@ -157,7 +161,8 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
       if (extension.type === "mark" && extension.config.addMarkView) {
         // Note: migrate to using `addMarkView` from tiptap as soon as this lands
         // (currently tiptap doesn't support markviews)
-        markViews[extension.name] = extension.config.addMarkView;
+        markViews[extension.name] =
+          extension.config.addMarkView(blockNoteEditor);
       }
     });
 
@@ -198,12 +203,16 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
    *
    * @param element DOM element to mount to, ur null / undefined to destroy
    */
-  public mount = (element?: HTMLElement | null, contentComponent?: any) => {
+  public mount = (
+    blockNoteEditor: BlockNoteEditor<any, any, any>,
+    element?: HTMLElement | null,
+    contentComponent?: any
+  ) => {
     if (!element) {
       this.destroy();
     } else {
       this.options.element = element;
-      this.createViewAlternative(contentComponent);
+      this.createViewAlternative(blockNoteEditor, contentComponent);
     }
   };
 }
