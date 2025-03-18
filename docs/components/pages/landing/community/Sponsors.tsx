@@ -2,8 +2,8 @@ import {
   SponsorCard,
   SponsorCardProps,
 } from "@/components/pages/landing/community/SponsorCard";
-import {FadeIn} from "@/components/pages/landing/shared/FadeIn";
-import {SectionSubHeader} from "@/components/pages/landing/shared/Headings";
+import { FadeIn } from "@/components/pages/landing/shared/FadeIn";
+import { SectionSubHeader } from "@/components/pages/landing/shared/Headings";
 
 import agree from "../../../../public/img/sponsors/agree.png";
 import atuin from "../../../../public/img/sponsors/atuin.png";
