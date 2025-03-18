@@ -688,7 +688,7 @@ export class BlockNoteEditor<
     parentElement?: HTMLElement | null,
     contentComponent?: any
   ) => {
-    this._tiptapEditor.mount(parentElement, contentComponent);
+    this._tiptapEditor.mount(this, parentElement, contentComponent);
   };
 
   /**
