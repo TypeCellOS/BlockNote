@@ -48,34 +48,6 @@
   max-width: 350px;
 }
 
-.sidebar-comments-main-container .bn-threads-sidebar .bn-thread {
-  box-shadow: none;
-  min-width: initial;
-}
-
-.sidebar-comments-main-container .bn-thread-expand-prompt .mantine-Text-root,
-.sidebar-comments-main-container .bn-thread .bn-header-text {
-  color: var(--bn-colors-menu-text);
-}
-
-.sidebar-comments-main-container .bn-threads-sidebar .bn-thread .bn-editor {
-  background-color: transparent;
-}
-
-.sidebar-comments-main-container .bn-threads-sidebar .bn-thread.selected {
-  background-color: #F5F9FD;
-  border: 2px solid #C2DCF8;
-}
-
-.sidebar-comments-main-container.dark .bn-threads-sidebar .bn-thread.selected {
-  background-color: #20242A;
-  border: 2px solid #23405B;
-}
-
-.sidebar-comments-main-container .bn-threads-sidebar .bn-thread.selected .bn-thread-comments {
-  border-bottom: none;
-}
-
 .sidebar-comments-main-container .settings {
   display: flex;
   flex-wrap: wrap;

@@ -39,8 +39,8 @@
   --bn-colors-highlights-pink-background: #f4dfeb;
 
   --bn-font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont,
-    "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
-    "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
+  "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   --bn-border-radius: 6px;
 
   /* Derived values */
@@ -112,8 +112,8 @@
 
 /* Indent line styling */
 .bn-block-group
-  .bn-block-group
-  .bn-block-outer:not([data-prev-depth-changed])::before {
+.bn-block-group
+.bn-block-outer:not([data-prev-depth-changed])::before {
   border-left: 1px solid var(--bn-colors-side-menu);
 }
 
@@ -237,4 +237,37 @@
 
 .bn-side-menu[data-url="false"] {
   height: 54px;
+}
+
+/* Thread sidebar styling */
+.bn-threads-sidebar {
+  border-radius: var(--bn-border-radius-medium);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: auto;
+}
+
+.bn-threads-sidebar .bn-thread {
+  box-shadow: none;
+  min-width: initial;
+}
+
+.bn-thread-expand-prompt .mantine-Text-root,
+.bn-thread .bn-header-text {
+  color: var(--bn-colors-menu-text);
+}
+
+.bn-threads-sidebar .bn-thread .bn-editor {
+  background-color: transparent;
+}
+
+.bn-threads-sidebar .bn-thread.selected {
+  background-color: #F5F9FD;
+  border: 2px solid #C2DCF8;
+}
+
+.dark .bn-threads-sidebar .bn-thread.selected {
+  background-color: #20242A;
+  border: 2px solid #23405B;
 }
