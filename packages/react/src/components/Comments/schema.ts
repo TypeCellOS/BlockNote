@@ -20,7 +20,7 @@ const paragraph = createBlockSpecFromStronglyTypedTiptapNode(
 const { textColor, backgroundColor, ...styleSpecs } = defaultStyleSpecs;
 
 // the schema to use for comments
-export const schema = BlockNoteSchema.create({
+export const defaultCommentSchema = BlockNoteSchema.create({
   blockSpecs: {
     paragraph,
   },

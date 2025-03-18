@@ -19,6 +19,8 @@ import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning.js";
 import { useUIPluginState } from "../../hooks/useUIPluginState.js";
 import { Thread } from "./Thread.js";
+import { BlockNoteSchema } from '@blocknote/core';
+import { defaultCommentSchema } from './schema.js';
 
 /**
  * This component is used to display a thread in a floating card.
@@ -31,6 +33,7 @@ export const FloatingThreadController = <
 >(props: {
   floatingThread?: FC<ComponentProps<typeof Thread>>;
   floatingOptions?: Partial<UseFloatingOptions>;
+  schema?: BlockNoteSchema<B, I, S>;
 }) => {
   const editor = useBlockNoteEditor<B, I, S>();
 
@@ -102,7 +105,7 @@ export const FloatingThreadController = <
 
   return (
     <div ref={ref} style={style} {...getFloatingProps()}>
-      <Component threadId={state.selectedThreadId} />
+      <Component schema={props.schema || defaultCommentSchema} threadId={state.selectedThreadId} />
     </div>
   );
 };

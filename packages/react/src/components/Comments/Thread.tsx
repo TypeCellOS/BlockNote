@@ -7,9 +7,10 @@ import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { Comment, CommentProps } from "./Comment.js";
 import { CommentEditor } from "./CommentEditor.js";
-import { schema } from "./schema.js";
+import { defaultCommentSchema } from "./schema.js";
 import { useThreads } from "./useThreads.js";
 import { useUsers } from "./useUsers.js";
+import { BlockNoteSchema } from '@blocknote/core';
 
 export interface ThreadProps extends ComponentPropsWithoutRef<"div"> {
   /**
@@ -41,6 +42,8 @@ export interface ThreadProps extends ComponentPropsWithoutRef<"div"> {
    * Whether to show deleted comments.
    */
   showDeletedComments?: CommentProps["showDeleted"];
+
+  schema?: BlockNoteSchema<any, any, any>;
 }
 
 /**
@@ -55,6 +58,7 @@ export const Thread = ({
   showResolveAction = true,
   showReactions = true,
   showComposer = true,
+  schema = defaultCommentSchema,
   className,
   ...props
 }: ThreadProps) => {
@@ -139,6 +143,7 @@ export const Thread = ({
               showActions={showActions}
               showReactions={showReactions}
               showResolveAction={isFirstComment}
+              schema={schema}
             />
           );
         })}

@@ -5,14 +5,19 @@ import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { CommentEditor } from "./CommentEditor.js";
-import { schema } from "./schema.js";
+import { defaultCommentSchema } from "./schema.js";
+import { BlockNoteSchema } from '@blocknote/core';
 
 /**
  * The FloatingComposer component displays a comment editor "floating" card.
  *
  * It's used when the user highlights a parts of the document to create a new comment / thread.
  */
-export function FloatingComposer() {
+export function FloatingComposer({
+  schema = defaultCommentSchema,
+}: {
+  schema?: BlockNoteSchema<any, any, any>;
+}) {
   const editor = useBlockNoteEditor();
 
   if (!editor.comments) {

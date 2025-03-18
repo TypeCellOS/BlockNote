@@ -25,8 +25,9 @@ import { useDictionary } from "../../i18n/dictionary.js";
 import { CommentEditor } from "./CommentEditor.js";
 import { EmojiPicker } from "./EmojiPicker.js";
 import { ReactionBadge } from "./ReactionBadge.js";
-import { schema } from "./schema.js";
+import { defaultCommentSchema } from "./schema.js";
 import { useUser } from "./useUsers.js";
+import { BlockNoteSchema } from '@blocknote/core';
 
 export interface CommentProps extends ComponentPropsWithoutRef<"div"> {
   /**
@@ -58,6 +59,8 @@ export interface CommentProps extends ComponentPropsWithoutRef<"div"> {
    * Whether to show reactions.
    */
   showReactions?: boolean;
+
+  schema?: BlockNoteSchema<any, any, any>;
 }
 
 /**
@@ -74,6 +77,7 @@ export const Comment = ({
   showActions = "hover",
   showReactions = true,
   showResolveAction = false,
+  schema = defaultCommentSchema,
   className,
 }: CommentProps) => {
   // TODO: if REST API becomes popular, all interactions (click handlers) should implement a loading state and error state
