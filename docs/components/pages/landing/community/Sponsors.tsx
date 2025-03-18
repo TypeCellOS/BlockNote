@@ -2,9 +2,10 @@ import {
   SponsorCard,
   SponsorCardProps,
 } from "@/components/pages/landing/community/SponsorCard";
-import { FadeIn } from "@/components/pages/landing/shared/FadeIn";
-import { SectionSubHeader } from "@/components/pages/landing/shared/Headings";
+import {FadeIn} from "@/components/pages/landing/shared/FadeIn";
+import {SectionSubHeader} from "@/components/pages/landing/shared/Headings";
 
+import agree from "../../../../public/img/sponsors/agree.png";
 import atuin from "../../../../public/img/sponsors/atuin.png";
 import capitolDark from "../../../../public/img/sponsors/capitolDark.svg";
 import capitolLight from "../../../../public/img/sponsors/capitolLight.svg";
@@ -26,6 +27,14 @@ import typeCellLight from "../../../../public/img/sponsors/typeCellLight.svg";
 import zendis from "../../../../public/img/sponsors/zendis.svg";
 
 export const sponsorsCardData: SponsorCardProps[] = [
+  {
+    logo: {
+      light: agree,
+      dark: agree,
+    },
+    name: "Agree",
+    link: "https://agree.com/",
+  },
   {
     logo: {
       light: atuin,
