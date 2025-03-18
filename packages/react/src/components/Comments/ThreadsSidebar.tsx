@@ -133,11 +133,10 @@ export function getReferenceText(
   if (!threadPosition) {
     return "Original content deleted";
   }
-
-  // TODO
-  // if (editor.prosemirrorState.doc.nodeSize < threadPosition.to) {
-  //   return "";
-  // }
+  
+  if (editor.prosemirrorState.doc.nodeSize < threadPosition.to) {
+    return "";
+  }
 
   const referenceText = editor.prosemirrorState.doc.textBetween(
     threadPosition.from,
