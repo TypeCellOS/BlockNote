@@ -18,7 +18,7 @@ export const Comments = ({
   const Components = useComponentsContext()!;
   const dict = useDictionary();
   const editor = useBlockNoteEditor();
-  const users = useUsers(editor, [thread.resolvedBy!]);
+  const users = useUsers(editor, thread.resolvedBy ? [thread.resolvedBy] : []);
 
   // Maps all comments to elements.
   const comments = thread.comments.map((comment, index) => (
@@ -31,7 +31,14 @@ export const Comments = ({
   ));
 
   // Adds "resolved by" comment if needed.
-  if (thread.resolved && thread.resolvedUpdatedAt) {
+  if (thread.resolved && thread.resolvedUpdatedAt && thread.resolvedBy) {
+    const resolvedByUser = users.get(thread.resolvedBy);
+    if (!resolvedByUser) {
+      throw new Error(
+        `User ${thread.resolvedBy} resolved thread ${thread.id}, but their data could not be found.`
+      );
+    }
+
     const resolvedCommentIndex =
       thread.comments.findLastIndex(
         (comment) =>
@@ -42,9 +49,12 @@ export const Comments = ({
       resolvedCommentIndex,
       0,
       <Components.Comments.Comment
+        key={"resolved-comment"}
         className={"bn-thread-comment"}
-        authorInfo={users.get(thread.resolvedBy!) || "loading"}
-        timeString={thread.resolvedUpdatedAt!.toLocaleDateString(undefined, {
+        authorInfo={
+          (thread.resolvedBy && users.get(thread.resolvedBy)) || "loading"
+        }
+        timeString={thread.resolvedUpdatedAt.toLocaleDateString(undefined, {
           month: "short",
           day: "numeric",
         })}

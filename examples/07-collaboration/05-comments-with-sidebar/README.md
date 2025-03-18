@@ -1,7 +1,7 @@
 # Threads Sidebar
 
 In this example, comments are enabled on the editor, but are now shown in a
-separate sidebar to the side.
+separate sidebar to the side using the `ThreadsSidebar` component.
 
 **Try it out:** Click the "Add comment" button in
 the [Formatting Toolbar](/docs/ui-components/formatting-toolbar) to add a
@@ -12,5 +12,4 @@ comment!
 - [Editor Setup](/docs/editor-basics/setup)
 - [Real-time collaboration](/docs/collaboration/real-time-collaboration)
 - [Y-Sweet on Jamsocket](https://docs.jamsocket.com/y-sweet/tutorials/blocknote)
-- [Comments](/docs/collaboration/comments)
-
+- [Comments](/docs/collaboration/comments#sidebar-view)

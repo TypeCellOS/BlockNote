@@ -98,6 +98,7 @@ export * from "./components/TableHandles/TableHandleMenu/DefaultButtons/DeleteBu
 export * from "./components/TableHandles/TableHandleMenu/TableHandleMenu.js";
 export * from "./components/TableHandles/TableHandleMenu/TableHandleMenuProps.js";
 
+// TODO: Revise comments exports/packaging
 export * from "./components/Comments/Comment.js";
 export * from "./components/Comments/Comments.js";
 export * from "./components/Comments/FloatingComposer.js";
