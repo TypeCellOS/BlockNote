@@ -49,7 +49,7 @@ export default function App() {
 function Document() {
   const [activeUser, setActiveUser] = useState<MyUserType>(HARDCODED_USERS[0]);
   const [commentFilter, setCommentFilter] = useState<
-    "open" | "resolved" | undefined
+    "open" | "resolved" | "all"
   >("open");
   const [commentSort, setCommentSort] = useState<
     "position" | "recent-activity" | "oldest"
@@ -153,8 +153,8 @@ function Document() {
               {
                 text: "All",
                 icon: null,
-                onClick: () => setCommentFilter(undefined),
-                isSelected: commentFilter === undefined,
+                onClick: () => setCommentFilter("all"),
+                isSelected: commentFilter === "all",
               },
               {
                 text: "Open",
