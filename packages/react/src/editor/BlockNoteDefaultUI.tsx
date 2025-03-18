@@ -17,7 +17,6 @@ export type BlockNoteDefaultUIProps = {
   filePanel?: boolean;
   tableHandles?: boolean;
   emojiPicker?: boolean;
-  commentsComposer?: boolean;
   comments?: boolean;
 };
 
@@ -49,11 +48,11 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
       {editor.tableHandles && props.tableHandles !== false && (
         <TableHandlesController />
       )}
-      {editor.comments && props.commentsComposer !== false && (
-        <FloatingComposerController />
-      )}
       {editor.comments && props.comments !== false && (
-        <FloatingThreadController />
+        <>
+          <FloatingComposerController />
+          <FloatingThreadController />
+        </>
       )}
     </>
   );

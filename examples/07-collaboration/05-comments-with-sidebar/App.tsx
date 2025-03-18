@@ -8,6 +8,7 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
   BlockNoteViewEditor,
+  FloatingComposerController,
   ThreadsSidebar,
   useCreateBlockNote,
 } from "@blocknote/react";
@@ -134,6 +135,11 @@ function Document() {
           `BlockNoteViewEditor` (the actual editor component) in its own
           section below the user settings select. */}
           <BlockNoteViewEditor />
+          {/* Since we disabled rendering of comments with `comments={false}`,
+          we need to re-add the floating composer, which is the UI element that
+          appears when creating new threads. We just want to get rid of the
+          floating thread view and replace it with the sidebar. */}
+          <FloatingComposerController />
         </div>
       </div>
       {/* We also place the `ThreadsSidebar` component in its own section,

@@ -98,8 +98,15 @@ export * from "./components/TableHandles/TableHandleMenu/DefaultButtons/DeleteBu
 export * from "./components/TableHandles/TableHandleMenu/TableHandleMenu.js";
 export * from "./components/TableHandles/TableHandleMenu/TableHandleMenuProps.js";
 
+export * from "./components/Comments/Comment.js";
+export * from "./components/Comments/Comments.js";
+export * from "./components/Comments/FloatingComposer.js";
+export * from "./components/Comments/FloatingComposerController.js";
+export * from "./components/Comments/FloatingThreadController.js";
+export * from "./components/Comments/Thread.js";
 export * from "./components/Comments/ThreadsSidebar.js";
-// TODO: other comment exports
+export * from "./components/Comments/useThreads.js";
+export * from "./components/Comments/useUsers.js";
 
 export * from "./hooks/useActiveStyles.js";
 export * from "./hooks/useBlockNoteEditor.js";
