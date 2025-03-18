@@ -34,7 +34,7 @@ async function resolveUsers(userIds: string[]) {
 // (but of course, you also use other collaboration providers
 // see the docs for more information)
 export default function App() {
-  const docId = "my-blocknote-document-with-comments-1";
+  const docId = "my-blocknote-document-with-comments";
 
   return (
     <YDocProvider
