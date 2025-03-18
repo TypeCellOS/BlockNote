@@ -45,7 +45,7 @@
 }
 
 .sidebar-comments-main-container .threads-sidebar-section,
-.sidebar-comments-main-container .threads-sidebar-sidebar .bn-thread {
+.sidebar-comments-main-container .bn-threads-sidebar .bn-thread {
   min-width: 0;
 }
 
