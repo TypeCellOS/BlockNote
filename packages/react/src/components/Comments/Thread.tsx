@@ -1,6 +1,6 @@
 import { mergeCSSClasses } from "@blocknote/core";
 import { ThreadData } from "@blocknote/core/comments";
-import { FocusEvent, useCallback, useMemo } from "react";
+import { FocusEvent, useCallback } from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -9,7 +9,6 @@ import { useDictionary } from "../../i18n/dictionary.js";
 import { CommentEditor } from "./CommentEditor.js";
 import { Comments } from "./Comments.js";
 import { schema } from "./schema.js";
-import { useUsers } from "./useUsers.js";
 
 export type ThreadProps = {
   /**
@@ -36,7 +35,7 @@ export type ThreadProps = {
   /**
    * A function to call when the thread is focused.
    */
-  onFocus?: () => void;
+  onFocus?: (event: FocusEvent) => void;
   /**
    * A function to call when the thread is blurred.
    */
@@ -74,16 +73,6 @@ export const Thread = ({
     throw new Error("Comments plugin not found");
   }
 
-  const userIds = useMemo(() => {
-    return thread.comments.flatMap((c) => [
-      c.userId,
-      ...c.reactions.flatMap((r) => r.userIds),
-    ]);
-  }, [thread.comments]);
-
-  // load all user data
-  const users = useUsers(editor, userIds);
-
   const newCommentEditor = useCreateBlockNote({
     trailingBlock: false,
     dictionary: {
@@ -119,29 +108,10 @@ export const Thread = ({
       <Components.Comments.CardSection className="bn-thread-comments">
         <Comments
           thread={thread}
-          collapse={
-            !selected &&
-            thread.comments.length > (maxCommentsBeforeCollapse || 5)
+          maxCommentsBeforeCollapse={
+            !selected ? maxCommentsBeforeCollapse || 5 : undefined
           }
         />
-        {thread.resolved && (
-          <Components.Comments.Comment
-            className={"bn-thread-comment"}
-            authorInfo={users.get(thread.resolvedBy!) || "loading"}
-            timeString={thread.resolvedUpdatedAt!.toLocaleDateString(
-              undefined,
-              {
-                month: "short",
-                day: "numeric",
-              }
-            )}
-            edited={false}
-            showActions={false}>
-            <div className={"bn-resolved-text"}>
-              {dict.comments.sidebar.marked_as_resolved}
-            </div>
-          </Components.Comments.Comment>
-        )}
       </Components.Comments.CardSection>
       {selected && (
         <Components.Comments.CardSection className={"bn-thread-composer"}>

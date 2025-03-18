@@ -1,6 +1,6 @@
 import { BlockNoteEditor, UnreachableCaseError } from "@blocknote/core";
 import { ThreadData } from "@blocknote/core/comments";
-import React, { useCallback, useMemo } from "react";
+import React, { FocusEvent, useCallback, useMemo } from "react";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useUIPluginState } from "../../hooks/useUIPluginState.js";
 import { Thread } from "./Thread.js";
@@ -26,12 +26,29 @@ const ThreadItem = React.memo(
     maxCommentsBeforeCollapse,
     referenceText,
   }: ThreadItemProps) => {
-    const onFocus = useCallback(() => {
-      editor.comments?.selectThread(thread.id);
-    }, [editor.comments, thread.id]);
+    const onFocus = useCallback(
+      (event: FocusEvent) => {
+        // If the focused element is within the action toolbar, we don't want to
+        // focus the thread for UX reasons.
+        if ((event.target as HTMLElement).closest(".bn-action-toolbar")) {
+          return;
+        }
+
+        editor.comments?.selectThread(thread.id);
+      },
+      [editor.comments, thread.id]
+    );
 
     const onBlur = useCallback(
       (event: React.FocusEvent) => {
+        // If the focused element is within the action toolbar, we don't want to
+        // blur the thread for UX reasons.
+        if (
+          (event.relatedTarget as HTMLElement).closest(".bn-action-toolbar")
+        ) {
+          return;
+        }
+
         const targetElement =
           event.target instanceof Node ? event.target : null;
         const parentThreadElement =
@@ -116,6 +133,11 @@ export function getReferenceText(
   if (!threadPosition) {
     return "Original content deleted";
   }
+
+  // TODO
+  // if (editor.prosemirrorState.doc.nodeSize < threadPosition.to) {
+  //   return "";
+  // }
 
   const referenceText = editor.prosemirrorState.doc.textBetween(
     threadPosition.from,

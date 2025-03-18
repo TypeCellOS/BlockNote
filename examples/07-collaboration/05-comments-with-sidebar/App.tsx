@@ -35,7 +35,7 @@ async function resolveUsers(userIds: string[]) {
 // (but of course, you also use other collaboration providers
 // see the docs for more information)
 export default function App() {
-  const docId = "my-blocknote-document-with-comments";
+  const docId = "my-blocknote-document-with-comments-2";
 
   return (
     <YDocProvider
@@ -126,7 +126,9 @@ function Document() {
                   user.role === "editor" ? "Editor" : "Commenter"
                 })`,
                 icon: null,
-                onClick: () => setActiveUser(user),
+                onClick: () => {
+                  setActiveUser(user);
+                },
                 isSelected: user.id === activeUser.id,
               }))}
             />

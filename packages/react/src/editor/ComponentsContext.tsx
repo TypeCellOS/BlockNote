@@ -204,7 +204,7 @@ export type ComponentProps = {
       className?: string;
       headerText?: string;
       selected?: boolean;
-      onFocus?: () => void;
+      onFocus?: (event: React.FocusEvent) => void;
       onBlur?: (event: React.FocusEvent) => void;
       tabIndex?: number;
       children?: ReactNode;
