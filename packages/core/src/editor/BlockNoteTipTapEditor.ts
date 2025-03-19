@@ -174,18 +174,20 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
         dispatchTransaction: this.dispatchTransaction.bind(this),
         state: this.state,
         markViews,
+        nodeViews: this.extensionManager.nodeViews,
       }
     );
 
     // `editor.view` is not yet available at this time.
-    // Therefore we will add all plugins and node views directly afterwards.
+    // Therefore we will add all plugins directly afterwards.
+    //
+    // To research: this is the default tiptap behavior, but might actually not be necessary
+    // it feels like it's a workaround for plugins that don't account for the view not being available yet
     const newState = this.state.reconfigure({
       plugins: this.extensionManager.plugins,
     });
 
     this.view.updateState(newState);
-
-    this.createNodeViews();
 
     // emit the created event, call here manually because we blocked the default call in the constructor
     // (https://github.com/ueberdosis/tiptap/blob/45bac803283446795ad1b03f43d3746fa54a68ff/packages/core/src/Editor.ts#L117)
