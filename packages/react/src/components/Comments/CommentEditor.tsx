@@ -2,7 +2,6 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { FC, useCallback, useEffect, useState } from "react";
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useEditorChange } from "../../hooks/useEditorChange.js";
-import { schema } from "./schema.js";
 
 /**
  * The CommentEditor component displays an editor for creating or editing a comment.
@@ -20,11 +19,7 @@ export const CommentEditor = (props: {
     isFocused: boolean;
     isEmpty: boolean;
   }>;
-  editor: BlockNoteEditor<
-    typeof schema.blockSchema,
-    typeof schema.inlineContentSchema,
-    typeof schema.styleSchema
-  >;
+  editor: BlockNoteEditor<any, any, any>;
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [isEmpty, setIsEmpty] = useState(props.editor.isEmpty);

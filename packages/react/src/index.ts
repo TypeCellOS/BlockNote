@@ -98,6 +98,19 @@ export * from "./components/TableHandles/TableHandleMenu/DefaultButtons/DeleteBu
 export * from "./components/TableHandles/TableHandleMenu/TableHandleMenu.js";
 export * from "./components/TableHandles/TableHandleMenu/TableHandleMenuProps.js";
 
+export * from "./components/Comments/Comment.js";
+export * from "./components/Comments/CommentEditor.js";
+export * from "./components/Comments/EmojiMartPicker.js";
+export * from "./components/Comments/EmojiPicker.js";
+export * from "./components/Comments/FloatingComposer.js";
+export * from "./components/Comments/FloatingComposerController.js";
+export * from "./components/Comments/FloatingThreadController.js";
+export * from "./components/Comments/ReactionBadge.js";
+export * from "./components/Comments/schema.js";
+export * from "./components/Comments/Thread.js";
+export * from "./components/Comments/useThreads.js";
+export * from "./components/Comments/useUsers.js";
+
 export * from "./hooks/useActiveStyles.js";
 export * from "./hooks/useBlockNoteEditor.js";
 export * from "./hooks/useCreateBlockNote.js";

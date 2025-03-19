@@ -14,6 +14,8 @@ import { useEditorSelectionBoundingBox } from "../../hooks/useEditorSelectionBou
 import { useUIElementPositioning } from "../../hooks/useUIElementPositioning.js";
 import { useUIPluginState } from "../../hooks/useUIPluginState.js";
 import { FloatingComposer } from "./FloatingComposer.js";
+import { defaultCommentSchema } from './schema.js';
+import { BlockNoteSchema } from '@blocknote/core';
 
 export const FloatingComposerController = <
   B extends BlockSchema = DefaultBlockSchema,
@@ -22,6 +24,7 @@ export const FloatingComposerController = <
 >(props: {
   floatingComposer?: FC<ComponentProps<typeof FloatingComposer>>;
   floatingOptions?: Partial<UseFloatingOptions>;
+  schema?: BlockNoteSchema<B, I, S>;
 }) => {
   const editor = useBlockNoteEditor<B, I, S>();
 
@@ -75,7 +78,7 @@ export const FloatingComposerController = <
 
   return (
     <div ref={ref} style={style} {...getFloatingProps()}>
-      <Component />
+      <Component schema={props.schema || defaultCommentSchema} />
     </div>
   );
 };
