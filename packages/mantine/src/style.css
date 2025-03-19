@@ -597,6 +597,10 @@
   overflow: visible;
 }
 
+.bn-mantine .bn-threads-sidebar .bn-thread {
+  box-shadow: none;
+}
+
 .bn-mantine .bn-thread:not(.selected) {
   cursor: pointer;
 }

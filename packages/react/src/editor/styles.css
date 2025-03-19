@@ -248,11 +248,6 @@
   overflow: auto;
 }
 
-.bn-threads-sidebar .bn-thread {
-  box-shadow: none;
-  min-width: initial;
-}
-
 .bn-thread-expand-prompt .mantine-Text-root,
 .bn-thread .bn-header-text {
   color: var(--bn-colors-menu-text);
