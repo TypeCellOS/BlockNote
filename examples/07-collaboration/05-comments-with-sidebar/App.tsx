@@ -139,8 +139,7 @@ function Document() {
           <BlockNoteViewEditor />
           {/* Since we disabled rendering of comments with `comments={false}`,
           we need to re-add the floating composer, which is the UI element that
-          appears when creating new threads. We just want to get rid of the
-          floating thread view and replace it with the sidebar. */}
+          appears when creating new threads. */}
           <FloatingComposerController />
         </div>
       </div>
