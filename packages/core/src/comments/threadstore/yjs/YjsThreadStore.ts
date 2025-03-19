@@ -237,6 +237,7 @@ export class YjsThreadStore extends YjsThreadStoreBase {
 
     yThread.set("resolved", true);
     yThread.set("resolvedUpdatedAt", new Date().getTime());
+    yThread.set("resolvedBy", this.userId);
   });
 
   public unresolveThread = this.transact((options: { threadId: string }) => {

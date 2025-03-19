@@ -33,11 +33,13 @@ export function FloatingComposer() {
       },
     },
     schema,
+    sideMenuDetection: "editor",
   });
 
   return (
     <Components.Comments.Card className={"bn-thread"}>
       <CommentEditor
+        autoFocus={true}
         editable={true}
         editor={newCommentEditor}
         actions={({ isEmpty }) => (

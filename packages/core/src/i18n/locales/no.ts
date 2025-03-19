@@ -339,6 +339,10 @@ export const no: Dictionary = {
     reactions: {
       reacted_by: "Reagert av",
     },
+    sidebar: {
+      marked_as_resolved: "Merket som løst",
+      more_replies: (count) => `${count} flere svar`,
+    },
   },
   generic: {
     ctrl_shortcut: "Ctrl",

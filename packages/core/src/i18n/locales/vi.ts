@@ -339,6 +339,10 @@ export const vi: Dictionary = {
     reactions: {
       reacted_by: "Phản ứng bởi",
     },
+    sidebar: {
+      marked_as_resolved: "Đã đánh dấu là đã giải quyết",
+      more_replies: (count) => `${count} câu trả lời nữa`,
+    },
   },
   generic: {
     ctrl_shortcut: "Ctrl",

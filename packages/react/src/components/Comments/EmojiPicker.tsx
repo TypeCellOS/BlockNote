@@ -35,6 +35,7 @@ export const EmojiPicker = (props: {
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content variant={"panel-popover"}>
         <Picker
+          perLine={7}
           onClickOutside={() => setOpen(false)}
           onEmojiSelect={(emoji: { native: string }) => {
             props.onEmojiSelect(emoji);
