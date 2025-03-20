@@ -1,6 +1,10 @@
-import { BlockNoteEditor } from "@blocknote/core";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
+  getTestEditor,
+  testUpdateOperations,
+} from "../../../testUtil/updates/updateOperations.js";
+import {
+  BlockNoteOperation,
   InsertBlocksOperation,
   RemoveBlocksOperation,
   UpdateBlocksOperation,
@@ -8,18 +12,33 @@ import {
 import { applyOperations } from "./applyOperations.js";
 
 describe("applyOperations", () => {
-  let editor: BlockNoteEditor;
+  let editor: ReturnType<typeof getTestEditor>;
 
   beforeEach(() => {
-    editor = BlockNoteEditor.create({
-      initialContent: [
-        {
-          id: "ref1",
-          content: "Hello, world!",
-        },
-      ],
-    });
+    editor = getTestEditor();
   });
+
+  // Helper function to create a mock stream from operations
+  async function* createMockStream(
+    ...operations: { operation: BlockNoteOperation }[]
+  ) {
+    for (const op of operations) {
+      yield op;
+    }
+  }
+
+  // Helper function to process operations and return results
+  async function processOperations(
+    stream: AsyncIterable<{ operation: BlockNoteOperation }>
+  ) {
+    const result = [];
+    for await (const chunk of applyOperations(editor, stream, {
+      withDelays: false,
+    })) {
+      result.push(chunk);
+    }
+    return result;
+  }
 
   it("should apply insert operations to the editor", async () => {
     const insertOp = {
@@ -31,14 +50,7 @@ describe("applyOperations", () => {
       } as InsertBlocksOperation,
     };
 
-    async function* mockStream() {
-      yield insertOp;
-    }
-
-    const result = [];
-    for await (const chunk of applyOperations(editor, mockStream())) {
-      result.push(chunk);
-    }
+    const result = await processOperations(createMockStream(insertOp));
 
     // Should call insertBlocks with the right parameters
     expect(editor.document[1]).toMatchObject({
@@ -54,39 +66,41 @@ describe("applyOperations", () => {
     });
   });
 
-  it("should apply update operations to the editor", async () => {
-    const updateOp = {
-      operation: {
-        type: "update",
-        id: "ref1",
-        block: { content: "Hello, updated content" },
-      } as UpdateBlocksOperation,
-    };
+  for (const testCase of testUpdateOperations) {
+    // eslint-disable-next-line no-loop-func
+    it(`should apply update operations to the editor (${testCase.description})`, async () => {
+      const result = await processOperations(
+        createMockStream({ operation: testCase.updateOp })
+      );
 
-    async function* mockStream() {
-      yield updateOp;
-    }
+      // Should call updateBlock with the right parameters
+      const update = testCase.updateOp.block;
+      const block = editor.getBlock(testCase.updateOp.id)!;
+      if (update.type) {
+        // eslint-disable-next-line
+        expect(block.type).toEqual(update.type);
+      }
+      if (update.props) {
+        // eslint-disable-next-line
+        expect(block.props).toMatchObject(update.props);
+      }
+      if (update.content) {
+        // eslint-disable-next-line
+        expect(block.content).toEqual(update.content);
+      }
 
-    const result = [];
-    for await (const chunk of applyOperations(editor, mockStream())) {
-      result.push(chunk);
-    }
-
-    // Should call updateBlock with the right parameters
-    expect(editor.document[0]).toMatchObject({
-      content: [{ text: "updated content" }],
+      // Should yield the operation with result: "ok"
+      expect(result.length).toBe(1);
+      expect(result[0]).toEqual({
+        lastBlockId: testCase.updateOp.id,
+        operation: testCase.updateOp,
+        result: "ok",
+      });
     });
-
-    // Should yield the operation with result: "ok"
-    expect(result.length).toBe(1);
-    expect(result[0]).toEqual({
-      lastBlockId: "ref1",
-      operation: updateOp.operation,
-      result: "ok",
-    });
-  });
+  }
 
   it("should apply remove operations to the editor", async () => {
+    const startDocLength = editor.document.length;
     const removeOp = {
       operation: {
         type: "remove",
@@ -94,30 +108,23 @@ describe("applyOperations", () => {
       } as RemoveBlocksOperation,
     };
 
-    async function* mockStream() {
-      yield removeOp;
-    }
-
-    const result = [];
-    for await (const chunk of applyOperations(editor, mockStream())) {
-      result.push(chunk);
-    }
+    const result = await processOperations(createMockStream(removeOp));
 
     // Should call removeBlocks with the right parameters
-    expect(editor.document.length).toBe(1);
-
-    expect(editor.document[0].content).toEqual([]);
+    expect(editor.document.length).toBe(startDocLength - 1);
+    expect(editor.document[0].id).toEqual("ref2");
 
     // Should yield the operation with result: "ok"
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
-      lastBlockId: "0",
+      lastBlockId: "ref2",
       operation: removeOp.operation,
       result: "ok",
     });
   });
 
   it("should handle multiple operations in sequence", async () => {
+    const startDocLength = editor.document.length;
     const insertOp = {
       operation: {
         type: "insert",
@@ -135,15 +142,7 @@ describe("applyOperations", () => {
       } as UpdateBlocksOperation,
     };
 
-    async function* mockStream() {
-      yield insertOp;
-      yield updateOp;
-    }
-
-    const result = [];
-    for await (const chunk of applyOperations(editor, mockStream())) {
-      result.push(chunk);
-    }
+    await processOperations(createMockStream(insertOp, updateOp));
 
     // Should call all the editor methods with the right parameters
     expect(editor.document[1]).toMatchObject({
@@ -154,6 +153,6 @@ describe("applyOperations", () => {
       content: [{ text: "updated content" }],
     });
 
-    expect(editor.document.length).toBe(2);
+    expect(editor.document.length).toBe(startDocLength + 1);
   });
 });

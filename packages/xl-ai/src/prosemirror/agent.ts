@@ -27,13 +27,26 @@ export async function applyStepsAsAgent(
       throw new Error("Step is not a ReplaceStep");
     }
 
-    if (step.slice.openStart > 0 || step.slice.openEnd > 0) {
-      throw new Error("Slice has openStart or openEnd > 0");
-    }
-
     // Map the step positions through all previous mappings
     const mappedFrom = stepMapping.map(step.from);
     const mappedTo = stepMapping.map(step.to);
+
+    if ((step as any).structure) {
+      const tr = editor.prosemirrorState.tr.step(step.map(stepMapping)!);
+      await dispatch(tr, "replace");
+      stepMapping.appendMapping(tr.mapping);
+      continue;
+    }
+
+    if (step.slice.openStart > 0 || step.slice.openEnd > 0) {
+      // throw new Error("Slice has openStart or openEnd > 0");
+      // TODO: these are node type changes, now, we're replacing the content at once, but
+      // we should split them into multiple replace steps (one for the node type change, and others for content changes)
+      const tr = editor.prosemirrorState.tr.step(step.map(stepMapping)!);
+      await dispatch(tr, "replace");
+      stepMapping.appendMapping(tr.mapping);
+      continue;
+    }
 
     // 1. Select text to be removed/replaced
     const selectTr = editor.prosemirrorState.tr.setMeta("aiAgent", {
@@ -44,8 +57,16 @@ export async function applyStepsAsAgent(
     });
     await dispatch(selectTr, "select");
 
-    const replacement =
-      step.slice.size === 0 ? step.slice.content : step.slice.content.cut(0, 1);
+    // 2. Replace the text with the first character (if any) of the replacement
+    const alreadyHasSameText =
+      step.slice.content.textBetween(0, step.slice.size) ===
+      editor.prosemirrorState.doc.textBetween(mappedFrom, mappedTo);
+
+    const replacement = alreadyHasSameText
+      ? step.slice.content // replace all at once, it's probaly a mark update
+      : step.slice.size === 0
+      ? step.slice.content // there's no replacement text, so delete (user entire empty content)
+      : step.slice.content.cut(0, 1); // replace with the first character (similar to how a user would do it when selecting text and starting to type)
 
     let replaceEnd = mappedTo;
 
@@ -71,7 +92,7 @@ export async function applyStepsAsAgent(
     replaceEnd = replaceTr.mapping.map(replaceEnd);
 
     // 3. Insert remaining characters one by one
-    for (let i = 1; i < step.slice.size; i++) {
+    for (let i = replacement.size; i < step.slice.size; i++) {
       const replacement = step.slice.content.cut(i, i + 1);
       const insertTr = editor.prosemirrorState.tr
         .insert(replaceEnd, replacement)

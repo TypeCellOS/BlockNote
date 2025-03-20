@@ -19,6 +19,9 @@
     "declarationDir": "types",
     "composite": true,
     "skipLibCheck": true,
+    "paths": {
+      "@shared/*": ["../../shared/*"]
+    }
   },
   "include": ["src"],
   "references": [
@@ -27,6 +30,9 @@
     },
     {
       "path": "../react"
+    },
+    {
+      "path": "../../shared"
     }
   ]
 }

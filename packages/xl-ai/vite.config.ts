@@ -16,12 +16,15 @@ export default defineConfig((conf) => ({
   resolve: {
     alias:
       conf.command === "build"
-        ? ({} as Record<string, string>)
+        ? ({
+            "@shared": path.resolve(__dirname, "../../shared/"),
+          } as Record<string, string>)
         : ({
             // load live from sources with live reload working
             "@blocknote/core": path.resolve(__dirname, "../core/src/"),
             "@blocknote/mantine": path.resolve(__dirname, "../mantine/src/"),
             "@blocknote/react": path.resolve(__dirname, "../react/src/"),
+            "@shared": path.resolve(__dirname, "../../shared/"),
           } as Record<string, string>),
   },
   build: {

@@ -9,10 +9,15 @@ import { BlockNoteOperation } from "../../functions/blocknoteFunctions.js";
  * Applies the operations to the editor and yields the results.
  */
 export async function* applyOperations(
-  editor: BlockNoteEditor,
+  editor: BlockNoteEditor<any, any, any>,
   operationsStream: AsyncIterable<{
     operation: BlockNoteOperation;
-  }>
+  }>,
+  options: {
+    withDelays: boolean;
+  } = {
+    withDelays: true,
+  }
 ): AsyncGenerator<{
   operation: BlockNoteOperation;
   result: "ok";
@@ -21,6 +26,7 @@ export async function* applyOperations(
 }> {
   for await (const chunk of operationsStream) {
     if (chunk.operation.type === "insert") {
+      // TODO: apply as agent?
       const ret = editor.insertBlocks(
         chunk.operation.blocks,
         chunk.operation.referenceId,
@@ -38,19 +44,22 @@ export async function* applyOperations(
       // Apply the steps as an agent with human-like typing behavior
       await applyStepsAsAgent(editor, steps, async (tr, type) => {
         // Add a small delay to simulate human typing
-        if (type === "select") {
-          await new Promise((resolve) => setTimeout(resolve, 100));
-        } else if (type === "insert") {
-          await new Promise((resolve) => setTimeout(resolve, 10));
-        } else if (type === "replace") {
-          await new Promise((resolve) => setTimeout(resolve, 20));
-        } else {
-          throw new UnreachableCaseError(type);
+        if (options.withDelays) {
+          if (type === "select") {
+            await new Promise((resolve) => setTimeout(resolve, 100));
+          } else if (type === "insert") {
+            await new Promise((resolve) => setTimeout(resolve, 10));
+          } else if (type === "replace") {
+            await new Promise((resolve) => setTimeout(resolve, 200));
+          } else {
+            throw new UnreachableCaseError(type);
+          }
         }
 
         editor.dispatch(tr);
       });
 
+      // TODO: remove?
       applySuggestions(editor.prosemirrorState, (tr) => {
         editor.dispatch(tr);
       });
@@ -61,6 +70,7 @@ export async function* applyOperations(
         lastBlockId: chunk.operation.id,
       };
     } else if (chunk.operation.type === "remove") {
+      // TODO: apply as agent?
       const prevBlock = editor.getPrevBlock(chunk.operation.ids[0]);
       editor.removeBlocks(chunk.operation.ids);
       yield {

@@ -1,9 +1,274 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`update complex paragraph  1`] = `[]`;
-
-exports[`update simple paragraph 1`] = `
+exports[`drop mark and link 1`] = `
 [
+  {
+    "from": 66,
+    "slice": {
+      "content": [
+        {
+          "text": "Bold text. ",
+          "type": "text",
+        },
+      ],
+    },
+    "stepType": "replace",
+    "to": 77,
+  },
+  {
+    "from": 77,
+    "slice": {
+      "content": [
+        {
+          "text": "Link.",
+          "type": "text",
+        },
+      ],
+    },
+    "stepType": "replace",
+    "to": 82,
+  },
+]
+`;
+
+exports[`drop mark and link and change text within mark 1`] = `
+[
+  {
+    "from": 52,
+    "slice": {
+      "content": [
+        {
+          "text": "Hi",
+          "type": "text",
+        },
+      ],
+    },
+    "stepType": "replace",
+    "to": 57,
+  },
+  {
+    "from": 66,
+    "slice": {
+      "content": [
+        {
+          "text": "Bold",
+          "type": "text",
+        },
+      ],
+    },
+    "stepType": "replace",
+    "to": 70,
+  },
+  {
+    "from": 70,
+    "slice": {
+      "content": [
+        {
+          "text": " the",
+          "type": "text",
+        },
+      ],
+    },
+    "stepType": "replace",
+    "to": 70,
+  },
+  {
+    "from": 70,
+    "slice": {
+      "content": [
+        {
+          "text": " text. ",
+          "type": "text",
+        },
+      ],
+    },
+    "stepType": "replace",
+    "to": 77,
+  },
+  {
+    "from": 77,
+    "slice": {
+      "content": [
+        {
+          "text": "Link.",
+          "type": "text",
+        },
+      ],
+    },
+    "stepType": "replace",
+    "to": 82,
+  },
+]
+`;
+
+exports[`plain source block, add mention 1`] = `
+[
+  {
+    "from": 10,
+    "slice": {
+      "content": [
+        {
+          "attrs": {
+            "user": "John Doe",
+          },
+          "type": "mention",
+        },
+      ],
+    },
+    "stepType": "replace",
+    "to": 15,
+  },
+]
+`;
+
+exports[`standard update 1`] = `
+[
+  {
+    "from": 10,
+    "slice": {
+      "content": [
+        {
+          "text": "updated content",
+          "type": "text",
+        },
+      ],
+    },
+    "stepType": "replace",
+    "to": 16,
+  },
+]
+`;
+
+exports[`styles + ic in source block 1`] = `
+[
+  {
+    "from": 27,
+    "slice": {
+      "content": [
+        {
+          "text": "updated content",
+          "type": "text",
+        },
+      ],
+    },
+    "stepType": "replace",
+    "to": 48,
+  },
+]
+`;
+
+exports[`styles + ic in source block, remove mark 1`] = `
+[
+  {
+    "from": 34,
+    "slice": {
+      "content": [
+        {
+          "text": "are you doing?",
+          "type": "text",
+        },
+      ],
+    },
+    "stepType": "replace",
+    "to": 48,
+  },
+]
+`;
+
+exports[`styles + ic in source block, remove mention 1`] = `
+[
+  {
+    "from": 27,
+    "stepType": "replace",
+    "to": 28,
+  },
+]
+`;
+
+exports[`styles + ic in source block, update mention prop 1`] = `
+[
+  {
+    "from": 27,
+    "slice": {
+      "content": [
+        {
+          "attrs": {
+            "user": "Jane Doe",
+          },
+          "type": "mention",
+        },
+      ],
+    },
+    "stepType": "replace",
+    "to": 28,
+  },
+]
+`;
+
+exports[`styles + ic in target block, add mark 1`] = `
+[
+  {
+    "from": 10,
+    "slice": {
+      "content": [
+        {
+          "marks": [
+            {
+              "type": "bold",
+            },
+          ],
+          "text": "world!",
+          "type": "text",
+        },
+      ],
+    },
+    "stepType": "replace",
+    "to": 16,
+  },
+]
+`;
+
+exports[`update block prop 1`] = `
+[
+  {
+    "from": 2,
+    "slice": {
+      "content": [
+        {
+          "attrs": {
+            "textAlignment": "right",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "openEnd": 1,
+    },
+    "stepType": "replace",
+    "structure": true,
+    "to": 3,
+  },
+]
+`;
+
+exports[`update block prop and content 1`] = `
+[
+  {
+    "from": 2,
+    "slice": {
+      "content": [
+        {
+          "attrs": {
+            "textAlignment": "right",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "openEnd": 1,
+    },
+    "stepType": "replace",
+    "structure": true,
+    "to": 3,
+  },
   {
     "from": 3,
     "slice": {
@@ -13,6 +278,56 @@ exports[`update simple paragraph 1`] = `
           "type": "text",
         },
       ],
+    },
+    "stepType": "replace",
+    "to": 8,
+  },
+]
+`;
+
+exports[`update block type 1`] = `
+[
+  {
+    "from": 2,
+    "slice": {
+      "content": [
+        {
+          "attrs": {
+            "level": "1",
+            "textAlignment": "left",
+          },
+          "type": "heading",
+        },
+      ],
+      "openEnd": 1,
+    },
+    "stepType": "replace",
+    "to": 3,
+  },
+]
+`;
+
+exports[`update block type and content 1`] = `
+[
+  {
+    "from": 2,
+    "slice": {
+      "content": [
+        {
+          "attrs": {
+            "level": "1",
+            "textAlignment": "left",
+          },
+          "content": [
+            {
+              "text": "What's up",
+              "type": "text",
+            },
+          ],
+          "type": "heading",
+        },
+      ],
+      "openEnd": 1,
     },
     "stepType": "replace",
     "to": 8,
