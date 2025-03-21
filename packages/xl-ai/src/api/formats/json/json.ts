@@ -36,6 +36,7 @@ type LLMRequestOptions = {
   model: LanguageModel;
   functions: AIFunction[];
   stream: boolean;
+  maxRetries: number;
   _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]>;
   _streamObjectOptions?: Partial<Parameters<typeof streamObject<any>>[0]>;
 } & PromptOrMessages;
@@ -44,7 +45,7 @@ type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 type CallLLMOptionsWithOptional = Optional<
   LLMRequestOptions,
-  "functions" | "stream"
+  "functions" | "stream" | "maxRetries"
 >;
 
 // Define the return type for streaming mode
@@ -60,6 +61,7 @@ async function getLLMResponse(
     mode: "tool";
     schema: any;
     messages: CoreMessage[];
+    maxRetries: number;
   },
   options: LLMRequestOptions
 ): Promise<{
@@ -144,6 +146,7 @@ export async function callLLM(
     functions: [updateFunction, addFunction, deleteFunction],
     stream: true,
     messages,
+    maxRetries: 2,
     ...rest,
   };
 
@@ -154,6 +157,7 @@ export async function callLLM(
 
   const baseParams = {
     model: options.model,
+    maxRetries: options.maxRetries,
     mode: "tool" as const,
     schema,
     messages,

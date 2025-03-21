@@ -4,6 +4,7 @@ import { BlockNoteEditor, PartialBlock } from "@blocknote/core";
 
 import { createGroq } from "@ai-sdk/groq";
 import { createOpenAI } from "@ai-sdk/openai";
+import { getCurrentTest } from "@vitest/runner";
 import { HttpResponse, http } from "msw";
 import { snapshot } from "msw-snapshot";
 import { setupServer } from "msw/node";
@@ -38,15 +39,20 @@ const openai = createOpenAI({
 //   compatibility: "compatible",
 // })("albert-etalab/neuralmagic/Meta-Llama-3.3-70B-Instruct-FP8");
 
+const BASE_FILE_PATH = path.resolve(
+  __dirname,
+  "__snapshots__",
+  path.basename(__filename)
+);
+
 function matchFileSnapshot(data: any, postFix = "") {
+  const t = getCurrentTest()!;
+  // this uses the same snapshot path, regardless of the model / streaming params
   expect(data).toMatchFileSnapshot(
     path.resolve(
-      __dirname,
-      "__snapshots__",
-      path.basename(__filename),
-      expect.getState().currentTestName! +
-        (postFix ? `_${postFix}` : "") +
-        ".json"
+      BASE_FILE_PATH,
+      t.suite!.name,
+      t.name + (postFix ? `_${postFix}` : "") + ".json"
     )
   );
 }
@@ -73,14 +79,30 @@ describe("Test environment", () => {
   });
 });
 
+const fetchCountMap: Record<string, number> = {};
+
 // Main test suite with snapshot middleware
-describe("Main tests", () => {
+describe("Models", () => {
   // Define server with snapshot middleware for the main tests
   const server = setupServer(
     snapshot({
       updateSnapshots: "missing",
+      // onSnapshotUpdated: "all",
       // ignoreSnapshots: true,
-      basePath: path.resolve(__dirname, "__msw_snapshots__"),
+      async createSnapshotPath(_info) {
+        // use a unique path for each model
+        const t = getCurrentTest()!;
+        const mswPath = path.join(
+          t.suite!.name, // same directory as the test snapshot
+          "__msw_snapshots__",
+          t.suite!.suite!.name, // model / streaming params
+          t.name
+        );
+        // in case there are multiple requests in a test, we need to use a separate snapshot for each request
+        fetchCountMap[mswPath] = (fetchCountMap[mswPath] || 0) + 1;
+        return mswPath + `_${fetchCountMap[mswPath]}.json`;
+      },
+      basePath: BASE_FILE_PATH,
       // onFetchFromSnapshot(info, snapshot) {
       //   console.log("onFetchFromSnapshot", info, snapshot);
       // },
@@ -102,7 +124,7 @@ describe("Main tests", () => {
     delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
   });
 
-  describe.each([
+  const testMatrix = [
     {
       model: openai,
       stream: true,
@@ -123,156 +145,168 @@ describe("Main tests", () => {
     //   model: albert,
     //   stream: true,
     // },
-  ])("Test AI operations", (params) => {
-    describe("Update", () => {
-      it("translates simple paragraphs", async () => {
-        const editor = createEditor([
-          {
-            type: "paragraph",
-            content: "Hello",
-          },
-          {
-            type: "paragraph",
-            content: "World",
-          },
-        ]);
+  ];
 
-        const result = await callLLM(editor, {
-          stream: params.stream,
-          model: params.model,
-          prompt: "translate existing document to german",
+  for (const params of testMatrix) {
+    describe(`${params.model.provider}/${params.model.modelId} (${
+      params.stream ? "streaming" : "non-streaming"
+    })`, () => {
+      describe("Update", () => {
+        it("translates simple paragraphs", async () => {
+          const editor = createEditor([
+            {
+              type: "paragraph",
+              content: "Hello",
+            },
+            {
+              type: "paragraph",
+              content: "World",
+            },
+          ]);
+
+          const result = await callLLM(editor, {
+            stream: params.stream,
+            model: params.model,
+            prompt: "translate existing document to german",
+            maxRetries: 0,
+          });
+
+          await result.apply();
+
+          // Add assertions here to check if the document was correctly translated
+          // For example:
+          // pass test name
+
+          matchFileSnapshot(editor.document);
+
+          // expect(await response.object).toMatchSnapshot();
         });
 
-        await result.apply();
+        it("changes simple formatting (paragraph)", async () => {
+          const editor = createEditor([
+            {
+              type: "paragraph",
+              content: "Hello",
+            },
+            {
+              type: "paragraph",
+              content: "World",
+            },
+          ]);
 
-        // Add assertions here to check if the document was correctly translated
-        // For example:
-        // pass test name
+          const result = await callLLM(editor, {
+            stream: params.stream,
+            prompt: "change first paragraph to bold",
+            model: params.model,
+            maxRetries: 0,
+          });
 
-        matchFileSnapshot(editor.document);
+          await result.apply();
 
-        // expect(await response.object).toMatchSnapshot();
+          // Add assertions here to check if the document was correctly translated
+          // For example:
+          matchFileSnapshot(editor.document);
+
+          // expect(await response.object).toMatchSnapshot();
+        });
+
+        it("changes simple formatting (word)", async () => {
+          const editor = createEditor([
+            {
+              type: "paragraph",
+              content: "Hello world",
+            },
+          ]);
+
+          const result = await callLLM(editor, {
+            stream: params.stream,
+            prompt: "change first word to bold",
+            model: params.model,
+            maxRetries: 0,
+          });
+
+          await result.apply();
+
+          // Add assertions here to check if the document was correctly translated
+          // For example:
+          matchFileSnapshot(editor.document);
+
+          // expect(await response.object).toMatchSnapshot();
+        });
       });
 
-      it("changes simple formatting (paragraph)", async () => {
-        const editor = createEditor([
-          {
-            type: "paragraph",
-            content: "Hello",
-          },
-          {
-            type: "paragraph",
-            content: "World",
-          },
-        ]);
+      describe("Delete", () => {
+        it("deletes a paragraph", async () => {
+          const editor = createEditor([
+            {
+              type: "paragraph",
+              content: "Hello",
+            },
+            {
+              type: "paragraph",
+              content: "World",
+            },
+          ]);
+          const result = await callLLM(editor, {
+            stream: params.stream,
+            prompt: "delete the first sentence",
+            model: params.model,
+            maxRetries: 0,
+          });
 
-        const result = await callLLM(editor, {
-          stream: params.stream,
-          prompt: "change first paragraph to bold",
-          model: params.model,
+          await result.apply();
+
+          matchFileSnapshot(editor.document);
+
+          // expect(await response.object).toMatchSnapshot();
         });
-
-        await result.apply();
-
-        // Add assertions here to check if the document was correctly translated
-        // For example:
-        matchFileSnapshot(editor.document);
-
-        // expect(await response.object).toMatchSnapshot();
       });
 
-      it("changes simple formatting (word)", async () => {
-        const editor = createEditor([
-          {
-            type: "paragraph",
-            content: "Hello world",
-          },
-        ]);
+      describe("Insert", () => {
+        it("inserts a paragraph at start", async () => {
+          const editor = createEditor([
+            {
+              type: "paragraph",
+              content: "Hello",
+            },
+          ]);
+          const result = await callLLM(editor, {
+            prompt: "Add a sentence with `Test` before the first sentence",
+            model: params.model,
+            stream: params.stream,
+            maxRetries: 0,
+          });
 
-        const result = await callLLM(editor, {
-          stream: params.stream,
-          prompt: "change first word to bold",
-          model: params.model,
+          await result.apply();
+
+          matchFileSnapshot(editor.document);
+
+          // expect(await response.object).toMatchSnapshot();
         });
 
-        await result.apply();
+        it("inserts a paragraph at end", async () => {
+          const editor = createEditor([
+            {
+              type: "paragraph",
+              content: "Hello",
+            },
+          ]);
+          const result = await callLLM(editor, {
+            stream: params.stream,
+            prompt: `Add a paragraph with text "Test" after the first paragraph`,
+            model: params.model,
+            maxRetries: 0,
+          });
 
-        // Add assertions here to check if the document was correctly translated
-        // For example:
-        matchFileSnapshot(editor.document);
+          await result.apply();
 
-        // expect(await response.object).toMatchSnapshot();
+          matchFileSnapshot(editor.document);
+
+          // expect(await response.object).toMatchSnapshot();
+        });
       });
     });
-
-    describe("Delete", () => {
-      it("deletes a paragraph", async () => {
-        const editor = createEditor([
-          {
-            type: "paragraph",
-            content: "Hello",
-          },
-          {
-            type: "paragraph",
-            content: "World",
-          },
-        ]);
-        const result = await callLLM(editor, {
-          stream: params.stream,
-          prompt: "delete the first sentence",
-          model: params.model,
-        });
-
-        await result.apply();
-
-        matchFileSnapshot(editor.document);
-
-        // expect(await response.object).toMatchSnapshot();
-      });
-    });
-
-    describe("Insert", () => {
-      it("inserts a paragraph at start", async () => {
-        const editor = createEditor([
-          {
-            type: "paragraph",
-            content: "Hello",
-          },
-        ]);
-        const result = await callLLM(editor, {
-          prompt: "Add a sentence with `Test` before the first sentence",
-          model: params.model,
-          stream: params.stream,
-        });
-
-        await result.apply();
-
-        matchFileSnapshot(editor.document);
-
-        // expect(await response.object).toMatchSnapshot();
-      });
-
-      it("inserts a paragraph at end", async () => {
-        const editor = createEditor([
-          {
-            type: "paragraph",
-            content: "Hello",
-          },
-        ]);
-        const result = await callLLM(editor, {
-          stream: params.stream,
-          prompt: `Add a paragraph with text "Test" after the first paragraph`,
-          model: params.model,
-        });
-
-        await result.apply();
-
-        matchFileSnapshot(editor.document);
-
-        // expect(await response.object).toMatchSnapshot();
-      });
-    });
-  });
+  }
 });
 
 // Separate test suite for error handling with its own server
@@ -330,9 +364,7 @@ describe("Error handling", () => {
         stream: true,
         prompt: "translate to Spanish",
         model: openai,
-        _streamObjectOptions: {
-          maxRetries: 0,
-        },
+        maxRetries: 0,
       });
       await result.apply();
     } catch (error: any) {
