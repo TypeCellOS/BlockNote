@@ -23,6 +23,8 @@ export async function* filterNewOrUpdatedOperations(
   let numOperationsAppliedCompletely = 0;
   let first = true;
 
+  let lastOp: any;
+
   for await (const chunk of partialObjectStream) {
     if (!chunk.operations?.length) {
       // yield { newOrUpdatedOperations: [] };
@@ -35,6 +37,7 @@ export async function* filterNewOrUpdatedOperations(
       i++
     ) {
       const operation = chunk.operations[i];
+      lastOp = operation;
       yield {
         partialOperation: operation,
         isUpdateToPreviousOperation:
@@ -47,4 +50,11 @@ export async function* filterNewOrUpdatedOperations(
     // Update count to exclude the last operation which might be incomplete
     numOperationsAppliedCompletely = chunk.operations.length - 1;
   }
+
+  // mark final operation as final (by emitting with isPossiblyPartial: false)
+  yield {
+    partialOperation: lastOp,
+    isUpdateToPreviousOperation: true,
+    isPossiblyPartial: false,
+  };
 }

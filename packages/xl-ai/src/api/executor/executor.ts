@@ -4,7 +4,6 @@ import { AIFunction } from "../functions/index.js";
 import {
   applyOperations,
   duplicateInsertsToUpdates,
-  filterNewOrUpdatedOperations,
   filterValidOperations,
   toBlockNoteOperations,
 } from "./streamOperations/index.js";
@@ -19,18 +18,16 @@ export type ExecuteOperationResult = {
 export async function* executeOperations(
   editor: BlockNoteEditor,
   operationsStream: AsyncIterable<{
-    operations?: any[];
+    partialOperation: any;
+    isUpdateToPreviousOperation: boolean;
+    isPossiblyPartial: boolean;
   }>,
   functions: AIFunction[]
 ): AsyncGenerator<ExecuteOperationResult> {
-  // filter new or updated operations
-  const newOrUpdatedOperationsStream =
-    filterNewOrUpdatedOperations(operationsStream);
-
   // to blocknote operations
   const blockNoteOperationsStream = toBlockNoteOperations(
     editor,
-    newOrUpdatedOperationsStream,
+    operationsStream,
     functions
   );
 

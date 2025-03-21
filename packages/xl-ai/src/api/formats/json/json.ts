@@ -25,6 +25,7 @@ import {
 import { createOperationsArraySchema } from "../../schema/operations.js";
 import { blockNoteSchemaToJSONSchema } from "../../schema/schemaToJSONSchema.js";
 
+import { filterNewOrUpdatedOperations } from "../../executor/streamOperations/filterNewOrUpdatedOperations.js";
 import {
   AsyncIterableStream,
   asyncIterableToStream,
@@ -63,7 +64,11 @@ async function getLLMResponse(
   options: LLMRequestOptions
 ): Promise<{
   result: ReturnType["llmResult"];
-  operationsSource: AsyncIterable<{ operations?: any[] }>;
+  operationsSource: AsyncIterable<{
+    partialOperation: any;
+    isUpdateToPreviousOperation: boolean;
+    isPossiblyPartial: boolean;
+  }>;
 }> {
   if (options.stream) {
     if (options._generateObjectOptions) {
@@ -76,7 +81,7 @@ async function getLLMResponse(
 
     return {
       result: ret,
-      operationsSource: ret.partialObjectStream,
+      operationsSource: filterNewOrUpdatedOperations(ret.partialObjectStream),
     };
   }
 
@@ -94,7 +99,15 @@ async function getLLMResponse(
   }
 
   async function* singleChunkGenerator() {
-    yield { operations: ret.object.operations };
+    for (const op of ret.object.operations) {
+      // TODO: non-streaming might not need some steps
+      // in the executor
+      yield {
+        partialOperation: op,
+        isUpdateToPreviousOperation: false,
+        isPossiblyPartial: false,
+      };
+    }
   }
 
   return {

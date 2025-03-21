@@ -1,8 +1,7 @@
 import { Fragment, NodeType, Node as PMNode, Slice } from "prosemirror-model";
 import { EditorState } from "prosemirror-state";
 
-import { Transaction } from "prosemirror-state";
-import { ReplaceStep } from "prosemirror-transform";
+import { ReplaceStep, Transform } from "prosemirror-transform";
 import { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import {
@@ -30,7 +29,7 @@ export function updateBlockTr<
   S extends StyleSchema
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
-  tr: Transaction,
+  tr: Transform,
   posBeforeBlock: number,
   block: PartialBlock<BSchema, I, S>
 ) {
@@ -133,7 +132,7 @@ function updateBlockContentNode<
   S extends StyleSchema
 >(
   block: PartialBlock<BSchema, I, S>,
-  tr: Transaction,
+  tr: Transform,
   editor: BlockNoteEditor<BSchema, I, S>,
   oldNodeType: NodeType,
   newNodeType: NodeType,
@@ -231,7 +230,7 @@ function updateChildren<
   S extends StyleSchema
 >(
   block: PartialBlock<BSchema, I, S>,
-  tr: Transaction,
+  tr: Transform,
   editor: BlockNoteEditor<BSchema, I, S>,
   blockInfo: BlockInfo
 ) {
@@ -276,7 +275,7 @@ export function updateBlock<
   update: PartialBlock<BSchema, I, S>
 ): Block<BSchema, I, S> {
   const ttEditor = editor._tiptapEditor;
-  let tr = ttEditor.state.tr;
+  const tr = ttEditor.state.tr;
 
   const id =
     typeof blockToUpdate === "string" ? blockToUpdate : blockToUpdate.id;
@@ -286,7 +285,7 @@ export function updateBlock<
     throw new Error(`Block with ID ${id} not found`);
   }
 
-  tr = updateBlockTr(editor, tr, posInfo.posBeforeNode, update);
+  updateBlockTr(editor, tr, posInfo.posBeforeNode, update);
 
   editor.dispatch(tr);
 

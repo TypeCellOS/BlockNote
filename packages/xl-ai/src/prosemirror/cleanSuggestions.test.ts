@@ -47,7 +47,7 @@ it("should be able to apply changes to a clean doc (use invertMap)", async () =>
 
   const cleaned = getCleanDoc(editor);
 
-  const blockPos = getNodeById("1", cleaned.cleanTr.doc)!;
+  const blockPos = getNodeById("1", cleaned.doc)!;
 
   const block = getBlockInfo(blockPos);
 
@@ -58,7 +58,7 @@ it("should be able to apply changes to a clean doc (use invertMap)", async () =>
   const start = block.blockContent.beforePos + 1;
   const end = start + 2;
 
-  expect(cleaned.cleanTr.doc.textBetween(start, end)).toBe("Hi");
+  expect(cleaned.doc.textBetween(start, end)).toBe("Hi");
 
   const tr = editor.prosemirrorState.tr.replaceWith(
     cleaned.invertMap.map(start),
@@ -74,7 +74,7 @@ it("should be able to apply changes to a clean doc (use rebaseTr)", async () => 
 
   const cleaned = getCleanDoc(editor);
 
-  const blockPos = getNodeById("1", cleaned.cleanTr.doc)!;
+  const blockPos = getNodeById("1", cleaned.doc)!;
 
   const block = getBlockInfo(blockPos);
 
@@ -85,9 +85,10 @@ it("should be able to apply changes to a clean doc (use rebaseTr)", async () => 
   const start = block.blockContent.beforePos + 1;
   const end = start + 2;
 
-  expect(cleaned.cleanTr.doc.textBetween(start, end)).toBe("Hi");
+  expect(cleaned.doc.textBetween(start, end)).toBe("Hi");
 
-  cleaned.cleanTr.replaceWith(start, end, editor.pmSchema.text("What's up"));
+  const tr = cleaned.tr();
+  tr.replaceWith(start, end, editor.pmSchema.text("What's up"));
 
-  expect(cleaned.rebaseTr().doc.toJSON()).toMatchSnapshot();
+  expect(cleaned.rebaseTr(tr).doc.toJSON()).toMatchSnapshot();
 });
