@@ -20,16 +20,28 @@ describe("applyOperations", () => {
 
   // Helper function to create a mock stream from operations
   async function* createMockStream(
-    ...operations: { operation: BlockNoteOperation }[]
+    ...operations: {
+      operation: BlockNoteOperation;
+      isUpdateToPreviousOperation?: boolean;
+      isPossiblyPartial?: boolean;
+    }[]
   ) {
     for (const op of operations) {
-      yield op;
+      yield {
+        isUpdateToPreviousOperation: false,
+        isPossiblyPartial: false,
+        ...op,
+      };
     }
   }
 
   // Helper function to process operations and return results
   async function processOperations(
-    stream: AsyncIterable<{ operation: BlockNoteOperation }>
+    stream: AsyncIterable<{
+      operation: BlockNoteOperation;
+      isUpdateToPreviousOperation: boolean;
+      isPossiblyPartial: boolean;
+    }>
   ) {
     const result = [];
     for await (const chunk of applyOperations(editor, stream, {

@@ -6,6 +6,11 @@ import { AIFunction } from "../functions/index.js";
 import { updateFunction } from "../functions/update.js";
 import { executeOperations } from "./executor.js";
 
+type StreamType = AsyncIterable<{
+  partialOperation: any;
+  isUpdateToPreviousOperation: boolean;
+  isPossiblyPartial: boolean;
+}>;
 describe("executeOperations", () => {
   let editor: BlockNoteEditor;
   const functions: AIFunction[] = [addFunction, deleteFunction, updateFunction];
@@ -23,21 +28,21 @@ describe("executeOperations", () => {
   });
 
   it("should process insert operations", async () => {
-    async function* mockStream(): AsyncGenerator<any> {
+    async function* mockStream(): StreamType {
       yield {
-        operations: [
-          {
-            type: "add" as const,
-            referenceId: "existing-id$",
-            position: "after" as const,
-            blocks: [
-              {
-                type: "paragraph" as const,
-                content: [{ type: "text" as const, text: "test" }],
-              },
-            ],
-          },
-        ],
+        partialOperation: {
+          type: "add" as const,
+          referenceId: "existing-id$",
+          position: "after" as const,
+          blocks: [
+            {
+              type: "paragraph" as const,
+              content: [{ type: "text" as const, text: "test" }],
+            },
+          ],
+        },
+        isUpdateToPreviousOperation: false,
+        isPossiblyPartial: false,
       };
     }
 
@@ -71,25 +76,26 @@ describe("executeOperations", () => {
         },
       ],
     };
-    async function* mockStream(): AsyncGenerator<any> {
+    async function* mockStream(): StreamType {
       yield {
-        operations: [op1],
+        partialOperation: op1,
+        isUpdateToPreviousOperation: false,
+        isPossiblyPartial: false,
       };
       yield {
-        operations: [
-          op1,
-          {
-            type: "add" as const,
-            position: "after" as const,
-            referenceId: "existing-id$",
-            blocks: [
-              {
-                type: "paragraph" as const,
-                content: [{ type: "text" as const, text: "second" }],
-              },
-            ],
-          },
-        ],
+        partialOperation: {
+          type: "add" as const,
+          position: "after" as const,
+          referenceId: "existing-id$",
+          blocks: [
+            {
+              type: "paragraph" as const,
+              content: [{ type: "text" as const, text: "second" }],
+            },
+          ],
+        },
+        isUpdateToPreviousOperation: false,
+        isPossiblyPartial: false,
       };
     }
 
@@ -102,7 +108,7 @@ describe("executeOperations", () => {
       results.push(result);
     }
 
-    expect(results.length).toBe(3);
+    expect(results.length).toBe(2);
     expect(editor.document.length).toBe(3);
     expect(editor.document[1]).toMatchObject({
       type: "paragraph",
@@ -115,7 +121,7 @@ describe("executeOperations", () => {
   });
 
   it("should handle empty operation streams", async () => {
-    async function* mockStream(): AsyncGenerator<any> {
+    async function* mockStream(): StreamType {
       // Empty stream
     }
 
@@ -133,13 +139,13 @@ describe("executeOperations", () => {
   });
 
   it("should handle invalid operations", async () => {
-    async function* mockStream(): AsyncGenerator<any> {
+    async function* mockStream(): StreamType {
       yield {
-        operations: [
-          {
-            type: "invalid",
-          },
-        ],
+        partialOperation: {
+          type: "invalid",
+        },
+        isUpdateToPreviousOperation: false,
+        isPossiblyPartial: false,
       };
     }
 
@@ -156,17 +162,17 @@ describe("executeOperations", () => {
   });
 
   it("should handle update operations", async () => {
-    async function* mockStream(): AsyncGenerator<any> {
+    async function* mockStream(): StreamType {
       yield {
-        operations: [
-          {
-            type: "update" as const,
-            id: "existing-id$",
-            block: {
-              content: [{ type: "text", text: "updated" }],
-            },
+        partialOperation: {
+          type: "update" as const,
+          id: "existing-id$",
+          block: {
+            content: [{ type: "text", text: "updated" }],
           },
-        ],
+        },
+        isUpdateToPreviousOperation: false,
+        isPossiblyPartial: false,
       };
     }
 

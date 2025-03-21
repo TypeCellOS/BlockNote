@@ -111,38 +111,62 @@ function addMissingChanges(
 
 export function updateToReplaceSteps(
   editor: BlockNoteEditor<any, any, any>,
-  op: UpdateBlocksOperation
+  op: UpdateBlocksOperation,
+  dontReplaceContentAtEnd = false
 ) {
   // first, create a clean doc (without "suggestion" marks, and generate a diff of the content)
   const cleaned = getCleanDoc(editor);
-  const cleanedDoc = cleaned.cleanTr.doc;
+  const cleanedDoc = cleaned.doc;
 
-  let changeset = ChangeSet.create(cleaned.cleanTr.doc);
+  let changeset = ChangeSet.create(cleaned.doc);
 
-  const blockPos = getNodeById(op.id, cleaned.cleanTr.doc)!;
-  updateBlockTr(editor, cleaned.cleanTr, blockPos.posBeforeNode, op.block);
+  const blockPos = getNodeById(op.id, cleaned.doc)!;
+  const updatedTr = cleaned.tr();
+  updateBlockTr(editor, updatedTr, blockPos.posBeforeNode, op.block);
 
-  const updatedDoc = cleaned.cleanTr.doc;
+  let updatedDoc = updatedTr.doc;
 
-  changeset = changeset.addSteps(updatedDoc, cleaned.mapsAfterClean(), 0);
+  changeset = changeset.addSteps(updatedDoc, updatedTr.mapping.maps, 0);
+
+  if (dontReplaceContentAtEnd && changeset.changes.length > 0) {
+    // TODO: unit test
+    const lastChange = changeset.changes[changeset.changes.length - 1];
+
+    const lengthA = lastChange.toA - lastChange.fromA;
+    const lengthB = lastChange.toB - lastChange.fromB;
+
+    if (lengthA > lengthB) {
+      changeset = ChangeSet.create(changeset.startDoc);
+      const endOfBlockToReAdd = cleanedDoc.slice(
+        lastChange.fromA + lengthB,
+        lastChange.toA
+      );
+      updatedTr.step(
+        new ReplaceStep(lastChange.toB, lastChange.toB, endOfBlockToReAdd)
+      );
+      updatedDoc = updatedTr.doc;
+      changeset = changeset.addSteps(updatedDoc, updatedTr.mapping.maps, 0);
+    }
+  }
 
   const steps = [];
 
   // `changes` holds the changes that can be made to the cleaned doc to get to the updated doc
   const changes: CustomChange[] = simplifyChanges(
     changeset.changes,
-    cleaned.cleanTr.doc
+    updatedDoc
   );
 
   addMissingChanges(changes, cleanedDoc, updatedDoc);
 
   // we need to remap these changes to make them applicable to the original doc
-  for (const step of changes) {
+  for (let i = 0; i < changes.length; i++) {
+    const step = changes[i];
     const replaceStart = cleaned.invertMap.map(step.fromA);
     const replaceEnd = cleaned.invertMap.map(step.toA);
 
     // replace with empty content or first character
-    const replacement = cleaned.cleanTr.doc.slice(step.fromB, step.toB);
+    const replacement = updatedDoc.slice(step.fromB, step.toB);
 
     // this happens for node type / attr changes, so we can't assert this
     // if (replacement.openStart > 0 || replacement.openEnd > 0) {
@@ -151,6 +175,15 @@ export function updateToReplaceSteps(
     //   );
     // }
     // TODO: set structure true / false
+
+    if (
+      i === changes.length - 1 &&
+      dontReplaceContentAtEnd &&
+      step.type === "mark-update"
+    ) {
+      continue;
+    }
+
     steps.push(
       new ReplaceStep(
         replaceStart,

@@ -12,7 +12,7 @@
  * {newOrUpdatedOperations: [op2complete, op3, op4]}
  */
 export async function* filterNewOrUpdatedOperations(
-  partialObjectStream: AsyncIterable<{
+  partialObjectStream: AsyncGenerator<{
     operations?: any[];
   }>
 ): AsyncGenerator<{

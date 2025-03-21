@@ -12,6 +12,8 @@ export async function* applyOperations(
   editor: BlockNoteEditor<any, any, any>,
   operationsStream: AsyncIterable<{
     operation: BlockNoteOperation;
+    isUpdateToPreviousOperation: boolean;
+    isPossiblyPartial: boolean;
   }>,
   options: {
     withDelays: boolean;
@@ -24,6 +26,8 @@ export async function* applyOperations(
   lastBlockId: string;
   changeset?: ChangeSet;
 }> {
+  let minSize = 50;
+
   for await (const chunk of operationsStream) {
     if (chunk.operation.type === "insert") {
       // TODO: apply as agent?
@@ -38,8 +42,28 @@ export async function* applyOperations(
         lastBlockId: ret[ret.length - 1].id,
       };
     } else if (chunk.operation.type === "update") {
+      if (chunk.isPossiblyPartial) {
+        // TODO: unit test and / or extract to separate pipeline step
+        const size = JSON.stringify(chunk.operation.block).length;
+        if (size < minSize) {
+          continue;
+        } else {
+          // console.log("increasing minSize", minSize);
+          // increase minSize for next chunk
+          minSize = size + 50;
+        }
+      } else {
+        // reset for next chunk
+        minSize = 50;
+      }
+
+      console.log("apply", chunk.operation);
       // Convert the update operation directly to ReplaceSteps
-      const steps = updateToReplaceSteps(editor, chunk.operation);
+      const steps = updateToReplaceSteps(
+        editor,
+        chunk.operation,
+        chunk.isPossiblyPartial
+      );
 
       // Apply the steps as an agent with human-like typing behavior
       await applyStepsAsAgent(editor, steps, async (tr, type) => {
@@ -59,11 +83,6 @@ export async function* applyOperations(
         editor.dispatch(tr);
       });
 
-      // TODO: remove?
-      applySuggestions(editor.prosemirrorState, (tr) => {
-        editor.dispatch(tr);
-      });
-
       yield {
         operation: chunk.operation,
         result: "ok",
@@ -80,6 +99,10 @@ export async function* applyOperations(
       };
     }
   }
+  // TODO: remove?
+  applySuggestions(editor.prosemirrorState, (tr) => {
+    editor.dispatch(tr);
+  });
 }
 /*
 

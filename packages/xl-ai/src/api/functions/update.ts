@@ -4,7 +4,7 @@ import { validateBlockFunction } from "./validate.js";
 
 const schema = {
   name: "update",
-  description: "Update a block",
+  description: "Update a block, the new block will replace the existing block.",
   parameters: {
     id: {
       type: "string",
