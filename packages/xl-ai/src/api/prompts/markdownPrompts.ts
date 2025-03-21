@@ -9,16 +9,28 @@ export function promptManipulateDocumentUseMarkdown(opts: {
   return [
     {
       role: "system",
-      content:
-        "You're manipulating a markdown document. Send me the new markdown of the entire updated document. Don't include any other text, comments or wrapping marks. Next message is the existing document in markdown:",
+      content: "You're helping the user redact / write a markdown document.",
     },
     {
-      role: "user",
-      content: opts.markdown,
+      role: "system",
+      content: "This is what the user wants you to do:",
     },
     {
       role: "user",
       content: opts.userPrompt,
+    },
+    {
+      role: "system",
+      content:
+        "Send me the new markdown of the entire updated document in markdown. Make sure to use duplicate new lines (\n\n) to separate blocks as usual in markdown. Don't include any other text, comments or wrapping marks.",
+    },
+    {
+      role: "system",
+      content: "This is the document the user wants to update:",
+    },
+    {
+      role: "system",
+      content: opts.markdown,
     },
   ];
 }

@@ -1,0 +1,15 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "https://localhost:3000/ai?provider=openai&url=https%3A%2F%2Fapi.openai.com%2Fv1%2Fchat%2Fcompletions",
+    "body": "{\"model\":\"gpt-4o-2024-08-06\",\"temperature\":0,\"messages\":[{\"role\":\"system\",\"content\":\"You're helping the user redact / write a markdown document.\"},{\"role\":\"system\",\"content\":\"This is what the user wants you to do:\"},{\"role\":\"user\",\"content\":\"change first paragraph to bold\"},{\"role\":\"system\",\"content\":\"Send me the new markdown of the entire updated document in markdown. Make sure to use duplicate new lines (\\n\\n) to separate blocks as usual in markdown. Don't include any other text, comments or wrapping marks.\"},{\"role\":\"system\",\"content\":\"This is the document the user wants to update:\"},{\"role\":\"system\",\"content\":\"Hello\\n\\nWorld\"}]}",
+    "headers": [],
+    "cookies": []
+  },
+  "response": {
+    "status": 200,
+    "statusText": "",
+    "body": "{\n  \"id\": \"chatcmpl-BDVyjE3LmRgAObvjh0e0K8kCQnzRr\",\n  \"object\": \"chat.completion\",\n  \"created\": 1742560889,\n  \"model\": \"gpt-4o-2024-08-06\",\n  \"choices\": [\n    {\n      \"index\": 0,\n      \"message\": {\n        \"role\": \"assistant\",\n        \"content\": \"**Hello**\\n\\nWorld\",\n        \"refusal\": null,\n        \"annotations\": []\n      },\n      \"logprobs\": null,\n      \"finish_reason\": \"stop\"\n    }\n  ],\n  \"usage\": {\n    \"prompt_tokens\": 107,\n    \"completion_tokens\": 5,\n    \"total_tokens\": 112,\n    \"prompt_tokens_details\": {\n      \"cached_tokens\": 0,\n      \"audio_tokens\": 0\n    },\n    \"completion_tokens_details\": {\n      \"reasoning_tokens\": 0,\n      \"audio_tokens\": 0,\n      \"accepted_prediction_tokens\": 0,\n      \"rejected_prediction_tokens\": 0\n    }\n  },\n  \"service_tier\": \"default\",\n  \"system_fingerprint\": \"fp_90d33c15d4\"\n}\n",
+    "headers": []
+  }
+}

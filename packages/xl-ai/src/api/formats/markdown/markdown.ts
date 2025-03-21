@@ -16,6 +16,7 @@ import { trimArray } from "../../util/trimArray.js";
 
 type BasicLLMRequestOptions = {
   model: LanguageModel;
+  maxRetries?: number;
 } & PromptOrMessages;
 
 type MarkdownLLMRequestOptions = BasicLLMRequestOptions & {
@@ -52,12 +53,14 @@ export async function callLLM(
     Omit<MarkdownLLMRequestOptions & { messages: CoreMessage[] }, "prompt">
   > = {
     messages,
+    maxRetries: 2,
     ...(options as any), // TODO
   };
 
   const ret = await generateText<any>({
     model: withDefaults.model,
     messages: withDefaults.messages,
+    maxRetries: withDefaults.maxRetries,
     ...options._generateTextOptions,
   });
 
@@ -79,7 +82,11 @@ export async function callLLM(
 
   async function* singleChunkGenerator() {
     for (const operation of operations) {
-      yield { operation };
+      yield {
+        operation,
+        isUpdateToPreviousOperation: false,
+        isPossiblyPartial: false,
+      };
     }
   }
 

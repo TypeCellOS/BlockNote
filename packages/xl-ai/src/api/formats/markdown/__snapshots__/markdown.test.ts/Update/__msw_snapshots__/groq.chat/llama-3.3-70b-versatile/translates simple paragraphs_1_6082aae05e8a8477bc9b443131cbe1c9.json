@@ -1,0 +1,15 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "https://localhost:3000/ai?provider=groq&url=https%3A%2F%2Fapi.groq.com%2Fopenai%2Fv1%2Fchat%2Fcompletions",
+    "body": "{\"model\":\"llama-3.3-70b-versatile\",\"temperature\":0,\"messages\":[{\"role\":\"system\",\"content\":\"You're helping the user redact / write a markdown document.\"},{\"role\":\"system\",\"content\":\"This is what the user wants you to do:\"},{\"role\":\"user\",\"content\":\"translate existing document to german\"},{\"role\":\"system\",\"content\":\"Send me the new markdown of the entire updated document in markdown. Make sure to use duplicate new lines (\\n\\n) to separate blocks as usual in markdown. Don't include any other text, comments or wrapping marks.\"},{\"role\":\"system\",\"content\":\"This is the document the user wants to update:\"},{\"role\":\"system\",\"content\":\"Hello\\n\\nWorld\"}]}",
+    "headers": [],
+    "cookies": []
+  },
+  "response": {
+    "status": 200,
+    "statusText": "",
+    "body": "{\"id\":\"chatcmpl-176918e7-6e64-4804-ae12-6c4e8ec0f774\",\"object\":\"chat.completion\",\"created\":1742560892,\"model\":\"llama-3.3-70b-versatile\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"Hallo\\n\\nWelt\"},\"logprobs\":null,\"finish_reason\":\"stop\"}],\"usage\":{\"queue_time\":0.10961923899999998,\"prompt_tokens\":118,\"prompt_time\":0.227423111,\"completion_tokens\":5,\"completion_time\":0.025560269,\"total_tokens\":123,\"total_time\":0.25298338},\"system_fingerprint\":\"fp_41c250edc7\",\"x_groq\":{\"id\":\"req_01jpwbj5aae76re37e12xqpjdm\"}}\n",
+    "headers": []
+  }
+}

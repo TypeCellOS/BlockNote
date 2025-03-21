@@ -1,241 +1,130 @@
-import { afterEach, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, afterEach, beforeAll, describe } from "vitest";
 
-import { BlockNoteEditor, PartialBlock } from "@blocknote/core";
-
+import { createGroq } from "@ai-sdk/groq";
 import { createOpenAI } from "@ai-sdk/openai";
-import { snapshot } from "msw-snapshot";
+import { getCurrentTest } from "@vitest/runner";
+import { getSortedEntries, snapshot, toHashString } from "msw-snapshot";
 import { setupServer } from "msw/node";
 import path from "path";
 import { createBlockNoteAIClient } from "../../blocknoteAIClient/client.js";
+import { generateSharedTestCases } from "../tests/sharedTestCases.js";
 import { callLLM } from "./markdown.js";
 
-function createEditor(initialContent: PartialBlock[]) {
-  return BlockNoteEditor.create({
-    initialContent,
-  });
-}
-
-beforeAll(() => {
-  const server = setupServer(
-    snapshot({
-      updateSnapshots: "missing",
-      ignoreSnapshots: false,
-      basePath: path.resolve(__dirname, "__msw_snapshots__"),
-      // onFetchFromSnapshot(info, snapshot) {
-      //   // console.log("onFetchFromSnapshot", info, snapshot);
-      // },
-      // onFetchFromServer(info, snapshot) {
-      //   // console.log("onFetchFromServer", info, snapshot);
-      // },
-    })
-  );
-  server.listen();
-});
-
+// Create client and models outside of test suites so they can be shared
 const client = createBlockNoteAIClient({
   baseURL: "https://localhost:3000/ai",
   apiKey: "PLACEHOLDER",
 });
 
-// const groq = createGroq({
-//   ...client.getProviderSettings("groq"),
-// })("llama-3.1-70b-versatile");
+const groq = createGroq({
+  ...client.getProviderSettings("groq"),
+})("llama-3.3-70b-versatile");
 
 const openai = createOpenAI({
   ...client.getProviderSettings("openai"),
 })("gpt-4o-2024-08-06", {});
 
-function matchFileSnapshot(data: any, postFix = "") {
-  expect(data).toMatchFileSnapshot(
-    path.resolve(
-      __dirname,
-      "__snapshots__",
-      path.basename(__filename),
-      expect.getState().currentTestName! +
-        (postFix ? `_${postFix}` : "") +
-        ".json"
-    )
-  );
+const albert = createOpenAI({
+  // albert-etalab/neuralmagic/Meta-Llama-3.1-70B-Instruct-FP8
+  baseURL: "https://albert.api.etalab.gouv.fr/v1",
+  ...client.getProviderSettings("albert-etalab"),
+  compatibility: "compatible",
+})("neuralmagic/Meta-Llama-3.1-70B-Instruct-FP8");
+
+const BASE_FILE_PATH = path.resolve(
+  __dirname,
+  "__snapshots__",
+  path.basename(__filename)
+);
+
+// TODO: disable delays in applyOperations
+
+const fetchCountMap: Record<string, number> = {};
+
+async function createRequestHash(req: Request) {
+  const url = new URL(req.url);
+  return [
+    // url.host,
+    // url.pathname,
+    toHashString([
+      req.method,
+      url.origin,
+      url.pathname,
+      getSortedEntries(url.searchParams),
+      getSortedEntries(req.headers),
+      // getSortedEntries(req.cookies),
+      new TextDecoder("utf-8").decode(await req.arrayBuffer()),
+    ]),
+  ].join("/");
 }
 
-describe.each([
-  {
-    model: openai,
-  },
-  // {
-  //   model: groq,
-  // },
-])("Test AI operations", (params) => {
+// Main test suite with snapshot middleware
+describe("Models", () => {
+  // Define server with snapshot middleware for the main tests
+  const server = setupServer(
+    snapshot({
+      updateSnapshots: "missing",
+      // onSnapshotUpdated: "all",
+      // ignoreSnapshots: true,
+      async createSnapshotPath(info) {
+        // use a unique path for each model
+        const t = getCurrentTest()!;
+        const mswPath = path.join(
+          t.suite!.name, // same directory as the test snapshot
+          "__msw_snapshots__",
+          t.suite!.suite!.name, // model / streaming params
+          t.name
+        );
+        // in case there are multiple requests in a test, we need to use a separate snapshot for each request
+        fetchCountMap[mswPath] = (fetchCountMap[mswPath] || 0) + 1;
+        const hash = await createRequestHash(info.request);
+        return mswPath + `_${fetchCountMap[mswPath]}_${hash}.json`;
+      },
+      basePath: BASE_FILE_PATH,
+      // onFetchFromSnapshot(info, snapshot) {
+      // console.log("onFetchFromSnapshot", info, snapshot);
+      // },
+      // onFetchFromServer(info, snapshot) {
+      //   console.log("onFetchFromServer", info, snapshot);
+      // },
+    })
+  );
+
+  beforeAll(() => {
+    server.listen();
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
   afterEach(() => {
     delete (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS;
   });
 
-  describe("Update", () => {
-    it("translates simple paragraphs", async () => {
-      const editor = createEditor([
-        {
-          type: "paragraph",
-          content: "Hello",
-        },
-        {
-          type: "paragraph",
-          content: "World",
-        },
-      ]);
+  const testMatrix = [
+    {
+      model: openai,
+    },
 
-      const result = await callLLM(editor, {
-        model: params.model,
-        prompt: "translate existing document to german",
-      });
+    {
+      model: groq,
+    },
+    // {
+    //   model: albert,
+    //   stream: true,
+    // },
+  ];
 
-      await result.apply();
-
-      // Add assertions here to check if the document was correctly translated
-      // For example:
-      // pass test name
-
-      matchFileSnapshot(editor.document);
-
-      // expect(await response.object).toMatchSnapshot();
+  for (const params of testMatrix) {
+    describe(`${params.model.provider}/${params.model.modelId}`, () => {
+      generateSharedTestCases((editor, options) =>
+        callLLM(editor, {
+          ...options,
+          model: params.model,
+          maxRetries: 0,
+        })
+      );
     });
-
-    it("changes block type (paragraph -> heading)", async () => {
-      const editor = createEditor([
-        {
-          type: "paragraph",
-          content: "Hello",
-        },
-        {
-          type: "paragraph",
-          content: "World",
-        },
-      ]);
-
-      const result = await callLLM(editor, {
-        prompt: "change first paragraph to a heading",
-        model: params.model,
-      });
-
-      await result.apply();
-
-      // Add assertions here to check if the document was correctly translated
-      // For example:
-      matchFileSnapshot(editor.document);
-
-      // expect(await response.object).toMatchSnapshot();
-    });
-
-    it("changes simple formatting (paragraph)", async () => {
-      const editor = createEditor([
-        {
-          type: "paragraph",
-          content: "Hello",
-        },
-        {
-          type: "paragraph",
-          content: "World",
-        },
-      ]);
-
-      const result = await callLLM(editor, {
-        prompt: "change first paragraph to bold",
-        model: params.model,
-      });
-
-      await result.apply();
-
-      // Add assertions here to check if the document was correctly translated
-      // For example:
-      matchFileSnapshot(editor.document);
-
-      // expect(await response.object).toMatchSnapshot();
-    });
-
-    it("changes simple formatting (word)", async () => {
-      const editor = createEditor([
-        {
-          type: "paragraph",
-          content: "Hello world",
-        },
-      ]);
-
-      const result = await callLLM(editor, {
-        prompt: "change first word to bold",
-        model: params.model,
-      });
-
-      await result.apply();
-
-      // Add assertions here to check if the document was correctly translated
-      // For example:
-      matchFileSnapshot(editor.document);
-
-      // expect(await response.object).toMatchSnapshot();
-    });
-  });
-
-  describe("Delete", () => {
-    it("deletes a paragraph", async () => {
-      const editor = createEditor([
-        {
-          type: "paragraph",
-          content: "Hello",
-        },
-        {
-          type: "paragraph",
-          content: "World",
-        },
-      ]);
-      const result = await callLLM(editor, {
-        prompt: "delete the first sentence",
-        model: params.model,
-      });
-
-      await result.apply();
-
-      matchFileSnapshot(editor.document);
-
-      // expect(await response.object).toMatchSnapshot();
-    });
-  });
-
-  describe("Insert", () => {
-    it("inserts a paragraph at start", async () => {
-      const editor = createEditor([
-        {
-          type: "paragraph",
-          content: "Hello",
-        },
-      ]);
-      const result = await callLLM(editor, {
-        prompt: "Add a single sentence with `Test` before the first sentence",
-        model: params.model,
-      });
-
-      await result.apply();
-
-      matchFileSnapshot(editor.document);
-
-      // expect(await response.object).toMatchSnapshot();
-    });
-
-    it("inserts a paragraph at end", async () => {
-      const editor = createEditor([
-        {
-          type: "paragraph",
-          content: "Hello",
-        },
-      ]);
-      const result = await callLLM(editor, {
-        prompt: `Add a paragraph with text "Test" after the first paragraph`,
-        model: params.model,
-      });
-
-      await result.apply();
-
-      matchFileSnapshot(editor.document);
-
-      // expect(await response.object).toMatchSnapshot();
-    });
-  });
+  }
 });
