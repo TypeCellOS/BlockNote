@@ -1,21 +1,16 @@
-import {
-  BlockNoteOperation,
-  InvalidOrOk,
-} from "../../functions/blocknoteFunctions.js";
+import { InvalidOrOk } from "../../functions/blocknoteFunctions.js";
 
 /**
  * Filters out invalid operations from the stream.
  */
-export async function* filterValidOperations<
-  T extends {
-    operation: InvalidOrOk<BlockNoteOperation>;
+export async function* filterValidOperations<T>(
+  operationsStream: AsyncIterable<{
+    operation: InvalidOrOk<T>;
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
-  }
->(
-  operationsStream: AsyncIterable<T>
+  }>
 ): AsyncGenerator<{
-  operation: BlockNoteOperation;
+  operation: T;
   isUpdateToPreviousOperation: boolean;
   isPossiblyPartial: boolean;
 }> {

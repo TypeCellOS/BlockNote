@@ -8,7 +8,7 @@ import { setupServer } from "msw/node";
 import path from "path";
 import { createBlockNoteAIClient } from "../../blocknoteAIClient/client.js";
 import { generateSharedTestCases } from "../tests/sharedTestCases.js";
-import { callLLM } from "./json.js";
+import { callLLM } from "./markdownBlocks.js";
 
 // Create client and models outside of test suites so they can be shared
 const client = createBlockNoteAIClient({
@@ -64,7 +64,7 @@ describe("Models", () => {
   const server = setupServer(
     snapshot({
       updateSnapshots: "missing",
-      // updateSnapshots: "all",
+      // onSnapshotUpdated: "all",
       // ignoreSnapshots: true,
       async createSnapshotPath(info) {
         // use a unique path for each model
@@ -104,37 +104,26 @@ describe("Models", () => {
 
   const testMatrix = [
     {
-      model: openai,
-      stream: true,
-    },
-    {
-      model: openai,
-      stream: false,
-    },
-    {
-      model: groq,
-      stream: true,
-    },
-    {
-      model: groq,
-      stream: false,
-    },
-    {
       model: albert,
-      stream: false,
     },
+
+    // {
+    //   model: groq,
+    // },
+    // // {
+    // //   model: albert,
+    // //   stream: true,
+    // // },
   ];
 
   for (const params of testMatrix) {
-    describe(`${params.model.provider}/${params.model.modelId} (${
-      params.stream ? "streaming" : "non-streaming"
-    })`, () => {
+    describe(`${params.model.provider}/${params.model.modelId}`, () => {
       generateSharedTestCases((editor, options) =>
         callLLM(editor, {
           ...options,
-          stream: params.stream,
           model: params.model,
           maxRetries: 0,
+          stream: false,
         })
       );
     });

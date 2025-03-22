@@ -1,6 +1,7 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { BlockNoteOperation } from "../functions/blocknoteFunctions.js";
-import { AIFunction } from "../functions/index.js";
+
+import { AIFunctionJSON } from "../formats/json/functions/index.js";
 import {
   applyOperations,
   duplicateInsertsToUpdates,
@@ -9,7 +10,7 @@ import {
 } from "./streamOperations/index.js";
 
 export type ExecuteOperationResult = {
-  operation: BlockNoteOperation;
+  operation: BlockNoteOperation<any>;
   result: "ok";
   lastBlockId: string;
 };
@@ -22,7 +23,7 @@ export async function* executeOperations(
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
   }>,
-  functions: AIFunction[]
+  functions: AIFunctionJSON[]
 ): AsyncGenerator<ExecuteOperationResult> {
   // to blocknote operations
   const blockNoteOperationsStream = toBlockNoteOperations(

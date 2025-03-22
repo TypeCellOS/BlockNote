@@ -1,63 +1,61 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { InvalidOrOk, RemoveBlocksOperation } from "./blocknoteFunctions.js";
+import { LLMFunction } from "./function.js";
 
-const schema = {
-  name: "delete",
-  description: "Delete a block",
-  parameters: {
-    id: {
-      type: "string",
-      description: "id of block to delete",
+export class DeleteFunction extends LLMFunction<RemoveBlocksOperation> {
+  public schema = {
+    name: "delete",
+    description: "Delete a block",
+    parameters: {
+      id: {
+        type: "string",
+        description: "id of block to delete",
+      },
     },
-  },
-  required: ["id"],
-};
+    required: ["id"],
+  } as const;
 
-function toBlockNoteOperation(
-  operation: any,
-  editor: BlockNoteEditor,
-  options: {
-    idsSuffixed: boolean;
-  }
-): InvalidOrOk<RemoveBlocksOperation> {
-  if (operation.type !== schema.name) {
-    return {
-      result: "invalid",
-      reason: "invalid operation type",
-    };
-  }
-
-  let id = operation.id;
-  if (options.idsSuffixed) {
-    if (!id?.endsWith("$")) {
+  validate(
+    operation: any,
+    editor: BlockNoteEditor,
+    options: {
+      idsSuffixed: boolean;
+    }
+  ): InvalidOrOk<RemoveBlocksOperation> {
+    if (operation.type !== this.schema.name) {
       return {
         result: "invalid",
-        reason: "id must end with $",
+        reason: "invalid operation type",
       };
     }
 
-    id = id.slice(0, -1);
-  }
+    let id = operation.id;
+    if (options.idsSuffixed) {
+      if (!id?.endsWith("$")) {
+        return {
+          result: "invalid",
+          reason: "id must end with $",
+        };
+      }
 
-  const block = editor.getBlock(id);
+      id = id.slice(0, -1);
+    }
 
-  if (!block) {
+    const block = editor.getBlock(id);
+
+    if (!block) {
+      return {
+        result: "invalid",
+        reason: "block not found",
+      };
+    }
+
     return {
-      result: "invalid",
-      reason: "block not found",
+      result: "ok",
+      value: {
+        type: "delete", // TODO
+        ids: [id],
+      },
     };
   }
-
-  return {
-    result: "ok",
-    value: {
-      type: "remove",
-      ids: [id],
-    },
-  };
 }
-
-export const deleteFunction = {
-  schema,
-  toBlockNoteOperation,
-};

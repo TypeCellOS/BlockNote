@@ -13,31 +13,25 @@ import {
   ExecuteOperationResult,
   executeOperations,
 } from "../../executor/executor.js";
-
+import { addFunction } from "../../functions/add.js";
+import { deleteFunction } from "../../functions/delete.js";
+import { AIFunction } from "../../functions/index.js";
+import { updateFunction } from "../../functions/update.js";
 import type { PromptOrMessages } from "../../index.js";
-import {
-  promptManipulateDocumentUseJSONSchema,
-  promptManipulateSelectionJSONSchema,
-} from "../../prompts/jsonSchemaPrompts.js";
+import { promptManipulateSelectionJSONSchema } from "../../prompts/jsonSchemaPrompts.js";
 import { createOperationsArraySchema } from "../../schema/operations.js";
-import { blockNoteSchemaToJSONSchema } from "../../schema/schemaToJSONSchema.js";
 
 import { filterNewOrUpdatedOperations } from "../../executor/streamOperations/filterNewOrUpdatedOperations.js";
-import { DeleteFunction } from "../../functions/delete.js";
+import { promptManipulateDocumentUseMarkdownBlocks } from "../../prompts/markdownBlocksPrompt.js";
 import {
   AsyncIterableStream,
   asyncIterableToStream,
   createAsyncIterableStream,
 } from "../../util/stream.js";
-import {
-  AIFunctionJSON,
-  AddFunctionJSON,
-  UpdateFunctionJSON,
-} from "./functions/index.js";
 
 type LLMRequestOptions = {
   model: LanguageModel;
-  functions: AIFunctionJSON[];
+  functions: AIFunction[];
   stream: boolean;
   maxRetries: number;
   _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]>;
@@ -129,6 +123,16 @@ export async function callLLM(
 
   let messages: CoreMessage[];
 
+  // changed
+  const doc = await Promise.all(
+    editor.document.map(async (block) => {
+      return {
+        id: block.id,
+        block: await editor.blocksToMarkdownLossy([block]),
+      };
+    })
+  );
+
   if ("messages" in opts && opts.messages) {
     messages = opts.messages;
   } else if (useSelection) {
@@ -138,28 +142,30 @@ export async function callLLM(
       document: editor.getDocumentWithSelectionMarkers(),
     });
   } else {
-    messages = promptManipulateDocumentUseJSONSchema({
+    messages = promptManipulateDocumentUseMarkdownBlocks({
       editor,
       userPrompt: opts.prompt!,
-      document: editor.document,
+      markdown: JSON.stringify(doc, undefined, 2),
     });
   }
 
   const options: LLMRequestOptions = {
-    functions: [
-      new UpdateFunctionJSON(),
-      new AddFunctionJSON(),
-      new DeleteFunction(),
-    ],
+    functions: [updateFunction, addFunction, deleteFunction],
     stream: true,
     messages,
     maxRetries: 2,
     ...rest,
   };
 
+  // changed
   const schema = jsonSchema({
     ...createOperationsArraySchema(options.functions),
-    $defs: blockNoteSchemaToJSONSchema(editor.schema).$defs as any,
+    $defs: {
+      block: {
+        type: "string",
+        description: "markdown of block",
+      },
+    },
   });
 
   const baseParams = {

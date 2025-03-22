@@ -1,9 +1,9 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import {
-  BlockNoteOperation,
-  InvalidOrOk,
-} from "../../functions/blocknoteFunctions.js";
-import { AIFunction } from "../../functions/index.js";
+import { InvalidOrOk } from "../../functions/blocknoteFunctions.js";
+import { LLMFunction } from "../../functions/function.js";
+
+// Extract the type parameter from an LLMFunction
+type ExtractFunctionType<T> = T extends LLMFunction<infer U> ? U : never;
 
 /**
  * Transforms the partialObjectStream into a stream of BlockNoteOperations, or indicates that the operation is invalid.
@@ -12,16 +12,16 @@ import { AIFunction } from "../../functions/index.js";
  * a) the LLM produces an invalid result
  * b) the "partial" operation doesn't have enough data yet to execute
  */
-export async function* toBlockNoteOperations(
+export async function* toBlockNoteOperations<T extends LLMFunction<any>[]>(
   editor: BlockNoteEditor,
   partialObjectStream: AsyncIterable<{
     partialOperation: any;
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
   }>,
-  functions: AIFunction[]
+  functions: T
 ): AsyncGenerator<{
-  operation: InvalidOrOk<BlockNoteOperation>;
+  operation: InvalidOrOk<ExtractFunctionType<T[number]>>;
   isUpdateToPreviousOperation: boolean;
   isPossiblyPartial: boolean;
 }> {
@@ -36,13 +36,9 @@ export async function* toBlockNoteOperations(
       continue;
     }
 
-    const operation = func.toBlockNoteOperation(
-      chunk.partialOperation,
-      editor,
-      {
-        idsSuffixed: true,
-      }
-    );
+    const operation = func.validate(chunk.partialOperation, editor, {
+      idsSuffixed: true,
+    });
 
     yield {
       operation,

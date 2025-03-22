@@ -1,4 +1,8 @@
-import { BlockNoteEditor, UnreachableCaseError } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  PartialBlock,
+  UnreachableCaseError,
+} from "@blocknote/core";
 import { applySuggestions } from "@handlewithcare/prosemirror-suggest-changes";
 import { ChangeSet } from "prosemirror-changeset";
 import { applyStepsAsAgent } from "../../../prosemirror/agent.js";
@@ -11,7 +15,7 @@ import { BlockNoteOperation } from "../../functions/blocknoteFunctions.js";
 export async function* applyOperations(
   editor: BlockNoteEditor<any, any, any>,
   operationsStream: AsyncIterable<{
-    operation: BlockNoteOperation;
+    operation: BlockNoteOperation<PartialBlock<any, any, any>>;
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
   }>,
@@ -21,7 +25,7 @@ export async function* applyOperations(
     withDelays: true,
   }
 ): AsyncGenerator<{
-  operation: BlockNoteOperation;
+  operation: BlockNoteOperation<PartialBlock<any, any, any>>;
   result: "ok";
   lastBlockId: string;
   changeset?: ChangeSet;
@@ -29,7 +33,8 @@ export async function* applyOperations(
   let minSize = 50;
 
   for await (const chunk of operationsStream) {
-    if (chunk.operation.type === "insert") {
+    // TODO: add vs insert
+    if (chunk.operation.type === "add") {
       // TODO: apply as agent?
       const ret = editor.insertBlocks(
         chunk.operation.blocks,
@@ -88,7 +93,7 @@ export async function* applyOperations(
         result: "ok",
         lastBlockId: chunk.operation.id,
       };
-    } else if (chunk.operation.type === "remove") {
+    } else if (chunk.operation.type === "delete") {
       // TODO: apply as agent?
       const prevBlock = editor.getPrevBlock(chunk.operation.ids[0]);
       editor.removeBlocks(chunk.operation.ids);
@@ -97,6 +102,8 @@ export async function* applyOperations(
         result: "ok",
         lastBlockId: prevBlock?.id ?? editor.document[0].id,
       };
+    } else {
+      throw new Error("Unknown operation type: " + chunk.operation.type);
     }
   }
   // TODO: remove?

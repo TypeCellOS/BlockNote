@@ -8,19 +8,19 @@ import { BlockNoteOperation } from "../../functions/blocknoteFunctions.js";
  */
 export async function* duplicateInsertsToUpdates(
   operationsStream: AsyncIterable<{
-    operation: BlockNoteOperation;
+    operation: BlockNoteOperation<any>;
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
   }>
 ): AsyncGenerator<{
-  operation: BlockNoteOperation;
+  operation: BlockNoteOperation<any>;
   isUpdateToPreviousOperation: boolean;
   isPossiblyPartial: boolean;
 }> {
   let insertedIds: string[] = [];
   for await (const chunk of operationsStream) {
     if (
-      chunk.operation.type !== "insert" ||
+      chunk.operation.type !== "add" ||
       (!chunk.isPossiblyPartial && !chunk.isUpdateToPreviousOperation)
     ) {
       insertedIds = [];

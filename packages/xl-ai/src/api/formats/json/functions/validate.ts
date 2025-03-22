@@ -1,4 +1,5 @@
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor, PartialBlock } from "@blocknote/core";
+import { InvalidOrOk } from "../../../functions/blocknoteFunctions.js";
 
 function validateInlineContent(content: any, editor: any): boolean {
   const inlineContentConfig =
@@ -24,14 +25,7 @@ export function validateBlockFunction(
   block: any,
   editor: BlockNoteEditor<any, any, any>,
   fallbackType?: string
-):
-  | {
-      result: "ok";
-    }
-  | {
-      result: "invalid";
-      reason: string;
-    } {
+): InvalidOrOk<PartialBlock<any, any, any>> {
   const type = block.type || fallbackType;
   const blockConfig =
     editor.schema.blockSchema[type as keyof typeof editor.schema.blockSchema];
@@ -61,6 +55,7 @@ export function validateBlockFunction(
       // return false;
       return {
         result: "ok",
+        value: block,
       };
     }
 
@@ -76,6 +71,7 @@ export function validateBlockFunction(
       // no validation for table content (TODO)
       return {
         result: "ok",
+        value: block,
       };
     }
 
@@ -93,5 +89,6 @@ export function validateBlockFunction(
   // TODO: validate props
   return {
     result: "ok",
+    value: block,
   };
 }

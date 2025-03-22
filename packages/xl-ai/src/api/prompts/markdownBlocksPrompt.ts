@@ -1,7 +1,7 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { CoreMessage } from "ai";
 
-export function promptManipulateDocumentUseMarkdown(opts: {
+export function promptManipulateDocumentUseMarkdownBlocks(opts: {
   editor: BlockNoteEditor;
   userPrompt: string;
   markdown: string;
@@ -9,8 +9,7 @@ export function promptManipulateDocumentUseMarkdown(opts: {
   return [
     {
       role: "system",
-      content:
-        "You're helping the user redact / write a markdown document split in blocks.",
+      content: "You're helping the user redact / write a markdown document.",
     },
     {
       role: "system",
@@ -19,6 +18,11 @@ export function promptManipulateDocumentUseMarkdown(opts: {
     {
       role: "user",
       content: opts.userPrompt,
+    },
+    {
+      role: "system",
+      content:
+        "Send me the new markdown of the entire updated document in markdown. Make sure to use duplicate new lines (\n\n) to separate blocks as usual in markdown. Don't include any other text, comments or wrapping marks.",
     },
     {
       role: "system",
@@ -31,7 +35,7 @@ export function promptManipulateDocumentUseMarkdown(opts: {
   ];
 }
 
-export function promptManipulateDocumentUseMarkdownWithSelection(opts: {
+export function promptManipulateDocumentUseMarkdownBlocksWithSelection(opts: {
   editor: BlockNoteEditor;
   userPrompt: string;
   markdown: string;

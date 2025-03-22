@@ -63,6 +63,11 @@ export function promptManipulateDocumentUseJSONSchema(opts: {
                 bold: true,
               },
             },
+            // {
+            //   type: "text",
+            //   text: " regular text",
+            //   styles: {},
+            // },
             {
               type: "text",
               text: " and italic text",
@@ -73,6 +78,11 @@ export function promptManipulateDocumentUseJSONSchema(opts: {
           ],
         }),
     },
+    // {
+    //   role: "system",
+    //   content:
+    //     "Only change formatting like bold / italic etc when the user asks for it. This is the user's question:",
+    // },
     {
       role: "user",
       content: opts.userPrompt,

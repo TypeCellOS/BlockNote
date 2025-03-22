@@ -128,9 +128,10 @@ export function propSchemaToJSONSchema(
     type: "object",
     properties: Object.fromEntries(
       Object.entries(propSchema)
-        .filter(([_key, val]) => {
+        .filter(([key, val]) => {
           // for now skip optional props
           return val.default !== undefined;
+          //&& key !== "language";
         })
         .map(([key, val]) => {
           return [
@@ -235,7 +236,7 @@ export function blockSchemaToJSONSchema(schema: BlockSchema) {
             // ),
           },
           additionalProperties: false,
-          required: ["type"],
+          required: ["type"], //, ...(val.content === "inline" ? ["content"] : [])],
         };
       })
     ),
@@ -260,6 +261,22 @@ export function blockNoteSchemaToJSONSchema(
     },
   };
 }
+
+// export function markdownToJSONSchema(
+//   schema: Pick<
+//     BlockNoteSchema<BlockSchema, InlineContentSchema, StyleSchema>,
+//     "blockSchema" | "inlineContentSchema" | "styleSchema"
+//   >
+// ) {
+//   schema = schemaOps(schema).removeFileBlocks().removeDefaultProps().get();
+//   return {
+//     $defs: {
+//       block: {
+//         type: "string",
+//       },
+//     },
+//   };
+// }
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
