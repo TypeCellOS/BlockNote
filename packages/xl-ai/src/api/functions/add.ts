@@ -1,6 +1,8 @@
 import { BlockNoteEditor } from "@blocknote/core";
+import { DeepPartial } from "ai";
 import { InsertBlocksOperation, InvalidOrOk } from "./blocknoteFunctions.js";
 import { LLMFunction } from "./function.js";
+import { validateArray } from "./util/validateArray.js";
 
 export abstract class AddFunctionBase<T> extends LLMFunction<
   InsertBlocksOperation<T>
@@ -37,7 +39,7 @@ export abstract class AddFunctionBase<T> extends LLMFunction<
   ): InvalidOrOk<T>;
 
   public validate(
-    operation: any,
+    operation: DeepPartial<InsertBlocksOperation<T>>,
     editor: BlockNoteEditor<any, any, any>,
     options: {
       idsSuffixed: boolean;
@@ -54,6 +56,13 @@ export abstract class AddFunctionBase<T> extends LLMFunction<
       return {
         result: "invalid",
         reason: "invalid position",
+      };
+    }
+
+    if (!operation.referenceId || !operation.blocks) {
+      return {
+        result: "invalid",
+        reason: "referenceId and blocks are required",
       };
     }
 
@@ -78,22 +87,12 @@ export abstract class AddFunctionBase<T> extends LLMFunction<
       };
     }
 
-    if (!operation.blocks || operation.blocks.length === 0) {
-      return {
-        result: "invalid",
-        reason: "blocks is required",
-      };
-    }
-
-    const ret = (operation.blocks as []).every(
-      (block: any) => this.validateBlock(block, editor).result === "ok"
+    const validatedBlocksResult = validateArray<T>(operation.blocks, (block) =>
+      this.validateBlock(block, editor)
     );
 
-    if (!ret) {
-      return {
-        result: "invalid",
-        reason: "invalid block",
-      };
+    if (validatedBlocksResult.result === "invalid") {
+      return validatedBlocksResult;
     }
 
     return {
@@ -102,7 +101,7 @@ export abstract class AddFunctionBase<T> extends LLMFunction<
         type: operation.type,
         referenceId,
         position: operation.position,
-        blocks: operation.blocks,
+        blocks: validatedBlocksResult.value,
       },
     };
   }

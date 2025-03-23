@@ -1,7 +1,13 @@
 import { BlockNoteEditor } from "@blocknote/core";
+import { DeepPartial } from "ai";
 import { InvalidOrOk, RemoveBlocksOperation } from "./blocknoteFunctions.js";
 import { LLMFunction } from "./function.js";
 
+type DeleteFunctionInput = Omit<RemoveBlocksOperation, "ids"> & {
+  id: string;
+};
+
+// TODO, rename to remove?
 export class DeleteFunction extends LLMFunction<RemoveBlocksOperation> {
   public schema = {
     name: "delete",
@@ -16,7 +22,7 @@ export class DeleteFunction extends LLMFunction<RemoveBlocksOperation> {
   } as const;
 
   validate(
-    operation: any,
+    operation: DeepPartial<DeleteFunctionInput>,
     editor: BlockNoteEditor,
     options: {
       idsSuffixed: boolean;
@@ -26,6 +32,13 @@ export class DeleteFunction extends LLMFunction<RemoveBlocksOperation> {
       return {
         result: "invalid",
         reason: "invalid operation type",
+      };
+    }
+
+    if (!operation.id) {
+      return {
+        result: "invalid",
+        reason: "id is required",
       };
     }
 

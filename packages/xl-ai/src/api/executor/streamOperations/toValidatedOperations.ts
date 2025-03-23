@@ -12,7 +12,7 @@ type ExtractFunctionType<T> = T extends LLMFunction<infer U> ? U : never;
  * a) the LLM produces an invalid result
  * b) the "partial" operation doesn't have enough data yet to execute
  */
-export async function* toBlockNoteOperations<T extends LLMFunction<any>[]>(
+export async function* toValidatedOperations<T extends LLMFunction<any>[]>(
   editor: BlockNoteEditor,
   partialObjectStream: AsyncIterable<{
     partialOperation: any;

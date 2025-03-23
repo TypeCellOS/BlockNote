@@ -1,4 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
+import { DeepPartial } from "ai";
 import { InvalidOrOk, UpdateBlocksOperation } from "./blocknoteFunctions.js";
 import { LLMFunction } from "./function.js";
 
@@ -30,7 +31,7 @@ export abstract class UpdateFunctionBase<T> extends LLMFunction<
   ): InvalidOrOk<T>;
 
   public validate(
-    operation: any,
+    operation: DeepPartial<UpdateBlocksOperation<T>>,
     editor: BlockNoteEditor<any, any, any>,
     options: {
       idsSuffixed: boolean;
@@ -40,6 +41,13 @@ export abstract class UpdateFunctionBase<T> extends LLMFunction<
       return {
         result: "invalid",
         reason: "invalid operation type",
+      };
+    }
+
+    if (!operation.id) {
+      return {
+        result: "invalid",
+        reason: "id is required",
       };
     }
 

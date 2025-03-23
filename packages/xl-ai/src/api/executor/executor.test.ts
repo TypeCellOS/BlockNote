@@ -1,9 +1,12 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { beforeEach, describe, expect, it } from "vitest";
-import { addFunction } from "../functions/add.js";
-import { deleteFunction } from "../functions/delete.js";
-import { AIFunction } from "../functions/index.js";
-import { updateFunction } from "../functions/update.js";
+
+import {
+  AIFunctionJSON,
+  AddFunctionJSON,
+  UpdateFunctionJSON,
+} from "../formats/json/functions/index.js";
+import { DeleteFunction } from "../functions/delete.js";
 import { executeOperations } from "./executor.js";
 
 type StreamType = AsyncIterable<{
@@ -13,7 +16,11 @@ type StreamType = AsyncIterable<{
 }>;
 describe("executeOperations", () => {
   let editor: BlockNoteEditor;
-  const functions: AIFunction[] = [addFunction, deleteFunction, updateFunction];
+  const functions: AIFunctionJSON[] = [
+    new AddFunctionJSON(),
+    new DeleteFunction(),
+    new UpdateFunctionJSON(),
+  ];
 
   beforeEach(() => {
     editor = BlockNoteEditor.create({

@@ -21,7 +21,7 @@ describe("applyOperations", () => {
   // Helper function to create a mock stream from operations
   async function* createMockStream(
     ...operations: {
-      operation: BlockNoteOperation;
+      operation: BlockNoteOperation<any>;
       isUpdateToPreviousOperation?: boolean;
       isPossiblyPartial?: boolean;
     }[]
@@ -38,7 +38,7 @@ describe("applyOperations", () => {
   // Helper function to process operations and return results
   async function processOperations(
     stream: AsyncIterable<{
-      operation: BlockNoteOperation;
+      operation: BlockNoteOperation<any>;
       isUpdateToPreviousOperation: boolean;
       isPossiblyPartial: boolean;
     }>
@@ -55,11 +55,11 @@ describe("applyOperations", () => {
   it("should apply insert operations to the editor", async () => {
     const insertOp = {
       operation: {
-        type: "insert",
+        type: "add",
         blocks: [{ content: "block1" }],
         referenceId: "ref1",
         position: "after",
-      } as InsertBlocksOperation,
+      } as InsertBlocksOperation<any>,
     };
 
     const result = await processOperations(createMockStream(insertOp));
@@ -115,7 +115,7 @@ describe("applyOperations", () => {
     const startDocLength = editor.document.length;
     const removeOp = {
       operation: {
-        type: "remove",
+        type: "delete",
         ids: ["ref1"],
       } as RemoveBlocksOperation,
     };
@@ -139,11 +139,11 @@ describe("applyOperations", () => {
     const startDocLength = editor.document.length;
     const insertOp = {
       operation: {
-        type: "insert",
+        type: "add",
         blocks: [{ content: "block1" }],
         referenceId: "ref1",
         position: "after",
-      } as InsertBlocksOperation,
+      } as InsertBlocksOperation<any>,
     };
 
     const updateOp = {
@@ -151,7 +151,7 @@ describe("applyOperations", () => {
         type: "update",
         id: "ref1",
         block: { content: "updated content" },
-      } as UpdateBlocksOperation,
+      } as UpdateBlocksOperation<any>,
     };
 
     await processOperations(createMockStream(insertOp, updateOp));

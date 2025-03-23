@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { BlockNoteOperation } from "../../functions/blocknoteFunctions.js";
+import {
+  BlockNoteOperation,
+  InsertBlocksOperation,
+} from "../../functions/blocknoteFunctions.js";
 import { duplicateInsertsToUpdates } from "./duplicateInsertsToUpdates.js";
 
 // Mock the UniqueID.options.generateID function
@@ -21,9 +24,9 @@ describe("duplicateInsertsToUpdates", () => {
     async function* mockStream() {
       yield {
         operation: {
-          type: "remove",
+          type: "delete",
           ids: ["123", "456"],
-        } as BlockNoteOperation,
+        } as BlockNoteOperation<any>,
         isUpdateToPreviousOperation: false,
         isPossiblyPartial: false,
       };
@@ -37,7 +40,7 @@ describe("duplicateInsertsToUpdates", () => {
     expect(result.length).toBe(1);
     expect(result[0]).toEqual({
       operation: {
-        type: "remove",
+        type: "delete",
         ids: ["123", "456"],
       },
       isUpdateToPreviousOperation: false,
@@ -49,11 +52,11 @@ describe("duplicateInsertsToUpdates", () => {
     // First insert operation
     const firstInsert = {
       operation: {
-        type: "insert",
+        type: "add",
         blocks: [{ content: "block1" }],
         referenceId: "ref1",
         position: "after",
-      } as BlockNoteOperation,
+      } as InsertBlocksOperation<any>,
       isUpdateToPreviousOperation: false,
       isPossiblyPartial: true,
     };
@@ -61,18 +64,18 @@ describe("duplicateInsertsToUpdates", () => {
     // Second insert operation (update to the first one)
     const secondInsert = {
       operation: {
-        type: "insert",
+        type: "add",
         blocks: [{ content: "block1-updated" }, { content: "block2" }],
         referenceId: "ref1",
         position: "after",
-      } as BlockNoteOperation,
+      } as InsertBlocksOperation<any>,
       isUpdateToPreviousOperation: true,
       isPossiblyPartial: true,
     };
 
     const thirdInsert = {
       operation: {
-        type: "insert",
+        type: "add",
         blocks: [
           { content: "block1-updated" },
           { content: "block2" },
@@ -81,14 +84,14 @@ describe("duplicateInsertsToUpdates", () => {
         ],
         referenceId: "ref1",
         position: "after",
-      } as BlockNoteOperation,
+      } as InsertBlocksOperation<any>,
       isUpdateToPreviousOperation: true,
       isPossiblyPartial: true,
     };
 
     const fourthInsert = {
       operation: {
-        type: "insert",
+        type: "add",
         blocks: [
           { content: "block1-updated" },
           { content: "block2" },
@@ -98,7 +101,7 @@ describe("duplicateInsertsToUpdates", () => {
         ],
         referenceId: "ref1",
         position: "after",
-      } as BlockNoteOperation,
+      } as InsertBlocksOperation<any>,
       isUpdateToPreviousOperation: true,
       isPossiblyPartial: true,
     };
@@ -142,7 +145,7 @@ describe("duplicateInsertsToUpdates", () => {
     expect(result[2]).toEqual({
       ...secondInsert,
       operation: {
-        type: "insert",
+        type: "add",
         position: "after",
         referenceId: "mocked-id",
         blocks: [{ content: "block2", id: "mocked-id" }],
@@ -175,7 +178,7 @@ describe("duplicateInsertsToUpdates", () => {
     expect(result[5]).toEqual({
       ...thirdInsert,
       operation: {
-        type: "insert",
+        type: "add",
         position: "after",
         referenceId: "mocked-id",
         blocks: [
@@ -231,7 +234,7 @@ describe("duplicateInsertsToUpdates", () => {
     expect(result[10]).toEqual({
       ...fourthInsert,
       operation: {
-        type: "insert",
+        type: "add",
         position: "after",
         referenceId: "mocked-id",
         blocks: [{ content: "block5", id: "mocked-id" }],
@@ -242,11 +245,11 @@ describe("duplicateInsertsToUpdates", () => {
   it("should handle non-partial, non-update insert operations", async () => {
     const insertOp = {
       operation: {
-        type: "insert",
+        type: "add",
         blocks: [{ content: "block1" }],
         referenceId: "ref1",
         position: "after",
-      } as BlockNoteOperation,
+      } as InsertBlocksOperation<any>,
       isUpdateToPreviousOperation: false,
       isPossiblyPartial: false,
     };

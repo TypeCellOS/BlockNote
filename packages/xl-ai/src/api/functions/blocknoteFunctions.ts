@@ -28,6 +28,10 @@ export type InvalidOrOk<T> =
     }
   | { result: "ok"; value: T };
 
+/*
+
+testing the validators / invalidorok
+
 export type Car = {
   type: "car";
   brand: string;
@@ -153,3 +157,4 @@ const o = validated[0];
 if (o.result === "ok") {
   const val = o.value; // val is now of type Vehicle (Car | Bike)
 }
+*/

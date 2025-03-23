@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   BlockNoteOperation,
+  InsertBlocksOperation,
   InvalidOrOk,
+  UpdateBlocksOperation,
 } from "../../functions/blocknoteFunctions.js";
 import { filterValidOperations } from "./filterValidOperations.js";
 
@@ -13,12 +15,12 @@ describe("filterValidOperations", () => {
         operation: {
           result: "ok",
           value: {
-            type: "insert",
+            type: "add",
             blocks: [],
             referenceId: "123",
             position: "after",
-          },
-        } as InvalidOrOk<BlockNoteOperation>,
+          } as InsertBlocksOperation<any>,
+        } as InvalidOrOk<BlockNoteOperation<any>>,
         isUpdateToPreviousOperation: false,
         isPossiblyPartial: false,
       };
@@ -27,7 +29,7 @@ describe("filterValidOperations", () => {
         operation: {
           result: "invalid",
           reason: "Invalid operation",
-        } as InvalidOrOk<BlockNoteOperation>,
+        } as InvalidOrOk<BlockNoteOperation<any>>,
         isUpdateToPreviousOperation: false,
         isPossiblyPartial: false,
       };
@@ -35,8 +37,12 @@ describe("filterValidOperations", () => {
       yield {
         operation: {
           result: "ok",
-          value: { type: "update", id: "456", block: { content: "updated" } },
-        } as InvalidOrOk<BlockNoteOperation>,
+          value: {
+            type: "update",
+            id: "456",
+            block: { content: "updated" },
+          } as UpdateBlocksOperation<any>,
+        } as InvalidOrOk<BlockNoteOperation<any>>,
         isUpdateToPreviousOperation: true,
         isPossiblyPartial: true,
       };
@@ -52,7 +58,7 @@ describe("filterValidOperations", () => {
 
     expect(result[0]).toEqual({
       operation: {
-        type: "insert",
+        type: "add",
         blocks: [],
         referenceId: "123",
         position: "after",
@@ -74,7 +80,7 @@ describe("filterValidOperations", () => {
         operation: {
           result: "invalid",
           reason: "Invalid operation 1",
-        } as InvalidOrOk<BlockNoteOperation>,
+        } as InvalidOrOk<BlockNoteOperation<any>>,
         isUpdateToPreviousOperation: false,
         isPossiblyPartial: false,
       };
@@ -83,7 +89,7 @@ describe("filterValidOperations", () => {
         operation: {
           result: "invalid",
           reason: "Invalid operation 2",
-        } as InvalidOrOk<BlockNoteOperation>,
+        } as InvalidOrOk<BlockNoteOperation<any>>,
         isUpdateToPreviousOperation: true,
         isPossiblyPartial: false,
       };

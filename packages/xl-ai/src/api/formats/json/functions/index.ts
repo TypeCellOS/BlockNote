@@ -11,9 +11,10 @@ export class AddFunctionJSON extends AddFunctionBase<
 > {
   protected validateBlock(
     block: any,
-    editor: BlockNoteEditor<any, any, any>
+    editor: BlockNoteEditor<any, any, any>,
+    fallbackType?: string
   ): InvalidOrOk<PartialBlock<any, any, any>> {
-    return validateBlockFunction(block, editor);
+    return validateBlockFunction(block, editor, fallbackType);
   }
 }
 
@@ -22,9 +23,10 @@ export class UpdateFunctionJSON extends UpdateFunctionBase<
 > {
   protected validateBlock(
     block: any,
-    editor: BlockNoteEditor<any, any, any>
+    editor: BlockNoteEditor<any, any, any>,
+    fallbackType?: string
   ): InvalidOrOk<PartialBlock<any, any, any>> {
-    return validateBlockFunction(block, editor);
+    return validateBlockFunction(block, editor, fallbackType);
   }
 }
 

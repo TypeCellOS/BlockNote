@@ -1,15 +1,17 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vitest";
-import { addFunction } from "../../functions/add.js";
+import {
+  AddFunctionJSON,
+  UpdateFunctionJSON,
+} from "../../formats/json/functions/index.js";
 import {
   InsertBlocksOperation,
   InvalidOrOk,
   UpdateBlocksOperation,
 } from "../../functions/blocknoteFunctions.js";
-import { updateFunction } from "../../functions/update.js";
-import { toBlockNoteOperations } from "./toBlockNoteOperations.js";
+import { toValidatedOperations } from "./toValidatedOperations.js";
 
-describe("toBlockNoteOperations", () => {
+describe("toValidatedOperations", () => {
   // Mock editor with getBlock method and schema
   const mockEditor = {
     getBlock: (id: string) => {
@@ -33,7 +35,7 @@ describe("toBlockNoteOperations", () => {
   } as unknown as BlockNoteEditor;
 
   // Array of test functions
-  const functions = [addFunction, updateFunction];
+  const functions = [new AddFunctionJSON(), new UpdateFunctionJSON()];
 
   it("should transform add operations to BlockNoteOperations", async () => {
     // Create a mock stream
@@ -56,7 +58,7 @@ describe("toBlockNoteOperations", () => {
     }
 
     const result = [];
-    for await (const chunk of toBlockNoteOperations(
+    for await (const chunk of toValidatedOperations(
       mockEditor,
       mockStream(),
       functions
@@ -80,7 +82,7 @@ describe("toBlockNoteOperations", () => {
     }
 
     const result = [];
-    for await (const chunk of toBlockNoteOperations(
+    for await (const chunk of toValidatedOperations(
       mockEditor,
       mockStream(),
       functions
@@ -125,7 +127,7 @@ describe("toBlockNoteOperations", () => {
     }
 
     const result = [];
-    for await (const chunk of toBlockNoteOperations(
+    for await (const chunk of toValidatedOperations(
       mockEditor,
       mockStream(),
       functions
@@ -158,7 +160,7 @@ describe("toBlockNoteOperations", () => {
     }
 
     const result = [];
-    for await (const chunk of toBlockNoteOperations(
+    for await (const chunk of toValidatedOperations(
       mockEditor,
       mockStream(),
       functions
@@ -188,8 +190,8 @@ describe("toBlockNoteOperations", () => {
       return;
     }
 
-    const insertOp = result.operation.value as InsertBlocksOperation;
-    expect(insertOp.type).toBe("insert");
+    const insertOp = result.operation.value as InsertBlocksOperation<any>;
+    expect(insertOp.type).toBe("add");
     expect(insertOp.position).toBe("after");
     expect(insertOp.blocks).toEqual([
       {
@@ -214,7 +216,7 @@ describe("toBlockNoteOperations", () => {
       return;
     }
 
-    const updateOp = result.operation.value as UpdateBlocksOperation;
+    const updateOp = result.operation.value as UpdateBlocksOperation<any>;
     expect(updateOp.type).toBe("update");
     expect(updateOp.block).toEqual({
       type: "paragraph",
