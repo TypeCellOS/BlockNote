@@ -4,10 +4,15 @@ import {
   UnreachableCaseError,
 } from "@blocknote/core";
 import { applySuggestions } from "@handlewithcare/prosemirror-suggest-changes";
-import { ChangeSet } from "prosemirror-changeset";
 import { applyStepsAsAgent } from "../../../prosemirror/agent.js";
 import { updateToReplaceSteps } from "../../../prosemirror/changeset.js";
 import { BlockNoteOperation } from "../../functions/blocknoteFunctions.js";
+
+export type ApplyOperationResult = {
+  operation: BlockNoteOperation<PartialBlock<any, any, any>>;
+  result: "ok";
+  lastBlockId: string;
+};
 
 /**
  * Applies the operations to the editor and yields the results.
@@ -24,12 +29,7 @@ export async function* applyOperations(
   } = {
     withDelays: true,
   }
-): AsyncGenerator<{
-  operation: BlockNoteOperation<PartialBlock<any, any, any>>;
-  result: "ok";
-  lastBlockId: string;
-  changeset?: ChangeSet;
-}> {
+): AsyncGenerator<ApplyOperationResult> {
   let minSize = 50;
 
   for await (const chunk of operationsStream) {
@@ -62,7 +62,6 @@ export async function* applyOperations(
         minSize = 50;
       }
 
-      console.log("apply", chunk.operation);
       // Convert the update operation directly to ReplaceSteps
       const steps = updateToReplaceSteps(
         editor,
@@ -103,7 +102,7 @@ export async function* applyOperations(
         lastBlockId: prevBlock?.id ?? editor.document[0].id,
       };
     } else {
-      throw new Error("Unknown operation type: " + chunk.operation.type);
+      throw new UnreachableCaseError(chunk.operation);
     }
   }
   // TODO: remove?

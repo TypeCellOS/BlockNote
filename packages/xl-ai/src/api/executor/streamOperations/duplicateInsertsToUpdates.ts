@@ -1,4 +1,4 @@
-import { UniqueID } from "@blocknote/core";
+import { PartialBlock, UniqueID } from "@blocknote/core";
 import { BlockNoteOperation } from "../../functions/blocknoteFunctions.js";
 
 /**
@@ -8,12 +8,12 @@ import { BlockNoteOperation } from "../../functions/blocknoteFunctions.js";
  */
 export async function* duplicateInsertsToUpdates(
   operationsStream: AsyncIterable<{
-    operation: BlockNoteOperation<any>;
+    operation: BlockNoteOperation<PartialBlock<any, any, any>>;
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
   }>
 ): AsyncGenerator<{
-  operation: BlockNoteOperation<any>;
+  operation: BlockNoteOperation<PartialBlock<any, any, any>>;
   isUpdateToPreviousOperation: boolean;
   isPossiblyPartial: boolean;
 }> {
@@ -77,7 +77,7 @@ export async function* duplicateInsertsToUpdates(
           },
         };
       }
-      insertedIds = [...insertedIds, ...toAdd.map((block) => block.id)];
+      insertedIds = [...insertedIds, ...toAdd.map((block) => block.id!)];
     }
   }
 }

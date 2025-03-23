@@ -10,20 +10,23 @@ import {
 } from "ai";
 
 import {
-  ExecuteOperationResult,
-  executeOperations,
-} from "../../executor/executor.js";
-
-import type { PromptOrMessages } from "../../index.js";
-import {
   promptManipulateDocumentUseJSONSchema,
   promptManipulateSelectionJSONSchema,
 } from "../../prompts/jsonSchemaPrompts.js";
 import { createOperationsArraySchema } from "../../schema/operations.js";
 import { blockNoteSchemaToJSONSchema } from "../../schema/schemaToJSONSchema.js";
 
-import { filterNewOrUpdatedOperations } from "../../executor/streamOperations/filterNewOrUpdatedOperations.js";
+import {
+  getLLMResponseNonStreaming,
+  getLLMResponseStreaming,
+} from "../../executor/execute.js";
+import {
+  ApplyOperationResult,
+  applyOperations,
+} from "../../executor/streamOperations/applyOperations.js";
+import { duplicateInsertsToUpdates } from "../../executor/streamOperations/duplicateInsertsToUpdates.js";
 import { DeleteFunction } from "../../functions/delete.js";
+import { PromptOrMessages } from "../../index.js";
 import {
   AsyncIterableStream,
   asyncIterableToStream,
@@ -42,7 +45,7 @@ type LLMRequestOptions = {
   maxRetries: number;
   _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]>;
   _streamObjectOptions?: Partial<Parameters<typeof streamObject<any>>[0]>;
-} & PromptOrMessages;
+};
 
 type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
@@ -53,77 +56,14 @@ type CallLLMOptionsWithOptional = Optional<
 
 // Define the return type for streaming mode
 type ReturnType = {
-  resultStream: AsyncIterableStream<ExecuteOperationResult>;
+  resultStream: AsyncIterableStream<ApplyOperationResult>;
   llmResult: StreamObjectResult<any, any, any> | GenerateObjectResult<any>;
   apply: () => Promise<void>;
 };
 
-async function getLLMResponse(
-  baseParams: {
-    model: LanguageModel;
-    mode: "tool";
-    schema: any;
-    messages: CoreMessage[];
-    maxRetries: number;
-  },
-  options: LLMRequestOptions
-): Promise<{
-  result: ReturnType["llmResult"];
-  operationsSource: AsyncIterable<{
-    partialOperation: any;
-    isUpdateToPreviousOperation: boolean;
-    isPossiblyPartial: boolean;
-  }>;
-}> {
-  if (options.stream) {
-    if (options._generateObjectOptions) {
-      throw new Error("Cannot provide _generateObjectOptions when streaming");
-    }
-    const ret = streamObject<{ operations: any[] }>({
-      ...baseParams,
-      ...(options._streamObjectOptions as any),
-    });
-
-    return {
-      result: ret,
-      operationsSource: filterNewOrUpdatedOperations(ret.partialObjectStream),
-    };
-  }
-
-  if (options._streamObjectOptions) {
-    throw new Error("Cannot provide _streamObjectOptions when not streaming");
-  }
-
-  const ret = await generateObject<{ operations: any[] }>({
-    ...baseParams,
-    ...(options._generateObjectOptions as any),
-  });
-
-  if (!ret.object.operations) {
-    throw new Error("No operations returned");
-  }
-
-  async function* singleChunkGenerator() {
-    for (const op of ret.object.operations) {
-      // TODO: non-streaming might not need some steps
-      // in the executor
-      yield {
-        partialOperation: op,
-        isUpdateToPreviousOperation: false,
-        isPossiblyPartial: false,
-      };
-    }
-  }
-
-  return {
-    result: ret,
-    operationsSource: singleChunkGenerator(),
-  };
-}
-
 export async function callLLM(
   editor: BlockNoteEditor<any, any, any>,
-  opts: CallLLMOptionsWithOptional
+  opts: CallLLMOptionsWithOptional & PromptOrMessages
 ): Promise<ReturnType> {
   const { prompt, useSelection, ...rest } = opts;
 
@@ -162,24 +102,22 @@ export async function callLLM(
     $defs: blockNoteSchemaToJSONSchema(editor.schema).$defs as any,
   });
 
-  const baseParams = {
-    model: options.model,
-    maxRetries: options.maxRetries,
+  const getResponseOptions = {
+    ...options,
     mode: "tool" as const,
     schema,
     messages,
   };
 
-  const { result, operationsSource } = await getLLMResponse(
-    baseParams,
-    options
-  );
+  const { result, operationsSource } = options.stream
+    ? await getLLMResponseStreaming(getResponseOptions, editor)
+    : await getLLMResponseNonStreaming(getResponseOptions, editor);
 
-  const resultGenerator = executeOperations(
-    editor,
-    operationsSource,
-    options.functions
-  );
+  const operationsToApply = options.stream
+    ? duplicateInsertsToUpdates(operationsSource)
+    : operationsSource;
+
+  const resultGenerator = applyOperations(editor, operationsToApply);
 
   // Convert to stream at the API boundary
   const resultStream = asyncIterableToStream(resultGenerator);

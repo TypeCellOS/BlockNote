@@ -104,7 +104,28 @@ describe("Models", () => {
 
   const testMatrix = [
     {
+      model: openai,
+      stream: true,
+    },
+    {
+      model: openai,
+      stream: false,
+    },
+    {
+      model: groq,
+      stream: true,
+    },
+    {
+      model: groq,
+      stream: false,
+    },
+    {
       model: albert,
+      stream: true,
+    },
+    {
+      model: albert,
+      stream: false,
     },
 
     // {

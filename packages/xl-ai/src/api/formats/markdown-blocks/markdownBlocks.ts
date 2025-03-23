@@ -1,4 +1,8 @@
-import { BlockNoteEditor } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  PartialBlock,
+  UnreachableCaseError,
+} from "@blocknote/core";
 import {
   CoreMessage,
   GenerateObjectResult,
@@ -9,19 +13,14 @@ import {
   streamObject,
 } from "ai";
 
-import {
-  ExecuteOperationResult,
-  executeOperations,
-} from "../../executor/executor.js";
-import { addFunction } from "../../functions/add.js";
-import { deleteFunction } from "../../functions/delete.js";
-import { AIFunction } from "../../functions/index.js";
-import { updateFunction } from "../../functions/update.js";
 import type { PromptOrMessages } from "../../index.js";
 import { promptManipulateSelectionJSONSchema } from "../../prompts/jsonSchemaPrompts.js";
 import { createOperationsArraySchema } from "../../schema/operations.js";
 
-import { filterNewOrUpdatedOperations } from "../../executor/streamOperations/filterNewOrUpdatedOperations.js";
+import {
+  ApplyOperationResult,
+  applyOperations,
+} from "../../executor/streamOperations/applyOperations.js";
 import { promptManipulateDocumentUseMarkdownBlocks } from "../../prompts/markdownBlocksPrompt.js";
 import {
   AsyncIterableStream,
@@ -29,9 +28,23 @@ import {
   createAsyncIterableStream,
 } from "../../util/stream.js";
 
+import {
+  getLLMResponseNonStreaming,
+  getLLMResponseStreaming,
+} from "../../executor/execute.js";
+import { duplicateInsertsToUpdates } from "../../executor/streamOperations/duplicateInsertsToUpdates.js";
+import { BlockNoteOperation } from "../../functions/blocknoteFunctions.js";
+import { DeleteFunction } from "../../functions/delete.js";
+
+import {
+  AIFunctionMD,
+  AddFunctionMD,
+  UpdateFunctionMD,
+} from "./functions/index.js";
+
 type LLMRequestOptions = {
   model: LanguageModel;
-  functions: AIFunction[];
+  functions: AIFunctionMD[];
   stream: boolean;
   maxRetries: number;
   _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]>;
@@ -47,73 +60,10 @@ type CallLLMOptionsWithOptional = Optional<
 
 // Define the return type for streaming mode
 type ReturnType = {
-  resultStream: AsyncIterableStream<ExecuteOperationResult>;
+  resultStream: AsyncIterableStream<ApplyOperationResult>;
   llmResult: StreamObjectResult<any, any, any> | GenerateObjectResult<any>;
   apply: () => Promise<void>;
 };
-
-async function getLLMResponse(
-  baseParams: {
-    model: LanguageModel;
-    mode: "tool";
-    schema: any;
-    messages: CoreMessage[];
-    maxRetries: number;
-  },
-  options: LLMRequestOptions
-): Promise<{
-  result: ReturnType["llmResult"];
-  operationsSource: AsyncIterable<{
-    partialOperation: any;
-    isUpdateToPreviousOperation: boolean;
-    isPossiblyPartial: boolean;
-  }>;
-}> {
-  if (options.stream) {
-    if (options._generateObjectOptions) {
-      throw new Error("Cannot provide _generateObjectOptions when streaming");
-    }
-    const ret = streamObject<{ operations: any[] }>({
-      ...baseParams,
-      ...(options._streamObjectOptions as any),
-    });
-
-    return {
-      result: ret,
-      operationsSource: filterNewOrUpdatedOperations(ret.partialObjectStream),
-    };
-  }
-
-  if (options._streamObjectOptions) {
-    throw new Error("Cannot provide _streamObjectOptions when not streaming");
-  }
-
-  const ret = await generateObject<{ operations: any[] }>({
-    ...baseParams,
-    ...(options._generateObjectOptions as any),
-  });
-
-  if (!ret.object.operations) {
-    throw new Error("No operations returned");
-  }
-
-  async function* singleChunkGenerator() {
-    for (const op of ret.object.operations) {
-      // TODO: non-streaming might not need some steps
-      // in the executor
-      yield {
-        partialOperation: op,
-        isUpdateToPreviousOperation: false,
-        isPossiblyPartial: false,
-      };
-    }
-  }
-
-  return {
-    result: ret,
-    operationsSource: singleChunkGenerator(),
-  };
-}
 
 export async function callLLM(
   editor: BlockNoteEditor<any, any, any>,
@@ -127,8 +77,8 @@ export async function callLLM(
   const doc = await Promise.all(
     editor.document.map(async (block) => {
       return {
-        id: block.id,
-        block: await editor.blocksToMarkdownLossy([block]),
+        id: block.id + "$",
+        block: (await editor.blocksToMarkdownLossy([block])).trim(),
       };
     })
   );
@@ -145,12 +95,16 @@ export async function callLLM(
     messages = promptManipulateDocumentUseMarkdownBlocks({
       editor,
       userPrompt: opts.prompt!,
-      markdown: JSON.stringify(doc, undefined, 2),
+      markdown: JSON.stringify(doc),
     });
   }
 
   const options: LLMRequestOptions = {
-    functions: [updateFunction, addFunction, deleteFunction],
+    functions: [
+      new UpdateFunctionMD(),
+      new AddFunctionMD(),
+      new DeleteFunction(),
+    ],
     stream: true,
     messages,
     maxRetries: 2,
@@ -168,24 +122,27 @@ export async function callLLM(
     },
   });
 
-  const baseParams = {
-    model: options.model,
-    maxRetries: options.maxRetries,
+  const getResponseOptions = {
+    ...options,
     mode: "tool" as const,
     schema,
     messages,
   };
 
-  const { result, operationsSource } = await getLLMResponse(
-    baseParams,
-    options
+  const { result, operationsSource } = options.stream
+    ? await getLLMResponseStreaming(getResponseOptions, editor)
+    : await getLLMResponseNonStreaming(getResponseOptions, editor);
+
+  const blockNoteOperationsSource = toBlockNoteOperations(
+    editor,
+    operationsSource
   );
 
-  const resultGenerator = executeOperations(
-    editor,
-    operationsSource,
-    options.functions
-  );
+  const operationsToApply = options.stream
+    ? duplicateInsertsToUpdates(blockNoteOperationsSource)
+    : blockNoteOperationsSource;
+
+  const resultGenerator = applyOperations(editor, operationsToApply);
 
   // Convert to stream at the API boundary
   const resultStream = asyncIterableToStream(resultGenerator);
@@ -201,4 +158,53 @@ export async function callLLM(
       }
     },
   };
+}
+
+export async function* toBlockNoteOperations(
+  editor: BlockNoteEditor<any, any, any>,
+  operationsSource: AsyncIterable<{
+    operation: BlockNoteOperation<string>;
+    isUpdateToPreviousOperation: boolean;
+    isPossiblyPartial: boolean;
+  }>
+): AsyncGenerator<{
+  operation: BlockNoteOperation<PartialBlock<any, any, any>>;
+  isUpdateToPreviousOperation: boolean;
+  isPossiblyPartial: boolean;
+}> {
+  for await (const chunk of operationsSource) {
+    if (chunk.operation.type === "add") {
+      const blocks = await Promise.all(
+        chunk.operation.blocks.map(async (md) => {
+          return (await editor.tryParseMarkdownToBlocks(md.trim()))[0]; // TODO: trim
+        })
+      );
+
+      yield {
+        ...chunk,
+        operation: {
+          ...chunk.operation,
+          blocks,
+        },
+      };
+    } else if (chunk.operation.type === "update") {
+      const block = (
+        await editor.tryParseMarkdownToBlocks(chunk.operation.block.trim())
+      )[0];
+      yield {
+        ...chunk,
+        operation: {
+          ...chunk.operation,
+          block,
+        },
+      };
+    } else if (chunk.operation.type === "delete") {
+      yield {
+        ...chunk,
+        operation: chunk.operation,
+      };
+    } else {
+      throw new UnreachableCaseError(chunk.operation);
+    }
+  }
 }

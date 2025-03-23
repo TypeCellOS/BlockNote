@@ -8,7 +8,12 @@ export async function* filterValidOperations<T>(
     operation: InvalidOrOk<T>;
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
-  }>
+  }>,
+  onInvalidOperation?: (
+    operation: InvalidOrOk<T> & {
+      result: "invalid";
+    }
+  ) => void
 ): AsyncGenerator<{
   operation: T;
   isUpdateToPreviousOperation: boolean;
@@ -22,7 +27,7 @@ export async function* filterValidOperations<T>(
         isPossiblyPartial: chunk.isPossiblyPartial,
       };
     } else {
-      // console.error("invalid operation", chunk.operation.reason);
+      onInvalidOperation?.(chunk.operation);
     }
   }
 }

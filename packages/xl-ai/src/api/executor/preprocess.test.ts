@@ -7,13 +7,31 @@ import {
   UpdateFunctionJSON,
 } from "../formats/json/functions/index.js";
 import { DeleteFunction } from "../functions/delete.js";
-import { executeOperations } from "./executor.js";
+import { preprocessOperationsStreaming } from "./preprocess.js";
+import { applyOperations } from "./streamOperations/applyOperations.js";
 
 type StreamType = AsyncIterable<{
   partialOperation: any;
   isUpdateToPreviousOperation: boolean;
   isPossiblyPartial: boolean;
 }>;
+
+// TODO: maybe change unit test or move to json test, because this does not only test preprocess
+// but also applyOperations
+async function* executeOperations(
+  editor: BlockNoteEditor,
+  operationsStream: StreamType,
+  functions: AIFunctionJSON[]
+) {
+  const preprocessedOperationsStream = preprocessOperationsStreaming(
+    editor,
+    operationsStream,
+    functions
+  );
+
+  yield* applyOperations(editor, preprocessedOperationsStream);
+}
+
 describe("executeOperations", () => {
   let editor: BlockNoteEditor;
   const functions: AIFunctionJSON[] = [

@@ -1,0 +1,15 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "https://localhost:3000/ai?provider=groq&url=https%3A%2F%2Fapi.groq.com%2Fopenai%2Fv1%2Fchat%2Fcompletions",
+    "body": "{\"model\":\"llama-3.3-70b-versatile\",\"temperature\":0,\"messages\":[{\"role\":\"system\",\"content\":\"You're helping the user redact / write a markdown document split in blocks.\"},{\"role\":\"system\",\"content\":\"This is what the user wants you to do:\"},{\"role\":\"user\",\"content\":\"change first word to bold\"},{\"role\":\"system\",\"content\":\"This is the document the user wants to update:\"},{\"role\":\"system\",\"content\":\"Hello world\"}]}",
+    "headers": [],
+    "cookies": []
+  },
+  "response": {
+    "status": 200,
+    "statusText": "",
+    "body": "{\"id\":\"chatcmpl-a8ef8641-c0f8-434e-a825-6d6a83b5dcc4\",\"object\":\"chat.completion\",\"created\":1742760875,\"model\":\"llama-3.3-70b-versatile\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"**Hello** world\"},\"logprobs\":null,\"finish_reason\":\"stop\"}],\"usage\":{\"queue_time\":0.101140987,\"prompt_tokens\":78,\"prompt_time\":0.004002932,\"completion_tokens\":5,\"completion_time\":0.018181818,\"total_tokens\":83,\"total_time\":0.02218475},\"system_fingerprint\":\"fp_41c250edc7\",\"x_groq\":{\"id\":\"req_01jq2a957nf92bm4kv7xxz5z6r\"}}\n",
+    "headers": []
+  }
+}
