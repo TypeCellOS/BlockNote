@@ -353,6 +353,10 @@ export const ko: Dictionary = {
     reactions: {
       reacted_by: "반응한 사람",
     },
+    sidebar: {
+      marked_as_resolved: "해결됨으로 표시됨",
+      more_replies: (count) => `${count}개의 추가 답글`,
+    },
   },
   generic: {
     ctrl_shortcut: "Ctrl",

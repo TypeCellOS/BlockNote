@@ -10,6 +10,7 @@ import { EditorState, Transaction } from "@tiptap/pm/state";
 import { blockToNode } from "../api/nodeConversions/blockToNode.js";
 import { PartialBlock } from "../blocks/defaultBlocks.js";
 import { StyleSchema } from "../schema/index.js";
+import type { BlockNoteEditor } from "./BlockNoteEditor.js";
 
 export type BlockNoteTipTapEditorOptions = Partial<
   Omit<EditorOptions, "content">
@@ -149,7 +150,10 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
   /**
    * Replace the default `createView` method with a custom one - which we call on mount
    */
-  private createViewAlternative(contentComponent?: any) {
+  private createViewAlternative(
+    blockNoteEditor: BlockNoteEditor<any, any, any>,
+    contentComponent?: any
+  ) {
     (this as any).contentComponent = contentComponent;
 
     const markViews: any = {};
@@ -157,7 +161,8 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
       if (extension.type === "mark" && extension.config.addMarkView) {
         // Note: migrate to using `addMarkView` from tiptap as soon as this lands
         // (currently tiptap doesn't support markviews)
-        markViews[extension.name] = extension.config.addMarkView;
+        markViews[extension.name] =
+          extension.config.addMarkView(blockNoteEditor);
       }
     });
 
@@ -169,18 +174,20 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
         dispatchTransaction: this.dispatchTransaction.bind(this),
         state: this.state,
         markViews,
+        nodeViews: this.extensionManager.nodeViews,
       }
     );
 
     // `editor.view` is not yet available at this time.
-    // Therefore we will add all plugins and node views directly afterwards.
+    // Therefore we will add all plugins directly afterwards.
+    //
+    // To research: this is the default tiptap behavior, but might actually not be necessary
+    // it feels like it's a workaround for plugins that don't account for the view not being available yet
     const newState = this.state.reconfigure({
       plugins: this.extensionManager.plugins,
     });
 
     this.view.updateState(newState);
-
-    this.createNodeViews();
 
     // emit the created event, call here manually because we blocked the default call in the constructor
     // (https://github.com/ueberdosis/tiptap/blob/45bac803283446795ad1b03f43d3746fa54a68ff/packages/core/src/Editor.ts#L117)
@@ -198,12 +205,16 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
    *
    * @param element DOM element to mount to, ur null / undefined to destroy
    */
-  public mount = (element?: HTMLElement | null, contentComponent?: any) => {
+  public mount = (
+    blockNoteEditor: BlockNoteEditor<any, any, any>,
+    element?: HTMLElement | null,
+    contentComponent?: any
+  ) => {
     if (!element) {
       this.destroy();
     } else {
       this.options.element = element;
-      this.createViewAlternative(contentComponent);
+      this.createViewAlternative(blockNoteEditor, contentComponent);
     }
   };
 }

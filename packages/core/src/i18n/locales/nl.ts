@@ -339,6 +339,10 @@ export const nl: Dictionary = {
     reactions: {
       reacted_by: "Gereageerd door",
     },
+    sidebar: {
+      marked_as_resolved: "Gemarkeerd als opgelost",
+      more_replies: (count) => `${count} extra reacties`,
+    },
   },
   generic: {
     ctrl_shortcut: "Ctrl",

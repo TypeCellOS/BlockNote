@@ -1,0 +1,74 @@
+.sidebar-comments-main-container {
+  background-color: var(--bn-colors-disabled-background);
+  display: flex;
+  gap: 10px;
+  height: 100%;
+  max-width: none;
+  padding: 10px;
+  width: 100%;
+}
+
+.sidebar-comments-main-container .editor-layout-wrapper {
+  display: flex;
+  flex: 2;
+  justify-content: center;
+  width: 0;
+}
+
+.sidebar-comments-main-container .editor-section, .threads-sidebar-section {
+  border-radius: var(--bn-border-radius-large);
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 100%;
+  width: 0;
+}
+
+.sidebar-comments-main-container .editor-section h1, .threads-sidebar-section h1 {
+  color: var(--bn-colors-menu-text);
+  margin: 0;
+  font-size: 32px;
+}
+
+.sidebar-comments-main-container .bn-editor, .bn-threads-sidebar {
+  border-radius: var(--bn-border-radius-medium);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  overflow: auto;
+}
+
+.sidebar-comments-main-container .editor-section {
+  max-width: 700px;
+}
+
+.sidebar-comments-main-container .threads-sidebar-section,
+.sidebar-comments-main-container .bn-threads-sidebar .bn-thread {
+  min-width: 0;
+}
+
+.sidebar-comments-main-container .settings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.sidebar-comments-main-container .settings-select {
+  display: flex;
+  gap: 10px;
+}
+
+.sidebar-comments-main-container .settings-select .bn-toolbar {
+  align-items: center;
+  box-shadow: none;
+}
+
+.sidebar-comments-main-container .settings-select h2 {
+  color: var(--bn-colors-menu-text);
+  margin: 0;
+  font-size: 12px;
+  line-height: 12px;
+  padding-left: 14px;
+}

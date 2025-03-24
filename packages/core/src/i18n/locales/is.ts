@@ -332,6 +332,10 @@ export const is: Dictionary = {
     reactions: {
       reacted_by: "Brást við af",
     },
+    sidebar: {
+      marked_as_resolved: "Merkt sem leyst",
+      more_replies: (count) => `${count} fleiri svör`,
+    },
   },
   generic: {
     ctrl_shortcut: "Ctrl",

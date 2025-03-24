@@ -1,10 +1,10 @@
 import { Plugin, PluginKey, PluginView } from "prosemirror-state";
 import {
+  CellSelection,
   addColumnAfter,
   addColumnBefore,
   addRowAfter,
   addRowBefore,
-  CellSelection,
   deleteColumn,
   deleteRow,
   mergeCells,
@@ -12,6 +12,7 @@ import {
 } from "prosemirror-tables";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import {
+  RelativeCellIndices,
   addRowsOrColumns,
   areInSameColumn,
   canColumnBeDraggedInto,
@@ -22,7 +23,6 @@ import {
   getDimensionsOfTable,
   moveColumn,
   moveRow,
-  RelativeCellIndices,
 } from "../../api/blockManipulation/tables/tables.js";
 import { nodeToBlock } from "../../api/nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../api/nodeUtil.js";
@@ -539,7 +539,12 @@ export class TableHandlesView<
 
     // Hide handles if the table block has been removed.
     this.state.block = this.editor.getBlock(this.state.block.id)!;
-    if (!this.state.block) {
+    if (
+      !this.state.block ||
+      // when collaborating, the table element might be replaced and out of date
+      // because yjs replaces the element when for example you change the color via the side menu
+      !this.tableElement?.isConnected
+    ) {
       this.state.show = false;
       this.state.showAddOrRemoveRowsButton = false;
       this.state.showAddOrRemoveColumnsButton = false;
@@ -569,6 +574,7 @@ export class TableHandlesView<
 
     // Update bounding boxes.
     const tableBody = this.tableElement!.querySelector("tbody");
+
     if (!tableBody) {
       throw new Error(
         "Table block does not contain a 'tbody' HTML element. This should never happen."
@@ -656,32 +662,27 @@ export class TableHandlesProsemirrorPlugin<
           }
 
           const decorations: Decoration[] = [];
+          const { block, draggingState } = this.view.state;
+          const { originalIndex, draggedCellOrientation } = draggingState;
 
-          if (newIndex === this.view.state.draggingState.originalIndex) {
-            return DecorationSet.create(state.doc, decorations);
-          } else if (
-            this.view.state.draggingState.draggedCellOrientation === "row" &&
-            !canRowBeDraggedInto(
-              this.view.state.block,
-              this.view.state.draggingState.originalIndex,
-              newIndex
-            )
-          ) {
-            return DecorationSet.create(state.doc, decorations);
-          } else if (
-            this.view.state.draggingState.draggedCellOrientation === "col" &&
-            !canColumnBeDraggedInto(
-              this.view.state.block,
-              this.view.state.draggingState.originalIndex,
-              newIndex
-            )
+          // Return empty decorations if:
+          // - Dragging to same position
+          // - No block exists
+          // - Row drag not allowed
+          // - Column drag not allowed
+          if (
+            newIndex === originalIndex ||
+            !block ||
+            (draggedCellOrientation === "row" &&
+              !canRowBeDraggedInto(block, originalIndex, newIndex)) ||
+            (draggedCellOrientation === "col" &&
+              !canColumnBeDraggedInto(block, originalIndex, newIndex))
           ) {
             return DecorationSet.create(state.doc, decorations);
           }
 
           // Gets the table to show the drop cursor in.
           const tableResolvedPos = state.doc.resolve(this.view.tablePos + 1);
-          const originalIndex = this.view.state.draggingState.originalIndex;
 
           if (this.view.state.draggingState.draggedCellOrientation === "row") {
             const cellsInRow = getCellsAtRowHandle(

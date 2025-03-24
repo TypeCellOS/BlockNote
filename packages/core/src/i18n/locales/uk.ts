@@ -364,6 +364,10 @@ export const uk: Dictionary = {
     reactions: {
       reacted_by: "Відреагував(ла)",
     },
+    sidebar: {
+      marked_as_resolved: "Позначено як вирішене",
+      more_replies: (count) => `${count} додаткових відповідей`,
+    },
   },
   generic: {
     ctrl_shortcut: "Ctrl",

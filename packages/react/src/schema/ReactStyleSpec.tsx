@@ -1,9 +1,10 @@
 import {
+  StyleConfig,
   addStyleAttributes,
   createInternalStyleSpec,
   getStyleParseRules,
-  StyleConfig,
   stylePropsToAttributes,
+  type BlockNoteEditor,
 } from "@blocknote/core";
 import { Mark } from "@tiptap/react";
 import { FC } from "react";
@@ -59,25 +60,24 @@ export function createReactStyleSpec<T extends StyleConfig>(
     },
   });
 
-  const markType = mark;
-
   // this is a bit of a hack to register an `addMarkView` function on the mark type
   //
   // we can clean this once MarkViews land in tiptap
-  (markType as any).config.addMarkView = (mark: any, view: any) => {
-    const markView = new ReactMarkView({
-      editor: markType.child?.options.editor,
-      inline: true,
-      mark,
-      options: {
-        component: styleImplementation.render,
-        contentAs: "span",
-      },
-      view,
-    });
-    markView.render();
-    return markView;
-  };
+  mark.config.addMarkView =
+    (editor: BlockNoteEditor<any, any, any>) => (mark: any, view: any) => {
+      const markView = new ReactMarkView({
+        editor,
+        inline: true,
+        mark,
+        options: {
+          component: styleImplementation.render,
+          contentAs: "span",
+        },
+        view,
+      });
+      markView.render();
+      return markView;
+    };
 
   return createInternalStyleSpec(styleConfig, {
     mark,

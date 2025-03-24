@@ -373,6 +373,10 @@ export const zh: Dictionary = {
     reactions: {
       reacted_by: "已回应",
     },
+    sidebar: {
+      marked_as_resolved: "标记为已解决",
+      more_replies: (count) => `还有 ${count} 条回复`,
+    },
   },
   generic: {
     ctrl_shortcut: "Ctrl",

@@ -4,7 +4,7 @@
   "private": false,
   "sideEffects": false,
   "license": "MPL-2.0",
-  "version": "0.25.2",
+  "version": "0.26.0",
   "files": [
     "dist",
     "types",

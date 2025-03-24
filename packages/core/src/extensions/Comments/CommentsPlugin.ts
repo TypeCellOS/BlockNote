@@ -17,26 +17,17 @@ const SET_SELECTED_THREAD_ID = "SET_SELECTED_THREAD_ID";
 
 type CommentsPluginState = {
   /**
-   * Store the positions of all threads in the document.
-   * this can be used later to implement a floating sidebar
-   */
-  threadPositions: Map<string, { from: number; to: number }>;
-  /**
    * Decorations to be rendered, specifically to indicate the selected thread
    */
   decorations: DecorationSet;
 };
 
 /**
- * Get a new state (theadPositions and decorations) from the current document state
+ * Calculate the thread positions from the current document state
  */
-function updateState(
-  doc: Node,
-  selectedThreadId: string | undefined,
-  markType: string
-): CommentsPluginState {
+function getUpdatedThreadPositions(doc: Node, markType: string) {
   const threadPositions = new Map<string, { from: number; to: number }>();
-  const decorations: Decoration[] = [];
+
   // find all thread marks and store their position + create decoration for selected thread
   doc.descendants((node, pos) => {
     node.marks.forEach((mark) => {
@@ -59,34 +50,38 @@ function updateState(
           from: Math.min(from, currentPosition.from),
           to: Math.max(to, currentPosition.to),
         });
-
-        if (selectedThreadId === thisThreadId) {
-          decorations.push(
-            Decoration.inline(from, to, {
-              class: "bn-thread-mark-selected",
-            })
-          );
-        }
       }
     });
   });
-  return {
-    decorations: DecorationSet.create(doc, decorations),
-    threadPositions,
-  };
+  return threadPositions;
 }
 
 export class CommentsPlugin extends EventEmitter<any> {
   public readonly plugin: Plugin;
   public readonly userStore: UserStore<User>;
 
+  /**
+   * Whether a comment is currently being composed
+   */
   private pendingComment = false;
+
+  /**
+   * The currently selected thread id
+   */
   private selectedThreadId: string | undefined;
+
+  /**
+   * Store the positions of all threads in the document.
+   * this can be used later to implement a floating sidebar
+   */
+  private threadPositions: Map<string, { from: number; to: number }> =
+    new Map();
 
   private emitStateUpdate() {
     this.emit("update", {
       selectedThreadId: this.selectedThreadId,
       pendingComment: this.pendingComment,
+      threadPositions: this.threadPositions,
     });
   }
 
@@ -168,18 +163,51 @@ export class CommentsPlugin extends EventEmitter<any> {
       state: {
         init() {
           return {
-            threadPositions: new Map<string, { from: number; to: number }>(),
             decorations: DecorationSet.empty,
           };
         },
         apply(tr, state) {
           const action = tr.getMeta(PLUGIN_KEY);
+
           if (!tr.docChanged && !action) {
             return state;
           }
 
-          // The doc changed or the selected thread changed
-          return updateState(tr.doc, self.selectedThreadId, markType);
+          // only update threadPositions if the doc changed
+          const threadPositions = tr.docChanged
+            ? getUpdatedThreadPositions(tr.doc, self.markType)
+            : self.threadPositions;
+
+          if (threadPositions.size > 0 || self.threadPositions.size > 0) {
+            // small optimization; don't emit event if threadPositions before / after were both empty
+            self.threadPositions = threadPositions;
+            self.emitStateUpdate();
+          }
+
+          // update decorations if doc or selected thread changed
+          const decorations = [];
+
+          if (self.selectedThreadId) {
+            const selectedThreadPosition = threadPositions.get(
+              self.selectedThreadId
+            );
+
+            if (selectedThreadPosition) {
+              decorations.push(
+                Decoration.inline(
+                  selectedThreadPosition.from,
+                  selectedThreadPosition.to,
+                  {
+                    class: "bn-thread-mark-selected",
+                  }
+                )
+              );
+            }
+          }
+
+          return {
+            decorations: DecorationSet.create(tr.doc, decorations),
+          };
         },
       },
       props: {
@@ -206,7 +234,7 @@ export class CommentsPlugin extends EventEmitter<any> {
           );
 
           const threadId = commentMark?.attrs.threadId as string | undefined;
-          self.selectThread(threadId);
+          self.selectThread(threadId, false);
         },
       },
     });
@@ -219,6 +247,7 @@ export class CommentsPlugin extends EventEmitter<any> {
     callback: (state: {
       pendingComment: boolean;
       selectedThreadId: string | undefined;
+      threadPositions: Map<string, { from: number; to: number }>;
     }) => void
   ) {
     return this.on("update", callback);
@@ -227,7 +256,7 @@ export class CommentsPlugin extends EventEmitter<any> {
   /**
    * Set the selected thread
    */
-  public selectThread(threadId: string | undefined) {
+  public selectThread(threadId: string | undefined, scrollToThread = true) {
     if (this.selectedThreadId === threadId) {
       return;
     }
@@ -238,6 +267,24 @@ export class CommentsPlugin extends EventEmitter<any> {
         name: SET_SELECTED_THREAD_ID,
       })
     );
+
+    if (threadId && scrollToThread) {
+      const selectedThreadPosition = this.threadPositions.get(threadId);
+
+      if (!selectedThreadPosition) {
+        return;
+      }
+
+      // When a new thread is selected, scrolls the page to its reference text in
+      // the editor.
+      (
+        this.editor.prosemirrorView?.domAtPos(selectedThreadPosition.from)
+          .node as Element | undefined
+      )?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
   }
 
   /**
