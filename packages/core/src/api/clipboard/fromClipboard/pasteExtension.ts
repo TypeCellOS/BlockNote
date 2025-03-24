@@ -55,7 +55,7 @@ function defaultPasteHandler({
   }
 
   if (format === "text/markdown") {
-    editor.pasteText(data);
+    editor.pasteMarkdown(data);
     return true;
   }
 
@@ -64,7 +64,7 @@ function defaultPasteHandler({
     const plainText = event.clipboardData!.getData("text/plain");
 
     if (isMarkdown(plainText)) {
-      editor.pasteText(plainText);
+      editor.pasteMarkdown(plainText);
       return true;
     }
   }
@@ -74,7 +74,7 @@ function defaultPasteHandler({
     return true;
   }
 
-  editor.pasteText(data, true);
+  editor.pasteText(data);
   return true;
 }
 

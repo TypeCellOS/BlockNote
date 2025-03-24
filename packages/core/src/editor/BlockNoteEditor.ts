@@ -1497,12 +1497,16 @@ export class BlockNoteEditor<
   /**
    * Paste text into the editor. Defaults to interpreting text as markdown.
    * @param text The text to paste.
-   * @param raw Whether to paste the text as is, or to assume it's markdown and convert it to HTML.
    */
-  public async pasteText(text: string, raw = false) {
-    if (raw) {
-      return this.prosemirrorView?.pasteText(text);
-    }
-    return this.pasteHTML(await markdownToHTML(text));
+  public pasteText(text: string) {
+    return this.prosemirrorView?.pasteText(text);
+  }
+
+  /**
+   * Paste markdown into the editor.
+   * @param markdown The markdown to paste.
+   */
+  public async pasteMarkdown(markdown: string) {
+    return this.pasteHTML(await markdownToHTML(markdown));
   }
 }

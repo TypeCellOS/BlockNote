@@ -22,7 +22,7 @@ export default function App() {
     ],
     pasteHandler: ({ event, editor, defaultPasteHandler }) => {
       if (event.clipboardData?.types.includes("text/plain")) {
-        editor.pasteText(
+        editor.pasteMarkdown(
           event.clipboardData.getData("text/plain") +
             " - inserted by the custom paste handler"
         );
