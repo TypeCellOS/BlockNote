@@ -1,0 +1,59 @@
+---
+title: Paste Handling
+description: This section explains how to handle paste events in BlockNote.
+imageTitle: Paste Handling
+---
+
+import { Example } from "@/components/example";
+
+# Paste Handling
+
+BlockNote, by default, attempts to paste content in the following order:
+
+-   VS Code compatible content
+-   BlockNote HTML
+-   Markdown
+-   HTML
+-   Plain text
+-   Files
+
+By default, in certain cases, BlockNote will attempt to convert the content of the clipboard from plain text to HTML by interpreting the plain text as markdown.
+
+You can change this behavior by providing a custom paste handler.
+
+```ts
+const editor = new BlockNoteEditor({
+  pasteHandler: ({ defaultPasteHandler }) => {
+    return defaultPasteHandler({
+      pasteBehavior: "prefer-html",
+    });
+  },
+});
+```
+
+In this example, we change the default paste behavior to prefer HTML.
+
+
+<Example name="basic/custom-paste-handler" />
+
+## Custom Paste Handler
+
+You can also provide your own paste handler by providing a function to the `pasteHandler` option.
+
+```ts
+const editor = new BlockNoteEditor({
+  pasteHandler: ({ event, editor, defaultPasteHandler }) => {
+    if (event.clipboardData?.types.includes("text/my-custom-format")) {
+      const markdown = myCustomTransformer(event.clipboardData.getData("text/my-custom-format"));
+      editor.pasteText(markdown);
+      // We handled the paste event, so return true
+      return true;
+    }
+
+    // If we didn't handle the paste event, call the default paste handler to do the default behavior
+    return defaultPasteHandler();
+  },
+});
+```
+
+In this example, we handle the paste event if the clipboard data contains `text/my-custom-format`. If we don't handle the paste event, we call the default paste handler to do the default behavior.

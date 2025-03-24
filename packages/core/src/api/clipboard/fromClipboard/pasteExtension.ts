@@ -111,7 +111,9 @@ export const createPasteFromClipboardExtension = <
                 return pasteHandler({
                   event,
                   editor,
-                  defaultPasteHandler: ({ pasteBehavior }) => {
+                  defaultPasteHandler: (
+                    { pasteBehavior } = { pasteBehavior: "prefer-markdown" }
+                  ) => {
                     return defaultPasteHandler({
                       event,
                       editor,

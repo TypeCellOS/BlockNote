@@ -235,7 +235,7 @@ export type BlockNoteEditorOptions<
      * @param context The context object
      * @returns Whether the paste event was handled or not
      */
-    defaultPasteHandler: (context: {
+    defaultPasteHandler: (context?: {
       /**
        * Changes how to interpret reading data from the clipboard
        * - `prefer-markdown` will attempt to detect markdown in the plain text representation and interpret the text as markdown
