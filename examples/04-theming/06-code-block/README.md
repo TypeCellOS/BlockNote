@@ -6,6 +6,12 @@ We've created a default setup which automatically includes some of the most comm
 
 To use it, you can do the following:
 
+```sh
+npm install @blocknote/code-block
+```
+
+And then you can use it like this:
+
 ```tsx
 import { codeBlock } from "@blocknote/code-block";
 
