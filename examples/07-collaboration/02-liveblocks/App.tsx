@@ -1,3 +1,5 @@
+// See https://liveblocks.io/docs/get-started/react-blocknote to see how this
+// example was created, and an explanation for all the code.
 import {
   ClientSideSuspense,
   LiveblocksProvider,
@@ -9,6 +11,7 @@ import "@liveblocks/react-tiptap/styles.css";
 
 import { Editor } from "./Editor.js";
 import "./globals.css";
+import "./styles.css";
 
 export default function App() {
   return (
