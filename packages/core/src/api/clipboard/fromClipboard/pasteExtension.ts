@@ -10,32 +10,16 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../schema/index.js";
-import { nestedListsToBlockNoteStructure } from "../../parsers/html/util/nestedLists.js";
-import { markdownToHTML } from "../../parsers/markdown/parseMarkdown.js";
 import { acceptedMIMETypes } from "./acceptedMIMETypes.js";
 import { handleFileInsertion } from "./handleFileInsertion.js";
 import { handleVSCodePaste } from "./handleVSCodePaste.js";
 import { isMarkdown } from "../../parsers/markdown/detectMarkdown.js";
-import { EditorView } from "prosemirror-view";
-
-function convertHtmlToBlockNoteHtml(html: string) {
-  const htmlNode = nestedListsToBlockNoteStructure(html.trim());
-  return htmlNode.innerHTML;
-}
-
-function convertMarkdownToBlockNoteHtml(markdown: string) {
-  return markdownToHTML(markdown).then((html) => {
-    return convertHtmlToBlockNoteHtml(html);
-  });
-}
 
 function defaultPasteHandler({
-  view,
   event,
   editor,
   pasteBehavior = "prefer-markdown",
 }: {
-  view: EditorView;
   event: ClipboardEvent;
   editor: BlockNoteEditor<any, any, any>;
   pasteBehavior?: "prefer-markdown" | "prefer-html";
@@ -53,7 +37,7 @@ function defaultPasteHandler({
   }
 
   if (format === "vscode-editor-data") {
-    handleVSCodePaste(event, view);
+    handleVSCodePaste(event, editor.prosemirrorView!);
     return true;
   }
 
@@ -66,14 +50,12 @@ function defaultPasteHandler({
 
   if (format === "blocknote/html") {
     // Is blocknote/html, so no need to convert it
-    view.pasteHTML(data);
+    editor.pasteHTML(data, true);
     return true;
   }
 
   if (format === "text/markdown") {
-    convertMarkdownToBlockNoteHtml(data).then((html) => {
-      view.pasteHTML(html);
-    });
+    editor.pasteText(data);
     return true;
   }
 
@@ -83,27 +65,21 @@ function defaultPasteHandler({
       const plainText = event.clipboardData!.getData("text/plain");
 
       if (isMarkdown(plainText)) {
-        // Convert Markdown to HTML first, then paste as HTML
-        convertMarkdownToBlockNoteHtml(plainText).then((html) => {
-          view.pasteHTML(html);
-        });
+        editor.pasteText(plainText);
         return true;
       }
     }
 
-    view.pasteHTML(convertHtmlToBlockNoteHtml(data));
+    editor.pasteHTML(data);
     return true;
   }
 
   if (pasteBehavior === "prefer-markdown" && isMarkdown(data)) {
-    // Convert Markdown to HTML first, then paste as HTML
-    convertMarkdownToBlockNoteHtml(data).then((html) => {
-      view.pasteHTML(html);
-    });
+    editor.pasteText(data);
     return true;
   }
 
-  view.pasteText(data);
+  editor.pasteText(data, true);
   return true;
 }
 
@@ -125,7 +101,7 @@ export const createPasteFromClipboardExtension = <
         new Plugin({
           props: {
             handleDOMEvents: {
-              paste(view, event) {
+              paste(_view, event) {
                 event.preventDefault();
 
                 if (!editor.isEditable) {
@@ -133,19 +109,15 @@ export const createPasteFromClipboardExtension = <
                 }
 
                 return pasteHandler({
-                  view,
                   event,
                   editor,
                   defaultPasteHandler: ({ pasteBehavior }) => {
                     return defaultPasteHandler({
-                      view,
                       event,
                       editor,
                       pasteBehavior,
                     });
                   },
-                  convertHtmlToBlockNoteHtml,
-                  convertMarkdownToBlockNoteHtml,
                 });
               },
             },

@@ -43,7 +43,10 @@ import {
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
-import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown.js";
+import {
+  markdownToBlocks,
+  markdownToHTML,
+} from "../api/parsers/markdown/parseMarkdown.js";
 import {
   Block,
   DefaultBlockSchema,
@@ -101,6 +104,7 @@ import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
 import type { ThreadStore, User } from "../comments/index.js";
 import "../style.css";
 import { EventEmitter } from "../util/EventEmitter.js";
+import { nestedListsToBlockNoteStructure } from "../api/parsers/html/util/nestedLists.js";
 
 export type BlockNoteExtensionFactory = (
   editor: BlockNoteEditor<any, any, any>
@@ -224,23 +228,8 @@ export type BlockNoteEditorOptions<
    * ```
    */
   pasteHandler?: (context: {
-    view: EditorView;
     event: ClipboardEvent;
     editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
-    /**
-     * Convert HTML into BlockNote-compatible HTML
-     * There can be cases where normal HTML is not supported by BlockNote, so this function can be used to convert the HTML into a format that is supported.
-     * @param html The HTML to convert
-     * @returns The converted HTML
-     */
-    convertHtmlToBlockNoteHtml: (html: string) => string;
-    /**
-     * Convert Markdown into BlockNote-compatible HTML
-     * There can be cases where normal Markdown is not supported by BlockNote, so this function can be used to convert the Markdown into a format that is supported.
-     * @param markdown The Markdown to convert
-     * @returns The converted HTML
-     */
-    convertMarkdownToBlockNoteHtml: (markdown: string) => Promise<string>;
     /**
      * The default paste handler
      * @param context The context object
@@ -250,7 +239,7 @@ export type BlockNoteEditorOptions<
       /**
        * Changes how to interpret reading data from the clipboard
        * - `prefer-markdown` will attempt to detect markdown in the plain text representation and interpret the text as markdown
-       * - `prefer-html` will ovoid the markdown behavior and prefer to parse from HTML instead.
+       * - `prefer-html` will avoid the markdown behavior and prefer to parse from HTML instead.
        * @default 'prefer-markdown'
        */
       pasteBehavior?: "prefer-markdown" | "prefer-html";
@@ -1482,5 +1471,38 @@ export class BlockNoteEditor<
 
   public setForceSelectionVisible(forceSelectionVisible: boolean) {
     this.showSelectionPlugin.setEnabled(forceSelectionVisible);
+  }
+
+  /**
+   * This will convert HTML into a format that is compatible with BlockNote.
+   */
+  private convertHtmlToBlockNoteHtml(html: string) {
+    const htmlNode = nestedListsToBlockNoteStructure(html.trim());
+    return htmlNode.innerHTML;
+  }
+
+  /**
+   * Paste HTML into the editor. Defaults to converting HTML to BlockNote HTML.
+   * @param html The HTML to paste.
+   * @param raw Whether to paste the HTML as is, or to convert it to BlockNote HTML.
+   */
+  public pasteHTML(html: string, raw = false) {
+    let htmlToPaste = html;
+    if (!raw) {
+      htmlToPaste = this.convertHtmlToBlockNoteHtml(html);
+    }
+    this.prosemirrorView?.pasteHTML(htmlToPaste);
+  }
+
+  /**
+   * Paste text into the editor. Defaults to interpreting text as markdown.
+   * @param text The text to paste.
+   * @param raw Whether to paste the text as is, or to assume it's markdown and convert it to HTML.
+   */
+  public async pasteText(text: string, raw = false) {
+    if (raw) {
+      return this.prosemirrorView?.pasteText(text);
+    }
+    return this.pasteHTML(await markdownToHTML(text));
   }
 }
