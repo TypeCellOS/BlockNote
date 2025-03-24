@@ -176,9 +176,16 @@ export async function* toBlockNoteOperations(
     if (chunk.operation.type === "add") {
       const blocks = await Promise.all(
         chunk.operation.blocks.map(async (md) => {
-          return (await editor.tryParseMarkdownToBlocks(md.trim()))[0]; // TODO: trim
+          const block = (await editor.tryParseMarkdownToBlocks(md.trim()))[0]; // TODO: trim
+          delete (block as any).id;
+          return block;
         })
       );
+
+      // hacky
+      if ((window as any).__TEST_OPTIONS) {
+        (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS.mockID = 0;
+      }
 
       yield {
         ...chunk,
@@ -191,6 +198,12 @@ export async function* toBlockNoteOperations(
       const block = (
         await editor.tryParseMarkdownToBlocks(chunk.operation.block.trim())
       )[0];
+
+      // hacky
+      if ((window as any).__TEST_OPTIONS) {
+        (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS.mockID = 0;
+      }
+
       yield {
         ...chunk,
         operation: {
