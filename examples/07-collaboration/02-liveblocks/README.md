@@ -1,6 +1,6 @@
 # Collaborative Editing with Liveblocks
 
-In this example, we use follow
+In this example, we use
 the [Liveblocks + BlockNote setup guide](https://liveblocks.io/docs/get-started/react-blocknote)
 to create a collaborative BlockNote editor, where multiple people can work on
 the same document in real-time.
