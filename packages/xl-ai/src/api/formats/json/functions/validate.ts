@@ -1,4 +1,9 @@
-import { BlockNoteEditor, PartialBlock } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  PartialBlock,
+  isLinkInlineContent,
+  isStyledTextInlineContent,
+} from "@blocknote/core";
 import { InvalidOrOk } from "../../../functions/blocknoteFunctions.js";
 
 function validateInlineContent(content: any, editor: any): boolean {
@@ -11,13 +16,21 @@ function validateInlineContent(content: any, editor: any): boolean {
     return false;
   }
 
-  if (inlineContentConfig === "text") {
+  if (isStyledTextInlineContent(content)) {
     if (!("text" in content)) {
       return false;
     }
   }
 
-  // TODO: validate link / custom ic content
+  if (isLinkInlineContent(content)) {
+    if (!("content" in content) || !("href" in content)) {
+      return false;
+    }
+
+    return validateInlineContent(content.content, editor);
+  }
+
+  // TODO: custom ic content
   return true;
 }
 

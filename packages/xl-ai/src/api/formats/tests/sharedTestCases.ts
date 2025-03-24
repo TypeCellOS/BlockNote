@@ -3,6 +3,10 @@ import { describe, expect, it } from "vitest";
 
 import { getCurrentTest } from "@vitest/runner";
 import path from "path";
+import {
+  getTestEditor,
+  testUpdateOperations,
+} from "../../../testUtil/updates/updateOperations.js";
 
 const BASE_FILE_PATH = path.resolve(__dirname, "__snapshots__");
 
@@ -123,6 +127,22 @@ export function generateSharedTestCases(
 
       // expect(await response.object).toMatchSnapshot();
     });
+  });
+
+  describe("Update (formatting)", () => {
+    for (const test of testUpdateOperations) {
+      it(test.prompt, async () => {
+        const editor = getTestEditor();
+        const result = await callLLM(editor, {
+          prompt: test.prompt,
+        });
+        await result.apply();
+
+        const editorCompare = getTestEditor();
+        editorCompare.updateBlock(test.updateOp.id, test.updateOp.block);
+        expect(editor.document).toEqual(editorCompare.document);
+      });
+    }
   });
 
   describe("Delete", () => {

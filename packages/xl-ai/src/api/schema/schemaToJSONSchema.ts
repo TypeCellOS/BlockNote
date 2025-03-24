@@ -195,11 +195,7 @@ export function inlineContentSchemaToJSONSchema(schema: InlineContentSchema) {
                     },
                   }
                 : undefined,
-            props: {
-              type: "object",
-              properties: propSchemaToJSONSchema(val.propSchema),
-              additionalProperties: false,
-            },
+            props: propSchemaToJSONSchema(val.propSchema),
           },
           additionalProperties: false,
           required: ["type", ...(val.content === "styled" ? ["content"] : [])],

@@ -62,6 +62,7 @@ export async function* applyOperations(
         minSize = 50;
       }
 
+      console.log("update", JSON.stringify(chunk.operation, null, 2));
       // Convert the update operation directly to ReplaceSteps
       const steps = updateToReplaceSteps(
         editor,
