@@ -1,4 +1,4 @@
-## **Heading ***~~2~~*
+## **Heading&#x20;***~~2~~*
 
 Paragraph
 

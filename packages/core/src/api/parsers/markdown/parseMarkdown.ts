@@ -60,7 +60,8 @@ export async function markdownToBlocks<
   pmSchema: Schema
 ): Promise<Block<BSchema, I, S>[]> {
   const deps = await initializeESMDependencies();
-  const htmlString = deps.unified
+
+  const htmlString = await deps.unified
     .unified()
     .use(deps.remarkParse.default)
     .use(deps.remarkGfm.default)
@@ -71,7 +72,7 @@ export async function markdownToBlocks<
       },
     })
     .use(deps.rehypeStringify.default)
-    .processSync(markdown);
+    .process(markdown);
 
   return HTMLToBlocks(
     htmlString.value as string,
