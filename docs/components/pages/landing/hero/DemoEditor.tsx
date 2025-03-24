@@ -2,9 +2,9 @@ import {
   BlockNoteSchema,
   combineByGroup,
   filterSuggestionItems,
-  locales,
   uploadToTmpFilesDotOrg_DEV_ONLY,
 } from "@blocknote/core";
+import { locales } from "@blocknote/core/locales";
 import "@blocknote/core/fonts/inter.css";
 import {
   getDefaultReactSlashMenuItems,
