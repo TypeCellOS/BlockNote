@@ -487,10 +487,6 @@ export class BlockNoteEditor<
       cellTextColor: boolean;
       headers: boolean;
     };
-    pasteHandler: Exclude<
-      BlockNoteEditorOptions<any, any, any>["pasteHandler"],
-      undefined
-    >;
   };
 
   public static create<
@@ -538,14 +534,6 @@ export class BlockNoteEditor<
         cellTextColor: options?.tables?.cellTextColor ?? false,
         headers: options?.tables?.headers ?? false,
       },
-      pasteHandler:
-        options.pasteHandler ||
-        ((context: {
-          defaultPasteHandler: (context: {
-            pasteBehavior?: "prefer-markdown" | "prefer-html";
-          }) => boolean | undefined;
-        }) =>
-          context.defaultPasteHandler({ pasteBehavior: "prefer-markdown" })),
     };
 
     // apply defaults
@@ -589,6 +577,7 @@ export class BlockNoteEditor<
       tabBehavior: newOptions.tabBehavior,
       sideMenuDetection: newOptions.sideMenuDetection || "viewport",
       comments: newOptions.comments,
+      pasteHandler: newOptions.pasteHandler,
     });
 
     // add extensions from _tiptapOptions

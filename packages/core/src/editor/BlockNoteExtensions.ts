@@ -44,7 +44,11 @@ import {
   StyleSchema,
   StyleSpecs,
 } from "../schema/index.js";
-import type { BlockNoteEditor, BlockNoteExtension } from "./BlockNoteEditor.js";
+import type {
+  BlockNoteEditor,
+  BlockNoteEditorOptions,
+  BlockNoteExtension,
+} from "./BlockNoteEditor.js";
 
 type ExtensionOptions<
   BSchema extends BlockSchema,
@@ -82,6 +86,7 @@ type ExtensionOptions<
   comments?: {
     threadStore: ThreadStore;
   };
+  pasteHandler: BlockNoteEditorOptions<any, any, any>["pasteHandler"];
 };
 
 /**
@@ -258,7 +263,15 @@ const getTipTapExtensions = <
       ];
     }),
     createCopyToClipboardExtension(opts.editor),
-    createPasteFromClipboardExtension(opts.editor),
+    createPasteFromClipboardExtension(
+      opts.editor,
+      opts.pasteHandler ||
+        ((context: {
+          defaultPasteHandler: (context: {
+            pasteBehavior?: "prefer-markdown" | "prefer-html";
+          }) => boolean | undefined;
+        }) => context.defaultPasteHandler({ pasteBehavior: "prefer-markdown" }))
+    ),
     createDropFileExtension(opts.editor),
 
     // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),

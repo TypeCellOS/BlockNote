@@ -1,7 +1,10 @@
 import { Extension } from "@tiptap/core";
 import { Plugin } from "prosemirror-state";
 
-import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
+import type {
+  BlockNoteEditor,
+  BlockNoteEditorOptions,
+} from "../../../editor/BlockNoteEditor";
 import {
   BlockSchema,
   InlineContentSchema,
@@ -109,7 +112,11 @@ export const createPasteFromClipboardExtension = <
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  editor: BlockNoteEditor<BSchema, I, S>
+  editor: BlockNoteEditor<BSchema, I, S>,
+  pasteHandler: Exclude<
+    BlockNoteEditorOptions<any, any, any>["pasteHandler"],
+    undefined
+  >
 ) =>
   Extension.create({
     name: "pasteFromClipboard",
@@ -125,7 +132,7 @@ export const createPasteFromClipboardExtension = <
                   return;
                 }
 
-                return editor.settings.pasteHandler({
+                return pasteHandler({
                   view,
                   event,
                   editor,
