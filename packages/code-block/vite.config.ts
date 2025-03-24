@@ -46,11 +46,7 @@ export default defineConfig((conf) => ({
           return true;
         }
 
-        if (source === "react/jsx-runtime") {
-          return true;
-        }
-
-        if (source.startsWith("prosemirror-")) {
+        if (source.startsWith("@shikijs/")) {
           return true;
         }
 
