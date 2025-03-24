@@ -35,6 +35,7 @@ type TestUpdateOperation = {
 };
 
 // TODO: add test case where existing paragraph is right aligned / colored
+// TODO: add test case where some text is colored
 export function getTestEditor() {
   return BlockNoteEditor.create({
     initialContent: [
@@ -346,7 +347,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
       },
     },
     prompt:
-      "remove the formatting (remove the link and the bold style) from the last paragraph",
+      "remove the formatting (turn into plain text without styles or urls) from the last paragraph",
   },
   {
     description: "drop mark and link and change text within mark",

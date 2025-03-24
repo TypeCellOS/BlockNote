@@ -117,7 +117,9 @@ export async function callLLM(
     ? duplicateInsertsToUpdates(operationsSource)
     : operationsSource;
 
-  const resultGenerator = applyOperations(editor, operationsToApply);
+  const resultGenerator = applyOperations(editor, operationsToApply, {
+    withDelays: false, // TODO: make configurable
+  });
 
   // Convert to stream at the API boundary
   const resultStream = asyncIterableToStream(resultGenerator);

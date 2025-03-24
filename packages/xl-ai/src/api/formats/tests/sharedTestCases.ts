@@ -135,7 +135,7 @@ export function generateSharedTestCases(
 
   describe("Update (formatting)", () => {
     for (const test of testUpdateOperations) {
-      it(test.prompt, async (c) => {
+      it(test.description, async (c) => {
         if (
           skipTestsRequiringCapabilities &&
           Object.keys(test.requiredCapabilities || {}).some(
