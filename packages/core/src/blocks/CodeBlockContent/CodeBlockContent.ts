@@ -8,7 +8,7 @@ import {
   PropSchema,
 } from "../../schema/index.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
-import { HighlighterGeneric } from "@shikijs/types";
+import type { HighlighterGeneric } from "@shikijs/types";
 import { BlockNoteEditor } from "../../index.js";
 
 export type CodeBlockOptions = {
@@ -426,6 +426,6 @@ function getLanguageId(options: CodeBlockOptions, languageName: string) {
   return (
     Object.entries(options.supportedLanguages).find(([id, { aliases }]) => {
       return aliases?.includes(languageName) || id === languageName;
-    })?.[0] || options.defaultLanguage
+    })?.[0] || languageName
   );
 }
