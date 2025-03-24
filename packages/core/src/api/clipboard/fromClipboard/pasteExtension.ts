@@ -59,23 +59,18 @@ function defaultPasteHandler({
     return true;
   }
 
-  if (format === "text/html") {
-    if (pasteBehavior === "prefer-markdown") {
-      // Use plain text instead of HTML if it looks like Markdown
-      const plainText = event.clipboardData!.getData("text/plain");
+  if (pasteBehavior === "prefer-markdown") {
+    // Use plain text instead of HTML if it looks like Markdown
+    const plainText = event.clipboardData!.getData("text/plain");
 
-      if (isMarkdown(plainText)) {
-        editor.pasteText(plainText);
-        return true;
-      }
+    if (isMarkdown(plainText)) {
+      editor.pasteText(plainText);
+      return true;
     }
-
-    editor.pasteHTML(data);
-    return true;
   }
 
-  if (pasteBehavior === "prefer-markdown" && isMarkdown(data)) {
-    editor.pasteText(data);
+  if (format === "text/html") {
+    editor.pasteHTML(data);
     return true;
   }
 
