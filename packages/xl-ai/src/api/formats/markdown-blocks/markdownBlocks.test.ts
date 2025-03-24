@@ -120,10 +120,11 @@ describe("Models", () => {
       model: groq,
       stream: false,
     },
-    {
-      model: albert,
-      stream: true,
-    },
+    // TODO: https://github.com/vercel/ai/issues/5350
+    // {
+    //   model: albert,
+    //   stream: true,
+    // },
     {
       model: albert,
       stream: false,

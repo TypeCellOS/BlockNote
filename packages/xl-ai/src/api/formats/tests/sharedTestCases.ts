@@ -33,7 +33,7 @@ export function generateSharedTestCases(
     editor: BlockNoteEditor<any, any, any>,
     params: { prompt: string }
   ) => Promise<any>,
-  skipTestsRequiringCapabilities: {
+  skipTestsRequiringCapabilities?: {
     mentions?: boolean;
     textAlignment?: boolean;
   }

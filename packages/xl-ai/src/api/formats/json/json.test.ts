@@ -120,10 +120,15 @@ describe("Models", () => {
       model: groq,
       stream: false,
     },
-    {
-      model: albert,
-      stream: false,
-    },
+    // this model doesn't work well with json format
+    // {
+    //   model: albert,
+    //   stream: true,
+    // },
+    // {
+    //   model: albert,
+    //   stream: false,
+    // },
   ];
 
   for (const params of testMatrix) {
