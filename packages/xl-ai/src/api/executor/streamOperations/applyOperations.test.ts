@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
+  getApplySuggestionsTr,
+  rebaseTool,
+} from "../../../prosemirror/rebaseTool.js";
+import {
   getTestEditor,
   testUpdateOperations,
 } from "../../../testUtil/updates/updateOperations.js";
@@ -44,9 +48,16 @@ describe("applyOperations", () => {
     }>
   ) {
     const result = [];
-    for await (const chunk of applyOperations(editor, stream, {
-      withDelays: false,
-    })) {
+    for await (const chunk of applyOperations(
+      editor,
+      stream,
+      async (id) => {
+        return rebaseTool(editor, getApplySuggestionsTr(editor));
+      },
+      {
+        withDelays: false,
+      }
+    )) {
       result.push(chunk);
     }
     return result;

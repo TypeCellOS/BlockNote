@@ -51,6 +51,10 @@ export async function* filterNewOrUpdatedOperations(
     numOperationsAppliedCompletely = chunk.operations.length - 1;
   }
 
+  if (!lastOp) {
+    throw new Error("No operations seen");
+  }
+
   // mark final operation as final (by emitting with isPossiblyPartial: false)
   yield {
     partialOperation: lastOp,

@@ -1,9 +1,13 @@
-import { BlockNoteEditor, getNodeById, updateBlockTr } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  PartialBlock,
+  getNodeById,
+  updateBlockTr,
+} from "@blocknote/core";
 import { Change, ChangeSet, simplifyChanges } from "prosemirror-changeset";
 import { Node } from "prosemirror-model";
 import { ReplaceStep, Transform } from "prosemirror-transform";
-import { UpdateBlocksOperation } from "../../functions/blocknoteFunctions.js";
-import { getCleanDoc } from "./cleanSuggestions.js";
+import { UpdateBlocksOperation } from "../api/functions/blocknoteFunctions.js";
 
 type CustomChange = Change & {
   type?: "mark-update" | "node-type-or-attr-update";
@@ -111,17 +115,14 @@ function addMissingChanges(
 
 export function updateToReplaceSteps(
   editor: BlockNoteEditor<any, any, any>,
-  op: UpdateBlocksOperation,
+  op: UpdateBlocksOperation<PartialBlock<any, any, any>>,
+  doc: Node,
   dontReplaceContentAtEnd = false
 ) {
-  // first, create a clean doc (without "suggestion" marks, and generate a diff of the content)
-  const cleaned = getCleanDoc(editor);
-  const cleanedDoc = cleaned.doc;
+  let changeset = ChangeSet.create(doc);
 
-  let changeset = ChangeSet.create(cleaned.doc);
-
-  const blockPos = getNodeById(op.id, cleaned.doc)!;
-  const updatedTr = cleaned.tr();
+  const blockPos = getNodeById(op.id, doc)!;
+  const updatedTr = new Transform(doc);
   updateBlockTr(editor, updatedTr, blockPos.posBeforeNode, op.block);
 
   let updatedDoc = updatedTr.doc;
@@ -137,7 +138,7 @@ export function updateToReplaceSteps(
 
     if (lengthA > lengthB) {
       changeset = ChangeSet.create(changeset.startDoc);
-      const endOfBlockToReAdd = cleanedDoc.slice(
+      const endOfBlockToReAdd = doc.slice(
         lastChange.fromA + lengthB,
         lastChange.toA
       );
@@ -157,14 +158,10 @@ export function updateToReplaceSteps(
     updatedDoc
   );
 
-  addMissingChanges(changes, cleanedDoc, updatedDoc);
+  addMissingChanges(changes, doc, updatedDoc);
 
-  // we need to remap these changes to make them applicable to the original doc
   for (let i = 0; i < changes.length; i++) {
     const step = changes[i];
-    const replaceStart = cleaned.invertMap.map(step.fromA);
-    const replaceEnd = cleaned.invertMap.map(step.toA);
-
     // replace with empty content or first character
     const replacement = updatedDoc.slice(step.fromB, step.toB);
 
@@ -174,7 +171,6 @@ export function updateToReplaceSteps(
     //     "Replacement expected not to have openStart or openEnd > 0"
     //   );
     // }
-    // TODO: set structure true / false
 
     if (
       i === changes.length - 1 &&
@@ -186,8 +182,8 @@ export function updateToReplaceSteps(
 
     steps.push(
       new ReplaceStep(
-        replaceStart,
-        replaceEnd,
+        step.fromA,
+        step.toA,
         replacement,
         step.type === "node-type-or-attr-update"
       )

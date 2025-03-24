@@ -7,9 +7,9 @@
     "cookies": []
   },
   "response": {
-    "status": 500,
+    "status": 200,
     "statusText": "",
-    "body": "{\"error\":{\"message\":\"Internal Server Error\",\"type\":\"internal_server_error\"}}\n",
+    "body": "data: {\"id\":\"chatcmpl-bea88375-3fff-4d2e-8839-7f31a8bb9b16\",\"object\":\"chat.completion.chunk\",\"created\":1742846436,\"model\":\"llama-3.3-70b-versatile\",\"system_fingerprint\":\"fp_90c1d253ff\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":null},\"logprobs\":null,\"finish_reason\":null}],\"x_groq\":{\"id\":\"req_01jq4vw9erfaq91a4bdv4bmxxe\"}}\n\ndata: {\"id\":\"chatcmpl-bea88375-3fff-4d2e-8839-7f31a8bb9b16\",\"object\":\"chat.completion.chunk\",\"created\":1742846437,\"model\":\"llama-3.3-70b-versatile\",\"system_fingerprint\":\"fp_90c1d253ff\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"id\":\"call_yp52\",\"type\":\"function\",\"function\":{\"name\":\"json\",\"arguments\":\"{\\\"operations\\\": [{\\\"type\\\": \\\"update\\\", \\\"id\\\": \\\"ref1$\\\", \\\"block\\\": \\\"Hello, **world!**\\\"}]}\"},\"index\":0}]},\"logprobs\":null,\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-bea88375-3fff-4d2e-8839-7f31a8bb9b16\",\"object\":\"chat.completion.chunk\",\"created\":1742846437,\"model\":\"llama-3.3-70b-versatile\",\"system_fingerprint\":\"fp_90c1d253ff\",\"choices\":[{\"index\":0,\"delta\":{},\"logprobs\":null,\"finish_reason\":\"tool_calls\"}],\"x_groq\":{\"id\":\"req_01jq4vw9erfaq91a4bdv4bmxxe\",\"usage\":{\"queue_time\":0.10079792199999998,\"prompt_tokens\":568,\"prompt_time\":0.03667776,\"completion_tokens\":31,\"completion_time\":0.112727273,\"total_tokens\":599,\"total_time\":0.149405033}}}\n\ndata: [DONE]\n\n",
     "headers": []
   }
 }

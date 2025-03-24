@@ -6,6 +6,7 @@ import {
 import { applySuggestions } from "@handlewithcare/prosemirror-suggest-changes";
 import { applyStepsAsAgent } from "../../../prosemirror/agent.js";
 import { updateToReplaceSteps } from "../../../prosemirror/changeset.js";
+import { RebaseTool } from "../../../prosemirror/rebaseTool.js";
 import { BlockNoteOperation } from "../../functions/blocknoteFunctions.js";
 
 export type ApplyOperationResult = {
@@ -24,6 +25,7 @@ export async function* applyOperations(
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
   }>,
+  rebaseTool: (blockId: string) => Promise<RebaseTool>,
   options: {
     withDelays: boolean;
   } = {
@@ -62,16 +64,21 @@ export async function* applyOperations(
         minSize = 50;
       }
 
+      // TODO: this might be inefficient, we might be able to pass a single rebaseTool as long as we map subsequent operations
+      const tool = await rebaseTool(chunk.operation.id);
       // console.log("update", JSON.stringify(chunk.operation, null, 2));
       // Convert the update operation directly to ReplaceSteps
       const steps = updateToReplaceSteps(
         editor,
         chunk.operation,
+        tool.doc,
         chunk.isPossiblyPartial
       );
 
+      const inverted = steps.map((step) => step.map(tool.invertMap)!);
+
       // Apply the steps as an agent with human-like typing behavior
-      await applyStepsAsAgent(editor, steps, async (tr, type) => {
+      await applyStepsAsAgent(editor, inverted, async (tr, type) => {
         // Add a small delay to simulate human typing
         if (options.withDelays) {
           if (type === "select") {

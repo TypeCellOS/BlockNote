@@ -12,7 +12,7 @@ import {
   jsonSchema,
   streamObject,
 } from "ai";
-
+import { Mapping } from "prosemirror-transform";
 import type { PromptOrMessages } from "../../index.js";
 import { promptManipulateSelectionJSONSchema } from "../../prompts/jsonSchemaPrompts.js";
 import { createOperationsArraySchema } from "../../schema/operations.js";
@@ -36,6 +36,11 @@ import { duplicateInsertsToUpdates } from "../../executor/streamOperations/dupli
 import { BlockNoteOperation } from "../../functions/blocknoteFunctions.js";
 import { DeleteFunction } from "../../functions/delete.js";
 
+import { updateToReplaceSteps } from "../../../prosemirror/changeset.js";
+import {
+  getApplySuggestionsTr,
+  rebaseTool,
+} from "../../../prosemirror/rebaseTool.js";
 import {
   AIFunctionMD,
   AddFunctionMD,
@@ -142,9 +147,40 @@ export async function callLLM(
     ? duplicateInsertsToUpdates(blockNoteOperationsSource)
     : blockNoteOperationsSource;
 
-  const resultGenerator = applyOperations(editor, operationsToApply, {
-    withDelays: false, // TODO: make configurable
-  });
+  const resultGenerator = applyOperations(
+    editor,
+    operationsToApply,
+    async (id) => {
+      const tr = getApplySuggestionsTr(editor);
+      const md = await editor.blocksToMarkdownLossy([editor.getBlock(id)!]);
+      const blocks = await editor.tryParseMarkdownToBlocks(md);
+
+      const steps = updateToReplaceSteps(
+        editor,
+        {
+          id,
+          block: blocks[0],
+          type: "update",
+        },
+        tr.doc
+      );
+
+      const stepMapping = new Mapping();
+      for (const step of steps) {
+        const mapped = step.map(stepMapping);
+        if (!mapped) {
+          throw new Error("Failed to map step");
+        }
+        tr.step(mapped);
+        stepMapping.appendMap(mapped.getMap());
+      }
+
+      return rebaseTool(editor, tr);
+    },
+    {
+      withDelays: false, // TODO: make configurable
+    }
+  );
 
   // Convert to stream at the API boundary
   const resultStream = asyncIterableToStream(resultGenerator);
@@ -197,6 +233,7 @@ export async function* toBlockNoteOperations(
         },
       };
     } else if (chunk.operation.type === "update") {
+      console.log("update", chunk.operation.block);
       const block = (
         await editor.tryParseMarkdownToBlocks(chunk.operation.block.trim())
       )[0];

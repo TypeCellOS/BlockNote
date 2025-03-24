@@ -1,6 +1,6 @@
 import { BlockNoteEditor, getBlockInfo, getNodeById } from "@blocknote/core";
 import { expect, it } from "vitest";
-import { getCleanDoc } from "./cleanSuggestions.js";
+import { getApplySuggestionsTr, rebaseTool } from "./rebaseTool.js";
 
 function getExampleEditorWithSuggestions() {
   const editor = BlockNoteEditor.create({
@@ -45,7 +45,7 @@ it("should create some example suggestions", async () => {
 it("should be able to apply changes to a clean doc (use invertMap)", async () => {
   const editor = getExampleEditorWithSuggestions();
 
-  const cleaned = getCleanDoc(editor);
+  const cleaned = rebaseTool(editor, getApplySuggestionsTr(editor));
 
   const blockPos = getNodeById("1", cleaned.doc)!;
 
@@ -72,7 +72,7 @@ it("should be able to apply changes to a clean doc (use invertMap)", async () =>
 it("should be able to apply changes to a clean doc (use rebaseTr)", async () => {
   const editor = getExampleEditorWithSuggestions();
 
-  const cleaned = getCleanDoc(editor);
+  const cleaned = rebaseTool(editor, getApplySuggestionsTr(editor));
 
   const blockPos = getNodeById("1", cleaned.doc)!;
 

@@ -1,3 +1,4 @@
+import { PartialBlock } from "@blocknote/core";
 import { expect, it } from "vitest";
 import { UpdateBlocksOperation } from "../api/functions/blocknoteFunctions.js";
 import {
@@ -6,13 +7,20 @@ import {
 } from "../testUtil/updates/updateOperations.js";
 import { updateToReplaceSteps } from "./changeset.js";
 
-function testUpdate(update: UpdateBlocksOperation["block"], blockId: string) {
+function testUpdate(
+  update: UpdateBlocksOperation<PartialBlock<any, any, any>>["block"],
+  blockId: string
+) {
   const editor = getTestEditor();
-  const steps = updateToReplaceSteps(editor, {
-    id: blockId,
-    type: "update",
-    block: update,
-  });
+  const steps = updateToReplaceSteps(
+    editor,
+    {
+      id: blockId,
+      type: "update",
+      block: update,
+    },
+    editor.prosemirrorState.doc
+  );
 
   expect(steps).toMatchSnapshot();
 

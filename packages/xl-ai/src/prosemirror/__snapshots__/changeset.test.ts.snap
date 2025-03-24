@@ -109,7 +109,7 @@ exports[`plain source block, add mention 1`] = `
       "content": [
         {
           "attrs": {
-            "user": "John Doe",
+            "user": "Jane Doe",
           },
           "type": "mention",
         },
@@ -178,7 +178,7 @@ exports[`styles + ic in source block, remove mark 1`] = `
 exports[`styles + ic in source block, remove mention 1`] = `
 [
   {
-    "from": 27,
+    "from": 25,
     "stepType": "replace",
     "to": 28,
   },
@@ -293,7 +293,7 @@ exports[`update block type 1`] = `
       "content": [
         {
           "attrs": {
-            "level": "1",
+            "level": 1,
             "textAlignment": "left",
           },
           "type": "heading",
@@ -315,7 +315,7 @@ exports[`update block type and content 1`] = `
       "content": [
         {
           "attrs": {
-            "level": "1",
+            "level": 1,
             "textAlignment": "left",
           },
           "content": [

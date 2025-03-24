@@ -17,6 +17,10 @@ import { createOperationsArraySchema } from "../../schema/operations.js";
 import { blockNoteSchemaToJSONSchema } from "../../schema/schemaToJSONSchema.js";
 
 import {
+  getApplySuggestionsTr,
+  rebaseTool,
+} from "../../../prosemirror/rebaseTool.js";
+import {
   getLLMResponseNonStreaming,
   getLLMResponseStreaming,
 } from "../../executor/execute.js";
@@ -117,9 +121,14 @@ export async function callLLM(
     ? duplicateInsertsToUpdates(operationsSource)
     : operationsSource;
 
-  const resultGenerator = applyOperations(editor, operationsToApply, {
-    withDelays: false, // TODO: make configurable
-  });
+  const resultGenerator = applyOperations(
+    editor,
+    operationsToApply,
+    async () => rebaseTool(editor, getApplySuggestionsTr(editor)),
+    {
+      withDelays: false, // TODO: make configurable
+    }
+  );
 
   // Convert to stream at the API boundary
   const resultStream = asyncIterableToStream(resultGenerator);

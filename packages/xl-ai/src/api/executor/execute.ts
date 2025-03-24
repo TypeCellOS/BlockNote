@@ -106,6 +106,7 @@ export async function getLLMResponseStreaming<T>(
   const ret = streamObject<{ operations: any[] }>({
     ...options,
     ...(options._streamObjectOptions as any),
+    // TODO: handle onerror etc?
   });
 
   return {
