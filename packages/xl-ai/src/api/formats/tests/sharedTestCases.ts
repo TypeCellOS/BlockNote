@@ -32,7 +32,11 @@ export function generateSharedTestCases(
   callLLM: (
     editor: BlockNoteEditor<any, any, any>,
     params: { prompt: string }
-  ) => Promise<any>
+  ) => Promise<any>,
+  skipTestsRequiringCapabilities: {
+    mentions?: boolean;
+    textAlignment?: boolean;
+  }
 ) {
   describe("Update", () => {
     it("translates simple paragraphs", async () => {
@@ -131,7 +135,19 @@ export function generateSharedTestCases(
 
   describe("Update (formatting)", () => {
     for (const test of testUpdateOperations) {
-      it(test.prompt, async () => {
+      it(test.prompt, async (c) => {
+        if (
+          skipTestsRequiringCapabilities &&
+          Object.keys(test.requiredCapabilities || {}).some(
+            (c) =>
+              skipTestsRequiringCapabilities[
+                c as keyof typeof skipTestsRequiringCapabilities
+              ] === true
+          )
+        ) {
+          c.skip();
+        }
+
         const editor = getTestEditor();
         const result = await callLLM(editor, {
           prompt: test.prompt,

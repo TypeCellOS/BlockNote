@@ -24,8 +24,17 @@ type TestUpdateOperation = {
    * the quality of the prompt understanding, etc. (should be in different tests)
    */
   prompt: string;
+  /**
+   * The capabilities that are required to perform the update.
+   * If the LLM does not have these capabilities, the test will be skipped.
+   */
+  requiredCapabilities?: {
+    mentions?: boolean;
+    textAlignment?: boolean;
+  };
 };
 
+// TODO: add test case where existing paragraph is right aligned / colored
 export function getTestEditor() {
   return BlockNoteEditor.create({
     initialContent: [
@@ -126,6 +135,9 @@ export const testUpdateOperations: TestUpdateOperation[] = [
       },
     },
     prompt: "make the first paragraph right aligned",
+    requiredCapabilities: {
+      textAlignment: true,
+    },
   },
   {
     description: "update block type and content",
@@ -157,6 +169,9 @@ export const testUpdateOperations: TestUpdateOperation[] = [
     },
     prompt:
       "make the first paragraph right aligned and update the content to 'What's up, world!'",
+    requiredCapabilities: {
+      textAlignment: true,
+    },
   },
   {
     description: "styles + ic in source block",
@@ -197,7 +212,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
         ],
       },
     },
-    prompt: "don't make the last part bold",
+    prompt: "remove the bold style from the second block",
   },
   {
     description: "styles + ic in source block, remove mention",
@@ -246,7 +261,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
         ],
       },
     },
-    prompt: "make 'world!' bold",
+    prompt: "make 'world!' (in the first block) bold",
   },
   {
     description: "plain source block, add mention",
@@ -276,6 +291,9 @@ export const testUpdateOperations: TestUpdateOperation[] = [
       },
     },
     prompt: "Change the first paragraph to Hello, Jane Doe! (use a mention)",
+    requiredCapabilities: {
+      mentions: true,
+    },
   },
   {
     description: "styles + ic in source block, update mention prop",
@@ -312,6 +330,9 @@ export const testUpdateOperations: TestUpdateOperation[] = [
       },
     },
     prompt: "update the mention to Jane Doe",
+    requiredCapabilities: {
+      mentions: true,
+    },
   },
   {
     description: "drop mark and link",
@@ -325,7 +346,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
       },
     },
     prompt:
-      "remove the formatting (the link and the bold style) from the last paragraph",
+      "remove the formatting (remove the link and the bold style) from the last paragraph",
   },
   {
     description: "drop mark and link and change text within mark",

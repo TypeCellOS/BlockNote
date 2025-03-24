@@ -2,6 +2,7 @@ import { afterAll, afterEach, beforeAll, describe } from "vitest";
 
 import { createGroq } from "@ai-sdk/groq";
 import { createOpenAI } from "@ai-sdk/openai";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { getCurrentTest } from "@vitest/runner";
 import { getSortedEntries, snapshot, toHashString } from "msw-snapshot";
 import { setupServer } from "msw/node";
@@ -24,11 +25,11 @@ const openai = createOpenAI({
   ...client.getProviderSettings("openai"),
 })("gpt-4o-2024-08-06", {});
 
-const albert = createOpenAI({
+const albert = createOpenAICompatible({
+  name: "albert-etalab",
   // albert-etalab/neuralmagic/Meta-Llama-3.1-70B-Instruct-FP8
   baseURL: "https://albert.api.etalab.gouv.fr/v1",
   ...client.getProviderSettings("albert-etalab"),
-  compatibility: "compatible",
 })("neuralmagic/Meta-Llama-3.1-70B-Instruct-FP8");
 
 const BASE_FILE_PATH = path.resolve(
@@ -138,14 +139,22 @@ describe("Models", () => {
   ];
 
   for (const params of testMatrix) {
-    describe(`${params.model.provider}/${params.model.modelId}`, () => {
-      generateSharedTestCases((editor, options) =>
-        callLLM(editor, {
-          ...options,
-          model: params.model,
-          maxRetries: 0,
-          stream: false,
-        })
+    describe(`${params.model.provider}/${params.model.modelId} (${
+      params.stream ? "streaming" : "non-streaming"
+    })`, () => {
+      generateSharedTestCases(
+        (editor, options) =>
+          callLLM(editor, {
+            ...options,
+            model: params.model,
+            maxRetries: 0,
+            stream: params.stream,
+          }),
+        // markdownblocks doesn't support these:
+        {
+          mentions: true,
+          textAlignment: true,
+        }
       );
     });
   }
