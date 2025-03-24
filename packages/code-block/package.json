@@ -52,7 +52,7 @@
     "@shikijs/types": "^3.2.1"
   },
   "devDependencies": {
-    "@blocknote/core": "^0.25.2",
+    "@blocknote/core": "^0.26.0",
     "eslint": "^8.10.0",
     "prettier": "^2.7.1",
     "rollup-plugin-webpack-stats": "^0.2.2",
@@ -62,7 +62,7 @@
     "vitest": "^2.0.3"
   },
   "peerDependencies": {
-    "@blocknote/core": "^0.25.2"
+    "@blocknote/core": "^0.26.0"
   },
   "eslintConfig": {
     "extends": [
