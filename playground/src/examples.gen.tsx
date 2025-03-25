@@ -806,12 +806,12 @@
         "config": {
           "playground": true,
           "docs": true,
-          "author": "matthewlipski",
+          "author": "nperez0111",
           "tags": [
             "Basic"
           ]
         },
-        "title": "Code Block Highlighting",
+        "title": "Code Block Syntax Highlighting",
         "group": {
           "pathFromRoot": "examples/04-theming",
           "slug": "theming"
@@ -824,7 +824,7 @@
         "config": {
           "playground": true,
           "docs": true,
-          "author": "matthewlipski",
+          "author": "nperez0111",
           "tags": [
             "Basic"
           ]
