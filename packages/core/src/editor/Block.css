@@ -37,6 +37,10 @@ BASIC STYLES
   outline: 4px solid rgb(100, 160, 255);
 }
 
+.bn-inline-content {
+  width: 100%;
+}
+
 /*
 NESTED BLOCKS
 */
@@ -188,6 +192,7 @@ NESTED BLOCKS
 /* Checked */
 .bn-block-content[data-content-type="checkListItem"] > div {
   display: flex;
+  width: 100%;
 }
 
 .bn-block-content[data-content-type="checkListItem"] > div > div > input {
