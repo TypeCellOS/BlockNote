@@ -17,7 +17,7 @@ export default function App() {
   return (
     <LiveblocksProvider
       publicApiKey={
-        "pk_prod_AXsBTXOZHneix0U9mF-AxyLTg2vKNXhmD91ebPEr7vRBfMtzmX_mp0aW4TghyM2u"
+        "pk_prod_6iVYNrHvG98GvWioAutXrhTkpG0iQLrzUK3nfWT4_VKWl6NIrlt112YD29to9gQH"
       }>
       <RoomProvider id="my-room">
         <ClientSideSuspense fallback={<div>Loading…</div>}>
