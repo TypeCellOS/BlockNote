@@ -1,4 +1,3 @@
-import * as locales from "./i18n/locales/index.js";
 export * from "./api/blockManipulation/commands/updateBlock/updateBlock.js";
 export * from "./api/exporters/html/externalHTMLExporter.js";
 export * from "./api/exporters/html/internalHTMLSerializer.js";
@@ -57,7 +56,6 @@ export * from "./util/table.js";
 export * from "./util/string.js";
 export * from "./util/typescript.js";
 export { UnreachableCaseError, assertEmpty } from "./util/typescript.js";
-export { locales };
 
 // for testing from react (TODO: move):
 export * from "./api/nodeConversions/blockToNode.js";
@@ -69,4 +67,3 @@ export * from "./extensions/UniqueID/UniqueID.js";
 export * from "./api/exporters/markdown/markdownExporter.js";
 export * from "./api/parsers/html/parseHTML.js";
 export * from "./api/parsers/markdown/parseMarkdown.js";
-
