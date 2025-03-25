@@ -20,6 +20,12 @@ export const ja: Dictionary = {
       aliases: ["h3", "見出し3", "subheading", "小見出し"],
       group: "見出し",
     },
+    quote: {
+      title: "引用",
+      subtext: "引用または抜粋",
+      aliases: ["quotation", "blockquote", "bq"],
+      group: "基本ブロック",
+    },
     numbered_list: {
       title: "番号付リスト",
       subtext: "番号付リストを表示するために使用",

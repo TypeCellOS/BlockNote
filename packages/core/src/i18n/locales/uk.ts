@@ -20,6 +20,12 @@ export const uk: Dictionary = {
       aliases: ["h3", "heading3", "subheading", "заголовок3"],
       group: "Заголовки",
     },
+    quote: {
+      title: "Цитата",
+      subtext: "Цитата або уривок",
+      aliases: ["quotation", "blockquote", "bq"],
+      group: "Базові блоки",
+    },
     numbered_list: {
       title: "Нумерований список",
       subtext: "Список із впорядкованими елементами",

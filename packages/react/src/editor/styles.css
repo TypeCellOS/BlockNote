@@ -111,6 +111,7 @@
 }
 
 /* Indent line styling */
+.bn-show-nesting-indicator
 .bn-block-group
 .bn-block-group
 .bn-block-outer:not([data-prev-depth-changed])::before {

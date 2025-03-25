@@ -14,6 +14,7 @@ import {
   RiListCheck3,
   RiListOrdered,
   RiListUnordered,
+  RiQuoteText,
   RiText,
 } from "react-icons/ri";
 
@@ -74,6 +75,12 @@ export const blockTypeSelectItems = (
       block.type === "heading" &&
       "level" in block.props &&
       block.props.level === 3,
+  },
+  {
+    name: dict.slash_menu.quote.title,
+    type: "quote",
+    icon: RiQuoteText,
+    isSelected: (block) => block.type === "quote",
   },
   {
     name: dict.slash_menu.bullet_list.title,

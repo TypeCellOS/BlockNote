@@ -20,6 +20,12 @@ export const vi: Dictionary = {
       aliases: ["h3", "tieude3", "tieudephu"],
       group: "Tiêu đề",
     },
+    quote: {
+      title: "Trích dẫn",
+      subtext: "Trích dẫn hoặc đoạn trích",
+      aliases: ["quotation", "blockquote", "bq"],
+      group: "Khối cơ bản",
+    },
     numbered_list: {
       title: "Danh sách đánh số",
       subtext: "Sử dụng để hiển thị danh sách có đánh số",
