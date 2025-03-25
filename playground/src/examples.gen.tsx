@@ -233,6 +233,24 @@
         }
       },
       {
+        "projectSlug": "custom-paste-handler",
+        "fullSlug": "basic/custom-paste-handler",
+        "pathFromRoot": "examples/01-basic/13-custom-paste-handler",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "nperez0111",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Custom Paste Handler",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
         "projectSlug": "testing",
         "fullSlug": "basic/testing",
         "pathFromRoot": "examples/01-basic/testing",
