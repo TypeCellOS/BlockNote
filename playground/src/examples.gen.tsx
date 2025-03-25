@@ -1146,9 +1146,11 @@
             "Collaboration"
           ],
           "dependencies": {
-            "@liveblocks/client": "^1.10.0",
-            "@liveblocks/react": "^1.10.0",
-            "@liveblocks/yjs": "^1.10.0",
+            "@liveblocks/client": "^2.22.0",
+            "@liveblocks/react": "^2.22.0",
+            "@liveblocks/react-blocknote": "^2.22.0",
+            "@liveblocks/react-tiptap": "^2.22.0",
+            "@liveblocks/react-ui": "^2.22.0",
             "yjs": "^13.6.15"
           } as any
         },
