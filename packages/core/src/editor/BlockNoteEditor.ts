@@ -237,12 +237,15 @@ export type BlockNoteEditorOptions<
      */
     defaultPasteHandler: (context?: {
       /**
-       * Changes how to interpret reading data from the clipboard
-       * - `prefer-markdown` will attempt to detect markdown in the plain text representation and interpret the text as markdown
-       * - `prefer-html` will avoid the markdown behavior and prefer to parse from HTML instead.
-       * @default 'prefer-markdown'
+       * Whether to auto-detect markdown in the clipboard and paste that as rich text.
+       * @default true
        */
-      pasteBehavior?: "prefer-markdown" | "prefer-html";
+      autoDetectMarkdown?: boolean;
+      /**
+       * Whether to interpret plain text as markdown and paste that as rich text.
+       * @default true
+       */
+      plainTextAsMarkdown?: boolean;
     }) => boolean | undefined;
   }) => boolean | undefined;
 

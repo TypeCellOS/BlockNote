@@ -267,10 +267,11 @@ const getTipTapExtensions = <
       opts.editor,
       opts.pasteHandler ||
         ((context: {
-          defaultPasteHandler: (context: {
-            pasteBehavior?: "prefer-markdown" | "prefer-html";
+          defaultPasteHandler: (context?: {
+            autoDetectMarkdown?: boolean;
+            plainTextAsMarkdown?: boolean;
           }) => boolean | undefined;
-        }) => context.defaultPasteHandler({ pasteBehavior: "prefer-markdown" }))
+        }) => context.defaultPasteHandler())
     ),
     createDropFileExtension(opts.editor),
 

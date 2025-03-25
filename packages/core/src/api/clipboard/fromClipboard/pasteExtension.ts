@@ -18,11 +18,13 @@ import { isMarkdown } from "../../parsers/markdown/detectMarkdown.js";
 function defaultPasteHandler({
   event,
   editor,
-  pasteBehavior = "prefer-markdown",
+  autoDetectMarkdown,
+  plainTextAsMarkdown,
 }: {
   event: ClipboardEvent;
   editor: BlockNoteEditor<any, any, any>;
-  pasteBehavior?: "prefer-markdown" | "prefer-html";
+  autoDetectMarkdown: boolean;
+  plainTextAsMarkdown: boolean;
 }) {
   let format: (typeof acceptedMIMETypes)[number] | undefined;
   for (const mimeType of acceptedMIMETypes) {
@@ -59,7 +61,7 @@ function defaultPasteHandler({
     return true;
   }
 
-  if (pasteBehavior === "prefer-markdown") {
+  if (autoDetectMarkdown) {
     // Use plain text instead of HTML if it looks like Markdown
     const plainText = event.clipboardData!.getData("text/plain");
 
@@ -71,6 +73,11 @@ function defaultPasteHandler({
 
   if (format === "text/html") {
     editor.pasteHTML(data);
+    return true;
+  }
+
+  if (plainTextAsMarkdown) {
+    editor.pasteMarkdown(data);
     return true;
   }
 
@@ -106,13 +113,15 @@ export const createPasteFromClipboardExtension = <
                 return pasteHandler({
                   event,
                   editor,
-                  defaultPasteHandler: (
-                    { pasteBehavior } = { pasteBehavior: "prefer-markdown" }
-                  ) => {
+                  defaultPasteHandler: ({
+                    autoDetectMarkdown = true,
+                    plainTextAsMarkdown = true,
+                  } = {}) => {
                     return defaultPasteHandler({
                       event,
                       editor,
-                      pasteBehavior,
+                      autoDetectMarkdown,
+                      plainTextAsMarkdown,
                     });
                   },
                 });
