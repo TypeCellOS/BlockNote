@@ -48,7 +48,7 @@ export default function App() {
               window.alert("Failed to copy plain text with markdown content");
             }
           }}>
-          Copy text/plain with markdown content
+          Copy sample markdown to clipboard (text/plain)
         </button>
         <button
           className={"edit-button"}
@@ -63,7 +63,7 @@ export default function App() {
               window.alert("Failed to copy HTML content");
             }
           }}>
-          Copy text/html with HTML content
+          Copy sample HTML to clipboard (text/html)
         </button>
         <button
           className={"edit-button"}
@@ -76,7 +76,7 @@ export default function App() {
               window.alert("Failed to copy plain text");
             }
           }}>
-          Copy plain text
+          Copy sample plain text to clipboard (text/plain)
         </button>
         <button
           className={"edit-button"}
@@ -97,7 +97,7 @@ export default function App() {
               window.alert("Failed to copy multiple formats");
             }
           }}>
-          Copy multiple formats
+          Copy sample markdown, HTML, and plain text to clipboard (Safari only)
         </button>
       </div>
     </div>
