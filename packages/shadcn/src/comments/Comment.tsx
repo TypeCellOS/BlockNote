@@ -7,9 +7,12 @@ import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
 
 const AuthorInfo = forwardRef<
   HTMLDivElement,
-  Pick<ComponentProps["Comments"]["Comment"], "authorInfo" | "timeString">
+  Pick<
+    ComponentProps["Comments"]["Comment"],
+    "authorInfo" | "timeString" | "edited"
+  >
 >((props, _ref) => {
-  const { authorInfo, timeString, ...rest } = props;
+  const { authorInfo, timeString, edited, ...rest } = props;
 
   assertEmpty(rest, false);
 
@@ -54,7 +57,9 @@ const AuthorInfo = forwardRef<
           "bn-flex bn-flex-row bn-flex-nowrap bn-items-center bn-gap-2"
         }>
         <span className={"bn-text-sm bn-font-bold"}>{authorInfo.username}</span>
-        <span className={"bn-text-xs"}>{timeString}</span>
+        <span className={"bn-text-xs"}>
+          {timeString} {edited && "(edited)"}
+        </span>
       </div>
     </div>
   );
@@ -70,6 +75,7 @@ export const Comment = forwardRef<
     authorInfo,
     timeString,
     actions,
+    edited,
     children,
     ...rest
   } = props;
@@ -91,11 +97,7 @@ export const Comment = forwardRef<
       ref={ref}
       className={cn(className, "bn-relative bn-flex bn-flex-col bn-gap-2")}
       onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => {
-        // TODO: This is getting triggered when opening the "more actions"
-        //  popover?
-        setHovered(false);
-      }}>
+      onMouseLeave={() => setHovered(false)}>
       {doShowActions ? (
         <div
           className={"bn-absolute bn-right-0 bn-top-0 bn-z-10"}

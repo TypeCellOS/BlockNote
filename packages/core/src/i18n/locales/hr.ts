@@ -1,4 +1,6 @@
-export const hr = {
+import { Dictionary } from "../dictionary.js";
+
+export const hr: Dictionary = {
   slash_menu: {
     heading: {
       title: "Naslov 1",
@@ -68,6 +70,12 @@ export const hr = {
       aliases: ["tablica"],
       group: "Napredno",
     },
+    code_block: {
+      title: "Blok koda",
+      subtext: "Blok koda sa sintaksnim isticanjem",
+      aliases: ["code", "pre"],
+      group: "Osnovni blokovi",
+    },
     page_break: {
       title: "Prijelom stranice",
       subtext: "Razdjelnik stranice",
@@ -128,9 +136,6 @@ export const hr = {
       aliases: ["emoji", "emotikon", "emocija", "lice"],
       group: "Ostalo",
     },
-    comment: {
-      tooltip: "Dodaj komentar",
-    },
   },
   placeholders: {
     default: "Unesi tekst ili upiši ‘/’ za naredbe",
@@ -164,6 +169,8 @@ export const hr = {
   drag_handle: {
     delete_menuitem: "Ukloni",
     colors_menuitem: "Boje",
+    header_row_menuitem: "Zaglavni redak",
+    header_column_menuitem: "Zaglavni stupac",
   },
   table_handle: {
     delete_column_menuitem: "Ukloni stupac",
@@ -172,6 +179,9 @@ export const hr = {
     add_right_menuitem: "Dodaj stupac desno",
     add_above_menuitem: "Dodaj redak iznad",
     add_below_menuitem: "Dodaj redak ispod",
+    split_cell_menuitem: "Podijeli ćeliju",
+    merge_cells_menuitem: "Spoji ćelije",
+    background_color_menuitem: "Boja pozadine",
   },
   suggestion_menu: {
     no_items_title: "Stavke nisu pronađene",
@@ -287,6 +297,9 @@ export const hr = {
     align_justify: {
       tooltip: "Poravnaj tekst obostrano",
     },
+    table_cell_merge: {
+      tooltip: "Spoji ćelije",
+    },
     comment: {
       tooltip: "Dodaj komentar",
     },
@@ -339,6 +352,10 @@ export const hr = {
     },
     reactions: {
       reacted_by: "Reagirao/la",
+    },
+    sidebar: {
+      marked_as_resolved: "Označeno kao riješeno",
+      more_replies: (count) => `${count} dodatnih odgovora`,
     },
   },
   generic: {

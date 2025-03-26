@@ -107,7 +107,7 @@
   --highlight: rgb(255 255 255/20%);
   --shadow: rgb(0 0 0/10%);
   box-shadow: inset 0 0 0 1px var(--border), inset 0 2px 0 var(--highlight),
-    inset 0 -1px 0 var(--shadow), 0 1px 1px var(--shadow);
+  inset 0 -1px 0 var(--shadow), 0 1px 1px var(--shadow);
   font-size: 0.7rem;
   border-radius: 4px;
   padding-inline: 4px;
@@ -238,14 +238,14 @@
 }
 
 .bn-ariakit .bn-thread-comments {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .bn-ak-avatar {
-    height: 24px;
-    width: 24px;
+  height: 24px;
+  width: 24px;
 }
 
 .bn-ak-username {
@@ -261,9 +261,9 @@
 }
 
 .bn-ak-author-info {
-    align-items: center;
-    display: flex;
-    gap: 16px
+  align-items: center;
+  display: flex;
+  gap: 16px
 }
 
 .bn-ariakit .bn-comment-editor .bn-editor {
@@ -288,9 +288,9 @@
 }
 
 .bn-ak-badge-group {
-    align-items: center;
-    display: flex;
-    gap: 4px;
+  align-items: center;
+  display: flex;
+  gap: 4px;
   flex-wrap: wrap;
   width: 100%;
 }
@@ -326,11 +326,33 @@
 }
 
 .bn-ak-skeleton {
-    background-color: rgb(255 255 255/25%);
+  background-color: rgb(255 255 255/25%);
 }
 
 .bn-ak-username.bn-ak-skeleton {
   border-radius: 8px;
   height: 16px;
   width: 100px;
+}
+
+.bn-ak-expand-sections-prompt {
+  padding: 0;
+  width: fit-content;
+}
+
+.bn-ak-expand-sections-prompt:hover {
+  background-color: transparent;
+}
+
+.bn-ariakit .bn-thread .bn-header-text,
+.bn-ariakit .bn-thread .bn-resolved-text {
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.bn-ariakit .bn-thread.selected .bn-header-text,
+.bn-ariakit .bn-thread.selected .bn-resolved-text,
+.bn-ariakit .bn-thread.selected .bn-ak-author-info,
+.bn-ariakit .bn-thread.selected .bn-ak-expand-sections-prompt {
+  color: var(--bn-colors-selected-text);
 }

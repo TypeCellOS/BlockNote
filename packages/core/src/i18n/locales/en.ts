@@ -340,6 +340,10 @@ export const en = {
     reactions: {
       reacted_by: "Reacted by",
     },
+    sidebar: {
+      marked_as_resolved: "Marked as resolved",
+      more_replies: (count: number) => `${count} more replies`,
+    },
   },
   generic: {
     ctrl_shortcut: "Ctrl",

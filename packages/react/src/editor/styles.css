@@ -238,3 +238,31 @@
 .bn-side-menu[data-url="false"] {
   height: 54px;
 }
+
+/* Thread sidebar styling */
+.bn-threads-sidebar {
+  border-radius: var(--bn-border-radius-medium);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: auto;
+}
+
+.bn-thread-expand-prompt .mantine-Text-root,
+.bn-thread .bn-header-text {
+  color: var(--bn-colors-menu-text);
+}
+
+.bn-threads-sidebar .bn-thread .bn-editor {
+  background-color: transparent;
+}
+
+.bn-threads-sidebar .bn-thread.selected {
+  background-color: #f5f9fd;
+  border: 2px solid #c2dcf8;
+}
+
+.dark .bn-threads-sidebar .bn-thread.selected {
+  background-color: #20242a;
+  border: 2px solid #23405b;
+}

@@ -37,6 +37,18 @@ type ToolbarButtonType = {
   | { children?: undefined; label: string }
 );
 
+type ToolbarSelectType = {
+  className?: string;
+  items: {
+    text: string;
+    icon: ReactNode;
+    onClick: () => void;
+    isSelected: boolean;
+    isDisabled?: boolean;
+  }[];
+  isDisabled?: boolean;
+};
+
 type MenuButtonType = {
   className?: string;
   onClick?: (e: MouseEvent) => void;
@@ -53,17 +65,7 @@ export type ComponentProps = {
   FormattingToolbar: {
     Root: ToolbarRootType;
     Button: ToolbarButtonType;
-    Select: {
-      className?: string;
-      items: {
-        text: string;
-        icon: ReactNode;
-        onClick: () => void;
-        isSelected: boolean;
-        isDisabled?: boolean;
-      }[];
-      isDisabled?: boolean;
-    };
+    Select: ToolbarSelectType;
   };
   FilePanel: {
     Root: {
@@ -106,6 +108,7 @@ export type ComponentProps = {
   LinkToolbar: {
     Root: ToolbarRootType;
     Button: ToolbarButtonType;
+    Select: ToolbarSelectType;
   };
   SideMenu: {
     Root: {
@@ -200,14 +203,24 @@ export type ComponentProps = {
   Comments: {
     Card: {
       className?: string;
+      headerText?: string;
+      selected?: boolean;
+      onFocus?: (event: React.FocusEvent) => void;
+      onBlur?: (event: React.FocusEvent) => void;
+      tabIndex?: number;
       children?: ReactNode;
     };
     CardSection: {
       className?: string;
       children?: ReactNode;
     };
+    ExpandSectionsPrompt: {
+      className?: string;
+      children?: ReactNode;
+    };
     Editor: {
       className?: string;
+      autoFocus?: boolean;
       editable: boolean;
       editor: BlockNoteEditor<any, any, any>;
       onFocus?: () => void;
@@ -218,6 +231,7 @@ export type ComponentProps = {
       children?: ReactNode;
       authorInfo: "loading" | User;
       timeString: string;
+      edited: boolean;
       actions?: ReactNode;
       showActions?: boolean | "hover";
     };
@@ -322,6 +336,7 @@ export type ComponentProps = {
     Toolbar: {
       Root: ToolbarRootType;
       Button: ToolbarButtonType;
+      Select: ToolbarSelectType;
     };
   };
 };

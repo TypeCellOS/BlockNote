@@ -1,47 +1,50 @@
 import { mergeCSSClasses } from "@blocknote/core";
-import type { ComponentPropsWithoutRef } from "react";
-import { useCallback, useMemo } from "react";
+import { ThreadData } from "@blocknote/core/comments";
+import { FocusEvent, useCallback } from "react";
+
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
 import { useCreateBlockNote } from "../../hooks/useCreateBlockNote.js";
 import { useDictionary } from "../../i18n/dictionary.js";
-import { Comment, CommentProps } from "./Comment.js";
 import { CommentEditor } from "./CommentEditor.js";
+import { Comments } from "./Comments.js";
 import { schema } from "./schema.js";
-import { useThreads } from "./useThreads.js";
-import { useUsers } from "./useUsers.js";
 
-export interface ThreadProps extends ComponentPropsWithoutRef<"div"> {
+export type ThreadProps = {
   /**
-   * The thread to display.
+   * The thread to display - you can use the `useThreads` hook to retrieve a
+   * `Map` of all threads in the editor, mapped by their IDs.
    */
-  threadId: string;
-
+  thread: ThreadData;
   /**
-   * Whether to show the composer to reply to the thread.
+   * A boolean flag for whether the thread is selected. Selected threads show an
+   * editor for replies, and add a `selected` CSS class to the thread.
    */
-  showComposer?: boolean;
-
+  selected?: boolean;
   /**
-   * Whether to show the action to resolve the thread.
+   * The text in the editor that the thread refers to. See the
+   * [`ThreadsSidebar`](https://github.com/TypeCellOS/BlockNote/tree/main/packages/react/src/components/Comments/ThreadsSidebar.tsx#L137)
+   * component to find out how to get this.
    */
-  showResolveAction?: boolean;
-
+  referenceText?: string;
   /**
-   * How to show or hide the actions.
+   * The maximum number of comments that can be in a thread before the replies
+   * get collapsed.
    */
-  showActions?: CommentProps["showActions"];
-
+  maxCommentsBeforeCollapse?: number;
   /**
-   * Whether to show reactions.
+   * A function to call when the thread is focused.
    */
-  showReactions?: CommentProps["showReactions"];
-
+  onFocus?: (event: FocusEvent) => void;
   /**
-   * Whether to show deleted comments.
+   * A function to call when the thread is blurred.
    */
-  showDeletedComments?: CommentProps["showDeleted"];
-}
+  onBlur?: (event: FocusEvent) => void;
+  /**
+   * The tab index for the thread.
+   */
+  tabIndex?: number;
+};
 
 /**
  * The Thread component displays a (main) comment with a list of replies (other comments).
@@ -49,45 +52,26 @@ export interface ThreadProps extends ComponentPropsWithoutRef<"div"> {
  * It also includes a composer to reply to the thread.
  */
 export const Thread = ({
-  threadId,
-  showActions = "hover",
-  showDeletedComments,
-  showResolveAction = true,
-  showReactions = true,
-  showComposer = true,
-  className,
-  ...props
+  thread,
+  selected,
+  referenceText,
+  maxCommentsBeforeCollapse,
+  onFocus,
+  onBlur,
+  tabIndex,
 }: ThreadProps) => {
   // TODO: if REST API becomes popular, all interactions (click handlers) should implement a loading state and error state
   // (or optimistic local updates)
 
-  const editor = useBlockNoteEditor();
-
-  const comments = editor.comments;
-
-  if (!comments) {
-    throw new Error("Comments plugin not found");
-  }
-
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const threadMap = useThreads(editor);
-  const thread = threadMap.get(threadId);
+  const editor = useBlockNoteEditor();
 
-  if (!thread) {
-    throw new Error("Thread not found");
+  const comments = editor.comments;
+  if (!comments) {
+    throw new Error("Comments plugin not found");
   }
-
-  const userIds = useMemo(() => {
-    return thread.comments.flatMap((c) => [
-      c.userId,
-      ...c.reactions.flatMap((r) => r.userIds),
-    ]);
-  }, [thread.comments]);
-
-  // load all user data
-  useUsers(editor, userIds);
 
   const newCommentEditor = useCreateBlockNote({
     trailingBlock: false,
@@ -98,13 +82,8 @@ export const Thread = ({
       },
     },
     schema,
+    sideMenuDetection: "editor",
   });
-
-  const firstCommentIndex = useMemo(() => {
-    return showDeletedComments
-      ? 0
-      : thread.comments.findIndex((comment) => comment.body);
-  }, [showDeletedComments, thread.comments]);
 
   const onNewCommentSave = useCallback(async () => {
     await comments.threadStore.addComment({
@@ -118,38 +97,30 @@ export const Thread = ({
     newCommentEditor.removeBlocks(newCommentEditor.document);
   }, [comments, newCommentEditor, thread.id]);
 
-  showComposer =
-    showComposer && comments.threadStore.auth.canAddComment(thread);
-
   return (
     <Components.Comments.Card
-      className={mergeCSSClasses("bn-thread", className)}
-      {...props}>
+      className={"bn-thread"}
+      headerText={referenceText}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      selected={selected}
+      tabIndex={tabIndex}>
       <Components.Comments.CardSection className="bn-thread-comments">
-        {thread.comments.map((comment, index) => {
-          const isFirstComment = index === firstCommentIndex;
-
-          return (
-            <Comment
-              key={comment.id}
-              thread={thread}
-              className="bn-thread-comment"
-              comment={comment}
-              showDeleted={showDeletedComments}
-              showActions={showActions}
-              showReactions={showReactions}
-              showResolveAction={isFirstComment}
-            />
-          );
-        })}
+        <Comments
+          thread={thread}
+          maxCommentsBeforeCollapse={
+            !selected ? maxCommentsBeforeCollapse || 5 : undefined
+          }
+        />
       </Components.Comments.CardSection>
-      {showComposer && (
-        <Components.Comments.CardSection>
+      {selected && (
+        <Components.Comments.CardSection className={"bn-thread-composer"}>
           <CommentEditor
+            autoFocus={false}
             editable={true}
             editor={newCommentEditor}
-            actions={({ isFocused, isEmpty }) => {
-              if (!isFocused && isEmpty) {
+            actions={({ isEmpty }) => {
+              if (isEmpty) {
                 return null;
               }
 

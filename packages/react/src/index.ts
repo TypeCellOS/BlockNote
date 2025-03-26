@@ -18,6 +18,8 @@ export * from "./blocks/ImageBlockContent/ImageBlockContent.js";
 export * from "./blocks/PageBreakBlockContent/getPageBreakReactSlashMenuItems.js";
 export * from "./blocks/VideoBlockContent/VideoBlockContent.js";
 
+export * from "./components/FormattingToolbar/DefaultButtons/AddCommentButton.js";
+export * from "./components/FormattingToolbar/DefaultButtons/AddTiptapCommentButton.js";
 export * from "./components/FormattingToolbar/DefaultButtons/BasicTextStyleButton.js";
 export * from "./components/FormattingToolbar/DefaultButtons/ColorStyleButton.js";
 export * from "./components/FormattingToolbar/DefaultButtons/CreateLinkButton.js";
@@ -28,6 +30,7 @@ export * from "./components/FormattingToolbar/DefaultButtons/FilePreviewButton.j
 export * from "./components/FormattingToolbar/DefaultButtons/FileRenameButton.js";
 export * from "./components/FormattingToolbar/DefaultButtons/FileReplaceButton.js";
 export * from "./components/FormattingToolbar/DefaultButtons/NestBlockButtons.js";
+export * from "./components/FormattingToolbar/DefaultButtons/TableCellMergeButton.js";
 export * from "./components/FormattingToolbar/DefaultButtons/TextAlignButton.js";
 export * from "./components/FormattingToolbar/DefaultSelects/BlockTypeSelect.js";
 export * from "./components/FormattingToolbar/FormattingToolbar.js";
@@ -51,6 +54,7 @@ export * from "./components/SideMenu/SideMenuProps.js";
 
 export * from "./components/SideMenu/DragHandleMenu/DefaultItems/BlockColorsItem.js";
 export * from "./components/SideMenu/DragHandleMenu/DefaultItems/RemoveBlockItem.js";
+export * from "./components/SideMenu/DragHandleMenu/DefaultItems/TableHeadersItem.js";
 export * from "./components/SideMenu/DragHandleMenu/DragHandleMenu.js";
 export * from "./components/SideMenu/DragHandleMenu/DragHandleMenuProps.js";
 
@@ -82,10 +86,28 @@ export * from "./components/TableHandles/TableHandlesController.js";
 export * from "./components/TableHandles/hooks/useExtendButtonsPositioning.js";
 export * from "./components/TableHandles/hooks/useTableHandlesPositioning.js";
 
+export * from "./components/TableHandles/TableCellMenu/DefaultButtons/ColorPicker.js";
+export * from "./components/TableHandles/TableCellMenu/DefaultButtons/SplitButton.js";
+export * from "./components/TableHandles/TableCellMenu/TableCellMenu.js";
+export * from "./components/TableHandles/TableCellMenu/TableCellMenuProps.js";
+export * from "./components/TableHandles/TableCellButton.js";
+export * from "./components/TableHandles/TableCellButtonProps.js";
+
 export * from "./components/TableHandles/TableHandleMenu/DefaultButtons/AddButton.js";
 export * from "./components/TableHandles/TableHandleMenu/DefaultButtons/DeleteButton.js";
 export * from "./components/TableHandles/TableHandleMenu/TableHandleMenu.js";
 export * from "./components/TableHandles/TableHandleMenu/TableHandleMenuProps.js";
+
+// TODO: Revise comments exports/packaging
+export * from "./components/Comments/Comment.js";
+export * from "./components/Comments/Comments.js";
+export * from "./components/Comments/FloatingComposer.js";
+export * from "./components/Comments/FloatingComposerController.js";
+export * from "./components/Comments/FloatingThreadController.js";
+export * from "./components/Comments/Thread.js";
+export * from "./components/Comments/ThreadsSidebar.js";
+export * from "./components/Comments/useThreads.js";
+export * from "./components/Comments/useUsers.js";
 
 export * from "./hooks/useActiveStyles.js";
 export * from "./hooks/useBlockNoteEditor.js";

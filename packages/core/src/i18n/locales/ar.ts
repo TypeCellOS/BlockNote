@@ -325,6 +325,10 @@ export const ar: Dictionary = {
     reactions: {
       reacted_by: "تفاعل بواسطة",
     },
+    sidebar: {
+      marked_as_resolved: "تم وضع علامة كتم الحل",
+      more_replies: (count) => `${count} ردود أخرى`,
+    },
   },
   generic: {
     ctrl_shortcut: "Ctrl",

@@ -14,8 +14,18 @@ body {
   padding-top: 0;
 }
 
+.mantine-AppShell-root {
+  height: 100vh;
+  width: 100vw;
+}
+
 .mantine-AppShell-navbar {
   background-color: #f7f7f5;
+}
+
+.mantine-AppShell-main {
+  height: 100%;
+  width: 100%;
 }
 
 @media (max-width: 767px) {

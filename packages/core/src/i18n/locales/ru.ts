@@ -367,6 +367,10 @@ export const ru: Dictionary = {
     reactions: {
       reacted_by: "Отреагировал(а)",
     },
+    sidebar: {
+      marked_as_resolved: "Отмечено как решенное",
+      more_replies: (count) => `${count} дополнительных ответов`,
+    },
   },
   generic: {
     ctrl_shortcut: "Ctrl",

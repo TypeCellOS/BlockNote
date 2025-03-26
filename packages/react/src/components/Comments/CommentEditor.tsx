@@ -15,6 +15,7 @@ import { schema } from "./schema.js";
  *
  */
 export const CommentEditor = (props: {
+  autoFocus?: boolean;
   editable: boolean;
   actions?: FC<{
     isFocused: boolean;
@@ -46,14 +47,15 @@ export const CommentEditor = (props: {
   // When we click the edit button on a comment, we also want to focus the
   // comment editor
   useEffect(() => {
-    if (props.editable) {
+    if (props.editable && props.autoFocus) {
       props.editor.focus();
     }
-  }, [props.editable, props.editor]);
+  }, [props.autoFocus, props.editable, props.editor]);
 
   return (
     <>
       <components.Comments.Editor
+        autoFocus={props.autoFocus}
         className="bn-comment-editor"
         editor={props.editor}
         onFocus={onFocus}
