@@ -4,7 +4,7 @@ export type TestOptions = {
   mockID: number | undefined;
 };
 
-export const test = base.extend<TestOptions>({
+export const test: typeof base = base.extend<TestOptions>({
   browser: async ({ browser }, use) => {
     const oldFunc = browser.newContext;
     browser.newContext = async (options?) => {

@@ -2,5 +2,13 @@
   "playground": true,
   "docs": true,
   "author": "nperez0111",
-  "tags": ["Basic"]
+  "tags": ["Basic"],
+  "dependencies": {
+    "@blocknote/code-block": "latest",
+    "@shikijs/types": "^3.2.1",
+    "@shikijs/core": "^3.2.1",
+    "@shikijs/engine-javascript": "^3.2.1",
+    "@shikijs/langs-precompiled": "^3.2.1",
+    "@shikijs/themes": "^3.2.1"
+  }
 }

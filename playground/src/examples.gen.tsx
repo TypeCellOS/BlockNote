@@ -809,7 +809,10 @@
           "author": "nperez0111",
           "tags": [
             "Basic"
-          ]
+          ],
+          "dependencies": {
+            "@blocknote/code-block": "latest"
+          } as any
         },
         "title": "Code Block Syntax Highlighting",
         "group": {
@@ -827,7 +830,15 @@
           "author": "nperez0111",
           "tags": [
             "Basic"
-          ]
+          ],
+          "dependencies": {
+            "@blocknote/code-block": "latest",
+            "@shikijs/types": "^3.2.1",
+            "@shikijs/core": "^3.2.1",
+            "@shikijs/engine-javascript": "^3.2.1",
+            "@shikijs/langs-precompiled": "^3.2.1",
+            "@shikijs/themes": "^3.2.1"
+          } as any
         },
         "title": "Custom Code Block Theme & Language",
         "group": {

@@ -1,0 +1,7 @@
+packages:
+  - "packages/*"
+  - "examples/*/*"
+  - "playground"
+  - "docs"
+  - "shared"
+  - "tests"

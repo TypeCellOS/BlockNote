@@ -17,7 +17,13 @@
     "@blocknote/mantine": "latest",
     "@blocknote/shadcn": "latest",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "@blocknote/code-block": "latest",
+    "@shikijs/types": "^3.2.1",
+    "@shikijs/core": "^3.2.1",
+    "@shikijs/engine-javascript": "^3.2.1",
+    "@shikijs/langs-precompiled": "^3.2.1",
+    "@shikijs/themes": "^3.2.1"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",

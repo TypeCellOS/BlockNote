@@ -69,7 +69,11 @@ function useTableHandlePosition(
     draggedCellOrientation: "row" | "col";
     mousePos: number;
   }
-) {
+): {
+  isMounted: boolean;
+  ref: (node: HTMLElement | null) => void;
+  style: React.CSSProperties;
+} {
   const { refs, update, context, floatingStyles } = useFloating({
     open: show,
     placement:

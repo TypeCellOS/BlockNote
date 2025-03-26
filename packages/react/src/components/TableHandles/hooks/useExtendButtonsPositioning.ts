@@ -5,7 +5,11 @@ function useExtendButtonPosition(
   orientation: "addOrRemoveRows" | "addOrRemoveColumns",
   show: boolean,
   referencePosTable: DOMRect | null
-) {
+): {
+  isMounted: boolean;
+  ref: (node: HTMLElement | null) => void;
+  style: React.CSSProperties;
+} {
   const { refs, update, context, floatingStyles } = useFloating({
     open: show,
     placement: orientation === "addOrRemoveColumns" ? "right" : "bottom",
