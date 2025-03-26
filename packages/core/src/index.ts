@@ -55,6 +55,8 @@ export * from "./util/esmDependencies.js";
 export * from "./util/table.js";
 export * from "./util/string.js";
 export * from "./util/typescript.js";
+
+export type { CodeBlockOptions } from "./blocks/CodeBlockContent/CodeBlockContent.js";
 export { UnreachableCaseError, assertEmpty } from "./util/typescript.js";
 
 // for testing from react (TODO: move):

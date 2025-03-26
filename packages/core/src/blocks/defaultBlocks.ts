@@ -32,8 +32,6 @@ import { Paragraph } from "./ParagraphBlockContent/ParagraphBlockContent.js";
 import { Table } from "./TableBlockContent/TableBlockContent.js";
 import { VideoBlock } from "./VideoBlockContent/VideoBlockContent.js";
 
-export { customizeCodeBlock } from "./CodeBlockContent/CodeBlockContent.js";
-
 export const defaultBlockSpecs = {
   paragraph: Paragraph,
   heading: Heading,

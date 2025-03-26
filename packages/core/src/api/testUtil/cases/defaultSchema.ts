@@ -23,6 +23,18 @@ export const defaultSchemaTestCases: EditorTestCases<
     return BlockNoteEditor.create({
       schema: withPageBreak(BlockNoteSchema.create()),
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
+      codeBlock: {
+        supportedLanguages: {
+          javascript: {
+            name: "JavaScript",
+            aliases: ["js"],
+          },
+          python: {
+            name: "Python",
+            aliases: ["py"],
+          },
+        },
+      },
     });
   },
   documents: [
@@ -213,6 +225,7 @@ export const defaultSchemaTestCases: EditorTestCases<
       blocks: [
         {
           type: "codeBlock",
+          props: { language: "javascript" },
           content: "const hello = 'world';\nconsole.log(hello);\n",
         },
       ],
