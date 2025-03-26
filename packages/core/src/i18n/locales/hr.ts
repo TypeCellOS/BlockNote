@@ -20,6 +20,12 @@ export const hr: Dictionary = {
       aliases: ["h3", "naslov3", "podnaslov"],
       group: "Naslovi",
     },
+    quote: {
+      title: "Citat",
+      subtext: "Citat ili izvadak",
+      aliases: ["quotation", "blockquote", "bq"],
+      group: "Osnovni blokovi",
+    },
     numbered_list: {
       title: "Numerirani popis",
       subtext: "Popis s numeriranim stavkama",

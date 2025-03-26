@@ -29,12 +29,14 @@ import { BulletListItem } from "./ListItemBlockContent/BulletListItemBlockConten
 import { CheckListItem } from "./ListItemBlockContent/CheckListItemBlockContent/CheckListItemBlockContent.js";
 import { NumberedListItem } from "./ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContent.js";
 import { Paragraph } from "./ParagraphBlockContent/ParagraphBlockContent.js";
+import { Quote } from "./QuoteBlockContent/QuoteBlockContent.js";
 import { Table } from "./TableBlockContent/TableBlockContent.js";
 import { VideoBlock } from "./VideoBlockContent/VideoBlockContent.js";
 
 export const defaultBlockSpecs = {
   paragraph: Paragraph,
   heading: Heading,
+  quote: Quote,
   codeBlock: CodeBlock,
   bulletListItem: BulletListItem,
   numberedListItem: NumberedListItem,

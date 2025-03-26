@@ -20,6 +20,12 @@ export const zh: Dictionary = {
       aliases: ["h3", "heading3", "subheading", "标题", "三级标题"],
       group: "标题",
     },
+    quote: {
+      title: "引用",
+      subtext: "引用或摘录",
+      aliases: ["quotation", "blockquote", "bq"],
+      group: "基本块",
+    },
     numbered_list: {
       title: "有序列表",
       subtext: "用于显示有序列表",

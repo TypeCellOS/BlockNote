@@ -56,6 +56,20 @@ type HeadingBlock = {
 
 `level:` The heading level, representing a title (`level: 1`), heading (`level: 2`), and subheading (`level: 3`).
 
+#### Quote
+
+**Type & Props**
+
+```typescript
+type QuoteBlock = {
+  id: string;
+  type: "quote";
+  props: DefaultProps;
+  content: InlineContent[];
+  children: Block[];
+};
+```
+
 #### Bullet List Item
 
 **Type & Props**

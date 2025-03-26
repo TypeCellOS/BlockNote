@@ -150,6 +150,14 @@ NESTED BLOCKS
   font-weight: bold;
 }
 
+/* QUOTES */
+[data-content-type="quote"] blockquote {
+  border-left: 2px solid rgb(125, 121, 122);
+  color: rgb(125, 121, 122);
+  margin: 0;
+  padding-left: 1em;
+}
+
 /* LISTS */
 
 .bn-block-content::before {
