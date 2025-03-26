@@ -1,0 +1,77 @@
+{
+  "name": "@blocknote/code-block",
+  "homepage": "https://github.com/TypeCellOS/BlockNote",
+  "private": false,
+  "sideEffects": false,
+  "license": "MPL-2.0",
+  "version": "0.26.0",
+  "files": [
+    "dist",
+    "types",
+    "src"
+  ],
+  "keywords": [
+    "react",
+    "javascript",
+    "editor",
+    "typescript",
+    "prosemirror",
+    "wysiwyg",
+    "rich-text-editor",
+    "notion",
+    "yjs",
+    "block-based",
+    "tiptap"
+  ],
+  "description": "A \"Notion-style\" block-based extensible text editor built on top of Prosemirror and Tiptap.",
+  "type": "module",
+  "source": "src/index.ts",
+  "types": "./types/src/index.d.ts",
+  "main": "./dist/blocknote-code-block.cjs",
+  "module": "./dist/blocknote-code-block.js",
+  "exports": {
+    ".": {
+      "types": "./types/src/index.d.ts",
+      "import": "./dist/blocknote-code-block.js",
+      "require": "./dist/blocknote-code-block.cjs"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "lint": "eslint src --max-warnings 0",
+    "test": "vitest --run",
+    "test-watch": "vitest watch"
+  },
+  "dependencies": {
+    "@shikijs/core": "^3.2.1",
+    "@shikijs/engine-javascript": "^3.2.1",
+    "@shikijs/langs-precompiled": "^3.2.1",
+    "@shikijs/langs": "^3.2.1",
+    "@shikijs/themes": "^3.2.1",
+    "@shikijs/types": "^3.2.1"
+  },
+  "devDependencies": {
+    "@blocknote/core": "^0.26.0",
+    "eslint": "^8.10.0",
+    "prettier": "^2.7.1",
+    "rollup-plugin-webpack-stats": "^0.2.2",
+    "typescript": "^5.0.4",
+    "vite": "^5.3.4",
+    "vite-plugin-eslint": "^1.8.1",
+    "vitest": "^2.0.3"
+  },
+  "peerDependencies": {
+    "@blocknote/core": "^0.26.0"
+  },
+  "eslintConfig": {
+    "extends": [
+      "../../.eslintrc.js"
+    ]
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "gitHead": "37614ab348dcc7faa830a9a88437b37197a2162d"
+}

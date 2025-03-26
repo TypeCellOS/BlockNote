@@ -71,7 +71,7 @@ describe("markdownExporter", () => {
 
       for (const document of testCase.documents) {
         // eslint-disable-next-line no-loop-func
-        it("Convert " + document.name + " to HTML", async () => {
+        it("Convert " + document.name + " to Markdown", async () => {
           const nameSplit = document.name.split("/");
           await convertToMarkdownAndCompareSnapshots(
             editor,

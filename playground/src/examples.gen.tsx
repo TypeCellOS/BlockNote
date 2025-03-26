@@ -798,6 +798,42 @@
           "pathFromRoot": "examples/04-theming",
           "slug": "theming"
         }
+      },
+      {
+        "projectSlug": "code-block",
+        "fullSlug": "theming/code-block",
+        "pathFromRoot": "examples/04-theming/06-code-block",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "nperez0111",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Code Block Syntax Highlighting",
+        "group": {
+          "pathFromRoot": "examples/04-theming",
+          "slug": "theming"
+        }
+      },
+      {
+        "projectSlug": "custom-code-block",
+        "fullSlug": "theming/custom-code-block",
+        "pathFromRoot": "examples/04-theming/07-custom-code-block",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "nperez0111",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Custom Code Block Theme & Language",
+        "group": {
+          "pathFromRoot": "examples/04-theming",
+          "slug": "theming"
+        }
       }
     ]
   },

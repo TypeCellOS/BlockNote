@@ -2,8 +2,8 @@ import {
   BlockNoteSchema,
   combineByGroup,
   filterSuggestionItems,
-  locales,
 } from "@blocknote/core";
+import * as locales from "@blocknote/core/locales";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";

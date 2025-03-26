@@ -49,6 +49,11 @@
       "types": "./types/src/comments/index.d.ts",
       "import": "./dist/comments.js",
       "require": "./dist/comments.cjs"
+    },
+    "./locales": {
+      "types": "./types/src/i18n/index.d.ts",
+      "import": "./dist/locales.js",
+      "require": "./dist/locales.cjs"
     }
   },
   "scripts": {
@@ -63,6 +68,7 @@
   },
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
+    "@shikijs/types": "3.2.1",
     "@tiptap/core": "^2.11.5",
     "@tiptap/extension-bold": "^2.11.5",
     "@tiptap/extension-code": "^2.11.5",
@@ -85,7 +91,7 @@
     "emoji-mart": "^5.6.0",
     "hast-util-from-dom": "^5.0.1",
     "prosemirror-dropcursor": "^1.8.1",
-    "prosemirror-highlight": "^0.9.0",
+    "prosemirror-highlight": "^0.13.0",
     "prosemirror-model": "^1.24.1",
     "prosemirror-state": "^1.4.3",
     "prosemirror-tables": "^1.6.4",
@@ -99,7 +105,6 @@
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.1",
     "remark-stringify": "^11.0.0",
-    "shiki": "^1.22.0",
     "unified": "^11.0.5",
     "uuid": "^8.3.2",
     "y-prosemirror": "1.2.17",
