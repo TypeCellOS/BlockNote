@@ -65,7 +65,7 @@ export async function callLLMWithStreamTools<T extends StreamTool<any>[]>(
     ...createStreamToolsArraySchema(streamTools),
     $defs: jsonSchemaDefs,
   });
-
+  // console.log(JSON.stringify(schema.jsonSchema, null, 2));
   const getResponseOptions = {
     ...options,
     mode: "tool" as const,

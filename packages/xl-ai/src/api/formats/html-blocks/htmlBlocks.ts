@@ -1,89 +1,65 @@
-import {
-  BlockNoteEditor,
-  PartialBlock,
-  UnreachableCaseError,
-} from "@blocknote/core";
-import {
-  CoreMessage,
-  GenerateObjectResult,
-  LanguageModel,
-  StreamObjectResult,
-  generateObject,
-  jsonSchema,
-  streamObject,
-} from "ai";
+import { BlockNoteEditor, PartialBlock, getBlock } from "@blocknote/core";
+import { CoreMessage, GenerateObjectResult, StreamObjectResult } from "ai";
 import { Mapping } from "prosemirror-transform";
 import type { PromptOrMessages } from "../../index.js";
 import { promptManipulateSelectionJSONSchema } from "../../prompts/jsonSchemaPrompts.js";
-import { createOperationsArraySchema } from "../../streamTool/jsonSchema.js";
 
 import {
   ApplyOperationResult,
   applyOperations,
 } from "../../executor/streamOperations/applyOperations.js";
+
 import {
   AsyncIterableStream,
-  asyncIterableToStream,
-  createAsyncIterableStream,
+  createAsyncIterableStreamFromAsyncIterable,
 } from "../../util/stream.js";
 
 import { duplicateInsertsToUpdates } from "../../executor/streamOperations/duplicateInsertsToUpdates.js";
-import {
-  getLLMResponseNonStreaming,
-  getLLMResponseStreaming,
-} from "../../streamTool/execute.js";
-import { BlockNoteOperation } from "../../tools/blocknoteFunctions.js";
-import { DeleteFunction } from "../../tools/delete.js";
 
 import { updateToReplaceSteps } from "../../../prosemirror/changeset.js";
 import {
   getApplySuggestionsTr,
   rebaseTool,
 } from "../../../prosemirror/rebaseTool.js";
+
 import { promptManipulateDocumentUseHTMLBlocks } from "../../prompts/htmlBlocksPrompt.js";
 import {
-  AIFunctionMD,
-  AddFunctionMD,
-  UpdateFunctionMD,
-} from "./functions/index.js";
-
-type LLMRequestOptions = {
-  model: LanguageModel;
-  functions: AIFunctionMD[];
-  stream: boolean;
-  maxRetries: number;
-  _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]>;
-  _streamObjectOptions?: Partial<Parameters<typeof streamObject<any>>[0]>;
-} & PromptOrMessages;
-
-type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
-
-type CallLLMOptionsWithOptional = Optional<
   LLMRequestOptions,
-  "functions" | "stream" | "maxRetries"
->;
+  callLLMWithStreamTools,
+} from "../../streamTool/callLLMWithStreamTools.js";
+import { StreamTool, StreamToolCall } from "../../streamTool/streamTool.js";
+import { AddBlocksToolCall } from "../../tools/createAddBlocksTool.js";
+import { UpdateBlockToolCall } from "../../tools/createUpdateBlockTool.js";
+import { DeleteBlockToolCall } from "../../tools/delete.js";
+import { tools } from "./tools/index.js";
 
 // Define the return type for streaming mode
 type ReturnType = {
-  resultStream: AsyncIterableStream<ApplyOperationResult>;
+  toolCallsStream: AsyncIterableStream<ApplyOperationResult<any>>;
   llmResult: StreamObjectResult<any, any, any> | GenerateObjectResult<any>;
   apply: () => Promise<void>;
 };
 
-export async function callLLM(
+type DefaultTools = Array<
+  (typeof tools)["add"] | (typeof tools)["update"] | (typeof tools)["delete"]
+>;
+
+export async function callLLM<T extends StreamTool<any>[] = DefaultTools>(
   editor: BlockNoteEditor<any, any, any>,
-  opts: CallLLMOptionsWithOptional
+  opts: Omit<LLMRequestOptions, "messages"> & PromptOrMessages,
+  streamTools?: T
 ): Promise<ReturnType> {
-  const { prompt, useSelection, ...rest } = opts;
+  const { prompt, useSelection, stream = true, ...rest } = opts;
 
   let messages: CoreMessage[];
 
-  // changed
   const doc = await Promise.all(
     editor.document.map(async (block) => {
       return {
         id: block.id + "$",
-        block: (await editor.blocksToHTMLLossy([block])).trim(),
+        block: (await editor.blocksToHTMLLossy([block]))
+          .trim()
+          .replace("&#x20;", " "),
       };
     })
   );
@@ -104,68 +80,56 @@ export async function callLLM(
     });
   }
 
-  const options: LLMRequestOptions = {
-    functions: [
-      new UpdateFunctionMD(),
-      new AddFunctionMD(),
-      new DeleteFunction(),
-    ],
-    stream: true,
-    messages,
-    maxRetries: 2,
-    ...rest,
-  };
+  streamTools = streamTools ?? ([tools.update, tools.add, tools.delete] as T);
 
-  // changed
-  const schema = jsonSchema({
-    ...createOperationsArraySchema(options.functions),
-    $defs: {
-      block: {
-        type: "string",
-        description: "markdown of block",
-      },
-    },
-  });
-
-  const getResponseOptions = {
-    ...options,
-    mode: "tool" as const,
-    schema,
-    messages,
-  };
-
-  const { result, operationsSource } = options.stream
-    ? await getLLMResponseStreaming(getResponseOptions, editor)
-    : await getLLMResponseNonStreaming(getResponseOptions, editor);
-
-  const blockNoteOperationsSource = toBlockNoteOperations(
+  const response = await callLLMWithStreamTools(
     editor,
-    operationsSource
+    {
+      ...rest,
+      messages,
+      stream,
+    },
+    streamTools,
+    {
+      block: { type: "string", description: "html of block" },
+    }
   );
 
-  const operationsToApply = options.stream
-    ? duplicateInsertsToUpdates(blockNoteOperationsSource)
-    : blockNoteOperationsSource;
+  const jsonToolCalls = toJSONToolCalls(editor, response.toolCallsStream);
+
+  const operationsToApply = stream
+    ? duplicateInsertsToUpdates(jsonToolCalls)
+    : jsonToolCalls;
 
   const resultGenerator = applyOperations(
     editor,
     operationsToApply,
     async (id) => {
       const tr = getApplySuggestionsTr(editor);
-      // TODO: needed?
-      // TODO: lists / tables
-      const md = await editor.blocksToHTMLLossy([editor.getBlock(id)!]);
-      const blocks = await editor.tryParseHTMLToBlocks(md);
+      const html = await editor.blocksToHTMLLossy([
+        getBlock(editor, id, tr.doc)!,
+      ]);
+      const blocks = await editor.tryParseHTMLToBlocks(html);
+      if (blocks.length !== 1) {
+        throw new Error("html diff invalid block count");
+      }
+      const htmlBlock = blocks[0];
+      htmlBlock.id = id;
+      // console.log(html);
+      // console.log(JSON.stringify(blocks, null, 2));
       const steps = updateToReplaceSteps(
         editor,
         {
           id,
-          block: blocks[0],
+          block: htmlBlock,
           type: "update",
         },
         tr.doc
       );
 
+      if (steps.length) {
+        throw new Error("html diff");
+      }
       const stepMapping = new Mapping();
       for (const step of steps) {
         const mapped = step.map(stepMapping);
@@ -183,39 +147,47 @@ export async function callLLM(
     }
   );
 
-  // Convert to stream at the API boundary
-  const resultStream = asyncIterableToStream(resultGenerator);
-  const asyncIterableResultStream = createAsyncIterableStream(resultStream);
+  // TODO: copy this pattern
+  const toolCallsStream =
+    createAsyncIterableStreamFromAsyncIterable(resultGenerator);
 
   return {
-    llmResult: result,
-    resultStream: asyncIterableResultStream,
+    llmResult: response.llmResult,
+    toolCallsStream,
+    // TODO: make it easy to add your own "applyOperations" function
     async apply() {
       /* eslint-disable-next-line */
-      for await (const _result of asyncIterableResultStream) {
+      for await (const _result of toolCallsStream) {
         // no op
       }
     },
   };
 }
 
-export async function* toBlockNoteOperations(
+export async function* toJSONToolCalls(
   editor: BlockNoteEditor<any, any, any>,
   operationsSource: AsyncIterable<{
-    operation: BlockNoteOperation<string>;
+    operation: StreamToolCall<any>;
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
   }>
 ): AsyncGenerator<{
-  operation: BlockNoteOperation<PartialBlock<any, any, any>>;
+  operation: StreamToolCall<any>;
   isUpdateToPreviousOperation: boolean;
   isPossiblyPartial: boolean;
 }> {
   for await (const chunk of operationsSource) {
-    if (chunk.operation.type === "add") {
+    const operation = chunk.operation;
+    if (!isBuiltInToolCall(operation)) {
+      yield chunk;
+      continue;
+    }
+
+    if (operation.type === "add") {
       const blocks = await Promise.all(
-        chunk.operation.blocks.map(async (md) => {
-          const block = (await editor.tryParseHTMLToBlocks(md.trim()))[0]; // TODO: trim
+        operation.blocks.map(async (html) => {
+          html = getPartialHTML(html);
+          const block = (await editor.tryParseHTMLToBlocks(html))[0]; // TODO: trim
           delete (block as any).id;
           return block;
         })
@@ -231,33 +203,93 @@ export async function* toBlockNoteOperations(
         operation: {
           ...chunk.operation,
           blocks,
-        },
+        } as AddBlocksToolCall<PartialBlock<any, any, any>>,
       };
-    } else if (chunk.operation.type === "update") {
-      console.log("update", chunk.operation.block);
-      const block = (
-        await editor.tryParseHTMLToBlocks(chunk.operation.block.trim())
-      )[0];
+    } else if (operation.type === "update") {
+      // console.log("update", operation.block);
+      const html = getPartialHTML(operation.block);
+      const block = (await editor.tryParseHTMLToBlocks(html))[0];
 
+      // console.log("update", operation.block);
+      // console.log("html", html);
       // hacky
       if ((window as any).__TEST_OPTIONS) {
         (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS.mockID = 0;
       }
 
+      delete (block as any).id;
+
       yield {
         ...chunk,
         operation: {
-          ...chunk.operation,
+          ...operation,
           block,
-        },
+        } as UpdateBlockToolCall<PartialBlock<any, any, any>>,
       };
-    } else if (chunk.operation.type === "delete") {
+    } else if (operation.type === "delete") {
       yield {
         ...chunk,
-        operation: chunk.operation,
+        operation: {
+          ...operation,
+        } as DeleteBlockToolCall,
       };
     } else {
-      throw new UnreachableCaseError(chunk.operation);
+      throw new UnreachableCaseError(operation);
     }
   }
+}
+
+function isBuiltInToolCall(
+  operation: unknown
+): operation is
+  | UpdateBlockToolCall<string>
+  | AddBlocksToolCall<string>
+  | DeleteBlockToolCall {
+  return (
+    typeof operation === "object" &&
+    operation !== null &&
+    "type" in operation &&
+    (operation.type === "update" ||
+      operation.type === "add" ||
+      operation.type === "delete")
+  );
+}
+
+/**
+ * Completes partial HTML by parsing and correcting incomplete tags.
+ * Examples:
+ * <p>hello -> <p>hello</p>
+ * <p>hello <sp -> <p>hello </p>
+ * <p>hello <span -> <p>hello </p>
+ * <p>hello <span> -> <p>hello <span></span></p>
+ * <p>hello <span>world -> <p>hello <span>world</span></p>
+ * <p>hello <span>world</span> -> <p>hello <span>world</span></p>
+ *
+ * @param html A potentially incomplete HTML string
+ * @returns A properly formed HTML string with all tags closed
+ */
+function getPartialHTML(html: string): string {
+  // Simple check: if the last '<' doesn't have a matching '>',
+  // then we have an incomplete tag at the end
+  const lastOpenBracket = html.lastIndexOf("<");
+  const lastCloseBracket = html.lastIndexOf(">");
+
+  // Handle incomplete tags by removing everything after the last complete tag
+  let htmlToProcess = html;
+  if (lastOpenBracket > lastCloseBracket) {
+    htmlToProcess = html.substring(0, lastOpenBracket);
+    // If nothing remains after removing the incomplete tag, return empty string
+    if (!htmlToProcess.trim()) {
+      return "";
+    }
+  }
+
+  // Parse the HTML
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(
+    `<div>${htmlToProcess}</div>`,
+    "text/html"
+  );
+  const el = doc.body.firstChild as HTMLElement;
+  return el ? el.innerHTML : "";
 }

@@ -91,14 +91,16 @@ export async function callLLM<T extends StreamTool<any>[] = DefaultTools>(
     }
   );
 
+  const toolCallsStream =
+    createAsyncIterableStreamFromAsyncIterable(resultGenerator);
+
   return {
     llmResult: response.llmResult,
-    toolCallsStream:
-      createAsyncIterableStreamFromAsyncIterable(resultGenerator),
+    toolCallsStream,
     // TODO: make it easy to add your own "applyOperations" function
     async apply() {
       /* eslint-disable-next-line */
-      for await (const _result of resultGenerator) {
+      for await (const _result of toolCallsStream) {
         // no op
       }
     },

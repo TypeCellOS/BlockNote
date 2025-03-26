@@ -7,9 +7,9 @@
     "cookies": []
   },
   "response": {
-    "status": 200,
+    "status": 400,
     "statusText": "",
-    "body": "{\"id\":\"chatcmpl-f7d45c3a-7e56-4830-bb0e-a101df1163a1\",\"object\":\"chat.completion\",\"created\":1742832167,\"model\":\"llama-3.3-70b-versatile\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"tool_calls\":[{\"id\":\"call_syw7\",\"type\":\"function\",\"function\":{\"name\":\"json\",\"arguments\":\"{\\\"operations\\\":[{\\\"type\\\":\\\"add\\\",\\\"referenceId\\\":\\\"0$\\\",\\\"position\\\":\\\"before\\\",\\\"blocks\\\":[\\\"Test\\\"]}]}\"}}]},\"logprobs\":null,\"finish_reason\":\"tool_calls\"}],\"usage\":{\"queue_time\":0.10097181200000001,\"prompt_tokens\":514,\"prompt_time\":0.039739288,\"completion_tokens\":26,\"completion_time\":0.094545455,\"total_tokens\":540,\"total_time\":0.134284743},\"system_fingerprint\":\"fp_8dd9fca28c\",\"x_groq\":{\"id\":\"req_01jq4e8tvze6nb0fsghj62q37c\"}}\n",
+    "body": "{\"error\":{\"message\":\"Failed to call a function. Please adjust your prompt. See 'failed_generation' for more details.\",\"type\":\"invalid_request_error\",\"code\":\"tool_use_failed\",\"failed_generation\":\"{\\\"operations\\\":[{\\\"type\\\":\\\"add\\\",\\\"referenceId\\\":\\\"0$\\\",\\\"position\\\":\\\"before\\\",\\\"blocks\\\":[\\\"Test\\\"]}]}\\u003e\\u003c/function\\u003e\"}}\n",
     "headers": []
   }
 }

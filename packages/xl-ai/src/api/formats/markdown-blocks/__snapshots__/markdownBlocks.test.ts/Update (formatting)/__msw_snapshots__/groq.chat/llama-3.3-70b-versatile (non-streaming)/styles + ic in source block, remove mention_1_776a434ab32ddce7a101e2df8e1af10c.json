@@ -9,7 +9,7 @@
   "response": {
     "status": 200,
     "statusText": "",
-    "body": "{\"id\":\"chatcmpl-e3e46077-6fc0-4ddb-9e3d-a4831ab1a2f6\",\"object\":\"chat.completion\",\"created\":1742837348,\"model\":\"llama-3.3-70b-versatile\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"tool_calls\":[{\"id\":\"call_a7j6\",\"type\":\"function\",\"function\":{\"name\":\"json\",\"arguments\":\"{\\\"operations\\\": [{\\\"type\\\": \\\"update\\\", \\\"id\\\": \\\"ref2$\\\", \\\"block\\\": \\\"Hello! How **are you doing?**\\\"}]}\"}}]},\"logprobs\":null,\"finish_reason\":\"tool_calls\"}],\"usage\":{\"queue_time\":1.615769845,\"prompt_tokens\":576,\"prompt_time\":0.10825129,\"completion_tokens\":34,\"completion_time\":0.123636364,\"total_tokens\":610,\"total_time\":0.231887654},\"system_fingerprint\":\"fp_41c250edc7\",\"x_groq\":{\"id\":\"req_01jq4k6wchfgqakrh8106qt9fk\"}}\n",
+    "body": "{\"id\":\"chatcmpl-bf4f0981-cbd5-4c82-b2d9-e8c7ff0e9a8f\",\"object\":\"chat.completion\",\"created\":1743013795,\"model\":\"llama-3.3-70b-versatile\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"tool_calls\":[{\"id\":\"call_rajz\",\"type\":\"function\",\"function\":{\"name\":\"json\",\"arguments\":\"{\\\"operations\\\": [{\\\"type\\\": \\\"update\\\", \\\"id\\\": \\\"ref2$\\\", \\\"block\\\": \\\"Hello! How **are you doing?**\\\"}]}\"}}]},\"logprobs\":null,\"finish_reason\":\"tool_calls\"}],\"usage\":{\"queue_time\":0.128414565,\"prompt_tokens\":576,\"prompt_time\":0.044704352,\"completion_tokens\":34,\"completion_time\":0.123636364,\"total_tokens\":610,\"total_time\":0.168340716},\"system_fingerprint\":\"fp_b1483399f5\",\"x_groq\":{\"id\":\"req_01jq9vfntbftaamzjc8rsm31e2\"}}\n",
     "headers": []
   }
 }

@@ -103,10 +103,10 @@ import {
   getSelectedBlocksWithSelectionMarkers,
   prosemirrorSliceToSlicedBlocks,
 } from "../api/nodeConversions/nodeToBlock.js";
+import { CodeBlockOptions } from "../blocks/CodeBlockContent/CodeBlockContent.js";
 import type { ThreadStore, User } from "../comments/index.js";
 import "../style.css";
 import { EventEmitter } from "../util/EventEmitter.js";
-import { CodeBlockOptions } from "../blocks/CodeBlockContent/CodeBlockContent.js";
 
 export type BlockNoteExtensionFactory = (
   editor: BlockNoteEditor<any, any, any>
@@ -789,7 +789,7 @@ export class BlockNoteEditor<
   public getBlock(
     blockIdentifier: BlockIdentifier
   ): Block<BSchema, ISchema, SSchema> | undefined {
-    return getBlock(this, blockIdentifier);
+    return getBlock(this, blockIdentifier, this.prosemirrorState.doc);
   }
 
   /**

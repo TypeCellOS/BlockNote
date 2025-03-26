@@ -9,7 +9,7 @@
   "response": {
     "status": 200,
     "statusText": "",
-    "body": "{\"id\":\"chatcmpl-df707bfe-6b5c-467a-8f07-5b0d138684ee\",\"object\":\"chat.completion\",\"created\":1742832157,\"model\":\"llama-3.3-70b-versatile\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"tool_calls\":[{\"id\":\"call_ys7c\",\"type\":\"function\",\"function\":{\"name\":\"json\",\"arguments\":\"{\\\"operations\\\":[{\\\"type\\\":\\\"update\\\",\\\"id\\\":\\\"0$\\\",\\\"block\\\":\\\"# Hello\\\"}]}\"}}]},\"logprobs\":null,\"finish_reason\":\"tool_calls\"}],\"usage\":{\"queue_time\":0.100570616,\"prompt_tokens\":518,\"prompt_time\":0.040792522,\"completion_tokens\":21,\"completion_time\":0.086958362,\"total_tokens\":539,\"total_time\":0.127750884},\"system_fingerprint\":\"fp_90c1d253ff\",\"x_groq\":{\"id\":\"req_01jq4e8gffe6bt327fdfnjnb0k\"}}\n",
+    "body": "{\"id\":\"chatcmpl-8346800b-7955-4d2d-951c-90109cee8bc2\",\"object\":\"chat.completion\",\"created\":1743013792,\"model\":\"llama-3.3-70b-versatile\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"tool_calls\":[{\"id\":\"call_psnb\",\"type\":\"function\",\"function\":{\"name\":\"json\",\"arguments\":\"{\\\"operations\\\":[{\\\"type\\\":\\\"update\\\",\\\"id\\\":\\\"0$\\\",\\\"block\\\":\\\"# Hello\\\"}]}\"}}]},\"logprobs\":null,\"finish_reason\":\"tool_calls\"}],\"usage\":{\"queue_time\":0.10155847400000001,\"prompt_tokens\":518,\"prompt_time\":0.040063724,\"completion_tokens\":21,\"completion_time\":0.087885856,\"total_tokens\":539,\"total_time\":0.12794958},\"system_fingerprint\":\"fp_90c1d253ff\",\"x_groq\":{\"id\":\"req_01jq9vfjewft8bmrzh3xrzv4dm\"}}\n",
     "headers": []
   }
 }

@@ -1,3 +1,4 @@
+import { Node } from "prosemirror-model";
 import { Block } from "../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 import {
@@ -15,12 +16,13 @@ export function getBlock<
   S extends StyleSchema
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
-  blockIdentifier: BlockIdentifier
+  blockIdentifier: BlockIdentifier,
+  doc: Node
 ): Block<BSchema, I, S> | undefined {
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
 
-  const posInfo = getNodeById(id, editor._tiptapEditor.state.doc);
+  const posInfo = getNodeById(id, doc);
   if (!posInfo) {
     return undefined;
   }

@@ -9,7 +9,7 @@
   "response": {
     "status": 200,
     "statusText": "",
-    "body": "{\"id\":\"chatcmpl-c9a7cf3a-b319-49a3-a53a-3b343875c5dc\",\"object\":\"chat.completion\",\"created\":1742837345,\"model\":\"llama-3.3-70b-versatile\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"tool_calls\":[{\"id\":\"call_yn4e\",\"type\":\"function\",\"function\":{\"name\":\"json\",\"arguments\":\"{\\\"operations\\\": [{\\\"type\\\": \\\"update\\\", \\\"id\\\": \\\"ref2$\\\", \\\"block\\\": \\\"Hello, updated content\\\"}]}\"}}]},\"logprobs\":null,\"finish_reason\":\"tool_calls\"}],\"usage\":{\"queue_time\":0.20016956500000002,\"prompt_tokens\":571,\"prompt_time\":0.118346021,\"completion_tokens\":29,\"completion_time\":0.105454545,\"total_tokens\":600,\"total_time\":0.223800566},\"system_fingerprint\":\"fp_41c250edc7\",\"x_groq\":{\"id\":\"req_01jq4k6vavfzpv05gngcpj67r4\"}}\n",
+    "body": "{\"id\":\"chatcmpl-e8415e12-b0ee-4b4e-b9b7-14a9a7bf96df\",\"object\":\"chat.completion\",\"created\":1743013795,\"model\":\"llama-3.3-70b-versatile\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"tool_calls\":[{\"id\":\"call_vkba\",\"type\":\"function\",\"function\":{\"name\":\"json\",\"arguments\":\"{\\\"operations\\\": [{\\\"type\\\": \\\"update\\\", \\\"id\\\": \\\"ref2$\\\", \\\"block\\\": \\\"Hello, updated content\\\"}]}\"}}]},\"logprobs\":null,\"finish_reason\":\"tool_calls\"}],\"usage\":{\"queue_time\":0.10101048,\"prompt_tokens\":571,\"prompt_time\":0.036372642,\"completion_tokens\":29,\"completion_time\":0.105454545,\"total_tokens\":600,\"total_time\":0.141827187},\"system_fingerprint\":\"fp_90c1d253ff\",\"x_groq\":{\"id\":\"req_01jq9vfn6cft9rqj8rz4mgks38\"}}\n",
     "headers": []
   }
 }

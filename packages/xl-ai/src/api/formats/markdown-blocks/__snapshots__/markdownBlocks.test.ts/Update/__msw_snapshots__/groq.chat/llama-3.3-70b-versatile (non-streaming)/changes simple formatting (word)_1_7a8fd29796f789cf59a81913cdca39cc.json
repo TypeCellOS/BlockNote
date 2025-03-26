@@ -9,7 +9,7 @@
   "response": {
     "status": 200,
     "statusText": "",
-    "body": "{\"id\":\"chatcmpl-a2ceab8d-6d39-42d3-8265-d2cc79552307\",\"object\":\"chat.completion\",\"created\":1742832158,\"model\":\"llama-3.3-70b-versatile\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"tool_calls\":[{\"id\":\"call_hmgp\",\"type\":\"function\",\"function\":{\"name\":\"json\",\"arguments\":\"{\\\"operations\\\": [{\\\"type\\\": \\\"update\\\", \\\"id\\\": \\\"0$\\\", \\\"block\\\": \\\"**Hello** world\\\"}]}\"}}]},\"logprobs\":null,\"finish_reason\":\"tool_calls\"}],\"usage\":{\"queue_time\":0.10106210099999999,\"prompt_tokens\":509,\"prompt_time\":0.039785438,\"completion_tokens\":27,\"completion_time\":0.098181818,\"total_tokens\":536,\"total_time\":0.137967256},\"system_fingerprint\":\"fp_8dd9fca28c\",\"x_groq\":{\"id\":\"req_01jq4e8hgnerctqstxc0cqz2dy\"}}\n",
+    "body": "{\"id\":\"chatcmpl-8e84e08f-f872-472a-8775-b68d8258b649\",\"object\":\"chat.completion\",\"created\":1743013793,\"model\":\"llama-3.3-70b-versatile\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"tool_calls\":[{\"id\":\"call_0xjr\",\"type\":\"function\",\"function\":{\"name\":\"json\",\"arguments\":\"{\\\"operations\\\": [{\\\"type\\\": \\\"update\\\", \\\"id\\\": \\\"0$\\\", \\\"block\\\": \\\"**Hello** world\\\"}]}\"}}]},\"logprobs\":null,\"finish_reason\":\"tool_calls\"}],\"usage\":{\"queue_time\":0.107606566,\"prompt_tokens\":509,\"prompt_time\":0.032806341,\"completion_tokens\":27,\"completion_time\":0.098181818,\"total_tokens\":536,\"total_time\":0.130988159},\"system_fingerprint\":\"fp_41c250edc7\",\"x_groq\":{\"id\":\"req_01jq9vfk6aeqbvqbg4ymr04q8b\"}}\n",
     "headers": []
   }
 }

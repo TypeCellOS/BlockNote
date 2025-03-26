@@ -99,7 +99,7 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
 
       // TODO: this might be inefficient, we might be able to pass a single rebaseTool as long as we map subsequent operations
       const tool = await rebaseTool(operation.id);
-      // console.log("update", JSON.stringify(chunk.operation, null, 2));
+      console.log("update", JSON.stringify(chunk.operation, null, 2));
       // Convert the update operation directly to ReplaceSteps
       const steps = updateToReplaceSteps(
         editor,

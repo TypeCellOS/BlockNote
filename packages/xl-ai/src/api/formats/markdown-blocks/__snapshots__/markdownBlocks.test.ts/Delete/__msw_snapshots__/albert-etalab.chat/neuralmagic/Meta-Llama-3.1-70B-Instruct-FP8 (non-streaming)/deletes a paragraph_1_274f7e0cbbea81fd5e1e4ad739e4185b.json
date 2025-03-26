@@ -7,9 +7,9 @@
     "cookies": []
   },
   "response": {
-    "status": 200,
+    "status": 400,
     "statusText": "",
-    "body": "{\"id\":\"chatcmpl-1b8745f2a8af4728a93a7f7e858ceca4\",\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"logprobs\":null,\"message\":{\"content\":\"\",\"refusal\":null,\"role\":\"assistant\",\"audio\":null,\"function_call\":null,\"tool_calls\":[{\"id\":\"chatcmpl-tool-3c39fc7379f243b1b9cf804c879276b1\",\"function\":{\"arguments\":\"{\\\"operations\\\": [{\\\"type\\\": \\\"delete\\\", \\\"id\\\": \\\"0$\\\"}]}\",\"name\":\"json\"},\"type\":\"function\"}]},\"stop_reason\":null}],\"created\":1742832197,\"model\":\"neuralmagic/Meta-Llama-3.1-70B-Instruct-FP8\",\"object\":\"chat.completion\",\"service_tier\":null,\"system_fingerprint\":null,\"usage\":{\"completion_tokens\":18,\"prompt_tokens\":691,\"total_tokens\":709,\"completion_tokens_details\":null,\"prompt_tokens_details\":null},\"search_results\":[],\"prompt_logprobs\":null}",
+    "body": "{\"detail\":\"The provided JSON schema contains features not supported by xgrammar.\"}",
     "headers": []
   }
 }

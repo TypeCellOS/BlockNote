@@ -42,7 +42,7 @@ export function promptManipulateDocumentUseMarkdownBlocks(opts: {
     {
       role: "system",
       content:
-        "You're manipulating a text document. Make sure to follow the json schema provided. This is the document as an array of blocks in markdown:",
+        "You're manipulating a text document, use the tools provided to manipulate the markdown representation of the document. This is the document as an array of blocks in markdown:",
     },
     {
       role: "system",

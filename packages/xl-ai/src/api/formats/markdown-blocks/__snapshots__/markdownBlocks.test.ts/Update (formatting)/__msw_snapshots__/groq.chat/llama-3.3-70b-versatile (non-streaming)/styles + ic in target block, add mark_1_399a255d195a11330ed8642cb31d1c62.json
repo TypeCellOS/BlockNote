@@ -9,7 +9,7 @@
   "response": {
     "status": 200,
     "statusText": "",
-    "body": "{\"id\":\"chatcmpl-3cea33b7-2a40-4500-82a8-672e54cd0d6e\",\"object\":\"chat.completion\",\"created\":1742837761,\"model\":\"llama-3.3-70b-versatile\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"tool_calls\":[{\"id\":\"call_pp2f\",\"type\":\"function\",\"function\":{\"name\":\"json\",\"arguments\":\"{\\\"operations\\\": [{\\\"type\\\": \\\"update\\\", \\\"id\\\": \\\"ref1$\\\", \\\"block\\\": \\\"Hello, **world!**\\\"}]}\"}}]},\"logprobs\":null,\"finish_reason\":\"tool_calls\"}],\"usage\":{\"queue_time\":0.805108086,\"prompt_tokens\":568,\"prompt_time\":0.161899423,\"completion_tokens\":31,\"completion_time\":0.112727273,\"total_tokens\":599,\"total_time\":0.274626696},\"system_fingerprint\":\"fp_34555b7c20\",\"x_groq\":{\"id\":\"req_01jq4kkh23e01vb1yqn37vhayk\"}}\n",
+    "body": "{\"id\":\"chatcmpl-cca2cc0e-e83c-4442-9acd-91bbbb723cb3\",\"object\":\"chat.completion\",\"created\":1743013798,\"model\":\"llama-3.3-70b-versatile\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"tool_calls\":[{\"id\":\"call_00q6\",\"type\":\"function\",\"function\":{\"name\":\"json\",\"arguments\":\"{\\\"operations\\\": [{\\\"type\\\": \\\"update\\\", \\\"id\\\": \\\"ref1$\\\", \\\"block\\\": \\\"Hello, **world!**\\\"}]}\"}}]},\"logprobs\":null,\"finish_reason\":\"tool_calls\"}],\"usage\":{\"queue_time\":2.387923343,\"prompt_tokens\":568,\"prompt_time\":0.06681274,\"completion_tokens\":31,\"completion_time\":0.112727273,\"total_tokens\":599,\"total_time\":0.179540013},\"system_fingerprint\":\"fp_fcc3b74982\",\"x_groq\":{\"id\":\"req_01jq9vfp6kftb9safz7qkmcp2v\"}}\n",
     "headers": []
   }
 }

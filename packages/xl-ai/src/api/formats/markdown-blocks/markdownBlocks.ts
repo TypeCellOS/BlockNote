@@ -1,4 +1,4 @@
-import { BlockNoteEditor, PartialBlock } from "@blocknote/core";
+import { BlockNoteEditor, PartialBlock, getBlock } from "@blocknote/core";
 import { CoreMessage, GenerateObjectResult, StreamObjectResult } from "ai";
 import { Mapping } from "prosemirror-transform";
 import type { PromptOrMessages } from "../../index.js";
@@ -56,7 +56,9 @@ export async function callLLM<T extends StreamTool<any>[] = DefaultTools>(
     editor.document.map(async (block) => {
       return {
         id: block.id + "$",
-        block: (await editor.blocksToMarkdownLossy([block])).trim(),
+        block: (await editor.blocksToMarkdownLossy([block]))
+          .trim()
+          .replace("&#x20;", " "),
       };
     })
   );
@@ -86,7 +88,10 @@ export async function callLLM<T extends StreamTool<any>[] = DefaultTools>(
       messages,
       stream,
     },
-    streamTools
+    streamTools,
+    {
+      block: { type: "string", description: "markdown of block" },
+    }
   );
 
   const jsonToolCalls = toJSONToolCalls(editor, response.toolCallsStream);
@@ -100,7 +105,9 @@ export async function callLLM<T extends StreamTool<any>[] = DefaultTools>(
     operationsToApply,
     async (id) => {
       const tr = getApplySuggestionsTr(editor);
-      const md = await editor.blocksToMarkdownLossy([editor.getBlock(id)!]);
+      const md = await editor.blocksToMarkdownLossy([
+        getBlock(editor, id, tr.doc)!,
+      ]);
       const blocks = await editor.tryParseMarkdownToBlocks(md);
 
       const steps = updateToReplaceSteps(
@@ -190,6 +197,9 @@ export async function* toJSONToolCalls(
         await editor.tryParseMarkdownToBlocks(operation.block.trim())
       )[0];
 
+      delete (block as any).id;
+      // console.log("update", operation.block);
+      // console.log("md", block);
       // hacky
       if ((window as any).__TEST_OPTIONS) {
         (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS.mockID = 0;

@@ -9,7 +9,7 @@
   "response": {
     "status": 200,
     "statusText": "",
-    "body": "{\"id\":\"chatcmpl-568132a9-2625-425b-9250-abbbb398ed98\",\"object\":\"chat.completion\",\"created\":1742837344,\"model\":\"llama-3.3-70b-versatile\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"tool_calls\":[{\"id\":\"call_nt9v\",\"type\":\"function\",\"function\":{\"name\":\"json\",\"arguments\":\"{\\\"operations\\\": [{\\\"type\\\": \\\"update\\\", \\\"id\\\": \\\"ref1$\\\", \\\"block\\\": \\\"Hello, updated content\\\"}]}\"}}]},\"logprobs\":null,\"finish_reason\":\"tool_calls\"}],\"usage\":{\"queue_time\":1.616008834,\"prompt_tokens\":571,\"prompt_time\":0.076961603,\"completion_tokens\":29,\"completion_time\":0.105454545,\"total_tokens\":600,\"total_time\":0.182416148},\"system_fingerprint\":\"fp_41c250edc7\",\"x_groq\":{\"id\":\"req_01jq4k6rhvfgks4n2hvvgcpgee\"}}\n",
+    "body": "{\"id\":\"chatcmpl-1baebe0c-5fba-4c6f-9952-e21ef93ccd86\",\"object\":\"chat.completion\",\"created\":1743013793,\"model\":\"llama-3.3-70b-versatile\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"tool_calls\":[{\"id\":\"call_f137\",\"type\":\"function\",\"function\":{\"name\":\"json\",\"arguments\":\"{\\\"operations\\\": [{\\\"type\\\": \\\"update\\\", \\\"id\\\": \\\"ref1$\\\", \\\"block\\\": \\\"Hello, updated content\\\"}]}\"}}]},\"logprobs\":null,\"finish_reason\":\"tool_calls\"}],\"usage\":{\"queue_time\":0.106769609,\"prompt_tokens\":571,\"prompt_time\":0.039641309,\"completion_tokens\":29,\"completion_time\":0.105454545,\"total_tokens\":600,\"total_time\":0.145095854},\"system_fingerprint\":\"fp_41c250edc7\",\"x_groq\":{\"id\":\"req_01jq9vfkmcft8bbsheh504kp1e\"}}\n",
     "headers": []
   }
 }

@@ -9,7 +9,7 @@
   "response": {
     "status": 200,
     "statusText": "",
-    "body": "{\"id\":\"chatcmpl-18d8a7bd-50c5-4aef-8c21-e7d41cca655d\",\"object\":\"chat.completion\",\"created\":1742832157,\"model\":\"llama-3.3-70b-versatile\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"tool_calls\":[{\"id\":\"call_r8v6\",\"type\":\"function\",\"function\":{\"name\":\"json\",\"arguments\":\"{\\\"operations\\\": [{\\\"type\\\": \\\"update\\\", \\\"id\\\": \\\"0$\\\", \\\"block\\\": \\\"**Hello**\\\"}]}\"}}]},\"logprobs\":null,\"finish_reason\":\"tool_calls\"}],\"usage\":{\"queue_time\":0.10076587299999999,\"prompt_tokens\":517,\"prompt_time\":0.039729158,\"completion_tokens\":26,\"completion_time\":0.094545455,\"total_tokens\":543,\"total_time\":0.134274613},\"system_fingerprint\":\"fp_41c250edc7\",\"x_groq\":{\"id\":\"req_01jq4e8gy5e6bv5ydzgw00qje2\"}}\n",
+    "body": "{\"id\":\"chatcmpl-586e8b87-af3c-4d81-b0aa-cf16f02ff21e\",\"object\":\"chat.completion\",\"created\":1743013792,\"model\":\"llama-3.3-70b-versatile\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"tool_calls\":[{\"id\":\"call_xjp8\",\"type\":\"function\",\"function\":{\"name\":\"json\",\"arguments\":\"{\\\"operations\\\": [{\\\"type\\\": \\\"update\\\", \\\"id\\\": \\\"0$\\\", \\\"block\\\": \\\"**Hello**\\\"}]}\"}}]},\"logprobs\":null,\"finish_reason\":\"tool_calls\"}],\"usage\":{\"queue_time\":0.129882942,\"prompt_tokens\":517,\"prompt_time\":0.045396312,\"completion_tokens\":26,\"completion_time\":0.094545455,\"total_tokens\":543,\"total_time\":0.139941767},\"system_fingerprint\":\"fp_b1483399f5\",\"x_groq\":{\"id\":\"req_01jq9vfjt3eqbsr53fcs686r28\"}}\n",
     "headers": []
   }
 }
