@@ -33,6 +33,10 @@ export default function App() {
         content: "Heading",
       },
       {
+        type: "quote",
+        content: "Quote",
+      },
+      {
         type: "bulletListItem",
         content: "Bullet List Item",
       },

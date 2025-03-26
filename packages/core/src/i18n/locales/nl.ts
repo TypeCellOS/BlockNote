@@ -20,6 +20,12 @@ export const nl: Dictionary = {
       aliases: ["h3", "kop3", "subkop"],
       group: "Koppen",
     },
+    quote: {
+      title: "Citaat",
+      subtext: "Citaat of uittreksel",
+      aliases: ["quotation", "blockquote", "bq"],
+      group: "Basisblokken",
+    },
     numbered_list: {
       title: "Genummerde Lijst",
       subtext: "Gebruikt om een genummerde lijst weer te geven",

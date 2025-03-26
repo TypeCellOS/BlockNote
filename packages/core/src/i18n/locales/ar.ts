@@ -20,6 +20,12 @@ export const ar: Dictionary = {
       aliases: ["ع3", "عنوان3", "عنوان فرعي"],
       group: "العناوين",
     },
+    quote: {
+      title: "اقتباس",
+      subtext: "اقتباس أو مقتطف",
+      aliases: ["quotation", "blockquote", "bq"],
+      group: "الكتل الأساسية",
+    },
     numbered_list: {
       title: "قائمة مرقمة",
       subtext: "تستخدم لعرض قائمة مرقمة",

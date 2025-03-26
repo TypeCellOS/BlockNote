@@ -70,6 +70,18 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
       </Text>
     );
   },
+  quote: (block, exporter) => {
+    return (
+      <Text
+        style={{
+          borderLeft: "#7D797A",
+          color: "#7D797A",
+          paddingLeft: 9.5 * PIXELS_PER_POINT,
+        }}>
+        {exporter.transformInlineContent(block.content)}
+      </Text>
+    );
+  },
   codeBlock: (block) => {
     const textContent = (block.content as StyledText<any>[])[0]?.text || "";
     const lines = textContent.split("\n").map((line, index) => {

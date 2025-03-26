@@ -125,6 +125,18 @@ export function getDefaultSlashMenuItems<
     );
   }
 
+  if (checkDefaultBlockTypeInSchema("quote", editor)) {
+    items.push({
+      onItemClick: () => {
+        insertOrUpdateBlock(editor, {
+          type: "quote",
+        });
+      },
+      key: "quote",
+      ...editor.dictionary.slash_menu.quote,
+    });
+  }
+
   if (checkDefaultBlockTypeInSchema("numberedListItem", editor)) {
     items.push({
       onItemClick: () => {

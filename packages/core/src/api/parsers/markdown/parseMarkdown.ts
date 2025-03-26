@@ -60,6 +60,7 @@ export async function markdownToBlocks<
   pmSchema: Schema
 ): Promise<Block<BSchema, I, S>[]> {
   const deps = await initializeESMDependencies();
+
   const htmlString = deps.unified
     .unified()
     .use(deps.remarkParse.default)

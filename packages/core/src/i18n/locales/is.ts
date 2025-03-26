@@ -20,6 +20,12 @@ export const is: Dictionary = {
       aliases: ["h3", "fyrirsogn3", "undirfyrirsogn"],
       group: "Fyrirsagnir",
     },
+    quote: {
+      title: "Tilvitnun",
+      subtext: "Tilvitnun eða útdráttur",
+      aliases: ["quotation", "blockquote", "bq"],
+      group: "Grunnblokkar",
+    },
     numbered_list: {
       title: "Númeruð listi",
       subtext: "Notað til að birta númeraðan lista",
