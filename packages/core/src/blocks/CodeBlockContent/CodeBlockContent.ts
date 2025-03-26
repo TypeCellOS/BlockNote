@@ -129,10 +129,10 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
           return getLanguageId(options.editor.settings.codeBlock, language);
         },
         renderHTML: (attributes) => {
-          // TODO: Use `data-language="..."` instead for easier parsing
           return attributes.language && attributes.language !== "text"
             ? {
                 class: `language-${attributes.language}`,
+                "data-language": attributes.language,
               }
             : {};
         },
