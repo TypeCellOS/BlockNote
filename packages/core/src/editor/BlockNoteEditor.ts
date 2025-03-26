@@ -234,11 +234,6 @@ export type BlockNoteEditorOptions<
   setIdAttribute?: boolean;
 
   /**
-   * A flag indicating whether to show the grey left border on nested blocks.
-   */
-  showNestingIndicator: boolean;
-
-  /**
    * The detection mode for showing the side menu - "viewport" always shows the
    * side menu for the block next to the mouse cursor, while "editor" only shows
    * it when hovering the editor or the side menu itself.
@@ -499,7 +494,6 @@ export class BlockNoteEditor<
     // apply defaults
     const newOptions = {
       defaultStyles: true,
-      showNestingIndicator: options.showNestingIndicator || true,
       schema: options.schema || BlockNoteSchema.create(),
       _headless: false,
       ...options,
@@ -657,8 +651,7 @@ export class BlockNoteEditor<
           class: mergeCSSClasses(
             "bn-editor",
             newOptions.defaultStyles ? "bn-default-styles" : "",
-            newOptions.domAttributes?.editor?.class || "",
-            newOptions.showNestingIndicator ? "bn-show-nesting-indicator" : ""
+            newOptions.domAttributes?.editor?.class || ""
           ),
         },
         transformPasted,
