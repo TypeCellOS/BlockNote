@@ -1149,17 +1149,14 @@ export class BlockNoteEditor<
     }
 
     const { from, to } = this._tiptapEditor.state.selection;
-
-    if (!text) {
-      text = this._tiptapEditor.state.doc.textBetween(from, to);
-    }
-
     const mark = this.pmSchema.mark("link", { href: url });
 
     this.dispatch(
-      this._tiptapEditor.state.tr
-        .insertText(text, from, to)
-        .addMark(from, from + text.length, mark)
+      text
+        ? this._tiptapEditor.state.tr
+            .insertText(text, from, to)
+            .addMark(from, from + text.length, mark)
+        : this._tiptapEditor.state.tr.addMark(from, to, mark)
     );
   }
 
