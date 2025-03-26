@@ -5,16 +5,18 @@ import { validateBlockFunction } from "./validate.js";
 
 export const tools = {
   add: createAddBlocksTool<string>(
-    "Add a block",
+    "Insert new blocks",
     {
-      $ref: "#/$defs/block",
+      type: "string",
+      description: "markdown",
     },
     validateBlockFunction
   ),
   update: createUpdateBlockTool<string>(
     "Update a block",
     {
-      $ref: "#/$defs/block",
+      type: "string",
+      description: "markdown",
     },
     validateBlockFunction
   ),

@@ -5,7 +5,7 @@ import { validateBlockFunction } from "./validate.js";
 
 export const tools = {
   add: createAddBlocksTool<string>(
-    "Add a block",
+    "Insert new blocks",
     {
       $ref: "#/$defs/block",
     },

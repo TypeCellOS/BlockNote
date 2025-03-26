@@ -7,14 +7,14 @@ import { validateBlockFunction } from "./validate.js";
 
 export const tools = {
   add: createAddBlocksTool<PartialBlock<any, any, any>>(
-    "Add a block",
+    "Insert new blocks",
     {
       $ref: "#/$defs/block",
     },
     validateBlockFunction
   ),
   update: createUpdateBlockTool<PartialBlock<any, any, any>>(
-    "Update a block",
+    "Update a block, the new block will replace the existing block.",
     {
       $ref: "#/$defs/block",
     },

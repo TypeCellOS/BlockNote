@@ -77,7 +77,7 @@ export async function callLLM<T extends StreamTool<any>[] = DefaultTools>(
     });
   }
 
-  streamTools = streamTools ?? ([tools.add, tools.update, tools.delete] as T);
+  streamTools = streamTools ?? ([tools.update, tools.add, tools.delete] as T);
 
   const response = await callLLMWithStreamTools(
     editor,
