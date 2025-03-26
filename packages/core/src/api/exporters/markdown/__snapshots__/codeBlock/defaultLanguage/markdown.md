@@ -1,1 +1,3 @@
-    console.log('Hello, world!');
+```text
+console.log('Hello, world!');
+```
