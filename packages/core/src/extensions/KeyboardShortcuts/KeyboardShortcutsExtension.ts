@@ -437,8 +437,8 @@ export const KeyboardShortcutsExtension = Extension.create<{
           }),
       ]);
 
-    const handleEnter = () =>
-      this.editor.commands.first(({ commands }) => [
+    const handleEnter = (withShift = false) => {
+      return this.editor.commands.first(({ commands }) => [
         // Removes a level of nesting if the block is empty & indented, while the selection is also empty & at the start
         // of the block.
         () =>
@@ -465,6 +465,36 @@ export const KeyboardShortcutsExtension = Extension.create<{
               blockIndented
             ) {
               return commands.liftListItem("blockContainer");
+            }
+
+            return false;
+          }),
+        // Creates a hard break if block is configured to do so.
+        () =>
+          commands.command(({ state }) => {
+            const blockInfo = getBlockInfoFromSelection(state);
+
+            const blockHardBreakShortcut =
+              this.options.editor.schema.blockSchema[blockInfo.blockNoteType]
+                .hardBreakShortcut;
+
+            if (blockHardBreakShortcut === "none") {
+              return false;
+            }
+
+            if (
+              // If shortcut is not configured, or is configured as "shift+enter",
+              // create a hard break for shift+enter, but not for enter.
+              ((blockHardBreakShortcut === undefined ||
+                blockHardBreakShortcut === "shift+enter") &&
+                withShift) ||
+              // If shortcut is configured as "enter", create a hard break for
+              // both enter and shift+enter.
+              blockHardBreakShortcut === "enter"
+            ) {
+              return commands.insertContent({
+                type: "hardBreak",
+              });
             }
 
             return false;
@@ -538,11 +568,13 @@ export const KeyboardShortcutsExtension = Extension.create<{
             return false;
           }),
       ]);
+    };
 
     return {
       Backspace: handleBackspace,
       Delete: handleDelete,
-      Enter: handleEnter,
+      Enter: () => handleEnter(),
+      "Shift-Enter": () => handleEnter(true),
       "Shift-Enter": () =>
         this.editor.commands.insertContent({ type: "hardBreak" }),
       // Always returning true for tab key presses ensures they're not captured by the browser. Otherwise, they blur the

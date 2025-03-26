@@ -63,6 +63,7 @@ export type BlockConfig =
       content: "inline" | "none" | "table";
       isSelectable?: boolean;
       isFileBlock?: false;
+      hardBreakShortcut?: "shift+enter" | "enter" | "none";
     }
   | FileBlockConfig;
 
