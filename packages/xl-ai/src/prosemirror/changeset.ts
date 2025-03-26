@@ -7,7 +7,7 @@ import {
 import { Change, ChangeSet, simplifyChanges } from "prosemirror-changeset";
 import { Node } from "prosemirror-model";
 import { ReplaceStep, Transform } from "prosemirror-transform";
-import { UpdateBlocksOperation } from "../api/functions/blocknoteFunctions.js";
+import { UpdateBlockToolCall } from "../api/tools/createUpdateBlockTool";
 
 type CustomChange = Change & {
   type?: "mark-update" | "node-type-or-attr-update";
@@ -115,7 +115,7 @@ function addMissingChanges(
 
 export function updateToReplaceSteps(
   editor: BlockNoteEditor<any, any, any>,
-  op: UpdateBlocksOperation<PartialBlock<any, any, any>>,
+  op: UpdateBlockToolCall<PartialBlock<any, any, any>>,
   doc: Node,
   dontReplaceContentAtEnd = false
 ) {

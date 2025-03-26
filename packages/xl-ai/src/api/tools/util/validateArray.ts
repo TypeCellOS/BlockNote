@@ -1,5 +1,5 @@
 import { DeepPartial } from "ai";
-import { InvalidOrOk } from "../blocknoteFunctions.js";
+import { InvalidOrOk } from "../../streamTool/streamTool.js";
 
 export function validateArray<U>(
   inputArray: DeepPartial<Array<U>>,

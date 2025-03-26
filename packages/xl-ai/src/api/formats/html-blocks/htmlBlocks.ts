@@ -15,7 +15,7 @@ import {
 import { Mapping } from "prosemirror-transform";
 import type { PromptOrMessages } from "../../index.js";
 import { promptManipulateSelectionJSONSchema } from "../../prompts/jsonSchemaPrompts.js";
-import { createOperationsArraySchema } from "../../schema/operations.js";
+import { createOperationsArraySchema } from "../../streamTool/jsonSchema.js";
 
 import {
   ApplyOperationResult,
@@ -27,13 +27,13 @@ import {
   createAsyncIterableStream,
 } from "../../util/stream.js";
 
+import { duplicateInsertsToUpdates } from "../../executor/streamOperations/duplicateInsertsToUpdates.js";
 import {
   getLLMResponseNonStreaming,
   getLLMResponseStreaming,
-} from "../../executor/execute.js";
-import { duplicateInsertsToUpdates } from "../../executor/streamOperations/duplicateInsertsToUpdates.js";
-import { BlockNoteOperation } from "../../functions/blocknoteFunctions.js";
-import { DeleteFunction } from "../../functions/delete.js";
+} from "../../streamTool/execute.js";
+import { BlockNoteOperation } from "../../tools/blocknoteFunctions.js";
+import { DeleteFunction } from "../../tools/delete.js";
 
 import { updateToReplaceSteps } from "../../../prosemirror/changeset.js";
 import {

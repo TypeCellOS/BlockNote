@@ -1,7 +1,7 @@
 import { BlockNoteEditor } from "@blocknote/core";
 
 import { Block } from "@blocknote/core";
-import { BlockNoteOperation } from "../api/functions/blocknoteFunctions.js";
+import { BlockNoteOperation } from "../api/tools/blocknoteFunctions.js";
 import { MarkdownNodeDiffResult } from "./markdownNodeDiff.js";
 import { markdownUpdateToBlockUpdate } from "./markdownUpdate.js";
 import { markdownNodeToString } from "./util.js";

@@ -1,36 +1,33 @@
 import { BlockNoteEditor } from "@blocknote/core";
 
-import { BlockNoteOperation } from "../functions/blocknoteFunctions.js";
-import { LLMFunction } from "../functions/function.js";
 import {
   filterValidOperations,
   toValidatedOperations,
-} from "./streamOperations/index.js";
+} from "../executor/streamOperations/index.js";
+import { StreamTool, StreamToolCall } from "./streamTool.js";
 
-export type PreprocessOperationResult<T> = {
-  operation: T;
+export type PreprocessOperationResult<T extends StreamTool<any>[]> = {
+  operation: StreamToolCall<T>;
   isUpdateToPreviousOperation: boolean;
   isPossiblyPartial: boolean;
 };
 
 export async function* preprocessOperationsStreaming<
-  T extends BlockNoteOperation<any> // TODO: rename blocknoteoperation?
+  T extends StreamTool<any>[]
 >(
   editor: BlockNoteEditor,
   operationsStream: AsyncIterable<{
-    partialOperation: T;
+    partialOperation: any;
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
   }>,
-  functions: LLMFunction<T>[]
+  streamTools: T
 ): AsyncGenerator<PreprocessOperationResult<T>> {
-  // TODO: add filterNewOrUpdatedOperations here?
-
   // from partial operations to valid / invalid operations
   const validatedOperationsStream = toValidatedOperations(
     editor,
     operationsStream,
-    functions
+    streamTools
   );
 
   // filter valid operations, invalid operations are ignored
@@ -39,30 +36,24 @@ export async function* preprocessOperationsStreaming<
   );
 
   yield* validOperationsStream;
-
-  // duplicate inserts to updates
-  // const duplicateInsertsToUpdatesStream = duplicateInsertsToUpdates(
-  //   validOperationsStream
-  // );
-
-  // // yield results
-  // yield* duplicateInsertsToUpdatesStream;
 }
 
-export async function* preprocessOperationsNonStreaming<T>(
+export async function* preprocessOperationsNonStreaming<
+  T extends StreamTool<any>[]
+>(
   editor: BlockNoteEditor,
   operationsStream: AsyncIterable<{
-    partialOperation: T;
+    partialOperation: any;
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
   }>,
-  functions: LLMFunction<BlockNoteOperation<T>>[]
-): AsyncGenerator<PreprocessOperationResult<BlockNoteOperation<T>>> {
+  streamTools: T
+): AsyncGenerator<PreprocessOperationResult<T>> {
   // from partial operations to valid / invalid operations
   const validatedOperationsStream = toValidatedOperations(
     editor,
     operationsStream,
-    functions
+    streamTools
   );
 
   // filter valid operations, invalid operations should throw an error
@@ -76,6 +67,3 @@ export async function* preprocessOperationsNonStreaming<T>(
   // yield results
   yield* validOperationsStream;
 }
-
-// - cursor position
-// - API design (customize context, cursor position, prompt, stream / nostream, validation)

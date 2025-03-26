@@ -4,7 +4,7 @@ import {
   isLinkInlineContent,
   isStyledTextInlineContent,
 } from "@blocknote/core";
-import { InvalidOrOk } from "../../../functions/blocknoteFunctions.js";
+import { InvalidOrOk } from "../../../streamTool/streamTool";
 
 function validateInlineContent(content: any, editor: any): boolean {
   const inlineContentConfig =

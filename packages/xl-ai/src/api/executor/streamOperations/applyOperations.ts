@@ -7,21 +7,48 @@ import { applySuggestions } from "@handlewithcare/prosemirror-suggest-changes";
 import { applyStepsAsAgent } from "../../../prosemirror/agent.js";
 import { updateToReplaceSteps } from "../../../prosemirror/changeset.js";
 import { RebaseTool } from "../../../prosemirror/rebaseTool.js";
-import { BlockNoteOperation } from "../../functions/blocknoteFunctions.js";
+import { StreamTool, StreamToolCall } from "../../streamTool/streamTool.js";
+import { AddBlocksToolCall } from "../../tools/createAddBlocksTool.js";
+import { UpdateBlockToolCall } from "../../tools/createUpdateBlockTool.js";
+import { DeleteBlockToolCall } from "../../tools/delete.js";
 
-export type ApplyOperationResult = {
-  operation: BlockNoteOperation<PartialBlock<any, any, any>>;
-  result: "ok";
-  lastBlockId: string;
-};
+export type ApplyOperationResult<T extends StreamTool<any>[]> =
+  | {
+      operation: StreamToolCall<T>;
+      isUpdateToPreviousOperation: boolean;
+      isPossiblyPartial: boolean;
+      result: "ok";
+      lastBlockId: string;
+    }
+  | {
+      operation: StreamToolCall<T>;
+      isUpdateToPreviousOperation: boolean;
+      isPossiblyPartial: boolean;
+    };
+
+function isBuiltInToolCall(
+  operation: unknown
+): operation is
+  | UpdateBlockToolCall<PartialBlock<any, any, any>>
+  | AddBlocksToolCall<PartialBlock<any, any, any>>
+  | DeleteBlockToolCall {
+  return (
+    typeof operation === "object" &&
+    operation !== null &&
+    "type" in operation &&
+    (operation.type === "update" ||
+      operation.type === "add" ||
+      operation.type === "delete")
+  );
+}
 
 /**
  * Applies the operations to the editor and yields the results.
  */
-export async function* applyOperations(
+export async function* applyOperations<T extends StreamTool<any>[]>(
   editor: BlockNoteEditor<any, any, any>,
   operationsStream: AsyncIterable<{
-    operation: BlockNoteOperation<PartialBlock<any, any, any>>;
+    operation: StreamToolCall<T>;
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
   }>,
@@ -31,27 +58,33 @@ export async function* applyOperations(
   } = {
     withDelays: true,
   }
-): AsyncGenerator<ApplyOperationResult> {
+): AsyncGenerator<ApplyOperationResult<any>> {
   let minSize = 50;
 
   for await (const chunk of operationsStream) {
+    const operation = chunk.operation as unknown;
+    if (!isBuiltInToolCall(operation)) {
+      yield chunk;
+      continue;
+    }
+
     // TODO: add vs insert
-    if (chunk.operation.type === "add") {
+    if (operation.type === "add") {
       // TODO: apply as agent?
       const ret = editor.insertBlocks(
-        chunk.operation.blocks,
-        chunk.operation.referenceId,
-        chunk.operation.position
+        operation.blocks,
+        operation.referenceId,
+        operation.position
       );
       yield {
-        operation: chunk.operation,
+        ...chunk,
         result: "ok",
         lastBlockId: ret[ret.length - 1].id,
       };
-    } else if (chunk.operation.type === "update") {
+    } else if (operation.type === "update") {
       if (chunk.isPossiblyPartial) {
         // TODO: unit test and / or extract to separate pipeline step
-        const size = JSON.stringify(chunk.operation.block).length;
+        const size = JSON.stringify(operation.block).length;
         if (size < minSize) {
           continue;
         } else {
@@ -65,12 +98,12 @@ export async function* applyOperations(
       }
 
       // TODO: this might be inefficient, we might be able to pass a single rebaseTool as long as we map subsequent operations
-      const tool = await rebaseTool(chunk.operation.id);
+      const tool = await rebaseTool(operation.id);
       // console.log("update", JSON.stringify(chunk.operation, null, 2));
       // Convert the update operation directly to ReplaceSteps
       const steps = updateToReplaceSteps(
         editor,
-        chunk.operation,
+        operation,
         tool.doc,
         chunk.isPossiblyPartial
       );
@@ -96,21 +129,21 @@ export async function* applyOperations(
       });
 
       yield {
-        operation: chunk.operation,
+        ...chunk,
         result: "ok",
         lastBlockId: chunk.operation.id,
       };
-    } else if (chunk.operation.type === "delete") {
+    } else if (operation.type === "delete") {
       // TODO: apply as agent?
-      const prevBlock = editor.getPrevBlock(chunk.operation.ids[0]);
-      editor.removeBlocks(chunk.operation.ids);
+      const prevBlock = editor.getPrevBlock(operation.id);
+      editor.removeBlocks([operation.id]);
       yield {
-        operation: chunk.operation,
+        ...chunk,
         result: "ok",
         lastBlockId: prevBlock?.id ?? editor.document[0].id,
       };
     } else {
-      throw new UnreachableCaseError(chunk.operation);
+      throw new UnreachableCaseError(operation.type);
     }
   }
   // TODO: remove?

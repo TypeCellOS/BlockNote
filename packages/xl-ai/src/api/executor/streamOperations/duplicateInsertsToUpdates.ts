@@ -1,26 +1,45 @@
 import { PartialBlock, UniqueID } from "@blocknote/core";
-import { BlockNoteOperation } from "../../functions/blocknoteFunctions.js";
+
+import { StreamToolCall } from "../../streamTool/streamTool.js";
+import { AddBlocksToolCall } from "../../tools/createAddBlocksTool.js";
+import { UpdateBlockToolCall } from "../../tools/createUpdateBlockTool.js";
+
+function isBuiltInAddBlocksToolCall(
+  operation: unknown
+): operation is AddBlocksToolCall<PartialBlock<any, any, any>> {
+  return (
+    typeof operation === "object" &&
+    operation !== null &&
+    "type" in operation &&
+    operation.type === "add"
+  );
+}
 
 /**
  * Handles the case where an insert operation is updated in subsequent chunks.
  * This function converts insert operations to update operations for blocks that were already inserted,
  * and handles new blocks that need to be inserted.
  */
-export async function* duplicateInsertsToUpdates(
+export async function* duplicateInsertsToUpdates<
+  T extends
+    | UpdateBlockToolCall<PartialBlock<any, any, any>>
+    | AddBlocksToolCall<PartialBlock<any, any, any>>
+    | StreamToolCall<any>
+>(
   operationsStream: AsyncIterable<{
-    operation: BlockNoteOperation<PartialBlock<any, any, any>>;
+    operation: T;
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
   }>
 ): AsyncGenerator<{
-  operation: BlockNoteOperation<PartialBlock<any, any, any>>;
+  operation: T;
   isUpdateToPreviousOperation: boolean;
   isPossiblyPartial: boolean;
 }> {
   let insertedIds: string[] = [];
   for await (const chunk of operationsStream) {
     if (
-      chunk.operation.type !== "add" ||
+      !isBuiltInAddBlocksToolCall(chunk.operation) ||
       (!chunk.isPossiblyPartial && !chunk.isUpdateToPreviousOperation)
     ) {
       insertedIds = [];
@@ -44,7 +63,7 @@ export async function* duplicateInsertsToUpdates(
           type: "update",
           id: insertedIds[i],
           block: toUpdate[i],
-        },
+        } as T,
       };
     }
 

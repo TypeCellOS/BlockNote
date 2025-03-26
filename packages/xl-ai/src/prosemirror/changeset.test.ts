@@ -1,6 +1,6 @@
 import { PartialBlock } from "@blocknote/core";
 import { expect, it } from "vitest";
-import { UpdateBlocksOperation } from "../api/functions/blocknoteFunctions.js";
+import { UpdateBlockToolCall } from "../api/tools/createUpdateBlockTool.js";
 import {
   getTestEditor,
   testUpdateOperations,
@@ -8,7 +8,7 @@ import {
 import { updateToReplaceSteps } from "./changeset.js";
 
 function testUpdate(
-  update: UpdateBlocksOperation<PartialBlock<any, any, any>>["block"],
+  update: UpdateBlockToolCall<PartialBlock<any, any, any>>["block"],
   blockId: string
 ) {
   const editor = getTestEditor();

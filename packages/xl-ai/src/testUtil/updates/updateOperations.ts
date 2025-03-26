@@ -1,6 +1,6 @@
 import { BlockNoteEditor, PartialBlock } from "@blocknote/core";
 import { schemaWithMention as schema } from "@shared/testing/editorSchemas/mention.js";
-import { UpdateBlocksOperation } from "../../api/functions/blocknoteFunctions.js";
+import { UpdateBlockToolCall } from "../../api/tools/createUpdateBlockTool.js";
 
 /**
  * This file defines a set of test cases that can be used to test update operations to the editor.
@@ -11,7 +11,7 @@ type TestUpdateOperation = {
   /**
    * The update operation to apply to the editor
    */
-  updateOp: UpdateBlocksOperation<PartialBlock<any, any, any>>;
+  updateOp: UpdateBlockToolCall<PartialBlock<any, any, any>>;
   /**
    * Description (name) of the test case
    */

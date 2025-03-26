@@ -112,3 +112,38 @@ describe("Error handling", () => {
     );
   });
 });
+
+it("test generator", async () => {
+  const mockStream = async function* () {
+    yield {
+      type: "add",
+      count: 5,
+    };
+
+    yield {
+      type: "update",
+      count: 10
+    };
+  };
+
+  const p = processStream1(mockStream());
+
+  for await (const chunk of p) {
+    if (chunk.type === "add") {
+      for (let i = 0; i < chunk.count; i++) {
+        yield {
+          type: "add",
+        };
+      }
+    }
+  }
+});
+
+async function* processStream1(stream: AsyncGenerator<any, any, any>) {
+  for await (const chunk of stream) {
+    yield {
+      ...chunk,
+      count: chunk.count + 10,
+    };
+  }
+}

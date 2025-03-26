@@ -1,21 +1,8 @@
-import {
-  BlockNoteEditor,
-  PartialBlock,
-  UnreachableCaseError,
-} from "@blocknote/core";
-import {
-  CoreMessage,
-  GenerateObjectResult,
-  LanguageModel,
-  StreamObjectResult,
-  generateObject,
-  jsonSchema,
-  streamObject,
-} from "ai";
+import { BlockNoteEditor, PartialBlock } from "@blocknote/core";
+import { CoreMessage, GenerateObjectResult, StreamObjectResult } from "ai";
 import { Mapping } from "prosemirror-transform";
 import type { PromptOrMessages } from "../../index.js";
 import { promptManipulateSelectionJSONSchema } from "../../prompts/jsonSchemaPrompts.js";
-import { createOperationsArraySchema } from "../../schema/operations.js";
 
 import {
   ApplyOperationResult,
@@ -24,61 +11,47 @@ import {
 import { promptManipulateDocumentUseMarkdownBlocks } from "../../prompts/markdownBlocksPrompt.js";
 import {
   AsyncIterableStream,
-  asyncIterableToStream,
-  createAsyncIterableStream,
+  createAsyncIterableStreamFromAsyncIterable,
 } from "../../util/stream.js";
 
-import {
-  getLLMResponseNonStreaming,
-  getLLMResponseStreaming,
-} from "../../executor/execute.js";
 import { duplicateInsertsToUpdates } from "../../executor/streamOperations/duplicateInsertsToUpdates.js";
-import { BlockNoteOperation } from "../../functions/blocknoteFunctions.js";
-import { DeleteFunction } from "../../functions/delete.js";
 
 import { updateToReplaceSteps } from "../../../prosemirror/changeset.js";
 import {
   getApplySuggestionsTr,
   rebaseTool,
 } from "../../../prosemirror/rebaseTool.js";
+
 import {
-  AIFunctionMD,
-  AddFunctionMD,
-  UpdateFunctionMD,
-} from "./functions/index.js";
-
-type LLMRequestOptions = {
-  model: LanguageModel;
-  functions: AIFunctionMD[];
-  stream: boolean;
-  maxRetries: number;
-  _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]>;
-  _streamObjectOptions?: Partial<Parameters<typeof streamObject<any>>[0]>;
-} & PromptOrMessages;
-
-type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
-
-type CallLLMOptionsWithOptional = Optional<
   LLMRequestOptions,
-  "functions" | "stream" | "maxRetries"
->;
+  callLLMWithStreamTools,
+} from "../../streamTool/callLLMWithStreamTools.js";
+import { StreamTool, StreamToolCall } from "../../streamTool/streamTool.js";
+import { AddBlocksToolCall } from "../../tools/createAddBlocksTool.js";
+import { UpdateBlockToolCall } from "../../tools/createUpdateBlockTool.js";
+import { DeleteBlockToolCall } from "../../tools/delete.js";
+import { tools } from "./tools/index.js";
 
 // Define the return type for streaming mode
 type ReturnType = {
-  resultStream: AsyncIterableStream<ApplyOperationResult>;
+  toolCallsStream: AsyncIterableStream<ApplyOperationResult<any>>;
   llmResult: StreamObjectResult<any, any, any> | GenerateObjectResult<any>;
   apply: () => Promise<void>;
 };
 
-export async function callLLM(
+type DefaultTools = Array<
+  (typeof tools)["add"] | (typeof tools)["update"] | (typeof tools)["delete"]
+>;
+
+export async function callLLM<T extends StreamTool<any>[] = DefaultTools>(
   editor: BlockNoteEditor<any, any, any>,
-  opts: CallLLMOptionsWithOptional
+  opts: Omit<LLMRequestOptions, "messages"> & PromptOrMessages,
+  streamTools?: T
 ): Promise<ReturnType> {
-  const { prompt, useSelection, ...rest } = opts;
+  const { prompt, useSelection, stream = true, ...rest } = opts;
 
   let messages: CoreMessage[];
 
-  // changed
   const doc = await Promise.all(
     editor.document.map(async (block) => {
       return {
@@ -104,48 +77,23 @@ export async function callLLM(
     });
   }
 
-  const options: LLMRequestOptions = {
-    functions: [
-      new UpdateFunctionMD(),
-      new AddFunctionMD(),
-      new DeleteFunction(),
-    ],
-    stream: true,
-    messages,
-    maxRetries: 2,
-    ...rest,
-  };
+  streamTools = streamTools ?? ([tools.add, tools.update, tools.delete] as T);
 
-  // changed
-  const schema = jsonSchema({
-    ...createOperationsArraySchema(options.functions),
-    $defs: {
-      block: {
-        type: "string",
-        description: "markdown of block",
-      },
-    },
-  });
-
-  const getResponseOptions = {
-    ...options,
-    mode: "tool" as const,
-    schema,
-    messages,
-  };
-
-  const { result, operationsSource } = options.stream
-    ? await getLLMResponseStreaming(getResponseOptions, editor)
-    : await getLLMResponseNonStreaming(getResponseOptions, editor);
-
-  const blockNoteOperationsSource = toBlockNoteOperations(
+  const response = await callLLMWithStreamTools(
     editor,
-    operationsSource
+    {
+      ...rest,
+      messages,
+      stream,
+    },
+    streamTools
   );
 
-  const operationsToApply = options.stream
-    ? duplicateInsertsToUpdates(blockNoteOperationsSource)
-    : blockNoteOperationsSource;
+  const jsonToolCalls = toJSONToolCalls(editor, response.toolCallsStream);
+
+  const operationsToApply = stream
+    ? duplicateInsertsToUpdates(jsonToolCalls)
+    : jsonToolCalls;
 
   const resultGenerator = applyOperations(
     editor,
@@ -182,38 +130,42 @@ export async function callLLM(
     }
   );
 
-  // Convert to stream at the API boundary
-  const resultStream = asyncIterableToStream(resultGenerator);
-  const asyncIterableResultStream = createAsyncIterableStream(resultStream);
-
   return {
-    llmResult: result,
-    resultStream: asyncIterableResultStream,
+    llmResult: response.llmResult,
+    toolCallsStream:
+      createAsyncIterableStreamFromAsyncIterable(resultGenerator),
+    // TODO: make it easy to add your own "applyOperations" function
     async apply() {
       /* eslint-disable-next-line */
-      for await (const _result of asyncIterableResultStream) {
+      for await (const _result of resultGenerator) {
         // no op
       }
     },
   };
 }
 
-export async function* toBlockNoteOperations(
+export async function* toJSONToolCalls(
   editor: BlockNoteEditor<any, any, any>,
   operationsSource: AsyncIterable<{
-    operation: BlockNoteOperation<string>;
+    operation: StreamToolCall<any>;
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
   }>
 ): AsyncGenerator<{
-  operation: BlockNoteOperation<PartialBlock<any, any, any>>;
+  operation: StreamToolCall<any>;
   isUpdateToPreviousOperation: boolean;
   isPossiblyPartial: boolean;
 }> {
   for await (const chunk of operationsSource) {
-    if (chunk.operation.type === "add") {
+    const operation = chunk.operation;
+    if (!isBuiltInToolCall(operation)) {
+      yield chunk;
+      continue;
+    }
+
+    if (operation.type === "add") {
       const blocks = await Promise.all(
-        chunk.operation.blocks.map(async (md) => {
+        operation.blocks.map(async (md) => {
           const block = (await editor.tryParseMarkdownToBlocks(md.trim()))[0]; // TODO: trim
           delete (block as any).id;
           return block;
@@ -230,12 +182,12 @@ export async function* toBlockNoteOperations(
         operation: {
           ...chunk.operation,
           blocks,
-        },
+        } as AddBlocksToolCall<PartialBlock<any, any, any>>,
       };
-    } else if (chunk.operation.type === "update") {
-      console.log("update", chunk.operation.block);
+    } else if (operation.type === "update") {
+      // console.log("update", operation.block);
       const block = (
-        await editor.tryParseMarkdownToBlocks(chunk.operation.block.trim())
+        await editor.tryParseMarkdownToBlocks(operation.block.trim())
       )[0];
 
       // hacky
@@ -246,17 +198,35 @@ export async function* toBlockNoteOperations(
       yield {
         ...chunk,
         operation: {
-          ...chunk.operation,
+          ...operation,
           block,
-        },
+        } as UpdateBlockToolCall<PartialBlock<any, any, any>>,
       };
-    } else if (chunk.operation.type === "delete") {
+    } else if (operation.type === "delete") {
       yield {
         ...chunk,
-        operation: chunk.operation,
+        operation: {
+          ...operation,
+        } as DeleteBlockToolCall,
       };
     } else {
-      throw new UnreachableCaseError(chunk.operation);
+      throw new UnreachableCaseError(operation);
     }
   }
+}
+
+function isBuiltInToolCall(
+  operation: unknown
+): operation is
+  | UpdateBlockToolCall<string>
+  | AddBlocksToolCall<string>
+  | DeleteBlockToolCall {
+  return (
+    typeof operation === "object" &&
+    operation !== null &&
+    "type" in operation &&
+    (operation.type === "update" ||
+      operation.type === "add" ||
+      operation.type === "delete")
+  );
 }

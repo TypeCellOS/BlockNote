@@ -1,19 +1,10 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import {
-  CoreMessage,
-  GenerateObjectResult,
-  LanguageModel,
-  StreamObjectResult,
-  generateObject,
-  jsonSchema,
-  streamObject,
-} from "ai";
+import { CoreMessage, GenerateObjectResult, StreamObjectResult } from "ai";
 
 import {
   promptManipulateDocumentUseJSONSchema,
   promptManipulateSelectionJSONSchema,
 } from "../../prompts/jsonSchemaPrompts.js";
-import { createOperationsArraySchema } from "../../schema/operations.js";
 import { blockNoteSchemaToJSONSchema } from "../../schema/schemaToJSONSchema.js";
 
 import {
@@ -21,55 +12,40 @@ import {
   rebaseTool,
 } from "../../../prosemirror/rebaseTool.js";
 import {
-  getLLMResponseNonStreaming,
-  getLLMResponseStreaming,
-} from "../../executor/execute.js";
-import {
   ApplyOperationResult,
   applyOperations,
 } from "../../executor/streamOperations/applyOperations.js";
 import { duplicateInsertsToUpdates } from "../../executor/streamOperations/duplicateInsertsToUpdates.js";
-import { DeleteFunction } from "../../functions/delete.js";
+
 import { PromptOrMessages } from "../../index.js";
 import {
-  AsyncIterableStream,
-  asyncIterableToStream,
-  createAsyncIterableStream,
-} from "../../util/stream.js";
-import {
-  AIFunctionJSON,
-  AddFunctionJSON,
-  UpdateFunctionJSON,
-} from "./functions/index.js";
-
-type LLMRequestOptions = {
-  model: LanguageModel;
-  functions: AIFunctionJSON[];
-  stream: boolean;
-  maxRetries: number;
-  _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]>;
-  _streamObjectOptions?: Partial<Parameters<typeof streamObject<any>>[0]>;
-};
-
-type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
-
-type CallLLMOptionsWithOptional = Optional<
   LLMRequestOptions,
-  "functions" | "stream" | "maxRetries"
->;
+  callLLMWithStreamTools,
+} from "../../streamTool/callLLMWithStreamTools.js";
+import { StreamTool } from "../../streamTool/streamTool.js";
+import {
+  AsyncIterableStream,
+  createAsyncIterableStreamFromAsyncIterable,
+} from "../../util/stream.js";
+import { tools } from "./tools/index.js";
 
 // Define the return type for streaming mode
 type ReturnType = {
-  resultStream: AsyncIterableStream<ApplyOperationResult>;
+  toolCallsStream: AsyncIterableStream<ApplyOperationResult<any>>;
   llmResult: StreamObjectResult<any, any, any> | GenerateObjectResult<any>;
   apply: () => Promise<void>;
 };
 
-export async function callLLM(
+type DefaultTools = Array<
+  (typeof tools)["add"] | (typeof tools)["update"] | (typeof tools)["delete"]
+>;
+
+export async function callLLM<T extends StreamTool<any>[] = DefaultTools>(
   editor: BlockNoteEditor<any, any, any>,
-  opts: CallLLMOptionsWithOptional & PromptOrMessages
+  opts: Omit<LLMRequestOptions, "messages"> & PromptOrMessages,
+  streamTools?: T
 ): Promise<ReturnType> {
-  const { prompt, useSelection, ...rest } = opts;
+  const { prompt, useSelection, stream = true, ...rest } = opts;
 
   let messages: CoreMessage[];
 
@@ -89,37 +65,22 @@ export async function callLLM(
     });
   }
 
-  const options: LLMRequestOptions = {
-    functions: [
-      new UpdateFunctionJSON(),
-      new AddFunctionJSON(),
-      new DeleteFunction(),
-    ],
-    stream: true,
-    messages,
-    maxRetries: 2,
-    ...rest,
-  };
+  streamTools = streamTools ?? ([tools.add, tools.update, tools.delete] as T);
 
-  const schema = jsonSchema({
-    ...createOperationsArraySchema(options.functions),
-    $defs: blockNoteSchemaToJSONSchema(editor.schema).$defs as any,
-  });
+  const response = await callLLMWithStreamTools(
+    editor,
+    {
+      ...rest,
+      messages,
+      stream,
+    },
+    streamTools,
+    blockNoteSchemaToJSONSchema(editor.schema).$defs as any
+  );
 
-  const getResponseOptions = {
-    ...options,
-    mode: "tool" as const,
-    schema,
-    messages,
-  };
-
-  const { result, operationsSource } = options.stream
-    ? await getLLMResponseStreaming(getResponseOptions, editor)
-    : await getLLMResponseNonStreaming(getResponseOptions, editor);
-
-  const operationsToApply = options.stream
-    ? duplicateInsertsToUpdates(operationsSource)
-    : operationsSource;
+  const operationsToApply = stream
+    ? duplicateInsertsToUpdates(response.toolCallsStream)
+    : response.toolCallsStream;
 
   const resultGenerator = applyOperations(
     editor,
@@ -130,16 +91,14 @@ export async function callLLM(
     }
   );
 
-  // Convert to stream at the API boundary
-  const resultStream = asyncIterableToStream(resultGenerator);
-  const asyncIterableResultStream = createAsyncIterableStream(resultStream);
-
   return {
-    llmResult: result,
-    resultStream: asyncIterableResultStream,
+    llmResult: response.llmResult,
+    toolCallsStream:
+      createAsyncIterableStreamFromAsyncIterable(resultGenerator),
+    // TODO: make it easy to add your own "applyOperations" function
     async apply() {
       /* eslint-disable-next-line */
-      for await (const _result of asyncIterableResultStream) {
+      for await (const _result of resultGenerator) {
         // no op
       }
     },

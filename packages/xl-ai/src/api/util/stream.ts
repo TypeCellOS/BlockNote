@@ -45,3 +45,12 @@ export function createAsyncIterableStream<T>(
 
   return stream as AsyncIterableStream<T>;
 }
+
+/**
+ * Creates an AsyncIterableStream from an AsyncGenerator
+ */
+export function createAsyncIterableStreamFromAsyncIterable<T>(
+  source: AsyncIterable<T>
+): AsyncIterableStream<T> {
+  return createAsyncIterableStream(asyncIterableToStream(source));
+}

@@ -16,8 +16,8 @@ import {
   RiText,
   RiTextWrap,
 } from "react-icons/ri";
-import { addFunction } from "../../api/functions/add.js";
-import { updateFunction } from "../../api/functions/update.js";
+import { addFunction } from "../../api/tools/createAddBlocksTool.js";
+import { updateFunction } from "../../api/tools/createUpdateBlockTool.js";
 import { getAIDictionary } from "../../i18n/dictionary.js";
 import { BlockNoteAIContextValue } from "../BlockNoteAIContext.js";
 

@@ -1,4 +1,4 @@
-import { InvalidOrOk } from "../../../functions/blocknoteFunctions.js";
+import { InvalidOrOk } from "../../../streamTool/streamTool.js";
 
 export function validateBlockFunction(block: any): InvalidOrOk<string> {
   if (typeof block !== "string") {

@@ -1,4 +1,4 @@
-import { InvalidOrOk } from "../../functions/blocknoteFunctions.js";
+import { InvalidOrOk } from "./streamTool.js";
 
 /**
  * Filters out invalid operations from the stream.

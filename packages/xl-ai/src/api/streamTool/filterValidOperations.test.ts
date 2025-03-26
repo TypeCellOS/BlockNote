@@ -1,11 +1,8 @@
 import { describe, expect, it } from "vitest";
-import {
-  BlockNoteOperation,
-  InsertBlocksOperation,
-  InvalidOrOk,
-  UpdateBlocksOperation,
-} from "../../functions/blocknoteFunctions.js";
+import { AddBlocksToolCall } from "../tools/createAddBlocksTool.js";
+import { UpdateBlockToolCall } from "../tools/createUpdateBlockTool.js";
 import { filterValidOperations } from "./filterValidOperations.js";
+import { InvalidOrOk } from "./streamTool.js";
 
 describe("filterValidOperations", () => {
   it("should filter out valid operations from a stream", async () => {
@@ -19,8 +16,8 @@ describe("filterValidOperations", () => {
             blocks: [],
             referenceId: "123",
             position: "after",
-          } as InsertBlocksOperation<any>,
-        } as InvalidOrOk<BlockNoteOperation<any>>,
+          } as AddBlocksToolCall<any>,
+        } as InvalidOrOk<AddBlocksToolCall<any> | UpdateBlockToolCall<any>>,
         isUpdateToPreviousOperation: false,
         isPossiblyPartial: false,
       };
@@ -29,7 +26,7 @@ describe("filterValidOperations", () => {
         operation: {
           result: "invalid",
           reason: "Invalid operation",
-        } as InvalidOrOk<BlockNoteOperation<any>>,
+        } as InvalidOrOk<AddBlocksToolCall<any> | UpdateBlockToolCall<any>>,
         isUpdateToPreviousOperation: false,
         isPossiblyPartial: false,
       };
@@ -41,8 +38,8 @@ describe("filterValidOperations", () => {
             type: "update",
             id: "456",
             block: { content: "updated" },
-          } as UpdateBlocksOperation<any>,
-        } as InvalidOrOk<BlockNoteOperation<any>>,
+          } as UpdateBlockToolCall<any>,
+        } as InvalidOrOk<AddBlocksToolCall<any> | UpdateBlockToolCall<any>>,
         isUpdateToPreviousOperation: true,
         isPossiblyPartial: true,
       };
@@ -80,7 +77,7 @@ describe("filterValidOperations", () => {
         operation: {
           result: "invalid",
           reason: "Invalid operation 1",
-        } as InvalidOrOk<BlockNoteOperation<any>>,
+        } as InvalidOrOk<AddBlocksToolCall<any> | UpdateBlockToolCall<any>>,
         isUpdateToPreviousOperation: false,
         isPossiblyPartial: false,
       };
@@ -89,7 +86,7 @@ describe("filterValidOperations", () => {
         operation: {
           result: "invalid",
           reason: "Invalid operation 2",
-        } as InvalidOrOk<BlockNoteOperation<any>>,
+        } as InvalidOrOk<AddBlocksToolCall<any> | UpdateBlockToolCall<any>>,
         isUpdateToPreviousOperation: true,
         isPossiblyPartial: false,
       };

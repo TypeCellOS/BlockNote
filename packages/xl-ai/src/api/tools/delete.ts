@@ -1,34 +1,27 @@
-import { BlockNoteEditor } from "@blocknote/core";
-import { DeepPartial } from "ai";
-import { InvalidOrOk, RemoveBlocksOperation } from "./blocknoteFunctions.js";
-import { LLMFunction } from "./function.js";
-
-type DeleteFunctionInput = Omit<RemoveBlocksOperation, "ids"> & {
-  id: string;
-};
+import { streamTool } from "../streamTool/streamTool.js";
 
 // TODO, rename to remove?
-export class DeleteFunction extends LLMFunction<RemoveBlocksOperation> {
-  public schema = {
-    name: "delete",
-    description: "Delete a block",
-    parameters: {
+export const deleteBlockTool = streamTool<DeleteBlockToolCall>(
+  "delete",
+  "Delete a block",
+  {
+    type: "object",
+    properties: {
       id: {
         type: "string",
         description: "id of block to delete",
       },
     },
     required: ["id"],
-  } as const;
-
-  validate(
-    operation: DeepPartial<DeleteFunctionInput>,
-    editor: BlockNoteEditor,
+  },
+  (
+    operation,
+    editor,
     options: {
       idsSuffixed: boolean;
     }
-  ): InvalidOrOk<RemoveBlocksOperation> {
-    if (operation.type !== this.schema.name) {
+  ) => {
+    if (operation.type !== "delete") {
       return {
         result: "invalid",
         reason: "invalid operation type",
@@ -67,8 +60,13 @@ export class DeleteFunction extends LLMFunction<RemoveBlocksOperation> {
       result: "ok",
       value: {
         type: "delete", // TODO
-        ids: [id],
+        id,
       },
     };
   }
-}
+);
+
+export type DeleteBlockToolCall = {
+  type: "delete";
+  id: string;
+};

@@ -1,8 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  BlockNoteOperation,
-  InsertBlocksOperation,
-} from "../../functions/blocknoteFunctions.js";
+
+import { AddBlocksToolCall } from "../../tools/createAddBlocksTool.js";
+import { DeleteBlockToolCall } from "../../tools/delete.js";
 import { duplicateInsertsToUpdates } from "./duplicateInsertsToUpdates.js";
 
 // Mock the UniqueID.options.generateID function
@@ -25,8 +24,8 @@ describe("duplicateInsertsToUpdates", () => {
       yield {
         operation: {
           type: "delete",
-          ids: ["123", "456"],
-        } as BlockNoteOperation<any>,
+          id: "123",
+        } as DeleteBlockToolCall,
         isUpdateToPreviousOperation: false,
         isPossiblyPartial: false,
       };
@@ -41,8 +40,8 @@ describe("duplicateInsertsToUpdates", () => {
     expect(result[0]).toEqual({
       operation: {
         type: "delete",
-        ids: ["123", "456"],
-      },
+        id: "123",
+      } as DeleteBlockToolCall,
       isUpdateToPreviousOperation: false,
       isPossiblyPartial: false,
     });
@@ -56,7 +55,7 @@ describe("duplicateInsertsToUpdates", () => {
         blocks: [{ content: "block1" }],
         referenceId: "ref1",
         position: "after",
-      } as InsertBlocksOperation<any>,
+      } as AddBlocksToolCall<any>,
       isUpdateToPreviousOperation: false,
       isPossiblyPartial: true,
     };
@@ -68,7 +67,7 @@ describe("duplicateInsertsToUpdates", () => {
         blocks: [{ content: "block1-updated" }, { content: "block2" }],
         referenceId: "ref1",
         position: "after",
-      } as InsertBlocksOperation<any>,
+      } as AddBlocksToolCall<any>,
       isUpdateToPreviousOperation: true,
       isPossiblyPartial: true,
     };
@@ -84,7 +83,7 @@ describe("duplicateInsertsToUpdates", () => {
         ],
         referenceId: "ref1",
         position: "after",
-      } as InsertBlocksOperation<any>,
+      } as AddBlocksToolCall<any>,
       isUpdateToPreviousOperation: true,
       isPossiblyPartial: true,
     };
@@ -101,7 +100,7 @@ describe("duplicateInsertsToUpdates", () => {
         ],
         referenceId: "ref1",
         position: "after",
-      } as InsertBlocksOperation<any>,
+      } as AddBlocksToolCall<any>,
       isUpdateToPreviousOperation: true,
       isPossiblyPartial: true,
     };
@@ -249,7 +248,7 @@ describe("duplicateInsertsToUpdates", () => {
         blocks: [{ content: "block1" }],
         referenceId: "ref1",
         position: "after",
-      } as InsertBlocksOperation<any>,
+      } as AddBlocksToolCall<any>,
       isUpdateToPreviousOperation: false,
       isPossiblyPartial: false,
     };

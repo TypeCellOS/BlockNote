@@ -1,14 +1,10 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vitest";
-import {
-  AddFunctionJSON,
-  UpdateFunctionJSON,
-} from "../../formats/json/functions/index.js";
-import {
-  InsertBlocksOperation,
-  InvalidOrOk,
-  UpdateBlocksOperation,
-} from "../../functions/blocknoteFunctions.js";
+
+import { tools } from "../formats/json/tools/index.js";
+import { AddBlocksToolCall } from "../tools/createAddBlocksTool.js";
+import { UpdateBlockToolCall } from "../tools/createUpdateBlockTool.js";
+import { InvalidOrOk } from "./streamTool.js";
 import { toValidatedOperations } from "./toValidatedOperations.js";
 
 describe("toValidatedOperations", () => {
@@ -35,7 +31,7 @@ describe("toValidatedOperations", () => {
   } as unknown as BlockNoteEditor;
 
   // Array of test functions
-  const functions = [new AddFunctionJSON(), new UpdateFunctionJSON()];
+  const streamTools = [tools.add, tools.update, tools.delete];
 
   it("should transform add operations to BlockNoteOperations", async () => {
     // Create a mock stream
@@ -61,7 +57,7 @@ describe("toValidatedOperations", () => {
     for await (const chunk of toValidatedOperations(
       mockEditor,
       mockStream(),
-      functions
+      streamTools
     )) {
       result.push(chunk);
     }
@@ -85,7 +81,7 @@ describe("toValidatedOperations", () => {
     for await (const chunk of toValidatedOperations(
       mockEditor,
       mockStream(),
-      functions
+      streamTools
     )) {
       result.push(chunk);
     }
@@ -130,7 +126,7 @@ describe("toValidatedOperations", () => {
     for await (const chunk of toValidatedOperations(
       mockEditor,
       mockStream(),
-      functions
+      streamTools
     )) {
       result.push(chunk);
     }
@@ -163,7 +159,7 @@ describe("toValidatedOperations", () => {
     for await (const chunk of toValidatedOperations(
       mockEditor,
       mockStream(),
-      functions
+      streamTools
     )) {
       result.push(chunk);
     }
@@ -190,7 +186,7 @@ describe("toValidatedOperations", () => {
       return;
     }
 
-    const insertOp = result.operation.value as InsertBlocksOperation<any>;
+    const insertOp = result.operation.value as AddBlocksToolCall<any>;
     expect(insertOp.type).toBe("add");
     expect(insertOp.position).toBe("after");
     expect(insertOp.blocks).toEqual([
@@ -216,7 +212,7 @@ describe("toValidatedOperations", () => {
       return;
     }
 
-    const updateOp = result.operation.value as UpdateBlocksOperation<any>;
+    const updateOp = result.operation.value as UpdateBlockToolCall<any>;
     expect(updateOp.type).toBe("update");
     expect(updateOp.block).toEqual({
       type: "paragraph",

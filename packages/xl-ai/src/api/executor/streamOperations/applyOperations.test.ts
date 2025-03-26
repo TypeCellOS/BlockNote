@@ -7,12 +7,10 @@ import {
   getTestEditor,
   testUpdateOperations,
 } from "../../../testUtil/updates/updateOperations.js";
-import {
-  BlockNoteOperation,
-  InsertBlocksOperation,
-  RemoveBlocksOperation,
-  UpdateBlocksOperation,
-} from "../../functions/blocknoteFunctions.js";
+
+import { AddBlocksToolCall } from "../../tools/createAddBlocksTool.js";
+import { UpdateBlockToolCall } from "../../tools/createUpdateBlockTool.js";
+import { DeleteBlockToolCall } from "../../tools/delete.js";
 import { applyOperations } from "./applyOperations.js";
 
 describe("applyOperations", () => {
@@ -25,7 +23,10 @@ describe("applyOperations", () => {
   // Helper function to create a mock stream from operations
   async function* createMockStream(
     ...operations: {
-      operation: BlockNoteOperation<any>;
+      operation:
+        | AddBlocksToolCall<any>
+        | UpdateBlockToolCall<any>
+        | DeleteBlockToolCall;
       isUpdateToPreviousOperation?: boolean;
       isPossiblyPartial?: boolean;
     }[]
@@ -42,7 +43,10 @@ describe("applyOperations", () => {
   // Helper function to process operations and return results
   async function processOperations(
     stream: AsyncIterable<{
-      operation: BlockNoteOperation<any>;
+      operation:
+        | AddBlocksToolCall<any>
+        | UpdateBlockToolCall<any>
+        | DeleteBlockToolCall;
       isUpdateToPreviousOperation: boolean;
       isPossiblyPartial: boolean;
     }>
@@ -70,7 +74,7 @@ describe("applyOperations", () => {
         blocks: [{ content: "block1" }],
         referenceId: "ref1",
         position: "after",
-      } as InsertBlocksOperation<any>,
+      } as AddBlocksToolCall<any>,
     };
 
     const result = await processOperations(createMockStream(insertOp));
@@ -127,8 +131,8 @@ describe("applyOperations", () => {
     const removeOp = {
       operation: {
         type: "delete",
-        ids: ["ref1"],
-      } as RemoveBlocksOperation,
+        id: "ref1",
+      } as DeleteBlockToolCall,
     };
 
     const result = await processOperations(createMockStream(removeOp));
@@ -154,7 +158,7 @@ describe("applyOperations", () => {
         blocks: [{ content: "block1" }],
         referenceId: "ref1",
         position: "after",
-      } as InsertBlocksOperation<any>,
+      } as AddBlocksToolCall<any>,
     };
 
     const updateOp = {
@@ -162,7 +166,7 @@ describe("applyOperations", () => {
         type: "update",
         id: "ref1",
         block: { content: "updated content" },
-      } as UpdateBlocksOperation<any>,
+      } as UpdateBlockToolCall<any>,
     };
 
     await processOperations(createMockStream(insertOp, updateOp));
