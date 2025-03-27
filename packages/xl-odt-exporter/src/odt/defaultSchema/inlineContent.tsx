@@ -6,8 +6,8 @@ import {
 export const odtInlineContentMappingForDefaultSchema: InlineContentMapping<
   DefaultInlineContentSchema,
   any,
-  JSX.Element,
-  JSX.Element
+  React.JSX.Element,
+  React.JSX.Element
 > = {
   link: (ic, exporter) => {
     const content = ic.content.map((c) => exporter.transformStyledText(c));

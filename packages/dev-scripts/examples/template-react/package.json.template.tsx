@@ -8,7 +8,7 @@ const template = (project: Project) => ({
   scripts: {
     start: "vite",
     dev: "vite",
-    "build": "tsc && vite build",
+    "build:prod": "tsc && vite build",
     preview: "vite preview"
   },
   dependencies: {

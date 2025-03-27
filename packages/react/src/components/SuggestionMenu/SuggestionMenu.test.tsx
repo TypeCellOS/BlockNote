@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { it } from "vitest";
+import { it, expect } from "vitest";
 import { SuggestionMenuController } from "./SuggestionMenuController.js";
 
 it("has good typing", () => {
@@ -38,4 +37,6 @@ it("has good typing", () => {
       triggerCharacter="/"
     />
   );
+
+  expect(menu).toBeDefined();
 });

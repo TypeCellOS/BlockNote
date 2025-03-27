@@ -57,13 +57,17 @@
   },
   "devDependencies": {
     "@testing-library/react": "^16.0.1",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
     "prettier": "^2.7.1",
     "rollup-plugin-webpack-stats": "^0.2.2",
     "typescript": "^5.0.4",
     "vite": "^5.3.4",
     "vite-plugin-eslint": "^1.8.1",
     "vitest": "^2.0.3",
-    "xml-formatter": "^3.6.3"
+    "xml-formatter": "^3.6.3",
+    "react": "^19",
+    "react-dom": "^19"
   },
   "peerDependencies": {
     "react": "^18.0 || ^19.0 || >= 19.0.0-rc",

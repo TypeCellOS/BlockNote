@@ -8,6 +8,12 @@ importers:
 
   .:
     devDependencies:
+      '@types/react':
+        specifier: ^19
+        version: 19.0.12
+      '@types/react-dom':
+        specifier: ^19
+        version: 19.0.4(@types/react@19.0.12)
       '@typescript-eslint/eslint-plugin':
         specifier: ^5.5.0
         version: 5.62.0(@typescript-eslint/parser@5.62.0(eslint@8.57.1)(typescript@5.8.2))(eslint@8.57.1)(typescript@5.8.2)
@@ -29,6 +35,12 @@ importers:
       lerna:
         specifier: ^5.4.0
         version: 5.6.2(encoding@0.1.13)
+      react:
+        specifier: ^19
+        version: 19.0.0
+      react-dom:
+        specifier: ^19
+        version: 19.0.0(react@19.0.0)
       typescript:
         specifier: ^5.3.3
         version: 5.8.2
@@ -3353,16 +3365,16 @@ importers:
       prosemirror-view:
         specifier: ^1.38.1
         version: 1.38.1
-      react:
-        specifier: ^18.0 || ^19.0 || >= 19.0.0-rc
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.0 || ^19.0 || >= 19.0.0-rc
-        version: 18.3.1(react@18.3.1)
       react-icons:
         specifier: ^5.2.1
-        version: 5.5.0(react@18.3.1)
+        version: 5.5.0(react@19.0.0)
     devDependencies:
+      '@types/react':
+        specifier: ^19
+        version: 19.0.12
+      '@types/react-dom':
+        specifier: ^19
+        version: 19.0.4(@types/react@19.0.12)
       '@vitest/ui':
         specifier: ^2.1.4
         version: 2.1.9(vitest@2.1.9)
@@ -3375,6 +3387,12 @@ importers:
       prettier:
         specifier: ^2.7.1
         version: 2.8.8
+      react:
+        specifier: ^19
+        version: 19.0.0
+      react-dom:
+        specifier: ^19
+        version: 19.0.0(react@19.0.0)
       rimraf:
         specifier: ^5.0.5
         version: 5.0.10
@@ -3408,19 +3426,25 @@ importers:
       image-meta:
         specifier: ^0.2.1
         version: 0.2.1
-      react:
-        specifier: ^18.0 || ^19.0 || >= 19.0.0-rc
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.0 || ^19.0 || >= 19.0.0-rc
-        version: 18.3.1(react@18.3.1)
     devDependencies:
       '@testing-library/react':
         specifier: ^16.0.1
-        version: 16.2.0(@testing-library/dom@10.4.0)(@types/react-dom@18.3.5(@types/react@18.3.20))(@types/react@18.3.20)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 16.2.0(@testing-library/dom@10.4.0)(@types/react-dom@19.0.4(@types/react@19.0.12))(@types/react@19.0.12)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@types/react':
+        specifier: ^19
+        version: 19.0.12
+      '@types/react-dom':
+        specifier: ^19
+        version: 19.0.4(@types/react@19.0.12)
       prettier:
         specifier: ^2.7.1
         version: 2.8.8
+      react:
+        specifier: ^19
+        version: 19.0.0
+      react-dom:
+        specifier: ^19
+        version: 19.0.0(react@19.0.0)
       rollup-plugin-webpack-stats:
         specifier: ^0.2.2
         version: 0.2.6(rollup@4.37.0)
@@ -7537,6 +7561,11 @@ packages:
     peerDependencies:
       '@types/react': ^18.0.0
 
+  '@types/react-dom@19.0.4':
+    resolution: {integrity: sha512-4fSQ8vWFkg+TGhePfUzVmat3eC14TXYSsiiDSLI0dVLsrm9gZFABjPy/Qu6TKgl1tq1Bu1yDsuQgY3A3DOjCcg==}
+    peerDependencies:
+      '@types/react': ^19.0.0
+
   '@types/react-transition-group@4.4.12':
     resolution: {integrity: sha512-8TV6R3h2j7a91c+1DXdJi3Syo69zzIZbz7Lg5tORM5LEJG7X/E6a1V3drRyBRZq7/utz7A+c4OgYLiLcYGHG6w==}
     peerDependencies:
@@ -7544,6 +7573,9 @@ packages:
 
   '@types/react@18.3.20':
     resolution: {integrity: sha512-IPaCZN7PShZK/3t6Q87pfTkRm6oLTd4vztyoj+cbHUF1g3FfVb2tFIL79uCRKEfv16AhqDMBywP2VW3KIZUvcg==}
+
+  '@types/react@19.0.12':
+    resolution: {integrity: sha512-V6Ar115dBDrjbtXSrS+/Oruobc+qVbbUxDFC1RSbRqLt5SYvxxyIDrSC85RWml54g+jfNeEMZhEj7wW07ONQhA==}
 
   '@types/retry@0.12.2':
     resolution: {integrity: sha512-XISRgDJ2Tc5q4TRqvgJtzsRkFYNJzZrhTdtMoGVBttwzzQJkPnS3WWTFc7kuDRoPtPakl+T+OfdEUjYJj7Jbow==}
@@ -12119,6 +12151,11 @@ packages:
     peerDependencies:
       react: ^18.3.1
 
+  react-dom@19.0.0:
+    resolution: {integrity: sha512-4GV5sHFG0e/0AD4X+ySy6UJd3jVl1iNsNHdpad0qhABJ11twS3TTBnseqsKurKcsNqCEFeGL3uLpVChpIO3QfQ==}
+    peerDependencies:
+      react: ^19.0.0
+
   react-element-to-jsx-string@15.0.0:
     resolution: {integrity: sha512-UDg4lXB6BzlobN60P8fHWVPX3Kyw8ORrTeBtClmIlGdkOOE+GYQSFvmEU5iLLpwp/6v42DINwNcwOhOLfQ//FQ==}
     peerDependencies:
@@ -12223,6 +12260,10 @@ packages:
 
   react@18.3.1:
     resolution: {integrity: sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==}
+    engines: {node: '>=0.10.0'}
+
+  react@19.0.0:
+    resolution: {integrity: sha512-V8AVnmPIICiWpGfm6GLzCR/W5FXLchHop40W4nXBmdlEceh16rCN8O8LNWm5bh5XUX91fh7KpA+W0TgMKmgTpQ==}
     engines: {node: '>=0.10.0'}
 
   read-cache@1.0.0:
@@ -12550,6 +12591,9 @@ packages:
 
   scheduler@0.23.2:
     resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
+
+  scheduler@0.25.0:
+    resolution: {integrity: sha512-xFVuu11jh+xcO7JOAGJNOXld8/TcEHK/4CituBUeUb5hqxJLj9YuemAEuvm9gQ/+pgXYfbQuqAkiYu+u7YEsNA==}
 
   scheduler@0.25.0-rc-603e6108-20241029:
     resolution: {integrity: sha512-pFwF6H1XrSdYYNLfOcGlM28/j8CGLu8IvdrxqhjWULe2bPcKiKW4CV+OWqR/9fT52mywx65l7ysNkjLKBda7eA==}
@@ -18269,6 +18313,16 @@ snapshots:
       '@types/react': 18.3.20
       '@types/react-dom': 18.3.5(@types/react@18.3.20)
 
+  '@testing-library/react@16.2.0(@testing-library/dom@10.4.0)(@types/react-dom@19.0.4(@types/react@19.0.12))(@types/react@19.0.12)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
+    dependencies:
+      '@babel/runtime': 7.27.0
+      '@testing-library/dom': 10.4.0
+      react: 19.0.0
+      react-dom: 19.0.0(react@19.0.0)
+    optionalDependencies:
+      '@types/react': 19.0.12
+      '@types/react-dom': 19.0.4(@types/react@19.0.12)
+
   '@theguild/remark-mermaid@0.0.5(react@18.3.1)':
     dependencies:
       mermaid: 10.9.3
@@ -18606,6 +18660,10 @@ snapshots:
     dependencies:
       '@types/react': 18.3.20
 
+  '@types/react-dom@19.0.4(@types/react@19.0.12)':
+    dependencies:
+      '@types/react': 19.0.12
+
   '@types/react-transition-group@4.4.12(@types/react@18.3.20)':
     dependencies:
       '@types/react': 18.3.20
@@ -18613,6 +18671,10 @@ snapshots:
   '@types/react@18.3.20':
     dependencies:
       '@types/prop-types': 15.7.14
+      csstype: 3.1.3
+
+  '@types/react@19.0.12':
+    dependencies:
       csstype: 3.1.3
 
   '@types/retry@0.12.2': {}
@@ -20540,7 +20602,7 @@ snapshots:
       '@typescript-eslint/parser': 5.62.0(eslint@8.57.1)(typescript@5.8.2)
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.9.1(eslint-plugin-import@2.31.0(@typescript-eslint/parser@5.62.0(eslint@8.57.1)(typescript@5.8.2))(eslint@8.57.1))(eslint@8.57.1)
+      eslint-import-resolver-typescript: 3.9.1(eslint-plugin-import@2.31.0)(eslint@8.57.1)
       eslint-plugin-import: 2.31.0(@typescript-eslint/parser@5.62.0(eslint@8.57.1)(typescript@5.8.2))(eslint-import-resolver-typescript@3.9.1)(eslint@8.57.1)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@8.57.1)
       eslint-plugin-react: 7.37.4(eslint@8.57.1)
@@ -20587,7 +20649,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-import-resolver-typescript@3.9.1(eslint-plugin-import@2.31.0(@typescript-eslint/parser@5.62.0(eslint@8.57.1)(typescript@5.8.2))(eslint@8.57.1))(eslint@8.57.1):
+  eslint-import-resolver-typescript@3.9.1(eslint-plugin-import@2.31.0)(eslint@8.57.1):
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
       debug: 4.4.0
@@ -20602,14 +20664,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.0(@typescript-eslint/parser@5.62.0(eslint@8.57.1)(typescript@5.8.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.9.1(eslint-plugin-import@2.31.0(@typescript-eslint/parser@5.62.0(eslint@8.57.1)(typescript@5.8.2))(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1):
+  eslint-module-utils@2.12.0(@typescript-eslint/parser@5.62.0(eslint@8.57.1)(typescript@5.8.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.9.1)(eslint@8.57.1):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 5.62.0(eslint@8.57.1)(typescript@5.8.2)
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.9.1(eslint-plugin-import@2.31.0(@typescript-eslint/parser@5.62.0(eslint@8.57.1)(typescript@5.8.2))(eslint@8.57.1))(eslint@8.57.1)
+      eslint-import-resolver-typescript: 3.9.1(eslint-plugin-import@2.31.0)(eslint@8.57.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -20632,7 +20694,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.0(@typescript-eslint/parser@5.62.0(eslint@8.57.1)(typescript@5.8.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.9.1(eslint-plugin-import@2.31.0(@typescript-eslint/parser@5.62.0(eslint@8.57.1)(typescript@5.8.2))(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1)
+      eslint-module-utils: 2.12.0(@typescript-eslint/parser@5.62.0(eslint@8.57.1)(typescript@5.8.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.9.1)(eslint@8.57.1)
       hasown: 2.0.2
       is-core-module: 2.16.1
       is-glob: 4.0.3
@@ -24350,6 +24412,11 @@ snapshots:
       react: 18.3.1
       scheduler: 0.23.2
 
+  react-dom@19.0.0(react@19.0.0):
+    dependencies:
+      react: 19.0.0
+      scheduler: 0.25.0
+
   react-element-to-jsx-string@15.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@base2/pretty-print-object': 1.0.1
@@ -24370,6 +24437,10 @@ snapshots:
   react-icons@5.5.0(react@18.3.1):
     dependencies:
       react: 18.3.1
+
+  react-icons@5.5.0(react@19.0.0):
+    dependencies:
+      react: 19.0.0
 
   react-is@16.13.1: {}
 
@@ -24448,6 +24519,8 @@ snapshots:
   react@18.3.1:
     dependencies:
       loose-envify: 1.4.0
+
+  react@19.0.0: {}
 
   read-cache@1.0.0:
     dependencies:
@@ -24917,6 +24990,8 @@ snapshots:
   scheduler@0.23.2:
     dependencies:
       loose-envify: 1.4.0
+
+  scheduler@0.25.0: {}
 
   scheduler@0.25.0-rc-603e6108-20241029: {}
 
