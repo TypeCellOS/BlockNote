@@ -76,6 +76,11 @@ jobs:
         with:
           fetch-depth: 100
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
       - uses: nrwl/nx-set-shas@v3
 
       - uses: actions/setup-node@v4
