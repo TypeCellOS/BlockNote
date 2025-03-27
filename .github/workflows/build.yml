@@ -110,7 +110,7 @@ jobs:
 
       - name: Run server and Playwright tests
         run: |
-          pnpx concurrently "pnpm run start" "pnpx wait-on http://localhost:3000 && cd tests && HOME=/root pnpx playwright test --project ${{ matrix.browser }}"
+          pnpx concurrently --kill-others "pnpm run start" "pnpx wait-on http://localhost:3000 && cd tests && HOME=/root pnpx playwright test --project ${{ matrix.browser }}"
 
       - uses: actions/upload-artifact@v4
         if: always()
