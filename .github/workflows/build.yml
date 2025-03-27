@@ -20,8 +20,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20.x"
-          cache: "npm"
-          cache-dependency-path: "**/package-lock.json"
+          cache: "pnpm"
+          cache-dependency-path: "**/pnpm-lock.yaml"
 
       - name: Cache NX
         uses: actions/cache@v4
@@ -34,19 +34,19 @@ jobs:
             nx-
 
       - name: Install Dependencies
-        run: npm ci --prefer-offline --no-audit
+        run: pnpm install --prefer-offline --no-audit
 
       - name: Bootstrap packages
-        run: npm run bootstrap
+        run: pnpm run bootstrap
 
       - name: Lint packages
-        run: npm run lint
+        run: pnpm run lint
 
       - name: Build packages
-        run: npm run build
+        run: pnpm run build
 
       - name: Run unit tests
-        run: npm run test
+        run: pnpm run test
 
       - name: Upload webpack stats artifact (editor)
         uses: relative-ci/agent-upload-artifact-action@v2
@@ -73,8 +73,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20.x"
-          cache: "npm"
-          cache-dependency-path: "**/package-lock.json"
+          cache: "pnpm"
+          cache-dependency-path: "**/pnpm-lock.yaml"
 
       - name: Cache NX
         uses: actions/cache@v4
@@ -89,16 +89,16 @@ jobs:
       - run: apt-get update && apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
 
       - name: Install dependencies
-        run: npm ci --prefer-offline --no-audit
+        run: pnpm install --prefer-offline --no-audit
 
       - name: Build packages
-        run: npm run build
+        run: pnpm run build
 
       - name: Run server and Playwright tests
         run: |
-          npm run start:built > /dev/null & 
-          npx wait-on http://localhost:3000
-          cd tests && HOME=/root npx playwright test --project ${{ matrix.browser }}
+          pnpm run start:built > /dev/null & 
+          pnpx wait-on http://localhost:3000
+          cd tests && HOME=/root pnpx playwright test --project ${{ matrix.browser }}
 
       - uses: actions/upload-artifact@v4
         if: always()
