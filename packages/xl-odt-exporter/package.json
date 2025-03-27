@@ -57,8 +57,8 @@
   },
   "devDependencies": {
     "@testing-library/react": "^16.0.1",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
+    "@types/react": "^18.0.25",
+    "@types/react-dom": "^18.0.9",
     "prettier": "^2.7.1",
     "rollup-plugin-webpack-stats": "^0.2.2",
     "typescript": "^5.0.4",

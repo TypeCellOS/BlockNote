@@ -8,12 +8,6 @@ importers:
 
   .:
     devDependencies:
-      '@types/react':
-        specifier: ^19
-        version: 19.0.12
-      '@types/react-dom':
-        specifier: ^19
-        version: 19.0.4(@types/react@19.0.12)
       '@typescript-eslint/eslint-plugin':
         specifier: ^5.5.0
         version: 5.62.0(@typescript-eslint/parser@5.62.0(eslint@8.57.1)(typescript@5.8.2))(eslint@8.57.1)(typescript@5.8.2)
@@ -35,12 +29,6 @@ importers:
       lerna:
         specifier: ^5.4.0
         version: 5.6.2(encoding@0.1.13)
-      react:
-        specifier: ^19
-        version: 19.0.0
-      react-dom:
-        specifier: ^19
-        version: 19.0.0(react@19.0.0)
       typescript:
         specifier: ^5.3.3
         version: 5.8.2
@@ -142,10 +130,10 @@ importers:
         specifier: ^20
         version: 20.17.27
       '@types/react':
-        specifier: ^18
+        specifier: ^18.0.25
         version: 18.3.20
       '@types/react-dom':
-        specifier: ^18
+        specifier: ^18.0.9
         version: 18.3.5(@types/react@18.3.20)
       autoprefixer:
         specifier: ^10.0.1
@@ -3311,6 +3299,12 @@ importers:
         specifier: ^18.0 || ^19.0 || >= 19.0.0-rc
         version: 18.3.1(react@18.3.1)
     devDependencies:
+      '@types/react':
+        specifier: ^18.0.25
+        version: 18.3.20
+      '@types/react-dom':
+        specifier: ^18.0.9
+        version: 18.3.5(@types/react@18.3.20)
       '@zip.js/zip.js':
         specifier: ^2.7.57
         version: 2.7.57
@@ -3431,10 +3425,10 @@ importers:
         specifier: ^16.0.1
         version: 16.2.0(@testing-library/dom@10.4.0)(@types/react-dom@18.3.5(@types/react@18.3.20))(@types/react@18.3.20)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/react':
-        specifier: ^18
+        specifier: ^18.0.25
         version: 18.3.20
       '@types/react-dom':
-        specifier: ^18
+        specifier: ^18.0.9
         version: 18.3.5(@types/react@18.3.20)
       prettier:
         specifier: ^2.7.1
@@ -3699,13 +3693,6 @@ importers:
         version: 5.8.2
 
   tests:
-    dependencies:
-      react:
-        specifier: ^18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.3.1
-        version: 18.3.1(react@18.3.1)
     devDependencies:
       '@blocknote/ariakit':
         specifier: ^0.26.0
@@ -3728,9 +3715,21 @@ importers:
       '@playwright/test':
         specifier: ^1.49.1
         version: 1.51.1
+      '@types/react':
+        specifier: ^18.0.25
+        version: 18.3.20
+      '@types/react-dom':
+        specifier: ^18.0.9
+        version: 18.3.5(@types/react@18.3.20)
       eslint:
         specifier: ^8.10.0
         version: 8.57.1
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
       react-icons:
         specifier: ^5.2.1
         version: 5.5.0(react@18.3.1)
@@ -16392,7 +16391,7 @@ snapshots:
   '@mdx-js/react@2.3.0(react@18.3.1)':
     dependencies:
       '@types/mdx': 2.0.13
-      '@types/react': 18.3.20
+      '@types/react': 19.0.12
       react: 18.3.1
 
   '@mui/core-downloads-tracker@5.17.1': {}
