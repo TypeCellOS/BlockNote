@@ -18,7 +18,7 @@ import {
   getNearestBlockPos,
 } from "../getBlockInfoFromPos.js";
 
-import { EditorState, Transaction } from "prosemirror-state";
+import { EditorState, TextSelection, Transaction } from "prosemirror-state";
 import { ReplaceAroundStep, ReplaceStep } from "prosemirror-transform";
 import { getBlockInfo } from "../../api/getBlockInfoFromPos.js";
 import type { Block } from "../../blocks/defaultBlocks.js";
@@ -575,10 +575,19 @@ export function addSelectionMarkersTr(
   if (from >= to) {
     throw new Error("from must be less than to");
   }
-  let tr = state.tr.insertText("!$]", to);
+
+  // find a valid text position; otherwise prosemirror might create new nodes
+  const validTo = TextSelection.near(state.doc.resolve(to), -1).head;
+  const validFrom = TextSelection.near(state.doc.resolve(from), 1).head;
+
+  if (validFrom >= validTo) {
+    throw new Error("validFrom must be less than validTo");
+  }
+
+  let tr = state.tr.insertText("!$]", validTo, validTo);
   let newEnd = selectionToInsertionEnd(tr, tr.steps.length - 1)!;
 
-  tr = tr.insertText("[$!", from);
+  tr = tr.insertText("[$!", validFrom, validFrom);
 
   newEnd = tr.mapping.maps[tr.mapping.maps.length - 1].map(newEnd);
 

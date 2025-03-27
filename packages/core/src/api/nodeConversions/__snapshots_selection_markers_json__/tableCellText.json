@@ -14,38 +14,78 @@
       "rows": [
         {
           "cells": [
-            [
-              {
-                "type": "text",
-                "text": "[$!Table Cell!$]",
-                "styles": {}
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[$!Table Cell!$]",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
               }
-            ],
-            [
-              {
-                "type": "text",
-                "text": "Table Cell",
-                "styles": {}
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Table Cell",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
               }
-            ]
+            }
           ]
         },
         {
           "cells": [
-            [
-              {
-                "type": "text",
-                "text": "Table Cell",
-                "styles": {}
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Table Cell",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
               }
-            ],
-            [
-              {
-                "type": "text",
-                "text": "Table Cell",
-                "styles": {}
+            },
+            {
+              "type": "tableCell",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Table Cell",
+                  "styles": {}
+                }
+              ],
+              "props": {
+                "colspan": 1,
+                "rowspan": 1,
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
               }
-            ]
+            }
           ]
         }
       ]
