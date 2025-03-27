@@ -33,7 +33,7 @@
     "deploy": "lerna publish -- --access public",
     "dev": "lerna run --stream --scope @blocknote/example-editor dev",
     "gen": "lerna run --stream --scope @blocknote/dev-scripts gen",
-    "install-playwright": "cd tests && npx playwright install --with-deps",
+    "install-playwright": "cd tests && pnpx playwright install --with-deps",
     "lint": "lerna run --stream lint",
     "postpublish": "rm -rf packages/core/README.md && rm -rf packages/react/README.md",
     "prepublishOnly": "npm run build && cp README.md packages/core/README.md && cp README.md packages/react/README.md",
