@@ -110,7 +110,7 @@ jobs:
 
       - name: Run server and Playwright tests
         run: |
-          pnpm run start:built > /dev/null & 
+          pnpm run start > /dev/null & 
           pnpx wait-on http://localhost:3000
           cd tests && HOME=/root npx playwright test --project ${{ matrix.browser }}
 
