@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-const dir = __dirname;
+const dir = __dirname + "/src";
 module.exports = {
   important: ".bn-container",
   corePlugins: {
