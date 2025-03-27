@@ -6,6 +6,9 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, edited]
 
+env:
+  PNPM_VERSION: 10.2.1
+
 jobs:
   build:
     name: Build
@@ -15,13 +18,18 @@ jobs:
         with:
           fetch-depth: 100
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
       - uses: nrwl/nx-set-shas@v3
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20.x"
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
+          node-version-file: '.nvmrc'
 
       - name: Cache NX
         uses: actions/cache@v4
