@@ -645,7 +645,7 @@ export function getSelectedBlocksWithSelectionMarkers<
 /**
  * Returns all blocks between two positions in a document, but without automatically including parent blocks
  */
-function getBlocksBetween<
+export function getBlocksBetween<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
@@ -676,6 +676,10 @@ function getBlocksBetween<
     styleSchema,
     blockCache
   );
+
+  if (bnSelection.contentCutAtEnd || bnSelection.contentCutAtEnd) {
+    throw new Error("unexpected content cut in getBlocksBetween");
+  }
 
   // we don't care about the slice metadata, because our slice is based on complete blocks, the
   return bnSelection.blocks;
