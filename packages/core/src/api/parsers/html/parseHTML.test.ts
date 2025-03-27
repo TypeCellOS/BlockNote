@@ -13,7 +13,7 @@ async function parseHTMLAndCompareSnapshots(
   const blocks = await editor.tryParseHTMLToBlocks(html);
 
   const snapshotPath = "./__snapshots__/" + snapshotName + ".json";
-  expect(JSON.stringify(blocks, undefined, 2)).toMatchFileSnapshot(
+  await expect(JSON.stringify(blocks, undefined, 2)).toMatchFileSnapshot(
     snapshotPath
   );
 

@@ -39,7 +39,7 @@ async function convertToHTMLAndCompareSnapshots<
     "/" +
     snapshotName +
     "/internal.html";
-  expect(internalHTML).toMatchFileSnapshot(internalHTMLSnapshotPath);
+  await expect(internalHTML).toMatchFileSnapshot(internalHTMLSnapshotPath);
 
   // turn the internalHTML back into blocks, and make sure no data was lost
   const fullBlocks = partialBlocksToBlocksForTesting(editor.schema, blocks);
@@ -57,7 +57,7 @@ async function convertToHTMLAndCompareSnapshots<
     "/" +
     snapshotName +
     "/external.html";
-  expect(externalHTML).toMatchFileSnapshot(externalHTMLSnapshotPath);
+  await expect(externalHTML).toMatchFileSnapshot(externalHTMLSnapshotPath);
 }
 
 const testCases = [

@@ -7,7 +7,8 @@
     "eslint-plugin-import": "^2.31.0",
     "glob": "^10.3.10",
     "lerna": "^5.4.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^2.0.3"
   },
   "name": "root",
   "pnpm": {
@@ -15,9 +16,11 @@
       "workerd"
     ],
     "onlyBuiltDependencies": [
+      "@parcel/watcher",
       "@sentry/cli",
       "canvas",
-      "esbuild"
+      "esbuild",
+      "nx"
     ]
   },
   "packageManager": "pnpm@10.7.0",
