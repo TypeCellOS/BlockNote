@@ -55,7 +55,7 @@ describe("applyOperations", () => {
     for await (const chunk of applyOperations(
       editor,
       stream,
-      async (id) => {
+      async (_id) => {
         return rebaseTool(editor, getApplySuggestionsTr(editor));
       },
       {

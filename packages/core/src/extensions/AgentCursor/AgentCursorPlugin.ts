@@ -16,10 +16,10 @@ const user = {
 // TODO: move to xl-ai?
 export class AgentCursorPlugin {
   public readonly plugin: Plugin;
-  constructor(editor: BlockNoteEditor<any, any, any>) {
+  constructor(_editor: BlockNoteEditor<any, any, any>) {
     this.plugin = new Plugin<AgentCursorState>({
       key: PLUGIN_KEY,
-      view: (view) => {
+      view: (_view) => {
         return {};
       },
       state: {
@@ -28,7 +28,7 @@ export class AgentCursorPlugin {
             selection: undefined,
           };
         },
-        apply: (tr, oldState) => {
+        apply: (tr, _oldState) => {
           const meta = tr.getMeta("aiAgent");
 
           if (!meta) {

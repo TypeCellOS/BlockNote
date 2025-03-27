@@ -22,29 +22,50 @@ import {
   LLMRequestOptions,
   callLLMWithStreamTools,
 } from "../../streamTool/callLLMWithStreamTools.js";
-import { StreamTool } from "../../streamTool/streamTool.js";
 import {
   AsyncIterableStream,
   createAsyncIterableStreamFromAsyncIterable,
 } from "../../util/stream.js";
 import { tools } from "./tools/index.js";
 
-// Define the return type for streaming mode
+/**
+ * Define the return type for streaming mode
+ */
 type ReturnType = {
   toolCallsStream: AsyncIterableStream<ApplyOperationResult<any>>;
   llmResult: StreamObjectResult<any, any, any> | GenerateObjectResult<any>;
   apply: () => Promise<void>;
 };
 
-type DefaultTools = Array<
-  (typeof tools)["add"] | (typeof tools)["update"] | (typeof tools)["delete"]
->;
-
-export async function callLLM<T extends StreamTool<any>[] = DefaultTools>(
+/**
+ * Calls the LLM with the given options and tools
+ *
+ * @param editor The BlockNote editor instance
+ * @param opts Options for the LLM request
+ * @param defaultTools Configuration for which default tools to enable (all are enabled by default)
+ * @param streamTools Optional custom stream tools to use instead of the defaults
+ */
+export async function callLLM(
   editor: BlockNoteEditor<any, any, any>,
-  opts: Omit<LLMRequestOptions, "messages"> & PromptOrMessages,
-  streamTools?: T
+  opts: Omit<LLMRequestOptions, "messages"> &
+    PromptOrMessages & {
+      defaultStreamTools?: {
+        /** Enable the add tool (default: true) */
+        add?: boolean;
+        /** Enable the update tool (default: true) */
+        update?: boolean;
+        /** Enable the delete tool (default: true) */
+        delete?: boolean;
+      };
+    }
 ): Promise<ReturnType> {
+  const mergedStreamTools = {
+    add: true,
+    update: true,
+    delete: true,
+    ...opts.defaultStreamTools,
+  };
+
   const { prompt, useSelection, stream = true, ...rest } = opts;
 
   let messages: CoreMessage[];
@@ -65,7 +86,11 @@ export async function callLLM<T extends StreamTool<any>[] = DefaultTools>(
     });
   }
 
-  streamTools = streamTools ?? ([tools.update, tools.add, tools.delete] as T);
+  const streamTools = [
+    ...(mergedStreamTools.update ? [tools.update] : []),
+    ...(mergedStreamTools.add ? [tools.add] : []),
+    ...(mergedStreamTools.delete ? [tools.delete] : []),
+  ];
 
   const response = await callLLMWithStreamTools(
     editor,

@@ -1,4 +1,4 @@
-import { Block } from "@blocknote/core";
+import { Block, UnreachableCaseError } from "@blocknote/core";
 import { useBlockNoteEditor } from "@blocknote/react";
 import { LanguageModel } from "ai";
 import { createContext, useCallback, useContext, useState } from "react";
@@ -7,16 +7,9 @@ import { PromptOrMessages, llm } from "../api/index.js";
 // parameters that are shared across all calls and can be configured on the context as "application wide" settings
 type GlobalLLMCallOptions = {
   model: LanguageModel;
-} & (
-  | {
-      dataFormat?: "json";
-      stream?: boolean;
-    }
-  | {
-      dataFormat?: "markdown";
-      stream?: false;
-    }
-);
+  dataFormat?: "html" | "json" | "markdown";
+  stream?: boolean;
+};
 
 // parameters that are specific to each call
 type CallSpecificCallLLMOptions = Omit<
@@ -71,7 +64,12 @@ export function BlockNoteAIContextProvider(
     Block<any, any, any>[] | undefined
   >(editor.document);
 
-  const { model, dataFormat, stream } = globalLLMCallOptions;
+  const { model, dataFormat, stream } = {
+    // defaults
+    stream: true,
+    dataFormat: "html" as const,
+    ...globalLLMCallOptions,
+  };
 
   const [aiResponseStatus, setAIResponseStatus] = useState<
     "initial" | "generating" | "done"
@@ -84,7 +82,9 @@ export function BlockNoteAIContextProvider(
       setAIResponseStatus("generating");
 
       try {
-        let resultStream: ReturnType<typeof llm.json.call>[0]["resultStream"];
+        let resultStream: Awaited<
+          ReturnType<typeof llm.json.call>
+        >["toolCallsStream"];
 
         if (dataFormat === "json") {
           const ret = await llm.json.call(editor, {
@@ -92,20 +92,30 @@ export function BlockNoteAIContextProvider(
             stream,
             ...options,
           });
-          resultStream = ret.resultStream;
+          resultStream = ret.toolCallsStream;
+        } else if (dataFormat === "markdown") {
+          const ret = await llm.markdown.call(editor, {
+            model,
+            stream,
+            ...options,
+          });
+          resultStream = ret.toolCallsStream;
+        } else if (dataFormat === "html") {
+          const ret = await llm.html.call(editor, {
+            model,
+            stream,
+            ...options,
+          });
+          resultStream = ret.toolCallsStream;
         } else {
-          if (options.functions) {
-            // eslint-disable-next-line no-console
-            console.warn(
-              "functions are not supported for markdown, ignoring them"
-            );
-          }
-          const ret = await llm.markdown.call(editor, { model, ...options });
-          resultStream = ret.resultStream;
+          throw new UnreachableCaseError(dataFormat);
         }
 
         for await (const operation of resultStream) {
-          setAiMenuBlockID(operation.lastBlockId);
+          if (operation.result === "ok") {
+            // TODO: check should be part of pipeline
+            setAiMenuBlockID(operation.lastBlockId);
+          }
         }
 
         setAIResponseStatus((old) => {

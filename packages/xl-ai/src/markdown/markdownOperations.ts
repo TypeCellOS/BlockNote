@@ -1,7 +1,9 @@
 import { BlockNoteEditor } from "@blocknote/core";
 
 import { Block } from "@blocknote/core";
-import { BlockNoteOperation } from "../api/tools/blocknoteFunctions.js";
+
+import { Tools } from "../api/formats/json/tools/index.js";
+import { StreamToolCall } from "../api/streamTool/streamTool.js";
 import { MarkdownNodeDiffResult } from "./markdownNodeDiff.js";
 import { markdownUpdateToBlockUpdate } from "./markdownUpdate.js";
 import { markdownNodeToString } from "./util.js";
@@ -21,7 +23,7 @@ export async function markdownNodeDiffToBlockOperations(
   blocks: Block<any, any, any>[],
   markdownNodeDiff: MarkdownNodeDiffResult[]
 ) {
-  const operations: BlockNoteOperation[] = [];
+  const operations: StreamToolCall<Tools>[] = [];
 
   blocks = flattenBlocks(blocks);
   if (
@@ -51,7 +53,7 @@ export async function markdownNodeDiffToBlockOperations(
       const lastOperation = operations[operations.length - 1];
 
       // new node has been added
-      if (lastOperation && lastOperation.type === "insert") {
+      if (lastOperation && lastOperation.type === "add") {
         // add to previous "add operation" (add can be a list of blocks)
         lastOperation.blocks.push(block);
       } else {
@@ -67,7 +69,7 @@ export async function markdownNodeDiffToBlockOperations(
               };
 
         operations.push({
-          type: "insert",
+          type: "add",
           ...positionInfo,
           blocks: [block],
         });
@@ -75,8 +77,8 @@ export async function markdownNodeDiffToBlockOperations(
     } else if (diff.type === "remove") {
       // remove block
       operations.push({
-        type: "remove",
-        ids: [blocks[currentBlockIndex].id],
+        type: "delete",
+        id: blocks[currentBlockIndex].id,
       });
       currentBlockIndex++;
     } else if (diff.type === "unchanged") {

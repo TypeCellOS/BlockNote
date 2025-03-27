@@ -219,7 +219,7 @@ const o = validated[0];
 if (o.result === "ok") {
   const val = o.value; // val is now of type Vehicle (Car | Bike)
 }
-*/
+
 
 export type Car = {
   type: "car";
@@ -304,3 +304,4 @@ const carRepairerAdvanced = function <T extends Vehicle[]>(
 
 // Example usage:
 const repairedVehicles = carRepairerAdvanced(vehicles);
+*/

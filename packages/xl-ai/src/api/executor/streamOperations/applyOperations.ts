@@ -21,6 +21,7 @@ export type ApplyOperationResult<T extends StreamTool<any>[]> =
       lastBlockId: string;
     }
   | {
+      result: "not-executed";
       operation: StreamToolCall<T>;
       isUpdateToPreviousOperation: boolean;
       isPossiblyPartial: boolean;
@@ -64,7 +65,10 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
   for await (const chunk of operationsStream) {
     const operation = chunk.operation as unknown;
     if (!isBuiltInToolCall(operation)) {
-      yield chunk;
+      yield {
+        ...chunk,
+        result: "not-executed",
+      };
       continue;
     }
 
@@ -99,7 +103,7 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
 
       // TODO: this might be inefficient, we might be able to pass a single rebaseTool as long as we map subsequent operations
       const tool = await rebaseTool(operation.id);
-      console.log("update", JSON.stringify(chunk.operation, null, 2));
+      // console.log("update", JSON.stringify(chunk.operation, null, 2));
       // Convert the update operation directly to ReplaceSteps
       const steps = updateToReplaceSteps(
         editor,

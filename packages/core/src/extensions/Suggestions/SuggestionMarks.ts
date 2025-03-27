@@ -1,4 +1,5 @@
 import { Mark } from "@tiptap/core";
+import { MarkSpec } from "prosemirror-model";
 
 export const SuggestionAddMark = Mark.create({
   name: "insertion",
@@ -36,7 +37,7 @@ export const SuggestionAddMark = Mark.create({
           },
         },
       ],
-    };
+    } satisfies MarkSpec;
   },
 });
 
@@ -78,7 +79,7 @@ export const SuggestionDeleteMark = Mark.create({
           },
         },
       ],
-    };
+    } satisfies MarkSpec;
   },
 });
 
@@ -140,6 +141,6 @@ export const SuggestionModificationMark = Mark.create({
           },
         },
       ],
-    };
+    } satisfies MarkSpec;
   },
 });

@@ -22,3 +22,5 @@ export const tools = {
   ),
   delete: deleteBlockTool,
 };
+
+export type Tools = (typeof tools)[keyof typeof tools];

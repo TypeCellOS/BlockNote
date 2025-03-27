@@ -1,4 +1,9 @@
-import { BlockNoteEditor, PartialBlock, getBlock } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  PartialBlock,
+  UnreachableCaseError,
+  getBlock,
+} from "@blocknote/core";
 import { CoreMessage, GenerateObjectResult, StreamObjectResult } from "ai";
 import { Mapping } from "prosemirror-transform";
 import type { PromptOrMessages } from "../../index.js";
@@ -27,7 +32,7 @@ import {
   LLMRequestOptions,
   callLLMWithStreamTools,
 } from "../../streamTool/callLLMWithStreamTools.js";
-import { StreamTool, StreamToolCall } from "../../streamTool/streamTool.js";
+import { StreamToolCall } from "../../streamTool/streamTool.js";
 import { AddBlocksToolCall } from "../../tools/createAddBlocksTool.js";
 import { UpdateBlockToolCall } from "../../tools/createUpdateBlockTool.js";
 import { DeleteBlockToolCall } from "../../tools/delete.js";
@@ -40,15 +45,27 @@ type ReturnType = {
   apply: () => Promise<void>;
 };
 
-type DefaultTools = Array<
-  (typeof tools)["add"] | (typeof tools)["update"] | (typeof tools)["delete"]
->;
-
-export async function callLLM<T extends StreamTool<any>[] = DefaultTools>(
+export async function callLLM(
   editor: BlockNoteEditor<any, any, any>,
-  opts: Omit<LLMRequestOptions, "messages"> & PromptOrMessages,
-  streamTools?: T
+  opts: Omit<LLMRequestOptions, "messages"> &
+    PromptOrMessages & {
+      defaultStreamTools?: {
+        /** Enable the add tool (default: true) */
+        add?: boolean;
+        /** Enable the update tool (default: true) */
+        update?: boolean;
+        /** Enable the delete tool (default: true) */
+        delete?: boolean;
+      };
+    }
 ): Promise<ReturnType> {
+  const mergedStreamTools = {
+    add: true,
+    update: true,
+    delete: true,
+    ...opts.defaultStreamTools,
+  };
+
   const { prompt, useSelection, stream = true, ...rest } = opts;
 
   let messages: CoreMessage[];
@@ -80,7 +97,11 @@ export async function callLLM<T extends StreamTool<any>[] = DefaultTools>(
     });
   }
 
-  streamTools = streamTools ?? ([tools.update, tools.add, tools.delete] as T);
+  const streamTools = [
+    ...(mergedStreamTools.update ? [tools.update] : []),
+    ...(mergedStreamTools.add ? [tools.add] : []),
+    ...(mergedStreamTools.delete ? [tools.delete] : []),
+  ];
 
   const response = await callLLMWithStreamTools(
     editor,
@@ -178,6 +199,7 @@ export async function* toJSONToolCalls(
 }> {
   for await (const chunk of operationsSource) {
     const operation = chunk.operation;
+
     if (!isBuiltInToolCall(operation)) {
       yield chunk;
       continue;
@@ -233,7 +255,9 @@ export async function* toJSONToolCalls(
           ...operation,
         } as DeleteBlockToolCall,
       };
+      return;
     } else {
+      // @ts-expect-error Apparently TS gets lost here
       throw new UnreachableCaseError(operation);
     }
   }

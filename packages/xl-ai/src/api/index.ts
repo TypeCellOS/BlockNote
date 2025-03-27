@@ -1,6 +1,7 @@
 import { CoreMessage } from "ai";
+import { callLLM as callLLMHTML } from "./formats/html-blocks/htmlBlocks.js";
 import { callLLM as callLLMJSON } from "./formats/json/json.js";
-import { callLLM as callLLMMarkdown } from "./formats/markdown/markdown.js";
+import { callLLM as callLLMMarkdown } from "./formats/markdown-blocks/markdownBlocks.js";
 
 export const llm = {
   json: {
@@ -8,6 +9,9 @@ export const llm = {
   },
   markdown: {
     call: callLLMMarkdown,
+  },
+  html: {
+    call: callLLMHTML,
   },
 };
 

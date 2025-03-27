@@ -128,7 +128,7 @@ export function propSchemaToJSONSchema(
     type: "object",
     properties: Object.fromEntries(
       Object.entries(propSchema)
-        .filter(([key, val]) => {
+        .filter(([_key, val]) => {
           // for now skip optional props
           return val.default !== undefined;
           //&& key !== "language";

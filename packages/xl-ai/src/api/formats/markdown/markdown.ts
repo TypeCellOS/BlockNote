@@ -2,6 +2,10 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { CoreMessage, LanguageModel, generateText } from "ai";
 import { markdownNodeDiff } from "../../../markdown/markdownNodeDiff.js";
 import { markdownNodeDiffToBlockOperations } from "../../../markdown/markdownOperations.js";
+import {
+  getApplySuggestionsTr,
+  rebaseTool,
+} from "../../../prosemirror/rebaseTool.js";
 import { applyOperations } from "../../executor/streamOperations/applyOperations.js";
 import type { PromptOrMessages } from "../../index.js";
 import {
@@ -90,7 +94,13 @@ export async function callLLM(
     }
   }
 
-  const resultGenerator = applyOperations(editor, singleChunkGenerator());
+  const resultGenerator = applyOperations(
+    editor,
+    singleChunkGenerator(),
+    async (_id) => {
+      return rebaseTool(editor, getApplySuggestionsTr(editor));
+    }
+  );
 
   // Convert to stream at the API boundary
   const resultStream = asyncIterableToStream(resultGenerator);

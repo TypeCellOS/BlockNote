@@ -5,6 +5,7 @@ import { Parser, createHighlightPlugin } from "prosemirror-highlight";
 import { createParser } from "prosemirror-highlight/shiki";
 import { BlockNoteEditor } from "../../index.js";
 import {
+  PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
 } from "../../schema/index.js";

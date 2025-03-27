@@ -16,8 +16,7 @@ import {
   RiText,
   RiTextWrap,
 } from "react-icons/ri";
-import { addFunction } from "../../api/tools/createAddBlocksTool.js";
-import { updateFunction } from "../../api/tools/createUpdateBlockTool.js";
+
 import { getAIDictionary } from "../../i18n/dictionary.js";
 import { BlockNoteAIContextValue } from "../BlockNoteAIContext.js";
 
@@ -52,7 +51,11 @@ export function getDefaultAIMenuItemsWithoutSelection<
         await contextValue.callLLM({
           prompt: "Continue writing",
           // By default, LLM will be able to add / update / delete blocks. For "continue writing", we only want to allow adding new blocks.
-          functions: [addFunction],
+          defaultStreamTools: {
+            add: true,
+            delete: false,
+            update: false,
+          },
         });
       },
       size: "small",
@@ -67,7 +70,11 @@ export function getDefaultAIMenuItemsWithoutSelection<
         await contextValue.callLLM({
           prompt: "Summarize",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
-          functions: [addFunction],
+          defaultStreamTools: {
+            add: true,
+            delete: false,
+            update: false,
+          },
         });
       },
       size: "small",
@@ -81,7 +88,11 @@ export function getDefaultAIMenuItemsWithoutSelection<
         await contextValue.callLLM({
           prompt: "Add action items",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
-          functions: [addFunction],
+          defaultStreamTools: {
+            add: true,
+            delete: false,
+            update: false,
+          },
         });
       },
       size: "small",
@@ -124,7 +135,11 @@ export function getDefaultAIMenuItemsWithSelection<
           useSelection: true,
           prompt: "Improve writing",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
-          functions: [updateFunction],
+          defaultStreamTools: {
+            add: false,
+            delete: false,
+            update: true,
+          },
         });
       },
       size: "small",
@@ -139,7 +154,11 @@ export function getDefaultAIMenuItemsWithSelection<
           useSelection: true,
           prompt: "Fix spelling",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
-          functions: [updateFunction],
+          defaultStreamTools: {
+            add: false,
+            delete: false,
+            update: true,
+          },
         });
       },
       size: "small",
@@ -164,7 +183,11 @@ export function getDefaultAIMenuItemsWithSelection<
           useSelection: true,
           prompt: "Simplify",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
-          functions: [updateFunction],
+          defaultStreamTools: {
+            add: false,
+            delete: false,
+            update: true,
+          },
         });
       },
       size: "small",

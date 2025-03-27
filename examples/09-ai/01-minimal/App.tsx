@@ -15,9 +15,9 @@ import {
   BlockNoteSchema,
   defaultBlockSpecs,
   filterSuggestionItems,
-  locales,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
+import { en } from "@blocknote/core/locales";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
@@ -57,7 +57,7 @@ export default function App() {
   const editor = useCreateBlockNote({
     schema,
     dictionary: {
-      ...locales.en,
+      ...en,
       ai: aiLocales.en,
     } as any,
   });
@@ -84,11 +84,13 @@ export default function App() {
     throw new Error(`Unknown model: ${aiModelString}`);
   }, [aiModelString]);
 
-  const [dataFormat, setDataFormat] = useState<"json" | "markdown">("json");
+  const [dataFormat, setDataFormat] = useState<"json" | "markdown" | "html">(
+    "json"
+  );
 
-  const [streamStateValue, setStream] = useState(true);
+  const [stream, setStream] = useState(true);
 
-  const stream = dataFormat === "markdown" ? false : streamStateValue;
+  // const stream = dataFormat === "markdown" ? false : streamStateValue;
 
   // Renders the editor instance using a React component.
   return (
@@ -99,6 +101,7 @@ export default function App() {
         <RadioGroupComponent
           label="Data format"
           items={[
+            { name: "HTML", description: "HTML format", value: "html" },
             { name: "JSON", description: "JSON format", value: "json" },
             {
               name: "Markdown",
@@ -125,8 +128,7 @@ export default function App() {
         <BlockNoteAIContextProvider
           model={model}
           dataFormat={dataFormat}
-          // TODO: doesn't work well with typings
-          stream={streamStateValue as any}>
+          stream={stream}>
           <BlockNoteAIUI />
           <FormattingToolbarController
             formattingToolbar={() => (
