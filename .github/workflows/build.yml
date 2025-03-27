@@ -42,7 +42,7 @@ jobs:
             nx-
 
       - name: Install Dependencies
-        run: pnpm install --prefer-offline --no-audit
+        run: pnpm install --prefer-offline
 
       - name: Bootstrap packages
         run: pnpm run bootstrap
@@ -102,7 +102,7 @@ jobs:
       - run: apt-get update && apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
 
       - name: Install dependencies
-        run: pnpm install --prefer-offline --no-audit
+        run: pnpm install --prefer-offline
 
       - name: Build packages
         run: pnpm run build
