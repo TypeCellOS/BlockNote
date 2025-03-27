@@ -44,9 +44,6 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --prefer-offline
 
-      - name: Bootstrap packages
-        run: pnpm run bootstrap
-
       - name: Lint packages
         run: pnpm run lint
 
