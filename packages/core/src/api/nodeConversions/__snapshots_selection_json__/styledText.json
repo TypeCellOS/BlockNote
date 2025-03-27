@@ -1,28 +1,26 @@
 {
   "blocks": [
     {
-      "block": {
-        "id": "8",
-        "type": "heading",
-        "props": {
-          "textColor": "red",
-          "backgroundColor": "default",
-          "textAlignment": "left",
-          "level": 2
-        },
-        "content": [
-          {
-            "type": "text",
-            "text": "Italic",
-            "styles": {
-              "italic": true
-            }
-          }
-        ],
-        "children": []
+      "id": "8",
+      "type": "heading",
+      "props": {
+        "textColor": "red",
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "level": 2
       },
-      "contentCutAtStart": true,
-      "contentCutAtEnd": true
+      "content": [
+        {
+          "type": "text",
+          "text": "Italic",
+          "styles": {
+            "italic": true
+          }
+        }
+      ],
+      "children": []
     }
-  ]
+  ],
+  "contentCutAtStart": true,
+  "contentCutAtEnd": true
 }

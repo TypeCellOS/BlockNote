@@ -522,18 +522,6 @@ export function docToBlocks<
   return blocks;
 }
 
-export type SlicedBlock<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
-> = {
-  block: Block<BSchema, I, S> & {
-    children: SlicedBlock<BSchema, I, S>[];
-  };
-  contentCutAtStart: boolean;
-  contentCutAtEnd: boolean;
-};
-
 export function selectionToInsertionEnd(tr: Transaction, startLen: number) {
   const last = tr.steps.length - 1;
 
@@ -690,20 +678,7 @@ function getBlocksBetween<
   );
 
   // we don't care about the slice metadata, because our slice is based on complete blocks, the
-  return withoutSliceMetadata(bnSelection.blocks);
-}
-
-export function withoutSliceMetadata<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(blocks: SlicedBlock<BSchema, I, S>[]): Block<BSchema, I, S>[] {
-  return blocks.map((block) => {
-    return {
-      ...block.block,
-      children: withoutSliceMetadata(block.block.children),
-    };
-  });
+  return bnSelection.blocks;
 }
 
 /**
@@ -724,33 +699,6 @@ export function withoutSliceMetadata<
  *  </blockGroup>
  * </blockGroup>
  *
- * Examples,
- *
- * for slice:
- *
- * {"content":[{"type":"blockGroup","content":[{"type":"blockContainer","attrs":{"id":"1","textColor":"yellow","backgroundColor":"blue"},"content":[{"type":"heading","attrs":{"textAlignment":"right","level":2},"content":[{"type":"text","marks":[{"type":"bold"},{"type":"underline"}],"text":"ding "},{"type":"text","marks":[{"type":"italic"},{"type":"strike"}],"text":"2"}]},{"type":"blockGroup","content":[{"type":"blockContainer","attrs":{"id":"2","textColor":"default","backgroundColor":"red"},"content":[{"type":"paragraph","attrs":{"textAlignment":"left"},"content":[{"type":"text","text":"Par"}]}]}]}]}]}],"openStart":3,"openEnd":5}
- *
- * should return:
- *
- * [
- *   {
- *     block: {
- *       nodeToBlock(first blockContainer node),
- *       children: [
- *         {
- *           block: nodeToBlock(second blockContainer node),
- *           contentCutAtEnd: true,
- *           childrenCutAtEnd: false,
- *         },
- *       ],
- *     },
- *      contentCutAtStart: true,
- *     contentCutAtEnd: false,
- *     childrenCutAtEnd: true,
- *   },
- * ]
- *
- * TODO: do we actually need / use this?
  */
 export function prosemirrorSliceToSlicedBlocks<
   BSchema extends BlockSchema,
@@ -763,18 +711,26 @@ export function prosemirrorSliceToSlicedBlocks<
   styleSchema: S,
   blockCache?: WeakMap<Node, Block<BSchema, I, S>>
 ): {
-  blocks: SlicedBlock<BSchema, I, S>[];
+  blocks: Block<BSchema, I, S>[];
+  contentCutAtStart: boolean;
+  contentCutAtEnd: boolean;
 } {
   // console.log(JSON.stringify(slice.toJSON()));
   function processNode(
     node: Node,
     openStart: number,
     openEnd: number
-  ): SlicedBlock<BSchema, I, S>[] {
+  ): {
+    blocks: Block<BSchema, I, S>[];
+    contentCutAtStart: boolean;
+    contentCutAtEnd: boolean;
+  } {
     if (node.type.name !== "blockGroup") {
       throw new Error("unexpected");
     }
-    const blocks: SlicedBlock<BSchema, I, S>[] = [];
+    const blocks: Block<BSchema, I, S>[] = [];
+    let contentCutAtStart = false;
+    let contentCutAtEnd = false;
 
     node.forEach((blockContainer, _offset, index) => {
       if (blockContainer.type.name !== "blockContainer") {
@@ -802,13 +758,16 @@ export function prosemirrorSliceToSlicedBlocks<
         if (!isFirstBlock) {
           throw new Error("unexpected");
         }
-        blocks.push(
-          ...processNode(
-            blockContainer.firstChild!,
-            Math.max(0, openStart - 1),
-            isLastBlock ? Math.max(0, openEnd - 1) : 0
-          )
+        const ret = processNode(
+          blockContainer.firstChild!,
+          Math.max(0, openStart - 1),
+          isLastBlock ? Math.max(0, openEnd - 1) : 0
         );
+        contentCutAtStart = ret.contentCutAtStart;
+        if (isLastBlock) {
+          contentCutAtEnd = ret.contentCutAtEnd;
+        }
+        blocks.push(...ret.blocks);
         return;
       }
 
@@ -822,31 +781,41 @@ export function prosemirrorSliceToSlicedBlocks<
       const childGroup =
         blockContainer.childCount > 1 ? blockContainer.child(1) : undefined;
 
-      let childBlocks: SlicedBlock<BSchema, I, S>[] = [];
+      let childBlocks: Block<BSchema, I, S>[] = [];
       if (childGroup) {
-        childBlocks = processNode(
+        const ret = processNode(
           childGroup,
           0, // TODO: can this be anything other than 0?
           isLastBlock ? Math.max(0, openEnd - 1) : 0
         );
+        childBlocks = ret.blocks;
+        if (isLastBlock) {
+          contentCutAtEnd = ret.contentCutAtEnd;
+        }
+      }
+
+      if (isLastBlock && !childGroup && openEnd > 1) {
+        contentCutAtEnd = true;
+      }
+
+      if (isFirstBlock && openStart > 1) {
+        contentCutAtStart = true;
       }
 
       blocks.push({
-        block: {
-          ...(block as any),
-          children: childBlocks,
-        },
-        contentCutAtStart: openStart > 1 && isFirstBlock,
-        contentCutAtEnd: !!(openEnd > 1 && isLastBlock && !childGroup),
+        ...(block as any),
+        children: childBlocks,
       });
     });
 
-    return blocks;
+    return { blocks, contentCutAtStart, contentCutAtEnd };
   }
 
   if (slice.content.childCount === 0) {
     return {
       blocks: [],
+      contentCutAtStart: false,
+      contentCutAtEnd: false,
     };
   }
 
@@ -856,11 +825,9 @@ export function prosemirrorSliceToSlicedBlocks<
     );
   }
 
-  return {
-    blocks: processNode(
-      slice.content.firstChild!,
-      Math.max(slice.openStart - 1, 0),
-      Math.max(slice.openEnd - 1, 0)
-    ),
-  };
+  return processNode(
+    slice.content.firstChild!,
+    Math.max(slice.openStart - 1, 0),
+    Math.max(slice.openEnd - 1, 0)
+  );
 }
