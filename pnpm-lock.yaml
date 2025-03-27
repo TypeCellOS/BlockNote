@@ -3710,10 +3710,10 @@ importers:
         specifier: ^0.26.0
         version: link:../packages/shadcn
       '@playwright/experimental-ct-react':
-        specifier: ^1.51.1
+        specifier: 1.51.1
         version: 1.51.1(@types/node@22.13.13)(terser@5.39.0)(vite@5.4.15(@types/node@22.13.13)(terser@5.39.0))
       '@playwright/test':
-        specifier: ^1.51.1
+        specifier: 1.51.1
         version: 1.51.1
       '@types/react':
         specifier: ^18.0.25
