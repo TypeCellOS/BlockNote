@@ -1066,7 +1066,10 @@
             "Inline Content",
             "Custom Schemas",
             "Formatting Toolbar"
-          ]
+          ],
+          "dependencies": {
+            "react-icons": "^5.2.1"
+          } as any
         },
         "title": "Font Style",
         "group": {
@@ -1293,7 +1296,10 @@
           "tags": [
             "Extension"
           ],
-          "pro": true
+          "pro": true,
+          "dependencies": {
+            "@tiptap/core": "^2"
+          } as any
         },
         "title": "TipTap extension (arrow InputRule)",
         "group": {

@@ -2107,6 +2107,9 @@ importers:
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
+      react-icons:
+        specifier: ^5.2.1
+        version: 5.5.0(react@18.3.1)
     devDependencies:
       '@types/react':
         specifier: ^18.0.25
@@ -2510,6 +2513,9 @@ importers:
       '@blocknote/shadcn':
         specifier: latest
         version: link:../../../packages/shadcn
+      '@tiptap/core':
+        specifier: ^2
+        version: 2.11.5(@tiptap/pm@2.11.5)
       react:
         specifier: ^18.3.1
         version: 18.3.1

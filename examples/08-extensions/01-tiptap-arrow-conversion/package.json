@@ -16,7 +16,8 @@
     "@blocknote/mantine": "latest",
     "@blocknote/shadcn": "latest",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "@tiptap/core": "^2"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",

@@ -6,9 +6,6 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, edited]
 
-env:
-  PNPM_VERSION: 10.2.1
-
 jobs:
   build:
     name: Build
@@ -17,11 +14,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 100
+      - run: jq '.packageManager' package.json | tr -d '"pnpm@'
+        id: package-manager-version
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: ${{ env.PNPM_VERSION }}
+          version: ${{ steps.package-manager-version.outputs.stdout }}
 
       - uses: nrwl/nx-set-shas@v3
 
@@ -73,10 +72,13 @@ jobs:
         with:
           fetch-depth: 100
 
+      - run: jq '.packageManager' package.json | tr -d '"pnpm@'
+        id: package-manager-version
+  
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: ${{ env.PNPM_VERSION }}
+          version: ${{ steps.package-manager-version.outputs.stdout }}
 
       - uses: nrwl/nx-set-shas@v3
 
