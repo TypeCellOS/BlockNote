@@ -1,0 +1,35 @@
+{
+  "blocks": [
+    {
+      "block": {
+        "id": "11",
+        "type": "table",
+        "props": {
+          "textColor": "default"
+        },
+        "content": {
+          "type": "tableContent",
+          "columnWidths": [
+            null
+          ],
+          "rows": [
+            {
+              "cells": [
+                [
+                  {
+                    "type": "text",
+                    "text": "Table Cell",
+                    "styles": {}
+                  }
+                ]
+              ]
+            }
+          ]
+        },
+        "children": []
+      },
+      "contentCutAtStart": true,
+      "contentCutAtEnd": true
+    }
+  ]
+}

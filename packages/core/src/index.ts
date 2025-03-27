@@ -52,13 +52,14 @@ export * from "./schema/index.js";
 export * from "./util/browser.js";
 export * from "./util/combineByGroup.js";
 export * from "./util/esmDependencies.js";
-export * from "./util/table.js";
 export * from "./util/string.js";
+export * from "./util/table.js";
 export * from "./util/typescript.js";
 
 export type { CodeBlockOptions } from "./blocks/CodeBlockContent/CodeBlockContent.js";
 export { UnreachableCaseError, assertEmpty } from "./util/typescript.js";
 
+export * from "./util/EventEmitter.js";
 // for testing from react (TODO: move):
 export * from "./api/nodeConversions/blockToNode.js";
 export * from "./api/nodeConversions/nodeToBlock.js";
@@ -69,3 +70,6 @@ export * from "./extensions/UniqueID/UniqueID.js";
 export * from "./api/exporters/markdown/markdownExporter.js";
 export * from "./api/parsers/html/parseHTML.js";
 export * from "./api/parsers/markdown/parseMarkdown.js";
+
+// TODO: for ai, remove?
+export * from "./api/blockManipulation/getBlock/getBlock.js";

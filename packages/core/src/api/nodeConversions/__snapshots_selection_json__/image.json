@@ -1,0 +1,22 @@
+{
+  "blocks": [
+    {
+      "block": {
+        "id": "9",
+        "type": "image",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "name": "",
+          "url": "https://ralfvanveen.com/wp-content/uploads/2021/06/Placeholder-_-Glossary.svg",
+          "caption": "",
+          "showPreview": true,
+          "previewWidth": 512
+        },
+        "children": []
+      },
+      "contentCutAtStart": false,
+      "contentCutAtEnd": true
+    }
+  ]
+}
