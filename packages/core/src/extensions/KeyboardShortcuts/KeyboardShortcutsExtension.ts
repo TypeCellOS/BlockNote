@@ -474,9 +474,9 @@ export const KeyboardShortcutsExtension = Extension.create<{
           commands.command(({ state }) => {
             const blockInfo = getBlockInfoFromSelection(state);
 
-            const blockHardBreakShortcut =
+            const blockHardBreakShortcut: "shift+enter" | "enter" | "none" =
               this.options.editor.schema.blockSchema[blockInfo.blockNoteType]
-                .hardBreakShortcut;
+                .hardBreakShortcut ?? "shift+enter";
 
             if (blockHardBreakShortcut === "none") {
               return false;
@@ -485,9 +485,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
             if (
               // If shortcut is not configured, or is configured as "shift+enter",
               // create a hard break for shift+enter, but not for enter.
-              ((blockHardBreakShortcut === undefined ||
-                blockHardBreakShortcut === "shift+enter") &&
-                withShift) ||
+              (blockHardBreakShortcut === "shift+enter" && withShift) ||
               // If shortcut is configured as "enter", create a hard break for
               // both enter and shift+enter.
               blockHardBreakShortcut === "enter"
