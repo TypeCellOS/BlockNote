@@ -1,4 +1,16 @@
 {
+  "release": {
+    "projects": ["packages/*"],
+    "version": {
+      "preVersionCommand": "pnpm exec nx run-many -t build",
+      "conventionalCommits": true
+    },
+    "changelog": {
+      "workspaceChangelog": {
+        "createRelease": "github"
+      }
+    }
+  },
   "tasksRunnerOptions": {
     "default": {
       "runner": "nx/tasks-runners/default",

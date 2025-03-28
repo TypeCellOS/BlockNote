@@ -34,7 +34,7 @@
     "build": "nx run-many --target=build",
     "build:clean": "pnpm run clean && pnpm run gen && pnpm run clean && pnpm run build",
     "clean": "nx run-many --target=clean",
-    "deploy": "nx release",
+    "deploy": "nx release --skip-publish",
     "gen": "nx run @blocknote/dev-scripts:gen",
     "install-playwright": "cd tests && pnpx playwright install --with-deps",
     "e2e": "concurrently --success=first -r --kill-others \"pnpm run start -L\" \"wait-on http://localhost:3000 && cd tests && pnpm exec playwright test $PLAYWRIGHT_CONFIG\"",
