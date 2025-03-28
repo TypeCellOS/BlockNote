@@ -2,6 +2,11 @@
   "name": "@blocknote/dev-scripts",
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TypeCellOS/BlockNote.git",
+    "directory": "packages/dev-scripts"
+  },
   "license": "MPL-2.0",
   "version": "0.26.0",
   "description": "",

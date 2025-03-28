@@ -2,6 +2,12 @@
   "name": "@blocknote/xl-docx-exporter",
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TypeCellOS/BlockNote.git",
+    "directory": "packages/xl-docx-exporter"
+  },
   "license": "AGPL-3.0 OR PROPRIETARY",
   "version": "0.26.0",
   "files": [

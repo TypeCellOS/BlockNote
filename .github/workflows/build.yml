@@ -61,6 +61,10 @@ jobs:
           webpackStatsFile: ./playground/dist/webpack-stats.json
           artifactName: relative-ci-artifacts-editor
 
+      - name: Soft release
+        id: soft-release
+        run: pnpx pkg-pr-new publish './packages/*' # --compact enable compact after release
+
   playwright:
     name: "Playwright Tests - ${{ matrix.browser }}"
     runs-on: ubuntu-latest

@@ -5,6 +5,11 @@
   "sideEffects": [
     "*.css"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TypeCellOS/BlockNote.git",
+    "directory": "packages/react"
+  },
   "license": "MPL-2.0",
   "version": "0.26.0",
   "files": [
