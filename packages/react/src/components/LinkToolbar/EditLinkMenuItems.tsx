@@ -22,12 +22,14 @@ const validateUrl = (url: string) => {
 };
 
 export const EditLinkMenuItems = (
-  props: Pick<LinkToolbarProps, "url" | "text" | "editLink">
+  props: Pick<LinkToolbarProps, "url" | "text" | "editLink"> & {
+    showTextField?: boolean;
+  }
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
 
-  const { url, text, editLink } = props;
+  const { url, text, editLink, showTextField } = props;
 
   const [currentUrl, setCurrentUrl] = useState<string>(url);
   const [currentText, setCurrentText] = useState<string>(text);
@@ -78,16 +80,18 @@ export const EditLinkMenuItems = (
         onChange={handleUrlChange}
         onSubmit={handleSubmit}
       />
-      <Components.Generic.Form.TextInput
-        className={"bn-text-input"}
-        name="title"
-        icon={<RiText />}
-        placeholder={dict.link_toolbar.form.title_placeholder}
-        value={currentText}
-        onKeyDown={handleEnter}
-        onChange={handleTextChange}
-        onSubmit={handleSubmit}
-      />
+      {showTextField !== false && (
+        <Components.Generic.Form.TextInput
+          className={"bn-text-input"}
+          name="title"
+          icon={<RiText />}
+          placeholder={dict.link_toolbar.form.title_placeholder}
+          value={currentText}
+          onKeyDown={handleEnter}
+          onChange={handleTextChange}
+          onSubmit={handleSubmit}
+        />
+      )}
     </Components.Generic.Form.Root>
   );
 };

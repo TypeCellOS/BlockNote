@@ -91,7 +91,7 @@ import {
 import { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
 
-import { Plugin, Transaction } from "@tiptap/pm/state";
+import { Plugin, TextSelection, Transaction } from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
 import { EditorView } from "prosemirror-view";
 import { ySyncPluginKey } from "y-prosemirror";
@@ -1149,17 +1149,18 @@ export class BlockNoteEditor<
     }
 
     const { from, to } = this._tiptapEditor.state.selection;
-
-    if (!text) {
-      text = this._tiptapEditor.state.doc.textBetween(from, to);
-    }
-
     const mark = this.pmSchema.mark("link", { href: url });
 
     this.dispatch(
-      this._tiptapEditor.state.tr
-        .insertText(text, from, to)
-        .addMark(from, from + text.length, mark)
+      text
+        ? this._tiptapEditor.state.tr
+            .insertText(text, from, to)
+            .addMark(from, from + text.length, mark)
+        : this._tiptapEditor.state.tr
+            .setSelection(
+              TextSelection.create(this._tiptapEditor.state.tr.doc, to)
+            )
+            .addMark(from, to, mark)
     );
   }
 
