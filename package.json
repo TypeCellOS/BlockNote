@@ -37,7 +37,7 @@
     "deploy": "nx release",
     "gen": "nx run @blocknote/dev-scripts:gen",
     "install-playwright": "cd tests && pnpx playwright install --with-deps",
-    "e2e": "concurrently --kill-others \"pnpm run start -L\" \"wait-on http://localhost:3000 && cd tests && pnpm exec playwright test $PLAYWRIGHT_CONFIG\"",
+    "e2e": "concurrently --success=first -r --kill-others \"pnpm run start -L\" \"wait-on http://localhost:3000 && cd tests && pnpm exec playwright test $PLAYWRIGHT_CONFIG\"",
     "e2e:updateSnaps": "nx run @blocknote/tests:test:updateSnaps",
     "lint": "nx run-many --target=lint",
     "postpublish": "rm -rf packages/core/README.md && rm -rf packages/react/README.md",
