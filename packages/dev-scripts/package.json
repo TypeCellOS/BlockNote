@@ -4,7 +4,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/TypeCellOS/BlockNote.git",
+    "url": "git+https://github.com/TypeCellOS/BlockNote.git",
     "directory": "packages/dev-scripts"
   },
   "license": "MPL-2.0",

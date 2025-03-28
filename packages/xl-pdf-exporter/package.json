@@ -5,7 +5,7 @@
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/TypeCellOS/BlockNote.git",
+    "url": "git+https://github.com/TypeCellOS/BlockNote.git",
     "directory": "packages/xl-pdf-exporter"
   },
   "license": "AGPL-3.0 OR PROPRIETARY",
