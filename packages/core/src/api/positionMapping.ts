@@ -1,31 +1,47 @@
-import { Transaction } from "prosemirror-state";
+import type { Transaction } from "prosemirror-state";
 import { Mapping } from "prosemirror-transform";
 import {
   absolutePositionToRelativePosition,
   relativePositionToAbsolutePosition,
   ySyncPluginKey,
 } from "y-prosemirror";
-import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
+import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import * as Y from "yjs";
-import { ProsemirrorBinding } from "y-prosemirror";
+import type { ProsemirrorBinding } from "y-prosemirror";
+import type {
+  DefaultInlineContentSchema,
+  DefaultStyleSchema,
+} from "../blocks/defaultBlocks.js";
+import type { DefaultBlockSchema } from "../blocks/defaultBlocks.js";
+import type {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../schema/index.js";
 
 export function isRemoteTransaction(tr: Transaction) {
   return tr.getMeta(ySyncPluginKey) !== undefined;
 }
+
 type YSyncPluginState = {
   doc: Y.Doc;
   binding: Pick<ProsemirrorBinding, "type" | "mapping">;
 };
+
 type RelativePosition = symbol;
 
 /**
- * This class is used to keep track of positions of elements in the editor.
+ * This is used to keep track of positions of elements in the editor.
  * It is needed because y-prosemirror's sync plugin can disrupt normal prosemirror position mapping.
  *
  * It is specifically made to be able to be used whether the editor is being used in a collaboratively, or single user, providing the same API.
  */
-export class PositionStorage {
-  private readonly editor: BlockNoteEditor;
+export class PositionStorage<
+  BSchema extends BlockSchema = DefaultBlockSchema,
+  ISchema extends InlineContentSchema = DefaultInlineContentSchema,
+  SSchema extends StyleSchema = DefaultStyleSchema
+> {
+  private readonly editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
   /**
    * Whether the editor has had a remote transaction.
    */
@@ -43,26 +59,21 @@ export class PositionStorage {
     }
   >();
 
-  constructor(editor: BlockNoteEditor) {
+  constructor(
+    editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
+    { shouldMount = true }: { shouldMount?: boolean } = {}
+  ) {
     this.editor = editor;
     this.onTransactionHandler = this.onTransactionHandler.bind(this);
-  }
 
-  /**
-   * Mounts the position storage.
-   */
-  public mount() {
+    if (!shouldMount) {
+      return;
+    }
+
+    if (!this.editor._tiptapEditor) {
+      throw new Error("Editor not mounted");
+    }
     this.editor._tiptapEditor.on("transaction", this.onTransactionHandler);
-
-    return this.unmount.bind(this);
-  }
-
-  /**
-   * Unmounts the position storage.
-   */
-  public unmount() {
-    this.positionMapping.clear();
-    this.editor._tiptapEditor.off("transaction", this.onTransactionHandler);
   }
 
   /**
@@ -71,7 +82,6 @@ export class PositionStorage {
    * It's used to update the position mapping or tell if there was a remote transaction.
    */
   private onTransactionHandler({ transaction }: { transaction: Transaction }) {
-    console.log("onTransactionHandler", transaction);
     if (this.hadRemoteTransaction) {
       // If we have already had a remote transaction, we rely only on relative positions
       return;
@@ -91,7 +101,7 @@ export class PositionStorage {
    *
    * @param id An ID to store the position of.
    * @param position The position to store.
-   * @param side The side of the position to store.
+   * @param side The side of the position to store. "left" is the default. "right" would move with the change if the change is in the right direction.
    */
   public set(id: string, position: number, side?: "left" | "right") {
     const ySyncPluginState = ySyncPluginKey.getState(
@@ -99,7 +109,6 @@ export class PositionStorage {
     ) as YSyncPluginState;
 
     if (!ySyncPluginState) {
-      // TODO unsure if this works
       this.positionMapping.set(id, {
         position,
         relativePosition: undefined,
@@ -110,8 +119,8 @@ export class PositionStorage {
     }
 
     const relativePosition = absolutePositionToRelativePosition(
-      // Track the position before the position
-      position + (side === "left" ? -1 : 0),
+      // Track the position after the position if we are on the right side
+      position + (side === "right" ? 1 : 0),
       ySyncPluginState.binding.type,
       ySyncPluginState.binding.mapping
     );
@@ -126,19 +135,17 @@ export class PositionStorage {
     return this;
   }
 
-  public get(id: string): number {
+  public get(id: string): number | undefined {
     const storedPos = this.positionMapping.get(id);
 
-    console.log(storedPos);
-
     if (!storedPos) {
-      throw new Error("No mapping found for id: " + id);
+      return undefined;
     }
 
     if (this.hadRemoteTransaction) {
       // If we have had a remote transaction, we need to rely on the relative position
       if (!storedPos.relativePosition) {
-        throw new Error("No relative position found for id: " + id);
+        return undefined;
       }
 
       const ystate = ySyncPluginKey.getState(
@@ -151,19 +158,17 @@ export class PositionStorage {
         ystate.binding.mapping
       );
 
+      // This can happen if the element is deleted
       if (rel === null) {
-        // TODO when does this happen?
-        return -1;
+        return undefined;
       }
 
-      return rel + (storedPos.side === "left" ? 1 : -1);
+      return rel + (storedPos.side === "right" ? -1 : 0);
     }
 
-    return (
-      storedPos.mapping.map(
-        storedPos.position - (storedPos.side === "left" ? 1 : 0),
-        storedPos.side === "left" ? -1 : 1
-      ) + (storedPos.side === "left" ? 1 : 0)
+    return storedPos.mapping.map(
+      storedPos.position,
+      storedPos.side === "left" ? -1 : 1
     );
   }
 

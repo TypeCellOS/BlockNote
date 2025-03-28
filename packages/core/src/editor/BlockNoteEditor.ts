@@ -102,6 +102,7 @@ import type { ThreadStore, User } from "../comments/index.js";
 import "../style.css";
 import { EventEmitter } from "../util/EventEmitter.js";
 import { CodeBlockOptions } from "../blocks/CodeBlockContent/CodeBlockContent.js";
+import { PositionStorage } from "../api/positionMapping.js";
 
 export type BlockNoteExtensionFactory = (
   editor: BlockNoteEditor<any, any, any>
@@ -395,6 +396,11 @@ export class BlockNoteEditor<
   public readonly inlineContentImplementations: InlineContentSpecs;
   public readonly styleImplementations: StyleSpecs;
 
+  /**
+   * Stores positions of elements in the editor.
+   */
+  public readonly positionStorage: PositionStorage<BSchema, ISchema, SSchema>;
+
   public readonly formattingToolbar: FormattingToolbarProsemirrorPlugin;
   public readonly linkToolbar: LinkToolbarProsemirrorPlugin<
     BSchema,
@@ -685,6 +691,11 @@ export class BlockNoteEditor<
       // but we still need the schema
       this.pmSchema = getSchema(tiptapOptions.extensions!);
     }
+
+    this.positionStorage = new PositionStorage<BSchema, ISchema, SSchema>(
+      this,
+      { shouldMount: !this.headless }
+    );
     this.emit("create");
   }
 
