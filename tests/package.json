@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint src --max-warnings 0",
-    "playwright": "npx playwright test --ui",
+    "playwright": "npx playwright test",
     "playwright:ui": "npx playwright test --ui",
     "test:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd)/..:/work/ -w /work/tests -it mcr.microsoft.com/playwright:v1.51.1-noble npx playwright test -u",
     "test-ct": "playwright test -c playwright-ct.config.ts --headed",

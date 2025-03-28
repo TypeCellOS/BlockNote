@@ -40,7 +40,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint src --max-warnings 0",
-    "test": "vitest",
+    "test": "vitest --run",
     "test-watch": "vitest watch",
     "clean": "rimraf dist && rimraf types"
   },

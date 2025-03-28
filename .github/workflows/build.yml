@@ -10,6 +10,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,7 +44,7 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev pkg-config
 
       - name: Install Dependencies
-        run: pnpm install --prefer-offline && pnpm rebuild
+        run: pnpm install --prefer-offline && pnpm -r rebuild
 
       - name: Lint packages
         run: pnpm run lint
@@ -63,6 +64,7 @@ jobs:
   playwright:
     name: "Playwright Tests - ${{ matrix.browser }}"
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     container:
       image: mcr.microsoft.com/playwright:v1.51.1-noble
     strategy:
@@ -103,16 +105,14 @@ jobs:
       - run: apt-get update && apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev pkg-config
 
       - name: Install dependencies
-        run: pnpm install --prefer-offline && pnpm rebuild
+        run: pnpm install --prefer-offline && pnpm -r rebuild
 
       - name: Build packages
         run: pnpm run build
 
       - name: Run server and Playwright tests
         run: |
-          pnpm run start > /dev/null & 
-          pnpx wait-on http://localhost:3000
-          cd tests && HOME=/root npx playwright test --project ${{ matrix.browser }}
+          HOME=/root PLAYWRIGHT_CONFIG="--project ${{ matrix.browser }}" pnpm run e2e
 
       - uses: actions/upload-artifact@v4
         if: always()

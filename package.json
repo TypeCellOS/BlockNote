@@ -1,14 +1,18 @@
 {
   "devDependencies": {
+    "@nx/js": "20.6.4",
     "@typescript-eslint/eslint-plugin": "^5.5.0",
     "@typescript-eslint/parser": "^5.5.0",
+    "concurrently": "9.1.2",
     "eslint": "^8.22.0",
     "eslint-config-react-app": "^7.0.0",
     "eslint-plugin-import": "^2.31.0",
     "glob": "^10.3.10",
-    "lerna": "^5.4.0",
+    "nx": "20.6.4",
+    "serve": "14.2.4",
     "typescript": "^5.3.3",
-    "vitest": "^2.0.3"
+    "vitest": "^2.0.3",
+    "wait-on": "8.0.3"
   },
   "name": "root",
   "pnpm": {
@@ -26,18 +30,20 @@
   "packageManager": "pnpm@10.7.0",
   "private": true,
   "scripts": {
-    "build": "lerna run --stream build",
-    "build:clean": "npm run clean && npm run gen && npm run clean && lerna run --stream build",
-    "build:site": "npm run gen && lerna run --stream docs:build --concurrency 1",
-    "clean": "lerna run --stream clean",
-    "deploy": "lerna publish -- --access public",
-    "dev": "lerna run --stream --scope @blocknote/example-editor dev",
-    "gen": "lerna run --stream --scope @blocknote/dev-scripts gen",
+    "build": "nx run-many --target=build",
+    "build:clean": "pnpm run clean && pnpm run gen && pnpm run clean && pnpm run build",
+    "build:site": "pnpm run gen && pnpm run build",
+    "clean": "nx run-many --target=clean",
+    "deploy": "nx release",
+    "dev": "nx run @blocknote/example-editor:dev",
+    "gen": "nx run @blocknote/dev-scripts:gen",
     "install-playwright": "cd tests && pnpx playwright install --with-deps",
-    "lint": "lerna run --stream lint",
+    "e2e": "concurrently --kill-others \"pnpm run start -L\" \"wait-on http://localhost:3000 && cd tests && pnpm exec playwright test $PLAYWRIGHT_CONFIG\"",
+    "lint": "nx run-many --target=lint",
     "postpublish": "rm -rf packages/core/README.md && rm -rf packages/react/README.md",
-    "prepublishOnly": "npm run build && cp README.md packages/core/README.md && cp README.md packages/react/README.md",
-    "start": "npx serve playground/dist -c ../serve.json",
-    "test": "lerna run --stream test"
+    "prepublishOnly": "pnpm run build && cp README.md packages/core/README.md && cp README.md packages/react/README.md",
+    "prestart": "pnpm run build",
+    "start": "serve playground/dist -c ../serve.json",
+    "test": "nx run-many --target=test"
   }
 }
