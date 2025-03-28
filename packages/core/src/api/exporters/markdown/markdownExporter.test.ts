@@ -40,7 +40,7 @@ async function convertToMarkdownAndCompareSnapshots<
       return;
     }
   }
-  expect(md).toMatchFileSnapshot(snapshotPath);
+  await expect(md).toMatchFileSnapshot(snapshotPath);
 }
 
 const testCases = [

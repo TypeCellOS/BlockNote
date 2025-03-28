@@ -12,7 +12,7 @@ async function parseMarkdownAndCompareSnapshots(
   const blocks = await editor.tryParseMarkdownToBlocks(md);
 
   const snapshotPath = "./__snapshots__/" + snapshotName + ".json";
-  expect(JSON.stringify(blocks, undefined, 2)).toMatchFileSnapshot(
+  await expect(JSON.stringify(blocks, undefined, 2)).toMatchFileSnapshot(
     snapshotPath
   );
 
@@ -23,7 +23,7 @@ async function parseMarkdownAndCompareSnapshots(
   doPaste(editor.prosemirrorView, md, null, true, new ClipboardEvent("paste"));
 
   const pastedSnapshotPath = "./__snapshots__/pasted/" + snapshotName + ".json";
-  expect(JSON.stringify(editor.document, undefined, 2)).toMatchFileSnapshot(
+  await expect(JSON.stringify(editor.document, undefined, 2)).toMatchFileSnapshot(
     pastedSnapshotPath
   );
 

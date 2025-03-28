@@ -308,7 +308,7 @@ describe("Test ProseMirror selection clipboard HTML", () => {
       editor
     );
 
-    expect(externalHTML).toMatchFileSnapshot(
+    await expect(externalHTML).toMatchFileSnapshot(
       `./__snapshots__/internal/${testCase.testName}.html`
     );
 

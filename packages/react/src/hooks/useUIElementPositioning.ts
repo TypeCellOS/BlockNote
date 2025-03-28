@@ -12,7 +12,14 @@ export function useUIElementPositioning(
   referencePos: DOMRect | null,
   zIndex: number,
   options?: Partial<UseFloatingOptions>
-) {
+): {
+  isMounted: boolean;
+  ref: (node: HTMLElement | null) => void;
+  style: React.CSSProperties;
+  getFloatingProps: ReturnType<typeof useInteractions>["getFloatingProps"];
+  getReferenceProps: ReturnType<typeof useInteractions>["getReferenceProps"];
+  setReference: ReturnType<typeof useFloating>["refs"]["setReference"];
+} {
   const { refs, update, context, floatingStyles } = useFloating({
     open: show,
     ...options,

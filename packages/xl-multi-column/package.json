@@ -2,6 +2,12 @@
   "name": "@blocknote/xl-multi-column",
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TypeCellOS/BlockNote.git",
+    "directory": "packages/xl-multi-column"
+  },
   "license": "AGPL-3.0 OR PROPRIETARY",
   "version": "0.26.0",
   "files": [
@@ -40,7 +46,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint src --max-warnings 0",
-    "test": "vitest",
+    "test": "vitest --run",
     "test-watch": "vitest watch",
     "clean": "rimraf dist && rimraf types"
   },
@@ -56,6 +62,8 @@
     "react-icons": "^5.2.1"
   },
   "devDependencies": {
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
     "@vitest/ui": "^2.1.4",
     "eslint": "^8.10.0",
     "jsdom": "^21.1.0",
@@ -65,7 +73,9 @@
     "typescript": "^5.3.3",
     "vite": "^5.3.4",
     "vite-plugin-eslint": "^1.8.1",
-    "vitest": "^2.0.3"
+    "vitest": "^2.0.3",
+    "react": "^19",
+    "react-dom": "^19"
   },
   "peerDependencies": {
     "react": "^18.0 || ^19.0 || >= 19.0.0-rc",

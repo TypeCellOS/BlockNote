@@ -32,10 +32,10 @@ describe("exporter", () => {
     const zip = new ZipReader(new BlobReader(blob));
     const entries = await zip.getEntries();
 
-    expect(
+    await expect(
       prettify(await getZIPEntryContent(entries, "word/document.xml"))
     ).toMatchFileSnapshot("__snapshots__/basic/document.xml");
-    expect(
+    await expect(
       prettify(await getZIPEntryContent(entries, "word/styles.xml"))
     ).toMatchFileSnapshot("__snapshots__/basic/styles.xml");
 
@@ -87,7 +87,7 @@ describe("exporter", () => {
       const entries = await zip.getEntries();
 
       // files related to header / footer
-      expect(
+      await expect(
         prettify(
           await getZIPEntryContent(entries, "word/_rels/document.xml.rels")
         )
@@ -95,16 +95,16 @@ describe("exporter", () => {
         "__snapshots__/withCustomOptions/document.xml.rels"
       );
 
-      expect(
+      await expect(
         prettify(await getZIPEntryContent(entries, "word/header1.xml"))
       ).toMatchFileSnapshot("__snapshots__/withCustomOptions/header1.xml");
 
-      expect(
+      await expect(
         prettify(await getZIPEntryContent(entries, "word/footer1.xml"))
       ).toMatchFileSnapshot("__snapshots__/withCustomOptions/footer1.xml");
 
       // has author data
-      expect(
+      await expect(
         prettify(await getZIPEntryContent(entries, "docProps/core.xml"))
       ).toMatchFileSnapshot("__snapshots__/withCustomOptions/core.xml");
     }

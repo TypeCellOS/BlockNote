@@ -1,0 +1,61 @@
+# ./.github/workflows/publish.yml
+name: Publish
+
+on:
+  push:
+    tags:
+      - v*.*.*
+
+jobs:
+  test:
+    name: Publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write # needed for provenance data generation
+      attestations: write
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+      - run: jq '.packageManager' package.json | tr -d '"pnpm@'
+        id: package-manager-version
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ steps.package-manager-version.outputs.stdout }}
+
+      - uses: nrwl/nx-set-shas@v3
+
+      - uses: actions/setup-node@v4
+        with:
+          cache: "pnpm"
+          cache-dependency-path: "**/pnpm-lock.yaml"
+          node-version-file: ".nvmrc"
+
+      - name: Cache NX
+        uses: actions/cache@v4
+        with:
+          path: node_modules/.cache/nx/
+          key: nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-${{ github.sha }}
+          restore-keys: |
+            nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-
+            nx-${{ env.NX_BRANCH }}-
+            nx-
+
+      - run: sudo apt-get update && sudo apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev pkg-config
+
+      - name: Install Dependencies & Build
+        run: pnpm install --prefer-offline && pnpm -r rebuild && pnpm build
+
+      - name: Print Environment Info
+        run: pnpm exec nx report
+
+      - name: Publish packages
+        run: pnpm exec nx release publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+          GITHUB_TOKEN: "${{ github.token }}"

@@ -2,6 +2,12 @@
   "name": "@blocknote/xl-docx-exporter",
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TypeCellOS/BlockNote.git",
+    "directory": "packages/xl-docx-exporter"
+  },
   "license": "AGPL-3.0 OR PROPRIETARY",
   "version": "0.26.0",
   "files": [
@@ -56,6 +62,8 @@
     "image-meta": "^0.2.1"
   },
   "devDependencies": {
+    "@types/react": "^18.0.25",
+    "@types/react-dom": "^18.0.9",
     "@zip.js/zip.js": "^2.7.57",
     "eslint": "^8.10.0",
     "prettier": "^2.7.1",

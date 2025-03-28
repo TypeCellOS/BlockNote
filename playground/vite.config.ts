@@ -1,6 +1,4 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import react from "@vitejs/plugin-react";
-// @ts-ignore
 import auto from "autoprefixer";
 import * as path from "path";
 import { webpackStats } from "rollup-plugin-webpack-stats";
