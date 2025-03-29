@@ -66,6 +66,54 @@ export function generateSharedTestCases(
       // expect(await response.object).toMatchSnapshot();
     });
 
+    it("translates paragraph with formatting", async () => {
+      const editor = createEditor([
+        {
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Hello world, ",
+              styles: {},
+            },
+            {
+              type: "text",
+              text: "this is some bold",
+              styles: {
+                bold: true,
+              },
+            },
+            {
+              type: "text",
+              text: " and some ",
+              styles: {},
+            },
+            {
+              type: "text",
+              text: " colored text",
+              styles: {
+                textColor: "red",
+              },
+            },
+          ],
+        },
+      ]);
+
+      const result = await callLLM(editor, {
+        prompt: "translate to german",
+      });
+
+      await result.apply();
+
+      // Add assertions here to check if the document was correctly translated
+      // For example:
+      // pass test name
+
+      matchFileSnapshot(editor.document);
+
+      // expect(await response.object).toMatchSnapshot();
+    });
+
     it("changes block type (paragraph -> heading)", async () => {
       const editor = createEditor([
         {

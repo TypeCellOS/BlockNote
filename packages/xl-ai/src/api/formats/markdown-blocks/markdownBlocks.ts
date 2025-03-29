@@ -187,6 +187,7 @@ export async function* toJSONToolCalls(
 }> {
   for await (const chunk of operationsSource) {
     const operation = chunk.operation;
+    console.log("operation", operation);
     if (!isBuiltInToolCall(operation)) {
       yield chunk;
       continue;

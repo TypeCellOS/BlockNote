@@ -126,13 +126,13 @@ describe("Models", () => {
             model: params.model,
             maxRetries: 0,
             stream: params.stream,
-            _generateObjectOptions: {
-              providerOptions: {
-                "albert-etalab": {
-                  guided_decoding_backend: "outlines",
-                },
-              },
-            },
+            // _generateObjectOptions: {
+            //   providerOptions: {
+            //     "albert-etalab": {
+            //       guided_decoding_backend: "outlines",
+            //     },
+            //   },
+            // },
           }),
         // markdownblocks doesn't support these:
         {
