@@ -115,7 +115,6 @@ export default function App() {
 
         <Switch
           checked={stream}
-          disabled={dataFormat === "markdown"}
           onChange={(e) => setStream(e.target.checked)}
           label="Streaming"
         />

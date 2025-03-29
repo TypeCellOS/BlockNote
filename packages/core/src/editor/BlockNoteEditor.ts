@@ -933,26 +933,6 @@ export class BlockNoteEditor<
     const start = this.prosemirrorState.selection.$from;
     const end = this.prosemirrorState.selection.$to;
 
-    // if the end is at the end of a node (|</span></p>) move it forward so we include all closing tags (</span></p>|)
-    // while (end.parentOffset >= end.parent.nodeSize - 2 && end.depth > 0) {
-    //   end = this.prosemirrorState.doc.resolve(end.pos + 1);
-    // }
-
-    // // if the end is at the start of an empty node (</span></p><p>|) move it backwards so we drop empty start tags (</span></p>|)
-    // while (end.parentOffset === 0 && end.depth > 0) {
-    //   end = this.prosemirrorState.doc.resolve(end.pos - 1);
-    // }
-
-    // // if the start is at the start of a node (<p><span>|) move it backwards so we include all open tags (|<p><span>)
-    // while (start.parentOffset === 0 && start.depth > 0) {
-    //   start = this.prosemirrorState.doc.resolve(start.pos - 1);
-    // }
-
-    // // if the start is at the end of a node (|</p><p><span>) move it forwards so we drop all closing tags (|<p><span>)
-    // while (start.parentOffset >= start.parent.nodeSize - 2 && start.depth > 0) {
-    //   start = this.prosemirrorState.doc.resolve(start.pos + 1);
-    // }
-
     return getSelectedBlocksWithSelectionMarkers(
       this.prosemirrorState,
       start.pos,
@@ -963,10 +943,52 @@ export class BlockNoteEditor<
     );
   }
 
+  // public updateSelection(blocks: Block<BSchema, ISchema, SSchema>[]) {
+  //   let start = this.prosemirrorState.selection.$from;
+  //   let end = this.prosemirrorState.selection.$to;
+
+  //   // the selection moves below are used to make sure `prosemirrorSliceToSlicedBlocks` returns
+  //   // the correct information about whether content is cut at the start or end of a block
+  //   // TODO: might make more sense to move the logic there
+
+  //   // if the end is at the end of a node (|</span></p>) move it forward so we include all closing tags (</span></p>|)
+  //   while (end.parentOffset >= end.parent.nodeSize - 2 && end.depth > 0) {
+  //     end = this.prosemirrorState.doc.resolve(end.pos + 1);
+  //   }
+
+  //   // if the end is at the start of an empty node (</span></p><p>|) move it backwards so we drop empty start tags (</span></p>|)
+  //   while (end.parentOffset === 0 && end.depth > 0) {
+  //     end = this.prosemirrorState.doc.resolve(end.pos - 1);
+  //   }
+
+  //   // if the start is at the start of a node (<p><span>|) move it backwards so we include all open tags (|<p><span>)
+  //   while (start.parentOffset === 0 && start.depth > 0) {
+  //     start = this.prosemirrorState.doc.resolve(start.pos - 1);
+  //   }
+
+  //   // if the start is at the end of a node (|</p><p><span>|) move it forwards so we drop all closing tags (|<p><span>)
+  //   while (start.parentOffset >= start.parent.nodeSize - 2 && start.depth > 0) {
+  //     start = this.prosemirrorState.doc.resolve(start.pos + 1);
+  //   }
+
+  //   const node = blockto(blocks, this.schema.blockSchema, this.schema.inlineContentSchema, this.schema.styleSchema);
+  //   this.prosemirrorState.tr.replaceWith(start.pos, end.pos, blocks);
+  //     this.prosemirrorState.doc.slice(start.pos, end.pos, true),
+  //     this.schema.blockSchema,
+  //     this.schema.inlineContentSchema,
+  //     this.schema.styleSchema,
+  //     this.blockCache
+  //   );
+  // }
+
   // TODO: fix image node selection
   public getSelection2() {
     let start = this.prosemirrorState.selection.$from;
     let end = this.prosemirrorState.selection.$to;
+
+    // the selection moves below are used to make sure `prosemirrorSliceToSlicedBlocks` returns
+    // the correct information about whether content is cut at the start or end of a block
+    // TODO: might make more sense to move the logic there
 
     // if the end is at the end of a node (|</span></p>) move it forward so we include all closing tags (</span></p>|)
     while (end.parentOffset >= end.parent.nodeSize - 2 && end.depth > 0) {
