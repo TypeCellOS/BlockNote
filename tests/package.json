@@ -8,7 +8,7 @@
     "playwright": "playwright test",
     "test:updateSnaps": "docker run --rm -e RUN_IN_DOCKER=true --network host -v $(pwd)/..:/work/ -w /work/tests -it mcr.microsoft.com/playwright:v1.51.1-noble npx playwright test -u",
     "test-ct": "playwright test -c playwright-ct.config.ts --headed",
-    "test-ct:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd)/..:/work/ -w /work/tests -it mcr.microsoft.com/playwright:v1.51.1-noble npx playwright test -c playwright-ct.config.ts",
+    "test-ct:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd)/..:/work/ -w /work/tests -it mcr.microsoft.com/playwright:v1.51.1-noble npx playwright test -c playwright-ct.config.ts -u",
     "clean": "rimraf dist"
   },
   "devDependencies": {
