@@ -1,7 +1,5 @@
+import { Gapcursor, UndoRedo } from "@tiptap/extensions";
 import { /*AnyExtension,*/ Extension, extensions } from "@tiptap/core";
-import { Gapcursor } from "@tiptap/extension-gapcursor";
-import { HardBreak } from "@tiptap/extension-hard-break";
-import { UndoRedo } from "@tiptap/extension-undo-redo";
 import { Link } from "@tiptap/extension-link";
 import { Text } from "@tiptap/extension-text";
 import { Plugin } from "prosemirror-state";

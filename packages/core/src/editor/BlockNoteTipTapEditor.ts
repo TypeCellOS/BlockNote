@@ -8,7 +8,6 @@ import { EditorState, Transaction } from "@tiptap/pm/state";
 import { blockToNode } from "../api/nodeConversions/blockToNode.js";
 import { PartialBlock } from "../blocks/defaultBlocks.js";
 import { StyleSchema } from "../schema/index.js";
-import type { BlockNoteEditor } from "./BlockNoteEditor.js";
 
 export type BlockNoteTipTapEditorOptions = Partial<
   Omit<EditorOptions, "content">

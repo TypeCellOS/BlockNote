@@ -1,5 +1,5 @@
 import Collaboration from "@tiptap/extension-collaboration";
-import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
+import CollaborationCursor from "@tiptap/extension-collaboration-caret";
 import { Awareness } from "y-protocols/awareness";
 import * as Y from "yjs";
 

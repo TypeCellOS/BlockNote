@@ -63,8 +63,8 @@ export function createReactStyleSpec<T extends StyleConfig>(
   // this is a bit of a hack to register an `addMarkView` function on the mark type
   //
   // we can clean this once MarkViews land in tiptap
-  mark.config.addMarkView =
-    (editor: BlockNoteEditor<any, any, any>) => (mark: any, view: any) => {
+  mark.config.addMarkView = ((editor: BlockNoteEditor<any, any, any>) =>
+    (mark: any, view: any) => {
       const markView = new ReactMarkView({
         editor,
         inline: true,
@@ -77,7 +77,7 @@ export function createReactStyleSpec<T extends StyleConfig>(
       });
       markView.render();
       return markView;
-    };
+    }) as any; // TODO implement real mark views
 
   return createInternalStyleSpec(styleConfig, {
     mark,

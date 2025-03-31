@@ -69,25 +69,24 @@
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
     "@shikijs/types": "3.2.1",
-    "@tiptap/core": "^2.11.5",
-    "@tiptap/extension-bold": "^2.11.5",
-    "@tiptap/extension-code": "^2.11.5",
-    "@tiptap/extension-collaboration": "^2.11.5",
-    "@tiptap/extension-collaboration-cursor": "^2.11.5",
-    "@tiptap/extension-gapcursor": "^2.11.5",
-    "@tiptap/extension-hard-break": "^2.11.5",
-    "@tiptap/extension-undo-redo": "^2.11.5",
-    "@tiptap/extension-horizontal-rule": "^2.11.5",
-    "@tiptap/extension-italic": "^2.11.5",
-    "@tiptap/extension-link": "^2.11.5",
-    "@tiptap/extension-paragraph": "^2.11.5",
-    "@tiptap/extension-strike": "^2.11.5",
-    "@tiptap/extension-table-cell": "^2.11.5",
-    "@tiptap/extension-table-header": "^2.11.5",
-    "@tiptap/extension-table-row": "^2.11.5",
-    "@tiptap/extension-text": "^2.11.5",
-    "@tiptap/extension-underline": "^2.11.5",
-    "@tiptap/pm": "^2.11.5",
+    "@tiptap/core": "3.0.0-next.7",
+    "@tiptap/extension-bold": "3.0.0-next.7",
+    "@tiptap/extension-code": "3.0.0-next.7",
+    "@tiptap/extension-collaboration": "3.0.0-next.7",
+    "@tiptap/extension-collaboration-caret": "3.0.0-next.7",
+    "@tiptap/extension-gapcursor": "3.0.0-next.7",
+    "@tiptap/extensions": "3.0.0-next.7",
+    "@tiptap/extension-hard-break": "3.0.0-next.7",
+    "@tiptap/extension-history": "3.0.0-next.7",
+    "@tiptap/extension-horizontal-rule": "3.0.0-next.7",
+    "@tiptap/extension-italic": "3.0.0-next.7",
+    "@tiptap/extension-link": "3.0.0-next.7",
+    "@tiptap/extension-paragraph": "3.0.0-next.7",
+    "@tiptap/extension-strike": "3.0.0-next.7",
+    "@tiptap/extension-table": "3.0.0-next.7",
+    "@tiptap/extension-text": "3.0.0-next.7",
+    "@tiptap/extension-underline": "3.0.0-next.7",
+    "@tiptap/pm": "3.0.0-next.7",
     "emoji-mart": "^5.6.0",
     "hast-util-from-dom": "^5.0.1",
     "prosemirror-dropcursor": "^1.8.1",
@@ -112,6 +111,7 @@
     "yjs": "^13.6.15"
   },
   "devDependencies": {
+    "@hocuspocus/provider": "^2.15.2",
     "@types/emoji-mart": "^3.0.14",
     "@types/hast": "^3.0.0",
     "@types/uuid": "^8.3.4",
@@ -141,6 +141,10 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
+  },
+  "overrides": {
+    "@tiptap/y-tiptap": "y-prosemirror@1.2.17",
+    "y-prosemirror": "1.2.17"
   },
   "gitHead": "37614ab348dcc7faa830a9a88437b37197a2162d"
 }
