@@ -32,23 +32,15 @@ describe("PositionStorage with local editor", () => {
 
   describe("set and get positions", () => {
     it("should store and retrieve positions without Y.js", () => {
-      positionStorage.set("test-id", 10);
-      expect(positionStorage.get("test-id")).toBe(10);
+      const getPos = positionStorage.track(10);
+
+      expect(getPos()).toBe(10);
     });
 
     it("should handle right side positions", () => {
-      positionStorage.set("test-id", 10, "right");
-      expect(positionStorage.get("test-id")).toBe(10);
-    });
+      const getPos = positionStorage.track(10, "right");
 
-    it("should be undefined when getting a non-existent position", () => {
-      expect(positionStorage.get("non-existent")).toBeUndefined();
-    });
-
-    it("should remove positions", () => {
-      positionStorage.set("test-id", 10);
-      positionStorage.remove("test-id");
-      expect(positionStorage.get("test-id")).toBeUndefined();
+      expect(getPos()).toBe(10);
     });
   });
 
@@ -73,7 +65,7 @@ describe("PositionStorage with local editor", () => {
     );
 
     // Start tracking
-    positionStorage.set("test-id", 10);
+    const getPos = positionStorage.track(10);
 
     // Move the cursor to the start of the document
     editor.setTextCursorPosition(editor.document[0], "start");
@@ -88,7 +80,7 @@ describe("PositionStorage with local editor", () => {
     ]);
 
     // Position should be updated according to mapping
-    expect(positionStorage.get("test-id")).toBe(14);
+    expect(getPos()).toBe(14);
   });
 
   it("should not update mapping for local transactions after the position", () => {
@@ -111,7 +103,7 @@ describe("PositionStorage with local editor", () => {
       "before"
     );
     // Start tracking
-    positionStorage.set("test-id", 10);
+    const getPos = positionStorage.track(10);
 
     // Move the cursor to the end of the document
     editor.setTextCursorPosition(editor.document[0], "end");
@@ -126,7 +118,7 @@ describe("PositionStorage with local editor", () => {
     ]);
 
     // Position should not be updated
-    expect(positionStorage.get("test-id")).toBe(10);
+    expect(getPos()).toBe(10);
   });
 
   it("should track positions on each side", () => {
@@ -138,21 +130,20 @@ describe("PositionStorage with local editor", () => {
     ]);
 
     // Store position at "Hello| World"
-    positionStorage.set("cursor", 6);
-    positionStorage.set("start", 3);
-    positionStorage.set("start-right", 3, "right");
-    positionStorage.set("pos-after", 4);
-    positionStorage.set("pos-after-right", 4, "right");
-
+    const getCursorPos = positionStorage.track(6);
+    const getStartPos = positionStorage.track(3);
+    const getStartRightPos = positionStorage.track(3, "right");
+    const getPosAfterPos = positionStorage.track(4);
+    const getPosAfterRightPos = positionStorage.track(4, "right");
     // Insert text at the beginning
     editor._tiptapEditor.commands.insertContentAt(3, "Test ");
 
     // Position should be updated
-    expect(positionStorage.get("cursor")).toBe(11); // 6 + 5 ("Test " length)
-    expect(positionStorage.get("start")).toBe(3); // 3
-    expect(positionStorage.get("start-right")).toBe(8); // 3 + 5 ("Test " length)
-    expect(positionStorage.get("pos-after")).toBe(9); // 4 + 5 ("Test " length)
-    expect(positionStorage.get("pos-after-right")).toBe(9); // 4 + 5 ("Test " length)
+    expect(getCursorPos()).toBe(11); // 6 + 5 ("Test " length)
+    expect(getStartPos()).toBe(3); // 3
+    expect(getStartRightPos()).toBe(8); // 3 + 5 ("Test " length)
+    expect(getPosAfterPos()).toBe(9); // 4 + 5 ("Test " length)
+    expect(getPosAfterRightPos()).toBe(9); // 4 + 5 ("Test " length)
   });
 
   it("should handle multiple transactions", () => {
@@ -164,11 +155,11 @@ describe("PositionStorage with local editor", () => {
     ]);
 
     // Store position at "Hello| World"
-    positionStorage.set("cursor", 6);
-    positionStorage.set("start", 3);
-    positionStorage.set("start-right", 3, "right");
-    positionStorage.set("pos-after", 4);
-    positionStorage.set("pos-after-right", 4, "right");
+    const getCursorPos = positionStorage.track(6);
+    const getStartPos = positionStorage.track(3);
+    const getStartRightPos = positionStorage.track(3, "right");
+    const getPosAfterPos = positionStorage.track(4);
+    const getPosAfterRightPos = positionStorage.track(4, "right");
 
     // Insert text at the beginning
     editor._tiptapEditor.commands.insertContentAt(3, "T");
@@ -178,11 +169,11 @@ describe("PositionStorage with local editor", () => {
     editor._tiptapEditor.commands.insertContentAt(7, " ");
 
     // Position should be updated
-    expect(positionStorage.get("cursor")).toBe(11); // 6 + 5 ("Test " length)
-    expect(positionStorage.get("start")).toBe(3); // 3
-    expect(positionStorage.get("start-right")).toBe(8); // 3 + 5 ("Test " length)
-    expect(positionStorage.get("pos-after")).toBe(9); // 4 + 5 ("Test " length)
-    expect(positionStorage.get("pos-after-right")).toBe(9); // 4 + 5 ("Test " length)
+    expect(getCursorPos()).toBe(11); // 6 + 5 ("Test " length)
+    expect(getStartPos()).toBe(3); // 3
+    expect(getStartRightPos()).toBe(8); // 3 + 5 ("Test " length)
+    expect(getPosAfterPos()).toBe(9); // 4 + 5 ("Test " length)
+    expect(getPosAfterRightPos()).toBe(9); // 4 + 5 ("Test " length)
   });
 });
 
@@ -268,25 +259,25 @@ describe("PositionStorage with remote editor", () => {
       ]);
 
       // Store position at "Hello| World"
-      localPositionStorage.set("cursor", 6);
+      const getCursorPos = localPositionStorage.track(6);
       // Store position at "|Hello World"
-      localPositionStorage.set("start", 3);
+      const getStartPos = localPositionStorage.track(3);
       // Store position at "|Hello World" (but on the right side)
-      localPositionStorage.set("start-right", 3, "right");
+      const getStartRightPos = localPositionStorage.track(3, "right");
       // Store position at "H|ello World"
-      localPositionStorage.set("pos-after", 4);
+      const getPosAfterPos = localPositionStorage.track(4);
       // Store position at "H|ello World" (but on the right side)
-      localPositionStorage.set("pos-after-right", 4, "right");
+      const getPosAfterRightPos = localPositionStorage.track(4, "right");
 
       // Insert text at the beginning
       localEditor._tiptapEditor.commands.insertContentAt(3, "Test ");
 
       // Position should be updated
-      expect(localPositionStorage.get("cursor")).toBe(11); // 6 + 5 ("Test " length)
-      expect(localPositionStorage.get("start")).toBe(3); // 3
-      expect(localPositionStorage.get("start-right")).toBe(8); // 3 + 5 ("Test " length)
-      expect(localPositionStorage.get("pos-after")).toBe(9); // 4 + 5 ("Test " length)
-      expect(localPositionStorage.get("pos-after-right")).toBe(9); // 4 + 5 ("Test " length)
+      expect(getCursorPos()).toBe(11); // 6 + 5 ("Test " length)
+      expect(getStartPos()).toBe(3); // 3
+      expect(getStartRightPos()).toBe(8); // 3 + 5 ("Test " length)
+      expect(getPosAfterPos()).toBe(9); // 4 + 5 ("Test " length)
+      expect(getPosAfterRightPos()).toBe(9); // 4 + 5 ("Test " length)
     });
 
     it("should handle multiple transactions when collaborating", () => {
@@ -298,15 +289,15 @@ describe("PositionStorage with remote editor", () => {
       ]);
 
       // Store position at "Hello| World"
-      localPositionStorage.set("cursor", 6);
+      const getCursorPos = localPositionStorage.track(6);
       // Store position at "|Hello World"
-      localPositionStorage.set("start", 3);
+      const getStartPos = localPositionStorage.track(3);
       // Store position at "|Hello World" (but on the right side)
-      localPositionStorage.set("start-right", 3, "right");
+      const getStartRightPos = localPositionStorage.track(3, "right");
       // Store position at "H|ello World"
-      localPositionStorage.set("pos-after", 4);
+      const getPosAfterPos = localPositionStorage.track(4);
       // Store position at "H|ello World" (but on the right side)
-      localPositionStorage.set("pos-after-right", 4, "right");
+      const getPosAfterRightPos = localPositionStorage.track(4, "right");
 
       // Insert text at the beginning
       localEditor._tiptapEditor.commands.insertContentAt(3, "T");
@@ -316,11 +307,11 @@ describe("PositionStorage with remote editor", () => {
       localEditor._tiptapEditor.commands.insertContentAt(7, " ");
 
       // Position should be updated
-      expect(localPositionStorage.get("cursor")).toBe(11); // 6 + 5 ("Test " length)
-      expect(localPositionStorage.get("start")).toBe(3); // 3
-      expect(localPositionStorage.get("start-right")).toBe(8); // 3 + 5 ("Test " length)
-      expect(localPositionStorage.get("pos-after")).toBe(9); // 4 + 5 ("Test " length)
-      expect(localPositionStorage.get("pos-after-right")).toBe(9); // 4 + 5 ("Test " length)
+      expect(getCursorPos()).toBe(11); // 6 + 5 ("Test " length)
+      expect(getStartPos()).toBe(3); // 3
+      expect(getStartRightPos()).toBe(8); // 3 + 5 ("Test " length)
+      expect(getPosAfterPos()).toBe(9); // 4 + 5 ("Test " length)
+      expect(getPosAfterRightPos()).toBe(9); // 4 + 5 ("Test " length)
     });
 
     it("should update the local position from a remote transaction", () => {
@@ -332,25 +323,25 @@ describe("PositionStorage with remote editor", () => {
       ]);
 
       // Store position at "Hello| World"
-      localPositionStorage.set("cursor", 6);
+      const getCursorPos = localPositionStorage.track(6);
       // Store position at "|Hello World"
-      localPositionStorage.set("start", 3);
+      const getStartPos = localPositionStorage.track(3);
       // Store position at "|Hello World" (but on the right side)
-      localPositionStorage.set("start-right", 3, "right");
+      const getStartRightPos = localPositionStorage.track(3, "right");
       // Store position at "H|ello World"
-      localPositionStorage.set("pos-after", 4);
+      const getPosAfterPos = localPositionStorage.track(4);
       // Store position at "H|ello World" (but on the right side)
-      localPositionStorage.set("pos-after-right", 4, "right");
+      const getPosAfterRightPos = localPositionStorage.track(4, "right");
 
       // Insert text at the beginning
       localEditor._tiptapEditor.commands.insertContentAt(3, "Test ");
 
       // Position should be updated
-      expect(localPositionStorage.get("cursor")).toBe(11); // 6 + 5 ("Test " length)
-      expect(localPositionStorage.get("start")).toBe(3); // 3
-      expect(localPositionStorage.get("start-right")).toBe(8); // 3 + 5 ("Test " length)
-      expect(localPositionStorage.get("pos-after")).toBe(9); // 4 + 5 ("Test " length)
-      expect(localPositionStorage.get("pos-after-right")).toBe(9); // 4 + 5 ("Test " length)
+      expect(getCursorPos()).toBe(11); // 6 + 5 ("Test " length)
+      expect(getStartPos()).toBe(3); // 3
+      expect(getStartRightPos()).toBe(8); // 3 + 5 ("Test " length)
+      expect(getPosAfterPos()).toBe(9); // 4 + 5 ("Test " length)
+      expect(getPosAfterRightPos()).toBe(9); // 4 + 5 ("Test " length)
     });
 
     it("should update the remote position from a remote transaction", () => {
@@ -362,25 +353,25 @@ describe("PositionStorage with remote editor", () => {
       ]);
 
       // Store position at "Hello| World"
-      remotePositionStorage.set("cursor", 6);
+      const getCursorPos = remotePositionStorage.track(6);
       // Store position at "|Hello World"
-      remotePositionStorage.set("start", 3);
+      const getStartPos = remotePositionStorage.track(3);
       // Store position at "|Hello World" (but on the right side)
-      remotePositionStorage.set("start-right", 3, "right");
+      const getStartRightPos = remotePositionStorage.track(3, "right");
       // Store position at "H|ello World"
-      remotePositionStorage.set("pos-after", 4);
+      const getPosAfterPos = remotePositionStorage.track(4);
       // Store position at "H|ello World" (but on the right side)
-      remotePositionStorage.set("pos-after-right", 4, "right");
+      const getPosAfterRightPos = remotePositionStorage.track(4, "right");
 
       // Insert text at the beginning
       localEditor._tiptapEditor.commands.insertContentAt(3, "Test ");
 
       // Position should be updated
-      expect(remotePositionStorage.get("cursor")).toBe(11); // 6 + 5 ("Test " length)
-      expect(remotePositionStorage.get("start")).toBe(3); // 3
-      expect(remotePositionStorage.get("start-right")).toBe(8); // 3 + 5 ("Test " length)
-      expect(remotePositionStorage.get("pos-after")).toBe(9); // 4 + 5 ("Test " length)
-      expect(remotePositionStorage.get("pos-after-right")).toBe(9); // 4 + 5 ("Test " length)
+      expect(getCursorPos()).toBe(11); // 6 + 5 ("Test " length)
+      expect(getStartPos()).toBe(3); // 3
+      expect(getStartRightPos()).toBe(8); // 3 + 5 ("Test " length)
+      expect(getPosAfterPos()).toBe(9); // 4 + 5 ("Test " length)
+      expect(getPosAfterRightPos()).toBe(9); // 4 + 5 ("Test " length)
     });
   });
 });

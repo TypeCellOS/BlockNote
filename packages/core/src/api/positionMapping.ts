@@ -28,8 +28,6 @@ type YSyncPluginState = {
   binding: Pick<ProsemirrorBinding, "type" | "mapping">;
 };
 
-type RelativePosition = symbol;
-
 /**
  * This is used to keep track of positions of elements in the editor.
  * It is needed because y-prosemirror's sync plugin can disrupt normal prosemirror position mapping.
@@ -46,18 +44,9 @@ export class PositionStorage<
    * Whether the editor has had a remote transaction.
    */
   private hadRemoteTransaction = false;
-  /**
-   * A map of an ID to the position mapping.
-   */
-  private readonly positionMapping = new Map<
-    string,
-    {
-      position: number;
-      relativePosition: RelativePosition | undefined;
-      mapping: Mapping;
-      side: "left" | "right";
-    }
-  >();
+
+  private readonly mapping = new Mapping();
+  private mappingLength = 0;
 
   constructor(
     editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
@@ -83,39 +72,48 @@ export class PositionStorage<
    */
   private onTransactionHandler({ transaction }: { transaction: Transaction }) {
     if (this.hadRemoteTransaction) {
-      // If we have already had a remote transaction, we rely only on relative positions
+      // If we have already had a remote transaction, we rely only on relative positions, so no need to update the mapping.
       return;
     }
 
     if (isRemoteTransaction(transaction)) {
       this.hadRemoteTransaction = true;
     } else {
-      this.positionMapping.forEach(({ mapping }) => {
-        mapping.appendMapping(transaction.mapping);
-      });
+      this.mapping.appendMapping(transaction.mapping);
+      this.mappingLength += transaction.mapping.maps.length;
     }
   }
 
   /**
-   * Stores a position for a given ID. To consistently track the position of an element.
+   * This is used to track a position in the editor.
    *
-   * @param id An ID to store the position of.
-   * @param position The position to store.
-   * @param side The side of the position to store. "left" is the default. "right" would move with the change if the change is in the right direction.
+   * @param position The position to track.
+   * @param side The side of the position to track. "left" is the default. "right" would move with the change if the change is in the right direction.
+   * @param getOffset This allows you to offset the returned position from the tracked position. This is useful for cases where the tracked position is not the actual position of the element.
    */
-  public set(id: string, position: number, side?: "left" | "right") {
+  public track(
+    /**
+     * The position to track.
+     */
+    position: number,
+    /**
+     * This is the side of the position to track. "left" is the default. "right" would move with the change if the change is in the right direction.
+     */
+    side: "left" | "right" = "left"
+  ): () => number {
     const ySyncPluginState = ySyncPluginKey.getState(
       this.editor._tiptapEditor.state
     ) as YSyncPluginState;
 
+    const trackedMapLength = this.mappingLength;
     if (!ySyncPluginState) {
-      this.positionMapping.set(id, {
-        position,
-        relativePosition: undefined,
-        mapping: new Mapping(),
-        side: side ?? "left",
-      });
-      return this;
+      return () => {
+        const pos = this.mapping
+          .slice(trackedMapLength)
+          .map(position, side === "left" ? -1 : 1);
+
+        return pos;
+      };
     }
 
     const relativePosition = absolutePositionToRelativePosition(
@@ -125,56 +123,23 @@ export class PositionStorage<
       ySyncPluginState.binding.mapping
     );
 
-    this.positionMapping.set(id, {
-      position,
-      relativePosition,
-      mapping: new Mapping(),
-      side: side ?? "left",
-    });
-
-    return this;
-  }
-
-  public get(id: string): number | undefined {
-    const storedPos = this.positionMapping.get(id);
-
-    if (!storedPos) {
-      return undefined;
-    }
-
-    if (this.hadRemoteTransaction) {
-      // If we have had a remote transaction, we need to rely on the relative position
-      if (!storedPos.relativePosition) {
-        return undefined;
-      }
-
+    return () => {
       const ystate = ySyncPluginKey.getState(
         this.editor._tiptapEditor.state
       ) as YSyncPluginState;
       const rel = relativePositionToAbsolutePosition(
         ystate.doc,
         ystate.binding.type,
-        storedPos.relativePosition,
+        relativePosition,
         ystate.binding.mapping
       );
 
       // This can happen if the element is deleted
       if (rel === null) {
-        return undefined;
+        throw new Error("Element deleted");
       }
 
-      return rel + (storedPos.side === "right" ? -1 : 0);
-    }
-
-    return storedPos.mapping.map(
-      storedPos.position,
-      storedPos.side === "left" ? -1 : 1
-    );
-  }
-
-  public remove(id: string) {
-    this.positionMapping.delete(id);
-
-    return this;
+      return rel + (side === "right" ? -1 : 0);
+    };
   }
 }

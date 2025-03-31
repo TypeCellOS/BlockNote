@@ -127,7 +127,7 @@ class SuggestionMenuView<
       .focus()
       .deleteRange({
         from:
-          this.pluginState.queryStartPos! -
+          this.pluginState.queryStartPos!() -
           (this.pluginState.deleteTriggerCharacter
             ? this.pluginState.triggerCharacter!.length
             : 0),
@@ -141,7 +141,7 @@ type SuggestionPluginState =
   | {
       triggerCharacter: string;
       deleteTriggerCharacter: boolean;
-      queryStartPos: number;
+      queryStartPos: () => number;
       query: string;
       decorationId: string;
       ignoreQueryLength?: boolean;
@@ -218,13 +218,21 @@ export class SuggestionMenuProseMirrorPlugin<
             suggestionPluginTransactionMeta !== null &&
             prev === undefined
           ) {
+            const trackedPosition = editor.positionStorage.track(
+              newState.selection.from -
+                // Need to account for the trigger char that was inserted, so we offset the position by the length of the trigger character.
+                suggestionPluginTransactionMeta.triggerCharacter.length
+            );
             return {
               triggerCharacter:
                 suggestionPluginTransactionMeta.triggerCharacter,
               deleteTriggerCharacter:
                 suggestionPluginTransactionMeta.deleteTriggerCharacter !==
                 false,
-              queryStartPos: newState.selection.from,
+              // When reading the queryStartPos, we offset the result by the length of the trigger character, to make it easy on the caller
+              queryStartPos: () =>
+                trackedPosition() +
+                suggestionPluginTransactionMeta.triggerCharacter.length,
               query: "",
               decorationId: `id_${Math.floor(Math.random() * 0xffffffff)}`,
               ignoreQueryLength:
@@ -250,7 +258,7 @@ export class SuggestionMenuProseMirrorPlugin<
             transaction.getMeta("pointer") ||
             // Moving the caret before the character which triggered the menu should hide it.
             (prev.triggerCharacter !== undefined &&
-              newState.selection.from < prev.queryStartPos!)
+              newState.selection.from < prev.queryStartPos!())
           ) {
             return undefined;
           }
@@ -259,7 +267,7 @@ export class SuggestionMenuProseMirrorPlugin<
 
           // Updates the current query.
           next.query = newState.doc.textBetween(
-            prev.queryStartPos!,
+            prev.queryStartPos!(),
             newState.selection.from
           );
 
@@ -322,9 +330,9 @@ export class SuggestionMenuProseMirrorPlugin<
           // Creates an inline decoration around the trigger character.
           return DecorationSet.create(state.doc, [
             Decoration.inline(
-              suggestionPluginState.queryStartPos! -
+              suggestionPluginState.queryStartPos!() -
                 suggestionPluginState.triggerCharacter!.length,
-              suggestionPluginState.queryStartPos!,
+              suggestionPluginState.queryStartPos!(),
               {
                 nodeName: "span",
                 class: "bn-suggestion-decorator",
