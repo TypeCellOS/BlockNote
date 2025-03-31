@@ -218,7 +218,7 @@ export class SuggestionMenuProseMirrorPlugin<
             suggestionPluginTransactionMeta !== null &&
             prev === undefined
           ) {
-            const trackedPosition = editor.positionStorage.track(
+            const trackedPosition = editor._internal.positionStorage.track(
               newState.selection.from -
                 // Need to account for the trigger char that was inserted, so we offset the position by the length of the trigger character.
                 suggestionPluginTransactionMeta.triggerCharacter.length
@@ -231,7 +231,7 @@ export class SuggestionMenuProseMirrorPlugin<
                 false,
               // When reading the queryStartPos, we offset the result by the length of the trigger character, to make it easy on the caller
               queryStartPos: () =>
-                trackedPosition() +
+                trackedPosition()! +
                 suggestionPluginTransactionMeta.triggerCharacter.length,
               query: "",
               decorationId: `id_${Math.floor(Math.random() * 0xffffffff)}`,

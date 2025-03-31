@@ -369,6 +369,17 @@ export class BlockNoteEditor<
       } = undefined as any; // TODO: Type should actually reflect that it can be `undefined` in headless mode
 
   /**
+   * Internal properties that are not part of the public API and may change in the future.
+   *
+   * @internal
+   */
+  public readonly _internal: {
+    /**
+     * Stores positions of elements in the editor.
+     */
+    positionStorage: PositionStorage<BSchema, ISchema, SSchema>;
+  };
+  /**
    * Used by React to store a reference to an `ElementRenderer` helper utility to make sure we can render React elements
    * in the correct context (used by `ReactRenderUtil`)
    */
@@ -395,11 +406,6 @@ export class BlockNoteEditor<
   public readonly blockImplementations: BlockSpecs;
   public readonly inlineContentImplementations: InlineContentSpecs;
   public readonly styleImplementations: StyleSpecs;
-
-  /**
-   * Stores positions of elements in the editor.
-   */
-  public readonly positionStorage: PositionStorage<BSchema, ISchema, SSchema>;
 
   public readonly formattingToolbar: FormattingToolbarProsemirrorPlugin;
   public readonly linkToolbar: LinkToolbarProsemirrorPlugin<
@@ -692,10 +698,12 @@ export class BlockNoteEditor<
       this.pmSchema = getSchema(tiptapOptions.extensions!);
     }
 
-    this.positionStorage = new PositionStorage<BSchema, ISchema, SSchema>(
-      this,
-      { shouldMount: !this.headless }
-    );
+    this._internal = {
+      positionStorage: new PositionStorage<BSchema, ISchema, SSchema>(this, {
+        shouldMount: !this.headless,
+      }),
+    };
+
     this.emit("create");
   }
 

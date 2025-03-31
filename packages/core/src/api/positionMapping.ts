@@ -100,7 +100,7 @@ export class PositionStorage<
      * This is the side of the position to track. "left" is the default. "right" would move with the change if the change is in the right direction.
      */
     side: "left" | "right" = "left"
-  ): () => number {
+  ): () => number | undefined {
     const ySyncPluginState = ySyncPluginKey.getState(
       this.editor._tiptapEditor.state
     ) as YSyncPluginState;
@@ -136,7 +136,7 @@ export class PositionStorage<
 
       // This can happen if the element is deleted
       if (rel === null) {
-        throw new Error("Element deleted");
+        return undefined;
       }
 
       return rel + (side === "right" ? -1 : 0);
