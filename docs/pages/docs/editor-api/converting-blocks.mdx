@@ -28,7 +28,7 @@ BlockNote can import / export Blocks to and from Markdown. Note that this is als
 `blocksToMarkdownLossy` converts `Block` objects to a Markdown string:
 
 ```typescript
-blocksToMarkdownLossy(blocks?: Block[]): string;
+async blocksToMarkdownLossy(blocks?: Block[]): string;
 
 // Usage
 const markdownFromBlocks = editor.blocksToMarkdownLossy(blocks);
@@ -49,7 +49,7 @@ The output is simplified as Markdown does not support all features of BlockNote 
 Use `tryParseMarkdownToBlocks` to try parsing a Markdown string into `Block` objects:
 
 ```typescript
-tryParseMarkdownToBlocks(markdown: string): Blocks[];
+async tryParseMarkdownToBlocks(markdown: string): Blocks[];
 
 // Usage
 const blocksFromMarkdown = editor.tryParseMarkdownToBlocks(markdown);
@@ -72,7 +72,7 @@ For example, you an use this for static rendering documents that have been creat
 Make sure to include the same stylesheets when you want to render the output HTML ([see example](/examples/backend/rendering-static-documents)).
 
 ```typescript
-blocksToFullHTML(blocks?: Block[]): string;
+async blocksToFullHTML(blocks?: Block[]): string;
 
 // Usage
 const HTMLFromBlocks = editor.blocksToFullHTML(blocks);
@@ -93,7 +93,7 @@ Converting Blocks to HTML this way will lose some information such as the nestin
 Use `blocksToHTMLLossy` to export `Block` objects to an HTML string:
 
 ```typescript
-blocksToHTMLLossy(blocks?: Block[]): string;
+async blocksToHTMLLossy(blocks?: Block[]): string;
 
 // Usage
 const HTMLFromBlocks = editor.blocksToHTMLLossy(blocks);

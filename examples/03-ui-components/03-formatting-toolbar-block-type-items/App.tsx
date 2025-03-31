@@ -3,19 +3,18 @@ import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
-  BlockTypeSelectItem,
-  FormattingToolbar,
   FormattingToolbarController,
   blockTypeSelectItems,
   useCreateBlockNote,
+  BlockTypeSelectItem,
+  FormattingToolbar,
 } from "@blocknote/react";
 
 import { RiAlertFill } from "react-icons/ri";
+import { Alert } from "./Alert.js";
 
-import { Alert } from "./Alert";
-
-// Our schema with block specs, which contain the configs and implementations
-// for blocks that we want our editor to use.
+// Our schema with block specs, which contain the configs and implementations for
+// blocks that we want our editor to use.
 const schema = BlockNoteSchema.create({
   blockSpecs: {
     // Adds all default blocks.
@@ -50,14 +49,19 @@ export default function App() {
     ],
   });
 
-  // Renders the editor instance with the updated Block Type Select.
+  // Renders the editor instance.
   return (
     <BlockNoteView editor={editor} formattingToolbar={false}>
+      {/* Replaces the default Formatting Toolbar */}
       <FormattingToolbarController
         formattingToolbar={() => (
+          // Uses the default Formatting Toolbar.
           <FormattingToolbar
+            // Sets the items in the Block Type Select.
             blockTypeSelectItems={[
+              // Gets the default Block Type Select items.
               ...blockTypeSelectItems(editor.dictionary),
+              // Adds an item for the Alert block.
               {
                 name: "Alert",
                 type: "alert",
