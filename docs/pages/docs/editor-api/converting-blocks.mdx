@@ -28,10 +28,10 @@ BlockNote can import / export Blocks to and from Markdown. Note that this is als
 `blocksToMarkdownLossy` converts `Block` objects to a Markdown string:
 
 ```typescript
-async blocksToMarkdownLossy(blocks?: Block[]): string;
+async blocksToMarkdownLossy(blocks?: Block[]): Promise<string>;
 
 // Usage
-const markdownFromBlocks = editor.blocksToMarkdownLossy(blocks);
+const markdownFromBlocks = await editor.blocksToMarkdownLossy(blocks);
 ```
 
 `blocks:` The blocks to convert. If not provided, the entire document (all top-level blocks) is used.
@@ -49,10 +49,10 @@ The output is simplified as Markdown does not support all features of BlockNote 
 Use `tryParseMarkdownToBlocks` to try parsing a Markdown string into `Block` objects:
 
 ```typescript
-async tryParseMarkdownToBlocks(markdown: string): Blocks[];
+async tryParseMarkdownToBlocks(markdown: string): Promise<Blocks[]>;
 
 // Usage
-const blocksFromMarkdown = editor.tryParseMarkdownToBlocks(markdown);
+const blocksFromMarkdown = await editor.tryParseMarkdownToBlocks(markdown);
 ```
 
 `returns:` The blocks parsed from the Markdown string.
@@ -72,10 +72,10 @@ For example, you an use this for static rendering documents that have been creat
 Make sure to include the same stylesheets when you want to render the output HTML ([see example](/examples/backend/rendering-static-documents)).
 
 ```typescript
-async blocksToFullHTML(blocks?: Block[]): string;
+async blocksToFullHTML(blocks?: Block[]): Promise<string>;
 
 // Usage
-const HTMLFromBlocks = editor.blocksToFullHTML(blocks);
+const HTMLFromBlocks = await editor.blocksToFullHTML(blocks);
 ```
 
 `blocks:` The blocks to convert. If not provided, the entire document (all top-level blocks) is used.
@@ -93,10 +93,10 @@ Converting Blocks to HTML this way will lose some information such as the nestin
 Use `blocksToHTMLLossy` to export `Block` objects to an HTML string:
 
 ```typescript
-async blocksToHTMLLossy(blocks?: Block[]): string;
+async blocksToHTMLLossy(blocks?: Block[]): Promise<string>;
 
 // Usage
-const HTMLFromBlocks = editor.blocksToHTMLLossy(blocks);
+const HTMLFromBlocks = await editor.blocksToHTMLLossy(blocks);
 ```
 
 `blocks:` The blocks to convert. If not provided, the entire document (all top-level blocks) is used.
@@ -114,10 +114,10 @@ To better conform to HTML standards, children of blocks which aren't list items 
 Use `tryParseHTMLToBlocks` to parse an HTML string to `Block` objects:
 
 ```typescript
-tryParseHTMLToBlocks(html: string): Blocks[];
+async tryParseHTMLToBlocks(html: string): Promise<Blocks[]>;
 
 // Usage
-const blocksFromHTML = editor.tryParseHTMLToBlocks(html);
+const blocksFromHTML = await editor.tryParseHTMLToBlocks(html);
 ```
 
 `returns:` The blocks parsed from the HTML string.
