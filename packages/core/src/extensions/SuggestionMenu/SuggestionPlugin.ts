@@ -86,7 +86,9 @@ class SuggestionMenuView<
     this.pluginState = stopped ? prev : next;
 
     if (stopped || !this.editor.isEditable) {
-      this.state!.show = false;
+      if (this.state) {
+        this.state.show = false;
+      }
       this.emitUpdate(this.pluginState!.triggerCharacter);
 
       return;
