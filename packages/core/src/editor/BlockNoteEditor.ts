@@ -373,7 +373,7 @@ export class BlockNoteEditor<
    *
    * @internal
    */
-  public readonly _internal: {
+  public readonly "~internal": {
     /**
      * Stores positions of elements in the editor.
      */
@@ -698,7 +698,7 @@ export class BlockNoteEditor<
       this.pmSchema = getSchema(tiptapOptions.extensions!);
     }
 
-    this._internal = {
+    this["~internal"] = {
       positionStorage: new PositionStorage<BSchema, ISchema, SSchema>(this, {
         shouldMount: !this.headless,
       }),

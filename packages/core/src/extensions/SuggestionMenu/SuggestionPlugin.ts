@@ -218,7 +218,7 @@ export class SuggestionMenuProseMirrorPlugin<
             suggestionPluginTransactionMeta !== null &&
             prev === undefined
           ) {
-            const trackedPosition = editor._internal.positionStorage.track(
+            const trackedPosition = editor["~internal"].positionStorage.track(
               newState.selection.from -
                 // Need to account for the trigger char that was inserted, so we offset the position by the length of the trigger character.
                 suggestionPluginTransactionMeta.triggerCharacter.length
