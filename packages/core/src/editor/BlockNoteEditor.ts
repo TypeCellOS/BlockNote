@@ -237,12 +237,12 @@ export type BlockNoteEditorOptions<
      */
     defaultPasteHandler: (context?: {
       /**
-       * Whether to auto-detect markdown in the clipboard and paste that as rich text.
+       * Whether to prioritize Markdown content in `text/plain` over `text/html` when pasting from the clipboard.
        * @default true
        */
-      autoDetectMarkdown?: boolean;
+      prioritizeMarkdownOverHTML?: boolean;
       /**
-       * Whether to interpret plain text as markdown and paste that as rich text.
+       * Whether to parse `text/plain` content from the clipboard as Markdown content.
        * @default true
        */
       plainTextAsMarkdown?: boolean;

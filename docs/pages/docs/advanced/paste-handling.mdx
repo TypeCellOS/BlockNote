@@ -30,7 +30,7 @@ type PasteHandler = (context: {
     event: ClipboardEvent;
     editor: BlockNoteEditor;
     defaultPasteHandler: (context?: {
-        autoDetectMarkdown?: boolean;
+        prioritizeMarkdownOverHTML?: boolean;
         plainTextAsMarkdown?: boolean;
     }) => boolean;
 }) => boolean;
@@ -42,7 +42,7 @@ type PasteHandler = (context: {
 
 The `defaultPasteHandler` function can be called with the following options:
 
--   `autoDetectMarkdown`: Whether to auto-detect markdown in the clipboard and paste that as rich text. This will take priority over pasting html into the editor.
+-   `prioritizeMarkdownOverHTML`: Whether to prioritize Markdown content in `text/plain` over `text/html` when pasting from the clipboard.
 -   `plainTextAsMarkdown`: Whether to interpret plain text as markdown and paste that as rich text or to paste the text directly into the editor.
 
 

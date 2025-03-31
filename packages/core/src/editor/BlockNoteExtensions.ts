@@ -268,7 +268,7 @@ const getTipTapExtensions = <
       opts.pasteHandler ||
         ((context: {
           defaultPasteHandler: (context?: {
-            autoDetectMarkdown?: boolean;
+            prioritizeMarkdownOverHTML?: boolean;
             plainTextAsMarkdown?: boolean;
           }) => boolean | undefined;
         }) => context.defaultPasteHandler())
