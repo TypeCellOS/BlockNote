@@ -44,7 +44,8 @@ const ThreadItem = React.memo(
         // If the focused element is within the action toolbar, we don't want to
         // blur the thread for UX reasons.
         if (
-          (event.relatedTarget as HTMLElement).closest(".bn-action-toolbar")
+          !event.relatedTarget ||
+          event.relatedTarget.closest(".bn-action-toolbar")
         ) {
           return;
         }
