@@ -1,10 +1,5 @@
----
-title: Grid Suggestion Menus
-description: In addition to displaying Suggestion Menus as stacks, BlockNote also supports displaying them as grids.
-imageTitle: Grid Suggestion Menus
----
-
 import { Example } from "@/components/example";
+import { ThemedImage } from "@/components/ThemedImage";
 
 # Grid Suggestion Menus
 
@@ -18,10 +13,12 @@ The Emoji Picker is a Grid Suggestion Menu that opens with the `:` character (or
 
 It only displays once the user types 2 non-whitespace characters a query, to minimize cases where the user only wants to enter the `:` character.
 
-<img
-  style={{ maxWidth: "400px" }}
+<ThemedImage
   src="/img/screenshots/emoji_picker.png"
+  darkImage="/img/screenshots/emoji_picker_dark.png"
   alt="image"
+  width={400}
+  height={400}
 />
 
 ### Changing Emoji Picker Columns
