@@ -10,7 +10,7 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 
-import { ResetBlockTypeItem } from "./ResetBlockTypeItem";
+import { ResetBlockTypeItem } from "./ResetBlockTypeItem.js";
 
 export default function App() {
   // Creates a new editor instance.

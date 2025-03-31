@@ -50,6 +50,7 @@ function code(state: any, node: any) {
 
 export async function markdownToHTML(markdown: string): Promise<string> {
   const deps = await initializeESMDependencies();
+
   const htmlString = deps.unified
     .unified()
     .use(deps.remarkParse.default)

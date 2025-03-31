@@ -1,6 +1,5 @@
 import { AnyExtension, Extension, extensions } from "@tiptap/core";
 import { Gapcursor } from "@tiptap/extension-gapcursor";
-import { HardBreak } from "@tiptap/extension-hard-break";
 import { History } from "@tiptap/extension-history";
 import { Link } from "@tiptap/extension-link";
 import { Text } from "@tiptap/extension-text";
@@ -17,6 +16,7 @@ import { CommentsPlugin } from "../extensions/Comments/CommentsPlugin.js";
 import type { ThreadStore } from "../comments/index.js";
 import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin.js";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin.js";
+import { HardBreak } from "../extensions/HardBreak/HardBreak.js";
 import { KeyboardShortcutsExtension } from "../extensions/KeyboardShortcuts/KeyboardShortcutsExtension.js";
 import { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkToolbarPlugin.js";
 import {
@@ -184,7 +184,7 @@ const getTipTapExtensions = <
       types: ["blockContainer", "columnList", "column"],
       setIdAttribute: opts.setIdAttribute,
     }),
-    HardBreak.extend({ priority: 10 }),
+    HardBreak,
     // Comments,
 
     // basics:

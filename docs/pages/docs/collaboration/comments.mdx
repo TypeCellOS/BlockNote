@@ -4,7 +4,7 @@ description: Learn how to enable comments in your BlockNote editor
 imageTitle: Comments
 ---
 
-import { Example } from "@/components/example";
+import {Example} from "@/components/example";
 
 # Comments
 
@@ -33,7 +33,7 @@ const editor = useCreateBlockNote({
 
 **Demo**
 
-<Example name="collaboration/comments" />
+<Example name="collaboration/comments"/>
 
 ## ThreadStores
 
@@ -63,7 +63,10 @@ The `RESTYjsThreadStore` combines Yjs storage with a REST API backend, providing
 In this implementation, data is written to the Yjs document via a REST API which can handle access control. Data is still retrieved from the Yjs document directly (after it's been updated by the REST API), this way all comment information automatically syncs between clients using the existing collaboration provider.
 
 ```tsx
-import { RESTYjsThreadStore, DefaultThreadStoreAuth } from "@blocknote/core/comments";
+import {
+  RESTYjsThreadStore,
+  DefaultThreadStoreAuth,
+} from "@blocknote/core/comments";
 
 const threadStore = new RESTYjsThreadStore(
   "https://api.example.com/comments", // Base URL for the REST API
@@ -84,7 +87,10 @@ _Note: Because writes are executed via a REST API, the `RESTYjsThreadStore` is n
 The `TiptapThreadStore` integrates with Tiptap's collaboration provider for comment management. This implementation is designed specifically for use with Tiptap's collaborative editing features.
 
 ```tsx
-import { TiptapThreadStore, DefaultThreadStoreAuth } from "@blocknote/core/comments";
+import {
+  TiptapThreadStore,
+  DefaultThreadStoreAuth,
+} from "@blocknote/core/comments";
 import { TiptapCollabProvider } from "@hocuspocus/provider";
 
 // Create a TiptapCollabProvider (you probably have this already)
@@ -107,7 +113,7 @@ const threadStore = new TiptapThreadStore(
 
 The `ThreadStoreAuth` class defines the authorization rules for interacting with comments. Every ThreadStore implementation requires a `ThreadStoreAuth` instance. BlockNote uses the `ThreadStoreAuth` instance to deterine which interactions are allowed for the current user (for example, whether they can create a new comment, edit or delete a comment, etc.).
 
-The `DefaultThreadStoreAuth` class provides a basic implementation of the `ThreadStoreAuth` class. It takes a user ID and a role ("comment" or "editor") and implements the rules. See the [source code](https://github.com/TypeCellOS/BlockNote/blob/main/packages/core/src/extensions/Comments/threadstore/DefaultThreadStoreAuth.ts) for more details.
+The `DefaultThreadStoreAuth` class provides a basic implementation of the `ThreadStoreAuth` class. It takes a user ID and a role ("comment" or "editor") and implements the rules. See the [source code](https://github.com/TypeCellOS/BlockNote/blob/main/packages/core/src/comments/threadstore/DefaultThreadStoreAuth.ts) for more details.
 
 _Note: The `ThreadStoreAuth` only used to show / hide options in the UI. To secure comment related data, you still need to implement your own server-side validation (e.g. using `RESTYjsThreadStore` and a secure REST API)._
 
@@ -130,9 +136,27 @@ async function myResolveUsers(userIds: string[]): Promise<User[]> {
   // fetch user information from your database / backend
   // and return an array of User objects
 
-  return await callYourBackend(userIds); //
+  return await callYourBackend(userIds);
 
   // Return a list of users
   return users;
 }
 ```
+
+## Sidebar View
+
+BlockNote also offers a different way of viewing and interacting with comments, via a sidebar instead of floating in the editor, using the `ThreadsSidebar` component:
+
+<Example name="collaboration/comments-with-sidebar"/>
+
+The only requirement for `ThreadsSidebar` is that it should be placed somewhere within your `BlockNoteView`, other than that you can position and style it however you want.
+
+`ThreadsSidebar` also takes 2 props:
+
+**`filter`**: Filter the comments in the sidebar. Can pass `"open"`, `"resolved"`, or `"all"`, to only show open, resolved, or all comments. Defaults to `"all"`.
+
+**`sort`**: Sort the comments in the sidebar. Can pass `"position"`, `"recent-activity"`, or `"oldest"`. Sorting by `"recent-activity"` uses the most recently added comment to sort threads, while `"oldest"` uses the thread creation date. Sorting by `"position"` puts comments in the same order as their reference text in the editor. Defaults to `"position"`.
+
+**`maxCommentsBeforeCollapse`**: The maximum number of comments that can be in a thread before the replies get collapsed. Defaults to 5.
+
+See [here](https://playground.blocknotejs.org/collaboration/comments-with-sidebar?hideMenu=true) for a standalone example of the `ThreadsSidebar` component.

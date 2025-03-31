@@ -5,7 +5,6 @@ export const CommentMark = Mark.create({
   excludes: "",
   inclusive: false,
   keepOnSplit: true,
-  group: "blocknoteIgnore", // ignore in blocknote json
 
   addAttributes() {
     // Return an object with attribute configuration

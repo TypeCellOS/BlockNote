@@ -94,7 +94,7 @@ import {
 import { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
 
-import { Plugin, Transaction } from "@tiptap/pm/state";
+import { Plugin, TextSelection, Transaction } from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
 import { EditorView } from "prosemirror-view";
 import { ySyncPluginKey } from "y-prosemirror";
@@ -104,6 +104,7 @@ import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
 import type { ThreadStore, User } from "../comments/index.js";
 import "../style.css";
 import { EventEmitter } from "../util/EventEmitter.js";
+import { CodeBlockOptions } from "../blocks/CodeBlockContent/CodeBlockContent.js";
 import { nestedListsToBlockNoteStructure } from "../api/parsers/html/util/nestedLists.js";
 
 export type BlockNoteExtensionFactory = (
@@ -159,6 +160,11 @@ export type BlockNoteEditorOptions<
      */
     showCursorLabels?: "always" | "activity";
   };
+
+  /**
+   * Options for code blocks.
+   */
+  codeBlock?: CodeBlockOptions;
 
   comments: {
     threadStore: ThreadStore;
@@ -479,6 +485,7 @@ export class BlockNoteEditor<
       cellTextColor: boolean;
       headers: boolean;
     };
+    codeBlock: CodeBlockOptions;
   };
 
   public static create<
@@ -525,6 +532,12 @@ export class BlockNoteEditor<
         cellBackgroundColor: options?.tables?.cellBackgroundColor ?? false,
         cellTextColor: options?.tables?.cellTextColor ?? false,
         headers: options?.tables?.headers ?? false,
+      },
+      codeBlock: {
+        indentLineWithTab: options?.codeBlock?.indentLineWithTab ?? true,
+        defaultLanguage: options?.codeBlock?.defaultLanguage ?? "text",
+        supportedLanguages: options?.codeBlock?.supportedLanguages ?? {},
+        createHighlighter: options?.codeBlock?.createHighlighter ?? undefined,
       },
     };
 
@@ -622,12 +635,6 @@ export class BlockNoteEditor<
       // eslint-disable-next-line no-console
       console.warn(
         "When using Collaboration, initialContent might cause conflicts, because changes should come from the collaboration provider"
-      );
-    }
-
-    if (newOptions.comments && !collaborationEnabled) {
-      throw new Error(
-        "Comments are only supported when collaboration is enabled, please set the collaboration option"
       );
     }
 
@@ -732,7 +739,7 @@ export class BlockNoteEditor<
     parentElement?: HTMLElement | null,
     contentComponent?: any
   ) => {
-    this._tiptapEditor.mount(parentElement, contentComponent);
+    this._tiptapEditor.mount(this, parentElement, contentComponent);
   };
 
   /**
@@ -1180,17 +1187,18 @@ export class BlockNoteEditor<
     }
 
     const { from, to } = this._tiptapEditor.state.selection;
-
-    if (!text) {
-      text = this._tiptapEditor.state.doc.textBetween(from, to);
-    }
-
     const mark = this.pmSchema.mark("link", { href: url });
 
     this.dispatch(
-      this._tiptapEditor.state.tr
-        .insertText(text, from, to)
-        .addMark(from, from + text.length, mark)
+      text
+        ? this._tiptapEditor.state.tr
+            .insertText(text, from, to)
+            .addMark(from, from + text.length, mark)
+        : this._tiptapEditor.state.tr
+            .setSelection(
+              TextSelection.create(this._tiptapEditor.state.tr.doc, to)
+            )
+            .addMark(from, to, mark)
     );
   }
 

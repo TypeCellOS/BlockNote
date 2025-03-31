@@ -20,6 +20,12 @@ export const pt: Dictionary = {
       aliases: ["h3", "titulo3", "subtitulo"],
       group: "Títulos",
     },
+    quote: {
+      title: "Citação",
+      subtext: "Citação ou trecho",
+      aliases: ["quotation", "blockquote", "bq"],
+      group: "Blocos básicos",
+    },
     numbered_list: {
       title: "Lista Numerada",
       subtext: "Usado para exibir uma lista numerada",
@@ -331,6 +337,10 @@ export const pt: Dictionary = {
     },
     reactions: {
       reacted_by: "Reagido por",
+    },
+    sidebar: {
+      marked_as_resolved: "Marcado como resolvido",
+      more_replies: (count) => `${count} respostas a mais`,
     },
   },
   generic: {

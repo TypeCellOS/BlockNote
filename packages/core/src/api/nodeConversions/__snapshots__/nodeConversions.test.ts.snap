@@ -699,7 +699,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
   "content": [
     {
       "attrs": {
-        "language": "javascript",
+        "language": "text",
       },
       "content": [
         {
@@ -724,7 +724,7 @@ exports[`Test BlockNote-Prosemirror conversion > Case: default schema > Convert 
   "content": [
     {
       "attrs": {
-        "language": "javascript",
+        "language": "text",
       },
       "type": "codeBlock",
     },

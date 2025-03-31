@@ -6,9 +6,12 @@ import { forwardRef, useState } from "react";
 
 const AuthorInfo = forwardRef<
   HTMLDivElement,
-  Pick<ComponentProps["Comments"]["Comment"], "authorInfo" | "timeString">
+  Pick<
+    ComponentProps["Comments"]["Comment"],
+    "authorInfo" | "timeString" | "edited"
+  >
 >((props, _ref) => {
-  const { authorInfo, timeString, ...rest } = props;
+  const { authorInfo, timeString, edited, ...rest } = props;
 
   assertEmpty(rest, false);
 
@@ -30,7 +33,9 @@ const AuthorInfo = forwardRef<
       />
       <div className={"bn-ak-username"}>
         {authorInfo.username}
-        <span>{timeString}</span>
+        <span>
+          {timeString} {edited && "(edited)"}
+        </span>
       </div>
     </AriakitGroup>
   );
@@ -47,6 +52,7 @@ export const Comment = forwardRef<
     timeString,
     actions,
     children,
+    edited,
     ...rest
   } = props;
 

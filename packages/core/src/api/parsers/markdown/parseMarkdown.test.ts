@@ -99,6 +99,11 @@ P*ara*~~grap~~h
 *   Bullet List Item`;
     await parseMarkdownAndCompareSnapshots(markdown, "complex");
   });
+
+  it("whitespace bold", async () => {
+    const markdown = `hello **beautiful ** world`;
+    await parseMarkdownAndCompareSnapshots(markdown, "whitespace bold");
+  });
 });
 
 describe("Issue 226", () => {

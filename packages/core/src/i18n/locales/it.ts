@@ -1,4 +1,6 @@
-export const it = {
+import { Dictionary } from "../dictionary.js";
+
+export const it: Dictionary = {
   slash_menu: {
     heading: {
       title: "Intestazione 1",
@@ -17,6 +19,12 @@ export const it = {
       subtext: "Intestazione di sottosezione e gruppo",
       aliases: ["h3", "intestazione3", "sottotitolo"],
       group: "Intestazioni",
+    },
+    quote: {
+      title: "Citazione",
+      subtext: "Citazione o estratto",
+      aliases: ["quotation", "blockquote", "bq"],
+      group: "Blocchi Base",
     },
     numbered_list: {
       title: "Elenco Numerato",
@@ -155,6 +163,8 @@ export const it = {
   drag_handle: {
     delete_menuitem: "Elimina",
     colors_menuitem: "Colori",
+    header_row_menuitem: "Riga intestazione",
+    header_column_menuitem: "Colonna intestazione",
   },
   table_handle: {
     delete_column_menuitem: "Elimina colonna",
@@ -163,6 +173,9 @@ export const it = {
     add_right_menuitem: "Aggiungi colonna a destra",
     add_above_menuitem: "Aggiungi riga sopra",
     add_below_menuitem: "Aggiungi riga sotto",
+    split_cell_menuitem: "Dividi cella",
+    merge_cells_menuitem: "Unisci celle",
+    background_color_menuitem: "Colore di sfondo",
   },
   suggestion_menu: {
     no_items_title: "Nessun elemento trovato",
@@ -278,6 +291,9 @@ export const it = {
     align_justify: {
       tooltip: "Giustifica testo",
     },
+    table_cell_merge: {
+      tooltip: "Unisci celle",
+    },
     comment: {
       tooltip: "Aggiungi commento",
     },
@@ -330,6 +346,10 @@ export const it = {
     },
     reactions: {
       reacted_by: "Reagito da",
+    },
+    sidebar: {
+      marked_as_resolved: "Contrassegnato come risolto",
+      more_replies: (count) => `${count} altre risposte`,
     },
   },
   generic: {

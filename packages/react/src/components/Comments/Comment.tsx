@@ -2,13 +2,7 @@
 
 import { mergeCSSClasses } from "@blocknote/core";
 import type { CommentData, ThreadData } from "@blocknote/core/comments";
-import {
-  ComponentPropsWithoutRef,
-  MouseEvent,
-  ReactNode,
-  useCallback,
-  useState,
-} from "react";
+import { MouseEvent, ReactNode, useCallback, useState } from "react";
 import {
   RiArrowGoBackFill,
   RiCheckFill,
@@ -28,37 +22,11 @@ import { ReactionBadge } from "./ReactionBadge.js";
 import { schema } from "./schema.js";
 import { useUser } from "./useUsers.js";
 
-export interface CommentProps extends ComponentPropsWithoutRef<"div"> {
-  /**
-   * The comment to display.
-   */
+export type CommentProps = {
   comment: CommentData;
-
-  /**
-   * The thread the comment belongs to.
-   */
   thread: ThreadData;
-
-  /**
-   * How to show or hide the actions.
-   */
-  showActions?: boolean | "hover";
-
-  /**
-   * Whether to show the resolve action.
-   */
-  showResolveAction?: boolean;
-
-  /**
-   * Whether to show the comment if it was deleted. If set to `false`, it will render deleted comments as `null`.
-   */
-  showDeleted?: boolean;
-
-  /**
-   * Whether to show reactions.
-   */
-  showReactions?: boolean;
-}
+  showResolveButton?: boolean;
+};
 
 /**
  * The Comment component displays a single comment with actions,
@@ -70,11 +38,7 @@ export interface CommentProps extends ComponentPropsWithoutRef<"div"> {
 export const Comment = ({
   comment,
   thread,
-  showDeleted,
-  showActions = "hover",
-  showReactions = true,
-  showResolveAction = false,
-  className,
+  showResolveButton,
 }: CommentProps) => {
   // TODO: if REST API becomes popular, all interactions (click handlers) should implement a loading state and error state
   // (or optimistic local updates)
@@ -92,6 +56,7 @@ export const Comment = ({
         },
       },
       schema,
+      sideMenuDetection: "editor",
     },
     [comment.body]
   );
@@ -172,7 +137,7 @@ export const Comment = ({
 
   const user = useUser(editor, comment.userId);
 
-  if (!showDeleted && !comment.body) {
+  if (!comment.body) {
     return null;
   }
 
@@ -182,12 +147,12 @@ export const Comment = ({
   const canEditComment = threadStore.auth.canUpdateComment(comment);
 
   const showResolveOrReopen =
-    showResolveAction &&
+    showResolveButton &&
     (thread.resolved
       ? threadStore.auth.canUnresolveThread(thread)
       : threadStore.auth.canResolveThread(thread));
 
-  if (showActions && !isEditing) {
+  if (!isEditing) {
     actions = (
       <Components.Generic.Toolbar.Root
         className={mergeCSSClasses("bn-action-toolbar", "bn-comment-actions")}
@@ -257,14 +222,10 @@ export const Comment = ({
     );
   }
 
-  const timeString =
-    comment.createdAt.toLocaleDateString(undefined, {
-      month: "short",
-      day: "numeric",
-    }) +
-    (comment.updatedAt.getTime() !== comment.createdAt.getTime()
-      ? " (edited)"
-      : "");
+  const timeString = comment.createdAt.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
 
   if (!comment.body) {
     throw new Error("soft deletes are not yet supported");
@@ -274,47 +235,48 @@ export const Comment = ({
     <Components.Comments.Comment
       authorInfo={user ?? "loading"}
       timeString={timeString}
-      showActions={showActions}
+      edited={comment.updatedAt.getTime() !== comment.createdAt.getTime()}
+      showActions={"hover"}
       actions={actions}
-      className={className}>
+      className={"bn-thread-comment"}>
       <CommentEditor
+        autoFocus={isEditing}
         editor={commentEditor}
         editable={isEditing}
         actions={
-          (showReactions && comment.reactions.length > 0) || isEditing
+          comment.reactions.length > 0 || isEditing
             ? ({ isEmpty }) => (
                 <>
-                  {showReactions &&
-                    comment.reactions.length > 0 &&
-                    !isEditing && (
-                      <Components.Generic.Badge.Group
-                        className={mergeCSSClasses(
-                          "bn-badge-group",
-                          "bn-comment-reactions"
-                        )}>
-                        {comment.reactions.map((reaction) => (
-                          <ReactionBadge
-                            comment={comment}
-                            emoji={reaction.emoji}
-                            onReactionSelect={onReactionSelect}
-                          />
-                        ))}
-                        <EmojiPicker
-                          onEmojiSelect={(emoji: { native: string }) =>
-                            onReactionSelect(emoji.native)
-                          }>
-                          <Components.Generic.Badge.Root
-                            className={mergeCSSClasses(
-                              "bn-badge",
-                              "bn-comment-add-reaction"
-                            )}
-                            text={"+"}
-                            icon={<RiEmotionLine size={16} />}
-                            mainTooltip={dict.comments.actions.add_reaction}
-                          />
-                        </EmojiPicker>
-                      </Components.Generic.Badge.Group>
-                    )}
+                  {comment.reactions.length > 0 && !isEditing && (
+                    <Components.Generic.Badge.Group
+                      className={mergeCSSClasses(
+                        "bn-badge-group",
+                        "bn-comment-reactions"
+                      )}>
+                      {comment.reactions.map((reaction) => (
+                        <ReactionBadge
+                          key={reaction.emoji}
+                          comment={comment}
+                          emoji={reaction.emoji}
+                          onReactionSelect={onReactionSelect}
+                        />
+                      ))}
+                      <EmojiPicker
+                        onEmojiSelect={(emoji: { native: string }) =>
+                          onReactionSelect(emoji.native)
+                        }>
+                        <Components.Generic.Badge.Root
+                          className={mergeCSSClasses(
+                            "bn-badge",
+                            "bn-comment-add-reaction"
+                          )}
+                          text={"+"}
+                          icon={<RiEmotionLine size={16} />}
+                          mainTooltip={dict.comments.actions.add_reaction}
+                        />
+                      </EmojiPicker>
+                    </Components.Generic.Badge.Group>
+                  )}
                   {isEditing && (
                     <Components.Generic.Toolbar.Root
                       variant="action-toolbar"

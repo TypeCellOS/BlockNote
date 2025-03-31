@@ -18,6 +18,12 @@ export const en = {
       aliases: ["h3", "heading3", "subheading"],
       group: "Headings",
     },
+    quote: {
+      title: "Quote",
+      subtext: "Quote or excerpt",
+      aliases: ["quotation", "blockquote", "bq"],
+      group: "Basic blocks",
+    },
     numbered_list: {
       title: "Numbered List",
       subtext: "List with ordered items",
@@ -339,6 +345,10 @@ export const en = {
     },
     reactions: {
       reacted_by: "Reacted by",
+    },
+    sidebar: {
+      marked_as_resolved: "Marked as resolved",
+      more_replies: (count: number) => `${count} more replies`,
     },
   },
   generic: {

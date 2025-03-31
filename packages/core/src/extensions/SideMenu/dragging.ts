@@ -99,6 +99,19 @@ function setDragImage(view: EditorView, from: number, to = from) {
   unsetDragImage(view.root);
   dragImageElement = parentClone;
 
+  // Browsers may have CORS policies which prevents iframes from being
+  // manipulated, so better to stay on the safe side and remove them from the
+  // drag preview. The drag preview doesn't work with iframes anyway.
+  const iframes = dragImageElement.getElementsByTagName("iframe");
+  for (let i = 0; i < iframes.length; i++) {
+    const iframe = iframes[i];
+    const parent = iframe.parentElement;
+
+    if (parent) {
+      parent.removeChild(iframe);
+    }
+  }
+
   // TODO: This is hacky, need a better way of assigning classes to the editor so that they can also be applied to the
   //  drag preview.
   const classes = view.dom.className.split(" ");

@@ -71,6 +71,7 @@ export function BlockContentWrapper<
   return (
     // Creates `blockContent` element
     <NodeViewWrapper
+      onDragOver={(event: DragEvent) => event.preventDefault()}
       // Adds custom HTML attributes
       {...Object.fromEntries(
         Object.entries(props.domAttributes || {}).filter(

@@ -20,11 +20,15 @@ function setSelectionToNextContentEditableBlock<
   I extends InlineContentSchema,
   S extends StyleSchema
 >(editor: BlockNoteEditor<BSchema, I, S>) {
-  let block = editor.getTextCursorPosition().block;
+  let block: Block<BSchema, I, S> | undefined =
+    editor.getTextCursorPosition().block;
   let contentType = editor.schema.blockSchema[block.type].content;
 
   while (contentType === "none") {
-    block = editor.getTextCursorPosition().nextBlock!;
+    block = editor.getTextCursorPosition().nextBlock;
+    if (block === undefined) {
+      return;
+    }
     contentType = editor.schema.blockSchema[block.type].content as
       | "inline"
       | "table"
@@ -119,6 +123,18 @@ export function getDefaultSlashMenuItems<
         ...editor.dictionary.slash_menu.heading_3,
       }
     );
+  }
+
+  if (checkDefaultBlockTypeInSchema("quote", editor)) {
+    items.push({
+      onItemClick: () => {
+        insertOrUpdateBlock(editor, {
+          type: "quote",
+        });
+      },
+      key: "quote",
+      ...editor.dictionary.slash_menu.quote,
+    });
   }
 
   if (checkDefaultBlockTypeInSchema("numberedListItem", editor)) {

@@ -1,0 +1,42 @@
+.comments-main-container {
+  align-items: center;
+  background-color: var(--bn-colors-disabled-background);
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 10px;
+  height: 100%;
+  max-width: none;
+  padding: 10px;
+  width: 100%;
+}
+
+.comments-main-container .bn-editor {
+  height: 100%;
+  max-width: 700px;
+  overflow: auto;
+  width: 100%;
+}
+
+.comments-main-container .settings {
+  display: flex;
+  max-width: 700px;
+  width: 100%;
+}
+
+.comments-main-container .settings-select {
+  display: flex;
+  gap: 10px;
+}
+
+.comments-main-container .settings-select .bn-toolbar {
+  align-items: center;
+  box-shadow: none;
+}
+
+.comments-main-container .settings-select h2 {
+  color: var(--bn-colors-menu-text);
+  margin: 0;
+  font-size: 12px;
+  line-height: 12px;
+  padding-left: 14px;
+}

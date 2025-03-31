@@ -27,7 +27,7 @@ export abstract class ThreadStore {
         head: number;
         anchor: number;
       };
-      yjs: {
+      yjs?: {
         head: any;
         anchor: any;
       };

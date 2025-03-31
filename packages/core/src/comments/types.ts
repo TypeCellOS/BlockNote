@@ -106,6 +106,10 @@ export type ThreadData = {
    */
   resolvedUpdatedAt?: Date;
   /**
+   * The id of the user that marked the thread as resolved.
+   */
+  resolvedBy?: string;
+  /**
    * You can use this store any additional information about the thread.
    */
   metadata: any;

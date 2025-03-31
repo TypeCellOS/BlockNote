@@ -816,6 +816,42 @@
           "pathFromRoot": "examples/04-theming",
           "slug": "theming"
         }
+      },
+      {
+        "projectSlug": "code-block",
+        "fullSlug": "theming/code-block",
+        "pathFromRoot": "examples/04-theming/06-code-block",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "nperez0111",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Code Block Syntax Highlighting",
+        "group": {
+          "pathFromRoot": "examples/04-theming",
+          "slug": "theming"
+        }
+      },
+      {
+        "projectSlug": "custom-code-block",
+        "fullSlug": "theming/custom-code-block",
+        "pathFromRoot": "examples/04-theming/07-custom-code-block",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "nperez0111",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Custom Code Block Theme & Language",
+        "group": {
+          "pathFromRoot": "examples/04-theming",
+          "slug": "theming"
+        }
       }
     ]
   },
@@ -916,7 +952,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-pdf-exporter": "latest",
-            "@react-pdf/renderer": "^4.0.0"
+            "@react-pdf/renderer": "^4.3.0"
           } as any,
           "pro": true
         },
@@ -1218,6 +1254,30 @@
           } as any
         },
         "title": "Comments & Threads",
+        "group": {
+          "pathFromRoot": "examples/07-collaboration",
+          "slug": "collaboration"
+        }
+      },
+      {
+        "projectSlug": "comments-with-sidebar",
+        "fullSlug": "collaboration/comments-with-sidebar",
+        "pathFromRoot": "examples/07-collaboration/05-comments-with-sidebar",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Advanced",
+            "Comments",
+            "Collaboration"
+          ],
+          "dependencies": {
+            "@y-sweet/react": "^0.6.3",
+            "@mantine/core": "^7.10.1"
+          } as any
+        },
+        "title": "Threads Sidebar",
         "group": {
           "pathFromRoot": "examples/07-collaboration",
           "slug": "collaboration"

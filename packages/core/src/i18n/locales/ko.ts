@@ -20,6 +20,12 @@ export const ko: Dictionary = {
       aliases: ["h3", "제목3", "subheading"],
       group: "제목",
     },
+    quote: {
+      title: "인용",
+      subtext: "인용문 또는 발췌",
+      aliases: ["quotation", "blockquote", "bq"],
+      group: "기본 블록",
+    },
     numbered_list: {
       title: "번호 매기기 목록",
       subtext: "번호가 매겨진 목록을 추가합니다.",
@@ -352,6 +358,10 @@ export const ko: Dictionary = {
     },
     reactions: {
       reacted_by: "반응한 사람",
+    },
+    sidebar: {
+      marked_as_resolved: "해결됨으로 표시됨",
+      more_replies: (count) => `${count}개의 추가 답글`,
     },
   },
   generic: {

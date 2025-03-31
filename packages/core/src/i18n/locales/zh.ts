@@ -20,6 +20,12 @@ export const zh: Dictionary = {
       aliases: ["h3", "heading3", "subheading", "标题", "三级标题"],
       group: "标题",
     },
+    quote: {
+      title: "引用",
+      subtext: "引用或摘录",
+      aliases: ["quotation", "blockquote", "bq"],
+      group: "基本块",
+    },
     numbered_list: {
       title: "有序列表",
       subtext: "用于显示有序列表",
@@ -372,6 +378,10 @@ export const zh: Dictionary = {
     },
     reactions: {
       reacted_by: "已回应",
+    },
+    sidebar: {
+      marked_as_resolved: "标记为已解决",
+      more_replies: (count) => `还有 ${count} 条回复`,
     },
   },
   generic: {

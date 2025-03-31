@@ -65,16 +65,16 @@ export const createCollaborationExtensions = (collaboration: {
     const renderCursor = (user: { name: string; color: string }) => {
       const cursorElement = document.createElement("span");
 
-      cursorElement.classList.add("collaboration-cursor__base");
+      cursorElement.classList.add("bn-collaboration-cursor__base");
 
       const caretElement = document.createElement("span");
       caretElement.setAttribute("contentedEditable", "false");
-      caretElement.classList.add("collaboration-cursor__caret");
+      caretElement.classList.add("bn-collaboration-cursor__caret");
       caretElement.setAttribute("style", `background-color: ${user.color}`);
 
       const labelElement = document.createElement("span");
 
-      labelElement.classList.add("collaboration-cursor__label");
+      labelElement.classList.add("bn-collaboration-cursor__label");
       labelElement.setAttribute("style", `background-color: ${user.color}`);
       labelElement.insertBefore(document.createTextNode(user.name), null);
 
@@ -87,19 +87,10 @@ export const createCollaborationExtensions = (collaboration: {
       return cursorElement;
     };
 
-    const render = (user: { color: string; name: string }) => {
-      const clientState = [...awareness.getStates().entries()].find(
-        (state) => state[1].user === user
-      );
-
-      if (!clientState) {
-        throw new Error(
-          "Could not find client state for user, " + JSON.stringify(user)
-        );
-      }
-
-      const clientID = clientState[0];
-
+    const render = (
+      user: { color: string; name: string },
+      clientID: number
+    ) => {
       let cursorData = cursors.get(clientID);
 
       if (!cursorData) {
@@ -146,7 +137,7 @@ export const createCollaborationExtensions = (collaboration: {
     tiptapExtensions.push(
       CollaborationCursor.configure({
         user: collaboration.user,
-        render,
+        render: render as any, // tiptap type not compatible with latest y-prosemirror
         provider: collaboration.provider,
       })
     );

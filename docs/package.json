@@ -1,6 +1,6 @@
 {
   "name": "docs",
-  "version": "0.25.0",
+  "version": "0.26.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,16 +9,18 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@blocknote/ariakit": "^0.25.0",
-    "@blocknote/core": "^0.25.0",
-    "@blocknote/mantine": "^0.25.0",
-    "@blocknote/react": "^0.25.0",
-    "@blocknote/shadcn": "^0.25.0",
-    "@blocknote/xl-multi-column": "^0.25.0",
+    "@blocknote/ariakit": "^0.26.0",
+    "@blocknote/core": "^0.26.0",
+    "@blocknote/code-block": "^0.26.0",
+    "@blocknote/mantine": "^0.26.0",
+    "@blocknote/react": "^0.26.0",
+    "@blocknote/shadcn": "^0.26.0",
+    "@blocknote/xl-multi-column": "^0.26.0",
     "@headlessui/react": "^1.7.18",
     "@heroicons/react": "^2.1.4",
     "@mantine/core": "^7.10.1",
     "@next/bundle-analyzer": "^14.1.0",
+    "@sentry/nextjs": "9.4.0",
     "@vercel/analytics": "^1.2.2",
     "@vercel/og": "^0.6.2",
     "classnames": "2.3.2",

@@ -9,13 +9,42 @@ import {
 } from "../../schema/index.js";
 import { DefaultGridSuggestionItem } from "./DefaultGridSuggestionItem.js";
 
-let data:
+// Temporary fix for https://github.com/missive/emoji-mart/pull/929
+let emojiLoadingPromise:
   | Promise<{
-      default: EmojiMartData;
+      emojiMart: typeof import("emoji-mart");
+      emojiData: EmojiMartData;
     }>
   | undefined;
 
-let emojiMart: typeof import("emoji-mart") | undefined;
+async function loadEmojiMart() {
+  if (emojiLoadingPromise) {
+    return emojiLoadingPromise;
+  }
+
+  emojiLoadingPromise = (async () => {
+    // load dynamically because emoji-mart doesn't specify type: module and breaks in nodejs
+    const [emojiMartModule, emojiDataModule] = await Promise.all([
+      import("emoji-mart"),
+      // use a dynamic import to encourage bundle-splitting
+      // and a smaller initial client bundle size
+      import("@emoji-mart/data"),
+    ]);
+
+    const emojiMart =
+      "default" in emojiMartModule ? emojiMartModule.default : emojiMartModule;
+    const emojiData =
+      "default" in emojiDataModule
+        ? (emojiDataModule.default as EmojiMartData)
+        : (emojiDataModule as EmojiMartData);
+
+    await emojiMart.init({ data: emojiData });
+
+    return { emojiMart, emojiData };
+  })();
+
+  return emojiLoadingPromise;
+}
 
 export async function getDefaultEmojiPickerItems<
   BSchema extends BlockSchema,
@@ -29,23 +58,11 @@ export async function getDefaultEmojiPickerItems<
     return [];
   }
 
-  if (!data) {
-    // use a dynamic import to encourage bundle-splitting
-    // and a smaller initial client bundle size
-
-    data = import("@emoji-mart/data") as any;
-
-    // load dynamically because emoji-mart doesn't specify type: module and breaks in nodejs
-    emojiMart = await import("emoji-mart");
-    const emojiMartData = (await data)!.default;
-    await emojiMart.init({ data: emojiMartData });
-  }
-
-  const emojiMartData = (await data)!.default;
+  const { emojiData, emojiMart } = await loadEmojiMart();
 
   const emojisToShow =
     query.trim() === ""
-      ? Object.values(emojiMartData.emojis)
+      ? Object.values(emojiData.emojis)
       : ((await emojiMart!.SearchIndex.search(query)) as Emoji[]);
 
   return emojisToShow.map((emoji) => ({

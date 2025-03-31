@@ -20,6 +20,12 @@ export const no: Dictionary = {
       aliases: ["h3", "overskrift3", "underoverskrift"],
       group: "Overskrifter",
     },
+    quote: {
+      title: "Sitat",
+      subtext: "Sitat eller utdrag",
+      aliases: ["quotation", "blockquote", "bq"],
+      group: "Grunnleggende blokker",
+    },
     numbered_list: {
       title: "Nummerert liste",
       subtext: "Liste med ordnede elementer",
@@ -338,6 +344,10 @@ export const no: Dictionary = {
     },
     reactions: {
       reacted_by: "Reagert av",
+    },
+    sidebar: {
+      marked_as_resolved: "Merket som løst",
+      more_replies: (count) => `${count} flere svar`,
     },
   },
   generic: {

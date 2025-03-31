@@ -346,6 +346,41 @@ describe("Parse HTML", () => {
     await parseHTMLAndCompareSnapshots(html, "parse-div-with-inline-content");
   });
 
+  it("Parses 2 tables", async () => {
+    const html = `
+<table style="border-collapse:collapse;margin-left:255.478pt" cellspacing="0">
+  <tr style="height:22pt">
+    <td style="width:203pt">
+      <p data-text-alignment="left" data-text-indent="0pt"><u>Company</u></p>
+    </td>
+  </tr>
+  <tr style="height:86pt">
+    <td style="width:203pt">
+      <p data-text-alignment="left" data-text-indent="0pt"><b>Example Company Inc.</b></p>
+      <p data-text-alignment="left" data-text-indent="0pt">
+        <p>Name: [Company Representative]</p>
+      </p>
+      <p data-text-alignment="left" data-text-indent="0pt">Title: Chief Executive Officer</p>
+    </td>
+  </tr>
+</table>
+
+<table style="border-collapse:collapse;margin-left:256.5pt" cellspacing="0">
+  <tr style="height:58pt">
+    <td style="width:209pt;border-bottom-style:solid;border-bottom-width:2pt">
+      <p data-text-alignment="left" data-text-indent="0pt"><u>Advisor</u></p>
+    </td>
+  </tr>
+  <tr style="height:13pt">
+    <td style="width:209pt;border-top-style:solid;border-top-width:2pt">
+      <p data-text-alignment="left" data-text-indent="0pt">[Advisor Name]</p>
+    </td>
+  </tr>
+</table>`;
+
+    await parseHTMLAndCompareSnapshots(html, "parse-2-tables");
+  });
+
   it("Parse Notion HTML", async () => {
     // A few notes on Notion output HTML:
     // - Does not preserve text/background colors
