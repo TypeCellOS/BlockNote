@@ -1,9 +1,8 @@
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
-  BlockConfig,
   BlockFromConfig,
   createBlockSpec,
-  // FileBlockConfig,
+  FileBlockConfig,
   Props,
   PropSchema,
 } from "../../schema/index.js";
@@ -46,9 +45,9 @@ export const imageBlockConfig = {
   type: "image" as const,
   propSchema: imagePropSchema,
   content: "none",
-  // isFileBlock: true,
-  // fileBlockAccept: ["image/*"],
-} satisfies BlockConfig;
+  isFileBlock: true,
+  fileBlockAccept: ["image/*"],
+} satisfies FileBlockConfig;
 
 export const imageRender = (
   block: BlockFromConfig<typeof imageBlockConfig, any, any>,
