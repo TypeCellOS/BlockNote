@@ -15,12 +15,17 @@
     "default": {
       "runner": "nx/tasks-runners/default",
       "options": {
-        "cacheableOperations": ["build", "test", "lint"]
+        "cacheableOperations": ["build", "test", "lint", "build:site"]
       }
     }
   },
   "targetDefaults": {
     "build": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "outputs": ["{projectRoot}/dist", "{projectRoot}/types"]
+    },
+    "build:site": {
       "cache": true,
       "dependsOn": ["^build"],
       "outputs": ["{projectRoot}/dist", "{projectRoot}/types"]

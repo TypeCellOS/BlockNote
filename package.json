@@ -33,6 +33,7 @@
     "dev": "nx run @blocknote/example-editor:dev",
     "build": "nx run-many --target=build",
     "build:clean": "pnpm run clean && pnpm run gen && pnpm run clean && pnpm run build",
+    "build:site": "pnpm run gen && nx run docs:build:site",
     "clean": "nx run-many --target=clean",
     "deploy": "nx release --skip-publish",
     "gen": "nx run @blocknote/dev-scripts:gen",

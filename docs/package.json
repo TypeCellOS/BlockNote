@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "docs:build": "next build",
+    "build:site": "next build",
     "start": "next start",
     "lint": "next lint"
   },
@@ -50,5 +50,6 @@
     "prettier-plugin-tailwindcss": "^0.5.11",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
-  }
+  },
+  "includedScripts": ["build:site", "lint"]
 }
