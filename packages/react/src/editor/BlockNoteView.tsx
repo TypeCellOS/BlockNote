@@ -240,7 +240,13 @@ export const BlockNoteViewEditor = (props: { children?: ReactNode }) => {
 
   const mount = useCallback(
     (element: HTMLElement | null) => {
-      editor.mount(element, portalManager);
+      if (element) {
+        editor.mount(element);
+      } else {
+        editor.unmount();
+      }
+      // TODO check this
+      (editor as any).contentComponent = portalManager;
     },
     [editor, portalManager]
   );

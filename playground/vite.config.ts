@@ -76,6 +76,8 @@ export default defineConfig(
                   __dirname,
                   "../packages/xl-multi-column/src/"
                 ),
+                // TODO need to figure out how to handle this package
+                "@tiptap/y-tiptap": "y-prosemirror",
                 /*
       This can be used when developing against a local version of liveblocks:
       

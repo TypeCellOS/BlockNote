@@ -180,10 +180,16 @@ export function createReactInlineContentSpec<
                       editor.schema.styleSchema
                     );
 
+                    const pos = props.getPos();
+
+                    if (!pos) {
+                      return;
+                    }
+
                     editor.dispatch(
                       editor.prosemirrorView.state.tr.replaceWith(
-                        props.getPos(),
-                        props.getPos() + props.node.nodeSize,
+                        pos,
+                        pos + props.node.nodeSize,
                         content
                       )
                     );

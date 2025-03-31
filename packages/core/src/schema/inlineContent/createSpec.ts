@@ -132,7 +132,8 @@ export function createInlineContentSpec<
             editor.schema.styleSchema
           ) as any as InlineContentFromConfig<T, S>, // TODO: fix cast
           (update) => {
-            if (typeof getPos === "boolean") {
+            const pos = getPos();
+            if (!pos) {
               return;
             }
 
@@ -144,8 +145,8 @@ export function createInlineContentSpec<
 
             editor.dispatch(
               editor.prosemirrorView.state.tr.replaceWith(
-                getPos(),
-                getPos() + node.nodeSize,
+                pos,
+                pos + node.nodeSize,
                 content
               )
             );

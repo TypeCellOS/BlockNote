@@ -227,11 +227,13 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
           return;
         }
 
+        const pos = getPos();
+
         // TODO: test
-        if (typeof getPos !== "boolean") {
+        if (pos) {
           const beforeBlockContainerPos = getNearestBlockPos(
             editor.state.doc,
-            getPos()
+            pos
           );
 
           if (beforeBlockContainerPos.node.type.name !== "blockContainer") {
@@ -266,12 +268,14 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
         this.options.domAttributes?.inlineContent || {}
       );
 
-      if (typeof getPos !== "boolean") {
+      const pos = getPos();
+
+      if (pos) {
         // Since `node` is a blockContent node, we have to get the block ID from
         // the parent blockContainer node. This means we can't add the label in
         // `renderHTML` as we can't use `getPos` and therefore can't get the
         // parent blockContainer node.
-        const blockID = this.editor.state.doc.resolve(getPos()).node().attrs.id;
+        const blockID = this.editor.state.doc.resolve(pos).node().attrs.id;
         const label = "label-" + blockID;
         checkbox.setAttribute("aria-labelledby", label);
         contentDOM.id = label;

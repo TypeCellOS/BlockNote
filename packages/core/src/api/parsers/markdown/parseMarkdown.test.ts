@@ -27,7 +27,7 @@ async function parseMarkdownAndCompareSnapshots(
     pastedSnapshotPath
   );
 
-  editor.mount(undefined);
+  editor.unmount();
 }
 
 describe("Parse Markdown", () => {
