@@ -7,19 +7,21 @@ import {
 } from "@floating-ui/react";
 import { useEffect, useMemo } from "react";
 
-export function useUIElementPositioning(
-  show: boolean,
-  referencePos: DOMRect | null,
-  zIndex: number,
-  options?: Partial<UseFloatingOptions>
-): {
+type UIElementPosition = {
   isMounted: boolean;
   ref: (node: HTMLElement | null) => void;
   style: React.CSSProperties;
   getFloatingProps: ReturnType<typeof useInteractions>["getFloatingProps"];
   getReferenceProps: ReturnType<typeof useInteractions>["getReferenceProps"];
   setReference: ReturnType<typeof useFloating>["refs"]["setReference"];
-} {
+};
+
+export function useUIElementPositioning(
+  show: boolean,
+  referencePos: DOMRect | null,
+  zIndex: number,
+  options?: Partial<UseFloatingOptions>
+): UIElementPosition {
   const { refs, update, context, floatingStyles } = useFloating({
     open: show,
     ...options,
