@@ -164,7 +164,7 @@ export async function callLLM(
       return rebaseTool(editor, tr);
     },
     {
-      withDelays: false, // TODO: make configurable
+      withDelays: true, // TODO: make configurable
     }
   );
 

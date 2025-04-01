@@ -60,7 +60,8 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
     withDelays: true,
   }
 ): AsyncGenerator<ApplyOperationResult<any>> {
-  let minSize = 50;
+  const STEP_SIZE = 50;
+  let minSize = STEP_SIZE;
 
   for await (const chunk of operationsStream) {
     const operation = chunk.operation as unknown;
@@ -92,14 +93,15 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
         if (size < minSize) {
           continue;
         } else {
-          // console.log("increasing minSize", minSize);
+          console.log("increasing minSize", minSize);
           // increase minSize for next chunk
-          minSize = size + 50;
+          minSize = size + STEP_SIZE;
         }
       } else {
         // reset for next chunk
-        minSize = 50;
+        minSize = STEP_SIZE;
       }
+      console.log("apply", operation.block);
 
       // TODO: this might be inefficient, we might be able to pass a single rebaseTool as long as we map subsequent operations
       const tool = await rebaseTool(operation.id);
@@ -111,6 +113,17 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
         tool.doc,
         chunk.isPossiblyPartial
       );
+
+      if (steps.length === 1 && chunk.isPossiblyPartial) {
+        // TODO: check if replace step only?
+        // TODO: this doesn't consistently work, as there might be > 1 step when changeset wrongly sees a "space" as "keep"
+
+        // when replacing a larger piece of text (try translating a 3 paragraph document), we want to do this as one single operation
+        // we don't want to do this "sentence-by-sentence"
+
+        // if there's only a single replace step to be done and we're partial, let's wait for more content
+        continue;
+      }
 
       const inverted = steps.map((step) => step.map(tool.invertMap)!);
 
