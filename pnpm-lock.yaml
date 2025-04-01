@@ -616,6 +616,46 @@ importers:
         specifier: ^5.3.4
         version: 5.4.15(@types/node@22.13.13)(terser@5.39.0)
 
+  examples/01-basic/13-custom-paste-handler:
+    dependencies:
+      '@blocknote/ariakit':
+        specifier: latest
+        version: link:../../../packages/ariakit
+      '@blocknote/core':
+        specifier: latest
+        version: link:../../../packages/core
+      '@blocknote/mantine':
+        specifier: latest
+        version: link:../../../packages/mantine
+      '@blocknote/react':
+        specifier: latest
+        version: link:../../../packages/react
+      '@blocknote/shadcn':
+        specifier: latest
+        version: link:../../../packages/shadcn
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+    devDependencies:
+      '@types/react':
+        specifier: ^18.0.25
+        version: 18.3.20
+      '@types/react-dom':
+        specifier: ^18.0.9
+        version: 18.3.5(@types/react@18.3.20)
+      '@vitejs/plugin-react':
+        specifier: ^4.3.1
+        version: 4.3.4(vite@5.4.15(@types/node@22.13.13)(terser@5.39.0))
+      eslint:
+        specifier: ^8.10.0
+        version: 8.57.1
+      vite:
+        specifier: ^5.3.4
+        version: 5.4.15(@types/node@22.13.13)(terser@5.39.0)
+
   examples/01-basic/testing:
     dependencies:
       '@blocknote/ariakit':
@@ -14868,7 +14908,7 @@ snapshots:
   '@mdx-js/react@2.3.0(react@18.3.1)':
     dependencies:
       '@types/mdx': 2.0.13
-      '@types/react': 18.3.20
+      '@types/react': 19.0.12
       react: 18.3.1
 
   '@mui/core-downloads-tracker@5.17.1': {}
