@@ -106,7 +106,6 @@ import "../style.css";
 import { EventEmitter } from "../util/EventEmitter.js";
 import { CodeBlockOptions } from "../blocks/CodeBlockContent/CodeBlockContent.js";
 import { nestedListsToBlockNoteStructure } from "../api/parsers/html/util/nestedLists.js";
-import { PositionStorage } from "../api/positionMapping.js";
 
 export type BlockNoteExtensionFactory = (
   editor: BlockNoteEditor<any, any, any>
@@ -405,17 +404,6 @@ export class BlockNoteEditor<
         contentComponent: any;
       } = undefined as any; // TODO: Type should actually reflect that it can be `undefined` in headless mode
 
-  /**
-   * Internal properties that are not part of the public API and may change in the future.
-   *
-   * @internal
-   */
-  public readonly "~internal": {
-    /**
-     * Stores positions of elements in the editor.
-     */
-    positionStorage: PositionStorage<BSchema, ISchema, SSchema>;
-  };
   /**
    * Used by React to store a reference to an `ElementRenderer` helper utility to make sure we can render React elements
    * in the correct context (used by `ReactRenderUtil`)
@@ -735,12 +723,6 @@ export class BlockNoteEditor<
       // but we still need the schema
       this.pmSchema = getSchema(tiptapOptions.extensions!);
     }
-
-    this["~internal"] = {
-      positionStorage: new PositionStorage<BSchema, ISchema, SSchema>(this, {
-        shouldMount: !this.headless,
-      }),
-    };
 
     this.emit("create");
   }

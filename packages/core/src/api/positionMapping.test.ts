@@ -1,16 +1,14 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 import * as Y from "yjs";
 import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
-import { PositionStorage } from "./positionMapping.js";
+import { trackPosition } from "./positionMapping.js";
 
 describe("PositionStorage with local editor", () => {
   let editor: BlockNoteEditor;
-  let positionStorage: PositionStorage;
 
   beforeEach(() => {
     editor = BlockNoteEditor.create();
     editor.mount(document.createElement("div"));
-    positionStorage = new PositionStorage(editor);
   });
 
   afterEach(() => {
@@ -21,7 +19,7 @@ describe("PositionStorage with local editor", () => {
   describe("mount and unmount", () => {
     it("should register transaction handler on creation", () => {
       editor._tiptapEditor.on = vi.fn();
-      new PositionStorage(editor);
+      trackPosition(editor, 0);
 
       expect(editor._tiptapEditor.on).toHaveBeenCalledWith(
         "transaction",
@@ -32,13 +30,13 @@ describe("PositionStorage with local editor", () => {
 
   describe("set and get positions", () => {
     it("should store and retrieve positions without Y.js", () => {
-      const getPos = positionStorage.track(10);
+      const getPos = trackPosition(editor, 10);
 
       expect(getPos()).toBe(10);
     });
 
     it("should handle right side positions", () => {
-      const getPos = positionStorage.track(10, "right");
+      const getPos = trackPosition(editor, 10, "right");
 
       expect(getPos()).toBe(10);
     });
@@ -65,7 +63,7 @@ describe("PositionStorage with local editor", () => {
     );
 
     // Start tracking
-    const getPos = positionStorage.track(10);
+    const getPos = trackPosition(editor, 10);
 
     // Move the cursor to the start of the document
     editor.setTextCursorPosition(editor.document[0], "start");
@@ -103,7 +101,7 @@ describe("PositionStorage with local editor", () => {
       "before"
     );
     // Start tracking
-    const getPos = positionStorage.track(10);
+    const getPos = trackPosition(editor, 10);
 
     // Move the cursor to the end of the document
     editor.setTextCursorPosition(editor.document[0], "end");
@@ -130,11 +128,11 @@ describe("PositionStorage with local editor", () => {
     ]);
 
     // Store position at "Hello| World"
-    const getCursorPos = positionStorage.track(6);
-    const getStartPos = positionStorage.track(3);
-    const getStartRightPos = positionStorage.track(3, "right");
-    const getPosAfterPos = positionStorage.track(4);
-    const getPosAfterRightPos = positionStorage.track(4, "right");
+    const getCursorPos = trackPosition(editor, 6);
+    const getStartPos = trackPosition(editor, 3);
+    const getStartRightPos = trackPosition(editor, 3, "right");
+    const getPosAfterPos = trackPosition(editor, 4);
+    const getPosAfterRightPos = trackPosition(editor, 4, "right");
     // Insert text at the beginning
     editor._tiptapEditor.commands.insertContentAt(3, "Test ");
 
@@ -155,11 +153,11 @@ describe("PositionStorage with local editor", () => {
     ]);
 
     // Store position at "Hello| World"
-    const getCursorPos = positionStorage.track(6);
-    const getStartPos = positionStorage.track(3);
-    const getStartRightPos = positionStorage.track(3, "right");
-    const getPosAfterPos = positionStorage.track(4);
-    const getPosAfterRightPos = positionStorage.track(4, "right");
+    const getCursorPos = trackPosition(editor, 6);
+    const getStartPos = trackPosition(editor, 3);
+    const getStartRightPos = trackPosition(editor, 3, "right");
+    const getPosAfterPos = trackPosition(editor, 4);
+    const getPosAfterRightPos = trackPosition(editor, 4, "right");
 
     // Insert text at the beginning
     editor._tiptapEditor.commands.insertContentAt(3, "T");
@@ -205,9 +203,7 @@ describe("PositionStorage with remote editor", () => {
 
   describe("remote editor", () => {
     let localEditor: BlockNoteEditor;
-    let localPositionStorage: PositionStorage;
     let remoteEditor: BlockNoteEditor;
-    let remotePositionStorage: PositionStorage;
     let ydoc: Y.Doc;
     let remoteYdoc: Y.Doc;
 
@@ -224,8 +220,6 @@ describe("PositionStorage with remote editor", () => {
       });
       const div = document.createElement("div");
       localEditor.mount(div);
-      // Create a new PositionStorage instance
-      localPositionStorage = new PositionStorage(localEditor);
 
       remoteEditor = BlockNoteEditor.create({
         collaboration: {
@@ -237,7 +231,6 @@ describe("PositionStorage with remote editor", () => {
 
       const remoteDiv = document.createElement("div");
       remoteEditor.mount(remoteDiv);
-      remotePositionStorage = new PositionStorage(remoteEditor);
       setupTwoWaySync(ydoc, remoteYdoc);
     });
 
@@ -259,15 +252,15 @@ describe("PositionStorage with remote editor", () => {
       ]);
 
       // Store position at "Hello| World"
-      const getCursorPos = localPositionStorage.track(6);
+      const getCursorPos = trackPosition(localEditor, 6);
       // Store position at "|Hello World"
-      const getStartPos = localPositionStorage.track(3);
+      const getStartPos = trackPosition(localEditor, 3);
       // Store position at "|Hello World" (but on the right side)
-      const getStartRightPos = localPositionStorage.track(3, "right");
+      const getStartRightPos = trackPosition(localEditor, 3, "right");
       // Store position at "H|ello World"
-      const getPosAfterPos = localPositionStorage.track(4);
+      const getPosAfterPos = trackPosition(localEditor, 4);
       // Store position at "H|ello World" (but on the right side)
-      const getPosAfterRightPos = localPositionStorage.track(4, "right");
+      const getPosAfterRightPos = trackPosition(localEditor, 4, "right");
 
       // Insert text at the beginning
       localEditor._tiptapEditor.commands.insertContentAt(3, "Test ");
@@ -289,15 +282,15 @@ describe("PositionStorage with remote editor", () => {
       ]);
 
       // Store position at "Hello| World"
-      const getCursorPos = localPositionStorage.track(6);
+      const getCursorPos = trackPosition(localEditor, 6);
       // Store position at "|Hello World"
-      const getStartPos = localPositionStorage.track(3);
+      const getStartPos = trackPosition(localEditor, 3);
       // Store position at "|Hello World" (but on the right side)
-      const getStartRightPos = localPositionStorage.track(3, "right");
+      const getStartRightPos = trackPosition(localEditor, 3, "right");
       // Store position at "H|ello World"
-      const getPosAfterPos = localPositionStorage.track(4);
+      const getPosAfterPos = trackPosition(localEditor, 4);
       // Store position at "H|ello World" (but on the right side)
-      const getPosAfterRightPos = localPositionStorage.track(4, "right");
+      const getPosAfterRightPos = trackPosition(localEditor, 4, "right");
 
       // Insert text at the beginning
       localEditor._tiptapEditor.commands.insertContentAt(3, "T");
@@ -323,15 +316,15 @@ describe("PositionStorage with remote editor", () => {
       ]);
 
       // Store position at "Hello| World"
-      const getCursorPos = localPositionStorage.track(6);
+      const getCursorPos = trackPosition(localEditor, 6);
       // Store position at "|Hello World"
-      const getStartPos = localPositionStorage.track(3);
+      const getStartPos = trackPosition(localEditor, 3);
       // Store position at "|Hello World" (but on the right side)
-      const getStartRightPos = localPositionStorage.track(3, "right");
+      const getStartRightPos = trackPosition(localEditor, 3, "right");
       // Store position at "H|ello World"
-      const getPosAfterPos = localPositionStorage.track(4);
+      const getPosAfterPos = trackPosition(localEditor, 4);
       // Store position at "H|ello World" (but on the right side)
-      const getPosAfterRightPos = localPositionStorage.track(4, "right");
+      const getPosAfterRightPos = trackPosition(localEditor, 4, "right");
 
       // Insert text at the beginning
       localEditor._tiptapEditor.commands.insertContentAt(3, "Test ");
@@ -353,15 +346,15 @@ describe("PositionStorage with remote editor", () => {
       ]);
 
       // Store position at "Hello| World"
-      const getCursorPos = remotePositionStorage.track(6);
+      const getCursorPos = trackPosition(remoteEditor, 6);
       // Store position at "|Hello World"
-      const getStartPos = remotePositionStorage.track(3);
+      const getStartPos = trackPosition(remoteEditor, 3);
       // Store position at "|Hello World" (but on the right side)
-      const getStartRightPos = remotePositionStorage.track(3, "right");
+      const getStartRightPos = trackPosition(remoteEditor, 3, "right");
       // Store position at "H|ello World"
-      const getPosAfterPos = remotePositionStorage.track(4);
+      const getPosAfterPos = trackPosition(remoteEditor, 4);
       // Store position at "H|ello World" (but on the right side)
-      const getPosAfterRightPos = remotePositionStorage.track(4, "right");
+      const getPosAfterRightPos = trackPosition(remoteEditor, 4, "right");
 
       // Insert text at the beginning
       localEditor._tiptapEditor.commands.insertContentAt(3, "Test ");
