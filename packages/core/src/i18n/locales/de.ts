@@ -24,19 +24,19 @@ export const de: Dictionary = {
       title: "Zitat",
       subtext: "Zitat oder Auszug",
       aliases: ["quotation", "blockquote", "bq"],
-      group: "Grundlegende blöcke",
+      group: "Grundlegende Blöcke",
     },
     numbered_list: {
       title: "Nummerierte Liste",
       subtext: "Liste mit nummerierten Elementen",
       aliases: ["ol", "li", "liste", "nummerierteliste", "nummerierte liste"],
-      group: "Grundlegende blöcke",
+      group: "Grundlegende Blöcke",
     },
     bullet_list: {
       title: "Aufzählungsliste",
       subtext: "Liste mit unnummerierten Elementen",
       aliases: ["ul", "li", "liste", "aufzählungsliste", "aufzählung liste"],
-      group: "Grundlegende blöcke",
+      group: "Grundlegende Blöcke",
     },
     check_list: {
       title: "Checkliste",
@@ -50,19 +50,19 @@ export const de: Dictionary = {
         "geprüfte liste",
         "kontrollkästchen",
       ],
-      group: "Grundlegende blöcke",
+      group: "Grundlegende Blöcke",
     },
     paragraph: {
       title: "Absatz",
       subtext: "Der Hauptteil Ihres Dokuments",
       aliases: ["p", "absatz"],
-      group: "Grundlegende blöcke",
+      group: "Grundlegende Blöcke",
     },
     code_block: {
       title: "Codeblock",
       subtext: "Codeblock mit Syntaxhervorhebung",
       aliases: ["code", "pre"],
-      group: "Grundlegende blöcke",
+      group: "Grundlegende Blöcke",
     },
     page_break: {
       title: "Seitenumbruch",
@@ -137,9 +137,9 @@ export const de: Dictionary = {
     bulletListItem: "Liste",
     numberedListItem: "Liste",
     checkListItem: "Liste",
-    new_comment: "Einen Kommentar schreiben...",
-    edit_comment: "Kommentar bearbeiten...",
-    comment_reply: "Kommentar hinzufügen...",
+    new_comment: "Einen Kommentar schreiben …",
+    edit_comment: "Kommentar bearbeiten …",
+    comment_reply: "Kommentar hinzufügen …",
   },
   file_blocks: {
     image: {
@@ -178,7 +178,7 @@ export const de: Dictionary = {
   },
   suggestion_menu: {
     no_items_title: "Keine Elemente gefunden",
-    loading: "Laden…",
+    loading: "Laden …",
   },
   color_picker: {
     text_title: "Text",
