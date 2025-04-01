@@ -26,7 +26,7 @@
     "classnames": "2.3.2",
     "clsx": "^2.1.0",
     "framer-motion": "^10.16.16",
-    "next": "^14.2.3",
+    "next": "^15",
     "next-auth": "^5.0.0-beta.19",
     "nextra": "^2.13.2",
     "nextra-theme-docs": "^2.13.2",
