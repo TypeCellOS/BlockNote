@@ -649,9 +649,6 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^4.3.1
         version: 4.3.4(vite@5.4.15(@types/node@22.13.13)(terser@5.39.0))
-      eslint:
-        specifier: ^8.10.0
-        version: 8.57.1
       vite:
         specifier: ^5.3.4
         version: 5.4.15(@types/node@22.13.13)(terser@5.39.0)
