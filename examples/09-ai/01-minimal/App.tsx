@@ -1,11 +1,11 @@
 import {
   AIToolbarButton,
-  BlockNoteAIContextProvider,
   BlockNoteAIUI,
   locales as aiLocales,
+  createAIExtension,
   createBlockNoteAIClient,
+  getAIExtension,
   getAISlashMenuItems,
-  useBlockNoteAIContext,
 } from "@blocknote/xl-ai";
 
 import { createGroq } from "@ai-sdk/groq";
@@ -32,6 +32,7 @@ import {
 import "@blocknote/xl-ai/style.css";
 import { Fieldset, Switch } from "@mantine/core";
 import { useMemo, useState } from "react";
+import { useStore } from "zustand";
 import { BasicAutocomplete } from "./AutoComplete.js";
 import RadioGroupComponent from "./components/RadioGroupComponent.js";
 
@@ -51,16 +52,9 @@ const client = createBlockNoteAIClient({
 
 export default function App() {
   const [aiModelString, setAiModelString] = useState(
-    "openai/gpt-4o-2024-08-06"
+    // "openai/gpt-4o-2024-08-06"
+    "groq/llama-3.3-70b-specdec"
   );
-  // Creates a new editor instance.
-  const editor = useCreateBlockNote({
-    schema,
-    dictionary: {
-      ...en,
-      ai: aiLocales.en,
-    } as any,
-  });
 
   const model = useMemo(() => {
     const [provider, ...modelNameParts] = aiModelString.split("/");
@@ -84,13 +78,59 @@ export default function App() {
     throw new Error(`Unknown model: ${aiModelString}`);
   }, [aiModelString]);
 
-  const [dataFormat, setDataFormat] = useState<"json" | "markdown" | "html">(
-    "json"
-  );
+  // Creates a new editor instance.
+  const editor = useCreateBlockNote({
+    schema,
+    dictionary: {
+      ...en,
+      ai: aiLocales.en,
+    } as any,
+    _extensions: {
+      // TO DISCUSS
+      // we pass the extension here.
+      // I don't really like the fact that "ai" is hardcoded - I think we need an API that also allows us to pass in extensions without specifying the key
+      ai: createAIExtension({
+        model,
+      }),
+    },
+    initialContent: [
+      {
+        type: "heading",
+        props: {
+          level: 1,
+        },
+        content: "I love cats",
+      },
+      {
+        type: "paragraph",
+        content:
+          "Cats are one of the most beloved and fascinating animals in the world. Known for their agility, independence, and charm, cats have been companions to humans for thousands of years. Domesticated cats, scientifically named Felis catus, come in various breeds, colors, and personalities, making them a popular choice for pet owners everywhere. Their mysterious behavior, sharp reflexes, and quiet affection have earned them a special place in countless households.",
+      },
+      {
+        type: "paragraph",
+        content:
+          "Beyond their role as pets, cats have a rich history and cultural significance. In ancient Egypt, they were revered and even worshipped as symbols of protection and grace. Throughout history, they’ve appeared in folklore, art, and literature, often associated with curiosity, luck, and mystery. Despite superstitions surrounding black cats in some cultures, many societies around the world admire and cherish these sleek and graceful animals.",
+      },
+      {
+        type: "paragraph",
+        content:
+          "Cats also offer emotional and physical benefits to their owners. Studies have shown that interacting with cats can reduce stress, lower blood pressure, and improve mental well-being. Their gentle purring, playful antics, and warm companionship provide comfort to people of all ages. Whether lounging in the sun, chasing a toy, or curling up on a lap, cats bring joy, peace, and a bit of magic to the lives of those who welcome them into their homes.",
+      },
+    ],
+  });
 
-  const [stream, setStream] = useState(true);
+  const ai = getAIExtension(editor);
+  // TBD: we now derive this from the LLM extension options. desirable?
 
-  // const stream = dataFormat === "markdown" ? false : streamStateValue;
+  // const [dataFormat, setDataFormat] = useState<"json" | "markdown" | "html">(
+  //   "html"
+  // );
+
+  const dataFormat = useStore(ai.options, (state) => state.dataFormat);
+
+  // const [stream, setStream] = useState(true);
+
+  const stream = useStore(ai.options, (state) => state.stream);
 
   // Renders the editor instance using a React component.
   return (
@@ -110,12 +150,14 @@ export default function App() {
             },
           ]}
           value={dataFormat}
-          onChange={(value) => setDataFormat(value as "json" | "markdown")}
+          onChange={(value) =>
+            ai.options.setState({ dataFormat: value as "json" | "markdown" })
+          }
         />
 
         <Switch
           checked={stream}
-          onChange={(e) => setStream(e.target.checked)}
+          onChange={(e) => ai.options.setState({ stream: e.target.checked })}
           label="Streaming"
         />
       </Fieldset>
@@ -124,24 +166,19 @@ export default function App() {
         editor={editor}
         formattingToolbar={false}
         slashMenu={false}>
-        <BlockNoteAIContextProvider
-          model={model}
-          dataFormat={dataFormat}
-          stream={stream}>
-          <BlockNoteAIUI />
-          <FormattingToolbarController
-            formattingToolbar={() => (
-              <FormattingToolbar>
-                {...getFormattingToolbarItems([
-                  ...blockTypeSelectItems(editor.dictionary),
-                  // ...aiBlockTypeSelectItems(aiLocales.en),
-                ])}
-                <AIToolbarButton />
-              </FormattingToolbar>
-            )}
-          />
-          <SuggestionMenu editor={editor} />
-        </BlockNoteAIContextProvider>
+        <BlockNoteAIUI />
+        <FormattingToolbarController
+          formattingToolbar={() => (
+            <FormattingToolbar>
+              {...getFormattingToolbarItems([
+                ...blockTypeSelectItems(editor.dictionary),
+                // ...aiBlockTypeSelectItems(aiLocales.en),
+              ])}
+              <AIToolbarButton />
+            </FormattingToolbar>
+          )}
+        />
+        <SuggestionMenu editor={editor} />
         {/* TODO: Side Menu customization */}
       </BlockNoteView>
     </div>
@@ -149,7 +186,6 @@ export default function App() {
 }
 
 function SuggestionMenu(props: { editor: BlockNoteEditor<any, any, any> }) {
-  const ctx = useBlockNoteAIContext();
   return (
     <SuggestionMenuController
       triggerCharacter="/"
@@ -157,7 +193,7 @@ function SuggestionMenu(props: { editor: BlockNoteEditor<any, any, any> }) {
         filterSuggestionItems(
           [
             ...getDefaultReactSlashMenuItems(props.editor),
-            ...getAISlashMenuItems(props.editor, ctx),
+            ...getAISlashMenuItems(props.editor),
           ],
           query
         )

@@ -4,18 +4,20 @@ import { RiSparkling2Fill } from "react-icons/ri";
 
 import { useBlockNoteEditor } from "@blocknote/react";
 
+import { getAIExtension } from "../../AIExtension.js";
 import { useAIDictionary } from "../../i18n/useAIDictionary.js";
-import { useBlockNoteAIContext } from "../BlockNoteAIContext.js";
 
 export const AIToolbarButton = () => {
   const dict = useAIDictionary();
   const Components = useComponentsContext()!;
-  const ctx = useBlockNoteAIContext();
+
   const editor = useBlockNoteEditor<
     BlockSchema,
     InlineContentSchema,
     StyleSchema
   >();
+
+  const ai = getAIExtension(editor);
 
   const onClick = () => {
     editor.formattingToolbar.closeMenu();
@@ -24,7 +26,7 @@ export const AIToolbarButton = () => {
       throw new Error("No selection");
     }
     const position = selection.blocks[selection.blocks.length - 1].id;
-    ctx.setAiMenuBlockID(position);
+    ai.openAIMenuAtBlock(position);
   };
 
   if (!editor.isEditable) {

@@ -30,6 +30,7 @@ export * from "./blocks/defaultBlockTypeGuards.js";
 export * from "./blocks/defaultBlocks.js";
 export * from "./blocks/defaultProps.js";
 export * from "./editor/BlockNoteEditor.js";
+export * from "./editor/BlockNoteExtension.js";
 export * from "./editor/BlockNoteExtensions.js";
 export * from "./editor/BlockNoteSchema.js";
 export * from "./editor/defaultColors.js";

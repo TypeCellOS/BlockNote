@@ -1,5 +1,6 @@
 import "./style.css";
 
+export * from "./AIExtension.js";
 export * from "./api/blocknoteAIClient/client.js";
 export * from "./components/BlockNoteAIContext.js";
 export * from "./components/BlockNoteAIUI.js";

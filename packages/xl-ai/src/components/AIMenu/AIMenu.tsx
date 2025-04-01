@@ -2,11 +2,9 @@ import { useBlockNoteEditor } from "@blocknote/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 // import { useAIDictionary } from "../../i18n/useAIDictionary";
 import { BlockNoteEditor } from "@blocknote/core";
+import { useStore } from "zustand";
+import { getAIExtension } from "../../AIExtension.js";
 import { useAIDictionary } from "../../i18n/useAIDictionary.js";
-import {
-  BlockNoteAIContextValue,
-  useBlockNoteAIContext,
-} from "../BlockNoteAIContext.js";
 import { PromptSuggestionMenu } from "./PromptSuggestionMenu.js";
 import {
   AIMenuSuggestionItem,
@@ -18,8 +16,7 @@ import {
 export const AIMenu = (props: {
   items?: (
     editor: BlockNoteEditor<any, any, any>,
-    ctx: BlockNoteAIContextValue,
-    aiResponseStatus: "initial" | "generating" | "done"
+    aiResponseStatus: "initial" | "generating" | "done" | "error"
   ) => AIMenuSuggestionItem[];
   onManualPromptSubmit?: (prompt: string) => void;
 }) => {
@@ -27,9 +24,13 @@ export const AIMenu = (props: {
   const [prompt, setPrompt] = useState("");
   const dict = useAIDictionary();
 
-  const ctx = useBlockNoteAIContext();
+  const ai = getAIExtension(editor);
 
-  const { aiResponseStatus } = ctx;
+  const aiResponseStatus = useStore(
+    ai.store,
+    (state) => state.aiMenuResponseStatus
+  );
+
   const { items: externalItems } = props;
   // note, technically there might be a bug with this useMemo when quickly changing the selection and opening the menu
   // would not call getDefaultAIMenuItems with the correct selection, because the component is reused and the memo not retriggered
@@ -37,14 +38,14 @@ export const AIMenu = (props: {
   const items = useMemo(() => {
     let items: AIMenuSuggestionItem[] = [];
     if (externalItems) {
-      items = externalItems(editor, ctx, aiResponseStatus);
+      items = externalItems(editor, aiResponseStatus);
     } else {
       if (aiResponseStatus === "initial") {
         items = editor.getSelection()
-          ? getDefaultAIMenuItemsWithSelection(editor, ctx)
-          : getDefaultAIMenuItemsWithoutSelection(editor, ctx);
-      } else if (ctx.aiResponseStatus === "done") {
-        items = getDefaultAIActionMenuItems(editor, ctx);
+          ? getDefaultAIMenuItemsWithSelection(editor)
+          : getDefaultAIMenuItemsWithoutSelection(editor);
+      } else if (aiResponseStatus === "done") {
+        items = getDefaultAIActionMenuItems(editor);
       }
     }
 
@@ -57,16 +58,16 @@ export const AIMenu = (props: {
         },
       };
     });
-  }, [externalItems, aiResponseStatus, editor, ctx]);
+  }, [externalItems, aiResponseStatus, editor]);
 
   const onManualPromptSubmitDefault = useCallback(
     async (prompt: string) => {
-      await ctx.callLLM({
+      await ai.callLLM({
         prompt,
         useSelection: editor.getSelection() !== undefined,
       });
     },
-    [ctx, editor]
+    [ai]
   );
 
   useEffect(() => {

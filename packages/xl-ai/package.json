@@ -73,7 +73,8 @@
     "react-icons": "^5.2.1",
     "remark-parse": "^10.0.1",
     "remark-stringify": "^10.0.2",
-    "unified": "^10.1.2"
+    "unified": "^10.1.2",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@types/diff": "^6.0.0",

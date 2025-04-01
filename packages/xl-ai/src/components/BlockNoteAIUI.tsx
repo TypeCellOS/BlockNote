@@ -1,9 +1,10 @@
 import { useBlockNoteEditor } from "@blocknote/react";
 
 import { useEffect } from "react";
+import { useStore } from "zustand";
+import { getAIExtension } from "../AIExtension.js";
 import { AIMenu } from "./AIMenu/AIMenu.js";
 import { BlockPositioner } from "./AIMenu/BlockPositioner.js";
-import { useBlockNoteAIContext } from "./BlockNoteAIContext.js";
 
 export type BlockNoteAIUIProps = {
   aiBlockToolbar?: boolean;
@@ -32,22 +33,22 @@ export function BlockNoteAIUI(props: BlockNoteAIUIProps) {
 
 const AIMenuController = () => {
   const editor = useBlockNoteEditor();
-  const ctx = useBlockNoteAIContext();
+  const ai = getAIExtension(editor);
+
+  const aiMenuBlockID = useStore(ai.store, (state) => state.aiMenuBlockID);
 
   useEffect(() => {
-    if (ctx.aiMenuBlockID) {
+    if (aiMenuBlockID) {
       editor.setForceSelectionVisible(true);
     }
-  }, [ctx.aiMenuBlockID]);
+  }, [aiMenuBlockID, editor]);
 
   return (
     <BlockPositioner
-      blockID={ctx.aiMenuBlockID}
+      blockID={aiMenuBlockID}
       onOpenChange={(open) => {
-        if (!open && ctx.aiMenuBlockID) {
-          ctx.setAiMenuBlockID(undefined);
-          ctx.setAIResponseStatus("initial");
-          ctx.setPrevDocument(undefined);
+        if (!open && aiMenuBlockID) {
+          ai.closeAIMenu();
           editor.setForceSelectionVisible(false);
           editor.focus();
           // TODO: doesn't work with esc?

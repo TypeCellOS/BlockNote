@@ -17,8 +17,8 @@ import {
   RiTextWrap,
 } from "react-icons/ri";
 
+import { getAIExtension } from "../../AIExtension.js";
 import { getAIDictionary } from "../../i18n/dictionary.js";
-import { BlockNoteAIContextValue } from "../BlockNoteAIContext.js";
 
 export type AIMenuSuggestionItem = Omit<
   DefaultReactSuggestionItem,
@@ -35,12 +35,9 @@ export function getDefaultAIMenuItemsWithoutSelection<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
->(
-  editor: BlockNoteEditor<BSchema, I, S>,
-  contextValue: BlockNoteAIContextValue
-): AIMenuSuggestionItem[] {
+>(editor: BlockNoteEditor<BSchema, I, S>): AIMenuSuggestionItem[] {
   const dict = getAIDictionary(editor);
-
+  const ai = getAIExtension(editor);
   return [
     {
       key: "continue_writing",
@@ -48,7 +45,7 @@ export function getDefaultAIMenuItemsWithoutSelection<
       aliases: dict.ai_menu.continue_writing.aliases,
       icon: <RiBallPenLine size={18} />,
       onItemClick: async () => {
-        await contextValue.callLLM({
+        await ai.callLLM({
           prompt: "Continue writing",
           // By default, LLM will be able to add / update / delete blocks. For "continue writing", we only want to allow adding new blocks.
           defaultStreamTools: {
@@ -67,7 +64,7 @@ export function getDefaultAIMenuItemsWithoutSelection<
       aliases: dict.ai_menu.summarize.aliases,
       icon: <RiTextWrap size={18} />,
       onItemClick: async () => {
-        await contextValue.callLLM({
+        await ai.callLLM({
           prompt: "Summarize",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
           defaultStreamTools: {
@@ -85,7 +82,7 @@ export function getDefaultAIMenuItemsWithoutSelection<
       aliases: dict.ai_menu.add_action_items.aliases,
       icon: <RiListCheck3 size={18} />,
       onItemClick: async () => {
-        await contextValue.callLLM({
+        await ai.callLLM({
           prompt: "Add action items",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
           defaultStreamTools: {
@@ -118,11 +115,10 @@ export function getDefaultAIMenuItemsWithSelection<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
->(
-  editor: BlockNoteEditor<BSchema, I, S>,
-  contextValue: BlockNoteAIContextValue
-): AIMenuSuggestionItem[] {
+>(editor: BlockNoteEditor<BSchema, I, S>): AIMenuSuggestionItem[] {
   const dict = getAIDictionary(editor);
+
+  const ai = getAIExtension(editor);
 
   return [
     {
@@ -131,7 +127,7 @@ export function getDefaultAIMenuItemsWithSelection<
       aliases: dict.ai_menu.improve_writing.aliases,
       icon: <RiText size={18} />,
       onItemClick: async () => {
-        await contextValue.callLLM({
+        await ai.callLLM({
           useSelection: true,
           prompt: "Improve writing",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
@@ -150,7 +146,7 @@ export function getDefaultAIMenuItemsWithSelection<
       aliases: dict.ai_menu.fix_spelling.aliases,
       icon: <RiCheckLine size={18} />,
       onItemClick: async () => {
-        await contextValue.callLLM({
+        await ai.callLLM({
           useSelection: true,
           prompt: "Fix spelling",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
@@ -179,7 +175,7 @@ export function getDefaultAIMenuItemsWithSelection<
       aliases: dict.ai_menu.simplify.aliases,
       icon: <RiMagicLine size={18} />,
       onItemClick: async () => {
-        await contextValue.callLLM({
+        await ai.callLLM({
           useSelection: true,
           prompt: "Simplify",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
@@ -202,11 +198,9 @@ export function getDefaultAIActionMenuItems<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
->(
-  editor: BlockNoteEditor<BSchema, I, S>,
-  contextValue: BlockNoteAIContextValue
-): AIMenuSuggestionItem[] {
+>(editor: BlockNoteEditor<BSchema, I, S>): AIMenuSuggestionItem[] {
   const dict = getAIDictionary(editor);
+  const ai = getAIExtension(editor);
 
   return [
     {
@@ -214,10 +208,8 @@ export function getDefaultAIActionMenuItems<
       title: dict.ai_menu.accept.title,
       aliases: dict.ai_menu.accept.aliases,
       icon: <RiCheckFill size={18} />,
-      onItemClick: (_setPrompt) => {
-        contextValue.setAiMenuBlockID(undefined);
-        contextValue.setPrevDocument(undefined);
-        contextValue.setAIResponseStatus("initial");
+      onItemClick: () => {
+        ai.acceptChanges();
       },
       size: "small",
     },
@@ -238,10 +230,7 @@ export function getDefaultAIActionMenuItems<
       aliases: dict.ai_menu.revert.aliases,
       icon: <RiArrowGoBackFill size={18} />,
       onItemClick: () => {
-        editor.replaceBlocks(editor.document, contextValue.prevDocument as any);
-        contextValue.setAiMenuBlockID(undefined);
-        contextValue.setPrevDocument(undefined);
-        contextValue.setAIResponseStatus("initial");
+        ai.rejectChanges();
       },
       size: "small",
     },

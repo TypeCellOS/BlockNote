@@ -107,16 +107,26 @@ import { CodeBlockOptions } from "../blocks/CodeBlockContent/CodeBlockContent.js
 import type { ThreadStore, User } from "../comments/index.js";
 import "../style.css";
 import { EventEmitter } from "../util/EventEmitter.js";
+import { BlockNoteExtension } from "./BlockNoteExtension.js";
 
+/**
+ * A factory function that returns a BlockNoteExtension
+ * This is useful so we can create extensions that require an editor instance
+ * in the constructor
+ */
 export type BlockNoteExtensionFactory = (
   editor: BlockNoteEditor<any, any, any>
 ) => BlockNoteExtension;
 
-export type BlockNoteExtension =
+/**
+ * We support Tiptap extensions and BlockNoteExtension based extensions
+ */
+export type SupportedExtension =
   | AnyExtension
   | {
-      plugin: Plugin;
-    };
+      plugin: Plugin; // TODO: deprecate this format and use BlockNoteExtension instead
+    }
+  | BlockNoteExtension;
 
 export type BlockNoteEditorOptions<
   BSchema extends BlockSchema,
@@ -355,7 +365,7 @@ export class BlockNoteEditor<
   /**
    * extensions that are added to the editor, can be tiptap extensions or prosemirror plugins
    */
-  public readonly extensions: Record<string, BlockNoteExtension> = {};
+  public readonly extensions: Record<string, SupportedExtension> = {};
 
   /**
    * Boolean indicating whether the editor is in headless mode.
@@ -630,6 +640,10 @@ export class BlockNoteEditor<
 
     const tiptapExtensions = [
       ...Object.entries(this.extensions).map(([key, ext]) => {
+        if (ext instanceof BlockNoteExtension) {
+          return ext.plugin;
+        }
+
         if (
           ext instanceof Extension ||
           ext instanceof TipTapNode ||
@@ -651,7 +665,8 @@ export class BlockNoteEditor<
           addProseMirrorPlugins: () => [ext.plugin],
         });
       }),
-    ];
+    ].filter((ext): ext is Extension => ext !== undefined);
+
     const tiptapOptions: BlockNoteTipTapEditorOptions = {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
@@ -697,6 +712,26 @@ export class BlockNoteEditor<
   dispatch = (tr: Transaction) => {
     this._tiptapEditor.dispatch(tr);
   };
+
+  // TO DISCUSS
+  /**
+   * Shorthand to get a typed extension from the editor, by
+   * just passing in the extension class.
+   *
+   * @param ext - The extension class to get
+   * @param key - optional, the key of the extension in the extensions object (defaults to the extension name)
+   * @returns The extension instance
+   */
+  public extension<T extends BlockNoteExtension>(
+    ext: { new (...args: any[]): T } & typeof BlockNoteExtension,
+    key = ext.name()
+  ): T {
+    const extension = this.extensions[key] as T;
+    if (!extension) {
+      throw new Error(`Extension ${key} not found`);
+    }
+    return extension;
+  }
 
   /**
    * Mount the editor to a parent DOM element. Call mount(undefined) to clean up

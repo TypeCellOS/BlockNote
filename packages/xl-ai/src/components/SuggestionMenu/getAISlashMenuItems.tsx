@@ -7,9 +7,8 @@ import {
 import { DefaultReactSuggestionItem } from "@blocknote/react";
 import { RiSparkling2Fill } from "react-icons/ri";
 
+import { getAIExtension } from "../../AIExtension.js";
 import { getAIDictionary } from "../../i18n/dictionary.js";
-import { BlockNoteAIContextValue } from "../BlockNoteAIContext.js";
-
 const Icons = {
   AI: RiSparkling2Fill,
 };
@@ -21,10 +20,8 @@ export function getAISlashMenuItems<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
->(
-  editor: BlockNoteEditor<BSchema, I, S>,
-  ctx: BlockNoteAIContextValue
-): DefaultReactSuggestionItem[] {
+>(editor: BlockNoteEditor<BSchema, I, S>): DefaultReactSuggestionItem[] {
+  const ai = getAIExtension(editor);
   const items = [
     {
       key: "ai",
@@ -36,9 +33,9 @@ export function getAISlashMenuItems<
           cursor.block.content.length === 0 &&
           cursor.prevBlock
         ) {
-          ctx.setAiMenuBlockID(cursor.prevBlock.id);
+          ai.openAIMenuAtBlock(cursor.prevBlock.id);
         } else {
-          ctx.setAiMenuBlockID(cursor.block.id);
+          ai.openAIMenuAtBlock(cursor.block.id);
         }
       },
       ...getAIDictionary(editor).slash_menu.ai,
