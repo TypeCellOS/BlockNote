@@ -17,6 +17,7 @@
   "name": "root",
   "pnpm": {
     "ignoredBuiltDependencies": [
+      "sharp",
       "workerd"
     ],
     "onlyBuiltDependencies": [
