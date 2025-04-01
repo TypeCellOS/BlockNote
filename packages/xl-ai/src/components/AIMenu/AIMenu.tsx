@@ -16,7 +16,7 @@ import {
 export const AIMenu = (props: {
   items?: (
     editor: BlockNoteEditor<any, any, any>,
-    aiResponseStatus: "initial" | "generating" | "done" | "error"
+    aiResponseStatus: "initial" | "generating" | "done" | "error" | "closed"
   ) => AIMenuSuggestionItem[];
   onManualPromptSubmit?: (prompt: string) => void;
 }) => {
@@ -26,9 +26,8 @@ export const AIMenu = (props: {
 
   const ai = getAIExtension(editor);
 
-  const aiResponseStatus = useStore(
-    ai.store,
-    (state) => state.aiMenuResponseStatus
+  const aiResponseStatus = useStore(ai.store, (state) =>
+    state.aiMenuState !== "closed" ? state.aiMenuState.status : "closed"
   );
 
   const { items: externalItems } = props;
@@ -67,7 +66,7 @@ export const AIMenu = (props: {
         useSelection: editor.getSelection() !== undefined,
       });
     },
-    [ai]
+    [ai, editor]
   );
 
   useEffect(() => {

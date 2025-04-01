@@ -8,9 +8,26 @@ import { createStore } from "zustand/vanilla";
 import { PromptOrMessages, llm } from "./api";
 import { LLMRequestOptions } from "./api/streamTool/callLLMWithStreamTools";
 
+// type AIPluginState = {
+//   aiMenuBlockID: string | undefined;
+//   aiMenuResponseStatus: "initial" | "generating" | "error" | "done";
+// };
+
 type AIPluginState = {
-  aiMenuBlockID: string | undefined;
-  aiMenuResponseStatus: "initial" | "generating" | "error" | "done";
+  /**
+   * zustand design considerations:
+   * - moved this to a nested object to have better typescript typing
+   * - if we'd do this without a nested object, then we could easily set "wrong" values,
+   *   because "setState" takes a partial object (unless the second parameter "replace" = true),
+   *   and thus we'd lose typescript's typing help
+   *
+   */
+  aiMenuState:
+    | {
+        blockId: string;
+        status: "initial" | "generating" | "error" | "done";
+      }
+    | "closed";
 };
 
 // parameters that are shared across all calls and can be configured on the context as "application wide" settings
@@ -48,8 +65,7 @@ export class AIExtension extends BlockNoteExtension {
    *
    */
   public readonly store = createStore<AIPluginState>()((set) => ({
-    aiMenuBlockID: undefined,
-    aiMenuResponseStatus: "initial",
+    aiMenuState: "closed",
   }));
 
   /**
@@ -84,7 +100,12 @@ export class AIExtension extends BlockNoteExtension {
    * Open the AI menu at a specific block
    */
   public openAIMenuAtBlock(blockID: string) {
-    this.store.setState({ aiMenuBlockID: blockID });
+    this.store.setState({
+      aiMenuState: {
+        blockId: blockID,
+        status: "initial",
+      },
+    });
   }
 
   /**
@@ -92,8 +113,7 @@ export class AIExtension extends BlockNoteExtension {
    */
   public closeAIMenu() {
     this.store.setState({
-      aiMenuBlockID: undefined,
-      aiMenuResponseStatus: "initial",
+      aiMenuState: "closed",
     });
 
     this.prevDocument = undefined;
@@ -121,8 +141,20 @@ export class AIExtension extends BlockNoteExtension {
    * if you want to implement how an LLM call is executed. Usually, you should
    * use {@link callLLM} instead.
    */
-  public setAIResponseStatus(status: AIPluginState["aiMenuResponseStatus"]) {
-    this.store.setState({ aiMenuResponseStatus: status });
+  public setAIResponseStatus(
+    status: "initial" | "generating" | "error" | "done"
+  ) {
+    const aiMenuState = this.store.getState().aiMenuState;
+    if (aiMenuState === "closed") {
+      return; // TODO: log error?
+    }
+    this.store.setState({
+      aiMenuState: {
+        status: status,
+        blockId: aiMenuState.blockId,
+      },
+    });
+
     if (status === "generating") {
       // TODO: abort previous call?
       this.prevDocument = this.editor.document;
@@ -164,7 +196,12 @@ export class AIExtension extends BlockNoteExtension {
       for await (const operation of resultStream) {
         if (operation.result === "ok") {
           // TODO: check should be part of pipeline
-          this.store.setState({ aiMenuBlockID: operation.lastBlockId });
+          this.store.setState({
+            aiMenuState: {
+              blockId: operation.lastBlockId,
+              status: "generating",
+            },
+          });
         }
       }
 

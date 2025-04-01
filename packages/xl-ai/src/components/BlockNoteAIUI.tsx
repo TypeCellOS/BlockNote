@@ -35,7 +35,9 @@ const AIMenuController = () => {
   const editor = useBlockNoteEditor();
   const ai = getAIExtension(editor);
 
-  const aiMenuBlockID = useStore(ai.store, (state) => state.aiMenuBlockID);
+  const aiMenuBlockID = useStore(ai.store, (state) =>
+    state.aiMenuState === "closed" ? undefined : state.aiMenuState.blockId
+  );
 
   useEffect(() => {
     if (aiMenuBlockID) {
