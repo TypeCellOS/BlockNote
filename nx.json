@@ -1,4 +1,6 @@
 {
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "parallel": 6,
   "release": {
     "projects": ["packages/*"],
     "version": {
