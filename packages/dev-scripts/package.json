@@ -12,7 +12,7 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "gen": "npm run gen:examples && npm run gen:docs",
+    "gen": "pnpm run gen:examples && pnpm run gen:docs",
     "gen:examples": "tsx examples/gen.ts",
     "gen:docs": "tsx examples/genDocs.ts",
     "build": "tsc",
@@ -22,11 +22,11 @@
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",
     "eslint": "^8.10.0",
-    "fast-glob": "^3.3.2",
     "glob": "^10.3.10",
     "prettier": "^2.7.1",
     "react": "^18",
     "react-dom": "^18",
+    "tinyglobby": "0.2.12",
     "tsx": "^4.6.2",
     "typescript": "^5.3.3"
   },

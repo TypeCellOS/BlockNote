@@ -1,4 +1,4 @@
-import glob from "fast-glob";
+import { globSync } from "tinyglobby";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -114,9 +114,11 @@ export type Files = Record<
 >;
 
 export function getProjectFiles(project: Project): Files {
-  const dir = path.resolve("../../", project.pathFromRoot);
-  const files = glob.globSync(replacePathSepToSlash(dir + "/**/*"), {
-    ignore: ["**/node_modules/**/*", "**/dist/**/*"],
+  const dir = path.resolve("../..", project.pathFromRoot);
+  const files = globSync(["**/*", "!node_modules/**/*", "!dist/**/*"], {
+    absolute: true,
+    debug: true,
+    cwd: dir,
   });
   const passedFiles = Object.fromEntries(
     files.map((fullPath) => {
@@ -140,12 +142,27 @@ export function getProjectFiles(project: Project): Files {
  * Get the list of example Projects based on the /examples folder
  */
 export function getExampleProjects(): Project[] {
-  const examples: Project[] = glob
-    .globSync(
-      replacePathSepToSlash(
-        path.join(dir, "../../../examples/**/*/.bnexample.json")
-      )
-    )
+  const examples: Project[] = globSync("*", {
+    cwd: path.join(dir, "../../../examples/"),
+    ignore: ["node_modules/**/*", "dist/**/*"],
+    absolute: true,
+    onlyDirectories: true,
+  })
+    .flatMap((dir) => {
+      return globSync("*", {
+        ignore: ["node_modules/**/*", "dist/**/*"],
+        onlyDirectories: true,
+        absolute: true,
+        cwd: dir,
+      });
+    })
+    .flatMap((dir) => {
+      const file = path.join(dir, ".bnexample.json");
+      if (fs.existsSync(file)) {
+        return [file];
+      }
+      return [];
+    })
     .map((configPath) => {
       const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
       const directory = path.dirname(configPath);

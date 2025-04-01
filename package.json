@@ -38,7 +38,7 @@
     "build:site": "pnpm run gen && nx run docs:build:site",
     "clean": "nx run-many --target=clean",
     "deploy": "nx release --skip-publish",
-    "gen": "nx run @blocknote/dev-scripts:gen",
+    "gen": "cd packages/dev-scripts && pnpm run gen",
     "install-playwright": "cd tests && pnpx playwright install --with-deps",
     "e2e": "cd tests && pnpm exec playwright test",
     "e2e:updateSnaps": "cd tests && pnpm run test:updateSnaps",
