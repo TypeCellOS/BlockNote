@@ -33,6 +33,13 @@ type BlockNoteEditorOptions = {
     class?: string;
   }) => Plugin;
   initialContent?: PartialBlock[];
+  pasteHandler?: (context: {
+    event: ClipboardEvent;
+    editor: BlockNoteEditor;
+    defaultPasteHandler: (context: {
+      pasteBehavior?: "prefer-markdown" | "prefer-html";
+    }) => boolean | undefined;
+  }) => boolean | undefined;
   resolveFileUrl: (url: string) => Promise<string>
   schema?: BlockNoteSchema;
   setIdAttribute?: boolean;
@@ -65,6 +72,8 @@ The hook takes two optional parameters:
 `dropCursor`: A replacement indicator to use when dragging and dropping blocks. Uses the [ProseMirror drop cursor](https://github.com/ProseMirror/prosemirror-dropcursor), or a modified version when [Column Blocks](/docs/editor-basics/document-structure#column-blocks) are enabled.
 
 `initialContent:` The content that should be in the editor when it's created, represented as an array of [Partial Blocks](/docs/manipulating-blocks#partial-blocks).
+
+`pasteHandler`: A function that can be used to override the default paste behavior. See [Paste Handling](/docs/advanced/paste-handling) for more.
 
 `resolveFileUrl:` Function to resolve file URLs for display/download. Useful for creating authenticated URLs or implementing custom protocols.
 
