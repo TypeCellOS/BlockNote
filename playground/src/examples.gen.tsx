@@ -1109,6 +1109,33 @@
         }
       },
       {
+        "projectSlug": "alert-block-full-ux",
+        "fullSlug": "custom-schema/alert-block-full-ux",
+        "pathFromRoot": "examples/06-custom-schema/05-alert-block-full-ux",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas",
+            "Formatting Toolbar",
+            "Suggestion Menus",
+            "Slash Menu"
+          ],
+          "dependencies": {
+            "@mantine/core": "^7.10.1",
+            "react-icons": "^5.2.1"
+          } as any
+        },
+        "title": "Alert Block with Full UX",
+        "group": {
+          "pathFromRoot": "examples/06-custom-schema",
+          "slug": "custom-schema"
+        }
+      },
+      {
         "projectSlug": "react-custom-blocks",
         "fullSlug": "custom-schema/react-custom-blocks",
         "pathFromRoot": "examples/06-custom-schema/react-custom-blocks",

@@ -6,23 +6,28 @@ path: /docs/side-menu
 ---
 
 import { Example } from "@/components/example";
+import { ThemedImage } from "@/components/ThemedImage";
 
 # Block Side Menu
 
 The Block Side Menu appears on the left side whenever you hover a block. By default, it consists of a `+` button and a drag handle (`⠿`):
 
-<img
-  style={{ maxWidth: "500px" }}
+<ThemedImage
   src="/img/screenshots/side_menu.png"
-  alt="Side menu"
+  darkImage="/img/screenshots/side_menu_dark.png"
+  alt="image"
+  width={500}
+  height={500}
 />
 
 Clicking the drag handle (`⠿`) in the Block Side Menu opens the Drag Handle Menu:
 
-<img
-  style={{ maxWidth: "250px" }}
+<ThemedImage
   src="/img/screenshots/drag_handle_menu.png"
+  darkImage="/img/screenshots/drag_handle_menu_dark.png"
   alt="image"
+  width={250}
+  height={250}
 />
 
 ## Changing the Block Side Menu
