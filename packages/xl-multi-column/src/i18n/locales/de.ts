@@ -6,13 +6,13 @@ export const de: MultiColumnDictionary = {
       title: "Zwei Spalten",
       subtext: "Zwei Spalten nebeneinander",
       aliases: ["Spalten", "Reihe", "teilen"],
-      group: "Grundlegende blöcke",
+      group: "Grundlegende Blöcke",
     },
     three_columns: {
       title: "Drei Spalten",
       subtext: "Drei Spalten nebeneinander",
       aliases: ["Spalten", "Reihe", "teilen"],
-      group: "Grundlegende blöcke",
+      group: "Grundlegende Blöcke",
     },
   },
 };
