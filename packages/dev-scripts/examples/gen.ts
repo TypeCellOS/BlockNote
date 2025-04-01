@@ -54,12 +54,6 @@ async function writeTemplate(project: Project, templateFile: string) {
   }
 
   fs.writeFileSync(targetFilePath, stringOutput);
-
-  // try {
-  //   // fs.unlinkSync(targetFilePath);
-  // } catch (e) {}
-  // eslint-disable-next-line no-console
-  console.log("written", targetFilePath);
 }
 
 async function generateCodeForExample(project: Project) {
@@ -91,7 +85,7 @@ const projects = getExampleProjects();
 
 for (const project of projects) {
   // eslint-disable-next-line no-console
-  console.log("generating code for example", project);
+  console.log("generating code for example", project.projectSlug);
   await generateCodeForExample(project);
 }
 

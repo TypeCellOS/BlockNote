@@ -117,7 +117,6 @@ export function getProjectFiles(project: Project): Files {
   const dir = path.resolve("../..", project.pathFromRoot);
   const files = globSync(["**/*", "!node_modules/**/*", "!dist/**/*"], {
     absolute: true,
-    debug: true,
     cwd: dir,
   });
   const passedFiles = Object.fromEntries(
