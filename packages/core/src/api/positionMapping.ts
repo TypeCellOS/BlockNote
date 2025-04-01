@@ -75,9 +75,7 @@ export function trackPosition<
    */
   side: "left" | "right" = "left"
 ): () => number {
-  const ySyncPluginState = ySyncPluginKey.getState(
-    editor._tiptapEditor.state
-  ) as {
+  const ySyncPluginState = ySyncPluginKey.getState(editor.prosemirrorState) as {
     doc: Y.Doc;
     binding: ProsemirrorBinding;
   };
@@ -109,7 +107,7 @@ export function trackPosition<
 
   return () => {
     const curYSyncPluginState = ySyncPluginKey.getState(
-      editor._tiptapEditor.state
+      editor.prosemirrorState
     ) as typeof ySyncPluginState;
     const pos = relativePositionToAbsolutePosition(
       curYSyncPluginState.doc,
