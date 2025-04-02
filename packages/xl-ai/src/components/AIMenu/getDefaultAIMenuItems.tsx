@@ -46,7 +46,8 @@ export function getDefaultAIMenuItemsWithoutSelection<
       icon: <RiBallPenLine size={18} />,
       onItemClick: async () => {
         await ai.callLLM({
-          prompt: "Continue writing",
+          prompt:
+            "Continue writing: write more text at the current cursor position related to the previous text",
           // By default, LLM will be able to add / update / delete blocks. For "continue writing", we only want to allow adding new blocks.
           defaultStreamTools: {
             add: true,

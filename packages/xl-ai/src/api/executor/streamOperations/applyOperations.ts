@@ -69,6 +69,8 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
   let minSize = STEP_SIZE;
   const mapping = new Mapping();
 
+  let addedBlockId: string | undefined; // TODO: hacky
+
   for await (const chunk of operationsStream) {
     const operation = chunk.operation as unknown;
     if (!isBuiltInToolCall(operation)) {
@@ -80,6 +82,7 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
     }
 
     // TODO: add vs insert
+
     if (operation.type === "add") {
       // TODO: apply as agent?
       let lastBlockId: string | undefined;
@@ -93,6 +96,7 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
           lastBlockId ? "after" : operation.position
         );
         lastBlockId = ret[ret.length - 1].id;
+        addedBlockId = lastBlockId;
         const agentSteps = getStepsAsAgent(editor, tr.steps);
         // const stepMapping = new Mapping();
 
@@ -110,7 +114,12 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
         }
       }
     } else if (operation.type === "update") {
-      if (chunk.isPossiblyPartial) {
+      if (operation.id !== addedBlockId) {
+        addedBlockId = undefined;
+      }
+      if (chunk.isPossiblyPartial && operation.id !== addedBlockId) {
+        console.log(addedBlockId, operation.id);
+        // TODO: not needed for duplicateInsertsToUpdates
         // TODO: unit test and / or extract to separate pipeline step
         const size = JSON.stringify(operation.block).length;
         if (size < minSize) {
@@ -124,7 +133,7 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
         // reset for next chunk
         minSize = STEP_SIZE;
       }
-      // console.log("apply", operation.block);
+      console.log("apply", operation.block);
 
       // TODO: this might be inefficient, we might be able to pass a single rebaseTool as long as we map subsequent operations
       const tool = await rebaseTool(operation.id);
@@ -146,7 +155,11 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
         toPos
       );
 
-      if (steps.length === 1 && chunk.isPossiblyPartial) {
+      if (
+        steps.length === 1 &&
+        chunk.isPossiblyPartial &&
+        operation.id !== addedBlockId
+      ) {
         // TODO: check if replace step only?
         // TODO: this doesn't consistently work, as there might be > 1 step when changeset wrongly sees a "space" as "keep"
 
@@ -159,8 +172,13 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
 
       const inverted = steps.map((step) => step.map(tool.invertMap)!);
 
-      const agentSteps = getStepsAsAgent(editor, inverted);
+      const agentSteps = getStepsAsAgent(
+        editor,
+        inverted,
+        operation.id === addedBlockId
+      );
       for (const step of agentSteps) {
+        console.log("step", step);
         const tr = await agentStepToTr(editor, step, options);
         mapping.appendMapping(tr.mapping);
         editor.dispatch(tr);
@@ -171,6 +189,7 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
         };
       }
     } else if (operation.type === "delete") {
+      addedBlockId = undefined;
       // not needed as paragraph is kept but only marked as deleted
       // const prevBlock = editor.getPrevBlock(operation.id);
       // const lastBlockId = prevBlock?.id ?? editor.document[0].id;

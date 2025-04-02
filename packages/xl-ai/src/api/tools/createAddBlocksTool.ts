@@ -27,7 +27,7 @@ export function createAddBlocksTool<T>(
       properties: {
         referenceId: {
           type: "string",
-          description: "",
+          description: "MUST be an id of a block in the document",
         },
         position: {
           type: "string",

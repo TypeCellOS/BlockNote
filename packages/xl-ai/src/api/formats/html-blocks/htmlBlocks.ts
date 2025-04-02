@@ -219,9 +219,12 @@ export async function callLLM(
     operationsToApply,
     async (id) => {
       const tr = getApplySuggestionsTr(editor);
-      const html = await editor.blocksToHTMLLossy([
-        getBlock(editor, id, tr.doc)!,
-      ]);
+      const block = getBlock(editor, id, tr.doc);
+      if (!block) {
+        // debugger;
+        throw new Error("block not found");
+      }
+      const html = await editor.blocksToHTMLLossy([block]);
       const blocks = await editor.tryParseHTMLToBlocks(html);
       if (blocks.length !== 1) {
         throw new Error("html diff invalid block count");

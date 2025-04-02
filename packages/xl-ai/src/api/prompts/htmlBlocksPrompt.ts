@@ -58,8 +58,9 @@ export function promptManipulateDocumentUseHTMLBlocks(opts: {
   return [
     {
       role: "system",
-      content:
-        "You're manipulating a text document using HTML blocks. Make sure to follow the json schema provided and always include the trailing $ in ids. This is the document as an array of html blocks (the cursor is BETWEEN two blocks indicated by cursor: true):",
+      content: `You're manipulating a text document using HTML blocks. 
+        Make sure to follow the json schema provided and when referencing ids they MUST be EXACTLY the same (including the trailing $). 
+        This is the document as an array of html blocks (the cursor is BETWEEN two blocks indicated by cursor: true):`,
     },
     {
       role: "system",

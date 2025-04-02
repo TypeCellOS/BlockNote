@@ -23,7 +23,11 @@ export type AgentStep = {
  *
  * All these phases are dispatched to the `dispatch` function as separate transactions.
  */
-export function getStepsAsAgent(editor: BlockNoteEditor, steps: Step[]) {
+export function getStepsAsAgent(
+  editor: BlockNoteEditor,
+  steps: Step[],
+  isInsert = false // TODO: hacky
+) {
   // const stepMapping = new Mapping();
   const agentSteps: AgentStep[] = [];
 
@@ -75,14 +79,16 @@ export function getStepsAsAgent(editor: BlockNoteEditor, steps: Step[]) {
     //   },
     // });
     // await dispatch(selectTr, "select");
-    agentSteps.push({
-      prosemirrorSteps: [],
-      selection: {
-        anchor: tr.mapping.map(step.from),
-        head: tr.mapping.map(step.to),
-      },
-      type: "select",
-    });
+    if (!isInsert) {
+      agentSteps.push({
+        prosemirrorSteps: [],
+        selection: {
+          anchor: tr.mapping.map(step.from),
+          head: tr.mapping.map(step.to),
+        },
+        type: "select",
+      });
+    }
 
     // 2. Replace the text with the first character (if any) of the replacement
 
@@ -125,7 +131,8 @@ export function getStepsAsAgent(editor: BlockNoteEditor, steps: Step[]) {
       // we're replacing the entire part every time (a, ab, abc)
       // would be cleaner to do just insertions, but didn't get this to work with
       // the add operation
-      const replacement = Slice.maxOpen(step.slice.content.cut(0, i));
+      // const replacement = Slice.maxOpen(step.slice.content.cut(0, i)); maxOpen doesn't work with "continue writing"
+      const replacement = new Slice(step.slice.content.cut(0, i), 0, 0);
       // console.log("replacement", replaceFrom, replaceEnd, replacement);
       tr.replace(replaceFrom, replaceEnd, replacement).addMark(
         replaceFrom,
@@ -145,7 +152,7 @@ export function getStepsAsAgent(editor: BlockNoteEditor, steps: Step[]) {
           anchor: sel.from,
           head: sel.from,
         },
-        type: first ? "replace" : "insert",
+        type: first && !isInsert ? "replace" : "insert",
       });
       first = false;
     }
