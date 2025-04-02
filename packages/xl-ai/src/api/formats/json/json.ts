@@ -74,13 +74,11 @@ export async function callLLM(
     messages = opts.messages;
   } else if (useSelection) {
     messages = promptManipulateSelectionJSONSchema({
-      editor,
       userPrompt: opts.prompt!,
       document: editor.getDocumentWithSelectionMarkers(),
     });
   } else {
     messages = promptManipulateDocumentUseJSONSchema({
-      editor,
       userPrompt: opts.prompt!,
       document: editor.document,
     });

@@ -1,11 +1,11 @@
 import {
+  Block,
   BlockNoteEditor,
   PartialBlock,
   UnreachableCaseError,
   getBlock,
 } from "@blocknote/core";
 import { CoreMessage, GenerateObjectResult, StreamObjectResult } from "ai";
-import { Mapping } from "prosemirror-transform";
 import type { PromptOrMessages } from "../../index.js";
 
 import {
@@ -38,6 +38,7 @@ import { StreamToolCall } from "../../streamTool/streamTool.js";
 import { AddBlocksToolCall } from "../../tools/createAddBlocksTool.js";
 import { UpdateBlockToolCall } from "../../tools/createUpdateBlockTool.js";
 import { DeleteBlockToolCall } from "../../tools/delete.js";
+import { trimArray } from "../../util/trimArray.js";
 import { tools } from "./tools/index.js";
 
 // Define the return type for streaming mode
@@ -46,6 +47,14 @@ type ReturnType = {
   llmResult: StreamObjectResult<any, any, any> | GenerateObjectResult<any>;
   apply: () => Promise<void>;
 };
+
+function isEmptyParagraph(block: PartialBlock<any, any, any>) {
+  return (
+    block.type === "paragraph" &&
+    Array.isArray(block.content) &&
+    block.content.length === 0
+  );
+}
 
 export async function callLLM(
   editor: BlockNoteEditor<any, any, any>,
@@ -73,31 +82,92 @@ export async function callLLM(
 
   let messages: CoreMessage[];
 
+  let beforeCursorBlockId: string | undefined;
+  let deleteCursorBlock: string | undefined;
+  let source: Block<any, any, any>[];
+
   const selectionInfo = useSelection ? editor.getSelection2() : undefined;
 
-  const source = selectionInfo ? selectionInfo.blocks : editor.document;
-  // TODO: child blocks
-  const doc = await Promise.all(
-    source.map(async (block) => {
-      return {
-        id: block.id + "$",
-        block: (await editor.blocksToHTMLLossy([block])).trim(), // TODO: trim needed?
-      };
-    })
+  if (!useSelection) {
+    const textCursorPosition = editor.getTextCursorPosition();
+    if (isEmptyParagraph(textCursorPosition.block)) {
+      beforeCursorBlockId = textCursorPosition.prevBlock!.id; // TODO: handle cursor at start of document
+      source = editor.document.filter(
+        (block) => block.id !== textCursorPosition.block.id
+      );
+      deleteCursorBlock = textCursorPosition.block.id;
+    } else {
+      beforeCursorBlockId = textCursorPosition.block.id;
+      source = editor.document;
+    }
+  } else {
+    source = selectionInfo!.blocks;
+  }
+
+  // trim empty trailing blocks that don't have the cursor
+  // if we don't do this, commands like "add some paragraphs"
+  // would add paragraphs after the trailing blocks
+  const trimmedSource = trimArray(
+    source,
+    (block) => {
+      return isEmptyParagraph(block) && block.id !== beforeCursorBlockId;
+    },
+    false
   );
+
+  // TODO: child blocks
+  const doc = (
+    await Promise.all(
+      trimmedSource.map(async (block) => {
+        const ret: Array<
+          | {
+              id: string;
+              block: string;
+            }
+          | {
+              cursor: true;
+            }
+        > = [];
+        ret.push({
+          id: block.id + "$",
+          block: await editor.blocksToHTMLLossy([block]),
+        });
+        if (block.id === beforeCursorBlockId) {
+          ret.push({
+            cursor: true,
+          });
+        }
+        return ret;
+      })
+    )
+  ).flat();
+
+  const entireDoc = (
+    await Promise.all(
+      editor.document.map(async (block) => {
+        const ret: Array<{
+          block: string;
+        }> = [];
+        ret.push({
+          block: await editor.blocksToHTMLLossy([block]),
+        });
+
+        return ret;
+      })
+    )
+  ).flat();
 
   if ("messages" in opts && opts.messages) {
     messages = opts.messages;
   } else if (useSelection) {
     messages = promptManipulateSelectionHTMLBlocks({
-      editor,
-      userPrompt: opts.prompt!,
-      html: doc,
+      userPrompt: opts.prompt,
+      html: doc as any, // TODO
+      document: entireDoc,
     });
   } else {
     messages = promptManipulateDocumentUseHTMLBlocks({
-      editor,
-      userPrompt: opts.prompt!,
+      userPrompt: opts.prompt,
       html: doc,
     });
   }
@@ -122,7 +192,23 @@ export async function callLLM(
     onStart
   );
 
-  const jsonToolCalls = toJSONToolCalls(editor, response.toolCallsStream);
+  async function* deleteCursorBlockWhenStreamStarts<T>(
+    operations: AsyncIterable<T>
+  ): AsyncIterable<T> {
+    let deleted = false;
+    for await (const chunk of operations) {
+      if (!deleted && deleteCursorBlock) {
+        editor.removeBlocks([deleteCursorBlock]);
+        deleted = true;
+      }
+      yield chunk;
+    }
+  }
+
+  const jsonToolCalls = toJSONToolCalls(
+    editor,
+    deleteCursorBlockWhenStreamStarts(response.toolCallsStream)
+  );
 
   const operationsToApply = stream
     ? duplicateInsertsToUpdates(jsonToolCalls)
@@ -155,17 +241,18 @@ export async function callLLM(
       );
 
       if (steps.length) {
-        throw new Error("html diff");
+        console.error("html diff", steps);
+        // throw new Error("html diff");
       }
-      const stepMapping = new Mapping();
-      for (const step of steps) {
-        const mapped = step.map(stepMapping);
-        if (!mapped) {
-          throw new Error("Failed to map step");
-        }
-        tr.step(mapped);
-        stepMapping.appendMap(mapped.getMap());
-      }
+      // const stepMapping = new Mapping();
+      // for (const step of steps) {
+      //   const mapped = step.map(stepMapping);
+      //   if (!mapped) {
+      //     throw new Error("Failed to map step");
+      //   }
+      //   tr.step(mapped);
+      //   stepMapping.appendMap(mapped.getMap());
+      // }
 
       return rebaseTool(editor, tr);
     },

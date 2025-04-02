@@ -42,12 +42,13 @@ const AIMenuController = () => {
     <BlockPositioner
       blockID={blockId}
       onOpenChange={(open) => {
-        // if (!open && blockId) {
-        //   ai.closeAIMenu();
-        //   editor.setForceSelectionVisible(false);
-        //   editor.focus();
-        //   // TODO: doesn't work with esc?
-        // }
+        if (
+          !open &&
+          aiMenuState !== "closed" &&
+          aiMenuState.status === "user-input"
+        ) {
+          ai.closeAIMenu();
+        }
       }}>
       <AIMenu />
     </BlockPositioner>

@@ -50,7 +50,7 @@ import {
   StyleSchema,
   StyleSpecs,
 } from "../schema/index.js";
-import type { BlockNoteEditor, BlockNoteExtension } from "./BlockNoteEditor.js";
+import type { BlockNoteEditor, SupportedExtension } from "./BlockNoteEditor.js";
 
 type ExtensionOptions<
   BSchema extends BlockSchema,
@@ -100,7 +100,7 @@ export const getBlockNoteExtensions = <
 >(
   opts: ExtensionOptions<BSchema, I, S>
 ) => {
-  const ret: Record<string, BlockNoteExtension> = {};
+  const ret: Record<string, SupportedExtension> = {};
   const tiptapExtensions = getTipTapExtensions(opts);
 
   for (const ext of tiptapExtensions) {

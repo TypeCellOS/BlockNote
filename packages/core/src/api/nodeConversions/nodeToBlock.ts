@@ -677,7 +677,7 @@ export function getBlocksBetween<
     blockCache
   );
 
-  if (bnSelection.contentCutAtEnd || bnSelection.contentCutAtEnd) {
+  if (bnSelection.blockCutAtEnd || bnSelection.blockCutAtStart) {
     throw new Error("unexpected content cut in getBlocksBetween");
   }
 

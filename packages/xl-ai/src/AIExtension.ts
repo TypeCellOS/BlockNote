@@ -74,7 +74,7 @@ export class AIExtension extends BlockNoteExtension {
    * - con: if we'd expose the store externally, consumers could still call store.setState :/ (for this store it's not desired, for `options` below, it is)
    *
    */
-  public readonly store = createStore<AIPluginState>()((set) => ({
+  public readonly store = createStore<AIPluginState>()((_set) => ({
     aiMenuState: "closed",
   }));
 
@@ -99,7 +99,7 @@ export class AIExtension extends BlockNoteExtension {
     options: GlobalLLMCallOptions
   ) {
     super();
-    this.options = createStore<Required<GlobalLLMCallOptions>>()((set) => ({
+    this.options = createStore<Required<GlobalLLMCallOptions>>()((_set) => ({
       dataFormat: "html",
       stream: true,
       ...options,
@@ -128,8 +128,8 @@ export class AIExtension extends BlockNoteExtension {
       aiMenuState: "closed",
     });
     this.editor.setForceSelectionVisible(false);
-    this.editor.focus();
     this.editor.isEditable = true;
+    this.editor.focus();
     // this.prevDocument = undefined;
   }
 
@@ -176,6 +176,8 @@ export class AIExtension extends BlockNoteExtension {
     if (status === "ai-writing") {
       this.editor.setForceSelectionVisible(false);
       this.editor.clearSelection();
+      // TODO: until we implement conversations, might be smart to select all the affected blocks
+      // so subsequent prompts at least have some context
     }
 
     this.store.setState({

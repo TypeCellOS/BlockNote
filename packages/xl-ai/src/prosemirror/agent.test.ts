@@ -1,9 +1,8 @@
 import { BlockNoteEditor, getBlockInfo, getNodeById } from "@blocknote/core";
 import { Fragment, Slice } from "prosemirror-model";
-import { Transaction } from "prosemirror-state";
 import { ReplaceStep } from "prosemirror-transform";
-import { describe, expect, it, vi } from "vitest";
-import { applyStepsAsAgent } from "./agent.js";
+import { describe, expect, it } from "vitest";
+import { getStepsAsAgent } from "./agent.js";
 
 describe("applyStepsAsAgent", () => {
   // Helper function to create a test editor with a simple paragraph
@@ -42,25 +41,13 @@ describe("applyStepsAsAgent", () => {
 
     const step = new ReplaceStep(from, to, new Slice(fragment, 0, 0));
 
-    // Mock dispatch function
-    const dispatch = vi
-      .fn()
-      .mockImplementation(async (tr: Transaction, type) => {
-        editor.dispatch(tr);
-        return (
-          type + ": " + JSON.stringify(editor.prosemirrorState.doc.toJSON())
-        );
-      });
-
     // Apply the step
-    await applyStepsAsAgent(editor, [step], dispatch);
+    const steps = getStepsAsAgent(editor, [step]);
 
     // Verify dispatch was called with the correct transactions
-    expect(dispatch).toHaveBeenCalledTimes(3); // select, replace, insert
+    expect(steps).toHaveLength(3); // select, replace, insert
 
-    expect(
-      dispatch.mock.settledResults.map((r) => r.value).join("\n")
-    ).toMatchSnapshot();
+    expect(steps).toMatchSnapshot();
   });
 
   it("should handle multiple steps", async () => {
@@ -92,26 +79,14 @@ describe("applyStepsAsAgent", () => {
       new Slice(fragment2, 0, 0)
     );
 
-    // Mock dispatch function
-    const dispatch = vi
-      .fn()
-      .mockImplementation(async (tr: Transaction, type) => {
-        editor.dispatch(tr);
-        return (
-          type + ": " + JSON.stringify(editor.prosemirrorState.doc.toJSON())
-        );
-      });
-
     // Apply the steps
-    await applyStepsAsAgent(editor, [step1, step2], dispatch);
+    const steps = getStepsAsAgent(editor, [step1, step2]);
 
     // Verify dispatch was called for each step
     // For each step: select, replace, and potentially multiple inserts
-    expect(dispatch).toHaveBeenCalledTimes(9);
+    expect(steps).toHaveLength(9);
 
-    expect(
-      dispatch.mock.settledResults.map((r) => r.value).join("\n")
-    ).toMatchSnapshot();
+    expect(steps).toMatchSnapshot();
   });
 
   it("should throw an error for non-ReplaceSteps", async () => {
@@ -120,13 +95,10 @@ describe("applyStepsAsAgent", () => {
     // Create a non-ReplaceStep (we'll just mock it)
     const nonReplaceStep = { from: 0, to: 5 } as any;
 
-    // Mock dispatch function
-    const dispatch = vi.fn().mockImplementation(async () => Promise.resolve());
-
     // Expect the function to throw an error
-    await expect(
-      applyStepsAsAgent(editor, [nonReplaceStep], dispatch)
-    ).rejects.toThrow("Step is not a ReplaceStep");
+    await expect(getStepsAsAgent(editor, [nonReplaceStep])).rejects.toThrow(
+      "Step is not a ReplaceStep"
+    );
   });
 
   it("should throw an error for slices with openStart or openEnd > 0", async () => {
@@ -149,11 +121,8 @@ describe("applyStepsAsAgent", () => {
       size: 2,
     } as any);
 
-    // Mock dispatch function
-    const dispatch = vi.fn().mockImplementation(async () => Promise.resolve());
-
     // Expect the function to throw an error
-    await expect(applyStepsAsAgent(editor, [step], dispatch)).rejects.toThrow(
+    await expect(getStepsAsAgent(editor, [step])).rejects.toThrow(
       "Slice has openStart or openEnd > 0"
     );
   });

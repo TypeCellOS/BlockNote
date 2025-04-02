@@ -1,16 +1,11 @@
-import { BlockNoteEditor } from "@blocknote/core";
 import { CoreMessage } from "ai";
 import { suffixIDs } from "../util/suffixIDs.js";
 
 // TODO don't include child block
 export function promptManipulateSelectionJSONSchema(opts: {
-  editor: BlockNoteEditor;
   userPrompt: string;
   document: any;
 }): Array<CoreMessage> {
-  if (!opts.editor.getSelection()) {
-    throw new Error("No selection");
-  }
   return [
     {
       role: "system",
@@ -34,7 +29,6 @@ export function promptManipulateSelectionJSONSchema(opts: {
 }
 
 export function promptManipulateDocumentUseJSONSchema(opts: {
-  editor: BlockNoteEditor;
   userPrompt: string;
   document: any;
 }): Array<CoreMessage> {
