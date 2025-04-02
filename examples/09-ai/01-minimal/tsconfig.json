@@ -19,7 +19,7 @@
     "composite": true
   },
   "include": ["."],
-  "references": [
+  "_DEV_references": [
     {
       "path": "../../../packages/core/"
     },

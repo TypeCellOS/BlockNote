@@ -1,3 +1,5 @@
+/// <reference types="./vite-env.d.ts" />
+
 import {
   AIToolbarButton,
   BlockNoteAIUI,
