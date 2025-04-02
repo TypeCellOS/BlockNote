@@ -31,9 +31,19 @@ export function updateBlockTr<
   editor: BlockNoteEditor<BSchema, I, S>,
   tr: Transform,
   posBeforeBlock: number,
-  block: PartialBlock<BSchema, I, S>
+  block: PartialBlock<BSchema, I, S>,
+  replaceFromPos?: number,
+  replaceToPos?: number
 ) {
   const blockInfo = getBlockInfoFromResolvedPos(tr.doc.resolve(posBeforeBlock));
+
+  if (
+    replaceFromPos !== undefined &&
+    replaceToPos !== undefined &&
+    replaceFromPos > replaceToPos
+  ) {
+    throw new Error("Invalid replaceFromPos or replaceToPos");
+  }
 
   // Adds blockGroup node with child blocks if necessary.
 
@@ -45,6 +55,20 @@ export function updateBlockTr<
     : editor.pmSchema.nodes["blockContainer"];
 
   if (blockInfo.isBlockContainer && newNodeType.isInGroup("blockContent")) {
+    const replaceFromOffset =
+      replaceFromPos !== undefined &&
+      replaceFromPos > blockInfo.blockContent.beforePos &&
+      replaceFromPos < blockInfo.blockContent.afterPos
+        ? replaceFromPos - blockInfo.blockContent.beforePos - 1
+        : undefined;
+
+    const replaceToOffset =
+      replaceToPos !== undefined &&
+      replaceToPos > blockInfo.blockContent.beforePos &&
+      replaceToPos < blockInfo.blockContent.afterPos
+        ? replaceToPos - blockInfo.blockContent.beforePos - 1
+        : undefined;
+
     tr = updateChildren(block, tr, editor, blockInfo);
     // The code below determines the new content of the block.
     // or "keep" to keep as-is
@@ -54,7 +78,9 @@ export function updateBlockTr<
       editor,
       oldNodeType,
       newNodeType,
-      blockInfo
+      blockInfo,
+      replaceFromOffset,
+      replaceToOffset
     );
   } else if (!blockInfo.isBlockContainer && newNodeType.isInGroup("bnBlock")) {
     tr = updateChildren(block, tr, editor, blockInfo);
@@ -141,7 +167,9 @@ function updateBlockContentNode<
       | { node: PMNode; beforePos: number; afterPos: number }
       | undefined;
     blockContent: { node: PMNode; beforePos: number; afterPos: number };
-  }
+  },
+  replaceFromOffset?: number,
+  replaceToOffset?: number
 ) {
   let content: PMNode[] | "keep" = "keep";
 
@@ -197,18 +225,45 @@ function updateBlockContentNode<
   // content is being replaced or not.
   if (content === "keep") {
     // use setNodeMarkup to only update the type and attributes
-    tr = tr.setNodeMarkup(
-      blockInfo.blockContent.beforePos,
-      block.type === undefined ? undefined : editor.pmSchema.nodes[block.type],
-      {
-        ...blockInfo.blockContent.node.attrs,
-        ...block.props,
-      }
+    tr = tr.setNodeMarkup(blockInfo.blockContent.beforePos, newNodeType, {
+      ...blockInfo.blockContent.node.attrs,
+      ...block.props,
+    });
+  } else if (replaceFromOffset !== undefined || replaceToOffset !== undefined) {
+    // first update markup of the containing node
+    tr = tr.setNodeMarkup(blockInfo.blockContent.beforePos, newNodeType, {
+      ...blockInfo.blockContent.node.attrs,
+      ...block.props,
+    });
+
+    const start =
+      blockInfo.blockContent.beforePos + 1 + (replaceFromOffset ?? 0);
+    const end =
+      blockInfo.blockContent.beforePos +
+      1 +
+      (replaceToOffset ?? blockInfo.blockContent.node.content.size);
+
+    // for content like table cells (where the blockcontent has nested PM nodes),
+    // we need to figure out the correct openStart and openEnd for the slice when replacing
+
+    const contentDepth = tr.doc.resolve(blockInfo.blockContent.beforePos).depth;
+    const startDepth = tr.doc.resolve(start).depth;
+    const endDepth = tr.doc.resolve(end).depth;
+
+    tr = tr.replace(
+      start,
+      end,
+      new Slice(
+        Fragment.from(content),
+        startDepth - contentDepth - 1,
+        endDepth - contentDepth - 1
+      )
     );
   } else {
     // use replaceWith to replace the content and the block itself
-    // also  reset the selection since replacing the block content
+    // also reset the selection since replacing the block content
     // sets it to the next block.
+
     tr = tr.replaceWith(
       blockInfo.blockContent.beforePos,
       blockInfo.blockContent.afterPos,
@@ -272,20 +327,28 @@ export function updateBlock<
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
   blockToUpdate: BlockIdentifier,
-  update: PartialBlock<BSchema, I, S>
+  update: PartialBlock<BSchema, I, S>,
+  replaceFromPos?: number,
+  replaceToPos?: number
 ): Block<BSchema, I, S> {
-  const ttEditor = editor._tiptapEditor;
-  const tr = ttEditor.state.tr;
+  const tr = editor.prosemirrorState.tr;
 
   const id =
     typeof blockToUpdate === "string" ? blockToUpdate : blockToUpdate.id;
 
-  const posInfo = getNodeById(id, ttEditor.state.doc);
+  const posInfo = getNodeById(id, tr.doc);
   if (!posInfo) {
     throw new Error(`Block with ID ${id} not found`);
   }
 
-  updateBlockTr(editor, tr, posInfo.posBeforeNode, update);
+  updateBlockTr(
+    editor,
+    tr,
+    posInfo.posBeforeNode,
+    update,
+    replaceFromPos,
+    replaceToPos
+  );
 
   editor.dispatch(tr);
 

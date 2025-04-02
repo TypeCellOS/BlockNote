@@ -25,7 +25,12 @@ type AIPluginState = {
   aiMenuState:
     | {
         blockId: string;
-        status: "initial" | "generating" | "error" | "done";
+        status:
+          | "user-input"
+          | "thinking"
+          | "ai-writing"
+          | "error"
+          | "user-reviewing";
       }
     | "closed";
 };
@@ -103,7 +108,7 @@ export class AIExtension extends BlockNoteExtension {
     this.store.setState({
       aiMenuState: {
         blockId: blockID,
-        status: "initial",
+        status: "user-input",
       },
     });
   }
@@ -142,7 +147,12 @@ export class AIExtension extends BlockNoteExtension {
    * use {@link callLLM} instead.
    */
   public setAIResponseStatus(
-    status: "initial" | "generating" | "error" | "done"
+    status:
+      | "user-input"
+      | "thinking"
+      | "ai-writing"
+      | "error"
+      | "user-reviewing"
   ) {
     const aiMenuState = this.store.getState().aiMenuState;
     if (aiMenuState === "closed") {
@@ -155,11 +165,11 @@ export class AIExtension extends BlockNoteExtension {
       },
     });
 
-    if (status === "generating") {
+    if (status === "thinking") {
       // TODO: abort previous call?
       this.prevDocument = this.editor.document;
     }
-    if (status === "initial") {
+    if (status === "user-input") {
       this.prevDocument = undefined;
     }
   }
@@ -173,43 +183,42 @@ export class AIExtension extends BlockNoteExtension {
       ...opts,
     };
 
-    this.setAIResponseStatus("generating");
+    this.setAIResponseStatus("thinking");
 
     try {
-      let resultStream: Awaited<
-        ReturnType<typeof llm.json.call>
-      >["toolCallsStream"];
+      let ret: Awaited<ReturnType<typeof llm.json.call>>;
 
+      // TODO: maybe separate functions for streaming / non-streaming?
       if (options.dataFormat === "json") {
-        const ret = await llm.json.call(this.editor, options);
-        resultStream = ret.toolCallsStream;
+        ret = await llm.json.call(this.editor, options);
       } else if (options.dataFormat === "markdown") {
-        const ret = await llm.markdown.call(this.editor, options);
-        resultStream = ret.toolCallsStream;
+        ret = await llm.markdown.call(this.editor, options);
       } else if (options.dataFormat === "html") {
-        const ret = await llm.html.call(this.editor, options);
-        resultStream = ret.toolCallsStream;
+        ret = await llm.html.call(this.editor, options, () => {
+          this.setAIResponseStatus("ai-writing"); // TODO: also apply to other formats
+        });
       } else {
         throw new UnreachableCaseError(options.dataFormat);
       }
 
-      for await (const operation of resultStream) {
+      // TODO: maybe split out the applying of operations
+      for await (const operation of ret.toolCallsStream) {
         if (operation.result === "ok") {
           // TODO: check should be part of pipeline
           this.store.setState({
             aiMenuState: {
               blockId: operation.lastBlockId,
-              status: "generating",
+              status: "ai-writing",
             },
           });
         }
       }
 
-      this.setAIResponseStatus("done");
+      this.setAIResponseStatus("user-reviewing");
     } catch (e) {
       this.setAIResponseStatus("error");
       // eslint-disable-next-line no-console
-      console.error(e);
+      console.warn("Error calling LLM", e);
     }
   }
 }

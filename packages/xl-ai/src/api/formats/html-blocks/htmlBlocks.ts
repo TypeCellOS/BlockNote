@@ -7,7 +7,6 @@ import {
 import { CoreMessage, GenerateObjectResult, StreamObjectResult } from "ai";
 import { Mapping } from "prosemirror-transform";
 import type { PromptOrMessages } from "../../index.js";
-import { promptManipulateSelectionJSONSchema } from "../../prompts/jsonSchemaPrompts.js";
 
 import {
   ApplyOperationResult,
@@ -27,7 +26,10 @@ import {
   rebaseTool,
 } from "../../../prosemirror/rebaseTool.js";
 
-import { promptManipulateDocumentUseHTMLBlocks } from "../../prompts/htmlBlocksPrompt.js";
+import {
+  promptManipulateDocumentUseHTMLBlocks,
+  promptManipulateSelectionHTMLBlocks,
+} from "../../prompts/htmlBlocksPrompt.js";
 import {
   LLMRequestOptions,
   callLLMWithStreamTools,
@@ -57,7 +59,8 @@ export async function callLLM(
         /** Enable the delete tool (default: true) */
         delete?: boolean;
       };
-    }
+    },
+  onStart?: () => void
 ): Promise<ReturnType> {
   const mergedStreamTools = {
     add: true,
@@ -70,13 +73,15 @@ export async function callLLM(
 
   let messages: CoreMessage[];
 
+  const selectionInfo = useSelection ? editor.getSelection2() : undefined;
+
+  const source = selectionInfo ? selectionInfo.blocks : editor.document;
+  // TODO: child blocks
   const doc = await Promise.all(
-    editor.document.map(async (block) => {
+    source.map(async (block) => {
       return {
         id: block.id + "$",
-        block: (await editor.blocksToHTMLLossy([block]))
-          .trim()
-          .replace("&#x20;", " "),
+        block: (await editor.blocksToHTMLLossy([block])).trim(), // TODO: trim needed?
       };
     })
   );
@@ -84,16 +89,16 @@ export async function callLLM(
   if ("messages" in opts && opts.messages) {
     messages = opts.messages;
   } else if (useSelection) {
-    messages = promptManipulateSelectionJSONSchema({
+    messages = promptManipulateSelectionHTMLBlocks({
       editor,
       userPrompt: opts.prompt!,
-      document: editor.getDocumentWithSelectionMarkers(),
+      html: doc,
     });
   } else {
     messages = promptManipulateDocumentUseHTMLBlocks({
       editor,
       userPrompt: opts.prompt!,
-      html: JSON.stringify(doc),
+      html: doc,
     });
   }
 
@@ -113,7 +118,8 @@ export async function callLLM(
     streamTools,
     {
       block: { type: "string", description: "html of block" },
-    }
+    },
+    onStart
   );
 
   const jsonToolCalls = toJSONToolCalls(editor, response.toolCallsStream);
@@ -165,7 +171,9 @@ export async function callLLM(
     },
     {
       withDelays: true, // TODO: make configurable
-    }
+    },
+    selectionInfo?._meta.startPos,
+    selectionInfo?._meta.endPos
   );
 
   // TODO: copy this pattern
@@ -208,8 +216,9 @@ export async function* toJSONToolCalls(
     if (operation.type === "add") {
       const blocks = await Promise.all(
         operation.blocks.map(async (html) => {
-          html = getPartialHTML(html);
+          html = chunk.isPossiblyPartial ? getPartialHTML(html) : html;
           const block = (await editor.tryParseHTMLToBlocks(html))[0]; // TODO: trim
+
           delete (block as any).id;
           return block;
         })
@@ -229,7 +238,14 @@ export async function* toJSONToolCalls(
       };
     } else if (operation.type === "update") {
       // console.log("update", operation.block);
-      const html = getPartialHTML(operation.block);
+      const html = chunk.isPossiblyPartial
+        ? getPartialHTML(operation.block)
+        : operation.block;
+
+      if (!html) {
+        continue;
+      }
+
       const block = (await editor.tryParseHTMLToBlocks(html))[0];
 
       // console.log("update", operation.block);
@@ -292,7 +308,7 @@ function isBuiltInToolCall(
  * @param html A potentially incomplete HTML string
  * @returns A properly formed HTML string with all tags closed
  */
-function getPartialHTML(html: string): string {
+function getPartialHTML(html: string): string | undefined {
   // Simple check: if the last '<' doesn't have a matching '>',
   // then we have an incomplete tag at the end
   const lastOpenBracket = html.lastIndexOf("<");
@@ -304,10 +320,11 @@ function getPartialHTML(html: string): string {
     htmlToProcess = html.substring(0, lastOpenBracket);
     // If nothing remains after removing the incomplete tag, return empty string
     if (!htmlToProcess.trim()) {
-      return "";
+      return undefined;
     }
   }
 
+  // TODO: clean script tags?
   // Parse the HTML
   const parser = new DOMParser();
   const doc = parser.parseFromString(

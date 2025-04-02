@@ -1,9 +1,10 @@
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
-import { TableRow } from "@tiptap/extension-table-row";
+
 import { Node as PMNode } from "prosemirror-model";
 import { TableView } from "prosemirror-tables";
 
+import { Node, mergeAttributes } from "@tiptap/core";
 import { NodeView } from "prosemirror-view";
 import {
   createBlockSpecFromStronglyTypedTiptapNode,
@@ -149,6 +150,36 @@ const TableParagraph = createStronglyTypedTiptapNode({
 
   renderHTML({ HTMLAttributes }) {
     return ["p", HTMLAttributes, 0];
+  },
+});
+
+/**
+ * This extension allows you to create table rows.
+ * @see https://www.tiptap.dev/api/nodes/table-row
+ */
+export const TableRow = Node.create<{ HTMLAttributes: Record<string, any> }>({
+  name: "tableRow",
+
+  addOptions() {
+    return {
+      HTMLAttributes: {},
+    };
+  },
+
+  content: "(tableCell | tableHeader)+",
+
+  tableRole: "row",
+
+  parseHTML() {
+    return [{ tag: "tr" }];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "tr",
+      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes),
+      0,
+    ];
   },
 });
 

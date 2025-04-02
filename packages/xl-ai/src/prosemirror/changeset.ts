@@ -117,13 +117,22 @@ export function updateToReplaceSteps(
   editor: BlockNoteEditor<any, any, any>,
   op: UpdateBlockToolCall<PartialBlock<any, any, any>>,
   doc: Node,
-  dontReplaceContentAtEnd = false
+  dontReplaceContentAtEnd = false,
+  updateFromPos?: number,
+  updateToPos?: number
 ) {
   let changeset = ChangeSet.create(doc);
 
   const blockPos = getNodeById(op.id, doc)!;
   const updatedTr = new Transform(doc);
-  updateBlockTr(editor, updatedTr, blockPos.posBeforeNode, op.block);
+  updateBlockTr(
+    editor,
+    updatedTr,
+    blockPos.posBeforeNode,
+    op.block,
+    updateFromPos,
+    updateToPos
+  );
 
   let updatedDoc = updatedTr.doc;
 

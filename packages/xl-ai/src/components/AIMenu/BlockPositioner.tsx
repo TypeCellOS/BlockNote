@@ -12,9 +12,9 @@ export const BlockPositioner = (props: {
   ) => void;
 }) => {
   // TODO: desirable to do like this?
-  const element = document.querySelector(
-    `[data-id="${props.blockID}"]`
-  ) as HTMLElement;
+  const element = props.blockID
+    ? document.querySelector(`[data-id="${props.blockID}"]`)
+    : undefined;
 
   // Note that we can't pass element directly, because the useDismiss then doesn't work when clicking on the element
   // (for that to work, we'd need to implement getReferenceProps(), but it's probably unsafe to attach those listeners to a prosemirror managed element)

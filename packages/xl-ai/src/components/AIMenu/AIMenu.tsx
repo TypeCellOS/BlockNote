@@ -16,7 +16,13 @@ import {
 export const AIMenu = (props: {
   items?: (
     editor: BlockNoteEditor<any, any, any>,
-    aiResponseStatus: "initial" | "generating" | "done" | "error" | "closed"
+    aiResponseStatus:
+      | "user-input"
+      | "thinking"
+      | "ai-writing"
+      | "error"
+      | "user-reviewing"
+      | "closed"
   ) => AIMenuSuggestionItem[];
   onManualPromptSubmit?: (prompt: string) => void;
 }) => {
@@ -39,11 +45,11 @@ export const AIMenu = (props: {
     if (externalItems) {
       items = externalItems(editor, aiResponseStatus);
     } else {
-      if (aiResponseStatus === "initial") {
+      if (aiResponseStatus === "user-input") {
         items = editor.getSelection()
           ? getDefaultAIMenuItemsWithSelection(editor)
           : getDefaultAIMenuItemsWithoutSelection(editor);
-      } else if (aiResponseStatus === "done") {
+      } else if (aiResponseStatus === "user-reviewing") {
         items = getDefaultAIActionMenuItems(editor);
       }
     }
@@ -71,7 +77,7 @@ export const AIMenu = (props: {
 
   useEffect(() => {
     // TODO: this is a bit hacky to run a useeffect to reset the prompt when the AI response is done
-    if (aiResponseStatus === "done") {
+    if (aiResponseStatus === "user-reviewing") {
       setPrompt("");
     }
   }, [aiResponseStatus]);
@@ -85,11 +91,13 @@ export const AIMenu = (props: {
       promptText={prompt}
       onPromptTextChange={setPrompt}
       placeholder={
-        aiResponseStatus === "generating"
-          ? "Generating..."
+        aiResponseStatus === "thinking"
+          ? "Thinking..."
           : dict.formatting_toolbar.ai.input_placeholder
       }
-      disabled={aiResponseStatus === "generating"}
+      disabled={
+        aiResponseStatus === "thinking" || aiResponseStatus === "ai-writing"
+      }
     />
   );
 };

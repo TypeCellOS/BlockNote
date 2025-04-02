@@ -1,12 +1,14 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { CoreMessage } from "ai";
-import { suffixIDs } from "../util/suffixIDs.js";
 
 // TODO don't include child block
-export function promptManipulateSelectionMarkdownBlocks(opts: {
+export function promptManipulateSelectionHTMLBlocks(opts: {
   editor: BlockNoteEditor;
   userPrompt: string;
-  document: any;
+  html: {
+    id: string;
+    block: string;
+  }[];
 }): Array<CoreMessage> {
   if (!opts.editor.getSelection()) {
     throw new Error("No selection");
@@ -19,7 +21,7 @@ export function promptManipulateSelectionMarkdownBlocks(opts: {
     },
     {
       role: "system",
-      content: JSON.stringify(suffixIDs(opts.document)),
+      content: JSON.stringify(opts.html),
     },
     {
       role: "system",
@@ -36,7 +38,10 @@ export function promptManipulateSelectionMarkdownBlocks(opts: {
 export function promptManipulateDocumentUseHTMLBlocks(opts: {
   editor: BlockNoteEditor;
   userPrompt: string;
-  html: string;
+  html: {
+    id: string;
+    block: string;
+  }[];
 }): Array<CoreMessage> {
   return [
     {
@@ -46,7 +51,7 @@ export function promptManipulateDocumentUseHTMLBlocks(opts: {
     },
     {
       role: "system",
-      content: opts.html,
+      content: JSON.stringify(opts.html),
     },
     // {
     //   role: "system",

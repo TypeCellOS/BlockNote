@@ -248,6 +248,7 @@ export function tableContentToNodes<
       );
       columnNodes.push(cellNode);
     }
+
     const rowNode = schema.nodes["tableRow"].createChecked({}, columnNodes);
     rowNodes.push(rowNode);
   }

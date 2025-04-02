@@ -35,21 +35,28 @@ const AIMenuController = () => {
   const editor = useBlockNoteEditor();
   const ai = getAIExtension(editor);
 
-  const aiMenuBlockID = useStore(ai.store, (state) =>
-    state.aiMenuState === "closed" ? undefined : state.aiMenuState.blockId
-  );
+  const aiMenuState = useStore(ai.store, (state) => state.aiMenuState);
+
+  const blockId = aiMenuState === "closed" ? undefined : aiMenuState.blockId;
 
   useEffect(() => {
-    if (aiMenuBlockID) {
+    if (
+      aiMenuState !== "closed" &&
+      (aiMenuState.status === "user-input" || aiMenuState.status === "thinking")
+    ) {
+      // when we just open the menu, keep showing selection
       editor.setForceSelectionVisible(true);
+    } else {
+      // when AI is making changes to the doc, hide the selection as it's too cluttered
+      editor.setForceSelectionVisible(false);
     }
-  }, [aiMenuBlockID, editor]);
+  }, [aiMenuState, editor]);
 
   return (
     <BlockPositioner
-      blockID={aiMenuBlockID}
+      blockID={blockId}
       onOpenChange={(open) => {
-        if (!open && aiMenuBlockID) {
+        if (!open && blockId) {
           ai.closeAIMenu();
           editor.setForceSelectionVisible(false);
           editor.focus();

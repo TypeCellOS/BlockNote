@@ -3,7 +3,8 @@ import {
   PartialBlock,
   UnreachableCaseError,
 } from "@blocknote/core";
-import { applySuggestions } from "@handlewithcare/prosemirror-suggest-changes";
+import { insertBlocksTr } from "@blocknote/core/src/api/blockManipulation/commands/insertBlocks/insertBlocks.js";
+import { Mapping } from "prosemirror-transform";
 import { applyStepsAsAgent } from "../../../prosemirror/agent.js";
 import { updateToReplaceSteps } from "../../../prosemirror/changeset.js";
 import { RebaseTool } from "../../../prosemirror/rebaseTool.js";
@@ -58,10 +59,14 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
     withDelays: boolean;
   } = {
     withDelays: true,
-  }
+  },
+  // TODO: map through mapper
+  updateFromPos?: number,
+  updateToPos?: number
 ): AsyncGenerator<ApplyOperationResult<any>> {
   const STEP_SIZE = 50;
   let minSize = STEP_SIZE;
+  const mapping = new Mapping();
 
   for await (const chunk of operationsStream) {
     const operation = chunk.operation as unknown;
@@ -76,11 +81,23 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
     // TODO: add vs insert
     if (operation.type === "add") {
       // TODO: apply as agent?
-      const ret = editor.insertBlocks(
-        operation.blocks,
-        operation.referenceId,
-        operation.position
-      );
+      let lastBlockId: string | undefined;
+      for (const block of operation.blocks) {
+        const lastBlockId = block.id;
+        const ret = insertBlocksTr(
+          editor,
+          tr,
+          [block],
+          lastBlockId || operation.referenceId,
+          lastBlockId ? "after" : operation.position
+        );
+        lastBlockId = ret[ret.length - 1].id;
+        yield {
+          ...chunk,
+          result: "ok",
+          lastBlockId: ret[ret.length - 1].id,
+        };
+      }
       yield {
         ...chunk,
         result: "ok",
@@ -107,11 +124,20 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
       const tool = await rebaseTool(operation.id);
       // console.log("update", JSON.stringify(chunk.operation, null, 2));
       // Convert the update operation directly to ReplaceSteps
+      const fromPos = updateFromPos
+        ? tool.invertMap.invert().map(mapping.map(updateFromPos))
+        : undefined;
+      const toPos = updateToPos
+        ? tool.invertMap.invert().map(mapping.map(updateToPos))
+        : undefined;
+
       const steps = updateToReplaceSteps(
         editor,
         operation,
         tool.doc,
-        chunk.isPossiblyPartial
+        chunk.isPossiblyPartial,
+        fromPos,
+        toPos
       );
 
       if (steps.length === 1 && chunk.isPossiblyPartial) {
@@ -141,7 +167,7 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
             throw new UnreachableCaseError(type);
           }
         }
-
+        mapping.appendMapping(tr.mapping);
         editor.dispatch(tr);
       });
 
@@ -164,9 +190,9 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
     }
   }
   // TODO: remove?
-  applySuggestions(editor.prosemirrorState, (tr) => {
-    editor.dispatch(tr);
-  });
+  // applySuggestions(editor.prosemirrorState, (tr) => {
+  //   editor.dispatch(tr);
+  // });
 }
 /*
 

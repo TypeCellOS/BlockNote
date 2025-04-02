@@ -31,7 +31,7 @@ import {
 } from "@blocknote/react";
 import "@blocknote/xl-ai/style.css";
 import { Fieldset, Switch } from "@mantine/core";
-import { useMemo, useState } from "react";
+import { useCallback } from "react";
 import { useStore } from "zustand";
 import { BasicAutocomplete } from "./AutoComplete.js";
 import RadioGroupComponent from "./components/RadioGroupComponent.js";
@@ -50,34 +50,28 @@ const client = createBlockNoteAIClient({
     "https://localhost:3000/ai",
 });
 
+function getModel(aiModelString: string) {
+  const [provider, ...modelNameParts] = aiModelString.split("/");
+  const modelName = modelNameParts.join("/");
+  if (provider === "openai.chat") {
+    return createOpenAI({
+      ...client.getProviderSettings("openai"),
+    })(modelName, {});
+  } else if (provider === "groq.chat") {
+    return createGroq({
+      ...client.getProviderSettings("groq"),
+    })(modelName);
+  } else if (provider === "albert-etalab.chat") {
+    return createOpenAI({
+      // albert-etalab/neuralmagic/Meta-Llama-3.1-70B-Instruct-FP8
+      baseURL: "https://albert.api.staging.etalab.gouv.fr/v1",
+      ...client.getProviderSettings("albert-etalab"),
+      compatibility: "compatible",
+    })(modelName);
+  }
+  throw new Error(`Unknown model: ${aiModelString}`);
+}
 export default function App() {
-  const [aiModelString, setAiModelString] = useState(
-    // "openai/gpt-4o-2024-08-06"
-    "groq/llama-3.3-70b-specdec"
-  );
-
-  const model = useMemo(() => {
-    const [provider, ...modelNameParts] = aiModelString.split("/");
-    const modelName = modelNameParts.join("/");
-    if (provider === "openai") {
-      return createOpenAI({
-        ...client.getProviderSettings("openai"),
-      })(modelName, {});
-    } else if (provider === "groq") {
-      return createGroq({
-        ...client.getProviderSettings("groq"),
-      })(modelName);
-    } else if (provider === "albert-etalab") {
-      return createOpenAI({
-        // albert-etalab/neuralmagic/Meta-Llama-3.1-70B-Instruct-FP8
-        baseURL: "https://albert.api.staging.etalab.gouv.fr/v1",
-        ...client.getProviderSettings("albert-etalab"),
-        compatibility: "compatible",
-      })(modelName);
-    }
-    throw new Error(`Unknown model: ${aiModelString}`);
-  }, [aiModelString]);
-
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     schema,
@@ -90,7 +84,7 @@ export default function App() {
       // we pass the extension here.
       // I don't really like the fact that "ai" is hardcoded - I think we need an API that also allows us to pass in extensions without specifying the key
       ai: createAIExtension({
-        model,
+        model: getModel("groq.chat/llama-3.3-70b-specdec"),
       }),
     },
     initialContent: [
@@ -122,6 +116,17 @@ export default function App() {
   const ai = getAIExtension(editor);
   // TBD: we now derive this from the LLM extension options. desirable?
 
+  const model = useStore(ai.options, (state) => state.model);
+
+  const modelString = model.provider + "/" + model.modelId;
+
+  const setAiModelString = useCallback(
+    (value: string) => {
+      ai.options.setState({ model: getModel(value) });
+    },
+    [ai.options]
+  );
+
   // const [dataFormat, setDataFormat] = useState<"json" | "markdown" | "html">(
   //   "html"
   // );
@@ -136,7 +141,7 @@ export default function App() {
   return (
     <div>
       <Fieldset legend="Model settings" style={{ maxWidth: "500px" }}>
-        <BasicAutocomplete value={aiModelString} onChange={setAiModelString} />
+        <BasicAutocomplete value={modelString} onChange={setAiModelString} />
 
         <RadioGroupComponent
           label="Data format"

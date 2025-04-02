@@ -1,54 +1,3 @@
-/* AI Block */
-[data-content-type="ai"] .bn-ai-prompt-box {
-  align-items: center;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-  outline: solid 3px rgba(154, 56, 173, 0.2);
-  padding: 12px;
-  width: 100%;
-}
-
-[data-content-type="ai"] .bn-ai-prompt-box svg {
-  color: rgba(154, 56, 173, 0.2);
-  width: 24px;
-  height: 24px;
-}
-
-[data-content-type="ai"] .bn-ai-prompt-box span {
-  flex: 1;
-}
-
-[data-content-type="ai"] .bn-ai-prompt-box button {
-  background-color: transparent;
-  border: solid 1px rgba(120, 120, 120, 0.3);
-  border-radius: 4px;
-  color: rgba(154, 56, 173, 0.5);
-  cursor: pointer;
-  user-select: none;
-}
-
-[data-content-type="ai"][data-prompt] p {
-  border-radius: 4px;
-}
-
-.bn-editor[contenteditable="true"]
-  [data-content-type="ai"][data-prompt]
-  p:hover {
-  outline: solid 3px rgba(154, 56, 173, 0.1);
-}
-
-.bn-editor[contenteditable="true"]
-  [data-content-type="ai"][data-prompt][data-is-focused]
-  p {
-  outline: solid 3px rgba(154, 56, 173, 0.2);
-}
-
-.bn-side-menu[data-block-type="ai"]:not([data-prompt]) {
-  height: 58px;
-}
-
 .bn-combobox {
   display: flex;
   flex-direction: column;
@@ -78,7 +27,17 @@ div:not(.bn-popover-content) > .bn-combobox-items:not(:empty) {
 /*  color: rgba(154, 56, 173, 0.5);*/
 /*}*/
 
-[data-ai-show-selection] {
-  background-color: highlight;
-  padding: 2px 0;
+ins,
+[data-node-insertion] {
+  background: rgba(24, 122, 220, 0.1);
+  border-bottom: 2px solid rgba(24, 122, 220, 0.1);
+  color: rgb(20, 95, 170);
+  text-decoration: none;
+}
+
+del,
+[data-node-deletion] {
+  color: rgba(100, 90, 75, 0.3);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
 }

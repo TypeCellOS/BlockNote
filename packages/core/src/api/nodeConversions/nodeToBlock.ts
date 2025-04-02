@@ -716,8 +716,8 @@ export function prosemirrorSliceToSlicedBlocks<
   blockCache?: WeakMap<Node, Block<BSchema, I, S>>
 ): {
   blocks: Block<BSchema, I, S>[];
-  contentCutAtStart: boolean;
-  contentCutAtEnd: boolean;
+  blockCutAtStart: string | undefined;
+  blockCutAtEnd: string | undefined;
 } {
   // console.log(JSON.stringify(slice.toJSON()));
   function processNode(
@@ -726,15 +726,15 @@ export function prosemirrorSliceToSlicedBlocks<
     openEnd: number
   ): {
     blocks: Block<BSchema, I, S>[];
-    contentCutAtStart: boolean;
-    contentCutAtEnd: boolean;
+    blockCutAtStart: string | undefined;
+    blockCutAtEnd: string | undefined;
   } {
     if (node.type.name !== "blockGroup") {
       throw new Error("unexpected");
     }
     const blocks: Block<BSchema, I, S>[] = [];
-    let contentCutAtStart = false;
-    let contentCutAtEnd = false;
+    let blockCutAtStart: string | undefined;
+    let blockCutAtEnd: string | undefined;
 
     node.forEach((blockContainer, _offset, index) => {
       if (blockContainer.type.name !== "blockContainer") {
@@ -767,9 +767,9 @@ export function prosemirrorSliceToSlicedBlocks<
           Math.max(0, openStart - 1),
           isLastBlock ? Math.max(0, openEnd - 1) : 0
         );
-        contentCutAtStart = ret.contentCutAtStart;
+        blockCutAtStart = ret.blockCutAtStart;
         if (isLastBlock) {
-          contentCutAtEnd = ret.contentCutAtEnd;
+          blockCutAtEnd = ret.blockCutAtEnd;
         }
         blocks.push(...ret.blocks);
         return;
@@ -794,16 +794,16 @@ export function prosemirrorSliceToSlicedBlocks<
         );
         childBlocks = ret.blocks;
         if (isLastBlock) {
-          contentCutAtEnd = ret.contentCutAtEnd;
+          blockCutAtEnd = ret.blockCutAtEnd;
         }
       }
 
       if (isLastBlock && !childGroup && openEnd > 1) {
-        contentCutAtEnd = true;
+        blockCutAtEnd = block.id;
       }
 
       if (isFirstBlock && openStart > 1) {
-        contentCutAtStart = true;
+        blockCutAtStart = block.id;
       }
 
       blocks.push({
@@ -812,14 +812,14 @@ export function prosemirrorSliceToSlicedBlocks<
       });
     });
 
-    return { blocks, contentCutAtStart, contentCutAtEnd };
+    return { blocks, blockCutAtStart, blockCutAtEnd };
   }
 
   if (slice.content.childCount === 0) {
     return {
       blocks: [],
-      contentCutAtStart: false,
-      contentCutAtEnd: false,
+      blockCutAtStart: undefined,
+      blockCutAtEnd: undefined,
     };
   }
 
