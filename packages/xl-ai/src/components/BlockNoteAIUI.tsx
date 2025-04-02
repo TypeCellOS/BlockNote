@@ -1,6 +1,5 @@
 import { useBlockNoteEditor } from "@blocknote/react";
 
-import { useEffect } from "react";
 import { useStore } from "zustand";
 import { getAIExtension } from "../AIExtension.js";
 import { AIMenu } from "./AIMenu/AIMenu.js";
@@ -39,29 +38,16 @@ const AIMenuController = () => {
 
   const blockId = aiMenuState === "closed" ? undefined : aiMenuState.blockId;
 
-  useEffect(() => {
-    if (
-      aiMenuState !== "closed" &&
-      (aiMenuState.status === "user-input" || aiMenuState.status === "thinking")
-    ) {
-      // when we just open the menu, keep showing selection
-      editor.setForceSelectionVisible(true);
-    } else {
-      // when AI is making changes to the doc, hide the selection as it's too cluttered
-      editor.setForceSelectionVisible(false);
-    }
-  }, [aiMenuState, editor]);
-
   return (
     <BlockPositioner
       blockID={blockId}
       onOpenChange={(open) => {
-        if (!open && blockId) {
-          ai.closeAIMenu();
-          editor.setForceSelectionVisible(false);
-          editor.focus();
-          // TODO: doesn't work with esc?
-        }
+        // if (!open && blockId) {
+        //   ai.closeAIMenu();
+        //   editor.setForceSelectionVisible(false);
+        //   editor.focus();
+        //   // TODO: doesn't work with esc?
+        // }
       }}>
       <AIMenu />
     </BlockPositioner>

@@ -214,15 +214,28 @@ export async function* toJSONToolCalls(
     }
 
     if (operation.type === "add") {
-      const blocks = await Promise.all(
-        operation.blocks.map(async (html) => {
-          html = chunk.isPossiblyPartial ? getPartialHTML(html) : html;
-          const block = (await editor.tryParseHTMLToBlocks(html))[0]; // TODO: trim
+      const blocks = (
+        await Promise.all(
+          operation.blocks.map(async (html) => {
+            const parsedHtml = chunk.isPossiblyPartial
+              ? getPartialHTML(html)
+              : html;
+            if (!parsedHtml) {
+              return [];
+            }
+            return (await editor.tryParseHTMLToBlocks(parsedHtml)).map(
+              (block) => {
+                delete (block as any).id;
+                return block;
+              }
+            );
+          })
+        )
+      ).flat();
 
-          delete (block as any).id;
-          return block;
-        })
-      );
+      if (blocks.length === 0) {
+        continue;
+      }
 
       // hacky
       if ((window as any).__TEST_OPTIONS) {

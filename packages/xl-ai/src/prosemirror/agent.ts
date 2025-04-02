@@ -1,6 +1,18 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { Transaction } from "prosemirror-state";
-import { Mapping, ReplaceStep, Step } from "prosemirror-transform";
+import { Fragment, Slice } from "prosemirror-model";
+import { AllSelection, TextSelection } from "prosemirror-state";
+import { ReplaceStep, Step, Transform } from "prosemirror-transform";
+
+export type AgentStep = {
+  prosemirrorSteps: Step[];
+  selection:
+    | {
+        anchor: number;
+        head: number;
+      }
+    | undefined;
+  type: "select" | "replace" | "insert";
+};
 
 /**
  * Takes an array of ReplaceSteps and applies them as a human-like agent.
@@ -11,16 +23,11 @@ import { Mapping, ReplaceStep, Step } from "prosemirror-transform";
  *
  * All these phases are dispatched to the `dispatch` function as separate transactions.
  */
-export async function applyStepsAsAgent(
-  editor: BlockNoteEditor,
-  steps: Step[],
-  dispatch: (
-    tr: Transaction,
-    type: "select" | "replace" | "insert"
-  ) => Promise<void>
-) {
-  // Create a mapping to track position changes across all steps
-  const stepMapping = new Mapping();
+export function getStepsAsAgent(editor: BlockNoteEditor, steps: Step[]) {
+  // const stepMapping = new Mapping();
+  const agentSteps: AgentStep[] = [];
+
+  const tr = new Transform(editor.prosemirrorState.doc);
 
   for (const step of steps) {
     if (!(step instanceof ReplaceStep)) {
@@ -28,13 +35,19 @@ export async function applyStepsAsAgent(
     }
 
     // Map the step positions through all previous mappings
-    const mappedFrom = stepMapping.map(step.from);
-    const mappedTo = stepMapping.map(step.to);
+    // const mappedFrom = stepMapping.map(step.from);
+    // const mappedTo = stepMapping.map(step.to);
 
     if ((step as any).structure) {
-      const tr = editor.prosemirrorState.tr.step(step.map(stepMapping)!);
-      await dispatch(tr, "replace");
-      stepMapping.appendMapping(tr.mapping);
+      // const tr = editor.prosemirrorState.tr.step(step.map(stepMapping)!);
+      // await dispatch(tr, "replace");
+      agentSteps.push({
+        prosemirrorSteps: [step.map(tr.mapping)!],
+        selection: undefined,
+        type: "replace",
+      });
+
+      tr.step(step.map(tr.mapping)!);
       continue;
     }
 
@@ -42,75 +55,127 @@ export async function applyStepsAsAgent(
       // throw new Error("Slice has openStart or openEnd > 0");
       // TODO: these are node type changes, now, we're replacing the content at once, but
       // we should split them into multiple replace steps (one for the node type change, and others for content changes)
-      const tr = editor.prosemirrorState.tr.step(step.map(stepMapping)!);
-      await dispatch(tr, "replace");
-      stepMapping.appendMapping(tr.mapping);
+      // const tr = editor.prosemirrorState.tr.step(step.map(stepMapping)!);
+      // await dispatch(tr, "replace");
+
+      agentSteps.push({
+        prosemirrorSteps: [step.map(tr.mapping)!],
+        selection: undefined,
+        type: "replace",
+      });
+      tr.step(step.map(tr.mapping)!);
       continue;
     }
 
     // 1. Select text to be removed/replaced
-    const selectTr = editor.prosemirrorState.tr.setMeta("aiAgent", {
+    // const selectTr = editor.prosemirrorState.tr.setMeta("aiAgent", {
+    //   selection: {
+    //     anchor: mappedFrom,
+    //     head: mappedTo,
+    //   },
+    // });
+    // await dispatch(selectTr, "select");
+    agentSteps.push({
+      prosemirrorSteps: [],
       selection: {
-        anchor: mappedFrom,
-        head: mappedTo,
+        anchor: tr.mapping.map(step.from),
+        head: tr.mapping.map(step.to),
       },
+      type: "select",
     });
-    await dispatch(selectTr, "select");
 
     // 2. Replace the text with the first character (if any) of the replacement
+
+    const sliceTextContent = step.slice.content.textBetween(0, step.slice.size);
+
     const alreadyHasSameText =
-      step.slice.content.textBetween(0, step.slice.size) ===
-      editor.prosemirrorState.doc.textBetween(mappedFrom, mappedTo);
+      sliceTextContent ===
+      tr.doc.textBetween(tr.mapping.map(step.from), tr.mapping.map(step.to));
 
-    const replacement = alreadyHasSameText
-      ? step.slice.content // replace all at once, it's probaly a mark update
-      : step.slice.size === 0
-      ? step.slice.content // there's no replacement text, so delete (user entire empty content)
-      : step.slice.content.cut(0, 1); // replace with the first character (similar to how a user would do it when selecting text and starting to type)
+    let sliceTo: number;
 
-    let replaceEnd = mappedTo;
+    if (alreadyHasSameText) {
+      sliceTo = step.slice.content.size; // replace all at once, it's probaly a mark update
+    } else if (sliceTextContent.length === 0) {
+      sliceTo = step.slice.content.size; // there's no replacement text, so use entire slice as replacement
+    } else {
+      // replace with the first character (similar to how a user would do it when selecting text and starting to type)
+      const firstCharIndex = getFirstChar(step.slice.content);
+      if (firstCharIndex === undefined) {
+        // should have been caught by previous if statement
+        throw new Error("unexpected: no first character found");
+      }
+      sliceTo = firstCharIndex + 1;
+    }
 
-    // TODO: option to replace instead of deletion / insertion
-    const replaceTr = editor.prosemirrorState.tr
-      .addMark(mappedFrom, replaceEnd, editor.pmSchema.mark("deletion", {}))
-      .insert(replaceEnd, replacement)
-      .addMark(
-        replaceEnd,
-        replaceEnd + replacement.size,
-        editor.pmSchema.mark("insertion", {})
-      )
-      .setMeta("aiAgent", {
-        selection: {
-          anchor: replaceEnd + 1,
-          head: replaceEnd + 1,
-        },
-      });
-
-    await dispatch(replaceTr, "replace");
-
-    stepMapping.appendMapping(replaceTr.mapping);
-    replaceEnd = replaceTr.mapping.map(replaceEnd);
-
-    // 3. Insert remaining characters one by one
-    for (let i = replacement.size; i < step.slice.size; i++) {
-      const replacement = step.slice.content.cut(i, i + 1);
-      const insertTr = editor.prosemirrorState.tr
-        .insert(replaceEnd, replacement)
-        .addMark(
+    let replaceEnd = tr.mapping.map(step.to);
+    const replaceFrom = tr.mapping.map(step.to);
+    let first = true;
+    for (let i = sliceTo; i <= step.slice.content.size; i++) {
+      const stepIndex = tr.steps.length;
+      if (first) {
+        tr.addMark(
+          tr.mapping.map(step.from),
           replaceEnd,
-          replaceEnd + replacement.size,
-          editor.pmSchema.mark("insertion", {})
-        )
-        .setMeta("aiAgent", {
-          selection: {
-            anchor: replaceEnd + 1,
-            head: replaceEnd + 1,
-          },
-        });
+          editor.pmSchema.mark("deletion", {})
+        );
+      }
 
-      await dispatch(insertTr, "insert");
-      stepMapping.appendMapping(insertTr.mapping);
-      replaceEnd = insertTr.mapping.map(replaceEnd);
+      // note, instead of inserting one charachter at a time at the end (a, b, c)
+      // we're replacing the entire part every time (a, ab, abc)
+      // would be cleaner to do just insertions, but didn't get this to work with
+      // the add operation
+      const replacement = Slice.maxOpen(step.slice.content.cut(0, i));
+      // console.log("replacement", replaceFrom, replaceEnd, replacement);
+      tr.replace(replaceFrom, replaceEnd, replacement).addMark(
+        replaceFrom,
+        replaceFrom + replacement.content.size,
+        editor.pmSchema.mark("insertion", {})
+      );
+
+      replaceEnd = tr.mapping.slice(stepIndex).map(replaceEnd);
+      const sel = TextSelection.near(
+        tr.doc.resolve(replaceFrom + replacement.content.size),
+        -1
+      );
+
+      agentSteps.push({
+        prosemirrorSteps: tr.steps.slice(stepIndex),
+        selection: {
+          anchor: sel.from,
+          head: sel.from,
+        },
+        type: first ? "replace" : "insert",
+      });
+      first = false;
     }
   }
+
+  return agentSteps;
+}
+
+/**
+ * helper method to get the index of the first character of a fragment
+ */
+function getFirstChar(fragment: Fragment) {
+  let index = 0;
+  for (const content of fragment.content) {
+    if (content.isText) {
+      return index;
+    }
+    const sel = TextSelection.atStart(content);
+    if (sel instanceof AllSelection) {
+      // no text position found
+      index += content.nodeSize;
+      continue;
+    }
+    index += sel.head;
+    if (!content.isLeaf) {
+      // for regular nodes, add 1 position for the node opening
+      // (annoyingly TextSelection.atStart doesn't account for this)
+      index += 1;
+    }
+    return index;
+  }
+  return undefined;
 }

@@ -6,7 +6,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema/index.js";
-import { removeAndInsertBlocks } from "../replaceBlocks/replaceBlocks.js";
+import { removeAndInsertBlocksTr } from "../replaceBlocks/replaceBlocks.js";
 
 export function removeBlocks<
   BSchema extends BlockSchema,
@@ -16,5 +16,10 @@ export function removeBlocks<
   editor: BlockNoteEditor<BSchema, I, S>,
   blocksToRemove: BlockIdentifier[]
 ): Block<BSchema, I, S>[] {
-  return removeAndInsertBlocks(editor, blocksToRemove, []).removedBlocks;
+  const tr = editor.prosemirrorState.tr;
+  const ret = removeAndInsertBlocksTr(editor, tr, blocksToRemove, []);
+
+  editor.dispatch(tr);
+
+  return ret.removedBlocks;
 }

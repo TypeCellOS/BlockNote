@@ -51,8 +51,9 @@
     "_prepare": "npm run build"
   },
   "dependencies": {
-    "@emergence-engineering/prosemirror-text-map": "^0.1.4",
+    "@handlewithcare/prosemirror-suggest-changes": "^0.1.3",
     "prosemirror-changeset": "^2.2.1",
+    "prosemirror-tables": "^1.6.4",
     "@ewoudenberg/difflib": "^0.1.0",
     "@ai-sdk/openai-compatible": "^0.2.0",
     "@ai-sdk/openai": "^1.3.0",

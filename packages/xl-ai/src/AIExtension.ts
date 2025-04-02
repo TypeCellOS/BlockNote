@@ -3,11 +3,16 @@ import {
   BlockNoteExtension,
   UnreachableCaseError,
 } from "@blocknote/core";
+import {
+  applySuggestions,
+  revertSuggestions,
+} from "@handlewithcare/prosemirror-suggest-changes";
 import { LanguageModel } from "ai";
+import { Plugin, PluginKey } from "prosemirror-state";
+import { fixTablesKey } from "prosemirror-tables";
 import { createStore } from "zustand/vanilla";
 import { PromptOrMessages, llm } from "./api";
 import { LLMRequestOptions } from "./api/streamTool/callLLMWithStreamTools";
-
 // type AIPluginState = {
 //   aiMenuBlockID: string | undefined;
 //   aiMenuResponseStatus: "initial" | "generating" | "error" | "done";
@@ -87,7 +92,7 @@ export class AIExtension extends BlockNoteExtension {
   >;
 
   // used for undo, not needed in store
-  private prevDocument: typeof this.editor.document | undefined;
+  // private prevDocument: typeof this.editor.document | undefined;
 
   constructor(
     public readonly editor: BlockNoteEditor<any, any, any>,
@@ -105,6 +110,8 @@ export class AIExtension extends BlockNoteExtension {
    * Open the AI menu at a specific block
    */
   public openAIMenuAtBlock(blockID: string) {
+    this.editor.setForceSelectionVisible(true);
+    this.editor.isEditable = false;
     this.store.setState({
       aiMenuState: {
         blockId: blockID,
@@ -120,14 +127,19 @@ export class AIExtension extends BlockNoteExtension {
     this.store.setState({
       aiMenuState: "closed",
     });
-
-    this.prevDocument = undefined;
+    this.editor.setForceSelectionVisible(false);
+    this.editor.focus();
+    this.editor.isEditable = true;
+    // this.prevDocument = undefined;
   }
 
   /**
    * Accept the changes made by the LLM
    */
   public acceptChanges() {
+    applySuggestions(this.editor.prosemirrorState, (tr) => {
+      this.editor.dispatch(tr);
+    });
     this.closeAIMenu();
   }
 
@@ -135,7 +147,9 @@ export class AIExtension extends BlockNoteExtension {
    * Reject the changes made by the LLM
    */
   public rejectChanges() {
-    this.editor.replaceBlocks(this.editor.document, this.prevDocument!);
+    revertSuggestions(this.editor.prosemirrorState, (tr) => {
+      this.editor.dispatch(tr);
+    });
     this.closeAIMenu();
   }
 
@@ -158,20 +172,18 @@ export class AIExtension extends BlockNoteExtension {
     if (aiMenuState === "closed") {
       return; // TODO: log error?
     }
+
+    if (status === "ai-writing") {
+      this.editor.setForceSelectionVisible(false);
+      this.editor.clearSelection();
+    }
+
     this.store.setState({
       aiMenuState: {
         status: status,
         blockId: aiMenuState.blockId,
       },
     });
-
-    if (status === "thinking") {
-      // TODO: abort previous call?
-      this.prevDocument = this.editor.document;
-    }
-    if (status === "user-input") {
-      this.prevDocument = undefined;
-    }
   }
 
   /**
@@ -221,7 +233,25 @@ export class AIExtension extends BlockNoteExtension {
       console.warn("Error calling LLM", e);
     }
   }
+
+  public plugin = new Plugin({
+    key: PLUGIN_KEY,
+    filterTransaction: (tr) => {
+      const menuState = this.store.getState().aiMenuState;
+
+      if (menuState !== "closed" && menuState.status === "ai-writing") {
+        if (tr.getMeta(fixTablesKey)?.fixTables) {
+          // the fixtables plugin causes the steps between of the AI Agent to become invalid
+          // so we need to prevent it from running
+          // (we might need to filter out other / or maybe any transactions during the writing phase)
+          return false;
+        }
+      }
+      return true;
+    },
+  });
 }
+const PLUGIN_KEY = new PluginKey(`blocknote-ai-plugin`);
 
 export function createAIExtension(options: GlobalLLMCallOptions) {
   return (editor: BlockNoteEditor<any, any, any>) => {
@@ -232,10 +262,3 @@ export function createAIExtension(options: GlobalLLMCallOptions) {
 export function getAIExtension(editor: BlockNoteEditor<any, any, any>) {
   return editor.extension(AIExtension);
 }
-
-// TODO: Revisit - this pattern might be a bit iffy
-// Make editor non-editable after calling the LLM, until the user accepts or
-// reverts the changes.
-// useEffect(() => {
-//   editor.isEditable = aiResponseStatus === "initial";
-// }, [aiResponseStatus, editor]);

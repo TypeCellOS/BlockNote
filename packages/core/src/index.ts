@@ -1,4 +1,9 @@
+// TODO: internal?
+export * from "./api/blockManipulation/commands/insertBlocks/insertBlocks.js";
+export * from "./api/blockManipulation/commands/removeBlocks/removeBlocks.js";
+export * from "./api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
 export * from "./api/blockManipulation/commands/updateBlock/updateBlock.js";
+
 export * from "./api/exporters/html/externalHTMLExporter.js";
 export * from "./api/exporters/html/internalHTMLSerializer.js";
 export * from "./api/getBlockInfoFromPos.js";

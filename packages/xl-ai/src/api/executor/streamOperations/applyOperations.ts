@@ -2,10 +2,11 @@ import {
   BlockNoteEditor,
   PartialBlock,
   UnreachableCaseError,
+  insertBlocksTr,
+  removeAndInsertBlocksTr,
 } from "@blocknote/core";
-import { insertBlocksTr } from "@blocknote/core/src/api/blockManipulation/commands/insertBlocks/insertBlocks.js";
 import { Mapping } from "prosemirror-transform";
-import { applyStepsAsAgent } from "../../../prosemirror/agent.js";
+import { AgentStep, getStepsAsAgent } from "../../../prosemirror/agent.js";
 import { updateToReplaceSteps } from "../../../prosemirror/changeset.js";
 import { RebaseTool } from "../../../prosemirror/rebaseTool.js";
 import { StreamTool, StreamToolCall } from "../../streamTool/streamTool.js";
@@ -83,7 +84,7 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
       // TODO: apply as agent?
       let lastBlockId: string | undefined;
       for (const block of operation.blocks) {
-        const lastBlockId = block.id;
+        const tr = editor.prosemirrorState.tr;
         const ret = insertBlocksTr(
           editor,
           tr,
@@ -92,17 +93,22 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
           lastBlockId ? "after" : operation.position
         );
         lastBlockId = ret[ret.length - 1].id;
-        yield {
-          ...chunk,
-          result: "ok",
-          lastBlockId: ret[ret.length - 1].id,
-        };
+        const agentSteps = getStepsAsAgent(editor, tr.steps);
+        // const stepMapping = new Mapping();
+
+        for (const step of agentSteps) {
+          const tr = await agentStepToTr(editor, step, options);
+          // stepMapping.appendMapping(tr.mapping);
+          mapping.appendMapping(tr.mapping);
+          // console.log("applying tr", block, tr.steps);
+          editor.dispatch(tr);
+          yield {
+            ...chunk,
+            result: "ok",
+            lastBlockId,
+          };
+        }
       }
-      yield {
-        ...chunk,
-        result: "ok",
-        lastBlockId: ret[ret.length - 1].id,
-      };
     } else if (operation.type === "update") {
       if (chunk.isPossiblyPartial) {
         // TODO: unit test and / or extract to separate pipeline step
@@ -110,7 +116,7 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
         if (size < minSize) {
           continue;
         } else {
-          console.log("increasing minSize", minSize);
+          // console.log("increasing minSize", minSize);
           // increase minSize for next chunk
           minSize = size + STEP_SIZE;
         }
@@ -118,7 +124,7 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
         // reset for next chunk
         minSize = STEP_SIZE;
       }
-      console.log("apply", operation.block);
+      // console.log("apply", operation.block);
 
       // TODO: this might be inefficient, we might be able to pass a single rebaseTool as long as we map subsequent operations
       const tool = await rebaseTool(operation.id);
@@ -153,38 +159,36 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
 
       const inverted = steps.map((step) => step.map(tool.invertMap)!);
 
-      // Apply the steps as an agent with human-like typing behavior
-      await applyStepsAsAgent(editor, inverted, async (tr, type) => {
-        // Add a small delay to simulate human typing
-        if (options.withDelays) {
-          if (type === "select") {
-            await new Promise((resolve) => setTimeout(resolve, 100));
-          } else if (type === "insert") {
-            await new Promise((resolve) => setTimeout(resolve, 10));
-          } else if (type === "replace") {
-            await new Promise((resolve) => setTimeout(resolve, 200));
-          } else {
-            throw new UnreachableCaseError(type);
-          }
-        }
+      const agentSteps = getStepsAsAgent(editor, inverted);
+      for (const step of agentSteps) {
+        const tr = await agentStepToTr(editor, step, options);
         mapping.appendMapping(tr.mapping);
         editor.dispatch(tr);
-      });
-
-      yield {
-        ...chunk,
-        result: "ok",
-        lastBlockId: chunk.operation.id,
-      };
+        yield {
+          ...chunk,
+          result: "ok",
+          lastBlockId: chunk.operation.id,
+        };
+      }
     } else if (operation.type === "delete") {
-      // TODO: apply as agent?
-      const prevBlock = editor.getPrevBlock(operation.id);
-      editor.removeBlocks([operation.id]);
-      yield {
-        ...chunk,
-        result: "ok",
-        lastBlockId: prevBlock?.id ?? editor.document[0].id,
-      };
+      // not needed as paragraph is kept but only marked as deleted
+      // const prevBlock = editor.getPrevBlock(operation.id);
+      // const lastBlockId = prevBlock?.id ?? editor.document[0].id;
+      const tr = editor.prosemirrorState.tr;
+      removeAndInsertBlocksTr(editor, tr, [operation.id], []);
+
+      const agentSteps = getStepsAsAgent(editor, tr.steps);
+
+      for (const step of agentSteps) {
+        const tr = await agentStepToTr(editor, step, options);
+        mapping.appendMapping(tr.mapping);
+        editor.dispatch(tr);
+        yield {
+          ...chunk,
+          result: "ok",
+          lastBlockId: operation.id,
+        };
+      }
     } else {
       throw new UnreachableCaseError(operation.type);
     }
@@ -194,6 +198,46 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
   //   editor.dispatch(tr);
   // });
 }
+
+async function agentStepToTr(
+  editor: BlockNoteEditor<any, any, any>,
+  step: AgentStep,
+  options: { withDelays: boolean }
+) {
+  if (options.withDelays) {
+    if (step.type === "select") {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    } else if (step.type === "insert") {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    } else if (step.type === "replace") {
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    } else {
+      throw new UnreachableCaseError(step.type);
+    }
+  }
+  const tr = editor.prosemirrorState.tr.setMeta("addToHistory", false);
+
+  if (step.selection) {
+    tr.setMeta("aiAgent", {
+      selection: {
+        anchor: step.selection.anchor,
+        head: step.selection.head,
+      },
+    });
+  }
+  for (const pmStep of step.prosemirrorSteps) {
+    const result = tr.maybeStep(pmStep);
+    if (result.failed) {
+      // this would fail for tables, but has since been fixed using filterTransaction (in AIExtension)
+      // we now throw an error here, but maybe safer as warning when shipping (TODO)
+
+      throw new Error("failed to apply step");
+      // console.warn("failed to apply step", pmStep);
+    }
+  }
+  return tr;
+}
+
 /*
 
 // insert

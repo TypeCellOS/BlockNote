@@ -91,7 +91,7 @@ import {
 import { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
 
-import { Plugin, Transaction } from "@tiptap/pm/state";
+import { Plugin, TextSelection, Transaction } from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
 import { EditorView } from "prosemirror-view";
 import { ySyncPluginKey } from "y-prosemirror";
@@ -640,10 +640,6 @@ export class BlockNoteEditor<
 
     const tiptapExtensions = [
       ...Object.entries(this.extensions).map(([key, ext]) => {
-        if (ext instanceof BlockNoteExtension) {
-          return ext.plugin;
-        }
-
         if (
           ext instanceof Extension ||
           ext instanceof TipTapNode ||
@@ -653,7 +649,12 @@ export class BlockNoteEditor<
           return ext;
         }
 
-        if (!ext.plugin) {
+        if (ext instanceof BlockNoteExtension && !ext.plugin) {
+          return undefined;
+        }
+
+        const plugin = ext.plugin;
+        if (!plugin) {
           throw new Error(
             "Extension should either be a TipTap extension or a ProseMirror plugin in a plugin property"
           );
@@ -662,7 +663,7 @@ export class BlockNoteEditor<
         // "blocknote" extensions (prosemirror plugins)
         return Extension.create({
           name: key,
-          addProseMirrorPlugins: () => [ext.plugin],
+          addProseMirrorPlugins: () => [plugin],
         });
       }),
     ].filter((ext): ext is Extension => ext !== undefined);
@@ -978,6 +979,7 @@ export class BlockNoteEditor<
     );
   }
 
+  // TODO
   public updateSelection(blocks: Block<BSchema, ISchema, SSchema>[]) {
     let start = this.prosemirrorState.selection.$from;
     let end = this.prosemirrorState.selection.$to;
@@ -1101,6 +1103,13 @@ export class BlockNoteEditor<
     setSelection(this, startBlock, endBlock);
   }
 
+  public clearSelection() {
+    this.dispatch(
+      this.prosemirrorState.tr.setSelection(
+        TextSelection.create(this.prosemirrorState.doc, 0)
+      )
+    );
+  }
   /**
    * Checks if the editor is currently editable, or if it's locked.
    * @returns True if the editor is editable, false otherwise.

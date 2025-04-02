@@ -10,7 +10,7 @@ const PLUGIN_KEY = new PluginKey<AgentCursorState>(`blocknote-agent-cursor`);
 
 const user = {
   name: "AI",
-  color: "#579ed7",
+  color: "#8bc6ff",
 };
 
 // TODO: move to xl-ai?
