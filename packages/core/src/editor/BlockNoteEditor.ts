@@ -43,7 +43,10 @@ import {
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
-import { markdownToBlocks } from "../api/parsers/markdown/parseMarkdown.js";
+import {
+  markdownToBlocks,
+  markdownToHTML,
+} from "../api/parsers/markdown/parseMarkdown.js";
 import {
   Block,
   DefaultBlockSchema,
@@ -91,7 +94,7 @@ import {
 import { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
 
-import { Plugin, Transaction } from "@tiptap/pm/state";
+import { Plugin, TextSelection, Transaction } from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
 import { EditorView } from "prosemirror-view";
 import { ySyncPluginKey } from "y-prosemirror";
@@ -101,6 +104,8 @@ import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
 import type { ThreadStore, User } from "../comments/index.js";
 import "../style.css";
 import { EventEmitter } from "../util/EventEmitter.js";
+import { CodeBlockOptions } from "../blocks/CodeBlockContent/CodeBlockContent.js";
+import { nestedListsToBlockNoteStructure } from "../api/parsers/html/util/nestedLists.js";
 
 export type BlockNoteExtensionFactory = (
   editor: BlockNoteEditor<any, any, any>
@@ -155,6 +160,11 @@ export type BlockNoteEditorOptions<
      */
     showCursorLabels?: "always" | "activity";
   };
+
+  /**
+   * Options for code blocks.
+   */
+  codeBlock?: CodeBlockOptions;
 
   comments: {
     threadStore: ThreadStore;
@@ -211,6 +221,39 @@ export type BlockNoteEditorOptions<
     string | "default" | "emptyDocument",
     string | undefined
   >;
+
+  /**
+   * Custom paste handler that can be used to override the default paste behavior.
+   * @returns The function should return `true` if the paste event was handled, otherwise it should return `false` if it should be canceled or `undefined` if it should be handled by another handler.
+   *
+   * @example
+   * ```ts
+   * pasteHandler: ({ defaultPasteHandler }) => {
+   *   return defaultPasteHandler({ pasteBehavior: "prefer-html" });
+   * }
+   * ```
+   */
+  pasteHandler?: (context: {
+    event: ClipboardEvent;
+    editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
+    /**
+     * The default paste handler
+     * @param context The context object
+     * @returns Whether the paste event was handled or not
+     */
+    defaultPasteHandler: (context?: {
+      /**
+       * Whether to prioritize Markdown content in `text/plain` over `text/html` when pasting from the clipboard.
+       * @default true
+       */
+      prioritizeMarkdownOverHTML?: boolean;
+      /**
+       * Whether to parse `text/plain` content from the clipboard as Markdown content.
+       * @default true
+       */
+      plainTextAsMarkdown?: boolean;
+    }) => boolean | undefined;
+  }) => boolean | undefined;
 
   /**
    * Resolve a URL of a file block to one that can be displayed or downloaded. This can be used for creating authenticated URL or
@@ -442,6 +485,7 @@ export class BlockNoteEditor<
       cellTextColor: boolean;
       headers: boolean;
     };
+    codeBlock: CodeBlockOptions;
   };
 
   public static create<
@@ -489,6 +533,12 @@ export class BlockNoteEditor<
         cellTextColor: options?.tables?.cellTextColor ?? false,
         headers: options?.tables?.headers ?? false,
       },
+      codeBlock: {
+        indentLineWithTab: options?.codeBlock?.indentLineWithTab ?? true,
+        defaultLanguage: options?.codeBlock?.defaultLanguage ?? "text",
+        supportedLanguages: options?.codeBlock?.supportedLanguages ?? {},
+        createHighlighter: options?.codeBlock?.createHighlighter ?? undefined,
+      },
     };
 
     // apply defaults
@@ -532,6 +582,7 @@ export class BlockNoteEditor<
       tabBehavior: newOptions.tabBehavior,
       sideMenuDetection: newOptions.sideMenuDetection || "viewport",
       comments: newOptions.comments,
+      pasteHandler: newOptions.pasteHandler,
     });
 
     // add extensions from _tiptapOptions
@@ -1136,17 +1187,18 @@ export class BlockNoteEditor<
     }
 
     const { from, to } = this._tiptapEditor.state.selection;
-
-    if (!text) {
-      text = this._tiptapEditor.state.doc.textBetween(from, to);
-    }
-
     const mark = this.pmSchema.mark("link", { href: url });
 
     this.dispatch(
-      this._tiptapEditor.state.tr
-        .insertText(text, from, to)
-        .addMark(from, from + text.length, mark)
+      text
+        ? this._tiptapEditor.state.tr
+            .insertText(text, from, to)
+            .addMark(from, from + text.length, mark)
+        : this._tiptapEditor.state.tr
+            .setSelection(
+              TextSelection.create(this._tiptapEditor.state.tr.doc, to)
+            )
+            .addMark(from, to, mark)
     );
   }
 
@@ -1430,5 +1482,42 @@ export class BlockNoteEditor<
 
   public setForceSelectionVisible(forceSelectionVisible: boolean) {
     this.showSelectionPlugin.setEnabled(forceSelectionVisible);
+  }
+
+  /**
+   * This will convert HTML into a format that is compatible with BlockNote.
+   */
+  private convertHtmlToBlockNoteHtml(html: string) {
+    const htmlNode = nestedListsToBlockNoteStructure(html.trim());
+    return htmlNode.innerHTML;
+  }
+
+  /**
+   * Paste HTML into the editor. Defaults to converting HTML to BlockNote HTML.
+   * @param html The HTML to paste.
+   * @param raw Whether to paste the HTML as is, or to convert it to BlockNote HTML.
+   */
+  public pasteHTML(html: string, raw = false) {
+    let htmlToPaste = html;
+    if (!raw) {
+      htmlToPaste = this.convertHtmlToBlockNoteHtml(html);
+    }
+    this.prosemirrorView?.pasteHTML(htmlToPaste);
+  }
+
+  /**
+   * Paste text into the editor. Defaults to interpreting text as markdown.
+   * @param text The text to paste.
+   */
+  public pasteText(text: string) {
+    return this.prosemirrorView?.pasteText(text);
+  }
+
+  /**
+   * Paste markdown into the editor.
+   * @param markdown The markdown to paste.
+   */
+  public async pasteMarkdown(markdown: string) {
+    return this.pasteHTML(await markdownToHTML(markdown));
   }
 }

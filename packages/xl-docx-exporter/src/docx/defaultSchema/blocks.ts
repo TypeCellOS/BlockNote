@@ -116,6 +116,23 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       heading: `Heading${block.props.level}`,
     });
   },
+  quote: (block, exporter) => {
+    return new Paragraph({
+      shading: {
+        color: "#7D797A",
+      },
+      border: {
+        left: {
+          color: "#7D797A",
+          space: 100,
+          style: "single",
+          size: 8,
+        },
+      },
+      ...blockPropsToStyles(block.props, exporter.options.colors),
+      children: exporter.transformInlineContent(block.content),
+    });
+  },
   audio: (block, exporter) => {
     return [
       file(block.props, "Open audio", exporter),

@@ -1,6 +1,5 @@
 import { AnyExtension, Extension, extensions } from "@tiptap/core";
 import { Gapcursor } from "@tiptap/extension-gapcursor";
-import { HardBreak } from "@tiptap/extension-hard-break";
 import { History } from "@tiptap/extension-history";
 import { Link } from "@tiptap/extension-link";
 import { Text } from "@tiptap/extension-text";
@@ -17,6 +16,7 @@ import { CommentsPlugin } from "../extensions/Comments/CommentsPlugin.js";
 import type { ThreadStore } from "../comments/index.js";
 import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin.js";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin.js";
+import { HardBreak } from "../extensions/HardBreak/HardBreak.js";
 import { KeyboardShortcutsExtension } from "../extensions/KeyboardShortcuts/KeyboardShortcutsExtension.js";
 import { LinkToolbarProsemirrorPlugin } from "../extensions/LinkToolbar/LinkToolbarPlugin.js";
 import {
@@ -44,7 +44,11 @@ import {
   StyleSchema,
   StyleSpecs,
 } from "../schema/index.js";
-import type { BlockNoteEditor, BlockNoteExtension } from "./BlockNoteEditor.js";
+import type {
+  BlockNoteEditor,
+  BlockNoteEditorOptions,
+  BlockNoteExtension,
+} from "./BlockNoteEditor.js";
 
 type ExtensionOptions<
   BSchema extends BlockSchema,
@@ -82,6 +86,7 @@ type ExtensionOptions<
   comments?: {
     threadStore: ThreadStore;
   };
+  pasteHandler: BlockNoteEditorOptions<any, any, any>["pasteHandler"];
 };
 
 /**
@@ -179,7 +184,7 @@ const getTipTapExtensions = <
       types: ["blockContainer", "columnList", "column"],
       setIdAttribute: opts.setIdAttribute,
     }),
-    HardBreak.extend({ priority: 10 }),
+    HardBreak,
     // Comments,
 
     // basics:
@@ -258,7 +263,16 @@ const getTipTapExtensions = <
       ];
     }),
     createCopyToClipboardExtension(opts.editor),
-    createPasteFromClipboardExtension(opts.editor),
+    createPasteFromClipboardExtension(
+      opts.editor,
+      opts.pasteHandler ||
+        ((context: {
+          defaultPasteHandler: (context?: {
+            prioritizeMarkdownOverHTML?: boolean;
+            plainTextAsMarkdown?: boolean;
+          }) => boolean | undefined;
+        }) => context.defaultPasteHandler())
+    ),
     createDropFileExtension(opts.editor),
 
     // This needs to be at the bottom of this list, because Key events (such as enter, when selecting a /command),

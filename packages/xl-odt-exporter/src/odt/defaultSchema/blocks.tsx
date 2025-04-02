@@ -17,10 +17,14 @@ const createParagraphStyle = (
   exporter: ODTExporter<any, any, any>,
   props: Partial<DefaultProps>,
   parentStyleName = "Standard",
-  styleAttributes: Record<string, string> = {}
+  styleAttributes: Record<string, string> = {},
+  paragraphStyleAttributes: Record<string, string> = {},
+  textStyleAttributes: Record<string, string> = {}
 ) => {
-  const paragraphStyles: Record<string, string> = {};
-  const textStyles: Record<string, string> = {};
+  const paragraphStyles: Record<string, string> = {
+    ...paragraphStyleAttributes,
+  };
+  const textStyles: Record<string, string> = { ...textStyleAttributes };
 
   if (props.textAlignment && props.textAlignment !== "left") {
     const alignmentMap = {
@@ -198,6 +202,30 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
         {getTabs(nestingLevel)}
         {exporter.transformInlineContent(block.content)}
       </text:h>
+    );
+  },
+
+  quote: (block, exporter, nestingLevel) => {
+    const customStyleName = createParagraphStyle(
+      exporter as ODTExporter<any, any, any>,
+      block.props,
+      "Standard",
+      {},
+      {
+        "fo:border-left": "2pt solid #7D797A",
+        "fo:padding-left": "0.25in",
+      },
+      {
+        "fo:color": "#7D797A",
+      }
+    );
+    const styleName = customStyleName;
+
+    return (
+      <text:p text:style-name={styleName}>
+        {getTabs(nestingLevel)}
+        {exporter.transformInlineContent(block.content)}
+      </text:p>
     );
   },
 

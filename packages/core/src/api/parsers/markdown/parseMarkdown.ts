@@ -48,18 +48,9 @@ function code(state: any, node: any) {
   return result;
 }
 
-export async function markdownToBlocks<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(
-  markdown: string,
-  blockSchema: BSchema,
-  icSchema: I,
-  styleSchema: S,
-  pmSchema: Schema
-): Promise<Block<BSchema, I, S>[]> {
+export async function markdownToHTML(markdown: string): Promise<string> {
   const deps = await initializeESMDependencies();
+
   const htmlString = deps.unified
     .unified()
     .use(deps.remarkParse.default)
@@ -73,11 +64,21 @@ export async function markdownToBlocks<
     .use(deps.rehypeStringify.default)
     .processSync(markdown);
 
-  return HTMLToBlocks(
-    htmlString.value as string,
-    blockSchema,
-    icSchema,
-    styleSchema,
-    pmSchema
-  );
+  return htmlString.value as string;
+}
+
+export async function markdownToBlocks<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  markdown: string,
+  blockSchema: BSchema,
+  icSchema: I,
+  styleSchema: S,
+  pmSchema: Schema
+): Promise<Block<BSchema, I, S>[]> {
+  const htmlString = await markdownToHTML(markdown);
+
+  return HTMLToBlocks(htmlString, blockSchema, icSchema, styleSchema, pmSchema);
 }

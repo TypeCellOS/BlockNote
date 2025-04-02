@@ -20,6 +20,12 @@ export const pl: Dictionary = {
       aliases: ["h3", "naglowek3", "podnaglowek"],
       group: "Nagłówki",
     },
+    quote: {
+      title: "Cytat",
+      subtext: "Cytat lub fragment",
+      aliases: ["quotation", "blockquote", "bq"],
+      group: "Podstawowe bloki",
+    },
     numbered_list: {
       title: "Lista numerowana",
       subtext: "Używana do wyświetlania listy numerowanej",

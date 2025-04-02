@@ -20,6 +20,7 @@ import {
   RiText,
   RiVolumeUpFill,
   RiCodeBlock,
+  RiQuoteText,
 } from "react-icons/ri";
 import { DefaultReactSuggestionItem } from "./types.js";
 
@@ -27,6 +28,7 @@ const icons = {
   heading: RiH1,
   heading_2: RiH2,
   heading_3: RiH3,
+  quote: RiQuoteText,
   numbered_list: RiListOrdered,
   bullet_list: RiListUnordered,
   check_list: RiListCheck3,

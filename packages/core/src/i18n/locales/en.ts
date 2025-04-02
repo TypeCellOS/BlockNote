@@ -18,6 +18,12 @@ export const en = {
       aliases: ["h3", "heading3", "subheading"],
       group: "Headings",
     },
+    quote: {
+      title: "Quote",
+      subtext: "Quote or excerpt",
+      aliases: ["quotation", "blockquote", "bq"],
+      group: "Basic blocks",
+    },
     numbered_list: {
       title: "Numbered List",
       subtext: "List with ordered items",

@@ -11,6 +11,7 @@
   "dependencies": {
     "@blocknote/ariakit": "^0.26.0",
     "@blocknote/core": "^0.26.0",
+    "@blocknote/code-block": "^0.26.0",
     "@blocknote/mantine": "^0.26.0",
     "@blocknote/react": "^0.26.0",
     "@blocknote/shadcn": "^0.26.0",

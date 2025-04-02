@@ -75,8 +75,8 @@ export const CreateLinkButton = () => {
   }, [editor.prosemirrorView?.dom]);
 
   const update = useCallback(
-    (url: string, text: string) => {
-      editor.createLink(url, text);
+    (url: string) => {
+      editor.createLink(url);
       editor.focus();
     },
     [editor]
@@ -93,11 +93,7 @@ export const CreateLinkButton = () => {
       }
     }
 
-    if (isTableCellSelection(editor.prosemirrorState.selection)) {
-      return false;
-    }
-
-    return true;
+    return !isTableCellSelection(editor.prosemirrorState.selection);
   }, [linkInSchema, selectedBlocks, editor.prosemirrorState.selection]);
 
   if (
@@ -128,7 +124,12 @@ export const CreateLinkButton = () => {
       <Components.Generic.Popover.Content
         className={"bn-popover-content bn-form-popover"}
         variant={"form-popover"}>
-        <EditLinkMenuItems url={url} text={text} editLink={update} />
+        <EditLinkMenuItems
+          url={url}
+          text={text}
+          editLink={update}
+          showTextField={false}
+        />
       </Components.Generic.Popover.Content>
     </Components.Generic.Popover.Root>
   );

@@ -233,6 +233,24 @@
         }
       },
       {
+        "projectSlug": "custom-paste-handler",
+        "fullSlug": "basic/custom-paste-handler",
+        "pathFromRoot": "examples/01-basic/13-custom-paste-handler",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "nperez0111",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Custom Paste Handler",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
         "projectSlug": "testing",
         "fullSlug": "basic/testing",
         "pathFromRoot": "examples/01-basic/testing",
@@ -798,6 +816,42 @@
           "pathFromRoot": "examples/04-theming",
           "slug": "theming"
         }
+      },
+      {
+        "projectSlug": "code-block",
+        "fullSlug": "theming/code-block",
+        "pathFromRoot": "examples/04-theming/06-code-block",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "nperez0111",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Code Block Syntax Highlighting",
+        "group": {
+          "pathFromRoot": "examples/04-theming",
+          "slug": "theming"
+        }
+      },
+      {
+        "projectSlug": "custom-code-block",
+        "fullSlug": "theming/custom-code-block",
+        "pathFromRoot": "examples/04-theming/07-custom-code-block",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "nperez0111",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Custom Code Block Theme & Language",
+        "group": {
+          "pathFromRoot": "examples/04-theming",
+          "slug": "theming"
+        }
       }
     ]
   },
@@ -1049,6 +1103,33 @@
           "pro": true
         },
         "title": "PDF Block",
+        "group": {
+          "pathFromRoot": "examples/06-custom-schema",
+          "slug": "custom-schema"
+        }
+      },
+      {
+        "projectSlug": "alert-block-full-ux",
+        "fullSlug": "custom-schema/alert-block-full-ux",
+        "pathFromRoot": "examples/06-custom-schema/05-alert-block-full-ux",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas",
+            "Formatting Toolbar",
+            "Suggestion Menus",
+            "Slash Menu"
+          ],
+          "dependencies": {
+            "@mantine/core": "^7.10.1",
+            "react-icons": "^5.2.1"
+          } as any
+        },
+        "title": "Alert Block with Full UX",
         "group": {
           "pathFromRoot": "examples/06-custom-schema",
           "slug": "custom-schema"
