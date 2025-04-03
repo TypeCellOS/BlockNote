@@ -55,7 +55,7 @@ async function parseHTMLAndCompareSnapshots(
   pastedBlocks.pop(); // trailing paragraph
   expect(pastedBlocks).toStrictEqual(blocks);
 
-  editor.mount(undefined);
+  editor.unmount();
 }
 
 describe("Parse HTML", () => {
