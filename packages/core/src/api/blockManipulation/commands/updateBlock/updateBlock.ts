@@ -263,7 +263,6 @@ function updateBlockContentNode<
     // use replaceWith to replace the content and the block itself
     // also reset the selection since replacing the block content
     // sets it to the next block.
-
     tr = tr.replaceWith(
       blockInfo.blockContent.beforePos,
       blockInfo.blockContent.afterPos,

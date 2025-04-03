@@ -18,8 +18,6 @@ import {
   createAsyncIterableStreamFromAsyncIterable,
 } from "../../util/stream.js";
 
-import { duplicateInsertsToUpdates } from "../../executor/streamOperations/duplicateInsertsToUpdates.js";
-
 import { updateToReplaceSteps } from "../../../prosemirror/changeset.js";
 import {
   getApplySuggestionsTr,
@@ -210,13 +208,9 @@ export async function callLLM(
     deleteCursorBlockWhenStreamStarts(response.toolCallsStream)
   );
 
-  const operationsToApply = stream
-    ? duplicateInsertsToUpdates(jsonToolCalls)
-    : jsonToolCalls;
-
   const resultGenerator = applyOperations(
     editor,
-    operationsToApply,
+    jsonToolCalls,
     async (id) => {
       const tr = getApplySuggestionsTr(editor);
       const block = getBlock(editor, id, tr.doc);

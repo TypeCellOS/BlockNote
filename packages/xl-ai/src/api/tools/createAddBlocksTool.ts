@@ -33,7 +33,7 @@ export function createAddBlocksTool<T>(
           type: "string",
           enum: ["before", "after"],
           description:
-            "Whether new block(s) should be inserted before or after `referenceId`",
+            "`after` to add blocks AFTER (below) the block with `referenceId`, `before` to add the block BEFORE (above)",
         },
         blocks: {
           items: blockItemsSchema,

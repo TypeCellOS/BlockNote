@@ -175,9 +175,6 @@ export class AIExtension extends BlockNoteExtension {
 
     if (status === "ai-writing") {
       this.editor.setForceSelectionVisible(false);
-      this.editor.clearSelection();
-      // TODO: until we implement conversations, might be smart to select all the affected blocks
-      // so subsequent prompts at least have some context
     }
 
     this.store.setState({

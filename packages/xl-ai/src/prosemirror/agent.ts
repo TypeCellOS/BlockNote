@@ -23,21 +23,13 @@ export type AgentStep = {
  *
  * All these phases are dispatched to the `dispatch` function as separate transactions.
  */
-export function getStepsAsAgent(
-  editor: BlockNoteEditor,
-  steps: Step[],
-  isInsert = false // TODO: hacky
-) {
+export function getStepsAsAgent(editor: BlockNoteEditor, steps: Step[]) {
   // const stepMapping = new Mapping();
   const agentSteps: AgentStep[] = [];
 
   const tr = new Transform(editor.prosemirrorState.doc);
 
   for (const step of steps) {
-    if (!(step instanceof ReplaceStep)) {
-      throw new Error("Step is not a ReplaceStep");
-    }
-
     // Map the step positions through all previous mappings
     // const mappedFrom = stepMapping.map(step.from);
     // const mappedTo = stepMapping.map(step.to);
@@ -53,6 +45,10 @@ export function getStepsAsAgent(
 
       tr.step(step.map(tr.mapping)!);
       continue;
+    }
+
+    if (!(step instanceof ReplaceStep)) {
+      throw new Error("Step is not a ReplaceStep");
     }
 
     if (step.slice.openStart > 0 || step.slice.openEnd > 0) {
@@ -79,16 +75,14 @@ export function getStepsAsAgent(
     //   },
     // });
     // await dispatch(selectTr, "select");
-    if (!isInsert) {
-      agentSteps.push({
-        prosemirrorSteps: [],
-        selection: {
-          anchor: tr.mapping.map(step.from),
-          head: tr.mapping.map(step.to),
-        },
-        type: "select",
-      });
-    }
+    agentSteps.push({
+      prosemirrorSteps: [],
+      selection: {
+        anchor: tr.mapping.map(step.from),
+        head: tr.mapping.map(step.to),
+      },
+      type: "select",
+    });
 
     // 2. Replace the text with the first character (if any) of the replacement
 
@@ -152,7 +146,7 @@ export function getStepsAsAgent(
           anchor: sel.from,
           head: sel.from,
         },
-        type: first && !isInsert ? "replace" : "insert",
+        type: first ? "replace" : "insert",
       });
       first = false;
     }
