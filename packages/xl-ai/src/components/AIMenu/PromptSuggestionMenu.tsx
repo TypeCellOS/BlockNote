@@ -24,6 +24,8 @@ export type PromptSuggestionMenuProps = {
   onPromptTextChange?: (prompt: string) => void;
   placeholder?: string;
   disabled?: boolean;
+  loading?: boolean;
+  error?: string;
 };
 
 export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
@@ -107,6 +109,8 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
           onKeyDown={handleKeyDown}
           onChange={handleChange}
           autoComplete={"off"}
+          //  TODO: loader or error
+          // rightSection={props.loading ? <Loader size={18} /> : props.error}
         />
       </Components.Generic.Form.Root>
       <Components.SuggestionMenu.Root

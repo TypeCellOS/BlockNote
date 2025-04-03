@@ -25,6 +25,7 @@ export const TextInput = forwardRef<
     onChange,
     onSubmit,
     autoComplete,
+    rightSection, // TODO: add rightSection
     ...rest
   } = props;
 

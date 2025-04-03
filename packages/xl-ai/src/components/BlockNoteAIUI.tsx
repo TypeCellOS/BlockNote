@@ -45,7 +45,8 @@ const AIMenuController = () => {
         if (
           !open &&
           aiMenuState !== "closed" &&
-          aiMenuState.status === "user-input"
+          (aiMenuState.status === "user-input" ||
+            aiMenuState.status === "error")
         ) {
           ai.closeAIMenu();
         }

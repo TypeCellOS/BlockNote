@@ -264,6 +264,7 @@ export type ComponentProps = {
         label?: string;
         variant?: "default" | "large";
         icon: ReactNode;
+        rightSection?: ReactNode;
         autoFocus?: boolean;
         placeholder?: string;
         disabled?: boolean;

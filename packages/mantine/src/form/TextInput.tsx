@@ -22,6 +22,7 @@ export const TextInput = forwardRef<
     onChange,
     onSubmit,
     autoComplete,
+    rightSection,
     ...rest
   } = props;
 
@@ -41,6 +42,7 @@ export const TextInput = forwardRef<
       value={value}
       autoFocus={autoFocus}
       data-autofocus={autoFocus ? "true" : undefined}
+      rightSection={rightSection}
       placeholder={placeholder}
       disabled={disabled}
       onKeyDown={onKeyDown}
