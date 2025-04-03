@@ -67,10 +67,10 @@ When a user edits the document, an incremental change (or "update") is captured 
 
 ## Liveblocks
 
-Liveblocks provides a hosted back-end for Yjs which allows you to download and set up a real-time multiplayer BlockNote example with one command.
+Liveblocks provides a hosted back-end for Yjs. You can create a fully-featured example project which uses Liveblocks with BlockNote by running the command below (you will need a Liveblocks account for this):
 
 ```shell
-npx create-liveblocks-app@latest --example nextjs-yjs-blocknote-advanced
+npx create-liveblocks-app@latest --example nextjs-blocknote --api-key
 ```
 
 <video
@@ -80,7 +80,11 @@ npx create-liveblocks-app@latest --example nextjs-yjs-blocknote-advanced
   aria-label="BlockNote example using Liveblocks Yjs, showing collaboration and DevTools"
 />
 
-You can also try the same example in a [live demo](https://liveblocks.io/examples/collaborative-text-editor-advanced/nextjs-yjs-blocknote-advanced). To start with Liveblocks and BlockNote make sure to follow their [getting started guide](https://liveblocks.io/docs/get-started/yjs-blocknote-react).
+You can also try the same example in a [live demo](https://liveblocks.io/examples/collaborative-text-editor/nextjs-blocknote).
+
+For a simpler demo, check out [this example](/docs/examples/collaboration/liveblocks), which follows their [getting started guide](https://liveblocks.io/docs/get-started/react-blocknote).
+
+If you want more info on integrating Liveblocks, take a look at their [ready-made features for BlockNote](https://liveblocks.io/docs/ready-made-features/text-editor/blocknote) and [API reference](https://liveblocks.io/docs/api-reference/liveblocks-react-blocknote#AnchoredThreads).
 
 ## Partykit
 
