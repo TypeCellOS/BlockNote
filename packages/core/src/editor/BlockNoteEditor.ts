@@ -1502,6 +1502,9 @@ export class BlockNoteEditor<
     if (!raw) {
       htmlToPaste = this.convertHtmlToBlockNoteHtml(html);
     }
+    if (!htmlToPaste) {
+      return;
+    }
     this.prosemirrorView?.pasteHTML(htmlToPaste);
   }
 
