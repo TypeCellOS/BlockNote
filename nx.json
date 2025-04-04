@@ -1,6 +1,7 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "parallel": 6,
+  "useLegacyCache": true,
   "release": {
     "projects": ["packages/*"],
     "version": {

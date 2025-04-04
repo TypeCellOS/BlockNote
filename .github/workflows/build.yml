@@ -6,6 +6,9 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, edited]
 
+env:
+  NX_REJECT_UNKNOWN_LOCAL_CACHE: 0
+
 jobs:
   build:
     name: Build
