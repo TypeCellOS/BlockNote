@@ -263,10 +263,7 @@ export class TableHandlesView<
       | BlockFromConfigNoChildren<DefaultBlockSchema["table"], I, S>
       | undefined;
 
-    const pmNodeInfo = getNodeById(
-      blockEl.id,
-      this.editor._tiptapEditor.state.doc
-    );
+    const pmNodeInfo = getNodeById(blockEl.id, this.editor.transaction.doc);
     if (!pmNodeInfo) {
       throw new Error(`Block with ID ${blockEl.id} not found`);
     }
@@ -815,7 +812,7 @@ export class TableHandlesProsemirrorPlugin<
     this.view!.emitUpdate();
 
     this.editor.dispatch(
-      this.editor._tiptapEditor.state.tr.setMeta(tableHandlesPluginKey, {
+      this.editor.transaction.setMeta(tableHandlesPluginKey, {
         draggedCellOrientation:
           this.view!.state.draggingState.draggedCellOrientation,
         originalIndex: this.view!.state.colIndex,
@@ -858,7 +855,7 @@ export class TableHandlesProsemirrorPlugin<
     this.view!.emitUpdate();
 
     this.editor.dispatch(
-      this.editor._tiptapEditor.state.tr.setMeta(tableHandlesPluginKey, {
+      this.editor.transaction.setMeta(tableHandlesPluginKey, {
         draggedCellOrientation:
           this.view!.state.draggingState.draggedCellOrientation,
         originalIndex: this.view!.state.rowIndex,
@@ -891,7 +888,7 @@ export class TableHandlesProsemirrorPlugin<
     this.view!.emitUpdate();
 
     this.editor.dispatch(
-      this.editor._tiptapEditor.state.tr.setMeta(tableHandlesPluginKey, null)
+      this.editor.transaction.setMeta(tableHandlesPluginKey, null)
     );
 
     if (!this.editor.prosemirrorView) {
@@ -1144,9 +1141,9 @@ export class TableHandlesProsemirrorPlugin<
       | undefined
   ) => {
     const isSelectingTableCells = isTableCellSelection(
-      this.editor.prosemirrorState.selection
+      this.editor.transaction.selection
     )
-      ? this.editor.prosemirrorState.selection
+      ? this.editor.transaction.selection
       : undefined;
 
     if (

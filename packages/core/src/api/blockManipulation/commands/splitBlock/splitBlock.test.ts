@@ -39,7 +39,7 @@ function setSelectionWithOffset(
   }
 
   getEditor().dispatch(
-    getEditor()._tiptapEditor.state.tr.setSelection(
+    getEditor().prosemirrorState.tr.setSelection(
       TextSelection.create(doc, info.blockContent.beforePos + offset + 1)
     )
   );
@@ -47,97 +47,83 @@ function setSelectionWithOffset(
 
 describe("Test splitBlocks", () => {
   it("Basic", () => {
-    setSelectionWithOffset(
-      getEditor()._tiptapEditor.state.doc,
-      "paragraph-0",
-      4
-    );
+    setSelectionWithOffset(getEditor().prosemirrorState.doc, "paragraph-0", 4);
 
-    splitBlock(getEditor()._tiptapEditor.state.selection.anchor);
+    splitBlock(getEditor().prosemirrorState.selection.anchor);
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("End of content", () => {
-    setSelectionWithOffset(
-      getEditor()._tiptapEditor.state.doc,
-      "paragraph-0",
-      11
-    );
+    setSelectionWithOffset(getEditor().prosemirrorState.doc, "paragraph-0", 11);
 
-    splitBlock(getEditor()._tiptapEditor.state.selection.anchor);
+    splitBlock(getEditor().prosemirrorState.selection.anchor);
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Block has children", () => {
     setSelectionWithOffset(
-      getEditor()._tiptapEditor.state.doc,
+      getEditor().prosemirrorState.doc,
       "paragraph-with-children",
       4
     );
 
-    splitBlock(getEditor()._tiptapEditor.state.selection.anchor);
+    splitBlock(getEditor().prosemirrorState.selection.anchor);
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Keep type", () => {
-    setSelectionWithOffset(getEditor()._tiptapEditor.state.doc, "heading-0", 4);
+    setSelectionWithOffset(getEditor().prosemirrorState.doc, "heading-0", 4);
 
-    splitBlock(getEditor()._tiptapEditor.state.selection.anchor, true);
+    splitBlock(getEditor().prosemirrorState.selection.anchor, true);
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Don't keep type", () => {
-    setSelectionWithOffset(getEditor()._tiptapEditor.state.doc, "heading-0", 4);
+    setSelectionWithOffset(getEditor().prosemirrorState.doc, "heading-0", 4);
 
-    splitBlock(getEditor()._tiptapEditor.state.selection.anchor, false);
+    splitBlock(getEditor().prosemirrorState.selection.anchor, false);
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it.skip("Keep props", () => {
     setSelectionWithOffset(
-      getEditor()._tiptapEditor.state.doc,
+      getEditor().prosemirrorState.doc,
       "paragraph-with-props",
       4
     );
 
-    splitBlock(getEditor()._tiptapEditor.state.selection.anchor, false, true);
+    splitBlock(getEditor().prosemirrorState.selection.anchor, false, true);
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Don't keep props", () => {
     setSelectionWithOffset(
-      getEditor()._tiptapEditor.state.doc,
+      getEditor().prosemirrorState.doc,
       "paragraph-with-props",
       4
     );
 
-    splitBlock(getEditor()._tiptapEditor.state.selection.anchor, false, false);
+    splitBlock(getEditor().prosemirrorState.selection.anchor, false, false);
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Selection is set", () => {
-    setSelectionWithOffset(
-      getEditor()._tiptapEditor.state.doc,
-      "paragraph-0",
-      4
-    );
+    setSelectionWithOffset(getEditor().prosemirrorState.doc, "paragraph-0", 4);
 
-    splitBlock(getEditor()._tiptapEditor.state.selection.anchor);
+    splitBlock(getEditor().prosemirrorState.selection.anchor);
 
-    const { bnBlock } = getBlockInfoFromSelection(
-      getEditor()._tiptapEditor.state
-    );
+    const { bnBlock } = getBlockInfoFromSelection(getEditor().prosemirrorState);
 
     const anchorIsAtStartOfNewBlock =
       bnBlock.node.attrs.id === "0" &&
-      getEditor()._tiptapEditor.state.selection.$anchor.parentOffset === 0;
+      getEditor().prosemirrorState.selection.$anchor.parentOffset === 0;
 
     expect(anchorIsAtStartOfNewBlock).toBeTruthy();
   });

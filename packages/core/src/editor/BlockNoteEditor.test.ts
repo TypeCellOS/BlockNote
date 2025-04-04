@@ -10,7 +10,7 @@ import { BlockNoteEditor } from "./BlockNoteEditor.js";
  */
 it("creates an editor", () => {
   const editor = BlockNoteEditor.create();
-  const posInfo = getNearestBlockPos(editor._tiptapEditor.state.doc, 2);
+  const posInfo = getNearestBlockPos(editor.prosemirrorState.doc, 2);
   const info = getBlockInfo(posInfo);
   expect(info.blockNoteType).toEqual("paragraph");
 });

@@ -139,11 +139,11 @@ export function getReferenceText(
   //  is not yet fetched (causing it to be empty). We should store the original
   //  reference text in the data model, as not only is it a general improvement,
   //  but it also means we won't have to handle this edge case.
-  if (editor.prosemirrorState.doc.nodeSize < threadPosition.to) {
+  if (editor.transaction.doc.nodeSize < threadPosition.to) {
     return "";
   }
 
-  const referenceText = editor.prosemirrorState.doc.textBetween(
+  const referenceText = editor.transaction.doc.textBetween(
     threadPosition.from,
     threadPosition.to
   );

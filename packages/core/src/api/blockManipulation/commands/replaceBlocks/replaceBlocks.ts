@@ -22,9 +22,7 @@ export function removeAndInsertBlocks<
   insertedBlocks: Block<BSchema, I, S>[];
   removedBlocks: Block<BSchema, I, S>[];
 } {
-  const ttEditor = editor._tiptapEditor;
-  let tr = ttEditor.state.tr;
-
+  const tr = editor.transaction;
   // Converts the `PartialBlock`s to ProseMirror nodes to insert them into the
   // document.
   const nodesToInsert: Node[] = [];
@@ -47,7 +45,7 @@ export function removeAndInsertBlocks<
       : blocksToRemove[0].id;
   let removedSize = 0;
 
-  ttEditor.state.doc.descendants((node, pos) => {
+  tr.doc.descendants((node, pos) => {
     // Skips traversing nodes after all target blocks have been removed.
     if (idsOfBlocksToRemove.size === 0) {
       return false;
@@ -75,7 +73,7 @@ export function removeAndInsertBlocks<
 
     if (blocksToInsert.length > 0 && node.attrs.id === idOfFirstBlock) {
       const oldDocSize = tr.doc.nodeSize;
-      tr = tr.insert(pos, nodesToInsert);
+      tr.insert(pos, nodesToInsert);
       const newDocSize = tr.doc.nodeSize;
 
       removedSize += oldDocSize - newDocSize;
@@ -91,9 +89,9 @@ export function removeAndInsertBlocks<
       $pos.node($pos.depth - 1).type.name !== "doc" &&
       $pos.node().childCount === 1
     ) {
-      tr = tr.delete($pos.before(), $pos.after());
+      tr.delete($pos.before(), $pos.after());
     } else {
-      tr = tr.delete(pos - removedSize, pos - removedSize + node.nodeSize);
+      tr.delete(pos - removedSize, pos - removedSize + node.nodeSize);
     }
     const newDocSize = tr.doc.nodeSize;
     removedSize += oldDocSize - newDocSize;

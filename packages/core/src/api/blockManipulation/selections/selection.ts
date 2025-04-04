@@ -21,8 +21,7 @@ export function getSelection<
 >(
   editor: BlockNoteEditor<BSchema, I, S>
 ): Selection<BSchema, I, S> | undefined {
-  const state = editor._tiptapEditor.state;
-
+  const state = editor.prosemirrorState;
   // Return undefined if the selection is collapsed or a node is selected.
   if (state.selection.empty || "node" in state.selection) {
     return undefined;
@@ -164,14 +163,12 @@ export function setSelection<
       `Attempting to set selection with the same anchor and head blocks (id ${startBlockId})`
     );
   }
-
-  const doc = editor._tiptapEditor.state.doc;
-
-  const anchorPosInfo = getNodeById(startBlockId, doc);
+  const tr = editor.transaction;
+  const anchorPosInfo = getNodeById(startBlockId, tr.doc);
   if (!anchorPosInfo) {
     throw new Error(`Block with ID ${startBlockId} not found`);
   }
-  const headPosInfo = getNodeById(endBlockId, doc);
+  const headPosInfo = getNodeById(endBlockId, tr.doc);
   if (!headPosInfo) {
     throw new Error(`Block with ID ${endBlockId} not found`);
   }
@@ -226,7 +223,7 @@ export function setSelection<
         headBlockInfo.blockContent.node
       ) +
       1;
-    const lastCellNodeSize = doc.resolve(lastCellPos).nodeAfter!.nodeSize;
+    const lastCellNodeSize = tr.doc.resolve(lastCellPos).nodeAfter!.nodeSize;
     endPos = lastCellPos + lastCellNodeSize - 2;
   } else {
     endPos = headBlockInfo.blockContent.afterPos - 1;
@@ -236,9 +233,7 @@ export function setSelection<
   //  Right now it's missing a few things like a jsonID and styling to show
   //  which nodes are selected. `TextSelection` is ok for now, but has the
   //  restriction that the start/end blocks must have content.
-  editor._tiptapEditor.dispatch(
-    editor._tiptapEditor.state.tr.setSelection(
-      TextSelection.create(editor._tiptapEditor.state.doc, startPos, endPos)
-    )
+  editor.dispatch(
+    tr.setSelection(TextSelection.create(tr.doc, startPos, endPos))
   );
 }

@@ -81,20 +81,20 @@ export function unnestBlock(editor: BlockNoteEditor<any, any, any>) {
 
 export function canNestBlock(editor: BlockNoteEditor<any, any, any>) {
   const { bnBlock: blockContainer } = getBlockInfoFromSelection(
-    editor._tiptapEditor.state
+    editor.prosemirrorState
   );
 
   return (
-    editor._tiptapEditor.state.doc.resolve(blockContainer.beforePos)
-      .nodeBefore !== null
+    editor.prosemirrorState.doc.resolve(blockContainer.beforePos).nodeBefore !==
+    null
   );
 }
 export function canUnnestBlock(editor: BlockNoteEditor<any, any, any>) {
   const { bnBlock: blockContainer } = getBlockInfoFromSelection(
-    editor._tiptapEditor.state
+    editor.prosemirrorState
   );
 
   return (
-    editor._tiptapEditor.state.doc.resolve(blockContainer.beforePos).depth > 1
+    editor.prosemirrorState.doc.resolve(blockContainer.beforePos).depth > 1
   );
 }
