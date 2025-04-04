@@ -100,7 +100,7 @@ jobs:
       - run: apt-get update && apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev pkg-config
 
       - name: Install dependencies
-        run: pnpm install && pnpm -r rebuild
+        run: pnpm install
 
       - name: Build packages
         run: pnpm run build

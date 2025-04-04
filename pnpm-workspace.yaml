@@ -5,3 +5,8 @@ packages:
   - "docs"
   - "shared"
   - "tests"
+preferWorkspacePackages: true
+linkWorkspacePackages: true
+publicHoistPattern:
+  # We have been preferring to use `prosemirror-*` packages instead of `@tiptap/pm` packages
+  - "prosemirror-*"
