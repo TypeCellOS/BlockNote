@@ -162,6 +162,8 @@ const suggestionMenuPluginKey = new PluginKey("SuggestionMenuPlugin");
  * - This version hides some unnecessary complexity from the user of the plugin.
  * - This version handles key events differently
  */
+let _isComposing = false;
+let _compositionEndFlag = false;
 export class SuggestionMenuProseMirrorPlugin<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
@@ -242,7 +244,8 @@ export class SuggestionMenuProseMirrorPlugin<
           // Checks if the menu should be hidden.
           if (
             // Highlighting text should hide the menu.
-            newState.selection.from !== newState.selection.to ||
+            // In safari,when in composition event,this condition will match.
+            (!_isComposing && newState.selection.from !== newState.selection.to) ||
             // Transactions with plugin metadata should hide the menu.
             suggestionPluginTransactionMeta === null ||
             // Certain mouse events should hide the menu.
@@ -260,16 +263,40 @@ export class SuggestionMenuProseMirrorPlugin<
           const next = { ...prev };
 
           // Updates the current query.
-          next.query = newState.doc.textBetween(
-            prev.queryStartPos!,
-            newState.selection.from
-          );
+          if(_compositionEndFlag){
+            _compositionEndFlag = false
+            next.query = newState.doc.textBetween(
+              prev.queryStartPos!,
+              newState.selection.from
+            );
+            return next;
+          }
+          if(!_isComposing)
+          {
+            next.query = newState.doc.textBetween(
+              prev.queryStartPos!,
+              newState.selection.from
+            );
+            return next;
+          }
 
           return next;
         },
       },
 
       props: {
+        handleDOMEvents:{
+          compositionstart:()=>{
+            _isComposing = true;
+            return false;
+          },
+          compositionend:(view)=>{
+            _isComposing = false;
+            _compositionEndFlag = true;
+            view.dispatch(view.state.tr.setMeta("isComposing", false));
+            return false;
+          }
+        },
         handleTextInput(view, _from, _to, text) {
           const suggestionPluginState: SuggestionPluginState = (
             this as Plugin
