@@ -39,6 +39,9 @@ export type ReactInlineContentImplementation<
       update: PartialCustomInlineContentFromConfig<T, S>
     ) => void;
     contentRef: (node: HTMLElement | null) => void;
+    node: NodeViewProps["node"];
+    getPos: NodeViewProps["getPos"];
+    selected: NodeViewProps["selected"];
   }>;
   // TODO?
   // toExternalHTML?: FC<{
@@ -133,6 +136,9 @@ export function createReactInlineContentSpec<
               // No-op
             }}
             contentRef={refCB}
+            // @ts-expect-error
+            getPos={() => {}}
+            selected={false}
           />
         ),
         editor
@@ -188,6 +194,9 @@ export function createReactInlineContentSpec<
                       )
                     );
                   }}
+                  getPos={props.getPos}
+                  selected={props.selected}
+                  node={props.node}
                 />
               </InlineContentWrapper>
             );
