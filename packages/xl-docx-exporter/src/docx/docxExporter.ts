@@ -239,15 +239,18 @@ export class DOCXExporter<
     }
   ) {
     const doc = await this.toDocxJsDocument(blocks, options);
-    const prevBuffer = globalThis.Buffer;
+    type GlobalThis = typeof globalThis & { Buffer?: any };
+    const prevBuffer = (globalThis as GlobalThis).Buffer;
     try {
-      if (!globalThis.Buffer) {
+      if (!(globalThis as GlobalThis).Buffer) {
         // load Buffer polyfill because docxjs requires this
-        globalThis.Buffer = (await import("buffer")).default.Buffer;
+        (globalThis as GlobalThis).Buffer = (
+          await import("buffer")
+        ).default.Buffer;
       }
       return Packer.toBlob(doc);
     } finally {
-      globalThis.Buffer = prevBuffer;
+      (globalThis as GlobalThis).Buffer = prevBuffer;
     }
   }
 

@@ -16,7 +16,7 @@ import {
 function addAttributesAndRemoveClasses(element: HTMLElement) {
   // Removes all BlockNote specific class names.
   const className =
-    [...element.classList].filter(
+    Array.from(element.classList).filter(
       (className) => !className.startsWith("bn-")
     ) || [];
 
@@ -122,7 +122,7 @@ function serializeBlock<
 
   // the container node is just used as a workaround to get some block-level attributes.
   // we should change toExternalHTML so that this is not necessary
-  const attrs = [...bc.dom.attributes];
+  const attrs = Array.from(bc.dom.attributes);
 
   const ret = editor.blockImplementations[
     block.type as any
@@ -130,7 +130,7 @@ function serializeBlock<
 
   const elementFragment = doc.createDocumentFragment();
   if (ret.dom.classList.contains("bn-block-content")) {
-    const blockContentDataAttributes = [...attrs, ...ret.dom.attributes].filter(
+    const blockContentDataAttributes = [...attrs, ...Array.from(ret.dom.attributes)].filter(
       (attr) =>
         attr.name.startsWith("data") &&
         attr.name !== "data-content-type" &&
@@ -148,7 +148,7 @@ function serializeBlock<
     }
 
     addAttributesAndRemoveClasses(ret.dom.firstChild! as HTMLElement);
-    elementFragment.append(...ret.dom.childNodes);
+    elementFragment.append(...Array.from(ret.dom.childNodes));
   } else {
     elementFragment.append(ret.dom);
   }

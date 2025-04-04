@@ -827,7 +827,10 @@
           "author": "nperez0111",
           "tags": [
             "Basic"
-          ]
+          ],
+          "dependencies": {
+            "@blocknote/code-block": "latest"
+          } as any
         },
         "title": "Code Block Syntax Highlighting",
         "group": {
@@ -845,7 +848,15 @@
           "author": "nperez0111",
           "tags": [
             "Basic"
-          ]
+          ],
+          "dependencies": {
+            "@blocknote/code-block": "latest",
+            "@shikijs/types": "^3.2.1",
+            "@shikijs/core": "^3.2.1",
+            "@shikijs/engine-javascript": "^3.2.1",
+            "@shikijs/langs-precompiled": "^3.2.1",
+            "@shikijs/themes": "^3.2.1"
+          } as any
         },
         "title": "Custom Code Block Theme & Language",
         "group": {
@@ -1073,7 +1084,10 @@
             "Inline Content",
             "Custom Schemas",
             "Formatting Toolbar"
-          ]
+          ],
+          "dependencies": {
+            "react-icons": "^5.2.1"
+          } as any
         },
         "title": "Font Style",
         "group": {
@@ -1227,11 +1241,11 @@
             "Collaboration"
           ],
           "dependencies": {
-            "@liveblocks/client": "^2.22.0",
-            "@liveblocks/react": "^2.22.0",
-            "@liveblocks/react-blocknote": "^2.22.0",
-            "@liveblocks/react-tiptap": "^2.22.0",
-            "@liveblocks/react-ui": "^2.22.0",
+            "@liveblocks/client": "^2.22.3",
+            "@liveblocks/react": "^2.22.3",
+            "@liveblocks/react-blocknote": "^2.22.3",
+            "@liveblocks/react-tiptap": "^2.22.3",
+            "@liveblocks/react-ui": "^2.22.3",
             "yjs": "^13.6.15"
           } as any
         },
@@ -1329,7 +1343,10 @@
           "tags": [
             "Extension"
           ],
-          "pro": true
+          "pro": true,
+          "dependencies": {
+            "@tiptap/core": "^2"
+          } as any
         },
         "title": "TipTap extension (arrow InputRule)",
         "group": {

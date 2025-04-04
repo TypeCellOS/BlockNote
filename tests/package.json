@@ -5,28 +5,28 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint src --max-warnings 0",
-    "playwright": "npx playwright test --ui",
-    "playwright:ui": "npx playwright test --ui",
-    "test:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd)/..:/work/ -w /work/tests -it mcr.microsoft.com/playwright:v1.49.1-noble npx playwright test -u",
+    "playwright": "playwright test",
+    "test:updateSnaps": "docker run --rm -e RUN_IN_DOCKER=true --network host -v $(pwd)/..:/work/ -w /work/tests -it mcr.microsoft.com/playwright:v1.51.1-noble npx playwright test -u",
     "test-ct": "playwright test -c playwright-ct.config.ts --headed",
-    "test-ct:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd)/..:/work/ -w /work/tests -it mcr.microsoft.com/playwright:v1.49.1-noble npx playwright test -c playwright-ct.config.ts -u",
+    "test-ct:updateSnaps": "docker run --rm  -e RUN_IN_DOCKER=true --network host -v $(pwd)/..:/work/ -w /work/tests -it mcr.microsoft.com/playwright:v1.51.1-noble npx playwright test -c playwright-ct.config.ts -u",
     "clean": "rimraf dist"
   },
-  "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
-  },
   "devDependencies": {
+    "@types/node": "^20.11.18",
     "@blocknote/ariakit": "^0.26.0",
     "@blocknote/core": "^0.26.0",
     "@blocknote/mantine": "^0.26.0",
     "@blocknote/react": "^0.26.0",
     "@blocknote/shadcn": "^0.26.0",
-    "@playwright/experimental-ct-react": "^1.49.1",
-    "@playwright/test": "^1.49.1",
+    "@types/react": "^18.0.25",
+    "@types/react-dom": "^18.0.9",
+    "@playwright/experimental-ct-react": "1.51.1",
+    "@playwright/test": "1.51.1",
     "eslint": "^8.10.0",
     "react-icons": "^5.2.1",
-    "rimraf": "^5.0.5"
+    "rimraf": "^5.0.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "eslintConfig": {
     "extends": [

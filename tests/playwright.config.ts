@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import type { PlaywrightTestConfig } from "@playwright/test";
 import { devices } from "@playwright/test";
 
@@ -96,8 +97,9 @@ const config: PlaywrightTestConfig = {
 
   /* Run your local dev server before starting the tests */
   // webServer: {
-  //   command: process.env.DEVSERVER ? "npm run start" : "npm run start:built",
+  //   command: "cd ../ && pnpm run start -L",
   //   port: 3000,
+  //   reuseExistingServer: !process.env.CI,
   // },
 };
 

@@ -97,7 +97,7 @@ describe("Test external clipboard HTML", () => {
       new ClipboardEvent("paste")
     );
 
-    expect(editor.document).toMatchFileSnapshot(
+    await expect(editor.document).toMatchFileSnapshot(
       `./__snapshots__/external/${testCase.testName}.html`
     );
   }

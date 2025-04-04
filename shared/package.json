@@ -16,6 +16,7 @@
     "@blocknote/core": "^0.26.0"
   },
   "devDependencies": {
+    "@types/node": "22.13.13",
     "typescript": "^5.3.3"
   },
   "peerDependencies": {
