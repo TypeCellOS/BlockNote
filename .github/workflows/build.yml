@@ -94,10 +94,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .nx/cache
-          key: nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-${{ github.sha }}
+          key: nx-${{ matrix.browser }}-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-${{ github.sha }}
           restore-keys: |
-            nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-
-            nx-${{ env.NX_BRANCH }}-
+            nx-${{ matrix.browser }}-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-
+            nx-${{ matrix.browser }}-${{ env.NX_BRANCH }}-
             nx-
 
       - run: apt-get update && apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev pkg-config

@@ -18,7 +18,7 @@
     "default": {
       "runner": "nx/tasks-runners/default",
       "options": {
-        "cacheableOperations": ["build", "test", "lint", "build:site"]
+        "cacheableOperations": ["build", "test", "lint", "build:site", "e2e"]
       }
     }
   },
@@ -40,6 +40,10 @@
     "lint": {
       "cache": true,
       "dependsOn": ["^lint"]
+    },
+    "e2e": {
+      "cache": true,
+      "dependsOn": ["^e2e"]
     }
   }
 }
