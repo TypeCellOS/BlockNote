@@ -800,41 +800,27 @@ export class BlockNoteEditor<
       return callback();
     }
 
-    let result: T = undefined as T;
-
     try {
       // Enter transaction mode, by setting a start state
       this.transactionState = this.prosemirrorState;
 
-      // Capture all tiptap transactions (tiptapEditor.dispatch'd transactions)
-      const tiptapTr = this._tiptapEditor.captureTransaction(() => {
-        // This is more of a safety mechanism, as we catch blocknote transactions separately
-        result = callback();
-      });
+      // Capture all dispatch'd transactions
+      const result = callback();
 
       // Any transactions captured by the `dispatch` call will be stored in `this.activeTransaction`
-      let activeTr = this.activeTransaction;
+      const activeTr = this.activeTransaction;
 
-      if (tiptapTr && activeTr) {
-        // If we have both tiptap & blocknote transactions, there is not a clean way to merge them as you'd need to know the order of operations
-        throw new Error(
-          "Cannot mix tiptap transactions with BlockNote transactions"
-        );
-      } else if (tiptapTr) {
-        // If we only have tiptap caught transactions, we can just use that
-        activeTr = tiptapTr;
-      }
-
+      this.transactionState = null;
       if (activeTr) {
+        this.activeTransaction = null;
         // Dispatch the transaction if it was modified
-        this._tiptapEditor.dispatch(activeTr);
+        this.dispatch(activeTr);
       }
+      return result;
     } finally {
       this.activeTransaction = null;
       this.transactionState = null;
     }
-
-    return result;
   }
 
   /**
