@@ -37,10 +37,10 @@ jobs:
             nx-${{ env.NX_BRANCH }}-
             nx-
 
+        # This is needed for the canvas dep, Tiptap V3 should remove the need for this
       - run: sudo apt-get update && sudo apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev pkg-config
-
       - name: Install Dependencies
-        run: pnpm install && pnpm -r rebuild
+        run: pnpm install
 
       - name: Lint packages
         run: pnpm run lint
