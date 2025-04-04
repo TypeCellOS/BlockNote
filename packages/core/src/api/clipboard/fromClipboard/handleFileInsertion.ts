@@ -161,7 +161,7 @@ export async function handleFileInsertion<
         }
 
         const posInfo = getNearestBlockPos(
-          editor._tiptapEditor.state.doc,
+          editor.prosemirrorState.doc,
           pos.pos
         );
 

@@ -32,27 +32,18 @@ export function insertBlocks<
     );
   }
 
-  const posInfo = getNodeById(id, editor._tiptapEditor.state.doc);
+  const tr = editor.transaction;
+  const posInfo = getNodeById(id, tr.doc);
   if (!posInfo) {
     throw new Error(`Block with ID ${id} not found`);
   }
 
-  // TODO: we might want to use the ReplaceStep directly here instead of insert,
-  // because the fitting algorithm should not be necessary and might even cause unexpected behavior
-  if (placement === "before") {
-    editor.dispatch(
-      editor._tiptapEditor.state.tr.insert(posInfo.posBeforeNode, nodesToInsert)
-    );
+  let pos = posInfo.posBeforeNode;
+  if (placement === "after") {
+    pos += posInfo.node.nodeSize;
   }
 
-  if (placement === "after") {
-    editor.dispatch(
-      editor._tiptapEditor.state.tr.insert(
-        posInfo.posBeforeNode + posInfo.node.nodeSize,
-        nodesToInsert
-      )
-    );
-  }
+  editor.dispatch(tr.insert(pos, nodesToInsert));
 
   // Now that the `PartialBlock`s have been converted to nodes, we can
   // re-convert them into full `Block`s.

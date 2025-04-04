@@ -1,5 +1,5 @@
 import { Node, ResolvedPos } from "prosemirror-model";
-import { EditorState } from "prosemirror-state";
+import { EditorState, Transaction } from "prosemirror-state";
 
 type SingleBlockInfo = {
   node: Node;
@@ -236,6 +236,18 @@ export function getBlockInfoFromResolvedPos(resolvedPos: ResolvedPos) {
  */
 export function getBlockInfoFromSelection(state: EditorState) {
   const posInfo = getNearestBlockPos(state.doc, state.selection.anchor);
+
+  return getBlockInfo(posInfo);
+}
+
+/**
+ * Gets information regarding the ProseMirror nodes that make up a block. The
+ * block chosen is the one currently containing the current ProseMirror
+ * selection.
+ * @param tr The ProseMirror transaction.
+ */
+export function getBlockInfoFromTransaction(tr: Transaction) {
+  const posInfo = getNearestBlockPos(tr.doc, tr.selection.anchor);
 
   return getBlockInfo(posInfo);
 }

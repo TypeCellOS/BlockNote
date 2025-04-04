@@ -93,8 +93,8 @@ export const CreateLinkButton = () => {
       }
     }
 
-    return !isTableCellSelection(editor.prosemirrorState.selection);
-  }, [linkInSchema, selectedBlocks, editor.prosemirrorState.selection]);
+    return !isTableCellSelection(editor.transaction.selection);
+  }, [linkInSchema, selectedBlocks, editor.transaction.selection]);
 
   if (
     !show ||

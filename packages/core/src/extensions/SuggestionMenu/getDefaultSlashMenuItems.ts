@@ -235,7 +235,7 @@ export function getDefaultSlashMenuItems<
 
         // Immediately open the file toolbar
         editor.dispatch(
-          editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
+          editor.transaction.setMeta(editor.filePanel!.plugin, {
             block: insertedBlock,
           })
         );
@@ -254,7 +254,7 @@ export function getDefaultSlashMenuItems<
 
         // Immediately open the file toolbar
         editor.dispatch(
-          editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
+          editor.transaction.setMeta(editor.filePanel!.plugin, {
             block: insertedBlock,
           })
         );
@@ -273,7 +273,7 @@ export function getDefaultSlashMenuItems<
 
         // Immediately open the file toolbar
         editor.dispatch(
-          editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
+          editor.transaction.setMeta(editor.filePanel!.plugin, {
             block: insertedBlock,
           })
         );
@@ -292,7 +292,7 @@ export function getDefaultSlashMenuItems<
 
         // Immediately open the file toolbar
         editor.dispatch(
-          editor._tiptapEditor.state.tr.setMeta(editor.filePanel!.plugin, {
+          editor.transaction.setMeta(editor.filePanel!.plugin, {
             block: insertedBlock,
           })
         );
