@@ -107,7 +107,7 @@ jobs:
 
       - name: Run server and Playwright tests
         run: |
-          HOME=/root pnpm run e2e --project ${{ matrix.browser }}
+          HOME=/root PLAYWRIGHT_CONFIG="--project ${{ matrix.browser }}" pnpm run e2e
 
       - uses: actions/upload-artifact@v4
         if: always()
