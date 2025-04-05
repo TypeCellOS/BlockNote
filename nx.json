@@ -45,5 +45,6 @@
       "cache": true,
       "dependsOn": ["^e2e"]
     }
-  }
+  },
+  "nxCloudId": "67f09aa8b0862b1ae48e82df"
 }
