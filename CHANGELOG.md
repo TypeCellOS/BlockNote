@@ -1,3 +1,13 @@
+## 0.27.2 (2025-04-05)
+
+### 🩹 Fixes
+
+- minor update for publishing ([c2820fdac](https://github.com/TypeCellOS/BlockNote/commit/c2820fdac))
+
+### ❤️ Thank You
+
+- Nick the Sick
+
 ## 0.27.1 (2025-04-05)
 
 ### 🚀 Features
