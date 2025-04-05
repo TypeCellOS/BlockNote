@@ -1,3 +1,18 @@
+## 0.27.1 (2025-04-05)
+
+### 🚀 Features
+
+- **nx-cloud:** set up nx workspace ([#1586](https://github.com/TypeCellOS/BlockNote/pull/1586))
+
+### 🩹 Fixes
+
+- update packages to use correct react versions ([ea11ebce0](https://github.com/TypeCellOS/BlockNote/commit/ea11ebce0))
+
+### ❤️ Thank You
+
+- Nick Perez
+- Nick the Sick
+
 ## 0.27.0 (2025-04-04)
 
 ### 🚀 Features
