@@ -96,9 +96,5 @@
       "../../.eslintrc.js"
     ]
   },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
   "gitHead": "d5e8c96e2ad5f6832da60bc3c9acd3f6c16c25c5"
 }
