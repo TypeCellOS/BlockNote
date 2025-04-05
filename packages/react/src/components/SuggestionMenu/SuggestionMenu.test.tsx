@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { it } from "vitest";
+import { it, expect } from "vitest";
 import { SuggestionMenuController } from "./SuggestionMenuController.js";
 
 it("has good typing", () => {
@@ -33,15 +32,12 @@ it("has good typing", () => {
     <SuggestionMenuController
       suggestionMenuComponent={undefined as any}
       getItems={async () => [{ hello: "hello" }]}
-      onItemClick={(item) => {
-        // eslint-disable-next-line no-console
-        console.log(item.hello);
+      onItemClick={()=>{
+        return undefined
       }}
       triggerCharacter="/"
     />
   );
 
-  // prevent typescript unused error
-  // eslint-disable-next-line no-console
-  console.log("menu", menu);
+  expect(menu).toBeDefined();
 });

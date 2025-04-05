@@ -31,7 +31,7 @@ export const TableExtension = Extension.create({
           this.editor.state.selection.$head.parent.type.name ===
             "tableParagraph"
         ) {
-          this.editor.commands.setHardBreak();
+          this.editor.commands.insertContent({ type: "hardBreak" });
 
           return true;
         }

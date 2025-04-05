@@ -6,47 +6,53 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, edited]
 
+env:
+  NX_REJECT_UNKNOWN_LOCAL_CACHE: 0
+
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 100
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - uses: nrwl/nx-set-shas@v3
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20.x"
-          cache: "npm"
-          cache-dependency-path: "**/package-lock.json"
+          cache: "pnpm"
+          cache-dependency-path: "**/pnpm-lock.yaml"
+          node-version-file: ".nvmrc"
 
       - name: Cache NX
         uses: actions/cache@v4
         with:
-          path: node_modules/.cache/nx/
+          path: .nx/cache
           key: nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-${{ github.sha }}
           restore-keys: |
             nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-
             nx-${{ env.NX_BRANCH }}-
             nx-
 
+        # This is needed for the canvas dep, Tiptap V3 should remove the need for this
+      - run: sudo apt-get update && sudo apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev pkg-config
       - name: Install Dependencies
-        run: npm ci --prefer-offline --no-audit
-
-      - name: Bootstrap packages
-        run: npm run bootstrap
+        run: pnpm install
 
       - name: Lint packages
-        run: npm run lint
+        run: pnpm run lint
 
       - name: Build packages
-        run: npm run build
+        run: pnpm run build
 
       - name: Run unit tests
-        run: npm run test
+        run: pnpm run test
 
       - name: Upload webpack stats artifact (editor)
         uses: relative-ci/agent-upload-artifact-action@v2
@@ -54,11 +60,16 @@ jobs:
           webpackStatsFile: ./playground/dist/webpack-stats.json
           artifactName: relative-ci-artifacts-editor
 
+      - name: Soft release
+        id: soft-release
+        run: pnpx pkg-pr-new publish './packages/*' # --compact enable compact after release
+
   playwright:
     name: "Playwright Tests - ${{ matrix.browser }}"
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     container:
-      image: mcr.microsoft.com/playwright:v1.49.1-noble
+      image: mcr.microsoft.com/playwright:v1.51.1-noble
     strategy:
       fail-fast: false
       matrix:
@@ -68,37 +79,38 @@ jobs:
         with:
           fetch-depth: 100
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - uses: nrwl/nx-set-shas@v3
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20.x"
-          cache: "npm"
-          cache-dependency-path: "**/package-lock.json"
+          cache: "pnpm"
+          cache-dependency-path: "**/pnpm-lock.yaml"
+          node-version-file: ".nvmrc"
 
       - name: Cache NX
         uses: actions/cache@v4
         with:
-          path: node_modules/.cache/nx/
-          key: nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-${{ github.sha }}
+          path: .nx/cache
+          key: nx-${{ matrix.browser }}-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-${{ github.sha }}
           restore-keys: |
-            nx-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-
-            nx-${{ env.NX_BRANCH }}-
+            nx-${{ matrix.browser }}-${{ env.NX_BRANCH }}-${{ env.NX_RUN_GROUP }}-
+            nx-${{ matrix.browser }}-${{ env.NX_BRANCH }}-
             nx-
 
-      - run: apt-get update && apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
+      - run: apt-get update && apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev pkg-config
 
       - name: Install dependencies
-        run: npm ci --prefer-offline --no-audit
+        run: pnpm install
 
       - name: Build packages
-        run: npm run build
+        run: pnpm run build
 
       - name: Run server and Playwright tests
         run: |
-          npm run start:built > /dev/null & 
-          npx wait-on http://localhost:3000
-          cd tests && HOME=/root npx playwright test --project ${{ matrix.browser }}
+          HOME=/root PLAYWRIGHT_CONFIG="--project ${{ matrix.browser }}" pnpm run e2e
 
       - uses: actions/upload-artifact@v4
         if: always()

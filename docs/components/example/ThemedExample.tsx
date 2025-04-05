@@ -6,11 +6,11 @@ import { examples } from "./generated/exampleComponents.gen";
 export default function ThemedExample(props: { name: keyof typeof examples }) {
   const example = examples[props.name];
   const App = example.App;
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
 
   return (
     <BlockNoteContext.Provider
-      value={{ colorSchemePreference: theme === "dark" ? "dark" : "light" }}>
+      value={{ colorSchemePreference: resolvedTheme === "dark" ? "dark" : "light" }}>
       <App />
     </BlockNoteContext.Provider>
   );

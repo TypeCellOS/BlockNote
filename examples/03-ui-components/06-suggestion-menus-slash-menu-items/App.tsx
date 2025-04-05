@@ -1,6 +1,7 @@
 import {
   BlockNoteEditor,
   filterSuggestionItems,
+  insertOrUpdateBlock,
   PartialBlock,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
@@ -18,19 +19,15 @@ import { HiOutlineGlobeAlt } from "react-icons/hi";
 const insertHelloWorldItem = (editor: BlockNoteEditor) => ({
   key: "hello_world",
   title: "Insert Hello World",
-  onItemClick: () => {
-    // Block that the text cursor is currently in.
-    const currentBlock = editor.getTextCursorPosition().block;
-
-    // New block we want to insert.
-    const helloWorldBlock: PartialBlock = {
+  onItemClick: () =>
+    // If the block containing the text caret is empty, `insertOrUpdateBlock`
+    // changes its type to the provided block. Otherwise, it inserts the new
+    // block below and moves the text caret to it. We use this function with
+    // a block containing 'Hello World' in bold.
+    insertOrUpdateBlock(editor, {
       type: "paragraph",
       content: [{ type: "text", text: "Hello World", styles: { bold: true } }],
-    };
-
-    // Inserting the new block after the current one.
-    editor.insertBlocks([helloWorldBlock], currentBlock, "after");
-  },
+    }),
   aliases: ["helloworld", "hw"],
   group: "Other",
   icon: <HiOutlineGlobeAlt size={18} />,

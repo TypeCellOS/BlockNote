@@ -233,6 +233,24 @@
         }
       },
       {
+        "projectSlug": "custom-paste-handler",
+        "fullSlug": "basic/custom-paste-handler",
+        "pathFromRoot": "examples/01-basic/13-custom-paste-handler",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "nperez0111",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Custom Paste Handler",
+        "group": {
+          "pathFromRoot": "examples/01-basic",
+          "slug": "basic"
+        }
+      },
+      {
         "projectSlug": "testing",
         "fullSlug": "basic/testing",
         "pathFromRoot": "examples/01-basic/testing",
@@ -809,7 +827,10 @@
           "author": "nperez0111",
           "tags": [
             "Basic"
-          ]
+          ],
+          "dependencies": {
+            "@blocknote/code-block": "latest"
+          } as any
         },
         "title": "Code Block Syntax Highlighting",
         "group": {
@@ -827,7 +848,15 @@
           "author": "nperez0111",
           "tags": [
             "Basic"
-          ]
+          ],
+          "dependencies": {
+            "@blocknote/code-block": "latest",
+            "@shikijs/types": "^3.2.1",
+            "@shikijs/core": "^3.2.1",
+            "@shikijs/engine-javascript": "^3.2.1",
+            "@shikijs/langs-precompiled": "^3.2.1",
+            "@shikijs/themes": "^3.2.1"
+          } as any
         },
         "title": "Custom Code Block Theme & Language",
         "group": {
@@ -1055,7 +1084,10 @@
             "Inline Content",
             "Custom Schemas",
             "Formatting Toolbar"
-          ]
+          ],
+          "dependencies": {
+            "react-icons": "^5.2.1"
+          } as any
         },
         "title": "Font Style",
         "group": {
@@ -1085,6 +1117,33 @@
           "pro": true
         },
         "title": "PDF Block",
+        "group": {
+          "pathFromRoot": "examples/06-custom-schema",
+          "slug": "custom-schema"
+        }
+      },
+      {
+        "projectSlug": "alert-block-full-ux",
+        "fullSlug": "custom-schema/alert-block-full-ux",
+        "pathFromRoot": "examples/06-custom-schema/05-alert-block-full-ux",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Intermediate",
+            "Blocks",
+            "Custom Schemas",
+            "Formatting Toolbar",
+            "Suggestion Menus",
+            "Slash Menu"
+          ],
+          "dependencies": {
+            "@mantine/core": "^7.10.1",
+            "react-icons": "^5.2.1"
+          } as any
+        },
+        "title": "Alert Block with Full UX",
         "group": {
           "pathFromRoot": "examples/06-custom-schema",
           "slug": "custom-schema"
@@ -1182,9 +1241,11 @@
             "Collaboration"
           ],
           "dependencies": {
-            "@liveblocks/client": "^1.10.0",
-            "@liveblocks/react": "^1.10.0",
-            "@liveblocks/yjs": "^1.10.0",
+            "@liveblocks/client": "^2.22.3",
+            "@liveblocks/react": "^2.22.3",
+            "@liveblocks/react-blocknote": "^2.22.3",
+            "@liveblocks/react-tiptap": "^2.22.3",
+            "@liveblocks/react-ui": "^2.22.3",
             "yjs": "^13.6.15"
           } as any
         },
@@ -1282,7 +1343,10 @@
           "tags": [
             "Extension"
           ],
-          "pro": true
+          "pro": true,
+          "dependencies": {
+            "@tiptap/core": "^2"
+          } as any
         },
         "title": "TipTap extension (arrow InputRule)",
         "group": {

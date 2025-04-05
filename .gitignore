@@ -35,3 +35,4 @@ release
 /playwright/.cache/
 .env
 *.pem
+.nx/

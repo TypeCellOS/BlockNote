@@ -6,9 +6,9 @@ export function ThemedImage(
     darkImage: React.ComponentProps<typeof Image>["src"];
   } & React.ComponentProps<typeof Image>,
 ) {
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const { darkImage, ...rest } = props;
-  if (theme === "dark") {
+  if (resolvedTheme === "dark") {
     // eslint-disable-next-line jsx-a11y/alt-text
     return <Image {...rest} src={darkImage} />;
   } else {

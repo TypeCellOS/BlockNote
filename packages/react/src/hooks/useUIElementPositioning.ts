@@ -9,16 +9,26 @@ import {
 import { useEffect, useMemo } from "react";
 
 type ReferencePos = DOMRect | HTMLElement | VirtualElement | null;
+
 function isVirtualElement(element: ReferencePos): element is VirtualElement {
   return (element as VirtualElement).getBoundingClientRect !== undefined;
 }
+
+type UIElementPosition = {
+  isMounted: boolean;
+  ref: (node: HTMLElement | null) => void;
+  style: React.CSSProperties;
+  getFloatingProps: ReturnType<typeof useInteractions>["getFloatingProps"];
+  getReferenceProps: ReturnType<typeof useInteractions>["getReferenceProps"];
+  setReference: ReturnType<typeof useFloating>["refs"]["setReference"];
+};
 
 export function useUIElementPositioning(
   show: boolean,
   referencePos: DOMRect | HTMLElement | VirtualElement | null,
   zIndex: number,
   options?: Partial<UseFloatingOptions & { canDismiss: boolean }>
-) {
+): UIElementPosition {
   const { refs, update, context, floatingStyles } = useFloating({
     open: show,
     ...options,

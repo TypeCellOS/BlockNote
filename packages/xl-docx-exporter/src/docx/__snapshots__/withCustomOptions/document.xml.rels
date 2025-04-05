@@ -14,4 +14,5 @@
     <Relationship Id="FAKE-ID" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="" TargetMode="External"/>
     <Relationship Id="FAKE-ID" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="https://www.blocknotejs.org" TargetMode="External"/>
     <Relationship Id="FAKE-ID" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/e1037269513fbdc121e06bb1bc7cf37b9045c8fc.gif"/>
+    <Relationship Id="FAKE-ID" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable" Target="fontTable.xml"/>
 </Relationships>

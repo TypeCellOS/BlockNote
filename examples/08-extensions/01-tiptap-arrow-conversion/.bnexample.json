@@ -3,5 +3,8 @@
   "docs": true,
   "author": "komsenapati",
   "tags": ["Extension"],
-  "pro": true
+  "pro": true,
+  "dependencies": {
+    "@tiptap/core": "^2"
+  }
 }

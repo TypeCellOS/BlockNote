@@ -206,6 +206,8 @@ for (const group of Object.values(groups)) {
   await generateMetaForExampleGroup(group);
 
   for (const project of group.projects) {
+    // eslint-disable-next-line no-console
+    console.log("generating docs for", project.fullSlug);
     await generateCodeForExample(project);
     await generatePageForExample(project);
   }

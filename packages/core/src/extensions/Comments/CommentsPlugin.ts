@@ -106,7 +106,7 @@ export class CommentsPlugin extends EventEmitter<any> {
               pos + node.nodeSize,
               ttEditor.state.doc.content.size - 1
             );
-            tr.removeMark(trimmedFrom, trimmedTo, markType);
+            tr.removeMark(trimmedFrom, trimmedTo, mark);
             tr.addMark(
               trimmedFrom,
               trimmedTo,

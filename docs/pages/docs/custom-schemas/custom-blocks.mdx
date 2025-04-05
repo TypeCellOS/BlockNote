@@ -46,10 +46,12 @@ const Alert = createReactBlockSpec(
 The Block Config describes the shape of your custom blocks. Use it to specify the type, properties (props) and content your custom blocks should support:
 
 ```typescript
-type CustomBlockConfig = {
+type BlockConfig = {
   type: string;
   content: "inline" | "none";
   readonly propSchema: PropSchema;
+  isSelectable?: boolean;
+  hardBreakShortcut?: "shift+enter" | "enter" | "none";
 };
 ```
 
@@ -86,6 +88,16 @@ type PropSchema<
 - `values` (optional): Specifies an array of values that the prop can take, for example, to limit the value to a list of pre-defined strings. If `values` is not defined, BlockNote assumes the prop can be any value of `PrimitiveType`
 
 _In the alert demo, we add a `type` prop for the type of alert that we want (warning / error / info / success). We also want basic styling options, so we add text alignment and text color from the [Default Block Properties](/docs/block-types#default-block-properties)._
+
+**`isSelectable`**
+
+Can be set to false in order to make the block non-selectable, both using the mouse and keyboard. This also helps with being able to select non-editable content within the block. Should only be set to false when `content` is `none` and defaults to true.
+
+**`hardBreakShortcut`**
+
+Defines which keyboard shortcut should be used to insert a hard break into the block's inline content. Defaults to `"shift+enter"`.
+
+##### File Block Config
 
 #### Block Implementation (`ReactCustomBlockImplementation`)
 
@@ -146,3 +158,11 @@ const schema = BlockNoteSchema.create({
 ```
 
 You can then instantiate your editor with this custom schema, as explained on the [Custom Schemas](/docs/custom-schemas) page.
+
+### Improving the User Experience
+
+Now you know how to create a custom block and add it to your editor. However, users don't have a way of creating instances of it to their documents.
+
+To fix this, it's recommended to implement a [command to insert your custom in the Slash Menu](/docs/ui-components/suggestion-menus#changing-slash-menu-items), and [an item for it in the Block Type Select](/docs/ui-components/formatting-toolbar#changing-block-type-select-items). The demo below builds upon the earlier alert block example, adding both of these.
+
+<Example name="custom-schema/alert-block-full-ux" />
