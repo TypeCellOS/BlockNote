@@ -3387,12 +3387,6 @@ importers:
       image-meta:
         specifier: ^0.2.1
         version: 0.2.1
-      react:
-        specifier: ^18.0 || ^19.0 || >= 19.0.0-rc
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.0 || ^19.0 || >= 19.0.0-rc
-        version: 18.3.1(react@18.3.1)
     devDependencies:
       '@types/react':
         specifier: ^18.0.25
@@ -3409,6 +3403,12 @@ importers:
       prettier:
         specifier: ^2.7.1
         version: 2.8.8
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
       rollup-plugin-webpack-stats:
         specifier: ^0.2.2
         version: 0.2.6(rollup@4.37.0)
@@ -3529,10 +3529,10 @@ importers:
         specifier: ^2.7.1
         version: 2.8.8
       react:
-        specifier: ^18
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       rollup-plugin-webpack-stats:
         specifier: ^0.2.2
@@ -3570,12 +3570,6 @@ importers:
       docx:
         specifier: ^9.0.2
         version: 9.3.0
-      react:
-        specifier: ^18.0 || ^19.0 || >= 19.0.0-rc
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.0 || ^19.0 || >= 19.0.0-rc
-        version: 18.3.1(react@18.3.1)
     devDependencies:
       '@testing-library/react':
         specifier: ^16.0.1
@@ -3604,6 +3598,12 @@ importers:
       prettier:
         specifier: ^2.7.1
         version: 2.8.8
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
       react-element-to-jsx-string:
         specifier: ^15.0.0
         version: 15.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
