@@ -3,7 +3,9 @@
   "parallel": 6,
   "useLegacyCache": true,
   "release": {
-    "projects": ["packages/*"],
+    "projects": [
+      "packages/*"
+    ],
     "version": {
       "preVersionCommand": "pnpm exec nx run-many -t build",
       "conventionalCommits": true
@@ -18,32 +20,55 @@
     "default": {
       "runner": "nx/tasks-runners/default",
       "options": {
-        "cacheableOperations": ["build", "test", "lint", "build:site", "e2e"]
+        "cacheableOperations": [
+          "build",
+          "test",
+          "lint",
+          "build:site",
+          "e2e"
+        ]
       }
     }
   },
   "targetDefaults": {
     "build": {
       "cache": true,
-      "dependsOn": ["^build"],
-      "outputs": ["{projectRoot}/dist", "{projectRoot}/types"]
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "{projectRoot}/dist",
+        "{projectRoot}/types"
+      ]
     },
     "build:site": {
       "cache": true,
-      "dependsOn": ["^build"],
-      "outputs": ["{projectRoot}/dist", "{projectRoot}/types"]
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "{projectRoot}/dist",
+        "{projectRoot}/types"
+      ]
     },
     "test": {
       "cache": true,
-      "dependsOn": ["^test"]
+      "dependsOn": [
+        "^test"
+      ]
     },
     "lint": {
       "cache": true,
-      "dependsOn": ["^lint"]
+      "dependsOn": [
+        "^lint"
+      ]
     },
     "e2e": {
       "cache": true,
-      "dependsOn": ["^e2e"]
+      "dependsOn": [
+        "^e2e"
+      ]
     }
-  }
+  },
+  "nxCloudId": "67f09aa8b0862b1ae48e82df"
 }
