@@ -3,6 +3,7 @@ description: Learn how documents (the content of the rich text editor) are struc
 ---
 
 import { Example } from "@/components/example";
+import { ThemedImage } from "@/components/ThemedImage";
 
 # Document Structure
 
@@ -13,10 +14,13 @@ Learn how documents (the content of the rich text editor) are structured to make
 Each BlockNote document is made up of a list of blocks.
 A block is a piece of content like a paragraph, heading, list item or image. Blocks can be dragged around by users in the editor. A block contains a piece of content and optionally nested (child) blocks:
 
-<img
+<ThemedImage
+  style={{ marginTop: "1em" }}
   src="/img/screenshots/block_structure.png"
+  darkImage="/img/screenshots/block_structure_dark.png"
   alt="image"
-  style={{ width: "100%", marginTop: "1em" }}
+  width={2000}
+  height={2000}
 />
 
 ### Block Objects

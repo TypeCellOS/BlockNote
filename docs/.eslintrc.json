@@ -1,6 +1,10 @@
 {
   "extends": "next/core-web-vitals",
+  "parser": "@typescript-eslint/parser",
+  "plugins": [ "@typescript-eslint"],
   "rules": {
-    "import/extensions": 0
-  }
+    "import/extensions": 0,
+    "@next/next/no-img-element": "off"
+  },
+  "root": true
 }

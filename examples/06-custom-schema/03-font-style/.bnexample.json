@@ -2,5 +2,8 @@
   "playground": true,
   "docs": true,
   "author": "matthewlipski",
-  "tags": ["Intermediate", "Inline Content", "Custom Schemas", "Formatting Toolbar"]
+  "tags": ["Intermediate", "Inline Content", "Custom Schemas", "Formatting Toolbar"],
+  "dependencies": {
+    "react-icons": "^5.2.1"
+  }
 }

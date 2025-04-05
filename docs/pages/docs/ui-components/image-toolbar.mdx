@@ -6,12 +6,19 @@ path: /docs/image-toolbar
 ---
 
 import { Example } from "@/components/example";
+import { ThemedImage } from "@/components/ThemedImage";
 
 # Image Toolbar
 
 The Image Toolbar appears whenever you select an image that doesn't have a URL, or when you click the "Replace Image" button in the [Formatting Toolbar](/docs/formatting-toolbar) when an image is selected.
 
-<img style={{maxWidth: "600px"}} src="/img/screenshots/image_toolbar.png" alt="image" />
+<ThemedImage
+  src="/img/screenshots/image_toolbar.png"
+  darkImage="/img/screenshots/image_toolbar_dark.png"
+  alt="image"
+  width={600}
+  height={600}
+/>
 
 ## Image Upload
 

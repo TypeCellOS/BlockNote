@@ -5,10 +5,9 @@ import type {
   HighlighterGeneric,
 } from "@shikijs/types";
 import {
-  createSingletonShorthands,
   createdBundledHighlighter,
 } from "@shikijs/core";
-import { createJavaScriptRegexEngine } from "@shikijs/engine-javascript";
+import { createJavaScriptRegexEngine } from "@shikijs/engine-javascript"; 
 
 type BundledLanguage = "typescript" | "ts" | "javascript" | "js" | "vue";
 type BundledTheme = "light-plus" | "dark-plus";
@@ -36,28 +35,7 @@ const createHighlighter = /* @__PURE__ */ createdBundledHighlighter<
   engine: () => createJavaScriptRegexEngine(),
 });
 
-const {
-  codeToHtml,
-  codeToHast,
-  codeToTokensBase,
-  codeToTokens,
-  codeToTokensWithThemes,
-  getSingletonHighlighter,
-  getLastGrammarState,
-} = /* @__PURE__ */ createSingletonShorthands<BundledLanguage, BundledTheme>(
-  createHighlighter
-);
-
 export {
-  bundledLanguages,
-  bundledThemes,
-  codeToHast,
-  codeToHtml,
-  codeToTokens,
-  codeToTokensBase,
-  codeToTokensWithThemes,
   createHighlighter,
-  getLastGrammarState,
-  getSingletonHighlighter,
 };
 export type { BundledLanguage, BundledTheme, Highlighter };

@@ -23,20 +23,20 @@ An introduction into the BlockNote Prosemirror schema can be found in [packages/
 
 To run the project, open the command line in the project's root directory and enter the following commands:
 
-    # Install all required npm modules for lerna, and bootstrap lerna packages
-    npm install
-    npm run bootstrap
+```bash
+# Install all required npm modules
+pnpm install
 
-    # Start the example project
-    npm start
+# Start the example project
+pnpm start
+```
 
 ## Adding packages
 
 - Add the dependency to the relevant `package.json` file (packages/xxx/package.json)
-- run `npm run install-new-packages`
-- Double check `package-lock.json` to make sure only the relevant packages have been affected
+- Double check `pnpm-lock.yaml` to make sure only the relevant packages have been affected
 
-## Packages:
+## Packages
 
 | Package                                                                                          | Size                                                                                                                                                                                          | Version                                                                                                                                            |
 |--------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|

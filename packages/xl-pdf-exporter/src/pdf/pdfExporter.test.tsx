@@ -166,7 +166,7 @@ describe("exporter", () => {
     const transformed = await exporter.toReactPDFDocument(testDocument);
     const str = reactElementToJSXString(transformed);
 
-    expect(str).toMatchFileSnapshot("__snapshots__/example.jsx");
+    await expect(str).toMatchFileSnapshot("__snapshots__/example.jsx");
 
     // would be nice to compare pdf images, but currently doesn't work on mac os (due to node canvas installation issue)
 
@@ -201,7 +201,7 @@ describe("exporter", () => {
       footer: <Text>Footer</Text>,
     });
     const str = reactElementToJSXString(transformed);
-    expect(str).toMatchFileSnapshot(
+    await expect(str).toMatchFileSnapshot(
       "__snapshots__/exampleWithHeaderAndFooter.jsx"
     );
 

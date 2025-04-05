@@ -1,39 +1,53 @@
 {
-  "name": "root",
-  "private": true,
-  "workspaces": [
-    "shared",
-    "packages/*",
-    "playground",
-    "tests",
-    "docs"
-  ],
   "devDependencies": {
+    "@nx/js": "20.6.4",
     "@typescript-eslint/eslint-plugin": "^5.5.0",
     "@typescript-eslint/parser": "^5.5.0",
+    "concurrently": "9.1.2",
     "eslint": "^8.22.0",
     "eslint-config-react-app": "^7.0.0",
     "eslint-plugin-import": "^2.31.0",
     "glob": "^10.3.10",
-    "lerna": "^5.4.0",
-    "patch-package": "^6.4.7",
-    "typescript": "^5.3.3"
+    "nx": "20.6.4",
+    "serve": "14.2.4",
+    "typescript": "^5.3.3",
+    "vitest": "^2.0.3",
+    "wait-on": "8.0.3"
   },
+  "name": "root",
+  "pnpm": {
+    "ignoredBuiltDependencies": [
+      "sharp",
+      "workerd"
+    ],
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "@sentry/cli",
+      "canvas",
+      "esbuild",
+      "nx"
+    ]
+  },
+  "packageManager": "pnpm@10.7.1+sha512.2d92c86b7928dc8284f53494fb4201f983da65f0fb4f0d40baafa5cf628fa31dae3e5968f12466f17df7e97310e30f343a648baea1b9b350685dafafffdf5808",
+  "private": true,
   "scripts": {
-    "start": "lerna run --stream --scope @blocknote/example-editor dev",
-    "gen": "lerna run --stream --scope @blocknote/dev-scripts gen",
-    "start:built": "npx serve playground/dist -c ../serve.json",
-    "build:clean": "npm run clean && npm run gen && npm run clean && lerna run --stream build",
-    "build": "lerna run --stream build",
-    "build:site": "npm run gen && lerna run --stream docs:build --concurrency 1",
-    "lint": "lerna run --stream lint",
-    "bootstrap": "lerna bootstrap --ci -- --force && patch-package",
-    "install-new-packages": "lerna bootstrap -- --force && patch-package",
-    "test": "lerna run --stream test",
-    "install-playwright": "cd tests && npx playwright install --with-deps",
-    "deploy": "lerna publish -- --access public",
-    "prepublishOnly": "npm run build && cp README.md packages/core/README.md && cp README.md packages/react/README.md",
+    "dev": "nx run @blocknote/example-editor:dev",
+    "dev:docs": "nx run docs:dev",
+    "build": "nx run-many --target=build",
+    "build:clean": "pnpm run clean && pnpm run gen && pnpm run clean && pnpm run build",
+    "build:site": "pnpm run gen && nx run docs:build:site",
+    "clean": "nx run-many --target=clean",
+    "deploy": "nx release --skip-publish",
+    "gen": "nx run @blocknote/dev-scripts:gen",
+    "install-playwright": "cd tests && pnpx playwright install --with-deps",
+    "e2e": "concurrently --success=first -r --kill-others \"pnpm run start -L\" \"wait-on http://localhost:3000 && cd tests && pnpm exec playwright test $PLAYWRIGHT_CONFIG\"",
+    "e2e:updateSnaps": "concurrently --success=first -r --kill-others \"pnpm run start -L\" \"wait-on http://localhost:3000 && cd tests && pnpm run test:updateSnaps\"",
+    "lint": "nx run-many --target=lint",
     "postpublish": "rm -rf packages/core/README.md && rm -rf packages/react/README.md",
-    "clean": "lerna run --stream clean"
+    "prepublishOnly": "pnpm run build && cp README.md packages/core/README.md && cp README.md packages/react/README.md",
+    "prestart": "pnpm run build",
+    "start": "serve playground/dist -c ../serve.json",
+    "test": "nx run-many --target=test",
+    "bootstrap": "echo 'do nothing'"
   }
 }
