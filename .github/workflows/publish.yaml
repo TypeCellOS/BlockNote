@@ -56,6 +56,9 @@ jobs:
       - name: Print Environment Info
         run: pnpm exec nx report
 
+      - name: Setup NPM
+        run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" >> .npmrc
+
       - name: Publish packages
         run: pnpm exec nx release publish
         env:
