@@ -20,7 +20,7 @@ export function getBlock<
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
 
-  const posInfo = getNodeById(id, editor._tiptapEditor.state.doc);
+  const posInfo = getNodeById(id, editor.prosemirrorState.doc);
   if (!posInfo) {
     return undefined;
   }
@@ -45,12 +45,12 @@ export function getPrevBlock<
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
 
-  const posInfo = getNodeById(id, editor._tiptapEditor.state.doc);
+  const posInfo = getNodeById(id, editor.prosemirrorState.doc);
   if (!posInfo) {
     return undefined;
   }
 
-  const $posBeforeNode = editor._tiptapEditor.state.doc.resolve(
+  const $posBeforeNode = editor.prosemirrorState.doc.resolve(
     posInfo.posBeforeNode
   );
   const nodeToConvert = $posBeforeNode.nodeBefore;
@@ -78,12 +78,12 @@ export function getNextBlock<
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
 
-  const posInfo = getNodeById(id, editor._tiptapEditor.state.doc);
+  const posInfo = getNodeById(id, editor.prosemirrorState.doc);
   if (!posInfo) {
     return undefined;
   }
 
-  const $posAfterNode = editor._tiptapEditor.state.doc.resolve(
+  const $posAfterNode = editor.prosemirrorState.doc.resolve(
     posInfo.posBeforeNode + posInfo.node.nodeSize
   );
   const nodeToConvert = $posAfterNode.nodeAfter;
@@ -111,12 +111,12 @@ export function getParentBlock<
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
 
-  const posInfo = getNodeById(id, editor._tiptapEditor.state.doc);
+  const posInfo = getNodeById(id, editor.prosemirrorState.doc);
   if (!posInfo) {
     return undefined;
   }
 
-  const $posBeforeNode = editor._tiptapEditor.state.doc.resolve(
+  const $posBeforeNode = editor.prosemirrorState.doc.resolve(
     posInfo.posBeforeNode
   );
   const parentNode = $posBeforeNode.node();

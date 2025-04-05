@@ -21,14 +21,14 @@ export function getTextCursorPosition<
   I extends InlineContentSchema,
   S extends StyleSchema
 >(editor: BlockNoteEditor<BSchema, I, S>): TextCursorPosition<BSchema, I, S> {
-  const { bnBlock } = getBlockInfoFromSelection(editor._tiptapEditor.state);
+  const { bnBlock } = getBlockInfoFromSelection(editor.prosemirrorState);
 
-  const resolvedPos = editor._tiptapEditor.state.doc.resolve(bnBlock.beforePos);
+  const resolvedPos = editor.prosemirrorState.doc.resolve(bnBlock.beforePos);
   // Gets previous blockContainer node at the same nesting level, if the current node isn't the first child.
   const prevNode = resolvedPos.nodeBefore;
 
   // Gets next blockContainer node at the same nesting level, if the current node isn't the last child.
-  const nextNode = editor._tiptapEditor.state.doc.resolve(
+  const nextNode = editor.prosemirrorState.doc.resolve(
     bnBlock.afterPos
   ).nodeAfter;
 
@@ -95,7 +95,7 @@ export function setTextCursorPosition<
 ) {
   const id = typeof targetBlock === "string" ? targetBlock : targetBlock.id;
 
-  const posInfo = getNodeById(id, editor._tiptapEditor.state.doc);
+  const posInfo = getNodeById(id, editor.prosemirrorState.doc);
   if (!posInfo) {
     throw new Error(`Block with ID ${id} not found`);
   }
