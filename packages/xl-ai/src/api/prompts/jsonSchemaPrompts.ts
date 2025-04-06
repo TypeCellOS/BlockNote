@@ -1,25 +1,35 @@
 import { CoreMessage } from "ai";
-import { suffixIDs } from "../util/suffixIDs.js";
 
 // TODO don't include child block
-export function promptManipulateSelectionJSONSchema(opts: {
+export function promptManipulateSelectionJSONBlocks(opts: {
   userPrompt: string;
-  document: any;
+  jsonSelectedBlocks: any[];
+  jsonDocument: any[];
 }): Array<CoreMessage> {
   return [
     {
       role: "system",
-      content: `You're manipulating a text document. Make sure to follow the json schema provided. 
-            The user selected everything between [$! and !$], including blocks in between.`,
+      content: `You're manipulating a selected part of a text document using JSON blocks. 
+      Make sure to follow the json schema provided and always include the trailing $ in ids. 
+      This is the selection as an array of JSON blocks:`,
     },
     {
       role: "system",
-      content: JSON.stringify(suffixIDs(opts.document)),
+      content: JSON.stringify(opts.jsonSelectedBlocks),
     },
+
     {
       role: "system",
       content:
-        "Make sure to ONLY affect the selected text and blocks (split words if necessary), and don't include the markers in the response.",
+        "This is the entire document (INCLUDING the selected text), find the selected text in there to understand the context:",
+    },
+    {
+      role: "system",
+      content: JSON.stringify(opts.jsonDocument),
+    },
+    {
+      role: "system",
+      content: "The user asks you to do the following:",
     },
     {
       role: "user",
@@ -28,58 +38,41 @@ export function promptManipulateSelectionJSONSchema(opts: {
   ];
 }
 
-export function promptManipulateDocumentUseJSONSchema(opts: {
+export function promptManipulateDocumentUseJSONBlocks(opts: {
   userPrompt: string;
-  document: any;
+  jsonBlocks: Array<
+    | any
+    | {
+        cursor: true;
+      }
+  >;
 }): Array<CoreMessage> {
   return [
     {
       role: "system",
-      content:
-        "You're manipulating a text document. Make sure to follow the json schema provided. This is the document:",
+      content: `You're manipulating a text document using JSON blocks. 
+        Make sure to follow the json schema provided. When referencing ids they MUST be EXACTLY the same (including the trailing $). 
+        This is the document as an array of JSON blocks (the cursor is BETWEEN two blocks as indicated by cursor: true):`,
     },
     {
       role: "system",
-      content: JSON.stringify(suffixIDs(opts.document)),
+      content: JSON.stringify(opts.jsonBlocks),
     },
     {
       role: "system",
-      content:
-        "This would be an example block: \n" +
-        JSON.stringify({
-          type: "paragraph",
-          props: {},
-          content: [
-            {
-              type: "text",
-              text: "Bold text",
-              styles: {
-                bold: true,
-              },
-            },
-            // {
-            //   type: "text",
-            //   text: " regular text",
-            //   styles: {},
-            // },
-            {
-              type: "text",
-              text: " and italic text",
-              styles: {
-                italic: true,
-              },
-            },
-          ],
-        }),
+      content: "The user asks you to do the following:",
     },
-    // {
-    //   role: "system",
-    //   content:
-    //     "Only change formatting like bold / italic etc when the user asks for it. This is the user's question:",
-    // },
     {
       role: "user",
       content: opts.userPrompt,
+    },
+    {
+      role: "system",
+      content: `First, determine what part of the document the user is talking about. You SHOULD probably take cursor info into account if needed.
+       EXAMPLE: if user says "below" (without pointing to a specific part of the document) he / she probably indicates the block(s) after the cursor. 
+       EXAMPLE: If you want to insert content AT the cursor position (UNLESS indicated otherwise by the user), then you need \`referenceId\` to point to the block before the cursor with position \`after\` (or block below and \`before\`).
+      
+      Prefer updating blocks over adding or removing (but this also depends on the user's question).`,
     },
   ];
 }

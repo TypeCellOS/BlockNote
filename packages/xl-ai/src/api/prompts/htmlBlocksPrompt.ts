@@ -3,11 +3,11 @@ import { CoreMessage } from "ai";
 // TODO don't include child block
 export function promptManipulateSelectionHTMLBlocks(opts: {
   userPrompt: string;
-  html: {
+  htmlSelectedBlocks: {
     id: string;
     block: string;
   }[];
-  document: {
+  htmlDocument: {
     block: string;
   }[];
 }): Array<CoreMessage> {
@@ -20,7 +20,7 @@ export function promptManipulateSelectionHTMLBlocks(opts: {
     },
     {
       role: "system",
-      content: JSON.stringify(opts.html),
+      content: JSON.stringify(opts.htmlSelectedBlocks),
     },
 
     {
@@ -30,7 +30,7 @@ export function promptManipulateSelectionHTMLBlocks(opts: {
     },
     {
       role: "system",
-      content: JSON.stringify(opts.document),
+      content: JSON.stringify(opts.htmlDocument),
     },
     {
       role: "system",
@@ -45,7 +45,7 @@ export function promptManipulateSelectionHTMLBlocks(opts: {
 
 export function promptManipulateDocumentUseHTMLBlocks(opts: {
   userPrompt: string;
-  html: Array<
+  htmlBlocks: Array<
     | {
         id: string;
         block: string;
@@ -64,7 +64,7 @@ export function promptManipulateDocumentUseHTMLBlocks(opts: {
     },
     {
       role: "system",
-      content: JSON.stringify(opts.html),
+      content: JSON.stringify(opts.htmlBlocks),
     },
     {
       role: "system",

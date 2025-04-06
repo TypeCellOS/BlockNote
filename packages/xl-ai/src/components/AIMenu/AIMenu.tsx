@@ -24,7 +24,7 @@ export const AIMenu = (props: {
       | "user-reviewing"
       | "closed"
   ) => AIMenuSuggestionItem[];
-  onManualPromptSubmit?: (prompt: string) => void;
+  onManualPromptSubmit?: (userPrompt: string) => void;
 }) => {
   const editor = useBlockNoteEditor();
   const [prompt, setPrompt] = useState("");
@@ -66,9 +66,9 @@ export const AIMenu = (props: {
   }, [externalItems, aiResponseStatus, editor]);
 
   const onManualPromptSubmitDefault = useCallback(
-    async (prompt: string) => {
+    async (userPrompt: string) => {
       await ai.callLLM({
-        prompt,
+        userPrompt,
         useSelection: editor.getSelection() !== undefined,
       });
     },

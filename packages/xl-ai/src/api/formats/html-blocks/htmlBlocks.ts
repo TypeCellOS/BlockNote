@@ -1,59 +1,92 @@
 import {
   Block,
-  BlockNoteEditor,
-  PartialBlock,
-  UnreachableCaseError,
-  getBlock,
+  BlockNoteEditor
 } from "@blocknote/core";
-import { CoreMessage, GenerateObjectResult, StreamObjectResult } from "ai";
-import type { PromptOrMessages } from "../../index.js";
-
+import { generateObject, GenerateObjectResult, streamObject, StreamObjectResult } from "ai";
 import {
-  ApplyOperationResult,
-  applyOperations,
+  ApplyOperationResult
 } from "../../executor/streamOperations/applyOperations.js";
-
-import {
-  AsyncIterableStream,
-  createAsyncIterableStreamFromAsyncIterable,
-} from "../../util/stream.js";
-
-import { updateToReplaceSteps } from "../../../prosemirror/changeset.js";
-import {
-  getApplySuggestionsTr,
-  rebaseTool,
-} from "../../../prosemirror/rebaseTool.js";
-
+import type { PromptOrMessages } from "../../index.js";
 import {
   promptManipulateDocumentUseHTMLBlocks,
   promptManipulateSelectionHTMLBlocks,
 } from "../../prompts/htmlBlocksPrompt.js";
 import {
+  generateOperations,
   LLMRequestOptions,
-  callLLMWithStreamTools,
+  streamOperations,
 } from "../../streamTool/callLLMWithStreamTools.js";
-import { StreamToolCall } from "../../streamTool/streamTool.js";
-import { AddBlocksToolCall } from "../../tools/createAddBlocksTool.js";
-import { UpdateBlockToolCall } from "../../tools/createUpdateBlockTool.js";
-import { DeleteBlockToolCall } from "../../tools/delete.js";
-import { trimArray } from "../../util/trimArray.js";
+import { StreamTool } from "../../streamTool/streamTool.js";
+import { isEmptyParagraph } from "../../util/emptyBlock.js";
+import {
+  AsyncIterableStream,
+  createAsyncIterableStreamFromAsyncIterable,
+} from "../../util/stream.js";
+import { getDataForPromptNoSelection, getDataForPromptWithSelection } from "./htmlPromptData.js";
+import { applyHTMLOperations } from "./streamOperations/applyHTMLOperations.js";
 import { tools } from "./tools/index.js";
 
 // Define the return type for streaming mode
-type ReturnType = {
+type CallLLMReturnType = {
   toolCallsStream: AsyncIterableStream<ApplyOperationResult<any>>;
   llmResult: StreamObjectResult<any, any, any> | GenerateObjectResult<any>;
   apply: () => Promise<void>;
 };
 
-function isEmptyParagraph(block: PartialBlock<any, any, any>) {
-  return (
-    block.type === "paragraph" &&
-    Array.isArray(block.content) &&
-    block.content.length === 0
-  );
+async function getMessages(editor: BlockNoteEditor<any, any, any>,
+  opts: {
+    selectedBlocks?: Block<any, any, any>[],
+    excludeBlockIds?: string[]
+} & PromptOrMessages) {
+  // TODO: child blocks
+  // TODO: document how to customize prompt
+  if ("messages" in opts && opts.messages) {
+    return opts.messages;
+  } else if (opts.selectedBlocks) {
+    if (opts.excludeBlockIds) {
+      throw new Error("expected excludeBlockIds to be false when selectedBlocks is provided");
+    }
+    
+    return promptManipulateSelectionHTMLBlocks({
+      ...await getDataForPromptWithSelection(editor, opts.selectedBlocks),
+      userPrompt: opts.userPrompt,
+    });
+  } else {
+    if (opts.useSelection) {
+      throw new Error("expected useSelection to be false when selectedBlocks is not provided");
+    }
+    return promptManipulateDocumentUseHTMLBlocks({
+      ...await getDataForPromptNoSelection(editor, { excludeBlockIds: opts.excludeBlockIds }),
+      userPrompt: opts.userPrompt,
+    });
+  } 
 }
 
+function getStreamTools(editor: BlockNoteEditor<any, any, any>, defaultStreamTools?: {
+  /** Enable the add tool (default: true) */
+  add?: boolean;
+  /** Enable the update tool (default: true) */
+  update?: boolean;
+  /** Enable the delete tool (default: true) */
+  delete?: boolean;
+}) {
+  const mergedStreamTools = {
+    add: true,
+    update: true,
+    delete: true,
+    ...defaultStreamTools,
+  };
+
+  const streamTools: StreamTool<any>[] = [
+    ...(mergedStreamTools.update ? [tools.update(editor, { idsSuffixed: true})] : []),
+    ...(mergedStreamTools.add ? [tools.add(editor, { idsSuffixed: true})] : []),
+    ...(mergedStreamTools.delete ? [tools.delete(editor, { idsSuffixed: true})] : []),
+  ];
+
+  return streamTools;
+}
+
+// TODO: what to expose as api?
 export async function callLLM(
   editor: BlockNoteEditor<any, any, any>,
   opts: Omit<LLMRequestOptions, "messages"> &
@@ -66,206 +99,57 @@ export async function callLLM(
         /** Enable the delete tool (default: true) */
         delete?: boolean;
       };
-    },
-  onStart?: () => void
-): Promise<ReturnType> {
-  const mergedStreamTools = {
-    add: true,
-    update: true,
-    delete: true,
-    ...opts.defaultStreamTools,
-  };
-
-  const { prompt, useSelection, stream = true, ...rest } = opts;
-
-  let messages: CoreMessage[];
-
-  let beforeCursorBlockId: string | undefined;
-  let deleteCursorBlock: string | undefined;
-  let source: Block<any, any, any>[];
-
+      stream?: boolean;
+      deleteEmptyCursorBlock?: boolean;
+      onStart?: () => void,
+      _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]>
+      _streamObjectOptions?: Partial<Parameters<typeof streamObject<any>>[0]>
+    }
+): Promise<CallLLMReturnType> {
+  const { userPrompt: prompt, useSelection, deleteEmptyCursorBlock, stream, onStart, ...rest } = {
+    deleteEmptyCursorBlock: true,
+    stream: true,
+    ...opts
+  }
+  
+  const cursorBlock = useSelection ? undefined : editor.getTextCursorPosition().block
+  
+  const deleteCursorBlock: string | undefined = cursorBlock && deleteEmptyCursorBlock && isEmptyParagraph(cursorBlock) ? cursorBlock.id : undefined;
+  
   const selectionInfo = useSelection ? editor.getSelection2() : undefined;
+  
+  const messages = await getMessages(editor, { ...opts, selectedBlocks: selectionInfo?.blocks, excludeBlockIds: deleteCursorBlock ? [deleteCursorBlock] : undefined });
+  
+  const streamTools = getStreamTools(editor, opts.defaultStreamTools);
 
-  if (!useSelection) {
-    const textCursorPosition = editor.getTextCursorPosition();
-    if (isEmptyParagraph(textCursorPosition.block)) {
-      beforeCursorBlockId = textCursorPosition.prevBlock!.id; // TODO: handle cursor at start of document
-      source = editor.document.filter(
-        (block) => block.id !== textCursorPosition.block.id
-      );
-      deleteCursorBlock = textCursorPosition.block.id;
-    } else {
-      beforeCursorBlockId = textCursorPosition.block.id;
-      source = editor.document;
+  let response: Awaited<ReturnType<typeof generateOperations<any>>> | Awaited<ReturnType<typeof streamOperations<any>>>;
+
+  if (stream) {
+    response = await streamOperations(streamTools, {
+      messages, ...rest
+    }, () => {
+    if (deleteCursorBlock) {
+      editor.removeBlocks([deleteCursorBlock]);
     }
+    onStart?.();
+  });
   } else {
-    source = selectionInfo!.blocks;
-  }
-
-  // trim empty trailing blocks that don't have the cursor
-  // if we don't do this, commands like "add some paragraphs"
-  // would add paragraphs after the trailing blocks
-  const trimmedSource = trimArray(
-    source,
-    (block) => {
-      return isEmptyParagraph(block) && block.id !== beforeCursorBlockId;
-    },
-    false
-  );
-
-  // TODO: child blocks
-  const doc = (
-    await Promise.all(
-      trimmedSource.map(async (block) => {
-        const ret: Array<
-          | {
-              id: string;
-              block: string;
-            }
-          | {
-              cursor: true;
-            }
-        > = [];
-        ret.push({
-          id: block.id + "$",
-          block: await editor.blocksToHTMLLossy([block]),
-        });
-        if (block.id === beforeCursorBlockId) {
-          ret.push({
-            cursor: true,
-          });
-        }
-        return ret;
-      })
-    )
-  ).flat();
-
-  const entireDoc = (
-    await Promise.all(
-      editor.document.map(async (block) => {
-        const ret: Array<{
-          block: string;
-        }> = [];
-        ret.push({
-          block: await editor.blocksToHTMLLossy([block]),
-        });
-
-        return ret;
-      })
-    )
-  ).flat();
-
-  if ("messages" in opts && opts.messages) {
-    messages = opts.messages;
-  } else if (useSelection) {
-    messages = promptManipulateSelectionHTMLBlocks({
-      userPrompt: opts.prompt,
-      html: doc as any, // TODO
-      document: entireDoc,
+    response = await generateOperations(streamTools, {
+      messages, ...rest
     });
-  } else {
-    messages = promptManipulateDocumentUseHTMLBlocks({
-      userPrompt: opts.prompt,
-      html: doc,
-    });
-  }
-
-  const streamTools = [
-    ...(mergedStreamTools.update ? [tools.update] : []),
-    ...(mergedStreamTools.add ? [tools.add] : []),
-    ...(mergedStreamTools.delete ? [tools.delete] : []),
-  ];
-
-  const response = await callLLMWithStreamTools(
-    editor,
-    {
-      ...rest,
-      messages,
-      stream,
-    },
-    streamTools,
-    {
-      block: { type: "string", description: "html of block" },
-    },
-    onStart
-  );
-
-  async function* deleteCursorBlockWhenStreamStarts<T>(
-    operations: AsyncIterable<T>
-  ): AsyncIterable<T> {
-    let deleted = false;
-    for await (const chunk of operations) {
-      if (!deleted && deleteCursorBlock) {
-        editor.removeBlocks([deleteCursorBlock]);
-        deleted = true;
-      }
-      yield chunk;
+    if (deleteCursorBlock) {
+      editor.removeBlocks([deleteCursorBlock]);
     }
+    onStart?.();
   }
 
-  const jsonToolCalls = toJSONToolCalls(
-    editor,
-    deleteCursorBlockWhenStreamStarts(response.toolCallsStream)
-  );
+  const results = applyHTMLOperations(editor, response.operationsSource, selectionInfo?._meta.startPos, selectionInfo?._meta.endPos);
 
-  const resultGenerator = applyOperations(
-    editor,
-    jsonToolCalls,
-    async (id) => {
-      const tr = getApplySuggestionsTr(editor);
-      const block = getBlock(editor, id, tr.doc);
-      if (!block) {
-        // debugger;
-        throw new Error("block not found");
-      }
-      const html = await editor.blocksToHTMLLossy([block]);
-      const blocks = await editor.tryParseHTMLToBlocks(html);
-      if (blocks.length !== 1) {
-        throw new Error("html diff invalid block count");
-      }
-      const htmlBlock = blocks[0];
-      htmlBlock.id = id;
-      // console.log(html);
-      // console.log(JSON.stringify(blocks, null, 2));
-      const steps = updateToReplaceSteps(
-        editor,
-        {
-          id,
-          block: htmlBlock,
-          type: "update",
-        },
-        tr.doc
-      );
-
-      if (steps.length) {
-        console.error("html diff", steps);
-        // throw new Error("html diff");
-      }
-      // const stepMapping = new Mapping();
-      // for (const step of steps) {
-      //   const mapped = step.map(stepMapping);
-      //   if (!mapped) {
-      //     throw new Error("Failed to map step");
-      //   }
-      //   tr.step(mapped);
-      //   stepMapping.appendMap(mapped.getMap());
-      // }
-
-      return rebaseTool(editor, tr);
-    },
-    {
-      withDelays: true, // TODO: make configurable
-    },
-    selectionInfo?._meta.startPos,
-    selectionInfo?._meta.endPos
-  );
-
-  // TODO: copy this pattern
   const toolCallsStream =
-    createAsyncIterableStreamFromAsyncIterable(resultGenerator);
+    createAsyncIterableStreamFromAsyncIterable(results);
 
   return {
-    llmResult: response.llmResult,
+    llmResult: response.result,
     toolCallsStream,
     // TODO: make it easy to add your own "applyOperations" function
     async apply() {
@@ -275,159 +159,4 @@ export async function callLLM(
       }
     },
   };
-}
-
-export async function* toJSONToolCalls(
-  editor: BlockNoteEditor<any, any, any>,
-  operationsSource: AsyncIterable<{
-    operation: StreamToolCall<any>;
-    isUpdateToPreviousOperation: boolean;
-    isPossiblyPartial: boolean;
-  }>
-): AsyncGenerator<{
-  operation: StreamToolCall<any>;
-  isUpdateToPreviousOperation: boolean;
-  isPossiblyPartial: boolean;
-}> {
-  for await (const chunk of operationsSource) {
-    const operation = chunk.operation;
-
-    if (!isBuiltInToolCall(operation)) {
-      yield chunk;
-      continue;
-    }
-
-    if (operation.type === "add") {
-      const blocks = (
-        await Promise.all(
-          operation.blocks.map(async (html) => {
-            const parsedHtml = chunk.isPossiblyPartial
-              ? getPartialHTML(html)
-              : html;
-            if (!parsedHtml) {
-              return [];
-            }
-            return (await editor.tryParseHTMLToBlocks(parsedHtml)).map(
-              (block) => {
-                delete (block as any).id;
-                return block;
-              }
-            );
-          })
-        )
-      ).flat();
-
-      if (blocks.length === 0) {
-        continue;
-      }
-
-      // hacky
-      if ((window as any).__TEST_OPTIONS) {
-        (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS.mockID = 0;
-      }
-
-      yield {
-        ...chunk,
-        operation: {
-          ...chunk.operation,
-          blocks,
-        } as AddBlocksToolCall<PartialBlock<any, any, any>>,
-      };
-    } else if (operation.type === "update") {
-      // console.log("update", operation.block);
-      const html = chunk.isPossiblyPartial
-        ? getPartialHTML(operation.block)
-        : operation.block;
-
-      if (!html) {
-        continue;
-      }
-
-      const block = (await editor.tryParseHTMLToBlocks(html))[0];
-
-      // console.log("update", operation.block);
-      // console.log("html", html);
-      // hacky
-      if ((window as any).__TEST_OPTIONS) {
-        (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS.mockID = 0;
-      }
-
-      delete (block as any).id;
-
-      yield {
-        ...chunk,
-        operation: {
-          ...operation,
-          block,
-        } as UpdateBlockToolCall<PartialBlock<any, any, any>>,
-      };
-    } else if (operation.type === "delete") {
-      yield {
-        ...chunk,
-        operation: {
-          ...operation,
-        } as DeleteBlockToolCall,
-      };
-      return;
-    } else {
-      // @ts-expect-error Apparently TS gets lost here
-      throw new UnreachableCaseError(operation);
-    }
-  }
-}
-
-function isBuiltInToolCall(
-  operation: unknown
-): operation is
-  | UpdateBlockToolCall<string>
-  | AddBlocksToolCall<string>
-  | DeleteBlockToolCall {
-  return (
-    typeof operation === "object" &&
-    operation !== null &&
-    "type" in operation &&
-    (operation.type === "update" ||
-      operation.type === "add" ||
-      operation.type === "delete")
-  );
-}
-
-/**
- * Completes partial HTML by parsing and correcting incomplete tags.
- * Examples:
- * <p>hello -> <p>hello</p>
- * <p>hello <sp -> <p>hello </p>
- * <p>hello <span -> <p>hello </p>
- * <p>hello <span> -> <p>hello <span></span></p>
- * <p>hello <span>world -> <p>hello <span>world</span></p>
- * <p>hello <span>world</span> -> <p>hello <span>world</span></p>
- *
- * @param html A potentially incomplete HTML string
- * @returns A properly formed HTML string with all tags closed
- */
-function getPartialHTML(html: string): string | undefined {
-  // Simple check: if the last '<' doesn't have a matching '>',
-  // then we have an incomplete tag at the end
-  const lastOpenBracket = html.lastIndexOf("<");
-  const lastCloseBracket = html.lastIndexOf(">");
-
-  // Handle incomplete tags by removing everything after the last complete tag
-  let htmlToProcess = html;
-  if (lastOpenBracket > lastCloseBracket) {
-    htmlToProcess = html.substring(0, lastOpenBracket);
-    // If nothing remains after removing the incomplete tag, return empty string
-    if (!htmlToProcess.trim()) {
-      return undefined;
-    }
-  }
-
-  // TODO: clean script tags?
-  // Parse the HTML
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(
-    `<div>${htmlToProcess}</div>`,
-    "text/html"
-  );
-  const el = doc.body.firstChild as HTMLElement;
-  return el ? el.innerHTML : "";
 }

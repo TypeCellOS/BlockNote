@@ -23,7 +23,7 @@ type TestUpdateOperation = {
    * the goal of these tests is to test whether LLMs can make certain updates technically, not to test
    * the quality of the prompt understanding, etc. (should be in different tests)
    */
-  prompt: string;
+  userPrompt: string;
   /**
    * The capabilities that are required to perform the update.
    * If the LLM does not have these capabilities, the test will be skipped.
@@ -107,7 +107,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
         content: [{ type: "text", text: "Hello, updated content", styles: {} }],
       },
     },
-    prompt: "update the content of the first block to 'Hello, updated content'",
+    userPrompt: "update the content of the first block to 'Hello, updated content'",
   },
   {
     description: "update block type",
@@ -122,7 +122,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
         content: [{ type: "text", text: "Hello, world!", styles: {} }],
       },
     },
-    prompt: "make the first paragraph a heading",
+    userPrompt: "make the first paragraph a heading",
   },
   {
     description: "update block prop",
@@ -135,7 +135,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
         },
       },
     },
-    prompt: "make the first paragraph right aligned",
+    userPrompt: "make the first paragraph right aligned",
     requiredCapabilities: {
       textAlignment: true,
     },
@@ -153,7 +153,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
         content: [{ type: "text", text: "What's up, world!", styles: {} }],
       },
     },
-    prompt:
+    userPrompt:
       "make the first paragraph a heading and update the content to 'What's up, world!'",
   },
   {
@@ -168,7 +168,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
         content: [{ type: "text", text: "What's up, world!", styles: {} }],
       },
     },
-    prompt:
+    userPrompt:
       "make the first paragraph right aligned and update the content to 'What's up, world!'",
     requiredCapabilities: {
       textAlignment: true,
@@ -183,7 +183,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
         content: [{ type: "text", text: "Hello, updated content", styles: {} }],
       },
     },
-    prompt:
+    userPrompt:
       "update the content of the second block to 'Hello, updated content'",
   },
   {
@@ -213,7 +213,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
         ],
       },
     },
-    prompt: "remove the bold style from the second block",
+    userPrompt: "remove the bold style from the second block",
   },
   {
     description: "styles + ic in source block, remove mention",
@@ -237,7 +237,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
         ],
       },
     },
-    prompt:
+    userPrompt:
       "change to say 'Hello! How are you doing?' (remove mention but keep bold text)",
   },
   {
@@ -262,7 +262,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
         ],
       },
     },
-    prompt: "make 'world!' (in the first block) bold",
+    userPrompt: "make 'world!' (in the first block) bold",
   },
   {
     description: "plain source block, add mention",
@@ -291,7 +291,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
         ],
       },
     },
-    prompt: "Change the first paragraph to Hello, Jane Doe! (use a mention)",
+    userPrompt: "Change the first paragraph to Hello, Jane Doe! (use a mention)",
     requiredCapabilities: {
       mentions: true,
     },
@@ -330,7 +330,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
         ],
       },
     },
-    prompt: "update the mention to Jane Doe",
+    userPrompt: "update the mention to Jane Doe",
     requiredCapabilities: {
       mentions: true,
     },
@@ -346,7 +346,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
         ],
       },
     },
-    prompt:
+    userPrompt:
       "remove the formatting (turn into plain text without styles or urls) from the last paragraph",
   },
   {
@@ -360,7 +360,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
         ],
       },
     },
-    prompt:
+    userPrompt:
       "change the last paragraph to 'Hi, world! Bold the text. Link.' without any markup like bold or link",
   },
 ];

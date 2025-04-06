@@ -1,7 +1,8 @@
+import { BlockNoteEditor } from "@blocknote/core";
 import { streamTool } from "../streamTool/streamTool.js";
 
 // TODO, rename to remove?
-export const deleteBlockTool = streamTool<DeleteBlockToolCall>(
+export const deleteBlockTool = (editor: BlockNoteEditor<any, any, any>, options: { idsSuffixed: boolean }) => streamTool<DeleteBlockToolCall>(
   "delete",
   "Delete a block",
   {
@@ -15,11 +16,7 @@ export const deleteBlockTool = streamTool<DeleteBlockToolCall>(
     required: ["id"],
   },
   (
-    operation,
-    editor,
-    options: {
-      idsSuffixed: boolean;
-    }
+    operation
   ) => {
     if (operation.type !== "delete") {
       return {

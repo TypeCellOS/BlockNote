@@ -3440,14 +3440,14 @@ importers:
         specifier: ^0.2.0
         version: 0.2.6(zod@3.24.2)
       '@blocknote/core':
-        specifier: ^0.26.0
-        version: 0.26.0(@hocuspocus/provider@2.15.2(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24))(@types/hast@3.0.4)
+        specifier: workspace:*
+        version: link:../core
       '@blocknote/mantine':
-        specifier: ^0.26.0
-        version: 0.26.0(@hocuspocus/provider@2.15.2(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24))(@types/hast@3.0.4)(@types/react@18.3.20)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: workspace:*
+        version: link:../mantine
       '@blocknote/react':
-        specifier: ^0.26.0
-        version: 0.26.0(@hocuspocus/provider@2.15.2(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24))(@types/hast@3.0.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: workspace:*
+        version: link:../react
       '@ewoudenberg/difflib':
         specifier: ^0.1.0
         version: 0.1.0
@@ -3472,6 +3472,12 @@ importers:
       json-diff-kit:
         specifier: ^1.0.29
         version: 1.0.31
+      json-schema:
+        specifier: ^0.4.0
+        version: 0.4.0
+      lodash.isequal:
+        specifier: ^4.5.0
+        version: 4.5.0
       prosemirror-changeset:
         specifier: ^2.2.1
         version: 2.2.1
@@ -3521,6 +3527,9 @@ importers:
       '@types/json-diff':
         specifier: ^1.0.3
         version: 1.0.3
+      '@types/lodash.isequal':
+        specifier: ^4.5.8
+        version: 4.5.8
       '@types/react':
         specifier: ^18.0.25
         version: 18.3.20
@@ -4031,22 +4040,6 @@ importers:
       vite-plugin-eslint:
         specifier: ^1.8.1
         version: 1.8.1(eslint@8.57.1)(vite@5.4.15(@types/node@22.13.13)(terser@5.39.0))
-
-  shared:
-    dependencies:
-      '@blocknote/core':
-        specifier: ^0.26.0
-        version: 0.26.0(@hocuspocus/provider@2.15.2(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24))(@types/hast@3.0.4)
-      image-meta:
-        specifier: ^0.2.1
-        version: 0.2.1
-    devDependencies:
-      '@types/node':
-        specifier: 22.13.13
-        version: 22.13.13
-      typescript:
-        specifier: ^5.3.3
-        version: 5.8.2
 
   tests:
     devDependencies:
@@ -7789,6 +7782,9 @@ packages:
   '@types/lodash.groupby@4.6.9':
     resolution: {integrity: sha512-z2xtCX2ko7GrqORnnYea4+ksT7jZNAvaOcLd6mP9M7J09RHvJs06W8BGdQQAX8ARef09VQLdeRilSOcfHlDQJQ==}
 
+  '@types/lodash.isequal@4.5.8':
+    resolution: {integrity: sha512-uput6pg4E/tj2LGxCZo9+y27JNyB2OZuuI/T5F+ylVDYuqICLG2/ktjxx0v6GvVntAf8TvEzeQLcV0ffRirXuA==}
+
   '@types/lodash.merge@4.6.9':
     resolution: {integrity: sha512-23sHDPmzd59kUgWyKGiOMO2Qb9YtqRO/x4IhkgNUiPQ1+5MUVqi6bCZeq9nBJ17msjIMbEIO5u+XW4Kz6aGUhQ==}
 
@@ -10799,6 +10795,10 @@ packages:
   lodash.get@4.4.2:
     resolution: {integrity: sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==}
     deprecated: This package is deprecated. Use the optional chaining (?.) operator instead.
+
+  lodash.isequal@4.5.0:
+    resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
+    deprecated: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.
 
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
@@ -18361,6 +18361,10 @@ snapshots:
     dependencies:
       '@types/lodash': 4.17.16
 
+  '@types/lodash.isequal@4.5.8':
+    dependencies:
+      '@types/lodash': 4.17.16
+
   '@types/lodash.merge@4.6.9':
     dependencies:
       '@types/lodash': 4.17.16
@@ -21953,6 +21957,8 @@ snapshots:
   lodash.debounce@4.0.8: {}
 
   lodash.get@4.4.2: {}
+
+  lodash.isequal@4.5.0: {}
 
   lodash.merge@4.6.2: {}
 

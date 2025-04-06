@@ -201,13 +201,15 @@ export class AIExtension extends BlockNoteExtension {
 
       // TODO: maybe separate functions for streaming / non-streaming?
       if (options.dataFormat === "json") {
-        ret = await llm.json.call(this.editor, options);
+        throw new Error("not implemented");
+        // ret = await llm.json.call(this.editor, options);
       } else if (options.dataFormat === "markdown") {
-        ret = await llm.markdown.call(this.editor, options);
+        throw new Error("not implemented");
+        // ret = await llm.markdown.call(this.editor, options);
       } else if (options.dataFormat === "html") {
-        ret = await llm.html.call(this.editor, options, () => {
+        ret = await llm.html.call(this.editor, { ...options, onStart: () => {
           this.setAIResponseStatus("ai-writing"); // TODO: also apply to other formats
-        });
+        }});
       } else {
         throw new UnreachableCaseError(options.dataFormat);
       }

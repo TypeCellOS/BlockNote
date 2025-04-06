@@ -1,7 +1,6 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { JSONSchema7Definition } from "json-schema";
+import { JSONSchema7 } from "json-schema";
 import { InvalidOrOk, streamTool } from "../streamTool/streamTool.js";
-
 export type UpdateBlockToolCall<T> = {
   type: "update";
   id: string;
@@ -10,14 +9,17 @@ export type UpdateBlockToolCall<T> = {
 
 export function createUpdateBlockTool<T>(
   description: string,
-  blockSchema: JSONSchema7Definition,
+  schema: {
+    block: JSONSchema7,
+    $defs?: JSONSchema7["$defs"],
+  },
   validateBlock: (
     block: any,
     editor: BlockNoteEditor<any, any, any>,
     fallbackType?: string
   ) => InvalidOrOk<T>
 ) {
-  return streamTool<UpdateBlockToolCall<T>>(
+  return (editor: BlockNoteEditor<any, any, any>, options: { idsSuffixed: boolean }) => streamTool<UpdateBlockToolCall<T>>(
     "update",
     description,
     {
@@ -27,11 +29,12 @@ export function createUpdateBlockTool<T>(
           type: "string",
           description: "id of block to update",
         },
-        block: blockSchema,
+        block: schema.block,
       },
       required: ["id", "block"],
+      $defs: schema.$defs,
     },
-    (operation, editor, options) => {
+    (operation) => {
       if (operation.type !== "update") {
         return {
           result: "invalid",

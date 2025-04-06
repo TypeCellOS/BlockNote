@@ -31,7 +31,7 @@ function matchFileSnapshot(data: any, postFix = "") {
 export function generateSharedTestCases(
   callLLM: (
     editor: BlockNoteEditor<any, any, any>,
-    params: { prompt: string }
+    params: { userPrompt: string }
   ) => Promise<any>,
   skipTestsRequiringCapabilities?: {
     mentions?: boolean;
@@ -52,7 +52,7 @@ export function generateSharedTestCases(
       ]);
 
       const result = await callLLM(editor, {
-        prompt: "translate existing document to german",
+        userPrompt: "translate existing document to german",
       });
 
       await result.apply();
@@ -100,7 +100,7 @@ export function generateSharedTestCases(
       ]);
 
       const result = await callLLM(editor, {
-        prompt: "translate to german",
+        userPrompt: "translate to german",
       });
 
       await result.apply();
@@ -127,7 +127,7 @@ export function generateSharedTestCases(
       ]);
 
       const result = await callLLM(editor, {
-        prompt: "change first paragraph to a heading",
+        userPrompt: "change first paragraph to a heading",
       });
 
       await result.apply();
@@ -147,7 +147,7 @@ export function generateSharedTestCases(
       ]);
 
       const result = await callLLM(editor, {
-        prompt: "change first paragraph to bold",
+        userPrompt: "change first paragraph to bold",
       });
 
       await result.apply();
@@ -168,7 +168,7 @@ export function generateSharedTestCases(
       ]);
 
       const result = await callLLM(editor, {
-        prompt: "change first word to bold",
+        userPrompt: "change first word to bold",
       });
 
       await result.apply();
@@ -198,7 +198,7 @@ export function generateSharedTestCases(
 
         const editor = getTestEditor();
         const result = await callLLM(editor, {
-          prompt: test.prompt,
+          userPrompt: test.userPrompt,
         });
         await result.apply();
 
@@ -222,7 +222,7 @@ export function generateSharedTestCases(
         },
       ]);
       const result = await callLLM(editor, {
-        prompt: "delete the first sentence",
+        userPrompt: "delete the first sentence",
       });
 
       await result.apply();
@@ -242,7 +242,7 @@ export function generateSharedTestCases(
         },
       ]);
       const result = await callLLM(editor, {
-        prompt: "Add a sentence with `Test` before the first sentence",
+        userPrompt: "Add a sentence with `Test` before the first sentence",
       });
 
       await result.apply();
@@ -260,7 +260,7 @@ export function generateSharedTestCases(
         },
       ]);
       const result = await callLLM(editor, {
-        prompt: `Add a paragraph with text "Test" after the first paragraph`,
+        userPrompt: `Add a paragraph with text "Test" after the first paragraph`,
       });
 
       await result.apply();

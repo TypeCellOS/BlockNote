@@ -1,4 +1,3 @@
-import { BlockNoteEditor } from "@blocknote/core";
 
 import {
   filterValidOperations,
@@ -15,7 +14,6 @@ export type PreprocessOperationResult<T extends StreamTool<any>[]> = {
 export async function* preprocessOperationsStreaming<
   T extends StreamTool<any>[]
 >(
-  editor: BlockNoteEditor,
   operationsStream: AsyncIterable<{
     partialOperation: any;
     isUpdateToPreviousOperation: boolean;
@@ -25,7 +23,6 @@ export async function* preprocessOperationsStreaming<
 ): AsyncGenerator<PreprocessOperationResult<T>> {
   // from partial operations to valid / invalid operations
   const validatedOperationsStream = toValidatedOperations(
-    editor,
     operationsStream,
     streamTools
   );
@@ -41,7 +38,6 @@ export async function* preprocessOperationsStreaming<
 export async function* preprocessOperationsNonStreaming<
   T extends StreamTool<any>[]
 >(
-  editor: BlockNoteEditor,
   operationsStream: AsyncIterable<{
     partialOperation: any;
     isUpdateToPreviousOperation: boolean;
@@ -51,7 +47,6 @@ export async function* preprocessOperationsNonStreaming<
 ): AsyncGenerator<PreprocessOperationResult<T>> {
   // from partial operations to valid / invalid operations
   const validatedOperationsStream = toValidatedOperations(
-    editor,
     operationsStream,
     streamTools
   );

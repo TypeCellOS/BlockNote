@@ -19,9 +19,9 @@ import { RiSparkling2Fill } from "react-icons/ri";
 
 export type PromptSuggestionMenuProps = {
   items: DefaultReactSuggestionItem[];
-  onManualPromptSubmit: (prompt: string) => void;
+  onManualPromptSubmit: (userPrompt: string) => void;
   promptText?: string;
-  onPromptTextChange?: (prompt: string) => void;
+  onPromptTextChange?: (userPrompt: string) => void;
   placeholder?: string;
   disabled?: boolean;
   loading?: boolean;

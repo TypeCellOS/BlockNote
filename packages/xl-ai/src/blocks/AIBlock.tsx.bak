@@ -10,7 +10,7 @@ import { mockAIReplaceBlockContent } from "./mockAIFunctions.js";
 
 export const aiPropSchema = {
   ...defaultProps,
-  prompt: {
+  userPrompt: {
     default: "" as const,
   },
   timeGenerated: {

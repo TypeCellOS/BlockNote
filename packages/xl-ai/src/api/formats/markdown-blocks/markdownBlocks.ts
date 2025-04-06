@@ -1,48 +1,89 @@
 import {
-  BlockNoteEditor,
-  PartialBlock,
-  UnreachableCaseError,
-  getBlock,
+  Block,
+  BlockNoteEditor
 } from "@blocknote/core";
-import { CoreMessage, GenerateObjectResult, StreamObjectResult } from "ai";
-import { Mapping } from "prosemirror-transform";
-import type { PromptOrMessages } from "../../index.js";
-import { promptManipulateSelectionJSONSchema } from "../../prompts/jsonSchemaPrompts.js";
-
+import { generateObject, GenerateObjectResult, streamObject, StreamObjectResult } from "ai";
 import {
-  ApplyOperationResult,
-  applyOperations,
+  ApplyOperationResult
 } from "../../executor/streamOperations/applyOperations.js";
-import { promptManipulateDocumentUseMarkdownBlocks } from "../../prompts/markdownBlocksPrompt.js";
+import type { PromptOrMessages } from "../../index.js";
+import { promptManipulateDocumentUseMarkdownBlocks, promptManipulateSelectionMarkdownBlocks } from "../../prompts/markdownBlocksPrompt.js";
+import {
+  generateOperations,
+  LLMRequestOptions,
+  streamOperations,
+} from "../../streamTool/callLLMWithStreamTools.js";
+import { StreamTool } from "../../streamTool/streamTool.js";
+import { isEmptyParagraph } from "../../util/emptyBlock.js";
 import {
   AsyncIterableStream,
   createAsyncIterableStreamFromAsyncIterable,
 } from "../../util/stream.js";
+import { applyMDOperations } from "./streamOperations/applyMDOperations.js";
 
-import { duplicateInsertsToUpdates } from "../../executor/streamOperations/duplicateInsertsToUpdates.js";
-
-import { updateToReplaceSteps } from "../../../prosemirror/changeset.js";
-import {
-  getApplySuggestionsTr,
-  rebaseTool,
-} from "../../../prosemirror/rebaseTool.js";
-
-import {
-  LLMRequestOptions,
-  callLLMWithStreamTools,
-} from "../../streamTool/callLLMWithStreamTools.js";
-import { StreamToolCall } from "../../streamTool/streamTool.js";
-import { AddBlocksToolCall } from "../../tools/createAddBlocksTool.js";
-import { UpdateBlockToolCall } from "../../tools/createUpdateBlockTool.js";
-import { DeleteBlockToolCall } from "../../tools/delete.js";
+import { getDataForPromptNoSelection, getDataForPromptWithSelection } from "./markdownPromptData.js";
 import { tools } from "./tools/index.js";
 
+// TODO: this file is a copy from htmlBlocks.ts, we should refactor to share code?
+
 // Define the return type for streaming mode
-type ReturnType = {
+type CallLLMReturnType = {
   toolCallsStream: AsyncIterableStream<ApplyOperationResult<any>>;
   llmResult: StreamObjectResult<any, any, any> | GenerateObjectResult<any>;
   apply: () => Promise<void>;
 };
+
+async function getMessages(editor: BlockNoteEditor<any, any, any>,
+  opts: {
+    selectedBlocks?: Block<any, any, any>[],
+    excludeBlockIds?: string[]
+} & PromptOrMessages) {
+  // TODO: child blocks
+  // TODO: document how to customize prompt
+  if ("messages" in opts && opts.messages) {
+    return opts.messages;
+  } else if (opts.selectedBlocks) {
+    if (opts.excludeBlockIds) {
+      throw new Error("expected excludeBlockIds to be false when selectedBlocks is provided");
+    }
+    return promptManipulateSelectionMarkdownBlocks({
+      ...await getDataForPromptWithSelection(editor, opts.selectedBlocks),
+      userPrompt: opts.userPrompt,
+    });
+  } else {
+    if (opts.useSelection) {
+      throw new Error("expected useSelection to be false when selectedBlocks is not provided");
+    }
+    return promptManipulateDocumentUseMarkdownBlocks({
+      ...await getDataForPromptNoSelection(editor, { excludeBlockIds: opts.excludeBlockIds }),
+      userPrompt: opts.userPrompt,
+    });
+  } 
+}
+
+function getStreamTools(editor: BlockNoteEditor<any, any, any>, defaultStreamTools?: {
+  /** Enable the add tool (default: true) */
+  add?: boolean;
+  /** Enable the update tool (default: true) */
+  update?: boolean;
+  /** Enable the delete tool (default: true) */
+  delete?: boolean;
+}) {
+  const mergedStreamTools = {
+    add: true,
+    update: true,
+    delete: true,
+    ...defaultStreamTools,
+  };
+
+  const streamTools: StreamTool<any>[] = [
+    ...(mergedStreamTools.update ? [tools.update(editor, { idsSuffixed: true})] : []),
+    ...(mergedStreamTools.add ? [tools.add(editor, { idsSuffixed: true})] : []),
+    ...(mergedStreamTools.delete ? [tools.delete(editor, { idsSuffixed: true})] : []),
+  ];
+
+  return streamTools;
+}
 
 export async function callLLM(
   editor: BlockNoteEditor<any, any, any>,
@@ -56,110 +97,53 @@ export async function callLLM(
         /** Enable the delete tool (default: true) */
         delete?: boolean;
       };
+      stream?: boolean;
+      deleteEmptyCursorBlock?: boolean;
+      onStart?: () => void,
+      _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]>
+      _streamObjectOptions?: Partial<Parameters<typeof streamObject<any>>[0]>
     }
-): Promise<ReturnType> {
-  const mergedStreamTools = {
-    add: true,
-    update: true,
-    delete: true,
-    ...opts.defaultStreamTools,
-  };
+): Promise<CallLLMReturnType> {
+  const { userPrompt: prompt, useSelection,deleteEmptyCursorBlock, stream, onStart, ...rest } = opts;
+  
+  const cursorBlock = useSelection ? undefined : editor.getTextCursorPosition().block
+  
+  const deleteCursorBlock: string | undefined = cursorBlock && deleteEmptyCursorBlock && isEmptyParagraph(cursorBlock) ? cursorBlock.id : undefined;
+  
+  const selectionInfo = useSelection ? editor.getSelection2() : undefined;
+  
+  const messages = await getMessages(editor, { ...opts, selectedBlocks: selectionInfo?.blocks, excludeBlockIds: deleteCursorBlock ? [deleteCursorBlock] : undefined });
+  
+  const streamTools = getStreamTools(editor, opts.defaultStreamTools);
 
-  const { prompt, useSelection, stream = true, ...rest } = opts;
+  let response: Awaited<ReturnType<typeof generateOperations<any>>> | Awaited<ReturnType<typeof streamOperations<any>>>;
 
-  let messages: CoreMessage[];
-
-  const doc = await Promise.all(
-    editor.document.map(async (block) => {
-      return {
-        id: block.id + "$",
-        block: (await editor.blocksToMarkdownLossy([block]))
-          .trim()
-          .replace("&#x20;", " "),
-      };
-    })
-  );
-
-  if ("messages" in opts && opts.messages) {
-    messages = opts.messages;
-  } else if (useSelection) {
-    messages = promptManipulateSelectionJSONSchema({
-      userPrompt: opts.prompt!,
-      document: editor.getDocumentWithSelectionMarkers(),
-    });
+  if (stream || stream === undefined) {
+    response = await streamOperations(streamTools, {
+      messages, ...rest
+    }, () => {
+    if (deleteCursorBlock) {
+      editor.removeBlocks([deleteCursorBlock]);
+    }
+    onStart?.();
+  });
   } else {
-    messages = promptManipulateDocumentUseMarkdownBlocks({
-      userPrompt: opts.prompt!,
-      markdown: JSON.stringify(doc),
+    response = await generateOperations(streamTools, {
+      messages, ...rest
     });
+    if (deleteCursorBlock) {
+      editor.removeBlocks([deleteCursorBlock]);
+    }
+    onStart?.();
   }
 
-  const streamTools = [
-    ...(mergedStreamTools.update ? [tools.update] : []),
-    ...(mergedStreamTools.add ? [tools.add] : []),
-    ...(mergedStreamTools.delete ? [tools.delete] : []),
-  ];
+  const results = applyMDOperations(editor, response.operationsSource, selectionInfo?._meta.startPos, selectionInfo?._meta.endPos);
 
-  const response = await callLLMWithStreamTools(
-    editor,
-    {
-      ...rest,
-      messages,
-      stream,
-    },
-    streamTools,
-    {
-      block: { type: "string", description: "markdown of block" },
-    }
-  );
-
-  const jsonToolCalls = toJSONToolCalls(editor, response.toolCallsStream);
-
-  const operationsToApply = stream
-    ? duplicateInsertsToUpdates(jsonToolCalls)
-    : jsonToolCalls;
-
-  const resultGenerator = applyOperations(
-    editor,
-    operationsToApply,
-    async (id) => {
-      const tr = getApplySuggestionsTr(editor);
-      const md = await editor.blocksToMarkdownLossy([
-        getBlock(editor, id, tr.doc)!,
-      ]);
-      const blocks = await editor.tryParseMarkdownToBlocks(md);
-
-      const steps = updateToReplaceSteps(
-        editor,
-        {
-          id,
-          block: blocks[0],
-          type: "update",
-        },
-        tr.doc
-      );
-
-      const stepMapping = new Mapping();
-      for (const step of steps) {
-        const mapped = step.map(stepMapping);
-        if (!mapped) {
-          throw new Error("Failed to map step");
-        }
-        tr.step(mapped);
-        stepMapping.appendMap(mapped.getMap());
-      }
-
-      return rebaseTool(editor, tr);
-    },
-    {
-      withDelays: false, // TODO: make configurable
-    }
-  );
   const toolCallsStream =
-    createAsyncIterableStreamFromAsyncIterable(resultGenerator);
+    createAsyncIterableStreamFromAsyncIterable(results);
 
   return {
-    llmResult: response.llmResult,
+    llmResult: response.result,
     toolCallsStream,
     // TODO: make it easy to add your own "applyOperations" function
     async apply() {
@@ -169,96 +153,4 @@ export async function callLLM(
       }
     },
   };
-}
-
-export async function* toJSONToolCalls(
-  editor: BlockNoteEditor<any, any, any>,
-  operationsSource: AsyncIterable<{
-    operation: StreamToolCall<any>;
-    isUpdateToPreviousOperation: boolean;
-    isPossiblyPartial: boolean;
-  }>
-): AsyncGenerator<{
-  operation: StreamToolCall<any>;
-  isUpdateToPreviousOperation: boolean;
-  isPossiblyPartial: boolean;
-}> {
-  for await (const chunk of operationsSource) {
-    const operation = chunk.operation;
-    console.log("operation", operation);
-    if (!isBuiltInToolCall(operation)) {
-      yield chunk;
-      continue;
-    }
-
-    if (operation.type === "add") {
-      const blocks = await Promise.all(
-        operation.blocks.map(async (md) => {
-          const block = (await editor.tryParseMarkdownToBlocks(md.trim()))[0]; // TODO: trim
-          delete (block as any).id;
-          return block;
-        })
-      );
-
-      // hacky
-      if ((window as any).__TEST_OPTIONS) {
-        (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS.mockID = 0;
-      }
-
-      yield {
-        ...chunk,
-        operation: {
-          ...chunk.operation,
-          blocks,
-        } as AddBlocksToolCall<PartialBlock<any, any, any>>,
-      };
-    } else if (operation.type === "update") {
-      // console.log("update", operation.block);
-      const block = (
-        await editor.tryParseMarkdownToBlocks(operation.block.trim())
-      )[0];
-
-      delete (block as any).id;
-      // console.log("update", operation.block);
-      // console.log("md", block);
-      // hacky
-      if ((window as any).__TEST_OPTIONS) {
-        (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS.mockID = 0;
-      }
-
-      yield {
-        ...chunk,
-        operation: {
-          ...operation,
-          block,
-        } as UpdateBlockToolCall<PartialBlock<any, any, any>>,
-      };
-    } else if (operation.type === "delete") {
-      yield {
-        ...chunk,
-        operation: {
-          ...operation,
-        } as DeleteBlockToolCall,
-      };
-    } else {
-      // @ts-expect-error Apparently TS gets lost here
-      throw new UnreachableCaseError(operation);
-    }
-  }
-}
-
-function isBuiltInToolCall(
-  operation: unknown
-): operation is
-  | UpdateBlockToolCall<string>
-  | AddBlocksToolCall<string>
-  | DeleteBlockToolCall {
-  return (
-    typeof operation === "object" &&
-    operation !== null &&
-    "type" in operation &&
-    (operation.type === "update" ||
-      operation.type === "add" ||
-      operation.type === "delete")
-  );
 }

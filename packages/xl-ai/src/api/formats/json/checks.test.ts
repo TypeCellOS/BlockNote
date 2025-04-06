@@ -94,7 +94,7 @@ describe("Error handling", () => {
     try {
       const result = await callLLM(editor, {
         stream: true,
-        prompt: "translate to Spanish",
+        userPrompt: "translate to Spanish",
         model: openai,
         maxRetries: 0,
       });

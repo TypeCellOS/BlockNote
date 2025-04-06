@@ -1,4 +1,3 @@
-import { BlockNoteEditor } from "@blocknote/core";
 import { InvalidOrOk, StreamTool, StreamToolCall } from "./streamTool.js";
 
 /**
@@ -9,7 +8,6 @@ import { InvalidOrOk, StreamTool, StreamToolCall } from "./streamTool.js";
  * b) the "partial" operation doesn't have enough data yet to execute
  */
 export async function* toValidatedOperations<T extends StreamTool<any>[]>(
-  editor: BlockNoteEditor,
   partialObjectStream: AsyncIterable<{
     partialOperation: any;
     isUpdateToPreviousOperation: boolean;
@@ -32,9 +30,7 @@ export async function* toValidatedOperations<T extends StreamTool<any>[]>(
       continue;
     }
 
-    const operation = func.validate(chunk.partialOperation, editor, {
-      idsSuffixed: true,
-    });
+    const operation = func.validate(chunk.partialOperation);
 
     yield {
       operation,

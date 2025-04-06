@@ -11,12 +11,9 @@ import {
 
 import { createStreamToolsArraySchema } from "./jsonSchema.js";
 
-import { BlockNoteEditor } from "@blocknote/core";
-import { JSONSchema7Definition } from "json-schema";
 import {
   AsyncIterableStream,
-  createAsyncIterableStream,
-  createAsyncIterableStreamFromAsyncIterable,
+  createAsyncIterableStream
 } from "../util/stream.js";
 import { filterNewOrUpdatedOperations } from "./filterNewOrUpdatedOperations.js";
 import {
@@ -28,97 +25,53 @@ import { StreamTool, StreamToolCall } from "./streamTool.js";
 type LLMRequestOptionsInternal = {
   model: LanguageModel;
   messages: CoreMessage[];
-  stream: boolean;
   maxRetries: number;
-  _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]>;
-  _streamObjectOptions?: Partial<Parameters<typeof streamObject<any>>[0]>;
-};
-
-export type LLMRequestOptions = Optional<
-  LLMRequestOptionsInternal,
-  "stream" | "maxRetries"
->;
-
-// Define the return type for streaming mode
-type ReturnType<T extends StreamTool<any>[]> = {
-  toolCallsStream: AsyncIterableStream<{
-    operation: StreamToolCall<T>;
-    isUpdateToPreviousOperation: boolean;
-    isPossiblyPartial: boolean;
-  }>;
-  llmResult: StreamObjectResult<any, any, any> | GenerateObjectResult<any>;
 };
 
 type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
-export async function callLLMWithStreamTools<T extends StreamTool<any>[]>(
-  editor: BlockNoteEditor<any, any, any>,
-  opts: LLMRequestOptions,
+export type LLMRequestOptions = Optional<
+  LLMRequestOptionsInternal,
+  "maxRetries"
+>;
+
+export async function generateOperations<T extends StreamTool<any>[]>(
   streamTools: T,
-  jsonSchemaDefs?: { [key: string]: JSONSchema7Definition },
-  onStart?: () => void
-): Promise<ReturnType<T>> {
-  const options = {
-    stream: true,
-    maxRetries: 2,
-    ...opts,
-  };
-
-  const schema = jsonSchema({
-    ...createStreamToolsArraySchema(streamTools),
-    $defs: jsonSchemaDefs,
-  });
-  // console.log(JSON.stringify(schema.jsonSchema, null, 2));
-  const getResponseOptions = {
-    ...options,
-    mode: "tool" as const,
-    schema,
-  };
-
-  const { result, operationsSource } = options.stream
-    ? await getLLMResponseStreaming(
-        streamTools,
-        getResponseOptions,
-        editor,
-        onStart
-      )
-    : await getLLMResponseNonStreaming(streamTools, getResponseOptions, editor);
-
-  if (!options.stream) {
-    onStart?.();
-  }
-
-  return {
-    llmResult: result,
-    toolCallsStream:
-      createAsyncIterableStreamFromAsyncIterable(operationsSource),
-  };
-}
-
-async function getLLMResponseNonStreaming<T extends StreamTool<any>[]>(
-  streamTools: T,
-  options: LLMRequestOptionsInternal & { schema: any },
-  editor: BlockNoteEditor<any, any, any>
+  opts: LLMRequestOptions & { _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]> },
 ): Promise<{
-  result: GenerateObjectResult<any>;
+  result: GenerateObjectResult<{ operations: any }>;
   operationsSource: AsyncIterable<{
     operation: StreamToolCall<T>;
-    isUpdateToPreviousOperation: boolean;
-    isPossiblyPartial: boolean;
+    isUpdateToPreviousOperation: boolean; // TODO: remove?
+    isPossiblyPartial: boolean; // TODO: remove?
   }>;
 }> {
-  if (options.stream) {
-    throw new Error("Cannot provide stream: true when not streaming");
+  const {  _generateObjectOptions, ...rest } = opts;
+
+  if (_generateObjectOptions && ("output" in  _generateObjectOptions || "schema" in _generateObjectOptions || 'mode' in _generateObjectOptions)) {
+    throw new Error("Cannot provide output or schema in _generateObjectOptions");
   }
 
-  if (options._streamObjectOptions) {
-    throw new Error("Cannot provide _streamObjectOptions when not streaming");
-  }
+  const schema = jsonSchema(createStreamToolsArraySchema(streamTools));
 
-  const ret = await generateObject<{ operations: any[] }>({
-    ...options,
-    ...(options._generateObjectOptions as any),
-  });
+  const options = {
+    // non-overridable options for streamObject
+    mode: "tool" as const,
+    output: "object" as const,
+    schema,
+    
+    // configurable options for streamObject
+
+    // - optional, with defaults
+    maxRetries: 2,
+    //  - mandatory ones:
+    ...rest,
+
+    // extra options for streamObject
+    ...(_generateObjectOptions ?? {}) as any,
+  };
+
+  const ret = await generateObject<{ operations: any }>(options);
 
   if (!ret.object.operations) {
     throw new Error("No operations returned");
@@ -139,17 +92,15 @@ async function getLLMResponseNonStreaming<T extends StreamTool<any>[]>(
   return {
     result: ret,
     operationsSource: preprocessOperationsNonStreaming(
-      editor,
       singleChunkGenerator(),
       streamTools
     ),
   };
 }
 
-async function getLLMResponseStreaming<T extends StreamTool<any>[]>(
+export async function streamOperations<T extends StreamTool<any>[]>(
   streamTools: T,
-  options: LLMRequestOptionsInternal & { schema: any },
-  editor: BlockNoteEditor<any, any, any>,
+  opts: LLMRequestOptions & { _streamObjectOptions?: Partial<Parameters<typeof streamObject<{ operations: any[] }>>[0]> },
   onStart: () => void = () => {
     // noop
   }
@@ -161,21 +112,36 @@ async function getLLMResponseStreaming<T extends StreamTool<any>[]>(
     isPossiblyPartial: boolean;
   }>;
 }> {
-  if (!options.stream) {
-    throw new Error("Cannot provide stream: false when streaming");
+  const {  _streamObjectOptions, ...rest } = opts;
+
+  if (_streamObjectOptions && ("output" in  _streamObjectOptions || "schema" in _streamObjectOptions || 'mode' in _streamObjectOptions)) {
+    throw new Error("Cannot provide output or schema in _streamObjectOptions");
   }
-  if (options._generateObjectOptions) {
-    throw new Error("Cannot provide _generateObjectOptions when streaming");
-  }
-  const ret = streamObject<{ operations: any[] }>({
-    ...options,
-    ...(options._streamObjectOptions as any),
-  });
+
+  const schema = jsonSchema(createStreamToolsArraySchema(streamTools));
+
+  const options = {
+    // non-overridable options for streamObject
+    mode: "tool" as const,
+    output: "object" as const,
+    schema,
+    
+    // configurable options for streamObject
+
+    // - optional, with defaults
+    maxRetries: 2,
+    //  - mandatory ones:
+    ...rest,
+
+    // extra options for streamObject
+    ...(opts._streamObjectOptions ?? {}) as any,
+  };
+
+  const ret = streamObject<{ operations: any }>(options);
 
   return {
     result: ret,
     operationsSource: preprocessOperationsStreaming(
-      editor,
       filterNewOrUpdatedOperations(
         streamOnStartCallback(
           partialObjectStreamThrowError(ret.fullStream),

@@ -24,7 +24,7 @@ export type AIMenuSuggestionItem = Omit<
   DefaultReactSuggestionItem,
   "onItemClick"
 > & {
-  onItemClick: (setPrompt: (prompt: string) => void) => void;
+  onItemClick: (setPrompt: (userPrompt: string) => void) => void;
 };
 
 /**
@@ -46,7 +46,7 @@ export function getDefaultAIMenuItemsWithoutSelection<
       icon: <RiBallPenLine size={18} />,
       onItemClick: async () => {
         await ai.callLLM({
-          prompt:
+          userPrompt:
             "Continue writing: write more text at the current cursor position related to the previous text",
           // By default, LLM will be able to add / update / delete blocks. For "continue writing", we only want to allow adding new blocks.
           defaultStreamTools: {
@@ -66,7 +66,7 @@ export function getDefaultAIMenuItemsWithoutSelection<
       icon: <RiTextWrap size={18} />,
       onItemClick: async () => {
         await ai.callLLM({
-          prompt: "Summarize",
+          userPrompt: "Summarize",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
           defaultStreamTools: {
             add: true,
@@ -84,7 +84,7 @@ export function getDefaultAIMenuItemsWithoutSelection<
       icon: <RiListCheck3 size={18} />,
       onItemClick: async () => {
         await ai.callLLM({
-          prompt: "Add action items",
+          userPrompt: "Add action items",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
           defaultStreamTools: {
             add: true,
@@ -130,7 +130,7 @@ export function getDefaultAIMenuItemsWithSelection<
       onItemClick: async () => {
         await ai.callLLM({
           useSelection: true,
-          prompt: "Improve writing",
+          userPrompt: "Improve writing",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
           defaultStreamTools: {
             add: false,
@@ -149,7 +149,7 @@ export function getDefaultAIMenuItemsWithSelection<
       onItemClick: async () => {
         await ai.callLLM({
           useSelection: true,
-          prompt: "Fix spelling",
+          userPrompt: "Fix spelling",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
           defaultStreamTools: {
             add: false,
@@ -178,7 +178,7 @@ export function getDefaultAIMenuItemsWithSelection<
       onItemClick: async () => {
         await ai.callLLM({
           useSelection: true,
-          prompt: "Simplify",
+          userPrompt: "Simplify",
           // By default, LLM will be able to add / update / delete blocks. For "summarize", we only want to allow adding new blocks.
           defaultStreamTools: {
             add: false,

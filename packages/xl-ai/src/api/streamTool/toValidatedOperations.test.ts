@@ -31,7 +31,11 @@ describe("toValidatedOperations", () => {
   } as unknown as BlockNoteEditor;
 
   // Array of test functions
-  const streamTools = [tools.add, tools.update, tools.delete];
+  const streamTools = [
+    tools.add(mockEditor, { idsSuffixed: true }),
+    tools.update(mockEditor, { idsSuffixed: true }),
+    tools.delete(mockEditor, { idsSuffixed: true }),
+  ];
 
   it("should transform add operations to BlockNoteOperations", async () => {
     // Create a mock stream
@@ -55,7 +59,6 @@ describe("toValidatedOperations", () => {
 
     const result = [];
     for await (const chunk of toValidatedOperations(
-      mockEditor,
       mockStream(),
       streamTools
     )) {
@@ -79,7 +82,6 @@ describe("toValidatedOperations", () => {
 
     const result = [];
     for await (const chunk of toValidatedOperations(
-      mockEditor,
       mockStream(),
       streamTools
     )) {
@@ -124,7 +126,6 @@ describe("toValidatedOperations", () => {
 
     const result = [];
     for await (const chunk of toValidatedOperations(
-      mockEditor,
       mockStream(),
       streamTools
     )) {
@@ -157,7 +158,6 @@ describe("toValidatedOperations", () => {
 
     const result = [];
     for await (const chunk of toValidatedOperations(
-      mockEditor,
       mockStream(),
       streamTools
     )) {

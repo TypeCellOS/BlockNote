@@ -1,4 +1,3 @@
-import { BlockNoteEditor } from "@blocknote/core";
 import { DeepPartial } from "ai";
 import { JSONSchema7 } from "json-schema";
 
@@ -38,10 +37,6 @@ export type StreamTool<T extends { type: string }> = {
    */
   validate: (
     operation: DeepPartial<T>, // TODO: maybe `unknown` is better?
-    editor: BlockNoteEditor<any, any, any>,
-    options: {
-      idsSuffixed: boolean;
-    }
   ) => InvalidOrOk<T>;
 };
 
@@ -78,8 +73,6 @@ export function streamTool<T extends { type: string }>(
   schema: JSONSchema7,
   validate: (
     operation: DeepPartial<T>,
-    editor: BlockNoteEditor<any, any, any>,
-    options: { idsSuffixed: boolean }
   ) => InvalidOrOk<T>
 ): StreamTool<T> {
   return {

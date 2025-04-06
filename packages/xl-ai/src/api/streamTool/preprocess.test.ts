@@ -2,12 +2,12 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { applyOperations } from "../executor/streamOperations/applyOperations.js";
-import { tools } from "../formats/json/tools/index.js";
 
 import {
   getApplySuggestionsTr,
   rebaseTool,
 } from "../../prosemirror/rebaseTool.js";
+import { tools } from "../formats/json/tools/index.js";
 import { preprocessOperationsStreaming } from "./preprocess.js";
 import { StreamTool } from "./streamTool.js";
 
@@ -17,7 +17,7 @@ type StreamType = AsyncIterable<{
   isPossiblyPartial: boolean;
 }>;
 
-const streamTools = [tools.add, tools.update, tools.delete];
+
 
 // TODO: maybe change unit test or move to json test, because this does not only test preprocess
 // but also applyOperations
@@ -26,8 +26,8 @@ async function* executeOperations(
   operationsStream: StreamType,
   streamTools: StreamTool<any>[]
 ) {
+  
   const preprocessedOperationsStream = preprocessOperationsStreaming(
-    editor,
     operationsStream,
     streamTools
   );
@@ -42,7 +42,7 @@ async function* executeOperations(
 
 describe("executeOperations", () => {
   let editor: BlockNoteEditor;
-
+  let streamTools: StreamTool<any>[];
   beforeEach(() => {
     editor = BlockNoteEditor.create({
       initialContent: [
@@ -53,6 +53,11 @@ describe("executeOperations", () => {
         },
       ],
     });
+    streamTools = [
+      tools.add(editor, { idsSuffixed: true }),
+      tools.update(editor, { idsSuffixed: true }),
+      tools.delete(editor, { idsSuffixed: true }),
+    ];
   });
 
   it("should process insert operations", async () => {

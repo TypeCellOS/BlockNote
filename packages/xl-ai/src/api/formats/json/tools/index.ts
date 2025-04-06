@@ -9,18 +9,22 @@ export const tools = {
   add: createAddBlocksTool<PartialBlock<any, any, any>>(
     "Insert new blocks",
     {
-      $ref: "#/$defs/block",
+      block: {
+        $ref: "#/$defs/block",
+      },
     },
     validateBlockFunction
   ),
   update: createUpdateBlockTool<PartialBlock<any, any, any>>(
     "Update a block, the new block will replace the existing block.",
     {
-      $ref: "#/$defs/block",
+      block: {
+        $ref: "#/$defs/block",
+      },
     },
     validateBlockFunction
   ),
   delete: deleteBlockTool,
 };
 
-export type Tools = (typeof tools)[keyof typeof tools];
+export type Tools = ReturnType<(typeof tools)[keyof typeof tools]>;

@@ -13,13 +13,16 @@ import { validateArray } from "./util/validateArray.js";
 
 export function createAddBlocksTool<T>(
   description: string,
-  blockItemsSchema: JSONSchema7["items"],
+  schema: {
+    block: JSONSchema7["items"],
+    $defs?: JSONSchema7["$defs"],
+  },
   validateBlock: (
     block: any,
     editor: BlockNoteEditor<any, any, any>
   ) => InvalidOrOk<T>
 ) {
-  return streamTool<AddBlocksToolCall<T>>(
+  return (editor: BlockNoteEditor<any, any, any>, options: { idsSuffixed: boolean }) => streamTool<AddBlocksToolCall<T>>(
     "add",
     description,
     {
@@ -36,13 +39,14 @@ export function createAddBlocksTool<T>(
             "`after` to add blocks AFTER (below) the block with `referenceId`, `before` to add the block BEFORE (above)",
         },
         blocks: {
-          items: blockItemsSchema,
+          items: schema.block,
           type: "array",
         },
       },
       required: ["referenceId", "position", "blocks"],
+      $defs: schema.$defs,
     },
-    (operation, editor, options) => {
+    (operation) => {
       if (operation.type !== "add") {
         return {
           result: "invalid",

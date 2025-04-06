@@ -7,14 +7,24 @@ export const tools = {
   add: createAddBlocksTool<string>(
     "Insert new blocks",
     {
-      $ref: "#/$defs/block",
+      block: {
+        $ref: "#/$defs/block",
+      },
+      $defs: {
+        block: { type: "string", description: "html of block" },
+      }
     },
     validateBlockFunction
   ),
   update: createUpdateBlockTool<string>(
     "Update a block",
     {
-      $ref: "#/$defs/block",
+      block: {
+        $ref: "#/$defs/block",
+      },
+      $defs: {
+        block: { type: "string", description: "html of block" },
+      }
     },
     validateBlockFunction
   ),
