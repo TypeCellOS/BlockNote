@@ -2754,10 +2754,10 @@ importers:
         specifier: ^0.4.3
         version: 0.4.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@blocknote/core':
-        specifier: ^0.27.0
+        specifier: ^0.27.2
         version: link:../core
       '@blocknote/react':
-        specifier: ^0.27.0
+        specifier: ^0.27.2
         version: link:../react
       react:
         specifier: ^18.0 || ^19.0 || >= 19.0.0-rc
@@ -2822,7 +2822,7 @@ importers:
         version: 3.2.1
     devDependencies:
       '@blocknote/core':
-        specifier: ^0.27.0
+        specifier: ^0.27.2
         version: link:../core
       eslint:
         specifier: ^8.10.0
@@ -3051,10 +3051,10 @@ importers:
   packages/mantine:
     dependencies:
       '@blocknote/core':
-        specifier: ^0.27.0
+        specifier: ^0.27.2
         version: link:../core
       '@blocknote/react':
-        specifier: ^0.27.0
+        specifier: ^0.27.2
         version: link:../react
       '@mantine/core':
         specifier: ^7.10.1
@@ -3112,7 +3112,7 @@ importers:
   packages/react:
     dependencies:
       '@blocknote/core':
-        specifier: ^0.27.0
+        specifier: ^0.27.2
         version: link:../core
       '@emoji-mart/data':
         specifier: ^1.2.1
@@ -3197,10 +3197,10 @@ importers:
   packages/server-util:
     dependencies:
       '@blocknote/core':
-        specifier: ^0.27.0
+        specifier: ^0.27.2
         version: link:../core
       '@blocknote/react':
-        specifier: ^0.27.0
+        specifier: ^0.27.2
         version: link:../react
       '@tiptap/core':
         specifier: ^2.7.1
@@ -3261,10 +3261,10 @@ importers:
   packages/shadcn:
     dependencies:
       '@blocknote/core':
-        specifier: ^0.27.0
+        specifier: ^0.27.2
         version: link:../core
       '@blocknote/react':
-        specifier: ^0.27.0
+        specifier: ^0.27.2
         version: link:../react
       '@hookform/resolvers':
         specifier: ^3.6.0
@@ -3376,7 +3376,7 @@ importers:
   packages/xl-docx-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: ^0.27.0
+        specifier: ^0.27.2
         version: link:../core
       buffer:
         specifier: ^6.0.3
@@ -3387,12 +3387,6 @@ importers:
       image-meta:
         specifier: ^0.2.1
         version: 0.2.1
-      react:
-        specifier: ^18.0 || ^19.0 || >= 19.0.0-rc
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.0 || ^19.0 || >= 19.0.0-rc
-        version: 18.3.1(react@18.3.1)
     devDependencies:
       '@types/react':
         specifier: ^18.0.25
@@ -3409,6 +3403,12 @@ importers:
       prettier:
         specifier: ^2.7.1
         version: 2.8.8
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
       rollup-plugin-webpack-stats:
         specifier: ^0.2.2
         version: 0.2.6(rollup@4.37.0)
@@ -3431,10 +3431,10 @@ importers:
   packages/xl-multi-column:
     dependencies:
       '@blocknote/core':
-        specifier: ^0.27.0
+        specifier: ^0.27.2
         version: link:../core
       '@blocknote/react':
-        specifier: ^0.27.0
+        specifier: ^0.27.2
         version: link:../react
       '@tiptap/core':
         specifier: ^2.7.1
@@ -3504,7 +3504,7 @@ importers:
   packages/xl-odt-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: ^0.27.0
+        specifier: ^0.27.2
         version: link:../core
       '@zip.js/zip.js':
         specifier: ^2.7.57
@@ -3529,10 +3529,10 @@ importers:
         specifier: ^2.7.1
         version: 2.8.8
       react:
-        specifier: ^18
+        specifier: ^18.3.1
         version: 18.3.1
       react-dom:
-        specifier: ^18
+        specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       rollup-plugin-webpack-stats:
         specifier: ^0.2.2
@@ -3556,10 +3556,10 @@ importers:
   packages/xl-pdf-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: ^0.27.0
+        specifier: ^0.27.2
         version: link:../core
       '@blocknote/react':
-        specifier: ^0.27.0
+        specifier: ^0.27.2
         version: link:../react
       '@react-pdf/renderer':
         specifier: ^4.3.0
@@ -3570,12 +3570,6 @@ importers:
       docx:
         specifier: ^9.0.2
         version: 9.3.0
-      react:
-        specifier: ^18.0 || ^19.0 || >= 19.0.0-rc
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.0 || ^19.0 || >= 19.0.0-rc
-        version: 18.3.1(react@18.3.1)
     devDependencies:
       '@testing-library/react':
         specifier: ^16.0.1
@@ -3604,6 +3598,12 @@ importers:
       prettier:
         specifier: ^2.7.1
         version: 2.8.8
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
       react-element-to-jsx-string:
         specifier: ^15.0.0
         version: 15.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

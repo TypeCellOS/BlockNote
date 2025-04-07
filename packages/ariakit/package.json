@@ -11,7 +11,7 @@
     "directory": "packages/ariakit"
   },
   "license": "MPL-2.0",
-  "version": "0.27.0",
+  "version": "0.27.2",
   "files": [
     "dist",
     "types",
@@ -56,8 +56,8 @@
   },
   "dependencies": {
     "@ariakit/react": "^0.4.3",
-    "@blocknote/core": "^0.27.0",
-    "@blocknote/react": "^0.27.0"
+    "@blocknote/core": "^0.27.2",
+    "@blocknote/react": "^0.27.2"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",
@@ -80,9 +80,5 @@
     "extends": [
       "../../.eslintrc.js"
     ]
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
   }
 }
