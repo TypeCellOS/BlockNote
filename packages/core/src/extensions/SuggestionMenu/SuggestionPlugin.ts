@@ -215,11 +215,9 @@ export class SuggestionMenuProseMirrorPlugin<
             ignoreQueryLength?: boolean;
           } | null = transaction.getMeta(suggestionMenuPluginKey);
 
-          // Only opens a menu of no menu is already open
           if (
             typeof suggestionPluginTransactionMeta === "object" &&
-            suggestionPluginTransactionMeta !== null &&
-            prev === undefined
+            suggestionPluginTransactionMeta !== null
           ) {
             const trackedPosition = trackPosition(
               editor,
@@ -281,14 +279,7 @@ export class SuggestionMenuProseMirrorPlugin<
 
       props: {
         handleTextInput(view, _from, _to, text) {
-          const suggestionPluginState: SuggestionPluginState = (
-            this as Plugin
-          ).getState(view.state);
-
-          if (
-            triggerCharacters.includes(text) &&
-            suggestionPluginState === undefined
-          ) {
+          if (triggerCharacters.includes(text)) {
             view.dispatch(
               view.state.tr
                 .insertText(text)
