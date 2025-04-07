@@ -46,3 +46,29 @@ pnpm start
 | [@blocknote/mantine](https://github.com/TypeCellOS/BlockNote/tree/main/packages/mantine)         | <a href="https://bundlephobia.com/result?p=@blocknote/mantine@latest"><img src="https://img.shields.io/bundlephobia/minzip/@blocknote/mantine?color=%238ab4f8&label=gzip%20size"></a>         | <a href="https://www.npmjs.com/package/@blocknote/mantine"><img src="https://img.shields.io/npm/v/@blocknote/mantine?color=%23c1a8e2"></a>         |
 | [@blocknote/shadcn](https://github.com/TypeCellOS/BlockNote/tree/main/packages/shadcn)           | <a href="https://bundlephobia.com/result?p=@blocknote/shadcn@latest"><img src="https://img.shields.io/bundlephobia/minzip/@blocknote/shadcn?color=%238ab4f8&label=gzip%20size"></a>           | <a href="https://www.npmjs.com/package/@blocknote/shadcn"><img src="https://img.shields.io/npm/v/@blocknote/shadcn?color=%23c1a8e2"></a>           |
 | [@blocknote/server-util](https://github.com/TypeCellOS/BlockNote/tree/main/packages/server-util) | <a href="https://bundlephobia.com/result?p=@blocknote/server-util@latest"><img src="https://img.shields.io/bundlephobia/minzip/@blocknote/server-util?color=%238ab4f8&label=gzip%20size"></a> | <a href="https://www.npmjs.com/package/@blocknote/server-util"><img src="https://img.shields.io/npm/v/@blocknote/server-util?color=%23c1a8e2"></a> |
+
+## Releasing
+
+This diagram illustrates the release workflow for the BlockNote monorepo.
+
+![Release Workflow](./.resources/release-workflow.excalidraw.svg)
+
+Essentially, when the maintainers have decided to release a new version of BlockNote, they will:
+
+ 1. Check that the `main` branch is in a releasable state (i.e. all tests are passing, etc.)
+ 2. Bump the package versions using the `pnpm run deploy` command. This command will:
+    1. Based on semantic versioning, determine the next version number.
+    2. Apply the new version number to all publishable packages within the monorepo.
+    3. Commit the changes to the `main` branch.
+    4. Create a new git tag for the new version.
+    5. Push the changes to the `origin` remote.
+    6. Create a new GitHub Release with the same name as the new version.
+    7. Trigger a release workflow.
+
+The release workflow will:
+
+1. Checkout the `main` branch.
+2. Install the dependencies.
+3. Build the project.
+4. Login to npm.
+5. Publish the packages to npm.
