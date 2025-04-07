@@ -1200,6 +1200,20 @@ export class BlockNoteEditor<
   }
 
   /**
+   * Undo the last action.
+   */
+  public undo() {
+    this._tiptapEditor.commands.undo();
+  }
+
+  /**
+   * Redo the last action.
+   */
+  public redo() {
+    this._tiptapEditor.commands.redo();
+  }
+
+  /**
    * Insert a piece of content at the current cursor position.
    *
    * @param content can be a string, or array of partial inline content elements
