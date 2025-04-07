@@ -212,7 +212,7 @@ export function getBlocksChangedByTransaction<
     });
   });
 
-  // All blocks that are newly removed (since they did not exist in the previous state)
+  // All blocks that are newly removed (since they did not exist in the next state)
   const removedBlockIds = Array.from(prevBlockIds).filter(
     (id) => !nextBlockIds.has(id)
   );
