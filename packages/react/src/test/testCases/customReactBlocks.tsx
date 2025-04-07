@@ -1,9 +1,6 @@
 import {
   BlockNoteEditor,
   BlockNoteSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-  EditorTestCases,
   defaultBlockSpecs,
   defaultProps,
   uploadToTmpFilesDotOrg_DEV_ONLY,
@@ -76,11 +73,8 @@ const schema = BlockNoteSchema.create({
   },
 });
 
-export const customReactBlockSchemaTestCases: EditorTestCases<
-  typeof schema.blockSchema,
-  DefaultInlineContentSchema,
-  DefaultStyleSchema
-> = {
+// TODO
+export const customReactBlockSchemaTestCases: any = {
   name: "custom react block schema",
   createEditor: () => {
     return BlockNoteEditor.create({

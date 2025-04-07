@@ -3,7 +3,6 @@ export * from "./api/exporters/html/externalHTMLExporter.js";
 export * from "./api/exporters/html/internalHTMLSerializer.js";
 export * from "./api/getBlockInfoFromPos.js";
 export * from "./api/nodeUtil.js";
-export * from "./api/testUtil/index.js";
 export * from "./blocks/AudioBlockContent/AudioBlockContent.js";
 export * from "./blocks/CodeBlockContent/CodeBlockContent.js";
 export * from "./blocks/FileBlockContent/FileBlockContent.js";
@@ -62,7 +61,7 @@ export { UnreachableCaseError, assertEmpty } from "./util/typescript.js";
 // for testing from react (TODO: move):
 export * from "./api/nodeConversions/blockToNode.js";
 export * from "./api/nodeConversions/nodeToBlock.js";
-export * from "./api/testUtil/partialBlockTestUtil.js";
+export * from "./api/tests/formatConversion/formatConversionTestUtil.js";
 export * from "./extensions/UniqueID/UniqueID.js";
 
 // for server-util (TODO: maybe move):

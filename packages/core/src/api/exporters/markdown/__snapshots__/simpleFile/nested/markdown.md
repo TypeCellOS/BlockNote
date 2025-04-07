@@ -1,7 +1,0 @@
-exampleURL
-
-Caption
-
-exampleURL
-
-Caption
