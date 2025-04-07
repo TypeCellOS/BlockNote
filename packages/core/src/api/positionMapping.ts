@@ -7,16 +7,6 @@ import {
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import * as Y from "yjs";
 import type { ProsemirrorBinding } from "y-prosemirror";
-import type {
-  DefaultInlineContentSchema,
-  DefaultStyleSchema,
-} from "../blocks/defaultBlocks.js";
-import type { DefaultBlockSchema } from "../blocks/defaultBlocks.js";
-import type {
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "../schema/index.js";
 
 /**
  * This is used to track a mapping for each editor. The mapping stores the mappings for each transaction since the first transaction that was tracked.
@@ -57,15 +47,11 @@ function getMapping(editor: BlockNoteEditor<any, any, any>) {
  * @param side The side of the position to track. "left" is the default. "right" would move with the change if the change is in the right direction.
  * @returns A function that returns the position of the element.
  */
-export function trackPosition<
-  BSchema extends BlockSchema = DefaultBlockSchema,
-  ISchema extends InlineContentSchema = DefaultInlineContentSchema,
-  SSchema extends StyleSchema = DefaultStyleSchema
->(
+export function trackPosition(
   /**
    * The editor to track the position of.
    */
-  editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
+  editor: BlockNoteEditor<any, any, any>,
   /**
    * The position to track.
    */
