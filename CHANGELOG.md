@@ -47,3 +47,7 @@
 - Martinrsts @Martinrsts
 - Matthew Lipski @matthewlipski
 - Nick Perez
+
+## Previous Versions
+
+See [Github Releases](https://github.com/TypeCellOS/BlockNote/releases) for previous versions.
