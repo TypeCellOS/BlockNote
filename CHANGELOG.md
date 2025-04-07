@@ -1,3 +1,13 @@
+## 0.28.0 (2025-04-07)
+
+### 🚀 Features
+
+- position storage ([#1529](https://github.com/TypeCellOS/BlockNote/pull/1529))
+
+### ❤️ Thank You
+
+- Nick Perez
+
 ## 0.27.2 (2025-04-05)
 
 ### 🩹 Fixes

@@ -9,7 +9,7 @@
     "directory": "packages/code-block"
   },
   "license": "MPL-2.0",
-  "version": "0.27.2",
+  "version": "0.28.0",
   "files": [
     "dist",
     "types",
@@ -57,7 +57,7 @@
     "@shikijs/types": "^3.2.1"
   },
   "devDependencies": {
-    "@blocknote/core": "^0.27.2",
+    "@blocknote/core": "^0.28.0",
     "eslint": "^8.10.0",
     "prettier": "^2.7.1",
     "rollup-plugin-webpack-stats": "^0.2.2",
