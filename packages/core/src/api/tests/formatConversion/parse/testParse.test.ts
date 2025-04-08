@@ -40,7 +40,7 @@ const testParseTest = async (
   }
 };
 
-describe("Export tests", async () => {
+describe("Export tests", () => {
   const getEditor = setupTestEditor();
 
   for (const testCase of getParseTestCases()) {

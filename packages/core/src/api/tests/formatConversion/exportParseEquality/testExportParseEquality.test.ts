@@ -11,7 +11,7 @@ import {
   TestStyleSchema,
 } from "../../testSchema.js";
 import {
-  addIdsToBlock,
+  addIdsToBlocks,
   partialBlocksToBlocksForTesting,
 } from "../formatConversionTestUtil.js";
 import {
@@ -32,6 +32,8 @@ const testExportParseEqualityTest = async (
 ) => {
   (window as any).__TEST_OPTIONS.mockID = 0;
 
+  addIdsToBlocks(testCase.content);
+
   if (testCase.conversionType === "blocknoteHTML") {
     const exported = await editor.blocksToFullHTML(testCase.content);
 
@@ -39,11 +41,9 @@ const testExportParseEqualityTest = async (
       partialBlocksToBlocksForTesting(editor.schema, testCase.content)
     );
   } else if (testCase.conversionType === "nodes") {
-    const exported = testCase.content.map((block) => {
-      addIdsToBlock(block);
-
-      return blockToNode(block, editor.pmSchema, editor.schema.styleSchema);
-    });
+    const exported = testCase.content.map((block) =>
+      blockToNode(block, editor.pmSchema, editor.schema.styleSchema)
+    );
 
     expect(
       exported.map((node) =>
@@ -64,7 +64,7 @@ const testExportParseEqualityTest = async (
   expect(true).toBeTruthy();
 };
 
-describe("Export/parse equality tests", async () => {
+describe("Export/parse equality tests", () => {
   const getEditor = setupTestEditor();
 
   for (const testCase of [

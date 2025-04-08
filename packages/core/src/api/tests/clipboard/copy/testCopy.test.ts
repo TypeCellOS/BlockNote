@@ -1,3 +1,4 @@
+import { prettify } from "htmlfy";
 import { describe, expect, it } from "vitest";
 
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
@@ -41,11 +42,15 @@ const testCopyTest = async (
   );
 
   if (testCase.clipboardDataType === "blocknote/html") {
-    await expect(clipboardHTML).toMatchFileSnapshot(
+    await expect(
+      prettify(clipboardHTML, { tag_wrap: true })
+    ).toMatchFileSnapshot(
       `./__snapshots__/${testCase.clipboardDataType}/${testCase.name}.html`
     );
   } else if (testCase.clipboardDataType === "text/html") {
-    await expect(externalHTML).toMatchFileSnapshot(
+    await expect(
+      prettify(externalHTML, { tag_wrap: true })
+    ).toMatchFileSnapshot(
       `./__snapshots__/${testCase.clipboardDataType}/${testCase.name}.html`
     );
   } else if (testCase.clipboardDataType === "text/plain") {

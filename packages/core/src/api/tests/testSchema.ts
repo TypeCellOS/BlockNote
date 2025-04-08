@@ -8,6 +8,7 @@ import {
   imagePropSchema,
   imageRender,
 } from "../../blocks/ImageBlockContent/ImageBlockContent.js";
+import { PageBreak } from "../../blocks/PageBreakBlockContent/PageBreakBlockContent.js";
 import { BlockNoteSchema } from "../../editor/BlockNoteSchema.js";
 import {
   createBlockSpec,
@@ -164,6 +165,7 @@ const FontSize = createStyleSpec(
 export const testSchema = BlockNoteSchema.create({
   blockSpecs: {
     ...defaultBlockSpecs,
+    pageBreak: PageBreak,
     customParagraph: CustomParagraph,
     simpleCustomParagraph: SimpleCustomParagraph,
     simpleImage: SimpleImage,

@@ -61,7 +61,7 @@ const testCopyPasteTest = async (
   );
 };
 
-describe("Copy/paste tests", async () => {
+describe("Copy/paste tests", () => {
   const getEditor = setupTestEditor();
 
   for (const testCase of getCopyPasteTestCases()) {

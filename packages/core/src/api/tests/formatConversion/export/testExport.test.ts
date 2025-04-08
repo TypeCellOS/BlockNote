@@ -1,3 +1,4 @@
+import { prettify } from "htmlfy";
 import { describe, expect, it } from "vitest";
 
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
@@ -9,7 +10,7 @@ import {
   TestInlineContentSchema,
   TestStyleSchema,
 } from "../../testSchema.js";
-import { addIdsToBlock } from "../formatConversionTestUtil.js";
+import { addIdsToBlocks } from "../formatConversionTestUtil.js";
 import { ExportTestCase, getExportTestCases } from "./getExportTestCases.js";
 
 // Test for verifying that exporting blocks to other formats works as expected.
@@ -26,15 +27,22 @@ const testExportTest = async <
   testCase: ExportTestCase<ConversionType>
 ) => {
   (window as any).__TEST_OPTIONS.mockID = 0;
+
+  addIdsToBlocks(testCase.content);
+
   if (testCase.conversionType === "blocknoteHTML") {
     await expect(
-      await editor.blocksToFullHTML(testCase.content)
+      prettify(await editor.blocksToFullHTML(testCase.content), {
+        tag_wrap: true,
+      })
     ).toMatchFileSnapshot(
       `./__snapshots__/${testCase.conversionType}/${testCase.name}.html`
     );
   } else if (testCase.conversionType === "html") {
     await expect(
-      await editor.blocksToHTMLLossy(testCase.content)
+      prettify(await editor.blocksToHTMLLossy(testCase.content), {
+        tag_wrap: true,
+      })
     ).toMatchFileSnapshot(
       `./__snapshots__/${testCase.conversionType}/${testCase.name}.html`
     );
@@ -46,11 +54,9 @@ const testExportTest = async <
     );
   } else if (testCase.conversionType === "nodes") {
     await expect(
-      testCase.content.map((block) => {
-        addIdsToBlock(block);
-
-        return blockToNode(block, editor.pmSchema, editor.schema.styleSchema);
-      })
+      testCase.content.map((block) =>
+        blockToNode(block, editor.pmSchema, editor.schema.styleSchema)
+      )
     ).toMatchFileSnapshot(
       `./__snapshots__/${testCase.conversionType}/${testCase.name}.json`
     );
@@ -59,7 +65,7 @@ const testExportTest = async <
   }
 };
 
-describe("Export tests", async () => {
+describe("Export tests", () => {
   const getEditor = setupTestEditor();
 
   for (const testCase of [

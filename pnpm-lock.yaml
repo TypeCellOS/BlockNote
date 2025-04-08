@@ -2917,6 +2917,9 @@ importers:
       hast-util-from-dom:
         specifier: ^5.0.1
         version: 5.0.1
+      htmlfy:
+        specifier: ^0.6.7
+        version: 0.6.7
       prosemirror-dropcursor:
         specifier: ^1.8.1
         version: 1.8.1
@@ -9766,6 +9769,9 @@ packages:
 
   html-whitespace-sensitive-tag-names@3.0.1:
     resolution: {integrity: sha512-q+310vW8zmymYHALr1da4HyXUQ0zgiIwIicEfotYPWGN0OJVEN/58IJ3A4GBYcEq3LGAZqKb+ugvP0GNB9CEAA==}
+
+  htmlfy@0.6.7:
+    resolution: {integrity: sha512-r8hRd+oIM10lufovN+zr3VKPTYEIvIwqXGucidh2XQufmiw6sbUXFUFjWlfjo3AnefIDTyzykVzQ8IUVuT1peQ==}
 
   http-proxy-agent@5.0.0:
     resolution: {integrity: sha512-n2hY8YdoRE1i7r6M0w9DIw5GgZN0G25P8zLCRQ8rjXtTU3vsNFBI/vWK/UIeE6g5MUUz6avwAPXmL6Fy9D/90w==}
@@ -20539,6 +20545,8 @@ snapshots:
   html-void-elements@3.0.0: {}
 
   html-whitespace-sensitive-tag-names@3.0.1: {}
+
+  htmlfy@0.6.7: {}
 
   http-proxy-agent@5.0.0:
     dependencies:

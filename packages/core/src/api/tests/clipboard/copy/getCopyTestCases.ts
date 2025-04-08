@@ -364,7 +364,6 @@ export const getCopyTestCases = (): CopyTestCase[] => [
       return TextSelection.create(doc, startPos, endPos);
     },
   },
-  // TODO: External HTML is wrapped in unnecessary `tr` element.
   {
     name: "tableCell",
     clipboardDataType: "text/html",
