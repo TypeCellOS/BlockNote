@@ -87,7 +87,15 @@ export type BlockChangeSource =
       /**
        * When an event is triggered by a remote user, the source is "remote".
        */
-      type: "remote";
+      type: "yjs-remote";
+      /**
+       * Whether the change is from this client or another client.
+       */
+      isChangeOrigin: boolean;
+      /**
+       * Whether the change is an undo or redo operation.
+       */
+      isUndoRedoOperation: boolean;
     };
 
 export type BlocksChanged<
@@ -147,7 +155,11 @@ export function getBlocksChangedByTransaction<
       type: transaction.getMeta("history$").redo ? "redo" : "undo",
     };
   } else if (transaction.getMeta("y-sync$")) {
-    source = { type: "remote" };
+    source = {
+      type: "yjs-remote",
+      isChangeOrigin: transaction.getMeta("y-sync$").isChangeOrigin,
+      isUndoRedoOperation: transaction.getMeta("y-sync$").isUndoRedoOperation,
+    };
   }
 
   const changes: BlocksChanged<BSchema, ISchema, SSchema> = [];
