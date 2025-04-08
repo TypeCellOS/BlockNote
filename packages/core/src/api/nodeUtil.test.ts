@@ -65,6 +65,80 @@ describe("Test getBlocksChangedByTransaction", () => {
     ]);
   });
 
+  it("should return nested blocks inserted by a transaction", () => {
+    editor.insertBlocks(
+      [
+        {
+          type: "paragraph",
+          children: [{ type: "paragraph", content: "Nested" }],
+        },
+      ],
+      "paragraph-0",
+      "after"
+    );
+
+    const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
+
+    expect(blocksChanged).toEqual([
+      {
+        block: {
+          children: [
+            {
+              children: [],
+              content: [
+                {
+                  styles: {},
+                  text: "Nested",
+                  type: "text",
+                },
+              ],
+              id: "1",
+              props: {
+                backgroundColor: "default",
+                textAlignment: "left",
+                textColor: "default",
+              },
+              type: "paragraph",
+            },
+          ],
+          props: {
+            backgroundColor: "default",
+            textAlignment: "left",
+            textColor: "default",
+          },
+          type: "paragraph",
+          id: "0",
+          content: [],
+        },
+        prevBlock: undefined,
+        source: { type: "local" },
+        type: "insert",
+      },
+      {
+        block: {
+          children: [],
+          content: [
+            {
+              styles: {},
+              text: "Nested",
+              type: "text",
+            },
+          ],
+          id: "1",
+          props: {
+            backgroundColor: "default",
+            textAlignment: "left",
+            textColor: "default",
+          },
+          type: "paragraph",
+        },
+        prevBlock: undefined,
+        source: { type: "local" },
+        type: "insert",
+      },
+    ]);
+  });
+
   it("should return blocks deleted by a transaction", () => {
     editor.removeBlocks(["paragraph-0"]);
 
@@ -92,6 +166,157 @@ describe("Test getBlocksChangedByTransaction", () => {
         prevBlock: undefined,
         source: { type: "local" },
         type: "delete",
+      },
+    ]);
+  });
+
+  it("should return nested blocks deleted by a transaction", () => {
+    editor.removeBlocks(["nested-paragraph-0"]);
+
+    const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
+
+    expect(blocksChanged).toEqual([
+      {
+        block: {
+          children: [
+            {
+              children: [],
+              content: [
+                {
+                  styles: {},
+                  text: "Double Nested Paragraph 0",
+                  type: "text",
+                },
+              ],
+              id: "double-nested-paragraph-0",
+              props: {
+                backgroundColor: "default",
+                textAlignment: "left",
+                textColor: "default",
+              },
+              type: "paragraph",
+            },
+          ],
+          content: [
+            {
+              styles: {},
+              text: "Nested Paragraph 0",
+              type: "text",
+            },
+          ],
+          id: "nested-paragraph-0",
+          props: {
+            backgroundColor: "default",
+            textAlignment: "left",
+            textColor: "default",
+          },
+          type: "paragraph",
+        },
+        prevBlock: undefined,
+        source: {
+          type: "local",
+        },
+        type: "delete",
+      },
+      {
+        block: {
+          children: [],
+          content: [
+            {
+              styles: {},
+              text: "Double Nested Paragraph 0",
+              type: "text",
+            },
+          ],
+          id: "double-nested-paragraph-0",
+          props: {
+            backgroundColor: "default",
+            textAlignment: "left",
+            textColor: "default",
+          },
+          type: "paragraph",
+        },
+        prevBlock: undefined,
+        source: {
+          type: "local",
+        },
+        type: "delete",
+      },
+      {
+        block: {
+          children: [],
+          content: [
+            {
+              styles: {},
+              text: "Paragraph with children",
+              type: "text",
+            },
+          ],
+          id: "paragraph-with-children",
+          props: {
+            backgroundColor: "default",
+            textAlignment: "left",
+            textColor: "default",
+          },
+          type: "paragraph",
+        },
+        prevBlock: {
+          children: [
+            {
+              children: [
+                {
+                  children: [],
+                  content: [
+                    {
+                      styles: {},
+                      text: "Double Nested Paragraph 0",
+                      type: "text",
+                    },
+                  ],
+                  id: "double-nested-paragraph-0",
+                  props: {
+                    backgroundColor: "default",
+                    textAlignment: "left",
+                    textColor: "default",
+                  },
+                  type: "paragraph",
+                },
+              ],
+              content: [
+                {
+                  styles: {},
+                  text: "Nested Paragraph 0",
+                  type: "text",
+                },
+              ],
+              id: "nested-paragraph-0",
+              props: {
+                backgroundColor: "default",
+                textAlignment: "left",
+                textColor: "default",
+              },
+              type: "paragraph",
+            },
+          ],
+          content: [
+            {
+              styles: {},
+              text: "Paragraph with children",
+              type: "text",
+            },
+          ],
+          id: "paragraph-with-children",
+          props: {
+            backgroundColor: "default",
+            textAlignment: "left",
+            textColor: "default",
+          },
+          type: "paragraph",
+        },
+        source: {
+          type: "local",
+        },
+        type: "update",
       },
     ]);
   });
@@ -142,6 +367,207 @@ describe("Test getBlocksChangedByTransaction", () => {
           ],
         },
         source: { type: "local" },
+        type: "update",
+      },
+    ]);
+  });
+
+  it("should return nested blocks updated by a transaction", () => {
+    editor.updateBlock("nested-paragraph-0", {
+      props: {
+        backgroundColor: "red",
+      },
+    });
+
+    const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
+
+    expect(blocksChanged).toEqual([
+      {
+        block: {
+          children: [
+            {
+              children: [
+                {
+                  children: [],
+                  content: [
+                    {
+                      styles: {},
+                      text: "Double Nested Paragraph 0",
+                      type: "text",
+                    },
+                  ],
+                  id: "double-nested-paragraph-0",
+                  props: {
+                    backgroundColor: "default",
+                    textAlignment: "left",
+                    textColor: "default",
+                  },
+                  type: "paragraph",
+                },
+              ],
+              content: [
+                {
+                  styles: {},
+                  text: "Nested Paragraph 0",
+                  type: "text",
+                },
+              ],
+              id: "nested-paragraph-0",
+              props: {
+                backgroundColor: "red",
+                textAlignment: "left",
+                textColor: "default",
+              },
+              type: "paragraph",
+            },
+          ],
+          content: [
+            {
+              styles: {},
+              text: "Paragraph with children",
+              type: "text",
+            },
+          ],
+          id: "paragraph-with-children",
+          props: {
+            backgroundColor: "default",
+            textAlignment: "left",
+            textColor: "default",
+          },
+          type: "paragraph",
+        },
+        prevBlock: {
+          children: [
+            {
+              children: [
+                {
+                  children: [],
+                  content: [
+                    {
+                      styles: {},
+                      text: "Double Nested Paragraph 0",
+                      type: "text",
+                    },
+                  ],
+                  id: "double-nested-paragraph-0",
+                  props: {
+                    backgroundColor: "default",
+                    textAlignment: "left",
+                    textColor: "default",
+                  },
+                  type: "paragraph",
+                },
+              ],
+              content: [
+                {
+                  styles: {},
+                  text: "Nested Paragraph 0",
+                  type: "text",
+                },
+              ],
+              id: "nested-paragraph-0",
+              props: {
+                backgroundColor: "default",
+                textAlignment: "left",
+                textColor: "default",
+              },
+              type: "paragraph",
+            },
+          ],
+          content: [
+            {
+              styles: {},
+              text: "Paragraph with children",
+              type: "text",
+            },
+          ],
+          id: "paragraph-with-children",
+          props: {
+            backgroundColor: "default",
+            textAlignment: "left",
+            textColor: "default",
+          },
+          type: "paragraph",
+        },
+        source: {
+          type: "local",
+        },
+        type: "update",
+      },
+      {
+        block: {
+          children: [
+            {
+              children: [],
+              content: [
+                {
+                  styles: {},
+                  text: "Double Nested Paragraph 0",
+                  type: "text",
+                },
+              ],
+              id: "double-nested-paragraph-0",
+              props: {
+                backgroundColor: "default",
+                textAlignment: "left",
+                textColor: "default",
+              },
+              type: "paragraph",
+            },
+          ],
+          content: [
+            {
+              styles: {},
+              text: "Nested Paragraph 0",
+              type: "text",
+            },
+          ],
+          id: "nested-paragraph-0",
+          props: {
+            backgroundColor: "red",
+            textAlignment: "left",
+            textColor: "default",
+          },
+          type: "paragraph",
+        },
+        prevBlock: {
+          children: [
+            {
+              children: [],
+              content: [
+                {
+                  styles: {},
+                  text: "Double Nested Paragraph 0",
+                  type: "text",
+                },
+              ],
+              id: "double-nested-paragraph-0",
+              props: {
+                backgroundColor: "default",
+                textAlignment: "left",
+                textColor: "default",
+              },
+              type: "paragraph",
+            },
+          ],
+          content: [
+            {
+              styles: {},
+              text: "Nested Paragraph 0",
+              type: "text",
+            },
+          ],
+          id: "nested-paragraph-0",
+          props: {
+            backgroundColor: "default",
+            textAlignment: "left",
+            textColor: "default",
+          },
+          type: "paragraph",
+        },
+        source: {
+          type: "local",
+        },
         type: "update",
       },
     ]);
