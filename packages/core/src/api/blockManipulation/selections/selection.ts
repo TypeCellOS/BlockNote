@@ -21,6 +21,19 @@ export function getSelection<
 >(
   editor: BlockNoteEditor<BSchema, I, S>
 ): Selection<BSchema, I, S> | undefined {
+  // TODO: this function is now the same as below;
+  // we should consolidate this? (pick the best one, clean tests, etc)
+  // return {
+  //   blocks: getBlocksBetween(
+  //     editor._tiptapEditor.state.selection.from,
+  //     editor._tiptapEditor.state.selection.to,
+  //     editor._tiptapEditor.state.doc,
+  //     editor.schema.blockSchema,
+  //     editor.schema.inlineContentSchema,
+  //     editor.schema.styleSchema,
+  //     editor.blockCache
+  //   ),
+  // };
   const state = editor._tiptapEditor.state;
 
   // Return undefined if the selection is collapsed or a node is selected.

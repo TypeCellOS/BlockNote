@@ -1,0 +1,38 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Hallo Welt, ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "das ist etwas Fettgedrucktes",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " und etwas ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "textColor": "red",
+        },
+        "text": " farbiger Text",
+        "type": "text",
+      },
+    ],
+    "id": "0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]

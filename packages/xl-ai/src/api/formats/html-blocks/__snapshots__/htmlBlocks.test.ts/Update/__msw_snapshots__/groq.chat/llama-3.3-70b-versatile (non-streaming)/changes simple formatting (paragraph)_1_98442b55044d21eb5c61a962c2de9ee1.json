@@ -1,0 +1,15 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "https://localhost:3000/ai?provider=groq&url=https%3A%2F%2Fapi.groq.com%2Fopenai%2Fv1%2Fchat%2Fcompletions",
+    "body": "{\"model\":\"llama-3.3-70b-versatile\",\"temperature\":0,\"messages\":[{\"role\":\"system\",\"content\":\"You're manipulating a text document. Make sure to follow the json schema provided. This is the document as an array of html blocks:\"},{\"role\":\"system\",\"content\":\"[{\\\"id\\\":\\\"0$\\\",\\\"block\\\":\\\"<p>Hello</p>\\\"},{\\\"id\\\":\\\"1$\\\",\\\"block\\\":\\\"<p>World</p>\\\"}]\"},{\"role\":\"user\",\"content\":\"change first paragraph to bold\"}],\"tool_choice\":{\"type\":\"function\",\"function\":{\"name\":\"json\"}},\"tools\":[{\"type\":\"function\",\"function\":{\"name\":\"json\",\"description\":\"Respond with a JSON object.\",\"parameters\":{\"type\":\"object\",\"properties\":{\"operations\":{\"type\":\"array\",\"items\":{\"anyOf\":[{\"type\":\"object\",\"description\":\"Update a block\",\"properties\":{\"type\":{\"type\":\"string\",\"enum\":[\"update\"]},\"id\":{\"type\":\"string\",\"description\":\"id of block to update\"},\"block\":{\"$ref\":\"#/$defs/block\"}},\"required\":[\"type\",\"id\",\"block\"],\"additionalProperties\":false},{\"type\":\"object\",\"description\":\"Insert new blocks\",\"properties\":{\"type\":{\"type\":\"string\",\"enum\":[\"add\"]},\"referenceId\":{\"type\":\"string\",\"description\":\"\"},\"position\":{\"type\":\"string\",\"enum\":[\"before\",\"after\"],\"description\":\"Whether new block(s) should be inserted before or after `referenceId`\"},\"blocks\":{\"items\":{\"$ref\":\"#/$defs/block\"},\"type\":\"array\"}},\"required\":[\"type\",\"referenceId\",\"position\",\"blocks\"],\"additionalProperties\":false},{\"type\":\"object\",\"description\":\"Delete a block\",\"properties\":{\"type\":{\"type\":\"string\",\"enum\":[\"delete\"]},\"id\":{\"type\":\"string\",\"description\":\"id of block to delete\"}},\"required\":[\"type\",\"id\"],\"additionalProperties\":false}]}}},\"additionalProperties\":false,\"required\":[\"operations\"],\"$defs\":{\"block\":{\"type\":\"string\",\"description\":\"html of block\"}}}}}]}",
+    "headers": [],
+    "cookies": []
+  },
+  "response": {
+    "status": 200,
+    "statusText": "",
+    "body": "{\"id\":\"chatcmpl-4dadb862-f339-4492-8770-ba3ca63676e5\",\"object\":\"chat.completion\",\"created\":1743024133,\"model\":\"llama-3.3-70b-versatile\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"tool_calls\":[{\"id\":\"call_m1z1\",\"type\":\"function\",\"function\":{\"name\":\"json\",\"arguments\":\"{\\\"operations\\\": [{\\\"type\\\": \\\"update\\\", \\\"id\\\": \\\"0$\\\", \\\"block\\\": \\\"\\u003cp\\u003e\\u003cb\\u003eHello\\u003c/b\\u003e\\u003c/p\\u003e\\\"}]}\"}}]},\"logprobs\":null,\"finish_reason\":\"tool_calls\"}],\"usage\":{\"queue_time\":0.10006836899999999,\"prompt_tokens\":518,\"prompt_time\":0.039928811,\"completion_tokens\":33,\"completion_time\":0.12,\"total_tokens\":551,\"total_time\":0.159928811},\"system_fingerprint\":\"fp_c4760ee73b\",\"x_groq\":{\"id\":\"req_01jqa5b5f5fcxb9ssetx2khc6k\"}}\n",
+    "headers": []
+  }
+}

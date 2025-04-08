@@ -1,0 +1,15 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "https://localhost:3000/ai?provider=albert-etalab&url=https%3A%2F%2Falbert.api.etalab.gouv.fr%2Fv1%2Fchat%2Fcompletions",
+    "body": "{\"model\":\"neuralmagic/Meta-Llama-3.1-70B-Instruct-FP8\",\"temperature\":0,\"messages\":[{\"role\":\"system\",\"content\":\"You're manipulating a text document. Make sure to follow the json schema provided. This is the document as an array of html blocks:\"},{\"role\":\"system\",\"content\":\"[{\\\"id\\\":\\\"ref1$\\\",\\\"block\\\":\\\"<p>Hello, world!</p>\\\"},{\\\"id\\\":\\\"ref2$\\\",\\\"block\\\":\\\"<p>Hello, <span data-inline-content-type=\\\\\\\"mention\\\\\\\" data-user=\\\\\\\"John Doe\\\\\\\">@John Doe</span>! How <strong>are you doing?</strong></p>\\\"},{\\\"id\\\":\\\"ref3$\\\",\\\"block\\\":\\\"<p>Hello, world! <strong>Bold text. </strong><a target=\\\\\\\"_blank\\\\\\\" rel=\\\\\\\"noopener noreferrer nofollow\\\\\\\" href=\\\\\\\"https://www.google.com\\\\\\\">Link.</a></p>\\\"}]\"},{\"role\":\"user\",\"content\":\"update the content of the first block to 'Hello, updated content'\"}],\"tool_choice\":{\"type\":\"function\",\"function\":{\"name\":\"json\"}},\"tools\":[{\"type\":\"function\",\"function\":{\"name\":\"json\",\"description\":\"Respond with a JSON object.\",\"parameters\":{\"type\":\"object\",\"properties\":{\"operations\":{\"type\":\"array\",\"items\":{\"anyOf\":[{\"type\":\"object\",\"description\":\"Update a block\",\"properties\":{\"type\":{\"type\":\"string\",\"enum\":[\"update\"]},\"id\":{\"type\":\"string\",\"description\":\"id of block to update\"},\"block\":{\"$ref\":\"#/$defs/block\"}},\"required\":[\"type\",\"id\",\"block\"],\"additionalProperties\":false},{\"type\":\"object\",\"description\":\"Insert new blocks\",\"properties\":{\"type\":{\"type\":\"string\",\"enum\":[\"add\"]},\"referenceId\":{\"type\":\"string\",\"description\":\"\"},\"position\":{\"type\":\"string\",\"enum\":[\"before\",\"after\"],\"description\":\"Whether new block(s) should be inserted before or after `referenceId`\"},\"blocks\":{\"items\":{\"$ref\":\"#/$defs/block\"},\"type\":\"array\"}},\"required\":[\"type\",\"referenceId\",\"position\",\"blocks\"],\"additionalProperties\":false},{\"type\":\"object\",\"description\":\"Delete a block\",\"properties\":{\"type\":{\"type\":\"string\",\"enum\":[\"delete\"]},\"id\":{\"type\":\"string\",\"description\":\"id of block to delete\"}},\"required\":[\"type\",\"id\"],\"additionalProperties\":false}]}}},\"additionalProperties\":false,\"required\":[\"operations\"],\"$defs\":{\"block\":{\"type\":\"string\",\"description\":\"html of block\"}}}}}]}",
+    "headers": [],
+    "cookies": []
+  },
+  "response": {
+    "status": 400,
+    "statusText": "",
+    "body": "{\"detail\":\"The provided JSON schema contains features not supported by xgrammar.\"}",
+    "headers": []
+  }
+}

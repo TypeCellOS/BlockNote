@@ -1,4 +1,9 @@
+// TODO: internal?
+export * from "./api/blockManipulation/commands/insertBlocks/insertBlocks.js";
+export * from "./api/blockManipulation/commands/removeBlocks/removeBlocks.js";
+export * from "./api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
 export * from "./api/blockManipulation/commands/updateBlock/updateBlock.js";
+
 export * from "./api/exporters/html/externalHTMLExporter.js";
 export * from "./api/exporters/html/internalHTMLSerializer.js";
 export * from "./api/getBlockInfoFromPos.js";
@@ -30,6 +35,7 @@ export * from "./blocks/defaultBlockTypeGuards.js";
 export * from "./blocks/defaultBlocks.js";
 export * from "./blocks/defaultProps.js";
 export * from "./editor/BlockNoteEditor.js";
+export * from "./editor/BlockNoteExtension.js";
 export * from "./editor/BlockNoteExtensions.js";
 export * from "./editor/BlockNoteSchema.js";
 export * from "./editor/defaultColors.js";
@@ -52,13 +58,14 @@ export * from "./schema/index.js";
 export * from "./util/browser.js";
 export * from "./util/combineByGroup.js";
 export * from "./util/esmDependencies.js";
-export * from "./util/table.js";
 export * from "./util/string.js";
+export * from "./util/table.js";
 export * from "./util/typescript.js";
 
 export type { CodeBlockOptions } from "./blocks/CodeBlockContent/CodeBlockContent.js";
 export { UnreachableCaseError, assertEmpty } from "./util/typescript.js";
 
+export * from "./util/EventEmitter.js";
 // for testing from react (TODO: move):
 export * from "./api/nodeConversions/blockToNode.js";
 export * from "./api/nodeConversions/nodeToBlock.js";
@@ -69,3 +76,6 @@ export * from "./extensions/UniqueID/UniqueID.js";
 export * from "./api/exporters/markdown/markdownExporter.js";
 export * from "./api/parsers/html/parseHTML.js";
 export * from "./api/parsers/markdown/parseMarkdown.js";
+
+// TODO: for ai, remove?
+export * from "./api/blockManipulation/getBlock/getBlock.js";

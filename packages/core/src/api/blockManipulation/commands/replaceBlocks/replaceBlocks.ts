@@ -1,3 +1,5 @@
+import { Node } from "prosemirror-model";
+import { Transaction } from "prosemirror-state";
 import { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import {
@@ -6,25 +8,22 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema/index.js";
-import { Node } from "prosemirror-model";
 import { blockToNode } from "../../../nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 
-export function removeAndInsertBlocks<
+export function removeAndInsertBlocksTr<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
+  tr: Transaction,
   blocksToRemove: BlockIdentifier[],
   blocksToInsert: PartialBlock<BSchema, I, S>[]
 ): {
   insertedBlocks: Block<BSchema, I, S>[];
   removedBlocks: Block<BSchema, I, S>[];
 } {
-  const ttEditor = editor._tiptapEditor;
-  let tr = ttEditor.state.tr;
-
   // Converts the `PartialBlock`s to ProseMirror nodes to insert them into the
   // document.
   const nodesToInsert: Node[] = [];
@@ -47,7 +46,7 @@ export function removeAndInsertBlocks<
       : blocksToRemove[0].id;
   let removedSize = 0;
 
-  ttEditor.state.doc.descendants((node, pos) => {
+  tr.doc.descendants((node, pos) => {
     // Skips traversing nodes after all target blocks have been removed.
     if (idsOfBlocksToRemove.size === 0) {
       return false;
@@ -111,8 +110,6 @@ export function removeAndInsertBlocks<
     );
   }
 
-  editor.dispatch(tr);
-
   // Converts the nodes created from `blocksToInsert` into full `Block`s.
   const insertedBlocks: Block<BSchema, I, S>[] = [];
   for (const node of nodesToInsert) {
@@ -142,5 +139,15 @@ export function replaceBlocks<
   insertedBlocks: Block<BSchema, I, S>[];
   removedBlocks: Block<BSchema, I, S>[];
 } {
-  return removeAndInsertBlocks(editor, blocksToRemove, blocksToInsert);
+  const tr = editor.prosemirrorState.tr;
+  const ret = removeAndInsertBlocksTr(
+    editor,
+    tr,
+    blocksToRemove,
+    blocksToInsert
+  );
+
+  editor.dispatch(tr);
+
+  return ret;
 }

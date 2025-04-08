@@ -1,5 +1,5 @@
 import { Node } from "prosemirror-model";
-
+import { Transaction } from "prosemirror-state";
 import { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
 import {
@@ -8,16 +8,18 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema/index.js";
+import { UnreachableCaseError } from "../../../../util/typescript.js";
 import { blockToNode } from "../../../nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
 
-export function insertBlocks<
+export function insertBlocksTr<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
+  tr: Transaction,
   blocksToInsert: PartialBlock<BSchema, I, S>[],
   referenceBlock: BlockIdentifier,
   placement: "before" | "after" = "before"
@@ -32,7 +34,7 @@ export function insertBlocks<
     );
   }
 
-  const posInfo = getNodeById(id, editor._tiptapEditor.state.doc);
+  const posInfo = getNodeById(id, tr.doc);
   if (!posInfo) {
     throw new Error(`Block with ID ${id} not found`);
   }
@@ -40,18 +42,11 @@ export function insertBlocks<
   // TODO: we might want to use the ReplaceStep directly here instead of insert,
   // because the fitting algorithm should not be necessary and might even cause unexpected behavior
   if (placement === "before") {
-    editor.dispatch(
-      editor._tiptapEditor.state.tr.insert(posInfo.posBeforeNode, nodesToInsert)
-    );
-  }
-
-  if (placement === "after") {
-    editor.dispatch(
-      editor._tiptapEditor.state.tr.insert(
-        posInfo.posBeforeNode + posInfo.node.nodeSize,
-        nodesToInsert
-      )
-    );
+    tr.insert(posInfo.posBeforeNode, nodesToInsert);
+  } else if (placement === "after") {
+    tr.insert(posInfo.posBeforeNode + posInfo.node.nodeSize, nodesToInsert);
+  } else {
+    throw new UnreachableCaseError(placement);
   }
 
   // Now that the `PartialBlock`s have been converted to nodes, we can
@@ -70,4 +65,26 @@ export function insertBlocks<
   }
 
   return insertedBlocks;
+}
+
+export function insertBlocks<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  editor: BlockNoteEditor<BSchema, I, S>,
+  blocksToInsert: PartialBlock<BSchema, I, S>[],
+  referenceBlock: BlockIdentifier,
+  placement: "before" | "after" = "before"
+): Block<BSchema, I, S>[] {
+  const tr = editor.prosemirrorState.tr;
+  const ret = insertBlocksTr(
+    editor,
+    tr,
+    blocksToInsert,
+    referenceBlock,
+    placement
+  );
+  editor.dispatch(tr);
+  return ret;
 }
