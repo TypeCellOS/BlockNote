@@ -147,7 +147,7 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
       },
       {
         tag: "pre",
-        contentElement: "code",
+        // contentElement: "code",
         preserveWhitespace: "full",
       },
     ];

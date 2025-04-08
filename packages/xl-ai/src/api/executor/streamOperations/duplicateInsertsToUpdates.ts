@@ -20,6 +20,7 @@ function isBuiltInAddBlocksToolCall(
  * This function converts insert operations to update operations for blocks that were already inserted,
  * and handles new blocks that need to be inserted.
  */
+// TODO: remove
 export async function* duplicateInsertsToUpdates<
   T extends
     | UpdateBlockToolCall<PartialBlock<any, any, any>>

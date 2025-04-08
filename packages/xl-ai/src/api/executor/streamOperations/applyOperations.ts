@@ -90,7 +90,7 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
       for (let i = 0; i < operation.blocks.length; i++) {
         const block = operation.blocks[i];
         const tr = editor.prosemirrorState.tr;
-
+        // TODO: unit test
         let agentSteps: AgentStep[] = [];
         if (i < addedBlockIds.length) {
           const tool = await rebaseTool(addedBlockIds[i]);

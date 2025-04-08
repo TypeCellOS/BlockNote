@@ -15,7 +15,7 @@ import { trimEmptyBlocks } from "../../prompts/promptHelpers/trimEmptyBlocks.js"
       return editor.blocksToHTMLLossy([block]);
     });
     const withCursor = addCursorPosition(editor, blockArray);
-    const filtered =  withCursor.filter(b => "cursor" in b || !(opts.excludeBlockIds || []).includes(b.id));
+    const filtered = withCursor.filter(b => "cursor" in b || !(opts.excludeBlockIds || []).includes(b.id));
     const suffixed = suffixIDs(filtered);
     return {
       htmlBlocks: suffixed,

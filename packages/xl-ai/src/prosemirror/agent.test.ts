@@ -4,6 +4,7 @@ import { ReplaceStep } from "prosemirror-transform";
 import { describe, expect, it } from "vitest";
 import { getStepsAsAgent } from "./agent.js";
 
+// TODO: review tests
 describe("applyStepsAsAgent", () => {
   // Helper function to create a test editor with a simple paragraph
   function createTestEditor() {
