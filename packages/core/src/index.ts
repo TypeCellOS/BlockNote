@@ -58,10 +58,29 @@ export * from "./util/typescript.js";
 export type { CodeBlockOptions } from "./blocks/CodeBlockContent/CodeBlockContent.js";
 export { UnreachableCaseError, assertEmpty } from "./util/typescript.js";
 
-// for testing from react (TODO: move):
+// Unit testing
+export { setupTestEditor } from "./api/tests/setupTestEditor.js";
+export { testSchema } from "./api/tests/testSchema.js";
+export * from "./api/tests/clipboard/clipboardTestUtil.js";
+export type { CopyTestCase } from "./api/tests/clipboard/copy/getCopyTestCases.js";
+export { testCopy } from "./api/tests/clipboard/copy/testCopy.test.js";
+export type { CopyPasteTestCase } from "./api/tests/clipboard/copyPaste/getCopyPasteTestCases.js";
+export { testCopyPaste } from "./api/tests/clipboard/copyPaste/testCopyPaste.test.js";
+export type { CopyPasteEqualityTestCase } from "./api/tests/clipboard/copyPasteEquality/getCopyPasteEqualityTestCases.js";
+export { testCopyPasteEquality } from "./api/tests/clipboard/copyPasteEquality/testCopyPasteEquality.test.js";
+export type { PasteTestCase } from "./api/tests/clipboard/paste/getPasteTestCases.js";
+export { testPaste } from "./api/tests/clipboard/paste/testPaste.test.js";
+export * from "./api/tests/formatConversion/formatConversionTestUtil.js";
+export type { ExportTestCase } from "./api/tests/formatConversion/export/getExportTestCases.js";
+export { testExport } from "./api/tests/formatConversion/export/testExport.test.js";
+export type { ExportParseEqualityTestCase } from "./api/tests/formatConversion/exportParseEquality/getExportParseEqualityTestCases.js";
+export { testExportParseEquality } from "./api/tests/formatConversion/exportParseEquality/testExportParseEquality.test.js";
+export type { ParseTestCase } from "./api/tests/formatConversion/parse/getParseTestCases.js";
+export { testParse } from "./api/tests/formatConversion/parse/testParse.test.js";
+
+// Node conversions
 export * from "./api/nodeConversions/blockToNode.js";
 export * from "./api/nodeConversions/nodeToBlock.js";
-export * from "./api/tests/formatConversion/formatConversionTestUtil.js";
 export * from "./extensions/UniqueID/UniqueID.js";
 
 // for server-util (TODO: maybe move):

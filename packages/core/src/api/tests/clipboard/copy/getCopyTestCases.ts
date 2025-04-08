@@ -4,6 +4,11 @@ import { CellSelection } from "@tiptap/pm/tables";
 
 import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../../../schema/index.js";
+import {
   TestBlockSchema,
   TestInlineContentSchema,
   TestStyleSchema,
@@ -13,21 +18,25 @@ import {
   getPosOfTextNode,
 } from "../clipboardTestUtil.js";
 
-export type CopyTestCase = {
+export type CopyTestCase<
+  B extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+> = {
   name: string;
   // At some point we probably want to only have one HTML format that is both
   // lossless when converting to/from blocks, in which case we will only need
   // "html" test cases and can remove "blockNoteHTML".
   clipboardDataType: "blocknote/html" | "text/html" | "text/plain";
-  document: PartialBlock<
-    TestBlockSchema,
-    TestInlineContentSchema,
-    TestStyleSchema
-  >[];
+  document: PartialBlock<B, I, S>[];
   getCopySelection: (pmDoc: Node) => Selection;
 };
 
-export const getCopyTestCases = (): CopyTestCase[] => [
+export const getCopyTestCases = (): CopyTestCase<
+  TestBlockSchema,
+  TestInlineContentSchema,
+  TestStyleSchema
+>[] => [
   {
     name: "multipleChildren",
     clipboardDataType: "text/html",

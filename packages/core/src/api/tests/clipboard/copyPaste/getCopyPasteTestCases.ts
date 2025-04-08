@@ -3,24 +3,33 @@ import { Selection, TextSelection } from "@tiptap/pm/state";
 
 import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../../../schema/index.js";
+import {
   TestBlockSchema,
   TestInlineContentSchema,
   TestStyleSchema,
 } from "../../testSchema.js";
 import { getPosOfTextNode } from "../clipboardTestUtil.js";
 
-export type CopyPasteTestCase = {
+export type CopyPasteTestCase<
+  B extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+> = {
   name: string;
-  document: PartialBlock<
-    TestBlockSchema,
-    TestInlineContentSchema,
-    TestStyleSchema
-  >[];
+  document: PartialBlock<B, I, S>[];
   getCopySelection: (pmDoc: Node) => Selection;
   getPasteSelection: (pmDoc: Node) => Selection;
 };
 
-export const getCopyPasteTestCases = (): CopyPasteTestCase[] => [
+export const getCopyPasteTestCases = (): CopyPasteTestCase<
+  TestBlockSchema,
+  TestInlineContentSchema,
+  TestStyleSchema
+>[] => [
   {
     name: "paragraphInCustomBlock",
     document: [

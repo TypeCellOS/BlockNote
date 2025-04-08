@@ -2,20 +2,22 @@ import { afterAll, beforeAll } from "vitest";
 
 import { uploadToTmpFilesDotOrg_DEV_ONLY } from "../../blocks/FileBlockContent/uploadToTmpFilesDotOrg_DEV_ONLY.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { initializeESMDependencies } from "../../util/esmDependencies.js";
+import { BlockNoteSchema } from "../../editor/BlockNoteSchema.js";
 import {
-  TestBlockSchema,
-  TestInlineContentSchema,
-  testSchema,
-  TestStyleSchema,
-} from "./testSchema.js";
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../schema/index.js";
+import { initializeESMDependencies } from "../../util/esmDependencies.js";
 
-export const setupTestEditor = () => {
-  let editor: BlockNoteEditor<
-    TestBlockSchema,
-    TestInlineContentSchema,
-    TestStyleSchema
-  >;
+export const setupTestEditor = <
+  B extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  schema: BlockNoteSchema<B, I, S>
+): (() => BlockNoteEditor<B, I, S>) => {
+  let editor: BlockNoteEditor<B, I, S>;
   const div = document.createElement("div");
 
   beforeAll(async () => {
@@ -34,7 +36,7 @@ export const setupTestEditor = () => {
           },
         },
       },
-      schema: testSchema,
+      schema,
       trailingBlock: false,
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
     });

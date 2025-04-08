@@ -1,30 +1,36 @@
 import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../../../schema/index.js";
+import {
   TestBlockSchema,
   TestInlineContentSchema,
   TestStyleSchema,
 } from "../../testSchema.js";
 
 export type ExportTestCase<
-  // At some point we probably want to only have one HTML format that is both
-  // lossless when converting to/from conversionType, content, in which case we will only need
-  // "html" test cases and can remove "blockNoteHTML".
-  ConversionType extends "blocknoteHTML" | "html" | "markdown" | "nodes"
+  B extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
 > = {
   name: string;
-  conversionType: ConversionType;
-  content: PartialBlock<
+  conversionType: "blocknoteHTML" | "html" | "markdown" | "nodes";
+  content: PartialBlock<B, I, S>[];
+};
+
+export const getExportTestCases = (
+  conversionType: ExportTestCase<
     TestBlockSchema,
     TestInlineContentSchema,
     TestStyleSchema
-  >[];
-};
-
-export const getExportTestCases = <
-  ConversionType extends "blocknoteHTML" | "html" | "markdown" | "nodes"
->(
-  conversionType: ConversionType
-): ExportTestCase<ConversionType>[] => [
+  >["conversionType"]
+): ExportTestCase<
+  TestBlockSchema,
+  TestInlineContentSchema,
+  TestStyleSchema
+>[] => [
   {
     name: "paragraph/empty",
     conversionType,

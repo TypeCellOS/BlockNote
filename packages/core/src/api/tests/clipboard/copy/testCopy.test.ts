@@ -2,26 +2,27 @@ import { prettify } from "htmlfy";
 import { describe, expect, it } from "vitest";
 
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../../../schema/index.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import { selectedFragmentToHTML } from "../../../clipboard/toClipboard/copyExtension.js";
 import { setupTestEditor } from "../../setupTestEditor.js";
-import {
-  TestBlockSchema,
-  TestInlineContentSchema,
-  TestStyleSchema,
-} from "../../testSchema.js";
+import { testSchema } from "../../testSchema.js";
 import { CopyTestCase, getCopyTestCases } from "./getCopyTestCases.js";
 
 // Test for verifying content that gets put on the clipboard when copying within
 // the editor. Used broadly to ensure each block or set of blocks is correctly
 // converted into different types of clipboard data.
-const testCopyTest = async (
-  editor: BlockNoteEditor<
-    TestBlockSchema,
-    TestInlineContentSchema,
-    TestStyleSchema
-  >,
-  testCase: CopyTestCase
+export const testCopy = async <
+  B extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  editor: BlockNoteEditor<B, I, S>,
+  testCase: CopyTestCase<B, I, S>
 ) => {
   (window as any).__TEST_OPTIONS.mockID = 0;
   editor.replaceBlocks(editor.document, testCase.document);
@@ -63,11 +64,11 @@ const testCopyTest = async (
 };
 
 describe("Copy tests", () => {
-  const getEditor = setupTestEditor();
+  const getEditor = setupTestEditor(testSchema);
 
   for (const testCase of getCopyTestCases()) {
     it(`${testCase.name}`, async () => {
-      await testCopyTest(getEditor(), testCase);
+      await testCopy(getEditor(), testCase);
     });
   }
 });

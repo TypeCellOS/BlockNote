@@ -3,25 +3,34 @@ import { Selection, TextSelection } from "@tiptap/pm/state";
 
 import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../../../schema/index.js";
+import {
   TestBlockSchema,
   TestInlineContentSchema,
   TestStyleSchema,
 } from "../../testSchema.js";
 import { getPosOfTextNode } from "../clipboardTestUtil.js";
 
-export type PasteTestCase = {
+export type PasteTestCase<
+  B extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+> = {
   name: string;
   clipboardDataType: "text/html" | "text/markdown" | "text/plain";
   content: string;
-  document: PartialBlock<
-    TestBlockSchema,
-    TestInlineContentSchema,
-    TestStyleSchema
-  >[];
+  document: PartialBlock<B, I, S>[];
   getPasteSelection: (pmDoc: Node) => Selection;
 };
 
-export const getPasteTestCases = (): PasteTestCase[] => [
+export const getPasteTestCases = (): PasteTestCase<
+  TestBlockSchema,
+  TestInlineContentSchema,
+  TestStyleSchema
+>[] => [
   {
     name: "pasteEndOfParagraph",
     clipboardDataType: "text/html",

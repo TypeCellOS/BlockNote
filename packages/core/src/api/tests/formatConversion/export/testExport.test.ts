@@ -2,29 +2,28 @@ import { prettify } from "htmlfy";
 import { describe, expect, it } from "vitest";
 
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../../../schema/index.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import { blockToNode } from "../../../nodeConversions/blockToNode.js";
 import { setupTestEditor } from "../../setupTestEditor.js";
-import {
-  TestBlockSchema,
-  TestInlineContentSchema,
-  TestStyleSchema,
-} from "../../testSchema.js";
+import { testSchema } from "../../testSchema.js";
 import { addIdsToBlocks } from "../formatConversionTestUtil.js";
 import { ExportTestCase, getExportTestCases } from "./getExportTestCases.js";
 
 // Test for verifying that exporting blocks to other formats works as expected.
 // Used broadly to ensure each block or set of blocks is correctly converted
 // into different formats.
-const testExportTest = async <
-  ConversionType extends "blocknoteHTML" | "html" | "markdown" | "nodes"
+export const testExport = async <
+  B extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
 >(
-  editor: BlockNoteEditor<
-    TestBlockSchema,
-    TestInlineContentSchema,
-    TestStyleSchema
-  >,
-  testCase: ExportTestCase<ConversionType>
+  editor: BlockNoteEditor<B, I, S>,
+  testCase: ExportTestCase<B, I, S>
 ) => {
   (window as any).__TEST_OPTIONS.mockID = 0;
 
@@ -66,7 +65,7 @@ const testExportTest = async <
 };
 
 describe("Export tests", () => {
-  const getEditor = setupTestEditor();
+  const getEditor = setupTestEditor(testSchema);
 
   for (const testCase of [
     ...getExportTestCases("blocknoteHTML"),
@@ -75,7 +74,7 @@ describe("Export tests", () => {
     ...getExportTestCases("nodes"),
   ]) {
     it(`${testCase.name}`, async () => {
-      await testExportTest(getEditor(), testCase);
+      await testExport(getEditor(), testCase);
     });
   }
 });
