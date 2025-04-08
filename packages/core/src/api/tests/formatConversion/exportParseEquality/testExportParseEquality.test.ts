@@ -60,8 +60,6 @@ const testExportParseEqualityTest = async (
   } else {
     throw new UnreachableCaseError(testCase.conversionType);
   }
-
-  expect(true).toBeTruthy();
 };
 
 describe("Export/parse equality tests", () => {
