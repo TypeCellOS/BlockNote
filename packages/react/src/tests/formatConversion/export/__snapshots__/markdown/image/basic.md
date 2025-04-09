@@ -1,3 +1,0 @@
-[example](exampleURL)
-
-Caption

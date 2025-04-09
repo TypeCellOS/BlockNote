@@ -1,6 +1,15 @@
 import { Node, Slice } from "@tiptap/pm/model";
+import { Selection } from "@tiptap/pm/state";
 import { EditorView } from "@tiptap/pm/view";
 import * as pmView from "@tiptap/pm/view";
+
+import { PartialBlock } from "../../../blocks/defaultBlocks.js";
+import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
+import {
+  BlockSchema,
+  InlineContentSchema,
+  StyleSchema,
+} from "../../../schema/index.js";
 
 // Helper function to get the position of a text node with given text content.
 // By default, returns the position just before the node, but can be just after
@@ -47,6 +56,30 @@ export const getPosOfTableCellNode = (doc: Node, textContent: string) => {
   }
 
   return ret;
+};
+
+export const setupClipboardTest = <
+  B extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  editor: BlockNoteEditor<B, I, S>,
+  document: PartialBlock<B, I, S>[],
+  getSelection: (pmDoc: Node) => Selection
+) => {
+  if (!editor.prosemirrorView) {
+    throw new Error("Editor view not initialized.");
+  }
+
+  (window as any).__TEST_OPTIONS.mockID = 0;
+
+  editor.replaceBlocks(editor.document, document);
+
+  editor.dispatch(
+    editor._tiptapEditor.state.tr.setSelection(
+      getSelection(editor.prosemirrorView.state.doc)
+    )
+  );
 };
 
 function sliceSingleNode(slice: Slice) {
