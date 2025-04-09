@@ -70,7 +70,7 @@
     "autoprefixer": "^10.4.19",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
-    "lucide-react": "^0.362.0",
+    "lucide-react": "^0",
     "postcss": "^8.4.38",
     "react-hook-form": "^7.52.0",
     "tailwind-merge": "^2.3.0",
