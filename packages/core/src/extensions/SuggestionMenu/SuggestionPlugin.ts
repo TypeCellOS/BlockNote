@@ -196,7 +196,12 @@ export class SuggestionMenuProseMirrorPlugin<
         },
 
         // Apply changes to the plugin state from an editor transaction.
-        apply(transaction, prev, _oldState, newState): SuggestionPluginState {
+        apply: (
+          transaction,
+          prev,
+          _oldState,
+          newState
+        ): SuggestionPluginState => {
           // TODO: More clearly define which transactions should be ignored.
           if (transaction.getMeta("orderedListIndexing") !== undefined) {
             return prev;
@@ -219,6 +224,10 @@ export class SuggestionMenuProseMirrorPlugin<
             typeof suggestionPluginTransactionMeta === "object" &&
             suggestionPluginTransactionMeta !== null
           ) {
+            if (prev) {
+              // Close the previous menu if it exists
+              this.closeMenu();
+            }
             const trackedPosition = trackPosition(
               editor,
               newState.selection.from -
