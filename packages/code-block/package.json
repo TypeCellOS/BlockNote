@@ -67,7 +67,7 @@
     "vitest": "^2.0.3"
   },
   "peerDependencies": {
-    "@blocknote/core": "^0.26.0"
+    "@blocknote/core": "workspace:*"
   },
   "eslintConfig": {
     "extends": [

@@ -13,7 +13,7 @@
     "clean": "tsc --build --clean"
   },
   "dependencies": {
-    "@blocknote/core": "^0.26.0"
+    "@blocknote/core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "22.13.13",
