@@ -260,7 +260,11 @@ export class SuggestionMenuProseMirrorPlugin<
             transaction.getMeta("pointer") ||
             // Moving the caret before the character which triggered the menu should hide it.
             (prev.triggerCharacter !== undefined &&
-              newState.selection.from < prev.queryStartPos())
+              newState.selection.from < prev.queryStartPos()) ||
+            // Moving the caret to a new block should hide the menu.
+            !newState.selection.$from.sameParent(
+              newState.doc.resolve(prev.queryStartPos())
+            )
           ) {
             return undefined;
           }
