@@ -1,0 +1,26 @@
+[
+  {
+    "block": {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Paragraph 0",
+          "type": "text",
+        },
+      ],
+      "id": "paragraph-0",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    "prevBlock": undefined,
+    "source": {
+      "type": "local",
+    },
+    "type": "delete",
+  },
+]

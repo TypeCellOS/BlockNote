@@ -40,32 +40,15 @@ describe("Test getBlocksChangedByTransaction", () => {
     expect(blocksChanged).toEqual([]);
   });
 
-  it("should return blocks inserted by a transaction", () => {
+  it("should return blocks inserted by a transaction", async () => {
     editor.insertBlocks([{ type: "paragraph" }], "paragraph-0", "after");
 
     const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
 
-    expect(blocksChanged).toEqual([
-      {
-        block: {
-          children: [],
-          content: [],
-          id: "0",
-          props: {
-            backgroundColor: "default",
-            textAlignment: "left",
-            textColor: "default",
-          },
-          type: "paragraph",
-        },
-        prevBlock: undefined,
-        source: { type: "local" },
-        type: "insert",
-      },
-    ]);
+    await expect(blocksChanged).toMatchFileSnapshot("blocks-inserted.json");
   });
 
-  it("should return nested blocks inserted by a transaction", () => {
+  it("should return nested blocks inserted by a transaction", async () => {
     editor.insertBlocks(
       [
         {
@@ -79,249 +62,30 @@ describe("Test getBlocksChangedByTransaction", () => {
 
     const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
 
-    expect(blocksChanged).toEqual([
-      {
-        block: {
-          children: [
-            {
-              children: [],
-              content: [
-                {
-                  styles: {},
-                  text: "Nested",
-                  type: "text",
-                },
-              ],
-              id: "1",
-              props: {
-                backgroundColor: "default",
-                textAlignment: "left",
-                textColor: "default",
-              },
-              type: "paragraph",
-            },
-          ],
-          props: {
-            backgroundColor: "default",
-            textAlignment: "left",
-            textColor: "default",
-          },
-          type: "paragraph",
-          id: "0",
-          content: [],
-        },
-        prevBlock: undefined,
-        source: { type: "local" },
-        type: "insert",
-      },
-      {
-        block: {
-          children: [],
-          content: [
-            {
-              styles: {},
-              text: "Nested",
-              type: "text",
-            },
-          ],
-          id: "1",
-          props: {
-            backgroundColor: "default",
-            textAlignment: "left",
-            textColor: "default",
-          },
-          type: "paragraph",
-        },
-        prevBlock: undefined,
-        source: { type: "local" },
-        type: "insert",
-      },
-    ]);
+    await expect(blocksChanged).toMatchFileSnapshot(
+      "blocks-inserted-nested.json"
+    );
   });
 
-  it("should return blocks deleted by a transaction", () => {
+  it("should return blocks deleted by a transaction", async () => {
     editor.removeBlocks(["paragraph-0"]);
 
     const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
 
-    expect(blocksChanged).toEqual([
-      {
-        block: {
-          children: [],
-          id: "paragraph-0",
-          props: {
-            backgroundColor: "default",
-            textAlignment: "left",
-            textColor: "default",
-          },
-          type: "paragraph",
-          content: [
-            {
-              styles: {},
-              text: "Paragraph 0",
-              type: "text",
-            },
-          ],
-        },
-        prevBlock: undefined,
-        source: { type: "local" },
-        type: "delete",
-      },
-    ]);
+    await expect(blocksChanged).toMatchFileSnapshot("blocks-deleted.json");
   });
 
-  it("should return nested blocks deleted by a transaction", () => {
+  it("should return nested blocks deleted by a transaction", async () => {
     editor.removeBlocks(["nested-paragraph-0"]);
 
     const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
 
-    expect(blocksChanged).toEqual([
-      {
-        block: {
-          children: [
-            {
-              children: [],
-              content: [
-                {
-                  styles: {},
-                  text: "Double Nested Paragraph 0",
-                  type: "text",
-                },
-              ],
-              id: "double-nested-paragraph-0",
-              props: {
-                backgroundColor: "default",
-                textAlignment: "left",
-                textColor: "default",
-              },
-              type: "paragraph",
-            },
-          ],
-          content: [
-            {
-              styles: {},
-              text: "Nested Paragraph 0",
-              type: "text",
-            },
-          ],
-          id: "nested-paragraph-0",
-          props: {
-            backgroundColor: "default",
-            textAlignment: "left",
-            textColor: "default",
-          },
-          type: "paragraph",
-        },
-        prevBlock: undefined,
-        source: {
-          type: "local",
-        },
-        type: "delete",
-      },
-      {
-        block: {
-          children: [],
-          content: [
-            {
-              styles: {},
-              text: "Double Nested Paragraph 0",
-              type: "text",
-            },
-          ],
-          id: "double-nested-paragraph-0",
-          props: {
-            backgroundColor: "default",
-            textAlignment: "left",
-            textColor: "default",
-          },
-          type: "paragraph",
-        },
-        prevBlock: undefined,
-        source: {
-          type: "local",
-        },
-        type: "delete",
-      },
-      {
-        block: {
-          children: [],
-          content: [
-            {
-              styles: {},
-              text: "Paragraph with children",
-              type: "text",
-            },
-          ],
-          id: "paragraph-with-children",
-          props: {
-            backgroundColor: "default",
-            textAlignment: "left",
-            textColor: "default",
-          },
-          type: "paragraph",
-        },
-        prevBlock: {
-          children: [
-            {
-              children: [
-                {
-                  children: [],
-                  content: [
-                    {
-                      styles: {},
-                      text: "Double Nested Paragraph 0",
-                      type: "text",
-                    },
-                  ],
-                  id: "double-nested-paragraph-0",
-                  props: {
-                    backgroundColor: "default",
-                    textAlignment: "left",
-                    textColor: "default",
-                  },
-                  type: "paragraph",
-                },
-              ],
-              content: [
-                {
-                  styles: {},
-                  text: "Nested Paragraph 0",
-                  type: "text",
-                },
-              ],
-              id: "nested-paragraph-0",
-              props: {
-                backgroundColor: "default",
-                textAlignment: "left",
-                textColor: "default",
-              },
-              type: "paragraph",
-            },
-          ],
-          content: [
-            {
-              styles: {},
-              text: "Paragraph with children",
-              type: "text",
-            },
-          ],
-          id: "paragraph-with-children",
-          props: {
-            backgroundColor: "default",
-            textAlignment: "left",
-            textColor: "default",
-          },
-          type: "paragraph",
-        },
-        source: {
-          type: "local",
-        },
-        type: "update",
-      },
-    ]);
+    await expect(blocksChanged).toMatchFileSnapshot(
+      "blocks-deleted-nested.json"
+    );
   });
 
-  it("should return blocks updated by a transaction", () => {
+  it("should return blocks updated by a transaction", async () => {
     editor.updateBlock("paragraph-0", {
       props: {
         backgroundColor: "red",
@@ -330,49 +94,10 @@ describe("Test getBlocksChangedByTransaction", () => {
 
     const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
 
-    expect(blocksChanged).toEqual([
-      {
-        block: {
-          children: [],
-          id: "paragraph-0",
-          props: {
-            backgroundColor: "red",
-            textAlignment: "left",
-            textColor: "default",
-          },
-          type: "paragraph",
-          content: [
-            {
-              styles: {},
-              text: "Paragraph 0",
-              type: "text",
-            },
-          ],
-        },
-        prevBlock: {
-          children: [],
-          id: "paragraph-0",
-          props: {
-            backgroundColor: "default",
-            textAlignment: "left",
-            textColor: "default",
-          },
-          type: "paragraph",
-          content: [
-            {
-              styles: {},
-              text: "Paragraph 0",
-              type: "text",
-            },
-          ],
-        },
-        source: { type: "local" },
-        type: "update",
-      },
-    ]);
+    await expect(blocksChanged).toMatchFileSnapshot("blocks-updated.json");
   });
 
-  it("should return nested blocks updated by a transaction", () => {
+  it("should return nested blocks updated by a transaction", async () => {
     editor.updateBlock("nested-paragraph-0", {
       props: {
         backgroundColor: "red",
@@ -381,199 +106,12 @@ describe("Test getBlocksChangedByTransaction", () => {
 
     const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
 
-    expect(blocksChanged).toEqual([
-      {
-        block: {
-          children: [
-            {
-              children: [
-                {
-                  children: [],
-                  content: [
-                    {
-                      styles: {},
-                      text: "Double Nested Paragraph 0",
-                      type: "text",
-                    },
-                  ],
-                  id: "double-nested-paragraph-0",
-                  props: {
-                    backgroundColor: "default",
-                    textAlignment: "left",
-                    textColor: "default",
-                  },
-                  type: "paragraph",
-                },
-              ],
-              content: [
-                {
-                  styles: {},
-                  text: "Nested Paragraph 0",
-                  type: "text",
-                },
-              ],
-              id: "nested-paragraph-0",
-              props: {
-                backgroundColor: "red",
-                textAlignment: "left",
-                textColor: "default",
-              },
-              type: "paragraph",
-            },
-          ],
-          content: [
-            {
-              styles: {},
-              text: "Paragraph with children",
-              type: "text",
-            },
-          ],
-          id: "paragraph-with-children",
-          props: {
-            backgroundColor: "default",
-            textAlignment: "left",
-            textColor: "default",
-          },
-          type: "paragraph",
-        },
-        prevBlock: {
-          children: [
-            {
-              children: [
-                {
-                  children: [],
-                  content: [
-                    {
-                      styles: {},
-                      text: "Double Nested Paragraph 0",
-                      type: "text",
-                    },
-                  ],
-                  id: "double-nested-paragraph-0",
-                  props: {
-                    backgroundColor: "default",
-                    textAlignment: "left",
-                    textColor: "default",
-                  },
-                  type: "paragraph",
-                },
-              ],
-              content: [
-                {
-                  styles: {},
-                  text: "Nested Paragraph 0",
-                  type: "text",
-                },
-              ],
-              id: "nested-paragraph-0",
-              props: {
-                backgroundColor: "default",
-                textAlignment: "left",
-                textColor: "default",
-              },
-              type: "paragraph",
-            },
-          ],
-          content: [
-            {
-              styles: {},
-              text: "Paragraph with children",
-              type: "text",
-            },
-          ],
-          id: "paragraph-with-children",
-          props: {
-            backgroundColor: "default",
-            textAlignment: "left",
-            textColor: "default",
-          },
-          type: "paragraph",
-        },
-        source: {
-          type: "local",
-        },
-        type: "update",
-      },
-      {
-        block: {
-          children: [
-            {
-              children: [],
-              content: [
-                {
-                  styles: {},
-                  text: "Double Nested Paragraph 0",
-                  type: "text",
-                },
-              ],
-              id: "double-nested-paragraph-0",
-              props: {
-                backgroundColor: "default",
-                textAlignment: "left",
-                textColor: "default",
-              },
-              type: "paragraph",
-            },
-          ],
-          content: [
-            {
-              styles: {},
-              text: "Nested Paragraph 0",
-              type: "text",
-            },
-          ],
-          id: "nested-paragraph-0",
-          props: {
-            backgroundColor: "red",
-            textAlignment: "left",
-            textColor: "default",
-          },
-          type: "paragraph",
-        },
-        prevBlock: {
-          children: [
-            {
-              children: [],
-              content: [
-                {
-                  styles: {},
-                  text: "Double Nested Paragraph 0",
-                  type: "text",
-                },
-              ],
-              id: "double-nested-paragraph-0",
-              props: {
-                backgroundColor: "default",
-                textAlignment: "left",
-                textColor: "default",
-              },
-              type: "paragraph",
-            },
-          ],
-          content: [
-            {
-              styles: {},
-              text: "Nested Paragraph 0",
-              type: "text",
-            },
-          ],
-          id: "nested-paragraph-0",
-          props: {
-            backgroundColor: "default",
-            textAlignment: "left",
-            textColor: "default",
-          },
-          type: "paragraph",
-        },
-        source: {
-          type: "local",
-        },
-        type: "update",
-      },
-    ]);
+    await expect(blocksChanged).toMatchFileSnapshot(
+      "blocks-updated-nested.json"
+    );
   });
 
-  it("should only return a single block, if multiple updates change a single block in a transaction", () => {
+  it("should only return a single block, if multiple updates change a single block in a transaction", async () => {
     editor.updateBlock("paragraph-0", {
       props: {
         backgroundColor: "red",
@@ -587,49 +125,12 @@ describe("Test getBlocksChangedByTransaction", () => {
 
     const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
 
-    expect(blocksChanged).toEqual([
-      {
-        block: {
-          children: [],
-          id: "paragraph-0",
-          props: {
-            backgroundColor: "blue",
-            textAlignment: "left",
-            textColor: "default",
-          },
-          type: "paragraph",
-          content: [
-            {
-              styles: {},
-              text: "Paragraph 0",
-              type: "text",
-            },
-          ],
-        },
-        prevBlock: {
-          children: [],
-          id: "paragraph-0",
-          props: {
-            backgroundColor: "default",
-            textAlignment: "left",
-            textColor: "default",
-          },
-          type: "paragraph",
-          content: [
-            {
-              styles: {},
-              text: "Paragraph 0",
-              type: "text",
-            },
-          ],
-        },
-        source: { type: "local" },
-        type: "update",
-      },
-    ]);
+    await expect(blocksChanged).toMatchFileSnapshot(
+      "blocks-updated-single.json"
+    );
   });
 
-  it("should return multiple blocks, if multiple updates change multiple blocks in a transaction", () => {
+  it("should return multiple blocks, if multiple updates change multiple blocks in a transaction", async () => {
     editor.updateBlock("paragraph-0", {
       props: {
         backgroundColor: "red",
@@ -643,87 +144,12 @@ describe("Test getBlocksChangedByTransaction", () => {
 
     const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
 
-    expect(blocksChanged).toEqual([
-      {
-        block: {
-          children: [],
-          id: "paragraph-0",
-          props: {
-            backgroundColor: "red",
-            textAlignment: "left",
-            textColor: "default",
-          },
-          type: "paragraph",
-          content: [
-            {
-              styles: {},
-              text: "Paragraph 0",
-              type: "text",
-            },
-          ],
-        },
-        prevBlock: {
-          children: [],
-          id: "paragraph-0",
-          props: {
-            backgroundColor: "default",
-            textAlignment: "left",
-            textColor: "default",
-          },
-          type: "paragraph",
-          content: [
-            {
-              styles: {},
-              text: "Paragraph 0",
-              type: "text",
-            },
-          ],
-        },
-        source: { type: "local" },
-        type: "update",
-      },
-      {
-        block: {
-          children: [],
-          id: "paragraph-1",
-          props: {
-            backgroundColor: "blue",
-            textAlignment: "left",
-            textColor: "default",
-          },
-          type: "paragraph",
-          content: [
-            {
-              styles: {},
-              text: "Paragraph 1",
-              type: "text",
-            },
-          ],
-        },
-        prevBlock: {
-          children: [],
-          id: "paragraph-1",
-          props: {
-            backgroundColor: "default",
-            textAlignment: "left",
-            textColor: "default",
-          },
-          type: "paragraph",
-          content: [
-            {
-              styles: {},
-              text: "Paragraph 1",
-              type: "text",
-            },
-          ],
-        },
-        source: { type: "local" },
-        type: "update",
-      },
-    ]);
+    await expect(blocksChanged).toMatchFileSnapshot(
+      "blocks-updated-multiple.json"
+    );
   });
 
-  it("should return multiple blocks, if multiple inserts add new blocks in a transaction", () => {
+  it("should return multiple blocks, if multiple inserts add new blocks in a transaction", async () => {
     editor.insertBlocks(
       [{ type: "paragraph", content: "ABC" }],
       "paragraph-0",
@@ -737,51 +163,8 @@ describe("Test getBlocksChangedByTransaction", () => {
 
     const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
 
-    expect(blocksChanged).toEqual([
-      {
-        block: {
-          children: [],
-          content: [
-            {
-              styles: {},
-              text: "ABC",
-              type: "text",
-            },
-          ],
-          id: "0",
-          props: {
-            backgroundColor: "default",
-            textAlignment: "left",
-            textColor: "default",
-          },
-          type: "paragraph",
-        },
-        prevBlock: undefined,
-        source: { type: "local" },
-        type: "insert",
-      },
-      {
-        block: {
-          children: [],
-          content: [
-            {
-              styles: {},
-              text: "DEF",
-              type: "text",
-            },
-          ],
-          id: "1",
-          props: {
-            backgroundColor: "default",
-            textAlignment: "left",
-            textColor: "default",
-          },
-          type: "paragraph",
-        },
-        prevBlock: undefined,
-        source: { type: "local" },
-        type: "insert",
-      },
-    ]);
+    await expect(blocksChanged).toMatchFileSnapshot(
+      "blocks-updated-multiple-insert.json"
+    );
   });
 });

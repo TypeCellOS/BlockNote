@@ -30,12 +30,5 @@ export default function App() {
   });
 
   // Renders the editor instance.
-  return (
-    <BlockNoteView
-      editor={editor}
-      onChange={(e, { getChanges }) => {
-        console.log(getChanges());
-      }}
-    />
-  );
+  return <BlockNoteView editor={editor} />;
 }
