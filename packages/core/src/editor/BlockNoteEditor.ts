@@ -755,6 +755,7 @@ export class BlockNoteEditor<
           accTr.step(step);
         });
         if (tr.selectionSet) {
+          // Serialize the selection to JSON, because the document between the `activeTransaction` and the dispatch'd tr are different references
           accTr.setSelection(
             ProsemirrorSelection.fromJSON(accTr.doc, tr.selection.toJSON())
           );
@@ -818,6 +819,7 @@ export class BlockNoteEditor<
       }
       return result;
     } finally {
+      // We wrap this in a finally block to ensure we don't disable future transactions just because of an error in the callback
       this.activeTransaction = null;
       this.transactionState = null;
     }
