@@ -142,7 +142,8 @@ export function getBlocksChangedByTransaction<
   SSchema extends StyleSchema = DefaultStyleSchema
 >(
   transaction: Transaction,
-  editor: BlockNoteEditor<BSchema, ISchema, SSchema>
+  editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
+  appendedTransactions: Transaction[] = []
 ): BlocksChanged<BSchema, ISchema, SSchema> {
   let source: BlockChangeSource = { type: "local" };
 
@@ -163,11 +164,9 @@ export function getBlocksChangedByTransaction<
   }
 
   const changes: BlocksChanged<BSchema, ISchema, SSchema> = [];
-  // TODO when we upgrade to Tiptap v3, we can get the appendedTransactions which would give us things like the actual inserted Block IDs.
-  // since they are appended to the transaction via the unique-id plugin
   const combinedTransaction = combineTransactionSteps(transaction.before, [
     transaction,
-    ...[] /*appendedTransactions*/,
+    ...appendedTransactions,
   ]);
 
   let prevAffectedBlocks: Block<BSchema, ISchema, SSchema>[] = [];
