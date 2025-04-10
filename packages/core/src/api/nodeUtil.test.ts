@@ -111,6 +111,35 @@ describe("Test getBlocksChangedByTransaction", () => {
     );
   });
 
+  it("should return deeply nested blocks updated by a transaction", async () => {
+    editor.updateBlock("double-nested-paragraph-0", {
+      content: "Example Text",
+    });
+
+    const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
+
+    await expect(blocksChanged).toMatchFileSnapshot(
+      "blocks-updated-nested-deep.json"
+    );
+  });
+
+  it("should return multiple nested blocks updated by a transaction", async () => {
+    editor.updateBlock("nested-paragraph-0", {
+      props: {
+        backgroundColor: "red",
+      },
+    });
+    editor.updateBlock("double-nested-paragraph-0", {
+      content: "Example Text",
+    });
+
+    const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
+
+    await expect(blocksChanged).toMatchFileSnapshot(
+      "blocks-updated-nested-multiple.json"
+    );
+  });
+
   it("should only return a single block, if multiple updates change a single block in a transaction", async () => {
     editor.updateBlock("paragraph-0", {
       props: {

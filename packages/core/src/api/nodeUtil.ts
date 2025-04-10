@@ -1,9 +1,9 @@
 import {
   combineTransactionSteps,
-  findChildrenInRange,
   getChangedRanges,
+  findChildrenInRange,
 } from "@tiptap/core";
-import type { Node } from "prosemirror-model";
+import type { Node, ResolvedPos } from "prosemirror-model";
 import type { Transaction } from "prosemirror-state";
 import {
   Block,
@@ -34,7 +34,7 @@ export function getNodeById(
     }
 
     // Keeps traversing nodes if block with target ID has not been found.
-    if (!node.type.isInGroup("bnBlock") || node.attrs.id !== id) {
+    if (!isNodeBlock(node) || node.attrs.id !== id) {
       return true;
     }
 
@@ -52,6 +52,10 @@ export function getNodeById(
     node: targetNode,
     posBeforeNode: posBeforeNode,
   };
+}
+
+export function isNodeBlock(node: Node): boolean {
+  return node.type.isInGroup("bnBlock");
 }
 
 /**
@@ -131,6 +135,23 @@ export type BlocksChanged<
 >;
 
 /**
+ * Get the closest block to a resolved position.
+ */
+function getClosestBlock(resolve: ResolvedPos): Node | undefined {
+  let depth = resolve.depth;
+  let node = resolve.node();
+  // Recursively traverse up the node tree until a block is found
+  while (!isNodeBlock(node)) {
+    if (depth === 0) {
+      return undefined;
+    }
+    depth--;
+    node = resolve.node(depth);
+  }
+  return node;
+}
+
+/**
  * Get the blocks that were changed by a transaction.
  * @param transaction The transaction to get the changes from.
  * @param editor The editor to get the changes from.
@@ -173,35 +194,81 @@ export function getBlocksChangedByTransaction<
   let nextAffectedBlocks: Block<BSchema, ISchema, SSchema>[] = [];
 
   getChangedRanges(combinedTransaction).forEach((range) => {
+    const oldClosestBlocks = {
+      from: getClosestBlock(
+        combinedTransaction.before.resolve(range.oldRange.from)
+      ),
+      to: getClosestBlock(
+        combinedTransaction.before.resolve(range.oldRange.to)
+      ),
+    };
+
     // All the blocks that were in the range before the transaction
     prevAffectedBlocks = prevAffectedBlocks.concat(
       ...findChildrenInRange(
         combinedTransaction.before,
         range.oldRange,
-        (node) => node.type.isInGroup("bnBlock")
-      ).map(({ node }) =>
-        nodeToBlock(
-          node,
-          editor.schema.blockSchema,
-          editor.schema.inlineContentSchema,
-          editor.schema.styleSchema,
-          editor.blockCache
-        )
+        (node) => isNodeBlock(node)
       )
+        .filter(({ node, pos }) => {
+          // This will filter out blocks which are modified, but not the closest block to the change
+          // This is to prevent emitting events for parent blocks when the child block is modified
+          if (
+            // If the block is out of the changed range
+            (pos < range.oldRange.from || pos > range.oldRange.to) &&
+            // and, not the closest to the start or end of the changed range
+            (oldClosestBlocks.from !== node || oldClosestBlocks.to !== node)
+          ) {
+            // Then it should be skipped
+            return false;
+          }
+          return true;
+        })
+        .map(({ node }) =>
+          nodeToBlock(
+            node,
+            editor.schema.blockSchema,
+            editor.schema.inlineContentSchema,
+            editor.schema.styleSchema,
+            editor.blockCache
+          )
+        )
     );
+
+    const newClosestBlocks = {
+      from: getClosestBlock(
+        combinedTransaction.doc.resolve(range.newRange.from)
+      ),
+      to: getClosestBlock(combinedTransaction.doc.resolve(range.newRange.to)),
+    };
     // All the blocks that were in the range after the transaction
     nextAffectedBlocks = nextAffectedBlocks.concat(
       findChildrenInRange(combinedTransaction.doc, range.newRange, (node) =>
-        node.type.isInGroup("bnBlock")
-      ).map(({ node }) =>
-        nodeToBlock(
-          node,
-          editor.schema.blockSchema,
-          editor.schema.inlineContentSchema,
-          editor.schema.styleSchema,
-          editor.blockCache
-        )
+        isNodeBlock(node)
       )
+        .filter(({ node, pos }) => {
+          // This will filter out blocks which are modified, but not the closest block to the change
+          // This is to prevent emitting events for parent blocks when the child block is modified
+          if (
+            // If the block is out of the changed range
+            (pos < range.newRange.from || pos > range.newRange.to) &&
+            // and, not the closest to the start or end of the changed range
+            (newClosestBlocks.from !== node || newClosestBlocks.to !== node)
+          ) {
+            // Then it should be skipped
+            return false;
+          }
+          return true;
+        })
+        .map(({ node }) =>
+          nodeToBlock(
+            node,
+            editor.schema.blockSchema,
+            editor.schema.inlineContentSchema,
+            editor.schema.styleSchema,
+            editor.blockCache
+          )
+        )
     );
   });
 
