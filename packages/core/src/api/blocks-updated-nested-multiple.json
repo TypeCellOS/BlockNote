@@ -1,0 +1,118 @@
+[
+  {
+    "block": {
+      "children": [
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "Example Text",
+              "type": "text",
+            },
+          ],
+          "id": "double-nested-paragraph-0",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "content": [
+        {
+          "styles": {},
+          "text": "Nested Paragraph 0",
+          "type": "text",
+        },
+      ],
+      "id": "nested-paragraph-0",
+      "props": {
+        "backgroundColor": "red",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    "prevBlock": {
+      "children": [
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "Double Nested Paragraph 0",
+              "type": "text",
+            },
+          ],
+          "id": "double-nested-paragraph-0",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "content": [
+        {
+          "styles": {},
+          "text": "Nested Paragraph 0",
+          "type": "text",
+        },
+      ],
+      "id": "nested-paragraph-0",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    "source": {
+      "type": "local",
+    },
+    "type": "update",
+  },
+  {
+    "block": {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Example Text",
+          "type": "text",
+        },
+      ],
+      "id": "double-nested-paragraph-0",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    "prevBlock": {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Double Nested Paragraph 0",
+          "type": "text",
+        },
+      ],
+      "id": "double-nested-paragraph-0",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    "source": {
+      "type": "local",
+    },
+    "type": "update",
+  },
+]
