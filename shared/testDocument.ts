@@ -1,9 +1,6 @@
-import {
-  BlockNoteSchema,
-  defaultBlockSpecs,
-  PageBreak,
-  partialBlocksToBlocksForTesting,
-} from "@blocknote/core";
+import { BlockNoteSchema, defaultBlockSpecs, PageBreak } from "@blocknote/core";
+
+import { partialBlocksToBlocksForTesting } from "./formatConversionTestUtil.js";
 
 // TODO
 export const testDocument = partialBlocksToBlocksForTesting(

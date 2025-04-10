@@ -59,25 +59,7 @@ export type { CodeBlockOptions } from "./blocks/CodeBlockContent/CodeBlockConten
 export { UnreachableCaseError, assertEmpty } from "./util/typescript.js";
 
 // Unit testing
-export * from "./api/tests/setupTestEditor.js";
-export * from "./api/tests/testSchema.js";
-export * from "./api/tests/types.js";
-export * from "./api/tests/clipboard/clipboardTestUtil.js";
-export * from "./api/tests/clipboard/copy/copyTestCase.js";
-export * from "./api/tests/clipboard/copy/copyTestExecutors.js";
-export * from "./api/tests/clipboard/copyPaste/copyPasteTestCase.js";
-export * from "./api/tests/clipboard/copyPaste/copyPasteTestExecutors.js";
-export * from "./api/tests/clipboard/copyPasteEquality/copyPasteEqualityTestCase.js";
-export * from "./api/tests/clipboard/copyPasteEquality/copyPasteEqualityTestExecutors.js";
-export * from "./api/tests/clipboard/paste/pasteTestCase.js";
-export * from "./api/tests/clipboard/paste/pasteTestExecutors.js";
-export * from "./api/tests/formatConversion/formatConversionTestUtil.js";
-export * from "./api/tests/formatConversion/export/exportTestCase.js";
-export * from "./api/tests/formatConversion/export/exportTestExecutors.js";
-export * from "./api/tests/formatConversion/exportParseEquality/exportParseEqualityTestCase.js";
-export * from "./api/tests/formatConversion/exportParseEquality/exportParseEqualityTestExecutors.js";
-export * from "./api/tests/formatConversion/parse/parseTestCase.js";
-export * from "./api/tests/formatConversion/parse/parseTestExecutors.js";
+export { selectedFragmentToHTML } from "./api/clipboard/toClipboard/copyExtension.js";
 
 // Node conversions
 export * from "./api/nodeConversions/blockToNode.js";
