@@ -1473,16 +1473,27 @@ export class BlockNoteEditor<
       return;
     }
 
-    const cb = ({ transaction }: { transaction: Transaction }) => {
+    const cb = ({
+      transaction,
+      appendedTransactions,
+    }: {
+      transaction: Transaction;
+      appendedTransactions: Transaction[];
+    }) => {
       callback(this, {
-        getChanges: () => getBlocksChangedByTransaction(transaction, this),
+        getChanges: () =>
+          getBlocksChangedByTransaction(
+            transaction,
+            this,
+            appendedTransactions
+          ),
       });
     };
 
-    this._tiptapEditor.on("update", cb);
+    this._tiptapEditor.on("v3-update", cb);
 
     return () => {
-      this._tiptapEditor.off("update", cb);
+      this._tiptapEditor.off("v3-update", cb);
     };
   }
 
