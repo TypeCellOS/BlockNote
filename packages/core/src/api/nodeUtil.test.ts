@@ -45,7 +45,9 @@ describe("Test getBlocksChangedByTransaction", () => {
 
     const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
 
-    await expect(blocksChanged).toMatchFileSnapshot("blocks-inserted.json");
+    await expect(blocksChanged).toMatchFileSnapshot(
+      "__snapshots__/blocks-inserted.json"
+    );
   });
 
   it("should return nested blocks inserted by a transaction", async () => {
@@ -63,7 +65,7 @@ describe("Test getBlocksChangedByTransaction", () => {
     const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
 
     await expect(blocksChanged).toMatchFileSnapshot(
-      "blocks-inserted-nested.json"
+      "__snapshots__/blocks-inserted-nested.json"
     );
   });
 
@@ -72,7 +74,9 @@ describe("Test getBlocksChangedByTransaction", () => {
 
     const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
 
-    await expect(blocksChanged).toMatchFileSnapshot("blocks-deleted.json");
+    await expect(blocksChanged).toMatchFileSnapshot(
+      "__snapshots__/blocks-deleted.json"
+    );
   });
 
   it("should return nested blocks deleted by a transaction", async () => {
@@ -81,7 +85,7 @@ describe("Test getBlocksChangedByTransaction", () => {
     const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
 
     await expect(blocksChanged).toMatchFileSnapshot(
-      "blocks-deleted-nested.json"
+      "__snapshots__/blocks-deleted-nested.json"
     );
   });
 
@@ -94,7 +98,9 @@ describe("Test getBlocksChangedByTransaction", () => {
 
     const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
 
-    await expect(blocksChanged).toMatchFileSnapshot("blocks-updated.json");
+    await expect(blocksChanged).toMatchFileSnapshot(
+      "__snapshots__/blocks-updated.json"
+    );
   });
 
   it("should return nested blocks updated by a transaction", async () => {
@@ -107,7 +113,7 @@ describe("Test getBlocksChangedByTransaction", () => {
     const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
 
     await expect(blocksChanged).toMatchFileSnapshot(
-      "blocks-updated-nested.json"
+      "__snapshots__/blocks-updated-nested.json"
     );
   });
 
@@ -119,7 +125,7 @@ describe("Test getBlocksChangedByTransaction", () => {
     const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
 
     await expect(blocksChanged).toMatchFileSnapshot(
-      "blocks-updated-nested-deep.json"
+      "__snapshots__/blocks-updated-nested-deep.json"
     );
   });
 
@@ -136,7 +142,7 @@ describe("Test getBlocksChangedByTransaction", () => {
     const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
 
     await expect(blocksChanged).toMatchFileSnapshot(
-      "blocks-updated-nested-multiple.json"
+      "__snapshots__/blocks-updated-nested-multiple.json"
     );
   });
 
@@ -155,7 +161,7 @@ describe("Test getBlocksChangedByTransaction", () => {
     const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
 
     await expect(blocksChanged).toMatchFileSnapshot(
-      "blocks-updated-single.json"
+      "__snapshots__/blocks-updated-single.json"
     );
   });
 
@@ -174,7 +180,7 @@ describe("Test getBlocksChangedByTransaction", () => {
     const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
 
     await expect(blocksChanged).toMatchFileSnapshot(
-      "blocks-updated-multiple.json"
+      "__snapshots__/blocks-updated-multiple.json"
     );
   });
 
@@ -193,7 +199,7 @@ describe("Test getBlocksChangedByTransaction", () => {
     const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
 
     await expect(blocksChanged).toMatchFileSnapshot(
-      "blocks-updated-multiple-insert.json"
+      "__snapshots__/blocks-updated-multiple-insert.json"
     );
   });
 });
