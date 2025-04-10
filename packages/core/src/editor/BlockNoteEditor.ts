@@ -94,18 +94,24 @@ import {
 import { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
 
-import { Plugin, TextSelection, Transaction } from "@tiptap/pm/state";
+import {
+  EditorState,
+  Plugin,
+  Selection as ProsemirrorSelection,
+  TextSelection,
+  Transaction,
+} from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
 import { EditorView } from "prosemirror-view";
 import { ySyncPluginKey } from "y-prosemirror";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
+import { nestedListsToBlockNoteStructure } from "../api/parsers/html/util/nestedLists.js";
+import { CodeBlockOptions } from "../blocks/CodeBlockContent/CodeBlockContent.js";
 import type { ThreadStore, User } from "../comments/index.js";
 import "../style.css";
 import { EventEmitter } from "../util/EventEmitter.js";
-import { CodeBlockOptions } from "../blocks/CodeBlockContent/CodeBlockContent.js";
-import { nestedListsToBlockNoteStructure } from "../api/parsers/html/util/nestedLists.js";
 
 export type BlockNoteExtensionFactory = (
   editor: BlockNoteEditor<any, any, any>
@@ -727,9 +733,119 @@ export class BlockNoteEditor<
     this.emit("create");
   }
 
-  dispatch = (tr: Transaction) => {
+  /**
+   * Dispatch a ProseMirror transaction.
+   *
+   * @example
+   * ```ts
+   * const tr = editor.transaction;
+   * tr.insertText("Hello, world!");
+   * editor.dispatch(tr);
+   * ```
+   */
+  public dispatch(tr: Transaction) {
+    if (this.transactionState) {
+      const { state, transactions } =
+        this.transactionState.applyTransaction(tr);
+      // Set a default value if needed
+      const accTr = this.activeTransaction ?? this.transactionState.tr;
+
+      // Copy over the newly applied transactions into our "active transaction" which accumulates all transaction steps during a `transact` call
+      transactions.forEach((tr) => {
+        tr.steps.forEach((step) => {
+          accTr.step(step);
+        });
+        if (tr.selectionSet) {
+          // Serialize the selection to JSON, because the document between the `activeTransaction` and the dispatch'd tr are different references
+          accTr.setSelection(
+            ProsemirrorSelection.fromJSON(accTr.doc, tr.selection.toJSON())
+          );
+        }
+      });
+      this.activeTransaction = accTr;
+      this.transactionState = state;
+
+      // We don't want the editor to actually apply the state, so all of this is manipulating the state in-memory
+      return;
+    }
+
     this._tiptapEditor.dispatch(tr);
-  };
+  }
+
+  /**
+   * Stores the currently active transaction, which is the accumulated transaction from all {@link dispatch} calls during a {@link transact} calls
+   */
+  private activeTransaction: Transaction | null = null;
+
+  /**
+   * Execute a function within a "blocknote transaction".
+   * All changes to the editor within the transaction will be grouped together, so that
+   * we can dispatch them as a single operation (thus creating only a single undo step)
+   *
+   * @example
+   * ```ts
+   * // All changes to the editor will be grouped together
+   * editor.transact(() => {
+   *   const tr = editor.transaction;
+   *   tr.insertText("Hello, world!");
+   *   editor.dispatch(tr);
+   * // These two operations will be grouped together in a single undo step
+   *   const otherTr = editor.transaction;
+   *   otherTr.insertText("Hello, world!");
+   *   editor.dispatch(otherTr);
+   * });
+   * ```
+   */
+  public transact<T>(callback: () => T): T {
+    if (this.transactionState) {
+      // Already in a transaction, so we can just callback immediately
+      return callback();
+    }
+
+    try {
+      // Enter transaction mode, by setting a start state
+      this.transactionState = this.prosemirrorState;
+
+      // Capture all dispatch'd transactions
+      const result = callback();
+
+      // Any transactions captured by the `dispatch` call will be stored in `this.activeTransaction`
+      const activeTr = this.activeTransaction;
+
+      this.transactionState = null;
+      if (activeTr) {
+        this.activeTransaction = null;
+        // Dispatch the transaction if it was modified
+        this.dispatch(activeTr);
+      }
+      return result;
+    } finally {
+      // We wrap this in a finally block to ensure we don't disable future transactions just because of an error in the callback
+      this.activeTransaction = null;
+      this.transactionState = null;
+    }
+  }
+
+  /**
+   * Start a new ProseMirror transaction.
+   *
+   * @example
+   * ```ts
+   * const tr = editor.transaction
+   *
+   * tr.insertText("Hello, world!");
+   *
+   * editor.dispatch(tr);
+   * ```
+   */
+  public get transaction(): Transaction {
+    if (this.transactionState) {
+      // We are in a `transact` call, so we should return the state that was active when the transaction started
+      return this.transactionState.tr;
+    }
+    // Otherwise, we are not in a `transact` call, so we can just return the current state
+    return this.prosemirrorState.tr;
+  }
 
   /**
    * Mount the editor to a parent DOM element. Call mount(undefined) to clean up
@@ -751,9 +867,17 @@ export class BlockNoteEditor<
   }
 
   /**
+   * The state of the editor when a transaction is captured, this can be continuously updated during the {@link transact} call
+   */
+  private transactionState: EditorState | null = null;
+
+  /**
    * Get the underlying prosemirror state
    */
   public get prosemirrorState() {
+    if (this.transactionState) {
+      return this.transactionState;
+    }
     return this._tiptapEditor.state;
   }
 
@@ -1070,8 +1194,8 @@ export class BlockNoteEditor<
 
     insertContentAt(
       {
-        from: this._tiptapEditor.state.selection.from,
-        to: this._tiptapEditor.state.selection.to,
+        from: this.prosemirrorState.selection.from,
+        to: this.prosemirrorState.selection.to,
       },
       nodes,
       this
@@ -1083,7 +1207,7 @@ export class BlockNoteEditor<
    */
   public getActiveStyles() {
     const styles: Styles<SSchema> = {};
-    const marks = this._tiptapEditor.state.selection.$to.marks();
+    const marks = this.prosemirrorState.selection.$to.marks();
 
     for (const mark of marks) {
       const config = this.schema.styleSchema[mark.type.name];
@@ -1164,10 +1288,8 @@ export class BlockNoteEditor<
    * Gets the currently selected text.
    */
   public getSelectedText() {
-    return this._tiptapEditor.state.doc.textBetween(
-      this._tiptapEditor.state.selection.from,
-      this._tiptapEditor.state.selection.to
-    );
+    const state = this.prosemirrorState;
+    return state.doc.textBetween(state.selection.from, state.selection.to);
   }
 
   /**
@@ -1186,21 +1308,21 @@ export class BlockNoteEditor<
     if (url === "") {
       return;
     }
-
-    const { from, to } = this._tiptapEditor.state.selection;
     const mark = this.pmSchema.mark("link", { href: url });
+    const tr = this.transaction;
+    const { from, to } = tr.selection;
 
-    this.dispatch(
-      text
-        ? this._tiptapEditor.state.tr
-            .insertText(text, from, to)
-            .addMark(from, from + text.length, mark)
-        : this._tiptapEditor.state.tr
-            .setSelection(
-              TextSelection.create(this._tiptapEditor.state.tr.doc, to)
-            )
-            .addMark(from, to, mark)
-    );
+    if (text) {
+      this.dispatch(
+        tr.insertText(text, from, to).addMark(from, from + text.length, mark)
+      );
+    } else {
+      this.dispatch(
+        tr
+          .setSelection(TextSelection.create(tr.doc, to))
+          .addMark(from, to, mark)
+      );
+    }
   }
 
   /**
@@ -1452,24 +1574,21 @@ export class BlockNoteEditor<
       ignoreQueryLength?: boolean;
     }
   ) {
-    const tr = this.prosemirrorView?.state.tr;
-    if (!tr) {
+    if (!this.prosemirrorView) {
       return;
     }
 
-    const transaction =
-      pluginState && pluginState.deleteTriggerCharacter
-        ? tr.insertText(triggerCharacter)
-        : tr;
-
-    this.prosemirrorView.focus();
-    this.prosemirrorView.dispatch(
-      transaction.scrollIntoView().setMeta(this.suggestionMenus.plugin, {
-        triggerCharacter: triggerCharacter,
-        deleteTriggerCharacter: pluginState?.deleteTriggerCharacter || false,
-        ignoreQueryLength: pluginState?.ignoreQueryLength || false,
-      })
-    );
+    this.focus();
+    const tr = this.transaction;
+    if (pluginState && pluginState.deleteTriggerCharacter) {
+      tr.insertText(triggerCharacter);
+    }
+    tr.scrollIntoView().setMeta(this.suggestionMenus.plugin, {
+      triggerCharacter: triggerCharacter,
+      deleteTriggerCharacter: pluginState?.deleteTriggerCharacter || false,
+      ignoreQueryLength: pluginState?.ignoreQueryLength || false,
+    });
+    this.dispatch(tr);
   }
 
   // `forceSelectionVisible` determines whether the editor selection is shows

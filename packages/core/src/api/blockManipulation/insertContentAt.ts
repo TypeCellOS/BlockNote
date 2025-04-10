@@ -21,8 +21,7 @@ export function insertContentAt<
     updateSelection: boolean;
   } = { updateSelection: true }
 ) {
-  const tr = editor._tiptapEditor.state.tr;
-
+  const tr = editor.transaction;
   // don’t dispatch an empty fragment because this can lead to strange errors
   // if (content.toString() === "<>") {
   //   return true;

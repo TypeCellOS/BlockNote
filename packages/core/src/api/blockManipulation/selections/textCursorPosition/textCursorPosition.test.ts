@@ -37,7 +37,7 @@ describe("Test getTextCursorPosition & setTextCursorPosition", () => {
     setTextCursorPosition(getEditor(), "paragraph-1", "start");
 
     expect(
-      getEditor()._tiptapEditor.state.selection.$from.parentOffset === 0
+      getEditor().prosemirrorState.selection.$from.parentOffset === 0
     ).toBeTruthy();
   });
 
@@ -45,9 +45,8 @@ describe("Test getTextCursorPosition & setTextCursorPosition", () => {
     setTextCursorPosition(getEditor(), "paragraph-1", "end");
 
     expect(
-      getEditor()._tiptapEditor.state.selection.$from.parentOffset ===
-        getEditor()._tiptapEditor.state.selection.$from.node().firstChild!
-          .nodeSize
+      getEditor().prosemirrorState.selection.$from.parentOffset ===
+        getEditor().prosemirrorState.selection.$from.node().firstChild!.nodeSize
     ).toBeTruthy();
   });
 });

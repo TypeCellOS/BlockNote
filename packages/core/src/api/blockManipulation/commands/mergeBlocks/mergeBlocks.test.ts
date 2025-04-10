@@ -13,7 +13,7 @@ function mergeBlocks(posBetweenBlocks: number) {
 }
 
 function getPosBeforeSelectedBlock() {
-  return getBlockInfoFromSelection(getEditor()._tiptapEditor.state).bnBlock
+  return getBlockInfoFromSelection(getEditor().prosemirrorState).bnBlock
     .beforePos;
 }
 
@@ -62,14 +62,14 @@ describe("Test mergeBlocks", () => {
     getEditor().setTextCursorPosition("paragraph-0", "end");
 
     const firstBlockEndOffset =
-      getEditor()._tiptapEditor.state.selection.$anchor.parentOffset;
+      getEditor().prosemirrorState.selection.$anchor.parentOffset;
 
     getEditor().setTextCursorPosition("paragraph-1");
 
     mergeBlocks(getPosBeforeSelectedBlock());
 
     const anchorIsAtOldFirstBlockEndPos =
-      getEditor()._tiptapEditor.state.selection.$anchor.parentOffset ===
+      getEditor().prosemirrorState.selection.$anchor.parentOffset ===
       firstBlockEndOffset;
 
     expect(anchorIsAtOldFirstBlockEndPos).toBeTruthy();

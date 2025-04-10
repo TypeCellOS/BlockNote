@@ -82,6 +82,8 @@ export class MultipleNodeSelection extends Selection {
   }
 
   toJSON(): any {
-    return { type: "node", anchor: this.anchor, head: this.head };
+    return { type: "multiple-node", anchor: this.anchor, head: this.head };
   }
 }
+
+Selection.jsonID("multiple-node", MultipleNodeSelection);

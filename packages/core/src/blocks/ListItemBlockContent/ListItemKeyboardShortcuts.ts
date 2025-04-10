@@ -4,15 +4,14 @@ import { getBlockInfoFromSelection } from "../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 export const handleEnter = (editor: BlockNoteEditor<any, any, any>) => {
-  const ttEditor = editor._tiptapEditor;
-  const blockInfo = getBlockInfoFromSelection(ttEditor.state);
+  const state = editor.prosemirrorState;
+  const blockInfo = getBlockInfoFromSelection(state);
   if (!blockInfo.isBlockContainer) {
     return false;
   }
   const { bnBlock: blockContainer, blockContent } = blockInfo;
 
-  const selectionEmpty =
-    ttEditor.state.selection.anchor === ttEditor.state.selection.head;
+  const selectionEmpty = state.selection.anchor === state.selection.head;
 
   if (
     !(
@@ -25,7 +24,7 @@ export const handleEnter = (editor: BlockNoteEditor<any, any, any>) => {
     return false;
   }
 
-  return ttEditor.commands.first(({ state, chain, commands }) => [
+  return editor._tiptapEditor.commands.first(({ state, chain, commands }) => [
     () =>
       // Changes list item block to a paragraph block if the content is empty.
       commands.command(() => {

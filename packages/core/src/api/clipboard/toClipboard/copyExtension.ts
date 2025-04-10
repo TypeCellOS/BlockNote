@@ -120,9 +120,10 @@ export function selectedFragmentToHTML<
     "node" in view.state.selection &&
     (view.state.selection.node as Node).type.spec.group === "blockContent"
   ) {
+    const tr = editor.transaction;
     editor.dispatch(
-      editor._tiptapEditor.state.tr.setSelection(
-        new NodeSelection(view.state.doc.resolve(view.state.selection.from - 1))
+      tr.setSelection(
+        new NodeSelection(tr.doc.resolve(view.state.selection.from - 1))
       )
     );
   }
@@ -251,10 +252,11 @@ export const createCopyToClipboardExtension = <
                 }
 
                 // Expands the selection to the parent `blockContainer` node.
+                const tr = editor.transaction;
                 editor.dispatch(
-                  editor._tiptapEditor.state.tr.setSelection(
+                  tr.setSelection(
                     new NodeSelection(
-                      view.state.doc.resolve(view.state.selection.from - 1)
+                      tr.doc.resolve(view.state.selection.from - 1)
                     )
                   )
                 );

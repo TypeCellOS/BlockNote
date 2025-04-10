@@ -116,7 +116,7 @@ class SuggestionMenuView<
 
   closeMenu = () => {
     this.editor.dispatch(
-      this.editor._tiptapEditor.state.tr.setMeta(suggestionMenuPluginKey, null)
+      this.editor.transaction.setMeta(suggestionMenuPluginKey, null)
     );
   };
 
@@ -134,7 +134,7 @@ class SuggestionMenuView<
           (this.pluginState.deleteTriggerCharacter
             ? this.pluginState.triggerCharacter!.length
             : 0),
-        to: this.editor._tiptapEditor.state.selection.from,
+        to: this.editor.transaction.selection.from,
       })
       .run();
   };
