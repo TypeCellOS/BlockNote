@@ -196,7 +196,12 @@ export class SuggestionMenuProseMirrorPlugin<
         },
 
         // Apply changes to the plugin state from an editor transaction.
-        apply(transaction, prev, _oldState, newState): SuggestionPluginState {
+        apply: (
+          transaction,
+          prev,
+          _oldState,
+          newState
+        ): SuggestionPluginState => {
           // TODO: More clearly define which transactions should be ignored.
           if (transaction.getMeta("orderedListIndexing") !== undefined) {
             return prev;
@@ -215,12 +220,14 @@ export class SuggestionMenuProseMirrorPlugin<
             ignoreQueryLength?: boolean;
           } | null = transaction.getMeta(suggestionMenuPluginKey);
 
-          // Only opens a menu of no menu is already open
           if (
             typeof suggestionPluginTransactionMeta === "object" &&
-            suggestionPluginTransactionMeta !== null &&
-            prev === undefined
+            suggestionPluginTransactionMeta !== null
           ) {
+            if (prev) {
+              // Close the previous menu if it exists
+              this.closeMenu();
+            }
             const trackedPosition = trackPosition(
               editor,
               newState.selection.from -
@@ -262,7 +269,11 @@ export class SuggestionMenuProseMirrorPlugin<
             transaction.getMeta("pointer") ||
             // Moving the caret before the character which triggered the menu should hide it.
             (prev.triggerCharacter !== undefined &&
-              newState.selection.from < prev.queryStartPos())
+              newState.selection.from < prev.queryStartPos()) ||
+            // Moving the caret to a new block should hide the menu.
+            !newState.selection.$from.sameParent(
+              newState.doc.resolve(prev.queryStartPos())
+            )
           ) {
             return undefined;
           }
@@ -281,14 +292,7 @@ export class SuggestionMenuProseMirrorPlugin<
 
       props: {
         handleTextInput(view, _from, _to, text) {
-          const suggestionPluginState: SuggestionPluginState = (
-            this as Plugin
-          ).getState(view.state);
-
-          if (
-            triggerCharacters.includes(text) &&
-            suggestionPluginState === undefined
-          ) {
+          if (triggerCharacters.includes(text)) {
             view.dispatch(
               view.state.tr
                 .insertText(text)
