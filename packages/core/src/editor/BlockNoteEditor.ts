@@ -94,7 +94,12 @@ import {
 import { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
 
-import { Plugin, TextSelection, Transaction } from "@tiptap/pm/state";
+import {
+  Plugin,
+  TextSelection,
+  Transaction,
+  Selection as ProsemirrorSelection,
+} from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
 import { EditorView } from "prosemirror-view";
 import { ySyncPluginKey } from "y-prosemirror";
@@ -738,7 +743,28 @@ export class BlockNoteEditor<
    */
   public dispatch(tr: Transaction) {
     if (this.activeTransaction) {
-      // We don't want the editor to actually apply the state, so all of this is manipulating the current transaction in-memory
+      // The user wanted to dispatch, but we are already in a transaction, so we don't want to apply the state
+
+      // We do want to append any transactions though, so we'll do that
+      const { transactions } = this._tiptapEditor.state.applyTransaction(tr);
+
+      this.activeTransaction = transactions.reduce((activeTr, trToApply) => {
+        trToApply.steps.forEach((step) => {
+          activeTr.step(step);
+        });
+        if (trToApply.selectionSet) {
+          // Serialize the selection to JSON, because the document between the `activeTransaction` and the dispatch'd tr are different references
+          activeTr.setSelection(
+            ProsemirrorSelection.fromJSON(
+              this.activeTransaction!.doc,
+              trToApply.selection.toJSON()
+            )
+          );
+        }
+
+        return activeTr;
+      });
+
       return;
     }
 
