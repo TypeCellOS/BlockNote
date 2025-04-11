@@ -5,7 +5,7 @@ import { testSchema } from "../../testSchema.js";
 import {
   testExportParseEqualityBlockNoteHTML,
   testExportParseEqualityNodes,
-} from "../../../shared/formatConversion/exportParseEquality/exportParseEqualityTestExecutors";
+} from "../../../shared/formatConversion/exportParseEquality/exportParseEqualityTestExecutors.js";
 import { getExportParseEqualityTestInstances } from "./getExportParseEqualityTestInstances.js";
 
 // Tests for verifying that exporting blocks to another format, then importing
