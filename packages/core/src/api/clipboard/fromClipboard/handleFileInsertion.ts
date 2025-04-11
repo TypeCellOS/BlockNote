@@ -160,10 +160,8 @@ export async function handleFileInsertion<
           return;
         }
 
-        const posInfo = getNearestBlockPos(
-          editor.prosemirrorState.doc,
-          pos.pos
-        );
+        const tr = editor.transaction;
+        const posInfo = getNearestBlockPos(tr.doc, pos.pos);
 
         insertedBlockId = insertOrUpdateBlock(
           editor,

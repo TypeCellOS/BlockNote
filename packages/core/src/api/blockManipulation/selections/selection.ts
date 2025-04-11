@@ -21,17 +21,17 @@ export function getSelection<
 >(
   editor: BlockNoteEditor<BSchema, I, S>
 ): Selection<BSchema, I, S> | undefined {
-  const state = editor.prosemirrorState;
+  const tr = editor.transaction;
   // Return undefined if the selection is collapsed or a node is selected.
-  if (state.selection.empty || "node" in state.selection) {
+  if (tr.selection.empty || "node" in tr.selection) {
     return undefined;
   }
 
-  const $startBlockBeforePos = state.doc.resolve(
-    getNearestBlockPos(state.doc, state.selection.from).posBeforeNode
+  const $startBlockBeforePos = tr.doc.resolve(
+    getNearestBlockPos(tr.doc, tr.selection.from).posBeforeNode
   );
-  const $endBlockBeforePos = state.doc.resolve(
-    getNearestBlockPos(state.doc, state.selection.to).posBeforeNode
+  const $endBlockBeforePos = tr.doc.resolve(
+    getNearestBlockPos(tr.doc, tr.selection.to).posBeforeNode
   );
 
   // Converts the node at the given index and depth around `$startBlockBeforePos`
@@ -42,7 +42,7 @@ export function getSelection<
     depth?: number
   ): Block<BSchema, I, S> => {
     const pos = $startBlockBeforePos.posAtIndex(index, depth);
-    const node = state.doc.resolve(pos).nodeAfter;
+    const node = tr.doc.resolve(pos).nodeAfter;
 
     if (!node) {
       throw new Error(
@@ -136,7 +136,7 @@ export function getSelection<
 
   if (blocks.length === 0) {
     throw new Error(
-      `Error getting selection - selection doesn't span any blocks (${state.selection})`
+      `Error getting selection - selection doesn't span any blocks (${tr.selection})`
     );
   }
 

@@ -1,17 +1,17 @@
 import { splitBlockCommand } from "../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { getBlockInfoFromSelection } from "../../api/getBlockInfoFromPos.js";
+import { getBlockInfoFromTransaction } from "../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 export const handleEnter = (editor: BlockNoteEditor<any, any, any>) => {
-  const state = editor.prosemirrorState;
-  const blockInfo = getBlockInfoFromSelection(state);
+  const tr = editor.transaction;
+  const blockInfo = getBlockInfoFromTransaction(tr);
   if (!blockInfo.isBlockContainer) {
     return false;
   }
   const { bnBlock: blockContainer, blockContent } = blockInfo;
 
-  const selectionEmpty = state.selection.anchor === state.selection.head;
+  const selectionEmpty = tr.selection.anchor === tr.selection.head;
 
   if (
     !(

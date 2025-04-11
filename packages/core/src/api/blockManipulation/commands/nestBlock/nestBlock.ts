@@ -3,7 +3,7 @@ import { EditorState } from "prosemirror-state";
 import { ReplaceAroundStep } from "prosemirror-transform";
 
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
-import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
+import { getBlockInfoFromTransaction } from "../../../getBlockInfoFromPos.js";
 
 // TODO: Unit tests
 /**
@@ -80,21 +80,15 @@ export function unnestBlock(editor: BlockNoteEditor<any, any, any>) {
 }
 
 export function canNestBlock(editor: BlockNoteEditor<any, any, any>) {
-  const { bnBlock: blockContainer } = getBlockInfoFromSelection(
-    editor.prosemirrorState
-  );
+  const tr = editor.transaction;
+  const { bnBlock: blockContainer } = getBlockInfoFromTransaction(tr);
 
-  return (
-    editor.prosemirrorState.doc.resolve(blockContainer.beforePos).nodeBefore !==
-    null
-  );
+  return tr.doc.resolve(blockContainer.beforePos).nodeBefore !== null;
 }
-export function canUnnestBlock(editor: BlockNoteEditor<any, any, any>) {
-  const { bnBlock: blockContainer } = getBlockInfoFromSelection(
-    editor.prosemirrorState
-  );
 
-  return (
-    editor.prosemirrorState.doc.resolve(blockContainer.beforePos).depth > 1
-  );
+export function canUnnestBlock(editor: BlockNoteEditor<any, any, any>) {
+  const tr = editor.transaction;
+  const { bnBlock: blockContainer } = getBlockInfoFromTransaction(tr);
+
+  return tr.doc.resolve(blockContainer.beforePos).depth > 1;
 }
