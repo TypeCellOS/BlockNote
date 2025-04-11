@@ -1,0 +1,45 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {
+          "backgroundColor": "red",
+        },
+        "text": "Red Background",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "backgroundColor": "green",
+        },
+        "text": "Green Background",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "backgroundColor": "blue",
+        },
+        "text": "Blue Background",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
