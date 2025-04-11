@@ -263,36 +263,34 @@ export function updateBlock<
 ): Block<BSchema, I, S> {
   const id =
     typeof blockToUpdate === "string" ? blockToUpdate : blockToUpdate.id;
-  return editor.transact(() => {
-    const tr = editor.transaction;
-    const posInfo = getNodeById(id, tr.doc);
-    if (!posInfo) {
-      throw new Error(`Block with ID ${id} not found`);
-    }
+  const tr = editor.transaction;
+  const posInfo = getNodeById(id, tr.doc);
+  if (!posInfo) {
+    throw new Error(`Block with ID ${id} not found`);
+  }
 
-    updateBlockCommand(
-      editor,
-      posInfo.posBeforeNode,
-      update
-    )({
-      tr,
-      dispatch: () => {
-        // no-op
-      },
-    });
-    // Actually dispatch that transaction
-    editor.dispatch(tr);
-
-    const blockContainerNode = tr.doc
-      .resolve(posInfo.posBeforeNode + 1) // TODO: clean?
-      .node();
-
-    return nodeToBlock(
-      blockContainerNode,
-      editor.schema.blockSchema,
-      editor.schema.inlineContentSchema,
-      editor.schema.styleSchema,
-      editor.blockCache
-    );
+  updateBlockCommand(
+    editor,
+    posInfo.posBeforeNode,
+    update
+  )({
+    tr,
+    dispatch: () => {
+      // no-op
+    },
   });
+  // Actually dispatch that transaction
+  editor.dispatch(tr);
+
+  const blockContainerNode = tr.doc
+    .resolve(posInfo.posBeforeNode + 1) // TODO: clean?
+    .node();
+
+  return nodeToBlock(
+    blockContainerNode,
+    editor.schema.blockSchema,
+    editor.schema.inlineContentSchema,
+    editor.schema.styleSchema,
+    editor.blockCache
+  );
 }

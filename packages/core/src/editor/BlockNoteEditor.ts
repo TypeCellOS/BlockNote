@@ -94,13 +94,7 @@ import {
 import { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
 
-import {
-  EditorState,
-  Plugin,
-  Selection as ProsemirrorSelection,
-  TextSelection,
-  Transaction,
-} from "@tiptap/pm/state";
+import { Plugin, TextSelection, Transaction } from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
 import { EditorView } from "prosemirror-view";
 import { ySyncPluginKey } from "y-prosemirror";
@@ -743,28 +737,8 @@ export class BlockNoteEditor<
    * ```
    */
   public dispatch(tr: Transaction) {
-    if (this.transactionState) {
-      const { state, transactions } =
-        this.transactionState.applyTransaction(tr);
-      // Set a default value if needed
-      const accTr = this.activeTransaction ?? this.transactionState.tr;
-
-      // Copy over the newly applied transactions into our "active transaction" which accumulates all transaction steps during a `transact` call
-      transactions.forEach((tr) => {
-        tr.steps.forEach((step) => {
-          accTr.step(step);
-        });
-        if (tr.selectionSet) {
-          // Serialize the selection to JSON, because the document between the `activeTransaction` and the dispatch'd tr are different references
-          accTr.setSelection(
-            ProsemirrorSelection.fromJSON(accTr.doc, tr.selection.toJSON())
-          );
-        }
-      });
-      this.activeTransaction = accTr;
-      this.transactionState = state;
-
-      // We don't want the editor to actually apply the state, so all of this is manipulating the state in-memory
+    if (this.activeTransaction) {
+      // We don't want the editor to actually apply the state, so all of this is manipulating the current transaction in-memory
       return;
     }
 
@@ -795,25 +769,24 @@ export class BlockNoteEditor<
    * });
    * ```
    */
-  public transact<T>(callback: () => T): T {
-    if (this.transactionState) {
+  public transact<T>(callback: (tr: Transaction) => T): T {
+    if (this.activeTransaction) {
       // Already in a transaction, so we can just callback immediately
-      return callback();
+      return callback(this.activeTransaction);
     }
 
     try {
-      // Enter transaction mode, by setting a start state
-      this.transactionState = this.prosemirrorState;
+      // Enter transaction mode, by setting a starting transaction
+      this.activeTransaction = this.prosemirrorState.tr;
 
       // Capture all dispatch'd transactions
-      const result = callback();
+      const result = callback(this.activeTransaction);
 
       // Any transactions captured by the `dispatch` call will be stored in `this.activeTransaction`
       const activeTr = this.activeTransaction;
 
-      this.transactionState = null;
+      this.activeTransaction = null;
       if (activeTr) {
-        this.activeTransaction = null;
         // Dispatch the transaction if it was modified
         this.dispatch(activeTr);
       }
@@ -821,7 +794,6 @@ export class BlockNoteEditor<
     } finally {
       // We wrap this in a finally block to ensure we don't disable future transactions just because of an error in the callback
       this.activeTransaction = null;
-      this.transactionState = null;
     }
   }
 
@@ -838,9 +810,9 @@ export class BlockNoteEditor<
    * ```
    */
   public get transaction(): Transaction {
-    if (this.transactionState) {
-      // We are in a `transact` call, so we should return the state that was active when the transaction started
-      return this.transactionState.tr;
+    if (this.activeTransaction) {
+      // We are in a `transact` call, so we should return that transaction to accumulate changes on it
+      return this.activeTransaction;
     }
     // Otherwise, we are not in a `transact` call, so we can just return the current state
     return this.prosemirrorState.tr;
@@ -866,16 +838,11 @@ export class BlockNoteEditor<
   }
 
   /**
-   * The state of the editor when a transaction is captured, this can be continuously updated during the {@link transact} call
-   */
-  private transactionState: EditorState | null = null;
-
-  /**
    * Get the underlying prosemirror state
    */
   public get prosemirrorState() {
-    if (this.transactionState) {
-      return this.transactionState;
+    if (this.activeTransaction) {
+      throw new Error("Cannot get prosemirrorState while in a transaction");
     }
     return this._tiptapEditor.state;
   }

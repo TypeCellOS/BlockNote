@@ -20,7 +20,7 @@ export function getBlock<
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
 
-  const posInfo = getNodeById(id, editor.prosemirrorState.doc);
+  const posInfo = getNodeById(id, editor.transaction.doc);
   if (!posInfo) {
     return undefined;
   }
@@ -44,15 +44,13 @@ export function getPrevBlock<
 ): Block<BSchema, I, S> | undefined {
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
-
-  const posInfo = getNodeById(id, editor.prosemirrorState.doc);
+  const tr = editor.transaction;
+  const posInfo = getNodeById(id, tr.doc);
   if (!posInfo) {
     return undefined;
   }
 
-  const $posBeforeNode = editor.prosemirrorState.doc.resolve(
-    posInfo.posBeforeNode
-  );
+  const $posBeforeNode = tr.doc.resolve(posInfo.posBeforeNode);
   const nodeToConvert = $posBeforeNode.nodeBefore;
   if (!nodeToConvert) {
     return undefined;
@@ -77,13 +75,13 @@ export function getNextBlock<
 ): Block<BSchema, I, S> | undefined {
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
-
-  const posInfo = getNodeById(id, editor.prosemirrorState.doc);
+  const tr = editor.transaction;
+  const posInfo = getNodeById(id, tr.doc);
   if (!posInfo) {
     return undefined;
   }
 
-  const $posAfterNode = editor.prosemirrorState.doc.resolve(
+  const $posAfterNode = tr.doc.resolve(
     posInfo.posBeforeNode + posInfo.node.nodeSize
   );
   const nodeToConvert = $posAfterNode.nodeAfter;
@@ -111,14 +109,13 @@ export function getParentBlock<
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
 
-  const posInfo = getNodeById(id, editor.prosemirrorState.doc);
+  const tr = editor.transaction;
+  const posInfo = getNodeById(id, tr.doc);
   if (!posInfo) {
     return undefined;
   }
 
-  const $posBeforeNode = editor.prosemirrorState.doc.resolve(
-    posInfo.posBeforeNode
-  );
+  const $posBeforeNode = tr.doc.resolve(posInfo.posBeforeNode);
   const parentNode = $posBeforeNode.node();
   const grandparentNode = $posBeforeNode.node(-1);
   const nodeToConvert =

@@ -11,7 +11,7 @@ import {
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
   getBlockInfo,
-  getBlockInfoFromSelection,
+  getBlockInfoFromTransaction,
 } from "../../../getBlockInfoFromPos.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
@@ -21,16 +21,15 @@ export function getTextCursorPosition<
   I extends InlineContentSchema,
   S extends StyleSchema
 >(editor: BlockNoteEditor<BSchema, I, S>): TextCursorPosition<BSchema, I, S> {
-  const { bnBlock } = getBlockInfoFromSelection(editor.prosemirrorState);
+  const tr = editor.transaction;
+  const { bnBlock } = getBlockInfoFromTransaction(tr);
 
-  const resolvedPos = editor.prosemirrorState.doc.resolve(bnBlock.beforePos);
+  const resolvedPos = tr.doc.resolve(bnBlock.beforePos);
   // Gets previous blockContainer node at the same nesting level, if the current node isn't the first child.
   const prevNode = resolvedPos.nodeBefore;
 
   // Gets next blockContainer node at the same nesting level, if the current node isn't the last child.
-  const nextNode = editor.prosemirrorState.doc.resolve(
-    bnBlock.afterPos
-  ).nodeAfter;
+  const nextNode = tr.doc.resolve(bnBlock.afterPos).nodeAfter;
 
   // Gets parent blockContainer node, if the current node is nested.
   let parentNode: Node | undefined = undefined;
@@ -94,8 +93,9 @@ export function setTextCursorPosition<
   placement: "start" | "end" = "start"
 ) {
   const id = typeof targetBlock === "string" ? targetBlock : targetBlock.id;
+  const tr = editor.transaction;
 
-  const posInfo = getNodeById(id, editor.prosemirrorState.doc);
+  const posInfo = getNodeById(id, tr.doc);
   if (!posInfo) {
     throw new Error(`Block with ID ${id} not found`);
   }
@@ -108,11 +108,13 @@ export function setTextCursorPosition<
   if (info.isBlockContainer) {
     const blockContent = info.blockContent;
     if (contentType === "none") {
+      // TODO use tr.setSelection instead of commands
       editor._tiptapEditor.commands.setNodeSelection(blockContent.beforePos);
       return;
     }
 
     if (contentType === "inline") {
+      // TODO use tr.setSelection instead of commands
       if (placement === "start") {
         editor._tiptapEditor.commands.setTextSelection(
           blockContent.beforePos + 1
