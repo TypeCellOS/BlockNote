@@ -13,12 +13,12 @@ import {
 import { TestInstance } from "../../../types.js";
 import { getPosOfTextNode } from "../clipboardTestUtil.js";
 
-export const getPasteTestInstances = (): TestInstance<
+export const pasteTestInstancesHTML: TestInstance<
   PasteTestCase<TestBlockSchema, TestInlineContentSchema, TestStyleSchema>,
   TestBlockSchema,
   TestInlineContentSchema,
   TestStyleSchema
->[] => [
+>[] = [
   {
     testCase: {
       name: "pasteEndOfParagraph",
@@ -36,24 +36,6 @@ export const getPasteTestInstances = (): TestInstance<
       },
     },
     executeTest: testPasteHTML,
-  },
-  {
-    testCase: {
-      name: "pasteEndOfParagraphText",
-      content: `Paragraph`,
-      document: [
-        {
-          type: "paragraph",
-          content: "Paragraph 1",
-        },
-      ],
-      getPasteSelection: (doc) => {
-        const startPos = getPosOfTextNode(doc, "Paragraph 1", true);
-
-        return TextSelection.create(doc, startPos);
-      },
-    },
-    executeTest: testPasteMarkdown,
   },
   {
     testCase: {
@@ -154,5 +136,31 @@ export const getPasteTestInstances = (): TestInstance<
       },
     },
     executeTest: testPasteHTML,
+  },
+];
+
+export const pasteTestInstancesMarkdown: TestInstance<
+  PasteTestCase<TestBlockSchema, TestInlineContentSchema, TestStyleSchema>,
+  TestBlockSchema,
+  TestInlineContentSchema,
+  TestStyleSchema
+>[] = [
+  {
+    testCase: {
+      name: "pasteEndOfParagraphText",
+      content: `Paragraph`,
+      document: [
+        {
+          type: "paragraph",
+          content: "Paragraph 1",
+        },
+      ],
+      getPasteSelection: (doc) => {
+        const startPos = getPosOfTextNode(doc, "Paragraph 1", true);
+
+        return TextSelection.create(doc, startPos);
+      },
+    },
+    executeTest: testPasteMarkdown,
   },
 ];

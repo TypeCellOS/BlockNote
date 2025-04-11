@@ -14,12 +14,12 @@ import {
   getPosOfTextNode,
 } from "../clipboardTestUtil.js";
 
-export const getCopyTestInstances = (): TestInstance<
+export const copyTestInstancesHTML: TestInstance<
   CopyTestCase<TestBlockSchema, TestInlineContentSchema, TestStyleSchema>,
   TestBlockSchema,
   TestInlineContentSchema,
   TestStyleSchema
->[] => [
+>[] = [
   {
     testCase: {
       name: "multipleChildren",

@@ -6,9 +6,9 @@ import {
 import { CopyPasteEqualityTestCase } from "../../../shared/clipboard/copyPasteEquality/copyPasteEqualityTestCase.js";
 import { testCopyPasteEquality } from "../../../shared/clipboard/copyPasteEquality/copyPasteEqualityTestExecutors.js";
 import { TestInstance } from "../../../types.js";
-import { getCopyTestInstances } from "../copy/getCopyTestInstances.js";
+import { copyTestInstancesHTML } from "../copy/copyTestInstances.js";
 
-export const getCopyPasteEqualityTestInstances = (): TestInstance<
+export const copyPasteEqualityTestInstances: TestInstance<
   CopyPasteEqualityTestCase<
     TestBlockSchema,
     TestInlineContentSchema,
@@ -17,12 +17,11 @@ export const getCopyPasteEqualityTestInstances = (): TestInstance<
   TestBlockSchema,
   TestInlineContentSchema,
   TestStyleSchema
->[] =>
-  getCopyTestInstances().map(({ testCase }) => ({
-    testCase: {
-      name: testCase.name,
-      document: testCase.document,
-      getCopyAndPasteSelection: testCase.getCopySelection,
-    },
-    executeTest: testCopyPasteEquality,
-  }));
+>[] = copyTestInstancesHTML.map(({ testCase }) => ({
+  testCase: {
+    name: testCase.name,
+    document: testCase.document,
+    getCopyAndPasteSelection: testCase.getCopySelection,
+  },
+  executeTest: testCopyPasteEquality,
+}));

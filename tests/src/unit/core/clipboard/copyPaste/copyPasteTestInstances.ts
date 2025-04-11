@@ -10,12 +10,12 @@ import { testCopyPaste } from "../../../shared/clipboard/copyPaste/copyPasteTest
 import { TestInstance } from "../../../types.js";
 import { getPosOfTextNode } from "../clipboardTestUtil.js";
 
-export const getCopyPasteTestInstances = (): TestInstance<
+export const copyPasteTestInstances: TestInstance<
   CopyPasteTestCase<TestBlockSchema, TestInlineContentSchema, TestStyleSchema>,
   TestBlockSchema,
   TestInlineContentSchema,
   TestStyleSchema
->[] => [
+>[] = [
   {
     testCase: {
       name: "paragraphInCustomBlock",

@@ -10,12 +10,12 @@ import {
   TestStyleSchema,
 } from "../../testSchema.js";
 
-export const parseTestInstances = (): TestInstance<
+export const parseTestInstancesHTML: TestInstance<
   ParseTestCase,
   TestBlockSchema,
   TestInlineContentSchema,
   TestStyleSchema
->[] => [
+>[] = [
   {
     testCase: {
       name: "basicBlockTypes",
@@ -512,6 +512,14 @@ With Hard Break</p>
     },
     executeTest: testParseHTML,
   },
+];
+
+export const parseTestInstancesMarkdown: TestInstance<
+  ParseTestCase,
+  TestBlockSchema,
+  TestInlineContentSchema,
+  TestStyleSchema
+>[] = [
   {
     testCase: {
       name: "basic",

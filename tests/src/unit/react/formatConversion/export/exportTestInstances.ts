@@ -1,24 +1,21 @@
 import { ExportTestCase } from "../../../shared/formatConversion/export/exportTestCase.js";
-import { TestExecutor, TestInstance } from "../../../types.js";
+import {
+  testExportBlockNoteHTML,
+  testExportHTML,
+} from "../../../shared/formatConversion/export/exportTestExecutors.js";
+import { TestInstance } from "../../../types.js";
 import {
   TestBlockSchema,
   TestInlineContentSchema,
   TestStyleSchema,
 } from "../../testSchema.js";
 
-export const getExportTestInstances = (
-  executeTest: TestExecutor<
-    ExportTestCase<TestBlockSchema, TestInlineContentSchema, TestStyleSchema>,
-    TestBlockSchema,
-    TestInlineContentSchema,
-    TestStyleSchema
-  >
-): TestInstance<
+export const exportTestInstancesBlockNoteHTML: TestInstance<
   ExportTestCase<TestBlockSchema, TestInlineContentSchema, TestStyleSchema>,
   TestBlockSchema,
   TestInlineContentSchema,
   TestStyleSchema
->[] => [
+>[] = [
   {
     testCase: {
       name: "reactFile/button",
@@ -28,7 +25,7 @@ export const getExportTestInstances = (
         },
       ],
     },
-    executeTest,
+    executeTest: testExportBlockNoteHTML,
   },
   {
     testCase: {
@@ -44,7 +41,7 @@ export const getExportTestInstances = (
         },
       ],
     },
-    executeTest,
+    executeTest: testExportBlockNoteHTML,
   },
   {
     testCase: {
@@ -59,7 +56,7 @@ export const getExportTestInstances = (
         },
       ],
     },
-    executeTest,
+    executeTest: testExportBlockNoteHTML,
   },
   {
     testCase: {
@@ -74,7 +71,7 @@ export const getExportTestInstances = (
         },
       ],
     },
-    executeTest,
+    executeTest: testExportBlockNoteHTML,
   },
   {
     testCase: {
@@ -100,7 +97,7 @@ export const getExportTestInstances = (
         },
       ],
     },
-    executeTest,
+    executeTest: testExportBlockNoteHTML,
   },
   // Because images need to fetch the download URL async, their internal HTML
   // is initially rendered without a `src` attribute, which is reflected in
@@ -114,7 +111,7 @@ export const getExportTestInstances = (
         },
       ],
     },
-    executeTest,
+    executeTest: testExportBlockNoteHTML,
   },
   {
     testCase: {
@@ -131,7 +128,7 @@ export const getExportTestInstances = (
         },
       ],
     },
-    executeTest,
+    executeTest: testExportBlockNoteHTML,
   },
   {
     testCase: {
@@ -147,7 +144,7 @@ export const getExportTestInstances = (
         },
       ],
     },
-    executeTest,
+    executeTest: testExportBlockNoteHTML,
   },
   {
     testCase: {
@@ -163,7 +160,7 @@ export const getExportTestInstances = (
         },
       ],
     },
-    executeTest,
+    executeTest: testExportBlockNoteHTML,
   },
   {
     testCase: {
@@ -181,7 +178,7 @@ export const getExportTestInstances = (
         },
       ],
     },
-    executeTest,
+    executeTest: testExportBlockNoteHTML,
   },
   {
     testCase: {
@@ -209,7 +206,7 @@ export const getExportTestInstances = (
         },
       ],
     },
-    executeTest,
+    executeTest: testExportBlockNoteHTML,
   },
   {
     testCase: {
@@ -221,7 +218,7 @@ export const getExportTestInstances = (
         },
       ],
     },
-    executeTest,
+    executeTest: testExportBlockNoteHTML,
   },
   {
     testCase: {
@@ -266,7 +263,7 @@ export const getExportTestInstances = (
         },
       ],
     },
-    executeTest,
+    executeTest: testExportBlockNoteHTML,
   },
   {
     testCase: {
@@ -288,7 +285,7 @@ export const getExportTestInstances = (
         },
       ],
     },
-    executeTest,
+    executeTest: testExportBlockNoteHTML,
   },
   {
     testCase: {
@@ -300,7 +297,7 @@ export const getExportTestInstances = (
         },
       ],
     },
-    executeTest,
+    executeTest: testExportBlockNoteHTML,
   },
   {
     testCase: {
@@ -312,7 +309,7 @@ export const getExportTestInstances = (
         },
       ],
     },
-    executeTest,
+    executeTest: testExportBlockNoteHTML,
   },
   {
     testCase: {
@@ -357,7 +354,7 @@ export const getExportTestInstances = (
         },
       ],
     },
-    executeTest,
+    executeTest: testExportBlockNoteHTML,
   },
   {
     testCase: {
@@ -379,7 +376,7 @@ export const getExportTestInstances = (
         },
       ],
     },
-    executeTest,
+    executeTest: testExportBlockNoteHTML,
   },
   {
     testCase: {
@@ -391,7 +388,7 @@ export const getExportTestInstances = (
         },
       ],
     },
-    executeTest,
+    executeTest: testExportBlockNoteHTML,
   },
   {
     testCase: {
@@ -412,7 +409,7 @@ export const getExportTestInstances = (
         },
       ],
     },
-    executeTest,
+    executeTest: testExportBlockNoteHTML,
   },
   {
     testCase: {
@@ -431,7 +428,7 @@ export const getExportTestInstances = (
         },
       ],
     },
-    executeTest,
+    executeTest: testExportBlockNoteHTML,
   },
   {
     testCase: {
@@ -451,7 +448,7 @@ export const getExportTestInstances = (
         },
       ],
     },
-    executeTest,
+    executeTest: testExportBlockNoteHTML,
   },
   {
     testCase: {
@@ -471,6 +468,16 @@ export const getExportTestInstances = (
         },
       ],
     },
-    executeTest,
+    executeTest: testExportBlockNoteHTML,
   },
 ];
+
+export const exportTestInstancesHTML: TestInstance<
+  ExportTestCase<TestBlockSchema, TestInlineContentSchema, TestStyleSchema>,
+  TestBlockSchema,
+  TestInlineContentSchema,
+  TestStyleSchema
+>[] = exportTestInstancesBlockNoteHTML.map(({ testCase }) => ({
+  testCase,
+  executeTest: testExportHTML,
+}));

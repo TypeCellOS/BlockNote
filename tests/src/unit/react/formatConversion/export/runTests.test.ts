@@ -3,30 +3,24 @@ import { describe, it } from "vitest";
 import { setupTestEditor } from "../../setupTestEditor.js";
 import { testSchema } from "../../testSchema.js";
 import {
-  exportParseEqualityTestInstancesBlockNoteHTML,
-  exportParseEqualityTestInstancesNodes,
-} from "./exportParseEqualityTestInstances.js";
+  exportTestInstancesBlockNoteHTML,
+  exportTestInstancesHTML,
+} from "./exportTestInstances.js";
 
-describe("Export/parse equality tests (BlockNote HTML)", () => {
+describe("React export tests (BlockNote HTML)", () => {
   const getEditor = setupTestEditor(testSchema);
 
-  for (const {
-    testCase,
-    executeTest,
-  } of exportParseEqualityTestInstancesBlockNoteHTML) {
+  for (const { testCase, executeTest } of exportTestInstancesBlockNoteHTML) {
     it(`${testCase.name}`, async () => {
       await executeTest(getEditor(), testCase);
     });
   }
 });
 
-describe("Export/parse equality tests (TipTap nodes)", () => {
+describe("React export tests (HTML)", () => {
   const getEditor = setupTestEditor(testSchema);
 
-  for (const {
-    testCase,
-    executeTest,
-  } of exportParseEqualityTestInstancesNodes) {
+  for (const { testCase, executeTest } of exportTestInstancesHTML) {
     it(`${testCase.name}`, async () => {
       await executeTest(getEditor(), testCase);
     });
