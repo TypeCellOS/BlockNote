@@ -1,3 +1,5 @@
+import { Attribute } from "@tiptap/core";
+
 import type { Props, PropSchema } from "../schema/index.js";
 
 // TODO: this system should probably be moved / refactored.
@@ -22,3 +24,54 @@ export type DefaultProps = Props<typeof defaultProps>;
 // `blockContent` nodes. Ensures that they are not redundantly added to
 // a custom block's TipTap node attributes.
 export const inheritedProps = ["backgroundColor", "textColor"];
+
+export const getBackgroundColorAttribute = (
+  attributeName = "backgroundColor"
+): Attribute => ({
+  default: defaultProps.backgroundColor.default,
+  parseHTML: (element) => {
+    if (element.hasAttribute("data-background-color")) {
+      return element.getAttribute("data-background-color");
+    }
+
+    if (element.style.backgroundColor) {
+      return element.style.backgroundColor;
+    }
+
+    return defaultProps.backgroundColor.default;
+  },
+  renderHTML: (attributes) => {
+    if (attributes[attributeName] === defaultProps.backgroundColor.default) {
+      return {};
+    }
+
+    return {
+      "data-background-color": attributes[attributeName],
+    };
+  },
+});
+
+export const getTextColorAttribute = (
+  attributeName = "textColor"
+): Attribute => ({
+  default: defaultProps.textColor.default,
+  parseHTML: (element) => {
+    if (element.hasAttribute("data-text-color")) {
+      return element.getAttribute("data-text-color");
+    }
+
+    if (element.style.color) {
+      return element.style.color;
+    }
+
+    return defaultProps.textColor.default;
+  },
+  renderHTML: (attributes) => {
+    if (attributes[attributeName] === defaultProps.textColor.default) {
+      return {};
+    }
+    return {
+      "data-text-color": attributes[attributeName],
+    };
+  },
+});
