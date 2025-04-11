@@ -1,0 +1,23 @@
+[
+  {
+    "attrs": {
+      "backgroundColor": "default",
+      "id": "1",
+      "textColor": "default",
+    },
+    "content": [
+      {
+        "attrs": {
+          "textAlignment": "left",
+        },
+        "content": [
+          {
+            "type": "hardBreak",
+          },
+        ],
+        "type": "paragraph",
+      },
+    ],
+    "type": "blockContainer",
+  },
+]

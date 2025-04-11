@@ -6,9 +6,9 @@ import {
   UniqueID,
   blockToNode,
   nodeToBlock,
-  partialBlockToBlockForTesting,
 } from "@blocknote/core";
 
+import { partialBlockToBlockForTesting } from "./formatConversionTestUtil.js";
 import { multiColumnSchemaTestCases } from "./testCases.js";
 
 function addIdsToBlock(block: PartialBlock<any, any, any>) {
