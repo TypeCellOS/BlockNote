@@ -1,3 +1,38 @@
+## 0.28.0 (2025-04-07)
+
+### 🚀 Features
+
+- position storage ([#1529](https://github.com/TypeCellOS/BlockNote/pull/1529))
+
+### ❤️ Thank You
+
+- Nick Perez
+
+## 0.27.2 (2025-04-05)
+
+### 🩹 Fixes
+
+- minor update for publishing ([c2820fdac](https://github.com/TypeCellOS/BlockNote/commit/c2820fdac))
+
+### ❤️ Thank You
+
+- Nick the Sick
+
+## 0.27.1 (2025-04-05)
+
+### 🚀 Features
+
+- **nx-cloud:** set up nx workspace ([#1586](https://github.com/TypeCellOS/BlockNote/pull/1586))
+
+### 🩹 Fixes
+
+- update packages to use correct react versions ([ea11ebce0](https://github.com/TypeCellOS/BlockNote/commit/ea11ebce0))
+
+### ❤️ Thank You
+
+- Nick Perez
+- Nick the Sick
+
 ## 0.27.0 (2025-04-04)
 
 ### 🚀 Features
@@ -22,3 +57,7 @@
 - Martinrsts @Martinrsts
 - Matthew Lipski @matthewlipski
 - Nick Perez
+
+## Previous Versions
+
+See [Github Releases](https://github.com/TypeCellOS/BlockNote/releases) for previous versions.

@@ -8,6 +8,7 @@ on:
 
 env:
   NX_REJECT_UNKNOWN_LOCAL_CACHE: 0
+  NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
 
 jobs:
   publish:
@@ -56,9 +57,11 @@ jobs:
       - name: Print Environment Info
         run: pnpm exec nx report
 
+      - name: Setup NPM
+        run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" >> .npmrc
+
       - name: Publish packages
         run: pnpm exec nx release publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: "${{ github.token }}"

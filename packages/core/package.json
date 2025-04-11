@@ -11,7 +11,7 @@
     "directory": "packages/core"
   },
   "license": "MPL-2.0",
-  "version": "0.27.0",
+  "version": "0.28.0",
   "files": [
     "dist",
     "types",
@@ -111,7 +111,7 @@
     "remark-stringify": "^11.0.0",
     "unified": "^11.0.5",
     "uuid": "^8.3.2",
-    "y-prosemirror": "1.3.0",
+    "y-prosemirror": "^1.3.1",
     "y-protocols": "^1.0.6",
     "yjs": "^13.6.15"
   },
@@ -141,10 +141,6 @@
     "extends": [
       "../../.eslintrc.js"
     ]
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
   },
   "gitHead": "37614ab348dcc7faa830a9a88437b37197a2162d"
 }

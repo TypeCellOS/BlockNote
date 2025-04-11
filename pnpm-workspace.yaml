@@ -7,6 +7,7 @@ packages:
   - "tests"
 preferWorkspacePackages: true
 linkWorkspacePackages: true
+gitChecks: false
 publicHoistPattern:
   # We have been preferring to use `prosemirror-*` packages instead of `@tiptap/pm` packages
   - "prosemirror-*"
