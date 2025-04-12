@@ -10,8 +10,8 @@ import {
 } from "./exportTestInstances.js";
 
 // Tests for verifying that exporting blocks to other formats works as expected.
-// Used broadly to ensure each block or set of blocks is correctly converted
-// into different formats.
+// Used for as many cases as possible to ensure each block or set of blocks is
+// correctly converted into different formats.
 describe("Export tests (BlockNote HTML)", () => {
   const getEditor = setupTestEditor(testSchema);
 
