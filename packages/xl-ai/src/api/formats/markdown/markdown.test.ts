@@ -4,8 +4,8 @@ import { getCurrentTest } from "@vitest/runner";
 import { getSortedEntries, snapshot, toHashString } from "msw-snapshot";
 import { setupServer } from "msw/node";
 import path from "path";
+import { testAIModels } from "../../../testUtil/testAIModels.js";
 import { generateSharedTestCases } from "../tests/sharedTestCases.js";
-import { testAIModels } from "../tests/testAIModels.js";
 import { callLLM } from "./markdown.js";
 
 // Create client and models outside of test suites so they can be shared

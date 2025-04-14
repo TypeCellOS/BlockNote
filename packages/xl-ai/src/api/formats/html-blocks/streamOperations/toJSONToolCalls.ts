@@ -1,7 +1,7 @@
 import {
-    BlockNoteEditor,
-    PartialBlock,
-    UnreachableCaseError
+  BlockNoteEditor,
+  PartialBlock,
+  UnreachableCaseError
 } from "@blocknote/core";
   
 import { StreamToolCall } from "../../../streamTool/streamTool.js";
@@ -77,8 +77,8 @@ import { DeleteBlockToolCall } from "../../../tools/delete.js";
   
         const block = (await editor.tryParseHTMLToBlocks(html))[0];
   
-        // console.log("update", operation.block);
-        // console.log("html", html);
+        console.log("update", operation.block);
+        console.log("html", html);
         // hacky
         if ((window as any).__TEST_OPTIONS) {
           (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS.mockID = 0;

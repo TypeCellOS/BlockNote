@@ -20,8 +20,8 @@ import { toJSONToolCalls } from "./toJSONToolCalls.js";
         isUpdateToPreviousOperation: boolean;
         isPossiblyPartial: boolean;
       }>,
-      updateFromPos?: number,
-      updateToPos?: number
+    updateFromPos?: number,
+    updateToPos?: number
   ){
     const jsonToolCalls = toJSONToolCalls(
       editor,

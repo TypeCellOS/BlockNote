@@ -5,7 +5,8 @@ import { getSortedEntries, snapshot, toHashString } from "msw-snapshot";
 import { setupServer } from "msw/node";
 import path from "path";
 import { generateSharedTestCases } from "../tests/sharedTestCases.js";
-import { testAIModels } from "../tests/testAIModels.js";
+
+import { testAIModels } from "../../../testUtil/testAIModels.js";
 import { callLLM } from "./json.js";
 
 const BASE_FILE_PATH = path.resolve(

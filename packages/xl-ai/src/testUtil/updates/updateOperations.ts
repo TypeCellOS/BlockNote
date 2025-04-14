@@ -62,9 +62,16 @@ export function getTestEditor() {
           },
           {
             type: "text",
-            text: "are you doing?",
+            text: "are you doing? ",
             styles: {
               bold: true,
+            },
+          },
+          {
+            type: "text",
+            text: "I'm feeling blue!",
+            styles: {
+              textColor: "blue",
             },
           },
         ],
@@ -104,10 +111,10 @@ export const testUpdateOperations: TestUpdateOperation[] = [
       type: "update",
       id: "ref1",
       block: {
-        content: [{ type: "text", text: "Hello, updated content", styles: {} }],
+        content: [{ type: "text", text: "Hallo, welt!", styles: {} }],
       },
     },
-    userPrompt: "update the content of the first block to 'Hello, updated content'",
+    userPrompt: "translate the first paragraph to german",
   },
   {
     description: "update block type",
@@ -175,7 +182,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
     },
   },
   {
-    description: "styles + ic in source block",
+    description: "styles + ic in source block, replace content",
     updateOp: {
       type: "update",
       id: "ref2",
@@ -185,6 +192,50 @@ export const testUpdateOperations: TestUpdateOperation[] = [
     },
     userPrompt:
       "update the content of the second block to 'Hello, updated content'",
+  },
+  {
+    description: "styles + ic in source block, update text",
+    updateOp: {
+      type: "update",
+      id: "ref2",
+      block: {
+        content: [
+          {
+            type: "text",
+            text: "Hallo, ",
+            styles: {},
+          },
+          {
+            type: "mention",
+            props: {
+              user: "John Doe",
+            },
+            content: undefined,
+          },
+          {
+            type: "text",
+            text: "! Wie ",
+            styles: {}
+          },
+          {
+            type: "text",
+            text: "geht es dir? ",
+            styles: {
+              bold: true,
+            },
+          },
+          {
+            type: "text",
+            text: "Ich fühle mich blau!",
+            styles: {
+              textColor: "blue",
+            },
+          },
+        ],
+      },
+    },
+    userPrompt:
+      "translate the second block to german",
   },
   {
     description: "styles + ic in source block, remove mark",
@@ -207,8 +258,15 @@ export const testUpdateOperations: TestUpdateOperation[] = [
           },
           {
             type: "text",
-            text: "! How are you doing?",
+            text: "! How are you doing? ",
             styles: {},
+          },
+          {
+            type: "text",
+            text: "I'm feeling blue!",
+            styles: {
+              textColor: "blue",
+            },
           },
         ],
       },
@@ -229,19 +287,26 @@ export const testUpdateOperations: TestUpdateOperation[] = [
           },
           {
             type: "text",
-            text: "are you doing?",
+            text: "are you doing? ",
             styles: {
               bold: true,
+            },
+          },
+          {
+            type: "text",
+            text: "I'm feeling blue!",
+            styles: {
+              textColor: "blue",
             },
           },
         ],
       },
     },
     userPrompt:
-      "change to say 'Hello! How are you doing?' (remove mention but keep bold text)",
+      "change to say 'Hello! How are you doing? I'm feeling blue!' (remove mention but keep bold text)",
   },
   {
-    description: "styles + ic in target block, add mark",
+    description: "styles + ic in target block, add mark (word)",
     updateOp: {
       type: "update",
       id: "ref1",
@@ -263,6 +328,25 @@ export const testUpdateOperations: TestUpdateOperation[] = [
       },
     },
     userPrompt: "make 'world!' (in the first block) bold",
+  },
+  {
+    description: "styles + ic in target block, add mark (paragraph)",
+    updateOp: {
+      type: "update",
+      id: "ref1",
+      block: {
+        content: [
+          {
+            type: "text",
+            text: "Hello, world!",
+            styles: {
+              bold: true,
+            },
+          },
+        ],
+      },
+    },
+    userPrompt: "make first paragraph bold",
   },
   {
     description: "plain source block, add mention",
@@ -322,9 +406,16 @@ export const testUpdateOperations: TestUpdateOperation[] = [
           },
           {
             type: "text",
-            text: "are you doing?",
+            text: "are you doing? ",
             styles: {
               bold: true,
+            },
+          },
+          {
+            type: "text",
+            text: "I'm feeling blue!",
+            styles: {
+              textColor: "blue",
             },
           },
         ],

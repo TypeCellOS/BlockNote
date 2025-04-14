@@ -3,7 +3,7 @@
 exports[`drop mark and link 1`] = `
 [
   {
-    "from": 66,
+    "from": 84,
     "slice": {
       "content": [
         {
@@ -13,10 +13,10 @@ exports[`drop mark and link 1`] = `
       ],
     },
     "stepType": "replace",
-    "to": 77,
+    "to": 95,
   },
   {
-    "from": 77,
+    "from": 95,
     "slice": {
       "content": [
         {
@@ -26,7 +26,7 @@ exports[`drop mark and link 1`] = `
       ],
     },
     "stepType": "replace",
-    "to": 82,
+    "to": 100,
   },
 ]
 `;
@@ -34,7 +34,7 @@ exports[`drop mark and link 1`] = `
 exports[`drop mark and link and change text within mark 1`] = `
 [
   {
-    "from": 52,
+    "from": 70,
     "slice": {
       "content": [
         {
@@ -44,10 +44,10 @@ exports[`drop mark and link and change text within mark 1`] = `
       ],
     },
     "stepType": "replace",
-    "to": 57,
+    "to": 75,
   },
   {
-    "from": 66,
+    "from": 84,
     "slice": {
       "content": [
         {
@@ -57,10 +57,10 @@ exports[`drop mark and link and change text within mark 1`] = `
       ],
     },
     "stepType": "replace",
-    "to": 70,
+    "to": 88,
   },
   {
-    "from": 70,
+    "from": 88,
     "slice": {
       "content": [
         {
@@ -70,10 +70,10 @@ exports[`drop mark and link and change text within mark 1`] = `
       ],
     },
     "stepType": "replace",
-    "to": 70,
+    "to": 88,
   },
   {
-    "from": 70,
+    "from": 88,
     "slice": {
       "content": [
         {
@@ -83,10 +83,10 @@ exports[`drop mark and link and change text within mark 1`] = `
       ],
     },
     "stepType": "replace",
-    "to": 77,
+    "to": 95,
   },
   {
-    "from": 77,
+    "from": 95,
     "slice": {
       "content": [
         {
@@ -96,7 +96,7 @@ exports[`drop mark and link and change text within mark 1`] = `
       ],
     },
     "stepType": "replace",
-    "to": 82,
+    "to": 100,
   },
 ]
 `;
@@ -124,22 +124,63 @@ exports[`plain source block, add mention 1`] = `
 exports[`standard update 1`] = `
 [
   {
-    "from": 10,
+    "from": 4,
     "slice": {
       "content": [
         {
-          "text": "updated content",
+          "text": "a",
           "type": "text",
         },
       ],
     },
     "stepType": "replace",
-    "to": 16,
+    "to": 5,
+  },
+  {
+    "from": 10,
+    "slice": {
+      "content": [
+        {
+          "text": "welt",
+          "type": "text",
+        },
+      ],
+    },
+    "stepType": "replace",
+    "to": 15,
   },
 ]
 `;
 
-exports[`styles + ic in source block 1`] = `
+exports[`styles + ic in source block, remove mark 1`] = `
+[
+  {
+    "from": 34,
+    "slice": {
+      "content": [
+        {
+          "text": "are you doing? ",
+          "type": "text",
+        },
+      ],
+    },
+    "stepType": "replace",
+    "to": 49,
+  },
+]
+`;
+
+exports[`styles + ic in source block, remove mention 1`] = `
+[
+  {
+    "from": 25,
+    "stepType": "replace",
+    "to": 28,
+  },
+]
+`;
+
+exports[`styles + ic in source block, replace content 1`] = `
 [
   {
     "from": 27,
@@ -152,35 +193,7 @@ exports[`styles + ic in source block 1`] = `
       ],
     },
     "stepType": "replace",
-    "to": 48,
-  },
-]
-`;
-
-exports[`styles + ic in source block, remove mark 1`] = `
-[
-  {
-    "from": 34,
-    "slice": {
-      "content": [
-        {
-          "text": "are you doing?",
-          "type": "text",
-        },
-      ],
-    },
-    "stepType": "replace",
-    "to": 48,
-  },
-]
-`;
-
-exports[`styles + ic in source block, remove mention 1`] = `
-[
-  {
-    "from": 25,
-    "stepType": "replace",
-    "to": 28,
+    "to": 66,
   },
 ]
 `;
@@ -205,7 +218,82 @@ exports[`styles + ic in source block, update mention prop 1`] = `
 ]
 `;
 
-exports[`styles + ic in target block, add mark 1`] = `
+exports[`styles + ic in source block, update text 1`] = `
+[
+  {
+    "from": 21,
+    "slice": {
+      "content": [
+        {
+          "text": "a",
+          "type": "text",
+        },
+      ],
+    },
+    "stepType": "replace",
+    "to": 22,
+  },
+  {
+    "from": 30,
+    "slice": {
+      "content": [
+        {
+          "text": "Wie ",
+          "type": "text",
+        },
+        {
+          "marks": [
+            {
+              "type": "bold",
+            },
+          ],
+          "text": "geht es dir? ",
+          "type": "text",
+        },
+        {
+          "marks": [
+            {
+              "attrs": {
+                "stringValue": "blue",
+              },
+              "type": "textColor",
+            },
+          ],
+          "text": "Ich fühle mich blau",
+          "type": "text",
+        },
+      ],
+    },
+    "stepType": "replace",
+    "to": 65,
+  },
+]
+`;
+
+exports[`styles + ic in target block, add mark (paragraph) 1`] = `
+[
+  {
+    "from": 3,
+    "slice": {
+      "content": [
+        {
+          "marks": [
+            {
+              "type": "bold",
+            },
+          ],
+          "text": "Hello, world!",
+          "type": "text",
+        },
+      ],
+    },
+    "stepType": "replace",
+    "to": 16,
+  },
+]
+`;
+
+exports[`styles + ic in target block, add mark (word) 1`] = `
 [
   {
     "from": 10,

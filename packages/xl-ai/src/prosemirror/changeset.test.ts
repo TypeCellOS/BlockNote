@@ -1,5 +1,5 @@
 import { PartialBlock } from "@blocknote/core";
-import { expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { UpdateBlockToolCall } from "../api/tools/createUpdateBlockTool.js";
 import {
   getTestEditor,
@@ -54,3 +54,44 @@ for (const test of testUpdateOperations) {
     testUpdate(test.updateOp.block, test.updateOp.id);
   });
 }
+
+describe("dontReplaceContentAtEnd=true", () => {
+  it("keeps content at end of block", async () => {
+    const editor = getTestEditor();
+    const steps = updateToReplaceSteps(
+      editor,
+      {
+        id: "ref1",
+        type: "update",
+        block: {
+          content: [{ type: "text", text: "Hello" }],
+        },
+      },
+      editor.prosemirrorState.doc,
+      true
+    );
+
+    expect(steps).toEqual([]);
+  });
+
+  it("keeps content at end of block (mark update)", async () => {
+    const editor = getTestEditor();
+    const steps = updateToReplaceSteps(
+      editor,
+      {
+        id: "ref1",
+        type: "update",
+        block: {
+          content: [
+            { type: "text", text: "Hello, " },
+            { type: "text", text: "wo", styles: { bold: true } },
+          ],
+        },
+      },
+      editor.prosemirrorState.doc,
+      true
+    );
+
+    expect(steps).toEqual([]);
+  });
+});

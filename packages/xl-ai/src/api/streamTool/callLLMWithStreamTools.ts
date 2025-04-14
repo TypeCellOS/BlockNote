@@ -20,7 +20,7 @@ import {
   preprocessOperationsNonStreaming,
   preprocessOperationsStreaming,
 } from "./preprocess.js";
-import { StreamTool, StreamToolCall } from "./streamTool.js";
+import { InvalidOrOk, StreamTool, StreamToolCall } from "./streamTool.js";
 
 type LLMRequestOptionsInternal = {
   model: LanguageModel;
@@ -73,12 +73,34 @@ export async function generateOperations<T extends StreamTool<any>[]>(
 
   const ret = await generateObject<{ operations: any }>(options);
 
-  if (!ret.object.operations) {
-    throw new Error("No operations returned");
+  const stream = operationsToStream(ret.object);
+  if (stream.result === "invalid") {
+    throw new Error(stream.reason);
   }
+  
+  return {
+    result: ret,
+    operationsSource: preprocessOperationsNonStreaming(
+      stream.value,
+      streamTools
+    ),
+  };
+}
 
+export function operationsToStream<T extends StreamTool<any>[]>(object: unknown): InvalidOrOk<AsyncIterable<{
+  partialOperation: StreamToolCall<T>;
+  isUpdateToPreviousOperation: boolean;
+  isPossiblyPartial: boolean;
+}>> {
+  if (!object || typeof object !== "object" || !("operations" in object) || !Array.isArray(object.operations)) {
+    return {
+      result: "invalid",
+      reason: "No operations returned",
+    };
+  }
+  const operations = object.operations;
   async function* singleChunkGenerator() {
-    for (const op of ret.object.operations) {
+    for (const op of operations) {
       // TODO: non-streaming might not need some steps
       // in the executor
       yield {
@@ -90,11 +112,8 @@ export async function generateOperations<T extends StreamTool<any>[]>(
   }
 
   return {
-    result: ret,
-    operationsSource: preprocessOperationsNonStreaming(
-      singleChunkGenerator(),
-      streamTools
-    ),
+    result: "ok",
+    value: singleChunkGenerator(),
   };
 }
 

@@ -15,5 +15,8 @@
     "editor.defaultFormatter": "redhat.vscode-xml"
   },
   "scm.defaultViewMode": "tree",
-  "search.defaultViewMode": "tree"
+  "search.defaultViewMode": "tree",
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

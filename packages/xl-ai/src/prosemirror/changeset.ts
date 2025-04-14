@@ -7,11 +7,12 @@ import {
 import { Change, ChangeSet, simplifyChanges } from "prosemirror-changeset";
 import { Node } from "prosemirror-model";
 import { ReplaceStep, Transform } from "prosemirror-transform";
-import { UpdateBlockToolCall } from "../api/tools/createUpdateBlockTool";
+import { UpdateBlockToolCall } from "../api/tools/createUpdateBlockTool.js";
 
 type CustomChange = Change & {
   type?: "mark-update" | "node-type-or-attr-update";
 };
+
 /**
  * Adds missing changes to the changes array.
  * This is needed because prosemirror-changeset may miss some changes,
@@ -60,12 +61,14 @@ function addMissingChanges(
   while (diffStart !== null) {
     const expectedNode = expectedDoc.resolve(diffStart).nodeAfter;
     const actualNode = tr.doc.resolve(diffStart).nodeAfter;
+
     if (!expectedNode || !actualNode) {
       throw new Error("diffNode not found");
     }
 
     const isNodeAttrChange =
       !expectedNode.isLeaf && expectedNode.content.eq(actualNode.content);
+
     const length = isNodeAttrChange
       ? 1
       : Math.min(expectedNode.nodeSize, actualNode.nodeSize);
@@ -97,7 +100,7 @@ function addMissingChanges(
       type: isNodeAttrChange ? "node-type-or-attr-update" : "mark-update",
     });
 
-    // apply the step and find the next diff
+    // apply the step so we can find the next diff
     tr.step(
       new ReplaceStep(
         diffStart,
@@ -107,12 +110,31 @@ function addMissingChanges(
       )
     );
 
-    diffStart = tr.doc.content.findDiffStart(expectedDoc.content);
+    const newDiffStart = tr.doc.content.findDiffStart(expectedDoc.content);
+
+    if (newDiffStart === diffStart) {
+      // prevent infinite loop, should not happen
+      throw new Error("diffStart not moving");
+    }
+
+    diffStart = newDiffStart;
   }
 
   return changes;
 }
 
+/**
+ * This turns a single update `op` (that is, an update that could affect different parts of a block)
+ * into more granular steps (that is, each step only affects a single part of the block), by using a diffing algorithm.
+ *
+ * @param editor the editor to apply the update to (only used for schema info)
+ * @param op the update operation to apply
+ * @param doc the document to apply the update to
+ * @param dontReplaceContentAtEnd whether to not replace content at the end of the block (set to true processing "partial updates")
+ * @param updateFromPos the position to start the update from (can be used for selections)
+ * @param updateToPos the position to end the update at (can be used for selections)
+ * @returns the granular steps to apply to the editor to get to the updated doc
+ */
 export function updateToReplaceSteps(
   editor: BlockNoteEditor<any, any, any>,
   op: UpdateBlockToolCall<PartialBlock<any, any, any>>,
@@ -138,6 +160,16 @@ export function updateToReplaceSteps(
 
   changeset = changeset.addSteps(updatedDoc, updatedTr.mapping.maps, 0);
 
+  // When we're streaming (we sent `dontReplaceContentAtEnd = true`),
+  // we need to add back the content that was removed at the end of the block.
+  // because maybe this content will not actually be removed by the LLM, but instead,
+  // it simply hasn't been streamed in yet.
+  // e.g.:
+  // actual:   hello world! How are you doing?
+  // incoming stream: hello world!
+  //
+  // at this point, the changeset would drop "How are you doing?"
+  // but we should ignore this, as maybe this will still be in the LLMs yet-to-be-streamed response
   if (dontReplaceContentAtEnd && changeset.changes.length > 0) {
     // TODO: unit test
     const lastChange = changeset.changes[changeset.changes.length - 1];
@@ -171,7 +203,6 @@ export function updateToReplaceSteps(
 
   for (let i = 0; i < changes.length; i++) {
     const step = changes[i];
-    // replace with empty content or first character
     const replacement = updatedDoc.slice(step.fromB, step.toB);
 
     // this happens for node type / attr changes, so we can't assert this
@@ -186,6 +217,17 @@ export function updateToReplaceSteps(
       dontReplaceContentAtEnd &&
       step.type === "mark-update"
     ) {
+      // for streaming mode, let's say we update:
+      // hello world
+      // to:
+      // hello <strong>world</strong>
+
+      // when we're streaming, we might get
+      //  hello <strong>wo
+      // as a partial update
+
+      // it would look weird to apply an update like this mid-world,
+      // so in this case, we should not add the update yet and wait for more content
       continue;
     }
 
