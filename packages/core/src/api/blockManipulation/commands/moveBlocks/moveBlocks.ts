@@ -1,11 +1,27 @@
-import { NodeSelection, Selection, TextSelection } from "prosemirror-state";
+import {
+  NodeSelection,
+  type Selection,
+  TextSelection,
+  type Transaction,
+} from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
 
-import { Block } from "../../../../blocks/defaultBlocks.js";
-import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
+import type { Node, Schema } from "prosemirror-model";
+import type { Block } from "../../../../blocks/defaultBlocks.js";
+import type { BlockCache } from "../../../../editor/BlockNoteEditor";
+import { BlockNoteSchema } from "../../../../editor/BlockNoteSchema.js";
 import { BlockIdentifier } from "../../../../schema/index.js";
 import { getNearestBlockPos } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
+import {
+  getNextBlock,
+  getParentBlock,
+  getPrevBlock,
+} from "../../getBlock/getBlock.js";
+import { getSelection } from "../../selections/selection.js";
+import { getTextCursorPosition } from "../../selections/textCursorPosition/textCursorPosition.js";
+import { insertBlocks } from "../insertBlocks/insertBlocks.js";
+import { removeAndInsertBlocks } from "../replaceBlocks/replaceBlocks.js";
 
 type BlockSelectionData = (
   | {
@@ -36,35 +52,34 @@ type BlockSelectionData = (
  * @param editor The BlockNote editor instance to get the selection data from.
  */
 function getBlockSelectionData(
-  editor: BlockNoteEditor<any, any, any>
+  doc: Node,
+  selection: Selection
 ): BlockSelectionData {
-  const tr = editor.transaction;
+  const anchorBlockPosInfo = getNearestBlockPos(doc, selection.anchor);
 
-  const anchorBlockPosInfo = getNearestBlockPos(tr.doc, tr.selection.anchor);
-
-  if (tr.selection instanceof CellSelection) {
+  if (selection instanceof CellSelection) {
     return {
       type: "cell" as const,
       anchorBlockId: anchorBlockPosInfo.node.attrs.id,
       anchorCellOffset:
-        tr.selection.$anchorCell.pos - anchorBlockPosInfo.posBeforeNode,
+        selection.$anchorCell.pos - anchorBlockPosInfo.posBeforeNode,
       headCellOffset:
-        tr.selection.$headCell.pos - anchorBlockPosInfo.posBeforeNode,
+        selection.$headCell.pos - anchorBlockPosInfo.posBeforeNode,
     };
-  } else if (tr.selection instanceof NodeSelection) {
+  } else if (selection instanceof NodeSelection) {
     return {
       type: "node" as const,
       anchorBlockId: anchorBlockPosInfo.node.attrs.id,
     };
   } else {
-    const headBlockPosInfo = getNearestBlockPos(tr.doc, tr.selection.head);
+    const headBlockPosInfo = getNearestBlockPos(doc, selection.head);
 
     return {
       type: "text" as const,
       anchorBlockId: anchorBlockPosInfo.node.attrs.id,
       headBlockId: headBlockPosInfo.node.attrs.id,
-      anchorOffset: tr.selection.anchor - anchorBlockPosInfo.posBeforeNode,
-      headOffset: tr.selection.head - headBlockPosInfo.posBeforeNode,
+      anchorOffset: selection.anchor - anchorBlockPosInfo.posBeforeNode,
+      headOffset: selection.head - headBlockPosInfo.posBeforeNode,
     };
   }
 }
@@ -81,10 +96,9 @@ function getBlockSelectionData(
  * `getBlockSelectionData`).
  */
 function updateBlockSelectionFromData(
-  editor: BlockNoteEditor<any, any, any>,
+  tr: Transaction,
   data: BlockSelectionData
 ) {
-  const tr = editor.transaction;
   const anchorBlockPos = getNodeById(data.anchorBlockId, tr.doc)?.posBeforeNode;
   if (anchorBlockPos === undefined) {
     throw new Error(
@@ -115,7 +129,8 @@ function updateBlockSelectionFromData(
       headBlockPos + data.headOffset
     );
   }
-  editor.dispatch(tr.setSelection(selection));
+
+  tr.setSelection(selection);
 }
 
 /**
@@ -154,22 +169,31 @@ function flattenColumns(
  * reference block.
  */
 export function moveSelectedBlocksAndSelection(
-  editor: BlockNoteEditor<any, any, any>,
+  tr: Transaction,
+  pmSchema: Schema,
+  schema: BlockNoteSchema<any, any, any>,
   referenceBlock: BlockIdentifier,
-  placement: "before" | "after"
+  placement: "before" | "after",
+  blockCache?: BlockCache
 ) {
-  // We want this to be a single step in the undo history
-  editor.transact(() => {
-    const blocks = editor.getSelection()?.blocks || [
-      editor.getTextCursorPosition().block,
-    ];
-    const selectionData = getBlockSelectionData(editor);
+  const blocks = getSelection(tr, schema, blockCache)?.blocks || [
+    getTextCursorPosition(tr, schema, blockCache).block,
+  ];
+  const selectionData = getBlockSelectionData(tr.doc, tr.selection);
 
-    editor.removeBlocks(blocks);
-    editor.insertBlocks(flattenColumns(blocks), referenceBlock, placement);
+  removeAndInsertBlocks(tr, pmSchema, schema, blocks, [], blockCache);
 
-    updateBlockSelectionFromData(editor, selectionData);
-  });
+  insertBlocks(
+    tr,
+    pmSchema,
+    schema,
+    flattenColumns(blocks),
+    referenceBlock,
+    placement,
+    blockCache
+  );
+
+  updateBlockSelectionFromData(tr, selectionData);
 }
 
 // Checks if a block is in a valid place after being moved. This check is
@@ -191,9 +215,11 @@ function checkPlacementIsValid(parentBlock?: Block<any, any, any>): boolean {
 // placement is found. Returns undefined if no valid placement is found, meaning
 // the block is already at the top of the document.
 function getMoveUpPlacement(
-  editor: BlockNoteEditor<any, any, any>,
+  doc: Node,
+  schema: BlockNoteSchema<any, any, any>,
   prevBlock?: Block<any, any, any>,
-  parentBlock?: Block<any, any, any>
+  parentBlock?: Block<any, any, any>,
+  blockCache?: BlockCache
 ):
   | { referenceBlock: BlockIdentifier; placement: "before" | "after" }
   | undefined {
@@ -218,14 +244,21 @@ function getMoveUpPlacement(
     return undefined;
   }
 
-  const referenceBlockParent = editor.getParentBlock(referenceBlock);
+  const referenceBlockParent = getParentBlock(
+    doc,
+    schema,
+    referenceBlock,
+    blockCache
+  );
   if (!checkPlacementIsValid(referenceBlockParent)) {
     return getMoveUpPlacement(
-      editor,
+      doc,
+      schema,
       placement === "after"
         ? referenceBlock
-        : editor.getPrevBlock(referenceBlock),
-      referenceBlockParent
+        : getPrevBlock(doc, schema, referenceBlock, blockCache),
+      referenceBlockParent,
+      blockCache
     );
   }
 
@@ -243,9 +276,11 @@ function getMoveUpPlacement(
 // placement is found. Returns undefined if no valid placement is found, meaning
 // the block is already at the bottom of the document.
 function getMoveDownPlacement(
-  editor: BlockNoteEditor<any, any, any>,
+  doc: Node,
+  schema: BlockNoteSchema<any, any, any>,
   nextBlock?: Block<any, any, any>,
-  parentBlock?: Block<any, any, any>
+  parentBlock?: Block<any, any, any>,
+  blockCache?: BlockCache
 ):
   | { referenceBlock: BlockIdentifier; placement: "before" | "after" }
   | undefined {
@@ -270,64 +305,88 @@ function getMoveDownPlacement(
     return undefined;
   }
 
-  const referenceBlockParent = editor.getParentBlock(referenceBlock);
+  const referenceBlockParent = getParentBlock(
+    doc,
+    schema,
+    referenceBlock,
+    blockCache
+  );
   if (!checkPlacementIsValid(referenceBlockParent)) {
     return getMoveDownPlacement(
-      editor,
+      doc,
+      schema,
       placement === "before"
         ? referenceBlock
-        : editor.getNextBlock(referenceBlock),
-      referenceBlockParent
+        : getNextBlock(doc, schema, referenceBlock, blockCache),
+      referenceBlockParent,
+      blockCache
     );
   }
 
   return { referenceBlock, placement };
 }
 
-export function moveBlocksUp(editor: BlockNoteEditor<any, any, any>) {
-  editor.transact(() => {
-    const selection = editor.getSelection();
-    const block = selection?.blocks[0] || editor.getTextCursorPosition().block;
+export function moveBlocksUp(
+  tr: Transaction,
+  pmSchema: Schema,
+  schema: BlockNoteSchema<any, any, any>,
+  blockCache?: BlockCache
+) {
+  const selection = getSelection(tr, schema, blockCache);
+  const block =
+    selection?.blocks[0] || getTextCursorPosition(tr, schema, blockCache).block;
 
-    const moveUpPlacement = getMoveUpPlacement(
-      editor,
-      editor.getPrevBlock(block),
-      editor.getParentBlock(block)
-    );
+  const moveUpPlacement = getMoveUpPlacement(
+    tr.doc,
+    schema,
+    getPrevBlock(tr.doc, schema, block, blockCache),
+    getParentBlock(tr.doc, schema, block, blockCache),
+    blockCache
+  );
 
-    if (!moveUpPlacement) {
-      return;
-    }
+  if (!moveUpPlacement) {
+    return;
+  }
 
-    moveSelectedBlocksAndSelection(
-      editor,
-      moveUpPlacement.referenceBlock,
-      moveUpPlacement.placement
-    );
-  });
+  moveSelectedBlocksAndSelection(
+    tr,
+    pmSchema,
+    schema,
+    moveUpPlacement.referenceBlock,
+    moveUpPlacement.placement,
+    blockCache
+  );
 }
 
-export function moveBlocksDown(editor: BlockNoteEditor<any, any, any>) {
-  editor.transact(() => {
-    const selection = editor.getSelection();
-    const block =
-      selection?.blocks[selection?.blocks.length - 1] ||
-      editor.getTextCursorPosition().block;
+export function moveBlocksDown(
+  tr: Transaction,
+  pmSchema: Schema,
+  schema: BlockNoteSchema<any, any, any>,
+  blockCache?: BlockCache
+) {
+  const selection = getSelection(tr, schema, blockCache);
+  const block =
+    selection?.blocks[selection?.blocks.length - 1] ||
+    getTextCursorPosition(tr, schema, blockCache).block;
 
-    const moveDownPlacement = getMoveDownPlacement(
-      editor,
-      editor.getNextBlock(block),
-      editor.getParentBlock(block)
-    );
+  const moveDownPlacement = getMoveDownPlacement(
+    tr.doc,
+    schema,
+    getNextBlock(tr.doc, schema, block, blockCache),
+    getParentBlock(tr.doc, schema, block, blockCache),
+    blockCache
+  );
 
-    if (!moveDownPlacement) {
-      return;
-    }
+  if (!moveDownPlacement) {
+    return;
+  }
 
-    moveSelectedBlocksAndSelection(
-      editor,
-      moveDownPlacement.referenceBlock,
-      moveDownPlacement.placement
-    );
-  });
+  moveSelectedBlocksAndSelection(
+    tr,
+    pmSchema,
+    schema,
+    moveDownPlacement.referenceBlock,
+    moveDownPlacement.placement,
+    blockCache
+  );
 }

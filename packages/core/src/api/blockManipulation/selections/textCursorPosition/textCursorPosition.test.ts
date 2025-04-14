@@ -10,31 +10,65 @@ const getEditor = setupTestEnv();
 
 describe("Test getTextCursorPosition & setTextCursorPosition", () => {
   it("Basic", () => {
-    setTextCursorPosition(getEditor(), "paragraph-1");
+    getEditor().transact((tr) => {
+      setTextCursorPosition(tr, getEditor().schema, "paragraph-1");
+    });
 
-    expect(getTextCursorPosition(getEditor())).toMatchSnapshot();
+    expect(
+      getTextCursorPosition(
+        getEditor().transaction,
+        getEditor().schema,
+        getEditor().blockCache
+      )
+    ).toMatchSnapshot();
   });
 
   it("First block", () => {
-    setTextCursorPosition(getEditor(), "paragraph-0");
+    getEditor().transact((tr) => {
+      setTextCursorPosition(tr, getEditor().schema, "paragraph-0");
+    });
 
-    expect(getTextCursorPosition(getEditor())).toMatchSnapshot();
+    expect(
+      getTextCursorPosition(
+        getEditor().transaction,
+        getEditor().schema,
+        getEditor().blockCache
+      )
+    ).toMatchSnapshot();
   });
 
   it("Last block", () => {
-    setTextCursorPosition(getEditor(), "trailing-paragraph");
+    getEditor().transact((tr) => {
+      setTextCursorPosition(tr, getEditor().schema, "trailing-paragraph");
+    });
 
-    expect(getTextCursorPosition(getEditor())).toMatchSnapshot();
+    expect(
+      getTextCursorPosition(
+        getEditor().transaction,
+        getEditor().schema,
+        getEditor().blockCache
+      )
+    ).toMatchSnapshot();
   });
 
   it("Nested block", () => {
-    setTextCursorPosition(getEditor(), "nested-paragraph-0");
+    getEditor().transact((tr) => {
+      setTextCursorPosition(tr, getEditor().schema, "nested-paragraph-0");
+    });
 
-    expect(getTextCursorPosition(getEditor())).toMatchSnapshot();
+    expect(
+      getTextCursorPosition(
+        getEditor().transaction,
+        getEditor().schema,
+        getEditor().blockCache
+      )
+    ).toMatchSnapshot();
   });
 
   it("Set to start", () => {
-    setTextCursorPosition(getEditor(), "paragraph-1", "start");
+    getEditor().transact((tr) => {
+      setTextCursorPosition(tr, getEditor().schema, "paragraph-1", "start");
+    });
 
     expect(
       getEditor().prosemirrorState.selection.$from.parentOffset === 0
@@ -42,7 +76,9 @@ describe("Test getTextCursorPosition & setTextCursorPosition", () => {
   });
 
   it("Set to end", () => {
-    setTextCursorPosition(getEditor(), "paragraph-1", "end");
+    getEditor().transact((tr) => {
+      setTextCursorPosition(tr, getEditor().schema, "paragraph-1", "end");
+    });
 
     expect(
       getEditor().prosemirrorState.selection.$from.parentOffset ===

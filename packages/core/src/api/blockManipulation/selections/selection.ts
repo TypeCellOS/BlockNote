@@ -1,8 +1,9 @@
-import { TextSelection } from "prosemirror-state";
+import { TextSelection, type Transaction } from "prosemirror-state";
 import { TableMap } from "prosemirror-tables";
 
 import { Block } from "../../../blocks/defaultBlocks.js";
-import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
+import type { BlockCache } from "../../../editor/BlockNoteEditor";
+import type { BlockNoteSchema } from "../../../editor/BlockNoteSchema.js";
 import { Selection } from "../../../editor/selectionTypes.js";
 import {
   BlockIdentifier,
@@ -19,9 +20,10 @@ export function getSelection<
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  editor: BlockNoteEditor<BSchema, I, S>
+  tr: Transaction,
+  schema: BlockNoteSchema<BSchema, I, S>,
+  blockCache?: BlockCache
 ): Selection<BSchema, I, S> | undefined {
-  const tr = editor.transaction;
   // Return undefined if the selection is collapsed or a node is selected.
   if (tr.selection.empty || "node" in tr.selection) {
     return undefined;
@@ -52,10 +54,10 @@ export function getSelection<
 
     return nodeToBlock(
       node,
-      editor.schema.blockSchema,
-      editor.schema.inlineContentSchema,
-      editor.schema.styleSchema,
-      editor.blockCache
+      schema.blockSchema,
+      schema.inlineContentSchema,
+      schema.styleSchema,
+      blockCache
     );
   };
 
@@ -100,10 +102,10 @@ export function getSelection<
     blocks.push(
       nodeToBlock(
         $startBlockBeforePos.nodeAfter!,
-        editor.schema.blockSchema,
-        editor.schema.inlineContentSchema,
-        editor.schema.styleSchema,
-        editor.blockCache
+        schema.blockSchema,
+        schema.inlineContentSchema,
+        schema.styleSchema,
+        blockCache
       )
     );
 
@@ -150,7 +152,8 @@ export function setSelection<
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  editor: BlockNoteEditor<BSchema, I, S>,
+  tr: Transaction,
+  schema: BlockNoteSchema<BSchema, I, S>,
   startBlock: BlockIdentifier,
   endBlock: BlockIdentifier
 ) {
@@ -163,7 +166,6 @@ export function setSelection<
       `Attempting to set selection with the same anchor and head blocks (id ${startBlockId})`
     );
   }
-  const tr = editor.transaction;
   const anchorPosInfo = getNodeById(startBlockId, tr.doc);
   if (!anchorPosInfo) {
     throw new Error(`Block with ID ${startBlockId} not found`);
@@ -177,12 +179,12 @@ export function setSelection<
   const headBlockInfo = getBlockInfo(headPosInfo);
 
   const anchorBlockConfig =
-    editor.schema.blockSchema[
-      anchorBlockInfo.blockNoteType as keyof typeof editor.schema.blockSchema
+    schema.blockSchema[
+      anchorBlockInfo.blockNoteType as keyof typeof schema.blockSchema
     ];
   const headBlockConfig =
-    editor.schema.blockSchema[
-      headBlockInfo.blockNoteType as keyof typeof editor.schema.blockSchema
+    schema.blockSchema[
+      headBlockInfo.blockNoteType as keyof typeof schema.blockSchema
     ];
 
   if (
@@ -233,7 +235,5 @@ export function setSelection<
   //  Right now it's missing a few things like a jsonID and styling to show
   //  which nodes are selected. `TextSelection` is ok for now, but has the
   //  restriction that the start/end blocks must have content.
-  editor.dispatch(
-    tr.setSelection(TextSelection.create(tr.doc, startPos, endPos))
-  );
+  tr.setSelection(TextSelection.create(tr.doc, startPos, endPos));
 }

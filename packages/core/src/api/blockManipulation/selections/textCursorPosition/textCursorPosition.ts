@@ -1,8 +1,13 @@
-import { Node } from "prosemirror-model";
-
-import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
-import { TextCursorPosition } from "../../../../editor/cursorPositionTypes.js";
+import type { Node } from "prosemirror-model";
 import {
+  NodeSelection,
+  TextSelection,
+  type Transaction,
+} from "prosemirror-state";
+import type { BlockCache } from "../../../../editor/BlockNoteEditor.js";
+import type { BlockNoteSchema } from "../../../../editor/BlockNoteSchema.js";
+import type { TextCursorPosition } from "../../../../editor/cursorPositionTypes.js";
+import type {
   BlockIdentifier,
   BlockSchema,
   InlineContentSchema,
@@ -20,8 +25,11 @@ export function getTextCursorPosition<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
->(editor: BlockNoteEditor<BSchema, I, S>): TextCursorPosition<BSchema, I, S> {
-  const tr = editor.transaction;
+>(
+  tr: Transaction,
+  schema: BlockNoteSchema<BSchema, I, S>,
+  blockCache?: BlockCache
+): TextCursorPosition<BSchema, I, S> {
   const { bnBlock } = getBlockInfoFromTransaction(tr);
 
   const resolvedPos = tr.doc.resolve(bnBlock.beforePos);
@@ -45,40 +53,40 @@ export function getTextCursorPosition<
   return {
     block: nodeToBlock(
       bnBlock.node,
-      editor.schema.blockSchema,
-      editor.schema.inlineContentSchema,
-      editor.schema.styleSchema,
-      editor.blockCache
+      schema.blockSchema,
+      schema.inlineContentSchema,
+      schema.styleSchema,
+      blockCache
     ),
     prevBlock:
       prevNode === null
         ? undefined
         : nodeToBlock(
             prevNode,
-            editor.schema.blockSchema,
-            editor.schema.inlineContentSchema,
-            editor.schema.styleSchema,
-            editor.blockCache
+            schema.blockSchema,
+            schema.inlineContentSchema,
+            schema.styleSchema,
+            blockCache
           ),
     nextBlock:
       nextNode === null
         ? undefined
         : nodeToBlock(
             nextNode,
-            editor.schema.blockSchema,
-            editor.schema.inlineContentSchema,
-            editor.schema.styleSchema,
-            editor.blockCache
+            schema.blockSchema,
+            schema.inlineContentSchema,
+            schema.styleSchema,
+            blockCache
           ),
     parentBlock:
       parentNode === undefined
         ? undefined
         : nodeToBlock(
             parentNode,
-            editor.schema.blockSchema,
-            editor.schema.inlineContentSchema,
-            editor.schema.styleSchema,
-            editor.blockCache
+            schema.blockSchema,
+            schema.inlineContentSchema,
+            schema.styleSchema,
+            blockCache
           ),
   };
 }
@@ -88,12 +96,13 @@ export function setTextCursorPosition<
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  editor: BlockNoteEditor<BSchema, I, S>,
+  tr: Transaction,
+  schema: BlockNoteSchema<BSchema, I, S>,
   targetBlock: BlockIdentifier,
-  placement: "start" | "end" = "start"
+  placement: "start" | "end" = "start",
+  blockCache?: BlockCache
 ) {
   const id = typeof targetBlock === "string" ? targetBlock : targetBlock.id;
-  const tr = editor.transaction;
 
   const posInfo = getNodeById(id, tr.doc);
   if (!posInfo) {
@@ -103,25 +112,23 @@ export function setTextCursorPosition<
   const info = getBlockInfo(posInfo);
 
   const contentType: "none" | "inline" | "table" =
-    editor.schema.blockSchema[info.blockNoteType]!.content;
+    schema.blockSchema[info.blockNoteType]!.content;
 
   if (info.isBlockContainer) {
     const blockContent = info.blockContent;
     if (contentType === "none") {
-      // TODO use tr.setSelection instead of commands
-      editor._tiptapEditor.commands.setNodeSelection(blockContent.beforePos);
+      tr.setSelection(NodeSelection.create(tr.doc, blockContent.beforePos));
       return;
     }
 
     if (contentType === "inline") {
-      // TODO use tr.setSelection instead of commands
       if (placement === "start") {
-        editor._tiptapEditor.commands.setTextSelection(
-          blockContent.beforePos + 1
+        tr.setSelection(
+          TextSelection.create(tr.doc, blockContent.beforePos + 1)
         );
       } else {
-        editor._tiptapEditor.commands.setTextSelection(
-          blockContent.afterPos - 1
+        tr.setSelection(
+          TextSelection.create(tr.doc, blockContent.afterPos - 1)
         );
       }
     } else if (contentType === "table") {
@@ -129,12 +136,12 @@ export function setTextCursorPosition<
         // Need to offset the position as we have to get through the `tableRow`
         // and `tableCell` nodes to get to the `tableParagraph` node we want to
         // set the selection in.
-        editor._tiptapEditor.commands.setTextSelection(
-          blockContent.beforePos + 4
+        tr.setSelection(
+          TextSelection.create(tr.doc, blockContent.beforePos + 4)
         );
       } else {
-        editor._tiptapEditor.commands.setTextSelection(
-          blockContent.afterPos - 4
+        tr.setSelection(
+          TextSelection.create(tr.doc, blockContent.afterPos - 4)
         );
       }
     } else {
@@ -146,6 +153,6 @@ export function setTextCursorPosition<
         ? info.childContainer.node.firstChild!
         : info.childContainer.node.lastChild!;
 
-    setTextCursorPosition(editor, child.attrs.id, placement);
+    setTextCursorPosition(tr, schema, child.attrs.id, placement, blockCache);
   }
 }

@@ -1,9 +1,31 @@
 import { describe, expect, it } from "vitest";
 
 import { setupTestEnv } from "../../setupTestEnv.js";
-import { insertBlocks } from "./insertBlocks.js";
+import { insertBlocks as insertBlocksTr } from "./insertBlocks.js";
+import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
+import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
+import { BlockIdentifier } from "../../../../schema/index.js";
 
 const getEditor = setupTestEnv();
+
+function insertBlocks(
+  editor: BlockNoteEditor,
+  blocksToInsert: PartialBlock<any, any, any>[],
+  referenceBlock: BlockIdentifier,
+  placement: "before" | "after" = "before"
+) {
+  return editor.transact((tr) =>
+    insertBlocksTr(
+      tr,
+      editor.pmSchema,
+      editor.schema,
+      blocksToInsert,
+      referenceBlock,
+      placement,
+      editor.blockCache
+    )
+  );
+}
 
 describe("Test insertBlocks", () => {
   it("Insert single basic block before (without type)", () => {

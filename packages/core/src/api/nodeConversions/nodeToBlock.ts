@@ -21,6 +21,7 @@ import {
   isStyledTextInlineContent,
 } from "../../schema/inlineContent/types.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
+import type { BlockCache } from "../../editor/BlockNoteEditor.js";
 
 /**
  * Converts an internal (prosemirror) table node contentto a BlockNote Tablecontent
@@ -388,7 +389,7 @@ export function nodeToBlock<
   blockSchema: BSchema,
   inlineContentSchema: I,
   styleSchema: S,
-  blockCache?: WeakMap<Node, Block<BSchema, I, S>>
+  blockCache?: BlockCache
 ): Block<BSchema, I, S> {
   if (!node.type.isInGroup("bnBlock")) {
     throw Error(

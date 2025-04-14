@@ -22,8 +22,7 @@ import {
   nestBlock,
   unnestBlock,
 } from "../api/blockManipulation/commands/nestBlock/nestBlock.js";
-import { removeBlocks } from "../api/blockManipulation/commands/removeBlocks/removeBlocks.js";
-import { replaceBlocks } from "../api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
+import { removeAndInsertBlocks } from "../api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
 import { updateBlock } from "../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import {
   getBlock,
@@ -116,6 +115,12 @@ export type BlockNoteExtension =
   | {
       plugin: Plugin;
     };
+
+export type BlockCache<
+  BSchema extends BlockSchema = any,
+  ISchema extends InlineContentSchema = any,
+  SSchema extends StyleSchema = any
+> = WeakMap<Node, Block<BSchema, ISchema, SSchema>>;
 
 export type BlockNoteEditorOptions<
   BSchema extends BlockSchema,
@@ -416,7 +421,7 @@ export class BlockNoteEditor<
    * This is especially useful when we want to keep track of the same block across multiple operations,
    * with this cache, blocks stay the same object reference (referential equality with ===).
    */
-  public blockCache = new WeakMap<Node, Block<any, any, any>>();
+  public blockCache: BlockCache = new WeakMap();
 
   /**
    * The dictionary contains translations for the editor.
@@ -922,7 +927,12 @@ export class BlockNoteEditor<
   public getBlock(
     blockIdentifier: BlockIdentifier
   ): Block<BSchema, ISchema, SSchema> | undefined {
-    return getBlock(this, blockIdentifier);
+    return getBlock(
+      this.transaction.doc,
+      this.schema,
+      blockIdentifier,
+      this.blockCache
+    );
   }
 
   /**
@@ -937,7 +947,12 @@ export class BlockNoteEditor<
   public getPrevBlock(
     blockIdentifier: BlockIdentifier
   ): Block<BSchema, ISchema, SSchema> | undefined {
-    return getPrevBlock(this, blockIdentifier);
+    return getPrevBlock(
+      this.transaction.doc,
+      this.schema,
+      blockIdentifier,
+      this.blockCache
+    );
   }
 
   /**
@@ -951,7 +966,12 @@ export class BlockNoteEditor<
   public getNextBlock(
     blockIdentifier: BlockIdentifier
   ): Block<BSchema, ISchema, SSchema> | undefined {
-    return getNextBlock(this, blockIdentifier);
+    return getNextBlock(
+      this.transaction.doc,
+      this.schema,
+      blockIdentifier,
+      this.blockCache
+    );
   }
 
   /**
@@ -964,7 +984,12 @@ export class BlockNoteEditor<
   public getParentBlock(
     blockIdentifier: BlockIdentifier
   ): Block<BSchema, ISchema, SSchema> | undefined {
-    return getParentBlock(this, blockIdentifier);
+    return getParentBlock(
+      this.transaction.doc,
+      this.schema,
+      blockIdentifier,
+      this.blockCache
+    );
   }
 
   /**
@@ -1034,7 +1059,11 @@ export class BlockNoteEditor<
     ISchema,
     SSchema
   > {
-    return getTextCursorPosition(this);
+    return getTextCursorPosition(
+      this.transaction,
+      this.schema,
+      this.blockCache
+    );
   }
 
   /**
@@ -1047,18 +1076,28 @@ export class BlockNoteEditor<
     targetBlock: BlockIdentifier,
     placement: "start" | "end" = "start"
   ) {
-    setTextCursorPosition(this, targetBlock, placement);
+    return this.transact((tr) =>
+      setTextCursorPosition(
+        tr,
+        this.schema,
+        targetBlock,
+        placement,
+        this.blockCache
+      )
+    );
   }
 
   /**
    * Gets a snapshot of the current selection.
    */
   public getSelection(): Selection<BSchema, ISchema, SSchema> | undefined {
-    return getSelection(this);
+    return getSelection(this.transaction, this.schema, this.blockCache);
   }
 
   public setSelection(startBlock: BlockIdentifier, endBlock: BlockIdentifier) {
-    setSelection(this, startBlock, endBlock);
+    return this.transact((tr) =>
+      setSelection(tr, this.schema, startBlock, endBlock)
+    );
   }
 
   /**
@@ -1107,7 +1146,17 @@ export class BlockNoteEditor<
     referenceBlock: BlockIdentifier,
     placement: "before" | "after" = "before"
   ) {
-    return insertBlocks(this, blocksToInsert, referenceBlock, placement);
+    return this.transact((tr) =>
+      insertBlocks(
+        tr,
+        this.pmSchema,
+        this.schema,
+        blocksToInsert,
+        referenceBlock,
+        placement,
+        this.blockCache
+      )
+    );
   }
 
   /**
@@ -1121,7 +1170,16 @@ export class BlockNoteEditor<
     blockToUpdate: BlockIdentifier,
     update: PartialBlock<BSchema, ISchema, SSchema>
   ) {
-    return updateBlock(this, blockToUpdate, update);
+    return this.transact((tr) =>
+      updateBlock(
+        tr,
+        this.pmSchema,
+        this.schema,
+        blockToUpdate,
+        update,
+        this.blockCache
+      )
+    );
   }
 
   /**
@@ -1129,7 +1187,17 @@ export class BlockNoteEditor<
    * @param blocksToRemove An array of identifiers for existing blocks that should be removed.
    */
   public removeBlocks(blocksToRemove: BlockIdentifier[]) {
-    return removeBlocks(this, blocksToRemove);
+    return this.transact(
+      (tr) =>
+        removeAndInsertBlocks(
+          tr,
+          this.pmSchema,
+          this.schema,
+          blocksToRemove,
+          [],
+          this.blockCache
+        ).removedBlocks
+    );
   }
 
   /**
@@ -1143,7 +1211,16 @@ export class BlockNoteEditor<
     blocksToRemove: BlockIdentifier[],
     blocksToInsert: PartialBlock<BSchema, ISchema, SSchema>[]
   ) {
-    return replaceBlocks(this, blocksToRemove, blocksToInsert);
+    return this.transact((tr) =>
+      removeAndInsertBlocks(
+        tr,
+        this.pmSchema,
+        this.schema,
+        blocksToRemove,
+        blocksToInsert,
+        this.blockCache
+      )
+    );
   }
 
   /**
@@ -1158,14 +1235,16 @@ export class BlockNoteEditor<
       this.schema.styleSchema
     );
 
-    insertContentAt(
-      {
-        from: this.prosemirrorState.selection.from,
-        to: this.prosemirrorState.selection.to,
-      },
-      nodes,
-      this
-    );
+    this.transact((tr) => {
+      insertContentAt(
+        {
+          from: this.prosemirrorState.selection.from,
+          to: this.prosemirrorState.selection.to,
+        },
+        nodes,
+        tr
+      );
+    });
   }
 
   /**
@@ -1325,7 +1404,9 @@ export class BlockNoteEditor<
    * current blocks share a common parent, moves them out of & before it.
    */
   public moveBlocksUp() {
-    moveBlocksUp(this);
+    return this.transact((tr) =>
+      moveBlocksUp(tr, this.pmSchema, this.schema, this.blockCache)
+    );
   }
 
   /**
@@ -1334,7 +1415,9 @@ export class BlockNoteEditor<
    * current blocks share a common parent, moves them out of & after it.
    */
   public moveBlocksDown() {
-    moveBlocksDown(this);
+    return this.transact((tr) =>
+      moveBlocksDown(tr, this.pmSchema, this.schema, this.blockCache)
+    );
   }
 
   /**

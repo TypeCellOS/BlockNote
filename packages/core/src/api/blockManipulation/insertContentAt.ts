@@ -1,27 +1,17 @@
 import { selectionToInsertionEnd } from "@tiptap/core";
 import { Node } from "prosemirror-model";
 
-import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import {
-  BlockSchema,
-  InlineContentSchema,
-  StyleSchema,
-} from "../../schema/index.js";
+import type { Transaction } from "prosemirror-state";
 
 // similar to tiptap insertContentAt
-export function insertContentAt<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(
-  position: any,
+export function insertContentAt(
+  position: number | { from: number; to: number },
   nodes: Node[],
-  editor: BlockNoteEditor<BSchema, I, S>,
+  tr: Transaction,
   options: {
     updateSelection: boolean;
   } = { updateSelection: true }
 ) {
-  const tr = editor.transaction;
   // don’t dispatch an empty fragment because this can lead to strange errors
   // if (content.toString() === "<>") {
   //   return true;
@@ -88,8 +78,6 @@ export function insertContentAt<
   if (options.updateSelection) {
     selectionToInsertionEnd(tr, tr.steps.length - 1, -1);
   }
-
-  editor.dispatch(tr);
 
   return true;
 }

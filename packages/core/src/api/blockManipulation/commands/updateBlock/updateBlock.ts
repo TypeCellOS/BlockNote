@@ -1,18 +1,28 @@
-import { Fragment, NodeType, Node as PMNode, Slice } from "prosemirror-model";
-import { Transaction } from "prosemirror-state";
+import {
+  Fragment,
+  NodeType,
+  Node as PMNode,
+  Schema,
+  Slice,
+} from "prosemirror-model";
+import type { Transaction } from "prosemirror-state";
 
 import { ReplaceStep } from "prosemirror-transform";
 import { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
-import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
-import {
+import type {
+  BlockCache,
+  BlockNoteEditor,
+} from "../../../../editor/BlockNoteEditor.js";
+import type { BlockNoteSchema } from "../../../../editor/BlockNoteSchema.js";
+import type {
   BlockIdentifier,
   BlockSchema,
 } from "../../../../schema/blocks/types.js";
-import { InlineContentSchema } from "../../../../schema/inlineContent/types.js";
-import { StyleSchema } from "../../../../schema/styles/types.js";
+import type { InlineContentSchema } from "../../../../schema/inlineContent/types.js";
+import type { StyleSchema } from "../../../../schema/styles/types.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
-  BlockInfo,
+  type BlockInfo,
   getBlockInfoFromResolvedPos,
 } from "../../../getBlockInfoFromPos.js";
 import {
@@ -23,15 +33,36 @@ import {
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
 
-export const updateBlockCommand =
+export const updateBlockCommand = <
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  editor: BlockNoteEditor<BSchema, I, S>,
+  posBeforeBlock: number,
+  block: PartialBlock<BSchema, I, S>,
+  blockCache?: BlockCache
+) => {
+  return updateBlockCommandTr(
+    editor.pmSchema,
+    editor.schema,
+    posBeforeBlock,
+    block,
+    blockCache
+  );
+};
+
+export const updateBlockCommandTr =
   <
     BSchema extends BlockSchema,
     I extends InlineContentSchema,
     S extends StyleSchema
   >(
-    editor: BlockNoteEditor<BSchema, I, S>,
+    pmSchema: Schema,
+    schema: BlockNoteSchema<BSchema, I, S>,
     posBeforeBlock: number,
-    block: PartialBlock<BSchema, I, S>
+    block: PartialBlock<BSchema, I, S>,
+    blockCache?: BlockCache
   ) =>
   ({
     tr,
@@ -47,21 +78,21 @@ export const updateBlockCommand =
     if (dispatch) {
       // Adds blockGroup node with child blocks if necessary.
 
-      const oldNodeType = editor.pmSchema.nodes[blockInfo.blockNoteType];
-      const newNodeType =
-        editor.pmSchema.nodes[block.type || blockInfo.blockNoteType];
+      const oldNodeType = pmSchema.nodes[blockInfo.blockNoteType];
+      const newNodeType = pmSchema.nodes[block.type || blockInfo.blockNoteType];
       const newBnBlockNodeType = newNodeType.isInGroup("bnBlock")
         ? newNodeType
-        : editor.pmSchema.nodes["blockContainer"];
+        : pmSchema.nodes["blockContainer"];
 
       if (blockInfo.isBlockContainer && newNodeType.isInGroup("blockContent")) {
-        updateChildren(block, tr, editor, blockInfo);
+        updateChildren(block, tr, pmSchema, schema, blockInfo);
         // The code below determines the new content of the block.
         // or "keep" to keep as-is
         updateBlockContentNode(
           block,
           tr,
-          editor,
+          pmSchema,
+          schema,
           oldNodeType,
           newNodeType,
           blockInfo
@@ -70,7 +101,7 @@ export const updateBlockCommand =
         !blockInfo.isBlockContainer &&
         newNodeType.isInGroup("bnBlock")
       ) {
-        updateChildren(block, tr, editor, blockInfo);
+        updateChildren(block, tr, pmSchema, schema, blockInfo);
         // old node was a bnBlock type (like column or columnList) and new block as well
         // No op, we just update the bnBlock below (at end of function) and have already updated the children
       } else {
@@ -83,10 +114,10 @@ export const updateBlockCommand =
         // it would be cleaner to use a ReplaceAroundStep, but this is a bit simpler and it's quite an edge case
         const existingBlock = nodeToBlock(
           blockInfo.bnBlock.node,
-          editor.schema.blockSchema,
-          editor.schema.inlineContentSchema,
-          editor.schema.styleSchema,
-          editor.blockCache
+          schema.blockSchema,
+          schema.inlineContentSchema,
+          schema.styleSchema,
+          blockCache
         );
         tr.replaceWith(
           blockInfo.bnBlock.beforePos,
@@ -96,8 +127,8 @@ export const updateBlockCommand =
               children: existingBlock.children, // if no children are passed in, use existing children
               ...block,
             },
-            editor.pmSchema,
-            editor.schema.styleSchema
+            pmSchema,
+            schema.styleSchema
           )
         );
 
@@ -122,7 +153,8 @@ function updateBlockContentNode<
 >(
   block: PartialBlock<BSchema, I, S>,
   tr: Transaction,
-  editor: BlockNoteEditor<BSchema, I, S>,
+  pmSchema: Schema,
+  schema: BlockNoteSchema<BSchema, I, S>,
   oldNodeType: NodeType,
   newNodeType: NodeType,
   blockInfo: {
@@ -140,8 +172,8 @@ function updateBlockContentNode<
       // Adds a single text node with no marks to the content.
       content = inlineContentToNodes(
         [block.content],
-        editor.pmSchema,
-        editor.schema.styleSchema,
+        pmSchema,
+        schema.styleSchema,
         newNodeType.name
       );
     } else if (Array.isArray(block.content)) {
@@ -149,15 +181,15 @@ function updateBlockContentNode<
       // for each InlineContent object.
       content = inlineContentToNodes(
         block.content,
-        editor.pmSchema,
-        editor.schema.styleSchema,
+        pmSchema,
+        schema.styleSchema,
         newNodeType.name
       );
     } else if (block.content.type === "tableContent") {
       content = tableContentToNodes(
         block.content,
-        editor.pmSchema,
-        editor.schema.styleSchema
+        pmSchema,
+        schema.styleSchema
       );
     } else {
       throw new UnreachableCaseError(block.content.type);
@@ -188,7 +220,7 @@ function updateBlockContentNode<
     // use setNodeMarkup to only update the type and attributes
     tr.setNodeMarkup(
       blockInfo.blockContent.beforePos,
-      block.type === undefined ? undefined : editor.pmSchema.nodes[block.type],
+      block.type === undefined ? undefined : pmSchema.nodes[block.type],
       {
         ...blockInfo.blockContent.node.attrs,
         ...block.props,
@@ -219,12 +251,13 @@ function updateChildren<
 >(
   block: PartialBlock<BSchema, I, S>,
   tr: Transaction,
-  editor: BlockNoteEditor<BSchema, I, S>,
+  pmSchema: Schema,
+  schema: BlockNoteSchema<BSchema, I, S>,
   blockInfo: BlockInfo
 ) {
   if (block.children !== undefined && block.children.length > 0) {
     const childNodes = block.children.map((child) => {
-      return blockToNode(child, editor.pmSchema, editor.schema.styleSchema);
+      return blockToNode(child, pmSchema, schema.styleSchema);
     });
 
     // Checks if a blockGroup node already exists.
@@ -246,7 +279,7 @@ function updateChildren<
       // Inserts a new blockGroup containing the child nodes created earlier.
       tr.insert(
         blockInfo.blockContent.afterPos,
-        editor.pmSchema.nodes["blockGroup"].createChecked({}, childNodes)
+        pmSchema.nodes["blockGroup"].createChecked({}, childNodes)
       );
     }
   }
@@ -257,30 +290,32 @@ export function updateBlock<
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  editor: BlockNoteEditor<BSchema, I, S>,
+  tr: Transaction,
+  pmSchema: Schema,
+  schema: BlockNoteSchema<BSchema, I, S>,
   blockToUpdate: BlockIdentifier,
-  update: PartialBlock<BSchema, I, S>
+  update: PartialBlock<BSchema, I, S>,
+  blockCache?: BlockCache
 ): Block<BSchema, I, S> {
   const id =
     typeof blockToUpdate === "string" ? blockToUpdate : blockToUpdate.id;
-  const tr = editor.transaction;
   const posInfo = getNodeById(id, tr.doc);
   if (!posInfo) {
     throw new Error(`Block with ID ${id} not found`);
   }
 
-  updateBlockCommand(
-    editor,
+  updateBlockCommandTr(
+    pmSchema,
+    schema,
     posInfo.posBeforeNode,
-    update
+    update,
+    blockCache
   )({
     tr,
     dispatch: () => {
       // no-op
     },
   });
-  // Actually dispatch that transaction
-  editor.dispatch(tr);
 
   const blockContainerNode = tr.doc
     .resolve(posInfo.posBeforeNode + 1) // TODO: clean?
@@ -288,9 +323,9 @@ export function updateBlock<
 
   return nodeToBlock(
     blockContainerNode,
-    editor.schema.blockSchema,
-    editor.schema.inlineContentSchema,
-    editor.schema.styleSchema,
-    editor.blockCache
+    schema.blockSchema,
+    schema.inlineContentSchema,
+    schema.styleSchema,
+    blockCache
   );
 }

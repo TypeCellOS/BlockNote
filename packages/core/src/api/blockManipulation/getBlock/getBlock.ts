@@ -1,6 +1,8 @@
-import { Block } from "../../../blocks/defaultBlocks.js";
-import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
-import {
+import type { Node } from "prosemirror-model";
+import type { Block } from "../../../blocks/defaultBlocks.js";
+import type { BlockCache } from "../../../editor/BlockNoteEditor.js";
+import type { BlockNoteSchema } from "../../../editor/BlockNoteSchema.js";
+import type {
   BlockIdentifier,
   BlockSchema,
   InlineContentSchema,
@@ -14,23 +16,25 @@ export function getBlock<
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  editor: BlockNoteEditor<BSchema, I, S>,
-  blockIdentifier: BlockIdentifier
+  doc: Node,
+  schema: BlockNoteSchema<BSchema, I, S>,
+  blockIdentifier: BlockIdentifier,
+  blockCache?: BlockCache<BSchema, I, S>
 ): Block<BSchema, I, S> | undefined {
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
 
-  const posInfo = getNodeById(id, editor.transaction.doc);
+  const posInfo = getNodeById(id, doc);
   if (!posInfo) {
     return undefined;
   }
 
   return nodeToBlock(
     posInfo.node,
-    editor.schema.blockSchema,
-    editor.schema.inlineContentSchema,
-    editor.schema.styleSchema,
-    editor.blockCache
+    schema.blockSchema,
+    schema.inlineContentSchema,
+    schema.styleSchema,
+    blockCache
   );
 }
 
@@ -39,18 +43,20 @@ export function getPrevBlock<
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  editor: BlockNoteEditor<BSchema, I, S>,
-  blockIdentifier: BlockIdentifier
+  doc: Node,
+  schema: BlockNoteSchema<BSchema, I, S>,
+  blockIdentifier: BlockIdentifier,
+  blockCache?: BlockCache<BSchema, I, S>
 ): Block<BSchema, I, S> | undefined {
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
-  const tr = editor.transaction;
-  const posInfo = getNodeById(id, tr.doc);
+
+  const posInfo = getNodeById(id, doc);
   if (!posInfo) {
     return undefined;
   }
 
-  const $posBeforeNode = tr.doc.resolve(posInfo.posBeforeNode);
+  const $posBeforeNode = doc.resolve(posInfo.posBeforeNode);
   const nodeToConvert = $posBeforeNode.nodeBefore;
   if (!nodeToConvert) {
     return undefined;
@@ -58,10 +64,10 @@ export function getPrevBlock<
 
   return nodeToBlock(
     nodeToConvert,
-    editor.schema.blockSchema,
-    editor.schema.inlineContentSchema,
-    editor.schema.styleSchema,
-    editor.blockCache
+    schema.blockSchema,
+    schema.inlineContentSchema,
+    schema.styleSchema,
+    blockCache
   );
 }
 
@@ -70,18 +76,19 @@ export function getNextBlock<
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  editor: BlockNoteEditor<BSchema, I, S>,
-  blockIdentifier: BlockIdentifier
+  doc: Node,
+  schema: BlockNoteSchema<BSchema, I, S>,
+  blockIdentifier: BlockIdentifier,
+  blockCache?: BlockCache<BSchema, I, S>
 ): Block<BSchema, I, S> | undefined {
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
-  const tr = editor.transaction;
-  const posInfo = getNodeById(id, tr.doc);
+  const posInfo = getNodeById(id, doc);
   if (!posInfo) {
     return undefined;
   }
 
-  const $posAfterNode = tr.doc.resolve(
+  const $posAfterNode = doc.resolve(
     posInfo.posBeforeNode + posInfo.node.nodeSize
   );
   const nodeToConvert = $posAfterNode.nodeAfter;
@@ -91,10 +98,10 @@ export function getNextBlock<
 
   return nodeToBlock(
     nodeToConvert,
-    editor.schema.blockSchema,
-    editor.schema.inlineContentSchema,
-    editor.schema.styleSchema,
-    editor.blockCache
+    schema.blockSchema,
+    schema.inlineContentSchema,
+    schema.styleSchema,
+    blockCache
   );
 }
 
@@ -103,19 +110,20 @@ export function getParentBlock<
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  editor: BlockNoteEditor<BSchema, I, S>,
-  blockIdentifier: BlockIdentifier
+  doc: Node,
+  schema: BlockNoteSchema<BSchema, I, S>,
+  blockIdentifier: BlockIdentifier,
+  blockCache?: BlockCache<BSchema, I, S>
 ): Block<BSchema, I, S> | undefined {
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
 
-  const tr = editor.transaction;
-  const posInfo = getNodeById(id, tr.doc);
+  const posInfo = getNodeById(id, doc);
   if (!posInfo) {
     return undefined;
   }
 
-  const $posBeforeNode = tr.doc.resolve(posInfo.posBeforeNode);
+  const $posBeforeNode = doc.resolve(posInfo.posBeforeNode);
   const parentNode = $posBeforeNode.node();
   const grandparentNode = $posBeforeNode.node(-1);
   const nodeToConvert =
@@ -130,9 +138,9 @@ export function getParentBlock<
 
   return nodeToBlock(
     nodeToConvert,
-    editor.schema.blockSchema,
-    editor.schema.inlineContentSchema,
-    editor.schema.styleSchema,
-    editor.blockCache
+    schema.blockSchema,
+    schema.inlineContentSchema,
+    schema.styleSchema,
+    blockCache
   );
 }
