@@ -1238,8 +1238,8 @@ export class BlockNoteEditor<
     this.transact((tr) => {
       insertContentAt(
         {
-          from: this.prosemirrorState.selection.from,
-          to: this.prosemirrorState.selection.to,
+          from: tr.selection.from,
+          to: tr.selection.to,
         },
         nodes,
         tr
