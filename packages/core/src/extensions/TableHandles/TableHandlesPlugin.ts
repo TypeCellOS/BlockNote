@@ -270,10 +270,10 @@ export class TableHandlesView<
 
     const block = nodeToBlock(
       pmNodeInfo.node,
+      this.editor.pmSchema,
       this.editor.schema.blockSchema,
       this.editor.schema.inlineContentSchema,
-      this.editor.schema.styleSchema,
-      this.editor.blockCache
+      this.editor.schema.styleSchema
     );
 
     if (checkBlockIsDefaultType("table", block, this.editor)) {

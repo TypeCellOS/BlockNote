@@ -94,7 +94,7 @@ function fragmentToExternalHTML<
     );
     externalHTML = externalHTMLExporter.exportInlineContent(ic, {});
   } else {
-    const blocks = fragmentToBlocks(selectedFragment, editor.schema);
+    const blocks = fragmentToBlocks(selectedFragment);
     externalHTML = externalHTMLExporter.exportBlocks(blocks, {});
   }
   return externalHTML;

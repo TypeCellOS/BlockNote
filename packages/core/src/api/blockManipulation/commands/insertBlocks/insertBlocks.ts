@@ -7,12 +7,12 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema/index.js";
-import { simpleBlockToNode } from "../../../nodeConversions/blockToNode.js";
-import { simpleNodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
+import { blockToNode } from "../../../nodeConversions/blockToNode.js";
+import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
 import { ReplaceStep } from "prosemirror-transform";
 import type { Transaction } from "prosemirror-state";
-import { getSchemaForTransaction } from "../../../pmUtil.js";
+import { getPmSchema } from "../../../pmUtil.js";
 
 export function insertBlocks<
   BSchema extends BlockSchema,
@@ -26,10 +26,9 @@ export function insertBlocks<
 ): Block<BSchema, I, S>[] {
   const id =
     typeof referenceBlock === "string" ? referenceBlock : referenceBlock.id;
-  const schema = getSchemaForTransaction(tr);
-
+  const pmSchema = getPmSchema(tr);
   const nodesToInsert = blocksToInsert.map((block) =>
-    simpleBlockToNode(block, schema)
+    blockToNode(block, pmSchema)
   );
 
   const posInfo = getNodeById(id, tr.doc);
@@ -49,7 +48,7 @@ export function insertBlocks<
   // Now that the `PartialBlock`s have been converted to nodes, we can
   // re-convert them into full `Block`s.
   const insertedBlocks = nodesToInsert.map((node) =>
-    simpleNodeToBlock(node, schema)
+    nodeToBlock(node, pmSchema)
   );
 
   return insertedBlocks;

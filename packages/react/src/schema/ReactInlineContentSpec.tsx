@@ -14,6 +14,7 @@ import {
   PropSchema,
   propsToAttributes,
   StyleSchema,
+  BlockNoteEditor,
 } from "@blocknote/core";
 import {
   NodeViewProps,
@@ -24,7 +25,6 @@ import {
 // import { useReactNodeView } from "@tiptap/react/dist/packages/react/src/useReactNodeView";
 import { FC } from "react";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
-
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 
 // extend BlockConfig but use a React render function
@@ -148,7 +148,7 @@ export function createReactInlineContentSpec<
 
     // TODO: needed?
     addNodeView() {
-      const editor = this.options.editor;
+      const editor: BlockNoteEditor<any, any, any> = this.options.editor;
       return (props) =>
         ReactNodeViewRenderer(
           (props: NodeViewProps) => {
@@ -176,12 +176,11 @@ export function createReactInlineContentSpec<
                   updateInlineContent={(update) => {
                     const content = inlineContentToNodes(
                       [update],
-                      editor._tiptapEditor.schema,
-                      editor.schema.styleSchema
+                      editor.pmSchema
                     );
 
                     editor.dispatch(
-                      editor.prosemirrorView.state.tr.replaceWith(
+                      editor.prosemirrorState.tr.replaceWith(
                         props.getPos(),
                         props.getPos() + props.node.nodeSize,
                         content

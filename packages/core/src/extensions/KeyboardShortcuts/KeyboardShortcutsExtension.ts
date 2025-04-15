@@ -45,14 +45,10 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             if (selectionAtBlockStart && !isParagraph) {
               return commands.command(
-                updateBlockCommand(
-                  this.options.editor,
-                  blockInfo.bnBlock.beforePos,
-                  {
-                    type: "paragraph",
-                    props: {},
-                  }
-                )
+                updateBlockCommand(blockInfo.bnBlock.beforePos, {
+                  type: "paragraph",
+                  props: {},
+                })
               );
             }
 

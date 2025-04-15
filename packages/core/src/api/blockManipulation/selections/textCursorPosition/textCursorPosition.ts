@@ -4,8 +4,6 @@ import {
   TextSelection,
   type Transaction,
 } from "prosemirror-state";
-import type { BlockCache } from "../../../../editor/BlockNoteEditor.js";
-import type { BlockNoteSchema } from "../../../../editor/BlockNoteSchema.js";
 import type { TextCursorPosition } from "../../../../editor/cursorPositionTypes.js";
 import type {
   BlockIdentifier,
@@ -20,17 +18,15 @@ import {
 } from "../../../getBlockInfoFromPos.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
+import { getBlockNoteSchema, getPmSchema } from "../../../pmUtil.js";
 
 export function getTextCursorPosition<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
->(
-  tr: Transaction,
-  schema: BlockNoteSchema<BSchema, I, S>,
-  blockCache?: BlockCache
-): TextCursorPosition<BSchema, I, S> {
+>(tr: Transaction): TextCursorPosition<BSchema, I, S> {
   const { bnBlock } = getBlockInfoFromTransaction(tr);
+  const pmSchema = getPmSchema(tr.doc);
 
   const resolvedPos = tr.doc.resolve(bnBlock.beforePos);
   // Gets previous blockContainer node at the same nesting level, if the current node isn't the first child.
@@ -51,58 +47,22 @@ export function getTextCursorPosition<
   }
 
   return {
-    block: nodeToBlock(
-      bnBlock.node,
-      schema.blockSchema,
-      schema.inlineContentSchema,
-      schema.styleSchema,
-      blockCache
-    ),
-    prevBlock:
-      prevNode === null
-        ? undefined
-        : nodeToBlock(
-            prevNode,
-            schema.blockSchema,
-            schema.inlineContentSchema,
-            schema.styleSchema,
-            blockCache
-          ),
-    nextBlock:
-      nextNode === null
-        ? undefined
-        : nodeToBlock(
-            nextNode,
-            schema.blockSchema,
-            schema.inlineContentSchema,
-            schema.styleSchema,
-            blockCache
-          ),
+    block: nodeToBlock(bnBlock.node, pmSchema),
+    prevBlock: prevNode === null ? undefined : nodeToBlock(prevNode, pmSchema),
+    nextBlock: nextNode === null ? undefined : nodeToBlock(nextNode, pmSchema),
     parentBlock:
-      parentNode === undefined
-        ? undefined
-        : nodeToBlock(
-            parentNode,
-            schema.blockSchema,
-            schema.inlineContentSchema,
-            schema.styleSchema,
-            blockCache
-          ),
+      parentNode === undefined ? undefined : nodeToBlock(parentNode, pmSchema),
   };
 }
 
-export function setTextCursorPosition<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(
+export function setTextCursorPosition(
   tr: Transaction,
-  schema: BlockNoteSchema<BSchema, I, S>,
   targetBlock: BlockIdentifier,
-  placement: "start" | "end" = "start",
-  blockCache?: BlockCache
+  placement: "start" | "end" = "start"
 ) {
   const id = typeof targetBlock === "string" ? targetBlock : targetBlock.id;
+  const pmSchema = getPmSchema(tr.doc);
+  const schema = getBlockNoteSchema(pmSchema);
 
   const posInfo = getNodeById(id, tr.doc);
   if (!posInfo) {
@@ -153,6 +113,6 @@ export function setTextCursorPosition<
         ? info.childContainer.node.firstChild!
         : info.childContainer.node.lastChild!;
 
-    setTextCursorPosition(tr, schema, child.attrs.id, placement, blockCache);
+    setTextCursorPosition(tr, child.attrs.id, placement);
   }
 }

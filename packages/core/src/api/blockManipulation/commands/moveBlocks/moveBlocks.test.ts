@@ -55,16 +55,7 @@ describe("Test moveSelectedBlockAndSelection", () => {
     getEditor().setTextCursorPosition("paragraph-1");
     makeSelectionSpanContent("text");
 
-    getEditor().transact((tr) => {
-      moveSelectedBlocksAndSelection(
-        tr,
-        getEditor().pmSchema,
-        getEditor().schema,
-        "paragraph-0",
-        "before",
-        getEditor().blockCache
-      );
-    });
+    moveSelectedBlocksAndSelection(getEditor(), "paragraph-0", "before");
 
     const selection = getEditor().transaction.selection;
     getEditor().setTextCursorPosition("paragraph-1");
@@ -77,16 +68,7 @@ describe("Test moveSelectedBlockAndSelection", () => {
     getEditor().setTextCursorPosition("image-0");
     makeSelectionSpanContent("node");
 
-    getEditor().transact((tr) => {
-      moveSelectedBlocksAndSelection(
-        tr,
-        getEditor().pmSchema,
-        getEditor().schema,
-        "paragraph-0",
-        "before",
-        getEditor().blockCache
-      );
-    });
+    moveSelectedBlocksAndSelection(getEditor(), "paragraph-0", "before");
 
     const selection = getEditor().transaction.selection;
     getEditor().setTextCursorPosition("image-0");
@@ -99,16 +81,7 @@ describe("Test moveSelectedBlockAndSelection", () => {
     getEditor().setTextCursorPosition("table-0");
     makeSelectionSpanContent("cell");
 
-    getEditor().transact((tr) => {
-      moveSelectedBlocksAndSelection(
-        tr,
-        getEditor().pmSchema,
-        getEditor().schema,
-        "paragraph-0",
-        "before",
-        getEditor().blockCache
-      );
-    });
+    moveSelectedBlocksAndSelection(getEditor(), "paragraph-0", "before");
 
     const selection = getEditor().transaction.selection;
     getEditor().setTextCursorPosition("table-0");
@@ -120,16 +93,7 @@ describe("Test moveSelectedBlockAndSelection", () => {
   it("Multiple block selection", () => {
     getEditor().setSelection("paragraph-1", "paragraph-2");
 
-    getEditor().transact((tr) => {
-      moveSelectedBlocksAndSelection(
-        tr,
-        getEditor().pmSchema,
-        getEditor().schema,
-        "paragraph-0",
-        "before",
-        getEditor().blockCache
-      );
-    });
+    moveSelectedBlocksAndSelection(getEditor(), "paragraph-0", "before");
 
     const selection = getEditor().transaction.selection;
     getEditor().setSelection("paragraph-1", "paragraph-2");
@@ -140,16 +104,7 @@ describe("Test moveSelectedBlockAndSelection", () => {
   it("Multiple block selection with table", () => {
     getEditor().setSelection("paragraph-6", "table-0");
 
-    getEditor().transact((tr) => {
-      moveSelectedBlocksAndSelection(
-        tr,
-        getEditor().pmSchema,
-        getEditor().schema,
-        "paragraph-0",
-        "before",
-        getEditor().blockCache
-      );
-    });
+    moveSelectedBlocksAndSelection(getEditor(), "paragraph-0", "before");
 
     const selection = getEditor().transaction.selection;
     getEditor().setSelection("paragraph-6", "table-0");
@@ -162,14 +117,7 @@ describe("Test moveBlocksUp", () => {
   it("Basic", () => {
     getEditor().setTextCursorPosition("paragraph-1");
 
-    getEditor().transact((tr) => {
-      moveBlocksUp(
-        tr,
-        getEditor().pmSchema,
-        getEditor().schema,
-        getEditor().blockCache
-      );
-    });
+    moveBlocksUp(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -177,14 +125,7 @@ describe("Test moveBlocksUp", () => {
   it("Into children", () => {
     getEditor().setTextCursorPosition("paragraph-2");
 
-    getEditor().transact((tr) => {
-      moveBlocksUp(
-        tr,
-        getEditor().pmSchema,
-        getEditor().schema,
-        getEditor().blockCache
-      );
-    });
+    moveBlocksUp(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -192,14 +133,7 @@ describe("Test moveBlocksUp", () => {
   it("Out of children", () => {
     getEditor().setTextCursorPosition("nested-paragraph-1");
 
-    getEditor().transact((tr) => {
-      moveBlocksUp(
-        tr,
-        getEditor().pmSchema,
-        getEditor().schema,
-        getEditor().blockCache
-      );
-    });
+    moveBlocksUp(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -207,14 +141,7 @@ describe("Test moveBlocksUp", () => {
   it("First block", () => {
     getEditor().setTextCursorPosition("paragraph-0");
 
-    getEditor().transact((tr) => {
-      moveBlocksUp(
-        tr,
-        getEditor().pmSchema,
-        getEditor().schema,
-        getEditor().blockCache
-      );
-    });
+    moveBlocksUp(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -222,14 +149,7 @@ describe("Test moveBlocksUp", () => {
   it("Multiple blocks", () => {
     getEditor().setSelection("paragraph-1", "paragraph-2");
 
-    getEditor().transact((tr) => {
-      moveBlocksUp(
-        tr,
-        getEditor().pmSchema,
-        getEditor().schema,
-        getEditor().blockCache
-      );
-    });
+    moveBlocksUp(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -237,14 +157,7 @@ describe("Test moveBlocksUp", () => {
   it("Multiple blocks starting in block with children", () => {
     getEditor().setSelection("paragraph-with-children", "paragraph-2");
 
-    getEditor().transact((tr) => {
-      moveBlocksUp(
-        tr,
-        getEditor().pmSchema,
-        getEditor().schema,
-        getEditor().blockCache
-      );
-    });
+    moveBlocksUp(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -252,14 +165,7 @@ describe("Test moveBlocksUp", () => {
   it("Multiple blocks starting in nested block", () => {
     getEditor().setSelection("nested-paragraph-0", "paragraph-2");
 
-    getEditor().transact((tr) => {
-      moveBlocksUp(
-        tr,
-        getEditor().pmSchema,
-        getEditor().schema,
-        getEditor().blockCache
-      );
-    });
+    moveBlocksUp(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -267,14 +173,7 @@ describe("Test moveBlocksUp", () => {
   it("Multiple blocks ending in block with children", () => {
     getEditor().setSelection("paragraph-1", "paragraph-with-children");
 
-    getEditor().transact((tr) => {
-      moveBlocksUp(
-        tr,
-        getEditor().pmSchema,
-        getEditor().schema,
-        getEditor().blockCache
-      );
-    });
+    moveBlocksUp(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -282,14 +181,7 @@ describe("Test moveBlocksUp", () => {
   it("Multiple blocks ending in nested block", () => {
     getEditor().setSelection("paragraph-1", "nested-paragraph-0");
 
-    getEditor().transact((tr) => {
-      moveBlocksUp(
-        tr,
-        getEditor().pmSchema,
-        getEditor().schema,
-        getEditor().blockCache
-      );
-    });
+    moveBlocksUp(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -297,14 +189,7 @@ describe("Test moveBlocksUp", () => {
   it("Multiple blocks starting and ending in nested block", () => {
     getEditor().setSelection("nested-paragraph-0", "nested-paragraph-1");
 
-    getEditor().transact((tr) => {
-      moveBlocksUp(
-        tr,
-        getEditor().pmSchema,
-        getEditor().schema,
-        getEditor().blockCache
-      );
-    });
+    moveBlocksUp(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -314,14 +199,7 @@ describe("Test moveBlocksDown", () => {
   it("Basic", () => {
     getEditor().setTextCursorPosition("paragraph-0");
 
-    getEditor().transact((tr) => {
-      moveBlocksDown(
-        tr,
-        getEditor().pmSchema,
-        getEditor().schema,
-        getEditor().blockCache
-      );
-    });
+    moveBlocksDown(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -329,14 +207,7 @@ describe("Test moveBlocksDown", () => {
   it("Into children", () => {
     getEditor().setTextCursorPosition("paragraph-1");
 
-    getEditor().transact((tr) => {
-      moveBlocksDown(
-        tr,
-        getEditor().pmSchema,
-        getEditor().schema,
-        getEditor().blockCache
-      );
-    });
+    moveBlocksDown(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -344,14 +215,7 @@ describe("Test moveBlocksDown", () => {
   it("Out of children", () => {
     getEditor().setTextCursorPosition("nested-paragraph-1");
 
-    getEditor().transact((tr) => {
-      moveBlocksDown(
-        tr,
-        getEditor().pmSchema,
-        getEditor().schema,
-        getEditor().blockCache
-      );
-    });
+    moveBlocksDown(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -359,14 +223,7 @@ describe("Test moveBlocksDown", () => {
   it("Last block", () => {
     getEditor().setTextCursorPosition("trailing-paragraph");
 
-    getEditor().transact((tr) => {
-      moveBlocksDown(
-        tr,
-        getEditor().pmSchema,
-        getEditor().schema,
-        getEditor().blockCache
-      );
-    });
+    moveBlocksDown(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -374,14 +231,7 @@ describe("Test moveBlocksDown", () => {
   it("Multiple blocks", () => {
     getEditor().setSelection("paragraph-1", "paragraph-2");
 
-    getEditor().transact((tr) => {
-      moveBlocksDown(
-        tr,
-        getEditor().pmSchema,
-        getEditor().schema,
-        getEditor().blockCache
-      );
-    });
+    moveBlocksDown(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -389,14 +239,7 @@ describe("Test moveBlocksDown", () => {
   it("Multiple blocks starting in block with children", () => {
     getEditor().setSelection("paragraph-with-children", "paragraph-2");
 
-    getEditor().transact((tr) => {
-      moveBlocksDown(
-        tr,
-        getEditor().pmSchema,
-        getEditor().schema,
-        getEditor().blockCache
-      );
-    });
+    moveBlocksDown(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -404,14 +247,7 @@ describe("Test moveBlocksDown", () => {
   it("Multiple blocks starting in nested block", () => {
     getEditor().setSelection("nested-paragraph-0", "paragraph-2");
 
-    getEditor().transact((tr) => {
-      moveBlocksDown(
-        tr,
-        getEditor().pmSchema,
-        getEditor().schema,
-        getEditor().blockCache
-      );
-    });
+    moveBlocksDown(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -419,14 +255,7 @@ describe("Test moveBlocksDown", () => {
   it("Multiple blocks ending in block with children", () => {
     getEditor().setSelection("paragraph-1", "paragraph-with-children");
 
-    getEditor().transact((tr) => {
-      moveBlocksDown(
-        tr,
-        getEditor().pmSchema,
-        getEditor().schema,
-        getEditor().blockCache
-      );
-    });
+    moveBlocksDown(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -434,14 +263,7 @@ describe("Test moveBlocksDown", () => {
   it("Multiple blocks ending in nested block", () => {
     getEditor().setSelection("paragraph-1", "nested-paragraph-0");
 
-    getEditor().transact((tr) => {
-      moveBlocksDown(
-        tr,
-        getEditor().pmSchema,
-        getEditor().schema,
-        getEditor().blockCache
-      );
-    });
+    moveBlocksDown(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -449,14 +271,7 @@ describe("Test moveBlocksDown", () => {
   it("Multiple blocks starting and ending in nested block", () => {
     getEditor().setSelection("nested-paragraph-0", "nested-paragraph-1");
 
-    getEditor().transact((tr) => {
-      moveBlocksDown(
-        tr,
-        getEditor().pmSchema,
-        getEditor().schema,
-        getEditor().blockCache
-      );
-    });
+    moveBlocksDown(getEditor());
 
     expect(getEditor().document).toMatchSnapshot();
   });

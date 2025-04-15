@@ -1,9 +1,7 @@
-import { Node, Schema } from "prosemirror-model";
+import type { Node } from "prosemirror-model";
 import type { Transaction } from "prosemirror-state";
-import { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
-import type { BlockCache } from "../../../../editor/BlockNoteEditor";
-import { BlockNoteSchema } from "../../../../editor/BlockNoteSchema.js";
-import {
+import type { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
+import type {
   BlockIdentifier,
   BlockSchema,
   InlineContentSchema,
@@ -11,6 +9,7 @@ import {
 } from "../../../../schema/index.js";
 import { blockToNode } from "../../../nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
+import { getPmSchema } from "../../../pmUtil.js";
 
 export function removeAndInsertBlocks<
   BSchema extends BlockSchema,
@@ -18,21 +17,18 @@ export function removeAndInsertBlocks<
   S extends StyleSchema
 >(
   tr: Transaction,
-  schema: Schema,
-  blockSchema: BlockNoteSchema<BSchema, I, S>,
   blocksToRemove: BlockIdentifier[],
-  blocksToInsert: PartialBlock<BSchema, I, S>[],
-  blockCache?: BlockCache
+  blocksToInsert: PartialBlock<BSchema, I, S>[]
 ): {
   insertedBlocks: Block<BSchema, I, S>[];
   removedBlocks: Block<BSchema, I, S>[];
 } {
+  const pmSchema = getPmSchema(tr);
   // Converts the `PartialBlock`s to ProseMirror nodes to insert them into the
   // document.
-  const nodesToInsert: Node[] = [];
-  for (const block of blocksToInsert) {
-    nodesToInsert.push(blockToNode(block, schema, blockSchema.styleSchema));
-  }
+  const nodesToInsert: Node[] = blocksToInsert.map((block) =>
+    blockToNode(block, pmSchema)
+  );
 
   const idsOfBlocksToRemove = new Set<string>(
     blocksToRemove.map((block) =>
@@ -62,15 +58,7 @@ export function removeAndInsertBlocks<
     }
 
     // Saves the block that is being deleted.
-    removedBlocks.push(
-      nodeToBlock(
-        node,
-        blockSchema.blockSchema,
-        blockSchema.inlineContentSchema,
-        blockSchema.styleSchema,
-        blockCache
-      )
-    );
+    removedBlocks.push(nodeToBlock(node, pmSchema));
     idsOfBlocksToRemove.delete(node.attrs.id);
 
     if (blocksToInsert.length > 0 && node.attrs.id === idOfFirstBlock) {
@@ -112,18 +100,9 @@ export function removeAndInsertBlocks<
   }
 
   // Converts the nodes created from `blocksToInsert` into full `Block`s.
-  const insertedBlocks: Block<BSchema, I, S>[] = [];
-  for (const node of nodesToInsert) {
-    insertedBlocks.push(
-      nodeToBlock(
-        node,
-        blockSchema.blockSchema,
-        blockSchema.inlineContentSchema,
-        blockSchema.styleSchema,
-        blockCache
-      )
-    );
-  }
+  const insertedBlocks = nodesToInsert.map((node) =>
+    nodeToBlock(node, pmSchema)
+  );
 
   return { insertedBlocks, removedBlocks };
 }

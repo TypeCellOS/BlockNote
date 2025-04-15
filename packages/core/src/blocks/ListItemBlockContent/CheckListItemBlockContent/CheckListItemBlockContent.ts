@@ -46,16 +46,12 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
 
           chain()
             .command(
-              updateBlockCommand(
-                this.options.editor,
-                blockInfo.bnBlock.beforePos,
-                {
-                  type: "checkListItem",
-                  props: {
-                    checked: false as any,
-                  },
-                }
-              )
+              updateBlockCommand(blockInfo.bnBlock.beforePos, {
+                type: "checkListItem",
+                props: {
+                  checked: false as any,
+                },
+              })
             )
             // Removes the characters used to set the list.
             .deleteRange({ from: range.from, to: range.to });
@@ -75,16 +71,12 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
 
           chain()
             .command(
-              updateBlockCommand(
-                this.options.editor,
-                blockInfo.bnBlock.beforePos,
-                {
-                  type: "checkListItem",
-                  props: {
-                    checked: true as any,
-                  },
-                }
-              )
+              updateBlockCommand(blockInfo.bnBlock.beforePos, {
+                type: "checkListItem",
+                props: {
+                  checked: true as any,
+                },
+              })
             )
             // Removes the characters used to set the list.
             .deleteRange({ from: range.from, to: range.to });
@@ -106,7 +98,7 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
         }
 
         return this.editor.commands.command(
-          updateBlockCommand(this.options.editor, blockInfo.bnBlock.beforePos, {
+          updateBlockCommand(blockInfo.bnBlock.beforePos, {
             type: "checkListItem",
             props: {},
           })
@@ -241,16 +233,12 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
           }
 
           this.editor.commands.command(
-            updateBlockCommand(
-              this.options.editor,
-              beforeBlockContainerPos.posBeforeNode,
-              {
-                type: "checkListItem",
-                props: {
-                  checked: checkbox.checked as any,
-                },
-              }
-            )
+            updateBlockCommand(beforeBlockContainerPos.posBeforeNode, {
+              type: "checkListItem",
+              props: {
+                checked: checkbox.checked as any,
+              },
+            })
           );
         }
       };

@@ -1,7 +1,5 @@
 import type { Node } from "prosemirror-model";
 import type { Block } from "../../../blocks/defaultBlocks.js";
-import type { BlockCache } from "../../../editor/BlockNoteEditor.js";
-import type { BlockNoteSchema } from "../../../editor/BlockNoteSchema.js";
 import type {
   BlockIdentifier,
   BlockSchema,
@@ -10,6 +8,7 @@ import type {
 } from "../../../schema/index.js";
 import { nodeToBlock } from "../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../nodeUtil.js";
+import { getPmSchema } from "../../pmUtil.js";
 
 export function getBlock<
   BSchema extends BlockSchema,
@@ -17,25 +16,18 @@ export function getBlock<
   S extends StyleSchema
 >(
   doc: Node,
-  schema: BlockNoteSchema<BSchema, I, S>,
-  blockIdentifier: BlockIdentifier,
-  blockCache?: BlockCache<BSchema, I, S>
+  blockIdentifier: BlockIdentifier
 ): Block<BSchema, I, S> | undefined {
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
+  const pmSchema = getPmSchema(doc);
 
   const posInfo = getNodeById(id, doc);
   if (!posInfo) {
     return undefined;
   }
 
-  return nodeToBlock(
-    posInfo.node,
-    schema.blockSchema,
-    schema.inlineContentSchema,
-    schema.styleSchema,
-    blockCache
-  );
+  return nodeToBlock(posInfo.node, pmSchema);
 }
 
 export function getPrevBlock<
@@ -44,14 +36,13 @@ export function getPrevBlock<
   S extends StyleSchema
 >(
   doc: Node,
-  schema: BlockNoteSchema<BSchema, I, S>,
-  blockIdentifier: BlockIdentifier,
-  blockCache?: BlockCache<BSchema, I, S>
+  blockIdentifier: BlockIdentifier
 ): Block<BSchema, I, S> | undefined {
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
 
   const posInfo = getNodeById(id, doc);
+  const pmSchema = getPmSchema(doc);
   if (!posInfo) {
     return undefined;
   }
@@ -62,13 +53,7 @@ export function getPrevBlock<
     return undefined;
   }
 
-  return nodeToBlock(
-    nodeToConvert,
-    schema.blockSchema,
-    schema.inlineContentSchema,
-    schema.styleSchema,
-    blockCache
-  );
+  return nodeToBlock(nodeToConvert, pmSchema);
 }
 
 export function getNextBlock<
@@ -77,13 +62,12 @@ export function getNextBlock<
   S extends StyleSchema
 >(
   doc: Node,
-  schema: BlockNoteSchema<BSchema, I, S>,
-  blockIdentifier: BlockIdentifier,
-  blockCache?: BlockCache<BSchema, I, S>
+  blockIdentifier: BlockIdentifier
 ): Block<BSchema, I, S> | undefined {
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
   const posInfo = getNodeById(id, doc);
+  const pmSchema = getPmSchema(doc);
   if (!posInfo) {
     return undefined;
   }
@@ -96,13 +80,7 @@ export function getNextBlock<
     return undefined;
   }
 
-  return nodeToBlock(
-    nodeToConvert,
-    schema.blockSchema,
-    schema.inlineContentSchema,
-    schema.styleSchema,
-    blockCache
-  );
+  return nodeToBlock(nodeToConvert, pmSchema);
 }
 
 export function getParentBlock<
@@ -111,13 +89,11 @@ export function getParentBlock<
   S extends StyleSchema
 >(
   doc: Node,
-  schema: BlockNoteSchema<BSchema, I, S>,
-  blockIdentifier: BlockIdentifier,
-  blockCache?: BlockCache<BSchema, I, S>
+  blockIdentifier: BlockIdentifier
 ): Block<BSchema, I, S> | undefined {
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
-
+  const pmSchema = getPmSchema(doc);
   const posInfo = getNodeById(id, doc);
   if (!posInfo) {
     return undefined;
@@ -136,11 +112,5 @@ export function getParentBlock<
     return undefined;
   }
 
-  return nodeToBlock(
-    nodeToConvert,
-    schema.blockSchema,
-    schema.inlineContentSchema,
-    schema.styleSchema,
-    blockCache
-  );
+  return nodeToBlock(nodeToConvert, pmSchema);
 }

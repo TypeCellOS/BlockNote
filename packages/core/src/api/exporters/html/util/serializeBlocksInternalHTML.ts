@@ -30,25 +30,11 @@ export function serializeInlineContentInternalHTML<
   if (!blockContent) {
     throw new Error("blockContent is required");
   } else if (typeof blockContent === "string") {
-    nodes = inlineContentToNodes(
-      [blockContent],
-      editor.pmSchema,
-      editor.schema.styleSchema,
-      blockType
-    );
+    nodes = inlineContentToNodes([blockContent], editor.pmSchema, blockType);
   } else if (Array.isArray(blockContent)) {
-    nodes = inlineContentToNodes(
-      blockContent,
-      editor.pmSchema,
-      editor.schema.styleSchema,
-      blockType
-    );
+    nodes = inlineContentToNodes(blockContent, editor.pmSchema, blockType);
   } else if (blockContent.type === "tableContent") {
-    nodes = tableContentToNodes(
-      blockContent,
-      editor.pmSchema,
-      editor.schema.styleSchema
-    );
+    nodes = tableContentToNodes(blockContent, editor.pmSchema);
   } else {
     throw new UnreachableCaseError(blockContent.type);
   }

@@ -107,14 +107,7 @@ export class ServerBlockNoteEditor<
 
     // note, this code is similar to editor.document
     pmNode.firstChild!.descendants((node) => {
-      blocks.push(
-        nodeToBlock(
-          node,
-          this.editor.schema.blockSchema,
-          this.editor.schema.inlineContentSchema,
-          this.editor.schema.styleSchema
-        )
-      );
+      blocks.push(nodeToBlock(node, this.editor.pmSchema));
 
       return false;
     });
@@ -142,13 +135,12 @@ export class ServerBlockNoteEditor<
   public _blocksToProsemirrorNode(
     blocks: PartialBlock<BSchema, ISchema, SSchema>[]
   ) {
-    const pmNodes = blocks.map((b) =>
-      blockToNode(b, this.editor.pmSchema, this.editor.schema.styleSchema)
-    );
+    const pmSchema = this.editor.pmSchema;
+    const pmNodes = blocks.map((b) => blockToNode(b, pmSchema));
 
-    const doc = this.editor.pmSchema.topNodeType.create(
+    const doc = pmSchema.topNodeType.create(
       null,
-      this.editor.pmSchema.nodes["blockGroup"].create(null, pmNodes)
+      pmSchema.nodes["blockGroup"].create(null, pmNodes)
     );
     return doc;
   }

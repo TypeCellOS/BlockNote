@@ -30,7 +30,7 @@ export const handleEnter = (editor: BlockNoteEditor<any, any, any>) => {
       commands.command(() => {
         if (blockContent.node.childCount === 0) {
           return commands.command(
-            updateBlockCommand(editor, blockContainer.beforePos, {
+            updateBlockCommand(blockContainer.beforePos, {
               type: "paragraph",
               props: {},
             })

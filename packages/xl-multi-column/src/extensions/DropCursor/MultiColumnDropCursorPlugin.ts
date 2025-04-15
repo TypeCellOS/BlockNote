@@ -80,9 +80,7 @@ export function multiColumnDropCursor(
 
         const draggedBlock = nodeToBlock(
           slice.content.child(0),
-          editor.schema.blockSchema,
-          editor.schema.inlineContentSchema,
-          editor.schema.styleSchema
+          editor.pmSchema
           // TODO: cache?
         );
 
@@ -93,12 +91,7 @@ export function multiColumnDropCursor(
             .resolve(blockInfo.bnBlock.beforePos)
             .node();
 
-          const columnList = nodeToBlock(
-            parentBlock,
-            editor.schema.blockSchema,
-            editor.schema.inlineContentSchema,
-            editor.schema.styleSchema
-          );
+          const columnList = nodeToBlock(parentBlock, editor.pmSchema);
 
           // In a `columnList`, we expect that the average width of each column
           // is 1. However, there are cases in which this stops being true. For
@@ -156,12 +149,7 @@ export function multiColumnDropCursor(
           });
         } else {
           // create new columnList with blocks as columns
-          const block = nodeToBlock(
-            blockInfo.bnBlock.node,
-            editor.schema.blockSchema,
-            editor.schema.inlineContentSchema,
-            editor.schema.styleSchema
-          );
+          const block = nodeToBlock(blockInfo.bnBlock.node, editor.pmSchema);
 
           // The user is dropping next to the original block being dragged - do
           // nothing.

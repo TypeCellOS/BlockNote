@@ -2,8 +2,6 @@ import { TextSelection, type Transaction } from "prosemirror-state";
 import { TableMap } from "prosemirror-tables";
 
 import { Block } from "../../../blocks/defaultBlocks.js";
-import type { BlockCache } from "../../../editor/BlockNoteEditor";
-import type { BlockNoteSchema } from "../../../editor/BlockNoteSchema.js";
 import { Selection } from "../../../editor/selectionTypes.js";
 import {
   BlockIdentifier,
@@ -14,16 +12,14 @@ import {
 import { getBlockInfo, getNearestBlockPos } from "../../getBlockInfoFromPos.js";
 import { nodeToBlock } from "../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../nodeUtil.js";
+import { getBlockNoteSchema, getPmSchema } from "../../pmUtil.js";
 
 export function getSelection<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
->(
-  tr: Transaction,
-  schema: BlockNoteSchema<BSchema, I, S>,
-  blockCache?: BlockCache
-): Selection<BSchema, I, S> | undefined {
+>(tr: Transaction): Selection<BSchema, I, S> | undefined {
+  const pmSchema = getPmSchema(tr);
   // Return undefined if the selection is collapsed or a node is selected.
   if (tr.selection.empty || "node" in tr.selection) {
     return undefined;
@@ -52,13 +48,7 @@ export function getSelection<
       );
     }
 
-    return nodeToBlock(
-      node,
-      schema.blockSchema,
-      schema.inlineContentSchema,
-      schema.styleSchema,
-      blockCache
-    );
+    return nodeToBlock(node, pmSchema);
   };
 
   const blocks: Block<BSchema, I, S>[] = [];
@@ -99,15 +89,7 @@ export function getSelection<
   // [ id-2, id-3, id-4, id-6, id-7, id-8, id-9 ]
   if ($startBlockBeforePos.depth > sharedDepth) {
     // Adds the block that the selection starts in.
-    blocks.push(
-      nodeToBlock(
-        $startBlockBeforePos.nodeAfter!,
-        schema.blockSchema,
-        schema.inlineContentSchema,
-        schema.styleSchema,
-        blockCache
-      )
-    );
+    blocks.push(nodeToBlock($startBlockBeforePos.nodeAfter!, pmSchema));
 
     // Traverses all depths from the depth of the block in which the selection
     // starts, up to the shared depth.
@@ -147,19 +129,16 @@ export function getSelection<
   };
 }
 
-export function setSelection<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(
+export function setSelection(
   tr: Transaction,
-  schema: BlockNoteSchema<BSchema, I, S>,
   startBlock: BlockIdentifier,
   endBlock: BlockIdentifier
 ) {
   const startBlockId =
     typeof startBlock === "string" ? startBlock : startBlock.id;
   const endBlockId = typeof endBlock === "string" ? endBlock : endBlock.id;
+  const pmSchema = getPmSchema(tr);
+  const schema = getBlockNoteSchema(pmSchema);
 
   if (startBlockId === endBlockId) {
     throw new Error(

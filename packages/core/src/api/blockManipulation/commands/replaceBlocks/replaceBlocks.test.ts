@@ -14,14 +14,7 @@ function replaceBlocks(
   blocksToInsert: PartialBlock<any, any, any>[]
 ) {
   return editor.transact((tr) =>
-    removeAndInsertBlocks(
-      tr,
-      editor.pmSchema,
-      editor.schema,
-      blocksToRemove,
-      blocksToInsert,
-      editor.blockCache
-    )
+    removeAndInsertBlocks(tr, blocksToRemove, blocksToInsert)
   );
 }
 

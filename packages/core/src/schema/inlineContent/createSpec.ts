@@ -136,11 +136,7 @@ export function createInlineContentSpec<
               return;
             }
 
-            const content = inlineContentToNodes(
-              [update],
-              editor._tiptapEditor.schema,
-              editor.schema.styleSchema
-            );
+            const content = inlineContentToNodes([update], editor.pmSchema);
 
             editor.dispatch(
               editor.prosemirrorView.state.tr.replaceWith(

@@ -1,19 +1,13 @@
 import {
   Fragment,
-  NodeType,
-  Node as PMNode,
-  Schema,
+  type NodeType,
+  type Node as PMNode,
   Slice,
 } from "prosemirror-model";
 import type { Transaction } from "prosemirror-state";
 
 import { ReplaceStep } from "prosemirror-transform";
-import { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
-import type {
-  BlockCache,
-  BlockNoteEditor,
-} from "../../../../editor/BlockNoteEditor.js";
-import type { BlockNoteSchema } from "../../../../editor/BlockNoteSchema.js";
+import type { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import type {
   BlockIdentifier,
   BlockSchema,
@@ -28,20 +22,19 @@ import {
 import {
   blockToNode,
   inlineContentToNodes,
-  tableContentToNodes,
+  simpleTableContentToNodes,
 } from "../../../nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
+import { getPmSchema } from "../../../pmUtil.js";
 
 export const updateBlockCommand = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  editor: BlockNoteEditor<BSchema, I, S>,
   posBeforeBlock: number,
-  block: PartialBlock<BSchema, I, S>,
-  blockCache?: BlockCache
+  block: PartialBlock<BSchema, I, S>
 ) => {
   return ({
     tr,
@@ -51,14 +44,7 @@ export const updateBlockCommand = <
     dispatch?: () => void;
   }): boolean => {
     if (dispatch) {
-      updateBlockTr(
-        tr,
-        editor.pmSchema,
-        editor.schema,
-        posBeforeBlock,
-        block,
-        blockCache
-      );
+      updateBlockTr(tr, posBeforeBlock, block);
     }
     return true;
   };
@@ -70,14 +56,12 @@ const updateBlockTr = <
   S extends StyleSchema
 >(
   tr: Transaction,
-  pmSchema: Schema,
-  schema: BlockNoteSchema<BSchema, I, S>,
   posBeforeBlock: number,
-  block: PartialBlock<BSchema, I, S>,
-  blockCache?: BlockCache
+  block: PartialBlock<BSchema, I, S>
 ) => {
   const blockInfo = getBlockInfoFromResolvedPos(tr.doc.resolve(posBeforeBlock));
 
+  const pmSchema = getPmSchema(tr);
   // Adds blockGroup node with child blocks if necessary.
 
   const oldNodeType = pmSchema.nodes[blockInfo.blockNoteType];
@@ -87,20 +71,12 @@ const updateBlockTr = <
     : pmSchema.nodes["blockContainer"];
 
   if (blockInfo.isBlockContainer && newNodeType.isInGroup("blockContent")) {
-    updateChildren(block, tr, pmSchema, schema, blockInfo);
+    updateChildren(block, tr, blockInfo);
     // The code below determines the new content of the block.
     // or "keep" to keep as-is
-    updateBlockContentNode(
-      block,
-      tr,
-      pmSchema,
-      schema,
-      oldNodeType,
-      newNodeType,
-      blockInfo
-    );
+    updateBlockContentNode(block, tr, oldNodeType, newNodeType, blockInfo);
   } else if (!blockInfo.isBlockContainer && newNodeType.isInGroup("bnBlock")) {
-    updateChildren(block, tr, pmSchema, schema, blockInfo);
+    updateChildren(block, tr, blockInfo);
     // old node was a bnBlock type (like column or columnList) and new block as well
     // No op, we just update the bnBlock below (at end of function) and have already updated the children
   } else {
@@ -111,13 +87,7 @@ const updateBlockTr = <
     // currently, we calculate the new node and replace the entire node with the desired new node.
     // for this, we do a nodeToBlock on the existing block to get the children.
     // it would be cleaner to use a ReplaceAroundStep, but this is a bit simpler and it's quite an edge case
-    const existingBlock = nodeToBlock(
-      blockInfo.bnBlock.node,
-      schema.blockSchema,
-      schema.inlineContentSchema,
-      schema.styleSchema,
-      blockCache
-    );
+    const existingBlock = nodeToBlock(blockInfo.bnBlock.node, pmSchema);
     tr.replaceWith(
       blockInfo.bnBlock.beforePos,
       blockInfo.bnBlock.afterPos,
@@ -126,8 +96,7 @@ const updateBlockTr = <
           children: existingBlock.children, // if no children are passed in, use existing children
           ...block,
         },
-        pmSchema,
-        schema.styleSchema
+        pmSchema
       )
     );
 
@@ -149,8 +118,6 @@ function updateBlockContentNode<
 >(
   block: PartialBlock<BSchema, I, S>,
   tr: Transaction,
-  pmSchema: Schema,
-  schema: BlockNoteSchema<BSchema, I, S>,
   oldNodeType: NodeType,
   newNodeType: NodeType,
   blockInfo: {
@@ -160,6 +127,7 @@ function updateBlockContentNode<
     blockContent: { node: PMNode; beforePos: number; afterPos: number };
   }
 ) {
+  const pmSchema = getPmSchema(tr);
   let content: PMNode[] | "keep" = "keep";
 
   // Has there been any custom content provided?
@@ -169,24 +137,14 @@ function updateBlockContentNode<
       content = inlineContentToNodes(
         [block.content],
         pmSchema,
-        schema.styleSchema,
         newNodeType.name
       );
     } else if (Array.isArray(block.content)) {
       // Adds a text node with the provided styles converted into marks to the content,
       // for each InlineContent object.
-      content = inlineContentToNodes(
-        block.content,
-        pmSchema,
-        schema.styleSchema,
-        newNodeType.name
-      );
+      content = inlineContentToNodes(block.content, pmSchema, newNodeType.name);
     } else if (block.content.type === "tableContent") {
-      content = tableContentToNodes(
-        block.content,
-        pmSchema,
-        schema.styleSchema
-      );
+      content = simpleTableContentToNodes(block.content, pmSchema);
     } else {
       throw new UnreachableCaseError(block.content.type);
     }
@@ -244,16 +202,11 @@ function updateChildren<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
->(
-  block: PartialBlock<BSchema, I, S>,
-  tr: Transaction,
-  pmSchema: Schema,
-  schema: BlockNoteSchema<BSchema, I, S>,
-  blockInfo: BlockInfo
-) {
+>(block: PartialBlock<BSchema, I, S>, tr: Transaction, blockInfo: BlockInfo) {
+  const pmSchema = getPmSchema(tr);
   if (block.children !== undefined && block.children.length > 0) {
     const childNodes = block.children.map((child) => {
-      return blockToNode(child, pmSchema, schema.styleSchema);
+      return blockToNode(child, pmSchema);
     });
 
     // Checks if a blockGroup node already exists.
@@ -282,16 +235,13 @@ function updateChildren<
 }
 
 export function updateBlock<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
+  BSchema extends BlockSchema = any,
+  I extends InlineContentSchema = any,
+  S extends StyleSchema = any
 >(
   tr: Transaction,
-  pmSchema: Schema,
-  schema: BlockNoteSchema<BSchema, I, S>,
   blockToUpdate: BlockIdentifier,
-  update: PartialBlock<BSchema, I, S>,
-  blockCache?: BlockCache
+  update: PartialBlock<BSchema, I, S>
 ): Block<BSchema, I, S> {
   const id =
     typeof blockToUpdate === "string" ? blockToUpdate : blockToUpdate.id;
@@ -300,24 +250,12 @@ export function updateBlock<
     throw new Error(`Block with ID ${id} not found`);
   }
 
-  updateBlockTr(
-    tr,
-    pmSchema,
-    schema,
-    posInfo.posBeforeNode,
-    update,
-    blockCache
-  );
+  updateBlockTr(tr, posInfo.posBeforeNode, update);
 
   const blockContainerNode = tr.doc
     .resolve(posInfo.posBeforeNode + 1) // TODO: clean?
     .node();
 
-  return nodeToBlock(
-    blockContainerNode,
-    schema.blockSchema,
-    schema.inlineContentSchema,
-    schema.styleSchema,
-    blockCache
-  );
+  const pmSchema = getPmSchema(tr);
+  return nodeToBlock(blockContainerNode, pmSchema);
 }

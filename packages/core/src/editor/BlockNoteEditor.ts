@@ -902,15 +902,7 @@ export class BlockNoteEditor<
     const blocks: Block<BSchema, ISchema, SSchema>[] = [];
 
     this.prosemirrorState.doc.firstChild!.descendants((node) => {
-      blocks.push(
-        nodeToBlock(
-          node,
-          this.schema.blockSchema,
-          this.schema.inlineContentSchema,
-          this.schema.styleSchema,
-          this.blockCache
-        )
-      );
+      blocks.push(nodeToBlock(node, this.pmSchema));
 
       return false;
     });
@@ -928,12 +920,7 @@ export class BlockNoteEditor<
   public getBlock(
     blockIdentifier: BlockIdentifier
   ): Block<BSchema, ISchema, SSchema> | undefined {
-    return getBlock(
-      this.transaction.doc,
-      this.schema,
-      blockIdentifier,
-      this.blockCache
-    );
+    return getBlock(this.transaction.doc, blockIdentifier);
   }
 
   /**
@@ -948,12 +935,7 @@ export class BlockNoteEditor<
   public getPrevBlock(
     blockIdentifier: BlockIdentifier
   ): Block<BSchema, ISchema, SSchema> | undefined {
-    return getPrevBlock(
-      this.transaction.doc,
-      this.schema,
-      blockIdentifier,
-      this.blockCache
-    );
+    return getPrevBlock(this.transaction.doc, blockIdentifier);
   }
 
   /**
@@ -967,12 +949,7 @@ export class BlockNoteEditor<
   public getNextBlock(
     blockIdentifier: BlockIdentifier
   ): Block<BSchema, ISchema, SSchema> | undefined {
-    return getNextBlock(
-      this.transaction.doc,
-      this.schema,
-      blockIdentifier,
-      this.blockCache
-    );
+    return getNextBlock(this.transaction.doc, blockIdentifier);
   }
 
   /**
@@ -985,12 +962,7 @@ export class BlockNoteEditor<
   public getParentBlock(
     blockIdentifier: BlockIdentifier
   ): Block<BSchema, ISchema, SSchema> | undefined {
-    return getParentBlock(
-      this.transaction.doc,
-      this.schema,
-      blockIdentifier,
-      this.blockCache
-    );
+    return getParentBlock(this.transaction.doc, blockIdentifier);
   }
 
   /**
@@ -1060,11 +1032,7 @@ export class BlockNoteEditor<
     ISchema,
     SSchema
   > {
-    return getTextCursorPosition(
-      this.transaction,
-      this.schema,
-      this.blockCache
-    );
+    return getTextCursorPosition(this.transaction);
   }
 
   /**
@@ -1078,13 +1046,7 @@ export class BlockNoteEditor<
     placement: "start" | "end" = "start"
   ) {
     return this.transact((tr) =>
-      setTextCursorPosition(
-        tr,
-        this.schema,
-        targetBlock,
-        placement,
-        this.blockCache
-      )
+      setTextCursorPosition(tr, targetBlock, placement)
     );
   }
 
@@ -1092,13 +1054,11 @@ export class BlockNoteEditor<
    * Gets a snapshot of the current selection.
    */
   public getSelection(): Selection<BSchema, ISchema, SSchema> | undefined {
-    return getSelection(this.transaction, this.schema, this.blockCache);
+    return getSelection(this.transaction);
   }
 
   public setSelection(startBlock: BlockIdentifier, endBlock: BlockIdentifier) {
-    return this.transact((tr) =>
-      setSelection(tr, this.schema, startBlock, endBlock)
-    );
+    return this.transact((tr) => setSelection(tr, startBlock, endBlock));
   }
 
   /**
@@ -1148,15 +1108,7 @@ export class BlockNoteEditor<
     placement: "before" | "after" = "before"
   ) {
     return this.transact((tr) =>
-      insertBlocks(
-        tr,
-        this.pmSchema,
-        this.schema,
-        blocksToInsert,
-        referenceBlock,
-        placement,
-        this.blockCache
-      )
+      insertBlocks(tr, blocksToInsert, referenceBlock, placement)
     );
   }
 
@@ -1171,16 +1123,7 @@ export class BlockNoteEditor<
     blockToUpdate: BlockIdentifier,
     update: PartialBlock<BSchema, ISchema, SSchema>
   ) {
-    return this.transact((tr) =>
-      updateBlock(
-        tr,
-        this.pmSchema,
-        this.schema,
-        blockToUpdate,
-        update,
-        this.blockCache
-      )
-    );
+    return this.transact((tr) => updateBlock(tr, blockToUpdate, update));
   }
 
   /**
@@ -1189,15 +1132,7 @@ export class BlockNoteEditor<
    */
   public removeBlocks(blocksToRemove: BlockIdentifier[]) {
     return this.transact(
-      (tr) =>
-        removeAndInsertBlocks(
-          tr,
-          this.pmSchema,
-          this.schema,
-          blocksToRemove,
-          [],
-          this.blockCache
-        ).removedBlocks
+      (tr) => removeAndInsertBlocks(tr, blocksToRemove, []).removedBlocks
     );
   }
 
@@ -1213,14 +1148,7 @@ export class BlockNoteEditor<
     blocksToInsert: PartialBlock<BSchema, ISchema, SSchema>[]
   ) {
     return this.transact((tr) =>
-      removeAndInsertBlocks(
-        tr,
-        this.pmSchema,
-        this.schema,
-        blocksToRemove,
-        blocksToInsert,
-        this.blockCache
-      )
+      removeAndInsertBlocks(tr, blocksToRemove, blocksToInsert)
     );
   }
 
@@ -1230,11 +1158,7 @@ export class BlockNoteEditor<
    * @param content can be a string, or array of partial inline content elements
    */
   public insertInlineContent(content: PartialInlineContent<ISchema, SSchema>) {
-    const nodes = inlineContentToNodes(
-      content,
-      this.pmSchema,
-      this.schema.styleSchema
-    );
+    const nodes = inlineContentToNodes(content, this.pmSchema);
 
     this.transact((tr) => {
       insertContentAt(
@@ -1456,13 +1380,7 @@ export class BlockNoteEditor<
   public async tryParseHTMLToBlocks(
     html: string
   ): Promise<Block<BSchema, ISchema, SSchema>[]> {
-    return HTMLToBlocks(
-      html,
-      this.schema.blockSchema,
-      this.schema.inlineContentSchema,
-      this.schema.styleSchema,
-      this.pmSchema
-    );
+    return HTMLToBlocks(html, this.pmSchema);
   }
 
   /**
@@ -1487,13 +1405,7 @@ export class BlockNoteEditor<
   public async tryParseMarkdownToBlocks(
     markdown: string
   ): Promise<Block<BSchema, ISchema, SSchema>[]> {
-    return markdownToBlocks(
-      markdown,
-      this.schema.blockSchema,
-      this.schema.inlineContentSchema,
-      this.schema.styleSchema,
-      this.pmSchema
-    );
+    return markdownToBlocks(markdown, this.pmSchema);
   }
 
   /**

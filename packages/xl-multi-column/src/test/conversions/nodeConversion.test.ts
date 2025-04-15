@@ -25,16 +25,11 @@ function validateConversion(
   editor: BlockNoteEditor<any, any, any>
 ) {
   addIdsToBlock(block);
-  const node = blockToNode(block, editor.pmSchema, editor.schema.styleSchema);
+  const node = blockToNode(block, editor.pmSchema);
 
   expect(node).toMatchSnapshot();
 
-  const outputBlock = nodeToBlock(
-    node,
-    editor.schema.blockSchema,
-    editor.schema.inlineContentSchema,
-    editor.schema.styleSchema
-  );
+  const outputBlock = nodeToBlock(node, editor.pmSchema);
 
   const fullOriginalBlock = partialBlockToBlockForTesting(
     editor.schema.blockSchema,
