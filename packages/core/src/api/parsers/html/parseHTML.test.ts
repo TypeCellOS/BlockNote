@@ -39,7 +39,7 @@ async function parseHTMLAndCompareSnapshots(
     false,
     tr.selection.$from
   );
-  editor.dispatch(tr.replaceSelection(slice));
+  editor.transact((tr) => tr.replaceSelection(slice));
 
   // alternative paste simulation doesn't work in a non-browser vitest env
   //   editor._tiptapEditor.view.pasteHTML(html, {

@@ -444,9 +444,7 @@ export class TableHandlesView<
     // Dispatches a dummy transaction to force a decorations update if
     // necessary.
     if (dispatchDecorationsTransaction) {
-      this.editor.dispatch(
-        this.pmView.state.tr.setMeta(tableHandlesPluginKey, true)
-      );
+      this.editor.transact((tr) => tr.setMeta(tableHandlesPluginKey, true));
     }
   };
 
@@ -811,12 +809,12 @@ export class TableHandlesProsemirrorPlugin<
     };
     this.view!.emitUpdate();
 
-    this.editor.dispatch(
-      this.editor.transaction.setMeta(tableHandlesPluginKey, {
+    this.editor.transact((tr) =>
+      tr.setMeta(tableHandlesPluginKey, {
         draggedCellOrientation:
-          this.view!.state.draggingState.draggedCellOrientation,
-        originalIndex: this.view!.state.colIndex,
-        newIndex: this.view!.state.colIndex,
+          this.view!.state!.draggingState!.draggedCellOrientation,
+        originalIndex: this.view!.state!.colIndex,
+        newIndex: this.view!.state!.colIndex,
         tablePos: this.view!.tablePos,
       })
     );
@@ -854,12 +852,12 @@ export class TableHandlesProsemirrorPlugin<
     };
     this.view!.emitUpdate();
 
-    this.editor.dispatch(
-      this.editor.transaction.setMeta(tableHandlesPluginKey, {
+    this.editor.transact((tr) =>
+      tr.setMeta(tableHandlesPluginKey, {
         draggedCellOrientation:
-          this.view!.state.draggingState.draggedCellOrientation,
-        originalIndex: this.view!.state.rowIndex,
-        newIndex: this.view!.state.rowIndex,
+          this.view!.state!.draggingState!.draggedCellOrientation,
+        originalIndex: this.view!.state!.rowIndex,
+        newIndex: this.view!.state!.rowIndex,
         tablePos: this.view!.tablePos,
       })
     );
@@ -887,9 +885,7 @@ export class TableHandlesProsemirrorPlugin<
     this.view!.state.draggingState = undefined;
     this.view!.emitUpdate();
 
-    this.editor.dispatch(
-      this.editor.transaction.setMeta(tableHandlesPluginKey, null)
-    );
+    this.editor.transact((tr) => tr.setMeta(tableHandlesPluginKey, null));
 
     if (!this.editor.prosemirrorView) {
       throw new Error("Editor view not initialized.");
@@ -990,15 +986,23 @@ export class TableHandlesProsemirrorPlugin<
     );
     if (direction.orientation === "row") {
       if (direction.side === "above") {
-        return addRowBefore(state, this.editor.dispatch);
+        return this.editor.transact((_tr, dispatch) =>
+          addRowBefore(state, dispatch)
+        );
       } else {
-        return addRowAfter(state, this.editor.dispatch);
+        return this.editor.transact((_tr, dispatch) =>
+          addRowAfter(state, dispatch)
+        );
       }
     } else {
       if (direction.side === "left") {
-        return addColumnBefore(state, this.editor.dispatch);
+        return this.editor.transact((_tr, dispatch) =>
+          addColumnBefore(state, dispatch)
+        );
       } else {
-        return addColumnAfter(state, this.editor.dispatch);
+        return this.editor.transact((_tr, dispatch) =>
+          addColumnAfter(state, dispatch)
+        );
       }
     }
   };
@@ -1015,9 +1019,13 @@ export class TableHandlesProsemirrorPlugin<
     );
 
     if (direction === "row") {
-      return deleteRow(state, this.editor.dispatch);
+      return this.editor.transact((_tr, dispatch) =>
+        deleteRow(state, dispatch)
+      );
     } else {
-      return deleteColumn(state, this.editor.dispatch);
+      return this.editor.transact((_tr, dispatch) =>
+        deleteColumn(state, dispatch)
+      );
     }
   };
 
@@ -1035,7 +1043,7 @@ export class TableHandlesProsemirrorPlugin<
         )
       : this.editor.prosemirrorState;
 
-    return mergeCells(state, this.editor.dispatch);
+    return this.editor.transact((_tr, dispatch) => mergeCells(state, dispatch));
   };
 
   /**
@@ -1047,7 +1055,7 @@ export class TableHandlesProsemirrorPlugin<
       ? this.setCellSelection(relativeCellToSplit)
       : this.editor.prosemirrorState;
 
-    return splitCell(state, this.editor.dispatch);
+    return this.editor.transact((_tr, dispatch) => splitCell(state, dispatch));
   };
 
   /**

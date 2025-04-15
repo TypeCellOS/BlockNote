@@ -12,6 +12,7 @@ import {
   StyleSchema,
 } from "../../schema/index.js";
 import { EventEmitter } from "../../util/EventEmitter.js";
+import { getPmSchema } from "../../api/pmUtil.js";
 
 export type LinkToolbarState = UiElementPosition & {
   // The hovered link's URL, and the text it's displayed with in the
@@ -153,17 +154,15 @@ class LinkToolbarView implements PluginView {
   };
 
   editLink(url: string, text: string) {
-    const tr = this.pmView.state.tr.insertText(
-      text,
-      this.linkMarkRange!.from,
-      this.linkMarkRange!.to
-    );
-    tr.addMark(
-      this.linkMarkRange!.from,
-      this.linkMarkRange!.from + text.length,
-      this.pmView.state.schema.mark("link", { href: url })
-    );
-    this.editor.dispatch(tr);
+    this.editor.transact((tr) => {
+      const pmSchema = getPmSchema(tr);
+      tr.insertText(text, this.linkMarkRange!.from, this.linkMarkRange!.to);
+      tr.addMark(
+        this.linkMarkRange!.from,
+        this.linkMarkRange!.from + text.length,
+        pmSchema.mark("link", { href: url })
+      );
+    });
     this.pmView.focus();
 
     if (this.state?.show) {
@@ -173,8 +172,8 @@ class LinkToolbarView implements PluginView {
   }
 
   deleteLink() {
-    this.editor.dispatch(
-      this.pmView.state.tr
+    this.editor.transact((tr) =>
+      tr
         .removeMark(
           this.linkMarkRange!.from,
           this.linkMarkRange!.to,

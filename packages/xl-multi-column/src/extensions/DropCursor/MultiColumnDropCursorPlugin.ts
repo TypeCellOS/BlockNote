@@ -91,7 +91,10 @@ export function multiColumnDropCursor(
             .resolve(blockInfo.bnBlock.beforePos)
             .node();
 
-          const columnList = nodeToBlock(parentBlock, editor.pmSchema);
+          const columnList = nodeToBlock<any, any, any>(
+            parentBlock,
+            editor.pmSchema
+          );
 
           // In a `columnList`, we expect that the average width of each column
           // is 1. However, there are cases in which this stops being true. For

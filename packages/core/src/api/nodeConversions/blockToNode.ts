@@ -287,10 +287,20 @@ function blockOrInlineContentToContentNode(
   if (!block.content) {
     contentNode = schema.nodes[type].createChecked(block.props);
   } else if (typeof block.content === "string") {
-    const nodes = inlineContentToNodes([block.content], schema, type);
+    const nodes = inlineContentToNodes(
+      [block.content],
+      schema,
+      type,
+      styleSchema
+    );
     contentNode = schema.nodes[type].createChecked(block.props, nodes);
   } else if (Array.isArray(block.content)) {
-    const nodes = inlineContentToNodes(block.content, schema, type);
+    const nodes = inlineContentToNodes(
+      block.content,
+      schema,
+      type,
+      styleSchema
+    );
     contentNode = schema.nodes[type].createChecked(block.props, nodes);
   } else if (block.content.type === "tableContent") {
     const nodes = tableContentToNodes(block.content, schema, styleSchema);

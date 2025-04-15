@@ -234,8 +234,8 @@ export function getDefaultSlashMenuItems<
         });
 
         // Immediately open the file toolbar
-        editor.dispatch(
-          editor.transaction.setMeta(editor.filePanel!.plugin, {
+        editor.transact((tr) =>
+          tr.setMeta(editor.filePanel!.plugin, {
             block: insertedBlock,
           })
         );
@@ -253,8 +253,8 @@ export function getDefaultSlashMenuItems<
         });
 
         // Immediately open the file toolbar
-        editor.dispatch(
-          editor.transaction.setMeta(editor.filePanel!.plugin, {
+        editor.transact((tr) =>
+          tr.setMeta(editor.filePanel!.plugin, {
             block: insertedBlock,
           })
         );
@@ -272,8 +272,8 @@ export function getDefaultSlashMenuItems<
         });
 
         // Immediately open the file toolbar
-        editor.dispatch(
-          editor.transaction.setMeta(editor.filePanel!.plugin, {
+        editor.transact((tr) =>
+          tr.setMeta(editor.filePanel!.plugin, {
             block: insertedBlock,
           })
         );
@@ -291,8 +291,8 @@ export function getDefaultSlashMenuItems<
         });
 
         // Immediately open the file toolbar
-        editor.dispatch(
-          editor.transaction.setMeta(editor.filePanel!.plugin, {
+        editor.transact((tr) =>
+          tr.setMeta(editor.filePanel!.plugin, {
             block: insertedBlock,
           })
         );

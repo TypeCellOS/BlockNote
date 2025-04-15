@@ -22,9 +22,8 @@ function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
   const { blockContent } = blockInfo;
 
   const editor = getEditor();
-  const tr = editor.transaction;
   if (selectionType === "cell") {
-    editor.dispatch(
+    editor.transact((tr) =>
       tr.setSelection(
         CellSelection.create(
           tr.doc,
@@ -34,11 +33,11 @@ function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
       )
     );
   } else if (selectionType === "node") {
-    editor.dispatch(
+    editor.transact((tr) =>
       tr.setSelection(NodeSelection.create(tr.doc, blockContent.beforePos))
     );
   } else {
-    editor.dispatch(
+    editor.transact((tr) =>
       tr.setSelection(
         TextSelection.create(
           tr.doc,

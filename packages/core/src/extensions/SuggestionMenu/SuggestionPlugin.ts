@@ -114,9 +114,7 @@ class SuggestionMenuView<
   }
 
   closeMenu = () => {
-    this.editor.dispatch(
-      this.editor.transaction.setMeta(suggestionMenuPluginKey, null)
-    );
+    this.editor.transact((tr) => tr.setMeta(suggestionMenuPluginKey, null));
   };
 
   clearQuery = () => {

@@ -742,7 +742,7 @@ export class BlockNoteEditor<
    * editor.dispatch(tr);
    * ```
    */
-  public dispatch(tr: Transaction) {
+  private dispatch(tr: Transaction) {
     if (this.activeTransaction) {
       // We don't want the editor to actually apply the state, so all of this is manipulating the current transaction in-memory
       return;
@@ -761,24 +761,59 @@ export class BlockNoteEditor<
    * All changes to the editor within the transaction will be grouped together, so that
    * we can dispatch them as a single operation (thus creating only a single undo step)
    *
+   * @note There is no need to dispatch the transaction, as it will be automatically dispatched when the callback is complete.
+   *
    * @example
    * ```ts
    * // All changes to the editor will be grouped together
-   * editor.transact(() => {
-   *   const tr = editor.transaction;
+   * editor.transact((tr) => {
    *   tr.insertText("Hello, world!");
-   *   editor.dispatch(tr);
    * // These two operations will be grouped together in a single undo step
-   *   const otherTr = editor.transaction;
-   *   otherTr.insertText("Hello, world!");
-   *   editor.dispatch(otherTr);
+   *   editor.transact((tr) => {
+   *     tr.insertText("Hello, world!");
+   *   });
    * });
    * ```
    */
-  public transact<T>(callback: (tr: Transaction) => T): T {
+  public transact<T>(
+    callback: (
+      /**
+       * The current active transaction, this will automatically be dispatched to the editor when the callback is complete
+       * If another `transact` call is made within the callback, it will be passed the same transaction as the parent call.
+       */
+      tr: Transaction,
+      /**
+       * In some situations, you may need to dispatch a transaction which is not the current active transaction.
+       * This can be done by calling the `dispatch` function passed as an argument to the callback.
+       *
+       * @note This will only respect the passed transaction, and throw away any active transaction (e.g. the first argument).
+       */
+      dispatch: (tr: Transaction) => void
+    ) => T
+  ): T {
+    /**
+     * This allows dispatching a transaction which may not be the current active transaction (e.g. when using a prosemirror-command)
+     * It will simply set the active transaction to the dispatch'd transaction, and let the `dispatch` method handle the rest.
+     */
+    const dispatch = (tr: Transaction) => {
+      const activeTr = this.activeTransaction;
+      if (!activeTr) {
+        throw new Error(
+          "`dispatch` was called outside of a `transact` call, this is unsupported"
+        );
+      }
+
+      if (activeTr === tr || !tr) {
+        // The dispatch'd transaction is the same as the active transaction, so we don't need to do anything
+        return;
+      }
+
+      this.activeTransaction = tr;
+    };
+
     if (this.activeTransaction) {
       // Already in a transaction, so we can just callback immediately
-      return callback(this.activeTransaction);
+      return callback(this.activeTransaction, dispatch);
     }
 
     try {
@@ -786,7 +821,7 @@ export class BlockNoteEditor<
       this.activeTransaction = this.prosemirrorState.tr;
 
       // Capture all dispatch'd transactions
-      const result = callback(this.activeTransaction);
+      const result = callback(this.activeTransaction, dispatch);
 
       // Any transactions captured by the `dispatch` call will be stored in `this.activeTransaction`
       const activeTr = this.activeTransaction;

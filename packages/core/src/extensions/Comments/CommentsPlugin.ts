@@ -89,8 +89,7 @@ export class CommentsPlugin extends EventEmitter<any> {
    * when a thread is resolved or deleted, we need to update the marks to reflect the new state
    */
   private updateMarksFromThreads = (threads: Map<string, ThreadData>) => {
-    const tr = this.editor.transaction;
-    this.editor.transact(() => {
+    this.editor.transact((tr) => {
       tr.doc.descendants((node, pos) => {
         node.marks.forEach((mark) => {
           if (mark.type.name === this.markType) {
@@ -114,7 +113,6 @@ export class CommentsPlugin extends EventEmitter<any> {
                   orphan: isOrphan,
                 })
               );
-              this.editor.dispatch(tr);
 
               if (isOrphan && this.selectedThreadId === markThreadId) {
                 // unselect
@@ -262,8 +260,8 @@ export class CommentsPlugin extends EventEmitter<any> {
     }
     this.selectedThreadId = threadId;
     this.emitStateUpdate();
-    this.editor.dispatch(
-      this.editor.transaction.setMeta(PLUGIN_KEY, {
+    this.editor.transact((tr) =>
+      tr.setMeta(PLUGIN_KEY, {
         name: SET_SELECTED_THREAD_ID,
       })
     );

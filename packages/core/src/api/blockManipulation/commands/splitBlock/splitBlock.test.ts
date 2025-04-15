@@ -38,8 +38,8 @@ function setSelectionWithOffset(
     throw new Error("Target block is not a block container");
   }
 
-  getEditor().dispatch(
-    getEditor().prosemirrorState.tr.setSelection(
+  getEditor().transact((tr) =>
+    tr.setSelection(
       TextSelection.create(doc, info.blockContent.beforePos + offset + 1)
     )
   );

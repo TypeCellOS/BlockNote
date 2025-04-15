@@ -83,8 +83,7 @@ describe("Test external clipboard HTML", () => {
       throw new Error("Editor view not initialized.");
     }
 
-    const tr = editor.transaction;
-    editor.dispatch(tr.setSelection(testCase.createSelection(tr.doc)));
+    editor.transact((tr) => tr.setSelection(testCase.createSelection(tr.doc)));
 
     doPaste(
       editor.prosemirrorView,

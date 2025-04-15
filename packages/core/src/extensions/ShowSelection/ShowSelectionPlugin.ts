@@ -41,7 +41,7 @@ export class ShowSelectionPlugin {
 
     this.enabled = enabled;
 
-    this.editor.dispatch(this.editor.transaction.setMeta(PLUGIN_KEY, {}));
+    this.editor.transact((tr) => tr.setMeta(PLUGIN_KEY, {}));
   }
 
   public getEnabled() {

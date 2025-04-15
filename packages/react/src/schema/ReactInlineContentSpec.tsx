@@ -179,8 +179,8 @@ export function createReactInlineContentSpec<
                       editor.pmSchema
                     );
 
-                    editor.dispatch(
-                      editor.prosemirrorState.tr.replaceWith(
+                    editor.transact((tr) =>
+                      tr.replaceWith(
                         props.getPos(),
                         props.getPos() + props.node.nodeSize,
                         content
