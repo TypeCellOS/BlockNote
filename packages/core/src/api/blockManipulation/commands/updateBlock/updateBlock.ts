@@ -43,108 +43,104 @@ export const updateBlockCommand = <
   block: PartialBlock<BSchema, I, S>,
   blockCache?: BlockCache
 ) => {
-  return updateBlockCommandTr(
-    editor.pmSchema,
-    editor.schema,
-    posBeforeBlock,
-    block,
-    blockCache
-  );
-};
-
-export const updateBlockCommandTr =
-  <
-    BSchema extends BlockSchema,
-    I extends InlineContentSchema,
-    S extends StyleSchema
-  >(
-    pmSchema: Schema,
-    schema: BlockNoteSchema<BSchema, I, S>,
-    posBeforeBlock: number,
-    block: PartialBlock<BSchema, I, S>,
-    blockCache?: BlockCache
-  ) =>
-  ({
+  return ({
     tr,
     dispatch,
   }: {
     tr: Transaction;
-    dispatch: (() => void) | undefined;
-  }) => {
-    const blockInfo = getBlockInfoFromResolvedPos(
-      tr.doc.resolve(posBeforeBlock)
-    );
-
+    dispatch?: () => void;
+  }): boolean => {
     if (dispatch) {
-      // Adds blockGroup node with child blocks if necessary.
-
-      const oldNodeType = pmSchema.nodes[blockInfo.blockNoteType];
-      const newNodeType = pmSchema.nodes[block.type || blockInfo.blockNoteType];
-      const newBnBlockNodeType = newNodeType.isInGroup("bnBlock")
-        ? newNodeType
-        : pmSchema.nodes["blockContainer"];
-
-      if (blockInfo.isBlockContainer && newNodeType.isInGroup("blockContent")) {
-        updateChildren(block, tr, pmSchema, schema, blockInfo);
-        // The code below determines the new content of the block.
-        // or "keep" to keep as-is
-        updateBlockContentNode(
-          block,
-          tr,
-          pmSchema,
-          schema,
-          oldNodeType,
-          newNodeType,
-          blockInfo
-        );
-      } else if (
-        !blockInfo.isBlockContainer &&
-        newNodeType.isInGroup("bnBlock")
-      ) {
-        updateChildren(block, tr, pmSchema, schema, blockInfo);
-        // old node was a bnBlock type (like column or columnList) and new block as well
-        // No op, we just update the bnBlock below (at end of function) and have already updated the children
-      } else {
-        // switching from blockContainer to non-blockContainer or v.v.
-        // currently breaking for column slash menu items converting empty block
-        // to column.
-
-        // currently, we calculate the new node and replace the entire node with the desired new node.
-        // for this, we do a nodeToBlock on the existing block to get the children.
-        // it would be cleaner to use a ReplaceAroundStep, but this is a bit simpler and it's quite an edge case
-        const existingBlock = nodeToBlock(
-          blockInfo.bnBlock.node,
-          schema.blockSchema,
-          schema.inlineContentSchema,
-          schema.styleSchema,
-          blockCache
-        );
-        tr.replaceWith(
-          blockInfo.bnBlock.beforePos,
-          blockInfo.bnBlock.afterPos,
-          blockToNode(
-            {
-              children: existingBlock.children, // if no children are passed in, use existing children
-              ...block,
-            },
-            pmSchema,
-            schema.styleSchema
-          )
-        );
-
-        return true;
-      }
-
-      // Adds all provided props as attributes to the parent blockContainer node too, and also preserves existing
-      // attributes.
-      tr.setNodeMarkup(blockInfo.bnBlock.beforePos, newBnBlockNodeType, {
-        ...blockInfo.bnBlock.node.attrs,
-        ...block.props,
-      });
+      updateBlockTr(
+        tr,
+        editor.pmSchema,
+        editor.schema,
+        posBeforeBlock,
+        block,
+        blockCache
+      );
     }
-
     return true;
   };
+};
+
+const updateBlockTr = <
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  tr: Transaction,
+  pmSchema: Schema,
+  schema: BlockNoteSchema<BSchema, I, S>,
+  posBeforeBlock: number,
+  block: PartialBlock<BSchema, I, S>,
+  blockCache?: BlockCache
+) => {
+  const blockInfo = getBlockInfoFromResolvedPos(tr.doc.resolve(posBeforeBlock));
+
+  // Adds blockGroup node with child blocks if necessary.
+
+  const oldNodeType = pmSchema.nodes[blockInfo.blockNoteType];
+  const newNodeType = pmSchema.nodes[block.type || blockInfo.blockNoteType];
+  const newBnBlockNodeType = newNodeType.isInGroup("bnBlock")
+    ? newNodeType
+    : pmSchema.nodes["blockContainer"];
+
+  if (blockInfo.isBlockContainer && newNodeType.isInGroup("blockContent")) {
+    updateChildren(block, tr, pmSchema, schema, blockInfo);
+    // The code below determines the new content of the block.
+    // or "keep" to keep as-is
+    updateBlockContentNode(
+      block,
+      tr,
+      pmSchema,
+      schema,
+      oldNodeType,
+      newNodeType,
+      blockInfo
+    );
+  } else if (!blockInfo.isBlockContainer && newNodeType.isInGroup("bnBlock")) {
+    updateChildren(block, tr, pmSchema, schema, blockInfo);
+    // old node was a bnBlock type (like column or columnList) and new block as well
+    // No op, we just update the bnBlock below (at end of function) and have already updated the children
+  } else {
+    // switching from blockContainer to non-blockContainer or v.v.
+    // currently breaking for column slash menu items converting empty block
+    // to column.
+
+    // currently, we calculate the new node and replace the entire node with the desired new node.
+    // for this, we do a nodeToBlock on the existing block to get the children.
+    // it would be cleaner to use a ReplaceAroundStep, but this is a bit simpler and it's quite an edge case
+    const existingBlock = nodeToBlock(
+      blockInfo.bnBlock.node,
+      schema.blockSchema,
+      schema.inlineContentSchema,
+      schema.styleSchema,
+      blockCache
+    );
+    tr.replaceWith(
+      blockInfo.bnBlock.beforePos,
+      blockInfo.bnBlock.afterPos,
+      blockToNode(
+        {
+          children: existingBlock.children, // if no children are passed in, use existing children
+          ...block,
+        },
+        pmSchema,
+        schema.styleSchema
+      )
+    );
+
+    return;
+  }
+
+  // Adds all provided props as attributes to the parent blockContainer node too, and also preserves existing
+  // attributes.
+  tr.setNodeMarkup(blockInfo.bnBlock.beforePos, newBnBlockNodeType, {
+    ...blockInfo.bnBlock.node.attrs,
+    ...block.props,
+  });
+};
 
 function updateBlockContentNode<
   BSchema extends BlockSchema,
@@ -304,18 +300,14 @@ export function updateBlock<
     throw new Error(`Block with ID ${id} not found`);
   }
 
-  updateBlockCommandTr(
+  updateBlockTr(
+    tr,
     pmSchema,
     schema,
     posInfo.posBeforeNode,
     update,
     blockCache
-  )({
-    tr,
-    dispatch: () => {
-      // no-op
-    },
-  });
+  );
 
   const blockContainerNode = tr.doc
     .resolve(posInfo.posBeforeNode + 1) // TODO: clean?
