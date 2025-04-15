@@ -263,7 +263,9 @@ export class TableHandlesView<
       | BlockFromConfigNoChildren<DefaultBlockSchema["table"], I, S>
       | undefined;
 
-    const pmNodeInfo = getNodeById(blockEl.id, this.editor.transaction.doc);
+    const pmNodeInfo = this.editor.transact((tr) =>
+      getNodeById(blockEl.id, tr.doc)
+    );
     if (!pmNodeInfo) {
       throw new Error(`Block with ID ${blockEl.id} not found`);
     }
@@ -1148,11 +1150,9 @@ export class TableHandlesProsemirrorPlugin<
       | BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>
       | undefined
   ) => {
-    const isSelectingTableCells = isTableCellSelection(
-      this.editor.transaction.selection
-    )
-      ? this.editor.transaction.selection
-      : undefined;
+    const isSelectingTableCells = this.editor.transact((tr) =>
+      isTableCellSelection(tr.selection) ? tr.selection : undefined
+    );
 
     if (
       !isSelectingTableCells ||

@@ -850,7 +850,7 @@ export class BlockNoteEditor<
    * editor.dispatch(tr);
    * ```
    */
-  public get transaction(): Transaction {
+  private get transaction(): Transaction {
     if (this.activeTransaction) {
       // We are in a `transact` call, so we should return that transaction to accumulate changes on it
       return this.activeTransaction;

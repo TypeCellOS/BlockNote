@@ -82,6 +82,10 @@ export const CreateLinkButton = () => {
     [editor]
   );
 
+  const isTableSelection = editor.transact((tr) =>
+    isTableCellSelection(tr.selection)
+  );
+
   const show = useMemo(() => {
     if (!linkInSchema) {
       return false;
@@ -93,8 +97,8 @@ export const CreateLinkButton = () => {
       }
     }
 
-    return !isTableCellSelection(editor.transaction.selection);
-  }, [linkInSchema, selectedBlocks, editor.transaction.selection]);
+    return !isTableSelection;
+  }, [linkInSchema, selectedBlocks, isTableSelection]);
 
   if (
     !show ||

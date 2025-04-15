@@ -14,7 +14,9 @@ describe("Test getTextCursorPosition & setTextCursorPosition", () => {
       setTextCursorPosition(tr, "paragraph-1");
     });
 
-    expect(getTextCursorPosition(getEditor().transaction)).toMatchSnapshot();
+    expect(
+      getEditor().transact((tr) => getTextCursorPosition(tr))
+    ).toMatchSnapshot();
   });
 
   it("First block", () => {
@@ -22,7 +24,9 @@ describe("Test getTextCursorPosition & setTextCursorPosition", () => {
       setTextCursorPosition(tr, "paragraph-0");
     });
 
-    expect(getTextCursorPosition(getEditor().transaction)).toMatchSnapshot();
+    expect(
+      getEditor().transact((tr) => getTextCursorPosition(tr))
+    ).toMatchSnapshot();
   });
 
   it("Last block", () => {
@@ -30,7 +34,9 @@ describe("Test getTextCursorPosition & setTextCursorPosition", () => {
       setTextCursorPosition(tr, "trailing-paragraph");
     });
 
-    expect(getTextCursorPosition(getEditor().transaction)).toMatchSnapshot();
+    expect(
+      getEditor().transact((tr) => getTextCursorPosition(tr))
+    ).toMatchSnapshot();
   });
 
   it("Nested block", () => {
@@ -38,7 +44,9 @@ describe("Test getTextCursorPosition & setTextCursorPosition", () => {
       setTextCursorPosition(tr, "nested-paragraph-0");
     });
 
-    expect(getTextCursorPosition(getEditor().transaction)).toMatchSnapshot();
+    expect(
+      getEditor().transact((tr) => getTextCursorPosition(tr))
+    ).toMatchSnapshot();
   });
 
   it("Set to start", () => {

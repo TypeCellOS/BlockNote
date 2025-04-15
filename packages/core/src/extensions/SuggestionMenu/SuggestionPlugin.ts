@@ -125,13 +125,14 @@ class SuggestionMenuView<
     this.editor._tiptapEditor
       .chain()
       .focus()
+      // TODO need to make an API for this
       .deleteRange({
         from:
           this.pluginState.queryStartPos! -
           (this.pluginState.deleteTriggerCharacter
             ? this.pluginState.triggerCharacter!.length
             : 0),
-        to: this.editor.transaction.selection.from,
+        to: this.editor.transact((tr) => tr.selection.from),
       })
       .run();
   };

@@ -80,15 +80,17 @@ export function unnestBlock(editor: BlockNoteEditor<any, any, any>) {
 }
 
 export function canNestBlock(editor: BlockNoteEditor<any, any, any>) {
-  const tr = editor.transaction;
-  const { bnBlock: blockContainer } = getBlockInfoFromTransaction(tr);
+  return editor.transact((tr) => {
+    const { bnBlock: blockContainer } = getBlockInfoFromTransaction(tr);
 
-  return tr.doc.resolve(blockContainer.beforePos).nodeBefore !== null;
+    return tr.doc.resolve(blockContainer.beforePos).nodeBefore !== null;
+  });
 }
 
 export function canUnnestBlock(editor: BlockNoteEditor<any, any, any>) {
-  const tr = editor.transaction;
-  const { bnBlock: blockContainer } = getBlockInfoFromTransaction(tr);
+  return editor.transact((tr) => {
+    const { bnBlock: blockContainer } = getBlockInfoFromTransaction(tr);
 
-  return tr.doc.resolve(blockContainer.beforePos).depth > 1;
+    return tr.doc.resolve(blockContainer.beforePos).depth > 1;
+  });
 }

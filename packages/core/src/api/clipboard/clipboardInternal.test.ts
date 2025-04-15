@@ -310,10 +310,9 @@ describe("Test ProseMirror selection clipboard HTML", () => {
       `./__snapshots__/internal/${testCase.testName}.html`
     );
 
-    const nextTr = editor.transaction;
     if (testCase.createPasteSelection) {
       editor.transact((tr) =>
-        tr.setSelection(testCase.createPasteSelection!(nextTr.doc))
+        tr.setSelection(testCase.createPasteSelection!(tr.doc))
       );
     }
 

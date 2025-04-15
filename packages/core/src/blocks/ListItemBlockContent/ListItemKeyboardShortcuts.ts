@@ -4,14 +4,17 @@ import { getBlockInfoFromTransaction } from "../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 export const handleEnter = (editor: BlockNoteEditor<any, any, any>) => {
-  const tr = editor.transaction;
-  const blockInfo = getBlockInfoFromTransaction(tr);
+  const { blockInfo, selectionEmpty } = editor.transact((tr) => {
+    return {
+      blockInfo: getBlockInfoFromTransaction(tr),
+      selectionEmpty: tr.selection.anchor === tr.selection.head,
+    };
+  });
+
   if (!blockInfo.isBlockContainer) {
     return false;
   }
   const { bnBlock: blockContainer, blockContent } = blockInfo;
-
-  const selectionEmpty = tr.selection.anchor === tr.selection.head;
 
   if (
     !(

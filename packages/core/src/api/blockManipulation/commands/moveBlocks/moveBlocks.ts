@@ -43,35 +43,35 @@ type BlockSelectionData = (
 function getBlockSelectionData(
   editor: BlockNoteEditor<any, any, any>
 ): BlockSelectionData {
-  const tr = editor.transaction;
+  return editor.transact((tr) => {
+    const anchorBlockPosInfo = getNearestBlockPos(tr.doc, tr.selection.anchor);
 
-  const anchorBlockPosInfo = getNearestBlockPos(tr.doc, tr.selection.anchor);
+    if (tr.selection instanceof CellSelection) {
+      return {
+        type: "cell" as const,
+        anchorBlockId: anchorBlockPosInfo.node.attrs.id,
+        anchorCellOffset:
+          tr.selection.$anchorCell.pos - anchorBlockPosInfo.posBeforeNode,
+        headCellOffset:
+          tr.selection.$headCell.pos - anchorBlockPosInfo.posBeforeNode,
+      };
+    } else if (tr.selection instanceof NodeSelection) {
+      return {
+        type: "node" as const,
+        anchorBlockId: anchorBlockPosInfo.node.attrs.id,
+      };
+    } else {
+      const headBlockPosInfo = getNearestBlockPos(tr.doc, tr.selection.head);
 
-  if (tr.selection instanceof CellSelection) {
-    return {
-      type: "cell" as const,
-      anchorBlockId: anchorBlockPosInfo.node.attrs.id,
-      anchorCellOffset:
-        tr.selection.$anchorCell.pos - anchorBlockPosInfo.posBeforeNode,
-      headCellOffset:
-        tr.selection.$headCell.pos - anchorBlockPosInfo.posBeforeNode,
-    };
-  } else if (tr.selection instanceof NodeSelection) {
-    return {
-      type: "node" as const,
-      anchorBlockId: anchorBlockPosInfo.node.attrs.id,
-    };
-  } else {
-    const headBlockPosInfo = getNearestBlockPos(tr.doc, tr.selection.head);
-
-    return {
-      type: "text" as const,
-      anchorBlockId: anchorBlockPosInfo.node.attrs.id,
-      headBlockId: headBlockPosInfo.node.attrs.id,
-      anchorOffset: tr.selection.anchor - anchorBlockPosInfo.posBeforeNode,
-      headOffset: tr.selection.head - headBlockPosInfo.posBeforeNode,
-    };
-  }
+      return {
+        type: "text" as const,
+        anchorBlockId: anchorBlockPosInfo.node.attrs.id,
+        headBlockId: headBlockPosInfo.node.attrs.id,
+        anchorOffset: tr.selection.anchor - anchorBlockPosInfo.posBeforeNode,
+        headOffset: tr.selection.head - headBlockPosInfo.posBeforeNode,
+      };
+    }
+  });
 }
 
 /**

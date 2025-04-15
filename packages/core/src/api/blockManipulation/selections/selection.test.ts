@@ -11,7 +11,7 @@ describe("Test getSelection & setSelection", () => {
       setSelection(tr, "paragraph-0", "paragraph-1");
     });
 
-    expect(getSelection(getEditor().transaction)).toMatchSnapshot();
+    expect(getEditor().transact((tr) => getSelection(tr))).toMatchSnapshot();
   });
 
   it("Starts in block with children", () => {
@@ -19,7 +19,7 @@ describe("Test getSelection & setSelection", () => {
       setSelection(tr, "paragraph-with-children", "paragraph-2");
     });
 
-    expect(getSelection(getEditor().transaction)).toMatchSnapshot();
+    expect(getEditor().transact((tr) => getSelection(tr))).toMatchSnapshot();
   });
 
   it("Starts in nested block", () => {
@@ -27,7 +27,7 @@ describe("Test getSelection & setSelection", () => {
       setSelection(tr, "nested-paragraph-0", "paragraph-2");
     });
 
-    expect(getSelection(getEditor().transaction)).toMatchSnapshot();
+    expect(getEditor().transact((tr) => getSelection(tr))).toMatchSnapshot();
   });
 
   it("Ends in block with children", () => {
@@ -35,7 +35,7 @@ describe("Test getSelection & setSelection", () => {
       setSelection(tr, "paragraph-1", "paragraph-with-children");
     });
 
-    expect(getSelection(getEditor().transaction)).toMatchSnapshot();
+    expect(getEditor().transact((tr) => getSelection(tr))).toMatchSnapshot();
   });
 
   it("Ends in nested block", () => {
@@ -43,7 +43,7 @@ describe("Test getSelection & setSelection", () => {
       setSelection(tr, "paragraph-1", "nested-paragraph-0");
     });
 
-    expect(getSelection(getEditor().transaction)).toMatchSnapshot();
+    expect(getEditor().transact((tr) => getSelection(tr))).toMatchSnapshot();
   });
 
   it("Contains block with children", () => {
@@ -51,7 +51,7 @@ describe("Test getSelection & setSelection", () => {
       setSelection(tr, "paragraph-1", "paragraph-2");
     });
 
-    expect(getSelection(getEditor().transaction)).toMatchSnapshot();
+    expect(getEditor().transact((tr) => getSelection(tr))).toMatchSnapshot();
   });
 
   it("Starts in table", () => {
@@ -59,7 +59,7 @@ describe("Test getSelection & setSelection", () => {
       setSelection(tr, "table-0", "paragraph-7");
     });
 
-    expect(getSelection(getEditor().transaction)).toMatchSnapshot();
+    expect(getEditor().transact((tr) => getSelection(tr))).toMatchSnapshot();
   });
 
   it("Ends in table", () => {
@@ -67,6 +67,6 @@ describe("Test getSelection & setSelection", () => {
       setSelection(tr, "paragraph-6", "table-0");
     });
 
-    expect(getSelection(getEditor().transaction)).toMatchSnapshot();
+    expect(getEditor().transact((tr) => getSelection(tr))).toMatchSnapshot();
   });
 });

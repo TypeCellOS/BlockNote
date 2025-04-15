@@ -56,11 +56,13 @@ describe("Test moveSelectedBlockAndSelection", () => {
 
     moveSelectedBlocksAndSelection(getEditor(), "paragraph-0", "before");
 
-    const selection = getEditor().transaction.selection;
+    const selection = getEditor().transact((tr) => tr.selection);
     getEditor().setTextCursorPosition("paragraph-1");
     makeSelectionSpanContent("text");
 
-    expect(selection.eq(getEditor().transaction.selection)).toBeTruthy();
+    expect(
+      selection.eq(getEditor().transact((tr) => tr.selection))
+    ).toBeTruthy();
   });
 
   it("Node selection", () => {
@@ -69,11 +71,13 @@ describe("Test moveSelectedBlockAndSelection", () => {
 
     moveSelectedBlocksAndSelection(getEditor(), "paragraph-0", "before");
 
-    const selection = getEditor().transaction.selection;
+    const selection = getEditor().transact((tr) => tr.selection);
     getEditor().setTextCursorPosition("image-0");
     makeSelectionSpanContent("node");
 
-    expect(selection.eq(getEditor().transaction.selection)).toBeTruthy();
+    expect(
+      selection.eq(getEditor().transact((tr) => tr.selection))
+    ).toBeTruthy();
   });
 
   it("Cell selection", () => {
@@ -82,11 +86,13 @@ describe("Test moveSelectedBlockAndSelection", () => {
 
     moveSelectedBlocksAndSelection(getEditor(), "paragraph-0", "before");
 
-    const selection = getEditor().transaction.selection;
+    const selection = getEditor().transact((tr) => tr.selection);
     getEditor().setTextCursorPosition("table-0");
     makeSelectionSpanContent("cell");
 
-    expect(selection.eq(getEditor().transaction.selection)).toBeTruthy();
+    expect(
+      selection.eq(getEditor().transact((tr) => tr.selection))
+    ).toBeTruthy();
   });
 
   it("Multiple block selection", () => {
@@ -94,10 +100,12 @@ describe("Test moveSelectedBlockAndSelection", () => {
 
     moveSelectedBlocksAndSelection(getEditor(), "paragraph-0", "before");
 
-    const selection = getEditor().transaction.selection;
+    const selection = getEditor().transact((tr) => tr.selection);
     getEditor().setSelection("paragraph-1", "paragraph-2");
 
-    expect(selection.eq(getEditor().transaction.selection)).toBeTruthy();
+    expect(
+      selection.eq(getEditor().transact((tr) => tr.selection))
+    ).toBeTruthy();
   });
 
   it("Multiple block selection with table", () => {
@@ -105,10 +113,12 @@ describe("Test moveSelectedBlockAndSelection", () => {
 
     moveSelectedBlocksAndSelection(getEditor(), "paragraph-0", "before");
 
-    const selection = getEditor().transaction.selection;
+    const selection = getEditor().transact((tr) => tr.selection);
     getEditor().setSelection("paragraph-6", "table-0");
 
-    expect(selection.eq(getEditor().transaction.selection)).toBeTruthy();
+    expect(
+      selection.eq(getEditor().transact((tr) => tr.selection))
+    ).toBeTruthy();
   });
 });
 

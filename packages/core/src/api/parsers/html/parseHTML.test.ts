@@ -31,15 +31,16 @@ async function parseHTMLAndCompareSnapshots(
   (window as any).__TEST_OPTIONS.mockID = 0; // reset id counter
   const htmlNode = nestedListsToBlockNoteStructure(html);
 
-  const tr = editor.transaction;
-  const slice = (pmView as any).__parseFromClipboard(
-    editor.prosemirrorView,
-    "",
-    htmlNode.innerHTML,
-    false,
-    tr.selection.$from
-  );
-  editor.transact((tr) => tr.replaceSelection(slice));
+  editor.transact((tr) => {
+    const slice = (pmView as any).__parseFromClipboard(
+      editor.prosemirrorView,
+      "",
+      htmlNode.innerHTML,
+      false,
+      tr.selection.$from
+    );
+    tr.replaceSelection(slice);
+  });
 
   // alternative paste simulation doesn't work in a non-browser vitest env
   //   editor._tiptapEditor.view.pasteHTML(html, {
