@@ -1,4 +1,4 @@
-import { Mark, Node } from "@tiptap/pm/model";
+import { Mark, Node, Schema } from "@tiptap/pm/model";
 
 import UniqueID from "../../extensions/UniqueID/UniqueID.js";
 import type {
@@ -22,6 +22,9 @@ import {
 } from "../../schema/inlineContent/types.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
 import type { BlockCache } from "../../editor/BlockNoteEditor.js";
+import { getBlockCacheForSchema, getStyleSchemaForSchema } from "../pmUtil.js";
+import { getInlineContentSchemaForSchema } from "../pmUtil.js";
+import { getBlockSchemaForSchema } from "../pmUtil.js";
 
 /**
  * Converts an internal (prosemirror) table node contentto a BlockNote Tablecontent
@@ -373,6 +376,19 @@ export function nodeToCustomInlineContent<
     content,
   } as InlineContentFromConfig<I[keyof I], S>;
   return ic;
+}
+
+export function simpleNodeToBlock(
+  node: Node,
+  schema: Schema
+): Block<any, any, any> {
+  return nodeToBlock(
+    node,
+    getBlockSchemaForSchema(schema),
+    getInlineContentSchemaForSchema(schema),
+    getStyleSchemaForSchema(schema),
+    getBlockCacheForSchema(schema)
+  );
 }
 
 /**

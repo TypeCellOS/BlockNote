@@ -19,6 +19,7 @@ import {
 import { getColspan, isPartialTableCell } from "../../util/table.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
 import { getAbsoluteTableCells } from "../blockManipulation/tables/tables.js";
+import { getStyleSchemaForSchema } from "../pmUtil.js";
 
 /**
  * Convert a StyledText inline element to a
@@ -298,6 +299,13 @@ function blockOrInlineContentToContentNode(
     throw new UnreachableCaseError(block.content.type);
   }
   return contentNode;
+}
+
+export function simpleBlockToNode(
+  block: PartialBlock<any, any, any>,
+  schema: Schema
+) {
+  return blockToNode(block, schema, getStyleSchemaForSchema(schema));
 }
 
 /**

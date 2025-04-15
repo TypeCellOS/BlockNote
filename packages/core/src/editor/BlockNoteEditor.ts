@@ -728,6 +728,7 @@ export class BlockNoteEditor<
       // but we still need the schema
       this.pmSchema = getSchema(tiptapOptions.extensions!);
     }
+    this.pmSchema.cached.blockNoteEditor = this;
     this.emit("create");
   }
 

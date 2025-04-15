@@ -15,15 +15,7 @@ function insertBlocks(
   placement: "before" | "after" = "before"
 ) {
   return editor.transact((tr) =>
-    insertBlocksTr(
-      tr,
-      editor.pmSchema,
-      editor.schema,
-      blocksToInsert,
-      referenceBlock,
-      placement,
-      editor.blockCache
-    )
+    insertBlocksTr(tr, blocksToInsert, referenceBlock, placement)
   );
 }
 

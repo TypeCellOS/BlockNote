@@ -1,19 +1,18 @@
-import { Fragment, Node, Schema, Slice } from "prosemirror-model";
+import { Fragment, Slice } from "prosemirror-model";
 
 import { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
-import type { BlockCache } from "../../../../editor/BlockNoteEditor";
 import {
   BlockIdentifier,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
 } from "../../../../schema/index.js";
-import { blockToNode } from "../../../nodeConversions/blockToNode.js";
-import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
+import { simpleBlockToNode } from "../../../nodeConversions/blockToNode.js";
+import { simpleNodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
 import { ReplaceStep } from "prosemirror-transform";
 import type { Transaction } from "prosemirror-state";
-import type { BlockNoteSchema } from "../../../../editor/BlockNoteSchema.js";
+import { getSchemaForTransaction } from "../../../pmUtil.js";
 
 export function insertBlocks<
   BSchema extends BlockSchema,
@@ -21,20 +20,17 @@ export function insertBlocks<
   S extends StyleSchema
 >(
   tr: Transaction,
-  pmSchema: Schema,
-  schema: BlockNoteSchema<BSchema, I, S>,
   blocksToInsert: PartialBlock<BSchema, I, S>[],
   referenceBlock: BlockIdentifier,
-  placement: "before" | "after" = "before",
-  blockCache?: BlockCache
+  placement: "before" | "after" = "before"
 ): Block<BSchema, I, S>[] {
   const id =
     typeof referenceBlock === "string" ? referenceBlock : referenceBlock.id;
+  const schema = getSchemaForTransaction(tr);
 
-  const nodesToInsert: Node[] = [];
-  for (const blockSpec of blocksToInsert) {
-    nodesToInsert.push(blockToNode(blockSpec, pmSchema, schema.styleSchema));
-  }
+  const nodesToInsert = blocksToInsert.map((block) =>
+    simpleBlockToNode(block, schema)
+  );
 
   const posInfo = getNodeById(id, tr.doc);
   if (!posInfo) {
@@ -52,18 +48,9 @@ export function insertBlocks<
 
   // Now that the `PartialBlock`s have been converted to nodes, we can
   // re-convert them into full `Block`s.
-  const insertedBlocks: Block<BSchema, I, S>[] = [];
-  for (const node of nodesToInsert) {
-    insertedBlocks.push(
-      nodeToBlock(
-        node,
-        schema.blockSchema,
-        schema.inlineContentSchema,
-        schema.styleSchema,
-        blockCache
-      )
-    );
-  }
+  const insertedBlocks = nodesToInsert.map((node) =>
+    simpleNodeToBlock(node, schema)
+  );
 
   return insertedBlocks;
 }
