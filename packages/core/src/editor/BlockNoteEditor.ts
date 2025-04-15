@@ -1404,9 +1404,7 @@ export class BlockNoteEditor<
    * current blocks share a common parent, moves them out of & before it.
    */
   public moveBlocksUp() {
-    return this.transact((tr) =>
-      moveBlocksUp(tr, this.pmSchema, this.schema, this.blockCache)
-    );
+    return moveBlocksUp(this);
   }
 
   /**
@@ -1415,9 +1413,7 @@ export class BlockNoteEditor<
    * current blocks share a common parent, moves them out of & after it.
    */
   public moveBlocksDown() {
-    return this.transact((tr) =>
-      moveBlocksDown(tr, this.pmSchema, this.schema, this.blockCache)
-    );
+    return moveBlocksDown(this);
   }
 
   /**
