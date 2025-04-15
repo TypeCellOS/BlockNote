@@ -22,7 +22,7 @@ import {
 import {
   blockToNode,
   inlineContentToNodes,
-  simpleTableContentToNodes,
+  tableContentToNodes,
 } from "../../../nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
@@ -144,7 +144,7 @@ function updateBlockContentNode<
       // for each InlineContent object.
       content = inlineContentToNodes(block.content, pmSchema, newNodeType.name);
     } else if (block.content.type === "tableContent") {
-      content = simpleTableContentToNodes(block.content, pmSchema);
+      content = tableContentToNodes(block.content, pmSchema);
     } else {
       throw new UnreachableCaseError(block.content.type);
     }
