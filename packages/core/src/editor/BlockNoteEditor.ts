@@ -1185,12 +1185,12 @@ export class BlockNoteEditor<
 
     this.transact((tr) => {
       insertContentAt(
+        tr,
         {
           from: tr.selection.from,
           to: tr.selection.to,
         },
-        nodes,
-        tr
+        nodes
       );
     });
   }

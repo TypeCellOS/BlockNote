@@ -5,9 +5,9 @@ import type { Transaction } from "prosemirror-state";
 
 // similar to tiptap insertContentAt
 export function insertContentAt(
+  tr: Transaction,
   position: number | { from: number; to: number },
   nodes: Node[],
-  tr: Transaction,
   options: {
     updateSelection: boolean;
   } = { updateSelection: true }
