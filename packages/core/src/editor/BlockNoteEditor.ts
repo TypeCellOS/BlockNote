@@ -1080,6 +1080,11 @@ export class BlockNoteEditor<
     return this.transact((tr) => getSelection(tr));
   }
 
+  /**
+   * Sets the selection to a range of blocks.
+   * @param startBlock The identifier of the block that should be the start of the selection.
+   * @param endBlock The identifier of the block that should be the end of the selection.
+   */
   public setSelection(startBlock: BlockIdentifier, endBlock: BlockIdentifier) {
     return this.transact((tr) => setSelection(tr, startBlock, endBlock));
   }
