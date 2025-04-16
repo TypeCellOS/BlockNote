@@ -1,49 +1,30 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+import { describe, expect, it, beforeEach } from "vitest";
 
 import { setupTestEnv } from "./blockManipulation/setupTestEnv.js";
 import { getBlocksChangedByTransaction } from "./nodeUtil.js";
-import { Transaction } from "prosemirror-state";
 import { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
-import { Step } from "prosemirror-transform";
 
 const getEditor = setupTestEnv();
 
 describe("Test getBlocksChangedByTransaction", () => {
-  let transaction: Transaction;
   let editor: BlockNoteEditor;
-  let originalDispatch: typeof editor.dispatch;
 
   beforeEach(() => {
-    transaction = undefined as unknown as Transaction;
     editor = getEditor();
-    originalDispatch = editor.dispatch;
-    const mockDispatch = vi.fn((tr) => {
-      editor._tiptapEditor.dispatch(tr);
-      if (transaction) {
-        tr.steps.forEach((step: Step) => {
-          transaction.step(step);
-        });
-      } else {
-        transaction = tr;
-      }
-    });
-    editor.dispatch = mockDispatch;
-  });
-
-  afterEach(() => {
-    editor.dispatch = originalDispatch;
   });
 
   it("should return the correct blocks changed by a transaction", () => {
-    const transaction = editor.transaction;
-    const blocksChanged = getBlocksChangedByTransaction(transaction, editor);
+    const blocksChanged = editor.transact((tr) => {
+      return getBlocksChangedByTransaction(tr);
+    });
     expect(blocksChanged).toEqual([]);
   });
 
   it("should return blocks inserted by a transaction", async () => {
-    editor.insertBlocks([{ type: "paragraph" }], "paragraph-0", "after");
-
-    const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
+    const blocksChanged = editor.transact((tr) => {
+      editor.insertBlocks([{ type: "paragraph" }], "paragraph-0", "after");
+      return getBlocksChangedByTransaction(tr);
+    });
 
     await expect(blocksChanged).toMatchFileSnapshot(
       "__snapshots__/blocks-inserted.json"
@@ -51,18 +32,20 @@ describe("Test getBlocksChangedByTransaction", () => {
   });
 
   it("should return nested blocks inserted by a transaction", async () => {
-    editor.insertBlocks(
-      [
-        {
-          type: "paragraph",
-          children: [{ type: "paragraph", content: "Nested" }],
-        },
-      ],
-      "paragraph-0",
-      "after"
-    );
+    const blocksChanged = editor.transact((tr) => {
+      editor.insertBlocks(
+        [
+          {
+            type: "paragraph",
+            children: [{ type: "paragraph", content: "Nested" }],
+          },
+        ],
+        "paragraph-0",
+        "after"
+      );
 
-    const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
+      return getBlocksChangedByTransaction(tr);
+    });
 
     await expect(blocksChanged).toMatchFileSnapshot(
       "__snapshots__/blocks-inserted-nested.json"
@@ -70,19 +53,32 @@ describe("Test getBlocksChangedByTransaction", () => {
   });
 
   it("should return blocks deleted by a transaction", async () => {
-    editor.removeBlocks(["paragraph-0"]);
-
-    const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
+    const blocksChanged = editor.transact((tr) => {
+      editor.removeBlocks(["paragraph-0"]);
+      return getBlocksChangedByTransaction(tr);
+    });
 
     await expect(blocksChanged).toMatchFileSnapshot(
       "__snapshots__/blocks-deleted.json"
     );
   });
 
-  it("should return nested blocks deleted by a transaction", async () => {
-    editor.removeBlocks(["nested-paragraph-0"]);
+  it("should return deeply nested blocks deleted by a transaction", async () => {
+    const blocksChanged = editor.transact((tr) => {
+      editor.removeBlocks(["double-nested-paragraph-0"]);
+      return getBlocksChangedByTransaction(tr);
+    });
 
-    const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
+    await expect(blocksChanged).toMatchFileSnapshot(
+      "__snapshots__/blocks-deleted-nested-deep.json"
+    );
+  });
+
+  it("should return nested blocks deleted by a transaction", async () => {
+    const blocksChanged = editor.transact((tr) => {
+      editor.removeBlocks(["nested-paragraph-0"]);
+      return getBlocksChangedByTransaction(tr);
+    });
 
     await expect(blocksChanged).toMatchFileSnapshot(
       "__snapshots__/blocks-deleted-nested.json"
@@ -90,13 +86,15 @@ describe("Test getBlocksChangedByTransaction", () => {
   });
 
   it("should return blocks updated by a transaction", async () => {
-    editor.updateBlock("paragraph-0", {
-      props: {
-        backgroundColor: "red",
-      },
-    });
+    const blocksChanged = editor.transact((tr) => {
+      editor.updateBlock("paragraph-0", {
+        props: {
+          backgroundColor: "red",
+        },
+      });
 
-    const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
+      return getBlocksChangedByTransaction(tr);
+    });
 
     await expect(blocksChanged).toMatchFileSnapshot(
       "__snapshots__/blocks-updated.json"
@@ -104,13 +102,15 @@ describe("Test getBlocksChangedByTransaction", () => {
   });
 
   it("should return nested blocks updated by a transaction", async () => {
-    editor.updateBlock("nested-paragraph-0", {
-      props: {
-        backgroundColor: "red",
-      },
-    });
+    const blocksChanged = editor.transact((tr) => {
+      editor.updateBlock("nested-paragraph-0", {
+        props: {
+          backgroundColor: "red",
+        },
+      });
 
-    const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
+      return getBlocksChangedByTransaction(tr);
+    });
 
     await expect(blocksChanged).toMatchFileSnapshot(
       "__snapshots__/blocks-updated-nested.json"
@@ -118,11 +118,13 @@ describe("Test getBlocksChangedByTransaction", () => {
   });
 
   it("should return deeply nested blocks updated by a transaction", async () => {
-    editor.updateBlock("double-nested-paragraph-0", {
-      content: "Example Text",
-    });
+    const blocksChanged = editor.transact((tr) => {
+      editor.updateBlock("double-nested-paragraph-0", {
+        content: "Example Text",
+      });
 
-    const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
+      return getBlocksChangedByTransaction(tr);
+    });
 
     await expect(blocksChanged).toMatchFileSnapshot(
       "__snapshots__/blocks-updated-nested-deep.json"
@@ -130,16 +132,18 @@ describe("Test getBlocksChangedByTransaction", () => {
   });
 
   it("should return multiple nested blocks updated by a transaction", async () => {
-    editor.updateBlock("nested-paragraph-0", {
-      props: {
-        backgroundColor: "red",
-      },
-    });
-    editor.updateBlock("double-nested-paragraph-0", {
-      content: "Example Text",
-    });
+    const blocksChanged = editor.transact((tr) => {
+      editor.updateBlock("nested-paragraph-0", {
+        props: {
+          backgroundColor: "red",
+        },
+      });
+      editor.updateBlock("double-nested-paragraph-0", {
+        content: "Example Text",
+      });
 
-    const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
+      return getBlocksChangedByTransaction(tr);
+    });
 
     await expect(blocksChanged).toMatchFileSnapshot(
       "__snapshots__/blocks-updated-nested-multiple.json"
@@ -147,18 +151,20 @@ describe("Test getBlocksChangedByTransaction", () => {
   });
 
   it("should only return a single block, if multiple updates change a single block in a transaction", async () => {
-    editor.updateBlock("paragraph-0", {
-      props: {
-        backgroundColor: "red",
-      },
-    });
-    editor.updateBlock("paragraph-0", {
-      props: {
-        backgroundColor: "blue",
-      },
-    });
+    const blocksChanged = editor.transact((tr) => {
+      editor.updateBlock("paragraph-0", {
+        props: {
+          backgroundColor: "red",
+        },
+      });
+      editor.updateBlock("paragraph-0", {
+        props: {
+          backgroundColor: "blue",
+        },
+      });
 
-    const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
+      return getBlocksChangedByTransaction(tr);
+    });
 
     await expect(blocksChanged).toMatchFileSnapshot(
       "__snapshots__/blocks-updated-single.json"
@@ -166,18 +172,20 @@ describe("Test getBlocksChangedByTransaction", () => {
   });
 
   it("should return multiple blocks, if multiple updates change multiple blocks in a transaction", async () => {
-    editor.updateBlock("paragraph-0", {
-      props: {
-        backgroundColor: "red",
-      },
-    });
-    editor.updateBlock("paragraph-1", {
-      props: {
-        backgroundColor: "blue",
-      },
-    });
+    const blocksChanged = editor.transact((tr) => {
+      editor.updateBlock("paragraph-0", {
+        props: {
+          backgroundColor: "red",
+        },
+      });
+      editor.updateBlock("paragraph-1", {
+        props: {
+          backgroundColor: "blue",
+        },
+      });
 
-    const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
+      return getBlocksChangedByTransaction(tr);
+    });
 
     await expect(blocksChanged).toMatchFileSnapshot(
       "__snapshots__/blocks-updated-multiple.json"
@@ -185,21 +193,36 @@ describe("Test getBlocksChangedByTransaction", () => {
   });
 
   it("should return multiple blocks, if multiple inserts add new blocks in a transaction", async () => {
-    editor.insertBlocks(
-      [{ type: "paragraph", content: "ABC" }],
-      "paragraph-0",
-      "after"
-    );
-    editor.insertBlocks(
-      [{ type: "paragraph", content: "DEF" }],
-      "paragraph-1",
-      "after"
-    );
+    const blocksChanged = editor.transact((tr) => {
+      editor.insertBlocks(
+        [{ type: "paragraph", content: "ABC" }],
+        "paragraph-0",
+        "after"
+      );
+      editor.insertBlocks(
+        [{ type: "paragraph", content: "DEF" }],
+        "paragraph-1",
+        "after"
+      );
 
-    const blocksChanged = getBlocksChangedByTransaction(transaction!, editor);
+      return getBlocksChangedByTransaction(tr);
+    });
 
     await expect(blocksChanged).toMatchFileSnapshot(
       "__snapshots__/blocks-updated-multiple-insert.json"
+    );
+  });
+
+  it("should return blocks which have had content inserted into them", async () => {
+    const blocksChanged = editor.transact((tr) => {
+      editor.setTextCursorPosition("paragraph-2", "start");
+      editor.insertInlineContent("Hello");
+
+      return getBlocksChangedByTransaction(tr);
+    });
+
+    await expect(blocksChanged).toMatchFileSnapshot(
+      "__snapshots__/blocks-updated-content-inserted.json"
     );
   });
 });

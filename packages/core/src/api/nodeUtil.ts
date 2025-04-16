@@ -1,9 +1,9 @@
 import {
   combineTransactionSteps,
-  getChangedRanges,
   findChildrenInRange,
+  getChangedRanges,
 } from "@tiptap/core";
-import type { Node, ResolvedPos } from "prosemirror-model";
+import type { Node } from "prosemirror-model";
 import type { Transaction } from "prosemirror-state";
 import {
   Block,
@@ -11,11 +11,11 @@ import {
   DefaultInlineContentSchema,
   DefaultStyleSchema,
 } from "../blocks/defaultBlocks.js";
-import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import type { BlockSchema } from "../schema/index.js";
 import type { InlineContentSchema } from "../schema/inlineContent/types.js";
 import type { StyleSchema } from "../schema/styles/types.js";
 import { nodeToBlock } from "./nodeConversions/nodeToBlock.js";
+import { getPmSchema } from "./pmUtil.js";
 
 /**
  * Get a TipTap node by id
@@ -135,20 +135,25 @@ export type BlocksChanged<
 >;
 
 /**
- * Get the closest block to a resolved position.
+ * Compares two blocks, ignoring their children.
+ * Returns true if the blocks are different (excluding children).
  */
-function getClosestBlock(resolve: ResolvedPos): Node | undefined {
-  let depth = resolve.depth;
-  let node = resolve.node();
-  // Recursively traverse up the node tree until a block is found
-  while (!isNodeBlock(node)) {
-    if (depth === 0) {
-      return undefined;
-    }
-    depth--;
-    node = resolve.node(depth);
-  }
-  return node;
+function areBlocksDifferentExcludingChildren<
+  BSchema extends BlockSchema,
+  ISchema extends InlineContentSchema,
+  SSchema extends StyleSchema
+>(
+  block1: Block<BSchema, ISchema, SSchema>,
+  block2: Block<BSchema, ISchema, SSchema>
+): boolean {
+  // TODO use an actual diff algorithm
+  // Compare all properties except children
+  return (
+    block1.id !== block2.id ||
+    block1.type !== block2.type ||
+    JSON.stringify(block1.props) !== JSON.stringify(block2.props) ||
+    JSON.stringify(block1.content) !== JSON.stringify(block2.content)
+  );
 }
 
 /**
@@ -163,7 +168,6 @@ export function getBlocksChangedByTransaction<
   SSchema extends StyleSchema = DefaultStyleSchema
 >(
   transaction: Transaction,
-  editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
   appendedTransactions: Transaction[] = []
 ): BlocksChanged<BSchema, ISchema, SSchema> {
   let source: BlockChangeSource = { type: "local" };
@@ -184,139 +188,87 @@ export function getBlocksChangedByTransaction<
     };
   }
 
-  const changes: BlocksChanged<BSchema, ISchema, SSchema> = [];
+  // Get affected blocks before and after the change
+  const pmSchema = getPmSchema(transaction);
   const combinedTransaction = combineTransactionSteps(transaction.before, [
     transaction,
     ...appendedTransactions,
   ]);
 
-  let prevAffectedBlocks: Block<BSchema, ISchema, SSchema>[] = [];
-  let nextAffectedBlocks: Block<BSchema, ISchema, SSchema>[] = [];
-
-  getChangedRanges(combinedTransaction).forEach((range) => {
-    const oldClosestBlocks = {
-      from: getClosestBlock(
-        combinedTransaction.before.resolve(range.oldRange.from)
-      ),
-      to: getClosestBlock(
-        combinedTransaction.before.resolve(range.oldRange.to)
-      ),
-    };
-
-    // All the blocks that were in the range before the transaction
-    prevAffectedBlocks = prevAffectedBlocks.concat(
-      ...findChildrenInRange(
+  const changedRanges = getChangedRanges(combinedTransaction);
+  const prevAffectedBlocks = changedRanges
+    .flatMap((range) => {
+      return findChildrenInRange(
         combinedTransaction.before,
         range.oldRange,
-        (node) => isNodeBlock(node)
-      )
-        .filter(({ node, pos }) => {
-          // This will filter out blocks which are modified, but not the closest block to the change
-          // This is to prevent emitting events for parent blocks when the child block is modified
-          if (
-            // If the block is out of the changed range
-            (pos < range.oldRange.from || pos > range.oldRange.to) &&
-            // and, not the closest to the start or end of the changed range
-            (oldClosestBlocks.from !== node || oldClosestBlocks.to !== node)
-          ) {
-            // Then it should be skipped
-            return false;
-          }
-          return true;
-        })
-        .map(({ node }) =>
-          nodeToBlock(
-            node,
-            editor.schema.blockSchema,
-            editor.schema.inlineContentSchema,
-            editor.schema.styleSchema,
-            editor.blockCache
-          )
-        )
-    );
+        isNodeBlock
+      );
+    })
+    .map(({ node }) => nodeToBlock(node, pmSchema));
 
-    const newClosestBlocks = {
-      from: getClosestBlock(
-        combinedTransaction.doc.resolve(range.newRange.from)
-      ),
-      to: getClosestBlock(combinedTransaction.doc.resolve(range.newRange.to)),
-    };
-    // All the blocks that were in the range after the transaction
-    nextAffectedBlocks = nextAffectedBlocks.concat(
-      findChildrenInRange(combinedTransaction.doc, range.newRange, (node) =>
-        isNodeBlock(node)
-      )
-        .filter(({ node, pos }) => {
-          // This will filter out blocks which are modified, but not the closest block to the change
-          // This is to prevent emitting events for parent blocks when the child block is modified
-          if (
-            // If the block is out of the changed range
-            (pos < range.newRange.from || pos > range.newRange.to) &&
-            // and, not the closest to the start or end of the changed range
-            (newClosestBlocks.from !== node || newClosestBlocks.to !== node)
-          ) {
-            // Then it should be skipped
-            return false;
-          }
-          return true;
-        })
-        .map(({ node }) =>
-          nodeToBlock(
-            node,
-            editor.schema.blockSchema,
-            editor.schema.inlineContentSchema,
-            editor.schema.styleSchema,
-            editor.blockCache
-          )
-        )
-    );
-  });
+  const nextAffectedBlocks = changedRanges
+    .flatMap((range) => {
+      return findChildrenInRange(
+        combinedTransaction.doc,
+        range.newRange,
+        isNodeBlock
+      );
+    })
+    .map(({ node }) => nodeToBlock(node, pmSchema));
 
-  // de-duplicate by block ID
-  const nextBlockIds = new Set(nextAffectedBlocks.map((block) => block.id));
-  const prevBlockIds = new Set(prevAffectedBlocks.map((block) => block.id));
-
-  // All blocks that are newly inserted (since they did not exist in the previous state)
-  const addedBlockIds = Array.from(nextBlockIds).filter(
-    (id) => !prevBlockIds.has(id)
+  const nextBlocks = new Map(
+    nextAffectedBlocks.map((block) => {
+      return [block.id, block];
+    })
+  );
+  const prevBlocks = new Map(
+    prevAffectedBlocks.map((block) => {
+      return [block.id, block];
+    })
   );
 
-  addedBlockIds.forEach((blockId) => {
-    changes.push({
-      type: "insert",
-      block: nextAffectedBlocks.find((block) => block.id === blockId)!,
-      source,
-      prevBlock: undefined,
-    });
-  });
+  const changes: BlocksChanged<BSchema, ISchema, SSchema> = [];
 
-  // All blocks that are newly removed (since they did not exist in the next state)
-  const removedBlockIds = Array.from(prevBlockIds).filter(
-    (id) => !nextBlockIds.has(id)
-  );
+  // Inserted blocks are blocks that were not in the previous state and are in the next state
+  for (const [id, block] of nextBlocks) {
+    if (!prevBlocks.has(id)) {
+      changes.push({
+        type: "insert",
+        block,
+        source,
+        prevBlock: undefined,
+      });
+    }
+  }
 
-  removedBlockIds.forEach((blockId) => {
-    changes.push({
-      type: "delete",
-      block: prevAffectedBlocks.find((block) => block.id === blockId)!,
-      source,
-      prevBlock: undefined,
-    });
-  });
+  // Deleted blocks are blocks that were in the previous state but not in the next state
+  for (const [id, block] of prevBlocks) {
+    if (!nextBlocks.has(id)) {
+      changes.push({
+        type: "delete",
+        block,
+        source,
+        prevBlock: undefined,
+      });
+    }
+  }
 
-  // All blocks that are updated (since they exist in both the previous and next state)
-  const updatedBlockIds = Array.from(nextBlockIds).filter((id) =>
-    prevBlockIds.has(id)
-  );
+  // Updated blocks are blocks that were in the previous state and are in the next state
+  for (const [id, block] of nextBlocks) {
+    if (prevBlocks.has(id)) {
+      const prevBlock = prevBlocks.get(id)!;
 
-  updatedBlockIds.forEach((blockId) => {
-    changes.push({
-      type: "update",
-      block: nextAffectedBlocks.find((block) => block.id === blockId)!,
-      prevBlock: prevAffectedBlocks.find((block) => block.id === blockId)!,
-      source,
-    });
-  });
+      // Only include the update if the block itself changed (excluding children)
+      if (areBlocksDifferentExcludingChildren(prevBlock, block)) {
+        changes.push({
+          type: "update",
+          block,
+          prevBlock,
+          source,
+        });
+      }
+    }
+  }
 
   return changes;
 }

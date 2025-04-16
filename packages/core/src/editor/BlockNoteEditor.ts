@@ -1482,11 +1482,7 @@ export class BlockNoteEditor<
     }) => {
       callback(this, {
         getChanges: () =>
-          getBlocksChangedByTransaction(
-            transaction,
-            this,
-            appendedTransactions
-          ),
+          getBlocksChangedByTransaction(transaction, appendedTransactions),
       });
     };
 
