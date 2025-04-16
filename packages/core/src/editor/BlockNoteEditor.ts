@@ -780,6 +780,11 @@ export class BlockNoteEditor<
    * ```
    */
   public canExec(command: Command): boolean {
+    if (this.activeTransaction) {
+      throw new Error(
+        "`canExec` should not be called within a `transact` call, move the `canExec` call outside of the `transact` call"
+      );
+    }
     const state = this._tiptapEditor.state;
     const view = this._tiptapEditor.view;
 
