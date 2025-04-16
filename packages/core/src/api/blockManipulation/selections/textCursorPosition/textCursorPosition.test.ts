@@ -55,7 +55,7 @@ describe("Test getTextCursorPosition & setTextCursorPosition", () => {
     });
 
     expect(
-      getEditor().prosemirrorState.selection.$from.parentOffset === 0
+      getEditor().transact((tr) => tr.selection.$from.parentOffset) === 0
     ).toBeTruthy();
   });
 
@@ -65,8 +65,10 @@ describe("Test getTextCursorPosition & setTextCursorPosition", () => {
     });
 
     expect(
-      getEditor().prosemirrorState.selection.$from.parentOffset ===
-        getEditor().prosemirrorState.selection.$from.node().firstChild!.nodeSize
+      getEditor().transact((tr) => tr.selection.$from.parentOffset) ===
+        getEditor().transact(
+          (tr) => tr.selection.$from.node().firstChild!.nodeSize
+        )
     ).toBeTruthy();
   });
 });

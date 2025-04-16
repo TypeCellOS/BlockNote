@@ -2,7 +2,7 @@ import { NodeSelection, TextSelection } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
 import { describe, expect, it } from "vitest";
 
-import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
+import { getBlockInfoFromTransaction } from "../../../getBlockInfoFromPos.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
 import {
   moveBlocksDown,
@@ -13,7 +13,9 @@ import {
 const getEditor = setupTestEnv();
 
 function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
-  const blockInfo = getBlockInfoFromSelection(getEditor().prosemirrorState);
+  const blockInfo = getEditor().transact((tr) =>
+    getBlockInfoFromTransaction(tr)
+  );
   if (!blockInfo.isBlockContainer) {
     throw new Error(
       `Selection points to a ${blockInfo.blockNoteType} node, not a blockContainer node`

@@ -1,4 +1,4 @@
-import { Plugin, PluginKey, PluginView } from "prosemirror-state";
+import { EditorState, Plugin, PluginKey, PluginView } from "prosemirror-state";
 import {
   CellSelection,
   addColumnAfter,
@@ -934,6 +934,7 @@ export class TableHandlesProsemirrorPlugin<
    * @returns The new state after the selection has been set.
    */
   private setCellSelection = (
+    state: EditorState,
     relativeStartCell: RelativeCellIndices,
     relativeEndCell: RelativeCellIndices = relativeStartCell
   ) => {
@@ -943,7 +944,6 @@ export class TableHandlesProsemirrorPlugin<
       throw new Error("Table handles view not initialized");
     }
 
-    const state = this.editor.prosemirrorState;
     const tableResolvedPos = state.doc.resolve(view.tablePos! + 1);
     const startRowResolvedPos = state.doc.resolve(
       tableResolvedPos.posAtIndex(relativeStartCell.row) + 1
@@ -981,32 +981,28 @@ export class TableHandlesProsemirrorPlugin<
       | { orientation: "row"; side: "above" | "below" }
       | { orientation: "column"; side: "left" | "right" }
   ) => {
-    const state = this.setCellSelection(
-      direction.orientation === "row"
-        ? { row: index, col: 0 }
-        : { row: 0, col: index }
-    );
-    if (direction.orientation === "row") {
-      if (direction.side === "above") {
-        return this.editor.transact((_tr, dispatch) =>
-          addRowBefore(state, dispatch)
-        );
+    this.editor.exec((beforeState, dispatch) => {
+      const state = this.setCellSelection(
+        beforeState,
+        direction.orientation === "row"
+          ? { row: index, col: 0 }
+          : { row: 0, col: index }
+      );
+
+      if (direction.orientation === "row") {
+        if (direction.side === "above") {
+          return addRowBefore(state, dispatch);
+        } else {
+          return addRowAfter(state, dispatch);
+        }
       } else {
-        return this.editor.transact((_tr, dispatch) =>
-          addRowAfter(state, dispatch)
-        );
+        if (direction.side === "left") {
+          return addColumnBefore(state, dispatch);
+        } else {
+          return addColumnAfter(state, dispatch);
+        }
       }
-    } else {
-      if (direction.side === "left") {
-        return this.editor.transact((_tr, dispatch) =>
-          addColumnBefore(state, dispatch)
-        );
-      } else {
-        return this.editor.transact((_tr, dispatch) =>
-          addColumnAfter(state, dispatch)
-        );
-      }
-    }
+    });
   };
 
   /**
@@ -1016,18 +1012,22 @@ export class TableHandlesProsemirrorPlugin<
     index: RelativeCellIndices["row"] | RelativeCellIndices["col"],
     direction: "row" | "column"
   ) => {
-    const state = this.setCellSelection(
-      direction === "row" ? { row: index, col: 0 } : { row: 0, col: index }
-    );
-
     if (direction === "row") {
-      return this.editor.transact((_tr, dispatch) =>
-        deleteRow(state, dispatch)
-      );
+      return this.editor.exec((beforeState, dispatch) => {
+        const state = this.setCellSelection(beforeState, {
+          row: index,
+          col: 0,
+        });
+        return deleteRow(state, dispatch);
+      });
     } else {
-      return this.editor.transact((_tr, dispatch) =>
-        deleteColumn(state, dispatch)
-      );
+      return this.editor.exec((beforeState, dispatch) => {
+        const state = this.setCellSelection(beforeState, {
+          row: 0,
+          col: index,
+        });
+        return deleteColumn(state, dispatch);
+      });
     }
   };
 
@@ -1038,14 +1038,17 @@ export class TableHandlesProsemirrorPlugin<
     relativeStartCell: RelativeCellIndices;
     relativeEndCell: RelativeCellIndices;
   }) => {
-    const state = cellsToMerge
-      ? this.setCellSelection(
-          cellsToMerge.relativeStartCell,
-          cellsToMerge.relativeEndCell
-        )
-      : this.editor.prosemirrorState;
+    return this.editor.exec((beforeState, dispatch) => {
+      const state = cellsToMerge
+        ? this.setCellSelection(
+            beforeState,
+            cellsToMerge.relativeStartCell,
+            cellsToMerge.relativeEndCell
+          )
+        : beforeState;
 
-    return this.editor.transact((_tr, dispatch) => mergeCells(state, dispatch));
+      return mergeCells(state, dispatch);
+    });
   };
 
   /**
@@ -1053,11 +1056,13 @@ export class TableHandlesProsemirrorPlugin<
    * If no cell is provided, the current cell selected will be split.
    */
   splitCell = (relativeCellToSplit?: RelativeCellIndices) => {
-    const state = relativeCellToSplit
-      ? this.setCellSelection(relativeCellToSplit)
-      : this.editor.prosemirrorState;
+    return this.editor.exec((beforeState, dispatch) => {
+      const state = relativeCellToSplit
+        ? this.setCellSelection(beforeState, relativeCellToSplit)
+        : beforeState;
 
-    return this.editor.transact((_tr, dispatch) => splitCell(state, dispatch));
+      return splitCell(state, dispatch);
+    });
   };
 
   /**
@@ -1075,69 +1080,71 @@ export class TableHandlesProsemirrorPlugin<
         cells: RelativeCellIndices[];
       } => {
     // Based on the current selection, find the table cells that are within the selected range
-    const state = this.editor.prosemirrorState;
-    const selection = state.selection;
 
-    let $fromCell = selection.$from;
-    let $toCell = selection.$to;
-    if (isTableCellSelection(selection)) {
-      // When the selection is a table cell selection, we can find the
-      // from and to cells by iterating over the ranges in the selection
-      const { ranges } = selection;
-      ranges.forEach((range) => {
-        $fromCell = range.$from.min($fromCell ?? range.$from);
-        $toCell = range.$to.max($toCell ?? range.$to);
-      });
-    } else {
-      // When the selection is a normal text selection
-      // Assumes we are within a tableParagraph
-      // And find the from and to cells by resolving the positions
-      $fromCell = state.doc.resolve(
-        selection.$from.pos - selection.$from.parentOffset - 1
-      );
-      $toCell = state.doc.resolve(
-        selection.$to.pos - selection.$to.parentOffset - 1
-      );
+    return this.editor.transact((tr) => {
+      const selection = tr.selection;
 
-      // Opt-out when the selection is not pointing into cells
-      if ($fromCell.pos === 0 || $toCell.pos === 0) {
-        return undefined;
+      let $fromCell = selection.$from;
+      let $toCell = selection.$to;
+      if (isTableCellSelection(selection)) {
+        // When the selection is a table cell selection, we can find the
+        // from and to cells by iterating over the ranges in the selection
+        const { ranges } = selection;
+        ranges.forEach((range) => {
+          $fromCell = range.$from.min($fromCell ?? range.$from);
+          $toCell = range.$to.max($toCell ?? range.$to);
+        });
+      } else {
+        // When the selection is a normal text selection
+        // Assumes we are within a tableParagraph
+        // And find the from and to cells by resolving the positions
+        $fromCell = tr.doc.resolve(
+          selection.$from.pos - selection.$from.parentOffset - 1
+        );
+        $toCell = tr.doc.resolve(
+          selection.$to.pos - selection.$to.parentOffset - 1
+        );
+
+        // Opt-out when the selection is not pointing into cells
+        if ($fromCell.pos === 0 || $toCell.pos === 0) {
+          return undefined;
+        }
       }
-    }
 
-    // Find the row and table that the from and to cells are in
-    const $fromRow = state.doc.resolve(
-      $fromCell.pos - $fromCell.parentOffset - 1
-    );
-    const $toRow = state.doc.resolve($toCell.pos - $toCell.parentOffset - 1);
+      // Find the row and table that the from and to cells are in
+      const $fromRow = tr.doc.resolve(
+        $fromCell.pos - $fromCell.parentOffset - 1
+      );
+      const $toRow = tr.doc.resolve($toCell.pos - $toCell.parentOffset - 1);
 
-    // Find the table
-    const $table = state.doc.resolve($fromRow.pos - $fromRow.parentOffset - 1);
+      // Find the table
+      const $table = tr.doc.resolve($fromRow.pos - $fromRow.parentOffset - 1);
 
-    // Find the column and row indices of the from and to cells
-    const fromColIndex = $fromCell.index($fromRow.depth);
-    const fromRowIndex = $fromRow.index($table.depth);
-    const toColIndex = $toCell.index($toRow.depth);
-    const toRowIndex = $toRow.index($table.depth);
+      // Find the column and row indices of the from and to cells
+      const fromColIndex = $fromCell.index($fromRow.depth);
+      const fromRowIndex = $fromRow.index($table.depth);
+      const toColIndex = $toCell.index($toRow.depth);
+      const toRowIndex = $toRow.index($table.depth);
 
-    const cells: RelativeCellIndices[] = [];
-    for (let row = fromRowIndex; row <= toRowIndex; row++) {
-      for (let col = fromColIndex; col <= toColIndex; col++) {
-        cells.push({ row, col });
+      const cells: RelativeCellIndices[] = [];
+      for (let row = fromRowIndex; row <= toRowIndex; row++) {
+        for (let col = fromColIndex; col <= toColIndex; col++) {
+          cells.push({ row, col });
+        }
       }
-    }
 
-    return {
-      from: {
-        row: fromRowIndex,
-        col: fromColIndex,
-      },
-      to: {
-        row: toRowIndex,
-        col: toColIndex,
-      },
-      cells,
-    };
+      return {
+        from: {
+          row: fromRowIndex,
+          col: fromColIndex,
+        },
+        to: {
+          row: toRowIndex,
+          col: toColIndex,
+        },
+        cells,
+      };
+    });
   };
 
   /**
@@ -1150,30 +1157,32 @@ export class TableHandlesProsemirrorPlugin<
       | BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>
       | undefined
   ) => {
-    const isSelectingTableCells = this.editor.transact((tr) =>
-      isTableCellSelection(tr.selection) ? tr.selection : undefined
-    );
+    return this.editor.transact((tr) => {
+      const isSelectingTableCells = isTableCellSelection(tr.selection)
+        ? tr.selection
+        : undefined;
 
-    if (
-      !isSelectingTableCells ||
-      !block ||
-      // Only offer the merge button if there is more than one cell selected.
-      isSelectingTableCells.ranges.length <= 1
-    ) {
-      return undefined;
-    }
+      if (
+        !isSelectingTableCells ||
+        !block ||
+        // Only offer the merge button if there is more than one cell selected.
+        isSelectingTableCells.ranges.length <= 1
+      ) {
+        return undefined;
+      }
 
-    const cellSelection = this.getCellSelection();
+      const cellSelection = this.getCellSelection();
 
-    if (!cellSelection) {
-      return undefined;
-    }
+      if (!cellSelection) {
+        return undefined;
+      }
 
-    if (areInSameColumn(cellSelection.from, cellSelection.to, block)) {
-      return "vertical";
-    }
+      if (areInSameColumn(cellSelection.from, cellSelection.to, block)) {
+        return "vertical";
+      }
 
-    return "horizontal";
+      return "horizontal";
+    });
   };
 
   cropEmptyRowsOrColumns = (

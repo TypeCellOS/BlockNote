@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   getBlockInfo,
-  getBlockInfoFromSelection,
+  getBlockInfoFromTransaction,
 } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
@@ -47,83 +47,103 @@ function setSelectionWithOffset(
 
 describe("Test splitBlocks", () => {
   it("Basic", () => {
-    setSelectionWithOffset(getEditor().prosemirrorState.doc, "paragraph-0", 4);
+    getEditor().transact((tr) => {
+      setSelectionWithOffset(tr.doc, "paragraph-0", 4);
+    });
 
-    splitBlock(getEditor().prosemirrorState.selection.anchor);
+    splitBlock(getEditor().transact((tr) => tr.selection.anchor));
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("End of content", () => {
-    setSelectionWithOffset(getEditor().prosemirrorState.doc, "paragraph-0", 11);
+    getEditor().transact((tr) => {
+      setSelectionWithOffset(tr.doc, "paragraph-0", 11);
+    });
 
-    splitBlock(getEditor().prosemirrorState.selection.anchor);
+    splitBlock(getEditor().transact((tr) => tr.selection.anchor));
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Block has children", () => {
-    setSelectionWithOffset(
-      getEditor().prosemirrorState.doc,
-      "paragraph-with-children",
-      4
-    );
+    getEditor().transact((tr) => {
+      setSelectionWithOffset(tr.doc, "paragraph-with-children", 4);
+    });
 
-    splitBlock(getEditor().prosemirrorState.selection.anchor);
+    splitBlock(getEditor().transact((tr) => tr.selection.anchor));
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Keep type", () => {
-    setSelectionWithOffset(getEditor().prosemirrorState.doc, "heading-0", 4);
+    getEditor().transact((tr) => {
+      setSelectionWithOffset(tr.doc, "heading-0", 4);
+    });
 
-    splitBlock(getEditor().prosemirrorState.selection.anchor, true);
+    splitBlock(
+      getEditor().transact((tr) => tr.selection.anchor),
+      true
+    );
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Don't keep type", () => {
-    setSelectionWithOffset(getEditor().prosemirrorState.doc, "heading-0", 4);
+    getEditor().transact((tr) => {
+      setSelectionWithOffset(tr.doc, "heading-0", 4);
+    });
 
-    splitBlock(getEditor().prosemirrorState.selection.anchor, false);
+    splitBlock(
+      getEditor().transact((tr) => tr.selection.anchor),
+      false
+    );
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it.skip("Keep props", () => {
-    setSelectionWithOffset(
-      getEditor().prosemirrorState.doc,
-      "paragraph-with-props",
-      4
-    );
+    getEditor().transact((tr) => {
+      setSelectionWithOffset(tr.doc, "paragraph-with-props", 4);
+    });
 
-    splitBlock(getEditor().prosemirrorState.selection.anchor, false, true);
+    splitBlock(
+      getEditor().transact((tr) => tr.selection.anchor),
+      false,
+      true
+    );
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Don't keep props", () => {
-    setSelectionWithOffset(
-      getEditor().prosemirrorState.doc,
-      "paragraph-with-props",
-      4
-    );
+    getEditor().transact((tr) => {
+      setSelectionWithOffset(tr.doc, "paragraph-with-props", 4);
+    });
 
-    splitBlock(getEditor().prosemirrorState.selection.anchor, false, false);
+    splitBlock(
+      getEditor().transact((tr) => tr.selection.anchor),
+      false,
+      false
+    );
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Selection is set", () => {
-    setSelectionWithOffset(getEditor().prosemirrorState.doc, "paragraph-0", 4);
+    getEditor().transact((tr) => {
+      setSelectionWithOffset(tr.doc, "paragraph-0", 4);
+    });
 
-    splitBlock(getEditor().prosemirrorState.selection.anchor);
+    splitBlock(getEditor().transact((tr) => tr.selection.anchor));
 
-    const { bnBlock } = getBlockInfoFromSelection(getEditor().prosemirrorState);
+    const bnBlock = getEditor().transact(
+      (tr) => getBlockInfoFromTransaction(tr).bnBlock
+    );
 
     const anchorIsAtStartOfNewBlock =
       bnBlock.node.attrs.id === "0" &&
-      getEditor().prosemirrorState.selection.$anchor.parentOffset === 0;
+      getEditor().transact((tr) => tr.selection.$anchor.parentOffset) === 0;
 
     expect(anchorIsAtStartOfNewBlock).toBeTruthy();
   });

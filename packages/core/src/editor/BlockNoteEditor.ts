@@ -93,7 +93,12 @@ import {
 import { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
 
-import { Plugin, TextSelection, Transaction } from "@tiptap/pm/state";
+import {
+  TextSelection,
+  type Command,
+  type Plugin,
+  type Transaction,
+} from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
 import { EditorView } from "prosemirror-view";
 import { ySyncPluginKey } from "y-prosemirror";
@@ -733,28 +738,48 @@ export class BlockNoteEditor<
   }
 
   /**
-   * Dispatch a ProseMirror transaction.
-   *
-   * @example
-   * ```ts
-   * const tr = editor.transaction;
-   * tr.insertText("Hello, world!");
-   * editor.dispatch(tr);
-   * ```
-   */
-  private dispatch(tr: Transaction) {
-    if (this.activeTransaction) {
-      // We don't want the editor to actually apply the state, so all of this is manipulating the current transaction in-memory
-      return;
-    }
-
-    this._tiptapEditor.dispatch(tr);
-  }
-
-  /**
    * Stores the currently active transaction, which is the accumulated transaction from all {@link dispatch} calls during a {@link transact} calls
    */
   private activeTransaction: Transaction | null = null;
+
+  /**
+   * Execute a prosemirror command. This is mostly for backwards compatibility with older code.
+   *
+   * @note You should prefer the {@link transact} method when possible, as it will automatically handle the dispatching of the transaction and work across blocknote transactions.
+   *
+   * @example
+   * ```ts
+   * editor.command((state, dispatch, view) => {
+   *   dispatch(state.tr.insertText("Hello, world!"));
+   * });
+   * ```
+   */
+  public exec(command: Command) {
+    const state = this._tiptapEditor.state;
+    const view = this._tiptapEditor.view;
+    const dispatch = this._tiptapEditor.dispatch;
+
+    return command(state, dispatch, view);
+  }
+
+  /**
+   * Check if a command can be executed. A command should return `false` if it is not valid in the current state.
+   *
+   * @example
+   * ```ts
+   * if (editor.canExec(command)) {
+   *   // show button
+   * } else {
+   *   // hide button
+   * }
+   * ```
+   */
+  public canExec(command: Command): boolean {
+    const state = this._tiptapEditor.state;
+    const view = this._tiptapEditor.view;
+
+    return command(state, undefined, view);
+  }
 
   /**
    * Execute a function within a "blocknote transaction".
@@ -781,82 +806,43 @@ export class BlockNoteEditor<
        * The current active transaction, this will automatically be dispatched to the editor when the callback is complete
        * If another `transact` call is made within the callback, it will be passed the same transaction as the parent call.
        */
-      tr: Transaction,
-      /**
-       * In some situations, you may need to dispatch a transaction which is not the current active transaction.
-       * This can be done by calling the `dispatch` function passed as an argument to the callback.
-       *
-       * @note This will only respect the passed transaction, and throw away any active transaction (e.g. the first argument).
-       */
-      dispatch: (tr: Transaction) => void
+      tr: Transaction
     ) => T
   ): T {
-    /**
-     * This allows dispatching a transaction which may not be the current active transaction (e.g. when using a prosemirror-command)
-     * It will simply set the active transaction to the dispatch'd transaction, and let the `dispatch` method handle the rest.
-     */
-    const dispatch = (tr: Transaction) => {
-      const activeTr = this.activeTransaction;
-      if (!activeTr) {
-        throw new Error(
-          "`dispatch` was called outside of a `transact` call, this is unsupported"
-        );
-      }
-
-      if (activeTr === tr || !tr) {
-        // The dispatch'd transaction is the same as the active transaction, so we don't need to do anything
-        return;
-      }
-
-      this.activeTransaction = tr;
-    };
-
     if (this.activeTransaction) {
       // Already in a transaction, so we can just callback immediately
-      return callback(this.activeTransaction, dispatch);
+      return callback(this.activeTransaction);
     }
 
     try {
       // Enter transaction mode, by setting a starting transaction
-      this.activeTransaction = this.prosemirrorState.tr;
+      this.activeTransaction = this._tiptapEditor.state.tr;
 
       // Capture all dispatch'd transactions
-      const result = callback(this.activeTransaction, dispatch);
+      const result = callback(this.activeTransaction);
 
       // Any transactions captured by the `dispatch` call will be stored in `this.activeTransaction`
       const activeTr = this.activeTransaction;
 
       this.activeTransaction = null;
-      if (activeTr) {
+      if (
+        activeTr &&
+        // Only dispatch if the transaction was actually modified in some way
+        (activeTr.docChanged ||
+          activeTr.selectionSet ||
+          activeTr.scrolledIntoView ||
+          activeTr.storedMarksSet ||
+          !activeTr.isGeneric)
+      ) {
         // Dispatch the transaction if it was modified
-        this.dispatch(activeTr);
+        this._tiptapEditor.dispatch(activeTr);
       }
+
       return result;
     } finally {
       // We wrap this in a finally block to ensure we don't disable future transactions just because of an error in the callback
       this.activeTransaction = null;
     }
-  }
-
-  /**
-   * Start a new ProseMirror transaction.
-   *
-   * @example
-   * ```ts
-   * const tr = editor.transaction
-   *
-   * tr.insertText("Hello, world!");
-   *
-   * editor.dispatch(tr);
-   * ```
-   */
-  private get transaction(): Transaction {
-    if (this.activeTransaction) {
-      // We are in a `transact` call, so we should return that transaction to accumulate changes on it
-      return this.activeTransaction;
-    }
-    // Otherwise, we are not in a `transact` call, so we can just return the current state
-    return this.prosemirrorState.tr;
   }
 
   /**
@@ -876,16 +862,6 @@ export class BlockNoteEditor<
    */
   public get prosemirrorView() {
     return this._tiptapEditor.view;
-  }
-
-  /**
-   * Get the underlying prosemirror state
-   */
-  public get prosemirrorState() {
-    if (this.activeTransaction) {
-      throw new Error("Cannot get prosemirrorState while in a transaction");
-    }
-    return this._tiptapEditor.state;
   }
 
   public get domElement() {
@@ -934,15 +910,17 @@ export class BlockNoteEditor<
    * @returns A snapshot of all top-level (non-nested) blocks in the editor.
    */
   public get document(): Block<BSchema, ISchema, SSchema>[] {
-    const blocks: Block<BSchema, ISchema, SSchema>[] = [];
+    return this.transact((tr) => {
+      const blocks: Block<BSchema, ISchema, SSchema>[] = [];
 
-    this.prosemirrorState.doc.firstChild!.descendants((node) => {
-      blocks.push(nodeToBlock(node, this.pmSchema));
+      tr.doc.firstChild!.descendants((node) => {
+        blocks.push(nodeToBlock(node, this.pmSchema));
 
-      return false;
+        return false;
+      });
+
+      return blocks;
     });
-
-    return blocks;
   }
 
   /**
@@ -955,7 +933,7 @@ export class BlockNoteEditor<
   public getBlock(
     blockIdentifier: BlockIdentifier
   ): Block<BSchema, ISchema, SSchema> | undefined {
-    return getBlock(this.transaction.doc, blockIdentifier);
+    return this.transact((tr) => getBlock(tr.doc, blockIdentifier));
   }
 
   /**
@@ -970,7 +948,7 @@ export class BlockNoteEditor<
   public getPrevBlock(
     blockIdentifier: BlockIdentifier
   ): Block<BSchema, ISchema, SSchema> | undefined {
-    return getPrevBlock(this.transaction.doc, blockIdentifier);
+    return this.transact((tr) => getPrevBlock(tr.doc, blockIdentifier));
   }
 
   /**
@@ -984,7 +962,7 @@ export class BlockNoteEditor<
   public getNextBlock(
     blockIdentifier: BlockIdentifier
   ): Block<BSchema, ISchema, SSchema> | undefined {
-    return getNextBlock(this.transaction.doc, blockIdentifier);
+    return this.transact((tr) => getNextBlock(tr.doc, blockIdentifier));
   }
 
   /**
@@ -997,7 +975,7 @@ export class BlockNoteEditor<
   public getParentBlock(
     blockIdentifier: BlockIdentifier
   ): Block<BSchema, ISchema, SSchema> | undefined {
-    return getParentBlock(this.transaction.doc, blockIdentifier);
+    return this.transact((tr) => getParentBlock(tr.doc, blockIdentifier));
   }
 
   /**
@@ -1067,7 +1045,7 @@ export class BlockNoteEditor<
     ISchema,
     SSchema
   > {
-    return getTextCursorPosition(this.transaction);
+    return this.transact((tr) => getTextCursorPosition(tr));
   }
 
   /**
@@ -1089,7 +1067,7 @@ export class BlockNoteEditor<
    * Gets a snapshot of the current selection.
    */
   public getSelection(): Selection<BSchema, ISchema, SSchema> | undefined {
-    return getSelection(this.transaction);
+    return this.transact((tr) => getSelection(tr));
   }
 
   public setSelection(startBlock: BlockIdentifier, endBlock: BlockIdentifier) {
@@ -1211,32 +1189,34 @@ export class BlockNoteEditor<
    * Gets the active text styles at the text cursor position or at the end of the current selection if it's active.
    */
   public getActiveStyles() {
-    const styles: Styles<SSchema> = {};
-    const marks = this.prosemirrorState.selection.$to.marks();
+    return this.transact((tr) => {
+      const styles: Styles<SSchema> = {};
+      const marks = tr.selection.$to.marks();
 
-    for (const mark of marks) {
-      const config = this.schema.styleSchema[mark.type.name];
-      if (!config) {
-        if (
-          // Links are not considered styles in blocknote
-          mark.type.name !== "link" &&
-          // "blocknoteIgnore" tagged marks (such as comments) are also not considered BlockNote "styles"
-          !mark.type.spec.blocknoteIgnore
-        ) {
-          // eslint-disable-next-line no-console
-          console.warn("mark not found in styleschema", mark.type.name);
+      for (const mark of marks) {
+        const config = this.schema.styleSchema[mark.type.name];
+        if (!config) {
+          if (
+            // Links are not considered styles in blocknote
+            mark.type.name !== "link" &&
+            // "blocknoteIgnore" tagged marks (such as comments) are also not considered BlockNote "styles"
+            !mark.type.spec.blocknoteIgnore
+          ) {
+            // eslint-disable-next-line no-console
+            console.warn("mark not found in styleschema", mark.type.name);
+          }
+
+          continue;
         }
-
-        continue;
+        if (config.propSchema === "boolean") {
+          (styles as any)[config.type] = true;
+        } else {
+          (styles as any)[config.type] = mark.attrs.stringValue;
+        }
       }
-      if (config.propSchema === "boolean") {
-        (styles as any)[config.type] = true;
-      } else {
-        (styles as any)[config.type] = mark.attrs.stringValue;
-      }
-    }
 
-    return styles;
+      return styles;
+    });
   }
 
   /**
@@ -1293,8 +1273,9 @@ export class BlockNoteEditor<
    * Gets the currently selected text.
    */
   public getSelectedText() {
-    const state = this.prosemirrorState;
-    return state.doc.textBetween(state.selection.from, state.selection.to);
+    return this.transact((tr) => {
+      return tr.doc.textBetween(tr.selection.from, tr.selection.to);
+    });
   }
 
   /**
@@ -1314,20 +1295,19 @@ export class BlockNoteEditor<
       return;
     }
     const mark = this.pmSchema.mark("link", { href: url });
-    const tr = this.transaction;
-    const { from, to } = tr.selection;
+    this.transact((tr) => {
+      const { from, to } = tr.selection;
 
-    if (text) {
-      this.dispatch(
-        tr.insertText(text, from, to).addMark(from, from + text.length, mark)
-      );
-    } else {
-      this.dispatch(
-        tr
-          .setSelection(TextSelection.create(tr.doc, to))
-          .addMark(from, to, mark)
-      );
-    }
+      if (text) {
+        tr.insertText(text, from, to).addMark(from, from + text.length, mark);
+      } else {
+        tr.setSelection(TextSelection.create(tr.doc, to)).addMark(
+          from,
+          to,
+          mark
+        );
+      }
+    });
   }
 
   /**
@@ -1572,16 +1552,16 @@ export class BlockNoteEditor<
     }
 
     this.focus();
-    const tr = this.transaction;
-    if (pluginState && pluginState.deleteTriggerCharacter) {
-      tr.insertText(triggerCharacter);
-    }
-    tr.scrollIntoView().setMeta(this.suggestionMenus.plugin, {
-      triggerCharacter: triggerCharacter,
-      deleteTriggerCharacter: pluginState?.deleteTriggerCharacter || false,
-      ignoreQueryLength: pluginState?.ignoreQueryLength || false,
+    this.transact((tr) => {
+      if (pluginState?.deleteTriggerCharacter) {
+        tr.insertText(triggerCharacter);
+      }
+      tr.scrollIntoView().setMeta(this.suggestionMenus.plugin, {
+        triggerCharacter: triggerCharacter,
+        deleteTriggerCharacter: pluginState?.deleteTriggerCharacter || false,
+        ignoreQueryLength: pluginState?.ignoreQueryLength || false,
+      });
     });
-    this.dispatch(tr);
   }
 
   // `forceSelectionVisible` determines whether the editor selection is shows
