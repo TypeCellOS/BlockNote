@@ -297,10 +297,8 @@ describe("Test ProseMirror selection clipboard HTML", () => {
       throw new Error("Editor view not initialized.");
     }
 
-    editor.dispatch(
-      editor._tiptapEditor.state.tr.setSelection(
-        testCase.createCopySelection(editor.prosemirrorView.state.doc)
-      )
+    editor.transact((tr) =>
+      tr.setSelection(testCase.createCopySelection(tr.doc))
     );
 
     const { clipboardHTML, externalHTML } = selectedFragmentToHTML(
@@ -313,10 +311,8 @@ describe("Test ProseMirror selection clipboard HTML", () => {
     );
 
     if (testCase.createPasteSelection) {
-      editor.dispatch(
-        editor._tiptapEditor.state.tr.setSelection(
-          testCase.createPasteSelection(editor.prosemirrorView.state.doc)
-        )
+      editor.transact((tr) =>
+        tr.setSelection(testCase.createPasteSelection!(tr.doc))
       );
     }
 

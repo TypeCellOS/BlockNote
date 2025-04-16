@@ -1,18 +1,22 @@
-import { Fragment, NodeType, Node as PMNode, Slice } from "prosemirror-model";
-import { EditorState } from "prosemirror-state";
+import {
+  Fragment,
+  type NodeType,
+  type Node as PMNode,
+  Slice,
+} from "prosemirror-model";
+import type { Transaction } from "prosemirror-state";
 
 import { ReplaceStep } from "prosemirror-transform";
-import { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
-import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
-import {
+import type { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
+import type {
   BlockIdentifier,
   BlockSchema,
 } from "../../../../schema/blocks/types.js";
-import { InlineContentSchema } from "../../../../schema/inlineContent/types.js";
-import { StyleSchema } from "../../../../schema/styles/types.js";
+import type { InlineContentSchema } from "../../../../schema/inlineContent/types.js";
+import type { StyleSchema } from "../../../../schema/styles/types.js";
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
-  BlockInfo,
+  type BlockInfo,
   getBlockInfoFromResolvedPos,
 } from "../../../getBlockInfoFromPos.js";
 import {
@@ -22,98 +26,90 @@ import {
 } from "../../../nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
+import { getPmSchema } from "../../../pmUtil.js";
 
-export const updateBlockCommand =
-  <
-    BSchema extends BlockSchema,
-    I extends InlineContentSchema,
-    S extends StyleSchema
-  >(
-    editor: BlockNoteEditor<BSchema, I, S>,
-    posBeforeBlock: number,
-    block: PartialBlock<BSchema, I, S>
-  ) =>
-  ({
-    state,
+export const updateBlockCommand = <
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  posBeforeBlock: number,
+  block: PartialBlock<BSchema, I, S>
+) => {
+  return ({
+    tr,
     dispatch,
   }: {
-    state: EditorState;
-    dispatch: ((args?: any) => any) | undefined;
-  }) => {
-    const blockInfo = getBlockInfoFromResolvedPos(
-      state.doc.resolve(posBeforeBlock)
-    );
-
+    tr: Transaction;
+    dispatch?: () => void;
+  }): boolean => {
     if (dispatch) {
-      // Adds blockGroup node with child blocks if necessary.
-
-      const oldNodeType = state.schema.nodes[blockInfo.blockNoteType];
-      const newNodeType =
-        state.schema.nodes[block.type || blockInfo.blockNoteType];
-      const newBnBlockNodeType = newNodeType.isInGroup("bnBlock")
-        ? newNodeType
-        : state.schema.nodes["blockContainer"];
-
-      if (blockInfo.isBlockContainer && newNodeType.isInGroup("blockContent")) {
-        updateChildren(block, state, editor, blockInfo);
-        // The code below determines the new content of the block.
-        // or "keep" to keep as-is
-        updateBlockContentNode(
-          block,
-          state,
-          editor,
-          oldNodeType,
-          newNodeType,
-          blockInfo
-        );
-      } else if (
-        !blockInfo.isBlockContainer &&
-        newNodeType.isInGroup("bnBlock")
-      ) {
-        updateChildren(block, state, editor, blockInfo);
-        // old node was a bnBlock type (like column or columnList) and new block as well
-        // No op, we just update the bnBlock below (at end of function) and have already updated the children
-      } else {
-        // switching from blockContainer to non-blockContainer or v.v.
-        // currently breaking for column slash menu items converting empty block
-        // to column.
-
-        // currently, we calculate the new node and replace the entire node with the desired new node.
-        // for this, we do a nodeToBlock on the existing block to get the children.
-        // it would be cleaner to use a ReplaceAroundStep, but this is a bit simpler and it's quite an edge case
-        const existingBlock = nodeToBlock(
-          blockInfo.bnBlock.node,
-          editor.schema.blockSchema,
-          editor.schema.inlineContentSchema,
-          editor.schema.styleSchema,
-          editor.blockCache
-        );
-        state.tr.replaceWith(
-          blockInfo.bnBlock.beforePos,
-          blockInfo.bnBlock.afterPos,
-          blockToNode(
-            {
-              children: existingBlock.children, // if no children are passed in, use existing children
-              ...block,
-            },
-            state.schema,
-            editor.schema.styleSchema
-          )
-        );
-
-        return true;
-      }
-
-      // Adds all provided props as attributes to the parent blockContainer node too, and also preserves existing
-      // attributes.
-      state.tr.setNodeMarkup(blockInfo.bnBlock.beforePos, newBnBlockNodeType, {
-        ...blockInfo.bnBlock.node.attrs,
-        ...block.props,
-      });
+      updateBlockTr(tr, posBeforeBlock, block);
     }
-
     return true;
   };
+};
+
+const updateBlockTr = <
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  tr: Transaction,
+  posBeforeBlock: number,
+  block: PartialBlock<BSchema, I, S>
+) => {
+  const blockInfo = getBlockInfoFromResolvedPos(tr.doc.resolve(posBeforeBlock));
+
+  const pmSchema = getPmSchema(tr);
+  // Adds blockGroup node with child blocks if necessary.
+
+  const oldNodeType = pmSchema.nodes[blockInfo.blockNoteType];
+  const newNodeType = pmSchema.nodes[block.type || blockInfo.blockNoteType];
+  const newBnBlockNodeType = newNodeType.isInGroup("bnBlock")
+    ? newNodeType
+    : pmSchema.nodes["blockContainer"];
+
+  if (blockInfo.isBlockContainer && newNodeType.isInGroup("blockContent")) {
+    updateChildren(block, tr, blockInfo);
+    // The code below determines the new content of the block.
+    // or "keep" to keep as-is
+    updateBlockContentNode(block, tr, oldNodeType, newNodeType, blockInfo);
+  } else if (!blockInfo.isBlockContainer && newNodeType.isInGroup("bnBlock")) {
+    updateChildren(block, tr, blockInfo);
+    // old node was a bnBlock type (like column or columnList) and new block as well
+    // No op, we just update the bnBlock below (at end of function) and have already updated the children
+  } else {
+    // switching from blockContainer to non-blockContainer or v.v.
+    // currently breaking for column slash menu items converting empty block
+    // to column.
+
+    // currently, we calculate the new node and replace the entire node with the desired new node.
+    // for this, we do a nodeToBlock on the existing block to get the children.
+    // it would be cleaner to use a ReplaceAroundStep, but this is a bit simpler and it's quite an edge case
+    const existingBlock = nodeToBlock(blockInfo.bnBlock.node, pmSchema);
+    tr.replaceWith(
+      blockInfo.bnBlock.beforePos,
+      blockInfo.bnBlock.afterPos,
+      blockToNode(
+        {
+          children: existingBlock.children, // if no children are passed in, use existing children
+          ...block,
+        },
+        pmSchema
+      )
+    );
+
+    return;
+  }
+
+  // Adds all provided props as attributes to the parent blockContainer node too, and also preserves existing
+  // attributes.
+  tr.setNodeMarkup(blockInfo.bnBlock.beforePos, newBnBlockNodeType, {
+    ...blockInfo.bnBlock.node.attrs,
+    ...block.props,
+  });
+};
 
 function updateBlockContentNode<
   BSchema extends BlockSchema,
@@ -121,8 +117,7 @@ function updateBlockContentNode<
   S extends StyleSchema
 >(
   block: PartialBlock<BSchema, I, S>,
-  state: EditorState,
-  editor: BlockNoteEditor<BSchema, I, S>,
+  tr: Transaction,
   oldNodeType: NodeType,
   newNodeType: NodeType,
   blockInfo: {
@@ -132,6 +127,7 @@ function updateBlockContentNode<
     blockContent: { node: PMNode; beforePos: number; afterPos: number };
   }
 ) {
+  const pmSchema = getPmSchema(tr);
   let content: PMNode[] | "keep" = "keep";
 
   // Has there been any custom content provided?
@@ -140,25 +136,15 @@ function updateBlockContentNode<
       // Adds a single text node with no marks to the content.
       content = inlineContentToNodes(
         [block.content],
-        state.schema,
-        editor.schema.styleSchema,
+        pmSchema,
         newNodeType.name
       );
     } else if (Array.isArray(block.content)) {
       // Adds a text node with the provided styles converted into marks to the content,
       // for each InlineContent object.
-      content = inlineContentToNodes(
-        block.content,
-        state.schema,
-        editor.schema.styleSchema,
-        newNodeType.name
-      );
+      content = inlineContentToNodes(block.content, pmSchema, newNodeType.name);
     } else if (block.content.type === "tableContent") {
-      content = tableContentToNodes(
-        block.content,
-        state.schema,
-        editor.schema.styleSchema
-      );
+      content = tableContentToNodes(block.content, pmSchema);
     } else {
       throw new UnreachableCaseError(block.content.type);
     }
@@ -186,9 +172,9 @@ function updateBlockContentNode<
   // content is being replaced or not.
   if (content === "keep") {
     // use setNodeMarkup to only update the type and attributes
-    state.tr.setNodeMarkup(
+    tr.setNodeMarkup(
       blockInfo.blockContent.beforePos,
-      block.type === undefined ? undefined : state.schema.nodes[block.type],
+      block.type === undefined ? undefined : pmSchema.nodes[block.type],
       {
         ...blockInfo.blockContent.node.attrs,
         ...block.props,
@@ -198,7 +184,7 @@ function updateBlockContentNode<
     // use replaceWith to replace the content and the block itself
     // also  reset the selection since replacing the block content
     // sets it to the next block.
-    state.tr.replaceWith(
+    tr.replaceWith(
       blockInfo.blockContent.beforePos,
       blockInfo.blockContent.afterPos,
       newNodeType.createChecked(
@@ -216,15 +202,11 @@ function updateChildren<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
->(
-  block: PartialBlock<BSchema, I, S>,
-  state: EditorState,
-  editor: BlockNoteEditor<BSchema, I, S>,
-  blockInfo: BlockInfo
-) {
+>(block: PartialBlock<BSchema, I, S>, tr: Transaction, blockInfo: BlockInfo) {
+  const pmSchema = getPmSchema(tr);
   if (block.children !== undefined && block.children.length > 0) {
     const childNodes = block.children.map((child) => {
-      return blockToNode(child, state.schema, editor.schema.styleSchema);
+      return blockToNode(child, pmSchema);
     });
 
     // Checks if a blockGroup node already exists.
@@ -232,7 +214,7 @@ function updateChildren<
       // Replaces all child nodes in the existing blockGroup with the ones created earlier.
 
       // use a replacestep to avoid the fitting algorithm
-      state.tr.step(
+      tr.step(
         new ReplaceStep(
           blockInfo.childContainer.beforePos + 1,
           blockInfo.childContainer.afterPos - 1,
@@ -244,51 +226,36 @@ function updateChildren<
         throw new Error("impossible");
       }
       // Inserts a new blockGroup containing the child nodes created earlier.
-      state.tr.insert(
+      tr.insert(
         blockInfo.blockContent.afterPos,
-        state.schema.nodes["blockGroup"].createChecked({}, childNodes)
+        pmSchema.nodes["blockGroup"].createChecked({}, childNodes)
       );
     }
   }
 }
 
 export function updateBlock<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
+  BSchema extends BlockSchema = any,
+  I extends InlineContentSchema = any,
+  S extends StyleSchema = any
 >(
-  editor: BlockNoteEditor<BSchema, I, S>,
+  tr: Transaction,
   blockToUpdate: BlockIdentifier,
   update: PartialBlock<BSchema, I, S>
 ): Block<BSchema, I, S> {
-  const ttEditor = editor._tiptapEditor;
-
   const id =
     typeof blockToUpdate === "string" ? blockToUpdate : blockToUpdate.id;
-
-  const posInfo = getNodeById(id, ttEditor.state.doc);
+  const posInfo = getNodeById(id, tr.doc);
   if (!posInfo) {
     throw new Error(`Block with ID ${id} not found`);
   }
 
-  ttEditor.commands.command(({ state, dispatch }) => {
-    updateBlockCommand(
-      editor,
-      posInfo.posBeforeNode,
-      update
-    )({ state, dispatch });
-    return true;
-  });
+  updateBlockTr(tr, posInfo.posBeforeNode, update);
 
-  const blockContainerNode = ttEditor.state.doc
+  const blockContainerNode = tr.doc
     .resolve(posInfo.posBeforeNode + 1) // TODO: clean?
     .node();
 
-  return nodeToBlock(
-    blockContainerNode,
-    editor.schema.blockSchema,
-    editor.schema.inlineContentSchema,
-    editor.schema.styleSchema,
-    editor.blockCache
-  );
+  const pmSchema = getPmSchema(tr);
+  return nodeToBlock(blockContainerNode, pmSchema);
 }

@@ -19,6 +19,7 @@ import {
 import { getColspan, isPartialTableCell } from "../../util/table.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
 import { getAbsoluteTableCells } from "../blockManipulation/tables/tables.js";
+import { getStyleSchema } from "../pmUtil.js";
 
 /**
  * Convert a StyledText inline element to a
@@ -139,8 +140,8 @@ export function inlineContentToNodes<
 >(
   blockContent: PartialInlineContent<I, S>,
   schema: Schema,
-  styleSchema: S,
-  blockType?: string
+  blockType?: string,
+  styleSchema: S = getStyleSchema(schema)
 ): Node[] {
   const nodes: Node[] = [];
 
@@ -173,7 +174,7 @@ export function tableContentToNodes<
 >(
   tableContent: PartialTableContent<I, S>,
   schema: Schema,
-  styleSchema: StyleSchema
+  styleSchema: StyleSchema = getStyleSchema(schema)
 ): Node[] {
   const rowNodes: Node[] = [];
   // Header rows and columns are used to determine the type of the cell
@@ -222,7 +223,12 @@ export function tableContentToNodes<
         content = schema.text(cell);
       } else if (isPartialTableCell(cell)) {
         if (cell.content) {
-          content = inlineContentToNodes(cell.content, schema, styleSchema);
+          content = inlineContentToNodes(
+            cell.content,
+            schema,
+            "tableParagraph",
+            styleSchema
+          );
         }
         const colspan = getColspan(cell);
 
@@ -234,7 +240,12 @@ export function tableContentToNodes<
           });
         }
       } else {
-        content = inlineContentToNodes(cell, schema, styleSchema);
+        content = inlineContentToNodes(
+          cell,
+          schema,
+          "tableParagraph",
+          styleSchema
+        );
       }
 
       const cellNode = schema.nodes[
@@ -279,16 +290,16 @@ function blockOrInlineContentToContentNode(
     const nodes = inlineContentToNodes(
       [block.content],
       schema,
-      styleSchema,
-      type
+      type,
+      styleSchema
     );
     contentNode = schema.nodes[type].createChecked(block.props, nodes);
   } else if (Array.isArray(block.content)) {
     const nodes = inlineContentToNodes(
       block.content,
       schema,
-      styleSchema,
-      type
+      type,
+      styleSchema
     );
     contentNode = schema.nodes[type].createChecked(block.props, nodes);
   } else if (block.content.type === "tableContent") {
@@ -306,7 +317,7 @@ function blockOrInlineContentToContentNode(
 export function blockToNode(
   block: PartialBlock<any, any, any>,
   schema: Schema,
-  styleSchema: StyleSchema
+  styleSchema: StyleSchema = getStyleSchema(schema)
 ) {
   let id = block.id;
 

@@ -1,9 +1,22 @@
 import { describe, expect, it } from "vitest";
 
 import { setupTestEnv } from "../../setupTestEnv.js";
-import { replaceBlocks } from "./replaceBlocks.js";
+import { removeAndInsertBlocks } from "./replaceBlocks.js";
+import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
+import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
+import { BlockIdentifier } from "../../../../schema/index.js";
 
 const getEditor = setupTestEnv();
+
+function replaceBlocks(
+  editor: BlockNoteEditor,
+  blocksToRemove: BlockIdentifier[],
+  blocksToInsert: PartialBlock<any, any, any>[]
+) {
+  return editor.transact((tr) =>
+    removeAndInsertBlocks(tr, blocksToRemove, blocksToInsert)
+  );
+}
 
 describe("Test replaceBlocks", () => {
   it("Remove single block", () => {

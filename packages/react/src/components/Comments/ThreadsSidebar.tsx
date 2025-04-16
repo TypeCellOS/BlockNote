@@ -131,28 +131,30 @@ export function getReferenceText(
     to: number;
   }
 ) {
-  if (!threadPosition) {
-    return "Original content deleted";
-  }
+  return editor.transact((tr) => {
+    if (!threadPosition) {
+      return "Original content deleted";
+    }
 
-  // TODO: Handles an edge case where the editor is re-rendered and the document
-  //  is not yet fetched (causing it to be empty). We should store the original
-  //  reference text in the data model, as not only is it a general improvement,
-  //  but it also means we won't have to handle this edge case.
-  if (editor.prosemirrorState.doc.nodeSize < threadPosition.to) {
-    return "";
-  }
+    // TODO: Handles an edge case where the editor is re-rendered and the document
+    //  is not yet fetched (causing it to be empty). We should store the original
+    //  reference text in the data model, as not only is it a general improvement,
+    //  but it also means we won't have to handle this edge case.
+    if (tr.doc.nodeSize < threadPosition.to) {
+      return "";
+    }
 
-  const referenceText = editor.prosemirrorState.doc.textBetween(
-    threadPosition.from,
-    threadPosition.to
-  );
+    const referenceText = tr.doc.textBetween(
+      threadPosition.from,
+      threadPosition.to
+    );
 
-  if (referenceText.length > 15) {
-    return `${referenceText.slice(0, 15)}…`;
-  }
+    if (referenceText.length > 15) {
+      return `${referenceText.slice(0, 15)}…`;
+    }
 
-  return referenceText;
+    return referenceText;
+  });
 }
 
 /**

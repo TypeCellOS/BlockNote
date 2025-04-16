@@ -10,44 +10,65 @@ const getEditor = setupTestEnv();
 
 describe("Test getTextCursorPosition & setTextCursorPosition", () => {
   it("Basic", () => {
-    setTextCursorPosition(getEditor(), "paragraph-1");
+    getEditor().transact((tr) => {
+      setTextCursorPosition(tr, "paragraph-1");
+    });
 
-    expect(getTextCursorPosition(getEditor())).toMatchSnapshot();
+    expect(
+      getEditor().transact((tr) => getTextCursorPosition(tr))
+    ).toMatchSnapshot();
   });
 
   it("First block", () => {
-    setTextCursorPosition(getEditor(), "paragraph-0");
+    getEditor().transact((tr) => {
+      setTextCursorPosition(tr, "paragraph-0");
+    });
 
-    expect(getTextCursorPosition(getEditor())).toMatchSnapshot();
+    expect(
+      getEditor().transact((tr) => getTextCursorPosition(tr))
+    ).toMatchSnapshot();
   });
 
   it("Last block", () => {
-    setTextCursorPosition(getEditor(), "trailing-paragraph");
+    getEditor().transact((tr) => {
+      setTextCursorPosition(tr, "trailing-paragraph");
+    });
 
-    expect(getTextCursorPosition(getEditor())).toMatchSnapshot();
+    expect(
+      getEditor().transact((tr) => getTextCursorPosition(tr))
+    ).toMatchSnapshot();
   });
 
   it("Nested block", () => {
-    setTextCursorPosition(getEditor(), "nested-paragraph-0");
+    getEditor().transact((tr) => {
+      setTextCursorPosition(tr, "nested-paragraph-0");
+    });
 
-    expect(getTextCursorPosition(getEditor())).toMatchSnapshot();
+    expect(
+      getEditor().transact((tr) => getTextCursorPosition(tr))
+    ).toMatchSnapshot();
   });
 
   it("Set to start", () => {
-    setTextCursorPosition(getEditor(), "paragraph-1", "start");
+    getEditor().transact((tr) => {
+      setTextCursorPosition(tr, "paragraph-1", "start");
+    });
 
     expect(
-      getEditor()._tiptapEditor.state.selection.$from.parentOffset === 0
+      getEditor().transact((tr) => tr.selection.$from.parentOffset) === 0
     ).toBeTruthy();
   });
 
   it("Set to end", () => {
-    setTextCursorPosition(getEditor(), "paragraph-1", "end");
+    getEditor().transact((tr) => {
+      setTextCursorPosition(tr, "paragraph-1", "end");
+    });
 
     expect(
-      getEditor()._tiptapEditor.state.selection.$from.parentOffset ===
-        getEditor()._tiptapEditor.state.selection.$from.node().firstChild!
-          .nodeSize
+      getEditor().transact((tr) => tr.selection.$from.parentOffset) ===
+        getEditor().transact(
+          (tr) => tr.selection.$from.node().firstChild!.nodeSize
+        )
     ).toBeTruthy();
   });
 });
