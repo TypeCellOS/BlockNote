@@ -84,22 +84,15 @@ export type BlockChangeSource =
   | {
       /**
        * When an event is triggered by an undo or redo operation, the source is "undo" or "redo".
+       * @note Y.js undo/redo are not differentiated.
        */
-      type: "undo" | "redo";
+      type: "undo" | "redo" | "undo-redo";
     }
   | {
       /**
        * When an event is triggered by a remote user, the source is "remote".
        */
       type: "yjs-remote";
-      /**
-       * Whether the change is from this client or another client.
-       */
-      isChangeOrigin: boolean;
-      /**
-       * Whether the change is an undo or redo operation.
-       */
-      isUndoRedoOperation: boolean;
     };
 
 export type BlocksChanged<
@@ -181,11 +174,15 @@ export function getBlocksChangedByTransaction<
       type: transaction.getMeta("history$").redo ? "redo" : "undo",
     };
   } else if (transaction.getMeta("y-sync$")) {
-    source = {
-      type: "yjs-remote",
-      isChangeOrigin: transaction.getMeta("y-sync$").isChangeOrigin,
-      isUndoRedoOperation: transaction.getMeta("y-sync$").isUndoRedoOperation,
-    };
+    if (transaction.getMeta("y-sync$").isUndoRedoOperation) {
+      source = {
+        type: "undo-redo",
+      };
+    } else {
+      source = {
+        type: "yjs-remote",
+      };
+    }
   }
 
   // Get affected blocks before and after the change
