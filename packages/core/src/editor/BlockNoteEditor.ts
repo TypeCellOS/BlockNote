@@ -749,15 +749,20 @@ export class BlockNoteEditor<
    *
    * @example
    * ```ts
-   * editor.command((state, dispatch, view) => {
+   * editor.exec((state, dispatch, view) => {
    *   dispatch(state.tr.insertText("Hello, world!"));
    * });
    * ```
    */
   public exec(command: Command) {
+    if (this.activeTransaction) {
+      throw new Error(
+        "`exec` should not be called within a `transact` call, move the `exec` call outside of the `transact` call"
+      );
+    }
     const state = this._tiptapEditor.state;
     const view = this._tiptapEditor.view;
-    const dispatch = this._tiptapEditor.dispatch;
+    const dispatch = (tr: Transaction) => this._tiptapEditor.dispatch(tr);
 
     return command(state, dispatch, view);
   }
