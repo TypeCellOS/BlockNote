@@ -9,7 +9,7 @@
     "directory": "packages/xl-pdf-exporter"
   },
   "license": "AGPL-3.0 OR PROPRIETARY",
-  "version": "0.27.2",
+  "version": "0.28.0",
   "files": [
     "dist",
     "types",
@@ -55,8 +55,8 @@
     "email": "email dev"
   },
   "dependencies": {
-    "@blocknote/core": "^0.27.2",
-    "@blocknote/react": "^0.27.2",
+    "@blocknote/core": "^0.28.0",
+    "@blocknote/react": "^0.28.0",
     "@react-pdf/renderer": "^4.3.0",
     "buffer": "^6.0.3",
     "docx": "^9.0.2"
