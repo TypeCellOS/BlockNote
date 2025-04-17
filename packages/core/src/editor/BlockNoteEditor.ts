@@ -1464,6 +1464,9 @@ export class BlockNoteEditor<
     callback: (
       editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
       context: {
+        /**
+         * Returns the blocks that were inserted, updated, or deleted by the change that occurred.
+         */
         getChanges(): BlocksChanged<BSchema, ISchema, SSchema>;
       }
     ) => void
