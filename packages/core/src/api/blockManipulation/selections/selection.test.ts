@@ -7,50 +7,66 @@ const getEditor = setupTestEnv();
 
 describe("Test getSelection & setSelection", () => {
   it("Basic", () => {
-    setSelection(getEditor(), "paragraph-0", "paragraph-1");
+    getEditor().transact((tr) => {
+      setSelection(tr, "paragraph-0", "paragraph-1");
+    });
 
-    expect(getSelection(getEditor())).toMatchSnapshot();
+    expect(getEditor().transact((tr) => getSelection(tr))).toMatchSnapshot();
   });
 
   it("Starts in block with children", () => {
-    setSelection(getEditor(), "paragraph-with-children", "paragraph-2");
+    getEditor().transact((tr) => {
+      setSelection(tr, "paragraph-with-children", "paragraph-2");
+    });
 
-    expect(getSelection(getEditor())).toMatchSnapshot();
+    expect(getEditor().transact((tr) => getSelection(tr))).toMatchSnapshot();
   });
 
   it("Starts in nested block", () => {
-    setSelection(getEditor(), "nested-paragraph-0", "paragraph-2");
+    getEditor().transact((tr) => {
+      setSelection(tr, "nested-paragraph-0", "paragraph-2");
+    });
 
-    expect(getSelection(getEditor())).toMatchSnapshot();
+    expect(getEditor().transact((tr) => getSelection(tr))).toMatchSnapshot();
   });
 
   it("Ends in block with children", () => {
-    setSelection(getEditor(), "paragraph-1", "paragraph-with-children");
+    getEditor().transact((tr) => {
+      setSelection(tr, "paragraph-1", "paragraph-with-children");
+    });
 
-    expect(getSelection(getEditor())).toMatchSnapshot();
+    expect(getEditor().transact((tr) => getSelection(tr))).toMatchSnapshot();
   });
 
   it("Ends in nested block", () => {
-    setSelection(getEditor(), "paragraph-1", "nested-paragraph-0");
+    getEditor().transact((tr) => {
+      setSelection(tr, "paragraph-1", "nested-paragraph-0");
+    });
 
-    expect(getSelection(getEditor())).toMatchSnapshot();
+    expect(getEditor().transact((tr) => getSelection(tr))).toMatchSnapshot();
   });
 
   it("Contains block with children", () => {
-    setSelection(getEditor(), "paragraph-1", "paragraph-2");
+    getEditor().transact((tr) => {
+      setSelection(tr, "paragraph-1", "paragraph-2");
+    });
 
-    expect(getSelection(getEditor())).toMatchSnapshot();
+    expect(getEditor().transact((tr) => getSelection(tr))).toMatchSnapshot();
   });
 
   it("Starts in table", () => {
-    setSelection(getEditor(), "table-0", "paragraph-7");
+    getEditor().transact((tr) => {
+      setSelection(tr, "table-0", "paragraph-7");
+    });
 
-    expect(getSelection(getEditor())).toMatchSnapshot();
+    expect(getEditor().transact((tr) => getSelection(tr))).toMatchSnapshot();
   });
 
   it("Ends in table", () => {
-    setSelection(getEditor(), "paragraph-6", "table-0");
+    getEditor().transact((tr) => {
+      setSelection(tr, "paragraph-6", "table-0");
+    });
 
-    expect(getSelection(getEditor())).toMatchSnapshot();
+    expect(getEditor().transact((tr) => getSelection(tr))).toMatchSnapshot();
   });
 });

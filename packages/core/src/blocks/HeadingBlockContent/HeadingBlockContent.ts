@@ -41,16 +41,12 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
 
             chain()
               .command(
-                updateBlockCommand(
-                  this.options.editor,
-                  blockInfo.bnBlock.beforePos,
-                  {
-                    type: "heading",
-                    props: {
-                      level: level as any,
-                    },
-                  }
-                )
+                updateBlockCommand(blockInfo.bnBlock.beforePos, {
+                  type: "heading",
+                  props: {
+                    level: level as any,
+                  },
+                })
               )
               // Removes the "#" character(s) used to set the heading.
               .deleteRange({ from: range.from, to: range.to })
@@ -74,7 +70,7 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
 
         // call updateBlockCommand
         return this.editor.commands.command(
-          updateBlockCommand(this.options.editor, blockInfo.bnBlock.beforePos, {
+          updateBlockCommand(blockInfo.bnBlock.beforePos, {
             type: "heading",
             props: {
               level: 1 as any,
@@ -92,7 +88,7 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
         }
 
         return this.editor.commands.command(
-          updateBlockCommand(this.options.editor, blockInfo.bnBlock.beforePos, {
+          updateBlockCommand(blockInfo.bnBlock.beforePos, {
             type: "heading",
             props: {
               level: 2 as any,
@@ -110,7 +106,7 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
         }
 
         return this.editor.commands.command(
-          updateBlockCommand(this.options.editor, blockInfo.bnBlock.beforePos, {
+          updateBlockCommand(blockInfo.bnBlock.beforePos, {
             type: "heading",
             props: {
               level: 3 as any,

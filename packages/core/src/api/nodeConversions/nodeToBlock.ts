@@ -1,4 +1,4 @@
-import { Mark, Node } from "@tiptap/pm/model";
+import { Mark, Node, Schema } from "@tiptap/pm/model";
 
 import UniqueID from "../../extensions/UniqueID/UniqueID.js";
 import type {
@@ -21,6 +21,9 @@ import {
   isStyledTextInlineContent,
 } from "../../schema/inlineContent/types.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
+import { getBlockCache, getStyleSchema } from "../pmUtil.js";
+import { getInlineContentSchema } from "../pmUtil.js";
+import { getBlockSchema } from "../pmUtil.js";
 
 /**
  * Converts an internal (prosemirror) table node contentto a BlockNote Tablecontent
@@ -385,15 +388,14 @@ export function nodeToBlock<
   S extends StyleSchema
 >(
   node: Node,
-  blockSchema: BSchema,
-  inlineContentSchema: I,
-  styleSchema: S,
-  blockCache?: WeakMap<Node, Block<BSchema, I, S>>
+  schema: Schema,
+  blockSchema: BSchema = getBlockSchema(schema) as BSchema,
+  inlineContentSchema: I = getInlineContentSchema(schema) as I,
+  styleSchema: S = getStyleSchema(schema) as S,
+  blockCache = getBlockCache(schema)
 ): Block<BSchema, I, S> {
   if (!node.type.isInGroup("bnBlock")) {
-    throw Error(
-      "Node must be in bnBlock group, but is of type" + node.type.name
-    );
+    throw Error("Node should be a bnBlock, but is instead: " + node.type.name);
   }
 
   const cachedBlock = blockCache?.get(node);
@@ -439,6 +441,7 @@ export function nodeToBlock<
     children.push(
       nodeToBlock(
         child,
+        schema,
         blockSchema,
         inlineContentSchema,
         styleSchema,

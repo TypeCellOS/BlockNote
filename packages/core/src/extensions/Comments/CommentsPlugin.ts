@@ -89,41 +89,39 @@ export class CommentsPlugin extends EventEmitter<any> {
    * when a thread is resolved or deleted, we need to update the marks to reflect the new state
    */
   private updateMarksFromThreads = (threads: Map<string, ThreadData>) => {
-    const ttEditor = this.editor._tiptapEditor;
+    this.editor.transact((tr) => {
+      tr.doc.descendants((node, pos) => {
+        node.marks.forEach((mark) => {
+          if (mark.type.name === this.markType) {
+            const markType = mark.type;
+            const markThreadId = mark.attrs.threadId;
+            const thread = threads.get(markThreadId);
+            const isOrphan = !!(!thread || thread.resolved || thread.deletedAt);
 
-    ttEditor.state.doc.descendants((node, pos) => {
-      node.marks.forEach((mark) => {
-        if (mark.type.name === this.markType) {
-          const markType = mark.type;
-          const markThreadId = mark.attrs.threadId;
-          const thread = threads.get(markThreadId);
-          const isOrphan = !!(!thread || thread.resolved || thread.deletedAt);
+            if (isOrphan !== mark.attrs.orphan) {
+              const trimmedFrom = Math.max(pos, 0);
+              const trimmedTo = Math.min(
+                pos + node.nodeSize,
+                tr.doc.content.size - 1
+              );
+              tr.removeMark(trimmedFrom, trimmedTo, mark);
+              tr.addMark(
+                trimmedFrom,
+                trimmedTo,
+                markType.create({
+                  ...mark.attrs,
+                  orphan: isOrphan,
+                })
+              );
 
-          if (isOrphan !== mark.attrs.orphan) {
-            const { tr } = ttEditor.state;
-            const trimmedFrom = Math.max(pos, 0);
-            const trimmedTo = Math.min(
-              pos + node.nodeSize,
-              ttEditor.state.doc.content.size - 1
-            );
-            tr.removeMark(trimmedFrom, trimmedTo, mark);
-            tr.addMark(
-              trimmedFrom,
-              trimmedTo,
-              markType.create({
-                ...mark.attrs,
-                orphan: isOrphan,
-              })
-            );
-            ttEditor.dispatch(tr);
-
-            if (isOrphan && this.selectedThreadId === markThreadId) {
-              // unselect
-              this.selectedThreadId = undefined;
-              this.emitStateUpdate();
+              if (isOrphan && this.selectedThreadId === markThreadId) {
+                // unselect
+                this.selectedThreadId = undefined;
+                this.emitStateUpdate();
+              }
             }
           }
-        }
+        });
       });
     });
   };
@@ -262,8 +260,8 @@ export class CommentsPlugin extends EventEmitter<any> {
     }
     this.selectedThreadId = threadId;
     this.emitStateUpdate();
-    this.editor.dispatch(
-      this.editor.prosemirrorView!.state.tr.setMeta(PLUGIN_KEY, {
+    this.editor.transact((tr) =>
+      tr.setMeta(PLUGIN_KEY, {
         name: SET_SELECTED_THREAD_ID,
       })
     );

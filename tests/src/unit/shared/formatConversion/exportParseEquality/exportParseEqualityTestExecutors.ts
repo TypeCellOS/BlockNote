@@ -46,18 +46,11 @@ export const testExportParseEqualityNodes = async <
   addIdsToBlocks(testCase.content);
 
   const exported = testCase.content.map((block) =>
-    blockToNode(block, editor.pmSchema, editor.schema.styleSchema)
+    blockToNode(block, editor.pmSchema)
   );
 
   expect(
-    exported.map((node) =>
-      nodeToBlock(
-        node,
-        editor.schema.blockSchema,
-        editor.schema.inlineContentSchema,
-        editor.schema.styleSchema
-      )
-    )
+    exported.map((node) => nodeToBlock(node, editor.pmSchema))
   ).toStrictEqual(
     partialBlocksToBlocksForTesting(editor.schema, testCase.content)
   );

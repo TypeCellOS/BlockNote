@@ -28,11 +28,7 @@ export const testCopyPaste = async <
     editor
   );
 
-  editor.dispatch(
-    editor._tiptapEditor.state.tr.setSelection(
-      testCase.getPasteSelection(editor.prosemirrorView!.state.doc)
-    )
-  );
+  editor.transact((tr) => tr.setSelection(testCase.getPasteSelection(tr.doc)));
 
   doPaste(
     editor.prosemirrorView!,

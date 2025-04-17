@@ -67,7 +67,7 @@ export const defaultBlockToHTML = <
   dom: HTMLElement;
   contentDOM?: HTMLElement;
 } => {
-  let node = blockToNode(block, editor.pmSchema, editor.schema.styleSchema);
+  let node = blockToNode(block, editor.pmSchema);
 
   if (node.type.name === "blockContainer") {
     // for regular blocks, get the toDOM spec from the blockContent node

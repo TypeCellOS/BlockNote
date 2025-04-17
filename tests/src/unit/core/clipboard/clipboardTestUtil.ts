@@ -74,11 +74,7 @@ export const setupClipboardTest = <
 
   editor.replaceBlocks(editor.document, document);
 
-  editor.dispatch(
-    editor._tiptapEditor.state.tr.setSelection(
-      getSelection(editor.prosemirrorView.state.doc)
-    )
-  );
+  editor.transact((tr) => tr.setSelection(getSelection(tr.doc)));
 };
 
 function sliceSingleNode(slice: Slice) {

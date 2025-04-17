@@ -1,0 +1,68 @@
+[
+  {
+    "block": {
+      "children": [
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "Double Nested Paragraph 0",
+              "type": "text",
+            },
+          ],
+          "id": "double-nested-paragraph-0",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "content": [
+        {
+          "styles": {},
+          "text": "Nested Paragraph 0",
+          "type": "text",
+        },
+      ],
+      "id": "nested-paragraph-0",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    "prevBlock": undefined,
+    "source": {
+      "type": "local",
+    },
+    "type": "delete",
+  },
+  {
+    "block": {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Double Nested Paragraph 0",
+          "type": "text",
+        },
+      ],
+      "id": "double-nested-paragraph-0",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    "prevBlock": undefined,
+    "source": {
+      "type": "local",
+    },
+    "type": "delete",
+  },
+]

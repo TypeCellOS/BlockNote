@@ -1,0 +1,42 @@
+[
+  {
+    "block": {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "HelloParagraph 2",
+          "type": "text",
+        },
+      ],
+      "id": "paragraph-2",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    "prevBlock": {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Paragraph 2",
+          "type": "text",
+        },
+      ],
+      "id": "paragraph-2",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    "source": {
+      "type": "local",
+    },
+    "type": "update",
+  },
+]

@@ -94,7 +94,7 @@ function fragmentToExternalHTML<
     );
     externalHTML = externalHTMLExporter.exportInlineContent(ic, {});
   } else {
-    const blocks = fragmentToBlocks(selectedFragment, editor.schema);
+    const blocks = fragmentToBlocks(selectedFragment);
     externalHTML = externalHTMLExporter.exportBlocks(blocks, {});
   }
   return externalHTML;
@@ -120,9 +120,9 @@ export function selectedFragmentToHTML<
     "node" in view.state.selection &&
     (view.state.selection.node as Node).type.spec.group === "blockContent"
   ) {
-    editor.dispatch(
-      editor._tiptapEditor.state.tr.setSelection(
-        new NodeSelection(view.state.doc.resolve(view.state.selection.from - 1))
+    editor.transact((tr) =>
+      tr.setSelection(
+        new NodeSelection(tr.doc.resolve(view.state.selection.from - 1))
       )
     );
   }
@@ -251,10 +251,10 @@ export const createCopyToClipboardExtension = <
                 }
 
                 // Expands the selection to the parent `blockContainer` node.
-                editor.dispatch(
-                  editor._tiptapEditor.state.tr.setSelection(
+                editor.transact((tr) =>
+                  tr.setSelection(
                     new NodeSelection(
-                      view.state.doc.resolve(view.state.selection.from - 1)
+                      tr.doc.resolve(view.state.selection.from - 1)
                     )
                   )
                 );

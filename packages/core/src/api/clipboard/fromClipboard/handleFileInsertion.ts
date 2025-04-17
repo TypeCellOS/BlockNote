@@ -160,16 +160,14 @@ export async function handleFileInsertion<
           return;
         }
 
-        const posInfo = getNearestBlockPos(
-          editor._tiptapEditor.state.doc,
-          pos.pos
-        );
-
-        insertedBlockId = insertOrUpdateBlock(
-          editor,
-          editor.getBlock(posInfo.node.attrs.id)!,
-          fileBlock
-        );
+        insertedBlockId = editor.transact((tr) => {
+          const posInfo = getNearestBlockPos(tr.doc, pos.pos);
+          return insertOrUpdateBlock(
+            editor,
+            editor.getBlock(posInfo.node.attrs.id)!,
+            fileBlock
+          );
+        });
       } else {
         return;
       }
