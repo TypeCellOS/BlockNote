@@ -55,8 +55,8 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "^0.28.0",
-    "@blocknote/react": "^0.28.0",
+    "@blocknote/core": "workspace:^",
+    "@blocknote/react": "workspace:^",
     "@mantine/core": "^7.10.1",
     "@mantine/hooks": "^7.10.1",
     "@mantine/utils": "^6.0.21",

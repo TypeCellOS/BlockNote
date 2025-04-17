@@ -51,8 +51,8 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "^0.28.0",
-    "@blocknote/react": "^0.28.0",
+    "@blocknote/core": "workspace:^",
+    "@blocknote/react": "workspace:^",
     "@tiptap/core": "^2.7.1",
     "prosemirror-model": "^1.23.0",
     "prosemirror-state": "^1.4.3",

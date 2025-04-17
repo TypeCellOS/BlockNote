@@ -55,8 +55,8 @@
     "email": "email dev"
   },
   "dependencies": {
-    "@blocknote/core": "^0.28.0",
-    "@blocknote/react": "^0.28.0",
+    "@blocknote/core": "workspace:^",
+    "@blocknote/react": "workspace:^",
     "@react-pdf/renderer": "^4.3.0",
     "buffer": "^6.0.3",
     "docx": "^9.0.2"
