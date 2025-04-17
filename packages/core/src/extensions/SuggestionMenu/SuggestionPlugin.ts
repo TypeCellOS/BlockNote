@@ -292,13 +292,13 @@ export class SuggestionMenuProseMirrorPlugin<
       props: {
         handleTextInput(view, _from, _to, text) {
           if (triggerCharacters.includes(text)) {
+            view.dispatch(view.state.tr.insertText(text));
             view.dispatch(
               view.state.tr
-                .insertText(text)
-                .scrollIntoView()
                 .setMeta(suggestionMenuPluginKey, {
                   triggerCharacter: text,
                 })
+                .scrollIntoView()
             );
 
             return true;
