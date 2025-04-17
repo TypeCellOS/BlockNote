@@ -872,7 +872,17 @@ export class BlockNoteEditor<
   };
 
   /**
+   * Get the underlying prosemirror state
+   * @note Prefer using `editor.transact` to read the current editor state, as that will ensure the state is up to date
+   * @see https://prosemirror.net/docs/ref/#state.EditorState
+   */
+  public get prosemirrorState() {
+    return this._tiptapEditor.state;
+  }
+
+  /**
    * Get the underlying prosemirror view
+   * @see https://prosemirror.net/docs/ref/#view.EditorView
    */
   public get prosemirrorView() {
     return this._tiptapEditor.view;
