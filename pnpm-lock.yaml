@@ -2754,10 +2754,10 @@ importers:
         specifier: ^0.4.3
         version: 0.4.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: 0.29.1
         version: link:../core
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: 0.29.1
         version: link:../react
       react:
         specifier: ^18.0 || ^19.0 || >= 19.0.0-rc
@@ -2803,7 +2803,7 @@ importers:
   packages/code-block:
     dependencies:
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: 0.29.1
         version: link:../core
       '@shikijs/core':
         specifier: ^3.2.1
@@ -3051,10 +3051,10 @@ importers:
   packages/mantine:
     dependencies:
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: 0.29.1
         version: link:../core
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: 0.29.1
         version: link:../react
       '@mantine/core':
         specifier: ^7.10.1
@@ -3112,7 +3112,7 @@ importers:
   packages/react:
     dependencies:
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: 0.29.1
         version: link:../core
       '@emoji-mart/data':
         specifier: ^1.2.1
@@ -3197,10 +3197,10 @@ importers:
   packages/server-util:
     dependencies:
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: 0.29.1
         version: link:../core
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: 0.29.1
         version: link:../react
       '@tiptap/core':
         specifier: ^2.7.1
@@ -3261,10 +3261,10 @@ importers:
   packages/shadcn:
     dependencies:
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: 0.29.1
         version: link:../core
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: 0.29.1
         version: link:../react
       '@hookform/resolvers':
         specifier: ^3.6.0
@@ -3376,7 +3376,7 @@ importers:
   packages/xl-docx-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: 0.29.1
         version: link:../core
       buffer:
         specifier: ^6.0.3
@@ -3431,10 +3431,10 @@ importers:
   packages/xl-multi-column:
     dependencies:
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: 0.29.1
         version: link:../core
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: 0.29.1
         version: link:../react
       '@tiptap/core':
         specifier: ^2.7.1
@@ -3504,7 +3504,7 @@ importers:
   packages/xl-odt-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: 0.29.1
         version: link:../core
       '@zip.js/zip.js':
         specifier: ^2.7.57
@@ -3556,10 +3556,10 @@ importers:
   packages/xl-pdf-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: workspace:^
+        specifier: 0.29.1
         version: link:../core
       '@blocknote/react':
-        specifier: workspace:^
+        specifier: 0.29.1
         version: link:../react
       '@react-pdf/renderer':
         specifier: ^4.3.0

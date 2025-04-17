@@ -1,3 +1,13 @@
+## 0.29.1 (2025-04-17)
+
+### 🩹 Fixes
+
+- try not to always use workspace version ([7af344ea9](https://github.com/TypeCellOS/BlockNote/commit/7af344ea9))
+
+### ❤️ Thank You
+
+- Nick the Sick
+
 ## 0.29.0 (2025-04-17)
 
 ### 🚀 Features
