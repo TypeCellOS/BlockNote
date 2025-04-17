@@ -5,6 +5,7 @@
       {
         "styles": {
           "bold": true,
+          "textColor": "rgb(0, 0, 0)",
         },
         "text": "Heading 1",
         "type": "text",
@@ -25,6 +26,7 @@
       {
         "styles": {
           "bold": true,
+          "textColor": "rgb(0, 0, 0)",
         },
         "text": "Heading 2",
         "type": "text",
@@ -45,6 +47,7 @@
       {
         "styles": {
           "bold": true,
+          "textColor": "rgb(0, 0, 0)",
         },
         "text": "Heading 3",
         "type": "text",
@@ -63,7 +66,9 @@
     "children": [],
     "content": [
       {
-        "styles": {},
+        "styles": {
+          "textColor": "rgb(0, 0, 0)",
+        },
         "text": "Paragraph 1",
         "type": "text",
       },
@@ -80,7 +85,9 @@
     "children": [],
     "content": [
       {
-        "styles": {},
+        "styles": {
+          "textColor": "rgb(0, 0, 0)",
+        },
         "text": "Paragraph 2",
         "type": "text",
       },
@@ -97,7 +104,9 @@
     "children": [],
     "content": [
       {
-        "styles": {},
+        "styles": {
+          "textColor": "rgb(0, 0, 0)",
+        },
         "text": "Paragraph 3",
         "type": "text",
       },
@@ -114,7 +123,9 @@
     "children": [],
     "content": [
       {
-        "styles": {},
+        "styles": {
+          "textColor": "rgb(0, 0, 0)",
+        },
         "text": "Paragraph With 
 Hard Break",
         "type": "text",
@@ -134,36 +145,45 @@ Hard Break",
       {
         "styles": {
           "bold": true,
+          "textColor": "rgb(0, 0, 0)",
         },
         "text": "Bold",
         "type": "text",
       },
       {
-        "styles": {},
+        "styles": {
+          "textColor": "rgb(0, 0, 0)",
+        },
         "text": " ",
         "type": "text",
       },
       {
         "styles": {
           "italic": true,
+          "textColor": "rgb(0, 0, 0)",
         },
         "text": "Italic",
         "type": "text",
       },
       {
-        "styles": {},
+        "styles": {
+          "textColor": "rgb(0, 0, 0)",
+        },
         "text": " Underline ",
         "type": "text",
       },
       {
         "styles": {
           "strike": true,
+          "textColor": "rgb(0, 0, 0)",
         },
         "text": "Strikethrough",
         "type": "text",
       },
       {
-        "styles": {},
+        "styles": {
+          "textColor": "rgb(0, 0, 0)",
+        },
         "text": " ",
         "type": "text",
       },
@@ -172,6 +192,7 @@ Hard Break",
           "bold": true,
           "italic": true,
           "strike": true,
+          "textColor": "rgb(255, 0, 0)",
         },
         "text": "All",
         "type": "text",
@@ -194,7 +215,14 @@ Hard Break",
             "content": [
               {
                 "styles": {},
-                "text": " Nested Numbered List Item 1",
+                "text": "   ",
+                "type": "text",
+              },
+              {
+                "styles": {
+                  "textColor": "rgb(0, 0, 0)",
+                },
+                "text": "Nested Numbered List Item 1",
                 "type": "text",
               },
             ],
@@ -211,7 +239,14 @@ Hard Break",
             "content": [
               {
                 "styles": {},
-                "text": " Nested Numbered List Item 2",
+                "text": "   ",
+                "type": "text",
+              },
+              {
+                "styles": {
+                  "textColor": "rgb(0, 0, 0)",
+                },
+                "text": "Nested Numbered List Item 2",
                 "type": "text",
               },
             ],
@@ -227,7 +262,14 @@ Hard Break",
         "content": [
           {
             "styles": {},
-            "text": " Nested Bullet List Item 1",
+            "text": "   ",
+            "type": "text",
+          },
+          {
+            "styles": {
+              "textColor": "rgb(0, 0, 0)",
+            },
+            "text": "Nested Bullet List Item 1",
             "type": "text",
           },
         ],
@@ -244,7 +286,14 @@ Hard Break",
         "content": [
           {
             "styles": {},
-            "text": " Nested Bullet List Item 2",
+            "text": "   ",
+            "type": "text",
+          },
+          {
+            "styles": {
+              "textColor": "rgb(0, 0, 0)",
+            },
+            "text": "Nested Bullet List Item 2",
             "type": "text",
           },
         ],
@@ -260,7 +309,14 @@ Hard Break",
     "content": [
       {
         "styles": {},
-        "text": " Bullet List Item 1",
+        "text": "   ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "textColor": "rgb(0, 0, 0)",
+        },
+        "text": "Bullet List Item 1",
         "type": "text",
       },
     ],
@@ -277,7 +333,14 @@ Hard Break",
     "content": [
       {
         "styles": {},
-        "text": " Bullet List Item 2",
+        "text": "   ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "textColor": "rgb(0, 0, 0)",
+        },
+        "text": "Bullet List Item 2",
         "type": "text",
       },
     ],
@@ -294,7 +357,14 @@ Hard Break",
     "content": [
       {
         "styles": {},
-        "text": " Numbered List Item 1",
+        "text": "   ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "textColor": "rgb(0, 0, 0)",
+        },
+        "text": "Numbered List Item 1",
         "type": "text",
       },
     ],
@@ -311,7 +381,14 @@ Hard Break",
     "content": [
       {
         "styles": {},
-        "text": " Numbered List Item 2",
+        "text": "   ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "textColor": "rgb(0, 0, 0)",
+        },
+        "text": "Numbered List Item 2",
         "type": "text",
       },
     ],
@@ -372,7 +449,9 @@ Hard Break",
             {
               "content": [
                 {
-                  "styles": {},
+                  "styles": {
+                    "textColor": "rgb(0, 0, 0)",
+                  },
                   "text": "Cell 1",
                   "type": "text",
                 },
@@ -389,7 +468,9 @@ Hard Break",
             {
               "content": [
                 {
-                  "styles": {},
+                  "styles": {
+                    "textColor": "rgb(0, 0, 0)",
+                  },
                   "text": "Cell 2",
                   "type": "text",
                 },
@@ -406,7 +487,9 @@ Hard Break",
             {
               "content": [
                 {
-                  "styles": {},
+                  "styles": {
+                    "textColor": "rgb(0, 0, 0)",
+                  },
                   "text": "Cell 3",
                   "type": "text",
                 },
@@ -427,7 +510,9 @@ Hard Break",
             {
               "content": [
                 {
-                  "styles": {},
+                  "styles": {
+                    "textColor": "rgb(0, 0, 0)",
+                  },
                   "text": "Cell 4",
                   "type": "text",
                 },
@@ -444,7 +529,9 @@ Hard Break",
             {
               "content": [
                 {
-                  "styles": {},
+                  "styles": {
+                    "textColor": "rgb(0, 0, 0)",
+                  },
                   "text": "Cell 5",
                   "type": "text",
                 },
@@ -461,7 +548,9 @@ Hard Break",
             {
               "content": [
                 {
-                  "styles": {},
+                  "styles": {
+                    "textColor": "rgb(0, 0, 0)",
+                  },
                   "text": "Cell 6",
                   "type": "text",
                 },
@@ -482,7 +571,9 @@ Hard Break",
             {
               "content": [
                 {
-                  "styles": {},
+                  "styles": {
+                    "textColor": "rgb(0, 0, 0)",
+                  },
                   "text": "Cell 7",
                   "type": "text",
                 },
@@ -499,7 +590,9 @@ Hard Break",
             {
               "content": [
                 {
-                  "styles": {},
+                  "styles": {
+                    "textColor": "rgb(0, 0, 0)",
+                  },
                   "text": "Cell 8",
                   "type": "text",
                 },
@@ -516,7 +609,9 @@ Hard Break",
             {
               "content": [
                 {
-                  "styles": {},
+                  "styles": {
+                    "textColor": "rgb(0, 0, 0)",
+                  },
                   "text": "Cell 9",
                   "type": "text",
                 },
@@ -545,7 +640,9 @@ Hard Break",
     "children": [],
     "content": [
       {
-        "styles": {},
+        "styles": {
+          "textColor": "rgb(0, 0, 0)",
+        },
         "text": "Paragraph",
         "type": "text",
       },
