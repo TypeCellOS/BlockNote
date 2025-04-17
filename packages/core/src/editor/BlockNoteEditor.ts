@@ -105,6 +105,10 @@ import { ySyncPluginKey } from "y-prosemirror";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
+import {
+  BlocksChanged,
+  getBlocksChangedByTransaction,
+} from "../api/nodeUtil.js";
 import { nestedListsToBlockNoteStructure } from "../api/parsers/html/util/nestedLists.js";
 import { CodeBlockOptions } from "../blocks/CodeBlockContent/CodeBlockContent.js";
 import type { ThreadStore, User } from "../comments/index.js";
@@ -1457,21 +1461,38 @@ export class BlockNoteEditor<
    * @returns A function to remove the callback.
    */
   public onChange(
-    callback: (editor: BlockNoteEditor<BSchema, ISchema, SSchema>) => void
+    callback: (
+      editor: BlockNoteEditor<BSchema, ISchema, SSchema>,
+      context: {
+        /**
+         * Returns the blocks that were inserted, updated, or deleted by the change that occurred.
+         */
+        getChanges(): BlocksChanged<BSchema, ISchema, SSchema>;
+      }
+    ) => void
   ) {
     if (this.headless) {
       // Note: would be nice if this is possible in headless mode as well
       return;
     }
 
-    const cb = () => {
-      callback(this);
+    const cb = ({
+      transaction,
+      appendedTransactions,
+    }: {
+      transaction: Transaction;
+      appendedTransactions: Transaction[];
+    }) => {
+      callback(this, {
+        getChanges: () =>
+          getBlocksChangedByTransaction(transaction, appendedTransactions),
+      });
     };
 
-    this._tiptapEditor.on("update", cb);
+    this._tiptapEditor.on("v3-update", cb);
 
     return () => {
-      this._tiptapEditor.off("update", cb);
+      this._tiptapEditor.off("v3-update", cb);
     };
   }
 
