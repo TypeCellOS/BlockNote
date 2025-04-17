@@ -8,6 +8,7 @@ export const schema = BlockNoteSchema.create({
     bulletListItem: defaultBlockSpecs.bulletListItem,
     numberedListItem: defaultBlockSpecs.numberedListItem,
     checkListItem: defaultBlockSpecs.checkListItem,
+    quote: defaultBlockSpecs.quote,
   },
 });
 
