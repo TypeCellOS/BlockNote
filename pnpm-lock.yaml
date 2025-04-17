@@ -2802,6 +2802,9 @@ importers:
 
   packages/code-block:
     dependencies:
+      '@blocknote/core':
+        specifier: workspace:^
+        version: link:../core
       '@shikijs/core':
         specifier: ^3.2.1
         version: 3.2.1
@@ -2821,9 +2824,6 @@ importers:
         specifier: ^3.2.1
         version: 3.2.1
     devDependencies:
-      '@blocknote/core':
-        specifier: workspace:^
-        version: link:../core
       eslint:
         specifier: ^8.10.0
         version: 8.57.1

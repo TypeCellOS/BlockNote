@@ -49,6 +49,7 @@
     "test-watch": "vitest watch"
   },
   "dependencies": {
+    "@blocknote/core": "workspace:^",
     "@shikijs/core": "^3.2.1",
     "@shikijs/engine-javascript": "^3.2.1",
     "@shikijs/langs-precompiled": "^3.2.1",
@@ -57,7 +58,6 @@
     "@shikijs/types": "^3.2.1"
   },
   "devDependencies": {
-    "@blocknote/core": "workspace:^",
     "eslint": "^8.10.0",
     "prettier": "^2.7.1",
     "rollup-plugin-webpack-stats": "^0.2.2",

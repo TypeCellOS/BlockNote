@@ -6,10 +6,7 @@
     "projects": ["packages/*"],
     "version": {
       "preVersionCommand": "pnpm exec nx run-many -t build",
-      "conventionalCommits": true,
-      "generatorOptions": {
-        "preserveLocalDependencyProtocols": true
-      }
+      "conventionalCommits": true
     },
     "changelog": {
       "workspaceChangelog": {
