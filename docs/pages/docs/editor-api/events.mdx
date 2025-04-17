@@ -1,0 +1,43 @@
+---
+title: Events
+description: BlockNote emits events when certain actions occur.
+imageTitle: Events
+path: /docs/events
+---
+
+import { Example } from "@/components/example";
+
+# Events
+
+BlockNote emits events when certain actions occur.
+
+## `onCreate`
+
+The `onCreate` callback is called when the editor is initialized.
+
+```typescript
+editor.onCreate(() => {
+  console.log("Editor created");
+});
+```
+
+## `onChange`
+
+The `onChange` callback is called when the editor content changes.
+
+```typescript
+editor.onChange(() => {
+  console.log("Editor updated");
+});
+```
+
+## `onSelectionChange`
+
+The `onSelectionChange` callback is called when the editor selection changes.
+
+```typescript
+editor.onSelectionChange(() => {
+  console.log("Editor selection changed");
+});
+```
+

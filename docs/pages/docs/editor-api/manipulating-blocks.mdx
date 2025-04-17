@@ -9,7 +9,7 @@ path: /docs/manipulating-blocks
 
 Below, we explain the methods on `editor` you can use to read Blocks from the editor, and how to create / remove / update Blocks:
 
-- [`get document`](/docs/editor-api/manipulating-blocks#getting-the-document)
+- [`document`](/docs/editor-api/manipulating-blocks#getting-the-document)
 - [`getBlock`](/docs/editor-api/manipulating-blocks#single-specific-block)
 - [`getPrevBlock`](/docs/editor-api/manipulating-blocks#previous-block)
 - [`getNextBlock`](/docs/editor-api/manipulating-blocks#next-block)
@@ -312,3 +312,106 @@ unnestBlock(): void;
 // Usage
 editor.unnestBlock();
 ```
+
+## Low-level APIs
+
+### BlockNote Transactions
+
+The `transact` method is used to perform a series of changes to the editor. It can group multiple changes into a single undo/redo operation. And it also provides a low-level API to read state and perform changes to the editor.
+
+```typescript
+transact<T>(callback: (tr: Transaction) => T): T;
+```
+
+`callback:` A function that receives a `Transaction` object, and returns a value.
+
+#### Multiple editor operations
+
+The `transact` method can be used to group multiple editor operations into a single undo/redo operation.
+
+```typescript
+editor.transact(() => {
+  // Both of these changes are grouped into a single undo/redo operation
+  editor.insertBlocks([{ type: "paragraph", content: "Hello World" }], "root");
+  editor.updateBlock("root", { type: "heading" });
+});
+```
+
+#### Reading state
+
+The `transact` method can also be used to read the state of the editor.
+
+```typescript
+const isSelectionEmpty = editor.transact((tr) => {
+  // What you return here will be returned from the transact method
+  return tr.selection.empty
+});
+```
+
+#### Performing changes
+
+The `transact` method can also be used to perform changes to the editor.
+
+```typescript
+editor.transact((tr) => {
+  // This tr is automatically applied to the editor when the transact method returns
+  tr.insertText("Hello World");
+});
+```
+
+### Executing ProseMirror Commands
+
+The `exec` method can be used to execute a ProseMirror command. This is mostly for backwards compatibility with ProseMirror commands.
+
+When possible, you should prefer the [`transact`](#transact) method, as it will automatically handle the dispatching of the transaction and work across blocknote transactions. Also, the `exec` method cannot be used within a `transact` call since they will conflict with each other.
+
+```typescript
+exec(command: (state: EditorState, dispatch?: (tr: Transaction) => void, view?: EditorView) => boolean): boolean;
+```
+
+`command:` A function that receives the current editor state, and a dispatch function to apply a transaction.
+
+Returns `true` if the command was executed, `false` otherwise.
+
+```typescript
+editor.exec((state, dispatch, view) => {
+  const tr = state.tr;
+  if (dispatch) {
+    tr.insertText("Hello World");
+    dispatch(tr);
+  }
+  return true;
+});
+```
+
+This will insert the text "Hello World" into the editor at the current cursor position.
+
+### Checking if a ProseMirror command can be executed
+
+The `canExec` method can be used to check whether a ProseMirror command can be executed.
+
+When possible, you should prefer the [`transact`](#transact) method, as it will automatically handle the dispatching of the transaction and work across blocknote transactions. Also, the `exec` method cannot be used within a `transact` call since they will conflict with each other.
+
+```typescript
+canExec(command: (state: EditorState, dispatch?: (tr: Transaction) => void, view?: EditorView) => boolean): boolean;
+```
+
+`command:` A function that receives the current editor state, and a dispatch function to apply a transaction.
+
+Returns `true` if the command can be executed, `false` otherwise.
+
+```typescript
+const canReplaceSelection = editor.canExec((state, dispatch, view) => {
+  if (state.selection.from === state.selection.to){
+    return false;
+  }
+
+  if (dispatch) {
+    dispatch(state.tr.insertText("Hello World"));
+  }
+  return true;
+});
+```
+
+This will insert the text "Hello World" into the editor at the current cursor position only if the cursor is not empty.
+
