@@ -1,4 +1,4 @@
-import { signIn } from "next-auth/react";
+import { authClient } from "@/util/auth-client";
 import dynamic from "next/dynamic";
 import { AiFillGithub } from "react-icons/ai";
 import { SiStackblitz } from "react-icons/si";
@@ -92,7 +92,9 @@ export function ExampleBlock(props: {
                 <button
                   className={"nx-text-primary-600"}
                   onClick={async () => {
-                    await signIn("github", {});
+                    await authClient.signIn.social({
+                      provider: 'github'
+                    })
                   }}>
                   sign in
                 </button>{" "}

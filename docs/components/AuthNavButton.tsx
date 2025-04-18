@@ -1,13 +1,13 @@
 import { Menu, Transition } from "@headlessui/react";
 import clsx from "clsx";
-import { signOut, useSession } from "next-auth/react";
+import { authClient } from "@/util/auth-client";
 import Image from "next/image";
 import { ReactElement, ReactNode } from "react";
 
 export function AuthNavButton(props: any) {
-  const session = useSession();
+  const session = authClient.useSession();
 
-  return session.status === "authenticated" ? (
+  return session.data ? (
     <NavbarMenu
       menuItems={[
         <Menu.Item key={"thanks"}>
@@ -22,7 +22,7 @@ export function AuthNavButton(props: any) {
         <Menu.Item key={"signout"}>
           <button
             onClick={async () => {
-              await signOut();
+              await authClient.signOut()
             }}
             className={clsx(
               "nx-relative nx-hidden nx-w-full nx-select-none nx-whitespace-nowrap nx-text-gray-600 hover:nx-text-gray-900 dark:nx-text-gray-400 dark:hover:nx-text-gray-100 md:nx-inline-block",
