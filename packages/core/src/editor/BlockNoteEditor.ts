@@ -872,7 +872,22 @@ export class BlockNoteEditor<
   };
 
   /**
+   * Get the underlying prosemirror state
+   * @note Prefer using `editor.transact` to read the current editor state, as that will ensure the state is up to date
+   * @see https://prosemirror.net/docs/ref/#state.EditorState
+   */
+  public get prosemirrorState() {
+    if (this.activeTransaction) {
+      throw new Error(
+        "`prosemirrorState` should not be called within a `transact` call, move the `prosemirrorState` call outside of the `transact` call or use `editor.transact` to read the current editor state"
+      );
+    }
+    return this._tiptapEditor.state;
+  }
+
+  /**
    * Get the underlying prosemirror view
+   * @see https://prosemirror.net/docs/ref/#view.EditorView
    */
   public get prosemirrorView() {
     return this._tiptapEditor.view;
@@ -1034,7 +1049,7 @@ export class BlockNoteEditor<
    * Executes a callback whenever the editor's contents change.
    * @param callback The callback to execute.
    *
-   * @deprecated use `onChange` instead
+   * @deprecated use {@link BlockNoteEditor.onChange} instead
    */
   public onEditorContentChange(callback: () => void) {
     this._tiptapEditor.on("update", callback);
