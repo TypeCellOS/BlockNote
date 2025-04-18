@@ -1,0 +1,17 @@
+[
+  {
+    "children": [],
+    "content": undefined,
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "caption": "",
+      "name": "",
+      "previewWidth": 100,
+      "showPreview": true,
+      "textAlignment": "left",
+      "url": "exampleURL",
+    },
+    "type": "image",
+  },
+]
