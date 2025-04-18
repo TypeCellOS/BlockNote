@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "@blocknote/ariakit": "workspace:^",
-    "@blocknote/core": "workspace:^",
     "@blocknote/code-block": "workspace:^",
+    "@blocknote/core": "workspace:^",
     "@blocknote/mantine": "workspace:^",
     "@blocknote/react": "workspace:^",
     "@blocknote/shadcn": "workspace:^",
@@ -20,9 +20,15 @@
     "@heroicons/react": "^2.1.4",
     "@mantine/core": "^7.10.1",
     "@next/bundle-analyzer": "^14.1.0",
+    "@polar-sh/better-auth": "0.1.0",
+    "@polar-sh/nextjs": "0.3.23",
+    "@polar-sh/sdk": "0.32.10",
     "@sentry/nextjs": "9.4.0",
+    "@types/better-sqlite3": "7.6.13",
     "@vercel/analytics": "^1.2.2",
     "@vercel/og": "^0.6.2",
+    "better-auth": "1.2.7",
+    "better-sqlite3": "11.9.1",
     "classnames": "2.3.2",
     "clsx": "^2.1.0",
     "framer-motion": "^10.16.16",
@@ -37,7 +43,8 @@
     "react-github-btn": "^1.4.0",
     "react-icons": "^5.2.1",
     "y-partykit": "^0.0.25",
-    "yjs": "^13.6.15"
+    "yjs": "^13.6.15",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^20",
