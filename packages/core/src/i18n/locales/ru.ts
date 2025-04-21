@@ -158,7 +158,7 @@ export const ru: Dictionary = {
     },
   },
   placeholders: {
-    default: "Ведите текст или введите «/» для команд",
+    default: "Введите текст или введите «/» для команд",
     heading: "Заголовок",
     bulletListItem: "Список",
     numberedListItem: "Список",
