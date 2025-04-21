@@ -42,7 +42,7 @@ export const ru: Dictionary = {
     },
     bullet_list: {
       title: "Маркированный список",
-      subtext: "Для отображения неупорядоченного списка.",
+      subtext: "Для отображения неупорядоченного списка",
       aliases: [
         "ul",
         "li",
