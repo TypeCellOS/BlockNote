@@ -14,7 +14,6 @@ BASIC STYLES
 }
 
 .bn-block-content {
-  display: flex;
   padding: 3px 0;
   transition: font-size 0.2s;
   width: 100%;
@@ -163,6 +162,7 @@ NESTED BLOCKS
 .bn-block-content::before {
   margin-right: 0;
   content: "";
+  display: inline;
 }
 
 /* Ordered */

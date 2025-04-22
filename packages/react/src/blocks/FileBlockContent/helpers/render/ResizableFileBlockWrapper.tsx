@@ -66,11 +66,13 @@ export const ResizableFileBlockWrapper = (
 
       // Ensures the child is not wider than the editor and not narrower than a
       // predetermined minimum width.
-      if (newWidth < minWidth) {
-        setWidth(minWidth);
-      } else {
-        setWidth(newWidth);
-      }
+      setWidth(
+        Math.min(
+          Math.max(newWidth, minWidth),
+          props.editor.domElement?.firstElementChild?.clientWidth ||
+            Number.MAX_VALUE
+        )
+      );
     };
     // Stops mouse movements from resizing the child and updates the block's
     // `width` prop to the new value.
