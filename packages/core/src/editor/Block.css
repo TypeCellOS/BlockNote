@@ -131,7 +131,7 @@ NESTED BLOCKS
   --level: 1em;
 }
 [data-content-type="heading"][data-level="5"] {
-  --level: 0.8em;
+  --level: 0.9em;
 }
 
 [data-prev-level="1"] {
