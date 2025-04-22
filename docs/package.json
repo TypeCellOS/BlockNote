@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:email": "email dev",
+    "build:email": "email export --outDir ./",
     "build:site": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -20,9 +22,10 @@
     "@heroicons/react": "^2.1.4",
     "@mantine/core": "^7.10.1",
     "@next/bundle-analyzer": "^14.1.0",
-    "@polar-sh/better-auth": "0.1.0",
-    "@polar-sh/nextjs": "0.3.23",
-    "@polar-sh/sdk": "0.32.10",
+    "@polar-sh/better-auth": "^0.1",
+    "@polar-sh/nextjs": "^0.3.23",
+    "@polar-sh/sdk": "^0.32.11",
+    "@react-email/render": "1.0.6",
     "@sentry/nextjs": "9.4.0",
     "@types/better-sqlite3": "7.6.13",
     "@types/nodemailer": "6.4.17",
@@ -49,6 +52,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@react-email/components": "^0.0.36",
     "@types/node": "^20",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",
@@ -56,6 +60,7 @@
     "eslint": "^8",
     "eslint-config-next": "14.1.0",
     "postcss": "^8",
+    "react-email": "^4.0.7",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
   }

@@ -1,6 +1,6 @@
 "use client";
 
-import { signUp } from "@/util/auth-client";
+import { signIn, signUp } from "@/util/auth-client";
 import { useState } from "react";
 
 // TODO Do we want email & password signin? or just social?
@@ -19,7 +19,6 @@ export default function Register() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1>Register</h1>
       <input
         type="text"
         id="name"
@@ -53,6 +52,20 @@ export default function Register() {
       <button type="button" onClick={handleRegister}>
         Register
       </button>
+      <button
+        type="button"
+        onClick={async () => {
+          const data = await signIn.magicLink({
+            // If an error occurs, it will redirect to this /thanks?error=EXPIRED_TOKEN
+            // If it succeeds, it will redirect to this /thanks
+            callbackURL: "/thanks",
+            email,
+            name,
+          });
+          console.log(data);
+        }}>
+        With magic link
+      </button>
     </div>
   );
-};
+}

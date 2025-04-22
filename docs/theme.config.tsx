@@ -222,11 +222,11 @@ const config: DocsThemeConfig = {
             <span className="sr-only">Discord</span>
             <DiscordIcon />
           </NextLink>
-          {/* <NextLink href="/pro">
-            <CTA href={"/pro"} variant={"small"}>
+          <NextLink href="/signin">
+            <CTA href={"/signin"} size={"small"}>
               Sign in
             </CTA>
-          </NextLink> */}
+          </NextLink>
           <AuthNavButton />
         </>
       );
