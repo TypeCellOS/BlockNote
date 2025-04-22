@@ -25,6 +25,7 @@
     "@polar-sh/sdk": "0.32.10",
     "@sentry/nextjs": "9.4.0",
     "@types/better-sqlite3": "7.6.13",
+    "@types/nodemailer": "6.4.17",
     "@vercel/analytics": "^1.2.2",
     "@vercel/og": "^0.6.2",
     "better-auth": "1.2.7",
@@ -36,6 +37,7 @@
     "next-auth": "^5.0.0-beta.19",
     "nextra": "^2.13.2",
     "nextra-theme-docs": "^2.13.2",
+    "nodemailer": "6.10.1",
     "partykit": "^0.0.84",
     "raw-loader": "^4.0.2",
     "react": "^18.3.1",
@@ -54,7 +56,6 @@
     "eslint": "^8",
     "eslint-config-next": "14.1.0",
     "postcss": "^8",
-    "prettier-plugin-tailwindcss": "^0.5.11",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
   }
