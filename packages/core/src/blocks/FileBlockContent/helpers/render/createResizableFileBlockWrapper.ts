@@ -87,7 +87,10 @@ export const createResizableFileBlockWrapper = (
 
     // Ensures the element is not wider than the editor and not narrower than a
     // predetermined minimum width.
-    width = Math.max(newWidth, minWidth);
+    width = Math.min(
+      Math.max(newWidth, minWidth),
+      editor.domElement?.firstElementChild?.clientWidth || Number.MAX_VALUE
+    );
     wrapper.style.width = `${width}px`;
   };
   // Stops mouse movements from resizing the element and updates the block's
