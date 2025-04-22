@@ -20,6 +20,18 @@ export const pt: Dictionary = {
       aliases: ["h3", "titulo3", "subtitulo"],
       group: "Títulos",
     },
+    heading_4: {
+      title: "Título 4",
+      subtext: "Usado para subseções menores",
+      aliases: ["h4", "titulo4", "subtitulo4"],
+      group: "Títulos",
+    },
+    heading_5: {
+      title: "Título 5",
+      subtext: "Usado para títulos de nível mais baixo",
+      aliases: ["h5", "titulo5", "subtitulo5"],
+      group: "Títulos",
+    },
     quote: {
       title: "Citação",
       subtext: "Citação ou trecho",

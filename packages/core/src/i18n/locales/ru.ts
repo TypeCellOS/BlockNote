@@ -20,6 +20,18 @@ export const ru: Dictionary = {
       aliases: ["h3", "heading3", "subheading", "заголовок3", "подзаголовок"],
       group: "Заголовки",
     },
+    heading_4: {
+      title: "Заголовок 4 уровня",
+      subtext: "Используется для более мелких подразделов",
+      aliases: ["h4", "heading4", "subheading4", "заголовок4", "подзаголовок4"],
+      group: "Заголовки",
+    },
+    heading_5: {
+      title: "Заголовок 5 уровня",
+      subtext: "Используется для заголовков самого низкого уровня",
+      aliases: ["h5", "heading5", "subheading5", "заголовок5", "подзаголовок5"],
+      group: "Заголовки",
+    },
     quote: {
       title: "Цитата",
       subtext: "Цитата или отрывок",

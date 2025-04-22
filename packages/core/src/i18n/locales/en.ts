@@ -18,6 +18,18 @@ export const en = {
       aliases: ["h3", "heading3", "subheading"],
       group: "Headings",
     },
+    heading_4: {
+      title: "Heading 4",
+      subtext: "Minor subsection heading",
+      aliases: ["h4", "heading4", "subheading4"],
+      group: "Headings",
+    },
+    heading_5: {
+      title: "Heading 5",
+      subtext: "Lowest‑level heading",
+      aliases: ["h5", "heading5", "subheading5"],
+      group: "Headings",
+    },
     quote: {
       title: "Quote",
       subtext: "Quote or excerpt",

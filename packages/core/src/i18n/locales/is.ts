@@ -20,6 +20,18 @@ export const is: Dictionary = {
       aliases: ["h3", "fyrirsogn3", "undirfyrirsogn"],
       group: "Fyrirsagnir",
     },
+    heading_4: {
+      title: "Fyrirsögn 4",
+      subtext: "Titill fyrir minni undirhluta",
+      aliases: ["h4", "fyrirsogn4", "undirfyrirsogn4"],
+      group: "Fyrirsagnir",
+    },
+    heading_5: {
+      title: "Fyrirsögn 5",
+      subtext: "Titill á lægsta stigi",
+      aliases: ["h5", "fyrirsogn5", "undirfyrirsogn5"],
+      group: "Fyrirsagnir",
+    },
     quote: {
       title: "Tilvitnun",
       subtext: "Tilvitnun eða útdráttur",

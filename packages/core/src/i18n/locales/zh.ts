@@ -20,6 +20,18 @@ export const zh: Dictionary = {
       aliases: ["h3", "heading3", "subheading", "标题", "三级标题"],
       group: "标题",
     },
+    heading_4: {
+      title: "四级标题",
+      subtext: "用于较小的子节标题",
+      aliases: ["h4", "heading4", "subheading4", "四级标题"],
+      group: "标题",
+    },
+    heading_5: {
+      title: "五级标题",
+      subtext: "用于最低层级的标题",
+      aliases: ["h5", "heading5", "subheading5", "五级标题"],
+      group: "标题",
+    },
     quote: {
       title: "引用",
       subtext: "引用或摘录",

@@ -20,6 +20,18 @@ export const no: Dictionary = {
       aliases: ["h3", "overskrift3", "underoverskrift"],
       group: "Overskrifter",
     },
+    heading_4: {
+      title: "Overskrift 4",
+      subtext: "Underoverskrift for mindre underseksjoner",
+      aliases: ["h4", "overskrift4", "underoverskrift4"],
+      group: "Overskrifter",
+    },
+    heading_5: {
+      title: "Overskrift 5",
+      subtext: "Overskrift på laveste nivå",
+      aliases: ["h5", "overskrift5", "underoverskrift5"],
+      group: "Overskrifter",
+    },
     quote: {
       title: "Sitat",
       subtext: "Sitat eller utdrag",

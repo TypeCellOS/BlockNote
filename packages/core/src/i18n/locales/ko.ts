@@ -20,6 +20,18 @@ export const ko: Dictionary = {
       aliases: ["h3", "제목3", "subheading"],
       group: "제목",
     },
+    heading_4: {
+      title: "제목4",
+      subtext: "하위 소단락 제목",
+      aliases: ["h4", "제목4", "소제목4"],
+      group: "제목",
+    },
+    heading_5: {
+      title: "제목5",
+      subtext: "가장 하위 수준 제목",
+      aliases: ["h5", "제목5", "소제목5"],
+      group: "제목",
+    },
     quote: {
       title: "인용",
       subtext: "인용문 또는 발췌",

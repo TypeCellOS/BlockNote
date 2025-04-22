@@ -20,6 +20,18 @@ export const it: Dictionary = {
       aliases: ["h3", "intestazione3", "sottotitolo"],
       group: "Intestazioni",
     },
+    heading_4: {
+      title: "Intestazione 4",
+      subtext: "Intestazione di sottosezione minore",
+      aliases: ["h4", "intestazione4", "sottotitolo4"],
+      group: "Intestazioni",
+    },
+    heading_5: {
+      title: "Intestazione 5",
+      subtext: "Intestazione di livello più basso",
+      aliases: ["h5", "intestazione5", "sottotitolo5"],
+      group: "Intestazioni",
+    },
     quote: {
       title: "Citazione",
       subtext: "Citazione o estratto",

@@ -20,6 +20,18 @@ export const vi: Dictionary = {
       aliases: ["h3", "tieude3", "tieudephu"],
       group: "Tiêu đề",
     },
+    heading_4: {
+      title: "Tiêu đề H4",
+      subtext: "Sử dụng cho tiêu đề phụ nhỏ hơn",
+      aliases: ["h4", "tieude4", "tieudephu4"],
+      group: "Tiêu đề",
+    },
+    heading_5: {
+      title: "Tiêu đề H5",
+      subtext: "Sử dụng cho tiêu đề cấp thấp nhất",
+      aliases: ["h5", "tieude5", "tieudephu5"],
+      group: "Tiêu đề",
+    },
     quote: {
       title: "Trích dẫn",
       subtext: "Trích dẫn hoặc đoạn trích",

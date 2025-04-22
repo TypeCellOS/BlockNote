@@ -20,6 +20,18 @@ export const es: Dictionary = {
       aliases: ["h3", "encabezado3", "subencabezado"],
       group: "Encabezados",
     },
+    heading_4: {
+      title: "Encabezado 4",
+      subtext: "Encabezado de subsección menor",
+      aliases: ["h4", "encabezado4", "subencabezado4"],
+      group: "Encabezados",
+    },
+    heading_5: {
+      title: "Encabezado 5",
+      subtext: "Encabezado de nivel más bajo",
+      aliases: ["h5", "encabezado5", "subencabezado5"],
+      group: "Encabezados",
+    },
     quote: {
       title: "Cita",
       subtext: "Cita o extracto",
