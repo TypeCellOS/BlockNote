@@ -6,21 +6,23 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import {
+  RiCodeBlock,
   RiEmotionFill,
   RiFile2Line,
   RiFilmLine,
   RiH1,
   RiH2,
   RiH3,
+  RiH4,
+  RiH5,
   RiImage2Fill,
   RiListCheck3,
   RiListOrdered,
   RiListUnordered,
+  RiQuoteText,
   RiTable2,
   RiText,
   RiVolumeUpFill,
-  RiCodeBlock,
-  RiQuoteText,
 } from "react-icons/ri";
 import { DefaultReactSuggestionItem } from "./types.js";
 
@@ -28,6 +30,8 @@ const icons = {
   heading: RiH1,
   heading_2: RiH2,
   heading_3: RiH3,
+  heading_4: RiH4,
+  heading_5: RiH5,
   quote: RiQuoteText,
   numbered_list: RiListOrdered,
   bullet_list: RiListUnordered,
