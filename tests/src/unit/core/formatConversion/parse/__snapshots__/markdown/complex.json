@@ -58,11 +58,47 @@
     "content": [
       {
         "styles": {},
-        "text": "Paragraph",
+        "text": "Heading 4",
         "type": "text",
       },
     ],
     "id": "4",
+    "props": {
+      "backgroundColor": "default",
+      "level": 4,
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "heading",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Heading 5",
+        "type": "text",
+      },
+    ],
+    "id": "5",
+    "props": {
+      "backgroundColor": "default",
+      "level": 5,
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "heading",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph",
+        "type": "text",
+      },
+    ],
+    "id": "6",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -98,7 +134,7 @@
         "type": "text",
       },
     ],
-    "id": "5",
+    "id": "7",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -134,7 +170,7 @@
         "type": "text",
       },
     ],
-    "id": "6",
+    "id": "8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -151,7 +187,7 @@
         "type": "text",
       },
     ],
-    "id": "7",
+    "id": "9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -172,7 +208,7 @@
                 "type": "text",
               },
             ],
-            "id": "10",
+            "id": "12",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -188,7 +224,7 @@
             "type": "text",
           },
         ],
-        "id": "9",
+        "id": "11",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -200,58 +236,6 @@
         "children": [
           {
             "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Numbered List Item",
-                "type": "text",
-              },
-            ],
-            "id": "12",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "numberedListItem",
-          },
-          {
-            "children": [],
-            "content": [
-              {
-                "styles": {},
-                "text": "Numbered List Item",
-                "type": "text",
-              },
-            ],
-            "id": "13",
-            "props": {
-              "backgroundColor": "default",
-              "textAlignment": "left",
-              "textColor": "default",
-            },
-            "type": "numberedListItem",
-          },
-          {
-            "children": [
-              {
-                "children": [],
-                "content": [
-                  {
-                    "styles": {},
-                    "text": "Numbered List Item",
-                    "type": "text",
-                  },
-                ],
-                "id": "15",
-                "props": {
-                  "backgroundColor": "default",
-                  "textAlignment": "left",
-                  "textColor": "default",
-                },
-                "type": "numberedListItem",
-              },
-            ],
             "content": [
               {
                 "styles": {},
@@ -272,11 +256,63 @@
             "content": [
               {
                 "styles": {},
-                "text": "Bullet List Item",
+                "text": "Numbered List Item",
+                "type": "text",
+              },
+            ],
+            "id": "15",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "numberedListItem",
+          },
+          {
+            "children": [
+              {
+                "children": [],
+                "content": [
+                  {
+                    "styles": {},
+                    "text": "Numbered List Item",
+                    "type": "text",
+                  },
+                ],
+                "id": "17",
+                "props": {
+                  "backgroundColor": "default",
+                  "textAlignment": "left",
+                  "textColor": "default",
+                },
+                "type": "numberedListItem",
+              },
+            ],
+            "content": [
+              {
+                "styles": {},
+                "text": "Numbered List Item",
                 "type": "text",
               },
             ],
             "id": "16",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "numberedListItem",
+          },
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Bullet List Item",
+                "type": "text",
+              },
+            ],
+            "id": "18",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -292,7 +328,7 @@
             "type": "text",
           },
         ],
-        "id": "11",
+        "id": "13",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -309,7 +345,7 @@
             "type": "text",
           },
         ],
-        "id": "17",
+        "id": "19",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -325,7 +361,7 @@
         "type": "text",
       },
     ],
-    "id": "8",
+    "id": "10",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -342,7 +378,7 @@
         "type": "text",
       },
     ],
-    "id": "18",
+    "id": "20",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
