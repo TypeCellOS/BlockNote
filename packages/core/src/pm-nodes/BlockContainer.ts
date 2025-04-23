@@ -6,8 +6,8 @@ import { mergeCSSClasses } from "../util/browser.js";
 
 // Object containing all possible block attributes.
 const BlockAttributes: Record<string, string> = {
-  blockColor: "data-block-color",
-  blockStyle: "data-block-style",
+  textColor: "data-text-color",
+  backgroundColor: "data-background-color",
   id: "data-id",
   depth: "data-depth",
   depthChange: "data-depth-change",
@@ -31,7 +31,10 @@ export const BlockContainer = Node.create<{
   parseHTML() {
     return [
       {
-        tag: "div",
+        // Not only `div`s as this way props from exported HTML can also be
+        // parsed correctly.
+        tag: "*",
+        priority: 500,
         getAttrs: (element) => {
           if (typeof element === "string") {
             return false;
@@ -44,12 +47,18 @@ export const BlockContainer = Node.create<{
             }
           }
 
-          if (element.getAttribute("data-node-type") === "blockContainer") {
+          if (
+            element.getAttribute("data-node-type") === "blockContainer" ||
+            element.getAttribute("data-node-type") === "blockOuter"
+          ) {
             return attrs;
           }
 
           return false;
         },
+        // Allows exported HTML to be parsed as both a `blockContainer` with a
+        // `blockContent` child, preserving all block data.
+        consuming: false,
       },
     ];
   },

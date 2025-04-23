@@ -9,7 +9,8 @@ import { updateBlockCommand } from "../../api/blockManipulation/commands/updateB
 import { InputRule } from "@tiptap/core";
 
 export const quotePropSchema = {
-  ...defaultProps,
+  backgroundColor: defaultProps.backgroundColor,
+  textColor: defaultProps.textColor,
 };
 
 export const QuoteBlockContent = createStronglyTypedTiptapNode({

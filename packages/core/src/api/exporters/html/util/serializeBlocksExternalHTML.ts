@@ -116,29 +116,30 @@ function serializeBlock<
     block.type as any
   ].implementation.toExternalHTML({ ...block, props } as any, editor as any);
 
+  const blockContentDataAttributes = [
+    ...attrs,
+    ...Array.from(ret.dom.attributes),
+  ];
+
+  let listType = undefined;
+  if (orderedListItemBlockTypes.has(block.type!)) {
+    listType = "OL";
+  } else if (unorderedListItemBlockTypes.has(block.type!)) {
+    listType = "UL";
+  }
+
   const elementFragment = doc.createDocumentFragment();
   if (ret.dom.classList.contains("bn-block-content")) {
-    const blockContentDataAttributes = [
-      ...attrs,
-      ...Array.from(ret.dom.attributes),
-    ].filter(
-      (attr) =>
-        attr.name.startsWith("data") &&
-        attr.name !== "data-content-type" &&
-        attr.name !== "data-file-block" &&
-        attr.name !== "data-node-view-wrapper" &&
-        attr.name !== "data-node-type" &&
-        attr.name !== "data-id" &&
-        attr.name !== "data-index" &&
-        attr.name !== "data-editable"
-    );
-
-    // ret.dom = ret.dom.firstChild! as any;
-    for (const attr of blockContentDataAttributes) {
-      (ret.dom.firstChild! as HTMLElement).setAttribute(attr.name, attr.value);
+    if (!listType) {
+      for (const attr of blockContentDataAttributes) {
+        (ret.dom.firstChild! as HTMLElement).setAttribute(
+          attr.name,
+          attr.value
+        );
+      }
     }
 
-    addAttributesAndRemoveClasses(ret.dom.firstChild! as HTMLElement);
+    addAttributesAndRemoveClasses(ret.dom as HTMLElement);
     elementFragment.append(...Array.from(ret.dom.childNodes));
   } else {
     elementFragment.append(ret.dom);
@@ -155,13 +156,6 @@ function serializeBlock<
     ret.contentDOM.appendChild(ic);
   }
 
-  let listType = undefined;
-  if (orderedListItemBlockTypes.has(block.type!)) {
-    listType = "OL";
-  } else if (unorderedListItemBlockTypes.has(block.type!)) {
-    listType = "UL";
-  }
-
   if (listType) {
     if (fragment.lastChild?.nodeName !== listType) {
       const list = doc.createElement(listType);
@@ -172,6 +166,9 @@ function serializeBlock<
       fragment.append(list);
     }
     const li = doc.createElement("li");
+    for (const attr of blockContentDataAttributes) {
+      li.setAttribute(attr.name, attr.value);
+    }
     li.append(elementFragment);
     fragment.lastChild!.appendChild(li);
   } else {
