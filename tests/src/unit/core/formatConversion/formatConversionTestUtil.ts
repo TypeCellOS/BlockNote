@@ -9,7 +9,6 @@ import {
   PartialBlock,
   PartialInlineContent,
   PartialTableCell,
-  PartialTableContent,
   StyledText,
   StyleSchema,
   TableCell,
@@ -154,10 +153,10 @@ export function partialBlockToBlockForTesting<
   );
 
   if (contentType === "inline") {
-    const content = withDefaults.content as PartialInlineContent<I, S>;
+    const content = withDefaults.content as InlineContent<I, S>[] | undefined;
     withDefaults.content = partialContentToInlineContent(content) as any;
   } else if (contentType === "table") {
-    const content = withDefaults.content as PartialTableContent<I, S>;
+    const content = withDefaults.content as TableContent<I, S> | undefined;
     withDefaults.content = {
       type: "tableContent",
       columnWidths:
@@ -168,34 +167,7 @@ export function partialBlockToBlockForTesting<
       headerCols: content?.headerCols || undefined,
       rows:
         content?.rows.map((row) => ({
-          cells: row.cells.map((cell) =>
-            typeof cell === "object" &&
-            "type" in cell &&
-            cell.type === "tableCell"
-              ? {
-                  type: "tableCell",
-                  props: {
-                    backgroundColor: "default",
-                    colspan: 1,
-                    rowspan: 1,
-                    textAlignment: "left",
-                    textColor: "default",
-                    ...cell.props,
-                  },
-                  content: partialContentToInlineContent(cell.content),
-                }
-              : {
-                  type: "tableCell",
-                  props: {
-                    backgroundColor: "default",
-                    colspan: 1,
-                    rowspan: 1,
-                    textAlignment: "left",
-                    textColor: "default",
-                  },
-                  content: partialContentToInlineContent(cell),
-                }
-          ),
+          cells: row.cells.map((cell) => partialContentToInlineContent(cell)),
         })) || [],
     } as any;
   }
