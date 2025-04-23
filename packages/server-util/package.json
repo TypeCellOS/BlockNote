@@ -51,7 +51,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint src --max-warnings 0",
-    "test": "vitest --run",
+    "test": "vitest -u",
     "test-watch": "vitest watch"
   },
   "dependencies": {

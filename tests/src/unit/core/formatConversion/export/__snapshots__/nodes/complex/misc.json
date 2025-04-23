@@ -1,15 +1,15 @@
 [
   {
     "attrs": {
-      "backgroundColor": "blue",
       "id": "1",
-      "textColor": "yellow",
     },
     "content": [
       {
         "attrs": {
+          "backgroundColor": "blue",
           "level": 2,
           "textAlignment": "right",
+          "textColor": "yellow",
         },
         "content": [
           {
@@ -43,14 +43,14 @@
         "content": [
           {
             "attrs": {
-              "backgroundColor": "red",
               "id": "2",
-              "textColor": "default",
             },
             "content": [
               {
                 "attrs": {
+                  "backgroundColor": "red",
                   "textAlignment": "left",
+                  "textColor": "default",
                 },
                 "content": [
                   {
@@ -65,14 +65,14 @@
           },
           {
             "attrs": {
-              "backgroundColor": "default",
               "id": "3",
-              "textColor": "default",
             },
             "content": [
               {
                 "attrs": {
+                  "backgroundColor": "default",
                   "textAlignment": "left",
+                  "textColor": "default",
                 },
                 "type": "bulletListItem",
               },

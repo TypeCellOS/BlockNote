@@ -1,13 +1,12 @@
 [
   {
     "attrs": {
-      "backgroundColor": "default",
       "id": "1",
-      "textColor": "default",
     },
     "content": [
       {
         "attrs": {
+          "backgroundColor": "default",
           "caption": "",
           "name": "",
           "previewWidth": 512,

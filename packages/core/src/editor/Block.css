@@ -437,97 +437,111 @@ NESTED BLOCKS
 /* TODO: should this be here? */
 
 /* TEXT COLORS */
-[data-text-color="gray"] {
+[data-text-color="gray"],
+.bn-block:has(> .bn-block-content[data-text-color="gray"]) {
   color: #9b9a97;
 }
 
-[data-text-color="brown"] {
+[data-text-color="brown"],
+.bn-block:has(> .bn-block-content[data-text-color="brown"]) {
   color: #64473a;
 }
 
-[data-text-color="red"] {
+[data-text-color="red"],
+.bn-block:has(> .bn-block-content[data-text-color="red"]) {
   color: #e03e3e;
 }
 
-[data-text-color="orange"] {
+[data-text-color="orange"],
+.bn-block:has(> .bn-block-content[data-text-color="orange"]) {
   color: #d9730d;
 }
 
-[data-text-color="yellow"] {
+[data-text-color="yellow"],
+.bn-block:has(> .bn-block-content[data-text-color="yellow"]) {
   color: #dfab01;
 }
 
-[data-text-color="green"] {
+[data-text-color="green"],
+.bn-block:has(> .bn-block-content[data-text-color="green"]) {
   color: #4d6461;
 }
 
-[data-text-color="blue"] {
+[data-text-color="blue"],
+.bn-block:has(> .bn-block-content[data-text-color="blue"]) {
   color: #0b6e99;
 }
 
-[data-text-color="purple"] {
+[data-text-color="purple"],
+.bn-block:has(> .bn-block-content[data-text-color="purple"]) {
   color: #6940a5;
 }
 
-[data-text-color="pink"] {
+[data-text-color="pink"],
+.bn-block:has(> .bn-block-content[data-text-color="pink"]) {
   color: #ad1a72;
 }
 
 /* BACKGROUND COLORS */
-[data-background-color="gray"] {
+[data-background-color="gray"],
+.bn-block:has(> .bn-block-content[data-background-color="gray"]) {
   background-color: #ebeced;
 }
 
-[data-background-color="brown"] {
+[data-background-color="brown"],
+.bn-block:has(> .bn-block-content[data-background-color="brown"]) {
   background-color: #e9e5e3;
 }
 
-[data-background-color="red"] {
+[data-background-color="red"],
+.bn-block:has(> .bn-block-content[data-background-color="red"]) {
   background-color: #fbe4e4;
 }
 
-[data-background-color="orange"] {
+[data-background-color="orange"],
+.bn-block:has(> .bn-block-content[data-background-color="orange"]) {
   background-color: #f6e9d9;
 }
 
-[data-background-color="yellow"] {
+[data-background-color="yellow"],
+.bn-block:has(> .bn-block-content[data-background-color="yellow"]) {
   background-color: #fbf3db;
 }
 
-[data-background-color="green"] {
+[data-background-color="green"],
+.bn-block:has(> .bn-block-content[data-background-color="green"]) {
   background-color: #ddedea;
 }
 
-[data-background-color="blue"] {
+[data-background-color="blue"],
+.bn-block:has(> .bn-block-content[data-background-color="blue"]) {
   background-color: #ddebf1;
 }
 
-[data-background-color="purple"] {
+[data-background-color="purple"],
+.bn-block:has(> .bn-block-content[data-background-color="purple"]) {
   background-color: #eae4f2;
 }
 
-[data-background-color="pink"] {
+[data-background-color="pink"],
+.bn-block:has(> .bn-block-content[data-background-color="pink"]) {
   background-color: #f4dfeb;
 }
 
 /* TEXT ALIGNMENT */
 [data-text-alignment="left"] {
-  justify-content: flex-start !important;
   text-align: left !important;
 }
 
 [data-text-alignment="center"] {
-  justify-content: center !important;
   text-align: center !important;
 }
 
 [data-text-alignment="right"] {
-  justify-content: flex-end !important;
   text-align: right !important;
 }
 
 [data-text-alignment="justify"] {
-  justify-content: flex-start !important;
   text-align: justify !important;
 }
 

@@ -10,7 +10,7 @@
     ],
     "id": "1",
     "props": {
-      "backgroundColor": "default",
+      "backgroundColor": "red",
       "textAlignment": "left",
       "textColor": "default",
     },
@@ -27,7 +27,7 @@
     ],
     "id": "2",
     "props": {
-      "backgroundColor": "default",
+      "backgroundColor": "green",
       "textAlignment": "left",
       "textColor": "default",
     },
@@ -44,7 +44,7 @@
     ],
     "id": "3",
     "props": {
-      "backgroundColor": "default",
+      "backgroundColor": "blue",
       "textAlignment": "left",
       "textColor": "default",
     },

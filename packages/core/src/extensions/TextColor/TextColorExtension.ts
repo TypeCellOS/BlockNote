@@ -8,7 +8,17 @@ export const TextColorExtension = Extension.create({
   addGlobalAttributes() {
     return [
       {
-        types: ["blockContainer", "tableCell", "tableHeader"],
+        types: [
+          "paragraph",
+          "heading",
+          "bulletListItem",
+          "numberedListItem",
+          "checkListItem",
+          "quote",
+          "table",
+          "tableCell",
+          "tableHeader",
+        ],
         attributes: {
           textColor: getAttributeFromDefaultProps["textColor"](),
         },

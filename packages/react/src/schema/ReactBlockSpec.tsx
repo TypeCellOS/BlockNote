@@ -9,7 +9,6 @@ import {
   CustomBlockConfig,
   getBlockFromPos,
   getParseRules,
-  inheritedProps,
   InlineContentSchema,
   mergeCSSClasses,
   PartialBlockFromConfig,
@@ -93,7 +92,7 @@ export function BlockContentWrapper<
         Object.entries(props.blockProps)
           .filter(([prop, value]) => {
             const spec = props.propSchema[prop];
-            return !inheritedProps.includes(prop) && value !== spec.default;
+            return value !== spec.default;
           })
           .map(([prop, value]) => {
             return [camelToDataKebab(prop), value];

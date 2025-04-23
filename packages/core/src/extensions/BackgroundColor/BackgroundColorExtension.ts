@@ -8,7 +8,16 @@ export const BackgroundColorExtension = Extension.create({
   addGlobalAttributes() {
     return [
       {
-        types: ["blockContainer", "tableCell", "tableHeader"],
+        types: [
+          "paragraph",
+          "heading",
+          "bulletListItem",
+          "numberedListItem",
+          "checkListItem",
+          "quote",
+          "tableCell",
+          "tableHeader",
+        ],
         attributes: {
           backgroundColor: getAttributeFromDefaultProps["backgroundColor"](),
         },
