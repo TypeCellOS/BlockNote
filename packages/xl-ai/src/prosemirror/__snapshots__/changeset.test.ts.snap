@@ -121,6 +121,49 @@ exports[`plain source block, add mention 1`] = `
 ]
 `;
 
+exports[`remove column 1`] = `
+[
+  {
+    "from": 33,
+    "stepType": "replace",
+    "to": 49,
+  },
+  {
+    "from": 83,
+    "stepType": "replace",
+    "to": 104,
+  },
+  {
+    "from": 72,
+    "slice": {
+      "content": [
+        {
+          "text": "Table Cell ",
+          "type": "text",
+        },
+      ],
+    },
+    "stepType": "replace",
+    "to": 104,
+  },
+  {
+    "from": 123,
+    "stepType": "replace",
+    "to": 139,
+  },
+]
+`;
+
+exports[`remove row 1`] = `
+[
+  {
+    "from": 67,
+    "stepType": "replace",
+    "to": 122,
+  },
+]
+`;
+
 exports[`standard update 1`] = `
 [
   {
@@ -390,6 +433,7 @@ exports[`update block type 1`] = `
       "openEnd": 1,
     },
     "stepType": "replace",
+    "structure": true,
     "to": 3,
   },
 ]
@@ -419,6 +463,24 @@ exports[`update block type and content 1`] = `
     },
     "stepType": "replace",
     "to": 8,
+  },
+]
+`;
+
+exports[`update table cell 1`] = `
+[
+  {
+    "from": 6,
+    "slice": {
+      "content": [
+        {
+          "text": "Hello, world!",
+          "type": "text",
+        },
+      ],
+    },
+    "stepType": "replace",
+    "to": 18,
   },
 ]
 `;

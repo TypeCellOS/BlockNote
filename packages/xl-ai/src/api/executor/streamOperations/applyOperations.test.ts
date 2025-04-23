@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   getApplySuggestionsTr,
   rebaseTool,
@@ -14,12 +14,6 @@ import { DeleteBlockToolCall } from "../../tools/delete.js";
 import { applyOperations } from "./applyOperations.js";
 
 describe("applyOperations", () => {
-  let editor: ReturnType<typeof getTestEditor>;
-
-  beforeEach(() => {
-    editor = getTestEditor();
-  });
-
   // Helper function to create a mock stream from operations
   async function* createMockStream(
     ...operations: {
@@ -51,6 +45,7 @@ describe("applyOperations", () => {
       isPossiblyPartial: boolean;
     }>
   ) {
+    const editor = getTestEditor();
     const result = [];
     for await (const chunk of applyOperations(
       editor,
@@ -68,6 +63,7 @@ describe("applyOperations", () => {
   }
 
   it("should apply insert operations to the editor", async () => {
+    const editor = getTestEditor();
     const insertOp = {
       operation: {
         type: "add",
@@ -96,6 +92,7 @@ describe("applyOperations", () => {
   for (const testCase of testUpdateOperations) {
     // eslint-disable-next-line no-loop-func
     it(`should apply update operations to the editor (${testCase.description})`, async () => {
+      const editor = testCase.editor();
       const result = await processOperations(
         createMockStream({ operation: testCase.updateOp })
       );
@@ -127,6 +124,7 @@ describe("applyOperations", () => {
   }
 
   it("should apply remove operations to the editor", async () => {
+    const editor = getTestEditor();
     const startDocLength = editor.document.length;
     const removeOp = {
       operation: {
@@ -151,6 +149,7 @@ describe("applyOperations", () => {
   });
 
   it("should handle multiple operations in sequence", async () => {
+    const editor = getTestEditor();
     const startDocLength = editor.document.length;
     const insertOp = {
       operation: {

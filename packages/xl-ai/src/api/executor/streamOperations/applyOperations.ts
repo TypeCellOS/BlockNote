@@ -5,7 +5,7 @@ import {
   insertBlocksTr,
   removeAndInsertBlocksTr,
 } from "@blocknote/core";
-import { Mapping } from "prosemirror-transform";
+import { Mapping, ReplaceStep, Step } from "prosemirror-transform";
 import { AgentStep, getStepsAsAgent } from "../../../prosemirror/agent.js";
 import { updateToReplaceSteps } from "../../../prosemirror/changeset.js";
 import { RebaseTool } from "../../../prosemirror/rebaseTool.js";
@@ -105,7 +105,7 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
             false
           );
 
-          const inverted = steps.map((step) => step.map(tool.invertMap)!);
+          const inverted = mapStepsWithStructure(steps, tool.invertMap);
           agentSteps = getStepsAsAgent(editor, inverted);
         } else {
           const ret = insertBlocksTr(
@@ -188,11 +188,10 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
         continue;
       }
 
-      const inverted = steps.map((step) => step.map(tool.invertMap)!);
+      const inverted = mapStepsWithStructure(steps, tool.invertMap);
 
       const agentSteps = getStepsAsAgent(editor, inverted);
       for (const step of agentSteps) {
-        console.log("step", step);
         const tr = await agentStepToTr(editor, step, options);
         mapping.appendMapping(tr.mapping);
         editor.dispatch(tr);
@@ -231,43 +230,20 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
   // });
 }
 
-async function agentStepToTr(
-  editor: BlockNoteEditor<any, any, any>,
-  step: AgentStep,
-  options: { withDelays: boolean }
-) {
-  if (options.withDelays) {
-    if (step.type === "select") {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    } else if (step.type === "insert") {
-      await new Promise((resolve) => setTimeout(resolve, 10));
-    } else if (step.type === "replace") {
-      await new Promise((resolve) => setTimeout(resolve, 200));
-    } else {
-      throw new UnreachableCaseError(step.type);
+// keep structure when inverting (https://github.com/ProseMirror/prosemirror/issues/1521)
+function mapStepsWithStructure(steps: Step[], mapping: Mapping) {
+  return steps.map((step) => {
+    const ret = step.map(mapping)!;
+    if (ret instanceof ReplaceStep) {
+      return new ReplaceStep(
+        ret.from,
+        ret.to,
+        ret.slice,
+        (step as any).structure
+      );
     }
-  }
-  const tr = editor.prosemirrorState.tr.setMeta("addToHistory", false);
-
-  if (step.selection) {
-    tr.setMeta("aiAgent", {
-      selection: {
-        anchor: step.selection.anchor,
-        head: step.selection.head,
-      },
-    });
-  }
-  for (const pmStep of step.prosemirrorSteps) {
-    const result = tr.maybeStep(pmStep);
-    if (result.failed) {
-      // this would fail for tables, but has since been fixed using filterTransaction (in AIExtension)
-      // we now throw an error here, but maybe safer as warning when shipping (TODO)
-
-      throw new Error("failed to apply step");
-      // console.warn("failed to apply step", pmStep);
-    }
-  }
-  return tr;
+    return ret;
+  });
 }
 
 /*

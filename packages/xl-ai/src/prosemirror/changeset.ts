@@ -32,7 +32,7 @@ function addMissingChanges(
   // first, apply all changes we already have to the originalTr
 
   for (const change of changes) {
-    const step = new ReplaceStep( // TODO: test
+    const step = new ReplaceStep(
       tr.mapping.map(change.fromA),
       tr.mapping.map(change.toA),
       expectedDoc.slice(change.fromB, change.toB)
@@ -80,9 +80,9 @@ function addMissingChanges(
     // find the position in changes array to insert the new change
     let insertPos = changes.length;
     for (let i = 0; i < changes.length; i++) {
-      if (i > 0 && changes[i - 1].toA > fromA) {
-        throw new Error("changes are overlapping");
-      }
+      // if (i > 0 && changes[i - 1].toA > fromA) {
+      //   throw new Error("changes are overlapping");
+      // }
 
       if (changes[i].fromA >= toA) {
         insertPos = i;
@@ -101,6 +101,7 @@ function addMissingChanges(
     });
 
     // apply the step so we can find the next diff
+    // Note: even for node type changes, this works - although maybe a ReplaceAroundStep might be cleaner?
     tr.step(
       new ReplaceStep(
         diffStart,
@@ -109,7 +110,6 @@ function addMissingChanges(
         isNodeAttrChange
       )
     );
-
     const newDiffStart = tr.doc.content.findDiffStart(expectedDoc.content);
 
     if (newDiffStart === diffStart) {
@@ -205,12 +205,14 @@ export function updateToReplaceSteps(
     const step = changes[i];
     const replacement = updatedDoc.slice(step.fromB, step.toB);
 
-    // this happens for node type / attr changes, so we can't assert this
-    // if (replacement.openStart > 0 || replacement.openEnd > 0) {
-    //   throw new Error(
-    //     "Replacement expected not to have openStart or openEnd > 0"
-    //   );
-    // }
+    if (
+      replacement.openEnd > 0 &&
+      replacement.size === 1 &&
+      step.fromA === step.fromB
+    ) {
+      // node attr / type update
+      step.type = "node-type-or-attr-update";
+    }
 
     if (
       i === changes.length - 1 &&
@@ -231,6 +233,23 @@ export function updateToReplaceSteps(
       continue;
     }
 
+    // if (step.type === "node-type-or-attr-update") {
+    //   const $pos = doc.resolve(step.fromA);
+    //   const pos = $pos.pos;
+    //   const node = doc.nodeAt(pos)!;
+    //   debugger;
+    //   steps.push(
+    //     new ReplaceAroundStep(
+    //       pos,
+    //       pos + node.nodeSize,
+    //       pos + 1,
+    //       pos + node.nodeSize - 1,
+    //       new Slice(Fragment.from(replacement.content.firstChild!), 0, 0),
+    //       1,
+    //       true
+    //     )
+    //   );
+    // } else {
     steps.push(
       new ReplaceStep(
         step.fromA,
@@ -239,6 +258,7 @@ export function updateToReplaceSteps(
         step.type === "node-type-or-attr-update"
       )
     );
+    // }
   }
 
   return steps;

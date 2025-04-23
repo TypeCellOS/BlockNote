@@ -6,6 +6,7 @@ import {
 import {
   applySuggestions,
   revertSuggestions,
+  suggestChanges,
 } from "@handlewithcare/prosemirror-suggest-changes";
 import { LanguageModel } from "ai";
 import { Plugin, PluginKey } from "prosemirror-state";
@@ -207,9 +208,12 @@ export class AIExtension extends BlockNoteExtension {
         throw new Error("not implemented");
         // ret = await llm.markdown.call(this.editor, options);
       } else if (options.dataFormat === "html") {
-        ret = await llm.html.call(this.editor, { ...options, onStart: () => {
-          this.setAIResponseStatus("ai-writing"); // TODO: also apply to other formats
-        }});
+        ret = await llm.html.call(this.editor, {
+          ...options,
+          onStart: () => {
+            this.setAIResponseStatus("ai-writing"); // TODO: also apply to other formats
+          },
+        });
       } else {
         throw new UnreachableCaseError(options.dataFormat);
       }
@@ -235,23 +239,27 @@ export class AIExtension extends BlockNoteExtension {
     }
   }
 
-  public plugin = new Plugin({
-    key: PLUGIN_KEY,
-    filterTransaction: (tr) => {
-      const menuState = this.store.getState().aiMenuState;
+  public plugins = [
+    new Plugin({
+      key: PLUGIN_KEY,
+      filterTransaction: (tr) => {
+        const menuState = this.store.getState().aiMenuState;
 
-      if (menuState !== "closed" && menuState.status === "ai-writing") {
-        if (tr.getMeta(fixTablesKey)?.fixTables) {
-          // the fixtables plugin causes the steps between of the AI Agent to become invalid
-          // so we need to prevent it from running
-          // (we might need to filter out other / or maybe any transactions during the writing phase)
-          return false;
+        if (menuState !== "closed" && menuState.status === "ai-writing") {
+          if (tr.getMeta(fixTablesKey)?.fixTables) {
+            // the fixtables plugin causes the steps between of the AI Agent to become invalid
+            // so we need to prevent it from running
+            // (we might need to filter out other / or maybe any transactions during the writing phase)
+            return false;
+          }
         }
-      }
-      return true;
-    },
-  });
+        return true;
+      },
+    }),
+    suggestChanges(),
+  ];
 }
+
 const PLUGIN_KEY = new PluginKey(`blocknote-ai-plugin`);
 
 export function createAIExtension(options: GlobalLLMCallOptions) {

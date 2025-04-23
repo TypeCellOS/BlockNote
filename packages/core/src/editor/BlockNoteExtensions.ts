@@ -50,7 +50,11 @@ import {
   StyleSchema,
   StyleSpecs,
 } from "../schema/index.js";
-import type { BlockNoteEditor, BlockNoteEditorOptions, SupportedExtension } from "./BlockNoteEditor.js";
+import type {
+  BlockNoteEditor,
+  BlockNoteEditorOptions,
+  SupportedExtension,
+} from "./BlockNoteEditor.js";
 
 type ExtensionOptions<
   BSchema extends BlockSchema,

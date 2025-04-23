@@ -6,6 +6,7 @@ export abstract class BlockNoteExtension {
   }
 
   public plugin?: Plugin;
+  public plugins?: Plugin[];
 
   // eslint-disable-next-line
   constructor(..._args: any[]) {

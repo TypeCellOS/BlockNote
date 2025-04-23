@@ -86,7 +86,7 @@ export default function App() {
       // we pass the extension here.
       // I don't really like the fact that "ai" is hardcoded - I think we need an API that also allows us to pass in extensions without specifying the key
       ai: createAIExtension({
-        model: getModel("groq.chat/llama-3.3-70b-specdec"),
+        model: getModel("openai.chat/gpt-4o"),
       }),
     },
     initialContent: [

@@ -147,6 +147,19 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
     }
   }
 
+  // a helper method that can enable plugins before the view has been initialized
+  // currently only used for testing
+  forceEnablePlugins() {
+    if (this.view) {
+      throw new Error(
+        "forcePluginsEnabled called after view has been initialized"
+      );
+    }
+    this._state = this.state.reconfigure({
+      plugins: this.extensionManager.plugins,
+    });
+  }
+
   /**
    * Replace the default `createView` method with a custom one - which we call on mount
    */

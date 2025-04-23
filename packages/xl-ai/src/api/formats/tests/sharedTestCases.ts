@@ -3,10 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { getCurrentTest } from "@vitest/runner";
 import path from "path";
-import {
-  getTestEditor,
-  testUpdateOperations,
-} from "../../../testUtil/updates/updateOperations.js";
+import { testUpdateOperations } from "../../../testUtil/updates/updateOperations.js";
 
 const BASE_FILE_PATH = path.resolve(__dirname, "__snapshots__");
 
@@ -38,8 +35,6 @@ export function generateSharedTestCases(
     textAlignment?: boolean;
   }
 ) {
-
-
   describe("Update (formatting)", () => {
     for (const test of testUpdateOperations) {
       it(test.description, async (c) => {
@@ -55,13 +50,13 @@ export function generateSharedTestCases(
           c.skip();
         }
 
-        const editor = getTestEditor();
+        const editor = test.editor();
         const result = await callLLM(editor, {
           userPrompt: test.userPrompt,
         });
         await result.apply();
 
-        const editorCompare = getTestEditor();
+        const editorCompare = test.editor();
         editorCompare.updateBlock(test.updateOp.id, test.updateOp.block);
         expect(editor.document).toEqual(editorCompare.document);
       });

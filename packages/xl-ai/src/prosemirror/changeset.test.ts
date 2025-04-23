@@ -1,4 +1,8 @@
-import { PartialBlock } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  PartialBlock,
+  partialBlockToBlockForTesting,
+} from "@blocknote/core";
 import { describe, expect, it } from "vitest";
 import { UpdateBlockToolCall } from "../api/tools/createUpdateBlockTool.js";
 import {
@@ -8,10 +12,10 @@ import {
 import { updateToReplaceSteps } from "./changeset.js";
 
 function testUpdate(
+  editor: BlockNoteEditor<any, any, any>,
   update: UpdateBlockToolCall<PartialBlock<any, any, any>>["block"],
   blockId: string
 ) {
-  const editor = getTestEditor();
   const steps = updateToReplaceSteps(
     editor,
     {
@@ -44,14 +48,21 @@ function testUpdate(
     expect(block.props).toMatchObject(update.props);
   }
   if (update.content) {
+    const partialBlock = {
+      type: block.type,
+      ...update,
+    };
     // eslint-disable-next-line
-    expect(block.content).toEqual(update.content);
+    expect(block.content).toEqual(
+      partialBlockToBlockForTesting(editor.schema.blockSchema, partialBlock)
+        .content
+    );
   }
 }
 
 for (const test of testUpdateOperations) {
   it(`${test.description}`, async () => {
-    testUpdate(test.updateOp.block, test.updateOp.id);
+    testUpdate(test.editor(), test.updateOp.block, test.updateOp.id);
   });
 }
 

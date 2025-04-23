@@ -1,5 +1,6 @@
 import { BlockNoteEditor, PartialBlock } from "@blocknote/core";
 import { schemaWithMention as schema } from "@shared/testing/editorSchemas/mention.js";
+import { createAIExtension } from "../../AIExtension.js";
 import { UpdateBlockToolCall } from "../../api/tools/createUpdateBlockTool.js";
 
 /**
@@ -8,6 +9,10 @@ import { UpdateBlockToolCall } from "../../api/tools/createUpdateBlockTool.js";
  */
 
 type TestUpdateOperation = {
+  /**
+   * The editor to apply the update to
+   */
+  editor: () => BlockNoteEditor<any, any, any>;
   /**
    * The update operation to apply to the editor
    */
@@ -101,11 +106,60 @@ export function getTestEditor() {
       },
     ],
     schema,
+    _extensions: {
+      ai: createAIExtension({
+        model: undefined as any,
+      }),
+    },
+  });
+}
+
+export function getTableTestEditor() {
+  return BlockNoteEditor.create({
+    initialContent: [
+      {
+        id: "ref1",
+        type: "table",
+        content: {
+          type: "tableContent",
+          rows: [
+            {
+              cells: ["Table Cell 1", "Table Cell 2", "Table Cell 3"],
+            },
+            {
+              cells: [
+                "Table Cell 4",
+                [
+                  {
+                    type: "text",
+                    text: "Table Cell Bold 5",
+                    styles: {
+                      bold: true,
+                    },
+                  },
+                ],
+                "Table Cell 6",
+              ],
+            },
+            {
+              cells: ["Table Cell 7", "Table Cell 8", "Table Cell 9"],
+            },
+          ],
+        },
+      },
+    ],
+    schema,
+    _extensions: {
+      ai: createAIExtension({
+        model: undefined as any,
+      }),
+    },
   });
 }
 
 export const testUpdateOperations: TestUpdateOperation[] = [
   {
+    editor: getTestEditor,
     description: "standard update",
     updateOp: {
       type: "update",
@@ -117,6 +171,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
     userPrompt: "translate the first paragraph to german",
   },
   {
+    editor: getTestEditor,
     description: "update block type",
     updateOp: {
       type: "update",
@@ -132,6 +187,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
     userPrompt: "make the first paragraph a heading",
   },
   {
+    editor: getTestEditor,
     description: "update block prop",
     updateOp: {
       type: "update",
@@ -148,6 +204,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
     },
   },
   {
+    editor: getTestEditor,
     description: "update block type and content",
     updateOp: {
       type: "update",
@@ -164,6 +221,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
       "make the first paragraph a heading and update the content to 'What's up, world!'",
   },
   {
+    editor: getTestEditor,
     description: "update block prop and content",
     updateOp: {
       type: "update",
@@ -182,6 +240,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
     },
   },
   {
+    editor: getTestEditor,
     description: "styles + ic in source block, replace content",
     updateOp: {
       type: "update",
@@ -194,6 +253,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
       "update the content of the second block to 'Hello, updated content'",
   },
   {
+    editor: getTestEditor,
     description: "styles + ic in source block, update text",
     updateOp: {
       type: "update",
@@ -215,7 +275,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
           {
             type: "text",
             text: "! Wie ",
-            styles: {}
+            styles: {},
           },
           {
             type: "text",
@@ -234,10 +294,10 @@ export const testUpdateOperations: TestUpdateOperation[] = [
         ],
       },
     },
-    userPrompt:
-      "translate the second block to german",
+    userPrompt: "translate the second block to german",
   },
   {
+    editor: getTestEditor,
     description: "styles + ic in source block, remove mark",
     updateOp: {
       type: "update",
@@ -274,6 +334,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
     userPrompt: "remove the bold style from the second block",
   },
   {
+    editor: getTestEditor,
     description: "styles + ic in source block, remove mention",
     updateOp: {
       type: "update",
@@ -306,6 +367,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
       "change to say 'Hello! How are you doing? I'm feeling blue!' (remove mention but keep bold text)",
   },
   {
+    editor: getTestEditor,
     description: "styles + ic in target block, add mark (word)",
     updateOp: {
       type: "update",
@@ -330,6 +392,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
     userPrompt: "make 'world!' (in the first block) bold",
   },
   {
+    editor: getTestEditor,
     description: "styles + ic in target block, add mark (paragraph)",
     updateOp: {
       type: "update",
@@ -349,6 +412,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
     userPrompt: "make first paragraph bold",
   },
   {
+    editor: getTestEditor,
     description: "plain source block, add mention",
     updateOp: {
       type: "update",
@@ -375,12 +439,14 @@ export const testUpdateOperations: TestUpdateOperation[] = [
         ],
       },
     },
-    userPrompt: "Change the first paragraph to Hello, Jane Doe! (use a mention)",
+    userPrompt:
+      "Change the first paragraph to Hello, Jane Doe! (use a mention)",
     requiredCapabilities: {
       mentions: true,
     },
   },
   {
+    editor: getTestEditor,
     description: "styles + ic in source block, update mention prop",
     updateOp: {
       type: "update",
@@ -427,6 +493,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
     },
   },
   {
+    editor: getTestEditor,
     description: "drop mark and link",
     updateOp: {
       type: "update",
@@ -441,6 +508,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
       "remove the formatting (turn into plain text without styles or urls) from the last paragraph",
   },
   {
+    editor: getTestEditor,
     description: "drop mark and link and change text within mark",
     updateOp: {
       type: "update",
@@ -453,5 +521,89 @@ export const testUpdateOperations: TestUpdateOperation[] = [
     },
     userPrompt:
       "change the last paragraph to 'Hi, world! Bold the text. Link.' without any markup like bold or link",
+  },
+  {
+    editor: getTableTestEditor,
+    description: "update table cell",
+    updateOp: {
+      type: "update",
+      id: "ref1",
+      block: {
+        content: {
+          type: "tableContent",
+          rows: [
+            {
+              cells: ["Hello, world!", "Table Cell 2", "Table Cell 3"],
+            },
+            {
+              cells: [
+                "Table Cell 4",
+                [
+                  {
+                    type: "text",
+                    text: "Table Cell Bold 5",
+                    styles: {
+                      bold: true,
+                    },
+                  },
+                ],
+                "Table Cell 6",
+              ],
+            },
+            {
+              cells: ["Table Cell 7", "Table Cell 8", "Table Cell 9"],
+            },
+          ],
+        },
+      },
+    },
+    userPrompt: "update the first cell to 'Hello, world!'",
+  },
+  {
+    editor: getTableTestEditor,
+    description: "remove column",
+    updateOp: {
+      type: "update",
+      id: "ref1",
+      block: {
+        content: {
+          type: "tableContent",
+          rows: [
+            {
+              cells: ["Table Cell 1", "Table Cell 3"],
+            },
+            {
+              cells: ["Table Cell 4", "Table Cell 6"],
+            },
+            {
+              cells: ["Table Cell 7", "Table Cell 9"],
+            },
+          ],
+        },
+      },
+    },
+    userPrompt: "Remove the second column",
+  },
+  {
+    editor: getTableTestEditor,
+    description: "remove row",
+    updateOp: {
+      type: "update",
+      id: "ref1",
+      block: {
+        content: {
+          type: "tableContent",
+          rows: [
+            {
+              cells: ["Table Cell 1", "Table Cell 2", "Table Cell 3"],
+            },
+            {
+              cells: ["Table Cell 7", "Table Cell 8", "Table Cell 9"],
+            },
+          ],
+        },
+      },
+    },
+    userPrompt: "Remove the second row",
   },
 ];

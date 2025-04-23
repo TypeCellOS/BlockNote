@@ -129,6 +129,7 @@ export type SupportedExtension =
   | AnyExtension
   | {
       plugin: Plugin; // TODO: deprecate this format and use BlockNoteExtension instead
+      plugins?: Plugin[];
     }
   | BlockNoteExtension;
 
@@ -687,12 +688,16 @@ export class BlockNoteEditor<
           return ext;
         }
 
-        if (ext instanceof BlockNoteExtension && !ext.plugin) {
+        if (ext instanceof BlockNoteExtension && !ext.plugin && !ext.plugins) {
           return undefined;
         }
 
-        const plugin = ext.plugin;
-        if (!plugin) {
+        const plugins = [
+          ...(ext.plugin ? [ext.plugin] : []),
+          ...(ext.plugins || []),
+        ];
+
+        if (!plugins.length) {
           throw new Error(
             "Extension should either be a TipTap extension or a ProseMirror plugin in a plugin property"
           );
@@ -701,7 +706,7 @@ export class BlockNoteEditor<
         // "blocknote" extensions (prosemirror plugins)
         return Extension.create({
           name: key,
-          addProseMirrorPlugins: () => [plugin],
+          addProseMirrorPlugins: () => plugins,
         });
       }),
     ].filter((ext): ext is Extension => ext !== undefined);
