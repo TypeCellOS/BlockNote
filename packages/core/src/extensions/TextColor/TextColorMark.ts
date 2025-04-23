@@ -1,5 +1,6 @@
 import { Mark } from "@tiptap/core";
-import { getTextColorAttribute } from "../../blocks/defaultProps.js";
+
+import { getAttributeFromDefaultProps } from "../../blocks/defaultProps.js";
 import { createStyleSpecFromTipTapMark } from "../../schema/index.js";
 
 const TextColorMark = Mark.create({
@@ -8,7 +9,7 @@ const TextColorMark = Mark.create({
 
   addAttributes() {
     return {
-      stringValue: getTextColorAttribute("stringValue"),
+      stringValue: getAttributeFromDefaultProps["textColor"]("stringValue"),
     };
   },
 

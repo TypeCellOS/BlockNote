@@ -31,10 +31,7 @@ export const BlockContainer = Node.create<{
   parseHTML() {
     return [
       {
-        // Not only `div`s as this way props from exported HTML can also be
-        // parsed correctly.
-        tag: "*",
-        priority: 500,
+        tag: "div",
         getAttrs: (element) => {
           if (typeof element === "string") {
             return false;
@@ -47,18 +44,12 @@ export const BlockContainer = Node.create<{
             }
           }
 
-          if (
-            element.getAttribute("data-node-type") === "blockContainer" ||
-            element.getAttribute("data-node-type") === "blockOuter"
-          ) {
+          if (element.getAttribute("data-node-type") === "blockContainer") {
             return attrs;
           }
 
           return false;
         },
-        // Allows exported HTML to be parsed as both a `blockContainer` with a
-        // `blockContent` child, preserving all block data.
-        consuming: false,
       },
     ];
   },

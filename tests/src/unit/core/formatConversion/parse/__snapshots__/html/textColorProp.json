@@ -4,45 +4,7 @@
     "content": [
       {
         "styles": {},
-        "text": "None ",
-        "type": "text",
-      },
-      {
-        "styles": {
-          "bold": true,
-        },
-        "text": "Bold ",
-        "type": "text",
-      },
-      {
-        "styles": {
-          "italic": true,
-        },
-        "text": "Italic ",
-        "type": "text",
-      },
-      {
-        "styles": {
-          "underline": true,
-        },
-        "text": "Underline ",
-        "type": "text",
-      },
-      {
-        "styles": {
-          "strike": true,
-        },
-        "text": "Strikethrough ",
-        "type": "text",
-      },
-      {
-        "styles": {
-          "bold": true,
-          "italic": true,
-          "strike": true,
-          "underline": true,
-        },
-        "text": "All",
+        "text": "Red Paragraph",
         "type": "text",
       },
     ],
@@ -59,7 +21,7 @@
     "content": [
       {
         "styles": {},
-        "text": "Nested Div",
+        "text": "Green Paragraph",
         "type": "text",
       },
     ],
@@ -76,7 +38,7 @@
     "content": [
       {
         "styles": {},
-        "text": "Nested Paragraph",
+        "text": "Blue Paragraph",
         "type": "text",
       },
     ],

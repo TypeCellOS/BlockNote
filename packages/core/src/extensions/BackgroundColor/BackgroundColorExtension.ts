@@ -1,5 +1,6 @@
 import { Extension } from "@tiptap/core";
-import { getBackgroundColorAttribute } from "../../blocks/defaultProps.js";
+
+import { getAttributeFromDefaultProps } from "../../blocks/defaultProps.js";
 
 export const BackgroundColorExtension = Extension.create({
   name: "blockBackgroundColor",
@@ -9,7 +10,7 @@ export const BackgroundColorExtension = Extension.create({
       {
         types: ["blockContainer", "tableCell", "tableHeader"],
         attributes: {
-          backgroundColor: getBackgroundColorAttribute(),
+          backgroundColor: getAttributeFromDefaultProps["backgroundColor"](),
         },
       },
     ];

@@ -25,7 +25,7 @@ export type DefaultProps = Props<typeof defaultProps>;
 // a custom block's TipTap node attributes.
 export const inheritedProps = ["backgroundColor", "textColor"];
 
-export const getBackgroundColorAttribute = (
+const getBackgroundColorAttribute = (
   attributeName = "backgroundColor"
 ): Attribute => ({
   default: defaultProps.backgroundColor.default,
@@ -51,9 +51,7 @@ export const getBackgroundColorAttribute = (
   },
 });
 
-export const getTextColorAttribute = (
-  attributeName = "textColor"
-): Attribute => ({
+const getTextColorAttribute = (attributeName = "textColor"): Attribute => ({
   default: defaultProps.textColor.default,
   parseHTML: (element) => {
     if (element.hasAttribute("data-text-color")) {
@@ -75,3 +73,34 @@ export const getTextColorAttribute = (
     };
   },
 });
+
+const getTextAlignmentAttribute = (
+  attributeName = "textAlignment"
+): Attribute => ({
+  default: defaultProps.textAlignment.default,
+  parseHTML: (element) => {
+    if (element.hasAttribute("data-text-alignment")) {
+      return element.getAttribute("data-text-alignment");
+    }
+
+    if (element.style.textAlign) {
+      return element.style.textAlign;
+    }
+
+    return defaultProps.textAlignment.default;
+  },
+  renderHTML: (attributes) => {
+    if (attributes[attributeName] === defaultProps.textAlignment.default) {
+      return {};
+    }
+    return {
+      "data-text-alignment": attributes[attributeName],
+    };
+  },
+});
+
+export const getAttributeFromDefaultProps = {
+  backgroundColor: getBackgroundColorAttribute,
+  textColor: getTextColorAttribute,
+  textAlignment: getTextAlignmentAttribute,
+};

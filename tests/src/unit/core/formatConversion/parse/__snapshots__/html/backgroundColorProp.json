@@ -4,7 +4,7 @@
     "content": [
       {
         "styles": {},
-        "text": "Single Div",
+        "text": "Red Background",
         "type": "text",
       },
     ],
@@ -21,11 +21,28 @@
     "content": [
       {
         "styles": {},
-        "text": "second Div",
+        "text": "Green Background",
         "type": "text",
       },
     ],
     "id": "2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Blue Background",
+        "type": "text",
+      },
+    ],
+    "id": "3",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
