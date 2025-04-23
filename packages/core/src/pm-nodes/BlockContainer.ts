@@ -6,8 +6,6 @@ import { mergeCSSClasses } from "../util/browser.js";
 
 // Object containing all possible block attributes.
 const BlockAttributes: Record<string, string> = {
-  textColor: "data-text-color",
-  backgroundColor: "data-background-color",
   id: "data-id",
   depth: "data-depth",
   depthChange: "data-depth-change",
