@@ -28,8 +28,14 @@ export const no: Dictionary = {
     },
     heading_5: {
       title: "Overskrift 5",
-      subtext: "Overskrift på laveste nivå",
+      subtext: "Overskrift for mindre underseksjoner",
       aliases: ["h5", "overskrift5", "underoverskrift5"],
+      group: "Overskrifter",
+    },
+    heading_6: {
+      title: "Overskrift 6",
+      subtext: "Overskrift på laveste nivå",
+      aliases: ["h6", "overskrift6", "underoverskrift6"],
       group: "Overskrifter",
     },
     quote: {

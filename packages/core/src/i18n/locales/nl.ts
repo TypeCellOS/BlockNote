@@ -28,8 +28,14 @@ export const nl: Dictionary = {
     },
     heading_5: {
       title: "Kop 5",
-      subtext: "Gebruikt voor de laagste niveau koppen",
+      subtext: "Gebruikt voor kleinere subsecties",
       aliases: ["h5", "kop5", "subkop5"],
+      group: "Koppen",
+    },
+    heading_6: {
+      title: "Kop 6",
+      subtext: "Gebruikt voor koppen op het laagste niveau",
+      aliases: ["h6", "kop6", "subkop6"],
       group: "Koppen",
     },
     quote: {

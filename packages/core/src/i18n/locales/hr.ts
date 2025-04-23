@@ -28,8 +28,14 @@ export const hr: Dictionary = {
     },
     heading_5: {
       title: "Naslov 5",
-      subtext: "Naslov najniže razine",
+      subtext: "Mali naslov podpoglavlja",
       aliases: ["h5", "naslov5", "podnaslov5"],
+      group: "Naslovi",
+    },
+    heading_6: {
+      title: "Naslov 6",
+      subtext: "Naslov najniže razine",
+      aliases: ["h6", "naslov6", "podnaslov6"],
       group: "Naslovi",
     },
     quote: {

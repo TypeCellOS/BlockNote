@@ -28,8 +28,14 @@ export const ko: Dictionary = {
     },
     heading_5: {
       title: "제목5",
-      subtext: "가장 하위 수준 제목",
+      subtext: "작은 하위 섹션 제목",
       aliases: ["h5", "제목5", "소제목5"],
+      group: "제목",
+    },
+    heading_6: {
+      title: "제목6",
+      subtext: "가장 하위 수준 제목",
+      aliases: ["h6", "제목6", "소제목6"],
       group: "제목",
     },
     quote: {

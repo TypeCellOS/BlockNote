@@ -28,8 +28,14 @@ export const vi: Dictionary = {
     },
     heading_5: {
       title: "Tiêu đề H5",
-      subtext: "Sử dụng cho tiêu đề cấp thấp nhất",
+      subtext: "Sử dụng cho tiêu đề phụ nhỏ hơn",
       aliases: ["h5", "tieude5", "tieudephu5"],
+      group: "Tiêu đề",
+    },
+    heading_6: {
+      title: "Tiêu đề H6",
+      subtext: "Sử dụng cho tiêu đề cấp thấp nhất",
+      aliases: ["h6", "tieude6", "tieudephu6"],
       group: "Tiêu đề",
     },
     quote: {

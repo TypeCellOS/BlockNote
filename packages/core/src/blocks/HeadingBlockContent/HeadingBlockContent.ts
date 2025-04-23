@@ -10,7 +10,7 @@ import {
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
 
-const HEADING_LEVELS = [1, 2, 3, 4, 5] as const;
+const HEADING_LEVELS = [1, 2, 3, 4, 5, 6] as const;
 
 export const headingPropSchema = {
   ...defaultProps,

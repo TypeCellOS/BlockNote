@@ -28,8 +28,14 @@ export const pt: Dictionary = {
     },
     heading_5: {
       title: "Título 5",
-      subtext: "Usado para títulos de nível mais baixo",
+      subtext: "Usado para títulos de subseções pequenas",
       aliases: ["h5", "titulo5", "subtitulo5"],
+      group: "Títulos",
+    },
+    heading_6: {
+      title: "Título 6",
+      subtext: "Usado para títulos de nível mais baixo",
+      aliases: ["h6", "titulo6", "subtitulo6"],
       group: "Títulos",
     },
     quote: {

@@ -28,8 +28,14 @@ export const is: Dictionary = {
     },
     heading_5: {
       title: "Fyrirsögn 5",
-      subtext: "Titill á lægsta stigi",
+      subtext: "Titill fyrir litla undirkafla",
       aliases: ["h5", "fyrirsogn5", "undirfyrirsogn5"],
+      group: "Fyrirsagnir",
+    },
+    heading_6: {
+      title: "Fyrirsögn 6",
+      subtext: "Titill á lægsta stigi",
+      aliases: ["h6", "fyrirsogn6", "undirfyrirsogn6"],
       group: "Fyrirsagnir",
     },
     quote: {

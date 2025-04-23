@@ -28,8 +28,14 @@ export const ja: Dictionary = {
     },
     heading_5: {
       title: "見出し５",
-      subtext: "最下位レベルの見出しに使用",
+      subtext: "小さなサブセクションの見出しに使用",
       aliases: ["h5", "見出し5", "subheading5", "小見出し5"],
+      group: "見出し",
+    },
+    heading_6: {
+      title: "見出し６",
+      subtext: "最下位レベルの見出しに使用",
+      aliases: ["h6", "見出し6", "subheading6", "小見出し6"],
       group: "見出し",
     },
     quote: {

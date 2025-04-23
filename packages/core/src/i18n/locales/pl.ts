@@ -28,8 +28,14 @@ export const pl: Dictionary = {
     },
     heading_5: {
       title: "Nagłówek 5",
-      subtext: "Nagłówek najniższego poziomu",
+      subtext: "Nagłówek mniejszej podsekcji",
       aliases: ["h5", "naglowek5", "podnaglowek5"],
+      group: "Nagłówki",
+    },
+    heading_6: {
+      title: "Nagłówek 6",
+      subtext: "Nagłówek najniższego poziomu",
+      aliases: ["h6", "naglowek6", "podnaglowek6"],
       group: "Nagłówki",
     },
     quote: {

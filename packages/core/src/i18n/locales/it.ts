@@ -28,8 +28,14 @@ export const it: Dictionary = {
     },
     heading_5: {
       title: "Intestazione 5",
-      subtext: "Intestazione di livello più basso",
+      subtext: "Intestazione di sottosezione minore",
       aliases: ["h5", "intestazione5", "sottotitolo5"],
+      group: "Intestazioni",
+    },
+    heading_6: {
+      title: "Intestazione 6",
+      subtext: "Intestazione di livello più basso",
+      aliases: ["h6", "intestazione6", "sottotitolo6"],
       group: "Intestazioni",
     },
     quote: {

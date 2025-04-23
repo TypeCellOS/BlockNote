@@ -13,6 +13,7 @@ import {
   RiH3,
   RiH4,
   RiH5,
+  RiH6,
   RiListCheck3,
   RiListOrdered,
   RiListUnordered,
@@ -97,6 +98,16 @@ export const blockTypeSelectItems = (
       block.type === "heading" &&
       "level" in block.props &&
       block.props.level === 5,
+  },
+  {
+    name: dict.slash_menu.heading_6.title,
+    type: "heading",
+    props: { level: 6 },
+    icon: RiH6,
+    isSelected: (block) =>
+      block.type === "heading" &&
+      "level" in block.props &&
+      block.props.level === 6,
   },
   {
     name: dict.slash_menu.quote.title,

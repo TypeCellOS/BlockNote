@@ -29,8 +29,14 @@ export const fr: Dictionary = {
     },
     heading_5: {
       title: "Titre 5",
+      subtext: "Titre de sous-section mineure",
+      aliases: ["h5", "titre5", "sous-titre5"],
+      group: "Titres",
+    },
+    heading_6: {
+      title: "Titre 6",
       subtext: "Titre de niveau le plus bas",
-      aliases: ["h5", "titre5", "sous‑titre5"],
+      aliases: ["h6", "titre6", "sous-titre6"],
       group: "Titres",
     },
     quote: {
