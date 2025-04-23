@@ -5,7 +5,6 @@
   "scripts": {
     "dev": "next dev",
     "dev:email": "email dev",
-    "build:email": "email export --outDir ./",
     "build:site": "next build",
     "start": "next start",
     "lint": "next lint"

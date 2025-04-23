@@ -1,10 +1,13 @@
 import { polar } from "@polar-sh/better-auth";
 import { Polar } from "@polar-sh/sdk";
 import { betterAuth } from "better-auth";
+import { customSession } from "better-auth/plugins";
+import { github } from "better-auth/social-providers";
 import { magicLink, openAPI } from "better-auth/plugins";
 import Database from "better-sqlite3";
 
 import { sendEmail } from "./util/send-mail";
+import { PRODUCTS } from "./util/product-list";
 
 export const client = new Polar({
   accessToken: process.env.POLAR_ACCESS_TOKEN,
@@ -15,12 +18,21 @@ export const client = new Polar({
 });
 
 export const auth = betterAuth({
+  user: {
+    additionalFields: {
+      ghSponsorPlanType: {
+        type: "string",
+        required: false,
+        input: false, // don't allow user to set role
+      },
+    },
+  },
   emailVerification: {
     async sendVerificationEmail({ user, url }) {
       await sendEmail({
         to: user.email,
         template: "verifyEmail",
-        props: { url },
+        props: { url, name: user.name },
       });
     },
   },
@@ -31,7 +43,7 @@ export const auth = betterAuth({
       await sendEmail({
         to: data.user.email,
         template: "resetPassword",
-        props: { url: data.url },
+        props: { url: data.url, name: data.user.name },
       });
     },
   },
@@ -39,10 +51,146 @@ export const auth = betterAuth({
     github: {
       clientId: process.env.AUTH_GITHUB_ID as string,
       clientSecret: process.env.AUTH_GITHUB_SECRET as string,
+      async getUserInfo(token) {
+        // This is a workaround to still re-use the default github provider getUserInfo
+        // and still be able to fetch the sponsor info with the token
+        return (await github({
+          clientId: process.env.AUTH_GITHUB_ID as string,
+          clientSecret: process.env.AUTH_GITHUB_SECRET as string,
+          async mapProfileToUser() {
+            const resSponsor = await fetch(`https://api.github.com/graphql`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token.accessToken}`,
+              },
+              // organization(login:"TypeCellOS") {
+              // user(login:"YousefED") {
+              body: JSON.stringify({
+                query: `{
+                    user(login:"YousefED") {
+                      sponsorshipForViewerAsSponsor(activeOnly:false) {
+                        isActive,
+                        tier {
+                          name
+                          monthlyPriceInDollars
+                        }  
+                      }
+                    }
+                  }`,
+              }),
+            });
+
+            if (resSponsor.ok) {
+              // Mock data. TODO: disable and test actial data
+              // profile.sponsorInfo = {
+              //   isActive: true,
+              //   tier: {
+              //     name: "test",
+              //     monthlyPriceInDollars: 100,
+              //   },
+              // };
+              // use API data:
+
+              const data = await resSponsor.json();
+              // eslint-disable-next-line no-console
+              console.log("sponsor data", data);
+
+              // {
+              //   "data": {
+              //     "user": {
+              //       "sponsorshipForViewerAsSponsor": {
+              //         "isActive": true,
+              //         "tier": {
+              //           "name": "$90 a month",
+              //           "monthlyPriceInDollars": 90
+              //         }
+              //       }
+              //     }
+              //   }
+              // }
+
+              const sponsorInfo: null | {
+                isActive: boolean;
+                tier: {
+                  monthlyPriceInDollars: number;
+                };
+              } = data.data.user.sponsorshipForViewerAsSponsor;
+
+              if (!sponsorInfo?.isActive) {
+                return {};
+              }
+
+              return {
+                ghSponsorPlanType:
+                  sponsorInfo.tier.monthlyPriceInDollars > 100
+                    ? "business"
+                    : "starter",
+              };
+            }
+
+            return {};
+          },
+        }).getUserInfo(token))!;
+      },
     },
   },
   database: new Database("./sqlite.db"),
   plugins: [
+    customSession(
+      async ({ user, session }) => {
+        // Otherwise, check with Polar
+        const polarState = await client.customers.getStateExternal({
+          externalId: user.id,
+        });
+
+        if (
+          // No active subscriptions
+          !polarState.activeSubscriptions.length ||
+          // Or, the subscription is not active
+          polarState.activeSubscriptions[0].status !== "active"
+        ) {
+          if (user.ghSponsorPlanType) {
+            // The user may be a GitHub sponsor plan type
+            return {
+              planType: user.ghSponsorPlanType,
+              user,
+              session,
+            };
+          }
+
+          return {
+            planType: PRODUCTS.free.slug,
+            user,
+            session,
+          };
+        }
+        const subscription = polarState.activeSubscriptions[0];
+
+        const planType = Object.values(PRODUCTS).find(
+          (p) => p.id === subscription.productId,
+        )?.slug;
+
+        // See if they are subscribed to a Polar product, if not, use the free plan
+        return {
+          planType: planType ?? PRODUCTS.free.slug,
+          user,
+          session,
+        };
+      },
+      {
+        // This is really only for type inference
+        user: {
+          additionalFields: {
+            ghSponsorPlanType: {
+              type: "string",
+              required: false,
+              input: false, // don't allow user to set role
+            },
+          },
+        },
+      },
+    ),
     magicLink({
       sendMagicLink: async ({ email, url }) => {
         await sendEmail({
@@ -66,18 +214,18 @@ export const auth = betterAuth({
         enabled: true,
         products: [
           {
-            productId: "8049f66f-fd0a-4690-a0aa-442ac5b03040", // ID of Product from Polar Dashboard
-            slug: "business", // Custom slug for easy reference in Checkout URL, e.g. /checkout/pro
+            productId: PRODUCTS.business.id, // ID of Product from Polar Dashboard
+            slug: PRODUCTS.business.slug, // Custom slug for easy reference in Checkout URL, e.g. /checkout/pro
             // http://localhost:3000/api/auth/checkout/business
           },
           {
-            productId: "ab70fea5-172c-4aac-b3fc-0824f2a5b670",
-            slug: "starter",
+            productId: PRODUCTS.starter.id,
+            slug: PRODUCTS.starter.slug,
             // http://localhost:3000/api/auth/checkout/starter
           },
         ],
         // TODO set to actual page (welcome screen)
-        successUrl: "/success?checkout_id={CHECKOUT_ID}",
+        successUrl: "/?checkout_id={CHECKOUT_ID}",
       },
       // Incoming Webhooks handler will be installed at /polar/webhooks
       webhooks: {

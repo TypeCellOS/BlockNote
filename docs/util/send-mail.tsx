@@ -14,72 +14,53 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-type TEMPLATES = {
+const TEMPLATE_COMPONENTS = {
   verifyEmail: {
-    url: string;
-    name?: string;
-  };
+    subject: "BlockNote - Verify your email address",
+    component: VerifyEmail,
+  },
   resetPassword: {
-    url: string;
-    name?: string;
-  };
+    subject: "BlockNote - Reset your password",
+    component: ResetPassword,
+  },
   magicLink: {
-    url: string;
-    name?: string;
-  };
-};
+    subject: "BlockNote - Sign in to your account",
+    component: MagicLinkEmail,
+  },
+} as const;
 
-const TEMPLATE_TEXTS = {
-  verifyEmail: (props: TEMPLATES["verifyEmail"]) =>
-    render(<VerifyEmail name={props.name} url={props.url} />, {
-      pretty: true,
-      plainText: true,
-    }),
-  resetPassword: (props: TEMPLATES["resetPassword"]) =>
-    render(<ResetPassword name={props.name} url={props.url} />, {
-      pretty: true,
-      plainText: true,
-    }),
-  magicLink: (props: TEMPLATES["magicLink"]) =>
-    render(<MagicLinkEmail name={props.name} url={props.url} />, {
-      pretty: true,
-      plainText: true,
-    }),
-};
-const TEMPLATE_HTMLS = {
-  verifyEmail: (props: TEMPLATES["verifyEmail"]) =>
-    render(<VerifyEmail name={props.name} url={props.url} />, {
-      pretty: true,
-    }),
-  resetPassword: (props: TEMPLATES["resetPassword"]) =>
-    render(<ResetPassword name={props.name} url={props.url} />, {
-      pretty: true,
-    }),
-  magicLink: (props: TEMPLATES["magicLink"]): Promise<string> =>
-    render(<MagicLinkEmail name={props.name} url={props.url} />, {
-      pretty: true,
-    }),
-};
-
-export async function sendEmail<T extends keyof TEMPLATES>({
+export async function sendEmail<T extends keyof typeof TEMPLATE_COMPONENTS>({
   to,
   template,
   props,
 }: {
   to: string;
   template: T;
-  props: TEMPLATES[T];
+  props: Parameters<(typeof TEMPLATE_COMPONENTS)[T]["component"]>[0];
 }) {
+  if (
+    !process.env.SMTP_HOST ||
+    !process.env.SMTP_PORT ||
+    !process.env.SMTP_USER ||
+    !process.env.SMTP_PASS
+  ) {
+    console.log(template, props);
+    throw new Error(
+      "SMTP_HOST, SMTP_PORT, SMTP_USER, and SMTP_PASS must be set to send emails",
+    );
+  }
+
   const info = await transporter.sendMail({
     from: '"BlockNote" <nick@blocknotejs.org>',
     to,
-    subject: {
-      verifyEmail: "BlockNote - Verify your email address",
-      resetPassword: "BlockNote - Reset your password",
-      magicLink: "BlockNote - Sign in to your account",
-    }[template],
-    text: await TEMPLATE_TEXTS[template](props),
-    html: await TEMPLATE_HTMLS[template](props),
+    subject: TEMPLATE_COMPONENTS[template].subject,
+    text: await render(TEMPLATE_COMPONENTS[template].component(props), {
+      pretty: true,
+      plainText: true,
+    }),
+    html: await render(TEMPLATE_COMPONENTS[template].component(props), {
+      pretty: true,
+    }),
   });
 
   console.log("Email sent: ", info.messageId);
