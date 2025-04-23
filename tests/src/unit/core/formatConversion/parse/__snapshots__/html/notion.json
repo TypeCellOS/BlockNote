@@ -94,24 +94,25 @@
     "content": [
       {
         "styles": {},
-        "text": "Paragraph 1",
+        "text": "Heading 6",
         "type": "text",
       },
     ],
     "id": "6",
     "props": {
       "backgroundColor": "default",
+      "level": 6,
       "textAlignment": "left",
       "textColor": "default",
     },
-    "type": "paragraph",
+    "type": "heading",
   },
   {
     "children": [],
     "content": [
       {
         "styles": {},
-        "text": "Nested Paragraph 1",
+        "text": "Paragraph 1",
         "type": "text",
       },
     ],
@@ -128,7 +129,7 @@
     "content": [
       {
         "styles": {},
-        "text": "Nested Paragraph 2",
+        "text": "Nested Paragraph 1",
         "type": "text",
       },
     ],
@@ -145,11 +146,28 @@
     "content": [
       {
         "styles": {},
-        "text": "Paragraph With Hard Break",
+        "text": "Nested Paragraph 2",
         "type": "text",
       },
     ],
     "id": "9",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph With Hard Break",
+        "type": "text",
+      },
+    ],
+    "id": "10",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -206,7 +224,7 @@
         "type": "text",
       },
     ],
-    "id": "10",
+    "id": "11",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -227,7 +245,7 @@
                 "type": "text",
               },
             ],
-            "id": "13",
+            "id": "14",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -244,7 +262,7 @@
                 "type": "text",
               },
             ],
-            "id": "14",
+            "id": "15",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -260,7 +278,7 @@
             "type": "text",
           },
         ],
-        "id": "12",
+        "id": "13",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -277,7 +295,7 @@
             "type": "text",
           },
         ],
-        "id": "15",
+        "id": "16",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -293,7 +311,7 @@
         "type": "text",
       },
     ],
-    "id": "11",
+    "id": "12",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -310,7 +328,7 @@
         "type": "text",
       },
     ],
-    "id": "16",
+    "id": "17",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -327,7 +345,7 @@
         "type": "text",
       },
     ],
-    "id": "17",
+    "id": "18",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -344,7 +362,7 @@
         "type": "text",
       },
     ],
-    "id": "18",
+    "id": "19",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -361,7 +379,7 @@
         "type": "text",
       },
     ],
-    "id": "19",
+    "id": "20",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -389,7 +407,7 @@
         "type": "link",
       },
     ],
-    "id": "20",
+    "id": "21",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -576,7 +594,7 @@
       ],
       "type": "tableContent",
     },
-    "id": "21",
+    "id": "22",
     "props": {
       "textColor": "default",
     },
@@ -591,7 +609,7 @@
         "type": "text",
       },
     ],
-    "id": "22",
+    "id": "23",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",

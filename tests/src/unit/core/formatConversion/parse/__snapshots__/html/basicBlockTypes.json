@@ -94,11 +94,29 @@
     "content": [
       {
         "styles": {},
-        "text": "Paragraph",
+        "text": "Heading 6",
         "type": "text",
       },
     ],
     "id": "6",
+    "props": {
+      "backgroundColor": "default",
+      "level": 6,
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "heading",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph",
+        "type": "text",
+      },
+    ],
+    "id": "7",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -109,7 +127,7 @@
   {
     "children": [],
     "content": undefined,
-    "id": "7",
+    "id": "8",
     "props": {
       "backgroundColor": "default",
       "caption": "Image Caption",
@@ -168,7 +186,7 @@
         "type": "text",
       },
     ],
-    "id": "8",
+    "id": "9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
