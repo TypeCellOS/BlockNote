@@ -50,7 +50,7 @@ export const UploadTab = <
 
         if (editor.uploadFile !== undefined) {
           try {
-            let updateData = await editor.uploadFile(file);
+            let updateData = await editor.uploadFile(file, block.id);
             if (typeof updateData === "string") {
               // received a url
               updateData = {
