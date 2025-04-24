@@ -36,13 +36,19 @@ export default function App() {
         onClick={() => {
           editor.pauseYjsSync();
         }}>
-        Pause
+        Pause syncing
       </button>
       <button
         onClick={() => {
-          editor.resumeYjsSync();
+          editor.resumeYjsSync(true);
         }}>
-        Play
+        Play (accept changes)
+      </button>
+      <button
+        onClick={() => {
+          editor.resumeYjsSync(false);
+        }}>
+        Play (reject changes)
       </button>
       <BlockNoteView editor={editor} />
     </>

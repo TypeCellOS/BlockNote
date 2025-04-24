@@ -943,6 +943,44 @@ export class BlockNoteEditor<
     };
   }
 
+  /**
+   * To find a fragment in another ydoc, we need to search for it.
+   */
+  private findTypeInOtherYdoc<T extends Y.AbstractType<any>>(
+    ytype: T,
+    otherYdoc: Y.Doc
+  ): T {
+    const ydoc = ytype.doc!;
+    if (ytype._item === null) {
+      /**
+       * If is a root type, we need to find the root key in the original ydoc
+       * and use it to get the type in the other ydoc.
+       */
+      const rootKey = Array.from(ydoc.share.keys()).find(
+        (key) => ydoc.share.get(key) === ytype
+      );
+      if (rootKey == null) {
+        throw new Error("type does not exist in other ydoc");
+      }
+      return otherYdoc.get(rootKey, ytype.constructor as new () => T) as T;
+    } else {
+      /**
+       * If it is a sub type, we use the item id to find the history type.
+       */
+      const ytypeItem = ytype._item;
+      const otherStructs =
+        otherYdoc.store.clients.get(ytypeItem.id.client) ?? [];
+      const itemIndex = Y.findIndexSS(otherStructs, ytypeItem.id.clock);
+      const otherItem = otherStructs[itemIndex] as Y.Item;
+      const otherContent = otherItem.content as Y.ContentType;
+      return otherContent.type as T;
+    }
+  }
+
+  public get isRemoteSyncing() {
+    return this.yjsState !== undefined;
+  }
+
   private yjsState:
     | {
         prevFragment: Y.XmlFragment;
@@ -951,15 +989,22 @@ export class BlockNoteEditor<
     | undefined;
 
   public pauseYjsSync() {
+    if (this.isRemoteSyncing) {
+      return;
+    }
+
     const prevFragment = this.options.collaboration?.fragment;
 
     if (!prevFragment) {
       throw new Error("No Yjs document found");
     }
 
-    const nextFragment = prevFragment.clone();
+    const update = Y.encodeStateAsUpdate(prevFragment.doc!);
+
     const doc = new Y.Doc();
-    doc.getMap().set("cpy", nextFragment);
+    Y.applyUpdate(doc, update);
+
+    const nextFragment = this.findTypeInOtherYdoc(prevFragment, doc);
 
     this.yjsState = {
       prevFragment,
@@ -971,17 +1016,21 @@ export class BlockNoteEditor<
     this._tiptapEditor.registerPlugin(ySyncPlugin(nextFragment));
   }
 
-  public resumeYjsSync() {
+  public resumeYjsSync(mergeChanges = false) {
     if (!this.yjsState) {
       throw new Error("No Yjs document found");
     }
     this._tiptapEditor.unregisterPlugin(ySyncPluginKey);
-    this._tiptapEditor.registerPlugin(
-      new SyncPlugin(this.yjsState.prevFragment).plugin
-    );
+    const fragment = this.yjsState.prevFragment;
+    if (mergeChanges) {
+      const update = Y.encodeStateAsUpdate(this.yjsState.nextFragment.doc!);
+      Y.applyUpdate(fragment.doc!, update);
+    }
+    this._tiptapEditor.registerPlugin(new SyncPlugin(fragment).plugin);
     this.cursorPlugin = new CursorPlugin(this.options.collaboration!);
     this._tiptapEditor.registerPlugin(this.cursorPlugin.plugin);
     this._tiptapEditor.registerPlugin(new UndoPlugin().plugin);
+    this.yjsState = undefined;
   }
 
   /**
