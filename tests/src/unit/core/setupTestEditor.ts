@@ -36,6 +36,12 @@ export const setupTestEditor = <
         },
       },
       schema,
+      tables: {
+        splitCells: true,
+        cellBackgroundColor: true,
+        cellTextColor: true,
+        headers: true,
+      },
       trailingBlock: false,
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,
     });

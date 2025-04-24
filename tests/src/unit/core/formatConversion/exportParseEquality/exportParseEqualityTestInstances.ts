@@ -200,4 +200,115 @@ export const exportParseEqualityTestInstancesHTML: TestInstance<
     },
     executeTest: testExportParseEqualityHTML,
   },
+  {
+    testCase: {
+      name: "tables/advanced",
+      content: [
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            columnWidths: [199, 148, 201],
+            headerRows: 1,
+            rows: [
+              {
+                cells: [
+                  {
+                    type: "tableCell",
+                    content: "This row has headers",
+                    props: {
+                      textAlignment: "center",
+                    },
+                  },
+                  {
+                    type: "tableCell",
+                    content: [
+                      {
+                        type: "text",
+                        text: "This is ",
+                        styles: {},
+                      },
+                      {
+                        type: "text",
+                        text: "RED",
+                        styles: {
+                          bold: true,
+                        },
+                      },
+                    ],
+                    props: {
+                      backgroundColor: "red",
+                      textAlignment: "center",
+                    },
+                  },
+                  {
+                    type: "tableCell",
+                    content: "Text is Blue",
+                    props: {
+                      textColor: "blue",
+                      textAlignment: "center",
+                    },
+                  },
+                ],
+              },
+              {
+                cells: [
+                  {
+                    type: "tableCell",
+                    content: "This spans 2 columns\nand 2 rows",
+                    props: {
+                      colspan: 2,
+                      rowspan: 2,
+                      backgroundColor: "yellow",
+                    },
+                  },
+                  {
+                    type: "tableCell",
+                    content: "Sooo many features",
+                    props: {
+                      backgroundColor: "gray",
+                      textColor: "default",
+                      textAlignment: "left",
+                    },
+                  },
+                ],
+              },
+              {
+                cells: [
+                  {
+                    type: "tableCell",
+                    content: [],
+                    props: {
+                      backgroundColor: "gray",
+                      textColor: "purple",
+                    },
+                  },
+                ],
+              },
+              {
+                cells: [
+                  {
+                    type: "tableCell",
+                    content: "A cell",
+                  },
+                  {
+                    type: "tableCell",
+                    content: "Another Cell",
+                  },
+                  {
+                    type: "tableCell",
+                    content: "Aligned center",
+                    props: {
+                      textAlignment: "center",
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      ],
+    },
+    executeTest: testExportParseEqualityHTML,
+  },
 ];
