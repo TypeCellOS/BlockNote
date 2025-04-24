@@ -141,6 +141,8 @@ function serializeBlock<
   );
 
   if (ret.dom.classList.contains("bn-block-content")) {
+    // We wrap the output in an `li` element for list items, and so we want to
+    // add the attributes to that element instead as it is the "root".
     if (!listType) {
       // TODO: This is specifically for default blocks, as default props get
       //  rendered out to inline styles instead of `data-*` attributes for
