@@ -101,7 +101,8 @@ import {
 } from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
 import { EditorView } from "prosemirror-view";
-import { ySyncPluginKey } from "y-prosemirror";
+import { undoCommand, redoCommand, ySyncPluginKey } from "y-prosemirror";
+import { undo, redo } from "@tiptap/pm/history";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
@@ -1197,6 +1198,27 @@ export class BlockNoteEditor<
     return this.transact((tr) =>
       removeAndInsertBlocks(tr, blocksToRemove, blocksToInsert)
     );
+  }
+
+  /**
+   * Undo the last action.
+   */
+  public undo() {
+    if (this.options.collaboration) {
+      return this.exec(undoCommand);
+    }
+
+    return this.exec(undo);
+  }
+
+  /**
+   * Redo the last action.
+   */
+  public redo() {
+    if (this.options.collaboration) {
+      return this.exec(redoCommand);
+    }
+    return this.exec(redo);
   }
 
   /**
