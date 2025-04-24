@@ -115,6 +115,7 @@ import { CodeBlockOptions } from "../blocks/CodeBlockContent/CodeBlockContent.js
 import type { ThreadStore, User } from "../comments/index.js";
 import "../style.css";
 import { EventEmitter } from "../util/EventEmitter.js";
+import { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
 
 export type BlockNoteExtensionFactory = (
   editor: BlockNoteEditor<any, any, any>
@@ -124,6 +125,7 @@ export type BlockNoteExtension =
   | AnyExtension
   | {
       plugin: Plugin;
+      priority?: number;
     };
 
 export type BlockCache<
@@ -472,6 +474,8 @@ export class BlockNoteEditor<
 
   private readonly showSelectionPlugin: ShowSelectionPlugin;
 
+  private readonly cursorPlugin: CursorPlugin;
+
   /**
    * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
    * This method should set when creating the editor as this is application-specific.
@@ -622,6 +626,7 @@ export class BlockNoteEditor<
     this.tableHandles = this.extensions["tableHandles"] as any;
     this.comments = this.extensions["comments"] as any;
     this.showSelectionPlugin = this.extensions["showSelection"] as any;
+    this.cursorPlugin = this.extensions["yCursorPlugin"] as any;
 
     if (newOptions.uploadFile) {
       const uploadFile = newOptions.uploadFile;
@@ -643,7 +648,7 @@ export class BlockNoteEditor<
     this.headless = newOptions._headless;
 
     const collaborationEnabled =
-      "collaboration" in this.extensions ||
+      "ySyncPlugin" in this.extensions ||
       "liveblocksExtension" in this.extensions;
 
     if (collaborationEnabled && newOptions.initialContent) {
@@ -696,6 +701,7 @@ export class BlockNoteEditor<
         // "blocknote" extensions (prosemirror plugins)
         return Extension.create({
           name: key,
+          priority: ext.priority,
           addProseMirrorPlugins: () => [ext.plugin],
         });
       }),
@@ -1488,7 +1494,8 @@ export class BlockNoteEditor<
         "Cannot update collaboration user info when collaboration is disabled."
       );
     }
-    this._tiptapEditor.commands.updateUser(user);
+
+    this.cursorPlugin.updateUser(user);
   }
 
   /**
