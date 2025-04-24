@@ -3,6 +3,7 @@ import { render } from "@react-email/render";
 import MagicLinkEmail from "@/emails/magic-link";
 import VerifyEmail from "@/emails/verify-email";
 import ResetPassword from "@/emails/reset-password";
+import * as Sentry from "@sentry/nextjs";
 
 const transporter = nodemailer.createTransport({
   host: String(process.env.SMTP_HOST),
@@ -50,18 +51,22 @@ export async function sendEmail<T extends keyof typeof TEMPLATE_COMPONENTS>({
     );
   }
 
-  const info = await transporter.sendMail({
-    from: '"BlockNote" <nick@blocknotejs.org>',
-    to,
-    subject: TEMPLATE_COMPONENTS[template].subject,
-    text: await render(TEMPLATE_COMPONENTS[template].component(props), {
-      pretty: true,
-      plainText: true,
-    }),
-    html: await render(TEMPLATE_COMPONENTS[template].component(props), {
-      pretty: true,
-    }),
-  });
+  try {
+    const info = await transporter.sendMail({
+      from: '"BlockNote" <nick@blocknotejs.org>',
+      to,
+      subject: TEMPLATE_COMPONENTS[template].subject,
+      text: await render(TEMPLATE_COMPONENTS[template].component(props), {
+        pretty: true,
+        plainText: true,
+      }),
+      html: await render(TEMPLATE_COMPONENTS[template].component(props), {
+        pretty: true,
+      }),
+    });
 
-  console.log("Email sent: ", info.messageId);
+    console.log("Email sent: ", info.messageId);
+  } catch (err) {
+    Sentry.captureException(err);
+  }
 }

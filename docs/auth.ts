@@ -1,20 +1,20 @@
 import { polar } from "@polar-sh/better-auth";
 import { Polar } from "@polar-sh/sdk";
+import * as Sentry from "@sentry/nextjs";
 import { betterAuth } from "better-auth";
-import { customSession } from "better-auth/plugins";
+import { customSession, magicLink, openAPI } from "better-auth/plugins";
 import { github } from "better-auth/social-providers";
-import { magicLink, openAPI } from "better-auth/plugins";
-import Database from "better-sqlite3";
+import { Pool } from "pg";
 
-import { sendEmail } from "./util/send-mail";
 import { PRODUCTS } from "./util/product-list";
+import { sendEmail } from "./util/send-mail";
 
 export const client = new Polar({
   accessToken: process.env.POLAR_ACCESS_TOKEN,
   // Use 'sandbox' if you're using the Polar Sandbox environment
   // Remember that access tokens, products, etc. are completely separated between environments.
   // Access tokens obtained in Production are for instance not usable in the Sandbox environment.
-  server: "sandbox",
+  server: process.env.NODE_ENV === "production" ? "production" : "sandbox",
 });
 
 export const auth = betterAuth({
@@ -135,29 +135,53 @@ export const auth = betterAuth({
       },
     },
   },
-  database: new Database("./sqlite.db"),
+  database: new Pool({
+    connectionString: process.env.POSTGRES_URL,
+  }),
   plugins: [
     customSession(
       async ({ user, session }) => {
-        // Otherwise, check with Polar
-        const polarState = await client.customers.getStateExternal({
-          externalId: user.id,
-        });
+        try {
+          // Check for a Polar subscription
+          const polarState = await client.customers.getStateExternal({
+            externalId: user.id,
+          });
 
-        if (
-          // No active subscriptions
-          !polarState.activeSubscriptions.length ||
-          // Or, the subscription is not active
-          polarState.activeSubscriptions[0].status !== "active"
-        ) {
-          if (user.ghSponsorPlanType) {
-            // The user may be a GitHub sponsor plan type
+          if (
+            // No active subscriptions
+            !polarState.activeSubscriptions.length ||
+            // Or, the subscription is not active
+            polarState.activeSubscriptions[0].status !== "active"
+          ) {
+            if (user.ghSponsorPlanType) {
+              // The user may be a GitHub sponsor plan type
+              return {
+                planType: user.ghSponsorPlanType,
+                user,
+                session,
+              };
+            }
+
             return {
-              planType: user.ghSponsorPlanType,
+              planType: PRODUCTS.free.slug,
               user,
               session,
             };
           }
+          const subscription = polarState.activeSubscriptions[0];
+
+          const planType = Object.values(PRODUCTS).find(
+            (p) => p.id === subscription.productId,
+          )?.slug;
+
+          // See if they are subscribed to a Polar product, if not, use the free plan
+          return {
+            planType: planType ?? PRODUCTS.free.slug,
+            user,
+            session,
+          };
+        } catch (err) {
+          Sentry.captureException(err);
 
           return {
             planType: PRODUCTS.free.slug,
@@ -165,18 +189,6 @@ export const auth = betterAuth({
             session,
           };
         }
-        const subscription = polarState.activeSubscriptions[0];
-
-        const planType = Object.values(PRODUCTS).find(
-          (p) => p.id === subscription.productId,
-        )?.slug;
-
-        // See if they are subscribed to a Polar product, if not, use the free plan
-        return {
-          planType: planType ?? PRODUCTS.free.slug,
-          user,
-          session,
-        };
       },
       {
         // This is really only for type inference
