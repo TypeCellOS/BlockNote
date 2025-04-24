@@ -30,5 +30,21 @@ export default function App() {
   });
 
   // Renders the editor instance.
-  return <BlockNoteView editor={editor} />;
+  return (
+    <>
+      <button
+        onClick={() => {
+          editor.pauseYjsSync();
+        }}>
+        Pause
+      </button>
+      <button
+        onClick={() => {
+          editor.resumeYjsSync();
+        }}>
+        Play
+      </button>
+      <BlockNoteView editor={editor} />
+    </>
+  );
 }

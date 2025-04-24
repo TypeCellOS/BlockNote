@@ -93,6 +93,7 @@ import {
 import { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
 
+import { redo, undo } from "@tiptap/pm/history";
 import {
   TextSelection,
   type Command,
@@ -101,8 +102,14 @@ import {
 } from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
 import { EditorView } from "prosemirror-view";
-import { undoCommand, redoCommand, ySyncPluginKey } from "y-prosemirror";
-import { undo, redo } from "@tiptap/pm/history";
+import {
+  redoCommand,
+  undoCommand,
+  yCursorPluginKey,
+  ySyncPlugin,
+  ySyncPluginKey,
+  yUndoPluginKey,
+} from "y-prosemirror";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
@@ -113,9 +120,11 @@ import {
 import { nestedListsToBlockNoteStructure } from "../api/parsers/html/util/nestedLists.js";
 import { CodeBlockOptions } from "../blocks/CodeBlockContent/CodeBlockContent.js";
 import type { ThreadStore, User } from "../comments/index.js";
+import { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
 import "../style.css";
 import { EventEmitter } from "../util/EventEmitter.js";
-import { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
+import { SyncPlugin } from "../extensions/Collaboration/SyncPlugin.js";
+import { UndoPlugin } from "../extensions/Collaboration/UndoPlugin.js";
 
 export type BlockNoteExtensionFactory = (
   editor: BlockNoteEditor<any, any, any>
@@ -474,7 +483,7 @@ export class BlockNoteEditor<
 
   private readonly showSelectionPlugin: ShowSelectionPlugin;
 
-  private readonly cursorPlugin: CursorPlugin;
+  private cursorPlugin: CursorPlugin;
 
   /**
    * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
@@ -932,6 +941,46 @@ export class BlockNoteEditor<
         this.onUploadEndCallbacks.splice(index, 1);
       }
     };
+  }
+
+  private yjsState:
+    | {
+        prevFragment: Y.XmlFragment;
+        nextFragment: Y.XmlFragment;
+      }
+    | undefined;
+
+  public pauseYjsSync() {
+    const prevFragment = this.options.collaboration?.fragment;
+
+    if (!prevFragment) {
+      throw new Error("No Yjs document found");
+    }
+    const nextFragment = prevFragment.clone();
+    const doc = new Y.Doc();
+    nextFragment._integrate(doc, nextFragment._item!);
+
+    this.yjsState = {
+      prevFragment,
+      nextFragment,
+    };
+    this._tiptapEditor.unregisterPlugin(yCursorPluginKey);
+    this._tiptapEditor.unregisterPlugin(yUndoPluginKey);
+    this._tiptapEditor.unregisterPlugin(ySyncPluginKey);
+    this._tiptapEditor.registerPlugin(ySyncPlugin(nextFragment));
+  }
+
+  public resumeYjsSync() {
+    if (!this.yjsState) {
+      throw new Error("No Yjs document found");
+    }
+    this._tiptapEditor.unregisterPlugin(ySyncPluginKey);
+    this._tiptapEditor.registerPlugin(
+      new SyncPlugin(this.yjsState.prevFragment).plugin
+    );
+    this.cursorPlugin = new CursorPlugin(this.options.collaboration!);
+    this._tiptapEditor.registerPlugin(this.cursorPlugin.plugin);
+    this._tiptapEditor.registerPlugin(new UndoPlugin().plugin);
   }
 
   /**
