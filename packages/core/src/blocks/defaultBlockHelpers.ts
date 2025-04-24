@@ -55,14 +55,17 @@ export function createDefaultBlockDOMOutputSpec(
 
 // Function used to convert default blocks to HTML. It uses the corresponding
 // node's `renderHTML` method to do the conversion by using a default
-// `DOMSerializer`.
+// `DOMSerializer`. The `external` flag is used to modify the resulting HTML for
+// external use. This just involves changing props being rendered from `data-*`
+// attributes to inline styles.
 export const defaultBlockToHTML = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
   block: BlockNoDefaults<BSchema, I, S>,
-  editor: BlockNoteEditor<BSchema, I, S>
+  editor: BlockNoteEditor<BSchema, I, S>,
+  external = false
 ): {
   dom: HTMLElement;
   contentDOM?: HTMLElement;
@@ -88,6 +91,27 @@ export const defaultBlockToHTML = <
     throw new Error(
       "Cannot use this block's default HTML serialization as its corresponding TipTap node's `renderHTML` function does not return an object with the `dom` property."
     );
+  }
+
+  // TODO: This is obviously pretty hacky - will need to revisit this when we
+  //  convert default blocks to use the custom block API.
+  if (external) {
+    const dom = renderSpec.dom as HTMLElement;
+
+    if (dom.hasAttribute("data-background-color")) {
+      dom.style.backgroundColor = dom.getAttribute("data-background-color")!;
+      dom.removeAttribute("data-background-color");
+    }
+
+    if (dom.hasAttribute("data-text-color")) {
+      dom.style.color = dom.getAttribute("data-text-color")!;
+      dom.removeAttribute("data-text-color");
+    }
+
+    if (dom.hasAttribute("data-text-alignment")) {
+      dom.style.textAlign = dom.getAttribute("data-text-alignment")!;
+      dom.removeAttribute("data-text-alignment");
+    }
   }
 
   return renderSpec as {

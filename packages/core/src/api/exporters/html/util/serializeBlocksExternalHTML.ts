@@ -142,6 +142,15 @@ function serializeBlock<
 
   if (ret.dom.classList.contains("bn-block-content")) {
     if (!listType) {
+      // TODO: This is specifically for default blocks, as default props get
+      //  rendered out to inline styles instead of `data-*` attributes for
+      //  external HTML. Will need to revisit this when we convert default
+      //  blocks to use the custom block API.
+      const style = ret.dom.getAttribute("style");
+      if (style) {
+        (ret.dom.firstChild! as HTMLElement).setAttribute("style", style);
+      }
+
       for (const attr of blockContentDataAttributes) {
         (ret.dom.firstChild! as HTMLElement).setAttribute(
           attr.name,
@@ -177,9 +186,20 @@ function serializeBlock<
       fragment.append(list);
     }
     const li = doc.createElement("li");
+
+    // TODO: This is specifically for default blocks, as default props get
+    //  rendered out to inline styles instead of `data-*` attributes for
+    //  external HTML. Will need to revisit this when we convert default
+    //  blocks to use the custom block API.
+    const style = ret.dom.getAttribute("style");
+    if (style) {
+      li.setAttribute("style", style);
+    }
+
     for (const attr of blockContentDataAttributes) {
       li.setAttribute(attr.name, attr.value);
     }
+
     li.append(elementFragment);
     fragment.lastChild!.appendChild(li);
   } else {

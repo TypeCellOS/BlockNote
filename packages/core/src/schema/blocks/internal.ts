@@ -267,7 +267,8 @@ export function createBlockSpecFromStronglyTypedTiptapNode<
       node,
       requiredExtensions,
       toInternalHTML: defaultBlockToHTML,
-      toExternalHTML: defaultBlockToHTML,
+      toExternalHTML: (block, editor) =>
+        defaultBlockToHTML(block, editor, true),
       // parse: () => undefined, // parse rules are in node already
     }
   );
