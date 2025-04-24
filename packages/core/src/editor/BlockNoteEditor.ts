@@ -956,9 +956,10 @@ export class BlockNoteEditor<
     if (!prevFragment) {
       throw new Error("No Yjs document found");
     }
+
     const nextFragment = prevFragment.clone();
     const doc = new Y.Doc();
-    nextFragment._integrate(doc, nextFragment._item!);
+    doc.getMap().set("cpy", nextFragment);
 
     this.yjsState = {
       prevFragment,
