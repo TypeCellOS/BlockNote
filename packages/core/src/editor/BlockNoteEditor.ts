@@ -106,7 +106,6 @@ import {
   redoCommand,
   undoCommand,
   yCursorPluginKey,
-  ySyncPlugin,
   ySyncPluginKey,
   yUndoPluginKey,
 } from "y-prosemirror";
@@ -404,6 +403,7 @@ export class BlockNoteEditor<
   SSchema extends StyleSchema = DefaultStyleSchema
 > extends EventEmitter<{
   create: void;
+  forked: boolean;
 }> {
   /**
    * The underlying prosemirror schema
@@ -977,60 +977,91 @@ export class BlockNoteEditor<
     }
   }
 
-  public get isRemoteSyncing() {
-    return this.yjsState !== undefined;
+  /**
+   * Whether the editor is editing a forked document,
+   * preserving a reference to the original document and the forked document.
+   */
+  public get isForkedFromRemote() {
+    return this.forkedState !== undefined;
   }
 
-  private yjsState:
+  /**
+   * Stores whether the editor is editing a forked document,
+   * preserving a reference to the original document and the forked document.
+   */
+  private forkedState:
     | {
-        prevFragment: Y.XmlFragment;
-        nextFragment: Y.XmlFragment;
+        originalFragment: Y.XmlFragment;
+        forkedFragment: Y.XmlFragment;
       }
     | undefined;
 
-  public pauseYjsSync() {
-    if (this.isRemoteSyncing) {
+  /**
+   * Fork the Y.js document from syncing to the remote,
+   * allowing modifications to the document without affecting the remote.
+   * These changes can later be rolled back or applied to the remote.
+   */
+  public forkYjsSync() {
+    if (this.forkedState) {
       return;
     }
 
-    const prevFragment = this.options.collaboration?.fragment;
+    const originalFragment = this.options.collaboration?.fragment;
 
-    if (!prevFragment) {
+    if (!originalFragment) {
       throw new Error("No Yjs document found");
     }
-
-    const update = Y.encodeStateAsUpdate(prevFragment.doc!);
 
     const doc = new Y.Doc();
-    Y.applyUpdate(doc, update);
+    // Copy the original document to a new Yjs document
+    Y.applyUpdate(doc, Y.encodeStateAsUpdate(originalFragment.doc!));
 
-    const nextFragment = this.findTypeInOtherYdoc(prevFragment, doc);
+    // Find the forked fragment in the new Yjs document
+    const forkedFragment = this.findTypeInOtherYdoc(originalFragment, doc);
 
-    this.yjsState = {
-      prevFragment,
-      nextFragment,
+    this.forkedState = {
+      originalFragment,
+      forkedFragment,
     };
-    this._tiptapEditor.unregisterPlugin(yCursorPluginKey);
-    this._tiptapEditor.unregisterPlugin(yUndoPluginKey);
-    this._tiptapEditor.unregisterPlugin(ySyncPluginKey);
-    this._tiptapEditor.registerPlugin(ySyncPlugin(nextFragment));
+
+    // Need to reset all the yjs plugins
+    [yCursorPluginKey, yUndoPluginKey, ySyncPluginKey].forEach((key) => {
+      this._tiptapEditor.unregisterPlugin(key);
+    });
+    // Register them again, based on the new forked fragment
+    this._tiptapEditor.registerPlugin(new SyncPlugin(forkedFragment).plugin);
+    this._tiptapEditor.registerPlugin(new UndoPlugin().plugin);
+    // No need to register the cursor plugin again, it's a local fork
+    this.emit("forked", true);
   }
 
-  public resumeYjsSync(mergeChanges = false) {
-    if (!this.yjsState) {
-      throw new Error("No Yjs document found");
+  /**
+   * Resume syncing the Y.js document to the remote
+   * If `keepChanges` is true, any changes that have been made to the forked document will be applied to the original document.
+   * Otherwise, the original document will be restored and the changes will be discarded.
+   */
+  public resumeYjsSync(keepChanges = false) {
+    if (!this.forkedState) {
+      return;
     }
+    // Remove the forked fragment's plugins
     this._tiptapEditor.unregisterPlugin(ySyncPluginKey);
-    const fragment = this.yjsState.prevFragment;
-    if (mergeChanges) {
-      const update = Y.encodeStateAsUpdate(this.yjsState.nextFragment.doc!);
-      Y.applyUpdate(fragment.doc!, update);
+    this._tiptapEditor.unregisterPlugin(yUndoPluginKey);
+
+    const { originalFragment, forkedFragment } = this.forkedState!;
+    if (keepChanges) {
+      // Apply any changes that have been made to the fork, onto the original doc
+      const update = Y.encodeStateAsUpdate(forkedFragment.doc!);
+      Y.applyUpdate(originalFragment.doc!, update);
     }
-    this._tiptapEditor.registerPlugin(new SyncPlugin(fragment).plugin);
+    // Register the plugins again, based on the original fragment
+    this._tiptapEditor.registerPlugin(new SyncPlugin(originalFragment).plugin);
     this.cursorPlugin = new CursorPlugin(this.options.collaboration!);
     this._tiptapEditor.registerPlugin(this.cursorPlugin.plugin);
     this._tiptapEditor.registerPlugin(new UndoPlugin().plugin);
-    this.yjsState = undefined;
+    // Reset the forked state
+    this.forkedState = undefined;
+    this.emit("forked", false);
   }
 
   /**
