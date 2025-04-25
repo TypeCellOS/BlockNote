@@ -1009,7 +1009,8 @@ export class BlockNoteEditor<
     const originalFragment = this.options.collaboration?.fragment;
 
     if (!originalFragment) {
-      throw new Error("No Yjs document found");
+      // No original fragment found, so no need to fork
+      return;
     }
 
     const doc = new Y.Doc();
