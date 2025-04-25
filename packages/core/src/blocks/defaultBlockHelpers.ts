@@ -1,5 +1,6 @@
 import { blockToNode } from "../api/nodeConversions/blockToNode.js";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
+import { COLORS_DEFAULT } from "../editor/defaultColors.js";
 import type {
   BlockNoDefaults,
   BlockSchema,
@@ -93,24 +94,71 @@ export const defaultBlockToHTML = <
     );
   }
 
-  // TODO: This is obviously pretty hacky - will need to revisit this when we
-  //  convert default blocks to use the custom block API.
+  // When exporting to external HTML, we convert from `data-*` attributes to
+  // inline styles properties which can be understood by external applications.
+  //
+  // Note: This is a bit hacky to do this here as we're just hardcoding this for
+  // props on default blocks. We should revisit this when we migrate internal
+  // blocks to use the custom blocks API.
   if (external) {
     const dom = renderSpec.dom as HTMLElement;
 
     if (dom.hasAttribute("data-background-color")) {
-      dom.style.backgroundColor = dom.getAttribute("data-background-color")!;
+      const backgroundColor = dom.getAttribute("data-background-color")!;
+
+      // If the background color is one of the default colors, we set the
+      // color's hex code from the default theme, as this will look nicer than
+      // using regular CSS colors. For example, instead of
+      // `background-color: red`, we use `background-color: #fbe4e4`.
+      if (backgroundColor in COLORS_DEFAULT) {
+        const cssVariableName =
+          `--blocknote-background-${backgroundColor}` as any;
+
+        dom.style.setProperty(
+          cssVariableName,
+          COLORS_DEFAULT[backgroundColor as keyof typeof COLORS_DEFAULT]
+            .background
+        );
+        dom.style.backgroundColor = `var(${cssVariableName})`;
+      } else {
+        dom.style.backgroundColor = backgroundColor;
+      }
+
       dom.removeAttribute("data-background-color");
     }
 
     if (dom.hasAttribute("data-text-color")) {
-      dom.style.color = dom.getAttribute("data-text-color")!;
+      const textColor = dom.getAttribute("data-text-color")!;
+
+      // If the text color is one of the default colors, we set the color's hex
+      // code from the default theme, as this will look nicer than using regular
+      // CSS colors. For example, instead of `color: red`, we use
+      // `color: #e03e3e`.
+      if (textColor in COLORS_DEFAULT) {
+        const cssVariableName = `--blocknote-text-${textColor}` as any;
+
+        dom.style.setProperty(
+          cssVariableName,
+          COLORS_DEFAULT[textColor as keyof typeof COLORS_DEFAULT].text
+        );
+        dom.style.color = `var(${cssVariableName})`;
+      } else {
+        dom.style.color = textColor;
+      }
+
       dom.removeAttribute("data-text-color");
     }
 
     if (dom.hasAttribute("data-text-alignment")) {
       dom.style.textAlign = dom.getAttribute("data-text-alignment")!;
       dom.removeAttribute("data-text-alignment");
+    }
+
+    // We also remove the `data-level` attribute for heading blocks, as this
+    // information can be inferred from whether a `h1`, `h2`, or `h3 tag is
+    // used.
+    if (dom.hasAttribute("data-level")) {
+      dom.removeAttribute("data-level");
     }
   }
 
