@@ -550,7 +550,7 @@ With Hard Break</p>
   {
     testCase: {
       name: "backgroundColorStyle",
-      content: `<p><span style="background-color: blue">Blue Background</span> <span style="backgroundColor: var(--blocknote-background-blue)">Blue Background</span></p>`,
+      content: `<p><span style="background-color: blue">Blue Background</span> <span style="background-color: var(--blocknote-background-blue)">Blue Background</span></p>`,
     },
     executeTest: testParseHTML,
   },
