@@ -14,6 +14,7 @@ import { Logo } from "./components/Logo";
 import { Navigation } from "./components/Navigation";
 import { ProBadge } from "./components/example/ProBadge";
 import { proExamplesList } from "./components/example/proExamplesList";
+import { authClient } from "./util/auth-client";
 // import { Search } from "./components/Search";
 
 // const NoSSRCommentsButton = dynamic(
@@ -208,6 +209,7 @@ const config: DocsThemeConfig = {
   navbar: {
     component: Navigation,
     extraContent: () => {
+      const session = authClient.useSession();
       return (
         <>
           <NextLink
@@ -222,11 +224,13 @@ const config: DocsThemeConfig = {
             <span className="sr-only">Discord</span>
             <DiscordIcon />
           </NextLink>
-          <NextLink href="/signin">
-            <CTA href={"/signin"} size={"small"}>
-              Sign in
-            </CTA>
-          </NextLink>
+          {session.data ? null : (
+            <NextLink href="/signup">
+              <CTA href={"/signup"} size={"small"}>
+                Sign in
+              </CTA>
+            </NextLink>
+          )}
           <AuthNavButton />
         </>
       );

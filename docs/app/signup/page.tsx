@@ -17,6 +17,13 @@ export default function Register() {
     });
   };
 
+  const handleSignIn = async () => {
+    await signIn.email({
+      email,
+      password,
+    });
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <input
@@ -52,13 +59,16 @@ export default function Register() {
       <button type="button" onClick={handleRegister}>
         Register
       </button>
+      <button type="button" onClick={handleSignIn}>
+        Sign in
+      </button>
       <button
         type="button"
         onClick={async () => {
           const data = await signIn.magicLink({
             // If an error occurs, it will redirect to this /thanks?error=EXPIRED_TOKEN
             // If it succeeds, it will redirect to this /thanks
-            callbackURL: "/thanks",
+            callbackURL: "/",
             email,
             name,
           });
