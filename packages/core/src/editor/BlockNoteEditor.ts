@@ -625,15 +625,15 @@ export class BlockNoteEditor<
 
     if (newOptions.uploadFile) {
       const uploadFile = newOptions.uploadFile;
-      this.uploadFile = async (file, block) => {
+      this.uploadFile = async (file, blockId) => {
         this.onUploadStartCallbacks.forEach((callback) =>
-          callback.apply(this, [block])
+          callback.apply(this, [blockId])
         );
         try {
-          return await uploadFile(file, block);
+          return await uploadFile(file, blockId);
         } finally {
           this.onUploadEndCallbacks.forEach((callback) =>
-            callback.apply(this, [block])
+            callback.apply(this, [blockId])
           );
         }
       };
