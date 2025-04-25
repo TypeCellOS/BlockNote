@@ -26,6 +26,7 @@ const ghostContent =
 
 export default function App() {
   const [numGhostWriters, setNumGhostWriters] = useState(1);
+  const [isPaused, setIsPaused] = useState(false);
   const editor = useCreateBlockNote({
     collaboration: {
       // The Yjs Provider responsible for transporting updates:
@@ -43,7 +44,7 @@ export default function App() {
   });
 
   useEffect(() => {
-    if (!isGhostWriting) {
+    if (!isGhostWriting || isPaused) {
       return;
     }
     let index = 0;
@@ -66,12 +67,16 @@ export default function App() {
     scheduleNextChar();
 
     return () => clearTimeout(timeout);
-  }, [editor]);
+  }, [editor, isPaused]);
 
   // Renders the editor instance.
   return (
     <>
-      {!isGhostWriting && (
+      {isGhostWriting ? (
+        <button onClick={() => setIsPaused((a) => !a)}>
+          {isPaused ? "Resume Ghost Writer" : "Pause Ghost Writer"}
+        </button>
+      ) : (
         <button onClick={() => setNumGhostWriters((a) => a + 1)}>
           Add a Ghost Writer
         </button>
