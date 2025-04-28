@@ -2,10 +2,11 @@ import { polar } from "@polar-sh/better-auth";
 import { Polar } from "@polar-sh/sdk";
 import * as Sentry from "@sentry/nextjs";
 import { betterAuth } from "better-auth";
+import { createAuthMiddleware } from "better-auth/api";
 import { customSession, magicLink, openAPI } from "better-auth/plugins";
 import { github } from "better-auth/social-providers";
-import { Pool } from "pg";
 import Database from "better-sqlite3";
+import { Pool } from "pg";
 
 import { PRODUCTS } from "./util/product-list";
 import { sendEmail } from "./util/send-mail";
@@ -29,6 +30,8 @@ export const auth = betterAuth({
     },
   },
   emailVerification: {
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
     async sendVerificationEmail({ user, url }) {
       await sendEmail({
         to: user.email,
@@ -256,4 +259,27 @@ export const auth = betterAuth({
       },
     }),
   ],
+  onAPIError: {
+    onError: (error) => {
+      Sentry.captureException(error);
+    },
+  },
+  hooks: {
+    after: createAuthMiddleware(async (ctx) => {
+      if (ctx.path.startsWith("/verify-email")) {
+        // After verifying email, send them a welcome email
+        const newSession = ctx.context.newSession;
+        if (newSession) {
+          sendEmail({
+            to: newSession.user.email,
+            template: "welcome",
+            props: {
+              name: newSession.user.name,
+            },
+          });
+          return;
+        }
+      }
+    }),
+  },
 });

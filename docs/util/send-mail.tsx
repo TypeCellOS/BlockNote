@@ -3,6 +3,7 @@ import { render } from "@react-email/render";
 import MagicLinkEmail from "@/emails/magic-link";
 import VerifyEmail from "@/emails/verify-email";
 import ResetPassword from "@/emails/reset-password";
+import WelcomeEmail from "@/emails/welcome";
 import * as Sentry from "@sentry/nextjs";
 
 const IS_SMTP_CONFIGURED =
@@ -39,6 +40,10 @@ const TEMPLATE_COMPONENTS = {
   magicLink: {
     subject: "BlockNote - Sign in to your account",
     component: MagicLinkEmail,
+  },
+  welcome: {
+    subject: "BlockNote - Welcome to BlockNote",
+    component: WelcomeEmail,
   },
 } as const;
 

@@ -25,12 +25,12 @@ export default function Register() {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 bg-slate-700">
       <input
         type="text"
         id="name"
         name="name"
-        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+        className="mt-1 block w-full rounded-md border-gray-300 text-slate-950 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
         placeholder="Enter your name"
         aria-label="Name"
         tabIndex={0}
@@ -40,7 +40,7 @@ export default function Register() {
         type="email"
         id="email"
         name="email"
-        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+        className="mt-1 block w-full rounded-md border-gray-300 text-slate-950 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
         placeholder="Enter your email"
         aria-label="Email address"
         tabIndex={0}
@@ -50,7 +50,7 @@ export default function Register() {
         type="password"
         id="password"
         name="password"
-        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+        className="mt-1 block w-full rounded-md border-gray-300 text-slate-950 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
         placeholder="Enter your password"
         aria-label="Password"
         tabIndex={0}
