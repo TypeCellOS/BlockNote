@@ -4,21 +4,9 @@
     "content": [
       {
         "styles": {
-          "textColor": "red",
+          "textColor": "blue",
         },
-        "text": "Red Text",
-        "type": "text",
-      },
-      {
-        "styles": {},
-        "text": " ",
-        "type": "text",
-      },
-      {
-        "styles": {
-          "textColor": "green",
-        },
-        "text": "Green Text",
+        "text": "Blue Text",
         "type": "text",
       },
       {

@@ -4,30 +4,13 @@
     "content": [
       {
         "styles": {},
-        "text": "Red Background",
+        "text": "Blue Background",
         "type": "text",
       },
     ],
     "id": "1",
     "props": {
-      "backgroundColor": "red",
-      "textAlignment": "left",
-      "textColor": "default",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Green Background",
-        "type": "text",
-      },
-    ],
-    "id": "2",
-    "props": {
-      "backgroundColor": "green",
+      "backgroundColor": "blue",
       "textAlignment": "left",
       "textColor": "default",
     },
@@ -42,7 +25,7 @@
         "type": "text",
       },
     ],
-    "id": "3",
+    "id": "2",
     "props": {
       "backgroundColor": "blue",
       "textAlignment": "left",
