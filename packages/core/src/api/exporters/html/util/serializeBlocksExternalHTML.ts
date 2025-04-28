@@ -144,6 +144,19 @@ function serializeBlock<
     // We wrap the output in an `li` element for list items, and so we want to
     // add the attributes to that element instead as it is the "root".
     if (!listType) {
+      // Copies the styles and prop-related attributes from the `blockContent`
+      // element onto its first child, as the `blockContent` element is omitted
+      // from external HTML. This is so prop data is preserved via `data-*`
+      // attributes or inline styles.
+      //
+      // The styles are specifically for default props on default blocks, as
+      // they get converted from `data-*` attributes for external HTML. Will
+      // need to revisit this when we convert default blocks to use the custom
+      // block API.
+      const style = ret.dom.getAttribute("style");
+      if (style) {
+        (ret.dom.firstChild! as HTMLElement).setAttribute("style", style);
+      }
       for (const attr of blockContentDataAttributes) {
         (ret.dom.firstChild! as HTMLElement).setAttribute(
           attr.name,
@@ -179,9 +192,24 @@ function serializeBlock<
       fragment.append(list);
     }
     const li = doc.createElement("li");
+
+    // Copies the styles and prop-related attributes from the `blockContent`
+    // element onto its first child, as the `blockContent` element is omitted
+    // from external HTML. This is so prop data is preserved via `data-*`
+    // attributes or inline styles.
+    //
+    // The styles are specifically for default props on default blocks, as
+    // they get converted from `data-*` attributes for external HTML. Will
+    // need to revisit this when we convert default blocks to use the custom
+    // block API.
+    const style = ret.dom.getAttribute("style");
+    if (style) {
+      li.setAttribute("style", style);
+    }
     for (const attr of blockContentDataAttributes) {
       li.setAttribute(attr.name, attr.value);
     }
+
     li.append(elementFragment);
     fragment.lastChild!.appendChild(li);
   } else {

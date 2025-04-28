@@ -30,6 +30,16 @@ const getBackgroundColorAttribute = (
     }
 
     if (element.style.backgroundColor) {
+      // Check if `element.style.backgroundColor` matches the string:
+      // `var(--blocknote-background-<color>)`. If it does, return the color
+      // name only. Otherwise, return `element.style.backgroundColor`.
+      const match = element.style.backgroundColor.match(
+        /var\(--blocknote-background-(.+)\)/
+      );
+      if (match) {
+        return match[1];
+      }
+
       return element.style.backgroundColor;
     }
 
@@ -54,6 +64,14 @@ const getTextColorAttribute = (attributeName = "textColor"): Attribute => ({
     }
 
     if (element.style.color) {
+      // Check if `element.style.color` matches the string:
+      // `var(--blocknote-text-<color>)`. If it does, return the color name
+      // only. Otherwise, return `element.style.color`.
+      const match = element.style.color.match(/var\(--blocknote-text-(.+)\)/);
+      if (match) {
+        return match[1];
+      }
+
       return element.style.color;
     }
 

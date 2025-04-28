@@ -4,7 +4,7 @@
     "content": [
       {
         "styles": {},
-        "text": "Red Paragraph",
+        "text": "Blue Text",
         "type": "text",
       },
     ],
@@ -12,7 +12,7 @@
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
-      "textColor": "red",
+      "textColor": "blue",
     },
     "type": "paragraph",
   },
@@ -21,28 +21,11 @@
     "content": [
       {
         "styles": {},
-        "text": "Green Paragraph",
+        "text": "Blue Text",
         "type": "text",
       },
     ],
     "id": "2",
-    "props": {
-      "backgroundColor": "default",
-      "textAlignment": "left",
-      "textColor": "green",
-    },
-    "type": "paragraph",
-  },
-  {
-    "children": [],
-    "content": [
-      {
-        "styles": {},
-        "text": "Blue Paragraph",
-        "type": "text",
-      },
-    ],
-    "id": "3",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
