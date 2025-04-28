@@ -7,7 +7,8 @@
     "dev:email": "email dev",
     "build:site": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "init-db": "pnpx @better-auth/cli migrate"
   },
   "dependencies": {
     "@blocknote/ariakit": "workspace:^",
@@ -30,6 +31,7 @@
     "@vercel/analytics": "^1.2.2",
     "@vercel/og": "^0.6.2",
     "better-auth": "1.2.7",
+    "better-sqlite3": "11.9.1",
     "classnames": "2.3.2",
     "clsx": "^2.1.0",
     "framer-motion": "^10.16.16",
@@ -51,6 +53,7 @@
   },
   "devDependencies": {
     "@react-email/components": "^0.0.36",
+    "@types/better-sqlite3": "7.6.13",
     "@types/node": "^20",
     "@types/pg": "8.11.14",
     "@types/react": "^18.0.25",

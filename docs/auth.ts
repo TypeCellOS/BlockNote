@@ -5,6 +5,7 @@ import { betterAuth } from "better-auth";
 import { customSession, magicLink, openAPI } from "better-auth/plugins";
 import { github } from "better-auth/social-providers";
 import { Pool } from "pg";
+import Database from "better-sqlite3";
 
 import { PRODUCTS } from "./util/product-list";
 import { sendEmail } from "./util/send-mail";
@@ -136,9 +137,13 @@ export const auth = betterAuth({
       },
     },
   },
-  database: new Pool({
-    connectionString: process.env.POSTGRES_URL,
-  }),
+  // Use SQLite for local development
+  database:
+    process.env.NODE_ENV === "production" || process.env.POSTGRES_URL
+      ? new Pool({
+          connectionString: process.env.POSTGRES_URL,
+        })
+      : new Database("./sqlite.db"),
   plugins: [
     customSession(
       async ({ user, session }) => {
