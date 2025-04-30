@@ -2,5 +2,5 @@
 import { AuthenticationPage } from "../AuthenticationPage";
 
 export default function Register() {
-  return <AuthenticationPage variant="register" />;
+  return <AuthenticationPage variant="login" />;
 }
