@@ -71,7 +71,7 @@ export function groupProjects(projects: Project[]) {
           projects,
         },
       ];
-    })
+    }),
   );
 }
 
@@ -80,8 +80,8 @@ export function addTitleToGroups(grouped: ReturnType<typeof groupProjects>) {
   const meta = JSON.parse(
     fs.readFileSync(
       path.resolve(dir, "../../../docs/pages/examples/_meta.json"),
-      "utf-8"
-    )
+      "utf-8",
+    ),
   );
 
   const groupsWithTitles = Object.fromEntries(
@@ -89,7 +89,7 @@ export function addTitleToGroups(grouped: ReturnType<typeof groupProjects>) {
       const title = meta[key];
       if (!title) {
         throw new Error(
-          `Missing group title for ${key}, add to examples/_meta.json?`
+          `Missing group title for ${key}, add to examples/_meta.json?`,
         );
       }
       return [
@@ -99,42 +99,29 @@ export function addTitleToGroups(grouped: ReturnType<typeof groupProjects>) {
           title,
         },
       ];
-    })
+    }),
   );
   return groupsWithTitles;
 }
 
-export type Files = Record<
-  string,
-  {
-    filename: string;
-    code: string;
-    hidden: boolean;
-  }
->;
+export type Files = {
+  filename: string;
+  code: string;
+}[];
 
 export function getProjectFiles(project: Project): Files {
-  const dir = path.resolve("../..", project.pathFromRoot);
-  const files = globSync(["**/*", "!node_modules/**/*", "!dist/**/*"], {
+  const dir = path.resolve("../..", project.pathFromRoot, "src");
+  const files = globSync(["**/*"], {
     absolute: true,
     cwd: dir,
   });
-  const passedFiles = Object.fromEntries(
-    files.map((fullPath) => {
-      const filename = fullPath.substring(dir.length);
-      return [
-        filename,
-        {
-          filename,
-          code: fs.readFileSync(fullPath, "utf-8"),
-          hidden:
-            !(filename.endsWith(".tsx") || filename.endsWith(".css")) ||
-            filename.endsWith("main.tsx"),
-        },
-      ];
-    })
-  );
-  return passedFiles;
+  return files.map((fullPath) => {
+    const filename = fullPath.substring(dir.length);
+    return {
+      filename,
+      code: fs.readFileSync(fullPath, "utf-8"),
+    };
+  });
 }
 
 /**
@@ -184,7 +171,7 @@ export function getExampleProjects(): Project[] {
 
       const group = {
         pathFromRoot: replacePathSepToSlash(
-          path.relative(path.resolve("../../"), path.join(directory, ".."))
+          path.relative(path.resolve("../../"), path.join(directory, "..")),
         ),
         // remove optional 01- prefix
         slug: groupDir.replace(/^\d{2}-/, ""),
@@ -195,12 +182,13 @@ export function getExampleProjects(): Project[] {
         projectSlug,
         fullSlug: `${group.slug}/${projectSlug}`,
         pathFromRoot: replacePathSepToSlash(
-          path.relative(path.resolve("../../"), directory)
+          path.relative(path.resolve("../../"), directory),
         ),
         config,
         title,
         group,
       };
+
       return project;
     });
 

@@ -17,7 +17,7 @@ import { TextBlockSchema } from "./schema.js";
 // MUI version:
 // https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/components/SideMenu/DragHandleMenu/DefaultItems/RemoveBlockItem.tsx
 function MUIRemoveBlockItem(
-  props: SideMenuProps<TextBlockSchema> & { closeDragHandleMenu: () => void }
+  props: SideMenuProps<TextBlockSchema> & { closeDragHandleMenu: () => void },
 ) {
   // Deletes the block next to the side menu.
   const onClick = useCallback(() => {
@@ -79,7 +79,7 @@ function MUIDragHandleButton(props: SideMenuProps<TextBlockSchema>) {
       props.freezeMenu();
       setAnchorEl(event.currentTarget);
     },
-    [props]
+    [props],
   );
   const onClose = useCallback(() => {
     setAnchorEl(null);
@@ -113,7 +113,7 @@ function MUIDragHandleButton(props: SideMenuProps<TextBlockSchema>) {
 // This replaces the generic Mantine `SideMenu` component:
 // https://github.com/TypeCellOS/BlockNote/blob/main/packages/mantine/src/sideMenu/SideMenu.tsx
 function MUISideMenu(
-  props: SideMenuProps<TextBlockSchema> & { children: ReactNode }
+  props: SideMenuProps<TextBlockSchema> & { children: ReactNode },
 ) {
   // Since the side menu is positioned by the top-left corner of a block, we
   // manually set its height based on the hovered block so that it's vertically

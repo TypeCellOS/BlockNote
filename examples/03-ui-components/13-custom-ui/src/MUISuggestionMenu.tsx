@@ -30,7 +30,7 @@ import { TextBlockSchema } from "./schema.js";
 function MUISuggestionMenuItem(
   props: Omit<SuggestionMenuProps<DefaultReactSuggestionItem>, "items"> & {
     item: DefaultReactSuggestionItem & { index: number };
-  }
+  },
 ) {
   const Icon = props.item.icon;
   const editor = useBlockNoteEditor<TextBlockSchema>();
@@ -45,8 +45,8 @@ function MUISuggestionMenuItem(
     const overflow = elementOverflow(
       itemRef.current,
       document.querySelector(
-        `.MuiPaper-root:has([aria-label="suggestion-menu"])`
-      )!
+        `.MuiPaper-root:has([aria-label="suggestion-menu"])`,
+      )!,
     );
 
     if (overflow === "top") {
@@ -114,7 +114,7 @@ function MUISuggestionMenuLabel(props: { group: string }) {
 // simplified MUI version:
 // https://github.com/TypeCellOS/BlockNote/blob/main/packages/mantine/src/suggestionMenu/SuggestionMenu.tsx
 export function MUISuggestionMenu(
-  props: SuggestionMenuProps<DefaultReactSuggestionItem>
+  props: SuggestionMenuProps<DefaultReactSuggestionItem>,
 ) {
   // Sorts items into their groups.
   const groups = useMemo(() => {

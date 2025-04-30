@@ -108,36 +108,36 @@ function MUIBlockTypeSelect() {
 
   // The block currently containing the text cursor.
   const [block, setBlock] = useState<Block>(
-    editor.getTextCursorPosition().block
+    editor.getTextCursorPosition().block,
   );
 
   // Updates the block currently containing the text cursor whenever the editor
   // content or selection changes.
   useEditorContentOrSelectionChange(
     () => setBlock(editor.getTextCursorPosition().block),
-    editor
+    editor,
   );
 
   // Gets the default items for the select.
   const defaultBlockTypeSelectItems = useMemo(
     () => blockTypeSelectItems(editor.dictionary),
-    [editor.dictionary]
+    [editor.dictionary],
   );
 
   // Gets the selected item.
   const selectedItem = useMemo(
     () =>
       defaultBlockTypeSelectItems.find((item) =>
-        item.isSelected(block as any)
+        item.isSelected(block as any),
       )!,
-    [defaultBlockTypeSelectItems, block]
+    [defaultBlockTypeSelectItems, block],
   );
 
   // Updates the state when the user chooses an item.
   const onChange = useCallback(
     (event: SelectChangeEvent<string>) => {
       const newSelectedItem = defaultBlockTypeSelectItems.find(
-        (item) => item.name === event.target.value
+        (item) => item.name === event.target.value,
       )!;
 
       editor.updateBlock(block, {
@@ -148,7 +148,7 @@ function MUIBlockTypeSelect() {
 
       setBlock(editor.getTextCursorPosition().block);
     },
-    [block, defaultBlockTypeSelectItems, editor]
+    [block, defaultBlockTypeSelectItems, editor],
   );
 
   return (
@@ -211,14 +211,14 @@ function MUIBasicTextStyleButton(props: {
 
   // Whether the text style is currently active.
   const [textStyleActive, setTextStyleActive] = useState(
-    !!editor.getActiveStyles()[props.textStyle]
+    !!editor.getActiveStyles()[props.textStyle],
   );
 
   // Updates whether the text style is active when the editor content or
   // selection changes.
   useEditorContentOrSelectionChange(
     () => setTextStyleActive(props.textStyle in editor.getActiveStyles()),
-    editor
+    editor,
   );
 
   // Tooltip for the button.
@@ -227,7 +227,7 @@ function MUIBasicTextStyleButton(props: {
       `Toggle ${props.textStyle
         .slice(0, 1)
         .toUpperCase()}${props.textStyle.slice(1)}`,
-    [props.textStyle]
+    [props.textStyle],
   );
 
   // Toggles the text style when the button is clicked.
@@ -263,16 +263,16 @@ function MUITextAlignButton(props: {
 
   // The text alignment of the block currently containing the text cursor.
   const [activeTextAlignment, setActiveTextAlignment] = useState(
-    () => editor.getTextCursorPosition().block.props.textAlignment
+    () => editor.getTextCursorPosition().block.props.textAlignment,
   );
 
   // Updates the text alignment when the editor content or selection changes.
   useEditorContentOrSelectionChange(
     () =>
       setActiveTextAlignment(
-        editor.getTextCursorPosition().block.props.textAlignment
+        editor.getTextCursorPosition().block.props.textAlignment,
       ),
-    editor
+    editor,
   );
 
   // Tooltip for the button.
@@ -281,7 +281,7 @@ function MUITextAlignButton(props: {
       `Align ${props.textAlignment
         .slice(0, 1)
         .toUpperCase()}${props.textAlignment.slice(1)}`,
-    [props.textAlignment]
+    [props.textAlignment],
   );
 
   // Sets the text alignment of the block currently containing the text cursor
@@ -325,10 +325,10 @@ function MUIColorStyleButton() {
 
   // The active text and background colors.
   const [activeTextColor, setActiveTextColor] = useState(
-    () => editor.getActiveStyles().textColor || "default"
+    () => editor.getActiveStyles().textColor || "default",
   );
   const [activeBackgroundColor, setActiveBackgroundColor] = useState(
-    () => editor.getActiveStyles().backgroundColor || "default"
+    () => editor.getActiveStyles().backgroundColor || "default",
   );
 
   // Updates the active text and background colors when the editor content or
@@ -343,7 +343,7 @@ function MUIColorStyleButton() {
   // Handles opening and closing the color menu.
   const onClick = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => setAnchorEl(event.currentTarget),
-    []
+    [],
   );
   const onClose = useCallback(() => setAnchorEl(null), []);
 
@@ -357,7 +357,7 @@ function MUIColorStyleButton() {
         : editor.addStyles({ textColor });
       setTimeout(() => editor.focus());
     },
-    [editor]
+    [editor],
   );
   const backgroundColorOnClick = useCallback(
     (backgroundColor: string) => {
@@ -367,7 +367,7 @@ function MUIColorStyleButton() {
         : editor.addStyles({ backgroundColor });
       setTimeout(() => editor.focus());
     },
-    [editor]
+    [editor],
   );
 
   return (
