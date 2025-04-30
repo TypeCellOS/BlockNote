@@ -1,30 +1,38 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, FormEvent, ReactNode, useState } from "react";
+import {
+  ChangeEvent,
+  FormEvent,
+  HTMLInputTypeAttribute,
+  ReactNode,
+  useEffect,
+  useState,
+} from "react";
 
 import { signIn, signUp } from "@/util/auth-client";
 import blockNoteLogo from "@/public/img/logos/banner.svg";
+import blockNoteLogoDark from "@/public/img/logos/banner.dark.svg";
 
 function AuthenticationInput(props: {
-  id: string;
+  type: HTMLInputTypeAttribute;
   name: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (
     <div>
       <label
-        htmlFor={props.id}
-        className="block text-sm/6 font-medium text-gray-900">
+        htmlFor={props.type}
+        className="block text-sm/6 font-medium text-gray-900 dark:text-gray-100">
         {props.name}
       </label>
       <div className="mt-2">
         <input
-          id={props.id}
-          name={props.id}
-          type={props.id}
+          id={props.type}
+          name={props.type}
+          type={props.type}
           required
-          autoComplete={props.id}
-          className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+          autoComplete={props.type}
+          className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 dark:bg-gray-800 dark:text-gray-100 dark:outline-gray-700 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500"
           onChange={props.onChange}
         />
       </div>
@@ -34,6 +42,9 @@ function AuthenticationInput(props: {
 
 function AuthenticationBox(props: { variant: "login" | "register" | "email" }) {
   const router = useRouter();
+
+  const searchParams = new URLSearchParams(window.location.search);
+  const callbackURL = searchParams.get("redirect") || "/";
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -56,6 +67,7 @@ function AuthenticationBox(props: { variant: "login" | "register" | "email" }) {
         {
           email,
           password,
+          callbackURL,
         },
         {
           onSuccess() {
@@ -73,6 +85,7 @@ function AuthenticationBox(props: { variant: "login" | "register" | "email" }) {
       await signIn.magicLink(
         {
           email,
+          callbackURL,
         },
         {
           onSuccess() {
@@ -103,6 +116,8 @@ function AuthenticationBox(props: { variant: "login" | "register" | "email" }) {
           email,
           password,
           name,
+          // TODO: Should be changed to welcome page URL
+          callbackURL: "/pricing",
         },
         {
           onSuccess() {
@@ -137,19 +152,19 @@ function AuthenticationBox(props: { variant: "login" | "register" | "email" }) {
     <form className="space-y-6" onSubmit={handleSubmit}>
       {props.variant === "register" && (
         <AuthenticationInput
-          id="name"
+          type="name"
           name="Name"
           onChange={(e) => setName(e.target.value)}
         />
       )}
       <AuthenticationInput
-        id="email"
+        type="email"
         name="Email address"
         onChange={(e) => setEmail(e.target.value)}
       />
       {props.variant !== "email" && (
         <AuthenticationInput
-          id="password"
+          type="password"
           name="Password"
           onChange={(e) => setPassword(e.target.value)}
         />
@@ -175,12 +190,12 @@ function AuthenticationBox(props: { variant: "login" | "register" | "email" }) {
         )}
       </button>
       {signingInState.state === "done" && (
-        <p className="mt-2 text-center text-sm/6 text-indigo-600">
+        <p className="mt-2 text-center text-sm/6 text-indigo-600 dark:text-indigo-400">
           {signingInState.message}
         </p>
       )}
       {signingInState.state === "error" && (
-        <p className="mt-2 text-center text-sm/6 text-red-600">
+        <p className="mt-2 text-center text-sm/6 text-red-600 dark:text-red-400">
           {signingInState.message}
         </p>
       )}
@@ -195,7 +210,7 @@ function AlternativeSignInButton(props: {
 }) {
   return (
     <button
-      className="flex w-full items-center justify-center gap-3 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:ring-transparent"
+      className="flex w-full items-center justify-center gap-3 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:ring-transparent dark:bg-gray-800 dark:text-gray-100 dark:ring-gray-700 dark:hover:bg-gray-700"
       onClick={props.onClick}>
       {props.icon}
       <span className="text-sm/6 font-semibold">{props.name}</span>
@@ -214,11 +229,17 @@ function EmailSignInButton() {
           fill="currentColor"
           viewBox="0 -960 960 960"
           aria-hidden="true"
-          className="size-5 fill-[#24292F]">
+          className="size-5">
           <path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm320-280 320-200v-80L480-520 160-720v80l320 200Z" />
         </svg>
       }
-      onClick={() => router.push("/signin/email")}
+      onClick={() => {
+        const searchParams = new URLSearchParams(window.location.search);
+        const callbackURL = searchParams.get("redirect") || "/";
+        const theme = searchParams.get("theme") || "/system";
+
+        router.push(`/signin/email?redirect=${callbackURL}&theme=${theme}`);
+      }}
     />
   );
 }
@@ -232,7 +253,7 @@ function GitHubSignInButton() {
           fill="currentColor"
           viewBox="0 0 20 20"
           aria-hidden="true"
-          className="size-5 fill-[#24292F]">
+          className="size-5">
           <path
             d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z"
             clipRule="evenodd"
@@ -241,8 +262,12 @@ function GitHubSignInButton() {
         </svg>
       }
       onClick={async () => {
+        const searchParams = new URLSearchParams(window.location.search);
+        const callbackURL = searchParams.get("redirect") || "/";
+
         await signIn.social({
           provider: "github",
+          callbackURL,
         });
       }}
     />
@@ -256,10 +281,12 @@ function AlternativeSignInBox(props: {
     <div>
       <div className="relative mt-10">
         <div aria-hidden="true" className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-200" />
+          <div className="w-full border-t border-gray-200 dark:border-gray-700" />
         </div>
         <div className="relative flex justify-center text-sm/6 font-medium">
-          <span className="bg-white px-6 text-gray-900">Or continue with</span>
+          <span className="bg-white px-6 text-gray-900 dark:bg-gray-800 dark:text-gray-100">
+            Or continue with
+          </span>
         </div>
       </div>
       <div className="mt-6 flex flex-col gap-4">
@@ -275,36 +302,48 @@ export function AuthenticationPage(props: {
 }) {
   const router = useRouter();
 
+  const searchParams = new URLSearchParams(window.location.search);
+  const callbackURL = searchParams.get("redirect") || "/";
+  const theme = searchParams.get("theme") || "light";
+
+  useEffect(() => {
+    if (theme === "dark") {
+      document.body.classList.add("dark");
+    }
+  }, []);
+
   return (
-    <div className="h-screen w-screen bg-white">
+    <div className="h-screen w-screen bg-white dark:bg-gray-900">
       <div className="flex min-h-full flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <Image
             className="mx-auto h-10 w-auto cursor-pointer"
-            src={blockNoteLogo}
+            src={theme === "dark" ? blockNoteLogoDark : blockNoteLogo}
             alt={"BlockNote Logo"}
             onClick={() => router.push("/")}
           />
-          <h2 className="mt-6 text-center text-2xl/9 font-semibold tracking-tight text-gray-900">
+          <h2 className="mt-6 text-center text-2xl/9 font-semibold tracking-tight text-gray-900 dark:text-gray-100">
             {props.variant === "login"
-              ? "Login to your Account"
+              ? "Login to your account"
               : props.variant === "email"
-                ? "Login with your Email Account"
+                ? "Login with your email account"
                 : "Create an account"}
           </h2>
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
-          <div className="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
+          <div className="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12 dark:bg-gray-800">
             <AuthenticationBox variant={props.variant} />
             <AlternativeSignInBox variant={props.variant} />
           </div>
 
-          <p className="mt-10 text-center text-sm/6 text-gray-500">
+          <p className="mt-10 text-center text-sm/6 text-gray-500 dark:text-gray-400">
             <span
-              className="cursor-pointer font-semibold text-indigo-600 hover:text-indigo-500"
+              className="cursor-pointer font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
               onClick={() => {
-                router.push(props.variant === "login" ? "/signup" : "/signin");
+                router.push(
+                  `${props.variant === "login" ? "/signup" : "/signin"}?redirect=${callbackURL}&theme=${theme}`,
+                );
               }}>
               {props.variant === "login"
                 ? "Don't have an account? Sign Up"

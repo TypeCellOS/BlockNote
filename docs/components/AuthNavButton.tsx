@@ -22,7 +22,7 @@ export function AuthNavButton(props: any) {
         <Menu.Item key={"signout"}>
           <button
             onClick={async () => {
-              await authClient.signOut()
+              await authClient.signOut();
             }}
             className={clsx(
               "nx-relative nx-hidden nx-w-full nx-select-none nx-whitespace-nowrap nx-text-gray-600 hover:nx-text-gray-900 dark:nx-text-gray-400 dark:hover:nx-text-gray-100 md:nx-inline-block",
@@ -32,13 +32,19 @@ export function AuthNavButton(props: any) {
           </button>
         </Menu.Item>,
       ]}>
-      <Image
-        className="size-5 rounded-md"
-        src={session.data.user!.image!}
-        alt={session.data.user!.name!}
-        width={50}
-        height={50}
-      />
+      {session.data.user.image ? (
+        <Image
+          className="size-6 rounded-full"
+          src={session.data.user.image}
+          alt={session.data.user.name}
+          width={50}
+          height={50}
+        />
+      ) : (
+        <div className="flex size-6 items-center justify-center rounded-full bg-indigo-400 text-xs font-semibold dark:bg-indigo-600">
+          {session.data.user.name.substring(0, 2).toUpperCase()}
+        </div>
+      )}
     </NavbarMenu>
   ) : (
     <>

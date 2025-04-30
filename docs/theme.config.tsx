@@ -47,6 +47,38 @@ interface Frontmatter {
   imageTitle: string;
 }
 
+const NavBarExtraContent = () => {
+  const session = authClient.useSession();
+  const router = useRouter();
+  const theme = useTheme();
+
+  return (
+    <>
+      <NextLink
+        href="https://github.com/TypeCellOS/BlockNote"
+        className="generic-hover">
+        <span className="sr-only">GitHub</span>
+        <GitHubIcon />
+      </NextLink>
+      <NextLink href="https://discord.gg/Qc2QTTH5dF" className="generic-hover">
+        <span className="sr-only">Discord</span>
+        <DiscordIcon />
+      </NextLink>
+      {session.data ? null : (
+        <NextLink
+          href={`/signin?redirect=${router.route}&theme=${theme.resolvedTheme}`}>
+          <CTA
+            href={`/signin?redirect=${router.route}&theme=${theme.resolvedTheme}`}
+            size={"small"}>
+            Sign in
+          </CTA>
+        </NextLink>
+      )}
+      <AuthNavButton />
+    </>
+  );
+};
+
 const config: DocsThemeConfig = {
   sidebar: {
     defaultMenuCollapseLevel: 1,
@@ -208,33 +240,7 @@ const config: DocsThemeConfig = {
   },
   navbar: {
     component: Navigation,
-    extraContent: () => {
-      const session = authClient.useSession();
-      return (
-        <>
-          <NextLink
-            href="https://github.com/TypeCellOS/BlockNote"
-            className="generic-hover">
-            <span className="sr-only">GitHub</span>
-            <GitHubIcon />
-          </NextLink>
-          <NextLink
-            href="https://discord.gg/Qc2QTTH5dF"
-            className="generic-hover">
-            <span className="sr-only">Discord</span>
-            <DiscordIcon />
-          </NextLink>
-          {session.data ? null : (
-            <NextLink href="/signup">
-              <CTA href={"/signup"} size={"small"}>
-                Sign in
-              </CTA>
-            </NextLink>
-          )}
-          <AuthNavButton />
-        </>
-      );
-    },
+    extraContent: () => <NavBarExtraContent />,
     //   extraContent: (): JSX.Element => {
     //     // eslint-disable-next-line react-hooks/rules-of-hooks -- Nextra does not infer the type of extraContent correctly.
     //     const router = useRouter();
