@@ -54,7 +54,6 @@ export const CreateLinkButton = () => {
   const [text, setText] = useState<string>(editor.getSelectedText());
 
   useEditorContentOrSelectionChange(() => {
-    setOpened(false);
     setText(editor.getSelectedText() || "");
     setUrl(editor.getSelectedLinkUrl() || "");
   }, editor);
