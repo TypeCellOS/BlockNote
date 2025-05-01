@@ -9,6 +9,7 @@ import { examples } from "./generated/exampleComponents.gen";
 
 import "../pages/landing/gradients.css";
 import "./styles.css";
+import { useRouter } from "next/router";
 
 const baseGitHubURL = "https://github.com/TypeCellOS/BlockNote/tree/main/";
 // const baseCodeSandboxURL =
@@ -29,6 +30,7 @@ export function ExampleBlock(props: {
     userStatus: "business" | "starter" | "free" | undefined;
   };
 }) {
+  const router = useRouter();
   const showCode =
     !props.isProExample ||
     props.isProExample.userStatus === "starter" ||
@@ -69,7 +71,7 @@ export function ExampleBlock(props: {
             "relative flex h-96 flex-col items-center justify-center gap-2"
           }>
           <div className={"absolute h-1/2 w-1/2"}>
-            <div className={"cta-glow  h-full w-full"}></div>
+            <div className={"cta-glow h-full w-full"}></div>
           </div>
           <div className={"z-10 flex w-2/3 flex-col items-center"}>
             <SectionHeader>Pro Example</SectionHeader>
@@ -93,12 +95,13 @@ export function ExampleBlock(props: {
                   className={"nx-text-primary-600"}
                   onClick={async () => {
                     await authClient.signIn.social({
-                      provider: 'github'
-                    })
+                      provider: "github",
+                      callbackURL: router.asPath,
+                    });
                   }}>
                   sign in
                 </button>{" "}
-                via GitHub
+                via GitHub if you already sponsor BlockNote
               </p>
             )}
           </div>
