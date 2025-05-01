@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import dynamic from "next/dynamic";
-
+import { Suspense } from "react";
 export const metadata: Metadata = {
   title: "Email Login",
 };
@@ -8,5 +8,9 @@ export const metadata: Metadata = {
 const AuthenticationPage = dynamic(() => import("../../AuthenticationPage"));
 
 export default function Register() {
-  return <AuthenticationPage variant="email" />;
+  return (
+    <Suspense>
+      <AuthenticationPage variant="email" />
+    </Suspense>
+  );
 }
