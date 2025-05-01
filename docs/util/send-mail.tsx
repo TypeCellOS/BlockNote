@@ -22,12 +22,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-if (process.env.NODE_ENV === "production" && !IS_SMTP_CONFIGURED) {
-  throw new Error(
-    "SMTP_HOST, SMTP_PORT, SMTP_USER, and SMTP_PASS must be set to send emails",
-  );
-}
-
 const TEMPLATE_COMPONENTS = {
   verifyEmail: {
     subject: "BlockNote - Verify your email address",
@@ -57,6 +51,12 @@ export async function sendEmail<T extends keyof typeof TEMPLATE_COMPONENTS>({
   props: Parameters<(typeof TEMPLATE_COMPONENTS)[T]["component"]>[0];
 }) {
   if (!IS_SMTP_CONFIGURED) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "SMTP_HOST, SMTP_PORT, SMTP_USER, and SMTP_PASS must be set to send emails",
+      );
+    }
+
     console.log(
       "No SMTP credentials found, skipping email: ",
       await render(TEMPLATE_COMPONENTS[template].component(props), {
