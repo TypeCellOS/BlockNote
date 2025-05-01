@@ -270,7 +270,7 @@ export const auth = betterAuth({
         // After verifying email, send them a welcome email
         const newSession = ctx.context.newSession;
         if (newSession) {
-          sendEmail({
+          await sendEmail({
             to: newSession.user.email,
             template: "welcome",
             props: {
