@@ -1,5 +1,7 @@
+"use client";
+
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   ChangeEvent,
   FormEvent,
@@ -43,8 +45,8 @@ function AuthenticationInput(props: {
 function AuthenticationBox(props: { variant: "login" | "register" | "email" }) {
   const router = useRouter();
 
-  const searchParams = new URLSearchParams(window.location.search);
-  const callbackURL = searchParams.get("redirect") || "/";
+  const searchParams = useSearchParams();
+  const callbackURL = searchParams?.get("redirect") || "/";
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -221,9 +223,13 @@ function AlternativeSignInButton(props: {
 function EmailSignInButton() {
   const router = useRouter();
 
+  const searchParams = useSearchParams();
+  const callbackURL = searchParams?.get("redirect") || "/";
+  const theme = searchParams?.get("theme") || "light";
+
   return (
     <AlternativeSignInButton
-      name="Email"
+      name="Continue with email"
       icon={
         <svg
           fill="currentColor"
@@ -233,21 +239,20 @@ function EmailSignInButton() {
           <path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm320-280 320-200v-80L480-520 160-720v80l320 200Z" />
         </svg>
       }
-      onClick={() => {
-        const searchParams = new URLSearchParams(window.location.search);
-        const callbackURL = searchParams.get("redirect") || "/";
-        const theme = searchParams.get("theme") || "/system";
-
-        router.push(`/signin/email?redirect=${callbackURL}&theme=${theme}`);
-      }}
+      onClick={() =>
+        router.push(`/signin/email?redirect=${callbackURL}&theme=${theme}`)
+      }
     />
   );
 }
 
 function GitHubSignInButton() {
+  const searchParams = useSearchParams();
+  const callbackURL = searchParams?.get("redirect") || "/";
+
   return (
     <AlternativeSignInButton
-      name="GitHub"
+      name="Continue with GitHub"
       icon={
         <svg
           fill="currentColor"
@@ -261,15 +266,12 @@ function GitHubSignInButton() {
           />
         </svg>
       }
-      onClick={async () => {
-        const searchParams = new URLSearchParams(window.location.search);
-        const callbackURL = searchParams.get("redirect") || "/";
-
+      onClick={async () =>
         await signIn.social({
           provider: "github",
           callbackURL,
-        });
-      }}
+        })
+      }
     />
   );
 }
@@ -297,20 +299,20 @@ function AlternativeSignInBox(props: {
   );
 }
 
-export function AuthenticationPage(props: {
+export default function AuthenticationPage(props: {
   variant: "login" | "register" | "email";
 }) {
   const router = useRouter();
 
-  const searchParams = new URLSearchParams(window.location.search);
-  const callbackURL = searchParams.get("redirect") || "/";
-  const theme = searchParams.get("theme") || "light";
+  const searchParams = useSearchParams();
+  const callbackURL = searchParams?.get("redirect") || "/";
+  const theme = searchParams?.get("theme") || "light";
 
   useEffect(() => {
     if (theme === "dark") {
       document.body.classList.add("dark");
     }
-  }, []);
+  }, [theme]);
 
   return (
     <div className="h-screen w-screen bg-white dark:bg-gray-900">
