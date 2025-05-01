@@ -78,7 +78,7 @@ function AuthenticationBox(props: { variant: "login" | "register" | "email" }) {
           onError(ctx) {
             setSigningInState({
               state: "error",
-              message: ctx.error.message || "",
+              message: ctx.error.message || ctx.error.statusText || "",
             });
           },
         },
@@ -106,7 +106,7 @@ function AuthenticationBox(props: { variant: "login" | "register" | "email" }) {
             } else {
               setSigningInState({
                 state: "error",
-                message: ctx.error.message || "",
+                message: ctx.error.message || ctx.error.statusText || "",
               });
             }
           },
@@ -141,7 +141,7 @@ function AuthenticationBox(props: { variant: "login" | "register" | "email" }) {
             } else {
               setSigningInState({
                 state: "error",
-                message: ctx.error.message || "",
+                message: ctx.error.message || ctx.error.statusText || "",
               });
             }
           },
