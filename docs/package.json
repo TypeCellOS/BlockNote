@@ -18,6 +18,8 @@
     "@blocknote/react": "workspace:^",
     "@blocknote/shadcn": "workspace:^",
     "@blocknote/xl-multi-column": "workspace:^",
+    "@blocknote/xl-odt-exporter": "workspace:^",
+    "@blocknote/xl-pdf-exporter": "workspace:^",
     "@headlessui/react": "^1.7.18",
     "@heroicons/react": "^2.1.4",
     "@mantine/core": "^7.10.1",
