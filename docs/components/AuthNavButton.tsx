@@ -13,11 +13,25 @@ export function AuthNavButton(props: any) {
         <Menu.Item key={"thanks"}>
           <div
             className={clsx(
-              "nx-relative nx-hidden nx-w-full nx-select-none nx-whitespace-nowrap nx-text-gray-600 hover:nx-text-gray-900 dark:nx-text-gray-400 dark:hover:nx-text-gray-100 md:nx-inline-block",
-              "nx-py-1.5 nx-transition-colors ltr:nx-pl-3 ltr:nx-pr-9 rtl:nx-pr-3 rtl:nx-pl-9",
+              "nx-relative nx-hidden nx-w-full nx-select-none nx-whitespace-nowrap nx-text-gray-600 dark:nx-text-gray-400 md:nx-inline-block",
+              "nx-py-1.5 nx-px-3 font-bold",
             )}>
-            💖 Thanks for sponsoring!
+            💖 Thanks for sponsoring! 💖
           </div>
+        </Menu.Item>,
+        <Menu.Item key={"subscription"}>
+          <a
+            href={
+              session.data.planType === "free" ? "/pricing" : "/api/auth/portal"
+            }
+            className={clsx(
+              "nx-relative nx-hidden nx-w-full nx-select-none nx-whitespace-nowrap nx-text-gray-600 hover:nx-text-gray-900 dark:nx-text-gray-400 dark:hover:nx-text-gray-100 md:nx-inline-block",
+              "nx-py-1.5 nx-px-3 nx-transition-colors text-center",
+            )}>
+            {session.data.planType === "free"
+              ? "Get BlockNote Pro"
+              : "Manage my subscription"}
+          </a>
         </Menu.Item>,
         <Menu.Item key={"signout"}>
           <button
@@ -26,7 +40,7 @@ export function AuthNavButton(props: any) {
             }}
             className={clsx(
               "nx-relative nx-hidden nx-w-full nx-select-none nx-whitespace-nowrap nx-text-gray-600 hover:nx-text-gray-900 dark:nx-text-gray-400 dark:hover:nx-text-gray-100 md:nx-inline-block",
-              "nx-py-1.5 nx-transition-colors ltr:nx-pl-3 ltr:nx-pr-9 rtl:nx-pr-3 rtl:nx-pl-9",
+              "nx-py-1.5 nx-px-3 nx-transition-colors",
             )}>
             Sign out
           </button>
