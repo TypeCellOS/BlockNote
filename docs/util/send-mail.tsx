@@ -66,22 +66,35 @@ export async function sendEmail<T extends keyof typeof TEMPLATE_COMPONENTS>({
     );
     return;
   }
-  try {
-    const info = await transporter.sendMail({
-      from: '"BlockNote" <nick@blocknotejs.org>',
-      to,
-      subject: TEMPLATE_COMPONENTS[template].subject,
-      text: await render(TEMPLATE_COMPONENTS[template].component(props), {
-        pretty: true,
-        plainText: true,
-      }),
-      html: await render(TEMPLATE_COMPONENTS[template].component(props), {
-        pretty: true,
-      }),
-    });
+  const text = await render(TEMPLATE_COMPONENTS[template].component(props), {
+    pretty: true,
+    plainText: true,
+  });
 
-    console.log("Email sent: ", info.messageId);
-  } catch (err) {
-    Sentry.captureException(err);
-  }
+  const html = await render(TEMPLATE_COMPONENTS[template].component(props), {
+    pretty: true,
+  });
+
+  const info = await new Promise<nodemailer.SentMessageInfo>(
+    (resolve, reject) =>
+      transporter.sendMail(
+        {
+          from: '"BlockNote" <nick@blocknotejs.org>',
+          to,
+          subject: TEMPLATE_COMPONENTS[template].subject,
+          text,
+          html,
+        },
+        (err, data) => {
+          if (err) {
+            Sentry.captureException(err);
+            reject(err);
+            return;
+          }
+          resolve(data);
+        },
+      ),
+  );
+
+  console.log("Email sent: ", info.messageId);
 }
