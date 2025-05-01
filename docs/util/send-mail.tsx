@@ -79,7 +79,7 @@ export async function sendEmail<T extends keyof typeof TEMPLATE_COMPONENTS>({
     (resolve, reject) =>
       transporter.sendMail(
         {
-          from: '"BlockNote" <nick@blocknotejs.org>',
+          from: `"BlockNote" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
           to,
           subject: TEMPLATE_COMPONENTS[template].subject,
           text,
