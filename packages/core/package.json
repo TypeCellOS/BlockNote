@@ -109,9 +109,9 @@
     "remark-stringify": "^11.0.0",
     "unified": "^11.0.5",
     "uuid": "^8.3.2",
-    "y-prosemirror": "^1.3.4",
+    "y-prosemirror": "npm:@y/prosemirror@2.0.0-0",
     "y-protocols": "^1.0.6",
-    "yjs": "^13.6.15"
+    "yjs": "^14.0.0-0"
   },
   "devDependencies": {
     "@types/emoji-mart": "^3.0.14",
