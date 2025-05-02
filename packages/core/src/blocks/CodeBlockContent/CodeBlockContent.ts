@@ -126,7 +126,10 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
             return null;
           }
 
-          return getLanguageId(options.editor.settings.codeBlock, language);
+          return (
+            getLanguageId(options.editor.settings.codeBlock, language) ??
+            language
+          );
         },
         renderHTML: (attributes) => {
           return attributes.language
@@ -251,7 +254,7 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
         if (process.env.NODE_ENV === "development" && !hasWarned) {
           // eslint-disable-next-line no-console
           console.log(
-            "For syntax highlighting of code blocks, you must provide a highlighter function"
+            "For syntax highlighting of code blocks, you must provide a `codeBlock.createHighlighter` function"
           );
           hasWarned = true;
         }
@@ -268,15 +271,22 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
           }
         );
       }
-
-      const language = parserOptions.language;
+      const language = getLanguageId(
+        options.editor.settings.codeBlock,
+        parserOptions.language!
+      );
 
       if (
-        language &&
-        language !== "text" &&
-        !highlighter.getLoadedLanguages().includes(language) &&
-        language in options.editor.settings.codeBlock.supportedLanguages
+        !language ||
+        language === "text" ||
+        language === "none" ||
+        language === "plaintext" ||
+        language === "txt"
       ) {
+        return [];
+      }
+
+      if (!highlighter.getLoadedLanguages().includes(language)) {
         return highlighter.loadLanguage(language);
       }
 
@@ -308,10 +318,9 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
           const $start = state.doc.resolve(range.from);
           const languageName = match[1].trim();
           const attributes = {
-            language: getLanguageId(
-              options.editor.settings.codeBlock,
-              languageName
-            ),
+            language:
+              getLanguageId(options.editor.settings.codeBlock, languageName) ??
+              languageName,
           };
 
           if (
@@ -422,10 +431,13 @@ export const CodeBlock = createBlockSpecFromStronglyTypedTiptapNode(
   defaultCodeBlockPropSchema
 );
 
-function getLanguageId(options: CodeBlockOptions, languageName: string) {
-  return (
-    Object.entries(options.supportedLanguages).find(([id, { aliases }]) => {
+function getLanguageId(
+  options: CodeBlockOptions,
+  languageName: string
+): string | undefined {
+  return Object.entries(options.supportedLanguages).find(
+    ([id, { aliases }]) => {
       return aliases?.includes(languageName) || id === languageName;
-    })?.[0] || languageName
-  );
+    }
+  )?.[0];
 }

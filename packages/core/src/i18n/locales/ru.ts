@@ -60,7 +60,7 @@ export const ru: Dictionary = {
     },
     bullet_list: {
       title: "Маркированный список",
-      subtext: "Для отображения неупорядоченного списка.",
+      subtext: "Для отображения неупорядоченного списка",
       aliases: [
         "ul",
         "li",
@@ -176,7 +176,7 @@ export const ru: Dictionary = {
     },
   },
   placeholders: {
-    default: "Ведите текст или введите «/» для команд",
+    default: "Введите текст или введите «/» для команд",
     heading: "Заголовок",
     bulletListItem: "Список",
     numberedListItem: "Список",

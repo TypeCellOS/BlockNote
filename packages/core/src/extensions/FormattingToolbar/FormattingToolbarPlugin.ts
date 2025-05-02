@@ -140,11 +140,9 @@ export class FormattingToolbarView implements PluginView {
     // Wrapping in a setTimeout gives enough time to wait for the blur event to
     // occur before updating the toolbar.
     const { state, composing } = view;
-    const { selection } = state;
+    const { doc, selection } = state;
     const isSame =
-      oldState &&
-      oldState.selection.from === state.selection.from &&
-      oldState.selection.to === state.selection.to;
+      oldState && oldState.doc.eq(doc) && oldState.selection.eq(selection);
 
     if (composing || isSame) {
       return;
