@@ -8,6 +8,7 @@ import {
   Preview,
   Section,
   Text,
+  Link,
 } from "@react-email/components";
 
 export interface WelcomeEmailProps {
@@ -19,7 +20,7 @@ export const WelcomeEmail = ({ name }: WelcomeEmailProps) => {
     <Html>
       <Head />
       <Body style={main}>
-        <Preview>BlockNote - Welcome to BlockNote</Preview>
+        <Preview>BlockNote - Next Steps & Subscription</Preview>
         <Container style={container}>
           <Img
             src="https://www.blocknotejs.org/img/logos/icon_light_500.png"
@@ -29,9 +30,20 @@ export const WelcomeEmail = ({ name }: WelcomeEmailProps) => {
           />
           <Section>
             <Text style={text}>Hi{name ? ` ${name}` : ""},</Text>
-            <Text style={text}>Thanks for verifying your email address.</Text>
             <Text style={text}>
-              Welcome to BlockNote! We&apos;re excited to have you on board.
+              Thanks for verifying your email address and welcome to BlockNote!
+            </Text>
+            <Text style={text}>
+              Your next step is to subscribe to a BlockNote plan to unlock more
+              features. Subscribing to the Business plan grants you a license
+              for our XL packages. All paid plans also receive prioritized bug
+              support through GitHub.
+            </Text>
+            <Link style={button} href="https://www.blocknotejs.org/pricing">
+              View Plans & Subscribe
+            </Link>
+            <Text style={text}>
+              We appreciate your support for our open-source project!
             </Text>
           </Section>
         </Container>
@@ -41,7 +53,7 @@ export const WelcomeEmail = ({ name }: WelcomeEmailProps) => {
 };
 
 WelcomeEmail.PreviewProps = {
-  name: "",
+  name: "Alex",
 } as WelcomeEmailProps;
 
 export default WelcomeEmail;
@@ -75,6 +87,7 @@ const button = {
   textDecoration: "none",
   textAlign: "center" as const,
   display: "block",
-  width: "210px",
+  width: "230px",
   padding: "14px 7px",
+  marginTop: "20px",
 };
