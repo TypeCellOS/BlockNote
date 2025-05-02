@@ -1,5 +1,5 @@
-import { authClient } from "@/util/auth-client";
 import dynamic from "next/dynamic";
+import NextLink from "next/link";
 import { AiFillGithub } from "react-icons/ai";
 import { SiStackblitz } from "react-icons/si";
 
@@ -10,6 +10,7 @@ import { examples } from "./generated/exampleComponents.gen";
 import "../pages/landing/gradients.css";
 import "./styles.css";
 import { useRouter } from "next/router";
+import { useTheme } from "nextra-theme-docs";
 
 const baseGitHubURL = "https://github.com/TypeCellOS/BlockNote/tree/main/";
 // const baseCodeSandboxURL =
@@ -31,6 +32,7 @@ export function ExampleBlock(props: {
   };
 }) {
   const router = useRouter();
+  const theme = useTheme();
   const showCode =
     !props.isProExample ||
     props.isProExample.userStatus === "starter" ||
@@ -88,22 +90,16 @@ export function ExampleBlock(props: {
                 Get BlockNote Pro
               </CTAButton>
             </div>
-            {!props.isProExample?.userStatus && (
-              <p className={"mt-1 text-xs"}>
-                Or{" "}
-                <button
-                  className={"nx-text-primary-600"}
-                  onClick={async () => {
-                    await authClient.signIn.social({
-                      provider: "github",
-                      callbackURL: router.asPath,
-                    });
-                  }}>
+            <p className={"text-md mt-1"}>
+              Or{" "}
+              {!props.isProExample?.userStatus && (
+                <NextLink
+                  href={`/signin?redirect=${router.route}&theme=${theme.resolvedTheme}`}
+                  className="nx-text-primary-600">
                   sign in
-                </button>{" "}
-                via GitHub if you already sponsor BlockNote
-              </p>
-            )}
+                </NextLink>
+              )}
+            </p>
           </div>
         </div>
       )}
