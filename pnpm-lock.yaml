@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  yjs: ^14.0.0-0
+
 importers:
 
   .:
@@ -135,8 +138,8 @@ importers:
         specifier: ^0.0.25
         version: 0.0.25
       yjs:
-        specifier: ^13.6.15
-        version: 13.6.24
+        specifier: ^14.0.0-0
+        version: 14.0.0-4
     devDependencies:
       '@types/node':
         specifier: ^20
@@ -2400,8 +2403,8 @@ importers:
         specifier: ^0.0.25
         version: 0.0.25
       yjs:
-        specifier: ^13.6.15
-        version: 13.6.24
+        specifier: ^14.0.0-0
+        version: 14.0.0-4
     devDependencies:
       '@types/react':
         specifier: ^18.0.25
@@ -2441,10 +2444,10 @@ importers:
         version: 2.23.1(react@18.3.1)
       '@liveblocks/react-blocknote':
         specifier: ^2.23.1
-        version: 2.23.1(a9fafa167a137f224b16cac05e678ac8)
+        version: 2.23.1(5ccc4b160c9122137e1878732f35766c)
       '@liveblocks/react-tiptap':
         specifier: ^2.23.1
-        version: 2.23.1(@tiptap/extension-collaboration-cursor@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24)))(@tiptap/extension-collaboration@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5)(y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24)))(@tiptap/pm@2.11.5)(@tiptap/react@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@tiptap/suggestion@2.11.7(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5))(@types/react-dom@18.3.5(@types/react@18.3.20))(@types/react@18.3.20)(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(y-protocols@1.0.6(yjs@13.6.24))
+        version: 2.23.1(@tiptap/extension-collaboration-cursor@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@14.0.0-4))(yjs@14.0.0-4)))(@tiptap/extension-collaboration@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5)(y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@14.0.0-4))(yjs@14.0.0-4)))(@tiptap/pm@2.11.5)(@tiptap/react@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@tiptap/suggestion@2.11.7(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5))(@types/react-dom@18.3.5(@types/react@18.3.20))(@types/react@18.3.20)(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(y-protocols@1.0.6(yjs@14.0.0-4))
       '@liveblocks/react-ui':
         specifier: ^2.23.1
         version: 2.23.1(@types/react-dom@18.3.5(@types/react@18.3.20))(@types/react@18.3.20)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2455,8 +2458,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       yjs:
-        specifier: ^13.6.15
-        version: 13.6.24
+        specifier: ^14.0.0-0
+        version: 14.0.0-4
     devDependencies:
       '@types/react':
         specifier: ^18.0.25
@@ -2490,7 +2493,7 @@ importers:
         version: link:../../../packages/shadcn
       '@y-sweet/react':
         specifier: ^0.6.3
-        version: 0.6.4(react@18.3.1)(yjs@13.6.24)
+        version: 0.6.4(react@18.3.1)(yjs@14.0.0-4)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -2533,7 +2536,7 @@ importers:
         version: 7.17.3(@mantine/hooks@7.17.3(react@18.3.1))(@types/react@18.3.20)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@y-sweet/react':
         specifier: ^0.6.3
-        version: 0.6.4(react@18.3.1)(yjs@13.6.24)
+        version: 0.6.4(react@18.3.1)(yjs@14.0.0-4)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -2576,7 +2579,7 @@ importers:
         version: 7.17.3(@mantine/hooks@7.17.3(react@18.3.1))(@types/react@18.3.20)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@y-sweet/react':
         specifier: ^0.6.3
-        version: 0.6.4(react@18.3.1)(yjs@13.6.24)
+        version: 0.6.4(react@18.3.1)(yjs@14.0.0-4)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -2963,14 +2966,14 @@ importers:
         specifier: ^8.3.2
         version: 8.3.2
       y-prosemirror:
-        specifier: ^1.3.4
-        version: 1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24)
+        specifier: npm:@y/prosemirror@2.0.0-0
+        version: '@y/prosemirror@2.0.0-0(@y/protocols@1.0.6-1(yjs@14.0.0-4))(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(yjs@14.0.0-4)'
       y-protocols:
         specifier: ^1.0.6
-        version: 1.0.6(yjs@13.6.24)
+        version: 1.0.6(yjs@14.0.0-4)
       yjs:
-        specifier: ^13.6.15
-        version: 13.6.24
+        specifier: ^14.0.0-0
+        version: 14.0.0-4
     devDependencies:
       '@types/emoji-mart':
         specifier: ^3.0.14
@@ -3213,13 +3216,13 @@ importers:
         version: 18.3.1(react@18.3.1)
       y-prosemirror:
         specifier: ^1.3.4
-        version: 1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24)
+        version: 1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@14.0.0-4))(yjs@14.0.0-4)
       y-protocols:
         specifier: ^1.0.6
-        version: 1.0.6(yjs@13.6.24)
+        version: 1.0.6(yjs@14.0.0-4)
       yjs:
-        specifier: ^13.6.15
-        version: 13.6.24
+        specifier: ^14.0.0-0
+        version: 14.0.0-4
     devDependencies:
       '@types/jsdom':
         specifier: ^21.1.7
@@ -3672,10 +3675,10 @@ importers:
         version: 2.23.1(react@18.3.1)
       '@liveblocks/react-blocknote':
         specifier: ^2.23.1
-        version: 2.23.1(a9fafa167a137f224b16cac05e678ac8)
+        version: 2.23.1(5ccc4b160c9122137e1878732f35766c)
       '@liveblocks/react-tiptap':
         specifier: ^2.23.1
-        version: 2.23.1(@tiptap/extension-collaboration-cursor@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24)))(@tiptap/extension-collaboration@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5)(y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24)))(@tiptap/pm@2.11.5)(@tiptap/react@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@tiptap/suggestion@2.11.7(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5))(@types/react-dom@18.3.5(@types/react@18.3.20))(@types/react@18.3.20)(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(y-protocols@1.0.6(yjs@13.6.24))
+        version: 2.23.1(@tiptap/extension-collaboration-cursor@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@14.0.0-4))(yjs@14.0.0-4)))(@tiptap/extension-collaboration@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5)(y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@14.0.0-4))(yjs@14.0.0-4)))(@tiptap/pm@2.11.5)(@tiptap/react@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@tiptap/suggestion@2.11.7(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5))(@types/react-dom@18.3.5(@types/react@18.3.20))(@types/react@18.3.20)(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(y-protocols@1.0.6(yjs@14.0.0-4))
       '@liveblocks/react-ui':
         specifier: ^2.23.1
         version: 2.23.1(@types/react-dom@18.3.5(@types/react@18.3.20))(@types/react@18.3.20)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3723,7 +3726,7 @@ importers:
         version: 3.6.8(@uppy/core@3.13.1)
       '@y-sweet/react':
         specifier: ^0.6.3
-        version: 0.6.4(react@18.3.1)(yjs@13.6.24)
+        version: 0.6.4(react@18.3.1)(yjs@14.0.0-4)
       autoprefixer:
         specifier: 10.4.21
         version: 10.4.21(postcss@8.5.3)
@@ -3746,8 +3749,8 @@ importers:
         specifier: ^0.0.25
         version: 0.0.25
       yjs:
-        specifier: ^13.6.15
-        version: 13.6.24
+        specifier: ^14.0.0-0
+        version: 14.0.0-4
     devDependencies:
       '@types/react':
         specifier: ^18.0.25
@@ -5559,7 +5562,7 @@ packages:
   '@liveblocks/yjs@2.23.1':
     resolution: {integrity: sha512-fGSWQ+SD7b0B/aY5rcqunH5MAudsxCtf+IXdIW9OR4czOcHLFeB9kJEgg1WcU8erfqevlEcIv3+VMjEn2dAiKA==}
     peerDependencies:
-      yjs: ^13.6.1
+      yjs: ^14.0.0-0
 
   '@mantine/core@7.17.3':
     resolution: {integrity: sha512-N/AfV5eMnfEMx9WzI7AU5pNFBEzAfT/KtE2XDKS+0ht6RifUmolIxyIvoGMYz2yUEsCBMJZqmBq33Rabf5W7Ug==}
@@ -7827,16 +7830,32 @@ packages:
   '@y-sweet/client@0.6.4':
     resolution: {integrity: sha512-dRfnMulK9HJWzm1BnmViZP93FZ/RrXlIN3Uke3f9iIDDDFLPQs5YBDWZ4dc24Hd8/BnX/Xe/uZzDJcAvENx3fw==}
     peerDependencies:
-      yjs: ^13.0.0
+      yjs: ^14.0.0-0
 
   '@y-sweet/react@0.6.4':
     resolution: {integrity: sha512-FotyT2MN+wicBl3tHm7CrkJUQu2YFIkOQ7w6DAQTVs6/o+/8kuL7a2svKL15mMAR1TVary1GSCASyRix9VqUCA==}
     peerDependencies:
       react: ^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc
-      yjs: ^13
+      yjs: ^14.0.0-0
 
   '@y-sweet/sdk@0.6.4':
     resolution: {integrity: sha512-px51qSbckGrucN83BM9jJyaBLLdYFT+zhvsootK+WW9t/9rQSQHQX54gdtF6M1kUktA4jOGfSiAXDzuTY0zYVg==}
+
+  '@y/prosemirror@2.0.0-0':
+    resolution: {integrity: sha512-k3FUjUWJpt+qT94q5HVp/2dxURMpwIIr8Dd3j1F1s5HIZI5oevm30cgoVlS6ys7zwdyAGZzfpL5SnFvTYfH6hw==}
+    engines: {node: '>=16.0.0', npm: '>=8.0.0'}
+    peerDependencies:
+      '@y/protocols': ^1.0.6-1
+      prosemirror-model: ^1.7.1
+      prosemirror-state: ^1.2.3
+      prosemirror-view: ^1.9.10
+      yjs: ^14.0.0-0
+
+  '@y/protocols@1.0.6-1':
+    resolution: {integrity: sha512-6hyVR4Azg+JVqeyCkPQMsg9BMpB7fgAldsIDwb5EqJTPLXkQuk/mqK/j0rvIZUuPvJjlYSDBIOQWNsy92iXQsQ==}
+    engines: {node: '>=16.0.0', npm: '>=8.0.0'}
+    peerDependencies:
+      yjs: ^14.0.0-0
 
   '@yarnpkg/lockfile@1.1.0':
     resolution: {integrity: sha512-GpSwvyXOcOOlV70vbnzjj4fW5xW/FdUF6nQEt1ENy7m4ZCczi1+/buVUPAqmGfqznsORNFzUMjctTIp8a9tuCQ==}
@@ -10178,6 +10197,11 @@ packages:
 
   lib0@0.2.101:
     resolution: {integrity: sha512-LljA6+Ehf0Z7YnxhgSAvspzWALjW4wlWdN/W4iGiqYc1KvXQgOVXWI0xwlwqozIL5WRdKeUW2gq0DLhFsY+Xlw==}
+    engines: {node: '>=16'}
+    hasBin: true
+
+  lib0@0.2.105:
+    resolution: {integrity: sha512-5vtbuBi2P43ZYOfVMV+TZYkWEa0J9kijXirzEgrPA+nJDQCtMx805/rqW4G1nXbM9IRIhwW+OyNNgcQdbhKfSw==}
     engines: {node: '>=16'}
     hasBin: true
 
@@ -12973,7 +12997,7 @@ packages:
     resolution: {integrity: sha512-9oCFRSPPzBK7/w5vOkJBaVCQZKHXB/v6SIT+WYhnJxlEC61juqG0hBrAf+y3gmSMLFLwICNH9nQ53uscuse6Hg==}
     engines: {node: '>=16.0.0', npm: '>=8.0.0'}
     peerDependencies:
-      yjs: ^13.0.0
+      yjs: ^14.0.0-0
 
   y-partykit@0.0.25:
     resolution: {integrity: sha512-/EIL73TuYX6lYnxM4mb/kTTKllS1vNjBXk9KJXFwTXFrUqMo8hbJMqnE+glvBG2EDejEI06rk3jR50lpDB8Dqg==}
@@ -12986,13 +13010,13 @@ packages:
       prosemirror-state: ^1.2.3
       prosemirror-view: ^1.9.10
       y-protocols: ^1.0.1
-      yjs: ^13.5.38
+      yjs: ^14.0.0-0
 
   y-protocols@1.0.6:
     resolution: {integrity: sha512-vHRF2L6iT3rwj1jub/K5tYcTT/mEYDUppgNPXwp8fmLpui9f7Yeq3OEtTLVF012j39QnV+KEQpNqoN7CWU7Y9Q==}
     engines: {node: '>=16.0.0', npm: '>=8.0.0'}
     peerDependencies:
-      yjs: ^13.0.0
+      yjs: ^14.0.0-0
 
   y18n@5.0.8:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}
@@ -13026,6 +13050,10 @@ packages:
 
   yjs@13.6.24:
     resolution: {integrity: sha512-xn/pYLTZa3uD1uDG8lpxfLRo5SR/rp0frdASOl2a71aYNvUXdWcLtVL91s2y7j+Q8ppmjZ9H3jsGVgoFMbT2VA==}
+    engines: {node: '>=16.0.0', npm: '>=8.0.0'}
+
+  yjs@14.0.0-4:
+    resolution: {integrity: sha512-HD0uhG537bS3Gy8DNoXy/DWdxMAAaJ+30myQ+jTSTtiJ7LfUflicgx6RweYQ4qjho1gSq9/s8v3ydt13Sip+YQ==}
     engines: {node: '>=16.0.0', npm: '>=8.0.0'}
 
   yocto-queue@0.1.0:
@@ -15005,16 +15033,16 @@ snapshots:
 
   '@liveblocks/core@2.23.1': {}
 
-  '@liveblocks/react-blocknote@2.23.1(a9fafa167a137f224b16cac05e678ac8)':
+  '@liveblocks/react-blocknote@2.23.1(5ccc4b160c9122137e1878732f35766c)':
     dependencies:
       '@blocknote/core': link:packages/core
       '@blocknote/react': link:packages/react
       '@liveblocks/client': 2.23.1
       '@liveblocks/core': 2.23.1
       '@liveblocks/react': 2.23.1(react@18.3.1)
-      '@liveblocks/react-tiptap': 2.23.1(@tiptap/extension-collaboration-cursor@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24)))(@tiptap/extension-collaboration@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5)(y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24)))(@tiptap/pm@2.11.5)(@tiptap/react@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@tiptap/suggestion@2.11.7(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5))(@types/react-dom@18.3.5(@types/react@18.3.20))(@types/react@18.3.20)(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(y-protocols@1.0.6(yjs@13.6.24))
+      '@liveblocks/react-tiptap': 2.23.1(@tiptap/extension-collaboration-cursor@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@14.0.0-4))(yjs@14.0.0-4)))(@tiptap/extension-collaboration@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5)(y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@14.0.0-4))(yjs@14.0.0-4)))(@tiptap/pm@2.11.5)(@tiptap/react@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@tiptap/suggestion@2.11.7(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5))(@types/react-dom@18.3.5(@types/react@18.3.20))(@types/react@18.3.20)(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(y-protocols@1.0.6(yjs@14.0.0-4))
       '@liveblocks/react-ui': 2.23.1(@types/react-dom@18.3.5(@types/react@18.3.20))(@types/react@18.3.20)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@liveblocks/yjs': 2.23.1(yjs@13.6.24)
+      '@liveblocks/yjs': 2.23.1(yjs@14.0.0-4)
       '@tiptap/core': 2.11.5(@tiptap/pm@2.11.5)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
@@ -15034,27 +15062,27 @@ snapshots:
       - y-protocols
       - yjs
 
-  '@liveblocks/react-tiptap@2.23.1(@tiptap/extension-collaboration-cursor@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24)))(@tiptap/extension-collaboration@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5)(y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24)))(@tiptap/pm@2.11.5)(@tiptap/react@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@tiptap/suggestion@2.11.7(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5))(@types/react-dom@18.3.5(@types/react@18.3.20))(@types/react@18.3.20)(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(y-protocols@1.0.6(yjs@13.6.24))':
+  '@liveblocks/react-tiptap@2.23.1(@tiptap/extension-collaboration-cursor@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@14.0.0-4))(yjs@14.0.0-4)))(@tiptap/extension-collaboration@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5)(y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@14.0.0-4))(yjs@14.0.0-4)))(@tiptap/pm@2.11.5)(@tiptap/react@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@tiptap/suggestion@2.11.7(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5))(@types/react-dom@18.3.5(@types/react@18.3.20))(@types/react@18.3.20)(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(y-protocols@1.0.6(yjs@14.0.0-4))':
     dependencies:
       '@floating-ui/react-dom': 2.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@liveblocks/client': 2.23.1
       '@liveblocks/core': 2.23.1
       '@liveblocks/react': 2.23.1(react@18.3.1)
       '@liveblocks/react-ui': 2.23.1(@types/react-dom@18.3.5(@types/react@18.3.20))(@types/react@18.3.20)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@liveblocks/yjs': 2.23.1(yjs@13.6.24)
+      '@liveblocks/yjs': 2.23.1(yjs@14.0.0-4)
       '@radix-ui/react-select': 2.1.6(@types/react-dom@18.3.5(@types/react@18.3.20))(@types/react@18.3.20)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@radix-ui/react-toggle': 1.1.2(@types/react-dom@18.3.5(@types/react@18.3.20))(@types/react@18.3.20)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tiptap/core': 2.11.5(@tiptap/pm@2.11.5)
-      '@tiptap/extension-collaboration': 2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5)(y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24))
-      '@tiptap/extension-collaboration-cursor': 2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24))
+      '@tiptap/extension-collaboration': 2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5)(y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@14.0.0-4))(yjs@14.0.0-4))
+      '@tiptap/extension-collaboration-cursor': 2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@14.0.0-4))(yjs@14.0.0-4))
       '@tiptap/pm': 2.11.5
       '@tiptap/react': 2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tiptap/suggestion': 2.11.7(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5)
       cmdk: 1.1.1(@types/react-dom@18.3.5(@types/react@18.3.20))(@types/react@18.3.20)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      y-prosemirror: 1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24)
-      yjs: 13.6.24
+      y-prosemirror: 1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@14.0.0-4))(yjs@14.0.0-4)
+      yjs: 14.0.0-4
     transitivePeerDependencies:
       - '@types/react'
       - '@types/react-dom'
@@ -15091,13 +15119,13 @@ snapshots:
       '@liveblocks/core': 2.23.1
       react: 18.3.1
 
-  '@liveblocks/yjs@2.23.1(yjs@13.6.24)':
+  '@liveblocks/yjs@2.23.1(yjs@14.0.0-4)':
     dependencies:
       '@liveblocks/client': 2.23.1
       '@liveblocks/core': 2.23.1
       js-base64: 3.7.7
-      y-indexeddb: 9.0.12(yjs@13.6.24)
-      yjs: 13.6.24
+      y-indexeddb: 9.0.12(yjs@14.0.0-4)
+      yjs: 14.0.0-4
 
   '@mantine/core@7.17.3(@mantine/hooks@7.17.3(react@18.3.1))(@types/react@18.3.20)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -16989,16 +17017,16 @@ snapshots:
     dependencies:
       '@tiptap/core': 2.11.5(@tiptap/pm@2.11.5)
 
-  '@tiptap/extension-collaboration-cursor@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24))':
+  '@tiptap/extension-collaboration-cursor@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@14.0.0-4))(yjs@14.0.0-4))':
     dependencies:
       '@tiptap/core': 2.11.5(@tiptap/pm@2.11.5)
-      y-prosemirror: 1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24)
+      y-prosemirror: 1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@14.0.0-4))(yjs@14.0.0-4)
 
-  '@tiptap/extension-collaboration@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5)(y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24))':
+  '@tiptap/extension-collaboration@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5)(y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@14.0.0-4))(yjs@14.0.0-4))':
     dependencies:
       '@tiptap/core': 2.11.5(@tiptap/pm@2.11.5)
       '@tiptap/pm': 2.11.5
-      y-prosemirror: 1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24)
+      y-prosemirror: 1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@14.0.0-4))(yjs@14.0.0-4)
 
   '@tiptap/extension-floating-menu@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5)':
     dependencies:
@@ -17774,23 +17802,37 @@ snapshots:
 
   '@xtuc/long@4.2.2': {}
 
-  '@y-sweet/client@0.6.4(yjs@13.6.24)':
+  '@y-sweet/client@0.6.4(yjs@14.0.0-4)':
     dependencies:
       '@y-sweet/sdk': 0.6.4
-      y-protocols: 1.0.6(yjs@13.6.24)
-      yjs: 13.6.24
+      y-protocols: 1.0.6(yjs@14.0.0-4)
+      yjs: 14.0.0-4
 
-  '@y-sweet/react@0.6.4(react@18.3.1)(yjs@13.6.24)':
+  '@y-sweet/react@0.6.4(react@18.3.1)(yjs@14.0.0-4)':
     dependencies:
-      '@y-sweet/client': 0.6.4(yjs@13.6.24)
+      '@y-sweet/client': 0.6.4(yjs@14.0.0-4)
       '@y-sweet/sdk': 0.6.4
       react: 18.3.1
-      y-protocols: 1.0.6(yjs@13.6.24)
-      yjs: 13.6.24
+      y-protocols: 1.0.6(yjs@14.0.0-4)
+      yjs: 14.0.0-4
 
   '@y-sweet/sdk@0.6.4':
     dependencies:
       '@types/node': 20.17.28
+
+  '@y/prosemirror@2.0.0-0(@y/protocols@1.0.6-1(yjs@14.0.0-4))(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(yjs@14.0.0-4)':
+    dependencies:
+      '@y/protocols': 1.0.6-1(yjs@14.0.0-4)
+      lib0: 0.2.101
+      prosemirror-model: 1.25.0
+      prosemirror-state: 1.4.3
+      prosemirror-view: 1.38.1
+      yjs: 14.0.0-4
+
+  '@y/protocols@1.0.6-1(yjs@14.0.0-4)':
+    dependencies:
+      lib0: 0.2.101
+      yjs: 14.0.0-4
 
   '@yarnpkg/lockfile@1.1.0': {}
 
@@ -20583,6 +20625,10 @@ snapshots:
       type-check: 0.4.0
 
   lib0@0.2.101:
+    dependencies:
+      isomorphic.js: 0.2.5
+
+  lib0@0.2.105:
     dependencies:
       isomorphic.js: 0.2.5
 
@@ -24287,32 +24333,37 @@ snapshots:
 
   xtend@4.0.2: {}
 
-  y-indexeddb@9.0.12(yjs@13.6.24):
+  y-indexeddb@9.0.12(yjs@14.0.0-4):
     dependencies:
       lib0: 0.2.101
-      yjs: 13.6.24
+      yjs: 14.0.0-4
 
   y-partykit@0.0.25:
     dependencies:
       lib0: 0.2.101
       lodash.debounce: 4.0.8
       react: 18.3.1
-      y-protocols: 1.0.6(yjs@13.6.24)
-      yjs: 13.6.24
+      y-protocols: 1.0.6(yjs@14.0.0-4)
+      yjs: 14.0.0-4
 
-  y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24):
+  y-prosemirror@1.3.4(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@14.0.0-4))(yjs@14.0.0-4):
     dependencies:
       lib0: 0.2.101
       prosemirror-model: 1.25.0
       prosemirror-state: 1.4.3
       prosemirror-view: 1.38.1
-      y-protocols: 1.0.6(yjs@13.6.24)
-      yjs: 13.6.24
+      y-protocols: 1.0.6(yjs@14.0.0-4)
+      yjs: 14.0.0-4
 
   y-protocols@1.0.6(yjs@13.6.24):
     dependencies:
       lib0: 0.2.101
       yjs: 13.6.24
+
+  y-protocols@1.0.6(yjs@14.0.0-4):
+    dependencies:
+      lib0: 0.2.101
+      yjs: 14.0.0-4
 
   y18n@5.0.8: {}
 
@@ -24342,6 +24393,10 @@ snapshots:
   yjs@13.6.24:
     dependencies:
       lib0: 0.2.101
+
+  yjs@14.0.0-4:
+    dependencies:
+      lib0: 0.2.105
 
   yocto-queue@0.1.0: {}
 

@@ -1017,6 +1017,17 @@ export class BlockNoteEditor<
     // Copy the original document to a new Yjs document
     Y.applyUpdate(doc, Y.encodeStateAsUpdate(originalFragment.doc!));
 
+    const update = Y.encodeStateAsUpdate(doc);
+    const blob = new Blob([update], { type: "application/octet-stream" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${Date.now()}.update`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
     // Find the forked fragment in the new Yjs document
     const forkedFragment = this.findTypeInOtherYdoc(originalFragment, doc);
 

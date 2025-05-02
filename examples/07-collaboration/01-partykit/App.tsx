@@ -12,7 +12,7 @@ const doc = new Y.Doc();
 const provider = new YPartyKitProvider(
   "blocknote-dev.yousefed.partykit.dev",
   // Use a unique name as a "room" for your application.
-  "your-project-name",
+  "your-project-name-nick",
   doc
 );
 
