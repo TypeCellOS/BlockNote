@@ -29,6 +29,7 @@ export const WelcomeEmail = ({ name }: WelcomeEmailProps) => {
           />
           <Section>
             <Text style={text}>Hi{name ? ` ${name}` : ""},</Text>
+            <Text style={text}>Thanks for verifying your email address.</Text>
             <Text style={text}>
               Welcome to BlockNote! We&apos;re excited to have you on board.
             </Text>

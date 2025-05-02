@@ -266,7 +266,7 @@ export const auth = betterAuth({
   },
   hooks: {
     after: createAuthMiddleware(async (ctx) => {
-      if (ctx.path.startsWith("/verify-email")) {
+      if (ctx.path === "/magic-link/verify" || ctx.path === "/verify-email") {
         // After verifying email, send them a welcome email
         const newSession = ctx.context.newSession;
         if (newSession) {
