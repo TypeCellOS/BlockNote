@@ -28,7 +28,7 @@ div:not(.bn-popover-content) > .bn-combobox-items:not(:empty) {
 /*}*/
 
 ins,
-[data-node-insertion] {
+[DISABLED-data-node-insertion] {
   background: rgba(24, 122, 220, 0.1);
   border-bottom: 2px solid rgba(24, 122, 220, 0.1);
   color: rgb(20, 95, 170);
@@ -36,7 +36,7 @@ ins,
 }
 
 del,
-[data-node-deletion] {
+[DISABLED-data-node-deletion] {
   color: rgba(100, 90, 75, 0.3);
   text-decoration: line-through;
   text-decoration-thickness: 1px;

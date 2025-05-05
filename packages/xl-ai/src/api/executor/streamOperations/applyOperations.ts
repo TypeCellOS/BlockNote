@@ -6,7 +6,11 @@ import {
   removeAndInsertBlocksTr,
 } from "@blocknote/core";
 import { Mapping, ReplaceStep, Step } from "prosemirror-transform";
-import { AgentStep, getStepsAsAgent } from "../../../prosemirror/agent.js";
+import {
+  AgentStep,
+  agentStepToTr,
+  getStepsAsAgent,
+} from "../../../prosemirror/agent.js";
 import { updateToReplaceSteps } from "../../../prosemirror/changeset.js";
 import { RebaseTool } from "../../../prosemirror/rebaseTool.js";
 import { StreamTool, StreamToolCall } from "../../streamTool/streamTool.js";

@@ -223,12 +223,7 @@ describe("agentStepToTr", () => {
     const results = [];
     const trMapping = new Mapping();
     for (const step of agentSteps) {
-      const tr = await agentStepToTr(
-        editor,
-        step,
-        { withDelays: false },
-        trMapping
-      );
+      const tr = await agentStepToTr(editor, step, { withDelays: false });
       trMapping.appendMapping(tr.mapping);
 
       editor.dispatch(tr);

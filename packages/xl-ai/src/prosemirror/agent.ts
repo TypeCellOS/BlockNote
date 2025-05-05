@@ -1,12 +1,6 @@
 import { BlockNoteEditor, UnreachableCaseError } from "@blocknote/core";
-import {
-  disableSuggestChanges,
-  enableSuggestChanges,
-  isSuggestChangesEnabled,
-  withSuggestChanges,
-} from "@handlewithcare/prosemirror-suggest-changes";
 import { Fragment, Slice } from "prosemirror-model";
-import { AllSelection, TextSelection, Transaction } from "prosemirror-state";
+import { AllSelection, TextSelection } from "prosemirror-state";
 import { Mapping, ReplaceStep, Step, Transform } from "prosemirror-transform";
 
 export type AgentStep = {
@@ -192,9 +186,10 @@ function getFirstChar(fragment: Fragment) {
 export async function agentStepToTr(
   editor: BlockNoteEditor<any, any, any>,
   step: AgentStep,
-  options: { withDelays: boolean },
-  mapping: Mapping
+  options: { withDelays: boolean }
+  // mapping: Mapping // TODO
 ) {
+  const mapping = new Mapping();
   if (options.withDelays) {
     if (step.type === "select") {
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -206,7 +201,7 @@ export async function agentStepToTr(
       throw new UnreachableCaseError(step.type);
     }
   }
-  let tr = editor.prosemirrorState.tr.setMeta("addToHistory", false);
+  const tr = editor.prosemirrorState.tr.setMeta("addToHistory", false);
 
   if (step.selection) {
     tr.setMeta("aiAgent", {
@@ -227,22 +222,22 @@ export async function agentStepToTr(
     }
   }
 
-  function fakeDispatch(suggestTr: Transaction) {
-    tr = suggestTr;
-  }
+  // function fakeDispatch(suggestTr: Transaction) {
+  //   tr = suggestTr;
+  // }
 
-  enableSuggestChanges(editor.prosemirrorState, editor.dispatch);
-  if (!isSuggestChangesEnabled(editor.prosemirrorState)) {
-    throw new Error(
-      "suggest changes could not be enabled, is the AI / suggestion plugin enabled?"
-    );
-  }
-  withSuggestChanges(fakeDispatch).bind({
-    get state() {
-      return editor.prosemirrorState;
-    },
-  })(tr);
-  disableSuggestChanges(editor.prosemirrorState, editor.dispatch);
+  // enableSuggestChanges(editor.prosemirrorState, editor.dispatch);
+  // if (!isSuggestChangesEnabled(editor.prosemirrorState)) {
+  //   throw new Error(
+  //     "suggest changes could not be enabled, is the AI / suggestion plugin enabled?"
+  //   );
+  // }
+  // withSuggestChanges(fakeDispatch).bind({
+  //   get state() {
+  //     return editor.prosemirrorState;
+  //   },
+  // })(tr);
+  // disableSuggestChanges(editor.prosemirrorState, editor.dispatch);
 
   // TODO: errors thrown here are not shown in UI / console
   return tr;
