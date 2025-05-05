@@ -165,7 +165,7 @@ export const testUpdateOperations: TestUpdateOperation[] = [
       type: "update",
       id: "ref1",
       block: {
-        content: [{ type: "text", text: "Hallo, welt!", styles: {} }],
+        content: [{ type: "text", text: "Hallo, Welt!", styles: {} }],
       },
     },
     userPrompt: "translate the first paragraph to german",
@@ -561,6 +561,43 @@ export const testUpdateOperations: TestUpdateOperation[] = [
   },
   {
     editor: getTableTestEditor,
+    description: "update table to caps",
+    updateOp: {
+      type: "update",
+      id: "ref1",
+      block: {
+        content: {
+          type: "tableContent",
+          rows: [
+            {
+              cells: ["TABLE CELL 1", "TABLE CELL 2", "TABLE CELL 3"],
+            },
+            {
+              cells: [
+                "TABLE CELL 4",
+                [
+                  {
+                    type: "text",
+                    text: "TABLE CELL BOLD 5",
+                    styles: {
+                      bold: true,
+                    },
+                  },
+                ],
+                "TABLE CELL 6",
+              ],
+            },
+            {
+              cells: ["TABLE CELL 7", "TABLE CELL 8", "TABLE CELL 9"],
+            },
+          ],
+        },
+      },
+    },
+    userPrompt: "update all table content to CAPS",
+  },
+  {
+    editor: getTableTestEditor,
     description: "remove column",
     updateOp: {
       type: "update",
@@ -586,6 +623,42 @@ export const testUpdateOperations: TestUpdateOperation[] = [
   },
   {
     editor: getTableTestEditor,
+    description: "remove last column",
+    updateOp: {
+      type: "update",
+      id: "ref1",
+      block: {
+        content: {
+          type: "tableContent",
+          rows: [
+            {
+              cells: ["Table Cell 1", "Table Cell 2"],
+            },
+            {
+              cells: [
+                "Table Cell 4",
+                [
+                  {
+                    type: "text",
+                    text: "Table Cell Bold 5",
+                    styles: {
+                      bold: true,
+                    },
+                  },
+                ],
+              ],
+            },
+            {
+              cells: ["Table Cell 7", "Table Cell 8"],
+            },
+          ],
+        },
+      },
+    },
+    userPrompt: "Remove the last column",
+  },
+  {
+    editor: getTableTestEditor,
     description: "remove row",
     updateOp: {
       type: "update",
@@ -605,5 +678,39 @@ export const testUpdateOperations: TestUpdateOperation[] = [
       },
     },
     userPrompt: "Remove the second row",
+  },
+  {
+    editor: getTableTestEditor,
+    description: "remove last row",
+    updateOp: {
+      type: "update",
+      id: "ref1",
+      block: {
+        content: {
+          type: "tableContent",
+          rows: [
+            {
+              cells: ["Table Cell 1", "Table Cell 2", "Table Cell 3"],
+            },
+            {
+              cells: [
+                "Table Cell 4",
+                [
+                  {
+                    type: "text",
+                    text: "Table Cell Bold 5",
+                    styles: {
+                      bold: true,
+                    },
+                  },
+                ],
+                "Table Cell 6",
+              ],
+            },
+          ],
+        },
+      },
+    },
+    userPrompt: "Remove the last row",
   },
 ];

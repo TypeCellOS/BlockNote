@@ -139,13 +139,9 @@ describe("getStepsAsAgent", () => {
       )
     );
 
-    // Apply the step
-    const steps = getStepsAsAgent(editor, [step]);
-
-    // Verify dispatch was called with the correct transactions
-    expect(steps).toHaveLength(1); // select, replace, insert
-
-    expect(steps).toMatchSnapshot();
+    await expect(() => getStepsAsAgent(editor, [step])).toThrow(
+      "Slice has openStart or openEnd > 0, but structure=false"
+    );
   });
 
   it("multiple steps", async () => {

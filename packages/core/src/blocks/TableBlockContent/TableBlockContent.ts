@@ -25,6 +25,7 @@ export const TableBlockContent = createStronglyTypedTiptapNode({
   group: "blockContent",
   tableRole: "table",
 
+  marks: "deletion",
   isolating: true,
 
   parseHTML() {
@@ -169,7 +170,7 @@ export const TableRow = Node.create<{ HTMLAttributes: Record<string, any> }>({
   content: "(tableCell | tableHeader)+",
 
   tableRole: "row",
-
+  marks: "deletion",
   parseHTML() {
     return [{ tag: "tr" }];
   },

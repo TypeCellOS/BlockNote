@@ -1,0 +1,171 @@
+{
+  "content": [
+    {
+      "content": [
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "ref1",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "text": "Hello, world!",
+                  "type": "text",
+                },
+              ],
+              "type": "paragraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "ref2",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "text": "Hello, ",
+                  "type": "text",
+                },
+                {
+                  "attrs": {
+                    "user": "John Doe",
+                  },
+                  "marks": [
+                    {
+                      "attrs": {
+                        "id": null,
+                      },
+                      "type": "deletion",
+                    },
+                  ],
+                  "type": "mention",
+                },
+                {
+                  "marks": [
+                    {
+                      "attrs": {
+                        "id": null,
+                      },
+                      "type": "deletion",
+                    },
+                  ],
+                  "text": "! How ",
+                  "type": "text",
+                },
+                {
+                  "marks": [
+                    {
+                      "attrs": {
+                        "id": null,
+                      },
+                      "type": "deletion",
+                    },
+                    {
+                      "type": "bold",
+                    },
+                  ],
+                  "text": "are you doing? ",
+                  "type": "text",
+                },
+                {
+                  "marks": [
+                    {
+                      "attrs": {
+                        "id": null,
+                      },
+                      "type": "deletion",
+                    },
+                    {
+                      "attrs": {
+                        "stringValue": "blue",
+                      },
+                      "type": "textColor",
+                    },
+                  ],
+                  "text": "I'm feeling blue!",
+                  "type": "text",
+                },
+                {
+                  "marks": [
+                    {
+                      "attrs": {
+                        "id": null,
+                      },
+                      "type": "insertion",
+                    },
+                  ],
+                  "text": "updated content",
+                  "type": "text",
+                },
+              ],
+              "type": "paragraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "ref3",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "text": "Hello, world! ",
+                  "type": "text",
+                },
+                {
+                  "marks": [
+                    {
+                      "type": "bold",
+                    },
+                  ],
+                  "text": "Bold text. ",
+                  "type": "text",
+                },
+                {
+                  "marks": [
+                    {
+                      "attrs": {
+                        "class": null,
+                        "href": "https://www.google.com",
+                        "rel": "noopener noreferrer nofollow",
+                        "target": "_blank",
+                      },
+                      "type": "link",
+                    },
+                  ],
+                  "text": "Link.",
+                  "type": "text",
+                },
+              ],
+              "type": "paragraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "doc",
+}

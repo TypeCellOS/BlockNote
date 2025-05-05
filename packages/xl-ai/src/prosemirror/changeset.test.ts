@@ -25,8 +25,11 @@ function testUpdate(
     },
     editor.prosemirrorState.doc
   );
-
-  expect(steps).toMatchSnapshot();
+  const formatted = steps.map((step) => ({
+    replaced: editor.prosemirrorState.doc.slice(step.from, step.to).toJSON(),
+    step: step,
+  }));
+  expect(formatted).toMatchSnapshot();
 
   const tr = editor.prosemirrorState.tr;
   for (const step of steps) {

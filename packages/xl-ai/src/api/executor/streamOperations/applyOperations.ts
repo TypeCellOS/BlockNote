@@ -69,7 +69,7 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
   updateFromPos?: number,
   updateToPos?: number
 ): AsyncGenerator<ApplyOperationResult<any>> {
-  const STEP_SIZE = 1;
+  const STEP_SIZE = 50;
   let minSize = STEP_SIZE;
   const mapping = new Mapping();
 

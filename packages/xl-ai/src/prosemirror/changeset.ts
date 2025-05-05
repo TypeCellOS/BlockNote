@@ -1,10 +1,15 @@
 import {
   BlockNoteEditor,
-  PartialBlock,
   getNodeById,
+  PartialBlock,
   updateBlockTr,
 } from "@blocknote/core";
-import { Change, ChangeSet, simplifyChanges } from "prosemirror-changeset";
+import {
+  Change,
+  ChangeSet,
+  simplifyChanges,
+  TokenEncoder,
+} from "prosemirror-changeset";
 import { Node } from "prosemirror-model";
 import { ReplaceStep, Transform } from "prosemirror-transform";
 import { UpdateBlockToolCall } from "../api/tools/createUpdateBlockTool.js";
@@ -17,6 +22,9 @@ type CustomChange = Change & {
  * Adds missing changes to the changes array.
  * This is needed because prosemirror-changeset may miss some changes,
  * such as marks or node attributes.
+ *
+ * NOTE: we might be able to replace this code with a custom encoder
+ * (this didn't exist yet when this was written)
  *
  * @param changes The changes we have so far
  * @param originalDoc The original document, applying the changes should result in the expectedDoc
@@ -123,6 +131,57 @@ function addMissingChanges(
   return changes;
 }
 
+const createEncoder = (doc: Node, updatedDoc: Node) => {
+  // this encoder makes sure unchanged table cells stay intact,
+  // without this, prosemirror-changeset would too eagerly
+  // return changes across table cells (this is covered in test cases).
+
+  const tableCellsOld = new Set<string>();
+  const tableCellsNew = new Set<string>();
+  doc.descendants((node) => {
+    if (node.type.name === "tableCell") {
+      tableCellsOld.add(JSON.stringify(node.toJSON()));
+    }
+  });
+
+  updatedDoc.descendants((node) => {
+    if (node.type.name === "tableCell") {
+      tableCellsNew.add(JSON.stringify(node.toJSON()));
+    }
+  });
+
+  const tableCells = new Set(
+    [...tableCellsOld].filter((cell) => tableCellsNew.has(cell))
+  );
+
+  const encoder: TokenEncoder<any> = {
+    encodeCharacter: (char) => char,
+    encodeNodeStart: (node) => {
+      if (node.type.name === "tableCell") {
+        const str = JSON.stringify(node.toJSON());
+        if (tableCells.has(str)) {
+          return str;
+        }
+        return node.type.name;
+      }
+      return node.type.name;
+    },
+    encodeNodeEnd: (node) => {
+      if (node.type.name === "tableCell") {
+        const str = JSON.stringify(node.toJSON());
+        if (tableCells.has(str)) {
+          return str;
+        }
+        return -1;
+      }
+      return -1;
+    },
+    compareTokens: (a, b) => {
+      return a === b;
+    },
+  };
+  return encoder;
+};
 /**
  * This turns a single update `op` (that is, an update that could affect different parts of a block)
  * into more granular steps (that is, each step only affects a single part of the block), by using a diffing algorithm.
@@ -143,8 +202,6 @@ export function updateToReplaceSteps(
   updateFromPos?: number,
   updateToPos?: number
 ) {
-  let changeset = ChangeSet.create(doc);
-
   const blockPos = getNodeById(op.id, doc)!;
   const updatedTr = new Transform(doc);
   updateBlockTr(
@@ -157,6 +214,12 @@ export function updateToReplaceSteps(
   );
 
   let updatedDoc = updatedTr.doc;
+
+  let changeset = ChangeSet.create(
+    doc,
+    undefined,
+    createEncoder(doc, updatedDoc)
+  );
 
   changeset = changeset.addSteps(updatedDoc, updatedTr.mapping.maps, 0);
 
@@ -178,7 +241,6 @@ export function updateToReplaceSteps(
     const lengthB = lastChange.toB - lastChange.fromB;
 
     if (lengthA > lengthB) {
-      changeset = ChangeSet.create(changeset.startDoc);
       const endOfBlockToReAdd = doc.slice(
         lastChange.fromA + lengthB,
         lastChange.toA
@@ -187,6 +249,11 @@ export function updateToReplaceSteps(
         new ReplaceStep(lastChange.toB, lastChange.toB, endOfBlockToReAdd)
       );
       updatedDoc = updatedTr.doc;
+      changeset = ChangeSet.create(
+        changeset.startDoc,
+        undefined,
+        createEncoder(changeset.startDoc, updatedDoc)
+      );
       changeset = changeset.addSteps(updatedDoc, updatedTr.mapping.maps, 0);
     }
   }
@@ -199,19 +266,52 @@ export function updateToReplaceSteps(
     updatedDoc
   );
 
+  for (let i = 0; i < changes.length; i++) {
+    const step = changes[i];
+    const replacement = updatedDoc.slice(step.fromB, step.toB);
+
+    if (replacement.openEnd === 1 && replacement.openStart === 0) {
+      // node attr / type update
+      step.type = "node-type-or-attr-update";
+
+      if (replacement.size > 2) {
+        // This change is both a node type and content change
+        // we split this in two separate steps so we can handle them separately in "agent.ts"
+        const typeChange: CustomChange = {
+          fromA: step.fromA,
+          toA: step.fromA + 1,
+          fromB: step.fromB,
+          toB: step.fromB + 1,
+          deleted: [],
+          inserted: [],
+          type: "node-type-or-attr-update",
+        };
+
+        const contentChange: CustomChange = {
+          fromA: step.fromA + 1,
+          toA: step.toA,
+          fromB: step.fromB + 1,
+          toB: step.toB,
+          deleted: [],
+          inserted: [],
+        };
+
+        changes.splice(i, 1, typeChange, contentChange);
+        i++;
+      }
+    }
+  }
+
   addMissingChanges(changes, doc, updatedDoc);
 
   for (let i = 0; i < changes.length; i++) {
     const step = changes[i];
     const replacement = updatedDoc.slice(step.fromB, step.toB);
 
-    if (
-      replacement.openEnd > 0 &&
-      replacement.size === 1 &&
-      step.fromA === step.fromB
-    ) {
-      // node attr / type update
-      step.type = "node-type-or-attr-update";
+    if (replacement.openEnd > 0 && replacement.size > 1) {
+      throw new Error(
+        "unexpected, openEnd > 0 and size > 1, this should have been split into two steps"
+      );
     }
 
     if (

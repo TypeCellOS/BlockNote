@@ -1,9 +1,20 @@
 import { Mark } from "@tiptap/core";
 import { MarkSpec } from "prosemirror-model";
 
+// This copies the marks from @handlewithcare/prosemirror-suggest-changes,
+// but uses the Tiptap Mark API instead so we can use them in BlockNote
+
+// The ideal solution would be to not depend on tiptap nodes / marks, but be able to use prosemirror nodes / marks directly
+// this way we could directly use the exported marks from @handlewithcare/prosemirror-suggest-changes
 export const SuggestionAddMark = Mark.create({
   name: "insertion",
   inclusive: false,
+  excludes: "deletion modification insertion",
+  addAttributes() {
+    return {
+      id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap, so this doesn't actually work (considered not critical)
+    };
+  },
   extendMarkSchema(extension) {
     if (extension.name !== "insertion") {
       return {};
@@ -11,10 +22,7 @@ export const SuggestionAddMark = Mark.create({
     return {
       blocknoteIgnore: true,
       inclusive: false,
-      excludes: "deletion modification insertion",
-      attrs: {
-        id: { validate: "number" },
-      },
+
       toDOM(mark, inline) {
         return [
           "ins",
@@ -44,7 +52,12 @@ export const SuggestionAddMark = Mark.create({
 export const SuggestionDeleteMark = Mark.create({
   name: "deletion",
   inclusive: false,
-
+  excludes: "insertion modification deletion",
+  addAttributes() {
+    return {
+      id: { default: null, validate: "number" }, // note: validate is supported in prosemirror but not in tiptap
+    };
+  },
   extendMarkSchema(extension) {
     if (extension.name !== "deletion") {
       return {};
@@ -53,17 +66,16 @@ export const SuggestionDeleteMark = Mark.create({
       blocknoteIgnore: true,
       inclusive: false,
 
-      excludes: "insertion modification deletion",
-      attrs: {
-        id: { validate: "number" },
-      },
+      // attrs: {
+      //   id: { validate: "number" },
+      // },
       toDOM(mark, inline) {
         return [
           "del",
           {
             "data-id": String(mark.attrs["id"]),
             "data-inline": String(inline),
-            ...(!inline && { style: "display: block" }),
+            ...(!inline && { style: "display: contents" }), // changed to "contents" to make this work for table rows
           },
           0,
         ];
@@ -86,7 +98,17 @@ export const SuggestionDeleteMark = Mark.create({
 export const SuggestionModificationMark = Mark.create({
   name: "modification",
   inclusive: false,
-
+  excludes: "deletion insertion",
+  addAttributes() {
+    // note: validate is supported in prosemirror but not in tiptap
+    return {
+      id: { default: null, validate: "number" },
+      type: { validate: "string" },
+      attrName: { default: null, validate: "string|null" },
+      previousValue: { default: null },
+      newValue: { default: null },
+    };
+  },
   extendMarkSchema(extension) {
     if (extension.name !== "modification") {
       return {};
@@ -94,14 +116,13 @@ export const SuggestionModificationMark = Mark.create({
     return {
       blocknoteIgnore: true,
       inclusive: false,
-      excludes: "deletion insertion",
-      attrs: {
-        id: { validate: "number" },
-        type: { validate: "string" },
-        attrName: { default: null, validate: "string|null" },
-        previousValue: { default: null },
-        newValue: { default: null },
-      },
+      // attrs: {
+      //   id: { validate: "number" },
+      //   type: { validate: "string" },
+      //   attrName: { default: null, validate: "string|null" },
+      //   previousValue: { default: null },
+      //   newValue: { default: null },
+      // },
       toDOM(mark, inline) {
         return [
           inline ? "span" : "div",
