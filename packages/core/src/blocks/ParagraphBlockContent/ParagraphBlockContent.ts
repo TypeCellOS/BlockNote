@@ -39,12 +39,22 @@ export const ParagraphBlockContent = createStronglyTypedTiptapNode({
 
   parseHTML() {
     return [
-      { tag: "div[data-content-type=" + this.name + "]" },
+      // Parse from internal HTML.
+      {
+        tag: "div[data-content-type=" + this.name + "]",
+        contentElement: ".bn-inline-content",
+      },
+      // Parse from external HTML.
       {
         tag: "p",
-        priority: 200,
+        // priority: 200,
         getAttrs: (element) => {
           if (typeof element === "string" || !element.textContent?.trim()) {
+            return false;
+          }
+
+          // Ignore if parsing internal HTML.
+          if (element.closest("[data-content-type]")) {
             return false;
           }
 

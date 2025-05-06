@@ -1,4 +1,5 @@
 import { InputRule } from "@tiptap/core";
+import { DOMParser } from "@tiptap/pm/model";
 import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import {
   getBlockInfoFromSelection,
@@ -10,7 +11,10 @@ import {
   createStronglyTypedTiptapNode,
   propsToAttributes,
 } from "../../../schema/index.js";
-import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers.js";
+import {
+  createDefaultBlockDOMOutputSpec,
+  mergeParagraphs,
+} from "../../defaultBlockHelpers.js";
 import { defaultProps } from "../../defaultProps.js";
 import { handleEnter } from "../ListItemKeyboardShortcuts.js";
 
@@ -109,14 +113,26 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
 
   parseHTML() {
     return [
+      // Parse from internal HTML.
       {
         tag: "div[data-content-type=" + this.name + "]",
+        contentElement: ".bn-inline-content",
       },
-      // Checkbox only.
+      // Parse from external HTML.
       {
         tag: "input",
         getAttrs: (element) => {
           if (typeof element === "string") {
+            return false;
+          }
+
+          // Ignore if parsing internal HTML.
+          if (element.closest("[data-content-type]")) {
+            return false;
+          }
+
+          // Ignore if we already parsed an ancestor list item to avoid double-parsing.
+          if (element.closest("li")) {
             return false;
           }
 
@@ -128,11 +144,15 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
         },
         node: "checkListItem",
       },
-      // Container element for checkbox + label.
       {
         tag: "li",
         getAttrs: (element) => {
           if (typeof element === "string") {
+            return false;
+          }
+
+          // Ignore if parsing internal HTML.
+          if (element.closest("[data-content-type]")) {
             return false;
           }
 
@@ -159,6 +179,22 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
           }
 
           return false;
+        },
+        // As `li` elements can contain multiple paragraphs, we need to merge their contents
+        // into a single one so that ProseMirror can parse everything correctly.
+        getContent: (node, schema) => {
+          mergeParagraphs(node as HTMLElement);
+
+          const parser = DOMParser.fromSchema(schema);
+
+          const parentNode = parser.parse(
+            (node as HTMLElement).querySelector("p") || node,
+            {
+              topNode: schema.nodes[this.name].create(),
+            }
+          );
+
+          return parentNode.content;
         },
         node: "checkListItem",
       },

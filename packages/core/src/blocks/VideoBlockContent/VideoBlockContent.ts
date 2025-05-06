@@ -88,6 +88,11 @@ export const videoParse = (
   element: HTMLElement
 ): Partial<Props<typeof videoBlockConfig.propSchema>> | undefined => {
   if (element.tagName === "VIDEO") {
+    // Ignore if parent figure has already been parsed.
+    if (element.closest("figure")) {
+      return undefined;
+    }
+
     return parseVideoElement(element as HTMLVideoElement);
   }
 

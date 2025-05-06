@@ -39,14 +39,15 @@
                   "styles": {
                     "bold": true,
                   },
-                  "text": "Example Company Inc.",
+                  "text": "Example Company Inc.
+
+",
                   "type": "text",
                 },
                 {
                   "styles": {},
-                  "text": "
-        
-Name: [Company Representative]
+                  "text": "Name: [Company Representative]
+
 Title: Chief Executive Officer",
                   "type": "text",
                 },

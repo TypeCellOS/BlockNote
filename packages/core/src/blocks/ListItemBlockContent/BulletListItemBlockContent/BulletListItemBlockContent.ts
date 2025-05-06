@@ -1,4 +1,5 @@
 import { InputRule } from "@tiptap/core";
+import { DOMParser } from "@tiptap/pm/model";
 import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromSelection } from "../../../api/getBlockInfoFromPos.js";
 import {
@@ -6,7 +7,10 @@ import {
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
 } from "../../../schema/index.js";
-import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers.js";
+import {
+  createDefaultBlockDOMOutputSpec,
+  mergeParagraphs,
+} from "../../defaultBlockHelpers.js";
 import { defaultProps } from "../../defaultProps.js";
 import { handleEnter } from "../ListItemKeyboardShortcuts.js";
 
@@ -73,14 +77,21 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
 
   parseHTML() {
     return [
-      // Case for regular HTML list structure.
+      // Parse from internal HTML.
       {
         tag: "div[data-content-type=" + this.name + "]",
+        contentElement: ".bn-inline-content",
       },
+      // Parse from external HTML.
       {
         tag: "li",
         getAttrs: (element) => {
           if (typeof element === "string") {
+            return false;
+          }
+
+          // Ignore if parsing internal HTML.
+          if (element.closest("[data-content-type]")) {
             return false;
           }
 
@@ -99,29 +110,22 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
 
           return false;
         },
-        node: "bulletListItem",
-      },
-      // Case for BlockNote list structure.
-      {
-        tag: "p",
-        getAttrs: (element) => {
-          if (typeof element === "string") {
-            return false;
-          }
+        // As `li` elements can contain multiple paragraphs, we need to merge their contents
+        // into a single one so that ProseMirror can parse everything correctly.
+        getContent: (node, schema) => {
+          mergeParagraphs(node as HTMLElement);
 
-          const parent = element.parentElement;
+          const parser = DOMParser.fromSchema(schema);
 
-          if (parent === null) {
-            return false;
-          }
+          const parentNode = parser.parse(
+            (node as HTMLElement).querySelector("p") || node,
+            {
+              topNode: schema.nodes[this.name].create(),
+            }
+          );
 
-          if (parent.getAttribute("data-content-type") === "bulletListItem") {
-            return {};
-          }
-
-          return false;
+          return parentNode.content;
         },
-        priority: 300,
         node: "bulletListItem",
       },
     ];

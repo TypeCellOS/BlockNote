@@ -1,7 +1,7 @@
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { TableRow } from "@tiptap/extension-table-row";
-import { Node as PMNode } from "prosemirror-model";
+import { Node as PMNode, DOMParser } from "prosemirror-model";
 import { TableView } from "prosemirror-tables";
 
 import { NodeView } from "prosemirror-view";
@@ -10,7 +10,10 @@ import {
   createStronglyTypedTiptapNode,
 } from "../../schema/index.js";
 import { mergeCSSClasses } from "../../util/browser.js";
-import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
+import {
+  createDefaultBlockDOMOutputSpec,
+  mergeParagraphs,
+} from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
 import { EMPTY_CELL_WIDTH, TableExtension } from "./TableExtension.js";
 
@@ -27,7 +30,11 @@ export const TableBlockContent = createStronglyTypedTiptapNode({
   isolating: true,
 
   parseHTML() {
-    return [{ tag: "table" }];
+    return [
+      {
+        tag: "table",
+      },
+    ];
   },
 
   renderHTML({ HTMLAttributes }) {
@@ -114,35 +121,29 @@ const TableParagraph = createStronglyTypedTiptapNode({
   parseHTML() {
     return [
       {
-        preserveWhitespace: "full",
-        // set this rule as high priority so it takes precedence over the default paragraph rule,
-        // but only if we're in the tableContent context
-        priority: 210,
-        context: "tableContent",
-        tag: "p",
-        getAttrs: (_element) => {
-          return {};
-        },
-      },
-      {
         tag: "p",
         getAttrs: (element) => {
           if (typeof element === "string" || !element.textContent) {
             return false;
           }
 
+          // Only parse in internal HTML.
+          if (!element.closest("[data-content-type]")) {
+            return false;
+          }
           const parent = element.parentElement;
 
           if (parent === null) {
             return false;
           }
 
-          if (parent.tagName === "TD") {
+          if (parent.tagName === "TD" || parent.tagName === "TH") {
             return {};
           }
 
           return false;
         },
+        node: "tableParagraph",
       },
     ];
   },
@@ -167,9 +168,55 @@ export const Table = createBlockSpecFromStronglyTypedTiptapNode(
        * So, we manually fix this up when reading back in the `nodeToBlock` and only ever place a single tableContent back into the cell.
        */
       content: "tableContent+",
+      parseHTML() {
+        return [
+          {
+            tag: "th",
+            // As `th` elements can contain multiple paragraphs, we need to merge their contents
+            // into a single one so that ProseMirror can parse everything correctly.
+            getContent: (node, schema) => {
+              mergeParagraphs(node as HTMLElement);
+
+              const parser = DOMParser.fromSchema(schema);
+
+              const parentNode = parser.parse(
+                (node as HTMLElement).querySelector("p") || node,
+                {
+                  topNode: schema.nodes[this.name].create(),
+                }
+              );
+
+              return parentNode.content;
+            },
+          },
+        ];
+      },
     }),
     TableCell.extend({
       content: "tableContent+",
+      parseHTML() {
+        return [
+          {
+            tag: "td",
+            // As `td` elements can contain multiple paragraphs, we need to merge their contents
+            // into a single one so that ProseMirror can parse everything correctly.
+            getContent: (node, schema) => {
+              mergeParagraphs(node as HTMLElement);
+
+              const parser = DOMParser.fromSchema(schema);
+
+              const parentNode = parser.parse(
+                (node as HTMLElement).querySelector("p") || node,
+                {
+                  topNode: schema.nodes[this.name].create(),
+                }
+              );
+
+              return parentNode.content;
+            },
+          },
+        ];
+      },
     }),
     TableRow,
   ]

@@ -102,6 +102,11 @@ export function getParseRules(
           return false;
         }
 
+        // Ignore if parsing internal HTML.
+        if (node.closest("[data-content-type]")) {
+          return false;
+        }
+
         const props = customParseFunction?.(node);
 
         if (props === undefined) {
