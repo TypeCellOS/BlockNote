@@ -34,12 +34,10 @@ function defaultPasteHandler({
   // formatting, so we force pasting plain text.
   const selection = editor.prosemirrorView?.state.selection;
   if (selection) {
-    const { isBlockContainer, blockNoteType } = getBlockInfoFromSelection(
-      editor.prosemirrorView.state
-    );
+    const blockInfo = getBlockInfoFromSelection(editor.prosemirrorView.state);
 
     const selectionInCodeBlock =
-      isBlockContainer && blockNoteType === "codeBlock";
+      blockInfo.isBlockContainer && blockInfo.blockContent.node.type.spec.code;
 
     if (selectionInCodeBlock) {
       const data = event.clipboardData?.getData("text/plain");
