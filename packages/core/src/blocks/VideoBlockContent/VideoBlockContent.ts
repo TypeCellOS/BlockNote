@@ -37,7 +37,8 @@ export const videoPropSchema = {
   },
   // File preview width in px.
   previewWidth: {
-    default: 512,
+    default: undefined,
+    type: "number",
   },
 } satisfies PropSchema;
 
@@ -124,7 +125,9 @@ export const videoToExternalHTML = (
   if (block.props.showPreview) {
     video = document.createElement("video");
     video.src = block.props.url;
-    video.width = block.props.previewWidth;
+    if (block.props.previewWidth) {
+      video.width = block.props.previewWidth;
+    }
   } else {
     video = document.createElement("a");
     video.href = block.props.url;
