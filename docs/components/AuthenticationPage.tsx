@@ -121,7 +121,6 @@ function AuthenticationBox(props: {
           email,
           password,
           name,
-          // TODO: Should be changed to welcome page URL
           callbackURL: "/pricing",
         },
         {

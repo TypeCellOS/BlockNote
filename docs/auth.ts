@@ -216,8 +216,7 @@ export const auth = betterAuth({
             // http://localhost:3000/api/auth/checkout/starter
           },
         ],
-        // TODO set to actual page (welcome screen)
-        successUrl: "/?checkout_id={CHECKOUT_ID}",
+        successUrl: "/thanks",
       },
       // Incoming Webhooks handler will be installed at /polar/webhooks
       webhooks: {
