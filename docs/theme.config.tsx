@@ -66,9 +66,9 @@ const NavBarExtraContent = () => {
       </NextLink>
       {session.data ? null : (
         <NextLink
-          href={`/signin?redirect=${router.route}&theme=${theme.resolvedTheme}`}>
+          href={`/signin?redirect=${encodeURIComponent(router.route || "")}&theme=${encodeURIComponent(theme.resolvedTheme || "")}`}>
           <CTA
-            href={`/signin?redirect=${router.route}&theme=${theme.resolvedTheme}`}
+            href={`/signin?redirect=${encodeURIComponent(router.route || "")}&theme=${encodeURIComponent(theme.resolvedTheme || "")}`}
             size={"small"}>
             Sign in
           </CTA>

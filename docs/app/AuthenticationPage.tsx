@@ -11,7 +11,7 @@ import {
   useState,
 } from "react";
 
-import { signIn, signUp } from "@/util/auth-client";
+import { authClient, signIn, signUp } from "@/util/auth-client";
 import blockNoteLogo from "@/public/img/logos/banner.svg";
 import blockNoteLogoDark from "@/public/img/logos/banner.dark.svg";
 
@@ -42,11 +42,14 @@ function AuthenticationInput(props: {
   );
 }
 
-function AuthenticationBox(props: { variant: "login" | "register" | "email" }) {
+function AuthenticationBox(props: {
+  variant: "password" | "register" | "email";
+}) {
   const router = useRouter();
 
   const searchParams = useSearchParams();
-  const callbackURL = searchParams?.get("redirect") || "/";
+  const callbackURL =
+    decodeURIComponent(searchParams?.get("redirect") || "") || "/";
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -64,7 +67,7 @@ function AuthenticationBox(props: { variant: "login" | "register" | "email" }) {
 
     setSigningInState({ state: "loading" });
 
-    if (props.variant === "login") {
+    if (props.variant === "password") {
       await signIn.email(
         {
           email,
@@ -73,7 +76,7 @@ function AuthenticationBox(props: { variant: "login" | "register" | "email" }) {
         },
         {
           onSuccess() {
-            router.push("/");
+            router.push(callbackURL || "/");
           },
           onError(ctx) {
             setSigningInState({
@@ -150,58 +153,73 @@ function AuthenticationBox(props: { variant: "login" | "register" | "email" }) {
     }
   };
 
+  if (signingInState.state === "done") {
+    return (
+      <div className="flex flex-col items-center justify-center text-indigo-600 dark:text-indigo-400">
+        <svg
+          fill="currentColor"
+          viewBox="0 -960 960 960"
+          aria-hidden="true"
+          className="size-16">
+          <path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm320-280 320-200v-80L480-520 160-720v80l320 200Z" />
+        </svg>
+        <p className="text-md/6 mt-2 text-center">{signingInState.message}</p>
+      </div>
+    );
+  }
+
   return (
-    <form className="space-y-6" onSubmit={handleSubmit}>
-      {props.variant === "register" && (
-        <AuthenticationInput
-          type="name"
-          name="Name"
-          onChange={(e) => setName(e.target.value)}
-        />
-      )}
-      <AuthenticationInput
-        type="email"
-        name="Email address"
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      {props.variant !== "email" && (
-        <AuthenticationInput
-          type="password"
-          name="Password"
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      )}
-      <button
-        type="submit"
-        disabled={signingInState.state === "loading"}
-        className={`flex w-full justify-center rounded-md px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ${signingInState.state === "loading" ? "cursor-default bg-indigo-400" : "cursor-pointer bg-indigo-600 hover:bg-indigo-500"}`}>
-        {signingInState.state === "loading" ? (
-          <svg
-            fill="currentColor"
-            viewBox="0 -960 960 960"
-            aria-hidden="true"
-            className="size-6 animate-spin fill-white">
-            <path d="M480-46q-90 0-168.97-34.08-78.97-34.07-137.92-93.03-58.96-58.95-93.03-137.92Q46-390 46-480q0-90.14 34.06-168.88 34.07-78.74 93-137.93Q232-846 311-880t169-34q26 0 44.5 18.5T543-851q0 26-18.5 44.5T480-788q-128.01 0-218.01 89.99-89.99 89.99-89.99 218T261.99-262q89.99 90 218 90T698-261.99q90-90 90-218.01 0-26 18.5-44.5T851-543q26 0 44.5 18.5T914-480q0 90-34.06 169.01-34.07 79.01-93 138Q728-114 649.14-80 570.28-46 480-46Z" />
-          </svg>
-        ) : props.variant === "login" ? (
-          "Log in"
-        ) : props.variant === "email" ? (
-          "Sign in with email"
-        ) : (
-          "Sign up"
+    <>
+      <form className="space-y-6" onSubmit={handleSubmit}>
+        Redirect to: {callbackURL}
+        {props.variant === "register" && (
+          <AuthenticationInput
+            type="name"
+            name="Name"
+            onChange={(e) => setName(e.target.value)}
+          />
         )}
-      </button>
-      {signingInState.state === "done" && (
-        <p className="mt-2 text-center text-sm/6 text-indigo-600 dark:text-indigo-400">
-          {signingInState.message}
-        </p>
-      )}
-      {signingInState.state === "error" && (
-        <p className="mt-2 text-center text-sm/6 text-red-600 dark:text-red-400">
-          {signingInState.message}
-        </p>
-      )}
-    </form>
+        <AuthenticationInput
+          type="email"
+          name="Email address"
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        {(props.variant === "password" || props.variant === "register") && (
+          <AuthenticationInput
+            type="password"
+            name="Password"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        )}
+        <button
+          type="submit"
+          disabled={signingInState.state === "loading"}
+          className={`flex w-full justify-center rounded-md px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ${signingInState.state === "loading" ? "cursor-default bg-indigo-400" : "cursor-pointer bg-indigo-600 hover:bg-indigo-500"}`}>
+          {signingInState.state === "loading" ? (
+            <svg
+              fill="currentColor"
+              viewBox="0 -960 960 960"
+              aria-hidden="true"
+              className="size-6 animate-spin fill-white">
+              <path d="M480-46q-90 0-168.97-34.08-78.97-34.07-137.92-93.03-58.96-58.95-93.03-137.92Q46-390 46-480q0-90.14 34.06-168.88 34.07-78.74 93-137.93Q232-846 311-880t169-34q26 0 44.5 18.5T543-851q0 26-18.5 44.5T480-788q-128.01 0-218.01 89.99-89.99 89.99-89.99 218T261.99-262q89.99 90 218 90T698-261.99q90-90 90-218.01 0-26 18.5-44.5T851-543q26 0 44.5 18.5T914-480q0 90-34.06 169.01-34.07 79.01-93 138Q728-114 649.14-80 570.28-46 480-46Z" />
+            </svg>
+          ) : props.variant === "password" ? (
+            "Log in"
+          ) : props.variant === "email" ? (
+            "Sign in with magic link"
+          ) : (
+            "Sign up"
+          )}
+        </button>
+        {signingInState.state === "error" && (
+          <p className="mt-2 text-center text-sm/6 text-red-600 dark:text-red-400">
+            {signingInState.message}
+          </p>
+        )}
+      </form>
+
+      <AlternativeSignInBox variant={props.variant} />
+    </>
   );
 }
 
@@ -237,6 +255,40 @@ function EmailSignInButton() {
           aria-hidden="true"
           className="size-5">
           <path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm320-280 320-200v-80L480-520 160-720v80l320 200Z" />
+        </svg>
+      }
+      onClick={() =>
+        router.push(`/signin?redirect=${callbackURL}&theme=${theme}`)
+      }
+    />
+  );
+}
+
+function PasswordSignInButton() {
+  const router = useRouter();
+
+  const searchParams = useSearchParams();
+  const callbackURL = searchParams?.get("redirect") || "/";
+  const theme = searchParams?.get("theme") || "light";
+
+  return (
+    <AlternativeSignInButton
+      name="Continue with password"
+      icon={
+        <svg
+          fill="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          className="size-5">
+          <path
+            clipRule="evenodd"
+            d="m15.75 2c0-.41421-.3358-.75-.75-.75s-.75.33579-.75.75v2.00018.0016 15.99642.0016 2.0002c0 .4142.3358.75.75.75s.75-.3358.75-.75v-1.2555c1.2094-.0124 2.2201-.0537 3.0589-.1961 1.028-.1744 1.8718-.5116 2.5499-1.1896.7483-.7484 1.0804-1.6974 1.2381-2.8698.1531-1.1392.1531-2.5948.1531-4.4325v-.1129c0-1.8378 0-3.29342-.1531-4.43262-.1577-1.17243-.4898-2.12137-1.2381-2.86974-.6781-.67808-1.5219-1.01524-2.5499-1.18966-.8388-.14233-1.8495-.18365-3.0589-.19608zm0 2.75569v14.48861c1.1862-.0127 2.0891-.0528 2.808-.1747.8418-.1429 1.3551-.3865 1.7401-.7715.4232-.4232.6769-1.0029.8121-2.0089.1382-1.0277.1398-2.3824.1398-4.2892s-.0016-3.26149-.1398-4.28915c-.1352-1.00609-.3889-1.58574-.8121-2.00895-.385-.38501-.8983-.62861-1.7401-.77146-.7189-.12197-1.6218-.16209-2.808-.17475z"
+            fillRule="evenodd"
+          />
+          <path d="m9.94358 3.25c-1.83776-.00002-3.29339-.00003-4.4326.15313-1.17242.15763-2.12137.48975-2.86974 1.23811-.74836.74837-1.08048 1.69732-1.2381 2.86974-.15317 1.13921-.15316 2.59482-.15314 4.43262v.1128c-.00002 1.8378-.00003 3.2934.15314 4.4326.15762 1.1724.48974 2.1214 1.2381 2.8698.74837.7483 1.69732 1.0804 2.86974 1.2381 1.1392.1531 2.59482.1531 4.43256.1531h2.05646c.4142 0 .75-.3358.75-.75s-.3358-.75-.75-.75h-2c-1.90682 0-3.26149-.0016-4.28915-.1398-1.00609-.1352-1.58574-.3889-2.00895-.8121s-.67687-1.0029-.81214-2.0089c-.13817-1.0277-.13976-2.3824-.13976-4.2892s.00159-3.26149.13976-4.28915c.13527-1.00609.38893-1.58574.81214-2.00895s1.00286-.67688 2.00895-.81214c1.02766-.13817 2.38233-.13976 4.28915-.13976h2c.4142 0 .75-.33579.75-.75s-.3358-.75-.75-.75z" />
+          <path d="m8 13c.55229 0 1-.4477 1-1s-.44771-1-1-1c-.55228 0-1 .4477-1 1s.44772 1 1 1z" />
+          <path d="m13 12c0 .5523-.4477 1-1 1s-1-.4477-1-1 .4477-1 1-1 1 .4477 1 1z" />
         </svg>
       }
       onClick={() =>
@@ -277,7 +329,7 @@ function GitHubSignInButton() {
 }
 
 function AlternativeSignInBox(props: {
-  variant: "login" | "register" | "email";
+  variant: "password" | "register" | "email";
 }) {
   return (
     <div>
@@ -287,12 +339,13 @@ function AlternativeSignInBox(props: {
         </div>
         <div className="relative flex justify-center text-sm/6 font-medium">
           <span className="bg-white px-6 text-gray-900 dark:bg-gray-800 dark:text-gray-100">
-            Or continue with
+            Or
           </span>
         </div>
       </div>
       <div className="mt-6 flex flex-col gap-4">
-        {props.variant !== "email" && <EmailSignInButton />}
+        {props.variant === "email" && <PasswordSignInButton />}
+        {props.variant === "password" && <EmailSignInButton />}
         <GitHubSignInButton />
       </div>
     </div>
@@ -300,7 +353,7 @@ function AlternativeSignInBox(props: {
 }
 
 export default function AuthenticationPage(props: {
-  variant: "login" | "register" | "email";
+  variant: "password" | "register" | "email";
 }) {
   const router = useRouter();
 
@@ -314,6 +367,14 @@ export default function AuthenticationPage(props: {
     }
   }, [theme]);
 
+  const session = authClient.useSession();
+  useEffect(() => {
+    // If user is already logged in, redirect to callbackURL
+    if (session.data) {
+      router.push(callbackURL || "/");
+    }
+  }, [session.data, router, callbackURL]);
+
   return (
     <div className="h-screen w-screen bg-white dark:bg-gray-900">
       <div className="flex min-h-full flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -325,8 +386,8 @@ export default function AuthenticationPage(props: {
             onClick={() => router.push("/")}
           />
           <h2 className="mt-6 text-center text-2xl/9 font-semibold tracking-tight text-gray-900 dark:text-gray-100">
-            {props.variant === "login"
-              ? "Login to your account"
+            {props.variant === "password"
+              ? "Login to your BlockNote account"
               : props.variant === "email"
                 ? "Login with your email account"
                 : "Create an account"}
@@ -336,7 +397,6 @@ export default function AuthenticationPage(props: {
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
           <div className="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12 dark:bg-gray-800">
             <AuthenticationBox variant={props.variant} />
-            <AlternativeSignInBox variant={props.variant} />
           </div>
 
           <p className="mt-10 text-center text-sm/6 text-gray-500 dark:text-gray-400">
@@ -344,13 +404,13 @@ export default function AuthenticationPage(props: {
               className="cursor-pointer font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
               onClick={() => {
                 router.push(
-                  `${props.variant === "login" ? "/signup" : "/signin"}?redirect=${callbackURL}&theme=${theme}`,
+                  `${props.variant === "email" ? "/signup" : "/signin"}?redirect=${encodeURIComponent(callbackURL)}&theme=${encodeURIComponent(theme)}`,
                 );
               }}>
-              {props.variant === "login"
+              {props.variant === "email"
                 ? "Don't have an account? Sign Up"
-                : props.variant === "email"
-                  ? "Return to account login"
+                : props.variant === "password"
+                  ? "Return to email login"
                   : "Already have an account? Log In"}
             </span>
           </p>

@@ -94,7 +94,7 @@ export function ExampleBlock(props: {
               Or{" "}
               {!props.isProExample?.userStatus && (
                 <NextLink
-                  href={`/signin?redirect=${router.route}&theme=${theme.resolvedTheme}`}
+                  href={`/signin?redirect=${encodeURIComponent(router.route)}&theme=${encodeURIComponent(theme.resolvedTheme || "")}`}
                   className="nx-text-primary-600">
                   sign in
                 </NextLink>

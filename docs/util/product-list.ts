@@ -11,7 +11,7 @@ export const PRODUCTS = {
     id:
       process.env.NODE_ENV === "production"
         ? "ef89c65b-9b18-4091-8de6-264554aa027e"
-        : "8049f66f-fd0a-4690-a0aa-442ac5b03040",
+        : "ab70fea5-172c-4aac-b3fc-0824f2a5b670",
     name: "Starter",
     slug: "starter",
   } as const,

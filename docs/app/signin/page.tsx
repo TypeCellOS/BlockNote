@@ -11,7 +11,7 @@ const AuthenticationPage = dynamic(() => import("../AuthenticationPage"));
 export default function Register() {
   return (
     <Suspense>
-      <AuthenticationPage variant="login" />
+      <AuthenticationPage variant="email" />
     </Suspense>
   );
 }
