@@ -4,6 +4,7 @@ import "@blocknote/mantine/style.css";
 import {
   BlockColorsItem,
   DragHandleMenu,
+  DragHandleMenuProps,
   RemoveBlockItem,
   SideMenu,
   SideMenuController,
@@ -11,6 +12,18 @@ import {
 } from "@blocknote/react";
 
 import { ResetBlockTypeItem } from "./ResetBlockTypeItem.js";
+
+// To avoid rendering issues, it's good practice to define your custom drag
+// handle menu in a separate component, instead of inline within the `sideMenu`
+// prop of `SideMenuController`.
+const CustomDragHandleMenu = (props: DragHandleMenuProps) => (
+  <DragHandleMenu {...props}>
+    <RemoveBlockItem {...props}>Delete</RemoveBlockItem>
+    <BlockColorsItem {...props}>Colors</BlockColorsItem>
+    {/* Item which resets the hovered block's type. */}
+    <ResetBlockTypeItem {...props}>Reset Type</ResetBlockTypeItem>
+  </DragHandleMenu>
+);
 
 export default function App() {
   // Creates a new editor instance.
@@ -40,17 +53,7 @@ export default function App() {
     <BlockNoteView editor={editor} sideMenu={false}>
       <SideMenuController
         sideMenu={(props) => (
-          <SideMenu
-            {...props}
-            dragHandleMenu={(props) => (
-              <DragHandleMenu {...props}>
-                <RemoveBlockItem {...props}>Delete</RemoveBlockItem>
-                <BlockColorsItem {...props}>Colors</BlockColorsItem>
-                {/* Item which resets the hovered block's type. */}
-                <ResetBlockTypeItem {...props}>Reset Type</ResetBlockTypeItem>
-              </DragHandleMenu>
-            )}
-          />
+          <SideMenu {...props} dragHandleMenu={CustomDragHandleMenu} />
         )}
       />
     </BlockNoteView>

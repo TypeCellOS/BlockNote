@@ -101,7 +101,8 @@ import {
 } from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
 import { EditorView } from "prosemirror-view";
-import { ySyncPluginKey } from "y-prosemirror";
+import { undoCommand, redoCommand, ySyncPluginKey } from "y-prosemirror";
+import { undo, redo } from "@tiptap/pm/history";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
@@ -624,15 +625,15 @@ export class BlockNoteEditor<
 
     if (newOptions.uploadFile) {
       const uploadFile = newOptions.uploadFile;
-      this.uploadFile = async (file, block) => {
+      this.uploadFile = async (file, blockId) => {
         this.onUploadStartCallbacks.forEach((callback) =>
-          callback.apply(this, [block])
+          callback.apply(this, [blockId])
         );
         try {
-          return await uploadFile(file, block);
+          return await uploadFile(file, blockId);
         } finally {
           this.onUploadEndCallbacks.forEach((callback) =>
-            callback.apply(this, [block])
+            callback.apply(this, [blockId])
           );
         }
       };
@@ -872,7 +873,22 @@ export class BlockNoteEditor<
   };
 
   /**
+   * Get the underlying prosemirror state
+   * @note Prefer using `editor.transact` to read the current editor state, as that will ensure the state is up to date
+   * @see https://prosemirror.net/docs/ref/#state.EditorState
+   */
+  public get prosemirrorState() {
+    if (this.activeTransaction) {
+      throw new Error(
+        "`prosemirrorState` should not be called within a `transact` call, move the `prosemirrorState` call outside of the `transact` call or use `editor.transact` to read the current editor state"
+      );
+    }
+    return this._tiptapEditor.state;
+  }
+
+  /**
    * Get the underlying prosemirror view
+   * @see https://prosemirror.net/docs/ref/#view.EditorView
    */
   public get prosemirrorView() {
     return this._tiptapEditor.view;
@@ -1034,7 +1050,7 @@ export class BlockNoteEditor<
    * Executes a callback whenever the editor's contents change.
    * @param callback The callback to execute.
    *
-   * @deprecated use `onChange` instead
+   * @deprecated use {@link BlockNoteEditor.onChange} instead
    */
   public onEditorContentChange(callback: () => void) {
     this._tiptapEditor.on("update", callback);
@@ -1182,6 +1198,27 @@ export class BlockNoteEditor<
     return this.transact((tr) =>
       removeAndInsertBlocks(tr, blocksToRemove, blocksToInsert)
     );
+  }
+
+  /**
+   * Undo the last action.
+   */
+  public undo() {
+    if (this.options.collaboration) {
+      return this.exec(undoCommand);
+    }
+
+    return this.exec(undo);
+  }
+
+  /**
+   * Redo the last action.
+   */
+  public redo() {
+    if (this.options.collaboration) {
+      return this.exec(redoCommand);
+    }
+    return this.exec(redo);
   }
 
   /**
