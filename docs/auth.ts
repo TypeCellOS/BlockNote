@@ -11,7 +11,7 @@ import { Pool } from "pg";
 import { PRODUCTS } from "./util/product-list";
 import { sendEmail } from "./util/send-mail";
 
-export const client = new Polar({
+export const polarClient = new Polar({
   accessToken: process.env.POLAR_ACCESS_TOKEN,
   // Use 'sandbox' if you're using the Polar Sandbox environment
   // Remember that access tokens, products, etc. are completely separated between environments.
@@ -152,7 +152,7 @@ export const auth = betterAuth({
       async ({ user, session }) => {
         try {
           // Check for a Polar subscription
-          const polarState = await client.customers.getStateExternal({
+          const polarState = await polarClient.customers.getStateExternal({
             externalId: user.id,
           });
 
@@ -225,7 +225,7 @@ export const auth = betterAuth({
     // Serves on http://localhost:3000/api/auth/reference
     openAPI(),
     polar({
-      client,
+      client: polarClient,
       // Enable automatic Polar Customer creation on signup
       createCustomerOnSignUp: true,
       // http://localhost:3000/api/auth/portal
