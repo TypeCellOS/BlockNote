@@ -6,6 +6,11 @@ import type {
   BlockNoteEditorOptions,
 } from "../../../editor/BlockNoteEditor";
 import {
+  getBlockInfoFromResolvedPos,
+  getBlockInfoFromSelection,
+} from "../../getBlockInfoFromPos.js";
+import { isMarkdown } from "../../parsers/markdown/detectMarkdown.js";
+import {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
@@ -13,7 +18,6 @@ import {
 import { acceptedMIMETypes } from "./acceptedMIMETypes.js";
 import { handleFileInsertion } from "./handleFileInsertion.js";
 import { handleVSCodePaste } from "./handleVSCodePaste.js";
-import { isMarkdown } from "../../parsers/markdown/detectMarkdown.js";
 
 function defaultPasteHandler({
   event,
@@ -26,6 +30,27 @@ function defaultPasteHandler({
   prioritizeMarkdownOverHTML: boolean;
   plainTextAsMarkdown: boolean;
 }) {
+  // Special case for code blocks, as they do not support any rich text
+  // formatting, so we force pasting plain text.
+  const selection = editor.prosemirrorView?.state.selection;
+  if (selection) {
+    const { isBlockContainer, blockNoteType } = getBlockInfoFromSelection(
+      editor.prosemirrorView.state
+    );
+
+    const selectionInCodeBlock =
+      isBlockContainer && blockNoteType === "codeBlock";
+
+    if (selectionInCodeBlock) {
+      const data = event.clipboardData?.getData("text/plain");
+      if (data) {
+        editor.pasteText(data);
+      }
+
+      return true;
+    }
+  }
+
   let format: (typeof acceptedMIMETypes)[number] | undefined;
   for (const mimeType of acceptedMIMETypes) {
     if (event.clipboardData!.types.includes(mimeType)) {
