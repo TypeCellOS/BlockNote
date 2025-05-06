@@ -2,7 +2,6 @@ import nodemailer from "nodemailer";
 import { render } from "@react-email/render";
 import MagicLinkEmail from "@/emails/magic-link";
 import VerifyEmail from "@/emails/verify-email";
-import ResetPassword from "@/emails/reset-password";
 import WelcomeEmail from "@/emails/welcome";
 import * as Sentry from "@sentry/nextjs";
 
@@ -26,10 +25,6 @@ const TEMPLATE_COMPONENTS = {
   verifyEmail: {
     subject: "BlockNote - Verify your email address",
     component: VerifyEmail,
-  },
-  resetPassword: {
-    subject: "BlockNote - Reset your password",
-    component: ResetPassword,
   },
   magicLink: {
     subject: "BlockNote - Sign in to your account",

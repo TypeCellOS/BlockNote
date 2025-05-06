@@ -171,7 +171,6 @@ function AuthenticationBox(props: {
   return (
     <>
       <form className="space-y-6" onSubmit={handleSubmit}>
-        Redirect to: {callbackURL}
         {props.variant === "register" && (
           <AuthenticationInput
             type="name"
@@ -385,7 +384,7 @@ export default function AuthenticationPage(props: {
             alt={"BlockNote Logo"}
             onClick={() => router.push("/")}
           />
-          <h2 className="mt-6 text-center text-2xl/9 font-semibold tracking-tight text-gray-900 dark:text-gray-100">
+          <h2 className="mt-6 text-center font-sans text-2xl/9 font-semibold tracking-tight text-gray-900 dark:text-gray-100">
             {props.variant === "password"
               ? "Login to your BlockNote account"
               : props.variant === "email"

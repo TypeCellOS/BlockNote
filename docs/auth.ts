@@ -22,7 +22,12 @@ export const polarClient = new Polar({
 export const auth = betterAuth({
   user: {
     additionalFields: {
-      ghSponsorPlanType: {
+      planType: {
+        type: "string",
+        required: false,
+        input: false, // don't allow user to set plan type
+      },
+      ghSponsorInfo: {
         type: "string",
         required: false,
         input: false, // don't allow user to set role
@@ -44,13 +49,6 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: true,
     autoSignIn: true,
-    async sendResetPassword(data) {
-      await sendEmail({
-        to: data.user.email,
-        template: "resetPassword",
-        props: { url: data.url, name: data.user.name },
-      });
-    },
   },
   socialProviders: {
     github: {
@@ -127,10 +125,7 @@ export const auth = betterAuth({
               }
 
               return {
-                ghSponsorPlanType:
-                  sponsorInfo.tier.monthlyPriceInDollars > 100
-                    ? "business"
-                    : "starter",
+                ghSponsorInfo: JSON.stringify(sponsorInfo),
               };
             }
 
@@ -150,63 +145,39 @@ export const auth = betterAuth({
   plugins: [
     customSession(
       async ({ user, session }) => {
-        try {
-          // Check for a Polar subscription
-          const polarState = await polarClient.customers.getStateExternal({
-            externalId: user.id,
-          });
-
-          if (
-            // No active subscriptions
-            !polarState.activeSubscriptions.length ||
-            // Or, the subscription is not active
-            polarState.activeSubscriptions[0].status !== "active"
-          ) {
-            if (user.ghSponsorPlanType) {
-              // The user may be a GitHub sponsor plan type
-              return {
-                planType: user.ghSponsorPlanType,
-                user,
-                session,
-              };
-            }
-
-            return {
-              planType: PRODUCTS.free.slug,
-              user,
-              session,
-            };
-          }
-          const subscription = polarState.activeSubscriptions[0];
-
-          const planType = Object.values(PRODUCTS).find(
-            (p) => p.id === subscription.productId,
-          )?.slug;
-
-          // See if they are subscribed to a Polar product, if not, use the free plan
+        // If they are a GitHub sponsor, use that plan type
+        if (user.ghSponsorInfo) {
+          const sponsorInfo = JSON.parse(user.ghSponsorInfo);
           return {
-            planType: planType ?? PRODUCTS.free.slug,
-            user,
-            session,
-          };
-        } catch (err) {
-          Sentry.captureException(err);
-
-          return {
-            planType: PRODUCTS.free.slug,
+            planType:
+              sponsorInfo.tier.monthlyPriceInDollars > 100
+                ? "business"
+                : "starter",
             user,
             session,
           };
         }
+        // If not, see if they are subscribed to a Polar product
+        // If not, use the free plan
+        return {
+          planType: user.planType ?? PRODUCTS.free.slug,
+          user,
+          session,
+        };
       },
       {
         // This is really only for type inference
         user: {
           additionalFields: {
-            ghSponsorPlanType: {
+            ghSponsorInfo: {
               type: "string",
               required: false,
               input: false, // don't allow user to set role
+            },
+            planType: {
+              type: "string",
+              required: false,
+              input: false, // don't allow user to set plan type
             },
           },
         },
@@ -253,8 +224,26 @@ export const auth = betterAuth({
         // webhooks have to be publicly accessible
         // ngrok http http://localhost:3000
         secret: process.env.POLAR_WEBHOOK_SECRET as string,
-        onPayload: async (payload) => {
-          console.log(payload);
+        onSubscriptionUpdated: async (payload) => {
+          const authContext = await auth.$context;
+          const userId = payload.data.customer.externalId;
+          if (!userId) {
+            return;
+          }
+          if (payload.data.status === "active") {
+            const productId = payload.data.product.id;
+            const planType = Object.values(PRODUCTS).find(
+              (p) => p.id === productId,
+            )?.slug;
+            await authContext.internalAdapter.updateUser(userId, {
+              planType,
+            });
+          } else {
+            // No active subscription, so we need to remove the plan type
+            await authContext.internalAdapter.updateUser(userId, {
+              planType: null,
+            });
+          }
         },
       },
     }),
