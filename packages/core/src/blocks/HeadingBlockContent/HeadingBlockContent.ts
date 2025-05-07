@@ -124,50 +124,17 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
       },
       {
         tag: "h1",
-        getAttrs: (element) => {
-          if (typeof element === "string") {
-            return false;
-          }
-
-          // Ignore if parsing internal HTML.
-          if (element.closest("[data-content-type]")) {
-            return false;
-          }
-
-          return { level: 1 };
-        },
+        attrs: { level: 1 },
         node: "heading",
       },
       {
         tag: "h2",
-        getAttrs: (element) => {
-          if (typeof element === "string") {
-            return false;
-          }
-
-          // Ignore if parsing internal HTML.
-          if (element.closest("[data-content-type]")) {
-            return false;
-          }
-
-          return { level: 2 };
-        },
+        attrs: { level: 2 },
         node: "heading",
       },
       {
         tag: "h3",
-        getAttrs: (element) => {
-          if (typeof element === "string") {
-            return false;
-          }
-
-          // Ignore if parsing internal HTML.
-          if (element.closest("[data-content-type]")) {
-            return false;
-          }
-
-          return { level: 3 };
-        },
+        attrs: { level: 3 },
         node: "heading",
       },
     ];

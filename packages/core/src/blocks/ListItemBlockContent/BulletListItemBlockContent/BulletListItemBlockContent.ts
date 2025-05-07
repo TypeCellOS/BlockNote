@@ -90,11 +90,6 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
             return false;
           }
 
-          // Ignore if parsing internal HTML.
-          if (element.closest("[data-content-type]")) {
-            return false;
-          }
-
           const parent = element.parentElement;
 
           if (parent === null) {

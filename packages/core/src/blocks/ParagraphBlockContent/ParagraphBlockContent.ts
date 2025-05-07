@@ -53,11 +53,6 @@ export const ParagraphBlockContent = createStronglyTypedTiptapNode({
             return false;
           }
 
-          // Ignore if parsing internal HTML.
-          if (element.closest("[data-content-type]")) {
-            return false;
-          }
-
           return {};
         },
         node: "paragraph",

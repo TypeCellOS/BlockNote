@@ -126,13 +126,8 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
             return false;
           }
 
-          // Ignore if parsing internal HTML.
-          if (element.closest("[data-content-type]")) {
-            return false;
-          }
-
           // Ignore if we already parsed an ancestor list item to avoid double-parsing.
-          if (element.closest("li")) {
+          if (element.closest("[data-content-type]") || element.closest("li")) {
             return false;
           }
 
@@ -148,11 +143,6 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
         tag: "li",
         getAttrs: (element) => {
           if (typeof element === "string") {
-            return false;
-          }
-
-          // Ignore if parsing internal HTML.
-          if (element.closest("[data-content-type]")) {
             return false;
           }
 

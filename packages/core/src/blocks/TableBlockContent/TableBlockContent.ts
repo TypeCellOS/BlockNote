@@ -131,6 +131,7 @@ const TableParagraph = createStronglyTypedTiptapNode({
           if (!element.closest("[data-content-type]")) {
             return false;
           }
+
           const parent = element.parentElement;
 
           if (parent === null) {

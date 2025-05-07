@@ -73,18 +73,6 @@ export const QuoteBlockContent = createStronglyTypedTiptapNode({
       },
       {
         tag: "blockquote",
-        getAttrs: (element) => {
-          if (typeof element === "string") {
-            return false;
-          }
-
-          // Ignore if parsing internal HTML.
-          if (element.closest("[data-content-type]")) {
-            return false;
-          }
-
-          return {};
-        },
         node: "quote",
       },
     ];

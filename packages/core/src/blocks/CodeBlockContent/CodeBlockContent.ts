@@ -152,18 +152,6 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
       // Parse from external HTML.
       {
         tag: "pre",
-        getAttrs: (element) => {
-          if (typeof element === "string") {
-            return false;
-          }
-
-          // Ignore if parsing internal HTML.
-          if (element.closest("[data-content-type]")) {
-            return false;
-          }
-
-          return {};
-        },
         contentElement: "code",
         preserveWhitespace: "full",
       },
