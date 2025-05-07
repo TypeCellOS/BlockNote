@@ -1325,6 +1325,30 @@
           "pathFromRoot": "examples/07-collaboration",
           "slug": "collaboration"
         }
+      },
+      {
+        "projectSlug": "ghost-writer",
+        "fullSlug": "collaboration/ghost-writer",
+        "pathFromRoot": "examples/07-collaboration/06-ghost-writer",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "nperez0111",
+          "tags": [
+            "Advanced",
+            "Development",
+            "Collaboration"
+          ],
+          "dependencies": {
+            "y-partykit": "^0.0.25",
+            "yjs": "^13.6.15"
+          } as any
+        },
+        "title": "Ghost Writer",
+        "group": {
+          "pathFromRoot": "examples/07-collaboration",
+          "slug": "collaboration"
+        }
       }
     ]
   },

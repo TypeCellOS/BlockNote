@@ -1,0 +1,9 @@
+.two-way-sync {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+
+.two-way-sync > div {
+  flex: 1;
+}
