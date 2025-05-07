@@ -67,10 +67,12 @@ export const QuoteBlockContent = createStronglyTypedTiptapNode({
 
   parseHTML() {
     return [
+      // Parse from internal HTML.
       {
         tag: "div[data-content-type=" + this.name + "]",
         contentElement: ".bn-inline-content",
       },
+      // Parse from external HTML.
       {
         tag: "blockquote",
         node: "quote",
