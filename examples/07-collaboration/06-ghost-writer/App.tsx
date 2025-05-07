@@ -7,6 +7,8 @@ import YPartyKitProvider from "y-partykit/provider";
 import * as Y from "yjs";
 import "./styles.css";
 import { useEffect, useState } from "react";
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { EditorView } from "prosemirror-view";
 
 const params = new URLSearchParams(window.location.search);
 const ghostWritingRoom = params.get("room");
@@ -21,6 +23,14 @@ const provider = new YPartyKitProvider(
   roomName,
   doc,
 );
+
+/**
+ * Y-prosemirror has an optimization, where it doesn't send awareness updates unless the editor is currently focused.
+ * So, for the ghost writers, we override the hasFocus method to always return true.
+ */
+if (isGhostWriting) {
+  EditorView.prototype.hasFocus = () => true;
+}
 
 const ghostContent =
   "This demo shows a two-way sync of documents. It allows you to test collaboration features, and see how stable the editor is. ";
@@ -78,9 +88,23 @@ export default function App() {
           {isPaused ? "Resume Ghost Writer" : "Pause Ghost Writer"}
         </button>
       ) : (
-        <button onClick={() => setNumGhostWriters((a) => a + 1)}>
-          Add a Ghost Writer
-        </button>
+        <>
+          <button onClick={() => setNumGhostWriters((a) => a + 1)}>
+            Add a Ghost Writer
+          </button>
+          <button onClick={() => setNumGhostWriters((a) => a - 1)}>
+            Remove a Ghost Writer
+          </button>
+          <button
+            onClick={() => {
+              window.open(
+                `${window.location.origin}${window.location.pathname}?room=${roomName}&index=-1`,
+                "_blank",
+              );
+            }}>
+            Ghost Writer in a new window
+          </button>
+        </>
       )}
       <BlockNoteView editor={editor} />
 
@@ -88,9 +112,9 @@ export default function App() {
         <div className="two-way-sync">
           {Array.from({ length: numGhostWriters }).map((_, index) => (
             <iframe
-              src={`${window.location.href}?room=${roomName}&index=${
-                index + 1
-              }`}
+              src={`${window.location.origin}${
+                window.location.pathname
+              }?room=${roomName}&index=${index + 1}&hideMenu=true`}
               title="ghost writer"
               className="ghost-writer"
             />

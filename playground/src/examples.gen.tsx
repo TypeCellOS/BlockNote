@@ -1332,7 +1332,7 @@
         "pathFromRoot": "examples/07-collaboration/06-ghost-writer",
         "config": {
           "playground": true,
-          "docs": true,
+          "docs": false,
           "author": "nperez0111",
           "tags": [
             "Advanced",
