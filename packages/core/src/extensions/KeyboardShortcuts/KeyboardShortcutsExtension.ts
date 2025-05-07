@@ -605,6 +605,9 @@ export const KeyboardShortcutsExtension = Extension.create<{
         this.options.editor.moveBlocksDown();
         return true;
       },
+      "Mod-z": () => this.options.editor.undo(),
+      "Mod-y": () => this.options.editor.redo(),
+      "Shift-Mod-z": () => this.options.editor.redo(),
     };
   },
 });
