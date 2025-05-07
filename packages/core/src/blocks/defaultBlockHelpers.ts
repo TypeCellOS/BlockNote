@@ -37,7 +37,7 @@ export function createDefaultBlockDOMOutputSpec(
     "bn-inline-content",
     inlineContentHTMLAttributes.class
   );
-  // inlineContent.setAttribute("data-editable", "");
+  inlineContent.setAttribute("data-editable", "");
   for (const [attribute, value] of Object.entries(
     inlineContentHTMLAttributes
   )) {

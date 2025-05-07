@@ -80,7 +80,7 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
       // Parse from internal HTML.
       {
         tag: "div[data-content-type=" + this.name + "]",
-        contentElement: ".bn-inline-content",
+        contentElement: "[data-editable]",
       },
       // Parse from external HTML.
       {
