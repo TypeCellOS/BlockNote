@@ -91,13 +91,15 @@ export function ExampleBlock(props: {
               </CTAButton>
             </div>
             <p className={"text-md mt-1"}>
-              Or{" "}
               {!props.isProExample?.userStatus && (
-                <NextLink
-                  href={`/signin?redirect=${encodeURIComponent(router.route)}&theme=${encodeURIComponent(theme.resolvedTheme || "")}`}
-                  className="nx-text-primary-600">
-                  sign in
-                </NextLink>
+                <>
+                  Or{" "}
+                  <NextLink
+                    href={`/signin?redirect=${encodeURIComponent(router.route)}&theme=${encodeURIComponent(theme.resolvedTheme || "")}`}
+                    className="nx-text-primary-600">
+                    sign in
+                  </NextLink>
+                </>
               )}
             </p>
           </div>
