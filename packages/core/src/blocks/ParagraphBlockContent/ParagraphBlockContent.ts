@@ -47,7 +47,6 @@ export const ParagraphBlockContent = createStronglyTypedTiptapNode({
       // Parse from external HTML.
       {
         tag: "p",
-        // priority: 200,
         getAttrs: (element) => {
           if (typeof element === "string" || !element.textContent?.trim()) {
             return false;
