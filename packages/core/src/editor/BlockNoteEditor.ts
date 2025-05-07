@@ -1008,8 +1008,7 @@ export class BlockNoteEditor<
     const originalFragment = this.options.collaboration?.fragment;
 
     if (!originalFragment) {
-      // No original fragment found, so no need to fork
-      return;
+      throw new Error("No fragment to fork from");
     }
 
     const doc = new Y.Doc();
