@@ -9,8 +9,8 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 
-import { FileReplaceButton } from "./FileReplaceButton.js";
-import { uploadFile, UppyFilePanel } from "./UppyFilePanel.js";
+import { FileReplaceButton } from "./FileReplaceButton";
+import { uploadFile, UppyFilePanel } from "./UppyFilePanel";
 
 export default function App() {
   // Creates a new editor instance.
@@ -44,7 +44,7 @@ export default function App() {
           items.splice(
             items.findIndex((c) => c.key === "replaceFileButton"),
             1,
-            <FileReplaceButton key={"fileReplaceButton"} />
+            <FileReplaceButton key={"fileReplaceButton"} />,
           );
 
           return <FormattingToolbar {...props}>{items}</FormattingToolbar>;

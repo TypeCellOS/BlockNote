@@ -3,7 +3,7 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 // Bundle created from `npx shiki-codegen --langs typescript,javascript,react --themes light-plus,dark-plus --engine javascript --precompiled ./shiki.bundle.ts`
-import { createHighlighter } from "./shiki.bundle.js";
+import { createHighlighter } from "./shiki.bundle";
 
 export default function App() {
   // Creates a new editor instance.

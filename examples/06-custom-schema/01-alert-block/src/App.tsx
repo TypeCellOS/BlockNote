@@ -4,7 +4,7 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 
-import { Alert } from "./Alert.js";
+import { Alert } from "./Alert";
 
 // Our schema with block specs, which contain the configs and implementations for
 // blocks that we want our editor to use.

@@ -15,8 +15,8 @@ import {
 import { YDocProvider, useYDoc, useYjsProvider } from "@y-sweet/react";
 import { useMemo, useState } from "react";
 
-import { SettingsSelect } from "./SettingsSelect.js";
-import { HARDCODED_USERS, MyUserType, getRandomColor } from "./userdata.js";
+import { SettingsSelect } from "./SettingsSelect";
+import { HARDCODED_USERS, MyUserType, getRandomColor } from "./userdata";
 
 import "./style.css";
 
@@ -77,7 +77,7 @@ function Document() {
     return new YjsThreadStore(
       activeUser.id,
       doc.getMap("threads"),
-      new DefaultThreadStoreAuth(activeUser.id, activeUser.role)
+      new DefaultThreadStoreAuth(activeUser.id, activeUser.role),
     );
   }, [doc, activeUser]);
 
@@ -94,7 +94,7 @@ function Document() {
         user: { color: getRandomColor(), name: activeUser.username },
       },
     },
-    [activeUser, threadStore]
+    [activeUser, threadStore],
   );
 
   return (

@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { MouseEvent, ReactNode, useCallback, useMemo, useState } from "react";
 
-import { TextBlockSchema } from "./schema.js";
+import { TextBlockSchema } from "./schema";
 
 // This replaces the default `RemoveBlockItem` component with a simplified
 // MUI version:

@@ -44,6 +44,7 @@ export type Project = {
     author: string;
     pro?: boolean;
   };
+  readme: string;
 };
 
 export function groupBy<T>(arr: T[], key: (el: T) => string) {
@@ -159,7 +160,8 @@ export function getExampleProjects(): Project[] {
       }
 
       const md = fs.readFileSync(readmePath, "utf-8");
-      const title = md.match(/# (.*)/)?.[1];
+      const [mdTitle, ...rest] = md.split("\n");
+      const title = mdTitle.match(/# (.*)/)?.[1];
 
       if (!title?.length) {
         throw new Error(`Missing title in README.md for ${directory}`);
@@ -187,6 +189,7 @@ export function getExampleProjects(): Project[] {
         config,
         title,
         group,
+        readme: rest.join("\n").trim(),
       };
 
       return project;

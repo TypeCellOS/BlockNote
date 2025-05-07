@@ -9,7 +9,7 @@ import "@liveblocks/react-ui/styles.css";
 import "@liveblocks/react-ui/styles/dark/media-query.css";
 import "@liveblocks/react-tiptap/styles.css";
 
-import { Editor } from "./Editor.js";
+import { Editor } from "./Editor";
 import "./globals.css";
 import "./styles.css";
 

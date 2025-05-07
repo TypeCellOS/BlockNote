@@ -11,7 +11,7 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 
-import { ResetBlockTypeItem } from "./ResetBlockTypeItem.js";
+import { ResetBlockTypeItem } from "./ResetBlockTypeItem";
 
 // To avoid rendering issues, it's good practice to define your custom drag
 // handle menu in a separate component, instead of inline within the `sideMenu`

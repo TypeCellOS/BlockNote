@@ -17,7 +17,7 @@ This will generate a `shiki.bundle.ts` file that you can use to create a syntax 
 Like this:
 
 ```ts
-import { createHighlighter } from "./shiki.bundle.js";
+import { createHighlighter } from "./shiki.bundle";
 
 export default function App() {
   // Creates a new editor instance.

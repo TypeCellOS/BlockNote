@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 
 import { RiImageEditFill } from "react-icons/ri";
 
-import { UppyFilePanel } from "./UppyFilePanel.js";
+import { UppyFilePanel } from "./UppyFilePanel";
 
 // Copied with minor changes from:
 // https://github.com/TypeCellOS/BlockNote/blob/main/packages/react/src/components/FormattingToolbar/DefaultButtons/FileReplaceButton.tsx

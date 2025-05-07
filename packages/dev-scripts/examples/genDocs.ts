@@ -19,39 +19,16 @@ const dir = path.parse(fileURLToPath(import.meta.url)).dir;
 const getLanguageFromFileName = (fileName: string) => fileName.split(".").pop();
 
 /******* templates + generate functions *******/
-const templateExampleBlock = (
-  project: Project,
-  files: Files,
-) => `import { ExampleBlock } from "@/components/example/ExampleBlock";
-import { Tabs } from "nextra/components";
+const templateExampleBlock = (project: Project, files: Files) => `
 
-<ExampleBlock name="${project.fullSlug}" path="${
+<Example name="${project.fullSlug}" path="${
   project.pathFromRoot
 }" isProExample={props.isProExample}>
-  <Tabs items={${JSON.stringify(
-    files.map(({ filename }) => filename.slice(1)),
-  )}}>
-    ${files
-      .map(
-        ({ filename, code }) =>
-          `<Tabs.Tab>
-            <div className={"max-h-96 overflow-auto rounded-lg overscroll-contain"}>
-\`\`\`${getLanguageFromFileName(filename)} 
-${code}
-\`\`\`
-            </div>
-          </Tabs.Tab>`,
-      )
-      .join("")}
-  </Tabs>
-</ExampleBlock>`;
+</Example>`;
 
-const COMPONENT_DIR = path.resolve(
-  dir,
-  "../../../docs/components/example/generated/",
-);
-
-const EXAMPLES_PAGES_DIR = path.resolve(dir, "../../../docs/pages/examples/");
+const DOCS_DIR = path.resolve(dir, "../../../fumadocs/");
+const COMPONENT_DIR = path.resolve(DOCS_DIR, "./components/example/generated/");
+const EXAMPLES_PAGES_DIR = path.resolve(DOCS_DIR, "./content/examples/");
 
 /**
  * Generates the <ExampleBlock> component that has all the source code of the example
@@ -59,37 +36,47 @@ const EXAMPLES_PAGES_DIR = path.resolve(dir, "../../../docs/pages/examples/");
  */
 async function generateCodeForExample(project: Project) {
   const projectFiles = getProjectFiles(project);
-  const code = templateExampleBlock(
-    project,
-    projectFiles.filter(({ filename }) => !filename.endsWith(".css")),
-  );
-  const mdxTarget = path.join(COMPONENT_DIR, "mdx", project.fullSlug + ".mdx");
-
-  fs.mkdirSync(path.dirname(mdxTarget), { recursive: true });
-
-  fs.writeFileSync(mdxTarget, code);
-
   const componentTarget = path.join(
     COMPONENT_DIR,
     "components",
     project.fullSlug,
   );
+  const indexFile = path.join(componentTarget, "index.tsx");
+  fs.rmSync(componentTarget, { recursive: true, force: true });
+  fs.mkdirSync(componentTarget, { recursive: true });
+  fs.writeFileSync(
+    indexFile,
+    `"use client";
+import dynamic from "next/dynamic";
+const Component = dynamic(() => import("./App"), {
+  ssr: false,
+});
+
+export default Component;`,
+  );
 
   projectFiles.forEach(({ filename, code }) => {
     const target = path.join(componentTarget, filename);
-    fs.mkdirSync(path.dirname(target), { recursive: true });
     fs.writeFileSync(target, code);
   });
 }
 
-const templatePageForExample = (
-  project: Project,
-  readme: string,
-) => `import { Example } from "@/components/example";
+const templatePageForExample = (project: Project) => `---
+title: ${project.title}
+author: ${project.config.author}
+---
 
-${readme}
+${project.readme}
 
-<Example name="${project.fullSlug}" />`;
+<Example name="${project.fullSlug}" path="${project.pathFromRoot}" pro={${project.config.pro || false}}>
+${getProjectFiles(project)
+  .map(
+    ({ filename, code }) =>
+      `\`\`\`${getLanguageFromFileName(filename)} tab="${filename.slice(1)}"\n${code}\n\`\`\``,
+  )
+  .join("\n")}
+</Example>
+`;
 
 /**
  * Generate the page for the example in /examples overview
@@ -97,11 +84,7 @@ ${readme}
  * Consists of the contents of the readme + the interactive example
  */
 async function generatePageForExample(project: Project) {
-  const readme = fs.readFileSync(
-    path.resolve(dir, "../../..", project.pathFromRoot, "README.md"),
-    "utf-8",
-  );
-  const code = templatePageForExample(project, readme);
+  const code = templatePageForExample(project);
 
   const target = path.join(EXAMPLES_PAGES_DIR, project.fullSlug + ".mdx");
 
@@ -120,20 +103,20 @@ async function generateMetaForExampleGroup(group: {
     fs.mkdirSync(path.join(EXAMPLES_PAGES_DIR, group.slug));
   }
 
-  const target = path.join(EXAMPLES_PAGES_DIR, group.slug, "_meta.json");
+  // const target = path.join(EXAMPLES_PAGES_DIR, group.slug, "_meta.json");
 
-  const meta = Object.fromEntries(
-    group.projects.map((project) => [
-      project.projectSlug,
-      {
-        title: project.config.shortTitle || project.title,
-      },
-    ]),
-  );
+  // const meta = Object.fromEntries(
+  //   group.projects.map((project) => [
+  //     project.projectSlug,
+  //     {
+  //       title: project.config.shortTitle || project.title,
+  //     },
+  //   ]),
+  // );
 
-  const code = JSON.stringify(meta, undefined, 2);
+  // const code = JSON.stringify(meta, undefined, 2);
 
-  fs.writeFileSync(target, code);
+  // fs.writeFileSync(target, code);
 }
 
 const templateExampleComponents = (
@@ -164,10 +147,9 @@ ${projects
  * Generate the file with all the dynamic imports for examples (exampleComponents.gen.tsx)
  */
 async function generateExampleComponents(projects: Project[]) {
-  const target = path.join(COMPONENT_DIR, "exampleComponents.gen.tsx");
-  const code = templateExampleComponents(projects);
-
-  fs.writeFileSync(target, code);
+  // const target = path.join(COMPONENT_DIR, "exampleComponents.gen.tsx");
+  // const code = templateExampleComponents(projects);
+  // fs.writeFileSync(target, code);
 }
 
 /**
@@ -197,6 +179,28 @@ async function generateExampleList(projects: Project[]) {
   fs.writeFileSync(target, code);
 }
 
+async function addDependenciesToExample(project: Project) {
+  const dependencies = project.config.dependencies || {};
+  const devDependencies = project.config.devDependencies || {};
+  if (
+    Object.keys(dependencies).length > 0 ||
+    Object.keys(devDependencies).length > 0
+  ) {
+    const packageJson = path.join(DOCS_DIR, "package.json");
+    const packageJsonContent = fs.readFileSync(packageJson, "utf-8");
+    const packageJsonObject = JSON.parse(packageJsonContent);
+    packageJsonObject.dependencies = {
+      ...packageJsonObject.dependencies,
+      ...dependencies,
+    };
+    packageJsonObject.devDependencies = {
+      ...packageJsonObject.devDependencies,
+      ...devDependencies,
+    };
+    fs.writeFileSync(packageJson, JSON.stringify(packageJsonObject, null, 2));
+  }
+}
+
 // clean old files / dirs
 fs.rmSync(COMPONENT_DIR, { recursive: true, force: true });
 
@@ -221,6 +225,7 @@ for (const group of Object.values(groups)) {
     console.log("generating docs for", project.fullSlug);
     await generateCodeForExample(project);
     await generatePageForExample(project);
+    await addDependenciesToExample(project);
   }
 }
 

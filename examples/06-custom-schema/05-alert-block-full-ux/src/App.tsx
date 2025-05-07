@@ -18,7 +18,7 @@ import {
 } from "@blocknote/react";
 
 import { RiAlertFill } from "react-icons/ri";
-import { Alert } from "./Alert.js";
+import { Alert } from "./Alert";
 
 // Our schema with block specs, which contain the configs and implementations for
 // blocks that we want our editor to use.
@@ -115,7 +115,7 @@ export default function App() {
           const defaultItems = getDefaultReactSlashMenuItems(editor);
           // Finds index of last item in "Basic blocks" group.
           const lastBasicBlockIndex = defaultItems.findLastIndex(
-            (item) => item.group === "Basic blocks"
+            (item) => item.group === "Basic blocks",
           );
           // Inserts the Alert item as the last item in the "Basic blocks" group.
           defaultItems.splice(lastBasicBlockIndex + 1, 0, insertAlert(editor));

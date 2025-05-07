@@ -2,6 +2,7 @@ packages:
   - "packages/*"
   - "examples/*/*"
   - "playground"
+  - "fumadocs"
   - "docs"
   - "shared"
   - "tests"

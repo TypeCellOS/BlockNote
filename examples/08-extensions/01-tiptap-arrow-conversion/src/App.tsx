@@ -3,7 +3,7 @@ import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 
-import { ArrowConversionExtension } from "./ArrowConversionExtension.js";
+import { ArrowConversionExtension } from "./ArrowConversionExtension";
 
 export default function App() {
   // Creates a new editor instance.

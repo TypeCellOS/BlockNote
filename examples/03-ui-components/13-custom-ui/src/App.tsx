@@ -11,10 +11,10 @@ import "@blocknote/react/style.css";
 import { createTheme, ThemeProvider, useMediaQuery } from "@mui/material";
 import { useMemo } from "react";
 
-import { schema } from "./schema.js";
-import { CustomMUIFormattingToolbar } from "./MUIFormattingToolbar.js";
-import { CustomMUISideMenu } from "./MUISideMenu.js";
-import { MUISuggestionMenu } from "./MUISuggestionMenu.js";
+import { schema } from "./schema";
+import { CustomMUIFormattingToolbar } from "./MUIFormattingToolbar";
+import { CustomMUISideMenu } from "./MUISideMenu";
+import { MUISuggestionMenu } from "./MUISuggestionMenu";
 
 import "./style.css";
 
@@ -42,7 +42,7 @@ export default function App() {
           mode: prefersDarkMode ? "dark" : "light",
         },
       }),
-    [prefersDarkMode]
+    [prefersDarkMode],
   );
 
   // Renders the editor instance.
@@ -76,9 +76,9 @@ export default function App() {
           getItems={async (query) =>
             filterSuggestionItems(
               getDefaultReactSlashMenuItems(editor).filter(
-                (item) => item.title !== "Emoji"
+                (item) => item.title !== "Emoji",
               ),
-              query
+              query,
             )
           }
           suggestionMenuComponent={MUISuggestionMenu}
