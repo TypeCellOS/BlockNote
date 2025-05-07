@@ -50,7 +50,7 @@
     "dev": "vite",
     "build": "tsc --build && vite build",
     "lint": "eslint src --max-warnings 0",
-    "test": "vitest -u",
+    "test": "vitest --run",
     "test-watch": "vitest watch",
     "email": "email dev"
   },
