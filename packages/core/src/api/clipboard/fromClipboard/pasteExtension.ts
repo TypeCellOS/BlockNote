@@ -5,10 +5,6 @@ import type {
   BlockNoteEditor,
   BlockNoteEditorOptions,
 } from "../../../editor/BlockNoteEditor";
-import {
-  getBlockInfoFromResolvedPos,
-  getBlockInfoFromSelection,
-} from "../../getBlockInfoFromPos.js";
 import { isMarkdown } from "../../parsers/markdown/detectMarkdown.js";
 import {
   BlockSchema,
@@ -32,21 +28,20 @@ function defaultPasteHandler({
 }) {
   // Special case for code blocks, as they do not support any rich text
   // formatting, so we force pasting plain text.
-  const selection = editor.prosemirrorView?.state.selection;
-  if (selection) {
-    const blockInfo = getBlockInfoFromSelection(editor.prosemirrorView.state);
+  const isInCodeBlock = editor.transact(
+    (tr) =>
+      tr.selection.$from.parent.type.spec.code &&
+      tr.selection.$to.parent.type.spec.code
+  );
 
-    const selectionInCodeBlock =
-      blockInfo.isBlockContainer && blockInfo.blockContent.node.type.spec.code;
+  if (isInCodeBlock) {
+    const data = event.clipboardData?.getData("text/plain");
 
-    if (selectionInCodeBlock) {
-      const data = event.clipboardData?.getData("text/plain");
-      if (data) {
-        editor.pasteText(data);
-      }
-
-      return true;
+    if (data) {
+      editor.pasteText(data);
     }
+
+    return true;
   }
 
   let format: (typeof acceptedMIMETypes)[number] | undefined;
