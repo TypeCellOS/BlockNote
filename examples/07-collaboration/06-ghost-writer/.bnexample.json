@@ -1,6 +1,6 @@
 {
   "playground": true,
-  "docs": true,
+  "docs": false,
   "author": "nperez0111",
   "tags": ["Advanced", "Development", "Collaboration"],
   "dependencies": {

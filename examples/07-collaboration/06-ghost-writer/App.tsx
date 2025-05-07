@@ -1,4 +1,5 @@
 import "@blocknote/core/fonts/inter.css";
+import "@blocknote/mantine/style.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import { useCreateBlockNote } from "@blocknote/react";
 
@@ -18,7 +19,7 @@ const provider = new YPartyKitProvider(
   "blocknote-dev.yousefed.partykit.dev",
   // Use a unique name as a "room" for your application.
   roomName,
-  doc
+  doc,
 );
 
 const ghostContent =
@@ -91,6 +92,7 @@ export default function App() {
                 index + 1
               }`}
               title="ghost writer"
+              className="ghost-writer"
             />
           ))}
         </div>
