@@ -66,7 +66,6 @@
     "@types/react-dom": "^18.0.9",
     "@zip.js/zip.js": "^2.7.57",
     "eslint": "^8.10.0",
-    "prettier": "^2.7.1",
     "rollup-plugin-webpack-stats": "^0.2.2",
     "typescript": "^5.0.4",
     "vite": "^5.3.4",
