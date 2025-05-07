@@ -23,7 +23,6 @@
     "@types/react-dom": "^18.0.9",
     "eslint": "^8.10.0",
     "glob": "^10.3.10",
-    "prettier": "^2.7.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tinyglobby": "0.2.12",
@@ -34,5 +33,8 @@
     "extends": [
       "../../.eslintrc.js"
     ]
+  },
+  "dependencies": {
+    "prettier": "3.5.3"
   }
 }

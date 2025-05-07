@@ -33,7 +33,7 @@ async function writeTemplate(project: Project, templateFile: string) {
   const targetFilePath = path.join(
     "../../",
     project.pathFromRoot,
-    path.basename(templateFile).replace(".template.tsx", "")
+    path.basename(templateFile).replace(".template.tsx", ""),
   );
 
   let stringOutput: string | undefined = undefined;
@@ -41,10 +41,10 @@ async function writeTemplate(project: Project, templateFile: string) {
     stringOutput = ReactDOM.renderToString(ret);
 
     const prettierConfig = await prettier.resolveConfig(targetFilePath);
-    stringOutput = prettier.format(stringOutput, {
+    stringOutput = await prettier.format(stringOutput, {
       ...prettierConfig,
       parser: "html",
-    }) as string;
+    });
   } else if (typeof ret === "string") {
     stringOutput = ret;
   } else if (typeof ret === "object") {
@@ -58,7 +58,7 @@ async function writeTemplate(project: Project, templateFile: string) {
 
 async function generateCodeForExample(project: Project) {
   const templates = glob.sync(
-    replacePathSepToSlash(path.resolve(dir, "./template-react/*.template.tsx"))
+    replacePathSepToSlash(path.resolve(dir, "./template-react/*.template.tsx")),
   );
 
   for (const template of templates) {
@@ -90,5 +90,5 @@ for (const project of projects) {
 }
 
 await generateExamplesData(
-  projects.filter((p) => p.config?.playground === true)
+  projects.filter((p) => p.config?.playground === true),
 );

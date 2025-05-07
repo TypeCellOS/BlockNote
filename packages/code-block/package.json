@@ -59,7 +59,6 @@
   },
   "devDependencies": {
     "eslint": "^8.10.0",
-    "prettier": "^2.7.1",
     "rollup-plugin-webpack-stats": "^0.2.2",
     "typescript": "^5.0.4",
     "vite": "^5.3.4",

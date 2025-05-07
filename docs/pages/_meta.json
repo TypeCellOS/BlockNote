@@ -36,5 +36,13 @@
       "sidebar": false,
       "toc": false
     }
+  },
+  "thanks": {
+    "type": "page",
+    "display": "hidden",
+    "theme": {
+      "toc": false,
+      "sidebar": false
+    }
   }
 }

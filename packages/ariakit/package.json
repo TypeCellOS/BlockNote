@@ -64,7 +64,6 @@
     "@types/react-dom": "^18.0.9",
     "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^8.10.0",
-    "prettier": "^2.7.1",
     "rimraf": "^5.0.5",
     "rollup-plugin-webpack-stats": "^0.2.2",
     "typescript": "^5.3.3",

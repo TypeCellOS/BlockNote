@@ -15,7 +15,7 @@ export function Letter() {
         <FadeIn>
           <HeroText>Let&apos;s build</HeroText>
         </FadeIn>
-        <FadeIn className="flex flex-col leading-6 md:text-lg">
+        <FadeIn className="flex flex-col gap-3 leading-6 md:text-lg">
           <p>
             When we started building an Open Source Notion alternative, we
             figured: &quot;How hard can it be?&quot;. Pretty hard, it turns out.
