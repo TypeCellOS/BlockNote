@@ -187,7 +187,40 @@ export const Table = createBlockSpecFromStronglyTypedTiptapNode(
                 }
               );
 
-              return parentNode.content;
+              /**
+               * IDK something like this
+               * This will help with merging table cell content together.
+               */
+
+              // Use a table cell to append the content into.
+              let td = schema.nodes.tableCell.create({});
+              // If we want, we can also keep track of content that can't be appended. (e.g. images can still be preserved, outside the table cell)
+              const cantAppend: Node[] = [];
+
+              parsedContent.children.forEach((child) => {
+                // Do something similar, where we iterate the blockContainers, and see if we can append their content into the table cell.
+                const content = child.firstChild!;
+                console.log("child", content?.toString());
+                if (td.canAppend(content)) {
+                  // If we can append the content, we do so.
+                  console.log("can append");
+                  td = td.copy(td.content.addToEnd(content));
+                } else {
+                  // If we can't append the content, we add it to the list of content that can't be appended.
+                  console.log("content has no children");
+                  cantAppend.push(content);
+                }
+              });
+              console.log("td", td.toString());
+              console.log("cantAppend", Fragment.from(cantAppend).toString());
+              console.log("firstNode has content");
+              console.log("");
+
+              // If we want to still preserve the content that can't be appended, we can do so by adding it to the table cell.
+              return td.content.addToEnd(
+                //
+                Fragment.from(cantAppend)
+              );
             },
           },
         ];
