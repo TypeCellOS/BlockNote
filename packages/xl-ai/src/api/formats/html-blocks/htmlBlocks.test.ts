@@ -13,8 +13,6 @@ const BASE_FILE_PATH = path.resolve(
   path.basename(__filename)
 );
 
-// TODO: disable delays in applyOperations
-
 const fetchCountMap: Record<string, number> = {};
 
 async function createRequestHash(req: Request) {
@@ -124,6 +122,7 @@ describe("Models", () => {
           model: params.model,
           maxRetries: 0,
           stream: params.stream,
+          withDelays: false,
         })
       );
     });

@@ -38,6 +38,22 @@ export type StreamTool<T extends { type: string }> = {
   validate: (
     operation: DeepPartial<T>, // TODO: maybe `unknown` is better?
   ) => InvalidOrOk<T>;
+
+  /**
+   * Executes the tool call
+   * TODO
+   */
+  execute: (
+    operationsStream: AsyncIterable<{
+      operation: StreamToolCall<StreamTool<any>[]>;
+      isUpdateToPreviousOperation: boolean;
+      isPossiblyPartial: boolean;
+    }>,
+  ) => AsyncIterable<{
+    operation: StreamToolCall<StreamTool<any>[]>;
+    isUpdateToPreviousOperation: boolean;
+    isPossiblyPartial: boolean;
+  }>;
 };
 
 export type StreamToolCallSingle<T extends StreamTool<any>> =
@@ -52,11 +68,11 @@ export type StreamToolCall<T extends StreamTool<any> | StreamTool<any>[]> =
   T extends StreamTool<infer U>
     ? U
     : // when passed an array of StreamTools, StreamToolCall represents the type of one of the StreamTool invocations
-    T extends StreamTool<any>[]
-    ? T[number] extends StreamTool<infer V>
-      ? V
-      : never
-    : never;
+      T extends StreamTool<any>[]
+      ? T[number] extends StreamTool<infer V>
+        ? V
+        : never
+      : never;
 
 /**
  * Create a StreamTool.
@@ -67,20 +83,24 @@ export type StreamToolCall<T extends StreamTool<any> | StreamTool<any>[]> =
  * - a collection of StreamTools can be wrapped in a single LLM Tool to issue multiple operations (tool calls) at once.
  * - StreamTools can be used in a streaming manner.
  */
-export function streamTool<T extends { type: string }>(
-  name: T["type"],
-  description: string,
-  schema: JSONSchema7,
-  validate: (
-    operation: DeepPartial<T>,
-  ) => InvalidOrOk<T>
-): StreamTool<T> {
-  return {
-    name,
-    description,
-    parameters: schema,
-    validate,
-  };
+export function streamTool<T extends { type: string }>(config: {
+  name: T["type"];
+  description: string;
+  parameters: JSONSchema7;
+  validate: (operation: DeepPartial<T>) => InvalidOrOk<T>;
+  execute: (
+    operationsStream: AsyncIterable<{
+      operation: StreamToolCall<StreamTool<any>[]>;
+      isUpdateToPreviousOperation: boolean;
+      isPossiblyPartial: boolean;
+    }>,
+  ) => AsyncIterable<{
+    operation: StreamToolCall<StreamTool<any>[]>;
+    isUpdateToPreviousOperation: boolean;
+    isPossiblyPartial: boolean;
+  }>;
+}): StreamTool<T> {
+  return config;
 }
 
 /*

@@ -12,13 +12,11 @@ import {
 } from "../../streamTool/callLLMWithStreamTools.js";
 import { StreamTool } from "../../streamTool/streamTool.js";
 import { isEmptyParagraph } from "../../util/emptyBlock.js";
-import { createAsyncIterableStreamFromAsyncIterable } from "../../util/stream.js";
 import { CallLLMResult } from "../CallLLMResult.js";
 import {
   getDataForPromptNoSelection,
   getDataForPromptWithSelection,
 } from "./htmlPromptData.js";
-import { applyHTMLOperations } from "./streamOperations/applyHTMLOperations.js";
 import { tools } from "./tools/index.js";
 
 async function getMessages(
@@ -60,6 +58,7 @@ async function getMessages(
 
 function getStreamTools(
   editor: BlockNoteEditor<any, any, any>,
+  withDelays: boolean,
   defaultStreamTools?: {
     /** Enable the add tool (default: true) */
     add?: boolean;
@@ -67,6 +66,10 @@ function getStreamTools(
     update?: boolean;
     /** Enable the delete tool (default: true) */
     delete?: boolean;
+  },
+  selectionInfo?: {
+    from: number;
+    to: number;
   }
 ) {
   const mergedStreamTools = {
@@ -78,13 +81,13 @@ function getStreamTools(
 
   const streamTools: StreamTool<any>[] = [
     ...(mergedStreamTools.update
-      ? [tools.update(editor, { idsSuffixed: true })]
+      ? [tools.update(editor, { idsSuffixed: true, withDelays, updateSelection: selectionInfo })]
       : []),
     ...(mergedStreamTools.add
-      ? [tools.add(editor, { idsSuffixed: true })]
+      ? [tools.add(editor, { idsSuffixed: true, withDelays })]
       : []),
     ...(mergedStreamTools.delete
-      ? [tools.delete(editor, { idsSuffixed: true })]
+      ? [tools.delete(editor, { idsSuffixed: true, withDelays })]
       : []),
   ];
 
@@ -107,6 +110,7 @@ export async function callLLM(
       stream?: boolean;
       deleteEmptyCursorBlock?: boolean;
       onStart?: () => void;
+      withDelays?: boolean;
       _generateObjectOptions?: Partial<
         Parameters<typeof generateObject<any>>[0]
       >;
@@ -119,10 +123,12 @@ export async function callLLM(
     deleteEmptyCursorBlock,
     stream,
     onStart,
+    withDelays,
     ...rest
   } = {
     deleteEmptyCursorBlock: true,
     stream: true,
+    withDelays: true,
     ...opts,
   };
 
@@ -143,7 +149,7 @@ export async function callLLM(
     excludeBlockIds: deleteCursorBlock ? [deleteCursorBlock] : undefined,
   });
 
-  const streamTools = getStreamTools(editor, opts.defaultStreamTools);
+  const streamTools = getStreamTools(editor, withDelays,opts.defaultStreamTools, selectionInfo ? {from: selectionInfo._meta.startPos, to: selectionInfo._meta.endPos} : undefined);
 
   let response:
     | Awaited<ReturnType<typeof generateOperations<any>>>
@@ -174,14 +180,5 @@ export async function callLLM(
     onStart?.();
   }
 
-  return new CallLLMResult(response, () => {
-    const results = applyHTMLOperations(
-      editor,
-      response.operationsSource,
-      selectionInfo?._meta.startPos,
-      selectionInfo?._meta.endPos
-    );
-    const toolCallsStream = createAsyncIterableStreamFromAsyncIterable(results);
-    return toolCallsStream;
-  });
+return new CallLLMResult(response, streamTools);
 }

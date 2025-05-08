@@ -1,32 +1,102 @@
-import { createAddBlocksTool } from "../../../tools/createAddBlocksTool.js";
-import { createUpdateBlockTool } from "../../../tools/createUpdateBlockTool.js";
+import { PartialBlock } from "@blocknote/core";
+import {
+  AddBlocksToolCall,
+  createAddBlocksTool,
+} from "../../../tools/createAddBlocksTool.js";
+import {
+  createUpdateBlockTool,
+  UpdateBlockToolCall,
+} from "../../../tools/createUpdateBlockTool.js";
 import { deleteBlockTool } from "../../../tools/delete.js";
+import { getPartialHTML } from "./getPartialHTML.js";
+import { createHTMLRebaseTool } from "./rebaseTool.js";
 import { validateBlockFunction } from "./validate.js";
 
 export const tools = {
-  add: createAddBlocksTool<string>(
-    "Insert new blocks",
-    {
+  add: createAddBlocksTool<string>({
+    description: "Insert new blocks",
+    schema: {
       block: {
         $ref: "#/$defs/block",
       },
       $defs: {
         block: { type: "string", description: "html of block" },
-      }
+      },
     },
-    validateBlockFunction
-  ),
-  update: createUpdateBlockTool<string>(
-    "Update a block",
-    {
+    validateBlock: validateBlockFunction,
+    rebaseTool: createHTMLRebaseTool,
+    toJSONToolCall: async (editor, chunk) => {
+      const blocks = (
+        await Promise.all(
+          chunk.operation.blocks.map(async (html) => {
+            const parsedHtml = chunk.isPossiblyPartial
+              ? getPartialHTML(html)
+              : html;
+            if (!parsedHtml) {
+              return [];
+            }
+            return (await editor.tryParseHTMLToBlocks(parsedHtml)).map(
+              (block) => {
+                delete (block as any).id;
+                return block;
+              },
+            );
+          }),
+        )
+      ).flat();
+
+      if (blocks.length === 0) {
+        return undefined;
+      }
+
+      // hacky
+      if ((window as any).__TEST_OPTIONS) {
+        (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS.mockID = 0;
+      }
+
+      return {
+        ...chunk.operation,
+        blocks,
+      } satisfies AddBlocksToolCall<PartialBlock<any, any, any>>;
+    },
+  }),
+  update: createUpdateBlockTool<string>({
+    description: "Update a block",
+    schema: {
       block: {
         $ref: "#/$defs/block",
       },
       $defs: {
         block: { type: "string", description: "html of block" },
-      }
+      },
     },
-    validateBlockFunction
-  ),
+    validateBlock: validateBlockFunction,
+    rebaseTool: createHTMLRebaseTool,
+    toJSONToolCall: async (editor, chunk) => {
+      const html = chunk.isPossiblyPartial
+        ? getPartialHTML(chunk.operation.block)
+        : chunk.operation.block;
+
+      if (!html) {
+        return undefined;
+      }
+
+      const block = (await editor.tryParseHTMLToBlocks(html))[0];
+
+      // console.log("update", operation.block);
+      // console.log("html", html);
+      // hacky
+      if ((window as any).__TEST_OPTIONS) {
+        (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS.mockID = 0;
+      }
+
+      delete (block as any).id;
+
+      return {
+        ...chunk.operation,
+        block,
+      } satisfies UpdateBlockToolCall<PartialBlock<any, any, any>>;
+    },
+  }),
   delete: deleteBlockTool,
 };

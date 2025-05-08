@@ -1,6 +1,5 @@
-import { ApplyOperationResult } from "../executor/streamOperations/applyOperations.js";
 import { OperationsResult } from "../streamTool/callLLMWithStreamTools.js";
-import { AsyncIterableStream } from "../util/stream.js";
+import { StreamTool, StreamToolCall } from "../streamTool/streamTool.js";
 
 /**
  * Result of an LLM call with stream tools that apply changes to a BlockNote Editor
@@ -16,9 +15,7 @@ export class CallLLMResult {
      */
     public readonly llmResult: OperationsResult<any>,
 
-    private readonly createApplyToolCallsStream: () => AsyncIterableStream<
-      ApplyOperationResult<any>
-    >
+    private readonly streamTools: StreamTool<any>[]
   ) {}
 
   /**
@@ -26,9 +23,16 @@ export class CallLLMResult {
    *
    * (this method consumes underlying streams in `llmResult`)
    */
-  get applyToolCallsStream() {
-    // TODO: add test that you cannot call this twice
-    return this.createApplyToolCallsStream();
+  async *applyToolCalls() {
+    let currentStream: AsyncIterable<{
+      operation: StreamToolCall<StreamTool<any>[]>;
+      isUpdateToPreviousOperation: boolean;
+      isPossiblyPartial: boolean;
+    }> = this.llmResult.operationsSource;
+    for (const tool of this.streamTools) {
+      currentStream = tool.execute(currentStream);
+    }
+    yield* currentStream;
   }
 
   /**
@@ -37,7 +41,7 @@ export class CallLLMResult {
    * (this method consumes underlying streams in `llmResult`)
    */
   public async execute() {
-    for await (const _result of this.applyToolCallsStream) {
+    for await (const _result of this.applyToolCalls()) {
       // no op
     }
   }

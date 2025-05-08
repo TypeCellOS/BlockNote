@@ -222,18 +222,19 @@ export class AIExtension extends BlockNoteExtension {
       }
 
       // TODO: maybe split out the applying of operations
-      for await (const operation of ret.applyToolCallsStream) {
-        if (operation.result === "ok") {
-          // TODO: check should be part of pipeline
-          // NOTE: does this setState with an anon object trigger unnecessary re-renders?
-          this.store.setState({
-            aiMenuState: {
-              blockId: operation.lastBlockId,
-              status: "ai-writing",
-            },
-          });
-        }
-      }
+      await ret.execute();
+      // for await (const operation of ret.applyToolCallsStream) {
+      //   if (operation.result === "ok") {
+      //     // TODO: check should be part of pipeline
+      //     // NOTE: does this setState with an anon object trigger unnecessary re-renders?
+      //     this.store.setState({
+      //       aiMenuState: {
+      //         blockId: operation.lastBlockId,
+      //         status: "ai-writing",
+      //       },
+      //     });
+      //   }
+      // }
 
       this.setAIResponseStatus("user-reviewing");
     } catch (e) {

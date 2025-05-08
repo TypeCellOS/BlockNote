@@ -1,98 +1,234 @@
-import { BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor, PartialBlock, trackPosition } from "@blocknote/core";
 import { JSONSchema7 } from "json-schema";
-import { InvalidOrOk, streamTool } from "../streamTool/streamTool.js";
+import {
+  agentStepToTr,
+  delayAgentStep,
+  getStepsAsAgent,
+} from "../../prosemirror/agent.js";
+import { updateToReplaceSteps } from "../../prosemirror/changeset.js";
+import { RebaseTool } from "../../prosemirror/rebaseTool.js";
+import {
+  InvalidOrOk,
+  StreamTool,
+  streamTool,
+  StreamToolCall,
+} from "../streamTool/streamTool.js";
+
 export type UpdateBlockToolCall<T> = {
   type: "update";
   id: string;
   block: T;
 };
 
-export function createUpdateBlockTool<T>(
-  description: string,
+export function createUpdateBlockTool<T>(config: {
+  description: string;
   schema: {
-    block: JSONSchema7,
-    $defs?: JSONSchema7["$defs"],
-  },
+    block: JSONSchema7;
+    $defs?: JSONSchema7["$defs"];
+  };
   validateBlock: (
     block: any,
     editor: BlockNoteEditor<any, any, any>,
-    fallbackType?: string
-  ) => InvalidOrOk<T>
-) {
-  return (editor: BlockNoteEditor<any, any, any>, options: { idsSuffixed: boolean }) => streamTool<UpdateBlockToolCall<T>>(
-    "update",
-    description,
-    {
-      type: "object",
-      properties: {
-        id: {
-          type: "string",
-          description: "id of block to update",
-        },
-        block: schema.block,
-      },
-      required: ["id", "block"],
-      $defs: schema.$defs,
+    fallbackType?: string,
+  ) => InvalidOrOk<T>;
+  rebaseTool: (
+    id: string,
+    editor: BlockNoteEditor<any, any, any>,
+  ) => Promise<RebaseTool>;
+  toJSONToolCall: (
+    editor: BlockNoteEditor<any, any, any>,
+    chunk: {
+      operation: UpdateBlockToolCall<T>;
+      isUpdateToPreviousOperation: boolean;
+      isPossiblyPartial: boolean;
     },
-    (operation) => {
-      if (operation.type !== "update") {
-        return {
-          result: "invalid",
-          reason: "invalid operation type",
-        };
-      }
-
-      if (!operation.id) {
-        return {
-          result: "invalid",
-          reason: "id is required",
-        };
-      }
-
-      let id = operation.id;
-      if (options.idsSuffixed) {
-        if (!id?.endsWith("$")) {
+  ) => Promise<UpdateBlockToolCall<PartialBlock<any, any, any>> | undefined>;
+}) {
+  return (
+    editor: BlockNoteEditor<any, any, any>,
+    options: {
+      idsSuffixed: boolean;
+      withDelays: boolean;
+      updateSelection?: {
+        from: number;
+        to: number;
+      };
+    },
+  ) =>
+    streamTool<UpdateBlockToolCall<T>>({
+      name: "update",
+      description: config.description,
+      parameters: {
+        type: "object",
+        properties: {
+          id: {
+            type: "string",
+            description: "id of block to update",
+          },
+          block: config.schema.block,
+        },
+        required: ["id", "block"],
+        $defs: config.schema.$defs,
+      },
+      validate: (operation) => {
+        if (operation.type !== "update") {
           return {
             result: "invalid",
-            reason: "id must end with $",
+            reason: "invalid operation type",
           };
         }
 
-        id = id.slice(0, -1);
-      }
+        if (!operation.id) {
+          return {
+            result: "invalid",
+            reason: "id is required",
+          };
+        }
 
-      if (!operation.block) {
+        let id = operation.id;
+        if (options.idsSuffixed) {
+          if (!id?.endsWith("$")) {
+            return {
+              result: "invalid",
+              reason: "id must end with $",
+            };
+          }
+
+          id = id.slice(0, -1);
+        }
+
+        if (!operation.block) {
+          return {
+            result: "invalid",
+            reason: "block is required",
+          };
+        }
+
+        const block = editor.getBlock(id);
+
+        if (!block) {
+          // eslint-disable-next-line no-console
+          console.error("BLOCK NOT FOUND", id);
+          return {
+            result: "invalid",
+            reason: "block not found",
+          };
+        }
+
+        const ret = config.validateBlock(operation.block, editor, block.type);
+
+        if (ret.result === "invalid") {
+          return ret;
+        }
+
         return {
-          result: "invalid",
-          reason: "block is required",
+          result: "ok",
+          value: {
+            type: operation.type,
+            id,
+            block: ret.value,
+          },
         };
-      }
+      },
+      execute: async function* (
+        operationsStream: AsyncIterable<{
+          operation: StreamToolCall<StreamTool<any>[]>;
+          isUpdateToPreviousOperation: boolean;
+          isPossiblyPartial: boolean;
+        }>,
+      ) {
+        const STEP_SIZE = 50;
+        let minSize = STEP_SIZE;
+        const selectionPositions = options.updateSelection
+          ? {
+              from: trackPosition(editor, options.updateSelection.from),
+              to: trackPosition(editor, options.updateSelection.to),
+            }
+          : undefined;
 
-      const block = editor.getBlock(id);
+        for await (const chunk of operationsStream) {
+          if (chunk.operation.type !== "update") {
+            // ignore non-update operations
+            yield chunk;
+            continue;
+          }
 
-      if (!block) {
-        // eslint-disable-next-line no-console
-        console.error("BLOCK NOT FOUND", id);
-        return {
-          result: "invalid",
-          reason: "block not found",
-        };
-      }
+          const operation = chunk.operation as UpdateBlockToolCall<T>;
 
-      const ret = validateBlock(operation.block, editor, block.type);
+          if (chunk.isPossiblyPartial) {
+            // TODO: unit test and / or extract to separate pipeline step
+            const size = JSON.stringify(operation.block).length;
+            if (size < minSize) {
+              continue;
+            } else {
+              // console.log("increasing minSize", minSize);
+              // increase minSize for next chunk
+              minSize = size + STEP_SIZE;
+            }
+          } else {
+            // reset for next chunk
+            minSize = STEP_SIZE;
+          }
+          // console.log("apply", operation.block);
 
-      if (ret.result === "invalid") {
-        return ret;
-      }
+          // TODO: this might be inefficient, we might be able to pass a single rebaseTool as long as we map subsequent operations
+          const tool = await config.rebaseTool(operation.id, editor);
+          // console.log("update", JSON.stringify(chunk.operation, null, 2));
+          // Convert the update operation directly to ReplaceSteps
 
-      return {
-        result: "ok",
-        value: {
-          type: operation.type,
-          id,
-          block: ret.value,
-        },
-      };
-    }
-  );
+          const fromPos = selectionPositions
+            ? tool.invertMap.invert().map(selectionPositions.from())
+            : undefined;
+
+          const toPos = selectionPositions
+            ? tool.invertMap.invert().map(selectionPositions.to())
+            : undefined;
+
+          const jsonToolCall = await config.toJSONToolCall(editor, chunk);
+          if (!jsonToolCall) {
+            continue;
+          }
+
+          const steps = updateToReplaceSteps(
+            jsonToolCall,
+            tool.doc,
+            chunk.isPossiblyPartial,
+            fromPos,
+            toPos,
+          );
+
+          if (steps.length === 1 && chunk.isPossiblyPartial) {
+            // TODO: check if replace step only?
+            // TODO: this doesn't consistently work, as there might be > 1 step when changeset wrongly sees a "space" as "keep"
+
+            // when replacing a larger piece of text (try translating a 3 paragraph document), we want to do this as one single operation
+            // we don't want to do this "sentence-by-sentence"
+
+            // if there's only a single replace step to be done and we're partial, let's wait for more content
+            continue;
+          }
+
+          const inverted = steps.map((step) => step.map(tool.invertMap)!);
+
+          const agentSteps = getStepsAsAgent(
+            editor.prosemirrorState.doc,
+            editor.pmSchema,
+            inverted,
+          );
+          for (const step of agentSteps) {
+            if (options.withDelays) {
+              await delayAgentStep(step);
+            }
+            editor.transact((tr) => {
+              agentStepToTr(tr, step);
+            });
+            // yield {
+            //   ...chunk,
+            //   result: "ok",
+            //   lastBlockId: chunk.operation.id,
+            // };
+          }
+        }
+      },
+    });
 }
