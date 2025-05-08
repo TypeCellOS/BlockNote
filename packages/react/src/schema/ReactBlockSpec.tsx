@@ -192,7 +192,6 @@ export function createReactBlockSpec<
                         "bn-inline-content",
                         element.className
                       );
-                      element.setAttribute("data-editable", "");
                     }
                   }}
                 />
@@ -237,7 +236,6 @@ export function createReactBlockSpec<
                     "bn-inline-content",
                     element.className
                   );
-                  element.setAttribute("data-editable", "");
                 }
               }}
             />
@@ -271,7 +269,6 @@ export function createReactBlockSpec<
                     "bn-inline-content",
                     element.className
                   );
-                  element.setAttribute("data-editable", "");
                 }
               }}
             />
