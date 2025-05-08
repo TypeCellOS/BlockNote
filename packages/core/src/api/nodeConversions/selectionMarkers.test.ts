@@ -151,7 +151,11 @@ describe("Test ProseMirror selection HTML conversion", () => {
 
   // Sets the editor selection to the given start and end positions, then
   // exports the selected content to HTML and compares it to a snapshot.
-  function testSelection(testName: string, startPos: number, endPos: number) {
+  async function testSelection(
+    testName: string,
+    startPos: number,
+    endPos: number,
+  ) {
     editor.transact((tr) =>
       tr.setSelection(
         TextSelection.create(editor._tiptapEditor.state.doc, startPos, endPos),
@@ -162,7 +166,7 @@ describe("Test ProseMirror selection HTML conversion", () => {
 
     const blockNoteSelection = editor.getSelectedBlocksWithSelectionMarkers();
 
-    expect(
+    await expect(
       JSON.stringify(blockNoteSelection, undefined, 2),
     ).toMatchFileSnapshot(
       `./__snapshots_selection_markers_json__/${testName}.json`,
@@ -268,12 +272,16 @@ describe("Test ProseMirror selection HTML conversion", () => {
   for (const testCase of testCases) {
     // (TODO?)
     // eslint-disable-next-line jest/valid-title
-    it(testCase.testName, () => {
-      testSelection(testCase.testName, testCase.startPos, testCase.endPos);
+    it(testCase.testName, async () => {
+      await testSelection(
+        testCase.testName,
+        testCase.startPos,
+        testCase.endPos,
+      );
     });
   }
 
-  it("move end", () => {
+  it("move end", async () => {
     let ret = "";
 
     loopTextSelections(editor._tiptapEditor.state.doc, "end", (selection) => {
@@ -287,12 +295,12 @@ describe("Test ProseMirror selection HTML conversion", () => {
       ret += JSONString + "\n";
     });
 
-    expect(ret).toMatchFileSnapshot(
+    await expect(ret).toMatchFileSnapshot(
       `./__snapshots_selection_markers_json__/move_end.txt`,
     );
   });
 
-  it("move start", () => {
+  it("move start", async () => {
     let ret = "";
 
     loopTextSelections(editor._tiptapEditor.state.doc, "start", (selection) => {
@@ -306,7 +314,7 @@ describe("Test ProseMirror selection HTML conversion", () => {
       ret += JSONString + "\n";
     });
 
-    expect(ret).toMatchFileSnapshot(
+    await expect(ret).toMatchFileSnapshot(
       `./__snapshots_selection_markers_json__/move_start.txt`,
     );
   });

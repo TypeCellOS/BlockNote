@@ -149,7 +149,11 @@ describe("Test ProseMirror selection HTML conversion", () => {
 
   // Sets the editor selection to the given start and end positions, then
   // exports the selected content to HTML and compares it to a snapshot.
-  function testSelection(testName: string, startPos: number, endPos: number) {
+  async function testSelection(
+    testName: string,
+    startPos: number,
+    endPos: number,
+  ) {
     editor.transact((tr) =>
       tr.setSelection(
         TextSelection.create(editor._tiptapEditor.state.doc, startPos, endPos),
@@ -160,7 +164,7 @@ describe("Test ProseMirror selection HTML conversion", () => {
 
     const blockNoteSelection = editor.getSelection2();
 
-    expect(
+    await expect(
       JSON.stringify(blockNoteSelection, undefined, 2),
     ).toMatchFileSnapshot(`./__snapshots_selection_json__/${testName}.json`);
   }
@@ -260,12 +264,16 @@ describe("Test ProseMirror selection HTML conversion", () => {
   for (const testCase of testCases) {
     // (TODO?)
     // eslint-disable-next-line jest/valid-title
-    it(testCase.testName, () => {
-      testSelection(testCase.testName, testCase.startPos, testCase.endPos);
+    it(testCase.testName, async () => {
+      await testSelection(
+        testCase.testName,
+        testCase.startPos,
+        testCase.endPos,
+      );
     });
   }
 
-  it("move end", () => {
+  it("move end", async () => {
     const size = editor._tiptapEditor.state.doc.content.size;
 
     let ret = "";
@@ -281,12 +289,12 @@ describe("Test ProseMirror selection HTML conversion", () => {
       ret += JSONString + "\n";
     }
 
-    expect(ret).toMatchFileSnapshot(
+    await expect(ret).toMatchFileSnapshot(
       `./__snapshots_selection_json__/move_end.txt`,
     );
   });
 
-  it("move start", () => {
+  it("move start", async () => {
     const size = editor._tiptapEditor.state.doc.content.size;
 
     let ret = "";
@@ -303,7 +311,7 @@ describe("Test ProseMirror selection HTML conversion", () => {
       ret += JSONString + "\n";
     }
 
-    expect(ret).toMatchFileSnapshot(
+    await expect(ret).toMatchFileSnapshot(
       `./__snapshots_selection_json__/move_start.txt`,
     );
   });
