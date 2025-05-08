@@ -16,3 +16,4 @@ export * from "./ru.js";
 export * from "./uk.js";
 export * from "./vi.js";
 export * from "./zh.js";
+export * from "./zh-tw.js"
