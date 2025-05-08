@@ -150,10 +150,10 @@ describe("Test ProseMirror selection HTML conversion", () => {
   // Sets the editor selection to the given start and end positions, then
   // exports the selected content to HTML and compares it to a snapshot.
   function testSelection(testName: string, startPos: number, endPos: number) {
-    editor.dispatch(
-      editor._tiptapEditor.state.tr.setSelection(
-        TextSelection.create(editor._tiptapEditor.state.doc, startPos, endPos)
-      )
+    editor.transact((tr) =>
+      tr.setSelection(
+        TextSelection.create(editor._tiptapEditor.state.doc, startPos, endPos),
+      ),
     );
 
     // const slice = editor._tiptapEditor.state.selection.content();
@@ -161,7 +161,7 @@ describe("Test ProseMirror selection HTML conversion", () => {
     const blockNoteSelection = editor.getSelection2();
 
     expect(
-      JSON.stringify(blockNoteSelection, undefined, 2)
+      JSON.stringify(blockNoteSelection, undefined, 2),
     ).toMatchFileSnapshot(`./__snapshots_selection_json__/${testName}.json`);
   }
 
@@ -271,10 +271,10 @@ describe("Test ProseMirror selection HTML conversion", () => {
     let ret = "";
 
     for (let i = 0; i < size; i++) {
-      editor.dispatch(
-        editor._tiptapEditor.state.tr.setSelection(
-          TextSelection.create(editor._tiptapEditor.state.doc, 0, i)
-        )
+      editor.transact((tr) =>
+        tr.setSelection(
+          TextSelection.create(editor._tiptapEditor.state.doc, 0, i),
+        ),
       );
       const blockNoteSelection = editor.getSelection2();
       const JSONString = JSON.stringify(blockNoteSelection);
@@ -282,7 +282,7 @@ describe("Test ProseMirror selection HTML conversion", () => {
     }
 
     expect(ret).toMatchFileSnapshot(
-      `./__snapshots_selection_json__/move_end.txt`
+      `./__snapshots_selection_json__/move_end.txt`,
     );
   });
 
@@ -292,10 +292,10 @@ describe("Test ProseMirror selection HTML conversion", () => {
     let ret = "";
 
     for (let i = 0; i < size; i++) {
-      editor.dispatch(
-        editor._tiptapEditor.state.tr.setSelection(
-          TextSelection.create(editor._tiptapEditor.state.doc, i, size - 1)
-        )
+      editor.transact((tr) =>
+        tr.setSelection(
+          TextSelection.create(editor._tiptapEditor.state.doc, i, size - 1),
+        ),
       );
 
       const blockNoteSelection = editor.getSelection2();
@@ -304,7 +304,7 @@ describe("Test ProseMirror selection HTML conversion", () => {
     }
 
     expect(ret).toMatchFileSnapshot(
-      `./__snapshots_selection_json__/move_start.txt`
+      `./__snapshots_selection_json__/move_start.txt`,
     );
   });
 });

@@ -1,4 +1,8 @@
 {
+  "_meta": {
+    "startPos": 169,
+    "endPos": 175
+  },
   "blocks": [
     {
       "id": "8",
@@ -21,6 +25,6 @@
       "children": []
     }
   ],
-  "contentCutAtStart": true,
-  "contentCutAtEnd": true
+  "blockCutAtStart": "8",
+  "blockCutAtEnd": "8"
 }

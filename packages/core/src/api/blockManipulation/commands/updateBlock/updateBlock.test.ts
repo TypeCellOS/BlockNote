@@ -15,7 +15,7 @@ describe("Test updateBlock typing", () => {
         {
           // @ts-expect-error invalid type
           type: "non-existing",
-        }
+        },
       );
     } catch (e) {
       // ID doesn't exist, which is fine - this is a compile-time check
@@ -32,7 +32,7 @@ describe("Test updateBlock typing", () => {
             // @ts-expect-error invalid type
             level: 1,
           },
-        }
+        },
       );
     } catch (e) {
       // ID doesn't exist, which is fine - this is a compile-time check
@@ -45,7 +45,7 @@ describe("Test updateBlock typing", () => {
           props: {
             level: 1,
           },
-        }
+        },
       );
     } catch (e) {
       // ID doesn't exist, which is fine - this is a compile-time check
@@ -59,8 +59,8 @@ describe("Test updateBlock", () => {
       getEditor().transact((tr) =>
         updateBlock(tr, "heading-with-everything", {
           id: "new-id",
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -70,8 +70,8 @@ describe("Test updateBlock", () => {
       getEditor().transact((tr) =>
         updateBlock(tr, "heading-with-everything", {
           type: "paragraph",
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -84,8 +84,8 @@ describe("Test updateBlock", () => {
           props: {
             level: 3,
           },
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -101,8 +101,8 @@ describe("Test updateBlock", () => {
             textAlignment: "right",
             textColor: "blue",
           },
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -115,8 +115,8 @@ describe("Test updateBlock", () => {
           props: {
             level: undefined,
           },
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -132,8 +132,8 @@ describe("Test updateBlock", () => {
             textAlignment: undefined,
             textColor: undefined,
           },
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -144,8 +144,8 @@ describe("Test updateBlock", () => {
       getEditor().transact((tr) =>
         updateBlock(tr, "heading-with-everything", {
           content: "New content",
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -168,8 +168,8 @@ describe("Test updateBlock", () => {
               styles: { backgroundColor: "blue" },
             },
           ],
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -177,26 +177,28 @@ describe("Test updateBlock", () => {
 
   it("Update partial (offset start)", () => {
     const info = getBlockInfo(
-      getNodeById("heading-with-everything", getEditor().prosemirrorState.doc)!
+      getNodeById("heading-with-everything", getEditor().prosemirrorState.doc)!,
     );
 
     if (!info.isBlockContainer) {
       throw new Error("heading-with-everything is not a block container");
     }
 
-    updateBlock(
-      getEditor(),
-      "heading-with-everything",
-      {
-        content: [
-          {
-            type: "text",
-            text: "without styles",
-            styles: {},
-          },
-        ],
-      },
-      info.blockContent.beforePos + 9
+    getEditor().transact((tr) =>
+      updateBlock(
+        tr,
+        "heading-with-everything",
+        {
+          content: [
+            {
+              type: "text",
+              text: "without styles",
+              styles: {},
+            },
+          ],
+        },
+        info.blockContent.beforePos + 9,
+      ),
     );
 
     expect(getEditor().document).toMatchSnapshot();
@@ -204,27 +206,29 @@ describe("Test updateBlock", () => {
 
   it("Update partial (offset start + end)", () => {
     const info = getBlockInfo(
-      getNodeById("heading-with-everything", getEditor().prosemirrorState.doc)!
+      getNodeById("heading-with-everything", getEditor().prosemirrorState.doc)!,
     );
 
     if (!info.isBlockContainer) {
       throw new Error("heading-with-everything is not a block container");
     }
 
-    updateBlock(
-      getEditor(),
-      "heading-with-everything",
-      {
-        content: [
-          {
-            type: "text",
-            text: "without styles and ",
-            styles: {},
-          },
-        ],
-      },
-      info.blockContent.beforePos + 9,
-      info.blockContent.beforePos + 9
+    getEditor().transact((tr) =>
+      updateBlock(
+        tr,
+        "heading-with-everything",
+        {
+          content: [
+            {
+              type: "text",
+              text: "without styles and ",
+              styles: {},
+            },
+          ],
+        },
+        info.blockContent.beforePos + 9,
+        info.blockContent.beforePos + 9,
+      ),
     );
 
     expect(getEditor().document).toMatchSnapshot();
@@ -232,38 +236,40 @@ describe("Test updateBlock", () => {
 
   it("Update partial (props + offset end)", () => {
     const info = getBlockInfo(
-      getNodeById("heading-with-everything", getEditor().prosemirrorState.doc)!
+      getNodeById("heading-with-everything", getEditor().prosemirrorState.doc)!,
     );
 
     if (!info.isBlockContainer) {
       throw new Error("heading-with-everything is not a block container");
     }
 
-    updateBlock(
-      getEditor(),
-      "heading-with-everything",
-      {
-        props: {
-          level: 1,
-        },
-        content: [
-          {
-            type: "text",
-            text: "Title",
-            styles: {},
+    getEditor().transact((tr) => {
+      updateBlock(
+        tr,
+        "heading-with-everything",
+        {
+          props: {
+            level: 1,
           },
-        ],
-      },
-      undefined,
-      info.blockContent.beforePos + 9
-    );
+          content: [
+            {
+              type: "text",
+              text: "Title",
+              styles: {},
+            },
+          ],
+        },
+        undefined,
+        info.blockContent.beforePos + 8,
+      );
+    });
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Update partial (table cell)", () => {
     const info = getBlockInfo(
-      getNodeById("table-0", getEditor().prosemirrorState.doc)!
+      getNodeById("table-0", getEditor().prosemirrorState.doc)!,
     );
 
     if (!info.isBlockContainer) {
@@ -272,18 +278,20 @@ describe("Test updateBlock", () => {
 
     const cell = info.blockContent.node.resolve(2);
 
-    updateBlock(
-      getEditor(),
-      "table-0",
-      {
-        type: "table",
-        content: {
-          type: "tableContent",
-          rows: [{ cells: ["updated cell 1"] }],
+    getEditor().transact((tr) =>
+      updateBlock(
+        tr,
+        "table-0",
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            rows: [{ cells: ["updated cell 1"] }],
+          },
         },
-      },
-      info.blockContent.beforePos + 2,
-      info.blockContent.beforePos + 2 + cell.node().nodeSize
+        info.blockContent.beforePos + 2,
+        info.blockContent.beforePos + 2 + cell.node().nodeSize,
+      ),
     );
 
     expect(getEditor().document).toMatchSnapshot();
@@ -291,7 +299,7 @@ describe("Test updateBlock", () => {
 
   it("Update partial (table row)", () => {
     const info = getBlockInfo(
-      getNodeById("table-0", getEditor().prosemirrorState.doc)!
+      getNodeById("table-0", getEditor().prosemirrorState.doc)!,
     );
 
     if (!info.isBlockContainer) {
@@ -300,22 +308,24 @@ describe("Test updateBlock", () => {
 
     const cell = info.blockContent.node.resolve(1);
 
-    updateBlock(
-      getEditor(),
-      "table-0",
-      {
-        type: "table",
-        content: {
-          type: "tableContent",
-          rows: [
-            {
-              cells: ["updated cell 1", "updated cell 2", "updated cell 3"],
-            },
-          ],
+    getEditor().transact((tr) =>
+      updateBlock(
+        tr,
+        "table-0",
+        {
+          type: "table",
+          content: {
+            type: "tableContent",
+            rows: [
+              {
+                cells: ["updated cell 1", "updated cell 2", "updated cell 3"],
+              },
+            ],
+          },
         },
-      },
-      info.blockContent.beforePos + 1,
-      info.blockContent.beforePos + 1 + cell.node().nodeSize
+        info.blockContent.beforePos + 1,
+        info.blockContent.beforePos + 1 + cell.node().nodeSize,
+      ),
     );
 
     expect(getEditor().document).toMatchSnapshot();
@@ -339,8 +349,8 @@ describe("Test updateBlock", () => {
               ],
             },
           ],
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -384,8 +394,8 @@ describe("Test updateBlock", () => {
               ],
             },
           ],
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -396,7 +406,7 @@ describe("Test updateBlock", () => {
       getEditor().transact((tr) =>
         updateBlock(tr, "paragraph-0", {
           type: "table",
-        })
+        }),
       );
     }).toThrow();
   });
@@ -406,8 +416,8 @@ describe("Test updateBlock", () => {
       getEditor().transact((tr) =>
         updateBlock(tr, "table-0", {
           type: "paragraph",
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -432,8 +442,8 @@ describe("Test updateBlock", () => {
               },
             ],
           },
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -445,8 +455,8 @@ describe("Test updateBlock", () => {
         updateBlock(tr, "table-0", {
           type: "paragraph",
           content: "Paragraph",
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -457,8 +467,8 @@ describe("Test updateBlock", () => {
       getEditor().transact((tr) =>
         updateBlock(tr, "paragraph-0", {
           type: "image",
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -469,8 +479,8 @@ describe("Test updateBlock", () => {
       getEditor().transact((tr) =>
         updateBlock(tr, "image-0", {
           type: "paragraph",
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -482,8 +492,8 @@ describe("Test updateBlock", () => {
         updateBlock(tr, "image-0", {
           type: "paragraph",
           content: "Paragraph",
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -494,8 +504,8 @@ describe("Test updateBlock", () => {
       getEditor().transact((tr) =>
         updateBlock(tr, "image-0", {
           type: "table",
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -547,8 +557,8 @@ describe("Test updateBlock", () => {
               },
             ],
           },
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -559,8 +569,8 @@ describe("Test updateBlock", () => {
       getEditor().transact((tr) =>
         updateBlock(tr, "table-0", {
           type: "image",
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();

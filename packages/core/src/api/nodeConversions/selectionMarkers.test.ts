@@ -152,10 +152,10 @@ describe("Test ProseMirror selection HTML conversion", () => {
   // Sets the editor selection to the given start and end positions, then
   // exports the selected content to HTML and compares it to a snapshot.
   function testSelection(testName: string, startPos: number, endPos: number) {
-    editor.dispatch(
-      editor._tiptapEditor.state.tr.setSelection(
-        TextSelection.create(editor._tiptapEditor.state.doc, startPos, endPos)
-      )
+    editor.transact((tr) =>
+      tr.setSelection(
+        TextSelection.create(editor._tiptapEditor.state.doc, startPos, endPos),
+      ),
     );
 
     // const slice = editor._tiptapEditor.state.selection.content();
@@ -163,9 +163,9 @@ describe("Test ProseMirror selection HTML conversion", () => {
     const blockNoteSelection = editor.getSelectedBlocksWithSelectionMarkers();
 
     expect(
-      JSON.stringify(blockNoteSelection, undefined, 2)
+      JSON.stringify(blockNoteSelection, undefined, 2),
     ).toMatchFileSnapshot(
-      `./__snapshots_selection_markers_json__/${testName}.json`
+      `./__snapshots_selection_markers_json__/${testName}.json`,
     );
   }
 
@@ -280,7 +280,7 @@ describe("Test ProseMirror selection HTML conversion", () => {
       if (selection.empty) {
         return;
       }
-      editor.dispatch(editor._tiptapEditor.state.tr.setSelection(selection));
+      editor.transact((tr) => tr.setSelection(selection));
 
       const blockNoteSelection = editor.getSelectedBlocksWithSelectionMarkers();
       const JSONString = JSON.stringify(blockNoteSelection);
@@ -288,7 +288,7 @@ describe("Test ProseMirror selection HTML conversion", () => {
     });
 
     expect(ret).toMatchFileSnapshot(
-      `./__snapshots_selection_markers_json__/move_end.txt`
+      `./__snapshots_selection_markers_json__/move_end.txt`,
     );
   });
 
@@ -299,7 +299,7 @@ describe("Test ProseMirror selection HTML conversion", () => {
       if (selection.empty) {
         return;
       }
-      editor.dispatch(editor._tiptapEditor.state.tr.setSelection(selection));
+      editor.transact((tr) => tr.setSelection(selection));
 
       const blockNoteSelection = editor.getSelectedBlocksWithSelectionMarkers();
       const JSONString = JSON.stringify(blockNoteSelection);
@@ -307,7 +307,7 @@ describe("Test ProseMirror selection HTML conversion", () => {
     });
 
     expect(ret).toMatchFileSnapshot(
-      `./__snapshots_selection_markers_json__/move_start.txt`
+      `./__snapshots_selection_markers_json__/move_start.txt`,
     );
   });
 });
@@ -315,14 +315,14 @@ describe("Test ProseMirror selection HTML conversion", () => {
 function loopTextSelections(
   doc: Node,
   move: "start" | "end",
-  cb: (selection: Selection) => void
+  cb: (selection: Selection) => void,
 ) {
   const size = doc.content.size;
 
   for (let i = 0; i < size; i++) {
     const selection = TextSelection.between(
       move === "start" ? doc.resolve(i) : doc.resolve(0),
-      move === "start" ? doc.resolve(size - 1) : doc.resolve(i)
+      move === "start" ? doc.resolve(size - 1) : doc.resolve(i),
     );
     if (
       (move === "start" && selection.from !== i) ||
