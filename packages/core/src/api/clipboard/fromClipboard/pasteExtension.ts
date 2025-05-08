@@ -39,9 +39,9 @@ function defaultPasteHandler({
 
     if (data) {
       editor.pasteText(data);
-    }
 
-    return true;
+      return true;
+    }
   }
 
   let format: (typeof acceptedMIMETypes)[number] | undefined;
