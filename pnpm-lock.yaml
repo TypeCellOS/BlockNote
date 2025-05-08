@@ -2905,7 +2905,7 @@ importers:
         version: 1.2.1
       '@handlewithcare/prosemirror-suggest-changes':
         specifier: ^0.1.3
-        version: 0.1.3(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.3)(prosemirror-view@1.38.1)
+        version: 0.1.3(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.4)(prosemirror-view@1.38.1)
       '@hocuspocus/provider':
         specifier: ^2.15.2
         version: 2.15.2(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24)
@@ -2977,7 +2977,7 @@ importers:
         version: 1.8.1
       prosemirror-highlight:
         specifier: ^0.13.0
-        version: 0.13.0(@shikijs/types@3.2.1)(@types/hast@3.0.4)(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.3)(prosemirror-view@1.38.1)
+        version: 0.13.0(@shikijs/types@3.2.1)(@types/hast@3.0.4)(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.4)(prosemirror-view@1.38.1)
       prosemirror-model:
         specifier: ^1.24.1
         version: 1.25.0
@@ -2988,8 +2988,8 @@ importers:
         specifier: ^1.6.4
         version: 1.6.4
       prosemirror-transform:
-        specifier: ^1.10.2
-        version: 1.10.3
+        specifier: ^1.10.4
+        version: 1.10.4
       prosemirror-view:
         specifier: ^1.38.1
         version: 1.38.1
@@ -3456,7 +3456,7 @@ importers:
         version: 0.26.28(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@handlewithcare/prosemirror-suggest-changes':
         specifier: ^0.1.3
-        version: 0.1.3(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.3)(prosemirror-view@1.38.1)
+        version: 0.1.3(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.4)(prosemirror-view@1.38.1)
       '@tiptap/core':
         specifier: ^2.7.1
         version: 2.11.5(@tiptap/pm@2.11.5)
@@ -3491,8 +3491,8 @@ importers:
         specifier: ^1.6.4
         version: 1.6.4
       prosemirror-transform:
-        specifier: ^1.10.2
-        version: 1.10.3
+        specifier: ^1.10.4
+        version: 1.10.4
       prosemirror-view:
         specifier: ^1.33.7
         version: 1.38.1
@@ -3701,8 +3701,8 @@ importers:
         specifier: ^1.3.7
         version: 1.6.4
       prosemirror-transform:
-        specifier: ^1.9.0
-        version: 1.10.3
+        specifier: ^1.10.4
+        version: 1.10.4
       prosemirror-view:
         specifier: ^1.38.1
         version: 1.38.1
@@ -12097,8 +12097,8 @@ packages:
       prosemirror-state: ^1.4.2
       prosemirror-view: ^1.33.8
 
-  prosemirror-transform@1.10.3:
-    resolution: {integrity: sha512-Nhh/+1kZGRINbEHmVu39oynhcap4hWTs/BlU7NnxWj3+l0qi8I1mu67v6mMdEe/ltD8hHvU4FV6PHiCw2VSpMw==}
+  prosemirror-transform@1.10.4:
+    resolution: {integrity: sha512-pwDy22nAnGqNR1feOQKHxoFkkUtepoFAd3r2hbEDsnf4wp57kKA36hXsB3njA9FtONBEwSDnDeCiJe+ItD+ykw==}
 
   prosemirror-view@1.38.1:
     resolution: {integrity: sha512-4FH/uM1A4PNyrxXbD+RAbAsf0d/mM0D/wAKSVVWK7o0A9Q/oOXJBrw786mBf2Vnrs/Edly6dH6Z2gsb7zWwaUw==}
@@ -15291,11 +15291,11 @@ snapshots:
       emoji-mart: 5.6.0
       hast-util-from-dom: 4.2.0
       prosemirror-dropcursor: 1.8.1
-      prosemirror-highlight: 0.9.0(@types/hast@3.0.4)(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.3)(prosemirror-view@1.38.1)(shiki@1.29.2)
+      prosemirror-highlight: 0.9.0(@types/hast@3.0.4)(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.4)(prosemirror-view@1.38.1)(shiki@1.29.2)
       prosemirror-model: 1.25.0
       prosemirror-state: 1.4.3
       prosemirror-tables: 1.6.4
-      prosemirror-transform: 1.10.3
+      prosemirror-transform: 1.10.4
       prosemirror-view: 1.38.1
       rehype-format: 5.0.1
       rehype-parse: 8.0.5
@@ -15844,11 +15844,11 @@ snapshots:
 
   '@floating-ui/utils@0.2.9': {}
 
-  '@handlewithcare/prosemirror-suggest-changes@0.1.3(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.3)(prosemirror-view@1.38.1)':
+  '@handlewithcare/prosemirror-suggest-changes@0.1.3(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.4)(prosemirror-view@1.38.1)':
     dependencies:
       prosemirror-model: 1.25.0
       prosemirror-state: 1.4.3
-      prosemirror-transform: 1.10.3
+      prosemirror-transform: 1.10.4
       prosemirror-view: 1.38.1
 
   '@hapi/hoek@9.3.0': {}
@@ -18206,7 +18206,7 @@ snapshots:
       prosemirror-state: 1.4.3
       prosemirror-tables: 1.6.4
       prosemirror-trailing-node: 3.0.0(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)
-      prosemirror-transform: 1.10.3
+      prosemirror-transform: 1.10.4
       prosemirror-view: 1.38.1
 
   '@tiptap/react@2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
@@ -23632,11 +23632,11 @@ snapshots:
 
   prosemirror-changeset@2.2.1:
     dependencies:
-      prosemirror-transform: 1.10.3
+      prosemirror-transform: 1.10.4
 
   prosemirror-changeset@2.3.0:
     dependencies:
-      prosemirror-transform: 1.10.3
+      prosemirror-transform: 1.10.4
 
   prosemirror-collab@1.3.1:
     dependencies:
@@ -23646,12 +23646,12 @@ snapshots:
     dependencies:
       prosemirror-model: 1.25.0
       prosemirror-state: 1.4.3
-      prosemirror-transform: 1.10.3
+      prosemirror-transform: 1.10.4
 
   prosemirror-dropcursor@1.8.1:
     dependencies:
       prosemirror-state: 1.4.3
-      prosemirror-transform: 1.10.3
+      prosemirror-transform: 1.10.4
       prosemirror-view: 1.38.1
 
   prosemirror-gapcursor@1.3.2:
@@ -23661,35 +23661,35 @@ snapshots:
       prosemirror-state: 1.4.3
       prosemirror-view: 1.38.1
 
-  prosemirror-highlight@0.13.0(@shikijs/types@3.2.1)(@types/hast@3.0.4)(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.3)(prosemirror-view@1.38.1):
+  prosemirror-highlight@0.13.0(@shikijs/types@3.2.1)(@types/hast@3.0.4)(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.4)(prosemirror-view@1.38.1):
     optionalDependencies:
       '@shikijs/types': 3.2.1
       '@types/hast': 3.0.4
       prosemirror-model: 1.25.0
       prosemirror-state: 1.4.3
-      prosemirror-transform: 1.10.3
+      prosemirror-transform: 1.10.4
       prosemirror-view: 1.38.1
 
-  prosemirror-highlight@0.9.0(@types/hast@3.0.4)(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.3)(prosemirror-view@1.38.1)(shiki@1.29.2):
+  prosemirror-highlight@0.9.0(@types/hast@3.0.4)(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.4)(prosemirror-view@1.38.1)(shiki@1.29.2):
     optionalDependencies:
       '@types/hast': 3.0.4
       prosemirror-model: 1.25.0
       prosemirror-state: 1.4.3
-      prosemirror-transform: 1.10.3
+      prosemirror-transform: 1.10.4
       prosemirror-view: 1.38.1
       shiki: 1.29.2
 
   prosemirror-history@1.4.1:
     dependencies:
       prosemirror-state: 1.4.3
-      prosemirror-transform: 1.10.3
+      prosemirror-transform: 1.10.4
       prosemirror-view: 1.38.1
       rope-sequence: 1.3.4
 
   prosemirror-inputrules@1.5.0:
     dependencies:
       prosemirror-state: 1.4.3
-      prosemirror-transform: 1.10.3
+      prosemirror-transform: 1.10.4
 
   prosemirror-keymap@1.2.2:
     dependencies:
@@ -23721,12 +23721,12 @@ snapshots:
     dependencies:
       prosemirror-model: 1.25.0
       prosemirror-state: 1.4.3
-      prosemirror-transform: 1.10.3
+      prosemirror-transform: 1.10.4
 
   prosemirror-state@1.4.3:
     dependencies:
       prosemirror-model: 1.25.0
-      prosemirror-transform: 1.10.3
+      prosemirror-transform: 1.10.4
       prosemirror-view: 1.38.1
 
   prosemirror-tables@1.6.4:
@@ -23734,7 +23734,7 @@ snapshots:
       prosemirror-keymap: 1.2.2
       prosemirror-model: 1.25.0
       prosemirror-state: 1.4.3
-      prosemirror-transform: 1.10.3
+      prosemirror-transform: 1.10.4
       prosemirror-view: 1.38.1
 
   prosemirror-trailing-node@3.0.0(prosemirror-model@1.25.0)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1):
@@ -23745,7 +23745,7 @@ snapshots:
       prosemirror-state: 1.4.3
       prosemirror-view: 1.38.1
 
-  prosemirror-transform@1.10.3:
+  prosemirror-transform@1.10.4:
     dependencies:
       prosemirror-model: 1.25.0
 
@@ -23753,7 +23753,7 @@ snapshots:
     dependencies:
       prosemirror-model: 1.25.0
       prosemirror-state: 1.4.3
-      prosemirror-transform: 1.10.3
+      prosemirror-transform: 1.10.4
 
   protocols@2.0.2: {}
 

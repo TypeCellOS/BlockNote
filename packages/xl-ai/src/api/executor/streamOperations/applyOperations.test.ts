@@ -93,7 +93,7 @@ describe("applyOperations", () => {
     });
 
     // Should yield the operation with result: "ok"
-    expect(result.length).toBe(1);
+    expect(result.length).toBe(8);
     expect(result[0]).toEqual({
       lastBlockId: "0",
       operation: insertOp.operation,

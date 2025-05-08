@@ -5,7 +5,7 @@ import {
   insertBlocksTr,
   removeAndInsertBlocksTr,
 } from "@blocknote/core";
-import { Mapping, ReplaceStep, Step } from "prosemirror-transform";
+import { Mapping } from "prosemirror-transform";
 import {
   AgentStep,
   agentStepToTr,
@@ -109,7 +109,7 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
             false
           );
 
-          const inverted = mapStepsWithStructure(steps, tool.invertMap);
+          const inverted = steps.map((step) => step.map(tool.invertMap)!);
           agentSteps = getStepsAsAgent(editor, inverted);
         } else {
           const ret = insertBlocksTr(
@@ -193,7 +193,7 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
         continue;
       }
 
-      const inverted = mapStepsWithStructure(steps, tool.invertMap);
+      const inverted = steps.map((step) => step.map(tool.invertMap)!);
 
       const agentSteps = getStepsAsAgent(editor, inverted);
       for (const step of agentSteps) {
@@ -230,20 +230,4 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
       throw new UnreachableCaseError(operation.type);
     }
   }
-}
-
-// keep structure when inverting (https://github.com/ProseMirror/prosemirror/issues/1521)
-function mapStepsWithStructure(steps: Step[], mapping: Mapping) {
-  return steps.map((step) => {
-    const ret = step.map(mapping)!;
-    if (ret instanceof ReplaceStep) {
-      return new ReplaceStep(
-        ret.from,
-        ret.to,
-        ret.slice,
-        (step as any).structure
-      );
-    }
-    return ret;
-  });
 }

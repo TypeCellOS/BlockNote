@@ -54,7 +54,7 @@
     "@handlewithcare/prosemirror-suggest-changes": "^0.1.3",
     "prosemirror-changeset": "^2.3.0",
     "prosemirror-tables": "^1.6.4",
-    "prosemirror-transform": "^1.10.2",
+    "prosemirror-transform": "^1.10.4",
     "prosemirror-model": "^1.24.1",
     "@ewoudenberg/difflib": "^0.1.0",
     "@ai-sdk/openai-compatible": "^0.2.0",
