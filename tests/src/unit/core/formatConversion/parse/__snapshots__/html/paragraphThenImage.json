@@ -1,0 +1,69 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Numbered List 1",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "numberedListItem",
+  },
+  {
+    "children": [
+      {
+        "children": [],
+        "content": undefined,
+        "id": "3",
+        "props": {
+          "backgroundColor": "default",
+          "caption": "",
+          "name": "",
+          "previewWidth": 512,
+          "showPreview": true,
+          "textAlignment": "left",
+          "url": "http://localhost:3000/exampleURL",
+        },
+        "type": "image",
+      },
+    ],
+    "content": [
+      {
+        "styles": {},
+        "text": "Numbered List 2",
+        "type": "text",
+      },
+    ],
+    "id": "2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "numberedListItem",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Numbered List 3",
+        "type": "text",
+      },
+    ],
+    "id": "4",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "numberedListItem",
+  },
+]

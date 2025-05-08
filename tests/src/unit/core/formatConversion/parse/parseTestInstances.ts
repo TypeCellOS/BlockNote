@@ -231,6 +231,51 @@ export const parseTestInstancesHTML: TestInstance<
   },
   {
     testCase: {
+      name: "TESTING",
+      content: `
+      <ol>
+        <li>
+          <img src="exampleURL" />
+          <p>Numbered List 2</p>
+        </li>
+        <li>Numbered List 3</li>
+      </ol>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "paragraphThenImage",
+      content: `
+      <ol>
+        <li>Numbered List 1</li>
+        <li>
+          <p>Numbered List 2</p>
+          <img src="exampleURL" />
+        </li>
+        <li>Numbered List 3</li>
+      </ol>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "flatNestedList",
+      content: `
+      <ol>
+        <li>Numbered List 1</li>
+        <li>
+        <ul>
+          <li>Nested Bullet List Item</li>
+        </ul>
+        </li>
+        <li>Numbered List 3</li>
+      </ol>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
       name: "divs",
       content: `<div>Single Div</div>
 <div>

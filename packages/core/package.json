@@ -96,7 +96,7 @@
     "hast-util-from-dom": "^5.0.1",
     "prosemirror-dropcursor": "^1.8.1",
     "prosemirror-highlight": "^0.13.0",
-    "prosemirror-model": "^1.24.1",
+    "prosemirror-model": "^1.25.1",
     "prosemirror-state": "^1.4.3",
     "prosemirror-tables": "^1.6.4",
     "prosemirror-transform": "^1.10.2",

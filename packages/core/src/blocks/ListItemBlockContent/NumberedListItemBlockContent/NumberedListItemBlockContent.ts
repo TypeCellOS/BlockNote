@@ -1,5 +1,5 @@
 import { InputRule } from "@tiptap/core";
-import { DOMParser } from "@tiptap/pm/model";
+import { DOMParser, Fragment, Node } from "@tiptap/pm/model";
 import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromSelection } from "../../../api/getBlockInfoFromPos.js";
 import {
@@ -8,10 +8,7 @@ import {
   createStronglyTypedTiptapNode,
   propsToAttributes,
 } from "../../../schema/index.js";
-import {
-  createDefaultBlockDOMOutputSpec,
-  mergeParagraphs,
-} from "../../defaultBlockHelpers.js";
+import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers.js";
 import { defaultProps } from "../../defaultProps.js";
 import { handleEnter } from "../ListItemKeyboardShortcuts.js";
 import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin.js";
@@ -145,19 +142,54 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
         // As `li` elements can contain multiple paragraphs, we need to merge their contents
         // into a single one so that ProseMirror can parse everything correctly.
         getContent: (node, schema) => {
-          mergeParagraphs(node as HTMLElement);
+          const nodeElement = node as HTMLElement;
 
+          console.log("nodeElement", nodeElement.innerHTML);
+
+          // This parses everything as through it were within a blockGroup
           const parser = DOMParser.fromSchema(schema);
+          const graftNode = document.createElement("div");
+          // TODO probably a smarter way to do this
+          graftNode.innerHTML = nodeElement.innerHTML;
+          const parsedContent = parser.parse(graftNode, {
+            topNode: schema.nodes.blockGroup.create(),
+          });
+          // const originalParsedContent = parser.parse(node, {
+          //   topNode: schema.nodes[this.name].create(),
+          // });
 
-          const parentNode = parser.parse(
-            (node as HTMLElement).querySelector("p") || node,
-            {
-              topNode: schema.nodes[this.name].create(),
+          // console.log("normally", originalParsedContent.toString());
+
+          console.log("parsedContent", parsedContent.toString());
+          const firstNode = parsedContent.firstChild?.firstChild;
+
+          console.log("firstNode is a", firstNode?.type.name);
+
+          if (parsedContent.firstChild?.firstChild?.isTextblock) {
+            console.log(parsedContent.toString());
+            const el = parsedContent.firstChild.firstChild;
+            console.log("el", el.toString());
+            const li = schema.nodes[this.name].create({}, el.content);
+            console.log("li", li.toString());
+            const rest = parsedContent.content.cut(el.content.size + 4);
+            console.log("rest", rest.toString());
+            if (!rest.size) {
+              return li.content;
             }
-          );
-
-          return parentNode.content;
+            const res = li.content.addToEnd(parsedContent.copy(rest));
+            console.log("res", res.toString());
+            console.log("======");
+            return res;
+          } else {
+            // is an image or something else
+            console.log("firstNode does not have content");
+            const result = Fragment.from([parsedContent]);
+            console.log("result", result.toString());
+            console.log("");
+            return result;
+          }
         },
+        priority: 300,
         node: "numberedListItem",
       },
     ];
