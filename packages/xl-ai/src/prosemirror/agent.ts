@@ -168,7 +168,9 @@ export function getStepsAsAgent(editor: BlockNoteEditor, steps: Step[]) {
     // b) actually delete / insert the content and let prosemirror-suggest-changes handle the marks
     for (let i = sliceTo; i <= step.slice.content.size; i++) {
       const stepIndex = tr.steps.length;
-      if (first) {
+      if (first && step.from !== step.to) {
+        // in the first agent step (first character replacement) we mark existing content (if any) as deleted
+        // (step.from !== step.to is used to check for replacements vs inserts)
         const $pos = tr.doc.resolve(tr.mapping.map(step.from));
         if ($pos.nodeAfter?.isBlock) {
           // mark the entire node as deleted. This can be needed for inline nodes or table cells

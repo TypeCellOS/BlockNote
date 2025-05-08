@@ -31,9 +31,19 @@ export type AsyncIterableStream<T> = AsyncIterable<T> & ReadableStream<T>;
 export function createAsyncIterableStream<T>(
   source: ReadableStream<T>
 ): AsyncIterableStream<T> {
+  if (source.locked) {
+    throw new Error(
+      "Stream (source) is already locked and cannot be iterated."
+    );
+  }
+
   const stream = source.pipeThrough(new TransformStream<T, T>());
 
   (stream as AsyncIterableStream<T>)[Symbol.asyncIterator] = () => {
+    if (stream.locked) {
+      throw new Error("Stream is already locked and cannot be iterated again.");
+    }
+
     const reader = stream.getReader();
     return {
       async next(): Promise<IteratorResult<T>> {

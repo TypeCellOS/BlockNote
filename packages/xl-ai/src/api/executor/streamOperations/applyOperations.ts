@@ -120,6 +120,7 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
             i > 0 ? "after" : operation.position
           );
           addedBlockIds.push(...ret.map((r) => r.id));
+          // TODO: inverted needed?
           agentSteps = getStepsAsAgent(editor, tr.steps);
         }
         agentSteps = agentSteps
@@ -214,6 +215,7 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
 
       const agentSteps = getStepsAsAgent(editor, tr.steps);
 
+      // TODO: invert?
       for (const step of agentSteps) {
         const tr = await agentStepToTr(editor, step, options);
         mapping.appendMapping(tr.mapping);
@@ -228,10 +230,6 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
       throw new UnreachableCaseError(operation.type);
     }
   }
-  // TODO: remove?
-  // applySuggestions(editor.prosemirrorState, (tr) => {
-  //   editor.dispatch(tr);
-  // });
 }
 
 // keep structure when inverting (https://github.com/ProseMirror/prosemirror/issues/1521)
@@ -249,24 +247,3 @@ function mapStepsWithStructure(steps: Step[], mapping: Mapping) {
     return ret;
   });
 }
-
-/*
-
-// insert
-- insert block
-- per stream update:
-  - update block (char by char)
-
-// delete
-- select text
-- delete text
-
-// update:
-- calculate diffs (changeset)
-- per diff:
-  - select text
-  - replace text
-  - insert text
-
-
-*/

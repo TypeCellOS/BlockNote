@@ -118,19 +118,13 @@ describe("Models", () => {
     describe(`${params.model.provider}/${params.model.modelId} (${
       params.stream ? "streaming" : "non-streaming"
     })`, () => {
-      generateSharedTestCases(
-        (editor, options) =>
-          callLLM(editor, {
-            ...options,
-            model: params.model,
-            maxRetries: 0,
-            stream: params.stream,
-          }),
-        // markdownblocks doesn't support these:
-        {
-          // mentions: true,
-          // textAlignment: true,
-        }
+      generateSharedTestCases((editor, options) =>
+        callLLM(editor, {
+          ...options,
+          model: params.model,
+          maxRetries: 0,
+          stream: params.stream,
+        })
       );
     });
   }

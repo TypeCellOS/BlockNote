@@ -13,7 +13,8 @@ import { createStreamToolsArraySchema } from "./jsonSchema.js";
 
 import {
   AsyncIterableStream,
-  createAsyncIterableStream
+  createAsyncIterableStream,
+  createAsyncIterableStreamFromAsyncIterable,
 } from "../util/stream.js";
 import { filterNewOrUpdatedOperations } from "./filterNewOrUpdatedOperations.js";
 import {
@@ -35,21 +36,47 @@ export type LLMRequestOptions = Optional<
   "maxRetries"
 >;
 
+/**
+ * Result of an LLM call with stream tools
+ */
+export type OperationsResult<T extends StreamTool<any>[]> = {
+  /**
+   * Result of the underlying `streamObject` (AI SDK) call, or `undefined` if non-streaming mode
+   */
+  streamObjectResult: StreamObjectResult<any, any, any> | undefined;
+  /**
+   * Result of the underlying `generateObject` (AI SDK) call, or `undefined` if streaming mode
+   */
+  generateObjectResult: GenerateObjectResult<any> | undefined;
+  /**
+   * Stream of tool call operations, these are the operations the LLM "decided" to execute
+   *
+   * Calling this consumes the underlying streams
+   */
+  operationsSource: AsyncIterableStream<{
+    operation: StreamToolCall<T>;
+    isUpdateToPreviousOperation: boolean;
+    isPossiblyPartial: boolean;
+  }>;
+};
+
 export async function generateOperations<T extends StreamTool<any>[]>(
   streamTools: T,
-  opts: LLMRequestOptions & { _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]> },
-): Promise<{
-  result: GenerateObjectResult<{ operations: any }>;
-  operationsSource: AsyncIterable<{
-    operation: StreamToolCall<T>;
-    isUpdateToPreviousOperation: boolean; // TODO: remove?
-    isPossiblyPartial: boolean; // TODO: remove?
-  }>;
-}> {
-  const {  _generateObjectOptions, ...rest } = opts;
+  opts: LLMRequestOptions & {
+    _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]>;
+  }
+): Promise<OperationsResult<T>> {
+  const { _generateObjectOptions, ...rest } = opts;
 
-  if (_generateObjectOptions && ("output" in  _generateObjectOptions || "schema" in _generateObjectOptions || 'mode' in _generateObjectOptions)) {
-    throw new Error("Cannot provide output or schema in _generateObjectOptions");
+  if (
+    _generateObjectOptions &&
+    ("output" in _generateObjectOptions ||
+      "schema" in _generateObjectOptions ||
+      "mode" in _generateObjectOptions)
+  ) {
+    throw new Error(
+      "Cannot provide output or schema in _generateObjectOptions"
+    );
   }
 
   const schema = jsonSchema(createStreamToolsArraySchema(streamTools));
@@ -59,7 +86,7 @@ export async function generateOperations<T extends StreamTool<any>[]>(
     mode: "tool" as const,
     output: "object" as const,
     schema,
-    
+
     // configurable options for streamObject
 
     // - optional, with defaults
@@ -68,31 +95,48 @@ export async function generateOperations<T extends StreamTool<any>[]>(
     ...rest,
 
     // extra options for streamObject
-    ...(_generateObjectOptions ?? {}) as any,
+    ...((_generateObjectOptions ?? {}) as any),
   };
 
   const ret = await generateObject<{ operations: any }>(options);
 
   const stream = operationsToStream(ret.object);
+
   if (stream.result === "invalid") {
     throw new Error(stream.reason);
   }
-  
+
+  let _operationsSource: OperationsResult<T>["operationsSource"];
+
   return {
-    result: ret,
-    operationsSource: preprocessOperationsNonStreaming(
-      stream.value,
-      streamTools
-    ),
+    streamObjectResult: undefined,
+    generateObjectResult: ret,
+    get operationsSource() {
+      if (!_operationsSource) {
+        _operationsSource = createAsyncIterableStreamFromAsyncIterable(
+          preprocessOperationsNonStreaming(stream.value, streamTools)
+        );
+      }
+      return _operationsSource;
+    },
   };
 }
 
-export function operationsToStream<T extends StreamTool<any>[]>(object: unknown): InvalidOrOk<AsyncIterable<{
-  partialOperation: StreamToolCall<T>;
-  isUpdateToPreviousOperation: boolean;
-  isPossiblyPartial: boolean;
-}>> {
-  if (!object || typeof object !== "object" || !("operations" in object) || !Array.isArray(object.operations)) {
+export function operationsToStream<T extends StreamTool<any>[]>(
+  object: unknown
+): InvalidOrOk<
+  AsyncIterable<{
+    partialOperation: StreamToolCall<T>;
+    isUpdateToPreviousOperation: boolean;
+    isPossiblyPartial: boolean;
+  }>
+> {
+  if (
+    !object ||
+    typeof object !== "object" ||
+    !("operations" in object) ||
+    !Array.isArray(object.operations)
+  ) {
     return {
       result: "invalid",
       reason: "No operations returned",
@@ -119,21 +163,23 @@ export function operationsToStream<T extends StreamTool<any>[]>(object: unknown)
 
 export async function streamOperations<T extends StreamTool<any>[]>(
   streamTools: T,
-  opts: LLMRequestOptions & { _streamObjectOptions?: Partial<Parameters<typeof streamObject<{ operations: any[] }>>[0]> },
+  opts: LLMRequestOptions & {
+    _streamObjectOptions?: Partial<
+      Parameters<typeof streamObject<{ operations: any[] }>>[0]
+    >;
+  },
   onStart: () => void = () => {
     // noop
   }
-): Promise<{
-  result: StreamObjectResult<any, any, any>;
-  operationsSource: AsyncIterable<{
-    operation: StreamToolCall<T>;
-    isUpdateToPreviousOperation: boolean;
-    isPossiblyPartial: boolean;
-  }>;
-}> {
-  const {  _streamObjectOptions, ...rest } = opts;
+): Promise<OperationsResult<T>> {
+  const { _streamObjectOptions, ...rest } = opts;
 
-  if (_streamObjectOptions && ("output" in  _streamObjectOptions || "schema" in _streamObjectOptions || 'mode' in _streamObjectOptions)) {
+  if (
+    _streamObjectOptions &&
+    ("output" in _streamObjectOptions ||
+      "schema" in _streamObjectOptions ||
+      "mode" in _streamObjectOptions)
+  ) {
     throw new Error("Cannot provide output or schema in _streamObjectOptions");
   }
 
@@ -144,7 +190,7 @@ export async function streamOperations<T extends StreamTool<any>[]>(
     mode: "tool" as const,
     output: "object" as const,
     schema,
-    
+
     // configurable options for streamObject
 
     // - optional, with defaults
@@ -153,22 +199,32 @@ export async function streamOperations<T extends StreamTool<any>[]>(
     ...rest,
 
     // extra options for streamObject
-    ...(opts._streamObjectOptions ?? {}) as any,
+    ...((opts._streamObjectOptions ?? {}) as any),
   };
 
   const ret = streamObject<{ operations: any }>(options);
 
+  let _operationsSource: OperationsResult<T>["operationsSource"];
+
   return {
-    result: ret,
-    operationsSource: preprocessOperationsStreaming(
-      filterNewOrUpdatedOperations(
-        streamOnStartCallback(
-          partialObjectStreamThrowError(ret.fullStream),
-          onStart
-        )
-      ),
-      streamTools
-    ),
+    streamObjectResult: ret,
+    generateObjectResult: undefined,
+    get operationsSource() {
+      if (!_operationsSource) {
+        _operationsSource = createAsyncIterableStreamFromAsyncIterable(
+          preprocessOperationsStreaming(
+            filterNewOrUpdatedOperations(
+              streamOnStartCallback(
+                partialObjectStreamThrowError(ret.fullStream),
+                onStart
+              )
+            ),
+            streamTools
+          )
+        );
+      }
+      return _operationsSource;
+    },
   };
 }
 

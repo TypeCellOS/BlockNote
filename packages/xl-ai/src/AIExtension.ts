@@ -13,6 +13,7 @@ import { Plugin, PluginKey } from "prosemirror-state";
 import { fixTablesKey } from "prosemirror-tables";
 import { createStore } from "zustand/vanilla";
 import { PromptOrMessages, llm } from "./api";
+import { CallLLMResult } from "./api/formats/CallLLMResult";
 import { LLMRequestOptions } from "./api/streamTool/callLLMWithStreamTools";
 // type AIPluginState = {
 //   aiMenuBlockID: string | undefined;
@@ -198,7 +199,7 @@ export class AIExtension extends BlockNoteExtension {
     this.setAIResponseStatus("thinking");
 
     try {
-      let ret: Awaited<ReturnType<typeof llm.json.call>>;
+      let ret: CallLLMResult;
 
       // TODO: maybe separate functions for streaming / non-streaming?
       if (options.dataFormat === "json") {
@@ -219,9 +220,10 @@ export class AIExtension extends BlockNoteExtension {
       }
 
       // TODO: maybe split out the applying of operations
-      for await (const operation of ret.toolCallsStream) {
+      for await (const operation of ret.applyToolCallsStream) {
         if (operation.result === "ok") {
           // TODO: check should be part of pipeline
+          // NOTE: does this setState with an anon object trigger unnecessary re-renders?
           this.store.setState({
             aiMenuState: {
               blockId: operation.lastBlockId,

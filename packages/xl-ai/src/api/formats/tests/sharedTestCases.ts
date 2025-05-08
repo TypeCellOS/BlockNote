@@ -3,14 +3,20 @@ import { describe, expect, it } from "vitest";
 
 import { getCurrentTest } from "@vitest/runner";
 import path from "path";
-import { getAIExtension } from "../../../AIExtension.js";
+import { createAIExtension, getAIExtension } from "../../../AIExtension.js";
 import { testUpdateOperations } from "../../../testUtil/updates/updateOperations.js";
+import { CallLLMResult } from "../CallLLMResult.js";
 
 const BASE_FILE_PATH = path.resolve(__dirname, "__snapshots__");
 
 function createEditor(initialContent: PartialBlock[]) {
   return BlockNoteEditor.create({
     initialContent,
+    _extensions: {
+      ai: createAIExtension({
+        model: undefined as any,
+      }),
+    },
   });
 }
 
@@ -30,7 +36,7 @@ export function generateSharedTestCases(
   callLLM: (
     editor: BlockNoteEditor<any, any, any>,
     params: { userPrompt: string }
-  ) => Promise<any>,
+  ) => Promise<CallLLMResult>,
   skipTestsRequiringCapabilities?: {
     mentions?: boolean;
     textAlignment?: boolean;
@@ -55,7 +61,7 @@ export function generateSharedTestCases(
         const result = await callLLM(editor, {
           userPrompt: test.userPrompt,
         });
-        await result.apply();
+        await result.execute();
 
         // the prosemirrorState has all details with suggested changes, so we use this for the snapshot
         await matchFileSnapshot(editor.prosemirrorState.doc.toJSON());
@@ -92,11 +98,12 @@ export function generateSharedTestCases(
         userPrompt: "delete the first sentence",
       });
 
-      await result.apply();
+      await result.execute();
+
+      // we first need to accept changes to get the correct result
+      getAIExtension(editor).acceptChanges();
 
       await matchFileSnapshot(editor.document);
-
-      // expect(await response.object).toMatchSnapshot();
     });
   });
 
@@ -112,11 +119,31 @@ export function generateSharedTestCases(
         userPrompt: "Add a sentence with `Test` before the first sentence",
       });
 
-      await result.apply();
+      // for await (const op of result.llmResult.streamObjectResult?.fullStream) {
+      //   console.log(op);
+      //   // console.log(result.llmResult.streamObjectResult?.fullStream.locked);
+      // }
+
+      // for await (const op of result.llmResult.operationsSource) {
+      //   console.log(op);
+      //   // console.log(result.llmResult.streamObjectResult?.fullStream.locked);
+      // }
+
+      // for await (const op of result.llmResult.operationsSource) {
+      //   console.log(op);
+      //   // console.log(result.llmResult.streamObjectResult?.fullStream.locked);
+      // }
+
+      await result.execute();
+
+      console.log(
+        JSON.stringify(editor.prosemirrorState.doc.toJSON(), null, 2)
+      );
+      // const co = await (result.llmResult as StreamObjectResult<any, any, any>).;
+      // we first need to accept changes to get the correct result
+      getAIExtension(editor).acceptChanges();
 
       await matchFileSnapshot(editor.document);
-
-      // expect(await response.object).toMatchSnapshot();
     });
 
     it("inserts a paragraph at end", async () => {
@@ -130,11 +157,12 @@ export function generateSharedTestCases(
         userPrompt: `Add a paragraph with text "Test" after the first paragraph`,
       });
 
-      await result.apply();
+      await result.execute();
+
+      // we first need to accept changes to get the correct result
+      getAIExtension(editor).acceptChanges();
 
       await matchFileSnapshot(editor.document);
-
-      // expect(await response.object).toMatchSnapshot();
     });
   });
 }

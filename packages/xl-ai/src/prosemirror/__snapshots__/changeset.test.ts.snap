@@ -393,62 +393,7 @@ exports[`remove last column 1`] = `
     "replaced": {
       "content": [
         {
-          "marks": [
-            {
-              "type": "bold",
-            },
-          ],
-          "text": "Table Cell ",
-          "type": "text",
-        },
-      ],
-    },
-    "step": {
-      "from": 72,
-      "slice": {
-        "content": [
-          {
-            "text": "Table Cell ",
-            "type": "text",
-          },
-        ],
-      },
-      "stepType": "replace",
-      "to": 83,
-    },
-  },
-  {
-    "replaced": {
-      "content": [
-        {
           "content": [
-            {
-              "attrs": {
-                "backgroundColor": "default",
-                "colspan": 1,
-                "colwidth": null,
-                "rowspan": 1,
-                "textAlignment": "left",
-                "textColor": "default",
-              },
-              "content": [
-                {
-                  "content": [
-                    {
-                      "marks": [
-                        {
-                          "type": "bold",
-                        },
-                      ],
-                      "text": "Bold 5",
-                      "type": "text",
-                    },
-                  ],
-                  "type": "tableParagraph",
-                },
-              ],
-              "type": "tableCell",
-            },
             {
               "attrs": {
                 "backgroundColor": "default",
@@ -475,41 +420,17 @@ exports[`remove last column 1`] = `
           "type": "tableRow",
         },
       ],
-      "openStart": 3,
+      "openStart": 1,
     },
     "step": {
-      "from": 83,
+      "from": 91,
       "slice": {
         "content": [
           {
-            "content": [
-              {
-                "attrs": {
-                  "backgroundColor": "default",
-                  "colspan": 1,
-                  "colwidth": null,
-                  "rowspan": 1,
-                  "textAlignment": "left",
-                  "textColor": "default",
-                },
-                "content": [
-                  {
-                    "content": [
-                      {
-                        "text": "5",
-                        "type": "text",
-                      },
-                    ],
-                    "type": "tableParagraph",
-                  },
-                ],
-                "type": "tableCell",
-              },
-            ],
             "type": "tableRow",
           },
         ],
-        "openStart": 3,
+        "openStart": 1,
       },
       "stepType": "replace",
       "to": 108,
@@ -556,57 +477,6 @@ exports[`remove last row 1`] = `
   {
     "replaced": {
       "content": [
-        {
-          "marks": [
-            {
-              "type": "bold",
-            },
-          ],
-          "text": "Bold ",
-          "type": "text",
-        },
-      ],
-    },
-    "step": {
-      "from": 83,
-      "stepType": "replace",
-      "to": 88,
-    },
-  },
-  {
-    "replaced": {
-      "content": [
-        {
-          "marks": [
-            {
-              "type": "bold",
-            },
-          ],
-          "text": "Table Cell Bold 5",
-          "type": "text",
-        },
-      ],
-    },
-    "step": {
-      "from": 72,
-      "slice": {
-        "content": [
-          {
-            "text": "Table Cell 5",
-            "type": "text",
-          },
-        ],
-      },
-      "stepType": "replace",
-      "to": 89,
-    },
-  },
-  {
-    "replaced": {
-      "content": [
-        {
-          "type": "tableRow",
-        },
         {
           "content": [
             {
@@ -679,13 +549,11 @@ exports[`remove last row 1`] = `
           "type": "tableRow",
         },
       ],
-      "openEnd": 1,
-      "openStart": 1,
     },
     "step": {
-      "from": 107,
+      "from": 108,
       "stepType": "replace",
-      "to": 157,
+      "to": 158,
     },
   },
 ]

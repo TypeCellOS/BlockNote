@@ -1,11 +1,5 @@
-import {
-  Block,
-  BlockNoteEditor
-} from "@blocknote/core";
-import { generateObject, GenerateObjectResult, streamObject, StreamObjectResult } from "ai";
-import {
-  ApplyOperationResult
-} from "../../executor/streamOperations/applyOperations.js";
+import { Block, BlockNoteEditor } from "@blocknote/core";
+import { generateObject, streamObject } from "ai";
 import type { PromptOrMessages } from "../../index.js";
 import {
   promptManipulateDocumentUseHTMLBlocks,
@@ -18,58 +12,63 @@ import {
 } from "../../streamTool/callLLMWithStreamTools.js";
 import { StreamTool } from "../../streamTool/streamTool.js";
 import { isEmptyParagraph } from "../../util/emptyBlock.js";
+import { createAsyncIterableStreamFromAsyncIterable } from "../../util/stream.js";
+import { CallLLMResult } from "../CallLLMResult.js";
 import {
-  AsyncIterableStream,
-  createAsyncIterableStreamFromAsyncIterable,
-} from "../../util/stream.js";
-import { getDataForPromptNoSelection, getDataForPromptWithSelection } from "./htmlPromptData.js";
+  getDataForPromptNoSelection,
+  getDataForPromptWithSelection,
+} from "./htmlPromptData.js";
 import { applyHTMLOperations } from "./streamOperations/applyHTMLOperations.js";
 import { tools } from "./tools/index.js";
 
-// Define the return type for streaming mode
-type CallLLMReturnType = {
-  toolCallsStream: AsyncIterableStream<ApplyOperationResult<any>>;
-  llmResult: StreamObjectResult<any, any, any> | GenerateObjectResult<any>;
-  apply: () => Promise<void>;
-};
-
-async function getMessages(editor: BlockNoteEditor<any, any, any>,
+async function getMessages(
+  editor: BlockNoteEditor<any, any, any>,
   opts: {
-    selectedBlocks?: Block<any, any, any>[],
-    excludeBlockIds?: string[]
-} & PromptOrMessages) {
+    selectedBlocks?: Block<any, any, any>[];
+    excludeBlockIds?: string[];
+  } & PromptOrMessages
+) {
   // TODO: child blocks
   // TODO: document how to customize prompt
   if ("messages" in opts && opts.messages) {
     return opts.messages;
   } else if (opts.selectedBlocks) {
     if (opts.excludeBlockIds) {
-      throw new Error("expected excludeBlockIds to be false when selectedBlocks is provided");
+      throw new Error(
+        "expected excludeBlockIds to be false when selectedBlocks is provided"
+      );
     }
-    
+
     return promptManipulateSelectionHTMLBlocks({
-      ...await getDataForPromptWithSelection(editor, opts.selectedBlocks),
+      ...(await getDataForPromptWithSelection(editor, opts.selectedBlocks)),
       userPrompt: opts.userPrompt,
     });
   } else {
     if (opts.useSelection) {
-      throw new Error("expected useSelection to be false when selectedBlocks is not provided");
+      throw new Error(
+        "expected useSelection to be false when selectedBlocks is not provided"
+      );
     }
     return promptManipulateDocumentUseHTMLBlocks({
-      ...await getDataForPromptNoSelection(editor, { excludeBlockIds: opts.excludeBlockIds }),
+      ...(await getDataForPromptNoSelection(editor, {
+        excludeBlockIds: opts.excludeBlockIds,
+      })),
       userPrompt: opts.userPrompt,
     });
-  } 
+  }
 }
 
-function getStreamTools(editor: BlockNoteEditor<any, any, any>, defaultStreamTools?: {
-  /** Enable the add tool (default: true) */
-  add?: boolean;
-  /** Enable the update tool (default: true) */
-  update?: boolean;
-  /** Enable the delete tool (default: true) */
-  delete?: boolean;
-}) {
+function getStreamTools(
+  editor: BlockNoteEditor<any, any, any>,
+  defaultStreamTools?: {
+    /** Enable the add tool (default: true) */
+    add?: boolean;
+    /** Enable the update tool (default: true) */
+    update?: boolean;
+    /** Enable the delete tool (default: true) */
+    delete?: boolean;
+  }
+) {
   const mergedStreamTools = {
     add: true,
     update: true,
@@ -78,9 +77,15 @@ function getStreamTools(editor: BlockNoteEditor<any, any, any>, defaultStreamToo
   };
 
   const streamTools: StreamTool<any>[] = [
-    ...(mergedStreamTools.update ? [tools.update(editor, { idsSuffixed: true})] : []),
-    ...(mergedStreamTools.add ? [tools.add(editor, { idsSuffixed: true})] : []),
-    ...(mergedStreamTools.delete ? [tools.delete(editor, { idsSuffixed: true})] : []),
+    ...(mergedStreamTools.update
+      ? [tools.update(editor, { idsSuffixed: true })]
+      : []),
+    ...(mergedStreamTools.add
+      ? [tools.add(editor, { idsSuffixed: true })]
+      : []),
+    ...(mergedStreamTools.delete
+      ? [tools.delete(editor, { idsSuffixed: true })]
+      : []),
   ];
 
   return streamTools;
@@ -101,41 +106,67 @@ export async function callLLM(
       };
       stream?: boolean;
       deleteEmptyCursorBlock?: boolean;
-      onStart?: () => void,
-      _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]>
-      _streamObjectOptions?: Partial<Parameters<typeof streamObject<any>>[0]>
+      onStart?: () => void;
+      _generateObjectOptions?: Partial<
+        Parameters<typeof generateObject<any>>[0]
+      >;
+      _streamObjectOptions?: Partial<Parameters<typeof streamObject<any>>[0]>;
     }
-): Promise<CallLLMReturnType> {
-  const { userPrompt: prompt, useSelection, deleteEmptyCursorBlock, stream, onStart, ...rest } = {
+): Promise<CallLLMResult> {
+  const {
+    userPrompt: prompt,
+    useSelection,
+    deleteEmptyCursorBlock,
+    stream,
+    onStart,
+    ...rest
+  } = {
     deleteEmptyCursorBlock: true,
     stream: true,
-    ...opts
-  }
-  
-  const cursorBlock = useSelection ? undefined : editor.getTextCursorPosition().block
-  
-  const deleteCursorBlock: string | undefined = cursorBlock && deleteEmptyCursorBlock && isEmptyParagraph(cursorBlock) ? cursorBlock.id : undefined;
-  
+    ...opts,
+  };
+
+  const cursorBlock = useSelection
+    ? undefined
+    : editor.getTextCursorPosition().block;
+
+  const deleteCursorBlock: string | undefined =
+    cursorBlock && deleteEmptyCursorBlock && isEmptyParagraph(cursorBlock)
+      ? cursorBlock.id
+      : undefined;
+
   const selectionInfo = useSelection ? editor.getSelection2() : undefined;
-  
-  const messages = await getMessages(editor, { ...opts, selectedBlocks: selectionInfo?.blocks, excludeBlockIds: deleteCursorBlock ? [deleteCursorBlock] : undefined });
-  
+
+  const messages = await getMessages(editor, {
+    ...opts,
+    selectedBlocks: selectionInfo?.blocks,
+    excludeBlockIds: deleteCursorBlock ? [deleteCursorBlock] : undefined,
+  });
+
   const streamTools = getStreamTools(editor, opts.defaultStreamTools);
 
-  let response: Awaited<ReturnType<typeof generateOperations<any>>> | Awaited<ReturnType<typeof streamOperations<any>>>;
+  let response:
+    | Awaited<ReturnType<typeof generateOperations<any>>>
+    | Awaited<ReturnType<typeof streamOperations<any>>>;
 
   if (stream) {
-    response = await streamOperations(streamTools, {
-      messages, ...rest
-    }, () => {
-    if (deleteCursorBlock) {
-      editor.removeBlocks([deleteCursorBlock]);
-    }
-    onStart?.();
-  });
+    response = await streamOperations(
+      streamTools,
+      {
+        messages,
+        ...rest,
+      },
+      () => {
+        if (deleteCursorBlock) {
+          editor.removeBlocks([deleteCursorBlock]);
+        }
+        onStart?.();
+      }
+    );
   } else {
     response = await generateOperations(streamTools, {
-      messages, ...rest
+      messages,
+      ...rest,
     });
     if (deleteCursorBlock) {
       editor.removeBlocks([deleteCursorBlock]);
@@ -143,20 +174,14 @@ export async function callLLM(
     onStart?.();
   }
 
-  const results = applyHTMLOperations(editor, response.operationsSource, selectionInfo?._meta.startPos, selectionInfo?._meta.endPos);
-
-  const toolCallsStream =
-    createAsyncIterableStreamFromAsyncIterable(results);
-
-  return {
-    llmResult: response.result,
-    toolCallsStream,
-    // TODO: make it easy to add your own "applyOperations" function
-    async apply() {
-      /* eslint-disable-next-line */
-      for await (const _result of toolCallsStream) {
-        // no op
-      }
-    },
-  };
+  return new CallLLMResult(response, () => {
+    const results = applyHTMLOperations(
+      editor,
+      response.operationsSource,
+      selectionInfo?._meta.startPos,
+      selectionInfo?._meta.endPos
+    );
+    const toolCallsStream = createAsyncIterableStreamFromAsyncIterable(results);
+    return toolCallsStream;
+  });
 }

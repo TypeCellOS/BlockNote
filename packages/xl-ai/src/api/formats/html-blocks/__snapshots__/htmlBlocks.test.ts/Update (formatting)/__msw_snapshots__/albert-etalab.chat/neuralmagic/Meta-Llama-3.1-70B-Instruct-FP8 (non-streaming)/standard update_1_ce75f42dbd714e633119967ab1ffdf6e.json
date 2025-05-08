@@ -7,9 +7,9 @@
     "cookies": []
   },
   "response": {
-    "status": 400,
+    "status": 200,
     "statusText": "",
-    "body": "{\"detail\":\"The provided JSON schema contains features not supported by xgrammar.\"}",
+    "body": "{\"id\":\"chatcmpl-6b2263c7befd44ffbcdc30e763a5c724\",\"choices\":[{\"finish_reason\":\"stop\",\"index\":0,\"logprobs\":null,\"message\":{\"content\":\"\",\"refusal\":null,\"role\":\"assistant\",\"audio\":null,\"function_call\":null,\"tool_calls\":[{\"id\":\"chatcmpl-tool-06d57f84c69d492da8be4c73ddaefcd7\",\"function\":{\"arguments\":\"{\\\"operations\\\": [{\\\"type\\\": \\\"update\\\", \\\"id\\\": \\\"ref1$\\\", \\\"block\\\": \\\"<p>Hallo, Welt!</p>\\\"}]}\",\"name\":\"json\"},\"type\":\"function\"}],\"reasoning_content\":null},\"stop_reason\":null}],\"created\":1746620356,\"model\":\"neuralmagic/Meta-Llama-3.1-70B-Instruct-FP8\",\"object\":\"chat.completion\",\"service_tier\":null,\"system_fingerprint\":null,\"usage\":{\"completion_tokens\":31,\"prompt_tokens\":1008,\"total_tokens\":1039,\"completion_tokens_details\":null,\"prompt_tokens_details\":null},\"search_results\":[],\"prompt_logprobs\":null}",
     "headers": []
   }
 }
