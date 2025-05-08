@@ -1,0 +1,62 @@
+[
+  {
+    "block": {
+      "children": [
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "Nested",
+              "type": "text",
+            },
+          ],
+          "id": "1",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "content": [],
+      "id": "0",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    "prevBlock": undefined,
+    "source": {
+      "type": "local",
+    },
+    "type": "insert",
+  },
+  {
+    "block": {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Nested",
+          "type": "text",
+        },
+      ],
+      "id": "1",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    "prevBlock": undefined,
+    "source": {
+      "type": "local",
+    },
+    "type": "insert",
+  },
+]

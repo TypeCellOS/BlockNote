@@ -10,6 +10,7 @@ import type {
   StyleSchema,
 } from "../../schema/index.js";
 import { EventEmitter } from "../../util/EventEmitter.js";
+import { ySyncPluginKey } from "y-prosemirror";
 
 export type FilePanelState<
   I extends InlineContentSchema,
@@ -31,7 +32,7 @@ export class FilePanelView<I extends InlineContentSchema, S extends StyleSchema>
       I,
       S
     >,
-    private readonly pluginKey: PluginKey,
+    private readonly pluginKey: PluginKey<FilePanelState<I, S>>,
     private readonly pmView: EditorView,
     emitUpdate: (state: FilePanelState<I, S>) => void
   ) {
@@ -81,11 +82,10 @@ export class FilePanelView<I extends InlineContentSchema, S extends StyleSchema>
   };
 
   update(view: EditorView, prevState: EditorState) {
-    const pluginState: {
-      block: BlockFromConfig<FileBlockConfig, I, S>;
-    } = this.pluginKey.getState(view.state);
+    const pluginState = this.pluginKey.getState(view.state);
+    const prevPluginState = this.pluginKey.getState(prevState);
 
-    if (!this.state?.show && pluginState.block && this.editor.isEditable) {
+    if (!this.state?.show && pluginState?.block && this.editor.isEditable) {
       const blockElement = this.pmView.root.querySelector(
         `[data-node-type="blockContainer"][data-id="${pluginState.block.id}"]`
       );
@@ -103,16 +103,15 @@ export class FilePanelView<I extends InlineContentSchema, S extends StyleSchema>
       return;
     }
 
-    if (
-      !view.state.selection.eq(prevState.selection) ||
-      !view.state.doc.eq(prevState.doc) ||
-      !this.editor.isEditable
-    ) {
-      if (this.state?.show) {
-        this.state.show = false;
-
-        this.emitUpdate();
-      }
+    const isOpening = pluginState?.block && !prevPluginState?.block;
+    const isClosing = !pluginState?.block && prevPluginState?.block;
+    if (isOpening && this.state && !this.state.show) {
+      this.state.show = true;
+      this.emitUpdate();
+    }
+    if (isClosing && this.state?.show) {
+      this.state.show = false;
+      this.emitUpdate();
     }
   }
 
@@ -132,7 +131,9 @@ export class FilePanelView<I extends InlineContentSchema, S extends StyleSchema>
   }
 }
 
-const filePanelPluginKey = new PluginKey("FilePanelPlugin");
+const filePanelPluginKey = new PluginKey<FilePanelState<any, any>>(
+  "FilePanelPlugin"
+);
 
 export class FilePanelProsemirrorPlugin<
   I extends InlineContentSchema,
@@ -173,13 +174,21 @@ export class FilePanelProsemirrorPlugin<
             block: undefined,
           };
         },
-        apply: (transaction) => {
-          const block: BlockFromConfig<FileBlockConfig, I, S> | undefined =
-            transaction.getMeta(filePanelPluginKey)?.block;
+        apply: (transaction, prev) => {
+          const state: FilePanelState<I, S> | undefined =
+            transaction.getMeta(filePanelPluginKey);
 
-          return {
-            block,
-          };
+          if (state) {
+            return state;
+          }
+
+          if (
+            !transaction.getMeta(ySyncPluginKey) &&
+            (transaction.selectionSet || transaction.docChanged)
+          ) {
+            return { block: undefined };
+          }
+          return prev;
         },
       },
     });

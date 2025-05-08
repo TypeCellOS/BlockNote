@@ -1,4 +1,4 @@
-import { Mark, Node, Slice } from "@tiptap/pm/model";
+import { Mark, Node, Schema, Slice } from "@tiptap/pm/model";
 
 import UniqueID from "../../extensions/UniqueID/UniqueID.js";
 import type {
@@ -27,6 +27,7 @@ import {
   isStyledTextInlineContent,
 } from "../../schema/inlineContent/types.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
+import { getBlockCache, getBlockSchema, getInlineContentSchema, getStyleSchema } from "../pmUtil.js";
 
 /**
  * Converts an internal (prosemirror) table node contentto a BlockNote Tablecontent
@@ -391,15 +392,14 @@ export function nodeToBlock<
   S extends StyleSchema
 >(
   node: Node,
-  blockSchema: BSchema,
-  inlineContentSchema: I,
-  styleSchema: S,
-  blockCache?: WeakMap<Node, Block<BSchema, I, S>>
+  schema: Schema,
+  blockSchema: BSchema = getBlockSchema(schema) as BSchema,
+  inlineContentSchema: I = getInlineContentSchema(schema) as I,
+  styleSchema: S = getStyleSchema(schema) as S,
+  blockCache = getBlockCache(schema)
 ): Block<BSchema, I, S> {
   if (!node.type.isInGroup("bnBlock")) {
-    throw Error(
-      "Node must be in bnBlock group, but is of type" + node.type.name
-    );
+    throw Error("Node should be a bnBlock, but is instead: " + node.type.name);
   }
 
   const cachedBlock = blockCache?.get(node);
@@ -445,6 +445,7 @@ export function nodeToBlock<
     children.push(
       nodeToBlock(
         child,
+        schema,
         blockSchema,
         inlineContentSchema,
         styleSchema,
@@ -501,16 +502,18 @@ export function docToBlocks<
   S extends StyleSchema
 >(
   doc: Node,
-  blockSchema: BSchema,
-  inlineContentSchema: I,
-  styleSchema: S,
-  blockCache?: WeakMap<Node, Block<BSchema, I, S>>
+  schema: Schema,
+  blockSchema: BSchema = getBlockSchema(schema) as BSchema,
+  inlineContentSchema: I = getInlineContentSchema(schema) as I,
+  styleSchema: S = getStyleSchema(schema) as S,
+  blockCache = getBlockCache(schema)
 ) {
   const blocks: Block<BSchema, I, S>[] = [];
   doc.firstChild!.descendants((node) => {
     blocks.push(
       nodeToBlock(
         node,
+        schema,
         blockSchema,
         inlineContentSchema,
         styleSchema,
@@ -598,18 +601,18 @@ export function getDocumentWithSelectionMarkers<
   state: EditorState,
   from: number,
   to: number,
-  blockSchema: BSchema,
-  inlineContentSchema: I,
-  styleSchema: S,
-  blockCache?: WeakMap<Node, Block<BSchema, I, S>>
+  schema: Schema,
+  blockSchema: BSchema = getBlockSchema(schema) as BSchema,
+  inlineContentSchema: I = getInlineContentSchema(schema) as I,
+  styleSchema: S = getStyleSchema(schema) as S
 ) {
   const { tr } = addSelectionMarkersTr(state, from, to);
   return docToBlocks(
     tr.doc,
+    schema,
     blockSchema,
     inlineContentSchema,
-    styleSchema,
-    blockCache
+    styleSchema
   );
 }
 
@@ -624,10 +627,10 @@ export function getSelectedBlocksWithSelectionMarkers<
   state: EditorState,
   from: number,
   to: number,
-  blockSchema: BSchema,
-  inlineContentSchema: I,
-  styleSchema: S,
-  blockCache?: WeakMap<Node, Block<BSchema, I, S>>
+  schema: Schema,
+  blockSchema: BSchema = getBlockSchema(schema) as BSchema,
+  inlineContentSchema: I = getInlineContentSchema(schema) as I,
+  styleSchema: S = getStyleSchema(schema) as S
 ) {
   const { tr, newEnd } = addSelectionMarkersTr(state, from, to);
 
@@ -635,10 +638,10 @@ export function getSelectedBlocksWithSelectionMarkers<
     from,
     newEnd,
     tr.doc,
+    schema,
     blockSchema,
     inlineContentSchema,
-    styleSchema,
-    blockCache
+    styleSchema
   );
 }
 
@@ -653,10 +656,11 @@ export function getBlocksBetween<
   start: number,
   end: number,
   doc: Node,
-  blockSchema: BSchema,
-  inlineContentSchema: I,
-  styleSchema: S,
-  blockCache?: WeakMap<Node, Block<BSchema, I, S>>
+  schema: Schema,
+  blockSchema: BSchema = getBlockSchema(schema) as BSchema,
+  inlineContentSchema: I = getInlineContentSchema(schema) as I,
+  styleSchema: S = getStyleSchema(schema) as S,
+  blockCache = getBlockCache(schema)
 ) {
   const startPosInfo = getNearestBlockPos(doc, start);
   const endPosInfo = getNearestBlockPos(doc, end);
@@ -671,6 +675,7 @@ export function getBlocksBetween<
 
   const bnSelection = prosemirrorSliceToSlicedBlocks(
     slice,
+    schema,
     blockSchema,
     inlineContentSchema,
     styleSchema,
@@ -710,10 +715,11 @@ export function prosemirrorSliceToSlicedBlocks<
   S extends StyleSchema
 >(
   slice: Slice,
-  blockSchema: BSchema,
-  inlineContentSchema: I,
-  styleSchema: S,
-  blockCache?: WeakMap<Node, Block<BSchema, I, S>>
+  schema: Schema,
+  blockSchema: BSchema = getBlockSchema(schema) as BSchema,
+  inlineContentSchema: I = getInlineContentSchema(schema) as I,
+  styleSchema: S = getStyleSchema(schema) as S,
+  blockCache: WeakMap<Node, Block<BSchema, I, S>> = getBlockCache(schema)
 ): {
   blocks: Block<BSchema, I, S>[];
   blockCutAtStart: string | undefined;
@@ -777,6 +783,7 @@ export function prosemirrorSliceToSlicedBlocks<
 
       const block = nodeToBlock(
         blockContainer,
+        schema,
         blockSchema,
         inlineContentSchema,
         styleSchema,

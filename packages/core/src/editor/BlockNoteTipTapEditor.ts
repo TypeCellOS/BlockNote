@@ -1,5 +1,4 @@
-import { EditorOptions, createDocument } from "@tiptap/core";
-// import "./blocknote.css";
+import { Editor, EditorOptions, createDocument } from "@tiptap/core";
 import { Editor as TiptapEditor } from "@tiptap/core";
 
 import { Node } from "@tiptap/pm/model";
@@ -138,13 +137,83 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
     return this._state;
   }
 
-  dispatch(tr: Transaction) {
-    if (this.view) {
-      this.view.dispatch(tr);
-    } else {
+  dispatch(transaction: Transaction) {
+    if (!this.view) {
       // before view has been initialized
-      this._state = this.state.apply(tr);
+      this._state = this.state.apply(transaction);
+      return;
     }
+    // This is a verbatim copy of the default dispatch method, but with the following changes:
+    // - We provide the appendedTransactions to a new `v3-update` event
+    // In the future, we can remove this dispatch method entirely and rely on the new `update` event signature which does what we want by providing the appendedTransactions
+    ////////////////////////////////////////////////////////////////////////////////
+    // if the editor / the view of the editor was destroyed
+    // the transaction should not be dispatched as there is no view anymore.
+    if (this.view.isDestroyed) {
+      return;
+    }
+
+    if (this.isCapturingTransaction) {
+      // Do the default capture behavior
+      (this as any).dispatchTransaction(transaction);
+
+      return;
+    }
+
+    const { state, transactions: appendedTransactions } =
+      this.state.applyTransaction(transaction);
+    const selectionHasChanged = !this.state.selection.eq(state.selection);
+
+    this.emit("beforeTransaction", {
+      editor: this,
+      transaction,
+      nextState: state,
+    });
+    this.view.updateState(state);
+    this.emit("transaction", {
+      editor: this,
+      transaction,
+    });
+
+    if (selectionHasChanged) {
+      this.emit("selectionUpdate", {
+        editor: this,
+        transaction,
+      });
+    }
+
+    const focus = transaction.getMeta("focus");
+    const blur = transaction.getMeta("blur");
+
+    if (focus) {
+      this.emit("focus", {
+        editor: this,
+        event: focus.event,
+        transaction,
+      });
+    }
+
+    if (blur) {
+      this.emit("blur", {
+        editor: this,
+        event: blur.event,
+        transaction,
+      });
+    }
+
+    if (!transaction.docChanged || transaction.getMeta("preventUpdate")) {
+      return;
+    }
+
+    this.emit("update", {
+      editor: this,
+      transaction,
+    });
+    this.emit("v3-update", {
+      editor: this,
+      transaction,
+      appendedTransactions: appendedTransactions.slice(1),
+    });
   }
 
   // a helper method that can enable plugins before the view has been initialized
@@ -184,7 +253,7 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
       {
         ...this.options.editorProps,
         // @ts-ignore
-        dispatchTransaction: this.dispatchTransaction.bind(this),
+        dispatchTransaction: this.dispatch.bind(this),
         state: this.state,
         markViews,
         nodeViews: this.extensionManager.nodeViews,
@@ -241,3 +310,17 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
   // (note: can probably be removed after tiptap upgrade fixed in 2.8.0)
   this.options.onPaste = this.options.onDrop = undefined;
 };
+
+declare module "@tiptap/core" {
+  interface EditorEvents {
+    /**
+     * This is a custom event that will be emitted in Tiptap V3.
+     * We use it to provide the appendedTransactions, until Tiptap V3 is released.
+     */
+    "v3-update": {
+      editor: Editor;
+      transaction: Transaction;
+      appendedTransactions: Transaction[];
+    };
+  }
+}

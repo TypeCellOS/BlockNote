@@ -28,7 +28,7 @@ export const ParagraphBlockContent = createStronglyTypedTiptapNode({
         }
 
         return this.editor.commands.command(
-          updateBlockCommand(this.options.editor, blockInfo.bnBlock.beforePos, {
+          updateBlockCommand(blockInfo.bnBlock.beforePos, {
             type: "paragraph",
             props: {},
           })

@@ -6,5 +6,7 @@
   "server-processing": "",
   "export-to-pdf": "",
   "export-to-docx": "",
-  "export-to-odt": ""
+  "export-to-odt": "",
+  "events": "",
+  "methods": ""
 }

@@ -33,14 +33,10 @@ export const QuoteBlockContent = createStronglyTypedTiptapNode({
 
           chain()
             .command(
-              updateBlockCommand(
-                this.options.editor,
-                blockInfo.bnBlock.beforePos,
-                {
-                  type: "quote",
-                  props: {},
-                }
-              )
+              updateBlockCommand(blockInfo.bnBlock.beforePos, {
+                type: "quote",
+                props: {},
+              })
             )
             // Removes the ">" character used to set the list.
             .deleteRange({ from: range.from, to: range.to });
@@ -61,7 +57,7 @@ export const QuoteBlockContent = createStronglyTypedTiptapNode({
         }
 
         return this.editor.commands.command(
-          updateBlockCommand(this.options.editor, blockInfo.bnBlock.beforePos, {
+          updateBlockCommand(blockInfo.bnBlock.beforePos, {
             type: "quote",
           })
         );

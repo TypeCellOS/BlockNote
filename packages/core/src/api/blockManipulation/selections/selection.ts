@@ -1,8 +1,7 @@
-import { TextSelection } from "prosemirror-state";
+import { TextSelection, type Transaction } from "prosemirror-state";
 import { TableMap } from "prosemirror-tables";
 
 import { Block } from "../../../blocks/defaultBlocks.js";
-import type { BlockNoteEditor } from "../../../editor/BlockNoteEditor";
 import { Selection } from "../../../editor/selectionTypes.js";
 import {
   BlockIdentifier,
@@ -13,14 +12,19 @@ import {
 import { getBlockInfo, getNearestBlockPos } from "../../getBlockInfoFromPos.js";
 import { nodeToBlock } from "../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../nodeUtil.js";
+import { getBlockNoteSchema, getPmSchema } from "../../pmUtil.js";
 
 export function getSelection<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
->(
-  editor: BlockNoteEditor<BSchema, I, S>
-): Selection<BSchema, I, S> | undefined {
+>(tr: Transaction): Selection<BSchema, I, S> | undefined {
+  const pmSchema = getPmSchema(tr);
+  // Return undefined if the selection is collapsed or a node is selected.
+  if (tr.selection.empty || "node" in tr.selection) {
+    return undefined;
+  }
+  
   // TODO: this function is now the same as below;
   // we should consolidate this? (pick the best one, clean tests, etc)
   // return {
@@ -34,18 +38,12 @@ export function getSelection<
   //     editor.blockCache
   //   ),
   // };
-  const state = editor._tiptapEditor.state;
 
-  // Return undefined if the selection is collapsed or a node is selected.
-  if (state.selection.empty || "node" in state.selection) {
-    return undefined;
-  }
-
-  const $startBlockBeforePos = state.doc.resolve(
-    getNearestBlockPos(state.doc, state.selection.from).posBeforeNode
+  const $startBlockBeforePos = tr.doc.resolve(
+    getNearestBlockPos(tr.doc, tr.selection.from).posBeforeNode
   );
-  const $endBlockBeforePos = state.doc.resolve(
-    getNearestBlockPos(state.doc, state.selection.to).posBeforeNode
+  const $endBlockBeforePos = tr.doc.resolve(
+    getNearestBlockPos(tr.doc, tr.selection.to).posBeforeNode
   );
 
   // Converts the node at the given index and depth around `$startBlockBeforePos`
@@ -56,7 +54,7 @@ export function getSelection<
     depth?: number
   ): Block<BSchema, I, S> => {
     const pos = $startBlockBeforePos.posAtIndex(index, depth);
-    const node = state.doc.resolve(pos).nodeAfter;
+    const node = tr.doc.resolve(pos).nodeAfter;
 
     if (!node) {
       throw new Error(
@@ -64,13 +62,7 @@ export function getSelection<
       );
     }
 
-    return nodeToBlock(
-      node,
-      editor.schema.blockSchema,
-      editor.schema.inlineContentSchema,
-      editor.schema.styleSchema,
-      editor.blockCache
-    );
+    return nodeToBlock(node, pmSchema);
   };
 
   const blocks: Block<BSchema, I, S>[] = [];
@@ -111,15 +103,7 @@ export function getSelection<
   // [ id-2, id-3, id-4, id-6, id-7, id-8, id-9 ]
   if ($startBlockBeforePos.depth > sharedDepth) {
     // Adds the block that the selection starts in.
-    blocks.push(
-      nodeToBlock(
-        $startBlockBeforePos.nodeAfter!,
-        editor.schema.blockSchema,
-        editor.schema.inlineContentSchema,
-        editor.schema.styleSchema,
-        editor.blockCache
-      )
-    );
+    blocks.push(nodeToBlock($startBlockBeforePos.nodeAfter!, pmSchema));
 
     // Traverses all depths from the depth of the block in which the selection
     // starts, up to the shared depth.
@@ -150,7 +134,7 @@ export function getSelection<
 
   if (blocks.length === 0) {
     throw new Error(
-      `Error getting selection - selection doesn't span any blocks (${state.selection})`
+      `Error getting selection - selection doesn't span any blocks (${tr.selection})`
     );
   }
 
@@ -159,32 +143,27 @@ export function getSelection<
   };
 }
 
-export function setSelection<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(
-  editor: BlockNoteEditor<BSchema, I, S>,
+export function setSelection(
+  tr: Transaction,
   startBlock: BlockIdentifier,
   endBlock: BlockIdentifier
 ) {
   const startBlockId =
     typeof startBlock === "string" ? startBlock : startBlock.id;
   const endBlockId = typeof endBlock === "string" ? endBlock : endBlock.id;
+  const pmSchema = getPmSchema(tr);
+  const schema = getBlockNoteSchema(pmSchema);
 
   if (startBlockId === endBlockId) {
     throw new Error(
       `Attempting to set selection with the same anchor and head blocks (id ${startBlockId})`
     );
   }
-
-  const doc = editor._tiptapEditor.state.doc;
-
-  const anchorPosInfo = getNodeById(startBlockId, doc);
+  const anchorPosInfo = getNodeById(startBlockId, tr.doc);
   if (!anchorPosInfo) {
     throw new Error(`Block with ID ${startBlockId} not found`);
   }
-  const headPosInfo = getNodeById(endBlockId, doc);
+  const headPosInfo = getNodeById(endBlockId, tr.doc);
   if (!headPosInfo) {
     throw new Error(`Block with ID ${endBlockId} not found`);
   }
@@ -193,12 +172,12 @@ export function setSelection<
   const headBlockInfo = getBlockInfo(headPosInfo);
 
   const anchorBlockConfig =
-    editor.schema.blockSchema[
-      anchorBlockInfo.blockNoteType as keyof typeof editor.schema.blockSchema
+    schema.blockSchema[
+      anchorBlockInfo.blockNoteType as keyof typeof schema.blockSchema
     ];
   const headBlockConfig =
-    editor.schema.blockSchema[
-      headBlockInfo.blockNoteType as keyof typeof editor.schema.blockSchema
+    schema.blockSchema[
+      headBlockInfo.blockNoteType as keyof typeof schema.blockSchema
     ];
 
   if (
@@ -239,7 +218,7 @@ export function setSelection<
         headBlockInfo.blockContent.node
       ) +
       1;
-    const lastCellNodeSize = doc.resolve(lastCellPos).nodeAfter!.nodeSize;
+    const lastCellNodeSize = tr.doc.resolve(lastCellPos).nodeAfter!.nodeSize;
     endPos = lastCellPos + lastCellNodeSize - 2;
   } else {
     endPos = headBlockInfo.blockContent.afterPos - 1;
@@ -249,9 +228,5 @@ export function setSelection<
   //  Right now it's missing a few things like a jsonID and styling to show
   //  which nodes are selected. `TextSelection` is ok for now, but has the
   //  restriction that the start/end blocks must have content.
-  editor._tiptapEditor.dispatch(
-    editor._tiptapEditor.state.tr.setSelection(
-      TextSelection.create(editor._tiptapEditor.state.doc, startPos, endPos)
-    )
-  );
+  tr.setSelection(TextSelection.create(tr.doc, startPos, endPos));
 }

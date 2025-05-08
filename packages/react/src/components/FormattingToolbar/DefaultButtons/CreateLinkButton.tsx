@@ -54,7 +54,6 @@ export const CreateLinkButton = () => {
   const [text, setText] = useState<string>(editor.getSelectedText());
 
   useEditorContentOrSelectionChange(() => {
-    setOpened(false);
     setText(editor.getSelectedText() || "");
     setUrl(editor.getSelectedLinkUrl() || "");
   }, editor);
@@ -82,6 +81,10 @@ export const CreateLinkButton = () => {
     [editor]
   );
 
+  const isTableSelection = editor.transact((tr) =>
+    isTableCellSelection(tr.selection)
+  );
+
   const show = useMemo(() => {
     if (!linkInSchema) {
       return false;
@@ -93,8 +96,8 @@ export const CreateLinkButton = () => {
       }
     }
 
-    return !isTableCellSelection(editor.prosemirrorState.selection);
-  }, [linkInSchema, selectedBlocks, editor.prosemirrorState.selection]);
+    return !isTableSelection;
+  }, [linkInSchema, selectedBlocks, isTableSelection]);
 
   if (
     !show ||

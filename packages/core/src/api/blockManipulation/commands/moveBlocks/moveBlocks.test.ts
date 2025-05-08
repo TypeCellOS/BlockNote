@@ -2,7 +2,7 @@ import { NodeSelection, TextSelection } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
 import { describe, expect, it } from "vitest";
 
-import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
+import { getBlockInfoFromTransaction } from "../../../getBlockInfoFromPos.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
 import {
   moveBlocksDown,
@@ -13,7 +13,9 @@ import {
 const getEditor = setupTestEnv();
 
 function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
-  const blockInfo = getBlockInfoFromSelection(getEditor()._tiptapEditor.state);
+  const blockInfo = getEditor().transact((tr) =>
+    getBlockInfoFromTransaction(tr)
+  );
   if (!blockInfo.isBlockContainer) {
     throw new Error(
       `Selection points to a ${blockInfo.blockNoteType} node, not a blockContainer node`
@@ -21,34 +23,26 @@ function makeSelectionSpanContent(selectionType: "text" | "node" | "cell") {
   }
   const { blockContent } = blockInfo;
 
+  const editor = getEditor();
   if (selectionType === "cell") {
-    getEditor().dispatch(
-      getEditor()._tiptapEditor.state.tr.setSelection(
+    editor.transact((tr) =>
+      tr.setSelection(
         CellSelection.create(
-          getEditor()._tiptapEditor.state.doc,
-          getEditor()
-            ._tiptapEditor.state.doc.resolve(blockContent.beforePos + 3)
-            .before(),
-          getEditor()
-            ._tiptapEditor.state.doc.resolve(blockContent.afterPos - 3)
-            .before()
+          tr.doc,
+          tr.doc.resolve(blockContent.beforePos + 3).before(),
+          tr.doc.resolve(blockContent.afterPos - 3).before()
         )
       )
     );
   } else if (selectionType === "node") {
-    getEditor().dispatch(
-      getEditor()._tiptapEditor.state.tr.setSelection(
-        NodeSelection.create(
-          getEditor()._tiptapEditor.state.doc,
-          blockContent.beforePos
-        )
-      )
+    editor.transact((tr) =>
+      tr.setSelection(NodeSelection.create(tr.doc, blockContent.beforePos))
     );
   } else {
-    getEditor().dispatch(
-      getEditor()._tiptapEditor.state.tr.setSelection(
+    editor.transact((tr) =>
+      tr.setSelection(
         TextSelection.create(
-          getEditor()._tiptapEditor.state.doc,
+          tr.doc,
           blockContent.beforePos + 1,
           blockContent.afterPos - 1
         )
@@ -64,12 +58,12 @@ describe("Test moveSelectedBlockAndSelection", () => {
 
     moveSelectedBlocksAndSelection(getEditor(), "paragraph-0", "before");
 
-    const selection = getEditor()._tiptapEditor.state.selection;
+    const selection = getEditor().transact((tr) => tr.selection);
     getEditor().setTextCursorPosition("paragraph-1");
     makeSelectionSpanContent("text");
 
     expect(
-      selection.eq(getEditor()._tiptapEditor.state.selection)
+      selection.eq(getEditor().transact((tr) => tr.selection))
     ).toBeTruthy();
   });
 
@@ -79,12 +73,12 @@ describe("Test moveSelectedBlockAndSelection", () => {
 
     moveSelectedBlocksAndSelection(getEditor(), "paragraph-0", "before");
 
-    const selection = getEditor()._tiptapEditor.state.selection;
+    const selection = getEditor().transact((tr) => tr.selection);
     getEditor().setTextCursorPosition("image-0");
     makeSelectionSpanContent("node");
 
     expect(
-      selection.eq(getEditor()._tiptapEditor.state.selection)
+      selection.eq(getEditor().transact((tr) => tr.selection))
     ).toBeTruthy();
   });
 
@@ -94,12 +88,12 @@ describe("Test moveSelectedBlockAndSelection", () => {
 
     moveSelectedBlocksAndSelection(getEditor(), "paragraph-0", "before");
 
-    const selection = getEditor()._tiptapEditor.state.selection;
+    const selection = getEditor().transact((tr) => tr.selection);
     getEditor().setTextCursorPosition("table-0");
     makeSelectionSpanContent("cell");
 
     expect(
-      selection.eq(getEditor()._tiptapEditor.state.selection)
+      selection.eq(getEditor().transact((tr) => tr.selection))
     ).toBeTruthy();
   });
 
@@ -108,11 +102,11 @@ describe("Test moveSelectedBlockAndSelection", () => {
 
     moveSelectedBlocksAndSelection(getEditor(), "paragraph-0", "before");
 
-    const selection = getEditor()._tiptapEditor.state.selection;
+    const selection = getEditor().transact((tr) => tr.selection);
     getEditor().setSelection("paragraph-1", "paragraph-2");
 
     expect(
-      selection.eq(getEditor()._tiptapEditor.state.selection)
+      selection.eq(getEditor().transact((tr) => tr.selection))
     ).toBeTruthy();
   });
 
@@ -121,11 +115,11 @@ describe("Test moveSelectedBlockAndSelection", () => {
 
     moveSelectedBlocksAndSelection(getEditor(), "paragraph-0", "before");
 
-    const selection = getEditor()._tiptapEditor.state.selection;
+    const selection = getEditor().transact((tr) => tr.selection);
     getEditor().setSelection("paragraph-6", "table-0");
 
     expect(
-      selection.eq(getEditor()._tiptapEditor.state.selection)
+      selection.eq(getEditor().transact((tr) => tr.selection))
     ).toBeTruthy();
   });
 });

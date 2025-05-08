@@ -41,9 +41,7 @@ export class ShowSelectionPlugin {
 
     this.enabled = enabled;
 
-    this.editor.prosemirrorView?.dispatch(
-      this.editor.prosemirrorView?.state.tr.setMeta(PLUGIN_KEY, {})
-    );
+    this.editor.transact((tr) => tr.setMeta(PLUGIN_KEY, {}));
   }
 
   public getEnabled() {

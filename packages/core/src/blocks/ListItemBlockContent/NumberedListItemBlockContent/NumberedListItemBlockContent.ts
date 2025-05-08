@@ -57,18 +57,14 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
 
           chain()
             .command(
-              updateBlockCommand(
-                this.options.editor,
-                blockInfo.bnBlock.beforePos,
-                {
-                  type: "numberedListItem",
-                  props:
-                    (startIndex === 1 && {}) ||
-                    ({
-                      start: startIndex,
-                    } as any),
-                }
-              )
+              updateBlockCommand(blockInfo.bnBlock.beforePos, {
+                type: "numberedListItem",
+                props:
+                  (startIndex === 1 && {}) ||
+                  ({
+                    start: startIndex,
+                  } as any),
+              })
             )
             // Removes the "1." characters used to set the list.
             .deleteRange({ from: range.from, to: range.to });
@@ -90,7 +86,7 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
         }
 
         return this.editor.commands.command(
-          updateBlockCommand(this.options.editor, blockInfo.bnBlock.beforePos, {
+          updateBlockCommand(blockInfo.bnBlock.beforePos, {
             type: "numberedListItem",
             props: {},
           })

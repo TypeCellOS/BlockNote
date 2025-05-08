@@ -71,7 +71,9 @@ export type BlockNoteViewProps<
   /**
    * A callback function that runs whenever the editor's contents change.
    */
-  onChange?: () => void;
+  onChange?: Parameters<
+    BlockNoteEditor<BSchema, ISchema, SSchema>["onChange"]
+  >[0];
 
   children?: ReactNode;
 

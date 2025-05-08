@@ -1,8 +1,7 @@
-import { Node } from "prosemirror-model";
-import { Transaction } from "prosemirror-state";
-import { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
-import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor";
-import {
+import type { Node } from "prosemirror-model";
+import type { Transaction } from "prosemirror-state";
+import type { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
+import type {
   BlockIdentifier,
   BlockSchema,
   InlineContentSchema,
@@ -10,13 +9,13 @@ import {
 } from "../../../../schema/index.js";
 import { blockToNode } from "../../../nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
+import { getPmSchema } from "../../../pmUtil.js";
 
-export function removeAndInsertBlocksTr<
+export function removeAndInsertBlocks<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
 >(
-  editor: BlockNoteEditor<BSchema, I, S>,
   tr: Transaction,
   blocksToRemove: BlockIdentifier[],
   blocksToInsert: PartialBlock<BSchema, I, S>[]
@@ -24,14 +23,12 @@ export function removeAndInsertBlocksTr<
   insertedBlocks: Block<BSchema, I, S>[];
   removedBlocks: Block<BSchema, I, S>[];
 } {
+  const pmSchema = getPmSchema(tr);
   // Converts the `PartialBlock`s to ProseMirror nodes to insert them into the
   // document.
-  const nodesToInsert: Node[] = [];
-  for (const block of blocksToInsert) {
-    nodesToInsert.push(
-      blockToNode(block, editor.pmSchema, editor.schema.styleSchema)
-    );
-  }
+  const nodesToInsert: Node[] = blocksToInsert.map((block) =>
+    blockToNode(block, pmSchema)
+  );
 
   const idsOfBlocksToRemove = new Set<string>(
     blocksToRemove.map((block) =>
@@ -61,20 +58,12 @@ export function removeAndInsertBlocksTr<
     }
 
     // Saves the block that is being deleted.
-    removedBlocks.push(
-      nodeToBlock(
-        node,
-        editor.schema.blockSchema,
-        editor.schema.inlineContentSchema,
-        editor.schema.styleSchema,
-        editor.blockCache
-      )
-    );
+    removedBlocks.push(nodeToBlock(node, pmSchema));
     idsOfBlocksToRemove.delete(node.attrs.id);
 
     if (blocksToInsert.length > 0 && node.attrs.id === idOfFirstBlock) {
       const oldDocSize = tr.doc.nodeSize;
-      tr = tr.insert(pos, nodesToInsert);
+      tr.insert(pos, nodesToInsert);
       const newDocSize = tr.doc.nodeSize;
 
       removedSize += oldDocSize - newDocSize;
@@ -90,9 +79,9 @@ export function removeAndInsertBlocksTr<
       $pos.node($pos.depth - 1).type.name !== "doc" &&
       $pos.node().childCount === 1
     ) {
-      tr = tr.delete($pos.before(), $pos.after());
+      tr.delete($pos.before(), $pos.after());
     } else {
-      tr = tr.delete(pos - removedSize, pos - removedSize + node.nodeSize);
+      tr.delete(pos - removedSize, pos - removedSize + node.nodeSize);
     }
     const newDocSize = tr.doc.nodeSize;
     removedSize += oldDocSize - newDocSize;
@@ -111,43 +100,9 @@ export function removeAndInsertBlocksTr<
   }
 
   // Converts the nodes created from `blocksToInsert` into full `Block`s.
-  const insertedBlocks: Block<BSchema, I, S>[] = [];
-  for (const node of nodesToInsert) {
-    insertedBlocks.push(
-      nodeToBlock(
-        node,
-        editor.schema.blockSchema,
-        editor.schema.inlineContentSchema,
-        editor.schema.styleSchema,
-        editor.blockCache
-      )
-    );
-  }
-
-  return { insertedBlocks, removedBlocks };
-}
-
-export function replaceBlocks<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(
-  editor: BlockNoteEditor<BSchema, I, S>,
-  blocksToRemove: BlockIdentifier[],
-  blocksToInsert: PartialBlock<BSchema, I, S>[]
-): {
-  insertedBlocks: Block<BSchema, I, S>[];
-  removedBlocks: Block<BSchema, I, S>[];
-} {
-  const tr = editor.prosemirrorState.tr;
-  const ret = removeAndInsertBlocksTr(
-    editor,
-    tr,
-    blocksToRemove,
-    blocksToInsert
+  const insertedBlocks = nodesToInsert.map((node) =>
+    nodeToBlock(node, pmSchema)
   );
 
-  editor.dispatch(tr);
-
-  return ret;
+  return { insertedBlocks, removedBlocks };
 }

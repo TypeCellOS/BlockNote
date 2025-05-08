@@ -1,8 +1,11 @@
-import { Node } from "prosemirror-model";
-
-import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
-import { TextCursorPosition } from "../../../../editor/cursorPositionTypes.js";
+import type { Node } from "prosemirror-model";
 import {
+  NodeSelection,
+  TextSelection,
+  type Transaction,
+} from "prosemirror-state";
+import type { TextCursorPosition } from "../../../../editor/cursorPositionTypes.js";
+import type {
   BlockIdentifier,
   BlockSchema,
   InlineContentSchema,
@@ -11,26 +14,26 @@ import {
 import { UnreachableCaseError } from "../../../../util/typescript.js";
 import {
   getBlockInfo,
-  getBlockInfoFromSelection,
+  getBlockInfoFromTransaction,
 } from "../../../getBlockInfoFromPos.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
+import { getBlockNoteSchema, getPmSchema } from "../../../pmUtil.js";
 
 export function getTextCursorPosition<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema
->(editor: BlockNoteEditor<BSchema, I, S>): TextCursorPosition<BSchema, I, S> {
-  const { bnBlock } = getBlockInfoFromSelection(editor._tiptapEditor.state);
+>(tr: Transaction): TextCursorPosition<BSchema, I, S> {
+  const { bnBlock } = getBlockInfoFromTransaction(tr);
+  const pmSchema = getPmSchema(tr.doc);
 
-  const resolvedPos = editor._tiptapEditor.state.doc.resolve(bnBlock.beforePos);
+  const resolvedPos = tr.doc.resolve(bnBlock.beforePos);
   // Gets previous blockContainer node at the same nesting level, if the current node isn't the first child.
   const prevNode = resolvedPos.nodeBefore;
 
   // Gets next blockContainer node at the same nesting level, if the current node isn't the last child.
-  const nextNode = editor._tiptapEditor.state.doc.resolve(
-    bnBlock.afterPos
-  ).nodeAfter;
+  const nextNode = tr.doc.resolve(bnBlock.afterPos).nodeAfter;
 
   // Gets parent blockContainer node, if the current node is nested.
   let parentNode: Node | undefined = undefined;
@@ -44,58 +47,24 @@ export function getTextCursorPosition<
   }
 
   return {
-    block: nodeToBlock(
-      bnBlock.node,
-      editor.schema.blockSchema,
-      editor.schema.inlineContentSchema,
-      editor.schema.styleSchema,
-      editor.blockCache
-    ),
-    prevBlock:
-      prevNode === null
-        ? undefined
-        : nodeToBlock(
-            prevNode,
-            editor.schema.blockSchema,
-            editor.schema.inlineContentSchema,
-            editor.schema.styleSchema,
-            editor.blockCache
-          ),
-    nextBlock:
-      nextNode === null
-        ? undefined
-        : nodeToBlock(
-            nextNode,
-            editor.schema.blockSchema,
-            editor.schema.inlineContentSchema,
-            editor.schema.styleSchema,
-            editor.blockCache
-          ),
+    block: nodeToBlock(bnBlock.node, pmSchema),
+    prevBlock: prevNode === null ? undefined : nodeToBlock(prevNode, pmSchema),
+    nextBlock: nextNode === null ? undefined : nodeToBlock(nextNode, pmSchema),
     parentBlock:
-      parentNode === undefined
-        ? undefined
-        : nodeToBlock(
-            parentNode,
-            editor.schema.blockSchema,
-            editor.schema.inlineContentSchema,
-            editor.schema.styleSchema,
-            editor.blockCache
-          ),
+      parentNode === undefined ? undefined : nodeToBlock(parentNode, pmSchema),
   };
 }
 
-export function setTextCursorPosition<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(
-  editor: BlockNoteEditor<BSchema, I, S>,
+export function setTextCursorPosition(
+  tr: Transaction,
   targetBlock: BlockIdentifier,
   placement: "start" | "end" = "start"
 ) {
   const id = typeof targetBlock === "string" ? targetBlock : targetBlock.id;
+  const pmSchema = getPmSchema(tr.doc);
+  const schema = getBlockNoteSchema(pmSchema);
 
-  const posInfo = getNodeById(id, editor._tiptapEditor.state.doc);
+  const posInfo = getNodeById(id, tr.doc);
   if (!posInfo) {
     throw new Error(`Block with ID ${id} not found`);
   }
@@ -103,23 +72,23 @@ export function setTextCursorPosition<
   const info = getBlockInfo(posInfo);
 
   const contentType: "none" | "inline" | "table" =
-    editor.schema.blockSchema[info.blockNoteType]!.content;
+    schema.blockSchema[info.blockNoteType]!.content;
 
   if (info.isBlockContainer) {
     const blockContent = info.blockContent;
     if (contentType === "none") {
-      editor._tiptapEditor.commands.setNodeSelection(blockContent.beforePos);
+      tr.setSelection(NodeSelection.create(tr.doc, blockContent.beforePos));
       return;
     }
 
     if (contentType === "inline") {
       if (placement === "start") {
-        editor._tiptapEditor.commands.setTextSelection(
-          blockContent.beforePos + 1
+        tr.setSelection(
+          TextSelection.create(tr.doc, blockContent.beforePos + 1)
         );
       } else {
-        editor._tiptapEditor.commands.setTextSelection(
-          blockContent.afterPos - 1
+        tr.setSelection(
+          TextSelection.create(tr.doc, blockContent.afterPos - 1)
         );
       }
     } else if (contentType === "table") {
@@ -127,12 +96,12 @@ export function setTextCursorPosition<
         // Need to offset the position as we have to get through the `tableRow`
         // and `tableCell` nodes to get to the `tableParagraph` node we want to
         // set the selection in.
-        editor._tiptapEditor.commands.setTextSelection(
-          blockContent.beforePos + 4
+        tr.setSelection(
+          TextSelection.create(tr.doc, blockContent.beforePos + 4)
         );
       } else {
-        editor._tiptapEditor.commands.setTextSelection(
-          blockContent.afterPos - 4
+        tr.setSelection(
+          TextSelection.create(tr.doc, blockContent.afterPos - 4)
         );
       }
     } else {
@@ -144,6 +113,6 @@ export function setTextCursorPosition<
         ? info.childContainer.node.firstChild!
         : info.childContainer.node.lastChild!;
 
-    setTextCursorPosition(editor, child.attrs.id, placement);
+    setTextCursorPosition(tr, child.attrs.id, placement);
   }
 }

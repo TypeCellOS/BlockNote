@@ -1,44 +1,55 @@
+import { authClient } from "@/util/auth-client";
 import { Menu, Transition } from "@headlessui/react";
 import clsx from "clsx";
-import { signOut, useSession } from "next-auth/react";
-import Image from "next/image";
 import { ReactElement, ReactNode } from "react";
 
-export function AuthNavButton(props: any) {
-  const session = useSession();
+import { UserImage } from "./UserImage";
 
-  return session.status === "authenticated" ? (
+export function AuthNavButton(props: any) {
+  const session = authClient.useSession();
+
+  return session.data ? (
     <NavbarMenu
       menuItems={[
-        <Menu.Item key={"thanks"}>
-          <div
+        session.data.planType !== "free" && (
+          <Menu.Item key={"thanks"}>
+            <div
+              className={clsx(
+                "nx-relative nx-hidden nx-w-full nx-select-none nx-whitespace-nowrap nx-text-gray-600 dark:nx-text-gray-400 md:nx-inline-block",
+                "nx-py-1.5 nx-px-3 font-bold",
+              )}>
+              💖 Thanks for subscribing! 💖
+            </div>
+          </Menu.Item>
+        ),
+        <Menu.Item key={"subscription"}>
+          <a
+            href={
+              session.data.planType === "free" ? "/pricing" : "/api/auth/portal"
+            }
             className={clsx(
               "nx-relative nx-hidden nx-w-full nx-select-none nx-whitespace-nowrap nx-text-gray-600 hover:nx-text-gray-900 dark:nx-text-gray-400 dark:hover:nx-text-gray-100 md:nx-inline-block",
-              "nx-py-1.5 nx-transition-colors ltr:nx-pl-3 ltr:nx-pr-9 rtl:nx-pr-3 rtl:nx-pl-9",
+              "nx-py-1.5 nx-px-3 nx-transition-colors text-center",
             )}>
-            💖 Thanks for sponsoring!
-          </div>
+            {session.data.planType === "free"
+              ? "Get BlockNote Pro"
+              : "Manage my subscription"}
+          </a>
         </Menu.Item>,
         <Menu.Item key={"signout"}>
           <button
             onClick={async () => {
-              await signOut();
+              await authClient.signOut();
             }}
             className={clsx(
               "nx-relative nx-hidden nx-w-full nx-select-none nx-whitespace-nowrap nx-text-gray-600 hover:nx-text-gray-900 dark:nx-text-gray-400 dark:hover:nx-text-gray-100 md:nx-inline-block",
-              "nx-py-1.5 nx-transition-colors ltr:nx-pl-3 ltr:nx-pr-9 rtl:nx-pr-3 rtl:nx-pl-9",
+              "nx-py-1.5 nx-px-3 nx-transition-colors",
             )}>
             Sign out
           </button>
         </Menu.Item>,
       ]}>
-      <Image
-        className="size-5 rounded-md"
-        src={session.data.user!.image!}
-        alt={session.data.user!.name!}
-        width={50}
-        height={50}
-      />
+      <UserImage user={session.data.user} />
     </NavbarMenu>
   ) : (
     <>

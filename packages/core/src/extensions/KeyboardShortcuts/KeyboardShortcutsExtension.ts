@@ -45,14 +45,10 @@ export const KeyboardShortcutsExtension = Extension.create<{
 
             if (selectionAtBlockStart && !isParagraph) {
               return commands.command(
-                updateBlockCommand(
-                  this.options.editor,
-                  blockInfo.bnBlock.beforePos,
-                  {
-                    type: "paragraph",
-                    props: {},
-                  }
-                )
+                updateBlockCommand(blockInfo.bnBlock.beforePos, {
+                  type: "paragraph",
+                  props: {},
+                })
               );
             }
 
@@ -609,6 +605,9 @@ export const KeyboardShortcutsExtension = Extension.create<{
         this.options.editor.moveBlocksDown();
         return true;
       },
+      "Mod-z": () => this.options.editor.undo(),
+      "Mod-y": () => this.options.editor.redo(),
+      "Shift-Mod-z": () => this.options.editor.redo(),
     };
   },
 });

@@ -7,6 +7,62 @@ exports[`Test insertBlocks > Insert multiple blocks after 1`] = `
     "content": [
       {
         "styles": {},
+        "text": "Inserted paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Inserted paragraph 2",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Inserted paragraph 3",
+        "type": "text",
+      },
+    ],
+    "id": "2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Test insertBlocks > Insert multiple blocks after 2`] = `
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
         "text": "Paragraph 0",
         "type": "text",
       },
@@ -671,6 +727,62 @@ exports[`Test insertBlocks > Insert multiple blocks before 1`] = `
     },
     "type": "paragraph",
   },
+]
+`;
+
+exports[`Test insertBlocks > Insert multiple blocks before 2`] = `
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Inserted paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Inserted paragraph 2",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Inserted paragraph 3",
+        "type": "text",
+      },
+    ],
+    "id": "2",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
   {
     "children": [],
     "content": [
@@ -1237,6 +1349,22 @@ exports[`Test insertBlocks > Insert multiple blocks before 1`] = `
 `;
 
 exports[`Test insertBlocks > Insert single basic block after 1`] = `
+[
+  {
+    "children": [],
+    "content": [],
+    "id": "0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
+`;
+
+exports[`Test insertBlocks > Insert single basic block after 2`] = `
 [
   {
     "children": [],
@@ -1833,6 +1961,28 @@ exports[`Test insertBlocks > Insert single basic block before (without type) 1`]
     },
     "type": "paragraph",
   },
+]
+`;
+
+exports[`Test insertBlocks > Insert single basic block before (without type) 2`] = `
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "test",
+        "type": "text",
+      },
+    ],
+    "id": "0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
   {
     "children": [],
     "content": [
@@ -2411,6 +2561,22 @@ exports[`Test insertBlocks > Insert single basic block before 1`] = `
     },
     "type": "paragraph",
   },
+]
+`;
+
+exports[`Test insertBlocks > Insert single basic block before 2`] = `
+[
+  {
+    "children": [],
+    "content": [],
+    "id": "0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
   {
     "children": [],
     "content": [
@@ -2977,6 +3143,79 @@ exports[`Test insertBlocks > Insert single basic block before 1`] = `
 `;
 
 exports[`Test insertBlocks > Insert single complex block after 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Double Nested Paragraph 2",
+                "type": "text",
+              },
+            ],
+            "id": "inserted-double-nested-paragraph-2",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 2",
+            "type": "text",
+          },
+        ],
+        "id": "inserted-nested-paragraph-2",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "Heading",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " with styled ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "italic": true,
+        },
+        "text": "content",
+        "type": "text",
+      },
+    ],
+    "id": "inserted-heading-with-everything",
+    "props": {
+      "backgroundColor": "red",
+      "level": 2,
+      "textAlignment": "center",
+      "textColor": "red",
+    },
+    "type": "heading",
+  },
+]
+`;
+
+exports[`Test insertBlocks > Insert single complex block after 2`] = `
 [
   {
     "children": [],
@@ -3612,6 +3851,79 @@ exports[`Test insertBlocks > Insert single complex block after 1`] = `
 `;
 
 exports[`Test insertBlocks > Insert single complex block before 1`] = `
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [],
+            "content": [
+              {
+                "styles": {},
+                "text": "Double Nested Paragraph 2",
+                "type": "text",
+              },
+            ],
+            "id": "inserted-double-nested-paragraph-2",
+            "props": {
+              "backgroundColor": "default",
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "content": [
+          {
+            "styles": {},
+            "text": "Nested Paragraph 2",
+            "type": "text",
+          },
+        ],
+        "id": "inserted-nested-paragraph-2",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "Heading",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " with styled ",
+        "type": "text",
+      },
+      {
+        "styles": {
+          "italic": true,
+        },
+        "text": "content",
+        "type": "text",
+      },
+    ],
+    "id": "inserted-heading-with-everything",
+    "props": {
+      "backgroundColor": "red",
+      "level": 2,
+      "textAlignment": "center",
+      "textColor": "red",
+    },
+    "type": "heading",
+  },
+]
+`;
+
+exports[`Test insertBlocks > Insert single complex block before 2`] = `
 [
   {
     "children": [

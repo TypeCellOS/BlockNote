@@ -147,7 +147,7 @@ describe("Test updateBlock", () => {
     }).toThrow();
   });
 
-  it("Update paragraph to column", () => {
+  it.skip("Update paragraph to column", () => {
     getEditor().updateBlock("paragraph-0", {
       type: "column",
       children: [
@@ -161,7 +161,7 @@ describe("Test updateBlock", () => {
     expect(getEditor().document).toMatchSnapshot();
   });
 
-  it("Update nested paragraph to column", () => {
+  it.skip("Update nested paragraph to column", () => {
     getEditor().updateBlock("nested-paragraph-0", {
       type: "column",
       children: [

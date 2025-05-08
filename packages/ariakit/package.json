@@ -11,7 +11,7 @@
     "directory": "packages/ariakit"
   },
   "license": "MPL-2.0",
-  "version": "0.27.0",
+  "version": "0.29.1",
   "files": [
     "dist",
     "types",
@@ -57,15 +57,14 @@
   },
   "dependencies": {
     "@ariakit/react": "^0.4.3",
-    "@blocknote/core": "^0.27.0",
-    "@blocknote/react": "^0.27.0"
+    "@blocknote/core": "0.29.1",
+    "@blocknote/react": "0.29.1"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",
     "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^8.10.0",
-    "prettier": "^2.7.1",
     "rimraf": "^5.0.5",
     "rollup-plugin-webpack-stats": "^0.2.2",
     "typescript": "^5.3.3",
@@ -81,9 +80,5 @@
     "extends": [
       "../../.eslintrc.js"
     ]
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
   }
 }

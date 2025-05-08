@@ -12,7 +12,9 @@ import { createCopyToClipboardExtension } from "../api/clipboard/toClipboard/cop
 import type { ThreadStore } from "../comments/index.js";
 import { AgentCursorPlugin } from "../extensions/AgentCursor/AgentCursorPlugin.js";
 import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension.js";
-import { createCollaborationExtensions } from "../extensions/Collaboration/createCollaborationExtensions.js";
+import { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
+import { UndoPlugin } from "../extensions/Collaboration/UndoPlugin.js";
+import { SyncPlugin } from "../extensions/Collaboration/SyncPlugin.js";
 import { CommentMark } from "../extensions/Comments/CommentMark.js";
 import { CommentsPlugin } from "../extensions/Comments/CommentsPlugin.js";
 import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin.js";
@@ -110,6 +112,15 @@ export const getBlockNoteExtensions = <
 
   for (const ext of tiptapExtensions) {
     ret[ext.name] = ext;
+  }
+
+  if (opts.collaboration) {
+    ret["ySyncPlugin"] = new SyncPlugin(opts.collaboration.fragment);
+    ret["yUndoPlugin"] = new UndoPlugin();
+
+    if (opts.collaboration.provider?.awareness) {
+      ret["yCursorPlugin"] = new CursorPlugin(opts.collaboration);
+    }
   }
 
   // Note: this is pretty hardcoded and will break when user provides plugins with same keys.
@@ -296,10 +307,8 @@ const getTipTapExtensions = <
 
   LINKIFY_INITIALIZED = true;
 
-  if (opts.collaboration) {
-    tiptapExtensions.push(...createCollaborationExtensions(opts.collaboration));
-  } else {
-    // disable history extension when collaboration is enabled as Yjs takes care of undo / redo
+  if (!opts.collaboration) {
+    // disable history extension when collaboration is enabled as y-prosemirror takes care of undo / redo
     tiptapExtensions.push(History);
   }
 

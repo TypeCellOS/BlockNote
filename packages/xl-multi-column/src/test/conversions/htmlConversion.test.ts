@@ -6,13 +6,15 @@ import {
   InlineContentSchema,
   PartialBlock,
   StyleSchema,
-  addIdsToBlocks,
   createExternalHTMLExporter,
   createInternalHTMLSerializer,
-  partialBlocksToBlocksForTesting,
 } from "@blocknote/core";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
+import {
+  addIdsToBlocks,
+  partialBlocksToBlocksForTesting,
+} from "./formatConversionTestUtil.js";
 import { multiColumnSchemaTestCases } from "./testCases.js";
 
 // TODO: code same from @blocknote/core, maybe create separate test util package

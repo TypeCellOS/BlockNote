@@ -1,6 +1,77 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`Test updateBlock > Revert all props 1`] = `
+{
+  "children": [
+    {
+      "children": [
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "Double Nested Paragraph 1",
+              "type": "text",
+            },
+          ],
+          "id": "double-nested-paragraph-1",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "content": [
+        {
+          "styles": {},
+          "text": "Nested Paragraph 1",
+          "type": "text",
+        },
+      ],
+      "id": "nested-paragraph-1",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+  ],
+  "content": [
+    {
+      "styles": {
+        "bold": true,
+      },
+      "text": "Heading",
+      "type": "text",
+    },
+    {
+      "styles": {},
+      "text": " with styled ",
+      "type": "text",
+    },
+    {
+      "styles": {
+        "italic": true,
+      },
+      "text": "content",
+      "type": "text",
+    },
+  ],
+  "id": "heading-with-everything",
+  "props": {
+    "backgroundColor": "default",
+    "level": 1,
+    "textAlignment": "left",
+    "textColor": "default",
+  },
+  "type": "heading",
+}
+`;
+
+exports[`Test updateBlock > Revert all props 2`] = `
 [
   {
     "children": [],
@@ -568,6 +639,77 @@ exports[`Test updateBlock > Revert all props 1`] = `
 `;
 
 exports[`Test updateBlock > Revert single prop 1`] = `
+{
+  "children": [
+    {
+      "children": [
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "Double Nested Paragraph 1",
+              "type": "text",
+            },
+          ],
+          "id": "double-nested-paragraph-1",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "content": [
+        {
+          "styles": {},
+          "text": "Nested Paragraph 1",
+          "type": "text",
+        },
+      ],
+      "id": "nested-paragraph-1",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+  ],
+  "content": [
+    {
+      "styles": {
+        "bold": true,
+      },
+      "text": "Heading",
+      "type": "text",
+    },
+    {
+      "styles": {},
+      "text": " with styled ",
+      "type": "text",
+    },
+    {
+      "styles": {
+        "italic": true,
+      },
+      "text": "content",
+      "type": "text",
+    },
+  ],
+  "id": "heading-with-everything",
+  "props": {
+    "backgroundColor": "red",
+    "level": 1,
+    "textAlignment": "center",
+    "textColor": "red",
+  },
+  "type": "heading",
+}
+`;
+
+exports[`Test updateBlock > Revert single prop 2`] = `
 [
   {
     "children": [],
@@ -1135,6 +1277,77 @@ exports[`Test updateBlock > Revert single prop 1`] = `
 `;
 
 exports[`Test updateBlock > Update all props 1`] = `
+{
+  "children": [
+    {
+      "children": [
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "Double Nested Paragraph 1",
+              "type": "text",
+            },
+          ],
+          "id": "double-nested-paragraph-1",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "content": [
+        {
+          "styles": {},
+          "text": "Nested Paragraph 1",
+          "type": "text",
+        },
+      ],
+      "id": "nested-paragraph-1",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+  ],
+  "content": [
+    {
+      "styles": {
+        "bold": true,
+      },
+      "text": "Heading",
+      "type": "text",
+    },
+    {
+      "styles": {},
+      "text": " with styled ",
+      "type": "text",
+    },
+    {
+      "styles": {
+        "italic": true,
+      },
+      "text": "content",
+      "type": "text",
+    },
+  ],
+  "id": "heading-with-everything",
+  "props": {
+    "backgroundColor": "blue",
+    "level": 3,
+    "textAlignment": "right",
+    "textColor": "blue",
+  },
+  "type": "heading",
+}
+`;
+
+exports[`Test updateBlock > Update all props 2`] = `
 [
   {
     "children": [],
@@ -1702,6 +1915,77 @@ exports[`Test updateBlock > Update all props 1`] = `
 `;
 
 exports[`Test updateBlock > Update children 1`] = `
+{
+  "children": [
+    {
+      "children": [
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "New double Nested Paragraph 2",
+              "type": "text",
+            },
+          ],
+          "id": "new-double-nested-paragraph",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "content": [
+        {
+          "styles": {},
+          "text": "New nested Paragraph 2",
+          "type": "text",
+        },
+      ],
+      "id": "new-nested-paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+  ],
+  "content": [
+    {
+      "styles": {
+        "bold": true,
+      },
+      "text": "Heading",
+      "type": "text",
+    },
+    {
+      "styles": {},
+      "text": " with styled ",
+      "type": "text",
+    },
+    {
+      "styles": {
+        "italic": true,
+      },
+      "text": "content",
+      "type": "text",
+    },
+  ],
+  "id": "heading-with-everything",
+  "props": {
+    "backgroundColor": "red",
+    "level": 2,
+    "textAlignment": "center",
+    "textColor": "red",
+  },
+  "type": "heading",
+}
+`;
+
+exports[`Test updateBlock > Update children 2`] = `
 [
   {
     "children": [],
@@ -2269,6 +2553,24 @@ exports[`Test updateBlock > Update children 1`] = `
 `;
 
 exports[`Test updateBlock > Update inline content to no content 1`] = `
+{
+  "children": [],
+  "content": undefined,
+  "id": "paragraph-0",
+  "props": {
+    "backgroundColor": "default",
+    "caption": "",
+    "name": "",
+    "previewWidth": 512,
+    "showPreview": true,
+    "textAlignment": "left",
+    "url": "",
+  },
+  "type": "image",
+}
+`;
+
+exports[`Test updateBlock > Update inline content to no content 2`] = `
 [
   {
     "children": [],
@@ -2834,6 +3136,194 @@ exports[`Test updateBlock > Update inline content to no content 1`] = `
 `;
 
 exports[`Test updateBlock > Update inline content to table content 1`] = `
+{
+  "children": [],
+  "content": {
+    "columnWidths": [
+      undefined,
+      undefined,
+      undefined,
+    ],
+    "headerCols": undefined,
+    "headerRows": undefined,
+    "rows": [
+      {
+        "cells": [
+          {
+            "content": [
+              {
+                "styles": {},
+                "text": "Cell 1",
+                "type": "text",
+              },
+            ],
+            "props": {
+              "backgroundColor": "default",
+              "colspan": 1,
+              "rowspan": 1,
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "tableCell",
+          },
+          {
+            "content": [
+              {
+                "styles": {},
+                "text": "Cell 2",
+                "type": "text",
+              },
+            ],
+            "props": {
+              "backgroundColor": "default",
+              "colspan": 1,
+              "rowspan": 1,
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "tableCell",
+          },
+          {
+            "content": [
+              {
+                "styles": {},
+                "text": "Cell 3",
+                "type": "text",
+              },
+            ],
+            "props": {
+              "backgroundColor": "default",
+              "colspan": 1,
+              "rowspan": 1,
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "tableCell",
+          },
+        ],
+      },
+      {
+        "cells": [
+          {
+            "content": [
+              {
+                "styles": {},
+                "text": "Cell 4",
+                "type": "text",
+              },
+            ],
+            "props": {
+              "backgroundColor": "default",
+              "colspan": 1,
+              "rowspan": 1,
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "tableCell",
+          },
+          {
+            "content": [
+              {
+                "styles": {},
+                "text": "Cell 5",
+                "type": "text",
+              },
+            ],
+            "props": {
+              "backgroundColor": "default",
+              "colspan": 1,
+              "rowspan": 1,
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "tableCell",
+          },
+          {
+            "content": [
+              {
+                "styles": {},
+                "text": "Cell 6",
+                "type": "text",
+              },
+            ],
+            "props": {
+              "backgroundColor": "default",
+              "colspan": 1,
+              "rowspan": 1,
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "tableCell",
+          },
+        ],
+      },
+      {
+        "cells": [
+          {
+            "content": [
+              {
+                "styles": {},
+                "text": "Cell 7",
+                "type": "text",
+              },
+            ],
+            "props": {
+              "backgroundColor": "default",
+              "colspan": 1,
+              "rowspan": 1,
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "tableCell",
+          },
+          {
+            "content": [
+              {
+                "styles": {},
+                "text": "Cell 8",
+                "type": "text",
+              },
+            ],
+            "props": {
+              "backgroundColor": "default",
+              "colspan": 1,
+              "rowspan": 1,
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "tableCell",
+          },
+          {
+            "content": [
+              {
+                "styles": {},
+                "text": "Cell 9",
+                "type": "text",
+              },
+            ],
+            "props": {
+              "backgroundColor": "default",
+              "colspan": 1,
+              "rowspan": 1,
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "tableCell",
+          },
+        ],
+      },
+    ],
+    "type": "tableContent",
+  },
+  "id": "paragraph-0",
+  "props": {
+    "textColor": "default",
+  },
+  "type": "table",
+}
+`;
+
+exports[`Test updateBlock > Update inline content to table content 2`] = `
 [
   {
     "children": [],
@@ -3569,6 +4059,20 @@ exports[`Test updateBlock > Update inline content to table content 1`] = `
 `;
 
 exports[`Test updateBlock > Update no content to empty inline content 1`] = `
+{
+  "children": [],
+  "content": [],
+  "id": "image-0",
+  "props": {
+    "backgroundColor": "default",
+    "textAlignment": "left",
+    "textColor": "default",
+  },
+  "type": "paragraph",
+}
+`;
+
+exports[`Test updateBlock > Update no content to empty inline content 2`] = `
 [
   {
     "children": [],
@@ -4132,6 +4636,24 @@ exports[`Test updateBlock > Update no content to empty inline content 1`] = `
 `;
 
 exports[`Test updateBlock > Update no content to empty table content 1`] = `
+{
+  "children": [],
+  "content": {
+    "columnWidths": [],
+    "headerCols": undefined,
+    "headerRows": undefined,
+    "rows": [],
+    "type": "tableContent",
+  },
+  "id": "image-0",
+  "props": {
+    "textColor": "default",
+  },
+  "type": "table",
+}
+`;
+
+exports[`Test updateBlock > Update no content to empty table content 2`] = `
 [
   {
     "children": [],
@@ -4695,6 +5217,26 @@ exports[`Test updateBlock > Update no content to empty table content 1`] = `
 `;
 
 exports[`Test updateBlock > Update no content to inline content 1`] = `
+{
+  "children": [],
+  "content": [
+    {
+      "styles": {},
+      "text": "Paragraph",
+      "type": "text",
+    },
+  ],
+  "id": "image-0",
+  "props": {
+    "backgroundColor": "default",
+    "textAlignment": "left",
+    "textColor": "default",
+  },
+  "type": "paragraph",
+}
+`;
+
+exports[`Test updateBlock > Update no content to inline content 2`] = `
 [
   {
     "children": [],
@@ -5264,6 +5806,194 @@ exports[`Test updateBlock > Update no content to inline content 1`] = `
 `;
 
 exports[`Test updateBlock > Update no content to table content 1`] = `
+{
+  "children": [],
+  "content": {
+    "columnWidths": [
+      undefined,
+      undefined,
+      undefined,
+    ],
+    "headerCols": undefined,
+    "headerRows": undefined,
+    "rows": [
+      {
+        "cells": [
+          {
+            "content": [
+              {
+                "styles": {},
+                "text": "Cell 1",
+                "type": "text",
+              },
+            ],
+            "props": {
+              "backgroundColor": "default",
+              "colspan": 1,
+              "rowspan": 1,
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "tableCell",
+          },
+          {
+            "content": [
+              {
+                "styles": {},
+                "text": "Cell 2",
+                "type": "text",
+              },
+            ],
+            "props": {
+              "backgroundColor": "red",
+              "colspan": 1,
+              "rowspan": 1,
+              "textAlignment": "right",
+              "textColor": "red",
+            },
+            "type": "tableCell",
+          },
+          {
+            "content": [
+              {
+                "styles": {},
+                "text": "Cell 3",
+                "type": "text",
+              },
+            ],
+            "props": {
+              "backgroundColor": "default",
+              "colspan": 1,
+              "rowspan": 1,
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "tableCell",
+          },
+        ],
+      },
+      {
+        "cells": [
+          {
+            "content": [
+              {
+                "styles": {},
+                "text": "Cell 4",
+                "type": "text",
+              },
+            ],
+            "props": {
+              "backgroundColor": "default",
+              "colspan": 1,
+              "rowspan": 1,
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "tableCell",
+          },
+          {
+            "content": [
+              {
+                "styles": {},
+                "text": "Cell 5",
+                "type": "text",
+              },
+            ],
+            "props": {
+              "backgroundColor": "default",
+              "colspan": 1,
+              "rowspan": 1,
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "tableCell",
+          },
+          {
+            "content": [
+              {
+                "styles": {},
+                "text": "Cell 6",
+                "type": "text",
+              },
+            ],
+            "props": {
+              "backgroundColor": "default",
+              "colspan": 1,
+              "rowspan": 1,
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "tableCell",
+          },
+        ],
+      },
+      {
+        "cells": [
+          {
+            "content": [
+              {
+                "styles": {},
+                "text": "Cell 7",
+                "type": "text",
+              },
+            ],
+            "props": {
+              "backgroundColor": "default",
+              "colspan": 1,
+              "rowspan": 1,
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "tableCell",
+          },
+          {
+            "content": [
+              {
+                "styles": {},
+                "text": "Cell 8",
+                "type": "text",
+              },
+            ],
+            "props": {
+              "backgroundColor": "default",
+              "colspan": 1,
+              "rowspan": 1,
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "tableCell",
+          },
+          {
+            "content": [
+              {
+                "styles": {},
+                "text": "Cell 9",
+                "type": "text",
+              },
+            ],
+            "props": {
+              "backgroundColor": "default",
+              "colspan": 1,
+              "rowspan": 1,
+              "textAlignment": "left",
+              "textColor": "default",
+            },
+            "type": "tableCell",
+          },
+        ],
+      },
+    ],
+    "type": "tableContent",
+  },
+  "id": "image-0",
+  "props": {
+    "textColor": "default",
+  },
+  "type": "table",
+}
+`;
+
+exports[`Test updateBlock > Update no content to table content 2`] = `
 [
   {
     "children": [],
@@ -8822,6 +9552,77 @@ exports[`Test updateBlock > Update partial (table row) 1`] = `
 `;
 
 exports[`Test updateBlock > Update single prop 1`] = `
+{
+  "children": [
+    {
+      "children": [
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "Double Nested Paragraph 1",
+              "type": "text",
+            },
+          ],
+          "id": "double-nested-paragraph-1",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "content": [
+        {
+          "styles": {},
+          "text": "Nested Paragraph 1",
+          "type": "text",
+        },
+      ],
+      "id": "nested-paragraph-1",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+  ],
+  "content": [
+    {
+      "styles": {
+        "bold": true,
+      },
+      "text": "Heading",
+      "type": "text",
+    },
+    {
+      "styles": {},
+      "text": " with styled ",
+      "type": "text",
+    },
+    {
+      "styles": {
+        "italic": true,
+      },
+      "text": "content",
+      "type": "text",
+    },
+  ],
+  "id": "heading-with-everything",
+  "props": {
+    "backgroundColor": "red",
+    "level": 3,
+    "textAlignment": "center",
+    "textColor": "red",
+  },
+  "type": "heading",
+}
+`;
+
+exports[`Test updateBlock > Update single prop 2`] = `
 [
   {
     "children": [],
@@ -9389,6 +10190,20 @@ exports[`Test updateBlock > Update single prop 1`] = `
 `;
 
 exports[`Test updateBlock > Update table content to empty inline content 1`] = `
+{
+  "children": [],
+  "content": [],
+  "id": "table-0",
+  "props": {
+    "backgroundColor": "default",
+    "textAlignment": "left",
+    "textColor": "default",
+  },
+  "type": "paragraph",
+}
+`;
+
+exports[`Test updateBlock > Update table content to empty inline content 2`] = `
 [
   {
     "children": [],
@@ -9782,6 +10597,26 @@ exports[`Test updateBlock > Update table content to empty inline content 1`] = `
 `;
 
 exports[`Test updateBlock > Update table content to inline content 1`] = `
+{
+  "children": [],
+  "content": [
+    {
+      "styles": {},
+      "text": "Paragraph",
+      "type": "text",
+    },
+  ],
+  "id": "table-0",
+  "props": {
+    "backgroundColor": "default",
+    "textAlignment": "left",
+    "textColor": "default",
+  },
+  "type": "paragraph",
+}
+`;
+
+exports[`Test updateBlock > Update table content to inline content 2`] = `
 [
   {
     "children": [],
@@ -10181,6 +11016,24 @@ exports[`Test updateBlock > Update table content to inline content 1`] = `
 `;
 
 exports[`Test updateBlock > Update table content to no content 1`] = `
+{
+  "children": [],
+  "content": undefined,
+  "id": "table-0",
+  "props": {
+    "backgroundColor": "default",
+    "caption": "",
+    "name": "",
+    "previewWidth": 512,
+    "showPreview": true,
+    "textAlignment": "left",
+    "url": "",
+  },
+  "type": "image",
+}
+`;
+
+exports[`Test updateBlock > Update table content to no content 2`] = `
 [
   {
     "children": [],
@@ -10578,6 +11431,76 @@ exports[`Test updateBlock > Update table content to no content 1`] = `
 `;
 
 exports[`Test updateBlock > Update type 1`] = `
+{
+  "children": [
+    {
+      "children": [
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "Double Nested Paragraph 1",
+              "type": "text",
+            },
+          ],
+          "id": "double-nested-paragraph-1",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "content": [
+        {
+          "styles": {},
+          "text": "Nested Paragraph 1",
+          "type": "text",
+        },
+      ],
+      "id": "nested-paragraph-1",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+  ],
+  "content": [
+    {
+      "styles": {
+        "bold": true,
+      },
+      "text": "Heading",
+      "type": "text",
+    },
+    {
+      "styles": {},
+      "text": " with styled ",
+      "type": "text",
+    },
+    {
+      "styles": {
+        "italic": true,
+      },
+      "text": "content",
+      "type": "text",
+    },
+  ],
+  "id": "heading-with-everything",
+  "props": {
+    "backgroundColor": "red",
+    "textAlignment": "center",
+    "textColor": "red",
+  },
+  "type": "paragraph",
+}
+`;
+
+exports[`Test updateBlock > Update type 2`] = `
 [
   {
     "children": [],
@@ -11144,6 +12067,63 @@ exports[`Test updateBlock > Update type 1`] = `
 `;
 
 exports[`Test updateBlock > Update with plain content 1`] = `
+{
+  "children": [
+    {
+      "children": [
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "Double Nested Paragraph 1",
+              "type": "text",
+            },
+          ],
+          "id": "double-nested-paragraph-1",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "content": [
+        {
+          "styles": {},
+          "text": "Nested Paragraph 1",
+          "type": "text",
+        },
+      ],
+      "id": "nested-paragraph-1",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+  ],
+  "content": [
+    {
+      "styles": {},
+      "text": "New content",
+      "type": "text",
+    },
+  ],
+  "id": "heading-with-everything",
+  "props": {
+    "backgroundColor": "red",
+    "level": 2,
+    "textAlignment": "center",
+    "textColor": "red",
+  },
+  "type": "heading",
+}
+`;
+
+exports[`Test updateBlock > Update with plain content 2`] = `
 [
   {
     "children": [],
@@ -11697,6 +12677,77 @@ exports[`Test updateBlock > Update with plain content 1`] = `
 `;
 
 exports[`Test updateBlock > Update with styled content 1`] = `
+{
+  "children": [
+    {
+      "children": [
+        {
+          "children": [],
+          "content": [
+            {
+              "styles": {},
+              "text": "Double Nested Paragraph 1",
+              "type": "text",
+            },
+          ],
+          "id": "double-nested-paragraph-1",
+          "props": {
+            "backgroundColor": "default",
+            "textAlignment": "left",
+            "textColor": "default",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "content": [
+        {
+          "styles": {},
+          "text": "Nested Paragraph 1",
+          "type": "text",
+        },
+      ],
+      "id": "nested-paragraph-1",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+  ],
+  "content": [
+    {
+      "styles": {
+        "backgroundColor": "blue",
+      },
+      "text": "New",
+      "type": "text",
+    },
+    {
+      "styles": {},
+      "text": " ",
+      "type": "text",
+    },
+    {
+      "styles": {
+        "backgroundColor": "blue",
+      },
+      "text": "content",
+      "type": "text",
+    },
+  ],
+  "id": "heading-with-everything",
+  "props": {
+    "backgroundColor": "red",
+    "level": 2,
+    "textAlignment": "center",
+    "textColor": "red",
+  },
+  "type": "heading",
+}
+`;
+
+exports[`Test updateBlock > Update with styled content 2`] = `
 [
   {
     "children": [],

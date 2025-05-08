@@ -43,23 +43,11 @@ export function serializeInlineContentExternalHTML<
   if (!blockContent) {
     throw new Error("blockContent is required");
   } else if (typeof blockContent === "string") {
-    nodes = inlineContentToNodes(
-      [blockContent],
-      editor.pmSchema,
-      editor.schema.styleSchema
-    );
+    nodes = inlineContentToNodes([blockContent], editor.pmSchema);
   } else if (Array.isArray(blockContent)) {
-    nodes = inlineContentToNodes(
-      blockContent,
-      editor.pmSchema,
-      editor.schema.styleSchema
-    );
+    nodes = inlineContentToNodes(blockContent, editor.pmSchema);
   } else if (blockContent.type === "tableContent") {
-    nodes = tableContentToNodes(
-      blockContent,
-      editor.pmSchema,
-      editor.schema.styleSchema
-    );
+    nodes = tableContentToNodes(blockContent, editor.pmSchema);
   } else {
     throw new UnreachableCaseError(blockContent.type);
   }
@@ -130,7 +118,10 @@ function serializeBlock<
 
   const elementFragment = doc.createDocumentFragment();
   if (ret.dom.classList.contains("bn-block-content")) {
-    const blockContentDataAttributes = [...attrs, ...Array.from(ret.dom.attributes)].filter(
+    const blockContentDataAttributes = [
+      ...attrs,
+      ...Array.from(ret.dom.attributes),
+    ].filter(
       (attr) =>
         attr.name.startsWith("data") &&
         attr.name !== "data-content-type" &&

@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   getBlockInfo,
-  getBlockInfoFromSelection,
+  getBlockInfoFromTransaction,
 } from "../../../getBlockInfoFromPos.js";
 import { getNodeById } from "../../../nodeUtil.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
@@ -38,8 +38,8 @@ function setSelectionWithOffset(
     throw new Error("Target block is not a block container");
   }
 
-  getEditor().dispatch(
-    getEditor()._tiptapEditor.state.tr.setSelection(
+  getEditor().transact((tr) =>
+    tr.setSelection(
       TextSelection.create(doc, info.blockContent.beforePos + offset + 1)
     )
   );
@@ -47,97 +47,103 @@ function setSelectionWithOffset(
 
 describe("Test splitBlocks", () => {
   it("Basic", () => {
-    setSelectionWithOffset(
-      getEditor()._tiptapEditor.state.doc,
-      "paragraph-0",
-      4
-    );
+    getEditor().transact((tr) => {
+      setSelectionWithOffset(tr.doc, "paragraph-0", 4);
+    });
 
-    splitBlock(getEditor()._tiptapEditor.state.selection.anchor);
+    splitBlock(getEditor().transact((tr) => tr.selection.anchor));
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("End of content", () => {
-    setSelectionWithOffset(
-      getEditor()._tiptapEditor.state.doc,
-      "paragraph-0",
-      11
-    );
+    getEditor().transact((tr) => {
+      setSelectionWithOffset(tr.doc, "paragraph-0", 11);
+    });
 
-    splitBlock(getEditor()._tiptapEditor.state.selection.anchor);
+    splitBlock(getEditor().transact((tr) => tr.selection.anchor));
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Block has children", () => {
-    setSelectionWithOffset(
-      getEditor()._tiptapEditor.state.doc,
-      "paragraph-with-children",
-      4
-    );
+    getEditor().transact((tr) => {
+      setSelectionWithOffset(tr.doc, "paragraph-with-children", 4);
+    });
 
-    splitBlock(getEditor()._tiptapEditor.state.selection.anchor);
+    splitBlock(getEditor().transact((tr) => tr.selection.anchor));
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Keep type", () => {
-    setSelectionWithOffset(getEditor()._tiptapEditor.state.doc, "heading-0", 4);
+    getEditor().transact((tr) => {
+      setSelectionWithOffset(tr.doc, "heading-0", 4);
+    });
 
-    splitBlock(getEditor()._tiptapEditor.state.selection.anchor, true);
+    splitBlock(
+      getEditor().transact((tr) => tr.selection.anchor),
+      true
+    );
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Don't keep type", () => {
-    setSelectionWithOffset(getEditor()._tiptapEditor.state.doc, "heading-0", 4);
+    getEditor().transact((tr) => {
+      setSelectionWithOffset(tr.doc, "heading-0", 4);
+    });
 
-    splitBlock(getEditor()._tiptapEditor.state.selection.anchor, false);
+    splitBlock(
+      getEditor().transact((tr) => tr.selection.anchor),
+      false
+    );
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it.skip("Keep props", () => {
-    setSelectionWithOffset(
-      getEditor()._tiptapEditor.state.doc,
-      "paragraph-with-props",
-      4
-    );
+    getEditor().transact((tr) => {
+      setSelectionWithOffset(tr.doc, "paragraph-with-props", 4);
+    });
 
-    splitBlock(getEditor()._tiptapEditor.state.selection.anchor, false, true);
+    splitBlock(
+      getEditor().transact((tr) => tr.selection.anchor),
+      false,
+      true
+    );
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Don't keep props", () => {
-    setSelectionWithOffset(
-      getEditor()._tiptapEditor.state.doc,
-      "paragraph-with-props",
-      4
-    );
+    getEditor().transact((tr) => {
+      setSelectionWithOffset(tr.doc, "paragraph-with-props", 4);
+    });
 
-    splitBlock(getEditor()._tiptapEditor.state.selection.anchor, false, false);
+    splitBlock(
+      getEditor().transact((tr) => tr.selection.anchor),
+      false,
+      false
+    );
 
     expect(getEditor().document).toMatchSnapshot();
   });
 
   it("Selection is set", () => {
-    setSelectionWithOffset(
-      getEditor()._tiptapEditor.state.doc,
-      "paragraph-0",
-      4
-    );
+    getEditor().transact((tr) => {
+      setSelectionWithOffset(tr.doc, "paragraph-0", 4);
+    });
 
-    splitBlock(getEditor()._tiptapEditor.state.selection.anchor);
+    splitBlock(getEditor().transact((tr) => tr.selection.anchor));
 
-    const { bnBlock } = getBlockInfoFromSelection(
-      getEditor()._tiptapEditor.state
+    const bnBlock = getEditor().transact(
+      (tr) => getBlockInfoFromTransaction(tr).bnBlock
     );
 
     const anchorIsAtStartOfNewBlock =
       bnBlock.node.attrs.id === "0" &&
-      getEditor()._tiptapEditor.state.selection.$anchor.parentOffset === 0;
+      getEditor().transact((tr) => tr.selection.$anchor.parentOffset) === 0;
 
     expect(anchorIsAtStartOfNewBlock).toBeTruthy();
   });
