@@ -140,7 +140,8 @@ export class AIExtension extends BlockNoteExtension {
    */
   public acceptChanges() {
     applySuggestions(this.editor.prosemirrorState, (tr) => {
-      this.editor.dispatch(tr);
+      // TODO: @Nick, I don't think there's currently a cleaner way to do this?
+      this.editor._tiptapEditor.dispatch(tr);
     });
     this.closeAIMenu();
   }
@@ -150,7 +151,8 @@ export class AIExtension extends BlockNoteExtension {
    */
   public rejectChanges() {
     revertSuggestions(this.editor.prosemirrorState, (tr) => {
-      this.editor.dispatch(tr);
+      // TODO: @Nick, I don't think there's currently a cleaner way to do this?
+      this.editor._tiptapEditor.dispatch(tr);
     });
     this.closeAIMenu();
   }

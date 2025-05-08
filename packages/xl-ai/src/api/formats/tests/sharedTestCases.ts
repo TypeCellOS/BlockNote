@@ -136,9 +136,9 @@ export function generateSharedTestCases(
 
       await result.execute();
 
-      console.log(
-        JSON.stringify(editor.prosemirrorState.doc.toJSON(), null, 2)
-      );
+      // console.log(
+      //   JSON.stringify(editor.prosemirrorState.doc.toJSON(), null, 2)
+      // );
       // const co = await (result.llmResult as StreamObjectResult<any, any, any>).;
       // we first need to accept changes to get the correct result
       getAIExtension(editor).acceptChanges();

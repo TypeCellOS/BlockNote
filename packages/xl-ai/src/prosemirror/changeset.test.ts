@@ -1,47 +1,62 @@
 import {
   BlockNoteEditor,
-  PartialBlock,
-  partialBlockToBlockForTesting,
+  prosemirrorSliceToSlicedBlocks,
 } from "@blocknote/core";
+import { partialBlockToBlockForTesting } from "@shared/formatConversionTestUtil.js";
 import { describe, expect, it } from "vitest";
-import { UpdateBlockToolCall } from "../api/tools/createUpdateBlockTool.js";
 import {
   getTestEditor,
+  TestUpdateOperation,
   testUpdateOperations,
 } from "../testUtil/updates/updateOperations.js";
 import { updateToReplaceSteps } from "./changeset.js";
 
 function testUpdate(
   editor: BlockNoteEditor<any, any, any>,
-  update: UpdateBlockToolCall<PartialBlock<any, any, any>>["block"],
-  blockId: string
+  test: TestUpdateOperation
 ) {
+  const update = test.updateOp.block;
+  const blockId = test.updateOp.id;
+
+  const selection = test.getTestSelection?.(editor);
   const steps = updateToReplaceSteps(
-    editor,
     {
       id: blockId,
       type: "update",
       block: update,
     },
-    editor.prosemirrorState.doc
+    editor.prosemirrorState.doc,
+    undefined,
+    selection?.from,
+    selection?.to
   );
+
   const formatted = steps.map((step) => ({
     replaced: editor.prosemirrorState.doc.slice(step.from, step.to).toJSON(),
     step: step,
   }));
   expect(formatted).toMatchSnapshot();
 
-  const tr = editor.prosemirrorState.tr;
-  for (const step of steps) {
-    const mapped = step.map(tr.mapping);
-    if (!mapped) {
-      throw new Error("Failed to map step");
+  editor.transact((tr) => {
+    for (const step of steps) {
+      const mapped = step.map(tr.mapping);
+      if (!mapped) {
+        throw new Error("Failed to map step");
+      }
+      tr.step(mapped);
     }
-    tr.step(mapped);
-  }
-  editor.dispatch(tr);
+  });
 
-  const block = editor.getBlock(blockId)!;
+  let block = editor.getBlock(blockId)!;
+
+  if (selection) {
+    const selectionInfo = prosemirrorSliceToSlicedBlocks(
+      editor.prosemirrorState.doc.slice(selection.from, selection.to, true),
+      editor.pmSchema
+    );
+    block = selectionInfo.blocks[0];
+  }
+
   if (update.type) {
     // eslint-disable-next-line
     expect(block.type).toEqual(update.type);
@@ -65,7 +80,7 @@ function testUpdate(
 
 for (const test of testUpdateOperations) {
   it(`${test.description}`, async () => {
-    testUpdate(test.editor(), test.updateOp.block, test.updateOp.id);
+    testUpdate(test.editor(), test);
   });
 }
 
@@ -73,7 +88,6 @@ describe("dontReplaceContentAtEnd=true", () => {
   it("keeps content at end of block", async () => {
     const editor = getTestEditor();
     const steps = updateToReplaceSteps(
-      editor,
       {
         id: "ref1",
         type: "update",
@@ -91,7 +105,6 @@ describe("dontReplaceContentAtEnd=true", () => {
   it("keeps content at end of block (mark update)", async () => {
     const editor = getTestEditor();
     const steps = updateToReplaceSteps(
-      editor,
       {
         id: "ref1",
         type: "update",

@@ -1012,6 +1012,34 @@ exports[`styles + ic in target block, add mark (word) 1`] = `
 ]
 `;
 
+exports[`translate selection 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "text": "e",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 21,
+      "slice": {
+        "content": [
+          {
+            "text": "a",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 22,
+    },
+  },
+]
+`;
+
 exports[`update block prop 1`] = `
 [
   {

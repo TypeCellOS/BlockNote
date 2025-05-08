@@ -1,14 +1,12 @@
 import {
   BlockNoteEditor,
   getBlockInfo,
-  getNodeById,
-  PartialBlock,
+  getNodeById
 } from "@blocknote/core";
 import { Fragment, Slice } from "prosemirror-model";
-import { Mapping, ReplaceStep } from "prosemirror-transform";
+import { ReplaceStep } from "prosemirror-transform";
 import { describe, expect, it } from "vitest";
-import { UpdateBlockToolCall } from "../api/tools/createUpdateBlockTool.js";
-import { testUpdateOperations } from "../testUtil/updates/updateOperations.js";
+import { TestUpdateOperation, testUpdateOperations } from "../testUtil/updates/updateOperations.js";
 import { agentStepToTr, getStepsAsAgent } from "./agent.js";
 import { updateToReplaceSteps } from "./changeset.js";
 
@@ -30,9 +28,9 @@ describe("getStepsAsAgent", () => {
 
   it("simple replace step", async () => {
     const editor = createTestEditor();
-
+    const doc = editor.prosemirrorState.doc;
     // Get the position of the content in the paragraph
-    const blockPos = getNodeById("1", editor.prosemirrorState.doc)!;
+    const blockPos = getNodeById("1", doc)!;
     const block = getBlockInfo(blockPos);
     if (!block.isBlockContainer) {
       throw new Error("Block is not a container");
@@ -52,7 +50,7 @@ describe("getStepsAsAgent", () => {
     const step = new ReplaceStep(from, to, new Slice(fragment, 0, 0));
 
     // Apply the step
-    const steps = getStepsAsAgent(editor, [step]);
+    const steps = getStepsAsAgent(doc, editor.pmSchema, [step]);
 
     // Verify dispatch was called with the correct transactions
     expect(steps).toHaveLength(3); // select, replace, insert
@@ -60,12 +58,11 @@ describe("getStepsAsAgent", () => {
     expect(steps).toMatchSnapshot();
   });
 
-  // TODO: should include selection and result in a change-tracked update?
   it("node type change", async () => {
     const editor = createTestEditor();
-
+    const doc = editor.prosemirrorState.doc;
     // Get the position of the content in the paragraph
-    const blockPos = getNodeById("1", editor.prosemirrorState.doc)!;
+    const blockPos = getNodeById("1", doc)!;
     const block = getBlockInfo(blockPos);
     if (!block.isBlockContainer) {
       throw new Error("Block is not a container");
@@ -79,7 +76,7 @@ describe("getStepsAsAgent", () => {
     expect(tr.steps.length).toBe(1);
 
     // Apply the step
-    const steps = getStepsAsAgent(editor, tr.steps);
+    const steps = getStepsAsAgent(doc, editor.pmSchema, tr.steps);
 
     // Verify dispatch was called with the correct transactions
     expect(steps).toHaveLength(1); // select, replace, insert
@@ -87,12 +84,11 @@ describe("getStepsAsAgent", () => {
     expect(steps).toMatchSnapshot();
   });
 
-  // TODO: should include selection and result in a change-tracked update?
   it("node attr change", async () => {
     const editor = createTestEditor();
-
+    const doc = editor.prosemirrorState.doc;
     // Get the position of the content in the paragraph
-    const blockPos = getNodeById("1", editor.prosemirrorState.doc)!;
+    const blockPos = getNodeById("1", doc)!;
     const block = getBlockInfo(blockPos);
     if (!block.isBlockContainer) {
       throw new Error("Block is not a container");
@@ -109,7 +105,7 @@ describe("getStepsAsAgent", () => {
     expect(tr.steps.length).toBe(1);
 
     // Apply the step
-    const steps = getStepsAsAgent(editor, tr.steps);
+    const steps = getStepsAsAgent(doc, editor.pmSchema, tr.steps);
 
     // Verify dispatch was called with the correct transactions
     expect(steps).toHaveLength(1); // select, replace, insert
@@ -117,12 +113,12 @@ describe("getStepsAsAgent", () => {
     expect(steps).toMatchSnapshot();
   });
 
-  // TODO: should include selection and result in a change-tracked update?
   it("node type and content change", async () => {
     const editor = createTestEditor();
 
+    const doc = editor.prosemirrorState.doc;
     // Get the position of the content in the paragraph
-    const blockPos = getNodeById("1", editor.prosemirrorState.doc)!;
+    const blockPos = getNodeById("1", doc)!;
     const block = getBlockInfo(blockPos);
     if (!block.isBlockContainer) {
       throw new Error("Block is not a container");
@@ -133,22 +129,23 @@ describe("getStepsAsAgent", () => {
       block.blockContent.beforePos + 3,
       // for simplicity, we're not actually changing the node type and content, but we just use the existing document
       // as replacement content
-      editor.prosemirrorState.doc.slice(
+      doc.slice(
         block.blockContent.beforePos,
         block.blockContent.beforePos + 3
       )
     );
 
-    await expect(() => getStepsAsAgent(editor, [step])).toThrow(
+    await expect(() => getStepsAsAgent(doc, editor.pmSchema, [step])).toThrow(
       "Slice has openStart or openEnd > 0, but structure=false"
     );
   });
 
   it("multiple steps", async () => {
     const editor = createTestEditor();
+    const doc = editor.prosemirrorState.doc;
 
     // Get the position of the content in the paragraph
-    const blockPos = getNodeById("1", editor.prosemirrorState.doc)!;
+    const blockPos = getNodeById("1", doc)!;
     const block = getBlockInfo(blockPos);
     if (!block.isBlockContainer) {
       throw new Error("Block is not a container");
@@ -174,7 +171,7 @@ describe("getStepsAsAgent", () => {
     );
 
     // Apply the steps
-    const steps = getStepsAsAgent(editor, [step1, step2]);
+    const steps = getStepsAsAgent(doc, editor.pmSchema, [step1, step2]);
 
     // Verify dispatch was called for each step
     // For each step: select, replace, and potentially multiple inserts
@@ -185,12 +182,12 @@ describe("getStepsAsAgent", () => {
 
   it("throw error for non-ReplaceSteps", async () => {
     const editor = createTestEditor();
-
+    const doc = editor.prosemirrorState.doc;
     // Create a non-ReplaceStep (we'll just mock it)
     const nonReplaceStep = { from: 0, to: 5 } as any;
 
     // Expect the function to throw an error
-    await expect(() => getStepsAsAgent(editor, [nonReplaceStep])).toThrow(
+    await expect(() => getStepsAsAgent(doc, editor.pmSchema, [nonReplaceStep])).toThrow(
       "Step is not a ReplaceStep"
     );
   });
@@ -201,28 +198,32 @@ describe("agentStepToTr", () => {
 
   async function testUpdate(
     editor: BlockNoteEditor<any, any, any>,
-    update: UpdateBlockToolCall<PartialBlock<any, any, any>>["block"],
-    blockId: string
+    test: TestUpdateOperation
   ) {
+    const blockId = test.updateOp.id;
+    const update = test.updateOp.block;
+
+    const selection = test.getTestSelection?.(editor);
+    const doc = editor.prosemirrorState.doc;
     const steps = updateToReplaceSteps(
-      editor,
       {
         id: blockId,
         type: "update",
         block: update,
       },
-      editor.prosemirrorState.doc
+      doc,
+      undefined,
+      selection?.from,
+      selection?.to
     );
 
-    const agentSteps = getStepsAsAgent(editor, steps);
+    const agentSteps = getStepsAsAgent(doc, editor.pmSchema, steps);
 
     const results = [];
-    const trMapping = new Mapping();
     for (const step of agentSteps) {
-      const tr = await agentStepToTr(editor, step, { withDelays: false });
-      trMapping.appendMapping(tr.mapping);
-
-      editor.dispatch(tr);
+      editor.transact((tr) => {
+        agentStepToTr(tr, step);
+      });
       results.push(
         step.type.slice(0, 1).toUpperCase() +
           "	" +
@@ -237,7 +238,7 @@ describe("agentStepToTr", () => {
     it(`${test.description}`, async () => {
       const editor = test.editor();
       editor._tiptapEditor.forceEnablePlugins();
-      await testUpdate(editor, test.updateOp.block, test.updateOp.id);
+      await testUpdate(editor, test);
     });
   }
 });

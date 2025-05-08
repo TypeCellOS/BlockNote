@@ -16,7 +16,7 @@ export async function* applyHTMLOperations(
     isPossiblyPartial: boolean;
   }>,
   updateFromPos?: number,
-  updateToPos?: number
+  updateToPos?: number,
 ) {
   const jsonToolCalls = toJSONToolCalls(editor, operationsSource);
 
@@ -25,7 +25,7 @@ export async function* applyHTMLOperations(
     jsonToolCalls,
     async (id) => {
       const tr = getApplySuggestionsTr(editor);
-      const block = getBlock(editor, id, tr.doc);
+      const block = getBlock(tr.doc, id);
       if (!block) {
         // debugger;
         throw new Error("block not found");
@@ -40,13 +40,12 @@ export async function* applyHTMLOperations(
       // console.log(html);
       // console.log(JSON.stringify(blocks, null, 2));
       const steps = updateToReplaceSteps(
-        editor,
         {
           id,
           block: htmlBlock,
           type: "update",
         },
-        tr.doc
+        tr.doc,
       );
 
       if (steps.length) {
@@ -69,6 +68,6 @@ export async function* applyHTMLOperations(
       withDelays: true, // TODO: make configurable
     },
     updateFromPos,
-    updateToPos
+    updateToPos,
   );
 }

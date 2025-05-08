@@ -10,8 +10,9 @@ import {
 
 import {
   BlockNoteEditor,
-  partialBlockToBlockForTesting,
+  prosemirrorSliceToSlicedBlocks,
 } from "@blocknote/core";
+import { partialBlockToBlockForTesting } from "@shared/formatConversionTestUtil.js";
 import { getAIExtension } from "../../../AIExtension.js";
 import { AddBlocksToolCall } from "../../tools/createAddBlocksTool.js";
 import { UpdateBlockToolCall } from "../../tools/createUpdateBlockTool.js";
@@ -53,7 +54,11 @@ describe("applyOperations", () => {
         | DeleteBlockToolCall;
       isUpdateToPreviousOperation: boolean;
       isPossiblyPartial: boolean;
-    }>
+    }>,
+    selection?: {
+      from: number;
+      to: number;
+    }
   ) {
     const result = [];
     for await (const chunk of applyOperations(
@@ -64,7 +69,9 @@ describe("applyOperations", () => {
       },
       {
         withDelays: false,
-      }
+      },
+      selection?.from, 
+      selection?.to
     )) {
       result.push(chunk);
     }
@@ -95,6 +102,8 @@ describe("applyOperations", () => {
     // Should yield the operation with result: "ok"
     expect(result.length).toBe(8);
     expect(result[0]).toEqual({
+      isPossiblyPartial: false,
+      isUpdateToPreviousOperation: false,
       lastBlockId: "0",
       operation: insertOp.operation,
       result: "ok",
@@ -104,15 +113,28 @@ describe("applyOperations", () => {
   for (const testCase of testUpdateOperations) {
     // eslint-disable-next-line no-loop-func
     it(`should apply update operations to the editor (${testCase.description})`, async () => {
+
+      // TODO: quite some code duplicated here from other tests
+
       const editor = testCase.editor();
+      const selection = testCase.getTestSelection?.(editor);
+
       const result = await processOperations(
         editor,
-        createMockStream({ operation: testCase.updateOp })
+        createMockStream({ operation: testCase.updateOp }),
+        selection
       );
 
       // Should call updateBlock with the right parameters
       const update = testCase.updateOp.block;
-      const block = editor.getBlock(testCase.updateOp.id)!;
+      let block = editor.getBlock(testCase.updateOp.id)!;
+      if (selection) {
+        const selectionInfo = prosemirrorSliceToSlicedBlocks(
+          editor.prosemirrorState.doc.slice(selection.from, selection.to, true),
+          editor.pmSchema
+        );
+        block = selectionInfo.blocks[0];
+      }
       if (update.type) {
         // eslint-disable-next-line
         expect(block.type).toEqual(update.type);
@@ -181,7 +203,7 @@ describe("applyOperations", () => {
         type: "add",
         blocks: [{ content: "block1" }],
         referenceId: "ref1",
-        position: "after",
+        position: "before",
       } as AddBlocksToolCall<any>,
     };
 
@@ -196,46 +218,45 @@ describe("applyOperations", () => {
     await processOperations(editor, createMockStream(insertOp, updateOp));
 
     // Should call all the editor methods with the right parameters
-    expect(editor.document[1]).toMatchObject({
+    expect(editor.document[0]).toMatchObject({
       content: [{ text: "block1" }],
     });
 
-    expect(editor.document[0]).toMatchObject({
+    expect(editor.document[1]).toMatchObject({
       content: [{ text: "updated content" }],
     });
 
     expect(editor.document.length).toBe(startDocLength + 1);
   });
 
-  // TODO: delete
-  it.skip("test", async () => {
-    const numbers = [1, 2, 3, 4, 5];
+  it("should handle multiple operations in sequence with selection", async () => {
+    const editor = getTestEditor();
+    const startDocLength = editor.document.length;
+    const insertOp = {
+      operation: {
+        type: "add",
+        blocks: [{ content: "block1" }],
+        referenceId: "ref1",
+        position: "before",
+      } as AddBlocksToolCall<any>,
+    };
 
-    async function* multiply(numbersStream: AsyncIterable<number>) {
-      for await (const number of numbersStream) {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        console.log("multiply", number);
-        yield number * 2;
-      }
-    }
+    const updateOp = testUpdateOperations.filter(t => t.description === "translate selection")[0];
 
-    async function* add(numbersStream: AsyncIterable<number>) {
-      for await (const number of numbersStream) {
-        console.log("add", number);
-        yield number + 1;
-      }
-    }
+    await processOperations(editor, createMockStream(insertOp, {
+      operation: updateOp.updateOp
+    }),updateOp.getTestSelection?.(editor));
 
-    async function* createMockStream(numbers: number[]) {
-      for (const number of numbers) {
-        yield number;
-      }
-    }
+    // Should call all the editor methods with the right parameters
+    expect(editor.document[0]).toMatchObject({
+      content: [{ text: "block1" }],
+    });
 
-    const result = multiply(add(createMockStream(numbers)));
+    expect((editor.document[2].content as any).length).toBeGreaterThan(1)
+    expect((editor.document[2].content as any)[0]).toMatchObject({
+      text: "Hallo, ",
+    });
 
-    for await (const number of result) {
-      console.log(number);
-    }
+    expect(editor.document.length).toBe(startDocLength + 1);
   });
 });

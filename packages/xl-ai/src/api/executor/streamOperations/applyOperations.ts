@@ -2,13 +2,14 @@ import {
   BlockNoteEditor,
   PartialBlock,
   UnreachableCaseError,
-  insertBlocksTr,
-  removeAndInsertBlocksTr,
+  insertBlocks,
+  removeAndInsertBlocks
 } from "@blocknote/core";
 import { Mapping } from "prosemirror-transform";
 import {
   AgentStep,
   agentStepToTr,
+  delayAgentStep,
   getStepsAsAgent,
 } from "../../../prosemirror/agent.js";
 import { updateToReplaceSteps } from "../../../prosemirror/changeset.js";
@@ -93,13 +94,13 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
     if (operation.type === "add") {
       for (let i = 0; i < operation.blocks.length; i++) {
         const block = operation.blocks[i];
+        const doc = editor.prosemirrorState.doc;
         const tr = editor.prosemirrorState.tr;
         // TODO: unit test
         let agentSteps: AgentStep[] = [];
         if (i < addedBlockIds.length) {
           const tool = await rebaseTool(addedBlockIds[i]);
           const steps = updateToReplaceSteps(
-            editor,
             {
               id: addedBlockIds[i],
               block: operation.blocks[i],
@@ -110,10 +111,9 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
           );
 
           const inverted = steps.map((step) => step.map(tool.invertMap)!);
-          agentSteps = getStepsAsAgent(editor, inverted);
+          agentSteps = getStepsAsAgent(doc, editor.pmSchema, inverted);
         } else {
-          const ret = insertBlocksTr(
-            editor,
+          const ret = insertBlocks(
             tr,
             [block],
             i > 0 ? addedBlockIds[i - 1] : operation.referenceId,
@@ -121,7 +121,7 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
           );
           addedBlockIds.push(...ret.map((r) => r.id));
           // TODO: inverted needed?
-          agentSteps = getStepsAsAgent(editor, tr.steps);
+          agentSteps = getStepsAsAgent(doc, editor.pmSchema, tr.steps);
         }
         agentSteps = agentSteps
           .filter((step) => step.type !== "select")
@@ -133,11 +133,13 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
             return step;
           });
         for (const step of agentSteps) {
-          const tr = await agentStepToTr(editor, step, options);
-          // stepMapping.appendMapping(tr.mapping);
-          mapping.appendMapping(tr.mapping);
-          // console.log("applying tr", block, tr.steps);
-          editor.dispatch(tr);
+          if (options.withDelays) {
+            await delayAgentStep(step);
+          }
+          editor.transact((tr) => {
+            agentStepToTr(tr, step);
+            mapping.appendMapping(tr.mapping);
+          });
           yield {
             ...chunk,
             result: "ok",
@@ -169,12 +171,12 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
       const fromPos = updateFromPos
         ? tool.invertMap.invert().map(mapping.map(updateFromPos))
         : undefined;
+
       const toPos = updateToPos
         ? tool.invertMap.invert().map(mapping.map(updateToPos))
         : undefined;
 
       const steps = updateToReplaceSteps(
-        editor,
         operation,
         tool.doc,
         chunk.isPossiblyPartial,
@@ -195,11 +197,15 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
 
       const inverted = steps.map((step) => step.map(tool.invertMap)!);
 
-      const agentSteps = getStepsAsAgent(editor, inverted);
+      const agentSteps = getStepsAsAgent(editor.prosemirrorState.doc, editor.pmSchema, inverted);
       for (const step of agentSteps) {
-        const tr = await agentStepToTr(editor, step, options);
-        mapping.appendMapping(tr.mapping);
-        editor.dispatch(tr);
+        if (options.withDelays) {
+          await delayAgentStep(step);
+        }
+        editor.transact((tr) => {
+          agentStepToTr(tr, step);
+          mapping.appendMapping(tr.mapping);
+        });
         yield {
           ...chunk,
           result: "ok",
@@ -211,15 +217,19 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
       // const prevBlock = editor.getPrevBlock(operation.id);
       // const lastBlockId = prevBlock?.id ?? editor.document[0].id;
       const tr = editor.prosemirrorState.tr;
-      removeAndInsertBlocksTr(editor, tr, [operation.id], []);
+      removeAndInsertBlocks(tr, [operation.id], []);
 
-      const agentSteps = getStepsAsAgent(editor, tr.steps);
+      const agentSteps = getStepsAsAgent(editor.prosemirrorState.doc, editor.pmSchema, tr.steps);
 
       // TODO: invert?
       for (const step of agentSteps) {
-        const tr = await agentStepToTr(editor, step, options);
-        mapping.appendMapping(tr.mapping);
-        editor.dispatch(tr);
+        if (options.withDelays) {
+          await delayAgentStep(step);
+        }
+        editor.transact((tr) => {
+          agentStepToTr(tr, step);
+          // mapping.appendMapping(tr.mapping);
+        });
         yield {
           ...chunk,
           result: "ok",

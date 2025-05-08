@@ -1,6 +1,6 @@
-import { BlockNoteEditor, UnreachableCaseError } from "@blocknote/core";
-import { Fragment, Slice } from "prosemirror-model";
-import { AllSelection, TextSelection } from "prosemirror-state";
+import { UnreachableCaseError } from "@blocknote/core";
+import { Fragment, Node, Schema, Slice } from "prosemirror-model";
+import { AllSelection, TextSelection, Transaction } from "prosemirror-state";
 import {
   ReplaceAroundStep,
   ReplaceStep,
@@ -26,12 +26,12 @@ export type AgentStep = {
  * - replace the text with the first character of the replacement (if any) (1 transaction per ReplaceStep)
  * - insert the replacement character by character (strlen-1 transactions per ReplaceStep)
  */
-export function getStepsAsAgent(editor: BlockNoteEditor, steps: Step[]) {
-  const { modification } = editor.pmSchema.marks;
+export function getStepsAsAgent(doc: Node, pmSchema: Schema, steps: Step[]) {
+  const { modification } = pmSchema.marks;
 
   const agentSteps: AgentStep[] = [];
 
-  const tr = new Transform(editor.prosemirrorState.doc);
+  const tr = new Transform(doc);
 
   for (const step of steps) {
     if ((step as any).structure) {
@@ -174,9 +174,9 @@ export function getStepsAsAgent(editor: BlockNoteEditor, steps: Step[]) {
         const $pos = tr.doc.resolve(tr.mapping.map(step.from));
         if ($pos.nodeAfter?.isBlock) {
           // mark the entire node as deleted. This can be needed for inline nodes or table cells
-          tr.addNodeMark($pos.pos, editor.pmSchema.mark("deletion", {}));
+          tr.addNodeMark($pos.pos, pmSchema.mark("deletion", {}));
         }
-        tr.addMark($pos.pos, replaceEnd, editor.pmSchema.mark("deletion", {}));
+        tr.addMark($pos.pos, replaceEnd, pmSchema.mark("deletion", {}));
         // tr.delete(tr.mapping.map(step.from), replaceEnd);
         // replaceFrom = tr.mapping.map(step.to);
         replaceEnd = tr.mapping.map(step.to);
@@ -191,7 +191,7 @@ export function getStepsAsAgent(editor: BlockNoteEditor, steps: Step[]) {
       tr.replace(replaceFrom, replaceEnd, replacement).addMark(
         replaceFrom,
         replaceFrom + replacement.content.size,
-        editor.pmSchema.mark("insertion", {})
+        pmSchema.mark("insertion", {})
       );
       replaceEnd = tr.mapping.slice(stepIndex).map(replaceEnd);
 
@@ -246,25 +246,25 @@ function getFirstChar(fragment: Fragment) {
   return undefined;
 }
 
-export async function agentStepToTr(
-  editor: BlockNoteEditor<any, any, any>,
+export async function delayAgentStep(step: AgentStep) {
+  if (step.type === "select") {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  } else if (step.type === "insert") {
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  } else if (step.type === "replace") {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  } else {
+    throw new UnreachableCaseError(step.type);
+  }
+}
+
+export function agentStepToTr(
+  tr: Transaction,
   step: AgentStep,
-  options: { withDelays: boolean }
   // mapping: Mapping // TODO
 ) {
   // const mapping = new Mapping();
-  if (options.withDelays) {
-    if (step.type === "select") {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    } else if (step.type === "insert") {
-      await new Promise((resolve) => setTimeout(resolve, 10));
-    } else if (step.type === "replace") {
-      await new Promise((resolve) => setTimeout(resolve, 200));
-    } else {
-      throw new UnreachableCaseError(step.type);
-    }
-  }
-  const tr = editor.prosemirrorState.tr.setMeta("addToHistory", false);
+  tr.setMeta("addToHistory", false);
 
   if (step.selection) {
     tr.setMeta("aiAgent", {

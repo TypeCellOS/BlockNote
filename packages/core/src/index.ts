@@ -1,6 +1,5 @@
 // TODO: internal?
 export * from "./api/blockManipulation/commands/insertBlocks/insertBlocks.js";
-export * from "./api/blockManipulation/commands/removeBlocks/removeBlocks.js";
 export * from "./api/blockManipulation/commands/replaceBlocks/replaceBlocks.js";
 export * from "./api/blockManipulation/commands/updateBlock/updateBlock.js";
 
@@ -30,7 +29,7 @@ export * from "./blocks/PageBreakBlockContent/PageBreakBlockContent.js";
 export * from "./blocks/PageBreakBlockContent/schema.js";
 export {
   EMPTY_CELL_HEIGHT,
-  EMPTY_CELL_WIDTH
+  EMPTY_CELL_WIDTH,
 } from "./blocks/TableBlockContent/TableExtension.js";
 export * from "./blocks/VideoBlockContent/VideoBlockContent.js";
 export * from "./editor/BlockNoteEditor.js";

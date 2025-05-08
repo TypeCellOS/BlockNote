@@ -1,4 +1,4 @@
-import { BlockNoteEditor, PartialBlock } from "@blocknote/core";
+import { BlockNoteEditor, getBlockInfo, getNodeById, PartialBlock } from "@blocknote/core";
 import { schemaWithMention as schema } from "@shared/testing/editorSchemas/mention.js";
 import { createAIExtension } from "../../AIExtension.js";
 import { UpdateBlockToolCall } from "../../api/tools/createUpdateBlockTool.js";
@@ -8,7 +8,7 @@ import { UpdateBlockToolCall } from "../../api/tools/createUpdateBlockTool.js";
  * It focuses on formatting related operations (like changing styles, inline content, props, etc)
  */
 
-type TestUpdateOperation = {
+export type TestUpdateOperation = {
   /**
    * The editor to apply the update to
    */
@@ -17,6 +17,13 @@ type TestUpdateOperation = {
    * The update operation to apply to the editor
    */
   updateOp: UpdateBlockToolCall<PartialBlock<any, any, any>>;
+  /**
+   * If provided, this function will be used to get the selection to use for the test.
+   */
+  getTestSelection?: (editor: BlockNoteEditor<any, any, any>) => {
+    from: number;
+    to: number;
+  };
   /**
    * Description (name) of the test case
    */
@@ -169,6 +176,29 @@ export const testUpdateOperations: TestUpdateOperation[] = [
       },
     },
     userPrompt: "translate the first paragraph to german",
+  },
+  {
+    editor: getTestEditor,
+    description: "translate selection",
+    updateOp: {
+      type: "update",
+      id: "ref2",
+      block: {
+        content: [{ type: "text", text: "Hallo", styles: {} }],
+      },
+    },
+    getTestSelection: (editor: BlockNoteEditor<any, any, any>) => {
+      const posInfo = getNodeById("ref2", editor.prosemirrorState.doc)!;
+      const block = getBlockInfo(posInfo);
+      if (!block.isBlockContainer) {
+        throw new Error("Block is not a block container");
+      }
+      return {
+        from: block.blockContent.beforePos + 1,
+        to: block.blockContent.beforePos + 1 + "Hello".length,
+      };
+    },
+    userPrompt: "translate to German",
   },
   {
     editor: getTestEditor,

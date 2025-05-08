@@ -1,8 +1,7 @@
 import {
-  BlockNoteEditor,
   getNodeById,
   PartialBlock,
-  updateBlockTr,
+  updateBlockTr
 } from "@blocknote/core";
 import {
   Change,
@@ -196,7 +195,6 @@ const createEncoder = (doc: Node, updatedDoc: Node) => {
  * @returns the granular steps to apply to the editor to get to the updated doc
  */
 export function updateToReplaceSteps(
-  editor: BlockNoteEditor<any, any, any>,
   op: UpdateBlockToolCall<PartialBlock<any, any, any>>,
   doc: Node,
   dontReplaceContentAtEnd = false,
@@ -206,7 +204,6 @@ export function updateToReplaceSteps(
   const blockPos = getNodeById(op.id, doc)!;
   const updatedTr = new Transform(doc);
   updateBlockTr(
-    editor,
     updatedTr,
     blockPos.posBeforeNode,
     op.block,
