@@ -3,9 +3,10 @@ import {
   PartialBlock,
   UnreachableCaseError,
   insertBlocks,
-  removeAndInsertBlocks
+  removeAndInsertBlocks,
+  trackPosition
 } from "@blocknote/core";
-import { Mapping } from "prosemirror-transform";
+
 import {
   AgentStep,
   agentStepToTr,
@@ -72,7 +73,8 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
 ): AsyncGenerator<ApplyOperationResult<any>> {
   const STEP_SIZE = 50;
   let minSize = STEP_SIZE;
-  const mapping = new Mapping();
+  const updateFromPosTracked = updateFromPos ? trackPosition(editor, updateFromPos) : undefined;
+  const updateToPosTracked = updateToPos ? trackPosition(editor, updateToPos) : undefined;
 
   let addedBlockIds: string[] = []; // TODO: hacky
 
@@ -138,7 +140,6 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
           }
           editor.transact((tr) => {
             agentStepToTr(tr, step);
-            mapping.appendMapping(tr.mapping);
           });
           yield {
             ...chunk,
@@ -168,12 +169,13 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
       const tool = await rebaseTool(operation.id);
       // console.log("update", JSON.stringify(chunk.operation, null, 2));
       // Convert the update operation directly to ReplaceSteps
-      const fromPos = updateFromPos
-        ? tool.invertMap.invert().map(mapping.map(updateFromPos))
+      
+      const fromPos = updateFromPosTracked
+        ? tool.invertMap.invert().map(updateFromPosTracked())
         : undefined;
 
-      const toPos = updateToPos
-        ? tool.invertMap.invert().map(mapping.map(updateToPos))
+      const toPos = updateToPosTracked
+        ? tool.invertMap.invert().map(updateToPosTracked())
         : undefined;
 
       const steps = updateToReplaceSteps(
@@ -204,7 +206,6 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
         }
         editor.transact((tr) => {
           agentStepToTr(tr, step);
-          mapping.appendMapping(tr.mapping);
         });
         yield {
           ...chunk,
@@ -228,7 +229,6 @@ export async function* applyOperations<T extends StreamTool<any>[]>(
         }
         editor.transact((tr) => {
           agentStepToTr(tr, step);
-          // mapping.appendMapping(tr.mapping);
         });
         yield {
           ...chunk,
