@@ -184,7 +184,7 @@ function parseTableContent(node: HTMLElement, schema: Schema) {
     return undefined;
   });
 
-  return Fragment.from(extractedContent);
+  return Fragment.fromArray(extractedContent);
 }
 
 export const Table = createBlockSpecFromStronglyTypedTiptapNode(
