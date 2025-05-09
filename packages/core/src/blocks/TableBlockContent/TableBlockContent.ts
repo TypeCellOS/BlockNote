@@ -1,7 +1,7 @@
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { TableRow } from "@tiptap/extension-table-row";
-import { Node as PMNode, DOMParser } from "prosemirror-model";
+import { DOMParser, Fragment, Node as PMNode, Schema } from "prosemirror-model";
 import { TableView } from "prosemirror-tables";
 
 import { NodeView } from "prosemirror-view";
@@ -10,10 +10,7 @@ import {
   createStronglyTypedTiptapNode,
 } from "../../schema/index.js";
 import { mergeCSSClasses } from "../../util/browser.js";
-import {
-  createDefaultBlockDOMOutputSpec,
-  mergeParagraphs,
-} from "../defaultBlockHelpers.js";
+import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
 import { EMPTY_CELL_WIDTH, TableExtension } from "./TableExtension.js";
 
@@ -154,6 +151,42 @@ const TableParagraph = createStronglyTypedTiptapNode({
   },
 });
 
+/**
+ * This will flatten a node's content to fit into a table cell's paragraph.
+ */
+function parseTableContent(node: HTMLElement, schema: Schema) {
+  const parser = DOMParser.fromSchema(schema);
+
+  // This will parse the content of the table paragraph as though it were a blockGroup.
+  // Resulting in a structure like:
+  // <blockGroup>
+  //   <blockContainer>
+  //     <p>Hello</p>
+  //   </blockContainer>
+  //   <blockContainer>
+  //     <p>Hello</p>
+  //   </blockContainer>
+  // </blockGroup>
+  const parsedContent = parser.parse(node, {
+    topNode: schema.nodes.blockGroup.create(),
+  });
+  const extractedContent: PMNode[] = [];
+
+  // Try to extract any content within the blockContainer.
+  parsedContent.content.descendants((child) => {
+    // As long as the child is an inline node, we can append it to the fragment.
+    if (child.isInline) {
+      // And append it to the fragment
+      extractedContent.push(child);
+      return false;
+    }
+
+    return undefined;
+  });
+
+  return Fragment.from(extractedContent);
+}
+
 export const Table = createBlockSpecFromStronglyTypedTiptapNode(
   TableBlockContent,
   tablePropSchema,
@@ -175,55 +208,8 @@ export const Table = createBlockSpecFromStronglyTypedTiptapNode(
             tag: "th",
             // As `th` elements can contain multiple paragraphs, we need to merge their contents
             // into a single one so that ProseMirror can parse everything correctly.
-            getContent: (node, schema) => {
-              mergeParagraphs(node as HTMLElement);
-
-              const parser = DOMParser.fromSchema(schema);
-
-              const parentNode = parser.parse(
-                (node as HTMLElement).querySelector("p") || node,
-                {
-                  topNode: schema.nodes[this.name].create(),
-                }
-              );
-
-              return parentNode.content;
-
-              // /**
-              //  * IDK something like this
-              //  * This will help with merging table cell content together.
-              //  */
-
-              // // Use a table cell to append the content into.
-              // let td = schema.nodes.tableCell.create({});
-              // // If we want, we can also keep track of content that can't be appended. (e.g. images can still be preserved, outside the table cell)
-              // const cantAppend: Node[] = [];
-
-              // parsedContent.children.forEach((child) => {
-              //   // Do something similar, where we iterate the blockContainers, and see if we can append their content into the table cell.
-              //   const content = child.firstChild!;
-              //   console.log("child", content?.toString());
-              //   if (td.canAppend(content)) {
-              //     // If we can append the content, we do so.
-              //     console.log("can append");
-              //     td = td.copy(td.content.addToEnd(content));
-              //   } else {
-              //     // If we can't append the content, we add it to the list of content that can't be appended.
-              //     console.log("content has no children");
-              //     cantAppend.push(content);
-              //   }
-              // });
-              // console.log("td", td.toString());
-              // console.log("cantAppend", Fragment.from(cantAppend).toString());
-              // console.log("firstNode has content");
-              // console.log("");
-
-              // // If we want to still preserve the content that can't be appended, we can do so by adding it to the table cell.
-              // return td.content.addToEnd(
-              //   //
-              //   Fragment.from(cantAppend)
-              // );
-            },
+            getContent: (node, schema) =>
+              parseTableContent(node as HTMLElement, schema),
           },
         ];
       },
@@ -236,20 +222,8 @@ export const Table = createBlockSpecFromStronglyTypedTiptapNode(
             tag: "td",
             // As `td` elements can contain multiple paragraphs, we need to merge their contents
             // into a single one so that ProseMirror can parse everything correctly.
-            getContent: (node, schema) => {
-              mergeParagraphs(node as HTMLElement);
-
-              const parser = DOMParser.fromSchema(schema);
-
-              const parentNode = parser.parse(
-                (node as HTMLElement).querySelector("p") || node,
-                {
-                  topNode: schema.nodes[this.name].create(),
-                }
-              );
-
-              return parentNode.content;
-            },
+            getContent: (node, schema) =>
+              parseTableContent(node as HTMLElement, schema),
           },
         ];
       },
