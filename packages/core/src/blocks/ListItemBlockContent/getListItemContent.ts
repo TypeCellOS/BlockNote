@@ -46,20 +46,6 @@ export function getListItemContent(
     throw new Error("Node is not an HTMLElement");
   }
 
-  // This is a workaround to make sure we don't parse something into a `checkListItem` accidentally.
-  // We are interested in the list item's actual content, not whether it contains a checkbox.
-  for (let i = 0; i < node.children.length; i++) {
-    const child = node.children[i];
-
-    if (child.tagName === "INPUT" || child.tagName === "LABEL") {
-      node.removeChild(child);
-    } else {
-      // We break, because we only want to remove the first `INPUT` or `LABEL` element. To not affect parsing of other possible child content.
-      break;
-    }
-    // TODO see if we can just skip checkListItems, and re-use the rest of the algorithm.
-  }
-
   // Move the `li` element's content into a new `div` element
   // This is a hacky workaround to not re-trigger list item parsing,
   // when we are looking to understand what the list item's content actually is, in terms of the schema.
@@ -74,9 +60,22 @@ export function getListItemContent(
   // Parses children of the `li` element into a `blockGroup` with `blockContainer` node children
   // This is the structure of list item children, so parsing into this structure allows for
   // easy separation of list item content from child list item content.
-  const blockGroupNode = parser.parse(clonedNodeDiv, {
+  let blockGroupNode = parser.parse(clonedNodeDiv, {
     topNode: schema.nodes.blockGroup.create(),
   });
+
+  // There is an edge case where a list item's content may contain a `<input>` element.
+  // Causing it to be recognized as a `checkListItem`.
+  // We want to skip this, and just parse the list item's content as is.
+  if (blockGroupNode.firstChild?.firstChild?.type.name === "checkListItem") {
+    // We skip the first child, by cutting it out of the `blockGroup` node.
+    // and continuing with the rest of the algorithm.
+    blockGroupNode = blockGroupNode.copy(
+      blockGroupNode.content.cut(
+        blockGroupNode.firstChild.firstChild.nodeSize + 2
+      )
+    );
+  }
 
   // Structure above is `blockGroup<blockContainer<any>[]>`
   // We want to extract the first `blockContainer` node's content, and see if it is a text block.

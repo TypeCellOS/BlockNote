@@ -62,6 +62,35 @@ export const parseTestInstancesHTML: TestInstance<
     executeTest: testParseHTML,
   },
   {
+    // TODO this test's result not exactly right, but it's close enough for now.
+    testCase: {
+      name: "emptyNestedCheckListItem",
+      content: `<ul>
+  <li>
+    <ul>
+      <li>
+        <input type="checkbox" />
+      </li>
+    </ul>
+    <p>Paragraph</p>
+  </li>
+  </ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "checkListItem",
+      content: `<ul>
+  <li>
+    <input type="checkbox">
+    <p>Paragraph</p>
+  <li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
     testCase: {
       name: "nestedLists",
       content: `<ul>
