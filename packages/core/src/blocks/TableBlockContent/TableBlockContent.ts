@@ -1,7 +1,7 @@
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { TableRow } from "@tiptap/extension-table-row";
-import { Node as PMNode, DOMParser } from "prosemirror-model";
+import { DOMParser, Fragment, Node as PMNode, Schema } from "prosemirror-model";
 import { TableView } from "prosemirror-tables";
 
 import { NodeView } from "prosemirror-view";
@@ -10,10 +10,7 @@ import {
   createStronglyTypedTiptapNode,
 } from "../../schema/index.js";
 import { mergeCSSClasses } from "../../util/browser.js";
-import {
-  createDefaultBlockDOMOutputSpec,
-  mergeParagraphs,
-} from "../defaultBlockHelpers.js";
+import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
 import { EMPTY_CELL_WIDTH, TableExtension } from "./TableExtension.js";
 
@@ -154,6 +151,42 @@ const TableParagraph = createStronglyTypedTiptapNode({
   },
 });
 
+/**
+ * This will flatten a node's content to fit into a table cell's paragraph.
+ */
+function parseTableContent(node: HTMLElement, schema: Schema) {
+  const parser = DOMParser.fromSchema(schema);
+
+  // This will parse the content of the table paragraph as though it were a blockGroup.
+  // Resulting in a structure like:
+  // <blockGroup>
+  //   <blockContainer>
+  //     <p>Hello</p>
+  //   </blockContainer>
+  //   <blockContainer>
+  //     <p>Hello</p>
+  //   </blockContainer>
+  // </blockGroup>
+  const parsedContent = parser.parse(node, {
+    topNode: schema.nodes.blockGroup.create(),
+  });
+  const extractedContent: PMNode[] = [];
+
+  // Try to extract any content within the blockContainer.
+  parsedContent.content.descendants((child) => {
+    // As long as the child is an inline node, we can append it to the fragment.
+    if (child.isInline) {
+      // And append it to the fragment
+      extractedContent.push(child);
+      return false;
+    }
+
+    return undefined;
+  });
+
+  return Fragment.fromArray(extractedContent);
+}
+
 export const Table = createBlockSpecFromStronglyTypedTiptapNode(
   TableBlockContent,
   tablePropSchema,
@@ -175,20 +208,8 @@ export const Table = createBlockSpecFromStronglyTypedTiptapNode(
             tag: "th",
             // As `th` elements can contain multiple paragraphs, we need to merge their contents
             // into a single one so that ProseMirror can parse everything correctly.
-            getContent: (node, schema) => {
-              mergeParagraphs(node as HTMLElement);
-
-              const parser = DOMParser.fromSchema(schema);
-
-              const parentNode = parser.parse(
-                (node as HTMLElement).querySelector("p") || node,
-                {
-                  topNode: schema.nodes[this.name].create(),
-                }
-              );
-
-              return parentNode.content;
-            },
+            getContent: (node, schema) =>
+              parseTableContent(node as HTMLElement, schema),
           },
         ];
       },
@@ -201,20 +222,8 @@ export const Table = createBlockSpecFromStronglyTypedTiptapNode(
             tag: "td",
             // As `td` elements can contain multiple paragraphs, we need to merge their contents
             // into a single one so that ProseMirror can parse everything correctly.
-            getContent: (node, schema) => {
-              mergeParagraphs(node as HTMLElement);
-
-              const parser = DOMParser.fromSchema(schema);
-
-              const parentNode = parser.parse(
-                (node as HTMLElement).querySelector("p") || node,
-                {
-                  topNode: schema.nodes[this.name].create(),
-                }
-              );
-
-              return parentNode.content;
-            },
+            getContent: (node, schema) =>
+              parseTableContent(node as HTMLElement, schema),
           },
         ];
       },

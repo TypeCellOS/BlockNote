@@ -1,5 +1,4 @@
 import { InputRule } from "@tiptap/core";
-import { DOMParser } from "@tiptap/pm/model";
 import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import {
   getBlockInfoFromSelection,
@@ -11,11 +10,9 @@ import {
   createStronglyTypedTiptapNode,
   propsToAttributes,
 } from "../../../schema/index.js";
-import {
-  createDefaultBlockDOMOutputSpec,
-  mergeParagraphs,
-} from "../../defaultBlockHelpers.js";
+import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers.js";
 import { defaultProps } from "../../defaultProps.js";
+import { getListItemContent } from "../getListItemContent.js";
 import { handleEnter } from "../ListItemKeyboardShortcuts.js";
 
 export const checkListItemPropSchema = {
@@ -154,7 +151,7 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
 
           if (
             parent.tagName === "UL" ||
-            (parent.tagName === "DIV" && parent.parentElement!.tagName === "UL")
+            (parent.tagName === "DIV" && parent.parentElement?.tagName === "UL")
           ) {
             const checkbox =
               (element.querySelector(
@@ -172,20 +169,8 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
         },
         // As `li` elements can contain multiple paragraphs, we need to merge their contents
         // into a single one so that ProseMirror can parse everything correctly.
-        getContent: (node, schema) => {
-          mergeParagraphs(node as HTMLElement);
-
-          const parser = DOMParser.fromSchema(schema);
-
-          const parentNode = parser.parse(
-            (node as HTMLElement).querySelector("p") || node,
-            {
-              topNode: schema.nodes[this.name].create(),
-            }
-          );
-
-          return parentNode.content;
-        },
+        getContent: (node, schema) =>
+          getListItemContent(node, schema, this.name),
         node: "checkListItem",
       },
     ];
