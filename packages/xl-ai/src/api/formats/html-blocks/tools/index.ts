@@ -20,7 +20,10 @@ export const tools = {
         $ref: "#/$defs/block",
       },
       $defs: {
-        block: { type: "string", description: "html of block" },
+        block: {
+          type: "string",
+          description: "html of block (MUST be a single HTML element)",
+        },
       },
     },
     validateBlock: validateBlockFunction,
@@ -67,7 +70,10 @@ export const tools = {
         $ref: "#/$defs/block",
       },
       $defs: {
-        block: { type: "string", description: "html of block" },
+        block: {
+          type: "string",
+          description: "html of block (MUST be a single HTML element)",
+        },
       },
     },
     validateBlock: validateBlockFunction,

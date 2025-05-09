@@ -11,7 +11,11 @@ import { streamTool } from "../../../streamTool/streamTool.js";
  */
 export const deleteBlockTool = (
   editor: BlockNoteEditor<any, any, any>,
-  options: { idsSuffixed: boolean; withDelays: boolean },
+  options: {
+    idsSuffixed: boolean;
+    withDelays: boolean;
+    onBlockUpdate?: (blockId: string) => void;
+  },
 ) =>
   streamTool<DeleteBlockToolCall>({
     name: "delete",
@@ -99,6 +103,7 @@ export const deleteBlockTool = (
           editor.transact((tr) => {
             agentStepToTr(tr, step);
           });
+          options.onBlockUpdate?.(operation.id);
         }
       }
     },

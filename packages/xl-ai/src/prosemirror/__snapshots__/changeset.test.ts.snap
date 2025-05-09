@@ -201,6 +201,62 @@ exports[`drop mark and link and change text within mark 1`] = `
 ]
 `;
 
+exports[`modify nested content 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "text": "Apples",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 21,
+      "slice": {
+        "content": [
+          {
+            "text": "APPLES",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 27,
+    },
+  },
+]
+`;
+
+exports[`modify parent content 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "text": "need to buy",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 5,
+      "slice": {
+        "content": [
+          {
+            "text": "NEED TO BUY",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 16,
+    },
+  },
+]
+`;
+
 exports[`plain source block, add mention 1`] = `
 [
   {
@@ -1035,6 +1091,76 @@ exports[`translate selection 1`] = `
       },
       "stepType": "replace",
       "to": 22,
+    },
+  },
+]
+`;
+
+exports[`turn paragraphs into list 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "attrs": {
+            "textAlignment": "left",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "openEnd": 1,
+    },
+    "step": {
+      "from": 20,
+      "slice": {
+        "content": [
+          {
+            "attrs": {
+              "textAlignment": "left",
+            },
+            "type": "bulletListItem",
+          },
+        ],
+        "openEnd": 1,
+      },
+      "stepType": "replace",
+      "structure": true,
+      "to": 21,
+    },
+  },
+]
+`;
+
+exports[`turn paragraphs into list 2`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "attrs": {
+            "textAlignment": "left",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "openEnd": 1,
+    },
+    "step": {
+      "from": 30,
+      "slice": {
+        "content": [
+          {
+            "attrs": {
+              "textAlignment": "left",
+            },
+            "type": "bulletListItem",
+          },
+        ],
+        "openEnd": 1,
+      },
+      "stepType": "replace",
+      "structure": true,
+      "to": 31,
     },
   },
 ]

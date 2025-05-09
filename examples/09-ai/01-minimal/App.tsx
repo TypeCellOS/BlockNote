@@ -33,7 +33,7 @@ import {
 } from "@blocknote/react";
 import "@blocknote/xl-ai/style.css";
 import { Fieldset, Switch } from "@mantine/core";
-import { useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useStore } from "zustand";
 import { BasicAutocomplete } from "./AutoComplete.js";
 import RadioGroupComponent from "./components/RadioGroupComponent.js";
@@ -118,16 +118,25 @@ export default function App() {
   const ai = getAIExtension(editor);
   // TBD: we now derive this from the LLM extension options. desirable?
 
-  const model = useStore(ai.options, (state) => state.model);
-
-  const modelString = model.provider + "/" + model.modelId;
-
-  const setAiModelString = useCallback(
-    (value: string) => {
-      ai.options.setState({ model: getModel(value) });
-    },
-    [ai.options]
+  const [modelString, setModelString] = useState<string>(
+    () =>
+      ai.options.getState().model.provider +
+      "/" +
+      ai.options.getState().model.modelId,
   );
+  // TODO: fix typing in autocompletion box
+  // const model = useStore(ai.options, (state) => state.model);
+
+  // const modelString = model.provider + "/" + model.modelId;
+
+  useEffect(() => {
+    const model = getModel(modelString);
+    if (!model) {
+      console.warn(`Unknown model: ${modelString}`);
+      return;
+    }
+    ai.options.setState({ model });
+  }, [modelString, ai.options]);
 
   // const [dataFormat, setDataFormat] = useState<"json" | "markdown" | "html">(
   //   "html"
@@ -143,7 +152,7 @@ export default function App() {
   return (
     <div>
       <Fieldset legend="Model settings" style={{ maxWidth: "500px" }}>
-        <BasicAutocomplete value={modelString} onChange={setAiModelString} />
+        <BasicAutocomplete value={modelString} onChange={setModelString} />
 
         <RadioGroupComponent
           label="Data format"
@@ -202,7 +211,7 @@ function SuggestionMenu(props: { editor: BlockNoteEditor<any, any, any> }) {
             ...getDefaultReactSlashMenuItems(props.editor),
             ...getAISlashMenuItems(props.editor),
           ],
-          query
+          query,
         )
       }
     />

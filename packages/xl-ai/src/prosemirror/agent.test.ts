@@ -200,8 +200,10 @@ describe("agentStepToTr", () => {
     editor: BlockNoteEditor<any, any, any>,
     test: UpdateOperationTestCase
   ) {
-    const blockId = test.updateOp.id;
-    const update = test.updateOp.block;
+    const results = [];
+    for (const updateOp of test.updateOps) {
+      const blockId = updateOp.id;
+      const update = updateOp.block;
 
     const selection = test.getTestSelection?.(editor);
     const doc = editor.prosemirrorState.doc;
@@ -218,7 +220,7 @@ describe("agentStepToTr", () => {
 
     const agentSteps = getStepsAsAgent(doc, editor.pmSchema, steps);
 
-    const results = [];
+    
     for (const step of agentSteps) {
       editor.transact((tr) => {
         agentStepToTr(tr, step);
@@ -229,7 +231,7 @@ describe("agentStepToTr", () => {
           JSON.stringify(editor.prosemirrorState.doc.toJSON())
       );
     }
-
+  }
     expect(results).toMatchSnapshot();
   }
 

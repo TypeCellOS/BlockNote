@@ -45,4 +45,13 @@ export class CallLLMResult {
       // no op
     }
   }
+
+  /**
+   * @internal
+   */
+  public async _logToolCalls() {
+    for await (const toolCall of this.llmResult.operationsSource) {
+      console.log(toolCall);
+    }
+  }
 }

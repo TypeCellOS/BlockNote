@@ -216,25 +216,21 @@ export class AIExtension extends BlockNoteExtension {
           onStart: () => {
             this.setAIResponseStatus("ai-writing"); // TODO: also apply to other formats
           },
+          onBlockUpdate: (blockId: string) => {
+            // NOTE: does this setState with an anon object trigger unnecessary re-renders?
+            this.store.setState({
+              aiMenuState: {
+                blockId,
+                status: "ai-writing",
+              },
+            });
+          },
         });
       } else {
         throw new UnreachableCaseError(options.dataFormat);
       }
 
-      // TODO: maybe split out the applying of operations
       await ret.execute();
-      // for await (const operation of ret.applyToolCallsStream) {
-      //   if (operation.result === "ok") {
-      //     // TODO: check should be part of pipeline
-      //     // NOTE: does this setState with an anon object trigger unnecessary re-renders?
-      //     this.store.setState({
-      //       aiMenuState: {
-      //         blockId: operation.lastBlockId,
-      //         status: "ai-writing",
-      //       },
-      //     });
-      //   }
-      // }
 
       this.setAIResponseStatus("user-reviewing");
     } catch (e) {

@@ -6,7 +6,7 @@ import {
 } from "@blocknote/core";
 import { schemaWithMention as schema } from "@shared/testing/editorSchemas/mention.js";
 import { createAIExtension } from "../../AIExtension.js";
-import { UpdateBlockToolCall } from "../../api/base-tools/createUpdateBlockTool.js";
+import { UpdateBlockToolCall } from "../../api/formats/base-tools/createUpdateBlockTool.js";
 
 /**
  * This file defines a set of test cases that can be used to test update operations to the editor.
@@ -21,7 +21,7 @@ export type UpdateOperationTestCase = {
   /**
    * The update operation to apply to the editor
    */
-  updateOp: UpdateBlockToolCall<PartialBlock<any, any, any>>;
+  updateOps: UpdateBlockToolCall<PartialBlock<any, any, any>>[];
   /**
    * If provided, this function will be used to get the selection to use for the test.
    */
@@ -53,6 +53,7 @@ export type UpdateOperationTestCase = {
 
 // TODO: add test case where existing paragraph is right aligned / colored
 // TODO: add test case where some text is colored
+// TODO: switch to trailingblock: false
 export function getTestEditor() {
   return BlockNoteEditor.create({
     initialContent: [
@@ -173,25 +174,29 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
   {
     editor: getTestEditor,
     description: "standard update",
-    updateOp: {
-      type: "update",
-      id: "ref1",
-      block: {
-        content: [{ type: "text", text: "Hallo, Welt!", styles: {} }],
+    updateOps: [
+      {
+        type: "update",
+        id: "ref1",
+        block: {
+          content: [{ type: "text", text: "Hallo, Welt!", styles: {} }],
+        },
       },
-    },
+    ],
     userPrompt: "translate the first paragraph to german",
   },
   {
     editor: getTestEditor,
     description: "translate selection",
-    updateOp: {
-      type: "update",
-      id: "ref2",
-      block: {
-        content: [{ type: "text", text: "Hallo", styles: {} }],
+    updateOps: [
+      {
+        type: "update",
+        id: "ref2",
+        block: {
+          content: [{ type: "text", text: "Hallo", styles: {} }],
+        },
       },
-    },
+    ],
     getTestSelection: (editor: BlockNoteEditor<any, any, any>) => {
       const posInfo = getNodeById("ref2", editor.prosemirrorState.doc)!;
       const block = getBlockInfo(posInfo);
@@ -208,31 +213,35 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
   {
     editor: getTestEditor,
     description: "update block type",
-    updateOp: {
-      type: "update",
-      id: "ref1",
-      block: {
-        type: "heading",
-        props: {
-          level: 1,
+    updateOps: [
+      {
+        type: "update",
+        id: "ref1",
+        block: {
+          type: "heading",
+          props: {
+            level: 1,
+          },
+          content: [{ type: "text", text: "Hello, world!", styles: {} }],
         },
-        content: [{ type: "text", text: "Hello, world!", styles: {} }],
       },
-    },
+    ],
     userPrompt: "make the first paragraph a heading",
   },
   {
     editor: getTestEditor,
     description: "update block prop",
-    updateOp: {
-      type: "update",
-      id: "ref1",
-      block: {
-        props: {
-          textAlignment: "right",
+    updateOps: [
+      {
+        type: "update",
+        id: "ref1",
+        block: {
+          props: {
+            textAlignment: "right",
+          },
         },
       },
-    },
+    ],
     userPrompt: "make the first paragraph right aligned",
     requiredCapabilities: {
       textAlignment: true,
@@ -241,33 +250,37 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
   {
     editor: getTestEditor,
     description: "update block type and content",
-    updateOp: {
-      type: "update",
-      id: "ref1",
-      block: {
-        type: "heading",
-        props: {
-          level: 1,
+    updateOps: [
+      {
+        type: "update",
+        id: "ref1",
+        block: {
+          type: "heading",
+          props: {
+            level: 1,
+          },
+          content: [{ type: "text", text: "What's up, world!", styles: {} }],
         },
-        content: [{ type: "text", text: "What's up, world!", styles: {} }],
       },
-    },
+    ],
     userPrompt:
       "make the first paragraph a heading and update the content to 'What's up, world!'",
   },
   {
     editor: getTestEditor,
     description: "update block prop and content",
-    updateOp: {
-      type: "update",
-      id: "ref1",
-      block: {
-        props: {
-          textAlignment: "right",
+    updateOps: [
+      {
+        type: "update",
+        id: "ref1",
+        block: {
+          props: {
+            textAlignment: "right",
+          },
+          content: [{ type: "text", text: "What's up, world!", styles: {} }],
         },
-        content: [{ type: "text", text: "What's up, world!", styles: {} }],
       },
-    },
+    ],
     userPrompt:
       "make the first paragraph right aligned and update the content to 'What's up, world!'",
     requiredCapabilities: {
@@ -277,203 +290,219 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
   {
     editor: getTestEditor,
     description: "styles + ic in source block, replace content",
-    updateOp: {
-      type: "update",
-      id: "ref2",
-      block: {
-        content: [{ type: "text", text: "Hello, updated content", styles: {} }],
+    updateOps: [
+      {
+        type: "update",
+        id: "ref2",
+        block: {
+          content: [
+            { type: "text", text: "Hello, updated content", styles: {} },
+          ],
+        },
       },
-    },
+    ],
     userPrompt:
       "update the content of the second block to 'Hello, updated content'",
   },
   {
     editor: getTestEditor,
     description: "styles + ic in source block, update text",
-    updateOp: {
-      type: "update",
-      id: "ref2",
-      block: {
-        content: [
-          {
-            type: "text",
-            text: "Hallo, ",
-            styles: {},
-          },
-          {
-            type: "mention",
-            props: {
-              user: "John Doe",
+    updateOps: [
+      {
+        type: "update",
+        id: "ref2",
+        block: {
+          content: [
+            {
+              type: "text",
+              text: "Hallo, ",
+              styles: {},
             },
-            content: undefined,
-          },
-          {
-            type: "text",
-            text: "! Wie ",
-            styles: {},
-          },
-          {
-            type: "text",
-            text: "geht es dir? ",
-            styles: {
-              bold: true,
+            {
+              type: "mention",
+              props: {
+                user: "John Doe",
+              },
+              content: undefined,
             },
-          },
-          {
-            type: "text",
-            text: "Ich fühle mich blau!",
-            styles: {
-              textColor: "blue",
+            {
+              type: "text",
+              text: "! Wie ",
+              styles: {},
             },
-          },
-        ],
+            {
+              type: "text",
+              text: "geht es dir? ",
+              styles: {
+                bold: true,
+              },
+            },
+            {
+              type: "text",
+              text: "Ich fühle mich blau!",
+              styles: {
+                textColor: "blue",
+              },
+            },
+          ],
+        },
       },
-    },
+    ],
     userPrompt: "translate the second block to german",
   },
   {
     editor: getTestEditor,
     description: "styles + ic in source block, remove mark",
-    updateOp: {
-      type: "update",
-      id: "ref2",
-      block: {
-        content: [
-          {
-            type: "text",
-            text: "Hello, ",
-            styles: {},
-          },
-          {
-            type: "mention",
-            props: {
-              user: "John Doe",
+    updateOps: [
+      {
+        type: "update",
+        id: "ref2",
+        block: {
+          content: [
+            {
+              type: "text",
+              text: "Hello, ",
+              styles: {},
             },
-            content: undefined,
-          },
-          {
-            type: "text",
-            text: "! How are you doing? ",
-            styles: {},
-          },
-          {
-            type: "text",
-            text: "I'm feeling blue!",
-            styles: {
-              textColor: "blue",
+            {
+              type: "mention",
+              props: {
+                user: "John Doe",
+              },
+              content: undefined,
             },
-          },
-        ],
+            {
+              type: "text",
+              text: "! How are you doing? ",
+              styles: {},
+            },
+            {
+              type: "text",
+              text: "I'm feeling blue!",
+              styles: {
+                textColor: "blue",
+              },
+            },
+          ],
+        },
       },
-    },
+    ],
     userPrompt: "remove the bold style from the second block",
   },
   {
     editor: getTestEditor,
     description: "styles + ic in source block, remove mention",
-    updateOp: {
-      type: "update",
-      id: "ref2",
-      block: {
-        content: [
-          {
-            type: "text",
-            text: "Hello! How ",
-            styles: {},
-          },
-          {
-            type: "text",
-            text: "are you doing? ",
-            styles: {
-              bold: true,
+    updateOps: [
+      {
+        type: "update",
+        id: "ref2",
+        block: {
+          content: [
+            {
+              type: "text",
+              text: "Hello! How ",
+              styles: {},
             },
-          },
-          {
-            type: "text",
-            text: "I'm feeling blue!",
-            styles: {
-              textColor: "blue",
+            {
+              type: "text",
+              text: "are you doing? ",
+              styles: {
+                bold: true,
+              },
             },
-          },
-        ],
+            {
+              type: "text",
+              text: "I'm feeling blue!",
+              styles: {
+                textColor: "blue",
+              },
+            },
+          ],
+        },
       },
-    },
+    ],
     userPrompt:
       "change to say 'Hello! How are you doing? I'm feeling blue!' (remove mention but keep bold text)",
   },
   {
     editor: getTestEditor,
     description: "styles + ic in target block, add mark (word)",
-    updateOp: {
-      type: "update",
-      id: "ref1",
-      block: {
-        content: [
-          {
-            type: "text",
-            text: "Hello, ",
-            styles: {},
-          },
-          {
-            type: "text",
-            text: "world!",
-            styles: {
-              bold: true,
+    updateOps: [
+      {
+        type: "update",
+        id: "ref1",
+        block: {
+          content: [
+            {
+              type: "text",
+              text: "Hello, ",
+              styles: {},
             },
-          },
-        ],
+            {
+              type: "text",
+              text: "world!",
+              styles: {
+                bold: true,
+              },
+            },
+          ],
+        },
       },
-    },
+    ],
     userPrompt: "make 'world!' (in the first block) bold",
   },
   {
     editor: getTestEditor,
     description: "styles + ic in target block, add mark (paragraph)",
-    updateOp: {
-      type: "update",
-      id: "ref1",
-      block: {
-        content: [
-          {
-            type: "text",
-            text: "Hello, world!",
-            styles: {
-              bold: true,
+    updateOps: [
+      {
+        type: "update",
+        id: "ref1",
+        block: {
+          content: [
+            {
+              type: "text",
+              text: "Hello, world!",
+              styles: {
+                bold: true,
+              },
             },
-          },
-        ],
+          ],
+        },
       },
-    },
+    ],
     userPrompt: "make first paragraph bold",
   },
   {
     editor: getTestEditor,
     description: "plain source block, add mention",
-    updateOp: {
-      type: "update",
-      id: "ref1",
-      block: {
-        content: [
-          {
-            type: "text",
-            text: "Hello, ",
-            styles: {},
-          },
-          {
-            type: "mention",
-            props: {
-              user: "Jane Doe",
+    updateOps: [
+      {
+        type: "update",
+        id: "ref1",
+        block: {
+          content: [
+            {
+              type: "text",
+              text: "Hello, ",
+              styles: {},
             },
-            content: undefined,
-          },
-          {
-            type: "text",
-            text: "!",
-            styles: {},
-          },
-        ],
+            {
+              type: "mention",
+              props: {
+                user: "Jane Doe",
+              },
+              content: undefined,
+            },
+            {
+              type: "text",
+              text: "!",
+              styles: {},
+            },
+          ],
+        },
       },
-    },
+    ],
     userPrompt:
       "Change the first paragraph to Hello, Jane Doe! (use a mention)",
     requiredCapabilities: {
@@ -483,45 +512,47 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
   {
     editor: getTestEditor,
     description: "styles + ic in source block, update mention prop",
-    updateOp: {
-      type: "update",
-      id: "ref2",
-      block: {
-        content: [
-          {
-            styles: {},
-            type: "text",
-            text: "Hello, ",
-          },
-          {
-            content: undefined,
-            type: "mention",
-            props: {
-              user: "Jane Doe",
+    updateOps: [
+      {
+        type: "update",
+        id: "ref2",
+        block: {
+          content: [
+            {
+              styles: {},
+              type: "text",
+              text: "Hello, ",
             },
-          },
-          {
-            styles: {},
-            type: "text",
-            text: "! How ",
-          },
-          {
-            type: "text",
-            text: "are you doing? ",
-            styles: {
-              bold: true,
+            {
+              content: undefined,
+              type: "mention",
+              props: {
+                user: "Jane Doe",
+              },
             },
-          },
-          {
-            type: "text",
-            text: "I'm feeling blue!",
-            styles: {
-              textColor: "blue",
+            {
+              styles: {},
+              type: "text",
+              text: "! How ",
             },
-          },
-        ],
+            {
+              type: "text",
+              text: "are you doing? ",
+              styles: {
+                bold: true,
+              },
+            },
+            {
+              type: "text",
+              text: "I'm feeling blue!",
+              styles: {
+                textColor: "blue",
+              },
+            },
+          ],
+        },
       },
-    },
+    ],
     userPrompt: "update the mention to Jane Doe",
     requiredCapabilities: {
       mentions: true,
@@ -530,222 +561,384 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
   {
     editor: getTestEditor,
     description: "drop mark and link",
-    updateOp: {
-      type: "update",
-      id: "ref3",
-      block: {
-        content: [
-          { type: "text", text: "Hello, world! Bold text. Link.", styles: {} },
-        ],
+    updateOps: [
+      {
+        type: "update",
+        id: "ref3",
+        block: {
+          content: [
+            {
+              type: "text",
+              text: "Hello, world! Bold text. Link.",
+              styles: {},
+            },
+          ],
+        },
       },
-    },
+    ],
     userPrompt:
       "remove the formatting (turn into plain text without styles or urls) from the last paragraph",
   },
   {
     editor: getTestEditor,
     description: "drop mark and link and change text within mark",
-    updateOp: {
-      type: "update",
-      id: "ref3",
-      block: {
-        content: [
-          { type: "text", text: "Hi, world! Bold the text. Link.", styles: {} },
-        ],
+    updateOps: [
+      {
+        type: "update",
+        id: "ref3",
+        block: {
+          content: [
+            {
+              type: "text",
+              text: "Hi, world! Bold the text. Link.",
+              styles: {},
+            },
+          ],
+        },
       },
-    },
+    ],
     userPrompt:
       "change the last paragraph to 'Hi, world! Bold the text. Link.' without any markup like bold or link",
   },
   {
     editor: getTableTestEditor,
     description: "update table cell",
-    updateOp: {
-      type: "update",
-      id: "ref1",
-      block: {
-        content: {
-          type: "tableContent",
-          rows: [
-            {
-              cells: ["Hello, world!", "Table Cell 2", "Table Cell 3"],
-            },
-            {
-              cells: [
-                "Table Cell 4",
-                [
-                  {
-                    type: "text",
-                    text: "Table Cell Bold 5",
-                    styles: {
-                      bold: true,
+    updateOps: [
+      {
+        type: "update",
+        id: "ref1",
+        block: {
+          content: {
+            type: "tableContent",
+            rows: [
+              {
+                cells: ["Hello, world!", "Table Cell 2", "Table Cell 3"],
+              },
+              {
+                cells: [
+                  "Table Cell 4",
+                  [
+                    {
+                      type: "text",
+                      text: "Table Cell Bold 5",
+                      styles: {
+                        bold: true,
+                      },
                     },
-                  },
+                  ],
+                  "Table Cell 6",
                 ],
-                "Table Cell 6",
-              ],
-            },
-            {
-              cells: ["Table Cell 7", "Table Cell 8", "Table Cell 9"],
-            },
-          ],
+              },
+              {
+                cells: ["Table Cell 7", "Table Cell 8", "Table Cell 9"],
+              },
+            ],
+          },
         },
       },
-    },
+    ],
     userPrompt: "update the first cell to 'Hello, world!'",
   },
   {
     editor: getTableTestEditor,
     description: "update table to caps",
-    updateOp: {
-      type: "update",
-      id: "ref1",
-      block: {
-        content: {
-          type: "tableContent",
-          rows: [
-            {
-              cells: ["TABLE CELL 1", "TABLE CELL 2", "TABLE CELL 3"],
-            },
-            {
-              cells: [
-                "TABLE CELL 4",
-                [
-                  {
-                    type: "text",
-                    text: "TABLE CELL BOLD 5",
-                    styles: {
-                      bold: true,
+    updateOps: [
+      {
+        type: "update",
+        id: "ref1",
+        block: {
+          content: {
+            type: "tableContent",
+            rows: [
+              {
+                cells: ["TABLE CELL 1", "TABLE CELL 2", "TABLE CELL 3"],
+              },
+              {
+                cells: [
+                  "TABLE CELL 4",
+                  [
+                    {
+                      type: "text",
+                      text: "TABLE CELL BOLD 5",
+                      styles: {
+                        bold: true,
+                      },
                     },
-                  },
+                  ],
+                  "TABLE CELL 6",
                 ],
-                "TABLE CELL 6",
-              ],
-            },
-            {
-              cells: ["TABLE CELL 7", "TABLE CELL 8", "TABLE CELL 9"],
-            },
-          ],
+              },
+              {
+                cells: ["TABLE CELL 7", "TABLE CELL 8", "TABLE CELL 9"],
+              },
+            ],
+          },
         },
       },
-    },
+    ],
     userPrompt: "update all table content to CAPS",
   },
   {
     editor: getTableTestEditor,
     description: "remove column",
-    updateOp: {
-      type: "update",
-      id: "ref1",
-      block: {
-        content: {
-          type: "tableContent",
-          rows: [
-            {
-              cells: ["Table Cell 1", "Table Cell 3"],
-            },
-            {
-              cells: ["Table Cell 4", "Table Cell 6"],
-            },
-            {
-              cells: ["Table Cell 7", "Table Cell 9"],
-            },
-          ],
+    updateOps: [
+      {
+        type: "update",
+        id: "ref1",
+        block: {
+          content: {
+            type: "tableContent",
+            rows: [
+              {
+                cells: ["Table Cell 1", "Table Cell 3"],
+              },
+              {
+                cells: ["Table Cell 4", "Table Cell 6"],
+              },
+              {
+                cells: ["Table Cell 7", "Table Cell 9"],
+              },
+            ],
+          },
         },
       },
-    },
+    ],
     userPrompt: "Remove the second column",
   },
   {
     editor: getTableTestEditor,
     description: "remove last column",
-    updateOp: {
-      type: "update",
-      id: "ref1",
-      block: {
-        content: {
-          type: "tableContent",
-          rows: [
-            {
-              cells: ["Table Cell 1", "Table Cell 2"],
-            },
-            {
-              cells: [
-                "Table Cell 4",
-                [
-                  {
-                    type: "text",
-                    text: "Table Cell Bold 5",
-                    styles: {
-                      bold: true,
+    updateOps: [
+      {
+        type: "update",
+        id: "ref1",
+        block: {
+          content: {
+            type: "tableContent",
+            rows: [
+              {
+                cells: ["Table Cell 1", "Table Cell 2"],
+              },
+              {
+                cells: [
+                  "Table Cell 4",
+                  [
+                    {
+                      type: "text",
+                      text: "Table Cell Bold 5",
+                      styles: {
+                        bold: true,
+                      },
                     },
-                  },
+                  ],
                 ],
-              ],
-            },
-            {
-              cells: ["Table Cell 7", "Table Cell 8"],
-            },
-          ],
+              },
+              {
+                cells: ["Table Cell 7", "Table Cell 8"],
+              },
+            ],
+          },
         },
       },
-    },
+    ],
     userPrompt: "Remove the last column",
   },
   {
     editor: getTableTestEditor,
     description: "remove row",
-    updateOp: {
-      type: "update",
-      id: "ref1",
-      block: {
-        content: {
-          type: "tableContent",
-          rows: [
-            {
-              cells: ["Table Cell 1", "Table Cell 2", "Table Cell 3"],
-            },
-            {
-              cells: ["Table Cell 7", "Table Cell 8", "Table Cell 9"],
-            },
-          ],
+    updateOps: [
+      {
+        type: "update",
+        id: "ref1",
+        block: {
+          content: {
+            type: "tableContent",
+            rows: [
+              {
+                cells: ["Table Cell 1", "Table Cell 2", "Table Cell 3"],
+              },
+              {
+                cells: ["Table Cell 7", "Table Cell 8", "Table Cell 9"],
+              },
+            ],
+          },
         },
       },
-    },
+    ],
     userPrompt: "Remove the second row",
   },
   {
     editor: getTableTestEditor,
     description: "remove last row",
-    updateOp: {
-      type: "update",
-      id: "ref1",
-      block: {
-        content: {
-          type: "tableContent",
-          rows: [
-            {
-              cells: ["Table Cell 1", "Table Cell 2", "Table Cell 3"],
-            },
-            {
-              cells: [
-                "Table Cell 4",
-                [
-                  {
-                    type: "text",
-                    text: "Table Cell Bold 5",
-                    styles: {
-                      bold: true,
+    updateOps: [
+      {
+        type: "update",
+        id: "ref1",
+        block: {
+          content: {
+            type: "tableContent",
+            rows: [
+              {
+                cells: ["Table Cell 1", "Table Cell 2", "Table Cell 3"],
+              },
+              {
+                cells: [
+                  "Table Cell 4",
+                  [
+                    {
+                      type: "text",
+                      text: "Table Cell Bold 5",
+                      styles: {
+                        bold: true,
+                      },
                     },
-                  },
+                  ],
+                  "Table Cell 6",
                 ],
-                "Table Cell 6",
-              ],
-            },
-          ],
+              },
+            ],
+          },
         },
       },
-    },
+    ],
     userPrompt: "Remove the last row",
+  },
+  {
+    editor: () => {
+      const editor = BlockNoteEditor.create({
+        trailingBlock: false,
+        initialContent: [
+          {
+            id: "ref1",
+            type: "paragraph",
+            content: [{ type: "text", text: "I need to buy:", styles: {} }],
+          },
+          {
+            id: "ref2",
+            type: "paragraph",
+            content: [{ type: "text", text: "Apples", styles: {} }],
+          },
+          {
+            id: "ref3",
+            type: "paragraph",
+            content: [{ type: "text", text: "Bananas", styles: {} }],
+          },
+        ],
+        schema,
+        _extensions: {
+          ai: createAIExtension({
+            model: undefined as any,
+          }),
+        },
+      });
+      return editor;
+    },
+    description: "turn paragraphs into list",
+    updateOps: [
+      {
+        type: "update",
+        id: "ref2",
+        block: {
+          type: "bulletListItem",
+        },
+      },
+      {
+        type: "update",
+        id: "ref3",
+        block: {
+          type: "bulletListItem",
+        },
+      },
+    ],
+    userPrompt: "turn into list",
+    getTestSelection(editor) {
+      const posInfo = getNodeById("ref2", editor.prosemirrorState.doc)!;
+      const block = getBlockInfo(posInfo);
+      if (!block.isBlockContainer) {
+        throw new Error("Block is not a block container");
+      }
+      return {
+        from: block.blockContent.beforePos + 1,
+        to: editor.prosemirrorState.doc.content.size,
+      };
+    },
+  },
+  {
+    editor: () => {
+      const editor = BlockNoteEditor.create({
+        trailingBlock: false,
+        initialContent: [
+          {
+            id: "ref1",
+            type: "paragraph",
+            content: [{ type: "text", text: "I need to buy:", styles: {} }],
+            children: [
+              {
+                id: "ref2",
+                type: "paragraph",
+                content: [{ type: "text", text: "Apples", styles: {} }],
+              },
+            ],
+          },
+        ],
+        schema,
+        _extensions: {
+          ai: createAIExtension({
+            model: undefined as any,
+          }),
+        },
+      });
+      return editor;
+    },
+    description: "modify nested content",
+    updateOps: [
+      {
+        type: "update",
+        id: "ref2",
+        block: {
+          content: [{ type: "text", text: "APPLES", styles: {} }],
+        },
+      },
+    ],
+    userPrompt: "make apples uppercase",
+  },
+  {
+    editor: () => {
+      const editor = BlockNoteEditor.create({
+        trailingBlock: false,
+        initialContent: [
+          {
+            id: "ref1",
+            type: "paragraph",
+            content: [{ type: "text", text: "I need to buy:", styles: {} }],
+            children: [
+              {
+                id: "ref2",
+                type: "paragraph",
+                content: [{ type: "text", text: "Apples", styles: {} }],
+              },
+            ],
+          },
+        ],
+        schema,
+        _extensions: {
+          ai: createAIExtension({
+            model: undefined as any,
+          }),
+        },
+      });
+      return editor;
+    },
+    description: "modify parent content",
+    updateOps: [
+      {
+        type: "update",
+        id: "ref1",
+        block: {
+          content: [{ type: "text", text: "I NEED TO BUY:", styles: {} }],
+        },
+      },
+    ],
+    userPrompt: "make the first paragraph uppercase",
   },
 ];

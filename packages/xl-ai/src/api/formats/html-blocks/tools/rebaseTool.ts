@@ -14,11 +14,19 @@ export async function createHTMLRebaseTool(
   if (!block) {
     throw new Error("block not found");
   }
-  const html = await editor.blocksToHTMLLossy([block]);
+  const html = await editor.blocksToHTMLLossy([
+    {
+      ...block,
+      children: [],
+    },
+  ]);
+
   const blocks = await editor.tryParseHTMLToBlocks(html);
+
   if (blocks.length !== 1) {
     throw new Error("html diff invalid block count");
   }
+
   const htmlBlock = blocks[0];
   htmlBlock.id = id;
   // console.log(html);

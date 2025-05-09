@@ -108,39 +108,47 @@ describe("JSON Tools", () => {
 
       await processOperations(
         editor,
-        createMockStream({ operation: testCase.updateOp }),
+        createMockStream(...testCase.updateOps.map((u) => ({ operation: u }))),
         selection,
       );
 
-      // Should call updateBlock with the right parameters
-      const update = testCase.updateOp.block;
-      let block = editor.getBlock(testCase.updateOp.id)!;
-      if (selection) {
-        const selectionInfo = prosemirrorSliceToSlicedBlocks(
-          editor.prosemirrorState.doc.slice(selection.from, selection.to, true),
-          editor.pmSchema,
-        );
-        block = selectionInfo.blocks[0];
-      }
-      if (update.type) {
-        // eslint-disable-next-line
-        expect(block.type).toEqual(update.type);
-      }
-      if (update.props) {
-        // eslint-disable-next-line
-        expect(block.props).toMatchObject(update.props);
-      }
+      for (const updateOp of testCase.updateOps) {
+        // Should call updateBlock with the right parameters
+        const update = updateOp.block;
+        let block = editor.getBlock(updateOp.id)!;
+        if (selection) {
+          const selectionInfo = prosemirrorSliceToSlicedBlocks(
+            editor.prosemirrorState.doc.slice(
+              selection.from,
+              selection.to,
+              true,
+            ),
+            editor.pmSchema,
+          );
+          block = selectionInfo.blocks[0];
+        }
+        if (update.type) {
+          // eslint-disable-next-line
+          expect(block.type).toEqual(update.type);
+        }
+        if (update.props) {
+          // eslint-disable-next-line
+          expect(block.props).toMatchObject(update.props);
+        }
 
-      if (update.content) {
-        const partialBlock = {
-          type: block.type,
-          ...update,
-        };
-        // eslint-disable-next-line
-        expect(block.content).toEqual(
-          partialBlockToBlockForTesting(editor.schema.blockSchema, partialBlock)
-            .content,
-        );
+        if (update.content) {
+          const partialBlock = {
+            type: block.type,
+            ...update,
+          };
+          // eslint-disable-next-line
+          expect(block.content).toEqual(
+            partialBlockToBlockForTesting(
+              editor.schema.blockSchema,
+              partialBlock,
+            ).content,
+          );
+        }
       }
     });
   }
@@ -209,16 +217,19 @@ describe("JSON Tools", () => {
       } as AddBlocksToolCall<any>,
     };
 
-    const updateOp = updateOperationTestCases.filter(
+    const updateCase = updateOperationTestCases.filter(
       (t) => t.description === "translate selection",
     )[0];
 
     await processOperations(
       editor,
-      createMockStream(insertOp, {
-        operation: updateOp.updateOp,
-      }),
-      updateOp.getTestSelection?.(editor),
+      createMockStream(
+        insertOp,
+        ...updateCase.updateOps.map((u) => ({
+          operation: u,
+        })),
+      ),
+      updateCase.getTestSelection?.(editor),
     );
 
     // Should call all the editor methods with the right parameters

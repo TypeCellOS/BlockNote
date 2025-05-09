@@ -20,19 +20,19 @@ function getExampleEditorWithSuggestions() {
     throw new Error("Block is not a container");
   }
 
-  let tr = editor.prosemirrorState.tr.addMark(
-    block.blockContent.beforePos + 1,
-    block.blockContent.beforePos + 6,
-    editor.pmSchema.mark("deletion", {})
-  );
+  editor.transact((tr) => {
+    tr.addMark(
+      block.blockContent.beforePos + 1,
+      block.blockContent.beforePos + 6,
+      editor.pmSchema.mark("deletion", {}),
+    );
 
-  tr = tr.addMark(
-    block.blockContent.beforePos + 6,
-    block.blockContent.beforePos + 8,
-    editor.pmSchema.mark("insertion", {})
-  );
-
-  editor.dispatch(tr);
+    tr.addMark(
+      block.blockContent.beforePos + 6,
+      block.blockContent.beforePos + 8,
+      editor.pmSchema.mark("insertion", {}),
+    );
+  });
 
   return editor;
 }
@@ -60,13 +60,15 @@ it("should be able to apply changes to a clean doc (use invertMap)", async () =>
 
   expect(cleaned.doc.textBetween(start, end)).toBe("Hi");
 
-  const tr = editor.prosemirrorState.tr.replaceWith(
-    cleaned.invertMap.map(start),
-    cleaned.invertMap.map(end),
-    editor.pmSchema.text("What's up")
-  );
+  editor.transact((tr) => {
+    tr.replaceWith(
+      cleaned.invertMap.map(start),
+      cleaned.invertMap.map(end),
+      editor.pmSchema.text("What's up"),
+    );
+  });
 
-  expect(tr.doc.toJSON()).toMatchSnapshot();
+  expect(editor.prosemirrorState.doc.toJSON()).toMatchSnapshot();
 });
 
 it("should be able to apply changes to a clean doc (use rebaseTr)", async () => {

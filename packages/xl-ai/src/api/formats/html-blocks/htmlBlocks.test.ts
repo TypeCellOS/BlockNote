@@ -5,7 +5,7 @@ import path from "path";
 import { afterAll, afterEach, beforeAll, describe } from "vitest";
 import { testAIModels } from "../../../testUtil/testAIModels.js";
 import { generateSharedTestCases } from "../tests/sharedTestCases.js";
-import { callLLM } from "./htmlBlocks.js";
+import { callLLMHTMLBlocks } from "./htmlBlocks.js";
 
 const BASE_FILE_PATH = path.resolve(
   __dirname,
@@ -117,7 +117,7 @@ describe("Models", () => {
       params.stream ? "streaming" : "non-streaming"
     })`, () => {
       generateSharedTestCases((editor, options) =>
-        callLLM(editor, {
+        callLLMHTMLBlocks(editor, {
           ...options,
           model: params.model,
           maxRetries: 0,

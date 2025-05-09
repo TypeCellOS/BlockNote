@@ -1,0 +1,100 @@
+{
+  "content": [
+    {
+      "content": [
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "ref1",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "text": "I need to buy:",
+                  "type": "text",
+                },
+              ],
+              "type": "paragraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "ref2",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "text": "Apples",
+                  "type": "text",
+                },
+              ],
+              "marks": [
+                {
+                  "attrs": {
+                    "attrName": null,
+                    "id": null,
+                    "newValue": "bulletListItem",
+                    "previousValue": "paragraph",
+                    "type": "nodeType",
+                  },
+                  "type": "modification",
+                },
+              ],
+              "type": "bulletListItem",
+            },
+          ],
+          "type": "blockContainer",
+        },
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "ref3",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "text": "Bananas",
+                  "type": "text",
+                },
+              ],
+              "marks": [
+                {
+                  "attrs": {
+                    "attrName": null,
+                    "id": null,
+                    "newValue": "bulletListItem",
+                    "previousValue": "paragraph",
+                    "type": "nodeType",
+                  },
+                  "type": "modification",
+                },
+              ],
+              "type": "bulletListItem",
+            },
+          ],
+          "type": "blockContainer",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "doc",
+}

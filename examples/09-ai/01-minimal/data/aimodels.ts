@@ -33,4 +33,5 @@ export const AI_MODELS = [
   "groq.chat/llama-3.2-3b-preview",
   "groq.chat/llama-3.2-11b-vision-preview",
   "groq.chat/llama-3.2-90b-vision-preview",
+  "albert-etalab.chat/neuralmagic/Meta-Llama-3.1-70B-Instruct-FP8",
 ];

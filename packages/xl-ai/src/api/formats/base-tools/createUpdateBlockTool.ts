@@ -56,6 +56,7 @@ export function createUpdateBlockTool<T>(config: {
         from: number;
         to: number;
       };
+      onBlockUpdate?: (blockId: string) => void;
     },
   ) =>
     streamTool<UpdateBlockToolCall<T>>({
@@ -225,6 +226,7 @@ export function createUpdateBlockTool<T>(config: {
             editor.transact((tr) => {
               agentStepToTr(tr, step);
             });
+            options.onBlockUpdate?.(operation.id);
           }
         }
       },

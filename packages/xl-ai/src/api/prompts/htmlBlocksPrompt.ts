@@ -16,6 +16,7 @@ export function promptManipulateSelectionHTMLBlocks(opts: {
       role: "system",
       content: `You're manipulating a selected part of a text document using HTML blocks. 
       Make sure to follow the json schema provided and always include the trailing $ in ids. 
+      List items are 1 block with 1 list item each, so block content \`<ul><li>item1</li></ul>\` is valid, but \`<ul><li>item1</li><li>item2</li></ul>\` is invalid. We'll merge them automatically.
       This is the selection as an array of html blocks:`,
     },
     {
@@ -60,6 +61,7 @@ export function promptManipulateDocumentUseHTMLBlocks(opts: {
       role: "system",
       content: `You're manipulating a text document using HTML blocks. 
         Make sure to follow the json schema provided. When referencing ids they MUST be EXACTLY the same (including the trailing $). 
+        List items are 1 block with 1 list item each, so block content \`<ul><li>item1</li></ul>\` is valid, but \`<ul><li>item1</li><li>item2</li></ul>\` is invalid. We'll merge them automatically.
         This is the document as an array of html blocks (the cursor is BETWEEN two blocks as indicated by cursor: true):`,
     },
     {

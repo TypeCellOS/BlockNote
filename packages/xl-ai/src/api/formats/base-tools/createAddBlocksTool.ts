@@ -60,6 +60,7 @@ export function createAddBlocksTool<T>(config: {
     options: {
       idsSuffixed: boolean;
       withDelays: boolean;
+      onBlockUpdate?: (blockId: string) => void;
     },
   ) =>
     streamTool<AddBlocksToolCall<T>>({
@@ -180,7 +181,7 @@ export function createAddBlocksTool<T>(config: {
             continue;
           }
 
-          for (let i = 0; i < operation.blocks.length; i++) {
+          for (let i = 0; i < jsonToolCall.blocks.length; i++) {
             const block = jsonToolCall.blocks[i];
             const doc = editor.prosemirrorState.doc;
             const tr = editor.prosemirrorState.tr;
@@ -200,6 +201,8 @@ export function createAddBlocksTool<T>(config: {
 
               const inverted = steps.map((step) => step.map(tool.invertMap)!);
               agentSteps = getStepsAsAgent(doc, editor.pmSchema, inverted);
+              // don't spend time "selecting" the block as an agent, as we're continuing a previous update
+              agentSteps = agentSteps.filter((step) => step.type !== "select");
             } else {
               // we are adding a new block, so we need to insert it
               const ret = insertBlocks(
@@ -211,8 +214,11 @@ export function createAddBlocksTool<T>(config: {
               addedBlockIds.push(...ret.map((r) => r.id));
               agentSteps = getStepsAsAgent(doc, editor.pmSchema, tr.steps);
             }
+
             if (agentSteps.find((step) => step.type === "replace")) {
-              throw new Error("unexpected: replace step in add operation");
+              // throw new Error("unexpected: replace step in add operation");
+              // this is unexpected but we've been able to see this when:
+              // adding a list item, because <ul> first gets parsed as paragraph, that then gets turned into a list
             }
 
             for (const step of agentSteps) {
@@ -222,6 +228,7 @@ export function createAddBlocksTool<T>(config: {
               editor.transact((tr) => {
                 agentStepToTr(tr, step);
               });
+              options.onBlockUpdate?.(addedBlockIds[i]);
             }
           }
         }
