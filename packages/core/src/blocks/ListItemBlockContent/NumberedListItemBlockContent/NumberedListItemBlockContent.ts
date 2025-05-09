@@ -126,7 +126,7 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
             const startIndex =
               parseInt(parent.getAttribute("start") || "1") || 1;
 
-            if (element.previousSibling || startIndex === 1) {
+            if (element.previousElementSibling || startIndex === 1) {
               return {};
             }
 

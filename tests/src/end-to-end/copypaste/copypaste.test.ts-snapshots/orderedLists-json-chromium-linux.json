@@ -7,14 +7,14 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": "0",
-            "textColor": "default",
-            "backgroundColor": "default"
+            "id": "0"
           },
           "content": [
             {
               "type": "numberedListItem",
               "attrs": {
+                "textColor": "default",
+                "backgroundColor": "default",
                 "textAlignment": "left",
                 "index": "1"
               },
@@ -30,14 +30,14 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": "2",
-            "textColor": "default",
-            "backgroundColor": "default"
+            "id": "2"
           },
           "content": [
             {
               "type": "numberedListItem",
               "attrs": {
+                "textColor": "default",
+                "backgroundColor": "default",
                 "textAlignment": "left",
                 "index": "2"
               },
@@ -53,14 +53,14 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": "3",
-            "textColor": "default",
-            "backgroundColor": "default"
+            "id": "3"
           },
           "content": [
             {
               "type": "numberedListItem",
               "attrs": {
+                "textColor": "default",
+                "backgroundColor": "default",
                 "textAlignment": "left",
                 "index": "3"
               },
@@ -76,14 +76,14 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": "1",
-            "textColor": "default",
-            "backgroundColor": "default"
+            "id": "1"
           },
           "content": [
             {
               "type": "paragraph",
               "attrs": {
+                "textColor": "default",
+                "backgroundColor": "default",
                 "textAlignment": "left"
               }
             }
@@ -92,14 +92,14 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": "5",
-            "textColor": "default",
-            "backgroundColor": "default"
+            "id": "5"
           },
           "content": [
             {
               "type": "numberedListItem",
               "attrs": {
+                "textColor": "default",
+                "backgroundColor": "default",
                 "textAlignment": "left",
                 "index": "1"
               },
@@ -115,14 +115,14 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": "6",
-            "textColor": "default",
-            "backgroundColor": "default"
+            "id": "6"
           },
           "content": [
             {
               "type": "numberedListItem",
               "attrs": {
+                "textColor": "default",
+                "backgroundColor": "default",
                 "textAlignment": "left",
                 "index": "2"
               },
@@ -138,14 +138,14 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": "7",
-            "textColor": "default",
-            "backgroundColor": "default"
+            "id": "7"
           },
           "content": [
             {
               "type": "numberedListItem",
               "attrs": {
+                "textColor": "default",
+                "backgroundColor": "default",
                 "textAlignment": "left",
                 "index": "3"
               },
@@ -161,14 +161,14 @@
         {
           "type": "blockContainer",
           "attrs": {
-            "id": "8",
-            "textColor": "default",
-            "backgroundColor": "default"
+            "id": "8"
           },
           "content": [
             {
               "type": "paragraph",
               "attrs": {
+                "textColor": "default",
+                "backgroundColor": "default",
                 "textAlignment": "left"
               }
             }
