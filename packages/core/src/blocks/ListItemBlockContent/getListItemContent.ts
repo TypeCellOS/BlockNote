@@ -46,13 +46,18 @@ export function getListItemContent(
     throw new Error("Node is not an HTMLElement");
   }
 
-  // TODO: Super hacky workaround so check list items are parsed correctly.
+  // This is a workaround to make sure we don't parse something into a `checkListItem` accidentally.
+  // We are interested in the list item's actual content, not whether it contains a checkbox.
   for (let i = 0; i < node.children.length; i++) {
     const child = node.children[i];
 
     if (child.tagName === "INPUT" || child.tagName === "LABEL") {
       node.removeChild(child);
+    } else {
+      // We break, because we only want to remove the first `INPUT` or `LABEL` element. To not affect parsing of other possible child content.
+      break;
     }
+    // TODO see if we can just skip checkListItems, and re-use the rest of the algorithm.
   }
 
   // Move the `li` element's content into a new `div` element
