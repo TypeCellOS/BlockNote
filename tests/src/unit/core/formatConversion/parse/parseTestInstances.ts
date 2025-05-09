@@ -388,6 +388,139 @@ export const parseTestInstancesHTML: TestInstance<
   },
   {
     testCase: {
+      name: "textTableCell",
+      content: `<table>
+  <tbody>
+    <tr>
+      <td>Table Cell</td>
+    </tr>  
+  </tbody>
+</table>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "paragraphTableCell",
+      content: `<table>
+  <tbody>
+    <tr>
+      <td>
+        <p>Table Cell</p>
+      </td>
+    </tr>  
+  </tbody>
+</table>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "headingTableCell",
+      content: `<table>
+  <tbody>
+    <tr>
+      <td>
+        <h1>Table Cell</h1>
+      </td>
+    </tr>  
+  </tbody>
+</table>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "multipleParagraphTableCell",
+      content: `<table>
+  <tbody>
+    <tr>
+      <td>
+        <p>Table Cell</p>
+        <p>Table Cell</p>
+      </td>
+    </tr>  
+  </tbody>
+</table>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "mixedTextTableCell",
+      content: `<table>
+  <tbody>
+    <tr>
+      <td>
+        <h1>Table Cell</p>
+        <p>Table Cell</p>
+        Table Cell
+      </td>
+    </tr>  
+  </tbody>
+</table>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "paragraphImageTableCell",
+      content: `<table>
+  <tbody>
+    <tr>
+      <td>
+        <p>Table Cell</p>
+        <img src="exampleURL">
+      </td>
+    </tr>  
+  </tbody>
+</table>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "imageBetweenParagraphsTableCell",
+      content: `<table>
+  <tbody>
+    <tr>
+      <td>
+        <p>Table Cell</p>
+        <img src="exampleURL">
+        <p>Table Cell</p>
+      </td>
+    </tr>  
+  </tbody>
+</table>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "mixedContentTableCell",
+      content: `<table>
+  <tbody>
+    <tr>
+      <td>
+        <p>Table Cell</p>
+        <img src="exampleURL">
+        Table Cell
+        <br/>
+        <input type="checkbox">
+        <h1>Table Cell</h1>
+        <ul>
+          <li>Table Cell</li>
+          <li>Table Cell</li>
+        </ul>
+      </td>
+    </tr>  
+  </tbody>
+</table>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
       name: "divs",
       content: `<div>Single Div</div>
 <div>
