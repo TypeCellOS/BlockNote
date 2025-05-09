@@ -95,7 +95,7 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
 
           if (
             parent.tagName === "UL" ||
-            (parent.tagName === "DIV" && parent.parentElement!.tagName === "UL")
+            (parent.tagName === "DIV" && parent.parentElement?.tagName === "UL")
           ) {
             return {};
           }

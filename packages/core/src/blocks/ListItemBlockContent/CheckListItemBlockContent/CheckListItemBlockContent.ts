@@ -151,7 +151,7 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
 
           if (
             parent.tagName === "UL" ||
-            (parent.tagName === "DIV" && parent.parentElement!.tagName === "UL")
+            (parent.tagName === "DIV" && parent.parentElement?.tagName === "UL")
           ) {
             const checkbox =
               (element.querySelector(
