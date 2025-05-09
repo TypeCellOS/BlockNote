@@ -3,10 +3,12 @@ import {
   agentStepToTr,
   delayAgentStep,
   getStepsAsAgent,
-} from "../../prosemirror/agent.js";
-import { streamTool } from "../streamTool/streamTool.js";
+} from "../../../prosemirror/agent.js";
+import { streamTool } from "../../../streamTool/streamTool.js";
 
-// TODO, rename to remove?
+/**
+ * Factory function to create a StreamTool that deletes a block from the document.
+ */
 export const deleteBlockTool = (
   editor: BlockNoteEditor<any, any, any>,
   options: { idsSuffixed: boolean; withDelays: boolean },
@@ -68,10 +70,12 @@ export const deleteBlockTool = (
         },
       };
     },
+    // Note: functionality mostly tested in jsontools.test.ts
+    // would be nicer to add a direct unit test
     execute: async function* (operationsStream) {
       for await (const chunk of operationsStream) {
         if (chunk.operation.type !== "delete") {
-          // ignore non-update operations
+          // pass through non-delete operations
           yield chunk;
           continue;
         }
@@ -88,7 +92,6 @@ export const deleteBlockTool = (
           tr.steps,
         );
 
-        // TODO: invert?
         for (const step of agentSteps) {
           if (options.withDelays) {
             await delayAgentStep(step);
@@ -96,11 +99,6 @@ export const deleteBlockTool = (
           editor.transact((tr) => {
             agentStepToTr(tr, step);
           });
-          // yield {
-          //   ...chunk,
-          //   result: "ok",
-          //   lastBlockId: operation.id,
-          // };
         }
       }
     },

@@ -1,16 +1,16 @@
 import { Block, BlockNoteEditor } from "@blocknote/core";
 import { generateObject, streamObject } from "ai";
+import {
+  generateOperations,
+  LLMRequestOptions,
+  streamOperations,
+} from "../../../streamTool/callLLMWithStreamTools.js";
+import { StreamTool } from "../../../streamTool/streamTool.js";
 import type { PromptOrMessages } from "../../index.js";
 import {
   promptManipulateDocumentUseMarkdownBlocks,
   promptManipulateSelectionMarkdownBlocks,
 } from "../../prompts/markdownBlocksPrompt.js";
-import {
-  generateOperations,
-  LLMRequestOptions,
-  streamOperations,
-} from "../../streamTool/callLLMWithStreamTools.js";
-import { StreamTool } from "../../streamTool/streamTool.js";
 import { isEmptyParagraph } from "../../util/emptyBlock.js";
 
 import { CallLLMResult } from "../CallLLMResult.js";

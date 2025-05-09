@@ -12,7 +12,6 @@ export async function createHTMLRebaseTool(
   const tr = getApplySuggestionsTr(editor);
   const block = getBlock(tr.doc, id);
   if (!block) {
-    // debugger;
     throw new Error("block not found");
   }
   const html = await editor.blocksToHTMLLossy([block]);
@@ -28,14 +27,13 @@ export async function createHTMLRebaseTool(
     {
       id,
       block: htmlBlock,
-      type: "update",
     },
     tr.doc,
   );
 
   if (steps.length) {
-    console.error("html diff", steps);
-    // throw new Error("html diff");
+    // console.error("html diff", steps);
+    throw new Error("html diff");
   }
   // const stepMapping = new Mapping();
   // for (const step of steps) {

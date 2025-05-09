@@ -4,7 +4,7 @@ import {
   isLinkInlineContent,
   isStyledTextInlineContent,
 } from "@blocknote/core";
-import { InvalidOrOk } from "../../../streamTool/streamTool";
+import { InvalidOrOk } from "../../../../streamTool/streamTool";
 
 function validateInlineContent(content: any, editor: any): boolean {
   const inlineContentConfig =
@@ -37,7 +37,7 @@ function validateInlineContent(content: any, editor: any): boolean {
 export function validateBlockFunction(
   block: any,
   editor: BlockNoteEditor<any, any, any>,
-  fallbackType?: string
+  fallbackType?: string,
 ): InvalidOrOk<PartialBlock<any, any, any>> {
   const type = block.type || fallbackType;
   const blockConfig =

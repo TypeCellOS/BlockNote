@@ -1,9 +1,6 @@
-
-import {
-  filterValidOperations,
-  toValidatedOperations,
-} from "../executor/streamOperations/index.js";
+import { filterValidOperations } from "./filterValidOperations.js";
 import { StreamTool, StreamToolCall } from "./streamTool.js";
+import { toValidatedOperations } from "./toValidatedOperations.js";
 
 export type PreprocessOperationResult<T extends StreamTool<any>[]> = {
   operation: StreamToolCall<T>;
@@ -11,44 +8,51 @@ export type PreprocessOperationResult<T extends StreamTool<any>[]> = {
   isPossiblyPartial: boolean;
 };
 
+/**
+ * Validates an stream of operations and filters out invalid operations.
+ */
 export async function* preprocessOperationsStreaming<
-  T extends StreamTool<any>[]
+  T extends StreamTool<any>[],
 >(
   operationsStream: AsyncIterable<{
     partialOperation: any;
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
   }>,
-  streamTools: T
+  streamTools: T,
 ): AsyncGenerator<PreprocessOperationResult<T>> {
   // from partial operations to valid / invalid operations
   const validatedOperationsStream = toValidatedOperations(
     operationsStream,
-    streamTools
+    streamTools,
   );
 
   // filter valid operations, invalid operations are ignored
   const validOperationsStream = filterValidOperations(
-    validatedOperationsStream
+    validatedOperationsStream,
   );
+  // Possible improvement: throw if there's an invalid operation and `isPossiblyPartial` is false
 
   yield* validOperationsStream;
 }
 
+/**
+ * Validates an stream of operations and throws an error if an invalid operation is found.
+ */
 export async function* preprocessOperationsNonStreaming<
-  T extends StreamTool<any>[]
+  T extends StreamTool<any>[],
 >(
   operationsStream: AsyncIterable<{
     partialOperation: any;
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
   }>,
-  streamTools: T
+  streamTools: T,
 ): AsyncGenerator<PreprocessOperationResult<T>> {
   // from partial operations to valid / invalid operations
   const validatedOperationsStream = toValidatedOperations(
     operationsStream,
-    streamTools
+    streamTools,
   );
 
   // filter valid operations, invalid operations should throw an error
@@ -56,7 +60,7 @@ export async function* preprocessOperationsNonStreaming<
     validatedOperationsStream,
     (operation) => {
       throw new Error("invalid operation: " + operation.reason);
-    }
+    },
   );
 
   // yield results

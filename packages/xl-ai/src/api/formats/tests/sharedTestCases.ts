@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { getCurrentTest } from "@vitest/runner";
 import path from "path";
 import { createAIExtension, getAIExtension } from "../../../AIExtension.js";
-import { testUpdateOperations } from "../../../testUtil/updates/updateOperations.js";
+import { updateOperationTestCases } from "../../../testUtil/cases/updateOperationTestCases.js";
 import { CallLLMResult } from "../CallLLMResult.js";
 
 const BASE_FILE_PATH = path.resolve(__dirname, "__snapshots__");
@@ -43,7 +43,7 @@ export function generateSharedTestCases(
   }
 ) {
   describe("Update (formatting)", () => {
-    for (const test of testUpdateOperations) {
+    for (const test of updateOperationTestCases) {
       it(test.description, async (c) => {
         if (
           skipTestsRequiringCapabilities &&
@@ -119,27 +119,12 @@ export function generateSharedTestCases(
         userPrompt: "Add a sentence with `Test` before the first sentence",
       });
 
-      // for await (const op of result.llmResult.streamObjectResult?.fullStream) {
-      //   console.log(op);
-      //   // console.log(result.llmResult.streamObjectResult?.fullStream.locked);
-      // }
-
-      // for await (const op of result.llmResult.operationsSource) {
-      //   console.log(op);
-      //   // console.log(result.llmResult.streamObjectResult?.fullStream.locked);
-      // }
-
-      // for await (const op of result.llmResult.operationsSource) {
-      //   console.log(op);
-      //   // console.log(result.llmResult.streamObjectResult?.fullStream.locked);
-      // }
-
       await result.execute();
 
       // console.log(
       //   JSON.stringify(editor.prosemirrorState.doc.toJSON(), null, 2)
       // );
-      // const co = await (result.llmResult as StreamObjectResult<any, any, any>).;
+
       // we first need to accept changes to get the correct result
       getAIExtension(editor).acceptChanges();
 

@@ -14,7 +14,7 @@ import { fixTablesKey } from "prosemirror-tables";
 import { createStore } from "zustand/vanilla";
 import { PromptOrMessages, llm } from "./api";
 import { CallLLMResult } from "./api/formats/CallLLMResult";
-import { LLMRequestOptions } from "./api/streamTool/callLLMWithStreamTools";
+import { LLMRequestOptions } from "./streamTool/callLLMWithStreamTools";
 // type AIPluginState = {
 //   aiMenuBlockID: string | undefined;
 //   aiMenuResponseStatus: "initial" | "generating" | "error" | "done";

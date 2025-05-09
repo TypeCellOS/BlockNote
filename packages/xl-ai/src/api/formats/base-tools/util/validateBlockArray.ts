@@ -1,9 +1,9 @@
 import { DeepPartial } from "ai";
-import { InvalidOrOk } from "../../streamTool/streamTool.js";
+import { InvalidOrOk } from "../../../../streamTool/streamTool.js";
 
-export function validateArray<U>(
+export function validateBlockArray<U>(
   inputArray: DeepPartial<Array<U>>,
-  validateItem: (item: DeepPartial<U>) => InvalidOrOk<U>
+  validateItem: (item: DeepPartial<U>) => InvalidOrOk<U>,
 ): InvalidOrOk<U[]> {
   if (!inputArray || !Array.isArray(inputArray) || inputArray.length === 0) {
     return {

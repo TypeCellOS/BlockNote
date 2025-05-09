@@ -15,7 +15,7 @@ import {
   AsyncIterableStream,
   createAsyncIterableStream,
   createAsyncIterableStreamFromAsyncIterable,
-} from "../util/stream.js";
+} from "../api/util/stream.js";
 import { filterNewOrUpdatedOperations } from "./filterNewOrUpdatedOperations.js";
 import {
   preprocessOperationsNonStreaming,
@@ -60,11 +60,16 @@ export type OperationsResult<T extends StreamTool<any>[]> = {
   }>;
 };
 
+/**
+ * Calls an LLM with StreamTools, using the `generateObject` of the AI SDK.
+ *
+ * This is the non-streaming version.
+ */
 export async function generateOperations<T extends StreamTool<any>[]>(
   streamTools: T,
   opts: LLMRequestOptions & {
     _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]>;
-  }
+  },
 ): Promise<OperationsResult<T>> {
   const { _generateObjectOptions, ...rest } = opts;
 
@@ -75,7 +80,7 @@ export async function generateOperations<T extends StreamTool<any>[]>(
       "mode" in _generateObjectOptions)
   ) {
     throw new Error(
-      "Cannot provide output or schema in _generateObjectOptions"
+      "Cannot provide output or schema in _generateObjectOptions",
     );
   }
 
@@ -100,6 +105,7 @@ export async function generateOperations<T extends StreamTool<any>[]>(
 
   const ret = await generateObject<{ operations: any }>(options);
 
+  // because the rest of the codebase always expects a stream, we convert the object to a stream here
   const stream = operationsToStream(ret.object);
 
   if (stream.result === "invalid") {
@@ -114,7 +120,7 @@ export async function generateOperations<T extends StreamTool<any>[]>(
     get operationsSource() {
       if (!_operationsSource) {
         _operationsSource = createAsyncIterableStreamFromAsyncIterable(
-          preprocessOperationsNonStreaming(stream.value, streamTools)
+          preprocessOperationsNonStreaming(stream.value, streamTools),
         );
       }
       return _operationsSource;
@@ -123,7 +129,7 @@ export async function generateOperations<T extends StreamTool<any>[]>(
 }
 
 export function operationsToStream<T extends StreamTool<any>[]>(
-  object: unknown
+  object: unknown,
 ): InvalidOrOk<
   AsyncIterable<{
     partialOperation: StreamToolCall<T>;
@@ -145,8 +151,6 @@ export function operationsToStream<T extends StreamTool<any>[]>(
   const operations = object.operations;
   async function* singleChunkGenerator() {
     for (const op of operations) {
-      // TODO: non-streaming might not need some steps
-      // in the executor
       yield {
         partialOperation: op,
         isUpdateToPreviousOperation: false,
@@ -161,6 +165,11 @@ export function operationsToStream<T extends StreamTool<any>[]>(
   };
 }
 
+/**
+ * Calls an LLM with StreamTools, using the `streamObject` of the AI SDK.
+ *
+ * This is the streaming version.
+ */
 export async function streamOperations<T extends StreamTool<any>[]>(
   streamTools: T,
   opts: LLMRequestOptions & {
@@ -170,7 +179,7 @@ export async function streamOperations<T extends StreamTool<any>[]>(
   },
   onStart: () => void = () => {
     // noop
-  }
+  },
 ): Promise<OperationsResult<T>> {
   const { _streamObjectOptions, ...rest } = opts;
 
@@ -216,11 +225,11 @@ export async function streamOperations<T extends StreamTool<any>[]>(
             filterNewOrUpdatedOperations(
               streamOnStartCallback(
                 partialObjectStreamThrowError(ret.fullStream),
-                onStart
-              )
+                onStart,
+              ),
             ),
-            streamTools
-          )
+            streamTools,
+          ),
         );
       }
       return _operationsSource;
@@ -230,7 +239,7 @@ export async function streamOperations<T extends StreamTool<any>[]>(
 
 async function* streamOnStartCallback<T>(
   stream: AsyncIterable<T>,
-  onStart: () => void
+  onStart: () => void,
 ): AsyncIterable<T> {
   let first = true;
   for await (const chunk of stream) {
@@ -243,9 +252,9 @@ async function* streamOnStartCallback<T>(
 }
 
 // adapted from https://github.com/vercel/ai/blob/5d4610634f119dc394d36adcba200a06f850209e/packages/ai/core/generate-object/stream-object.ts#L1041C7-L1066C1
-// change made to throw errors
+// change made to throw errors (with the original they're silently ignored)
 function partialObjectStreamThrowError<PARTIAL>(
-  stream: AsyncIterableStream<ObjectStreamPart<PARTIAL>>
+  stream: AsyncIterableStream<ObjectStreamPart<PARTIAL>>,
 ): AsyncIterableStream<PARTIAL> {
   return createAsyncIterableStream(
     stream.pipeThrough(
@@ -267,7 +276,7 @@ function partialObjectStreamThrowError<PARTIAL>(
             }
           }
         },
-      })
-    )
+      }),
+    ),
   );
 }

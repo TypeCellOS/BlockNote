@@ -4,9 +4,9 @@ import {
   getApplySuggestionsTr,
   rebaseTool,
 } from "../../../../prosemirror/rebaseTool.js";
-import { createAddBlocksTool } from "../../../tools/createAddBlocksTool.js";
-import { createUpdateBlockTool } from "../../../tools/createUpdateBlockTool.js";
-import { deleteBlockTool } from "../../../tools/delete.js";
+import { createAddBlocksTool } from "../../base-tools/createAddBlocksTool.js";
+import { createUpdateBlockTool } from "../../base-tools/createUpdateBlockTool.js";
+import { deleteBlockTool } from "../../base-tools/delete.js";
 import { validateBlockFunction } from "./validate.js";
 
 export const tools = {
@@ -16,6 +16,7 @@ export const tools = {
       block: {
         $ref: "#/$defs/block",
       },
+      // TODO: add defs?
     },
     validateBlock: validateBlockFunction,
     rebaseTool: async (_id, editor) =>

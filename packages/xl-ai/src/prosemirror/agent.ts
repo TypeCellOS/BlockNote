@@ -167,10 +167,12 @@ export function getStepsAsAgent(doc: Node, pmSchema: Schema, steps: Step[]) {
     // a) make this optional
     // b) actually delete / insert the content and let prosemirror-suggest-changes handle the marks
     for (let i = sliceTo; i <= step.slice.content.size; i++) {
+      // in the first agent step (first character replacement) we mark existing content (if any) as deleted
+      // (step.from !== step.to is used to check for replacements vs inserts)
+      const isReplacing = first && step.from !== step.to;
+
       const stepIndex = tr.steps.length;
-      if (first && step.from !== step.to) {
-        // in the first agent step (first character replacement) we mark existing content (if any) as deleted
-        // (step.from !== step.to is used to check for replacements vs inserts)
+      if (isReplacing) {
         const $pos = tr.doc.resolve(tr.mapping.map(step.from));
         if ($pos.nodeAfter?.isBlock) {
           // mark the entire node as deleted. This can be needed for inline nodes or table cells
@@ -209,7 +211,7 @@ export function getStepsAsAgent(doc: Node, pmSchema: Schema, steps: Step[]) {
           anchor: sel.from,
           head: sel.from,
         },
-        type: first
+        type: isReplacing
           ? "replace" // 2. Replace the text with the first character (if any) of the replacement
           : "insert", // 3. Insert the replacement character by character
       });

@@ -11,7 +11,6 @@ import {
 } from "prosemirror-changeset";
 import { Node } from "prosemirror-model";
 import { ReplaceStep, Transform } from "prosemirror-transform";
-import { UpdateBlockToolCall } from "../api/tools/createUpdateBlockTool.js";
 
 type CustomChange = Change & {
   type?: "mark-update" | "node-type-or-attr-update";
@@ -195,7 +194,10 @@ const createEncoder = (doc: Node, updatedDoc: Node) => {
  * @returns the granular steps to apply to the editor to get to the updated doc
  */
 export function updateToReplaceSteps(
-  op: UpdateBlockToolCall<PartialBlock<any, any, any>>,
+  op: {
+    id: string;
+    block: PartialBlock<any, any, any>;
+  },
   doc: Node,
   dontReplaceContentAtEnd = false,
   updateFromPos?: number,

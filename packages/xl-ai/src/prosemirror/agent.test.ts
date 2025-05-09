@@ -6,7 +6,7 @@ import {
 import { Fragment, Slice } from "prosemirror-model";
 import { ReplaceStep } from "prosemirror-transform";
 import { describe, expect, it } from "vitest";
-import { TestUpdateOperation, testUpdateOperations } from "../testUtil/updates/updateOperations.js";
+import { UpdateOperationTestCase, updateOperationTestCases } from "../testUtil/cases/updateOperationTestCases.js";
 import { agentStepToTr, getStepsAsAgent } from "./agent.js";
 import { updateToReplaceSteps } from "./changeset.js";
 
@@ -198,7 +198,7 @@ describe("agentStepToTr", () => {
 
   async function testUpdate(
     editor: BlockNoteEditor<any, any, any>,
-    test: TestUpdateOperation
+    test: UpdateOperationTestCase
   ) {
     const blockId = test.updateOp.id;
     const update = test.updateOp.block;
@@ -208,7 +208,6 @@ describe("agentStepToTr", () => {
     const steps = updateToReplaceSteps(
       {
         id: blockId,
-        type: "update",
         block: update,
       },
       doc,
@@ -234,7 +233,7 @@ describe("agentStepToTr", () => {
     expect(results).toMatchSnapshot();
   }
 
-  for (const test of testUpdateOperations) {
+  for (const test of updateOperationTestCases) {
     it(`${test.description}`, async () => {
       const editor = test.editor();
       editor._tiptapEditor.forceEnablePlugins();

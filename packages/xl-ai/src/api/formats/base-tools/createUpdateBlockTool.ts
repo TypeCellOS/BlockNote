@@ -1,18 +1,18 @@
 import { BlockNoteEditor, PartialBlock, trackPosition } from "@blocknote/core";
-import { JSONSchema7 } from "json-schema";
+import type { JSONSchema7 } from "json-schema";
 import {
   agentStepToTr,
   delayAgentStep,
   getStepsAsAgent,
-} from "../../prosemirror/agent.js";
-import { updateToReplaceSteps } from "../../prosemirror/changeset.js";
-import { RebaseTool } from "../../prosemirror/rebaseTool.js";
+} from "../../../prosemirror/agent.js";
+import { updateToReplaceSteps } from "../../../prosemirror/changeset.js";
+import { RebaseTool } from "../../../prosemirror/rebaseTool.js";
 import {
   InvalidOrOk,
   StreamTool,
   streamTool,
   StreamToolCall,
-} from "../streamTool/streamTool.js";
+} from "../../../streamTool/streamTool.js";
 
 export type UpdateBlockToolCall<T> = {
   type: "update";
@@ -20,6 +20,9 @@ export type UpdateBlockToolCall<T> = {
   block: T;
 };
 
+/**
+ * Factory function to create a StreamTool that Updates blocks in the document.
+ */
 export function createUpdateBlockTool<T>(config: {
   description: string;
   schema: {
@@ -130,6 +133,8 @@ export function createUpdateBlockTool<T>(config: {
           },
         };
       },
+      // Note: functionality mostly tested in jsontools.test.ts
+      // would be nicer to add a direct unit test
       execute: async function* (
         operationsStream: AsyncIterable<{
           operation: StreamToolCall<StreamTool<any>[]>;
@@ -148,7 +153,7 @@ export function createUpdateBlockTool<T>(config: {
 
         for await (const chunk of operationsStream) {
           if (chunk.operation.type !== "update") {
-            // ignore non-update operations
+            // pass through non-update operations
             yield chunk;
             continue;
           }
@@ -173,8 +178,6 @@ export function createUpdateBlockTool<T>(config: {
 
           // TODO: this might be inefficient, we might be able to pass a single rebaseTool as long as we map subsequent operations
           const tool = await config.rebaseTool(operation.id, editor);
-          // console.log("update", JSON.stringify(chunk.operation, null, 2));
-          // Convert the update operation directly to ReplaceSteps
 
           const fromPos = selectionPositions
             ? tool.invertMap.invert().map(selectionPositions.from())
@@ -198,13 +201,12 @@ export function createUpdateBlockTool<T>(config: {
           );
 
           if (steps.length === 1 && chunk.isPossiblyPartial) {
-            // TODO: check if replace step only?
-            // TODO: this doesn't consistently work, as there might be > 1 step when changeset wrongly sees a "space" as "keep"
-
             // when replacing a larger piece of text (try translating a 3 paragraph document), we want to do this as one single operation
             // we don't want to do this "sentence-by-sentence"
 
             // if there's only a single replace step to be done and we're partial, let's wait for more content
+
+            // TODO: unit test this and see if it's still needed even if we pass `dontReplaceContentAtEnd` to `updateToReplaceSteps`
             continue;
           }
 
@@ -215,6 +217,7 @@ export function createUpdateBlockTool<T>(config: {
             editor.pmSchema,
             inverted,
           );
+
           for (const step of agentSteps) {
             if (options.withDelays) {
               await delayAgentStep(step);
@@ -222,11 +225,6 @@ export function createUpdateBlockTool<T>(config: {
             editor.transact((tr) => {
               agentStepToTr(tr, step);
             });
-            // yield {
-            //   ...chunk,
-            //   result: "ok",
-            //   lastBlockId: chunk.operation.id,
-            // };
           }
         }
       },

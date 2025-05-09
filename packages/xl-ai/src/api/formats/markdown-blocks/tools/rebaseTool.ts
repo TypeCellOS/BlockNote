@@ -18,7 +18,6 @@ export async function createMDRebaseTool(
     {
       id,
       block: blocks[0],
-      type: "update",
     },
     tr.doc,
   );

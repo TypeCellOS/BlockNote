@@ -2,12 +2,12 @@ import { PartialBlock } from "@blocknote/core";
 import {
   AddBlocksToolCall,
   createAddBlocksTool,
-} from "../../../tools/createAddBlocksTool.js";
+} from "../../base-tools/createAddBlocksTool.js";
 import {
   createUpdateBlockTool,
   UpdateBlockToolCall,
-} from "../../../tools/createUpdateBlockTool.js";
-import { deleteBlockTool } from "../../../tools/delete.js";
+} from "../../base-tools/createUpdateBlockTool.js";
+import { deleteBlockTool } from "../../base-tools/delete.js";
 import { createMDRebaseTool } from "./rebaseTool.js";
 import { validateBlockFunction } from "./validate.js";
 

@@ -1,5 +1,5 @@
-import { OperationsResult } from "../streamTool/callLLMWithStreamTools.js";
-import { StreamTool, StreamToolCall } from "../streamTool/streamTool.js";
+import { OperationsResult } from "../../streamTool/callLLMWithStreamTools.js";
+import { StreamTool, StreamToolCall } from "../../streamTool/streamTool.js";
 
 /**
  * Result of an LLM call with stream tools that apply changes to a BlockNote Editor

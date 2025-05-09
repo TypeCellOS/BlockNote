@@ -1,31 +1,51 @@
 import { BlockNoteEditor, insertBlocks, PartialBlock } from "@blocknote/core";
-import { JSONSchema7 } from "json-schema";
-
+import type { JSONSchema7 } from "json-schema";
 import {
   AgentStep,
   agentStepToTr,
   delayAgentStep,
   getStepsAsAgent,
-} from "../../prosemirror/agent.js";
-import { updateToReplaceSteps } from "../../prosemirror/changeset.js";
-import { RebaseTool } from "../../prosemirror/rebaseTool.js";
-import { InvalidOrOk, streamTool } from "../streamTool/streamTool.js";
-import { validateArray } from "./util/validateArray.js";
+} from "../../../prosemirror/agent.js";
+import { updateToReplaceSteps } from "../../../prosemirror/changeset.js";
+import { RebaseTool } from "../../../prosemirror/rebaseTool.js";
+import { InvalidOrOk, streamTool } from "../../../streamTool/streamTool.js";
+import { validateBlockArray } from "./util/validateBlockArray.js";
 
+/**
+ * Factory function to create a StreamTool that adds blocks to the document.
+ */
 export function createAddBlocksTool<T>(config: {
+  /**
+   * The description of the tool
+   */
   description: string;
+  /**
+   * The schema of the tool
+   */
   schema: {
     block: JSONSchema7["items"];
     $defs?: JSONSchema7["$defs"];
   };
+  /**
+   * A function that can validate a block
+   */
   validateBlock: (
     block: any,
     editor: BlockNoteEditor<any, any, any>,
   ) => InvalidOrOk<T>;
+  /**
+   * TODO: comment
+   */
   rebaseTool: (
     id: string,
     editor: BlockNoteEditor<any, any, any>,
   ) => Promise<RebaseTool>;
+  /**
+   * Converts the operation from `AddBlocksToolCall<T>` to `AddBlocksToolCall<PartialBlock<any, any, any>>`
+   *
+   * When using these factories to create a tool for a different format (e.g.: HTML / MD),
+   * the `toJSONToolCall` function is used to convert the operation to a format that we can execute
+   */
   toJSONToolCall: (
     editor: BlockNoteEditor<any, any, any>,
     chunk: {
@@ -109,7 +129,7 @@ export function createAddBlocksTool<T>(config: {
           };
         }
 
-        const validatedBlocksResult = validateArray<T>(
+        const validatedBlocksResult = validateBlockArray<T>(
           operation.blocks,
           (block) => config.validateBlock(block, editor),
         );
@@ -128,16 +148,26 @@ export function createAddBlocksTool<T>(config: {
           },
         };
       },
+      // Note: functionality mostly tested in jsontools.test.ts
+      // would be nicer to add a direct unit test
       execute: async function* (operationsStream) {
-        let addedBlockIds: string[] = []; // TODO: hacky
+        // An add operation has some complexity:
+        // - it can add multiple blocks in 1 operation
+        //   (this is needed because you need an id as reference block - and if you want to insert multiple blocks you can only use an existing block as reference id)
+        // - when streaming, the first time we encounter a block to add, it's an "insert" operation, but after that (i.e.: more characters are being streamed in)
+        //   it's an update operation (i.e.: update the previously added block)
+
+        // keep track of added block ids to be able to update blocks that have already been added
+        let addedBlockIds: string[] = [];
 
         for await (const chunk of operationsStream) {
           if (!chunk.isUpdateToPreviousOperation) {
+            // we have a new operation, reset the added block ids
             addedBlockIds = [];
           }
 
           if (chunk.operation.type !== "add") {
-            // ignore non-add operations
+            // pass through non-add operations
             yield chunk;
             continue;
           }
@@ -145,6 +175,7 @@ export function createAddBlocksTool<T>(config: {
           const operation = chunk.operation as AddBlocksToolCall<T>;
 
           const jsonToolCall = await config.toJSONToolCall(editor, chunk);
+
           if (!jsonToolCall) {
             continue;
           }
@@ -156,12 +187,12 @@ export function createAddBlocksTool<T>(config: {
             // TODO: unit test
             let agentSteps: AgentStep[] = [];
             if (i < addedBlockIds.length) {
+              // we have already added this block, so we need to update it
               const tool = await config.rebaseTool(addedBlockIds[i], editor);
               const steps = updateToReplaceSteps(
                 {
                   id: addedBlockIds[i],
                   block,
-                  type: "update",
                 },
                 tool.doc,
                 false,
@@ -170,6 +201,7 @@ export function createAddBlocksTool<T>(config: {
               const inverted = steps.map((step) => step.map(tool.invertMap)!);
               agentSteps = getStepsAsAgent(doc, editor.pmSchema, inverted);
             } else {
+              // we are adding a new block, so we need to insert it
               const ret = insertBlocks(
                 tr,
                 [block],
@@ -177,18 +209,12 @@ export function createAddBlocksTool<T>(config: {
                 i > 0 ? "after" : operation.position,
               );
               addedBlockIds.push(...ret.map((r) => r.id));
-              // TODO: inverted needed?
               agentSteps = getStepsAsAgent(doc, editor.pmSchema, tr.steps);
             }
-            agentSteps = agentSteps
-              .filter((step) => step.type !== "select")
-              .map((step) => {
-                // this is a bit hacky, but we don't consider steps from inserts to be replaces
-                // technically, we are replacing the inserted block all the time instead of just appending content
-                // but we should just treat these as inserts by the agent, not replaces (replaces are "faked" to be slower)
-                step.type = "insert";
-                return step;
-              });
+            if (agentSteps.find((step) => step.type === "replace")) {
+              throw new Error("unexpected: replace step in add operation");
+            }
+
             for (const step of agentSteps) {
               if (options.withDelays) {
                 await delayAgentStep(step);
@@ -196,11 +222,6 @@ export function createAddBlocksTool<T>(config: {
               editor.transact((tr) => {
                 agentStepToTr(tr, step);
               });
-              // yield {
-              //   ...chunk,
-              //   result: "ok",
-              //   lastBlockId: addedBlockIds[i],
-              // };
             }
           }
         }

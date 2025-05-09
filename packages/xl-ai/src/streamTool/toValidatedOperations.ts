@@ -13,7 +13,7 @@ export async function* toValidatedOperations<T extends StreamTool<any>[]>(
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
   }>,
-  streamTools: T
+  streamTools: T,
 ): AsyncGenerator<{
   operation: InvalidOrOk<StreamToolCall<T>>;
   isUpdateToPreviousOperation: boolean;
@@ -21,12 +21,20 @@ export async function* toValidatedOperations<T extends StreamTool<any>[]>(
 }> {
   for await (const chunk of partialObjectStream) {
     const func = streamTools.find(
-      (f) => f.name === chunk.partialOperation.type
+      (f) => f.name === chunk.partialOperation.type,
     )!;
 
     if (!func) {
       // Skip operations with no matching function
       // console.error("no matching function", chunk.partialOperation);
+      yield {
+        operation: {
+          result: "invalid",
+          reason: `No matching function for ${chunk.partialOperation.type}`,
+        },
+        isUpdateToPreviousOperation: chunk.isUpdateToPreviousOperation,
+        isPossiblyPartial: chunk.isPossiblyPartial,
+      };
       continue;
     }
 

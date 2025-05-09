@@ -1,7 +1,9 @@
 import { InvalidOrOk } from "./streamTool.js";
 
 /**
- * Filters out invalid operations from the stream.
+ * Yields only valid operations from the stream.
+ *
+ * For invalid operations, the `onInvalidOperation` callback is called.
  */
 export async function* filterValidOperations<T>(
   operationsStream: AsyncIterable<{
@@ -12,8 +14,8 @@ export async function* filterValidOperations<T>(
   onInvalidOperation?: (
     operation: InvalidOrOk<T> & {
       result: "invalid";
-    }
-  ) => void
+    },
+  ) => void,
 ): AsyncGenerator<{
   operation: T;
   isUpdateToPreviousOperation: boolean;

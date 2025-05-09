@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { AddBlocksToolCall } from "../tools/createAddBlocksTool.js";
-import { UpdateBlockToolCall } from "../tools/createUpdateBlockTool.js";
+import { AddBlocksToolCall } from "../api/formats/base-tools/createAddBlocksTool.js";
+import { UpdateBlockToolCall } from "../api/formats/base-tools/createUpdateBlockTool.js";
 import { filterValidOperations } from "./filterValidOperations.js";
 import { InvalidOrOk } from "./streamTool.js";
 
+// REC: better to make unit tests independent of BlockNote code (tools)
 describe("filterValidOperations", () => {
   it("should filter out valid operations from a stream", async () => {
     // Create a mock stream with valid and invalid operations

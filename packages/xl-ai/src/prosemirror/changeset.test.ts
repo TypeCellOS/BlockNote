@@ -6,14 +6,14 @@ import { partialBlockToBlockForTesting } from "@shared/formatConversionTestUtil.
 import { describe, expect, it } from "vitest";
 import {
   getTestEditor,
-  TestUpdateOperation,
-  testUpdateOperations,
-} from "../testUtil/updates/updateOperations.js";
+  UpdateOperationTestCase,
+  updateOperationTestCases,
+} from "../testUtil/cases/updateOperationTestCases.js";
 import { updateToReplaceSteps } from "./changeset.js";
 
 function testUpdate(
   editor: BlockNoteEditor<any, any, any>,
-  test: TestUpdateOperation
+  test: UpdateOperationTestCase
 ) {
   const update = test.updateOp.block;
   const blockId = test.updateOp.id;
@@ -22,7 +22,6 @@ function testUpdate(
   const steps = updateToReplaceSteps(
     {
       id: blockId,
-      type: "update",
       block: update,
     },
     editor.prosemirrorState.doc,
@@ -78,7 +77,7 @@ function testUpdate(
   }
 }
 
-for (const test of testUpdateOperations) {
+for (const test of updateOperationTestCases) {
   it(`${test.description}`, async () => {
     testUpdate(test.editor(), test);
   });
@@ -90,7 +89,6 @@ describe("dontReplaceContentAtEnd=true", () => {
     const steps = updateToReplaceSteps(
       {
         id: "ref1",
-        type: "update",
         block: {
           content: [{ type: "text", text: "Hello" }],
         },
@@ -107,7 +105,6 @@ describe("dontReplaceContentAtEnd=true", () => {
     const steps = updateToReplaceSteps(
       {
         id: "ref1",
-        type: "update",
         block: {
           content: [
             { type: "text", text: "Hello, " },

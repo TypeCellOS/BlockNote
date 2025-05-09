@@ -1,12 +1,12 @@
-import { JSONSchema7Definition } from "json-schema";
+import type { JSONSchema7Definition } from "json-schema";
 import isEqual from "lodash.isequal";
-import { SimpleJSONObjectSchema } from "../util/JSONSchema.js";
+import { SimpleJSONObjectSchema } from "../api/util/JSONSchema.js";
 import { StreamTool } from "./streamTool.js";
 
-export function streamToolToJSONSchema(tool: StreamTool<any>) {
+function streamToolToJSONSchema(tool: StreamTool<any>) {
   // this adds the tool name as the "type". (not very clean way to do it)
   const { properties, required, $defs, ...rest } = tool.parameters;
-  return { 
+  return {
     schema: {
       type: "object",
       description: tool.description,
@@ -25,8 +25,27 @@ export function streamToolToJSONSchema(tool: StreamTool<any>) {
   };
 }
 
+/**
+ * Creates the JSON Schema for an object that can represent a call to one or more StreamTools.
+ *
+ * E.g., given StreamTools add, delete, update, returns the json schema for an object that conforms to this shape:
+ *
+ * {
+ *   "operations": [
+ *     {
+ *       "type": "add",
+ *       ...parameters for add function...
+ *     },
+ *     {
+ *       "type": "delete",
+ *       ...parameters for delete function...
+ *     },
+ *     ...
+ *   ]
+ * }
+ */
 export function createStreamToolsArraySchema(
-  streamTools: StreamTool<any>[]
+  streamTools: StreamTool<any>[],
 ): SimpleJSONObjectSchema & { $defs?: Record<string, JSONSchema7Definition> } {
   const schemas = streamTools.map((tool) => streamToolToJSONSchema(tool));
 
@@ -39,7 +58,7 @@ export function createStreamToolsArraySchema(
       $defs[key] = schema.$defs[key];
     }
   }
-  
+
   return {
     type: "object",
     properties: {

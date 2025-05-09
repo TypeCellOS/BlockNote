@@ -1,14 +1,19 @@
-import { BlockNoteEditor, getBlockInfo, getNodeById, PartialBlock } from "@blocknote/core";
+import {
+  BlockNoteEditor,
+  getBlockInfo,
+  getNodeById,
+  PartialBlock,
+} from "@blocknote/core";
 import { schemaWithMention as schema } from "@shared/testing/editorSchemas/mention.js";
 import { createAIExtension } from "../../AIExtension.js";
-import { UpdateBlockToolCall } from "../../api/tools/createUpdateBlockTool.js";
+import { UpdateBlockToolCall } from "../../api/base-tools/createUpdateBlockTool.js";
 
 /**
  * This file defines a set of test cases that can be used to test update operations to the editor.
  * It focuses on formatting related operations (like changing styles, inline content, props, etc)
  */
 
-export type TestUpdateOperation = {
+export type UpdateOperationTestCase = {
   /**
    * The editor to apply the update to
    */
@@ -164,7 +169,7 @@ export function getTableTestEditor() {
   });
 }
 
-export const testUpdateOperations: TestUpdateOperation[] = [
+export const updateOperationTestCases: UpdateOperationTestCase[] = [
   {
     editor: getTestEditor,
     description: "standard update",

@@ -3,6 +3,8 @@ import { operationsToStream } from "./callLLMWithStreamTools.js";
 import { createStreamToolsArraySchema } from "./jsonSchema.js";
 import { StreamTool } from "./streamTool.js";
 
+// TODO: remove or implement
+
 export function streamToolAsTool<T extends StreamTool<any>>(streamTool: T) {
   return tool({
     parameters: jsonSchema(streamTool.parameters, {
@@ -15,10 +17,10 @@ export function streamToolAsTool<T extends StreamTool<any>>(streamTool: T) {
       },
     }),
     execute: async (value) => {
-      console.log("execute", value)
+      console.log("execute", value);
       // TODO
-    }
-  })
+    },
+  });
 }
 
 export function streamToolsAsTool<T extends StreamTool<any>[]>(streamTools: T) {
@@ -32,11 +34,11 @@ export function streamToolsAsTool<T extends StreamTool<any>[]>(streamTools: T) {
           return { success: false, error: new Error(stream.reason) };
         }
         return { success: true, value: stream.value };
-      }
+      },
     }),
     execute: async (value) => {
       // TODO
-      console.log("execute", value)
-    }
-  })
+      console.log("execute", value);
+    },
+  });
 }

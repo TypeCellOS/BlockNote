@@ -3494,9 +3494,6 @@ importers:
       json-diff-kit:
         specifier: ^1.0.29
         version: 1.0.31
-      json-schema:
-        specifier: ^0.4.0
-        version: 0.4.0
       lodash.isequal:
         specifier: ^4.5.0
         version: 4.5.0
@@ -3549,6 +3546,9 @@ importers:
       '@types/json-diff':
         specifier: ^1.0.3
         version: 1.0.3
+      '@types/json-schema':
+        specifier: ^7.0.15
+        version: 7.0.15
       '@types/lodash.isequal':
         specifier: ^4.5.8
         version: 4.5.8
