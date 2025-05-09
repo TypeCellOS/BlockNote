@@ -73,9 +73,9 @@ describe("Error handling", () => {
             headers: {
               "Content-Type": "application/json",
             },
-          }
+          },
         );
-      })
+      }),
     );
 
     const editor = BlockNoteEditor.create({
@@ -98,7 +98,7 @@ describe("Error handling", () => {
         model: openai,
         maxRetries: 0,
       });
-      await result.apply();
+      await result.execute();
     } catch (error: any) {
       errorThrown = true;
       caughtError = error;
@@ -108,7 +108,7 @@ describe("Error handling", () => {
     expect(errorThrown).toBe(true);
     expect(caughtError).toBeDefined();
     expect(caughtError.message || caughtError.toString()).toContain(
-      "Rate limit exceeded, please try again later"
+      "Rate limit exceeded, please try again later",
     );
   });
 });
