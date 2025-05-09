@@ -44,10 +44,7 @@
                 },
                 {
                   "styles": {},
-                  "text": "
-        
-Name: [Company Representative]
-Title: Chief Executive Officer",
+                  "text": "Name: [Company Representative]Title: Chief Executive Officer",
                   "type": "text",
                 },
               ],

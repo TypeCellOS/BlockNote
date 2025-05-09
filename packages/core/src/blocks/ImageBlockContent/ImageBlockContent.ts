@@ -89,6 +89,11 @@ export const imageParse = (
   element: HTMLElement
 ): Partial<Props<typeof imageBlockConfig.propSchema>> | undefined => {
   if (element.tagName === "IMG") {
+    // Ignore if parent figure has already been parsed.
+    if (element.closest("figure")) {
+      return undefined;
+    }
+
     return parseImageElement(element as HTMLImageElement);
   }
 

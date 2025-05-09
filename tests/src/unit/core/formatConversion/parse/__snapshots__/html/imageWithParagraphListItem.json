@@ -1,0 +1,63 @@
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": undefined,
+        "id": "2",
+        "props": {
+          "backgroundColor": "default",
+          "caption": "",
+          "name": "",
+          "previewWidth": 512,
+          "showPreview": true,
+          "textAlignment": "left",
+          "url": "http://localhost:3000/exampleURL",
+        },
+        "type": "image",
+      },
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Bullet List Item",
+            "type": "text",
+          },
+        ],
+        "id": "3",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Bullet List Item",
+        "type": "text",
+      },
+    ],
+    "id": "4",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+]

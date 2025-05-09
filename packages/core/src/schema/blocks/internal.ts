@@ -199,7 +199,6 @@ export function wrapInBlockStructure<
       "bn-inline-content",
       element.contentDOM.className
     );
-    element.contentDOM.setAttribute("data-editable", "");
   }
 
   return {
