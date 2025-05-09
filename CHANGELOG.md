@@ -1,3 +1,33 @@
+## 0.30.0 (2025-05-09)
+
+### 🚀 Features
+
+- expose `editor.prosemirrorState` again ([#1615](https://github.com/TypeCellOS/BlockNote/pull/1615))
+- add `undo` and `redo` methods to editor API ([#1592](https://github.com/TypeCellOS/BlockNote/pull/1592))
+- new auth & payment system ([#1617](https://github.com/TypeCellOS/BlockNote/pull/1617))
+- re-implement Y.js collaboration as BlockNote plugins ([#1638](https://github.com/TypeCellOS/BlockNote/pull/1638))
+- **file:** `previewWidth` prop now defaults to `undefined` ([#1664](https://github.com/TypeCellOS/BlockNote/pull/1664))
+- **locales:** add zh-TW i18n ([#1668](https://github.com/TypeCellOS/BlockNote/pull/1668))
+
+### 🩹 Fixes
+
+- Formatting toolbar regression ([#1630](https://github.com/TypeCellOS/BlockNote/pull/1630))
+- provide `blockId` to `uploadFile` in UploadTab ([#1641](https://github.com/TypeCellOS/BlockNote/pull/1641))
+- do not close the menu on content/selection change ([#1644](https://github.com/TypeCellOS/BlockNote/pull/1644))
+- keep file panel open during collaboration ([#1646](https://github.com/TypeCellOS/BlockNote/pull/1646))
+- force pasting plain text into code block ([#1663](https://github.com/TypeCellOS/BlockNote/pull/1663))
+- updating HTML parsing rules to account for `prosemirror-model@1.25.1` ([#1661](https://github.com/TypeCellOS/BlockNote/pull/1661))
+- **code-block:** handle unknown languages better ([#1626](https://github.com/TypeCellOS/BlockNote/pull/1626))
+- **locales:** add slovak i18n ([#1649](https://github.com/TypeCellOS/BlockNote/pull/1649))
+
+### ❤️ Thank You
+
+- l0st0 @l0st0
+- Lawrence Lin @linyiru
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Quentin Nativel
+
 ## 0.29.1 (2025-04-17)
 
 ### 🩹 Fixes
