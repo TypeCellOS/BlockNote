@@ -1,0 +1,47 @@
+.bn-combobox {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+div:not(.bn-popover-content) > .bn-combobox-input,
+div:not(.bn-popover-content) > .bn-combobox-items:not(:empty) {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+  color: var(--bn-colors-menu-text);
+  gap: 4px;
+  min-width: 145px;
+  padding: 2px;
+}
+
+.bn-combobox-items {
+  max-width: 50%;
+}
+
+/* Mantine (TODO) */
+/*.bn-toolbar .mantine-Button-root.bn-show-prompt-button,*/
+/*.bn-toolbar .mantine-Button-root.bn-show-prompt-button:hover {*/
+/*  color: rgba(154, 56, 173, 0.5);*/
+/*}*/
+
+div[data-type="modification"] {
+  display: inline;
+}
+
+ins,
+[data-type="modification"] {
+  background: rgba(24, 122, 220, 0.1);
+  border-bottom: 2px solid rgba(24, 122, 220, 0.1);
+  color: rgb(20, 95, 170);
+  text-decoration: none;
+}
+
+del,
+[DISABLED-data-node-deletion] {
+  color: rgba(100, 90, 75, 0.3);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}

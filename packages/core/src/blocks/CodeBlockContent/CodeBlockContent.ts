@@ -1,15 +1,15 @@
+import type { HighlighterGeneric } from "@shikijs/types";
 import { InputRule, isTextSelection } from "@tiptap/core";
 import { TextSelection } from "@tiptap/pm/state";
-import { createHighlightPlugin, Parser } from "prosemirror-highlight";
+import { Parser, createHighlightPlugin } from "prosemirror-highlight";
 import { createParser } from "prosemirror-highlight/shiki";
+import { BlockNoteEditor } from "../../index.js";
 import {
+  PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
-  PropSchema,
 } from "../../schema/index.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
-import type { HighlighterGeneric } from "@shikijs/types";
-import { BlockNoteEditor } from "../../index.js";
 
 export type CodeBlockOptions = {
   /**
@@ -150,7 +150,7 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
       },
       {
         tag: "pre",
-        contentElement: "code",
+        // contentElement: "code",
         preserveWhitespace: "full",
       },
     ];

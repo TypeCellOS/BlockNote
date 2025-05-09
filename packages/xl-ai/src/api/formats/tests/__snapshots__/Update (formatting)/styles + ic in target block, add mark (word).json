@@ -1,0 +1,158 @@
+{
+  "content": [
+    {
+      "content": [
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "ref1",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "text": "Hello, ",
+                  "type": "text",
+                },
+                {
+                  "marks": [
+                    {
+                      "attrs": {
+                        "id": null,
+                      },
+                      "type": "deletion",
+                    },
+                  ],
+                  "text": "world!",
+                  "type": "text",
+                },
+                {
+                  "marks": [
+                    {
+                      "attrs": {
+                        "id": null,
+                      },
+                      "type": "insertion",
+                    },
+                    {
+                      "type": "bold",
+                    },
+                  ],
+                  "text": "world!",
+                  "type": "text",
+                },
+              ],
+              "type": "paragraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "ref2",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "text": "Hello, ",
+                  "type": "text",
+                },
+                {
+                  "attrs": {
+                    "user": "John Doe",
+                  },
+                  "type": "mention",
+                },
+                {
+                  "text": "! How ",
+                  "type": "text",
+                },
+                {
+                  "marks": [
+                    {
+                      "type": "bold",
+                    },
+                  ],
+                  "text": "are you doing? ",
+                  "type": "text",
+                },
+                {
+                  "marks": [
+                    {
+                      "attrs": {
+                        "stringValue": "blue",
+                      },
+                      "type": "textColor",
+                    },
+                  ],
+                  "text": "I'm feeling blue!",
+                  "type": "text",
+                },
+              ],
+              "type": "paragraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "ref3",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "text": "Hello, world! ",
+                  "type": "text",
+                },
+                {
+                  "marks": [
+                    {
+                      "type": "bold",
+                    },
+                  ],
+                  "text": "Bold text. ",
+                  "type": "text",
+                },
+                {
+                  "marks": [
+                    {
+                      "attrs": {
+                        "class": null,
+                        "href": "https://www.google.com",
+                        "rel": "noopener noreferrer nofollow",
+                        "target": "_blank",
+                      },
+                      "type": "link",
+                    },
+                  ],
+                  "text": "Link.",
+                  "type": "text",
+                },
+              ],
+              "type": "paragraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "doc",
+}

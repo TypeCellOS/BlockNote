@@ -25,7 +25,7 @@ export class FormattingToolbarView implements PluginView {
     state: EditorState;
     from: number;
     to: number;
-  }) => boolean = ({ state, from, to }) => {
+  }) => boolean = ({ view, state, from, to }) => {
     const { doc, selection } = state;
     const { empty } = selection;
 
@@ -43,7 +43,15 @@ export class FormattingToolbarView implements PluginView {
       return false;
     }
 
-    return !(empty || isEmptyTextBlock);
+    if (empty || isEmptyTextBlock) {
+      return false;
+    }
+
+    if (!view.hasFocus() && view.editable) {
+      // editable editors must have focus for the toolbar to show
+      return false;
+    }
+    return true;
   };
 
   constructor(

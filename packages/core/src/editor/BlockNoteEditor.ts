@@ -93,6 +93,7 @@ import {
 import { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
 
+import { redo, undo } from "@tiptap/pm/history";
 import {
   TextSelection,
   type Command,
@@ -101,11 +102,15 @@ import {
 } from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
 import { EditorView } from "prosemirror-view";
-import { undoCommand, redoCommand, ySyncPluginKey } from "y-prosemirror";
-import { undo, redo } from "@tiptap/pm/history";
+import { redoCommand, undoCommand, ySyncPluginKey } from "y-prosemirror";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
-import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
+import {
+  docToBlocks,
+  getDocumentWithSelectionMarkers,
+  getSelectedBlocksWithSelectionMarkers,
+  prosemirrorSliceToSlicedBlocks,
+} from "../api/nodeConversions/nodeToBlock.js";
 import {
   BlocksChanged,
   getBlocksChangedByTransaction,
@@ -113,20 +118,31 @@ import {
 import { nestedListsToBlockNoteStructure } from "../api/parsers/html/util/nestedLists.js";
 import { CodeBlockOptions } from "../blocks/CodeBlockContent/CodeBlockContent.js";
 import type { ThreadStore, User } from "../comments/index.js";
+import { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
 import "../style.css";
 import { EventEmitter } from "../util/EventEmitter.js";
-import { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
+import { BlockNoteExtension } from "./BlockNoteExtension.js";
 
+/**
+ * A factory function that returns a BlockNoteExtension
+ * This is useful so we can create extensions that require an editor instance
+ * in the constructor
+ */
 export type BlockNoteExtensionFactory = (
   editor: BlockNoteEditor<any, any, any>,
 ) => BlockNoteExtension;
 
-export type BlockNoteExtension =
+/**
+ * We support Tiptap extensions and BlockNoteExtension based extensions
+ */
+export type SupportedExtension =
   | AnyExtension
   | {
-      plugin: Plugin;
+      plugin: Plugin; // TODO: deprecate this format and use BlockNoteExtension instead
+      plugins?: Plugin[];
       priority?: number;
-    };
+    }
+  | BlockNoteExtension;
 
 export type BlockCache<
   BSchema extends BlockSchema = any,
@@ -404,7 +420,7 @@ export class BlockNoteEditor<
   /**
    * extensions that are added to the editor, can be tiptap extensions or prosemirror plugins
    */
-  public readonly extensions: Record<string, BlockNoteExtension> = {};
+  public readonly extensions: Record<string, SupportedExtension> = {};
 
   /**
    * Boolean indicating whether the editor is in headless mode.
@@ -691,7 +707,16 @@ export class BlockNoteEditor<
           return ext;
         }
 
-        if (!ext.plugin) {
+        if (ext instanceof BlockNoteExtension && !ext.plugin && !ext.plugins) {
+          return undefined;
+        }
+
+        const plugins = [
+          ...(ext.plugin ? [ext.plugin] : []),
+          ...(ext.plugins || []),
+        ];
+
+        if (!plugins.length) {
           throw new Error(
             "Extension should either be a TipTap extension or a ProseMirror plugin in a plugin property",
           );
@@ -701,10 +726,11 @@ export class BlockNoteEditor<
         return Extension.create({
           name: key,
           priority: ext.priority,
-          addProseMirrorPlugins: () => [ext.plugin],
+          addProseMirrorPlugins: () => plugins,
         });
       }),
-    ];
+    ].filter((ext): ext is Extension => ext !== undefined);
+
     const tiptapOptions: BlockNoteTipTapEditorOptions = {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
@@ -865,6 +891,26 @@ export class BlockNoteEditor<
     }
   }
 
+  // TO DISCUSS
+  /**
+   * Shorthand to get a typed extension from the editor, by
+   * just passing in the extension class.
+   *
+   * @param ext - The extension class to get
+   * @param key - optional, the key of the extension in the extensions object (defaults to the extension name)
+   * @returns The extension instance
+   */
+  public extension<T extends BlockNoteExtension>(
+    ext: { new (...args: any[]): T } & typeof BlockNoteExtension,
+    key = ext.name()
+  ): T {
+    const extension = this.extensions[key] as T;
+    if (!extension) {
+      throw new Error(`Extension ${key} not found`);
+    }
+    return extension;
+  }
+
   /**
    * Mount the editor to a parent DOM element. Call mount(undefined) to clean up
    *
@@ -946,15 +992,10 @@ export class BlockNoteEditor<
    */
   public get document(): Block<BSchema, ISchema, SSchema>[] {
     return this.transact((tr) => {
-      const blocks: Block<BSchema, ISchema, SSchema>[] = [];
-
-      tr.doc.firstChild!.descendants((node) => {
-        blocks.push(nodeToBlock(node, this.pmSchema));
-
-        return false;
-      });
-
-      return blocks;
+      return docToBlocks(
+        tr.doc,
+        this.pmSchema
+      );
     });
   }
 
@@ -1098,6 +1139,138 @@ export class BlockNoteEditor<
     );
   }
 
+  public getDocumentWithSelectionMarkers() {
+    return getDocumentWithSelectionMarkers(
+      this.prosemirrorState,
+      this.prosemirrorState.selection.from,
+      this.prosemirrorState.selection.to,
+      this.pmSchema,
+    );
+  }
+
+  // TODO: what about node selections?
+  public getSelectedBlocksWithSelectionMarkers() {
+    const start = this.prosemirrorState.selection.$from;
+    const end = this.prosemirrorState.selection.$to;
+
+    return getSelectedBlocksWithSelectionMarkers(
+      this.prosemirrorState,
+      start.pos,
+      end.pos,
+      this.pmSchema
+    );
+  }
+
+  // TODO
+  // public updateSelection(blocks: Block<BSchema, ISchema, SSchema>[]) {
+  //   let start = this.prosemirrorState.selection.$from;
+  //   let end = this.prosemirrorState.selection.$to;
+
+  //   // the selection moves below are used to make sure `prosemirrorSliceToSlicedBlocks` returns
+  //   // the correct information about whether content is cut at the start or end of a block
+  //   // TODO: might make more sense to move the logic there
+
+  //   // if the end is at the end of a node (|</span></p>) move it forward so we include all closing tags (</span></p>|)
+  //   while (end.parentOffset >= end.parent.nodeSize - 2 && end.depth > 0) {
+  //     end = this.prosemirrorState.doc.resolve(end.pos + 1);
+  //   }
+
+  //   // if the end is at the start of an empty node (</span></p><p>|) move it backwards so we drop empty start tags (</span></p>|)
+  //   while (end.parentOffset === 0 && end.depth > 0) {
+  //     end = this.prosemirrorState.doc.resolve(end.pos - 1);
+  //   }
+
+  //   // if the start is at the start of a node (<p><span>|) move it backwards so we include all open tags (|<p><span>)
+  //   while (start.parentOffset === 0 && start.depth > 0) {
+  //     start = this.prosemirrorState.doc.resolve(start.pos - 1);
+  //   }
+
+  //   // if the start is at the end of a node (|</p><p><span>|) move it forwards so we drop all closing tags (|<p><span>)
+  //   while (start.parentOffset >= start.parent.nodeSize - 2 && start.depth > 0) {
+  //     start = this.prosemirrorState.doc.resolve(start.pos + 1);
+  //   }
+
+  //   // const node = blockto(blocks, this.schema.blockSchema, this.schema.inlineContentSchema, this.schema.styleSchema);
+  //   // this.prosemirrorState.tr.replaceWith(start.pos, end.pos, blocks);
+  //   //   this.prosemirrorState.doc.slice(start.pos, end.pos, true),
+  //   //   this.schema.blockSchema,
+  //   //   this.schema.inlineContentSchema,
+  //   //   this.schema.styleSchema,
+  //   //   this.blockCache
+  //   // );
+  // }
+
+  // TODO: fix image node selection
+  public getSelection2() {
+    let start = this.prosemirrorState.selection.$from;
+    let end = this.prosemirrorState.selection.$to;
+
+    // the selection moves below are used to make sure `prosemirrorSliceToSlicedBlocks` returns
+    // the correct information about whether content is cut at the start or end of a block
+    // TODO: might make more sense to move the logic there
+
+    // if the end is at the end of a node (|</span></p>) move it forward so we include all closing tags (</span></p>|)
+    while (end.parentOffset >= end.parent.nodeSize - 2 && end.depth > 0) {
+      end = this.prosemirrorState.doc.resolve(end.pos + 1);
+    }
+
+    // if the end is at the start of an empty node (</span></p><p>|) move it backwards so we drop empty start tags (</span></p>|)
+    while (end.parentOffset === 0 && end.depth > 0) {
+      end = this.prosemirrorState.doc.resolve(end.pos - 1);
+    }
+
+    // if the start is at the start of a node (<p><span>|) move it backwards so we include all open tags (|<p><span>)
+    while (start.parentOffset === 0 && start.depth > 0) {
+      start = this.prosemirrorState.doc.resolve(start.pos - 1);
+    }
+
+    // if the start is at the end of a node (|</p><p><span>|) move it forwards so we drop all closing tags (|<p><span>)
+    while (start.parentOffset >= start.parent.nodeSize - 2 && start.depth > 0) {
+      start = this.prosemirrorState.doc.resolve(start.pos + 1);
+    }
+
+    const selectionInfo = prosemirrorSliceToSlicedBlocks(
+      this.prosemirrorState.doc.slice(start.pos, end.pos, true),
+      this.pmSchema
+    );
+
+    return {
+      _meta: {
+        startPos: start.pos,
+        endPos: end.pos,
+      },
+      ...selectionInfo,
+      // // TODO: just make a updateSelectedBlock() method or sth
+      // updateBlock: (
+      //   blockToUpdate: BlockIdentifier,
+      //   block: PartialBlock<BSchema, ISchema, SSchema>
+      // ) => {
+      //   // TODO: pass through position mapper
+      //   let replaceFromPos: number | undefined;
+      //   let replaceToPos: number | undefined;
+
+      //   if (selectionInfo.blockCutAtStart === selectionInfo.blocks[0].id) {
+      //     replaceFromPos = start.pos;
+      //   }
+
+      //   if (
+      //     selectionInfo.blockCutAtEnd ===
+      //     selectionInfo.blocks[selectionInfo.blocks.length - 1].id
+      //   ) {
+      //     replaceToPos = end.pos;
+      //   }
+
+      //   return updateBlock(
+      //     this,
+      //     blockToUpdate,
+      //     block,
+      //     replaceFromPos,
+      //     replaceToPos
+      //   );
+      // },
+    };
+  }
+
   /**
    * Gets a snapshot of the current selection.
    */
@@ -1112,6 +1285,14 @@ export class BlockNoteEditor<
    */
   public setSelection(startBlock: BlockIdentifier, endBlock: BlockIdentifier) {
     return this.transact((tr) => setSelection(tr, startBlock, endBlock));
+  }
+
+  public clearSelection() {
+    this.transact((tr) =>
+      tr.setSelection(
+        TextSelection.near(this.prosemirrorState.doc.resolve(0))
+      )
+    );
   }
 
   /**
@@ -1589,8 +1770,8 @@ export class BlockNoteEditor<
     if (!this.prosemirrorView) {
       return undefined;
     }
-    const state = this.prosemirrorView?.state;
-    const { selection } = state;
+
+    const { selection } = this.prosemirrorState;
 
     // support for CellSelections
     const { ranges } = selection;

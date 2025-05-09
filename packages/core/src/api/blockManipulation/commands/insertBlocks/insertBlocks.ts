@@ -1,5 +1,7 @@
 import { Fragment, Slice } from "prosemirror-model";
 
+import type { Transaction } from "prosemirror-state";
+import { ReplaceStep } from "prosemirror-transform";
 import { Block, PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import {
   BlockIdentifier,
@@ -10,8 +12,6 @@ import {
 import { blockToNode } from "../../../nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../../nodeUtil.js";
-import { ReplaceStep } from "prosemirror-transform";
-import type { Transaction } from "prosemirror-state";
 import { getPmSchema } from "../../../pmUtil.js";
 
 export function insertBlocks<

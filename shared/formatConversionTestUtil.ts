@@ -1,3 +1,5 @@
+// TODO: remove duplicate file
+
 import {
   Block,
   BlockNoteSchema,
@@ -17,7 +19,7 @@ import {
 } from "@blocknote/core";
 
 function textShorthandToStyledText(
-  content: string | StyledText<any>[] = ""
+  content: string | StyledText<any>[] = "",
 ): StyledText<any>[] {
   if (typeof content === "string") {
     return [
@@ -36,7 +38,7 @@ function partialContentToInlineContent(
     | PartialInlineContent<any, any>
     | PartialTableCell<any, any>
     | TableContent<any>
-    | undefined
+    | undefined,
 ):
   | InlineContent<any, any>[]
   | TableContent<any>
@@ -73,12 +75,22 @@ function partialContentToInlineContent(
       columnWidths: content.columnWidths,
       headerRows: content.headerRows,
       headerCols: content.headerCols,
-      rows: content.rows.map((row) => ({
-        ...row,
-        cells: row.cells.map(
-          (cell) => partialContentToInlineContent(cell) as any
-        ),
-      })),
+      rows: content.rows.map((row) => {
+        const cells: any[] = row.cells.map((cell) => {
+          if (!("type" in cell) || cell.type !== "tableCell") {
+            return partialContentToInlineContent({
+              type: "tableCell",
+              content: cell as any,
+            });
+          }
+          return partialContentToInlineContent(cell);
+        });
+
+        return {
+          ...row,
+          cells,
+        };
+      }),
     };
   } else if (content?.type === "tableCell") {
     return {
@@ -100,23 +112,23 @@ function partialContentToInlineContent(
 export function partialBlocksToBlocksForTesting<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   schema: BlockNoteSchema<BSchema, I, S>,
-  partialBlocks: Array<PartialBlock<NoInfer<BSchema>, NoInfer<I>, NoInfer<S>>>
+  partialBlocks: Array<PartialBlock<NoInfer<BSchema>, NoInfer<I>, NoInfer<S>>>,
 ): Array<Block<BSchema, I, S>> {
   return partialBlocks.map((partialBlock) =>
-    partialBlockToBlockForTesting(schema.blockSchema, partialBlock)
+    partialBlockToBlockForTesting(schema.blockSchema, partialBlock),
   );
 }
 
 export function partialBlockToBlockForTesting<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   schema: BSchema,
-  partialBlock: PartialBlock<BSchema, I, S>
+  partialBlock: PartialBlock<BSchema, I, S>,
 ): Block<BSchema, I, S> {
   const contentType: "inline" | "table" | "none" =
     schema[partialBlock.type!].content;
@@ -129,14 +141,14 @@ export function partialBlockToBlockForTesting<
       contentType === "inline"
         ? []
         : contentType === "table"
-        ? {
-            type: "tableContent",
-            columnWidths: undefined,
-            headerRows: undefined,
-            headerCols: undefined,
-            rows: [],
-          }
-        : (undefined as any),
+          ? {
+              type: "tableContent",
+              columnWidths: undefined,
+              headerRows: undefined,
+              headerCols: undefined,
+              rows: [],
+            }
+          : (undefined as any),
     children: [] as any,
     ...partialBlock,
   };
@@ -149,7 +161,7 @@ export function partialBlockToBlockForTesting<
       ) {
         (withDefaults.props as any)[propKey] = propValue.default;
       }
-    }
+    },
   );
 
   if (contentType === "inline") {

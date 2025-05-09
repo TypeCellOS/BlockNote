@@ -8,13 +8,13 @@ import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
+  BlockTypeSelectItem,
+  FormattingToolbar,
   FormattingToolbarController,
   SuggestionMenuController,
   blockTypeSelectItems,
   getDefaultReactSlashMenuItems,
   useCreateBlockNote,
-  BlockTypeSelectItem,
-  FormattingToolbar,
 } from "@blocknote/react";
 
 import { RiAlertFill } from "react-icons/ri";
@@ -35,6 +35,7 @@ const schema = BlockNoteSchema.create({
 const insertAlert = (editor: typeof schema.BlockNoteEditor) => ({
   title: "Alert",
   subtext: "Alert for emphasizing text",
+  key: "alert",
   onItemClick: () =>
     // If the block containing the text caret is empty, `insertOrUpdateBlock`
     // changes its type to the provided block. Otherwise, it inserts the new

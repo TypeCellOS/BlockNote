@@ -1,7 +1,8 @@
-import {Node} from "@tiptap/core";
+import { Node } from "@tiptap/core";
 
 export const Doc = Node.create({
-    name: "doc",
-    topNode: true,
-    content: "blockGroup",
+  name: "doc",
+  topNode: true,
+  content: "blockGroup",
+  marks: "insertion modification deletion",
 });

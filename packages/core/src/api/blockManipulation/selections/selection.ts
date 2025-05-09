@@ -24,6 +24,20 @@ export function getSelection<
   if (tr.selection.empty || "node" in tr.selection) {
     return undefined;
   }
+  
+  // TODO: this function is now the same as below;
+  // we should consolidate this? (pick the best one, clean tests, etc)
+  // return {
+  //   blocks: getBlocksBetween(
+  //     editor._tiptapEditor.state.selection.from,
+  //     editor._tiptapEditor.state.selection.to,
+  //     editor._tiptapEditor.state.doc,
+  //     editor.schema.blockSchema,
+  //     editor.schema.inlineContentSchema,
+  //     editor.schema.styleSchema,
+  //     editor.blockCache
+  //   ),
+  // };
 
   const $startBlockBeforePos = tr.doc.resolve(
     getNearestBlockPos(tr.doc, tr.selection.from).posBeforeNode
