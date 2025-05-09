@@ -44,6 +44,9 @@ Tippy popups that are appended to document.body directly
 .bn-default-styles h1,
 .bn-default-styles h2,
 .bn-default-styles h3,
+.bn-default-styles h4,
+.bn-default-styles h5,
+.bn-default-styles h6,
 .bn-default-styles li {
   margin: 0;
   padding: 0;
