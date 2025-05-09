@@ -59,6 +59,8 @@ export function getListItemContent(
   // This is a hacky workaround to not re-trigger list item parsing,
   // when we are looking to understand what the list item's content actually is, in terms of the schema.
   const clonedNodeDiv = document.createElement("div");
+  // Mark the `div` element as a `blockGroup` to make the parsing easier.
+  clonedNodeDiv.setAttribute("data-node-type", "blockGroup");
   // Clone all children of the `li` element into the new `div` element
   for (const child of Array.from(node.childNodes)) {
     clonedNodeDiv.appendChild(child.cloneNode(true));
