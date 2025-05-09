@@ -93,6 +93,7 @@ import {
 import { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
 
+import { redo, undo } from "@tiptap/pm/history";
 import {
   TextSelection,
   type Command,
@@ -101,8 +102,13 @@ import {
 } from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
 import { EditorView } from "prosemirror-view";
-import { undoCommand, redoCommand, ySyncPluginKey } from "y-prosemirror";
-import { undo, redo } from "@tiptap/pm/history";
+import {
+  redoCommand,
+  undoCommand,
+  yCursorPluginKey,
+  ySyncPluginKey,
+  yUndoPluginKey,
+} from "y-prosemirror";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
 import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
@@ -113,9 +119,11 @@ import {
 import { nestedListsToBlockNoteStructure } from "../api/parsers/html/util/nestedLists.js";
 import { CodeBlockOptions } from "../blocks/CodeBlockContent/CodeBlockContent.js";
 import type { ThreadStore, User } from "../comments/index.js";
+import { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
 import "../style.css";
 import { EventEmitter } from "../util/EventEmitter.js";
-import { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
+import { SyncPlugin } from "../extensions/Collaboration/SyncPlugin.js";
+import { UndoPlugin } from "../extensions/Collaboration/UndoPlugin.js";
 
 export type BlockNoteExtensionFactory = (
   editor: BlockNoteEditor<any, any, any>,
@@ -395,6 +403,7 @@ export class BlockNoteEditor<
   SSchema extends StyleSchema = DefaultStyleSchema,
 > extends EventEmitter<{
   create: void;
+  forked: boolean;
 }> {
   /**
    * The underlying prosemirror schema
@@ -473,7 +482,7 @@ export class BlockNoteEditor<
 
   private readonly showSelectionPlugin: ShowSelectionPlugin;
 
-  private readonly cursorPlugin: CursorPlugin;
+  private cursorPlugin: CursorPlugin;
 
   /**
    * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
@@ -931,6 +940,127 @@ export class BlockNoteEditor<
         this.onUploadEndCallbacks.splice(index, 1);
       }
     };
+  }
+
+  /**
+   * To find a fragment in another ydoc, we need to search for it.
+   */
+  private findTypeInOtherYdoc<T extends Y.AbstractType<any>>(
+    ytype: T,
+    otherYdoc: Y.Doc
+  ): T {
+    const ydoc = ytype.doc!;
+    if (ytype._item === null) {
+      /**
+       * If is a root type, we need to find the root key in the original ydoc
+       * and use it to get the type in the other ydoc.
+       */
+      const rootKey = Array.from(ydoc.share.keys()).find(
+        (key) => ydoc.share.get(key) === ytype
+      );
+      if (rootKey == null) {
+        throw new Error("type does not exist in other ydoc");
+      }
+      return otherYdoc.get(rootKey, ytype.constructor as new () => T) as T;
+    } else {
+      /**
+       * If it is a sub type, we use the item id to find the history type.
+       */
+      const ytypeItem = ytype._item;
+      const otherStructs =
+        otherYdoc.store.clients.get(ytypeItem.id.client) ?? [];
+      const itemIndex = Y.findIndexSS(otherStructs, ytypeItem.id.clock);
+      const otherItem = otherStructs[itemIndex] as Y.Item;
+      const otherContent = otherItem.content as Y.ContentType;
+      return otherContent.type as T;
+    }
+  }
+
+  /**
+   * Whether the editor is editing a forked document,
+   * preserving a reference to the original document and the forked document.
+   */
+  public get isForkedFromRemote() {
+    return this.forkedState !== undefined;
+  }
+
+  /**
+   * Stores whether the editor is editing a forked document,
+   * preserving a reference to the original document and the forked document.
+   */
+  private forkedState:
+    | {
+        originalFragment: Y.XmlFragment;
+        forkedFragment: Y.XmlFragment;
+      }
+    | undefined;
+
+  /**
+   * Fork the Y.js document from syncing to the remote,
+   * allowing modifications to the document without affecting the remote.
+   * These changes can later be rolled back or applied to the remote.
+   */
+  public forkYjsSync() {
+    if (this.forkedState) {
+      return;
+    }
+
+    const originalFragment = this.options.collaboration?.fragment;
+
+    if (!originalFragment) {
+      throw new Error("No fragment to fork from");
+    }
+
+    const doc = new Y.Doc();
+    // Copy the original document to a new Yjs document
+    Y.applyUpdate(doc, Y.encodeStateAsUpdate(originalFragment.doc!));
+
+    // Find the forked fragment in the new Yjs document
+    const forkedFragment = this.findTypeInOtherYdoc(originalFragment, doc);
+
+    this.forkedState = {
+      originalFragment,
+      forkedFragment,
+    };
+
+    // Need to reset all the yjs plugins
+    [yCursorPluginKey, yUndoPluginKey, ySyncPluginKey].forEach((key) => {
+      this._tiptapEditor.unregisterPlugin(key);
+    });
+    // Register them again, based on the new forked fragment
+    this._tiptapEditor.registerPlugin(new SyncPlugin(forkedFragment).plugin);
+    this._tiptapEditor.registerPlugin(new UndoPlugin().plugin);
+    // No need to register the cursor plugin again, it's a local fork
+    this.emit("forked", true);
+  }
+
+  /**
+   * Resume syncing the Y.js document to the remote
+   * If `keepChanges` is true, any changes that have been made to the forked document will be applied to the original document.
+   * Otherwise, the original document will be restored and the changes will be discarded.
+   */
+  public resumeYjsSync(keepChanges = false) {
+    if (!this.forkedState) {
+      return;
+    }
+    // Remove the forked fragment's plugins
+    this._tiptapEditor.unregisterPlugin(ySyncPluginKey);
+    this._tiptapEditor.unregisterPlugin(yUndoPluginKey);
+
+    const { originalFragment, forkedFragment } = this.forkedState!;
+    if (keepChanges) {
+      // Apply any changes that have been made to the fork, onto the original doc
+      const update = Y.encodeStateAsUpdate(forkedFragment.doc!);
+      Y.applyUpdate(originalFragment.doc!, update);
+    }
+    // Register the plugins again, based on the original fragment
+    this._tiptapEditor.registerPlugin(new SyncPlugin(originalFragment).plugin);
+    this.cursorPlugin = new CursorPlugin(this.options.collaboration!);
+    this._tiptapEditor.registerPlugin(this.cursorPlugin.plugin);
+    this._tiptapEditor.registerPlugin(new UndoPlugin().plugin);
+    // Reset the forked state
+    this.forkedState = undefined;
+    this.emit("forked", false);
   }
 
   /**

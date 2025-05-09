@@ -4,6 +4,8 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import YPartyKitProvider from "y-partykit/provider";
 import * as Y from "yjs";
+import { useEffect } from "react";
+import { useState } from "react";
 
 // Sets up Yjs document and PartyKit Yjs provider.
 const doc = new Y.Doc();
@@ -28,7 +30,36 @@ export default function App() {
       },
     },
   });
+  const [forked, setForked] = useState(false);
+  useEffect(() => {
+    editor.on("forked", setForked);
+  }, [editor]);
 
   // Renders the editor instance.
-  return <BlockNoteView editor={editor} />;
+  return (
+    <>
+      <button
+        onClick={() => {
+          editor.forkYjsSync();
+        }}>
+        Pause syncing
+      </button>
+      <button
+        onClick={() => {
+          editor.resumeYjsSync(true);
+        }}>
+        Play (accept changes)
+      </button>
+      <button
+        onClick={() => {
+          editor.resumeYjsSync(false);
+        }}>
+        Play (reject changes)
+      </button>
+      <div>
+        <p>Forked: {forked ? "Yes" : "No"}</p>
+      </div>
+      <BlockNoteView editor={editor} />
+    </>
+  );
 }
