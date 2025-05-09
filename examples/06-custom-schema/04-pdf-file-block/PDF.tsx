@@ -43,7 +43,8 @@ export const PDF = createReactBlockSpec(
         default: true,
       },
       previewWidth: {
-        default: 512,
+        default: undefined,
+        type: "number",
       },
     },
     content: "none",

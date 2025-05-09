@@ -37,7 +37,8 @@ export const imagePropSchema = {
   },
   // File preview width in px.
   previewWidth: {
-    default: 512,
+    default: undefined,
+    type: "number",
   },
 } satisfies PropSchema;
 
@@ -125,7 +126,9 @@ export const imageToExternalHTML = (
     image = document.createElement("img");
     image.src = block.props.url;
     image.alt = block.props.name || block.props.caption || "BlockNote image";
-    image.width = block.props.previewWidth;
+    if (block.props.previewWidth) {
+      image.width = block.props.previewWidth;
+    }
   } else {
     image = document.createElement("a");
     image.href = block.props.url;

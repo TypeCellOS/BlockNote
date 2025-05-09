@@ -146,7 +146,6 @@
       "backgroundColor": "default",
       "caption": "Image Caption",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "exampleURL",
