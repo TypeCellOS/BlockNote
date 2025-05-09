@@ -28,6 +28,17 @@ export function getListItemContent(
    */
   name: string
 ): Fragment {
+  /**
+   * To actually implement this algorithm, we need to leverage ProseMirror's "fitting" algorithm.
+   * Where, if content is parsed which doesn't fit into the current node, it will be moved into the parent node.
+   *
+   * This allows us to parse multiple pieces of content from within the list item (even though it normally would not match the list item's schema) and "throw" the excess content into the list item's children.
+   *
+   * The expected return value is a `Fragment` which contains the list item's content as the first element, and the children wrapped in a blockGroup node. Like so:
+   * ```
+   * Fragment<[Node<Text>, Node<BlockGroup<Node<BlockContainer<any>>>>]>
+   * ```
+   */
   const parser = DOMParser.fromSchema(schema);
 
   if (!(node instanceof HTMLElement)) {
@@ -44,49 +55,57 @@ export function getListItemContent(
     }
   }
 
-  // @nperez0111 can you explain why we can't use the original `li` element?
-  const nodeCopy = document.createElement("div");
-  nodeCopy.innerHTML = node.innerHTML;
+  // Move the `li` element's content into a new `div` element
+  // This is a hacky workaround to not re-trigger list item parsing,
+  // when we are looking to understand what the list item's content actually is, in terms of the schema.
+  const clonedNodeDiv = document.createElement("div");
+  // Clone all children of the `li` element into the new `div` element
+  for (const child of Array.from(node.childNodes)) {
+    clonedNodeDiv.appendChild(child.cloneNode(true));
+  }
 
-  // Parses children of the `li` element into individual `blockContainer` nodes
-  // within a `blockGroup` node.
-  const blockGroupNode = parser.parse(nodeCopy, {
+  // Parses children of the `li` element into a `blockGroup` with `blockContainer` node children
+  // This is the structure of list item children, so parsing into this structure allows for
+  // easy separation of list item content from child list item content.
+  const blockGroupNode = parser.parse(clonedNodeDiv, {
     topNode: schema.nodes.blockGroup.create(),
   });
 
-  const firstContentNode = blockGroupNode.firstChild?.firstChild;
+  // Structure above is `blockGroup<blockContainer<any>[]>`
+  // We want to extract the first `blockContainer` node's content, and see if it is a text block.
+  const listItemsFirstChild = blockGroupNode.firstChild?.firstChild;
 
-  if (firstContentNode?.isTextblock) {
-    // If the first node is a text block, we remove it, and insert its content
-    // into the `listItem` node. The remaining nodes in the `blockGroup` stay
-    // there, and the `blockGroup` node is appended to the `listItem`'s
-    // content. This will make ProseMirror lift the `blockGroup` node out and
-    // into the parent `blockContainer` node.
-    const listItemNode = schema.nodes[name].create(
-      {},
-      firstContentNode.content
-    );
-    // TODO: Get rid of the +4 here
-    const remainingNodes = blockGroupNode.content.cut(
-      firstContentNode.content.size + 4
-    );
-
-    if (!remainingNodes.size) {
-      // If the `blockGroup` node is empty after removing the first node, we
-      // can just return the `listItem` node's content.
-      return listItemNode.content;
-    }
-
-    // Otherwise, return the `listItem` node's content, and the `blockGroup`
-    // node appended to it.
-    debugger;
-    return listItemNode.content.addToEnd(blockGroupNode.copy(remainingNodes));
-  } else {
-    // If the first node is not a text block, we leave the `listItem` node
-    // empty. We just return the `blockGroup` node. Again, ProseMirror will
-    // lift it out and into the parent `blockContainer` node.
-    const result = Fragment.from(blockGroupNode);
-    debugger;
-    return result;
+  // If the first node is not a text block, then it's first child is not compatible with the list item node.
+  if (!listItemsFirstChild?.isTextblock) {
+    // So, we do not try inserting anything into the list item, and instead return anything we found as children for the list item.
+    return Fragment.from(blockGroupNode);
   }
+
+  // If it is a text block, then we know it only contains text content.
+  // So, we extract it, and insert its content into the `listItemNode`.
+  // The remaining nodes in the `blockGroup` stay in-place.
+  const listItemNode = schema.nodes[name].create(
+    {},
+    listItemsFirstChild.content
+  );
+
+  // We have `blockGroup<listItemsFirstChild, ...blockContainer<any>[]>`
+  // We want to extract out the rest of the nodes as `<...blockContainer<any>[]>`
+  const remainingListItemChildren = blockGroupNode.content.cut(
+    // +2 for the `blockGroup` node's start and end markers
+    listItemsFirstChild.nodeSize + 2
+  );
+  const hasRemainingListItemChildren = remainingListItemChildren.size > 0;
+
+  if (hasRemainingListItemChildren) {
+    // Copy the remaining list item children back into the `blockGroup` node.
+    // This will make it back into: `blockGroup<...blockContainer<any>[]>`
+    const listItemsChildren = blockGroupNode.copy(remainingListItemChildren);
+
+    // Return the `listItem` node's content, then add the parsed children after to be lifted out by ProseMirror "fitting" algorithm.
+    return listItemNode.content.addToEnd(listItemsChildren);
+  }
+
+  // Otherwise, just return the `listItem` node's content.
+  return listItemNode.content;
 }
