@@ -5,5 +5,6 @@
   "tags": ["Basic", "Blocks"],
   "dependencies": {
     "@blocknote/xl-multi-column": "latest"
-  }
+  },
+  "pro": true
 }
