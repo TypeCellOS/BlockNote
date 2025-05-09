@@ -1,0 +1,22 @@
+{
+  "title": "Docs",
+  "description": "The docs framework",
+  "icon": "Building2",
+  "root": true,
+  "pages": [
+    "---Introduction---",
+    "index",
+    "introduction",
+    "quickstart",
+    "---Editor---",
+    "editor-basics",
+    "editor-api",
+    "---Styling & Theming---",
+    "styling-theming",
+    "ui-components",
+    "---Advanced---",
+    "advanced",
+    "collaboration",
+    "custom-schemas"
+  ]
+}
