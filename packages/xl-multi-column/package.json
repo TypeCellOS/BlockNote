@@ -48,7 +48,8 @@
     "lint": "eslint src --max-warnings 0",
     "test": "vitest --run",
     "test-watch": "vitest watch",
-    "clean": "rimraf dist && rimraf types"
+    "clean": "rimraf dist && rimraf types",
+    "_prepare": "npm run build"
   },
   "dependencies": {
     "@blocknote/core": "0.29.1",
@@ -57,7 +58,7 @@
     "prosemirror-model": "^1.23.0",
     "prosemirror-state": "^1.4.3",
     "prosemirror-tables": "^1.3.7",
-    "prosemirror-transform": "^1.9.0",
+    "prosemirror-transform": "^1.10.4",
     "prosemirror-view": "^1.38.1",
     "react-icons": "^5.2.1"
   },

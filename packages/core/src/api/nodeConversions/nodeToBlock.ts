@@ -1,4 +1,4 @@
-import { Mark, Node, Schema } from "@tiptap/pm/model";
+import { Mark, Node, Schema, Slice } from "@tiptap/pm/model";
 
 import UniqueID from "../../extensions/UniqueID/UniqueID.js";
 import type {
@@ -13,17 +13,21 @@ import type {
   TableCell,
   TableContent,
 } from "../../schema/index.js";
-import { getBlockInfoWithManualOffset } from "../getBlockInfoFromPos.js";
+import {
+  getBlockInfoWithManualOffset,
+  getNearestBlockPos,
+} from "../getBlockInfoFromPos.js";
 
+import { EditorState, TextSelection, Transaction } from "prosemirror-state";
+import { ReplaceAroundStep, ReplaceStep } from "prosemirror-transform";
+import { getBlockInfo } from "../../api/getBlockInfoFromPos.js";
 import type { Block } from "../../blocks/defaultBlocks.js";
 import {
   isLinkInlineContent,
   isStyledTextInlineContent,
 } from "../../schema/inlineContent/types.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
-import { getBlockCache, getStyleSchema } from "../pmUtil.js";
-import { getInlineContentSchema } from "../pmUtil.js";
-import { getBlockSchema } from "../pmUtil.js";
+import { getBlockCache, getBlockSchema, getInlineContentSchema, getStyleSchema } from "../pmUtil.js";
 
 /**
  * Converts an internal (prosemirror) table node contentto a BlockNote Tablecontent
@@ -487,4 +491,354 @@ export function nodeToBlock<
   blockCache?.set(node, block);
 
   return block;
+}
+
+/**
+ * Convert a Prosemirror document to a BlockNote document (array of blocks)
+ */
+export function docToBlocks<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  doc: Node,
+  schema: Schema,
+  blockSchema: BSchema = getBlockSchema(schema) as BSchema,
+  inlineContentSchema: I = getInlineContentSchema(schema) as I,
+  styleSchema: S = getStyleSchema(schema) as S,
+  blockCache = getBlockCache(schema)
+) {
+  const blocks: Block<BSchema, I, S>[] = [];
+  doc.firstChild!.descendants((node) => {
+    blocks.push(
+      nodeToBlock(
+        node,
+        schema,
+        blockSchema,
+        inlineContentSchema,
+        styleSchema,
+        blockCache
+      )
+    );
+    return false;
+  });
+  return blocks;
+}
+
+export function selectionToInsertionEnd(tr: Transaction, startLen: number) {
+  const last = tr.steps.length - 1;
+
+  if (last < startLen) {
+    return;
+  }
+
+  const step = tr.steps[last];
+
+  if (!(step instanceof ReplaceStep || step instanceof ReplaceAroundStep)) {
+    return;
+  }
+
+  const map = tr.mapping.maps[last];
+  let end = 0;
+
+  map.forEach((_from, _to, _newFrom, newTo) => {
+    if (end === 0) {
+      end = newTo;
+    }
+  });
+
+  return end;
+}
+
+/**
+ * Create a transaction that adds selection markers to the document at the given positions.
+ *
+ * @param state - The editor state.
+ * @param from - The start position of the selection.
+ * @param to - The end position of the selection.
+ * @returns The transaction and the new end position.
+ */
+export function addSelectionMarkersTr(
+  state: EditorState,
+  from: number,
+  to: number
+) {
+  if (from >= to) {
+    throw new Error("from must be less than to");
+  }
+
+  // find a valid text position; otherwise prosemirror might create new nodes
+  const validTo = TextSelection.near(state.doc.resolve(to), -1).head;
+  const validFrom = TextSelection.near(state.doc.resolve(from), 1).head;
+
+  if (validFrom >= validTo) {
+    throw new Error("validFrom must be less than validTo");
+  }
+
+  let tr = state.tr.insertText("!$]", validTo, validTo);
+  let newEnd = selectionToInsertionEnd(tr, tr.steps.length - 1)!;
+
+  tr = tr.insertText("[$!", validFrom, validFrom);
+
+  newEnd = tr.mapping.maps[tr.mapping.maps.length - 1].map(newEnd);
+
+  if (!tr.docChanged || tr.steps.length !== 2) {
+    throw new Error(
+      "tr.docChanged is false or insertText was not applied. Was a valid textselection passed?"
+    );
+  }
+  return {
+    tr,
+    newEnd,
+  };
+}
+
+export function getDocumentWithSelectionMarkers<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  state: EditorState,
+  from: number,
+  to: number,
+  schema: Schema,
+  blockSchema: BSchema = getBlockSchema(schema) as BSchema,
+  inlineContentSchema: I = getInlineContentSchema(schema) as I,
+  styleSchema: S = getStyleSchema(schema) as S
+) {
+  const { tr } = addSelectionMarkersTr(state, from, to);
+  return docToBlocks(
+    tr.doc,
+    schema,
+    blockSchema,
+    inlineContentSchema,
+    styleSchema
+  );
+}
+
+/**
+ * Add selection markers to the document at the given positions and return the blocks that span the selection.
+ */
+export function getSelectedBlocksWithSelectionMarkers<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  state: EditorState,
+  from: number,
+  to: number,
+  schema: Schema,
+  blockSchema: BSchema = getBlockSchema(schema) as BSchema,
+  inlineContentSchema: I = getInlineContentSchema(schema) as I,
+  styleSchema: S = getStyleSchema(schema) as S
+) {
+  const { tr, newEnd } = addSelectionMarkersTr(state, from, to);
+
+  return getBlocksBetween(
+    from,
+    newEnd,
+    tr.doc,
+    schema,
+    blockSchema,
+    inlineContentSchema,
+    styleSchema
+  );
+}
+
+/**
+ * Returns all blocks between two positions in a document, but without automatically including parent blocks
+ */
+export function getBlocksBetween<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  start: number,
+  end: number,
+  doc: Node,
+  schema: Schema,
+  blockSchema: BSchema = getBlockSchema(schema) as BSchema,
+  inlineContentSchema: I = getInlineContentSchema(schema) as I,
+  styleSchema: S = getStyleSchema(schema) as S,
+  blockCache = getBlockCache(schema)
+) {
+  const startPosInfo = getNearestBlockPos(doc, start);
+  const endPosInfo = getNearestBlockPos(doc, end);
+  const startNode = getBlockInfo(startPosInfo);
+  const endNode = getBlockInfo(endPosInfo);
+
+  const slice = doc.slice(
+    startNode.bnBlock.beforePos,
+    endNode.bnBlock.afterPos,
+    true
+  );
+
+  const bnSelection = prosemirrorSliceToSlicedBlocks(
+    slice,
+    schema,
+    blockSchema,
+    inlineContentSchema,
+    styleSchema,
+    blockCache
+  );
+
+  if (bnSelection.blockCutAtEnd || bnSelection.blockCutAtStart) {
+    throw new Error("unexpected content cut in getBlocksBetween");
+  }
+
+  // we don't care about the slice metadata, because our slice is based on complete blocks, the
+  return bnSelection.blocks;
+}
+
+/**
+ *
+ * Parse a Prosemirror Slice into a BlockNote selection. The prosemirror schema looks like this:
+ *
+ * <blockGroup>
+ *   <blockContainer> (main content of block)
+ *       <p, heading, etc.>
+ *   <blockGroup> (only if blocks has children)
+ *     <blockContainer> (child block)
+ *       <p, heading, etc.>
+ *     </blockContainer>
+ *    <blockContainer> (child block 2)
+ *       <p, heading, etc.>
+ *     </blockContainer>
+ *   </blockContainer>
+ *  </blockGroup>
+ * </blockGroup>
+ *
+ */
+export function prosemirrorSliceToSlicedBlocks<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema
+>(
+  slice: Slice,
+  schema: Schema,
+  blockSchema: BSchema = getBlockSchema(schema) as BSchema,
+  inlineContentSchema: I = getInlineContentSchema(schema) as I,
+  styleSchema: S = getStyleSchema(schema) as S,
+  blockCache: WeakMap<Node, Block<BSchema, I, S>> = getBlockCache(schema)
+): {
+  blocks: Block<BSchema, I, S>[];
+  blockCutAtStart: string | undefined;
+  blockCutAtEnd: string | undefined;
+} {
+  // console.log(JSON.stringify(slice.toJSON()));
+  function processNode(
+    node: Node,
+    openStart: number,
+    openEnd: number
+  ): {
+    blocks: Block<BSchema, I, S>[];
+    blockCutAtStart: string | undefined;
+    blockCutAtEnd: string | undefined;
+  } {
+    if (node.type.name !== "blockGroup") {
+      throw new Error("unexpected");
+    }
+    const blocks: Block<BSchema, I, S>[] = [];
+    let blockCutAtStart: string | undefined;
+    let blockCutAtEnd: string | undefined;
+
+    node.forEach((blockContainer, _offset, index) => {
+      if (blockContainer.type.name !== "blockContainer") {
+        throw new Error("unexpected");
+      }
+      if (blockContainer.childCount === 0) {
+        return;
+      }
+      if (blockContainer.childCount === 0 || blockContainer.childCount > 2) {
+        throw new Error(
+          "unexpected, blockContainer.childCount: " + blockContainer.childCount
+        );
+      }
+
+      const isFirstBlock = index === 0;
+      const isLastBlock = index === node.childCount - 1;
+
+      if (blockContainer.firstChild!.type.name === "blockGroup") {
+        // this is the parent where a selection starts within one of its children,
+        // e.g.:
+        // A
+        // ├── B
+        // selection starts within B, then this blockContainer is A, but we don't care about A
+        // so let's descend into B and continue processing
+        if (!isFirstBlock) {
+          throw new Error("unexpected");
+        }
+        const ret = processNode(
+          blockContainer.firstChild!,
+          Math.max(0, openStart - 1),
+          isLastBlock ? Math.max(0, openEnd - 1) : 0
+        );
+        blockCutAtStart = ret.blockCutAtStart;
+        if (isLastBlock) {
+          blockCutAtEnd = ret.blockCutAtEnd;
+        }
+        blocks.push(...ret.blocks);
+        return;
+      }
+
+      const block = nodeToBlock(
+        blockContainer,
+        schema,
+        blockSchema,
+        inlineContentSchema,
+        styleSchema,
+        blockCache
+      );
+      const childGroup =
+        blockContainer.childCount > 1 ? blockContainer.child(1) : undefined;
+
+      let childBlocks: Block<BSchema, I, S>[] = [];
+      if (childGroup) {
+        const ret = processNode(
+          childGroup,
+          0, // TODO: can this be anything other than 0?
+          isLastBlock ? Math.max(0, openEnd - 1) : 0
+        );
+        childBlocks = ret.blocks;
+        if (isLastBlock) {
+          blockCutAtEnd = ret.blockCutAtEnd;
+        }
+      }
+
+      if (isLastBlock && !childGroup && openEnd > 1) {
+        blockCutAtEnd = block.id;
+      }
+
+      if (isFirstBlock && openStart > 1) {
+        blockCutAtStart = block.id;
+      }
+
+      blocks.push({
+        ...(block as any),
+        children: childBlocks,
+      });
+    });
+
+    return { blocks, blockCutAtStart, blockCutAtEnd };
+  }
+
+  if (slice.content.childCount === 0) {
+    return {
+      blocks: [],
+      blockCutAtStart: undefined,
+      blockCutAtEnd: undefined,
+    };
+  }
+
+  if (slice.content.childCount !== 1) {
+    throw new Error(
+      "slice must be a single block, did you forget includeParents=true?"
+    );
+  }
+
+  return processNode(
+    slice.content.firstChild!,
+    Math.max(slice.openStart - 1, 0),
+    Math.max(slice.openEnd - 1, 0)
+  );
 }

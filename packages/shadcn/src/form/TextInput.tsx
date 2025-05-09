@@ -12,13 +12,17 @@ export const TextInput = forwardRef<
     className,
     name,
     label,
+    variant,
     icon, // TODO: implement
     value,
     autoFocus,
     placeholder,
+    disabled,
     onKeyDown,
     onChange,
     onSubmit,
+    autoComplete,
+    rightSection, // TODO: add rightSection
     ...rest
   } = props;
 
@@ -33,10 +37,12 @@ export const TextInput = forwardRef<
         name={name}
         autoFocus={autoFocus}
         placeholder={placeholder}
+        disabled={disabled}
         value={value}
         onKeyDown={onKeyDown}
         onChange={onChange}
         onSubmit={onSubmit}
+        autoComplete={autoComplete}
         ref={ref}
       />
     );
@@ -53,6 +59,7 @@ export const TextInput = forwardRef<
         name={name}
         autoFocus={autoFocus}
         placeholder={placeholder}
+        disabled={disabled}
         value={value}
         onKeyDown={onKeyDown}
         onChange={onChange}

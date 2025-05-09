@@ -126,7 +126,7 @@ export function getBlockInfoWithManualOffset(
 ): BlockInfo {
   if (!node.type.isInGroup("bnBlock")) {
     throw new Error(
-      `Attempted to get bnBlock node at position but found node of different type ${node.type}`
+      `Attempted to get bnBlock node at position but found node of different type ${node.type.name}`
     );
   }
 

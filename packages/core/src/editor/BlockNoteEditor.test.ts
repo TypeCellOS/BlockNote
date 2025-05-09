@@ -75,6 +75,13 @@ it("adds id attribute when requested", async () => {
   );
 });
 
+it("updates block", () => {
+  const editor = BlockNoteEditor.create();
+  editor.updateBlock(editor.document[0], {
+    content: "hello",
+  });
+});
+
 it("block prop types", () => {
   // this test checks whether the block props are correctly typed in typescript
   const editor = BlockNoteEditor.create();

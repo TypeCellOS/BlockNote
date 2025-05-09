@@ -9,13 +9,14 @@ import * as Y from "yjs";
 import { createDropFileExtension } from "../api/clipboard/fromClipboard/fileDropExtension.js";
 import { createPasteFromClipboardExtension } from "../api/clipboard/fromClipboard/pasteExtension.js";
 import { createCopyToClipboardExtension } from "../api/clipboard/toClipboard/copyExtension.js";
+import type { ThreadStore } from "../comments/index.js";
+import { AgentCursorPlugin } from "../extensions/AgentCursor/AgentCursorPlugin.js";
 import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension.js";
 import { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
 import { UndoPlugin } from "../extensions/Collaboration/UndoPlugin.js";
 import { SyncPlugin } from "../extensions/Collaboration/SyncPlugin.js";
 import { CommentMark } from "../extensions/Comments/CommentMark.js";
 import { CommentsPlugin } from "../extensions/Comments/CommentsPlugin.js";
-import type { ThreadStore } from "../comments/index.js";
 import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin.js";
 import { FormattingToolbarProsemirrorPlugin } from "../extensions/FormattingToolbar/FormattingToolbarPlugin.js";
 import { HardBreak } from "../extensions/HardBreak/HardBreak.js";
@@ -31,6 +32,11 @@ import { PreviousBlockTypePlugin } from "../extensions/PreviousBlockType/Previou
 import { ShowSelectionPlugin } from "../extensions/ShowSelection/ShowSelectionPlugin.js";
 import { SideMenuProsemirrorPlugin } from "../extensions/SideMenu/SideMenuPlugin.js";
 import { SuggestionMenuProseMirrorPlugin } from "../extensions/SuggestionMenu/SuggestionPlugin.js";
+import {
+  SuggestionAddMark,
+  SuggestionDeleteMark,
+  SuggestionModificationMark,
+} from "../extensions/Suggestions/SuggestionMarks.js";
 import { TableHandlesProsemirrorPlugin } from "../extensions/TableHandles/TableHandlesPlugin.js";
 import { TextAlignmentExtension } from "../extensions/TextAlignment/TextAlignmentExtension.js";
 import { TextColorExtension } from "../extensions/TextColor/TextColorExtension.js";
@@ -49,7 +55,7 @@ import {
 import type {
   BlockNoteEditor,
   BlockNoteEditorOptions,
-  BlockNoteExtension,
+  SupportedExtension,
 } from "./BlockNoteEditor.js";
 
 type ExtensionOptions<
@@ -101,7 +107,7 @@ export const getBlockNoteExtensions = <
 >(
   opts: ExtensionOptions<BSchema, I, S>
 ) => {
-  const ret: Record<string, BlockNoteExtension> = {};
+  const ret: Record<string, SupportedExtension> = {};
   const tiptapExtensions = getTipTapExtensions(opts);
 
   for (const ext of tiptapExtensions) {
@@ -159,6 +165,8 @@ export const getBlockNoteExtensions = <
     );
   }
 
+  ret["agentCursor"] = new AgentCursorPlugin(opts.editor);
+
   const disableExtensions: string[] = opts.disableExtensions || [];
   for (const ext of disableExtensions) {
     delete ret[ext];
@@ -202,6 +210,9 @@ const getTipTapExtensions = <
     Text,
 
     // marks:
+    SuggestionAddMark,
+    SuggestionDeleteMark,
+    SuggestionModificationMark,
     Link.extend({
       inclusive: false,
     }).configure({

@@ -6,7 +6,7 @@ it("has good typing", () => {
   let menu = (
     // @ts-expect-error
     <SuggestionMenuController
-      getItems={async () => [{ name: "hello" }]}
+      getItems={async () => [{ key: "hello" }]}
       triggerCharacter="/"
     />
   );
@@ -16,6 +16,7 @@ it("has good typing", () => {
     <SuggestionMenuController
       getItems={async () => [
         {
+          key: "hello",
           title: "hello",
           onItemClick: () => {
             return;

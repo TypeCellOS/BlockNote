@@ -1,5 +1,9 @@
-import { Editor, EditorOptions, createDocument } from "@tiptap/core";
-import { Editor as TiptapEditor } from "@tiptap/core";
+import {
+  Editor,
+  EditorOptions,
+  Editor as TiptapEditor,
+  createDocument,
+} from "@tiptap/core";
 
 import { Node } from "@tiptap/pm/model";
 
@@ -26,7 +30,7 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
 
   public static create = (
     options: BlockNoteTipTapEditorOptions,
-    styleSchema: StyleSchema
+    styleSchema: StyleSchema,
   ) => {
     // because we separate the constructor from the creation of the view,
     // we need to patch setTimeout to prevent this code from having any effect:
@@ -48,7 +52,7 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
 
   protected constructor(
     options: BlockNoteTipTapEditorOptions,
-    styleSchema: StyleSchema
+    styleSchema: StyleSchema,
   ) {
     // possible fix for next.js server side rendering
     // const d = globalThis.document;
@@ -93,7 +97,7 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
 
     try {
       const pmNodes = options?.content.map((b) =>
-        blockToNode(b, this.schema, styleSchema).toJSON()
+        blockToNode(b, this.schema, styleSchema).toJSON(),
       );
       doc = createDocument(
         {
@@ -106,17 +110,17 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
           ],
         },
         this.schema,
-        this.options.parseOptions
+        this.options.parseOptions,
       );
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(
         "Error creating document from blocks passed as `initialContent`. Caused by exception: ",
-        e
+        e,
       );
       throw new Error(
         "Error creating document from blocks passed as `initialContent`:\n" +
-          +JSON.stringify(options.content)
+          +JSON.stringify(options.content),
       );
     }
 
@@ -141,6 +145,10 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
     if (!this.view) {
       // before view has been initialized
       this._state = this.state.apply(transaction);
+      this.emit("transaction", {
+        editor: this,
+        transaction,
+      });
       return;
     }
     // This is a verbatim copy of the default dispatch method, but with the following changes:
@@ -216,12 +224,25 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
     });
   }
 
+  // a helper method that can enable plugins before the view has been initialized
+  // currently only used for testing
+  forceEnablePlugins() {
+    if (this.view) {
+      throw new Error(
+        "forcePluginsEnabled called after view has been initialized",
+      );
+    }
+    this._state = this.state.reconfigure({
+      plugins: this.extensionManager.plugins,
+    });
+  }
+
   /**
    * Replace the default `createView` method with a custom one - which we call on mount
    */
   private createViewAlternative(
     blockNoteEditor: BlockNoteEditor<any, any, any>,
-    contentComponent?: any
+    contentComponent?: any,
   ) {
     (this as any).contentComponent = contentComponent;
 
@@ -244,7 +265,7 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
         state: this.state,
         markViews,
         nodeViews: this.extensionManager.nodeViews,
-      }
+      },
     );
 
     // `editor.view` is not yet available at this time.
@@ -263,7 +284,7 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
     this.commands.focus(
       this.options.autofocus ||
         this.options.element.getAttribute("data-bn-autofocus") === "true",
-      { scrollIntoView: false }
+      { scrollIntoView: false },
     );
     this.emit("create", { editor: this });
     this.isInitialized = true;
@@ -277,7 +298,7 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
   public mount = (
     blockNoteEditor: BlockNoteEditor<any, any, any>,
     element?: HTMLElement | null,
-    contentComponent?: any
+    contentComponent?: any,
   ) => {
     if (!element) {
       this.destroy();

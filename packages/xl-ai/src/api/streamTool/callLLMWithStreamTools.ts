@@ -1,0 +1,273 @@
+import {
+  CoreMessage,
+  GenerateObjectResult,
+  LanguageModel,
+  ObjectStreamPart,
+  StreamObjectResult,
+  generateObject,
+  jsonSchema,
+  streamObject,
+} from "ai";
+
+import { createStreamToolsArraySchema } from "./jsonSchema.js";
+
+import {
+  AsyncIterableStream,
+  createAsyncIterableStream,
+  createAsyncIterableStreamFromAsyncIterable,
+} from "../util/stream.js";
+import { filterNewOrUpdatedOperations } from "./filterNewOrUpdatedOperations.js";
+import {
+  preprocessOperationsNonStreaming,
+  preprocessOperationsStreaming,
+} from "./preprocess.js";
+import { InvalidOrOk, StreamTool, StreamToolCall } from "./streamTool.js";
+
+type LLMRequestOptionsInternal = {
+  model: LanguageModel;
+  messages: CoreMessage[];
+  maxRetries: number;
+};
+
+type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+
+export type LLMRequestOptions = Optional<
+  LLMRequestOptionsInternal,
+  "maxRetries"
+>;
+
+/**
+ * Result of an LLM call with stream tools
+ */
+export type OperationsResult<T extends StreamTool<any>[]> = {
+  /**
+   * Result of the underlying `streamObject` (AI SDK) call, or `undefined` if non-streaming mode
+   */
+  streamObjectResult: StreamObjectResult<any, any, any> | undefined;
+  /**
+   * Result of the underlying `generateObject` (AI SDK) call, or `undefined` if streaming mode
+   */
+  generateObjectResult: GenerateObjectResult<any> | undefined;
+  /**
+   * Stream of tool call operations, these are the operations the LLM "decided" to execute
+   *
+   * Calling this consumes the underlying streams
+   */
+  operationsSource: AsyncIterableStream<{
+    operation: StreamToolCall<T>;
+    isUpdateToPreviousOperation: boolean;
+    isPossiblyPartial: boolean;
+  }>;
+};
+
+export async function generateOperations<T extends StreamTool<any>[]>(
+  streamTools: T,
+  opts: LLMRequestOptions & {
+    _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]>;
+  }
+): Promise<OperationsResult<T>> {
+  const { _generateObjectOptions, ...rest } = opts;
+
+  if (
+    _generateObjectOptions &&
+    ("output" in _generateObjectOptions ||
+      "schema" in _generateObjectOptions ||
+      "mode" in _generateObjectOptions)
+  ) {
+    throw new Error(
+      "Cannot provide output or schema in _generateObjectOptions"
+    );
+  }
+
+  const schema = jsonSchema(createStreamToolsArraySchema(streamTools));
+
+  const options = {
+    // non-overridable options for streamObject
+    mode: "tool" as const,
+    output: "object" as const,
+    schema,
+
+    // configurable options for streamObject
+
+    // - optional, with defaults
+    maxRetries: 2,
+    //  - mandatory ones:
+    ...rest,
+
+    // extra options for streamObject
+    ...((_generateObjectOptions ?? {}) as any),
+  };
+
+  const ret = await generateObject<{ operations: any }>(options);
+
+  const stream = operationsToStream(ret.object);
+
+  if (stream.result === "invalid") {
+    throw new Error(stream.reason);
+  }
+
+  let _operationsSource: OperationsResult<T>["operationsSource"];
+
+  return {
+    streamObjectResult: undefined,
+    generateObjectResult: ret,
+    get operationsSource() {
+      if (!_operationsSource) {
+        _operationsSource = createAsyncIterableStreamFromAsyncIterable(
+          preprocessOperationsNonStreaming(stream.value, streamTools)
+        );
+      }
+      return _operationsSource;
+    },
+  };
+}
+
+export function operationsToStream<T extends StreamTool<any>[]>(
+  object: unknown
+): InvalidOrOk<
+  AsyncIterable<{
+    partialOperation: StreamToolCall<T>;
+    isUpdateToPreviousOperation: boolean;
+    isPossiblyPartial: boolean;
+  }>
+> {
+  if (
+    !object ||
+    typeof object !== "object" ||
+    !("operations" in object) ||
+    !Array.isArray(object.operations)
+  ) {
+    return {
+      result: "invalid",
+      reason: "No operations returned",
+    };
+  }
+  const operations = object.operations;
+  async function* singleChunkGenerator() {
+    for (const op of operations) {
+      // TODO: non-streaming might not need some steps
+      // in the executor
+      yield {
+        partialOperation: op,
+        isUpdateToPreviousOperation: false,
+        isPossiblyPartial: false,
+      };
+    }
+  }
+
+  return {
+    result: "ok",
+    value: singleChunkGenerator(),
+  };
+}
+
+export async function streamOperations<T extends StreamTool<any>[]>(
+  streamTools: T,
+  opts: LLMRequestOptions & {
+    _streamObjectOptions?: Partial<
+      Parameters<typeof streamObject<{ operations: any[] }>>[0]
+    >;
+  },
+  onStart: () => void = () => {
+    // noop
+  }
+): Promise<OperationsResult<T>> {
+  const { _streamObjectOptions, ...rest } = opts;
+
+  if (
+    _streamObjectOptions &&
+    ("output" in _streamObjectOptions ||
+      "schema" in _streamObjectOptions ||
+      "mode" in _streamObjectOptions)
+  ) {
+    throw new Error("Cannot provide output or schema in _streamObjectOptions");
+  }
+
+  const schema = jsonSchema(createStreamToolsArraySchema(streamTools));
+
+  const options = {
+    // non-overridable options for streamObject
+    mode: "tool" as const,
+    output: "object" as const,
+    schema,
+
+    // configurable options for streamObject
+
+    // - optional, with defaults
+    maxRetries: 2,
+    //  - mandatory ones:
+    ...rest,
+
+    // extra options for streamObject
+    ...((opts._streamObjectOptions ?? {}) as any),
+  };
+
+  const ret = streamObject<{ operations: any }>(options);
+
+  let _operationsSource: OperationsResult<T>["operationsSource"];
+
+  return {
+    streamObjectResult: ret,
+    generateObjectResult: undefined,
+    get operationsSource() {
+      if (!_operationsSource) {
+        _operationsSource = createAsyncIterableStreamFromAsyncIterable(
+          preprocessOperationsStreaming(
+            filterNewOrUpdatedOperations(
+              streamOnStartCallback(
+                partialObjectStreamThrowError(ret.fullStream),
+                onStart
+              )
+            ),
+            streamTools
+          )
+        );
+      }
+      return _operationsSource;
+    },
+  };
+}
+
+async function* streamOnStartCallback<T>(
+  stream: AsyncIterable<T>,
+  onStart: () => void
+): AsyncIterable<T> {
+  let first = true;
+  for await (const chunk of stream) {
+    if (first) {
+      onStart();
+      first = false;
+    }
+    yield chunk;
+  }
+}
+
+// adapted from https://github.com/vercel/ai/blob/5d4610634f119dc394d36adcba200a06f850209e/packages/ai/core/generate-object/stream-object.ts#L1041C7-L1066C1
+// change made to throw errors
+function partialObjectStreamThrowError<PARTIAL>(
+  stream: AsyncIterableStream<ObjectStreamPart<PARTIAL>>
+): AsyncIterableStream<PARTIAL> {
+  return createAsyncIterableStream(
+    stream.pipeThrough(
+      new TransformStream<ObjectStreamPart<PARTIAL>, PARTIAL>({
+        transform(chunk, controller) {
+          switch (chunk.type) {
+            case "object":
+              controller.enqueue(chunk.object);
+              break;
+
+            case "text-delta":
+            case "finish":
+              break;
+            case "error":
+              throw chunk.error;
+            default: {
+              const _exhaustiveCheck: never = chunk;
+              throw new Error(`Unsupported chunk type: ${_exhaustiveCheck}`);
+            }
+          }
+        },
+      })
+    )
+  );
+}

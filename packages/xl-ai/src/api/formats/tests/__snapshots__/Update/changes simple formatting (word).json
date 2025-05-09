@@ -1,0 +1,26 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {
+          "bold": true,
+        },
+        "text": "Hello",
+        "type": "text",
+      },
+      {
+        "styles": {},
+        "text": " world",
+        "type": "text",
+      },
+    ],
+    "id": "0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]

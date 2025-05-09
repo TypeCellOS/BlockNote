@@ -1,7 +1,5 @@
-import type { Dictionary } from "../../i18n/dictionary.js";
-
 export type DefaultSuggestionItem = {
-  key: keyof Omit<Dictionary["slash_menu"], "page_break">;
+  key: string;
   title: string;
   onItemClick: () => void;
   subtext?: string;

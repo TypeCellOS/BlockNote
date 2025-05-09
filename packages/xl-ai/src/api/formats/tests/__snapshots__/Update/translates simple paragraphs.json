@@ -1,0 +1,36 @@
+[
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Hallo",
+        "type": "text",
+      },
+    ],
+    "id": "0",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Welt",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+]
