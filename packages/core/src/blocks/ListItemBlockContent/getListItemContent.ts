@@ -18,7 +18,7 @@ export function getListItemContent(
   /**
    * The `li` element to parse.
    */
-  node: Node,
+  _node: Node,
   /**
    * The schema to use for parsing.
    */
@@ -41,10 +41,8 @@ export function getListItemContent(
    */
   const parser = DOMParser.fromSchema(schema);
 
-  if (!(node instanceof HTMLElement)) {
-    // TODO: This will be unnecessary in the future: https://github.com/ProseMirror/prosemirror-model/commit/166188d4f9db96eb86fb7de62e72049c86c9dd79
-    throw new Error("Node is not an HTMLElement");
-  }
+  // TODO: This will be unnecessary in the future: https://github.com/ProseMirror/prosemirror-model/commit/166188d4f9db96eb86fb7de62e72049c86c9dd79
+  const node = _node as HTMLElement;
 
   // Move the `li` element's content into a new `div` element
   // This is a hacky workaround to not re-trigger list item parsing,
