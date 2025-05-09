@@ -149,6 +149,15 @@ function areBlocksDifferentExcludingChildren<
   );
 }
 
+const blocksChangedMap = new WeakMap<
+  Transaction,
+  {
+    appendedTransactions: Transaction[];
+    blocksChanged: BlocksChanged<any, any, any>;
+  }
+>();
+const defaultAppendedTransactions: Transaction[] = [];
+
 /**
  * Get the blocks that were changed by a transaction.
  * @param transaction The transaction to get the changes from.
@@ -161,8 +170,15 @@ export function getBlocksChangedByTransaction<
   SSchema extends StyleSchema = DefaultStyleSchema
 >(
   transaction: Transaction,
-  appendedTransactions: Transaction[] = []
+  appendedTransactions: Transaction[] = defaultAppendedTransactions
 ): BlocksChanged<BSchema, ISchema, SSchema> {
+  if (
+    blocksChangedMap.has(transaction) &&
+    blocksChangedMap.get(transaction)!.appendedTransactions ===
+      appendedTransactions
+  ) {
+    return blocksChangedMap.get(transaction)!.blocksChanged;
+  }
   let source: BlockChangeSource = { type: "local" };
 
   if (transaction.getMeta("paste")) {
