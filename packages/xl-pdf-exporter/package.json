@@ -70,7 +70,6 @@
     "eslint": "^8.10.0",
     "jest-image-snapshot": "^6.4.0",
     "pdf-to-img": "^4.2.0",
-    "prettier": "^2.7.1",
     "react-element-to-jsx-string": "^15.0.0",
     "rollup-plugin-webpack-stats": "^0.2.2",
     "typescript": "^5.0.4",

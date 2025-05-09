@@ -1,20 +1,19 @@
+import { useSession } from "@/util/auth-client";
 import { CheckIcon } from "@heroicons/react/20/solid";
 import { track } from "@vercel/analytics";
 import classNames from "classnames";
 
 type Frequency = "month" | "year";
 
-type Tier = {
+export type Tier = {
   id: string;
   mostPopular?: boolean;
   title: string;
   description: string;
   price: Record<Frequency, number> | string;
   features: string[];
-} & ({ githubTierId: string } | { href: string });
-
-const gitHubSponsorBaseHref =
-  "https://github.com/sponsors/YousefED/sponsorships?sponsor=YousefED&tier_id=";
+  href?: string;
+};
 
 function TierTitle({ tier }: { tier: Tier }) {
   return (
@@ -22,7 +21,7 @@ function TierTitle({ tier }: { tier: Tier }) {
       id={tier.id}
       className={classNames(
         tier.mostPopular && "text-indigo-600",
-        "text-2xl font-semibold leading-8",
+        "text-3xl font-semibold leading-8",
       )}>
       {tier.title}
     </h3>
@@ -34,7 +33,7 @@ function TierPrice({ tier, frequency }: { tier: Tier; frequency: Frequency }) {
     <p className="text-md font-semibold text-[#00000080] dark:text-[#FFFFFFB2]">
       {typeof tier.price === "string"
         ? tier.price
-        : `$${tier.price[frequency]} per ${frequency}`}
+        : `$${tier.price[frequency]} / ${frequency}`}
     </p>
   );
 }
@@ -49,15 +48,29 @@ function TierHeader({ tier, frequency }: { tier: Tier; frequency: Frequency }) {
 }
 
 function TierDescription({ tier }: { tier: Tier }) {
-  return <p className="mt-4 text-sm leading-6 lg:h-24">{tier.description}</p>;
+  return <p className="text-md mt-4 leading-6 lg:h-24">{tier.description}</p>;
 }
 
 function TierCTAButton({ tier }: { tier: Tier }) {
+  const { data: session } = useSession();
+  let href = "/signup";
+  let text = "Sign up";
+
+  if (session) {
+    if (session.planType === "free") {
+      href = `/api/auth/checkout/${tier.id}`;
+      text = "Buy now";
+    } else {
+      href = "/api/auth/portal";
+      text =
+        session.planType === tier.id
+          ? "Manage subscription"
+          : "Update subscription";
+    }
+  }
   return (
     <a
-      href={
-        "href" in tier ? tier.href : gitHubSponsorBaseHref + tier.githubTierId
-      }
+      href={tier.href ?? href}
       aria-describedby={tier.id}
       className={classNames(
         tier.mostPopular
@@ -68,11 +81,7 @@ function TierCTAButton({ tier }: { tier: Tier }) {
       onClick={() => {
         track("Signup", { tier: tier.id });
       }}>
-      {tier.id === "tier-free"
-        ? "Get started"
-        : tier.id === "tier-enterprise"
-          ? "Get in touch"
-          : "Sign up"}
+      {tier.id === "enterprise" ? "Get in touch" : text}
     </a>
   );
 }
