@@ -379,16 +379,79 @@
           textAlign: 'left'
         }}
       >
-        <ListItem listMarker="1.">
+        <ListItem listMarker="10.">
           <TEXT>
             <TEXT style={{}}>
-              Numbered List Item
+              Numbered List Item starting at 10
             </TEXT>
           </TEXT>
         </ListItem>
       </VIEW>
     </React.Fragment>
     <React.Fragment key=".1:9">
+      <VIEW
+        style={{
+          alignItems: undefined,
+          backgroundColor: undefined,
+          color: undefined,
+          paddingVertical: 2.25,
+          textAlign: 'left'
+        }}
+      >
+        <ListItem listMarker="11.">
+          <TEXT>
+            <TEXT style={{}}>
+              Numbered List Item continuing from 10
+            </TEXT>
+          </TEXT>
+        </ListItem>
+      </VIEW>
+      <VIEW
+        style={{
+          marginLeft: 18
+        }}
+      >
+        <React.Fragment key=".0">
+          <VIEW
+            style={{
+              alignItems: undefined,
+              backgroundColor: undefined,
+              color: undefined,
+              paddingVertical: 2.25,
+              textAlign: 'left'
+            }}
+          >
+            <ListItem listMarker="1.">
+              <TEXT>
+                <TEXT style={{}}>
+                  Numbered List Item Nested 1
+                </TEXT>
+              </TEXT>
+            </ListItem>
+          </VIEW>
+        </React.Fragment>
+        <React.Fragment key=".1">
+          <VIEW
+            style={{
+              alignItems: undefined,
+              backgroundColor: undefined,
+              color: undefined,
+              paddingVertical: 2.25,
+              textAlign: 'left'
+            }}
+          >
+            <ListItem listMarker="2.">
+              <TEXT>
+                <TEXT style={{}}>
+                  Numbered List Item Nested 2
+                </TEXT>
+              </TEXT>
+            </ListItem>
+          </VIEW>
+        </React.Fragment>
+      </VIEW>
+    </React.Fragment>
+    <React.Fragment key=".1:a">
       <VIEW
         style={{
           alignItems: undefined,
@@ -407,7 +470,7 @@
         </ListItem>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:a">
+    <React.Fragment key=".1:b">
       <VIEW
         style={{
           alignItems: undefined,
@@ -509,7 +572,7 @@
         />
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:b">
+    <React.Fragment key=".1:c">
       <VIEW
         style={{
           alignItems: undefined,
@@ -544,7 +607,7 @@
         </VIEW>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:c">
+    <React.Fragment key=".1:d">
       <VIEW
         style={{
           alignItems: undefined,
@@ -572,7 +635,7 @@
         </VIEW>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:d">
+    <React.Fragment key=".1:e">
       <VIEW
         style={{
           alignItems: 'flex-end',
@@ -592,7 +655,7 @@
         </VIEW>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:e">
+    <React.Fragment key=".1:f">
       <VIEW
         style={{
           alignItems: undefined,
@@ -635,7 +698,7 @@
         </VIEW>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:f">
+    <React.Fragment key=".1:g">
       <VIEW
         style={{
           alignItems: undefined,
@@ -678,7 +741,7 @@
         </VIEW>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:g">
+    <React.Fragment key=".1:h">
       <VIEW
         style={{
           alignItems: undefined,
@@ -691,7 +754,7 @@
         <TEXT />
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:h">
+    <React.Fragment key=".1:i">
       <VIEW
         style={{
           alignItems: undefined,
@@ -734,7 +797,7 @@
         </VIEW>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:i">
+    <React.Fragment key=".1:j">
       <VIEW
         style={{
           alignItems: undefined,
@@ -755,7 +818,7 @@
         </TEXT>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:j">
+    <React.Fragment key=".1:k">
       <VIEW
         style={{
           alignItems: undefined,
@@ -787,7 +850,7 @@
         </TEXT>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:k">
+    <React.Fragment key=".1:l">
       <VIEW
         style={{
           alignItems: undefined,
@@ -891,7 +954,7 @@
         />
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:l">
+    <React.Fragment key=".1:m">
       <VIEW
         style={{
           alignItems: undefined,
