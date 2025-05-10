@@ -154,7 +154,10 @@ export class DOCXExporter<
       geistMonoFont instanceof Uint8Array
     ) {
       // conversion with Polyfill needed because docxjs requires Buffer
-      const Buffer = (await import("buffer")).default.Buffer;
+      // NOTE: the buffer/ import is intentional and as documented in
+      // the `buffer` package usage instructions
+      // https://github.com/feross/buffer?tab=readme-ov-file#usage
+      const Buffer = (await import("buffer/")).Buffer;
 
       if (interFont instanceof ArrayBuffer) {
         interFont = Buffer.from(interFont);
