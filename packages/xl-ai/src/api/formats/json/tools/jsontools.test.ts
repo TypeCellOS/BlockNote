@@ -1,14 +1,14 @@
-import {
-  BlockNoteEditor,
-  prosemirrorSliceToSlicedBlocks,
-} from "@blocknote/core";
-import { partialBlockToBlockForTesting } from "@shared/formatConversionTestUtil.js";
+import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vitest";
 import { getAIExtension } from "../../../../AIExtension.js";
+import { addOperationTestCases } from "../../../../testUtil/cases/AddOperationTestCases.js";
+import { combinedOperationsTestCases } from "../../../../testUtil/cases/combinedOperationsTestCases.js";
+import { deleteOperationTestCases } from "../../../../testUtil/cases/deleteOperationTestCases.js";
 import {
-  getTestEditor,
-  updateOperationTestCases,
-} from "../../../../testUtil/cases/updateOperationTestCases.js";
+  DocumentOperationTestCase,
+  getExpectedEditor,
+} from "../../../../testUtil/cases/types.js";
+import { updateOperationTestCases } from "../../../../testUtil/cases/updateOperationTestCases.js";
 import { createAsyncIterableStreamFromAsyncIterable } from "../../../util/stream.js";
 import { AddBlocksToolCall } from "../../base-tools/createAddBlocksTool.js";
 import { UpdateBlockToolCall } from "../../base-tools/createUpdateBlockTool.js";
@@ -36,31 +36,23 @@ async function* createMockStream(
   }
 }
 // Helper function to process operations and return results
-async function processOperations(
+async function executeTestCase(
   editor: BlockNoteEditor<any, any, any>,
-  stream: AsyncIterable<{
-    operation:
-      | AddBlocksToolCall<any>
-      | UpdateBlockToolCall<any>
-      | DeleteBlockToolCall;
-    isUpdateToPreviousOperation: boolean;
-    isPossiblyPartial: boolean;
-  }>,
-  selection?: {
-    from: number;
-    to: number;
-  },
+  testCase: DocumentOperationTestCase,
 ) {
-  // TODO: idsSuffixed
   const streamTools = [
     tools.add(editor, { idsSuffixed: true, withDelays: false }),
     tools.update(editor, {
       idsSuffixed: true,
       withDelays: false,
-      updateSelection: selection,
+      updateSelection: testCase.getTestSelection?.(editor),
     }),
     tools.delete(editor, { idsSuffixed: true, withDelays: false }),
   ];
+
+  const stream = createMockStream(
+    ...testCase.baseToolCalls.map((u) => ({ operation: u })),
+  );
 
   const result = new CallLLMResult(
     {
@@ -78,170 +70,53 @@ async function processOperations(
   return result;
 }
 
-describe("JSON Tools", () => {
-  it("should apply insert operations to the editor", async () => {
-    const editor = getTestEditor();
-    const insertOp = {
-      operation: {
-        type: "add",
-        blocks: [{ content: "block1" }],
-        referenceId: "ref1",
-        position: "after",
-      } as AddBlocksToolCall<any>,
-    };
-
-    await processOperations(editor, createMockStream(insertOp));
-
-    // Should call insertBlocks with the right parameters
-    expect(editor.document[1]).toMatchObject({
-      content: [{ text: "block1" }],
-    });
-  });
-
-  for (const testCase of updateOperationTestCases) {
-    // eslint-disable-next-line no-loop-func
-    it(`should apply update operations to the editor (${testCase.description})`, async () => {
-      // TODO: quite some code duplicated here from other tests
-
+describe("Add", () => {
+  for (const testCase of addOperationTestCases) {
+    it(testCase.description, async () => {
       const editor = testCase.editor();
-      const selection = testCase.getTestSelection?.(editor);
 
-      await processOperations(
-        editor,
-        createMockStream(...testCase.updateOps.map((u) => ({ operation: u }))),
-        selection,
-      );
+      await executeTestCase(editor, testCase);
 
-      for (const updateOp of testCase.updateOps) {
-        // Should call updateBlock with the right parameters
-        const update = updateOp.block;
-        let block = editor.getBlock(updateOp.id)!;
-        if (selection) {
-          const selectionInfo = prosemirrorSliceToSlicedBlocks(
-            editor.prosemirrorState.doc.slice(
-              selection.from,
-              selection.to,
-              true,
-            ),
-            editor.pmSchema,
-          );
-          block = selectionInfo.blocks[0];
-        }
-        if (update.type) {
-          // eslint-disable-next-line
-          expect(block.type).toEqual(update.type);
-        }
-        if (update.props) {
-          // eslint-disable-next-line
-          expect(block.props).toMatchObject(update.props);
-        }
-
-        if (update.content) {
-          const partialBlock = {
-            type: block.type,
-            ...update,
-          };
-          // eslint-disable-next-line
-          expect(block.content).toEqual(
-            partialBlockToBlockForTesting(
-              editor.schema.blockSchema,
-              partialBlock,
-            ).content,
-          );
-        }
-      }
+      expect(editor.document).toEqual(getExpectedEditor(testCase).document);
     });
   }
+});
 
-  it("should apply remove operations to the editor", async () => {
-    const editor = getTestEditor();
-    const startDocLength = editor.document.length;
-    const removeOp = {
-      operation: {
-        type: "delete",
-        id: "ref1",
-      } as DeleteBlockToolCall,
-    };
+describe("Update", () => {
+  for (const testCase of updateOperationTestCases) {
+    it(testCase.description, async () => {
+      const editor = testCase.editor();
 
-    await processOperations(editor, createMockStream(removeOp));
+      await executeTestCase(editor, testCase);
 
-    // Should call removeBlocks with the right parameters
-    expect(editor.document.length).toBe(startDocLength - 1);
-    expect(editor.document[0].id).toEqual("ref2");
-  });
-
-  it("should handle multiple operations in sequence", async () => {
-    const editor = getTestEditor();
-    const startDocLength = editor.document.length;
-    const insertOp = {
-      operation: {
-        type: "add",
-        blocks: [{ content: "block1" }],
-        referenceId: "ref1",
-        position: "before",
-      } as AddBlocksToolCall<any>,
-    };
-
-    const updateOp = {
-      operation: {
-        type: "update",
-        id: "ref1",
-        block: { content: "updated content" },
-      } as UpdateBlockToolCall<any>,
-    };
-
-    await processOperations(editor, createMockStream(insertOp, updateOp));
-
-    // Should call all the editor methods with the right parameters
-    expect(editor.document[0]).toMatchObject({
-      content: [{ text: "block1" }],
+      expect(editor.document).toEqual(getExpectedEditor(testCase).document);
     });
+  }
+});
 
-    expect(editor.document[1]).toMatchObject({
-      content: [{ text: "updated content" }],
+describe("Delete", () => {
+  for (const testCase of deleteOperationTestCases) {
+    it(testCase.description, async () => {
+      const editor = testCase.editor();
+      const startDocLength = editor.document.length;
+      await executeTestCase(editor, testCase);
+
+      expect(editor.document.length).toBe(
+        startDocLength - testCase.baseToolCalls.length,
+      );
+      expect(editor.document).toEqual(getExpectedEditor(testCase).document);
     });
+  }
+});
 
-    expect(editor.document.length).toBe(startDocLength + 1);
-  });
+describe("Combined", () => {
+  for (const testCase of combinedOperationsTestCases) {
+    it(testCase.description, async () => {
+      const editor = testCase.editor();
 
-  it("should handle multiple operations in sequence with selection", async () => {
-    // (this test validates whether the position mapper of the selection works correctly)
-    const editor = getTestEditor();
-    const startDocLength = editor.document.length;
-    const insertOp = {
-      operation: {
-        type: "add",
-        blocks: [{ content: "block1" }],
-        referenceId: "ref1",
-        position: "before",
-      } as AddBlocksToolCall<any>,
-    };
+      await executeTestCase(editor, testCase);
 
-    const updateCase = updateOperationTestCases.filter(
-      (t) => t.description === "translate selection",
-    )[0];
-
-    await processOperations(
-      editor,
-      createMockStream(
-        insertOp,
-        ...updateCase.updateOps.map((u) => ({
-          operation: u,
-        })),
-      ),
-      updateCase.getTestSelection?.(editor),
-    );
-
-    // Should call all the editor methods with the right parameters
-    expect(editor.document[0]).toMatchObject({
-      content: [{ text: "block1" }],
+      expect(editor.document).toEqual(getExpectedEditor(testCase).document);
     });
-
-    expect((editor.document[2].content as any).length).toBeGreaterThan(1);
-    expect((editor.document[2].content as any)[0]).toMatchObject({
-      text: "Hallo, ",
-    });
-
-    expect(editor.document.length).toBe(startDocLength + 1);
-  });
+  }
 });

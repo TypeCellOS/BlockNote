@@ -6,7 +6,9 @@ import {
 import { Fragment, Slice } from "prosemirror-model";
 import { ReplaceStep } from "prosemirror-transform";
 import { describe, expect, it } from "vitest";
-import { UpdateOperationTestCase, updateOperationTestCases } from "../testUtil/cases/updateOperationTestCases.js";
+import { getAIExtension } from "../AIExtension.js";
+import { DocumentOperationTestCase, getExpectedEditor } from "../testUtil/cases/types.js";
+import { updateOperationTestCases } from "../testUtil/cases/updateOperationTestCases.js";
 import { agentStepToTr, getStepsAsAgent } from "./agent.js";
 import { updateToReplaceSteps } from "./changeset.js";
 
@@ -193,17 +195,17 @@ describe("getStepsAsAgent", () => {
   });
 });
 
-describe("agentStepToTr", () => {
-  // larger test to see if applying the steps work as expected
-
-  async function testUpdate(
-    editor: BlockNoteEditor<any, any, any>,
-    test: UpdateOperationTestCase
-  ) {
-    const results = [];
-    for (const updateOp of test.updateOps) {
-      const blockId = updateOp.id;
-      const update = updateOp.block;
+async function executeTestCase(
+  editor: BlockNoteEditor<any, any, any>,
+  test: DocumentOperationTestCase
+) {
+  const results = [];
+  for (const updateOp of test.baseToolCalls) {
+    if (updateOp.type !== "update") {
+      throw new Error("Only update operations are supported");
+    }
+    const blockId = updateOp.id;
+    const update = updateOp.block;
 
     const selection = test.getTestSelection?.(editor);
     const doc = editor.prosemirrorState.doc;
@@ -219,7 +221,6 @@ describe("agentStepToTr", () => {
     );
 
     const agentSteps = getStepsAsAgent(doc, editor.pmSchema, steps);
-
     
     for (const step of agentSteps) {
       editor.transact((tr) => {
@@ -232,14 +233,26 @@ describe("agentStepToTr", () => {
       );
     }
   }
-    expect(results).toMatchSnapshot();
-  }
+  expect(results).toMatchSnapshot();
+  await getAIExtension(editor).acceptChanges();
+}
 
-  for (const test of updateOperationTestCases) {
-    it(`${test.description}`, async () => {
-      const editor = test.editor();
-      editor._tiptapEditor.forceEnablePlugins();
-      await testUpdate(editor, test);
-    });
-  }
+describe("agentStepToTr", () => {
+  // larger test to see if applying the steps work as expected
+
+  // REC: we might also want to test Insert / combined / delete test cases here,
+  // but this is a little more complex because currently `executeTestCase` expects
+  // relies directly on `updateToReplaceSteps` which is designed for the update op.
+  describe("Update", () => {
+    for (const test of updateOperationTestCases) {
+      it(`${test.description}`, async () => {
+        const editor = test.editor();
+        editor._tiptapEditor.forceEnablePlugins();
+        await executeTestCase(editor, test);
+
+
+          expect(editor.document).toEqual(getExpectedEditor(test).document);
+        });
+      }
+  });
 });

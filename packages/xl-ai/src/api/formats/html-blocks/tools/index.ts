@@ -48,13 +48,14 @@ export const tools = {
         )
       ).flat();
 
-      if (blocks.length === 0) {
-        return undefined;
-      }
-
       // hacky
       if ((window as any).__TEST_OPTIONS) {
-        (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS.mockID = 0;
+        (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS.mockID =
+          undefined;
+      }
+
+      if (blocks.length === 0) {
+        return undefined;
       }
 
       return {
@@ -93,7 +94,8 @@ export const tools = {
       // console.log("html", html);
       // hacky
       if ((window as any).__TEST_OPTIONS) {
-        (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS.mockID = 0;
+        (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS.mockID =
+          undefined;
       }
 
       delete (block as any).id;

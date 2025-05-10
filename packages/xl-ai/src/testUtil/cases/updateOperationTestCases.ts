@@ -1,180 +1,23 @@
-import {
-  BlockNoteEditor,
-  getBlockInfo,
-  getNodeById,
-  PartialBlock,
-} from "@blocknote/core";
+import { BlockNoteEditor, getBlockInfo, getNodeById } from "@blocknote/core";
 import { schemaWithMention as schema } from "@shared/testing/editorSchemas/mention.js";
 import { createAIExtension } from "../../AIExtension.js";
-import { UpdateBlockToolCall } from "../../api/formats/base-tools/createUpdateBlockTool.js";
+import { getEditorWithFormattingAndMentions } from "./editors/formattingAndMentions.js";
+import { getEditorWithTables } from "./editors/tables.js";
+import { DocumentOperationTestCase } from "./types.js";
 
 /**
  * This file defines a set of test cases that can be used to test update operations to the editor.
  * It focuses on formatting related operations (like changing styles, inline content, props, etc)
  */
 
-export type UpdateOperationTestCase = {
-  /**
-   * The editor to apply the update to
-   */
-  editor: () => BlockNoteEditor<any, any, any>;
-  /**
-   * The update operation to apply to the editor
-   */
-  updateOps: UpdateBlockToolCall<PartialBlock<any, any, any>>[];
-  /**
-   * If provided, this function will be used to get the selection to use for the test.
-   */
-  getTestSelection?: (editor: BlockNoteEditor<any, any, any>) => {
-    from: number;
-    to: number;
-  };
-  /**
-   * Description (name) of the test case
-   */
-  description: string;
-  /**
-   * For LLM tests, this is a prompt that can be given that should also result in the same update.
-   *
-   * Note: the test cases in this file focus on formatting, so the prompts might not be very realistic,
-   * the goal of these tests is to test whether LLMs can make certain updates technically, not to test
-   * the quality of the prompt understanding, etc. (should be in different tests)
-   */
-  userPrompt: string;
-  /**
-   * The capabilities that are required to perform the update.
-   * If the LLM does not have these capabilities, the test will be skipped.
-   */
-  requiredCapabilities?: {
-    mentions?: boolean;
-    textAlignment?: boolean;
-  };
-};
-
 // TODO: add test case where existing paragraph is right aligned / colored
 // TODO: add test case where some text is colored
-// TODO: switch to trailingblock: false
-export function getTestEditor() {
-  return BlockNoteEditor.create({
-    initialContent: [
-      {
-        id: "ref1",
-        content: "Hello, world!",
-      },
-      {
-        id: "ref2",
-        content: [
-          {
-            type: "text",
-            text: "Hello, ",
-          },
-          {
-            type: "mention",
-            props: {
-              user: "John Doe",
-            },
-          },
-          {
-            type: "text",
-            text: "! How ",
-          },
-          {
-            type: "text",
-            text: "are you doing? ",
-            styles: {
-              bold: true,
-            },
-          },
-          {
-            type: "text",
-            text: "I'm feeling blue!",
-            styles: {
-              textColor: "blue",
-            },
-          },
-        ],
-      },
-      {
-        id: "ref3",
-        type: "paragraph",
-        content: [
-          {
-            type: "text",
-            text: "Hello, world! ",
-            styles: {},
-          },
-          {
-            type: "text",
-            text: "Bold text. ",
-            styles: {
-              bold: true,
-            },
-          },
-          {
-            type: "link",
-            href: "https://www.google.com",
-            content: "Link.",
-          },
-        ],
-      },
-    ],
-    schema,
-    _extensions: {
-      ai: createAIExtension({
-        model: undefined as any,
-      }),
-    },
-  });
-}
 
-export function getTableTestEditor() {
-  return BlockNoteEditor.create({
-    initialContent: [
-      {
-        id: "ref1",
-        type: "table",
-        content: {
-          type: "tableContent",
-          rows: [
-            {
-              cells: ["Table Cell 1", "Table Cell 2", "Table Cell 3"],
-            },
-            {
-              cells: [
-                "Table Cell 4",
-                [
-                  {
-                    type: "text",
-                    text: "Table Cell Bold 5",
-                    styles: {
-                      bold: true,
-                    },
-                  },
-                ],
-                "Table Cell 6",
-              ],
-            },
-            {
-              cells: ["Table Cell 7", "Table Cell 8", "Table Cell 9"],
-            },
-          ],
-        },
-      },
-    ],
-    schema,
-    _extensions: {
-      ai: createAIExtension({
-        model: undefined as any,
-      }),
-    },
-  });
-}
-
-export const updateOperationTestCases: UpdateOperationTestCase[] = [
+export const updateOperationTestCases: DocumentOperationTestCase[] = [
   {
-    editor: getTestEditor,
+    editor: getEditorWithFormattingAndMentions,
     description: "standard update",
-    updateOps: [
+    baseToolCalls: [
       {
         type: "update",
         id: "ref1",
@@ -186,9 +29,9 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
     userPrompt: "translate the first paragraph to german",
   },
   {
-    editor: getTestEditor,
+    editor: getEditorWithFormattingAndMentions,
     description: "translate selection",
-    updateOps: [
+    baseToolCalls: [
       {
         type: "update",
         id: "ref2",
@@ -211,9 +54,9 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
     userPrompt: "translate to German",
   },
   {
-    editor: getTestEditor,
+    editor: getEditorWithFormattingAndMentions,
     description: "update block type",
-    updateOps: [
+    baseToolCalls: [
       {
         type: "update",
         id: "ref1",
@@ -229,9 +72,9 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
     userPrompt: "make the first paragraph a heading",
   },
   {
-    editor: getTestEditor,
+    editor: getEditorWithFormattingAndMentions,
     description: "update block prop",
-    updateOps: [
+    baseToolCalls: [
       {
         type: "update",
         id: "ref1",
@@ -248,9 +91,9 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
     },
   },
   {
-    editor: getTestEditor,
+    editor: getEditorWithFormattingAndMentions,
     description: "update block type and content",
-    updateOps: [
+    baseToolCalls: [
       {
         type: "update",
         id: "ref1",
@@ -267,9 +110,9 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
       "make the first paragraph a heading and update the content to 'What's up, world!'",
   },
   {
-    editor: getTestEditor,
+    editor: getEditorWithFormattingAndMentions,
     description: "update block prop and content",
-    updateOps: [
+    baseToolCalls: [
       {
         type: "update",
         id: "ref1",
@@ -288,9 +131,9 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
     },
   },
   {
-    editor: getTestEditor,
+    editor: getEditorWithFormattingAndMentions,
     description: "styles + ic in source block, replace content",
-    updateOps: [
+    baseToolCalls: [
       {
         type: "update",
         id: "ref2",
@@ -305,9 +148,9 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
       "update the content of the second block to 'Hello, updated content'",
   },
   {
-    editor: getTestEditor,
+    editor: getEditorWithFormattingAndMentions,
     description: "styles + ic in source block, update text",
-    updateOps: [
+    baseToolCalls: [
       {
         type: "update",
         id: "ref2",
@@ -351,9 +194,9 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
     userPrompt: "translate the second block to german",
   },
   {
-    editor: getTestEditor,
+    editor: getEditorWithFormattingAndMentions,
     description: "styles + ic in source block, remove mark",
-    updateOps: [
+    baseToolCalls: [
       {
         type: "update",
         id: "ref2",
@@ -390,9 +233,9 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
     userPrompt: "remove the bold style from the second block",
   },
   {
-    editor: getTestEditor,
+    editor: getEditorWithFormattingAndMentions,
     description: "styles + ic in source block, remove mention",
-    updateOps: [
+    baseToolCalls: [
       {
         type: "update",
         id: "ref2",
@@ -425,9 +268,9 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
       "change to say 'Hello! How are you doing? I'm feeling blue!' (remove mention but keep bold text)",
   },
   {
-    editor: getTestEditor,
+    editor: getEditorWithFormattingAndMentions,
     description: "styles + ic in target block, add mark (word)",
-    updateOps: [
+    baseToolCalls: [
       {
         type: "update",
         id: "ref1",
@@ -452,9 +295,9 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
     userPrompt: "make 'world!' (in the first block) bold",
   },
   {
-    editor: getTestEditor,
+    editor: getEditorWithFormattingAndMentions,
     description: "styles + ic in target block, add mark (paragraph)",
-    updateOps: [
+    baseToolCalls: [
       {
         type: "update",
         id: "ref1",
@@ -474,9 +317,9 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
     userPrompt: "make first paragraph bold",
   },
   {
-    editor: getTestEditor,
+    editor: getEditorWithFormattingAndMentions,
     description: "plain source block, add mention",
-    updateOps: [
+    baseToolCalls: [
       {
         type: "update",
         id: "ref1",
@@ -510,9 +353,9 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
     },
   },
   {
-    editor: getTestEditor,
+    editor: getEditorWithFormattingAndMentions,
     description: "styles + ic in source block, update mention prop",
-    updateOps: [
+    baseToolCalls: [
       {
         type: "update",
         id: "ref2",
@@ -559,9 +402,9 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
     },
   },
   {
-    editor: getTestEditor,
+    editor: getEditorWithFormattingAndMentions,
     description: "drop mark and link",
-    updateOps: [
+    baseToolCalls: [
       {
         type: "update",
         id: "ref3",
@@ -580,9 +423,9 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
       "remove the formatting (turn into plain text without styles or urls) from the last paragraph",
   },
   {
-    editor: getTestEditor,
+    editor: getEditorWithFormattingAndMentions,
     description: "drop mark and link and change text within mark",
-    updateOps: [
+    baseToolCalls: [
       {
         type: "update",
         id: "ref3",
@@ -601,9 +444,9 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
       "change the last paragraph to 'Hi, world! Bold the text. Link.' without any markup like bold or link",
   },
   {
-    editor: getTableTestEditor,
+    editor: getEditorWithTables,
     description: "update table cell",
-    updateOps: [
+    baseToolCalls: [
       {
         type: "update",
         id: "ref1",
@@ -640,9 +483,9 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
     userPrompt: "update the first cell to 'Hello, world!'",
   },
   {
-    editor: getTableTestEditor,
+    editor: getEditorWithTables,
     description: "update table to caps",
-    updateOps: [
+    baseToolCalls: [
       {
         type: "update",
         id: "ref1",
@@ -679,9 +522,9 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
     userPrompt: "update all table content to CAPS",
   },
   {
-    editor: getTableTestEditor,
+    editor: getEditorWithTables,
     description: "remove column",
-    updateOps: [
+    baseToolCalls: [
       {
         type: "update",
         id: "ref1",
@@ -706,9 +549,9 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
     userPrompt: "Remove the second column",
   },
   {
-    editor: getTableTestEditor,
+    editor: getEditorWithTables,
     description: "remove last column",
-    updateOps: [
+    baseToolCalls: [
       {
         type: "update",
         id: "ref1",
@@ -744,9 +587,9 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
     userPrompt: "Remove the last column",
   },
   {
-    editor: getTableTestEditor,
+    editor: getEditorWithTables,
     description: "remove row",
-    updateOps: [
+    baseToolCalls: [
       {
         type: "update",
         id: "ref1",
@@ -768,9 +611,9 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
     userPrompt: "Remove the second row",
   },
   {
-    editor: getTableTestEditor,
+    editor: getEditorWithTables,
     description: "remove last row",
-    updateOps: [
+    baseToolCalls: [
       {
         type: "update",
         id: "ref1",
@@ -834,7 +677,7 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
       return editor;
     },
     description: "turn paragraphs into list",
-    updateOps: [
+    baseToolCalls: [
       {
         type: "update",
         id: "ref2",
@@ -891,7 +734,7 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
       return editor;
     },
     description: "modify nested content",
-    updateOps: [
+    baseToolCalls: [
       {
         type: "update",
         id: "ref2",
@@ -930,7 +773,7 @@ export const updateOperationTestCases: UpdateOperationTestCase[] = [
       return editor;
     },
     description: "modify parent content",
-    updateOps: [
+    baseToolCalls: [
       {
         type: "update",
         id: "ref1",
