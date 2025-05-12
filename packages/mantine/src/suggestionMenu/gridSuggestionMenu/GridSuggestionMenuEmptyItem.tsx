@@ -16,7 +16,8 @@ export const GridSuggestionMenuEmptyItem = forwardRef<
     <MantineGroup
       className={className}
       style={{ gridColumn: `1 / ${columns + 1}` }}
-      ref={ref}>
+      ref={ref}
+    >
       <MantineGroup className="bn-mt-suggestion-menu-item-title">
         {children}
       </MantineGroup>

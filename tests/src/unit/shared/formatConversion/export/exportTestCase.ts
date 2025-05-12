@@ -8,7 +8,7 @@ import {
 export type ExportTestCase<
   B extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = {
   name: string;
   content: PartialBlock<B, I, S>[];

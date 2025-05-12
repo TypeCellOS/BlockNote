@@ -29,7 +29,8 @@ export const Panel = forwardRef<
       ref={ref}
       value={openTab}
       defaultValue={defaultOpenTab}
-      onValueChange={setOpenTab}>
+      onValueChange={setOpenTab}
+    >
       {/*{loading && <LoadingOverlay visible={loading} />}*/}
 
       <ShadCNComponents.Tabs.TabsList>

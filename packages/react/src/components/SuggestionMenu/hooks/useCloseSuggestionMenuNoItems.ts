@@ -7,7 +7,7 @@ export function useCloseSuggestionMenuNoItems<Item>(
   items: Item[],
   usedQuery: string | undefined,
   closeMenu: () => void,
-  invalidQueries = 3
+  invalidQueries = 3,
 ) {
   const lastUsefulQueryLength = useRef(0);
 

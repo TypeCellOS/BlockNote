@@ -10,10 +10,10 @@ import {
 // it easier to extend / customize the default blocks
 const paragraph = createBlockSpecFromStronglyTypedTiptapNode(
   createStronglyTypedTiptapNode<"paragraph", "inline*">(
-    defaultBlockSpecs.paragraph.implementation.node.config as any
+    defaultBlockSpecs.paragraph.implementation.node.config as any,
   ),
   // disable default props on paragraph (such as textalignment and colors)
-  {}
+  {},
 );
 
 // remove textColor, backgroundColor from styleSpecs

@@ -21,12 +21,12 @@ import { multiColumnSchemaTestCases } from "./testCases.js";
 async function convertToHTMLAndCompareSnapshots<
   B extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   editor: BlockNoteEditor<B, I, S>,
   blocks: PartialBlock<B, I, S>[],
   snapshotDirectory: string,
-  snapshotName: string
+  snapshotName: string,
 ) {
   addIdsToBlocks(blocks);
   const serializer = createInternalHTMLSerializer(editor.pmSchema, editor);
@@ -93,7 +93,7 @@ describe("Test multi-column HTML conversion", () => {
             editor,
             document.blocks,
             nameSplit[0],
-            nameSplit[1]
+            nameSplit[1],
           );
         });
       }

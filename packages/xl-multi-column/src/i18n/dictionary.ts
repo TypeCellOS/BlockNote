@@ -16,7 +16,7 @@ import { BlockNoteEditor } from "@blocknote/core";
 // }
 
 export function getMultiColumnDictionary(
-  editor: BlockNoteEditor<any, any, any>
+  editor: BlockNoteEditor<any, any, any>,
 ) {
   if (!(editor.dictionary as any).multi_column) {
     throw new Error("Multi-column dictionary not found");

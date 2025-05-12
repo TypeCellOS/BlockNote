@@ -25,7 +25,7 @@ export const Embed = createBlockSpec(
         dom: embed,
       };
     },
-  }
+  },
 );
 
 export const insertEmbed = {
@@ -42,7 +42,7 @@ export const insertEmbed = {
         },
       ],
       editor.getTextCursorPosition().block,
-      "after"
+      "after",
     );
   },
   subtext: "Insert an embedded website",

@@ -15,14 +15,14 @@ export function BlueButton() {
   // Tracks whether the text & background are both blue.
   const [isSelected, setIsSelected] = useState<boolean>(
     editor.getActiveStyles().textColor === "blue" &&
-      editor.getActiveStyles().backgroundColor === "blue"
+      editor.getActiveStyles().backgroundColor === "blue",
   );
 
   // Updates state on content or selection change.
   useEditorContentOrSelectionChange(() => {
     setIsSelected(
       editor.getActiveStyles().textColor === "blue" &&
-        editor.getActiveStyles().backgroundColor === "blue"
+        editor.getActiveStyles().backgroundColor === "blue",
     );
   }, editor);
 
@@ -35,7 +35,8 @@ export function BlueButton() {
           backgroundColor: "blue",
         });
       }}
-      isSelected={isSelected}>
+      isSelected={isSelected}
+    >
       Blue
     </Components.FormattingToolbar.Button>
   );

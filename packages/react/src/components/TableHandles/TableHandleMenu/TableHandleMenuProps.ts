@@ -9,7 +9,7 @@ import {
 
 export type TableHandleMenuProps<
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 > = {
   orientation: "row" | "column";
   block: SpecificBlock<{ table: DefaultBlockSchema["table"] }, "table", I, S>;

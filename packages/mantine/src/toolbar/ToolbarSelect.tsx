@@ -31,7 +31,8 @@ export const ToolbarSelect = forwardRef<
         exitDuration: 0,
       }}
       disabled={isDisabled}
-      middlewares={{ flip: true, shift: true, inline: false, size: true }}>
+      middlewares={{ flip: true, shift: true, inline: false, size: true }}
+    >
       <MantineMenu.Target>
         <MantineButton
           // Needed as Safari doesn't focus button elements on mouse down
@@ -45,7 +46,8 @@ export const ToolbarSelect = forwardRef<
           rightSection={<HiChevronDown />}
           size={"xs"}
           variant={"subtle"}
-          disabled={isDisabled}>
+          disabled={isDisabled}
+        >
           {selectedItem.text}
         </MantineButton>
       </MantineMenu.Target>
@@ -63,7 +65,8 @@ export const ToolbarSelect = forwardRef<
                 <div className={"bn-tick-space"} />
               )
             }
-            disabled={item.isDisabled}>
+            disabled={item.isDisabled}
+          >
             {item.text}
           </MantineMenu.Item>
         ))}

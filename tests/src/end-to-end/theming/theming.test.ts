@@ -32,7 +32,7 @@ test.describe("Check Dark Theme is Automatically Applied", () => {
 
     await page.waitForTimeout(500);
     expect(await page.screenshot()).toMatchSnapshot(
-      "dark-formatting-toolbar.png"
+      "dark-formatting-toolbar.png",
     );
   });
   test("Should show dark link toolbar", async ({ page }) => {
@@ -87,7 +87,7 @@ test.describe("Check Dark Theme is Automatically Applied", () => {
 
     await page.waitForTimeout(500);
     expect(await page.screenshot()).toMatchSnapshot(
-      "dark-drag-handle-menu.png"
+      "dark-drag-handle-menu.png",
     );
   });
   test("Should show dark image toolbar", async ({ page }) => {

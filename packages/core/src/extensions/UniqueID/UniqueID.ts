@@ -35,7 +35,7 @@ function removeDuplicates(array: any, by = JSON.stringify) {
  */
 function findDuplicates(items: any) {
   const filtered = items.filter(
-    (el: any, index: number) => items.indexOf(el) !== index
+    (el: any, index: number) => items.indexOf(el) !== index,
   );
   const duplicates = removeDuplicates(filtered);
   return duplicates;
@@ -154,7 +154,7 @@ const UniqueID = Extension.create({
           const { types, attributeName, generateID } = this.options;
           const transform = combineTransactionSteps(
             oldState.doc,
-            transactions as any
+            transactions as any,
           );
           const { mapping } = transform;
           // get changed ranges based on the old state
@@ -166,7 +166,7 @@ const UniqueID = Extension.create({
               newRange,
               (node) => {
                 return types.includes(node.type.name);
-              }
+              },
             );
             const newIds = newNodes
               .map(({ node }) => node.attrs[attributeName])
@@ -193,7 +193,7 @@ const UniqueID = Extension.create({
                 if (wasInitial) {
                   // the old state was the "initial content"
                   const jsonNode = JSON.parse(
-                    JSON.stringify(newState.doc.toJSON())
+                    JSON.stringify(newState.doc.toJSON()),
                   );
                   jsonNode.content[0].content[0].attrs.id = "initialBlockId";
                   // would the new state with the fix also be the "initial content"?
@@ -308,7 +308,7 @@ const UniqueID = Extension.create({
                     [attributeName]: null,
                   },
                   removeId(node.content),
-                  node.marks
+                  node.marks,
                 );
                 list.push(nodeWithoutId);
               });
@@ -319,7 +319,7 @@ const UniqueID = Extension.create({
             return new Slice(
               removeId(slice.content),
               slice.openStart,
-              slice.openEnd
+              slice.openEnd,
             );
           },
         },

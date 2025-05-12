@@ -10,5 +10,5 @@ export const Font = createReactStyleSpec(
     render: (props) => (
       <span style={{ fontFamily: props.value }} ref={props.contentRef} />
     ),
-  }
+  },
 );

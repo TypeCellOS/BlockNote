@@ -31,8 +31,8 @@ export function SuggestionMenuController<
   // This is a bit hacky, but only way I found to make types work so the optionality
   // of suggestionMenuComponent depends on the return type of getItems
   GetItemsType extends (query: string) => Promise<any[]> = (
-    query: string
-  ) => Promise<DefaultReactSuggestionItem[]>
+    query: string,
+  ) => Promise<DefaultReactSuggestionItem[]>,
 >(
   props: {
     triggerCharacter: string;
@@ -53,7 +53,7 @@ export function SuggestionMenuController<
           SuggestionMenuProps<ItemType<GetItemsType>>
         >;
         onItemClick: (item: ItemType<GetItemsType>) => void;
-      })
+      }),
 ) {
   const editor = useBlockNoteEditor<
     BlockSchema,
@@ -85,7 +85,7 @@ export function SuggestionMenuController<
       ((async (query: string) =>
         filterSuggestionItems(
           getDefaultReactSlashMenuItems(editor),
-          query
+          query,
         )) as any as typeof getItems)
     );
   }, [editor, getItems])!;
@@ -99,7 +99,7 @@ export function SuggestionMenuController<
     (callback: (state: SuggestionMenuState) => void) => {
       return editor.suggestionMenus.onUpdate(triggerCharacter, callback);
     },
-    [editor.suggestionMenus, triggerCharacter]
+    [editor.suggestionMenus, triggerCharacter],
   );
 
   const state = useUIPluginState(cb);
@@ -133,7 +133,7 @@ export function SuggestionMenuController<
         }
       },
       ...floatingOptions,
-    }
+    },
   );
 
   if (

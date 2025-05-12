@@ -20,7 +20,8 @@ export const ReactImage = createReactBlockSpec(
           style={{
             display: "flex",
             flexDirection: "column",
-          }}>
+          }}
+        >
           <img
             style={{
               width: "100%",
@@ -33,7 +34,7 @@ export const ReactImage = createReactBlockSpec(
         </div>
       );
     },
-  }
+  },
 );
 
 export const insertReactImage = {
@@ -50,7 +51,7 @@ export const insertReactImage = {
         },
       ],
       editor.getTextCursorPosition().block,
-      "after"
+      "after",
     );
   },
   subtext: "Insert an image",

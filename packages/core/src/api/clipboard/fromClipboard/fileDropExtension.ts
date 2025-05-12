@@ -13,9 +13,9 @@ import { handleFileInsertion } from "./handleFileInsertion.js";
 export const createDropFileExtension = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
-  editor: BlockNoteEditor<BSchema, I, S>
+  editor: BlockNoteEditor<BSchema, I, S>,
 ) =>
   Extension.create<{ editor: BlockNoteEditor<BSchema, I, S> }, undefined>({
     name: "dropFile",

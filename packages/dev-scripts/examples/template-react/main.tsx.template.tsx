@@ -1,7 +1,7 @@
 import type { Project } from "../util";
 
 const template = (
-  project: Project
+  project: Project,
 ) => `// AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY
 import React from "react";
 import { createRoot } from "react-dom/client";

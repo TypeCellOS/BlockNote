@@ -16,7 +16,7 @@ export async function copyPasteAll(page: Page) {
 
 export async function copyPasteAllExternal(
   page: Page,
-  os: "mac" | "linux" = "linux"
+  os: "mac" | "linux" = "linux",
 ) {
   const modifierKey = os === "mac" ? "Meta" : "Control";
   await page.keyboard.press(`${modifierKey}+A`);

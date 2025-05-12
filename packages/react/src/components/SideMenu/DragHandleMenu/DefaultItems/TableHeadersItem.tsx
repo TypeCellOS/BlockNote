@@ -16,12 +16,12 @@ import { DragHandleMenuProps } from "../DragHandleMenuProps.js";
 export const TableRowHeaderItem = <
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(
   props: Omit<DragHandleMenuProps<BSchema, I, S>, "block"> & {
     block: SpecificBlock<{ table: DefaultBlockSchema["table"] }, "table", I, S>;
     children: ReactNode;
-  }
+  },
 ) => {
   const Components = useComponentsContext()!;
 
@@ -55,7 +55,8 @@ export const TableRowHeaderItem = <
             headerRows: isHeaderRow ? undefined : 1,
           },
         });
-      }}>
+      }}
+    >
       {props.children}
     </Components.Generic.Menu.Item>
   );
@@ -64,12 +65,12 @@ export const TableRowHeaderItem = <
 export const TableColumnHeaderItem = <
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(
   props: Omit<DragHandleMenuProps<BSchema, I, S>, "block"> & {
     block: SpecificBlock<{ table: DefaultBlockSchema["table"] }, "table", I, S>;
     children: ReactNode;
-  }
+  },
 ) => {
   const Components = useComponentsContext()!;
 
@@ -99,7 +100,8 @@ export const TableColumnHeaderItem = <
             headerCols: isHeaderColumn ? undefined : 1,
           },
         });
-      }}>
+      }}
+    >
       {props.children}
     </Components.Generic.Menu.Item>
   );

@@ -15,7 +15,7 @@ describe("Test getTextCursorPosition & setTextCursorPosition", () => {
     });
 
     expect(
-      getEditor().transact((tr) => getTextCursorPosition(tr))
+      getEditor().transact((tr) => getTextCursorPosition(tr)),
     ).toMatchSnapshot();
   });
 
@@ -25,7 +25,7 @@ describe("Test getTextCursorPosition & setTextCursorPosition", () => {
     });
 
     expect(
-      getEditor().transact((tr) => getTextCursorPosition(tr))
+      getEditor().transact((tr) => getTextCursorPosition(tr)),
     ).toMatchSnapshot();
   });
 
@@ -35,7 +35,7 @@ describe("Test getTextCursorPosition & setTextCursorPosition", () => {
     });
 
     expect(
-      getEditor().transact((tr) => getTextCursorPosition(tr))
+      getEditor().transact((tr) => getTextCursorPosition(tr)),
     ).toMatchSnapshot();
   });
 
@@ -45,7 +45,7 @@ describe("Test getTextCursorPosition & setTextCursorPosition", () => {
     });
 
     expect(
-      getEditor().transact((tr) => getTextCursorPosition(tr))
+      getEditor().transact((tr) => getTextCursorPosition(tr)),
     ).toMatchSnapshot();
   });
 
@@ -55,7 +55,7 @@ describe("Test getTextCursorPosition & setTextCursorPosition", () => {
     });
 
     expect(
-      getEditor().transact((tr) => tr.selection.$from.parentOffset) === 0
+      getEditor().transact((tr) => tr.selection.$from.parentOffset) === 0,
     ).toBeTruthy();
   });
 
@@ -67,8 +67,8 @@ describe("Test getTextCursorPosition & setTextCursorPosition", () => {
     expect(
       getEditor().transact((tr) => tr.selection.$from.parentOffset) ===
         getEditor().transact(
-          (tr) => tr.selection.$from.node().firstChild!.nodeSize
-        )
+          (tr) => tr.selection.$from.node().firstChild!.nodeSize,
+        ),
     ).toBeTruthy();
   });
 });

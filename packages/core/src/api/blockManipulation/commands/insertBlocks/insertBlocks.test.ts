@@ -12,17 +12,17 @@ function insertBlocks(
   editor: BlockNoteEditor,
   blocksToInsert: PartialBlock<any, any, any>[],
   referenceBlock: BlockIdentifier,
-  placement: "before" | "after" = "before"
+  placement: "before" | "after" = "before",
 ) {
   return editor.transact((tr) =>
-    insertBlocksTr(tr, blocksToInsert, referenceBlock, placement)
+    insertBlocksTr(tr, blocksToInsert, referenceBlock, placement),
   );
 }
 
 describe("Test insertBlocks", () => {
   it("Insert single basic block before (without type)", () => {
     expect(
-      insertBlocks(getEditor(), [{ content: "test" }], "paragraph-0", "before")
+      insertBlocks(getEditor(), [{ content: "test" }], "paragraph-0", "before"),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -34,8 +34,8 @@ describe("Test insertBlocks", () => {
         getEditor(),
         [{ type: "paragraph" }],
         "paragraph-0",
-        "before"
-      )
+        "before",
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -43,7 +43,12 @@ describe("Test insertBlocks", () => {
 
   it("Insert single basic block after", () => {
     expect(
-      insertBlocks(getEditor(), [{ type: "paragraph" }], "paragraph-0", "after")
+      insertBlocks(
+        getEditor(),
+        [{ type: "paragraph" }],
+        "paragraph-0",
+        "after",
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -59,8 +64,8 @@ describe("Test insertBlocks", () => {
           { type: "paragraph", content: "Inserted paragraph 3" },
         ],
         "paragraph-0",
-        "before"
-      )
+        "before",
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -76,8 +81,8 @@ describe("Test insertBlocks", () => {
           { type: "paragraph", content: "Inserted paragraph 3" },
         ],
         "paragraph-0",
-        "after"
-      )
+        "after",
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -119,8 +124,8 @@ describe("Test insertBlocks", () => {
           },
         ],
         "paragraph-0",
-        "before"
-      )
+        "before",
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -162,8 +167,8 @@ describe("Test insertBlocks", () => {
           },
         ],
         "paragraph-0",
-        "after"
-      )
+        "after",
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();

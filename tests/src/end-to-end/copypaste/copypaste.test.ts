@@ -23,7 +23,7 @@ test.describe("Check Copy/Paste Functionality", () => {
   test("Paragraphs should stay separate", async ({ page, browserName }) => {
     test.skip(
       browserName === "firefox" || browserName === "webkit",
-      "Firefox doesn't yet support the async clipboard API. Webkit copy/paste stopped working after updating to Playwright 1.33."
+      "Firefox doesn't yet support the async clipboard API. Webkit copy/paste stopped working after updating to Playwright 1.33.",
     );
 
     await focusOnEditor(page);
@@ -38,7 +38,7 @@ test.describe("Check Copy/Paste Functionality", () => {
   test("Headings should keep formatting", async ({ page, browserName }) => {
     test.skip(
       browserName === "firefox" || browserName === "webkit",
-      "Firefox doesn't yet support the async clipboard API. Webkit copy/paste stopped working after updating to Playwright 1.33."
+      "Firefox doesn't yet support the async clipboard API. Webkit copy/paste stopped working after updating to Playwright 1.33.",
     );
 
     await focusOnEditor(page);
@@ -56,7 +56,7 @@ test.describe("Check Copy/Paste Functionality", () => {
   }) => {
     test.skip(
       browserName === "firefox" || browserName === "webkit",
-      "Firefox doesn't yet support the async clipboard API. Webkit copy/paste stopped working after updating to Playwright 1.33."
+      "Firefox doesn't yet support the async clipboard API. Webkit copy/paste stopped working after updating to Playwright 1.33.",
     );
 
     await focusOnEditor(page);
@@ -73,7 +73,7 @@ test.describe("Check Copy/Paste Functionality", () => {
   }) => {
     test.skip(
       browserName === "firefox" || browserName === "webkit",
-      "Firefox doesn't yet support the async clipboard API. Webkit copy/paste stopped working after updating to Playwright 1.33."
+      "Firefox doesn't yet support the async clipboard API. Webkit copy/paste stopped working after updating to Playwright 1.33.",
     );
 
     await focusOnEditor(page);
@@ -90,7 +90,7 @@ test.describe("Check Copy/Paste Functionality", () => {
   }) => {
     test.skip(
       browserName === "firefox" || browserName === "webkit",
-      "Firefox doesn't yet support the async clipboard API. Webkit copy/paste stopped working after updating to Playwright 1.33."
+      "Firefox doesn't yet support the async clipboard API. Webkit copy/paste stopped working after updating to Playwright 1.33.",
     );
 
     await focusOnEditor(page);
@@ -111,7 +111,7 @@ test.describe("Check Copy/Paste Functionality", () => {
   }) => {
     test.skip(
       browserName === "firefox" || browserName === "webkit",
-      "Firefox doesn't yet support the async clipboard API. Webkit copy/paste stopped working after updating to Playwright 1.33."
+      "Firefox doesn't yet support the async clipboard API. Webkit copy/paste stopped working after updating to Playwright 1.33.",
     );
 
     await focusOnEditor(page);
@@ -128,7 +128,7 @@ test.describe("Check Copy/Paste Functionality", () => {
   }) => {
     test.skip(
       browserName === "firefox" || browserName === "webkit",
-      "Firefox doesn't yet support the async clipboard API. Webkit copy/paste stopped working after updating to Playwright 1.33."
+      "Firefox doesn't yet support the async clipboard API. Webkit copy/paste stopped working after updating to Playwright 1.33.",
     );
 
     await focusOnEditor(page);
@@ -142,7 +142,7 @@ test.describe("Check Copy/Paste Functionality", () => {
   test("Images should keep props", async ({ page, browserName }) => {
     test.skip(
       browserName === "firefox" || browserName === "webkit",
-      "Firefox doesn't yet support the async clipboard API. Webkit copy/paste stopped working after updating to Playwright 1.33."
+      "Firefox doesn't yet support the async clipboard API. Webkit copy/paste stopped working after updating to Playwright 1.33.",
     );
 
     await focusOnEditor(page);
@@ -162,7 +162,7 @@ test.describe("Check Copy/Paste Functionality", () => {
 
     await page.waitForSelector(`[class*="bn-resize-handle"][style*="right"]`);
     const resizeHandle = page.locator(
-      `[class*="bn-resize-handle"][style*="right"]`
+      `[class*="bn-resize-handle"][style*="right"]`,
     );
     const resizeHandleBoundingBox = (await resizeHandle.boundingBox())!;
     await page.mouse.move(
@@ -170,7 +170,7 @@ test.describe("Check Copy/Paste Functionality", () => {
       resizeHandleBoundingBox.y + resizeHandleBoundingBox.height / 2,
       {
         steps: 5,
-      }
+      },
     );
     await page.mouse.down();
 
@@ -179,7 +179,7 @@ test.describe("Check Copy/Paste Functionality", () => {
       resizeHandleBoundingBox.y + resizeHandleBoundingBox.height / 2,
       {
         steps: 5,
-      }
+      },
     );
 
     await page.mouse.up();

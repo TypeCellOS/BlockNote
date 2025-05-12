@@ -27,7 +27,8 @@ export const Panel = forwardRef<
   return (
     <div
       className={mergeCSSClasses("bn-ak-wrapper", className || "")}
-      ref={ref}>
+      ref={ref}
+    >
       <AriakitTabProvider
         defaultSelectedId={defaultOpenTab}
         selectedId={openTab}
@@ -35,7 +36,8 @@ export const Panel = forwardRef<
           if (activeId) {
             setOpenTab(activeId);
           }
-        }}>
+        }}
+      >
         {/*{loading && <LoadingOverlay visible={loading} />}*/}
 
         <AriakitTabList className={"bn-ak-tab-list"}>

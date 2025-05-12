@@ -38,7 +38,8 @@ export const Button = forwardRef<
         onDragStart={onDragStart}
         draggable={draggable}
         aria-label={label}
-        {...rest}>
+        {...rest}
+      >
         {icon}
       </MantineActionIcon>
     );
@@ -53,7 +54,8 @@ export const Button = forwardRef<
       onDragStart={onDragStart}
       draggable={draggable}
       aria-label={label}
-      {...rest}>
+      {...rest}
+    >
       {children}
     </MantineButton>
   );

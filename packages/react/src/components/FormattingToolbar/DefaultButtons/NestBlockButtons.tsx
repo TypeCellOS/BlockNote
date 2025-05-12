@@ -26,7 +26,7 @@ export const NestBlockButton = () => {
   const selectedBlocks = useSelectedBlocks(editor);
 
   const [canNestBlock, setCanNestBlock] = useState<boolean>(() =>
-    editor.canNestBlock()
+    editor.canNestBlock(),
   );
 
   useEditorContentOrSelectionChange(() => {
@@ -40,7 +40,7 @@ export const NestBlockButton = () => {
 
   const show = useMemo(() => {
     return !selectedBlocks.find(
-      (block) => editor.schema.blockSchema[block.type].content !== "inline"
+      (block) => editor.schema.blockSchema[block.type].content !== "inline",
     );
   }, [editor.schema.blockSchema, selectedBlocks]);
 
@@ -58,7 +58,7 @@ export const NestBlockButton = () => {
       mainTooltip={dict.formatting_toolbar.nest.tooltip}
       secondaryTooltip={formatKeyboardShortcut(
         dict.formatting_toolbar.nest.secondary_tooltip,
-        dict.generic.ctrl_shortcut
+        dict.generic.ctrl_shortcut,
       )}
       icon={<RiIndentIncrease />}
     />
@@ -74,7 +74,7 @@ export const UnnestBlockButton = () => {
   const selectedBlocks = useSelectedBlocks(editor);
 
   const [canUnnestBlock, setCanUnnestBlock] = useState<boolean>(() =>
-    editor.canUnnestBlock()
+    editor.canUnnestBlock(),
   );
 
   useEditorContentOrSelectionChange(() => {
@@ -88,7 +88,7 @@ export const UnnestBlockButton = () => {
 
   const show = useMemo(() => {
     return !selectedBlocks.find(
-      (block) => editor.schema.blockSchema[block.type].content !== "inline"
+      (block) => editor.schema.blockSchema[block.type].content !== "inline",
     );
   }, [editor.schema.blockSchema, selectedBlocks]);
 
@@ -106,7 +106,7 @@ export const UnnestBlockButton = () => {
       mainTooltip={dict.formatting_toolbar.unnest.tooltip}
       secondaryTooltip={formatKeyboardShortcut(
         dict.formatting_toolbar.unnest.secondary_tooltip,
-        dict.generic.ctrl_shortcut
+        dict.generic.ctrl_shortcut,
       )}
       icon={<RiIndentDecrease />}
     />

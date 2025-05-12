@@ -12,7 +12,7 @@ import { useEditorContentOrSelectionChange } from "./useEditorContentOrSelection
 export function useSelectedBlocks<
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
-  SSchema extends StyleSchema
+  SSchema extends StyleSchema,
 >(editor?: BlockNoteEditor<BSchema, ISchema, SSchema>) {
   const editorContext = useBlockNoteContext<BSchema, ISchema, SSchema>();
   if (!editor) {
@@ -21,7 +21,7 @@ export function useSelectedBlocks<
 
   if (!editor) {
     throw new Error(
-      "'editor' is required, either from BlockNoteContext or as a function argument"
+      "'editor' is required, either from BlockNoteContext or as a function argument",
     );
   }
 
@@ -34,9 +34,9 @@ export function useSelectedBlocks<
   useEditorContentOrSelectionChange(
     () =>
       setSelectedBlocks(
-        e.getSelection()?.blocks || [e.getTextCursorPosition().block]
+        e.getSelection()?.blocks || [e.getTextCursorPosition().block],
       ),
-    e
+    e,
   );
 
   return selectedBlocks;

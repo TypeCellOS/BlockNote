@@ -41,7 +41,7 @@ class LinkToolbarView implements PluginView {
   constructor(
     private readonly editor: BlockNoteEditor<any, any, any>,
     private readonly pmView: EditorView,
-    emitUpdate: (state: LinkToolbarState) => void
+    emitUpdate: (state: LinkToolbarState) => void,
   ) {
     this.emitUpdate = () => {
       if (!this.state) {
@@ -70,7 +70,7 @@ class LinkToolbarView implements PluginView {
     this.pmView.root.addEventListener(
       "click",
       this.clickHandler as EventListener,
-      true
+      true,
     );
 
     // Setting capture=true ensures that any parent container of the editor that
@@ -146,7 +146,7 @@ class LinkToolbarView implements PluginView {
         this.state.referencePos = posToDOMRect(
           this.pmView,
           this.linkMarkRange!.from,
-          this.linkMarkRange!.to
+          this.linkMarkRange!.to,
         );
         this.emitUpdate();
       }
@@ -160,7 +160,7 @@ class LinkToolbarView implements PluginView {
       tr.addMark(
         this.linkMarkRange!.from,
         this.linkMarkRange!.from + text.length,
-        pmSchema.mark("link", { href: url })
+        pmSchema.mark("link", { href: url }),
       );
     });
     this.pmView.focus();
@@ -177,9 +177,9 @@ class LinkToolbarView implements PluginView {
         .removeMark(
           this.linkMarkRange!.from,
           this.linkMarkRange!.to,
-          this.linkMark!.type
+          this.linkMark!.type,
         )
-        .setMeta("preventAutolink", true)
+        .setMeta("preventAutolink", true),
     );
     this.pmView.focus();
 
@@ -226,7 +226,7 @@ class LinkToolbarView implements PluginView {
             getMarkRange(
               this.pmView.state.selection.$from,
               mark.type,
-              mark.attrs
+              mark.attrs,
             ) || undefined;
 
           break;
@@ -251,12 +251,12 @@ class LinkToolbarView implements PluginView {
         referencePos: posToDOMRect(
           this.pmView,
           this.linkMarkRange!.from,
-          this.linkMarkRange!.to
+          this.linkMarkRange!.to,
         ),
         url: this.linkMark!.attrs.href,
         text: this.pmView.state.doc.textBetween(
           this.linkMarkRange!.from,
-          this.linkMarkRange!.to
+          this.linkMarkRange!.to,
         ),
       };
       this.emitUpdate();
@@ -290,7 +290,7 @@ class LinkToolbarView implements PluginView {
     this.pmView.root.removeEventListener(
       "click",
       this.clickHandler as EventListener,
-      true
+      true,
     );
   }
 }
@@ -300,7 +300,7 @@ export const linkToolbarPluginKey = new PluginKey("LinkToolbarPlugin");
 export class LinkToolbarProsemirrorPlugin<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > extends EventEmitter<any> {
   private view: LinkToolbarView | undefined;
   public readonly plugin: Plugin;

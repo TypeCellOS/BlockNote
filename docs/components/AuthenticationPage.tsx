@@ -24,7 +24,8 @@ function AuthenticationInput(props: {
     <div>
       <label
         htmlFor={props.type}
-        className="block text-sm/6 font-medium text-gray-900 dark:text-gray-100">
+        className="block text-sm/6 font-medium text-gray-900 dark:text-gray-100"
+      >
         {props.name}
       </label>
       <div className="mt-2">
@@ -159,7 +160,8 @@ function AuthenticationBox(props: {
           fill="currentColor"
           viewBox="0 -960 960 960"
           aria-hidden="true"
-          className="size-16">
+          className="size-16"
+        >
           <path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm320-280 320-200v-80L480-520 160-720v80l320 200Z" />
         </svg>
         <p className="text-md/6 mt-2 text-center">{signingInState.message}</p>
@@ -192,13 +194,15 @@ function AuthenticationBox(props: {
         <button
           type="submit"
           disabled={signingInState.state === "loading"}
-          className={`flex w-full justify-center rounded-md px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ${signingInState.state === "loading" ? "cursor-default bg-indigo-400" : "cursor-pointer bg-indigo-600 hover:bg-indigo-500"}`}>
+          className={`flex w-full justify-center rounded-md px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ${signingInState.state === "loading" ? "cursor-default bg-indigo-400" : "cursor-pointer bg-indigo-600 hover:bg-indigo-500"}`}
+        >
           {signingInState.state === "loading" ? (
             <svg
               fill="currentColor"
               viewBox="0 -960 960 960"
               aria-hidden="true"
-              className="size-6 animate-spin fill-white">
+              className="size-6 animate-spin fill-white"
+            >
               <path d="M480-46q-90 0-168.97-34.08-78.97-34.07-137.92-93.03-58.96-58.95-93.03-137.92Q46-390 46-480q0-90.14 34.06-168.88 34.07-78.74 93-137.93Q232-846 311-880t169-34q26 0 44.5 18.5T543-851q0 26-18.5 44.5T480-788q-128.01 0-218.01 89.99-89.99 89.99-89.99 218T261.99-262q89.99 90 218 90T698-261.99q90-90 90-218.01 0-26 18.5-44.5T851-543q26 0 44.5 18.5T914-480q0 90-34.06 169.01-34.07 79.01-93 138Q728-114 649.14-80 570.28-46 480-46Z" />
             </svg>
           ) : props.variant === "password" ? (
@@ -229,7 +233,8 @@ function AlternativeSignInButton(props: {
   return (
     <button
       className="flex w-full items-center justify-center gap-3 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:ring-transparent dark:bg-gray-800 dark:text-gray-100 dark:ring-gray-700 dark:hover:bg-gray-700"
-      onClick={props.onClick}>
+      onClick={props.onClick}
+    >
       {props.icon}
       <span className="text-sm/6 font-semibold">{props.name}</span>
     </button>
@@ -251,7 +256,8 @@ function EmailSignInButton() {
           fill="currentColor"
           viewBox="0 -960 960 960"
           aria-hidden="true"
-          className="size-5">
+          className="size-5"
+        >
           <path d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm320-280 320-200v-80L480-520 160-720v80l320 200Z" />
         </svg>
       }
@@ -278,7 +284,8 @@ function PasswordSignInButton() {
           viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg"
           aria-hidden="true"
-          className="size-5">
+          className="size-5"
+        >
           <path
             clipRule="evenodd"
             d="m15.75 2c0-.41421-.3358-.75-.75-.75s-.75.33579-.75.75v2.00018.0016 15.99642.0016 2.0002c0 .4142.3358.75.75.75s.75-.3358.75-.75v-1.2555c1.2094-.0124 2.2201-.0537 3.0589-.1961 1.028-.1744 1.8718-.5116 2.5499-1.1896.7483-.7484 1.0804-1.6974 1.2381-2.8698.1531-1.1392.1531-2.5948.1531-4.4325v-.1129c0-1.8378 0-3.29342-.1531-4.43262-.1577-1.17243-.4898-2.12137-1.2381-2.86974-.6781-.67808-1.5219-1.01524-2.5499-1.18966-.8388-.14233-1.8495-.18365-3.0589-.19608zm0 2.75569v14.48861c1.1862-.0127 2.0891-.0528 2.808-.1747.8418-.1429 1.3551-.3865 1.7401-.7715.4232-.4232.6769-1.0029.8121-2.0089.1382-1.0277.1398-2.3824.1398-4.2892s-.0016-3.26149-.1398-4.28915c-.1352-1.00609-.3889-1.58574-.8121-2.00895-.385-.38501-.8983-.62861-1.7401-.77146-.7189-.12197-1.6218-.16209-2.808-.17475z"
@@ -308,7 +315,8 @@ function GitHubSignInButton() {
           fill="currentColor"
           viewBox="0 0 20 20"
           aria-hidden="true"
-          className="size-5">
+          className="size-5"
+        >
           <path
             d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z"
             clipRule="evenodd"
@@ -404,7 +412,8 @@ export default function AuthenticationPage(props: {
                 router.push(
                   `${props.variant === "email" ? "/signup" : "/signin"}?redirect=${encodeURIComponent(callbackURL)}&theme=${encodeURIComponent(theme)}`,
                 );
-              }}>
+              }}
+            >
               {props.variant === "email"
                 ? "Don't have an account? Sign Up"
                 : props.variant === "password"

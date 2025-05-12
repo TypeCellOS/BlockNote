@@ -40,7 +40,8 @@ export default function App() {
   return (
     <YDocProvider
       docId={docId}
-      authEndpoint="https://demos.y-sweet.dev/api/auth">
+      authEndpoint="https://demos.y-sweet.dev/api/auth"
+    >
       <Document />
     </YDocProvider>
   );
@@ -77,7 +78,7 @@ function Document() {
     return new YjsThreadStore(
       activeUser.id,
       doc.getMap("threads"),
-      new DefaultThreadStoreAuth(activeUser.id, activeUser.role)
+      new DefaultThreadStoreAuth(activeUser.id, activeUser.role),
     );
   }, [doc, activeUser]);
 
@@ -94,7 +95,7 @@ function Document() {
         user: { color: getRandomColor(), name: activeUser.username },
       },
     },
-    [activeUser, threadStore]
+    [activeUser, threadStore],
   );
 
   return (
@@ -111,7 +112,8 @@ function Document() {
       renderEditor={false}
       // We also disable the default rendering of comments in the editor, as we
       // want to render them in the `ThreadsSidebar` component instead.
-      comments={false}>
+      comments={false}
+    >
       {/* We place the editor, the sidebar, and any settings selects within
       `BlockNoteView` as they use BlockNote UI components and need the context
       for them. */}

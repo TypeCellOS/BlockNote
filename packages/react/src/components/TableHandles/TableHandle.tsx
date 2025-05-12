@@ -21,9 +21,9 @@ import { TableHandleProps } from "./TableHandleProps.js";
  */
 export const TableHandle = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(
-  props: TableHandleProps<I, S> & { children?: ReactNode }
+  props: TableHandleProps<I, S> & { children?: ReactNode },
 ) => {
   const Components = useComponentsContext()!;
 
@@ -60,13 +60,14 @@ export const TableHandle = <
           props.editor.focus();
         }
       }}
-      position={"right"}>
+      position={"right"}
+    >
       <Components.Generic.Menu.Trigger>
         <Components.TableHandle.Root
           className={mergeCSSClasses(
             "bn-table-handle",
             isDragging ? "bn-table-handle-dragging" : "",
-            !isDraggable ? "bn-table-handle-not-draggable" : ""
+            !isDraggable ? "bn-table-handle-not-draggable" : "",
           )}
           draggable={isDraggable}
           onDragStart={(e) => {
@@ -81,7 +82,8 @@ export const TableHandle = <
             props.orientation === "column"
               ? { transform: "rotate(0.25turn)" }
               : undefined
-          }>
+          }
+        >
           {props.children || (
             <MdDragIndicator size={24} data-test={"tableHandle"} />
           )}
@@ -94,7 +96,7 @@ export const TableHandle = <
           block={props.block as any}
           index={props.index}
         />,
-        props.menuContainer
+        props.menuContainer,
       )}
     </Components.Generic.Menu.Root>
   );

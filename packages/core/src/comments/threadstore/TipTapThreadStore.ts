@@ -28,7 +28,7 @@ export class TiptapThreadStore extends ThreadStore {
   constructor(
     private readonly userId: string,
     private readonly provider: TiptapCollabProvider,
-    auth: ThreadStoreAuth // TODO: use?
+    auth: ThreadStoreAuth, // TODO: use?
   ) {
     super(auth);
   }
@@ -80,7 +80,7 @@ export class TiptapThreadStore extends ThreadStore {
     });
 
     return this.tiptapCommentToCommentData(
-      thread.comments[thread.comments.length - 1]
+      thread.comments[thread.comments.length - 1],
     );
   }
 
@@ -98,7 +98,7 @@ export class TiptapThreadStore extends ThreadStore {
     const comment = this.provider.getThreadComment(
       options.threadId,
       options.commentId,
-      true
+      true,
     );
 
     if (!comment) {
@@ -120,12 +120,12 @@ export class TiptapThreadStore extends ThreadStore {
     for (const reaction of (comment.data?.reactions ||
       []) as ReactionAsTiptapData[]) {
       const existingReaction = reactions.find(
-        (r) => r.emoji === reaction.emoji
+        (r) => r.emoji === reaction.emoji,
       );
       if (existingReaction) {
         existingReaction.userIds.push(reaction.userId);
         existingReaction.createdAt = new Date(
-          Math.min(existingReaction.createdAt.getTime(), reaction.createdAt)
+          Math.min(existingReaction.createdAt.getTime(), reaction.createdAt),
         );
       } else {
         reactions.push({
@@ -153,7 +153,7 @@ export class TiptapThreadStore extends ThreadStore {
       type: "thread",
       id: thread.id,
       comments: thread.comments.map((comment) =>
-        this.tiptapCommentToCommentData(comment)
+        this.tiptapCommentToCommentData(comment),
       ),
       resolved: !!thread.resolvedAt,
       metadata: thread.data?.metadata,
@@ -207,7 +207,7 @@ export class TiptapThreadStore extends ThreadStore {
     const comment = this.provider.getThreadComment(
       options.threadId,
       options.commentId,
-      true
+      true,
     );
 
     if (!comment) {
@@ -242,7 +242,7 @@ export class TiptapThreadStore extends ThreadStore {
     const comment = this.provider.getThreadComment(
       options.threadId,
       options.commentId,
-      true
+      true,
     );
 
     if (!comment) {
@@ -256,7 +256,7 @@ export class TiptapThreadStore extends ThreadStore {
           (comment.data?.reactions || []) as ReactionAsTiptapData[]
         ).filter(
           (reaction) =>
-            reaction.emoji !== options.emoji && reaction.userId !== this.userId
+            reaction.emoji !== options.emoji && reaction.userId !== this.userId,
         ),
       },
     });
@@ -276,7 +276,7 @@ export class TiptapThreadStore extends ThreadStore {
     return new Map(
       this.provider
         .getThreads()
-        .map((thread) => [thread.id, this.tiptapThreadToThreadData(thread)])
+        .map((thread) => [thread.id, this.tiptapThreadToThreadData(thread)]),
     );
   }
 

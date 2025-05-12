@@ -13,7 +13,7 @@ describe("Test updateBlock typing", () => {
         {
           // @ts-expect-error invalid type
           type: "non-existing",
-        }
+        },
       );
     } catch (e) {
       // ID doesn't exist, which is fine - this is a compile-time check
@@ -30,7 +30,7 @@ describe("Test updateBlock typing", () => {
             // @ts-expect-error invalid type
             level: 1,
           },
-        }
+        },
       );
     } catch (e) {
       // ID doesn't exist, which is fine - this is a compile-time check
@@ -43,7 +43,7 @@ describe("Test updateBlock typing", () => {
           props: {
             level: 1,
           },
-        }
+        },
       );
     } catch (e) {
       // ID doesn't exist, which is fine - this is a compile-time check
@@ -57,8 +57,8 @@ describe("Test updateBlock", () => {
       getEditor().transact((tr) =>
         updateBlock(tr, "heading-with-everything", {
           id: "new-id",
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
     expect(getEditor().document).toMatchSnapshot();
   });
@@ -68,8 +68,8 @@ describe("Test updateBlock", () => {
       getEditor().transact((tr) =>
         updateBlock(tr, "heading-with-everything", {
           type: "paragraph",
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -82,8 +82,8 @@ describe("Test updateBlock", () => {
           props: {
             level: 3,
           },
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -99,8 +99,8 @@ describe("Test updateBlock", () => {
             textAlignment: "right",
             textColor: "blue",
           },
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -113,8 +113,8 @@ describe("Test updateBlock", () => {
           props: {
             level: undefined,
           },
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -130,8 +130,8 @@ describe("Test updateBlock", () => {
             textAlignment: undefined,
             textColor: undefined,
           },
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -142,8 +142,8 @@ describe("Test updateBlock", () => {
       getEditor().transact((tr) =>
         updateBlock(tr, "heading-with-everything", {
           content: "New content",
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -166,8 +166,8 @@ describe("Test updateBlock", () => {
               styles: { backgroundColor: "blue" },
             },
           ],
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -191,8 +191,8 @@ describe("Test updateBlock", () => {
               ],
             },
           ],
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -236,8 +236,8 @@ describe("Test updateBlock", () => {
               ],
             },
           ],
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -248,7 +248,7 @@ describe("Test updateBlock", () => {
       getEditor().transact((tr) =>
         updateBlock(tr, "paragraph-0", {
           type: "table",
-        })
+        }),
       );
     }).toThrow();
   });
@@ -258,8 +258,8 @@ describe("Test updateBlock", () => {
       getEditor().transact((tr) =>
         updateBlock(tr, "table-0", {
           type: "paragraph",
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -284,8 +284,8 @@ describe("Test updateBlock", () => {
               },
             ],
           },
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -297,8 +297,8 @@ describe("Test updateBlock", () => {
         updateBlock(tr, "table-0", {
           type: "paragraph",
           content: "Paragraph",
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -309,8 +309,8 @@ describe("Test updateBlock", () => {
       getEditor().transact((tr) =>
         updateBlock(tr, "paragraph-0", {
           type: "image",
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -321,8 +321,8 @@ describe("Test updateBlock", () => {
       getEditor().transact((tr) =>
         updateBlock(tr, "image-0", {
           type: "paragraph",
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -334,8 +334,8 @@ describe("Test updateBlock", () => {
         updateBlock(tr, "image-0", {
           type: "paragraph",
           content: "Paragraph",
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -346,8 +346,8 @@ describe("Test updateBlock", () => {
       getEditor().transact((tr) =>
         updateBlock(tr, "image-0", {
           type: "table",
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -399,8 +399,8 @@ describe("Test updateBlock", () => {
               },
             ],
           },
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();
@@ -411,8 +411,8 @@ describe("Test updateBlock", () => {
       getEditor().transact((tr) =>
         updateBlock(tr, "table-0", {
           type: "image",
-        })
-      )
+        }),
+      ),
     ).toMatchSnapshot();
 
     expect(getEditor().document).toMatchSnapshot();

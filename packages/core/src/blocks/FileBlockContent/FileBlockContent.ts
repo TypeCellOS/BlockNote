@@ -36,7 +36,7 @@ export const fileBlockConfig = {
 
 export const fileRender = (
   block: BlockFromConfig<typeof fileBlockConfig, any, any>,
-  editor: BlockNoteEditor<any, any, any>
+  editor: BlockNoteEditor<any, any, any>,
 ) => {
   return createFileBlockWrapper(block, editor);
 };
@@ -69,7 +69,7 @@ export const fileParse = (element: HTMLElement) => {
 };
 
 export const fileToExternalHTML = (
-  block: BlockFromConfig<typeof fileBlockConfig, any, any>
+  block: BlockFromConfig<typeof fileBlockConfig, any, any>,
 ) => {
   if (!block.props.url) {
     const div = document.createElement("p");

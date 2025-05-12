@@ -9,8 +9,8 @@
     "eslint-plugin-import": "^2.31.0",
     "glob": "^10.3.10",
     "nx": "20.6.4",
-    "prettier": "3.5.3",
-    "prettier-plugin-tailwindcss": "0.6.11",
+    "prettier": "^3",
+    "prettier-plugin-tailwindcss": "^0.6.11",
     "serve": "14.2.4",
     "typescript": "^5.3.3",
     "vitest": "^2.0.3",
@@ -51,6 +51,6 @@
     "prestart": "pnpm run build",
     "start": "serve playground/dist -c ../serve.json",
     "test": "nx run-many --target=test",
-    "bootstrap": "echo 'do nothing'"
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,scss,md}\""
   }
 }

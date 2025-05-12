@@ -30,7 +30,7 @@ import { TextBlockSchema } from "./schema.js";
 function MUISuggestionMenuItem(
   props: Omit<SuggestionMenuProps<DefaultReactSuggestionItem>, "items"> & {
     item: DefaultReactSuggestionItem & { index: number };
-  }
+  },
 ) {
   const Icon = props.item.icon;
   const editor = useBlockNoteEditor<TextBlockSchema>();
@@ -45,8 +45,8 @@ function MUISuggestionMenuItem(
     const overflow = elementOverflow(
       itemRef.current,
       document.querySelector(
-        `.MuiPaper-root:has([aria-label="suggestion-menu"])`
-      )!
+        `.MuiPaper-root:has([aria-label="suggestion-menu"])`,
+      )!,
     );
 
     if (overflow === "top") {
@@ -63,13 +63,15 @@ function MUISuggestionMenuItem(
       disablePadding
       sx={{
         backgroundColor: (theme) => theme.palette.background.paper,
-      }}>
+      }}
+    >
       <ListItemButton
         selected={props.item.index === props.selectedIndex}
         onClick={() => {
           props.onItemClick?.(props.item);
           editor.focus();
-        }}>
+        }}
+      >
         <ListItemIcon>{Icon}</ListItemIcon>
         <ListItemText
           primary={props.item.title}
@@ -104,7 +106,8 @@ function MUISuggestionMenuLabel(props: { group: string }) {
       id={props.group}
       sx={{
         backgroundColor: (theme) => theme.palette.background.paper,
-      }}>
+      }}
+    >
       {props.group}
     </ListSubheader>
   );
@@ -114,7 +117,7 @@ function MUISuggestionMenuLabel(props: { group: string }) {
 // simplified MUI version:
 // https://github.com/TypeCellOS/BlockNote/blob/main/packages/mantine/src/suggestionMenu/SuggestionMenu.tsx
 export function MUISuggestionMenu(
-  props: SuggestionMenuProps<DefaultReactSuggestionItem>
+  props: SuggestionMenuProps<DefaultReactSuggestionItem>,
 ) {
   // Sorts items into their groups.
   const groups = useMemo(() => {
@@ -143,7 +146,8 @@ export function MUISuggestionMenu(
         maxHeight: "100%",
         maxWidth: 360,
         overflow: "auto",
-      }}>
+      }}
+    >
       <nav aria-label="suggestion-menu">
         {props.items.length > 0 ? (
           Object.entries(groups).map(([group, items]) => (
@@ -151,7 +155,8 @@ export function MUISuggestionMenu(
               key={group}
               component="nav"
               aria-labelledby="nested-list-subheader"
-              subheader={<MUISuggestionMenuLabel group={group} />}>
+              subheader={<MUISuggestionMenuLabel group={group} />}
+            >
               {items.map((item) => (
                 <MUISuggestionMenuItem
                   key={item.index}

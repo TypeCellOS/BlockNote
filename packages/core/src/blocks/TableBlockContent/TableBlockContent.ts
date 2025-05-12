@@ -42,7 +42,7 @@ export const TableBlockContent = createStronglyTypedTiptapNode({
         ...(this.options.domAttributes?.blockContent || {}),
         ...HTMLAttributes,
       },
-      this.options.domAttributes?.inlineContent || {}
+      this.options.domAttributes?.inlineContent || {},
     );
   },
 
@@ -59,18 +59,18 @@ export const TableBlockContent = createStronglyTypedTiptapNode({
         constructor(
           public node: PMNode,
           public cellMinWidth: number,
-          public blockContentHTMLAttributes: Record<string, string>
+          public blockContentHTMLAttributes: Record<string, string>,
         ) {
           super(node, cellMinWidth);
 
           const blockContent = document.createElement("div");
           blockContent.className = mergeCSSClasses(
             "bn-block-content",
-            blockContentHTMLAttributes.class
+            blockContentHTMLAttributes.class,
           );
           blockContent.setAttribute("data-content-type", "table");
           for (const [attribute, value] of Object.entries(
-            blockContentHTMLAttributes
+            blockContentHTMLAttributes,
           )) {
             if (attribute !== "class") {
               blockContent.setAttribute(attribute, value);
@@ -229,5 +229,5 @@ export const Table = createBlockSpecFromStronglyTypedTiptapNode(
       },
     }),
     TableRow,
-  ]
+  ],
 );

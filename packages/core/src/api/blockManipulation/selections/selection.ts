@@ -17,7 +17,7 @@ import { getBlockNoteSchema, getPmSchema } from "../../pmUtil.js";
 export function getSelection<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(tr: Transaction): Selection<BSchema, I, S> | undefined {
   const pmSchema = getPmSchema(tr);
   // Return undefined if the selection is collapsed or a node is selected.
@@ -26,10 +26,10 @@ export function getSelection<
   }
 
   const $startBlockBeforePos = tr.doc.resolve(
-    getNearestBlockPos(tr.doc, tr.selection.from).posBeforeNode
+    getNearestBlockPos(tr.doc, tr.selection.from).posBeforeNode,
   );
   const $endBlockBeforePos = tr.doc.resolve(
-    getNearestBlockPos(tr.doc, tr.selection.to).posBeforeNode
+    getNearestBlockPos(tr.doc, tr.selection.to).posBeforeNode,
   );
 
   // Converts the node at the given index and depth around `$startBlockBeforePos`
@@ -37,14 +37,14 @@ export function getSelection<
   // at the depth of `$startBlockBeforePos`.
   const indexToBlock = (
     index: number,
-    depth?: number
+    depth?: number,
   ): Block<BSchema, I, S> => {
     const pos = $startBlockBeforePos.posAtIndex(index, depth);
     const node = tr.doc.resolve(pos).nodeAfter;
 
     if (!node) {
       throw new Error(
-        `Error getting selection - node not found at position ${pos}`
+        `Error getting selection - node not found at position ${pos}`,
       );
     }
 
@@ -120,7 +120,7 @@ export function getSelection<
 
   if (blocks.length === 0) {
     throw new Error(
-      `Error getting selection - selection doesn't span any blocks (${tr.selection})`
+      `Error getting selection - selection doesn't span any blocks (${tr.selection})`,
     );
   }
 
@@ -132,7 +132,7 @@ export function getSelection<
 export function setSelection(
   tr: Transaction,
   startBlock: BlockIdentifier,
-  endBlock: BlockIdentifier
+  endBlock: BlockIdentifier,
 ) {
   const startBlockId =
     typeof startBlock === "string" ? startBlock : startBlock.id;
@@ -142,7 +142,7 @@ export function setSelection(
 
   if (startBlockId === endBlockId) {
     throw new Error(
-      `Attempting to set selection with the same anchor and head blocks (id ${startBlockId})`
+      `Attempting to set selection with the same anchor and head blocks (id ${startBlockId})`,
     );
   }
   const anchorPosInfo = getNodeById(startBlockId, tr.doc);
@@ -171,12 +171,12 @@ export function setSelection(
     anchorBlockConfig.content === "none"
   ) {
     throw new Error(
-      `Attempting to set selection anchor in block without content (id ${startBlockId})`
+      `Attempting to set selection anchor in block without content (id ${startBlockId})`,
     );
   }
   if (!headBlockInfo.isBlockContainer || headBlockConfig.content === "none") {
     throw new Error(
-      `Attempting to set selection anchor in block without content (id ${endBlockId})`
+      `Attempting to set selection anchor in block without content (id ${endBlockId})`,
     );
   }
 
@@ -201,7 +201,7 @@ export function setSelection(
       tableMap.positionAt(
         tableMap.height - 1,
         tableMap.width - 1,
-        headBlockInfo.blockContent.node
+        headBlockInfo.blockContent.node,
       ) +
       1;
     const lastCellNodeSize = tr.doc.resolve(lastCellPos).nodeAfter!.nodeSize;

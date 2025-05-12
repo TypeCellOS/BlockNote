@@ -25,9 +25,9 @@ import { SideMenuProps } from "./SideMenuProps.js";
 export const SideMenu = <
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(
-  props: SideMenuProps<BSchema, I, S> & { children?: ReactNode }
+  props: SideMenuProps<BSchema, I, S> & { children?: ReactNode },
 ) => {
   const Components = useComponentsContext()!;
 

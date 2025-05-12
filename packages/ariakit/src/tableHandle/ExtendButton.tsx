@@ -18,12 +18,13 @@ export const ExtendButton = forwardRef<
     <AriakitButton
       className={mergeCSSClasses(
         "bn-ak-button bn-ak-secondary",
-        className || ""
+        className || "",
       )}
       ref={ref}
       onMouseDown={onMouseDown}
       onClick={onClick}
-      {...rest}>
+      {...rest}
+    >
       {children}
     </AriakitButton>
   );

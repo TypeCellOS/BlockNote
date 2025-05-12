@@ -56,13 +56,15 @@ export function Card({
           classes.card,
           "nx-bg-gray-100 nx-shadow dark:nx-border-neutral-700 dark:nx-bg-neutral-800 dark:nx-text-gray-50 hover:nx-shadow-lg dark:hover:nx-border-neutral-500 dark:hover:nx-bg-neutral-700",
         )}
-        {...props}>
+        {...props}
+      >
         {children}
         <span
           className={cn(
             classes.title,
             "dark:nx-text-gray-300 dark:hover:nx-text-gray-100",
-          )}>
+          )}
+        >
           {icon}
           <span className="nx-flex nx-gap-1">
             {title}
@@ -79,14 +81,16 @@ export function Card({
       className={cn(
         classes.card,
         "nx-bg-transparent nx-shadow-sm dark:nx-border-neutral-800 hover:nx-bg-slate-50 hover:nx-shadow-md dark:hover:nx-border-neutral-700 dark:hover:nx-bg-neutral-900",
-        "nx-flex  nx-items-start nx-gap-2 nx-p-4 nx-text-gray-700",
+        "nx-flex nx-items-start nx-gap-2 nx-p-4 nx-text-gray-700",
       )}
-      {...props}>
+      {...props}
+    >
       <span
         className={cn(
           classes.title,
           "dark:nx-text-neutral-200 dark:hover:nx-text-neutral-50 nx-flex nx-items-center",
-        )}>
+        )}
+      >
         {title}
         {icon}
         {animatedArrow}
@@ -127,7 +131,8 @@ function _Cards({
           ...style,
           "--rows": num,
         } as CSSProperties
-      }>
+      }
+    >
       {children}
     </div>
   );

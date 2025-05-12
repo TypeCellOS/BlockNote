@@ -13,7 +13,8 @@ export function ResetBlockTypeItem(props: DragHandleMenuProps) {
     <Components.Generic.Menu.Item
       onClick={() => {
         editor.updateBlock(props.block, { type: "paragraph" });
-      }}>
+      }}
+    >
       Reset Type
     </Components.Generic.Menu.Item>
   );

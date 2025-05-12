@@ -1,4 +1,4 @@
-declare module 'react/jsx-runtime' {
+declare module "react/jsx-runtime" {
   namespace JSX {
     interface IntrinsicElements {
       "office:document-content": any;

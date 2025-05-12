@@ -27,7 +27,7 @@ describe("Test getBlocksChangedByTransaction", () => {
     });
 
     await expect(blocksChanged).toMatchFileSnapshot(
-      "__snapshots__/blocks-inserted.json"
+      "__snapshots__/blocks-inserted.json",
     );
   });
 
@@ -41,14 +41,14 @@ describe("Test getBlocksChangedByTransaction", () => {
           },
         ],
         "paragraph-0",
-        "after"
+        "after",
       );
 
       return getBlocksChangedByTransaction(tr);
     });
 
     await expect(blocksChanged).toMatchFileSnapshot(
-      "__snapshots__/blocks-inserted-nested.json"
+      "__snapshots__/blocks-inserted-nested.json",
     );
   });
 
@@ -59,7 +59,7 @@ describe("Test getBlocksChangedByTransaction", () => {
     });
 
     await expect(blocksChanged).toMatchFileSnapshot(
-      "__snapshots__/blocks-deleted.json"
+      "__snapshots__/blocks-deleted.json",
     );
   });
 
@@ -70,7 +70,7 @@ describe("Test getBlocksChangedByTransaction", () => {
     });
 
     await expect(blocksChanged).toMatchFileSnapshot(
-      "__snapshots__/blocks-deleted-nested-deep.json"
+      "__snapshots__/blocks-deleted-nested-deep.json",
     );
   });
 
@@ -81,7 +81,7 @@ describe("Test getBlocksChangedByTransaction", () => {
     });
 
     await expect(blocksChanged).toMatchFileSnapshot(
-      "__snapshots__/blocks-deleted-nested.json"
+      "__snapshots__/blocks-deleted-nested.json",
     );
   });
 
@@ -97,7 +97,7 @@ describe("Test getBlocksChangedByTransaction", () => {
     });
 
     await expect(blocksChanged).toMatchFileSnapshot(
-      "__snapshots__/blocks-updated.json"
+      "__snapshots__/blocks-updated.json",
     );
   });
 
@@ -113,7 +113,7 @@ describe("Test getBlocksChangedByTransaction", () => {
     });
 
     await expect(blocksChanged).toMatchFileSnapshot(
-      "__snapshots__/blocks-updated-nested.json"
+      "__snapshots__/blocks-updated-nested.json",
     );
   });
 
@@ -127,7 +127,7 @@ describe("Test getBlocksChangedByTransaction", () => {
     });
 
     await expect(blocksChanged).toMatchFileSnapshot(
-      "__snapshots__/blocks-updated-nested-deep.json"
+      "__snapshots__/blocks-updated-nested-deep.json",
     );
   });
 
@@ -146,7 +146,7 @@ describe("Test getBlocksChangedByTransaction", () => {
     });
 
     await expect(blocksChanged).toMatchFileSnapshot(
-      "__snapshots__/blocks-updated-nested-multiple.json"
+      "__snapshots__/blocks-updated-nested-multiple.json",
     );
   });
 
@@ -167,7 +167,7 @@ describe("Test getBlocksChangedByTransaction", () => {
     });
 
     await expect(blocksChanged).toMatchFileSnapshot(
-      "__snapshots__/blocks-updated-single.json"
+      "__snapshots__/blocks-updated-single.json",
     );
   });
 
@@ -188,7 +188,7 @@ describe("Test getBlocksChangedByTransaction", () => {
     });
 
     await expect(blocksChanged).toMatchFileSnapshot(
-      "__snapshots__/blocks-updated-multiple.json"
+      "__snapshots__/blocks-updated-multiple.json",
     );
   });
 
@@ -197,19 +197,19 @@ describe("Test getBlocksChangedByTransaction", () => {
       editor.insertBlocks(
         [{ type: "paragraph", content: "ABC" }],
         "paragraph-0",
-        "after"
+        "after",
       );
       editor.insertBlocks(
         [{ type: "paragraph", content: "DEF" }],
         "paragraph-1",
-        "after"
+        "after",
       );
 
       return getBlocksChangedByTransaction(tr);
     });
 
     await expect(blocksChanged).toMatchFileSnapshot(
-      "__snapshots__/blocks-updated-multiple-insert.json"
+      "__snapshots__/blocks-updated-multiple-insert.json",
     );
   });
 
@@ -222,7 +222,7 @@ describe("Test getBlocksChangedByTransaction", () => {
     });
 
     await expect(blocksChanged).toMatchFileSnapshot(
-      "__snapshots__/blocks-updated-content-inserted.json"
+      "__snapshots__/blocks-updated-content-inserted.json",
     );
   });
 });

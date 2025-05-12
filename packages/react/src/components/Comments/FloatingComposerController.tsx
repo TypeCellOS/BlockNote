@@ -18,7 +18,7 @@ import { FloatingComposer } from "./FloatingComposer.js";
 export const FloatingComposerController = <
   B extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(props: {
   floatingComposer?: FC<ComponentProps<typeof FloatingComposer>>;
   floatingOptions?: Partial<UseFloatingOptions>;
@@ -27,14 +27,14 @@ export const FloatingComposerController = <
 
   if (!editor.comments) {
     throw new Error(
-      "FloatingComposerController can only be used when BlockNote editor has enabled comments"
+      "FloatingComposerController can only be used when BlockNote editor has enabled comments",
     );
   }
 
   const comments = editor.comments;
   useEffect(() => {
     const offUpdate = comments.onUpdate((state) =>
-      editor.setForceSelectionVisible(state.pendingComment)
+      editor.setForceSelectionVisible(state.pendingComment),
     );
 
     return () => offUpdate();
@@ -60,7 +60,7 @@ export const FloatingComposerController = <
         }
       },
       ...props.floatingOptions,
-    }
+    },
   );
 
   if (!isMounted || !state) {

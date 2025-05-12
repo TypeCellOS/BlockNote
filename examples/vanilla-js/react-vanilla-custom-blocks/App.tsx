@@ -68,32 +68,32 @@ const alertBlock = createBlockSpec(
           alertTypes["warning"].icon,
           "warning",
           block.props.type === "warning",
-          block.props.type === "warning"
-        )
+          block.props.type === "warning",
+        ),
       );
       dropdown.options.add(
         new Option(
           alertTypes["error"].icon,
           "error",
           block.props.type === "error",
-          block.props.type === "error"
-        )
+          block.props.type === "error",
+        ),
       );
       dropdown.options.add(
         new Option(
           alertTypes["info"].icon,
           "info",
           block.props.type === "info",
-          block.props.type === "info"
-        )
+          block.props.type === "info",
+        ),
       );
       dropdown.options.add(
         new Option(
           alertTypes["success"].icon,
           "success",
           block.props.type === "success",
-          block.props.type === "success"
-        )
+          block.props.type === "success",
+        ),
       );
       alert.appendChild(dropdown);
 
@@ -107,7 +107,7 @@ const alertBlock = createBlockSpec(
         contentDOM: inlineContent,
       };
     },
-  }
+  },
 );
 
 const simpleImageBlock = createBlockSpec(
@@ -132,7 +132,7 @@ const simpleImageBlock = createBlockSpec(
         dom: image,
       };
     },
-  }
+  },
 );
 
 const bracketsParagraphBlock = createBlockSpec(
@@ -176,7 +176,7 @@ const bracketsParagraphBlock = createBlockSpec(
         contentDOM: inlineContent,
       };
     },
-  }
+  },
 );
 const schema = BlockNoteSchema.create({
   blockSpecs: {

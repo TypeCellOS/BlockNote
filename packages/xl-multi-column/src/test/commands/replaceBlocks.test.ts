@@ -32,7 +32,7 @@ describe("Test replaceBlocks", () => {
             },
           ],
         },
-      ]
+      ],
     );
 
     expect(getEditor().document).toMatchSnapshot();

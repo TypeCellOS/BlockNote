@@ -102,7 +102,7 @@ export class CommentsPlugin extends EventEmitter<any> {
               const trimmedFrom = Math.max(pos, 0);
               const trimmedTo = Math.min(
                 pos + node.nodeSize,
-                tr.doc.content.size - 1
+                tr.doc.content.size - 1,
               );
               tr.removeMark(trimmedFrom, trimmedTo, mark);
               tr.addMark(
@@ -111,7 +111,7 @@ export class CommentsPlugin extends EventEmitter<any> {
                 markType.create({
                   ...mark.attrs,
                   orphan: isOrphan,
-                })
+                }),
               );
 
               if (isOrphan && this.selectedThreadId === markThreadId) {
@@ -129,7 +129,7 @@ export class CommentsPlugin extends EventEmitter<any> {
   constructor(
     private readonly editor: BlockNoteEditor<any, any, any>,
     public readonly threadStore: ThreadStore,
-    private readonly markType: string
+    private readonly markType: string,
   ) {
     super();
 
@@ -187,7 +187,7 @@ export class CommentsPlugin extends EventEmitter<any> {
 
           if (self.selectedThreadId) {
             const selectedThreadPosition = threadPositions.get(
-              self.selectedThreadId
+              self.selectedThreadId,
             );
 
             if (selectedThreadPosition) {
@@ -197,8 +197,8 @@ export class CommentsPlugin extends EventEmitter<any> {
                   selectedThreadPosition.to,
                   {
                     class: "bn-thread-mark-selected",
-                  }
-                )
+                  },
+                ),
               );
             }
           }
@@ -228,7 +228,7 @@ export class CommentsPlugin extends EventEmitter<any> {
           }
 
           const commentMark = node.marks.find(
-            (mark) => mark.type.name === markType && mark.attrs.orphan !== true
+            (mark) => mark.type.name === markType && mark.attrs.orphan !== true,
           );
 
           const threadId = commentMark?.attrs.threadId as string | undefined;
@@ -246,7 +246,7 @@ export class CommentsPlugin extends EventEmitter<any> {
       pendingComment: boolean;
       selectedThreadId: string | undefined;
       threadPositions: Map<string, { from: number; to: number }>;
-    }) => void
+    }) => void,
   ) {
     return this.on("update", callback);
   }
@@ -263,7 +263,7 @@ export class CommentsPlugin extends EventEmitter<any> {
     this.editor.transact((tr) =>
       tr.setMeta(PLUGIN_KEY, {
         name: SET_SELECTED_THREAD_ID,
-      })
+      }),
     );
 
     if (threadId && scrollToThread) {

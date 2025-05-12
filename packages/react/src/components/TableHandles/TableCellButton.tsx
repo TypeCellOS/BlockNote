@@ -18,9 +18,9 @@ import { TableCellMenu } from "./TableCellMenu/TableCellMenu.js";
  */
 export const TableCellButton = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(
-  props: TableCellButtonProps<I, S> & { children?: ReactNode }
+  props: TableCellButtonProps<I, S> & { children?: ReactNode },
 ) => {
   const Components = useComponentsContext()!;
 
@@ -45,7 +45,8 @@ export const TableCellButton = <
           props.editor.focus();
         }
       }}
-      position={"right"}>
+      position={"right"}
+    >
       <Components.Generic.Menu.Trigger>
         <Components.Generic.Menu.Button className={"bn-table-cell-handle"}>
           {props.children || (
@@ -60,7 +61,7 @@ export const TableCellButton = <
           rowIndex={props.rowIndex}
           colIndex={props.colIndex}
         />,
-        props.menuContainer
+        props.menuContainer,
       )}
     </Components.Generic.Menu.Root>
   );

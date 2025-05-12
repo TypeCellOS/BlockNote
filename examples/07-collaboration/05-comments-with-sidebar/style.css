@@ -15,7 +15,8 @@
   width: 0;
 }
 
-.sidebar-comments-main-container .editor-section, .threads-sidebar-section {
+.sidebar-comments-main-container .editor-section,
+.threads-sidebar-section {
   border-radius: var(--bn-border-radius-large);
   display: flex;
   flex: 1;
@@ -25,13 +26,15 @@
   width: 0;
 }
 
-.sidebar-comments-main-container .editor-section h1, .threads-sidebar-section h1 {
+.sidebar-comments-main-container .editor-section h1,
+.threads-sidebar-section h1 {
   color: var(--bn-colors-menu-text);
   margin: 0;
   font-size: 32px;
 }
 
-.sidebar-comments-main-container .bn-editor, .bn-threads-sidebar {
+.sidebar-comments-main-container .bn-editor,
+.bn-threads-sidebar {
   border-radius: var(--bn-border-radius-medium);
   display: flex;
   flex-direction: column;

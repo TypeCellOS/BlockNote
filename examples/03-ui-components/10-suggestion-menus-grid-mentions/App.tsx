@@ -27,7 +27,7 @@ const schema = BlockNoteSchema.create({
 
 // Function which gets all users for the mentions menu.
 const getMentionMenuItems = (
-  editor: typeof schema.BlockNoteEditor
+  editor: typeof schema.BlockNoteEditor,
 ): DefaultReactGridSuggestionItem[] => {
   const users = ["Steve", "Bob", "Joe", "Mike"];
 
@@ -95,7 +95,7 @@ export function App() {
               ...item,
               title: item.id,
             })),
-            query
+            query,
           ) as DefaultReactGridSuggestionItem[]
         }
         columns={2}

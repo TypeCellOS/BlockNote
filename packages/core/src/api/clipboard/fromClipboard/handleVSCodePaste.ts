@@ -2,7 +2,7 @@ import { EditorView } from "prosemirror-view";
 
 export async function handleVSCodePaste(
   event: ClipboardEvent,
-  view: EditorView
+  view: EditorView,
 ) {
   const { schema } = view.state;
 
@@ -34,8 +34,8 @@ export async function handleVSCodePaste(
   view.pasteHTML(
     `<pre><code class="language-${language}">${text.replace(
       /\r\n?/g,
-      "\n"
-    )}</code></pre>`
+      "\n",
+    )}</code></pre>`,
   );
 
   return true;

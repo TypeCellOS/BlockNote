@@ -32,16 +32,17 @@ export const PopoverContent = forwardRef<
       className={mergeCSSClasses(
         "bn-ak-popover",
         className || "",
-        variant === "panel-popover" ? "bn-ak-panel-popover" : ""
+        variant === "panel-popover" ? "bn-ak-panel-popover" : "",
       )}
-      ref={ref}>
+      ref={ref}
+    >
       {children}
     </AriakitPopover>
   );
 });
 
 export const Popover = (
-  props: ComponentProps["Generic"]["Popover"]["Root"]
+  props: ComponentProps["Generic"]["Popover"]["Root"],
 ) => {
   const { children, opened, position, ...rest } = props;
 

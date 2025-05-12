@@ -26,7 +26,7 @@ export const Button = createBlockSpec(
             } as any, // TODO
           ],
           editor.getBlock(block)!,
-          "after"
+          "after",
         );
       });
 
@@ -34,7 +34,7 @@ export const Button = createBlockSpec(
         dom: button,
       };
     },
-  }
+  },
 );
 
 export const insertButton = {
@@ -47,7 +47,7 @@ export const insertButton = {
         },
       ],
       editor.getTextCursorPosition().block,
-      "after"
+      "after",
     );
   },
   subtext: "Insert a button which inserts a block below it",

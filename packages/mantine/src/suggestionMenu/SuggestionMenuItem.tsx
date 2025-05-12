@@ -27,7 +27,7 @@ export const SuggestionMenuItem = forwardRef<
 
     const overflow = elementOverflow(
       itemRef.current,
-      document.querySelector(".bn-suggestion-menu")!
+      document.querySelector(".bn-suggestion-menu")!,
     );
 
     if (overflow === "top") {
@@ -45,11 +45,13 @@ export const SuggestionMenuItem = forwardRef<
       id={id}
       role="option"
       onClick={onClick}
-      aria-selected={isSelected || undefined}>
+      aria-selected={isSelected || undefined}
+    >
       {item.icon && (
         <MantineGroup
           className="bn-mt-suggestion-menu-item-section"
-          data-position="left">
+          data-position="left"
+        >
           {item.icon}
         </MantineGroup>
       )}
@@ -64,7 +66,8 @@ export const SuggestionMenuItem = forwardRef<
       {item.badge && (
         <MantineGroup
           data-position="right"
-          className="bn-mt-suggestion-menu-item-section">
+          className="bn-mt-suggestion-menu-item-section"
+        >
           <MantineBadge size={"xs"}>{item.badge}</MantineBadge>
         </MantineGroup>
       )}

@@ -13,7 +13,8 @@ export const SuggestionMenuEmptyItem = forwardRef<
   return (
     <div
       className={mergeCSSClasses("bn-ak-menu-item", className || "")}
-      ref={ref}>
+      ref={ref}
+    >
       <div className="bn-ak-suggestion-menu-item-label">{children}</div>
     </div>
   );

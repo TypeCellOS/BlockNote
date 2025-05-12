@@ -26,7 +26,7 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
 
   public static create = (
     options: BlockNoteTipTapEditorOptions,
-    styleSchema: StyleSchema
+    styleSchema: StyleSchema,
   ) => {
     // because we separate the constructor from the creation of the view,
     // we need to patch setTimeout to prevent this code from having any effect:
@@ -48,7 +48,7 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
 
   protected constructor(
     options: BlockNoteTipTapEditorOptions,
-    styleSchema: StyleSchema
+    styleSchema: StyleSchema,
   ) {
     // possible fix for next.js server side rendering
     // const d = globalThis.document;
@@ -93,7 +93,7 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
 
     try {
       const pmNodes = options?.content.map((b) =>
-        blockToNode(b, this.schema, styleSchema).toJSON()
+        blockToNode(b, this.schema, styleSchema).toJSON(),
       );
       doc = createDocument(
         {
@@ -106,17 +106,17 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
           ],
         },
         this.schema,
-        this.options.parseOptions
+        this.options.parseOptions,
       );
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(
         "Error creating document from blocks passed as `initialContent`. Caused by exception: ",
-        e
+        e,
       );
       throw new Error(
         "Error creating document from blocks passed as `initialContent`:\n" +
-          +JSON.stringify(options.content)
+          +JSON.stringify(options.content),
       );
     }
 
@@ -221,7 +221,7 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
    */
   private createViewAlternative(
     blockNoteEditor: BlockNoteEditor<any, any, any>,
-    contentComponent?: any
+    contentComponent?: any,
   ) {
     (this as any).contentComponent = contentComponent;
 
@@ -244,7 +244,7 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
         state: this.state,
         markViews,
         nodeViews: this.extensionManager.nodeViews,
-      }
+      },
     );
 
     // `editor.view` is not yet available at this time.
@@ -263,7 +263,7 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
     this.commands.focus(
       this.options.autofocus ||
         this.options.element.getAttribute("data-bn-autofocus") === "true",
-      { scrollIntoView: false }
+      { scrollIntoView: false },
     );
     this.emit("create", { editor: this });
     this.isInitialized = true;
@@ -277,7 +277,7 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
   public mount = (
     blockNoteEditor: BlockNoteEditor<any, any, any>,
     element?: HTMLElement | null,
-    contentComponent?: any
+    contentComponent?: any,
   ) => {
     if (!element) {
       this.destroy();

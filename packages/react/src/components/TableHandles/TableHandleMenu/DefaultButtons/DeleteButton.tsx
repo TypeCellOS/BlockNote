@@ -13,9 +13,9 @@ import { TableHandleMenuProps } from "../TableHandleMenuProps.js";
 
 export const DeleteButton = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(
-  props: TableHandleMenuProps<I, S> & { orientation: "row" | "column" }
+  props: TableHandleMenuProps<I, S> & { orientation: "row" | "column" },
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
@@ -35,7 +35,8 @@ export const DeleteButton = <
     <Components.Generic.Menu.Item
       onClick={() => {
         tableHandles.removeRowOrColumn(props.index, props.orientation);
-      }}>
+      }}
+    >
       {props.orientation === "row"
         ? dict.table_handle.delete_row_menuitem
         : dict.table_handle.delete_column_menuitem}

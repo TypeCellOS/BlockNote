@@ -39,12 +39,12 @@ export function SuggestionMenuWrapper<Item>(props: {
       clearQuery();
       onItemClick?.(item);
     },
-    [onItemClick, closeMenu, clearQuery]
+    [onItemClick, closeMenu, clearQuery],
   );
 
   const { items, usedQuery, loadingState } = useLoadSuggestionMenuItems(
     query,
-    getItems
+    getItems,
   );
 
   useCloseSuggestionMenuNoItems(items, usedQuery, closeMenu);
@@ -53,7 +53,7 @@ export function SuggestionMenuWrapper<Item>(props: {
     editor,
     query,
     items,
-    onItemClickCloseMenu
+    onItemClickCloseMenu,
   );
 
   // set basic aria attributes when the menu is open

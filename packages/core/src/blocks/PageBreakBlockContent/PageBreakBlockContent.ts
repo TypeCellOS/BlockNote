@@ -22,7 +22,7 @@ export const pageBreakRender = () => {
   };
 };
 export const pageBreakParse = (
-  element: HTMLElement
+  element: HTMLElement,
 ): Partial<Props<typeof pageBreakConfig.propSchema>> | undefined => {
   if (element.tagName === "DIV" && element.hasAttribute("data-page-break")) {
     return {

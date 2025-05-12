@@ -55,7 +55,7 @@ import type {
 type ExtensionOptions<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = {
   editor: BlockNoteEditor<BSchema, I, S>;
   domAttributes: Partial<BlockNoteDOMAttributes>;
@@ -97,9 +97,9 @@ type ExtensionOptions<
 export const getBlockNoteExtensions = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
-  opts: ExtensionOptions<BSchema, I, S>
+  opts: ExtensionOptions<BSchema, I, S>,
 ) => {
   const ret: Record<string, BlockNoteExtension> = {};
   const tiptapExtensions = getTipTapExtensions(opts);
@@ -120,12 +120,12 @@ export const getBlockNoteExtensions = <
   // Note: this is pretty hardcoded and will break when user provides plugins with same keys.
   // Define name on plugins instead and not make this a map?
   ret["formattingToolbar"] = new FormattingToolbarProsemirrorPlugin(
-    opts.editor
+    opts.editor,
   );
   ret["linkToolbar"] = new LinkToolbarProsemirrorPlugin(opts.editor);
   ret["sideMenu"] = new SideMenuProsemirrorPlugin(
     opts.editor,
-    opts.sideMenuDetection
+    opts.sideMenuDetection,
   );
   ret["suggestionMenus"] = new SuggestionMenuProseMirrorPlugin(opts.editor);
   ret["filePanel"] = new FilePanelProsemirrorPlugin(opts.editor as any);
@@ -155,7 +155,7 @@ export const getBlockNoteExtensions = <
     ret["comments"] = new CommentsPlugin(
       opts.editor,
       opts.comments.threadStore,
-      CommentMark.name
+      CommentMark.name,
     );
   }
 
@@ -175,9 +175,9 @@ let LINKIFY_INITIALIZED = false;
 const getTipTapExtensions = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
-  opts: ExtensionOptions<BSchema, I, S>
+  opts: ExtensionOptions<BSchema, I, S>,
 ) => {
   const tiptapExtensions: AnyExtension[] = [
     extensions.ClipboardTextSerializer,
@@ -264,7 +264,7 @@ const getTipTapExtensions = <
           ext.configure({
             editor: opts.editor,
             domAttributes: opts.domAttributes,
-          })
+          }),
         ),
         // the actual node itself
         blockSpec.implementation.node.configure({
@@ -282,7 +282,7 @@ const getTipTapExtensions = <
             prioritizeMarkdownOverHTML?: boolean;
             plainTextAsMarkdown?: boolean;
           }) => boolean | undefined;
-        }) => context.defaultPasteHandler())
+        }) => context.defaultPasteHandler()),
     ),
     createDropFileExtension(opts.editor),
 
