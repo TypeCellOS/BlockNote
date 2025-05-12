@@ -538,6 +538,7 @@ export class TableHandlesView<
     this.state.block = this.editor.getBlock(this.state.block.id)!;
     if (
       !this.state.block ||
+      this.state.block.type !== "table" ||
       // when collaborating, the table element might be replaced and out of date
       // because yjs replaces the element when for example you change the color via the side menu
       !this.tableElement?.isConnected
