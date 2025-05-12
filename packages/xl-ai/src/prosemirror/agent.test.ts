@@ -9,6 +9,7 @@ import { describe, expect, it } from "vitest";
 import { getAIExtension } from "../AIExtension.js";
 import { DocumentOperationTestCase, getExpectedEditor } from "../testUtil/cases/types.js";
 import { updateOperationTestCases } from "../testUtil/cases/updateOperationTestCases.js";
+import { validateRejectingResultsInOriginalDoc } from "../testUtil/suggestChangesTestUtil.js";
 import { agentStepToTr, getStepsAsAgent } from "./agent.js";
 import { updateToReplaceSteps } from "./changeset.js";
 
@@ -200,6 +201,7 @@ async function executeTestCase(
   test: DocumentOperationTestCase
 ) {
   const results = [];
+  const doc = editor.prosemirrorState.doc;
   for (const updateOp of test.baseToolCalls) {
     if (updateOp.type !== "update") {
       throw new Error("Only update operations are supported");
@@ -208,7 +210,7 @@ async function executeTestCase(
     const update = updateOp.block;
 
     const selection = test.getTestSelection?.(editor);
-    const doc = editor.prosemirrorState.doc;
+    
     const steps = updateToReplaceSteps(
       {
         id: blockId,
@@ -233,8 +235,15 @@ async function executeTestCase(
       );
     }
   }
-  expect(results).toMatchSnapshot();
-  await getAIExtension(editor).acceptChanges();
+  
+  validateRejectingResultsInOriginalDoc(editor, doc);
+    expect(results).toMatchSnapshot();
+        
+    getAIExtension(editor).acceptChanges();
+    expect(editor.document).toEqual(getExpectedEditor(test).document);
+
+    return results;
+  
 }
 
 describe("agentStepToTr", () => {
@@ -247,12 +256,9 @@ describe("agentStepToTr", () => {
     for (const test of updateOperationTestCases) {
       it(`${test.description}`, async () => {
         const editor = test.editor();
-        editor._tiptapEditor.forceEnablePlugins();
+
         await executeTestCase(editor, test);
-
-
-          expect(editor.document).toEqual(getExpectedEditor(test).document);
-        });
-      }
+      });
+    }
   });
 });

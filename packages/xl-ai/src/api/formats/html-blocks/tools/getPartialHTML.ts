@@ -27,7 +27,15 @@ export function getPartialHTML(html: string): string | undefined {
     }
   }
 
-  // TODO: clean script tags?
+  // if we're half-way through an entity tag that isn't closed, we need to remove the entity tag
+  const match = htmlToProcess.match(/&[a-zA-Z0-9]*$/);
+  if (match) {
+    htmlToProcess = htmlToProcess.substring(
+      0,
+      htmlToProcess.length - match[0].length,
+    );
+  }
+
   // Parse the HTML
   const parser = new DOMParser();
   const doc = parser.parseFromString(

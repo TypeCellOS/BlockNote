@@ -30,4 +30,21 @@ export const addOperationTestCases: DocumentOperationTestCase[] = [
     userPrompt:
       "add a new paragraph with the text 'You look great today!' after the last sentence",
   },
+  {
+    editor: getSimpleEditor,
+    description: "add a list (end)",
+    baseToolCalls: [
+      {
+        type: "add",
+        blocks: [
+          { type: "bulletListItem", content: "Apples" },
+          { type: "bulletListItem", content: "Bananas" },
+        ],
+        referenceId: "ref2",
+        position: "after",
+      },
+    ],
+    userPrompt:
+      "add a list with the items 'Apples' and 'Bananas' after the last sentence",
+  },
 ];

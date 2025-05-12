@@ -1,6 +1,7 @@
 import { BlockNoteEditor, getBlockInfo, getNodeById } from "@blocknote/core";
 import { schemaWithMention as schema } from "@shared/testing/editorSchemas/mention.js";
 import { createAIExtension } from "../../AIExtension.js";
+import { getEditorWithBlockFormatting } from "./editors/blockFormatting.js";
 import { getEditorWithFormattingAndMentions } from "./editors/formattingAndMentions.js";
 import { getEditorWithTables } from "./editors/tables.js";
 import { DocumentOperationTestCase } from "./types.js";
@@ -783,5 +784,32 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
       },
     ],
     userPrompt: "make the first paragraph uppercase",
+  },
+  {
+    editor: getEditorWithBlockFormatting,
+    description: "clear block formatting",
+    baseToolCalls: [
+      {
+        type: "update",
+        id: "ref1",
+        block: {
+          props: {
+            backgroundColor: undefined,
+            textAlignment: undefined,
+          },
+        },
+      },
+      {
+        type: "update",
+        id: "ref2",
+        block: {
+          props: {
+            backgroundColor: undefined,
+            textAlignment: undefined,
+          },
+        },
+      },
+    ],
+    userPrompt: "clear the formatting (colors and alignment)",
   },
 ];

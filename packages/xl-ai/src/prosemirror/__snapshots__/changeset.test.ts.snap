@@ -1,5 +1,79 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`clear block formatting 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "attrs": {
+            "backgroundColor": "red",
+            "id": "ref1",
+            "textColor": "default",
+          },
+          "type": "blockContainer",
+        },
+      ],
+      "openEnd": 1,
+    },
+    "step": {
+      "from": 1,
+      "slice": {
+        "content": [
+          {
+            "attrs": {
+              "backgroundColor": "default",
+              "id": "ref1",
+              "textColor": "default",
+            },
+            "type": "blockContainer",
+          },
+        ],
+        "openEnd": 1,
+      },
+      "stepType": "replace",
+      "structure": true,
+      "to": 2,
+    },
+  },
+]
+`;
+
+exports[`clear block formatting 2`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "attrs": {
+            "textAlignment": "right",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "openEnd": 1,
+    },
+    "step": {
+      "from": 18,
+      "slice": {
+        "content": [
+          {
+            "attrs": {
+              "textAlignment": "left",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "openEnd": 1,
+      },
+      "stepType": "replace",
+      "structure": true,
+      "to": 19,
+    },
+  },
+]
+`;
+
 exports[`drop mark and link 1`] = `
 [
   {

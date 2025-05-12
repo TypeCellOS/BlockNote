@@ -1,15 +1,15 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { describe, expect, it } from "vitest";
-
 import { getCurrentTest, TaskContext } from "@vitest/runner";
 import path from "path";
 import { TextSelection } from "prosemirror-state";
-import { getAIExtension } from "../../../AIExtension.js";
-import { addOperationTestCases } from "../../../testUtil/cases/AddOperationTestCases.js";
+import { describe, expect, it } from "vitest";
+import { createAIExtension, getAIExtension } from "../../../AIExtension.js";
+import { addOperationTestCases } from "../../../testUtil/cases/addOperationTestCases.js";
 import { combinedOperationsTestCases } from "../../../testUtil/cases/combinedOperationsTestCases.js";
 import { deleteOperationTestCases } from "../../../testUtil/cases/deleteOperationTestCases.js";
 import { DocumentOperationTestCase, getExpectedEditor } from "../../../testUtil/cases/types.js";
 import { updateOperationTestCases } from "../../../testUtil/cases/updateOperationTestCases.js";
+import { validateRejectingResultsInOriginalDoc } from "../../../testUtil/suggestChangesTestUtil.js";
 import { CallLLMResult } from "../CallLLMResult.js";
 
 const BASE_FILE_PATH = path.resolve(__dirname, "__snapshots__");
@@ -64,15 +64,21 @@ export function generateSharedTestCases(
         );
       });
     }
+
+    const originalDoc = editor.prosemirrorState.doc;;
+
     const result = await callLLM(editor, {
       userPrompt: test.userPrompt,
       useSelection: selection !== undefined,
     });
-    // await result._logToolCalls();
+
+    await result._logToolCalls();
     await result.execute();
     // the prosemirrorState has all details with suggested changes, so we use this for the snapshot
     await matchFileSnapshot(editor.prosemirrorState.doc.toJSON());
 
+    validateRejectingResultsInOriginalDoc(editor, originalDoc);
+    
     // we first need to accept changes to get the correct result
     getAIExtension(editor).acceptChanges();
     expect(editor.document).toEqual(getExpectedEditor(test).document);
@@ -124,5 +130,43 @@ export function generateSharedTestCases(
         await executeTestCase(editor, test);
       });
     }
+  });
+
+  // TODO
+  describe("Misc", () => {
+    it("create google ads script", async (c) => {
+      const editor = BlockNoteEditor.create({
+        initialContent: [
+          {
+            type: "heading",
+            props: {
+              level: 1
+            },
+            content: "Google ads scripts",
+          },
+          {
+            type: "paragraph",
+          },
+          {
+            type: "paragraph",
+          }
+        ],
+        _extensions: {
+          ai: createAIExtension({
+            model: undefined as any,
+          }),
+        },
+      });
+
+      editor.setTextCursorPosition(editor.document[1], "start");
+
+      const result = await callLLM(editor, {
+        userPrompt: "write a script that sends me an email alert when the daily budget is spend",
+      });
+
+      await result.execute();
+
+      await matchFileSnapshot(editor.prosemirrorState.doc.toJSON());
+    });
   });
 }

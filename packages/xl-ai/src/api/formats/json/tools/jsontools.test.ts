@@ -1,13 +1,9 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vitest";
-import { getAIExtension } from "../../../../AIExtension.js";
-import { addOperationTestCases } from "../../../../testUtil/cases/AddOperationTestCases.js";
+import { addOperationTestCases } from "../../../../testUtil/cases/addOperationTestCases.js";
 import { combinedOperationsTestCases } from "../../../../testUtil/cases/combinedOperationsTestCases.js";
 import { deleteOperationTestCases } from "../../../../testUtil/cases/deleteOperationTestCases.js";
-import {
-  DocumentOperationTestCase,
-  getExpectedEditor,
-} from "../../../../testUtil/cases/types.js";
+import { DocumentOperationTestCase } from "../../../../testUtil/cases/types.js";
 import { updateOperationTestCases } from "../../../../testUtil/cases/updateOperationTestCases.js";
 import { createAsyncIterableStreamFromAsyncIterable } from "../../../util/stream.js";
 import { AddBlocksToolCall } from "../../base-tools/createAddBlocksTool.js";
@@ -17,6 +13,9 @@ import { CallLLMResult } from "../../CallLLMResult.js";
 import { tools } from "./index.js";
 
 // Helper function to create a mock stream from operations
+import { getAIExtension } from "../../../../AIExtension.js";
+import { getExpectedEditor } from "../../../../testUtil/cases/types.js";
+import { validateRejectingResultsInOriginalDoc } from "../../../../testUtil/suggestChangesTestUtil.js";
 async function* createMockStream(
   ...operations: {
     operation:
@@ -40,6 +39,7 @@ async function executeTestCase(
   editor: BlockNoteEditor<any, any, any>,
   testCase: DocumentOperationTestCase,
 ) {
+  const originalDoc = editor.prosemirrorState.doc;
   const streamTools = [
     tools.add(editor, { idsSuffixed: true, withDelays: false }),
     tools.update(editor, {
@@ -65,7 +65,10 @@ async function executeTestCase(
 
   await result.execute();
 
-  await getAIExtension(editor).acceptChanges();
+  validateRejectingResultsInOriginalDoc(editor, originalDoc);
+
+  getAIExtension(editor).acceptChanges();
+  expect(editor.document).toEqual(getExpectedEditor(testCase).document);
 
   return result;
 }
@@ -76,8 +79,6 @@ describe("Add", () => {
       const editor = testCase.editor();
 
       await executeTestCase(editor, testCase);
-
-      expect(editor.document).toEqual(getExpectedEditor(testCase).document);
     });
   }
 });
@@ -88,8 +89,6 @@ describe("Update", () => {
       const editor = testCase.editor();
 
       await executeTestCase(editor, testCase);
-
-      expect(editor.document).toEqual(getExpectedEditor(testCase).document);
     });
   }
 });
@@ -104,7 +103,6 @@ describe("Delete", () => {
       expect(editor.document.length).toBe(
         startDocLength - testCase.baseToolCalls.length,
       );
-      expect(editor.document).toEqual(getExpectedEditor(testCase).document);
     });
   }
 });
@@ -115,8 +113,6 @@ describe("Combined", () => {
       const editor = testCase.editor();
 
       await executeTestCase(editor, testCase);
-
-      expect(editor.document).toEqual(getExpectedEditor(testCase).document);
     });
   }
 });

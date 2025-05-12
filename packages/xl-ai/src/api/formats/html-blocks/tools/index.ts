@@ -29,6 +29,8 @@ export const tools = {
     validateBlock: validateBlockFunction,
     rebaseTool: createHTMLRebaseTool,
     toJSONToolCall: async (editor, chunk) => {
+      const initialMockID = (window as any).__TEST_OPTIONS?.mockID;
+
       const blocks = (
         await Promise.all(
           chunk.operation.blocks.map(async (html) => {
@@ -51,7 +53,7 @@ export const tools = {
       // hacky
       if ((window as any).__TEST_OPTIONS) {
         (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS.mockID =
-          undefined;
+          initialMockID;
       }
 
       if (blocks.length === 0) {

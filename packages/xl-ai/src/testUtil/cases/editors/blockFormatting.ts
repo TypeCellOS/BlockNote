@@ -2,16 +2,22 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { schemaWithMention as schema } from "@shared/testing/editorSchemas/mention.js";
 import { createAIExtension } from "../../../AIExtension.js";
 
-export function getSimpleEditor() {
+export function getEditorWithBlockFormatting() {
   const editor = BlockNoteEditor.create({
     initialContent: [
       {
         id: "ref1",
-        content: "Hello, world!",
+        content: "Colored text",
+        props: {
+          backgroundColor: "red",
+        },
       },
       {
         id: "ref2",
-        content: "How are you?",
+        content: "Aligned text",
+        props: {
+          textAlignment: "right",
+        },
       },
     ],
     trailingBlock: false,

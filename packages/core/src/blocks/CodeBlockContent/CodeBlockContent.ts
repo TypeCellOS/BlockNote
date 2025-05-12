@@ -64,7 +64,7 @@ type CodeBlockConfigOptions = {
 
 export const shikiParserSymbol = Symbol.for("blocknote.shikiParser");
 export const shikiHighlighterPromiseSymbol = Symbol.for(
-  "blocknote.shikiHighlighterPromise"
+  "blocknote.shikiHighlighterPromise",
 );
 export const defaultCodeBlockPropSchema = {
   language: {
@@ -76,7 +76,7 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
   name: "codeBlock",
   content: "inline*",
   group: "blockContent",
-  marks: "",
+  marks: "insertion deletion modification",
   code: true,
   defining: true,
   addOptions() {
@@ -164,7 +164,7 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
       {
         ...(this.options.domAttributes?.inlineContent || {}),
         ...HTMLAttributes,
-      }
+      },
     );
 
     dom.removeChild(contentDOM);
@@ -190,7 +190,7 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
           ...(this.options.domAttributes?.blockContent || {}),
           ...HTMLAttributes,
         },
-        this.options.domAttributes?.inlineContent || {}
+        this.options.domAttributes?.inlineContent || {},
       );
       const handleLanguageChange = (event: Event) => {
         const language = (event.target as HTMLSelectElement).value;
@@ -203,7 +203,7 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
       };
 
       Object.entries(
-        options.editor.settings.codeBlock.supportedLanguages
+        options.editor.settings.codeBlock.supportedLanguages,
       ).forEach(([id, { name }]) => {
         const option = document.createElement("option");
 
@@ -254,7 +254,7 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
         if (process.env.NODE_ENV === "development" && !hasWarned) {
           // eslint-disable-next-line no-console
           console.log(
-            "For syntax highlighting of code blocks, you must provide a `codeBlock.createHighlighter` function"
+            "For syntax highlighting of code blocks, you must provide a `codeBlock.createHighlighter` function",
           );
           hasWarned = true;
         }
@@ -268,12 +268,12 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
         return globalThisForShiki[shikiHighlighterPromiseSymbol].then(
           (createdHighlighter) => {
             highlighter = createdHighlighter;
-          }
+          },
         );
       }
       const language = getLanguageId(
         options.editor.settings.codeBlock,
-        parserOptions.language!
+        parserOptions.language!,
       );
 
       if (
@@ -329,7 +329,7 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
               .canReplaceWith(
                 $start.index(-1),
                 $start.indexAfter(-1),
-                this.type
+                this.type,
               )
           ) {
             return null;
@@ -416,7 +416,7 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
             $from.pos - $from.parentOffset + $from.parent.nodeSize,
             {
               type: "paragraph",
-            }
+            },
           )
           .run();
 
@@ -428,16 +428,16 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
 
 export const CodeBlock = createBlockSpecFromStronglyTypedTiptapNode(
   CodeBlockContent,
-  defaultCodeBlockPropSchema
+  defaultCodeBlockPropSchema,
 );
 
 function getLanguageId(
   options: CodeBlockOptions,
-  languageName: string
+  languageName: string,
 ): string | undefined {
   return Object.entries(options.supportedLanguages).find(
     ([id, { aliases }]) => {
       return aliases?.includes(languageName) || id === languageName;
-    }
+    },
   )?.[0];
 }

@@ -195,6 +195,17 @@ export function getStepsAsAgent(doc: Node, pmSchema: Schema, steps: Step[]) {
         replaceFrom + replacement.content.size,
         pmSchema.mark("insertion", {})
       );
+
+      tr.doc.nodesBetween(replaceFrom, replaceFrom + replacement.content.size, (node, pos) => {
+        if (pos < replaceFrom || pos > replaceFrom + replacement.content.size) {
+          return true;
+        }
+        if (node.isBlock) {
+          tr.addNodeMark(pos, pmSchema.mark("insertion", {}));
+        }
+        return false;
+      });
+
       replaceEnd = tr.mapping.slice(stepIndex).map(replaceEnd);
 
       // tr.replace(replaceFrom, replaceEnd, replacement);

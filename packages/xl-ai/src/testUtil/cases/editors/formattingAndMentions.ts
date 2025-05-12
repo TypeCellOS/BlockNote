@@ -3,7 +3,7 @@ import { schemaWithMention as schema } from "@shared/testing/editorSchemas/menti
 import { createAIExtension } from "../../../AIExtension.js";
 
 export function getEditorWithFormattingAndMentions() {
-  return BlockNoteEditor.create({
+  const editor = BlockNoteEditor.create({
     initialContent: [
       {
         id: "ref1",
@@ -74,4 +74,6 @@ export function getEditorWithFormattingAndMentions() {
       }),
     },
   });
+  editor._tiptapEditor.forceEnablePlugins();
+  return editor;
 }

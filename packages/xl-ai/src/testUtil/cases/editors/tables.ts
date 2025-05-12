@@ -2,9 +2,8 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { schemaWithMention as schema } from "@shared/testing/editorSchemas/mention.js";
 import { createAIExtension } from "../../../AIExtension.js";
 
-// TODO: switch to trailingblock: false
 export function getEditorWithTables() {
-  return BlockNoteEditor.create({
+  const editor = BlockNoteEditor.create({
     initialContent: [
       {
         id: "ref1",
@@ -45,4 +44,6 @@ export function getEditorWithTables() {
       }),
     },
   });
+  editor._tiptapEditor.forceEnablePlugins();
+  return editor;
 }
