@@ -40,7 +40,7 @@ const DEFAULT_TAB_STOP =
 export class DOCXExporter<
   B extends BlockSchema,
   S extends StyleSchema,
-  I extends InlineContentSchema
+  I extends InlineContentSchema,
 > extends Exporter<
   B,
   I,
@@ -71,7 +71,7 @@ export class DOCXExporter<
       IRunPropertiesOptions,
       TextRun
     >["mappings"],
-    options?: Partial<ExporterOptions>
+    options?: Partial<ExporterOptions>,
   ) {
     const defaults = {
       colors: COLORS_DEFAULT,
@@ -93,7 +93,7 @@ export class DOCXExporter<
 
     const styles: IRunPropertiesOptions = Object.assign(
       {} as IRunPropertiesOptions,
-      ...stylesArray
+      ...stylesArray,
     );
 
     return new TextRun({
@@ -108,7 +108,7 @@ export class DOCXExporter<
    */
   public async transformBlocks(
     blocks: Block<B, I, S>[],
-    nestingLevel = 0
+    nestingLevel = 0,
   ): Promise<Array<Paragraph | Table>> {
     const ret: Array<Paragraph | Table> = [];
 
@@ -123,7 +123,7 @@ export class DOCXExporter<
           c.addRunToFront(
             new TextRun({
               children: [new Tab()],
-            })
+            }),
           );
         }
         return c;
@@ -143,15 +143,15 @@ export class DOCXExporter<
     // "./src/fonts/Inter-VariableFont_opsz,wght.ttf",
 
     let interFont = await loadFileBuffer(
-      await import("@shared/assets/fonts/inter/Inter_18pt-Regular.ttf")
+      await import("@shared/assets/fonts/inter/Inter_18pt-Regular.ttf"),
     );
     let geistMonoFont = await loadFileBuffer(
-      await import("@shared/assets/fonts/GeistMono-Regular.ttf")
+      await import("@shared/assets/fonts/GeistMono-Regular.ttf"),
     );
 
     if (
       interFont instanceof ArrayBuffer ||
-      geistMonoFont instanceof Uint8Array
+      geistMonoFont instanceof ArrayBuffer
     ) {
       // conversion with Polyfill needed because docxjs requires Buffer
       // NOTE: the buffer/ import is intentional and as documented in
@@ -160,18 +160,18 @@ export class DOCXExporter<
       const Buffer = (await import("buffer/")).Buffer;
 
       if (interFont instanceof ArrayBuffer) {
-        interFont = Buffer.from(interFont);
+        interFont = Buffer.from(interFont) as unknown as Buffer;
       }
       if (geistMonoFont instanceof ArrayBuffer) {
-        geistMonoFont = Buffer.from(geistMonoFont);
+        geistMonoFont = Buffer.from(geistMonoFont) as unknown as Buffer;
       }
     }
 
     return [
-      { name: "Inter", data: interFont as Buffer },
+      { name: "Inter", data: interFont },
       {
         name: "GeistMono",
-        data: geistMonoFont as Buffer,
+        data: geistMonoFont,
       },
     ];
   }
@@ -239,7 +239,7 @@ export class DOCXExporter<
     } = {
       sectionOptions: {},
       documentOptions: {},
-    }
+    },
   ) {
     const doc = await this.toDocxJsDocument(blocks, options);
     type GlobalThis = typeof globalThis & { Buffer?: any };
@@ -268,7 +268,7 @@ export class DOCXExporter<
     } = {
       sectionOptions: {},
       documentOptions: {},
-    }
+    },
   ) {
     const doc = new Document({
       ...(await this.createDefaultDocumentOptions()),
@@ -285,7 +285,7 @@ export class DOCXExporter<
     doc.Document.Relationships.createRelationship(
       doc.Document.Relationships.RelationshipCount + 1,
       "http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable",
-      "fontTable.xml"
+      "fontTable.xml",
     );
 
     return doc;

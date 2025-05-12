@@ -6,7 +6,7 @@
 
 export async function loadFileDataUrl(
   requireUrl: { default: string },
-  mimeType: string
+  mimeType: string,
 ) {
   if (import.meta.env.NODE_ENV === "test") {
     const buffer = await loadFileBuffer(requireUrl);
@@ -26,7 +26,7 @@ export async function loadFontDataUrl(requireUrl: { default: string }) {
 
 export async function loadFileBuffer(requireUrl: {
   default: string;
-}) {
+}): Promise<Buffer | ArrayBuffer> {
   if (import.meta.env.NODE_ENV === "test") {
     // in vitest, this is the url we need to load with readfilesync
     // eslint-disable-next-line
