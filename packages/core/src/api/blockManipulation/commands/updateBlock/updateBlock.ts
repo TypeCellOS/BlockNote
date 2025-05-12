@@ -32,10 +32,10 @@ import { getPmSchema } from "../../../pmUtil.js";
 export const updateBlockCommand = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   posBeforeBlock: number,
-  block: PartialBlock<BSchema, I, S>
+  block: PartialBlock<BSchema, I, S>,
 ) => {
   return ({
     tr,
@@ -54,13 +54,13 @@ export const updateBlockCommand = <
 export function updateBlockTr<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   tr: Transform,
   posBeforeBlock: number,
   block: PartialBlock<BSchema, I, S>,
   replaceFromPos?: number,
-  replaceToPos?: number
+  replaceToPos?: number,
 ) {
   const blockInfo = getBlockInfoFromResolvedPos(tr.doc.resolve(posBeforeBlock));
 
@@ -97,17 +97,17 @@ export function updateBlockTr<
         ? replaceToPos - blockInfo.blockContent.beforePos - 1
         : undefined;
 
-    tr = updateChildren(block, tr, blockInfo);
+    updateChildren(block, tr, blockInfo);
     // The code below determines the new content of the block.
     // or "keep" to keep as-is
-    tr = updateBlockContentNode(
+    updateBlockContentNode(
       block,
       tr,
       oldNodeType,
       newNodeType,
       blockInfo,
       replaceFromOffset,
-      replaceToOffset
+      replaceToOffset,
     );
   } else if (!blockInfo.isBlockContainer && newNodeType.isInGroup("bnBlock")) {
     updateChildren(block, tr, blockInfo);
@@ -130,8 +130,8 @@ export function updateBlockTr<
           children: existingBlock.children, // if no children are passed in, use existing children
           ...block,
         },
-        pmSchema
-      )
+        pmSchema,
+      ),
     );
 
     return;
@@ -148,7 +148,7 @@ export function updateBlockTr<
 function updateBlockContentNode<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   block: PartialBlock<BSchema, I, S>,
   tr: Transform,
@@ -161,7 +161,7 @@ function updateBlockContentNode<
     blockContent: { node: PMNode; beforePos: number; afterPos: number };
   },
   replaceFromOffset?: number,
-  replaceToOffset?: number
+  replaceToOffset?: number,
 ) {
   const pmSchema = getPmSchema(tr);
   let content: PMNode[] | "keep" = "keep";
@@ -173,7 +173,7 @@ function updateBlockContentNode<
       content = inlineContentToNodes(
         [block.content],
         pmSchema,
-        newNodeType.name
+        newNodeType.name,
       );
     } else if (Array.isArray(block.content)) {
       // Adds a text node with the provided styles converted into marks to the content,
@@ -239,8 +239,8 @@ function updateBlockContentNode<
       new Slice(
         Fragment.from(content),
         startDepth - contentDepth - 1,
-        endDepth - contentDepth - 1
-      )
+        endDepth - contentDepth - 1,
+      ),
     );
   } else {
     // use replaceWith to replace the content and the block itself
@@ -254,17 +254,16 @@ function updateBlockContentNode<
           ...blockInfo.blockContent.node.attrs,
           ...block.props,
         },
-        content
-      )
+        content,
+      ),
     );
   }
-  return tr;
 }
 
 function updateChildren<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(block: PartialBlock<BSchema, I, S>, tr: Transform, blockInfo: BlockInfo) {
   const pmSchema = getPmSchema(tr);
   if (block.children !== undefined && block.children.length > 0) {
@@ -281,8 +280,8 @@ function updateChildren<
         new ReplaceStep(
           blockInfo.childContainer.beforePos + 1,
           blockInfo.childContainer.afterPos - 1,
-          new Slice(Fragment.from(childNodes), 0, 0)
-        )
+          new Slice(Fragment.from(childNodes), 0, 0),
+        ),
       );
     } else {
       if (!blockInfo.isBlockContainer) {
@@ -291,23 +290,22 @@ function updateChildren<
       // Inserts a new blockGroup containing the child nodes created earlier.
       tr.insert(
         blockInfo.blockContent.afterPos,
-        pmSchema.nodes["blockGroup"].createChecked({}, childNodes)
+        pmSchema.nodes["blockGroup"].createChecked({}, childNodes),
       );
     }
   }
-  return tr;
 }
 
 export function updateBlock<
   BSchema extends BlockSchema = any,
   I extends InlineContentSchema = any,
-  S extends StyleSchema = any
+  S extends StyleSchema = any,
 >(
   tr: Transaction,
   blockToUpdate: BlockIdentifier,
   update: PartialBlock<BSchema, I, S>,
   replaceFromPos?: number,
-  replaceToPos?: number
+  replaceToPos?: number,
 ): Block<BSchema, I, S> {
   const id =
     typeof blockToUpdate === "string" ? blockToUpdate : blockToUpdate.id;
@@ -316,7 +314,13 @@ export function updateBlock<
     throw new Error(`Block with ID ${id} not found`);
   }
 
-  updateBlockTr(tr, posInfo.posBeforeNode, update, replaceFromPos, replaceToPos);
+  updateBlockTr(
+    tr,
+    posInfo.posBeforeNode,
+    update,
+    replaceFromPos,
+    replaceToPos,
+  );
 
   const blockContainerNode = tr.doc
     .resolve(posInfo.posBeforeNode + 1) // TODO: clean?

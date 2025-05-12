@@ -131,15 +131,13 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         disabled={hideTooltip}
         withinPortal={false}
         label={
-          mainTooltip && (
-            <TooltipContent
-              mainTooltip={mainTooltip}
-              secondaryTooltip={secondaryTooltip}
-            />
-          )
+          <TooltipContent
+            mainTooltip={mainTooltip}
+            secondaryTooltip={secondaryTooltip}
+          />
         }>
         {button}
       </MantineTooltip>
     );
-  }
+  },
 );

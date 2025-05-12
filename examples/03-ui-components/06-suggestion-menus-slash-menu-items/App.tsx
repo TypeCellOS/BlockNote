@@ -2,7 +2,6 @@ import {
   BlockNoteEditor,
   filterSuggestionItems,
   insertOrUpdateBlock,
-  PartialBlock,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
@@ -36,7 +35,7 @@ const insertHelloWorldItem = (editor: BlockNoteEditor) => ({
 
 // List containing all default Slash Menu Items, as well as our custom one.
 const getCustomSlashMenuItems = (
-  editor: BlockNoteEditor
+  editor: BlockNoteEditor,
 ): DefaultReactSuggestionItem[] => [
   ...getDefaultReactSlashMenuItems(editor),
   insertHelloWorldItem(editor),

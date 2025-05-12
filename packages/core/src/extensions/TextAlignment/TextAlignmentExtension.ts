@@ -21,11 +21,7 @@ export const TextAlignmentExtension = Extension.create({
           textAlignment: {
             default: "left",
             parseHTML: (element) => {
-              return (
-                element.getAttribute("data-text-alignment") ||
-                element.style.textAlign || // TODO: also do better parsing for other marks?
-                undefined
-              );
+              return element.getAttribute("data-text-alignment");
             },
             renderHTML: (attributes) => {
               if (attributes.textAlignment === "left") {

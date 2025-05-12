@@ -35,8 +35,6 @@ export type BlockTypeSelectItem = {
   isSelected: (
     block: Block<BlockSchema, InlineContentSchema, StyleSchema>
   ) => boolean;
-  showWhileSelected?: boolean;
-  showWhileNotSelected?: boolean;
 };
 
 export const blockTypeSelectItems = (
@@ -119,21 +117,10 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
   const [block, setBlock] = useState(editor.getTextCursorPosition().block);
 
   const filteredItems: BlockTypeSelectItem[] = useMemo(() => {
-    return (props.items || blockTypeSelectItems(dict)).filter((item) => {
-      const blockTypeInSchema = item.type in editor.schema.blockSchema;
-      const isSelected = item.isSelected(block);
-
-      const showWhileSelected =
-        item.showWhileSelected === undefined || item.showWhileSelected;
-      const showWhileNotSelected =
-        item.showWhileNotSelected === undefined || item.showWhileNotSelected;
-
-      return (
-        blockTypeInSchema &&
-        (isSelected ? showWhileSelected : showWhileNotSelected)
-      );
-    });
-  }, [props.items, dict, editor.schema.blockSchema, block]);
+    return (props.items || blockTypeSelectItems(dict)).filter(
+      (item) => item.type in editor.schema.blockSchema
+    );
+  }, [editor, dict, props.items]);
 
   const shouldShow: boolean = useMemo(
     () => filteredItems.find((item) => item.type === block.type) !== undefined,

@@ -69,8 +69,7 @@
     "lint": "eslint src --max-warnings 0",
     "test": "vitest --run",
     "test-watch": "vitest watch",
-    "clean": "rimraf dist && rimraf types",
-    "_prepare": "npm run build"
+    "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",

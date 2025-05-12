@@ -48,10 +48,6 @@ export const SideMenu = <
       }
     }
 
-    if (props.block.type === "ai" && props.block.props.prompt) {
-      attrs["data-prompt"] = props.block.props.prompt.toString();
-    }
-
     return attrs;
   }, [props.block, props.editor.schema.blockSchema]);
 
