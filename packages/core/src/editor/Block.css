@@ -144,6 +144,11 @@ NESTED BLOCKS
 
 .bn-block-outer:not([data-prev-type])
   > .bn-block
+  > .bn-block-content[data-content-type="heading"],
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > div[data-type="modification"]
+  > div[data-type="modification"]
   > .bn-block-content[data-content-type="heading"] {
   font-size: var(--level);
   font-weight: bold;
@@ -187,6 +192,10 @@ NESTED BLOCKS
 
 .bn-block-outer:not([data-prev-type])
   > .bn-block
+  > .bn-block-content[data-content-type="numberedListItem"]::before,
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > div[data-type="modification"]
   > .bn-block-content[data-content-type="numberedListItem"]::before {
   content: var(--index) ".";
 }
@@ -231,6 +240,10 @@ NESTED BLOCKS
 
 .bn-block-outer:not([data-prev-type])
   > .bn-block
+  > .bn-block-content[data-content-type="bulletListItem"]::before,
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > div[data-type="modification"]
   > .bn-block-content[data-content-type="bulletListItem"]::before {
   content: "•";
 }
@@ -248,6 +261,12 @@ NESTED BLOCKS
   ~ .bn-block-group
   > .bn-block-outer:not([data-prev-type])
   > .bn-block
+  > .bn-block-content[data-content-type="bulletListItem"]::before,
+[data-content-type="bulletListItem"]
+  ~ .bn-block-group
+  > .bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > div[data-type="modification"]
   > .bn-block-content[data-content-type="bulletListItem"]::before {
   content: "◦";
 }
@@ -269,6 +288,14 @@ NESTED BLOCKS
   ~ .bn-block-group
   > .bn-block-outer:not([data-prev-type])
   > .bn-block
+  > .bn-block-content[data-content-type="bulletListItem"]::before,
+[data-content-type="bulletListItem"]
+  ~ .bn-block-group
+  [data-content-type="bulletListItem"]
+  ~ .bn-block-group
+  > .bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > div[data-type="modification"]
   > .bn-block-content[data-content-type="bulletListItem"]::before {
   content: "▪";
 }
