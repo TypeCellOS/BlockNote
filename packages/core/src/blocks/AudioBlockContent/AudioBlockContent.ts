@@ -78,6 +78,11 @@ export const audioParse = (
   element: HTMLElement
 ): Partial<Props<typeof audioBlockConfig.propSchema>> | undefined => {
   if (element.tagName === "AUDIO") {
+    // Ignore if parent figure has already been parsed.
+    if (element.closest("figure")) {
+      return undefined;
+    }
+
     return parseAudioElement(element as HTMLAudioElement);
   }
 

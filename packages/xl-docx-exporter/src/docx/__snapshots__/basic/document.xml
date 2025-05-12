@@ -402,7 +402,7 @@
             <w:r>
                 <w:drawing>
                     <wp:inline distT="0" distB="0" distL="0" distR="0">
-                        <wp:extent cx="4876800" cy="4876800"/>
+                        <wp:extent cx="3162300" cy="3162300"/>
                         <wp:effectExtent t="0" r="0" b="0" l="0"/>
                         <wp:docPr id="1" name="From https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg" descr="From https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg" title="From https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg"/>
                         <wp:cNvGraphicFramePr>
@@ -427,7 +427,7 @@
                                     <pic:spPr bwMode="auto">
                                         <a:xfrm>
                                             <a:off x="0" y="0"/>
-                                            <a:ext cx="4876800" cy="4876800"/>
+                                            <a:ext cx="3162300" cy="3162300"/>
                                         </a:xfrm>
                                         <a:prstGeom prst="rect">
                                             <a:avLst/>

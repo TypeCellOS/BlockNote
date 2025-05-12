@@ -19,7 +19,11 @@ export const createResizableFileBlockWrapper = (
   );
   const wrapper = dom;
   if (block.props.url && block.props.showPreview) {
-    wrapper.style.width = `${block.props.previewWidth}px`;
+    if (block.props.previewWidth) {
+      wrapper.style.width = `${block.props.previewWidth}px`;
+    } else {
+      wrapper.style.width = "fit-content";
+    }
   }
 
   const leftResizeHandle = document.createElement("div");

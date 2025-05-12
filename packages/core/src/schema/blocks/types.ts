@@ -45,7 +45,8 @@ export type FileBlockConfig = {
     };
     // File preview width in px.
     previewWidth?: {
-      default: number;
+      default: undefined;
+      type: "number";
     };
   };
   content: "none";

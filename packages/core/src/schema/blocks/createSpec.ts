@@ -90,7 +90,7 @@ export function getParseRules(
   const rules: TagParseRule[] = [
     {
       tag: "[data-content-type=" + config.type + "]",
-      contentElement: "[data-editable]",
+      contentElement: ".bn-inline-content",
     },
   ];
 

@@ -95,3 +95,19 @@ export const defaultBlockToHTML = <
     contentDOM?: HTMLElement;
   };
 };
+
+// Function that merges all paragraphs into a single one separated by line breaks.
+// This is used when parsing blocks like list items and table cells, as they may
+// contain multiple paragraphs that ProseMirror will not be able to handle
+// properly.
+export function mergeParagraphs(element: HTMLElement) {
+  const paragraphs = element.querySelectorAll("p");
+  if (paragraphs.length > 1) {
+    const firstParagraph = paragraphs[0];
+    for (let i = 1; i < paragraphs.length; i++) {
+      const paragraph = paragraphs[i];
+      firstParagraph.innerHTML += "<br>" + paragraph.innerHTML;
+      paragraph.remove();
+    }
+  }
+}
