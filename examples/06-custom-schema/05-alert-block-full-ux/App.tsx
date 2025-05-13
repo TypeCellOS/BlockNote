@@ -35,7 +35,6 @@ const schema = BlockNoteSchema.create({
 const insertAlert = (editor: typeof schema.BlockNoteEditor) => ({
   title: "Alert",
   subtext: "Alert for emphasizing text",
-  key: "alert",
   onItemClick: () =>
     // If the block containing the text caret is empty, `insertOrUpdateBlock`
     // changes its type to the provided block. Otherwise, it inserts the new

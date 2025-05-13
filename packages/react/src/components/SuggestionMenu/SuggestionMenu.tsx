@@ -1,12 +1,11 @@
 import { mergeCSSClasses } from "@blocknote/core";
 import { useMemo } from "react";
-
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { DefaultReactSuggestionItem, SuggestionMenuProps } from "./types.js";
 
 export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
-  props: SuggestionMenuProps<T>
+  props: SuggestionMenuProps<T>,
 ) {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
@@ -33,7 +32,7 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
             className={"bn-suggestion-menu-label"}
             key={currentGroup}>
             {currentGroup}
-          </Components.SuggestionMenu.Label>
+          </Components.SuggestionMenu.Label>,
         );
       }
 
@@ -41,14 +40,14 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
         <Components.SuggestionMenu.Item
           className={mergeCSSClasses(
             "bn-suggestion-menu-item",
-            item.size === "small" ? "bn-suggestion-menu-item-small" : ""
+            item.size === "small" ? "bn-suggestion-menu-item-small" : "",
           )}
           item={item}
           id={`bn-suggestion-menu-item-${i}`}
           isSelected={i === selectedIndex}
           key={item.title}
           onClick={() => onItemClick?.(item)}
-        />
+        />,
       );
     }
 

@@ -16,7 +16,6 @@ import { HiOutlineGlobeAlt } from "react-icons/hi";
 
 // Custom Slash Menu item to insert a block after the current one.
 const insertHelloWorldItem = (editor: BlockNoteEditor) => ({
-  key: "hello_world",
   title: "Insert Hello World",
   onItemClick: () =>
     // If the block containing the text caret is empty, `insertOrUpdateBlock`
@@ -35,7 +34,7 @@ const insertHelloWorldItem = (editor: BlockNoteEditor) => ({
 
 // List containing all default Slash Menu Items, as well as our custom one.
 const getCustomSlashMenuItems = (
-  editor: BlockNoteEditor,
+  editor: BlockNoteEditor
 ): DefaultReactSuggestionItem[] => [
   ...getDefaultReactSlashMenuItems(editor),
   insertHelloWorldItem(editor),

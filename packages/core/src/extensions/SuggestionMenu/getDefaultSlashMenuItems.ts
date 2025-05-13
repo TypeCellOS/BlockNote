@@ -323,9 +323,8 @@ export function filterSuggestionItems<
     ({ title, aliases }) =>
       title.toLowerCase().includes(query.toLowerCase()) ||
       (aliases &&
-        aliases.filter(
-          (alias) =>
-            alias === "" || alias.toLowerCase().includes(query.toLowerCase()),
+        aliases.filter((alias) =>
+          alias.toLowerCase().includes(query.toLowerCase()),
         ).length !== 0),
   );
 }

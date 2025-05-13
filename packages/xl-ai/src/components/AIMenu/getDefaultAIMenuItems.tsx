@@ -25,6 +25,7 @@ export type AIMenuSuggestionItem = Omit<
   "onItemClick"
 > & {
   onItemClick: (setPrompt: (userPrompt: string) => void) => void;
+  key: string;
 };
 
 /**
@@ -34,7 +35,7 @@ export type AIMenuSuggestionItem = Omit<
 export function getDefaultAIMenuItemsWithoutSelection<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(editor: BlockNoteEditor<BSchema, I, S>): AIMenuSuggestionItem[] {
   const dict = getAIDictionary(editor);
   const ai = getAIExtension(editor);
@@ -115,7 +116,7 @@ export function getDefaultAIMenuItemsWithoutSelection<
 export function getDefaultAIMenuItemsWithSelection<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(editor: BlockNoteEditor<BSchema, I, S>): AIMenuSuggestionItem[] {
   const dict = getAIDictionary(editor);
 
@@ -198,7 +199,7 @@ export function getDefaultAIMenuItemsWithSelection<
 export function getDefaultAIActionMenuItems<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(editor: BlockNoteEditor<BSchema, I, S>): AIMenuSuggestionItem[] {
   const dict = getAIDictionary(editor);
   const ai = getAIExtension(editor);
@@ -237,30 +238,3 @@ export function getDefaultAIActionMenuItems<
     },
   ];
 }
-
-/**
-3 examples:
-
-input:
-- pass schema / blocks / functions
-
-1) block -> markdown, markdown -> block
-2) pass entire document
-3) functions (updateBlock, insertBlock, deleteBlock)
-
-
-response:
-- markdown
-- entire document (text stream)
-- entire document (block call streams)
- * 
- */
-
-// const context = createAIExecutionContext(editor, prompt, () = {
-//   // add ai command
-//   // add context
-
-//   // apply streaming response
-//   context.execute();
-// });
-// aitoolbar.open(context);

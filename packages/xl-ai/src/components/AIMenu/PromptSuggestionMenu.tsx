@@ -45,7 +45,7 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
         onManualPromptSubmit(promptTextToUse);
       }
     },
-    [promptTextToUse, onManualPromptSubmit]
+    [promptTextToUse, onManualPromptSubmit],
   );
 
   const handleChange = useCallback(
@@ -60,7 +60,7 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
         setInternalPromptText(newValue);
       }
     },
-    [onPromptTextChange, setInternalPromptText, promptText]
+    [onPromptTextChange, setInternalPromptText, promptText],
   );
 
   const items: DefaultReactSuggestionItem[] = useMemo(() => {
@@ -84,7 +84,7 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
         handler(event);
       }
     },
-    [handleEnter, handler, items.length]
+    [handleEnter, handler, items.length],
   );
 
   // Resets index when items change
@@ -116,15 +116,15 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
       <Components.SuggestionMenu.Root
         className={"bn-combobox-items"}
         id={"ai-suggestion-menu"}>
-        {items.map((item, index) => (
+        {items.map((item, i) => (
           <Components.SuggestionMenu.Item
-            key={item.key}
+            key={item.title}
             className={mergeCSSClasses(
               "bn-suggestion-menu-item",
-              item.size === "small" ? "bn-suggestion-menu-item-small" : ""
+              item.size === "small" ? "bn-suggestion-menu-item-small" : "",
             )}
-            id={item.key}
-            isSelected={index === selectedIndex}
+            id={`bn-suggestion-menu-item-${i}`}
+            isSelected={i === selectedIndex}
             onClick={item.onItemClick}
             item={item}
           />

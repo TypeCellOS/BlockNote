@@ -10,9 +10,9 @@ import { pageBreakSchema } from "./schema.js";
 
 export function checkPageBreakBlocksInSchema<
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
-  editor: BlockNoteEditor<any, I, S>
+  editor: BlockNoteEditor<any, I, S>,
 ): editor is BlockNoteEditor<typeof pageBreakSchema.blockSchema, I, S> {
   return (
     "pageBreak" in editor.schema.blockSchema &&
@@ -24,20 +24,20 @@ export function checkPageBreakBlocksInSchema<
 export function getPageBreakSlashMenuItems<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(editor: BlockNoteEditor<BSchema, I, S>) {
   const items: (Omit<DefaultSuggestionItem, "key"> & { key: "page_break" })[] =
     [];
 
   if (checkPageBreakBlocksInSchema(editor)) {
     items.push({
+      key: "page_break",
       ...editor.dictionary.slash_menu.page_break,
       onItemClick: () => {
         insertOrUpdateBlock(editor, {
           type: "pageBreak",
         });
       },
-      key: "page_break",
     });
   }
 
