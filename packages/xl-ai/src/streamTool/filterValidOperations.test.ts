@@ -67,7 +67,7 @@ describe("filterValidOperations", () => {
 
     expect(result[1]).toEqual({
       operation: { type: "update", id: "456", block: { content: "updated" } },
-      isUpdateToPreviousOperation: true,
+      isUpdateToPreviousOperation: false,
       isPossiblyPartial: true,
     });
   });

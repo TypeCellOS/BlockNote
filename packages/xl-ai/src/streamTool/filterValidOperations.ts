@@ -21,14 +21,20 @@ export async function* filterValidOperations<T>(
   isUpdateToPreviousOperation: boolean;
   isPossiblyPartial: boolean;
 }> {
+  let forceNewOperation = false;
   for await (const chunk of operationsStream) {
     if (chunk.operation.result === "ok") {
       yield {
         operation: chunk.operation.value,
-        isUpdateToPreviousOperation: chunk.isUpdateToPreviousOperation,
+        isUpdateToPreviousOperation: forceNewOperation
+          ? false
+          : chunk.isUpdateToPreviousOperation,
         isPossiblyPartial: chunk.isPossiblyPartial,
       };
+      forceNewOperation = false;
     } else {
+      forceNewOperation =
+        forceNewOperation || !chunk.isUpdateToPreviousOperation;
       onInvalidOperation?.(chunk.operation);
     }
   }
