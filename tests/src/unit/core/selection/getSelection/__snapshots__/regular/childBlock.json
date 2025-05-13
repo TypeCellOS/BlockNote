@@ -1,22 +1,21 @@
 {
   "_meta": {
-    "startPos": 0,
-    "endPos": 19
+    "startPos": 15,
+    "endPos": 41
   },
   "blocks": [
     {
-      "id": "1",
-      "type": "heading",
+      "id": "2",
+      "type": "paragraph",
       "props": {
         "textColor": "default",
         "backgroundColor": "default",
-        "textAlignment": "left",
-        "level": 1
+        "textAlignment": "left"
       },
       "content": [
         {
           "type": "text",
-          "text": "Unstyled Text",
+          "text": "Nested Paragraph 1",
           "styles": {}
         }
       ],

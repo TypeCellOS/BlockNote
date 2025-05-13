@@ -1,7 +1,7 @@
 {
   "_meta": {
     "startPos": 0,
-    "endPos": 39
+    "endPos": 17
   },
   "blocks": [
     {
@@ -15,22 +15,8 @@
       "content": [
         {
           "type": "text",
-          "text": "Unstyled Text",
+          "text": "Paragraph 1",
           "styles": {}
-        },
-        {
-          "type": "text",
-          "text": "Italic Text",
-          "styles": {
-            "italic": true
-          }
-        },
-        {
-          "type": "text",
-          "text": "Bold Text",
-          "styles": {
-            "bold": true
-          }
         }
       ],
       "children": []

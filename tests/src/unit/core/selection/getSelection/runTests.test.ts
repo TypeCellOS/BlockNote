@@ -3,16 +3,16 @@ import { describe, it } from "vitest";
 import { createTestEditor } from "../../setupTestEditor.js";
 import { testSchema } from "../../testSchema.js";
 import {
-  getSelectionTestInstances,
+  getSelectionTestInstancesRegular,
   getSelectionTestInstancesCutblocks,
 } from "./getSelectionTestInstances.js";
 
 // Tests for getting the BlockNote selection from a given Prosemirror
 // selection.
-describe("Get selection tests", () => {
+describe("Get selection tests (regular)", () => {
   const getEditor = createTestEditor(testSchema);
 
-  for (const { testCase, executeTest } of getSelectionTestInstances) {
+  for (const { testCase, executeTest } of getSelectionTestInstancesRegular) {
     it(`${testCase.name}`, async () => {
       await executeTest(getEditor(), testCase);
     });

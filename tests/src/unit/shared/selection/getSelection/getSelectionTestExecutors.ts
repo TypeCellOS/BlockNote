@@ -9,7 +9,7 @@ import {
 import { GetSelectionTestCase } from "./getSelectionTestCase.js";
 import { initTestEditor } from "../../testUtil.js";
 
-export const testGetSelection = async <
+export const testGetSelectionRegular = async <
   B extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
@@ -23,9 +23,7 @@ export const testGetSelection = async <
 
   await expect(
     JSON.stringify(blockNoteSelection, undefined, 2),
-  ).toMatchFileSnapshot(
-    `./__snapshots__/blocknote/selection/${testCase.name}.json`,
-  );
+  ).toMatchFileSnapshot(`./__snapshots__/regular/${testCase.name}.json`);
 };
 
 export const testGetSelectionCutBlocks = async <
@@ -42,7 +40,5 @@ export const testGetSelectionCutBlocks = async <
 
   await expect(
     JSON.stringify(blockNoteSelection, undefined, 2),
-  ).toMatchFileSnapshot(
-    `./__snapshots__/blocknote/selection/${testCase.name}.json`,
-  );
+  ).toMatchFileSnapshot(`./__snapshots__/cutBlocks/${testCase.name}.json`);
 };

@@ -1,11 +1,11 @@
 {
   "_meta": {
-    "startPos": 16,
-    "endPos": 30
+    "startPos": 19,
+    "endPos": 35
   },
   "blocks": [
     {
-      "id": "1",
+      "id": "2",
       "type": "paragraph",
       "props": {
         "textColor": "default",
@@ -15,14 +15,13 @@
       "content": [
         {
           "type": "text",
-          "text": "Italic Text",
-          "styles": {
-            "italic": true
-          }
+          "text": "ested Paragraph ",
+          "styles": {}
         }
       ],
       "children": []
     }
   ],
-  "blockCutAtStart": "1"
+  "blockCutAtStart": "2",
+  "blockCutAtEnd": "2"
 }
