@@ -3,7 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { PartialBlock } from "../../../blocks/defaultBlocks.js";
 import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 
-// describe("Test getSelectionCutBlocks", () => {
+describe("Test getSelectionCutBlocks", () => {
   const initialContent: PartialBlock[] = [
     {
       type: "heading",
