@@ -3,15 +3,15 @@ import {
   TestInlineContentSchema,
   TestStyleSchema,
 } from "../../testSchema.js";
-import { MoveSelectionTestCase } from "../../../shared/blockManipulation/moveSelection/moveSelectionTestCase.js";
+import { IncrementSelectionTestCase } from "../../../shared/selection/incrementSelection/incrementSelectionTestCase.js";
 import {
-  testMoveSelectionEnd,
-  testMoveSelectionStart,
-} from "../../../shared/blockManipulation/moveSelection/moveSelectionTestExecutors.js";
+  testIncrementSelectionEnd,
+  testIncrementSelectionStart,
+} from "../../../shared/selection/incrementSelection/incrementSelectionTestExecutors.js";
 import { TestInstance } from "../../../types.js";
 
 export const incrementSelectionTestInstancesStart: TestInstance<
-  MoveSelectionTestCase<
+  IncrementSelectionTestCase<
     TestBlockSchema,
     TestInlineContentSchema,
     TestStyleSchema
@@ -144,12 +144,12 @@ export const incrementSelectionTestInstancesStart: TestInstance<
         },
       ],
     },
-    executeTest: testMoveSelectionStart,
+    executeTest: testIncrementSelectionStart,
   },
 ];
 
 export const incrementSelectionTestInstancesEnd: TestInstance<
-  MoveSelectionTestCase<
+  IncrementSelectionTestCase<
     TestBlockSchema,
     TestInlineContentSchema,
     TestStyleSchema
@@ -159,5 +159,5 @@ export const incrementSelectionTestInstancesEnd: TestInstance<
   TestStyleSchema
 >[] = incrementSelectionTestInstancesStart.map(({ testCase }) => ({
   testCase,
-  executeTest: testMoveSelectionEnd,
+  executeTest: testIncrementSelectionEnd,
 }));

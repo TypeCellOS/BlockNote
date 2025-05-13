@@ -4,26 +4,26 @@ import {
   TextSelection,
   type Transaction,
 } from "prosemirror-state";
-import type { TextCursorPosition } from "../../../../editor/cursorPositionTypes.js";
+import type { TextCursorPosition } from "../../../editor/cursorPositionTypes.js";
 import type {
   BlockIdentifier,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
-} from "../../../../schema/index.js";
-import { UnreachableCaseError } from "../../../../util/typescript.js";
+} from "../../../schema/index.js";
+import { UnreachableCaseError } from "../../../util/typescript.js";
 import {
   getBlockInfo,
   getBlockInfoFromTransaction,
-} from "../../../getBlockInfoFromPos.js";
-import { nodeToBlock } from "../../../nodeConversions/nodeToBlock.js";
-import { getNodeById } from "../../../nodeUtil.js";
-import { getBlockNoteSchema, getPmSchema } from "../../../pmUtil.js";
+} from "../../getBlockInfoFromPos.js";
+import { nodeToBlock } from "../../nodeConversions/nodeToBlock.js";
+import { getNodeById } from "../../nodeUtil.js";
+import { getBlockNoteSchema, getPmSchema } from "../../pmUtil.js";
 
 export function getTextCursorPosition<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(tr: Transaction): TextCursorPosition<BSchema, I, S> {
   const { bnBlock } = getBlockInfoFromTransaction(tr);
   const pmSchema = getPmSchema(tr.doc);
@@ -58,7 +58,7 @@ export function getTextCursorPosition<
 export function setTextCursorPosition(
   tr: Transaction,
   targetBlock: BlockIdentifier,
-  placement: "start" | "end" = "start"
+  placement: "start" | "end" = "start",
 ) {
   const id = typeof targetBlock === "string" ? targetBlock : targetBlock.id;
   const pmSchema = getPmSchema(tr.doc);
@@ -84,11 +84,11 @@ export function setTextCursorPosition(
     if (contentType === "inline") {
       if (placement === "start") {
         tr.setSelection(
-          TextSelection.create(tr.doc, blockContent.beforePos + 1)
+          TextSelection.create(tr.doc, blockContent.beforePos + 1),
         );
       } else {
         tr.setSelection(
-          TextSelection.create(tr.doc, blockContent.afterPos - 1)
+          TextSelection.create(tr.doc, blockContent.afterPos - 1),
         );
       }
     } else if (contentType === "table") {
@@ -97,11 +97,11 @@ export function setTextCursorPosition(
         // and `tableCell` nodes to get to the `tableParagraph` node we want to
         // set the selection in.
         tr.setSelection(
-          TextSelection.create(tr.doc, blockContent.beforePos + 4)
+          TextSelection.create(tr.doc, blockContent.beforePos + 4),
         );
       } else {
         tr.setSelection(
-          TextSelection.create(tr.doc, blockContent.afterPos - 4)
+          TextSelection.create(tr.doc, blockContent.afterPos - 4),
         );
       }
     } else {
