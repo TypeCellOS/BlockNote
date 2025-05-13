@@ -161,6 +161,8 @@ export function createAddBlocksTool<T>(config: {
         // keep track of added block ids to be able to update blocks that have already been added
         let addedBlockIds: string[] = [];
 
+        let referenceIdMap: Record<string, string> = {}; // TODO: unit test
+
         for await (const chunk of operationsStream) {
           if (!chunk.isUpdateToPreviousOperation) {
             // we have a new operation, reset the added block ids
@@ -205,10 +207,17 @@ export function createAddBlocksTool<T>(config: {
               agentSteps = agentSteps.filter((step) => step.type !== "select");
             } else {
               // we are adding a new block, so we need to insert it
+              const mappedReferenceId =
+                operation.position === "after"
+                  ? referenceIdMap[operation.referenceId]
+                  : undefined;
+
               const ret = insertBlocks(
                 tr,
                 [block],
-                i > 0 ? addedBlockIds[i - 1] : operation.referenceId,
+                i > 0
+                  ? addedBlockIds[i - 1]
+                  : mappedReferenceId || operation.referenceId,
                 i > 0 ? "after" : operation.position,
               );
               addedBlockIds.push(...ret.map((r) => r.id));
@@ -229,6 +238,13 @@ export function createAddBlocksTool<T>(config: {
                 agentStepToTr(tr, step);
               });
               options.onBlockUpdate?.(addedBlockIds[i]);
+            }
+          }
+
+          if (!chunk.isPossiblyPartial) {
+            if (operation.position === "after") {
+              referenceIdMap[operation.referenceId] =
+                addedBlockIds[addedBlockIds.length - 1];
             }
           }
         }
