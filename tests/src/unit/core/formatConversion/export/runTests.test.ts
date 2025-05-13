@@ -1,6 +1,6 @@
 import { describe, it } from "vitest";
 
-import { setupTestEditor } from "../../setupTestEditor.js";
+import { createTestEditor } from "../../setupTestEditor.js";
 import { testSchema } from "../../testSchema.js";
 import {
   exportTestInstancesBlockNoteHTML,
@@ -13,7 +13,7 @@ import {
 // Used for as many cases as possible to ensure each block or set of blocks is
 // correctly converted into different formats.
 describe("Export tests (BlockNote HTML)", () => {
-  const getEditor = setupTestEditor(testSchema);
+  const getEditor = createTestEditor(testSchema);
 
   for (const { testCase, executeTest } of exportTestInstancesBlockNoteHTML) {
     it(`${testCase.name}`, async () => {
@@ -23,7 +23,7 @@ describe("Export tests (BlockNote HTML)", () => {
 });
 
 describe("Export tests (HTML)", () => {
-  const getEditor = setupTestEditor(testSchema);
+  const getEditor = createTestEditor(testSchema);
 
   for (const { testCase, executeTest } of exportTestInstancesHTML) {
     it(`${testCase.name}`, async () => {
@@ -33,7 +33,7 @@ describe("Export tests (HTML)", () => {
 });
 
 describe("Export tests (Markdown)", () => {
-  const getEditor = setupTestEditor(testSchema);
+  const getEditor = createTestEditor(testSchema);
 
   for (const { testCase, executeTest } of exportTestInstancesMarkdown) {
     it(`${testCase.name}`, async () => {
@@ -43,7 +43,7 @@ describe("Export tests (Markdown)", () => {
 });
 
 describe("Export tests (TipTap nodes)", () => {
-  const getEditor = setupTestEditor(testSchema);
+  const getEditor = createTestEditor(testSchema);
 
   for (const { testCase, executeTest } of exportTestInstancesNodes) {
     it(`${testCase.name}`, async () => {

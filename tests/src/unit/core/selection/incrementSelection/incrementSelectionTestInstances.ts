@@ -10,7 +10,7 @@ import {
 } from "../../../shared/blockManipulation/moveSelection/moveSelectionTestExecutors.js";
 import { TestInstance } from "../../../types.js";
 
-export const moveSelectionTestInstancesStart: TestInstance<
+export const incrementSelectionTestInstancesStart: TestInstance<
   MoveSelectionTestCase<
     TestBlockSchema,
     TestInlineContentSchema,
@@ -148,7 +148,7 @@ export const moveSelectionTestInstancesStart: TestInstance<
   },
 ];
 
-export const moveSelectionTestInstancesEnd: TestInstance<
+export const incrementSelectionTestInstancesEnd: TestInstance<
   MoveSelectionTestCase<
     TestBlockSchema,
     TestInlineContentSchema,
@@ -157,7 +157,7 @@ export const moveSelectionTestInstancesEnd: TestInstance<
   TestBlockSchema,
   TestInlineContentSchema,
   TestStyleSchema
->[] = moveSelectionTestInstancesStart.map(({ testCase }) => ({
+>[] = incrementSelectionTestInstancesStart.map(({ testCase }) => ({
   testCase,
   executeTest: testMoveSelectionEnd,
 }));

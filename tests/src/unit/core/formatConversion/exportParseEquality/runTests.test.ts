@@ -1,6 +1,6 @@
 import { describe, it } from "vitest";
 
-import { setupTestEditor } from "../../setupTestEditor.js";
+import { createTestEditor } from "../../setupTestEditor.js";
 import { testSchema } from "../../testSchema.js";
 import { exportParseEqualityTestInstancesBlockNoteHTML } from "./exportParseEqualityTestInstances.js";
 
@@ -9,7 +9,7 @@ import { exportParseEqualityTestInstancesBlockNoteHTML } from "./exportParseEqua
 // as possible to ensure that exporting and importing blocks does not result in
 // any data loss.
 describe("Export/parse equality tests (BlockNote HTML)", () => {
-  const getEditor = setupTestEditor(testSchema);
+  const getEditor = createTestEditor(testSchema);
 
   for (const {
     testCase,

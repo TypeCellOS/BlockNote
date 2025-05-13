@@ -8,7 +8,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 
-import { setupClipboardTest } from "../../../core/clipboard/clipboardTestUtil.js";
+import { initTestEditor } from "../../testUtil.js";
 import { CopyTestCase } from "./copyTestCase.js";
 
 export const testCopyBlockNoteSelection = async <
@@ -19,7 +19,7 @@ export const testCopyBlockNoteSelection = async <
   editor: BlockNoteEditor<B, I, S>,
   testCase: CopyTestCase<B, I, S>,
 ) => {
-  setupClipboardTest(editor, testCase.document, testCase.getCopySelection);
+  initTestEditor(editor, testCase.document, testCase.getCopySelection);
 
   const blockNoteSelection = editor.getSelectionCutBlocks();
 
@@ -38,7 +38,7 @@ export const testCopyBlockNoteHTML = async <
   editor: BlockNoteEditor<B, I, S>,
   testCase: CopyTestCase<B, I, S>,
 ) => {
-  setupClipboardTest(editor, testCase.document, testCase.getCopySelection);
+  initTestEditor(editor, testCase.document, testCase.getCopySelection);
 
   const { clipboardHTML } = selectedFragmentToHTML(
     editor.prosemirrorView!,
@@ -58,7 +58,7 @@ export const testCopyHTML = async <
   editor: BlockNoteEditor<B, I, S>,
   testCase: CopyTestCase<B, I, S>,
 ) => {
-  setupClipboardTest(editor, testCase.document, testCase.getCopySelection);
+  initTestEditor(editor, testCase.document, testCase.getCopySelection);
 
   const { externalHTML } = selectedFragmentToHTML(
     editor.prosemirrorView!,
@@ -78,7 +78,7 @@ export const testCopyMarkdown = async <
   editor: BlockNoteEditor<B, I, S>,
   testCase: CopyTestCase<B, I, S>,
 ) => {
-  setupClipboardTest(editor, testCase.document, testCase.getCopySelection);
+  initTestEditor(editor, testCase.document, testCase.getCopySelection);
 
   const { markdown } = selectedFragmentToHTML(editor.prosemirrorView!, editor);
 
