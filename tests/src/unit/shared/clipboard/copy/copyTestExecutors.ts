@@ -11,25 +11,6 @@ import {
 import { initTestEditor } from "../../testUtil.js";
 import { CopyTestCase } from "./copyTestCase.js";
 
-export const testCopyBlockNoteSelection = async <
-  B extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
->(
-  editor: BlockNoteEditor<B, I, S>,
-  testCase: CopyTestCase<B, I, S>,
-) => {
-  initTestEditor(editor, testCase.document, testCase.getCopySelection);
-
-  const blockNoteSelection = editor.getSelectionCutBlocks();
-
-  await expect(
-    JSON.stringify(blockNoteSelection, undefined, 2),
-  ).toMatchFileSnapshot(
-    `./__snapshots__/blocknote/selection/${testCase.name}.json`,
-  );
-};
-
 export const testCopyBlockNoteHTML = async <
   B extends BlockSchema,
   I extends InlineContentSchema,
