@@ -9,18 +9,19 @@ import { Agent, setGlobalDispatcher } from "undici";
 setGlobalDispatcher(
   new Agent({
     allowH2: true,
-  })
+  }),
 );
 
 const ignoreHeadersRe = /^content-(?:encoding|length|range)$/i;
 
+// REC: we might be able to replace this by https://github.com/honojs/hono/pull/3589
 export const proxyFetch: typeof fetch = async (request, options) => {
   const req = new Request(request, options);
   req.headers.delete("accept-encoding"); // TBD: there may be cases where you want to explicitly specify
   const res = await fetch(req);
 
   const headers: HeadersInit = [...res.headers.entries()].filter(
-    ([k]) => !ignoreHeadersRe.test(k) && k !== "strict-transport-security"
+    ([k]) => !ignoreHeadersRe.test(k) && k !== "strict-transport-security",
   );
   return new Response(res.body, {
     ...res,
@@ -31,22 +32,14 @@ export const proxyFetch: typeof fetch = async (request, options) => {
 };
 
 function getProviderInfo(provider: string) {
-  if (provider === "openai") {
-    return {
-      key: process.env.OPENAI_API_KEY,
-    };
+  const envKey = `${provider.toUpperCase().replace(/-/g, "_")}_API_KEY`;
+  const key = process.env[envKey];
+  if (!key || !key.length) {
+    return "not-found";
   }
-  if (provider === "groq") {
-    return {
-      key: process.env.GROQ_API_KEY,
-    };
-  }
-  if (provider === "albert-etalab") {
-    return {
-      key: process.env.ALBERT_ETALAB_API_KEY,
-    };
-  }
-  return "not-found";
+  return {
+    key,
+  };
 }
 
 const app = new Hono();
@@ -68,12 +61,12 @@ app.use("/ai", cors(), async (c) => {
 
   const providerInfo = getProviderInfo(provider);
 
-  if (providerInfo === "not-found" || !providerInfo.key?.length) {
+  if (providerInfo === "not-found") {
     return c.json(
       {
         error: `provider / key not found for provider ${provider}. Make sure to load correct env variables.`,
       },
-      404
+      404,
     );
   }
 
@@ -99,7 +92,7 @@ serve(
   (info) => {
     // eslint-disable-next-line no-console
     console.log(
-      `Server is running on ${info.address}${info.port}, http2: ${http2}`
+      `Server is running on ${info.address}${info.port}, http2: ${http2}`,
     );
-  }
+  },
 );

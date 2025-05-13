@@ -21,12 +21,5 @@
     "skipLibCheck": true
   },
   "include": ["src"],
-  "references": [
-    {
-      "path": "../core"
-    },
-    {
-      "path": "../react"
-    }
-  ]
+  "references": []
 }

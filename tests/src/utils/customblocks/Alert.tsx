@@ -128,7 +128,6 @@ export const Alert = createBlockSpec(
 );
 
 export const insertAlert = (editor: BlockNoteEditor<any, any, any>) => ({
-  key: "alert",
   title: "Insert Alert",
   onItemClick: () => {
     const block: PartialBlock<

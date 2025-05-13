@@ -3,7 +3,7 @@
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
   "license": "AGPL-3.0 OR PROPRIETARY",
-  "version": "0.26.0",
+  "version": "0.29.1",
   "files": [
     "dist",
     "types",
@@ -60,6 +60,7 @@
     "vitest": "^2.0.3",
     "undici": "^6"
   },
+  "peerDependencies": {},
   "eslintConfig": {
     "extends": [
       "../../.eslintrc.js"

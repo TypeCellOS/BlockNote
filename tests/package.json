@@ -1,7 +1,7 @@
 {
   "name": "@blocknote/tests",
   "private": true,
-  "version": "0.26.0",
+  "version": "0.29.1",
   "scripts": {
     "build": "tsc",
     "lint": "eslint src --max-warnings 0",
