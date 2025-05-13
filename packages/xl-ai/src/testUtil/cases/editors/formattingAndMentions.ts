@@ -24,18 +24,18 @@ export function getEditorWithFormattingAndMentions() {
           },
           {
             type: "text",
-            text: "! How ",
+            text: "! ",
           },
           {
             type: "text",
-            text: "are you doing? ",
+            text: "How are you doing? ",
             styles: {
               bold: true,
             },
           },
           {
             type: "text",
-            text: "I'm feeling blue!",
+            text: "This text is blue!",
             styles: {
               textColor: "blue",
             },

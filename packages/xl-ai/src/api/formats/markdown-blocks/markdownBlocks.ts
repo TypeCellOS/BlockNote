@@ -1,11 +1,11 @@
 import { Block, BlockNoteEditor } from "@blocknote/core";
 import { StreamTool } from "../../../streamTool/streamTool.js";
 import type { PromptOrMessages } from "../../index.js";
+import { callLLMBase } from "../callLLMBase.js";
 import {
   promptManipulateDocumentUseMarkdownBlocks,
   promptManipulateSelectionMarkdownBlocks,
-} from "../../prompts/markdownBlocksPrompt.js";
-import { callLLMBase } from "../callLLMBase.js";
+} from "./markdownBlocksPrompt.js";
 import {
   getDataForPromptNoSelection,
   getDataForPromptWithSelection,

@@ -82,9 +82,7 @@ import { mergeSchemas } from "./mergeSchema.js";
     }
   }*/
 
-export function styleSchemaToJSONSchema(
-  schema: StyleSchema,
-): SimpleJSONObjectSchema {
+function styleSchemaToJSONSchema(schema: StyleSchema): SimpleJSONObjectSchema {
   return {
     type: "object",
     properties: Object.fromEntries(
@@ -101,7 +99,7 @@ export function styleSchemaToJSONSchema(
   };
 }
 
-export function styledTextToJSONSchema() {
+function styledTextToJSONSchema() {
   return {
     type: "object",
     properties: {
@@ -147,7 +145,7 @@ export function propSchemaToJSONSchema(
   };
 }
 
-export function inlineContentSchemaToJSONSchema(schema: InlineContentSchema) {
+function inlineContentSchemaToJSONSchema(schema: InlineContentSchema) {
   return {
     type: "array",
     items: {
@@ -205,7 +203,7 @@ export function inlineContentSchemaToJSONSchema(schema: InlineContentSchema) {
   };
 }
 
-export function blockSchemaToJSONSchema(schema: BlockSchema) {
+function blockSchemaToJSONSchema(schema: BlockSchema) {
   return {
     anyOf: mergeSchemas(
       Object.entries(schema).map(([_key, val]) => {
@@ -239,44 +237,9 @@ export function blockSchemaToJSONSchema(schema: BlockSchema) {
   };
 }
 
-export function blockNoteSchemaToJSONSchema(
-  schema: Pick<
-    BlockNoteSchema<BlockSchema, InlineContentSchema, StyleSchema>,
-    "blockSchema" | "inlineContentSchema" | "styleSchema"
-  >,
-) {
-  schema = schemaOps(schema).removeFileBlocks().removeDefaultProps().get();
-  return {
-    $defs: {
-      styles: styleSchemaToJSONSchema(schema.styleSchema),
-      styledtext: styledTextToJSONSchema(),
-      inlinecontent: inlineContentSchemaToJSONSchema(
-        schema.inlineContentSchema,
-      ),
-      block: blockSchemaToJSONSchema(schema.blockSchema),
-    },
-  };
-}
-
-// export function markdownToJSONSchema(
-//   schema: Pick<
-//     BlockNoteSchema<BlockSchema, InlineContentSchema, StyleSchema>,
-//     "blockSchema" | "inlineContentSchema" | "styleSchema"
-//   >
-// ) {
-//   schema = schemaOps(schema).removeFileBlocks().removeDefaultProps().get();
-//   return {
-//     $defs: {
-//       block: {
-//         type: "string",
-//       },
-//     },
-//   };
-// }
-
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
-export function schemaOps(
+function schemaOps(
   schema: Pick<
     BlockNoteSchema<BlockSchema, InlineContentSchema, StyleSchema>,
     "blockSchema" | "inlineContentSchema" | "styleSchema"
@@ -319,6 +282,25 @@ export function schemaOps(
 
     get() {
       return clone;
+    },
+  };
+}
+
+export function blockNoteSchemaToJSONSchema(
+  schema: Pick<
+    BlockNoteSchema<BlockSchema, InlineContentSchema, StyleSchema>,
+    "blockSchema" | "inlineContentSchema" | "styleSchema"
+  >,
+) {
+  schema = schemaOps(schema).removeFileBlocks().removeDefaultProps().get();
+  return {
+    $defs: {
+      styles: styleSchemaToJSONSchema(schema.styleSchema),
+      styledtext: styledTextToJSONSchema(),
+      inlinecontent: inlineContentSchemaToJSONSchema(
+        schema.inlineContentSchema,
+      ),
+      block: blockSchemaToJSONSchema(schema.blockSchema),
     },
   };
 }

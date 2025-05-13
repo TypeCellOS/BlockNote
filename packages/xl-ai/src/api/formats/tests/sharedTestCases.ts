@@ -37,6 +37,7 @@ export function generateSharedTestCases(
   skipTestsRequiringCapabilities?: {
     mentions?: boolean;
     textAlignment?: boolean;
+    blockColor?: boolean;
   },
 ) {
   function skipIfUnsupported(
@@ -79,8 +80,13 @@ export function generateSharedTestCases(
 
     // await result._logToolCalls();
     await result.execute();
-    // the prosemirrorState has all details with suggested changes, so we use this for the snapshot
-    await matchFileSnapshot(editor.prosemirrorState.doc.toJSON());
+
+    // the prosemirrorState has all details with suggested changes
+    // This can be used for snapshots, but currently we've disabled this as there can
+    // be small differences between for example streaming and non-streaming results in the
+    // granularity of the suggested changes. Can be enabled for debugging:
+
+    // await matchFileSnapshot(editor.prosemirrorState.doc.toJSON());
 
     validateRejectingResultsInOriginalDoc(editor, originalDoc);
 

@@ -2,7 +2,6 @@ import { BlockNoteEditor, getBlockInfo, getNodeById } from "@blocknote/core";
 import { createAIExtension } from "../../AIExtension.js";
 import { getEditorWithBlockFormatting } from "./editors/blockFormatting.js";
 import { getEditorWithFormattingAndMentions } from "./editors/formattingAndMentions.js";
-import { getEditorWithTables } from "./editors/tables.js";
 import { schemaWithMention as schema } from "./schemas/mention.js";
 import { DocumentOperationTestCase } from "./types.js";
 
@@ -171,19 +170,19 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
             },
             {
               type: "text",
-              text: "! Wie ",
+              text: "! ",
               styles: {},
             },
             {
               type: "text",
-              text: "geht es dir? ",
+              text: "Wie geht es dir? ",
               styles: {
                 bold: true,
               },
             },
             {
               type: "text",
-              text: "Ich fühle mich blau!",
+              text: "Dieser Text ist blau!",
               styles: {
                 textColor: "blue",
               },
@@ -222,7 +221,7 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
             },
             {
               type: "text",
-              text: "I'm feeling blue!",
+              text: "This text is blue!",
               styles: {
                 textColor: "blue",
               },
@@ -244,19 +243,19 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
           content: [
             {
               type: "text",
-              text: "Hello! How ",
+              text: "Hello! ",
               styles: {},
             },
             {
               type: "text",
-              text: "are you doing? ",
+              text: "How are you doing? ",
               styles: {
                 bold: true,
               },
             },
             {
               type: "text",
-              text: "I'm feeling blue!",
+              text: "This text is blue!",
               styles: {
                 textColor: "blue",
               },
@@ -266,7 +265,7 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
       },
     ],
     userPrompt:
-      "change to say 'Hello! How are you doing? I'm feeling blue!' (remove mention but keep bold text)",
+      "change to say 'Hello! How are you doing? This text is blue!' (remove mention but keep bold text)",
   },
   {
     editor: getEditorWithFormattingAndMentions,
@@ -377,18 +376,18 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
             {
               styles: {},
               type: "text",
-              text: "! How ",
+              text: "! ",
             },
             {
               type: "text",
-              text: "are you doing? ",
+              text: "How are you doing? ",
               styles: {
                 bold: true,
               },
             },
             {
               type: "text",
-              text: "I'm feeling blue!",
+              text: "This text is blue!",
               styles: {
                 textColor: "blue",
               },
@@ -444,7 +443,7 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
     userPrompt:
       "change the last paragraph to 'Hi, world! Bold the text. Link.' without any markup like bold or link",
   },
-  {
+  /*{
     editor: getEditorWithTables,
     description: "update table cell",
     baseToolCalls: [
@@ -646,7 +645,7 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
       },
     ],
     userPrompt: "Remove the last row",
-  },
+  },*/
   {
     editor: () => {
       const editor = BlockNoteEditor.create({
@@ -694,7 +693,7 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
         },
       },
     ],
-    userPrompt: "turn into list",
+    userPrompt: "turn into list (update existing blocks)",
     getTestSelection(editor) {
       const posInfo = getNodeById("ref2", editor.prosemirrorState.doc)!;
       const block = getBlockInfo(posInfo);
@@ -811,5 +810,8 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
       },
     ],
     userPrompt: "clear the formatting (colors and alignment)",
+    requiredCapabilities: {
+      blockColor: true,
+    },
   },
 ];

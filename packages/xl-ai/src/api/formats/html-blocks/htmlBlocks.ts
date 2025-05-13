@@ -1,11 +1,11 @@
 import { Block, BlockNoteEditor } from "@blocknote/core";
 import { StreamTool } from "../../../streamTool/streamTool.js";
 import type { PromptOrMessages } from "../../index.js";
+import { callLLMBase } from "../callLLMBase.js";
 import {
   promptManipulateDocumentUseHTMLBlocks,
   promptManipulateSelectionHTMLBlocks,
-} from "../../prompts/htmlBlocksPrompt.js";
-import { callLLMBase } from "../callLLMBase.js";
+} from "./htmlBlocksPrompt.js";
 import {
   getDataForPromptNoSelection,
   getDataForPromptWithSelection,
@@ -17,7 +17,7 @@ async function getMessages(
   opts: {
     selectedBlocks?: Block<any, any, any>[];
     excludeBlockIds?: string[];
-  } & PromptOrMessages
+  } & PromptOrMessages,
 ) {
   // TODO: child blocks
   // TODO: document how to customize prompt
@@ -26,7 +26,7 @@ async function getMessages(
   } else if (opts.selectedBlocks) {
     if (opts.excludeBlockIds) {
       throw new Error(
-        "expected excludeBlockIds to be false when selectedBlocks is provided"
+        "expected excludeBlockIds to be false when selectedBlocks is provided",
       );
     }
 
@@ -37,7 +37,7 @@ async function getMessages(
   } else {
     if (opts.useSelection) {
       throw new Error(
-        "expected useSelection to be false when selectedBlocks is not provided"
+        "expected useSelection to be false when selectedBlocks is not provided",
       );
     }
     return promptManipulateDocumentUseHTMLBlocks({
@@ -64,7 +64,7 @@ function getStreamTools(
     from: number;
     to: number;
   },
-  onBlockUpdate?: (blockId: string) => void
+  onBlockUpdate?: (blockId: string) => void,
 ) {
   const mergedStreamTools = {
     add: true,
@@ -75,7 +75,14 @@ function getStreamTools(
 
   const streamTools: StreamTool<any>[] = [
     ...(mergedStreamTools.update
-      ? [tools.update(editor, { idsSuffixed: true, withDelays, updateSelection: selectionInfo, onBlockUpdate })]
+      ? [
+          tools.update(editor, {
+            idsSuffixed: true,
+            withDelays,
+            updateSelection: selectionInfo,
+            onBlockUpdate,
+          }),
+        ]
       : []),
     ...(mergedStreamTools.add
       ? [tools.add(editor, { idsSuffixed: true, withDelays, onBlockUpdate })]

@@ -4,10 +4,10 @@ import { callLLMJSON } from "./formats/json/json.js";
 import { callLLMMarkdownBlocks } from "./formats/markdown-blocks/markdownBlocks.js";
 
 export const llm = {
-  json: {
+  _experimental_json: {
     call: callLLMJSON,
   },
-  markdown: {
+  _experimental_markdown: {
     call: callLLMMarkdownBlocks,
   },
   html: {
@@ -15,7 +15,6 @@ export const llm = {
   },
 };
 
-// TODO: good practice like this?
 export type PromptOrMessages =
   | {
       useSelection?: boolean;

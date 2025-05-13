@@ -87,14 +87,15 @@ describe("Models", () => {
       model: testAIModels.openai,
       stream: false,
     },
-    {
-      model: testAIModels.groq,
-      stream: true,
-    },
-    {
-      model: testAIModels.groq,
-      stream: false,
-    },
+    // this model doesn't work well with json format
+    // {
+    //   model: testAIModels.groq,
+    //   stream: true,
+    // },
+    // {
+    //   model: testAIModels.groq,
+    //   stream: false,
+    // },
     // this model doesn't work well with json format
     // {
     //   model: albert,

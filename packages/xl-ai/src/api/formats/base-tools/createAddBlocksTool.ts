@@ -9,6 +9,7 @@ import {
 import { updateToReplaceSteps } from "../../../prosemirror/changeset.js";
 import { RebaseTool } from "../../../prosemirror/rebaseTool.js";
 import { InvalidOrOk, streamTool } from "../../../streamTool/streamTool.js";
+import { isEmptyParagraph } from "../../../util/emptyBlock.js";
 import { validateBlockArray } from "./util/validateBlockArray.js";
 
 /**
@@ -22,10 +23,15 @@ export function createAddBlocksTool<T>(config: {
   /**
    * The schema of the tool
    */
-  schema: {
-    block: JSONSchema7["items"];
-    $defs?: JSONSchema7["$defs"];
-  };
+  schema:
+    | {
+        block: JSONSchema7["items"];
+        $defs?: JSONSchema7["$defs"];
+      }
+    | ((editor: BlockNoteEditor<any, any, any>) => {
+        block: JSONSchema7["items"];
+        $defs?: JSONSchema7["$defs"];
+      });
   /**
    * A function that can validate a block
    */
@@ -62,8 +68,12 @@ export function createAddBlocksTool<T>(config: {
       withDelays: boolean;
       onBlockUpdate?: (blockId: string) => void;
     },
-  ) =>
-    streamTool<AddBlocksToolCall<T>>({
+  ) => {
+    const schema =
+      typeof config.schema === "function"
+        ? config.schema(editor)
+        : config.schema;
+    return streamTool<AddBlocksToolCall<T>>({
       name: "add",
       description: config.description,
       parameters: {
@@ -80,12 +90,12 @@ export function createAddBlocksTool<T>(config: {
               "`after` to add blocks AFTER (below) the block with `referenceId`, `before` to add the block BEFORE (above)",
           },
           blocks: {
-            items: config.schema.block,
+            items: schema.block,
             type: "array",
           },
         },
         required: ["referenceId", "position", "blocks"],
-        $defs: config.schema.$defs,
+        $defs: schema.$defs,
       },
       validate: (operation) => {
         if (operation.type !== "add") {
@@ -183,6 +193,14 @@ export function createAddBlocksTool<T>(config: {
             continue;
           }
 
+          if (
+            isEmptyParagraph(
+              jsonToolCall.blocks[jsonToolCall.blocks.length - 1],
+            )
+          ) {
+            continue;
+          }
+
           for (let i = 0; i < jsonToolCall.blocks.length; i++) {
             const block = jsonToolCall.blocks[i];
             const doc = editor.prosemirrorState.doc;
@@ -250,6 +268,7 @@ export function createAddBlocksTool<T>(config: {
         }
       },
     });
+  };
 }
 
 export type AddBlocksToolCall<T> = {

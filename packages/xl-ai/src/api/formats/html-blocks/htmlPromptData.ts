@@ -1,9 +1,9 @@
 import { Block, BlockNoteEditor } from "@blocknote/core";
-import { addCursorPosition } from "../../prompts/promptHelpers/addCursorPosition.js";
-import { convertBlocks } from "../../prompts/promptHelpers/convertBlocks.js";
-import { flattenBlocks } from "../../prompts/promptHelpers/flattenBlocks.js";
-import { suffixIDs } from "../../prompts/promptHelpers/suffixIds.js";
-import { trimEmptyBlocks } from "../../prompts/promptHelpers/trimEmptyBlocks.js";
+import { addCursorPosition } from "../../promptHelpers/addCursorPosition.js";
+import { convertBlocks } from "../../promptHelpers/convertBlocks.js";
+import { flattenBlocks } from "../../promptHelpers/flattenBlocks.js";
+import { suffixIDs } from "../../promptHelpers/suffixIds.js";
+import { trimEmptyBlocks } from "../../promptHelpers/trimEmptyBlocks.js";
 
 export async function getDataForPromptNoSelection(
   editor: BlockNoteEditor<any, any, any>,

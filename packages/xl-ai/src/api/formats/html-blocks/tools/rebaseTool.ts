@@ -14,6 +14,7 @@ export async function createHTMLRebaseTool(
   if (!block) {
     throw new Error("block not found");
   }
+
   const html = await editor.blocksToHTMLLossy([
     {
       ...block,
@@ -21,7 +22,15 @@ export async function createHTMLRebaseTool(
     },
   ]);
 
+  const initialMockID = (window as any).__TEST_OPTIONS?.mockID;
+
   const blocks = await editor.tryParseHTMLToBlocks(html);
+
+  // hacky
+  if ((window as any).__TEST_OPTIONS) {
+    (window as Window & { __TEST_OPTIONS?: any }).__TEST_OPTIONS.mockID =
+      initialMockID;
+  }
 
   if (blocks.length !== 1) {
     throw new Error("html diff invalid block count");
@@ -29,8 +38,7 @@ export async function createHTMLRebaseTool(
 
   const htmlBlock = blocks[0];
   htmlBlock.id = id;
-  // console.log(html);
-  // console.log(JSON.stringify(blocks, null, 2));
+
   const steps = updateToReplaceSteps(
     {
       id,
@@ -43,15 +51,6 @@ export async function createHTMLRebaseTool(
     // console.error("html diff", steps);
     throw new Error("html diff");
   }
-  // const stepMapping = new Mapping();
-  // for (const step of steps) {
-  //   const mapped = step.map(stepMapping);
-  //   if (!mapped) {
-  //     throw new Error("Failed to map step");
-  //   }
-  //   tr.step(mapped);
-  //   stepMapping.appendMap(mapped.getMap());
-  // }
 
   return rebaseTool(editor, tr);
 }

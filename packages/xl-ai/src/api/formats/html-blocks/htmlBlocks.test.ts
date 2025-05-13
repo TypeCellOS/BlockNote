@@ -10,7 +10,7 @@ import { callLLMHTMLBlocks } from "./htmlBlocks.js";
 const BASE_FILE_PATH = path.resolve(
   __dirname,
   "__snapshots__",
-  path.basename(__filename)
+  path.basename(__filename),
 );
 
 const fetchCountMap: Record<string, number> = {};
@@ -47,7 +47,7 @@ describe("Models", () => {
           t.suite!.name, // same directory as the test snapshot
           "__msw_snapshots__",
           t.suite!.suite!.name, // model / streaming params
-          t.name
+          t.name,
         );
         // in case there are multiple requests in a test, we need to use a separate snapshot for each request
         fetchCountMap[mswPath] = (fetchCountMap[mswPath] || 0) + 1;
@@ -61,7 +61,7 @@ describe("Models", () => {
       // onFetchFromServer(info, snapshot) {
       //   console.log("onFetchFromServer", info, snapshot);
       // },
-    })
+    }),
   );
 
   beforeAll(() => {
@@ -93,11 +93,10 @@ describe("Models", () => {
       model: testAIModels.groq,
       stream: false,
     },
-    // TODO: https://github.com/vercel/ai/issues/5350
-    // {
-    //   model: albert,
-    //   stream: true,
-    // },
+    {
+      model: testAIModels.albert,
+      stream: true,
+    },
     {
       model: testAIModels.albert,
       stream: false,
@@ -116,14 +115,20 @@ describe("Models", () => {
     describe(`${params.model.provider}/${params.model.modelId} (${
       params.stream ? "streaming" : "non-streaming"
     })`, () => {
-      generateSharedTestCases((editor, options) =>
-        callLLMHTMLBlocks(editor, {
-          ...options,
-          model: params.model,
-          maxRetries: 0,
-          stream: params.stream,
-          withDelays: false,
-        })
+      generateSharedTestCases(
+        (editor, options) =>
+          callLLMHTMLBlocks(editor, {
+            ...options,
+            model: params.model,
+            maxRetries: 0,
+            stream: params.stream,
+            withDelays: false,
+          }),
+        // TODO: remove when matthew's parsing PR is merged
+        {
+          textAlignment: true,
+          blockColor: true,
+        },
       );
     });
   }

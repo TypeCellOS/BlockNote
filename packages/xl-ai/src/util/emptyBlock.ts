@@ -1,9 +1,8 @@
-import type { Block } from "@blocknote/core";
+import type { PartialBlock } from "@blocknote/core";
 
-export function isEmptyParagraph(block: Block<any, any, any>) {
+export function isEmptyParagraph(block: PartialBlock<any, any, any>) {
   return (
-    block.type === "paragraph" &&
-    Array.isArray(block.content) &&
-    block.content.length === 0
+    ((block.type === "paragraph" || !block.type) && !block.content) ||
+    (Array.isArray(block.content) && block.content.length === 0)
   );
 }

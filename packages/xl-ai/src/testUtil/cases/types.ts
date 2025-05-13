@@ -47,6 +47,7 @@ export type DocumentOperationTestCase = {
   requiredCapabilities?: {
     mentions?: boolean;
     textAlignment?: boolean;
+    blockColor?: boolean;
   };
 };
 

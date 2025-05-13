@@ -1,15 +1,15 @@
 import { Block, BlockNoteEditor } from "@blocknote/core";
 import { StreamTool } from "../../../streamTool/streamTool.js";
 import type { PromptOrMessages } from "../../index.js";
-import {
-  promptManipulateDocumentUseJSONBlocks,
-  promptManipulateSelectionJSONBlocks,
-} from "../../prompts/jsonSchemaPrompts.js";
 import { callLLMBase } from "../callLLMBase.js";
 import {
   getDataForPromptNoSelection,
   getDataForPromptWithSelection,
 } from "./jsonPromptData.js";
+import {
+  promptManipulateDocumentUseJSONBlocks,
+  promptManipulateSelectionJSONBlocks,
+} from "./jsonSchemaPrompts.js";
 import { tools } from "./tools/index.js";
 
 async function getMessages(
@@ -19,7 +19,6 @@ async function getMessages(
     excludeBlockIds?: string[];
   } & PromptOrMessages,
 ) {
-  // TODO: child blocks
   // TODO: document how to customize prompt
   if ("messages" in opts && opts.messages) {
     return opts.messages;

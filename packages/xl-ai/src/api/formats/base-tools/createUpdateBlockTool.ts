@@ -25,10 +25,15 @@ export type UpdateBlockToolCall<T> = {
  */
 export function createUpdateBlockTool<T>(config: {
   description: string;
-  schema: {
-    block: JSONSchema7;
-    $defs?: JSONSchema7["$defs"];
-  };
+  schema:
+    | {
+        block: JSONSchema7;
+        $defs?: JSONSchema7["$defs"];
+      }
+    | ((editor: BlockNoteEditor<any, any, any>) => {
+        block: JSONSchema7;
+        $defs?: JSONSchema7["$defs"];
+      });
   validateBlock: (
     block: any,
     editor: BlockNoteEditor<any, any, any>,
@@ -58,8 +63,12 @@ export function createUpdateBlockTool<T>(config: {
       };
       onBlockUpdate?: (blockId: string) => void;
     },
-  ) =>
-    streamTool<UpdateBlockToolCall<T>>({
+  ) => {
+    const schema =
+      typeof config.schema === "function"
+        ? config.schema(editor)
+        : config.schema;
+    return streamTool<UpdateBlockToolCall<T>>({
       name: "update",
       description: config.description,
       parameters: {
@@ -69,10 +78,10 @@ export function createUpdateBlockTool<T>(config: {
             type: "string",
             description: "id of block to update",
           },
-          block: config.schema.block,
+          block: schema.block,
         },
         required: ["id", "block"],
-        $defs: config.schema.$defs,
+        $defs: schema.$defs,
       },
       validate: (operation) => {
         if (operation.type !== "update") {
@@ -231,4 +240,5 @@ export function createUpdateBlockTool<T>(config: {
         }
       },
     });
+  };
 }

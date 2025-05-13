@@ -15,7 +15,7 @@ export class CallLLMResult {
      */
     public readonly llmResult: OperationsResult<any>,
 
-    private readonly streamTools: StreamTool<any>[]
+    private readonly streamTools: StreamTool<any>[],
   ) {}
 
   /**
@@ -53,7 +53,7 @@ export class CallLLMResult {
   public async _logToolCalls() {
     for await (const toolCall of this.llmResult.operationsSource) {
       // eslint-disable-next-line no-console
-      console.log(toolCall);
+      console.log(JSON.stringify(toolCall, null, 2));
     }
   }
 }
