@@ -29,7 +29,7 @@ export const SuggestionAddMark = Mark.create({
           {
             "data-id": String(mark.attrs["id"]),
             "data-inline": String(inline),
-            ...(!inline && { style: "display: block" }),
+            ...(!inline && { style: "display: contents" }), // changed to "contents" to make this work for table rows
           },
           0,
         ];
