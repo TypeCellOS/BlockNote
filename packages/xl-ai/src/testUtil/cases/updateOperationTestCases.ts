@@ -175,10 +175,15 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
             },
             {
               type: "text",
-              text: "Wie geht es dir? ",
+              text: "Wie geht es dir?",
               styles: {
                 bold: true,
               },
+            },
+            {
+              type: "text",
+              text: " ",
+              styles: {},
             },
             {
               type: "text",
@@ -191,7 +196,8 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
         },
       },
     ],
-    userPrompt: "translate the second block to german",
+    userPrompt:
+      "translate the second block to german (use dir instead of Ihnen)",
   },
   {
     editor: getEditorWithFormattingAndMentions,
@@ -216,8 +222,12 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
             },
             {
               type: "text",
-              text: "! How are you doing? ",
+              text: "! How are you doing?",
               styles: {},
+            },
+            {
+              type: "text",
+              text: " ",
             },
             {
               type: "text",
@@ -248,10 +258,14 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
             },
             {
               type: "text",
-              text: "How are you doing? ",
+              text: "How are you doing?",
               styles: {
                 bold: true,
               },
+            },
+            {
+              type: "text",
+              text: " ",
             },
             {
               type: "text",
@@ -380,10 +394,14 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
             },
             {
               type: "text",
-              text: "How are you doing? ",
+              text: "How are you doing?",
               styles: {
                 bold: true,
               },
+            },
+            {
+              type: "text",
+              text: " ",
             },
             {
               type: "text",

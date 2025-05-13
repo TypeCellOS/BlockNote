@@ -91,7 +91,7 @@ exports[`drop mark and link 1`] = `
       ],
     },
     "step": {
-      "from": 84,
+      "from": 85,
       "slice": {
         "content": [
           {
@@ -101,7 +101,7 @@ exports[`drop mark and link 1`] = `
         ],
       },
       "stepType": "replace",
-      "to": 95,
+      "to": 96,
     },
   },
   {
@@ -125,7 +125,7 @@ exports[`drop mark and link 1`] = `
       ],
     },
     "step": {
-      "from": 95,
+      "from": 96,
       "slice": {
         "content": [
           {
@@ -135,7 +135,7 @@ exports[`drop mark and link 1`] = `
         ],
       },
       "stepType": "replace",
-      "to": 100,
+      "to": 101,
     },
   },
 ]
@@ -153,7 +153,7 @@ exports[`drop mark and link and change text within mark 1`] = `
       ],
     },
     "step": {
-      "from": 70,
+      "from": 71,
       "slice": {
         "content": [
           {
@@ -163,7 +163,7 @@ exports[`drop mark and link and change text within mark 1`] = `
         ],
       },
       "stepType": "replace",
-      "to": 75,
+      "to": 76,
     },
   },
   {
@@ -181,7 +181,7 @@ exports[`drop mark and link and change text within mark 1`] = `
       ],
     },
     "step": {
-      "from": 84,
+      "from": 85,
       "slice": {
         "content": [
           {
@@ -191,13 +191,13 @@ exports[`drop mark and link and change text within mark 1`] = `
         ],
       },
       "stepType": "replace",
-      "to": 88,
+      "to": 89,
     },
   },
   {
     "replaced": null,
     "step": {
-      "from": 88,
+      "from": 89,
       "slice": {
         "content": [
           {
@@ -207,7 +207,7 @@ exports[`drop mark and link and change text within mark 1`] = `
         ],
       },
       "stepType": "replace",
-      "to": 88,
+      "to": 89,
     },
   },
   {
@@ -225,7 +225,7 @@ exports[`drop mark and link and change text within mark 1`] = `
       ],
     },
     "step": {
-      "from": 88,
+      "from": 89,
       "slice": {
         "content": [
           {
@@ -235,7 +235,7 @@ exports[`drop mark and link and change text within mark 1`] = `
         ],
       },
       "stepType": "replace",
-      "to": 95,
+      "to": 96,
     },
   },
   {
@@ -259,7 +259,7 @@ exports[`drop mark and link and change text within mark 1`] = `
       ],
     },
     "step": {
-      "from": 95,
+      "from": 96,
       "slice": {
         "content": [
           {
@@ -269,7 +269,7 @@ exports[`drop mark and link and change text within mark 1`] = `
         ],
       },
       "stepType": "replace",
-      "to": 100,
+      "to": 101,
     },
   },
 ]
@@ -361,431 +361,6 @@ exports[`plain source block, add mention 1`] = `
 ]
 `;
 
-exports[`remove column 1`] = `
-[
-  {
-    "replaced": {
-      "content": [
-        {
-          "attrs": {
-            "backgroundColor": "default",
-            "colspan": 1,
-            "colwidth": null,
-            "rowspan": 1,
-            "textAlignment": "left",
-            "textColor": "default",
-          },
-          "content": [
-            {
-              "content": [
-                {
-                  "text": "Table Cell 2",
-                  "type": "text",
-                },
-              ],
-              "type": "tableParagraph",
-            },
-          ],
-          "type": "tableCell",
-        },
-      ],
-    },
-    "step": {
-      "from": 20,
-      "stepType": "replace",
-      "to": 36,
-    },
-  },
-  {
-    "replaced": {
-      "content": [
-        {
-          "attrs": {
-            "backgroundColor": "default",
-            "colspan": 1,
-            "colwidth": null,
-            "rowspan": 1,
-            "textAlignment": "left",
-            "textColor": "default",
-          },
-          "content": [
-            {
-              "content": [
-                {
-                  "marks": [
-                    {
-                      "type": "bold",
-                    },
-                  ],
-                  "text": "Table Cell Bold 5",
-                  "type": "text",
-                },
-              ],
-              "type": "tableParagraph",
-            },
-          ],
-          "type": "tableCell",
-        },
-      ],
-    },
-    "step": {
-      "from": 70,
-      "stepType": "replace",
-      "to": 91,
-    },
-  },
-  {
-    "replaced": {
-      "content": [
-        {
-          "attrs": {
-            "backgroundColor": "default",
-            "colspan": 1,
-            "colwidth": null,
-            "rowspan": 1,
-            "textAlignment": "left",
-            "textColor": "default",
-          },
-          "content": [
-            {
-              "content": [
-                {
-                  "text": "Table Cell 8",
-                  "type": "text",
-                },
-              ],
-              "type": "tableParagraph",
-            },
-          ],
-          "type": "tableCell",
-        },
-      ],
-    },
-    "step": {
-      "from": 125,
-      "stepType": "replace",
-      "to": 141,
-    },
-  },
-]
-`;
-
-exports[`remove last column 1`] = `
-[
-  {
-    "replaced": {
-      "content": [
-        {
-          "content": [
-            {
-              "attrs": {
-                "backgroundColor": "default",
-                "colspan": 1,
-                "colwidth": null,
-                "rowspan": 1,
-                "textAlignment": "left",
-                "textColor": "default",
-              },
-              "content": [
-                {
-                  "content": [
-                    {
-                      "text": "Table Cell 3",
-                      "type": "text",
-                    },
-                  ],
-                  "type": "tableParagraph",
-                },
-              ],
-              "type": "tableCell",
-            },
-          ],
-          "type": "tableRow",
-        },
-      ],
-      "openStart": 1,
-    },
-    "step": {
-      "from": 36,
-      "slice": {
-        "content": [
-          {
-            "type": "tableRow",
-          },
-        ],
-        "openStart": 1,
-      },
-      "stepType": "replace",
-      "to": 53,
-    },
-  },
-  {
-    "replaced": {
-      "content": [
-        {
-          "content": [
-            {
-              "attrs": {
-                "backgroundColor": "default",
-                "colspan": 1,
-                "colwidth": null,
-                "rowspan": 1,
-                "textAlignment": "left",
-                "textColor": "default",
-              },
-              "content": [
-                {
-                  "content": [
-                    {
-                      "text": "Table Cell 6",
-                      "type": "text",
-                    },
-                  ],
-                  "type": "tableParagraph",
-                },
-              ],
-              "type": "tableCell",
-            },
-          ],
-          "type": "tableRow",
-        },
-      ],
-      "openStart": 1,
-    },
-    "step": {
-      "from": 91,
-      "slice": {
-        "content": [
-          {
-            "type": "tableRow",
-          },
-        ],
-        "openStart": 1,
-      },
-      "stepType": "replace",
-      "to": 108,
-    },
-  },
-  {
-    "replaced": {
-      "content": [
-        {
-          "attrs": {
-            "backgroundColor": "default",
-            "colspan": 1,
-            "colwidth": null,
-            "rowspan": 1,
-            "textAlignment": "left",
-            "textColor": "default",
-          },
-          "content": [
-            {
-              "content": [
-                {
-                  "text": "Table Cell 9",
-                  "type": "text",
-                },
-              ],
-              "type": "tableParagraph",
-            },
-          ],
-          "type": "tableCell",
-        },
-      ],
-    },
-    "step": {
-      "from": 141,
-      "stepType": "replace",
-      "to": 157,
-    },
-  },
-]
-`;
-
-exports[`remove last row 1`] = `
-[
-  {
-    "replaced": {
-      "content": [
-        {
-          "content": [
-            {
-              "attrs": {
-                "backgroundColor": "default",
-                "colspan": 1,
-                "colwidth": null,
-                "rowspan": 1,
-                "textAlignment": "left",
-                "textColor": "default",
-              },
-              "content": [
-                {
-                  "content": [
-                    {
-                      "text": "Table Cell 7",
-                      "type": "text",
-                    },
-                  ],
-                  "type": "tableParagraph",
-                },
-              ],
-              "type": "tableCell",
-            },
-            {
-              "attrs": {
-                "backgroundColor": "default",
-                "colspan": 1,
-                "colwidth": null,
-                "rowspan": 1,
-                "textAlignment": "left",
-                "textColor": "default",
-              },
-              "content": [
-                {
-                  "content": [
-                    {
-                      "text": "Table Cell 8",
-                      "type": "text",
-                    },
-                  ],
-                  "type": "tableParagraph",
-                },
-              ],
-              "type": "tableCell",
-            },
-            {
-              "attrs": {
-                "backgroundColor": "default",
-                "colspan": 1,
-                "colwidth": null,
-                "rowspan": 1,
-                "textAlignment": "left",
-                "textColor": "default",
-              },
-              "content": [
-                {
-                  "content": [
-                    {
-                      "text": "Table Cell 9",
-                      "type": "text",
-                    },
-                  ],
-                  "type": "tableParagraph",
-                },
-              ],
-              "type": "tableCell",
-            },
-          ],
-          "type": "tableRow",
-        },
-      ],
-    },
-    "step": {
-      "from": 108,
-      "stepType": "replace",
-      "to": 158,
-    },
-  },
-]
-`;
-
-exports[`remove row 1`] = `
-[
-  {
-    "replaced": {
-      "content": [
-        {
-          "content": [
-            {
-              "attrs": {
-                "backgroundColor": "default",
-                "colspan": 1,
-                "colwidth": null,
-                "rowspan": 1,
-                "textAlignment": "left",
-                "textColor": "default",
-              },
-              "content": [
-                {
-                  "content": [
-                    {
-                      "text": "Table Cell 4",
-                      "type": "text",
-                    },
-                  ],
-                  "type": "tableParagraph",
-                },
-              ],
-              "type": "tableCell",
-            },
-            {
-              "attrs": {
-                "backgroundColor": "default",
-                "colspan": 1,
-                "colwidth": null,
-                "rowspan": 1,
-                "textAlignment": "left",
-                "textColor": "default",
-              },
-              "content": [
-                {
-                  "content": [
-                    {
-                      "marks": [
-                        {
-                          "type": "bold",
-                        },
-                      ],
-                      "text": "Table Cell Bold 5",
-                      "type": "text",
-                    },
-                  ],
-                  "type": "tableParagraph",
-                },
-              ],
-              "type": "tableCell",
-            },
-            {
-              "attrs": {
-                "backgroundColor": "default",
-                "colspan": 1,
-                "colwidth": null,
-                "rowspan": 1,
-                "textAlignment": "left",
-                "textColor": "default",
-              },
-              "content": [
-                {
-                  "content": [
-                    {
-                      "text": "Table Cell 6",
-                      "type": "text",
-                    },
-                  ],
-                  "type": "tableParagraph",
-                },
-              ],
-              "type": "tableCell",
-            },
-          ],
-          "type": "tableRow",
-        },
-        {
-          "type": "tableRow",
-        },
-      ],
-      "openEnd": 1,
-      "openStart": 1,
-    },
-    "step": {
-      "from": 54,
-      "stepType": "replace",
-      "to": 109,
-    },
-  },
-]
-`;
-
 exports[`standard update 1`] = `
 [
   {
@@ -848,23 +423,23 @@ exports[`styles + ic in source block, remove mark 1`] = `
               "type": "bold",
             },
           ],
-          "text": "are you doing? ",
+          "text": "How are you doing?",
           "type": "text",
         },
       ],
     },
     "step": {
-      "from": 34,
+      "from": 30,
       "slice": {
         "content": [
           {
-            "text": "are you doing? ",
+            "text": "How are you doing?",
             "type": "text",
           },
         ],
       },
       "stepType": "replace",
-      "to": 49,
+      "to": 48,
     },
   },
 ]
@@ -908,7 +483,7 @@ exports[`styles + ic in source block, replace content 1`] = `
           "type": "mention",
         },
         {
-          "text": "! How ",
+          "text": "! ",
           "type": "text",
         },
         {
@@ -917,7 +492,11 @@ exports[`styles + ic in source block, replace content 1`] = `
               "type": "bold",
             },
           ],
-          "text": "are you doing? ",
+          "text": "How are you doing?",
+          "type": "text",
+        },
+        {
+          "text": " ",
           "type": "text",
         },
         {
@@ -929,7 +508,7 @@ exports[`styles + ic in source block, replace content 1`] = `
               "type": "textColor",
             },
           ],
-          "text": "I'm feeling blue!",
+          "text": "This text is blue!",
           "type": "text",
         },
       ],
@@ -945,7 +524,7 @@ exports[`styles + ic in source block, replace content 1`] = `
         ],
       },
       "stepType": "replace",
-      "to": 66,
+      "to": 67,
     },
   },
 ]
@@ -1012,16 +591,16 @@ exports[`styles + ic in source block, update text 1`] = `
     "replaced": {
       "content": [
         {
-          "text": "How ",
-          "type": "text",
-        },
-        {
           "marks": [
             {
               "type": "bold",
             },
           ],
-          "text": "are you doing? ",
+          "text": "How are you doing?",
+          "type": "text",
+        },
+        {
+          "text": " ",
           "type": "text",
         },
         {
@@ -1033,7 +612,7 @@ exports[`styles + ic in source block, update text 1`] = `
               "type": "textColor",
             },
           ],
-          "text": "I'm feeling blue",
+          "text": "This text",
           "type": "text",
         },
       ],
@@ -1043,16 +622,16 @@ exports[`styles + ic in source block, update text 1`] = `
       "slice": {
         "content": [
           {
-            "text": "Wie ",
-            "type": "text",
-          },
-          {
             "marks": [
               {
                 "type": "bold",
               },
             ],
-            "text": "geht es dir? ",
+            "text": "Wie geht es dir?",
+            "type": "text",
+          },
+          {
+            "text": " ",
             "type": "text",
           },
           {
@@ -1064,13 +643,52 @@ exports[`styles + ic in source block, update text 1`] = `
                 "type": "textColor",
               },
             ],
-            "text": "Ich fühle mich blau",
+            "text": "Dieser Text",
             "type": "text",
           },
         ],
       },
       "stepType": "replace",
-      "to": 65,
+      "to": 58,
+    },
+  },
+  {
+    "replaced": {
+      "content": [
+        {
+          "marks": [
+            {
+              "attrs": {
+                "stringValue": "blue",
+              },
+              "type": "textColor",
+            },
+          ],
+          "text": "is blue",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 59,
+      "slice": {
+        "content": [
+          {
+            "marks": [
+              {
+                "attrs": {
+                  "stringValue": "blue",
+                },
+                "type": "textColor",
+              },
+            ],
+            "text": "ist blau",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 66,
     },
   },
 ]
@@ -1423,34 +1041,6 @@ exports[`update block type and content 1`] = `
       },
       "stepType": "replace",
       "to": 8,
-    },
-  },
-]
-`;
-
-exports[`update table cell 1`] = `
-[
-  {
-    "replaced": {
-      "content": [
-        {
-          "text": "Table Cell 1",
-          "type": "text",
-        },
-      ],
-    },
-    "step": {
-      "from": 6,
-      "slice": {
-        "content": [
-          {
-            "text": "Hello, world!",
-            "type": "text",
-          },
-        ],
-      },
-      "stepType": "replace",
-      "to": 18,
     },
   },
 ]

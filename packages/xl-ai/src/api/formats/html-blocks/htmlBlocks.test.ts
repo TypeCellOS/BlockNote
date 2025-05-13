@@ -93,22 +93,17 @@ describe("Models", () => {
       model: testAIModels.groq,
       stream: false,
     },
-    {
-      model: testAIModels.albert,
-      stream: true,
-    },
-    {
-      model: testAIModels.albert,
-      stream: false,
-    },
-
+    // currently doesn't support streaming
+    // https://github.com/vercel/ai/issues/5350
     // {
-    //   model: groq,
+    //   model: testAIModels.albert,
+    //   stream: true,
     // },
-    // // {
-    // //   model: albert,
-    // //   stream: true,
-    // // },
+    // This works for most prompts, but not all (would probably need a llama upgrade?)
+    // {
+    //   model: testAIModels.albert,
+    //   stream: false,
+    // },
   ];
 
   for (const params of testMatrix) {

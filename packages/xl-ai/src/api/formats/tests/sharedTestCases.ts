@@ -3,7 +3,7 @@ import { getCurrentTest, TaskContext } from "@vitest/runner";
 import path from "path";
 import { TextSelection } from "prosemirror-state";
 import { describe, expect, it } from "vitest";
-import { createAIExtension, getAIExtension } from "../../../AIExtension.js";
+import { getAIExtension } from "../../../AIExtension.js";
 import { addOperationTestCases } from "../../../testUtil/cases/addOperationTestCases.js";
 import { combinedOperationsTestCases } from "../../../testUtil/cases/combinedOperationsTestCases.js";
 import { deleteOperationTestCases } from "../../../testUtil/cases/deleteOperationTestCases.js";
@@ -92,7 +92,11 @@ export function generateSharedTestCases(
 
     // we first need to accept changes to get the correct result
     getAIExtension(editor).acceptChanges();
-    expect(editor.document).toEqual(getExpectedEditor(test).document);
+    expect(editor.document).toEqual(
+      getExpectedEditor(test, {
+        deleteEmptyCursorBlock: true,
+      }).document,
+    );
   }
 
   describe("Add", () => {
@@ -141,44 +145,5 @@ export function generateSharedTestCases(
         await executeTestCase(editor, test);
       });
     }
-  });
-
-  // TODO
-  describe("Misc", () => {
-    it("create google ads script", async (_c) => {
-      const editor = BlockNoteEditor.create({
-        initialContent: [
-          {
-            type: "heading",
-            props: {
-              level: 1,
-            },
-            content: "Google ads scripts",
-          },
-          {
-            type: "paragraph",
-          },
-          {
-            type: "paragraph",
-          },
-        ],
-        _extensions: {
-          ai: createAIExtension({
-            model: undefined as any,
-          }),
-        },
-      });
-
-      editor.setTextCursorPosition(editor.document[1], "start");
-
-      const result = await callLLM(editor, {
-        userPrompt:
-          "write a script that sends me an email alert when the daily budget is spend",
-      });
-
-      await result.execute();
-
-      await matchFileSnapshot(editor.prosemirrorState.doc.toJSON());
-    });
   });
 }

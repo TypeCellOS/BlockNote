@@ -7,6 +7,7 @@ import {
 import { AddBlocksToolCall } from "../../api/formats/base-tools/createAddBlocksTool.js";
 import { UpdateBlockToolCall } from "../../api/formats/base-tools/createUpdateBlockTool.js";
 import { DeleteBlockToolCall } from "../../api/formats/base-tools/delete.js";
+import { isEmptyParagraph } from "../../util/emptyBlock.js";
 
 export type DocumentOperationTestCase = {
   /**
@@ -51,10 +52,31 @@ export type DocumentOperationTestCase = {
   };
 };
 
-export function getExpectedEditor(testCase: DocumentOperationTestCase) {
+export function getExpectedEditor(
+  testCase: DocumentOperationTestCase,
+  opts: {
+    deleteEmptyCursorBlock: boolean;
+  } = {
+    deleteEmptyCursorBlock: false,
+  },
+) {
   (window as any).__TEST_OPTIONS.mockID = undefined;
 
   const editor = testCase.editor();
+
+  const cursorBlock = testCase.getTestSelection
+    ? undefined
+    : editor.getTextCursorPosition().block;
+
+  const deleteCursorBlock: string | undefined =
+    cursorBlock && opts.deleteEmptyCursorBlock && isEmptyParagraph(cursorBlock)
+      ? cursorBlock.id
+      : undefined;
+
+  if (deleteCursorBlock) {
+    editor.removeBlocks([deleteCursorBlock]);
+  }
+
   for (const toolCall of testCase.baseToolCalls) {
     if (toolCall.type === "update") {
       const selection = testCase.getTestSelection?.(editor);

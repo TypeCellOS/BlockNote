@@ -47,4 +47,43 @@ export const addOperationTestCases: DocumentOperationTestCase[] = [
     userPrompt:
       "add a list with the items 'Apples' and 'Bananas' after the last sentence",
   },
+  {
+    editor: getSimpleEditor,
+    description: "Add heading (h1) and code block",
+    baseToolCalls: [
+      {
+        type: "add",
+        blocks: [
+          { type: "heading", content: "Code", props: { level: 1 } },
+          {
+            type: "codeBlock",
+            content: "console.log('hello world');",
+            props: { language: "javascript" },
+          },
+        ],
+        referenceId: "ref2",
+        position: "after",
+      },
+    ],
+    userPrompt:
+      "at the end of doc, add a heading `Code` and a javascript code block with `console.log('hello world');`",
+  },
+  // TODO: fix cursor block
+  // {
+  //   editor: getSimpleEditorWithCursorBetweenBlocks,
+  //   description: "Add heading (based on cursor)",
+  //   baseToolCalls: [
+  //     {
+  //       type: "add",
+  //       blocks: [
+  //         { type: "heading", content: "I love lamp", props: { level: 1 } },
+  //       ],
+  //       referenceId: "ref1",
+  //       position: "after",
+  //     },
+  //   ],
+
+  //   userPrompt:
+  //     "at the end of doc, add a heading `Code` and a javascript code block with `console.log('hello world');`",
+  // },
 ];

@@ -28,10 +28,14 @@ export function getEditorWithFormattingAndMentions() {
           },
           {
             type: "text",
-            text: "How are you doing? ",
+            text: "How are you doing?",
             styles: {
               bold: true,
             },
+          },
+          {
+            type: "text",
+            text: " ",
           },
           {
             type: "text",
