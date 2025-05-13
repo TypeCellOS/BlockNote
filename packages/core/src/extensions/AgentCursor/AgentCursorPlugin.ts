@@ -2,6 +2,7 @@ import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { defaultSelectionBuilder } from "y-prosemirror";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 
 type AgentCursorState = {
   selection: { anchor: number; head: number } | undefined;
@@ -14,67 +15,69 @@ const user = {
 };
 
 // TODO: move to xl-ai?
-export class AgentCursorPlugin {
-  public readonly plugin: Plugin;
+export class AgentCursorPlugin extends BlockNoteExtension {
   constructor(_editor: BlockNoteEditor<any, any, any>) {
-    this.plugin = new Plugin<AgentCursorState>({
-      key: PLUGIN_KEY,
-      view: (_view) => {
-        return {};
-      },
-      state: {
-        init: () => {
-          return {
-            selection: undefined,
-          };
+    super();
+    this.addProsemirrorPlugin(
+      new Plugin<AgentCursorState>({
+        key: PLUGIN_KEY,
+        view: (_view) => {
+          return {};
         },
-        apply: (tr, _oldState) => {
-          const meta = tr.getMeta("aiAgent");
-
-          if (!meta) {
+        state: {
+          init: () => {
             return {
               selection: undefined,
             };
-          }
+          },
+          apply: (tr, _oldState) => {
+            const meta = tr.getMeta("aiAgent");
 
-          return {
-            selection: meta.selection,
-          };
+            if (!meta) {
+              return {
+                selection: undefined,
+              };
+            }
+
+            return {
+              selection: meta.selection,
+            };
+          },
         },
-      },
-      props: {
-        decorations: (state) => {
-          const { doc } = state;
+        props: {
+          decorations: (state) => {
+            const { doc } = state;
 
-          const { selection } = PLUGIN_KEY.getState(state)!;
+            const { selection } = PLUGIN_KEY.getState(state)!;
 
-          const decs = [];
+            const decs = [];
 
-          if (!selection) {
-            return DecorationSet.create(doc, []);
-          }
+            if (!selection) {
+              return DecorationSet.create(doc, []);
+            }
 
-          decs.push(
-            Decoration.widget(selection.head, () => renderCursor(user), {
-              key: "agent-cursor",
-              side: 10,
-            })
-          );
+            decs.push(
+              Decoration.widget(selection.head, () => renderCursor(user), {
+                key: "agent-cursor",
+                side: 10,
+              }),
+            );
 
-          const from = Math.min(selection.anchor, selection.head);
-          const to = Math.max(selection.anchor, selection.head);
+            const from = Math.min(selection.anchor, selection.head);
+            const to = Math.max(selection.anchor, selection.head);
 
-          decs.push(
-            Decoration.inline(from, to, defaultSelectionBuilder(user), {
-              inclusiveEnd: true,
-              inclusiveStart: false,
-            })
-          );
+            decs.push(
+              Decoration.inline(from, to, defaultSelectionBuilder(user), {
+                inclusiveEnd: true,
+                inclusiveStart: false,
+              }),
+            );
 
-          return DecorationSet.create(doc, decs);
+            return DecorationSet.create(doc, decs);
+          },
         },
-      },
-    });
+      }),
+    );
   }
 }
 

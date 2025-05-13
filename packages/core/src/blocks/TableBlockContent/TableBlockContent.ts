@@ -1,10 +1,8 @@
+import { Node, mergeAttributes } from "@tiptap/core";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
-
 import { Node as PMNode } from "prosemirror-model";
 import { TableView } from "prosemirror-tables";
-
-import { Node, mergeAttributes } from "@tiptap/core";
 import { NodeView } from "prosemirror-view";
 import {
   createBlockSpecFromStronglyTypedTiptapNode,
@@ -40,7 +38,7 @@ export const TableBlockContent = createStronglyTypedTiptapNode({
         ...(this.options.domAttributes?.blockContent || {}),
         ...HTMLAttributes,
       },
-      this.options.domAttributes?.inlineContent || {}
+      this.options.domAttributes?.inlineContent || {},
     );
   },
 
@@ -57,18 +55,18 @@ export const TableBlockContent = createStronglyTypedTiptapNode({
         constructor(
           public node: PMNode,
           public cellMinWidth: number,
-          public blockContentHTMLAttributes: Record<string, string>
+          public blockContentHTMLAttributes: Record<string, string>,
         ) {
           super(node, cellMinWidth);
 
           const blockContent = document.createElement("div");
           blockContent.className = mergeCSSClasses(
             "bn-block-content",
-            blockContentHTMLAttributes.class
+            blockContentHTMLAttributes.class,
           );
           blockContent.setAttribute("data-content-type", "table");
           for (const [attribute, value] of Object.entries(
-            blockContentHTMLAttributes
+            blockContentHTMLAttributes,
           )) {
             if (attribute !== "class") {
               blockContent.setAttribute(attribute, value);
@@ -204,5 +202,5 @@ export const Table = createBlockSpecFromStronglyTypedTiptapNode(
       content: "tableContent+",
     }),
     TableRow,
-  ]
+  ],
 );

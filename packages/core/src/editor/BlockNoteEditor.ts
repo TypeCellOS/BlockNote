@@ -106,9 +106,7 @@ import { EditorView } from "prosemirror-view";
 import { redoCommand, undoCommand, ySyncPluginKey } from "y-prosemirror";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
-import {
-  docToBlocks
-} from "../api/nodeConversions/nodeToBlock.js";
+import { docToBlocks } from "../api/nodeConversions/nodeToBlock.js";
 import {
   BlocksChanged,
   getBlocksChangedByTransaction,
@@ -133,14 +131,7 @@ export type BlockNoteExtensionFactory = (
 /**
  * We support Tiptap extensions and BlockNoteExtension based extensions
  */
-export type SupportedExtension =
-  | AnyExtension
-  | {
-      plugin: Plugin; // TODO: deprecate this format and use BlockNoteExtension instead
-      plugins?: Plugin[];
-      priority?: number;
-    }
-  | BlockNoteExtension;
+export type SupportedExtension = AnyExtension | BlockNoteExtension;
 
 export type BlockCache<
   BSchema extends BlockSchema = any,
@@ -705,26 +696,15 @@ export class BlockNoteEditor<
           return ext;
         }
 
-        if (ext instanceof BlockNoteExtension && !ext.plugin && !ext.plugins) {
+        if (ext instanceof BlockNoteExtension && !ext.plugins.length) {
           return undefined;
-        }
-
-        const plugins = [
-          ...(ext.plugin ? [ext.plugin] : []),
-          ...(ext.plugins || []),
-        ];
-
-        if (!plugins.length) {
-          throw new Error(
-            "Extension should either be a TipTap extension or a ProseMirror plugin in a plugin property",
-          );
         }
 
         // "blocknote" extensions (prosemirror plugins)
         return Extension.create({
           name: key,
           priority: ext.priority,
-          addProseMirrorPlugins: () => plugins,
+          addProseMirrorPlugins: () => ext.plugins,
         });
       }),
     ].filter((ext): ext is Extension => ext !== undefined);
@@ -900,7 +880,7 @@ export class BlockNoteEditor<
    */
   public extension<T extends BlockNoteExtension>(
     ext: { new (...args: any[]): T } & typeof BlockNoteExtension,
-    key = ext.name()
+    key = ext.name(),
   ): T {
     const extension = this.extensions[key] as T;
     if (!extension) {
@@ -990,10 +970,7 @@ export class BlockNoteEditor<
    */
   public get document(): Block<BSchema, ISchema, SSchema>[] {
     return this.transact((tr) => {
-      return docToBlocks(
-        tr.doc,
-        this.pmSchema
-      );
+      return docToBlocks(tr.doc, this.pmSchema);
     });
   }
 
@@ -1140,7 +1117,7 @@ export class BlockNoteEditor<
   /**
    * Gets a snapshot of the current selection. This contains all blocks (included nested blocks)
    * that the selection spans across.
-   * 
+   *
    * If the selection starts / ends halfway through a block, the returned data will contain the entire block.
    */
   public getSelection(): Selection<BSchema, ISchema, SSchema> | undefined {
@@ -1150,7 +1127,7 @@ export class BlockNoteEditor<
   /**
    * Gets a snapshot of the current selection. This contains all blocks (included nested blocks)
    * that the selection spans across.
-   * 
+   *
    * If the selection starts / ends halfway through a block, the returned block will be
    * only the part of the block that is included in the selection.
    */
@@ -1688,7 +1665,7 @@ export class BlockNoteEditor<
       if (pluginState?.deleteTriggerCharacter) {
         tr.insertText(triggerCharacter);
       }
-      tr.scrollIntoView().setMeta(this.suggestionMenus.plugin, {
+      tr.scrollIntoView().setMeta(this.suggestionMenus.plugins[0], {
         triggerCharacter: triggerCharacter,
         deleteTriggerCharacter: pluginState?.deleteTriggerCharacter || false,
         ignoreQueryLength: pluginState?.ignoreQueryLength || false,

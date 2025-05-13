@@ -13,8 +13,8 @@ import type { ThreadStore } from "../comments/index.js";
 import { AgentCursorPlugin } from "../extensions/AgentCursor/AgentCursorPlugin.js";
 import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension.js";
 import { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
-import { UndoPlugin } from "../extensions/Collaboration/UndoPlugin.js";
 import { SyncPlugin } from "../extensions/Collaboration/SyncPlugin.js";
+import { UndoPlugin } from "../extensions/Collaboration/UndoPlugin.js";
 import { CommentMark } from "../extensions/Comments/CommentMark.js";
 import { CommentsPlugin } from "../extensions/Comments/CommentsPlugin.js";
 import { FilePanelProsemirrorPlugin } from "../extensions/FilePanel/FilePanelPlugin.js";
@@ -61,7 +61,7 @@ import type {
 type ExtensionOptions<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = {
   editor: BlockNoteEditor<BSchema, I, S>;
   domAttributes: Partial<BlockNoteDOMAttributes>;
@@ -103,9 +103,9 @@ type ExtensionOptions<
 export const getBlockNoteExtensions = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
-  opts: ExtensionOptions<BSchema, I, S>
+  opts: ExtensionOptions<BSchema, I, S>,
 ) => {
   const ret: Record<string, SupportedExtension> = {};
   const tiptapExtensions = getTipTapExtensions(opts);
@@ -126,12 +126,12 @@ export const getBlockNoteExtensions = <
   // Note: this is pretty hardcoded and will break when user provides plugins with same keys.
   // Define name on plugins instead and not make this a map?
   ret["formattingToolbar"] = new FormattingToolbarProsemirrorPlugin(
-    opts.editor
+    opts.editor,
   );
   ret["linkToolbar"] = new LinkToolbarProsemirrorPlugin(opts.editor);
   ret["sideMenu"] = new SideMenuProsemirrorPlugin(
     opts.editor,
-    opts.sideMenuDetection
+    opts.sideMenuDetection,
   );
   ret["suggestionMenus"] = new SuggestionMenuProseMirrorPlugin(opts.editor);
   ret["filePanel"] = new FilePanelProsemirrorPlugin(opts.editor as any);
@@ -145,14 +145,6 @@ export const getBlockNoteExtensions = <
     ret["tableHandles"] = new TableHandlesProsemirrorPlugin(opts.editor as any);
   }
 
-  ret["dropCursor"] = {
-    plugin: opts.dropCursor({
-      width: 5,
-      color: "#ddeeff",
-      editor: opts.editor,
-    }),
-  };
-
   ret["nodeSelectionKeyboard"] = new NodeSelectionKeyboardPlugin();
 
   ret["showSelection"] = new ShowSelectionPlugin(opts.editor);
@@ -161,7 +153,7 @@ export const getBlockNoteExtensions = <
     ret["comments"] = new CommentsPlugin(
       opts.editor,
       opts.comments.threadStore,
-      CommentMark.name
+      CommentMark.name,
     );
   }
 
@@ -183,9 +175,9 @@ let LINKIFY_INITIALIZED = false;
 const getTipTapExtensions = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
-  opts: ExtensionOptions<BSchema, I, S>
+  opts: ExtensionOptions<BSchema, I, S>,
 ) => {
   const tiptapExtensions: AnyExtension[] = [
     extensions.ClipboardTextSerializer,
@@ -198,6 +190,17 @@ const getTipTapExtensions = <
     Gapcursor,
 
     // DropCursor,
+    Extension.create({
+      name: "dropCursor",
+      addProseMirrorPlugins: () => [
+        opts.dropCursor({
+          width: 5,
+          color: "#ddeeff",
+          editor: opts.editor,
+        }),
+      ],
+    }),
+
     UniqueID.configure({
       // everything from bnBlock group (nodes that represent a BlockNote block should have an id)
       types: ["blockContainer", "columnList", "column"],
@@ -275,7 +278,7 @@ const getTipTapExtensions = <
           ext.configure({
             editor: opts.editor,
             domAttributes: opts.domAttributes,
-          })
+          }),
         ),
         // the actual node itself
         blockSpec.implementation.node.configure({
@@ -293,7 +296,7 @@ const getTipTapExtensions = <
             prioritizeMarkdownOverHTML?: boolean;
             plainTextAsMarkdown?: boolean;
           }) => boolean | undefined;
-        }) => context.defaultPasteHandler())
+        }) => context.defaultPasteHandler()),
     ),
     createDropFileExtension(opts.editor),
 

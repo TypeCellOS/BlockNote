@@ -16,7 +16,7 @@ export function streamToolAsTool<T extends StreamTool<any>>(streamTool: T) {
         return { success: true, value: result.value };
       },
     }),
-    execute: async (value) => {
+    execute: async (_value) => {
       // console.log("execute", value);
       // TODO
     },
@@ -36,7 +36,7 @@ export function streamToolsAsTool<T extends StreamTool<any>[]>(streamTools: T) {
         return { success: true, value: stream.value };
       },
     }),
-    execute: async (value) => {
+    execute: async (_value) => {
       // TODO
       // console.log("execute", value);
     },

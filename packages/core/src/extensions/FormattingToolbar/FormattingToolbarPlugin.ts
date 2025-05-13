@@ -3,13 +3,13 @@ import { EditorState, Plugin, PluginKey, PluginView } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
 import {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
-import { EventEmitter } from "../../util/EventEmitter.js";
 
 export type FormattingToolbarState = UiElementPosition;
 
@@ -61,12 +61,12 @@ export class FormattingToolbarView implements PluginView {
       StyleSchema
     >,
     private readonly pmView: EditorView,
-    emitUpdate: (state: FormattingToolbarState) => void
+    emitUpdate: (state: FormattingToolbarState) => void,
   ) {
     this.emitUpdate = () => {
       if (!this.state) {
         throw new Error(
-          "Attempting to update uninitialized formatting toolbar"
+          "Attempting to update uninitialized formatting toolbar",
         );
       }
 
@@ -104,7 +104,7 @@ export class FormattingToolbarView implements PluginView {
       (editorWrapper === (event.relatedTarget as Node) ||
         editorWrapper.contains(event.relatedTarget as Node) ||
         (event.relatedTarget as HTMLElement).matches(
-          ".bn-ui-container, .bn-ui-container *"
+          ".bn-ui-container, .bn-ui-container *",
         ))
     ) {
       return;
@@ -241,33 +241,34 @@ export class FormattingToolbarView implements PluginView {
 }
 
 export const formattingToolbarPluginKey = new PluginKey(
-  "FormattingToolbarPlugin"
+  "FormattingToolbarPlugin",
 );
 
-export class FormattingToolbarProsemirrorPlugin extends EventEmitter<any> {
+export class FormattingToolbarProsemirrorPlugin extends BlockNoteExtension {
   private view: FormattingToolbarView | undefined;
-  public readonly plugin: Plugin;
 
   constructor(editor: BlockNoteEditor<any, any, any>) {
     super();
-    this.plugin = new Plugin({
-      key: formattingToolbarPluginKey,
-      view: (editorView) => {
-        this.view = new FormattingToolbarView(editor, editorView, (state) => {
-          this.emit("update", state);
-        });
-        return this.view;
-      },
-      props: {
-        handleKeyDown: (_view, event: KeyboardEvent) => {
-          if (event.key === "Escape" && this.shown) {
-            this.view!.closeMenu();
-            return true;
-          }
-          return false;
+    this.addProsemirrorPlugin(
+      new Plugin({
+        key: formattingToolbarPluginKey,
+        view: (editorView) => {
+          this.view = new FormattingToolbarView(editor, editorView, (state) => {
+            this.emit("update", state);
+          });
+          return this.view;
         },
-      },
-    });
+        props: {
+          handleKeyDown: (_view, event: KeyboardEvent) => {
+            if (event.key === "Escape" && this.shown) {
+              this.view!.closeMenu();
+              return true;
+            }
+            return false;
+          },
+        },
+      }),
+    );
   }
 
   public get shown() {

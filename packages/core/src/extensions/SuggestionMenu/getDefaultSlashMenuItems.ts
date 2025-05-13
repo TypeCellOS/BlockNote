@@ -18,7 +18,7 @@ import { DefaultSuggestionItem } from "./DefaultSuggestionItem.js";
 function setSelectionToNextContentEditableBlock<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(editor: BlockNoteEditor<BSchema, I, S>) {
   let block: Block<BSchema, I, S> | undefined =
     editor.getTextCursorPosition().block;
@@ -44,10 +44,10 @@ function setSelectionToNextContentEditableBlock<
 export function insertOrUpdateBlock<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
-  block: PartialBlock<BSchema, I, S>
+  block: PartialBlock<BSchema, I, S>,
 ): Block<BSchema, I, S> {
   const currentBlock = editor.getTextCursorPosition().block;
 
@@ -83,7 +83,7 @@ export function insertOrUpdateBlock<
 export function getDefaultSlashMenuItems<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(editor: BlockNoteEditor<BSchema, I, S>) {
   const items: DefaultSuggestionItem[] = [];
 
@@ -121,7 +121,7 @@ export function getDefaultSlashMenuItems<
         badge: formatKeyboardShortcut("Mod-Alt-3"),
         key: "heading_3",
         ...editor.dictionary.slash_menu.heading_3,
-      }
+      },
     );
   }
 
@@ -235,9 +235,9 @@ export function getDefaultSlashMenuItems<
 
         // Immediately open the file toolbar
         editor.transact((tr) =>
-          tr.setMeta(editor.filePanel!.plugin, {
+          tr.setMeta(editor.filePanel!.plugins[0], {
             block: insertedBlock,
-          })
+          }),
         );
       },
       key: "image",
@@ -254,9 +254,9 @@ export function getDefaultSlashMenuItems<
 
         // Immediately open the file toolbar
         editor.transact((tr) =>
-          tr.setMeta(editor.filePanel!.plugin, {
+          tr.setMeta(editor.filePanel!.plugins[0], {
             block: insertedBlock,
-          })
+          }),
         );
       },
       key: "video",
@@ -273,9 +273,9 @@ export function getDefaultSlashMenuItems<
 
         // Immediately open the file toolbar
         editor.transact((tr) =>
-          tr.setMeta(editor.filePanel!.plugin, {
+          tr.setMeta(editor.filePanel!.plugins[0], {
             block: insertedBlock,
-          })
+          }),
         );
       },
       key: "audio",
@@ -292,9 +292,9 @@ export function getDefaultSlashMenuItems<
 
         // Immediately open the file toolbar
         editor.transact((tr) =>
-          tr.setMeta(editor.filePanel!.plugin, {
+          tr.setMeta(editor.filePanel!.plugins[0], {
             block: insertedBlock,
-          })
+          }),
         );
       },
       key: "file",
@@ -317,7 +317,7 @@ export function getDefaultSlashMenuItems<
 }
 
 export function filterSuggestionItems<
-  T extends { title: string; aliases?: readonly string[] }
+  T extends { title: string; aliases?: readonly string[] },
 >(items: T[], query: string) {
   return items.filter(
     ({ title, aliases }) =>
@@ -325,7 +325,7 @@ export function filterSuggestionItems<
       (aliases &&
         aliases.filter(
           (alias) =>
-            alias === "" || alias.toLowerCase().includes(query.toLowerCase())
-        ).length !== 0)
+            alias === "" || alias.toLowerCase().includes(query.toLowerCase()),
+        ).length !== 0),
   );
 }

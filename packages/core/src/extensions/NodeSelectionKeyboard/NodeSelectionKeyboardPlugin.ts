@@ -1,4 +1,5 @@
 import { Plugin, PluginKey, TextSelection } from "prosemirror-state";
+import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 
 const PLUGIN_KEY = new PluginKey("node-selection-keyboard");
 // By default, typing with a node selection active will cause ProseMirror to
@@ -15,54 +16,56 @@ const PLUGIN_KEY = new PluginKey("node-selection-keyboard");
 // While a more elegant solution would probably process transactions instead of
 // keystrokes, this brings us most of the way to Notion's UX without much added
 // complexity.
-export class NodeSelectionKeyboardPlugin {
-  public readonly plugin: Plugin;
+export class NodeSelectionKeyboardPlugin extends BlockNoteExtension {
   constructor() {
-    this.plugin = new Plugin({
-      key: PLUGIN_KEY,
-      props: {
-        handleKeyDown: (view, event) => {
-          // Checks for node selection
-          if ("node" in view.state.selection) {
-            // Checks if key press uses ctrl/meta modifier
-            if (event.ctrlKey || event.metaKey) {
-              return false;
-            }
-            // Checks if key press is alphanumeric
-            if (event.key.length === 1) {
-              event.preventDefault();
+    super();
+    this.addProsemirrorPlugin(
+      new Plugin({
+        key: PLUGIN_KEY,
+        props: {
+          handleKeyDown: (view, event) => {
+            // Checks for node selection
+            if ("node" in view.state.selection) {
+              // Checks if key press uses ctrl/meta modifier
+              if (event.ctrlKey || event.metaKey) {
+                return false;
+              }
+              // Checks if key press is alphanumeric
+              if (event.key.length === 1) {
+                event.preventDefault();
 
-              return true;
-            }
-            // Checks if key press is Enter
-            if (
-              event.key === "Enter" &&
-              !event.shiftKey &&
-              !event.altKey &&
-              !event.ctrlKey &&
-              !event.metaKey
-            ) {
-              const tr = view.state.tr;
-              view.dispatch(
-                tr
-                  .insert(
-                    view.state.tr.selection.$to.after(),
-                    view.state.schema.nodes["paragraph"].createChecked()
-                  )
-                  .setSelection(
-                    new TextSelection(
-                      tr.doc.resolve(view.state.tr.selection.$to.after() + 1)
+                return true;
+              }
+              // Checks if key press is Enter
+              if (
+                event.key === "Enter" &&
+                !event.shiftKey &&
+                !event.altKey &&
+                !event.ctrlKey &&
+                !event.metaKey
+              ) {
+                const tr = view.state.tr;
+                view.dispatch(
+                  tr
+                    .insert(
+                      view.state.tr.selection.$to.after(),
+                      view.state.schema.nodes["paragraph"].createChecked(),
                     )
-                  )
-              );
+                    .setSelection(
+                      new TextSelection(
+                        tr.doc.resolve(view.state.tr.selection.$to.after() + 1),
+                      ),
+                    ),
+                );
 
-              return true;
+                return true;
+              }
             }
-          }
 
-          return false;
+            return false;
+          },
         },
-      },
-    });
+      }),
+    );
   }
 }

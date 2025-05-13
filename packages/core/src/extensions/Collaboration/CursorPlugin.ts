@@ -1,7 +1,7 @@
-import { Plugin } from "prosemirror-state";
 import { defaultSelectionBuilder, yCursorPlugin } from "y-prosemirror";
 import { Awareness } from "y-protocols/awareness.js";
 import * as Y from "yjs";
+import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 
 export type CollaborationUser = {
   name: string;
@@ -9,8 +9,7 @@ export type CollaborationUser = {
   [key: string]: string;
 };
 
-export class CursorPlugin {
-  public plugin: Plugin;
+export class CursorPlugin extends BlockNoteExtension {
   private provider: { awareness: Awareness };
   private recentlyUpdatedCursors: Map<
     number,
@@ -23,8 +22,9 @@ export class CursorPlugin {
       provider: { awareness: Awareness };
       renderCursor?: (user: CollaborationUser) => HTMLElement;
       showCursorLabels?: "always" | "activity";
-    }
+    },
   ) {
+    super();
     this.provider = collaboration.provider;
     this.recentlyUpdatedCursors = new Map();
 
@@ -58,14 +58,16 @@ export class CursorPlugin {
               });
             }
           }
-        }
+        },
       );
     }
 
-    this.plugin = yCursorPlugin(this.provider.awareness, {
-      selectionBuilder: defaultSelectionBuilder,
-      cursorBuilder: this.renderCursor,
-    });
+    this.addProsemirrorPlugin(
+      yCursorPlugin(this.provider.awareness, {
+        selectionBuilder: defaultSelectionBuilder,
+        cursorBuilder: this.renderCursor,
+      }),
+    );
   }
 
   public get priority() {

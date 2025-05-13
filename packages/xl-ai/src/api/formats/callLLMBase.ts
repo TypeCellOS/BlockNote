@@ -84,7 +84,9 @@ export const callLLMBase =
         ? cursorBlock.id
         : undefined;
 
-    const selectionInfo = useSelection ? editor.getSelection2() : undefined;
+    const selectionInfo = useSelection
+      ? editor.getSelectionCutBlocks()
+      : undefined;
 
     const messages = await getMessages(editor, {
       ...opts,
