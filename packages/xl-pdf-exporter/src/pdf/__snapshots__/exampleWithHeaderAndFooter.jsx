@@ -566,13 +566,13 @@
           <IMAGE
             src={[object Blob]}
             style={{
-              width: 384
+              width: undefined
             }}
           />
           <TEXT
             style={{
               fontSize: 9.600000000000001,
-              width: 384
+              width: undefined
             }}
           >
             From https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg
@@ -635,7 +635,7 @@
           <TEXT
             style={{
               fontSize: 9.600000000000001,
-              width: 384
+              width: undefined
             }}
           >
             From https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm

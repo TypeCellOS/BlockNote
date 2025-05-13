@@ -167,7 +167,9 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
         <Image
           src={await t.resolveFile(block.props.url)}
           style={{
-            width: block.props.previewWidth * PIXELS_PER_POINT,
+            width: block.props.previewWidth
+              ? block.props.previewWidth * PIXELS_PER_POINT
+              : undefined,
           }}
         />
         {caption(block.props, t)}

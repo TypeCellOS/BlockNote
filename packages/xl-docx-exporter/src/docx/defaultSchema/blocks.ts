@@ -198,8 +198,8 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
                 }
               : undefined,
             transformation: {
-              width: block.props.previewWidth,
-              height: (block.props.previewWidth / width) * height,
+              width: block.props.previewWidth || width,
+              height: ((block.props.previewWidth || width) / width) * height,
             },
           }),
         ],

@@ -65,6 +65,35 @@ export const parseTestInstancesHTML: TestInstance<
     executeTest: testParseHTML,
   },
   {
+    // TODO this test's result not exactly right, but it's close enough for now.
+    testCase: {
+      name: "emptyNestedCheckListItem",
+      content: `<ul>
+  <li>
+    <ul>
+      <li>
+        <input type="checkbox" />
+      </li>
+    </ul>
+    <p>Paragraph</p>
+  </li>
+  </ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "checkListItem",
+      content: `<ul>
+  <li>
+    <input type="checkbox">
+    <p>Paragraph</p>
+  <li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
     testCase: {
       name: "nestedLists",
       content: `<ul>
@@ -229,6 +258,267 @@ export const parseTestInstancesHTML: TestInstance<
     Nested Check List Item
   </li>
 </ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "multipleParagraphListItem",
+      content: `<ul>
+  <li>
+    <p>Bullet List Item</p>
+    <p>Bullet List Item</p>
+  </li>
+  <li>Bullet List Item</li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "textWithImageListItem",
+      content: `<ul>
+  <li>
+    Bullet List Item
+    <img src="exampleURL">
+  </li>
+  <li>Bullet List Item</li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "paragraphWithImageListItem",
+      content: `<ul>
+  <li>
+    <p>Bullet List Item</p>
+    <img src="exampleURL">
+  </li>
+  <li>Bullet List Item</li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "imageWithTextListItem",
+      content: `<ul>
+  <li>
+    <img src="exampleURL">
+    Bullet List Item
+  </li>
+  <li>Bullet List Item</li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "imageWithParagraphListItem",
+      content: `<ul>
+  <li>
+    <img src="exampleURL">
+    <p>Bullet List Item</p>
+  </li>
+  <li>Bullet List Item</li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "styledTextListItem",
+      content: `<ul>
+  <li>Bullet List Item <b>Bold</b></li>
+  <li>Bullet List Item</li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "styledTextWithImageListItem",
+      content: `<ul>
+  <li>
+    <b>Bold</b> Bullet List Item
+    <img src="exampleURL">
+  </li>
+  <li>Bullet List Item</li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "flattenedListItem",
+      content: `<ul>
+  <li>
+    <ol>
+      <li>Nested Numbered List Item</li>
+    </ol>
+  </li>
+  <li>Bullet List Item</li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "headingParagraphListItem",
+      content: `<ul>
+  <li>
+    <h1>Bullet List Item</h1>
+    <p>Bullet List Item</p>
+  </li>
+  <li>Bullet List Item</li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "paragraphHeadingListItem",
+      content: `<ul>
+  <li>
+    <p>Bullet List Item</p>
+    <h1>Bullet List Item</h1>
+  </li>
+  <li>Bullet List Item</li>
+</ul>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "textTableCell",
+      content: `<table>
+  <tbody>
+    <tr>
+      <td>Table Cell</td>
+    </tr>  
+  </tbody>
+</table>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "paragraphTableCell",
+      content: `<table>
+  <tbody>
+    <tr>
+      <td>
+        <p>Table Cell</p>
+      </td>
+    </tr>  
+  </tbody>
+</table>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "headingTableCell",
+      content: `<table>
+  <tbody>
+    <tr>
+      <td>
+        <h1>Table Cell</h1>
+      </td>
+    </tr>  
+  </tbody>
+</table>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "multipleParagraphTableCell",
+      content: `<table>
+  <tbody>
+    <tr>
+      <td>
+        <p>Table Cell</p>
+        <p>Table Cell</p>
+      </td>
+    </tr>  
+  </tbody>
+</table>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "mixedTextTableCell",
+      content: `<table>
+  <tbody>
+    <tr>
+      <td>
+        <h1>Table Cell</p>
+        <p>Table Cell</p>
+        Table Cell
+      </td>
+    </tr>  
+  </tbody>
+</table>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "paragraphImageTableCell",
+      content: `<table>
+  <tbody>
+    <tr>
+      <td>
+        <p>Table Cell</p>
+        <img src="exampleURL">
+      </td>
+    </tr>  
+  </tbody>
+</table>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "imageBetweenParagraphsTableCell",
+      content: `<table>
+  <tbody>
+    <tr>
+      <td>
+        <p>Table Cell</p>
+        <img src="exampleURL">
+        <p>Table Cell</p>
+      </td>
+    </tr>  
+  </tbody>
+</table>`,
+    },
+    executeTest: testParseHTML,
+  },
+  {
+    testCase: {
+      name: "mixedContentTableCell",
+      content: `<table>
+  <tbody>
+    <tr>
+      <td>
+        <p>Table Cell</p>
+        <img src="exampleURL">
+        Table Cell
+        <br/>
+        <input type="checkbox">
+        <h1>Table Cell</h1>
+        <ul>
+          <li>Table Cell</li>
+          <li>Table Cell</li>
+        </ul>
+      </td>
+    </tr>  
+  </tbody>
+</table>`,
     },
     executeTest: testParseHTML,
   },

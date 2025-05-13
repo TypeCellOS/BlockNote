@@ -43,6 +43,11 @@ export const fileRender = (
 
 export const fileParse = (element: HTMLElement) => {
   if (element.tagName === "EMBED") {
+    // Ignore if parent figure has already been parsed.
+    if (element.closest("figure")) {
+      return undefined;
+    }
+
     return parseEmbedElement(element as HTMLEmbedElement);
   }
 

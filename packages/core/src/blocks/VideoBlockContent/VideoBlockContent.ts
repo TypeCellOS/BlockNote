@@ -37,7 +37,8 @@ export const videoPropSchema = {
   },
   // File preview width in px.
   previewWidth: {
-    default: 512,
+    default: undefined,
+    type: "number",
   },
 } satisfies PropSchema;
 
@@ -88,6 +89,11 @@ export const videoParse = (
   element: HTMLElement
 ): Partial<Props<typeof videoBlockConfig.propSchema>> | undefined => {
   if (element.tagName === "VIDEO") {
+    // Ignore if parent figure has already been parsed.
+    if (element.closest("figure")) {
+      return undefined;
+    }
+
     return parseVideoElement(element as HTMLVideoElement);
   }
 
@@ -124,7 +130,9 @@ export const videoToExternalHTML = (
   if (block.props.showPreview) {
     video = document.createElement("video");
     video.src = block.props.url;
-    video.width = block.props.previewWidth;
+    if (block.props.previewWidth) {
+      video.width = block.props.previewWidth;
+    }
   } else {
     video = document.createElement("a");
     video.href = block.props.url;

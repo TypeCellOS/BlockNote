@@ -144,10 +144,12 @@ const CodeBlockContent = createStronglyTypedTiptapNode({
   },
   parseHTML() {
     return [
+      // Parse from internal HTML.
       {
         tag: "div[data-content-type=" + this.name + "]",
-        contentElement: "code",
+        contentElement: ".bn-inline-content",
       },
+      // Parse from external HTML.
       {
         tag: "pre",
         contentElement: "code",

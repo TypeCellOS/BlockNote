@@ -86,8 +86,10 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
   },
   parseHTML() {
     return [
+      // Parse from internal HTML.
       {
         tag: "div[data-content-type=" + this.name + "]",
+        contentElement: ".bn-inline-content",
       },
       ...HEADING_LEVELS.map((level) => ({
         tag: `h${level}`,
