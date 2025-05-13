@@ -1,0 +1,54 @@
+[
+  {
+    "children": [
+      {
+        "children": [],
+        "content": [
+          {
+            "styles": {},
+            "text": "Bullet List Item",
+            "type": "text",
+          },
+        ],
+        "id": "2",
+        "props": {
+          "backgroundColor": "default",
+          "textAlignment": "left",
+          "textColor": "default",
+        },
+        "type": "paragraph",
+      },
+    ],
+    "content": [
+      {
+        "styles": {},
+        "text": "Bullet List Item",
+        "type": "text",
+      },
+    ],
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Bullet List Item",
+        "type": "text",
+      },
+    ],
+    "id": "3",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "bulletListItem",
+  },
+]

@@ -1,7 +1,7 @@
 import { Node, mergeAttributes } from "@tiptap/core";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
-import { Node as PMNode } from "prosemirror-model";
+import { DOMParser, Fragment, Node as PMNode, Schema } from "prosemirror-model";
 import { TableView } from "prosemirror-tables";
 import { NodeView } from "prosemirror-view";
 import {
@@ -27,7 +27,11 @@ export const TableBlockContent = createStronglyTypedTiptapNode({
   isolating: true,
 
   parseHTML() {
-    return [{ tag: "table" }];
+    return [
+      {
+        tag: "table",
+      },
+    ];
   },
 
   renderHTML({ HTMLAttributes }) {
@@ -114,20 +118,14 @@ const TableParagraph = createStronglyTypedTiptapNode({
   parseHTML() {
     return [
       {
-        preserveWhitespace: "full",
-        // set this rule as high priority so it takes precedence over the default paragraph rule,
-        // but only if we're in the tableContent context
-        priority: 210,
-        context: "tableContent",
-        tag: "p",
-        getAttrs: (_element) => {
-          return {};
-        },
-      },
-      {
         tag: "p",
         getAttrs: (element) => {
           if (typeof element === "string" || !element.textContent) {
+            return false;
+          }
+
+          // Only parse in internal HTML.
+          if (!element.closest("[data-content-type]")) {
             return false;
           }
 
@@ -137,12 +135,13 @@ const TableParagraph = createStronglyTypedTiptapNode({
             return false;
           }
 
-          if (parent.tagName === "TD") {
+          if (parent.tagName === "TD" || parent.tagName === "TH") {
             return {};
           }
 
           return false;
         },
+        node: "tableParagraph",
       },
     ];
   },
@@ -182,6 +181,42 @@ export const TableRow = Node.create<{ HTMLAttributes: Record<string, any> }>({
   },
 });
 
+/*
+ * This will flatten a node's content to fit into a table cell's paragraph.
+ */
+function parseTableContent(node: HTMLElement, schema: Schema) {
+  const parser = DOMParser.fromSchema(schema);
+
+  // This will parse the content of the table paragraph as though it were a blockGroup.
+  // Resulting in a structure like:
+  // <blockGroup>
+  //   <blockContainer>
+  //     <p>Hello</p>
+  //   </blockContainer>
+  //   <blockContainer>
+  //     <p>Hello</p>
+  //   </blockContainer>
+  // </blockGroup>
+  const parsedContent = parser.parse(node, {
+    topNode: schema.nodes.blockGroup.create(),
+  });
+  const extractedContent: PMNode[] = [];
+
+  // Try to extract any content within the blockContainer.
+  parsedContent.content.descendants((child) => {
+    // As long as the child is an inline node, we can append it to the fragment.
+    if (child.isInline) {
+      // And append it to the fragment
+      extractedContent.push(child);
+      return false;
+    }
+
+    return undefined;
+  });
+
+  return Fragment.fromArray(extractedContent);
+}
+
 export const Table = createBlockSpecFromStronglyTypedTiptapNode(
   TableBlockContent,
   tablePropSchema,
@@ -197,9 +232,31 @@ export const Table = createBlockSpecFromStronglyTypedTiptapNode(
        * So, we manually fix this up when reading back in the `nodeToBlock` and only ever place a single tableContent back into the cell.
        */
       content: "tableContent+",
+      parseHTML() {
+        return [
+          {
+            tag: "th",
+            // As `th` elements can contain multiple paragraphs, we need to merge their contents
+            // into a single one so that ProseMirror can parse everything correctly.
+            getContent: (node, schema) =>
+              parseTableContent(node as HTMLElement, schema),
+          },
+        ];
+      },
     }),
     TableCell.extend({
       content: "tableContent+",
+      parseHTML() {
+        return [
+          {
+            tag: "td",
+            // As `td` elements can contain multiple paragraphs, we need to merge their contents
+            // into a single one so that ProseMirror can parse everything correctly.
+            getContent: (node, schema) =>
+              parseTableContent(node as HTMLElement, schema),
+          },
+        ];
+      },
     }),
     TableRow,
   ],

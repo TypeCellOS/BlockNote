@@ -56,7 +56,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-multi-column": "latest"
-          } as any
+          } as any,
+          "pro": true
         },
         "title": "Multi-Column Blocks",
         "group": {
@@ -959,7 +960,7 @@
           "docs": true,
           "author": "yousefed",
           "tags": [
-            ""
+            "Interoperability"
           ],
           "dependencies": {
             "@blocknote/xl-pdf-exporter": "latest",

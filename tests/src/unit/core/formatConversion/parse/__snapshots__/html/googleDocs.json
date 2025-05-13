@@ -194,7 +194,7 @@ Hard Break",
             "content": [
               {
                 "styles": {},
-                "text": " Nested Numbered List Item 1",
+                "text": "Nested Numbered List Item 1",
                 "type": "text",
               },
             ],
@@ -211,7 +211,7 @@ Hard Break",
             "content": [
               {
                 "styles": {},
-                "text": " Nested Numbered List Item 2",
+                "text": "Nested Numbered List Item 2",
                 "type": "text",
               },
             ],
@@ -227,7 +227,7 @@ Hard Break",
         "content": [
           {
             "styles": {},
-            "text": " Nested Bullet List Item 1",
+            "text": "Nested Bullet List Item 1",
             "type": "text",
           },
         ],
@@ -244,7 +244,7 @@ Hard Break",
         "content": [
           {
             "styles": {},
-            "text": " Nested Bullet List Item 2",
+            "text": "Nested Bullet List Item 2",
             "type": "text",
           },
         ],
@@ -260,7 +260,7 @@ Hard Break",
     "content": [
       {
         "styles": {},
-        "text": " Bullet List Item 1",
+        "text": "Bullet List Item 1",
         "type": "text",
       },
     ],
@@ -277,7 +277,7 @@ Hard Break",
     "content": [
       {
         "styles": {},
-        "text": " Bullet List Item 2",
+        "text": "Bullet List Item 2",
         "type": "text",
       },
     ],
@@ -294,7 +294,7 @@ Hard Break",
     "content": [
       {
         "styles": {},
-        "text": " Numbered List Item 1",
+        "text": "Numbered List Item 1",
         "type": "text",
       },
     ],
@@ -311,7 +311,7 @@ Hard Break",
     "content": [
       {
         "styles": {},
-        "text": " Numbered List Item 2",
+        "text": "Numbered List Item 2",
         "type": "text",
       },
     ],

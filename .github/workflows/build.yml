@@ -62,7 +62,7 @@ jobs:
 
       - name: Soft release
         id: soft-release
-        run: pnpx pkg-pr-new publish './packages/*' # --compact enable compact after release
+        run: pnpx pkg-pr-new publish './packages/*' --compact
 
   playwright:
     name: "Playwright Tests - ${{ matrix.browser }}"

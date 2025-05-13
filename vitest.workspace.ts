@@ -10,4 +10,5 @@ export default defineWorkspace([
   "./packages/core/vite.config.ts",
   "./packages/xl-multi-column/vite.config.ts",
   "./packages/ariakit/vite.config.ts",
+  "./tests/vite.config.ts",
 ]);

@@ -307,7 +307,7 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
       exporter as ODTExporter<any, any, any>,
       block.props
     );
-    const width = block.props.previewWidth;
+    const width = block.props.previewWidth || originalDimensions.width;
     const height =
       (originalDimensions.height / originalDimensions.width) * width;
     const captionHeight = 20;

@@ -12,6 +12,7 @@ import {
 } from "../../../schema/index.js";
 import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers.js";
 import { defaultProps } from "../../defaultProps.js";
+import { getListItemContent } from "../getListItemContent.js";
 import { handleEnter } from "../ListItemKeyboardShortcuts.js";
 
 export const checkListItemPropSchema = {
@@ -109,14 +110,21 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
 
   parseHTML() {
     return [
+      // Parse from internal HTML.
       {
         tag: "div[data-content-type=" + this.name + "]",
+        contentElement: ".bn-inline-content",
       },
-      // Checkbox only.
+      // Parse from external HTML.
       {
         tag: "input",
         getAttrs: (element) => {
           if (typeof element === "string") {
+            return false;
+          }
+
+          // Ignore if we already parsed an ancestor list item to avoid double-parsing.
+          if (element.closest("[data-content-type]") || element.closest("li")) {
             return false;
           }
 
@@ -128,7 +136,6 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
         },
         node: "checkListItem",
       },
-      // Container element for checkbox + label.
       {
         tag: "li",
         getAttrs: (element) => {
@@ -160,6 +167,10 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
 
           return false;
         },
+        // As `li` elements can contain multiple paragraphs, we need to merge their contents
+        // into a single one so that ProseMirror can parse everything correctly.
+        getContent: (node, schema) =>
+          getListItemContent(node, schema, this.name),
         node: "checkListItem",
       },
     ];

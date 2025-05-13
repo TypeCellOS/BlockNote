@@ -185,7 +185,15 @@ export function createReactBlockSpec<
                 <BlockContent
                   block={block as any}
                   editor={editor as any}
-                  contentRef={ref}
+                  contentRef={(element) => {
+                    ref(element);
+                    if (element) {
+                      element.className = mergeCSSClasses(
+                        "bn-inline-content",
+                        element.className
+                      );
+                    }
+                  }}
                 />
               </BlockContentWrapper>
             );
@@ -221,13 +229,20 @@ export function createReactBlockSpec<
             <BlockContent
               block={block as any}
               editor={editor as any}
-              contentRef={refCB}
+              contentRef={(element) => {
+                refCB(element);
+                if (element) {
+                  element.className = mergeCSSClasses(
+                    "bn-inline-content",
+                    element.className
+                  );
+                }
+              }}
             />
           </BlockContentWrapper>
         ),
         editor
       );
-      output.contentDOM?.setAttribute("data-editable", "");
 
       return output;
     },
@@ -247,12 +262,19 @@ export function createReactBlockSpec<
             <BlockContent
               block={block as any}
               editor={editor as any}
-              contentRef={refCB}
+              contentRef={(element) => {
+                refCB(element);
+                if (element) {
+                  element.className = mergeCSSClasses(
+                    "bn-inline-content",
+                    element.className
+                  );
+                }
+              }}
             />
           </BlockContentWrapper>
         );
       }, editor);
-      output.contentDOM?.setAttribute("data-editable", "");
 
       return output;
     },
