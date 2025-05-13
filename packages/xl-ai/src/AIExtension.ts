@@ -14,11 +14,8 @@ import { fixTablesKey } from "prosemirror-tables";
 import { createStore } from "zustand/vanilla";
 import { CallLLMResult } from "./api/formats/CallLLMResult.js";
 import { PromptOrMessages, llm } from "./api/index.js";
+import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
 import { LLMRequestOptions } from "./streamTool/callLLMWithStreamTools.js";
-// type AIPluginState = {
-//   aiMenuBlockID: string | undefined;
-//   aiMenuResponseStatus: "initial" | "generating" | "error" | "done";
-// };
 
 type AIPluginState = {
   /**
@@ -63,7 +60,8 @@ type CallSpecificCallLLMOptions = Partial<GlobalLLMCallOptions> &
     };
   };
 
-// TO DISCUSS: extension vs plugin vs addon vs ..
+const PLUGIN_KEY = new PluginKey(`blocknote-ai-plugin`);
+
 export class AIExtension extends BlockNoteExtension {
   public static name(): string {
     return "ai";
@@ -93,12 +91,11 @@ export class AIExtension extends BlockNoteExtension {
     ReturnType<typeof createStore<Required<GlobalLLMCallOptions>>>
   >;
 
-  // used for undo, not needed in store
-  // private prevDocument: typeof this.editor.document | undefined;
-
   constructor(
     public readonly editor: BlockNoteEditor<any, any, any>,
-    options: GlobalLLMCallOptions
+    options: GlobalLLMCallOptions & {
+      agentCursor?: { name: string; color: string };
+    },
   ) {
     super();
     this.options = createStore<Required<GlobalLLMCallOptions>>()((_set) => ({
@@ -106,6 +103,27 @@ export class AIExtension extends BlockNoteExtension {
       stream: true,
       ...options,
     }));
+
+    this.addProsemirrorPlugin(
+      new Plugin({
+        key: PLUGIN_KEY,
+        filterTransaction: (tr) => {
+          const menuState = this.store.getState().aiMenuState;
+
+          if (menuState !== "closed" && menuState.status === "ai-writing") {
+            if (tr.getMeta(fixTablesKey)?.fixTables) {
+              // the fixtables plugin causes the steps between of the AI Agent to become invalid
+              // so we need to prevent it from running
+              // (we might need to filter out other / or maybe any transactions during the writing phase)
+              return false;
+            }
+          }
+          return true;
+        },
+      }),
+    );
+    this.addProsemirrorPlugin(suggestChanges());
+    this.addProsemirrorPlugin(createAgentCursorPlugin(options.agentCursor));
   }
 
   /**
@@ -170,7 +188,7 @@ export class AIExtension extends BlockNoteExtension {
       | "thinking"
       | "ai-writing"
       | "error"
-      | "user-reviewing"
+      | "user-reviewing",
   ) {
     const aiMenuState = this.store.getState().aiMenuState;
     if (aiMenuState === "closed") {
@@ -239,29 +257,7 @@ export class AIExtension extends BlockNoteExtension {
       console.warn("Error calling LLM", e);
     }
   }
-
-  public plugins = [
-    new Plugin({
-      key: PLUGIN_KEY,
-      filterTransaction: (tr) => {
-        const menuState = this.store.getState().aiMenuState;
-
-        if (menuState !== "closed" && menuState.status === "ai-writing") {
-          if (tr.getMeta(fixTablesKey)?.fixTables) {
-            // the fixtables plugin causes the steps between of the AI Agent to become invalid
-            // so we need to prevent it from running
-            // (we might need to filter out other / or maybe any transactions during the writing phase)
-            return false;
-          }
-        }
-        return true;
-      },
-    }),
-    suggestChanges(),
-  ];
 }
-
-const PLUGIN_KEY = new PluginKey(`blocknote-ai-plugin`);
 
 export function createAIExtension(options: GlobalLLMCallOptions) {
   return (editor: BlockNoteEditor<any, any, any>) => {

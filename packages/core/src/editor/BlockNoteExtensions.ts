@@ -10,7 +10,6 @@ import { createDropFileExtension } from "../api/clipboard/fromClipboard/fileDrop
 import { createPasteFromClipboardExtension } from "../api/clipboard/fromClipboard/pasteExtension.js";
 import { createCopyToClipboardExtension } from "../api/clipboard/toClipboard/copyExtension.js";
 import type { ThreadStore } from "../comments/index.js";
-import { AgentCursorPlugin } from "../extensions/AgentCursor/AgentCursorPlugin.js";
 import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension.js";
 import { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
 import { SyncPlugin } from "../extensions/Collaboration/SyncPlugin.js";
@@ -156,8 +155,6 @@ export const getBlockNoteExtensions = <
       CommentMark.name,
     );
   }
-
-  ret["agentCursor"] = new AgentCursorPlugin(opts.editor);
 
   const disableExtensions: string[] = opts.disableExtensions || [];
   for (const ext of disableExtensions) {
