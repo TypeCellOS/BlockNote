@@ -21,12 +21,6 @@ div:not(.bn-popover-content) > .bn-combobox-items:not(:empty) {
   max-width: 50%;
 }
 
-/* Mantine (TODO) */
-/*.bn-toolbar .mantine-Button-root.bn-show-prompt-button,*/
-/*.bn-toolbar .mantine-Button-root.bn-show-prompt-button:hover {*/
-/*  color: rgba(154, 56, 173, 0.5);*/
-/*}*/
-
 div[data-type="modification"] {
   display: inline;
 }

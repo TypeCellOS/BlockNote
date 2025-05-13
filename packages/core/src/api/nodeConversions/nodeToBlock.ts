@@ -1,5 +1,5 @@
 import { Mark, Node, Schema, Slice } from "@tiptap/pm/model";
-
+import type { Block } from "../../blocks/defaultBlocks.js";
 import UniqueID from "../../extensions/UniqueID/UniqueID.js";
 import type {
   BlockSchema,
@@ -14,27 +14,24 @@ import type {
   TableContent,
 } from "../../schema/index.js";
 import {
-  getBlockInfoWithManualOffset,
-  getNearestBlockPos,
-} from "../getBlockInfoFromPos.js";
-
-import { EditorState, TextSelection, Transaction } from "prosemirror-state";
-import { ReplaceAroundStep, ReplaceStep } from "prosemirror-transform";
-import { getBlockInfo } from "../../api/getBlockInfoFromPos.js";
-import type { Block } from "../../blocks/defaultBlocks.js";
-import {
   isLinkInlineContent,
   isStyledTextInlineContent,
 } from "../../schema/inlineContent/types.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
-import { getBlockCache, getBlockSchema, getInlineContentSchema, getStyleSchema } from "../pmUtil.js";
+import { getBlockInfoWithManualOffset } from "../getBlockInfoFromPos.js";
+import {
+  getBlockCache,
+  getBlockSchema,
+  getInlineContentSchema,
+  getStyleSchema,
+} from "../pmUtil.js";
 
 /**
  * Converts an internal (prosemirror) table node contentto a BlockNote Tablecontent
  */
 export function contentNodeToTableContent<
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(contentNode: Node, inlineContentSchema: I, styleSchema: S) {
   const ret: TableContent<I, S> = {
     type: "tableContent",
@@ -74,34 +71,37 @@ export function contentNodeToTableContent<
       // Convert cell content to inline content and merge adjacent styled text nodes
       const content = cellNode.content.content
         .map((child) =>
-          contentNodeToInlineContent(child, inlineContentSchema, styleSchema)
+          contentNodeToInlineContent(child, inlineContentSchema, styleSchema),
         )
         // The reason that we merge this content is that we allow table cells to contain multiple tableParagraph nodes
         // So that we can leverage prosemirror-tables native merging
         // If the schema only allowed a single tableParagraph node, then the merging would not work and cause prosemirror to fit the content into a new cell
-        .reduce((acc, contentPartial) => {
-          if (!acc.length) {
-            return contentPartial;
-          }
+        .reduce(
+          (acc, contentPartial) => {
+            if (!acc.length) {
+              return contentPartial;
+            }
 
-          const last = acc[acc.length - 1];
-          const first = contentPartial[0];
+            const last = acc[acc.length - 1];
+            const first = contentPartial[0];
 
-          // Only merge if the last and first content are both styled text nodes and have the same styles
-          if (
-            first &&
-            isStyledTextInlineContent(last) &&
-            isStyledTextInlineContent(first) &&
-            JSON.stringify(last.styles) === JSON.stringify(first.styles)
-          ) {
-            // Join them together if they have the same styles
-            last.text += "\n" + first.text;
-            acc.push(...contentPartial.slice(1));
+            // Only merge if the last and first content are both styled text nodes and have the same styles
+            if (
+              first &&
+              isStyledTextInlineContent(last) &&
+              isStyledTextInlineContent(first) &&
+              JSON.stringify(last.styles) === JSON.stringify(first.styles)
+            ) {
+              // Join them together if they have the same styles
+              last.text += "\n" + first.text;
+              acc.push(...contentPartial.slice(1));
+              return acc;
+            }
+            acc.push(...contentPartial);
             return acc;
-          }
-          acc.push(...contentPartial);
-          return acc;
-        }, [] as InlineContent<I, S>[]);
+          },
+          [] as InlineContent<I, S>[],
+        );
 
       return {
         type: "tableCell",
@@ -139,7 +139,7 @@ export function contentNodeToTableContent<
  */
 export function contentNodeToInlineContent<
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(contentNode: Node, inlineContentSchema: I, styleSchema: S) {
   const content: InlineContent<any, S>[] = [];
   let currentContent: InlineContent<any, S> | undefined = undefined;
@@ -186,7 +186,7 @@ export function contentNodeToInlineContent<
       }
 
       content.push(
-        nodeToCustomInlineContent(node, inlineContentSchema, styleSchema)
+        nodeToCustomInlineContent(node, inlineContentSchema, styleSchema),
       );
 
       return;
@@ -263,7 +263,8 @@ export function contentNodeToInlineContent<
             // Styles are the same.
             if (
               JSON.stringify(
-                currentContent.content[currentContent.content.length - 1].styles
+                currentContent.content[currentContent.content.length - 1]
+                  .styles,
               ) === JSON.stringify(styles)
             ) {
               currentContent.content[currentContent.content.length - 1].text +=
@@ -340,7 +341,7 @@ export function contentNodeToInlineContent<
 
 export function nodeToCustomInlineContent<
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(node: Node, inlineContentSchema: I, styleSchema: S): InlineContent<I, S> {
   if (node.type.name === "text" || node.type.name === "link") {
     throw new Error("unexpected");
@@ -367,7 +368,7 @@ export function nodeToCustomInlineContent<
     content = contentNodeToInlineContent(
       node,
       inlineContentSchema,
-      styleSchema
+      styleSchema,
     ) as any; // TODO: is this safe? could we have Links here that are undesired?
   } else {
     content = undefined;
@@ -389,14 +390,14 @@ export function nodeToCustomInlineContent<
 export function nodeToBlock<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   node: Node,
   schema: Schema,
   blockSchema: BSchema = getBlockSchema(schema) as BSchema,
   inlineContentSchema: I = getInlineContentSchema(schema) as I,
   styleSchema: S = getStyleSchema(schema) as S,
-  blockCache = getBlockCache(schema)
+  blockCache = getBlockCache(schema),
 ): Block<BSchema, I, S> {
   if (!node.type.isInGroup("bnBlock")) {
     throw Error("Node should be a bnBlock, but is instead: " + node.type.name);
@@ -449,8 +450,8 @@ export function nodeToBlock<
         blockSchema,
         inlineContentSchema,
         styleSchema,
-        blockCache
-      )
+        blockCache,
+      ),
     );
   });
 
@@ -463,7 +464,7 @@ export function nodeToBlock<
     content = contentNodeToInlineContent(
       blockInfo.blockContent.node,
       inlineContentSchema,
-      styleSchema
+      styleSchema,
     );
   } else if (blockConfig.content === "table") {
     if (!blockInfo.isBlockContainer) {
@@ -472,7 +473,7 @@ export function nodeToBlock<
     content = contentNodeToTableContent(
       blockInfo.blockContent.node,
       inlineContentSchema,
-      styleSchema
+      styleSchema,
     );
   } else if (blockConfig.content === "none") {
     content = undefined;
@@ -499,14 +500,14 @@ export function nodeToBlock<
 export function docToBlocks<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   doc: Node,
   schema: Schema,
   blockSchema: BSchema = getBlockSchema(schema) as BSchema,
   inlineContentSchema: I = getInlineContentSchema(schema) as I,
   styleSchema: S = getStyleSchema(schema) as S,
-  blockCache = getBlockCache(schema)
+  blockCache = getBlockCache(schema),
 ) {
   const blocks: Block<BSchema, I, S>[] = [];
   doc.firstChild!.descendants((node) => {
@@ -517,177 +518,12 @@ export function docToBlocks<
         blockSchema,
         inlineContentSchema,
         styleSchema,
-        blockCache
-      )
+        blockCache,
+      ),
     );
     return false;
   });
   return blocks;
-}
-
-export function selectionToInsertionEnd(tr: Transaction, startLen: number) {
-  const last = tr.steps.length - 1;
-
-  if (last < startLen) {
-    return;
-  }
-
-  const step = tr.steps[last];
-
-  if (!(step instanceof ReplaceStep || step instanceof ReplaceAroundStep)) {
-    return;
-  }
-
-  const map = tr.mapping.maps[last];
-  let end = 0;
-
-  map.forEach((_from, _to, _newFrom, newTo) => {
-    if (end === 0) {
-      end = newTo;
-    }
-  });
-
-  return end;
-}
-
-/**
- * Create a transaction that adds selection markers to the document at the given positions.
- *
- * @param state - The editor state.
- * @param from - The start position of the selection.
- * @param to - The end position of the selection.
- * @returns The transaction and the new end position.
- */
-export function addSelectionMarkersTr(
-  state: EditorState,
-  from: number,
-  to: number
-) {
-  if (from >= to) {
-    throw new Error("from must be less than to");
-  }
-
-  // find a valid text position; otherwise prosemirror might create new nodes
-  const validTo = TextSelection.near(state.doc.resolve(to), -1).head;
-  const validFrom = TextSelection.near(state.doc.resolve(from), 1).head;
-
-  if (validFrom >= validTo) {
-    throw new Error("validFrom must be less than validTo");
-  }
-
-  let tr = state.tr.insertText("!$]", validTo, validTo);
-  let newEnd = selectionToInsertionEnd(tr, tr.steps.length - 1)!;
-
-  tr = tr.insertText("[$!", validFrom, validFrom);
-
-  newEnd = tr.mapping.maps[tr.mapping.maps.length - 1].map(newEnd);
-
-  if (!tr.docChanged || tr.steps.length !== 2) {
-    throw new Error(
-      "tr.docChanged is false or insertText was not applied. Was a valid textselection passed?"
-    );
-  }
-  return {
-    tr,
-    newEnd,
-  };
-}
-
-export function getDocumentWithSelectionMarkers<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(
-  state: EditorState,
-  from: number,
-  to: number,
-  schema: Schema,
-  blockSchema: BSchema = getBlockSchema(schema) as BSchema,
-  inlineContentSchema: I = getInlineContentSchema(schema) as I,
-  styleSchema: S = getStyleSchema(schema) as S
-) {
-  const { tr } = addSelectionMarkersTr(state, from, to);
-  return docToBlocks(
-    tr.doc,
-    schema,
-    blockSchema,
-    inlineContentSchema,
-    styleSchema
-  );
-}
-
-/**
- * Add selection markers to the document at the given positions and return the blocks that span the selection.
- */
-export function getSelectedBlocksWithSelectionMarkers<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(
-  state: EditorState,
-  from: number,
-  to: number,
-  schema: Schema,
-  blockSchema: BSchema = getBlockSchema(schema) as BSchema,
-  inlineContentSchema: I = getInlineContentSchema(schema) as I,
-  styleSchema: S = getStyleSchema(schema) as S
-) {
-  const { tr, newEnd } = addSelectionMarkersTr(state, from, to);
-
-  return getBlocksBetween(
-    from,
-    newEnd,
-    tr.doc,
-    schema,
-    blockSchema,
-    inlineContentSchema,
-    styleSchema
-  );
-}
-
-/**
- * Returns all blocks between two positions in a document, but without automatically including parent blocks
- */
-export function getBlocksBetween<
-  BSchema extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema
->(
-  start: number,
-  end: number,
-  doc: Node,
-  schema: Schema,
-  blockSchema: BSchema = getBlockSchema(schema) as BSchema,
-  inlineContentSchema: I = getInlineContentSchema(schema) as I,
-  styleSchema: S = getStyleSchema(schema) as S,
-  blockCache = getBlockCache(schema)
-) {
-  const startPosInfo = getNearestBlockPos(doc, start);
-  const endPosInfo = getNearestBlockPos(doc, end);
-  const startNode = getBlockInfo(startPosInfo);
-  const endNode = getBlockInfo(endPosInfo);
-
-  const slice = doc.slice(
-    startNode.bnBlock.beforePos,
-    endNode.bnBlock.afterPos,
-    true
-  );
-
-  const bnSelection = prosemirrorSliceToSlicedBlocks(
-    slice,
-    schema,
-    blockSchema,
-    inlineContentSchema,
-    styleSchema,
-    blockCache
-  );
-
-  if (bnSelection.blockCutAtEnd || bnSelection.blockCutAtStart) {
-    throw new Error("unexpected content cut in getBlocksBetween");
-  }
-
-  // we don't care about the slice metadata, because our slice is based on complete blocks, the
-  return bnSelection.blocks;
 }
 
 /**
@@ -712,24 +548,33 @@ export function getBlocksBetween<
 export function prosemirrorSliceToSlicedBlocks<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   slice: Slice,
   schema: Schema,
   blockSchema: BSchema = getBlockSchema(schema) as BSchema,
   inlineContentSchema: I = getInlineContentSchema(schema) as I,
   styleSchema: S = getStyleSchema(schema) as S,
-  blockCache: WeakMap<Node, Block<BSchema, I, S>> = getBlockCache(schema)
+  blockCache: WeakMap<Node, Block<BSchema, I, S>> = getBlockCache(schema),
 ): {
+  /**
+   * The blocks that are included in the selection.
+   */
   blocks: Block<BSchema, I, S>[];
+  /**
+   * If a block was "cut" at the start of the selection, this will be the id of the block that was cut.
+   */
   blockCutAtStart: string | undefined;
+  /**
+   * If a block was "cut" at the end of the selection, this will be the id of the block that was cut.
+   */
   blockCutAtEnd: string | undefined;
 } {
   // console.log(JSON.stringify(slice.toJSON()));
   function processNode(
     node: Node,
     openStart: number,
-    openEnd: number
+    openEnd: number,
   ): {
     blocks: Block<BSchema, I, S>[];
     blockCutAtStart: string | undefined;
@@ -751,7 +596,7 @@ export function prosemirrorSliceToSlicedBlocks<
       }
       if (blockContainer.childCount === 0 || blockContainer.childCount > 2) {
         throw new Error(
-          "unexpected, blockContainer.childCount: " + blockContainer.childCount
+          "unexpected, blockContainer.childCount: " + blockContainer.childCount,
         );
       }
 
@@ -771,7 +616,7 @@ export function prosemirrorSliceToSlicedBlocks<
         const ret = processNode(
           blockContainer.firstChild!,
           Math.max(0, openStart - 1),
-          isLastBlock ? Math.max(0, openEnd - 1) : 0
+          isLastBlock ? Math.max(0, openEnd - 1) : 0,
         );
         blockCutAtStart = ret.blockCutAtStart;
         if (isLastBlock) {
@@ -787,7 +632,7 @@ export function prosemirrorSliceToSlicedBlocks<
         blockSchema,
         inlineContentSchema,
         styleSchema,
-        blockCache
+        blockCache,
       );
       const childGroup =
         blockContainer.childCount > 1 ? blockContainer.child(1) : undefined;
@@ -797,7 +642,7 @@ export function prosemirrorSliceToSlicedBlocks<
         const ret = processNode(
           childGroup,
           0, // TODO: can this be anything other than 0?
-          isLastBlock ? Math.max(0, openEnd - 1) : 0
+          isLastBlock ? Math.max(0, openEnd - 1) : 0,
         );
         childBlocks = ret.blocks;
         if (isLastBlock) {
@@ -832,13 +677,13 @@ export function prosemirrorSliceToSlicedBlocks<
 
   if (slice.content.childCount !== 1) {
     throw new Error(
-      "slice must be a single block, did you forget includeParents=true?"
+      "slice must be a single block, did you forget includeParents=true?",
     );
   }
 
   return processNode(
     slice.content.firstChild!,
     Math.max(slice.openStart - 1, 0),
-    Math.max(slice.openEnd - 1, 0)
+    Math.max(slice.openEnd - 1, 0),
   );
 }

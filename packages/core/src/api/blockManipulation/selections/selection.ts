@@ -10,40 +10,29 @@ import {
   StyleSchema,
 } from "../../../schema/index.js";
 import { getBlockInfo, getNearestBlockPos } from "../../getBlockInfoFromPos.js";
-import { nodeToBlock } from "../../nodeConversions/nodeToBlock.js";
+import {
+  nodeToBlock,
+  prosemirrorSliceToSlicedBlocks,
+} from "../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../nodeUtil.js";
 import { getBlockNoteSchema, getPmSchema } from "../../pmUtil.js";
 
 export function getSelection<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(tr: Transaction): Selection<BSchema, I, S> | undefined {
   const pmSchema = getPmSchema(tr);
   // Return undefined if the selection is collapsed or a node is selected.
   if (tr.selection.empty || "node" in tr.selection) {
     return undefined;
   }
-  
-  // TODO: this function is now the same as below;
-  // we should consolidate this? (pick the best one, clean tests, etc)
-  // return {
-  //   blocks: getBlocksBetween(
-  //     editor._tiptapEditor.state.selection.from,
-  //     editor._tiptapEditor.state.selection.to,
-  //     editor._tiptapEditor.state.doc,
-  //     editor.schema.blockSchema,
-  //     editor.schema.inlineContentSchema,
-  //     editor.schema.styleSchema,
-  //     editor.blockCache
-  //   ),
-  // };
 
   const $startBlockBeforePos = tr.doc.resolve(
-    getNearestBlockPos(tr.doc, tr.selection.from).posBeforeNode
+    getNearestBlockPos(tr.doc, tr.selection.from).posBeforeNode,
   );
   const $endBlockBeforePos = tr.doc.resolve(
-    getNearestBlockPos(tr.doc, tr.selection.to).posBeforeNode
+    getNearestBlockPos(tr.doc, tr.selection.to).posBeforeNode,
   );
 
   // Converts the node at the given index and depth around `$startBlockBeforePos`
@@ -51,14 +40,14 @@ export function getSelection<
   // at the depth of `$startBlockBeforePos`.
   const indexToBlock = (
     index: number,
-    depth?: number
+    depth?: number,
   ): Block<BSchema, I, S> => {
     const pos = $startBlockBeforePos.posAtIndex(index, depth);
     const node = tr.doc.resolve(pos).nodeAfter;
 
     if (!node) {
       throw new Error(
-        `Error getting selection - node not found at position ${pos}`
+        `Error getting selection - node not found at position ${pos}`,
       );
     }
 
@@ -134,7 +123,7 @@ export function getSelection<
 
   if (blocks.length === 0) {
     throw new Error(
-      `Error getting selection - selection doesn't span any blocks (${tr.selection})`
+      `Error getting selection - selection doesn't span any blocks (${tr.selection})`,
     );
   }
 
@@ -146,7 +135,7 @@ export function getSelection<
 export function setSelection(
   tr: Transaction,
   startBlock: BlockIdentifier,
-  endBlock: BlockIdentifier
+  endBlock: BlockIdentifier,
 ) {
   const startBlockId =
     typeof startBlock === "string" ? startBlock : startBlock.id;
@@ -156,7 +145,7 @@ export function setSelection(
 
   if (startBlockId === endBlockId) {
     throw new Error(
-      `Attempting to set selection with the same anchor and head blocks (id ${startBlockId})`
+      `Attempting to set selection with the same anchor and head blocks (id ${startBlockId})`,
     );
   }
   const anchorPosInfo = getNodeById(startBlockId, tr.doc);
@@ -185,12 +174,12 @@ export function setSelection(
     anchorBlockConfig.content === "none"
   ) {
     throw new Error(
-      `Attempting to set selection anchor in block without content (id ${startBlockId})`
+      `Attempting to set selection anchor in block without content (id ${startBlockId})`,
     );
   }
   if (!headBlockInfo.isBlockContainer || headBlockConfig.content === "none") {
     throw new Error(
-      `Attempting to set selection anchor in block without content (id ${endBlockId})`
+      `Attempting to set selection anchor in block without content (id ${endBlockId})`,
     );
   }
 
@@ -215,7 +204,7 @@ export function setSelection(
       tableMap.positionAt(
         tableMap.height - 1,
         tableMap.width - 1,
-        headBlockInfo.blockContent.node
+        headBlockInfo.blockContent.node,
       ) +
       1;
     const lastCellNodeSize = tr.doc.resolve(lastCellPos).nodeAfter!.nodeSize;
@@ -229,4 +218,48 @@ export function setSelection(
   //  which nodes are selected. `TextSelection` is ok for now, but has the
   //  restriction that the start/end blocks must have content.
   tr.setSelection(TextSelection.create(tr.doc, startPos, endPos));
+}
+
+export function getSelectionCutBlocks(tr: Transaction) {
+  // TODO: fix image node selection
+
+  const pmSchema = getPmSchema(tr);
+  let start = tr.selection.$from;
+  let end = tr.selection.$to;
+
+  // the selection moves below are used to make sure `prosemirrorSliceToSlicedBlocks` returns
+  // the correct information about whether content is cut at the start or end of a block
+
+  // if the end is at the end of a node (|</span></p>) move it forward so we include all closing tags (</span></p>|)
+  while (end.parentOffset >= end.parent.nodeSize - 2 && end.depth > 0) {
+    end = tr.doc.resolve(end.pos + 1);
+  }
+
+  // if the end is at the start of an empty node (</span></p><p>|) move it backwards so we drop empty start tags (</span></p>|)
+  while (end.parentOffset === 0 && end.depth > 0) {
+    end = tr.doc.resolve(end.pos - 1);
+  }
+
+  // if the start is at the start of a node (<p><span>|) move it backwards so we include all open tags (|<p><span>)
+  while (start.parentOffset === 0 && start.depth > 0) {
+    start = tr.doc.resolve(start.pos - 1);
+  }
+
+  // if the start is at the end of a node (|</p><p><span>|) move it forwards so we drop all closing tags (|<p><span>)
+  while (start.parentOffset >= start.parent.nodeSize - 2 && start.depth > 0) {
+    start = tr.doc.resolve(start.pos + 1);
+  }
+
+  const selectionInfo = prosemirrorSliceToSlicedBlocks(
+    tr.doc.slice(start.pos, end.pos, true),
+    pmSchema,
+  );
+
+  return {
+    _meta: {
+      startPos: start.pos,
+      endPos: end.pos,
+    },
+    ...selectionInfo,
+  };
 }

@@ -1,13 +1,9 @@
 import { TextSelection } from "prosemirror-state";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { PartialBlock } from "../../blocks/defaultBlocks.js";
-import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { PartialBlock } from "../../../blocks/defaultBlocks.js";
+import { BlockNoteEditor } from "../../../editor/BlockNoteEditor.js";
 
-// These tests are meant to test the copying of user selections in the editor.
-// The test cases used for the other HTML conversion tests are not suitable here
-// as they are represented in the BlockNote API, whereas here we want to test
-// ProseMirror/TipTap selections directly.
-describe("Test ProseMirror selection HTML conversion", () => {
+// describe("Test getSelectionCutBlocks", () => {
   const initialContent: PartialBlock[] = [
     {
       type: "heading",
@@ -162,11 +158,11 @@ describe("Test ProseMirror selection HTML conversion", () => {
 
     // const slice = editor._tiptapEditor.state.selection.content();
 
-    const blockNoteSelection = editor.getSelection2();
+    const blockNoteSelection = editor.getSelectionCutBlocks();
 
     await expect(
       JSON.stringify(blockNoteSelection, undefined, 2),
-    ).toMatchFileSnapshot(`./__snapshots_selection_json__/${testName}.json`);
+    ).toMatchFileSnapshot(`./__snapshots_selectioncut_json__/${testName}.json`);
   }
 
   const testCases: { testName: string; startPos: number; endPos: number }[] = [
@@ -283,13 +279,13 @@ describe("Test ProseMirror selection HTML conversion", () => {
       e.transact((tr) =>
         tr.setSelection(TextSelection.create(e._tiptapEditor.state.doc, 0, i)),
       );
-      const blockNoteSelection = e.getSelection2();
+      const blockNoteSelection = e.getSelectionCutBlocks();
       const JSONString = JSON.stringify(blockNoteSelection);
       ret += JSONString + "\n";
     }
 
     await expect(ret).toMatchFileSnapshot(
-      `./__snapshots_selection_json__/move_end.txt`,
+      `./__snapshots_selectioncut_json__/move_end.txt`,
     );
   });
 
@@ -306,27 +302,13 @@ describe("Test ProseMirror selection HTML conversion", () => {
         ),
       );
 
-      const blockNoteSelection = editor.getSelection2();
+      const blockNoteSelection = editor.getSelectionCutBlocks();
       const JSONString = JSON.stringify(blockNoteSelection);
       ret += JSONString + "\n";
     }
 
     await expect(ret).toMatchFileSnapshot(
-      `./__snapshots_selection_json__/move_start.txt`,
+      `./__snapshots_selectioncut_json__/move_start.txt`,
     );
   });
 });
-
-/**
- *
- * Insert $#$ markers around the selection
- *
- * respond with regular update / remove add blocks
- *
- * just apply updates
- * (possibly: check if updates only affect selection)
- *
- *
- * post partial "slice" blocks that are selected
- * respond with similar slice
- */
