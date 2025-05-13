@@ -6,8 +6,8 @@ import {
   streamOperations,
 } from "../../streamTool/callLLMWithStreamTools.js";
 import { StreamTool } from "../../streamTool/streamTool.js";
+import { isEmptyParagraph } from "../../util/emptyBlock.js";
 import type { PromptOrMessages } from "../index.js";
-import { isEmptyParagraph } from "../util/emptyBlock.js";
 import { CallLLMResult } from "./CallLLMResult.js";
 
 export const callLLMBase =

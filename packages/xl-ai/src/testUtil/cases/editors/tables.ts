@@ -1,6 +1,6 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { schemaWithMention as schema } from "@shared/testing/editorSchemas/mention.js";
 import { createAIExtension } from "../../../AIExtension.js";
+import { schemaWithMention as schema } from "../schemas/mention.js";
 
 export function getEditorWithTables() {
   const editor = BlockNoteEditor.create({

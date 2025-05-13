@@ -1,9 +1,11 @@
-import type { JSONSchema7Definition } from "json-schema";
+import type { JSONSchema7, JSONSchema7Definition } from "json-schema";
 import isEqual from "lodash.isequal";
-import { SimpleJSONObjectSchema } from "../api/util/JSONSchema.js";
 import { StreamTool } from "./streamTool.js";
 
-function streamToolToJSONSchema(tool: StreamTool<any>) {
+function streamToolToJSONSchema(tool: StreamTool<any>): {
+  schema: JSONSchema7;
+  $defs?: Record<string, JSONSchema7Definition>;
+} {
   // this adds the tool name as the "type". (not very clean way to do it)
   const { properties, required, $defs, ...rest } = tool.parameters;
   return {
@@ -46,7 +48,7 @@ function streamToolToJSONSchema(tool: StreamTool<any>) {
  */
 export function createStreamToolsArraySchema(
   streamTools: StreamTool<any>[],
-): SimpleJSONObjectSchema & { $defs?: Record<string, JSONSchema7Definition> } {
+): JSONSchema7 {
   const schemas = streamTools.map((tool) => streamToolToJSONSchema(tool));
 
   const $defs: Record<string, JSONSchema7Definition> = {};

@@ -5,7 +5,7 @@ import { combinedOperationsTestCases } from "../../../../testUtil/cases/combined
 import { deleteOperationTestCases } from "../../../../testUtil/cases/deleteOperationTestCases.js";
 import { DocumentOperationTestCase } from "../../../../testUtil/cases/types.js";
 import { updateOperationTestCases } from "../../../../testUtil/cases/updateOperationTestCases.js";
-import { createAsyncIterableStreamFromAsyncIterable } from "../../../util/stream.js";
+import { createAsyncIterableStreamFromAsyncIterable } from "../../../../util/stream.js";
 import { AddBlocksToolCall } from "../../base-tools/createAddBlocksTool.js";
 import { UpdateBlockToolCall } from "../../base-tools/createUpdateBlockTool.js";
 import { DeleteBlockToolCall } from "../../base-tools/delete.js";

@@ -15,7 +15,7 @@ import {
   AsyncIterableStream,
   createAsyncIterableStream,
   createAsyncIterableStreamFromAsyncIterable,
-} from "../api/util/stream.js";
+} from "../util/stream.js";
 import { filterNewOrUpdatedOperations } from "./filterNewOrUpdatedOperations.js";
 import {
   preprocessOperationsNonStreaming,

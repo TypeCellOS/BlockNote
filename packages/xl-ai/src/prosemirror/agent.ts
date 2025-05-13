@@ -289,12 +289,6 @@ export function agentStepToTr(
     });
   }
   for (const pmStep of step.prosemirrorSteps) {
-    // const mapped = pmStep.map(mapping);
-    // if (!mapped) {
-    //   debugger;
-    //   const x = pmStep.map(mapping);
-    //   throw new Error("failed to apply step");
-    // }
     const result = tr.maybeStep(pmStep);
     if (result.failed) {
       // this would fail for tables, but has since been fixed using filterTransaction (in AIExtension)

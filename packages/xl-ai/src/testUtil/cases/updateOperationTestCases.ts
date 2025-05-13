@@ -1,9 +1,9 @@
 import { BlockNoteEditor, getBlockInfo, getNodeById } from "@blocknote/core";
-import { schemaWithMention as schema } from "@shared/testing/editorSchemas/mention.js";
 import { createAIExtension } from "../../AIExtension.js";
 import { getEditorWithBlockFormatting } from "./editors/blockFormatting.js";
 import { getEditorWithFormattingAndMentions } from "./editors/formattingAndMentions.js";
 import { getEditorWithTables } from "./editors/tables.js";
+import { schemaWithMention as schema } from "./schemas/mention.js";
 import { DocumentOperationTestCase } from "./types.js";
 
 /**

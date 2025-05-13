@@ -6,7 +6,7 @@ import {
   StyleSchema,
   defaultProps,
 } from "@blocknote/core";
-import { SimpleJSONObjectSchema } from "../util/JSONSchema.js";
+import { SimpleJSONObjectSchema } from "./JSONSchema.js";
 import { mergeSchemas } from "./mergeSchema.js";
 /*
 {
@@ -83,7 +83,7 @@ import { mergeSchemas } from "./mergeSchema.js";
   }*/
 
 export function styleSchemaToJSONSchema(
-  schema: StyleSchema
+  schema: StyleSchema,
 ): SimpleJSONObjectSchema {
   return {
     type: "object",
@@ -95,7 +95,7 @@ export function styleSchemaToJSONSchema(
             type: val.propSchema,
           },
         ];
-      })
+      }),
     ),
     additionalProperties: false,
   };
@@ -122,7 +122,7 @@ export function styledTextToJSONSchema() {
 }
 
 export function propSchemaToJSONSchema(
-  propSchema: PropSchema
+  propSchema: PropSchema,
 ): SimpleJSONObjectSchema {
   return {
     type: "object",
@@ -141,7 +141,7 @@ export function propSchemaToJSONSchema(
               enum: val.values,
             },
           ];
-        })
+        }),
     ),
     additionalProperties: false,
   };
@@ -220,8 +220,8 @@ export function blockSchemaToJSONSchema(schema: BlockSchema) {
               val.content === "inline"
                 ? { $ref: "#/$defs/inlinecontent" }
                 : val.content === "table"
-                ? { type: "object", properties: {} } // TODO
-                : undefined,
+                  ? { type: "object", properties: {} } // TODO
+                  : undefined,
             // filter out default props (TODO: make option)
             props: propSchemaToJSONSchema(val.propSchema),
             // Object.fromEntries(
@@ -234,7 +234,7 @@ export function blockSchemaToJSONSchema(schema: BlockSchema) {
           additionalProperties: false,
           required: ["type"], //, ...(val.content === "inline" ? ["content"] : [])],
         };
-      })
+      }),
     ),
   };
 }
@@ -243,7 +243,7 @@ export function blockNoteSchemaToJSONSchema(
   schema: Pick<
     BlockNoteSchema<BlockSchema, InlineContentSchema, StyleSchema>,
     "blockSchema" | "inlineContentSchema" | "styleSchema"
-  >
+  >,
 ) {
   schema = schemaOps(schema).removeFileBlocks().removeDefaultProps().get();
   return {
@@ -251,7 +251,7 @@ export function blockNoteSchemaToJSONSchema(
       styles: styleSchemaToJSONSchema(schema.styleSchema),
       styledtext: styledTextToJSONSchema(),
       inlinecontent: inlineContentSchemaToJSONSchema(
-        schema.inlineContentSchema
+        schema.inlineContentSchema,
       ),
       block: blockSchemaToJSONSchema(schema.blockSchema),
     },
@@ -280,21 +280,21 @@ export function schemaOps(
   schema: Pick<
     BlockNoteSchema<BlockSchema, InlineContentSchema, StyleSchema>,
     "blockSchema" | "inlineContentSchema" | "styleSchema"
-  >
+  >,
 ) {
   const clone: Writeable<typeof schema> = JSON.parse(
     JSON.stringify({
       blockSchema: schema.blockSchema,
       inlineContentSchema: schema.inlineContentSchema,
       styleSchema: schema.styleSchema,
-    })
+    }),
   );
   return {
     removeFileBlocks() {
       clone.blockSchema = Object.fromEntries(
         Object.entries(clone.blockSchema).filter(
-          ([_key, val]) => !val.isFileBlock
-        )
+          ([_key, val]) => !val.isFileBlock,
+        ),
       );
       return this;
     },
@@ -307,12 +307,12 @@ export function schemaOps(
               ...val,
               propSchema: Object.fromEntries(
                 Object.entries(val.propSchema).filter(
-                  (key) => typeof (defaultProps as any)[key[0]] === "undefined"
-                )
+                  (key) => typeof (defaultProps as any)[key[0]] === "undefined",
+                ),
               ) as any,
             },
           ];
-        })
+        }),
       );
       return this;
     },

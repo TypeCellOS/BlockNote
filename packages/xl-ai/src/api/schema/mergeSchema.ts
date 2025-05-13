@@ -1,4 +1,4 @@
-import type { SimpleJSONObjectSchema } from "../util/JSONSchema.js";
+import type { SimpleJSONObjectSchema } from "./JSONSchema.js";
 
 /**
  * Merges schemas that only differ by the "type" field.
@@ -6,7 +6,7 @@ import type { SimpleJSONObjectSchema } from "../util/JSONSchema.js";
  * @returns A new array with merged schema objects where applicable.
  */
 export function mergeSchemas(
-  schemas: SimpleJSONObjectSchema[]
+  schemas: SimpleJSONObjectSchema[],
 ): SimpleJSONObjectSchema[] {
   const groupedSchemas: { [signature: string]: string[] } = {};
   const signatureToSchema: { [signature: string]: SimpleJSONObjectSchema } = {};
@@ -28,7 +28,7 @@ export function mergeSchemas(
 
   // Create the new merged schema array
   const mergedSchemas: SimpleJSONObjectSchema[] = Object.keys(
-    groupedSchemas
+    groupedSchemas,
   ).map((signature) => {
     const baseSchema = signatureToSchema[signature];
     return {
