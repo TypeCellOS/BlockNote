@@ -2740,6 +2740,61 @@ importers:
         specifier: ^5.3.4
         version: 5.4.15(@types/node@22.14.1)(terser@5.39.0)
 
+  examples/09-ai/02-playground:
+    dependencies:
+      '@ai-sdk/groq':
+        specifier: ^1.1.0
+        version: 1.2.4(zod@3.24.2)
+      '@ai-sdk/openai':
+        specifier: ^1.1.0
+        version: 1.3.7(zod@3.24.2)
+      '@blocknote/ariakit':
+        specifier: latest
+        version: link:../../../packages/ariakit
+      '@blocknote/core':
+        specifier: latest
+        version: link:../../../packages/core
+      '@blocknote/mantine':
+        specifier: latest
+        version: link:../../../packages/mantine
+      '@blocknote/react':
+        specifier: latest
+        version: link:../../../packages/react
+      '@blocknote/shadcn':
+        specifier: latest
+        version: link:../../../packages/shadcn
+      '@blocknote/xl-ai':
+        specifier: latest
+        version: link:../../../packages/xl-ai
+      '@mantine/core':
+        specifier: ^7.10.1
+        version: 7.17.3(@mantine/hooks@7.17.3(react@18.3.1))(@types/react@18.3.20)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      ai:
+        specifier: ^4.1.0
+        version: 4.3.1(react@18.3.1)(zod@3.24.2)
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+      zustand:
+        specifier: ^5.0.3
+        version: 5.0.3(@types/react@18.3.20)(immer@10.1.1)(react@18.3.1)(use-sync-external-store@1.4.0(react@18.3.1))
+    devDependencies:
+      '@types/react':
+        specifier: ^18.0.25
+        version: 18.3.20
+      '@types/react-dom':
+        specifier: ^18.0.9
+        version: 18.3.5(@types/react@18.3.20)
+      '@vitejs/plugin-react':
+        specifier: ^4.3.1
+        version: 4.3.4(vite@5.4.15(@types/node@22.14.1)(terser@5.39.0))
+      vite:
+        specifier: ^5.3.4
+        version: 5.4.15(@types/node@22.14.1)(terser@5.39.0)
+
   examples/vanilla-js/react-vanilla-custom-blocks:
     dependencies:
       '@blocknote/ariakit':
@@ -3464,15 +3519,15 @@ importers:
       '@blocknote/mantine':
         specifier: workspace:*
         version: link:../mantine
+      '@blocknote/prosemirror-suggest-changes':
+        specifier: ^0.1.3
+        version: 0.1.3(prosemirror-model@1.25.1)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.4)(prosemirror-view@1.38.1)
       '@blocknote/react':
         specifier: workspace:*
         version: link:../react
       '@floating-ui/react':
         specifier: ^0.26.4
         version: 0.26.28(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@handlewithcare/prosemirror-suggest-changes':
-        specifier: ^0.1.3
-        version: 0.1.3(prosemirror-model@1.25.1)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.4)(prosemirror-view@1.38.1)
       '@tiptap/core':
         specifier: ^2.7.1
         version: 2.11.5(@tiptap/pm@2.11.5)
@@ -5020,6 +5075,14 @@ packages:
   '@better-fetch/fetch@1.1.18':
     resolution: {integrity: sha512-rEFOE1MYIsBmoMJtQbl32PGHHXuG2hDxvEd7rUHE0vCBoFQVSDqaVs9hkZEtHCxRoY+CljXKFCOuJ8uxqw1LcA==}
 
+  '@blocknote/prosemirror-suggest-changes@0.1.3':
+    resolution: {integrity: sha512-g/RxkStEg67bGiujK092aabD6tA/O4jI9jwKAnasP+t00khgyBBIXIvp7K7QT+gjVB6kP+ez27669iiJy8MZ5w==}
+    peerDependencies:
+      prosemirror-model: ^1.0.0
+      prosemirror-state: ^1.0.0
+      prosemirror-transform: ^1.0.0
+      prosemirror-view: ^1.0.0
+
   '@braintree/sanitize-url@6.0.4':
     resolution: {integrity: sha512-s3jaWicZd0pkP0jf5ysyHUI/RE7MHos6qlToFcGWXVp+ykHOy77OUMrfbgJ9it2C5bow7OIQwYYaHjk9XlBQ2A==}
 
@@ -5797,14 +5860,6 @@ packages:
 
   '@floating-ui/utils@0.2.9':
     resolution: {integrity: sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==}
-
-  '@handlewithcare/prosemirror-suggest-changes@0.1.3':
-    resolution: {integrity: sha512-aOlmtIGs4BkEyEvMltBwiAUBy9b+Nvo5yWTZUo1z4NQylZU8IGkqMIuavuwHxnByfW5KHkeB1fFNudur8NPmMQ==}
-    peerDependencies:
-      prosemirror-model: ^1.0.0
-      prosemirror-state: ^1.0.0
-      prosemirror-transform: ^1.0.0
-      prosemirror-view: ^1.0.0
 
   '@hapi/hoek@9.3.0':
     resolution: {integrity: sha512-/c6rf4UJlmHlC9b5BaNvzAcFv7HZ2QHaV0D4/HNlBdvFnvQq8RI4kYdhyPCl7Xj+oWvTWQ8ujhqS53LIgAe6KQ==}
@@ -15783,6 +15838,13 @@ snapshots:
 
   '@better-fetch/fetch@1.1.18': {}
 
+  '@blocknote/prosemirror-suggest-changes@0.1.3(prosemirror-model@1.25.1)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.4)(prosemirror-view@1.38.1)':
+    dependencies:
+      prosemirror-model: 1.25.1
+      prosemirror-state: 1.4.3
+      prosemirror-transform: 1.10.4
+      prosemirror-view: 1.38.1
+
   '@braintree/sanitize-url@6.0.4': {}
 
   '@bundled-es-modules/cookie@2.0.1':
@@ -16291,13 +16353,6 @@ snapshots:
       tabbable: 6.2.0
 
   '@floating-ui/utils@0.2.9': {}
-
-  '@handlewithcare/prosemirror-suggest-changes@0.1.3(prosemirror-model@1.25.1)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.4)(prosemirror-view@1.38.1)':
-    dependencies:
-      prosemirror-model: 1.25.1
-      prosemirror-state: 1.4.3
-      prosemirror-transform: 1.10.4
-      prosemirror-view: 1.38.1
 
   '@hapi/hoek@9.3.0': {}
 

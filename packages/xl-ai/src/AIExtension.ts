@@ -7,7 +7,7 @@ import {
   applySuggestions,
   revertSuggestions,
   suggestChanges,
-} from "@handlewithcare/prosemirror-suggest-changes";
+} from "@blocknote/prosemirror-suggest-changes";
 import { LanguageModel } from "ai";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { fixTablesKey } from "prosemirror-tables";

@@ -1,5 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { applySuggestions } from "@handlewithcare/prosemirror-suggest-changes";
+import { applySuggestions } from "@blocknote/prosemirror-suggest-changes";
 import { Transaction } from "prosemirror-state";
 import { Transform } from "prosemirror-transform";
 
@@ -35,7 +35,7 @@ export function getApplySuggestionsTr(editor: BlockNoteEditor<any, any, any>) {
  */
 export function rebaseTool(
   editor: BlockNoteEditor<any, any, any>,
-  projectionTr: Transaction
+  projectionTr: Transaction,
 ) {
   const invertMap = projectionTr.mapping.invert();
   return {

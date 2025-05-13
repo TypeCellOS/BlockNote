@@ -7,7 +7,10 @@ import { createAIExtension, getAIExtension } from "../../../AIExtension.js";
 import { addOperationTestCases } from "../../../testUtil/cases/addOperationTestCases.js";
 import { combinedOperationsTestCases } from "../../../testUtil/cases/combinedOperationsTestCases.js";
 import { deleteOperationTestCases } from "../../../testUtil/cases/deleteOperationTestCases.js";
-import { DocumentOperationTestCase, getExpectedEditor } from "../../../testUtil/cases/types.js";
+import {
+  DocumentOperationTestCase,
+  getExpectedEditor,
+} from "../../../testUtil/cases/types.js";
 import { updateOperationTestCases } from "../../../testUtil/cases/updateOperationTestCases.js";
 import { validateRejectingResultsInOriginalDoc } from "../../../testUtil/suggestChangesTestUtil.js";
 import { CallLLMResult } from "../CallLLMResult.js";
@@ -21,30 +24,32 @@ async function matchFileSnapshot(data: any, postFix = "") {
     path.resolve(
       BASE_FILE_PATH,
       t.suite!.name,
-      t.name + (postFix ? `_${postFix}` : "") + ".json"
-    )
+      t.name + (postFix ? `_${postFix}` : "") + ".json",
+    ),
   );
 }
 
 export function generateSharedTestCases(
   callLLM: (
     editor: BlockNoteEditor<any, any, any>,
-    params: { userPrompt: string, useSelection?: boolean }
+    params: { userPrompt: string; useSelection?: boolean },
   ) => Promise<CallLLMResult>,
   skipTestsRequiringCapabilities?: {
     mentions?: boolean;
     textAlignment?: boolean;
-  }
+  },
 ) {
-
-  function skipIfUnsupported(test: DocumentOperationTestCase, context: TaskContext) {
+  function skipIfUnsupported(
+    test: DocumentOperationTestCase,
+    context: TaskContext,
+  ) {
     if (
       skipTestsRequiringCapabilities &&
       Object.keys(test.requiredCapabilities || {}).some(
         (c) =>
           skipTestsRequiringCapabilities[
             c as keyof typeof skipTestsRequiringCapabilities
-          ] === true
+          ] === true,
       )
     ) {
       context.skip();
@@ -53,14 +58,14 @@ export function generateSharedTestCases(
 
   async function executeTestCase(
     editor: BlockNoteEditor<any, any, any>,
-    test: DocumentOperationTestCase
-  ) {    
+    test: DocumentOperationTestCase,
+  ) {
     const selection = test.getTestSelection?.(editor);
 
     if (selection) {
       editor.transact((tr) => {
         tr.setSelection(
-          TextSelection.create(tr.doc, selection.from, selection.to)
+          TextSelection.create(tr.doc, selection.from, selection.to),
         );
       });
     }
@@ -72,18 +77,18 @@ export function generateSharedTestCases(
       useSelection: selection !== undefined,
     });
 
-    await result._logToolCalls();
+    // await result._logToolCalls();
     await result.execute();
     // the prosemirrorState has all details with suggested changes, so we use this for the snapshot
     await matchFileSnapshot(editor.prosemirrorState.doc.toJSON());
 
     validateRejectingResultsInOriginalDoc(editor, originalDoc);
-    
+
     // we first need to accept changes to get the correct result
     getAIExtension(editor).acceptChanges();
     expect(editor.document).toEqual(getExpectedEditor(test).document);
   }
-  
+
   describe("Add", () => {
     for (const test of addOperationTestCases) {
       it(test.description, async (c) => {
@@ -119,7 +124,7 @@ export function generateSharedTestCases(
       });
     }
   });
-  
+
   describe("Combined", () => {
     for (const test of combinedOperationsTestCases) {
       it(test.description, async (c) => {
@@ -140,7 +145,7 @@ export function generateSharedTestCases(
           {
             type: "heading",
             props: {
-              level: 1
+              level: 1,
             },
             content: "Google ads scripts",
           },
@@ -149,7 +154,7 @@ export function generateSharedTestCases(
           },
           {
             type: "paragraph",
-          }
+          },
         ],
         _extensions: {
           ai: createAIExtension({
@@ -161,7 +166,8 @@ export function generateSharedTestCases(
       editor.setTextCursorPosition(editor.document[1], "start");
 
       const result = await callLLM(editor, {
-        userPrompt: "write a script that sends me an email alert when the daily budget is spend",
+        userPrompt:
+          "write a script that sends me an email alert when the daily budget is spend",
       });
 
       await result.execute();
