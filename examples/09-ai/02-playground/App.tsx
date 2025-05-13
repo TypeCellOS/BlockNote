@@ -1,6 +1,7 @@
 /// <reference types="./vite-env.d.ts" />
 
 import { createGroq } from "@ai-sdk/groq";
+import { createOpenAI } from "@ai-sdk/openai";
 import { BlockNoteEditor, filterSuggestionItems } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { en } from "@blocknote/core/locales";
@@ -20,9 +21,15 @@ import {
   locales as aiLocales,
   createAIExtension,
   createBlockNoteAIClient,
+  getAIExtension,
   getAISlashMenuItems,
 } from "@blocknote/xl-ai";
 import "@blocknote/xl-ai/style.css";
+import { Fieldset, Switch } from "@mantine/core";
+import { useEffect, useState } from "react";
+import { useStore } from "zustand";
+import { BasicAutocomplete } from "./AutoComplete.js";
+import RadioGroupComponent from "./components/RadioGroupComponent.js";
 
 // Optional: proxy requests through the `@blocknote/xl-ai-server` proxy server
 // so that we don't have to expose our API keys to the client
@@ -33,28 +40,27 @@ const client = createBlockNoteAIClient({
     "https://localhost:3000/ai",
 });
 
-// Use an "open" model such as llama, in this case via groq.com
-const model = createGroq({
-  // call via our proxy client
-  ...client.getProviderSettings("groq"),
-})("llama-3.3-70b-versatile");
-
-/* 
-ALTERNATIVES:
-
-Call a model directly (without the proxy):
-
-const model = createGroq({
-  apiKey: "<YOUR_GROQ_API_KEY>",
-})("llama-3.3-70b-versatile");
-
-Or, use a different provider like OpenAI:
-
-const model = createOpenAI({
-  ...client.getProviderSettings("openai"),
-})("gpt-4", {});
-*/
-
+function getModel(aiModelString: string) {
+  const [provider, ...modelNameParts] = aiModelString.split("/");
+  const modelName = modelNameParts.join("/");
+  if (provider === "openai.chat") {
+    return createOpenAI({
+      ...client.getProviderSettings("openai"),
+    })(modelName, {});
+  } else if (provider === "groq.chat") {
+    return createGroq({
+      ...client.getProviderSettings("groq"),
+    })(modelName);
+  } else if (provider === "albert-etalab.chat") {
+    return createOpenAI({
+      // albert-etalab/neuralmagic/Meta-Llama-3.1-70B-Instruct-FP8
+      baseURL: "https://albert.api.staging.etalab.gouv.fr/v1",
+      ...client.getProviderSettings("albert-etalab"),
+      compatibility: "compatible",
+    })(modelName);
+  }
+  throw new Error(`Unknown model: ${aiModelString}`);
+}
 export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
@@ -65,7 +71,7 @@ export default function App() {
     // Register the AI extension
     extensions: [
       createAIExtension({
-        model,
+        model: getModel("openai.chat/gpt-4o"), // TODO
       }),
     ],
     // We set some initial content for demo purposes
@@ -95,9 +101,60 @@ export default function App() {
     ],
   });
 
-  // Renders the editor instance using a React component.
+  const ai = getAIExtension(editor);
+  // TBD: we now derive this from the LLM extension options. desirable?
+
+  const [modelString, setModelString] = useState<string>(
+    () =>
+      ai.options.getState().model.provider +
+      "/" +
+      ai.options.getState().model.modelId,
+  );
+  // TODO: fix typing in autocompletion box
+  // const model = useStore(ai.options, (state) => state.model);
+
+  // const modelString = model.provider + "/" + model.modelId;
+
+  useEffect(() => {
+    const model = getModel(modelString);
+    if (!model) {
+      console.warn(`Unknown model: ${modelString}`);
+      return;
+    }
+    ai.options.setState({ model });
+  }, [modelString, ai.options]);
+
+  const dataFormat = useStore(ai.options, (state) => state.dataFormat);
+  const stream = useStore(ai.options, (state) => state.stream);
+
   return (
     <div>
+      <Fieldset legend="Model settings" style={{ maxWidth: "500px" }}>
+        <BasicAutocomplete value={modelString} onChange={setModelString} />
+        <RadioGroupComponent
+          label="Data format"
+          items={[
+            { name: "HTML", description: "HTML format", value: "html" },
+            { name: "JSON", description: "JSON format", value: "json" },
+            {
+              name: "Markdown",
+              description: "Markdown format",
+              value: "markdown",
+            },
+          ]}
+          value={dataFormat}
+          onChange={(value) =>
+            ai.options.setState({ dataFormat: value as "json" | "markdown" })
+          }
+        />
+
+        <Switch
+          checked={stream}
+          onChange={(e) => ai.options.setState({ stream: e.target.checked })}
+          label="Streaming"
+        />
+      </Fieldset>
+
       <BlockNoteView
         editor={editor}
         formattingToolbar={false}

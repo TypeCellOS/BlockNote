@@ -259,7 +259,9 @@ export class AIExtension extends BlockNoteExtension {
   }
 }
 
-export function createAIExtension(options: GlobalLLMCallOptions) {
+export function createAIExtension(
+  options: ConstructorParameters<typeof AIExtension>[1],
+) {
   return (editor: BlockNoteEditor<any, any, any>) => {
     return new AIExtension(editor, options);
   };

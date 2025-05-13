@@ -2,6 +2,7 @@ import { Combobox, TextInput, useCombobox } from "@mantine/core";
 import { AI_MODELS } from "./data/aimodels.js";
 
 // https://mantine.dev/combobox/?e=BasicAutocomplete
+// This is used for the AI Model selector in the example
 export function BasicAutocomplete(props: {
   value: string;
   onChange: (value: string) => void;
@@ -12,7 +13,7 @@ export function BasicAutocomplete(props: {
   const shouldFilterOptions = !AI_MODELS.some((item) => item === value);
   const filteredOptions = shouldFilterOptions
     ? AI_MODELS.filter((item) =>
-        item.toLowerCase().includes(value.toLowerCase().trim())
+        item.toLowerCase().includes(value.toLowerCase().trim()),
       )
     : AI_MODELS;
 

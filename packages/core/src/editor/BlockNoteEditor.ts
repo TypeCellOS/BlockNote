@@ -374,9 +374,16 @@ export type BlockNoteEditorOptions<
   _tiptapOptions: Partial<EditorOptions>;
 
   /**
-   * (experimental) add extra prosemirror plugins or tiptap extensions to the editor
+   * (experimental) add extra extensions to the editor
+   *
+   * @deprecated, should use `extensions` instead
    */
   _extensions: Record<string, BlockNoteExtension | BlockNoteExtensionFactory>;
+
+  /**
+   * Register
+   */
+  extensions: Array<BlockNoteExtension | BlockNoteExtensionFactory>;
 
   /**
    * Boolean indicating whether the editor is in headless mode.
@@ -614,6 +621,16 @@ export class BlockNoteEditor<
     });
 
     // add extensions from options
+    for (let ext of newOptions.extensions || []) {
+      if (typeof ext === "function") {
+        // factory
+        ext = ext(this);
+      }
+      const key = (ext.constructor as any).name();
+      this.extensions[key] = ext;
+    }
+
+    // (when passed in via the deprecated `_extensions` option)
     Object.entries(newOptions._extensions || {}).forEach(([key, ext]) => {
       if (typeof ext === "function") {
         // factory
