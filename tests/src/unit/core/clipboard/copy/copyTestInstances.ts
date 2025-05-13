@@ -8,11 +8,11 @@ import {
 } from "../../testSchema.js";
 import { CopyTestCase } from "../../../shared/clipboard/copy/copyTestCase.js";
 import { testCopyHTML } from "../../../shared/clipboard/copy/copyTestExecutors.js";
-import { TestInstance } from "../../../types.js";
 import {
   getPosOfTableCellNode,
   getPosOfTextNode,
-} from "../clipboardTestUtil.js";
+} from "../../../shared/testUtil.js";
+import { TestInstance } from "../../../types.js";
 
 export const copyTestInstancesHTML: TestInstance<
   CopyTestCase<TestBlockSchema, TestInlineContentSchema, TestStyleSchema>,

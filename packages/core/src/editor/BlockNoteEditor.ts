@@ -39,7 +39,7 @@ import {
 import {
   getTextCursorPosition,
   setTextCursorPosition,
-} from "../api/blockManipulation/selections/textCursorPosition/textCursorPosition.js";
+} from "../api/blockManipulation/selections/textCursorPosition.js";
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
