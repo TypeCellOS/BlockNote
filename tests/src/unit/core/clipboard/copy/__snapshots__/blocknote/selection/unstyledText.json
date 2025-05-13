@@ -1,27 +1,26 @@
 {
   "_meta": {
-    "startPos": 175,
-    "endPos": 183
+    "startPos": 0,
+    "endPos": 19
   },
   "blocks": [
     {
-      "id": "8",
+      "id": "1",
       "type": "heading",
       "props": {
-        "textColor": "red",
+        "textColor": "default",
         "backgroundColor": "default",
         "textAlignment": "left",
-        "level": 2
+        "level": 1
       },
       "content": [
         {
           "type": "text",
-          "text": "Regular",
+          "text": "Unstyled Text",
           "styles": {}
         }
       ],
       "children": []
     }
-  ],
-  "blockCutAtStart": "8"
+  ]
 }

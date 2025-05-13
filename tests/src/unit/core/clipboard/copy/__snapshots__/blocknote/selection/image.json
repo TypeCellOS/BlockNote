@@ -1,11 +1,11 @@
 {
   "_meta": {
-    "startPos": 183,
-    "endPos": 186
+    "startPos": 0,
+    "endPos": 5
   },
   "blocks": [
     {
-      "id": "9",
+      "id": "1",
       "type": "image",
       "props": {
         "backgroundColor": "default",
@@ -18,6 +18,5 @@
       },
       "children": []
     }
-  ],
-  "blockCutAtEnd": "9"
+  ]
 }

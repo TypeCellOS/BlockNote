@@ -1,11 +1,11 @@
 {
   "_meta": {
-    "startPos": 13,
-    "endPos": 82
+    "startPos": 15,
+    "endPos": 100
   },
   "blocks": [
     {
-      "id": "1",
+      "id": "2",
       "type": "paragraph",
       "props": {
         "textColor": "default",
@@ -22,7 +22,7 @@
       "children": []
     },
     {
-      "id": "2",
+      "id": "3",
       "type": "paragraph",
       "props": {
         "textColor": "default",
@@ -39,7 +39,7 @@
       "children": []
     },
     {
-      "id": "3",
+      "id": "4",
       "type": "paragraph",
       "props": {
         "textColor": "default",
@@ -50,6 +50,23 @@
         {
           "type": "text",
           "text": "Nested Paragraph 3",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "5",
+      "type": "paragraph",
+      "props": {
+        "textColor": "default",
+        "backgroundColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Paragraph 2",
           "styles": {}
         }
       ],

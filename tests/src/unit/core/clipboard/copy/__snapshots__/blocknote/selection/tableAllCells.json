@@ -1,11 +1,11 @@
 {
   "_meta": {
-    "startPos": 211,
-    "endPos": 228
+    "startPos": 54,
+    "endPos": 74
   },
   "blocks": [
     {
-      "id": "11",
+      "id": "1",
       "type": "table",
       "props": {
         "textColor": "default"
@@ -23,7 +23,7 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "Table Cell",
+                    "text": "Table Cell 4",
                     "styles": {}
                   }
                 ],
@@ -42,5 +42,5 @@
       "children": []
     }
   ],
-  "blockCutAtEnd": "11"
+  "blockCutAtStart": "1"
 }

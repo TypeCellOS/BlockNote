@@ -1,28 +1,27 @@
 {
   "_meta": {
-    "startPos": 6,
-    "endPos": 23
+    "startPos": 0,
+    "endPos": 38
   },
   "blocks": [
     {
-      "id": "0",
-      "type": "heading",
+      "id": "1",
+      "type": "paragraph",
       "props": {
-        "textColor": "red",
+        "textColor": "default",
         "backgroundColor": "default",
-        "textAlignment": "left",
-        "level": 2
+        "textAlignment": "left"
       },
       "content": [
         {
           "type": "text",
-          "text": "ding 1",
+          "text": "Paragraph 1",
           "styles": {}
         }
       ],
       "children": [
         {
-          "id": "1",
+          "id": "2",
           "type": "paragraph",
           "props": {
             "textColor": "default",
@@ -32,7 +31,7 @@
           "content": [
             {
               "type": "text",
-              "text": "Nested ",
+              "text": "Nested Paragraph 1",
               "styles": {}
             }
           ],
@@ -40,7 +39,5 @@
         }
       ]
     }
-  ],
-  "blockCutAtStart": "0",
-  "blockCutAtEnd": "1"
+  ]
 }

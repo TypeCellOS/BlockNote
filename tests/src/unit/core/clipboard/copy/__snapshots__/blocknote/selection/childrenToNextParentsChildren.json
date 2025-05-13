@@ -1,11 +1,11 @@
 {
   "_meta": {
-    "startPos": 13,
-    "endPos": 163
+    "startPos": 15,
+    "endPos": 168
   },
   "blocks": [
     {
-      "id": "1",
+      "id": "2",
       "type": "paragraph",
       "props": {
         "textColor": "default",
@@ -22,7 +22,7 @@
       "children": []
     },
     {
-      "id": "2",
+      "id": "3",
       "type": "paragraph",
       "props": {
         "textColor": "default",
@@ -39,7 +39,7 @@
       "children": []
     },
     {
-      "id": "3",
+      "id": "4",
       "type": "paragraph",
       "props": {
         "textColor": "default",
@@ -56,39 +56,21 @@
       "children": []
     },
     {
-      "id": "4",
-      "type": "heading",
+      "id": "5",
+      "type": "paragraph",
       "props": {
-        "textColor": "red",
+        "textColor": "default",
         "backgroundColor": "default",
-        "textAlignment": "left",
-        "level": 2
+        "textAlignment": "left"
       },
       "content": [
         {
           "type": "text",
-          "text": "Heading 2",
+          "text": "Paragraph 2",
           "styles": {}
         }
       ],
       "children": [
-        {
-          "id": "5",
-          "type": "paragraph",
-          "props": {
-            "textColor": "default",
-            "backgroundColor": "default",
-            "textAlignment": "left"
-          },
-          "content": [
-            {
-              "type": "text",
-              "text": "Nested Paragraph 1",
-              "styles": {}
-            }
-          ],
-          "children": []
-        },
         {
           "id": "6",
           "type": "paragraph",
@@ -100,7 +82,7 @@
           "content": [
             {
               "type": "text",
-              "text": "Nested Paragraph 2",
+              "text": "Nested Paragraph 4",
               "styles": {}
             }
           ],
@@ -117,7 +99,24 @@
           "content": [
             {
               "type": "text",
-              "text": "Nested Paragraph 3",
+              "text": "Nested Paragraph 5",
+              "styles": {}
+            }
+          ],
+          "children": []
+        },
+        {
+          "id": "8",
+          "type": "paragraph",
+          "props": {
+            "textColor": "default",
+            "backgroundColor": "default",
+            "textAlignment": "left"
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Nested Paragraph 6",
               "styles": {}
             }
           ],

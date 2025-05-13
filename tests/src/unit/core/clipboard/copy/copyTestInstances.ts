@@ -7,7 +7,10 @@ import {
   TestStyleSchema,
 } from "../../testSchema.js";
 import { CopyTestCase } from "../../../shared/clipboard/copy/copyTestCase.js";
-import { testCopyHTML } from "../../../shared/clipboard/copy/copyTestExecutors.js";
+import {
+  testCopyBlockNoteSelection,
+  testCopyHTML,
+} from "../../../shared/clipboard/copy/copyTestExecutors.js";
 import { TestInstance } from "../../../types.js";
 import {
   getPosOfTableCellNode,
@@ -634,3 +637,13 @@ export const copyTestInstancesHTML: TestInstance<
     executeTest: testCopyHTML,
   },
 ];
+
+export const copyTestInstancesBlockNoteSelection: TestInstance<
+  CopyTestCase<TestBlockSchema, TestInlineContentSchema, TestStyleSchema>,
+  TestBlockSchema,
+  TestInlineContentSchema,
+  TestStyleSchema
+>[] = copyTestInstancesHTML.map(({ testCase }) => ({
+  testCase,
+  executeTest: testCopyBlockNoteSelection,
+}));

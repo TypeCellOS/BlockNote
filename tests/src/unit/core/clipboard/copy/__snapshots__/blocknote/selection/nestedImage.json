@@ -1,42 +1,27 @@
 {
   "_meta": {
-    "startPos": 163,
-    "endPos": 211
+    "startPos": 0,
+    "endPos": 46
   },
   "blocks": [
     {
-      "id": "8",
-      "type": "heading",
+      "id": "1",
+      "type": "paragraph",
       "props": {
-        "textColor": "red",
+        "textColor": "default",
         "backgroundColor": "default",
-        "textAlignment": "left",
-        "level": 2
+        "textAlignment": "left"
       },
       "content": [
         {
           "type": "text",
-          "text": "Bold",
-          "styles": {
-            "bold": true
-          }
-        },
-        {
-          "type": "text",
-          "text": "Italic",
-          "styles": {
-            "italic": true
-          }
-        },
-        {
-          "type": "text",
-          "text": "Regular",
+          "text": "Paragraph 1",
           "styles": {}
         }
       ],
       "children": [
         {
-          "id": "9",
+          "id": "2",
           "type": "image",
           "props": {
             "backgroundColor": "default",
@@ -49,7 +34,7 @@
           },
           "children": [
             {
-              "id": "10",
+              "id": "3",
               "type": "paragraph",
               "props": {
                 "textColor": "default",
@@ -59,7 +44,7 @@
               "content": [
                 {
                   "type": "text",
-                  "text": "Nested Paragraph",
+                  "text": "Nested Paragraph 1",
                   "styles": {}
                 }
               ],
