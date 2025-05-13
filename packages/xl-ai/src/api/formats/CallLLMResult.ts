@@ -41,6 +41,7 @@ export class CallLLMResult {
    * (this method consumes underlying streams in `llmResult`)
    */
   public async execute() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for await (const _result of this.applyToolCalls()) {
       // no op
     }
@@ -51,6 +52,7 @@ export class CallLLMResult {
    */
   public async _logToolCalls() {
     for await (const toolCall of this.llmResult.operationsSource) {
+      // eslint-disable-next-line no-console
       console.log(toolCall);
     }
   }

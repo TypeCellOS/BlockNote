@@ -65,7 +65,7 @@ export function generateSharedTestCases(
       });
     }
 
-    const originalDoc = editor.prosemirrorState.doc;;
+    const originalDoc = editor.prosemirrorState.doc;
 
     const result = await callLLM(editor, {
       userPrompt: test.userPrompt,
@@ -134,7 +134,7 @@ export function generateSharedTestCases(
 
   // TODO
   describe("Misc", () => {
-    it("create google ads script", async (c) => {
+    it("create google ads script", async (_c) => {
       const editor = BlockNoteEditor.create({
         initialContent: [
           {

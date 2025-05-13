@@ -38,7 +38,9 @@ export const SuggestionAddMark = Mark.create({
         {
           tag: "ins",
           getAttrs(node) {
-            if (!node.dataset["id"]) return false;
+            if (!node.dataset["id"]) {
+              return false;
+            }
             return {
               id: parseInt(node.dataset["id"], 10),
             };
@@ -84,7 +86,9 @@ export const SuggestionDeleteMark = Mark.create({
         {
           tag: "del",
           getAttrs(node) {
-            if (!node.dataset["id"]) return false;
+            if (!node.dataset["id"]) {
+              return false;
+            }
             return {
               id: parseInt(node.dataset["id"], 10),
             };
@@ -141,7 +145,9 @@ export const SuggestionModificationMark = Mark.create({
         {
           tag: "span[data-type='modification']",
           getAttrs(node) {
-            if (!node.dataset["id"]) return false;
+            if (!node.dataset["id"]) {
+              return false;
+            }
             return {
               id: parseInt(node.dataset["id"], 10),
               type: node.dataset["modType"],
@@ -153,7 +159,9 @@ export const SuggestionModificationMark = Mark.create({
         {
           tag: "div[data-type='modification']",
           getAttrs(node) {
-            if (!node.dataset["id"]) return false;
+            if (!node.dataset["id"]) {
+              return false;
+            }
             return {
               id: parseInt(node.dataset["id"], 10),
               type: node.dataset["modType"],

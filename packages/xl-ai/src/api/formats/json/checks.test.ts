@@ -5,7 +5,7 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { HttpResponse, http } from "msw";
 import { setupServer } from "msw/node";
 import { createBlockNoteAIClient } from "../../blocknoteAIClient/client.js";
-import { callLLM } from "./json.js";
+import { callLLMJSON } from "./json.js";
 
 // Create client and models outside of test suites so they can be shared
 const client = createBlockNoteAIClient({
@@ -92,7 +92,7 @@ describe("Error handling", () => {
     let caughtError: any = null;
 
     try {
-      const result = await callLLM(editor, {
+      const result = await callLLMJSON(editor, {
         stream: true,
         userPrompt: "translate to Spanish",
         model: openai,

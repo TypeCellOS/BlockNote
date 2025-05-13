@@ -7,7 +7,7 @@ import path from "path";
 import { generateSharedTestCases } from "../tests/sharedTestCases.js";
 
 import { testAIModels } from "../../../testUtil/testAIModels.js";
-import { callLLM } from "./json.js";
+import { callLLMJSON } from "./json.js";
 
 const BASE_FILE_PATH = path.resolve(
   __dirname,
@@ -111,7 +111,7 @@ describe("Models", () => {
       params.stream ? "streaming" : "non-streaming"
     })`, () => {
       generateSharedTestCases((editor, options) =>
-        callLLM(editor, {
+        callLLMJSON(editor, {
           ...options,
           stream: params.stream,
           model: params.model,

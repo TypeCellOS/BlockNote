@@ -161,7 +161,7 @@ export function createAddBlocksTool<T>(config: {
         // keep track of added block ids to be able to update blocks that have already been added
         let addedBlockIds: string[] = [];
 
-        let referenceIdMap: Record<string, string> = {}; // TODO: unit test
+        const referenceIdMap: Record<string, string> = {}; // TODO: unit test
 
         for await (const chunk of operationsStream) {
           if (!chunk.isUpdateToPreviousOperation) {

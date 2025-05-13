@@ -279,12 +279,11 @@ describe("Test ProseMirror selection HTML conversion", () => {
     let ret = "";
 
     for (let i = 0; i < size; i++) {
-      editor.transact((tr) =>
-        tr.setSelection(
-          TextSelection.create(editor._tiptapEditor.state.doc, 0, i),
-        ),
+      const e = editor;
+      e.transact((tr) =>
+        tr.setSelection(TextSelection.create(e._tiptapEditor.state.doc, 0, i)),
       );
-      const blockNoteSelection = editor.getSelection2();
+      const blockNoteSelection = e.getSelection2();
       const JSONString = JSON.stringify(blockNoteSelection);
       ret += JSONString + "\n";
     }
@@ -300,9 +299,10 @@ describe("Test ProseMirror selection HTML conversion", () => {
     let ret = "";
 
     for (let i = 0; i < size; i++) {
-      editor.transact((tr) =>
+      const e = editor;
+      e.transact((tr) =>
         tr.setSelection(
-          TextSelection.create(editor._tiptapEditor.state.doc, i, size - 1),
+          TextSelection.create(e._tiptapEditor.state.doc, i, size - 1),
         ),
       );
 

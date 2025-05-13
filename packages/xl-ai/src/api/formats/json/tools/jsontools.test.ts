@@ -1,3 +1,4 @@
+/* eslint-disable jest/valid-title */
 import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vitest";
 import { addOperationTestCases } from "../../../../testUtil/cases/addOperationTestCases.js";

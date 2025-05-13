@@ -12,9 +12,9 @@ import { LanguageModel } from "ai";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { fixTablesKey } from "prosemirror-tables";
 import { createStore } from "zustand/vanilla";
-import { PromptOrMessages, llm } from "./api";
-import { CallLLMResult } from "./api/formats/CallLLMResult";
-import { LLMRequestOptions } from "./streamTool/callLLMWithStreamTools";
+import { CallLLMResult } from "./api/formats/CallLLMResult.js";
+import { PromptOrMessages, llm } from "./api/index.js";
+import { LLMRequestOptions } from "./streamTool/callLLMWithStreamTools.js";
 // type AIPluginState = {
 //   aiMenuBlockID: string | undefined;
 //   aiMenuResponseStatus: "initial" | "generating" | "error" | "done";

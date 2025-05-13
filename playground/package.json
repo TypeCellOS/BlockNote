@@ -56,7 +56,8 @@
     "react-icons": "^5.2.1",
     "react-router-dom": "^6.20.0",
     "y-partykit": "^0.0.25",
-    "yjs": "^13.6.15"
+    "yjs": "^13.6.15",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",

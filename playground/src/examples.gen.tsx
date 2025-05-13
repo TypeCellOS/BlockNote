@@ -1377,7 +1377,8 @@
             "@mantine/core": "^7.10.1",
             "ai": "^4.1.0",
             "@ai-sdk/openai": "^1.1.0",
-            "@ai-sdk/groq": "^1.1.0"
+            "@ai-sdk/groq": "^1.1.0",
+            "zustand": "^5.0.3"
           } as any
         },
         "title": "AI integration",

@@ -6,7 +6,7 @@ import { setupServer } from "msw/node";
 import path from "path";
 import { testAIModels } from "../../../testUtil/testAIModels.js";
 import { generateSharedTestCases } from "../tests/sharedTestCases.js";
-import { callLLM } from "./markdownBlocks.js";
+import { callLLMMarkdownBlocks } from "./markdownBlocks.js";
 
 const BASE_FILE_PATH = path.resolve(
   __dirname,
@@ -119,7 +119,7 @@ describe("Models", () => {
     })`, () => {
       generateSharedTestCases(
         (editor, options) =>
-          callLLM(editor, {
+          callLLMMarkdownBlocks(editor, {
             ...options,
             model: params.model,
             maxRetries: 0,
