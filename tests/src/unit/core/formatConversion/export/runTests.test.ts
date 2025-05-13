@@ -1,6 +1,6 @@
 import { describe, it } from "vitest";
 
-import { createTestEditor } from "../../setupTestEditor.js";
+import { createTestEditor } from "../../createTestEditor.js";
 import { testSchema } from "../../testSchema.js";
 import {
   exportTestInstancesBlockNoteHTML,
