@@ -48,13 +48,13 @@ function getSnapshotOptions() {
 
 export async function toMatchBinaryFileSnapshot(
   buffer: Buffer,
-  filepath: string,
+  filepath: string
 ) {
   const fileBuffer = fs.existsSync(filepath)
     ? fs.readFileSync(filepath)
     : undefined;
 
-  const same = fileBuffer && buffer.equals(fileBuffer as any); // TODO // && bufferMD5 === fileMD5;
+  const same = fileBuffer && buffer.equals(fileBuffer); // && bufferMD5 === fileMD5;
 
   const option = getSnapshotOptions();
 
@@ -69,5 +69,5 @@ export async function toMatchBinaryFileSnapshot(
   // create dir if not exists
   fs.mkdirSync(path.dirname(filepath), { recursive: true });
 
-  fs.writeFileSync(filepath, buffer as any); // TODO
+  fs.writeFileSync(filepath, buffer);
 }

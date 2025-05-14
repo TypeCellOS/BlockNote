@@ -3,6 +3,7 @@ packages:
   - "examples/*/*"
   - "playground"
   - "docs"
+  - "shared"
   - "tests"
 preferWorkspacePackages: true
 linkWorkspacePackages: true

@@ -62,7 +62,6 @@
     "docx": "^9.0.2"
   },
   "devDependencies": {
-    "@types/node": "22.13.13",
     "@testing-library/react": "^16.0.1",
     "@types/jest-image-snapshot": "^6.4.0",
     "@types/jsdom": "^21.1.7",
