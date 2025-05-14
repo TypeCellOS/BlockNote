@@ -4,6 +4,11 @@
   "private": false,
   "license": "AGPL-3.0 OR PROPRIETARY",
   "version": "0.30.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TypeCellOS/BlockNote.git",
+    "directory": "packages/xl-ai"
+  },
   "files": [
     "dist",
     "types",
