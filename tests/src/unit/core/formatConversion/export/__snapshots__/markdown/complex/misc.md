@@ -2,4 +2,4 @@
 
 Paragraph
 
-*
+* [EMPTY-LINE]
