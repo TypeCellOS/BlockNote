@@ -1,8 +1,8 @@
-# AI Playground
+# Rich Text editor AI integration
 
-The AI Playground example shows how to customize different options of the AI Extension such as model type and streaming mode.
+This example shows the minimal setup to add AI integration to your BlockNote rich text editor.
 
-Change the configuration, the highlight some text to access the AI menu, or type `/ai` anywhere in the editor.
+Select some text and click the AI (magic wand) button, or type `/ai` anywhere in the editor to access AI functionality.
 
 **Relevant Docs:**
 

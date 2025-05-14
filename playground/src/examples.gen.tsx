@@ -1382,7 +1382,34 @@
             "zustand": "^5.0.3"
           } as any
         },
-        "title": "AI integration",
+        "title": "Rich Text editor AI integration",
+        "group": {
+          "pathFromRoot": "examples/09-ai",
+          "slug": "ai"
+        }
+      },
+      {
+        "projectSlug": "playground",
+        "fullSlug": "ai/playground",
+        "pathFromRoot": "examples/09-ai/02-playground",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "AI",
+            "llm"
+          ],
+          "dependencies": {
+            "@blocknote/xl-ai": "latest",
+            "@mantine/core": "^7.10.1",
+            "ai": "^4.1.0",
+            "@ai-sdk/openai": "^1.1.0",
+            "@ai-sdk/groq": "^1.1.0",
+            "zustand": "^5.0.3"
+          } as any
+        },
+        "title": "AI Playground",
         "group": {
           "pathFromRoot": "examples/09-ai",
           "slug": "ai"
