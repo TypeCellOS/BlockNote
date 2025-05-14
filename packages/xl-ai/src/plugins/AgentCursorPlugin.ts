@@ -7,6 +7,9 @@ type AgentCursorState = {
 };
 const PLUGIN_KEY = new PluginKey<AgentCursorState>(`blocknote-agent-cursor`);
 
+/**
+ * Plugin that renders an "AI" cursor
+ */
 export function createAgentCursorPlugin(
   agentCursor: { name: string; color: string } = {
     name: "AI",

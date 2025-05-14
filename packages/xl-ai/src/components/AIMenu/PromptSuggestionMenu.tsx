@@ -15,8 +15,6 @@ import {
 
 import { RiSparkling2Fill } from "react-icons/ri";
 
-// import { useAIDictionary } from "../../i18n/useAIDictionary";
-
 export type PromptSuggestionMenuProps = {
   items: DefaultReactSuggestionItem[];
   onManualPromptSubmit: (userPrompt: string) => void;

@@ -1,8 +1,4 @@
-import {
-  getNodeById,
-  PartialBlock,
-  updateBlockTr
-} from "@blocknote/core";
+import { getNodeById, PartialBlock, updateBlockTr } from "@blocknote/core";
 import {
   Change,
   ChangeSet,
@@ -32,7 +28,7 @@ type CustomChange = Change & {
 function addMissingChanges(
   changes: CustomChange[],
   originalDoc: Node,
-  expectedDoc: Node
+  expectedDoc: Node,
 ) {
   const tr = new Transform(originalDoc);
   // first, apply all changes we already have to the originalTr
@@ -41,7 +37,7 @@ function addMissingChanges(
     const step = new ReplaceStep(
       tr.mapping.map(change.fromA),
       tr.mapping.map(change.toA),
-      expectedDoc.slice(change.fromB, change.toB)
+      expectedDoc.slice(change.fromB, change.toB),
     );
 
     tr.step(step);
@@ -86,10 +82,6 @@ function addMissingChanges(
     // find the position in changes array to insert the new change
     let insertPos = changes.length;
     for (let i = 0; i < changes.length; i++) {
-      // if (i > 0 && changes[i - 1].toA > fromA) {
-      //   throw new Error("changes are overlapping");
-      // }
-
       if (changes[i].fromA >= toA) {
         insertPos = i;
         break;
@@ -113,8 +105,8 @@ function addMissingChanges(
         diffStart,
         to,
         expectedDoc.slice(diffStart, to),
-        isNodeAttrChange
-      )
+        isNodeAttrChange,
+      ),
     );
     const newDiffStart = tr.doc.content.findDiffStart(expectedDoc.content);
 
@@ -149,7 +141,7 @@ const createEncoder = (doc: Node, updatedDoc: Node) => {
   });
 
   const tableCells = new Set(
-    [...tableCellsOld].filter((cell) => tableCellsNew.has(cell))
+    [...tableCellsOld].filter((cell) => tableCellsNew.has(cell)),
   );
 
   const encoder: TokenEncoder<any> = {
@@ -181,6 +173,7 @@ const createEncoder = (doc: Node, updatedDoc: Node) => {
   };
   return encoder;
 };
+
 /**
  * This turns a single update `op` (that is, an update that could affect different parts of a block)
  * into more granular steps (that is, each step only affects a single part of the block), by using a diffing algorithm.
@@ -201,7 +194,7 @@ export function updateToReplaceSteps(
   doc: Node,
   dontReplaceContentAtEnd = false,
   updateFromPos?: number,
-  updateToPos?: number
+  updateToPos?: number,
 ) {
   const blockPos = getNodeById(op.id, doc)!;
   const updatedTr = new Transform(doc);
@@ -210,7 +203,7 @@ export function updateToReplaceSteps(
     blockPos.posBeforeNode,
     op.block,
     updateFromPos,
-    updateToPos
+    updateToPos,
   );
 
   let updatedDoc = updatedTr.doc;
@@ -218,7 +211,7 @@ export function updateToReplaceSteps(
   let changeset = ChangeSet.create(
     doc,
     undefined,
-    createEncoder(doc, updatedDoc)
+    createEncoder(doc, updatedDoc),
   );
 
   changeset = changeset.addSteps(updatedDoc, updatedTr.mapping.maps, 0);
@@ -243,16 +236,16 @@ export function updateToReplaceSteps(
     if (lengthA > lengthB) {
       const endOfBlockToReAdd = doc.slice(
         lastChange.fromA + lengthB,
-        lastChange.toA
+        lastChange.toA,
       );
       updatedTr.step(
-        new ReplaceStep(lastChange.toB, lastChange.toB, endOfBlockToReAdd)
+        new ReplaceStep(lastChange.toB, lastChange.toB, endOfBlockToReAdd),
       );
       updatedDoc = updatedTr.doc;
       changeset = ChangeSet.create(
         changeset.startDoc,
         undefined,
-        createEncoder(changeset.startDoc, updatedDoc)
+        createEncoder(changeset.startDoc, updatedDoc),
       );
       changeset = changeset.addSteps(updatedDoc, updatedTr.mapping.maps, 0);
     }
@@ -263,7 +256,7 @@ export function updateToReplaceSteps(
   // `changes` holds the changes that can be made to the cleaned doc to get to the updated doc
   const changes: CustomChange[] = simplifyChanges(
     changeset.changes,
-    updatedDoc
+    updatedDoc,
   );
 
   for (let i = 0; i < changes.length; i++) {
@@ -310,7 +303,7 @@ export function updateToReplaceSteps(
 
     if (replacement.openEnd > 0 && replacement.size > 1) {
       throw new Error(
-        "unexpected, openEnd > 0 and size > 1, this should have been split into two steps"
+        "unexpected, openEnd > 0 and size > 1, this should have been split into two steps",
       );
     }
 
@@ -333,32 +326,14 @@ export function updateToReplaceSteps(
       continue;
     }
 
-    // if (step.type === "node-type-or-attr-update") {
-    //   const $pos = doc.resolve(step.fromA);
-    //   const pos = $pos.pos;
-    //   const node = doc.nodeAt(pos)!;
-    //   debugger;
-    //   steps.push(
-    //     new ReplaceAroundStep(
-    //       pos,
-    //       pos + node.nodeSize,
-    //       pos + 1,
-    //       pos + node.nodeSize - 1,
-    //       new Slice(Fragment.from(replacement.content.firstChild!), 0, 0),
-    //       1,
-    //       true
-    //     )
-    //   );
-    // } else {
     steps.push(
       new ReplaceStep(
         step.fromA,
         step.toA,
         replacement,
-        step.type === "node-type-or-attr-update"
-      )
+        step.type === "node-type-or-attr-update",
+      ),
     );
-    // }
   }
 
   return steps;

@@ -19,7 +19,7 @@ const Icons = {
 export function getAISlashMenuItems<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(editor: BlockNoteEditor<BSchema, I, S>): DefaultReactSuggestionItem[] {
   const ai = getAIExtension(editor);
   const items = [
@@ -42,19 +42,6 @@ export function getAISlashMenuItems<
       icon: <Icons.AI />,
     },
   ];
-
-  // if (checkBlockTypeInSchema(aiBlockConfig, editor)) {
-  //   items.push({
-  //     key: "ai_block",
-  //     onItemClick: () => {
-  //       insertOrUpdateBlock(editor, {
-  //         type: "ai",
-  //       });
-  //     },
-  //     ...getAIDictionary(editor).slash_menu.ai_block,
-  //     icon: <Icons.AI />,
-  //   });
-  // }
 
   return items;
 }

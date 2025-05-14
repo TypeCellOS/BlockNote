@@ -24,7 +24,13 @@ export type UpdateBlockToolCall<T> = {
  * Factory function to create a StreamTool that Updates blocks in the document.
  */
 export function createUpdateBlockTool<T>(config: {
+  /**
+   * The description of the tool
+   */
   description: string;
+  /**
+   * The schema of the tool
+   */
   schema:
     | {
         block: JSONSchema7;
@@ -34,15 +40,35 @@ export function createUpdateBlockTool<T>(config: {
         block: JSONSchema7;
         $defs?: JSONSchema7["$defs"];
       });
+  /**
+   * A function that can validate a block
+   */
   validateBlock: (
     block: any,
     editor: BlockNoteEditor<any, any, any>,
     fallbackType?: string,
   ) => InvalidOrOk<T>;
+  /**
+   * The rebaseTool is used to get a projection of the document that
+   * the JSON Tool Calls will be applied to. By using the rebaseTool we can
+   * apply operations to a "projected" document, and then map them (rebase) to the actual document
+   *
+   * This is to:
+   * - apply operations without suggestion-marks to an editor that has suggestions in it
+   *  (the projection should have the suggestions applied)
+   * - apply operations from a format that doesn't support all Block features (e.g.: markdown)
+   *   (the projection should be the the BlockNote document without the unsupported features)
+   */
   rebaseTool: (
     id: string,
     editor: BlockNoteEditor<any, any, any>,
   ) => Promise<RebaseTool>;
+  /**
+   * Converts the operation from `AddBlocksToolCall<T>` to `AddBlocksToolCall<PartialBlock<any, any, any>>`
+   *
+   * When using these factories to create a tool for a different format (e.g.: HTML / MD),
+   * the `toJSONToolCall` function is used to convert the operation to a format that we can execute
+   */
   toJSONToolCall: (
     editor: BlockNoteEditor<any, any, any>,
     chunk: {
@@ -171,12 +197,10 @@ export function createUpdateBlockTool<T>(config: {
           const operation = chunk.operation as UpdateBlockToolCall<T>;
 
           if (chunk.isPossiblyPartial) {
-            // TODO: unit test and / or extract to separate pipeline step
             const size = JSON.stringify(operation.block).length;
             if (size < minSize) {
               continue;
             } else {
-              // console.log("increasing minSize", minSize);
               // increase minSize for next chunk
               minSize = size + STEP_SIZE;
             }
@@ -184,9 +208,9 @@ export function createUpdateBlockTool<T>(config: {
             // reset for next chunk
             minSize = STEP_SIZE;
           }
-          // console.log("apply", operation.block);
 
-          // TODO: this might be inefficient, we might be able to pass a single rebaseTool as long as we map subsequent operations
+          // REC: we could investigate whether we can use a single rebasetool across operations instead of
+          // creating a new one every time (possibly expensive)
           const tool = await config.rebaseTool(operation.id, editor);
 
           const fromPos = selectionPositions
@@ -216,7 +240,7 @@ export function createUpdateBlockTool<T>(config: {
 
             // if there's only a single replace step to be done and we're partial, let's wait for more content
 
-            // TODO: unit test this and see if it's still needed even if we pass `dontReplaceContentAtEnd` to `updateToReplaceSteps`
+            // REC: unit test this and see if it's still needed even if we pass `dontReplaceContentAtEnd` to `updateToReplaceSteps`
             continue;
           }
 

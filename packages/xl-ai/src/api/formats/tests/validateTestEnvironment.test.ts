@@ -64,11 +64,6 @@ describe("MSW Snapshots", () => {
 });
 
 describe("Test environment", () => {
-  // doesn't appear to be needed
-  // it("should be running correct node version", () => {
-  //   expect(process.version).toBe("v20.11.0");
-  // });
-
   it("should have certs installed to connect to localhost", () => {
     expect(process.env.NODE_EXTRA_CA_CERTS).toBeDefined();
 

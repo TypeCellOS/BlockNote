@@ -16,18 +16,11 @@ export function BlockNoteAIUI(props: BlockNoteAIUIProps) {
 
   if (!editor) {
     throw new Error(
-      "BlockNoteDefaultUI must be used within a BlockNoteContext.Provider"
+      "BlockNoteDefaultUI must be used within a BlockNoteContext.Provider",
     );
   }
 
-  return (
-    <>
-      {/* {editor.extensions.aiBlockToolbar && props.aiBlockToolbar !== false && (
-        <AIBlockToolbarController />
-      )} */}
-      {props.aiMenu !== false && <AIMenuController />}
-    </>
-  );
+  return <>{props.aiMenu !== false && <AIMenuController />}</>;
 }
 
 const AIMenuController = () => {

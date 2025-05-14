@@ -40,7 +40,15 @@ export function createAddBlocksTool<T>(config: {
     editor: BlockNoteEditor<any, any, any>,
   ) => InvalidOrOk<T>;
   /**
-   * TODO: comment
+   * The rebaseTool is used to get a projection of the document that
+   * the JSON Tool Calls will be applied to. By using the rebaseTool we can
+   * apply operations to a "projected" document, and then map them (rebase) to the actual document
+   *
+   * This is to:
+   * - apply operations without suggestion-marks to an editor that has suggestions in it
+   *  (the projection should have the suggestions applied)
+   * - apply operations from a format that doesn't support all Block features (e.g.: markdown)
+   *   (the projection should be the the BlockNote document without the unsupported features)
    */
   rebaseTool: (
     id: string,
@@ -194,10 +202,13 @@ export function createAddBlocksTool<T>(config: {
           }
 
           if (
+            chunk.isPossiblyPartial &&
             isEmptyParagraph(
               jsonToolCall.blocks[jsonToolCall.blocks.length - 1],
             )
           ) {
+            // for example, a parsing just "<ul>" would first result in an empty paragraph,
+            // wait for more content before adding the block
             continue;
           }
 
@@ -205,7 +216,7 @@ export function createAddBlocksTool<T>(config: {
             const block = jsonToolCall.blocks[i];
             const doc = editor.prosemirrorState.doc;
             const tr = editor.prosemirrorState.tr;
-            // TODO: unit test
+
             let agentSteps: AgentStep[] = [];
             if (i < addedBlockIds.length) {
               // we have already added this block, so we need to update it

@@ -42,7 +42,7 @@ export function rebaseTool(
     doc: projectionTr.doc,
 
     /**
-     * Return a new transform that has all the suggestions applied.
+     * Return a new transform that has the projection applied.
      * You can add new operations to this transform and later rebase those on the original document with `rebaseTr`
      */
     tr: () => {
@@ -50,7 +50,7 @@ export function rebaseTool(
     },
 
     /**
-     * Invert map created by applying the suggestions.
+     * Invert map created by the projection.
      * You can use this to map positions on the "clean" document (the projection) to positions on the original document
      */
     invertMap,

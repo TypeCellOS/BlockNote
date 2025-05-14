@@ -8,10 +8,9 @@ export const BlockPositioner = (props: {
   onOpenChange?: (
     open: boolean,
     event: Event,
-    reason: OpenChangeReason
+    reason: OpenChangeReason,
   ) => void;
 }) => {
-  // TODO: desirable to do like this?
   const element = props.blockID
     ? document.querySelector(`[data-id="${props.blockID}"]`)
     : undefined;
@@ -58,7 +57,7 @@ export const BlockPositioner = (props: {
         });
         return cleanup;
       },
-    }
+    },
   );
 
   if (!isMounted) {
@@ -70,7 +69,6 @@ export const BlockPositioner = (props: {
       ref={ref}
       style={{
         ...style,
-        // top: state.blockIsEmpty ? -state.referencePos.height - 3 : style.top,
       }}
       {...getFloatingProps()}>
       {props.children}

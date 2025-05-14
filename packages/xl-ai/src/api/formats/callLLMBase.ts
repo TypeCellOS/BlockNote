@@ -10,6 +10,7 @@ import { isEmptyParagraph } from "../../util/emptyBlock.js";
 import type { PromptOrMessages } from "../index.js";
 import { CallLLMResult } from "./CallLLMResult.js";
 
+// TODO: comment
 export const callLLMBase =
   (
     getMessages: (
