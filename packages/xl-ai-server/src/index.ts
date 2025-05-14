@@ -1,5 +1,6 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
+import { bearerAuth } from "hono/bearer-auth";
 import { cors } from "hono/cors";
 import { existsSync, readFileSync } from "node:fs";
 import { createSecureServer } from "node:http2";
@@ -47,6 +48,13 @@ const app = new Hono();
 app.use("/health", async (c) => {
   return c.json({ status: "ok" });
 });
+
+if (process.env.TOKEN?.length) {
+  app.use("/ai/*", bearerAuth({ token: process.env.TOKEN }));
+} else {
+  // eslint-disable-next-line no-console
+  console.warn("no token set, ai requests will not be secured");
+}
 
 app.use("/ai", cors(), async (c) => {
   const url = c.req.query("url");

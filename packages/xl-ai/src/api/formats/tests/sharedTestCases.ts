@@ -17,6 +17,8 @@ import { CallLLMResult } from "../CallLLMResult.js";
 
 const BASE_FILE_PATH = path.resolve(__dirname, "__snapshots__");
 
+// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function matchFileSnapshot(data: any, postFix = "") {
   const t = getCurrentTest()!;
   // this uses the same snapshot path, regardless of the model / streaming params
