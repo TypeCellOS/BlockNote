@@ -16,8 +16,7 @@
     "jsx": "react-jsx",
     "composite": true,
     "outDir": "dist",
-    "emitDeclarationOnly": true,
-    "types": ["node"]
+    "emitDeclarationOnly": true
   },
   "include": ["."],
   "references": [
