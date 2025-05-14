@@ -7,29 +7,23 @@ import {
 } from "@blocknote/core";
 import { expect } from "vitest";
 
-import {
-  doPaste,
-  setupClipboardTest,
-} from "../../../core/clipboard/clipboardTestUtil.js";
+import { initTestEditor } from "../../testUtil.js";
+import { doPaste } from "../clipboardTestUtil.js";
 import { CopyPasteEqualityTestCase } from "./copyPasteEqualityTestCase.js";
 
 export const testCopyPasteEquality = async <
   B extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   editor: BlockNoteEditor<B, I, S>,
-  testCase: CopyPasteEqualityTestCase<B, I, S>
+  testCase: CopyPasteEqualityTestCase<B, I, S>,
 ) => {
-  setupClipboardTest(
-    editor,
-    testCase.document,
-    testCase.getCopyAndPasteSelection
-  );
+  initTestEditor(editor, testCase.document, testCase.getCopyAndPasteSelection);
 
   const { clipboardHTML } = selectedFragmentToHTML(
     editor.prosemirrorView!,
-    editor
+    editor,
   );
 
   const originalDocument = editor.document;
@@ -38,7 +32,7 @@ export const testCopyPasteEquality = async <
     "text",
     clipboardHTML,
     false,
-    new ClipboardEvent("paste")
+    new ClipboardEvent("paste"),
   );
   const newDocument = editor.document;
 

@@ -6,54 +6,52 @@ import {
 } from "@blocknote/core";
 import { expect } from "vitest";
 
-import {
-  doPaste,
-  setupClipboardTest,
-} from "../../../core/clipboard/clipboardTestUtil.js";
+import { initTestEditor } from "../../testUtil.js";
+import { doPaste } from "../clipboardTestUtil.js";
 import { PasteTestCase } from "./pasteTestCase.js";
 
 export const testPasteHTML = async <
   B extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   editor: BlockNoteEditor<B, I, S>,
-  testCase: PasteTestCase<B, I, S>
+  testCase: PasteTestCase<B, I, S>,
 ) => {
-  setupClipboardTest(editor, testCase.document, testCase.getPasteSelection);
+  initTestEditor(editor, testCase.document, testCase.getPasteSelection);
 
   doPaste(
     editor.prosemirrorView!,
     "",
     testCase.content,
     false,
-    new ClipboardEvent("paste")
+    new ClipboardEvent("paste"),
   );
 
   await expect(editor.document).toMatchFileSnapshot(
-    `./__snapshots__/text/html/${testCase.name}.json`
+    `./__snapshots__/text/html/${testCase.name}.json`,
   );
 };
 
 export const testPasteMarkdown = async <
   B extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   editor: BlockNoteEditor<B, I, S>,
-  testCase: PasteTestCase<B, I, S>
+  testCase: PasteTestCase<B, I, S>,
 ) => {
-  setupClipboardTest(editor, testCase.document, testCase.getPasteSelection);
+  initTestEditor(editor, testCase.document, testCase.getPasteSelection);
 
   doPaste(
     editor.prosemirrorView!,
     testCase.content,
     "",
     true,
-    new ClipboardEvent("paste")
+    new ClipboardEvent("paste"),
   );
 
   await expect(editor.document).toMatchFileSnapshot(
-    `./__snapshots__/text/plain/${testCase.name}.json`
+    `./__snapshots__/text/plain/${testCase.name}.json`,
   );
 };
