@@ -1,17 +1,16 @@
-import {
-  BlockNoteEditor
-} from "@blocknote/core";
+import { BlockNoteEditor } from "@blocknote/core";
 import { describe, expect, it } from "vitest";
 import { getEditorWithFormattingAndMentions } from "../testUtil/cases/editors/formattingAndMentions.js";
-import { DocumentOperationTestCase, getExpectedEditor } from "../testUtil/cases/types.js";
 import {
-  updateOperationTestCases,
-} from "../testUtil/cases/updateOperationTestCases.js";
+  DocumentOperationTestCase,
+  getExpectedEditor,
+} from "../testUtil/cases/index.js";
+import { updateOperationTestCases } from "../testUtil/cases/updateOperationTestCases.js";
 import { updateToReplaceSteps } from "./changeset.js";
 
 function executeTestCase(
   editor: BlockNoteEditor<any, any, any>,
-  test: DocumentOperationTestCase
+  test: DocumentOperationTestCase,
 ) {
   for (const update of test.baseToolCalls) {
     if (update.type !== "update") {
@@ -28,7 +27,7 @@ function executeTestCase(
       editor.prosemirrorState.doc,
       undefined,
       selection?.from,
-      selection?.to
+      selection?.to,
     );
 
     const formatted = steps.map((step) => ({
@@ -69,7 +68,7 @@ describe("dontReplaceContentAtEnd=true", () => {
         },
       },
       editor.prosemirrorState.doc,
-      true
+      true,
     );
 
     expect(steps).toEqual([]);
@@ -88,7 +87,7 @@ describe("dontReplaceContentAtEnd=true", () => {
         },
       },
       editor.prosemirrorState.doc,
-      true
+      true,
     );
 
     expect(steps).toEqual([]);

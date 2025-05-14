@@ -1,13 +1,12 @@
-import {
-  BlockNoteEditor,
-  getBlockInfo,
-  getNodeById
-} from "@blocknote/core";
+import { BlockNoteEditor, getBlockInfo, getNodeById } from "@blocknote/core";
 import { Fragment, Slice } from "prosemirror-model";
 import { ReplaceStep } from "prosemirror-transform";
 import { describe, expect, it } from "vitest";
 import { getAIExtension } from "../AIExtension.js";
-import { DocumentOperationTestCase, getExpectedEditor } from "../testUtil/cases/types.js";
+import {
+  DocumentOperationTestCase,
+  getExpectedEditor,
+} from "../testUtil/cases/index.js";
 import { updateOperationTestCases } from "../testUtil/cases/updateOperationTestCases.js";
 import { validateRejectingResultsInOriginalDoc } from "../testUtil/suggestChangesTestUtil.js";
 import { agentStepToTr, getStepsAsAgent } from "./agent.js";
@@ -73,7 +72,7 @@ describe("getStepsAsAgent", () => {
 
     const tr = editor.prosemirrorState.tr.setNodeMarkup(
       block.blockContent.beforePos,
-      editor.pmSchema.nodes.heading
+      editor.pmSchema.nodes.heading,
     );
 
     expect(tr.steps.length).toBe(1);
@@ -102,7 +101,7 @@ describe("getStepsAsAgent", () => {
       undefined,
       {
         textAlignment: "right",
-      }
+      },
     );
 
     expect(tr.steps.length).toBe(1);
@@ -132,14 +131,11 @@ describe("getStepsAsAgent", () => {
       block.blockContent.beforePos + 3,
       // for simplicity, we're not actually changing the node type and content, but we just use the existing document
       // as replacement content
-      doc.slice(
-        block.blockContent.beforePos,
-        block.blockContent.beforePos + 3
-      )
+      doc.slice(block.blockContent.beforePos, block.blockContent.beforePos + 3),
     );
 
     await expect(() => getStepsAsAgent(doc, editor.pmSchema, [step])).toThrow(
-      "Slice has openStart or openEnd > 0, but structure=false"
+      "Slice has openStart or openEnd > 0, but structure=false",
     );
   });
 
@@ -162,7 +158,7 @@ describe("getStepsAsAgent", () => {
     const step1 = new ReplaceStep(
       contentStart + 1,
       contentStart + 6,
-      new Slice(fragment1, 0, 0)
+      new Slice(fragment1, 0, 0),
     );
 
     // 2. Replace "world" with "there"
@@ -170,7 +166,7 @@ describe("getStepsAsAgent", () => {
     const step2 = new ReplaceStep(
       contentStart + 8,
       contentStart + 13,
-      new Slice(fragment2, 0, 0)
+      new Slice(fragment2, 0, 0),
     );
 
     // Apply the steps
@@ -190,15 +186,15 @@ describe("getStepsAsAgent", () => {
     const nonReplaceStep = { from: 0, to: 5 } as any;
 
     // Expect the function to throw an error
-    await expect(() => getStepsAsAgent(doc, editor.pmSchema, [nonReplaceStep])).toThrow(
-      "Step is not a ReplaceStep"
-    );
+    await expect(() =>
+      getStepsAsAgent(doc, editor.pmSchema, [nonReplaceStep]),
+    ).toThrow("Step is not a ReplaceStep");
   });
 });
 
 async function executeTestCase(
   editor: BlockNoteEditor<any, any, any>,
-  test: DocumentOperationTestCase
+  test: DocumentOperationTestCase,
 ) {
   const results = [];
   const doc = editor.prosemirrorState.doc;
@@ -210,7 +206,7 @@ async function executeTestCase(
     const update = updateOp.block;
 
     const selection = test.getTestSelection?.(editor);
-    
+
     const steps = updateToReplaceSteps(
       {
         id: blockId,
@@ -219,11 +215,11 @@ async function executeTestCase(
       doc,
       undefined,
       selection?.from,
-      selection?.to
+      selection?.to,
     );
 
     const agentSteps = getStepsAsAgent(doc, editor.pmSchema, steps);
-    
+
     for (const step of agentSteps) {
       editor.transact((tr) => {
         agentStepToTr(tr, step);
@@ -231,19 +227,18 @@ async function executeTestCase(
       results.push(
         step.type.slice(0, 1).toUpperCase() +
           "	" +
-          JSON.stringify(editor.prosemirrorState.doc.toJSON())
+          JSON.stringify(editor.prosemirrorState.doc.toJSON()),
       );
     }
   }
-  
-  validateRejectingResultsInOriginalDoc(editor, doc);
-    expect(results).toMatchSnapshot();
-        
-    getAIExtension(editor).acceptChanges();
-    expect(editor.document).toEqual(getExpectedEditor(test).document);
 
-    return results;
-  
+  validateRejectingResultsInOriginalDoc(editor, doc);
+  expect(results).toMatchSnapshot();
+
+  getAIExtension(editor).acceptChanges();
+  expect(editor.document).toEqual(getExpectedEditor(test).document);
+
+  return results;
 }
 
 describe("agentStepToTr", () => {

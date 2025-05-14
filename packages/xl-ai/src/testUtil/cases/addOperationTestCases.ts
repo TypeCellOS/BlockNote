@@ -1,5 +1,5 @@
 import { getSimpleEditor } from "./editors/simpleEditor.js";
-import { DocumentOperationTestCase } from "./types.js";
+import { DocumentOperationTestCase } from "./index.js";
 
 export const addOperationTestCases: DocumentOperationTestCase[] = [
   {

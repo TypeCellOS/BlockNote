@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { addOperationTestCases } from "../../../../testUtil/cases/addOperationTestCases.js";
 import { combinedOperationsTestCases } from "../../../../testUtil/cases/combinedOperationsTestCases.js";
 import { deleteOperationTestCases } from "../../../../testUtil/cases/deleteOperationTestCases.js";
-import { DocumentOperationTestCase } from "../../../../testUtil/cases/types.js";
+import { DocumentOperationTestCase } from "../../../../testUtil/cases/index.js";
 import { updateOperationTestCases } from "../../../../testUtil/cases/updateOperationTestCases.js";
 import { createAsyncIterableStreamFromAsyncIterable } from "../../../../util/stream.js";
 import { AddBlocksToolCall } from "../../base-tools/createAddBlocksTool.js";
@@ -15,7 +15,7 @@ import { tools } from "./index.js";
 
 // Helper function to create a mock stream from operations
 import { getAIExtension } from "../../../../AIExtension.js";
-import { getExpectedEditor } from "../../../../testUtil/cases/types.js";
+import { getExpectedEditor } from "../../../../testUtil/cases/index.js";
 import { validateRejectingResultsInOriginalDoc } from "../../../../testUtil/suggestChangesTestUtil.js";
 async function* createMockStream(
   ...operations: {

@@ -2,8 +2,8 @@ import { BlockNoteEditor, getBlockInfo, getNodeById } from "@blocknote/core";
 import { createAIExtension } from "../../AIExtension.js";
 import { getEditorWithBlockFormatting } from "./editors/blockFormatting.js";
 import { getEditorWithFormattingAndMentions } from "./editors/formattingAndMentions.js";
+import { DocumentOperationTestCase } from "./index.js";
 import { schemaWithMention as schema } from "./schemas/mention.js";
-import { DocumentOperationTestCase } from "./types.js";
 
 /**
  * This file defines a set of test cases that can be used to test update operations to the editor.

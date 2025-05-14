@@ -10,7 +10,7 @@ import { deleteOperationTestCases } from "../../../testUtil/cases/deleteOperatio
 import {
   DocumentOperationTestCase,
   getExpectedEditor,
-} from "../../../testUtil/cases/types.js";
+} from "../../../testUtil/cases/index.js";
 import { updateOperationTestCases } from "../../../testUtil/cases/updateOperationTestCases.js";
 import { validateRejectingResultsInOriginalDoc } from "../../../testUtil/suggestChangesTestUtil.js";
 import { CallLLMResult } from "../CallLLMResult.js";

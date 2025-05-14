@@ -1,5 +1,5 @@
 import { getEditorWithFormattingAndMentions } from "./editors/formattingAndMentions.js";
-import { DocumentOperationTestCase } from "./types.js";
+import { DocumentOperationTestCase } from "./index.js";
 
 export const deleteOperationTestCases: DocumentOperationTestCase[] = [
   {
