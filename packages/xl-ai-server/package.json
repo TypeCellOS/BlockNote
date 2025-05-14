@@ -40,9 +40,7 @@
     "build": "tsc && vite build",
     "start": "node dist/blocknote-xl-ai-server.js",
     "lint": "eslint src --max-warnings 0",
-    "clean": "rimraf dist && rimraf types",
-    "test": "vitest --run",
-    "test-watch": "vitest watch"
+    "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",
