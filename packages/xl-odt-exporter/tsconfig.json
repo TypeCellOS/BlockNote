@@ -21,7 +21,8 @@
     "skipLibCheck": true,
     "paths": {
       "@shared/*": ["../../shared/*"]
-    }
+    },
+    "types": ["node"]
   },
   "include": ["src"],
   "references": [
