@@ -236,18 +236,15 @@ export class AIExtension extends BlockNoteExtension {
     try {
       let ret: CallLLMResult;
 
-      // TODO: maybe separate functions for streaming / non-streaming?
       if (options.dataFormat === "json") {
-        throw new Error("not implemented");
-        // ret = await llm.json.call(this.editor, options);
+        ret = await llm._experimental_json.call(this.editor, options);
       } else if (options.dataFormat === "markdown") {
-        throw new Error("not implemented");
-        // ret = await llm.markdown.call(this.editor, options);
+        ret = await llm._experimental_markdown.call(this.editor, options);
       } else if (options.dataFormat === "html") {
         ret = await llm.html.call(this.editor, {
           ...options,
           onStart: () => {
-            this.setAIResponseStatus("ai-writing"); // TODO: also apply to other formats
+            this.setAIResponseStatus("ai-writing");
           },
           onBlockUpdate: (blockId: string) => {
             // NOTE: does this setState with an anon object trigger unnecessary re-renders?
