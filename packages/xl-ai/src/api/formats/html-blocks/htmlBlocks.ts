@@ -1,52 +1,9 @@
-import { Block, BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor } from "@blocknote/core";
 import { StreamTool } from "../../../streamTool/streamTool.js";
-import type { PromptOrMessages } from "../../index.js";
 import { callLLMBase } from "../callLLMBase.js";
-import {
-  promptManipulateDocumentUseHTMLBlocks,
-  promptManipulateSelectionHTMLBlocks,
-} from "./htmlBlocksPrompt.js";
-import {
-  getDataForPromptNoSelection,
-  getDataForPromptWithSelection,
-} from "./htmlPromptData.js";
+
+import { defaultHTMLMessagesBuilder } from "./htmlBlocksPrompt.js";
 import { tools } from "./tools/index.js";
-
-async function getMessages(
-  editor: BlockNoteEditor<any, any, any>,
-  opts: {
-    selectedBlocks?: Block<any, any, any>[];
-    excludeBlockIds?: string[];
-  } & PromptOrMessages,
-) {
-  // TODO: document how to customize prompt
-  if ("messages" in opts && opts.messages) {
-    return opts.messages;
-  } else if (opts.selectedBlocks) {
-    if (opts.excludeBlockIds) {
-      throw new Error(
-        "expected excludeBlockIds to be false when selectedBlocks is provided",
-      );
-    }
-
-    return promptManipulateSelectionHTMLBlocks({
-      ...(await getDataForPromptWithSelection(editor, opts.selectedBlocks)),
-      userPrompt: opts.userPrompt,
-    });
-  } else {
-    if (opts.useSelection) {
-      throw new Error(
-        "expected useSelection to be false when selectedBlocks is not provided",
-      );
-    }
-    return promptManipulateDocumentUseHTMLBlocks({
-      ...(await getDataForPromptNoSelection(editor, {
-        excludeBlockIds: opts.excludeBlockIds,
-      })),
-      userPrompt: opts.userPrompt,
-    });
-  }
-}
 
 function getStreamTools(
   editor: BlockNoteEditor<any, any, any>,
@@ -94,4 +51,7 @@ function getStreamTools(
   return streamTools;
 }
 
-export const callLLMHTMLBlocks = callLLMBase(getMessages, getStreamTools);
+export const callLLMHTMLBlocks = callLLMBase(
+  defaultHTMLMessagesBuilder,
+  getStreamTools,
+);

@@ -1,5 +1,5 @@
-import { Block, BlockNoteEditor } from "@blocknote/core";
-import { CoreMessage, generateObject, streamObject } from "ai";
+import { BlockNoteEditor } from "@blocknote/core";
+import { generateObject, streamObject } from "ai";
 import {
   generateOperations,
   LLMRequestOptions,
@@ -7,19 +7,13 @@ import {
 } from "../../streamTool/callLLMWithStreamTools.js";
 import { StreamTool } from "../../streamTool/streamTool.js";
 import { isEmptyParagraph } from "../../util/emptyBlock.js";
-import type { PromptOrMessages } from "../index.js";
 import { CallLLMResult } from "./CallLLMResult.js";
+import type { PromptBuilder } from "./PromptBuilder.js";
 
 // TODO: comment
 export const callLLMBase =
   (
-    getMessages: (
-      editor: BlockNoteEditor<any, any, any>,
-      opts: {
-        selectedBlocks?: Block<any, any, any>[];
-        excludeBlockIds?: string[];
-      } & PromptOrMessages,
-    ) => Promise<CoreMessage[]>,
+    defaultPromptBuilder: PromptBuilder,
     getStreamTools: (
       editor: BlockNoteEditor<any, any, any>,
       withDelays: boolean,
@@ -40,39 +34,43 @@ export const callLLMBase =
   ) =>
   async (
     editor: BlockNoteEditor<any, any, any>,
-    opts: Omit<LLMRequestOptions, "messages"> &
-      PromptOrMessages & {
-        defaultStreamTools?: {
-          /** Enable the add tool (default: true) */
-          add?: boolean;
-          /** Enable the update tool (default: true) */
-          update?: boolean;
-          /** Enable the delete tool (default: true) */
-          delete?: boolean;
-        };
-        stream?: boolean;
-        deleteEmptyCursorBlock?: boolean;
-        onBlockUpdate?: (blockId: string) => void;
-        onStart?: () => void;
-        withDelays?: boolean;
-        _generateObjectOptions?: Partial<
-          Parameters<typeof generateObject<any>>[0]
-        >;
-        _streamObjectOptions?: Partial<Parameters<typeof streamObject<any>>[0]>;
-      },
+    opts: Omit<LLMRequestOptions, "messages"> & {
+      useSelection?: boolean;
+      userPrompt: string;
+      messagesBuilder?: PromptBuilder;
+      defaultStreamTools?: {
+        /** Enable the add tool (default: true) */
+        add?: boolean;
+        /** Enable the update tool (default: true) */
+        update?: boolean;
+        /** Enable the delete tool (default: true) */
+        delete?: boolean;
+      };
+      stream?: boolean;
+      deleteEmptyCursorBlock?: boolean;
+      onBlockUpdate?: (blockId: string) => void;
+      onStart?: () => void;
+      withDelays?: boolean;
+      _generateObjectOptions?: Partial<
+        Parameters<typeof generateObject<any>>[0]
+      >;
+      _streamObjectOptions?: Partial<Parameters<typeof streamObject<any>>[0]>;
+    },
   ): Promise<CallLLMResult> => {
     const {
-      userPrompt: prompt,
+      userPrompt,
       useSelection,
       deleteEmptyCursorBlock,
       stream,
       onStart,
       withDelays,
+      promptBuilder,
       ...rest
     } = {
       deleteEmptyCursorBlock: true,
       stream: true,
       withDelays: true,
+      promptBuilder: defaultPromptBuilder,
       ...opts,
     };
 
@@ -89,11 +87,12 @@ export const callLLMBase =
       ? editor.getSelectionCutBlocks()
       : undefined;
 
-    const messages = await getMessages(editor, {
-      ...opts,
+    const messages = await promptBuilder(editor, {
       selectedBlocks: selectionInfo?.blocks,
+      userPrompt,
       excludeBlockIds: deleteCursorBlock ? [deleteCursorBlock] : undefined,
     });
+
     // console.log(messages);
     const streamTools = getStreamTools(
       editor,

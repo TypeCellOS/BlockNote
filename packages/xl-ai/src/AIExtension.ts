@@ -8,14 +8,13 @@ import {
   revertSuggestions,
   suggestChanges,
 } from "@blocknote/prosemirror-suggest-changes";
-import { LanguageModel } from "ai";
+import { CoreMessage, LanguageModel } from "ai";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { fixTablesKey } from "prosemirror-tables";
 import { createStore, StoreApi } from "zustand/vanilla";
 import { CallLLMResult } from "./api/formats/CallLLMResult.js";
-import { llm, PromptOrMessages } from "./api/index.js";
+import { llm, PromptBuilderInput } from "./api/index.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
-import { LLMRequestOptions } from "./streamTool/callLLMWithStreamTools.js";
 
 type ReadonlyStoreApi<T> = Pick<
   StoreApi<T>,
@@ -63,21 +62,27 @@ type GlobalLLMCallOptions = {
    * @default true
    */
   stream?: boolean;
+
+  promptBuilder: (
+    editor: BlockNoteEditor<any, any, any>,
+    opts: PromptBuilderInput,
+  ) => Promise<Array<CoreMessage>> | undefined;
 };
 
 // parameters that are specific to each call
-type CallSpecificCallLLMOptions = Partial<GlobalLLMCallOptions> &
-  Omit<LLMRequestOptions, "messages" | "model"> &
-  PromptOrMessages & {
-    defaultStreamTools?: {
-      /** Enable the add tool (default: true) */
-      add?: boolean;
-      /** Enable the update tool (default: true) */
-      update?: boolean;
-      /** Enable the delete tool (default: true) */
-      delete?: boolean;
-    };
+type CallSpecificCallLLMOptions = Partial<GlobalLLMCallOptions> & {
+  userPrompt: string;
+  useSelection?: boolean;
+  defaultStreamTools?: {
+    /** Enable the add tool (default: true) */
+    add?: boolean;
+    /** Enable the update tool (default: true) */
+    update?: boolean;
+    /** Enable the delete tool (default: true) */
+    delete?: boolean;
   };
+  maxRetries?: number;
+};
 
 const PLUGIN_KEY = new PluginKey(`blocknote-ai-plugin`);
 
@@ -120,6 +125,7 @@ export class AIExtension extends BlockNoteExtension {
     },
   ) {
     super();
+
     this.options = createStore<Required<GlobalLLMCallOptions>>()((_set) => ({
       dataFormat: "html",
       stream: true,
@@ -226,36 +232,33 @@ export class AIExtension extends BlockNoteExtension {
    * Execute a call to an LLM and apply the result to the editor
    */
   public async callLLM(opts: CallSpecificCallLLMOptions) {
-    const options = {
-      ...this.options.getState(),
-      ...opts,
-    };
-
     this.setAIResponseStatus("thinking");
 
     try {
       let ret: CallLLMResult;
 
+      const options = {
+        ...this.options.getState(),
+        ...opts,
+        onStart: () => {
+          this.setAIResponseStatus("ai-writing");
+        },
+        onBlockUpdate: (blockId: string) => {
+          // NOTE: does this setState with an anon object trigger unnecessary re-renders?
+          this._store.setState({
+            aiMenuState: {
+              blockId,
+              status: "ai-writing",
+            },
+          });
+        },
+      };
       if (options.dataFormat === "json") {
         ret = await llm._experimental_json.call(this.editor, options);
       } else if (options.dataFormat === "markdown") {
         ret = await llm._experimental_markdown.call(this.editor, options);
       } else if (options.dataFormat === "html") {
-        ret = await llm.html.call(this.editor, {
-          ...options,
-          onStart: () => {
-            this.setAIResponseStatus("ai-writing");
-          },
-          onBlockUpdate: (blockId: string) => {
-            // NOTE: does this setState with an anon object trigger unnecessary re-renders?
-            this._store.setState({
-              aiMenuState: {
-                blockId,
-                status: "ai-writing",
-              },
-            });
-          },
-        });
+        ret = await llm.html.call(this.editor, options);
       } else {
         throw new UnreachableCaseError(options.dataFormat);
       }

@@ -1,6 +1,11 @@
 import { CoreMessage } from "ai";
+import type { PromptBuilder } from "../PromptBuilder.js";
+import {
+  getDataForPromptNoSelection,
+  getDataForPromptWithSelection,
+} from "./htmlPromptData.js";
 
-export function promptManipulateSelectionHTMLBlocks(opts: {
+function promptManipulateSelectionHTMLBlocks(opts: {
   userPrompt: string;
   htmlSelectedBlocks: {
     id: string;
@@ -86,3 +91,24 @@ export function promptManipulateDocumentUseHTMLBlocks(opts: {
     },
   ];
 }
+
+export const defaultHTMLMessagesBuilder: PromptBuilder = async (
+  editor,
+  opts,
+) => {
+  if (opts.selectedBlocks) {
+    const data = await getDataForPromptWithSelection(editor, {
+      selectedBlocks: opts.selectedBlocks,
+    });
+    return promptManipulateSelectionHTMLBlocks({
+      ...data,
+      userPrompt: opts.userPrompt,
+    });
+  } else {
+    const data = await getDataForPromptNoSelection(editor, opts);
+    return promptManipulateDocumentUseHTMLBlocks({
+      ...data,
+      userPrompt: opts.userPrompt,
+    });
+  }
+};
