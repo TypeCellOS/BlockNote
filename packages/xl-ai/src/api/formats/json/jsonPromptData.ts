@@ -33,10 +33,12 @@ export async function getDataForPromptNoSelection(
 
 export async function getDataForPromptWithSelection(
   editor: BlockNoteEditor<any, any, any>,
-  selectedBlocks: Block<any, any, any>[],
+  opts: {
+    selectedBlocks: Block<any, any, any>[];
+  },
 ) {
   const blockArray = await convertBlocks(
-    flattenBlocks(selectedBlocks),
+    flattenBlocks(opts.selectedBlocks),
     async (block) => {
       return block;
     },

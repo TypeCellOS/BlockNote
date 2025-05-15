@@ -1,51 +1,12 @@
-import { Block, BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor } from "@blocknote/core";
 import { StreamTool } from "../../../streamTool/streamTool.js";
-import type { PromptOrMessages } from "../../index.js";
 import { callLLMBase } from "../callLLMBase.js";
+import { defaultJSONPromptBuilder } from "./defaultJSONPromptBuilder.js";
 import {
   getDataForPromptNoSelection,
   getDataForPromptWithSelection,
 } from "./jsonPromptData.js";
-import {
-  promptManipulateDocumentUseJSONBlocks,
-  promptManipulateSelectionJSONBlocks,
-} from "./jsonSchemaPrompts.js";
 import { tools } from "./tools/index.js";
-
-async function getMessages(
-  editor: BlockNoteEditor<any, any, any>,
-  opts: {
-    selectedBlocks?: Block<any, any, any>[];
-    excludeBlockIds?: string[];
-  } & PromptOrMessages,
-) {
-  // TODO: document how to customize prompt
-  if ("messages" in opts && opts.messages) {
-    return opts.messages;
-  } else if (opts.selectedBlocks) {
-    if (opts.excludeBlockIds) {
-      throw new Error(
-        "expected excludeBlockIds to be false when selectedBlocks is provided",
-      );
-    }
-    return promptManipulateSelectionJSONBlocks({
-      ...(await getDataForPromptWithSelection(editor, opts.selectedBlocks)),
-      userPrompt: opts.userPrompt,
-    });
-  } else {
-    if (opts.useSelection) {
-      throw new Error(
-        "expected useSelection to be false when selectedBlocks is not provided",
-      );
-    }
-    return promptManipulateDocumentUseJSONBlocks({
-      ...(await getDataForPromptNoSelection(editor, {
-        excludeBlockIds: opts.excludeBlockIds,
-      })),
-      userPrompt: opts.userPrompt,
-    });
-  }
-}
 
 function getStreamTools(
   editor: BlockNoteEditor<any, any, any>,
@@ -91,4 +52,26 @@ function getStreamTools(
   return streamTools;
 }
 
-export const callLLMJSON = callLLMBase(getMessages, getStreamTools);
+export const callLLMJSON = callLLMBase(
+  defaultJSONPromptBuilder,
+  getStreamTools,
+);
+
+export const jsonLLMFormat = {
+  /**
+   * Execute an LLM call using JSON blocks as format to be passed to the LLM
+   */
+  call: callLLMJSON,
+  /**
+   * The default PromptBuilder that determines how a userPrompt is converted to an array of
+   * LLM Messages (CoreMessage[])
+   */
+  defaultPromptBuilder: defaultJSONPromptBuilder,
+  /**
+   * Helper functions which can be used when implementing a custom PromptBuilder
+   */
+  promptHelpers: {
+    getDataForPromptNoSelection,
+    getDataForPromptWithSelection,
+  },
+};

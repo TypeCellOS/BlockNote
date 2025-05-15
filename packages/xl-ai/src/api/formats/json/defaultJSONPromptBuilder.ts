@@ -1,26 +1,25 @@
 import { CoreMessage } from "ai";
+import { PromptBuilder } from "../PromptBuilder.js";
+import {
+  getDataForPromptNoSelection,
+  getDataForPromptWithSelection,
+} from "./jsonPromptData.js";
 
-export function promptManipulateSelectionHTMLBlocks(opts: {
+function promptManipulateSelectionJSONBlocks(opts: {
   userPrompt: string;
-  htmlSelectedBlocks: {
-    id: string;
-    block: string;
-  }[];
-  htmlDocument: {
-    block: string;
-  }[];
+  jsonSelectedBlocks: any[];
+  jsonDocument: any[];
 }): Array<CoreMessage> {
   return [
     {
       role: "system",
-      content: `You're manipulating a selected part of a text document using HTML blocks. 
+      content: `You're manipulating a selected part of a text document using JSON blocks. 
       Make sure to follow the json schema provided and always include the trailing $ in ids. 
-      List items are 1 block with 1 list item each, so block content \`<ul><li>item1</li></ul>\` is valid, but \`<ul><li>item1</li><li>item2</li></ul>\` is invalid. We'll merge them automatically.
-      This is the selection as an array of html blocks:`,
+      This is the selection as an array of JSON blocks:`,
     },
     {
       role: "system",
-      content: JSON.stringify(opts.htmlSelectedBlocks),
+      content: JSON.stringify(opts.jsonSelectedBlocks),
     },
 
     {
@@ -30,7 +29,7 @@ export function promptManipulateSelectionHTMLBlocks(opts: {
     },
     {
       role: "system",
-      content: JSON.stringify(opts.htmlDocument),
+      content: JSON.stringify(opts.jsonDocument),
     },
     {
       role: "system",
@@ -43,13 +42,10 @@ export function promptManipulateSelectionHTMLBlocks(opts: {
   ];
 }
 
-export function promptManipulateDocumentUseHTMLBlocks(opts: {
+function promptManipulateDocumentUseJSONBlocks(opts: {
   userPrompt: string;
-  htmlBlocks: Array<
-    | {
-        id: string;
-        block: string;
-      }
+  jsonBlocks: Array<
+    | any
     | {
         cursor: true;
       }
@@ -58,15 +54,13 @@ export function promptManipulateDocumentUseHTMLBlocks(opts: {
   return [
     {
       role: "system",
-      content: `You're manipulating a text document using HTML blocks. 
+      content: `You're manipulating a text document using JSON blocks. 
         Make sure to follow the json schema provided. When referencing ids they MUST be EXACTLY the same (including the trailing $). 
-        List items are 1 block with 1 list item each, so block content \`<ul><li>item1</li></ul>\` is valid, but \`<ul><li>item1</li><li>item2</li></ul>\` is invalid. We'll merge them automatically.
-        For code blocks, you can use the \`data-language\` attribute on a code block to specify the language.
-        This is the document as an array of html blocks (the cursor is BETWEEN two blocks as indicated by cursor: true):`,
+        This is the document as an array of JSON blocks (the cursor is BETWEEN two blocks as indicated by cursor: true):`,
     },
     {
       role: "system",
-      content: JSON.stringify(opts.htmlBlocks),
+      content: JSON.stringify(opts.jsonBlocks),
     },
     {
       role: "system",
@@ -82,7 +76,25 @@ export function promptManipulateDocumentUseHTMLBlocks(opts: {
        EXAMPLE: if user says "below" (without pointing to a specific part of the document) he / she probably indicates the block(s) after the cursor. 
        EXAMPLE: If you want to insert content AT the cursor position (UNLESS indicated otherwise by the user), then you need \`referenceId\` to point to the block before the cursor with position \`after\` (or block below and \`before\`).
       
-      Prefer updating existing blocks over removing and adding (but this also depends on the user's question).`,
+      Prefer updating blocks over adding or removing (but this also depends on the user's question).`,
     },
   ];
 }
+
+export const defaultJSONPromptBuilder: PromptBuilder = async (editor, opts) => {
+  if (opts.selectedBlocks) {
+    const data = await getDataForPromptWithSelection(editor, {
+      selectedBlocks: opts.selectedBlocks,
+    });
+    return promptManipulateSelectionJSONBlocks({
+      ...data,
+      userPrompt: opts.userPrompt,
+    });
+  } else {
+    const data = await getDataForPromptNoSelection(editor, opts);
+    return promptManipulateDocumentUseJSONBlocks({
+      ...data,
+      userPrompt: opts.userPrompt,
+    });
+  }
+};
