@@ -92,10 +92,7 @@ export function promptManipulateDocumentUseHTMLBlocks(opts: {
   ];
 }
 
-export const defaultHTMLMessagesBuilder: PromptBuilder = async (
-  editor,
-  opts,
-) => {
+export const defaultHTMLPromptBuilder: PromptBuilder = async (editor, opts) => {
   if (opts.selectedBlocks) {
     const data = await getDataForPromptWithSelection(editor, {
       selectedBlocks: opts.selectedBlocks,

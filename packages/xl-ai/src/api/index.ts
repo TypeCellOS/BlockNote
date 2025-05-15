@@ -1,5 +1,5 @@
 import { callLLMHTMLBlocks } from "./formats/html-blocks/htmlBlocks.js";
-import { defaultHTMLMessagesBuilder as defaultHTMLPromptBuilder } from "./formats/html-blocks/htmlBlocksPrompt.js";
+import { defaultHTMLPromptBuilder } from "./formats/html-blocks/htmlBlocksPrompt.js";
 import {
   getDataForPromptNoSelection,
   getDataForPromptWithSelection,

@@ -2,7 +2,7 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { StreamTool } from "../../../streamTool/streamTool.js";
 import { callLLMBase } from "../callLLMBase.js";
 
-import { defaultHTMLMessagesBuilder } from "./htmlBlocksPrompt.js";
+import { defaultHTMLPromptBuilder } from "./htmlBlocksPrompt.js";
 import { tools } from "./tools/index.js";
 
 function getStreamTools(
@@ -52,6 +52,6 @@ function getStreamTools(
 }
 
 export const callLLMHTMLBlocks = callLLMBase(
-  defaultHTMLMessagesBuilder,
+  defaultHTMLPromptBuilder,
   getStreamTools,
 );
