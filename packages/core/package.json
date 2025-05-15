@@ -44,11 +44,13 @@
     },
     "./style.css": {
       "import": "./dist/style.css",
-      "require": "./dist/style.css"
+      "require": "./dist/style.css",
+      "style": "./dist/style.css"
     },
     "./fonts/inter.css": {
       "import": "./src/fonts/inter.css",
-      "require": "./src/fonts/inter.css"
+      "require": "./src/fonts/inter.css",
+      "style": "./src/fonts/inter.css"
     },
     "./comments": {
       "types": "./types/src/comments/index.d.ts",
