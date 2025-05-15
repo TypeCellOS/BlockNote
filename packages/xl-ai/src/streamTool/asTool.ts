@@ -10,8 +10,8 @@ export function streamToolAsTool<T extends StreamTool<any>>(streamTool: T) {
     parameters: jsonSchema(streamTool.parameters, {
       validate: (value) => {
         const result = streamTool.validate(value);
-        if (result.result === "invalid") {
-          return { success: false, error: new Error(result.reason) };
+        if (!result.ok) {
+          return { success: false, error: new Error(result.error) };
         }
         return { success: true, value: result.value };
       },
@@ -30,8 +30,8 @@ export function streamToolsAsTool<T extends StreamTool<any>[]>(streamTools: T) {
     parameters: jsonSchema(schema, {
       validate: (value) => {
         const stream = operationsToStream(value);
-        if (stream.result === "invalid") {
-          return { success: false, error: new Error(stream.reason) };
+        if (!stream.ok) {
+          return { success: false, error: new Error(stream.error) };
         }
         return { success: true, value: stream.value };
       },

@@ -59,7 +59,7 @@ export async function* preprocessOperationsNonStreaming<
   const validOperationsStream = filterValidOperations(
     validatedOperationsStream,
     (operation) => {
-      throw new Error("invalid operation: " + operation.reason);
+      throw new Error("invalid operation: " + operation.error);
     },
   );
 

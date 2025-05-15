@@ -1,4 +1,4 @@
-import { InvalidOrOk } from "./streamTool.js";
+import { Result } from "./streamTool.js";
 
 /**
  * Yields only valid operations from the stream.
@@ -7,13 +7,13 @@ import { InvalidOrOk } from "./streamTool.js";
  */
 export async function* filterValidOperations<T>(
   operationsStream: AsyncIterable<{
-    operation: InvalidOrOk<T>;
+    operation: Result<T>;
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
   }>,
   onInvalidOperation?: (
-    operation: InvalidOrOk<T> & {
-      result: "invalid";
+    operation: Result<T> & {
+      ok: false;
     },
   ) => void,
 ): AsyncGenerator<{
@@ -23,7 +23,7 @@ export async function* filterValidOperations<T>(
 }> {
   let forceNewOperation = false;
   for await (const chunk of operationsStream) {
-    if (chunk.operation.result === "ok") {
+    if (chunk.operation.ok) {
       yield {
         operation: chunk.operation.value,
         isUpdateToPreviousOperation: forceNewOperation

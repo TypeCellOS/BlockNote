@@ -1,14 +1,14 @@
 import { DeepPartial } from "ai";
-import { InvalidOrOk } from "../../../../streamTool/streamTool.js";
+import { Result } from "../../../../streamTool/streamTool.js";
 
 export function validateBlockArray<U>(
   inputArray: DeepPartial<Array<U>>,
-  validateItem: (item: DeepPartial<U>) => InvalidOrOk<U>,
-): InvalidOrOk<U[]> {
+  validateItem: (item: DeepPartial<U>) => Result<U>,
+): Result<U[]> {
   if (!inputArray || !Array.isArray(inputArray) || inputArray.length === 0) {
     return {
-      result: "invalid",
-      reason: "blocks is required",
+      ok: false,
+      error: "blocks is required",
     };
   }
 
@@ -16,17 +16,17 @@ export function validateBlockArray<U>(
 
   for (const item of inputArray) {
     const validationResult = validateItem(item as DeepPartial<U>);
-    if (validationResult.result === "invalid") {
+    if (!validationResult.ok) {
       return {
-        result: "invalid",
-        reason: `Invalid block: ${validationResult.reason}`,
+        ok: false,
+        error: `Invalid block: ${validationResult.error}`,
       };
     }
     validatedBlocks.push(validationResult.value);
   }
 
   return {
-    result: "ok",
+    ok: true,
     value: validatedBlocks,
   };
 }

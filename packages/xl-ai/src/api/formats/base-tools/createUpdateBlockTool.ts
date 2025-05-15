@@ -8,7 +8,7 @@ import {
 import { updateToReplaceSteps } from "../../../prosemirror/changeset.js";
 import { RebaseTool } from "../../../prosemirror/rebaseTool.js";
 import {
-  InvalidOrOk,
+  Result,
   StreamTool,
   streamTool,
   StreamToolCall,
@@ -47,7 +47,7 @@ export function createUpdateBlockTool<T>(config: {
     block: any,
     editor: BlockNoteEditor<any, any, any>,
     fallbackType?: string,
-  ) => InvalidOrOk<T>;
+  ) => Result<T>;
   /**
    * The rebaseTool is used to get a projection of the document that
    * the JSON Tool Calls will be applied to. By using the rebaseTool we can
@@ -112,15 +112,15 @@ export function createUpdateBlockTool<T>(config: {
       validate: (operation) => {
         if (operation.type !== "update") {
           return {
-            result: "invalid",
-            reason: "invalid operation type",
+            ok: false,
+            error: "invalid operation type",
           };
         }
 
         if (!operation.id) {
           return {
-            result: "invalid",
-            reason: "id is required",
+            ok: false,
+            error: "id is required",
           };
         }
 
@@ -128,8 +128,8 @@ export function createUpdateBlockTool<T>(config: {
         if (options.idsSuffixed) {
           if (!id?.endsWith("$")) {
             return {
-              result: "invalid",
-              reason: "id must end with $",
+              ok: false,
+              error: "id must end with $",
             };
           }
 
@@ -138,8 +138,8 @@ export function createUpdateBlockTool<T>(config: {
 
         if (!operation.block) {
           return {
-            result: "invalid",
-            reason: "block is required",
+            ok: false,
+            error: "block is required",
           };
         }
 
@@ -149,19 +149,19 @@ export function createUpdateBlockTool<T>(config: {
           // eslint-disable-next-line no-console
           console.error("BLOCK NOT FOUND", id);
           return {
-            result: "invalid",
-            reason: "block not found",
+            ok: false,
+            error: "block not found",
           };
         }
 
         const ret = config.validateBlock(operation.block, editor, block.type);
 
-        if (ret.result === "invalid") {
+        if (!ret.ok) {
           return ret;
         }
 
         return {
-          result: "ok",
+          ok: true,
           value: {
             type: operation.type,
             id,

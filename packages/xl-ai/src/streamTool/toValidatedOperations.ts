@@ -1,4 +1,4 @@
-import { InvalidOrOk, StreamTool, StreamToolCall } from "./streamTool.js";
+import { Result, StreamTool, StreamToolCall } from "./streamTool.js";
 
 /**
  * Transforms the partialObjectStream into a stream of operations (tool calls), or indicates that the operation is invalid.
@@ -15,7 +15,7 @@ export async function* toValidatedOperations<T extends StreamTool<any>[]>(
   }>,
   streamTools: T,
 ): AsyncGenerator<{
-  operation: InvalidOrOk<StreamToolCall<T>>;
+  operation: Result<StreamToolCall<T>>;
   isUpdateToPreviousOperation: boolean;
   isPossiblyPartial: boolean;
 }> {
@@ -29,8 +29,8 @@ export async function* toValidatedOperations<T extends StreamTool<any>[]>(
       // console.error("no matching function", chunk.partialOperation);
       yield {
         operation: {
-          result: "invalid",
-          reason: `No matching function for ${chunk.partialOperation.type}`,
+          ok: false,
+          error: `No matching function for ${chunk.partialOperation.type}`,
         },
         isUpdateToPreviousOperation: chunk.isUpdateToPreviousOperation,
         isPossiblyPartial: chunk.isPossiblyPartial,

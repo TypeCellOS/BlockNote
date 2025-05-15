@@ -33,15 +33,15 @@ export const deleteBlockTool = (
     validate: (operation) => {
       if (operation.type !== "delete") {
         return {
-          result: "invalid",
-          reason: "invalid operation type",
+          ok: false,
+          error: "invalid operation type",
         };
       }
 
       if (!operation.id) {
         return {
-          result: "invalid",
-          reason: "id is required",
+          ok: false,
+          error: "id is required",
         };
       }
 
@@ -49,8 +49,8 @@ export const deleteBlockTool = (
       if (options.idsSuffixed) {
         if (!id?.endsWith("$")) {
           return {
-            result: "invalid",
-            reason: "id must end with $",
+            ok: false,
+            error: "id must end with $",
           };
         }
 
@@ -61,13 +61,13 @@ export const deleteBlockTool = (
 
       if (!block) {
         return {
-          result: "invalid",
-          reason: "block not found",
+          ok: false,
+          error: "block not found",
         };
       }
 
       return {
-        result: "ok",
+        ok: true,
         value: {
           type: "delete", // TODO
           id,

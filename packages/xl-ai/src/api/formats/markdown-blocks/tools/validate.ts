@@ -1,15 +1,15 @@
-import { InvalidOrOk } from "../../../../streamTool/streamTool.js";
+import { Result } from "../../../../streamTool/streamTool.js";
 
-export function validateBlockFunction(block: any): InvalidOrOk<string> {
+export function validateBlockFunction(block: any): Result<string> {
   if (typeof block !== "string") {
     return {
-      result: "invalid",
-      reason: "block must be a string",
+      ok: false,
+      error: "block must be a string",
     };
   }
 
   return {
-    result: "ok",
+    ok: true,
     value: block,
   };
 }

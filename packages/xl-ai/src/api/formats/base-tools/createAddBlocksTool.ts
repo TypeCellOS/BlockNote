@@ -8,7 +8,7 @@ import {
 } from "../../../prosemirror/agent.js";
 import { updateToReplaceSteps } from "../../../prosemirror/changeset.js";
 import { RebaseTool } from "../../../prosemirror/rebaseTool.js";
-import { InvalidOrOk, streamTool } from "../../../streamTool/streamTool.js";
+import { Result, streamTool } from "../../../streamTool/streamTool.js";
 import { isEmptyParagraph } from "../../../util/emptyBlock.js";
 import { validateBlockArray } from "./util/validateBlockArray.js";
 
@@ -38,7 +38,7 @@ export function createAddBlocksTool<T>(config: {
   validateBlock: (
     block: any,
     editor: BlockNoteEditor<any, any, any>,
-  ) => InvalidOrOk<T>;
+  ) => Result<T>;
   /**
    * The rebaseTool is used to get a projection of the document that
    * the JSON Tool Calls will be applied to. By using the rebaseTool we can
@@ -108,22 +108,22 @@ export function createAddBlocksTool<T>(config: {
       validate: (operation) => {
         if (operation.type !== "add") {
           return {
-            result: "invalid",
-            reason: "invalid operation type",
+            ok: false,
+            error: "invalid operation type",
           };
         }
 
         if (operation.position !== "before" && operation.position !== "after") {
           return {
-            result: "invalid",
-            reason: "invalid position",
+            ok: false,
+            error: "invalid position",
           };
         }
 
         if (!operation.referenceId || !operation.blocks) {
           return {
-            result: "invalid",
-            reason: "referenceId and blocks are required",
+            ok: false,
+            error: "referenceId and blocks are required",
           };
         }
 
@@ -131,8 +131,8 @@ export function createAddBlocksTool<T>(config: {
         if (options.idsSuffixed) {
           if (!referenceId?.endsWith("$")) {
             return {
-              result: "invalid",
-              reason: "referenceId must end with $",
+              ok: false,
+              error: "referenceId must end with $",
             };
           }
 
@@ -143,8 +143,8 @@ export function createAddBlocksTool<T>(config: {
 
         if (!block) {
           return {
-            result: "invalid",
-            reason: "referenceId not found",
+            ok: false,
+            error: "referenceId not found",
           };
         }
 
@@ -153,12 +153,12 @@ export function createAddBlocksTool<T>(config: {
           (block) => config.validateBlock(block, editor),
         );
 
-        if (validatedBlocksResult.result === "invalid") {
+        if (!validatedBlocksResult.ok) {
           return validatedBlocksResult;
         }
 
         return {
-          result: "ok",
+          ok: true,
           value: {
             type: operation.type,
             referenceId,

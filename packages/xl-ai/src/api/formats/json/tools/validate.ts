@@ -4,7 +4,7 @@ import {
   isLinkInlineContent,
   isStyledTextInlineContent,
 } from "@blocknote/core";
-import { InvalidOrOk } from "../../../../streamTool/streamTool.js";
+import { Result } from "../../../../streamTool/streamTool.js";
 
 function validateInlineContent(content: any, editor: any): boolean {
   const inlineContentConfig =
@@ -38,15 +38,15 @@ export function validateBlockFunction(
   block: any,
   editor: BlockNoteEditor<any, any, any>,
   fallbackType?: string,
-): InvalidOrOk<PartialBlock<any, any, any>> {
+): Result<PartialBlock<any, any, any>> {
   const type = block.type || fallbackType;
   const blockConfig =
     editor.schema.blockSchema[type as keyof typeof editor.schema.blockSchema];
 
   if (!blockConfig) {
     return {
-      result: "invalid",
-      reason: "block type not found in editor",
+      ok: false,
+      error: "block type not found in editor",
     };
   }
 
@@ -59,15 +59,15 @@ export function validateBlockFunction(
     if (block.content) {
       // no content expected for this block
       return {
-        result: "invalid",
-        reason: "block content not expected for this block type",
+        ok: false,
+        error: "block content not expected for this block type",
       };
     }
   } else {
     if (!block.content) {
       // return false;
       return {
-        result: "ok",
+        ok: true,
         value: block,
       };
     }
@@ -75,15 +75,15 @@ export function validateBlockFunction(
     if (!Array.isArray(block.content)) {
       // content expected for this block
       return {
-        result: "invalid",
-        reason: "block content must be an array",
+        ok: false,
+        error: "block content must be an array",
       };
     }
 
     if (blockConfig.content === "table") {
       // no validation for table content (TODO)
       return {
-        result: "ok",
+        ok: true,
         value: block,
       };
     }
@@ -94,14 +94,14 @@ export function validateBlockFunction(
       })
     ) {
       return {
-        result: "invalid",
-        reason: "block content must be an array of inline content",
+        ok: false,
+        error: "block content must be an array of inline content",
       };
     }
   }
   // TODO: validate props
   return {
-    result: "ok",
+    ok: true,
     value: block,
   };
 }

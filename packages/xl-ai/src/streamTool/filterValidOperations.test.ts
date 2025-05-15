@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { AddBlocksToolCall } from "../api/formats/base-tools/createAddBlocksTool.js";
 import { UpdateBlockToolCall } from "../api/formats/base-tools/createUpdateBlockTool.js";
 import { filterValidOperations } from "./filterValidOperations.js";
-import { InvalidOrOk } from "./streamTool.js";
+import { Result } from "./streamTool.js";
 
 // REC: better to make unit tests independent of BlockNote code (tools)
 describe("filterValidOperations", () => {
@@ -11,36 +11,36 @@ describe("filterValidOperations", () => {
     async function* mockStream() {
       yield {
         operation: {
-          result: "ok",
+          ok: true,
           value: {
             type: "add",
             blocks: [],
             referenceId: "123",
             position: "after",
           } as AddBlocksToolCall<any>,
-        } as InvalidOrOk<AddBlocksToolCall<any> | UpdateBlockToolCall<any>>,
+        } as Result<AddBlocksToolCall<any> | UpdateBlockToolCall<any>>,
         isUpdateToPreviousOperation: false,
         isPossiblyPartial: false,
       };
 
       yield {
         operation: {
-          result: "invalid",
-          reason: "Invalid operation",
-        } as InvalidOrOk<AddBlocksToolCall<any> | UpdateBlockToolCall<any>>,
+          ok: false,
+          error: "Invalid operation",
+        } as Result<AddBlocksToolCall<any> | UpdateBlockToolCall<any>>,
         isUpdateToPreviousOperation: false,
         isPossiblyPartial: false,
       };
 
       yield {
         operation: {
-          result: "ok",
+          ok: true,
           value: {
             type: "update",
             id: "456",
             block: { content: "updated" },
           } as UpdateBlockToolCall<any>,
-        } as InvalidOrOk<AddBlocksToolCall<any> | UpdateBlockToolCall<any>>,
+        } as Result<AddBlocksToolCall<any> | UpdateBlockToolCall<any>>,
         isUpdateToPreviousOperation: true,
         isPossiblyPartial: true,
       };
@@ -76,18 +76,18 @@ describe("filterValidOperations", () => {
     async function* mockStream() {
       yield {
         operation: {
-          result: "invalid",
-          reason: "Invalid operation 1",
-        } as InvalidOrOk<AddBlocksToolCall<any> | UpdateBlockToolCall<any>>,
+          ok: false,
+          error: "Invalid operation 1",
+        } as Result<AddBlocksToolCall<any> | UpdateBlockToolCall<any>>,
         isUpdateToPreviousOperation: false,
         isPossiblyPartial: false,
       };
 
       yield {
         operation: {
-          result: "invalid",
-          reason: "Invalid operation 2",
-        } as InvalidOrOk<AddBlocksToolCall<any> | UpdateBlockToolCall<any>>,
+          ok: false,
+          error: "Invalid operation 2",
+        } as Result<AddBlocksToolCall<any> | UpdateBlockToolCall<any>>,
         isUpdateToPreviousOperation: true,
         isPossiblyPartial: false,
       };

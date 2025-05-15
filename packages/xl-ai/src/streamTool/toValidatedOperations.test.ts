@@ -91,8 +91,8 @@ describe("toValidatedOperations", () => {
 
     // Should yield the transformed operation
     expect(result.length).toBe(3);
-    expect(result[0].operation.result).toBe("ok");
-    expect(result[1].operation.result).toBe("invalid");
-    expect(result[2].operation.result).toBe("invalid");
+    expect(result[0].operation.ok).toBe(true);
+    expect(result[1].operation.ok).toBe(false);
+    expect(result[2].operation.ok).toBe(false);
   });
 });

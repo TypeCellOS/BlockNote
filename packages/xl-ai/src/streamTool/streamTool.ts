@@ -1,12 +1,12 @@
 import { DeepPartial } from "ai";
 import type { JSONSchema7 } from "json-schema";
 
-export type InvalidOrOk<T> =
+export type Result<T> =
   | {
-      result: "invalid";
-      reason: string;
+      ok: false;
+      error: string;
     }
-  | { result: "ok"; value: T };
+  | { ok: true; value: T };
 
 /**
  * A StreamTool is a function that can be called by the LLM.
@@ -37,7 +37,7 @@ export type StreamTool<T extends { type: string }> = {
    */
   validate: (
     operation: DeepPartial<T>, // TODO: maybe `unknown` is better?
-  ) => InvalidOrOk<T>;
+  ) => Result<T>;
 
   /**
    * Executes tool calls.
