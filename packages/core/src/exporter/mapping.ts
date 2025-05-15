@@ -26,7 +26,9 @@ export type BlockMapping<
     // this is why there are many `any` types here (same for types below)
     exporter: Exporter<any, any, any, RB, RI, any, any>,
     nestingLevel: number,
-    numberedListIndex?: number
+    numberedListIndex?: number,
+    numberedListStart?: number,
+    numberedListIntance?: number
   ) => RB | Promise<RB>;
 };
 

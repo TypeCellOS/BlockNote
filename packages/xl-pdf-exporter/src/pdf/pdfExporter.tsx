@@ -133,6 +133,9 @@ export class PDFExporter<
     for (const b of blocks) {
       if (b.type === "numberedListItem") {
         numberedListIndex++;
+        if (b.props.start !== undefined) {
+          numberedListIndex = b.props.start as number;
+        }
       } else {
         numberedListIndex = 0;
       }
