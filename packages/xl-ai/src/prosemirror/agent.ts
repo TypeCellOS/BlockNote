@@ -1,12 +1,13 @@
 import { UnreachableCaseError } from "@blocknote/core";
-import { Fragment, Node, Schema, Slice } from "prosemirror-model";
-import { AllSelection, TextSelection, Transaction } from "prosemirror-state";
+import { Node, Schema, Slice } from "prosemirror-model";
+import { TextSelection, Transaction } from "prosemirror-state";
 import {
   ReplaceAroundStep,
   ReplaceStep,
   Step,
   Transform,
 } from "prosemirror-transform";
+import { getFirstChar } from "./fragmentUtil.js";
 
 export type AgentStep = {
   prosemirrorSteps: Step[];
@@ -235,39 +236,14 @@ export function getStepsAsAgent(doc: Node, pmSchema: Schema, steps: Step[]) {
   return agentSteps;
 }
 
-/**
- * helper method to get the index of the first character of a fragment
- */
-function getFirstChar(fragment: Fragment) {
-  let index = 0;
-  for (const content of fragment.content) {
-    if (content.isText) {
-      return index;
-    }
-    const sel = TextSelection.atStart(content);
-    if (sel instanceof AllSelection) {
-      // no text position found
-      index += content.nodeSize;
-      continue;
-    }
-    index += sel.head;
-    if (!content.isLeaf) {
-      // for regular nodes, add 1 position for the node opening
-      // (annoyingly TextSelection.atStart doesn't account for this)
-      index += 1;
-    }
-    return index;
-  }
-  return undefined;
-}
-
 export async function delayAgentStep(step: AgentStep) {
+  const jitter = Math.random() * 0.3 + 0.85; // Random between 0.85 and 1.15
   if (step.type === "select") {
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100 * jitter));
   } else if (step.type === "insert") {
-    await new Promise((resolve) => setTimeout(resolve, 10));
+    await new Promise((resolve) => setTimeout(resolve, 10 * jitter));
   } else if (step.type === "replace") {
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    await new Promise((resolve) => setTimeout(resolve, 200 * jitter));
   } else {
     throw new UnreachableCaseError(step.type);
   }

@@ -162,7 +162,6 @@ const createEncoder = (doc: Node, updatedDoc: Node) => {
         if (tableCells.has(str)) {
           return str;
         }
-        // return Math.random();
         return -1;
       }
       return -1;
