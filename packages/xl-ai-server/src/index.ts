@@ -19,11 +19,13 @@ const ignoreHeadersRe = /^content-(?:encoding|length|range)$/i;
 export const proxyFetch: typeof fetch = async (request, options) => {
   const req = new Request(request, options);
   req.headers.delete("accept-encoding"); // TBD: there may be cases where you want to explicitly specify
+  req.headers.delete("Origin");
   const res = await fetch(req);
 
   const headers: HeadersInit = [...res.headers.entries()].filter(
     ([k]) => !ignoreHeadersRe.test(k) && k !== "strict-transport-security",
   );
+
   return new Response(res.body, {
     ...res,
     status: res.status,
@@ -40,6 +42,7 @@ function getProviderInfo(provider: string) {
   }
   return {
     key,
+    header: provider === "anthropic" ? "x-api-key" : "Authorization",
   };
 }
 
@@ -81,7 +84,13 @@ app.use("/ai", cors(), async (c) => {
   // eslint-disable-next-line no-console
   console.log("Proxying request to", url);
   const request = new Request(url, c.req.raw);
-  request.headers.set("Authorization", `Bearer ${providerInfo.key}`);
+  if (providerInfo.header === "Authorization") {
+    request.headers.set("Authorization", `Bearer ${providerInfo.key}`);
+  } else {
+    request.headers.set(providerInfo.header, `${providerInfo.key}`);
+  }
+
+  request.headers.set("x-api-key", `${providerInfo.key}`);
   return proxyFetch(request);
 });
 

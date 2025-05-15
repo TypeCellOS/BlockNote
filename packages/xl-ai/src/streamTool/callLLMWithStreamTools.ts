@@ -75,9 +75,7 @@ export async function generateOperations<T extends StreamTool<any>[]>(
 
   if (
     _generateObjectOptions &&
-    ("output" in _generateObjectOptions ||
-      "schema" in _generateObjectOptions ||
-      "mode" in _generateObjectOptions)
+    ("output" in _generateObjectOptions || "schema" in _generateObjectOptions)
   ) {
     throw new Error(
       "Cannot provide output or schema in _generateObjectOptions",
@@ -85,16 +83,19 @@ export async function generateOperations<T extends StreamTool<any>[]>(
   }
 
   const schema = jsonSchema(createStreamToolsArraySchema(streamTools));
-
   const options = {
     // non-overridable options for streamObject
-    mode: "tool" as const,
     output: "object" as const,
     schema,
 
     // configurable options for streamObject
 
     // - optional, with defaults
+
+    // mistral somehow needs "auto", while groq/llama needs "tool"
+    // TODO: further research this and / or make configurable
+    // for now stick to "tool" by default as this has been tested mostly
+    mode: rest.model.provider === "mistral.chat" ? "auto" : "tool",
     maxRetries: 2,
     //  - mandatory ones:
     ...rest,
@@ -185,9 +186,7 @@ export async function streamOperations<T extends StreamTool<any>[]>(
 
   if (
     _streamObjectOptions &&
-    ("output" in _streamObjectOptions ||
-      "schema" in _streamObjectOptions ||
-      "mode" in _streamObjectOptions)
+    ("output" in _streamObjectOptions || "schema" in _streamObjectOptions)
   ) {
     throw new Error("Cannot provide output or schema in _streamObjectOptions");
   }
@@ -196,13 +195,15 @@ export async function streamOperations<T extends StreamTool<any>[]>(
 
   const options = {
     // non-overridable options for streamObject
-    mode: "tool" as const,
     output: "object" as const,
     schema,
-
     // configurable options for streamObject
 
     // - optional, with defaults
+    // mistral somehow needs "auto", while groq/llama needs "tool"
+    // TODO: further research this and / or make configurable
+    // for now stick to "tool" by default as this has been tested mostly
+    mode: rest.model.provider === "mistral.chat" ? "auto" : "tool",
     maxRetries: 2,
     //  - mandatory ones:
     ...rest,

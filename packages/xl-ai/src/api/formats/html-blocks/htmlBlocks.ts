@@ -19,7 +19,6 @@ async function getMessages(
     excludeBlockIds?: string[];
   } & PromptOrMessages,
 ) {
-  // TODO: child blocks
   // TODO: document how to customize prompt
   if ("messages" in opts && opts.messages) {
     return opts.messages;

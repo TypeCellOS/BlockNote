@@ -73,6 +73,7 @@ export class AIExtension extends BlockNoteExtension {
    * - setters are not added in this store, but as class methods so we can have control over what to expose as API
    * - con: if we'd expose the store externally, consumers could still call store.setState :/ (for this store it's not desired, for `options` below, it is)
    *
+   * TODO: make private?
    */
   public readonly store = createStore<AIPluginState>()((_set) => ({
     aiMenuState: "closed",

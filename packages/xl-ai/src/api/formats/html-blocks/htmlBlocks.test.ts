@@ -6,7 +6,6 @@ import { afterAll, afterEach, beforeAll, describe } from "vitest";
 import { testAIModels } from "../../../testUtil/testAIModels.js";
 import { generateSharedTestCases } from "../tests/sharedTestCases.js";
 import { callLLMHTMLBlocks } from "./htmlBlocks.js";
-
 const BASE_FILE_PATH = path.resolve(
   __dirname,
   "__snapshots__",

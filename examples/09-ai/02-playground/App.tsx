@@ -1,7 +1,10 @@
 /// <reference types="./vite-env.d.ts" />
 
+import { createAnthropic } from "@ai-sdk/anthropic";
 import { createGroq } from "@ai-sdk/groq";
+import { createMistral } from "@ai-sdk/mistral";
 import { createOpenAI } from "@ai-sdk/openai";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { BlockNoteEditor, filterSuggestionItems } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { en } from "@blocknote/core/locales";
@@ -52,14 +55,22 @@ function getModel(aiModelString: string) {
       ...client.getProviderSettings("groq"),
     })(modelName);
   } else if (provider === "albert-etalab.chat") {
-    return createOpenAI({
-      // albert-etalab/neuralmagic/Meta-Llama-3.1-70B-Instruct-FP8
-      baseURL: "https://albert.api.staging.etalab.gouv.fr/v1",
+    return createOpenAICompatible({
+      name: "albert-etalab",
+      baseURL: "https://albert.api.etalab.gouv.fr/v1",
       ...client.getProviderSettings("albert-etalab"),
-      compatibility: "compatible",
     })(modelName);
+  } else if (provider === "mistral.chat") {
+    return createMistral({
+      ...client.getProviderSettings("mistral"),
+    })(modelName);
+  } else if (provider === "anthropic.chat") {
+    return createAnthropic({
+      ...client.getProviderSettings("anthropic"),
+    })(modelName);
+  } else {
+    throw new Error(`Unknown model: ${aiModelString}`);
   }
-  throw new Error(`Unknown model: ${aiModelString}`);
 }
 export default function App() {
   // Creates a new editor instance.
