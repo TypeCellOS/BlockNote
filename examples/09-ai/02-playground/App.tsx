@@ -29,7 +29,8 @@ import {
 } from "@blocknote/xl-ai";
 import "@blocknote/xl-ai/style.css";
 import { Fieldset, Switch } from "@mantine/core";
-import { useEffect, useState } from "react";
+import { LanguageModelV1 } from "ai";
+import { useEffect, useMemo, useState } from "react";
 import { useStore } from "zustand";
 import { BasicAutocomplete } from "./AutoComplete.js";
 import RadioGroupComponent from "./components/RadioGroupComponent.js";
@@ -43,6 +44,7 @@ const client = createBlockNoteAIClient({
     "https://localhost:3000/ai",
 });
 
+// return the AI SDK model based on the selected model string
 function getModel(aiModelString: string) {
   const [provider, ...modelNameParts] = aiModelString.split("/");
   const modelName = modelNameParts.join("/");
@@ -69,10 +71,19 @@ function getModel(aiModelString: string) {
       ...client.getProviderSettings("anthropic"),
     })(modelName);
   } else {
-    throw new Error(`Unknown model: ${aiModelString}`);
+    return "unknown-model" as const;
   }
 }
+
 export default function App() {
+  const [modelString, setModelString] = useState<string>(
+    "groq.chat/llama-3.3-70b-versatile",
+  );
+
+  const model = useMemo(() => {
+    return getModel(modelString);
+  }, [modelString]);
+
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
     dictionary: {
@@ -82,7 +93,7 @@ export default function App() {
     // Register the AI extension
     extensions: [
       createAIExtension({
-        model: getModel("openai.chat/gpt-4o"), // TODO
+        model: model as LanguageModelV1, // (type because initially it's valid)
       }),
     ],
     // We set some initial content for demo purposes
@@ -113,27 +124,15 @@ export default function App() {
   });
 
   const ai = getAIExtension(editor);
-  // TBD: we now derive this from the LLM extension options. desirable?
 
-  const [modelString, setModelString] = useState<string>(
-    () =>
-      ai.options.getState().model.provider +
-      "/" +
-      ai.options.getState().model.modelId,
-  );
   // TODO: fix typing in autocompletion box
-  // const model = useStore(ai.options, (state) => state.model);
-
-  // const modelString = model.provider + "/" + model.modelId;
 
   useEffect(() => {
-    const model = getModel(modelString);
-    if (!model) {
-      console.warn(`Unknown model: ${modelString}`);
-      return;
+    // update the default model in the extension
+    if (model !== "unknown-model") {
+      ai.options.setState({ model });
     }
-    ai.options.setState({ model });
-  }, [modelString, ai.options]);
+  }, [model, ai.options]);
 
   const dataFormat = useStore(ai.options, (state) => state.dataFormat);
   const stream = useStore(ai.options, (state) => state.stream);
@@ -141,21 +140,27 @@ export default function App() {
   return (
     <div>
       <Fieldset legend="Model settings" style={{ maxWidth: "500px" }}>
-        <BasicAutocomplete value={modelString} onChange={setModelString} />
+        <BasicAutocomplete
+          error={model === "unknown-model" ? "Unknown model" : undefined}
+          value={modelString}
+          onChange={setModelString}
+        />
         <RadioGroupComponent
           label="Data format"
           items={[
-            { name: "HTML", description: "HTML format", value: "html" },
-            { name: "JSON", description: "JSON format", value: "json" },
+            { name: "HTML", description: "HTML", value: "html" },
+            { name: "JSON", description: "JSON (experimental)", value: "json" },
             {
               name: "Markdown",
-              description: "Markdown format",
+              description: "Markdown (experimental)",
               value: "markdown",
             },
           ]}
           value={dataFormat}
           onChange={(value) =>
-            ai.options.setState({ dataFormat: value as "json" | "markdown" })
+            ai.options.setState({
+              dataFormat: value as "html" | "json" | "markdown",
+            })
           }
         />
 

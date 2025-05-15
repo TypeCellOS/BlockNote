@@ -11,11 +11,16 @@ import {
 import { LanguageModel } from "ai";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { fixTablesKey } from "prosemirror-tables";
-import { createStore } from "zustand/vanilla";
+import { createStore, StoreApi } from "zustand/vanilla";
 import { CallLLMResult } from "./api/formats/CallLLMResult.js";
-import { PromptOrMessages, llm } from "./api/index.js";
+import { llm, PromptOrMessages } from "./api/index.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
 import { LLMRequestOptions } from "./streamTool/callLLMWithStreamTools.js";
+
+type ReadonlyStoreApi<T> = Pick<
+  StoreApi<T>,
+  "getState" | "getInitialState" | "subscribe"
+>;
 
 type AIPluginState = {
   /**
@@ -39,10 +44,24 @@ type AIPluginState = {
     | "closed";
 };
 
-// parameters that are shared across all calls and can be configured on the context as "application wide" settings
+/**
+ * configuration options for LLM calls that are shared across all calls by default
+ */
 type GlobalLLMCallOptions = {
+  /**
+   * The default language model to use for LLM calls
+   */
   model: LanguageModel;
+  /**
+   * The default data format to use for LLM calls
+   * "html" is recommended, the other formats are experimental
+   * @default html
+   */
   dataFormat?: "html" | "json" | "markdown";
+  /**
+   * Whether to stream the LLM response
+   * @default true
+   */
   stream?: boolean;
 };
 
@@ -67,34 +86,36 @@ export class AIExtension extends BlockNoteExtension {
     return "ai";
   }
 
-  /**
-   * zustand design considerations
-   *
-   * - setters are not added in this store, but as class methods so we can have control over what to expose as API
-   * - con: if we'd expose the store externally, consumers could still call store.setState :/ (for this store it's not desired, for `options` below, it is)
-   *
-   * TODO: make private?
-   */
-  public readonly store = createStore<AIPluginState>()((_set) => ({
+  // internal store including setters
+  private readonly _store = createStore<AIPluginState>()((_set) => ({
     aiMenuState: "closed",
   }));
 
   /**
-   * zustand design considerations
-   *
-   * - I decided to create a separate store for the options as they feel quite different from "internal state"
-   *   above. They're not so much "state", but more "configuration". I still think it's useful to have in a Zustand
-   *   store (instead of a just a plain object), because consumers might want to display the settings in the UI.
-   *   Case can also be made to make this a plain and leave the responsibility of displaying settings to the consumer
-   *   (and not have a store for this at all). TO DISCUSS
+   * Returns a read-only zustand store with the state of the AI Extension
+   */
+  public get store() {
+    // externally, don't expose setters (if we want to do so, expose `set` methods seperately)
+    return this._store as ReadonlyStoreApi<AIPluginState>;
+  }
+
+  /**
+   * Returns a zustand store with the configuration of the AI Extension.
+   * These options are used across all LLM calls by default when calling {@link callLLM}
    */
   public readonly options: ReturnType<
     ReturnType<typeof createStore<Required<GlobalLLMCallOptions>>>
   >;
 
+  /**
+   * @internal use `createAIExtension` instead
+   */
   constructor(
     public readonly editor: BlockNoteEditor<any, any, any>,
     options: GlobalLLMCallOptions & {
+      /**
+       * The name and color of the agent cursor (optional)
+       */
       agentCursor?: { name: string; color: string };
     },
   ) {
@@ -133,7 +154,7 @@ export class AIExtension extends BlockNoteExtension {
   public openAIMenuAtBlock(blockID: string) {
     this.editor.setForceSelectionVisible(true);
     this.editor.isEditable = false;
-    this.store.setState({
+    this._store.setState({
       aiMenuState: {
         blockId: blockID,
         status: "user-input",
@@ -145,23 +166,19 @@ export class AIExtension extends BlockNoteExtension {
    * Close the AI menu
    */
   public closeAIMenu() {
-    this.store.setState({
+    this._store.setState({
       aiMenuState: "closed",
     });
     this.editor.setForceSelectionVisible(false);
     this.editor.isEditable = true;
     this.editor.focus();
-    // this.prevDocument = undefined;
   }
 
   /**
    * Accept the changes made by the LLM
    */
   public acceptChanges() {
-    applySuggestions(this.editor.prosemirrorState, (tr) => {
-      // TODO: @Nick, I don't think there's currently a cleaner way to do this?
-      this.editor._tiptapEditor.dispatch(tr);
-    });
+    this.editor.exec(applySuggestions);
     this.closeAIMenu();
   }
 
@@ -169,10 +186,7 @@ export class AIExtension extends BlockNoteExtension {
    * Reject the changes made by the LLM
    */
   public rejectChanges() {
-    revertSuggestions(this.editor.prosemirrorState, (tr) => {
-      // TODO: @Nick, I don't think there's currently a cleaner way to do this?
-      this.editor._tiptapEditor.dispatch(tr);
-    });
+    this.editor.exec(revertSuggestions);
     this.closeAIMenu();
   }
 
@@ -200,7 +214,7 @@ export class AIExtension extends BlockNoteExtension {
       this.editor.setForceSelectionVisible(false);
     }
 
-    this.store.setState({
+    this._store.setState({
       aiMenuState: {
         status: status,
         blockId: aiMenuState.blockId,
@@ -237,7 +251,7 @@ export class AIExtension extends BlockNoteExtension {
           },
           onBlockUpdate: (blockId: string) => {
             // NOTE: does this setState with an anon object trigger unnecessary re-renders?
-            this.store.setState({
+            this._store.setState({
               aiMenuState: {
                 blockId,
                 status: "ai-writing",
@@ -260,6 +274,9 @@ export class AIExtension extends BlockNoteExtension {
   }
 }
 
+/**
+ * Create a new AIExtension instance, this can be passed to the BlockNote editor via the `extensions` option
+ */
 export function createAIExtension(
   options: ConstructorParameters<typeof AIExtension>[1],
 ) {
@@ -268,6 +285,9 @@ export function createAIExtension(
   };
 }
 
+/**
+ * Return the AIExtension instance from the editor
+ */
 export function getAIExtension(editor: BlockNoteEditor<any, any, any>) {
   return editor.extension(AIExtension);
 }

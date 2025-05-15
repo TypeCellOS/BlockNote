@@ -6,6 +6,7 @@ import { AI_MODELS } from "./data/aimodels.js";
 export function BasicAutocomplete(props: {
   value: string;
   onChange: (value: string) => void;
+  error?: string;
 }) {
   const { value, onChange } = props;
   const combobox = useCombobox();
@@ -44,6 +45,7 @@ export function BasicAutocomplete(props: {
           onClick={() => combobox.openDropdown()}
           onFocus={() => combobox.openDropdown()}
           onBlur={() => combobox.closeDropdown()}
+          error={props.error}
         />
       </Combobox.Target>
 
