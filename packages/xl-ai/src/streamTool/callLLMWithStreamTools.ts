@@ -270,7 +270,8 @@ function partialObjectStreamThrowError<PARTIAL>(
             case "finish":
               break;
             case "error":
-              throw chunk.error;
+              controller.error(chunk.error);
+              break;
             default: {
               const _exhaustiveCheck: never = chunk;
               throw new Error(`Unsupported chunk type: ${_exhaustiveCheck}`);
