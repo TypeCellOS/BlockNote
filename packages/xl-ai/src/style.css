@@ -5,20 +5,12 @@
   width: 100%;
 }
 
-div:not(.bn-popover-content) > .bn-combobox-input,
-div:not(.bn-popover-content) > .bn-combobox-items:not(:empty) {
-  background-color: var(--bn-colors-menu-background);
-  border: var(--bn-border);
-  border-radius: var(--bn-border-radius-medium);
-  box-shadow: var(--bn-shadow-medium);
-  color: var(--bn-colors-menu-text);
-  gap: 4px;
-  min-width: 145px;
-  padding: 2px;
-}
-
 .bn-combobox-items {
   max-width: 50%;
+}
+
+.bn-combobox-items:empty {
+  display: none;
 }
 
 div[data-type="modification"] {

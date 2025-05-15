@@ -5,6 +5,9 @@ export const ar: AIDictionary = {
     ai: {
       tooltip: "Generate content",
       input_placeholder: "Enter a prompt",
+      thinking: "جارِ التفكير",
+      editing: "تحرير",
+      error: "حدث خطأ",
     },
   },
   slash_menu: {

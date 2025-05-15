@@ -1,8 +1,9 @@
-import { useBlockNoteEditor } from "@blocknote/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
-// import { useAIDictionary } from "../../i18n/useAIDictionary";
 import { BlockNoteEditor } from "@blocknote/core";
+import { useBlockNoteEditor, useComponentsContext } from "@blocknote/react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { RiSparkling2Fill } from "react-icons/ri";
 import { useStore } from "zustand";
+
 import { getAIExtension } from "../../AIExtension.js";
 import { useAIDictionary } from "../../i18n/useAIDictionary.js";
 import { PromptSuggestionMenu } from "./PromptSuggestionMenu.js";
@@ -22,7 +23,7 @@ export const AIMenu = (props: {
       | "ai-writing"
       | "error"
       | "user-reviewing"
-      | "closed"
+      | "closed",
   ) => AIMenuSuggestionItem[];
   onManualPromptSubmit?: (userPrompt: string) => void;
 }) => {
@@ -30,10 +31,12 @@ export const AIMenu = (props: {
   const [prompt, setPrompt] = useState("");
   const dict = useAIDictionary();
 
+  const Components = useComponentsContext()!;
+
   const ai = getAIExtension(editor);
 
   const aiResponseStatus = useStore(ai.store, (state) =>
-    state.aiMenuState !== "closed" ? state.aiMenuState.status : "closed"
+    state.aiMenuState !== "closed" ? state.aiMenuState.status : "closed",
   );
 
   const { items: externalItems } = props;
@@ -72,7 +75,7 @@ export const AIMenu = (props: {
         useSelection: editor.getSelection() !== undefined,
       });
     },
-    [ai, editor]
+    [ai, editor],
   );
 
   useEffect(() => {
@@ -82,6 +85,36 @@ export const AIMenu = (props: {
     }
   }, [aiResponseStatus]);
 
+  const placeholder = useMemo(() => {
+    if (aiResponseStatus === "thinking") {
+      return dict.formatting_toolbar.ai.thinking;
+    } else if (aiResponseStatus === "ai-writing") {
+      return dict.formatting_toolbar.ai.editing;
+    } else if (aiResponseStatus === "error") {
+      return dict.formatting_toolbar.ai.error;
+    }
+
+    return dict.formatting_toolbar.ai.input_placeholder;
+  }, [aiResponseStatus, dict]);
+
+  const rightSection = useMemo(() => {
+    if (aiResponseStatus === "thinking" || aiResponseStatus === "ai-writing") {
+      return (
+        <Components.SuggestionMenu.Loader
+          className={"bn-suggestion-menu-loader bn-combobox-right-section"}
+        />
+      );
+    } else if (aiResponseStatus === "error") {
+      return (
+        <div className={"bn-combobox-right-section bn-combobox-error"}>
+          <span>!</span>
+        </div>
+      );
+    }
+
+    return undefined;
+  }, [Components, aiResponseStatus]);
+
   return (
     <PromptSuggestionMenu
       onManualPromptSubmit={
@@ -90,14 +123,18 @@ export const AIMenu = (props: {
       items={items}
       promptText={prompt}
       onPromptTextChange={setPrompt}
-      placeholder={
-        aiResponseStatus === "thinking"
-          ? "Thinking..."
-          : dict.formatting_toolbar.ai.input_placeholder
-      }
+      placeholder={placeholder}
       disabled={
-        aiResponseStatus === "thinking" || aiResponseStatus === "ai-writing"
+        aiResponseStatus === "thinking" ||
+        aiResponseStatus === "ai-writing" ||
+        aiResponseStatus === "error"
       }
+      icon={
+        <div className="bn-combobox-icon">
+          <RiSparkling2Fill />
+        </div>
+      }
+      rightSection={rightSection}
     />
   );
 };

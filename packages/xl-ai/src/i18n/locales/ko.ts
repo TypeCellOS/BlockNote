@@ -5,6 +5,9 @@ export const ko: AIDictionary = {
     ai: {
       tooltip: "Generate content",
       input_placeholder: "Enter a prompt",
+      thinking: "생각 중",
+      editing: "편집 중",
+      error: "오류가 발생했습니다",
     },
   },
   slash_menu: {

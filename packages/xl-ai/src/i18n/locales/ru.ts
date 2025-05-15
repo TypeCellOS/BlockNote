@@ -5,6 +5,9 @@ export const ru: AIDictionary = {
     ai: {
       tooltip: "Generate content",
       input_placeholder: "Enter a prompt",
+      thinking: "Обработка",
+      editing: "Редактирование",
+      error: "Произошла ошибка",
     },
   },
   slash_menu: {

@@ -3,6 +3,9 @@ export const en = {
     ai: {
       tooltip: "Generate content",
       input_placeholder: "Enter a prompt",
+      thinking: "Thinking",
+      editing: "Editing",
+      error: "An error has occurred",
     },
   },
   slash_menu: {

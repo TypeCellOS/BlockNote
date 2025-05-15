@@ -25,7 +25,7 @@ export const TextInput = forwardRef<
     onChange,
     onSubmit,
     autoComplete,
-    rightSection, // TODO: add rightSection
+    rightSection,
     ...rest
   } = props;
 
@@ -40,7 +40,7 @@ export const TextInput = forwardRef<
           className={mergeCSSClasses(
             "bn-ak-input",
             className || "",
-            variant === "large" ? "bn-ak-input-large" : ""
+            variant === "large" ? "bn-ak-input-large" : "",
           )}
           ref={ref}
           name={name}
@@ -53,6 +53,7 @@ export const TextInput = forwardRef<
           onSubmit={onSubmit}
           autoComplete={autoComplete}
         />
+        {rightSection}
       </div>
     </>
   );

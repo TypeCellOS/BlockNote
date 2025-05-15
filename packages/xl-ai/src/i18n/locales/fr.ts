@@ -5,6 +5,9 @@ export const fr: AIDictionary = {
     ai: {
       tooltip: "Generate content",
       input_placeholder: "Enter a prompt",
+      thinking: "Réflexion en cours",
+      editing: "Édition",
+      error: "Une erreur s'est produite",
     },
   },
   slash_menu: {

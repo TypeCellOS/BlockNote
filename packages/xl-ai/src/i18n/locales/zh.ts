@@ -5,6 +5,9 @@ export const zh: AIDictionary = {
     ai: {
       tooltip: "Generate content",
       input_placeholder: "Enter a prompt",
+      thinking: "思考中",
+      editing: "编辑中",
+      error: "发生错误",
     },
   },
   slash_menu: {

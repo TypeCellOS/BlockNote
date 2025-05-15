@@ -17,7 +17,7 @@ Configure your environment variables according to `.env.example`.
 ## Running (dev mode):
 
     mkcert localhost
-    npm run dev
+    pnpm run dev
 
 ## Client Usage
 

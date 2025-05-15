@@ -5,6 +5,9 @@ export const vi: AIDictionary = {
     ai: {
       tooltip: "Generate content",
       input_placeholder: "Enter a prompt",
+      thinking: "Đang suy nghĩ",
+      editing: "Đang chỉnh sửa",
+      error: "Đã xảy ra lỗi",
     },
   },
   slash_menu: {

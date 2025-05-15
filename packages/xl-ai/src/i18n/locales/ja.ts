@@ -5,6 +5,9 @@ export const ja: AIDictionary = {
     ai: {
       tooltip: "Generate content",
       input_placeholder: "Enter a prompt",
+      thinking: "考え中",
+      editing: "編集中",
+      error: "エラーが発生しました",
     },
   },
   slash_menu: {
