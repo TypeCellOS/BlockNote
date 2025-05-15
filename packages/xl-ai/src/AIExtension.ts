@@ -13,8 +13,11 @@ import { Plugin, PluginKey } from "prosemirror-state";
 import { fixTablesKey } from "prosemirror-tables";
 import { createStore, StoreApi } from "zustand/vanilla";
 import { CallLLMResult } from "./api/formats/CallLLMResult.js";
-import { llm, PromptBuilderInput } from "./api/index.js";
+import { PromptBuilderInput } from "./api/formats/PromptBuilder.js";
+import { llm } from "./api/index.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
+
+type MakeOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 type ReadonlyStoreApi<T> = Pick<
   StoreApi<T>,
@@ -63,10 +66,10 @@ type GlobalLLMCallOptions = {
    */
   stream?: boolean;
 
-  promptBuilder: (
+  promptBuilder?: (
     editor: BlockNoteEditor<any, any, any>,
     opts: PromptBuilderInput,
-  ) => Promise<Array<CoreMessage>> | undefined;
+  ) => Promise<Array<CoreMessage>>;
 };
 
 // parameters that are specific to each call
@@ -109,7 +112,11 @@ export class AIExtension extends BlockNoteExtension {
    * These options are used across all LLM calls by default when calling {@link callLLM}
    */
   public readonly options: ReturnType<
-    ReturnType<typeof createStore<Required<GlobalLLMCallOptions>>>
+    ReturnType<
+      typeof createStore<
+        MakeOptional<Required<GlobalLLMCallOptions>, "promptBuilder">
+      >
+    >
   >;
 
   /**
@@ -126,7 +133,9 @@ export class AIExtension extends BlockNoteExtension {
   ) {
     super();
 
-    this.options = createStore<Required<GlobalLLMCallOptions>>()((_set) => ({
+    this.options = createStore<
+      MakeOptional<Required<GlobalLLMCallOptions>, "promptBuilder">
+    >()((_set) => ({
       dataFormat: "html",
       stream: true,
       ...options,
