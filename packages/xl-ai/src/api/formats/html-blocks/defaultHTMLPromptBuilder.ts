@@ -48,7 +48,7 @@ function promptManipulateSelectionHTMLBlocks(opts: {
   ];
 }
 
-export function promptManipulateDocumentUseHTMLBlocks(opts: {
+function promptManipulateDocumentUseHTMLBlocks(opts: {
   userPrompt: string;
   htmlBlocks: Array<
     | {

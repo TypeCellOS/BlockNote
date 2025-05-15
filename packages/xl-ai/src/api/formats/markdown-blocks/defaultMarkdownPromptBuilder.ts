@@ -1,7 +1,11 @@
 import { CoreMessage } from "ai";
+import { PromptBuilder } from "../PromptBuilder.js";
+import {
+  getDataForPromptNoSelection,
+  getDataForPromptWithSelection,
+} from "./markdownPromptData.js";
 
-// TODO don't include child block
-export function promptManipulateSelectionMarkdownBlocks(opts: {
+function promptManipulateSelectionMarkdownBlocks(opts: {
   userPrompt: string;
   markdownSelectedBlocks: {
     id: string;
@@ -43,7 +47,7 @@ export function promptManipulateSelectionMarkdownBlocks(opts: {
   ];
 }
 
-export function promptManipulateDocumentUseMarkdownBlocks(opts: {
+function promptManipulateDocumentUseMarkdownBlocks(opts: {
   userPrompt: string;
   markdownBlocks: Array<
     | {
@@ -84,3 +88,24 @@ export function promptManipulateDocumentUseMarkdownBlocks(opts: {
     },
   ];
 }
+
+export const defaultMarkdownPromptBuilder: PromptBuilder = async (
+  editor,
+  opts,
+) => {
+  if (opts.selectedBlocks) {
+    const data = await getDataForPromptWithSelection(editor, {
+      selectedBlocks: opts.selectedBlocks,
+    });
+    return promptManipulateSelectionMarkdownBlocks({
+      ...data,
+      userPrompt: opts.userPrompt,
+    });
+  } else {
+    const data = await getDataForPromptNoSelection(editor, opts);
+    return promptManipulateDocumentUseMarkdownBlocks({
+      ...data,
+      userPrompt: opts.userPrompt,
+    });
+  }
+};

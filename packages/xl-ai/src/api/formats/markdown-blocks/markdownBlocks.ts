@@ -1,52 +1,12 @@
-import { Block, BlockNoteEditor } from "@blocknote/core";
+import { BlockNoteEditor } from "@blocknote/core";
 import { StreamTool } from "../../../streamTool/streamTool.js";
-import type { PromptOrMessages } from "../../index.js";
 import { callLLMBase } from "../callLLMBase.js";
-import {
-  promptManipulateDocumentUseMarkdownBlocks,
-  promptManipulateSelectionMarkdownBlocks,
-} from "./markdownBlocksPrompt.js";
+import { defaultMarkdownPromptBuilder } from "./defaultMarkdownPromptBuilder.js";
 import {
   getDataForPromptNoSelection,
   getDataForPromptWithSelection,
 } from "./markdownPromptData.js";
 import { tools } from "./tools/index.js";
-
-async function getMessages(
-  editor: BlockNoteEditor<any, any, any>,
-  opts: {
-    selectedBlocks?: Block<any, any, any>[];
-    excludeBlockIds?: string[];
-  } & PromptOrMessages,
-) {
-  // TODO: child blocks
-  // TODO: document how to customize prompt
-  if ("messages" in opts && opts.messages) {
-    return opts.messages;
-  } else if (opts.selectedBlocks) {
-    if (opts.excludeBlockIds) {
-      throw new Error(
-        "expected excludeBlockIds to be false when selectedBlocks is provided",
-      );
-    }
-    return promptManipulateSelectionMarkdownBlocks({
-      ...(await getDataForPromptWithSelection(editor, opts.selectedBlocks)),
-      userPrompt: opts.userPrompt,
-    });
-  } else {
-    if (opts.useSelection) {
-      throw new Error(
-        "expected useSelection to be false when selectedBlocks is not provided",
-      );
-    }
-    return promptManipulateDocumentUseMarkdownBlocks({
-      ...(await getDataForPromptNoSelection(editor, {
-        excludeBlockIds: opts.excludeBlockIds,
-      })),
-      userPrompt: opts.userPrompt,
-    });
-  }
-}
 
 function getStreamTools(
   editor: BlockNoteEditor<any, any, any>,
@@ -92,4 +52,26 @@ function getStreamTools(
   return streamTools;
 }
 
-export const callLLMMarkdownBlocks = callLLMBase(getMessages, getStreamTools);
+export const callLLMMarkdownBlocks = callLLMBase(
+  defaultMarkdownPromptBuilder,
+  getStreamTools,
+);
+
+export const markdownBlocksLLMFormat = {
+  /**
+   * Execute an LLM call using HTML blocks as format to be passed to the LLM
+   */
+  call: callLLMMarkdownBlocks,
+  /**
+   * The default PromptBuilder that determines how a userPrompt is converted to an array of
+   * LLM Messages (CoreMessage[])
+   */
+  defaultPromptBuilder: defaultMarkdownPromptBuilder,
+  /**
+   * Helper functions which can be used when implementing a custom PromptBuilder
+   */
+  promptHelpers: {
+    getDataForPromptNoSelection,
+    getDataForPromptWithSelection,
+  },
+};

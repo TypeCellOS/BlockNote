@@ -1,7 +1,11 @@
 import { CoreMessage } from "ai";
+import { PromptBuilder } from "../PromptBuilder.js";
+import {
+  getDataForPromptNoSelection,
+  getDataForPromptWithSelection,
+} from "./jsonPromptData.js";
 
-// TODO don't include child block
-export function promptManipulateSelectionJSONBlocks(opts: {
+function promptManipulateSelectionJSONBlocks(opts: {
   userPrompt: string;
   jsonSelectedBlocks: any[];
   jsonDocument: any[];
@@ -38,7 +42,7 @@ export function promptManipulateSelectionJSONBlocks(opts: {
   ];
 }
 
-export function promptManipulateDocumentUseJSONBlocks(opts: {
+function promptManipulateDocumentUseJSONBlocks(opts: {
   userPrompt: string;
   jsonBlocks: Array<
     | any
@@ -76,3 +80,21 @@ export function promptManipulateDocumentUseJSONBlocks(opts: {
     },
   ];
 }
+
+export const defaultJSONPromptBuilder: PromptBuilder = async (editor, opts) => {
+  if (opts.selectedBlocks) {
+    const data = await getDataForPromptWithSelection(editor, {
+      selectedBlocks: opts.selectedBlocks,
+    });
+    return promptManipulateSelectionJSONBlocks({
+      ...data,
+      userPrompt: opts.userPrompt,
+    });
+  } else {
+    const data = await getDataForPromptNoSelection(editor, opts);
+    return promptManipulateDocumentUseJSONBlocks({
+      ...data,
+      userPrompt: opts.userPrompt,
+    });
+  }
+};

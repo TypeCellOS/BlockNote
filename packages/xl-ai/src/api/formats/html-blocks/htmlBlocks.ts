@@ -2,7 +2,11 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { StreamTool } from "../../../streamTool/streamTool.js";
 import { callLLMBase } from "../callLLMBase.js";
 
-import { defaultHTMLPromptBuilder } from "./htmlBlocksPrompt.js";
+import { defaultHTMLPromptBuilder } from "./defaultHTMLPromptBuilder.js";
+import {
+  getDataForPromptNoSelection,
+  getDataForPromptWithSelection,
+} from "./htmlPromptData.js";
 import { tools } from "./tools/index.js";
 
 function getStreamTools(
@@ -55,3 +59,22 @@ export const callLLMHTMLBlocks = callLLMBase(
   defaultHTMLPromptBuilder,
   getStreamTools,
 );
+
+export const htmlBlockLLMFormat = {
+  /**
+   * Execute an LLM call using HTML blocks as format to be passed to the LLM
+   */
+  call: callLLMHTMLBlocks,
+  /**
+   * The default PromptBuilder that determines how a userPrompt is converted to an array of
+   * LLM Messages (CoreMessage[])
+   */
+  defaultPromptBuilder: defaultHTMLPromptBuilder,
+  /**
+   * Helper functions which can be used when implementing a custom PromptBuilder
+   */
+  promptHelpers: {
+    getDataForPromptNoSelection,
+    getDataForPromptWithSelection,
+  },
+};
