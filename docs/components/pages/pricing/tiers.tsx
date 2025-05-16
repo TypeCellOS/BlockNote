@@ -22,7 +22,8 @@ function TierTitle({ tier }: { tier: Tier }) {
       className={classNames(
         tier.mostPopular && "text-indigo-600",
         "text-3xl font-semibold leading-8",
-      )}>
+      )}
+    >
       {tier.title}
     </h3>
   );
@@ -80,7 +81,8 @@ function TierCTAButton({ tier }: { tier: Tier }) {
       )}
       onClick={() => {
         track("Signup", { tier: tier.id });
-      }}>
+      }}
+    >
       {tier.id === "enterprise" ? "Get in touch" : text}
     </a>
   );
@@ -125,7 +127,8 @@ export function Tiers({
               ? "ring-indigo-600"
               : "ring-gray-200 dark:ring-gray-800",
             "rounded-md p-8 ring-2 xl:p-10",
-          )}>
+          )}
+        >
           <TierHeader tier={tier} frequency={frequency} />
           <TierDescription tier={tier} />
           <TierCTAButton tier={tier} />

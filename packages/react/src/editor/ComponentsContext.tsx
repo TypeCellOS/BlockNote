@@ -355,7 +355,7 @@ export type Components = {
 };
 
 export const ComponentsContext = createContext<Components | undefined>(
-  undefined
+  undefined,
 );
 
 export function useComponentsContext(): Components | undefined {

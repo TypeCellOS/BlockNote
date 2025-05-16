@@ -17,9 +17,10 @@ export const SuggestionMenuEmptyItem = forwardRef<
       // Styles from ShadCN DropdownMenuItem component
       className={cn(
         "bn-relative bn-flex bn-cursor-default bn-select-none bn-items-center bn-rounded-sm bn-px-2 bn-py-1.5 bn-text-sm bn-outline-none bn-transition-colors focus:bn-bg-accent focus:bn-text-accent-foreground data-[disabled]:bn-pointer-events-none data-[disabled]:bn-opacity-50",
-        className
+        className,
       )}
-      ref={ref}>
+      ref={ref}
+    >
       <div>{children}</div>
     </div>
   );

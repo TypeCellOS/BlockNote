@@ -322,7 +322,11 @@ export default function App() {
     link.download = "My Document (blocknote export).docx";
     document.body.appendChild(link);
     link.dispatchEvent(
-      new MouseEvent("click", { bubbles: true, cancelable: true, view: window })
+      new MouseEvent("click", {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+      }),
     );
     link.remove();
     window.URL.revokeObjectURL(link.href);
@@ -331,7 +335,7 @@ export default function App() {
   const slashMenuItems = useMemo(() => {
     return combineByGroup(
       getDefaultReactSlashMenuItems(editor),
-      getPageBreakReactSlashMenuItems(editor)
+      getPageBreakReactSlashMenuItems(editor),
     );
   }, [editor]);
 

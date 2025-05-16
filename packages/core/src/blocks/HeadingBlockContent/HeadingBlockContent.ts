@@ -48,7 +48,7 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
                   props: {
                     level: level as any,
                   },
-                })
+                }),
               )
               // Removes the "#" character(s) used to set the heading.
               .deleteRange({ from: range.from, to: range.to })
@@ -107,12 +107,12 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
         ...(this.options.domAttributes?.blockContent || {}),
         ...HTMLAttributes,
       },
-      this.options.domAttributes?.inlineContent || {}
+      this.options.domAttributes?.inlineContent || {},
     );
   },
 });
 
 export const Heading = createBlockSpecFromStronglyTypedTiptapNode(
   HeadingBlockContent,
-  headingPropSchema
+  headingPropSchema,
 );

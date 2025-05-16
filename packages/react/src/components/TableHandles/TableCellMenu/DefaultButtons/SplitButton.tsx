@@ -16,9 +16,9 @@ import { TableCellMenuProps } from "../TableCellMenuProps.js";
 
 export const SplitButton = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(
-  props: TableCellMenuProps<I, S>
+  props: TableCellMenuProps<I, S>,
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
@@ -47,7 +47,8 @@ export const SplitButton = <
           row: props.rowIndex,
           col: props.colIndex,
         });
-      }}>
+      }}
+    >
       {dict.table_handle.split_cell_menuitem}
     </Components.Generic.Menu.Item>
   );

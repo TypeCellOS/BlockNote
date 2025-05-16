@@ -36,7 +36,7 @@ const ThreadItem = React.memo(
 
         editor.comments?.selectThread(thread.id);
       },
-      [editor.comments, thread.id]
+      [editor.comments, thread.id],
     );
 
     const onBlur = useCallback(
@@ -67,7 +67,7 @@ const ThreadItem = React.memo(
           editor.comments?.selectThread(undefined);
         }
       },
-      [editor.comments]
+      [editor.comments],
     );
 
     return (
@@ -81,27 +81,27 @@ const ThreadItem = React.memo(
         tabIndex={0}
       />
     );
-  }
+  },
 );
 
 function sortThreads(
   threads: ThreadData[],
   sort: "position" | "recent-activity" | "oldest",
-  threadPositions?: Map<string, { from: number; to: number }>
+  threadPositions?: Map<string, { from: number; to: number }>,
 ) {
   if (sort === "recent-activity") {
     // sort by latest comment in thread first
     return threads.sort(
       (a, b) =>
         b.comments[b.comments.length - 1].createdAt.getTime() -
-        a.comments[a.comments.length - 1].createdAt.getTime()
+        a.comments[a.comments.length - 1].createdAt.getTime(),
     );
   }
 
   if (sort === "oldest") {
     // sort by oldest thread first
     return threads.sort(
-      (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
+      (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
     );
   }
 
@@ -129,7 +129,7 @@ export function getReferenceText(
   threadPosition?: {
     from: number;
     to: number;
-  }
+  },
 ) {
   return editor.transact((tr) => {
     if (!threadPosition) {
@@ -146,7 +146,7 @@ export function getReferenceText(
 
     const referenceText = tr.doc.textBetween(
       threadPosition.from,
-      threadPosition.to
+      threadPosition.to,
     );
 
     if (referenceText.length > 15) {
@@ -198,7 +198,7 @@ export function ThreadsSidebar(props: {
   // this will potentially trigger a re-render on every document update
   // this means we need to be mindful of children memoization
   const state = useUIPluginState(
-    editor.comments.onUpdate.bind(editor.comments)
+    editor.comments.onUpdate.bind(editor.comments),
   );
 
   const selectedThreadId = state?.selectedThreadId;
@@ -211,7 +211,7 @@ export function ThreadsSidebar(props: {
     const sortedThreads = sortThreads(
       threadsArray,
       props.sort || "position",
-      state?.threadPositions
+      state?.threadPositions,
     );
 
     const ret: Array<{ thread: ThreadData; referenceText: string }> = [];
@@ -223,7 +223,7 @@ export function ThreadsSidebar(props: {
             thread,
             referenceText: getReferenceText(
               editor,
-              state?.threadPositions.get(thread.id)
+              state?.threadPositions.get(thread.id),
             ),
           });
         }
@@ -233,7 +233,7 @@ export function ThreadsSidebar(props: {
             thread,
             referenceText: getReferenceText(
               editor,
-              state?.threadPositions.get(thread.id)
+              state?.threadPositions.get(thread.id),
             ),
           });
         }

@@ -14,7 +14,8 @@ export function SponsorCard(props: SponsorCardProps) {
   return (
     <a
       href={props.link}
-      className="relative flex aspect-video max-w-[235px] items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-900 md:w-[235px]">
+      className="relative flex aspect-video max-w-[235px] items-center justify-center rounded-lg bg-gray-100 md:w-[235px] dark:bg-gray-900"
+    >
       <Image
         className={"block h-1/3 w-3/5 object-contain dark:hidden"}
         src={props.logo.light}
@@ -27,7 +28,7 @@ export function SponsorCard(props: SponsorCardProps) {
       />
 
       {props.tagline && (
-        <div className={"absolute bottom-[10%] text-xs  italic md:text-sm"}>
+        <div className={"absolute bottom-[10%] text-xs italic md:text-sm"}>
           {props.tagline}
         </div>
       )}

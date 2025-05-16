@@ -37,7 +37,8 @@ export const SideMenuButton = forwardRef<
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
       draggable={draggable}
-      {...rest}>
+      {...rest}
+    >
       {icon}
       {children}
     </ShadCNComponents.Button.Button>

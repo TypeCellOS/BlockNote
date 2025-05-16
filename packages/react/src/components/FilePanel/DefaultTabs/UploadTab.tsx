@@ -16,11 +16,11 @@ import { FilePanelProps } from "../FilePanelProps.js";
 export const UploadTab = <
   B extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(
   props: FilePanelProps<I, S> & {
     setLoading: (loading: boolean) => void;
-  }
+  },
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
@@ -71,7 +71,7 @@ export const UploadTab = <
 
       upload(file);
     },
-    [block, editor, setLoading]
+    [block, editor, setLoading],
   );
 
   const config = editor.schema.blockSchema[block.type];

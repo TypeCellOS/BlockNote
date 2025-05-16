@@ -29,7 +29,8 @@ export const Panel = forwardRef<
       <MantineTabs
         value={openTab}
         defaultValue={defaultOpenTab}
-        onChange={setOpenTab as any}>
+        onChange={setOpenTab as any}
+      >
         {loading && <MantineLoadingOverlay visible={loading} />}
 
         <MantineTabs.List>
@@ -37,7 +38,8 @@ export const Panel = forwardRef<
             <MantineTabs.Tab
               data-test={`${tab.name.toLowerCase()}-tab`}
               value={tab.name}
-              key={tab.name}>
+              key={tab.name}
+            >
               {tab.name}
             </MantineTabs.Tab>
           ))}

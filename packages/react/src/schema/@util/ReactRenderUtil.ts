@@ -4,7 +4,7 @@ import { Root, createRoot } from "react-dom/client";
 
 export function renderToDOMSpec(
   fc: (refCB: (ref: HTMLElement | null) => void) => React.ReactNode,
-  editor: BlockNoteEditor<any, any, any> | undefined
+  editor: BlockNoteEditor<any, any, any> | undefined,
 ) {
   let contentDOM: HTMLElement | undefined;
   const div = document.createElement("div");
@@ -16,7 +16,7 @@ export function renderToDOMSpec(
     // This way React Context will still work, as `fc` will be rendered inside the existing React tree
     editor.elementRenderer(
       fc((el) => (contentDOM = el || undefined)),
-      div
+      div,
     );
   } else {
     // If no editor is provided, use a temporary root.
@@ -25,7 +25,7 @@ export function renderToDOMSpec(
 
     if (!editor?.headless) {
       throw new Error(
-        "elementRenderer not available, expected headless editor"
+        "elementRenderer not available, expected headless editor",
       );
     }
     root = createRoot(div);
@@ -49,7 +49,7 @@ export function renderToDOMSpec(
   const cloneRoot = div.cloneNode(true) as HTMLElement;
   const dom = cloneRoot.firstElementChild! as HTMLElement;
   const contentDOMClone = cloneRoot.querySelector(
-    "[data-tmp-find]"
+    "[data-tmp-find]",
   ) as HTMLElement | null;
   contentDOMClone?.removeAttribute("data-tmp-find");
 

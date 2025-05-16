@@ -74,7 +74,7 @@ export type TiptapBlockImplementation<
   T extends BlockConfig,
   B extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = {
   requiredExtensions?: Array<Extension | Node>;
   node: Node;
@@ -82,7 +82,7 @@ export type TiptapBlockImplementation<
     block: BlockFromConfigNoChildren<T, I, S> & {
       children: BlockNoDefaults<B, I, S>[];
     },
-    editor: BlockNoteEditor<B, I, S>
+    editor: BlockNoteEditor<B, I, S>,
   ) => {
     dom: HTMLElement;
     contentDOM?: HTMLElement;
@@ -91,7 +91,7 @@ export type TiptapBlockImplementation<
     block: BlockFromConfigNoChildren<T, I, S> & {
       children: BlockNoDefaults<B, I, S>[];
     },
-    editor: BlockNoteEditor<B, I, S>
+    editor: BlockNoteEditor<B, I, S>,
   ) => {
     dom: HTMLElement;
     contentDOM?: HTMLElement;
@@ -103,7 +103,7 @@ export type BlockSpec<
   T extends BlockConfig,
   B extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = {
   config: T;
   implementation: TiptapBlockImplementation<NoInfer<T>, B, I, S>;
@@ -141,7 +141,7 @@ export type BlockSchemaFromSpecs<T extends BlockSpecs> = {
 
 export type BlockSchemaWithBlock<
   BType extends string,
-  C extends BlockConfig
+  C extends BlockConfig,
 > = {
   [k in BType]: C;
 };
@@ -156,7 +156,7 @@ export type TableCellProps = {
 
 export type TableCell<
   I extends InlineContentSchema,
-  S extends StyleSchema = StyleSchema
+  S extends StyleSchema = StyleSchema,
 > = {
   type: "tableCell";
   props: TableCellProps;
@@ -165,7 +165,7 @@ export type TableCell<
 
 export type TableContent<
   I extends InlineContentSchema,
-  S extends StyleSchema = StyleSchema
+  S extends StyleSchema = StyleSchema,
 > = {
   type: "tableContent";
   columnWidths: (number | undefined)[];
@@ -182,7 +182,7 @@ export type TableContent<
 export type BlockFromConfigNoChildren<
   B extends BlockConfig,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = {
   id: string;
   type: B["type"];
@@ -190,16 +190,16 @@ export type BlockFromConfigNoChildren<
   content: B["content"] extends "inline"
     ? InlineContent<I, S>[]
     : B["content"] extends "table"
-    ? TableContent<I, S>
-    : B["content"] extends "none"
-    ? undefined
-    : never;
+      ? TableContent<I, S>
+      : B["content"] extends "none"
+        ? undefined
+        : never;
 };
 
 export type BlockFromConfig<
   B extends BlockConfig,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = BlockFromConfigNoChildren<B, I, S> & {
   children: BlockNoDefaults<BlockSchema, I, S>[];
 };
@@ -210,7 +210,7 @@ export type BlockFromConfig<
 type BlocksWithoutChildren<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = {
   [BType in keyof BSchema]: BlockFromConfigNoChildren<BSchema[BType], I, S>;
 };
@@ -220,7 +220,7 @@ type BlocksWithoutChildren<
 export type BlockNoDefaults<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = BlocksWithoutChildren<BSchema, I, S>[keyof BSchema] & {
   children: BlockNoDefaults<BSchema, I, S>[];
 };
@@ -229,7 +229,7 @@ export type SpecificBlock<
   BSchema extends BlockSchema,
   BType extends keyof BSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = BlocksWithoutChildren<BSchema, I, S>[BType] & {
   children: BlockNoDefaults<BSchema, I, S>[];
 };
@@ -243,7 +243,7 @@ export type SpecificBlock<
 
 export type PartialTableCell<
   I extends InlineContentSchema,
-  S extends StyleSchema = StyleSchema
+  S extends StyleSchema = StyleSchema,
 > = {
   type: "tableCell";
   props?: Partial<TableCellProps>;
@@ -252,7 +252,7 @@ export type PartialTableCell<
 
 export type PartialTableContent<
   I extends InlineContentSchema,
-  S extends StyleSchema = StyleSchema
+  S extends StyleSchema = StyleSchema,
 > = {
   type: "tableContent";
   columnWidths?: (number | undefined)[];
@@ -266,7 +266,7 @@ export type PartialTableContent<
 type PartialBlockFromConfigNoChildren<
   B extends BlockConfig,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = {
   id?: string;
   type?: B["type"];
@@ -274,14 +274,14 @@ type PartialBlockFromConfigNoChildren<
   content?: B["content"] extends "inline"
     ? PartialInlineContent<I, S>
     : B["content"] extends "table"
-    ? PartialTableContent<I, S>
-    : undefined;
+      ? PartialTableContent<I, S>
+      : undefined;
 };
 
 type PartialBlocksWithoutChildren<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = {
   [BType in keyof BSchema]: PartialBlockFromConfigNoChildren<
     BSchema[BType],
@@ -293,7 +293,7 @@ type PartialBlocksWithoutChildren<
 export type PartialBlockNoDefaults<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = PartialBlocksWithoutChildren<
   BSchema,
   I,
@@ -307,7 +307,7 @@ export type SpecificPartialBlock<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   BType extends keyof BSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = PartialBlocksWithoutChildren<BSchema, I, S>[BType] & {
   children?: BlockNoDefaults<BSchema, I, S>[];
 };
@@ -315,7 +315,7 @@ export type SpecificPartialBlock<
 export type PartialBlockFromConfig<
   B extends BlockConfig,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = PartialBlockFromConfigNoChildren<B, I, S> & {
   children?: BlockNoDefaults<BlockSchema, I, S>[];
 };

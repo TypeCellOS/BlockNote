@@ -13,7 +13,7 @@ export async function addBlockFromDragHandle(page: Page, command: string) {
 export async function hoverAndAddBlockFromDragHandle(
   page: Page,
   selector: string,
-  blockQuery: string
+  blockQuery: string,
 ) {
   const element = await page.locator(selector);
   await moveMouseOverElement(page, element);

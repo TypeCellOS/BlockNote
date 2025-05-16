@@ -41,7 +41,7 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
               updateBlockCommand(blockInfo.bnBlock.beforePos, {
                 type: "bulletListItem",
                 props: {},
-              })
+              }),
             )
             // Removes the "-", "+", or "*" character used to set the list.
             .deleteRange({ from: range.from, to: range.to });
@@ -66,7 +66,7 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
           updateBlockCommand(blockInfo.bnBlock.beforePos, {
             type: "bulletListItem",
             props: {},
-          })
+          }),
         );
       },
     };
@@ -122,12 +122,12 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
         ...(this.options.domAttributes?.blockContent || {}),
         ...HTMLAttributes,
       },
-      this.options.domAttributes?.inlineContent || {}
+      this.options.domAttributes?.inlineContent || {},
     );
   },
 });
 
 export const BulletListItem = createBlockSpecFromStronglyTypedTiptapNode(
   BulletListItemBlockContent,
-  bulletListItemPropSchema
+  bulletListItemPropSchema,
 );

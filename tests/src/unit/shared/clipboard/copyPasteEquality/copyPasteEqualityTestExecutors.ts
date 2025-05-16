@@ -16,20 +16,20 @@ import { CopyPasteEqualityTestCase } from "./copyPasteEqualityTestCase.js";
 export const testCopyPasteEquality = async <
   B extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   editor: BlockNoteEditor<B, I, S>,
-  testCase: CopyPasteEqualityTestCase<B, I, S>
+  testCase: CopyPasteEqualityTestCase<B, I, S>,
 ) => {
   setupClipboardTest(
     editor,
     testCase.document,
-    testCase.getCopyAndPasteSelection
+    testCase.getCopyAndPasteSelection,
   );
 
   const { clipboardHTML } = selectedFragmentToHTML(
     editor.prosemirrorView!,
-    editor
+    editor,
   );
 
   const originalDocument = editor.document;
@@ -38,7 +38,7 @@ export const testCopyPasteEquality = async <
     "text",
     clipboardHTML,
     false,
-    new ClipboardEvent("paste")
+    new ClipboardEvent("paste"),
   );
   const newDocument = editor.document;
 

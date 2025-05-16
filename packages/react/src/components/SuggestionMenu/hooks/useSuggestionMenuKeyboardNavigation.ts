@@ -7,7 +7,7 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
   editor: BlockNoteEditor<any, any, any>,
   query: string,
   items: Item[],
-  onItemClick?: (item: Item) => void
+  onItemClick?: (item: Item) => void,
 ) {
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
@@ -50,14 +50,14 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
     editor.domElement?.addEventListener(
       "keydown",
       handleMenuNavigationKeys,
-      true
+      true,
     );
 
     return () => {
       editor.domElement?.removeEventListener(
         "keydown",
         handleMenuNavigationKeys,
-        true
+        true,
       );
     };
   }, [editor.domElement, items, selectedIndex, onItemClick]);

@@ -13,9 +13,9 @@ import { getMultiColumnDictionary } from "../../i18n/dictionary.js";
 
 export function checkMultiColumnBlocksInSchema<
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
-  editor: BlockNoteEditor<any, I, S>
+  editor: BlockNoteEditor<any, I, S>,
 ): editor is BlockNoteEditor<typeof multiColumnSchema.blockSchema, I, S> {
   return (
     "column" in editor.schema.blockSchema &&
@@ -30,7 +30,7 @@ export function checkMultiColumnBlocksInSchema<
 export function getMultiColumnSlashMenuItems<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(editor: BlockNoteEditor<BSchema, I, S>) {
   const items: Omit<DefaultReactSuggestionItem, "key">[] = [];
 
@@ -97,7 +97,7 @@ export function getMultiColumnSlashMenuItems<
             ],
           });
         },
-      }
+      },
     );
   }
 

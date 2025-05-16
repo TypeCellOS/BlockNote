@@ -25,7 +25,7 @@ const SimpleImage = createBlockSpec(
   },
   {
     render: (block, editor) => imageRender(block as any, editor as any),
-  }
+  },
 );
 
 const CustomParagraph = createBlockSpec(
@@ -53,7 +53,7 @@ const CustomParagraph = createBlockSpec(
         dom: paragraph,
       };
     },
-  }
+  },
 );
 
 const SimpleCustomParagraph = createBlockSpec(
@@ -72,7 +72,7 @@ const SimpleCustomParagraph = createBlockSpec(
         contentDOM: paragraph,
       };
     },
-  }
+  },
 );
 
 // INLINE CONTENT --------------------------------------------------------------
@@ -96,7 +96,7 @@ const Mention = createInlineContentSpec(
         dom,
       };
     },
-  }
+  },
 );
 
 const Tag = createInlineContentSpec(
@@ -118,7 +118,7 @@ const Tag = createInlineContentSpec(
         contentDOM,
       };
     },
-  }
+  },
 );
 
 // STYLES ----------------------------------------------------------------------
@@ -136,7 +136,7 @@ const Small = createStyleSpec(
         contentDOM: dom,
       };
     },
-  }
+  },
 );
 
 const FontSize = createStyleSpec(
@@ -153,7 +153,7 @@ const FontSize = createStyleSpec(
         contentDOM: dom,
       };
     },
-  }
+  },
 );
 
 // SCHEMA ----------------------------------------------------------------------

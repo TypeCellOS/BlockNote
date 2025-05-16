@@ -23,11 +23,15 @@
 
 .bn-toolbar .bn-ak-button[data-selected] {
   padding-top: 0.125rem;
-  box-shadow: inset 0 0 0 1px var(--border), inset 0 2px 0 var(--border);
+  box-shadow:
+    inset 0 0 0 1px var(--border),
+    inset 0 2px 0 var(--border);
 }
 
 .bn-toolbar .bn-ak-button[data-selected]:where(.dark, .dark *) {
-  box-shadow: inset 0 0 0 1px var(--border), inset 0 1px 1px 1px var(--shadow);
+  box-shadow:
+    inset 0 0 0 1px var(--border),
+    inset 0 1px 1px 1px var(--shadow);
 }
 
 .bn-toolbar .bn-ak-popover {
@@ -89,8 +93,11 @@
   --border: rgb(0 0 0/13%);
   --highlight: rgb(255 255 255/20%);
   --shadow: rgb(0 0 0/10%);
-  box-shadow: inset 0 0 0 1px var(--border), inset 0 2px 0 var(--highlight),
-  inset 0 -1px 0 var(--shadow), 0 1px 1px var(--shadow);
+  box-shadow:
+    inset 0 0 0 1px var(--border),
+    inset 0 2px 0 var(--highlight),
+    inset 0 -1px 0 var(--shadow),
+    0 1px 1px var(--shadow);
   font-size: 0.7rem;
   border-radius: 4px;
   padding-inline: 4px;
@@ -246,7 +253,7 @@
 .bn-ak-author-info {
   align-items: center;
   display: flex;
-  gap: 16px
+  gap: 16px;
 }
 
 .bn-ariakit .bn-comment-editor .bn-editor {

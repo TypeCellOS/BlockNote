@@ -56,12 +56,12 @@ export const TableExtension = Extension.create({
       // Enables navigating cells using the tab key.
       Tab: () => {
         return this.editor.commands.command(({ state, dispatch, view }) =>
-          goToNextCell(1)(state, dispatch, view)
+          goToNextCell(1)(state, dispatch, view),
         );
       },
       "Shift-Tab": () => {
         return this.editor.commands.command(({ state, dispatch, view }) =>
-          goToNextCell(-1)(state, dispatch, view)
+          goToNextCell(-1)(state, dispatch, view),
         );
       },
     };
@@ -76,7 +76,7 @@ export const TableExtension = Extension.create({
 
     return {
       tableRole: callOrReturn(
-        getExtensionField(extension, "tableRole", context)
+        getExtensionField(extension, "tableRole", context),
       ),
     };
   },

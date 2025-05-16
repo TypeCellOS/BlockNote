@@ -4,7 +4,7 @@ import { useEffect, useMemo } from "react";
 function useExtendButtonPosition(
   orientation: "addOrRemoveRows" | "addOrRemoveColumns",
   show: boolean,
-  referencePosTable: DOMRect | null
+  referencePosTable: DOMRect | null,
 ): {
   isMounted: boolean;
   ref: (node: HTMLElement | null) => void;
@@ -24,7 +24,7 @@ function useExtendButtonPosition(
                 }
               : {
                   width: `${rects.reference.width}px`,
-                }
+                },
           );
         },
       }),
@@ -58,14 +58,14 @@ function useExtendButtonPosition(
         ...floatingStyles,
       },
     }),
-    [floatingStyles, isMounted, refs.setFloating, styles]
+    [floatingStyles, isMounted, refs.setFloating, styles],
   );
 }
 
 export function useExtendButtonsPositioning(
   showAddOrRemoveColumnsButton: boolean,
   showAddOrRemoveRowsButton: boolean,
-  referencePosTable: DOMRect | null
+  referencePosTable: DOMRect | null,
 ): {
   addOrRemoveRowsButton: ReturnType<typeof useExtendButtonPosition>;
   addOrRemoveColumnsButton: ReturnType<typeof useExtendButtonPosition>;
@@ -73,12 +73,12 @@ export function useExtendButtonsPositioning(
   const addOrRemoveRowsButton = useExtendButtonPosition(
     "addOrRemoveRows",
     showAddOrRemoveRowsButton,
-    referencePosTable
+    referencePosTable,
   );
   const addOrRemoveColumnsButton = useExtendButtonPosition(
     "addOrRemoveColumns",
     showAddOrRemoveColumnsButton,
-    referencePosTable
+    referencePosTable,
   );
 
   return useMemo(
@@ -86,6 +86,6 @@ export function useExtendButtonsPositioning(
       addOrRemoveRowsButton,
       addOrRemoveColumnsButton,
     }),
-    [addOrRemoveColumnsButton, addOrRemoveRowsButton]
+    [addOrRemoveColumnsButton, addOrRemoveRowsButton],
   );
 }

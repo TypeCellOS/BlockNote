@@ -11,7 +11,7 @@ import {
 export type DragHandleMenuProps<
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 > = {
   block: Block<BSchema, I, S>;
 };

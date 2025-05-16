@@ -66,7 +66,8 @@ export const Table = (props: {
             styles.row,
             rowIndex === props.data.rows.length - 1 ? styles.bottomCell : {},
           ]}
-          key={rowIndex}>
+          key={rowIndex}
+        >
           {row.cells.map((c, colIndex) => {
             const cell = mapTableCell(c);
 
@@ -101,7 +102,8 @@ export const Table = (props: {
                     textAlign: cell.props.textAlignment,
                   },
                 ]}
-                key={colIndex}>
+                key={colIndex}
+              >
                 {props.transformer.transformInlineContent(cell.content)}
               </View>
             );

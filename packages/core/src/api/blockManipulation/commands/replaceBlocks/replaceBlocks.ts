@@ -14,11 +14,11 @@ import { getPmSchema } from "../../../pmUtil.js";
 export function removeAndInsertBlocks<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   tr: Transaction,
   blocksToRemove: BlockIdentifier[],
-  blocksToInsert: PartialBlock<BSchema, I, S>[]
+  blocksToInsert: PartialBlock<BSchema, I, S>[],
 ): {
   insertedBlocks: Block<BSchema, I, S>[];
   removedBlocks: Block<BSchema, I, S>[];
@@ -27,13 +27,13 @@ export function removeAndInsertBlocks<
   // Converts the `PartialBlock`s to ProseMirror nodes to insert them into the
   // document.
   const nodesToInsert: Node[] = blocksToInsert.map((block) =>
-    blockToNode(block, pmSchema)
+    blockToNode(block, pmSchema),
   );
 
   const idsOfBlocksToRemove = new Set<string>(
     blocksToRemove.map((block) =>
-      typeof block === "string" ? block : block.id
-    )
+      typeof block === "string" ? block : block.id,
+    ),
   );
   const removedBlocks: Block<BSchema, I, S>[] = [];
 
@@ -95,13 +95,13 @@ export function removeAndInsertBlocks<
 
     throw Error(
       "Blocks with the following IDs could not be found in the editor: " +
-        notFoundIds
+        notFoundIds,
     );
   }
 
   // Converts the nodes created from `blocksToInsert` into full `Block`s.
   const insertedBlocks = nodesToInsert.map((node) =>
-    nodeToBlock(node, pmSchema)
+    nodeToBlock(node, pmSchema),
   );
 
   return { insertedBlocks, removedBlocks };

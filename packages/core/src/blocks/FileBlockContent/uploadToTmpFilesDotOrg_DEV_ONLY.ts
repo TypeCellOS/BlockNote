@@ -4,7 +4,7 @@
  * @warning This function should only be used for development purposes, replace with your own backend!
  */
 export const uploadToTmpFilesDotOrg_DEV_ONLY = async (
-  file: File
+  file: File,
 ): Promise<string> => {
   const body = new FormData();
   body.append("file", file);
@@ -15,6 +15,6 @@ export const uploadToTmpFilesDotOrg_DEV_ONLY = async (
   });
   return (await ret.json()).data.url.replace(
     "tmpfiles.org/",
-    "tmpfiles.org/dl/"
+    "tmpfiles.org/dl/",
   );
 };

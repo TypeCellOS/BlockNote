@@ -9,7 +9,7 @@ const template = (project: Project) => ({
     start: "vite",
     dev: "vite",
     "build:prod": "tsc && vite build",
-    preview: "vite preview"
+    preview: "vite preview",
   },
   dependencies: {
     "@blocknote/core": "latest",
@@ -27,7 +27,7 @@ const template = (project: Project) => ({
     "@vitejs/plugin-react": "^4.3.1",
     vite: "^5.3.4",
     ...(project.config?.devDependencies || {}),
-  }
+  },
 });
 
 export default template;

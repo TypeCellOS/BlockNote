@@ -28,10 +28,10 @@ export class CoreMarkView<ComponentType> implements MarkView {
     return as == null
       ? document.createElement(inline ? "span" : "div")
       : as instanceof HTMLElement
-      ? as
-      : as instanceof Function
-      ? as(mark)
-      : document.createElement(as);
+        ? as
+        : as instanceof Function
+          ? as(mark)
+          : document.createElement(as);
   }
 
   createDOM(as?: MarkViewDOMSpec) {
@@ -71,7 +71,7 @@ export class CoreMarkView<ComponentType> implements MarkView {
   }
 
   shouldIgnoreMutation: (mutation: ViewMutationRecord) => boolean = (
-    mutation
+    mutation,
   ) => {
     if (!this.dom || !this.contentDOM) return true;
 

@@ -8,7 +8,8 @@ export function Section(props: {
 }) {
   return (
     <section
-      className={`relative flex h-fit w-full justify-center overflow-hidden ${props.className}`}>
+      className={`relative flex h-fit w-full justify-center overflow-hidden ${props.className}`}
+    >
       {props.gradientBackground && (
         <FadeIn noVertical className="absolute top-0 z-10 h-full w-full">
           <div className="section-glow h-full w-full" />

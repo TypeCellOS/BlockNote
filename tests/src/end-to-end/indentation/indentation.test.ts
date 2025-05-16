@@ -89,7 +89,7 @@ test.describe("Check Block Indentation Functionality", () => {
     const firstElementBoundingBox = (await firstElement.boundingBox())!;
     await page.mouse.click(
       firstElementBoundingBox.x + 20,
-      firstElementBoundingBox.y + firstElementBoundingBox.height / 2
+      firstElementBoundingBox.y + firstElementBoundingBox.height / 2,
     );
 
     const secondElement = await page.locator(H_THREE_BLOCK_SELECTOR);
@@ -97,7 +97,7 @@ test.describe("Check Block Indentation Functionality", () => {
     await page.keyboard.down("Shift");
     await page.mouse.click(
       secondElementBoundingBox.x + 20,
-      secondElementBoundingBox.y + secondElementBoundingBox.height / 2
+      secondElementBoundingBox.y + secondElementBoundingBox.height / 2,
     );
     await page.keyboard.up("Shift");
 
@@ -106,7 +106,7 @@ test.describe("Check Block Indentation Functionality", () => {
     await page.waitForTimeout(350);
     await page.mouse.click(
       secondElementBoundingBox.x + secondElementBoundingBox.width - 20,
-      secondElementBoundingBox.y + secondElementBoundingBox.height / 2
+      secondElementBoundingBox.y + secondElementBoundingBox.height / 2,
     );
 
     // Waits for formatting toolbar animation to finish.
@@ -131,7 +131,7 @@ test.describe("Check Block Indentation Functionality", () => {
     const firstElementBoundingBox = (await firstElement.boundingBox())!;
     await page.mouse.click(
       firstElementBoundingBox.x + 20,
-      firstElementBoundingBox.y + firstElementBoundingBox.height / 2
+      firstElementBoundingBox.y + firstElementBoundingBox.height / 2,
     );
 
     const secondElement = await page.locator(H_THREE_BLOCK_SELECTOR);
@@ -139,7 +139,7 @@ test.describe("Check Block Indentation Functionality", () => {
     await page.keyboard.down("Shift");
     await page.mouse.click(
       secondElementBoundingBox.x + 20,
-      secondElementBoundingBox.y + secondElementBoundingBox.height / 2
+      secondElementBoundingBox.y + secondElementBoundingBox.height / 2,
     );
     await page.keyboard.up("Shift");
 
@@ -148,7 +148,7 @@ test.describe("Check Block Indentation Functionality", () => {
     await page.waitForTimeout(350);
     await page.mouse.click(
       secondElementBoundingBox.x + secondElementBoundingBox.width - 20,
-      secondElementBoundingBox.y + secondElementBoundingBox.height / 2
+      secondElementBoundingBox.y + secondElementBoundingBox.height / 2,
     );
 
     // Waits for formatting toolbar animation to finish.

@@ -29,7 +29,7 @@ const mantineTheme = {
 export const BlockNoteView = <
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
-  SSchema extends StyleSchema
+  SSchema extends StyleSchema,
 >(
   props: Omit<BlockNoteViewProps<BSchema, ISchema, SSchema>, "theme"> & {
     theme?:
@@ -40,7 +40,7 @@ export const BlockNoteView = <
           light: Theme;
           dark: Theme;
         };
-  }
+  },
 ) => {
   const { className, theme, ...rest } = props;
 
@@ -62,7 +62,7 @@ export const BlockNoteView = <
         if ("light" in theme && "dark" in theme) {
           applyBlockNoteCSSVariablesFromTheme(
             theme[defaultColorScheme === "dark" ? "dark" : "light"],
-            node
+            node,
           );
           return;
         }
@@ -71,15 +71,15 @@ export const BlockNoteView = <
         return;
       }
     },
-    [defaultColorScheme, theme]
+    [defaultColorScheme, theme],
   );
 
   const finalTheme =
     typeof theme === "string"
       ? theme
       : defaultColorScheme !== "no-preference"
-      ? defaultColorScheme
-      : "light";
+        ? defaultColorScheme
+        : "light";
 
   return (
     <ComponentsContext.Provider value={components}>
@@ -92,7 +92,8 @@ export const BlockNoteView = <
         // element needs to already be rendered, so we can't set it to the
         // editor container element. Instead, we set it to `undefined` and set it
         // manually in `BlockNoteViewRaw`.
-        getRootElement={() => undefined}>
+        getRootElement={() => undefined}
+      >
         <BlockNoteViewRaw
           data-mantine-color-scheme={finalTheme}
           className={mergeCSSClasses("bn-mantine", className || "")}

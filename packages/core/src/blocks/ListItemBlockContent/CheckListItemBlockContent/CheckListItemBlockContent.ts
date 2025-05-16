@@ -52,7 +52,7 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
                 props: {
                   checked: false as any,
                 },
-              })
+              }),
             )
             // Removes the characters used to set the list.
             .deleteRange({ from: range.from, to: range.to });
@@ -77,7 +77,7 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
                 props: {
                   checked: true as any,
                 },
-              })
+              }),
             )
             // Removes the characters used to set the list.
             .deleteRange({ from: range.from, to: range.to });
@@ -102,7 +102,7 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
           updateBlockCommand(blockInfo.bnBlock.beforePos, {
             type: "checkListItem",
             props: {},
-          })
+          }),
         );
       },
     };
@@ -155,7 +155,7 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
           ) {
             const checkbox =
               (element.querySelector(
-                "input[type=checkbox]"
+                "input[type=checkbox]",
               ) as HTMLInputElement) || null;
 
             if (checkbox === null) {
@@ -196,7 +196,7 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
         ...(this.options.domAttributes?.blockContent || {}),
         ...HTMLAttributes,
       },
-      this.options.domAttributes?.inlineContent || {}
+      this.options.domAttributes?.inlineContent || {},
     );
 
     dom.insertBefore(checkbox, contentDOM);
@@ -234,12 +234,12 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
         if (typeof getPos !== "boolean") {
           const beforeBlockContainerPos = getNearestBlockPos(
             editor.state.doc,
-            getPos()
+            getPos(),
           );
 
           if (beforeBlockContainerPos.node.type.name !== "blockContainer") {
             throw new Error(
-              `Expected blockContainer node, got ${beforeBlockContainerPos.node.type.name}`
+              `Expected blockContainer node, got ${beforeBlockContainerPos.node.type.name}`,
             );
           }
 
@@ -249,7 +249,7 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
               props: {
                 checked: checkbox.checked as any,
               },
-            })
+            }),
           );
         }
       };
@@ -262,7 +262,7 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
           ...(this.options.domAttributes?.blockContent || {}),
           ...HTMLAttributes,
         },
-        this.options.domAttributes?.inlineContent || {}
+        this.options.domAttributes?.inlineContent || {},
       );
 
       if (typeof getPos !== "boolean") {
@@ -295,5 +295,5 @@ const checkListItemBlockContent = createStronglyTypedTiptapNode({
 
 export const CheckListItem = createBlockSpecFromStronglyTypedTiptapNode(
   checkListItemBlockContent,
-  checkListItemPropSchema
+  checkListItemPropSchema,
 );

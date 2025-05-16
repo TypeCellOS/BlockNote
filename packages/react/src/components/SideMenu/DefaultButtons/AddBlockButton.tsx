@@ -17,9 +17,9 @@ import { SideMenuProps } from "../SideMenuProps.js";
 export const AddBlockButton = <
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(
-  props: Pick<SideMenuProps<BSchema, I, S>, "block">
+  props: Pick<SideMenuProps<BSchema, I, S>, "block">,
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
@@ -40,7 +40,7 @@ export const AddBlockButton = <
       const insertedBlock = editor.insertBlocks(
         [{ type: "paragraph" }],
         props.block,
-        "after"
+        "after",
       )[0];
       editor.setTextCursorPosition(insertedBlock);
       editor.openSuggestionMenu("/");

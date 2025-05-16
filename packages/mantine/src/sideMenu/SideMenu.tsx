@@ -18,7 +18,8 @@ export const SideMenu = forwardRef<
       gap={0}
       className={className}
       ref={ref}
-      {...rest}>
+      {...rest}
+    >
       {children}
     </MantineGroup>
   );

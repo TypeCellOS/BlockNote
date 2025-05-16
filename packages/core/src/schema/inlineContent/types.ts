@@ -44,55 +44,55 @@ export type InlineContentSchemaFromSpecs<T extends InlineContentSpecs> = {
 
 export type CustomInlineContentFromConfig<
   I extends CustomInlineContentConfig,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = {
   type: I["type"];
   props: Props<I["propSchema"]>;
   content: I["content"] extends "styled"
     ? StyledText<S>[]
     : I["content"] extends "plain"
-    ? string
-    : I["content"] extends "none"
-    ? undefined
-    : never;
+      ? string
+      : I["content"] extends "none"
+        ? undefined
+        : never;
 };
 
 export type InlineContentFromConfig<
   I extends InlineContentConfig,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = I extends "text"
   ? StyledText<S>
   : I extends "link"
-  ? Link<S>
-  : I extends CustomInlineContentConfig
-  ? CustomInlineContentFromConfig<I, S>
-  : never;
+    ? Link<S>
+    : I extends CustomInlineContentConfig
+      ? CustomInlineContentFromConfig<I, S>
+      : never;
 
 export type PartialCustomInlineContentFromConfig<
   I extends CustomInlineContentConfig,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = {
   type: I["type"];
   props?: Props<I["propSchema"]>;
   content?: I["content"] extends "styled"
     ? StyledText<S>[] | string
     : I["content"] extends "plain"
-    ? string
-    : I["content"] extends "none"
-    ? undefined
-    : never;
+      ? string
+      : I["content"] extends "none"
+        ? undefined
+        : never;
 };
 
 export type PartialInlineContentFromConfig<
   I extends InlineContentConfig,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = I extends "text"
   ? string | StyledText<S>
   : I extends "link"
-  ? PartialLink<S>
-  : I extends CustomInlineContentConfig
-  ? PartialCustomInlineContentFromConfig<I, S>
-  : never;
+    ? PartialLink<S>
+    : I extends CustomInlineContentConfig
+      ? PartialCustomInlineContentFromConfig<I, S>
+      : never;
 
 export type StyledText<T extends StyleSchema> = {
   type: "text";
@@ -112,33 +112,33 @@ export type PartialLink<T extends StyleSchema> = Omit<Link<T>, "content"> & {
 
 export type InlineContent<
   I extends InlineContentSchema,
-  T extends StyleSchema
+  T extends StyleSchema,
 > = InlineContentFromConfig<I[keyof I], T>;
 
 type PartialInlineContentElement<
   I extends InlineContentSchema,
-  T extends StyleSchema
+  T extends StyleSchema,
 > = PartialInlineContentFromConfig<I[keyof I], T>;
 
 export type PartialInlineContent<
   I extends InlineContentSchema,
-  T extends StyleSchema
+  T extends StyleSchema,
 > = PartialInlineContentElement<I, T>[] | string;
 
 export function isLinkInlineContent<T extends StyleSchema>(
-  content: InlineContent<any, T>
+  content: InlineContent<any, T>,
 ): content is Link<T> {
   return content.type === "link";
 }
 
 export function isPartialLinkInlineContent<T extends StyleSchema>(
-  content: PartialInlineContentElement<any, T>
+  content: PartialInlineContentElement<any, T>,
 ): content is PartialLink<T> {
   return typeof content !== "string" && content.type === "link";
 }
 
 export function isStyledTextInlineContent<T extends StyleSchema>(
-  content: PartialInlineContentElement<any, T>
+  content: PartialInlineContentElement<any, T>,
 ): content is StyledText<T> {
   return typeof content !== "string" && content.type === "text";
 }

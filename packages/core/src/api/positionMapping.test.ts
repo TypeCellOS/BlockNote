@@ -23,7 +23,7 @@ describe("PositionStorage with local editor", () => {
 
       expect(editor._tiptapEditor.on).toHaveBeenCalledWith(
         "transaction",
-        expect.any(Function)
+        expect.any(Function),
       );
     });
   });
@@ -59,7 +59,7 @@ describe("PositionStorage with local editor", () => {
         },
       ],
       editor.document[0],
-      "before"
+      "before",
     );
 
     // Start tracking
@@ -98,7 +98,7 @@ describe("PositionStorage with local editor", () => {
         },
       ],
       editor.document[0],
-      "before"
+      "before",
     );
     // Start tracking
     const getPos = trackPosition(editor, 10);

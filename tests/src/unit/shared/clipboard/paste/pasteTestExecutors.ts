@@ -15,10 +15,10 @@ import { PasteTestCase } from "./pasteTestCase.js";
 export const testPasteHTML = async <
   B extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   editor: BlockNoteEditor<B, I, S>,
-  testCase: PasteTestCase<B, I, S>
+  testCase: PasteTestCase<B, I, S>,
 ) => {
   setupClipboardTest(editor, testCase.document, testCase.getPasteSelection);
 
@@ -27,21 +27,21 @@ export const testPasteHTML = async <
     "",
     testCase.content,
     false,
-    new ClipboardEvent("paste")
+    new ClipboardEvent("paste"),
   );
 
   await expect(editor.document).toMatchFileSnapshot(
-    `./__snapshots__/text/html/${testCase.name}.json`
+    `./__snapshots__/text/html/${testCase.name}.json`,
   );
 };
 
 export const testPasteMarkdown = async <
   B extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   editor: BlockNoteEditor<B, I, S>,
-  testCase: PasteTestCase<B, I, S>
+  testCase: PasteTestCase<B, I, S>,
 ) => {
   setupClipboardTest(editor, testCase.document, testCase.getPasteSelection);
 
@@ -50,10 +50,10 @@ export const testPasteMarkdown = async <
     testCase.content,
     "",
     true,
-    new ClipboardEvent("paste")
+    new ClipboardEvent("paste"),
   );
 
   await expect(editor.document).toMatchFileSnapshot(
-    `./__snapshots__/text/plain/${testCase.name}.json`
+    `./__snapshots__/text/plain/${testCase.name}.json`,
   );
 };

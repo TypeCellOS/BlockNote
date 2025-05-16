@@ -36,7 +36,7 @@ export const QuoteBlockContent = createStronglyTypedTiptapNode({
               updateBlockCommand(blockInfo.bnBlock.beforePos, {
                 type: "quote",
                 props: {},
-              })
+              }),
             )
             // Removes the ">" character used to set the list.
             .deleteRange({ from: range.from, to: range.to });
@@ -59,7 +59,7 @@ export const QuoteBlockContent = createStronglyTypedTiptapNode({
         return this.editor.commands.command(
           updateBlockCommand(blockInfo.bnBlock.beforePos, {
             type: "quote",
-          })
+          }),
         );
       },
     };
@@ -88,12 +88,12 @@ export const QuoteBlockContent = createStronglyTypedTiptapNode({
         ...(this.options.domAttributes?.blockContent || {}),
         ...HTMLAttributes,
       },
-      this.options.domAttributes?.inlineContent || {}
+      this.options.domAttributes?.inlineContent || {},
     );
   },
 });
 
 export const Quote = createBlockSpecFromStronglyTypedTiptapNode(
   QuoteBlockContent,
-  quotePropSchema
+  quotePropSchema,
 );

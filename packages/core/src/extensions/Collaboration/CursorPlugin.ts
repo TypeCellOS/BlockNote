@@ -23,7 +23,7 @@ export class CursorPlugin {
       provider: { awareness: Awareness };
       renderCursor?: (user: CollaborationUser) => HTMLElement;
       showCursorLabels?: "always" | "activity";
-    }
+    },
   ) {
     this.provider = collaboration.provider;
     this.recentlyUpdatedCursors = new Map();
@@ -58,7 +58,7 @@ export class CursorPlugin {
               });
             }
           }
-        }
+        },
       );
     }
 

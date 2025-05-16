@@ -47,13 +47,13 @@ export class NodeSelectionKeyboardPlugin {
                 tr
                   .insert(
                     view.state.tr.selection.$to.after(),
-                    view.state.schema.nodes["paragraph"].createChecked()
+                    view.state.schema.nodes["paragraph"].createChecked(),
                   )
                   .setSelection(
                     new TextSelection(
-                      tr.doc.resolve(view.state.tr.selection.$to.after() + 1)
-                    )
-                  )
+                      tr.doc.resolve(view.state.tr.selection.$to.after() + 1),
+                    ),
+                  ),
               );
 
               return true;

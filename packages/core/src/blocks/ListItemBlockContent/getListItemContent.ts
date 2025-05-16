@@ -26,7 +26,7 @@ export function getListItemContent(
   /**
    * The name of the list item node.
    */
-  name: string
+  name: string,
 ): Fragment {
   /**
    * To actually implement this algorithm, we need to leverage ProseMirror's "fitting" algorithm.
@@ -70,8 +70,8 @@ export function getListItemContent(
     // and continuing with the rest of the algorithm.
     blockGroupNode = blockGroupNode.copy(
       blockGroupNode.content.cut(
-        blockGroupNode.firstChild.firstChild.nodeSize + 2
-      )
+        blockGroupNode.firstChild.firstChild.nodeSize + 2,
+      ),
     );
   }
 
@@ -90,14 +90,14 @@ export function getListItemContent(
   // The remaining nodes in the `blockGroup` stay in-place.
   const listItemNode = schema.nodes[name].create(
     {},
-    listItemsFirstChild.content
+    listItemsFirstChild.content,
   );
 
   // We have `blockGroup<listItemsFirstChild, ...blockContainer<any>[]>`
   // We want to extract out the rest of the nodes as `<...blockContainer<any>[]>`
   const remainingListItemChildren = blockGroupNode.content.cut(
     // +2 for the `blockGroup` node's start and end markers
-    listItemsFirstChild.nodeSize + 2
+    listItemsFirstChild.nodeSize + 2,
   );
   const hasRemainingListItemChildren = remainingListItemChildren.size > 0;
 

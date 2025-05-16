@@ -19,17 +19,17 @@ import { serializeBlocksInternalHTML } from "./util/serializeBlocksInternalHTML.
 export const createInternalHTMLSerializer = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   schema: Schema,
-  editor: BlockNoteEditor<BSchema, I, S>
+  editor: BlockNoteEditor<BSchema, I, S>,
 ) => {
   const serializer = DOMSerializer.fromSchema(schema);
 
   return {
     serializeBlocks: (
       blocks: PartialBlock<BSchema, I, S>[],
-      options: { document?: Document }
+      options: { document?: Document },
     ) => {
       return serializeBlocksInternalHTML(editor, blocks, serializer, options)
         .outerHTML;

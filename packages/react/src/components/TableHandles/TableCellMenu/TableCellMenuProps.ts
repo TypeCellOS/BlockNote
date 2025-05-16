@@ -9,7 +9,7 @@ import {
 
 export type TableCellMenuProps<
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 > = {
   block: SpecificBlock<{ table: DefaultBlockSchema["table"] }, "table", I, S>;
   rowIndex: number;

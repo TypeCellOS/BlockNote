@@ -36,7 +36,7 @@ const uppy = new Uppy()
       return {
         url: JSON.parse(text).data.url.replace(
           "tmpfiles.org/",
-          "tmpfiles.org/dl/"
+          "tmpfiles.org/dl/",
         ),
       };
     },
@@ -51,7 +51,7 @@ export function UppyFilePanel(props: FilePanelProps) {
     // uploaded URL.
     const handler: UploadSuccessCallback<Record<string, unknown>> = (
       file,
-      response
+      response,
     ) => {
       if (!file) {
         return;

@@ -18,7 +18,7 @@ import { ThreadStoreAuth } from "./ThreadStoreAuth.js";
 export class DefaultThreadStoreAuth extends ThreadStoreAuth {
   constructor(
     private readonly userId: string,
-    private readonly role: "comment" | "editor"
+    private readonly role: "comment" | "editor",
   ) {
     super();
   }
@@ -84,7 +84,7 @@ export class DefaultThreadStoreAuth extends ThreadStoreAuth {
 
     return !comment.reactions.some(
       (reaction) =>
-        reaction.emoji === emoji && reaction.userIds.includes(this.userId)
+        reaction.emoji === emoji && reaction.userIds.includes(this.userId),
     );
   }
 
@@ -100,7 +100,7 @@ export class DefaultThreadStoreAuth extends ThreadStoreAuth {
 
     return comment.reactions.some(
       (reaction) =>
-        reaction.emoji === emoji && reaction.userIds.includes(this.userId)
+        reaction.emoji === emoji && reaction.userIds.includes(this.userId),
     );
   }
 }

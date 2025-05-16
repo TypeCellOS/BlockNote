@@ -1,6 +1,6 @@
 export const createFigureWithCaption = (
   element: HTMLElement,
-  caption: string
+  caption: string,
 ) => {
   const figure = document.createElement("figure");
   const captionElement = document.createElement("figcaption");

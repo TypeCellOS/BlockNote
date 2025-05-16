@@ -14,7 +14,7 @@ export const ImagePreview = (
   props: Omit<
     ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
     "contentRef"
-  >
+  >,
 ) => {
   const resolved = useResolveUrl(props.block.props.url!);
 
@@ -37,7 +37,7 @@ export const ImageToExternalHTML = (
   props: Omit<
     ReactCustomBlockRenderProps<typeof imageBlockConfig, any, any>,
     "contentRef"
-  >
+  >,
 ) => {
   if (!props.block.props.url) {
     return <p>Add image</p>;
@@ -73,13 +73,14 @@ export const ImageToExternalHTML = (
 };
 
 export const ImageBlock = (
-  props: ReactCustomBlockRenderProps<typeof imageBlockConfig, any, any>
+  props: ReactCustomBlockRenderProps<typeof imageBlockConfig, any, any>,
 ) => {
   return (
     <ResizableFileBlockWrapper
       {...(props as any)}
       buttonText={props.editor.dictionary.file_blocks.image.add_button_text}
-      buttonIcon={<RiImage2Fill size={24} />}>
+      buttonIcon={<RiImage2Fill size={24} />}
+    >
       <ImagePreview {...(props as any)} />
     </ResizableFileBlockWrapper>
   );

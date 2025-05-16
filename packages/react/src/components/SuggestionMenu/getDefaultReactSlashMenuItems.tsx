@@ -51,7 +51,7 @@ const icons = {
 export function getDefaultReactSlashMenuItems<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(editor: BlockNoteEditor<BSchema, I, S>): DefaultReactSuggestionItem[] {
   return getDefaultSlashMenuItems(editor).map((item) => {
     const Icon = icons[item.key];

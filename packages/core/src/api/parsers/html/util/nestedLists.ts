@@ -33,7 +33,7 @@ function liftNestedListsToParent(element: HTMLElement) {
     const index = getChildIndex(list);
     const parentListItem = list.parentElement!;
     const siblingsAfter = Array.from(parentListItem.childNodes).slice(
-      index + 1
+      index + 1,
     );
     list.remove();
     siblingsAfter.forEach((sibling) => {
@@ -110,7 +110,7 @@ function detachedDoc() {
 }
 
 export function nestedListsToBlockNoteStructure(
-  elementOrHTML: HTMLElement | string
+  elementOrHTML: HTMLElement | string,
 ) {
   if (typeof elementOrHTML === "string") {
     const element = detachedDoc().createElement("div");

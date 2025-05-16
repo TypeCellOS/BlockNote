@@ -35,14 +35,14 @@ export const Comments = ({
     const resolvedByUser = users.get(thread.resolvedBy);
     if (!resolvedByUser) {
       throw new Error(
-        `User ${thread.resolvedBy} resolved thread ${thread.id}, but their data could not be found.`
+        `User ${thread.resolvedBy} resolved thread ${thread.id}, but their data could not be found.`,
       );
     }
 
     const resolvedCommentIndex =
       thread.comments.findLastIndex(
         (comment) =>
-          thread.resolvedUpdatedAt!.getTime() > comment.createdAt.getTime()
+          thread.resolvedUpdatedAt!.getTime() > comment.createdAt.getTime(),
       ) + 1;
 
     comments.splice(
@@ -59,11 +59,12 @@ export const Comments = ({
           day: "numeric",
         })}
         edited={false}
-        showActions={false}>
+        showActions={false}
+      >
         <div className={"bn-resolved-text"}>
           {dict.comments.sidebar.marked_as_resolved}
         </div>
-      </Components.Comments.Comment>
+      </Components.Comments.Comment>,
     );
   }
 
@@ -77,9 +78,10 @@ export const Comments = ({
       comments.length - 2,
       <Components.Comments.ExpandSectionsPrompt
         key={"expand-prompt"}
-        className={"bn-thread-expand-prompt"}>
+        className={"bn-thread-expand-prompt"}
+      >
         {dict.comments.sidebar.more_replies(thread.comments.length - 2)}
-      </Components.Comments.ExpandSectionsPrompt>
+      </Components.Comments.ExpandSectionsPrompt>,
     );
   }
 

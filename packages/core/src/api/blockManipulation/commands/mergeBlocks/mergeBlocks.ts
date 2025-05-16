@@ -20,11 +20,11 @@ export const getParentBlockInfo = (doc: Node, beforePos: number) => {
   // get start pos of parent
   const parentBeforePos = $pos.posAtIndex(
     $pos.index($pos.depth - 1),
-    $pos.depth - 1
+    $pos.depth - 1,
   );
 
   const parentBlockInfo = getBlockInfoFromResolvedPos(
-    doc.resolve(parentBeforePos)
+    doc.resolve(parentBeforePos),
   );
   return parentBlockInfo;
 };
@@ -45,7 +45,7 @@ export const getPrevBlockInfo = (doc: Node, beforePos: number) => {
   const prevBlockBeforePos = $pos.posAtIndex(indexInParent - 1);
 
   const prevBlockInfo = getBlockInfoFromResolvedPos(
-    doc.resolve(prevBlockBeforePos)
+    doc.resolve(prevBlockBeforePos),
   );
   return prevBlockInfo;
 };
@@ -86,12 +86,12 @@ const mergeBlocks = (
   state: EditorState,
   dispatch: ((args?: any) => any) | undefined,
   prevBlockInfo: BlockInfo,
-  nextBlockInfo: BlockInfo
+  nextBlockInfo: BlockInfo,
 ) => {
   // Un-nests all children of the next block.
   if (!nextBlockInfo.isBlockContainer) {
     throw new Error(
-      `Attempted to merge block at position ${nextBlockInfo.bnBlock.beforePos} into previous block at position ${prevBlockInfo.bnBlock.beforePos}, but next block is not a block container`
+      `Attempted to merge block at position ${nextBlockInfo.bnBlock.beforePos} into previous block at position ${prevBlockInfo.bnBlock.beforePos}, but next block is not a block container`,
     );
   }
 
@@ -99,10 +99,10 @@ const mergeBlocks = (
   // group nodes.
   if (nextBlockInfo.childContainer) {
     const childBlocksStart = state.doc.resolve(
-      nextBlockInfo.childContainer.beforePos + 1
+      nextBlockInfo.childContainer.beforePos + 1,
     );
     const childBlocksEnd = state.doc.resolve(
-      nextBlockInfo.childContainer.afterPos - 1
+      nextBlockInfo.childContainer.afterPos - 1,
     );
     const childBlocksRange = childBlocksStart.blockRange(childBlocksEnd);
 
@@ -118,7 +118,7 @@ const mergeBlocks = (
   if (dispatch) {
     if (!prevBlockInfo.isBlockContainer) {
       throw new Error(
-        `Attempted to merge block at position ${nextBlockInfo.bnBlock.beforePos} into previous block at position ${prevBlockInfo.bnBlock.beforePos}, but previous block is not a block container`
+        `Attempted to merge block at position ${nextBlockInfo.bnBlock.beforePos} into previous block at position ${prevBlockInfo.bnBlock.beforePos}, but previous block is not a block container`,
       );
     }
 
@@ -126,8 +126,8 @@ const mergeBlocks = (
     dispatch(
       state.tr.delete(
         prevBlockInfo.blockContent.afterPos - 1,
-        nextBlockInfo.blockContent.beforePos + 1
-      )
+        nextBlockInfo.blockContent.beforePos + 1,
+      ),
     );
   }
 
@@ -148,7 +148,7 @@ export const mergeBlocksCommand =
 
     const prevBlockInfo = getPrevBlockInfo(
       state.doc,
-      nextBlockInfo.bnBlock.beforePos
+      nextBlockInfo.bnBlock.beforePos,
     );
 
     if (!prevBlockInfo) {
@@ -157,7 +157,7 @@ export const mergeBlocksCommand =
 
     const bottomNestedBlockInfo = getBottomNestedBlockInfo(
       state.doc,
-      prevBlockInfo
+      prevBlockInfo,
     );
 
     if (!canMerge(bottomNestedBlockInfo, nextBlockInfo)) {

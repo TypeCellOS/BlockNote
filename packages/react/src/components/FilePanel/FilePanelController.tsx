@@ -18,7 +18,7 @@ import { FilePanelProps } from "./FilePanelProps.js";
 export const FilePanelController = <
   B extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(props: {
   filePanel?: FC<FilePanelProps<I, S>>;
   floatingOptions?: Partial<UseFloatingOptions>;
@@ -27,12 +27,12 @@ export const FilePanelController = <
 
   if (!editor.filePanel) {
     throw new Error(
-      "FileToolbarController can only be used when BlockNote editor schema contains file block"
+      "FileToolbarController can only be used when BlockNote editor schema contains file block",
     );
   }
 
   const state = useUIPluginState(
-    editor.filePanel.onUpdate.bind(editor.filePanel)
+    editor.filePanel.onUpdate.bind(editor.filePanel),
   );
 
   const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
@@ -49,7 +49,7 @@ export const FilePanelController = <
         }
       },
       ...props.floatingOptions,
-    }
+    },
   );
 
   if (!isMounted || !state) {

@@ -15,8 +15,8 @@ export default function Nextra({ Component, pageProps }: NextraAppProps) {
 
   return (
     <>
-        <Component {...pageProps} />
-        <Analytics />
+      <Component {...pageProps} />
+      <Analytics />
     </>
   );
 }

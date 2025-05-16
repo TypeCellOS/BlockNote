@@ -56,7 +56,8 @@ const NavBarExtraContent = () => {
     <>
       <NextLink
         href="https://github.com/TypeCellOS/BlockNote"
-        className="generic-hover">
+        className="generic-hover"
+      >
         <span className="sr-only">GitHub</span>
         <GitHubIcon />
       </NextLink>
@@ -66,10 +67,12 @@ const NavBarExtraContent = () => {
       </NextLink>
       {session.data ? null : (
         <NextLink
-          href={`/signin?redirect=${encodeURIComponent(router.route || "")}&theme=${encodeURIComponent(theme.resolvedTheme || "")}`}>
+          href={`/signin?redirect=${encodeURIComponent(router.route || "")}&theme=${encodeURIComponent(theme.resolvedTheme || "")}`}
+        >
           <CTA
             href={`/signin?redirect=${encodeURIComponent(router.route || "")}&theme=${encodeURIComponent(theme.resolvedTheme || "")}`}
-            size={"small"}>
+            size={"small"}
+          >
             Sign in
           </CTA>
         </NextLink>

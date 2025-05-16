@@ -75,7 +75,7 @@ test.describe("Check Image Block and Toolbar functionality", () => {
 
     await page.waitForSelector(`[class*="bn-resize-handle"][style*="right"]`);
     const resizeHandle = page.locator(
-      `[class*="bn-resize-handle"][style*="right"]`
+      `[class*="bn-resize-handle"][style*="right"]`,
     );
     const resizeHandleBoundingBox = (await resizeHandle.boundingBox())!;
     await page.mouse.move(
@@ -83,7 +83,7 @@ test.describe("Check Image Block and Toolbar functionality", () => {
       resizeHandleBoundingBox.y + resizeHandleBoundingBox.height / 2,
       {
         steps: 5,
-      }
+      },
     );
     await page.mouse.down();
 
@@ -92,7 +92,7 @@ test.describe("Check Image Block and Toolbar functionality", () => {
       resizeHandleBoundingBox.y + resizeHandleBoundingBox.height / 2,
       {
         steps: 5,
-      }
+      },
     );
 
     await page.mouse.up();

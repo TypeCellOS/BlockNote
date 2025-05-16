@@ -11,7 +11,7 @@ export function addSpacesToCheckboxes() {
 
   if (!deps) {
     throw new Error(
-      "addSpacesToCheckboxes requires ESM dependencies to be initialized"
+      "addSpacesToCheckboxes requires ESM dependencies to be initialized",
     );
   }
 
@@ -38,8 +38,8 @@ export function addSpacesToCheckboxes() {
             0,
             0,
             deps.hastUtilFromDom.fromDom(
-              document.createTextNode(" ")
-            ) as HASTElement
+              document.createTextNode(" "),
+            ) as HASTElement,
           );
         } else {
           helper(child as HASTParent);

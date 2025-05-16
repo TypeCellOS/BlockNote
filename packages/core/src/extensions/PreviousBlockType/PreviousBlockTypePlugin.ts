@@ -37,7 +37,7 @@ export class PreviousBlockTypePlugin {
               // for one DOM-render the decorations have been applied
               timeout = setTimeout(() => {
                 view.dispatch(
-                  view.state.tr.setMeta(PLUGIN_KEY, { clearUpdate: true })
+                  view.state.tr.setMeta(PLUGIN_KEY, { clearUpdate: true }),
                 );
               }, 0);
             }
@@ -93,7 +93,7 @@ export class PreviousBlockTypePlugin {
 
           const oldNodes = findChildren(oldState.doc, (node) => node.attrs.id);
           const oldNodesById = new Map(
-            oldNodes.map((node) => [node.node.attrs.id, node])
+            oldNodes.map((node) => [node.node.attrs.id, node]),
           );
           const newNodes = findChildren(newState.doc, (node) => node.attrs.id);
 

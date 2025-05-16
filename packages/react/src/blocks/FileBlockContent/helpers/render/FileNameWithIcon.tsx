@@ -7,12 +7,13 @@ export const FileNameWithIcon = (
   props: Omit<
     ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
     "editor" | "contentRef"
-  >
+  >,
 ) => (
   <div
     className={"bn-file-name-with-icon"}
     contentEditable={false}
-    draggable={false}>
+    draggable={false}
+  >
     <div className={"bn-file-icon"}>
       <RiFile2Line size={24} />
     </div>
