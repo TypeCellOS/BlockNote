@@ -28,7 +28,7 @@ const CustomParagraph = createReactBlockSpec(
     toExternalHTML: () => (
       <p className={"react-custom-paragraph"}>Hello World</p>
     ),
-  }
+  },
 );
 
 const SimpleCustomParagraph = createReactBlockSpec(
@@ -41,7 +41,7 @@ const SimpleCustomParagraph = createReactBlockSpec(
     render: (props) => (
       <p ref={props.contentRef} className={"simple-react-custom-paragraph"} />
     ),
-  }
+  },
 );
 
 export const TestContext = createContext<true | undefined>(undefined);
@@ -63,7 +63,7 @@ const ContextParagraph = createReactBlockSpec(
   },
   {
     render: ContextParagraphComponent,
-  }
+  },
 );
 
 // INLINE CONTENT --------------------------------------------------------------
@@ -82,7 +82,7 @@ const Mention = createReactInlineContentSpec(
     render: (props) => {
       return <span>@{props.inlineContent.props.user}</span>;
     },
-  }
+  },
 );
 
 const Tag = createReactInlineContentSpec(
@@ -99,7 +99,7 @@ const Tag = createReactInlineContentSpec(
         </span>
       );
     },
-  }
+  },
 );
 
 // STYLES ----------------------------------------------------------------------
@@ -113,7 +113,7 @@ const Small = createReactStyleSpec(
     render: (props) => {
       return <small ref={props.contentRef}></small>;
     },
-  }
+  },
 );
 
 const FontSize = createReactStyleSpec(
@@ -127,7 +127,7 @@ const FontSize = createReactStyleSpec(
         <span ref={props.contentRef} style={{ fontSize: props.value }}></span>
       );
     },
-  }
+  },
 );
 
 // SCHEMA ----------------------------------------------------------------------

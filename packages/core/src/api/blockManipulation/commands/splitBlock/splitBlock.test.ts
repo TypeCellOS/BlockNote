@@ -15,17 +15,17 @@ const getEditor = setupTestEnv();
 function splitBlock(
   posInBlock: number,
   keepType?: boolean,
-  keepProps?: boolean
+  keepProps?: boolean,
 ) {
   getEditor()._tiptapEditor.commands.command(
-    splitBlockCommand(posInBlock, keepType, keepProps)
+    splitBlockCommand(posInBlock, keepType, keepProps),
   );
 }
 
 function setSelectionWithOffset(
   doc: Node,
   targetBlockId: string,
-  offset: number
+  offset: number,
 ) {
   const posInfo = getNodeById(targetBlockId, doc);
   if (!posInfo) {
@@ -40,8 +40,8 @@ function setSelectionWithOffset(
 
   getEditor().transact((tr) =>
     tr.setSelection(
-      TextSelection.create(doc, info.blockContent.beforePos + offset + 1)
-    )
+      TextSelection.create(doc, info.blockContent.beforePos + offset + 1),
+    ),
   );
 }
 
@@ -83,7 +83,7 @@ describe("Test splitBlocks", () => {
 
     splitBlock(
       getEditor().transact((tr) => tr.selection.anchor),
-      true
+      true,
     );
 
     expect(getEditor().document).toMatchSnapshot();
@@ -96,7 +96,7 @@ describe("Test splitBlocks", () => {
 
     splitBlock(
       getEditor().transact((tr) => tr.selection.anchor),
-      false
+      false,
     );
 
     expect(getEditor().document).toMatchSnapshot();
@@ -110,7 +110,7 @@ describe("Test splitBlocks", () => {
     splitBlock(
       getEditor().transact((tr) => tr.selection.anchor),
       false,
-      true
+      true,
     );
 
     expect(getEditor().document).toMatchSnapshot();
@@ -124,7 +124,7 @@ describe("Test splitBlocks", () => {
     splitBlock(
       getEditor().transact((tr) => tr.selection.anchor),
       false,
-      false
+      false,
     );
 
     expect(getEditor().document).toMatchSnapshot();
@@ -138,7 +138,7 @@ describe("Test splitBlocks", () => {
     splitBlock(getEditor().transact((tr) => tr.selection.anchor));
 
     const bnBlock = getEditor().transact(
-      (tr) => getBlockInfoFromTransaction(tr).bnBlock
+      (tr) => getBlockInfoFromTransaction(tr).bnBlock,
     );
 
     const anchorIsAtStartOfNewBlock =

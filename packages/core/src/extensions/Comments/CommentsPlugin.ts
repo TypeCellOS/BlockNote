@@ -102,6 +102,7 @@ export class CommentsPlugin extends BlockNoteExtension {
               const trimmedTo = Math.min(
                 pos + node.nodeSize,
                 tr.doc.content.size - 1,
+                tr.doc.content.size - 1,
               );
               tr.removeMark(trimmedFrom, trimmedTo, mark);
               tr.addMark(
@@ -110,6 +111,7 @@ export class CommentsPlugin extends BlockNoteExtension {
                 markType.create({
                   ...mark.attrs,
                   orphan: isOrphan,
+                }),
                 }),
               );
 
@@ -128,6 +130,7 @@ export class CommentsPlugin extends BlockNoteExtension {
   constructor(
     private readonly editor: BlockNoteEditor<any, any, any>,
     public readonly threadStore: ThreadStore,
+    private readonly markType: string,
     private readonly markType: string,
   ) {
     super();
@@ -251,6 +254,7 @@ export class CommentsPlugin extends BlockNoteExtension {
       selectedThreadId: string | undefined;
       threadPositions: Map<string, { from: number; to: number }>;
     }) => void,
+    }) => void,
   ) {
     return this.on("update", callback);
   }
@@ -267,6 +271,7 @@ export class CommentsPlugin extends BlockNoteExtension {
     this.editor.transact((tr) =>
       tr.setMeta(PLUGIN_KEY, {
         name: SET_SELECTED_THREAD_ID,
+      }),
       }),
     );
 

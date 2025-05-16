@@ -4,7 +4,7 @@ import { useCallback, useMemo, useSyncExternalStore } from "react";
 
 export function useUser(
   editor: BlockNoteEditor<any, any, any>,
-  userId: string
+  userId: string,
 ) {
   return useUsers(editor, [userId]).get(userId);
 }
@@ -14,7 +14,7 @@ export function useUser(
  */
 export function useUsers(
   editor: BlockNoteEditor<any, any, any>,
-  userIds: string[]
+  userIds: string[],
 ) {
   const comments = editor.comments;
   if (!comments) {
@@ -58,7 +58,7 @@ export function useUsers(
       store.loadUsers(userIds);
       return ret;
     },
-    [store, getUpdatedSnapshot, userIds, ref]
+    [store, getUpdatedSnapshot, userIds, ref],
   );
 
   return useSyncExternalStore(subscribe, () => ref.current!);

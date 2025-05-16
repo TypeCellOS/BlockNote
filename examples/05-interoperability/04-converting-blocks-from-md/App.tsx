@@ -17,7 +17,7 @@ export default function App() {
       const blocks = await editor.tryParseMarkdownToBlocks(e.target.value);
       editor.replaceBlocks(editor.document, blocks);
     },
-    [editor]
+    [editor],
   );
 
   // For initialization; on mount, convert the initial Markdown to blocks and replace the default editor's content

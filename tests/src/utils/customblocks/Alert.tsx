@@ -56,7 +56,7 @@ export const Alert = createBlockSpec(
         "style",
         `display: flex; background-color: ${
           values[block.props.type as keyof typeof values].backgroundColor
-        }`
+        }`,
       );
 
       const icon = document.createElement("div");
@@ -64,7 +64,7 @@ export const Alert = createBlockSpec(
       icon.setAttribute("contenteditable", "false");
       icon.setAttribute(
         "style",
-        "margin-right: 0.5rem; user-select: none; cursor: pointer;"
+        "margin-right: 0.5rem; user-select: none; cursor: pointer;",
       );
       icon.addEventListener("click", () => {
         const type = editor.getBlock(block)!.props.type;
@@ -72,7 +72,7 @@ export const Alert = createBlockSpec(
         if (type === "warning") {
           parent.setAttribute(
             "style",
-            `display: flex; background-color: ${values["error"].backgroundColor}`
+            `display: flex; background-color: ${values["error"].backgroundColor}`,
           );
           editor.updateBlock(editor.getBlock(block)!, {
             props: {
@@ -82,7 +82,7 @@ export const Alert = createBlockSpec(
         } else if (type === "error") {
           parent.setAttribute(
             "style",
-            `display: flex; background-color: ${values["info"].backgroundColor}`
+            `display: flex; background-color: ${values["info"].backgroundColor}`,
           );
           editor.updateBlock(editor.getBlock(block)!, {
             props: {
@@ -92,7 +92,7 @@ export const Alert = createBlockSpec(
         } else if (type === "info") {
           parent.setAttribute(
             "style",
-            `display: flex; background-color: ${values["success"].backgroundColor}`
+            `display: flex; background-color: ${values["success"].backgroundColor}`,
           );
           editor.updateBlock(editor.getBlock(block)!, {
             props: {
@@ -102,7 +102,7 @@ export const Alert = createBlockSpec(
         } else if (type === "success") {
           parent.setAttribute(
             "style",
-            `display: flex; background-color: ${values["warning"].backgroundColor}`
+            `display: flex; background-color: ${values["warning"].backgroundColor}`,
           );
           editor.updateBlock(editor.getBlock(block)!, {
             props: {
@@ -124,7 +124,7 @@ export const Alert = createBlockSpec(
         contentDOM: text,
       };
     },
-  }
+  },
 );
 
 export const insertAlert = (editor: BlockNoteEditor<any, any, any>) => ({

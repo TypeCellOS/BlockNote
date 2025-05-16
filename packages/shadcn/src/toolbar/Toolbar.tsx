@@ -28,16 +28,17 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
           className={cn(
             className,
             "bn-flex bn-gap-1 bn-p-1 bn-bg-popover bn-text-popover-foreground bn-border bn-rounded-lg bn-shadow-md bn-h-fit",
-            variant === "action-toolbar" ? "bn-w-fit" : ""
+            variant === "action-toolbar" ? "bn-w-fit" : "",
           )}
           ref={ref}
           onMouseEnter={onMouseEnter}
-          onMouseLeave={onMouseLeave}>
+          onMouseLeave={onMouseLeave}
+        >
           {children}
         </div>
       </ShadCNComponents.Tooltip.TooltipProvider>
     );
-  }
+  },
 );
 
 type ToolbarButtonProps = ComponentProps["Generic"]["Toolbar"]["Button"];
@@ -69,7 +70,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         <ShadCNComponents.Button.Button
           className={cn(
             className,
-            variant === "compact" ? "bn-h-6 bn-min-w-6 bn-p-0" : ""
+            variant === "compact" ? "bn-h-6 bn-min-w-6 bn-p-0" : "",
           )}
           variant="ghost"
           size={variant === "compact" ? "sm" : "default"}
@@ -77,7 +78,8 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           onClick={onClick}
           ref={ref}
           aria-label={label}
-          {...rest}>
+          {...rest}
+        >
           {icon}
           {children}
         </ShadCNComponents.Button.Button>
@@ -86,7 +88,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           className={cn(
             className,
             "data-[state=open]:bg-accent data-[state=closed]:text-accent-foreground",
-            variant === "compact" ? "bn-h-6 bn-min-w-6 bn-p-0" : ""
+            variant === "compact" ? "bn-h-6 bn-min-w-6 bn-p-0" : "",
           )}
           size={variant === "compact" ? "sm" : "default"}
           aria-label={label}
@@ -96,7 +98,8 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
           data-state={isSelected ? "on" : "off"}
           data-disabled={isDisabled}
           ref={ref}
-          {...rest}>
+          {...rest}
+        >
           {icon}
           {children}
         </ShadCNComponents.Toggle.Toggle>
@@ -110,13 +113,14 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         <ShadCNComponents.Tooltip.TooltipContent
           className={
             "bn-flex bn-flex-col bn-items-center bn-whitespace-pre-wrap"
-          }>
+          }
+        >
           <span>{mainTooltip}</span>
           {secondaryTooltip && <span>{secondaryTooltip}</span>}
         </ShadCNComponents.Tooltip.TooltipContent>
       </ShadCNComponents.Tooltip.Tooltip>
     );
-  }
+  },
 );
 
 export const ToolbarSelect = forwardRef<
@@ -149,7 +153,8 @@ export const ToolbarSelect = forwardRef<
       onValueChange={(value) =>
         items.find((item) => item.text === value)!.onClick?.()
       }
-      disabled={isDisabled}>
+      disabled={isDisabled}
+    >
       <ShadCNComponents.Select.SelectTrigger className={"bn-border-none"}>
         <ShadCNComponents.Select.SelectValue />
       </ShadCNComponents.Select.SelectTrigger>
@@ -158,7 +163,8 @@ export const ToolbarSelect = forwardRef<
           <ShadCNComponents.Select.SelectItem
             disabled={item.isDisabled}
             key={item.text}
-            value={item.text}>
+            value={item.text}
+          >
             <SelectItemContent {...item} />
           </ShadCNComponents.Select.SelectItem>
         ))}

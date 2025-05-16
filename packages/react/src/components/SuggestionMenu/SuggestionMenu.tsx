@@ -30,7 +30,8 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
         renderedItems.push(
           <Components.SuggestionMenu.Label
             className={"bn-suggestion-menu-label"}
-            key={currentGroup}>
+            key={currentGroup}
+          >
             {currentGroup}
           </Components.SuggestionMenu.Label>,
         );
@@ -57,13 +58,15 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
   return (
     <Components.SuggestionMenu.Root
       id="bn-suggestion-menu"
-      className="bn-suggestion-menu">
+      className="bn-suggestion-menu"
+    >
       {renderedItems}
       {renderedItems.length === 0 &&
         (props.loadingState === "loading" ||
           props.loadingState === "loaded") && (
           <Components.SuggestionMenu.EmptyItem
-            className={"bn-suggestion-menu-item"}>
+            className={"bn-suggestion-menu-item"}
+          >
             {dict.suggestion_menu.no_items_title}
           </Components.SuggestionMenu.EmptyItem>
         )}

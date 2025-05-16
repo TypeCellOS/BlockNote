@@ -11,5 +11,5 @@ export const ColumnBlock = createBlockSpecFromStronglyTypedTiptapNode(Column, {
 
 export const ColumnListBlock = createBlockSpecFromStronglyTypedTiptapNode(
   ColumnList,
-  {}
+  {},
 );

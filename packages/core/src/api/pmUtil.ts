@@ -16,7 +16,7 @@ export function getPmSchema(trOrNode: Transform | Node) {
 function getBlockNoteEditor<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(schema: Schema): BlockNoteEditor<BSchema, I, S> {
   return schema.cached.blockNoteEditor as BlockNoteEditor<BSchema, I, S>;
 }
@@ -24,7 +24,7 @@ function getBlockNoteEditor<
 export function getBlockNoteSchema<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(schema: Schema): BlockNoteSchema<BSchema, I, S> {
   return getBlockNoteEditor(schema).schema as unknown as BlockNoteSchema<
     BSchema,
@@ -34,13 +34,13 @@ export function getBlockNoteSchema<
 }
 
 export function getBlockSchema<BSchema extends BlockSchema>(
-  schema: Schema
+  schema: Schema,
 ): BSchema {
   return getBlockNoteSchema(schema).blockSchema as BSchema;
 }
 
 export function getInlineContentSchema<I extends InlineContentSchema>(
-  schema: Schema
+  schema: Schema,
 ): I {
   return getBlockNoteSchema(schema).inlineContentSchema as I;
 }

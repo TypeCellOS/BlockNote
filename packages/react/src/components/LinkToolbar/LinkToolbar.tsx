@@ -18,7 +18,7 @@ import { LinkToolbarProps } from "./LinkToolbarProps.js";
  * `components/mantine-shared/Toolbar` directory.
  */
 export const LinkToolbar = (
-  props: LinkToolbarProps & { children?: ReactNode }
+  props: LinkToolbarProps & { children?: ReactNode },
 ) => {
   const Components = useComponentsContext()!;
 
@@ -34,7 +34,8 @@ export const LinkToolbar = (
     <Components.LinkToolbar.Root
       className={"bn-toolbar bn-link-toolbar"}
       onMouseEnter={props.stopHideTimer}
-      onMouseLeave={props.startHideTimer}>
+      onMouseLeave={props.startHideTimer}
+    >
       <EditLinkButton
         url={props.url}
         text={props.text}

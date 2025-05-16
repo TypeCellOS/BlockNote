@@ -8,7 +8,7 @@ export function useGridSuggestionMenuKeyboardNavigation<Item>(
   query: string,
   items: Item[],
   columns: number,
-  onItemClick?: (item: Item) => void
+  onItemClick?: (item: Item) => void,
 ) {
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
@@ -35,7 +35,7 @@ export function useGridSuggestionMenuKeyboardNavigation<Item>(
 
         if (items.length) {
           setSelectedIndex(
-            (selectedIndex - columns + items!.length) % items!.length
+            (selectedIndex - columns + items!.length) % items!.length,
           );
         }
 
@@ -69,14 +69,14 @@ export function useGridSuggestionMenuKeyboardNavigation<Item>(
     editor.domElement?.addEventListener(
       "keydown",
       handleMenuNavigationKeys,
-      true
+      true,
     );
 
     return () => {
       editor.domElement?.removeEventListener(
         "keydown",
         handleMenuNavigationKeys,
-        true
+        true,
       );
     };
   }, [editor.domElement, items, selectedIndex, onItemClick, columns, isGrid]);

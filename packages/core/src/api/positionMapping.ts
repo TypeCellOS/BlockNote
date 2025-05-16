@@ -59,10 +59,10 @@ export function trackPosition(
   /**
    * This is the side of the position to track. "left" is the default. "right" would move with the change if the change is in the right direction.
    */
-  side: "left" | "right" = "left"
+  side: "left" | "right" = "left",
 ): () => number {
   const ySyncPluginState = ySyncPluginKey.getState(
-    editor._tiptapEditor.state
+    editor._tiptapEditor.state,
   ) as {
     doc: Y.Doc;
     binding: ProsemirrorBinding;
@@ -90,18 +90,18 @@ export function trackPosition(
     // Track the position after the position if we are on the right side
     position + (side === "right" ? 1 : 0),
     ySyncPluginState.binding.type,
-    ySyncPluginState.binding.mapping
+    ySyncPluginState.binding.mapping,
   );
 
   return () => {
     const curYSyncPluginState = ySyncPluginKey.getState(
-      editor._tiptapEditor.state
+      editor._tiptapEditor.state,
     ) as typeof ySyncPluginState;
     const pos = relativePositionToAbsolutePosition(
       curYSyncPluginState.doc,
       curYSyncPluginState.binding.type,
       relativePosition,
-      curYSyncPluginState.binding.mapping
+      curYSyncPluginState.binding.mapping,
     );
 
     // This can happen if the element is garbage collected

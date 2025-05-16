@@ -8,13 +8,13 @@ const getEditor = setupTestEnv();
 
 function mergeBlocks(posBetweenBlocks: number) {
   return getEditor()._tiptapEditor.commands.command(
-    mergeBlocksCommand(posBetweenBlocks)
+    mergeBlocksCommand(posBetweenBlocks),
   );
 }
 
 function getPosBeforeSelectedBlock() {
   return getEditor().transact(
-    (tr) => getBlockInfoFromTransaction(tr).bnBlock.beforePos
+    (tr) => getBlockInfoFromTransaction(tr).bnBlock.beforePos,
   );
 }
 
@@ -63,7 +63,7 @@ describe("Test mergeBlocks", () => {
     getEditor().setTextCursorPosition("paragraph-0", "end");
 
     const firstBlockEndOffset = getEditor().transact(
-      (tr) => tr.selection.$anchor.parentOffset
+      (tr) => tr.selection.$anchor.parentOffset,
     );
 
     getEditor().setTextCursorPosition("paragraph-1");

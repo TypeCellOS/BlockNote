@@ -57,8 +57,8 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
       const allCellsInTable = cellSelection.cells.map(
         ({ row, col }) =>
           mapTableCell(
-            (block.content as TableContent<any, any>).rows[row].cells[col]
-          ).props.textAlignment
+            (block.content as TableContent<any, any>).rows[row].cells[col],
+          ).props.textAlignment,
       );
       const firstAlignment = allCellsInTable[0];
 
@@ -93,7 +93,7 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
                   return mapTableCell(cell);
                 }),
               };
-            }
+            },
           );
 
           // Apply the text alignment to the cells that are within the selected range
@@ -116,14 +116,14 @@ export const TextAlignButton = (props: { textAlignment: TextAlignment }) => {
         }
       }
     },
-    [editor, selectedBlocks]
+    [editor, selectedBlocks],
   );
 
   const show = useMemo(() => {
     return !!selectedBlocks.find(
       (block) =>
         "textAlignment" in block.props ||
-        (block.type === "table" && block.children)
+        (block.type === "table" && block.children),
     );
   }, [selectedBlocks]);
 

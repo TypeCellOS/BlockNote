@@ -22,7 +22,7 @@ const small = createReactStyleSpec(
     render: (props) => {
       return <small ref={props.contentRef}></small>;
     },
-  }
+  },
 );
 
 const fontSize = createReactStyleSpec(
@@ -36,7 +36,7 @@ const fontSize = createReactStyleSpec(
         <span ref={props.contentRef} style={{ fontSize: props.value }}></span>
       );
     },
-  }
+  },
 );
 
 export const schema = BlockNoteSchema.create({
@@ -62,7 +62,8 @@ const CustomFormattingToolbar = (props: FormattingToolbarProps) => {
             small: true,
           });
         }}
-        isSelected={activeStyles.small}>
+        isSelected={activeStyles.small}
+      >
         Small
       </Components.FormattingToolbar.Button>
       <Components.FormattingToolbar.Button
@@ -72,7 +73,8 @@ const CustomFormattingToolbar = (props: FormattingToolbarProps) => {
             fontSize: "30px",
           });
         }}
-        isSelected={!!activeStyles.fontSize}>
+        isSelected={!!activeStyles.fontSize}
+      >
         Font size
       </Components.FormattingToolbar.Button>
     </FormattingToolbar>
@@ -105,7 +107,7 @@ export default function App() {
         },
       ],
     },
-    []
+    [],
   );
 
   return (

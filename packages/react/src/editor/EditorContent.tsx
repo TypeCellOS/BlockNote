@@ -61,7 +61,7 @@ export const Portals: React.FC<{ contentComponent: ContentComponent }> = ({
   const renderers = useSyncExternalStore(
     contentComponent.subscribe,
     contentComponent.getSnapshot,
-    contentComponent.getServerSnapshot
+    contentComponent.getServerSnapshot,
   );
 
   // This allows us to directly render the portals without any additional wrapper

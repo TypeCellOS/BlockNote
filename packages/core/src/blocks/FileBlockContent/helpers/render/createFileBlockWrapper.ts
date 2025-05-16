@@ -16,7 +16,7 @@ export const createFileBlockWrapper = (
   >,
   element?: { dom: HTMLElement; destroy?: () => void },
   buttonText?: string,
-  buttonIcon?: HTMLElement
+  buttonIcon?: HTMLElement,
 ) => {
   const wrapper = document.createElement("div");
   wrapper.className = "bn-file-block-content-wrapper";
@@ -28,7 +28,7 @@ export const createFileBlockWrapper = (
       block,
       editor,
       buttonText,
-      buttonIcon
+      buttonIcon,
     );
     wrapper.appendChild(addFileButton.dom);
 

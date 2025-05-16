@@ -27,7 +27,7 @@ export function useUIElementPositioning(
   show: boolean,
   referencePos: DOMRect | HTMLElement | VirtualElement | null,
   zIndex: number,
-  options?: Partial<UseFloatingOptions & { canDismiss: boolean }>
+  options?: Partial<UseFloatingOptions & { canDismiss: boolean }>,
 ): UIElementPosition {
   const { refs, update, context, floatingStyles } = useFloating({
     open: show,

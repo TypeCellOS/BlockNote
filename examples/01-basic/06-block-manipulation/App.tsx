@@ -25,9 +25,10 @@ export default function App() {
                 },
               ],
               editor.document[0],
-              "before"
+              "before",
             )
-          }>
+          }
+        >
           Insert First Block
         </button>
         {/*Updates the first block*/}
@@ -38,13 +39,15 @@ export default function App() {
               content:
                 "This block was updated at " + new Date().toLocaleTimeString(),
             })
-          }>
+          }
+        >
           Update First Block
         </button>
         {/*Removes the first block*/}
         <button
           className={"edit-button"}
-          onClick={() => editor.removeBlocks([editor.document[0]])}>
+          onClick={() => editor.removeBlocks([editor.document[0]])}
+        >
           Remove First Block
         </button>
         {/*Replaces the first block*/}
@@ -59,9 +62,10 @@ export default function App() {
                     "This block was replaced at " +
                     new Date().toLocaleTimeString(),
                 },
-              ]
+              ],
             )
-          }>
+          }
+        >
           Replace First Block
         </button>
       </div>

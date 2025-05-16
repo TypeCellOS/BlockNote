@@ -40,7 +40,7 @@ export class ReactMarkView extends CoreMarkView<ReactMarkViewComponent> {
   render = () => {
     this.editor._tiptapEditor.contentComponent.setRenderer(
       this.id,
-      this.renderer()
+      this.renderer(),
     );
   };
 

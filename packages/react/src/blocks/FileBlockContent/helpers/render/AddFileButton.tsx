@@ -36,7 +36,8 @@ export const AddFileButton = (
     <div
       className={"bn-add-file-button"}
       onMouseDown={addFileButtonMouseDownHandler}
-      onClick={addFileButtonClickHandler}>
+      onClick={addFileButtonClickHandler}
+    >
       <div className={"bn-add-file-button-icon"}>
         {props.buttonIcon || <RiFile2Line size={24} />}
       </div>

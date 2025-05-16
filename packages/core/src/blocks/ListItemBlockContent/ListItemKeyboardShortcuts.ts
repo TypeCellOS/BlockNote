@@ -36,7 +36,7 @@ export const handleEnter = (editor: BlockNoteEditor<any, any, any>) => {
             updateBlockCommand(blockContainer.beforePos, {
               type: "paragraph",
               props: {},
-            })
+            }),
           );
         }
 

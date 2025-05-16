@@ -53,7 +53,8 @@ function Root() {
             //   ? theme.colors.dark[8]
             //   : theme.colors.gray[0],
           },
-        })}>
+        })}
+      >
         {window.location.search.includes("hideMenu") ? undefined : (
           <AppShell.Navbar p="xs">
             <AppShell.Section grow component={ScrollArea} mx="-xs" px="xs">

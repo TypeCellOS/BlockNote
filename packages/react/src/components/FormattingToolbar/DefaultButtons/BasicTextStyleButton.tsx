@@ -33,7 +33,7 @@ const icons = {
 
 function checkBasicTextStyleInSchema<Style extends BasicTextStyle>(
   style: Style,
-  editor: BlockNoteEditor<BlockSchema, InlineContentSchema, any>
+  editor: BlockNoteEditor<BlockSchema, InlineContentSchema, any>,
 ): editor is BlockNoteEditor<
   BlockSchema,
   InlineContentSchema,
@@ -65,13 +65,13 @@ export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
 
   const basicTextStyleInSchema = checkBasicTextStyleInSchema(
     props.basicTextStyle,
-    editor
+    editor,
   );
 
   const selectedBlocks = useSelectedBlocks(editor);
 
   const [active, setActive] = useState<boolean>(
-    props.basicTextStyle in editor.getActiveStyles()
+    props.basicTextStyle in editor.getActiveStyles(),
   );
 
   useEditorContentOrSelectionChange(() => {
@@ -116,7 +116,7 @@ export const BasicTextStyleButton = <Style extends BasicTextStyle>(props: {
       mainTooltip={dict.formatting_toolbar[props.basicTextStyle].tooltip}
       secondaryTooltip={formatKeyboardShortcut(
         dict.formatting_toolbar[props.basicTextStyle].secondary_tooltip,
-        dict.generic.ctrl_shortcut
+        dict.generic.ctrl_shortcut,
       )}
       icon={<Icon />}
     />

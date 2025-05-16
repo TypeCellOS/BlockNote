@@ -11,7 +11,7 @@ describe("Test insertBlocks", () => {
       getEditor().insertBlocks(
         [{ type: "columnList" }],
         "paragraph-0",
-        "after"
+        "after",
       );
     }).toThrow();
   });
@@ -31,7 +31,7 @@ describe("Test insertBlocks", () => {
           },
         ],
         "paragraph-0",
-        "after"
+        "after",
       );
     }).toThrow();
   });
@@ -57,7 +57,7 @@ describe("Test insertBlocks", () => {
           },
         ],
         "paragraph-0",
-        "after"
+        "after",
       );
     }).toThrow();
   });
@@ -90,7 +90,7 @@ describe("Test insertBlocks", () => {
         },
       ],
       "paragraph-0",
-      "after"
+      "after",
     );
 
     expect(getEditor().document).toMatchSnapshot();
@@ -110,7 +110,7 @@ describe("Test insertBlocks", () => {
         },
       ],
       "column-0",
-      "before"
+      "before",
     );
 
     expect(getEditor().document).toMatchSnapshot();
@@ -144,7 +144,7 @@ describe("Test insertBlocks", () => {
         },
       ],
       "nested-paragraph-0",
-      "after"
+      "after",
     );
 
     expect(getEditor().document).toMatchSnapshot();
@@ -167,7 +167,7 @@ describe("Test insertBlocks", () => {
           },
         ],
         "nested-paragraph-0",
-        "after"
+        "after",
       );
     }).toThrow();
   });
@@ -184,7 +184,7 @@ describe("Test insertBlocks", () => {
           },
         ],
         "column-0",
-        "after"
+        "after",
       );
     }).toThrow();
   });
@@ -198,7 +198,7 @@ describe("Test insertBlocks", () => {
         },
       ],
       "column-paragraph-0",
-      "after"
+      "after",
     );
 
     expect(getEditor().document).toMatchSnapshot();

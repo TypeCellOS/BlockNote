@@ -60,13 +60,13 @@ export const FileRenameButton = () => {
         });
       }
     },
-    [currentEditingName, editor, fileBlock]
+    [currentEditingName, editor, fileBlock],
   );
 
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) =>
       setCurrentEditingName(event.currentTarget.value),
-    []
+    [],
   );
 
   if (
@@ -95,7 +95,8 @@ export const FileRenameButton = () => {
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content
         className={"bn-popover-content bn-form-popover"}
-        variant={"form-popover"}>
+        variant={"form-popover"}
+      >
         <Components.Generic.Form.Root>
           <Components.Generic.Form.TextInput
             name={"file-name"}

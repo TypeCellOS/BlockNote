@@ -17,7 +17,7 @@ describe("exporter", () => {
       BlockNoteSchema.create({
         blockSpecs: { ...defaultBlockSpecs, pageBreak: PageBreak },
       }),
-      odtDefaultSchemaMappings
+      odtDefaultSchemaMappings,
     );
     const odt = await exporter.toODTDocument(testDocument);
     await testODTDocumentAgainstSnapshot(odt, {
@@ -34,14 +34,14 @@ describe("exporter", () => {
         BlockNoteSchema.create({
           blockSpecs: { ...defaultBlockSpecs, pageBreak: PageBreak },
         }),
-        odtDefaultSchemaMappings
+        odtDefaultSchemaMappings,
       );
 
       const odt = await exporter.toODTDocument(testDocument, {
         footer: "<text:p>FOOTER</text:p>",
         header: new DOMParser().parseFromString(
           `<text:p xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0">HEADER</text:p>`,
-          "text/xml"
+          "text/xml",
         ),
       });
 
@@ -49,7 +49,7 @@ describe("exporter", () => {
         styles: "__snapshots__/withCustomOptions/styles.xml",
         content: "__snapshots__/withCustomOptions/content.xml",
       });
-    }
+    },
   );
 });
 
@@ -58,7 +58,7 @@ async function testODTDocumentAgainstSnapshot(
   snapshots: {
     styles: string;
     content: string;
-  }
+  },
 ) {
   const zipReader = new ZipReader(new BlobReader(odt));
   const entries = await zipReader.getEntries();
@@ -72,9 +72,9 @@ async function testODTDocumentAgainstSnapshot(
   expect(stylesXML).toBeDefined();
   expect(contentXML).toBeDefined();
   expect(
-    xmlFormat(await stylesXML!.getData!(stylesXMLWriter))
+    xmlFormat(await stylesXML!.getData!(stylesXMLWriter)),
   ).toMatchFileSnapshot(snapshots.styles);
   expect(
-    xmlFormat(await contentXML!.getData!(contentXMLWriter))
+    xmlFormat(await contentXML!.getData!(contentXMLWriter)),
   ).toMatchFileSnapshot(snapshots.content);
 }

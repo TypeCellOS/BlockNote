@@ -25,7 +25,7 @@ export function BlockNoteDefaultUI(props: BlockNoteDefaultUIProps) {
 
   if (!editor) {
     throw new Error(
-      "BlockNoteDefaultUI must be used within a BlockNoteContext.Provider"
+      "BlockNoteDefaultUI must be used within a BlockNoteContext.Provider",
     );
   }
 

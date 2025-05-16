@@ -19,7 +19,7 @@ export const GridSuggestionMenuItem = forwardRef<
 
     const overflow = elementOverflow(
       itemRef.current,
-      document.querySelector(".bn-grid-suggestion-menu")!
+      document.querySelector(".bn-grid-suggestion-menu")!,
     );
 
     if (overflow === "top") {
@@ -36,7 +36,8 @@ export const GridSuggestionMenuItem = forwardRef<
       id={id}
       role="option"
       onClick={onClick}
-      aria-selected={isSelected || undefined}>
+      aria-selected={isSelected || undefined}
+    >
       {item.icon}
     </div>
   );

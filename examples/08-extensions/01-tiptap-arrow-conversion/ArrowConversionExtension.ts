@@ -1,7 +1,7 @@
 import { Extension } from "@tiptap/core";
 
 export const ArrowConversionExtension = Extension.create({
-  name: 'arrowConversion',
+  name: "arrowConversion",
 
   addInputRules() {
     return [
@@ -9,10 +9,10 @@ export const ArrowConversionExtension = Extension.create({
         find: /->/g,
         handler: ({ state, range, chain }) => {
           const { from, to } = range;
-          const tr = state.tr.replaceWith(from, to, state.schema.text('→'));
+          const tr = state.tr.replaceWith(from, to, state.schema.text("→"));
           chain().insertContent(tr).run();
         },
       },
     ];
   },
-})
+});

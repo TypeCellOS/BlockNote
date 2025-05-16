@@ -62,7 +62,7 @@ test.describe("Check Text Alignment Functionality", () => {
     await page.pause();
 
     expect(await page.screenshot()).toMatchSnapshot(
-      "alignTextMultipleBlocks.png"
+      "alignTextMultipleBlocks.png",
     );
   });
 });

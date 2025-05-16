@@ -101,7 +101,8 @@ export function Features() {
       <div
         className={
           "z-20 flex max-w-full flex-col items-center gap-12 px-6 md:max-w-screen-md xl:max-w-none"
-        }>
+        }
+      >
         <SectionIntro
           header={"Why BlockNote?"}
           subtext={

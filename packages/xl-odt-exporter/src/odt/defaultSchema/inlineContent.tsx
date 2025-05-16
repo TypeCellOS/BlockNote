@@ -18,7 +18,8 @@ export const odtInlineContentMappingForDefaultSchema: InlineContentMapping<
         text:style-name="Internet_20_link"
         office:target-frame-name="_top"
         xlink:show="replace"
-        xlink:href={ic.href}>
+        xlink:href={ic.href}
+      >
         {content}
       </text:a>
     );

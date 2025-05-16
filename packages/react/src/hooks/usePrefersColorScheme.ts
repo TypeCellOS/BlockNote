@@ -7,11 +7,11 @@ import { useEffect, useMemo, useState } from "react";
 export const usePrefersColorScheme = () => {
   const darkQuery = useMemo(
     () => window.matchMedia?.("(prefers-color-scheme: dark)"),
-    []
+    [],
   );
   const lightQuery = useMemo(
     () => window.matchMedia?.("(prefers-color-scheme: light)"),
-    []
+    [],
   );
   const isDark = darkQuery?.matches;
   const isLight = lightQuery?.matches;
@@ -58,8 +58,8 @@ export const usePrefersColorScheme = () => {
           darkQuery.matches
             ? "dark"
             : lightQuery.matches
-            ? "light"
-            : "no-preference"
+              ? "light"
+              : "no-preference",
         );
 
       // This is two state updates if a user changes from dark to light, but

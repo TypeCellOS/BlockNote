@@ -52,7 +52,7 @@ export const videoBlockConfig = {
 
 export const videoRender = (
   block: BlockFromConfig<typeof videoBlockConfig, any, any>,
-  editor: BlockNoteEditor<any, any, any>
+  editor: BlockNoteEditor<any, any, any>,
 ) => {
   const icon = document.createElement("div");
   icon.innerHTML = FILE_VIDEO_ICON_SVG;
@@ -81,12 +81,12 @@ export const videoRender = (
     { dom: videoWrapper },
     videoWrapper,
     editor.dictionary.file_blocks.video.add_button_text,
-    icon.firstElementChild as HTMLElement
+    icon.firstElementChild as HTMLElement,
   );
 };
 
 export const videoParse = (
-  element: HTMLElement
+  element: HTMLElement,
 ): Partial<Props<typeof videoBlockConfig.propSchema>> | undefined => {
   if (element.tagName === "VIDEO") {
     // Ignore if parent figure has already been parsed.
@@ -115,7 +115,7 @@ export const videoParse = (
 };
 
 export const videoToExternalHTML = (
-  block: BlockFromConfig<typeof videoBlockConfig, any, any>
+  block: BlockFromConfig<typeof videoBlockConfig, any, any>,
 ) => {
   if (!block.props.url) {
     const div = document.createElement("p");

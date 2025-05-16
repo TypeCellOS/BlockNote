@@ -22,7 +22,7 @@ import { getPmSchema } from "./pmUtil.js";
  */
 export function getNodeById(
   id: string,
-  doc: Node
+  doc: Node,
 ): { node: Node; posBeforeNode: number } | undefined {
   let targetNode: Node | undefined = undefined;
   let posBeforeNode: number | undefined = undefined;
@@ -98,7 +98,7 @@ export type BlockChangeSource =
 export type BlocksChanged<
   BSchema extends BlockSchema = DefaultBlockSchema,
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
-  SSchema extends StyleSchema = DefaultStyleSchema
+  SSchema extends StyleSchema = DefaultStyleSchema,
 > = Array<
   {
     /**
@@ -134,10 +134,10 @@ export type BlocksChanged<
 function areBlocksDifferentExcludingChildren<
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
-  SSchema extends StyleSchema
+  SSchema extends StyleSchema,
 >(
   block1: Block<BSchema, ISchema, SSchema>,
-  block2: Block<BSchema, ISchema, SSchema>
+  block2: Block<BSchema, ISchema, SSchema>,
 ): boolean {
   // TODO use an actual diff algorithm
   // Compare all properties except children
@@ -158,10 +158,10 @@ function areBlocksDifferentExcludingChildren<
 export function getBlocksChangedByTransaction<
   BSchema extends BlockSchema = DefaultBlockSchema,
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
-  SSchema extends StyleSchema = DefaultStyleSchema
+  SSchema extends StyleSchema = DefaultStyleSchema,
 >(
   transaction: Transaction,
-  appendedTransactions: Transaction[] = []
+  appendedTransactions: Transaction[] = [],
 ): BlocksChanged<BSchema, ISchema, SSchema> {
   let source: BlockChangeSource = { type: "local" };
 
@@ -198,7 +198,7 @@ export function getBlocksChangedByTransaction<
       return findChildrenInRange(
         combinedTransaction.before,
         range.oldRange,
-        isNodeBlock
+        isNodeBlock,
       );
     })
     .map(({ node }) => nodeToBlock(node, pmSchema));
@@ -208,7 +208,7 @@ export function getBlocksChangedByTransaction<
       return findChildrenInRange(
         combinedTransaction.doc,
         range.newRange,
-        isNodeBlock
+        isNodeBlock,
       );
     })
     .map(({ node }) => nodeToBlock(node, pmSchema));
@@ -216,12 +216,12 @@ export function getBlocksChangedByTransaction<
   const nextBlocks = new Map(
     nextAffectedBlocks.map((block) => {
       return [block.id, block];
-    })
+    }),
   );
   const prevBlocks = new Map(
     prevAffectedBlocks.map((block) => {
       return [block.id, block];
-    })
+    }),
   );
 
   const changes: BlocksChanged<BSchema, ISchema, SSchema> = [];

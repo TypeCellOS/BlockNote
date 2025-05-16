@@ -18,11 +18,11 @@ import { DragHandleMenuProps } from "../DragHandleMenuProps.js";
 export const BlockColorsItem = <
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(
   props: DragHandleMenuProps<BSchema, I, S> & {
     children: ReactNode;
-  }
+  },
 ) => {
   const Components = useComponentsContext()!;
 
@@ -40,21 +40,23 @@ export const BlockColorsItem = <
       <Components.Generic.Menu.Trigger sub={true}>
         <Components.Generic.Menu.Item
           className={"bn-menu-item"}
-          subTrigger={true}>
+          subTrigger={true}
+        >
           {props.children}
         </Components.Generic.Menu.Item>
       </Components.Generic.Menu.Trigger>
 
       <Components.Generic.Menu.Dropdown
         sub={true}
-        className={"bn-menu-dropdown bn-color-picker-dropdown"}>
+        className={"bn-menu-dropdown bn-color-picker-dropdown"}
+      >
         <ColorPicker
           iconSize={18}
           text={
             checkBlockTypeHasDefaultProp(
               "textColor",
               props.block.type,
-              editor
+              editor,
             ) && checkBlockHasDefaultProp("textColor", props.block, editor)
               ? {
                   color: props.block.props.textColor,
@@ -70,7 +72,7 @@ export const BlockColorsItem = <
             checkBlockTypeHasDefaultProp(
               "backgroundColor",
               props.block.type,
-              editor
+              editor,
             ) &&
             checkBlockHasDefaultProp("backgroundColor", props.block, editor)
               ? {

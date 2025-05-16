@@ -14,7 +14,7 @@ async function uploadFile(file: File) {
   });
   return (await ret.json()).data.url.replace(
     "tmpfiles.org/",
-    "tmpfiles.org/dl/"
+    "tmpfiles.org/dl/",
   );
 }
 

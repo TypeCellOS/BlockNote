@@ -35,7 +35,7 @@ export const NumberedListIndexingPlugin = () => {
           // first block in its nesting level, or the previous block is not an ordered list item.
 
           const prevBlock = tr.doc.resolve(
-            blockInfo.bnBlock.beforePos
+            blockInfo.bnBlock.beforePos,
           ).nodeBefore;
 
           if (prevBlock) {

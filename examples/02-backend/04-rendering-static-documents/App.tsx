@@ -52,7 +52,7 @@ export default function App() {
   return (
     <div className="bn-container">
       <div
-        className=" bn-default-styles"
+        className="bn-default-styles"
         dangerouslySetInnerHTML={{ __html: html }}
       />
     </div>

@@ -16,4 +16,4 @@ export default function Me() {
       <pre>{JSON.stringify(session, null, 2)}</pre>
     </div>
   );
-};
+}

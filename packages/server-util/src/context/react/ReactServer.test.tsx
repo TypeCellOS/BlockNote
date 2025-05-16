@@ -18,7 +18,7 @@ const SimpleReactCustomParagraph = createReactBlockSpec(
     render: (props) => (
       <p ref={props.contentRef} className={"simple-react-custom-paragraph"} />
     ),
-  }
+  },
 );
 
 export const TestContext = createContext<true | undefined>(undefined);
@@ -40,7 +40,7 @@ const ReactContextParagraph = createReactBlockSpec(
   },
   {
     render: ReactContextParagraphComponent,
-  }
+  },
 );
 
 const schema = BlockNoteSchema.create({
@@ -82,7 +82,7 @@ describe("Test ServerBlockNoteEditor with React blocks", () => {
             type: "reactContextParagraph",
             content: "React Context Paragraph",
           },
-        ])
+        ]),
     );
 
     expect(html).toMatchSnapshot();

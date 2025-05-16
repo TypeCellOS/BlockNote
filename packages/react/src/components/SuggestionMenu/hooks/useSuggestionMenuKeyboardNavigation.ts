@@ -9,7 +9,7 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
   query: string,
   items: Item[],
   onItemClick?: (item: Item) => void,
-  element?: HTMLElement
+  element?: HTMLElement,
 ) {
   const { selectedIndex, setSelectedIndex, handler } =
     useSuggestionMenuKeyboardHandler(items, onItemClick);
@@ -21,7 +21,7 @@ export function useSuggestionMenuKeyboardNavigation<Item>(
       (element || editor.domElement)?.removeEventListener(
         "keydown",
         handler,
-        true
+        true,
       );
     };
   }, [editor.domElement, items, selectedIndex, onItemClick, element, handler]);

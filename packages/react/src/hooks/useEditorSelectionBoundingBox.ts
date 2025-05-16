@@ -5,7 +5,7 @@ import { useEditorSelectionChange } from "./useEditorSelectionChange.js";
 
 export function useEditorSelectionBoundingBox(
   enabled?: boolean,
-  editor?: BlockNoteEditor<any, any, any>
+  editor?: BlockNoteEditor<any, any, any>,
 ) {
   const ctxEditor = useBlockNoteEditor();
   editor = editor || ctxEditor;

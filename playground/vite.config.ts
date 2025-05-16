@@ -39,23 +39,23 @@ export default defineConfig(
                 // or, keep as is to load live from sources with live reload working
                 "@blocknote/core": path.resolve(
                   __dirname,
-                  "../packages/core/src/"
+                  "../packages/core/src/",
                 ),
                 "@blocknote/react": path.resolve(
                   __dirname,
-                  "../packages/react/src/"
+                  "../packages/react/src/",
                 ),
                 "@blocknote/ariakit": path.resolve(
                   __dirname,
-                  "../packages/ariakit/src/"
+                  "../packages/ariakit/src/",
                 ),
                 "@blocknote/mantine": path.resolve(
                   __dirname,
-                  "../packages/mantine/src/"
+                  "../packages/mantine/src/",
                 ),
                 "@blocknote/shadcn": path.resolve(
                   __dirname,
-                  "../packages/shadcn/src/"
+                  "../packages/shadcn/src/",
                 ),
                 "@blocknote/xl-ai": path.resolve(
                   __dirname,
@@ -63,20 +63,20 @@ export default defineConfig(
                 ),
                 "@blocknote/xl-docx-exporter": path.resolve(
                   __dirname,
-                  "../packages/xl-docx-exporter/src/"
+                  "../packages/xl-docx-exporter/src/",
                 ),
                 "@blocknote/xl-odt-exporter": path.resolve(
                   __dirname,
-                  "../packages/xl-odt-exporter/src/"
+                  "../packages/xl-odt-exporter/src/",
                 ),
                 "@blocknote/xl-pdf-exporter": path.resolve(
                   __dirname,
-                  "../packages/xl-pdf-exporter/src/"
+                  "../packages/xl-pdf-exporter/src/",
                 ),
                 "@shared": path.resolve(__dirname, "../shared/"),
                 "@blocknote/xl-multi-column": path.resolve(
                   __dirname,
-                  "../packages/xl-multi-column/src/"
+                  "../packages/xl-multi-column/src/",
                 ),
                 /*
       This can be used when developing against a local version of liveblocks:
@@ -125,5 +125,5 @@ export default defineConfig(
       yjs: path.resolve(__dirname, "../node_modules/yjs/"),*/
               },
       },
-    } as any)
+    }) as any,
 );

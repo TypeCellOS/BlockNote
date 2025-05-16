@@ -102,9 +102,9 @@ export default function App() {
       filterSuggestionItems(
         combineByGroup(
           getDefaultReactSlashMenuItems(editor),
-          getMultiColumnSlashMenuItems(editor)
+          getMultiColumnSlashMenuItems(editor),
         ),
-        query
+        query,
       );
   }, [editor]);
 

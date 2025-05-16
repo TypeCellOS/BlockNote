@@ -14,7 +14,8 @@ export const GridSuggestionMenuEmptyItem = forwardRef<
     <div
       className={mergeCSSClasses("bn-ak-menu-item", className || "")}
       style={{ gridColumn: `1 / ${columns + 1}` }}
-      ref={ref}>
+      ref={ref}
+    >
       <div className="bn-ak-suggestion-menu-item-label">{children}</div>
     </div>
   );

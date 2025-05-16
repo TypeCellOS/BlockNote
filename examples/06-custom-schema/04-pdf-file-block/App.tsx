@@ -76,7 +76,7 @@ export default function App() {
           // Gets all default slash menu items and `insertPDF` item.
           filterSuggestionItems(
             [...getDefaultReactSlashMenuItems(editor), insertPDF(editor)],
-            query
+            query,
           )
         }
       />

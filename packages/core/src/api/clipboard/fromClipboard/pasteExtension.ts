@@ -31,7 +31,7 @@ function defaultPasteHandler({
   const isInCodeBlock = editor.transact(
     (tr) =>
       tr.selection.$from.parent.type.spec.code &&
-      tr.selection.$to.parent.type.spec.code
+      tr.selection.$to.parent.type.spec.code,
   );
 
   if (isInCodeBlock) {
@@ -106,13 +106,13 @@ function defaultPasteHandler({
 export const createPasteFromClipboardExtension = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
   pasteHandler: Exclude<
     BlockNoteEditorOptions<any, any, any>["pasteHandler"],
     undefined
-  >
+  >,
 ) =>
   Extension.create({
     name: "pasteFromClipboard",

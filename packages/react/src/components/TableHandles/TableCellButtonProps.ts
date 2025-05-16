@@ -12,7 +12,7 @@ import { FC } from "react";
 
 export type TableCellButtonProps<
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 > = {
   editor: BlockNoteEditor<
     {

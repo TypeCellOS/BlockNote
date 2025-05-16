@@ -21,7 +21,7 @@ export function cleanHTMLToMarkdown(cleanHTMLString: string) {
 
   if (!deps) {
     throw new Error(
-      "cleanHTMLToMarkdown requires ESM dependencies to be initialized"
+      "cleanHTMLToMarkdown requires ESM dependencies to be initialized",
     );
   }
 
@@ -43,12 +43,12 @@ export function cleanHTMLToMarkdown(cleanHTMLString: string) {
 export async function blocksToMarkdown<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   blocks: PartialBlock<BSchema, I, S>[],
   schema: Schema,
   editor: BlockNoteEditor<BSchema, I, S>,
-  options: { document?: Document }
+  options: { document?: Document },
 ): Promise<string> {
   await initializeESMDependencies();
   const exporter = createExternalHTMLExporter(schema, editor);

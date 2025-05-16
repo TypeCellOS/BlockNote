@@ -24,7 +24,7 @@ import { Table } from "../util/Table.js";
 
 function blockPropsToStyles(
   props: Partial<DefaultProps>,
-  colors: typeof COLORS_DEFAULT
+  colors: typeof COLORS_DEFAULT,
 ): IParagraphOptions {
   return {
     shading:
@@ -47,14 +47,14 @@ function blockPropsToStyles(
       !props.textAlignment || props.textAlignment === "left"
         ? undefined
         : props.textAlignment === "center"
-        ? "center"
-        : props.textAlignment === "right"
-        ? "right"
-        : props.textAlignment === "justify"
-        ? "distribute"
-        : (() => {
-            throw new UnreachableCaseError(props.textAlignment);
-          })(),
+          ? "center"
+          : props.textAlignment === "right"
+            ? "right"
+            : props.textAlignment === "justify"
+              ? "distribute"
+              : (() => {
+                  throw new UnreachableCaseError(props.textAlignment);
+                })(),
   };
 }
 export const docxBlockMappingForDefaultSchema: BlockMapping<
@@ -215,7 +215,7 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
 function file(
   props: Partial<DefaultProps & { name: string; url: string }>,
   defaultText: string,
-  exporter: any
+  exporter: any,
 ) {
   return new Paragraph({
     ...blockPropsToStyles(props, exporter.options.colors),
@@ -235,7 +235,7 @@ function file(
 
 function caption(
   props: Partial<DefaultProps & { caption: string }>,
-  exporter: any
+  exporter: any,
 ) {
   if (!props.caption) {
     return [];

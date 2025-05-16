@@ -31,7 +31,7 @@ export const ParagraphBlockContent = createStronglyTypedTiptapNode({
           updateBlockCommand(blockInfo.bnBlock.beforePos, {
             type: "paragraph",
             props: {},
-          })
+          }),
         );
       },
     };
@@ -67,12 +67,12 @@ export const ParagraphBlockContent = createStronglyTypedTiptapNode({
         ...(this.options.domAttributes?.blockContent || {}),
         ...HTMLAttributes,
       },
-      this.options.domAttributes?.inlineContent || {}
+      this.options.domAttributes?.inlineContent || {},
     );
   },
 });
 
 export const Paragraph = createBlockSpecFromStronglyTypedTiptapNode(
   ParagraphBlockContent,
-  paragraphPropSchema
+  paragraphPropSchema,
 );

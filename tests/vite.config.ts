@@ -18,7 +18,7 @@ export default defineConfig((conf) => ({
             "@blocknote/core": path.resolve(__dirname, "../packages/core/src/"),
             "@blocknote/react": path.resolve(
               __dirname,
-              "../packages/react/src/"
+              "../packages/react/src/",
             ),
           } as Record<string, string>),
   },

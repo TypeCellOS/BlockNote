@@ -262,7 +262,8 @@
   max-height: 100%;
   position: relative;
   box-shadow: var(--mantine-shadow-md);
-  border: calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-gray-2);
+  border: calc(0.0625rem * var(--mantine-scale)) solid
+    var(--mantine-color-gray-2);
   border-radius: var(--mantine-radius-default);
   padding: 4px;
 }
@@ -607,8 +608,8 @@
 }
 
 .bn-mt-sub-menu-item
-> .mantine-Menu-itemLabel
-> div:not(.mantine-Menu-dropdown) {
+  > .mantine-Menu-itemLabel
+  > div:not(.mantine-Menu-dropdown) {
   align-items: center;
   display: flex;
   justify-content: space-between;
@@ -745,18 +746,18 @@
 }
 
 .bn-mantine
-.bn-badge
-.mantine-Chip-label
-> span:not(.mantine-Chip-iconWrapper) {
+  .bn-badge
+  .mantine-Chip-label
+  > span:not(.mantine-Chip-iconWrapper) {
   display: inline-flex;
   gap: 4px;
 }
 
 .bn-mantine
-.bn-badge
-.mantine-Chip-label
-> span:not(.mantine-Chip-iconWrapper)
-> span {
+  .bn-badge
+  .mantine-Chip-label
+  > span:not(.mantine-Chip-iconWrapper)
+  > span {
   align-items: center;
   display: inline-flex;
   justify-content: center;

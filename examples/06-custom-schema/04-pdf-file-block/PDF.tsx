@@ -13,7 +13,7 @@ export const PDFPreview = (
   props: Omit<
     ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
     "contentRef"
-  >
+  >,
 ) => {
   return (
     <embed
@@ -55,9 +55,10 @@ export const PDF = createReactBlockSpec(
       <ResizableFileBlockWrapper
         {...(props as any)}
         bbuttonText={"Add PDF"}
-        buttonIcon={<RiFilePdfFill size={24} />}>
+        buttonIcon={<RiFilePdfFill size={24} />}
+      >
         <PDFPreview {...(props as any)} />
       </ResizableFileBlockWrapper>
     ),
-  }
+  },
 );

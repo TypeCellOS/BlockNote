@@ -41,7 +41,8 @@ export const Card = forwardRef<
       onFocus={onFocus}
       onBlur={onBlur}
       tabIndex={tabIndex}
-      ref={mergeRefs([ref, scrollRef])}>
+      ref={mergeRefs([ref, scrollRef])}
+    >
       {headerText && (
         <MantineText className={"bn-header-text"}>{headerText}</MantineText>
       )}

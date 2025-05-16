@@ -6,7 +6,7 @@ import { cn } from "../lib/utils.js";
 import { useShadCNComponentsContext } from "../ShadCNComponentsContext.js";
 
 export const Popover = (
-  props: ComponentProps["Generic"]["Popover"]["Root"]
+  props: ComponentProps["Generic"]["Popover"]["Root"],
 ) => {
   const {
     children,
@@ -39,7 +39,7 @@ export const PopoverTrigger = forwardRef(
         {children}
       </ShadCNComponents.Popover.PopoverTrigger>
     );
-  }
+  },
 );
 
 export const PopoverContent = forwardRef<
@@ -60,9 +60,10 @@ export const PopoverContent = forwardRef<
         "bn-flex bn-flex-col bn-gap-2",
         variant === "panel-popover"
           ? "bn-p-0 bn-border-none bn-shadow-none bn-max-w-none bn-w-fit"
-          : ""
+          : "",
       )}
-      ref={ref}>
+      ref={ref}
+    >
       {children}
     </ShadCNComponents.Popover.PopoverContent>
   );

@@ -13,47 +13,50 @@ import { PartialTableCell, TableCell } from "../schema/blocks/types.js";
  */
 export function mapTableCell<
   T extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
-  content: PartialInlineContent<T, S> | PartialTableCell<T, S> | TableCell<T, S>
+  content:
+    | PartialInlineContent<T, S>
+    | PartialTableCell<T, S>
+    | TableCell<T, S>,
 ): TableCell<T, S> {
   return isTableCell(content)
     ? { ...content }
     : isPartialTableCell(content)
-    ? {
-        type: "tableCell",
-        content: ([] as InlineContent<T, S>[]).concat(content.content as any),
-        props: {
-          backgroundColor: content.props?.backgroundColor ?? "default",
-          textColor: content.props?.textColor ?? "default",
-          textAlignment: content.props?.textAlignment ?? "left",
-          colspan: content.props?.colspan ?? 1,
-          rowspan: content.props?.rowspan ?? 1,
-        },
-      }
-    : {
-        type: "tableCell",
-        content: ([] as InlineContent<T, S>[]).concat(content as any),
-        props: {
-          backgroundColor: "default",
-          textColor: "default",
-          textAlignment: "left",
-          colspan: 1,
-          rowspan: 1,
-        },
-      };
+      ? {
+          type: "tableCell",
+          content: ([] as InlineContent<T, S>[]).concat(content.content as any),
+          props: {
+            backgroundColor: content.props?.backgroundColor ?? "default",
+            textColor: content.props?.textColor ?? "default",
+            textAlignment: content.props?.textAlignment ?? "left",
+            colspan: content.props?.colspan ?? 1,
+            rowspan: content.props?.rowspan ?? 1,
+          },
+        }
+      : {
+          type: "tableCell",
+          content: ([] as InlineContent<T, S>[]).concat(content as any),
+          props: {
+            backgroundColor: "default",
+            textColor: "default",
+            textAlignment: "left",
+            colspan: 1,
+            rowspan: 1,
+          },
+        };
 }
 
 export function isPartialTableCell<
   T extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   content:
     | TableCell<T, S>
     | PartialInlineContent<T, S>
     | PartialTableCell<T, S>
     | undefined
-    | null
+    | null,
 ): content is PartialTableCell<T, S> {
   return (
     content !== undefined &&
@@ -66,14 +69,14 @@ export function isPartialTableCell<
 
 export function isTableCell<
   T extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   content:
     | TableCell<T, S>
     | PartialInlineContent<T, S>
     | PartialTableCell<T, S>
     | undefined
-    | null
+    | null,
 ): content is TableCell<T, S> {
   return (
     isPartialTableCell(content) &&
@@ -86,7 +89,7 @@ export function getColspan(
   cell:
     | TableCell<any, any>
     | PartialTableCell<any, any>
-    | PartialInlineContent<any, any>
+    | PartialInlineContent<any, any>,
 ): number {
   if (isTableCell(cell)) {
     return cell.props.colspan ?? 1;
@@ -98,7 +101,7 @@ export function getRowspan(
   cell:
     | TableCell<any, any>
     | PartialTableCell<any, any>
-    | PartialInlineContent<any, any>
+    | PartialInlineContent<any, any>,
 ): number {
   if (isTableCell(cell)) {
     return cell.props.rowspan ?? 1;

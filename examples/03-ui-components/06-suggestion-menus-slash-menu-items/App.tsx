@@ -34,7 +34,7 @@ const insertHelloWorldItem = (editor: BlockNoteEditor) => ({
 
 // List containing all default Slash Menu Items, as well as our custom one.
 const getCustomSlashMenuItems = (
-  editor: BlockNoteEditor
+  editor: BlockNoteEditor,
 ): DefaultReactSuggestionItem[] => [
   ...getDefaultReactSlashMenuItems(editor),
   insertHelloWorldItem(editor),

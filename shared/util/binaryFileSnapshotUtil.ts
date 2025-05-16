@@ -48,7 +48,7 @@ function getSnapshotOptions() {
 
 export async function toMatchBinaryFileSnapshot(
   buffer: Buffer,
-  filepath: string
+  filepath: string,
 ) {
   const fileBuffer = fs.existsSync(filepath)
     ? fs.readFileSync(filepath)

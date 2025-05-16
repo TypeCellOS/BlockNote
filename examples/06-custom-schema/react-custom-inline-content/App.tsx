@@ -21,7 +21,7 @@ const mention = createReactInlineContentSpec(
     render: (props) => {
       return <span>@{props.inlineContent.props.user}</span>;
     },
-  }
+  },
 );
 
 const tag = createReactInlineContentSpec(
@@ -38,7 +38,7 @@ const tag = createReactInlineContentSpec(
         </span>
       );
     },
-  }
+  },
 );
 
 const schema = BlockNoteSchema.create({

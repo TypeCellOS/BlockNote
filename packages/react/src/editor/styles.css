@@ -38,9 +38,10 @@
   --bn-colors-highlights-pink-text: #ad1a72;
   --bn-colors-highlights-pink-background: #f4dfeb;
 
-  --bn-font-family: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont,
-    "Open Sans", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
-    "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  --bn-font-family:
+    "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Open Sans",
+    "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
+    "Droid Sans", "Helvetica Neue", sans-serif;
   --bn-border-radius: 6px;
 
   /* Derived values */
