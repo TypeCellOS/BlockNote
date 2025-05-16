@@ -115,10 +115,16 @@ export * from "./hooks/useCreateBlockNote.js";
 export * from "./hooks/useEditorChange.js";
 export * from "./hooks/useEditorContentOrSelectionChange.js";
 export * from "./hooks/useEditorForceUpdate.js";
+export * from "./hooks/useEditorSelectionBoundingBox.js";
 export * from "./hooks/useEditorSelectionChange.js";
 export * from "./hooks/useFocusWithin.js";
+export * from "./hooks/useOnUploadEnd.js";
+export * from "./hooks/useOnUploadStart.js";
 export * from "./hooks/usePrefersColorScheme.js";
 export * from "./hooks/useSelectedBlocks.js";
+export * from "./hooks/useUIElementPositioning.js";
+export * from "./hooks/useUIPluginState.js";
+export * from "./hooks/useUploadLoading.js";
 
 export * from "./schema/ReactBlockSpec.js";
 export * from "./schema/ReactInlineContentSpec.js";
