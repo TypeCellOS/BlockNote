@@ -6,4 +6,8 @@ Select some text and click the AI (magic wand) button, or type `/ai` anywhere in
 
 **Relevant Docs:**
 
-- TODO
+- [Editor Setup](/docs/editor-basics/setup)
+- [Changing the Formatting Toolbar](/docs/ui-components/formatting-toolbar#changing-the-formatting-toolbar)
+- [Changing Slash Menu Items](/docs/ui-components/suggestion-menus#changing-slash-menu-items)
+- [Getting Stared with BlockNote AI](/docs/ai/setup)
+- [Custom AI Menu Items](/docs/ai/custom-commands)
