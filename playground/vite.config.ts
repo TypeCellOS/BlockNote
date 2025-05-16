@@ -59,7 +59,7 @@ export default defineConfig(
                 ),
                 "@blocknote/xl-ai": path.resolve(
                   __dirname,
-                  "../packages/xl-ai/src/"
+                  "../packages/xl-ai/src/",
                 ),
                 "@blocknote/xl-docx-exporter": path.resolve(
                   __dirname,

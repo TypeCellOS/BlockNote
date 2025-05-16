@@ -1278,7 +1278,10 @@ export class BlockNoteEditor<
    *
    * @param content can be a string, or array of partial inline content elements
    */
-  public insertInlineContent(content: PartialInlineContent<ISchema, SSchema>) {
+  public insertInlineContent(
+    content: PartialInlineContent<ISchema, SSchema>,
+    { updateSelection = false }: { updateSelection?: boolean } = {},
+  ) {
     const nodes = inlineContentToNodes(content, this.pmSchema);
 
     this.transact((tr) => {
@@ -1289,6 +1292,9 @@ export class BlockNoteEditor<
           to: tr.selection.to,
         },
         nodes,
+        {
+          updateSelection,
+        },
       );
     });
   }

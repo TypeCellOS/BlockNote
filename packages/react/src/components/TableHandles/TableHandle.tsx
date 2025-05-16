@@ -33,7 +33,7 @@ export const TableHandle = <
 
   const isDraggable = useMemo(() => {
     const tableHandles = props.editor.tableHandles;
-    if (!tableHandles || !props.block) {
+    if (!tableHandles || !props.block || props.block.type !== "table") {
       return false;
     }
 
