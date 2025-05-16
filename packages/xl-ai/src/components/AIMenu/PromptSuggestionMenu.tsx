@@ -7,23 +7,22 @@ import {
 import {
   ChangeEvent,
   KeyboardEvent,
+  ReactNode,
   useCallback,
   useEffect,
   useMemo,
   useState,
 } from "react";
 
-import { RiSparkling2Fill } from "react-icons/ri";
-
 export type PromptSuggestionMenuProps = {
   items: DefaultReactSuggestionItem[];
   onManualPromptSubmit: (userPrompt: string) => void;
   promptText?: string;
   onPromptTextChange?: (userPrompt: string) => void;
+  icon?: ReactNode;
+  rightSection?: ReactNode;
   placeholder?: string;
   disabled?: boolean;
-  loading?: boolean;
-  error?: string;
 };
 
 export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
@@ -99,7 +98,7 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
           className={"bn-combobox-input"}
           name={"ai-prompt"}
           variant={"large"}
-          icon={<RiSparkling2Fill />}
+          icon={props.icon}
           value={promptTextToUse || ""}
           autoFocus={true}
           placeholder={props.placeholder}
@@ -107,8 +106,7 @@ export const PromptSuggestionMenu = (props: PromptSuggestionMenuProps) => {
           onKeyDown={handleKeyDown}
           onChange={handleChange}
           autoComplete={"off"}
-          //  TODO: loader or error
-          // rightSection={props.loading ? <Loader size={18} /> : props.error}
+          rightSection={props.rightSection}
         />
       </Components.Generic.Form.Root>
       <Components.SuggestionMenu.Root

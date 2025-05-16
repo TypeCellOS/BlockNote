@@ -351,12 +351,15 @@
   padding: 8px;
 }
 
-.bn-suggestion-menu-item-small .bn-mt-suggestion-menu-item-section[data-position="left"] {
+.bn-suggestion-menu-item-small
+  .bn-mt-suggestion-menu-item-section[data-position="left"] {
   background-color: transparent;
   padding: 0;
 }
 
-.bn-suggestion-menu-item-small .bn-mt-suggestion-menu-item-section[data-position="left"] svg {
+.bn-suggestion-menu-item-small
+  .bn-mt-suggestion-menu-item-section[data-position="left"]
+  svg {
   height: 14px;
   width: 14px;
 }
@@ -761,6 +764,30 @@
   align-items: center;
   display: inline-flex;
   justify-content: center;
+}
+
+/* Combobox styling */
+.bn-mantine .bn-combobox-input,
+.bn-mantine .bn-combobox-items:not(:empty) {
+  background-color: var(--bn-colors-menu-background);
+  border: var(--bn-border);
+  border-radius: var(--bn-border-radius-medium);
+  box-shadow: var(--bn-shadow-medium);
+  color: var(--bn-colors-menu-text);
+  gap: 4px;
+  min-width: 145px;
+  padding: 2px;
+}
+
+.bn-mantine .bn-combobox-input .bn-combobox-icon,
+.bn-mantine .bn-combobox-input .bn-combobox-right-section {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.bn-mantine .bn-combobox-input .bn-combobox-error {
+  color: var(--bn-colors-highlights-red-background);
 }
 
 /* We need to get rid of the checked icon - you can set the icon prop to an

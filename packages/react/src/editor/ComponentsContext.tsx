@@ -150,7 +150,6 @@ export type ComponentProps = {
     };
     Loader: {
       className?: string;
-      children?: ReactNode;
     };
   };
   GridSuggestionMenu: {
