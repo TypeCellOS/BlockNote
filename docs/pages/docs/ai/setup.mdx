@@ -1,0 +1,106 @@
+---
+title: AI Rich Text Editing
+description: Add AI functionality to your BlockNote rich text editor
+imageTitle: BlockNote AI
+path: /docs/ai
+---
+
+import { Example } from "@/components/example";
+import { Callout } from "nextra/components";
+
+# Getting Started with BlockNote AI
+First, install the `@blocknote/xl-ai` package:
+
+```bash
+npm install @blocknote/xl-ai
+```
+
+## Creating a Model
+
+BlockNote AI uses the the [AI SDK](https://ai-sdk.dev/docs/foundations/overview) to standardize integrating artificial intelligence (AI) models across [supported providers](https://ai-sdk.dev/docs/foundations/providers-and-models).
+
+As a first step, you'll need to register a new model with the AI SDK. For example, for Llama hosted on Groq:
+
+```bash
+npm install @ai-sdk/groq
+```
+
+```ts
+import { createGroq } from "@ai-sdk/groq";
+
+const provider = createGroq({
+  apiKey: "YOUR_GROQ_API_KEY",
+});
+
+const model = provider("llama-3.3-70b-versatile");
+```
+
+<Callout type={"warning"}>
+  Note that this setup directly calls the provider from the client, and exposes
+  your API keys on the client. For Production scenarios, a more common approach is to
+  handle authentication on your own server and proxy requests to a provider. See
+  our [Demo AI
+  Server](https://github.com/TypeCellOS/BlockNote/tree/main/packages/xl-ai-server)
+  for a Node.js example or check the AI SDK best practices.
+</Callout>
+
+## Setting up the editor
+
+Now, you can create the editor with the AI Extension enabled:
+
+```ts
+import { createBlockNoteEditor } from "@blocknote/core";
+import { BlockNoteAIExtension } from "@blocknote/xl-ai";
+import {
+  AIToolbarButton,
+  BlockNoteAIUI,
+  locales as aiLocales,
+  createAIExtension,
+  createBlockNoteAIClient,
+  getAISlashMenuItems,
+} from "@blocknote/xl-ai";
+
+const editor = createBlockNoteEditor({
+    dictionary: {
+      ...en,
+      ai: aiLocales.en, // add default translations for the AI extension
+    },
+    extensions: [
+      createAIExtension({
+        model,
+      }),
+    ],
+    // ... other editor options
+});
+```
+
+### The `createAIExtension` method
+
+TODO
+
+## Adding AI UI elements
+
+Now, the only thing left to do is to customize the UI elements of your editor.
+
+```tsx
+<BlockNoteView
+    editor={editor}
+    // We're disabling some default UI elements
+    formattingToolbar={false}
+    slashMenu={false}>
+    {/* This has AI specific components like the AI Command menu */}
+    <BlockNoteAIUI />
+
+    {/* Create you own Formatting Toolbar with an AI button,
+    (see the full example code below) */}
+    <FormattingToolbarWithAI />
+
+    {/* Create you own SlashMenu with an AI option,
+    (see the full example code below) */}
+    <SuggestionMenuWithAI editor={editor} />
+</BlockNoteView>
+```
+
+# Full Example
+
+<Example name="ai/minimal" />

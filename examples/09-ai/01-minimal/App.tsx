@@ -1,5 +1,3 @@
-/// <reference types="./vite-env.d.ts" />
-
 import { createGroq } from "@ai-sdk/groq";
 import { BlockNoteEditor, filterSuggestionItems } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
@@ -27,10 +25,9 @@ import "@blocknote/xl-ai/style.css";
 // Optional: proxy requests through the `@blocknote/xl-ai-server` proxy server
 // so that we don't have to expose our API keys to the client
 const client = createBlockNoteAIClient({
-  apiKey: import.meta.env.VITE_BLOCKNOTE_AI_SERVER_API_KEY || "PLACEHOLDER",
+  apiKey: getEnv("BLOCKNOTE_AI_SERVER_API_KEY") || "PLACEHOLDER",
   baseURL:
-    import.meta.env.VITE_BLOCKNOTE_AI_SERVER_BASE_URL ||
-    "https://localhost:3000/ai",
+    getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") || "https://localhost:3000/ai",
 });
 
 // Use an "open" model such as llama, in this case via groq.com
@@ -100,6 +97,7 @@ export default function App() {
     <div>
       <BlockNoteView
         editor={editor}
+        // We're disabling some default UI elements
         formattingToolbar={false}
         slashMenu={false}>
         {/* This has AI specific components like the AI Command menu */}
@@ -128,6 +126,7 @@ function FormattingToolbarWithAI() {
       formattingToolbar={() => (
         <FormattingToolbar>
           {...getFormattingToolbarItems()}
+          {/* Add the AI button */}
           <AIToolbarButton />
         </FormattingToolbar>
       )}
@@ -146,6 +145,7 @@ function SuggestionMenuWithAI(props: {
         filterSuggestionItems(
           [
             ...getDefaultReactSlashMenuItems(props.editor),
+            // add the default AI slash menu items, or define your own
             ...getAISlashMenuItems(props.editor),
           ],
           query,
@@ -153,4 +153,14 @@ function SuggestionMenuWithAI(props: {
       }
     />
   );
+}
+
+// helper function to get env variables across next / vite
+// only needed so this example works in BlockNote demos and docs
+function getEnv(key: string) {
+  // TODO
+  // const env2 = process.env.NEXT_PUBLIC_BLOCKNOTE_AI_SERVER_BASE_URL;
+  return (import.meta as any).env
+    ? (import.meta as any).env["VITE_" + key]
+    : process.env["NEXT_PUBLIC_" + key];
 }
