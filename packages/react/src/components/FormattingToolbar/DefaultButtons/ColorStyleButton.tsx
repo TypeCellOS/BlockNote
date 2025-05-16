@@ -16,7 +16,7 @@ import { ColorPicker } from "../../ColorPicker/ColorPicker.js";
 
 function checkColorInSchema<Color extends "text" | "background">(
   color: Color,
-  editor: BlockNoteEditor<BlockSchema, InlineContentSchema, StyleSchema>
+  editor: BlockNoteEditor<BlockSchema, InlineContentSchema, StyleSchema>,
 ): editor is BlockNoteEditor<
   BlockSchema,
   InlineContentSchema,
@@ -58,12 +58,12 @@ export const ColorStyleButton = () => {
   const [currentTextColor, setCurrentTextColor] = useState<string>(
     textColorInSchema
       ? editor.getActiveStyles().textColor || "default"
-      : "default"
+      : "default",
   );
   const [currentBackgroundColor, setCurrentBackgroundColor] = useState<string>(
     backgroundColorInSchema
       ? editor.getActiveStyles().backgroundColor || "default"
-      : "default"
+      : "default",
   );
 
   useEditorContentOrSelectionChange(() => {
@@ -72,7 +72,7 @@ export const ColorStyleButton = () => {
     }
     if (backgroundColorInSchema) {
       setCurrentBackgroundColor(
-        editor.getActiveStyles().backgroundColor || "default"
+        editor.getActiveStyles().backgroundColor || "default",
       );
     }
   }, editor);
@@ -81,7 +81,7 @@ export const ColorStyleButton = () => {
     (color: string) => {
       if (!textColorInSchema) {
         throw Error(
-          "Tried to set text color, but style does not exist in editor schema."
+          "Tried to set text color, but style does not exist in editor schema.",
         );
       }
 
@@ -94,14 +94,14 @@ export const ColorStyleButton = () => {
         editor.focus();
       });
     },
-    [editor, textColorInSchema]
+    [editor, textColorInSchema],
   );
 
   const setBackgroundColor = useCallback(
     (color: string) => {
       if (!backgroundColorInSchema) {
         throw Error(
-          "Tried to set background color, but style does not exist in editor schema."
+          "Tried to set background color, but style does not exist in editor schema.",
         );
       }
 
@@ -114,7 +114,7 @@ export const ColorStyleButton = () => {
         editor.focus();
       });
     },
-    [backgroundColorInSchema, editor]
+    [backgroundColorInSchema, editor],
   );
 
   const show = useMemo(() => {
@@ -153,7 +153,8 @@ export const ColorStyleButton = () => {
         />
       </Components.Generic.Menu.Trigger>
       <Components.Generic.Menu.Dropdown
-        className={"bn-menu-dropdown bn-color-picker-dropdown"}>
+        className={"bn-menu-dropdown bn-color-picker-dropdown"}
+      >
         <ColorPicker
           text={
             textColorInSchema

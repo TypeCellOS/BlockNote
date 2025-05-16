@@ -36,10 +36,10 @@ importers:
         specifier: 20.6.4
         version: 20.6.4
       prettier:
-        specifier: 3.5.3
+        specifier: ^3
         version: 3.5.3
       prettier-plugin-tailwindcss:
-        specifier: 0.6.11
+        specifier: ^0.6.11
         version: 0.6.11(prettier@3.5.3)
       serve:
         specifier: 14.2.4

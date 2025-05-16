@@ -12,9 +12,9 @@ import { afterAll, beforeAll } from "vitest";
 export const setupTestEditor = <
   B extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
-  schema: BlockNoteSchema<B, I, S>
+  schema: BlockNoteSchema<B, I, S>,
 ): (() => BlockNoteEditor<B, I, S>) => {
   let editor: BlockNoteEditor<B, I, S>;
   const div = document.createElement("div");

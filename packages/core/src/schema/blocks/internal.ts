@@ -99,17 +99,17 @@ export function getBlockFromPos<
   Config extends BlockConfig,
   BSchema extends BlockSchemaWithBlock<BType, Config>,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   getPos: (() => number) | boolean,
   editor: BlockNoteEditor<BSchema, I, S>,
   tipTapEditor: Editor,
-  type: BType
+  type: BType,
 ) {
   // Gets position of the node
   if (typeof getPos === "boolean") {
     throw new Error(
-      "Cannot find node position as getPos is a boolean, not a function."
+      "Cannot find node position as getPos is a boolean, not a function.",
     );
   }
   const pos = getPos();
@@ -142,7 +142,7 @@ export function getBlockFromPos<
 // an `inlineContent` class to it.
 export function wrapInBlockStructure<
   BType extends string,
-  PSchema extends PropSchema
+  PSchema extends PropSchema,
 >(
   element: {
     dom: HTMLElement;
@@ -153,7 +153,7 @@ export function wrapInBlockStructure<
   blockProps: Props<PSchema>,
   propSchema: PSchema,
   isFileBlock = false,
-  domAttributes?: Record<string, string>
+  domAttributes?: Record<string, string>,
 ): {
   dom: HTMLElement;
   contentDOM?: HTMLElement;
@@ -173,7 +173,7 @@ export function wrapInBlockStructure<
   // Sets blockContent class
   blockContent.className = mergeCSSClasses(
     "bn-block-content",
-    domAttributes?.class || ""
+    domAttributes?.class || "",
   );
   // Sets content type attribute
   blockContent.setAttribute("data-content-type", blockType);
@@ -197,7 +197,7 @@ export function wrapInBlockStructure<
   if (element.contentDOM !== undefined) {
     element.contentDOM.className = mergeCSSClasses(
       "bn-inline-content",
-      element.contentDOM.className
+      element.contentDOM.className,
     );
   }
 
@@ -215,7 +215,7 @@ type StronglyTypedTipTapNode<
     | "tableRow+"
     | "blockContainer+"
     | "column column+"
-    | ""
+    | "",
 > = Node & { name: Name; config: { content: Content } };
 
 export function createStronglyTypedTiptapNode<
@@ -225,7 +225,7 @@ export function createStronglyTypedTiptapNode<
     | "tableRow+"
     | "blockContainer+"
     | "column column+"
-    | ""
+    | "",
 >(config: NodeConfig & { name: Name; content: Content }) {
   return Node.create(config) as StronglyTypedTipTapNode<Name, Content>; // force re-typing (should be safe as it's type-checked from the config)
 }
@@ -239,7 +239,7 @@ export function createInternalBlockSpec<T extends BlockConfig>(
     any,
     InlineContentSchema,
     StyleSchema
-  >
+  >,
 ) {
   return {
     config,
@@ -249,7 +249,7 @@ export function createInternalBlockSpec<T extends BlockConfig>(
 
 export function createBlockSpecFromStronglyTypedTiptapNode<
   T extends Node,
-  P extends PropSchema
+  P extends PropSchema,
 >(node: T, propSchema: P, requiredExtensions?: Array<Extension | Node>) {
   return createInternalBlockSpec(
     {
@@ -257,12 +257,12 @@ export function createBlockSpecFromStronglyTypedTiptapNode<
       content: (node.config.content === "inline*"
         ? "inline"
         : node.config.content === "tableRow+"
-        ? "table"
-        : "none") as T["config"]["content"] extends "inline*"
+          ? "table"
+          : "none") as T["config"]["content"] extends "inline*"
         ? "inline"
         : T["config"]["content"] extends "tableRow+"
-        ? "table"
-        : "none",
+          ? "table"
+          : "none",
       propSchema,
     },
     {
@@ -271,12 +271,12 @@ export function createBlockSpecFromStronglyTypedTiptapNode<
       toInternalHTML: defaultBlockToHTML,
       toExternalHTML: defaultBlockToHTML,
       // parse: () => undefined, // parse rules are in node already
-    }
+    },
   );
 }
 
 export function getBlockSchemaFromSpecs<T extends BlockSpecs>(specs: T) {
   return Object.fromEntries(
-    Object.entries(specs).map(([key, value]) => [key, value.config])
+    Object.entries(specs).map(([key, value]) => [key, value.config]),
   ) as BlockSchemaFromSpecs<T>;
 }

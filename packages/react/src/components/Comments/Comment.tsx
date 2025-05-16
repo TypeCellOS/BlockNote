@@ -58,7 +58,7 @@ export const Comment = ({
       schema,
       sideMenuDetection: "editor",
     },
-    [comment.body]
+    [comment.body],
   );
 
   const Components = useComponentsContext()!;
@@ -94,7 +94,7 @@ export const Comment = ({
 
       setEditing(false);
     },
-    [comment, thread.id, commentEditor, threadStore]
+    [comment, thread.id, commentEditor, threadStore],
   );
 
   const onDelete = useCallback(async () => {
@@ -120,7 +120,7 @@ export const Comment = ({
         });
       }
     },
-    [threadStore, comment, thread.id]
+    [threadStore, comment, thread.id],
   );
 
   const onResolve = useCallback(async () => {
@@ -156,16 +156,19 @@ export const Comment = ({
     actions = (
       <Components.Generic.Toolbar.Root
         className={mergeCSSClasses("bn-action-toolbar", "bn-comment-actions")}
-        variant={"action-toolbar"}>
+        variant={"action-toolbar"}
+      >
         {canAddReaction && (
           <EmojiPicker
             onEmojiSelect={(emoji: { native: string }) =>
               onReactionSelect(emoji.native)
-            }>
+            }
+          >
             <Components.Generic.Toolbar.Button
               key={"add-reaction"}
               mainTooltip={dict.comments.actions.add_reaction}
-              variant="compact">
+              variant="compact"
+            >
               <RiEmotionLine size={16} />
             </Components.Generic.Toolbar.Button>
           </EmojiPicker>
@@ -176,7 +179,8 @@ export const Comment = ({
               key={"reopen"}
               mainTooltip="Re-open"
               variant="compact"
-              onClick={onReopen}>
+              onClick={onReopen}
+            >
               <RiArrowGoBackFill size={16} />
             </Components.Generic.Toolbar.Button>
           ) : (
@@ -184,7 +188,8 @@ export const Comment = ({
               key={"resolve"}
               mainTooltip={dict.comments.actions.resolve}
               variant="compact"
-              onClick={onResolve}>
+              onClick={onResolve}
+            >
               <RiCheckFill size={16} />
             </Components.Generic.Toolbar.Button>
           ))}
@@ -194,7 +199,8 @@ export const Comment = ({
               <Components.Generic.Toolbar.Button
                 key={"more-actions"}
                 mainTooltip={dict.comments.actions.more_actions}
-                variant="compact">
+                variant="compact"
+              >
                 <RiMoreFill size={16} />
               </Components.Generic.Toolbar.Button>
             </Components.Generic.Menu.Trigger>
@@ -203,7 +209,8 @@ export const Comment = ({
                 <Components.Generic.Menu.Item
                   key={"edit-comment"}
                   icon={<RiEditFill />}
-                  onClick={handleEdit}>
+                  onClick={handleEdit}
+                >
                   {dict.comments.actions.edit_comment}
                 </Components.Generic.Menu.Item>
               )}
@@ -211,7 +218,8 @@ export const Comment = ({
                 <Components.Generic.Menu.Item
                   key={"delete-comment"}
                   icon={<RiDeleteBinFill />}
-                  onClick={onDelete}>
+                  onClick={onDelete}
+                >
                   {dict.comments.actions.delete_comment}
                 </Components.Generic.Menu.Item>
               )}
@@ -238,7 +246,8 @@ export const Comment = ({
       edited={comment.updatedAt.getTime() !== comment.createdAt.getTime()}
       showActions={"hover"}
       actions={actions}
-      className={"bn-thread-comment"}>
+      className={"bn-thread-comment"}
+    >
       <CommentEditor
         autoFocus={isEditing}
         editor={commentEditor}
@@ -251,8 +260,9 @@ export const Comment = ({
                     <Components.Generic.Badge.Group
                       className={mergeCSSClasses(
                         "bn-badge-group",
-                        "bn-comment-reactions"
-                      )}>
+                        "bn-comment-reactions",
+                      )}
+                    >
                       {comment.reactions.map((reaction) => (
                         <ReactionBadge
                           key={reaction.emoji}
@@ -264,11 +274,12 @@ export const Comment = ({
                       <EmojiPicker
                         onEmojiSelect={(emoji: { native: string }) =>
                           onReactionSelect(emoji.native)
-                        }>
+                        }
+                      >
                         <Components.Generic.Badge.Root
                           className={mergeCSSClasses(
                             "bn-badge",
-                            "bn-comment-add-reaction"
+                            "bn-comment-add-reaction",
                           )}
                           text={"+"}
                           icon={<RiEmotionLine size={16} />}
@@ -282,20 +293,23 @@ export const Comment = ({
                       variant="action-toolbar"
                       className={mergeCSSClasses(
                         "bn-action-toolbar",
-                        "bn-comment-actions"
-                      )}>
+                        "bn-comment-actions",
+                      )}
+                    >
                       <Components.Generic.Toolbar.Button
                         mainTooltip="Save"
                         variant="compact"
                         onClick={onEditSubmit}
-                        isDisabled={isEmpty}>
+                        isDisabled={isEmpty}
+                      >
                         Save
                       </Components.Generic.Toolbar.Button>
                       <Components.Generic.Toolbar.Button
                         className={"bn-button"}
                         mainTooltip="Cancel"
                         variant="compact"
-                        onClick={onEditCancel}>
+                        onClick={onEditCancel}
+                      >
                         Cancel
                       </Components.Generic.Toolbar.Button>
                     </Components.Generic.Toolbar.Root>

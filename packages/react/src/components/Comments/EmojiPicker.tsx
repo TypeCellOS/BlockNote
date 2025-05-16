@@ -29,7 +29,8 @@ export const EmojiPicker = (props: {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-          }}>
+          }}
+        >
           {props.children}
         </div>
       </Components.Generic.Popover.Trigger>

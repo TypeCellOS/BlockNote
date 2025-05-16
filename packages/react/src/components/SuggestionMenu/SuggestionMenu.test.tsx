@@ -31,8 +31,8 @@ it("has good typing", () => {
     <SuggestionMenuController
       suggestionMenuComponent={undefined as any}
       getItems={async () => [{ hello: "hello" }]}
-      onItemClick={()=>{
-        return undefined
+      onItemClick={() => {
+        return undefined;
       }}
       triggerCharacter="/"
     />

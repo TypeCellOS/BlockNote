@@ -9,7 +9,7 @@ import { Threads } from "./Threads.js";
 export function Editor() {
   const editor = useCreateBlockNoteWithLiveblocks(
     {},
-    { mentions: true }
+    { mentions: true },
   ) as BlockNoteEditor;
 
   return (

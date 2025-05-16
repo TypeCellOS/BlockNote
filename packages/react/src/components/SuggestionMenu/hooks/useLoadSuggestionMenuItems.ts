@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 // query that was used to retrieve the last set of items.
 export function useLoadSuggestionMenuItems<T>(
   query: string,
-  getItems: (query: string) => Promise<T[]>
+  getItems: (query: string) => Promise<T[]>,
 ): {
   items: T[];
   usedQuery: string | undefined;
@@ -46,7 +46,7 @@ export function useLoadSuggestionMenuItems<T>(
       usedQuery.current === undefined
         ? "loading-initial"
         : loading
-        ? "loading"
-        : "loaded",
+          ? "loading"
+          : "loaded",
   };
 }

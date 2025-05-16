@@ -44,7 +44,7 @@ export default function App() {
           items.splice(
             items.findIndex((c) => c.key === "replaceFileButton"),
             1,
-            <FileReplaceButton key={"fileReplaceButton"} />
+            <FileReplaceButton key={"fileReplaceButton"} />,
           );
 
           return <FormattingToolbar {...props}>{items}</FormattingToolbar>;

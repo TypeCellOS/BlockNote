@@ -12,7 +12,7 @@ export class PlaceholderPlugin {
     placeholders: Record<
       string | "default" | "emptyDocument",
       string | undefined
-    >
+    >,
   ) {
     this.plugin = new Plugin({
       key: PLUGIN_KEY,
@@ -51,8 +51,8 @@ export class PlaceholderPlugin {
 
             styleSheet.insertRule(
               `${getSelector(blockTypeSelector)} { content: ${JSON.stringify(
-                placeholder
-              )}; }`
+                placeholder,
+              )}; }`,
             );
           }
 
@@ -62,21 +62,21 @@ export class PlaceholderPlugin {
           // placeholder for when there's only one empty block
           styleSheet.insertRule(
             `${getSelector(onlyBlockSelector)} { content: ${JSON.stringify(
-              emptyPlaceholder
-            )}; }`
+              emptyPlaceholder,
+            )}; }`,
           );
 
           // placeholder for default blocks, only when the cursor is in the block (mustBeFocused)
           styleSheet.insertRule(
             `${getSelector(mustBeFocusedSelector)} { content: ${JSON.stringify(
-              defaultPlaceholder
-            )}; }`
+              defaultPlaceholder,
+            )}; }`,
           );
         } catch (e) {
           // eslint-disable-next-line no-console
           console.warn(
             `Failed to insert placeholder CSS rule - this is likely due to the browser not supporting certain CSS pseudo-element selectors (:has, :only-child:, or :before)`,
-            e
+            e,
           );
         }
 
@@ -115,7 +115,7 @@ export class PlaceholderPlugin {
             decs.push(
               Decoration.node(2, 4, {
                 "data-is-only-empty-block": "true",
-              })
+              }),
             );
           }
 
@@ -128,7 +128,7 @@ export class PlaceholderPlugin {
             decs.push(
               Decoration.node(before, before + node.nodeSize, {
                 "data-is-empty-and-focused": "true",
-              })
+              }),
             );
           }
 

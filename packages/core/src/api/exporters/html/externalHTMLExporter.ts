@@ -32,17 +32,17 @@ import {
 export const createExternalHTMLExporter = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   schema: Schema,
-  editor: BlockNoteEditor<BSchema, I, S>
+  editor: BlockNoteEditor<BSchema, I, S>,
 ) => {
   const serializer = DOMSerializer.fromSchema(schema);
 
   return {
     exportBlocks: (
       blocks: PartialBlock<BSchema, I, S>[],
-      options: { document?: Document }
+      options: { document?: Document },
     ) => {
       const html = serializeBlocksExternalHTML(
         editor,
@@ -50,7 +50,7 @@ export const createExternalHTMLExporter = <
         serializer,
         new Set<string>(["numberedListItem"]),
         new Set<string>(["bulletListItem", "checkListItem"]),
-        options
+        options,
       );
       const div = document.createElement("div");
       div.append(html);
@@ -59,13 +59,13 @@ export const createExternalHTMLExporter = <
 
     exportInlineContent: (
       inlineContent: InlineContent<I, S>[],
-      options: { document?: Document }
+      options: { document?: Document },
     ) => {
       const domFragment = serializeInlineContentExternalHTML(
         editor,
         inlineContent as any,
         serializer,
-        options
+        options,
       );
 
       const parent = document.createElement("div");

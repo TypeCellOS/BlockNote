@@ -53,7 +53,8 @@ export const alertBlock = createReactBlockSpec(
         className={"alert"}
         style={{
           backgroundColor: alertTypes[props.block.props.type].backgroundColor,
-        }}>
+        }}
+      >
         <select
           contentEditable={false}
           value={props.block.props.type}
@@ -62,7 +63,8 @@ export const alertBlock = createReactBlockSpec(
               type: "alert",
               props: { type: event.target.value as keyof typeof alertTypes },
             });
-          }}>
+          }}
+        >
           <option value="warning">{alertTypes["warning"].icon}</option>
           <option value="error">{alertTypes["error"].icon}</option>
           <option value="info">{alertTypes["info"].icon}</option>
@@ -71,7 +73,7 @@ export const alertBlock = createReactBlockSpec(
         <div className={"inline-content"} ref={props.contentRef} />
       </div>
     ),
-  }
+  },
 );
 
 const simpleImageBlock = createReactBlockSpec(
@@ -93,7 +95,7 @@ const simpleImageBlock = createReactBlockSpec(
         alt="placeholder"
       />
     ),
-  }
+  },
 );
 
 export const bracketsParagraphBlock = createReactBlockSpec(
@@ -114,7 +116,7 @@ export const bracketsParagraphBlock = createReactBlockSpec(
         <div contentEditable={"false"}>{"]"}</div>
       </div>
     ),
-  }
+  },
 );
 
 const schema = BlockNoteSchema.create({

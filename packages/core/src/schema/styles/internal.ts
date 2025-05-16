@@ -9,7 +9,7 @@ import {
 } from "./types.js";
 
 export function stylePropsToAttributes(
-  propSchema: StylePropSchema
+  propSchema: StylePropSchema,
 ): Attributes {
   if (propSchema === "boolean") {
     return {};
@@ -34,7 +34,7 @@ export function stylePropsToAttributes(
 // on internal copy & paste.
 export function addStyleAttributes<
   SType extends string,
-  PSchema extends StylePropSchema
+  PSchema extends StylePropSchema,
 >(
   element: {
     dom: HTMLElement;
@@ -42,7 +42,7 @@ export function addStyleAttributes<
   },
   styleType: SType,
   styleValue: PSchema extends "boolean" ? undefined : string,
-  propSchema: PSchema
+  propSchema: PSchema,
 ): {
   dom: HTMLElement;
   contentDOM?: HTMLElement;
@@ -66,7 +66,7 @@ export function addStyleAttributes<
 // config and implementation that conform to the type of Config
 export function createInternalStyleSpec<T extends StyleConfig>(
   config: T,
-  implementation: StyleImplementation
+  implementation: StyleImplementation,
 ) {
   return {
     config,
@@ -76,7 +76,7 @@ export function createInternalStyleSpec<T extends StyleConfig>(
 
 export function createStyleSpecFromTipTapMark<
   T extends Mark,
-  P extends StylePropSchema
+  P extends StylePropSchema,
 >(mark: T, propSchema: P) {
   return createInternalStyleSpec(
     {
@@ -85,12 +85,12 @@ export function createStyleSpecFromTipTapMark<
     },
     {
       mark,
-    }
+    },
   );
 }
 
 export function getStyleSchemaFromSpecs<T extends StyleSpecs>(specs: T) {
   return Object.fromEntries(
-    Object.entries(specs).map(([key, value]) => [key, value.config])
+    Object.entries(specs).map(([key, value]) => [key, value.config]),
   ) as StyleSchemaFromSpecs<T>;
 }

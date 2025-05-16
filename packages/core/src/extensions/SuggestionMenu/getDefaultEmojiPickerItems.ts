@@ -49,10 +49,10 @@ async function loadEmojiMart() {
 export async function getDefaultEmojiPickerItems<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
-  query: string
+  query: string,
 ): Promise<DefaultGridSuggestionItem[]> {
   if (!checkDefaultInlineContentTypeInSchema("text", editor)) {
     return [];

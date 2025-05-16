@@ -8,14 +8,14 @@ export const createResizableFileBlockWrapper = (
   element: { dom: HTMLElement; destroy?: () => void },
   resizeHandlesContainerElement: HTMLElement,
   buttonText: string,
-  buttonIcon: HTMLElement
+  buttonIcon: HTMLElement,
 ): { dom: HTMLElement; destroy: () => void } => {
   const { dom, destroy } = createFileBlockWrapper(
     block,
     editor,
     element,
     buttonText,
-    buttonIcon
+    buttonIcon,
   );
   const wrapper = dom;
   if (block.props.url && block.props.showPreview) {
@@ -93,7 +93,7 @@ export const createResizableFileBlockWrapper = (
     // predetermined minimum width.
     width = Math.min(
       Math.max(newWidth, minWidth),
-      editor.domElement?.firstElementChild?.clientWidth || Number.MAX_VALUE
+      editor.domElement?.firstElementChild?.clientWidth || Number.MAX_VALUE,
     );
     wrapper.style.width = `${width}px`;
   };
@@ -183,11 +183,11 @@ export const createResizableFileBlockWrapper = (
   wrapper.addEventListener("mouseleave", wrapperMouseLeaveHandler);
   leftResizeHandle.addEventListener(
     "mousedown",
-    leftResizeHandleMouseDownHandler
+    leftResizeHandleMouseDownHandler,
   );
   rightResizeHandle.addEventListener(
     "mousedown",
-    rightResizeHandleMouseDownHandler
+    rightResizeHandleMouseDownHandler,
   );
 
   return {
@@ -200,11 +200,11 @@ export const createResizableFileBlockWrapper = (
       wrapper.removeEventListener("mouseleave", wrapperMouseLeaveHandler);
       leftResizeHandle.removeEventListener(
         "mousedown",
-        leftResizeHandleMouseDownHandler
+        leftResizeHandleMouseDownHandler,
       );
       rightResizeHandle.removeEventListener(
         "mousedown",
-        rightResizeHandleMouseDownHandler
+        rightResizeHandleMouseDownHandler,
       );
     },
   };

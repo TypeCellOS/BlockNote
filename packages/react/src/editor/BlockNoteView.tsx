@@ -43,7 +43,7 @@ const emptyFn = () => {
 export type BlockNoteViewProps<
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
-  SSchema extends StyleSchema
+  SSchema extends StyleSchema,
 > = {
   editor: BlockNoteEditor<BSchema, ISchema, SSchema>;
 
@@ -87,10 +87,10 @@ export type BlockNoteViewProps<
 function BlockNoteViewComponent<
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
-  SSchema extends StyleSchema
+  SSchema extends StyleSchema,
 >(
   props: BlockNoteViewProps<BSchema, ISchema, SSchema>,
-  ref: React.Ref<HTMLDivElement>
+  ref: React.Ref<HTMLDivElement>,
 ) {
   const {
     editor,
@@ -137,7 +137,7 @@ function BlockNoteViewComponent<
     (ref: (typeof editor)["elementRenderer"]) => {
       editor.elementRenderer = ref;
     },
-    [editor]
+    [editor],
   );
 
   // The BlockNoteContext makes sure the editor and some helper methods
@@ -174,14 +174,16 @@ function BlockNoteViewComponent<
         value={{
           editorProps,
           defaultUIProps,
-        }}>
+        }}
+      >
         <ElementRenderer ref={setElementRenderer} />
         <BlockNoteViewContainer
           className={className}
           renderEditor={renderEditor}
           editorColorScheme={editorColorScheme}
           ref={ref}
-          {...rest}>
+          {...rest}
+        >
           {children}
         </BlockNoteViewContainer>
       </BlockNoteViewContext.Provider>
@@ -208,7 +210,8 @@ const BlockNoteViewContainer = React.forwardRef<
     className={mergeCSSClasses("bn-container", editorColorScheme, className)}
     data-color-scheme={editorColorScheme}
     {...rest}
-    ref={ref}>
+    ref={ref}
+  >
     {renderEditor ? (
       <BlockNoteViewEditor>{children}</BlockNoteViewEditor>
     ) : (
@@ -221,11 +224,11 @@ const BlockNoteViewContainer = React.forwardRef<
 export const BlockNoteViewRaw = React.forwardRef(BlockNoteViewComponent) as <
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
-  SSchema extends StyleSchema
+  SSchema extends StyleSchema,
 >(
   props: BlockNoteViewProps<BSchema, ISchema, SSchema> & {
     ref?: React.ForwardedRef<HTMLDivElement>;
-  }
+  },
 ) => ReturnType<typeof BlockNoteViewComponent<BSchema, ISchema, SSchema>>;
 
 /**
@@ -244,7 +247,7 @@ export const BlockNoteViewEditor = (props: { children?: ReactNode }) => {
     (element: HTMLElement | null) => {
       editor.mount(element, portalManager);
     },
-    [editor, portalManager]
+    [editor, portalManager],
   );
 
   return (

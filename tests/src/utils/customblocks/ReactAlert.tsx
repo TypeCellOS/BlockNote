@@ -65,7 +65,8 @@ export const ReactAlert = createReactBlockSpec(
             flexGrow: 1,
             backgroundColor:
               values[type as keyof typeof values].backgroundColor,
-          }}>
+          }}
+        >
           <div
             style={{
               marginRight: "0.5rem",
@@ -105,14 +106,15 @@ export const ReactAlert = createReactBlockSpec(
               } else {
                 throw new Error("Unknown alert type");
               }
-            }}>
+            }}
+          >
             {values[type as keyof typeof values].icon}
           </div>
           <span ref={props.contentRef} />
         </div>
       );
     },
-  }
+  },
 );
 export const insertReactAlert = {
   title: "Insert React Alert",
@@ -124,7 +126,7 @@ export const insertReactAlert = {
         },
       ],
       editor.getTextCursorPosition().block,
-      "after"
+      "after",
     );
   },
   subtext: "Insert an alert block to emphasize text",

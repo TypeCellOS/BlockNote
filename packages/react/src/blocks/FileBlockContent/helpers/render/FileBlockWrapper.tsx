@@ -20,7 +20,7 @@ export const FileBlockWrapper = (
     onMouseEnter?: () => void;
     onMouseLeave?: () => void;
     style?: CSSProperties;
-  }
+  },
 ) => {
   const showLoader = useUploadLoading(props.block.id);
 
@@ -29,7 +29,8 @@ export const FileBlockWrapper = (
       className={"bn-file-block-content-wrapper"}
       onMouseEnter={props.onMouseEnter}
       onMouseLeave={props.onMouseLeave}
-      style={props.style}>
+      style={props.style}
+    >
       {showLoader ? (
         // Show loader while a file is being uploaded.
         <div className={"bn-file-loading-preview"}>Loading...</div>

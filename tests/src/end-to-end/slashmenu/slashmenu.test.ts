@@ -141,7 +141,7 @@ test.describe("Check SlashMenu Functionality", () => {
     await compareDocToSnapshot(page, "docStructureSnapshot");
     // Compare editor screenshot
     expect(await page.screenshot()).toMatchSnapshot(
-      "slash_menu_end_product.png"
+      "slash_menu_end_product.png",
     );
   });
 });

@@ -11,7 +11,7 @@ const provider = new YPartyKitProvider(
   "blocknote-dev.yousefed.partykit.dev",
   // Use a unique name as a "room" for your application.
   "your-project-name",
-  doc
+  doc,
 );
 
 export default function App() {

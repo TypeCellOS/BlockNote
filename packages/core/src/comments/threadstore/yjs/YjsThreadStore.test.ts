@@ -25,7 +25,7 @@ describe("YjsThreadStore", () => {
     store = new YjsThreadStore(
       "test-user",
       threadsYMap,
-      new DefaultThreadStoreAuth("test-user", "editor")
+      new DefaultThreadStoreAuth("test-user", "editor"),
     );
   });
 
@@ -99,7 +99,7 @@ describe("YjsThreadStore", () => {
           comment: {
             body: "Test comment" as CommentBody,
           },
-        })
+        }),
       ).rejects.toThrow("Thread not found");
     });
   });

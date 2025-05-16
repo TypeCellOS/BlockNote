@@ -24,7 +24,7 @@ export const SuggestionMenuItem = forwardRef<
 
     const overflow = elementOverflow(
       itemRef.current,
-      document.querySelector(".bn-suggestion-menu")!
+      document.querySelector(".bn-suggestion-menu")!,
     );
     if (overflow === "top") {
       itemRef.current.scrollIntoView(true);
@@ -38,13 +38,14 @@ export const SuggestionMenuItem = forwardRef<
       // Styles from ShadCN DropdownMenuItem component
       className={cn(
         "bn-relative bn-flex bn-cursor-pointer bn-select-none bn-items-center bn-rounded-sm bn-px-2 bn-py-1.5 bn-text-sm bn-outline-none bn-transition-colors focus:bn-bg-accent focus:bn-text-accent-foreground data-[disabled]:bn-pointer-events-none data-[disabled]:bn-opacity-50",
-        className
+        className,
       )}
       ref={mergeRefs([ref, itemRef])}
       id={id}
       onClick={onClick}
       role="option"
-      aria-selected={isSelected || undefined}>
+      aria-selected={isSelected || undefined}
+    >
       {item.icon && (
         <div className="bn-p-3" data-position="left">
           {item.icon}

@@ -30,7 +30,7 @@ import { getBlockSchema } from "../pmUtil.js";
  */
 export function contentNodeToTableContent<
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(contentNode: Node, inlineContentSchema: I, styleSchema: S) {
   const ret: TableContent<I, S> = {
     type: "tableContent",
@@ -70,34 +70,37 @@ export function contentNodeToTableContent<
       // Convert cell content to inline content and merge adjacent styled text nodes
       const content = cellNode.content.content
         .map((child) =>
-          contentNodeToInlineContent(child, inlineContentSchema, styleSchema)
+          contentNodeToInlineContent(child, inlineContentSchema, styleSchema),
         )
         // The reason that we merge this content is that we allow table cells to contain multiple tableParagraph nodes
         // So that we can leverage prosemirror-tables native merging
         // If the schema only allowed a single tableParagraph node, then the merging would not work and cause prosemirror to fit the content into a new cell
-        .reduce((acc, contentPartial) => {
-          if (!acc.length) {
-            return contentPartial;
-          }
+        .reduce(
+          (acc, contentPartial) => {
+            if (!acc.length) {
+              return contentPartial;
+            }
 
-          const last = acc[acc.length - 1];
-          const first = contentPartial[0];
+            const last = acc[acc.length - 1];
+            const first = contentPartial[0];
 
-          // Only merge if the last and first content are both styled text nodes and have the same styles
-          if (
-            first &&
-            isStyledTextInlineContent(last) &&
-            isStyledTextInlineContent(first) &&
-            JSON.stringify(last.styles) === JSON.stringify(first.styles)
-          ) {
-            // Join them together if they have the same styles
-            last.text += "\n" + first.text;
-            acc.push(...contentPartial.slice(1));
+            // Only merge if the last and first content are both styled text nodes and have the same styles
+            if (
+              first &&
+              isStyledTextInlineContent(last) &&
+              isStyledTextInlineContent(first) &&
+              JSON.stringify(last.styles) === JSON.stringify(first.styles)
+            ) {
+              // Join them together if they have the same styles
+              last.text += "\n" + first.text;
+              acc.push(...contentPartial.slice(1));
+              return acc;
+            }
+            acc.push(...contentPartial);
             return acc;
-          }
-          acc.push(...contentPartial);
-          return acc;
-        }, [] as InlineContent<I, S>[]);
+          },
+          [] as InlineContent<I, S>[],
+        );
 
       return {
         type: "tableCell",
@@ -135,7 +138,7 @@ export function contentNodeToTableContent<
  */
 export function contentNodeToInlineContent<
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(contentNode: Node, inlineContentSchema: I, styleSchema: S) {
   const content: InlineContent<any, S>[] = [];
   let currentContent: InlineContent<any, S> | undefined = undefined;
@@ -182,7 +185,7 @@ export function contentNodeToInlineContent<
       }
 
       content.push(
-        nodeToCustomInlineContent(node, inlineContentSchema, styleSchema)
+        nodeToCustomInlineContent(node, inlineContentSchema, styleSchema),
       );
 
       return;
@@ -259,7 +262,8 @@ export function contentNodeToInlineContent<
             // Styles are the same.
             if (
               JSON.stringify(
-                currentContent.content[currentContent.content.length - 1].styles
+                currentContent.content[currentContent.content.length - 1]
+                  .styles,
               ) === JSON.stringify(styles)
             ) {
               currentContent.content[currentContent.content.length - 1].text +=
@@ -336,7 +340,7 @@ export function contentNodeToInlineContent<
 
 export function nodeToCustomInlineContent<
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(node: Node, inlineContentSchema: I, styleSchema: S): InlineContent<I, S> {
   if (node.type.name === "text" || node.type.name === "link") {
     throw new Error("unexpected");
@@ -363,7 +367,7 @@ export function nodeToCustomInlineContent<
     content = contentNodeToInlineContent(
       node,
       inlineContentSchema,
-      styleSchema
+      styleSchema,
     ) as any; // TODO: is this safe? could we have Links here that are undesired?
   } else {
     content = undefined;
@@ -385,14 +389,14 @@ export function nodeToCustomInlineContent<
 export function nodeToBlock<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   node: Node,
   schema: Schema,
   blockSchema: BSchema = getBlockSchema(schema) as BSchema,
   inlineContentSchema: I = getInlineContentSchema(schema) as I,
   styleSchema: S = getStyleSchema(schema) as S,
-  blockCache = getBlockCache(schema)
+  blockCache = getBlockCache(schema),
 ): Block<BSchema, I, S> {
   if (!node.type.isInGroup("bnBlock")) {
     throw Error("Node should be a bnBlock, but is instead: " + node.type.name);
@@ -445,8 +449,8 @@ export function nodeToBlock<
         blockSchema,
         inlineContentSchema,
         styleSchema,
-        blockCache
-      )
+        blockCache,
+      ),
     );
   });
 
@@ -459,7 +463,7 @@ export function nodeToBlock<
     content = contentNodeToInlineContent(
       blockInfo.blockContent.node,
       inlineContentSchema,
-      styleSchema
+      styleSchema,
     );
   } else if (blockConfig.content === "table") {
     if (!blockInfo.isBlockContainer) {
@@ -468,7 +472,7 @@ export function nodeToBlock<
     content = contentNodeToTableContent(
       blockInfo.blockContent.node,
       inlineContentSchema,
-      styleSchema
+      styleSchema,
     );
   } else if (blockConfig.content === "none") {
     content = undefined;

@@ -14,7 +14,7 @@ import { ySyncPluginKey } from "y-prosemirror";
 
 export type FilePanelState<
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = UiElementPosition & {
   // TODO: This typing is not quite right (children should be from BSchema)
   block: BlockFromConfig<FileBlockConfig, I, S>;
@@ -34,7 +34,7 @@ export class FilePanelView<I extends InlineContentSchema, S extends StyleSchema>
     >,
     private readonly pluginKey: PluginKey<FilePanelState<I, S>>,
     private readonly pmView: EditorView,
-    emitUpdate: (state: FilePanelState<I, S>) => void
+    emitUpdate: (state: FilePanelState<I, S>) => void,
   ) {
     this.emitUpdate = () => {
       if (!this.state) {
@@ -71,7 +71,7 @@ export class FilePanelView<I extends InlineContentSchema, S extends StyleSchema>
   scrollHandler = () => {
     if (this.state?.show) {
       const blockElement = this.pmView.root.querySelector(
-        `[data-node-type="blockContainer"][data-id="${this.state.block.id}"]`
+        `[data-node-type="blockContainer"][data-id="${this.state.block.id}"]`,
       );
       if (!blockElement) {
         return;
@@ -87,7 +87,7 @@ export class FilePanelView<I extends InlineContentSchema, S extends StyleSchema>
 
     if (!this.state?.show && pluginState?.block && this.editor.isEditable) {
       const blockElement = this.pmView.root.querySelector(
-        `[data-node-type="blockContainer"][data-id="${pluginState.block.id}"]`
+        `[data-node-type="blockContainer"][data-id="${pluginState.block.id}"]`,
       );
       if (!blockElement) {
         return;
@@ -132,12 +132,12 @@ export class FilePanelView<I extends InlineContentSchema, S extends StyleSchema>
 }
 
 const filePanelPluginKey = new PluginKey<FilePanelState<any, any>>(
-  "FilePanelPlugin"
+  "FilePanelPlugin",
 );
 
 export class FilePanelProsemirrorPlugin<
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > extends EventEmitter<any> {
   private view: FilePanelView<I, S> | undefined;
   public readonly plugin: Plugin;
@@ -155,7 +155,7 @@ export class FilePanelProsemirrorPlugin<
           editorView,
           (state) => {
             this.emit("update", state);
-          }
+          },
         );
         return this.view;
       },

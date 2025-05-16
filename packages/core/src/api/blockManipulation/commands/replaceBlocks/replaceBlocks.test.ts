@@ -11,10 +11,10 @@ const getEditor = setupTestEnv();
 function replaceBlocks(
   editor: BlockNoteEditor,
   blocksToRemove: BlockIdentifier[],
-  blocksToInsert: PartialBlock<any, any, any>[]
+  blocksToInsert: PartialBlock<any, any, any>[],
 ) {
   return editor.transact((tr) =>
-    removeAndInsertBlocks(tr, blocksToRemove, blocksToInsert)
+    removeAndInsertBlocks(tr, blocksToRemove, blocksToInsert),
   );
 }
 
@@ -29,7 +29,7 @@ describe("Test replaceBlocks", () => {
     replaceBlocks(
       getEditor(),
       ["paragraph-0", "paragraph-1", "paragraph-with-children"],
-      []
+      [],
     );
 
     expect(getEditor().document).toMatchSnapshot();
@@ -39,7 +39,7 @@ describe("Test replaceBlocks", () => {
     replaceBlocks(
       getEditor(),
       ["paragraph-0", "table-0", "heading-with-everything"],
-      []
+      [],
     );
 
     expect(getEditor().document).toMatchSnapshot();
@@ -55,7 +55,7 @@ describe("Test replaceBlocks", () => {
     replaceBlocks(
       getEditor(),
       ["paragraph-0", "paragraph-1", "paragraph-with-children"],
-      [{ type: "paragraph" }]
+      [{ type: "paragraph" }],
     );
 
     expect(getEditor().document).toMatchSnapshot();
@@ -65,7 +65,7 @@ describe("Test replaceBlocks", () => {
     replaceBlocks(
       getEditor(),
       ["paragraph-0", "table-0", "heading-with-everything"],
-      [{ type: "paragraph" }]
+      [{ type: "paragraph" }],
     );
 
     expect(getEditor().document).toMatchSnapshot();
@@ -79,7 +79,7 @@ describe("Test replaceBlocks", () => {
         { type: "paragraph", content: "Inserted paragraph 1" },
         { type: "paragraph", content: "Inserted paragraph 2" },
         { type: "paragraph", content: "Inserted paragraph 3" },
-      ]
+      ],
     );
 
     expect(getEditor().document).toMatchSnapshot();
@@ -93,7 +93,7 @@ describe("Test replaceBlocks", () => {
         { type: "paragraph", content: "Inserted paragraph 1" },
         { type: "paragraph", content: "Inserted paragraph 2" },
         { type: "paragraph", content: "Inserted paragraph 3" },
-      ]
+      ],
     );
 
     expect(getEditor().document).toMatchSnapshot();
@@ -107,7 +107,7 @@ describe("Test replaceBlocks", () => {
         { type: "paragraph", content: "Inserted paragraph 1" },
         { type: "paragraph", content: "Inserted paragraph 2" },
         { type: "paragraph", content: "Inserted paragraph 3" },
-      ]
+      ],
     );
 
     expect(getEditor().document).toMatchSnapshot();
@@ -147,7 +147,7 @@ describe("Test replaceBlocks", () => {
             },
           ],
         },
-      ]
+      ],
     );
 
     expect(getEditor().document).toMatchSnapshot();
@@ -187,7 +187,7 @@ describe("Test replaceBlocks", () => {
             },
           ],
         },
-      ]
+      ],
     );
 
     expect(getEditor().document).toMatchSnapshot();
@@ -227,7 +227,7 @@ describe("Test replaceBlocks", () => {
             },
           ],
         },
-      ]
+      ],
     );
 
     expect(getEditor().document).toMatchSnapshot();

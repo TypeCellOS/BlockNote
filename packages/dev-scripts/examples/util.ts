@@ -71,7 +71,7 @@ export function groupProjects(projects: Project[]) {
           projects,
         },
       ];
-    })
+    }),
   );
 }
 
@@ -80,8 +80,8 @@ export function addTitleToGroups(grouped: ReturnType<typeof groupProjects>) {
   const meta = JSON.parse(
     fs.readFileSync(
       path.resolve(dir, "../../../docs/pages/examples/_meta.json"),
-      "utf-8"
-    )
+      "utf-8",
+    ),
   );
 
   const groupsWithTitles = Object.fromEntries(
@@ -89,7 +89,7 @@ export function addTitleToGroups(grouped: ReturnType<typeof groupProjects>) {
       const title = meta[key];
       if (!title) {
         throw new Error(
-          `Missing group title for ${key}, add to examples/_meta.json?`
+          `Missing group title for ${key}, add to examples/_meta.json?`,
         );
       }
       return [
@@ -99,7 +99,7 @@ export function addTitleToGroups(grouped: ReturnType<typeof groupProjects>) {
           title,
         },
       ];
-    })
+    }),
   );
   return groupsWithTitles;
 }
@@ -132,7 +132,7 @@ export function getProjectFiles(project: Project): Files {
             filename.endsWith("main.tsx"),
         },
       ];
-    })
+    }),
   );
   return passedFiles;
 }
@@ -184,7 +184,7 @@ export function getExampleProjects(): Project[] {
 
       const group = {
         pathFromRoot: replacePathSepToSlash(
-          path.relative(path.resolve("../../"), path.join(directory, ".."))
+          path.relative(path.resolve("../../"), path.join(directory, "..")),
         ),
         // remove optional 01- prefix
         slug: groupDir.replace(/^\d{2}-/, ""),
@@ -195,7 +195,7 @@ export function getExampleProjects(): Project[] {
         projectSlug,
         fullSlug: `${group.slug}/${projectSlug}`,
         pathFromRoot: replacePathSepToSlash(
-          path.relative(path.resolve("../../"), directory)
+          path.relative(path.resolve("../../"), directory),
         ),
         config,
         title,

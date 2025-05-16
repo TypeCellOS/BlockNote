@@ -10,7 +10,7 @@ export function insertContentAt(
   nodes: Node[],
   options: {
     updateSelection: boolean;
-  } = { updateSelection: true }
+  } = { updateSelection: true },
 ) {
   // don’t dispatch an empty fragment because this can lead to strange errors
   // if (content.toString() === "<>") {

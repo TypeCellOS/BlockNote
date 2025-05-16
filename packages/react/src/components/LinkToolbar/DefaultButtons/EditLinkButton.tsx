@@ -4,7 +4,7 @@ import { EditLinkMenuItems } from "../EditLinkMenuItems.js";
 import { LinkToolbarProps } from "../LinkToolbarProps.js";
 
 export const EditLinkButton = (
-  props: Pick<LinkToolbarProps, "url" | "text" | "editLink">
+  props: Pick<LinkToolbarProps, "url" | "text" | "editLink">,
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
@@ -15,13 +15,15 @@ export const EditLinkButton = (
         <Components.LinkToolbar.Button
           className={"bn-button"}
           mainTooltip={dict.link_toolbar.edit.tooltip}
-          isSelected={false}>
+          isSelected={false}
+        >
           {dict.link_toolbar.edit.text}
         </Components.LinkToolbar.Button>
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content
         className={"bn-popover-content bn-form-popover"}
-        variant={"form-popover"}>
+        variant={"form-popover"}
+      >
         <EditLinkMenuItems {...props} />
       </Components.Generic.Popover.Content>
     </Components.Generic.Popover.Root>

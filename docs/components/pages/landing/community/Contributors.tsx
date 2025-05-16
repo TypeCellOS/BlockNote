@@ -95,7 +95,8 @@ export const Contributors = () => (
           key={contributor.username}
           href={`https://github.com/${contributor.username}`}
           rel="nofollow noreferrer noopener"
-          target="_blank">
+          target="_blank"
+        >
           <Image
             src={contributor.avatarUrl}
             alt={`${contributor.username} avatar`}

@@ -30,7 +30,8 @@ export function SectionHeader({ children }: { children: React.ReactNode }) {
       className={cn(
         gradients.heroHeading,
         "text-center text-[32px] font-bold tracking-[-0.01em] text-transparent md:text-[40px]",
-      )}>
+      )}
+    >
       {children}
     </h2>
   );
@@ -42,7 +43,8 @@ export function SectionSubHeader({ children }: { children: React.ReactNode }) {
       className={cn(
         gradients.heroHeading,
         "text-center text-[22px] font-bold tracking-[-0.01em] text-transparent md:text-[28px]",
-      )}>
+      )}
+    >
       {children}
     </h2>
   );
@@ -58,9 +60,10 @@ export function SectionSubtext({
   return (
     <p
       className={cn(
-        "font-space-grotesk text-lg leading-snug text-[#00000080] dark:text-[#FFFFFFB2] md:text-xl",
+        "font-space-grotesk text-lg leading-snug text-[#00000080] md:text-xl dark:text-[#FFFFFFB2]",
         className,
-      )}>
+      )}
+    >
       {children}
     </p>
   );

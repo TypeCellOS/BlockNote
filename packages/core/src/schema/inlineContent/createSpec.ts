@@ -25,7 +25,7 @@ export type CustomInlineContentImplementation<
   T extends CustomInlineContentConfig,
   // B extends BlockSchema,
   // I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = {
   render: (
     /**
@@ -33,14 +33,14 @@ export type CustomInlineContentImplementation<
      */
     inlineContent: InlineContentFromConfig<T, S>,
     updateInlineContent: (
-      update: PartialCustomInlineContentFromConfig<T, S>
+      update: PartialCustomInlineContentFromConfig<T, S>,
     ) => void,
     /**
      * The BlockNote editor instance
      * This is typed generically. If you want an editor with your custom schema, you need to
      * cast it manually, e.g.: `const e = editor as BlockNoteEditor<typeof mySchema>;`
      */
-    editor: BlockNoteEditor<any, any, S>
+    editor: BlockNoteEditor<any, any, S>,
     // (note) if we want to fix the manual cast, we need to prevent circular references and separate block definition and render implementations
     // or allow manually passing <BSchema>, but that's not possible without passing the other generics because Typescript doesn't support partial inferred generics
   ) => {
@@ -51,7 +51,7 @@ export type CustomInlineContentImplementation<
 };
 
 export function getInlineContentParseRules(
-  config: CustomInlineContentConfig
+  config: CustomInlineContentConfig,
 ): TagParseRule[] {
   return [
     {
@@ -71,10 +71,10 @@ export function getInlineContentParseRules(
 
 export function createInlineContentSpec<
   T extends CustomInlineContentConfig,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   inlineContentConfig: T,
-  inlineContentImplementation: CustomInlineContentImplementation<T, S>
+  inlineContentImplementation: CustomInlineContentImplementation<T, S>,
 ): InlineContentSpec<T> {
   const node = Node.create({
     name: inlineContentConfig.type,
@@ -105,19 +105,19 @@ export function createInlineContentSpec<
         nodeToCustomInlineContent(
           node,
           editor.schema.inlineContentSchema,
-          editor.schema.styleSchema
+          editor.schema.styleSchema,
         ) as any as InlineContentFromConfig<T, S>, // TODO: fix cast
         () => {
           // No-op
         },
-        editor
+        editor,
       );
 
       return addInlineContentAttributes(
         output,
         inlineContentConfig.type,
         node.attrs as Props<T["propSchema"]>,
-        inlineContentConfig.propSchema
+        inlineContentConfig.propSchema,
       );
     },
 
@@ -129,7 +129,7 @@ export function createInlineContentSpec<
           nodeToCustomInlineContent(
             node,
             editor.schema.inlineContentSchema,
-            editor.schema.styleSchema
+            editor.schema.styleSchema,
           ) as any as InlineContentFromConfig<T, S>, // TODO: fix cast
           (update) => {
             if (typeof getPos === "boolean") {
@@ -142,18 +142,18 @@ export function createInlineContentSpec<
               editor.prosemirrorView.state.tr.replaceWith(
                 getPos(),
                 getPos() + node.nodeSize,
-                content
-              )
+                content,
+              ),
             );
           },
-          editor
+          editor,
         );
 
         return addInlineContentAttributes(
           output,
           inlineContentConfig.type,
           node.attrs as Props<T["propSchema"]>,
-          inlineContentConfig.propSchema
+          inlineContentConfig.propSchema,
         );
       };
     },
@@ -161,6 +161,6 @@ export function createInlineContentSpec<
 
   return createInlineContentSpecFromTipTapNode(
     node,
-    inlineContentConfig.propSchema
+    inlineContentConfig.propSchema,
   ) as InlineContentSpec<T>; // TODO: fix cast
 }

@@ -21,7 +21,7 @@ import { TableCellButtonProps } from "./TableCellButtonProps.js";
 
 export const TableHandlesController = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(props: {
   tableCellHandle?: FC<TableCellButtonProps<I, S>>;
   tableHandle?: FC<TableHandleProps<I, S>>;
@@ -34,7 +34,7 @@ export const TableHandlesController = <
 
   if (!editor.tableHandles) {
     throw new Error(
-      "TableHandlesController can only be used when BlockNote editor schema contains table block"
+      "TableHandlesController can only be used when BlockNote editor schema contains table block",
     );
   }
 
@@ -61,7 +61,7 @@ export const TableHandlesController = <
   }, [unfreezeHandles]);
 
   const state = useUIPluginState(
-    editor.tableHandles.onUpdate.bind(editor.tableHandles)
+    editor.tableHandles.onUpdate.bind(editor.tableHandles),
   );
 
   const draggingState = useMemo(() => {
@@ -82,14 +82,14 @@ export const TableHandlesController = <
     state?.show || false,
     state?.referencePosCell || null,
     state?.referencePosTable || null,
-    draggingState
+    draggingState,
   );
 
   const { addOrRemoveColumnsButton, addOrRemoveRowsButton } =
     useExtendButtonsPositioning(
       state?.showAddOrRemoveColumnsButton || false,
       state?.showAddOrRemoveRowsButton || false,
-      state?.referencePosTable || null
+      state?.referencePosTable || null,
     );
 
   const [hideRow, setHideRow] = useState<boolean>(false);
@@ -173,7 +173,8 @@ export const TableHandlesController = <
         because otherwise the table slightly shifts when they unmount  */}
         <div
           ref={addOrRemoveRowsButton.ref}
-          style={addOrRemoveRowsButton.style}>
+          style={addOrRemoveRowsButton.style}
+        >
           <ExtendButtonComponent
             editor={editor as any}
             orientation={"addOrRemoveRows"}
@@ -184,7 +185,8 @@ export const TableHandlesController = <
         </div>
         <div
           ref={addOrRemoveColumnsButton.ref}
-          style={addOrRemoveColumnsButton.style}>
+          style={addOrRemoveColumnsButton.style}
+        >
           <ExtendButtonComponent
             editor={editor as any}
             orientation={"addOrRemoveColumns"}

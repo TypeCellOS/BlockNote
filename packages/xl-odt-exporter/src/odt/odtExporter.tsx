@@ -18,7 +18,7 @@ import stylesXml from "./template/styles.xml?raw";
 export class ODTExporter<
   B extends BlockSchema,
   S extends StyleSchema,
-  I extends InlineContentSchema
+  I extends InlineContentSchema,
 > extends Exporter<
   B,
   I,
@@ -59,7 +59,7 @@ export class ODTExporter<
       Record<string, string>,
       React.ReactNode
     >["mappings"],
-    options?: Partial<ExporterOptions>
+    options?: Partial<ExporterOptions>,
   ) {
     const defaults = {
       colors: COLORS_DEFAULT,
@@ -71,10 +71,10 @@ export class ODTExporter<
 
   protected async loadFonts() {
     const interFont = await loadFileBuffer(
-      await import("@shared/assets/fonts/inter/Inter_18pt-Regular.ttf")
+      await import("@shared/assets/fonts/inter/Inter_18pt-Regular.ttf"),
     );
     const geistMonoFont = await loadFileBuffer(
-      await import("@shared/assets/fonts/GeistMono-Regular.ttf")
+      await import("@shared/assets/fonts/GeistMono-Regular.ttf"),
     );
 
     return [
@@ -106,7 +106,7 @@ export class ODTExporter<
       styleName,
       <style:style style:name={styleName} style:family="text">
         <style:text-properties {...styles} />
-      </style:style>
+      </style:style>,
     );
 
     return <text:span text:style-name={styleName}>{styledText.text}</text:span>;
@@ -114,7 +114,7 @@ export class ODTExporter<
 
   public async transformBlocks(
     blocks: Block<B, I, S>[],
-    nestingLevel = 0
+    nestingLevel = 0,
   ): Promise<React.ReactNode[]> {
     const ret: React.ReactNode[] = [];
     let numberedListIndex = 0;
@@ -128,13 +128,13 @@ export class ODTExporter<
 
       const children = await this.transformBlocks(
         block.children,
-        nestingLevel + 1
+        nestingLevel + 1,
       );
 
       const content = await this.mapBlock(
         block as any,
         nestingLevel,
-        numberedListIndex
+        numberedListIndex,
       );
 
       ret.push(content);
@@ -151,7 +151,7 @@ export class ODTExporter<
     options?: {
       header?: string | XMLDocument;
       footer?: string | XMLDocument;
-    }
+    },
   ): Promise<Blob> {
     const xmlOptionToString = (xmlDocument: string | XMLDocument) => {
       const xmlNamespacesRegEx =
@@ -187,20 +187,23 @@ export class ODTExporter<
         xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0"
         xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0"
         xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0"
-        office:version="1.3">
+        office:version="1.3"
+      >
         <office:font-face-decls>
           {fonts.map((font) => {
             return (
               <style:font-face
                 style:name={font.name}
                 svg:font-family={font.name}
-                style:font-pitch="variable">
+                style:font-pitch="variable"
+              >
                 <svg:font-face-src>
                   <svg:font-face-uri
                     xlink:href={`Fonts/${font.fileName}`}
                     xlink:type="simple"
                     loext:font-style="normal"
-                    loext:font-weight="normal">
+                    loext:font-weight="normal"
+                  >
                     <svg:font-face-format svg:string="truetype" />
                   </svg:font-face-uri>
                 </svg:font-face-src>
@@ -214,18 +217,21 @@ export class ODTExporter<
             <style:master-page
               style:name="Standard"
               style:page-layout-name="Mpm1"
-              draw:style-name="Mdp1">
+              draw:style-name="Mdp1"
+            >
               {header && (
                 <style:header
                   dangerouslySetInnerHTML={{
                     __html: header,
-                  }}></style:header>
+                  }}
+                ></style:header>
               )}
               {footer && (
                 <style:footer
                   dangerouslySetInnerHTML={{
                     __html: footer,
-                  }}></style:footer>
+                  }}
+                ></style:footer>
               )}
             </style:master-page>
           </office:master-styles>
@@ -239,7 +245,8 @@ export class ODTExporter<
     const manifestNode = (
       <manifest:manifest
         xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0"
-        manifest:version="1.3">
+        manifest:version="1.3"
+      >
         <manifest:file-entry
           manifest:media-type="application/vnd.oasis.opendocument.text"
           manifest:full-path="/"
@@ -271,7 +278,7 @@ export class ODTExporter<
       </manifest:manifest>
     );
     const zipWriter = new ZipWriter(
-      new BlobWriter("application/vnd.oasis.opendocument.text")
+      new BlobWriter("application/vnd.oasis.opendocument.text"),
     );
 
     // Add mimetype first, uncompressed
@@ -283,7 +290,7 @@ export class ODTExporter<
         level: 0,
         dataDescriptor: false,
         extendedTimestamp: false,
-      }
+      },
     );
 
     const contentXml = renderToString(content);
@@ -298,7 +305,7 @@ export class ODTExporter<
     pictures.forEach((picture) => {
       zipWriter.add(
         `Pictures/${picture.fileName}`,
-        new BlobReader(picture.file)
+        new BlobReader(picture.file),
       );
     });
 

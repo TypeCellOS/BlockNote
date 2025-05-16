@@ -53,12 +53,12 @@ export class FormattingToolbarView implements PluginView {
       StyleSchema
     >,
     private readonly pmView: EditorView,
-    emitUpdate: (state: FormattingToolbarState) => void
+    emitUpdate: (state: FormattingToolbarState) => void,
   ) {
     this.emitUpdate = () => {
       if (!this.state) {
         throw new Error(
-          "Attempting to update uninitialized formatting toolbar"
+          "Attempting to update uninitialized formatting toolbar",
         );
       }
 
@@ -96,7 +96,7 @@ export class FormattingToolbarView implements PluginView {
       (editorWrapper === (event.relatedTarget as Node) ||
         editorWrapper.contains(event.relatedTarget as Node) ||
         (event.relatedTarget as HTMLElement).matches(
-          ".bn-ui-container, .bn-ui-container *"
+          ".bn-ui-container, .bn-ui-container *",
         ))
     ) {
       return;
@@ -233,7 +233,7 @@ export class FormattingToolbarView implements PluginView {
 }
 
 export const formattingToolbarPluginKey = new PluginKey(
-  "FormattingToolbarPlugin"
+  "FormattingToolbarPlugin",
 );
 
 export class FormattingToolbarProsemirrorPlugin extends EventEmitter<any> {

@@ -28,14 +28,14 @@ function removeUndefined<T extends Record<string, any> | undefined>(obj: T): T {
     return obj;
   }
   return Object.fromEntries(
-    Object.entries(obj).filter(([, value]) => value !== undefined)
+    Object.entries(obj).filter(([, value]) => value !== undefined),
   ) as T;
 }
 
 export class BlockNoteSchema<
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
-  SSchema extends StyleSchema
+  SSchema extends StyleSchema,
 > {
   public readonly blockSpecs: BlockSpecs;
   public readonly inlineContentSpecs: InlineContentSpecs;
@@ -61,7 +61,7 @@ export class BlockNoteSchema<
   public static create<
     BSpecs extends BlockSpecs = typeof defaultBlockSpecs,
     ISpecs extends InlineContentSpecs = typeof defaultInlineContentSpecs,
-    SSpecs extends StyleSpecs = typeof defaultStyleSpecs
+    SSpecs extends StyleSpecs = typeof defaultStyleSpecs,
   >(options?: {
     /**
      * A list of custom block types that should be available in the editor.
@@ -100,7 +100,7 @@ export class BlockNoteSchema<
 
     this.blockSchema = getBlockSchemaFromSpecs(this.blockSpecs) as any;
     this.inlineContentSchema = getInlineContentSchemaFromSpecs(
-      this.inlineContentSpecs
+      this.inlineContentSpecs,
     ) as any;
     this.styleSchema = getStyleSchemaFromSpecs(this.styleSpecs) as any;
   }

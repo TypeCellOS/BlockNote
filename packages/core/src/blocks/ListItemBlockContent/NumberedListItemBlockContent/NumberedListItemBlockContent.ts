@@ -65,7 +65,7 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
                   ({
                     start: startIndex,
                   } as any),
-              })
+              }),
             )
             // Removes the "1." characters used to set the list.
             .deleteRange({ from: range.from, to: range.to });
@@ -90,7 +90,7 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
           updateBlockCommand(blockInfo.bnBlock.beforePos, {
             type: "numberedListItem",
             props: {},
-          })
+          }),
         );
       },
     };
@@ -160,12 +160,12 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
         ...(this.options.domAttributes?.blockContent || {}),
         ...HTMLAttributes,
       },
-      this.options.domAttributes?.inlineContent || {}
+      this.options.domAttributes?.inlineContent || {},
     );
   },
 });
 
 export const NumberedListItem = createBlockSpecFromStronglyTypedTiptapNode(
   NumberedListItemBlockContent,
-  numberedListItemPropSchema
+  numberedListItemPropSchema,
 );

@@ -32,11 +32,12 @@ export const SideMenuButton = forwardRef<
       aria-label={label}
       className={mergeCSSClasses(
         "bn-ak-button bn-ak-secondary",
-        className || ""
+        className || "",
       )}
       ref={ref}
       onClick={onClick}
-      {...rest}>
+      {...rest}
+    >
       {icon}
       {children}
     </AriakitButton>

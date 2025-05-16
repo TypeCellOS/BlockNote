@@ -14,7 +14,7 @@ test.beforeEach(async ({}, testInfo) => {
 test("Alert Copy/Paste Internal", async ({ browserName, mount, page }) => {
   test.skip(
     browserName === "firefox",
-    "Firefox doesn't yet support the async clipboard API."
+    "Firefox doesn't yet support the async clipboard API.",
   );
 
   await mount(<Editor />);
@@ -28,7 +28,7 @@ test("Alert Copy/Paste Internal", async ({ browserName, mount, page }) => {
   await page.keyboard.type("Paragraph 2");
 
   const button = await page.locator(
-    `[data-content-type="alert"] > div > div:first-child`
+    `[data-content-type="alert"] > div > div:first-child`,
   );
   await button.first().click();
 
@@ -41,7 +41,7 @@ test("Alert Copy/Paste Internal", async ({ browserName, mount, page }) => {
 test("Button Copy/Paste Internal", async ({ browserName, mount, page }) => {
   test.skip(
     browserName === "firefox",
-    "Firefox doesn't yet support the async clipboard API."
+    "Firefox doesn't yet support the async clipboard API.",
   );
 
   await mount(<Editor />);
@@ -65,7 +65,7 @@ test("Button Copy/Paste Internal", async ({ browserName, mount, page }) => {
 test("Embed Copy/Paste Internal", async ({ browserName, mount, page }) => {
   test.skip(
     browserName === "firefox",
-    "Firefox doesn't yet support the async clipboard API."
+    "Firefox doesn't yet support the async clipboard API.",
   );
 
   await mount(<Editor />);
@@ -85,7 +85,7 @@ test("Embed Copy/Paste Internal", async ({ browserName, mount, page }) => {
 test("Image Copy/Paste Internal", async ({ browserName, mount, page }) => {
   test.skip(
     browserName === "firefox",
-    "Firefox doesn't yet support the async clipboard API."
+    "Firefox doesn't yet support the async clipboard API.",
   );
 
   await mount(<Editor />);
@@ -107,7 +107,7 @@ test("Image Copy/Paste Internal", async ({ browserName, mount, page }) => {
 test("Separator Copy/Paste Internal", async ({ browserName, mount, page }) => {
   test.skip(
     browserName === "firefox",
-    "Firefox doesn't yet support the async clipboard API."
+    "Firefox doesn't yet support the async clipboard API.",
   );
 
   await mount(<Editor />);
@@ -131,7 +131,7 @@ test("Table of Contents Copy/Paste Internal", async ({
 }) => {
   test.skip(
     browserName === "firefox",
-    "Firefox doesn't yet support the async clipboard API."
+    "Firefox doesn't yet support the async clipboard API.",
   );
 
   await mount(<Editor />);
@@ -150,10 +150,10 @@ test("Table of Contents Copy/Paste Internal", async ({
   const expectedToC =
     "<li><p>Heading 1</p></li><li><p>Heading 2</p></li><li><p>Heading 1</p></li><li><p>Heading 2</p></li>";
   await expect(await page.locator("ol").first().innerHTML()).toEqual(
-    expectedToC
+    expectedToC,
   );
   await expect(await page.locator("ol").first().innerHTML()).toEqual(
-    await page.locator("ol").last().innerHTML()
+    await page.locator("ol").last().innerHTML(),
   );
 
   await compareDocToSnapshot(page, "toc-internal");

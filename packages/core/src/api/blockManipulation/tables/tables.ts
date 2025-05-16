@@ -185,7 +185,7 @@ type OccupancyGrid = (RelativeCellIndices & {
  * @returns an {@link OccupancyGrid}
  */
 export function getTableCellOccupancyGrid(
-  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>
+  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
 ): OccupancyGrid {
   const { height, width } = getDimensionsOfTable(block);
 
@@ -209,7 +209,7 @@ export function getTableCellOccupancyGrid(
     }
 
     throw new Error(
-      "Unable to create occupancy grid for table, no more available cells"
+      "Unable to create occupancy grid for table, no more available cells",
     );
   };
 
@@ -231,7 +231,7 @@ export function getTableCellOccupancyGrid(
           if (grid[i][j]) {
             // The cell is already occupied, the table is malformed
             throw new Error(
-              `Unable to create occupancy grid for table, cell at ${i},${j} is already occupied`
+              `Unable to create occupancy grid for table, cell at ${i},${j} is already occupied`,
             );
           }
 
@@ -258,7 +258,7 @@ export function getTableCellOccupancyGrid(
  * @note This will remove duplicates from the occupancy grid. And does no bounds checking for validity of the occupancy grid.
  */
 export function getTableRowsFromOccupancyGrid(
-  occupancyGrid: OccupancyGrid
+  occupancyGrid: OccupancyGrid,
 ): TableContent<any, any>["rows"] {
   // Because a cell can have a rowspan or colspan, it can occupy multiple cells in the occupancy grid
   // So, we need to remove duplicates from the occupancy grid before we can return the table rows
@@ -299,7 +299,7 @@ export function getAbsoluteTableCells(
   /**
    * The occupancy grid of the table.
    */
-  occupancyGrid: OccupancyGrid = getTableCellOccupancyGrid(block)
+  occupancyGrid: OccupancyGrid = getTableCellOccupancyGrid(block),
 ): AbsoluteCellIndices & {
   cell: TableCell<any, any>;
 } {
@@ -317,7 +317,7 @@ export function getAbsoluteTableCells(
   }
 
   throw new Error(
-    `Unable to resolve relative table cell indices for table, cell at ${relativeCellIndices.row},${relativeCellIndices.col} is not occupied`
+    `Unable to resolve relative table cell indices for table, cell at ${relativeCellIndices.row},${relativeCellIndices.col} is not occupied`,
   );
 }
 
@@ -327,7 +327,7 @@ export function getAbsoluteTableCells(
  * @returns The height and width of the table.
  */
 export function getDimensionsOfTable(
-  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>
+  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
 ): {
   /**
    * The number of rows in the table.
@@ -374,7 +374,7 @@ export function getRelativeTableCells(
   /**
    * The occupancy grid of the table.
    */
-  occupancyGrid: OccupancyGrid = getTableCellOccupancyGrid(block)
+  occupancyGrid: OccupancyGrid = getTableCellOccupancyGrid(block),
 ):
   | (RelativeCellIndices & {
       cell: TableContent<any, any>["rows"][number]["cells"][number];
@@ -429,7 +429,7 @@ export function getRelativeTableCells(
  */
 export function getCellsAtRowHandle(
   block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
-  relativeRowIndex: RelativeCellIndices["row"]
+  relativeRowIndex: RelativeCellIndices["row"],
 ) {
   const occupancyGrid = getTableCellOccupancyGrid(block);
 
@@ -459,12 +459,12 @@ export function getCellsAtRowHandle(
       return getRelativeTableCells(
         { row: absoluteRow, col },
         block,
-        occupancyGrid
+        occupancyGrid,
       );
     })
     .filter(
       (a): a is RelativeCellIndices & { cell: TableCell<any, any> } =>
-        a !== undefined
+        a !== undefined,
     );
 
   // Filter out duplicates based on row and col properties
@@ -508,7 +508,7 @@ export function getCellsAtRowHandle(
  */
 export function getCellsAtColumnHandle(
   block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
-  relativeColumnIndex: RelativeCellIndices["col"]
+  relativeColumnIndex: RelativeCellIndices["col"],
 ) {
   const occupancyGrid = getTableCellOccupancyGrid(block);
 
@@ -541,12 +541,12 @@ export function getCellsAtColumnHandle(
       return getRelativeTableCells(
         { row, col: absoluteCol },
         block,
-        occupancyGrid
+        occupancyGrid,
       );
     })
     .filter(
       (a): a is RelativeCellIndices & { cell: TableCell<any, any> } =>
-        a !== undefined
+        a !== undefined,
     );
 
   // Filter out duplicates based on row and col properties
@@ -566,7 +566,7 @@ export function moveColumn(
   block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
   fromColIndex: RelativeCellIndices["col"],
   toColIndex: RelativeCellIndices["col"],
-  occupancyGrid: OccupancyGrid = getTableCellOccupancyGrid(block)
+  occupancyGrid: OccupancyGrid = getTableCellOccupancyGrid(block),
 ): TableContent<any, any>["rows"] {
   // To move cells in a column, we need to layout the whole table
   // and then move the cells accordingly.
@@ -576,7 +576,7 @@ export function moveColumn(
       col: fromColIndex,
     },
     block,
-    occupancyGrid
+    occupancyGrid,
   );
   const { col: absoluteTargetCol } = getAbsoluteTableCells(
     {
@@ -584,7 +584,7 @@ export function moveColumn(
       col: toColIndex,
     },
     block,
-    occupancyGrid
+    occupancyGrid,
   );
 
   /**
@@ -610,7 +610,7 @@ export function moveRow(
   block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
   fromRowIndex: RelativeCellIndices["row"],
   toRowIndex: RelativeCellIndices["row"],
-  occupancyGrid: OccupancyGrid = getTableCellOccupancyGrid(block)
+  occupancyGrid: OccupancyGrid = getTableCellOccupancyGrid(block),
 ): TableContent<any, any>["rows"] {
   // To move cells in a column, we need to layout the whole table
   // and then move the cells accordingly.
@@ -620,7 +620,7 @@ export function moveRow(
       col: 0,
     },
     block,
-    occupancyGrid
+    occupancyGrid,
   );
   const { row: absoluteTargetRow } = getAbsoluteTableCells(
     {
@@ -628,7 +628,7 @@ export function moveRow(
       col: 0,
     },
     block,
-    occupancyGrid
+    occupancyGrid,
   );
 
   /**
@@ -650,7 +650,7 @@ export function moveRow(
 function isCellEmpty(
   cell:
     | PartialTableContent<any, any>["rows"][number]["cells"][number]
-    | undefined
+    | undefined,
 ): boolean {
   if (!cell) {
     return true;
@@ -664,12 +664,12 @@ function isCellEmpty(
       typeof c === "string"
         ? c.length === 0
         : isStyledTextInlineContent(c)
-        ? c.text.length === 0
-        : isPartialLinkInlineContent(c)
-        ? typeof c.content === "string"
-          ? c.content.length === 0
-          : c.content.every((s) => s.text.length === 0)
-        : false
+          ? c.text.length === 0
+          : isPartialLinkInlineContent(c)
+            ? typeof c.content === "string"
+              ? c.content.length === 0
+              : c.content.every((s) => s.text.length === 0)
+            : false,
     );
   } else {
     return false;
@@ -684,7 +684,7 @@ function isCellEmpty(
 export function cropEmptyRowsOrColumns(
   block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
   removeEmpty: "columns" | "rows",
-  occupancyGrid: OccupancyGrid = getTableCellOccupancyGrid(block)
+  occupancyGrid: OccupancyGrid = getTableCellOccupancyGrid(block),
 ): TableContent<any, any>["rows"] {
   if (removeEmpty === "columns") {
     // strips empty columns on the right
@@ -696,7 +696,7 @@ export function cropEmptyRowsOrColumns(
     ) {
       const isEmpty = occupancyGrid.every(
         (row) =>
-          isCellEmpty(row[cellIndex].cell) && row[cellIndex].colspan === 1
+          isCellEmpty(row[cellIndex].cell) && row[cellIndex].colspan === 1,
       );
       if (!isEmpty) {
         break;
@@ -709,7 +709,7 @@ export function cropEmptyRowsOrColumns(
       // We maintain at least one cell, even if all the cells are empty
       const cellsToRemove = Math.max(
         occupancyGrid[i].length - emptyColsOnRight,
-        1
+        1,
       );
       occupancyGrid[i] = occupancyGrid[i].slice(0, cellsToRemove);
     }
@@ -721,7 +721,7 @@ export function cropEmptyRowsOrColumns(
   let emptyRowsOnBottom = 0;
   for (let rowIndex = occupancyGrid.length - 1; rowIndex >= 0; rowIndex--) {
     const isEmpty = occupancyGrid[rowIndex].every(
-      (cell) => isCellEmpty(cell.cell) && cell.rowspan === 1
+      (cell) => isCellEmpty(cell.cell) && cell.rowspan === 1,
     );
     if (!isEmpty) {
       break;
@@ -752,7 +752,7 @@ export function addRowsOrColumns(
    * @note if negative, it will remove rows or columns.
    */
   numToAdd: number,
-  occupancyGrid: OccupancyGrid = getTableCellOccupancyGrid(block)
+  occupancyGrid: OccupancyGrid = getTableCellOccupancyGrid(block),
 ): TableContent<any, any>["rows"] {
   const { width, height } = getDimensionsOfTable(block);
 
@@ -802,7 +802,7 @@ export function addRowsOrColumns(
 export function canRowBeDraggedInto(
   block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
   draggingIndex: RelativeCellIndices["row"],
-  targetRowIndex: RelativeCellIndices["row"]
+  targetRowIndex: RelativeCellIndices["row"],
 ) {
   // Check cells at the target row
   const targetCells = getCellsAtRowHandle(block, targetRowIndex);
@@ -837,7 +837,7 @@ export function canRowBeDraggedInto(
 export function canColumnBeDraggedInto(
   block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
   draggingIndex: RelativeCellIndices["col"],
-  targetColumnIndex: RelativeCellIndices["col"]
+  targetColumnIndex: RelativeCellIndices["col"],
 ) {
   // Check cells at the target column
   const targetCells = getCellsAtColumnHandle(block, targetColumnIndex);
@@ -874,7 +874,7 @@ export function canColumnBeDraggedInto(
 export function areInSameColumn(
   from: RelativeCellIndices,
   to: RelativeCellIndices,
-  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>
+  block: BlockFromConfigNoChildren<DefaultBlockSchema["table"], any, any>,
 ) {
   // Table indices are relative to the table, so we need to resolve the absolute cell indices
   const anchorAbsoluteCellIndices = getAbsoluteTableCells(from, block);

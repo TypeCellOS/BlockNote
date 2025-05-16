@@ -16,7 +16,7 @@ import * as pmView from "@tiptap/pm/view";
 export const getPosOfTextNode = (
   doc: Node,
   textContent: string,
-  after = false
+  after = false,
 ) => {
   let ret: number | undefined = undefined;
 
@@ -60,11 +60,11 @@ export const getPosOfTableCellNode = (doc: Node, textContent: string) => {
 export const setupClipboardTest = <
   B extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   editor: BlockNoteEditor<B, I, S>,
   document: PartialBlock<B, I, S>[],
-  getSelection: (pmDoc: Node) => Selection
+  getSelection: (pmDoc: Node) => Selection,
 ) => {
   if (!editor.prosemirrorView) {
     throw new Error("Editor view not initialized.");
@@ -94,14 +94,14 @@ export function doPaste(
   text: string,
   html: string | null,
   preferPlain: boolean,
-  event: ClipboardEvent
+  event: ClipboardEvent,
 ) {
   const slice = (pmView as any).__parseFromClipboard(
     view,
     text,
     html,
     preferPlain,
-    view.state.selection.$from
+    view.state.selection.$from,
   );
   if (
     view.someProp("handlePaste", (f) => f(view, event, slice || Slice.empty))

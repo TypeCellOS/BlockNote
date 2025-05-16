@@ -22,7 +22,7 @@ export class RESTYjsThreadStore extends YjsThreadStoreBase {
     private readonly BASE_URL: string,
     private readonly headers: Record<string, string>,
     threadsYMap: Y.Map<any>,
-    auth: ThreadStoreAuth
+    auth: ThreadStoreAuth,
   ) {
     super(threadsYMap, auth);
   }
@@ -102,7 +102,7 @@ export class RESTYjsThreadStore extends YjsThreadStoreBase {
     const { threadId, commentId, ...rest } = options;
     return this.doRequest(
       `/${threadId}/comments/${commentId}?soft=${!!rest.softDelete}`,
-      "DELETE"
+      "DELETE",
     );
   };
 
@@ -127,7 +127,7 @@ export class RESTYjsThreadStore extends YjsThreadStoreBase {
     return this.doRequest(
       `/${threadId}/comments/${commentId}/reactions`,
       "POST",
-      rest
+      rest,
     );
   };
 
@@ -138,7 +138,7 @@ export class RESTYjsThreadStore extends YjsThreadStoreBase {
   }) => {
     return this.doRequest(
       `/${options.threadId}/comments/${options.commentId}/reactions/${options.emoji}`,
-      "DELETE"
+      "DELETE",
     );
   };
 }

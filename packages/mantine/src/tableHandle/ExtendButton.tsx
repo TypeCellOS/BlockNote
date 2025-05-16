@@ -20,7 +20,8 @@ export const ExtendButton = forwardRef<
       ref={ref}
       onMouseDown={onMouseDown}
       onClick={onClick}
-      {...rest}>
+      {...rest}
+    >
       {children}
     </MantineButton>
   );

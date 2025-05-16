@@ -13,13 +13,13 @@ export const Separator = createBlockSpec(
       const separator = document.createElement("div");
       separator.setAttribute(
         "style",
-        "height: 1px; background-color: black; width: 100%;"
+        "height: 1px; background-color: black; width: 100%;",
       );
 
       const parent = document.createElement("div");
       parent.setAttribute(
         "style",
-        "height: 1rem; display: flex; justify-content: center; align-items: center;"
+        "height: 1rem; display: flex; justify-content: center; align-items: center;",
       );
       parent.appendChild(separator);
 
@@ -27,7 +27,7 @@ export const Separator = createBlockSpec(
         dom: parent,
       };
     },
-  }
+  },
 );
 
 export const insertSeparator = {
@@ -40,7 +40,7 @@ export const insertSeparator = {
         },
       ],
       editor.getTextCursorPosition().block,
-      "after"
+      "after",
     );
   },
   subtext: "Insert a button which inserts a block below it",

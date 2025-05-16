@@ -15,11 +15,11 @@ import { DragHandleMenuProps } from "../DragHandleMenuProps.js";
 export const RemoveBlockItem = <
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(
   props: DragHandleMenuProps<BSchema, I, S> & {
     children: ReactNode;
-  }
+  },
 ) => {
   const Components = useComponentsContext()!;
 
@@ -28,7 +28,8 @@ export const RemoveBlockItem = <
   return (
     <Components.Generic.Menu.Item
       className={"bn-menu-item"}
-      onClick={() => editor.removeBlocks([props.block])}>
+      onClick={() => editor.removeBlocks([props.block])}
+    >
       {props.children}
     </Components.Generic.Menu.Item>
   );

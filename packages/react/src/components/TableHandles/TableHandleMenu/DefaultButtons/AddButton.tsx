@@ -13,13 +13,13 @@ import { TableHandleMenuProps } from "../TableHandleMenuProps.js";
 
 export const AddButton = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(
   props: TableHandleMenuProps<I, S> &
     (
       | { orientation: "row"; side: "above" | "below" }
       | { orientation: "column"; side: "left" | "right" }
-    )
+    ),
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
@@ -43,9 +43,10 @@ export const AddButton = <
           props.index,
           props.orientation === "row"
             ? { orientation: "row", side: props.side }
-            : { orientation: "column", side: props.side }
+            : { orientation: "column", side: props.side },
         );
-      }}>
+      }}
+    >
       {dict.table_handle[`add_${props.side}_menuitem`]}
     </Components.Generic.Menu.Item>
   );

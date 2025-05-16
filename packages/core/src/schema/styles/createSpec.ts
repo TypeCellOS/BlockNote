@@ -42,7 +42,7 @@ export function getStyleParseRules(config: StyleConfig): ParseRule[] {
 
 export function createStyleSpec<T extends StyleConfig>(
   styleConfig: T,
-  styleImplementation: CustomStyleImplementation<T>
+  styleImplementation: CustomStyleImplementation<T>,
 ): StyleSpec<T> {
   const mark = Mark.create({
     name: styleConfig.type,
@@ -75,7 +75,7 @@ export function createStyleSpec<T extends StyleConfig>(
         renderResult,
         styleConfig.type,
         mark.attrs.stringValue,
-        styleConfig.propSchema
+        styleConfig.propSchema,
       );
     },
   });

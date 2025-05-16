@@ -8,8 +8,8 @@ export function elementOverflow(element: HTMLElement, container: HTMLElement) {
   return topOverflow && bottomOverflow
     ? "both"
     : topOverflow
-    ? "top"
-    : bottomOverflow
-    ? "bottom"
-    : "none";
+      ? "top"
+      : bottomOverflow
+        ? "bottom"
+        : "none";
 }

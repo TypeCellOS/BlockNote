@@ -22,7 +22,7 @@ export type SuggestionMenuState = UiElementPosition & {
 class SuggestionMenuView<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > {
   public state?: SuggestionMenuState;
   public emitUpdate: (triggerCharacter: string) => void;
@@ -31,7 +31,7 @@ class SuggestionMenuView<
 
   constructor(
     private readonly editor: BlockNoteEditor<BSchema, I, S>,
-    emitUpdate: (menuName: string, state: SuggestionMenuState) => void
+    emitUpdate: (menuName: string, state: SuggestionMenuState) => void,
   ) {
     this.pluginState = undefined;
 
@@ -57,7 +57,7 @@ class SuggestionMenuView<
   handleScroll = () => {
     if (this.state?.show) {
       const decorationNode = this.rootEl?.querySelector(
-        `[data-decoration-id="${this.pluginState!.decorationId}"]`
+        `[data-decoration-id="${this.pluginState!.decorationId}"]`,
       );
       if (!decorationNode) {
         return;
@@ -71,7 +71,7 @@ class SuggestionMenuView<
     const prev: SuggestionPluginState =
       suggestionMenuPluginKey.getState(prevState);
     const next: SuggestionPluginState = suggestionMenuPluginKey.getState(
-      view.state
+      view.state,
     );
 
     // See how the state changed
@@ -96,7 +96,7 @@ class SuggestionMenuView<
     }
 
     const decorationNode = this.rootEl?.querySelector(
-      `[data-decoration-id="${this.pluginState!.decorationId}"]`
+      `[data-decoration-id="${this.pluginState!.decorationId}"]`,
     );
 
     if (this.editor.isEditable && decorationNode) {
@@ -165,7 +165,7 @@ const suggestionMenuPluginKey = new PluginKey("SuggestionMenuPlugin");
 export class SuggestionMenuProseMirrorPlugin<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > extends EventEmitter<any> {
   private view: SuggestionMenuView<BSchema, I, S> | undefined;
   public readonly plugin: Plugin;
@@ -183,7 +183,7 @@ export class SuggestionMenuProseMirrorPlugin<
           editor,
           (triggerCharacter, state) => {
             this.emit(`update ${triggerCharacter}`, state);
-          }
+          },
         );
         return this.view;
       },
@@ -199,7 +199,7 @@ export class SuggestionMenuProseMirrorPlugin<
           transaction,
           prev,
           _oldState,
-          newState
+          newState,
         ): SuggestionPluginState => {
           // TODO: More clearly define which transactions should be ignored.
           if (transaction.getMeta("orderedListIndexing") !== undefined) {
@@ -231,7 +231,7 @@ export class SuggestionMenuProseMirrorPlugin<
               editor,
               newState.selection.from -
                 // Need to account for the trigger char that was inserted, so we offset the position by the length of the trigger character.
-                suggestionPluginTransactionMeta.triggerCharacter.length
+                suggestionPluginTransactionMeta.triggerCharacter.length,
             );
             return {
               triggerCharacter:
@@ -271,7 +271,7 @@ export class SuggestionMenuProseMirrorPlugin<
               newState.selection.from < prev.queryStartPos()) ||
             // Moving the caret to a new block should hide the menu.
             !newState.selection.$from.sameParent(
-              newState.doc.resolve(prev.queryStartPos())
+              newState.doc.resolve(prev.queryStartPos()),
             )
           ) {
             return undefined;
@@ -282,7 +282,7 @@ export class SuggestionMenuProseMirrorPlugin<
           // Updates the current query.
           next.query = newState.doc.textBetween(
             prev.queryStartPos(),
-            newState.selection.from
+            newState.selection.from,
           );
 
           return next;
@@ -298,7 +298,7 @@ export class SuggestionMenuProseMirrorPlugin<
                 .setMeta(suggestionMenuPluginKey, {
                   triggerCharacter: text,
                 })
-                .scrollIntoView()
+                .scrollIntoView(),
             );
 
             return true;
@@ -329,7 +329,7 @@ export class SuggestionMenuProseMirrorPlugin<
                     nodeName: "span",
                     class: "bn-suggestion-decorator",
                     "data-decoration-id": suggestionPluginState.decorationId,
-                  }
+                  },
                 ),
               ]);
             }
@@ -344,7 +344,7 @@ export class SuggestionMenuProseMirrorPlugin<
                 nodeName: "span",
                 class: "bn-suggestion-decorator",
                 "data-decoration-id": suggestionPluginState.decorationId,
-              }
+              },
             ),
           ]);
         },
@@ -354,7 +354,7 @@ export class SuggestionMenuProseMirrorPlugin<
 
   public onUpdate(
     triggerCharacter: string,
-    callback: (state: SuggestionMenuState) => void
+    callback: (state: SuggestionMenuState) => void,
   ) {
     if (!this.triggerCharacters.includes(triggerCharacter)) {
       this.addTriggerCharacter(triggerCharacter);
@@ -370,7 +370,7 @@ export class SuggestionMenuProseMirrorPlugin<
   // TODO: Should this be called automatically when listeners are removed?
   removeTriggerCharacter = (triggerCharacter: string) => {
     this.triggerCharacters = this.triggerCharacters.filter(
-      (c) => c !== triggerCharacter
+      (c) => c !== triggerCharacter,
     );
   };
 
@@ -386,7 +386,7 @@ export class SuggestionMenuProseMirrorPlugin<
 export function createSuggestionMenu<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(editor: BlockNoteEditor<BSchema, I, S>, triggerCharacter: string) {
   editor.suggestionMenus.addTriggerCharacter(triggerCharacter);
 }

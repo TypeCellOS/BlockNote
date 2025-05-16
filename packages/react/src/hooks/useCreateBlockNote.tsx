@@ -18,10 +18,10 @@ import { DependencyList, useMemo } from "react";
 export const useCreateBlockNote = <
   BSchema extends BlockSchema = DefaultBlockSchema,
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
-  SSchema extends StyleSchema = DefaultStyleSchema
+  SSchema extends StyleSchema = DefaultStyleSchema,
 >(
   options: Partial<BlockNoteEditorOptions<BSchema, ISchema, SSchema>> = {},
-  deps: DependencyList = []
+  deps: DependencyList = [],
 ) => {
   return useMemo(() => {
     const editor = BlockNoteEditor.create<BSchema, ISchema, SSchema>(options);

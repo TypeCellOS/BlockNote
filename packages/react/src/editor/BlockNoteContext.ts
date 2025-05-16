@@ -13,7 +13,7 @@ import { createContext, useContext, useState } from "react";
 export type BlockNoteContextValue<
   BSchema extends BlockSchema = DefaultBlockSchema,
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
-  SSchema extends StyleSchema = DefaultStyleSchema
+  SSchema extends StyleSchema = DefaultStyleSchema,
 > = {
   setContentEditableProps?: ReturnType<typeof useState<Record<string, any>>>[1]; // copy type of setXXX from useState
   editor?: BlockNoteEditor<BSchema, ISchema, SSchema>;
@@ -31,9 +31,9 @@ export const BlockNoteContext = createContext<
 export function useBlockNoteContext<
   BSchema extends BlockSchema = DefaultBlockSchema,
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
-  SSchema extends StyleSchema = DefaultStyleSchema
+  SSchema extends StyleSchema = DefaultStyleSchema,
 >(
-  _schema?: BlockNoteSchema<BSchema, ISchema, SSchema>
+  _schema?: BlockNoteSchema<BSchema, ISchema, SSchema>,
 ): BlockNoteContextValue<BSchema, ISchema, SSchema> | undefined {
   const context = useContext(BlockNoteContext) as any;
 

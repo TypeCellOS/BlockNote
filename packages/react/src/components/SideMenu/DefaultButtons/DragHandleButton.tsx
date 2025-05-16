@@ -16,14 +16,14 @@ import { SideMenuProps } from "../SideMenuProps.js";
 export const DragHandleButton = <
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(
   props: Omit<SideMenuProps<BSchema, I, S>, "addBlock"> & {
     /**
      * The menu items to render.
      */
     children?: React.ReactNode;
-  }
+  },
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
@@ -39,7 +39,8 @@ export const DragHandleButton = <
           props.unfreezeMenu();
         }
       }}
-      position={"left"}>
+      position={"left"}
+    >
       <Components.Generic.Menu.Trigger>
         <Components.SideMenu.Button
           label={dict.side_menu.drag_handle_label}

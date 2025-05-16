@@ -23,7 +23,7 @@ test.describe("Check Block Dragging Functionality", () => {
   }) => {
     test.skip(
       browserName === "firefox",
-      "Playwright doesn't correctly simulate drag events in Firefox."
+      "Playwright doesn't correctly simulate drag events in Firefox.",
     );
     await focusOnEditor(page);
 
@@ -47,7 +47,7 @@ test.describe("Check Block Dragging Functionality", () => {
   }) => {
     test.skip(
       browserName === "firefox",
-      "Playwright doesn't correctly simulate drag events in Firefox."
+      "Playwright doesn't correctly simulate drag events in Firefox.",
     );
     await focusOnEditor(page);
 

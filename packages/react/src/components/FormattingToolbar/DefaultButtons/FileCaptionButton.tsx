@@ -60,13 +60,13 @@ export const FileCaptionButton = () => {
         });
       }
     },
-    [currentEditingCaption, editor, fileBlock]
+    [currentEditingCaption, editor, fileBlock],
   );
 
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) =>
       setCurrentEditingCaption(event.currentTarget.value),
-    []
+    [],
   );
 
   if (
@@ -90,7 +90,8 @@ export const FileCaptionButton = () => {
       </Components.Generic.Popover.Trigger>
       <Components.Generic.Popover.Content
         className={"bn-popover-content bn-form-popover"}
-        variant={"form-popover"}>
+        variant={"form-popover"}
+      >
         <Components.Generic.Form.Root>
           <Components.Generic.Form.TextInput
             name={"file-caption"}

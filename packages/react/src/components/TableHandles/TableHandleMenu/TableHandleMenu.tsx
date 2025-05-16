@@ -16,9 +16,9 @@ import { TableHeaderRowButton } from "./DefaultButtons/TableHeaderButton.js";
 
 export const TableHandleMenu = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(
-  props: TableHandleMenuProps<I, S> & { children?: ReactNode }
+  props: TableHandleMenuProps<I, S> & { children?: ReactNode },
 ) => {
   const Components = useComponentsContext()!;
 

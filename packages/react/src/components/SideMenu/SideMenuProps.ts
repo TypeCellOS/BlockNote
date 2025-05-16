@@ -16,7 +16,7 @@ import { DragHandleMenuProps } from "./DragHandleMenu/DragHandleMenuProps.js";
 export type SideMenuProps<
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 > = {
   editor: BlockNoteEditor<BSchema, I, S>;
   dragHandleMenu?: FC<DragHandleMenuProps<BSchema, I, S>>;

@@ -13,7 +13,7 @@ export const ResizableFileBlockWrapper = (
     buttonText: string;
     buttonIcon: ReactNode;
     children: ReactNode;
-  }
+  },
 ) => {
   // Temporary parameters set when the user begins resizing the element, used to
   // calculate the new width of the element.
@@ -27,7 +27,7 @@ export const ResizableFileBlockWrapper = (
   >(undefined);
 
   const [width, setWidth] = useState<number | undefined>(
-    props.block.props.previewWidth
+    props.block.props.previewWidth,
   );
   const [hovered, setHovered] = useState<boolean>(false);
 
@@ -72,8 +72,8 @@ export const ResizableFileBlockWrapper = (
         Math.min(
           Math.max(newWidth, minWidth),
           props.editor.domElement?.firstElementChild?.clientWidth ||
-            Number.MAX_VALUE
-        )
+            Number.MAX_VALUE,
+        ),
       );
     };
     // Stops mouse movements from resizing the child and updates the block's
@@ -124,7 +124,7 @@ export const ResizableFileBlockWrapper = (
         initialClientX: event.clientX,
       });
     },
-    []
+    [],
   );
   const rightResizeHandleMouseDownHandler = useCallback(
     (event: React.MouseEvent) => {
@@ -136,7 +136,7 @@ export const ResizableFileBlockWrapper = (
         initialClientX: event.clientX,
       });
     },
-    []
+    [],
   );
 
   const showLoader = useUploadLoading(props.block.id);
@@ -152,7 +152,8 @@ export const ResizableFileBlockWrapper = (
               width: width ? `${width}px` : "fit-content",
             }
           : undefined
-      }>
+      }
+    >
       <div className={"bn-visual-media-wrapper"} ref={ref}>
         {props.children}
         {(hovered || resizeParams) && (

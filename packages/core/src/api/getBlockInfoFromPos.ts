@@ -101,7 +101,7 @@ export function getNearestBlockPos(doc: Node, pos: number) {
 
   const resolvedPos = doc.resolve(
     allBlockContainerPositions.find((position) => position >= pos) ||
-      allBlockContainerPositions[allBlockContainerPositions.length - 1]
+      allBlockContainerPositions[allBlockContainerPositions.length - 1],
   );
   return {
     posBeforeNode: resolvedPos.pos,
@@ -122,11 +122,11 @@ export function getNearestBlockPos(doc: Node, pos: number) {
  */
 export function getBlockInfoWithManualOffset(
   node: Node,
-  bnBlockBeforePosOffset: number
+  bnBlockBeforePosOffset: number,
 ): BlockInfo {
   if (!node.type.isInGroup("bnBlock")) {
     throw new Error(
-      `Attempted to get bnBlock node at position but found node of different type ${node.type}`
+      `Attempted to get bnBlock node at position but found node of different type ${node.type}`,
     );
   }
 
@@ -171,7 +171,7 @@ export function getBlockInfoWithManualOffset(
 
     if (!blockContent) {
       throw new Error(
-        `blockContainer node does not contain a blockContent node in its children: ${bnBlockNode}`
+        `blockContainer node does not contain a blockContent node in its children: ${bnBlockNode}`,
       );
     }
 
@@ -185,7 +185,7 @@ export function getBlockInfoWithManualOffset(
   } else {
     if (!bnBlock.node.type.isInGroup("childContainer")) {
       throw new Error(
-        `bnBlock node is not in the childContainer group: ${bnBlock.node}`
+        `bnBlock node is not in the childContainer group: ${bnBlock.node}`,
       );
     }
 
@@ -222,7 +222,7 @@ export function getBlockInfo(posInfo: { posBeforeNode: number; node: Node }) {
 export function getBlockInfoFromResolvedPos(resolvedPos: ResolvedPos) {
   if (!resolvedPos.nodeAfter) {
     throw new Error(
-      `Attempted to get blockContainer node at position ${resolvedPos.pos} but a node at this position does not exist`
+      `Attempted to get blockContainer node at position ${resolvedPos.pos} but a node at this position does not exist`,
     );
   }
   return getBlockInfoWithManualOffset(resolvedPos.nodeAfter, resolvedPos.pos);

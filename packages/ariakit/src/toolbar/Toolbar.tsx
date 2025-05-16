@@ -25,9 +25,10 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
         className={mergeCSSClasses("bn-ak-toolbar", className || "")}
         ref={ref}
         onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}>
+        onMouseLeave={onMouseLeave}
+      >
         {children}
       </AriakitToolbar>
     );
-  }
+  },
 );

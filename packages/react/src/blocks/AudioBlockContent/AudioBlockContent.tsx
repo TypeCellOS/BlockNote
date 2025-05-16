@@ -15,7 +15,7 @@ export const AudioPreview = (
   props: Omit<
     ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
     "contentRef"
-  >
+  >,
 ) => {
   const resolved = useResolveUrl(props.block.props.url!);
 
@@ -38,7 +38,7 @@ export const AudioToExternalHTML = (
   props: Omit<
     ReactCustomBlockRenderProps<typeof audioBlockConfig, any, any>,
     "contentRef"
-  >
+  >,
 ) => {
   if (!props.block.props.url) {
     return <p>Add audio</p>;
@@ -68,13 +68,14 @@ export const AudioToExternalHTML = (
 };
 
 export const AudioBlock = (
-  props: ReactCustomBlockRenderProps<typeof audioBlockConfig, any, any>
+  props: ReactCustomBlockRenderProps<typeof audioBlockConfig, any, any>,
 ) => {
   return (
     <FileBlockWrapper
       {...(props as any)}
       buttonText={props.editor.dictionary.file_blocks.audio.add_button_text}
-      buttonIcon={<RiVolumeUpFill size={24} />}>
+      buttonIcon={<RiVolumeUpFill size={24} />}
+    >
       <AudioPreview {...(props as any)} />
     </FileBlockWrapper>
   );

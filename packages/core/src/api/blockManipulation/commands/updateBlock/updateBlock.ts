@@ -31,10 +31,10 @@ import { getPmSchema } from "../../../pmUtil.js";
 export const updateBlockCommand = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   posBeforeBlock: number,
-  block: PartialBlock<BSchema, I, S>
+  block: PartialBlock<BSchema, I, S>,
 ) => {
   return ({
     tr,
@@ -53,11 +53,11 @@ export const updateBlockCommand = <
 const updateBlockTr = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   tr: Transaction,
   posBeforeBlock: number,
-  block: PartialBlock<BSchema, I, S>
+  block: PartialBlock<BSchema, I, S>,
 ) => {
   const blockInfo = getBlockInfoFromResolvedPos(tr.doc.resolve(posBeforeBlock));
 
@@ -96,8 +96,8 @@ const updateBlockTr = <
           children: existingBlock.children, // if no children are passed in, use existing children
           ...block,
         },
-        pmSchema
-      )
+        pmSchema,
+      ),
     );
 
     return;
@@ -114,7 +114,7 @@ const updateBlockTr = <
 function updateBlockContentNode<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   block: PartialBlock<BSchema, I, S>,
   tr: Transaction,
@@ -125,7 +125,7 @@ function updateBlockContentNode<
       | { node: PMNode; beforePos: number; afterPos: number }
       | undefined;
     blockContent: { node: PMNode; beforePos: number; afterPos: number };
-  }
+  },
 ) {
   const pmSchema = getPmSchema(tr);
   let content: PMNode[] | "keep" = "keep";
@@ -137,7 +137,7 @@ function updateBlockContentNode<
       content = inlineContentToNodes(
         [block.content],
         pmSchema,
-        newNodeType.name
+        newNodeType.name,
       );
     } else if (Array.isArray(block.content)) {
       // Adds a text node with the provided styles converted into marks to the content,
@@ -178,7 +178,7 @@ function updateBlockContentNode<
       {
         ...blockInfo.blockContent.node.attrs,
         ...block.props,
-      }
+      },
     );
   } else {
     // use replaceWith to replace the content and the block itself
@@ -192,8 +192,8 @@ function updateBlockContentNode<
           ...blockInfo.blockContent.node.attrs,
           ...block.props,
         },
-        content
-      )
+        content,
+      ),
     );
   }
 }
@@ -201,7 +201,7 @@ function updateBlockContentNode<
 function updateChildren<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(block: PartialBlock<BSchema, I, S>, tr: Transaction, blockInfo: BlockInfo) {
   const pmSchema = getPmSchema(tr);
   if (block.children !== undefined && block.children.length > 0) {
@@ -218,8 +218,8 @@ function updateChildren<
         new ReplaceStep(
           blockInfo.childContainer.beforePos + 1,
           blockInfo.childContainer.afterPos - 1,
-          new Slice(Fragment.from(childNodes), 0, 0)
-        )
+          new Slice(Fragment.from(childNodes), 0, 0),
+        ),
       );
     } else {
       if (!blockInfo.isBlockContainer) {
@@ -228,7 +228,7 @@ function updateChildren<
       // Inserts a new blockGroup containing the child nodes created earlier.
       tr.insert(
         blockInfo.blockContent.afterPos,
-        pmSchema.nodes["blockGroup"].createChecked({}, childNodes)
+        pmSchema.nodes["blockGroup"].createChecked({}, childNodes),
       );
     }
   }
@@ -237,11 +237,11 @@ function updateChildren<
 export function updateBlock<
   BSchema extends BlockSchema = any,
   I extends InlineContentSchema = any,
-  S extends StyleSchema = any
+  S extends StyleSchema = any,
 >(
   tr: Transaction,
   blockToUpdate: BlockIdentifier,
-  update: PartialBlock<BSchema, I, S>
+  update: PartialBlock<BSchema, I, S>,
 ): Block<BSchema, I, S> {
   const id =
     typeof blockToUpdate === "string" ? blockToUpdate : blockToUpdate.id;

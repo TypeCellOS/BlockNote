@@ -73,7 +73,8 @@ export const Comment = forwardRef<
       ref={ref}
       className={className}
       onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}>
+      onMouseLeave={() => setHovered(false)}
+    >
       {doShowActions ? (
         <AriakitGroup
           ref={focusRef}
@@ -82,7 +83,8 @@ export const Comment = forwardRef<
             right: 0,
             top: 0,
             zIndex: 10,
-          }}>
+          }}
+        >
           {actions}
         </AriakitGroup>
       ) : null}

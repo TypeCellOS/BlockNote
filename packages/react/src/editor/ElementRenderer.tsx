@@ -13,20 +13,16 @@ export const ElementRenderer = forwardRef<
     { node: React.ReactNode; container: HTMLElement } | undefined
   >();
 
-  useImperativeHandle(
-    ref,
-    () => {
-      return (node: React.ReactNode, container: HTMLElement) => {
-        flushSync(() => {
-          setSingleRenderData({ node, container });
-        });
+  useImperativeHandle(ref, () => {
+    return (node: React.ReactNode, container: HTMLElement) => {
+      flushSync(() => {
+        setSingleRenderData({ node, container });
+      });
 
-        // clear after it's been rendered to `container`
-        setSingleRenderData(undefined);
-      };
-    },
-    []
-  );
+      // clear after it's been rendered to `container`
+      setSingleRenderData(undefined);
+    };
+  }, []);
 
   return (
     <>
