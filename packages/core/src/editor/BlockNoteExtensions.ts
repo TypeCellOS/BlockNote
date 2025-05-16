@@ -56,6 +56,7 @@ import type {
   BlockNoteEditorOptions,
   SupportedExtension,
 } from "./BlockNoteEditor.js";
+import { ForkYDocPlugin } from "../extensions/Collaboration/ForkYDocPlugin.js";
 
 type ExtensionOptions<
   BSchema extends BlockSchema,
@@ -120,6 +121,10 @@ export const getBlockNoteExtensions = <
     if (opts.collaboration.provider?.awareness) {
       ret["yCursorPlugin"] = new CursorPlugin(opts.collaboration);
     }
+    ret["ForkYDocPlugin"] = new ForkYDocPlugin({
+      editor: opts.editor,
+      collaboration: opts.collaboration,
+    });
   }
 
   // Note: this is pretty hardcoded and will break when user provides plugins with same keys.

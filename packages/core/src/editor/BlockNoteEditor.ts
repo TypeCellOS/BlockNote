@@ -115,9 +115,10 @@ import { nestedListsToBlockNoteStructure } from "../api/parsers/html/util/nested
 import { CodeBlockOptions } from "../blocks/CodeBlockContent/CodeBlockContent.js";
 import type { ThreadStore, User } from "../comments/index.js";
 import { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
-import "../style.css";
 import { EventEmitter } from "../util/EventEmitter.js";
 import { BlockNoteExtension } from "./BlockNoteExtension.js";
+
+import "../style.css";
 
 /**
  * A factory function that returns a BlockNoteExtension
@@ -416,7 +417,7 @@ export class BlockNoteEditor<
   /**
    * extensions that are added to the editor, can be tiptap extensions or prosemirror plugins
    */
-  public readonly extensions: Record<string, SupportedExtension> = {};
+  public extensions: Record<string, SupportedExtension> = {};
 
   /**
    * Boolean indicating whether the editor is in headless mode.
@@ -484,8 +485,6 @@ export class BlockNoteEditor<
   public readonly comments?: CommentsPlugin;
 
   private readonly showSelectionPlugin: ShowSelectionPlugin;
-
-  private readonly cursorPlugin: CursorPlugin;
 
   /**
    * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
@@ -647,7 +646,6 @@ export class BlockNoteEditor<
     this.tableHandles = this.extensions["tableHandles"] as any;
     this.comments = this.extensions["comments"] as any;
     this.showSelectionPlugin = this.extensions["showSelection"] as any;
-    this.cursorPlugin = this.extensions["yCursorPlugin"] as any;
 
     if (newOptions.uploadFile) {
       const uploadFile = newOptions.uploadFile;
@@ -1547,7 +1545,7 @@ export class BlockNoteEditor<
       );
     }
 
-    this.cursorPlugin.updateUser(user);
+    (this.extensions["yCursorPlugin"] as CursorPlugin).updateUser(user);
   }
 
   /**
