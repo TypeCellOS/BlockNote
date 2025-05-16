@@ -1440,6 +1440,34 @@
           "pathFromRoot": "examples/09-ai",
           "slug": "ai"
         }
+      },
+      {
+        "projectSlug": "ai-menu-items",
+        "fullSlug": "ai/ai-menu-items",
+        "pathFromRoot": "examples/09-ai/03-ai-menu-items",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "AI",
+            "llm"
+          ],
+          "dependencies": {
+            "@blocknote/xl-ai": "latest",
+            "@mantine/core": "^7.10.1",
+            "ai": "^4.1.0",
+            "@ai-sdk/openai": "^1.1.0",
+            "@ai-sdk/groq": "^1.1.0",
+            "react-icons": "^5.2.1",
+            "zustand": "^5.0.3"
+          } as any
+        },
+        "title": "Adding AI Menu Items",
+        "group": {
+          "pathFromRoot": "examples/09-ai",
+          "slug": "ai"
+        }
       }
     ]
   },

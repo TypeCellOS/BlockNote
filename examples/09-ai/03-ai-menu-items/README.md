@@ -1,6 +1,6 @@
-# Rich Text editor AI integration
+# Adding AI Menu Items
 
-This example shows the minimal setup to add AI integration to your BlockNote rich text editor.
+In this example, we add two items to the AI Menu. The first prompts the AI to make the selected text more casual, and can be found by selecting some text and click the AI (magic wand) button. The second prompts the AI to give ideas on related topics to extend the document with, and can be found by clicking the "Ask AI" Slash Menu item.
 
 Select some text and click the AI (magic wand) button, or type `/ai` anywhere in the editor to access AI functionality.
 
@@ -10,3 +10,4 @@ Select some text and click the AI (magic wand) button, or type `/ai` anywhere in
 - [Changing the Formatting Toolbar](/docs/ui-components/formatting-toolbar#changing-the-formatting-toolbar)
 - [Changing Slash Menu Items](/docs/ui-components/suggestion-menus#changing-slash-menu-items)
 - [Getting Stared with BlockNote AI](/docs/ai/setup)
+- [Custom AI Menu Items](/docs/ai/custom-commands)

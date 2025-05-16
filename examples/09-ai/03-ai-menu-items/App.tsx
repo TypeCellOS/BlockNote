@@ -1,3 +1,5 @@
+/// <reference types="./vite-env.d.ts" />
+
 import { createGroq } from "@ai-sdk/groq";
 import { BlockNoteEditor, filterSuggestionItems } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
@@ -19,15 +21,23 @@ import {
   createAIExtension,
   createBlockNoteAIClient,
   getAISlashMenuItems,
+  AIMenu,
+  getDefaultAIMenuItemsWithSelection,
+  getDefaultAIMenuItemsWithoutSelection,
+  getDefaultAIActionMenuItems,
+  AIMenuController,
 } from "@blocknote/xl-ai";
 import "@blocknote/xl-ai/style.css";
+
+import { findRelatedTopics, makeCasual } from "./customAIMenuItems.js";
 
 // Optional: proxy requests through the `@blocknote/xl-ai-server` proxy server
 // so that we don't have to expose our API keys to the client
 const client = createBlockNoteAIClient({
-  apiKey: getEnv("BLOCKNOTE_AI_SERVER_API_KEY") || "PLACEHOLDER",
+  apiKey: import.meta.env.VITE_BLOCKNOTE_AI_SERVER_API_KEY || "PLACEHOLDER",
   baseURL:
-    getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") || "https://localhost:3000/ai",
+    import.meta.env.VITE_BLOCKNOTE_AI_SERVER_BASE_URL ||
+    "https://localhost:3000/ai",
 });
 
 // Use an "open" model such as llama, in this case via groq.com
@@ -97,12 +107,56 @@ export default function App() {
     <div>
       <BlockNoteView
         editor={editor}
-        // We're disabling some default UI elements
         formattingToolbar={false}
         slashMenu={false}
       >
         {/* This has AI specific components like the AI Command menu */}
-        <BlockNoteAIUI />
+        {/* We pass `aiMenu=false` as we want to render an AIMenu with our own 
+        items (defined below). */}
+        <BlockNoteAIUI aiMenu={false}></BlockNoteAIUI>
+        {/* Creates a new AIMenu with the default items, as well as our custom
+        ones. */}
+        <AIMenuController
+          aiMenu={() => (
+            <AIMenu
+              items={(editor, aiResponseStatus) => {
+                if (aiResponseStatus === "user-input") {
+                  // Returns different items based on whether the AI Menu was
+                  // opened via the Formatting Toolbar or the Slash Menu.
+                  return editor.getSelection()
+                    ? [
+                        // Gets the default AI Menu items for when it's opened via
+                        // the Formatting Toolbar.
+                        ...getDefaultAIMenuItemsWithSelection(editor),
+                        // Adds our custom item to make the text more casual.
+                        // Only appears when the AI Menu is opened via the
+                        // Formatting Toolbar.
+                        makeCasual(editor),
+                      ]
+                    : [
+                        // Gets the default AI Menu items for when it's opened
+                        // via the Slash Menu.
+                        ...getDefaultAIMenuItemsWithoutSelection(editor),
+                        // Adds our custom item to find related topics. Only
+                        // appears when the AI Menu is opened via the Slash
+                        // Menu.
+                        findRelatedTopics(editor),
+                      ];
+                }
+
+                if (aiResponseStatus === "user-reviewing") {
+                  // Returns different items once the AI has finished writing,
+                  // so the user can choose to accept or reject the changes.
+                  return getDefaultAIActionMenuItems(editor);
+                }
+
+                // Return no items in other states, e.g. when the AI is writing
+                // or when an error occurred.
+                return [];
+              }}
+            />
+          )}
+        />
 
         {/* We disabled the default formatting toolbar with `formattingToolbar=false` 
         and replace it for one with an "AI button" (defined below). 
@@ -127,7 +181,6 @@ function FormattingToolbarWithAI() {
       formattingToolbar={() => (
         <FormattingToolbar>
           {...getFormattingToolbarItems()}
-          {/* Add the AI button */}
           <AIToolbarButton />
         </FormattingToolbar>
       )}
@@ -146,7 +199,6 @@ function SuggestionMenuWithAI(props: {
         filterSuggestionItems(
           [
             ...getDefaultReactSlashMenuItems(props.editor),
-            // add the default AI slash menu items, or define your own
             ...getAISlashMenuItems(props.editor),
           ],
           query,
@@ -154,14 +206,4 @@ function SuggestionMenuWithAI(props: {
       }
     />
   );
-}
-
-// helper function to get env variables across next / vite
-// only needed so this example works in BlockNote demos and docs
-function getEnv(key: string) {
-  // TODO
-  // const env2 = process.env.NEXT_PUBLIC_BLOCKNOTE_AI_SERVER_BASE_URL;
-  return (import.meta as any).env
-    ? (import.meta as any).env["VITE_" + key]
-    : process.env["NEXT_PUBLIC_" + key];
 }
