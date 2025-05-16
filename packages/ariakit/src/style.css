@@ -388,14 +388,8 @@
   width: 24px;
 }
 
-.bn-ariakit .bn-combobox .bn-combobox-error > span {
-  align-items: center;
+.bn-ariakit .bn-combobox .bn-combobox-error {
   color: var(--bn-colors-highlights-red-background);
-  display: flex;
-  font-size: 1.2rem;
-  font-weight: bold;
-  justify-content: center;
-  width: 24px;
 }
 
 .bn-ariakit .bn-comment-actions-wrapper {

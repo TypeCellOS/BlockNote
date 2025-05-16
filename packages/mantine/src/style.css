@@ -779,7 +779,8 @@
   padding: 2px;
 }
 
-.bn-mantine .bn-combobox-input .bn-combobox-icon {
+.bn-mantine .bn-combobox-input .bn-combobox-icon,
+.bn-mantine .bn-combobox-input .bn-combobox-right-section {
   align-items: center;
   display: flex;
   justify-content: center;
@@ -787,7 +788,6 @@
 
 .bn-mantine .bn-combobox-input .bn-combobox-error {
   color: var(--bn-colors-highlights-red-background);
-  font-weight: bold;
 }
 
 /* We need to get rid of the checked icon - you can set the icon prop to an

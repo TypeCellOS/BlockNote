@@ -12,6 +12,8 @@ export const SuggestionMenuLoader = forwardRef<
 
   return (
     <div className={className} ref={ref}>
+      {/* Taken from Google Material Icons */}
+      {/* https://fonts.google.com/icons?selected=Material+Symbols+Rounded:progress_activity:FILL@0;wght@400;GRAD@0;opsz@24&icon.query=load&icon.size=24&icon.color=%23e8eaed&icon.set=Material+Symbols&icon.style=Rounded&icon.platform=web */}
       <svg
         xmlns="http://www.w3.org/2000/svg"
         height="1em"
