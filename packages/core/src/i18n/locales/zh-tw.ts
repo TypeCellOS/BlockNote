@@ -211,7 +211,6 @@ export const zhTW: Dictionary = {
   },
   suggestion_menu: {
     no_items_title: "無相符項目",
-    loading: "載入中…",
   },
   color_picker: {
     text_title: "文字",

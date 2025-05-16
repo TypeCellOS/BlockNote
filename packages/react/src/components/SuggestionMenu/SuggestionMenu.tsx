@@ -14,9 +14,9 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
 
   const loader =
     loadingState === "loading-initial" || loadingState === "loading" ? (
-      <Components.SuggestionMenu.Loader className={"bn-suggestion-menu-loader"}>
-        {dict.suggestion_menu.loading}
-      </Components.SuggestionMenu.Loader>
+      <Components.SuggestionMenu.Loader
+        className={"bn-suggestion-menu-loader"}
+      />
     ) : null;
 
   const renderedItems = useMemo<JSX.Element[]>(() => {
