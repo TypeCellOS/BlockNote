@@ -1,0 +1,22 @@
+{
+  "block": {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "target",
+    "props": {
+      "backgroundColor": "default",
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "paragraph",
+  },
+  "nextBlock": undefined,
+  "parentBlock": undefined,
+  "prevBlock": undefined,
+}

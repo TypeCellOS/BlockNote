@@ -1,0 +1,33 @@
+.bn-combobox {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.bn-combobox-items {
+  max-width: 50%;
+}
+
+.bn-combobox-items:empty {
+  display: none;
+}
+
+div[data-type="modification"] {
+  display: inline;
+}
+
+ins,
+[data-type="modification"] {
+  background: rgba(24, 122, 220, 0.1);
+  border-bottom: 2px solid rgba(24, 122, 220, 0.1);
+  color: rgb(20, 95, 170);
+  text-decoration: none;
+}
+
+del,
+[DISABLED-data-node-deletion] {
+  color: rgba(100, 90, 75, 0.3);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}

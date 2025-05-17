@@ -33,7 +33,7 @@ export const createAddFileButton = (
   // Opens the file toolbar.
   const addFileButtonClickHandler = () => {
     editor.transact((tr) =>
-      tr.setMeta(editor.filePanel!.plugin, {
+      tr.setMeta(editor.filePanel!.plugins[0], {
         block: block,
       }),
     );

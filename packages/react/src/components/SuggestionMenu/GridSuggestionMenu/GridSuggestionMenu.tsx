@@ -20,9 +20,7 @@ export function GridSuggestionMenu<T extends DefaultReactGridSuggestionItem>(
       <Components.GridSuggestionMenu.Loader
         className={"bn-grid-suggestion-menu-loader"}
         columns={columns}
-      >
-        {dict.suggestion_menu.loading}
-      </Components.GridSuggestionMenu.Loader>
+      />
     ) : null;
 
   const renderedItems = useMemo<JSX.Element[]>(() => {

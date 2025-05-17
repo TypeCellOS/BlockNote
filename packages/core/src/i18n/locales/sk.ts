@@ -177,7 +177,6 @@ export const sk = {
   },
   suggestion_menu: {
     no_items_title: "Nenašli sa žiadne položky",
-    loading: "Načítava sa…",
   },
   color_picker: {
     text_title: "Text",

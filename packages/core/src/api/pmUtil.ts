@@ -1,12 +1,12 @@
 import type { Node, Schema } from "prosemirror-model";
-import type { Transaction } from "prosemirror-state";
+import { Transform } from "prosemirror-transform";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
+import { BlockNoteSchema } from "../editor/BlockNoteSchema.js";
 import type { BlockSchema } from "../schema/blocks/types.js";
 import type { InlineContentSchema } from "../schema/inlineContent/types.js";
 import type { StyleSchema } from "../schema/styles/types.js";
-import { BlockNoteSchema } from "../editor/BlockNoteSchema.js";
 
-export function getPmSchema(trOrNode: Transaction | Node) {
+export function getPmSchema(trOrNode: Transform | Node) {
   if ("doc" in trOrNode) {
     return trOrNode.doc.type.schema;
   }

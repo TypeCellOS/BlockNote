@@ -6,10 +6,8 @@ import {
 } from "@blocknote/core";
 import { expect } from "vitest";
 
-import {
-  doPaste,
-  setupClipboardTest,
-} from "../../../core/clipboard/clipboardTestUtil.js";
+import { initTestEditor } from "../../testUtil.js";
+import { doPaste } from "../clipboardTestUtil.js";
 import { PasteTestCase } from "./pasteTestCase.js";
 
 export const testPasteHTML = async <
@@ -20,7 +18,7 @@ export const testPasteHTML = async <
   editor: BlockNoteEditor<B, I, S>,
   testCase: PasteTestCase<B, I, S>,
 ) => {
-  setupClipboardTest(editor, testCase.document, testCase.getPasteSelection);
+  initTestEditor(editor, testCase.document, testCase.getPasteSelection);
 
   doPaste(
     editor.prosemirrorView!,
@@ -43,7 +41,7 @@ export const testPasteMarkdown = async <
   editor: BlockNoteEditor<B, I, S>,
   testCase: PasteTestCase<B, I, S>,
 ) => {
-  setupClipboardTest(editor, testCase.document, testCase.getPasteSelection);
+  initTestEditor(editor, testCase.document, testCase.getPasteSelection);
 
   doPaste(
     editor.prosemirrorView!,

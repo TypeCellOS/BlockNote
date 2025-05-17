@@ -1,0 +1,212 @@
+# BlockNote AI Reference
+
+## `createAIExtension`
+
+Use `createAIExtension` to create a new AI new AI Extension that can be registered to an editor when calling `useCreateBlockNote`.
+
+```typescript
+// Usage:
+const aiExtension = createAIExtension(opts: AIExtensionOptions);
+
+// Definition:
+type AIExtensionOptions = {
+  /**
+   * The default language model to use for LLM calls
+   */
+  model: LanguageModel;
+  /**
+   * Whether to stream the LLM response (not all models might support this)
+   * @default true
+   */
+  stream?: boolean;
+  /**
+   * The default data format to use for LLM calls
+   * "html" is recommended, the other formats are experimental
+   * @default html
+   */
+  dataFormat?: "html" | "json" | "markdown";
+  /**
+   * A function that can be used to customize the prompt sent to the LLM
+   * @default undefined
+   */
+  promptBuilder?: PromptBuilder;
+  /**
+   * The name and color of the agent cursor when the AI is writing
+   *
+   * @default { name: "AI", color: "#8bc6ff" }
+   */
+  agentCursor?: { name: string; color: string };
+};
+```
+
+## `getAIExtension`
+
+Use `getAIExtension` to retrieve the AI extension instance registered to the editor:
+
+```typescript
+getAIExtension(editor: BlockNoteEditor): AIExtension;
+```
+
+## `AIExtension`
+
+The `AIExtension` class is the main class for the AI extension. It exposes state and methods to interact with BlockNote's AI features.
+
+```typescript
+class AIExtension {
+  /**
+   * Execute a call to an LLM and apply the result to the editor
+   */
+  callLLM(opts: CallSpecificCallLLMOptions): Promise<void>;
+  /**
+   * Returns a read-only zustand store with the state of the AI Menu
+   */
+  get store(): ReadonlyStoreApi<{
+    aiMenuState:
+      | {
+          blockId: string;
+          status:
+            | "user-input"
+            | "thinking"
+            | "ai-writing"
+            | "error"
+            | "user-reviewing";
+        }
+      | "closed";
+  }>;
+  /**
+   * Returns a zustand store with the global configuration of the AI Extension,
+   * these options are used as default across all LLM calls when calling {@link callLLM}
+   */
+  readonly options: StoreApi<{
+    model: LanguageModel;
+    dataFormat: "html" | "json" | "markdown";
+    stream: boolean;
+    promptBuilder?: PromptBuilder;
+  }>;
+
+  /**
+   * Open the AI menu at a specific block
+   */
+  openAIMenuAtBlock(blockID: string): void;
+  /**
+   * Close the AI menu
+   */
+  closeAIMenu(): void;
+  /**
+   * Accept the changes made by the LLM
+   */
+  acceptChanges(): void;
+  /**
+   * Reject the changes made by the LLM
+   */
+  rejectChanges(): void;
+  /**
+   * Update the status of a call to an LLM
+   *
+   * @warning This method should usually only be used for advanced use-cases
+   * if you want to implement how an LLM call is executed. Usually, you should
+   * use {@link callLLM} instead which will handle the status updates for you.
+   */
+  setAIResponseStatus(
+    status:
+      | "user-input"
+      | "thinking"
+      | "ai-writing"
+      | "error"
+      | "user-reviewing",
+  ): void;
+}
+```
+
+## `callLLM`
+
+```typescript
+type CallLLMOptions = {
+  /**
+   * The language model to use for the LLM call (AI SDK)
+   */
+  model: LanguageModelV1;
+  /**
+   * The user prompt to use for the LLM call
+   */
+  userPrompt: string;
+  /**
+   * The `PromptBuilder` to use for the LLM call
+   *
+   * (A PromptBuilder is a function that takes a BlockNoteEditor and details about the user's prompt
+   * and turns it into an AI SDK `CoreMessage` array to be passed to the LLM)
+   *
+   * @default provided by the format (e.g. `llm.html.defaultPromptBuilder`)
+   */
+  promptBuilder?: PromptBuilder;
+  /**
+   * The maximum number of retries for the LLM call
+   *
+   * @default 2
+   */
+  maxRetries?: number;
+  /**
+   * Whether to use the editor selection for the LLM call
+   *
+   * @default true
+   */
+  useSelection?: boolean;
+  /**
+   * Defines whether the LLM can add, update, or delete blocks
+   *
+   * @default { add: true, update: true, delete: true }
+   */
+  defaultStreamTools?: {
+    /** Enable the add tool (default: true) */
+    add?: boolean;
+    /** Enable the update tool (default: true) */
+    update?: boolean;
+    /** Enable the delete tool (default: true) */
+    delete?: boolean;
+  };
+  /**
+   * Whether to stream the LLM response or not
+   *
+   * When streaming, we use the AI SDK `streamObject` function,
+   * otherwise, we use the AI SDK `generateObject` function.
+   *
+   * @default true
+   */
+  stream?: boolean;
+  /**
+   * If the user's cursor is in an empty paragraph, automatically delete it when the AI
+   * is starting to write.
+   *
+   * (This is used when a user starts typing `/ai` in an empty block)
+   *
+   * @default true
+   */
+  deleteEmptyCursorBlock?: boolean;
+  /**
+   * Callback when a specific block is updated by the LLM
+   *
+   * (used by `AIExtension` to update the `AIMenu` position)
+   */
+  onBlockUpdate?: (blockId: string) => void;
+  /**
+   * Callback when the AI Agent starts writing
+   */
+  onStart?: () => void;
+  /**
+   * Whether to add delays between text update operations, to make the AI simulate a human typing
+   *
+   * @default true
+   */
+  withDelays?: boolean;
+  /**
+   * Additional options to pass to the `generateObject` function
+   * (only used when `stream` is `false`)
+   */
+  _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]>;
+  /**
+   * Additional options to pass to the `streamObject` function
+   * (only used when `stream` is `true`)
+   */
+  _streamObjectOptions?: Partial<Parameters<typeof streamObject<any>>[0]>;
+};
+```

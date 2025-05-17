@@ -7,10 +7,8 @@ import {
 } from "@blocknote/core";
 import { expect } from "vitest";
 
-import {
-  doPaste,
-  setupClipboardTest,
-} from "../../../core/clipboard/clipboardTestUtil.js";
+import { initTestEditor } from "../../testUtil.js";
+import { doPaste } from "../clipboardTestUtil.js";
 import { CopyPasteTestCase } from "./copyPasteTestCase.js";
 
 export const testCopyPaste = async <
@@ -21,7 +19,7 @@ export const testCopyPaste = async <
   editor: BlockNoteEditor<B, I, S>,
   testCase: CopyPasteTestCase<B, I, S>,
 ) => {
-  setupClipboardTest(editor, testCase.document, testCase.getCopySelection);
+  initTestEditor(editor, testCase.document, testCase.getCopySelection);
 
   const { clipboardHTML } = selectedFragmentToHTML(
     editor.prosemirrorView!,

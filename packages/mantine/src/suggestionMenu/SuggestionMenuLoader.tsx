@@ -8,13 +8,11 @@ export const SuggestionMenuLoader = forwardRef<
   HTMLDivElement,
   ComponentProps["SuggestionMenu"]["Loader"]
 >((props, ref) => {
-  const {
-    className,
-    children, // unused, using "dots" instead
-    ...rest
-  } = props;
+  const { className, ...rest } = props;
 
   assertEmpty(rest);
 
-  return <MantineLoader className={className} type="dots" ref={ref} />;
+  return (
+    <MantineLoader className={className} type="dots" size={16} ref={ref} />
+  );
 });

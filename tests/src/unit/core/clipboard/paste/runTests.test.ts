@@ -1,6 +1,6 @@
 import { describe, it } from "vitest";
 
-import { setupTestEditor } from "../../setupTestEditor.js";
+import { createTestEditor } from "../../createTestEditor.js";
 import { testSchema } from "../../testSchema.js";
 import {
   pasteTestInstancesHTML,
@@ -12,7 +12,7 @@ import {
 // into it. This includes content from other editors, as well as content from
 // the web that has produced bugs in the past.
 describe("Paste tests (HTML)", () => {
-  const getEditor = setupTestEditor(testSchema);
+  const getEditor = createTestEditor(testSchema);
 
   for (const { testCase, executeTest } of pasteTestInstancesHTML) {
     it(`${testCase.name}`, async () => {
@@ -22,7 +22,7 @@ describe("Paste tests (HTML)", () => {
 });
 
 describe("Paste tests (Markdown)", () => {
-  const getEditor = setupTestEditor(testSchema);
+  const getEditor = createTestEditor(testSchema);
 
   for (const { testCase, executeTest } of pasteTestInstancesMarkdown) {
     it(`${testCase.name}`, async () => {

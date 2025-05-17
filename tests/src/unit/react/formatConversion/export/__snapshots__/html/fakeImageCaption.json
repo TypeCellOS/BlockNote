@@ -7,12 +7,11 @@
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
-      "url": "exampleURL",
+      "url": "exampleURL"
     },
-    "type": "image",
+    "type": "image"
   },
   {
     "children": [],
@@ -20,15 +19,15 @@
       {
         "styles": {},
         "text": "Image Caption",
-        "type": "text",
-      },
+        "type": "text"
+      }
     ],
     "id": "2",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
-      "textColor": "default",
+      "textColor": "default"
     },
-    "type": "paragraph",
-  },
+    "type": "paragraph"
+  }
 ]

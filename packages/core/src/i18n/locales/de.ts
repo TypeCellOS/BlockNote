@@ -178,7 +178,6 @@ export const de: Dictionary = {
   },
   suggestion_menu: {
     no_items_title: "Keine Elemente gefunden",
-    loading: "Laden …",
   },
   color_picker: {
     text_title: "Text",

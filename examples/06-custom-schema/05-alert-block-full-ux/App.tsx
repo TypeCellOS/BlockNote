@@ -8,13 +8,13 @@ import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
+  BlockTypeSelectItem,
+  FormattingToolbar,
   FormattingToolbarController,
   SuggestionMenuController,
   blockTypeSelectItems,
   getDefaultReactSlashMenuItems,
   useCreateBlockNote,
-  BlockTypeSelectItem,
-  FormattingToolbar,
 } from "@blocknote/react";
 
 import { RiAlertFill } from "react-icons/ri";

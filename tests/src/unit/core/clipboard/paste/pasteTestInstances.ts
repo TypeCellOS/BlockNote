@@ -10,8 +10,8 @@ import {
   testPasteHTML,
   testPasteMarkdown,
 } from "../../../shared/clipboard/paste/pasteTestExecutors.js";
+import { getPosOfTextNode } from "../../../shared/testUtil.js";
 import { TestInstance } from "../../../types.js";
-import { getPosOfTextNode } from "../clipboardTestUtil.js";
 
 export const pasteTestInstancesHTML: TestInstance<
   PasteTestCase<TestBlockSchema, TestInlineContentSchema, TestStyleSchema>,

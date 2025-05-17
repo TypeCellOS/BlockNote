@@ -11,6 +11,10 @@
   gap: 0.5rem;
 }
 
+.bn-ak-input-wrapper svg {
+  width: 24px;
+}
+
 .bn-ak-toolbar {
   height: fit-content;
   overflow: scroll;
@@ -68,9 +72,11 @@
   overflow: visible;
 }
 
-.bn-ariakit .bn-suggestion-menu {
+.bn-ariakit .bn-suggestion-menu,
+.bn-ariakit .ai-suggestion-menu {
   height: fit-content;
   max-height: inherit;
+  overflow: auto;
 }
 
 .bn-ariakit .bn-color-picker-dropdown {
@@ -81,12 +87,29 @@
   flex: 1;
 }
 
+.bn-suggestion-menu-item-small .bn-ak-suggestion-menu-item-title {
+  font-size: 0.875rem;
+}
+
 .bn-ak-suggestion-menu-item-subtitle {
   font-size: 0.7rem;
 }
 
+.bn-suggestion-menu-item-small .bn-ak-suggestion-menu-item-subtitle {
+  display: none;
+}
+
 .bn-ak-suggestion-menu-item-section[data-position="left"] {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+
   padding: 8px;
+}
+
+.bn-suggestion-menu-item-small
+  .bn-ak-suggestion-menu-item-section[data-position="left"] {
+  padding: 0;
 }
 
 .bn-ak-suggestion-menu-item-section[data-position="right"] {
@@ -101,6 +124,24 @@
   font-size: 0.7rem;
   border-radius: 4px;
   padding-inline: 4px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.bn-ariakit .bn-suggestion-menu-loader {
+  align-items: center;
+  animation: spin 1s linear infinite;
+  display: flex;
+  height: 16px;
+  justify-content: center;
+  width: 16px;
 }
 
 .bn-ariakit .bn-grid-suggestion-menu {
@@ -307,6 +348,48 @@
   border: none;
   box-shadow: none;
   padding: 0;
+}
+
+.bn-ariakit .bn-combobox .bn-ak-input-wrapper {
+  display: flex;
+  border-radius: 0.5rem;
+  border-width: 1px;
+  border-style: solid;
+  border-color: hsl(204 20% 88%);
+  background-color: hsl(204 20% 100%);
+  padding: 0.5rem;
+  color: hsl(204 4% 0%);
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.bn-ariakit .bn-combobox .bn-ak-input-wrapper:where(.dark, .dark *) {
+  border-color: hsl(204 4% 24%);
+  background-color: hsl(204 4% 16%);
+  color: hsl(204 20% 100%);
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.25),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.bn-ariakit .bn-combobox .bn-ak-input {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  outline: none;
+}
+
+.bn-ariakit .bn-combobox .bn-combobox-icon,
+.bn-ariakit .bn-combobox .bn-combobox-right-section {
+  align-items: start;
+  display: flex;
+  justify-content: center;
+  width: 24px;
+}
+
+.bn-ariakit .bn-combobox .bn-combobox-error {
+  color: var(--bn-colors-highlights-red-background);
 }
 
 .bn-ariakit .bn-comment-actions-wrapper {

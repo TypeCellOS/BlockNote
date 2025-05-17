@@ -26,7 +26,7 @@ export const AddFileButton = (
   // Opens the file toolbar.
   const addFileButtonClickHandler = useCallback(() => {
     props.editor.transact((tr) =>
-      tr.setMeta(props.editor.filePanel!.plugin, {
+      tr.setMeta(props.editor.filePanel!.plugins[0], {
         block: props.block,
       }),
     );

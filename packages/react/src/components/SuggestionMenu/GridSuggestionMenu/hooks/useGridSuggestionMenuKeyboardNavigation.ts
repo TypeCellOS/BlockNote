@@ -53,6 +53,7 @@ export function useGridSuggestionMenuKeyboardNavigation<Item>(
       }
 
       if (event.key === "Enter" && !event.isComposing) {
+        event.stopPropagation();
         event.preventDefault();
 
         if (items.length) {

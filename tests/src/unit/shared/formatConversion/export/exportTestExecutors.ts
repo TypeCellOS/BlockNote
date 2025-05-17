@@ -8,7 +8,7 @@ import {
 import { prettify } from "htmlfy";
 import { expect } from "vitest";
 
-import { addIdsToBlocks } from "../../../core/formatConversion/formatConversionTestUtil.js";
+import { addIdsToBlocks } from "../formatConversionTestUtil.js";
 import { ExportTestCase } from "./exportTestCase.js";
 
 export const testExportBlockNoteHTML = async <

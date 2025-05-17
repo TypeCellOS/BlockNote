@@ -163,7 +163,6 @@ export const ar: Dictionary = {
   },
   suggestion_menu: {
     no_items_title: "لم يتم العثور على عناصر",
-    loading: "جارٍ التحميل…",
   },
   color_picker: {
     text_title: "نص",

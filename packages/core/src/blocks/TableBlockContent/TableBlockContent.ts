@@ -1,9 +1,8 @@
+import { Node, mergeAttributes } from "@tiptap/core";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
-import { TableRow } from "@tiptap/extension-table-row";
 import { DOMParser, Fragment, Node as PMNode, Schema } from "prosemirror-model";
 import { TableView } from "prosemirror-tables";
-
 import { NodeView } from "prosemirror-view";
 import {
   createBlockSpecFromStronglyTypedTiptapNode,
@@ -24,6 +23,7 @@ export const TableBlockContent = createStronglyTypedTiptapNode({
   group: "blockContent",
   tableRole: "table",
 
+  marks: "deletion insertion modification",
   isolating: true,
 
   parseHTML() {
@@ -152,6 +152,36 @@ const TableParagraph = createStronglyTypedTiptapNode({
 });
 
 /**
+ * This extension allows you to create table rows.
+ * @see https://www.tiptap.dev/api/nodes/table-row
+ */
+export const TableRow = Node.create<{ HTMLAttributes: Record<string, any> }>({
+  name: "tableRow",
+
+  addOptions() {
+    return {
+      HTMLAttributes: {},
+    };
+  },
+
+  content: "(tableCell | tableHeader)+",
+
+  tableRole: "row",
+  marks: "deletion insertion modification",
+  parseHTML() {
+    return [{ tag: "tr" }];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "tr",
+      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes),
+      0,
+    ];
+  },
+});
+
+/*
  * This will flatten a node's content to fit into a table cell's paragraph.
  */
 function parseTableContent(node: HTMLElement, schema: Schema) {

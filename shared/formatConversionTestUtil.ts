@@ -1,3 +1,5 @@
+// TODO: remove duplicate file
+
 import {
   Block,
   BlockNoteSchema,
@@ -73,12 +75,22 @@ function partialContentToInlineContent(
       columnWidths: content.columnWidths,
       headerRows: content.headerRows,
       headerCols: content.headerCols,
-      rows: content.rows.map((row) => ({
-        ...row,
-        cells: row.cells.map(
-          (cell) => partialContentToInlineContent(cell) as any,
-        ),
-      })),
+      rows: content.rows.map((row) => {
+        const cells: any[] = row.cells.map((cell) => {
+          if (!("type" in cell) || cell.type !== "tableCell") {
+            return partialContentToInlineContent({
+              type: "tableCell",
+              content: cell as any,
+            });
+          }
+          return partialContentToInlineContent(cell);
+        });
+
+        return {
+          ...row,
+          cells,
+        };
+      }),
     };
   } else if (content?.type === "tableCell") {
     return {

@@ -4,15 +4,15 @@ import { EditorView } from "@tiptap/pm/view";
 import { Mark } from "prosemirror-model";
 import { EditorState, Plugin, PluginKey, PluginView } from "prosemirror-state";
 
+import { getPmSchema } from "../../api/pmUtil.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
 import {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
-import { EventEmitter } from "../../util/EventEmitter.js";
-import { getPmSchema } from "../../api/pmUtil.js";
 
 export type LinkToolbarState = UiElementPosition & {
   // The hovered link's URL, and the text it's displayed with in the
@@ -301,30 +301,31 @@ export class LinkToolbarProsemirrorPlugin<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
-> extends EventEmitter<any> {
+> extends BlockNoteExtension {
   private view: LinkToolbarView | undefined;
-  public readonly plugin: Plugin;
 
   constructor(editor: BlockNoteEditor<BSchema, I, S>) {
     super();
-    this.plugin = new Plugin({
-      key: linkToolbarPluginKey,
-      view: (editorView) => {
-        this.view = new LinkToolbarView(editor, editorView, (state) => {
-          this.emit("update", state);
-        });
-        return this.view;
-      },
-      props: {
-        handleKeyDown: (_view, event: KeyboardEvent) => {
-          if (event.key === "Escape" && this.shown) {
-            this.view!.closeMenu();
-            return true;
-          }
-          return false;
+    this.addProsemirrorPlugin(
+      new Plugin({
+        key: linkToolbarPluginKey,
+        view: (editorView) => {
+          this.view = new LinkToolbarView(editor, editorView, (state) => {
+            this.emit("update", state);
+          });
+          return this.view;
         },
-      },
-    });
+        props: {
+          handleKeyDown: (_view, event: KeyboardEvent) => {
+            if (event.key === "Escape" && this.shown) {
+              this.view!.closeMenu();
+              return true;
+            }
+            return false;
+          },
+        },
+      }),
+    );
   }
 
   public onUpdate(callback: (state: LinkToolbarState) => void) {

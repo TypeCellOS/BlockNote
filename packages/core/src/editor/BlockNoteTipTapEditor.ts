@@ -1,5 +1,9 @@
-import { Editor, EditorOptions, createDocument } from "@tiptap/core";
-import { Editor as TiptapEditor } from "@tiptap/core";
+import {
+  Editor,
+  EditorOptions,
+  Editor as TiptapEditor,
+  createDocument,
+} from "@tiptap/core";
 
 import { Node } from "@tiptap/pm/model";
 
@@ -141,6 +145,10 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
     if (!this.view) {
       // before view has been initialized
       this._state = this.state.apply(transaction);
+      this.emit("transaction", {
+        editor: this,
+        transaction,
+      });
       return;
     }
     // This is a verbatim copy of the default dispatch method, but with the following changes:
@@ -213,6 +221,19 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
       editor: this,
       transaction,
       appendedTransactions: appendedTransactions.slice(1),
+    });
+  }
+
+  // a helper method that can enable plugins before the view has been initialized
+  // currently only used for testing
+  forceEnablePlugins() {
+    if (this.view) {
+      throw new Error(
+        "forcePluginsEnabled called after view has been initialized",
+      );
+    }
+    this._state = this.state.reconfigure({
+      plugins: this.extensionManager.plugins,
     });
   }
 
