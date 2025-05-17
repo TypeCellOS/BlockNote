@@ -28,6 +28,11 @@ export type LLMFormat = {
    * LLM Messages (CoreMessage[])
    */
   defaultPromptBuilder: PromptBuilder;
+  /**
+   * Helper functions which can be used when implementing a custom PromptBuilder.
+   * The signature depends on the specific format
+   */
+  promptHelpers: any;
 };
 
 export const llmFormats = {

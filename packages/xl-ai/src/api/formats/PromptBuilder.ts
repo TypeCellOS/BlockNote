@@ -16,19 +16,19 @@ which is also exposed as `llm.html.defaultPromptBuilder` etc. for possible reuse
  */
 export type PromptBuilderInput = {
   /**
-   * The ids of blocks that should be excluded from the prompt
-   * (e.g.: if `deleteEmptyCursorBlock` is true in the LLMRequest,
-   * this will be the id of the block that should be ignored)
+   * The user's prompt
    */
-  excludeBlockIds?: string[];
+  userPrompt: string;
   /**
    * The selection of the editor which the LLM should operate on
    */
   selectedBlocks?: Block<any, any, any>[];
   /**
-   * The user's prompt
+   * The ids of blocks that should be excluded from the prompt
+   * (e.g.: if `deleteEmptyCursorBlock` is true in the LLMRequest,
+   * this will be the id of the block that should be ignored)
    */
-  userPrompt: string;
+  excludeBlockIds?: string[];
   /**
    * When following a multi-step conversation, or repairing a previous error,
    * the previous messages that have been sent to the LLM
@@ -38,7 +38,7 @@ export type PromptBuilderInput = {
 
 /**
  * A PromptBuilder is a function that takes a BlockNoteEditor and details about the user's promot
- * and turns it into an array of CoreMessage to be passed to the LLM.
+ * and turns it into an array of CoreMessage (AI SDK) to be passed to the LLM.
  */
 export type PromptBuilder = (
   editor: BlockNoteEditor<any, any, any>,

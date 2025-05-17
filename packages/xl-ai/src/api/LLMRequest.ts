@@ -13,6 +13,9 @@ import { LLMFormat } from "./index.js";
 export type LLMRequestOptions = {
   /**
    * The language model to use for the LLM call (AI SDK)
+   *
+   * (when invoking `callLLM` via the `AIExtension` this will default to the
+   * model set in the `AIExtension` options)
    */
   model: LanguageModelV1;
   /**
@@ -21,6 +24,8 @@ export type LLMRequestOptions = {
   userPrompt: string;
   /**
    * Previous response from the LLM, used for multi-step LLM calls
+   *
+   * (populated automatically when invoking `callLLM` via the `AIExtension` class)
    */
   previousResponse?: LLMResponse;
   /**
@@ -98,19 +103,19 @@ export type LLMRequestOptions = {
    */
   withDelays?: boolean;
   /**
-   * Additional options to pass to the `generateObject` function
+   * Additional options to pass to the AI SDK `generateObject` function
    * (only used when `stream` is `false`)
    */
   _generateObjectOptions?: Partial<Parameters<typeof generateObject<any>>[0]>;
   /**
-   * Additional options to pass to the `streamObject` function
+   * Additional options to pass to the AI SDK `streamObject` function
    * (only used when `stream` is `true`)
    */
   _streamObjectOptions?: Partial<Parameters<typeof streamObject<any>>[0]>;
 };
 
 /**
- * Execute an LLM call and apply the result to the editor
+ * Execute an LLM call
  *
  * @param editor - The BlockNoteEditor the LLM should operate on
  * @param opts - The options for the LLM call (@link {CallLLMOptions})

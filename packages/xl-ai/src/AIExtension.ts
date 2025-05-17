@@ -26,16 +26,18 @@ type ReadonlyStoreApi<T> = Pick<
 >;
 
 type AIPluginState = {
-  /**
-   * zustand design considerations:
-   * - moved this to a nested object to have better typescript typing
-   * - if we'd do this without a nested object, then we could easily set "wrong" values,
-   *   because "setState" takes a partial object (unless the second parameter "replace" = true),
-   *   and thus we'd lose typescript's typing help
-   *
-   */
+  // zustand design considerations:
+  //  - moved this to a nested object to have better typescript typing
+  //  - if we'd do this without a nested object, then we could easily set "wrong" values,
+  //    because "setState" takes a partial object (unless the second parameter "replace" = true),
+  //    and thus we'd lose typescript's typing help
+
   aiMenuState:
     | ({
+        /**
+         * The ID of the block that the AI menu is open at
+         * this changes as the AI is making changes to the document
+         */
         blockId: string;
       } & (
         | {
@@ -64,8 +66,8 @@ type GlobalLLMRequestOptions = {
   model: LanguageModel;
   /**
    * The default data format to use for LLM calls
-   * "html" is recommended, the other formats are experimental
-   * @default html
+   * html format is recommended, the other formats are experimental
+   * @default llmFormats.html
    */
   dataFormat?: LLMFormat;
   /**
@@ -80,12 +82,10 @@ type GlobalLLMRequestOptions = {
   promptBuilder?: PromptBuilder;
 };
 
-type CallSpecificLLMRequestOptions = MakeOptional<LLMRequestOptions, "model">;
-
 const PLUGIN_KEY = new PluginKey(`blocknote-ai-plugin`);
 
 export class AIExtension extends BlockNoteExtension {
-  private previousRequestOptions: CallSpecificLLMRequestOptions | undefined;
+  private previousRequestOptions: LLMRequestOptions | undefined;
 
   public static name(): string {
     return "ai";
@@ -297,9 +297,9 @@ export class AIExtension extends BlockNoteExtension {
   /**
    * Execute a call to an LLM and apply the result to the editor
    */
-  public async callLLM(opts: CallSpecificLLMRequestOptions) {
+  public async callLLM(opts: MakeOptional<LLMRequestOptions, "model">) {
     this.setAIResponseStatus("thinking");
-
+    let ret: LLMResponse | undefined;
     try {
       const requestOptions = {
         ...this.options.getState(),
@@ -308,10 +308,11 @@ export class AIExtension extends BlockNoteExtension {
       };
       this.previousRequestOptions = requestOptions;
 
-      const ret = await doLLMRequest(this.editor, {
+      ret = await doLLMRequest(this.editor, {
         ...requestOptions,
         onStart: () => {
           this.setAIResponseStatus("ai-writing");
+          opts.onStart?.();
         },
         onBlockUpdate: (blockId: string) => {
           // NOTE: does this setState with an anon object trigger unnecessary re-renders?
@@ -321,6 +322,7 @@ export class AIExtension extends BlockNoteExtension {
               status: "ai-writing",
             },
           });
+          opts.onBlockUpdate?.(blockId);
         },
       });
 
@@ -339,6 +341,7 @@ export class AIExtension extends BlockNoteExtension {
       // eslint-disable-next-line no-console
       console.warn("Error calling LLM", e);
     }
+    return ret;
   }
 }
 
