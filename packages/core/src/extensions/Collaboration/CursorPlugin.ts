@@ -10,6 +10,10 @@ export type CollaborationUser = {
 };
 
 export class CursorPlugin extends BlockNoteExtension {
+  public static name() {
+    return "yCursorPlugin";
+  }
+
   private provider: { awareness: Awareness };
   private recentlyUpdatedCursors: Map<
     number,
