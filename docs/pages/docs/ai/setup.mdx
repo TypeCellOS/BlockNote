@@ -9,6 +9,7 @@ import { Example } from "@/components/example";
 import { Callout } from "nextra/components";
 
 # Getting Started with BlockNote AI
+
 First, install the `@blocknote/xl-ai` package:
 
 ```bash
@@ -37,9 +38,9 @@ const model = provider("llama-3.3-70b-versatile");
 
 <Callout type={"warning"}>
   Note that this setup directly calls the provider from the client, and exposes
-  your API keys on the client. For Production scenarios, a more common approach is to
-  handle authentication on your own server and proxy requests to a provider. See
-  our [Demo AI
+  your API keys on the client. For Production scenarios, a more common approach
+  is to handle authentication on your own server and proxy requests to a
+  provider. See our [Demo AI
   Server](https://github.com/TypeCellOS/BlockNote/tree/main/packages/xl-ai-server)
   for a Node.js example or check the AI SDK best practices.
 </Callout>
@@ -53,7 +54,7 @@ import { createBlockNoteEditor } from "@blocknote/core";
 import { BlockNoteAIExtension } from "@blocknote/xl-ai";
 import {
   AIToolbarButton,
-  BlockNoteAIUI,
+  AIMenuController,
   locales as aiLocales,
   createAIExtension,
   createBlockNoteAIClient,
@@ -61,16 +62,16 @@ import {
 } from "@blocknote/xl-ai";
 
 const editor = createBlockNoteEditor({
-    dictionary: {
-      ...en,
-      ai: aiLocales.en, // add default translations for the AI extension
-    },
-    extensions: [
-      createAIExtension({
-        model,
-      }),
-    ],
-    // ... other editor options
+  dictionary: {
+    ...en,
+    ai: aiLocales.en, // add default translations for the AI extension
+  },
+  extensions: [
+    createAIExtension({
+      model,
+    }),
+  ],
+  // ... other editor options
 });
 ```
 
@@ -84,20 +85,21 @@ Now, the only thing left to do is to customize the UI elements of your editor.
 
 ```tsx
 <BlockNoteView
-    editor={editor}
-    // We're disabling some default UI elements
-    formattingToolbar={false}
-    slashMenu={false}>
-    {/* This has AI specific components like the AI Command menu */}
-    <BlockNoteAIUI />
+  editor={editor}
+  // We're disabling some default UI elements
+  formattingToolbar={false}
+  slashMenu={false}
+>
+  {/* Add the AI Command menu to the editor */}
+  <AIMenuController />
 
-    {/* Create you own Formatting Toolbar with an AI button,
+  {/* Create you own Formatting Toolbar with an AI button,
     (see the full example code below) */}
-    <FormattingToolbarWithAI />
+  <FormattingToolbarWithAI />
 
-    {/* Create you own SlashMenu with an AI option,
+  {/* Create you own SlashMenu with an AI option,
     (see the full example code below) */}
-    <SuggestionMenuWithAI editor={editor} />
+  <SuggestionMenuWithAI editor={editor} />
 </BlockNoteView>
 ```
 
