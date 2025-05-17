@@ -59,9 +59,9 @@ export const uk: AIDictionary = {
   ai_menu: {
     input_placeholder: "Запитайте ШІ про що завгодно…",
     status: {
-      thinking: "Обробка…",
-      editing: "Редагування…",
-      error: "Сталася помилка",
+      thinking: "Думаю…",
+      editing: "Редагую…",
+      error: "На жаль! Щось пішло не так",
     },
     actions: {
       accept: { title: "Прийняти", aliases: undefined },

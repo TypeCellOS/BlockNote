@@ -61,7 +61,7 @@ export const sk: AIDictionary = {
     status: {
       thinking: "Premýšľam…",
       editing: "Upravujem…",
-      error: "Vyskytla sa chyba",
+      error: "Ups! Niečo sa pokazilo",
     },
     actions: {
       accept: { title: "Prijať", aliases: undefined },

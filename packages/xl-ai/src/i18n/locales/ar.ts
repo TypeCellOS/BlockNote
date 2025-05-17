@@ -59,9 +59,9 @@ export const ar: AIDictionary = {
   ai_menu: {
     input_placeholder: "اسأل الذكاء الاصطناعي أي شيء…",
     status: {
-      thinking: "جارِ التفكير…",
-      editing: "تحرير…",
-      error: "حدث خطأ",
+      thinking: "جاري التفكير…",
+      editing: "جاري التحرير…",
+      error: "عذراً! حدث خطأ ما",
     },
     actions: {
       accept: { title: "قبول", aliases: undefined },

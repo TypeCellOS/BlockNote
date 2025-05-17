@@ -61,7 +61,7 @@ export const ko: AIDictionary = {
     status: {
       thinking: "생각 중…",
       editing: "편집 중…",
-      error: "오류가 발생했습니다",
+      error: "죄송합니다! 오류가 발생했습니다",
     },
     actions: {
       accept: { title: "수락", aliases: undefined },

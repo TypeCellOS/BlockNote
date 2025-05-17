@@ -61,7 +61,7 @@ export const zhTw: AIDictionary = {
     status: {
       thinking: "思考中…",
       editing: "編輯中…",
-      error: "發生錯誤",
+      error: "哎呀！發生了一些錯誤",
     },
     actions: {
       accept: { title: "接受", aliases: undefined },

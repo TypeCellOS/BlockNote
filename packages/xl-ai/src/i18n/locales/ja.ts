@@ -61,7 +61,7 @@ export const ja: AIDictionary = {
     status: {
       thinking: "考え中…",
       editing: "編集中…",
-      error: "エラーが発生しました",
+      error: "申し訳ありません！エラーが発生しました",
     },
     actions: {
       accept: { title: "承認", aliases: undefined },

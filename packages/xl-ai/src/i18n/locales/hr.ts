@@ -61,7 +61,7 @@ export const hr: AIDictionary = {
     status: {
       thinking: "Razmišljam…",
       editing: "Uređujem…",
-      error: "Došlo je do pogreške",
+      error: "Ups! Nešto je pošlo po zlu",
     },
     actions: {
       accept: { title: "Prihvati", aliases: undefined },
