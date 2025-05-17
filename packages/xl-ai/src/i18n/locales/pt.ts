@@ -3,22 +3,24 @@ import type { AIDictionary } from "../dictionary";
 export const pt: AIDictionary = {
   formatting_toolbar: {
     ai: {
-      tooltip: "Gerar conteúdo",
-      input_placeholder: "Digite um comando",
-      thinking: "Pensando",
-      editing: "Editando",
-      error: "Ocorreu um erro",
+      tooltip: "Editar com IA",
     },
   },
   slash_menu: {
     ai: {
       title: "Perguntar à IA",
-      subtext: "Continuar escrevendo com IA",
-      aliases: ["ai", "artificial intelligence", "generate"],
+      subtext: "Escrever com IA",
+      aliases: [
+        "ai",
+        "artificial intelligence",
+        "llm",
+        "assistant",
+        "generate",
+      ],
       group: "IA",
     },
   },
-  ai_menu: {
+  ai_default_commands: {
     continue_writing: {
       title: "Continuar Escrevendo",
       aliases: undefined,
@@ -53,8 +55,19 @@ export const pt: AIDictionary = {
       title: "Melhorar Escrita",
       aliases: undefined,
     },
-    accept: { title: "Aceitar", aliases: undefined },
-    retry: { title: "Tentar Novamente", aliases: undefined },
-    revert: { title: "Reverter", aliases: undefined },
+  },
+  ai_menu: {
+    input_placeholder: "Pergunte qualquer coisa à IA…",
+    status: {
+      thinking: "Pensando…",
+      editing: "Editando…",
+      error: "Ocorreu um erro",
+    },
+    actions: {
+      accept: { title: "Aceitar", aliases: undefined },
+      retry: { title: "Tentar Novamente", aliases: undefined },
+      cancel: { title: "Cancelar", aliases: undefined },
+      revert: { title: "Reverter", aliases: undefined },
+    },
   },
 };

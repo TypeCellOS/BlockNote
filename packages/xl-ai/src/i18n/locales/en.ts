@@ -1,22 +1,24 @@
 export const en = {
   formatting_toolbar: {
     ai: {
-      tooltip: "Generate content",
-      input_placeholder: "Enter a prompt",
-      thinking: "Thinking",
-      editing: "Editing",
-      error: "An error has occurred",
+      tooltip: "Edit with AI",
     },
   },
   slash_menu: {
     ai: {
       title: "Ask AI",
-      subtext: "Continue writing with AI",
-      aliases: ["ai", "artificial intelligence", "generate"],
+      subtext: "Write with AI",
+      aliases: [
+        "ai",
+        "artificial intelligence",
+        "llm",
+        "assistant",
+        "generate",
+      ],
       group: "AI",
     },
   },
-  ai_menu: {
+  ai_default_commands: {
     continue_writing: {
       title: "Continue Writing",
       aliases: undefined,
@@ -51,8 +53,19 @@ export const en = {
       title: "Improve Writing",
       aliases: undefined,
     },
-    accept: { title: "Accept", aliases: undefined },
-    retry: { title: "Retry", aliases: undefined },
-    revert: { title: "Revert", aliases: undefined },
+  },
+  ai_menu: {
+    input_placeholder: "Ask AI anything…",
+    status: {
+      thinking: "Thinking…",
+      editing: "Editing…",
+      error: "An error has occurred",
+    },
+    actions: {
+      accept: { title: "Accept", aliases: undefined },
+      retry: { title: "Retry", aliases: undefined },
+      cancel: { title: "Cancel", aliases: undefined },
+      revert: { title: "Revert", aliases: undefined },
+    },
   },
 };

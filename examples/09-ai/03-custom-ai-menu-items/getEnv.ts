@@ -16,8 +16,5 @@ export function getEnv(key: string) {
       };
 
   const value = env[key as keyof typeof env];
-  if (!value) {
-    throw new Error(`Environment variable ${key} is not set`);
-  }
   return value;
 }

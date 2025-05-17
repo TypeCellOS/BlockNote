@@ -37,6 +37,7 @@ export const BlockPositioner = (props: {
     reference,
     3000,
     {
+      canDismiss: true,
       // canDismiss: false,
       placement: "bottom",
       middleware: [
@@ -70,7 +71,8 @@ export const BlockPositioner = (props: {
       style={{
         ...style,
       }}
-      {...getFloatingProps()}>
+      {...getFloatingProps()}
+    >
       {props.children}
     </div>
   );

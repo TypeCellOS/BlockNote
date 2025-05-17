@@ -3,7 +3,7 @@ import { FC } from "react";
 import { useStore } from "zustand";
 
 import { getAIExtension } from "../../AIExtension.js";
-import { AIMenuProps, AIMenu } from "./AIMenu.js";
+import { AIMenu, AIMenuProps } from "./AIMenu.js";
 import { BlockPositioner } from "./BlockPositioner.js";
 
 export const AIMenuController = (props: { aiMenu?: FC<AIMenuProps> }) => {
@@ -20,13 +20,16 @@ export const AIMenuController = (props: { aiMenu?: FC<AIMenuProps> }) => {
     <BlockPositioner
       blockID={blockId}
       onOpenChange={(open) => {
-        if (
-          !open &&
-          aiMenuState !== "closed" &&
-          (aiMenuState.status === "user-input" ||
-            aiMenuState.status === "error")
-        ) {
+        if (open || aiMenuState === "closed") {
+          return;
+        }
+        if (aiMenuState.status === "user-input") {
           ai.closeAIMenu();
+        } else if (
+          aiMenuState.status === "user-reviewing" ||
+          aiMenuState.status === "error"
+        ) {
+          ai.rejectChanges();
         }
       }}
     >

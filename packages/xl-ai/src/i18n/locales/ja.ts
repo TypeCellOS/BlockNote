@@ -3,22 +3,24 @@ import type { AIDictionary } from "../dictionary";
 export const ja: AIDictionary = {
   formatting_toolbar: {
     ai: {
-      tooltip: "コンテンツを生成",
-      input_placeholder: "プロンプトを入力",
-      thinking: "考え中",
-      editing: "編集中",
-      error: "エラーが発生しました",
+      tooltip: "AIで編集",
     },
   },
   slash_menu: {
     ai: {
       title: "AIに質問",
-      subtext: "AIで執筆を継続",
-      aliases: ["ai", "artificial intelligence", "generate"],
+      subtext: "AIで執筆",
+      aliases: [
+        "ai",
+        "artificial intelligence",
+        "llm",
+        "assistant",
+        "generate",
+      ],
       group: "AI",
     },
   },
-  ai_menu: {
+  ai_default_commands: {
     continue_writing: {
       title: "続けて書く",
       aliases: undefined,
@@ -53,8 +55,19 @@ export const ja: AIDictionary = {
       title: "文章を改善",
       aliases: undefined,
     },
-    accept: { title: "承認", aliases: undefined },
-    retry: { title: "再試行", aliases: undefined },
-    revert: { title: "元に戻す", aliases: undefined },
+  },
+  ai_menu: {
+    input_placeholder: "AIに何でも質問…",
+    status: {
+      thinking: "考え中…",
+      editing: "編集中…",
+      error: "エラーが発生しました",
+    },
+    actions: {
+      accept: { title: "承認", aliases: undefined },
+      retry: { title: "再試行", aliases: undefined },
+      cancel: { title: "キャンセル", aliases: undefined },
+      revert: { title: "元に戻す", aliases: undefined },
+    },
   },
 };

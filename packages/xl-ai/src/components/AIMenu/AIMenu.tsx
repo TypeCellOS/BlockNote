@@ -89,14 +89,14 @@ export const AIMenu = (props: AIMenuProps) => {
 
   const placeholder = useMemo(() => {
     if (aiResponseStatus === "thinking") {
-      return dict.formatting_toolbar.ai.thinking;
+      return dict.ai_menu.status.thinking;
     } else if (aiResponseStatus === "ai-writing") {
-      return dict.formatting_toolbar.ai.editing;
+      return dict.ai_menu.status.editing;
     } else if (aiResponseStatus === "error") {
-      return dict.formatting_toolbar.ai.error;
+      return dict.ai_menu.status.error;
     }
 
-    return dict.formatting_toolbar.ai.input_placeholder;
+    return dict.ai_menu.input_placeholder;
   }, [aiResponseStatus, dict]);
 
   const rightSection = useMemo(() => {

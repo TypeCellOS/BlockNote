@@ -42,8 +42,8 @@ export function getDefaultAIMenuItemsWithoutSelection<
   return [
     {
       key: "continue_writing",
-      title: dict.ai_menu.continue_writing.title,
-      aliases: dict.ai_menu.continue_writing.aliases,
+      title: dict.ai_default_commands.continue_writing.title,
+      aliases: dict.ai_default_commands.continue_writing.aliases,
       icon: <RiBallPenLine size={18} />,
       onItemClick: async () => {
         await ai.callLLM({
@@ -62,8 +62,8 @@ export function getDefaultAIMenuItemsWithoutSelection<
 
     {
       key: "summarize",
-      title: dict.ai_menu.summarize.title,
-      aliases: dict.ai_menu.summarize.aliases,
+      title: dict.ai_default_commands.summarize.title,
+      aliases: dict.ai_default_commands.summarize.aliases,
       icon: <RiTextWrap size={18} />,
       onItemClick: async () => {
         await ai.callLLM({
@@ -80,8 +80,8 @@ export function getDefaultAIMenuItemsWithoutSelection<
     },
     {
       key: "action_items",
-      title: dict.ai_menu.add_action_items.title,
-      aliases: dict.ai_menu.add_action_items.aliases,
+      title: dict.ai_default_commands.add_action_items.title,
+      aliases: dict.ai_default_commands.add_action_items.aliases,
       icon: <RiListCheck3 size={18} />,
       onItemClick: async () => {
         await ai.callLLM({
@@ -98,11 +98,11 @@ export function getDefaultAIMenuItemsWithoutSelection<
     },
     {
       key: "write_anything",
-      title: dict.ai_menu.write_anything.title,
-      aliases: dict.ai_menu.write_anything.aliases,
+      title: dict.ai_default_commands.write_anything.title,
+      aliases: dict.ai_default_commands.write_anything.aliases,
       icon: <RiBallPenLine size={18} />,
       onItemClick: (setPrompt) => {
-        setPrompt(dict.ai_menu.write_anything.prompt_placeholder);
+        setPrompt(dict.ai_default_commands.write_anything.prompt_placeholder);
       },
       size: "small",
     },
@@ -125,8 +125,8 @@ export function getDefaultAIMenuItemsWithSelection<
   return [
     {
       key: "improve_writing",
-      title: dict.ai_menu.improve_writing.title,
-      aliases: dict.ai_menu.improve_writing.aliases,
+      title: dict.ai_default_commands.improve_writing.title,
+      aliases: dict.ai_default_commands.improve_writing.aliases,
       icon: <RiText size={18} />,
       onItemClick: async () => {
         await ai.callLLM({
@@ -144,8 +144,8 @@ export function getDefaultAIMenuItemsWithSelection<
     },
     {
       key: "fix_spelling",
-      title: dict.ai_menu.fix_spelling.title,
-      aliases: dict.ai_menu.fix_spelling.aliases,
+      title: dict.ai_default_commands.fix_spelling.title,
+      aliases: dict.ai_default_commands.fix_spelling.aliases,
       icon: <RiCheckLine size={18} />,
       onItemClick: async () => {
         await ai.callLLM({
@@ -163,18 +163,18 @@ export function getDefaultAIMenuItemsWithSelection<
     },
     {
       key: "translate",
-      title: dict.ai_menu.translate.title,
-      aliases: dict.ai_menu.translate.aliases,
+      title: dict.ai_default_commands.translate.title,
+      aliases: dict.ai_default_commands.translate.aliases,
       icon: <RiEarthLine size={18} />,
       onItemClick: (setPrompt) => {
-        setPrompt(dict.ai_menu.translate.prompt_placeholder);
+        setPrompt(dict.ai_default_commands.translate.prompt_placeholder);
       },
       size: "small",
     },
     {
       key: "simplify",
-      title: dict.ai_menu.simplify.title,
-      aliases: dict.ai_menu.simplify.aliases,
+      title: dict.ai_default_commands.simplify.title,
+      aliases: dict.ai_default_commands.simplify.aliases,
       icon: <RiMagicLine size={18} />,
       onItemClick: async () => {
         await ai.callLLM({
@@ -207,29 +207,18 @@ export function getDefaultAIMenuItemsForReview<
   return [
     {
       key: "accept",
-      title: dict.ai_menu.accept.title,
-      aliases: dict.ai_menu.accept.aliases,
+      title: dict.ai_menu.actions.accept.title,
+      aliases: dict.ai_menu.actions.accept.aliases,
       icon: <RiCheckFill size={18} />,
       onItemClick: () => {
         ai.acceptChanges();
       },
       size: "small",
     },
-    // TODO: retry UX
-    // {
-    //   key: "retry",
-    //   title: dict.ai_menu.retry.title,
-    //   aliases: dict.ai_menu.retry.aliases,
-    //   icon: <RiLoopLeftFill size={18} />,
-    //   onItemClick: () => {
-    //     console.log("RETRY");
-    //   },
-    //   size: "small",
-    // },
     {
       key: "revert",
-      title: dict.ai_menu.revert.title,
-      aliases: dict.ai_menu.revert.aliases,
+      title: dict.ai_menu.actions.revert.title,
+      aliases: dict.ai_menu.actions.revert.aliases,
       icon: <RiArrowGoBackFill size={18} />,
       onItemClick: () => {
         ai.rejectChanges();
@@ -238,3 +227,38 @@ export function getDefaultAIMenuItemsForReview<
     },
   ];
 }
+
+/**
+ * Default items we show in the AI Menu when the AI response is done.
+ */
+// export function getDefaultAIMenuItemsForError<
+//   BSchema extends BlockSchema,
+//   I extends InlineContentSchema,
+//   S extends StyleSchema,
+// >(editor: BlockNoteEditor<BSchema, I, S>): AIMenuSuggestionItem[] {
+//   const dict = getAIDictionary(editor);
+//   const ai = getAIExtension(editor);
+
+//   return [
+//     {
+//       key: "retry",
+//       title: dict.ai_menu.retry.title,
+//       aliases: dict.ai_menu.retry.aliases,
+//       icon: <RiLoopLeftFill size={18} />,
+//       onItemClick: () => {
+
+//       },
+//       size: "small",
+//     },
+//     {
+//       key: "cancel",
+//       title: dict.ai_menu.cancel.title,
+//       aliases: dict.ai_menu.cancel.aliases,
+//       icon: <RiArrowGoBackFill size={18} />,
+//       onItemClick: () => {
+//         ai.rejectChanges();
+//       },
+//       size: "small",
+//     },
+//   ];
+// }
