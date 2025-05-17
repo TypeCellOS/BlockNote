@@ -61,7 +61,7 @@ export const vi: AIDictionary = {
     status: {
       thinking: "Đang suy nghĩ…",
       editing: "Đang chỉnh sửa…",
-      error: "Đã xảy ra lỗi",
+      error: "Rất tiếc! Đã xảy ra lỗi",
     },
     actions: {
       accept: { title: "Chấp nhận", aliases: undefined },

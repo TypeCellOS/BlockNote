@@ -59,9 +59,9 @@ export const fr: AIDictionary = {
   ai_menu: {
     input_placeholder: "Demandez n'importe quoi à l'IA…",
     status: {
-      thinking: "Réflexion en cours…",
+      thinking: "Réflexion…",
       editing: "Édition…",
-      error: "Une erreur s'est produite",
+      error: "Oups ! Une erreur s'est produite",
     },
     actions: {
       accept: { title: "Accepter", aliases: undefined },

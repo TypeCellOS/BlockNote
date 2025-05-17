@@ -61,7 +61,7 @@ export const de: AIDictionary = {
     status: {
       thinking: "Denke nach…",
       editing: "Bearbeite…",
-      error: "Ein Fehler ist aufgetreten",
+      error: "Ups! Etwas ist schiefgelaufen",
     },
     actions: {
       accept: { title: "Akzeptieren", aliases: undefined },

@@ -61,7 +61,7 @@ export const is: AIDictionary = {
     status: {
       thinking: "Hugsa…",
       editing: "Breyta…",
-      error: "Villa kom upp",
+      error: "Ups! Eitthvað fór úrskeiðis",
     },
     actions: {
       accept: { title: "Samþykkja", aliases: undefined },

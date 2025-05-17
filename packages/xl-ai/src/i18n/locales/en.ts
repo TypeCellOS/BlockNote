@@ -59,7 +59,7 @@ export const en = {
     status: {
       thinking: "Thinking…",
       editing: "Editing…",
-      error: "An error has occurred",
+      error: "Oops! Something went wrong",
     },
     actions: {
       accept: { title: "Accept", aliases: undefined },
