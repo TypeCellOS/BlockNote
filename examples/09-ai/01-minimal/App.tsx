@@ -13,14 +13,15 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import {
+  AIMenuController,
   AIToolbarButton,
-  BlockNoteAIUI,
   locales as aiLocales,
   createAIExtension,
   createBlockNoteAIClient,
   getAISlashMenuItems,
 } from "@blocknote/xl-ai";
 import "@blocknote/xl-ai/style.css";
+import { getEnv } from "./getEnv.js";
 
 // Optional: proxy requests through the `@blocknote/xl-ai-server` proxy server
 // so that we don't have to expose our API keys to the client
@@ -101,8 +102,8 @@ export default function App() {
         formattingToolbar={false}
         slashMenu={false}
       >
-        {/* This has AI specific components like the AI Command menu */}
-        <BlockNoteAIUI />
+        {/* Add the AI Command menu to the editor */}
+        <AIMenuController />
 
         {/* We disabled the default formatting toolbar with `formattingToolbar=false` 
         and replace it for one with an "AI button" (defined below). 
@@ -154,14 +155,4 @@ function SuggestionMenuWithAI(props: {
       }
     />
   );
-}
-
-// helper function to get env variables across next / vite
-// only needed so this example works in BlockNote demos and docs
-function getEnv(key: string) {
-  // TODO
-  // const env2 = process.env.NEXT_PUBLIC_BLOCKNOTE_AI_SERVER_BASE_URL;
-  return (import.meta as any).env
-    ? (import.meta as any).env["VITE_" + key]
-    : process.env["NEXT_PUBLIC_" + key];
 }

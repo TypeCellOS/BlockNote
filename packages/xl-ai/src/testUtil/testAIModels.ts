@@ -1,7 +1,7 @@
 import { createGroq } from "@ai-sdk/groq";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
-import { createBlockNoteAIClient } from "../api/blocknoteAIClient/client.js";
+import { createBlockNoteAIClient } from "../blocknoteAIClient/client.js";
 
 // Create client and models outside of test suites so they can be shared
 const client = createBlockNoteAIClient({

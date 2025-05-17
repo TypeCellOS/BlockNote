@@ -2,17 +2,19 @@ import { BlockNoteEditor } from "@blocknote/core";
 import { AIMenuSuggestionItem, getAIExtension } from "@blocknote/xl-ai";
 import { RiApps2AddFill, RiEmotionHappyFill } from "react-icons/ri";
 
-// Custom item to make the text more casual.
-export const makeCasual = (editor: BlockNoteEditor): AIMenuSuggestionItem => ({
-  key: "make_casual",
-  title: "Make Casual",
+// Custom item to make the text more informal.
+export const makeInformal = (
+  editor: BlockNoteEditor,
+): AIMenuSuggestionItem => ({
+  key: "make_informal",
+  title: "Make Informal",
   // Aliases used when filtering AI Menu items from
   // text in prompt input.
-  aliases: ["casual", "informal", "make informal"],
+  aliases: ["informal", "make informal", "casual"],
   icon: <RiEmotionHappyFill size={18} />,
   onItemClick: async () => {
     await getAIExtension(editor).callLLM({
-      userPrompt: "Make casual",
+      userPrompt: "Give the selected text a more informal (casual) tone",
       // Set to true to tell the LLM to specifically
       // use the selected content as context. Defaults
       // to false.
@@ -32,12 +34,12 @@ export const makeCasual = (editor: BlockNoteEditor): AIMenuSuggestionItem => ({
   size: "small",
 });
 
-// Custom item to find related topics.
-export const findRelatedTopics = (
+// Custom item to write about related topics.
+export const addRelatedTopics = (
   editor: BlockNoteEditor,
 ): AIMenuSuggestionItem => ({
-  key: "find_related_topics",
-  title: "Find Related Topics",
+  key: "add_related_topics",
+  title: "Add Related Topics",
   // Aliases used when filtering AI Menu items from
   // text in prompt input.
   aliases: ["related topics", "find topics"],
@@ -45,7 +47,7 @@ export const findRelatedTopics = (
   onItemClick: async () => {
     await getAIExtension(editor).callLLM({
       userPrompt:
-        "Find several related topics to the current text and write a sentence about each",
+        "Think of some related topics to the current text and write a sentence about each",
       // Sets what operations the LLM is allowed to do.
       // In this case, we only want to allow adding new
       // content, so only `add` is set to true.

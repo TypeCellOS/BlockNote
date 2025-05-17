@@ -13,7 +13,7 @@ import {
 } from "../../../testUtil/cases/index.js";
 import { updateOperationTestCases } from "../../../testUtil/cases/updateOperationTestCases.js";
 import { validateRejectingResultsInOriginalDoc } from "../../../testUtil/suggestChangesTestUtil.js";
-import { CallLLMResult } from "../CallLLMResult.js";
+import { LLMResponse } from "../../LLMResponse.js";
 
 const BASE_FILE_PATH = path.resolve(__dirname, "__snapshots__");
 
@@ -35,7 +35,7 @@ export function generateSharedTestCases(
   callLLM: (
     editor: BlockNoteEditor<any, any, any>,
     params: { userPrompt: string; useSelection?: boolean },
-  ) => Promise<CallLLMResult>,
+  ) => Promise<LLMResponse>,
   skipTestsRequiringCapabilities?: {
     mentions?: boolean;
     textAlignment?: boolean;

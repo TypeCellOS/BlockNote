@@ -1,8 +1,7 @@
 import "./style.css";
 
 export * from "./AIExtension.js";
-export * from "./api/blocknoteAIClient/client.js";
-export * from "./components/BlockNoteAIUI.js";
+export * from "./blocknoteAIClient/client.js";
 export * from "./components/AIMenu/AIMenu.js";
 export * from "./components/AIMenu/AIMenuController.js";
 export * from "./components/AIMenu/BlockPositioner.js";
@@ -15,4 +14,3 @@ export * from "./i18n/dictionary.js";
 export * as locales from "./i18n/locales/index.js";
 
 export * from "./api/index.js";
-export * from "./api/promptHelpers/index.js";

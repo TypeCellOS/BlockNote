@@ -9,7 +9,7 @@ import { useAIDictionary } from "../../i18n/useAIDictionary.js";
 import { PromptSuggestionMenu } from "./PromptSuggestionMenu.js";
 import {
   AIMenuSuggestionItem,
-  getDefaultAIActionMenuItems,
+  getDefaultAIMenuItemsForReview,
   getDefaultAIMenuItemsWithSelection,
   getDefaultAIMenuItemsWithoutSelection,
 } from "./getDefaultAIMenuItems.js";
@@ -55,7 +55,7 @@ export const AIMenu = (props: AIMenuProps) => {
           ? getDefaultAIMenuItemsWithSelection(editor)
           : getDefaultAIMenuItemsWithoutSelection(editor);
       } else if (aiResponseStatus === "user-reviewing") {
-        items = getDefaultAIActionMenuItems(editor);
+        items = getDefaultAIMenuItemsForReview(editor);
       }
     }
 

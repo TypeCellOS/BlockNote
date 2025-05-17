@@ -196,7 +196,7 @@ export function getDefaultAIMenuItemsWithSelection<
 /**
  * Default items we show in the AI Menu when the AI response is done.
  */
-export function getDefaultAIActionMenuItems<
+export function getDefaultAIMenuItemsForReview<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,

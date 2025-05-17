@@ -1,5 +1,3 @@
-/// <reference types="./vite-env.d.ts" />
-
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createGroq } from "@ai-sdk/groq";
 import { createMistral } from "@ai-sdk/mistral";
@@ -19,13 +17,14 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import {
+  AIMenuController,
   AIToolbarButton,
-  BlockNoteAIUI,
   locales as aiLocales,
   createAIExtension,
   createBlockNoteAIClient,
   getAIExtension,
   getAISlashMenuItems,
+  llmFormats,
 } from "@blocknote/xl-ai";
 import "@blocknote/xl-ai/style.css";
 import { Fieldset, Switch } from "@mantine/core";
@@ -34,14 +33,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useStore } from "zustand";
 import { BasicAutocomplete } from "./AutoComplete.js";
 import RadioGroupComponent from "./components/RadioGroupComponent.js";
-
+import { getEnv } from "./getEnv.js";
 // Optional: proxy requests through the `@blocknote/xl-ai-server` proxy server
 // so that we don't have to expose our API keys to the client
 const client = createBlockNoteAIClient({
-  apiKey: import.meta.env.VITE_BLOCKNOTE_AI_SERVER_API_KEY || "PLACEHOLDER",
+  apiKey: getEnv("BLOCKNOTE_AI_SERVER_API_KEY") || "PLACEHOLDER",
   baseURL:
-    import.meta.env.VITE_BLOCKNOTE_AI_SERVER_BASE_URL ||
-    "https://localhost:3000/ai",
+    getEnv("BLOCKNOTE_AI_SERVER_BASE_URL") || "https://localhost:3000/ai",
 });
 
 // return the AI SDK model based on the selected model string
@@ -134,7 +132,8 @@ export default function App() {
     }
   }, [model, ai.options]);
 
-  const dataFormat = useStore(ai.options, (state) => state.dataFormat);
+  const [dataFormat, setDataFormat] = useState("html");
+
   const stream = useStore(ai.options, (state) => state.stream);
 
   return (
@@ -157,11 +156,18 @@ export default function App() {
             },
           ]}
           value={dataFormat}
-          onChange={(value) =>
+          onChange={(value) => {
+            const dataFormat =
+              value === "markdown"
+                ? llmFormats._experimental_markdown
+                : value === "json"
+                  ? llmFormats._experimental_json
+                  : llmFormats.html;
             ai.options.setState({
-              dataFormat: value as "html" | "json" | "markdown",
-            })
-          }
+              dataFormat,
+            });
+            setDataFormat(value);
+          }}
         />
 
         <Switch
@@ -174,9 +180,10 @@ export default function App() {
       <BlockNoteView
         editor={editor}
         formattingToolbar={false}
-        slashMenu={false}>
-        {/* This has AI specific components like the AI Command menu */}
-        <BlockNoteAIUI />
+        slashMenu={false}
+      >
+        {/* Add the AI Command menu to the editor */}
+        <AIMenuController />
 
         {/* We disabled the default formatting toolbar with `formattingToolbar=false` 
         and replace it for one with an "AI button" (defined below). 

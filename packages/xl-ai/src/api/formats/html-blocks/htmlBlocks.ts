@@ -1,6 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { StreamTool } from "../../../streamTool/streamTool.js";
-import { callLLMBase } from "../callLLMBase.js";
 
 import { defaultHTMLPromptBuilder } from "./defaultHTMLPromptBuilder.js";
 import {
@@ -55,16 +54,11 @@ function getStreamTools(
   return streamTools;
 }
 
-export const callLLMHTMLBlocks = callLLMBase(
-  defaultHTMLPromptBuilder,
-  getStreamTools,
-);
-
 export const htmlBlockLLMFormat = {
   /**
-   * Execute an LLM call using HTML blocks as format to be passed to the LLM
+   * Function to get the stream tools that can apply HTML block updates to the editor
    */
-  call: callLLMHTMLBlocks,
+  getStreamTools,
   /**
    * The default PromptBuilder that determines how a userPrompt is converted to an array of
    * LLM Messages (CoreMessage[])

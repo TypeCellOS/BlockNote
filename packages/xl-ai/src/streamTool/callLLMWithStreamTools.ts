@@ -23,18 +23,11 @@ import {
 } from "./preprocess.js";
 import { Result, StreamTool, StreamToolCall } from "./streamTool.js";
 
-type LLMRequestOptionsInternal = {
+type LLMRequestOptions = {
   model: LanguageModel;
   messages: CoreMessage[];
   maxRetries: number;
 };
-
-type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
-
-export type LLMRequestOptions = Optional<
-  LLMRequestOptionsInternal,
-  "maxRetries"
->;
 
 /**
  * Result of an LLM call with stream tools
@@ -96,7 +89,6 @@ export async function generateOperations<T extends StreamTool<any>[]>(
     // TODO: further research this and / or make configurable
     // for now stick to "tool" by default as this has been tested mostly
     mode: rest.model.provider === "mistral.chat" ? "auto" : "tool",
-    maxRetries: 2,
     //  - mandatory ones:
     ...rest,
 
@@ -204,7 +196,6 @@ export async function streamOperations<T extends StreamTool<any>[]>(
     // TODO: further research this and / or make configurable
     // for now stick to "tool" by default as this has been tested mostly
     mode: rest.model.provider === "mistral.chat" ? "auto" : "tool",
-    maxRetries: 2,
     //  - mandatory ones:
     ...rest,
 

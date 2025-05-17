@@ -5,8 +5,9 @@ import { getSortedEntries, snapshot, toHashString } from "msw-snapshot";
 import { setupServer } from "msw/node";
 import path from "path";
 import { testAIModels } from "../../../testUtil/testAIModels.js";
+import { doLLMRequest } from "../../LLMRequest.js";
 import { generateSharedTestCases } from "../tests/sharedTestCases.js";
-import { callLLMMarkdownBlocks } from "./markdownBlocks.js";
+import { markdownBlocksLLMFormat } from "./markdownBlocks.js";
 
 const BASE_FILE_PATH = path.resolve(
   __dirname,
@@ -111,12 +112,13 @@ describe("Models", () => {
     })`, () => {
       generateSharedTestCases(
         (editor, options) =>
-          callLLMMarkdownBlocks(editor, {
+          doLLMRequest(editor, {
             ...options,
             model: params.model,
             maxRetries: 0,
             stream: params.stream,
             withDelays: false,
+            dataFormat: markdownBlocksLLMFormat,
             // _generateObjectOptions: {
             //   providerOptions: {
             //     "albert-etalab": {
