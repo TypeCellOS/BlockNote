@@ -42,11 +42,7 @@ export const makeInformal = (
 Now, we let's create a customized AI Menu to show this command when the user has selected some text and opened the AI menu:
 
 ```tsx
-import {
-  AIMenu,
-  getDefaultAIMenuItemsWithSelection,
-  getDefaultAIMenuItemsWithoutSelection,
-} from "@blocknote/xl-ai";
+import { AIMenu, getDefaultAIMenuItems } from "@blocknote/xl-ai";
 
 function CustomAIMenu() {
   return (
@@ -66,23 +62,16 @@ function CustomAIMenu() {
             // When a selection is active (so when the AI Menu is opened via the Formatting Toolbar),
             // we add our `makeInformal` command to the default items.
             return [
-              ...getDefaultAIMenuItemsWithSelection(editor),
+              ...getDefaultAIMenuItems(editor, aiResponseStatus),
               makeInformal(editor),
             ];
           } else {
-            return getDefaultAIMenuItemsWithoutSelection(editor);
+            return getDefaultAIMenuItems(editor, aiResponseStatus);
           }
         }
 
-        if (aiResponseStatus === "user-reviewing") {
-          // Returns different items once the AI has finished writing,
-          // so the user can choose to accept or reject the changes.
-          return getDefaultAIMenuItemsForReview(editor);
-        }
-
-        // Return no items in other states, e.g. when the AI is writing
-        // or when an error occurred.
-        return [];
+        // for other states, return the default items
+        return getDefaultAIMenuItems(editor, aiResponseStatus);
       }}
     />
   );

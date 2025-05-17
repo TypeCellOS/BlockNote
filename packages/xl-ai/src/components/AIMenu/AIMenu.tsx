@@ -9,9 +9,7 @@ import { useAIDictionary } from "../../i18n/useAIDictionary.js";
 import { PromptSuggestionMenu } from "./PromptSuggestionMenu.js";
 import {
   AIMenuSuggestionItem,
-  getDefaultAIMenuItemsForReview,
-  getDefaultAIMenuItemsWithSelection,
-  getDefaultAIMenuItemsWithoutSelection,
+  getDefaultAIMenuItems,
 } from "./getDefaultAIMenuItems.js";
 
 export type AIMenuProps = {
@@ -50,13 +48,7 @@ export const AIMenu = (props: AIMenuProps) => {
     if (externalItems) {
       items = externalItems(editor, aiResponseStatus);
     } else {
-      if (aiResponseStatus === "user-input") {
-        items = editor.getSelection()
-          ? getDefaultAIMenuItemsWithSelection(editor)
-          : getDefaultAIMenuItemsWithoutSelection(editor);
-      } else if (aiResponseStatus === "user-reviewing") {
-        items = getDefaultAIMenuItemsForReview(editor);
-      }
+      items = getDefaultAIMenuItems(editor, aiResponseStatus);
     }
 
     // map from AI items to React Items required by PromptSuggestionMenu
@@ -82,7 +74,7 @@ export const AIMenu = (props: AIMenuProps) => {
 
   useEffect(() => {
     // TODO: this is a bit hacky to run a useeffect to reset the prompt when the AI response is done
-    if (aiResponseStatus === "user-reviewing") {
+    if (aiResponseStatus === "user-reviewing" || aiResponseStatus === "error") {
       setPrompt("");
     }
   }, [aiResponseStatus]);
@@ -137,9 +129,7 @@ export const AIMenu = (props: AIMenuProps) => {
       onPromptTextChange={setPrompt}
       placeholder={placeholder}
       disabled={
-        aiResponseStatus === "thinking" ||
-        aiResponseStatus === "ai-writing" ||
-        aiResponseStatus === "error"
+        aiResponseStatus === "thinking" || aiResponseStatus === "ai-writing"
       }
       icon={
         <div className="bn-combobox-icon">

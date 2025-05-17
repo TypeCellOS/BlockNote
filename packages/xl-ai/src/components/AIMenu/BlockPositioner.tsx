@@ -37,7 +37,11 @@ export const BlockPositioner = (props: {
     reference,
     3000,
     {
-      canDismiss: true,
+      canDismiss: {
+        enabled: true,
+        escapeKey: true,
+        outsidePress: false,
+      },
       // canDismiss: false,
       placement: "bottom",
       middleware: [

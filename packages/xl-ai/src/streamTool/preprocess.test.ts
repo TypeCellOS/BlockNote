@@ -88,7 +88,28 @@ describe("preprocess", () => {
       expect(results.length).toBe(1);
     });
 
-    it("should drop invalid operations", async () => {
+    it("should drop invalid partial operations", async () => {
+      async function* mockStream() {
+        yield {
+          partialOperation: addOperationInvalidId,
+          isUpdateToPreviousOperation: false,
+          isPossiblyPartial: true,
+        };
+        yield {
+          partialOperation: invalidOperationType,
+          isUpdateToPreviousOperation: false,
+          isPossiblyPartial: true,
+        };
+      }
+
+      const results = await collectStreamToArray(
+        preprocessOperationsStreaming(mockStream(), streamTools),
+      );
+
+      expect(results.length).toBe(0);
+    });
+
+    it("should throw invalid full operations", async () => {
       async function* mockStream() {
         yield {
           partialOperation: addOperationInvalidId,
@@ -102,11 +123,11 @@ describe("preprocess", () => {
         };
       }
 
-      const results = await collectStreamToArray(
-        preprocessOperationsStreaming(mockStream(), streamTools),
-      );
-
-      expect(results.length).toBe(0);
+      await expect(
+        collectStreamToArray(
+          preprocessOperationsStreaming(mockStream(), streamTools),
+        ),
+      ).rejects.toThrow();
     });
 
     it("should handle empty operation streams", async () => {

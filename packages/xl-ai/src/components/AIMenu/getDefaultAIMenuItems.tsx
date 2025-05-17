@@ -12,6 +12,7 @@ import {
   RiCheckLine,
   RiEarthLine,
   RiListCheck3,
+  RiLoopLeftFill,
   RiMagicLine,
   RiText,
   RiTextWrap,
@@ -32,7 +33,7 @@ export type AIMenuSuggestionItem = Omit<
  * Default items we show in the AI Menu when there is no selection active.
  * For example, when the AI menu is triggered via the slash menu
  */
-export function getDefaultAIMenuItemsWithoutSelection<
+function getDefaultAIMenuItemsWithoutSelection<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
@@ -113,7 +114,7 @@ export function getDefaultAIMenuItemsWithoutSelection<
  * Default items we show in the AI Menu when there is a selection active.
  * For example, when the AI menu is triggered via formatting toolbar (AIToolbarButton)
  */
-export function getDefaultAIMenuItemsWithSelection<
+function getDefaultAIMenuItemsWithSelection<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
@@ -196,7 +197,7 @@ export function getDefaultAIMenuItemsWithSelection<
 /**
  * Default items we show in the AI Menu when the AI response is done.
  */
-export function getDefaultAIMenuItemsForReview<
+function getDefaultAIMenuItemsForReview<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
@@ -231,34 +232,57 @@ export function getDefaultAIMenuItemsForReview<
 /**
  * Default items we show in the AI Menu when the AI response is done.
  */
-// export function getDefaultAIMenuItemsForError<
-//   BSchema extends BlockSchema,
-//   I extends InlineContentSchema,
-//   S extends StyleSchema,
-// >(editor: BlockNoteEditor<BSchema, I, S>): AIMenuSuggestionItem[] {
-//   const dict = getAIDictionary(editor);
-//   const ai = getAIExtension(editor);
+function getDefaultAIMenuItemsForError<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema,
+>(editor: BlockNoteEditor<BSchema, I, S>): AIMenuSuggestionItem[] {
+  const dict = getAIDictionary(editor);
+  const ai = getAIExtension(editor);
 
-//   return [
-//     {
-//       key: "retry",
-//       title: dict.ai_menu.retry.title,
-//       aliases: dict.ai_menu.retry.aliases,
-//       icon: <RiLoopLeftFill size={18} />,
-//       onItemClick: () => {
+  return [
+    {
+      key: "retry",
+      title: dict.ai_menu.actions.retry.title,
+      aliases: dict.ai_menu.actions.retry.aliases,
+      icon: <RiLoopLeftFill size={18} />,
+      onItemClick: async () => {
+        await ai.retry();
+      },
+      size: "small",
+    },
+    {
+      key: "cancel",
+      title: dict.ai_menu.actions.cancel.title,
+      aliases: dict.ai_menu.actions.cancel.aliases,
+      icon: <RiArrowGoBackFill size={18} />,
+      onItemClick: () => {
+        ai.rejectChanges();
+      },
+      size: "small",
+    },
+  ];
+}
 
-//       },
-//       size: "small",
-//     },
-//     {
-//       key: "cancel",
-//       title: dict.ai_menu.cancel.title,
-//       aliases: dict.ai_menu.cancel.aliases,
-//       icon: <RiArrowGoBackFill size={18} />,
-//       onItemClick: () => {
-//         ai.rejectChanges();
-//       },
-//       size: "small",
-//     },
-//   ];
-// }
+export function getDefaultAIMenuItems(
+  editor: BlockNoteEditor<any, any, any>,
+  aiResponseStatus:
+    | "user-input"
+    | "thinking"
+    | "ai-writing"
+    | "error"
+    | "user-reviewing"
+    | "closed",
+): AIMenuSuggestionItem[] {
+  if (aiResponseStatus === "user-input") {
+    return editor.getSelection()
+      ? getDefaultAIMenuItemsWithSelection(editor)
+      : getDefaultAIMenuItemsWithoutSelection(editor);
+  } else if (aiResponseStatus === "user-reviewing") {
+    return getDefaultAIMenuItemsForReview(editor);
+  } else if (aiResponseStatus === "error") {
+    return getDefaultAIMenuItemsForError(editor);
+  } else {
+    return [];
+  }
+}

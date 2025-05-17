@@ -26,7 +26,28 @@ export const proxyFetch: typeof fetch = async (request, options) => {
     ([k]) => !ignoreHeadersRe.test(k) && k !== "strict-transport-security",
   );
 
-  return new Response(res.body, {
+  const readable = res.body;
+
+  // For debugging purposes, we can log the chunks as they stream:
+
+  // const { readable, writable } = new TransformStream({
+  //   async transform(chunk, controller) {
+  //     // Log each chunk as it passes through
+
+  //     // optional, wait to test streaming mode
+  //     // await new Promise((resolve) => setTimeout(resolve, 3000));
+
+  //     console.log("Streaming chunk:", new TextDecoder().decode(chunk));
+  //     controller.enqueue(chunk);
+  //   },
+  // });
+
+  // // Pipe the response body through our transform stream
+  // res.body?.pipeTo(writable).catch((err) => {
+  //   console.error("Error in stream:", err);
+  // });
+
+  return new Response(readable, {
     ...res,
     status: res.status,
     statusText: res.statusText,

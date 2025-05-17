@@ -1,5 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
-import { generateObject, LanguageModelV1, streamObject } from "ai";
+import { CoreMessage, generateObject, LanguageModelV1, streamObject } from "ai";
 import {
   generateOperations,
   streamOperations,
@@ -19,6 +19,10 @@ export type LLMRequestOptions = {
    * The user prompt to use for the LLM call
    */
   userPrompt: string;
+  /**
+   * Previous response from the LLM, used for multi-step LLM calls
+   */
+  previousResponse?: LLMResponse;
   /**
    * The default data format to use for LLM calls
    * "html" is recommended, the other formats are experimental
@@ -124,6 +128,7 @@ export async function doLLMRequest(
     onStart,
     withDelays,
     dataFormat,
+    previousResponse,
     ...rest
   } = {
     maxRetries: 2,
@@ -150,10 +155,37 @@ export async function doLLMRequest(
     ? editor.getSelectionCutBlocks()
     : undefined;
 
+  let previousMessages: CoreMessage[] | undefined = undefined;
+
+  if (previousResponse) {
+    previousMessages = previousResponse.messages;
+    /*
+    We currently insert these messages as "assistant" string messages.
+    When using Tools, the "official" pattern for this is to use a "tool_result" message.
+    We might need to switch to this, but it would require more research whether:
+    - we maybe should switch to streamText / generateText instead of streamObject / generateObject
+      (this has built in access to `response.messages` on the AI SDK level)
+    - but, we need to make research whether tool calls are always way to go. 
+      generateObject / streamObject can also use structured outputs, and this
+      might be yielding better results than tool calls.
+
+    For now, this approach works ok.
+    */
+    previousMessages.push({
+      role: "assistant",
+      content:
+        "These are the operations returned by a previous LLM call: \n" +
+        JSON.stringify(
+          await previousResponse.llmResult.getGeneratedOperations(),
+        ),
+    });
+  }
+
   const messages = await promptBuilder(editor, {
     selectedBlocks: selectionInfo?.blocks,
     userPrompt,
     excludeBlockIds: deleteCursorBlock ? [deleteCursorBlock] : undefined,
+    previousMessages,
   });
 
   const streamTools = getStreamTools(
@@ -195,5 +227,5 @@ export async function doLLMRequest(
     onStart?.();
   }
 
-  return new LLMResponse(response, streamTools);
+  return new LLMResponse(messages, response, streamTools);
 }

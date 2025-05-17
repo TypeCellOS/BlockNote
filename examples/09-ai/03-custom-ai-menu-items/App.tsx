@@ -20,9 +20,7 @@ import {
   createAIExtension,
   createBlockNoteAIClient,
   getAISlashMenuItems,
-  getDefaultAIMenuItemsForReview,
-  getDefaultAIMenuItemsWithSelection,
-  getDefaultAIMenuItemsWithoutSelection,
+  getDefaultAIMenuItems,
 } from "@blocknote/xl-ai";
 import "@blocknote/xl-ai/style.css";
 import { getEnv } from "./getEnv.js";
@@ -145,9 +143,8 @@ function CustomAIMenu() {
           // opened via the Formatting Toolbar or the Slash Menu.
           if (editor.getSelection()) {
             return [
-              // Gets the default AI Menu items for when it's opened via
-              // the Formatting Toolbar.
-              ...getDefaultAIMenuItemsWithSelection(editor),
+              // Gets the default AI Menu items
+              ...getDefaultAIMenuItems(editor, aiResponseStatus),
               // Adds our custom item to make the text more casual.
               // Only appears when the AI Menu is opened via the
               // Formatting Toolbar.
@@ -155,9 +152,8 @@ function CustomAIMenu() {
             ];
           } else {
             return [
-              // Gets the default AI Menu items for when it's opened
-              // via the Slash Menu.
-              ...getDefaultAIMenuItemsWithoutSelection(editor),
+              // Gets the default AI Menu items
+              ...getDefaultAIMenuItems(editor, aiResponseStatus),
               // Adds our custom item to find related topics. Only
               // appears when the AI Menu is opened via the Slash
               // Menu.
@@ -165,16 +161,8 @@ function CustomAIMenu() {
             ];
           }
         }
-
-        if (aiResponseStatus === "user-reviewing") {
-          // Returns different items once the AI has finished writing,
-          // so the user can choose to accept or reject the changes.
-          return getDefaultAIMenuItemsForReview(editor);
-        }
-
-        // Return no items in other states, e.g. when the AI is writing
-        // or when an error occurred.
-        return [];
+        // for other states, return the default items
+        return getDefaultAIMenuItems(editor, aiResponseStatus);
       }}
     />
   );
