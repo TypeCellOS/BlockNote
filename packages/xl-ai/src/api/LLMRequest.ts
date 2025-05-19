@@ -151,9 +151,7 @@ export async function doLLMRequest(
       ? cursorBlock.id
       : undefined;
 
-  const selectionInfo = useSelection
-    ? editor.getSelectionCutBlocks()
-    : undefined;
+  const selectionInfo = useSelection ? editor.getSelection() : undefined;
 
   let previousMessages: CoreMessage[] | undefined = undefined;
 
@@ -182,7 +180,7 @@ export async function doLLMRequest(
   }
 
   const messages = await promptBuilder(editor, {
-    selectedBlocks: selectionInfo?.blocks,
+    selectedBlocks: selectionInfo?.cutBlocks,
     userPrompt,
     excludeBlockIds: deleteCursorBlock ? [deleteCursorBlock] : undefined,
     previousMessages,

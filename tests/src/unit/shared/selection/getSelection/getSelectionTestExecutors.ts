@@ -9,7 +9,7 @@ import {
 import { GetSelectionTestCase } from "./getSelectionTestCase.js";
 import { initTestEditor } from "../../testUtil.js";
 
-export const testGetSelectionRegular = async <
+export const testGetSelection = async <
   B extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
@@ -19,26 +19,9 @@ export const testGetSelectionRegular = async <
 ) => {
   initTestEditor(editor, testCase.document, testCase.getSelection);
 
-  const blockNoteSelection = editor.getSelectionCutBlocks();
+  const blockNoteSelection = editor.getSelection();
 
   await expect(
     JSON.stringify(blockNoteSelection, undefined, 2),
-  ).toMatchFileSnapshot(`./__snapshots__/regular/${testCase.name}.json`);
-};
-
-export const testGetSelectionCutBlocks = async <
-  B extends BlockSchema,
-  I extends InlineContentSchema,
-  S extends StyleSchema,
->(
-  editor: BlockNoteEditor<B, I, S>,
-  testCase: GetSelectionTestCase<B, I, S>,
-) => {
-  initTestEditor(editor, testCase.document, testCase.getSelection);
-
-  const blockNoteSelection = editor.getSelectionCutBlocks();
-
-  await expect(
-    JSON.stringify(blockNoteSelection, undefined, 2),
-  ).toMatchFileSnapshot(`./__snapshots__/cutBlocks/${testCase.name}.json`);
+  ).toMatchFileSnapshot(`./__snapshots__/${testCase.name}.json`);
 };

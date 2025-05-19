@@ -1,0 +1,78 @@
+{
+  "blocks": [
+    {
+      "id": "1",
+      "type": "paragraph",
+      "props": {
+        "textColor": "default",
+        "backgroundColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Paragraph 1",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "2",
+      "type": "paragraph",
+      "props": {
+        "textColor": "default",
+        "backgroundColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Paragraph 2",
+          "styles": {}
+        }
+      ],
+      "children": []
+    }
+  ],
+  "cutBlocks": [
+    {
+      "id": "1",
+      "type": "paragraph",
+      "props": {
+        "textColor": "default",
+        "backgroundColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Paragraph 1",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "2",
+      "type": "paragraph",
+      "props": {
+        "textColor": "default",
+        "backgroundColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Paragraph 2",
+          "styles": {}
+        }
+      ],
+      "children": []
+    }
+  ],
+  "_meta": {
+    "startPos": 3,
+    "endPos": 29
+  }
+}

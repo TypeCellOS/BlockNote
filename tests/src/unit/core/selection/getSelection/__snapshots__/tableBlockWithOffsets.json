@@ -1,8 +1,4 @@
 {
-  "_meta": {
-    "startPos": 53,
-    "endPos": 143
-  },
   "blocks": [
     {
       "id": "1",
@@ -24,7 +20,7 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "irst Table Cell 3",
+                    "text": "Table Cell 1",
                     "styles": {}
                   }
                 ],
@@ -41,7 +37,7 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "First Table Cell 4",
+                    "text": "Table Cell 2",
                     "styles": {}
                   }
                 ],
@@ -54,24 +50,7 @@
                 }
               }
             ]
-          }
-        ]
-      },
-      "children": []
-    },
-    {
-      "id": "2",
-      "type": "table",
-      "props": {
-        "textColor": "default"
-      },
-      "content": {
-        "type": "tableContent",
-        "columnWidths": [
-          null,
-          null
-        ],
-        "rows": [
+          },
           {
             "cells": [
               {
@@ -79,7 +58,7 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "Second Table Cell 1",
+                    "text": "Table Cell 3",
                     "styles": {}
                   }
                 ],
@@ -96,7 +75,7 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "Second Table Cell ",
+                    "text": "Table Cell 4",
                     "styles": {}
                   }
                 ],
@@ -115,6 +94,105 @@
       "children": []
     }
   ],
-  "blockCutAtStart": "1",
-  "blockCutAtEnd": "2"
+  "cutBlocks": [
+    {
+      "id": "1",
+      "type": "table",
+      "props": {
+        "textColor": "default"
+      },
+      "content": {
+        "type": "tableContent",
+        "columnWidths": [
+          null,
+          null
+        ],
+        "rows": [
+          {
+            "cells": [
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "able Cell 1",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Table Cell 2",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Table Cell 3",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Table Cell ",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "children": []
+    }
+  ],
+  "blocksCutAtStart": "1",
+  "blocksCutAtEnd": "1",
+  "_meta": {
+    "startPos": 7,
+    "endPos": 67
+  }
 }

@@ -1,11 +1,7 @@
 {
-  "_meta": {
-    "startPos": 19,
-    "endPos": 74
-  },
   "blocks": [
     {
-      "id": "2",
+      "id": "1",
       "type": "paragraph",
       "props": {
         "textColor": "default",
@@ -15,30 +11,50 @@
       "content": [
         {
           "type": "text",
-          "text": "ested Paragraph 1",
-          "styles": {}
-        }
-      ],
-      "children": []
-    },
-    {
-      "id": "3",
-      "type": "paragraph",
-      "props": {
-        "textColor": "default",
-        "backgroundColor": "default",
-        "textAlignment": "left"
-      },
-      "content": [
-        {
-          "type": "text",
-          "text": "Paragraph 2",
+          "text": "Paragraph 1",
           "styles": {}
         }
       ],
       "children": [
         {
-          "id": "4",
+          "id": "2",
+          "type": "paragraph",
+          "props": {
+            "textColor": "default",
+            "backgroundColor": "default",
+            "textAlignment": "left"
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Nested Paragraph 1",
+              "styles": {}
+            }
+          ],
+          "children": []
+        }
+      ]
+    }
+  ],
+  "cutBlocks": [
+    {
+      "id": "1",
+      "type": "paragraph",
+      "props": {
+        "textColor": "default",
+        "backgroundColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "aragraph 1",
+          "styles": {}
+        }
+      ],
+      "children": [
+        {
+          "id": "2",
           "type": "paragraph",
           "props": {
             "textColor": "default",
@@ -57,6 +73,10 @@
       ]
     }
   ],
-  "blockCutAtStart": "2",
-  "blockCutAtEnd": "4"
+  "blocksCutAtStart": "1",
+  "blocksCutAtEnd": "2",
+  "_meta": {
+    "startPos": 4,
+    "endPos": 35
+  }
 }

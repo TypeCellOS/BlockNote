@@ -1,3 +1,4 @@
+import { Node } from "prosemirror-model";
 import { TextSelection, type Transaction } from "prosemirror-state";
 import { TableMap } from "prosemirror-tables";
 
@@ -10,10 +11,7 @@ import {
   StyleSchema,
 } from "../../../schema/index.js";
 import { getBlockInfo, getNearestBlockPos } from "../../getBlockInfoFromPos.js";
-import {
-  nodeToBlock,
-  prosemirrorSliceToSlicedBlocks,
-} from "../../nodeConversions/nodeToBlock.js";
+import { nodeToBlock } from "../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../nodeUtil.js";
 import { getBlockNoteSchema, getPmSchema } from "../../pmUtil.js";
 
@@ -36,12 +34,9 @@ export function getSelection<
   );
 
   // Converts the node at the given index and depth around `$startBlockBeforePos`
-  // to a block. Used to get blocks at given indices at the shared depth and
-  // at the depth of `$startBlockBeforePos`.
-  const indexToBlock = (
-    index: number,
-    depth?: number,
-  ): Block<BSchema, I, S> => {
+  // to a `blockContainer` node. Used to get blocks at given indices at the
+  // shared depth and at the depth of `$startBlockBeforePos`.
+  const indexToNode = (index: number, depth?: number): Node => {
     const pos = $startBlockBeforePos.posAtIndex(index, depth);
     const node = tr.doc.resolve(pos).nodeAfter;
 
@@ -51,14 +46,22 @@ export function getSelection<
       );
     }
 
-    return nodeToBlock(node, pmSchema);
+    return node;
   };
 
   const blocks: Block<BSchema, I, S>[] = [];
+
   // Minimum depth at which the blocks share a common ancestor.
   const sharedDepth = $startBlockBeforePos.sharedDepth($endBlockBeforePos.pos);
   const startIndex = $startBlockBeforePos.index(sharedDepth);
   const endIndex = $endBlockBeforePos.index(sharedDepth);
+  const withinSingleBlock = startIndex === endIndex;
+
+  let startNode: Node | undefined = undefined;
+  let endNode: Node | undefined = undefined;
+
+  let cutStartNode: Node | undefined = undefined;
+  let cutEndNode: Node | undefined = undefined;
 
   // In most cases, we want to return the blocks spanned by the selection at the
   // shared depth. However, when the block in which the selection starts is at a
@@ -92,7 +95,8 @@ export function getSelection<
   // [ id-2, id-3, id-4, id-6, id-7, id-8, id-9 ]
   if ($startBlockBeforePos.depth > sharedDepth) {
     // Adds the block that the selection starts in.
-    blocks.push(nodeToBlock($startBlockBeforePos.nodeAfter!, pmSchema));
+    startNode = $startBlockBeforePos.nodeAfter!;
+    blocks.push(nodeToBlock(startNode, pmSchema));
 
     // Traverses all depths from the depth of the block in which the selection
     // starts, up to the shared depth.
@@ -106,19 +110,31 @@ export function getSelection<
         // Adds all blocks after the index of the block in which the selection
         // starts (or its ancestors at lower depths).
         for (let i = startIndexAtDepth; i < childCountAtDepth; i++) {
-          blocks.push(indexToBlock(i, depth));
+          const node = indexToNode(i, depth);
+          blocks.push(nodeToBlock(node, pmSchema));
         }
       }
     }
   } else {
     // Adds the first block spanned by the selection at the shared depth.
-    blocks.push(indexToBlock(startIndex, sharedDepth));
+    startNode = indexToNode(startIndex, sharedDepth);
+    blocks.push(nodeToBlock(startNode, pmSchema));
   }
 
   // Adds all blocks spanned by the selection at the shared depth, excluding
-  // the first.
-  for (let i = startIndex + 1; i <= endIndex; i++) {
-    blocks.push(indexToBlock(i, sharedDepth));
+  // the first and last.
+  for (let i = startIndex + 1; i < endIndex; i++) {
+    const node = indexToNode(i, sharedDepth);
+    blocks.push(nodeToBlock(node, pmSchema));
+  }
+
+  if (withinSingleBlock) {
+    endNode = startNode;
+    cutEndNode = cutStartNode;
+  } else {
+    endNode = indexToNode(endIndex, sharedDepth);
+    const endBlock = nodeToBlock(endNode, pmSchema);
+    blocks.push(endBlock);
   }
 
   if (blocks.length === 0) {
@@ -127,8 +143,55 @@ export function getSelection<
     );
   }
 
+  const selectionContent = tr.selection.content().content;
+  selectionContent.descendants((node) => {
+    if (cutStartNode && cutEndNode) {
+      return false;
+    }
+
+    if (
+      node.type.name === startNode.type.name &&
+      node.attrs.id === startNode.attrs.id
+    ) {
+      cutStartNode = node;
+    }
+
+    if (
+      node.type.name === endNode.type.name &&
+      node.attrs.id === endNode.attrs.id
+    ) {
+      cutEndNode = node;
+    }
+
+    return true;
+  });
+
+  const cutBlocks: Block<BSchema, I, S>[] = [];
+  for (let i = 0; i < blocks.length; i++) {
+    if (i === 0) {
+      cutBlocks.push(nodeToBlock(cutStartNode!, pmSchema));
+    } else if (i === blocks.length - 1) {
+      cutBlocks.push(nodeToBlock(cutEndNode!, pmSchema));
+    } else {
+      cutBlocks.push(blocks[i]);
+    }
+  }
+
   return {
     blocks,
+    cutBlocks,
+    blocksCutAtStart:
+      startNode.nodeSize !== cutStartNode!.nodeSize
+        ? $startBlockBeforePos.nodeAfter!.attrs.id
+        : undefined,
+    blocksCutAtEnd:
+      endNode!.nodeSize !== cutEndNode!.nodeSize
+        ? $endBlockBeforePos.nodeAfter!.attrs.id
+        : undefined,
+    _meta: {
+      startPos: tr.selection.from,
+      endPos: tr.selection.to,
+    },
   };
 }
 
@@ -218,48 +281,4 @@ export function setSelection(
   //  which nodes are selected. `TextSelection` is ok for now, but has the
   //  restriction that the start/end blocks must have content.
   tr.setSelection(TextSelection.create(tr.doc, startPos, endPos));
-}
-
-export function getSelectionCutBlocks(tr: Transaction) {
-  // TODO: fix image node selection
-
-  const pmSchema = getPmSchema(tr);
-  let start = tr.selection.$from;
-  let end = tr.selection.$to;
-
-  // the selection moves below are used to make sure `prosemirrorSliceToSlicedBlocks` returns
-  // the correct information about whether content is cut at the start or end of a block
-
-  // if the end is at the end of a node (|</span></p>) move it forward so we include all closing tags (</span></p>|)
-  while (end.parentOffset >= end.parent.nodeSize - 2 && end.depth > 0) {
-    end = tr.doc.resolve(end.pos + 1);
-  }
-
-  // if the end is at the start of an empty node (</span></p><p>|) move it backwards so we drop empty start tags (</span></p>|)
-  while (end.parentOffset === 0 && end.depth > 0) {
-    end = tr.doc.resolve(end.pos - 1);
-  }
-
-  // if the start is at the start of a node (<p><span>|) move it backwards so we include all open tags (|<p><span>)
-  while (start.parentOffset === 0 && start.depth > 0) {
-    start = tr.doc.resolve(start.pos - 1);
-  }
-
-  // if the start is at the end of a node (|</p><p><span>|) move it forwards so we drop all closing tags (|<p><span>)
-  while (start.parentOffset >= start.parent.nodeSize - 2 && start.depth > 0) {
-    start = tr.doc.resolve(start.pos + 1);
-  }
-
-  const selectionInfo = prosemirrorSliceToSlicedBlocks(
-    tr.doc.slice(start.pos, end.pos, true),
-    pmSchema,
-  );
-
-  return {
-    _meta: {
-      startPos: start.pos,
-      endPos: end.pos,
-    },
-    ...selectionInfo,
-  };
 }

@@ -33,7 +33,6 @@ import {
 import { insertContentAt } from "../api/blockManipulation/insertContentAt.js";
 import {
   getSelection,
-  getSelectionCutBlocks,
   setSelection,
 } from "../api/blockManipulation/selections/selection.js";
 import {
@@ -1139,17 +1138,6 @@ export class BlockNoteEditor<
    */
   public getSelection(): Selection<BSchema, ISchema, SSchema> | undefined {
     return this.transact((tr) => getSelection(tr));
-  }
-
-  /**
-   * Gets a snapshot of the current selection. This contains all blocks (included nested blocks)
-   * that the selection spans across.
-   *
-   * If the selection starts / ends halfway through a block, the returned block will be
-   * only the part of the block that is included in the selection.
-   */
-  public getSelectionCutBlocks() {
-    return this.transact((tr) => getSelectionCutBlocks(tr));
   }
 
   /**
