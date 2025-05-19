@@ -3,22 +3,24 @@ import type { AIDictionary } from "../dictionary";
 export const vi: AIDictionary = {
   formatting_toolbar: {
     ai: {
-      tooltip: "Tạo nội dung",
-      input_placeholder: "Nhập lệnh",
-      thinking: "Đang suy nghĩ",
-      editing: "Đang chỉnh sửa",
-      error: "Đã xảy ra lỗi",
+      tooltip: "Chỉnh sửa với AI",
     },
   },
   slash_menu: {
     ai: {
       title: "Hỏi AI",
-      subtext: "Tiếp tục viết với AI",
-      aliases: ["ai", "artificial intelligence", "generate"],
+      subtext: "Viết với AI",
+      aliases: [
+        "ai",
+        "artificial intelligence",
+        "llm",
+        "assistant",
+        "generate",
+      ],
       group: "AI",
     },
   },
-  ai_menu: {
+  ai_default_commands: {
     continue_writing: {
       title: "Tiếp tục Viết",
       aliases: undefined,
@@ -53,8 +55,19 @@ export const vi: AIDictionary = {
       title: "Cải thiện bài viết",
       aliases: undefined,
     },
-    accept: { title: "Chấp nhận", aliases: undefined },
-    retry: { title: "Thử lại", aliases: undefined },
-    revert: { title: "Hoàn tác", aliases: undefined },
+  },
+  ai_menu: {
+    input_placeholder: "Hỏi AI bất cứ điều gì…",
+    status: {
+      thinking: "Đang suy nghĩ…",
+      editing: "Đang chỉnh sửa…",
+      error: "Rất tiếc! Đã xảy ra lỗi",
+    },
+    actions: {
+      accept: { title: "Chấp nhận", aliases: undefined },
+      retry: { title: "Thử lại", aliases: undefined },
+      cancel: { title: "Hủy bỏ", aliases: undefined },
+      revert: { title: "Hoàn tác", aliases: undefined },
+    },
   },
 };

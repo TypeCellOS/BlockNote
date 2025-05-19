@@ -3,22 +3,24 @@ import type { AIDictionary } from "../dictionary";
 export const ar: AIDictionary = {
   formatting_toolbar: {
     ai: {
-      tooltip: "إنشاء محتوى",
-      input_placeholder: "أدخل طلبًا",
-      thinking: "جارِ التفكير",
-      editing: "تحرير",
-      error: "حدث خطأ",
+      tooltip: "تحرير بالذكاء الاصطناعي",
     },
   },
   slash_menu: {
     ai: {
       title: "اسأل الذكاء الاصطناعي",
-      subtext: "متابعة الكتابة بالذكاء الاصطناعي",
-      aliases: ["ai", "artificial intelligence", "generate"],
+      subtext: "الكتابة بالذكاء الاصطناعي",
+      aliases: [
+        "ai",
+        "artificial intelligence",
+        "llm",
+        "assistant",
+        "generate",
+      ],
       group: "الذكاء الاصطناعي",
     },
   },
-  ai_menu: {
+  ai_default_commands: {
     continue_writing: {
       title: "متابعة الكتابة",
       aliases: undefined,
@@ -53,8 +55,19 @@ export const ar: AIDictionary = {
       title: "تحسين الكتابة",
       aliases: undefined,
     },
-    accept: { title: "قبول", aliases: undefined },
-    retry: { title: "إعادة المحاولة", aliases: undefined },
-    revert: { title: "استعادة", aliases: undefined },
+  },
+  ai_menu: {
+    input_placeholder: "اسأل الذكاء الاصطناعي أي شيء…",
+    status: {
+      thinking: "جاري التفكير…",
+      editing: "جاري التحرير…",
+      error: "عذراً! حدث خطأ ما",
+    },
+    actions: {
+      accept: { title: "قبول", aliases: undefined },
+      retry: { title: "إعادة المحاولة", aliases: undefined },
+      cancel: { title: "إلغاء", aliases: undefined },
+      revert: { title: "استعادة", aliases: undefined },
+    },
   },
 };

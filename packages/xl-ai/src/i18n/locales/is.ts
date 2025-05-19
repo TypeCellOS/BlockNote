@@ -3,22 +3,24 @@ import type { AIDictionary } from "../dictionary";
 export const is: AIDictionary = {
   formatting_toolbar: {
     ai: {
-      tooltip: "Búa til efni",
-      input_placeholder: "Sláðu inn leiðbeiningar",
-      thinking: "Hugsa",
-      editing: "Breyta",
-      error: "Villa kom upp",
+      tooltip: "Breyta með gervigreind",
     },
   },
   slash_menu: {
     ai: {
       title: "Spyrja gervigreind",
-      subtext: "Halda áfram að skrifa með gervigreind",
-      aliases: ["ai", "artificial intelligence", "generate"],
+      subtext: "Skrifa með gervigreind",
+      aliases: [
+        "ai",
+        "artificial intelligence",
+        "llm",
+        "assistant",
+        "generate",
+      ],
       group: "Gervigreind",
     },
   },
-  ai_menu: {
+  ai_default_commands: {
     continue_writing: {
       title: "Halda áfram að skrifa",
       aliases: undefined,
@@ -53,8 +55,19 @@ export const is: AIDictionary = {
       title: "Bæta ritun",
       aliases: undefined,
     },
-    accept: { title: "Samþykkja", aliases: undefined },
-    retry: { title: "Reyna aftur", aliases: undefined },
-    revert: { title: "Afturkalla", aliases: undefined },
+  },
+  ai_menu: {
+    input_placeholder: "Spyrðu gervigreind um hvað sem er…",
+    status: {
+      thinking: "Hugsa…",
+      editing: "Breyta…",
+      error: "Ups! Eitthvað fór úrskeiðis",
+    },
+    actions: {
+      accept: { title: "Samþykkja", aliases: undefined },
+      retry: { title: "Reyna aftur", aliases: undefined },
+      cancel: { title: "Hætta við", aliases: undefined },
+      revert: { title: "Afturkalla", aliases: undefined },
+    },
   },
 };

@@ -7,10 +7,10 @@ import { deleteOperationTestCases } from "../../../../testUtil/cases/deleteOpera
 import { DocumentOperationTestCase } from "../../../../testUtil/cases/index.js";
 import { updateOperationTestCases } from "../../../../testUtil/cases/updateOperationTestCases.js";
 import { createAsyncIterableStreamFromAsyncIterable } from "../../../../util/stream.js";
+import { LLMResponse } from "../../../LLMResponse.js";
 import { AddBlocksToolCall } from "../../base-tools/createAddBlocksTool.js";
 import { UpdateBlockToolCall } from "../../base-tools/createUpdateBlockTool.js";
 import { DeleteBlockToolCall } from "../../base-tools/delete.js";
-import { CallLLMResult } from "../../CallLLMResult.js";
 import { tools } from "./index.js";
 
 // Helper function to create a mock stream from operations
@@ -55,11 +55,14 @@ async function executeTestCase(
     ...testCase.baseToolCalls.map((u) => ({ operation: u })),
   );
 
-  const result = new CallLLMResult(
+  // bit hacky way to instantiate an LLMResponse just so we can call execute
+  const result = new LLMResponse(
+    undefined as any,
     {
       operationsSource: createAsyncIterableStreamFromAsyncIterable(stream),
       streamObjectResult: undefined,
       generateObjectResult: undefined,
+      getGeneratedOperations: undefined as any,
     },
     streamTools,
   );

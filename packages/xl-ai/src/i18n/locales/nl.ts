@@ -3,22 +3,24 @@ import type { AIDictionary } from "../dictionary";
 export const nl: AIDictionary = {
   formatting_toolbar: {
     ai: {
-      tooltip: "Inhoud genereren",
-      input_placeholder: "Voer een prompt in",
-      thinking: "Denken",
-      editing: "Bewerken",
-      error: "Er is een fout opgetreden",
+      tooltip: "Bewerken met AI",
     },
   },
   slash_menu: {
     ai: {
       title: "Vraag AI",
-      subtext: "Schrijf verder met AI",
-      aliases: ["ai", "artificial intelligence", "generate"],
+      subtext: "Schrijf met AI",
+      aliases: [
+        "ai",
+        "artificial intelligence",
+        "llm",
+        "assistant",
+        "generate",
+      ],
       group: "AI",
     },
   },
-  ai_menu: {
+  ai_default_commands: {
     continue_writing: {
       title: "Schrijven Voortzetten",
       aliases: undefined,
@@ -53,8 +55,19 @@ export const nl: AIDictionary = {
       title: "Schrijven Verbeteren",
       aliases: undefined,
     },
-    accept: { title: "Accepteren", aliases: undefined },
-    retry: { title: "Opnieuw Proberen", aliases: undefined },
-    revert: { title: "Terugdraaien", aliases: undefined },
+  },
+  ai_menu: {
+    input_placeholder: "Vraag AI iets…",
+    status: {
+      thinking: "Denken…",
+      editing: "Bewerken…",
+      error: "Oeps! Er is iets misgegaan",
+    },
+    actions: {
+      accept: { title: "Accepteren", aliases: undefined },
+      retry: { title: "Opnieuw Proberen", aliases: undefined },
+      cancel: { title: "Annuleren", aliases: undefined },
+      revert: { title: "Terugdraaien", aliases: undefined },
+    },
   },
 };

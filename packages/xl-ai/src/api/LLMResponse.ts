@@ -1,14 +1,19 @@
-import { OperationsResult } from "../../streamTool/callLLMWithStreamTools.js";
-import { StreamTool, StreamToolCall } from "../../streamTool/streamTool.js";
+import { CoreMessage } from "ai";
+import { OperationsResult } from "../streamTool/callLLMWithStreamTools.js";
+import { StreamTool, StreamToolCall } from "../streamTool/streamTool.js";
 
 /**
  * Result of an LLM call with stream tools that apply changes to a BlockNote Editor
  */
-export class CallLLMResult {
+export class LLMResponse {
   /**
    * @internal
    */
   constructor(
+    /**
+     * The messages sent to the LLM
+     */
+    public readonly messages: CoreMessage[],
     /**
      * Result of the underlying LLM call. Use this to access operations the LLM decided to execute, but without applying them.
      * (usually this is only used for advanced used cases or debugging)

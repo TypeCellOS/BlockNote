@@ -9,12 +9,10 @@ import { useAIDictionary } from "../../i18n/useAIDictionary.js";
 import { PromptSuggestionMenu } from "./PromptSuggestionMenu.js";
 import {
   AIMenuSuggestionItem,
-  getDefaultAIActionMenuItems,
-  getDefaultAIMenuItemsWithSelection,
-  getDefaultAIMenuItemsWithoutSelection,
+  getDefaultAIMenuItems,
 } from "./getDefaultAIMenuItems.js";
 
-export const AIMenu = (props: {
+export type AIMenuProps = {
   items?: (
     editor: BlockNoteEditor<any, any, any>,
     aiResponseStatus:
@@ -26,7 +24,9 @@ export const AIMenu = (props: {
       | "closed",
   ) => AIMenuSuggestionItem[];
   onManualPromptSubmit?: (userPrompt: string) => void;
-}) => {
+};
+
+export const AIMenu = (props: AIMenuProps) => {
   const editor = useBlockNoteEditor();
   const [prompt, setPrompt] = useState("");
   const dict = useAIDictionary();
@@ -48,13 +48,7 @@ export const AIMenu = (props: {
     if (externalItems) {
       items = externalItems(editor, aiResponseStatus);
     } else {
-      if (aiResponseStatus === "user-input") {
-        items = editor.getSelection()
-          ? getDefaultAIMenuItemsWithSelection(editor)
-          : getDefaultAIMenuItemsWithoutSelection(editor);
-      } else if (aiResponseStatus === "user-reviewing") {
-        items = getDefaultAIActionMenuItems(editor);
-      }
+      items = getDefaultAIMenuItems(editor, aiResponseStatus);
     }
 
     // map from AI items to React Items required by PromptSuggestionMenu
@@ -80,21 +74,21 @@ export const AIMenu = (props: {
 
   useEffect(() => {
     // TODO: this is a bit hacky to run a useeffect to reset the prompt when the AI response is done
-    if (aiResponseStatus === "user-reviewing") {
+    if (aiResponseStatus === "user-reviewing" || aiResponseStatus === "error") {
       setPrompt("");
     }
   }, [aiResponseStatus]);
 
   const placeholder = useMemo(() => {
     if (aiResponseStatus === "thinking") {
-      return dict.formatting_toolbar.ai.thinking;
+      return dict.ai_menu.status.thinking;
     } else if (aiResponseStatus === "ai-writing") {
-      return dict.formatting_toolbar.ai.editing;
+      return dict.ai_menu.status.editing;
     } else if (aiResponseStatus === "error") {
-      return dict.formatting_toolbar.ai.error;
+      return dict.ai_menu.status.error;
     }
 
-    return dict.formatting_toolbar.ai.input_placeholder;
+    return dict.ai_menu.input_placeholder;
   }, [aiResponseStatus, dict]);
 
   const rightSection = useMemo(() => {
@@ -114,7 +108,8 @@ export const AIMenu = (props: {
             height="1em"
             viewBox="0 -960 960 960"
             width="1em"
-            fill="currentColor">
+            fill="currentColor"
+          >
             <path d="M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm0-160q17 0 28.5-11.5T520-480v-160q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640v160q0 17 11.5 28.5T480-440Zm0 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
           </svg>
         </div>
@@ -134,9 +129,7 @@ export const AIMenu = (props: {
       onPromptTextChange={setPrompt}
       placeholder={placeholder}
       disabled={
-        aiResponseStatus === "thinking" ||
-        aiResponseStatus === "ai-writing" ||
-        aiResponseStatus === "error"
+        aiResponseStatus === "thinking" || aiResponseStatus === "ai-writing"
       }
       icon={
         <div className="bn-combobox-icon">

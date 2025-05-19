@@ -1,6 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { StreamTool } from "../../../streamTool/streamTool.js";
-import { callLLMBase } from "../callLLMBase.js";
 import { defaultMarkdownPromptBuilder } from "./defaultMarkdownPromptBuilder.js";
 import {
   getDataForPromptNoSelection,
@@ -52,16 +51,11 @@ function getStreamTools(
   return streamTools;
 }
 
-export const callLLMMarkdownBlocks = callLLMBase(
-  defaultMarkdownPromptBuilder,
-  getStreamTools,
-);
-
 export const markdownBlocksLLMFormat = {
   /**
-   * Execute an LLM call using HTML blocks as format to be passed to the LLM
+   * Function to get the stream tools that can apply BlockNote Markdown block updates to the editor
    */
-  call: callLLMMarkdownBlocks,
+  getStreamTools,
   /**
    * The default PromptBuilder that determines how a userPrompt is converted to an array of
    * LLM Messages (CoreMessage[])

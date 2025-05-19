@@ -8,13 +8,14 @@ import {
   revertSuggestions,
   suggestChanges,
 } from "@blocknote/prosemirror-suggest-changes";
-import { CoreMessage, LanguageModel } from "ai";
+import { APICallError, LanguageModel, RetryError } from "ai";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { fixTablesKey } from "prosemirror-tables";
 import { createStore, StoreApi } from "zustand/vanilla";
-import { CallLLMResult } from "./api/formats/CallLLMResult.js";
-import { PromptBuilderInput } from "./api/formats/PromptBuilder.js";
-import { llm } from "./api/index.js";
+import { doLLMRequest, LLMRequestOptions } from "./api/LLMRequest.js";
+import { LLMResponse } from "./api/LLMResponse.js";
+import { PromptBuilder } from "./api/formats/PromptBuilder.js";
+import { LLMFormat, llmFormats } from "./api/index.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
 
 type MakeOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
@@ -34,22 +35,29 @@ type AIPluginState = {
    *
    */
   aiMenuState:
-    | {
+    | ({
         blockId: string;
-        status:
-          | "user-input"
-          | "thinking"
-          | "ai-writing"
-          | "error"
-          | "user-reviewing";
-      }
+      } & (
+        | {
+            status: "error";
+            error: any;
+          }
+        | {
+            status: "user-input" | "thinking" | "ai-writing" | "user-reviewing";
+          }
+      ))
     | "closed";
+
+  /**
+   * The previous response from the LLM, used for multi-step LLM calls
+   */
+  llmResponse?: LLMResponse;
 };
 
 /**
  * configuration options for LLM calls that are shared across all calls by default
  */
-type GlobalLLMCallOptions = {
+type GlobalLLMRequestOptions = {
   /**
    * The default language model to use for LLM calls
    */
@@ -59,37 +67,26 @@ type GlobalLLMCallOptions = {
    * "html" is recommended, the other formats are experimental
    * @default html
    */
-  dataFormat?: "html" | "json" | "markdown";
+  dataFormat?: LLMFormat;
   /**
    * Whether to stream the LLM response
    * @default true
    */
   stream?: boolean;
-
-  promptBuilder?: (
-    editor: BlockNoteEditor<any, any, any>,
-    opts: PromptBuilderInput,
-  ) => Promise<Array<CoreMessage>>;
+  /**
+   * A function that can be used to customize the prompt sent to the LLM
+   * @default undefined
+   */
+  promptBuilder?: PromptBuilder;
 };
 
-// parameters that are specific to each call
-type CallSpecificCallLLMOptions = Partial<GlobalLLMCallOptions> & {
-  userPrompt: string;
-  useSelection?: boolean;
-  defaultStreamTools?: {
-    /** Enable the add tool (default: true) */
-    add?: boolean;
-    /** Enable the update tool (default: true) */
-    update?: boolean;
-    /** Enable the delete tool (default: true) */
-    delete?: boolean;
-  };
-  maxRetries?: number;
-};
+type CallSpecificLLMRequestOptions = MakeOptional<LLMRequestOptions, "model">;
 
 const PLUGIN_KEY = new PluginKey(`blocknote-ai-plugin`);
 
 export class AIExtension extends BlockNoteExtension {
+  private previousRequestOptions: CallSpecificLLMRequestOptions | undefined;
+
   public static name(): string {
     return "ai";
   }
@@ -108,13 +105,13 @@ export class AIExtension extends BlockNoteExtension {
   }
 
   /**
-   * Returns a zustand store with the configuration of the AI Extension.
-   * These options are used across all LLM calls by default when calling {@link callLLM}
+   * Returns a zustand store with the global configuration of the AI Extension.
+   * These options are used by default across all LLM calls when calling {@link doLLMRequest}
    */
   public readonly options: ReturnType<
     ReturnType<
       typeof createStore<
-        MakeOptional<Required<GlobalLLMCallOptions>, "promptBuilder">
+        MakeOptional<Required<GlobalLLMRequestOptions>, "promptBuilder">
       >
     >
   >;
@@ -124,9 +121,11 @@ export class AIExtension extends BlockNoteExtension {
    */
   constructor(
     public readonly editor: BlockNoteEditor<any, any, any>,
-    options: GlobalLLMCallOptions & {
+    options: GlobalLLMRequestOptions & {
       /**
-       * The name and color of the agent cursor (optional)
+       * The name and color of the agent cursor
+       *
+       * @default { name: "AI", color: "#8bc6ff" }
        */
       agentCursor?: { name: string; color: string };
     },
@@ -134,9 +133,9 @@ export class AIExtension extends BlockNoteExtension {
     super();
 
     this.options = createStore<
-      MakeOptional<Required<GlobalLLMCallOptions>, "promptBuilder">
+      MakeOptional<Required<GlobalLLMRequestOptions>, "promptBuilder">
     >()((_set) => ({
-      dataFormat: "html",
+      dataFormat: llmFormats.html,
       stream: true,
       ...options,
     }));
@@ -160,7 +159,11 @@ export class AIExtension extends BlockNoteExtension {
       }),
     );
     this.addProsemirrorPlugin(suggestChanges());
-    this.addProsemirrorPlugin(createAgentCursorPlugin(options.agentCursor));
+    this.addProsemirrorPlugin(
+      createAgentCursorPlugin(
+        options.agentCursor || { name: "AI", color: "#8bc6ff" },
+      ),
+    );
   }
 
   /**
@@ -181,8 +184,10 @@ export class AIExtension extends BlockNoteExtension {
    * Close the AI menu
    */
   public closeAIMenu() {
+    this.previousRequestOptions = undefined;
     this._store.setState({
       aiMenuState: "closed",
+      llmResponse: undefined,
     });
     this.editor.setForceSelectionVisible(false);
     this.editor.isEditable = true;
@@ -206,19 +211,58 @@ export class AIExtension extends BlockNoteExtension {
   }
 
   /**
+   * Retry the previous LLM call.
+   *
+   * Only valid if the current status is "error"
+   */
+  public async retry() {
+    const state = this.store.getState().aiMenuState;
+    if (
+      state === "closed" ||
+      state.status !== "error" ||
+      !this.previousRequestOptions
+    ) {
+      throw new Error("retry() is only valid when a previous response failed");
+    }
+    if (
+      state.error instanceof APICallError ||
+      state.error instanceof RetryError
+    ) {
+      // retry the previous call as-is, as there was a network error
+      return this.callLLM(this.previousRequestOptions);
+    } else {
+      // an error occurred while parsing / executing the previous LLM call
+      // give the LLM a chance to fix the error
+      // (Possible improvement: maybe this should be a system prompt instead of the userPrompt)
+      const errorMessage =
+        state.error instanceof Error
+          ? state.error.message
+          : String(state.error);
+
+      return this.callLLM({
+        userPrompt: `An error occured: ${errorMessage}
+            Please retry the previous user request.`,
+      });
+    }
+  }
+
+  /**
    * Update the status of a call to an LLM
    *
    * @warning This method should usually only be used for advanced use-cases
    * if you want to implement how an LLM call is executed. Usually, you should
-   * use {@link callLLM} instead.
+   * use {@link doLLMRequest} instead which will handle the status updates for you.
    */
   public setAIResponseStatus(
     status:
       | "user-input"
       | "thinking"
       | "ai-writing"
-      | "error"
-      | "user-reviewing",
+      | "user-reviewing"
+      | {
+          status: "error";
+          error: any;
+        },
   ) {
     const aiMenuState = this.store.getState().aiMenuState;
     if (aiMenuState === "closed") {
@@ -229,26 +273,43 @@ export class AIExtension extends BlockNoteExtension {
       this.editor.setForceSelectionVisible(false);
     }
 
-    this._store.setState({
-      aiMenuState: {
-        status: status,
-        blockId: aiMenuState.blockId,
-      },
-    });
+    if (typeof status === "object") {
+      if (status.status !== "error") {
+        throw new UnreachableCaseError(status.status);
+      }
+      this._store.setState({
+        aiMenuState: {
+          status: status.status,
+          error: status.error,
+          blockId: aiMenuState.blockId,
+        },
+      });
+    } else {
+      this._store.setState({
+        aiMenuState: {
+          status: status,
+          blockId: aiMenuState.blockId,
+        },
+      });
+    }
   }
 
   /**
    * Execute a call to an LLM and apply the result to the editor
    */
-  public async callLLM(opts: CallSpecificCallLLMOptions) {
+  public async callLLM(opts: CallSpecificLLMRequestOptions) {
     this.setAIResponseStatus("thinking");
 
     try {
-      let ret: CallLLMResult;
-
-      const options = {
+      const requestOptions = {
         ...this.options.getState(),
         ...opts,
+        previousResponse: this.store.getState().llmResponse,
+      };
+      this.previousRequestOptions = requestOptions;
+
+      const ret = await doLLMRequest(this.editor, {
+        ...requestOptions,
         onStart: () => {
           this.setAIResponseStatus("ai-writing");
         },
@@ -261,22 +322,20 @@ export class AIExtension extends BlockNoteExtension {
             },
           });
         },
-      };
-      if (options.dataFormat === "json") {
-        ret = await llm._experimental_json.call(this.editor, options);
-      } else if (options.dataFormat === "markdown") {
-        ret = await llm._experimental_markdown.call(this.editor, options);
-      } else if (options.dataFormat === "html") {
-        ret = await llm.html.call(this.editor, options);
-      } else {
-        throw new UnreachableCaseError(options.dataFormat);
-      }
+      });
+
+      this._store.setState({
+        llmResponse: ret,
+      });
 
       await ret.execute();
 
       this.setAIResponseStatus("user-reviewing");
     } catch (e) {
-      this.setAIResponseStatus("error");
+      this.setAIResponseStatus({
+        status: "error",
+        error: e,
+      });
       // eslint-disable-next-line no-console
       console.warn("Error calling LLM", e);
     }

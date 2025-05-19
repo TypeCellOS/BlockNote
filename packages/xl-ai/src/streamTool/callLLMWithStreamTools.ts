@@ -23,18 +23,11 @@ import {
 } from "./preprocess.js";
 import { Result, StreamTool, StreamToolCall } from "./streamTool.js";
 
-type LLMRequestOptionsInternal = {
+type LLMRequestOptions = {
   model: LanguageModel;
   messages: CoreMessage[];
   maxRetries: number;
 };
-
-type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
-
-export type LLMRequestOptions = Optional<
-  LLMRequestOptionsInternal,
-  "maxRetries"
->;
 
 /**
  * Result of an LLM call with stream tools
@@ -57,6 +50,12 @@ export type OperationsResult<T extends StreamTool<any>[]> = {
     operation: StreamToolCall<T>;
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
+  }>;
+  /**
+   * All tool call operations the LLM decided to execute
+   */
+  getGeneratedOperations: () => Promise<{
+    operations: StreamToolCall<T>[];
   }>;
 };
 
@@ -96,7 +95,6 @@ export async function generateOperations<T extends StreamTool<any>[]>(
     // TODO: further research this and / or make configurable
     // for now stick to "tool" by default as this has been tested mostly
     mode: rest.model.provider === "mistral.chat" ? "auto" : "tool",
-    maxRetries: 2,
     //  - mandatory ones:
     ...rest,
 
@@ -125,6 +123,9 @@ export async function generateOperations<T extends StreamTool<any>[]>(
         );
       }
       return _operationsSource;
+    },
+    async getGeneratedOperations() {
+      return ret.object;
     },
   };
 }
@@ -204,7 +205,6 @@ export async function streamOperations<T extends StreamTool<any>[]>(
     // TODO: further research this and / or make configurable
     // for now stick to "tool" by default as this has been tested mostly
     mode: rest.model.provider === "mistral.chat" ? "auto" : "tool",
-    maxRetries: 2,
     //  - mandatory ones:
     ...rest,
 
@@ -216,6 +216,26 @@ export async function streamOperations<T extends StreamTool<any>[]>(
 
   let _operationsSource: OperationsResult<T>["operationsSource"];
 
+  const [fullStream1, fullStream2] = ret.fullStream.tee();
+
+  // Always consume fullStream2 in the background and store the last operations
+  const allOperationsPromise = (async () => {
+    let lastOperations: { operations: StreamToolCall<T>[] } = {
+      operations: [],
+    };
+    const objectStream = createAsyncIterableStream(
+      partialObjectStream(fullStream2),
+    );
+
+    for await (const chunk of objectStream) {
+      if (chunk && typeof chunk === "object" && "operations" in chunk) {
+        lastOperations = chunk as any;
+      }
+    }
+    return lastOperations;
+  })();
+
+  // Note: we can probably clean this up by switching to streams instead of async iterables
   return {
     streamObjectResult: ret,
     generateObjectResult: undefined,
@@ -225,7 +245,9 @@ export async function streamOperations<T extends StreamTool<any>[]>(
           preprocessOperationsStreaming(
             filterNewOrUpdatedOperations(
               streamOnStartCallback(
-                partialObjectStreamThrowError(ret.fullStream),
+                partialObjectStreamThrowError(
+                  createAsyncIterableStream(fullStream1),
+                ),
                 onStart,
               ),
             ),
@@ -234,6 +256,11 @@ export async function streamOperations<T extends StreamTool<any>[]>(
         );
       }
       return _operationsSource;
+    },
+    async getGeneratedOperations() {
+      // Simply return the stored operations
+      // If the stream hasn't completed yet, this will return the latest available operations
+      return allOperationsPromise;
     },
   };
 }
@@ -255,7 +282,7 @@ async function* streamOnStartCallback<T>(
 // adapted from https://github.com/vercel/ai/blob/5d4610634f119dc394d36adcba200a06f850209e/packages/ai/core/generate-object/stream-object.ts#L1041C7-L1066C1
 // change made to throw errors (with the original they're silently ignored)
 function partialObjectStreamThrowError<PARTIAL>(
-  stream: AsyncIterableStream<ObjectStreamPart<PARTIAL>>,
+  stream: ReadableStream<ObjectStreamPart<PARTIAL>>,
 ): AsyncIterableStream<PARTIAL> {
   return createAsyncIterableStream(
     stream.pipeThrough(
@@ -271,6 +298,34 @@ function partialObjectStreamThrowError<PARTIAL>(
               break;
             case "error":
               controller.error(chunk.error);
+              break;
+            default: {
+              const _exhaustiveCheck: never = chunk;
+              throw new Error(`Unsupported chunk type: ${_exhaustiveCheck}`);
+            }
+          }
+        },
+      }),
+    ),
+  );
+}
+
+// from https://github.com/vercel/ai/blob/5d4610634f119dc394d36adcba200a06f850209e/packages/ai/core/generate-object/stream-object.ts#L1041C7-L1066C1
+function partialObjectStream<PARTIAL>(
+  stream: ReadableStream<ObjectStreamPart<PARTIAL>>,
+): AsyncIterableStream<PARTIAL> {
+  return createAsyncIterableStream(
+    stream.pipeThrough(
+      new TransformStream<ObjectStreamPart<PARTIAL>, PARTIAL>({
+        transform(chunk, controller) {
+          switch (chunk.type) {
+            case "object":
+              controller.enqueue(chunk.object);
+              break;
+            case "text-delta":
+            case "finish":
+              break;
+            case "error":
               break;
             default: {
               const _exhaustiveCheck: never = chunk;

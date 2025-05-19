@@ -2,19 +2,24 @@
   "name": "@blocknote/xl-ai",
   "homepage": "https://github.com/TypeCellOS/BlockNote",
   "private": false,
-  "license": "AGPL-3.0 OR PROPRIETARY",
-  "version": "0.30.0",
+  "sideEffects": [
+    "*.css"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/TypeCellOS/BlockNote.git",
     "directory": "packages/xl-ai"
   },
+  "license": "AGPL-3.0 OR PROPRIETARY",
+  "version": "0.30.0",
   "files": [
     "dist",
     "types",
     "src"
   ],
   "keywords": [
+    "ai",
+    "llm",
     "react",
     "javascript",
     "editor",
@@ -41,18 +46,17 @@
     },
     "./style.css": {
       "import": "./dist/style.css",
-      "require": "./dist/style.css"
+      "require": "./dist/style.css",
+      "style": "./dist/style.css"
     }
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
-    "build-bundled": "tsc && vite build --config vite.config.bundled.ts && git checkout tmp-releases && rm -rf ../../release && mv ../../release-tmp ../../release",
-    "preview": "vite preview",
+    "build": "tsc --build && vite build",
     "lint": "eslint src --max-warnings 0",
-    "clean": "rimraf dist && rimraf types",
     "test": "NODE_EXTRA_CA_CERTS=\"$(mkcert -CAROOT)/rootCA.pem\" vitest --run",
-    "test-watch": "vitest watch"
+    "test-watch": "NODE_EXTRA_CA_CERTS=\"$(mkcert -CAROOT)/rootCA.pem\" vitest watch",
+    "email": "email dev"
   },
   "dependencies": {
     "@ai-sdk/groq": "^1.2.9",
@@ -107,16 +111,12 @@
     "vitest": "^2.0.3"
   },
   "peerDependencies": {
-    "react": "^18",
-    "react-dom": "^18"
+    "react": "^18.0 || ^19.0 || >= 19.0.0-rc",
+    "react-dom": "^18.0 || ^19.0 || >= 19.0.0-rc"
   },
   "eslintConfig": {
     "extends": [
       "../../.eslintrc.js"
     ]
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
   }
 }

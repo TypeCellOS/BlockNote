@@ -9,7 +9,7 @@ const fetchViaBlockNoteAIServer =
     // console.log("fetchViaBlockNoteAIServer", baseURL, provider, request);
     const newRequest = new Request(
       `${baseURL}?provider=${encodeURIComponent(
-        provider
+        provider,
       )}&url=${encodeURIComponent(request.url)}`,
       {
         headers: request.headers,
@@ -18,10 +18,17 @@ const fetchViaBlockNoteAIServer =
         body: init?.body || request.body,
         method: request.method,
         duplex: "half",
-      } as any
+      } as any,
     );
-    const resp = await fetch(newRequest);
-    return resp;
+    try {
+      const resp = await fetch(newRequest);
+      return resp;
+    } catch (e) {
+      // Temp fix for https://github.com/vercel/ai/issues/6370
+      throw new TypeError("fetch failed", {
+        cause: e,
+      });
+    }
   };
 
 /**

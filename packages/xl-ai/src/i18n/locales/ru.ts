@@ -3,22 +3,24 @@ import type { AIDictionary } from "../dictionary";
 export const ru: AIDictionary = {
   formatting_toolbar: {
     ai: {
-      tooltip: "Создать контент",
-      input_placeholder: "Введите запрос",
-      thinking: "Обработка",
-      editing: "Редактирование",
-      error: "Произошла ошибка",
+      tooltip: "Редактировать с помощью ИИ",
     },
   },
   slash_menu: {
     ai: {
       title: "Спросить ИИ",
-      subtext: "Продолжить писать с помощью ИИ",
-      aliases: ["ai", "artificial intelligence", "generate"],
+      subtext: "Писать с помощью ИИ",
+      aliases: [
+        "ai",
+        "artificial intelligence",
+        "llm",
+        "assistant",
+        "generate",
+      ],
       group: "ИИ",
     },
   },
-  ai_menu: {
+  ai_default_commands: {
     continue_writing: {
       title: "Продолжить написание",
       aliases: undefined,
@@ -53,8 +55,19 @@ export const ru: AIDictionary = {
       title: "Улучшить текст",
       aliases: undefined,
     },
-    accept: { title: "Принять", aliases: undefined },
-    retry: { title: "Повторить", aliases: undefined },
-    revert: { title: "Отменить", aliases: undefined },
+  },
+  ai_menu: {
+    input_placeholder: "Спросите ИИ о чем угодно…",
+    status: {
+      thinking: "Думаю…",
+      editing: "Редактирую…",
+      error: "Упс! Что-то пошло не так",
+    },
+    actions: {
+      accept: { title: "Принять", aliases: undefined },
+      retry: { title: "Повторить", aliases: undefined },
+      cancel: { title: "Отменить", aliases: undefined },
+      revert: { title: "Отменить", aliases: undefined },
+    },
   },
 };

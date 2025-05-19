@@ -3,22 +3,24 @@ import type { AIDictionary } from "../dictionary";
 export const zh: AIDictionary = {
   formatting_toolbar: {
     ai: {
-      tooltip: "生成内容",
-      input_placeholder: "输入提示词",
-      thinking: "思考中",
-      editing: "编辑中",
-      error: "发生错误",
+      tooltip: "使用人工智能编辑",
     },
   },
   slash_menu: {
     ai: {
       title: "询问人工智能",
-      subtext: "使用人工智能继续写作",
-      aliases: ["ai", "artificial intelligence", "generate"],
+      subtext: "使用人工智能写作",
+      aliases: [
+        "ai",
+        "artificial intelligence",
+        "llm",
+        "assistant",
+        "generate",
+      ],
       group: "人工智能",
     },
   },
-  ai_menu: {
+  ai_default_commands: {
     continue_writing: {
       title: "继续写作",
       aliases: undefined,
@@ -53,8 +55,19 @@ export const zh: AIDictionary = {
       title: "改进写作",
       aliases: undefined,
     },
-    accept: { title: "接受", aliases: undefined },
-    retry: { title: "重试", aliases: undefined },
-    revert: { title: "恢复", aliases: undefined },
+  },
+  ai_menu: {
+    input_placeholder: "向人工智能提问任何问题…",
+    status: {
+      thinking: "思考中…",
+      editing: "编辑中…",
+      error: "哎呀！出了点问题",
+    },
+    actions: {
+      accept: { title: "接受", aliases: undefined },
+      retry: { title: "重试", aliases: undefined },
+      cancel: { title: "取消", aliases: undefined },
+      revert: { title: "恢复", aliases: undefined },
+    },
   },
 };

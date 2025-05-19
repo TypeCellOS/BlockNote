@@ -3,22 +3,24 @@ import type { AIDictionary } from "../dictionary";
 export const ko: AIDictionary = {
   formatting_toolbar: {
     ai: {
-      tooltip: "콘텐츠 생성",
-      input_placeholder: "프롬프트 입력",
-      thinking: "생각 중",
-      editing: "편집 중",
-      error: "오류가 발생했습니다",
+      tooltip: "AI로 편집하기",
     },
   },
   slash_menu: {
     ai: {
       title: "AI에게 질문하기",
-      subtext: "AI로 계속 작성하기",
-      aliases: ["ai", "artificial intelligence", "generate"],
+      subtext: "AI로 작성하기",
+      aliases: [
+        "ai",
+        "artificial intelligence",
+        "llm",
+        "assistant",
+        "generate",
+      ],
       group: "AI",
     },
   },
-  ai_menu: {
+  ai_default_commands: {
     continue_writing: {
       title: "계속 작성하기",
       aliases: undefined,
@@ -53,8 +55,19 @@ export const ko: AIDictionary = {
       title: "글쓰기 개선",
       aliases: undefined,
     },
-    accept: { title: "수락", aliases: undefined },
-    retry: { title: "다시 시도", aliases: undefined },
-    revert: { title: "되돌리기", aliases: undefined },
+  },
+  ai_menu: {
+    input_placeholder: "AI에게 무엇이든 물어보세요…",
+    status: {
+      thinking: "생각 중…",
+      editing: "편집 중…",
+      error: "죄송합니다! 오류가 발생했습니다",
+    },
+    actions: {
+      accept: { title: "수락", aliases: undefined },
+      retry: { title: "다시 시도", aliases: undefined },
+      cancel: { title: "취소", aliases: undefined },
+      revert: { title: "되돌리기", aliases: undefined },
+    },
   },
 };

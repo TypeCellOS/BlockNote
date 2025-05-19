@@ -558,39 +558,6 @@ exports[`getStepsAsAgent > node attr change 1`] = `
 ]
 `;
 
-exports[`getStepsAsAgent > node type and content change 1`] = `
-[
-  {
-    "prosemirrorSteps": [
-      {
-        "from": 2,
-        "slice": {
-          "content": [
-            {
-              "attrs": {
-                "textAlignment": "left",
-              },
-              "content": [
-                {
-                  "text": "He",
-                  "type": "text",
-                },
-              ],
-              "type": "paragraph",
-            },
-          ],
-          "openEnd": 1,
-        },
-        "stepType": "replace",
-        "to": 5,
-      },
-    ],
-    "selection": undefined,
-    "type": "replace",
-  },
-]
-`;
-
 exports[`getStepsAsAgent > node type change 1`] = `
 [
   {

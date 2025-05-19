@@ -27,7 +27,6 @@ function promptManipulateSelectionHTMLBlocks(opts: {
       role: "system",
       content: JSON.stringify(opts.htmlSelectedBlocks),
     },
-
     {
       role: "system",
       content:
@@ -97,12 +96,74 @@ export const defaultHTMLPromptBuilder: PromptBuilder = async (editor, opts) => {
     const data = await getDataForPromptWithSelection(editor, {
       selectedBlocks: opts.selectedBlocks,
     });
+
+    if (opts.previousMessages) {
+      return [
+        ...opts.previousMessages,
+        {
+          role: "system",
+          content: `After processing the previous response, this is the updated selection.
+            Ignore previous documents, you MUST issue operations against this latest version of the document:`,
+        },
+        {
+          role: "system",
+          content: JSON.stringify(data.htmlSelectedBlocks),
+        },
+        {
+          role: "system",
+          content: "This is the updated entire document:",
+        },
+        {
+          role: "system",
+          content: JSON.stringify(data.htmlDocument),
+        },
+        {
+          role: "system",
+          content: `You SHOULD use "update" operations to update blocks you added / edited previously 
+          (unless the user explicitly asks you otherwise to add or delete other blocks).
+          
+          The user now asks you to do the following:`,
+        },
+        {
+          role: "user",
+          content: opts.userPrompt,
+        },
+      ];
+    }
+
     return promptManipulateSelectionHTMLBlocks({
       ...data,
       userPrompt: opts.userPrompt,
     });
   } else {
     const data = await getDataForPromptNoSelection(editor, opts);
+
+    if (opts.previousMessages) {
+      return [
+        ...opts.previousMessages,
+        {
+          role: "system",
+          content: `After processing the previous response, this is the updated document.
+            Ignore previous documents, you MUST issue operations against this latest version of the document:`,
+        },
+        {
+          role: "system",
+          content: JSON.stringify(data.htmlBlocks),
+        },
+        {
+          role: "system",
+          content: `You SHOULD use "update" operations to update blocks you added / edited previously 
+          (unless the user explicitly asks you otherwise to add or delete other blocks).
+          
+          The user now asks you to do the following:`,
+        },
+        {
+          role: "user",
+          content: opts.userPrompt,
+        },
+      ];
+    }
+
     return promptManipulateDocumentUseHTMLBlocks({
       ...data,
       userPrompt: opts.userPrompt,

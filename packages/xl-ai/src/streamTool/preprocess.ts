@@ -27,11 +27,16 @@ export async function* preprocessOperationsStreaming<
     streamTools,
   );
 
-  // filter valid operations, invalid operations are ignored
+  // filter valid operations, invalid partial operations are ignored
   const validOperationsStream = filterValidOperations(
     validatedOperationsStream,
+    (chunk) => {
+      if (!chunk.isPossiblyPartial) {
+        // only throw if the operation is not possibly partial
+        throw new Error("invalid operation: " + chunk.operation.error);
+      }
+    },
   );
-  // Possible improvement: throw if there's an invalid operation and `isPossiblyPartial` is false
 
   yield* validOperationsStream;
 }
@@ -58,8 +63,8 @@ export async function* preprocessOperationsNonStreaming<
   // filter valid operations, invalid operations should throw an error
   const validOperationsStream = filterValidOperations(
     validatedOperationsStream,
-    (operation) => {
-      throw new Error("invalid operation: " + operation.error);
+    (chunk) => {
+      throw new Error("invalid operation: " + chunk.operation.error);
     },
   );
 

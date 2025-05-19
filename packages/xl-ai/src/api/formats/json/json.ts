@@ -1,6 +1,5 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { StreamTool } from "../../../streamTool/streamTool.js";
-import { callLLMBase } from "../callLLMBase.js";
 import { defaultJSONPromptBuilder } from "./defaultJSONPromptBuilder.js";
 import {
   getDataForPromptNoSelection,
@@ -52,16 +51,11 @@ function getStreamTools(
   return streamTools;
 }
 
-export const callLLMJSON = callLLMBase(
-  defaultJSONPromptBuilder,
-  getStreamTools,
-);
-
 export const jsonLLMFormat = {
   /**
-   * Execute an LLM call using JSON blocks as format to be passed to the LLM
+   * Function to get the stream tools that can apply BlockNote JSON block updates to the editor
    */
-  call: callLLMJSON,
+  getStreamTools,
   /**
    * The default PromptBuilder that determines how a userPrompt is converted to an array of
    * LLM Messages (CoreMessage[])

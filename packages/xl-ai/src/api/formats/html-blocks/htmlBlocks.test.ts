@@ -4,8 +4,10 @@ import { setupServer } from "msw/node";
 import path from "path";
 import { afterAll, afterEach, beforeAll, describe } from "vitest";
 import { testAIModels } from "../../../testUtil/testAIModels.js";
+import { doLLMRequest } from "../../LLMRequest.js";
 import { generateSharedTestCases } from "../tests/sharedTestCases.js";
-import { callLLMHTMLBlocks } from "./htmlBlocks.js";
+import { htmlBlockLLMFormat } from "./htmlBlocks.js";
+
 const BASE_FILE_PATH = path.resolve(
   __dirname,
   "__snapshots__",
@@ -111,8 +113,9 @@ describe("Models", () => {
     })`, () => {
       generateSharedTestCases(
         (editor, options) =>
-          callLLMHTMLBlocks(editor, {
+          doLLMRequest(editor, {
             ...options,
+            dataFormat: htmlBlockLLMFormat,
             model: params.model,
             maxRetries: 0,
             stream: params.stream,
