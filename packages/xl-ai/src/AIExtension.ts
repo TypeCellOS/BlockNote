@@ -35,8 +35,8 @@ type AIPluginState = {
   aiMenuState:
     | ({
         /**
-         * The ID of the block that the AI menu is open at
-         * this changes as the AI is making changes to the document
+         * The ID of the block that the AI menu is opened at.
+         * This changes as the AI is making changes to the document
          */
         blockId: string;
       } & (
@@ -65,19 +65,19 @@ type GlobalLLMRequestOptions = {
    */
   model: LanguageModel;
   /**
+   * Whether to stream the LLM response
+   * @default true
+   */
+  stream?: boolean;
+  /**
    * The default data format to use for LLM calls
    * html format is recommended, the other formats are experimental
    * @default llmFormats.html
    */
   dataFormat?: LLMFormat;
   /**
-   * Whether to stream the LLM response
-   * @default true
-   */
-  stream?: boolean;
-  /**
    * A function that can be used to customize the prompt sent to the LLM
-   * @default undefined
+   * @default the default prompt builder for the selected {@link dataFormat}
    */
   promptBuilder?: PromptBuilder;
 };

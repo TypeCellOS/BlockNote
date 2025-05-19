@@ -1,14 +1,16 @@
 ---
-title: AI Rich Text Editing
+title: Getting Started with BlockNote AI
 description: Add AI functionality to your BlockNote rich text editor
 imageTitle: BlockNote AI
-path: /docs/ai
+path: /docs/ai/getting-started
 ---
 
 import { Example } from "@/components/example";
 import { Callout } from "nextra/components";
 
 # Getting Started with BlockNote AI
+
+This guide walks you through the steps to add AI functionality to your BlockNote rich text editor.
 
 First, install the `@blocknote/xl-ai` package:
 
@@ -53,12 +55,8 @@ Now, you can create the editor with the AI Extension enabled:
 import { createBlockNoteEditor } from "@blocknote/core";
 import { BlockNoteAIExtension } from "@blocknote/xl-ai";
 import {
-  AIToolbarButton,
-  AIMenuController,
   locales as aiLocales,
   createAIExtension,
-  createBlockNoteAIClient,
-  getAISlashMenuItems,
 } from "@blocknote/xl-ai";
 
 const editor = createBlockNoteEditor({
@@ -75,13 +73,17 @@ const editor = createBlockNoteEditor({
 });
 ```
 
-### The `createAIExtension` method
-
-TODO
+See the [API Reference](/docs/ai/reference) for more information on the `createAIExtension` method.
 
 ## Adding AI UI elements
 
 Now, the only thing left to do is to customize the UI elements of your editor.
+We want to:
+
+- add an AI button to the formatting toolbar (shown when selecting text)
+- add an AI option to the slash menu (shown when typing a `/`)
+
+We do this by disabling the default FormattingToolbar and SuggestionMenu and adding our own. See [Changing UI Elements](/docs/ui-components) for more information.
 
 ```tsx
 <BlockNoteView
@@ -104,5 +106,7 @@ Now, the only thing left to do is to customize the UI elements of your editor.
 ```
 
 # Full Example
+
+See the full example code and live demo. Select some text and click the AI (stars) button, or type `/ai` anywhere in the editor to access AI functionality.
 
 <Example name="ai/minimal" />

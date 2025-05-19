@@ -1,4 +1,14 @@
-# Customizing AI Menu Items (commands)
+---
+title: Custom AI Commands
+description: Customize the AI menu items (commands) in your BlockNote rich text editor
+imageTitle: BlockNote AI
+path: /docs/ai/custom-commands
+---
+
+import { Example } from "@/components/example";
+import { Callout } from "nextra/components";
+
+# Custom AI Menu Items (commands)
 
 A central part when users are interacting with the AI agent is the _AI Suggestion Menu_ where users can enter a custom prompt or select a pre-defined command.
 
@@ -8,7 +18,7 @@ This menu is easy to customize so you can expose commands fine-tuned to your app
 
 ## Defining your own commands
 
-First, we define a new AI command, let's create one that makes selected text more casual
+First, we define a new AI command. Let's create one that makes selected text more informal.
 
 ```tsx
 import { AIMenuSuggestionItem, getAIExtension } from "@blocknote/xl-ai";
@@ -39,7 +49,7 @@ export const makeInformal = (
 });
 ```
 
-Now, we let's create a customized AI Menu to show this command when the user has selected some text and opened the AI menu:
+Now, we create a customized AI Menu to show this command when the user has selected some text and opened the AI menu:
 
 ```tsx
 import { AIMenu, getDefaultAIMenuItems } from "@blocknote/xl-ai";
@@ -80,7 +90,7 @@ function CustomAIMenu() {
 
 Now, let's use this custom AI Menu in our app:
 
-````tsx
+```tsx
 <BlockNoteView
         editor={editor}
         formattingToolbar={false}
@@ -106,6 +116,4 @@ Have a look at the full example below, where we also add an AI menu item when no
 # Reference
 
 So far, we've added basic commands to the editor, but it's possible to completely customize low level prompts sent to the LLM.
-To learn in detail about the methods available such as `callLLM`, continue to the [AI reference docs](/docs/ai/reference).
-
-````
+To learn in detail about the `callLLM` method used in this guide, continue to the [AI reference docs](/docs/ai/reference).
