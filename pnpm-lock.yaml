@@ -2688,6 +2688,49 @@ importers:
         specifier: ^5.3.4
         version: 5.4.15(@types/node@22.14.1)(terser@5.39.2)
 
+  examples/07-collaboration/07-forking:
+    dependencies:
+      '@blocknote/ariakit':
+        specifier: latest
+        version: link:../../../packages/ariakit
+      '@blocknote/core':
+        specifier: latest
+        version: link:../../../packages/core
+      '@blocknote/mantine':
+        specifier: latest
+        version: link:../../../packages/mantine
+      '@blocknote/react':
+        specifier: latest
+        version: link:../../../packages/react
+      '@blocknote/shadcn':
+        specifier: latest
+        version: link:../../../packages/shadcn
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+      y-partykit:
+        specifier: ^0.0.25
+        version: 0.0.25
+      yjs:
+        specifier: ^13.6.15
+        version: 13.6.24
+    devDependencies:
+      '@types/react':
+        specifier: ^18.0.25
+        version: 18.3.20
+      '@types/react-dom':
+        specifier: ^18.0.9
+        version: 18.3.5(@types/react@18.3.20)
+      '@vitejs/plugin-react':
+        specifier: ^4.3.1
+        version: 4.3.4(vite@5.4.15(@types/node@22.14.1)(terser@5.39.2))
+      vite:
+        specifier: ^5.3.4
+        version: 5.4.15(@types/node@22.14.1)(terser@5.39.2)
+
   examples/08-extensions/01-tiptap-arrow-conversion:
     dependencies:
       '@blocknote/ariakit':
@@ -2706,7 +2749,7 @@ importers:
         specifier: latest
         version: link:../../../packages/shadcn
       '@tiptap/core':
-        specifier: ^2.12.0
+        specifier: ^2
         version: 2.12.0(@tiptap/pm@2.12.0)
       react:
         specifier: ^18.3.1
@@ -2897,10 +2940,10 @@ importers:
         version: 18.3.5(@types/react@18.3.20)
       '@vitejs/plugin-react':
         specifier: ^4.3.1
-        version: 4.3.4(vite@5.4.15(@types/node@22.14.1)(terser@5.39.0))
+        version: 4.3.4(vite@5.4.15(@types/node@22.14.1)(terser@5.39.2))
       vite:
         specifier: ^5.3.4
-        version: 5.4.15(@types/node@22.14.1)(terser@5.39.0)
+        version: 5.4.15(@types/node@22.14.1)(terser@5.39.2)
 
   examples/vanilla-js/react-vanilla-custom-blocks:
     dependencies:
