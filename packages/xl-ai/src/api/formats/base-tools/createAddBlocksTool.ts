@@ -214,7 +214,6 @@ export function createAddBlocksTool<T>(config: {
 
           for (let i = 0; i < jsonToolCall.blocks.length; i++) {
             const block = jsonToolCall.blocks[i];
-            const doc = editor.prosemirrorState.doc;
             const tr = editor.prosemirrorState.tr;
 
             let agentSteps: AgentStep[] = [];
@@ -231,7 +230,11 @@ export function createAddBlocksTool<T>(config: {
               );
 
               const inverted = steps.map((step) => step.map(tool.invertMap)!);
-              agentSteps = getStepsAsAgent(doc, editor.pmSchema, inverted);
+
+              for (const step of inverted) {
+                tr.step(step.map(tr.mapping)!);
+              }
+              agentSteps = getStepsAsAgent(tr);
               // don't spend time "selecting" the block as an agent, as we're continuing a previous update
               agentSteps = agentSteps.filter((step) => step.type !== "select");
             } else {
@@ -250,7 +253,7 @@ export function createAddBlocksTool<T>(config: {
                 i > 0 ? "after" : operation.position,
               );
               addedBlockIds.push(...ret.map((r) => r.id));
-              agentSteps = getStepsAsAgent(doc, editor.pmSchema, tr.steps);
+              agentSteps = getStepsAsAgent(tr);
             }
 
             if (agentSteps.find((step) => step.type === "replace")) {
