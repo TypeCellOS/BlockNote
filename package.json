@@ -28,6 +28,7 @@
       "better-sqlite3",
       "canvas",
       "esbuild",
+      "msw",
       "nx"
     ]
   },

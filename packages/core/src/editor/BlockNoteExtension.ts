@@ -1,7 +1,9 @@
 import { Plugin } from "prosemirror-state";
 import { EventEmitter } from "../util/EventEmitter.js";
 
-export abstract class BlockNoteExtension extends EventEmitter<any> {
+export abstract class BlockNoteExtension<
+  TEvent extends Record<string, any> = any,
+> extends EventEmitter<TEvent> {
   public static name(): string {
     throw new Error("You must implement the name method in your extension");
   }

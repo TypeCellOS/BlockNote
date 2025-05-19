@@ -21,7 +21,7 @@ export const testTextCursorPositionSetAndGet = async <
 
   editor.setTextCursorPosition("target");
 
-  expect(editor.getTextCursorPosition()).toMatchFileSnapshot(
+  await expect(editor.getTextCursorPosition()).toMatchFileSnapshot(
     `./__snapshots__/${testCase.name}.json`,
   );
 };
