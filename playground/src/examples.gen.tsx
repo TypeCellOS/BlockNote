@@ -1350,6 +1350,30 @@
           "pathFromRoot": "examples/07-collaboration",
           "slug": "collaboration"
         }
+      },
+      {
+        "projectSlug": "forking",
+        "fullSlug": "collaboration/forking",
+        "pathFromRoot": "examples/07-collaboration/07-forking",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "nperez0111",
+          "tags": [
+            "Advanced",
+            "Development",
+            "Collaboration"
+          ],
+          "dependencies": {
+            "y-partykit": "^0.0.25",
+            "yjs": "^13.6.15"
+          } as any
+        },
+        "title": "Collaborative Editing with Forking",
+        "group": {
+          "pathFromRoot": "examples/07-collaboration",
+          "slug": "collaboration"
+        }
       }
     ]
   },

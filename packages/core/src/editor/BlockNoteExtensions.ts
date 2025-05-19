@@ -121,7 +121,7 @@ export const getBlockNoteExtensions = <
     if (opts.collaboration.provider?.awareness) {
       ret["yCursorPlugin"] = new CursorPlugin(opts.collaboration);
     }
-    ret["ForkYDocPlugin"] = new ForkYDocPlugin({
+    ret["forkYDocPlugin"] = new ForkYDocPlugin({
       editor: opts.editor,
       collaboration: opts.collaboration,
     });

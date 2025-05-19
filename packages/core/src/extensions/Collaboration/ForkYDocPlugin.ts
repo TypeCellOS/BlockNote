@@ -95,8 +95,8 @@ export class ForkYDocPlugin extends BlockNoteExtension<{
    * allowing modifications to the document without affecting the remote.
    * These changes can later be rolled back or applied to the remote.
    */
-  public forkYjsSync() {
-    if (this.forkedState) {
+  public fork() {
+    if (this.isForkedFromRemote) {
       return;
     }
 
@@ -138,7 +138,7 @@ export class ForkYDocPlugin extends BlockNoteExtension<{
    * If `keepChanges` is true, any changes that have been made to the forked document will be applied to the original document.
    * Otherwise, the original document will be restored and the changes will be discarded.
    */
-  public resumeYjsSync(keepChanges = false) {
+  public merge({ keepChanges }: { keepChanges: boolean }) {
     if (!this.forkedState) {
       return;
     }
@@ -146,7 +146,7 @@ export class ForkYDocPlugin extends BlockNoteExtension<{
     this.editor._tiptapEditor.unregisterPlugin(ySyncPluginKey);
     this.editor._tiptapEditor.unregisterPlugin(yUndoPluginKey);
 
-    const { originalFragment, forkedFragment } = this.forkedState!;
+    const { originalFragment, forkedFragment } = this.forkedState;
     if (keepChanges) {
       // Apply any changes that have been made to the fork, onto the original doc
       const update = Y.encodeStateAsUpdate(forkedFragment.doc!);
@@ -172,14 +172,3 @@ export class ForkYDocPlugin extends BlockNoteExtension<{
     this.emit("forked", false);
   }
 }
-
-// export const forkYDocPlugin = (
-//   editor: BlockNoteEditor<any, any, any>,
-//   {
-//     collaboration,
-//   }: {
-//     collaboration: BlockNoteEditorOptions<any, any, any>["collaboration"];
-//   },
-// ): BlockNoteExtension<{ forked: boolean }> => {
-//   return new ForkYDocPlugin({ editor, collaboration });
-// };

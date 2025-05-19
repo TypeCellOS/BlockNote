@@ -114,7 +114,8 @@ import {
 import { nestedListsToBlockNoteStructure } from "../api/parsers/html/util/nestedLists.js";
 import { CodeBlockOptions } from "../blocks/CodeBlockContent/CodeBlockContent.js";
 import type { ThreadStore, User } from "../comments/index.js";
-import { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
+import type { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
+import type { ForkYDocPlugin } from "../extensions/Collaboration/ForkYDocPlugin.js";
 import { EventEmitter } from "../util/EventEmitter.js";
 import { BlockNoteExtension } from "./BlockNoteExtension.js";
 
@@ -486,6 +487,7 @@ export class BlockNoteEditor<
 
   private readonly showSelectionPlugin: ShowSelectionPlugin;
 
+  public readonly forkYDocPlugin: ForkYDocPlugin;
   /**
    * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
    * This method should set when creating the editor as this is application-specific.
@@ -646,6 +648,7 @@ export class BlockNoteEditor<
     this.tableHandles = this.extensions["tableHandles"] as any;
     this.comments = this.extensions["comments"] as any;
     this.showSelectionPlugin = this.extensions["showSelection"] as any;
+    this.forkYDocPlugin = this.extensions["forkYDocPlugin"] as any;
 
     if (newOptions.uploadFile) {
       const uploadFile = newOptions.uploadFile;
