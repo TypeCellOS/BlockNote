@@ -33,7 +33,7 @@ export default function App() {
   const [isForked, setIsForked] = useState(false);
 
   useEffect(() => {
-    editor.forkYDocPlugin.on("forked", setIsForked);
+    editor.forkYDocPlugin!.on("forked", setIsForked);
   }, [editor]);
 
   // Renders the editor instance.
@@ -41,7 +41,7 @@ export default function App() {
     <>
       <button
         onClick={() => {
-          editor.forkYDocPlugin.fork();
+          editor.forkYDocPlugin!.fork();
         }}
         disabled={isForked}
       >
@@ -49,7 +49,7 @@ export default function App() {
       </button>
       <button
         onClick={() => {
-          editor.forkYDocPlugin.merge({ keepChanges: true });
+          editor.forkYDocPlugin!.merge({ keepChanges: true });
         }}
         disabled={!isForked}
       >
@@ -57,7 +57,7 @@ export default function App() {
       </button>
       <button
         onClick={() => {
-          editor.forkYDocPlugin.merge({ keepChanges: false });
+          editor.forkYDocPlugin!.merge({ keepChanges: false });
         }}
         disabled={!isForked}
       >
