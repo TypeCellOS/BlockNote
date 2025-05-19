@@ -123,7 +123,7 @@ export function createInlineContentSpec<
 
     addNodeView() {
       return ({ node, getPos }) => {
-        const editor = this.options.editor;
+        const editor = this.options.editor as BlockNoteEditor<any, any, S>;
 
         const output = inlineContentImplementation.render(
           nodeToCustomInlineContent(
@@ -138,12 +138,8 @@ export function createInlineContentSpec<
 
             const content = inlineContentToNodes([update], editor.pmSchema);
 
-            editor.dispatch(
-              editor.prosemirrorView.state.tr.replaceWith(
-                getPos(),
-                getPos() + node.nodeSize,
-                content,
-              ),
+            editor.transact((tr) =>
+              tr.replaceWith(getPos(), getPos() + node.nodeSize, content),
             );
           },
           editor,
