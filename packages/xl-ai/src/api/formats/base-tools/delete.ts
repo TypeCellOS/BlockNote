@@ -1,6 +1,6 @@
 import { BlockNoteEditor, removeAndInsertBlocks } from "@blocknote/core";
 import {
-  agentStepToTr,
+  applyAgentStep,
   delayAgentStep,
   getStepsAsAgent,
 } from "../../../prosemirror/agent.js";
@@ -101,7 +101,7 @@ export const deleteBlockTool = (
             await delayAgentStep(step);
           }
           editor.transact((tr) => {
-            agentStepToTr(tr, step);
+            applyAgentStep(tr, step);
           });
           options.onBlockUpdate?.(operation.id);
         }

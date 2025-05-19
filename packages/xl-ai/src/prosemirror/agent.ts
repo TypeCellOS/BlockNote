@@ -249,7 +249,7 @@ export async function delayAgentStep(step: AgentStep) {
   }
 }
 
-export function agentStepToTr(tr: Transaction, step: AgentStep) {
+export function applyAgentStep(tr: Transaction, step: AgentStep) {
   tr.setMeta("addToHistory", false);
 
   if (step.selection) {

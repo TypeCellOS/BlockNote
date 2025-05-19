@@ -9,7 +9,7 @@ import {
 } from "../testUtil/cases/index.js";
 import { updateOperationTestCases } from "../testUtil/cases/updateOperationTestCases.js";
 import { validateRejectingResultsInOriginalDoc } from "../testUtil/suggestChangesTestUtil.js";
-import { agentStepToTr, getStepsAsAgent } from "./agent.js";
+import { applyAgentStep, getStepsAsAgent } from "./agent.js";
 import { updateToReplaceSteps } from "./changeset.js";
 
 describe("getStepsAsAgent", () => {
@@ -222,7 +222,7 @@ async function executeTestCase(
 
     for (const step of agentSteps) {
       editor.transact((tr) => {
-        agentStepToTr(tr, step);
+        applyAgentStep(tr, step);
       });
       results.push(
         step.type.slice(0, 1).toUpperCase() +

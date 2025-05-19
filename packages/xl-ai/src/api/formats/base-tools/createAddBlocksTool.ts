@@ -2,7 +2,7 @@ import { BlockNoteEditor, insertBlocks, PartialBlock } from "@blocknote/core";
 import type { JSONSchema7 } from "json-schema";
 import {
   AgentStep,
-  agentStepToTr,
+  applyAgentStep,
   delayAgentStep,
   getStepsAsAgent,
 } from "../../../prosemirror/agent.js";
@@ -264,7 +264,7 @@ export function createAddBlocksTool<T>(config: {
                 await delayAgentStep(step);
               }
               editor.transact((tr) => {
-                agentStepToTr(tr, step);
+                applyAgentStep(tr, step);
               });
               options.onBlockUpdate?.(addedBlockIds[i]);
             }

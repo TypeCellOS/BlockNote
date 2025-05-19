@@ -1,7 +1,7 @@
 import { BlockNoteEditor, PartialBlock, trackPosition } from "@blocknote/core";
 import type { JSONSchema7 } from "json-schema";
 import {
-  agentStepToTr,
+  applyAgentStep,
   delayAgentStep,
   getStepsAsAgent,
 } from "../../../prosemirror/agent.js";
@@ -257,7 +257,7 @@ export function createUpdateBlockTool<T>(config: {
               await delayAgentStep(step);
             }
             editor.transact((tr) => {
-              agentStepToTr(tr, step);
+              applyAgentStep(tr, step);
             });
             options.onBlockUpdate?.(operation.id);
           }
