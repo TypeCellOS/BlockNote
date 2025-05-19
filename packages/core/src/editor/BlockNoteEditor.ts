@@ -487,7 +487,10 @@ export class BlockNoteEditor<
 
   private readonly showSelectionPlugin: ShowSelectionPlugin;
 
-  public readonly forkYDocPlugin: ForkYDocPlugin;
+  /**
+   * The plugin for forking a document, only defined if in collaboration mode
+   */
+  public readonly forkYDocPlugin?: ForkYDocPlugin;
   /**
    * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
    * This method should set when creating the editor as this is application-specific.
