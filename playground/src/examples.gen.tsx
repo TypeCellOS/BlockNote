@@ -1442,9 +1442,9 @@
         }
       },
       {
-        "projectSlug": "ai-menu-items",
-        "fullSlug": "ai/ai-menu-items",
-        "pathFromRoot": "examples/09-ai/03-ai-menu-items",
+        "projectSlug": "custom-ai-menu-items",
+        "fullSlug": "ai/custom-ai-menu-items",
+        "pathFromRoot": "examples/09-ai/03-custom-ai-menu-items",
         "config": {
           "playground": true,
           "docs": true,

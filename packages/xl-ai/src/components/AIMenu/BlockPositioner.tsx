@@ -10,6 +10,7 @@ export const BlockPositioner = (props: {
     event: Event,
     reason: OpenChangeReason,
   ) => void;
+  canDismissViaOutsidePress?: boolean;
 }) => {
   const element = props.blockID
     ? document.querySelector(`[data-id="${props.blockID}"]`)
@@ -21,10 +22,6 @@ export const BlockPositioner = (props: {
     return element
       ? {
           getBoundingClientRect: () => {
-            // console.log(
-            //   "getBoundingClientRect",
-            //   element.getBoundingClientRect()
-            // );
             return element.getBoundingClientRect();
           },
           contextElement: element,
@@ -32,17 +29,13 @@ export const BlockPositioner = (props: {
       : null;
   }, [element]);
 
-  const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
-    element ? true : false,
-    reference,
-    3000,
-    {
+  const { isMounted, ref, style, getFloatingProps, isPositioned } =
+    useUIElementPositioning(element ? true : false, reference, 3000, {
       canDismiss: {
         enabled: true,
         escapeKey: true,
-        outsidePress: false,
+        outsidePress: props.canDismissViaOutsidePress,
       },
-      // canDismiss: false,
       placement: "bottom",
       middleware: [
         offset(10),
@@ -62,8 +55,7 @@ export const BlockPositioner = (props: {
         });
         return cleanup;
       },
-    },
-  );
+    });
 
   if (!isMounted) {
     return null;
@@ -77,7 +69,7 @@ export const BlockPositioner = (props: {
       }}
       {...getFloatingProps()}
     >
-      {props.children}
+      {isPositioned && props.children}
     </div>
   );
 };

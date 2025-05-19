@@ -22,6 +22,7 @@ type UIElementPosition = {
   getFloatingProps: ReturnType<typeof useInteractions>["getFloatingProps"];
   getReferenceProps: ReturnType<typeof useInteractions>["getReferenceProps"];
   setReference: ReturnType<typeof useFloating>["refs"]["setReference"];
+  isPositioned: boolean;
 };
 
 export function useUIElementPositioning(
@@ -32,7 +33,7 @@ export function useUIElementPositioning(
     UseFloatingOptions & { canDismiss: boolean | UseDismissProps }
   >,
 ): UIElementPosition {
-  const { refs, update, context, floatingStyles } = useFloating({
+  const { refs, update, context, floatingStyles, isPositioned } = useFloating({
     open: show,
     ...options,
   });
@@ -84,8 +85,10 @@ export function useUIElementPositioning(
       },
       getFloatingProps,
       getReferenceProps,
+      isPositioned,
     };
   }, [
+    isPositioned,
     floatingStyles,
     isMounted,
     refs.setFloating,

@@ -18,6 +18,9 @@ export const AIMenuController = (props: { aiMenu?: FC<AIMenuProps> }) => {
 
   return (
     <BlockPositioner
+      canDismissViaOutsidePress={
+        aiMenuState === "closed" || aiMenuState.status === "user-input"
+      }
       blockID={blockId}
       onOpenChange={(open) => {
         if (open || aiMenuState === "closed") {
