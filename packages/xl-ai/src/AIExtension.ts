@@ -17,6 +17,7 @@ import { LLMResponse } from "./api/LLMResponse.js";
 import { PromptBuilder } from "./api/formats/PromptBuilder.js";
 import { LLMFormat, llmFormats } from "./api/index.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
+import { Fragment, Slice } from "prosemirror-model";
 
 type MakeOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
@@ -198,7 +199,48 @@ export class AIExtension extends BlockNoteExtension {
    * Accept the changes made by the LLM
    */
   public acceptChanges() {
-    this.editor.exec(applySuggestions);
+    // This is slightly convoluted, to try to maintain the undo history as much as possible
+    // The idea is that the LLM call has appended a number of updates to the document, moving the document from state `A` to state `C`
+    // But we want the undo history to skip all of the intermediate states and go straight from `C` to `A`
+    // To do this, we capture the document state `C` (post-LLM call), and then reject the suggestions to recover the original document state `A`
+    // Then we create an intermediate state `B` that captures the diff between `A` and `C`
+    // Then we apply the suggestions to `B` to get the final state `C`
+    // This causes the undo history to skip `B` and go straight from `C` back to `A`
+
+    // Capture the document state `C'` (post-LLM call with all suggestions still in the document)
+    const markedUpDocument = this.editor.prosemirrorState.doc;
+
+    // revert the suggestions to get back to the original document state `A`
+    this.editor.exec((state, dispatch) => {
+      return revertSuggestions(state, (tr) => {
+        dispatch?.(tr.setMeta("addToHistory", false));
+      });
+    });
+
+    // Create an intermediate state `B` that captures the diff between the original document and the marked up document
+    this.editor.exec((state, dispatch) => {
+      const tr = state.tr;
+      tr.replace(
+        0,
+        tr.doc.content.size,
+        new Slice(Fragment.from(markedUpDocument), 0, 0),
+      );
+      const nextState = state.apply(tr);
+      // Apply the suggestions to the intermediate state `B` to get the final state `C`
+      return applySuggestions(nextState, (resultTr) => {
+        dispatch?.(
+          tr.replace(
+            0,
+            tr.doc.content.size,
+            new Slice(Fragment.from(resultTr.doc), 0, 0),
+          ),
+        );
+      });
+    });
+
+    // If in collaboration mode, merge the changes back into the original yDoc
+    this.editor.forkYDocPlugin?.merge({ keepChanges: true });
+
     this.closeAIMenu();
   }
 
@@ -206,7 +248,16 @@ export class AIExtension extends BlockNoteExtension {
    * Reject the changes made by the LLM
    */
   public rejectChanges() {
-    this.editor.exec(revertSuggestions);
+    // Revert the suggestions to get back to the original document
+    this.editor.exec((state, dispatch) => {
+      return revertSuggestions(state, (tr) => {
+        // Do so without adding to history (so the last undo step is just prior to the LLM call)
+        dispatch?.(tr.setMeta("addToHistory", false));
+      });
+    });
+
+    // If in collaboration mode, discard the changes and revert to the original yDoc
+    this.editor.forkYDocPlugin?.merge({ keepChanges: false });
     this.closeAIMenu();
   }
 
@@ -299,6 +350,8 @@ export class AIExtension extends BlockNoteExtension {
    */
   public async callLLM(opts: MakeOptional<LLMRequestOptions, "model">) {
     this.setAIResponseStatus("thinking");
+    this.editor.forkYDocPlugin?.fork();
+
     let ret: LLMResponse | undefined;
     try {
       const requestOptions = {
@@ -334,6 +387,8 @@ export class AIExtension extends BlockNoteExtension {
 
       this.setAIResponseStatus("user-reviewing");
     } catch (e) {
+      // TODO in error state, should we discard the forked document?
+
       this.setAIResponseStatus({
         status: "error",
         error: e,
