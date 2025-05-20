@@ -35,9 +35,7 @@ export type StreamTool<T extends { type: string }> = {
    * This can be a partial object as the LLM may not have completed the operation yet.
    * The object is not guaranteed to be of type DeepPartial<T> as the LLM might not conform to the schema correctly - so this needs to be validated.
    */
-  validate: (
-    operation: DeepPartial<T>, // TODO: maybe `unknown` is better?
-  ) => Result<T>;
+  validate: (operation: DeepPartial<T>) => Result<T>;
 
   /**
    * Executes tool calls.
@@ -49,12 +47,12 @@ export type StreamTool<T extends { type: string }> = {
    */
   execute: (
     operationsStream: AsyncIterable<{
-      operation: StreamToolCall<StreamTool<any>[]>;
+      operation: StreamToolCall<StreamTool<{ type: string }>[]>;
       isUpdateToPreviousOperation: boolean;
       isPossiblyPartial: boolean;
     }>,
   ) => AsyncIterable<{
-    operation: StreamToolCall<StreamTool<any>[]>;
+    operation: StreamToolCall<StreamTool<{ type: string }>[]>;
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
   }>;
