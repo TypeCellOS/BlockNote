@@ -33,12 +33,13 @@ import {
 import { insertContentAt } from "../api/blockManipulation/insertContentAt.js";
 import {
   getSelection,
+  getSelectionCutBlocks,
   setSelection,
 } from "../api/blockManipulation/selections/selection.js";
 import {
   getTextCursorPosition,
   setTextCursorPosition,
-} from "../api/blockManipulation/selections/textCursorPosition/textCursorPosition.js";
+} from "../api/blockManipulation/selections/textCursorPosition.js";
 import { createExternalHTMLExporter } from "../api/exporters/html/externalHTMLExporter.js";
 import { blocksToMarkdown } from "../api/exporters/markdown/markdownExporter.js";
 import { HTMLToBlocks } from "../api/parsers/html/parseHTML.js";
@@ -93,6 +94,7 @@ import {
 import { Dictionary } from "../i18n/dictionary.js";
 import { en } from "../i18n/locales/index.js";
 
+import { redo, undo } from "@tiptap/pm/history";
 import {
   TextSelection,
   type Command,
@@ -101,11 +103,10 @@ import {
 } from "@tiptap/pm/state";
 import { dropCursor } from "prosemirror-dropcursor";
 import { EditorView } from "prosemirror-view";
-import { undoCommand, redoCommand, ySyncPluginKey } from "y-prosemirror";
-import { undo, redo } from "@tiptap/pm/history";
+import { redoCommand, undoCommand, ySyncPluginKey } from "y-prosemirror";
 import { createInternalHTMLSerializer } from "../api/exporters/html/internalHTMLSerializer.js";
 import { inlineContentToNodes } from "../api/nodeConversions/blockToNode.js";
-import { nodeToBlock } from "../api/nodeConversions/nodeToBlock.js";
+import { docToBlocks } from "../api/nodeConversions/nodeToBlock.js";
 import {
   BlocksChanged,
   getBlocksChangedByTransaction,
@@ -113,20 +114,26 @@ import {
 import { nestedListsToBlockNoteStructure } from "../api/parsers/html/util/nestedLists.js";
 import { CodeBlockOptions } from "../blocks/CodeBlockContent/CodeBlockContent.js";
 import type { ThreadStore, User } from "../comments/index.js";
-import "../style.css";
+import type { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
+import type { ForkYDocPlugin } from "../extensions/Collaboration/ForkYDocPlugin.js";
 import { EventEmitter } from "../util/EventEmitter.js";
-import { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
+import { BlockNoteExtension } from "./BlockNoteExtension.js";
 
+import "../style.css";
+
+/**
+ * A factory function that returns a BlockNoteExtension
+ * This is useful so we can create extensions that require an editor instance
+ * in the constructor
+ */
 export type BlockNoteExtensionFactory = (
   editor: BlockNoteEditor<any, any, any>,
 ) => BlockNoteExtension;
 
-export type BlockNoteExtension =
-  | AnyExtension
-  | {
-      plugin: Plugin;
-      priority?: number;
-    };
+/**
+ * We support Tiptap extensions and BlockNoteExtension based extensions
+ */
+export type SupportedExtension = AnyExtension | BlockNoteExtension;
 
 export type BlockCache<
   BSchema extends BlockSchema = any,
@@ -369,9 +376,16 @@ export type BlockNoteEditorOptions<
   _tiptapOptions: Partial<EditorOptions>;
 
   /**
-   * (experimental) add extra prosemirror plugins or tiptap extensions to the editor
+   * (experimental) add extra extensions to the editor
+   *
+   * @deprecated, should use `extensions` instead
    */
   _extensions: Record<string, BlockNoteExtension | BlockNoteExtensionFactory>;
+
+  /**
+   * Register
+   */
+  extensions: Array<BlockNoteExtension | BlockNoteExtensionFactory>;
 
   /**
    * Boolean indicating whether the editor is in headless mode.
@@ -404,7 +418,7 @@ export class BlockNoteEditor<
   /**
    * extensions that are added to the editor, can be tiptap extensions or prosemirror plugins
    */
-  public readonly extensions: Record<string, BlockNoteExtension> = {};
+  public extensions: Record<string, SupportedExtension> = {};
 
   /**
    * Boolean indicating whether the editor is in headless mode.
@@ -473,8 +487,10 @@ export class BlockNoteEditor<
 
   private readonly showSelectionPlugin: ShowSelectionPlugin;
 
-  private readonly cursorPlugin: CursorPlugin;
-
+  /**
+   * The plugin for forking a document, only defined if in collaboration mode
+   */
+  public readonly forkYDocPlugin?: ForkYDocPlugin;
   /**
    * The `uploadFile` method is what the editor uses when files need to be uploaded (for example when selecting an image to upload).
    * This method should set when creating the editor as this is application-specific.
@@ -609,6 +625,16 @@ export class BlockNoteEditor<
     });
 
     // add extensions from options
+    for (let ext of newOptions.extensions || []) {
+      if (typeof ext === "function") {
+        // factory
+        ext = ext(this);
+      }
+      const key = (ext.constructor as any).name();
+      this.extensions[key] = ext;
+    }
+
+    // (when passed in via the deprecated `_extensions` option)
     Object.entries(newOptions._extensions || {}).forEach(([key, ext]) => {
       if (typeof ext === "function") {
         // factory
@@ -625,7 +651,7 @@ export class BlockNoteEditor<
     this.tableHandles = this.extensions["tableHandles"] as any;
     this.comments = this.extensions["comments"] as any;
     this.showSelectionPlugin = this.extensions["showSelection"] as any;
-    this.cursorPlugin = this.extensions["yCursorPlugin"] as any;
+    this.forkYDocPlugin = this.extensions["forkYDocPlugin"] as any;
 
     if (newOptions.uploadFile) {
       const uploadFile = newOptions.uploadFile;
@@ -691,20 +717,19 @@ export class BlockNoteEditor<
           return ext;
         }
 
-        if (!ext.plugin) {
-          throw new Error(
-            "Extension should either be a TipTap extension or a ProseMirror plugin in a plugin property",
-          );
+        if (ext instanceof BlockNoteExtension && !ext.plugins.length) {
+          return undefined;
         }
 
         // "blocknote" extensions (prosemirror plugins)
         return Extension.create({
           name: key,
           priority: ext.priority,
-          addProseMirrorPlugins: () => [ext.plugin],
+          addProseMirrorPlugins: () => ext.plugins,
         });
       }),
-    ];
+    ].filter((ext): ext is Extension => ext !== undefined);
+
     const tiptapOptions: BlockNoteTipTapEditorOptions = {
       ...blockNoteTipTapOptions,
       ...newOptions._tiptapOptions,
@@ -865,6 +890,26 @@ export class BlockNoteEditor<
     }
   }
 
+  // TO DISCUSS
+  /**
+   * Shorthand to get a typed extension from the editor, by
+   * just passing in the extension class.
+   *
+   * @param ext - The extension class to get
+   * @param key - optional, the key of the extension in the extensions object (defaults to the extension name)
+   * @returns The extension instance
+   */
+  public extension<T extends BlockNoteExtension>(
+    ext: { new (...args: any[]): T } & typeof BlockNoteExtension,
+    key = ext.name(),
+  ): T {
+    const extension = this.extensions[key] as T;
+    if (!extension) {
+      throw new Error(`Extension ${key} not found`);
+    }
+    return extension;
+  }
+
   /**
    * Mount the editor to a parent DOM element. Call mount(undefined) to clean up
    *
@@ -946,15 +991,7 @@ export class BlockNoteEditor<
    */
   public get document(): Block<BSchema, ISchema, SSchema>[] {
     return this.transact((tr) => {
-      const blocks: Block<BSchema, ISchema, SSchema>[] = [];
-
-      tr.doc.firstChild!.descendants((node) => {
-        blocks.push(nodeToBlock(node, this.pmSchema));
-
-        return false;
-      });
-
-      return blocks;
+      return docToBlocks(tr.doc, this.pmSchema);
     });
   }
 
@@ -1099,10 +1136,24 @@ export class BlockNoteEditor<
   }
 
   /**
-   * Gets a snapshot of the current selection.
+   * Gets a snapshot of the current selection. This contains all blocks (included nested blocks)
+   * that the selection spans across.
+   *
+   * If the selection starts / ends halfway through a block, the returned data will contain the entire block.
    */
   public getSelection(): Selection<BSchema, ISchema, SSchema> | undefined {
     return this.transact((tr) => getSelection(tr));
+  }
+
+  /**
+   * Gets a snapshot of the current selection. This contains all blocks (included nested blocks)
+   * that the selection spans across.
+   *
+   * If the selection starts / ends halfway through a block, the returned block will be
+   * only the part of the block that is included in the selection.
+   */
+  public getSelectionCutBlocks() {
+    return this.transact((tr) => getSelectionCutBlocks(tr));
   }
 
   /**
@@ -1500,7 +1551,7 @@ export class BlockNoteEditor<
       );
     }
 
-    this.cursorPlugin.updateUser(user);
+    (this.extensions["yCursorPlugin"] as CursorPlugin).updateUser(user);
   }
 
   /**
@@ -1595,8 +1646,8 @@ export class BlockNoteEditor<
     if (!this.prosemirrorView) {
       return undefined;
     }
-    const state = this.prosemirrorView?.state;
-    const { selection } = state;
+
+    const { selection } = this.prosemirrorState;
 
     // support for CellSelections
     const { ranges } = selection;
@@ -1641,7 +1692,7 @@ export class BlockNoteEditor<
       if (pluginState?.deleteTriggerCharacter) {
         tr.insertText(triggerCharacter);
       }
-      tr.scrollIntoView().setMeta(this.suggestionMenus.plugin, {
+      tr.scrollIntoView().setMeta(this.suggestionMenus.plugins[0], {
         triggerCharacter: triggerCharacter,
         deleteTriggerCharacter: pluginState?.deleteTriggerCharacter || false,
         ignoreQueryLength: pluginState?.ignoreQueryLength || false,

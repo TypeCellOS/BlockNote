@@ -196,7 +196,6 @@ export const no: Dictionary = {
   },
   suggestion_menu: {
     no_items_title: "Ingen elementer funnet",
-    loading: "Laster…",
   },
   color_picker: {
     text_title: "Tekst",

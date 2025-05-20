@@ -9,6 +9,7 @@ export const Column = createStronglyTypedTiptapNode({
   content: "blockContainer+",
   priority: 40,
   defining: true,
+  marks: "deletion insertion modification",
   addAttributes() {
     return {
       width: {

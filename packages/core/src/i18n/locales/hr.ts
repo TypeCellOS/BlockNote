@@ -209,7 +209,6 @@ export const hr: Dictionary = {
   },
   suggestion_menu: {
     no_items_title: "Stavke nisu pronađene",
-    loading: "Učitavanje…",
   },
   color_picker: {
     text_title: "Tekst",

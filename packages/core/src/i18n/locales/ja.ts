@@ -216,7 +216,6 @@ export const ja: Dictionary = {
   },
   suggestion_menu: {
     no_items_title: "アイテムが見つかりません",
-    loading: "読込中…",
   },
   color_picker: {
     text_title: "文字色",

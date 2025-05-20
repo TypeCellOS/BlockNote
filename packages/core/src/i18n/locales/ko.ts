@@ -209,7 +209,6 @@ export const ko: Dictionary = {
   },
   suggestion_menu: {
     no_items_title: "항목을 찾을 수 없음",
-    loading: "로딩 중…",
   },
   color_picker: {
     text_title: "텍스트",

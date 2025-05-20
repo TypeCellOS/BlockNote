@@ -1,3 +1,18 @@
+## 0.30.1 (2025-05-20)
+
+### 🩹 Fixes
+
+- better type-safety ([678086d4d](https://github.com/TypeCellOS/BlockNote/commit/678086d4d))
+- do not use `editor.dispatch` ([#1698](https://github.com/TypeCellOS/BlockNote/pull/1698))
+- re-added `display: flex` to blocks without inline content ([#1702](https://github.com/TypeCellOS/BlockNote/pull/1702))
+- **react:** add missing exports ([#1689](https://github.com/TypeCellOS/BlockNote/pull/1689))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Nick the Sick
+
 ## 0.30.0 (2025-05-09)
 
 ### 🚀 Features

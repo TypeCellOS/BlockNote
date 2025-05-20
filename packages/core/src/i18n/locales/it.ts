@@ -197,7 +197,6 @@ export const it: Dictionary = {
   },
   suggestion_menu: {
     no_items_title: "Nessun elemento trovato",
-    loading: "Caricamento…",
   },
   color_picker: {
     text_title: "Testo",

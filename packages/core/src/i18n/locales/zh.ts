@@ -229,7 +229,6 @@ export const zh: Dictionary = {
   },
   suggestion_menu: {
     no_items_title: "无匹配项",
-    loading: "加载中…",
   },
   color_picker: {
     text_title: "文本",

@@ -27,7 +27,7 @@ export const SuggestionMenuItem = forwardRef<
 
     const overflow = elementOverflow(
       itemRef.current,
-      document.querySelector(".bn-suggestion-menu")!,
+      document.querySelector(".bn-suggestion-menu, #ai-suggestion-menu")!, // TODO
     );
 
     if (overflow === "top") {
@@ -44,6 +44,7 @@ export const SuggestionMenuItem = forwardRef<
       ref={mergeRefs(ref, itemRef)}
       id={id}
       role="option"
+      onMouseDown={(event) => event.preventDefault()}
       onClick={onClick}
       aria-selected={isSelected || undefined}
     >

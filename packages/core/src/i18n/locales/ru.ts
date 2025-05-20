@@ -223,7 +223,6 @@ export const ru: Dictionary = {
   },
   suggestion_menu: {
     no_items_title: "ничего не найдено",
-    loading: "Загрузка…",
   },
   color_picker: {
     text_title: "Текст",
