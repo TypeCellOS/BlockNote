@@ -1492,6 +1492,34 @@
           "pathFromRoot": "examples/09-ai",
           "slug": "ai"
         }
+      },
+      {
+        "projectSlug": "with-collaboration",
+        "fullSlug": "ai/with-collaboration",
+        "pathFromRoot": "examples/09-ai/04-with-collaboration",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "nperez0111",
+          "tags": [
+            "AI",
+            "llm"
+          ],
+          "dependencies": {
+            "@blocknote/xl-ai": "latest",
+            "@mantine/core": "^7.10.1",
+            "ai": "^4.3.15",
+            "@ai-sdk/groq": "^1.2.9",
+            "y-partykit": "^0.0.25",
+            "yjs": "^13.6.15",
+            "zustand": "^5.0.3"
+          } as any
+        },
+        "title": "AI + Ghost Writer",
+        "group": {
+          "pathFromRoot": "examples/09-ai",
+          "slug": "ai"
+        }
       }
     ]
   },

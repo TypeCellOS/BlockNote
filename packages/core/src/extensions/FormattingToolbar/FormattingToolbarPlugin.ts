@@ -47,7 +47,8 @@ export class FormattingToolbarView implements PluginView {
       return false;
     }
 
-    if (!view.hasFocus() && view.editable) {
+    const focusedElement = document.activeElement;
+    if (!this.isElementWithinEditorWrapper(focusedElement) && view.editable) {
       // editable editors must have focus for the toolbar to show
       return false;
     }
@@ -116,8 +117,18 @@ export class FormattingToolbarView implements PluginView {
     }
   };
 
-  viewMousedownHandler = () => {
-    this.preventShow = true;
+  isElementWithinEditorWrapper = (element: Node | null) => {
+    if (!element) {
+      return false;
+    }
+    const editorWrapper = this.pmView.dom.parentElement!;
+    return editorWrapper.contains(element);
+  };
+
+  viewMousedownHandler = (e: MouseEvent) => {
+    if (!this.isElementWithinEditorWrapper(e.target as Node)) {
+      this.preventShow = true;
+    }
   };
 
   mouseupHandler = () => {
@@ -180,12 +191,18 @@ export class FormattingToolbarView implements PluginView {
       // e.g. the download file button, should still be accessible. Therefore,
       // logic for hiding when the editor is non-editable is handled
       // individually in each button.
-      this.state = {
+      const nextState = {
         show: true,
         referencePos: this.getSelectionBoundingBox(),
       };
 
-      this.emitUpdate();
+      if (
+        nextState.show !== this.state?.show ||
+        nextState.referencePos.toJSON() !== this.state?.referencePos.toJSON()
+      ) {
+        this.state = nextState;
+        this.emitUpdate();
+      }
 
       return;
     }
