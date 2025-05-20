@@ -7,6 +7,7 @@ import { BlockNoteEditor, filterSuggestionItems } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { en } from "@blocknote/core/locales";
 import { BlockNoteView } from "@blocknote/mantine";
+import "@mantine/core/styles.css";
 import "@blocknote/mantine/style.css";
 import {
   FormattingToolbar,
@@ -28,6 +29,7 @@ import {
 } from "@blocknote/xl-ai";
 import "@blocknote/xl-ai/style.css";
 import { Fieldset, MantineProvider, Switch } from "@mantine/core";
+
 import { LanguageModelV1 } from "ai";
 import { useEffect, useMemo, useState } from "react";
 import { useStore } from "zustand";
