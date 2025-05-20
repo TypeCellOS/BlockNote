@@ -400,7 +400,6 @@
 
 .bn-mantine .bn-suggestion-menu-label {
   color: var(--bn-colors-hovered-text);
-  font-weight: bold;
 }
 
 .bn-mantine .bn-suggestion-menu-loader {
