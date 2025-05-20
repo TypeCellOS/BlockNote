@@ -1,3 +1,13 @@
+## 0.31.0 (2025-05-20)
+
+### 🩹 Fixes
+
+- Playwright flaky keyboard handler test ([#1704](https://github.com/TypeCellOS/BlockNote/pull/1704))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+
 ## 0.30.1 (2025-05-20)
 
 ### 🩹 Fixes

@@ -5,8 +5,6 @@ import { defineConfig } from "vite";
 import pkg from "./package.json";
 // import eslintPlugin from "vite-plugin-eslint";
 
-const deps = Object.keys(pkg.dependencies);
-
 // https://vitejs.dev/config/
 export default defineConfig((conf) => ({
   test: {
@@ -32,23 +30,27 @@ export default defineConfig((conf) => ({
   build: {
     sourcemap: true,
     lib: {
-      entry: path.resolve(__dirname, "src/index.ts"),
+      entry: {
+        "blocknote-xl-ai": path.resolve(__dirname, "src/index.ts"),
+        locales: path.resolve(__dirname, "src/i18n/locales/index.ts"),
+      },
       name: "blocknote-xl-ai",
-      fileName: "blocknote-xl-ai",
+      formats: ["es", "cjs"],
+      fileName: (format, entryName) =>
+        format === "es" ? `${entryName}.js` : `${entryName}.cjs`,
     },
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: (source: string) => {
-        if (deps.includes(source)) {
-          return true;
-        }
-        return (
-          source.startsWith("prosemirror-") ||
-          source.startsWith("@shikijs/lang") ||
-          source.startsWith("@shikijs/theme")
-        );
-      },
+      external: [
+        ...Object.keys({
+          ...pkg.dependencies,
+          ...pkg.peerDependencies,
+          ...pkg.devDependencies,
+        }),
+        "react-dom/client",
+        "react/jsx-runtime",
+      ],
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps

@@ -54,15 +54,16 @@ Now, you can create the editor with the AI Extension enabled:
 ```ts
 import { createBlockNoteEditor } from "@blocknote/core";
 import { BlockNoteAIExtension } from "@blocknote/xl-ai";
+import { en } from "@blocknote/core/locales";
+import { en as aiEn } from "@blocknote/xl-ai/locales";
 import {
-  locales as aiLocales,
   createAIExtension,
 } from "@blocknote/xl-ai";
 
 const editor = createBlockNoteEditor({
   dictionary: {
     ...en,
-    ai: aiLocales.en, // add default translations for the AI extension
+    ai: aiEn, // add default translations for the AI extension
   },
   extensions: [
     createAIExtension({
