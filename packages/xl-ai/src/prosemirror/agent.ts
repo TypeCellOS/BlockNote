@@ -39,11 +39,7 @@ export function getStepsAsAgent(inputTr: Transform) {
 
   for (let i = 0; i < inputTr.steps.length; i++) {
     const step = inputTr.steps[i];
-    const invertMap =
-      i > 0
-        ? new Mapping(inputTr.mapping.maps.slice(0, i - 1)).invert()
-        : new Mapping();
-    //inputTr.mapping.invert().slice(0, i - 1) : new Mapping();
+    const invertMap = new Mapping(inputTr.mapping.maps.slice(0, i)).invert();
 
     if ((step as any).structure) {
       // Note: for structure changes (e.g.: node type or attr changes) we currently
