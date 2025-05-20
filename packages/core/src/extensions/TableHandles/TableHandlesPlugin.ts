@@ -32,13 +32,13 @@ import {
 } from "../../blocks/defaultBlockTypeGuards.js";
 import { DefaultBlockSchema } from "../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import {
   BlockFromConfigNoChildren,
   BlockSchemaWithBlock,
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
-import { EventEmitter } from "../../util/EventEmitter.js";
 import { getDraggableBlockFromElement } from "../getDraggableBlockFromElement.js";
 
 let dragImageElement: HTMLElement | undefined;
@@ -617,9 +617,8 @@ export const tableHandlesPluginKey = new PluginKey("TableHandlesPlugin");
 export class TableHandlesProsemirrorPlugin<
   I extends InlineContentSchema,
   S extends StyleSchema,
-> extends EventEmitter<any> {
+> extends BlockNoteExtension {
   private view: TableHandlesView<I, S> | undefined;
-  public readonly plugin: Plugin;
 
   constructor(
     private readonly editor: BlockNoteEditor<
@@ -629,159 +628,163 @@ export class TableHandlesProsemirrorPlugin<
     >,
   ) {
     super();
-    this.plugin = new Plugin({
-      key: tableHandlesPluginKey,
-      view: (editorView) => {
-        this.view = new TableHandlesView(editor, editorView, (state) => {
-          this.emit("update", state);
-        });
-        return this.view;
-      },
-      // We use decorations to render the drop cursor when dragging a table row
-      // or column. The decorations are updated in the `dragOverHandler` method.
-      props: {
-        decorations: (state) => {
-          if (
-            this.view === undefined ||
-            this.view.state === undefined ||
-            this.view.state.draggingState === undefined ||
-            this.view.tablePos === undefined
-          ) {
-            return;
-          }
-
-          const newIndex =
-            this.view.state.draggingState.draggedCellOrientation === "row"
-              ? this.view.state.rowIndex
-              : this.view.state.colIndex;
-
-          if (newIndex === undefined) {
-            return;
-          }
-
-          const decorations: Decoration[] = [];
-          const { block, draggingState } = this.view.state;
-          const { originalIndex, draggedCellOrientation } = draggingState;
-
-          // Return empty decorations if:
-          // - Dragging to same position
-          // - No block exists
-          // - Row drag not allowed
-          // - Column drag not allowed
-          if (
-            newIndex === originalIndex ||
-            !block ||
-            (draggedCellOrientation === "row" &&
-              !canRowBeDraggedInto(block, originalIndex, newIndex)) ||
-            (draggedCellOrientation === "col" &&
-              !canColumnBeDraggedInto(block, originalIndex, newIndex))
-          ) {
-            return DecorationSet.create(state.doc, decorations);
-          }
-
-          // Gets the table to show the drop cursor in.
-          const tableResolvedPos = state.doc.resolve(this.view.tablePos + 1);
-
-          if (this.view.state.draggingState.draggedCellOrientation === "row") {
-            const cellsInRow = getCellsAtRowHandle(
-              this.view.state.block,
-              newIndex,
-            );
-
-            cellsInRow.forEach(({ row, col }) => {
-              // Gets each row in the table.
-              const rowResolvedPos = state.doc.resolve(
-                tableResolvedPos.posAtIndex(row) + 1,
-              );
-
-              // Gets the cell within the row.
-              const cellResolvedPos = state.doc.resolve(
-                rowResolvedPos.posAtIndex(col) + 1,
-              );
-              const cellNode = cellResolvedPos.node();
-              // Creates a decoration at the start or end of each cell,
-              // depending on whether the new index is before or after the
-              // original index.
-              const decorationPos =
-                cellResolvedPos.pos +
-                (newIndex > originalIndex ? cellNode.nodeSize - 2 : 0);
-              decorations.push(
-                // The widget is a small bar which spans the width of the cell.
-                Decoration.widget(decorationPos, () => {
-                  const widget = document.createElement("div");
-                  widget.className = "bn-table-drop-cursor";
-                  widget.style.left = "0";
-                  widget.style.right = "0";
-                  // This is only necessary because the drop indicator's height
-                  // is an even number of pixels, whereas the border between
-                  // table cells is an odd number of pixels. So this makes the
-                  // positioning slightly more consistent regardless of where
-                  // the row is being dropped.
-                  if (newIndex > originalIndex) {
-                    widget.style.bottom = "-2px";
-                  } else {
-                    widget.style.top = "-3px";
-                  }
-                  widget.style.height = "4px";
-
-                  return widget;
-                }),
-              );
-            });
-          } else {
-            const cellsInColumn = getCellsAtColumnHandle(
-              this.view.state.block,
-              newIndex,
-            );
-
-            cellsInColumn.forEach(({ row, col }) => {
-              // Gets each row in the table.
-              const rowResolvedPos = state.doc.resolve(
-                tableResolvedPos.posAtIndex(row) + 1,
-              );
-
-              // Gets the cell within the row.
-              const cellResolvedPos = state.doc.resolve(
-                rowResolvedPos.posAtIndex(col) + 1,
-              );
-              const cellNode = cellResolvedPos.node();
-
-              // Creates a decoration at the start or end of each cell,
-              // depending on whether the new index is before or after the
-              // original index.
-              const decorationPos =
-                cellResolvedPos.pos +
-                (newIndex > originalIndex ? cellNode.nodeSize - 2 : 0);
-
-              decorations.push(
-                // The widget is a small bar which spans the height of the cell.
-                Decoration.widget(decorationPos, () => {
-                  const widget = document.createElement("div");
-                  widget.className = "bn-table-drop-cursor";
-                  widget.style.top = "0";
-                  widget.style.bottom = "0";
-                  // This is only necessary because the drop indicator's width
-                  // is an even number of pixels, whereas the border between
-                  // table cells is an odd number of pixels. So this makes the
-                  // positioning slightly more consistent regardless of where
-                  // the column is being dropped.
-                  if (newIndex > originalIndex) {
-                    widget.style.right = "-2px";
-                  } else {
-                    widget.style.left = "-3px";
-                  }
-                  widget.style.width = "4px";
-
-                  return widget;
-                }),
-              );
-            });
-          }
-
-          return DecorationSet.create(state.doc, decorations);
+    this.addProsemirrorPlugin(
+      new Plugin({
+        key: tableHandlesPluginKey,
+        view: (editorView) => {
+          this.view = new TableHandlesView(editor, editorView, (state) => {
+            this.emit("update", state);
+          });
+          return this.view;
         },
-      },
-    });
+        // We use decorations to render the drop cursor when dragging a table row
+        // or column. The decorations are updated in the `dragOverHandler` method.
+        props: {
+          decorations: (state) => {
+            if (
+              this.view === undefined ||
+              this.view.state === undefined ||
+              this.view.state.draggingState === undefined ||
+              this.view.tablePos === undefined
+            ) {
+              return;
+            }
+
+            const newIndex =
+              this.view.state.draggingState.draggedCellOrientation === "row"
+                ? this.view.state.rowIndex
+                : this.view.state.colIndex;
+
+            if (newIndex === undefined) {
+              return;
+            }
+
+            const decorations: Decoration[] = [];
+            const { block, draggingState } = this.view.state;
+            const { originalIndex, draggedCellOrientation } = draggingState;
+
+            // Return empty decorations if:
+            // - Dragging to same position
+            // - No block exists
+            // - Row drag not allowed
+            // - Column drag not allowed
+            if (
+              newIndex === originalIndex ||
+              !block ||
+              (draggedCellOrientation === "row" &&
+                !canRowBeDraggedInto(block, originalIndex, newIndex)) ||
+              (draggedCellOrientation === "col" &&
+                !canColumnBeDraggedInto(block, originalIndex, newIndex))
+            ) {
+              return DecorationSet.create(state.doc, decorations);
+            }
+
+            // Gets the table to show the drop cursor in.
+            const tableResolvedPos = state.doc.resolve(this.view.tablePos + 1);
+
+            if (
+              this.view.state.draggingState.draggedCellOrientation === "row"
+            ) {
+              const cellsInRow = getCellsAtRowHandle(
+                this.view.state.block,
+                newIndex,
+              );
+
+              cellsInRow.forEach(({ row, col }) => {
+                // Gets each row in the table.
+                const rowResolvedPos = state.doc.resolve(
+                  tableResolvedPos.posAtIndex(row) + 1,
+                );
+
+                // Gets the cell within the row.
+                const cellResolvedPos = state.doc.resolve(
+                  rowResolvedPos.posAtIndex(col) + 1,
+                );
+                const cellNode = cellResolvedPos.node();
+                // Creates a decoration at the start or end of each cell,
+                // depending on whether the new index is before or after the
+                // original index.
+                const decorationPos =
+                  cellResolvedPos.pos +
+                  (newIndex > originalIndex ? cellNode.nodeSize - 2 : 0);
+                decorations.push(
+                  // The widget is a small bar which spans the width of the cell.
+                  Decoration.widget(decorationPos, () => {
+                    const widget = document.createElement("div");
+                    widget.className = "bn-table-drop-cursor";
+                    widget.style.left = "0";
+                    widget.style.right = "0";
+                    // This is only necessary because the drop indicator's height
+                    // is an even number of pixels, whereas the border between
+                    // table cells is an odd number of pixels. So this makes the
+                    // positioning slightly more consistent regardless of where
+                    // the row is being dropped.
+                    if (newIndex > originalIndex) {
+                      widget.style.bottom = "-2px";
+                    } else {
+                      widget.style.top = "-3px";
+                    }
+                    widget.style.height = "4px";
+
+                    return widget;
+                  }),
+                );
+              });
+            } else {
+              const cellsInColumn = getCellsAtColumnHandle(
+                this.view.state.block,
+                newIndex,
+              );
+
+              cellsInColumn.forEach(({ row, col }) => {
+                // Gets each row in the table.
+                const rowResolvedPos = state.doc.resolve(
+                  tableResolvedPos.posAtIndex(row) + 1,
+                );
+
+                // Gets the cell within the row.
+                const cellResolvedPos = state.doc.resolve(
+                  rowResolvedPos.posAtIndex(col) + 1,
+                );
+                const cellNode = cellResolvedPos.node();
+
+                // Creates a decoration at the start or end of each cell,
+                // depending on whether the new index is before or after the
+                // original index.
+                const decorationPos =
+                  cellResolvedPos.pos +
+                  (newIndex > originalIndex ? cellNode.nodeSize - 2 : 0);
+
+                decorations.push(
+                  // The widget is a small bar which spans the height of the cell.
+                  Decoration.widget(decorationPos, () => {
+                    const widget = document.createElement("div");
+                    widget.className = "bn-table-drop-cursor";
+                    widget.style.top = "0";
+                    widget.style.bottom = "0";
+                    // This is only necessary because the drop indicator's width
+                    // is an even number of pixels, whereas the border between
+                    // table cells is an odd number of pixels. So this makes the
+                    // positioning slightly more consistent regardless of where
+                    // the column is being dropped.
+                    if (newIndex > originalIndex) {
+                      widget.style.right = "-2px";
+                    } else {
+                      widget.style.left = "-3px";
+                    }
+                    widget.style.width = "4px";
+
+                    return widget;
+                  }),
+                );
+              });
+            }
+
+            return DecorationSet.create(state.doc, decorations);
+          },
+        },
+      }),
+    );
   }
 
   public onUpdate(callback: (state: TableHandlesState<I, S>) => void) {

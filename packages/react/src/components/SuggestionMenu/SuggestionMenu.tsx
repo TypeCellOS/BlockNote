@@ -1,5 +1,5 @@
+import { mergeCSSClasses } from "@blocknote/core";
 import { useMemo } from "react";
-
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { useDictionary } from "../../i18n/dictionary.js";
 import { DefaultReactSuggestionItem, SuggestionMenuProps } from "./types.js";
@@ -14,9 +14,9 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
 
   const loader =
     loadingState === "loading-initial" || loadingState === "loading" ? (
-      <Components.SuggestionMenu.Loader className={"bn-suggestion-menu-loader"}>
-        {dict.suggestion_menu.loading}
-      </Components.SuggestionMenu.Loader>
+      <Components.SuggestionMenu.Loader
+        className={"bn-suggestion-menu-loader"}
+      />
     ) : null;
 
   const renderedItems = useMemo<JSX.Element[]>(() => {
@@ -39,7 +39,10 @@ export function SuggestionMenu<T extends DefaultReactSuggestionItem>(
 
       renderedItems.push(
         <Components.SuggestionMenu.Item
-          className={"bn-suggestion-menu-item"}
+          className={mergeCSSClasses(
+            "bn-suggestion-menu-item",
+            item.size === "small" ? "bn-suggestion-menu-item-small" : "",
+          )}
           item={item}
           id={`bn-suggestion-menu-item-${i}`}
           isSelected={i === selectedIndex}
