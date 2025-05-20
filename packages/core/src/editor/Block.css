@@ -14,7 +14,6 @@ BASIC STYLES
 }
 
 .bn-block-content {
-  display: flex;
   padding: 3px 0;
   transition: font-size 0.2s;
   width: 100%;
@@ -22,6 +21,14 @@ BASIC STYLES
   because the content elements are display: block
   we use flex to position them next to list markers
   */
+}
+
+/* We can't set `display: flex` on `.bn-block-content` while it has inline 
+content (see comment below). However, it's necessary to set alignment of blocks
+without content as these can't use `text-align`, so this additional rule is 
+used. */
+.bn-block-content:not(:has(.bn-inline-content)) {
+  display: flex;
 }
 
 .bn-block-content::before {
@@ -38,6 +45,11 @@ BASIC STYLES
 }
 
 .bn-inline-content {
+  /* Allows displaying `.bn-block-content:before` elements side-by-side with 
+  inline content. This is used instead of setting `display: flex` on 
+  `.bn-block-content` as that causes selection issues for `.bn-inline-content`
+  elements when clicking the editor padding. */
+  display: inline;
   width: 100%;
 }
 
@@ -167,9 +179,8 @@ NESTED BLOCKS
 }
 
 /* Ordered */
-.bn-block-content[data-content-type="numberedListItem"] {
-  display: flex;
-  gap: 0.5em;
+.bn-block-content[data-content-type="numberedListItem"] .bn-inline-content {
+  margin-left: 0.5em;
 }
 
 [data-content-type="numberedListItem"] {
@@ -193,34 +204,27 @@ NESTED BLOCKS
 }
 
 /* Unordered */
-.bn-block-content[data-content-type="bulletListItem"] {
-  display: flex;
-  gap: 0.5em;
+.bn-block-content[data-content-type="bulletListItem"] .bn-inline-content {
+  margin-left: 0.5em;
 }
 
 /* Checked */
-.bn-block-content[data-content-type="checkListItem"] > div {
-  display: flex;
-  width: 100%;
+.bn-block-content[data-content-type="checkListItem"] .bn-inline-content {
+  margin-left: 0.5em;
+}
+
+.bn-block-content[data-content-type="checkListItem"] > div > div {
+  display: inline;
 }
 
 .bn-block-content[data-content-type="checkListItem"] > div > div > input {
   margin: 0;
-  margin-inline-end: 0.5em;
   cursor: pointer;
 }
 
 .bn-block-content[data-content-type="checkListItem"][data-checked="true"]
   .bn-inline-content {
   text-decoration: line-through;
-}
-
-.bn-block-content[data-text-alignment="center"] {
-  justify-content: center;
-}
-
-.bn-block-content[data-text-alignment="right"] {
-  justify-content: flex-end;
 }
 
 /* No list nesting */
