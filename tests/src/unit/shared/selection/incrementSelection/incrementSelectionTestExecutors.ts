@@ -30,7 +30,7 @@ export const testIncrementSelectionStart = async <
       ),
     );
 
-    const blockNoteSelection = editor.getSelectionCutBlocks();
+    const blockNoteSelection = editor.getSelection();
     const JSONString = JSON.stringify(blockNoteSelection);
 
     ret += JSONString + "\n";
@@ -62,7 +62,7 @@ export const testIncrementSelectionEnd = async <
       ),
     );
 
-    const blockNoteSelection = editor.getSelectionCutBlocks();
+    const blockNoteSelection = editor.getSelection();
     const JSONString = JSON.stringify(blockNoteSelection);
 
     ret += JSONString + "\n";

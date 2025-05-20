@@ -1,11 +1,7 @@
 {
-  "_meta": {
-    "startPos": 15,
-    "endPos": 63
-  },
   "blocks": [
     {
-      "id": "2",
+      "id": "1",
       "type": "paragraph",
       "props": {
         "textColor": "default",
@@ -15,28 +11,36 @@
       "content": [
         {
           "type": "text",
-          "text": "Nested Paragraph 1",
-          "styles": {}
-        }
-      ],
-      "children": []
-    },
-    {
-      "id": "3",
-      "type": "paragraph",
-      "props": {
-        "textColor": "default",
-        "backgroundColor": "default",
-        "textAlignment": "left"
-      },
-      "content": [
-        {
-          "type": "text",
-          "text": "Nested Paragraph 2",
+          "text": "Paragraph 1",
           "styles": {}
         }
       ],
       "children": []
     }
-  ]
+  ],
+  "cutBlocks": [
+    {
+      "id": "1",
+      "type": "paragraph",
+      "props": {
+        "textColor": "default",
+        "backgroundColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "aragraph ",
+          "styles": {}
+        }
+      ],
+      "children": []
+    }
+  ],
+  "blocksCutAtStart": "1",
+  "blocksCutAtEnd": "1",
+  "_meta": {
+    "startPos": 4,
+    "endPos": 13
+  }
 }

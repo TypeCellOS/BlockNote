@@ -1,8 +1,4 @@
 {
-  "_meta": {
-    "startPos": 0,
-    "endPos": 198
-  },
   "blocks": [
     {
       "id": "1",
@@ -24,7 +20,7 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "First Table Cell 1",
+                    "text": "Table Cell 1",
                     "styles": {}
                   }
                 ],
@@ -41,7 +37,7 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "First Table Cell 2",
+                    "text": "Table Cell 2",
                     "styles": {}
                   }
                 ],
@@ -62,7 +58,7 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "First Table Cell 3",
+                    "text": "Table Cell 3",
                     "styles": {}
                   }
                 ],
@@ -79,7 +75,7 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "First Table Cell 4",
+                    "text": "Table Cell 4",
                     "styles": {}
                   }
                 ],
@@ -96,9 +92,11 @@
         ]
       },
       "children": []
-    },
+    }
+  ],
+  "cutBlocks": [
     {
-      "id": "2",
+      "id": "1",
       "type": "table",
       "props": {
         "textColor": "default"
@@ -117,7 +115,7 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "Second Table Cell 1",
+                    "text": "Table Cell 1",
                     "styles": {}
                   }
                 ],
@@ -134,7 +132,7 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "Second Table Cell 2",
+                    "text": "Table Cell 2",
                     "styles": {}
                   }
                 ],
@@ -155,7 +153,7 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "Second Table Cell 3",
+                    "text": "Table Cell 3",
                     "styles": {}
                   }
                 ],
@@ -172,7 +170,7 @@
                 "content": [
                   {
                     "type": "text",
-                    "text": "Second Table Cell 4",
+                    "text": "Table Cell 4",
                     "styles": {}
                   }
                 ],
@@ -190,5 +188,9 @@
       },
       "children": []
     }
-  ]
+  ],
+  "_meta": {
+    "startPos": 6,
+    "endPos": 68
+  }
 }

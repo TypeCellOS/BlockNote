@@ -1,0 +1,114 @@
+{
+  "blocks": [
+    {
+      "id": "2",
+      "type": "paragraph",
+      "props": {
+        "textColor": "default",
+        "backgroundColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Nested Paragraph 1",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "3",
+      "type": "paragraph",
+      "props": {
+        "textColor": "default",
+        "backgroundColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Paragraph 2",
+          "styles": {}
+        }
+      ],
+      "children": [
+        {
+          "id": "4",
+          "type": "paragraph",
+          "props": {
+            "textColor": "default",
+            "backgroundColor": "default",
+            "textAlignment": "left"
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Nested Paragraph 2",
+              "styles": {}
+            }
+          ],
+          "children": []
+        }
+      ]
+    }
+  ],
+  "cutBlocks": [
+    {
+      "id": "2",
+      "type": "paragraph",
+      "props": {
+        "textColor": "default",
+        "backgroundColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Nested Paragraph 1",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "3",
+      "type": "paragraph",
+      "props": {
+        "textColor": "default",
+        "backgroundColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Paragraph 2",
+          "styles": {}
+        }
+      ],
+      "children": [
+        {
+          "id": "4",
+          "type": "paragraph",
+          "props": {
+            "textColor": "default",
+            "backgroundColor": "default",
+            "textAlignment": "left"
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Nested Paragraph 2",
+              "styles": {}
+            }
+          ],
+          "children": []
+        }
+      ]
+    }
+  ],
+  "_meta": {
+    "startPos": 18,
+    "endPos": 75
+  }
+}

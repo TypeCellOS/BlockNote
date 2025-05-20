@@ -11,4 +11,11 @@ export type Selection<
   S extends StyleSchema,
 > = {
   blocks: Block<BSchema, I, S>[];
+  cutBlocks: Block<BSchema, I, S>[];
+  blocksCutAtStart: string | undefined;
+  blocksCutAtEnd: string | undefined;
+  _meta: {
+    startPos: number;
+    endPos: number;
+  };
 };
