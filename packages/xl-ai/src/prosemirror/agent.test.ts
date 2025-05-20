@@ -1,6 +1,6 @@
 import { BlockNoteEditor, getBlockInfo, getNodeById } from "@blocknote/core";
 import { Fragment, Slice } from "prosemirror-model";
-import { ReplaceStep } from "prosemirror-transform";
+import { ReplaceStep, Transform } from "prosemirror-transform";
 import { describe, expect, it } from "vitest";
 import { getAIExtension } from "../AIExtension.js";
 import {
@@ -49,10 +49,11 @@ describe("getStepsAsAgent", () => {
 
     // const slice = fragment.slice(0, fragment.content.size);
 
-    const step = new ReplaceStep(from, to, new Slice(fragment, 0, 0));
+    const tr = new Transform(doc);
+    tr.step(new ReplaceStep(from, to, new Slice(fragment, 0, 0)));
 
     // Apply the step
-    const steps = getStepsAsAgent(doc, editor.pmSchema, [step]);
+    const steps = getStepsAsAgent(tr);
 
     // Verify dispatch was called with the correct transactions
     expect(steps).toHaveLength(3); // select, replace, insert
@@ -78,7 +79,7 @@ describe("getStepsAsAgent", () => {
     expect(tr.steps.length).toBe(1);
 
     // Apply the step
-    const steps = getStepsAsAgent(doc, editor.pmSchema, tr.steps);
+    const steps = getStepsAsAgent(tr);
 
     // Verify dispatch was called with the correct transactions
     expect(steps).toHaveLength(1); // select, replace, insert
@@ -107,7 +108,7 @@ describe("getStepsAsAgent", () => {
     expect(tr.steps.length).toBe(1);
 
     // Apply the step
-    const steps = getStepsAsAgent(doc, editor.pmSchema, tr.steps);
+    const steps = getStepsAsAgent(tr);
 
     // Verify dispatch was called with the correct transactions
     expect(steps).toHaveLength(1); // select, replace, insert
@@ -134,7 +135,10 @@ describe("getStepsAsAgent", () => {
       doc.slice(block.blockContent.beforePos, block.blockContent.beforePos + 3),
     );
 
-    await expect(() => getStepsAsAgent(doc, editor.pmSchema, [step])).toThrow(
+    const tr = new Transform(doc);
+    tr.step(step);
+
+    await expect(() => getStepsAsAgent(tr)).toThrow(
       "Slice has openStart or openEnd > 0, but structure=false",
     );
   });
@@ -142,6 +146,8 @@ describe("getStepsAsAgent", () => {
   it("multiple steps", async () => {
     const editor = createTestEditor();
     const doc = editor.prosemirrorState.doc;
+
+    const tr = new Transform(doc);
 
     // Get the position of the content in the paragraph
     const blockPos = getNodeById("1", doc)!;
@@ -160,17 +166,19 @@ describe("getStepsAsAgent", () => {
       contentStart + 6,
       new Slice(fragment1, 0, 0),
     );
+    tr.step(step1);
 
     // 2. Replace "world" with "there"
     const fragment2 = Fragment.from(editor.pmSchema.text("there"));
     const step2 = new ReplaceStep(
-      contentStart + 8,
-      contentStart + 13,
+      contentStart + 8 - 3,
+      contentStart + 13 - 3,
       new Slice(fragment2, 0, 0),
     );
+    tr.step(step2);
 
     // Apply the steps
-    const steps = getStepsAsAgent(doc, editor.pmSchema, [step1, step2]);
+    const steps = getStepsAsAgent(tr);
 
     // Verify dispatch was called for each step
     // For each step: select, replace, and potentially multiple inserts
@@ -183,12 +191,12 @@ describe("getStepsAsAgent", () => {
     const editor = createTestEditor();
     const doc = editor.prosemirrorState.doc;
     // Create a non-ReplaceStep (we'll just mock it)
-    const nonReplaceStep = { from: 0, to: 5 } as any;
-
+    const tr = new Transform(doc);
+    tr.addMark(0, 5, editor.pmSchema.marks.bold.create());
     // Expect the function to throw an error
-    await expect(() =>
-      getStepsAsAgent(doc, editor.pmSchema, [nonReplaceStep]),
-    ).toThrow("Step is not a ReplaceStep");
+    await expect(() => getStepsAsAgent(tr)).toThrow(
+      "Step is not a ReplaceStep",
+    );
   });
 });
 
@@ -218,7 +226,11 @@ async function executeTestCase(
       selection?.to,
     );
 
-    const agentSteps = getStepsAsAgent(doc, editor.pmSchema, steps);
+    const tr = new Transform(doc);
+    for (const step of steps) {
+      tr.step(step.map(tr.mapping)!);
+    }
+    const agentSteps = getStepsAsAgent(tr);
 
     for (const step of agentSteps) {
       editor.transact((tr) => {

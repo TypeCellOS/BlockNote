@@ -1,5 +1,6 @@
 import { BlockNoteEditor, PartialBlock, trackPosition } from "@blocknote/core";
 import type { JSONSchema7 } from "json-schema";
+import { Transform } from "prosemirror-transform";
 import {
   applyAgentStep,
   delayAgentStep,
@@ -246,11 +247,11 @@ export function createUpdateBlockTool<T>(config: {
 
           const inverted = steps.map((step) => step.map(tool.invertMap)!);
 
-          const agentSteps = getStepsAsAgent(
-            editor.prosemirrorState.doc,
-            editor.pmSchema,
-            inverted,
-          );
+          const tr = new Transform(editor.prosemirrorState.doc);
+          for (const step of inverted) {
+            tr.step(step.map(tr.mapping)!);
+          }
+          const agentSteps = getStepsAsAgent(tr);
 
           for (const step of agentSteps) {
             if (options.withDelays) {

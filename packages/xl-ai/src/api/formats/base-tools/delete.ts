@@ -90,11 +90,7 @@ export const deleteBlockTool = (
 
         removeAndInsertBlocks(tr, [operation.id], []);
 
-        const agentSteps = getStepsAsAgent(
-          editor.prosemirrorState.doc,
-          editor.pmSchema,
-          tr.steps,
-        );
+        const agentSteps = getStepsAsAgent(tr);
 
         for (const step of agentSteps) {
           if (options.withDelays) {

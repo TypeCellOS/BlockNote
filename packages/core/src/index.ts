@@ -5,6 +5,7 @@ export * from "./api/exporters/html/externalHTMLExporter.js";
 export * from "./api/exporters/html/internalHTMLSerializer.js";
 export * from "./api/getBlockInfoFromPos.js";
 export * from "./api/nodeUtil.js";
+export * from "./api/pmUtil.js";
 export * from "./blocks/AudioBlockContent/AudioBlockContent.js";
 export * from "./blocks/CodeBlockContent/CodeBlockContent.js";
 export * from "./blocks/defaultBlockHelpers.js";
