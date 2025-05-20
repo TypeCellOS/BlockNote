@@ -27,7 +27,7 @@ import {
   llmFormats,
 } from "@blocknote/xl-ai";
 import "@blocknote/xl-ai/style.css";
-import { Fieldset, Switch } from "@mantine/core";
+import { Fieldset, MantineProvider, Switch } from "@mantine/core";
 import { LanguageModelV1 } from "ai";
 import { useEffect, useMemo, useState } from "react";
 import { useStore } from "zustand";
@@ -123,8 +123,6 @@ export default function App() {
 
   const ai = getAIExtension(editor);
 
-  // TODO: fix typing in autocompletion box
-
   useEffect(() => {
     // update the default model in the extension
     if (model !== "unknown-model") {
@@ -137,67 +135,73 @@ export default function App() {
   const stream = useStore(ai.options, (state) => state.stream);
 
   return (
-    <div>
-      <Fieldset legend="Model settings" style={{ maxWidth: "500px" }}>
-        <BasicAutocomplete
-          error={model === "unknown-model" ? "Unknown model" : undefined}
-          value={modelString}
-          onChange={setModelString}
-        />
-        <RadioGroupComponent
-          label="Data format"
-          items={[
-            { name: "HTML", description: "HTML", value: "html" },
-            { name: "JSON", description: "JSON (experimental)", value: "json" },
-            {
-              name: "Markdown",
-              description: "Markdown (experimental)",
-              value: "markdown",
-            },
-          ]}
-          value={dataFormat}
-          onChange={(value) => {
-            const dataFormat =
-              value === "markdown"
-                ? llmFormats._experimental_markdown
-                : value === "json"
-                  ? llmFormats._experimental_json
-                  : llmFormats.html;
-            ai.options.setState({
-              dataFormat,
-            });
-            setDataFormat(value);
-          }}
-        />
+    <MantineProvider>
+      <div>
+        <Fieldset legend="Model settings" style={{ maxWidth: "500px" }}>
+          <BasicAutocomplete
+            error={model === "unknown-model" ? "Unknown model" : undefined}
+            value={modelString}
+            onChange={setModelString}
+          />
+          <RadioGroupComponent
+            label="Data format"
+            items={[
+              { name: "HTML", description: "HTML", value: "html" },
+              {
+                name: "JSON",
+                description: "JSON (experimental)",
+                value: "json",
+              },
+              {
+                name: "Markdown",
+                description: "Markdown (experimental)",
+                value: "markdown",
+              },
+            ]}
+            value={dataFormat}
+            onChange={(value) => {
+              const dataFormat =
+                value === "markdown"
+                  ? llmFormats._experimental_markdown
+                  : value === "json"
+                    ? llmFormats._experimental_json
+                    : llmFormats.html;
+              ai.options.setState({
+                dataFormat,
+              });
+              setDataFormat(value);
+            }}
+          />
 
-        <Switch
-          checked={stream}
-          onChange={(e) => ai.options.setState({ stream: e.target.checked })}
-          label="Streaming"
-        />
-      </Fieldset>
+          <Switch
+            checked={stream}
+            onChange={(e) => ai.options.setState({ stream: e.target.checked })}
+            label="Streaming"
+          />
+        </Fieldset>
 
-      <BlockNoteView
-        editor={editor}
-        formattingToolbar={false}
-        slashMenu={false}
-      >
-        {/* Add the AI Command menu to the editor */}
-        <AIMenuController />
+        <BlockNoteView
+          editor={editor}
+          formattingToolbar={false}
+          slashMenu={false}
+        >
+          {/* Add the AI Command menu to the editor */}
+          <AIMenuController />
 
-        {/* We disabled the default formatting toolbar with `formattingToolbar=false` 
+          {/* We disabled the default formatting toolbar with `formattingToolbar=false` 
         and replace it for one with an "AI button" (defined below). 
         (See "Formatting Toolbar" in docs)
         */}
-        <FormattingToolbarWithAI />
+          <FormattingToolbarWithAI />
 
-        {/* We disabled the default SlashMenu with `slashMenu=false` 
+          {/* We disabled the default SlashMenu with `slashMenu=false` 
         and replace it for one with an AI option (defined below). 
         (See "Suggestion Menus" in docs)
         */}
-        <SuggestionMenuWithAI editor={editor} />
-      </BlockNoteView>
-    </div>
+          <SuggestionMenuWithAI editor={editor} />
+        </BlockNoteView>
+      </div>
+    </MantineProvider>
   );
 }
 
