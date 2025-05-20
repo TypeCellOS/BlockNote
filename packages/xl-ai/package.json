@@ -48,6 +48,11 @@
       "import": "./dist/style.css",
       "require": "./dist/style.css",
       "style": "./dist/style.css"
+    },
+    "./locales": {
+      "types": "./types/src/i18n/locales/index.d.ts",
+      "import": "./dist/locales.js",
+      "require": "./dist/locales.cjs"
     }
   },
   "scripts": {
