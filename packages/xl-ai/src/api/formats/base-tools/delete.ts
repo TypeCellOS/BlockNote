@@ -69,7 +69,7 @@ export const deleteBlockTool = (
       return {
         ok: true,
         value: {
-          type: "delete", // TODO
+          type: "delete",
           id,
         },
       };

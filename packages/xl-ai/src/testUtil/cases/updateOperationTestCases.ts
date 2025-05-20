@@ -10,9 +10,6 @@ import { schemaWithMention as schema } from "./schemas/mention.js";
  * It focuses on formatting related operations (like changing styles, inline content, props, etc)
  */
 
-// TODO: add test case where existing paragraph is right aligned / colored
-// TODO: add test case where some text is colored
-
 export const updateOperationTestCases: DocumentOperationTestCase[] = [
   {
     editor: getEditorWithFormattingAndMentions,

@@ -307,6 +307,5 @@ export function applyAgentStep(tr: Transaction, step: AgentStep) {
   disableSuggestChanges(editor.prosemirrorState, editor.dispatch);
   */
 
-  // TODO: errors thrown here are not shown in UI / console
   return tr;
 }

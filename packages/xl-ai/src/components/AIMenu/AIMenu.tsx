@@ -73,7 +73,7 @@ export const AIMenu = (props: AIMenuProps) => {
   );
 
   useEffect(() => {
-    // TODO: this is a bit hacky to run a useeffect to reset the prompt when the AI response is done
+    // this is a bit hacky to run a useeffect to reset the prompt when the AI response is done
     if (aiResponseStatus === "user-reviewing" || aiResponseStatus === "error") {
       setPrompt("");
     }
