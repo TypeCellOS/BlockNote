@@ -15,11 +15,11 @@ import {
 import {
   AIMenuController,
   AIToolbarButton,
-  locales as aiLocales,
   createAIExtension,
   createBlockNoteAIClient,
   getAISlashMenuItems,
 } from "@blocknote/xl-ai";
+import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
 import { getEnv } from "./getEnv.js";
 
@@ -58,7 +58,7 @@ export default function App() {
   const editor = useCreateBlockNote({
     dictionary: {
       ...en,
-      ai: aiLocales.en, // add default translations for the AI extension
+      ai: aiEn, // add default translations for the AI extension
     },
     // Register the AI extension
     extensions: [
