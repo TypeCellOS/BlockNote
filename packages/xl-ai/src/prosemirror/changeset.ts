@@ -125,7 +125,8 @@ const createEncoder = (doc: Node, updatedDoc: Node) => {
   // this encoder makes sure unchanged table cells stay intact,
   // without this, prosemirror-changeset would too eagerly
   // return changes across table cells (this is covered in test cases).
-
+  // table handling can still be impproved though, see the disabled test cases
+  // and https://github.com/ProseMirror/prosemirror-changeset/issues/22
   const tableCellsOld = new Set<string>();
   const tableCellsNew = new Set<string>();
   doc.descendants((node) => {
@@ -150,6 +151,7 @@ const createEncoder = (doc: Node, updatedDoc: Node) => {
       if (node.type.name === "tableCell") {
         const str = JSON.stringify(node.toJSON());
         if (tableCells.has(str)) {
+          // Two equal table cells in before / after are given a unique Encoding, to nudge prosemirror-changeset to keep them intact.
           return str;
         }
         return node.type.name;
