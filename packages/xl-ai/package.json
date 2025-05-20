@@ -36,13 +36,13 @@
   "type": "module",
   "source": "src/index.ts",
   "types": "./types/src/index.d.ts",
-  "main": "./dist/blocknote-xl-ai.umd.cjs",
+  "main": "./dist/blocknote-xl-ai.js",
   "module": "./dist/blocknote-xl-ai.js",
   "exports": {
     ".": {
       "types": "./types/src/index.d.ts",
       "import": "./dist/blocknote-xl-ai.js",
-      "require": "./dist/blocknote-xl-ai.umd.cjs"
+      "require": "./dist/blocknote-xl-ai.cjs"
     },
     "./style.css": {
       "import": "./dist/style.css",
