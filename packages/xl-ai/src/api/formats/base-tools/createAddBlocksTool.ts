@@ -195,7 +195,10 @@ export function createAddBlocksTool<T>(config: {
 
           const operation = chunk.operation as AddBlocksToolCall<T>;
 
-          const jsonToolCall = await config.toJSONToolCall(editor, chunk);
+          const jsonToolCall = await config.toJSONToolCall(editor, {
+            ...chunk,
+            operation,
+          });
 
           if (!jsonToolCall) {
             continue;
