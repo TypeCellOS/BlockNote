@@ -97,8 +97,6 @@ test.describe("Check Image Block and Toolbar functionality", () => {
 
     await page.mouse.up();
 
-    await page.click(`img`);
-
     await page.waitForTimeout(500);
     await compareDocToSnapshot(page, "resizeImage");
     expect(await page.screenshot()).toMatchSnapshot("resize-image.png");

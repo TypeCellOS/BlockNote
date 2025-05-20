@@ -23,6 +23,14 @@ BASIC STYLES
   */
 }
 
+/* We can't set `display: flex` on `.bn-block-content` while it has inline 
+content (see #1629). However, it's necessary to set alignment of blocks
+without content as these can't use `text-align`, so this additional rule is 
+used. */
+.bn-block-content:not(:has(.bn-inline-content)) {
+  display: flex;
+}
+
 .bn-block-content::before {
   /* content: ""; */
   transition: all 0.2s;
