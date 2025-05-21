@@ -125,13 +125,16 @@ NESTED BLOCKS
 }
 
 /* HEADINGS*/
-[data-content-type="heading"] {
+[data-content-type="heading"],
+[data-content-type="collapsableHeading"] {
   --level: 3em;
 }
-[data-content-type="heading"][data-level="2"] {
+[data-content-type="heading"][data-level="2"],
+[data-content-type="collapsableHeading"][data-level="2"] {
   --level: 2em;
 }
-[data-content-type="heading"][data-level="3"] {
+[data-content-type="heading"][data-level="3"],
+[data-content-type="collapsableHeading"][data-level="3"] {
   --level: 1.3em;
 }
 
@@ -145,14 +148,20 @@ NESTED BLOCKS
   --prev-level: 1.3em;
 }
 
-.bn-block-outer[data-prev-type="heading"] > .bn-block > .bn-block-content {
+.bn-block-outer[data-prev-type="heading"] > .bn-block > .bn-block-content,
+.bn-block-outer[data-prev-type="collapsableHeading"]
+  > .bn-block
+  > .bn-block-content {
   font-size: var(--prev-level);
   font-weight: bold;
 }
 
 .bn-block-outer:not([data-prev-type])
   > .bn-block
-  > .bn-block-content[data-content-type="heading"] {
+  > .bn-block-content[data-content-type="heading"],
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > .bn-block-content[data-content-type="collapsableHeading"] {
   font-size: var(--level);
   font-weight: bold;
 }
@@ -425,6 +434,46 @@ NESTED BLOCKS
 [data-file-block] .bn-visual-media {
   border-radius: 4px;
   width: 100%;
+}
+
+.bn-block:has(> .bn-block-content[data-collapsed="true"]) > .bn-block-group {
+  display: none;
+}
+
+.bn-collapse-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.bn-collapse-button,
+.bn-collapse-add-block-button {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  border-radius: var;
+  background: none;
+  border: none;
+  color: var(--bn-colors-editor-text);
+  user-select: none;
+}
+
+.bn-collapse-add-block-button {
+  font-size: 16px;
+  color: var(--bn-colors-side-menu);
+  font-weight: normal;
+  margin-left: 1.5em;
+  padding: 2px;
+}
+
+.bn-collapse-button:hover,
+.bn-collapse-add-block-button:hover {
+  background-color: var(--bn-colors-hovered-background);
+}
+
+.bn-block-content:not([data-collapsed="true"]) .bn-collapse-button {
+  transform: rotate(90deg);
+  transition: transform 0.2s;
 }
 
 /* Block-specific styles */

@@ -12,6 +12,24 @@ export default function App() {
         content: "Welcome to this demo!",
       },
       {
+        type: "collapsableHeading",
+        content: "Collapsable Heading",
+        children: [
+          {
+            type: "paragraph",
+            content: "Child 1",
+          },
+          {
+            type: "paragraph",
+            content: "Child 2",
+          },
+          {
+            type: "paragraph",
+            content: "Child 3",
+          },
+        ],
+      },
+      {
         type: "paragraph",
       },
       {
