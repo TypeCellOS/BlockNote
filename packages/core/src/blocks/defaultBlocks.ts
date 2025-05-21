@@ -32,7 +32,6 @@ import { Paragraph } from "./ParagraphBlockContent/ParagraphBlockContent.js";
 import { Quote } from "./QuoteBlockContent/QuoteBlockContent.js";
 import { Table } from "./TableBlockContent/TableBlockContent.js";
 import { VideoBlock } from "./VideoBlockContent/VideoBlockContent.js";
-import { CollapsableHeadingBlock } from "./CollapsableHeadingBlockContent/CollapsableHeadingBlockContent.js";
 
 export const defaultBlockSpecs = {
   paragraph: Paragraph,
@@ -47,7 +46,6 @@ export const defaultBlockSpecs = {
   image: ImageBlock,
   video: VideoBlock,
   audio: AudioBlock,
-  collapsableHeading: CollapsableHeadingBlock,
 } satisfies BlockSpecs;
 
 export const defaultBlockSchema = getBlockSchemaFromSpecs(defaultBlockSpecs);

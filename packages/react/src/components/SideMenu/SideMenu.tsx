@@ -36,10 +36,7 @@ export const SideMenu = <
       "data-block-type": props.block.type,
     };
 
-    if (
-      props.block.type === "heading" ||
-      props.block.type === "collapsableHeading"
-    ) {
+    if (props.block.type === "heading") {
       attrs["data-level"] = (props.block.props as any).level.toString();
     }
 
