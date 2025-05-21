@@ -1,4 +1,4 @@
-import { BlockConfig, defaultProps, PropSchema } from "@blocknote/core";
+import { toggleBlockConfig } from "@blocknote/core";
 import { useState } from "react";
 
 import {
@@ -6,16 +6,6 @@ import {
   ReactCustomBlockRenderProps,
 } from "../../schema/ReactBlockSpec.js";
 import { useEditorChange } from "../../hooks/useEditorChange.js";
-
-export const togglePropSchema = {
-  ...defaultProps,
-} satisfies PropSchema;
-
-export const toggleBlockConfig = {
-  type: "toggle" as const,
-  propSchema: togglePropSchema,
-  content: "inline",
-} satisfies BlockConfig;
 
 export const Toggle = (
   props: ReactCustomBlockRenderProps<typeof toggleBlockConfig, any, any>,
