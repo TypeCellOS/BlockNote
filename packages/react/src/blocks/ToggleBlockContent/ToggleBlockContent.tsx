@@ -7,7 +7,7 @@ import {
 } from "../../schema/ReactBlockSpec.js";
 import { useEditorChange } from "../../hooks/useEditorChange.js";
 
-export const Toggle = (
+export const ToggleBlock = (
   props: ReactCustomBlockRenderProps<typeof toggleBlockConfig, any, any>,
 ) => {
   const { block, editor, contentRef } = props;
@@ -64,6 +64,6 @@ export const Toggle = (
   );
 };
 
-export const ToggleBlock = createReactBlockSpec(toggleBlockConfig, {
-  render: Toggle,
+export const ReactToggleBlock = createReactBlockSpec(toggleBlockConfig, {
+  render: ToggleBlock,
 });

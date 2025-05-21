@@ -2,7 +2,10 @@ import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
-import { ToggleBlock, useCreateBlockNote } from "@blocknote/react";
+import { useCreateBlockNote } from "@blocknote/react";
+
+// import { ToggleBlock } from "@blocknote/core";
+import { ReactToggleBlock } from "@blocknote/react";
 
 export default function App() {
   // Creates a new editor instance.
@@ -10,7 +13,8 @@ export default function App() {
     schema: BlockNoteSchema.create({
       blockSpecs: {
         ...defaultBlockSpecs,
-        toggle: ToggleBlock,
+        // toggle: ToggleBlock,
+        toggle: ReactToggleBlock,
       },
     }),
     initialContent: [
