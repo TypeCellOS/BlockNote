@@ -655,17 +655,17 @@ export class BlockNoteEditor<
     Object.entries(newOptions._extensions || {}).forEach(([key, ext]) => {
       // eslint-disable-next-line @typescript-eslint/no-this-alias
       const editor = this;
+      const instance = "plugin" in ext ? ext : ext(editor);
       this.extensions[key] = new (class extends BlockNoteExtension {
         public static key() {
           return key;
         }
         constructor() {
           super();
-          if ("plugin" in ext) {
-            this.addProsemirrorPlugin(ext.plugin);
-          } else {
-            this.addProsemirrorPlugin(ext(editor).plugin);
-          }
+          this.addProsemirrorPlugin(instance.plugin);
+        }
+        public get priority() {
+          return instance.priority;
         }
       })();
     });
