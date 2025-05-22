@@ -655,7 +655,14 @@ export class BlockNoteEditor<
     Object.entries(newOptions._extensions || {}).forEach(([key, ext]) => {
       // eslint-disable-next-line @typescript-eslint/no-this-alias
       const editor = this;
-      const instance = "plugin" in ext ? ext : ext(editor);
+
+      const instance = typeof ext === "function" ? ext(editor) : ext;
+      if (!("plugin" in instance)) {
+        // Assume it is an Extension/Mark/Node
+        this.extensions[key] = instance;
+        return;
+      }
+
       this.extensions[key] = new (class extends BlockNoteExtension {
         public static key() {
           return key;
