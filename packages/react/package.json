@@ -93,7 +93,7 @@
   },
   "eslintConfig": {
     "extends": [
-      "../../.eslintrc.js"
+      "../../.eslintrc.json"
     ]
   },
   "gitHead": "d5e8c96e2ad5f6832da60bc3c9acd3f6c16c25c5"
