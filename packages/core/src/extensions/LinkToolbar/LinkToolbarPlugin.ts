@@ -302,6 +302,10 @@ export class LinkToolbarProsemirrorPlugin<
   I extends InlineContentSchema,
   S extends StyleSchema,
 > extends BlockNoteExtension {
+  public static key() {
+    return "linkToolbar";
+  }
+
   private view: LinkToolbarView | undefined;
 
   constructor(editor: BlockNoteEditor<BSchema, I, S>) {

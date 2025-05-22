@@ -10,7 +10,7 @@ export type CollaborationUser = {
 };
 
 export class CursorPlugin extends BlockNoteExtension {
-  public static name() {
+  public static key() {
     return "yCursorPlugin";
   }
 

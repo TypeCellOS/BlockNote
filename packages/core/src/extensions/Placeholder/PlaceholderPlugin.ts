@@ -7,6 +7,10 @@ import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 const PLUGIN_KEY = new PluginKey(`blocknote-placeholder`);
 
 export class PlaceholderPlugin extends BlockNoteExtension {
+  public static key() {
+    return "placeholder";
+  }
+
   constructor(
     editor: BlockNoteEditor<any, any, any>,
     placeholders: Record<

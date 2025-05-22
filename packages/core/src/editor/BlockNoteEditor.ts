@@ -380,7 +380,14 @@ export type BlockNoteEditorOptions<
    *
    * @deprecated, should use `extensions` instead
    */
-  _extensions: Record<string, BlockNoteExtension | BlockNoteExtensionFactory>;
+  _extensions: Record<
+    string,
+    | { plugin: Plugin; priority?: number }
+    | ((editor: BlockNoteEditor<any, any, any>) => {
+        plugin: Plugin;
+        priority?: number;
+      })
+  >;
 
   /**
    * Register
@@ -630,17 +637,37 @@ export class BlockNoteEditor<
         // factory
         ext = ext(this);
       }
-      const key = (ext.constructor as any).name();
+      const key = (ext.constructor as any).key();
+      if (!key) {
+        throw new Error(
+          `Extension ${ext.constructor.name} does not have a key method`,
+        );
+      }
+      if (this.extensions[key]) {
+        throw new Error(
+          `Extension ${ext.constructor.name} already exists with key ${key}`,
+        );
+      }
       this.extensions[key] = ext;
     }
 
     // (when passed in via the deprecated `_extensions` option)
     Object.entries(newOptions._extensions || {}).forEach(([key, ext]) => {
-      if (typeof ext === "function") {
-        // factory
-        ext = ext(this);
-      }
-      this.extensions[key] = ext;
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
+      const editor = this;
+      this.extensions[key] = new (class extends BlockNoteExtension {
+        public static key() {
+          return key;
+        }
+        constructor() {
+          super();
+          if ("plugin" in ext) {
+            this.addProsemirrorPlugin(ext.plugin);
+          } else {
+            this.addProsemirrorPlugin(ext(editor).plugin);
+          }
+        }
+      })();
     });
 
     this.formattingToolbar = this.extensions["formattingToolbar"] as any;
@@ -901,7 +928,7 @@ export class BlockNoteEditor<
    */
   public extension<T extends BlockNoteExtension>(
     ext: { new (...args: any[]): T } & typeof BlockNoteExtension,
-    key = ext.name(),
+    key = ext.key(),
   ): T {
     const extension = this.extensions[key] as T;
     if (!extension) {

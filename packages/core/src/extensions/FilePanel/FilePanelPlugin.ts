@@ -139,6 +139,10 @@ export class FilePanelProsemirrorPlugin<
   I extends InlineContentSchema,
   S extends StyleSchema,
 > extends BlockNoteExtension {
+  public static key() {
+    return "filePanel";
+  }
+
   private view: FilePanelView<I, S> | undefined;
 
   constructor(editor: BlockNoteEditor<Record<string, FileBlockConfig>, I, S>) {
