@@ -38,7 +38,6 @@ BASIC STYLES
   line heights (which we change for `.bn-inline-content` below). */
   display: flex;
   align-items: center;
-  vertical-align: middle;
 }
 
 .bn-inline-content {
