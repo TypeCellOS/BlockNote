@@ -14,14 +14,9 @@ BASIC STYLES
 }
 
 .bn-block-content {
+  display: flex;
   transition: font-size 0.2s;
   width: 100%;
-}
-
-.bn-block-content::before {
-  /* content: ""; */
-  transition: all 0.2s;
-  /*margin: 0px;*/
 }
 
 .bn-block-content.ProseMirror-selectednode > *,
@@ -29,6 +24,21 @@ BASIC STYLES
 .ProseMirror-selectednode > .bn-block-content > * {
   border-radius: 4px;
   outline: 4px solid rgb(100, 160, 255);
+}
+
+.bn-block-content::before {
+  transition: all 0.2s;
+  /* Workaround for selection issue on Chrome, see #1588 and also here:
+  https://discuss.prosemirror.net/t/mouse-down-selection-behaviour-different-on-chrome/8426
+  The :before element causes the selection to be set in the wrong place vs 
+  other browsers. Setting no height fixes this, while list item indicators are 
+  still displayed fine as overflow is not hidden. */
+  height: 0;
+  /* Also have to center the text vertically to ensure alignment at different 
+  line heights (which we change for `.bn-inline-content` below). */
+  display: flex;
+  align-items: center;
+  vertical-align: middle;
 }
 
 .bn-inline-content {
@@ -182,11 +192,11 @@ NESTED BLOCKS
 .bn-block-content::before {
   margin-right: 0;
   content: "";
-  display: inline;
 }
 
 /* Ordered */
 .bn-block-content[data-content-type="numberedListItem"] {
+  align-items: center;
   display: flex;
   gap: 0.5em;
 }
@@ -213,12 +223,14 @@ NESTED BLOCKS
 
 /* Unordered */
 .bn-block-content[data-content-type="bulletListItem"] {
+  align-items: center;
   display: flex;
   gap: 0.5em;
 }
 
 /* Checked */
 .bn-block-content[data-content-type="checkListItem"] > div {
+  align-items: center;
   display: flex;
   width: 100%;
 }
