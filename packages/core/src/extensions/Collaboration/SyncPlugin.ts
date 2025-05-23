@@ -3,7 +3,7 @@ import type * as Y from "yjs";
 import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 
 export class SyncPlugin extends BlockNoteExtension {
-  public static name() {
+  public static key() {
     return "ySyncPlugin";
   }
 

@@ -18,7 +18,7 @@ import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 export class ForkYDocPlugin extends BlockNoteExtension<{
   forked: boolean;
 }> {
-  public static name() {
+  public static key() {
     return "ForkYDocPlugin";
   }
 

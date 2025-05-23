@@ -618,6 +618,10 @@ export class TableHandlesProsemirrorPlugin<
   I extends InlineContentSchema,
   S extends StyleSchema,
 > extends BlockNoteExtension {
+  public static key() {
+    return "tableHandles";
+  }
+
   private view: TableHandlesView<I, S> | undefined;
 
   constructor(

@@ -2,7 +2,7 @@ import { yUndoPlugin } from "y-prosemirror";
 import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 
 export class UndoPlugin extends BlockNoteExtension {
-  public static name() {
+  public static key() {
     return "yUndoPlugin";
   }
 

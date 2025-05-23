@@ -61,7 +61,7 @@
   "peerDependencies": {},
   "eslintConfig": {
     "extends": [
-      "../../.eslintrc.js"
+      "../../.eslintrc.json"
     ]
   },
   "publishConfig": {
