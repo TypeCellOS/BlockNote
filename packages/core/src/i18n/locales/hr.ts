@@ -20,6 +20,24 @@ export const hr: Dictionary = {
       aliases: ["h3", "naslov3", "podnaslov"],
       group: "Naslovi",
     },
+    heading_4: {
+      title: "Naslov 4",
+      subtext: "Manji naslov podpoglavlja",
+      aliases: ["h4", "naslov4", "podnaslov4"],
+      group: "Naslovi",
+    },
+    heading_5: {
+      title: "Naslov 5",
+      subtext: "Mali naslov podpoglavlja",
+      aliases: ["h5", "naslov5", "podnaslov5"],
+      group: "Naslovi",
+    },
+    heading_6: {
+      title: "Naslov 6",
+      subtext: "Naslov najniže razine",
+      aliases: ["h6", "naslov6", "podnaslov6"],
+      group: "Naslovi",
+    },
     quote: {
       title: "Citat",
       subtext: "Citat ili izvadak",
