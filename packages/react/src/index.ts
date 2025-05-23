@@ -16,6 +16,7 @@ export * from "./blocks/FileBlockContent/helpers/toExternalHTML/LinkWithCaption.
 export * from "./blocks/FileBlockContent/useResolveUrl.js";
 export * from "./blocks/ImageBlockContent/ImageBlockContent.js";
 export * from "./blocks/PageBreakBlockContent/getPageBreakReactSlashMenuItems.js";
+export * from "./blocks/ToggleBlockContent/ToggleBlockContent.js";
 export * from "./blocks/VideoBlockContent/VideoBlockContent.js";
 
 export * from "./components/FormattingToolbar/DefaultButtons/AddCommentButton.js";
