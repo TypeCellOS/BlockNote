@@ -1,0 +1,42 @@
+{
+  "root": true,
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "react-app",
+    "react-app/jest"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["import", "@typescript-eslint"],
+  "settings": {
+    "import/extensions": [".ts", ".cts", ".mts", ".tsx", ".js", ".jsx"],
+    "import/external-module-folders": ["node_modules", "node_modules/@types"],
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts", ".cts", ".mts", ".tsx"]
+    },
+    "import/resolver": {
+      "node": {
+        "extensions": [".ts", ".cts", ".mts", ".tsx", ".js", ".jsx"]
+      }
+    }
+  },
+  "ignorePatterns": ["**/ui/*"],
+  "rules": {
+    "no-console": "error",
+    "curly": 1,
+    "import/extensions": ["error", "always", { "ignorePackages": true }],
+    "import/no-extraneous-dependencies": [
+      "error",
+      {
+        "devDependencies": true,
+        "peerDependencies": true,
+        "optionalDependencies": false,
+        "bundledDependencies": false
+      }
+    ],
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
+    "import/no-cycle": "error"
+  }
+}

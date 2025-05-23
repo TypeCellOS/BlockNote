@@ -1,9 +1,9 @@
 {
   "name": "@blocknote/xl-ai-server",
   "homepage": "https://github.com/TypeCellOS/BlockNote",
-  "private": false,
+  "private": true,
   "license": "AGPL-3.0 OR PROPRIETARY",
-  "version": "0.31.0",
+  "version": "0.31.1",
   "files": [
     "dist",
     "types",
@@ -61,11 +61,7 @@
   "peerDependencies": {},
   "eslintConfig": {
     "extends": [
-      "../../.eslintrc.js"
+      "../../.eslintrc.json"
     ]
-  },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
   }
 }

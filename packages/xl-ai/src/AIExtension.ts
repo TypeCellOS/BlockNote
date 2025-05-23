@@ -88,7 +88,7 @@ const PLUGIN_KEY = new PluginKey(`blocknote-ai-plugin`);
 export class AIExtension extends BlockNoteExtension {
   private previousRequestOptions: LLMRequestOptions | undefined;
 
-  public static name(): string {
+  public static key(): string {
     return "ai";
   }
 

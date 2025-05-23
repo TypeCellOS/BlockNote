@@ -18,9 +18,8 @@
     "composite": true,
     "rootDir": ".."
   },
-  "include": ["src", "../examples"],
+  "include": ["src", "../examples", "./vite.config.ts"],
   "references": [
-    { "path": "./tsconfig.node.json" },
     { "path": "../packages/xl-ai/" },
     { "path": "../packages/core/" },
     { "path": "../packages/react/" },

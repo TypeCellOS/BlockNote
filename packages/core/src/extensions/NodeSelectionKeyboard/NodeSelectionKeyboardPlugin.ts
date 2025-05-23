@@ -17,6 +17,10 @@ const PLUGIN_KEY = new PluginKey("node-selection-keyboard");
 // keystrokes, this brings us most of the way to Notion's UX without much added
 // complexity.
 export class NodeSelectionKeyboardPlugin extends BlockNoteExtension {
+  public static key() {
+    return "nodeSelectionKeyboard";
+  }
+
   constructor() {
     super();
     this.addProsemirrorPlugin(

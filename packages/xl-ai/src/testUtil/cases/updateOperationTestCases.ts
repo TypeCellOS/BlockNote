@@ -683,11 +683,11 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
           },
         ],
         schema,
-        _extensions: {
-          ai: createAIExtension({
+        extensions: [
+          createAIExtension({
             model: undefined as any,
           }),
-        },
+        ],
       });
       return editor;
     },
@@ -740,11 +740,11 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
           },
         ],
         schema,
-        _extensions: {
-          ai: createAIExtension({
+        extensions: [
+          createAIExtension({
             model: undefined as any,
           }),
-        },
+        ],
       });
       return editor;
     },
@@ -779,11 +779,11 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
           },
         ],
         schema,
-        _extensions: {
-          ai: createAIExtension({
+        extensions: [
+          createAIExtension({
             model: undefined as any,
           }),
-        },
+        ],
       });
       return editor;
     },

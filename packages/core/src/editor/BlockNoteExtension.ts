@@ -4,8 +4,8 @@ import { EventEmitter } from "../util/EventEmitter.js";
 export abstract class BlockNoteExtension<
   TEvent extends Record<string, any> = any,
 > extends EventEmitter<TEvent> {
-  public static name(): string {
-    throw new Error("You must implement the name method in your extension");
+  public static key(): string {
+    throw new Error("You must implement the key method in your extension");
   }
 
   protected addProsemirrorPlugin(plugin: Plugin) {
