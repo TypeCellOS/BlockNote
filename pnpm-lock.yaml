@@ -3262,12 +3262,18 @@ importers:
       '@tiptap/pm':
         specifier: ^2.12.0
         version: 2.12.0
+      '@types/katex':
+        specifier: ^0.16.7
+        version: 0.16.7
       emoji-mart:
         specifier: ^5.6.0
         version: 5.6.0
       hast-util-from-dom:
         specifier: ^5.0.1
         version: 5.0.1
+      katex:
+        specifier: ^0.16.22
+        version: 0.16.22
       prosemirror-dropcursor:
         specifier: ^1.8.1
         version: 1.8.1
@@ -11572,6 +11578,10 @@ packages:
 
   katex@0.16.21:
     resolution: {integrity: sha512-XvqR7FgOHtWupfMiigNzmh+MgUVmDGU2kXZm899ZkPfcuoPuFxyHmXsgATDpFZDAXCI8tvinaVcDo8PIIJSo4A==}
+    hasBin: true
+
+  katex@0.16.22:
+    resolution: {integrity: sha512-XCHRdUw4lf3SKBaJe4EvgqIuWwkPSo9XoeO8GjQW94Bp7TWv9hNhzZjZ+OH9yf1UmLygb7DIT5GSFQiyt16zYg==}
     hasBin: true
 
   keyv@4.5.4:
@@ -23224,6 +23234,10 @@ snapshots:
       setimmediate: 1.0.5
 
   katex@0.16.21:
+    dependencies:
+      commander: 8.3.0
+
+  katex@0.16.22:
     dependencies:
       commander: 8.3.0
 
