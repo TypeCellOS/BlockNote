@@ -4,7 +4,8 @@ import React, { useState } from "react";
 // & down arrow keys are used to select an item, enter is used to execute it.
 export function useSuggestionMenuKeyboardHandler<Item>(
   items: Item[],
-  onItemClick?: (item: Item) => void
+  onItemClick?: (item: Item) => void,
+  isMenuVisible?: boolean | undefined 
 ) {
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
@@ -12,6 +13,10 @@ export function useSuggestionMenuKeyboardHandler<Item>(
     selectedIndex,
     setSelectedIndex,
     handler: (event: KeyboardEvent | React.KeyboardEvent) => {
+      if (isMenuVisible === false) {
+        return false;
+      }
+
       if (event.key === "ArrowUp") {
         event.preventDefault();
 
@@ -37,12 +42,24 @@ export function useSuggestionMenuKeyboardHandler<Item>(
         ? event.nativeEvent.isComposing
         : event.isComposing;
       if (event.key === "Enter" && !isComposing) {
+        
+        if (!items.length || selectedIndex < 0 || selectedIndex >= items.length) {
+          return false;
+        }
+        
+        const suggestionMenuElement = document.querySelector('#bn-suggestion-menu, .bn-suggestion-menu, #ai-suggestion-menu');
+        const isMenuInDOM = !!suggestionMenuElement;
+        
+        if (!isMenuVisible || !isMenuInDOM) {
+          return false;
+        }
+        
         event.preventDefault();
         event.stopPropagation();
 
-        if (items.length) {
-          onItemClick?.(items[selectedIndex]);
-        }
+        if (onItemClick) {
+          onItemClick(items[selectedIndex]);
+        } 
 
         return true;
       }

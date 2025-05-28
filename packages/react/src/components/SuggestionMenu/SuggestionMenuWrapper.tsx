@@ -54,6 +54,7 @@ export function SuggestionMenuWrapper<Item>(props: {
     query,
     items,
     onItemClickCloseMenu,
+    items.length > 0
   );
 
   // set basic aria attributes when the menu is open
