@@ -78,12 +78,6 @@ export const testExportNodes = async <
 
   addIdsToBlocks(testCase.content);
 
-  const node1 = blockToNode(
-    testCase.content[0],
-    editor.pmSchema,
-    editor.schema.styleSchema,
-  );
-  debugger;
   await expect(
     testCase.content.map((block) =>
       blockToNode(block, editor.pmSchema, editor.schema.styleSchema),
