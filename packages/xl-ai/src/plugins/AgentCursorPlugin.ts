@@ -4,6 +4,7 @@ import { defaultSelectionBuilder } from "y-prosemirror";
 
 type AgentCursorState = {
   selection: { anchor: number; head: number } | undefined;
+  charPositions: number[];
 };
 const PLUGIN_KEY = new PluginKey<AgentCursorState>(`blocknote-agent-cursor`);
 
@@ -23,19 +24,26 @@ export function createAgentCursorPlugin(agentCursor: {
       init: () => {
         return {
           selection: undefined,
+          charPositions: [],
         };
       },
-      apply: (tr, _oldState) => {
+      apply: (tr, oldState) => {
         const meta = tr.getMeta("aiAgent");
 
         if (!meta) {
           return {
             selection: undefined,
+            charPositions: [],
           };
         }
 
+        const prevCharPositions = oldState.charPositions;
+        if (meta.selection.inserted) {
+          prevCharPositions.push(meta.selection.anchor);
+        }
         return {
           selection: meta.selection,
+          charPositions: prevCharPositions,
         };
       },
     },
@@ -43,7 +51,7 @@ export function createAgentCursorPlugin(agentCursor: {
       decorations: (state) => {
         const { doc } = state;
 
-        const { selection } = PLUGIN_KEY.getState(state)!;
+        const { selection, charPositions } = PLUGIN_KEY.getState(state)!;
 
         const decs = [];
 
@@ -68,6 +76,13 @@ export function createAgentCursorPlugin(agentCursor: {
           }),
         );
 
+        for (const charPosition of charPositions) {
+          decs.push(
+            Decoration.inline(charPosition - 1, charPosition, {
+              class: "agent-char",
+            }),
+          );
+        }
         return DecorationSet.create(doc, decs);
       },
     },

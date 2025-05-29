@@ -118,11 +118,11 @@ export async function generateOperations<T extends StreamTool<any>[]>(
   const ret = await generateObject<{ operations: any }>(options);
 
   // because the rest of the codebase always expects a stream, we convert the object to a stream here
-  const stream = operationsToStream(ret.object);
-
-  if (!stream.ok) {
-    throw new Error(stream.error);
+  const operations = validateOperationsRoot(ret.object);
+  if (!operations.ok) {
+    throw new Error(operations.error);
   }
+  const stream = operationsToStream(operations.value);
 
   let _operationsSource: OperationsResult<T>["operationsSource"];
 
@@ -132,7 +132,7 @@ export async function generateOperations<T extends StreamTool<any>[]>(
     get operationsSource() {
       if (!_operationsSource) {
         _operationsSource = createAsyncIterableStreamFromAsyncIterable(
-          preprocessOperationsNonStreaming(stream.value, streamTools),
+          preprocessOperationsNonStreaming(stream, streamTools),
         );
       }
       return _operationsSource;
@@ -143,15 +143,7 @@ export async function generateOperations<T extends StreamTool<any>[]>(
   };
 }
 
-export function operationsToStream<T extends StreamTool<any>[]>(
-  object: unknown,
-): Result<
-  AsyncIterable<{
-    partialOperation: StreamToolCall<T>;
-    isUpdateToPreviousOperation: boolean;
-    isPossiblyPartial: boolean;
-  }>
-> {
+export function validateOperationsRoot(object: unknown): Result<StreamToolCall<any>[]> {
   if (
     !object ||
     typeof object !== "object" ||
@@ -164,20 +156,31 @@ export function operationsToStream<T extends StreamTool<any>[]>(
     };
   }
   const operations = object.operations;
+  return {
+    ok: true,
+    value: operations,
+  };
+}
+
+export function operationsToStream<T extends StreamTool<any>[]>(
+  operations: StreamToolCall<T>[],
+): 
+  AsyncIterable<{
+    operation: StreamToolCall<T>;
+    isUpdateToPreviousOperation: boolean;
+    isPossiblyPartial: boolean;
+  }> {
   async function* singleChunkGenerator() {
     for (const op of operations) {
       yield {
-        partialOperation: op,
+        operation: op,
         isUpdateToPreviousOperation: false,
         isPossiblyPartial: false,
       };
     }
   }
 
-  return {
-    ok: true,
-    value: singleChunkGenerator(),
-  };
+  return singleChunkGenerator(),
 }
 
 /**

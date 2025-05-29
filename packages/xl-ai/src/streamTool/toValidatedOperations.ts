@@ -1,5 +1,31 @@
 import { Result, StreamTool, StreamToolCall } from "./streamTool.js";
 
+export function validateOperation<T extends StreamTool<any>[]>(
+  partialOperation: unknown,
+  streamTools: T,
+): Result<StreamToolCall<T>> {
+  if (
+    !partialOperation ||
+    typeof partialOperation !== "object" ||
+    !("type" in partialOperation)
+  ) {
+    return {
+      ok: false,
+      error: "Partial operation is not an object",
+    };
+  }
+  const func = streamTools.find((f) => f.name === partialOperation.type);
+
+  if (!func) {
+    return {
+      ok: false,
+      error: `No matching function for ${partialOperation.type}`,
+    };
+  }
+
+  return func.validate(partialOperation);
+}
+
 /**
  * Transforms the partialObjectStream into a stream of operations (tool calls), or indicates that the operation is invalid.
  *
@@ -9,7 +35,7 @@ import { Result, StreamTool, StreamToolCall } from "./streamTool.js";
  */
 export async function* toValidatedOperations<T extends StreamTool<any>[]>(
   partialObjectStream: AsyncIterable<{
-    partialOperation: any;
+    operation: any;
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
   }>,
@@ -20,28 +46,10 @@ export async function* toValidatedOperations<T extends StreamTool<any>[]>(
   isPossiblyPartial: boolean;
 }> {
   for await (const chunk of partialObjectStream) {
-    const func = streamTools.find(
-      (f) => f.name === chunk.partialOperation.type,
-    )!;
-
-    if (!func) {
-      // Skip operations with no matching function
-      // console.error("no matching function", chunk.partialOperation);
-      yield {
-        operation: {
-          ok: false,
-          error: `No matching function for ${chunk.partialOperation.type}`,
-        },
-        isUpdateToPreviousOperation: chunk.isUpdateToPreviousOperation,
-        isPossiblyPartial: chunk.isPossiblyPartial,
-      };
-      continue;
-    }
-
-    const operation = func.validate(chunk.partialOperation);
+    const result = validateOperation(chunk.operation, streamTools);
 
     yield {
-      operation,
+      operation: result,
       isUpdateToPreviousOperation: chunk.isUpdateToPreviousOperation,
       isPossiblyPartial: chunk.isPossiblyPartial,
     };

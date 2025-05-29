@@ -15,7 +15,7 @@ export async function* preprocessOperationsStreaming<
   T extends StreamTool<any>[],
 >(
   operationsStream: AsyncIterable<{
-    partialOperation: any;
+    operation: any;
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
   }>,
@@ -48,7 +48,7 @@ export async function* preprocessOperationsNonStreaming<
   T extends StreamTool<any>[],
 >(
   operationsStream: AsyncIterable<{
-    partialOperation: any;
+    operation: any;
     isUpdateToPreviousOperation: boolean;
     isPossiblyPartial: boolean;
   }>,

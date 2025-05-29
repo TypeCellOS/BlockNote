@@ -268,6 +268,7 @@ export function applyAgentStep(tr: Transaction, step: AgentStep) {
       selection: {
         anchor: step.selection.anchor,
         head: step.selection.head,
+        inserted: step.type === "insert" || step.type === "replace",
       },
     });
   }
