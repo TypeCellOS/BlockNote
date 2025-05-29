@@ -17,7 +17,8 @@
   },
   "devDependencies": {
     "@types/node": "22.13.13",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "zod": "^3.25.36"
   },
   "peerDependencies": {
     "image-meta": "^0.2.1"

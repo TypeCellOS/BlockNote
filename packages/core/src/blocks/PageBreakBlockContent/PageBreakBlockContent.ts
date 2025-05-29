@@ -1,12 +1,9 @@
-import {
-  createBlockSpec,
-  CustomBlockConfig,
-  Props,
-} from "../../schema/index.js";
+import z from "zod/v4";
+import { createBlockSpec, CustomBlockConfig } from "../../schema/index.js";
 
 export const pageBreakConfig = {
   type: "pageBreak" as const,
-  propSchema: {},
+  propSchema: z.object(),
   content: "none",
   isFileBlock: false,
   isSelectable: false,
@@ -23,7 +20,7 @@ export const pageBreakRender = () => {
 };
 export const pageBreakParse = (
   element: HTMLElement,
-): Partial<Props<typeof pageBreakConfig.propSchema>> | undefined => {
+): Partial<z.infer<typeof pageBreakConfig.propSchema>> | undefined => {
   if (element.tagName === "DIV" && element.hasAttribute("data-page-break")) {
     return {
       type: "pageBreak",

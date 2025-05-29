@@ -17,6 +17,7 @@ import {
   TableContent,
   UniqueID,
 } from "@blocknote/core";
+import * as z from "zod/v4/core";
 
 function textShorthandToStyledText(
   content: string | StyledText<any>[] = "",
@@ -143,16 +144,17 @@ export function partialBlockToBlockForTesting<
     ...partialBlock,
   };
 
-  Object.entries(schema[partialBlock.type!].propSchema).forEach(
-    ([propKey, propValue]) => {
-      if (
-        withDefaults.props[propKey] === undefined &&
-        propValue.default !== undefined
-      ) {
-        (withDefaults.props as any)[propKey] = propValue.default;
-      }
-    },
-  );
+  Object.entries(
+    (schema[partialBlock.type!].propSchema as z.$ZodObject)._zod.def.shape,
+  ).forEach(([propKey, propValue]) => {
+    const def =
+      propValue instanceof z.$ZodDefault
+        ? propValue._zod.def.defaultValue
+        : undefined;
+    if (withDefaults.props[propKey] === undefined && def !== undefined) {
+      (withDefaults.props as any)[propKey] = def;
+    }
+  });
 
   if (contentType === "inline") {
     const content = withDefaults.content as InlineContent<I, S>[] | undefined;

@@ -6,13 +6,13 @@ import {
   Node,
   NodeConfig,
 } from "@tiptap/core";
+import * as z from "zod/v4/core";
 import { defaultBlockToHTML } from "../../blocks/defaultBlockHelpers.js";
 import { inheritedProps } from "../../blocks/defaultProps.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { mergeCSSClasses } from "../../util/browser.js";
 import { camelToDataKebab } from "../../util/string.js";
 import { InlineContentSchema } from "../inlineContent/types.js";
-import { PropSchema, Props } from "../propTypes.js";
 import { StyleSchema } from "../styles/types.js";
 import {
   BlockConfig,
@@ -26,15 +26,18 @@ import {
 
 // Function that uses the 'propSchema' of a blockConfig to create a TipTap
 // node's `addAttributes` property.
-// TODO: extract function
-export function propsToAttributes(propSchema: PropSchema): Attributes {
+// TODO: extract function0
+export function propsToAttributes(propSchema: z.$ZodObject): Attributes {
   const tiptapAttributes: Record<string, Attribute> = {};
 
-  Object.entries(propSchema)
+  Object.entries(propSchema._zod.def.shape)
     .filter(([name, _spec]) => !inheritedProps.includes(name))
     .forEach(([name, spec]) => {
+      const def =
+        spec instanceof z.$ZodDefault ? spec._zod.def.defaultValue : undefined;
+
       tiptapAttributes[name] = {
-        default: spec.default,
+        default: def,
         keepOnSplit: true,
         // Props are displayed in kebab-case as HTML attributes. If a prop's
         // value is the same as its default, we don't display an HTML
@@ -46,41 +49,19 @@ export function propsToAttributes(propSchema: PropSchema): Attributes {
             return null;
           }
 
-          if (
-            (spec.default === undefined && spec.type === "boolean") ||
-            (spec.default !== undefined && typeof spec.default === "boolean")
-          ) {
-            if (value === "true") {
-              return true;
-            }
-
-            if (value === "false") {
-              return false;
-            }
-
-            return null;
+          // TBD: this might not be fault proof, but it's also ugly to store prop="&quot;...&quot;" for strings
+          try {
+            const jsonValue = JSON.parse(value);
+            // it was a number / boolean / json object stored as attribute
+            return z.parse(spec, jsonValue);
+          } catch (e) {
+            // it might have been a string directly stored as attribute
+            return z.parse(spec, value);
           }
-
-          if (
-            (spec.default === undefined && spec.type === "number") ||
-            (spec.default !== undefined && typeof spec.default === "number")
-          ) {
-            const asNumber = parseFloat(value);
-            const isNumeric =
-              !Number.isNaN(asNumber) && Number.isFinite(asNumber);
-
-            if (isNumeric) {
-              return asNumber;
-            }
-
-            return null;
-          }
-
-          return value;
         },
         renderHTML: (attributes) => {
           // don't render to html if the value is the same as the default
-          return attributes[name] !== spec.default
+          return attributes[name] !== def
             ? {
                 [camelToDataKebab(name)]: attributes[name],
               }
@@ -142,7 +123,7 @@ export function getBlockFromPos<
 // an `inlineContent` class to it.
 export function wrapInBlockStructure<
   BType extends string,
-  PSchema extends PropSchema,
+  PSchema extends z.$ZodObject,
 >(
   element: {
     dom: HTMLElement;
@@ -150,7 +131,7 @@ export function wrapInBlockStructure<
     destroy?: () => void;
   },
   blockType: BType,
-  blockProps: Props<PSchema>,
+  blockProps: z.output<PSchema>,
   propSchema: PSchema,
   isFileBlock = false,
   domAttributes?: Record<string, string>,
@@ -181,10 +162,18 @@ export function wrapInBlockStructure<
   // which are already added as HTML attributes to the parent `blockContent`
   // element (inheritedProps) and props set to their default values.
   for (const [prop, value] of Object.entries(blockProps)) {
-    const spec = propSchema[prop];
-    const defaultValue = spec.default;
+    const spec = propSchema._zod.def.shape[prop];
+    const defaultValue =
+      spec instanceof z.$ZodDefault ? spec._zod.def.defaultValue : undefined;
     if (!inheritedProps.includes(prop) && value !== defaultValue) {
-      blockContent.setAttribute(camelToDataKebab(prop), value);
+      if (typeof value === "string") {
+        blockContent.setAttribute(camelToDataKebab(prop), value);
+      } else {
+        blockContent.setAttribute(
+          camelToDataKebab(prop),
+          JSON.stringify(value),
+        );
+      }
     }
   }
   // Adds file block attribute
@@ -249,7 +238,7 @@ export function createInternalBlockSpec<T extends BlockConfig>(
 
 export function createBlockSpecFromStronglyTypedTiptapNode<
   T extends Node,
-  P extends PropSchema,
+  P extends z.$ZodObject,
 >(node: T, propSchema: P, requiredExtensions?: Array<Extension | Node>) {
   return createInternalBlockSpec(
     {

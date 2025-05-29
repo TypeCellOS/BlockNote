@@ -1,7 +1,8 @@
 import { KeyboardShortcutCommand, Node } from "@tiptap/core";
 
 import { camelToDataKebab } from "../../util/string.js";
-import { PropSchema, Props } from "../propTypes.js";
+
+import * as z from "zod/v4/core";
 import {
   CustomInlineContentConfig,
   InlineContentConfig,
@@ -10,21 +11,20 @@ import {
   InlineContentSpec,
   InlineContentSpecs,
 } from "./types.js";
-
 // Function that adds necessary classes and attributes to the `dom` element
 // returned from a custom inline content's 'render' function, to ensure no data
 // is lost on internal copy & paste.
 export function addInlineContentAttributes<
   IType extends string,
-  PSchema extends PropSchema,
+  PSchema extends z.$ZodObject,
 >(
   element: {
     dom: HTMLElement;
     contentDOM?: HTMLElement;
   },
   inlineContentType: IType,
-  inlineContentProps: Props<PSchema>,
-  propSchema: PSchema,
+  inlineContentProps: z.infer<PSchema>,
+  propSchema: z.$ZodObject,
 ): {
   dom: HTMLElement;
   contentDOM?: HTMLElement;
@@ -35,13 +35,17 @@ export function addInlineContentAttributes<
   // set to their default values.
   Object.entries(inlineContentProps)
     .filter(([prop, value]) => {
-      const spec = propSchema[prop];
-      return value !== spec.default;
+      const spec = propSchema._zod.def.shape[prop];
+      const defaultValue =
+        spec instanceof z.$ZodDefault ? spec._zod.def.defaultValue : undefined;
+      return value !== defaultValue;
     })
     .map(([prop, value]) => {
-      return [camelToDataKebab(prop), value];
+      return [camelToDataKebab(prop), value] satisfies [string, unknown];
     })
-    .forEach(([prop, value]) => element.dom.setAttribute(prop, value));
+    .forEach(([prop, value]) =>
+      element.dom.setAttribute(prop, JSON.stringify(value)),
+    );
 
   if (element.contentDOM !== undefined) {
     element.contentDOM.setAttribute("data-editable", "");
@@ -85,7 +89,7 @@ export function createInternalInlineContentSpec<T extends InlineContentConfig>(
 
 export function createInlineContentSpecFromTipTapNode<
   T extends Node,
-  P extends PropSchema,
+  P extends z.$ZodObject,
 >(node: T, propSchema: P) {
   return createInternalInlineContentSpec(
     {

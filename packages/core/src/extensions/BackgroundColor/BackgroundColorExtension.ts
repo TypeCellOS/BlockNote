@@ -10,15 +10,15 @@ export const BackgroundColorExtension = Extension.create({
         types: ["blockContainer", "tableCell", "tableHeader"],
         attributes: {
           backgroundColor: {
-            default: defaultProps.backgroundColor.default,
+            default: defaultProps.shape.backgroundColor._zod.def.defaultValue,
             parseHTML: (element) =>
               element.hasAttribute("data-background-color")
                 ? element.getAttribute("data-background-color")
-                : defaultProps.backgroundColor.default,
+                : defaultProps.shape.backgroundColor._zod.def.defaultValue,
             renderHTML: (attributes) => {
               if (
                 attributes.backgroundColor ===
-                defaultProps.backgroundColor.default
+                defaultProps.shape.backgroundColor._zod.def.defaultValue
               ) {
                 return {};
               }

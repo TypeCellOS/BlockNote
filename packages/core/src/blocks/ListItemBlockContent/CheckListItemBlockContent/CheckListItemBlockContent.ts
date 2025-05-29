@@ -1,11 +1,11 @@
 import { InputRule } from "@tiptap/core";
+import * as z from "zod/v4";
 import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import {
   getBlockInfoFromSelection,
   getNearestBlockPos,
 } from "../../../api/getBlockInfoFromPos.js";
 import {
-  PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
   propsToAttributes,
@@ -15,12 +15,9 @@ import { defaultProps } from "../../defaultProps.js";
 import { getListItemContent } from "../getListItemContent.js";
 import { handleEnter } from "../ListItemKeyboardShortcuts.js";
 
-export const checkListItemPropSchema = {
-  ...defaultProps,
-  checked: {
-    default: false,
-  },
-} satisfies PropSchema;
+export const checkListItemPropSchema = defaultProps.extend({
+  checked: z.boolean().default(false),
+});
 
 const checkListItemBlockContent = createStronglyTypedTiptapNode({
   name: "checkListItem",

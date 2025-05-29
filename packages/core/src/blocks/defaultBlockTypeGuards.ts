@@ -1,3 +1,4 @@
+import { Selection } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import {
@@ -15,7 +16,6 @@ import {
   defaultInlineContentSchema,
 } from "./defaultBlocks.js";
 import { defaultProps } from "./defaultProps.js";
-import { Selection } from "prosemirror-state";
 
 export function checkDefaultBlockTypeInSchema<
   BlockType extends keyof DefaultBlockSchema,
@@ -89,9 +89,10 @@ export function checkBlockIsFileBlockWithPreview<
   block: Block<any, I, S>,
   editor: BlockNoteEditor<B, I, S>,
 ): block is BlockFromConfig<
-  FileBlockConfig & {
-    propSchema: Required<FileBlockConfig["propSchema"]>;
-  },
+  // FileBlockConfig & {
+  //   propSchema: Required<FileBlockConfig["propSchema"]>;
+  // },
+  any, // TODO
   I,
   S
 > {
@@ -121,15 +122,16 @@ export function checkBlockTypeHasDefaultProp<
   blockType: string,
   editor: BlockNoteEditor<any, I, S>,
 ): editor is BlockNoteEditor<
-  {
-    [BT in string]: {
-      type: BT;
-      propSchema: {
-        [P in Prop]: (typeof defaultProps)[P];
-      };
-      content: "table" | "inline" | "none";
-    };
-  },
+  // {
+  //   [BT in string]: {
+  //     type: BT;
+  //     propSchema: {
+  //       [P in Prop]: (typeof defaultProps)[P];
+  //     };
+  //     content: "table" | "inline" | "none";
+  //   };
+  // },
+  any, // TODO
   I,
   S
 > {
@@ -149,13 +151,14 @@ export function checkBlockHasDefaultProp<
   block: Block<any, I, S>,
   editor: BlockNoteEditor<any, I, S>,
 ): block is BlockFromConfig<
-  {
-    type: string;
-    propSchema: {
-      [P in Prop]: (typeof defaultProps)[P];
-    };
-    content: "table" | "inline" | "none";
-  },
+  // {
+  //   type: string;
+  //   propSchema: {
+  //     [P in Prop]: (typeof defaultProps)[P];
+  //   };
+  //   content: "table" | "inline" | "none";
+  // },
+  any, // TODO
   I,
   S
 > {

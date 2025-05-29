@@ -2,7 +2,6 @@ import { InputRule } from "@tiptap/core";
 import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromSelection } from "../../../api/getBlockInfoFromPos.js";
 import {
-  PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
 } from "../../../schema/index.js";
@@ -11,9 +10,7 @@ import { defaultProps } from "../../defaultProps.js";
 import { getListItemContent } from "../getListItemContent.js";
 import { handleEnter } from "../ListItemKeyboardShortcuts.js";
 
-export const bulletListItemPropSchema = {
-  ...defaultProps,
-} satisfies PropSchema;
+export const bulletListItemPropSchema = defaultProps;
 
 const BulletListItemBlockContent = createStronglyTypedTiptapNode({
   name: "bulletListItem",

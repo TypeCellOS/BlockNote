@@ -10,13 +10,16 @@ export const TextColorExtension = Extension.create({
         types: ["blockContainer", "tableCell", "tableHeader"],
         attributes: {
           textColor: {
-            default: defaultProps.textColor.default,
+            default: defaultProps.shape.textColor._zod.def.defaultValue,
             parseHTML: (element) =>
               element.hasAttribute("data-text-color")
                 ? element.getAttribute("data-text-color")
-                : defaultProps.textColor.default,
+                : defaultProps.shape.textColor._zod.def.defaultValue,
             renderHTML: (attributes) => {
-              if (attributes.textColor === defaultProps.textColor.default) {
+              if (
+                attributes.textColor ===
+                defaultProps.shape.textColor._zod.def.defaultValue
+              ) {
                 return {};
               }
               return {

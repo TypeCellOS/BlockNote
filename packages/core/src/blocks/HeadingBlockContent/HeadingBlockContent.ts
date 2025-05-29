@@ -1,8 +1,8 @@
 import { InputRule } from "@tiptap/core";
+import * as z from "zod/v4";
 import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromSelection } from "../../api/getBlockInfoFromPos.js";
 import {
-  PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
   propsToAttributes,
@@ -10,10 +10,9 @@ import {
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
 
-export const headingPropSchema = {
-  ...defaultProps,
-  level: { default: 1, values: [1, 2, 3] as const },
-} satisfies PropSchema;
+export const headingPropSchema = defaultProps.extend({
+  level: z.number().int().min(1).max(3).default(1),
+});
 
 const HeadingBlockContent = createStronglyTypedTiptapNode({
   name: "heading",

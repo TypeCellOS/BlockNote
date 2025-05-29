@@ -1,8 +1,8 @@
 import { InputRule } from "@tiptap/core";
+import { z } from "zod/v4";
 import { updateBlockCommand } from "../../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromSelection } from "../../../api/getBlockInfoFromPos.js";
 import {
-  PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
   propsToAttributes,
@@ -13,10 +13,9 @@ import { getListItemContent } from "../getListItemContent.js";
 import { handleEnter } from "../ListItemKeyboardShortcuts.js";
 import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin.js";
 
-export const numberedListItemPropSchema = {
-  ...defaultProps,
-  start: { default: undefined, type: "number" },
-} satisfies PropSchema;
+export const numberedListItemPropSchema = defaultProps.extend({
+  start: z.number().optional(),
+});
 
 const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
   name: "numberedListItem",

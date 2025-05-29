@@ -13,9 +13,9 @@ import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
 import { EMPTY_CELL_WIDTH, TableExtension } from "./TableExtension.js";
 
-export const tablePropSchema = {
-  textColor: defaultProps.textColor,
-};
+export const tablePropSchema = defaultProps.pick({
+  textColor: true,
+});
 
 export const TableBlockContent = createStronglyTypedTiptapNode({
   name: "table",

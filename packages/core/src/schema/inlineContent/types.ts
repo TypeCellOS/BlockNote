@@ -1,11 +1,11 @@
 import { Node } from "@tiptap/core";
-import { PropSchema, Props } from "../propTypes.js";
-import { StyleSchema, Styles } from "../styles/types.js";
 
+import * as z from "zod/v4/core";
+import { StyleSchema, Styles } from "../styles/types.js";
 export type CustomInlineContentConfig = {
   type: string;
   content: "styled" | "none"; // | "plain"
-  readonly propSchema: PropSchema;
+  readonly propSchema: z.$ZodObject;
   // content: "inline" | "none" | "table";
 };
 // InlineContentConfig contains the "schema" info about an InlineContent type
@@ -47,7 +47,7 @@ export type CustomInlineContentFromConfig<
   S extends StyleSchema,
 > = {
   type: I["type"];
-  props: Props<I["propSchema"]>;
+  props: z.infer<I["propSchema"]>;
   content: I["content"] extends "styled"
     ? StyledText<S>[]
     : I["content"] extends "plain"
@@ -73,7 +73,7 @@ export type PartialCustomInlineContentFromConfig<
   S extends StyleSchema,
 > = {
   type: I["type"];
-  props?: Props<I["propSchema"]>;
+  props?: Partial<z.infer<I["propSchema"]>>;
   content?: I["content"] extends "styled"
     ? StyledText<S>[] | string
     : I["content"] extends "plain"

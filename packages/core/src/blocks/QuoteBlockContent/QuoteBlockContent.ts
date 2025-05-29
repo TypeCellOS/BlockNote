@@ -1,16 +1,14 @@
+import { InputRule } from "@tiptap/core";
+import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
+import { getBlockInfoFromSelection } from "../../api/getBlockInfoFromPos.js";
 import {
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
 } from "../../schema/index.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
-import { getBlockInfoFromSelection } from "../../api/getBlockInfoFromPos.js";
-import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { InputRule } from "@tiptap/core";
 
-export const quotePropSchema = {
-  ...defaultProps,
-};
+export const quotePropSchema = defaultProps;
 
 export const QuoteBlockContent = createStronglyTypedTiptapNode({
   name: "quote",

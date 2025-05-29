@@ -11,6 +11,7 @@ import {
   imageRender,
   PageBreak,
 } from "@blocknote/core";
+import * as z from "zod/v4";
 
 // BLOCKS ----------------------------------------------------------------------
 
@@ -80,11 +81,9 @@ const SimpleCustomParagraph = createBlockSpec(
 const Mention = createInlineContentSpec(
   {
     type: "mention",
-    propSchema: {
-      user: {
-        default: "",
-      },
-    },
+    propSchema: z.object({
+      user: z.string().default(""),
+    }),
     content: "none",
   },
   {
@@ -102,7 +101,7 @@ const Mention = createInlineContentSpec(
 const Tag = createInlineContentSpec(
   {
     type: "tag" as const,
-    propSchema: {},
+    propSchema: z.object({}),
     content: "styled",
   },
   {

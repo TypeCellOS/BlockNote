@@ -1,4 +1,5 @@
 import { Mark, Node, Schema, Slice } from "@tiptap/pm/model";
+import * as z from "zod/v4/core";
 import type { Block } from "../../blocks/defaultBlocks.js";
 import UniqueID from "../../extensions/UniqueID/UniqueID.js";
 import type {
@@ -429,12 +430,22 @@ export function nodeToBlock<
     ...node.attrs,
     ...(blockInfo.isBlockContainer ? blockInfo.blockContent.node.attrs : {}),
   })) {
-    const propSchema = blockSpec.propSchema;
+    const propSchema =
+      blockSpec.propSchema._zod.def.shape[
+        attr as keyof typeof blockSpec.propSchema._zod.def.shape
+      ];
 
-    if (
-      attr in propSchema &&
-      !(propSchema[attr].default === undefined && value === undefined)
-    ) {
+    if (!propSchema) {
+      continue;
+    }
+
+    const def =
+      propSchema instanceof z.$ZodDefault
+        ? propSchema._zod.def.defaultValue
+        : undefined;
+
+    // TODO: is this if statement correct?
+    if (!(def === undefined && value === undefined)) {
       props[attr] = value;
     }
   }

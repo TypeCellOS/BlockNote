@@ -13,8 +13,6 @@ import {
   InlineContentSchema,
   mergeCSSClasses,
   PartialBlockFromConfig,
-  Props,
-  PropSchema,
   propsToAttributes,
   StyleSchema,
   wrapInBlockStructure,
@@ -27,8 +25,8 @@ import {
   useReactNodeView,
 } from "@tiptap/react";
 import { FC, ReactNode } from "react";
+import * as z from "zod/v4/core";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
-
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 
 export type ReactCustomBlockRenderProps<
@@ -59,10 +57,10 @@ export type ReactCustomBlockImplementation<
 // block type and props as HTML attributes.
 export function BlockContentWrapper<
   BType extends string,
-  PSchema extends PropSchema,
+  PSchema extends z.$ZodObject,
 >(props: {
   blockType: BType;
-  blockProps: Props<PSchema>;
+  blockProps: z.infer<PSchema>;
   propSchema: PSchema;
   isFileBlock?: boolean;
   domAttributes?: Record<string, string>;
@@ -92,8 +90,12 @@ export function BlockContentWrapper<
       {...Object.fromEntries(
         Object.entries(props.blockProps)
           .filter(([prop, value]) => {
-            const spec = props.propSchema[prop];
-            return !inheritedProps.includes(prop) && value !== spec.default;
+            const spec = props.propSchema._zod.def.shape[prop];
+            const def =
+              spec instanceof z.$ZodDefault
+                ? spec._zod.def.defaultValue
+                : undefined;
+            return !inheritedProps.includes(prop) && value !== def;
           })
           .map(([prop, value]) => {
             return [camelToDataKebab(prop), value];

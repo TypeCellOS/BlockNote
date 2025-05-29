@@ -7,9 +7,7 @@ import {
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
 
-export const paragraphPropSchema = {
-  ...defaultProps,
-};
+export const paragraphPropSchema = defaultProps;
 
 export const ParagraphBlockContent = createStronglyTypedTiptapNode({
   name: "paragraph",

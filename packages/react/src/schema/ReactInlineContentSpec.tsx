@@ -1,6 +1,7 @@
 import {
   addInlineContentAttributes,
   addInlineContentKeyboardShortcuts,
+  BlockNoteEditor,
   camelToDataKebab,
   createInternalInlineContentSpec,
   createStronglyTypedTiptapNode,
@@ -10,11 +11,8 @@ import {
   inlineContentToNodes,
   nodeToCustomInlineContent,
   PartialCustomInlineContentFromConfig,
-  Props,
-  PropSchema,
   propsToAttributes,
   StyleSchema,
-  BlockNoteEditor,
 } from "@blocknote/core";
 import {
   NodeViewProps,
@@ -22,6 +20,7 @@ import {
   ReactNodeViewRenderer,
   useReactNodeView,
 } from "@tiptap/react";
+import * as z from "zod/v4/core";
 // import { useReactNodeView } from "@tiptap/react/dist/packages/react/src/useReactNodeView";
 import { FC } from "react";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
@@ -52,11 +51,11 @@ export type ReactInlineContentImplementation<
 // ensure no data is lost on internal copy & paste.
 export function InlineContentWrapper<
   IType extends string,
-  PSchema extends PropSchema,
+  PSchema extends z.$ZodObject,
 >(props: {
   children: JSX.Element;
   inlineContentType: IType;
-  inlineContentProps: Props<PSchema>;
+  inlineContentProps: z.infer<PSchema>;
   propSchema: PSchema;
 }) {
   return (
@@ -142,7 +141,7 @@ export function createReactInlineContentSpec<
       return addInlineContentAttributes(
         output,
         inlineContentConfig.type,
-        node.attrs as Props<T["propSchema"]>,
+        node.attrs as z.infer<T["propSchema"]>,
         inlineContentConfig.propSchema,
       );
     },
@@ -162,7 +161,9 @@ export function createReactInlineContentSpec<
             const Content = inlineContentImplementation.render;
             return (
               <InlineContentWrapper
-                inlineContentProps={props.node.attrs as Props<T["propSchema"]>}
+                inlineContentProps={
+                  props.node.attrs as z.infer<T["propSchema"]>
+                }
                 inlineContentType={inlineContentConfig.type}
                 propSchema={inlineContentConfig.propSchema}
               >

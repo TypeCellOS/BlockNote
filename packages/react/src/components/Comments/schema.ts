@@ -5,7 +5,7 @@ import {
   defaultBlockSpecs,
   defaultStyleSpecs,
 } from "@blocknote/core";
-
+import * as z from "zod/v4";
 // this is quite convoluted. we'll clean this up when we make
 // it easier to extend / customize the default blocks
 const paragraph = createBlockSpecFromStronglyTypedTiptapNode(
@@ -13,7 +13,7 @@ const paragraph = createBlockSpecFromStronglyTypedTiptapNode(
     defaultBlockSpecs.paragraph.implementation.node.config as any,
   ),
   // disable default props on paragraph (such as textalignment and colors)
-  {},
+  z.object({}),
 );
 
 // remove textColor, backgroundColor from styleSpecs

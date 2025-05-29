@@ -1,5 +1,6 @@
 import { DOMSerializer, Fragment } from "prosemirror-model";
 
+import * as z from "zod/v4/core";
 import { PartialBlock } from "../../../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
 import {
@@ -65,10 +66,13 @@ function serializeBlock<
   if (!block.props) {
     props = {};
     for (const [name, spec] of Object.entries(
-      editor.schema.blockSchema[block.type as any].propSchema,
+      (editor.schema.blockSchema[block.type as any].propSchema as z.$ZodObject) // TODO
+        ._zod.def.shape,
     )) {
-      if (spec.default !== undefined) {
-        (props as any)[name] = spec.default;
+      const def =
+        spec instanceof z.$ZodDefault ? spec._zod.def.defaultValue : undefined;
+      if (def !== undefined) {
+        (props as any)[name] = def;
       }
     }
   }

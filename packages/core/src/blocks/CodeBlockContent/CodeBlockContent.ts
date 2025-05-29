@@ -3,14 +3,13 @@ import { InputRule, isTextSelection } from "@tiptap/core";
 import { TextSelection } from "@tiptap/pm/state";
 import { Parser, createHighlightPlugin } from "prosemirror-highlight";
 import { createParser } from "prosemirror-highlight/shiki";
+import { z } from "zod/v4";
 import { BlockNoteEditor } from "../../index.js";
 import {
-  PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
 } from "../../schema/index.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
-
 export type CodeBlockOptions = {
   /**
    * Whether to indent lines with a tab when the user presses `Tab` in a code block.
@@ -66,11 +65,9 @@ export const shikiParserSymbol = Symbol.for("blocknote.shikiParser");
 export const shikiHighlighterPromiseSymbol = Symbol.for(
   "blocknote.shikiHighlighterPromise",
 );
-export const defaultCodeBlockPropSchema = {
-  language: {
-    default: "text",
-  },
-} satisfies PropSchema;
+export const defaultCodeBlockPropSchema = z.object({
+  language: z.string().default("text"),
+});
 
 const CodeBlockContent = createStronglyTypedTiptapNode({
   name: "codeBlock",

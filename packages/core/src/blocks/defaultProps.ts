@@ -1,22 +1,14 @@
-import type { Props, PropSchema } from "../schema/index.js";
-
+import * as z from "zod/v4";
 // TODO: this system should probably be moved / refactored.
 // The dependency from schema on this file doesn't make sense
 
-export const defaultProps = {
-  backgroundColor: {
-    default: "default" as const,
-  },
-  textColor: {
-    default: "default" as const,
-  },
-  textAlignment: {
-    default: "left" as const,
-    values: ["left", "center", "right", "justify"] as const,
-  },
-} satisfies PropSchema;
+export const defaultProps = z.object({
+  backgroundColor: z.string().default("default"),
+  textColor: z.string().default("default"),
+  textAlignment: z.enum(["left", "center", "right", "justify"]).default("left"),
+});
 
-export type DefaultProps = Props<typeof defaultProps>;
+export type DefaultProps = z.infer<typeof defaultProps>;
 
 // Default props which are set on `blockContainer` nodes rather than
 // `blockContent` nodes. Ensures that they are not redundantly added to

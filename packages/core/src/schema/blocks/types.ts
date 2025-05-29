@@ -1,13 +1,14 @@
 /** Define the main block types **/
 import type { Extension, Node } from "@tiptap/core";
-
+import * as z from "zod/v4";
+import * as zCore from "zod/v4/core";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import type {
   InlineContent,
   InlineContentSchema,
   PartialInlineContent,
 } from "../inlineContent/types.js";
-import type { PropSchema, Props } from "../propTypes.js";
+
 import type { StyleSchema } from "../styles/types.js";
 
 export type BlockNoteDOMElement =
@@ -21,34 +22,32 @@ export type BlockNoteDOMAttributes = Partial<{
   [DOMElement in BlockNoteDOMElement]: Record<string, string>;
 }>;
 
+const filePropSchema = z.object({
+  caption: z.string().default(""),
+  name: z.string().default(""),
+  // URL is optional, as we also want to accept files with no URL, but for example ids
+  // (ids can be used for files that are resolved on the backend)
+  url: z.string().default(""),
+  // Whether to show the file preview or the name only.
+  // This is useful for some file blocks, but not all
+  // (e.g.: not relevant for default "file" block which doesn;'t show previews)
+  showPreview: z.boolean().default(true),
+  // File preview width in px.
+  previewWidth: z.number().optional(),
+});
+
+// TODO: comment
+type shape = Pick<typeof filePropSchema._zod.def.shape, "caption" | "name"> &
+  Partial<
+    Pick<
+      typeof filePropSchema._zod.def.shape,
+      "url" | "showPreview" | "previewWidth"
+    >
+  >;
+
 export type FileBlockConfig = {
   type: string;
-  readonly propSchema: PropSchema & {
-    caption: {
-      default: "";
-    };
-    name: {
-      default: "";
-    };
-
-    // URL is optional, as we also want to accept files with no URL, but for example ids
-    // (ids can be used for files that are resolved on the backend)
-    url?: {
-      default: "";
-    };
-
-    // Whether to show the file preview or the name only.
-    // This is useful for some file blocks, but not all
-    // (e.g.: not relevant for default "file" block which doesn;'t show previews)
-    showPreview?: {
-      default: boolean;
-    };
-    // File preview width in px.
-    previewWidth?: {
-      default: undefined;
-      type: "number";
-    };
-  };
+  readonly propSchema: zCore.$ZodObject<shape>;
   content: "none";
   isSelectable?: boolean;
   isFileBlock: true;
@@ -60,7 +59,7 @@ export type FileBlockConfig = {
 export type BlockConfig =
   | {
       type: string;
-      readonly propSchema: PropSchema;
+      readonly propSchema: zCore.$ZodObject;
       content: "inline" | "none" | "table";
       isSelectable?: boolean;
       isFileBlock?: false;
@@ -186,7 +185,7 @@ export type BlockFromConfigNoChildren<
 > = {
   id: string;
   type: B["type"];
-  props: Props<B["propSchema"]>;
+  props: z.output<B["propSchema"]>;
   content: B["content"] extends "inline"
     ? InlineContent<I, S>[]
     : B["content"] extends "table"
@@ -270,7 +269,7 @@ type PartialBlockFromConfigNoChildren<
 > = {
   id?: string;
   type?: B["type"];
-  props?: Partial<Props<B["propSchema"]>>;
+  props?: Partial<z.output<B["propSchema"]>>;
   content?: B["content"] extends "inline"
     ? PartialInlineContent<I, S>
     : B["content"] extends "table"

@@ -1,8 +1,8 @@
+import z from "zod/v4";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import {
   BlockFromConfig,
   FileBlockConfig,
-  PropSchema,
   createBlockSpec,
 } from "../../schema/index.js";
 import { defaultProps } from "../defaultProps.js";
@@ -11,21 +11,18 @@ import { parseFigureElement } from "./helpers/parse/parseFigureElement.js";
 import { createFileBlockWrapper } from "./helpers/render/createFileBlockWrapper.js";
 import { createLinkWithCaption } from "./helpers/toExternalHTML/createLinkWithCaption.js";
 
-export const filePropSchema = {
-  backgroundColor: defaultProps.backgroundColor,
-  // File name.
-  name: {
-    default: "" as const,
-  },
-  // File url.
-  url: {
-    default: "" as const,
-  },
-  // File caption.
-  caption: {
-    default: "" as const,
-  },
-} satisfies PropSchema;
+export const filePropSchema = defaultProps
+  .pick({
+    backgroundColor: true,
+  })
+  .extend({
+    // File name.
+    name: z.string().default(""),
+    // File url.
+    url: z.string().default(""),
+    // File caption.
+    caption: z.string().default(""),
+  });
 
 export const fileBlockConfig = {
   type: "file" as const,

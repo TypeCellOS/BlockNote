@@ -5,7 +5,8 @@ import { inlineContentToNodes } from "../../api/nodeConversions/blockToNode.js";
 import { nodeToCustomInlineContent } from "../../api/nodeConversions/nodeToBlock.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { propsToAttributes } from "../blocks/internal.js";
-import { Props } from "../propTypes.js";
+
+import * as z from "zod/v4/core";
 import { StyleSchema } from "../styles/types.js";
 import {
   addInlineContentAttributes,
@@ -18,7 +19,6 @@ import {
   InlineContentSpec,
   PartialCustomInlineContentFromConfig,
 } from "./types.js";
-
 // TODO: support serialization
 
 export type CustomInlineContentImplementation<
@@ -116,7 +116,7 @@ export function createInlineContentSpec<
       return addInlineContentAttributes(
         output,
         inlineContentConfig.type,
-        node.attrs as Props<T["propSchema"]>,
+        node.attrs as z.infer<T["propSchema"]>,
         inlineContentConfig.propSchema,
       );
     },
@@ -148,7 +148,7 @@ export function createInlineContentSpec<
         return addInlineContentAttributes(
           output,
           inlineContentConfig.type,
-          node.attrs as Props<T["propSchema"]>,
+          node.attrs as z.infer<T["propSchema"]>,
           inlineContentConfig.propSchema,
         );
       };
