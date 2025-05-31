@@ -29,7 +29,12 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
         find: new RegExp(`^[-+*]\\s$`),
         handler: ({ state, chain, range }) => {
           const blockInfo = getBlockInfoFromSelection(state);
-          if (blockInfo.blockNoteType !== "paragraph") {
+          if (
+            !blockInfo.isBlockContainer ||
+            blockInfo.blockContent.node.type.spec.content !== "inline*" ||
+            blockInfo.blockNoteType === "bulletListItem" ||
+            blockInfo.blockNoteType === "heading"
+          ) {
             return;
           }
 

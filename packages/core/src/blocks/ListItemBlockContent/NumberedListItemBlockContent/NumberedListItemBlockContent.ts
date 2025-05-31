@@ -47,7 +47,12 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
         find: new RegExp(`^(\\d+)\\.\\s$`),
         handler: ({ state, chain, range, match }) => {
           const blockInfo = getBlockInfoFromSelection(state);
-           if (blockInfo.blockNoteType !== "paragraph") {
+           if (
+            !blockInfo.isBlockContainer ||
+            blockInfo.blockContent.node.type.spec.content !== "inline*" ||
+            blockInfo.blockNoteType === "numberedListItem" ||
+            blockInfo.blockNoteType === "heading"
+          ) {
             return;
           }
           const startIndex = parseInt(match[1]);
