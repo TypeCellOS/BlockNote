@@ -1,5 +1,6 @@
 import {
   BlockNoteSchema,
+  defaultBlockSpecs,
   defaultInlineContentSpecs,
   filterSuggestionItems,
 } from "@blocknote/core";
@@ -7,66 +8,28 @@ import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
-  DefaultReactSuggestionItem,
+  getDefaultReactSlashMenuItems,
   SuggestionMenuController,
   useCreateBlockNote,
 } from "@blocknote/react";
-import { Reference } from "./Reference";
+
+import {
+  BibliographyBlockContent,
+  getInsertBibliographyBlockSlashMenuItem,
+} from "./Bibliography.js";
+import { getInsertReferenceSlashMenuItem, Reference } from "./Reference.js";
 
 export default function App() {
   const schema = BlockNoteSchema.create({
+    blockSpecs: {
+      ...defaultBlockSpecs,
+      bibliography: BibliographyBlockContent,
+    },
     inlineContentSpecs: {
       ...defaultInlineContentSpecs,
       reference: Reference,
     },
   });
-
-  const getReferenceMenuItems = (
-    editor: typeof schema.BlockNoteEditor,
-  ): DefaultReactSuggestionItem[] => {
-    const citations = [
-      {
-        key: 1,
-        doi: "10.1093/ajae/aaq063",
-        author: "Steve Smith",
-        title: "Understanding BlockNote",
-        journal: "BlockNote Journal",
-        year: 2023,
-      },
-      {
-        key: 2,
-        doi: "10.1234/example.doi",
-        author: "Jane Doe",
-        title: "Exploring BlockNote Features",
-        journal: "BlockNote Features Journal",
-        year: 2022,
-      },
-      {
-        key: 3,
-        doi: "10.5678/another.example",
-        author: "John Doe",
-        title: "Advanced BlockNote Techniques",
-        journal: "BlockNote Techniques Journal",
-        year: 2021,
-      },
-    ];
-
-    return citations.map((citation) => ({
-      title: citation.title,
-      onItemClick: () => {
-        editor.insertInlineContent([
-          {
-            type: "reference",
-            props: {
-              ...citation,
-            },
-          },
-          " ",
-        ]);
-      },
-    }));
-  };
-
 
   const editor = useCreateBlockNote({
     schema,
@@ -87,7 +50,8 @@ export default function App() {
             type: "reference",
             props: {
               key: 1,
-              doi: "10.1093/ajae/aaq063",
+              // doi: "10.1093/ajae/aaq063",
+              doi: "",
               author: "Steve Smith",
               title: "Understanding BlockNote",
               journal: "BlockNote Journal",
@@ -103,7 +67,8 @@ export default function App() {
       },
       {
         type: "paragraph",
-        content: "Press the '@' key to open the references menu and add another",
+        content:
+          "Press the '@' key to open the references menu and add another",
       },
       {
         type: "paragraph",
@@ -113,11 +78,18 @@ export default function App() {
 
   // Renders the editor instance using a React component.
   return (
-    <BlockNoteView editor={editor}>
+    <BlockNoteView editor={editor} slashMenu={false}>
       <SuggestionMenuController
-        triggerCharacter={"@"}
+        triggerCharacter="/"
         getItems={async (query) =>
-          filterSuggestionItems(getReferenceMenuItems(editor), query)
+          filterSuggestionItems(
+            [
+              ...getDefaultReactSlashMenuItems(editor),
+              getInsertReferenceSlashMenuItem(editor),
+              getInsertBibliographyBlockSlashMenuItem(editor),
+            ],
+            query,
+          )
         }
       />
     </BlockNoteView>
