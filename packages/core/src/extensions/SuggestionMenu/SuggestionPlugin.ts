@@ -293,18 +293,28 @@ export class SuggestionMenuProseMirrorPlugin<
         },
 
         props: {
-          handleTextInput(view, _from, _to, text) {
-            if (triggerCharacters.includes(text)) {
-              view.dispatch(view.state.tr.insertText(text));
-              view.dispatch(
-                view.state.tr
-                  .setMeta(suggestionMenuPluginKey, {
-                    triggerCharacter: text,
-                  })
-                  .scrollIntoView(),
-              );
+          handleTextInput(view, from, to, text) {
+            // only on insert
+            if (from === to) {
+              const doc = view.state.doc;
+              for (const str of triggerCharacters) {
+                const snippet =
+                  str.length > 1
+                    ? doc.textBetween(from - str.length, from) + text
+                    : text;
 
-              return true;
+                if (str === snippet) {
+                  view.dispatch(view.state.tr.insertText(text));
+                  view.dispatch(
+                    view.state.tr
+                      .setMeta(suggestionMenuPluginKey, {
+                        triggerCharacter: snippet,
+                      })
+                      .scrollIntoView(),
+                  );
+                  return true;
+                }
+              }
             }
             return false;
           },
