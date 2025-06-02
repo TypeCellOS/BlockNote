@@ -15,6 +15,7 @@ import {
   propsToAttributes,
   StyleSchema,
   BlockNoteEditor,
+  BlockSchema,
 } from "@blocknote/core";
 import {
   NodeViewProps,
@@ -38,6 +39,13 @@ export type ReactInlineContentImplementation<
     updateInlineContent: (
       update: PartialCustomInlineContentFromConfig<T, S>,
     ) => void;
+    editor: BlockNoteEditor<
+      BlockSchema,
+      {
+        [k in T["type"]]: T;
+      },
+      S
+    >;
     contentRef: (node: HTMLElement | null) => void;
   }>;
   // TODO?
@@ -133,6 +141,7 @@ export function createReactInlineContentSpec<
             updateInlineContent={() => {
               // No-op
             }}
+            editor={editor}
             contentRef={refCB}
           />
         ),
@@ -189,6 +198,7 @@ export function createReactInlineContentSpec<
                       ),
                     );
                   }}
+                  editor={editor}
                 />
               </InlineContentWrapper>
             );

@@ -22,6 +22,7 @@ export const PanelTextInput = forwardRef<
       placeholder={placeholder}
       onKeyDown={onKeyDown}
       onChange={onChange}
+      autoFocus={true}
     />
   );
 });
