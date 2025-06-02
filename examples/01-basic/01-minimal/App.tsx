@@ -51,13 +51,8 @@ export default function App() {
           {
             type: "reference",
             props: {
-              key: 1,
               // doi: "10.1093/ajae/aaq063",
               doi: "",
-              author: "Steve Smith",
-              title: "Understanding BlockNote",
-              journal: "BlockNote Journal",
-              year: 2023,
             },
           },
           {
