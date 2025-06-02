@@ -85,28 +85,8 @@ export const Reference = createReactInlineContentSpec(
   {
     type: "reference",
     propSchema: {
-      key: {
-        type: "number",
-        default: 0,
-      },
       doi: {
         default: "",
-      },
-      author: {
-        type: "string",
-        default: "",
-      },
-      title: {
-        type: "string",
-        default: "",
-      },
-      journal: {
-        type: "string",
-        default: "",
-      },
-      year: {
-        type: "number",
-        default: 0,
       },
     },
     content: "none",
@@ -118,24 +98,19 @@ export const Reference = createReactInlineContentSpec(
       const referenceDetailsFloating = useFloatingHover();
       const referenceEditFloating = useFloatingClick();
 
-      const [bibliography, setBibliography] = useState("");
-
-      useEffect(() => {
-        Cite.async(props.inlineContent.props.doi).then((data) => {
-          console.log("Cite data:", data);
-          // Format output
-          const bibliography = data.format("bibliography", {
-            format: "html",
-            template: "apa",
-            lang: "en-US",
-          });
-          setBibliography(bibliography);
-        });
-      }, [props.inlineContent.props]);
-
       const citation = props.inlineContent.props;
 
       const [newDOI, setNewDOI] = useState(citation.doi);
+
+      const [bibliography, setBibliography] = useState<any>(null);
+
+      useEffect(() => {
+        Cite.async(props.inlineContent.props.doi).then(setBibliography);
+      }, [props.inlineContent.props]);
+
+      if (!bibliography) {
+        return <span>Loading...</span>;
+      }
 
       if (!citation.doi) {
         return (
@@ -201,7 +176,7 @@ export const Reference = createReactInlineContentSpec(
       return (
         <span>
           <span {...referenceDetailsFloating.referenceElementProps}>
-            [{citation.key}]
+            {bibliography.format("citation")}
           </span>
           {referenceDetailsFloating.isHovered && (
             <div
@@ -209,7 +184,11 @@ export const Reference = createReactInlineContentSpec(
               {...referenceDetailsFloating.floatingElementProps}
             >
               {/* FIXME do not use `dangerouslySetInnerHTML` to embed citation */}
-              <div dangerouslySetInnerHTML={{ __html: bibliography }} />
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: bibliography.format("bibliography"),
+                }}
+              />
             </div>
           )}
         </span>
