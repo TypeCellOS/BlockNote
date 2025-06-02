@@ -540,6 +540,7 @@ export class BlockNoteEditor<
   protected constructor(
     protected readonly options: Partial<BlockNoteEditorOptions<any, any, any>>,
   ) {
+    // eslint-disable-next-line no-console
     console.log("test");
     super();
     const anyOpts = options as any;
