@@ -57,6 +57,7 @@ export const Reference = (props: Props) => {
           style={floatingStyles}
           {...getFloatingProps()}
         >
+          {/* FIXME do not use `dangerouslySetInnerHTML` to embed citation */}
           <div dangerouslySetInnerHTML={{ __html: bibliography }} />
         </div>
       )}
