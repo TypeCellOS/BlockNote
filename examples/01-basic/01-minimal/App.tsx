@@ -19,6 +19,8 @@ import {
 } from "./Bibliography.js";
 import { getInsertReferenceSlashMenuItem, Reference } from "./Reference.js";
 
+import "./styles.css";
+
 export default function App() {
   const schema = BlockNoteSchema.create({
     blockSpecs: {

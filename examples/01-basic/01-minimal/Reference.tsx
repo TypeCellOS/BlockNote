@@ -20,11 +20,10 @@ import {
   useHover,
   useInteractions,
 } from "@floating-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { RiLink } from "react-icons/ri";
 
-import { BibliographyBlockConfig } from "./Bibliography";
-import "./styles.css";
+import { BibliographyBlockConfig } from "./Bibliography.js";
 
 const useFloatingHover = () => {
   const [isHovered, setIsHovered] = useState(false);
@@ -205,7 +204,10 @@ export const Reference = createReactInlineContentSpec(
             [{citation.key}]
           </span>
           {referenceDetailsFloating.isHovered && (
-            <div {...referenceDetailsFloating.floatingElementProps}>
+            <div
+              className={"floating"}
+              {...referenceDetailsFloating.floatingElementProps}
+            >
               {/* FIXME do not use `dangerouslySetInnerHTML` to embed citation */}
               <div dangerouslySetInnerHTML={{ __html: bibliography }} />
             </div>
