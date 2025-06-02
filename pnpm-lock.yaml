@@ -3472,6 +3472,15 @@ importers:
       '@blocknote/core':
         specifier: 0.31.1
         version: link:../core
+      '@citation-js/core':
+        specifier: ^0.7.18
+        version: 0.7.18(encoding@0.1.13)
+      '@citation-js/plugin-csl':
+        specifier: ^0.7.18
+        version: 0.7.18(@citation-js/core@0.7.18(encoding@0.1.13))
+      '@citation-js/plugin-doi':
+        specifier: ^0.7.18
+        version: 0.7.18(@citation-js/core@0.7.18(encoding@0.1.13))
       '@emoji-mart/data':
         specifier: ^1.2.1
         version: 1.2.1
