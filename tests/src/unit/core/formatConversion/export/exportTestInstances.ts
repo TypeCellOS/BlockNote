@@ -1592,6 +1592,43 @@ export const exportTestInstancesBlockNoteHTML: TestInstance<
     },
     executeTest: testExportBlockNoteHTML,
   },
+  {
+    testCase: {
+      name: "malformed/JSON",
+      content: [
+        {
+          // id: UniqueID.options.generateID(),
+          type: "paragraph",
+          content: [
+            {
+              type: "text",
+              text: "Text1\n",
+              styles: {
+                bold: false,
+              },
+            },
+            {
+              type: "text",
+              text: "Text2\n",
+              styles: {
+                italic: false,
+                fontSize: "",
+              },
+            },
+            {
+              type: "text",
+              text: "Text3\n",
+              styles: {
+                italic: false,
+                code: false,
+              },
+            },
+          ],
+        },
+      ],
+    },
+    executeTest: testExportBlockNoteHTML,
+  },
 ];
 
 export const exportTestInstancesHTML: TestInstance<

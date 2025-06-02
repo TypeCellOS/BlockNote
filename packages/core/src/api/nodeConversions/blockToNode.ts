@@ -40,9 +40,13 @@ function styledTextToNodes<T extends StyleSchema>(
     }
 
     if (config.propSchema === "boolean") {
-      marks.push(schema.mark(style));
+      if (value) {
+        marks.push(schema.mark(style));
+      }
     } else if (config.propSchema === "string") {
-      marks.push(schema.mark(style, { stringValue: value }));
+      if (value) {
+        marks.push(schema.mark(style, { stringValue: value }));
+      }
     } else {
       throw new UnreachableCaseError(config.propSchema);
     }
