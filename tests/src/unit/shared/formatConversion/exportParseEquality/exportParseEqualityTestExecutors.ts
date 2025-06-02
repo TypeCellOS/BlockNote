@@ -29,9 +29,16 @@ export const testExportParseEqualityBlockNoteHTML = async <
 
   const exported = await editor.blocksToFullHTML(testCase.content);
 
-  expect(await editor.tryParseHTMLToBlocks(exported)).toStrictEqual(
-    partialBlocksToBlocksForTesting(editor.schema, testCase.content),
-  );
+  if (testCase.name.startsWith("malformed/")) {
+    // We purposefully are okay with malformed response, we know they won't match
+    expect(await editor.tryParseHTMLToBlocks(exported)).not.toStrictEqual(
+      partialBlocksToBlocksForTesting(editor.schema, testCase.content),
+    );
+  } else {
+    expect(await editor.tryParseHTMLToBlocks(exported)).toStrictEqual(
+      partialBlocksToBlocksForTesting(editor.schema, testCase.content),
+    );
+  }
 };
 
 export const testExportParseEqualityNodes = async <
