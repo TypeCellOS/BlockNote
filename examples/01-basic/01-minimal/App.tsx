@@ -26,33 +26,18 @@ export default function App() {
   ): DefaultReactSuggestionItem[] => {
     const citations = [
       {
-        key: 1,
         doi: "10.1093/ajae/aaq063",
-        author: "Steve Smith",
-        title: "Understanding BlockNote",
-        journal: "BlockNote Journal",
-        year: 2023,
       },
       {
-        key: 2,
         doi: "10.1234/example.doi",
-        author: "Jane Doe",
-        title: "Exploring BlockNote Features",
-        journal: "BlockNote Features Journal",
-        year: 2022,
       },
       {
-        key: 3,
         doi: "10.5678/another.example",
-        author: "John Doe",
-        title: "Advanced BlockNote Techniques",
-        journal: "BlockNote Techniques Journal",
-        year: 2021,
       },
     ];
 
     return citations.map((citation) => ({
-      title: citation.title,
+      title: `Add reference: ${citation.doi}`,
       onItemClick: () => {
         editor.insertInlineContent([
           {
@@ -85,12 +70,7 @@ export default function App() {
           {
             type: "reference",
             props: {
-              key: 1,
               doi: "10.1093/ajae/aaq063",
-              author: "Steve Smith",
-              title: "Understanding BlockNote",
-              journal: "BlockNote Journal",
-              year: 2023,
             },
           },
           {

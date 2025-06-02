@@ -7,12 +7,7 @@ import { useEffect, useState } from "react";
 type Props = {
   inlineContent: {
     props: {
-      key: number;
       doi: string;
-      author: string;
-      title: string;
-      journal: string;
-      year: number;
     };
   };
 };
