@@ -9,7 +9,7 @@
     "directory": "packages/code-block"
   },
   "license": "MPL-2.0",
-  "version": "0.30.1",
+  "version": "0.31.1",
   "files": [
     "dist",
     "types",
@@ -49,7 +49,7 @@
     "test-watch": "vitest watch"
   },
   "dependencies": {
-    "@blocknote/core": "0.30.1",
+    "@blocknote/core": "0.31.1",
     "@shikijs/core": "^3.2.1",
     "@shikijs/engine-javascript": "^3.2.1",
     "@shikijs/langs-precompiled": "^3.2.1",
@@ -70,7 +70,7 @@
   },
   "eslintConfig": {
     "extends": [
-      "../../.eslintrc.js"
+      "../../.eslintrc.json"
     ]
   },
   "gitHead": "37614ab348dcc7faa830a9a88437b37197a2162d"

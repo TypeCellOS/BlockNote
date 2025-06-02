@@ -33,7 +33,7 @@ function styledTextToNodes<T extends StyleSchema>(
 ): Node[] {
   const marks: Mark[] = [];
 
-  for (const [style, value] of Object.entries(styledText.styles)) {
+  for (const [style, value] of Object.entries(styledText.styles || {})) {
     const config = styleSchema[style];
     if (!config) {
       throw new Error(`style ${style} not found in styleSchema`);
@@ -51,7 +51,9 @@ function styledTextToNodes<T extends StyleSchema>(
   const parseHardBreaks = !blockType || !schema.nodes[blockType].spec.code;
 
   if (!parseHardBreaks) {
-    return [schema.text(styledText.text, marks)];
+    return styledText.text.length > 0
+      ? [schema.text(styledText.text, marks)]
+      : [];
   }
 
   return (
@@ -259,6 +261,7 @@ export function tableContentToNodes<
       );
       columnNodes.push(cellNode);
     }
+
     const rowNode = schema.nodes["tableRow"].createChecked({}, columnNodes);
     rowNodes.push(rowNode);
   }

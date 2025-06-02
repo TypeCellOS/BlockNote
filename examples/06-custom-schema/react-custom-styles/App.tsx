@@ -1,17 +1,17 @@
 import { BlockNoteSchema, defaultStyleSpecs } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
 import {
-  createReactStyleSpec,
   FormattingToolbar,
   FormattingToolbarController,
   FormattingToolbarProps,
+  createReactStyleSpec,
   useActiveStyles,
   useBlockNoteEditor,
   useComponentsContext,
   useCreateBlockNote,
 } from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
 
 const small = createReactStyleSpec(
   {

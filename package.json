@@ -1,4 +1,6 @@
 {
+  "name": "root",
+  "type": "module",
   "devDependencies": {
     "@nx/js": "20.6.4",
     "@typescript-eslint/eslint-plugin": "^5.5.0",
@@ -16,7 +18,6 @@
     "vitest": "^2.0.3",
     "wait-on": "8.0.3"
   },
-  "name": "root",
   "pnpm": {
     "ignoredBuiltDependencies": [
       "sharp",
@@ -28,6 +29,7 @@
       "better-sqlite3",
       "canvas",
       "esbuild",
+      "msw",
       "nx"
     ]
   },

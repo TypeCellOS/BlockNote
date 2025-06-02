@@ -1,3 +1,23 @@
+## 0.31.1 (2025-05-23)
+
+### 🩹 Fixes
+
+- backwards-compat for `_extensions` ([#1708](https://github.com/TypeCellOS/BlockNote/pull/1708))
+
+### ❤️ Thank You
+
+- Nick Perez
+
+## 0.31.0 (2025-05-20)
+
+### 🩹 Fixes
+
+- Playwright flaky keyboard handler test ([#1704](https://github.com/TypeCellOS/BlockNote/pull/1704))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+
 ## 0.30.1 (2025-05-20)
 
 ### 🩹 Fixes
