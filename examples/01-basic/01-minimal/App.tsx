@@ -11,13 +11,13 @@ import {
   SuggestionMenuController,
   useCreateBlockNote,
 } from "@blocknote/react";
-import { Reference } from "./Reference";
+import { ReferenceInlineBlock } from "./ReferenceInlineBlock";
 
 export default function App() {
   const schema = BlockNoteSchema.create({
     inlineContentSpecs: {
       ...defaultInlineContentSpecs,
-      reference: Reference,
+      reference: ReferenceInlineBlock,
     },
   });
 
@@ -67,7 +67,6 @@ export default function App() {
     }));
   };
 
-
   const editor = useCreateBlockNote({
     schema,
     initialContent: [
@@ -103,7 +102,8 @@ export default function App() {
       },
       {
         type: "paragraph",
-        content: "Press the '@' key to open the references menu and add another",
+        content:
+          "Press the '@' key to open the references menu and add another",
       },
       {
         type: "paragraph",

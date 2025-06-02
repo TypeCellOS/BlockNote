@@ -1,71 +1,65 @@
-import { createReactInlineContentSpec } from "@blocknote/react";
+import { Cite } from "@citation-js/core";
+import "@citation-js/plugin-csl";
+import "@citation-js/plugin-doi";
 import { useFloating, useHover, useInteractions } from "@floating-ui/react";
-import { useState } from "react";
-import "./styles.css";
+import { useEffect, useState } from "react";
 
-export const Reference = createReactInlineContentSpec(
-  {
-    type: "reference",
-    propSchema: {
-      key: {
-        type: "number",
-        default: 1,
-        description: "The key for the reference.",
-      },
-      doi: {
-        default: "Unknown",
-      },
-      author: {
-        type: "string",
-        default: "Unknown Author",
-      },
-      title: {
-        type: "string",
-        default: "Unknown Title",
-      },
-      journal: {
-        type: "string",
-        default: "Unknown Journal",
-      },
-      year: {
-        type: "number",
-        default: 2023,
-      },
-    },
-    content: "none",
-  },
-  {
-    render: (props) => {
-      const [isOpen, setIsOpen] = useState(false);
+type Props = {
+  inlineContent: {
+    props: {
+      key: number;
+      doi: string;
+      author: string;
+      title: string;
+      journal: string;
+      year: number;
+    };
+  };
+};
 
-      const { refs, floatingStyles, context } = useFloating({
-        open: isOpen,
-        onOpenChange: setIsOpen,
+export const Reference = (props: Props) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [bibliography, setBibliography] = useState("");
+
+  const { refs, floatingStyles, context } = useFloating({
+    open: isOpen,
+    onOpenChange: setIsOpen,
+  });
+
+  const hover = useHover(context);
+
+  const { getReferenceProps, getFloatingProps } = useInteractions([hover]);
+
+  useEffect(() => {
+    Cite.async(props.inlineContent.props.doi).then((data) => {
+      console.log("Cite data:", data);
+      // Format output
+      const bibliography = data.format("bibliography", {
+        format: "html",
+        template: "apa",
+        lang: "en-US",
       });
+      setBibliography(bibliography);
+    });
+  }, [props.inlineContent.props]);
 
-      const hover = useHover(context);
+  const citation = props.inlineContent.props;
 
-      const { getReferenceProps, getFloatingProps } = useInteractions([hover]);
-
-      const citation = props.inlineContent.props;
-
-      return (
-        <span>
-          <span ref={refs.setReference} {...getReferenceProps()}>
-            [{citation.key}]
-          </span>
-          {isOpen && (
-            <div
-              className="floating"
-              ref={refs.setFloating}
-              style={floatingStyles}
-              {...getFloatingProps()}
-            >
-              {citation.author}, {citation.title}, {citation.year}
-            </div>
-          )}
-        </span>
-      );
-    },
-  },
-);
+  return (
+    <span>
+      <span ref={refs.setReference} {...getReferenceProps()}>
+        [{citation.key}]
+      </span>
+      {isOpen && (
+        <div
+          className="floating"
+          ref={refs.setFloating}
+          style={floatingStyles}
+          {...getFloatingProps()}
+        >
+          <div dangerouslySetInnerHTML={{ __html: bibliography }} />
+        </div>
+      )}
+    </span>
+  );
+};
