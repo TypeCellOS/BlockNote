@@ -19,7 +19,7 @@ type Props = {
 
 export const Reference = (props: Props) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [bibliography, setBibliography] = useState("");
+  const [bibliography, setBibliography] = useState<any>(null);
 
   const { refs, floatingStyles, context } = useFloating({
     open: isOpen,
@@ -31,24 +31,17 @@ export const Reference = (props: Props) => {
   const { getReferenceProps, getFloatingProps } = useInteractions([hover]);
 
   useEffect(() => {
-    Cite.async(props.inlineContent.props.doi).then((data) => {
-      console.log("Cite data:", data);
-      // Format output
-      const bibliography = data.format("bibliography", {
-        format: "html",
-        template: "apa",
-        lang: "en-US",
-      });
-      setBibliography(bibliography);
-    });
+    Cite.async(props.inlineContent.props.doi).then(setBibliography);
   }, [props.inlineContent.props]);
 
-  const citation = props.inlineContent.props;
+  if (!bibliography) {
+    return <span>Loading...</span>;
+  }
 
   return (
     <span>
       <span ref={refs.setReference} {...getReferenceProps()}>
-        [{citation.key}]
+        {bibliography.format("citation")}
       </span>
       {isOpen && (
         <div
@@ -58,7 +51,11 @@ export const Reference = (props: Props) => {
           {...getFloatingProps()}
         >
           {/* FIXME do not use `dangerouslySetInnerHTML` to embed citation */}
-          <div dangerouslySetInnerHTML={{ __html: bibliography }} />
+          <div
+            dangerouslySetInnerHTML={{
+              __html: bibliography.format("bibliography"),
+            }}
+          />
         </div>
       )}
     </span>
