@@ -1,7 +1,18 @@
 import {
+  Block,
+  BlockNoteEditor,
+  BlockSchema,
+  BlockSchemaWithBlock,
+  InlineContentSchema,
+  StyleSchema,
+} from "@blocknote/core";
+import {
   createReactInlineContentSpec,
   useComponentsContext,
 } from "@blocknote/react";
+import { Cite } from "@citation-js/core";
+import "@citation-js/plugin-csl";
+import "@citation-js/plugin-doi";
 import {
   useClick,
   // useDismiss,
@@ -10,18 +21,10 @@ import {
   useInteractions,
 } from "@floating-ui/react";
 import { useState } from "react";
-import "./styles.css";
-import {
-  Block,
-  BlockNoteEditor,
-  BlockSchema,
-  BlockSchemaWithBlock,
-  InlineContentSchema,
-  StyleSchema,
-} from "@blocknote/core";
 import { RiLink } from "react-icons/ri";
 
 import { BibliographyBlockConfig } from "./Bibliography";
+import "./styles.css";
 
 const useFloatingHover = () => {
   const [isHovered, setIsHovered] = useState(false);
@@ -116,6 +119,21 @@ export const Reference = createReactInlineContentSpec(
       const referenceDetailsFloating = useFloatingHover();
       const referenceEditFloating = useFloatingClick();
 
+      const [bibliography, setBibliography] = useState("");
+
+      useEffect(() => {
+        Cite.async(props.inlineContent.props.doi).then((data) => {
+          console.log("Cite data:", data);
+          // Format output
+          const bibliography = data.format("bibliography", {
+            format: "html",
+            template: "apa",
+            lang: "en-US",
+          });
+          setBibliography(bibliography);
+        });
+      }, [props.inlineContent.props]);
+
       const citation = props.inlineContent.props;
 
       const [newDOI, setNewDOI] = useState(citation.doi);
@@ -187,11 +205,9 @@ export const Reference = createReactInlineContentSpec(
             [{citation.key}]
           </span>
           {referenceDetailsFloating.isHovered && (
-            <div
-              className="floating"
-              {...referenceDetailsFloating.floatingElementProps}
-            >
-              {citation.author}, {citation.title}, {citation.year}
+            <div {...referenceDetailsFloating.floatingElementProps}>
+              {/* FIXME do not use `dangerouslySetInnerHTML` to embed citation */}
+              <div dangerouslySetInnerHTML={{ __html: bibliography }} />
             </div>
           )}
         </span>
