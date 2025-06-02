@@ -540,6 +540,7 @@ export class BlockNoteEditor<
   protected constructor(
     protected readonly options: Partial<BlockNoteEditorOptions<any, any, any>>,
   ) {
+    console.log("test");
     super();
     const anyOpts = options as any;
     if (anyOpts.onEditorContentChange) {
