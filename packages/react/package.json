@@ -59,6 +59,9 @@
   },
   "dependencies": {
     "@blocknote/core": "0.31.1",
+    "@citation-js/core": "^0.7.18",
+    "@citation-js/plugin-csl": "^0.7.18",
+    "@citation-js/plugin-doi": "^0.7.18",
     "@emoji-mart/data": "^1.2.1",
     "@floating-ui/react": "^0.26.4",
     "@tiptap/core": "^2.12.0",
