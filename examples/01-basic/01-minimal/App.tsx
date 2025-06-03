@@ -8,16 +8,14 @@ import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import {
+  getBibliographyReactSlashMenuItems,
   getDefaultReactSlashMenuItems,
+  ReactBibliographyBlockContent,
+  ReactReferenceInlineContent,
   SuggestionMenuController,
   useCreateBlockNote,
+  useSingleBibliographyBlock,
 } from "@blocknote/react";
-
-import {
-  BibliographyBlockContent,
-  getInsertBibliographyBlockSlashMenuItem,
-} from "./Bibliography.js";
-import { getInsertReferenceSlashMenuItem, Reference } from "./Reference.js";
 
 import "./styles.css";
 
@@ -25,11 +23,11 @@ export default function App() {
   const schema = BlockNoteSchema.create({
     blockSpecs: {
       ...defaultBlockSpecs,
-      bibliography: BibliographyBlockContent,
+      bibliography: ReactBibliographyBlockContent,
     },
     inlineContentSpecs: {
       ...defaultInlineContentSpecs,
-      reference: Reference,
+      reference: ReactReferenceInlineContent,
     },
   });
 
@@ -51,13 +49,8 @@ export default function App() {
           {
             type: "reference",
             props: {
-              key: 1,
-              // doi: "10.1093/ajae/aaq063",
-              doi: "",
-              author: "Steve Smith",
-              title: "Understanding BlockNote",
-              journal: "BlockNote Journal",
-              year: 2023,
+              doi: "10.1093/ajae/aaq063",
+              // doi: "",
             },
           },
           {
@@ -73,10 +66,24 @@ export default function App() {
           "Press the '@' key to open the references menu and add another",
       },
       {
+        type: "bibliography",
+        props: {
+          bibTexJSON: JSON.stringify([
+            "10.1093/ajae/aaq063", // Example DOI
+            "https://doi.org/10.48550/arXiv.2505.23896", // Another example DOI
+            "https://doi.org/10.48550/arXiv.2505.23900",
+            "https://doi.org/10.48550/arXiv.2505.23904",
+            "https://doi.org/10.48550/arXiv.2505.24234",
+          ]),
+        },
+      },
+      {
         type: "paragraph",
       },
     ],
   });
+
+  useSingleBibliographyBlock(editor);
 
   // Renders the editor instance using a React component.
   return (
@@ -87,8 +94,7 @@ export default function App() {
           filterSuggestionItems(
             [
               ...getDefaultReactSlashMenuItems(editor),
-              getInsertReferenceSlashMenuItem(editor),
-              getInsertBibliographyBlockSlashMenuItem(editor),
+              ...getBibliographyReactSlashMenuItems(editor),
             ],
             query,
           )
