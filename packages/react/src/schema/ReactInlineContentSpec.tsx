@@ -15,6 +15,7 @@ import {
   propsToAttributes,
   StyleSchema,
   BlockNoteEditor,
+  InlineContentSchemaWithInlineContent,
 } from "@blocknote/core";
 import {
   NodeViewProps,
@@ -27,19 +28,29 @@ import { FC } from "react";
 import { renderToDOMSpec } from "./@util/ReactRenderUtil.js";
 // this file is mostly analogoues to `customBlocks.ts`, but for React blocks
 
+export type ReactCustomInlineContentRenderProps<
+  T extends CustomInlineContentConfig,
+  S extends StyleSchema,
+> = {
+  inlineContent: InlineContentFromConfig<T, S>;
+  updateInlineContent: (
+    update: PartialCustomInlineContentFromConfig<T, S>,
+  ) => void;
+  editor: BlockNoteEditor<
+    any,
+    InlineContentSchemaWithInlineContent<T["type"], T>,
+    S
+  >;
+  contentRef: (node: HTMLElement | null) => void;
+};
+
 // extend BlockConfig but use a React render function
 export type ReactInlineContentImplementation<
   T extends CustomInlineContentConfig,
   // I extends InlineContentSchema,
   S extends StyleSchema,
 > = {
-  render: FC<{
-    inlineContent: InlineContentFromConfig<T, S>;
-    updateInlineContent: (
-      update: PartialCustomInlineContentFromConfig<T, S>,
-    ) => void;
-    contentRef: (node: HTMLElement | null) => void;
-  }>;
+  render: FC<ReactCustomInlineContentRenderProps<T, S>>;
   // TODO?
   // toExternalHTML?: FC<{
   //   block: BlockFromConfig<T, I, S>;
@@ -133,6 +144,7 @@ export function createReactInlineContentSpec<
             updateInlineContent={() => {
               // No-op
             }}
+            editor={editor}
             contentRef={refCB}
           />
         ),
@@ -168,6 +180,7 @@ export function createReactInlineContentSpec<
               >
                 <Content
                   contentRef={ref}
+                  editor={editor}
                   inlineContent={
                     nodeToCustomInlineContent(
                       props.node,
