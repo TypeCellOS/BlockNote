@@ -14,6 +14,7 @@ import {
   ReactReferenceInlineContent,
   SuggestionMenuController,
   useCreateBlockNote,
+  useSingleBibliographyBlock,
 } from "@blocknote/react";
 
 import "./styles.css";
@@ -81,6 +82,8 @@ export default function App() {
       },
     ],
   });
+
+  useSingleBibliographyBlock(editor);
 
   // Renders the editor instance using a React component.
   return (

@@ -7,6 +7,7 @@ export * from "./i18n/dictionary.js";
 
 export * from "./blocks/AudioBlockContent/AudioBlockContent.js";
 export * from "./blocks/BibliographyBlockContent/BibliographyBlockContent.js";
+export * from "./blocks/BibliographyBlockContent/hooks/useSingleBibliographyBlock.js";
 export * from "./blocks/FileBlockContent/FileBlockContent.js";
 export * from "./blocks/FileBlockContent/helpers/render/AddFileButton.js";
 export * from "./blocks/FileBlockContent/helpers/render/FileBlockWrapper.js";
