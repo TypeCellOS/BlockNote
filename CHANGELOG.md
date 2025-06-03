@@ -1,3 +1,19 @@
+## 0.32.0-hackdays.0 (2025-06-03)
+
+### 🚀 Features
+
+- support multi-character suggestions ([0c29680da](https://github.com/TypeCellOS/BlockNote/commit/0c29680da))
+
+### 🩹 Fixes
+
+- re-release ([0bc546e18](https://github.com/TypeCellOS/BlockNote/commit/0bc546e18))
+- ignore falsy values in boolean prop schema ([#1730](https://github.com/TypeCellOS/BlockNote/pull/1730))
+
+### ❤️ Thank You
+
+- Nick Perez
+- Nick the Sick
+
 ## 0.31.1 (2025-05-23)
 
 ### 🩹 Fixes
