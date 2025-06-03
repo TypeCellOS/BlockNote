@@ -49,7 +49,7 @@ export default function App() {
           {
             type: "reference",
             props: {
-              doi: "10.1093/ajae/aaq063",
+              doi: "10.48550/arXiv.2505.23896",
               // doi: "",
             },
           },
@@ -69,11 +69,11 @@ export default function App() {
         type: "bibliography",
         props: {
           bibTexJSON: JSON.stringify([
-            "10.1093/ajae/aaq063", // Example DOI
-            "https://doi.org/10.48550/arXiv.2505.23896", // Another example DOI
-            "https://doi.org/10.48550/arXiv.2505.23900",
-            "https://doi.org/10.48550/arXiv.2505.23904",
-            "https://doi.org/10.48550/arXiv.2505.24234",
+            // "10.1093/ajae/aaq063", // Example DOI
+            "10.48550/arXiv.2505.23896", // Another example DOI
+            "10.48550/arXiv.2505.23900",
+            "10.48550/arXiv.2505.23904",
+            "10.48550/arXiv.2505.24234",
           ]),
         },
       },
