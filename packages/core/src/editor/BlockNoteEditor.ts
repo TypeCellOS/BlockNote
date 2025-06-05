@@ -113,6 +113,7 @@ import {
 } from "../api/nodeUtil.js";
 import { nestedListsToBlockNoteStructure } from "../api/parsers/html/util/nestedLists.js";
 import { CodeBlockOptions } from "../blocks/CodeBlockContent/CodeBlockContent.js";
+import { KaTeXBlockOptions } from "../blocks/KaTeXBlockContent/KaTeXBlockContent.js";
 import type { ThreadStore, User } from "../comments/index.js";
 import type { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
 import type { ForkYDocPlugin } from "../extensions/Collaboration/ForkYDocPlugin.js";
@@ -189,6 +190,11 @@ export type BlockNoteEditorOptions<
    * Options for code blocks.
    */
   codeBlock?: CodeBlockOptions;
+
+  /**
+   * Options for KaTeX equation blocks.
+   */
+  katexBlock?: KaTeXBlockOptions;
 
   comments: {
     threadStore: ThreadStore;
@@ -527,6 +533,7 @@ export class BlockNoteEditor<
       headers: boolean;
     };
     codeBlock: CodeBlockOptions;
+    katexBlock: KaTeXBlockOptions;
   };
 
   public static create<
@@ -579,6 +586,13 @@ export class BlockNoteEditor<
         defaultLanguage: options?.codeBlock?.defaultLanguage ?? "text",
         supportedLanguages: options?.codeBlock?.supportedLanguages ?? {},
         createHighlighter: options?.codeBlock?.createHighlighter ?? undefined,
+      },
+      katexBlock: {
+        indentLineWithTab: options?.katexBlock?.indentLineWithTab ?? true,
+        katexOptions: options?.katexBlock?.katexOptions ?? {
+          throwOnError: false,
+          errorColor: "#f44336"
+        },
       },
     };
 
