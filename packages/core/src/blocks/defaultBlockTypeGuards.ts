@@ -1,5 +1,6 @@
 import { Selection } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
+import * as z from "zod/v4/core";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import {
   BlockFromConfig,
@@ -16,7 +17,6 @@ import {
   defaultInlineContentSchema,
 } from "./defaultBlocks.js";
 import { defaultProps } from "./defaultProps.js";
-
 export function checkDefaultBlockTypeInSchema<
   BlockType extends keyof DefaultBlockSchema,
   I extends InlineContentSchema,
@@ -114,7 +114,7 @@ export function checkBlockIsFileBlockWithPlaceholder<
 }
 
 export function checkBlockTypeHasDefaultProp<
-  Prop extends keyof typeof defaultProps,
+  Prop extends keyof typeof defaultProps.def.shape,
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(
@@ -122,28 +122,28 @@ export function checkBlockTypeHasDefaultProp<
   blockType: string,
   editor: BlockNoteEditor<any, I, S>,
 ): editor is BlockNoteEditor<
-  // {
-  //   [BT in string]: {
-  //     type: BT;
-  //     propSchema: {
-  //       [P in Prop]: (typeof defaultProps)[P];
-  //     };
-  //     content: "table" | "inline" | "none";
-  //   };
-  // },
-  any, // TODO
+  {
+    [BT in string]: {
+      type: BT;
+      propSchema: z.$ZodObject<{
+        [P in Prop]: (typeof defaultProps.def.shape)[P];
+      }>;
+      content: "table" | "inline" | "none";
+    };
+  },
   I,
   S
 > {
   return (
     blockType in editor.schema.blockSchema &&
     prop in editor.schema.blockSchema[blockType].propSchema &&
-    editor.schema.blockSchema[blockType].propSchema[prop] === defaultProps[prop]
+    editor.schema.blockSchema[blockType].propSchema[prop] ===
+      defaultProps.def.shape[prop]
   );
 }
 
 export function checkBlockHasDefaultProp<
-  Prop extends keyof typeof defaultProps,
+  Prop extends keyof typeof defaultProps.def.shape,
   I extends InlineContentSchema,
   S extends StyleSchema,
 >(

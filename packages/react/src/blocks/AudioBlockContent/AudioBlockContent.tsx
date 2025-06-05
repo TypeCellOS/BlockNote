@@ -1,4 +1,4 @@
-import { FileBlockConfig, audioBlockConfig, audioParse } from "@blocknote/core";
+import { audioBlockConfig, audioParse } from "@blocknote/core";
 
 import { RiVolumeUpFill } from "react-icons/ri";
 
@@ -6,18 +6,18 @@ import {
   ReactCustomBlockRenderProps,
   createReactBlockSpec,
 } from "../../schema/ReactBlockSpec.js";
-import { useResolveUrl } from "../FileBlockContent/useResolveUrl.js";
-import { FigureWithCaption } from "../FileBlockContent/helpers/toExternalHTML/FigureWithCaption.js";
 import { FileBlockWrapper } from "../FileBlockContent/helpers/render/FileBlockWrapper.js";
+import { FigureWithCaption } from "../FileBlockContent/helpers/toExternalHTML/FigureWithCaption.js";
 import { LinkWithCaption } from "../FileBlockContent/helpers/toExternalHTML/LinkWithCaption.js";
+import { useResolveUrl } from "../FileBlockContent/useResolveUrl.js";
 
 export const AudioPreview = (
   props: Omit<
-    ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
+    ReactCustomBlockRenderProps<typeof audioBlockConfig, any, any>,
     "contentRef"
   >,
 ) => {
-  const resolved = useResolveUrl(props.block.props.url!);
+  const resolved = useResolveUrl(props.block.props.url);
 
   return (
     <audio
