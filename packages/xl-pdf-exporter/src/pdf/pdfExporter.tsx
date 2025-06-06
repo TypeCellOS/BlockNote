@@ -117,7 +117,11 @@ export class PDFExporter<
   public transformStyledText(styledText: StyledText<S>) {
     const stylesArray = this.mapStyles(styledText.styles);
     const styles = Object.assign({}, ...stylesArray);
-    return <Text style={styles}>{styledText.text}</Text>;
+    return (
+      <Text style={styles} key={styledText.text}>
+        {styledText.text}
+      </Text>
+    );
   }
 
   /**
@@ -150,7 +154,7 @@ export class PDFExporter<
 
       const style = this.blocknoteDefaultPropsToReactPDFStyle(b.props as any);
       ret.push(
-        <>
+        <View key={b.id}>
           <View
             style={{
               paddingVertical: 3 * PIXELS_PER_POINT,
@@ -166,11 +170,12 @@ export class PDFExporter<
                 marginLeft: FONT_SIZE * 1.5 * PIXELS_PER_POINT,
                 ...this.styles.blockChildren,
               }}
+              key={b.id + nestingLevel + "children"}
             >
               {children}
             </View>
           )}
-        </>,
+        </View>,
       );
     }
 
