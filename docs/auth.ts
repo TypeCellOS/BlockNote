@@ -263,10 +263,23 @@ export const auth = betterAuth({
   },
   hooks: {
     after: createAuthMiddleware(async (ctx) => {
-      if (ctx.path === "/verify-email" || ctx.path === "/sign-in/social") {
+      if (
+        ctx.path === "/magic-link/verify" ||
+        ctx.path === "/verify-email" ||
+        ctx.path === "/sign-in/social"
+      ) {
         // After verifying email, send them a welcome email
         const newSession = ctx.context.newSession;
         if (newSession) {
+          const oneMinuteAgo = new Date(Date.now() - 60 * 1000);
+          if (
+            ctx.path === "/magic-link/verify" &&
+            newSession.user.createdAt < oneMinuteAgo
+          ) {
+            // magic link is for an account that was created more than a minute ago, so just a normal sign in
+            // no need to send welcome email
+            return false;
+          }
           await sendEmail({
             to: newSession.user.email,
             template: "welcome",
