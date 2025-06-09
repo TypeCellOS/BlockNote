@@ -1,3 +1,4 @@
+import { getEmptyEditor } from "./editors/emptyEditor.js";
 import { getSimpleEditor } from "./editors/simpleEditor.js";
 import { DocumentOperationTestCase } from "./index.js";
 
@@ -66,7 +67,7 @@ export const addOperationTestCases: DocumentOperationTestCase[] = [
       },
     ],
     userPrompt:
-      "at the end of doc, add a heading `Code` and a javascript code block with `console.log('hello world');`",
+      "at the end of doc, add a h1 heading `Code` and a javascript code block with `console.log('hello world');`",
   },
   // TODO: fix cursor block
   // {
@@ -86,4 +87,16 @@ export const addOperationTestCases: DocumentOperationTestCase[] = [
   //   userPrompt:
   //     "at the end of doc, add a heading `Code` and a javascript code block with `console.log('hello world');`",
   // },
+  {
+    editor: getEmptyEditor,
+    description: "add a new paragraph (empty doc)",
+    baseToolCalls: [
+      {
+        type: "update",
+        block: { content: "You look great today!" },
+        id: "ref1",
+      },
+    ],
+    userPrompt: `write a new paragraph with the text 'You look great today!'`,
+  },
 ];

@@ -1,3 +1,15 @@
+## 0.31.2 (2025-06-05)
+
+### 🩹 Fixes
+
+- re-release ([0bc546e18](https://github.com/TypeCellOS/BlockNote/commit/0bc546e18))
+- ignore falsy values in boolean prop schema ([#1730](https://github.com/TypeCellOS/BlockNote/pull/1730))
+
+### ❤️ Thank You
+
+- Nick Perez
+- Nick the Sick
+
 ## 0.31.1 (2025-05-23)
 
 ### 🩹 Fixes
