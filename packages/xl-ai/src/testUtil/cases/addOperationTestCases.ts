@@ -66,7 +66,7 @@ export const addOperationTestCases: DocumentOperationTestCase[] = [
       },
     ],
     userPrompt:
-      "at the end of doc, add a heading `Code` and a javascript code block with `console.log('hello world');`",
+      "at the end of doc, add a h1 heading `Code` and a javascript code block with `console.log('hello world');`",
   },
   // TODO: fix cursor block
   // {
