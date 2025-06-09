@@ -1,32 +1,25 @@
-import { FileBlockConfig, imageBlockConfig, imageParse } from "@blocknote/core";
+import { imageBlockConfig, imageParse } from "@blocknote/core";
 import { RiImage2Fill } from "react-icons/ri";
 
 import {
   createReactBlockSpec,
   ReactCustomBlockRenderProps,
 } from "../../schema/ReactBlockSpec.js";
-import { useResolveUrl } from "../FileBlockContent/useResolveUrl.js";
-import { FigureWithCaption } from "../FileBlockContent/helpers/toExternalHTML/FigureWithCaption.js";
 import { ResizableFileBlockWrapper } from "../FileBlockContent/helpers/render/ResizableFileBlockWrapper.js";
+import { FigureWithCaption } from "../FileBlockContent/helpers/toExternalHTML/FigureWithCaption.js";
 import { LinkWithCaption } from "../FileBlockContent/helpers/toExternalHTML/LinkWithCaption.js";
+import { useResolveUrl } from "../FileBlockContent/useResolveUrl.js";
 
-export const ImagePreview = (
-  props: Omit<
-    ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
-    "contentRef"
-  >,
-) => {
-  const resolved = useResolveUrl(props.block.props.url!);
+export const ImagePreview = (props: { url: string; caption: string }) => {
+  const resolved = useResolveUrl(props.url);
 
   return (
     <img
       className={"bn-visual-media"}
       src={
-        resolved.loadingState === "loading"
-          ? props.block.props.url
-          : resolved.downloadUrl
+        resolved.loadingState === "loading" ? props.url : resolved.downloadUrl
       }
-      alt={props.block.props.caption || "BlockNote image"}
+      alt={props.caption || "BlockNote image"}
       contentEditable={false}
       draggable={false}
     />
@@ -77,11 +70,14 @@ export const ImageBlock = (
 ) => {
   return (
     <ResizableFileBlockWrapper
-      {...(props as any)}
+      {...(props.block as any)}
       buttonText={props.editor.dictionary.file_blocks.image.add_button_text}
       buttonIcon={<RiImage2Fill size={24} />}
     >
-      <ImagePreview {...(props as any)} />
+      <ImagePreview
+        url={props.block.props.url}
+        caption={props.block.props.caption}
+      />
     </ResizableFileBlockWrapper>
   );
 };

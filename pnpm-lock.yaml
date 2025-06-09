@@ -4331,6 +4331,9 @@ importers:
       image-meta:
         specifier: ^0.2.1
         version: 0.2.1
+      zod:
+        specifier: ^3.25.30
+        version: 3.25.36
     devDependencies:
       '@types/node':
         specifier: 22.13.13
@@ -4338,9 +4341,6 @@ importers:
       typescript:
         specifier: ^5.3.3
         version: 5.8.2
-      zod:
-        specifier: ^3.25.36
-        version: 3.25.36
 
   tests:
     devDependencies:
@@ -17799,7 +17799,7 @@ snapshots:
     dependencies:
       '@polar-sh/sdk': 0.32.11(zod@3.24.2)
       better-auth: 1.2.7
-      zod: 3.24.2
+      zod: 3.25.36
 
   '@polar-sh/nextjs@0.3.23(next@15.3.1(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(zod@3.24.2)':
     dependencies:
@@ -20391,7 +20391,7 @@ snapshots:
       jose: 5.10.0
       kysely: 0.27.6
       nanostores: 0.11.4
-      zod: 3.24.2
+      zod: 3.25.36
 
   better-call@1.0.8:
     dependencies:
@@ -24187,7 +24187,7 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       scroll-into-view-if-needed: 3.1.0
-      zod: 3.24.2
+      zod: 3.25.36
 
   nextra@2.13.4(next@15.3.1(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
@@ -24219,7 +24219,7 @@ snapshots:
       title: 3.5.3
       unist-util-remove: 4.0.0
       unist-util-visit: 5.0.0
-      zod: 3.24.2
+      zod: 3.25.36
     transitivePeerDependencies:
       - supports-color
 

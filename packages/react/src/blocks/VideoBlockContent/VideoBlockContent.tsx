@@ -1,30 +1,23 @@
-import { FileBlockConfig, videoBlockConfig, videoParse } from "@blocknote/core";
+import { videoBlockConfig, videoParse } from "@blocknote/core";
 import { RiVideoFill } from "react-icons/ri";
 
 import {
   createReactBlockSpec,
   ReactCustomBlockRenderProps,
 } from "../../schema/ReactBlockSpec.js";
-import { useResolveUrl } from "../FileBlockContent/useResolveUrl.js";
-import { FigureWithCaption } from "../FileBlockContent/helpers/toExternalHTML/FigureWithCaption.js";
 import { ResizableFileBlockWrapper } from "../FileBlockContent/helpers/render/ResizableFileBlockWrapper.js";
+import { FigureWithCaption } from "../FileBlockContent/helpers/toExternalHTML/FigureWithCaption.js";
 import { LinkWithCaption } from "../FileBlockContent/helpers/toExternalHTML/LinkWithCaption.js";
+import { useResolveUrl } from "../FileBlockContent/useResolveUrl.js";
 
-export const VideoPreview = (
-  props: Omit<
-    ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
-    "contentRef"
-  >,
-) => {
-  const resolved = useResolveUrl(props.block.props.url!);
+export const VideoPreview = (props: { url: string }) => {
+  const resolved = useResolveUrl(props.url);
 
   return (
     <video
       className={"bn-visual-media"}
       src={
-        resolved.loadingState === "loading"
-          ? props.block.props.url
-          : resolved.downloadUrl
+        resolved.loadingState === "loading" ? props.url : resolved.downloadUrl
       }
       controls={true}
       contentEditable={false}
@@ -75,7 +68,7 @@ export const VideoBlock = (
       buttonText={props.editor.dictionary.file_blocks.video.add_button_text}
       buttonIcon={<RiVideoFill size={24} />}
     >
-      <VideoPreview {...(props as any)} />
+      <VideoPreview url={props.block.props.url} />
     </ResizableFileBlockWrapper>
   );
 };

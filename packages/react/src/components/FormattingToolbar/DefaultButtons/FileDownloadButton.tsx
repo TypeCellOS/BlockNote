@@ -42,7 +42,11 @@ export const FileDownloadButton = () => {
   }, [editor, selectedBlocks]);
 
   const onClick = useCallback(() => {
-    if (fileBlock && fileBlock.props.url) {
+    if (
+      fileBlock &&
+      fileBlock.props.url &&
+      typeof fileBlock.props.url === "string"
+    ) {
       editor.focus();
 
       if (!editor.resolveFileUrl) {

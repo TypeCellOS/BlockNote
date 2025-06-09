@@ -155,7 +155,8 @@ export function partialBlockToBlockForTesting<
   };
 
   Object.entries(
-    (schema[partialBlock.type!].propSchema as z.$ZodObject)._zod.def.shape,
+    (schema[partialBlock.type!].propSchema as unknown as z.$ZodObject)._zod.def
+      .shape,
   ).forEach(([propKey, propValue]) => {
     const def =
       propValue instanceof z.$ZodDefault

@@ -27,7 +27,7 @@ export const ResizableFileBlockWrapper = (
   >(undefined);
 
   const [width, setWidth] = useState<number | undefined>(
-    props.block.props.previewWidth,
+    props.block.props.previewWidth as number | undefined,
   );
   const [hovered, setHovered] = useState<boolean>(false);
 
