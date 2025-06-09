@@ -152,7 +152,10 @@ export async function doLLMRequest(
     : editor.getTextCursorPosition().block;
 
   const deleteCursorBlock: string | undefined =
-    cursorBlock && deleteEmptyCursorBlock && isEmptyParagraph(cursorBlock)
+    cursorBlock &&
+    deleteEmptyCursorBlock &&
+    isEmptyParagraph(cursorBlock) &&
+    editor.document.length > 1
       ? cursorBlock.id
       : undefined;
 

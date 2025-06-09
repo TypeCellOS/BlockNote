@@ -9,6 +9,10 @@ export function trimEmptyBlocks(
     trimEnd?: boolean;
   },
 ) {
+  if (source.length === 1) {
+    // don't trim empty blocks from a single block document
+    return source;
+  }
   // trim empty trailing blocks that don't have the cursor
   // if we don't do this, commands like "add some paragraphs"
   // would add paragraphs after the trailing blocks
