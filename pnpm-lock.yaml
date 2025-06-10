@@ -3116,6 +3116,21 @@ importers:
 
   fumadocs:
     dependencies:
+      '@ai-sdk/anthropic':
+        specifier: ^1.2.11
+        version: 1.2.11(zod@3.24.3)
+      '@ai-sdk/groq':
+        specifier: ^1.1.0
+        version: 1.2.9(zod@3.24.3)
+      '@ai-sdk/mistral':
+        specifier: ^1.2.8
+        version: 1.2.8(zod@3.24.3)
+      '@ai-sdk/openai':
+        specifier: ^1.1.0
+        version: 1.3.22(zod@3.24.3)
+      '@ai-sdk/openai-compatible':
+        specifier: ^0.2.14
+        version: 0.2.14(zod@3.24.3)
       '@aws-sdk/client-s3':
         specifier: ^3.609.0
         version: 3.775.0
@@ -3128,6 +3143,9 @@ importers:
       '@blocknote/server-util':
         specifier: latest
         version: link:../packages/server-util
+      '@blocknote/xl-ai':
+        specifier: latest
+        version: link:../packages/xl-ai
       '@blocknote/xl-docx-exporter':
         specifier: latest
         version: link:../packages/xl-docx-exporter
@@ -3195,7 +3213,7 @@ importers:
         specifier: ^3.2.1
         version: 3.2.1
       '@tiptap/core':
-        specifier: ^2
+        specifier: ^2.12.0
         version: 2.12.0(@tiptap/pm@2.12.0)
       '@uppy/core':
         specifier: ^3.13.1
@@ -3233,6 +3251,9 @@ importers:
       '@y-sweet/react':
         specifier: ^0.6.3
         version: 0.6.4(react@19.1.0)(yjs@13.6.24)
+      ai:
+        specifier: ^4.1.0
+        version: 4.3.15(react@19.1.0)(zod@3.24.3)
       docx:
         specifier: ^9.0.2
         version: 9.3.0
@@ -3272,6 +3293,9 @@ importers:
       yjs:
         specifier: ^13.6.15
         version: 13.6.24
+      zustand:
+        specifier: ^5.0.3
+        version: 5.0.3(@types/react@19.1.3)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.4.0(react@19.1.0))
     devDependencies:
       '@blocknote/ariakit':
         specifier: workspace:^
@@ -16225,6 +16249,16 @@ snapshots:
     optionalDependencies:
       zod: 3.24.3
 
+  '@ai-sdk/react@1.2.12(react@19.1.0)(zod@3.24.3)':
+    dependencies:
+      '@ai-sdk/provider-utils': 2.2.8(zod@3.24.3)
+      '@ai-sdk/ui-utils': 1.2.11(zod@3.24.3)
+      react: 19.1.0
+      swr: 2.3.3(react@19.1.0)
+      throttleit: 2.1.0
+    optionalDependencies:
+      zod: 3.24.3
+
   '@ai-sdk/ui-utils@1.2.11(zod@3.24.3)':
     dependencies:
       '@ai-sdk/provider': 1.1.3
@@ -23218,6 +23252,18 @@ snapshots:
     optionalDependencies:
       react: 18.3.1
 
+  ai@4.3.15(react@19.1.0)(zod@3.24.3):
+    dependencies:
+      '@ai-sdk/provider': 1.1.3
+      '@ai-sdk/provider-utils': 2.2.8(zod@3.24.3)
+      '@ai-sdk/react': 1.2.12(react@19.1.0)(zod@3.24.3)
+      '@ai-sdk/ui-utils': 1.2.11(zod@3.24.3)
+      '@opentelemetry/api': 1.9.0
+      jsondiffpatch: 0.6.0
+      zod: 3.24.3
+    optionalDependencies:
+      react: 19.1.0
+
   ajv-formats@2.1.1(ajv@8.17.1):
     optionalDependencies:
       ajv: 8.17.1
@@ -29879,6 +29925,12 @@ snapshots:
       react: 18.3.1
       use-sync-external-store: 1.4.0(react@18.3.1)
 
+  swr@2.3.3(react@19.1.0):
+    dependencies:
+      dequal: 2.0.3
+      react: 19.1.0
+      use-sync-external-store: 1.4.0(react@19.1.0)
+
   symbol-tree@3.2.4: {}
 
   system-architecture@0.1.0: {}
@@ -31069,5 +31121,12 @@ snapshots:
       immer: 10.1.1
       react: 18.3.1
       use-sync-external-store: 1.4.0(react@18.3.1)
+
+  zustand@5.0.3(@types/react@19.1.3)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.4.0(react@19.1.0)):
+    optionalDependencies:
+      '@types/react': 19.1.3
+      immer: 10.1.1
+      react: 19.1.0
+      use-sync-external-store: 1.4.0(react@19.1.0)
 
   zwitch@2.0.4: {}

@@ -1,5 +1,5 @@
 import { Combobox, TextInput, useCombobox } from "@mantine/core";
-import { AI_MODELS } from "./data/aimodels.js";
+import { AI_MODELS } from "./data/aimodels";
 
 // https://mantine.dev/combobox/?e=BasicAutocomplete
 // This is used for the AI Model selector in the example
@@ -31,7 +31,8 @@ export function BasicAutocomplete(props: {
         combobox.closeDropdown();
       }}
       store={combobox}
-      withinPortal={false}>
+      withinPortal={false}
+    >
       <Combobox.Target>
         <TextInput
           label="Select model or type `<provider>/<model>`:"

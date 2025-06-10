@@ -22,7 +22,7 @@ const RadioGroupComponent: React.FC<RadioGroupComponentProps> = ({
     <Stack pt="md" gap="xs">
       {items.map((item) => (
         <Radio value={item.value} label={item.name} key={item.value} />
-        // TODO: doesn't work well with our mantive version or styles
+        // TODO: doesn't work well with our mantine version or styles
         // <Radio.Card
         //   className={styles.root}
         //   radius="md"

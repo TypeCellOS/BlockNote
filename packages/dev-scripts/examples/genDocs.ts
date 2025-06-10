@@ -57,6 +57,7 @@ export default Component;`,
 
   projectFiles.forEach(({ filename, code }) => {
     const target = path.join(componentTarget, filename);
+    fs.mkdirSync(path.dirname(target), { recursive: true });
     fs.writeFileSync(target, code);
   });
 }

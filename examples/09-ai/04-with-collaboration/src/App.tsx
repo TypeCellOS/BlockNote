@@ -24,11 +24,11 @@ import "@blocknote/xl-ai/style.css";
 import { useEffect, useState } from "react";
 import YPartyKitProvider from "y-partykit/provider";
 import * as Y from "yjs";
-import { getEnv } from "./getEnv.js";
-
-import "./styles.css";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { EditorView } from "prosemirror-view";
+
+import { getEnv } from "./getEnv";
+import "./styles.css";
 
 const params = new URLSearchParams(window.location.search);
 const ghostWritingRoom = params.get("room");

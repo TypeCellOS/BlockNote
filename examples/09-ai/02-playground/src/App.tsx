@@ -7,7 +7,6 @@ import { BlockNoteEditor, filterSuggestionItems } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { en } from "@blocknote/core/locales";
 import { BlockNoteView } from "@blocknote/mantine";
-import "@mantine/core/styles.css";
 import "@blocknote/mantine/style.css";
 import {
   FormattingToolbar,
@@ -29,13 +28,14 @@ import {
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
 import { Fieldset, MantineProvider, Switch } from "@mantine/core";
-
+import "@mantine/core/styles.css";
 import { LanguageModelV1 } from "ai";
 import { useEffect, useMemo, useState } from "react";
 import { useStore } from "zustand";
-import { BasicAutocomplete } from "./AutoComplete.js";
-import RadioGroupComponent from "./components/RadioGroupComponent.js";
-import { getEnv } from "./getEnv.js";
+
+import { BasicAutocomplete } from "./AutoComplete";
+import RadioGroupComponent from "./components/RadioGroupComponent";
+import { getEnv } from "./getEnv";
 // Optional: proxy requests through the `@blocknote/xl-ai-server` proxy server
 // so that we don't have to expose our API keys to the client
 const client = createBlockNoteAIClient({

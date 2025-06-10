@@ -13,15 +13,19 @@ import {
   useCreateBlockNote,
 } from "@blocknote/react";
 import {
+  AIMenu,
   AIMenuController,
   AIToolbarButton,
   createAIExtension,
   createBlockNoteAIClient,
   getAISlashMenuItems,
+  getDefaultAIMenuItems,
 } from "@blocknote/xl-ai";
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
-import { getEnv } from "./getEnv.js";
+import { getEnv } from "./getEnv";
+
+import { addRelatedTopics, makeInformal } from "./customAIMenuItems";
 
 // Optional: proxy requests through the `@blocknote/xl-ai-server` proxy server
 // so that we don't have to expose our API keys to the client
@@ -98,12 +102,12 @@ export default function App() {
     <div>
       <BlockNoteView
         editor={editor}
-        // We're disabling some default UI elements
         formattingToolbar={false}
         slashMenu={false}
       >
-        {/* Add the AI Command menu to the editor */}
-        <AIMenuController />
+        {/* Creates a new AIMenu with the default items, 
+        as well as our custom ones. */}
+        <AIMenuController aiMenu={CustomAIMenu} />
 
         {/* We disabled the default formatting toolbar with `formattingToolbar=false` 
         and replace it for one with an "AI button" (defined below). 
@@ -121,6 +125,49 @@ export default function App() {
   );
 }
 
+function CustomAIMenu() {
+  return (
+    <AIMenu
+      items={(
+        editor: BlockNoteEditor<any, any, any>,
+        aiResponseStatus:
+          | "user-input"
+          | "thinking"
+          | "ai-writing"
+          | "error"
+          | "user-reviewing"
+          | "closed",
+      ) => {
+        if (aiResponseStatus === "user-input") {
+          // Returns different items based on whether the AI Menu was
+          // opened via the Formatting Toolbar or the Slash Menu.
+          if (editor.getSelection()) {
+            return [
+              // Gets the default AI Menu items
+              ...getDefaultAIMenuItems(editor, aiResponseStatus),
+              // Adds our custom item to make the text more casual.
+              // Only appears when the AI Menu is opened via the
+              // Formatting Toolbar.
+              makeInformal(editor),
+            ];
+          } else {
+            return [
+              // Gets the default AI Menu items
+              ...getDefaultAIMenuItems(editor, aiResponseStatus),
+              // Adds our custom item to find related topics. Only
+              // appears when the AI Menu is opened via the Slash
+              // Menu.
+              addRelatedTopics(editor),
+            ];
+          }
+        }
+        // for other states, return the default items
+        return getDefaultAIMenuItems(editor, aiResponseStatus);
+      }}
+    />
+  );
+}
+
 // Formatting toolbar with the `AIToolbarButton` added
 function FormattingToolbarWithAI() {
   return (
@@ -128,7 +175,6 @@ function FormattingToolbarWithAI() {
       formattingToolbar={() => (
         <FormattingToolbar>
           {...getFormattingToolbarItems()}
-          {/* Add the AI button */}
           <AIToolbarButton />
         </FormattingToolbar>
       )}
@@ -147,7 +193,6 @@ function SuggestionMenuWithAI(props: {
         filterSuggestionItems(
           [
             ...getDefaultReactSlashMenuItems(props.editor),
-            // add the default AI slash menu items, or define your own
             ...getAISlashMenuItems(props.editor),
           ],
           query,
