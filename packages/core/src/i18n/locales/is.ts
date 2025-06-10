@@ -20,6 +20,24 @@ export const is: Dictionary = {
       aliases: ["h3", "fyrirsogn3", "undirfyrirsogn"],
       group: "Fyrirsagnir",
     },
+    toggle_heading: {
+      title: "Fellanleg Fyrirsögn 1",
+      subtext: "Fellanleg efsta fyrirsögn",
+      aliases: ["h", "fyrirsogn1", "h1", "fellanleg"],
+      group: "Fyrirsagnir",
+    },
+    toggle_heading_2: {
+      title: "Fellanleg Fyrirsögn 2",
+      subtext: "Fellanleg fyrirsögn fyrir lykilhluta",
+      aliases: ["h2", "fyrirsogn2", "undirfyrirsogn", "fellanleg"],
+      group: "Fyrirsagnir",
+    },
+    toggle_heading_3: {
+      title: "Fellanleg Fyrirsögn 3",
+      subtext: "Fellanleg fyrirsögn fyrir undirhluta og hópfyrirsagnir",
+      aliases: ["h3", "fyrirsogn3", "undirfyrirsogn", "fellanleg"],
+      group: "Fyrirsagnir",
+    },
     quote: {
       title: "Tilvitnun",
       subtext: "Tilvitnun eða útdráttur",
@@ -126,6 +144,7 @@ export const is: Dictionary = {
   placeholders: {
     default: "Sláðu inn texta eða skrifaðu '/' fyrir skipanir",
     heading: "Fyrirsögn",
+    toggleHeading: "Fellanleg Fyrirsögn",
     bulletListItem: "Listi",
     numberedListItem: "Listi",
     checkListItem: "Listi",

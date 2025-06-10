@@ -20,6 +20,24 @@ export const nl: Dictionary = {
       aliases: ["h3", "kop3", "subkop"],
       group: "Koppen",
     },
+    toggle_heading: {
+      title: "Inklapbare Kop 1",
+      subtext: "Inklapbare hoofdkop",
+      aliases: ["h", "kop1", "h1", "inklapbaar"],
+      group: "Koppen",
+    },
+    toggle_heading_2: {
+      title: "Inklapbare Kop 2",
+      subtext: "Inklapbare kop voor belangrijke secties",
+      aliases: ["h2", "kop2", "subkop", "inklapbaar"],
+      group: "Koppen",
+    },
+    toggle_heading_3: {
+      title: "Inklapbare Kop 3",
+      subtext: "Inklapbare kop voor subsecties en groepskoppen",
+      aliases: ["h3", "kop3", "subkop", "inklapbaar"],
+      group: "Koppen",
+    },
     quote: {
       title: "Citaat",
       subtext: "Citaat of uittreksel",
@@ -133,6 +151,7 @@ export const nl: Dictionary = {
   placeholders: {
     default: "Voer tekst in of type '/' voor commando's",
     heading: "Kop",
+    toggleHeading: "Inklapbare Kop",
     bulletListItem: "Lijst",
     numberedListItem: "Lijst",
     checkListItem: "Lijst",

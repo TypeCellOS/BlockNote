@@ -20,6 +20,24 @@ export const ja: Dictionary = {
       aliases: ["h3", "見出し3", "subheading", "小見出し"],
       group: "見出し",
     },
+    toggle_heading: {
+      title: "折りたたみ見出し１",
+      subtext: "折りたたみ可能なトップレベルの見出し",
+      aliases: ["h", "見出し１", "h1", "大見出し", "折りたたみ"],
+      group: "見出し",
+    },
+    toggle_heading_2: {
+      title: "折りたたみ見出し２",
+      subtext: "折りたたみ可能な重要なセクションの見出し",
+      aliases: ["h2", "見出し2", "subheading", "中見出し", "折りたたみ"],
+      group: "見出し",
+    },
+    toggle_heading_3: {
+      title: "折りたたみ見出し３",
+      subtext: "折りたたみ可能なセクションやグループの見出し",
+      aliases: ["h3", "見出し3", "subheading", "小見出し", "折りたたみ"],
+      group: "見出し",
+    },
     quote: {
       title: "引用",
       subtext: "引用または抜粋",
@@ -153,6 +171,7 @@ export const ja: Dictionary = {
   placeholders: {
     default: "テキストを入力するか'/' を入力してコマンド選択",
     heading: "見出し",
+    toggleHeading: "折りたたみ見出し",
     bulletListItem: "リストを追加",
     numberedListItem: "リストを追加",
     checkListItem: "リストを追加",

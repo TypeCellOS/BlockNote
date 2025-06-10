@@ -20,6 +20,24 @@ export const ko: Dictionary = {
       aliases: ["h3", "제목3", "subheading"],
       group: "제목",
     },
+    toggle_heading: {
+      title: "접을 수 있는 제목1",
+      subtext: "접을 수 있는 섹션 제목(대)",
+      aliases: ["h", "제목1", "h1", "대제목", "접기"],
+      group: "제목",
+    },
+    toggle_heading_2: {
+      title: "접을 수 있는 제목2",
+      subtext: "접을 수 있는 섹션 제목(중)",
+      aliases: ["h2", "제목2", "중제목", "접기"],
+      group: "제목",
+    },
+    toggle_heading_3: {
+      title: "접을 수 있는 제목3",
+      subtext: "접을 수 있는 섹션 제목(소)",
+      aliases: ["h3", "제목3", "subheading", "접기"],
+      group: "제목",
+    },
     quote: {
       title: "인용",
       subtext: "인용문 또는 발췌",
@@ -146,6 +164,7 @@ export const ko: Dictionary = {
   placeholders: {
     default: "텍스트를 입력하거나 /를 입력하여 명령을 입력하세요.",
     heading: "제목",
+    toggleHeading: "접을 수 있는 제목",
     bulletListItem: "목록",
     numberedListItem: "목록",
     checkListItem: "목록",

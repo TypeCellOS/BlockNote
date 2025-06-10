@@ -20,6 +20,32 @@ export const zh: Dictionary = {
       aliases: ["h3", "heading3", "subheading", "标题", "三级标题"],
       group: "标题",
     },
+    toggle_heading: {
+      title: "可折叠一级标题",
+      subtext: "可折叠的顶级标题",
+      aliases: ["h", "heading1", "h1", "标题", "一级标题", "折叠"],
+      group: "标题",
+    },
+    toggle_heading_2: {
+      title: "可折叠二级标题",
+      subtext: "可折叠的关键部分标题",
+      aliases: [
+        "h2",
+        "heading2",
+        "subheading",
+        "标题",
+        "二级标题",
+        "副标题",
+        "折叠",
+      ],
+      group: "标题",
+    },
+    toggle_heading_3: {
+      title: "可折叠三级标题",
+      subtext: "可折叠的小节和分组标题",
+      aliases: ["h3", "heading3", "subheading", "标题", "三级标题", "折叠"],
+      group: "标题",
+    },
     quote: {
       title: "引用",
       subtext: "引用或摘录",
@@ -166,6 +192,7 @@ export const zh: Dictionary = {
   placeholders: {
     default: "输入 '/' 以使用命令",
     heading: "标题",
+    toggleHeading: "可折叠标题",
     bulletListItem: "列表",
     numberedListItem: "列表",
     checkListItem: "列表",

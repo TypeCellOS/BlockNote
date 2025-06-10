@@ -20,6 +20,24 @@ export const es: Dictionary = {
       aliases: ["h3", "encabezado3", "subencabezado"],
       group: "Encabezados",
     },
+    toggle_heading: {
+      title: "Encabezado Desplegable 1",
+      subtext: "Encabezado de primer nivel desplegable",
+      aliases: ["h", "encabezado1", "h1", "desplegable"],
+      group: "Encabezados",
+    },
+    toggle_heading_2: {
+      title: "Encabezado Desplegable 2",
+      subtext: "Encabezado de sección principal desplegable",
+      aliases: ["h2", "encabezado2", "subencabezado", "desplegable"],
+      group: "Encabezados",
+    },
+    toggle_heading_3: {
+      title: "Encabezado Desplegable 3",
+      subtext: "Encabezado de subsección y grupo desplegable",
+      aliases: ["h3", "encabezado3", "subencabezado", "desplegable"],
+      group: "Encabezados",
+    },
     quote: {
       title: "Cita",
       subtext: "Cita o extracto",
@@ -133,6 +151,7 @@ export const es: Dictionary = {
   placeholders: {
     default: "Escribe o teclea '/' para comandos",
     heading: "Encabezado",
+    toggleHeading: "Encabezado Desplegable",
     bulletListItem: "Lista",
     numberedListItem: "Lista",
     checkListItem: "Lista",

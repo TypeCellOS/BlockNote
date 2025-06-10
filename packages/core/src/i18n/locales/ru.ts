@@ -20,6 +20,38 @@ export const ru: Dictionary = {
       aliases: ["h3", "heading3", "subheading", "заголовок3", "подзаголовок"],
       group: "Заголовки",
     },
+    toggle_heading: {
+      title: "Разворачиваемый заголовок 1 уровня",
+      subtext: "Разворачиваемый заголовок верхнего уровня",
+      aliases: ["h", "heading1", "h1", "заголовок1", "разворачиваемый"],
+      group: "Заголовки",
+    },
+    toggle_heading_2: {
+      title: "Разворачиваемый заголовок 2 уровня",
+      subtext: "Разворачиваемый заголовок для ключевых разделов",
+      aliases: [
+        "h2",
+        "heading2",
+        "subheading",
+        "заголовок2",
+        "подзаголовок",
+        "разворачиваемый",
+      ],
+      group: "Заголовки",
+    },
+    toggle_heading_3: {
+      title: "Разворачиваемый заголовок 3 уровня",
+      subtext: "Разворачиваемый заголовок для подразделов и групп",
+      aliases: [
+        "h3",
+        "heading3",
+        "subheading",
+        "заголовок3",
+        "подзаголовок",
+        "разворачиваемый",
+      ],
+      group: "Заголовки",
+    },
     quote: {
       title: "Цитата",
       subtext: "Цитата или отрывок",
@@ -160,6 +192,7 @@ export const ru: Dictionary = {
   placeholders: {
     default: "Введите текст или введите «/» для команд",
     heading: "Заголовок",
+    toggleHeading: "Разворачиваемый заголовок",
     bulletListItem: "Список",
     numberedListItem: "Список",
     checkListItem: "Список",

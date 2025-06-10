@@ -20,6 +20,24 @@ export const vi: Dictionary = {
       aliases: ["h3", "tieude3", "tieudephu"],
       group: "Tiêu đề",
     },
+    toggle_heading: {
+      title: "Tiêu đề có thể thu gọn H1",
+      subtext: "Tiêu đề cấp cao nhất có thể thu gọn",
+      aliases: ["h", "tieude1", "dd1", "thugon"],
+      group: "Tiêu đề",
+    },
+    toggle_heading_2: {
+      title: "Tiêu đề có thể thu gọn H2",
+      subtext: "Tiêu đề cho các phần chính có thể thu gọn",
+      aliases: ["h2", "tieude2", "tieudephu", "thugon"],
+      group: "Tiêu đề",
+    },
+    toggle_heading_3: {
+      title: "Tiêu đề có thể thu gọn H3",
+      subtext: "Tiêu đề cho phụ đề và tiêu đề nhóm có thể thu gọn",
+      aliases: ["h3", "tieude3", "tieudephu", "thugon"],
+      group: "Tiêu đề",
+    },
     quote: {
       title: "Trích dẫn",
       subtext: "Trích dẫn hoặc đoạn trích",
@@ -132,6 +150,7 @@ export const vi: Dictionary = {
   placeholders: {
     default: "Nhập văn bản hoặc gõ '/' để thêm định dạng",
     heading: "Tiêu đề",
+    toggleHeading: "Tiêu đề có thể thu gọn",
     bulletListItem: "Danh sách",
     numberedListItem: "Danh sách",
     checkListItem: "Danh sách",

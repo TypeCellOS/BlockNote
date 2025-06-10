@@ -20,6 +20,24 @@ export const uk: Dictionary = {
       aliases: ["h3", "heading3", "subheading", "заголовок3"],
       group: "Заголовки",
     },
+    toggle_heading: {
+      title: "Розгортаємий заголовок 1",
+      subtext: "Розгортаємий заголовок найвищого рівня",
+      aliases: ["h", "heading1", "h1", "заголовок1", "розгортаємий"],
+      group: "Заголовки",
+    },
+    toggle_heading_2: {
+      title: "Розгортаємий заголовок 2",
+      subtext: "Розгортаємий основний заголовок розділу",
+      aliases: ["h2", "heading2", "subheading", "заголовок2", "розгортаємий"],
+      group: "Заголовки",
+    },
+    toggle_heading_3: {
+      title: "Розгортаємий заголовок 3",
+      subtext: "Розгортаємий підзаголовок і груповий заголовок",
+      aliases: ["h3", "heading3", "subheading", "заголовок3", "розгортаємий"],
+      group: "Заголовки",
+    },
     quote: {
       title: "Цитата",
       subtext: "Цитата або уривок",
@@ -158,6 +176,7 @@ export const uk: Dictionary = {
   placeholders: {
     default: "Введіть текст або наберіть '/' для команд",
     heading: "Заголовок",
+    toggleHeading: "Розгортаємий заголовок",
     bulletListItem: "Список",
     numberedListItem: "Список",
     checkListItem: "Список",

@@ -18,6 +18,24 @@ export const sk = {
       aliases: ["h3", "nadpis3", "podnadpis"],
       group: "Nadpisy",
     },
+    toggle_heading: {
+      title: "Rozbaľovací Nadpis 1",
+      subtext: "Rozbaľovací nadpis najvyššej úrovne",
+      aliases: ["h", "nadpis1", "h1", "rozbaľovací"],
+      group: "Nadpisy",
+    },
+    toggle_heading_2: {
+      title: "Rozbaľovací Nadpis 2",
+      subtext: "Rozbaľovací kľúčový nadpis sekcie",
+      aliases: ["h2", "nadpis2", "podnadpis", "rozbaľovací"],
+      group: "Nadpisy",
+    },
+    toggle_heading_3: {
+      title: "Rozbaľovací Nadpis 3",
+      subtext: "Rozbaľovací nadpis podsekcie alebo skupiny",
+      aliases: ["h3", "nadpis3", "podnadpis", "rozbaľovací"],
+      group: "Nadpisy",
+    },
     quote: {
       title: "Citát",
       subtext: "Citát alebo výňatok",
@@ -132,6 +150,7 @@ export const sk = {
   placeholders: {
     default: "Zadajte text alebo napíšte '/' pre príkazy",
     heading: "Nadpis",
+    toggleHeading: "Rozbaľovací Nadpis",
     bulletListItem: "Zoznam",
     numberedListItem: "Zoznam",
     checkListItem: "Zoznam",
