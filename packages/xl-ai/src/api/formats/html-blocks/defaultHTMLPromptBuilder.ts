@@ -14,6 +14,7 @@ function promptManipulateSelectionHTMLBlocks(opts: {
   htmlDocument: {
     block: string;
   }[];
+  isEmptyDocument: boolean;
 }): Array<CoreMessage> {
   return [
     {
@@ -58,6 +59,7 @@ function promptManipulateDocumentUseHTMLBlocks(opts: {
         cursor: true;
       }
   >;
+  isEmptyDocument: boolean;
 }): Array<CoreMessage> {
   return [
     {
@@ -74,11 +76,16 @@ function promptManipulateDocumentUseHTMLBlocks(opts: {
     },
     {
       role: "system",
-      content: `First, determine what part of the document the user is talking about. You SHOULD probably take cursor info into account if needed.
+      content:
+        `First, determine what part of the document the user is talking about. You SHOULD probably take cursor info into account if needed.
        EXAMPLE: if user says "below" (without pointing to a specific part of the document) he / she probably indicates the block(s) after the cursor. 
-       EXAMPLE: If you want to insert content AT the cursor position (UNLESS indicated otherwise by the user), then you need \`referenceId\` to point to the block before the cursor with position \`after\` (or block below and \`before\`).
+       EXAMPLE: If you want to insert content AT the cursor position (UNLESS indicated otherwise by the user), 
+       then you need \`referenceId\` to point to the block before the cursor with position \`after\` (or block below and \`before\`).
       
-      Prefer updating existing blocks over removing and adding (but this also depends on the user's question).`,
+      ` +
+        (opts.isEmptyDocument
+          ? `Because the document is empty, first update the empty block before adding new blocks.`
+          : "Prefer updating existing blocks over removing and adding (but this also depends on the user's question)."),
     },
     {
       role: "system",
@@ -134,10 +141,10 @@ export const defaultHTMLPromptBuilder: PromptBuilder = async (editor, opts) => {
     return promptManipulateSelectionHTMLBlocks({
       ...data,
       userPrompt: opts.userPrompt,
+      isEmptyDocument: editor.isEmpty,
     });
   } else {
     const data = await getDataForPromptNoSelection(editor, opts);
-
     if (opts.previousMessages) {
       return [
         ...opts.previousMessages,
@@ -167,6 +174,7 @@ export const defaultHTMLPromptBuilder: PromptBuilder = async (editor, opts) => {
     return promptManipulateDocumentUseHTMLBlocks({
       ...data,
       userPrompt: opts.userPrompt,
+      isEmptyDocument: editor.isEmpty,
     });
   }
 };
