@@ -1,4 +1,4 @@
-import { NodeView } from "@tiptap/pm/view";
+import { ViewMutationRecord } from "@tiptap/pm/view";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { BlockFromConfig } from "../../schema/index.js";
@@ -7,7 +7,7 @@ export const createToggleWrapper = (
   block: BlockFromConfig<any, any, any>,
   editor: BlockNoteEditor<any, any, any>,
   contentDOM: HTMLElement,
-): NodeView => {
+) => {
   const dom = document.createElement("div");
 
   const toggleWrapper = document.createElement("div");
@@ -87,7 +87,7 @@ export const createToggleWrapper = (
     contentDOM,
     // Prevents re-renders when the toggle button is clicked.
     // TODO: Document what this actually does.
-    ignoreMutation: (mutation) => {
+    ignoreMutation: (mutation: ViewMutationRecord) => {
       if (
         mutation instanceof MutationRecord &&
         (mutation.type === "attributes" || mutation.type === "childList")
