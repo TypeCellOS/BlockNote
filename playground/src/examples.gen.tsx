@@ -1151,6 +1151,24 @@
         }
       },
       {
+        "projectSlug": "togglable-blocks",
+        "fullSlug": "custom-schema/togglable-blocks",
+        "pathFromRoot": "examples/06-custom-schema/06-togglable-blocks",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Togglable Blocks",
+        "group": {
+          "pathFromRoot": "examples/06-custom-schema",
+          "slug": "custom-schema"
+        }
+      },
+      {
         "projectSlug": "react-custom-blocks",
         "fullSlug": "custom-schema/react-custom-blocks",
         "pathFromRoot": "examples/06-custom-schema/react-custom-blocks",

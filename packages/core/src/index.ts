@@ -19,7 +19,7 @@ export * from "./blocks/ImageBlockContent/ImageBlockContent.js";
 export * from "./blocks/PageBreakBlockContent/PageBreakBlockContent.js";
 export * from "./blocks/PageBreakBlockContent/getPageBreakSlashMenuItems.js";
 export * from "./blocks/PageBreakBlockContent/schema.js";
-export * from "./blocks/ToggleBlockContent/ToggleBlockContent.js";
+export * from "./blocks/ToggleWrapper/createToggleWrapper.js";
 export {
   EMPTY_CELL_HEIGHT,
   EMPTY_CELL_WIDTH,

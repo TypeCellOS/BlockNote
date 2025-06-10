@@ -1,44 +1,15 @@
-import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 
-// import { ToggleBlock } from "@blocknote/core";
-import { ReactToggleBlock } from "@blocknote/react";
-
 export default function App() {
   // Creates a new editor instance.
   const editor = useCreateBlockNote({
-    schema: BlockNoteSchema.create({
-      blockSpecs: {
-        ...defaultBlockSpecs,
-        // toggle: ToggleBlock,
-        toggle: ReactToggleBlock,
-      },
-    }),
     initialContent: [
       {
         type: "paragraph",
         content: "Welcome to this demo!",
-      },
-      {
-        type: "toggle",
-        content: "Toggle",
-        children: [
-          {
-            type: "paragraph",
-            content: "Child 1",
-          },
-          {
-            type: "paragraph",
-            content: "Child 2",
-          },
-          {
-            type: "paragraph",
-            content: "Child 3",
-          },
-        ],
       },
       {
         type: "paragraph",

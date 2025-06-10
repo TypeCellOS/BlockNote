@@ -1,25 +1,9 @@
-import {
-  BlockConfig,
-  BlockFromConfig,
-  createBlockSpec,
-  PropSchema,
-} from "../../schema/index.js";
+import { BlockFromConfig } from "../../schema/index.js";
 
-import { defaultProps } from "../defaultProps.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
-export const togglePropSchema = {
-  ...defaultProps,
-} satisfies PropSchema;
-
-export const toggleBlockConfig = {
-  type: "toggle" as const,
-  propSchema: togglePropSchema,
-  content: "inline",
-} satisfies BlockConfig;
-
-export const toggleBlockRender = (
-  block: BlockFromConfig<typeof toggleBlockConfig, any, any>,
+export const createToggleWrapper = (
+  block: BlockFromConfig<any, any, any>,
   editor: BlockNoteEditor<any, any, any>,
 ) => {
   const dom = document.createElement("div");
@@ -43,10 +27,7 @@ export const toggleBlockRender = (
   };
   toggleButton.addEventListener("click", toggleButtonOnClick);
 
-  const contentDOM = document.createElement("p");
-
   toggleWrapper.appendChild(toggleButton);
-  toggleWrapper.appendChild(contentDOM);
 
   const toggleAddBlockButton = document.createElement("button");
   toggleAddBlockButton.className = "bn-toggle-add-block-button";
@@ -102,7 +83,6 @@ export const toggleBlockRender = (
 
   return {
     dom,
-    contentDOM,
     destroy: () => {
       toggleButton.removeEventListener("mousedown", toggleButtonMouseDown);
       toggleButton.removeEventListener("click", toggleButtonOnClick);
@@ -118,7 +98,3 @@ export const toggleBlockRender = (
     },
   };
 };
-
-export const ToggleBlock = createBlockSpec(toggleBlockConfig, {
-  render: toggleBlockRender,
-});
