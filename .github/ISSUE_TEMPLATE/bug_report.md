@@ -1,9 +1,10 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: ""
+title: ''
 labels: bug
-assignees: ""
+assignees: ''
+
 ---
 
 **Describe the bug**
@@ -17,4 +18,4 @@ assignees: ""
 - Node version:
 - Package manager:
 - Browser:
-- [ ] I'm a [sponsor](https://github.com/sponsors/YousefED) and would appreciate if you could look into this sooner than later 💖
+- [ ] I'm a [sponsor](https://www.blocknotejs.org/pricing) and would appreciate if you could look into this sooner than later 💖
