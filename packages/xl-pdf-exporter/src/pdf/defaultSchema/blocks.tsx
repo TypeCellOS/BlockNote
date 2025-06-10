@@ -72,6 +72,20 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
       </Text>
     );
   },
+  toggleHeading: (block, exporter) => {
+    const fontSizeEM =
+      block.props.level === 1 ? 2 : block.props.level === 2 ? 1.5 : 1.17;
+    return (
+      <Text
+        style={{
+          fontSize: fontSizeEM * FONT_SIZE * PIXELS_PER_POINT,
+          fontWeight: 700,
+        }}
+      >
+        {exporter.transformInlineContent(block.content)}
+      </Text>
+    );
+  },
   quote: (block, exporter) => {
     return (
       <Text

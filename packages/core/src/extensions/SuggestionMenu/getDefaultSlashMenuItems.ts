@@ -125,6 +125,42 @@ export function getDefaultSlashMenuItems<
     );
   }
 
+  if (checkDefaultBlockTypeInSchema("toggleHeading", editor)) {
+    items.push(
+      {
+        onItemClick: () => {
+          insertOrUpdateBlock(editor, {
+            type: "toggleHeading",
+            props: { level: 1 },
+          });
+        },
+        key: "toggle_heading",
+        ...editor.dictionary.slash_menu.toggle_heading,
+      },
+      {
+        onItemClick: () => {
+          insertOrUpdateBlock(editor, {
+            type: "toggleHeading",
+            props: { level: 2 },
+          });
+        },
+
+        key: "toggle_heading_2",
+        ...editor.dictionary.slash_menu.toggle_heading_2,
+      },
+      {
+        onItemClick: () => {
+          insertOrUpdateBlock(editor, {
+            type: "toggleHeading",
+            props: { level: 3 },
+          });
+        },
+        key: "toggle_heading_3",
+        ...editor.dictionary.slash_menu.toggle_heading_3,
+      },
+    );
+  }
+
   if (checkDefaultBlockTypeInSchema("quote", editor)) {
     items.push({
       onItemClick: () => {

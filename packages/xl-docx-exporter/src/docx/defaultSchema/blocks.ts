@@ -116,6 +116,13 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       heading: `Heading${block.props.level}`,
     });
   },
+  toggleHeading: (block, exporter) => {
+    return new Paragraph({
+      ...blockPropsToStyles(block.props, exporter.options.colors),
+      children: exporter.transformInlineContent(block.content),
+      heading: `Heading${block.props.level}`,
+    });
+  },
   quote: (block, exporter) => {
     return new Paragraph({
       shading: {

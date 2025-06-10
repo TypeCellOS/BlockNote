@@ -125,13 +125,16 @@ NESTED BLOCKS
 }
 
 /* HEADINGS*/
-[data-content-type="heading"] {
+[data-content-type="heading"],
+[data-content-type="toggleHeading"] {
   --level: 3em;
 }
-[data-content-type="heading"][data-level="2"] {
+[data-content-type="heading"][data-level="2"],
+[data-content-type="toggleHeading"][data-level="2"] {
   --level: 2em;
 }
-[data-content-type="heading"][data-level="3"] {
+[data-content-type="heading"][data-level="3"],
+[data-content-type="toggleHeading"][data-level="3"] {
   --level: 1.3em;
 }
 
@@ -145,14 +148,20 @@ NESTED BLOCKS
   --prev-level: 1.3em;
 }
 
-.bn-block-outer[data-prev-type="heading"] > .bn-block > .bn-block-content {
+.bn-block-outer[data-prev-type="heading"] > .bn-block > .bn-block-content,
+.bn-block-outer[data-prev-type="toggleHeading"]
+  > .bn-block
+  > .bn-block-content {
   font-size: var(--prev-level);
   font-weight: bold;
 }
 
 .bn-block-outer:not([data-prev-type])
   > .bn-block
-  > .bn-block-content[data-content-type="heading"] {
+  > .bn-block-content[data-content-type="heading"],
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > .bn-block-content[data-content-type="toggleHeading"] {
   font-size: var(--level);
   font-weight: bold;
 }

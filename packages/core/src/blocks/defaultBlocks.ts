@@ -32,10 +32,12 @@ import { Paragraph } from "./ParagraphBlockContent/ParagraphBlockContent.js";
 import { Quote } from "./QuoteBlockContent/QuoteBlockContent.js";
 import { Table } from "./TableBlockContent/TableBlockContent.js";
 import { VideoBlock } from "./VideoBlockContent/VideoBlockContent.js";
+import { ToggleHeading } from "./ToggleHeadingBlockContent/ToggleHeadingBlockContent.js";
 
 export const defaultBlockSpecs = {
   paragraph: Paragraph,
   heading: Heading,
+  toggleHeading: ToggleHeading,
   quote: Quote,
   codeBlock: CodeBlock,
   bulletListItem: BulletListItem,

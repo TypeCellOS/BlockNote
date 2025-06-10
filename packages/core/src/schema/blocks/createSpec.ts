@@ -44,6 +44,7 @@ export type CustomBlockImplementation<
   ) => {
     dom: HTMLElement;
     contentDOM?: HTMLElement;
+    ignoreMutation?: (mutation: MutationRecord) => boolean;
     destroy?: () => void;
   };
   // Exports block to external HTML. If not defined, the output will be the same
