@@ -173,7 +173,7 @@ export async function doLLMRequest(
       if (m.role === "user" && typeof m.content === "string") {
         return {
           role: "system",
-          content: m.content,
+          content: `USER_MESSAGE: ${m.content}`,
         };
       }
       return m;
