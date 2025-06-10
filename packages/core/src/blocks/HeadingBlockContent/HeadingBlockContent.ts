@@ -46,7 +46,7 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
                   props: {
                     level: level as any,
                   },
-                })
+                }),
               )
               // Removes the "#" character(s) used to set the heading.
               .deleteRange({ from: range.from, to: range.to })
@@ -75,7 +75,7 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
             props: {
               level: 1 as any,
             },
-          })
+          }),
         );
       },
       "Mod-Alt-2": () => {
@@ -93,7 +93,7 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
             props: {
               level: 2 as any,
             },
-          })
+          }),
         );
       },
       "Mod-Alt-3": () => {
@@ -111,16 +111,19 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
             props: {
               level: 3 as any,
             },
-          })
+          }),
         );
       },
     };
   },
   parseHTML() {
     return [
+      // Parse from internal HTML.
       {
         tag: "div[data-content-type=" + this.name + "]",
+        contentElement: ".bn-inline-content",
       },
+      // Parse from external HTML.
       {
         tag: "h1",
         attrs: { level: 1 },
@@ -147,12 +150,12 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
         ...(this.options.domAttributes?.blockContent || {}),
         ...HTMLAttributes,
       },
-      this.options.domAttributes?.inlineContent || {}
+      this.options.domAttributes?.inlineContent || {},
     );
   },
 });
 
 export const Heading = createBlockSpecFromStronglyTypedTiptapNode(
   HeadingBlockContent,
-  headingPropSchema
+  headingPropSchema,
 );

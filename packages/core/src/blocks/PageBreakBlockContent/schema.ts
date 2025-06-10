@@ -18,9 +18,9 @@ export const pageBreakSchema = BlockNoteSchema.create({
 export const withPageBreak = <
   B extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
-  schema: BlockNoteSchema<B, I, S>
+  schema: BlockNoteSchema<B, I, S>,
 ) => {
   return BlockNoteSchema.create({
     blockSpecs: {

@@ -40,7 +40,8 @@ export default function App() {
   return (
     <YDocProvider
       docId={docId}
-      authEndpoint="https://demos.y-sweet.dev/api/auth">
+      authEndpoint="https://demos.y-sweet.dev/api/auth"
+    >
       <Document />
     </YDocProvider>
   );
@@ -111,7 +112,8 @@ function Document() {
       renderEditor={false}
       // We also disable the default rendering of comments in the editor, as we
       // want to render them in the `ThreadsSidebar` component instead.
-      comments={false}>
+      comments={false}
+    >
       {/* We place the editor, the sidebar, and any settings selects within
       `BlockNoteView` as they use BlockNote UI components and need the context
       for them. */}

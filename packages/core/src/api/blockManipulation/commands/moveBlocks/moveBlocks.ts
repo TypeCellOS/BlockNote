@@ -41,7 +41,7 @@ type BlockSelectionData = (
  * @param editor The BlockNote editor instance to get the selection data from.
  */
 function getBlockSelectionData(
-  editor: BlockNoteEditor<any, any, any>
+  editor: BlockNoteEditor<any, any, any>,
 ): BlockSelectionData {
   return editor.transact((tr) => {
     const anchorBlockPosInfo = getNearestBlockPos(tr.doc, tr.selection.anchor);
@@ -87,12 +87,12 @@ function getBlockSelectionData(
  */
 function updateBlockSelectionFromData(
   tr: Transaction,
-  data: BlockSelectionData
+  data: BlockSelectionData,
 ) {
   const anchorBlockPos = getNodeById(data.anchorBlockId, tr.doc)?.posBeforeNode;
   if (anchorBlockPos === undefined) {
     throw new Error(
-      `Could not find block with ID ${data.anchorBlockId} to update selection`
+      `Could not find block with ID ${data.anchorBlockId} to update selection`,
     );
   }
 
@@ -101,7 +101,7 @@ function updateBlockSelectionFromData(
     selection = CellSelection.create(
       tr.doc,
       anchorBlockPos + data.anchorCellOffset,
-      anchorBlockPos + data.headCellOffset
+      anchorBlockPos + data.headCellOffset,
     );
   } else if (data.type === "node") {
     selection = NodeSelection.create(tr.doc, anchorBlockPos + 1);
@@ -109,14 +109,14 @@ function updateBlockSelectionFromData(
     const headBlockPos = getNodeById(data.headBlockId, tr.doc)?.posBeforeNode;
     if (headBlockPos === undefined) {
       throw new Error(
-        `Could not find block with ID ${data.headBlockId} to update selection`
+        `Could not find block with ID ${data.headBlockId} to update selection`,
       );
     }
 
     selection = TextSelection.create(
       tr.doc,
       anchorBlockPos + data.anchorOffset,
-      headBlockPos + data.headOffset
+      headBlockPos + data.headOffset,
     );
   }
 
@@ -130,7 +130,7 @@ function updateBlockSelectionFromData(
  * @param blocks The blocks to flatten.
  */
 function flattenColumns(
-  blocks: Block<any, any, any>[]
+  blocks: Block<any, any, any>[],
 ): Block<any, any, any>[] {
   return blocks
     .map((block) => {
@@ -161,7 +161,7 @@ function flattenColumns(
 export function moveSelectedBlocksAndSelection(
   editor: BlockNoteEditor<any, any, any>,
   referenceBlock: BlockIdentifier,
-  placement: "before" | "after"
+  placement: "before" | "after",
 ) {
   // We want this to be a single step in the undo history
   editor.transact((tr) => {
@@ -198,7 +198,7 @@ function checkPlacementIsValid(parentBlock?: Block<any, any, any>): boolean {
 function getMoveUpPlacement(
   editor: BlockNoteEditor<any, any, any>,
   prevBlock?: Block<any, any, any>,
-  parentBlock?: Block<any, any, any>
+  parentBlock?: Block<any, any, any>,
 ):
   | { referenceBlock: BlockIdentifier; placement: "before" | "after" }
   | undefined {
@@ -230,7 +230,7 @@ function getMoveUpPlacement(
       placement === "after"
         ? referenceBlock
         : editor.getPrevBlock(referenceBlock),
-      referenceBlockParent
+      referenceBlockParent,
     );
   }
 
@@ -250,7 +250,7 @@ function getMoveUpPlacement(
 function getMoveDownPlacement(
   editor: BlockNoteEditor<any, any, any>,
   nextBlock?: Block<any, any, any>,
-  parentBlock?: Block<any, any, any>
+  parentBlock?: Block<any, any, any>,
 ):
   | { referenceBlock: BlockIdentifier; placement: "before" | "after" }
   | undefined {
@@ -282,7 +282,7 @@ function getMoveDownPlacement(
       placement === "before"
         ? referenceBlock
         : editor.getNextBlock(referenceBlock),
-      referenceBlockParent
+      referenceBlockParent,
     );
   }
 
@@ -297,7 +297,7 @@ export function moveBlocksUp(editor: BlockNoteEditor<any, any, any>) {
     const moveUpPlacement = getMoveUpPlacement(
       editor,
       editor.getPrevBlock(block),
-      editor.getParentBlock(block)
+      editor.getParentBlock(block),
     );
 
     if (!moveUpPlacement) {
@@ -307,7 +307,7 @@ export function moveBlocksUp(editor: BlockNoteEditor<any, any, any>) {
     moveSelectedBlocksAndSelection(
       editor,
       moveUpPlacement.referenceBlock,
-      moveUpPlacement.placement
+      moveUpPlacement.placement,
     );
   });
 }
@@ -322,7 +322,7 @@ export function moveBlocksDown(editor: BlockNoteEditor<any, any, any>) {
     const moveDownPlacement = getMoveDownPlacement(
       editor,
       editor.getNextBlock(block),
-      editor.getParentBlock(block)
+      editor.getParentBlock(block),
     );
 
     if (!moveDownPlacement) {
@@ -332,7 +332,7 @@ export function moveBlocksDown(editor: BlockNoteEditor<any, any, any>) {
     moveSelectedBlocksAndSelection(
       editor,
       moveDownPlacement.referenceBlock,
-      moveDownPlacement.placement
+      moveDownPlacement.placement,
     );
   });
 }

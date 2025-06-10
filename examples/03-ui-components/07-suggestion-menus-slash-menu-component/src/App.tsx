@@ -12,18 +12,19 @@ import "./styles.css";
 
 // Custom component to replace the default Slash Menu.
 function CustomSlashMenu(
-  props: SuggestionMenuProps<DefaultReactSuggestionItem>
+  props: SuggestionMenuProps<DefaultReactSuggestionItem>,
 ) {
   return (
     <div className={"slash-menu"}>
       {props.items.map((item, index) => (
         <div
           className={`slash-menu-item ${
-            props.selectedIndex === index ? " selected" : ""
+            props.selectedIndex === index ? "selected" : ""
           }`}
           onClick={() => {
             props.onItemClick?.(item);
-          }}>
+          }}
+        >
           {item.title}
         </div>
       ))}

@@ -28,12 +28,13 @@ export const ExtendButton = forwardRef<
           : "bn-mt-1",
         className?.includes("bn-extend-button-editing")
           ? "bn-bg-accent bn-text-accent-foreground"
-          : ""
+          : "",
       )}
       ref={ref}
       onClick={onClick}
       onMouseDown={onMouseDown}
-      {...rest}>
+      {...rest}
+    >
       {children}
     </ShadCNComponents.Button.Button>
   );

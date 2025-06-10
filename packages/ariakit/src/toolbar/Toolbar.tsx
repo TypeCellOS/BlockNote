@@ -4,8 +4,7 @@ import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
-type ToolbarProps = ComponentProps["FormattingToolbar"]["Root"] &
-  ComponentProps["LinkToolbar"]["Root"];
+type ToolbarProps = ComponentProps["Generic"]["Toolbar"]["Root"];
 
 export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
   (props, ref) => {
@@ -25,9 +24,10 @@ export const Toolbar = forwardRef<HTMLDivElement, ToolbarProps>(
         className={mergeCSSClasses("bn-ak-toolbar", className || "")}
         ref={ref}
         onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}>
+        onMouseLeave={onMouseLeave}
+      >
         {children}
       </AriakitToolbar>
     );
-  }
+  },
 );

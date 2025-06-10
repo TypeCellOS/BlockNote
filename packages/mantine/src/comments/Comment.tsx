@@ -84,7 +84,8 @@ export const Comment = forwardRef<
             right: 0,
             top: 0,
             zIndex: 10,
-          }}>
+          }}
+        >
           {actions}
         </Group>
       ) : null}

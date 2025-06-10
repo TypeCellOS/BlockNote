@@ -11,7 +11,8 @@ export function Letter() {
       <div
         className={
           "z-20 flex max-w-xl flex-col items-center gap-12 px-6 xl:gap-16"
-        }>
+        }
+      >
         <FadeIn>
           <HeroText>Let&apos;s build</HeroText>
         </FadeIn>

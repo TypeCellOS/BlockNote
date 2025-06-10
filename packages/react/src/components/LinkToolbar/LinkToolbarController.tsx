@@ -18,7 +18,7 @@ import { LinkToolbarProps } from "./LinkToolbarProps.js";
 export const LinkToolbarController = <
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(props: {
   linkToolbar?: FC<LinkToolbarProps>;
   floatingOptions?: Partial<UseFloatingOptions>;
@@ -33,7 +33,7 @@ export const LinkToolbarController = <
   };
 
   const state = useUIPluginState(
-    editor.linkToolbar.onUpdate.bind(editor.linkToolbar)
+    editor.linkToolbar.onUpdate.bind(editor.linkToolbar),
   );
   const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
     state?.show || false,
@@ -49,7 +49,7 @@ export const LinkToolbarController = <
         }
       },
       ...props.floatingOptions,
-    }
+    },
   );
 
   if (!isMounted || !state) {

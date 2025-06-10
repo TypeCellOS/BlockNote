@@ -24,7 +24,7 @@ const validateUrl = (url: string) => {
 export const EditLinkMenuItems = (
   props: Pick<LinkToolbarProps, "url" | "text" | "editLink"> & {
     showTextField?: boolean;
-  }
+  },
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
@@ -46,24 +46,24 @@ export const EditLinkMenuItems = (
         editLink(validateUrl(currentUrl), currentText);
       }
     },
-    [editLink, currentUrl, currentText]
+    [editLink, currentUrl, currentText],
   );
 
   const handleUrlChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) =>
       setCurrentUrl(event.currentTarget.value),
-    []
+    [],
   );
 
   const handleTextChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) =>
       setCurrentText(event.currentTarget.value),
-    []
+    [],
   );
 
   const handleSubmit = useCallback(
     () => editLink(validateUrl(currentUrl), currentText),
-    [editLink, currentUrl, currentText]
+    [editLink, currentUrl, currentText],
   );
 
   return (

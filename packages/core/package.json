@@ -11,7 +11,7 @@
     "directory": "packages/core"
   },
   "license": "MPL-2.0",
-  "version": "0.29.1",
+  "version": "0.31.2",
   "files": [
     "dist",
     "types",
@@ -44,11 +44,13 @@
     },
     "./style.css": {
       "import": "./dist/style.css",
-      "require": "./dist/style.css"
+      "require": "./dist/style.css",
+      "style": "./dist/style.css"
     },
     "./fonts/inter.css": {
       "import": "./src/fonts/inter.css",
-      "require": "./src/fonts/inter.css"
+      "require": "./src/fonts/inter.css",
+      "style": "./src/fonts/inter.css"
     },
     "./comments": {
       "types": "./types/src/comments/index.d.ts",
@@ -74,11 +76,9 @@
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
     "@shikijs/types": "3.2.1",
-    "@tiptap/core": "^2.11.5",
+    "@tiptap/core": "^2.12.0",
     "@tiptap/extension-bold": "^2.11.5",
     "@tiptap/extension-code": "^2.11.5",
-    "@tiptap/extension-collaboration": "^2.11.5",
-    "@tiptap/extension-collaboration-cursor": "^2.11.5",
     "@tiptap/extension-gapcursor": "^2.11.5",
     "@tiptap/extension-history": "^2.11.5",
     "@tiptap/extension-horizontal-rule": "^2.11.5",
@@ -88,18 +88,17 @@
     "@tiptap/extension-strike": "^2.11.5",
     "@tiptap/extension-table-cell": "^2.11.5",
     "@tiptap/extension-table-header": "^2.11.5",
-    "@tiptap/extension-table-row": "^2.11.5",
     "@tiptap/extension-text": "^2.11.5",
     "@tiptap/extension-underline": "^2.11.5",
-    "@tiptap/pm": "^2.11.5",
+    "@tiptap/pm": "^2.12.0",
     "emoji-mart": "^5.6.0",
     "hast-util-from-dom": "^5.0.1",
     "prosemirror-dropcursor": "^1.8.1",
     "prosemirror-highlight": "^0.13.0",
-    "prosemirror-model": "^1.24.1",
+    "prosemirror-model": "^1.25.1",
     "prosemirror-state": "^1.4.3",
     "prosemirror-tables": "^1.6.4",
-    "prosemirror-transform": "^1.10.2",
+    "prosemirror-transform": "^1.10.4",
     "prosemirror-view": "^1.38.1",
     "rehype-format": "^5.0.1",
     "rehype-parse": "^9.0.1",
@@ -138,7 +137,7 @@
   },
   "eslintConfig": {
     "extends": [
-      "../../.eslintrc.js"
+      "../../.eslintrc.json"
     ]
   },
   "gitHead": "37614ab348dcc7faa830a9a88437b37197a2162d"

@@ -2,7 +2,7 @@ import { EditorView } from "prosemirror-view";
 
 export function getDraggableBlockFromElement(
   element: Element,
-  view: EditorView
+  view: EditorView,
 ) {
   while (
     element &&

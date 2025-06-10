@@ -1,0 +1,154 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should be able to apply changes to a clean doc (use invertMap) 1`] = `
+{
+  "content": [
+    {
+      "content": [
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "1",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "marks": [
+                    {
+                      "attrs": {
+                        "id": null,
+                      },
+                      "type": "deletion",
+                    },
+                  ],
+                  "text": "Hello",
+                  "type": "text",
+                },
+                {
+                  "text": "What's up, world!",
+                  "type": "text",
+                },
+              ],
+              "type": "paragraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "doc",
+}
+`;
+
+exports[`should be able to apply changes to a clean doc (use rebaseTr) 1`] = `
+{
+  "content": [
+    {
+      "content": [
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "1",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "marks": [
+                    {
+                      "attrs": {
+                        "id": null,
+                      },
+                      "type": "deletion",
+                    },
+                  ],
+                  "text": "Hello",
+                  "type": "text",
+                },
+                {
+                  "text": "What's up, world!",
+                  "type": "text",
+                },
+              ],
+              "type": "paragraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "doc",
+}
+`;
+
+exports[`should create some example suggestions 1`] = `
+{
+  "content": [
+    {
+      "content": [
+        {
+          "attrs": {
+            "backgroundColor": "default",
+            "id": "1",
+            "textColor": "default",
+          },
+          "content": [
+            {
+              "attrs": {
+                "textAlignment": "left",
+              },
+              "content": [
+                {
+                  "marks": [
+                    {
+                      "attrs": {
+                        "id": null,
+                      },
+                      "type": "deletion",
+                    },
+                  ],
+                  "text": "Hello",
+                  "type": "text",
+                },
+                {
+                  "marks": [
+                    {
+                      "attrs": {
+                        "id": null,
+                      },
+                      "type": "insertion",
+                    },
+                  ],
+                  "text": "Hi",
+                  "type": "text",
+                },
+                {
+                  "text": ", world!",
+                  "type": "text",
+                },
+              ],
+              "type": "paragraph",
+            },
+          ],
+          "type": "blockContainer",
+        },
+      ],
+      "type": "blockGroup",
+    },
+  ],
+  "type": "doc",
+}
+`;

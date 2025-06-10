@@ -13,10 +13,10 @@ import { getPmSchema } from "../../pmUtil.js";
 export function getBlock<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   doc: Node,
-  blockIdentifier: BlockIdentifier
+  blockIdentifier: BlockIdentifier,
 ): Block<BSchema, I, S> | undefined {
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
@@ -33,10 +33,10 @@ export function getBlock<
 export function getPrevBlock<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   doc: Node,
-  blockIdentifier: BlockIdentifier
+  blockIdentifier: BlockIdentifier,
 ): Block<BSchema, I, S> | undefined {
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
@@ -59,10 +59,10 @@ export function getPrevBlock<
 export function getNextBlock<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   doc: Node,
-  blockIdentifier: BlockIdentifier
+  blockIdentifier: BlockIdentifier,
 ): Block<BSchema, I, S> | undefined {
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;
@@ -73,7 +73,7 @@ export function getNextBlock<
   }
 
   const $posAfterNode = doc.resolve(
-    posInfo.posBeforeNode + posInfo.node.nodeSize
+    posInfo.posBeforeNode + posInfo.node.nodeSize,
   );
   const nodeToConvert = $posAfterNode.nodeAfter;
   if (!nodeToConvert) {
@@ -86,10 +86,10 @@ export function getNextBlock<
 export function getParentBlock<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   doc: Node,
-  blockIdentifier: BlockIdentifier
+  blockIdentifier: BlockIdentifier,
 ): Block<BSchema, I, S> | undefined {
   const id =
     typeof blockIdentifier === "string" ? blockIdentifier : blockIdentifier.id;

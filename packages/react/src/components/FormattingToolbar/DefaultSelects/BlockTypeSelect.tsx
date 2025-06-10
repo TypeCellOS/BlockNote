@@ -33,12 +33,12 @@ export type BlockTypeSelectItem = {
   props?: Record<string, boolean | number | string>;
   icon: IconType;
   isSelected: (
-    block: Block<BlockSchema, InlineContentSchema, StyleSchema>
+    block: Block<BlockSchema, InlineContentSchema, StyleSchema>,
   ) => boolean;
 };
 
 export const blockTypeSelectItems = (
-  dict: Dictionary
+  dict: Dictionary,
 ): BlockTypeSelectItem[] => [
   {
     name: dict.slash_menu.paragraph.title,
@@ -118,13 +118,13 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
 
   const filteredItems: BlockTypeSelectItem[] = useMemo(() => {
     return (props.items || blockTypeSelectItems(dict)).filter(
-      (item) => item.type in editor.schema.blockSchema
+      (item) => item.type in editor.schema.blockSchema,
     );
   }, [editor, dict, props.items]);
 
   const shouldShow: boolean = useMemo(
     () => filteredItems.find((item) => item.type === block.type) !== undefined,
-    [block.type, filteredItems]
+    [block.type, filteredItems],
   );
 
   const fullItems: ComponentProps["FormattingToolbar"]["Select"]["items"] =

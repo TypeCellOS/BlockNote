@@ -13,9 +13,9 @@ import { useDictionary } from "../../../../i18n/dictionary.js";
 
 export const TableHeaderRowButton = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(
-  props: TableHandleMenuProps<I, S> & { orientation: "row" | "column" }
+  props: TableHandleMenuProps<I, S> & { orientation: "row" | "column" },
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
@@ -56,7 +56,8 @@ export const TableHeaderRowButton = <
             headerRows: isHeaderRow ? undefined : 1,
           },
         });
-      }}>
+      }}
+    >
       {dict.drag_handle.header_row_menuitem}
     </Components.Generic.Menu.Item>
   );
@@ -64,9 +65,9 @@ export const TableHeaderRowButton = <
 
 export const TableHeaderColumnButton = <
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(
-  props: TableHandleMenuProps<I, S> & { orientation: "row" | "column" }
+  props: TableHandleMenuProps<I, S> & { orientation: "row" | "column" },
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
@@ -107,7 +108,8 @@ export const TableHeaderColumnButton = <
             headerCols: isHeaderColumn ? undefined : 1,
           },
         });
-      }}>
+      }}
+    >
       {dict.drag_handle.header_column_menuitem}
     </Components.Generic.Menu.Item>
   );

@@ -26,7 +26,8 @@ export const CHECK_MARKER_UNCHECKED = (
     height="12"
     viewBox="0 -960 960 960"
     width="12"
-    fill="undefined">
+    fill="undefined"
+  >
     <Path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Z" />
   </Svg>
 );
@@ -38,7 +39,8 @@ export const CHECK_MARKER_CHECKED = (
     height="12"
     viewBox="0 -960 960 960"
     width="12"
-    fill="undefined">
+    fill="undefined"
+  >
     <Path d="m424-312 282-282-56-56-226 226-114-114-56 56 170 170ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z" />
   </Svg>
 );

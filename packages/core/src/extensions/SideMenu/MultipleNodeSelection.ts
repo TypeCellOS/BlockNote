@@ -77,7 +77,7 @@ export class MultipleNodeSelection extends Selection {
 
     return new MultipleNodeSelection(
       doc.resolve(fromResult.pos),
-      doc.resolve(toResult.pos)
+      doc.resolve(toResult.pos),
     );
   }
 

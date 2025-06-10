@@ -18,7 +18,8 @@ export const SuggestionMenu = forwardRef<
       className={className}
       ref={ref}
       id={id}
-      role="listbox">
+      role="listbox"
+    >
       {children}
     </MantineStack>
   );

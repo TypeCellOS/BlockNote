@@ -35,7 +35,8 @@ export default function App() {
   return (
     <YDocProvider
       docId={docId}
-      authEndpoint="https://demos.y-sweet.dev/api/auth">
+      authEndpoint="https://demos.y-sweet.dev/api/auth"
+    >
       <Document />
     </YDocProvider>
   );
@@ -90,7 +91,8 @@ function Document() {
     <BlockNoteView
       className={"comments-main-container"}
       editor={editor}
-      editable={activeUser.role === "editor"}>
+      editable={activeUser.role === "editor"}
+    >
       {/* We place user settings select within `BlockNoteView` as it uses
       BlockNote UI components and needs the context for them. */}
       <div className={"settings"}>

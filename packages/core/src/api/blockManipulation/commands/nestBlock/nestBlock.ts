@@ -18,7 +18,7 @@ function sinkListItem(itemType: NodeType, groupType: NodeType) {
       $to,
       (node) =>
         node.childCount > 0 &&
-        (node.type.name === "blockGroup" || node.type.name === "column") // change necessary to not look at first item child type
+        (node.type.name === "blockGroup" || node.type.name === "column"), // change necessary to not look at first item child type
     );
     if (!range) {
       return false;
@@ -38,10 +38,10 @@ function sinkListItem(itemType: NodeType, groupType: NodeType) {
       const inner = Fragment.from(nestedBefore ? itemType.create() : null);
       const slice = new Slice(
         Fragment.from(
-          itemType.create(null, Fragment.from(groupType.create(null, inner))) // change necessary to create "groupType" instead of parent.type
+          itemType.create(null, Fragment.from(groupType.create(null, inner))), // change necessary to create "groupType" instead of parent.type
         ),
         nestedBefore ? 3 : 1,
-        0
+        0,
       );
 
       const before = range.start;
@@ -56,10 +56,10 @@ function sinkListItem(itemType: NodeType, groupType: NodeType) {
               after,
               slice,
               1,
-              true
-            )
+              true,
+            ),
           )
-          .scrollIntoView()
+          .scrollIntoView(),
       );
     }
     return true;
@@ -70,8 +70,8 @@ export function nestBlock(editor: BlockNoteEditor<any, any, any>) {
   return editor.exec((state, dispatch) =>
     sinkListItem(
       state.schema.nodes["blockContainer"],
-      state.schema.nodes["blockGroup"]
-    )(state, dispatch)
+      state.schema.nodes["blockGroup"],
+    )(state, dispatch),
   );
 }
 

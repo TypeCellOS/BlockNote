@@ -17,5 +17,5 @@ export const Mention = createReactInlineContentSpec(
         @{props.inlineContent.props.user}
       </span>
     ),
-  }
+  },
 );

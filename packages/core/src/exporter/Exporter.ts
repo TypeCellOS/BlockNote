@@ -42,7 +42,7 @@ export abstract class Exporter<
   RB,
   RI,
   RS,
-  TS
+  TS,
 > {
   public constructor(
     _schema: BlockNoteSchema<B, I, S>, // only used for type inference
@@ -51,7 +51,7 @@ export abstract class Exporter<
       inlineContentMapping: InlineContentMapping<I, S, RI, TS>;
       styleMapping: StyleMapping<S, RS>;
     },
-    public readonly options: ExporterOptions
+    public readonly options: ExporterOptions,
   ) {}
 
   public async resolveFile(url: string) {
@@ -76,7 +76,7 @@ export abstract class Exporter<
   public mapInlineContent(inlineContent: InlineContent<I, S>) {
     return this.mappings.inlineContentMapping[inlineContent.type](
       inlineContent,
-      this
+      this,
     );
   }
 
@@ -89,13 +89,13 @@ export abstract class Exporter<
   public async mapBlock(
     block: BlockFromConfig<B[keyof B], I, S>,
     nestingLevel: number,
-    numberedListIndex: number
+    numberedListIndex: number,
   ) {
     return this.mappings.blockMapping[block.type](
       block,
       this,
       nestingLevel,
-      numberedListIndex
+      numberedListIndex,
     );
   }
 }

@@ -44,7 +44,8 @@ export const ColorPicker = (props: {
             data-test={"text-color-" + color}
             icon={<ColorIcon textColor={color} size={props.iconSize} />}
             checked={props.text!.color === color}
-            key={"text-color-" + color}>
+            key={"text-color-" + color}
+          >
             {dict.color_picker.colors[color]}
           </Components.Generic.Menu.Item>
         ))}
@@ -66,7 +67,8 @@ export const ColorPicker = (props: {
             data-test={"background-color-" + color}
             icon={<ColorIcon backgroundColor={color} size={props.iconSize} />}
             key={"background-color-" + color}
-            checked={props.background!.color === color}>
+            checked={props.background!.color === color}
+          >
             {dict.color_picker.colors[color]}
           </Components.Generic.Menu.Item>
         ))}

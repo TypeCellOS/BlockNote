@@ -9,7 +9,7 @@ import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
 export const Popover = (
-  props: ComponentProps["Generic"]["Popover"]["Root"]
+  props: ComponentProps["Generic"]["Popover"]["Root"],
 ) => {
   const { opened, position, children, ...rest } = props;
 
@@ -23,7 +23,7 @@ export const Popover = (
 };
 
 export const PopoverTrigger = (
-  props: ComponentProps["Generic"]["Popover"]["Trigger"]
+  props: ComponentProps["Generic"]["Popover"]["Trigger"],
 ) => {
   const { children, ...rest } = props;
 

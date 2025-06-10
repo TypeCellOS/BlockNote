@@ -11,7 +11,7 @@ import { yMapToThread } from "./yjsHelpers.js";
 export abstract class YjsThreadStoreBase extends ThreadStore {
   constructor(
     protected readonly threadsYMap: Y.Map<any>,
-    auth: ThreadStoreAuth
+    auth: ThreadStoreAuth,
   ) {
     super(auth);
   }

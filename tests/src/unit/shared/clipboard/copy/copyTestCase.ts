@@ -10,7 +10,7 @@ import { Selection } from "@tiptap/pm/state";
 export type CopyTestCase<
   B extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = {
   name: string;
   document: PartialBlock<B, I, S>[];

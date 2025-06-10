@@ -6,7 +6,7 @@
 
 export async function loadFileDataUrl(
   requireUrl: { default: string },
-  mimeType: string
+  mimeType: string,
 ) {
   if (import.meta.env.NODE_ENV === "test") {
     const buffer = await loadFileBuffer(requireUrl);

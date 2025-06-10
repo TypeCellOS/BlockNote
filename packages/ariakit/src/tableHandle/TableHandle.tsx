@@ -27,7 +27,7 @@ export const TableHandle = forwardRef<
     <AriakitButton
       className={mergeCSSClasses(
         "bn-ak-button bn-ak-secondary",
-        className || ""
+        className || "",
       )}
       ref={ref}
       aria-label={label}
@@ -35,7 +35,8 @@ export const TableHandle = forwardRef<
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
       style={style}
-      {...rest}>
+      {...rest}
+    >
       {children}
     </AriakitButton>
   );

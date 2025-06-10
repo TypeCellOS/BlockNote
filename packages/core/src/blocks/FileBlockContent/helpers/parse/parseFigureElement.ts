@@ -1,9 +1,9 @@
 export const parseFigureElement = (
   figureElement: HTMLElement,
-  targetTag: string
+  targetTag: string,
 ) => {
   const targetElement = figureElement.querySelector(
-    targetTag
+    targetTag,
   ) as HTMLElement | null;
   if (!targetElement) {
     return undefined;

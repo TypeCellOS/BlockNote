@@ -37,7 +37,7 @@ type NestedObject = { [key: string]: number | string | NestedObject };
 const cssVariablesHelper = (
   theme: Theme,
   editorDOM: HTMLElement,
-  unset = false
+  unset = false,
 ) => {
   const result: string[] = [];
 
@@ -72,7 +72,7 @@ const cssVariablesHelper = (
 
 export const applyBlockNoteCSSVariablesFromTheme = (
   theme: Theme,
-  editorDOM: HTMLElement
+  editorDOM: HTMLElement,
 ) => cssVariablesHelper(theme, editorDOM);
 
 // We don't need a theme to remove the CSS variables, but having access to a

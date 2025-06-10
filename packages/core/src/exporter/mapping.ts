@@ -17,7 +17,7 @@ export type BlockMapping<
   I extends InlineContentSchema,
   S extends StyleSchema,
   RB,
-  RI
+  RI,
 > = {
   [K in keyof B]: (
     block: BlockFromConfigNoChildren<B[K], I, S>,
@@ -26,7 +26,7 @@ export type BlockMapping<
     // this is why there are many `any` types here (same for types below)
     exporter: Exporter<any, any, any, RB, RI, any, any>,
     nestingLevel: number,
-    numberedListIndex?: number
+    numberedListIndex?: number,
   ) => RB | Promise<RB>;
 };
 
@@ -37,11 +37,11 @@ export type InlineContentMapping<
   I extends InlineContentSchema,
   S extends StyleSchema,
   RI,
-  TS
+  TS,
 > = {
   [K in keyof I]: (
     inlineContent: InlineContentFromConfig<I[K], S>,
-    exporter: Exporter<any, I, S, any, RI, any, TS>
+    exporter: Exporter<any, I, S, any, RI, any, TS>,
   ) => RI;
 };
 
@@ -51,7 +51,7 @@ export type InlineContentMapping<
 export type StyleMapping<S extends StyleSchema, RS> = {
   [K in keyof S]: (
     style: Styles<S>[K],
-    exporter: Exporter<any, any, any, any, any, RS, any>
+    exporter: Exporter<any, any, any, any, any, RS, any>,
   ) => RS;
 };
 
@@ -62,13 +62,13 @@ export type StyleMapping<S extends StyleSchema, RS> = {
 export function mappingFactory<
   B extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(_schema: BlockNoteSchema<B, I, S>) {
   return {
     createBlockMapping: <R, RI>(mapping: BlockMapping<B, I, S, R, RI>) =>
       mapping,
     createInlineContentMapping: <R, RS>(
-      mapping: InlineContentMapping<I, S, R, RS>
+      mapping: InlineContentMapping<I, S, R, RS>,
     ) => mapping,
     createStyleMapping: <R>(mapping: StyleMapping<S, R>) => mapping,
   };

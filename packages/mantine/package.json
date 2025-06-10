@@ -11,7 +11,7 @@
     "directory": "packages/mantine"
   },
   "license": "MPL-2.0",
-  "version": "0.29.1",
+  "version": "0.31.2",
   "files": [
     "dist",
     "types",
@@ -44,7 +44,8 @@
     },
     "./style.css": {
       "import": "./dist/style.css",
-      "require": "./dist/style.css"
+      "require": "./dist/style.css",
+      "style": "./dist/style.css"
     }
   },
   "scripts": {
@@ -55,8 +56,8 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "0.29.1",
-    "@blocknote/react": "0.29.1",
+    "@blocknote/core": "0.31.2",
+    "@blocknote/react": "0.31.2",
     "@mantine/core": "^7.10.1",
     "@mantine/hooks": "^7.10.1",
     "@mantine/utils": "^6.0.21",
@@ -80,7 +81,7 @@
   },
   "eslintConfig": {
     "extends": [
-      "../../.eslintrc.js"
+      "../../.eslintrc.json"
     ]
   }
 }

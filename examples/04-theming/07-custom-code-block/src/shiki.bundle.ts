@@ -4,10 +4,8 @@ import type {
   DynamicImportThemeRegistration,
   HighlighterGeneric,
 } from "@shikijs/types";
-import {
-  createdBundledHighlighter,
-} from "@shikijs/core";
-import { createJavaScriptRegexEngine } from "@shikijs/engine-javascript"; 
+import { createdBundledHighlighter } from "@shikijs/core";
+import { createJavaScriptRegexEngine } from "@shikijs/engine-javascript";
 
 type BundledLanguage = "typescript" | "ts" | "javascript" | "js" | "vue";
 type BundledTheme = "light-plus" | "dark-plus";
@@ -35,7 +33,5 @@ const createHighlighter = /* @__PURE__ */ createdBundledHighlighter<
   engine: () => createJavaScriptRegexEngine(),
 });
 
-export {
-  createHighlighter,
-};
+export { createHighlighter };
 export type { BundledLanguage, BundledTheme, Highlighter };

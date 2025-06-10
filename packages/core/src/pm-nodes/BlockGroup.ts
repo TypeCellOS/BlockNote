@@ -8,7 +8,7 @@ export const BlockGroup = Node.create<{
   name: "blockGroup",
   group: "childContainer",
   content: "blockGroupChild+",
-
+  marks: "deletion insertion modification",
   parseHTML() {
     return [
       {
@@ -37,7 +37,7 @@ export const BlockGroup = Node.create<{
     const blockGroup = document.createElement("div");
     blockGroup.className = mergeCSSClasses(
       "bn-block-group",
-      blockGroupHTMLAttributes.class
+      blockGroupHTMLAttributes.class,
     );
     blockGroup.setAttribute("data-node-type", "blockGroup");
     for (const [attribute, value] of Object.entries(blockGroupHTMLAttributes)) {

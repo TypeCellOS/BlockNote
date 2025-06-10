@@ -12,7 +12,7 @@ export const AddFileButton = (
   > & {
     buttonText?: string;
     buttonIcon?: ReactNode;
-  }
+  },
 ) => {
   const dict = useDictionary();
 
@@ -21,14 +21,14 @@ export const AddFileButton = (
     (event: React.MouseEvent) => {
       event.preventDefault();
     },
-    []
+    [],
   );
   // Opens the file toolbar.
   const addFileButtonClickHandler = useCallback(() => {
     props.editor.transact((tr) =>
-      tr.setMeta(props.editor.filePanel!.plugin, {
+      tr.setMeta(props.editor.filePanel!.plugins[0], {
         block: props.block,
-      })
+      }),
     );
   }, [props.block, props.editor]);
 
@@ -36,7 +36,8 @@ export const AddFileButton = (
     <div
       className={"bn-add-file-button"}
       onMouseDown={addFileButtonMouseDownHandler}
-      onClick={addFileButtonClickHandler}>
+      onClick={addFileButtonClickHandler}
+    >
       <div className={"bn-add-file-button-icon"}>
         {props.buttonIcon || <RiFile2Line size={24} />}
       </div>

@@ -63,13 +63,15 @@ function MUISuggestionMenuItem(
       disablePadding
       sx={{
         backgroundColor: (theme) => theme.palette.background.paper,
-      }}>
+      }}
+    >
       <ListItemButton
         selected={props.item.index === props.selectedIndex}
         onClick={() => {
           props.onItemClick?.(props.item);
           editor.focus();
-        }}>
+        }}
+      >
         <ListItemIcon>{Icon}</ListItemIcon>
         <ListItemText
           primary={props.item.title}
@@ -104,7 +106,8 @@ function MUISuggestionMenuLabel(props: { group: string }) {
       id={props.group}
       sx={{
         backgroundColor: (theme) => theme.palette.background.paper,
-      }}>
+      }}
+    >
       {props.group}
     </ListSubheader>
   );
@@ -143,7 +146,8 @@ export function MUISuggestionMenu(
         maxHeight: "100%",
         maxWidth: 360,
         overflow: "auto",
-      }}>
+      }}
+    >
       <nav aria-label="suggestion-menu">
         {props.items.length > 0 ? (
           Object.entries(groups).map(([group, items]) => (
@@ -151,7 +155,8 @@ export function MUISuggestionMenu(
               key={group}
               component="nav"
               aria-labelledby="nested-list-subheader"
-              subheader={<MUISuggestionMenuLabel group={group} />}>
+              subheader={<MUISuggestionMenuLabel group={group} />}
+            >
               {items.map((item) => (
                 <MUISuggestionMenuItem
                   key={item.index}

@@ -59,7 +59,8 @@ export default function App() {
         linkToolbar={false}
         filePanel={false}
         tableHandles={false}
-        emojiPicker={false}>
+        emojiPicker={false}
+      >
         {/* Adds the custom Formatting Toolbar. */}
         {/* `FormattingToolbarController isn't used since we make the custom */}
         {/* toolbar static and always visible above the editor for this */}

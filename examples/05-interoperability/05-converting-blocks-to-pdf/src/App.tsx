@@ -333,7 +333,7 @@ export default function App() {
   const slashMenuItems = useMemo(() => {
     return combineByGroup(
       getDefaultReactSlashMenuItems(editor),
-      getPageBreakReactSlashMenuItems(editor)
+      getPageBreakReactSlashMenuItems(editor),
     );
   }, [editor]);
 

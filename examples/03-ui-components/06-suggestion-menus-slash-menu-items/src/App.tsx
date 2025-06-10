@@ -2,17 +2,16 @@ import {
   BlockNoteEditor,
   filterSuggestionItems,
   insertOrUpdateBlock,
-  PartialBlock,
 } from "@blocknote/core";
 import "@blocknote/core/fonts/inter.css";
+import { BlockNoteView } from "@blocknote/mantine";
+import "@blocknote/mantine/style.css";
 import {
   DefaultReactSuggestionItem,
   getDefaultReactSlashMenuItems,
   SuggestionMenuController,
   useCreateBlockNote,
 } from "@blocknote/react";
-import { BlockNoteView } from "@blocknote/mantine";
-import "@blocknote/mantine/style.css";
 import { HiOutlineGlobeAlt } from "react-icons/hi";
 
 // Custom Slash Menu item to insert a block after the current one.
@@ -35,7 +34,7 @@ const insertHelloWorldItem = (editor: BlockNoteEditor) => ({
 
 // List containing all default Slash Menu Items, as well as our custom one.
 const getCustomSlashMenuItems = (
-  editor: BlockNoteEditor
+  editor: BlockNoteEditor,
 ): DefaultReactSuggestionItem[] => [
   ...getDefaultReactSlashMenuItems(editor),
   insertHelloWorldItem(editor),

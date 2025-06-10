@@ -17,7 +17,7 @@ export const docxInlineContentMappingForDefaultSchema: InlineContentMapping<
       children: ic.content.map((content) => {
         return (exporter as DOCXExporter<any, any, any>).transformStyledText(
           content,
-          true
+          true,
         );
       }),
       link: ic.href,

@@ -25,7 +25,7 @@ const faqs = [
 export function FAQ() {
   return (
     <div className="w-full max-w-screen-lg px-6 py-24 sm:py-32 lg:px-8 lg:py-40">
-      <div className=" divide-y divide-gray-200 dark:divide-gray-800">
+      <div className="divide-y divide-gray-200 dark:divide-gray-800">
         <h2 className="text-2xl font-bold leading-10 tracking-tight">
           Frequently asked questions
         </h2>

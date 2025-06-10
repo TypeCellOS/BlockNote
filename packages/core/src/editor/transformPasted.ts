@@ -36,7 +36,7 @@ export function wrapTableRows(f: Fragment, schema: Schema) {
         // create new table to wrap tableRow with
         const newTable = schema.nodes.table.createChecked(
           undefined,
-          f.child(i)
+          f.child(i),
         );
         newItems.push(newTable);
       }
@@ -96,7 +96,7 @@ export function transformPasted(slice: Slice, view: EditorView) {
       }
       const container = view.state.schema.nodes.blockContainer.createChecked(
         undefined,
-        content
+        content,
       );
       f = f.replaceChild(i, container);
     }

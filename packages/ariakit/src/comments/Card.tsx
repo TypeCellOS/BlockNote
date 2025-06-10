@@ -26,12 +26,13 @@ export const Card = forwardRef<
       className={mergeCSSClasses(
         className,
         "bn-ak-hovercard",
-        selected && "selected"
+        selected && "selected",
       )}
       onFocus={onFocus}
       onBlur={onBlur}
       tabIndex={tabIndex}
-      ref={ref}>
+      ref={ref}
+    >
       {headerText && <div className={"bn-header-text"}>{headerText}</div>}
       {children}
     </AriakitGroup>
@@ -49,7 +50,8 @@ export const CardSection = forwardRef<
   return (
     <AriakitGroup
       className={mergeCSSClasses(className, "bn-ak-card-section")}
-      ref={ref}>
+      ref={ref}
+    >
       {children}
     </AriakitGroup>
   );
@@ -67,9 +69,10 @@ export const ExpandSectionsPrompt = forwardRef<
     <AriakitButton
       className={mergeCSSClasses(
         className,
-        "bn-ak-button bn-ak-secondary bn-ak-expand-sections-prompt"
+        "bn-ak-button bn-ak-secondary bn-ak-expand-sections-prompt",
       )}
-      ref={ref}>
+      ref={ref}
+    >
       {children}
     </AriakitButton>
   );

@@ -19,7 +19,8 @@ export const PanelButton = forwardRef<
       className={className}
       ref={ref}
       onClick={onClick}
-      {...rest}>
+      {...rest}
+    >
       {children}
     </MantineButton>
   );

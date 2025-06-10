@@ -25,7 +25,7 @@ export async function waitForTextInEditor(page: Page, text: string) {
 export async function getDoc(page: Page) {
   const window = await page.evaluateHandle("window");
   const doc = await window.evaluate((win) =>
-    (win as any).ProseMirror.getJSON()
+    (win as any).ProseMirror.getJSON(),
   );
   return doc;
 }

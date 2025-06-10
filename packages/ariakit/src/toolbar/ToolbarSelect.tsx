@@ -32,18 +32,21 @@ export const ToolbarSelect = forwardRef<
         className={"bn-ak-button bn-ak-secondary"}
         disabled={isDisabled}
         aria-label="Text alignment"
-        render={<AriakitToolbarItem />}>
+        render={<AriakitToolbarItem />}
+      >
         {selectedItem.icon} {selectedItem.text} <AriakitSelectArrow />
       </AriakitSelect>
       <AriakitSelectPopover
         className={mergeCSSClasses("bn-ak-popover", className || "")}
         ref={ref}
-        gutter={4}>
+        gutter={4}
+      >
         {items.map((option) => (
           <AriakitSelectItem
             className={"bn-ak-select-item"}
             key={option.text}
-            value={option.text}>
+            value={option.text}
+          >
             {option.icon}
             {option.text}
             {option.text === selectedItem.text && <AriakitSelectItemCheck />}

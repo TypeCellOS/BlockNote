@@ -18,7 +18,8 @@ export default function App() {
     <LiveblocksProvider
       publicApiKey={
         "pk_prod_6iVYNrHvG98GvWioAutXrhTkpG0iQLrzUK3nfWT4_VKWl6NIrlt112YD29to9gQH"
-      }>
+      }
+    >
       <RoomProvider id="my-room">
         <ClientSideSuspense fallback={<div>Loading…</div>}>
           <Editor />

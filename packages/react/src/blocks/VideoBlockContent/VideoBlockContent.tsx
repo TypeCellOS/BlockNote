@@ -14,7 +14,7 @@ export const VideoPreview = (
   props: Omit<
     ReactCustomBlockRenderProps<FileBlockConfig, any, any>,
     "contentRef"
-  >
+  >,
 ) => {
   const resolved = useResolveUrl(props.block.props.url!);
 
@@ -37,7 +37,7 @@ export const VideoToExternalHTML = (
   props: Omit<
     ReactCustomBlockRenderProps<typeof videoBlockConfig, any, any>,
     "contentRef"
-  >
+  >,
 ) => {
   if (!props.block.props.url) {
     return <p>Add video</p>;
@@ -67,13 +67,14 @@ export const VideoToExternalHTML = (
 };
 
 export const VideoBlock = (
-  props: ReactCustomBlockRenderProps<typeof videoBlockConfig, any, any>
+  props: ReactCustomBlockRenderProps<typeof videoBlockConfig, any, any>,
 ) => {
   return (
     <ResizableFileBlockWrapper
       {...(props as any)}
       buttonText={props.editor.dictionary.file_blocks.video.add_button_text}
-      buttonIcon={<RiVideoFill size={24} />}>
+      buttonIcon={<RiVideoFill size={24} />}
+    >
       <VideoPreview {...(props as any)} />
     </ResizableFileBlockWrapper>
   );

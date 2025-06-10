@@ -29,10 +29,10 @@ type PanelProps = ComponentProps["FilePanel"]["Root"];
 export const FilePanel = <
   B extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(
   props: FilePanelProps<I, S> &
-    Partial<Pick<PanelProps, "defaultOpenTab" | "tabs">>
+    Partial<Pick<PanelProps, "defaultOpenTab" | "tabs">>,
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
@@ -57,7 +57,7 @@ export const FilePanel = <
   ];
 
   const [openTab, setOpenTab] = useState<string>(
-    props.defaultOpenTab || tabs[0].name
+    props.defaultOpenTab || tabs[0].name,
   );
 
   return (

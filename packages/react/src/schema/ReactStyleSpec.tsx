@@ -24,7 +24,7 @@ export type ReactCustomStyleImplementation<T extends StyleConfig> = {
 // we want to hide the tiptap node from API consumers and provide a simpler API surface instead
 export function createReactStyleSpec<T extends StyleConfig>(
   styleConfig: T,
-  styleImplementation: ReactCustomStyleImplementation<T>
+  styleImplementation: ReactCustomStyleImplementation<T>,
 ) {
   const mark = Mark.create({
     name: styleConfig.type,
@@ -48,14 +48,14 @@ export function createReactStyleSpec<T extends StyleConfig>(
 
       const renderResult = renderToDOMSpec(
         (refCB) => <Content {...props} contentRef={refCB} />,
-        this.options.editor
+        this.options.editor,
       );
 
       return addStyleAttributes(
         renderResult,
         styleConfig.type,
         mark.attrs.stringValue,
-        styleConfig.propSchema
+        styleConfig.propSchema,
       );
     },
   });

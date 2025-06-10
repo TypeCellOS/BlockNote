@@ -80,7 +80,8 @@ function MUIToolbarSelect<Item extends { name: string; icon?: FC }>(props: {
                   : theme.palette.background.default
               } !important`,
           },
-      }}>
+      }}
+    >
       <Select value={props.selectedItem.name} onChange={props.onChange}>
         {props.items.map((item) => (
           <MenuItem key={item.name} value={item.name}>
@@ -89,7 +90,8 @@ function MUIToolbarSelect<Item extends { name: string; icon?: FC }>(props: {
                 display: "flex",
                 alignItems: "center",
                 paddingRight: "1em",
-              }}>
+              }}
+            >
               {item.icon && <item.icon />}
             </Box>
             <Box>{item.name}</Box>
@@ -186,7 +188,8 @@ function MUIToolbarButton(props: {
                 : theme.palette.background.default
               : undefined,
           display: "block",
-        }}>
+        }}
+      >
         {props.children}
       </Button>
     </Tooltip>
@@ -240,7 +243,8 @@ function MUIBasicTextStyleButton(props: {
     <MUIToolbarButton
       tooltip={tooltip}
       selected={textStyleActive}
-      onClick={onClick}>
+      onClick={onClick}
+    >
       <Icon sx={{ padding: "0.1em", height: "100%", width: "0.8em" }} />
     </MUIToolbarButton>
   );
@@ -297,7 +301,8 @@ function MUITextAlignButton(props: {
     <MUIToolbarButton
       tooltip={tooltip}
       selected={activeTextAlignment === props.textAlignment}
-      onClick={onClick}>
+      onClick={onClick}
+    >
       <Icon sx={{ padding: "0.1em", height: "100%", width: "0.8em" }} />
     </MUIToolbarButton>
   );
@@ -375,7 +380,8 @@ function MUIColorStyleButton() {
       <MUIToolbarButton
         tooltip={"Text & Background Color"}
         selected={anchorEl !== null}
-        onClick={onClick}>
+        onClick={onClick}
+      >
         <FormatColorText
           sx={{ padding: "0.1em", height: "100%", width: "0.8em" }}
         />
@@ -384,7 +390,8 @@ function MUIColorStyleButton() {
         open={anchorEl !== null}
         container={document.querySelector(".bn-container")!}
         anchorEl={anchorEl}
-        onClose={onClose}>
+        onClose={onClose}
+      >
         <MenuItem disabled>
           <Typography variant={"body2"}>Text Color</Typography>
         </MenuItem>
@@ -466,7 +473,8 @@ export function CustomMUIFormattingToolbar() {
       <ButtonGroup
         size={"small"}
         variant={"text"}
-        aria-label="Font style buttons">
+        aria-label="Font style buttons"
+      >
         {/* Replaces the `BasicTextStyleButton` component: */}
         <MUIBasicTextStyleButton textStyle={"bold"} />
         <MUIBasicTextStyleButton textStyle={"italic"} />
@@ -482,7 +490,8 @@ export function CustomMUIFormattingToolbar() {
       <ButtonGroup
         size={"small"}
         variant={"text"}
-        aria-label={"Text & background color button"}>
+        aria-label={"Text & background color button"}
+      >
         <MUIColorStyleButton />
       </ButtonGroup>
     </MUIToolbar>

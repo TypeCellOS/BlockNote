@@ -19,7 +19,7 @@ export const SuggestionMenuItem = forwardRef<
 
     const overflow = elementOverflow(
       itemRef.current,
-      document.querySelector(".bn-suggestion-menu")!
+      document.querySelector(".bn-suggestion-menu, #ai-suggestion-menu")!, // TODO
     );
 
     if (overflow === "top") {
@@ -34,13 +34,16 @@ export const SuggestionMenuItem = forwardRef<
       className={mergeCSSClasses("bn-ak-menu-item", className || "")}
       ref={mergeRefs([ref, itemRef])}
       id={id}
+      onMouseDown={(event) => event.preventDefault()}
       onClick={onClick}
       role="option"
-      aria-selected={isSelected || undefined}>
+      aria-selected={isSelected || undefined}
+    >
       {item.icon && (
         <div
           className="bn-ak-suggestion-menu-item-section"
-          data-position="left">
+          data-position="left"
+        >
           {item.icon}
         </div>
       )}
@@ -53,7 +56,8 @@ export const SuggestionMenuItem = forwardRef<
       {item.badge && (
         <div
           data-position="right"
-          className="bn-ak-suggestion-menu-item-section">
+          className="bn-ak-suggestion-menu-item-section"
+        >
           <div>{item.badge}</div>
         </div>
       )}

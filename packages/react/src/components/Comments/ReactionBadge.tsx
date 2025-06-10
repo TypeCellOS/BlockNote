@@ -18,16 +18,16 @@ export const ReactionBadge = (props: {
   const editor = useBlockNoteEditor();
   if (!editor.comments) {
     throw new Error(
-      "ReactionBadge must be used inside a BlockNote editor with comments enabled"
+      "ReactionBadge must be used inside a BlockNote editor with comments enabled",
     );
   }
 
   const reaction = props.comment.reactions.find(
-    (reaction) => reaction.emoji === props.emoji
+    (reaction) => reaction.emoji === props.emoji,
   );
   if (!reaction) {
     throw new Error(
-      "Trying to render reaction badge for non-existing reaction"
+      "Trying to render reaction badge for non-existing reaction",
     );
   }
 
@@ -42,7 +42,7 @@ export const ReactionBadge = (props: {
       icon={reaction.emoji}
       isSelected={editor.comments.threadStore.auth.canDeleteReaction(
         props.comment,
-        reaction.emoji
+        reaction.emoji,
       )}
       onClick={() => props.onReactionSelect(reaction.emoji)}
       onMouseEnter={() => setUserIds(reaction.userIds)}

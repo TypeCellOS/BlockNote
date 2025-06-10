@@ -22,7 +22,7 @@ function addIdsToBlock(block: PartialBlock<any, any, any>) {
 
 function validateConversion(
   block: PartialBlock<any, any, any>,
-  editor: BlockNoteEditor<any, any, any>
+  editor: BlockNoteEditor<any, any, any>,
 ) {
   addIdsToBlock(block);
   const node = blockToNode(block, editor.pmSchema);
@@ -33,7 +33,7 @@ function validateConversion(
 
   const fullOriginalBlock = partialBlockToBlockForTesting(
     editor.schema.blockSchema,
-    block
+    block,
   );
 
   expect(outputBlock).toStrictEqual(fullOriginalBlock);

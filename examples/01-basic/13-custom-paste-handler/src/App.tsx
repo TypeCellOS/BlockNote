@@ -24,7 +24,7 @@ export default function App() {
       if (event.clipboardData?.types.includes("text/plain")) {
         editor.pasteMarkdown(
           event.clipboardData.getData("text/plain") +
-            " - inserted by the custom paste handler"
+            " - inserted by the custom paste handler",
         );
         return true;
       }
@@ -42,12 +42,13 @@ export default function App() {
           onClick={async () => {
             try {
               await navigator.clipboard.writeText(
-                "**This is markdown in the plain text format**"
+                "**This is markdown in the plain text format**",
               );
             } catch (error) {
               window.alert("Failed to copy plain text with markdown content");
             }
-          }}>
+          }}
+        >
           Copy sample markdown to clipboard (text/plain)
         </button>
         <button
@@ -62,7 +63,8 @@ export default function App() {
             } catch (error) {
               window.alert("Failed to copy HTML content");
             }
-          }}>
+          }}
+        >
           Copy sample HTML to clipboard (text/html)
         </button>
         <button
@@ -70,12 +72,13 @@ export default function App() {
           onClick={async () => {
             try {
               await navigator.clipboard.writeText(
-                "This is plain text in the plain text format"
+                "This is plain text in the plain text format",
               );
             } catch (error) {
               window.alert("Failed to copy plain text");
             }
-          }}>
+          }}
+        >
           Copy sample plain text to clipboard (text/plain)
         </button>
         <button
@@ -96,7 +99,8 @@ export default function App() {
             } catch (error) {
               window.alert("Failed to copy multiple formats");
             }
-          }}>
+          }}
+        >
           Copy sample markdown, HTML, and plain text to clipboard (Safari only)
         </button>
       </div>

@@ -1,3 +1,80 @@
+## 0.31.2 (2025-06-05)
+
+### 🩹 Fixes
+
+- re-release ([0bc546e18](https://github.com/TypeCellOS/BlockNote/commit/0bc546e18))
+- ignore falsy values in boolean prop schema ([#1730](https://github.com/TypeCellOS/BlockNote/pull/1730))
+
+### ❤️ Thank You
+
+- Nick Perez
+- Nick the Sick
+
+## 0.31.1 (2025-05-23)
+
+### 🩹 Fixes
+
+- backwards-compat for `_extensions` ([#1708](https://github.com/TypeCellOS/BlockNote/pull/1708))
+
+### ❤️ Thank You
+
+- Nick Perez
+
+## 0.31.0 (2025-05-20)
+
+### 🩹 Fixes
+
+- Playwright flaky keyboard handler test ([#1704](https://github.com/TypeCellOS/BlockNote/pull/1704))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+
+## 0.30.1 (2025-05-20)
+
+### 🩹 Fixes
+
+- better type-safety ([678086d4d](https://github.com/TypeCellOS/BlockNote/commit/678086d4d))
+- do not use `editor.dispatch` ([#1698](https://github.com/TypeCellOS/BlockNote/pull/1698))
+- re-added `display: flex` to blocks without inline content ([#1702](https://github.com/TypeCellOS/BlockNote/pull/1702))
+- **react:** add missing exports ([#1689](https://github.com/TypeCellOS/BlockNote/pull/1689))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Nick the Sick
+
+## 0.30.0 (2025-05-09)
+
+### 🚀 Features
+
+- expose `editor.prosemirrorState` again ([#1615](https://github.com/TypeCellOS/BlockNote/pull/1615))
+- add `undo` and `redo` methods to editor API ([#1592](https://github.com/TypeCellOS/BlockNote/pull/1592))
+- new auth & payment system ([#1617](https://github.com/TypeCellOS/BlockNote/pull/1617))
+- re-implement Y.js collaboration as BlockNote plugins ([#1638](https://github.com/TypeCellOS/BlockNote/pull/1638))
+- **file:** `previewWidth` prop now defaults to `undefined` ([#1664](https://github.com/TypeCellOS/BlockNote/pull/1664))
+- **locales:** add zh-TW i18n ([#1668](https://github.com/TypeCellOS/BlockNote/pull/1668))
+
+### 🩹 Fixes
+
+- Formatting toolbar regression ([#1630](https://github.com/TypeCellOS/BlockNote/pull/1630))
+- provide `blockId` to `uploadFile` in UploadTab ([#1641](https://github.com/TypeCellOS/BlockNote/pull/1641))
+- do not close the menu on content/selection change ([#1644](https://github.com/TypeCellOS/BlockNote/pull/1644))
+- keep file panel open during collaboration ([#1646](https://github.com/TypeCellOS/BlockNote/pull/1646))
+- force pasting plain text into code block ([#1663](https://github.com/TypeCellOS/BlockNote/pull/1663))
+- updating HTML parsing rules to account for `prosemirror-model@1.25.1` ([#1661](https://github.com/TypeCellOS/BlockNote/pull/1661))
+- **code-block:** handle unknown languages better ([#1626](https://github.com/TypeCellOS/BlockNote/pull/1626))
+- **locales:** add slovak i18n ([#1649](https://github.com/TypeCellOS/BlockNote/pull/1649))
+
+### ❤️ Thank You
+
+- l0st0 @l0st0
+- Lawrence Lin @linyiru
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Quentin Nativel
+
 ## 0.29.1 (2025-04-17)
 
 ### 🩹 Fixes

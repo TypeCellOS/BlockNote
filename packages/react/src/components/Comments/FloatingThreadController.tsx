@@ -28,7 +28,7 @@ import { useThreads } from "./useThreads.js";
 export const FloatingThreadController = <
   B extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(props: {
   floatingThread?: FC<ComponentProps<typeof Thread>>;
   floatingOptions?: Partial<UseFloatingOptions>;
@@ -37,12 +37,12 @@ export const FloatingThreadController = <
 
   if (!editor.comments) {
     throw new Error(
-      "FloatingComposerController can only be used when BlockNote editor has enabled comments"
+      "FloatingComposerController can only be used when BlockNote editor has enabled comments",
     );
   }
 
   const state = useUIPluginState(
-    editor.comments.onUpdate.bind(editor.comments)
+    editor.comments.onUpdate.bind(editor.comments),
   );
 
   const { isMounted, ref, style, getFloatingProps, setReference } =
@@ -67,7 +67,7 @@ export const FloatingThreadController = <
     }
 
     const el = editor.domElement?.querySelector(
-      `[data-bn-thread-id="${state?.selectedThreadId}"]`
+      `[data-bn-thread-id="${state?.selectedThreadId}"]`,
     );
     if (el) {
       setReference(el);

@@ -13,7 +13,7 @@ import { DragHandleMenuProps } from "../SideMenu/DragHandleMenu/DragHandleMenuPr
 
 export type TableHandleProps<
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 > = {
   editor: BlockNoteEditor<
     {

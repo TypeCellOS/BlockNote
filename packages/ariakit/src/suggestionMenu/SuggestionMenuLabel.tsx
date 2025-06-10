@@ -13,7 +13,8 @@ export const SuggestionMenuLabel = forwardRef<
   return (
     <div
       className={mergeCSSClasses("bn-ak-group-label", className || "")}
-      ref={ref}>
+      ref={ref}
+    >
       {children}
     </div>
   );

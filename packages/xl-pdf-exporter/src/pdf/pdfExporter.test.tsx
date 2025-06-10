@@ -34,7 +34,7 @@ describe("exporter", () => {
             type: "extraBlock",
             propSchema: {},
           },
-          {} as any
+          {} as any,
         ),
       },
     });
@@ -42,7 +42,7 @@ describe("exporter", () => {
     new PDFExporter(
       schema,
       // @ts-expect-error
-      pdfDefaultSchemaMappings
+      pdfDefaultSchemaMappings,
     );
 
     new PDFExporter(schema, {
@@ -74,7 +74,7 @@ describe("exporter", () => {
             content: "styled",
             propSchema: {},
           },
-          {} as any
+          {} as any,
         ),
       },
     });
@@ -82,7 +82,7 @@ describe("exporter", () => {
     new PDFExporter(
       schema,
       // @ts-expect-error
-      pdfDefaultSchemaMappings
+      pdfDefaultSchemaMappings,
     );
 
     new PDFExporter(schema, {
@@ -114,7 +114,7 @@ describe("exporter", () => {
             type: "extraStyle",
             propSchema: "boolean",
           },
-          {} as any
+          {} as any,
         ),
       },
     });
@@ -122,7 +122,7 @@ describe("exporter", () => {
     new PDFExporter(
       schema,
       // @ts-expect-error
-      pdfDefaultSchemaMappings
+      pdfDefaultSchemaMappings,
     );
 
     new PDFExporter(schema, {
@@ -160,7 +160,7 @@ describe("exporter", () => {
       BlockNoteSchema.create({
         blockSpecs: { ...defaultBlockSpecs, pageBreak: PageBreak },
       }),
-      pdfDefaultSchemaMappings
+      pdfDefaultSchemaMappings,
     );
 
     const transformed = await exporter.toReactPDFDocument(testDocument);
@@ -193,7 +193,7 @@ describe("exporter", () => {
       BlockNoteSchema.create({
         blockSpecs: { ...defaultBlockSpecs, pageBreak: PageBreak },
       }),
-      pdfDefaultSchemaMappings
+      pdfDefaultSchemaMappings,
     );
 
     const transformed = await exporter.toReactPDFDocument(testDocument, {
@@ -202,7 +202,7 @@ describe("exporter", () => {
     });
     const str = reactElementToJSXString(transformed);
     await expect(str).toMatchFileSnapshot(
-      "__snapshots__/exampleWithHeaderAndFooter.jsx"
+      "__snapshots__/exampleWithHeaderAndFooter.jsx",
     );
 
     // await ReactPDF.render(

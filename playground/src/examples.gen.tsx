@@ -58,7 +58,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-multi-column": "latest"
-          } as any
+          } as any,
+          "pro": true
         },
         "title": "Multi-Column Blocks",
         "group": {
@@ -1003,7 +1004,7 @@
           "docs": true,
           "author": "yousefed",
           "tags": [
-            ""
+            "Interoperability"
           ],
           "dependencies": {
             "@blocknote/xl-pdf-exporter": "latest",
@@ -1385,6 +1386,56 @@
           "slug": "collaboration"
         },
         "readme": "In this example, you can add comments to the document while collaborating with others. You can also pick user accounts with different permissions, as well as react to, reply to, and resolve existing comments. The comments are displayed floating next to the text they refer to, and appear when selecting said text. The comments are shown in a separate sidebar using the `ThreadsSidebar` component.\n\n**Try it out:** Click the \"Add comment\" button in\nthe [Formatting Toolbar](/docs/ui-components/formatting-toolbar) to add a\ncomment!\n\n**Relevant Docs:**\n\n- [Comments Sidebar](/docs/collaboration/comments#sidebar-view)\n- [Real-time collaboration](/docs/collaboration/real-time-collaboration)\n- [Y-Sweet on Jamsocket](https://docs.jamsocket.com/y-sweet/tutorials/blocknote)\n- [Editor Setup](/docs/editor-basics/setup)"
+      },
+      {
+        "projectSlug": "ghost-writer",
+        "fullSlug": "collaboration/ghost-writer",
+        "pathFromRoot": "examples/07-collaboration/06-ghost-writer",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "nperez0111",
+          "tags": [
+            "Advanced",
+            "Development",
+            "Collaboration"
+          ],
+          "dependencies": {
+            "y-partykit": "^0.0.25",
+            "yjs": "^13.6.15"
+          } as any
+        },
+        "title": "Ghost Writer",
+        "group": {
+          "pathFromRoot": "examples/07-collaboration",
+          "slug": "collaboration"
+        },
+        "readme": "In this example, we use a local Yjs document to store the document state, and have a ghost writer that edits the document in real-time.\n\n**Try it out:** Open this page in a new browser tab or window to see it in action!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/editor-basics/setup)"
+      },
+      {
+        "projectSlug": "forking",
+        "fullSlug": "collaboration/forking",
+        "pathFromRoot": "examples/07-collaboration/07-forking",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "nperez0111",
+          "tags": [
+            "Advanced",
+            "Development",
+            "Collaboration"
+          ],
+          "dependencies": {
+            "y-partykit": "^0.0.25",
+            "yjs": "^13.6.15"
+          } as any
+        },
+        "title": "Collaborative Editing with Forking",
+        "group": {
+          "pathFromRoot": "examples/07-collaboration",
+          "slug": "collaboration"
+        },
+        "readme": "In this example, we can fork a document and edit it independently of other collaborators. Then, we can choose to merge the changes back into the original document, or discard the changes.\n\n**Try it out:** Open this page in a new browser tab or window to see it in action!\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/editor-basics/setup)"
       }
     ]
   },
@@ -1405,7 +1456,7 @@
           ],
           "pro": true,
           "dependencies": {
-            "@tiptap/core": "^2"
+            "@tiptap/core": "^2.12.0"
           } as any
         },
         "title": "TipTap extension (arrow InputRule)",
@@ -1414,6 +1465,128 @@
           "slug": "extensions"
         },
         "readme": "This example shows how to set up a BlockNote editor with a TipTap extension that registers an InputRule to convert `->` into `→`.\n\n**Try it out:** Type `->` anywhere in the editor and see how it's automatically converted to a single arrow unicode character."
+      }
+    ]
+  },
+  "ai": {
+    "pathFromRoot": "examples/09-ai",
+    "slug": "ai",
+    "projects": [
+      {
+        "projectSlug": "minimal",
+        "fullSlug": "ai/minimal",
+        "pathFromRoot": "examples/09-ai/01-minimal",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "AI",
+            "llm"
+          ],
+          "dependencies": {
+            "@blocknote/xl-ai": "latest",
+            "@mantine/core": "^7.10.1",
+            "ai": "^4.3.15",
+            "@ai-sdk/groq": "^1.2.9",
+            "zustand": "^5.0.3"
+          } as any
+        },
+        "title": "Rich Text editor AI integration",
+        "group": {
+          "pathFromRoot": "examples/09-ai",
+          "slug": "ai"
+        },
+        "readme": "This example shows the minimal setup to add AI integration to your BlockNote rich text editor.\n\nSelect some text and click the AI (stars) button, or type `/ai` anywhere in the editor to access AI functionality.\n\n**Relevant Docs:**\n\n- [Getting Stared with BlockNote AI](/docs/ai/getting-started)\n- [Changing the Formatting Toolbar](/docs/ui-components/formatting-toolbar#changing-the-formatting-toolbar)\n- [Changing Slash Menu Items](/docs/ui-components/suggestion-menus#changing-slash-menu-items)"
+      },
+      {
+        "projectSlug": "playground",
+        "fullSlug": "ai/playground",
+        "pathFromRoot": "examples/09-ai/02-playground",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "AI",
+            "llm"
+          ],
+          "dependencies": {
+            "@blocknote/xl-ai": "latest",
+            "@mantine/core": "^7.10.1",
+            "ai": "^4.3.15",
+            "@ai-sdk/openai": "^1.3.22",
+            "@ai-sdk/openai-compatible": "^0.2.14",
+            "@ai-sdk/groq": "^1.2.9",
+            "@ai-sdk/anthropic": "^1.2.11",
+            "@ai-sdk/mistral": "^1.2.8",
+            "zustand": "^5.0.3"
+          } as any
+        },
+        "title": "AI Playground",
+        "group": {
+          "pathFromRoot": "examples/09-ai",
+          "slug": "ai"
+        },
+        "readme": "The AI Playground example shows how to customize different options of the AI Extension such as model type and streaming mode.\n\nChange the configuration, the highlight some text to access the AI menu, or type `/ai` anywhere in the editor.\n\n**Relevant Docs:**\n\n- [Getting Stared with BlockNote AI](/docs/ai/getting-started)\n- [BlockNote AI Reference](/docs/ai/reference)\n- [Changing the Formatting Toolbar](/docs/ui-components/formatting-toolbar#changing-the-formatting-toolbar)\n- [Changing Slash Menu Items](/docs/ui-components/suggestion-menus#changing-slash-menu-items)"
+      },
+      {
+        "projectSlug": "custom-ai-menu-items",
+        "fullSlug": "ai/custom-ai-menu-items",
+        "pathFromRoot": "examples/09-ai/03-custom-ai-menu-items",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "AI",
+            "llm"
+          ],
+          "dependencies": {
+            "@blocknote/xl-ai": "latest",
+            "@mantine/core": "^7.10.1",
+            "ai": "^4.1.0",
+            "@ai-sdk/openai": "^1.1.0",
+            "@ai-sdk/groq": "^1.1.0",
+            "react-icons": "^5.2.1",
+            "zustand": "^5.0.3"
+          } as any
+        },
+        "title": "Adding AI Menu Items",
+        "group": {
+          "pathFromRoot": "examples/09-ai",
+          "slug": "ai"
+        },
+        "readme": "In this example, we add two items to the AI Menu. The first prompts the AI to make the selected text more casual, and can be found by selecting some text and click the AI (stars) button. The second prompts the AI to give ideas on related topics to extend the document with, and can be found by clicking the \"Ask AI\" Slash Menu item.\n\nSelect some text and click the AI (stars) button, or type `/ai` anywhere in the editor to access AI functionality.\n\n**Relevant Docs:**\n\n- [Getting Stared with BlockNote AI](/docs/ai/getting-started)\n- [Custom AI Menu Items](/docs/ai/custom-commands)"
+      },
+      {
+        "projectSlug": "with-collaboration",
+        "fullSlug": "ai/with-collaboration",
+        "pathFromRoot": "examples/09-ai/04-with-collaboration",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "nperez0111",
+          "tags": [
+            "AI",
+            "llm"
+          ],
+          "dependencies": {
+            "@blocknote/xl-ai": "latest",
+            "@mantine/core": "^7.10.1",
+            "ai": "^4.3.15",
+            "@ai-sdk/groq": "^1.2.9",
+            "y-partykit": "^0.0.25",
+            "yjs": "^13.6.15",
+            "zustand": "^5.0.3"
+          } as any
+        },
+        "title": "AI + Ghost Writer",
+        "group": {
+          "pathFromRoot": "examples/09-ai",
+          "slug": "ai"
+        },
+        "readme": "This example combines the AI extension with the ghost writer example to show how to use the AI extension in a collaborative environment.\n\n**Relevant Docs:**\n\n- [Editor Setup](/docs/editor-basics/setup)\n- [Changing the Formatting Toolbar](/docs/ui-components/formatting-toolbar#changing-the-formatting-toolbar)\n- [Changing Slash Menu Items](/docs/ui-components/suggestion-menus#changing-slash-menu-items)\n- [Getting Stared with BlockNote AI](/docs/ai/setup)"
       }
     ]
   },

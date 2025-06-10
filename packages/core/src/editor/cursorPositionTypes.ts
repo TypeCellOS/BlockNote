@@ -8,7 +8,7 @@ import {
 export type TextCursorPosition<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = {
   block: Block<BSchema, I, S>;
   prevBlock: Block<BSchema, I, S> | undefined;

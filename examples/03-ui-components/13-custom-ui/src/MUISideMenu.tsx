@@ -60,7 +60,8 @@ function MUIDragHandleMenu(props: {
       open={props.anchorEl !== null}
       container={props.container}
       anchorEl={props.anchorEl}
-      onClose={props.onClose}>
+      onClose={props.onClose}
+    >
       {props.children}
     </Menu>
   );
@@ -93,7 +94,8 @@ function MUIDragHandleButton(props: SideMenuProps<TextBlockSchema>) {
         draggable={"true"}
         onClick={onClick}
         onDragStart={(e) => props.blockDragStart(e, props.block)}
-        onDragEnd={props.blockDragEnd}>
+        onDragEnd={props.blockDragEnd}
+      >
         <DragIndicator
           sx={{
             color: (theme) => theme.palette.text.primary,
@@ -103,7 +105,8 @@ function MUIDragHandleButton(props: SideMenuProps<TextBlockSchema>) {
       <MUIDragHandleMenu
         container={document.querySelector(".bn-container")!}
         anchorEl={anchorEl}
-        onClose={onClose}>
+        onClose={onClose}
+      >
         <MUIRemoveBlockItem {...props} closeDragHandleMenu={onClose} />
       </MUIDragHandleMenu>
     </>
@@ -143,7 +146,8 @@ function MUISideMenu(
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-      }}>
+      }}
+    >
       {props.children}
     </Box>
   );

@@ -27,9 +27,10 @@ const DropdownMenuSubTrigger = React.forwardRef<
     className={cn(
       "bn-flex bn-cursor-default bn-select-none bn-items-center bn-rounded-sm bn-px-2 bn-py-1.5 bn-text-sm bn-outline-none focus:bn-bg-accent data-[state=open]:bn-bg-accent",
       inset && "bn-pl-8",
-      className
+      className,
     )}
-    {...props}>
+    {...props}
+  >
     {children}
     <ChevronRight className="bn-ml-auto bn-h-4 bn-w-4" />
   </DropdownMenuPrimitive.SubTrigger>
@@ -45,7 +46,7 @@ const DropdownMenuSubContent = React.forwardRef<
     ref={ref}
     className={cn(
       "bn-z-50 bn-min-w-[8rem] bn-overflow-hidden bn-rounded-md bn-border bn-bg-popover bn-p-1 bn-text-popover-foreground bn-shadow-lg data-[state=open]:bn-animate-in data-[state=closed]:bn-animate-out data-[state=closed]:bn-fade-out-0 data-[state=open]:bn-fade-in-0 data-[state=closed]:bn-zoom-out-95 data-[state=open]:bn-zoom-in-95 data-[side=bottom]:bn-slide-in-from-top-2 data-[side=left]:bn-slide-in-from-right-2 data-[side=right]:bn-slide-in-from-left-2 data-[side=top]:bn-slide-in-from-bottom-2",
-      className
+      className,
     )}
     {...props}
   />
@@ -63,7 +64,7 @@ const DropdownMenuContent = React.forwardRef<
     sideOffset={sideOffset}
     className={cn(
       "bn-z-50 bn-min-w-[8rem] bn-overflow-hidden bn-rounded-md bn-border bn-bg-popover bn-p-1 bn-text-popover-foreground bn-shadow-md data-[state=open]:bn-animate-in data-[state=closed]:bn-animate-out data-[state=closed]:bn-fade-out-0 data-[state=open]:bn-fade-in-0 data-[state=closed]:bn-zoom-out-95 data-[state=open]:bn-zoom-in-95 data-[side=bottom]:bn-slide-in-from-top-2 data-[side=left]:bn-slide-in-from-right-2 data-[side=right]:bn-slide-in-from-left-2 data-[side=top]:bn-slide-in-from-bottom-2",
-      className
+      className,
     )}
     {...props}
   />
@@ -82,7 +83,7 @@ const DropdownMenuItem = React.forwardRef<
     className={cn(
       "bn-relative bn-flex bn-cursor-default bn-select-none bn-items-center bn-rounded-sm bn-px-2 bn-py-1.5 bn-text-sm bn-outline-none bn-transition-colors focus:bn-bg-accent focus:bn-text-accent-foreground data-[disabled]:bn-pointer-events-none data-[disabled]:bn-opacity-50",
       inset && "bn-pl-8",
-      className
+      className,
     )}
     {...props}
   />
@@ -97,10 +98,11 @@ const DropdownMenuCheckboxItem = React.forwardRef<
     ref={ref}
     className={cn(
       "bn-relative bn-flex bn-cursor-default bn-select-none bn-items-center bn-rounded-sm bn-py-1.5 bn-pl-8 bn-pr-2 bn-text-sm bn-outline-none bn-transition-colors focus:bn-bg-accent focus:bn-text-accent-foreground data-[disabled]:bn-pointer-events-none data-[disabled]:bn-opacity-50",
-      className
+      className,
     )}
     checked={checked}
-    {...props}>
+    {...props}
+  >
     <span className="bn-absolute bn-left-2 bn-flex bn-h-3.5 bn-w-3.5 bn-items-center bn-justify-center">
       <DropdownMenuPrimitive.ItemIndicator>
         <Check className="bn-h-4 bn-w-4" />
@@ -120,9 +122,10 @@ const DropdownMenuRadioItem = React.forwardRef<
     ref={ref}
     className={cn(
       "bn-relative bn-flex bn-cursor-default bn-select-none bn-items-center bn-rounded-sm bn-py-1.5 bn-pl-8 bn-pr-2 bn-text-sm bn-outline-none bn-transition-colors focus:bn-bg-accent focus:bn-text-accent-foreground data-[disabled]:bn-pointer-events-none data-[disabled]:bn-opacity-50",
-      className
+      className,
     )}
-    {...props}>
+    {...props}
+  >
     <span className="bn-absolute bn-left-2 bn-flex bn-h-3.5 bn-w-3.5 bn-items-center bn-justify-center">
       <DropdownMenuPrimitive.ItemIndicator>
         <Circle className="bn-h-2 bn-w-2 bn-fill-current" />
@@ -144,7 +147,7 @@ const DropdownMenuLabel = React.forwardRef<
     className={cn(
       "bn-px-2 bn-py-1.5 bn-text-sm bn-font-semibold",
       inset && "bn-pl-8",
-      className
+      className,
     )}
     {...props}
   />
@@ -171,7 +174,7 @@ const DropdownMenuShortcut = ({
     <span
       className={cn(
         "bn-ml-auto bn-text-xs bn-tracking-widest bn-opacity-60",
-        className
+        className,
       )}
       {...props}
     />
