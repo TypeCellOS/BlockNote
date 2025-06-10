@@ -69,7 +69,10 @@ export function getExpectedEditor(
     : editor.getTextCursorPosition().block;
 
   const deleteCursorBlock: string | undefined =
-    cursorBlock && opts.deleteEmptyCursorBlock && isEmptyParagraph(cursorBlock)
+    cursorBlock &&
+    opts.deleteEmptyCursorBlock &&
+    isEmptyParagraph(cursorBlock) &&
+    editor.document.length > 1
       ? cursorBlock.id
       : undefined;
 

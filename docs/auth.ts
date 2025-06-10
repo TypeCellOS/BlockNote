@@ -223,25 +223,34 @@ export const auth = betterAuth({
         // webhooks have to be publicly accessible
         // ngrok http http://localhost:3000
         secret: process.env.POLAR_WEBHOOK_SECRET as string,
-        onSubscriptionUpdated: async (payload) => {
-          const authContext = await auth.$context;
-          const userId = payload.data.customer.externalId;
-          if (!userId) {
-            return;
-          }
-          if (payload.data.status === "active") {
-            const productId = payload.data.product.id;
-            const planType = Object.values(PRODUCTS).find(
-              (p) => p.id === productId,
-            )?.slug;
-            await authContext.internalAdapter.updateUser(userId, {
-              planType,
-            });
-          } else {
-            // No active subscription, so we need to remove the plan type
-            await authContext.internalAdapter.updateUser(userId, {
-              planType: null,
-            });
+        async onPayload(payload) {
+          switch (payload.type) {
+            case "subscription.active":
+            case "subscription.canceled":
+            case "subscription.updated":
+            case "subscription.revoked":
+            case "subscription.created":
+            case "subscription.uncanceled": {
+              const authContext = await auth.$context;
+              const userId = payload.data.customer.externalId;
+              if (!userId) {
+                return;
+              }
+              if (payload.data.status === "active") {
+                const productId = payload.data.product.id;
+                const planType = Object.values(PRODUCTS).find(
+                  (p) => p.id === productId,
+                )?.slug;
+                await authContext.internalAdapter.updateUser(userId, {
+                  planType,
+                });
+              } else {
+                // No active subscription, so we need to remove the plan type
+                await authContext.internalAdapter.updateUser(userId, {
+                  planType: null,
+                });
+              }
+            }
           }
         },
       },
@@ -262,6 +271,15 @@ export const auth = betterAuth({
         // After verifying email, send them a welcome email
         const newSession = ctx.context.newSession;
         if (newSession) {
+          const oneMinuteAgo = new Date(Date.now() - 60 * 1000);
+          if (
+            ctx.path === "/magic-link/verify" &&
+            newSession.user.createdAt < oneMinuteAgo
+          ) {
+            // magic link is for an account that was created more than a minute ago, so just a normal sign in
+            // no need to send welcome email
+            return false;
+          }
           await sendEmail({
             to: newSession.user.email,
             template: "welcome",
