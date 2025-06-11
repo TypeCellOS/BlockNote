@@ -6,8 +6,18 @@ import { BlockFromConfig } from "../../schema/index.js";
 export const createToggleWrapper = (
   block: BlockFromConfig<any, any, any>,
   editor: BlockNoteEditor<any, any, any>,
-  contentDOM: HTMLElement,
-) => {
+  renderedElement: {
+    dom: HTMLElement;
+    contentDOM?: HTMLElement;
+    ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
+    destroy?: () => void;
+  },
+): {
+  dom: HTMLElement;
+  contentDOM?: HTMLElement;
+  ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
+  destroy?: () => void;
+} => {
   const dom = document.createElement("div");
 
   const toggleWrapper = document.createElement("div");
@@ -44,7 +54,7 @@ export const createToggleWrapper = (
   toggleButton.addEventListener("click", toggleButtonOnClick);
 
   toggleWrapper.appendChild(toggleButton);
-  toggleWrapper.appendChild(contentDOM);
+  toggleWrapper.appendChild(renderedElement.dom);
 
   const toggleAddBlockButton = document.createElement("button");
   toggleAddBlockButton.className = "bn-toggle-add-block-button";
@@ -84,14 +94,18 @@ export const createToggleWrapper = (
 
   return {
     dom,
-    contentDOM,
+    contentDOM: renderedElement.contentDOM,
     // Prevents re-renders when the toggle button is clicked.
     // TODO: Document what this actually does.
-    ignoreMutation: (mutation: ViewMutationRecord) => {
+    ignoreMutation: (mutation) => {
       if (
         mutation instanceof MutationRecord &&
         (mutation.type === "attributes" || mutation.type === "childList")
       ) {
+        if (renderedElement.ignoreMutation) {
+          return renderedElement.ignoreMutation(mutation);
+        }
+
         return true;
       }
       return false;
@@ -108,6 +122,7 @@ export const createToggleWrapper = (
         toggleAddBlockButtonOnClick,
       );
       onEditorChange?.();
+      renderedElement.destroy?.();
     },
   };
 };
