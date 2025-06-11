@@ -192,7 +192,6 @@ export const zh: Dictionary = {
   placeholders: {
     default: "输入 '/' 以使用命令",
     heading: "标题",
-    toggleHeading: "可折叠标题",
     bulletListItem: "列表",
     numberedListItem: "列表",
     checkListItem: "列表",

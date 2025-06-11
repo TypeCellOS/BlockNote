@@ -152,7 +152,6 @@ export const no: Dictionary = {
   placeholders: {
     default: "Skriv tekst eller skriv '/' for å vise kommandoer",
     heading: "Overskrift",
-    toggleHeading: "Sammenleggbar Overskrift",
     bulletListItem: "Liste",
     numberedListItem: "Liste",
     checkListItem: "Liste",

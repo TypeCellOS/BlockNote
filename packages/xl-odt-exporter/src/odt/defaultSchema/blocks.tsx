@@ -207,25 +207,6 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
     );
   },
 
-  toggleHeading: (block, exporter, nestingLevel) => {
-    const customStyleName = createParagraphStyle(
-      exporter as ODTExporter<any, any, any>,
-      block.props,
-      "Heading_20_" + block.props.level,
-    );
-    const styleName = customStyleName;
-
-    return (
-      <text:h
-        text:outline-level={`${block.props.level}`}
-        text:style-name={styleName}
-      >
-        {getTabs(nestingLevel)}
-        {exporter.transformInlineContent(block.content)}
-      </text:h>
-    );
-  },
-
   quote: (block, exporter, nestingLevel) => {
     const customStyleName = createParagraphStyle(
       exporter as ODTExporter<any, any, any>,

@@ -136,7 +136,6 @@ export const pl: Dictionary = {
   placeholders: {
     default: "Wprowadź tekst lub wpisz '/' aby użyć poleceń",
     heading: "Nagłówek",
-    toggleHeading: "Nagłówek rozwijany",
     bulletListItem: "Lista",
     numberedListItem: "Lista",
     checkListItem: "Lista",

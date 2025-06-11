@@ -152,7 +152,6 @@ export const de: Dictionary = {
   placeholders: {
     default: "Text eingeben oder '/' für Befehle tippen",
     heading: "Überschrift",
-    toggleHeading: "Aufklappbare Überschrift",
     bulletListItem: "Liste",
     numberedListItem: "Liste",
     checkListItem: "Liste",

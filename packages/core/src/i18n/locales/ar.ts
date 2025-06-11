@@ -136,7 +136,6 @@ export const ar: Dictionary = {
   placeholders: {
     default: "أدخل نصًا أو اكتب '/' للأوامر",
     heading: "عنوان",
-    toggleHeading: "عنوان قابل للطي",
     bulletListItem: "قائمة",
     numberedListItem: "قائمة",
     checkListItem: "قائمة",

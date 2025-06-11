@@ -143,7 +143,6 @@ export const pt: Dictionary = {
   placeholders: {
     default: "Digite texto ou use '/' para comandos",
     heading: "Título",
-    toggleHeading: "Título Expansível",
     bulletListItem: "Lista",
     numberedListItem: "Lista",
     checkListItem: "Lista",

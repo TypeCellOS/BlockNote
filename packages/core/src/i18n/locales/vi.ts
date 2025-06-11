@@ -150,7 +150,6 @@ export const vi: Dictionary = {
   placeholders: {
     default: "Nhập văn bản hoặc gõ '/' để thêm định dạng",
     heading: "Tiêu đề",
-    toggleHeading: "Tiêu đề có thể thu gọn",
     bulletListItem: "Danh sách",
     numberedListItem: "Danh sách",
     checkListItem: "Danh sách",

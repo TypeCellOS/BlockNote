@@ -122,16 +122,11 @@ export function getDefaultSlashMenuItems<
         key: "heading_3",
         ...editor.dictionary.slash_menu.heading_3,
       },
-    );
-  }
-
-  if (checkDefaultBlockTypeInSchema("toggleHeading", editor)) {
-    items.push(
       {
         onItemClick: () => {
           insertOrUpdateBlock(editor, {
-            type: "toggleHeading",
-            props: { level: 1 },
+            type: "heading",
+            props: { level: 1, isTogglable: true },
           });
         },
         key: "toggle_heading",
@@ -140,8 +135,8 @@ export function getDefaultSlashMenuItems<
       {
         onItemClick: () => {
           insertOrUpdateBlock(editor, {
-            type: "toggleHeading",
-            props: { level: 2 },
+            type: "heading",
+            props: { level: 2, isTogglable: true },
           });
         },
 
@@ -151,8 +146,8 @@ export function getDefaultSlashMenuItems<
       {
         onItemClick: () => {
           insertOrUpdateBlock(editor, {
-            type: "toggleHeading",
-            props: { level: 3 },
+            type: "heading",
+            props: { level: 3, isTogglable: true },
           });
         },
         key: "toggle_heading_3",

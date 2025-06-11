@@ -164,7 +164,6 @@ export const ko: Dictionary = {
   placeholders: {
     default: "텍스트를 입력하거나 /를 입력하여 명령을 입력하세요.",
     heading: "제목",
-    toggleHeading: "접을 수 있는 제목",
     bulletListItem: "목록",
     numberedListItem: "목록",
     checkListItem: "목록",

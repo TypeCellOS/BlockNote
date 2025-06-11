@@ -192,7 +192,6 @@ export const zhTW: Dictionary = {
   placeholders: {
     default: "輸入 '/' 以使用指令",
     heading: "標題",
-    toggleHeading: "可摺疊標題",
     bulletListItem: "列表",
     numberedListItem: "列表",
     checkListItem: "列表",

@@ -144,7 +144,6 @@ export const is: Dictionary = {
   placeholders: {
     default: "Sláðu inn texta eða skrifaðu '/' fyrir skipanir",
     heading: "Fyrirsögn",
-    toggleHeading: "Fellanleg Fyrirsögn",
     bulletListItem: "Listi",
     numberedListItem: "Listi",
     checkListItem: "Listi",

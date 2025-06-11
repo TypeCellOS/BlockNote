@@ -192,7 +192,6 @@ export const ru: Dictionary = {
   placeholders: {
     default: "Введите текст или введите «/» для команд",
     heading: "Заголовок",
-    toggleHeading: "Разворачиваемый заголовок",
     bulletListItem: "Список",
     numberedListItem: "Список",
     checkListItem: "Список",

@@ -1,6 +1,6 @@
 # Togglable Blocks
 
-This example shows how to create blocks with a toggle button to show/hide their children. This is done using the use the `ToggleWrapper` component from `@blocknote/react`.
+This example shows how to create blocks with a toggle button to show/hide their children, like with the default heading and list item blocks. This is done using the use the `ToggleWrapper` component from `@blocknote/react`.
 
 **Relevant Docs:**
 

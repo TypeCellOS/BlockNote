@@ -5,29 +5,36 @@ import {
   createBlockSpec,
 } from "../../schema/index.js";
 import { defaultProps } from "../defaultProps.js";
+import { createToggleWrapper } from "../ToggleWrapper/createToggleWrapper.js";
 
 export const headingPropSchema = {
   ...defaultProps,
   level: { default: 1, values: [1, 2, 3] as const },
-} satisfies PropSchema;
+  isTogglable: { default: false },
+} as const satisfies PropSchema;
 
 export const headingConfig = {
   type: "heading",
   propSchema: headingPropSchema,
   content: "inline",
-} satisfies CustomBlockConfig;
+} as const satisfies CustomBlockConfig;
 
 export const headingRender: CustomBlockImplementation<
   typeof headingConfig,
   any,
   any
->["render"] = (block) => {
+>["render"] = (block, editor) => {
   const dom = document.createElement(`h${block.props.level}`);
-
-  return {
+  const renderedElement = {
     dom,
     contentDOM: dom,
   };
+
+  if (block.props.isTogglable) {
+    return createToggleWrapper(block, editor, renderedElement);
+  }
+
+  return renderedElement;
 };
 
 export const headingParse: CustomBlockImplementation<
