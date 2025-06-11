@@ -11,6 +11,7 @@ import { createPasteFromClipboardExtension } from "../api/clipboard/fromClipboar
 import { createCopyToClipboardExtension } from "../api/clipboard/toClipboard/copyExtension.js";
 import type { ThreadStore } from "../comments/index.js";
 import { BackgroundColorExtension } from "../extensions/BackgroundColor/BackgroundColorExtension.js";
+import { BlockChangePlugin } from "../extensions/BlockChange/BlockChangePlugin.js";
 import { CursorPlugin } from "../extensions/Collaboration/CursorPlugin.js";
 import { SyncPlugin } from "../extensions/Collaboration/SyncPlugin.js";
 import { UndoPlugin } from "../extensions/Collaboration/UndoPlugin.js";
@@ -150,6 +151,7 @@ export const getBlockNoteExtensions = <
   }
 
   ret["nodeSelectionKeyboard"] = new NodeSelectionKeyboardPlugin();
+  ret["blockChange"] = new BlockChangePlugin();
 
   ret["showSelection"] = new ShowSelectionPlugin(opts.editor);
 
