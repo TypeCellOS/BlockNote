@@ -52,6 +52,7 @@ it("immediately replaces doc", async () => {
         "id": "2",
         "props": {
           "backgroundColor": "default",
+          "isTogglable": false,
           "level": 1,
           "textAlignment": "left",
           "textColor": "default",

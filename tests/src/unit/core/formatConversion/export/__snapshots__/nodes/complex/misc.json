@@ -8,6 +8,7 @@
     "content": [
       {
         "attrs": {
+          "isTogglable": false,
           "level": 2,
           "textAlignment": "right",
         },
