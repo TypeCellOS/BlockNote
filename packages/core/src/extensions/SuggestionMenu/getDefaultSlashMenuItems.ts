@@ -168,6 +168,19 @@ export function getDefaultSlashMenuItems<
     });
   }
 
+  if (checkDefaultBlockTypeInSchema("toggleListItem", editor)) {
+    items.push({
+      onItemClick: () => {
+        insertOrUpdateBlock(editor, {
+          type: "toggleListItem",
+        });
+      },
+      badge: formatKeyboardShortcut("Mod-Shift-6"),
+      key: "toggle_list",
+      ...editor.dictionary.slash_menu.toggle_list,
+    });
+  }
+
   if (checkDefaultBlockTypeInSchema("numberedListItem", editor)) {
     items.push({
       onItemClick: () => {

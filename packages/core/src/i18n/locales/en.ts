@@ -42,6 +42,12 @@ export const en = {
       aliases: ["quotation", "blockquote", "bq"],
       group: "Basic blocks",
     },
+    toggle_list: {
+      title: "Toggle List",
+      subtext: "List with hidable sub-items",
+      aliases: ["li", "list", "toggleList", "toggle list", "collapsable list"],
+      group: "Basic blocks",
+    },
     numbered_list: {
       title: "Numbered List",
       subtext: "List with ordered items",
@@ -150,6 +156,7 @@ export const en = {
   placeholders: {
     default: "Enter text or type '/' for commands",
     heading: "Heading",
+    toggleList: "List",
     bulletListItem: "List",
     numberedListItem: "List",
     checkListItem: "List",

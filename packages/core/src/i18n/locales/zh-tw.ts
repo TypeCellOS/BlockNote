@@ -95,6 +95,12 @@ export const zhTW: Dictionary = {
       ],
       group: "基礎",
     },
+    toggle_list: {
+      title: "可摺疊列表",
+      subtext: "帶有可隱藏子項的列表",
+      aliases: ["li", "列表", "可摺疊列表", "摺疊列表"],
+      group: "基礎",
+    },
     paragraph: {
       title: "段落",
       subtext: "用於文件正文",
@@ -192,6 +198,7 @@ export const zhTW: Dictionary = {
   placeholders: {
     default: "輸入 '/' 以使用指令",
     heading: "標題",
+    toggleList: "列表",
     bulletListItem: "列表",
     numberedListItem: "列表",
     checkListItem: "列表",

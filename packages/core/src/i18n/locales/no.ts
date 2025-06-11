@@ -70,6 +70,12 @@ export const no: Dictionary = {
       ],
       group: "Grunnleggende blokker",
     },
+    toggle_list: {
+      title: "Sammenleggbar liste",
+      subtext: "Liste med skjulbare underpunkter",
+      aliases: ["li", "liste", "sammenleggbar liste", "skjulbar liste"],
+      group: "Grunnleggende blokker",
+    },
     paragraph: {
       title: "Avsnitt",
       subtext: "Hoveddelen av dokumentet ditt",
@@ -152,6 +158,7 @@ export const no: Dictionary = {
   placeholders: {
     default: "Skriv tekst eller skriv '/' for å vise kommandoer",
     heading: "Overskrift",
+    toggleList: "Liste",
     bulletListItem: "Liste",
     numberedListItem: "Liste",
     checkListItem: "Liste",

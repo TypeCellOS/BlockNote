@@ -88,6 +88,12 @@ export const uk: Dictionary = {
       ],
       group: "Базові блоки",
     },
+    toggle_list: {
+      title: "Розгортаємий список",
+      subtext: "Список із прихованими підпунктами",
+      aliases: ["li", "список", "розгортаємий список", "складений список"],
+      group: "Базові блоки",
+    },
     paragraph: {
       title: "Параграф",
       subtext: "Основний текст документа",
@@ -176,6 +182,7 @@ export const uk: Dictionary = {
   placeholders: {
     default: "Введіть текст або наберіть '/' для команд",
     heading: "Заголовок",
+    toggleList: "Список",
     bulletListItem: "Список",
     numberedListItem: "Список",
     checkListItem: "Список",

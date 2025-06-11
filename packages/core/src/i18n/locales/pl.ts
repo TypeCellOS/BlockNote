@@ -62,6 +62,18 @@ export const pl: Dictionary = {
       aliases: ["ul", "li", "lista", "lista z polami wyboru", "pole wyboru"],
       group: "Podstawowe bloki",
     },
+    toggle_list: {
+      title: "Lista rozwijana",
+      subtext: "Lista z elementami, które można ukryć",
+      aliases: [
+        "li",
+        "lista",
+        "lista rozwijana",
+        "lista rozwijalna",
+        "lista składana",
+      ],
+      group: "Podstawowe bloki",
+    },
     paragraph: {
       title: "Akapit",
       subtext: "Używany dla treści dokumentu",
@@ -136,6 +148,7 @@ export const pl: Dictionary = {
   placeholders: {
     default: "Wprowadź tekst lub wpisz '/' aby użyć poleceń",
     heading: "Nagłówek",
+    toggleList: "Lista",
     bulletListItem: "Lista",
     numberedListItem: "Lista",
     checkListItem: "Lista",

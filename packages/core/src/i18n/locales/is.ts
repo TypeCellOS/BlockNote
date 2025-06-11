@@ -62,6 +62,12 @@ export const is: Dictionary = {
       aliases: ["ul", "li", "listi", "athugunarlisti", "merktur listi"],
       group: "Grunnblokkar",
     },
+    toggle_list: {
+      title: "Fellanlegur listi",
+      subtext: "Listi með földum undirliðum",
+      aliases: ["li", "listi", "fellanlegur listi", "samfellanlegur listi"],
+      group: "Grunnblokkar",
+    },
     paragraph: {
       title: "Málsgrein",
       subtext: "Notað fyrir meginmál skjalsins",
@@ -144,6 +150,7 @@ export const is: Dictionary = {
   placeholders: {
     default: "Sláðu inn texta eða skrifaðu '/' fyrir skipanir",
     heading: "Fyrirsögn",
+    toggleList: "Listi",
     bulletListItem: "Listi",
     numberedListItem: "Listi",
     checkListItem: "Listi",

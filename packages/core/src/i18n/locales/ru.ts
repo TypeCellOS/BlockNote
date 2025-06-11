@@ -101,6 +101,17 @@ export const ru: Dictionary = {
       ],
       group: "Базовые блоки",
     },
+    toggle_list: {
+      title: "Разворачиваемый список",
+      subtext: "Список со скрываемыми элементами",
+      aliases: [
+        "li",
+        "список",
+        "разворачиваемый список",
+        "сворачиваемый список",
+      ],
+      group: "Базовые блоки",
+    },
     paragraph: {
       title: "Параграф",
       subtext: "Основной текст",
@@ -192,6 +203,7 @@ export const ru: Dictionary = {
   placeholders: {
     default: "Введите текст или введите «/» для команд",
     heading: "Заголовок",
+    toggleList: "Список",
     bulletListItem: "Список",
     numberedListItem: "Список",
     checkListItem: "Список",

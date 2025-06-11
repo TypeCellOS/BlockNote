@@ -85,6 +85,18 @@ export const fr: Dictionary = {
       ],
       group: "Blocs de base",
     },
+    toggle_list: {
+      title: "Liste déroulante",
+      subtext: "Liste avec des sous-éléments masquables",
+      aliases: [
+        "li",
+        "liste",
+        "liste déroulante",
+        "liste pliable",
+        "liste escamotable",
+      ],
+      group: "Blocs de base",
+    },
     paragraph: {
       title: "Paragraphe",
       subtext: "Utilisé pour le corps de votre document",
@@ -177,6 +189,7 @@ export const fr: Dictionary = {
     default:
       "Entrez du texte ou tapez '/' pour faire apparaître les options de mise en page",
     heading: "Titre",
+    toggleList: "Liste",
     bulletListItem: "Liste",
     numberedListItem: "Liste",
     checkListItem: "Liste",

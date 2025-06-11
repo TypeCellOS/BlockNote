@@ -69,6 +69,12 @@ export const vi: Dictionary = {
       ],
       group: "Khối cơ bản",
     },
+    toggle_list: {
+      title: "Danh sách có thể thu gọn",
+      subtext: "Danh sách với các mục con có thể ẩn",
+      aliases: ["li", "danh sach", "danh sach thu gon", "danh sach co the an"],
+      group: "Khối cơ bản",
+    },
     paragraph: {
       title: "Đoạn văn",
       subtext: "Sử dụng cho nội dung chính của tài liệu",
@@ -150,6 +156,7 @@ export const vi: Dictionary = {
   placeholders: {
     default: "Nhập văn bản hoặc gõ '/' để thêm định dạng",
     heading: "Tiêu đề",
+    toggleList: "Danh sách",
     bulletListItem: "Danh sách",
     numberedListItem: "Danh sách",
     checkListItem: "Danh sách",

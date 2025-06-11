@@ -69,6 +69,12 @@ export const pt: Dictionary = {
       ],
       group: "Blocos básicos",
     },
+    toggle_list: {
+      title: "Lista expansível",
+      subtext: "Lista com subitens ocultáveis",
+      aliases: ["li", "lista", "lista expansível", "lista recolhível"],
+      group: "Blocos básicos",
+    },
     paragraph: {
       title: "Parágrafo",
       subtext: "Usado para o corpo do seu documento",
@@ -143,6 +149,7 @@ export const pt: Dictionary = {
   placeholders: {
     default: "Digite texto ou use '/' para comandos",
     heading: "Título",
+    toggleList: "Lista",
     bulletListItem: "Lista",
     numberedListItem: "Lista",
     checkListItem: "Lista",

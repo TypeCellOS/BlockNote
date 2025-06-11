@@ -62,6 +62,12 @@ export const nl: Dictionary = {
       aliases: ["ul", "li", "lijst", "aangevinkte lijst", "selectievakje"],
       group: "Basisblokken",
     },
+    toggle_list: {
+      title: "Inklapbare Lijst",
+      subtext: "Lijst met verbergbare sub-items",
+      aliases: ["li", "lijst", "inklapbare lijst", "uitklapbare lijst"],
+      group: "Basisblokken",
+    },
     paragraph: {
       title: "Paragraaf",
       subtext: "Gebruikt voor de hoofdtekst van uw document",
@@ -151,6 +157,7 @@ export const nl: Dictionary = {
   placeholders: {
     default: "Voer tekst in of type '/' voor commando's",
     heading: "Kop",
+    toggleList: "Lijst",
     bulletListItem: "Lijst",
     numberedListItem: "Lijst",
     checkListItem: "Lijst",

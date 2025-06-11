@@ -68,6 +68,12 @@ export const sk = {
       ],
       group: "Základné bloky",
     },
+    toggle_list: {
+      title: "Rozbaľovací zoznam",
+      subtext: "Zoznam so skrývateľnými položkami",
+      aliases: ["li", "zoznam", "rozbaľovací zoznam", "zabaliteľný zoznam"],
+      group: "Základné bloky",
+    },
     paragraph: {
       title: "Odstavec",
       subtext: "Telo dokumentu",
@@ -150,6 +156,7 @@ export const sk = {
   placeholders: {
     default: "Zadajte text alebo napíšte '/' pre príkazy",
     heading: "Nadpis",
+    toggleList: "Zoznam",
     bulletListItem: "Zoznam",
     numberedListItem: "Zoznam",
     checkListItem: "Zoznam",

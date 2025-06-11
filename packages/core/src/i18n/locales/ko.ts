@@ -70,6 +70,12 @@ export const ko: Dictionary = {
       ],
       group: "기본 블록",
     },
+    toggle_list: {
+      title: "접을 수 있는 목록",
+      subtext: "숨길 수 있는 하위 항목이 있는 목록",
+      aliases: ["li", "목록", "접을 수 있는 목록", "토글 목록"],
+      group: "기본 블록",
+    },
     paragraph: {
       title: "본문",
       subtext: "일반 텍스트",
@@ -164,6 +170,7 @@ export const ko: Dictionary = {
   placeholders: {
     default: "텍스트를 입력하거나 /를 입력하여 명령을 입력하세요.",
     heading: "제목",
+    toggleList: "목록",
     bulletListItem: "목록",
     numberedListItem: "목록",
     checkListItem: "목록",

@@ -82,6 +82,12 @@ export const hr: Dictionary = {
       ],
       group: "Osnovni blokovi",
     },
+    toggle_list: {
+      title: "Proširivi popis",
+      subtext: "Popis sa skrivenim podstavkama",
+      aliases: ["stavkaPopisa", "popis", "proširivi popis", "sklopivi popis"],
+      group: "Osnovni blokovi",
+    },
     paragraph: {
       title: "Normalan tekst",
       subtext: "Tekst paragrafa",
@@ -164,6 +170,7 @@ export const hr: Dictionary = {
   placeholders: {
     default: "Unesi tekst ili upiši ‘/’ za naredbe",
     heading: "Naslov",
+    toggleList: "Lista",
     bulletListItem: "Lista",
     numberedListItem: "Lista",
     checkListItem: "Lista",

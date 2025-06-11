@@ -10,6 +10,7 @@ import {
   BULLET_MARKER,
   CHECK_MARKER_CHECKED,
   CHECK_MARKER_UNCHECKED,
+  CHEVRON_MARKER,
   ListItem,
 } from "../util/listItem.js";
 import { Table } from "../util/table/Table.js";
@@ -27,6 +28,13 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
   paragraph: (block, exporter) => {
     // const style = blocknoteDefaultPropsToReactPDFStyle(block.props);
     return <Text>{exporter.transformInlineContent(block.content)}</Text>;
+  },
+  toggleListItem: (block, exporter) => {
+    return (
+      <ListItem listMarker={CHEVRON_MARKER}>
+        <Text>{exporter.transformInlineContent(block.content)}</Text>
+      </ListItem>
+    );
   },
   bulletListItem: (block, exporter) => {
     // const style = t(block.props);

@@ -70,6 +70,12 @@ export const ar: Dictionary = {
       ],
       group: "الكتل الأساسية",
     },
+    toggle_list: {
+      title: "قائمة قابلة للطي",
+      subtext: "قائمة بعناصر فرعية قابلة للإخفاء",
+      aliases: ["عناصر قائمة", "قائمة", "قائمة قابلة للطي", "قائمة منسدلة"],
+      group: "الكتل الأساسية",
+    },
     paragraph: {
       title: "فقرة",
       subtext: "تستخدم لنص الوثيقة الأساسي",
@@ -136,6 +142,7 @@ export const ar: Dictionary = {
   placeholders: {
     default: "أدخل نصًا أو اكتب '/' للأوامر",
     heading: "عنوان",
+    toggleList: "قائمة",
     bulletListItem: "قائمة",
     numberedListItem: "قائمة",
     checkListItem: "قائمة",

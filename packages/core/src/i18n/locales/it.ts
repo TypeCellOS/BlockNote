@@ -70,6 +70,12 @@ export const it: Dictionary = {
       ],
       group: "Blocchi Base",
     },
+    toggle_list: {
+      title: "Elenco Espandibile",
+      subtext: "Elenco con elementi nascondibili",
+      aliases: ["li", "elenco", "elenco espandibile", "elenco collassabile"],
+      group: "Blocchi Base",
+    },
     paragraph: {
       title: "Paragrafo",
       subtext: "Il corpo del tuo documento",
@@ -152,6 +158,7 @@ export const it: Dictionary = {
   placeholders: {
     default: "Inserisci testo o digita '/' per i comandi",
     heading: "Intestazione",
+    toggleList: "Elenco",
     bulletListItem: "Elenco",
     numberedListItem: "Elenco",
     checkListItem: "Elenco",

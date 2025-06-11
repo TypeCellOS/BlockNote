@@ -86,6 +86,12 @@ export const ja: Dictionary = {
       ],
       group: "基本ブロック",
     },
+    toggle_list: {
+      title: "折りたたみリスト",
+      subtext: "サブ項目を非表示にできるリスト",
+      aliases: ["li", "リスト", "折りたたみリスト", "トグルリスト"],
+      group: "基本ブロック",
+    },
     paragraph: {
       title: "標準テキスト",
       subtext: "本文に使用",
@@ -171,6 +177,7 @@ export const ja: Dictionary = {
   placeholders: {
     default: "テキストを入力するか'/' を入力してコマンド選択",
     heading: "見出し",
+    toggleList: "リストを追加",
     bulletListItem: "リストを追加",
     numberedListItem: "リストを追加",
     checkListItem: "リストを追加",

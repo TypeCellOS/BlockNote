@@ -70,6 +70,18 @@ export const de: Dictionary = {
       ],
       group: "Grundlegende Blöcke",
     },
+    toggle_list: {
+      title: "Aufklappbare Liste",
+      subtext: "Liste mit ausblendbare Unterpunkten",
+      aliases: [
+        "li",
+        "liste",
+        "aufklappbareListe",
+        "aufklappbare liste",
+        "einklappbare liste",
+      ],
+      group: "Grundlegende Blöcke",
+    },
     paragraph: {
       title: "Absatz",
       subtext: "Der Hauptteil Ihres Dokuments",
@@ -152,6 +164,7 @@ export const de: Dictionary = {
   placeholders: {
     default: "Text eingeben oder '/' für Befehle tippen",
     heading: "Überschrift",
+    toggleList: "Liste",
     bulletListItem: "Liste",
     numberedListItem: "Liste",
     checkListItem: "Liste",
