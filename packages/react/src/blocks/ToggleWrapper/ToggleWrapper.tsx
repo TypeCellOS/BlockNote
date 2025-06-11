@@ -4,7 +4,22 @@ import { ReactCustomBlockRenderProps } from "../../schema/ReactBlockSpec.js";
 import { useEditorChange } from "../../hooks/useEditorChange.js";
 
 export const ToggleWrapper = (
-  props: Omit<ReactCustomBlockRenderProps<any, any, any>, "contentRef"> & {
+  props: Omit<
+    ReactCustomBlockRenderProps<
+      {
+        type: any;
+        readonly propSchema: {
+          isTogglable: {
+            default: boolean;
+          };
+        };
+        content: any;
+      },
+      any,
+      any
+    >,
+    "contentRef"
+  > & {
     children: ReactNode;
   },
 ) => {
@@ -22,6 +37,10 @@ export const ToggleWrapper = (
       setHasChildren(true);
     }
   });
+
+  if (!block.props.isTogglable) {
+    return children;
+  }
 
   return (
     <div>

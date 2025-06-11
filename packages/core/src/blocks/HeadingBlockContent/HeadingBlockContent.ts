@@ -25,16 +25,11 @@ export const headingRender: CustomBlockImplementation<
   any
 >["render"] = (block, editor) => {
   const dom = document.createElement(`h${block.props.level}`);
-  const renderedElement = {
+
+  return createToggleWrapper(block, editor, {
     dom,
     contentDOM: dom,
-  };
-
-  if (block.props.isTogglable) {
-    return createToggleWrapper(block, editor, renderedElement);
-  }
-
-  return renderedElement;
+  });
 };
 
 export const headingParse: CustomBlockImplementation<

@@ -4,7 +4,19 @@ import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { BlockFromConfig } from "../../schema/index.js";
 
 export const createToggleWrapper = (
-  block: BlockFromConfig<any, any, any>,
+  block: BlockFromConfig<
+    {
+      type: any;
+      readonly propSchema: {
+        isTogglable: {
+          default: boolean;
+        };
+      };
+      content: any;
+    },
+    any,
+    any
+  >,
   editor: BlockNoteEditor<any, any, any>,
   renderedElement: {
     dom: HTMLElement;
@@ -18,6 +30,10 @@ export const createToggleWrapper = (
   ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
   destroy?: () => void;
 } => {
+  if (!block.props.isTogglable) {
+    return renderedElement;
+  }
+
   const dom = document.createElement("div");
 
   const toggleWrapper = document.createElement("div");
