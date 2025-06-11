@@ -1,7 +1,9 @@
 import { EditorState, Plugin, PluginKey, PluginView } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
+import { ySyncPluginKey } from "y-prosemirror";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
 import type {
   BlockFromConfig,
@@ -9,8 +11,6 @@ import type {
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
-import { EventEmitter } from "../../util/EventEmitter.js";
-import { ySyncPluginKey } from "y-prosemirror";
 
 export type FilePanelState<
   I extends InlineContentSchema,
@@ -138,60 +138,65 @@ const filePanelPluginKey = new PluginKey<FilePanelState<any, any>>(
 export class FilePanelProsemirrorPlugin<
   I extends InlineContentSchema,
   S extends StyleSchema,
-> extends EventEmitter<any> {
+> extends BlockNoteExtension {
+  public static key() {
+    return "filePanel";
+  }
+
   private view: FilePanelView<I, S> | undefined;
-  public readonly plugin: Plugin;
 
   constructor(editor: BlockNoteEditor<Record<string, FileBlockConfig>, I, S>) {
     super();
-    this.plugin = new Plugin<{
-      block: BlockFromConfig<FileBlockConfig, I, S> | undefined;
-    }>({
-      key: filePanelPluginKey,
-      view: (editorView) => {
-        this.view = new FilePanelView<I, S>(
-          editor,
-          filePanelPluginKey,
-          editorView,
-          (state) => {
-            this.emit("update", state);
+    this.addProsemirrorPlugin(
+      new Plugin<{
+        block: BlockFromConfig<FileBlockConfig, I, S> | undefined;
+      }>({
+        key: filePanelPluginKey,
+        view: (editorView) => {
+          this.view = new FilePanelView<I, S>(
+            editor,
+            filePanelPluginKey,
+            editorView,
+            (state) => {
+              this.emit("update", state);
+            },
+          );
+          return this.view;
+        },
+        props: {
+          handleKeyDown: (_view, event: KeyboardEvent) => {
+            if (event.key === "Escape" && this.shown) {
+              this.view?.closeMenu();
+              return true;
+            }
+            return false;
           },
-        );
-        return this.view;
-      },
-      props: {
-        handleKeyDown: (_view, event: KeyboardEvent) => {
-          if (event.key === "Escape" && this.shown) {
-            this.view?.closeMenu();
-            return true;
-          }
-          return false;
         },
-      },
-      state: {
-        init: () => {
-          return {
-            block: undefined,
-          };
-        },
-        apply: (transaction, prev) => {
-          const state: FilePanelState<I, S> | undefined =
-            transaction.getMeta(filePanelPluginKey);
+        state: {
+          init: () => {
+            return {
+              block: undefined,
+            };
+          },
+          apply: (transaction, prev) => {
+            const state: FilePanelState<I, S> | undefined =
+              transaction.getMeta(filePanelPluginKey);
 
-          if (state) {
-            return state;
-          }
+            if (state) {
+              return state;
+            }
 
-          if (
-            !transaction.getMeta(ySyncPluginKey) &&
-            (transaction.selectionSet || transaction.docChanged)
-          ) {
-            return { block: undefined };
-          }
-          return prev;
+            if (
+              !transaction.getMeta(ySyncPluginKey) &&
+              (transaction.selectionSet || transaction.docChanged)
+            ) {
+              return { block: undefined };
+            }
+            return prev;
+          },
         },
-      },
-    });
+      }),
+    );
   }
 
   public get shown() {

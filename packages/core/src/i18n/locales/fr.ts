@@ -235,7 +235,6 @@ export const fr: Dictionary = {
   },
   suggestion_menu: {
     no_items_title: "Aucun élément trouvé",
-    loading: "Chargement…",
   },
   color_picker: {
     text_title: "Texte",

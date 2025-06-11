@@ -202,7 +202,6 @@ export const vi: Dictionary = {
   },
   suggestion_menu: {
     no_items_title: "Không tìm thấy mục nào",
-    loading: "Đang tải...",
   },
   color_picker: {
     text_title: "Văn bản",

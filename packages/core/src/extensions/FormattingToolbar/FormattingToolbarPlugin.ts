@@ -3,13 +3,13 @@ import { EditorState, Plugin, PluginKey, PluginView } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
 import {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
-import { EventEmitter } from "../../util/EventEmitter.js";
 
 export type FormattingToolbarState = UiElementPosition;
 
@@ -25,7 +25,7 @@ export class FormattingToolbarView implements PluginView {
     state: EditorState;
     from: number;
     to: number;
-  }) => boolean = ({ state, from, to }) => {
+  }) => boolean = ({ view, state, from, to }) => {
     const { doc, selection } = state;
     const { empty } = selection;
 
@@ -43,7 +43,16 @@ export class FormattingToolbarView implements PluginView {
       return false;
     }
 
-    return !(empty || isEmptyTextBlock);
+    if (empty || isEmptyTextBlock) {
+      return false;
+    }
+
+    const focusedElement = document.activeElement;
+    if (!this.isElementWithinEditorWrapper(focusedElement) && view.editable) {
+      // editable editors must have focus for the toolbar to show
+      return false;
+    }
+    return true;
   };
 
   constructor(
@@ -108,8 +117,22 @@ export class FormattingToolbarView implements PluginView {
     }
   };
 
-  viewMousedownHandler = () => {
-    this.preventShow = true;
+  isElementWithinEditorWrapper = (element: Node | null) => {
+    if (!element) {
+      return false;
+    }
+    const editorWrapper = this.pmView.dom.parentElement;
+    if (!editorWrapper) {
+      return false;
+    }
+
+    return editorWrapper.contains(element);
+  };
+
+  viewMousedownHandler = (e: MouseEvent) => {
+    if (!this.isElementWithinEditorWrapper(e.target as Node)) {
+      this.preventShow = true;
+    }
   };
 
   mouseupHandler = () => {
@@ -172,12 +195,18 @@ export class FormattingToolbarView implements PluginView {
       // e.g. the download file button, should still be accessible. Therefore,
       // logic for hiding when the editor is non-editable is handled
       // individually in each button.
-      this.state = {
+      const nextState = {
         show: true,
         referencePos: this.getSelectionBoundingBox(),
       };
 
-      this.emitUpdate();
+      if (
+        nextState.show !== this.state?.show ||
+        nextState.referencePos.toJSON() !== this.state?.referencePos.toJSON()
+      ) {
+        this.state = nextState;
+        this.emitUpdate();
+      }
 
       return;
     }
@@ -236,30 +265,35 @@ export const formattingToolbarPluginKey = new PluginKey(
   "FormattingToolbarPlugin",
 );
 
-export class FormattingToolbarProsemirrorPlugin extends EventEmitter<any> {
+export class FormattingToolbarProsemirrorPlugin extends BlockNoteExtension {
+  public static key() {
+    return "formattingToolbar";
+  }
+
   private view: FormattingToolbarView | undefined;
-  public readonly plugin: Plugin;
 
   constructor(editor: BlockNoteEditor<any, any, any>) {
     super();
-    this.plugin = new Plugin({
-      key: formattingToolbarPluginKey,
-      view: (editorView) => {
-        this.view = new FormattingToolbarView(editor, editorView, (state) => {
-          this.emit("update", state);
-        });
-        return this.view;
-      },
-      props: {
-        handleKeyDown: (_view, event: KeyboardEvent) => {
-          if (event.key === "Escape" && this.shown) {
-            this.view!.closeMenu();
-            return true;
-          }
-          return false;
+    this.addProsemirrorPlugin(
+      new Plugin({
+        key: formattingToolbarPluginKey,
+        view: (editorView) => {
+          this.view = new FormattingToolbarView(editor, editorView, (state) => {
+            this.emit("update", state);
+          });
+          return this.view;
         },
-      },
-    });
+        props: {
+          handleKeyDown: (_view, event: KeyboardEvent) => {
+            if (event.key === "Escape" && this.shown) {
+              this.view!.closeMenu();
+              return true;
+            }
+            return false;
+          },
+        },
+      }),
+    );
   }
 
   public get shown() {

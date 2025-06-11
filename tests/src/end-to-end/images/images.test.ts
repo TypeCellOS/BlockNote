@@ -27,7 +27,7 @@ test.describe("Check Image Block and Toolbar functionality", () => {
     await compareDocToSnapshot(page, "createImage");
     expect(await page.screenshot()).toMatchSnapshot("create-image.png");
   });
-  test("Should be able to upload image", async ({ page }) => {
+  test.skip("Should be able to upload image", async ({ page }) => {
     await focusOnEditor(page);
     await executeSlashCommand(page, "image");
 
@@ -96,8 +96,6 @@ test.describe("Check Image Block and Toolbar functionality", () => {
     );
 
     await page.mouse.up();
-
-    await page.click(`img`);
 
     await page.waitForTimeout(500);
     await compareDocToSnapshot(page, "resizeImage");

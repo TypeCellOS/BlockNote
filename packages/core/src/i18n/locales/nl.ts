@@ -203,7 +203,6 @@ export const nl: Dictionary = {
   },
   suggestion_menu: {
     no_items_title: "Geen items gevonden",
-    loading: "Laden…",
   },
   color_picker: {
     text_title: "Tekst",

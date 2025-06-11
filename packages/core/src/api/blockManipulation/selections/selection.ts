@@ -10,7 +10,10 @@ import {
   StyleSchema,
 } from "../../../schema/index.js";
 import { getBlockInfo, getNearestBlockPos } from "../../getBlockInfoFromPos.js";
-import { nodeToBlock } from "../../nodeConversions/nodeToBlock.js";
+import {
+  nodeToBlock,
+  prosemirrorSliceToSlicedBlocks,
+} from "../../nodeConversions/nodeToBlock.js";
 import { getNodeById } from "../../nodeUtil.js";
 import { getBlockNoteSchema, getPmSchema } from "../../pmUtil.js";
 
@@ -215,4 +218,48 @@ export function setSelection(
   //  which nodes are selected. `TextSelection` is ok for now, but has the
   //  restriction that the start/end blocks must have content.
   tr.setSelection(TextSelection.create(tr.doc, startPos, endPos));
+}
+
+export function getSelectionCutBlocks(tr: Transaction) {
+  // TODO: fix image node selection
+
+  const pmSchema = getPmSchema(tr);
+  let start = tr.selection.$from;
+  let end = tr.selection.$to;
+
+  // the selection moves below are used to make sure `prosemirrorSliceToSlicedBlocks` returns
+  // the correct information about whether content is cut at the start or end of a block
+
+  // if the end is at the end of a node (|</span></p>) move it forward so we include all closing tags (</span></p>|)
+  while (end.parentOffset >= end.parent.nodeSize - 2 && end.depth > 0) {
+    end = tr.doc.resolve(end.pos + 1);
+  }
+
+  // if the end is at the start of an empty node (</span></p><p>|) move it backwards so we drop empty start tags (</span></p>|)
+  while (end.parentOffset === 0 && end.depth > 0) {
+    end = tr.doc.resolve(end.pos - 1);
+  }
+
+  // if the start is at the start of a node (<p><span>|) move it backwards so we include all open tags (|<p><span>)
+  while (start.parentOffset === 0 && start.depth > 0) {
+    start = tr.doc.resolve(start.pos - 1);
+  }
+
+  // if the start is at the end of a node (|</p><p><span>|) move it forwards so we drop all closing tags (|<p><span>)
+  while (start.parentOffset >= start.parent.nodeSize - 2 && start.depth > 0) {
+    start = tr.doc.resolve(start.pos + 1);
+  }
+
+  const selectionInfo = prosemirrorSliceToSlicedBlocks(
+    tr.doc.slice(start.pos, end.pos, true),
+    pmSchema,
+  );
+
+  return {
+    _meta: {
+      startPos: start.pos,
+      endPos: end.pos,
+    },
+    ...selectionInfo,
+  };
 }

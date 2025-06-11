@@ -193,7 +193,6 @@ export const pl: Dictionary = {
   },
   suggestion_menu: {
     no_items_title: "Nie znaleziono elementów",
-    loading: "Ładowanie…",
   },
   color_picker: {
     text_title: "Tekst",

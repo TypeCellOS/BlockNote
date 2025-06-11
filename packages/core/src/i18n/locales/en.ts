@@ -203,7 +203,6 @@ export const en = {
   },
   suggestion_menu: {
     no_items_title: "No items found",
-    loading: "Loading…",
   },
   color_picker: {
     text_title: "Text",

@@ -3,20 +3,20 @@ import {
   EditorState,
   Plugin,
   PluginKey,
-  TextSelection,
   PluginView,
+  TextSelection,
 } from "@tiptap/pm/state";
 import { EditorView } from "@tiptap/pm/view";
 
 import { Block } from "../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
 import {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
-import { EventEmitter } from "../../util/EventEmitter.js";
 import { initializeESMDependencies } from "../../util/esmDependencies.js";
 import { getDraggableBlockFromElement } from "../getDraggableBlockFromElement.js";
 import { dragStart, unsetDragImage } from "./dragging.js";
@@ -608,29 +608,34 @@ export class SideMenuProsemirrorPlugin<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
   S extends StyleSchema,
-> extends EventEmitter<any> {
+> extends BlockNoteExtension {
+  public static key() {
+    return "sideMenu";
+  }
+
   public view: SideMenuView<BSchema, I, S> | undefined;
-  public readonly plugin: Plugin;
 
   constructor(
     private readonly editor: BlockNoteEditor<BSchema, I, S>,
     sideMenuDetection: "viewport" | "editor",
   ) {
     super();
-    this.plugin = new Plugin({
-      key: sideMenuPluginKey,
-      view: (editorView) => {
-        this.view = new SideMenuView(
-          editor,
-          sideMenuDetection,
-          editorView,
-          (state) => {
-            this.emit("update", state);
-          },
-        );
-        return this.view;
-      },
-    });
+    this.addProsemirrorPlugin(
+      new Plugin({
+        key: sideMenuPluginKey,
+        view: (editorView) => {
+          this.view = new SideMenuView(
+            editor,
+            sideMenuDetection,
+            editorView,
+            (state) => {
+              this.emit("update", state);
+            },
+          );
+          return this.view;
+        },
+      }),
+    );
   }
 
   public onUpdate(callback: (state: SideMenuState<BSchema, I, S>) => void) {

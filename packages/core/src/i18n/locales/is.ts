@@ -195,7 +195,6 @@ export const is: Dictionary = {
   },
   suggestion_menu: {
     no_items_title: "Engir hlutir fundust",
-    loading: "Hleður…",
   },
   color_picker: {
     text_title: "Texti",

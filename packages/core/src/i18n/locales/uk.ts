@@ -228,7 +228,6 @@ export const uk: Dictionary = {
   },
   suggestion_menu: {
     no_items_title: "Нічого не знайдено",
-    loading: "Завантаження…",
   },
   color_picker: {
     text_title: "Текст",

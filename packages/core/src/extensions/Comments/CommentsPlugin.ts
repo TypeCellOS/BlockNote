@@ -9,7 +9,7 @@ import type {
   User,
 } from "../../comments/index.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { EventEmitter } from "../../util/EventEmitter.js";
+import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import { UserStore } from "./userstore/UserStore.js";
 
 const PLUGIN_KEY = new PluginKey(`blocknote-comments`);
@@ -56,8 +56,11 @@ function getUpdatedThreadPositions(doc: Node, markType: string) {
   return threadPositions;
 }
 
-export class CommentsPlugin extends EventEmitter<any> {
-  public readonly plugin: Plugin;
+export class CommentsPlugin extends BlockNoteExtension {
+  public static key() {
+    return "comments";
+  }
+
   public readonly userStore: UserStore<User>;
 
   /**
@@ -102,6 +105,7 @@ export class CommentsPlugin extends EventEmitter<any> {
               const trimmedFrom = Math.max(pos, 0);
               const trimmedTo = Math.min(
                 pos + node.nodeSize,
+                tr.doc.content.size - 1,
                 tr.doc.content.size - 1,
               );
               tr.removeMark(trimmedFrom, trimmedTo, mark);
@@ -156,86 +160,91 @@ export class CommentsPlugin extends EventEmitter<any> {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
 
-    this.plugin = new Plugin<CommentsPluginState>({
-      key: PLUGIN_KEY,
-      state: {
-        init() {
-          return {
-            decorations: DecorationSet.empty,
-          };
+    this.addProsemirrorPlugin(
+      new Plugin<CommentsPluginState>({
+        key: PLUGIN_KEY,
+        state: {
+          init() {
+            return {
+              decorations: DecorationSet.empty,
+            };
+          },
+          apply(tr, state) {
+            const action = tr.getMeta(PLUGIN_KEY);
+
+            if (!tr.docChanged && !action) {
+              return state;
+            }
+
+            // only update threadPositions if the doc changed
+            const threadPositions = tr.docChanged
+              ? getUpdatedThreadPositions(tr.doc, self.markType)
+              : self.threadPositions;
+
+            if (threadPositions.size > 0 || self.threadPositions.size > 0) {
+              // small optimization; don't emit event if threadPositions before / after were both empty
+              self.threadPositions = threadPositions;
+              self.emitStateUpdate();
+            }
+
+            // update decorations if doc or selected thread changed
+            const decorations = [];
+
+            if (self.selectedThreadId) {
+              const selectedThreadPosition = threadPositions.get(
+                self.selectedThreadId,
+              );
+
+              if (selectedThreadPosition) {
+                decorations.push(
+                  Decoration.inline(
+                    selectedThreadPosition.from,
+                    selectedThreadPosition.to,
+                    {
+                      class: "bn-thread-mark-selected",
+                    },
+                  ),
+                );
+              }
+            }
+
+            return {
+              decorations: DecorationSet.create(tr.doc, decorations),
+            };
+          },
         },
-        apply(tr, state) {
-          const action = tr.getMeta(PLUGIN_KEY);
+        props: {
+          decorations(state) {
+            return (
+              PLUGIN_KEY.getState(state)?.decorations ?? DecorationSet.empty
+            );
+          },
+          /**
+           * Handle click on a thread mark and mark it as selected
+           */
+          handleClick: (view, pos, event) => {
+            if (event.button !== 0) {
+              return;
+            }
 
-          if (!tr.docChanged && !action) {
-            return state;
-          }
+            const node = view.state.doc.nodeAt(pos);
 
-          // only update threadPositions if the doc changed
-          const threadPositions = tr.docChanged
-            ? getUpdatedThreadPositions(tr.doc, self.markType)
-            : self.threadPositions;
+            if (!node) {
+              self.selectThread(undefined);
+              return;
+            }
 
-          if (threadPositions.size > 0 || self.threadPositions.size > 0) {
-            // small optimization; don't emit event if threadPositions before / after were both empty
-            self.threadPositions = threadPositions;
-            self.emitStateUpdate();
-          }
-
-          // update decorations if doc or selected thread changed
-          const decorations = [];
-
-          if (self.selectedThreadId) {
-            const selectedThreadPosition = threadPositions.get(
-              self.selectedThreadId,
+            const commentMark = node.marks.find(
+              (mark) =>
+                mark.type.name === markType && mark.attrs.orphan !== true,
             );
 
-            if (selectedThreadPosition) {
-              decorations.push(
-                Decoration.inline(
-                  selectedThreadPosition.from,
-                  selectedThreadPosition.to,
-                  {
-                    class: "bn-thread-mark-selected",
-                  },
-                ),
-              );
-            }
-          }
-
-          return {
-            decorations: DecorationSet.create(tr.doc, decorations),
-          };
+            const threadId = commentMark?.attrs.threadId as string | undefined;
+            self.selectThread(threadId, false);
+          },
         },
-      },
-      props: {
-        decorations(state) {
-          return PLUGIN_KEY.getState(state)?.decorations ?? DecorationSet.empty;
-        },
-        /**
-         * Handle click on a thread mark and mark it as selected
-         */
-        handleClick: (view, pos, event) => {
-          if (event.button !== 0) {
-            return;
-          }
-
-          const node = view.state.doc.nodeAt(pos);
-
-          if (!node) {
-            self.selectThread(undefined);
-            return;
-          }
-
-          const commentMark = node.marks.find(
-            (mark) => mark.type.name === markType && mark.attrs.orphan !== true,
-          );
-
-          const threadId = commentMark?.attrs.threadId as string | undefined;
-          self.selectThread(threadId, false);
-        },
-      },
-    });
+      }),
+    );
   }
 
   /**

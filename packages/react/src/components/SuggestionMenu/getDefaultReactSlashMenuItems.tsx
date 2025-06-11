@@ -6,6 +6,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import {
+  RiCodeBlock,
   RiEmotionFill,
   RiFile2Line,
   RiFilmLine,
@@ -17,15 +18,16 @@ import {
   RiListOrdered,
   RiListUnordered,
   RiPlayList2Fill,
+  RiQuoteText,
   RiTable2,
   RiText,
   RiVolumeUpFill,
-  RiCodeBlock,
-  RiQuoteText,
 } from "react-icons/ri";
+
+import { IconType } from "react-icons";
 import { DefaultReactSuggestionItem } from "./types.js";
 
-const icons = {
+const icons: Record<string, IconType> = {
   heading: RiH1,
   heading_2: RiH2,
   heading_3: RiH3,

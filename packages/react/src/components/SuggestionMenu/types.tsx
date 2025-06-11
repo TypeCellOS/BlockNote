@@ -6,6 +6,7 @@ import { DefaultSuggestionItem } from "@blocknote/core";
  */
 export type DefaultReactSuggestionItem = Omit<DefaultSuggestionItem, "key"> & {
   icon?: JSX.Element;
+  size?: "default" | "small";
 };
 
 /**
