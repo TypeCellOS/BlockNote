@@ -1,46 +1,11 @@
+import { DocPage } from "@/components/DocPage";
 import { source } from "@/lib/source/examples";
-import {
-  DocsPage,
-  DocsBody,
-  DocsDescription,
-  DocsTitle,
-} from "fumadocs-ui/page";
 import { notFound } from "next/navigation";
-import { createRelativeLink } from "fumadocs-ui/mdx";
-import { Tab, Tabs } from "fumadocs-ui/components/tabs";
-import { getMDXComponents } from "@/mdx-components";
-import { Example } from "@/components/example";
-import { ThemedImage } from "@/components/ThemedImage";
 
 export default async function Page(props: {
   params: Promise<{ slug?: string[] }>;
 }) {
-  const params = await props.params;
-  const page = source.getPage(params.slug);
-  if (!page) {
-    notFound();
-  }
-
-  const MDXContent = page.data.body;
-
-  return (
-    <DocsPage toc={page.data.toc} full={page.data.full}>
-      <DocsTitle>{page.data.title}</DocsTitle>
-      <DocsDescription>{page.data.description}</DocsDescription>
-      <DocsBody>
-        <MDXContent
-          components={getMDXComponents({
-            // this allows you to link to other pages with relative file paths
-            a: createRelativeLink(source, page),
-            Example: Example,
-            ThemedImage: ThemedImage,
-            Tabs: Tabs,
-            Tab: Tab,
-          })}
-        />
-      </DocsBody>
-    </DocsPage>
-  );
+  return <DocPage {...props} source={source} baseUrl="/examples" />;
 }
 
 export async function generateStaticParams() {

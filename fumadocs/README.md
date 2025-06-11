@@ -1,26 +1,21 @@
-# fumadocs
+# BlockNote Docs
 
-This is a Next.js application generated with
-[Create Fumadocs](https://github.com/fuma-nama/fumadocs).
+This is the code for the [BlockNote documentation website](https://www.blocknotejs.org).
 
-Run development server:
+If you're looking to work on BlockNote itself, check the [`packages`](/packages/) folder.
+
+## Getting Started
+
+First, run `npm run build` in the repository root.
+
+Next, run the development server:
 
 ```bash
 npm run dev
-# or
-pnpm dev
-# or
-yarn dev
 ```
 
-Open http://localhost:3000 with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## Learn More
+## Merging
 
-To learn more about Next.js and Fumadocs, take a look at the following
-resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js
-  features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-- [Fumadocs](https://fumadocs.vercel.app) - learn about Fumadocs
+Open a pull request to the [BlockNote GitHub repo](https://github.com/TypeCellOS/BlockNote). Pull requests will automatically be deployed to a preview environment.

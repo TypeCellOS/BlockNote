@@ -1,5 +1,6 @@
 import "./global.css";
 import { RootProvider } from "fumadocs-ui/provider";
+import { Metadata } from "next";
 import { Inter } from "next/font/google";
 import type { ReactNode } from "react";
 
@@ -7,11 +8,16 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
+export const metadata: Metadata = {
+  title: "BlockNote",
+  description: "BlockNote is a rich text editor for the web.",
+};
+
 export default function Layout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={inter.className} suppressHydrationWarning>
       <body className="flex min-h-screen flex-col">
-        <RootProvider>{children}</RootProvider>
+        <RootProvider>{children as any}</RootProvider>
       </body>
     </html>
   );

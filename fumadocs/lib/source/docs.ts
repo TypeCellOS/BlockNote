@@ -1,5 +1,5 @@
 import { docs } from "@/.source";
-import { loader } from "fumadocs-core/source";
+import { InferMetaType, InferPageType, loader } from "fumadocs-core/source";
 
 // See https://fumadocs.vercel.app/docs/headless/source-api for more info
 export const source = loader({
@@ -10,3 +10,6 @@ export const source = loader({
   // },
   source: docs.toFumadocsSource(),
 });
+
+export type Page = InferPageType<typeof source>;
+export type Meta = InferMetaType<typeof source>;

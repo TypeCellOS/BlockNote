@@ -1,10 +1,9 @@
 {
-  "title": "Docs",
-  "description": "The docs framework",
+  "title": "BlockNote Docs",
+  "description": "BlockNote documentation",
   "icon": "Building2",
   "root": true,
   "pages": [
-    "---Introduction---",
     "index",
     "introduction",
     "quickstart",

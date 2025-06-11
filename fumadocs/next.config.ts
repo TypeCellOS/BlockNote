@@ -1,9 +1,9 @@
 import { withSentryConfig } from "@sentry/nextjs";
 import { createMDX } from "fumadocs-mdx/next";
+import { NextConfig } from "next";
 
 const withMDX = createMDX();
 
-/** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
   images: {
@@ -117,7 +117,7 @@ const config = {
   turbopack: {
     resolveExtensions: [".ts", ".tsx", ".js", ".jsx", ".json", ".mdx"],
   },
-};
+} satisfies NextConfig;
 
 export default withSentryConfig(withMDX(config), {
   // For all available options, see:

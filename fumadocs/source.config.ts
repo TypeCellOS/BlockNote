@@ -4,8 +4,13 @@ import { defineDocs, defineConfig } from "fumadocs-mdx/config";
 export const docs = defineDocs({
   dir: "content/docs",
 });
+
 export const examples = defineDocs({
   dir: "content/examples",
+});
+
+export const pages = defineDocs({
+  dir: "content/pages",
 });
 
 export default defineConfig({
