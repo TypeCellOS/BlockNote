@@ -42,3 +42,4 @@ next-env.d.ts
 .env.sentry-build-plugin
 /content/examples/*/
 /components/example/generated/
+/.source/
