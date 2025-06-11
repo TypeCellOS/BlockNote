@@ -200,6 +200,7 @@ export function createBlockSpec<
           block.type,
           block.props,
           blockConfig.propSchema,
+          blockConfig.isFileBlock,
           blockContentDOMAttributes,
         );
 
