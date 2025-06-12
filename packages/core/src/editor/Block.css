@@ -14,6 +14,7 @@ BASIC STYLES
 }
 
 .bn-block-content {
+  padding: 3px 0;
   display: flex;
   transition: font-size 0.2s;
   width: 100%;
@@ -34,10 +35,6 @@ BASIC STYLES
   other browsers. Setting no height fixes this, while list item indicators are 
   still displayed fine as overflow is not hidden. */
   height: 0;
-  /* Also have to center the text vertically to ensure alignment at different 
-  line heights (which we change for `.bn-inline-content` below). */
-  display: flex;
-  align-items: center;
   overflow: visible;
 }
 
@@ -171,7 +168,6 @@ NESTED BLOCKS
 
 /* Ordered */
 .bn-block-content[data-content-type="numberedListItem"] {
-  align-items: center;
   display: flex;
   gap: 0.5em;
 }
@@ -198,14 +194,12 @@ NESTED BLOCKS
 
 /* Unordered */
 .bn-block-content[data-content-type="bulletListItem"] {
-  align-items: center;
   display: flex;
   gap: 0.5em;
 }
 
 /* Checked */
 .bn-block-content[data-content-type="checkListItem"] > div {
-  align-items: center;
   display: flex;
   width: 100%;
 }
