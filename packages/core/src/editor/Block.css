@@ -15,26 +15,9 @@ BASIC STYLES
 
 .bn-block-content {
   padding: 3px 0;
+  display: flex;
   transition: font-size 0.2s;
   width: 100%;
-  /*
-  because the content elements are display: block
-  we use flex to position them next to list markers
-  */
-}
-
-/* We can't set `display: flex` on `.bn-block-content` while it has inline 
-content (see #1629). However, it's necessary to set alignment of blocks
-without content as these can't use `text-align`, so this additional rule is 
-used. */
-.bn-block-content:not(:has(.bn-inline-content)) {
-  display: flex;
-}
-
-.bn-block-content::before {
-  /* content: ""; */
-  transition: all 0.2s;
-  /*margin: 0px;*/
 }
 
 .bn-block-content.ProseMirror-selectednode > *,
@@ -42,6 +25,19 @@ used. */
 .ProseMirror-selectednode > .bn-block-content > * {
   border-radius: 4px;
   outline: 4px solid rgb(100, 160, 255);
+}
+
+.bn-block-content::before {
+  content: "";
+  margin-right: 0;
+  transition: all 0.2s;
+  /* Workaround for selection issue on Chrome, see #1588 and also here:
+  https://discuss.prosemirror.net/t/mouse-down-selection-behaviour-different-on-chrome/8426
+  The :before element causes the selection to be set in the wrong place vs 
+  other browsers. Setting no height fixes this, while list item indicators are 
+  still displayed fine as overflow is not hidden. */
+  height: 0;
+  overflow: visible;
 }
 
 .bn-inline-content {
@@ -175,7 +171,6 @@ NESTED BLOCKS
 .bn-block-content::before {
   margin-right: 0;
   content: "";
-  display: inline;
 }
 
 /* Ordered */
