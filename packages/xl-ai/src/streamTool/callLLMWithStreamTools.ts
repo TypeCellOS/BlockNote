@@ -27,6 +27,7 @@ type LLMRequestOptions = {
   model: LanguageModel;
   messages: CoreMessage[];
   maxRetries: number;
+  abortSignal?: AbortSignal;
 };
 
 /**

@@ -9,6 +9,7 @@ import {
   suggestChanges,
 } from "@blocknote/prosemirror-suggest-changes";
 import { APICallError, LanguageModel, RetryError } from "ai";
+import { Fragment, Slice } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { fixTablesKey } from "prosemirror-tables";
 import { createStore, StoreApi } from "zustand/vanilla";
@@ -17,7 +18,6 @@ import { LLMResponse } from "./api/LLMResponse.js";
 import { PromptBuilder } from "./api/formats/PromptBuilder.js";
 import { LLMFormat, llmFormats } from "./api/index.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
-import { Fragment, Slice } from "prosemirror-model";
 
 type MakeOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
@@ -87,6 +87,7 @@ const PLUGIN_KEY = new PluginKey(`blocknote-ai-plugin`);
 
 export class AIExtension extends BlockNoteExtension {
   private previousRequestOptions: LLMRequestOptions | undefined;
+  private currentAbortController?: AbortController;
 
   public static key(): string {
     return "ai";
@@ -298,6 +299,31 @@ export class AIExtension extends BlockNoteExtension {
   }
 
   /**
+   * Abort the current LLM request.
+   *
+   * Only valid when executing an LLM request (status is "thinking" or "ai-writing")
+   */
+  public async abort() {
+    const state = this.store.getState().aiMenuState;
+    if (state === "closed") {
+      throw new Error("abort() is only valid during LLM execution");
+    }
+    if (state.status !== "thinking" && state.status !== "ai-writing") {
+      throw new Error("abort() is only valid during LLM execution");
+    }
+
+    // Abort the current request
+    this.currentAbortController?.abort();
+
+    // Keep partial changes as requested by user
+    // If in collaboration mode, merge the changes back into the original yDoc
+    this.editor.forkYDocPlugin?.merge({ keepChanges: true });
+
+    // Close the AI menu and clean up
+    this.closeAIMenu();
+  }
+
+  /**
    * Update the status of a call to an LLM
    *
    * @warning This method should usually only be used for advanced use-cases
@@ -352,12 +378,16 @@ export class AIExtension extends BlockNoteExtension {
     this.setAIResponseStatus("thinking");
     this.editor.forkYDocPlugin?.fork();
 
+    // Create abort controller for this request
+    this.currentAbortController = new AbortController();
+
     let ret: LLMResponse | undefined;
     try {
       const requestOptions = {
         ...this.options.getState(),
         ...opts,
         previousResponse: this.store.getState().llmResponse,
+        abortSignal: this.currentAbortController.signal,
       };
       this.previousRequestOptions = requestOptions;
 
@@ -387,6 +417,12 @@ export class AIExtension extends BlockNoteExtension {
 
       this.setAIResponseStatus("user-reviewing");
     } catch (e) {
+      // Handle abort errors gracefully
+      if (e instanceof Error && e.name === "AbortError") {
+        // Request was aborted, don't set error status as abort() handles cleanup
+        return ret;
+      }
+
       // TODO in error state, should we discard the forked document?
 
       this.setAIResponseStatus({
@@ -395,6 +431,9 @@ export class AIExtension extends BlockNoteExtension {
       });
       // eslint-disable-next-line no-console
       console.warn("Error calling LLM", e);
+    } finally {
+      // Clean up abort controller
+      this.currentAbortController = undefined;
     }
     return ret;
   }

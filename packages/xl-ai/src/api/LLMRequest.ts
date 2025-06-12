@@ -103,6 +103,10 @@ export type LLMRequestOptions = {
    */
   withDelays?: boolean;
   /**
+   * AbortSignal to cancel the LLM request
+   */
+  abortSignal?: AbortSignal;
+  /**
    * Additional options to pass to the AI SDK `generateObject` function
    * (only used when `stream` is `false`)
    */
@@ -134,6 +138,7 @@ export async function doLLMRequest(
     withDelays,
     dataFormat,
     previousResponse,
+    abortSignal,
     ...rest
   } = {
     maxRetries: 2,
@@ -226,6 +231,7 @@ export async function doLLMRequest(
       streamTools,
       {
         messages,
+        abortSignal,
         ...rest,
       },
       () => {
@@ -238,6 +244,7 @@ export async function doLLMRequest(
   } else {
     response = await generateOperations(streamTools, {
       messages,
+      abortSignal,
       ...rest,
     });
     if (deleteCursorBlock) {
