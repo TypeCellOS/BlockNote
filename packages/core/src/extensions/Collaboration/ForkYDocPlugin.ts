@@ -86,6 +86,7 @@ export class ForkYDocPlugin extends BlockNoteExtension<{
   private forkedState:
     | {
         originalFragment: Y.XmlFragment;
+        undoStack: Y.UndoManager["undoStack"];
         forkedFragment: Y.XmlFragment;
       }
     | undefined;
@@ -114,6 +115,8 @@ export class ForkYDocPlugin extends BlockNoteExtension<{
     const forkedFragment = this.findTypeInOtherYdoc(originalFragment, doc);
 
     this.forkedState = {
+      undoStack: yUndoPluginKey.getState(this.editor.prosemirrorState)!
+        .undoManager.undoStack,
       originalFragment,
       forkedFragment,
     };
@@ -128,7 +131,9 @@ export class ForkYDocPlugin extends BlockNoteExtension<{
     this.editor._tiptapEditor.registerPlugin(
       new SyncPlugin(forkedFragment).plugins[0],
     );
-    this.editor._tiptapEditor.registerPlugin(new UndoPlugin().plugins[0]);
+    this.editor._tiptapEditor.registerPlugin(
+      new UndoPlugin({ editor: this.editor }).plugins[0],
+    );
     // No need to register the cursor plugin again, it's a local fork
     this.emit("forked", true);
   }
@@ -146,17 +151,15 @@ export class ForkYDocPlugin extends BlockNoteExtension<{
     this.editor._tiptapEditor.unregisterPlugin(ySyncPluginKey);
     this.editor._tiptapEditor.unregisterPlugin(yUndoPluginKey);
 
-    const { originalFragment, forkedFragment } = this.forkedState;
-    if (keepChanges) {
-      // Apply any changes that have been made to the fork, onto the original doc
-      const update = Y.encodeStateAsUpdate(forkedFragment.doc!);
-      Y.applyUpdate(originalFragment.doc!, update);
-    }
+    const { originalFragment, forkedFragment, undoStack } = this.forkedState;
     this.editor.extensions["ySyncPlugin"] = new SyncPlugin(originalFragment);
     this.editor.extensions["yCursorPlugin"] = new CursorPlugin(
       this.collaboration!,
     );
-    this.editor.extensions["yUndoPlugin"] = new UndoPlugin();
+    this.editor.extensions["yUndoPlugin"] = new UndoPlugin({
+      editor: this.editor,
+    });
+
     // Register the plugins again, based on the original fragment
     this.editor._tiptapEditor.registerPlugin(
       this.editor.extensions["ySyncPlugin"].plugins[0],
@@ -167,6 +170,21 @@ export class ForkYDocPlugin extends BlockNoteExtension<{
     this.editor._tiptapEditor.registerPlugin(
       this.editor.extensions["yUndoPlugin"].plugins[0],
     );
+
+    // Reset the undo stack to the original undo stack
+    yUndoPluginKey.getState(
+      this.editor.prosemirrorState,
+    )!.undoManager.undoStack = undoStack;
+
+    if (keepChanges) {
+      // Apply any changes that have been made to the fork, onto the original doc
+      const update = Y.encodeStateAsUpdate(
+        forkedFragment.doc!,
+        Y.encodeStateVector(originalFragment.doc!),
+      );
+      // Applying this change will add to the undo stack, allowing it to be undone normally
+      Y.applyUpdate(originalFragment.doc!, update, this.editor);
+    }
     // Reset the forked state
     this.forkedState = undefined;
     this.emit("forked", false);
