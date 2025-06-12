@@ -38,26 +38,11 @@ BASIC STYLES
   line heights (which we change for `.bn-inline-content` below). */
   display: flex;
   align-items: center;
+  overflow: visible;
 }
 
 .bn-inline-content {
   width: 100%;
-  /* We use line height on `.bn-inline-content` to mimic padding on 
-  `.bn-block-content`, in order to change where the selection is moved when 
-  clicking in between blocks. When clicking padding below a block, the 
-  selection is moved to the end of it, and the opposite happens when clicking
-  the padding above. Because we need quite small paddings, this behaviour 
-  results in clunky UX as it's hard to tell where the padding starts/ends. 
-  Setting line height instead moves the selection to the position closest 
-  to the cursor, which is much more intuitive. */
-  line-height: 30px;
-}
-
-.bn-block-content:not(:has(.bn-inline-content)) {
-  /* For blocks without a `.bn-inline-content` (blocks without content), 
-  `text-align` will have no effect. However, in this case we don't run into the
-  issue above r.e. selection, so it's fine to just add vertical padding. */
-  padding-block: 3px;
 }
 
 /*
@@ -140,20 +125,11 @@ NESTED BLOCKS
 [data-content-type="heading"] {
   --level: 3em;
 }
-[data-content-type="heading"] > .bn-inline-content {
-  line-height: 78px;
-}
 [data-content-type="heading"][data-level="2"] {
   --level: 2em;
 }
-[data-content-type="heading"][data-level="2"] > .bn-inline-content {
-  line-height: 54px;
-}
 [data-content-type="heading"][data-level="3"] {
   --level: 1.3em;
-}
-[data-content-type="heading"][data-level="3"] > .bn-inline-content {
-  line-height: 37px;
 }
 
 [data-prev-level="1"] {
