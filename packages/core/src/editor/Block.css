@@ -28,6 +28,8 @@ BASIC STYLES
 }
 
 .bn-block-content::before {
+  content: "";
+  margin-right: 0;
   transition: all 0.2s;
   /* Workaround for selection issue on Chrome, see #1588 and also here:
   https://discuss.prosemirror.net/t/mouse-down-selection-behaviour-different-on-chrome/8426
