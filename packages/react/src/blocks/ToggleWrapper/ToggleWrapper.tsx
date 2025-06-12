@@ -17,8 +17,14 @@ export const ToggleWrapper = (
     const actualBlock = editor.getBlock(block);
 
     if (actualBlock?.children.length === 0) {
+      if (hasChildren) {
+        setShowChildren(false);
+      }
       setHasChildren(false);
     } else {
+      if (!hasChildren) {
+        setShowChildren(true);
+      }
       setHasChildren(true);
     }
   });
