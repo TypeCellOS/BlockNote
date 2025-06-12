@@ -1,5 +1,4 @@
 import { InputRule } from "@tiptap/core";
-
 import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
 import { getBlockInfoFromSelection } from "../../api/getBlockInfoFromPos.js";
 import {
@@ -17,7 +16,7 @@ export const headingPropSchema = {
   ...defaultProps,
   level: { default: 1, values: [1, 2, 3] as const },
   isTogglable: { default: false },
-} as const satisfies PropSchema;
+} satisfies PropSchema;
 
 const HeadingBlockContent = createStronglyTypedTiptapNode({
   name: "heading",

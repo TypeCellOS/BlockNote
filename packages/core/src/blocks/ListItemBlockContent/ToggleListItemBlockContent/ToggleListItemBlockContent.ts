@@ -19,8 +19,9 @@ const ToggleListItemBlockContent = createStronglyTypedTiptapNode({
   name: "toggleListItem",
   content: "inline*",
   group: "blockContent",
+  // This is to make sure that the list item Enter keyboard handler takes
+  // priority over the default one.
   priority: 90,
-
   addKeyboardShortcuts() {
     return {
       Enter: () => handleEnter(this.options.editor),

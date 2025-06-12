@@ -88,7 +88,8 @@ export const createToggleWrapper = (
     // Adds/removes the "add block" button if child blocks are added/removed.
     if (
       editor.getBlock(block)?.children.length === 0 &&
-      toggleWrapper.getAttribute("data-show-children") === "true"
+      toggleWrapper.getAttribute("data-show-children") === "true" &&
+      !dom.contains(toggleAddBlockButton)
     ) {
       dom.appendChild(toggleAddBlockButton);
     } else if (dom.contains(toggleAddBlockButton)) {
@@ -100,16 +101,23 @@ export const createToggleWrapper = (
     dom,
     contentDOM: renderedElement.contentDOM,
     // Prevents re-renders when the toggle button is clicked.
-    // TODO: Document what this actually does.
     ignoreMutation: (mutation) => {
+      if (renderedElement.ignoreMutation) {
+        return renderedElement.ignoreMutation(mutation);
+      }
+
       if (
         mutation instanceof MutationRecord &&
-        (mutation.type === "attributes" || mutation.type === "childList")
+        // We want to prevent re-renders when the view changes, so we ignore
+        // all mutations where the `data-show-children` attribute is changed
+        // or the "add block" button is added/removed.
+        ((mutation.type === "attributes" &&
+          mutation.target === toggleWrapper &&
+          mutation.attributeName === "data-show-children") ||
+          (mutation.type === "childList" &&
+            (mutation.addedNodes[0] === toggleAddBlockButton ||
+              mutation.removedNodes[0] === toggleAddBlockButton)))
       ) {
-        if (renderedElement.ignoreMutation) {
-          return renderedElement.ignoreMutation(mutation);
-        }
-
         return true;
       }
       return false;

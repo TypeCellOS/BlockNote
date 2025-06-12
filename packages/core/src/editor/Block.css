@@ -125,16 +125,13 @@ NESTED BLOCKS
 }
 
 /* HEADINGS*/
-[data-content-type="heading"],
-[data-content-type="toggleHeading"] {
+[data-content-type="heading"] {
   --level: 3em;
 }
-[data-content-type="heading"][data-level="2"],
-[data-content-type="toggleHeading"][data-level="2"] {
+[data-content-type="heading"][data-level="2"] {
   --level: 2em;
 }
-[data-content-type="heading"][data-level="3"],
-[data-content-type="toggleHeading"][data-level="3"] {
+[data-content-type="heading"][data-level="3"] {
   --level: 1.3em;
 }
 
@@ -148,10 +145,7 @@ NESTED BLOCKS
   --prev-level: 1.3em;
 }
 
-.bn-block-outer[data-prev-type="heading"] > .bn-block > .bn-block-content,
-.bn-block-outer[data-prev-type="toggleHeading"]
-  > .bn-block
-  > .bn-block-content {
+.bn-block-outer[data-prev-type="heading"] > .bn-block > .bn-block-content {
   font-size: var(--prev-level);
   font-weight: bold;
 }
@@ -163,15 +157,7 @@ NESTED BLOCKS
   > .bn-block
   > div[data-type="modification"]
   > div[data-type="modification"]
-  > .bn-block-content[data-content-type="heading"],
-.bn-block-outer:not([data-prev-type])
-  > .bn-block
-  > .bn-block-content[data-content-type="toggleHeading"],
-.bn-block-outer:not([data-prev-type])
-  > .bn-block
-  > div[data-type="modification"]
-  > div[data-type="modification"]
-  > .bn-block-content[data-content-type="toggleHeading"] {
+  > .bn-block-content[data-content-type="heading"] {
   font-size: var(--level);
   font-weight: bold;
 }
@@ -468,7 +454,13 @@ NESTED BLOCKS
   width: 100%;
 }
 
-/* Toggle blocks */
+/* Block-specific styles */
+[data-content-type="audio"] > .bn-file-block-content-wrapper,
+.bn-audio {
+  width: 100%;
+}
+
+/* Toggle wrapper */
 .bn-block:has(
     > .bn-block-content > div > .bn-toggle-wrapper[data-show-children="false"]
   )
@@ -517,12 +509,6 @@ NESTED BLOCKS
 
 .bn-toggle-wrapper[data-show-children="true"] .bn-toggle-button {
   transform: rotate(90deg);
-}
-
-/* Block-specific styles */
-[data-content-type="audio"] > .bn-file-block-content-wrapper,
-.bn-audio {
-  width: 100%;
 }
 
 /* PLACEHOLDERS*/
