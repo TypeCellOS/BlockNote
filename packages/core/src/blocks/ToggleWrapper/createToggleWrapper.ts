@@ -72,6 +72,8 @@ export const createToggleWrapper = (
   const toggleAddBlockButtonOnClick = () => {
     // Adds a single empty child block.
     editor.transact(() => {
+      dom.removeChild(toggleAddBlockButton);
+
       const updatedBlock = editor.updateBlock(block, {
         // Single empty block with default type.
         children: [{}],
@@ -86,14 +88,10 @@ export const createToggleWrapper = (
 
   const onEditorChange = editor.onChange(() => {
     // Adds/removes the "add block" button if child blocks are added/removed.
-    if (
-      editor.getBlock(block)?.children.length === 0 &&
-      toggleWrapper.getAttribute("data-show-children") === "true" &&
-      !dom.contains(toggleAddBlockButton)
-    ) {
-      dom.appendChild(toggleAddBlockButton);
-    } else if (dom.contains(toggleAddBlockButton)) {
-      dom.removeChild(toggleAddBlockButton);
+    if (editor.getBlock(block)?.children.length === 0) {
+      toggleWrapper.setAttribute("data-show-children", "false");
+    } else {
+      toggleWrapper.setAttribute("data-show-children", "true");
     }
   });
 
