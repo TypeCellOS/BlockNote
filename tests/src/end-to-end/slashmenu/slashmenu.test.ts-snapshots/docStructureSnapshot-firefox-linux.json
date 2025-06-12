@@ -65,7 +65,7 @@
                       "type": "heading",
                       "attrs": {
                         "textAlignment": "left",
-                        "level": 1,
+                        "level": 3,
                         "isTogglable": false
                       },
                       "content": [
