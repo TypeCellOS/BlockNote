@@ -1,3 +1,4 @@
+import { createAnthropic } from "@ai-sdk/anthropic";
 import { createGroq } from "@ai-sdk/groq";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
@@ -17,6 +18,10 @@ const openai = createOpenAI({
   ...client.getProviderSettings("openai"),
 })("gpt-4o-2024-08-06", {});
 
+const anthropic = createAnthropic({
+  ...client.getProviderSettings("anthropic"),
+})("claude-3-7-sonnet-latest", {});
+
 const albert = createOpenAICompatible({
   name: "albert-etalab",
   baseURL: "https://albert.api.etalab.gouv.fr/v1",
@@ -27,4 +32,5 @@ export const testAIModels = {
   groq,
   openai,
   albert,
+  anthropic,
 };
