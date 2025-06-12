@@ -227,6 +227,8 @@ export function createUpdateBlockTool<T>(config: {
             continue;
           }
 
+          console.log("Tool call", JSON.stringify(tool.doc.toJSON(), null, 2));
+
           const steps = updateToReplaceSteps(
             jsonToolCall,
             tool.doc,

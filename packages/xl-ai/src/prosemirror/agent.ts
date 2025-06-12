@@ -78,6 +78,10 @@ export function getStepsAsAgent(inputTr: Transform) {
 
       let marks = newNode.marks || [];
 
+      // console.log("OLD", oldNode);
+      // console.log("OLD", JSON.stringify(oldNode.marks, null, 2));
+      // console.log("NEW", newNode);
+
       if (newNode.type !== oldNode.type) {
         marks = modification
           .create({
@@ -94,16 +98,27 @@ export function getStepsAsAgent(inputTr: Transform) {
       ]);
       for (const attr of attrNames) {
         if (newNode.attrs[attr] !== oldNode.attrs[attr]) {
+          let previousValue = oldNode.attrs[attr];
+          const oldModMark = oldNode.marks?.find(
+            (mark) =>
+              mark.type === modification &&
+              mark.attrs.type === "attr" &&
+              mark.attrs.attrName === attr,
+          );
+          if (oldModMark) {
+            previousValue = oldModMark.attrs.previousValue;
+          }
           marks = modification
             .create({
               type: "attr",
               attrName: attr,
-              previousValue: oldNode.attrs[attr],
+              previousValue,
               newValue: newNode.attrs[attr],
             })
             .addToSet(marks);
         }
       }
+      // console.log(JSON.stringify(marks, null, 2));
 
       const stepIndex = tr.steps.length;
       tr.setNodeMarkup(
@@ -112,7 +127,7 @@ export function getStepsAsAgent(inputTr: Transform) {
         newNode.attrs,
         marks,
       );
-
+      // console.log(JSON.stringify(tr.doc.toJSON(), null, 2));
       agentSteps.push({
         prosemirrorSteps: tr.steps.slice(stepIndex),
         selection: undefined,
@@ -229,7 +244,7 @@ export function getStepsAsAgent(inputTr: Transform) {
         tr.doc.resolve(replaceFrom + replacement.content.size),
         -1,
       );
-
+      // console.log(JSON.stringify(tr.doc.toJSON(), null, 2));
       agentSteps.push({
         prosemirrorSteps: tr.steps.slice(stepIndex),
         selection: {
