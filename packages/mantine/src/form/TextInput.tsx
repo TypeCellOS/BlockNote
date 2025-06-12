@@ -1,6 +1,6 @@
 import { TextInput as MantineTextInput } from "@mantine/core";
 
-import { assertEmpty } from "@blocknote/core";
+import { assertEmpty, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
@@ -12,13 +12,17 @@ export const TextInput = forwardRef<
     className,
     name,
     label,
+    variant,
     icon,
     value,
     autoFocus,
     placeholder,
+    disabled,
     onKeyDown,
     onChange,
     onSubmit,
+    autoComplete,
+    rightSection,
     ...rest
   } = props;
 
@@ -27,7 +31,10 @@ export const TextInput = forwardRef<
   return (
     <MantineTextInput
       size={"xs"}
-      className={className}
+      className={mergeCSSClasses(
+        className || "",
+        variant === "large" ? "bn-mt-input-large" : ""
+      )}
       ref={ref}
       name={name}
       label={label}
@@ -35,10 +42,13 @@ export const TextInput = forwardRef<
       value={value}
       autoFocus={autoFocus}
       data-autofocus={autoFocus ? "true" : undefined}
+      rightSection={rightSection}
       placeholder={placeholder}
+      disabled={disabled}
       onKeyDown={onKeyDown}
       onChange={onChange}
       onSubmit={onSubmit}
+      autoComplete={autoComplete}
     />
   );
 });

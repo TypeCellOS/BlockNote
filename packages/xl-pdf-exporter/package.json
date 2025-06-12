@@ -9,7 +9,7 @@
     "directory": "packages/xl-pdf-exporter"
   },
   "license": "AGPL-3.0 OR PROPRIETARY",
-  "version": "0.30.1",
+  "version": "0.31.2",
   "files": [
     "dist",
     "types",
@@ -56,8 +56,8 @@
     "email": "email dev"
   },
   "dependencies": {
-    "@blocknote/core": "0.30.1",
-    "@blocknote/react": "0.30.1",
+    "@blocknote/core": "0.31.2",
+    "@blocknote/react": "0.31.2",
     "@react-pdf/renderer": "^4.3.0",
     "buffer": "^6.0.3",
     "docx": "^9.0.2"
@@ -86,7 +86,7 @@
   },
   "eslintConfig": {
     "extends": [
-      "../../.eslintrc.js"
+      "../../.eslintrc.json"
     ]
   },
   "gitHead": "37614ab348dcc7faa830a9a88437b37197a2162d"

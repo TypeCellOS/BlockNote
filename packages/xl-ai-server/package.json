@@ -1,0 +1,67 @@
+{
+  "name": "@blocknote/xl-ai-server",
+  "homepage": "https://github.com/TypeCellOS/BlockNote",
+  "private": true,
+  "license": "AGPL-3.0 OR PROPRIETARY",
+  "version": "0.31.2",
+  "files": [
+    "dist",
+    "types",
+    "src"
+  ],
+  "keywords": [
+    "react",
+    "javascript",
+    "editor",
+    "typescript",
+    "prosemirror",
+    "wysiwyg",
+    "rich-text-editor",
+    "notion",
+    "yjs",
+    "block-based",
+    "tiptap"
+  ],
+  "description": "A \"Notion-style\" block-based extensible text editor built on top of Prosemirror and Tiptap.",
+  "type": "module",
+  "source": "src/index.ts",
+  "types": "./types/src/index.d.ts",
+  "main": "./dist/blocknote-xl-ai-server.umd.cjs",
+  "module": "./dist/blocknote-xl-ai-server.js",
+  "exports": {
+    ".": {
+      "types": "./types/src/index.d.ts",
+      "import": "./dist/blocknote-xl-ai-server.js",
+      "require": "./dist/blocknote-xl-ai-server.umd.cjs"
+    }
+  },
+  "scripts": {
+    "dev": "vite-node src/index.ts",
+    "build": "tsc && vite build",
+    "start": "node dist/blocknote-xl-ai-server.js",
+    "lint": "eslint src --max-warnings 0",
+    "clean": "rimraf dist && rimraf types"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "hono": "^4.6.12"
+  },
+  "devDependencies": {
+    "eslint": "^8.10.0",
+    "rimraf": "^5.0.5",
+    "rollup-plugin-webpack-stats": "^0.2.2",
+    "typescript": "^5.3.3",
+    "vite": "^5.3.4",
+    "vite-node": "^2.1.6",
+    "vite-plugin-eslint": "^1.8.1",
+    "vite-plugin-externalize-deps": "^0.8.0",
+    "vitest": "^2.0.3",
+    "undici": "^6"
+  },
+  "peerDependencies": {},
+  "eslintConfig": {
+    "extends": [
+      "../../.eslintrc.json"
+    ]
+  }
+}

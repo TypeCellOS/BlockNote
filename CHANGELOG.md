@@ -1,3 +1,35 @@
+## 0.31.2 (2025-06-05)
+
+### 🩹 Fixes
+
+- re-release ([0bc546e18](https://github.com/TypeCellOS/BlockNote/commit/0bc546e18))
+- ignore falsy values in boolean prop schema ([#1730](https://github.com/TypeCellOS/BlockNote/pull/1730))
+
+### ❤️ Thank You
+
+- Nick Perez
+- Nick the Sick
+
+## 0.31.1 (2025-05-23)
+
+### 🩹 Fixes
+
+- backwards-compat for `_extensions` ([#1708](https://github.com/TypeCellOS/BlockNote/pull/1708))
+
+### ❤️ Thank You
+
+- Nick Perez
+
+## 0.31.0 (2025-05-20)
+
+### 🩹 Fixes
+
+- Playwright flaky keyboard handler test ([#1704](https://github.com/TypeCellOS/BlockNote/pull/1704))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+
 ## 0.30.1 (2025-05-20)
 
 ### 🩹 Fixes

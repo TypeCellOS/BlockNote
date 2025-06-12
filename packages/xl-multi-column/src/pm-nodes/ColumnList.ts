@@ -7,7 +7,7 @@ export const ColumnList = createStronglyTypedTiptapNode({
   content: "column column+", // min two columns
   priority: 40, // should be below blockContainer
   defining: true,
-
+  marks: "deletion insertion modification",
   parseHTML() {
     return [
       {

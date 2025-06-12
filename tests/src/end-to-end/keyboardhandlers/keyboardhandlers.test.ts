@@ -2,7 +2,6 @@ import { test } from "../../setup/setupScript.js";
 import {
   BASE_URL,
   H_ONE_BLOCK_SELECTOR,
-  H_TWO_BLOCK_SELECTOR,
   ITALIC_BUTTON_SELECTOR,
 } from "../../utils/const.js";
 import { insertHeading, insertParagraph } from "../../utils/copypaste.js";
@@ -21,17 +20,16 @@ test.describe("Check Keyboard Handlers' Behaviour", () => {
     await insertHeading(page, 2);
 
     await page.waitForTimeout(500);
-    const startElement = await page.locator(H_ONE_BLOCK_SELECTOR);
-    let boundingBox = (await startElement.boundingBox())!;
-    let { x, y, height } = boundingBox;
-    await page.mouse.move(x + 35, y + height / 2, { steps: 5 });
-    await page.mouse.down();
 
-    const endElement = await page.locator(H_TWO_BLOCK_SELECTOR);
-    boundingBox = (await endElement.boundingBox())!;
-    ({ x, y, height } = boundingBox);
-    await page.mouse.move(x + 105, y + height / 2, { steps: 5 });
-    await page.mouse.up();
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ControlOrMeta+ArrowLeft");
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.down("Shift");
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("ControlOrMeta+ArrowRight");
+    await page.keyboard.press("ArrowLeft");
+    await page.keyboard.up("Shift");
 
     await page.keyboard.press("Enter");
 

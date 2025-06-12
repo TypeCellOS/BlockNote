@@ -1,6 +1,7 @@
 import { Plugin, PluginKey } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 
 const PLUGIN_KEY = new PluginKey(`blocknote-show-selection`);
 
@@ -9,29 +10,35 @@ const PLUGIN_KEY = new PluginKey(`blocknote-show-selection`);
  * This can be used to highlight the current selection in the UI even when the
  * text editor is not focused.
  */
-export class ShowSelectionPlugin {
-  public readonly plugin: Plugin;
+export class ShowSelectionPlugin extends BlockNoteExtension {
+  public static key() {
+    return "showSelection";
+  }
+
   private enabled = false;
 
   public constructor(private readonly editor: BlockNoteEditor<any, any, any>) {
-    this.plugin = new Plugin({
-      key: PLUGIN_KEY,
-      props: {
-        decorations: (state) => {
-          const { doc, selection } = state;
+    super();
+    this.addProsemirrorPlugin(
+      new Plugin({
+        key: PLUGIN_KEY,
+        props: {
+          decorations: (state) => {
+            const { doc, selection } = state;
 
-          if (!this.enabled) {
-            return DecorationSet.empty;
-          }
+            if (!this.enabled) {
+              return DecorationSet.empty;
+            }
 
-          const dec = Decoration.inline(selection.from, selection.to, {
-            "data-show-selection": "true",
-          });
+            const dec = Decoration.inline(selection.from, selection.to, {
+              "data-show-selection": "true",
+            });
 
-          return DecorationSet.create(doc, [dec]);
+            return DecorationSet.create(doc, [dec]);
+          },
         },
-      },
-    });
+      }),
+    );
   }
 
   public setEnabled(enabled: boolean) {
