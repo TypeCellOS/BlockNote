@@ -6,6 +6,9 @@ const withMDX = createMDX();
 
 const config = {
   reactStrictMode: true,
+  experimental: {
+    reactCompiler: true,
+  },
   images: {
     remotePatterns: [
       {
