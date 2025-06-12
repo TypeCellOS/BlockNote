@@ -7,9 +7,9 @@
     "cookies": []
   },
   "response": {
-    "status": 429,
+    "status": 200,
     "statusText": "",
-    "body": "{\n    \"error\": {\n        \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.\",\n        \"type\": \"insufficient_quota\",\n        \"param\": null,\n        \"code\": \"insufficient_quota\"\n    }\n}\n",
+    "body": "{\n  \"id\": \"chatcmpl-BhcGEpJWyQeNFsRyLMqJlXGIiVuyT\",\n  \"object\": \"chat.completion\",\n  \"created\": 1749734878,\n  \"model\": \"gpt-4o-2024-08-06\",\n  \"choices\": [\n    {\n      \"index\": 0,\n      \"message\": {\n        \"role\": \"assistant\",\n        \"content\": null,\n        \"tool_calls\": [\n          {\n            \"id\": \"call_ZuutgACe8lAwcsc0IxH3HEBt\",\n            \"type\": \"function\",\n            \"function\": {\n              \"name\": \"json\",\n              \"arguments\": \"{\\\"operations\\\":[{\\\"type\\\":\\\"add\\\",\\\"referenceId\\\":\\\"ref1$\\\",\\\"position\\\":\\\"after\\\",\\\"blocks\\\":[{\\\"type\\\":\\\"paragraph\\\",\\\"content\\\":[{\\\"type\\\":\\\"text\\\",\\\"text\\\":\\\"You look great today!\\\"}]}]},{\\\"type\\\":\\\"update\\\",\\\"id\\\":\\\"ref1$\\\",\\\"block\\\":{\\\"type\\\":\\\"paragraph\\\",\\\"content\\\":[{\\\"type\\\":\\\"text\\\",\\\"text\\\":\\\"Hallo, wereld!\\\",\\\"styles\\\":{}}]}}]}\"\n            }\n          }\n        ],\n        \"refusal\": null,\n        \"annotations\": []\n      },\n      \"logprobs\": null,\n      \"finish_reason\": \"stop\"\n    }\n  ],\n  \"usage\": {\n    \"prompt_tokens\": 1209,\n    \"completion_tokens\": 81,\n    \"total_tokens\": 1290,\n    \"prompt_tokens_details\": {\n      \"cached_tokens\": 1152,\n      \"audio_tokens\": 0\n    },\n    \"completion_tokens_details\": {\n      \"reasoning_tokens\": 0,\n      \"audio_tokens\": 0,\n      \"accepted_prediction_tokens\": 0,\n      \"rejected_prediction_tokens\": 0\n    }\n  },\n  \"service_tier\": \"default\",\n  \"system_fingerprint\": \"fp_a288987b44\"\n}\n",
     "headers": []
   }
 }

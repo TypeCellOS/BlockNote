@@ -9,7 +9,7 @@
   "response": {
     "status": 200,
     "statusText": "",
-    "body": "{\"id\":\"msg_01CvNNDGkyfR1VeWv4sjCDQe\",\"type\":\"message\",\"role\":\"assistant\",\"model\":\"claude-3-7-sonnet-20250219\",\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_01Sfb6t2T6NaHwLGw71Xk6iA\",\"name\":\"json\",\"input\":{\"operations\":[{\"type\":\"add\",\"referenceId\":\"ref2$\",\"position\":\"after\",\"blocks\":[\"<h1>Code</h1>\",\"<pre><code data-language=\\\"javascript\\\">console.log('hello world');</code></pre>\"]}]}}],\"stop_reason\":\"tool_use\",\"stop_sequence\":null,\"usage\":{\"input_tokens\":1141,\"cache_creation_input_tokens\":0,\"cache_read_input_tokens\":0,\"output_tokens\":115,\"service_tier\":\"standard\"}}",
+    "body": "{\"id\":\"msg_0183zGtnPWiKWYCcve2rFWrf\",\"type\":\"message\",\"role\":\"assistant\",\"model\":\"claude-3-7-sonnet-20250219\",\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_01DS37TZujMbriQPTgxmwaLo\",\"name\":\"json\",\"input\":{\"operations\":[{\"type\":\"add\",\"referenceId\":\"ref2$\",\"position\":\"after\",\"blocks\":[\"<h1>Code</h1>\",\"<pre><code data-language=\\\"javascript\\\">console.log('hello world');</code></pre>\"]}]}}],\"stop_reason\":\"tool_use\",\"stop_sequence\":null,\"usage\":{\"input_tokens\":1141,\"cache_creation_input_tokens\":0,\"cache_read_input_tokens\":0,\"output_tokens\":115,\"service_tier\":\"standard\"}}",
     "headers": []
   }
 }
