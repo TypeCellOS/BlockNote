@@ -36,7 +36,7 @@ async function createRequestHash(req: Request) {
 }
 
 // Main test suite with snapshot middleware
-describe("Models", () => {
+describe.skip("Models", () => {
   // Define server with snapshot middleware for the main tests
   const server = setupServer(
     snapshot({

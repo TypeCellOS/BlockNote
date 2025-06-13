@@ -20,6 +20,24 @@ export const no: Dictionary = {
       aliases: ["h3", "overskrift3", "underoverskrift"],
       group: "Overskrifter",
     },
+    toggle_heading: {
+      title: "Sammenleggbar Overskrift 1",
+      subtext: "Sammenleggbar toppnivåoverskrift",
+      aliases: ["h", "overskrift1", "h1", "sammenleggbar"],
+      group: "Overskrifter",
+    },
+    toggle_heading_2: {
+      title: "Sammenleggbar Overskrift 2",
+      subtext: "Sammenleggbar hovedseksjonsoverskrift",
+      aliases: ["h2", "overskrift2", "underoverskrift", "sammenleggbar"],
+      group: "Overskrifter",
+    },
+    toggle_heading_3: {
+      title: "Sammenleggbar Overskrift 3",
+      subtext: "Sammenleggbar underseksjon og gruppeoverskrift",
+      aliases: ["h3", "overskrift3", "underoverskrift", "sammenleggbar"],
+      group: "Overskrifter",
+    },
     quote: {
       title: "Sitat",
       subtext: "Sitat eller utdrag",
@@ -50,6 +68,12 @@ export const no: Dictionary = {
         "avmerket liste",
         "avmerkingsboks",
       ],
+      group: "Grunnleggende blokker",
+    },
+    toggle_list: {
+      title: "Sammenleggbar liste",
+      subtext: "Liste med skjulbare underpunkter",
+      aliases: ["li", "liste", "sammenleggbar liste", "skjulbar liste"],
       group: "Grunnleggende blokker",
     },
     paragraph: {
@@ -134,6 +158,7 @@ export const no: Dictionary = {
   placeholders: {
     default: "Skriv tekst eller skriv '/' for å vise kommandoer",
     heading: "Overskrift",
+    toggleList: "Veksle",
     bulletListItem: "Liste",
     numberedListItem: "Liste",
     checkListItem: "Liste",

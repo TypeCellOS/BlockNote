@@ -122,6 +122,37 @@ export function getDefaultSlashMenuItems<
         key: "heading_3",
         ...editor.dictionary.slash_menu.heading_3,
       },
+      {
+        onItemClick: () => {
+          insertOrUpdateBlock(editor, {
+            type: "heading",
+            props: { level: 1, isToggleable: true },
+          });
+        },
+        key: "toggle_heading",
+        ...editor.dictionary.slash_menu.toggle_heading,
+      },
+      {
+        onItemClick: () => {
+          insertOrUpdateBlock(editor, {
+            type: "heading",
+            props: { level: 2, isToggleable: true },
+          });
+        },
+
+        key: "toggle_heading_2",
+        ...editor.dictionary.slash_menu.toggle_heading_2,
+      },
+      {
+        onItemClick: () => {
+          insertOrUpdateBlock(editor, {
+            type: "heading",
+            props: { level: 3, isToggleable: true },
+          });
+        },
+        key: "toggle_heading_3",
+        ...editor.dictionary.slash_menu.toggle_heading_3,
+      },
     );
   }
 
@@ -134,6 +165,19 @@ export function getDefaultSlashMenuItems<
       },
       key: "quote",
       ...editor.dictionary.slash_menu.quote,
+    });
+  }
+
+  if (checkDefaultBlockTypeInSchema("toggleListItem", editor)) {
+    items.push({
+      onItemClick: () => {
+        insertOrUpdateBlock(editor, {
+          type: "toggleListItem",
+        });
+      },
+      badge: formatKeyboardShortcut("Mod-Shift-6"),
+      key: "toggle_list",
+      ...editor.dictionary.slash_menu.toggle_list,
     });
   }
 

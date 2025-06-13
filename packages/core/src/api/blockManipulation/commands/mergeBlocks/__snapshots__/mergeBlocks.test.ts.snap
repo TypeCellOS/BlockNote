@@ -183,6 +183,7 @@ exports[`Test mergeBlocks > Basic 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -529,6 +530,7 @@ exports[`Test mergeBlocks > Basic 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -749,6 +751,7 @@ exports[`Test mergeBlocks > Blocks have different types 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -1078,6 +1081,7 @@ exports[`Test mergeBlocks > Blocks have different types 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -1281,6 +1285,7 @@ exports[`Test mergeBlocks > First block has children 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -1627,6 +1632,7 @@ exports[`Test mergeBlocks > First block has children 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -1829,6 +1835,7 @@ exports[`Test mergeBlocks > Second block has children 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -2175,6 +2182,7 @@ exports[`Test mergeBlocks > Second block has children 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -2395,6 +2403,7 @@ exports[`Test mergeBlocks > Second block is empty 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -2730,6 +2739,7 @@ exports[`Test mergeBlocks > Second block is empty 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",

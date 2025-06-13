@@ -63,6 +63,7 @@ exports[`Test updateBlock > Revert all props 1`] = `
   "id": "heading-with-everything",
   "props": {
     "backgroundColor": "default",
+    "isToggleable": false,
     "level": 1,
     "textAlignment": "left",
     "textColor": "default",
@@ -271,6 +272,7 @@ exports[`Test updateBlock > Revert all props 2`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -617,6 +619,7 @@ exports[`Test updateBlock > Revert all props 2`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -700,6 +703,7 @@ exports[`Test updateBlock > Revert single prop 1`] = `
   "id": "heading-with-everything",
   "props": {
     "backgroundColor": "red",
+    "isToggleable": false,
     "level": 1,
     "textAlignment": "center",
     "textColor": "red",
@@ -908,6 +912,7 @@ exports[`Test updateBlock > Revert single prop 2`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -1254,6 +1259,7 @@ exports[`Test updateBlock > Revert single prop 2`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "center",
       "textColor": "red",
@@ -1337,6 +1343,7 @@ exports[`Test updateBlock > Update all props 1`] = `
   "id": "heading-with-everything",
   "props": {
     "backgroundColor": "blue",
+    "isToggleable": false,
     "level": 3,
     "textAlignment": "right",
     "textColor": "blue",
@@ -1545,6 +1552,7 @@ exports[`Test updateBlock > Update all props 2`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -1891,6 +1899,7 @@ exports[`Test updateBlock > Update all props 2`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "blue",
+      "isToggleable": false,
       "level": 3,
       "textAlignment": "right",
       "textColor": "blue",
@@ -1974,6 +1983,7 @@ exports[`Test updateBlock > Update children 1`] = `
   "id": "heading-with-everything",
   "props": {
     "backgroundColor": "red",
+    "isToggleable": false,
     "level": 2,
     "textAlignment": "center",
     "textColor": "red",
@@ -2182,6 +2192,7 @@ exports[`Test updateBlock > Update children 2`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -2528,6 +2539,7 @@ exports[`Test updateBlock > Update children 2`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -2762,6 +2774,7 @@ exports[`Test updateBlock > Update inline content to no content 2`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -3108,6 +3121,7 @@ exports[`Test updateBlock > Update inline content to no content 2`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -3684,6 +3698,7 @@ exports[`Test updateBlock > Update inline content to table content 2`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -4030,6 +4045,7 @@ exports[`Test updateBlock > Update inline content to table content 2`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -4264,6 +4280,7 @@ exports[`Test updateBlock > Update no content to empty inline content 2`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -4607,6 +4624,7 @@ exports[`Test updateBlock > Update no content to empty inline content 2`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -4845,6 +4863,7 @@ exports[`Test updateBlock > Update no content to empty table content 2`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -5188,6 +5207,7 @@ exports[`Test updateBlock > Update no content to empty table content 2`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -5428,6 +5448,7 @@ exports[`Test updateBlock > Update no content to inline content 2`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -5777,6 +5798,7 @@ exports[`Test updateBlock > Update no content to inline content 2`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -6185,6 +6207,7 @@ exports[`Test updateBlock > Update no content to table content 2`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -6702,6 +6725,7 @@ exports[`Test updateBlock > Update no content to table content 2`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -6922,6 +6946,7 @@ exports[`Test updateBlock > Update partial (offset start + end) 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -7268,6 +7293,7 @@ exports[`Test updateBlock > Update partial (offset start + end) 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -7488,6 +7514,7 @@ exports[`Test updateBlock > Update partial (offset start) 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -7827,6 +7854,7 @@ exports[`Test updateBlock > Update partial (offset start) 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -8047,6 +8075,7 @@ exports[`Test updateBlock > Update partial (props + offset end) 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -8386,6 +8415,7 @@ exports[`Test updateBlock > Update partial (props + offset end) 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "center",
       "textColor": "red",
@@ -8606,6 +8636,7 @@ exports[`Test updateBlock > Update partial (table cell) 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -8952,6 +8983,7 @@ exports[`Test updateBlock > Update partial (table cell) 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -9172,6 +9204,7 @@ exports[`Test updateBlock > Update partial (table row) 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -9518,6 +9551,7 @@ exports[`Test updateBlock > Update partial (table row) 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -9601,6 +9635,7 @@ exports[`Test updateBlock > Update single prop 1`] = `
   "id": "heading-with-everything",
   "props": {
     "backgroundColor": "red",
+    "isToggleable": false,
     "level": 3,
     "textAlignment": "center",
     "textColor": "red",
@@ -9809,6 +9844,7 @@ exports[`Test updateBlock > Update single prop 2`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -10155,6 +10191,7 @@ exports[`Test updateBlock > Update single prop 2`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 3,
       "textAlignment": "center",
       "textColor": "red",
@@ -10389,6 +10426,7 @@ exports[`Test updateBlock > Update table content to empty inline content 2`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -10561,6 +10599,7 @@ exports[`Test updateBlock > Update table content to empty inline content 2`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -10801,6 +10840,7 @@ exports[`Test updateBlock > Update table content to inline content 2`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -10979,6 +11019,7 @@ exports[`Test updateBlock > Update table content to inline content 2`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -11216,6 +11257,7 @@ exports[`Test updateBlock > Update table content to no content 2`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -11391,6 +11433,7 @@ exports[`Test updateBlock > Update table content to no content 2`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -11681,6 +11724,7 @@ exports[`Test updateBlock > Update type 2`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -12095,6 +12139,7 @@ exports[`Test updateBlock > Update with plain content 1`] = `
   "id": "heading-with-everything",
   "props": {
     "backgroundColor": "red",
+    "isToggleable": false,
     "level": 2,
     "textAlignment": "center",
     "textColor": "red",
@@ -12303,6 +12348,7 @@ exports[`Test updateBlock > Update with plain content 2`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -12635,6 +12681,7 @@ exports[`Test updateBlock > Update with plain content 2`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -12718,6 +12765,7 @@ exports[`Test updateBlock > Update with styled content 1`] = `
   "id": "heading-with-everything",
   "props": {
     "backgroundColor": "red",
+    "isToggleable": false,
     "level": 2,
     "textAlignment": "center",
     "textColor": "red",
@@ -12926,6 +12974,7 @@ exports[`Test updateBlock > Update with styled content 2`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -13272,6 +13321,7 @@ exports[`Test updateBlock > Update with styled content 2`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",

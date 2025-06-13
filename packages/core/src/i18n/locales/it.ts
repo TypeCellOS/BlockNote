@@ -20,6 +20,24 @@ export const it: Dictionary = {
       aliases: ["h3", "intestazione3", "sottotitolo"],
       group: "Intestazioni",
     },
+    toggle_heading: {
+      title: "Intestazione Espandibile 1",
+      subtext: "Intestazione espandibile di primo livello",
+      aliases: ["h", "intestazione1", "h1", "espandibile"],
+      group: "Intestazioni",
+    },
+    toggle_heading_2: {
+      title: "Intestazione Espandibile 2",
+      subtext: "Intestazione espandibile di sezione chiave",
+      aliases: ["h2", "intestazione2", "sottotitolo", "espandibile"],
+      group: "Intestazioni",
+    },
+    toggle_heading_3: {
+      title: "Intestazione Espandibile 3",
+      subtext: "Intestazione espandibile di sottosezione e gruppo",
+      aliases: ["h3", "intestazione3", "sottotitolo", "espandibile"],
+      group: "Intestazioni",
+    },
     quote: {
       title: "Citazione",
       subtext: "Citazione o estratto",
@@ -50,6 +68,12 @@ export const it: Dictionary = {
         "elenco verificato",
         "casella di controllo",
       ],
+      group: "Blocchi Base",
+    },
+    toggle_list: {
+      title: "Elenco Espandibile",
+      subtext: "Elenco con elementi nascondibili",
+      aliases: ["li", "elenco", "elenco espandibile", "elenco collassabile"],
       group: "Blocchi Base",
     },
     paragraph: {
@@ -134,6 +158,7 @@ export const it: Dictionary = {
   placeholders: {
     default: "Inserisci testo o digita '/' per i comandi",
     heading: "Intestazione",
+    toggleList: "Attiva/Disattiva",
     bulletListItem: "Elenco",
     numberedListItem: "Elenco",
     checkListItem: "Elenco",

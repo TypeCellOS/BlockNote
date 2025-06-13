@@ -33,6 +33,11 @@ export default function App() {
         content: "Heading",
       },
       {
+        type: "heading",
+        props: { isToggleable: true },
+        content: "Toggle Heading",
+      },
+      {
         type: "quote",
         content: "Quote",
       },
@@ -47,6 +52,10 @@ export default function App() {
       {
         type: "checkListItem",
         content: "Check List Item",
+      },
+      {
+        type: "toggleListItem",
+        content: "Toggle List Item",
       },
       {
         type: "codeBlock",

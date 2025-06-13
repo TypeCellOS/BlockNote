@@ -77,6 +77,17 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       },
     });
   },
+  toggleListItem: (block, exporter) => {
+    return new Paragraph({
+      ...blockPropsToStyles(block.props, exporter.options.colors),
+      children: [
+        new TextRun({
+          children: ["> "],
+        }),
+        ...exporter.transformInlineContent(block.content),
+      ],
+    });
+  },
   numberedListItem: (block, exporter, nestingLevel) => {
     return new Paragraph({
       ...blockPropsToStyles(block.props, exporter.options.colors),

@@ -21,6 +21,26 @@ export const fr: Dictionary = {
       aliases: ["h3", "titre3", "sous-titre"],
       group: "Titres",
     },
+    toggle_heading: {
+      title: "Titre Déroulant 1",
+      subtext: "Titre déroulant de premier niveau",
+      aliases: ["h", "titre1", "h1", "déroulant"],
+      group: "Titres",
+    },
+    toggle_heading_2: {
+      title: "Titre Déroulant 2",
+      subtext:
+        "Titre déroulant de deuxième niveau utilisé pour les sections clés",
+      aliases: ["h2", "titre2", "sous-titre", "déroulant"],
+      group: "Titres",
+    },
+    toggle_heading_3: {
+      title: "Titre Déroulant 3",
+      subtext:
+        "Titre déroulant de troisième niveau utilisé pour les sous-sections et les titres de groupe",
+      aliases: ["h3", "titre3", "sous-titre", "déroulant"],
+      group: "Titres",
+    },
     quote: {
       title: "Citation",
       subtext: "Citation ou extrait",
@@ -62,6 +82,18 @@ export const fr: Dictionary = {
         "check box",
         "to do",
         "todo",
+      ],
+      group: "Blocs de base",
+    },
+    toggle_list: {
+      title: "Liste déroulante",
+      subtext: "Liste avec des sous-éléments masquables",
+      aliases: [
+        "li",
+        "liste",
+        "liste déroulante",
+        "liste pliable",
+        "liste escamotable",
       ],
       group: "Blocs de base",
     },
@@ -157,6 +189,7 @@ export const fr: Dictionary = {
     default:
       "Entrez du texte ou tapez '/' pour faire apparaître les options de mise en page",
     heading: "Titre",
+    toggleList: "Basculer",
     bulletListItem: "Liste",
     numberedListItem: "Liste",
     checkListItem: "Liste",

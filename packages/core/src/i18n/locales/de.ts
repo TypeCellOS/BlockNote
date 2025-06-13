@@ -20,6 +20,24 @@ export const de: Dictionary = {
       aliases: ["h3", "überschrift3", "unterüberschrift"],
       group: "Überschriften",
     },
+    toggle_heading: {
+      title: "Aufklappbare Überschrift 1",
+      subtext: "Aufklappbare Hauptebene Überschrift",
+      aliases: ["h", "überschrift1", "h1", "aufklappbar"],
+      group: "Überschriften",
+    },
+    toggle_heading_2: {
+      title: "Aufklappbare Überschrift 2",
+      subtext: "Aufklappbare wichtige Abschnittsüberschrift",
+      aliases: ["h2", "überschrift2", "unterüberschrift", "aufklappbar"],
+      group: "Überschriften",
+    },
+    toggle_heading_3: {
+      title: "Aufklappbare Überschrift 3",
+      subtext: "Aufklappbare Unterabschnitts- und Gruppenüberschrift",
+      aliases: ["h3", "überschrift3", "unterüberschrift", "aufklappbar"],
+      group: "Überschriften",
+    },
     quote: {
       title: "Zitat",
       subtext: "Zitat oder Auszug",
@@ -49,6 +67,18 @@ export const de: Dictionary = {
         "check liste",
         "geprüfte liste",
         "kontrollkästchen",
+      ],
+      group: "Grundlegende Blöcke",
+    },
+    toggle_list: {
+      title: "Aufklappbare Liste",
+      subtext: "Liste mit ausblendbare Unterpunkten",
+      aliases: [
+        "li",
+        "liste",
+        "aufklappbareListe",
+        "aufklappbare liste",
+        "einklappbare liste",
       ],
       group: "Grundlegende Blöcke",
     },
@@ -134,6 +164,7 @@ export const de: Dictionary = {
   placeholders: {
     default: "Text eingeben oder '/' für Befehle tippen",
     heading: "Überschrift",
+    toggleList: "Umschalten",
     bulletListItem: "Liste",
     numberedListItem: "Liste",
     checkListItem: "Liste",

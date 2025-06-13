@@ -79,6 +79,7 @@
     "id": "5",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -97,6 +98,7 @@
     "id": "6",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "left",
       "textColor": "default",
@@ -115,6 +117,7 @@
     "id": "7",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 3,
       "textAlignment": "left",
       "textColor": "default",

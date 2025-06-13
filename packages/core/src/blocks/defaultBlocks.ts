@@ -25,6 +25,7 @@ import { CodeBlock } from "./CodeBlockContent/CodeBlockContent.js";
 import { FileBlock } from "./FileBlockContent/FileBlockContent.js";
 import { Heading } from "./HeadingBlockContent/HeadingBlockContent.js";
 import { ImageBlock } from "./ImageBlockContent/ImageBlockContent.js";
+import { ToggleListItem } from "./ListItemBlockContent/ToggleListItemBlockContent/ToggleListItemBlockContent.js";
 import { BulletListItem } from "./ListItemBlockContent/BulletListItemBlockContent/BulletListItemBlockContent.js";
 import { CheckListItem } from "./ListItemBlockContent/CheckListItemBlockContent/CheckListItemBlockContent.js";
 import { NumberedListItem } from "./ListItemBlockContent/NumberedListItemBlockContent/NumberedListItemBlockContent.js";
@@ -38,6 +39,7 @@ export const defaultBlockSpecs = {
   heading: Heading,
   quote: Quote,
   codeBlock: CodeBlock,
+  toggleListItem: ToggleListItem,
   bulletListItem: BulletListItem,
   numberedListItem: NumberedListItem,
   checkListItem: CheckListItem,

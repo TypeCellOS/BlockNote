@@ -24,7 +24,11 @@ export function checkDefaultBlockTypeInSchema<
 >(
   blockType: BlockType,
   editor: BlockNoteEditor<any, I, S>,
-): editor is BlockNoteEditor<{ Type: DefaultBlockSchema[BlockType] }, I, S> {
+): editor is BlockNoteEditor<
+  { [K in BlockType]: DefaultBlockSchema[BlockType] },
+  I,
+  S
+> {
   return (
     blockType in editor.schema.blockSchema &&
     editor.schema.blockSchema[blockType] === defaultBlockSchema[blockType]
@@ -40,7 +44,7 @@ export function checkDefaultInlineContentTypeInSchema<
   editor: BlockNoteEditor<B, any, S>,
 ): editor is BlockNoteEditor<
   B,
-  { Type: DefaultInlineContentSchema[InlineContentType] },
+  { [K in InlineContentType]: DefaultInlineContentSchema[InlineContentType] },
   S
 > {
   return (

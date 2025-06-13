@@ -9,7 +9,7 @@
   "response": {
     "status": 200,
     "statusText": "",
-    "body": "{\"id\":\"msg_01CRWHfETGzBRnoYeagKsc7Q\",\"type\":\"message\",\"role\":\"assistant\",\"model\":\"claude-3-7-sonnet-20250219\",\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_0119L1JcnPAWnLHFoeLMkQA1\",\"name\":\"json\",\"input\":{\"operations\":[{\"type\":\"add\",\"referenceId\":\"ref2$\",\"position\":\"after\",\"blocks\":[\"<ul><li>Apples</li></ul>\",\"<ul><li>Bananas</li></ul>\"]}]}}],\"stop_reason\":\"tool_use\",\"stop_sequence\":null,\"usage\":{\"input_tokens\":1134,\"cache_creation_input_tokens\":0,\"cache_read_input_tokens\":0,\"output_tokens\":103,\"service_tier\":\"standard\"}}",
+    "body": "{\"id\":\"msg_01NDgmBLpPXjpsBTK4sfErNy\",\"type\":\"message\",\"role\":\"assistant\",\"model\":\"claude-3-7-sonnet-20250219\",\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_01FiKUed7BTXsgaLfdVrytX7\",\"name\":\"json\",\"input\":{\"operations\":[{\"type\":\"add\",\"referenceId\":\"ref2$\",\"position\":\"after\",\"blocks\":[\"<ul><li>Apples</li></ul>\",\"<ul><li>Bananas</li></ul>\"]}]}}],\"stop_reason\":\"tool_use\",\"stop_sequence\":null,\"usage\":{\"input_tokens\":1134,\"cache_creation_input_tokens\":0,\"cache_read_input_tokens\":0,\"output_tokens\":103,\"service_tier\":\"standard\"}}",
     "headers": []
   }
 }

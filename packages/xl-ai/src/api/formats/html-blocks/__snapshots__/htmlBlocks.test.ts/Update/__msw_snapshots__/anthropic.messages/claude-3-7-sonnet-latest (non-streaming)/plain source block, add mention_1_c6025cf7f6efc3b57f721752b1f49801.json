@@ -9,7 +9,7 @@
   "response": {
     "status": 200,
     "statusText": "",
-    "body": "{\"id\":\"msg_01GAMLMhYDn3Eagi9e1kZ5pG\",\"type\":\"message\",\"role\":\"assistant\",\"model\":\"claude-3-7-sonnet-20250219\",\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_01C5BJTLNoovYNJPf7oFivFW\",\"name\":\"json\",\"input\":{\"operations\":[{\"type\":\"update\",\"id\":\"ref1$\",\"block\":\"<p>Hello, <span data-inline-content-type=\\\"mention\\\" data-user=\\\"Jane Doe\\\">@Jane Doe</span>!</p>\"}]}}],\"stop_reason\":\"tool_use\",\"stop_sequence\":null,\"usage\":{\"input_tokens\":1243,\"cache_creation_input_tokens\":0,\"cache_read_input_tokens\":0,\"output_tokens\":100,\"service_tier\":\"standard\"}}",
+    "body": "{\"id\":\"msg_01KhdodTPyiRMTeuhSZ5ZjdR\",\"type\":\"message\",\"role\":\"assistant\",\"model\":\"claude-3-7-sonnet-20250219\",\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_012qWf9Pi57N7p3kVpefJ6i2\",\"name\":\"json\",\"input\":{\"operations\":[{\"type\":\"update\",\"id\":\"ref1$\",\"block\":\"<p>Hello, <span data-inline-content-type=\\\"mention\\\" data-user=\\\"Jane Doe\\\">@Jane Doe</span>!</p>\"}]}}],\"stop_reason\":\"tool_use\",\"stop_sequence\":null,\"usage\":{\"input_tokens\":1243,\"cache_creation_input_tokens\":0,\"cache_read_input_tokens\":0,\"output_tokens\":100,\"service_tier\":\"standard\"}}",
     "headers": []
   }
 }

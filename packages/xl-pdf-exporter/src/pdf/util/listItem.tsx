@@ -19,6 +19,19 @@ const styles = StyleSheet.create({
 
 export const BULLET_MARKER = "\u2022";
 
+// https://fonts.google.com/icons?selected=Material+Symbols+Rounded:chevron_right:FILL@0;wght@700;GRAD@0;opsz@24&icon.query=chevron&icon.style=Rounded&icon.size=24&icon.color=%23e8eaed
+export const CHEVRON_MARKER = (
+  <Svg
+    style={{ marginTop: 2 }}
+    height="12"
+    viewBox="0 -960 960 960"
+    width="12"
+    fill="undefined"
+  >
+    <Path d="M472-480 332-620q-18-18-18-44t18-44q18-18 44-18t44 18l183 183q9 9 14 21t5 24q0 12-5 24t-14 21L420-252q-18 18-44 18t-44-18q-18-18-18-44t18-44l140-140Z" />
+  </Svg>
+);
+
 // https://fonts.google.com/icons?selected=Material+Symbols+Outlined:check_box_outline_blank:FILL@0;wght@400;GRAD@0;opsz@24&icon.size=24&icon.color=undefined
 export const CHECK_MARKER_UNCHECKED = (
   <Svg
