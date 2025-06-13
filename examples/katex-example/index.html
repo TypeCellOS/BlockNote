@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BlockNote KaTeX Example</title>
+  <script type="module">
+    import { BlockNoteEditor } from "https://cdn.jsdelivr.net/npm/@blocknote/core@latest/dist/blocknote.js";
+    import { BlockNoteView } from "https://cdn.jsdelivr.net/npm/@blocknote/react@latest/dist/index.js";
+    import * as ReactDOM from "https://cdn.jsdelivr.net/npm/react-dom@latest/+esm";
+    import * as React from "https://cdn.jsdelivr.net/npm/react@latest/+esm";
+    import katex from "https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.mjs";
+
+    // Import KaTeX CSS
+    document.head.innerHTML += '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">';
+
+    // Create a new editor
+    const editor = BlockNoteEditor.create({
+      // Additional settings if needed
+    });
+
+    // Add some initial content with a KaTeX block
+    editor.insertBlocks([
+      {
+        type: "paragraph",
+        content: "This is a demo of the KaTeX equation block in BlockNote. Try editing the equation below:"
+      },
+      {
+        type: "katexBlock",
+        props: {
+          equation: "E = mc^2",
+          displayMode: true
+        }
+      },
+      {
+        type: "paragraph",
+        content: "You can also create a new equation block by typing '$$' at the beginning of a line and pressing space."
+      }
+    ], 0);
+
+    // Component to render the editor
+    function App() {
+      return React.createElement(
+        "div",
+        {
+          style: {
+            margin: "20px auto",
+            maxWidth: "800px"
+          }
+        },
+        React.createElement(
+          "h1",
+          null,
+          "BlockNote KaTeX Equation Block Demo"
+        ),
+        React.createElement(
+          BlockNoteView,
+          {
+            editor: editor,
+            theme: "light"
+          }
+        )
+      );
+    }
+
+    // Render the app
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(React.createElement(App));
+  </script>
+</head>
+<body>
+  <div id="root"></div>
+</body>
+</html>

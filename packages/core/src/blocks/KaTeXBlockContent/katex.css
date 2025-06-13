@@ -1,0 +1,12 @@
+/* Import KaTeX CSS */
+@import 'katex/dist/katex.min.css';
+
+/* Additional custom styles for KaTeX block */
+.katex-block {
+  margin: 0.5em 0;
+}
+
+.katex-output {
+  overflow-x: auto;
+  text-align: center;
+}
