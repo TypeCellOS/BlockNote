@@ -12,7 +12,7 @@ export const pdfInlineContentMappingForDefaultSchema: InlineContentMapping<
 > = {
   link: (ic, exporter) => {
     return (
-      <Link href={ic.href}>
+      <Link href={ic.href} key={"link" + ic.href}>
         {ic.content.map((content) => exporter.transformStyledText(content))}
       </Link>
     );
