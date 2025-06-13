@@ -434,7 +434,7 @@ export const KeyboardShortcutsExtension = Extension.create<{
       ]);
 
     const handleEnter = (withShift = false) => {
-      return this.editor.commands.first(({ commands }) => [
+      return this.editor.commands.first(({ commands, tr }) => [
         // Removes a level of nesting if the block is empty & indented, while the selection is also empty & at the start
         // of the block.
         () =>
@@ -486,9 +486,21 @@ export const KeyboardShortcutsExtension = Extension.create<{
               // both enter and shift+enter.
               blockHardBreakShortcut === "enter"
             ) {
-              return commands.insertContent({
-                type: "hardBreak",
-              });
+              const marks =
+                tr.storedMarks ||
+                tr.selection.$head
+                  .marks()
+                  .filter((m) =>
+                    this.editor.extensionManager.splittableMarks.includes(
+                      m.type.name,
+                    ),
+                  );
+
+              tr.insert(
+                tr.selection.head,
+                tr.doc.type.schema.nodes.hardBreak.create(),
+              ).ensureMarks(marks);
+              return true;
             }
 
             return false;
