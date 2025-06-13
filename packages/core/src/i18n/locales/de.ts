@@ -20,6 +20,24 @@ export const de: Dictionary = {
       aliases: ["h3", "überschrift3", "unterüberschrift"],
       group: "Überschriften",
     },
+    heading_4: {
+      title: "Überschrift 4",
+      subtext: "Überschrift für kleinere Unterabschnitte",
+      aliases: ["h4", "überschrift4", "unterüberschrift4"],
+      group: "Überschriften",
+    },
+    heading_5: {
+      title: "Überschrift 5",
+      subtext: "Überschrift für tiefere Unterabschnitte",
+      aliases: ["h5", "überschrift5", "unterüberschrift5"],
+      group: "Überschriften",
+    },
+    heading_6: {
+      title: "Überschrift 6",
+      subtext: "Überschrift auf der untersten Ebene",
+      aliases: ["h6", "überschrift6", "unterüberschrift6"],
+      group: "Überschriften",
+    },
     quote: {
       title: "Zitat",
       subtext: "Zitat oder Auszug",

@@ -58,11 +58,65 @@
     "content": [
       {
         "styles": {},
-        "text": "Paragraph 1",
+        "text": "Heading 4",
         "type": "text",
       },
     ],
     "id": "4",
+    "props": {
+      "backgroundColor": "default",
+      "level": 4,
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "heading",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Heading 5",
+        "type": "text",
+      },
+    ],
+    "id": "5",
+    "props": {
+      "backgroundColor": "default",
+      "level": 5,
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "heading",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Heading 6",
+        "type": "text",
+      },
+    ],
+    "id": "6",
+    "props": {
+      "backgroundColor": "default",
+      "level": 6,
+      "textAlignment": "left",
+      "textColor": "default",
+    },
+    "type": "heading",
+  },
+  {
+    "children": [],
+    "content": [
+      {
+        "styles": {},
+        "text": "Paragraph 1",
+        "type": "text",
+      },
+    ],
+    "id": "7",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -79,7 +133,7 @@
         "type": "text",
       },
     ],
-    "id": "5",
+    "id": "8",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -96,7 +150,7 @@
         "type": "text",
       },
     ],
-    "id": "6",
+    "id": "9",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -113,7 +167,7 @@
         "type": "text",
       },
     ],
-    "id": "7",
+    "id": "10",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -170,7 +224,7 @@
         "type": "text",
       },
     ],
-    "id": "8",
+    "id": "11",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -191,7 +245,7 @@
                 "type": "text",
               },
             ],
-            "id": "11",
+            "id": "14",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -208,7 +262,7 @@
                 "type": "text",
               },
             ],
-            "id": "12",
+            "id": "15",
             "props": {
               "backgroundColor": "default",
               "textAlignment": "left",
@@ -224,7 +278,7 @@
             "type": "text",
           },
         ],
-        "id": "10",
+        "id": "13",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -241,7 +295,7 @@
             "type": "text",
           },
         ],
-        "id": "13",
+        "id": "16",
         "props": {
           "backgroundColor": "default",
           "textAlignment": "left",
@@ -257,7 +311,7 @@
         "type": "text",
       },
     ],
-    "id": "9",
+    "id": "12",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -274,7 +328,7 @@
         "type": "text",
       },
     ],
-    "id": "14",
+    "id": "17",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -291,7 +345,7 @@
         "type": "text",
       },
     ],
-    "id": "15",
+    "id": "18",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -308,7 +362,7 @@
         "type": "text",
       },
     ],
-    "id": "16",
+    "id": "19",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -325,7 +379,7 @@
         "type": "text",
       },
     ],
-    "id": "17",
+    "id": "20",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -353,7 +407,7 @@
         "type": "link",
       },
     ],
-    "id": "18",
+    "id": "21",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",
@@ -540,7 +594,7 @@
       ],
       "type": "tableContent",
     },
-    "id": "19",
+    "id": "22",
     "props": {
       "textColor": "default",
     },
@@ -555,7 +609,7 @@
         "type": "text",
       },
     ],
-    "id": "20",
+    "id": "23",
     "props": {
       "backgroundColor": "default",
       "textAlignment": "left",

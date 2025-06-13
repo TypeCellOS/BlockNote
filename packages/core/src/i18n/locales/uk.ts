@@ -20,6 +20,24 @@ export const uk: Dictionary = {
       aliases: ["h3", "heading3", "subheading", "заголовок3"],
       group: "Заголовки",
     },
+    heading_4: {
+      title: "Заголовок 4",
+      subtext: "Використовується для менших підрозділів",
+      aliases: ["h4", "heading4", "subheading4", "заголовок4"],
+      group: "Заголовки",
+    },
+    heading_5: {
+      title: "Заголовок 5",
+      subtext: "Використовується для заголовків менших підрозділів",
+      aliases: ["h5", "heading5", "subheading5", "заголовок5", "підзаголовок5"],
+      group: "Заголовки",
+    },
+    heading_6: {
+      title: "Заголовок 6",
+      subtext: "Використовується для заголовків найнижчого рівня",
+      aliases: ["h6", "heading6", "subheading6", "заголовок6", "підзаголовок6"],
+      group: "Заголовки",
+    },
     quote: {
       title: "Цитата",
       subtext: "Цитата або уривок",
