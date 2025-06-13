@@ -18,7 +18,7 @@ export const createToggleWrapper = (
   ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
   destroy?: () => void;
 } => {
-  if ("isTogglable" in block.props && !block.props.isTogglable) {
+  if ("isToggleable" in block.props && !block.props.isToggleable) {
     return renderedElement;
   }
 
@@ -32,7 +32,7 @@ export const createToggleWrapper = (
   toggleButton.className = "bn-toggle-button";
   toggleButton.innerHTML =
     // https://fonts.google.com/icons?selected=Material+Symbols+Rounded:chevron_right:FILL@0;wght@700;GRAD@0;opsz@24&icon.query=chevron&icon.style=Rounded&icon.size=24&icon.color=%23e8eaed
-    '<svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 -960 960 960" width="1em" fill="currentcolor"><path d="M472-480 332-620q-18-18-18-44t18-44q18-18 44-18t44 18l183 183q9 9 14 21t5 24q0 12-5 24t-14 21L420-252q-18 18-44 18t-44-18q-18-18-18-44t18-44l140-140Z"/></svg>';
+    '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="CURRENTCOLOR"><path d="M320-200v-560l440 280-440 280Z"/></svg>';
   const toggleButtonMouseDown = (event: MouseEvent) => event.preventDefault();
   toggleButton.addEventListener("mousedown", toggleButtonMouseDown);
   const toggleButtonOnClick = () => {
@@ -72,7 +72,7 @@ export const createToggleWrapper = (
   const toggleAddBlockButtonOnClick = () => {
     // Adds a single empty child block.
     editor.transact(() => {
-      dom.removeChild(toggleAddBlockButton);
+      // dom.removeChild(toggleAddBlockButton);
 
       const updatedBlock = editor.updateBlock(block, {
         // Single empty block with default type.
@@ -86,13 +86,36 @@ export const createToggleWrapper = (
 
   dom.appendChild(toggleWrapper);
 
+  let childCount = block.children.length;
   const onEditorChange = editor.onChange(() => {
-    // Adds/removes the "add block" button if child blocks are added/removed.
-    if (editor.getBlock(block)?.children.length === 0) {
-      toggleWrapper.setAttribute("data-show-children", "false");
-    } else {
-      toggleWrapper.setAttribute("data-show-children", "true");
+    const newChildCount = editor.getBlock(block)?.children.length ?? 0;
+
+    if (newChildCount > childCount) {
+      // If a child block is added while children are hidden, show children.
+      if (toggleWrapper.getAttribute("data-show-children") === "false") {
+        toggleWrapper.setAttribute("data-show-children", "true");
+      }
+
+      // Remove the "add block" button as we want to show child blocks and
+      // there is at least one child block.
+      if (dom.contains(toggleAddBlockButton)) {
+        dom.removeChild(toggleAddBlockButton);
+      }
+    } else if (newChildCount === 0 && newChildCount < childCount) {
+      // If the last child block is removed while children are shown, hide
+      // children.
+      if (toggleWrapper.getAttribute("data-show-children") === "true") {
+        toggleWrapper.setAttribute("data-show-children", "false");
+      }
+
+      // Remove the "add block" button as we want to hide child blocks,
+      // regardless of whether there are child blocks or not.
+      if (dom.contains(toggleAddBlockButton)) {
+        dom.removeChild(toggleAddBlockButton);
+      }
     }
+
+    childCount = newChildCount;
   });
 
   return {

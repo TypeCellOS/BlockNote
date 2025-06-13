@@ -217,7 +217,7 @@ exports[`Test splitBlocks > Basic 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
-      "isTogglable": false,
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -564,7 +564,7 @@ exports[`Test splitBlocks > Basic 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
-      "isTogglable": false,
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -802,7 +802,7 @@ exports[`Test splitBlocks > Block has children 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
-      "isTogglable": false,
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -1149,7 +1149,7 @@ exports[`Test splitBlocks > Block has children 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
-      "isTogglable": false,
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -1387,7 +1387,7 @@ exports[`Test splitBlocks > Don't keep props 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
-      "isTogglable": false,
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -1734,7 +1734,7 @@ exports[`Test splitBlocks > Don't keep props 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
-      "isTogglable": false,
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -1955,7 +1955,7 @@ exports[`Test splitBlocks > Don't keep type 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
-      "isTogglable": false,
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -2319,7 +2319,7 @@ exports[`Test splitBlocks > Don't keep type 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
-      "isTogglable": false,
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -2551,7 +2551,7 @@ exports[`Test splitBlocks > End of content 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
-      "isTogglable": false,
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -2898,7 +2898,7 @@ exports[`Test splitBlocks > End of content 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
-      "isTogglable": false,
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -3119,7 +3119,7 @@ exports[`Test splitBlocks > Keep type 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
-      "isTogglable": false,
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -3138,7 +3138,7 @@ exports[`Test splitBlocks > Keep type 1`] = `
     "id": "0",
     "props": {
       "backgroundColor": "default",
-      "isTogglable": false,
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -3485,7 +3485,7 @@ exports[`Test splitBlocks > Keep type 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
-      "isTogglable": false,
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",

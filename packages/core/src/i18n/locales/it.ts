@@ -158,7 +158,7 @@ export const it: Dictionary = {
   placeholders: {
     default: "Inserisci testo o digita '/' per i comandi",
     heading: "Intestazione",
-    toggleList: "Elenco",
+    toggleList: "Attiva/Disattiva",
     bulletListItem: "Elenco",
     numberedListItem: "Elenco",
     checkListItem: "Elenco",

@@ -17,7 +17,7 @@
               "attrs": {
                 "textAlignment": "left",
                 "level": 2,
-                "isTogglable": false
+                "isToggleable": false
               },
               "content": [
                 {
@@ -41,7 +41,7 @@
               "attrs": {
                 "textAlignment": "left",
                 "level": 1,
-                "isTogglable": false
+                "isToggleable": false
               },
               "content": [
                 {
@@ -65,7 +65,7 @@
               "attrs": {
                 "textAlignment": "left",
                 "level": 3,
-                "isTogglable": false
+                "isToggleable": false
               },
               "content": [
                 {

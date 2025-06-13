@@ -142,7 +142,7 @@ export const ar: Dictionary = {
   placeholders: {
     default: "أدخل نصًا أو اكتب '/' للأوامر",
     heading: "عنوان",
-    toggleList: "قائمة",
+    toggleList: "طيّ",
     bulletListItem: "قائمة",
     numberedListItem: "قائمة",
     checkListItem: "قائمة",

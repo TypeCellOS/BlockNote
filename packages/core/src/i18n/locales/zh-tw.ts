@@ -198,7 +198,7 @@ export const zhTW: Dictionary = {
   placeholders: {
     default: "輸入 '/' 以使用指令",
     heading: "標題",
-    toggleList: "列表",
+    toggleList: "切換",
     bulletListItem: "列表",
     numberedListItem: "列表",
     checkListItem: "列表",

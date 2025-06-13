@@ -11,25 +11,28 @@ export const ToggleWrapper = (
   const { block, editor, children } = props;
 
   const [showChildren, setShowChildren] = useState(false);
-  const [hasChildren, setHasChildren] = useState(block.children.length > 0);
+  const [childCount, setChildCount] = useState(block.children.length);
 
   useEditorChange(() => {
-    const actualBlock = editor.getBlock(block);
+    const newChildCount = editor.getBlock(block)?.children.length ?? 0;
 
-    if (actualBlock?.children.length === 0) {
-      if (hasChildren) {
-        setShowChildren(false);
-      }
-      setHasChildren(false);
-    } else {
-      if (!hasChildren) {
+    if (newChildCount > childCount) {
+      // If a child block is added while children are hidden, show children.
+      if (!showChildren) {
         setShowChildren(true);
       }
-      setHasChildren(true);
+    } else if (newChildCount === 0 && newChildCount < childCount) {
+      // If the last child block is removed while children are shown, hide
+      // children.
+      if (showChildren) {
+        setShowChildren(false);
+      }
     }
+
+    setChildCount(newChildCount);
   });
 
-  if ("isTogglable" in block.props && !block.props.isTogglable) {
+  if ("isToggleable" in block.props && !block.props.isToggleable) {
     return children;
   }
 
@@ -54,7 +57,7 @@ export const ToggleWrapper = (
         </button>
         {children}
       </div>
-      {showChildren && !hasChildren && (
+      {showChildren && childCount === 0 && (
         <button
           className="bn-toggle-add-block-button"
           onClick={() => {

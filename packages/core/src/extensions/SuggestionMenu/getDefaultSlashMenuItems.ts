@@ -126,7 +126,7 @@ export function getDefaultSlashMenuItems<
         onItemClick: () => {
           insertOrUpdateBlock(editor, {
             type: "heading",
-            props: { level: 1, isTogglable: true },
+            props: { level: 1, isToggleable: true },
           });
         },
         key: "toggle_heading",
@@ -136,7 +136,7 @@ export function getDefaultSlashMenuItems<
         onItemClick: () => {
           insertOrUpdateBlock(editor, {
             type: "heading",
-            props: { level: 2, isTogglable: true },
+            props: { level: 2, isToggleable: true },
           });
         },
 
@@ -147,7 +147,7 @@ export function getDefaultSlashMenuItems<
         onItemClick: () => {
           insertOrUpdateBlock(editor, {
             type: "heading",
-            props: { level: 3, isTogglable: true },
+            props: { level: 3, isToggleable: true },
           });
         },
         key: "toggle_heading_3",

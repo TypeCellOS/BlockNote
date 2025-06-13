@@ -971,7 +971,7 @@ exports[`update block type 1`] = `
         "content": [
           {
             "attrs": {
-              "isTogglable": false,
+              "isToggleable": false,
               "level": 1,
               "textAlignment": "left",
             },
@@ -1008,7 +1008,7 @@ exports[`update block type and content 1`] = `
         "content": [
           {
             "attrs": {
-              "isTogglable": false,
+              "isToggleable": false,
               "level": 1,
               "textAlignment": "left",
             },

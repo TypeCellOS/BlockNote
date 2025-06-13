@@ -11,7 +11,7 @@
     "id": "1",
     "props": {
       "backgroundColor": "default",
-      "isTogglable": false,
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",

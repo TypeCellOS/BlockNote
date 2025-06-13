@@ -174,9 +174,10 @@ NESTED BLOCKS
 }
 
 /* Ordered */
-.bn-block-content[data-content-type="numberedListItem"] {
+.bn-block-content[data-content-type="numberedListItem"]::before {
   display: flex;
-  gap: 0.5em;
+  justify-content: center;
+  width: 25px;
 }
 
 [data-content-type="numberedListItem"] {
@@ -204,9 +205,10 @@ NESTED BLOCKS
 }
 
 /* Unordered */
-.bn-block-content[data-content-type="bulletListItem"] {
+.bn-block-content[data-content-type="bulletListItem"]::before {
   display: flex;
-  gap: 0.5em;
+  justify-content: center;
+  width: 25px;
 }
 
 /* Checked */
@@ -215,9 +217,14 @@ NESTED BLOCKS
   width: 100%;
 }
 
+.bn-block-content[data-content-type="checkListItem"] > div > div {
+  display: flex;
+  justify-content: center;
+  width: 25px;
+}
+
 .bn-block-content[data-content-type="checkListItem"] > div > div > input {
   margin: 0;
-  margin-inline-end: 0.5em;
   cursor: pointer;
 }
 
@@ -232,6 +239,69 @@ NESTED BLOCKS
 
 .bn-block-content[data-text-alignment="right"] {
   justify-content: flex-end;
+}
+
+/* Toggle */
+.bn-block-content:has(.bn-toggle-wrapper) > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bn-block:has(
+    > .bn-block-content > div > .bn-toggle-wrapper[data-show-children="false"]
+  )
+  > .bn-block-group,
+.bn-block:has(
+    > .react-renderer
+      > .bn-block-content
+      > div
+      > .bn-toggle-wrapper[data-show-children="false"]
+  )
+  > .bn-block-group {
+  display: none;
+}
+
+.bn-toggle-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.bn-toggle-button {
+  padding: 3px;
+}
+
+.bn-toggle-button > svg {
+  width: 18px;
+  height: 18px;
+}
+
+.bn-toggle-wrapper[data-show-children="true"] .bn-toggle-button {
+  transform: rotate(90deg);
+}
+
+.bn-toggle-add-block-button {
+  font-size: 16px;
+  color: var(--bn-colors-side-menu);
+  font-weight: normal;
+  margin-left: 22px;
+  padding-inline: 2px;
+}
+
+.bn-toggle-button,
+.bn-toggle-add-block-button {
+  background: none;
+  border: none;
+  border-radius: var(--bn-border-radius-small);
+  color: var(--bn-colors-editor-text);
+  cursor: pointer;
+  display: flex;
+  user-select: none;
+}
+
+.bn-toggle-button:hover,
+.bn-toggle-add-block-button:hover {
+  background-color: var(--bn-colors-hovered-background);
 }
 
 /* No list nesting */
@@ -453,57 +523,6 @@ NESTED BLOCKS
 [data-content-type="audio"] > .bn-file-block-content-wrapper,
 .bn-audio {
   width: 100%;
-}
-
-/* Toggle wrapper */
-.bn-block:has(
-    > .bn-block-content > div > .bn-toggle-wrapper[data-show-children="false"]
-  )
-  > .bn-block-group,
-.bn-block:has(
-    > .react-renderer
-      > .bn-block-content
-      > div
-      > .bn-toggle-wrapper[data-show-children="false"]
-  )
-  > .bn-block-group {
-  display: none;
-}
-
-.bn-toggle-wrapper {
-  display: flex;
-  align-items: center;
-}
-
-.bn-toggle-button,
-.bn-toggle-add-block-button {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  padding: 0;
-  border-radius: var;
-  background: none;
-  border: none;
-  border-radius: 4px;
-  color: var(--bn-colors-editor-text);
-  user-select: none;
-}
-
-.bn-toggle-button:hover,
-.bn-toggle-add-block-button:hover {
-  background-color: var(--bn-colors-hovered-background);
-}
-
-.bn-toggle-add-block-button {
-  font-size: 16px;
-  color: var(--bn-colors-side-menu);
-  font-weight: normal;
-  margin-left: 1.5em;
-  padding: 2px;
-}
-
-.bn-toggle-wrapper[data-show-children="true"] .bn-toggle-button {
-  transform: rotate(90deg);
 }
 
 /* PLACEHOLDERS*/

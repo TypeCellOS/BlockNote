@@ -177,7 +177,7 @@ export const ja: Dictionary = {
   placeholders: {
     default: "テキストを入力するか'/' を入力してコマンド選択",
     heading: "見出し",
-    toggleList: "リストを追加",
+    toggleList: "トグル",
     bulletListItem: "リストを追加",
     numberedListItem: "リストを追加",
     checkListItem: "リストを追加",

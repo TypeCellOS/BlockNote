@@ -15,7 +15,7 @@ import { createToggleWrapper } from "../ToggleWrapper/createToggleWrapper.js";
 export const headingPropSchema = {
   ...defaultProps,
   level: { default: 1, values: [1, 2, 3] as const },
-  isTogglable: { default: false },
+  isToggleable: { default: false },
 } satisfies PropSchema;
 
 const HeadingBlockContent = createStronglyTypedTiptapNode({

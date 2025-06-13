@@ -1151,9 +1151,9 @@
         }
       },
       {
-        "projectSlug": "togglable-blocks",
-        "fullSlug": "custom-schema/togglable-blocks",
-        "pathFromRoot": "examples/06-custom-schema/06-togglable-blocks",
+        "projectSlug": "toggleable-blocks",
+        "fullSlug": "custom-schema/toggleable-blocks",
+        "pathFromRoot": "examples/06-custom-schema/06-toggleable-blocks",
         "config": {
           "playground": true,
           "docs": true,
@@ -1162,7 +1162,7 @@
             "Basic"
           ]
         },
-        "title": "Togglable Blocks",
+        "title": "Toggleable Blocks",
         "group": {
           "pathFromRoot": "examples/06-custom-schema",
           "slug": "custom-schema"

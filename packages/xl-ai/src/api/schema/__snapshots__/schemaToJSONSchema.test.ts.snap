@@ -41,7 +41,7 @@ exports[`creates json schema 1`] = `
             "props": {
               "additionalProperties": false,
               "properties": {
-                "isTogglable": {
+                "isToggleable": {
                   "enum": undefined,
                   "type": "boolean",
                 },
