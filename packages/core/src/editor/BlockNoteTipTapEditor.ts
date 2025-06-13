@@ -302,6 +302,7 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
   ) => {
     if (!element) {
       this.destroy();
+      this.isInitialized = false;
     } else {
       this.options.element = element;
       this.createViewAlternative(blockNoteEditor, contentComponent);
