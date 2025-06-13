@@ -1,0 +1,9 @@
+.floating {
+  background-color: black;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.reference-panel {
+  position: absolute;
+}
