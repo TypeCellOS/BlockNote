@@ -116,7 +116,7 @@ export const getBlockNoteExtensions = <
 
   if (opts.collaboration) {
     ret["ySyncPlugin"] = new SyncPlugin(opts.collaboration.fragment);
-    ret["yUndoPlugin"] = new UndoPlugin();
+    ret["yUndoPlugin"] = new UndoPlugin({ editor: opts.editor });
 
     if (opts.collaboration.provider?.awareness) {
       ret["yCursorPlugin"] = new CursorPlugin(opts.collaboration);
