@@ -39,3 +39,11 @@ Zustand is a popular library, but allowing partial states makes it somewhat unsa
 
 Jotai is probably my second choice, but it makes it a bit awkward to update states because it relies on a separate store instance rather than the "atom" being able to update itself <https://jotai.org/docs/guides/using-store-outside-react>.
 </details>
+
+## Exposing extension methods
+
+Not everything can be communicated through just state, so we need to be able to expose additional methods to the application.
+
+I propose that we have a `extensions` property on the `BlockNoteEditor` instance, which is a map of the extension key to the extension instance, but filtered out to only include non-blocknote methods (as defined by the `ExtensionMethods` type).
+
+This will allow the application to access the extension methods, and also allows us to keep the extension instance private to the editor (type-wise).

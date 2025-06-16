@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@tanstack/store':
+        specifier: 0.7.1
+        version: 0.7.1
     devDependencies:
       '@nx/js':
         specifier: 20.6.4

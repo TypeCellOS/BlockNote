@@ -149,6 +149,10 @@ export class MyExtension extends BlockNoteExtension<{ abc: number[] }> {
   constructor(_extensionOptions: { myCustomOption: string }) {
     super();
   }
+
+  getFoo() {
+    return 8;
+  }
 }
 
 /**
@@ -167,3 +171,18 @@ export function myExtension(_extensionOptions: {
     },
   };
 }
+
+/**
+ * This type exposes the public API of an extension, excluding any {@link BlockNoteExtension} methods (for cleaner typing)
+ */
+export type ExtensionMethods<Extension extends BlockNoteExtension<any>> =
+  Extension extends BlockNoteExtension<infer State>
+    ? Omit<Extension, Exclude<keyof BlockNoteExtension<State>, "store" | "key">>
+    : never;
+
+/**
+ * You'll notice that the `getFoo` method is the only  included type in the `MyExtensionMethods` type,
+ * This makes it convenient to expose the right amount of details to the rest of the application (keeping the blocknote called methods hidden)
+ */
+export type MyExtensionMethods = ExtensionMethods<MyExtension>;
+// editor.extensions.myExtension.getFoo();
