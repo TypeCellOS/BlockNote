@@ -134,12 +134,12 @@ export const Thread = ({
                   )}
                 >
                   <Components.Generic.Toolbar.Button
-                    mainTooltip="Save"
+                    mainTooltip={dict.comments.save_button_text}
                     variant="compact"
                     isDisabled={isEmpty}
                     onClick={onNewCommentSave}
                   >
-                    Save
+                    {dict.comments.save_button_text}
                   </Components.Generic.Toolbar.Button>
                 </Components.Generic.Toolbar.Root>
               );
