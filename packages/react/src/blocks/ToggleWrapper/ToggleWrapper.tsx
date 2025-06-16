@@ -1,8 +1,40 @@
-import { Block } from "@blocknote/core";
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import {
+  Block,
+  defaultToggledState,
+  UnreachableCaseError,
+} from "@blocknote/core";
+import { ReactNode, useReducer, useState } from "react";
 
 import { ReactCustomBlockRenderProps } from "../../schema/ReactBlockSpec.js";
 import { useEditorChange } from "../../hooks/useEditorChange.js";
+
+const showChildrenReducer = (
+  showChildren: boolean,
+  action:
+    | {
+        type: "toggled";
+      }
+    | {
+        type: "childAdded";
+      }
+    | {
+        type: "lastChildRemoved";
+      },
+) => {
+  if (action.type === "toggled") {
+    return !showChildren;
+  }
+
+  if (action.type === "childAdded") {
+    return true;
+  }
+
+  if (action.type === "lastChildRemoved") {
+    return false;
+  }
+
+  throw new UnreachableCaseError(action);
+};
 
 export const ToggleWrapper = (
   props: Omit<ReactCustomBlockRenderProps<any, any, any>, "contentRef"> & {
@@ -13,39 +45,56 @@ export const ToggleWrapper = (
     };
   },
 ) => {
-  const { block, editor, children } = props;
+  const { block, editor, children, toggledState } = props;
 
-  const toggledState = useMemo(
-    () =>
-      props.toggledState || {
-        set: (block, isToggled: boolean) =>
-          window.localStorage.setItem(`toggle-${block.id}`, String(isToggled)),
-        get: (block) =>
-          window.localStorage.getItem(`toggle-${block.id}`) === "true",
-      },
-    [props.toggledState],
+  const [showChildren, dispatch] = useReducer(
+    showChildrenReducer,
+    (toggledState || defaultToggledState).get(block),
   );
-
-  const [showChildren, setShowChildren] = useState(toggledState.get(block));
   const [childCount, setChildCount] = useState(block.children.length);
 
-  useEffect(() => {
-    toggledState.set(editor.getBlock(block)!, showChildren);
-  }, [block, block.id, editor, showChildren, toggledState]);
+  const handleToggle = (block: Block<any, any, any>) => {
+    (toggledState || defaultToggledState).set(
+      editor.getBlock(block)!,
+      !showChildren,
+    );
+    dispatch({
+      type: "toggled",
+    });
+  };
+
+  const handleChildAdded = (block: Block<any, any, any>) => {
+    (toggledState || defaultToggledState).set(block, true);
+    dispatch({
+      type: "childAdded",
+    });
+  };
+
+  const handleLastChildRemoved = (block: Block<any, any, any>) => {
+    (toggledState || defaultToggledState).set(block, false);
+    dispatch({
+      type: "lastChildRemoved",
+    });
+  };
 
   useEditorChange(() => {
-    const newChildCount = editor.getBlock(block)?.children.length ?? 0;
+    if ("isToggleable" in block.props && !block.props.isToggleable) {
+      return;
+    }
+
+    const newBlock = editor.getBlock(block)!;
+    const newChildCount = newBlock.children.length ?? 0;
 
     if (newChildCount > childCount) {
       // If a child block is added while children are hidden, show children.
       if (!showChildren) {
-        setShowChildren(true);
+        handleChildAdded(newBlock);
       }
     } else if (newChildCount === 0 && newChildCount < childCount) {
       // If the last child block is removed while children are shown, hide
       // children.
       if (showChildren) {
-        setShowChildren(false);
+        handleLastChildRemoved(newBlock);
       }
     }
 
@@ -62,7 +111,7 @@ export const ToggleWrapper = (
         <button
           className="bn-toggle-button"
           onMouseDown={(event) => event.preventDefault()}
-          onClick={() => setShowChildren((showChildren) => !showChildren)}
+          onClick={() => handleToggle(editor.getBlock(block)!)}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

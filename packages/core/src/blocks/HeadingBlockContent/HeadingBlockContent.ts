@@ -159,7 +159,7 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
 
   addNodeView() {
     return ({ node, HTMLAttributes, getPos }) => {
-      const renderedElement = createDefaultBlockDOMOutputSpec(
+      const { dom, contentDOM } = createDefaultBlockDOMOutputSpec(
         this.name,
         `h${node.attrs.level}`,
         {
@@ -168,22 +168,21 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
         },
         this.options.domAttributes?.inlineContent || {},
       );
-
-      const contentDOM = renderedElement.contentDOM;
-      const contentDOMParentElement = contentDOM.parentElement!;
+      dom.removeChild(contentDOM);
 
       const editor = this.options.editor;
       const block = getBlockFromPos(getPos, editor, this.editor, this.name);
 
-      const toggleWrapper = createToggleWrapper(block as any, editor, {
-        dom: contentDOM,
+      const toggleWrapper = createToggleWrapper(
+        block as any,
+        editor,
         contentDOM,
-      });
-      contentDOMParentElement.appendChild(toggleWrapper.dom);
+      );
+      dom.appendChild(toggleWrapper.dom);
 
       return {
-        dom: renderedElement.dom,
-        contentDOM: toggleWrapper.contentDOM,
+        dom,
+        contentDOM,
         ignoreMutation: toggleWrapper.ignoreMutation,
         destroy: toggleWrapper.destroy,
       };

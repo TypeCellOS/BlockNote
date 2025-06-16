@@ -3,19 +3,25 @@ import { ViewMutationRecord } from "@tiptap/pm/view";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { Block } from "../defaultBlocks.js";
 
+type ToggledState = {
+  set: (block: Block<any, any, any>, isToggled: boolean) => void;
+  get: (block: Block<any, any, any>) => boolean;
+};
+
+export const defaultToggledState: ToggledState = {
+  set: (block, isToggled: boolean) =>
+    window.localStorage.setItem(
+      `toggle-${block.id}`,
+      isToggled ? "true" : "false",
+    ),
+  get: (block) => window.localStorage.getItem(`toggle-${block.id}`) === "true",
+};
+
 export const createToggleWrapper = (
   block: Block<any, any, any>,
   editor: BlockNoteEditor<any, any, any>,
-  renderedElement: {
-    dom: HTMLElement;
-    contentDOM?: HTMLElement;
-    ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
-    destroy?: () => void;
-  },
-  toggledState?: {
-    set: (block: Block<any, any, any>, isToggled: boolean) => void;
-    get: (block: Block<any, any, any>) => boolean;
-  },
+  renderedElement: HTMLElement,
+  toggledState: ToggledState = defaultToggledState,
 ): {
   dom: HTMLElement;
   contentDOM?: HTMLElement;
@@ -23,17 +29,8 @@ export const createToggleWrapper = (
   destroy?: () => void;
 } => {
   if ("isToggleable" in block.props && !block.props.isToggleable) {
-    return renderedElement;
-  }
-
-  if (!toggledState) {
-    toggledState = {
-      set: (block, isToggled: boolean) => {
-        window.localStorage.setItem(`toggle-${block.id}`, String(isToggled));
-      },
-      get: (block) => {
-        return window.localStorage.getItem(`toggle-${block.id}`) === "true";
-      },
+    return {
+      dom: renderedElement,
     };
   }
 
@@ -74,7 +71,7 @@ export const createToggleWrapper = (
   toggleButton.addEventListener("click", toggleButtonOnClick);
 
   toggleWrapper.appendChild(toggleButton);
-  toggleWrapper.appendChild(renderedElement.dom);
+  toggleWrapper.appendChild(renderedElement);
 
   const toggleAddBlockButton = document.createElement("button");
   toggleAddBlockButton.className = "bn-toggle-add-block-button";
@@ -150,13 +147,8 @@ export const createToggleWrapper = (
 
   return {
     dom,
-    contentDOM: renderedElement.contentDOM,
     // Prevents re-renders when the toggle button is clicked.
     ignoreMutation: (mutation) => {
-      if (renderedElement.ignoreMutation) {
-        return renderedElement.ignoreMutation(mutation);
-      }
-
       if (
         mutation instanceof MutationRecord &&
         // We want to prevent re-renders when the view changes, so we ignore
@@ -185,7 +177,6 @@ export const createToggleWrapper = (
         toggleAddBlockButtonOnClick,
       );
       onEditorChange?.();
-      renderedElement.destroy?.();
     },
   };
 };

@@ -177,7 +177,8 @@ NESTED BLOCKS
 .bn-block-content[data-content-type="numberedListItem"]::before {
   display: flex;
   justify-content: center;
-  width: 25px;
+  min-width: 24px;
+  padding-right: 4px;
 }
 
 [data-content-type="numberedListItem"] {
@@ -208,7 +209,8 @@ NESTED BLOCKS
 .bn-block-content[data-content-type="bulletListItem"]::before {
   display: flex;
   justify-content: center;
-  width: 25px;
+  min-width: 24px;
+  padding-right: 4px;
 }
 
 /* Checked */
@@ -220,7 +222,8 @@ NESTED BLOCKS
 .bn-block-content[data-content-type="checkListItem"] > div > div {
   display: flex;
   justify-content: center;
-  width: 25px;
+  min-width: 24px;
+  padding-right: 4px;
 }
 
 .bn-block-content[data-content-type="checkListItem"] > div > div > input {
