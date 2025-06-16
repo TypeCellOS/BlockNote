@@ -1,4 +1,5 @@
-import { ReactNode, useState } from "react";
+import { Block } from "@blocknote/core";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 
 import { ReactCustomBlockRenderProps } from "../../schema/ReactBlockSpec.js";
 import { useEditorChange } from "../../hooks/useEditorChange.js";
@@ -6,12 +7,31 @@ import { useEditorChange } from "../../hooks/useEditorChange.js";
 export const ToggleWrapper = (
   props: Omit<ReactCustomBlockRenderProps<any, any, any>, "contentRef"> & {
     children: ReactNode;
+    toggledState?: {
+      set: (block: Block<any, any, any>, isToggled: boolean) => void;
+      get: (block: Block<any, any, any>) => boolean;
+    };
   },
 ) => {
   const { block, editor, children } = props;
 
-  const [showChildren, setShowChildren] = useState(false);
+  const toggledState = useMemo(
+    () =>
+      props.toggledState || {
+        set: (block, isToggled: boolean) =>
+          window.localStorage.setItem(`toggle-${block.id}`, String(isToggled)),
+        get: (block) =>
+          window.localStorage.getItem(`toggle-${block.id}`) === "true",
+      },
+    [props.toggledState],
+  );
+
+  const [showChildren, setShowChildren] = useState(toggledState.get(block));
   const [childCount, setChildCount] = useState(block.children.length);
+
+  useEffect(() => {
+    toggledState.set(editor.getBlock(block)!, showChildren);
+  }, [block, block.id, editor, showChildren, toggledState]);
 
   useEditorChange(() => {
     const newChildCount = editor.getBlock(block)?.children.length ?? 0;

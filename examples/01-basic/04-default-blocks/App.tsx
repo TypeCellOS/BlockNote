@@ -33,6 +33,7 @@ export default function App() {
         content: "Heading",
       },
       {
+        id: "toggle-heading",
         type: "heading",
         props: { isToggleable: true },
         content: "Toggle Heading",

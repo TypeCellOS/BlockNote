@@ -27,6 +27,9 @@ export default function App() {
         content: "Welcome to this demo!",
       },
       {
+        // We set a persistent ID so that the toggled state is preserved
+        // on reload.
+        id: "toggle",
         type: "toggle",
         content: "This is an example toggle",
         children: [

@@ -1,16 +1,20 @@
 import { ViewMutationRecord } from "@tiptap/pm/view";
 
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
-import { BlockFromConfig } from "../../schema/index.js";
+import { Block } from "../defaultBlocks.js";
 
 export const createToggleWrapper = (
-  block: BlockFromConfig<any, any, any>,
+  block: Block<any, any, any>,
   editor: BlockNoteEditor<any, any, any>,
   renderedElement: {
     dom: HTMLElement;
     contentDOM?: HTMLElement;
     ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
     destroy?: () => void;
+  },
+  toggledState?: {
+    set: (block: Block<any, any, any>, isToggled: boolean) => void;
+    get: (block: Block<any, any, any>) => boolean;
   },
 ): {
   dom: HTMLElement;
@@ -22,11 +26,21 @@ export const createToggleWrapper = (
     return renderedElement;
   }
 
+  if (!toggledState) {
+    toggledState = {
+      set: (block, isToggled: boolean) => {
+        window.localStorage.setItem(`toggle-${block.id}`, String(isToggled));
+      },
+      get: (block) => {
+        return window.localStorage.getItem(`toggle-${block.id}`) === "true";
+      },
+    };
+  }
+
   const dom = document.createElement("div");
 
   const toggleWrapper = document.createElement("div");
   toggleWrapper.className = "bn-toggle-wrapper";
-  toggleWrapper.setAttribute("data-show-children", "false");
 
   const toggleButton = document.createElement("button");
   toggleButton.className = "bn-toggle-button";
@@ -40,12 +54,14 @@ export const createToggleWrapper = (
     // button if there are no child blocks.
     if (toggleWrapper.getAttribute("data-show-children") === "true") {
       toggleWrapper.setAttribute("data-show-children", "false");
+      toggledState.set(editor.getBlock(block)!, false);
 
       if (dom.contains(toggleAddBlockButton)) {
         dom.removeChild(toggleAddBlockButton);
       }
     } else {
       toggleWrapper.setAttribute("data-show-children", "true");
+      toggledState.set(editor.getBlock(block)!, true);
 
       if (
         editor.getBlock(block)?.children.length === 0 &&
@@ -94,6 +110,7 @@ export const createToggleWrapper = (
       // If a child block is added while children are hidden, show children.
       if (toggleWrapper.getAttribute("data-show-children") === "false") {
         toggleWrapper.setAttribute("data-show-children", "true");
+        toggledState.set(editor.getBlock(block)!, true);
       }
 
       // Remove the "add block" button as we want to show child blocks and
@@ -106,6 +123,7 @@ export const createToggleWrapper = (
       // children.
       if (toggleWrapper.getAttribute("data-show-children") === "true") {
         toggleWrapper.setAttribute("data-show-children", "false");
+        toggledState.set(editor.getBlock(block)!, false);
       }
 
       // Remove the "add block" button as we want to hide child blocks,
@@ -117,6 +135,18 @@ export const createToggleWrapper = (
 
     childCount = newChildCount;
   });
+
+  if (toggledState.get(block)) {
+    toggleWrapper.setAttribute("data-show-children", "true");
+
+    if (block.children.length === 0) {
+      // If the toggle is set to show children, but there are no children,
+      // we add the "add block" button.
+      dom.appendChild(toggleAddBlockButton);
+    }
+  } else {
+    toggleWrapper.setAttribute("data-show-children", "false");
+  }
 
   return {
     dom,
