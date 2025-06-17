@@ -9,15 +9,19 @@ import {
   suggestChanges,
 } from "@blocknote/prosemirror-suggest-changes";
 import { APICallError, LanguageModel, RetryError } from "ai";
+import { Fragment, Slice } from "prosemirror-model";
 import { Plugin, PluginKey } from "prosemirror-state";
 import { fixTablesKey } from "prosemirror-tables";
 import { createStore, StoreApi } from "zustand/vanilla";
-import { doLLMRequest, LLMRequestOptions } from "./api/LLMRequest.js";
+import {
+  doLLMRequest,
+  ExecuteLLMRequestOptions,
+  LLMRequestOptions,
+} from "./api/LLMRequest.js";
 import { LLMResponse } from "./api/LLMResponse.js";
 import { PromptBuilder } from "./api/formats/PromptBuilder.js";
 import { LLMFormat, llmFormats } from "./api/index.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
-import { Fragment, Slice } from "prosemirror-model";
 
 type MakeOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
@@ -81,6 +85,13 @@ type GlobalLLMRequestOptions = {
    * @default the default prompt builder for the selected {@link dataFormat}
    */
   promptBuilder?: PromptBuilder;
+
+  /**
+   * Customize how your LLM backend is called.
+   * Implement this function if you want to call a backend that is not compatible with
+   * the Vercel AI SDK
+   */
+  executor?: (opts: ExecuteLLMRequestOptions) => Promise<LLMResponse>;
 };
 
 const PLUGIN_KEY = new PluginKey(`blocknote-ai-plugin`);
@@ -112,7 +123,10 @@ export class AIExtension extends BlockNoteExtension {
   public readonly options: ReturnType<
     ReturnType<
       typeof createStore<
-        MakeOptional<Required<GlobalLLMRequestOptions>, "promptBuilder">
+        MakeOptional<
+          Required<GlobalLLMRequestOptions>,
+          "promptBuilder" | "executor"
+        >
       >
     >
   >;
@@ -134,7 +148,10 @@ export class AIExtension extends BlockNoteExtension {
     super();
 
     this.options = createStore<
-      MakeOptional<Required<GlobalLLMRequestOptions>, "promptBuilder">
+      MakeOptional<
+        Required<GlobalLLMRequestOptions>,
+        "promptBuilder" | "executor"
+      >
     >()((_set) => ({
       dataFormat: llmFormats.html,
       stream: true,

@@ -1,6 +1,7 @@
 import { CoreMessage } from "ai";
 import { OperationsResult } from "../streamTool/callLLMWithStreamTools.js";
 import { StreamTool, StreamToolCall } from "../streamTool/streamTool.js";
+import { createAsyncIterableStreamFromAsyncIterable } from "../util/stream.js";
 
 /**
  * Result of an LLM call with stream tools that apply changes to a BlockNote Editor
@@ -61,4 +62,46 @@ export class LLMResponse {
       console.log(JSON.stringify(toolCall, null, 2));
     }
   }
+
+  /**
+   * Create a LLMResponse from an array of operations.
+   *
+   * Note: This is a temporary helper, we'll make it easier to create this from streaming data if required
+   */
+  public static fromArray<T extends StreamTool<any>[]>(
+    messages: CoreMessage[],
+    streamTools: StreamTool<any>[],
+    operations: StreamToolCall<T>[],
+  ): LLMResponse {
+    return new LLMResponse(
+      messages,
+      OperationsResultFromArray(operations),
+      streamTools,
+    );
+  }
+}
+
+function OperationsResultFromArray<T extends StreamTool<any>[]>(
+  operations: StreamToolCall<T>[],
+): OperationsResult<T> {
+  async function* singleChunkGenerator() {
+    for (const op of operations) {
+      yield {
+        operation: op,
+        isUpdateToPreviousOperation: false,
+        isPossiblyPartial: false,
+      };
+    }
+  }
+
+  return {
+    streamObjectResult: undefined,
+    generateObjectResult: undefined,
+    get operationsSource() {
+      return createAsyncIterableStreamFromAsyncIterable(singleChunkGenerator());
+    },
+    async getGeneratedOperations() {
+      return { operations };
+    },
+  };
 }

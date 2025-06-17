@@ -1,14 +1,21 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import { CoreMessage, generateObject, LanguageModelV1, streamObject } from "ai";
-import {
-  generateOperations,
-  streamOperations,
-} from "../streamTool/callLLMWithStreamTools.js";
+import { createAISDKLLMRequestExecutor } from "../streamTool/callLLMWithStreamTools.js";
+import { StreamTool } from "../streamTool/streamTool.js";
 import { isEmptyParagraph } from "../util/emptyBlock.js";
 import { LLMResponse } from "./LLMResponse.js";
 import type { PromptBuilder } from "./formats/PromptBuilder.js";
 import { htmlBlockLLMFormat } from "./formats/html-blocks/htmlBlocks.js";
 import { LLMFormat } from "./index.js";
+
+type MakeOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+
+export type ExecuteLLMRequestOptions = {
+  messages: CoreMessage[];
+  streamTools: StreamTool<any>[];
+  llmRequestOptions: MakeOptional<LLMRequestOptions, "executor">;
+  onStart?: () => void;
+};
 
 export type LLMRequestOptions = {
   /**
@@ -16,8 +23,18 @@ export type LLMRequestOptions = {
    *
    * (when invoking `callLLM` via the `AIExtension` this will default to the
    * model set in the `AIExtension` options)
+   *
+   * Note: perhaps we want to remove this
    */
-  model: LanguageModelV1;
+  model?: LanguageModelV1;
+
+  /**
+   * Customize how your LLM backend is called.
+   * Implement this function if you want to call a backend that is not compatible with
+   * the Vercel AI SDK
+   */
+  executor?: (opts: ExecuteLLMRequestOptions) => Promise<LLMResponse>;
+
   /**
    * The user prompt to use for the LLM call
    */
@@ -44,12 +61,6 @@ export type LLMRequestOptions = {
    */
   promptBuilder?: PromptBuilder;
   /**
-   * The maximum number of retries for the LLM call
-   *
-   * @default 2
-   */
-  maxRetries?: number;
-  /**
    * Whether to use the editor selection for the LLM call
    *
    * @default true
@@ -68,15 +79,6 @@ export type LLMRequestOptions = {
     /** Enable the delete tool (default: true) */
     delete?: boolean;
   };
-  /**
-   * Whether to stream the LLM response or not
-   *
-   * When streaming, we use the AI SDK `streamObject` function,
-   * otherwise, we use the AI SDK `generateObject` function.
-   *
-   * @default true
-   */
-  stream?: boolean;
   /**
    * If the user's cursor is in an empty paragraph, automatically delete it when the AI
    * is starting to write.
@@ -102,6 +104,26 @@ export type LLMRequestOptions = {
    * @default true
    */
   withDelays?: boolean;
+
+  // The settings below might make more sense to be part of the executor
+
+  /**
+   * Whether to stream the LLM response or not
+   *
+   * When streaming, we use the AI SDK `streamObject` function,
+   * otherwise, we use the AI SDK `generateObject` function.
+   *
+   * @default true
+   */
+  stream?: boolean;
+
+  /**
+   * The maximum number of retries for the LLM call
+   *
+   * @default 2
+   */
+  maxRetries?: number;
+
   /**
    * Additional options to pass to the AI SDK `generateObject` function
    * (only used when `stream` is `false`)
@@ -217,34 +239,26 @@ export async function doLLMRequest(
     opts.onBlockUpdate,
   );
 
-  let response:
-    | Awaited<ReturnType<typeof generateOperations<any>>>
-    | Awaited<ReturnType<typeof streamOperations<any>>>;
-
-  if (stream) {
-    response = await streamOperations(
-      streamTools,
-      {
-        messages,
-        ...rest,
-      },
-      () => {
-        if (deleteCursorBlock) {
-          editor.removeBlocks([deleteCursorBlock]);
-        }
-        onStart?.();
-      },
-    );
-  } else {
-    response = await generateOperations(streamTools, {
-      messages,
-      ...rest,
-    });
-    if (deleteCursorBlock) {
-      editor.removeBlocks([deleteCursorBlock]);
+  let executor = opts.executor;
+  if (!executor) {
+    if (!opts.model) {
+      throw new Error("model is required when no executor is provided");
     }
-    onStart?.();
+    executor = createAISDKLLMRequestExecutor({ model: opts.model });
   }
-
-  return new LLMResponse(messages, response, streamTools);
+  return executor({
+    onStart: () => {
+      if (deleteCursorBlock) {
+        editor.removeBlocks([deleteCursorBlock]);
+      }
+      onStart?.();
+    },
+    messages,
+    streamTools,
+    llmRequestOptions: {
+      ...opts,
+      ...rest,
+      stream,
+    },
+  });
 }
