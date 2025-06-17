@@ -8,8 +8,7 @@ What I identified was:
 
 - The ability to "eject" to the prosemirror API, if we don't provide something good enough. This is a core choice, and one I don't think we would ever need to walk back on. Fundamentally, we do not want to expose absolutely everything that Prosemirror can do, but also do not want to stop those with the know-how to actually get stuff done.
 - A unified store API, to make consuming extension state homogenous, this will be discussed further below
-- Life-cycle event handlers, by providing hooks for `create`, `mount`, and `unmount` we allow extensions to attach event handlers to DOM elements, and have a better general understanding of the current state of the editor. The `onCreate` handler will be very handy to guarantee access to the editor instance before anything is called.
-- Editing event handlers, by providing hooks for `change`, `selectionChange`, `beforeChange`, and `transaction` we give extensions access to the fundamental primitives of the editor.
+- Life-cycle event handlers, by providing hooks for `mount` and `unmount` we allow extensions to attach event handlers to DOM elements, and have a better general understanding of the current state of the editor.
 
 ## State Management
 
@@ -47,3 +46,15 @@ Not everything can be communicated through just state, so we need to be able to 
 I propose that we have a `extensions` property on the `BlockNoteEditor` instance, which is a map of the extension key to the extension instance, but filtered out to only include non-blocknote methods (as defined by the `ExtensionMethods` type).
 
 This will allow the application to access the extension methods, and also allows us to keep the extension instance private to the editor (type-wise).
+
+# BlockNote Bundles
+
+Somewhat related, to extensions, we also need a way for bundling sets of editor elements in a single packaging. This will be a much higher-level API, which will aim to provide a single import for adding an entire set of functionality to the editor (e.g. adding multi-column support, or comments, etc.)
+
+## Core Requirements
+
+- A way to add blocks, inline content, and styles to the editor
+- A way to add extensions to the editor
+- A way to add to the dictionary of locales to the editor
+- A way to add to the slash menu
+- A way to add to the formatting toolbar
