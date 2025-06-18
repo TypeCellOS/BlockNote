@@ -50,8 +50,7 @@ export const reactEmailStyleMappingForDefaultSchema: StyleMapping<
     return {
       color: val,
     };
-  },
-  // TODO? <code>?
+  },  
   code: (val) => {
     if (!val) {
       return {};

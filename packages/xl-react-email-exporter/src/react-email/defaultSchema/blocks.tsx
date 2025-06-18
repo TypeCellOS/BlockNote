@@ -1,6 +1,7 @@
 import { DefaultBlockSchema, StyledText } from "@blocknote/core";
 import { BlockMapping } from "@blocknote/core/src/exporter/mapping.js";
-import { CodeBlock, CodeInline, dracula, Font, Heading, Img, Link, Text,} from "@react-email/components";
+import { CodeBlock, dracula, Heading, Img, Link, Text,} from "@react-email/components";
+import { Section, Row, Column } from "@react-email/components";
 import { pageBreakSchema } from "@blocknote/core";
 
 export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
@@ -91,8 +92,53 @@ export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
                 alt={block.props.caption} />
         );
     },
-    table: (block) => {
-        return <Text>{block.type + " not implemented"}</Text>;
+    table: (block, t) => {          
+        
+        // Render table using react-email Section, Row, and Column components
+        // See: https://react.email/docs/components/section
+        const table = block.content;
+        if (!table || typeof table !== 'object' || !Array.isArray(table.rows)) {
+            return <Text>Table data not available</Text>;
+        }
+        const headerRows = new Array((table.headerRows as number) ?? 0).fill(true);
+        const headerCols = new Array((table.headerCols as number) ?? 0).fill(true);
+        const columnWidths = (table.columnWidths as number[] | undefined) || [];
+        // Calculate number of columns from the first row
+        const numCols = table.rows[0]?.cells?.length || 1;
+        // If no explicit columnWidths, use equal percentage widths
+        const defaultColWidth = `${(100 / numCols).toFixed(2)}%`;
+        
+        return (
+            <Section style={{ border: '1px solid #ddd', borderRadius: 4, overflow: 'hidden', margin: '16px 0' }}>
+                {table.rows.map((row: any, rowIndex: any) => (
+                    <Row key={'row-' + rowIndex}>
+                        {row.cells.map((cell: any, colIndex: any) => {
+                            const isHeaderRow = headerRows[rowIndex];
+                            const isHeaderCol = headerCols[colIndex];
+                            const isHeader = isHeaderRow || isHeaderCol;
+                            // Use explicit width if provided, else fallback to equal width
+                            const width = columnWidths[colIndex] ? columnWidths[colIndex] : defaultColWidth;
+                            return (
+                                <Column
+                                    key={'row_' + rowIndex + '_col_' + colIndex}
+                                    style={{
+                                        borderBottom: rowIndex === table.rows.length - 1 ? 'none' : '1px solid #ddd',
+                                        borderRight: colIndex === row.cells.length - 1 ? 'none' : '1px solid #ddd',
+                                        padding: '8px 12px',
+                                        background: isHeader ? '#f5f5f5' : '#fff',
+                                        fontWeight: isHeader ? 'bold' : 'normal',
+                                        textAlign: cell.props?.textAlignment || 'left',
+                                        width,
+                                    }}
+                                >
+                                    {t.transformInlineContent(cell.content)}
+                                </Column>
+                            );
+                        })}
+                    </Row>
+                ))}
+            </Section>
+        );
     },
     quote: (block) => {
         return <Text>{block.type + " not implemented"}</Text>;
