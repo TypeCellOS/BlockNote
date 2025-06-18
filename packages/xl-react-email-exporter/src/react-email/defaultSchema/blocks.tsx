@@ -10,7 +10,7 @@ export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
   React.ReactElement<any>,
   React.ReactElement<typeof Link> | React.ReactElement<HTMLSpanElement>
 > = {
-    paragraph: (block, t) => {
+    paragraph: (block, t) => {        
         return <Text>{t.transformInlineContent(block.content)}</Text>;
     },
     bulletListItem: (block, t) => {

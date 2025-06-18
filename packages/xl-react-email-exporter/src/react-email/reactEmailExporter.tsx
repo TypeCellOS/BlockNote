@@ -25,7 +25,7 @@ import {
 import React from "react";
   import { CSSProperties } from "react";
   
-  export class ReactEmailExporter<
+export class ReactEmailExporter<
     B extends BlockSchema,
     S extends StyleSchema,
     I extends InlineContentSchema
@@ -68,13 +68,14 @@ import React from "react";
       return <span style={styles}>{styledText.text}</span>;
     }
   
-    public transformBlocks(
+    public async transformBlocks(
       blocks: Block<B, I, S>[], // Or BlockFromConfig<B[keyof B], I, S>?
       nestingLevel = 0
-    ): React.ReactElement<Text>[] {
-      return blocks.map((b) => {
-        const children = this.transformBlocks(b.children, nestingLevel + 1);
-        const self = this.mapBlock(b as any, nestingLevel, 0) as any; // TODO: any
+    ): Promise<React.ReactElement<Text>[]> {
+      return Promise.all(blocks.map(async (b) => {
+        const children = await this.transformBlocks(b.children, nestingLevel + 1);
+        const self = await this.mapBlock(b as any, nestingLevel, 0) as any; // TODO: any
+        console.log('self', self);
         return (
           <React.Fragment>
             {self}
@@ -83,7 +84,7 @@ import React from "react";
             )}
           </React.Fragment>
         );
-      });
+      }));
     }
   
     public renderFonts() {
@@ -124,6 +125,7 @@ import React from "react";
     }
     public async toReactEmailDocument(blocks: Block<B, I, S>[]) {
 
+      const transformedBlocks = await this.transformBlocks(blocks);
       return renderEmail(
         <Html>
         <Head>{this.renderFonts()}</Head>
@@ -131,8 +133,8 @@ import React from "react";
         TODO
         </Preview> */}
         <Body>
-          <Text>Test</Text>
-          {/* <Container>{this.transformBlocks(blocks)}</Container> */}
+
+          <Container>{transformedBlocks}</Container>
         </Body>
       </Html>
       );
