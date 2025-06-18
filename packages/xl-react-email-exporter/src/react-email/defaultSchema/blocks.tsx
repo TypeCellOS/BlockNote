@@ -35,15 +35,27 @@ export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
     },
     // TODO
     checkListItem: (block, t) => {
+        // Render a checkbox using inline SVG for better appearance in email
+        // block.props.checked should be true/false
+        const checked = block.props?.checked;
+        const checkboxSvg = checked ? (
+            <svg width="18" height="18" viewBox="0 0 18 18" style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8 }}>
+                <rect x="2" y="2" width="14" height="14" rx="3" fill="#4F8A10" stroke="#4F8A10" strokeWidth="2" />
+                <polyline points="5,10 8,13 13,6" fill="none" stroke="#fff" strokeWidth="2" />
+            </svg>
+        ) : (
+            <svg width="18" height="18" viewBox="0 0 18 18" style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8 }}>
+                <rect x="2" y="2" width="14" height="14" rx="3" fill="#fff" stroke="#888" strokeWidth="2" />
+            </svg>
+        );
         return (
             <Text>
-                <Text>•</Text>
-                <Text>{t.transformInlineContent(block.content)}</Text>
+                {checkboxSvg}
+                <span>{t.transformInlineContent(block.content)}</span>
             </Text>
         );
     },
-    heading: (block, t) => {
-        // TODO
+    heading: (block, t) => {        
         return (
             <Heading as={`h${block.props.level}`}>
                 {t.transformInlineContent(block.content)}
