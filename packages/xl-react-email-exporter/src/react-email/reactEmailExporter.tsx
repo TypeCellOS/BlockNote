@@ -3,6 +3,7 @@ import {
     BlockNoteSchema,
     BlockSchema,
     COLORS_DEFAULT,
+    DefaultProps,
     InlineContentSchema,
     StyleSchema,
     StyledText,
@@ -89,11 +90,13 @@ export class ReactEmailExporter<
         const children = await this.transformBlocks(b.children, nestingLevel + 1);
         const self = await this.mapBlock(b as any, nestingLevel, numberedListIndex) as any; // TODO: any
 
+        const style = this.blocknoteDefaultPropsToReactEmailStyle(b.props as any);
+
         ret.push(
           <React.Fragment key={b.id}>
-            {self}
+            <Section style={style}>{self}</Section>
             {children.length > 0 && (
-              <Section style={{ marginLeft: 10 }}>{children}</Section>
+              <Section style={{ marginLeft: 10, ...style }}>{children}</Section>
             )}
           </React.Fragment>
         );
@@ -154,5 +157,32 @@ export class ReactEmailExporter<
         </Body>
       </Html>
       );
+    }
+
+
+    protected blocknoteDefaultPropsToReactEmailStyle(
+      props: Partial<DefaultProps>,
+    ): any {
+      return {
+        textAlign: props.textAlignment,
+        backgroundColor:
+          props.backgroundColor === "default" || !props.backgroundColor
+            ? undefined
+            : this.options.colors[
+                props.backgroundColor as keyof typeof this.options.colors
+              ].background,
+        color:
+          props.textColor === "default" || !props.textColor
+            ? undefined
+            : this.options.colors[
+                props.textColor as keyof typeof this.options.colors
+              ].text,
+        alignItems:
+          props.textAlignment === "right"
+            ? "flex-end"
+            : props.textAlignment === "center"
+              ? "center"
+              : undefined,
+      };
     }
   }
