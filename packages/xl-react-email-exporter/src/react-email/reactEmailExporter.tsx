@@ -73,19 +73,33 @@ export class ReactEmailExporter<
       blocks: Block<B, I, S>[], // Or BlockFromConfig<B[keyof B], I, S>?
       nestingLevel = 0
     ): Promise<React.ReactElement<Text>[]> {
-      return Promise.all(blocks.map(async (b) => {
+
+      const ret: React.ReactElement<Text>[] = [];
+      let numberedListIndex = 0;
+
+      for (const b of blocks) {
+
+        if (b.type === "numberedListItem") {
+          numberedListIndex++;
+        } else {
+          numberedListIndex = 0;
+        }
+        
+
         const children = await this.transformBlocks(b.children, nestingLevel + 1);
-        const self = await this.mapBlock(b as any, nestingLevel, 0) as any; // TODO: any
-        console.log('self', self);
-        return (
-          <React.Fragment>
+        const self = await this.mapBlock(b as any, nestingLevel, numberedListIndex) as any; // TODO: any
+
+        ret.push(
+          <React.Fragment key={b.id}>
             {self}
             {children.length > 0 && (
               <Section style={{ marginLeft: 10 }}>{children}</Section>
             )}
           </React.Fragment>
         );
-      }));
+      }
+
+      return ret;
     }
   
     public renderFonts() {

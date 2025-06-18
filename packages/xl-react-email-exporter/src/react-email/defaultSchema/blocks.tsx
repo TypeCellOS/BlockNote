@@ -26,9 +26,9 @@ export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
     numberedListItem: (block, t, _nestingLevel, numberedListIndex) => {
         // Use <ol> and <li> with Tailwind classes via className (supported by react-email)
         return (
-            <ol className="list-decimal pl-6 mb-2">
+            <ol className="list-decimal pl-6 mb-2" start={numberedListIndex}>
                 <li className="mb-1" >
-                    <Text> {t.transformInlineContent(block.content)}</Text>
+                    <Text>{t.transformInlineContent(block.content)}</Text>
                 </li>
             </ol>
         );
