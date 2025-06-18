@@ -10,14 +10,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@blocknote/ariakit": "latest",
     "@blocknote/core": "latest",
-    "@blocknote/mantine": "latest",
     "@blocknote/react": "latest",
+    "@blocknote/ariakit": "latest",
+    "@blocknote/mantine": "latest",
     "@blocknote/shadcn": "latest",
-    "@blocknote/xl-react-email-exporter": "latest",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "@blocknote/xl-react-email-exporter": "latest",
+    "@react-email/render": "^1.1.2"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",

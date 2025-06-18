@@ -12,6 +12,10 @@ import {
   Section,
   Text,
 } from "@react-email/components";
+import { ReactEmailExporter } from "./reactEmailExporter";
+import { reactEmailDefaultSchemaMappings } from "./defaultSchema";
+import { BlockNoteSchema } from "@blocknote/core";
+import { testDocument } from "@shared/testDocument.js";
 interface KoalaWelcomeEmailProps {
   userFirstname: string;
 }
@@ -114,16 +118,15 @@ const footer = {
 
 describe("react email exporter", () => {
   it("should export a document", async () => {
-    // const exporter = new ReactEmailExporter(
-    //   BlockNoteSchema.create(),
-    //   reactEmailDefaultSchemaMappings
-    // );
+    const exporter = new ReactEmailExporter(
+      BlockNoteSchema.create(),
+      reactEmailDefaultSchemaMappings
+    );
 
-    //exporter.toReactEmailDocument(testDocument);
+    const html = await exporter.toReactEmailDocument(testDocument as any);
 
-    // const html = await render(doc);
     // eslint-disable-next-line no-console
-    // console.log(html);
+    console.log(html);
     // const buffer = await Packer.toBuffer(doc);
     // fs.writeFileSync(__dirname + "/My Document.docx", buffer);
   });

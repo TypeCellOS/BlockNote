@@ -316,15 +316,14 @@ export default function App() {
   });
 
   const onChange = async () => {
+    if (!editor || !editor.document) return;
     const exporter = new ReactEmailExporter(
       editor.schema,
       reactEmailDefaultSchemaMappings,
     );
-    // Converts the editor's contents from Block objects to HTML and store to state.
-    const emailDocument = await exporter.toReactEmailDocument(editor.document);
-    setEmailDocument(emailDocument);
+    const emailHtml = await exporter.toReactEmailDocument(editor.document);
 
-    // const blob = await ReactPDF.pdf(pdfDocument).toBlob();
+    setEmailDocument(emailHtml);
   };
 
   useEffect(() => {
@@ -352,7 +351,10 @@ export default function App() {
           />
         </BlockNoteView>
       </div>
-      <div className="email"></div>
+      <div
+        className="email"
+        dangerouslySetInnerHTML={{ __html: emailDocument }}
+      />
     </div>
   );
 }

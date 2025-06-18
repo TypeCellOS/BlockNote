@@ -60,6 +60,10 @@ export default defineConfig((conf) => ({
               __dirname,
               "../../liveblocks/packages/liveblocks-react-blocknote/src/",
             ),
+            "@blocknote/xl-react-email-exporter": resolve(
+              __dirname,
+              "../packages/xl-react-email-exporter/src",
+            ),
             /*
             This can be used when developing against a local version of liveblocks:
             

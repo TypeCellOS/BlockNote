@@ -18,7 +18,10 @@ import {
     Html,
     Link,
     Section,
+    Text
   } from "@react-email/components";
+  import { pretty, render as renderEmail } from "@react-email/render";
+
 import React from "react";
   import { CSSProperties } from "react";
   
@@ -119,18 +122,19 @@ import React from "react";
         </>
       );
     }
-    public toReactEmailDocument(blocks: Block<B, I, S>[]) {
-      // this.registerFonts();
-      return (
+    public async toReactEmailDocument(blocks: Block<B, I, S>[]) {
+
+      return renderEmail(
         <Html>
-          <Head>{this.renderFonts()}</Head>
-          {/* <Preview>
-          TODO
-          </Preview> */}
-          <Body>
-            <Container>{this.transformBlocks(blocks)}</Container>
-          </Body>
-        </Html>
+        <Head>{this.renderFonts()}</Head>
+        {/* <Preview>
+        TODO
+        </Preview> */}
+        <Body>
+          <Text>Test</Text>
+          {/* <Container>{this.transformBlocks(blocks)}</Container> */}
+        </Body>
+      </Html>
       );
     }
   }
