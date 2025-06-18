@@ -18,6 +18,7 @@ import {
     Html,
     Link,
     Section,
+    Tailwind,
     Text
   } from "@react-email/components";
   import { pretty, render as renderEmail } from "@react-email/render";
@@ -133,8 +134,9 @@ export class ReactEmailExporter<
         TODO
         </Preview> */}
         <Body>
-
-          <Container>{transformedBlocks}</Container>
+          <Tailwind>
+            <Container>{transformedBlocks}</Container>
+          </Tailwind>
         </Body>
       </Html>
       );
