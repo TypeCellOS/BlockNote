@@ -62,15 +62,14 @@ export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
         />
         
     },
-    audio: (block) => {
-        // TODO
-        return <Text>{block.type + " not implemented"}</Text>;
+    audio: () => {
+        return <></>; // Audio blocks are not typically rendered in email
     },
-    video: (block) => {
-        return <Text>{block.type + " not implemented"}</Text>;
+    video: () => {
+        return <></>; // Video blocks are not typically rendered in email
     },
-    file: (block) => {
-        return <Text>{block.type + " not implemented"}</Text>;
+    file: () => {
+        return <></>; // File blocks are not typically rendered in email
     },
     image: (block) => {
         return (
