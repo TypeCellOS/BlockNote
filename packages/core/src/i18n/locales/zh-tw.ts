@@ -368,6 +368,9 @@ export const zhTW: Dictionary = {
     },
   },
   comments: {
+    edited: "已編輯",
+    save_button_text: "儲存",
+    cancel_button_text: "取消",
     actions: {
       add_reaction: "新增回應",
       resolve: "解決",

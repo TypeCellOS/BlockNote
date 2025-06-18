@@ -333,6 +333,9 @@ export const sk = {
     },
   },
   comments: {
+    edited: "upravený",
+    save_button_text: "Uložiť",
+    cancel_button_text: "Zrušiť",
     actions: {
       add_reaction: "Pridať reakciu",
       resolve: "Vyriešiť",

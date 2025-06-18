@@ -327,6 +327,9 @@ export const pt: Dictionary = {
     },
   },
   comments: {
+    edited: "editado",
+    save_button_text: "Salvar",
+    cancel_button_text: "Cancelar",
     actions: {
       add_reaction: "Adicionar reação",
       resolve: "Resolver",
