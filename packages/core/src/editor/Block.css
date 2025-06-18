@@ -49,7 +49,7 @@ NESTED BLOCKS
 */
 
 .bn-block-group .bn-block-group {
-  margin-left: 1.5em;
+  margin-left: 24px;
 }
 
 .bn-block-group .bn-block-group > .bn-block-outer {
@@ -271,6 +271,7 @@ NESTED BLOCKS
 }
 
 .bn-toggle-button {
+  color: var(--bn-colors-editor-text);
   padding: 3px;
 }
 
@@ -289,6 +290,7 @@ NESTED BLOCKS
   font-weight: normal;
   margin-left: 22px;
   padding-inline: 2px;
+  width: fit-content;
 }
 
 .bn-toggle-button,
@@ -296,7 +298,6 @@ NESTED BLOCKS
   background: none;
   border: none;
   border-radius: var(--bn-border-radius-small);
-  color: var(--bn-colors-editor-text);
   cursor: pointer;
   display: flex;
   user-select: none;

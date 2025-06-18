@@ -157,7 +157,7 @@ export const nl: Dictionary = {
   placeholders: {
     default: "Voer tekst in of type '/' voor commando's",
     heading: "Kop",
-    toggleList: "Schakelaar",
+    toggleListItem: "Schakelaar",
     bulletListItem: "Lijst",
     numberedListItem: "Lijst",
     checkListItem: "Lijst",

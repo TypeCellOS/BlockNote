@@ -182,7 +182,7 @@ export const uk: Dictionary = {
   placeholders: {
     default: "Введіть текст або наберіть '/' для команд",
     heading: "Заголовок",
-    toggleList: "Перемикач",
+    toggleListItem: "Перемикач",
     bulletListItem: "Список",
     numberedListItem: "Список",
     checkListItem: "Список",

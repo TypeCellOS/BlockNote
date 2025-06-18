@@ -157,7 +157,7 @@ export const es: Dictionary = {
   placeholders: {
     default: "Escribe o teclea '/' para comandos",
     heading: "Encabezado",
-    toggleList: "Alternar",
+    toggleListItem: "Alternar",
     bulletListItem: "Lista",
     numberedListItem: "Lista",
     checkListItem: "Lista",

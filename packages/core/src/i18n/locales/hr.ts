@@ -170,7 +170,7 @@ export const hr: Dictionary = {
   placeholders: {
     default: "Unesi tekst ili upiši ‘/’ za naredbe",
     heading: "Naslov",
-    toggleList: "Prebaciti",
+    toggleListItem: "Prebaciti",
     bulletListItem: "Lista",
     numberedListItem: "Lista",
     checkListItem: "Lista",

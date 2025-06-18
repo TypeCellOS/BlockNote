@@ -156,7 +156,7 @@ export const vi: Dictionary = {
   placeholders: {
     default: "Nhập văn bản hoặc gõ '/' để thêm định dạng",
     heading: "Tiêu đề",
-    toggleList: "Chuyển đổi",
+    toggleListItem: "Chuyển đổi",
     bulletListItem: "Danh sách",
     numberedListItem: "Danh sách",
     checkListItem: "Danh sách",

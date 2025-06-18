@@ -156,7 +156,7 @@ export const en = {
   placeholders: {
     default: "Enter text or type '/' for commands",
     heading: "Heading",
-    toggleList: "Toggle",
+    toggleListItem: "Toggle",
     bulletListItem: "List",
     numberedListItem: "List",
     checkListItem: "List",

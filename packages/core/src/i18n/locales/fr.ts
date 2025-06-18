@@ -189,7 +189,7 @@ export const fr: Dictionary = {
     default:
       "Entrez du texte ou tapez '/' pour faire apparaître les options de mise en page",
     heading: "Titre",
-    toggleList: "Basculer",
+    toggleListItem: "Basculer",
     bulletListItem: "Liste",
     numberedListItem: "Liste",
     checkListItem: "Liste",

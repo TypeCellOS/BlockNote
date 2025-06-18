@@ -55,6 +55,7 @@ export default function App() {
         content: "Check List Item",
       },
       {
+        id: "toggle-list-item",
         type: "toggleListItem",
         content: "Toggle List Item",
       },

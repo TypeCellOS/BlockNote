@@ -156,7 +156,7 @@ export const sk = {
   placeholders: {
     default: "Zadajte text alebo napíšte '/' pre príkazy",
     heading: "Nadpis",
-    toggleList: "Prepnúť",
+    toggleListItem: "Prepnúť",
     bulletListItem: "Zoznam",
     numberedListItem: "Zoznam",
     checkListItem: "Zoznam",
