@@ -33,8 +33,7 @@ export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
                 </li>
             </ol>
         );
-    },
-    // TODO
+    },    
     checkListItem: (block, t) => {
         // Render a checkbox using inline SVG for better appearance in email
         // block.props.checked should be true/false
