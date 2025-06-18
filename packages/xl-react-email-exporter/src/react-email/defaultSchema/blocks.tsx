@@ -140,8 +140,23 @@ export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
             </Section>
         );
     },
-    quote: (block) => {
-        return <Text>{block.type + " not implemented"}</Text>;
+    quote: (block, t) => {
+        // Render block quote with a left border and subtle background for email compatibility
+        return (
+            <Text
+                style={{
+                    borderLeft: '4px solid #bdbdbd',
+                    background: '#f9f9f9',
+                    padding: '12px 16px',
+                    margin: '16px 0',
+                    fontStyle: 'italic',
+                    color: '#555',
+                    display: 'block',
+                }}
+            >
+                {t.transformInlineContent(block.content)}
+            </Text>
+        );
     },
     pageBreak: () => {
         // In email, a page break can be represented as a horizontal rule
