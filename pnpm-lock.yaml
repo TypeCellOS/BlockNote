@@ -2124,6 +2124,12 @@ importers:
       '@blocknote/xl-react-email-exporter':
         specifier: latest
         version: link:../../../packages/xl-react-email-exporter
+      '@react-email/components':
+        specifier: ^0.1.0
+        version: 0.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@react-email/render':
+        specifier: 1.1.2
+        version: 1.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: ^18.3.1
         version: 18.3.1

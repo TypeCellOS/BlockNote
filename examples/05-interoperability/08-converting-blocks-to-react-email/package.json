@@ -1,5 +1,5 @@
 {
-  "name": "@blocknote/example-interoperability-converting-react-email",
+  "name": "@blocknote/example-interoperability-converting-blocks-to-react-email",
   "description": "AUTO-GENERATED FILE, DO NOT EDIT DIRECTLY",
   "private": true,
   "version": "0.12.4",
@@ -10,14 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@blocknote/core": "latest",
-    "@blocknote/react": "latest",
     "@blocknote/ariakit": "latest",
+    "@blocknote/core": "latest",
     "@blocknote/mantine": "latest",
+    "@blocknote/react": "latest",
     "@blocknote/shadcn": "latest",
+    "@blocknote/xl-react-email-exporter": "latest",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "@blocknote/xl-react-email-exporter": "latest"
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",

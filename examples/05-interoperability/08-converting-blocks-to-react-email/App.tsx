@@ -352,7 +352,7 @@ export default function App() {
           />
         </BlockNoteView>
       </div>
-      <div className="email">Email Preview Here</div>
+      <div className="email"></div>
     </div>
   );
 }
