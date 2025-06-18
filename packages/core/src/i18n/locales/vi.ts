@@ -334,6 +334,9 @@ export const vi: Dictionary = {
     },
   },
   comments: {
+    edited: "đã chỉnh sửa",
+    save_button_text: "Lưu",
+    cancel_button_text: "Hủy",
     actions: {
       add_reaction: "Thêm phản ứng",
       resolve: "Giải quyết",
