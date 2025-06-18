@@ -121,12 +121,12 @@ export function FooterContent() {
                     </FooterLink>
                   </li>
                   <li key={"service-license-agreement"}>
-                    <FooterLink href={"/legal/service_license_agreement"}>
+                    <FooterLink href={"/legal/service-license-agreement"}>
                       Service License Agreement
                     </FooterLink>
                   </li>
                   <li key={"blocknote-xl-commercial-license"}>
-                    <FooterLink href={"/legal/blocknote_xl_commercial_license"}>
+                    <FooterLink href={"/legal/blocknote-xl-commercial-license"}>
                       BlockNote XL Commercial License
                     </FooterLink>
                   </li>
