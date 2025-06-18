@@ -9,7 +9,7 @@
     "directory": "packages/xl-odt-exporter"
   },
   "license": "AGPL-3.0 OR PROPRIETARY",
-  "version": "0.31.2",
+  "version": "0.31.3",
   "files": [
     "dist",
     "types",
@@ -57,7 +57,7 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "0.31.2",
+    "@blocknote/core": "0.31.3",
     "@zip.js/zip.js": "^2.7.57",
     "buffer": "^6.0.3",
     "image-meta": "^0.2.1"
