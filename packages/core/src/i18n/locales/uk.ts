@@ -377,6 +377,9 @@ export const uk: Dictionary = {
     },
   },
   comments: {
+    edited: "відредаговано",
+    save_button_text: "Зберегти",
+    cancel_button_text: "Скасувати",
     actions: {
       add_reaction: "Додати реакцію",
       resolve: "Вирішити",

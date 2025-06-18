@@ -377,6 +377,9 @@ export const fr: Dictionary = {
     },
   },
   comments: {
+    edited: "modifié",
+    save_button_text: "Enregistrer",
+    cancel_button_text: "Annuler",
     actions: {
       add_reaction: "Ajouter une réaction",
       resolve: "Résoudre",

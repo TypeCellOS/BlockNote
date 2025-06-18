@@ -338,6 +338,9 @@ export const ar: Dictionary = {
     },
   },
   comments: {
+    edited: "تم التحرير",
+    save_button_text: "حفظ",
+    cancel_button_text: "إلغاء",
     actions: {
       add_reaction: "أضف تفاعلًا",
       resolve: "حل",

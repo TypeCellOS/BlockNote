@@ -297,20 +297,20 @@ export const Comment = ({
                       )}
                     >
                       <Components.Generic.Toolbar.Button
-                        mainTooltip="Save"
+                        mainTooltip={dict.comments.save_button_text}
                         variant="compact"
                         onClick={onEditSubmit}
                         isDisabled={isEmpty}
                       >
-                        Save
+                        {dict.comments.save_button_text}
                       </Components.Generic.Toolbar.Button>
                       <Components.Generic.Toolbar.Button
                         className={"bn-button"}
-                        mainTooltip="Cancel"
+                        mainTooltip={dict.comments.cancel_button_text}
                         variant="compact"
                         onClick={onEditCancel}
                       >
-                        Cancel
+                        {dict.comments.cancel_button_text}
                       </Components.Generic.Toolbar.Button>
                     </Components.Generic.Toolbar.Root>
                   )}

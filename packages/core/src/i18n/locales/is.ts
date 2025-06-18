@@ -345,6 +345,9 @@ export const is: Dictionary = {
     },
   },
   comments: {
+    edited: "breytt",
+    save_button_text: "Vista",
+    cancel_button_text: "Hætta",
     actions: {
       add_reaction: "Bæta við viðbrögðum",
       resolve: "Leysa",

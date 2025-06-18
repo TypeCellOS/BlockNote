@@ -373,6 +373,9 @@ export const ja: Dictionary = {
     },
   },
   comments: {
+    edited: "編集済み",
+    save_button_text: "保存",
+    cancel_button_text: "キャンセル",
     actions: {
       add_reaction: "リアクションを追加",
       resolve: "解決",

@@ -337,6 +337,9 @@ export const pl: Dictionary = {
     },
   },
   comments: {
+    edited: "edytowany",
+    save_button_text: "Zapisz",
+    cancel_button_text: "Anuluj",
     actions: {
       add_reaction: "Dodaj reakcję",
       resolve: "Rozwiąż",

@@ -353,6 +353,9 @@ export const en = {
     },
   },
   comments: {
+    edited: "edited",
+    save_button_text: "Save",
+    cancel_button_text: "Cancel",
     actions: {
       add_reaction: "Add reaction",
       resolve: "Resolve",

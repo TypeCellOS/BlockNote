@@ -352,6 +352,9 @@ export const no: Dictionary = {
     },
   },
   comments: {
+    edited: "redigert",
+    save_button_text: "Lagre",
+    cancel_button_text: "Avbryt",
     actions: {
       add_reaction: "Legg til reaksjon",
       resolve: "Løs",

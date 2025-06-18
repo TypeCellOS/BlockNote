@@ -352,6 +352,9 @@ export const nl: Dictionary = {
     },
   },
   comments: {
+    edited: "bewerkt",
+    save_button_text: "Opslaan",
+    cancel_button_text: "Annuleren",
     actions: {
       add_reaction: "Reactie toevoegen",
       resolve: "Oplossen",

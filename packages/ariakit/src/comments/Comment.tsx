@@ -1,7 +1,11 @@
 import { Group as AriakitGroup } from "@ariakit/react";
 
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps, useFocusWithin } from "@blocknote/react";
+import {
+  ComponentProps,
+  useDictionary,
+  useFocusWithin,
+} from "@blocknote/react";
 import { forwardRef, useState } from "react";
 
 const AuthorInfo = forwardRef<
@@ -12,6 +16,7 @@ const AuthorInfo = forwardRef<
   >
 >((props, _ref) => {
   const { authorInfo, timeString, edited, ...rest } = props;
+  const dict = useDictionary();
 
   assertEmpty(rest, false);
 
@@ -34,7 +39,7 @@ const AuthorInfo = forwardRef<
       <div className={"bn-ak-username"}>
         {authorInfo.username}
         <span>
-          {timeString} {edited && "(edited)"}
+          {timeString} {edited && `(${dict.comments.edited})`}
         </span>
       </div>
     </AriakitGroup>

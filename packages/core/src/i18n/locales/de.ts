@@ -352,6 +352,9 @@ export const de: Dictionary = {
     },
   },
   comments: {
+    edited: "bearbeitet",
+    save_button_text: "Speichern",
+    cancel_button_text: "Abbrechen",
     actions: {
       add_reaction: "Reaktion hinzufügen",
       resolve: "Lösen",

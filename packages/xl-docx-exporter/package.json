@@ -9,7 +9,7 @@
     "directory": "packages/xl-docx-exporter"
   },
   "license": "AGPL-3.0 OR PROPRIETARY",
-  "version": "0.31.2",
+  "version": "0.31.3",
   "files": [
     "dist",
     "types",
@@ -57,7 +57,7 @@
     "email": "email dev"
   },
   "dependencies": {
-    "@blocknote/core": "0.31.2",
+    "@blocknote/core": "0.31.3",
     "buffer": "^6.0.3",
     "docx": "^9.0.2",
     "image-meta": "^0.2.1"

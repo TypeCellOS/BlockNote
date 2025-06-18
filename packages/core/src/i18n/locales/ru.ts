@@ -380,6 +380,9 @@ export const ru: Dictionary = {
     },
   },
   comments: {
+    edited: "изменен",
+    save_button_text: "Сохранить",
+    cancel_button_text: "Отменить",
     actions: {
       add_reaction: "Добавить реакцию",
       resolve: "Решить",
