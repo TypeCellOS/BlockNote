@@ -332,10 +332,7 @@ export default function App() {
   }, []);
 
   const slashMenuItems = useMemo(() => {
-    return combineByGroup(
-      getDefaultReactSlashMenuItems(editor),
-      getPageBreakReactSlashMenuItems(editor),
-    );
+    return combineByGroup(getDefaultReactSlashMenuItems(editor));
   }, [editor]);
 
   // Renders the editor instance, and its contents as HTML below.
