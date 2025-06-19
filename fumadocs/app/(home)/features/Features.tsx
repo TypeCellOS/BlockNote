@@ -11,20 +11,20 @@ import {
   BiLogoMarkdown,
   BiSolidWrench,
 } from "react-icons/bi";
-import { Section } from "@/components/pages/landing/shared/Section";
+import { Section } from "@/components/Section";
 import {
   FeatureCard,
   FeatureCardProps,
-} from "@/components/pages/landing/features/FeatureCard";
-import { FadeIn } from "@/components/pages/landing/shared/FadeIn";
-import { SectionIntro } from "@/components/pages/landing/shared/Headings";
+} from "@/app/(home)/features/FeatureCard";
+import { FadeIn } from "@/components/FadeIn";
+import { SectionIntro } from "@/components/Headings";
 
-import worksOutOfTheBoxLight from "../../../../public/img/features/works_out_of_the_box_light.gif";
-import worksOutOfTheBoxDark from "../../../../public/img/features/works_out_of_the_box_dark.gif";
-import blockBasedDesignLight from "../../../../public/img/features/block_based_design_light.gif";
-import blockBasedDesignDark from "../../../../public/img/features/block_based_design_dark.gif";
-import collaborationLight from "../../../../public/img/features/collaboration_light.gif";
-import collaborationDark from "../../../../public/img/features/collaboration_dark.gif";
+import worksOutOfTheBoxLight from "@/public/img/features/works_out_of_the_box_light.gif";
+import worksOutOfTheBoxDark from "@/public/img/features/works_out_of_the_box_dark.gif";
+import blockBasedDesignLight from "@/public/img/features/block_based_design_light.gif";
+import blockBasedDesignDark from "@/public/img/features/block_based_design_dark.gif";
+import collaborationLight from "@/public/img/features/collaboration_light.gif";
+import collaborationDark from "@/public/img/features/collaboration_dark.gif";
 
 export const featuresCardData: FeatureCardProps[] = [
   {

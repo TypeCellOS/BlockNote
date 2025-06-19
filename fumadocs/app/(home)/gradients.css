@@ -1,14 +1,9 @@
 body {
-  --text-color: #000000;
-  --bg-color: #ffffff;
+  --text-color: var(--color-fd-foreground);
+  --bg-color: var(--color-fd-background);
 
   --glow-blue: 185, 100%, 50%;
   --glow-purple: 261, 100%, 50%;
-}
-
-.dark body {
-  --text-color: #ffffff;
-  --bg-color: #000000;
 }
 
 .demo-glow {

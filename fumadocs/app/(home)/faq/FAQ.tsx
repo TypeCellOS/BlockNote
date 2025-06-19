@@ -1,5 +1,5 @@
-import { SectionIntro } from "@/components/pages/landing/shared/Headings";
-import { Section } from "@/components/pages/landing/shared/Section";
+import { SectionIntro } from "@/components/Headings";
+import { Section } from "@/components/Section";
 import Link from "next/link";
 
 const faqs = [

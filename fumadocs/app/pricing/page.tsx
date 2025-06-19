@@ -1,6 +1,6 @@
-import { SectionSubHeader } from "@/components/pages/landing/shared/Headings";
-import { FAQ } from "@/components/pages/pricing/faq";
-import { Tiers, Tier } from "@/components/pages/pricing/tiers";
+import { SectionSubHeader } from "@/components/Headings";
+import { FAQ } from "@/app/pricing/faq";
+import { Tiers, Tier } from "@/app/pricing/tiers";
 
 const tiers: Tier[] = [
   // {

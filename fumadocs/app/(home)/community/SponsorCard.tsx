@@ -14,7 +14,7 @@ export function SponsorCard(props: SponsorCardProps) {
   return (
     <a
       href={props.link}
-      className="relative flex aspect-video max-w-[235px] items-center justify-center rounded-lg bg-gray-100 md:w-[235px] dark:bg-gray-900"
+      className="border-fd-border relative flex aspect-video max-w-[235px] items-center justify-center rounded-lg border"
     >
       <Image
         className={"block h-1/3 w-3/5 object-contain dark:hidden"}

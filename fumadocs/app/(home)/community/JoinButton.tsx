@@ -13,7 +13,7 @@ export const JoinButton = (props: {
   return (
     <div
       className={
-        "flex w-full flex-col items-start justify-between gap-4 rounded-lg bg-gray-50 p-4 sm:flex-row sm:items-center sm:gap-8 md:max-w-screen-md dark:bg-gray-800"
+        "border-fd-border flex w-full flex-col items-start justify-between gap-4 rounded-lg border p-4 sm:flex-row sm:items-center sm:gap-8 md:max-w-screen-md"
       }
     >
       <div className={"hidden md:block md:w-fit"}>

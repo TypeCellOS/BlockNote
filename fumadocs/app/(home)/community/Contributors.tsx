@@ -1,9 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { DiscordIcon, GitHubIcon } from "nextra/icons";
-import { SectionSubHeader } from "@/components/pages/landing/shared/Headings";
-import { JoinButton } from "@/components/pages/landing/community/JoinButton";
-import { FadeIn } from "@/components/pages/landing/shared/FadeIn";
+// import { DiscordIcon, GitHubIcon } from "nextra/icons";
+import { SectionSubHeader } from "@/components/Headings";
+import { JoinButton } from "@/app/(home)/community/JoinButton";
+import { FadeIn } from "@/components/FadeIn";
 
 // TODO: Use GitHub API
 function fetchContributors(): { username: string; avatarUrl: string }[] {
@@ -114,7 +114,7 @@ export const Contributors = () => (
         subtext={
           "Join the community of BlockNote developers by contributing code and supporting the project."
         }
-        icon={GitHubIcon}
+        icon={() => <div>GitHub</div>}
         linkTitle={"See our repository"}
         linkUrl={"https://github.com/TypeCellOS/BlockNote"}
       />
@@ -123,7 +123,7 @@ export const Contributors = () => (
         subtext={
           "Ask questions, discuss features, and share your work with other BlockNote users on Discord."
         }
-        icon={DiscordIcon}
+        icon={() => <div>Discord</div>}
         linkTitle={"Join our Server"}
         linkUrl={"https://discord.gg/Qc2QTTH5dF"}
       />
