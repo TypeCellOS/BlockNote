@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { render } from "@react-email/render";
 import { ReactEmailExporter } from "./reactEmailExporter";
 import { reactEmailDefaultSchemaMappings } from "./defaultSchema";
 import { BlockNoteSchema } from "@blocknote/core";
@@ -12,7 +13,8 @@ describe("react email exporter", () => {
       reactEmailDefaultSchemaMappings
     );
 
-    const html = await exporter.toReactEmailDocument(testDocument as any);
+    const reactElement = await exporter.toReactEmailDocument(testDocument as any);
+    const html = render(reactElement);
     expect(html).toMatchSnapshot();
   });
 });
