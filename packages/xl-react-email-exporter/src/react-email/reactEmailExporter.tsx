@@ -17,6 +17,7 @@ import {
     Head,
     Html,
     Link,
+    Preview,
     Section,
     Tailwind  } from "@react-email/components";
   import { render as renderEmail } from "@react-email/render";
@@ -205,7 +206,12 @@ export class ReactEmailExporter<
       return ret;
     }
 
-    public async toReactEmailDocument(blocks: Block<B, I, S>[]) {
+    public async toReactEmailDocument(
+        blocks: Block<B, I, S>[],
+        options: {
+          preview?: string | string[];
+        }
+      ) {
       const transformedBlocks = await this.transformBlocks(blocks);
       return renderEmail(
         <Html>
@@ -216,7 +222,8 @@ export class ReactEmailExporter<
             lineHeight: "1.5",
             color: "#333",
           }}>
-            <Tailwind>
+            {options.preview && <Preview>{options.preview}</Preview>}
+            <Tailwind>  
               <Container>{transformedBlocks}</Container>
             </Tailwind>
           </Body>
