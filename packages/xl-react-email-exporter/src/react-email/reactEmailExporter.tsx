@@ -14,7 +14,6 @@ import {
   import {
     Body,
     Container,
-    Font,
     Head,
     Html,
     Link,
@@ -205,58 +204,23 @@ export class ReactEmailExporter<
       }
       return ret;
     }
-  
-    public renderFonts() {
-      return (
-        <>
-          <Font
-            fallbackFontFamily="Helvetica"
-            fontFamily="Inter"
-            fontStyle="normal"
-            fontWeight={400}
-            webFont={{
-              url: "https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiA.woff2",
-              format: "woff2",
-            }}
-          />
-          <Font
-            fallbackFontFamily="Helvetica"
-            fontFamily="Inter"
-            fontStyle="normal"
-            fontWeight={600}
-            webFont={{
-              url: "https://fonts.gstatic.com/s/inter/v18/UcC73FwrK3iLTeHuS_fjbvMwCp50PDca1ZL7.woff2",
-              format: "woff2",
-            }}
-          />
-          <Font
-            fallbackFontFamily="Helvetica"
-            fontFamily="Inter"
-            fontStyle="normal"
-            fontWeight={700}
-            webFont={{
-              url: "https://fonts.gstatic.com/s/inter/v18/UcC73FwrK3iLTeHuS_fjbvMwCp50BTca1ZL7.woff2",
-              format: "woff2",
-            }}
-          />
-        </>
-      );
-    }
-    public async toReactEmailDocument(blocks: Block<B, I, S>[]) {
 
+    public async toReactEmailDocument(blocks: Block<B, I, S>[]) {
       const transformedBlocks = await this.transformBlocks(blocks);
       return renderEmail(
         <Html>
-        <Head>{this.renderFonts()}</Head>
-        {/* <Preview>
-        TODO
-        </Preview> */}
-        <Body>
-          <Tailwind>
-            <Container>{transformedBlocks}</Container>
-          </Tailwind>
-        </Body>
-      </Html>
+          <Head></Head>
+          <Body style={{
+            fontFamily: "'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif",
+            fontSize: "16px",
+            lineHeight: "1.5",
+            color: "#333",
+          }}>
+            <Tailwind>
+              <Container>{transformedBlocks}</Container>
+            </Tailwind>
+          </Body>
+        </Html>
       );
     }
 
