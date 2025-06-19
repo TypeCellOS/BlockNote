@@ -147,7 +147,11 @@ export class ReactEmailExporter<
             listItems.push(
               <li key={listItem.id} style={style}>
                 {liContent}
-                {nestedContent.length > 0 && nestedContent}
+                {nestedContent.length > 0 && (
+                  <div style={{ marginTop: '8px' }}>
+                    {nestedContent}
+                  </div>
+                )}
               </li>
             );
             j++;
@@ -168,9 +172,13 @@ export class ReactEmailExporter<
           }
           i = j;
         } else {
-          // Non-list child, render as normal
+          // Non-list child, render as normal with indentation
           const childBlocks = await this.transformBlocks([child], nestingLevel);
-          nestedList.push(...childBlocks);
+          nestedList.push(
+            <Section key={child.id} style={{ marginLeft: '24px' }}>
+              {childBlocks}
+            </Section>
+          );
           i++;
         }
       }
@@ -198,7 +206,11 @@ export class ReactEmailExporter<
         ret.push(
           <React.Fragment key={b.id}>
             <Section style={style}>{self}</Section>
-            {children.length > 0 && children}
+            {children.length > 0 && (
+              <div style={{ marginLeft: '24px' }}>
+                {children}
+              </div>
+            )}
           </React.Fragment>
         );
         i++;
