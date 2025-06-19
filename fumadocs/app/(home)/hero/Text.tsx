@@ -1,8 +1,5 @@
-import {
-  HeroText,
-  SectionSubtext,
-} from "@/components/pages/landing/shared/Headings";
-import CTAButton from "@/components/pages/landing/shared/CTAButton";
+import { HeroText, SectionSubtext } from "@/components/Headings";
+import CTAButton from "@/components/CTAButton";
 
 export function Text() {
   return (

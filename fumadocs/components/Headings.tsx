@@ -1,6 +1,6 @@
 import cn from "classnames";
 import gradients from "./gradients.module.css";
-import { FadeIn } from "@/components/pages/landing/shared/FadeIn";
+import { FadeIn } from "@/components/FadeIn";
 import { ReactNode } from "react";
 
 export function HeroText({

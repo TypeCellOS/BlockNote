@@ -1,9 +1,9 @@
 import cn from "classnames";
-import CTAButton from "@/components/pages/landing/shared/CTAButton";
-import { Section } from "@/components/pages/landing/shared/Section";
-import { FadeIn } from "@/components/pages/landing/shared/FadeIn";
-import { HeroText } from "@/components/pages/landing/shared/Headings";
-import gradients from "@/components/pages/landing/shared/gradients.module.css";
+import CTAButton from "@/components/CTAButton";
+import { Section } from "@/components/Section";
+import { FadeIn } from "@/components/FadeIn";
+import { HeroText } from "@/components/Headings";
+import gradients from "@/components/gradients.module.css";
 
 export function Letter() {
   return (

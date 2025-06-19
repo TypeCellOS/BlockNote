@@ -1,4 +1,4 @@
-import { FadeIn } from "@/components/pages/landing/shared/FadeIn";
+import { FadeIn } from "@/components/FadeIn";
 import { ReactNode } from "react";
 
 export function Section(props: {

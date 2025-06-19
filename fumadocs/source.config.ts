@@ -13,6 +13,10 @@ export const pages = defineDocs({
   dir: "content/pages",
 });
 
+export const about = defineDocs({
+  dir: "content/about",
+});
+
 export default defineConfig({
   mdxOptions: {
     // MDX options
