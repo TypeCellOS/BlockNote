@@ -1,7 +1,6 @@
 import { DefaultBlockSchema, StyledText } from "@blocknote/core";
 import { BlockMapping } from "@blocknote/core/src/exporter/mapping.js";
 import { CodeBlock, dracula, Heading, Img, Link, PrismLanguage, Text,} from "@react-email/components";
-import { Section, Row, Column } from "@react-email/components";
 import { pageBreakSchema } from "@blocknote/core";
 
 export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
@@ -127,52 +126,44 @@ export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
                 alt={block.props.caption} />
         );
     },
-    table: (block, t) => {          
-        
-        // Render table using react-email Section, Row, and Column components
-        // See: https://react.email/docs/components/section
+    table: (block, t) => {
+        // Render table using standard HTML table elements for email compatibility
         const table = block.content;
         if (!table || typeof table !== 'object' || !Array.isArray(table.rows)) {
             return <Text>Table data not available</Text>;
         }
-        const headerRows = new Array((table.headerRows as number) ?? 0).fill(true);
-        const headerCols = new Array((table.headerCols as number) ?? 0).fill(true);
-        const columnWidths = (table.columnWidths as number[] | undefined) || [];
-        // Calculate number of columns from the first row
-        const numCols = table.rows[0]?.cells?.length || 1;
-        // If no explicit columnWidths, use equal percentage widths
-        const defaultColWidth = `${(100 / numCols).toFixed(2)}%`;
-        
+        const headerRowsCount = (table.headerRows as number) ?? 0;
+        const headerColsCount = (table.headerCols as number) ?? 0;
+
         return (
-            <Section style={{ border: '1px solid #ddd', borderRadius: 4, overflow: 'hidden', margin: '16px 0' }}>
-                {table.rows.map((row: any, rowIndex: any) => (
-                    <Row key={'row-' + rowIndex}>
-                        {row.cells.map((cell: any, colIndex: any) => {
-                            const isHeaderRow = headerRows[rowIndex];
-                            const isHeaderCol = headerCols[colIndex];
-                            const isHeader = isHeaderRow || isHeaderCol;
-                            // Use explicit width if provided, else fallback to equal width
-                            const width = columnWidths[colIndex] ? columnWidths[colIndex] : defaultColWidth;
-                            return (
-                                <Column
-                                    key={'row_' + rowIndex + '_col_' + colIndex}
-                                    style={{
-                                        borderBottom: rowIndex === table.rows.length - 1 ? 'none' : '1px solid #ddd',
-                                        borderRight: colIndex === row.cells.length - 1 ? 'none' : '1px solid #ddd',
-                                        padding: '8px 12px',
-                                        background: isHeader ? '#f5f5f5' : '#fff',
-                                        fontWeight: isHeader ? 'bold' : 'normal',
-                                        textAlign: cell.props?.textAlignment || 'left',
-                                        width,
-                                    }}
-                                >
-                                    {t.transformInlineContent(cell.content)}
-                                </Column>
-                            );
-                        })}
-                    </Row>
-                ))}
-            </Section>
+            <table style={{ borderCollapse: 'collapse', width: '100%', margin: '16px 0', border: '1px solid #ddd', borderRadius: 4, overflow: 'hidden' }}>
+                <tbody>
+                    {table.rows.map((row: any, rowIndex: number) => (
+                        <tr key={'row-' + rowIndex}>
+                            {row.cells.map((cell: any, colIndex: number) => {
+                                const isHeaderRow = rowIndex < headerRowsCount;
+                                const isHeaderCol = colIndex < headerColsCount;
+                                const isHeader = isHeaderRow || isHeaderCol;
+                                const CellTag = isHeader ? 'th' : 'td';
+                                return (
+                                    <CellTag
+                                        key={'row_' + rowIndex + '_col_' + colIndex}
+                                        style={{
+                                            border: '1px solid #ddd',
+                                            padding: '8px 12px',
+                                            background: isHeader ? '#f5f5f5' : '#fff',
+                                            fontWeight: isHeader ? 'bold' : 'normal',
+                                            textAlign: cell.props?.textAlignment || 'left',
+                                        }}
+                                    >
+                                        {t.transformInlineContent(cell.content)}
+                                    </CellTag>
+                                );
+                            })}
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         );
     },
     quote: (block, t) => {
