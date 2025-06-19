@@ -15,19 +15,11 @@ export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
     },
     bulletListItem: (block, t) => {
         // Return only the <li> for grouping in the exporter
-        return (
-            <li className="mb-1">
-                <Text>{t.transformInlineContent(block.content)}</Text>
-            </li>
-        );
+        return <Text>{t.transformInlineContent(block.content)}</Text>;
     },
     numberedListItem: (block, t, _nestingLevel) => {
         // Return only the <li> for grouping in the exporter
-        return (
-            <li className="mb-1">
-                <Text>{t.transformInlineContent(block.content)}</Text>
-            </li>
-        );
+        return <Text>{t.transformInlineContent(block.content)}</Text>;
     },    
     checkListItem: (block, t) => {
         // Render a checkbox using inline SVG for better appearance in email

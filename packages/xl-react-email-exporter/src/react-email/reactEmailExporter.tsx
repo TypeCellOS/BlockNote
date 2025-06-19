@@ -133,15 +133,26 @@ export class ReactEmailExporter<
           ) {
             const childBlock = children[l];
             const childLiContent = await this.mapBlock(childBlock as any, nestingLevel, childStartIndex) as any;
-            let childNestedList: React.ReactElement<any>[] = [];
+            const style = this.blocknoteDefaultPropsToReactEmailStyle(childBlock.props as any);
+            let nestedListContent: React.ReactElement<any>[] = [];
             if (childBlock.children && childBlock.children.length > 0) {
-              childNestedList = await this.renderNestedLists(childBlock.children, nestingLevel + 1, childBlock.id);
+              // Check if children are list items
+              if (
+                childBlock.children[0] &&
+                (childBlock.children[0].type === "bulletListItem" || childBlock.children[0].type === "numberedListItem")
+              ) {
+                // Render nested list inside this <li>
+                nestedListContent = await this.renderNestedLists(childBlock.children, nestingLevel + 1, childBlock.id);
+              } else {
+                // Render non-list children as block content inside this <li>
+                nestedListContent = await this.transformBlocks(childBlock.children, nestingLevel + 1);
+              }
             }
             childListItems.push(
-              <React.Fragment key={childBlock.id}>
+              <li key={childBlock.id} style={style}>
                 {childLiContent}
-                {childNestedList.length > 0 && childNestedList}
-              </React.Fragment>
+                {nestedListContent.length > 0 && nestedListContent}
+              </li>
             );
             l++;
             childStartIndex++;
@@ -161,7 +172,7 @@ export class ReactEmailExporter<
           }
           k = l;
         } else {
-          // Non-list child, render as normal
+          // Non-list child, render as normal (do not wrap in Section here)
           const childBlocks = await this.transformBlocks([child], nestingLevel);
           nestedList.push(...childBlocks);
           k++;
@@ -191,9 +202,7 @@ export class ReactEmailExporter<
         ret.push(
           <React.Fragment key={b.id}>
             <Section style={style}>{self}</Section>
-            {children.length > 0 && (
-              <Section style={{ marginLeft: 10, ...style }}>{children}</Section>
-            )}
+            {children.length > 0 && children}
           </React.Fragment>
         );
         i++;
