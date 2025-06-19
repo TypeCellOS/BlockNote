@@ -124,7 +124,7 @@ export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
         const headerColsCount = (table.headerCols as number) ?? 0;
 
         return (
-            <table style={{ borderCollapse: 'collapse', width: '100%', margin: '16px 0', border: '1px solid #ddd', borderRadius: 4, overflow: 'hidden' }} border="0" cellpadding="0" cellspacing="0">
+            <table style={{ borderCollapse: 'collapse', width: '100%', margin: '16px 0', border: '1px solid #ddd', borderRadius: 4, overflow: 'hidden' }} border={0} cellPadding={0} cellSpacing={0}>
                 <tbody>
                     {table.rows.map((row: any, rowIndex: number) => (
                         <tr key={'row-' + rowIndex}>
