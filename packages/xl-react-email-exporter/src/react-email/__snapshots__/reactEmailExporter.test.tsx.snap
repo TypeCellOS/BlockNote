@@ -1,0 +1,3 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`react email exporter > should export a document (HTML snapshot) 1`] = `Promise {}`;

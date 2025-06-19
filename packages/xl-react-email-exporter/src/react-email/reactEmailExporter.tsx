@@ -208,7 +208,7 @@ export class ReactEmailExporter<
 
     public async toReactEmailDocument(
         blocks: Block<B, I, S>[],
-        options: {
+        options?: {
           preview?: string | string[];
         }
       ) {
@@ -222,7 +222,7 @@ export class ReactEmailExporter<
             lineHeight: "1.5",
             color: "#333",
           }}>
-            {options.preview && <Preview>{options.preview}</Preview>}
+            {options?.preview && <Preview>{options.preview}</Preview>}
             <Tailwind>  
               <Container>{transformedBlocks}</Container>
             </Tailwind>
