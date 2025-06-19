@@ -1,7 +1,7 @@
 ---
-title: Default Content Types
+title: Default Blocks
 description: BlockNote supports a variety on built-in block and inline content types that are included in the editor by default.
-imageTitle: Default Content Types
+imageTitle: BlockNote Default Blocks
 ---
 
 BlockNote supports a number of built-in blocks, inline content types, and styles that are included in the editor by default. This is called the Default Schema. To create your own content types, see [Custom Schemas](/docs/custom-schemas).
@@ -10,11 +10,9 @@ The demo below showcases each of BlockNote's built-in block and inline content t
 
 <Example name="basic/default-blocks" />
 
-# Default Blocks
+## Default Blocks
 
 BlockNote's built-in blocks range from basic paragraphs to tables and images.
-
-## Reference
 
 Let's look more in-depth at the default blocks and the properties they support:
 
@@ -130,7 +128,7 @@ type TableBlock = {
 };
 ```
 
-## Default Block Properties
+### Default Block Properties
 
 There are some default block props that BlockNote uses for the built-in blocks:
 
@@ -148,11 +146,9 @@ type DefaultProps = {
 
 `textAlignment:` The text alignment of the block.
 
-# Default Inline Content
+## Default Inline Content
 
 By default, `InlineContent` (the content of text blocks like paragraphs) in BlockNote can either be a `StyledText` or a `Link` object.
-
-## Reference
 
 Here's an overview of all default inline content and the properties they support:
 
@@ -195,7 +191,7 @@ type Styles = {
 };
 ```
 
-# Creating New Block or Inline Content Types
+# Creating New Content Types
 
 You can also extend your editor and create your own Blocks, Inline Content or Styles using React.
 Skip to [Custom Schemas (advanced)](/docs/custom-schemas) to learn how to do this.

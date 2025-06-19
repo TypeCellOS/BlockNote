@@ -5,6 +5,7 @@ import { Suspense } from "react";
 
 import { Example } from "../components/example";
 import { ThemedImage } from "../components/ThemedImage";
+import { TypeTable } from "fumadocs-ui/components/type-table";
 
 // use this function to get MDX components, you will need it for rendering MDX
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
@@ -18,6 +19,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     ThemedImage: ThemedImage,
     Tabs: Tabs,
     Tab: Tab,
+    TypeTable: TypeTable,
     ...components,
   } as any;
 }

@@ -32,6 +32,11 @@ const config = {
       permanent: true,
     },
     {
+      source: "/docs/quickstart",
+      destination: "/docs/install",
+      permanent: true,
+    },
+    {
       source: "/docs/editor",
       destination: "/docs/editor-basics/setup",
       permanent: true,

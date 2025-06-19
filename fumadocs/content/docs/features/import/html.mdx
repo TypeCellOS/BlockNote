@@ -1,0 +1,34 @@
+---
+title: HTML
+description: It's possible to export or import Blocks to and from HTML.
+imageTitle: BlockNote HTML Export
+path: /docs/converting-blocks
+---
+
+It's possible to import HTML content into BlockNote blocks, completely client-side.
+
+<Callout type={"warning"}>
+    The functions to import from HTML are considered "lossy"; some information might be dropped when converting HTML to Blocks.
+
+    To serialize Blocks to a non-lossy format (for example, to store the contents of the editor in your backend), simply export the built-in Block format using `JSON.stringify(editor.document)`.
+
+</Callout>
+
+### HTML to Blocks
+
+Use `tryParseHTMLToBlocks` to parse an HTML string to `Block` objects:
+
+```typescript
+async tryParseHTMLToBlocks(html: string): Promise<Blocks[]>;
+
+// Usage
+const blocksFromHTML = await editor.tryParseHTMLToBlocks(html);
+```
+
+`returns:` The blocks parsed from the HTML string.
+
+Tries to create `Block` objects out of any HTML block-level elements, and `InlineContent` objects from any HTML inline elements, though not all HTML tags are recognized. If BlockNote doesn't recognize an element's tag, it will parse it as a paragraph or plain text.
+
+**Demo**
+
+<Example name="interoperability/converting-blocks-from-html" />

@@ -1,0 +1,106 @@
+---
+title: Editor Setup
+description: Learn how to setup your BlockNote editor using the `useCreateBlockNote` hook and the `BlockNoteView` component.
+imageTitle: Editor Setup
+---
+
+You can customize your editor when you instantiate it. Let's take a closer looks at the basic methods and components to set up your BlockNote editor.
+
+## `useCreateBlockNote` hook
+
+Create a new `BlockNoteEditor` by calling the `useCreateBlockNote` hook. This instantiates a new editor and its required state. You can later interact with the editor using the Editor API and pass it to the `BlockNoteView` component.
+
+```tsx
+import { useCreateBlockNote, BlockNoteView } from "@blocknote/react";
+
+function MyEditor() {
+  // Creates a new BlockNoteEditor instance
+  const editor = useCreateBlockNote({
+    initialContent: [
+      {
+        type: "paragraph",
+        content: "Hello, world!",
+      },
+    ],
+    sideMenuDetection: "editor",
+  });
+
+  return <BlockNoteView editor={editor} />;
+}
+```
+
+The hook takes two optional parameters:
+
+**options:** An object containing options for the editor:
+
+**deps:** Dependency array that's internally passed to `useMemo`. A new editor will only be created when this array changes.
+
+<Callout type="info" emoji={"💡"}>
+  <strong>Manually creating the editor (`BlockNoteEditor.create`)</strong>
+  <p>
+    The `useCreateBlockNote` hook is actually a simple `useMemo` wrapper around
+    the `BlockNoteEditor.create` method. You can use this method directly if you
+    want to control the editor lifecycle manually. For example, we do this in
+    the [Saving & Loading example](/examples/backend/saving-loading) to delay
+    the editor creation until some content has been fetched from an external
+    data source.
+  </p>
+</Callout>
+
+### Options
+
+There are a number of options you can pass to the `BlockNoteEditor` constructor. You can find the full list of these below:
+
+<auto-type-table
+  path="../../../../packages/core/src/editor/BlockNoteEditor.ts"
+  name="BlockNoteEditorOptions"
+/>
+
+## Rendering the Editor with `<BlockNoteView>`
+
+Use the `<BlockNoteView>` component to render the `BlockNoteEditor` instance you just created:
+
+```tsx
+import { BlockNoteView, useCreateBlockNote } from "@blocknote/react";
+
+function MyEditor() {
+  const editor = useCreateBlockNote();
+
+  // Renders the editor
+  return (
+    <BlockNoteView
+      editor={editor}
+      theme="light"
+      onSelectionChange={handleSelectionChange}
+      onChange={handleChange}
+      children={
+        <div>
+          <h1>My Child Component</h1>
+        </div>
+      }
+    />
+  );
+}
+```
+
+### Props
+
+There are a number of additional props you can pass to `BlockNoteView`. You can find the full list of these below:
+
+<auto-type-table
+  path="../../../../packages/react/src/editor/BlockNoteView.tsx"
+  name="BlockNoteViewProps"
+/>
+
+Additional props passed are forwarded to the HTML `div` element BlockNote renders internally.
+
+<Callout type="info" emoji={"💡"}>
+  <strong>Uncontrolled component</strong>
+  <p>
+    Note that the `BlockNoteView` component is an [uncontrolled component](https://react.dev/learn/sharing-state-between-components#controlled-and-uncontrolled-components). 
+    This means you don't pass in the editor content directly as a prop. You can use the `initialContent` option in the `useCreateBlockNote` hook to set the initial content of the editor (similar to the `defaultValue` prop in a regular React `<textarea>`).
+  </p>
+  <p>
+    BlockNote handles the complexities and performance optimizations of managing editor state internally. You can interact with the editor content using the [Editor API](/docs/editor-api).
+  </p>
+</Callout>

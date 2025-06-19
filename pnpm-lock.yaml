@@ -3350,6 +3350,9 @@ importers:
       shiki:
         specifier: 3.3.0
         version: 3.3.0
+      ts-morph:
+        specifier: 26.0.0
+        version: 26.0.0
       y-partykit:
         specifier: ^0.0.33
         version: 0.0.33(react@19.1.0)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)

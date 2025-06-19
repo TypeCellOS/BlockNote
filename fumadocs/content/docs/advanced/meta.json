@@ -1,15 +1,10 @@
 {
   "title": "Advanced",
   "pages": [
-    "nextjs",
-    "ariakit",
-    "shadcn",
     "grid-suggestion-menus",
     "code-blocks",
     "paste-handling",
-    "tables",
     "custom-schemas",
-    "vanilla-js",
     "..."
   ]
 }
