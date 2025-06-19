@@ -119,63 +119,59 @@ export class ReactEmailExporter<
       parentId: string
     ): Promise<React.ReactElement<any>[]> {
       const nestedList: React.ReactElement<any>[] = [];
-      let k = 0;
-      while (k < children.length) {
-        const child = children[k];
+      let i = 0;
+      while (i < children.length) {
+        const child = children[i];
         if (child.type === "bulletListItem" || child.type === "numberedListItem") {
-          const childListType = child.type;
-          const childListItems: React.ReactElement<any>[] = [];
-          let l = k;
-          let childStartIndex = 1;
-          while (
-            l < children.length &&
-            children[l].type === childListType
-          ) {
-            const childBlock = children[l];
-            const childLiContent = await this.mapBlock(childBlock as any, nestingLevel, childStartIndex) as any;
-            const style = this.blocknoteDefaultPropsToReactEmailStyle(childBlock.props as any);
-            let nestedListContent: React.ReactElement<any>[] = [];
-            if (childBlock.children && childBlock.children.length > 0) {
-              // Check if children are list items
+          // Group consecutive list items of the same type
+          const listType = child.type;
+          const listItems: React.ReactElement<any>[] = [];
+          let j = i;
+          let itemIndex = 1;
+          while (j < children.length && children[j].type === listType) {
+            const listItem = children[j];
+            const liContent = await this.mapBlock(listItem as any, nestingLevel, itemIndex) as any;
+            const style = this.blocknoteDefaultPropsToReactEmailStyle(listItem.props as any);
+            let nestedContent: React.ReactElement<any>[] = [];
+            if (listItem.children && listItem.children.length > 0) {
+              // If children are list items, render as nested list; otherwise, as normal blocks
               if (
-                childBlock.children[0] &&
-                (childBlock.children[0].type === "bulletListItem" || childBlock.children[0].type === "numberedListItem")
+                listItem.children[0] &&
+                (listItem.children[0].type === "bulletListItem" || listItem.children[0].type === "numberedListItem")
               ) {
-                // Render nested list inside this <li>
-                nestedListContent = await this.renderNestedLists(childBlock.children, nestingLevel + 1, childBlock.id);
+                nestedContent = await this.renderNestedLists(listItem.children, nestingLevel + 1, listItem.id);
               } else {
-                // Render non-list children as block content inside this <li>
-                nestedListContent = await this.transformBlocks(childBlock.children, nestingLevel + 1);
+                nestedContent = await this.transformBlocks(listItem.children, nestingLevel + 1);
               }
             }
-            childListItems.push(
-              <li key={childBlock.id} style={style}>
-                {childLiContent}
-                {nestedListContent.length > 0 && nestedListContent}
+            listItems.push(
+              <li key={listItem.id} style={style}>
+                {liContent}
+                {nestedContent.length > 0 && nestedContent}
               </li>
             );
-            l++;
-            childStartIndex++;
+            j++;
+            itemIndex++;
           }
-          if (childListType === "bulletListItem") {
+          if (listType === "bulletListItem") {
             nestedList.push(
-              <ul className="list-disc pl-6 mb-2" key={parentId + "-ul-nested-" + k}>
-                {childListItems}
+              <ul className="list-disc pl-6 mb-2" key={parentId + "-ul-nested-" + i}>
+                {listItems}
               </ul>
             );
           } else {
             nestedList.push(
-              <ol className="list-decimal pl-6 mb-2" start={1} key={parentId + "-ol-nested-" + k}>
-                {childListItems}
+              <ol className="list-decimal pl-6 mb-2" start={1} key={parentId + "-ol-nested-" + i}>
+                {listItems}
               </ol>
             );
           }
-          k = l;
+          i = j;
         } else {
-          // Non-list child, render as normal (do not wrap in Section here)
+          // Non-list child, render as normal
           const childBlocks = await this.transformBlocks([child], nestingLevel);
           nestedList.push(...childBlocks);
-          k++;
+          i++;
         }
       }
       return nestedList;
