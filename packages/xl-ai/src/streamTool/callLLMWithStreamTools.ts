@@ -2,6 +2,7 @@ import {
   CoreMessage,
   GenerateObjectResult,
   LanguageModel,
+  LanguageModelV1,
   ObjectStreamPart,
   StreamObjectResult,
   generateObject,
@@ -11,6 +12,8 @@ import {
 
 import { createStreamToolsArraySchema } from "./jsonSchema.js";
 
+import { ExecuteLLMRequestOptions } from "../api/LLMRequest.js";
+import { LLMResponse } from "../api/LLMResponse.js";
 import {
   AsyncIterableStream,
   createAsyncIterableStream,
@@ -349,4 +352,41 @@ function partialObjectStream<PARTIAL>(
       }),
     ),
   );
+}
+
+export function createAISDKLLMRequestExecutor(opts: {
+  model: LanguageModelV1;
+}) {
+  const { model } = opts;
+  return async (opts: ExecuteLLMRequestOptions) => {
+    const { messages, streamTools, llmRequestOptions, onStart } = opts;
+    const { stream, maxRetries, _generateObjectOptions, _streamObjectOptions } =
+      llmRequestOptions;
+    let response:
+      | Awaited<ReturnType<typeof generateOperations<any>>>
+      | Awaited<ReturnType<typeof streamOperations<any>>>;
+
+    if (stream) {
+      response = await streamOperations(
+        streamTools,
+        {
+          messages,
+          model,
+          maxRetries,
+          ...(_streamObjectOptions as any),
+        },
+        onStart,
+      );
+    } else {
+      response = await generateOperations(streamTools, {
+        messages,
+        model,
+        maxRetries,
+        ...(_generateObjectOptions as any),
+      });
+      onStart?.();
+    }
+
+    return new LLMResponse(messages, response, streamTools);
+  };
 }
