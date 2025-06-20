@@ -5,6 +5,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { UseFloatingOptions, flip, offset, shift } from "@floating-ui/react";
+import { isEventTargetWithin } from "@floating-ui/react/utils";
 import { FC, useMemo, useRef, useState } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -87,6 +88,23 @@ export const FormattingToolbarController = (props: {
           editor.formattingToolbar.closeMenu();
           editor.focus();
         }
+      },
+      canDismiss: {
+        enabled: true,
+        escapeKey: true,
+        outsidePress: (e) => {
+          const view = editor._tiptapEditor?.view;
+          if (!view) {
+            return false;
+          }
+
+          const target = e.target;
+          if (!target) {
+            return false;
+          }
+
+          return !isEventTargetWithin(e, view.dom.parentElement);
+        },
       },
       ...props.floatingOptions,
     },
