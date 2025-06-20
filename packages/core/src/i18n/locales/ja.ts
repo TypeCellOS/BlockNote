@@ -22,20 +22,34 @@ export const ja: Dictionary = {
     },
     toggle_heading: {
       title: "折りたたみ見出し１",
-      subtext: "折りたたみ可能なトップレベルの見出し",
-      aliases: ["h", "見出し１", "h1", "大見出し", "折りたたみ"],
+      subtext: "内容の表示/非表示が切り替え可能なトップレベルの見出し",
+      aliases: ["h", "見出し１", "h1", "大見出し", "折りたたみ", "トグル"],
       group: "見出し",
     },
     toggle_heading_2: {
       title: "折りたたみ見出し２",
-      subtext: "折りたたみ可能な重要なセクションの見出し",
-      aliases: ["h2", "見出し2", "subheading", "中見出し", "折りたたみ"],
+      subtext: "内容の表示/非表示が切り替え可能な重要なセクションの見出し",
+      aliases: [
+        "h2",
+        "見出し2",
+        "subheading",
+        "中見出し",
+        "折りたたみ",
+        "トグル",
+      ],
       group: "見出し",
     },
     toggle_heading_3: {
       title: "折りたたみ見出し３",
-      subtext: "折りたたみ可能なセクションやグループの見出し",
-      aliases: ["h3", "見出し3", "subheading", "小見出し", "折りたたみ"],
+      subtext: "内容の表示/非表示が切り替え可能なセクションやグループの見出し",
+      aliases: [
+        "h3",
+        "見出し3",
+        "subheading",
+        "小見出し",
+        "折りたたみ",
+        "トグル",
+      ],
       group: "見出し",
     },
     quote: {
@@ -89,7 +103,13 @@ export const ja: Dictionary = {
     toggle_list: {
       title: "折りたたみリスト",
       subtext: "サブ項目を非表示にできるリスト",
-      aliases: ["li", "リスト", "折りたたみリスト", "トグルリスト"],
+      aliases: [
+        "li",
+        "リスト",
+        "折りたたみリスト",
+        "トグルリスト",
+        "折りたたみリスト",
+      ],
       group: "基本ブロック",
     },
     paragraph: {

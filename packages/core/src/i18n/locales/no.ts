@@ -22,20 +22,32 @@ export const no: Dictionary = {
     },
     toggle_heading: {
       title: "Sammenleggbar Overskrift 1",
-      subtext: "Sammenleggbar toppnivåoverskrift",
-      aliases: ["h", "overskrift1", "h1", "sammenleggbar"],
+      subtext: "Toppnivåoverskrift som kan vises eller skjules",
+      aliases: ["h", "overskrift1", "h1", "sammenleggbar", "toggle"],
       group: "Overskrifter",
     },
     toggle_heading_2: {
       title: "Sammenleggbar Overskrift 2",
-      subtext: "Sammenleggbar hovedseksjonsoverskrift",
-      aliases: ["h2", "overskrift2", "underoverskrift", "sammenleggbar"],
+      subtext: "Hovedseksjonsoverskrift som kan vises eller skjules",
+      aliases: [
+        "h2",
+        "overskrift2",
+        "underoverskrift",
+        "sammenleggbar",
+        "toggle",
+      ],
       group: "Overskrifter",
     },
     toggle_heading_3: {
       title: "Sammenleggbar Overskrift 3",
-      subtext: "Sammenleggbar underseksjon og gruppeoverskrift",
-      aliases: ["h3", "overskrift3", "underoverskrift", "sammenleggbar"],
+      subtext: "Underseksjonsoverskrift som kan vises eller skjules",
+      aliases: [
+        "h3",
+        "overskrift3",
+        "underoverskrift",
+        "sammenleggbar",
+        "toggle",
+      ],
       group: "Overskrifter",
     },
     quote: {
@@ -73,7 +85,13 @@ export const no: Dictionary = {
     toggle_list: {
       title: "Sammenleggbar liste",
       subtext: "Liste med skjulbare underpunkter",
-      aliases: ["li", "liste", "sammenleggbar liste", "skjulbar liste"],
+      aliases: [
+        "li",
+        "liste",
+        "sammenleggbar liste",
+        "skjulbar liste",
+        "sammenleggbar liste",
+      ],
       group: "Grunnleggende blokker",
     },
     paragraph: {

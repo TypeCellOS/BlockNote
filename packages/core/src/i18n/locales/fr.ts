@@ -22,23 +22,37 @@ export const fr: Dictionary = {
       group: "Titres",
     },
     toggle_heading: {
-      title: "Titre Déroulant 1",
-      subtext: "Titre déroulant de premier niveau",
-      aliases: ["h", "titre1", "h1", "déroulant"],
+      title: "Titre Repliable 1",
+      subtext:
+        "Titre de premier niveau qui peut être replié pour masquer son contenu",
+      aliases: ["h", "titre1", "h1", "repliable", "masquable", "déroulant"],
       group: "Titres",
     },
     toggle_heading_2: {
-      title: "Titre Déroulant 2",
-      subtext:
-        "Titre déroulant de deuxième niveau utilisé pour les sections clés",
-      aliases: ["h2", "titre2", "sous-titre", "déroulant"],
+      title: "Titre Repliable 2",
+      subtext: "Titre de section qui peut être replié pour masquer son contenu",
+      aliases: [
+        "h2",
+        "titre2",
+        "sous-titre",
+        "repliable",
+        "masquable",
+        "déroulant",
+      ],
       group: "Titres",
     },
     toggle_heading_3: {
-      title: "Titre Déroulant 3",
+      title: "Titre Repliable 3",
       subtext:
-        "Titre déroulant de troisième niveau utilisé pour les sous-sections et les titres de groupe",
-      aliases: ["h3", "titre3", "sous-titre", "déroulant"],
+        "Titre de sous-section qui peut être replié pour masquer son contenu",
+      aliases: [
+        "h3",
+        "titre3",
+        "sous-titre",
+        "repliable",
+        "masquable",
+        "déroulant",
+      ],
       group: "Titres",
     },
     quote: {
@@ -86,14 +100,14 @@ export const fr: Dictionary = {
       group: "Blocs de base",
     },
     toggle_list: {
-      title: "Liste déroulante",
+      title: "Liste repliable",
       subtext: "Liste avec des sous-éléments masquables",
       aliases: [
         "li",
         "liste",
-        "liste déroulante",
         "liste pliable",
         "liste escamotable",
+        "liste repliable",
       ],
       group: "Blocs de base",
     },

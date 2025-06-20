@@ -21,21 +21,21 @@ export const es: Dictionary = {
       group: "Encabezados",
     },
     toggle_heading: {
-      title: "Encabezado Desplegable 1",
-      subtext: "Encabezado de primer nivel desplegable",
-      aliases: ["h", "encabezado1", "h1", "desplegable"],
+      title: "Encabezado Plegable 1",
+      subtext: "Encabezado de primer nivel que se puede plegar",
+      aliases: ["h", "encabezado1", "h1", "plegable", "contraible"],
       group: "Encabezados",
     },
     toggle_heading_2: {
-      title: "Encabezado Desplegable 2",
-      subtext: "Encabezado de sección principal desplegable",
-      aliases: ["h2", "encabezado2", "subencabezado", "desplegable"],
+      title: "Encabezado Plegable 2",
+      subtext: "Encabezado de sección principal que se puede plegar",
+      aliases: ["h2", "encabezado2", "subencabezado", "plegable", "contraible"],
       group: "Encabezados",
     },
     toggle_heading_3: {
-      title: "Encabezado Desplegable 3",
-      subtext: "Encabezado de subsección y grupo desplegable",
-      aliases: ["h3", "encabezado3", "subencabezado", "desplegable"],
+      title: "Encabezado Plegable 3",
+      subtext: "Encabezado de subsección y grupo que se puede plegar",
+      aliases: ["h3", "encabezado3", "subencabezado", "plegable", "contraible"],
       group: "Encabezados",
     },
     quote: {
@@ -70,9 +70,9 @@ export const es: Dictionary = {
       group: "Bloques básicos",
     },
     toggle_list: {
-      title: "Lista Desplegable",
+      title: "Lista Plegable",
       subtext: "Lista con subelementos ocultables",
-      aliases: ["li", "lista", "lista desplegable", "lista colapsable"],
+      aliases: ["li", "lista", "lista plegable", "lista colapsable"],
       group: "Bloques básicos",
     },
     paragraph: {

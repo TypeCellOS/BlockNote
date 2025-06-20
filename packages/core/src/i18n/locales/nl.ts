@@ -21,21 +21,22 @@ export const nl: Dictionary = {
       group: "Koppen",
     },
     toggle_heading: {
-      title: "Inklapbare Kop 1",
-      subtext: "Inklapbare hoofdkop",
-      aliases: ["h", "kop1", "h1", "inklapbaar"],
+      title: "Uitklapbare Kop 1",
+      subtext: "Hoofdkop die kan worden uit- en ingeklapt om inhoud te tonen",
+      aliases: ["h", "kop1", "h1", "uitklapbaar", "inklapbaar"],
       group: "Koppen",
     },
     toggle_heading_2: {
-      title: "Inklapbare Kop 2",
-      subtext: "Inklapbare kop voor belangrijke secties",
-      aliases: ["h2", "kop2", "subkop", "inklapbaar"],
+      title: "Uitklapbare Kop 2",
+      subtext: "Sectiekop die kan worden uit- en ingeklapt om inhoud te tonen",
+      aliases: ["h2", "kop2", "subkop", "uitklapbaar", "inklapbaar"],
       group: "Koppen",
     },
     toggle_heading_3: {
-      title: "Inklapbare Kop 3",
-      subtext: "Inklapbare kop voor subsecties en groepskoppen",
-      aliases: ["h3", "kop3", "subkop", "inklapbaar"],
+      title: "Uitklapbare Kop 3",
+      subtext:
+        "Subsectiekop die kan worden uit- en ingeklapt om inhoud te tonen",
+      aliases: ["h3", "kop3", "subkop", "uitklapbaar", "inklapbaar"],
       group: "Koppen",
     },
     quote: {
@@ -63,9 +64,9 @@ export const nl: Dictionary = {
       group: "Basisblokken",
     },
     toggle_list: {
-      title: "Inklapbare Lijst",
+      title: "Uitklapbare Lijst",
       subtext: "Lijst met verbergbare sub-items",
-      aliases: ["li", "lijst", "inklapbare lijst", "uitklapbare lijst"],
+      aliases: ["li", "lijst", "uitklapbare lijst", "inklapbare lijst"],
       group: "Basisblokken",
     },
     paragraph: {

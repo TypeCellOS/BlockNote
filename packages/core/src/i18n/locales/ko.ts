@@ -22,20 +22,20 @@ export const ko: Dictionary = {
     },
     toggle_heading: {
       title: "접을 수 있는 제목1",
-      subtext: "접을 수 있는 섹션 제목(대)",
-      aliases: ["h", "제목1", "h1", "대제목", "접기"],
+      subtext: "내용을 표시하거나 숨길 수 있는 섹션 제목(대)",
+      aliases: ["h", "제목1", "h1", "대제목", "접기", "토글"],
       group: "제목",
     },
     toggle_heading_2: {
       title: "접을 수 있는 제목2",
-      subtext: "접을 수 있는 섹션 제목(중)",
-      aliases: ["h2", "제목2", "중제목", "접기"],
+      subtext: "내용을 표시하거나 숨길 수 있는 섹션 제목(중)",
+      aliases: ["h2", "제목2", "중제목", "접기", "토글"],
       group: "제목",
     },
     toggle_heading_3: {
       title: "접을 수 있는 제목3",
-      subtext: "접을 수 있는 섹션 제목(소)",
-      aliases: ["h3", "제목3", "subheading", "접기"],
+      subtext: "내용을 표시하거나 숨길 수 있는 섹션 제목(소)",
+      aliases: ["h3", "제목3", "subheading", "접기", "토글"],
       group: "제목",
     },
     quote: {
@@ -73,7 +73,7 @@ export const ko: Dictionary = {
     toggle_list: {
       title: "접을 수 있는 목록",
       subtext: "숨길 수 있는 하위 항목이 있는 목록",
-      aliases: ["li", "목록", "접을 수 있는 목록", "토글 목록"],
+      aliases: ["li", "목록", "접을 수 있는 목록", "토글 목록", "접기 목록"],
       group: "기본 블록",
     },
     paragraph: {

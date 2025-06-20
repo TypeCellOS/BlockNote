@@ -22,20 +22,35 @@ export const is: Dictionary = {
     },
     toggle_heading: {
       title: "Fellanleg Fyrirsögn 1",
-      subtext: "Fellanleg efsta fyrirsögn",
-      aliases: ["h", "fyrirsogn1", "h1", "fellanleg"],
+      subtext:
+        "Fellanleg efsta fyrirsögn sem hægt er að sýna eða fela innihald",
+      aliases: ["h", "fyrirsogn1", "h1", "fellanleg", "fellanlegt"],
       group: "Fyrirsagnir",
     },
     toggle_heading_2: {
       title: "Fellanleg Fyrirsögn 2",
-      subtext: "Fellanleg fyrirsögn fyrir lykilhluta",
-      aliases: ["h2", "fyrirsogn2", "undirfyrirsogn", "fellanleg"],
+      subtext:
+        "Fellanleg fyrirsögn fyrir lykilhluta sem hægt er að sýna eða fela innihald",
+      aliases: [
+        "h2",
+        "fyrirsogn2",
+        "undirfyrirsogn",
+        "fellanleg",
+        "fellanlegt",
+      ],
       group: "Fyrirsagnir",
     },
     toggle_heading_3: {
       title: "Fellanleg Fyrirsögn 3",
-      subtext: "Fellanleg fyrirsögn fyrir undirhluta og hópfyrirsagnir",
-      aliases: ["h3", "fyrirsogn3", "undirfyrirsogn", "fellanleg"],
+      subtext:
+        "Fellanleg fyrirsögn fyrir undirhluta og hópfyrirsagnir sem hægt er að sýna eða fela innihald",
+      aliases: [
+        "h3",
+        "fyrirsogn3",
+        "undirfyrirsogn",
+        "fellanleg",
+        "fellanlegt",
+      ],
       group: "Fyrirsagnir",
     },
     quote: {
@@ -65,7 +80,13 @@ export const is: Dictionary = {
     toggle_list: {
       title: "Fellanlegur listi",
       subtext: "Listi með földum undirliðum",
-      aliases: ["li", "listi", "fellanlegur listi", "samfellanlegur listi"],
+      aliases: [
+        "li",
+        "listi",
+        "fellanlegur listi",
+        "samfellanlegur listi",
+        "faldanlegur listi",
+      ],
       group: "Grunnblokkar",
     },
     paragraph: {
