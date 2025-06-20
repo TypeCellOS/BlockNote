@@ -38,6 +38,24 @@ export const es: Dictionary = {
       aliases: ["h6", "encabezado6", "subencabezado6"],
       group: "Encabezados",
     },
+    toggle_heading: {
+      title: "Encabezado Plegable 1",
+      subtext: "Encabezado de primer nivel que se puede plegar",
+      aliases: ["h", "encabezado1", "h1", "plegable", "contraible"],
+      group: "Encabezados",
+    },
+    toggle_heading_2: {
+      title: "Encabezado Plegable 2",
+      subtext: "Encabezado de sección principal que se puede plegar",
+      aliases: ["h2", "encabezado2", "subencabezado", "plegable", "contraible"],
+      group: "Encabezados",
+    },
+    toggle_heading_3: {
+      title: "Encabezado Plegable 3",
+      subtext: "Encabezado de subsección y grupo que se puede plegar",
+      aliases: ["h3", "encabezado3", "subencabezado", "plegable", "contraible"],
+      group: "Encabezados",
+    },
     quote: {
       title: "Cita",
       subtext: "Cita o extracto",
@@ -67,6 +85,12 @@ export const es: Dictionary = {
         "lista de chequeo",
         "checkbox",
       ],
+      group: "Bloques básicos",
+    },
+    toggle_list: {
+      title: "Lista Plegable",
+      subtext: "Lista con subelementos ocultables",
+      aliases: ["li", "lista", "lista plegable", "lista colapsable"],
       group: "Bloques básicos",
     },
     paragraph: {
@@ -151,6 +175,7 @@ export const es: Dictionary = {
   placeholders: {
     default: "Escribe o teclea '/' para comandos",
     heading: "Encabezado",
+    toggleListItem: "Plegable",
     bulletListItem: "Lista",
     numberedListItem: "Lista",
     checkListItem: "Lista",

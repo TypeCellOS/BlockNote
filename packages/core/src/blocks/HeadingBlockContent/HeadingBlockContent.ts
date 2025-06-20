@@ -5,16 +5,19 @@ import {
   PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
+  getBlockFromPos,
   propsToAttributes,
 } from "../../schema/index.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
+import { createToggleWrapper } from "../ToggleWrapper/createToggleWrapper.js";
 
 const HEADING_LEVELS = [1, 2, 3, 4, 5, 6] as const;
 
 export const headingPropSchema = {
   ...defaultProps,
   level: { default: 1, values: HEADING_LEVELS },
+  isToggleable: { default: false },
 } satisfies PropSchema;
 
 const HeadingBlockContent = createStronglyTypedTiptapNode({
@@ -78,10 +81,10 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
               props: {
                 level: level as any,
               },
-            })
+            }),
           );
         },
-      ])
+      ]),
     );
   },
   parseHTML() {
@@ -109,6 +112,38 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
       },
       this.options.domAttributes?.inlineContent || {},
     );
+  },
+
+  addNodeView() {
+    return ({ node, HTMLAttributes, getPos }) => {
+      const { dom, contentDOM } = createDefaultBlockDOMOutputSpec(
+        this.name,
+        `h${node.attrs.level}`,
+        {
+          ...(this.options.domAttributes?.blockContent || {}),
+          ...HTMLAttributes,
+        },
+        this.options.domAttributes?.inlineContent || {},
+      );
+      dom.removeChild(contentDOM);
+
+      const editor = this.options.editor;
+      const block = getBlockFromPos(getPos, editor, this.editor, this.name);
+
+      const toggleWrapper = createToggleWrapper(
+        block as any,
+        editor,
+        contentDOM,
+      );
+      dom.appendChild(toggleWrapper.dom);
+
+      return {
+        dom,
+        contentDOM,
+        ignoreMutation: toggleWrapper.ignoreMutation,
+        destroy: toggleWrapper.destroy,
+      };
+    };
   },
 });
 

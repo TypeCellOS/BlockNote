@@ -38,6 +38,40 @@ export const ru: Dictionary = {
       aliases: ["h6", "heading6", "subheading6", "заголовок6", "подзаголовок6"],
       group: "Заголовки",
     },
+    toggle_heading: {
+      title: "Сворачиваемый заголовок 1 уровня",
+      subtext: "Заголовок верхнего уровня, который можно свернуть/развернуть",
+      aliases: ["h", "heading1", "h1", "заголовок1", "сворачиваемый"],
+      group: "Заголовки",
+    },
+    toggle_heading_2: {
+      title: "Сворачиваемый заголовок 2 уровня",
+      subtext:
+        "Заголовок для ключевых разделов, который можно свернуть/развернуть",
+      aliases: [
+        "h2",
+        "heading2",
+        "subheading",
+        "заголовок2",
+        "подзаголовок",
+        "сворачиваемый",
+      ],
+      group: "Заголовки",
+    },
+    toggle_heading_3: {
+      title: "Сворачиваемый заголовок 3 уровня",
+      subtext:
+        "Заголовок для подразделов и групп, который можно свернуть/развернуть",
+      aliases: [
+        "h3",
+        "heading3",
+        "subheading",
+        "заголовок3",
+        "подзаголовок",
+        "сворачиваемый",
+      ],
+      group: "Заголовки",
+    },
     quote: {
       title: "Цитата",
       subtext: "Цитата или отрывок",
@@ -85,6 +119,12 @@ export const ru: Dictionary = {
         "checkbox",
         "список",
       ],
+      group: "Базовые блоки",
+    },
+    toggle_list: {
+      title: "Сворачиваемый список",
+      subtext: "Список со скрываемыми элементами",
+      aliases: ["li", "список", "сворачиваемый список"],
       group: "Базовые блоки",
     },
     paragraph: {
@@ -178,6 +218,7 @@ export const ru: Dictionary = {
   placeholders: {
     default: "Введите текст или введите «/» для команд",
     heading: "Заголовок",
+    toggleListItem: "Переключить",
     bulletListItem: "Список",
     numberedListItem: "Список",
     checkListItem: "Список",

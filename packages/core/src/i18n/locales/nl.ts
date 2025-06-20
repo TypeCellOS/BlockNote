@@ -38,6 +38,25 @@ export const nl: Dictionary = {
       aliases: ["h6", "kop6", "subkop6"],
       group: "Koppen",
     },
+    toggle_heading: {
+      title: "Uitklapbare Kop 1",
+      subtext: "Hoofdkop die kan worden uit- en ingeklapt om inhoud te tonen",
+      aliases: ["h", "kop1", "h1", "uitklapbaar", "inklapbaar"],
+      group: "Koppen",
+    },
+    toggle_heading_2: {
+      title: "Uitklapbare Kop 2",
+      subtext: "Sectiekop die kan worden uit- en ingeklapt om inhoud te tonen",
+      aliases: ["h2", "kop2", "subkop", "uitklapbaar", "inklapbaar"],
+      group: "Koppen",
+    },
+    toggle_heading_3: {
+      title: "Uitklapbare Kop 3",
+      subtext:
+        "Subsectiekop die kan worden uit- en ingeklapt om inhoud te tonen",
+      aliases: ["h3", "kop3", "subkop", "uitklapbaar", "inklapbaar"],
+      group: "Koppen",
+    },
     quote: {
       title: "Citaat",
       subtext: "Citaat of uittreksel",
@@ -60,6 +79,12 @@ export const nl: Dictionary = {
       title: "Controlelijst",
       subtext: "Gebruikt om een lijst met selectievakjes weer te geven",
       aliases: ["ul", "li", "lijst", "aangevinkte lijst", "selectievakje"],
+      group: "Basisblokken",
+    },
+    toggle_list: {
+      title: "Uitklapbare Lijst",
+      subtext: "Lijst met verbergbare sub-items",
+      aliases: ["li", "lijst", "uitklapbare lijst", "inklapbare lijst"],
       group: "Basisblokken",
     },
     paragraph: {
@@ -151,6 +176,7 @@ export const nl: Dictionary = {
   placeholders: {
     default: "Voer tekst in of type '/' voor commando's",
     heading: "Kop",
+    toggleListItem: "Uitklapbaar",
     bulletListItem: "Lijst",
     numberedListItem: "Lijst",
     checkListItem: "Lijst",

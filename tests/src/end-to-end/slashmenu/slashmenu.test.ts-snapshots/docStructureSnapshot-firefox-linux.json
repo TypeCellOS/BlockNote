@@ -16,7 +16,8 @@
               "type": "heading",
               "attrs": {
                 "textAlignment": "left",
-                "level": 1
+                "level": 1,
+                "isToggleable": false
               },
               "content": [
                 {
@@ -39,7 +40,8 @@
               "type": "heading",
               "attrs": {
                 "textAlignment": "left",
-                "level": 2
+                "level": 2,
+                "isToggleable": false
               },
               "content": [
                 {
@@ -63,7 +65,8 @@
                       "type": "heading",
                       "attrs": {
                         "textAlignment": "left",
-                        "level": 3
+                        "level": 3,
+                        "isToggleable": false
                       },
                       "content": [
                         {

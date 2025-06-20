@@ -38,6 +38,24 @@ export const pt: Dictionary = {
       aliases: ["h6", "titulo6", "subtitulo6"],
       group: "Títulos",
     },
+    toggle_heading: {
+      title: "Título Expansível",
+      subtext: "Título expansível de nível superior",
+      aliases: ["h", "titulo1", "h1", "expansível"],
+      group: "Títulos",
+    },
+    toggle_heading_2: {
+      title: "Título Expansível 2",
+      subtext: "Título expansível para seções principais",
+      aliases: ["h2", "titulo2", "subtitulo", "expansível"],
+      group: "Títulos",
+    },
+    toggle_heading_3: {
+      title: "Título Expansível 3",
+      subtext: "Título expansível para subseções e títulos de grupo",
+      aliases: ["h3", "titulo3", "subtitulo", "expansível"],
+      group: "Títulos",
+    },
     quote: {
       title: "Citação",
       subtext: "Citação ou trecho",
@@ -67,6 +85,12 @@ export const pt: Dictionary = {
         "lista marcada",
         "caixa de seleção",
       ],
+      group: "Blocos básicos",
+    },
+    toggle_list: {
+      title: "Lista expansível",
+      subtext: "Lista com subitens ocultáveis",
+      aliases: ["li", "lista", "lista expansível", "lista recolhível"],
       group: "Blocos básicos",
     },
     paragraph: {
@@ -143,6 +167,7 @@ export const pt: Dictionary = {
   placeholders: {
     default: "Digite texto ou use '/' para comandos",
     heading: "Título",
+    toggleListItem: "Alternar",
     bulletListItem: "Lista",
     numberedListItem: "Lista",
     checkListItem: "Lista",
