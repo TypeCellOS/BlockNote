@@ -130,7 +130,10 @@ export class FormattingToolbarView implements PluginView {
   };
 
   viewMousedownHandler = (e: MouseEvent) => {
-    if (!this.isElementWithinEditorWrapper(e.target as Node)) {
+    if (
+      !this.isElementWithinEditorWrapper(e.target as Node) ||
+      e.button === 0
+    ) {
       this.preventShow = true;
     }
   };
