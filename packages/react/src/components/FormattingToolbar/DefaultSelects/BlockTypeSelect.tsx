@@ -14,6 +14,7 @@ import {
   RiListCheck3,
   RiListOrdered,
   RiListUnordered,
+  RiPlayList2Fill,
   RiQuoteText,
   RiText,
 } from "react-icons/ri";
@@ -77,10 +78,52 @@ export const blockTypeSelectItems = (
       block.props.level === 3,
   },
   {
+    name: dict.slash_menu.toggle_heading.title,
+    type: "heading",
+    props: { level: 1, isToggleable: true },
+    icon: RiH1,
+    isSelected: (block) =>
+      block.type === "heading" &&
+      "level" in block.props &&
+      block.props.level === 1 &&
+      "isToggleable" in block.props &&
+      block.props.isToggleable,
+  },
+  {
+    name: dict.slash_menu.toggle_heading_2.title,
+    type: "heading",
+    props: { level: 2, isToggleable: true },
+    icon: RiH2,
+    isSelected: (block) =>
+      block.type === "heading" &&
+      "level" in block.props &&
+      block.props.level === 2 &&
+      "isToggleable" in block.props &&
+      block.props.isToggleable,
+  },
+  {
+    name: dict.slash_menu.toggle_heading_3.title,
+    type: "heading",
+    props: { level: 3, isToggleable: true },
+    icon: RiH3,
+    isSelected: (block) =>
+      block.type === "heading" &&
+      "level" in block.props &&
+      block.props.level === 3 &&
+      "isToggleable" in block.props &&
+      block.props.isToggleable,
+  },
+  {
     name: dict.slash_menu.quote.title,
     type: "quote",
     icon: RiQuoteText,
     isSelected: (block) => block.type === "quote",
+  },
+  {
+    name: dict.slash_menu.toggle_list.title,
+    type: "toggleListItem",
+    icon: RiPlayList2Fill,
+    isSelected: (block) => block.type === "toggleListItem",
   },
   {
     name: dict.slash_menu.bullet_list.title,

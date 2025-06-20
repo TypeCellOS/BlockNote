@@ -21,6 +21,40 @@ export const fr: Dictionary = {
       aliases: ["h3", "titre3", "sous-titre"],
       group: "Titres",
     },
+    toggle_heading: {
+      title: "Titre Repliable 1",
+      subtext:
+        "Titre de premier niveau qui peut être replié pour masquer son contenu",
+      aliases: ["h", "titre1", "h1", "repliable", "masquable", "déroulant"],
+      group: "Titres",
+    },
+    toggle_heading_2: {
+      title: "Titre Repliable 2",
+      subtext: "Titre de section qui peut être replié pour masquer son contenu",
+      aliases: [
+        "h2",
+        "titre2",
+        "sous-titre",
+        "repliable",
+        "masquable",
+        "déroulant",
+      ],
+      group: "Titres",
+    },
+    toggle_heading_3: {
+      title: "Titre Repliable 3",
+      subtext:
+        "Titre de sous-section qui peut être replié pour masquer son contenu",
+      aliases: [
+        "h3",
+        "titre3",
+        "sous-titre",
+        "repliable",
+        "masquable",
+        "déroulant",
+      ],
+      group: "Titres",
+    },
     quote: {
       title: "Citation",
       subtext: "Citation ou extrait",
@@ -62,6 +96,18 @@ export const fr: Dictionary = {
         "check box",
         "to do",
         "todo",
+      ],
+      group: "Blocs de base",
+    },
+    toggle_list: {
+      title: "Liste repliable",
+      subtext: "Liste avec des sous-éléments masquables",
+      aliases: [
+        "li",
+        "liste",
+        "liste pliable",
+        "liste escamotable",
+        "liste repliable",
       ],
       group: "Blocs de base",
     },
@@ -157,6 +203,7 @@ export const fr: Dictionary = {
     default:
       "Entrez du texte ou tapez '/' pour faire apparaître les options de mise en page",
     heading: "Titre",
+    toggleListItem: "Basculer",
     bulletListItem: "Liste",
     numberedListItem: "Liste",
     checkListItem: "Liste",

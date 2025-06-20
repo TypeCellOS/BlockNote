@@ -20,6 +20,24 @@ export const hr: Dictionary = {
       aliases: ["h3", "naslov3", "podnaslov"],
       group: "Naslovi",
     },
+    toggle_heading: {
+      title: "Proširivi Naslov 1",
+      subtext: "Proširivi glavni naslov",
+      aliases: ["h", "naslov1", "h1", "proširivi"],
+      group: "Naslovi",
+    },
+    toggle_heading_2: {
+      title: "Proširivi Naslov 2",
+      subtext: "Proširivi naslov poglavlja",
+      aliases: ["h2", "naslov2", "podnaslov", "proširivi"],
+      group: "Naslovi",
+    },
+    toggle_heading_3: {
+      title: "Proširivi Naslov 3",
+      subtext: "Proširivi naslov podpoglavlja",
+      aliases: ["h3", "naslov3", "podnaslov", "proširivi"],
+      group: "Naslovi",
+    },
     quote: {
       title: "Citat",
       subtext: "Citat ili izvadak",
@@ -62,6 +80,12 @@ export const hr: Dictionary = {
         "označeni popis",
         "kućicaZaOznačavanje",
       ],
+      group: "Osnovni blokovi",
+    },
+    toggle_list: {
+      title: "Proširivi popis",
+      subtext: "Popis sa skrivenim podstavkama",
+      aliases: ["stavkaPopisa", "popis", "proširivi popis", "sklopivi popis"],
       group: "Osnovni blokovi",
     },
     paragraph: {
@@ -146,6 +170,7 @@ export const hr: Dictionary = {
   placeholders: {
     default: "Unesi tekst ili upiši ‘/’ za naredbe",
     heading: "Naslov",
+    toggleListItem: "Prebaciti",
     bulletListItem: "Lista",
     numberedListItem: "Lista",
     checkListItem: "Lista",

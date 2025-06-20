@@ -18,10 +18,34 @@ export const en = {
       aliases: ["h3", "heading3", "subheading"],
       group: "Headings",
     },
+    toggle_heading: {
+      title: "Toggle Heading 1",
+      subtext: "Toggleable top-level heading",
+      aliases: ["h", "heading1", "h1", "collapsable"],
+      group: "Headings",
+    },
+    toggle_heading_2: {
+      title: "Toggle Heading 2",
+      subtext: "Toggleable key section heading",
+      aliases: ["h2", "heading2", "subheading", "collapsable"],
+      group: "Headings",
+    },
+    toggle_heading_3: {
+      title: "Toggle Heading 3",
+      subtext: "Toggleable subsection and group heading",
+      aliases: ["h3", "heading3", "subheading", "collapsable"],
+      group: "Headings",
+    },
     quote: {
       title: "Quote",
       subtext: "Quote or excerpt",
       aliases: ["quotation", "blockquote", "bq"],
+      group: "Basic blocks",
+    },
+    toggle_list: {
+      title: "Toggle List",
+      subtext: "List with hideable sub-items",
+      aliases: ["li", "list", "toggleList", "toggle list", "collapsable list"],
       group: "Basic blocks",
     },
     numbered_list: {
@@ -132,6 +156,7 @@ export const en = {
   placeholders: {
     default: "Enter text or type '/' for commands",
     heading: "Heading",
+    toggleListItem: "Toggle",
     bulletListItem: "List",
     numberedListItem: "List",
     checkListItem: "List",

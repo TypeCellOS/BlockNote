@@ -20,6 +20,24 @@ export const ar: Dictionary = {
       aliases: ["ع3", "عنوان3", "عنوان فرعي"],
       group: "العناوين",
     },
+    toggle_heading: {
+      title: "عنوان قابل للطي 1",
+      subtext: "عنوان قابل للطي لإظهار وإخفاء المحتوى",
+      aliases: ["ع", "عنوان1", "ع1", "قابل للطي", "طي"],
+      group: "العناوين",
+    },
+    toggle_heading_2: {
+      title: "عنوان قابل للطي 2",
+      subtext: "عنوان فرعي قابل للطي لإظهار وإخفاء المحتوى",
+      aliases: ["ع2", "عنوان2", "عنوان فرعي", "قابل للطي", "طي"],
+      group: "العناوين",
+    },
+    toggle_heading_3: {
+      title: "عنوان قابل للطي 3",
+      subtext: "عنوان فرعي ثانوي قابل للطي لإظهار وإخفاء المحتوى",
+      aliases: ["ع3", "عنوان3", "عنوان فرعي", "قابل للطي", "طي"],
+      group: "العناوين",
+    },
     quote: {
       title: "اقتباس",
       subtext: "اقتباس أو مقتطف",
@@ -50,6 +68,12 @@ export const ar: Dictionary = {
         "قائمة مشطوبة",
         "مربع التحقق",
       ],
+      group: "الكتل الأساسية",
+    },
+    toggle_list: {
+      title: "قائمة قابلة للطي",
+      subtext: "قائمة بعناصر فرعية قابلة للإخفاء",
+      aliases: ["عناصر قائمة", "قائمة", "قائمة قابلة للطي", "قائمة منسدلة"],
       group: "الكتل الأساسية",
     },
     paragraph: {
@@ -118,6 +142,7 @@ export const ar: Dictionary = {
   placeholders: {
     default: "أدخل نصًا أو اكتب '/' للأوامر",
     heading: "عنوان",
+    toggleListItem: "طيّ",
     bulletListItem: "قائمة",
     numberedListItem: "قائمة",
     checkListItem: "قائمة",
