@@ -234,6 +234,7 @@ export const auth = betterAuth({
               const authContext = await auth.$context;
               const userId = payload.data.customer.externalId;
               if (!userId) {
+                console.warn("USER ID NOT FOUND");
                 return;
               }
               if (payload.data.status === "active") {
@@ -241,10 +242,12 @@ export const auth = betterAuth({
                 const planType = Object.values(PRODUCTS).find(
                   (p) => p.id === productId,
                 )?.slug;
+                console.log("USER PLAN UPDATED", userId, planType);
                 await authContext.internalAdapter.updateUser(userId, {
                   planType,
                 });
               } else {
+                console.log("USER PLAN REMOVED", userId, null);
                 // No active subscription, so we need to remove the plan type
                 await authContext.internalAdapter.updateUser(userId, {
                   planType: null,
