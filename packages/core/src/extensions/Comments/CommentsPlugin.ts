@@ -57,6 +57,10 @@ function getUpdatedThreadPositions(doc: Node, markType: string) {
 }
 
 export class CommentsPlugin extends BlockNoteExtension {
+  public static key() {
+    return "comments";
+  }
+
   public readonly userStore: UserStore<User>;
 
   /**

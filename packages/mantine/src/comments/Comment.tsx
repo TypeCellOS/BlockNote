@@ -1,5 +1,5 @@
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps, mergeRefs } from "@blocknote/react";
+import { ComponentProps, mergeRefs, useDictionary } from "@blocknote/react";
 import { Avatar, Group, Skeleton, Text } from "@mantine/core";
 import { useFocusWithin, useHover } from "@mantine/hooks";
 import { forwardRef } from "react";
@@ -12,6 +12,7 @@ const AuthorInfo = forwardRef<
   >
 >((props, _ref) => {
   const { authorInfo, timeString, edited, ...rest } = props;
+  const dict = useDictionary();
 
   assertEmpty(rest, false);
 
@@ -40,7 +41,7 @@ const AuthorInfo = forwardRef<
       <Text fz="sm" fw={"bold"}>
         {authorInfo.username}
         <Text fz="xs" c="dimmed" span ml={"xs"}>
-          {timeString} {edited && "(edited)"}
+          {timeString} {edited && `(${dict.comments.edited})`}
         </Text>
       </Text>
     </Group>

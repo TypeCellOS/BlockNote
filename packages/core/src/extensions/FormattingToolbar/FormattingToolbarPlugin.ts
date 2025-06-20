@@ -266,6 +266,10 @@ export const formattingToolbarPluginKey = new PluginKey(
 );
 
 export class FormattingToolbarProsemirrorPlugin extends BlockNoteExtension {
+  public static key() {
+    return "formattingToolbar";
+  }
+
   private view: FormattingToolbarView | undefined;
 
   constructor(editor: BlockNoteEditor<any, any, any>) {

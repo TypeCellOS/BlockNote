@@ -1,3 +1,46 @@
+## 0.31.3 (2025-06-18)
+
+### 🩹 Fixes
+
+- AI generation with empty document ([#1740](https://github.com/TypeCellOS/BlockNote/pull/1740))
+- do not send a welcome email if magic link was used on an account older than a minute ago ([db88fe4aa](https://github.com/TypeCellOS/BlockNote/commit/db88fe4aa))
+- AI system messages should always be at start of prompt ([#1741](https://github.com/TypeCellOS/BlockNote/pull/1741))
+- Selection clicking editor padding ([#1717](https://github.com/TypeCellOS/BlockNote/pull/1717))
+- preserve marks across a shift+enter #1672 ([#1743](https://github.com/TypeCellOS/BlockNote/pull/1743), [#1672](https://github.com/TypeCellOS/BlockNote/issues/1672))
+- **ai:** undo-redo after accepting/rejecting changes will undo as expected ([#1752](https://github.com/TypeCellOS/BlockNote/pull/1752))
+- **locales:** add translations for some comment strings ([#1764](https://github.com/TypeCellOS/BlockNote/pull/1764))
+- **website:** log in bug fixes ([#1742](https://github.com/TypeCellOS/BlockNote/pull/1742))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Nick the Sick
+- Vinicius Fernandes @ViniCleFer
+- Yousef
+
+## 0.31.2 (2025-06-05)
+
+### 🩹 Fixes
+
+- re-release ([0bc546e18](https://github.com/TypeCellOS/BlockNote/commit/0bc546e18))
+- ignore falsy values in boolean prop schema ([#1730](https://github.com/TypeCellOS/BlockNote/pull/1730))
+
+### ❤️ Thank You
+
+- Nick Perez
+- Nick the Sick
+
+## 0.31.1 (2025-05-23)
+
+### 🩹 Fixes
+
+- backwards-compat for `_extensions` ([#1708](https://github.com/TypeCellOS/BlockNote/pull/1708))
+
+### ❤️ Thank You
+
+- Nick Perez
+
 ## 0.31.0 (2025-05-20)
 
 ### 🩹 Fixes

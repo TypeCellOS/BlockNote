@@ -1,5 +1,6 @@
 {
   "name": "root",
+  "type": "module",
   "devDependencies": {
     "@nx/js": "20.6.4",
     "@typescript-eslint/eslint-plugin": "^5.5.0",

@@ -609,6 +609,10 @@ export class SideMenuProsemirrorPlugin<
   I extends InlineContentSchema,
   S extends StyleSchema,
 > extends BlockNoteExtension {
+  public static key() {
+    return "sideMenu";
+  }
+
   public view: SideMenuView<BSchema, I, S> | undefined;
 
   constructor(

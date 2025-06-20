@@ -16,11 +16,11 @@ export function getSimpleEditor() {
     ],
     trailingBlock: false,
     schema,
-    _extensions: {
-      ai: createAIExtension({
+    extensions: [
+      createAIExtension({
         model: undefined as any,
       }),
-    },
+    ],
   });
   editor._tiptapEditor.forceEnablePlugins();
   return editor;

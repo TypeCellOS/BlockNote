@@ -167,6 +167,10 @@ export class SuggestionMenuProseMirrorPlugin<
   I extends InlineContentSchema,
   S extends StyleSchema,
 > extends BlockNoteExtension {
+  public static key() {
+    return "suggestionMenu";
+  }
+
   private view: SuggestionMenuView<BSchema, I, S> | undefined;
   private triggerCharacters: string[] = [];
 

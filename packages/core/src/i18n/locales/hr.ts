@@ -348,6 +348,9 @@ export const hr: Dictionary = {
     },
   },
   comments: {
+    edited: "uredio",
+    save_button_text: "Spremi",
+    cancel_button_text: "Odustani",
     actions: {
       add_reaction: "Dodaj reakciju",
       resolve: "Riješi",

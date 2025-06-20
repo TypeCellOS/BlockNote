@@ -11,6 +11,10 @@ const PLUGIN_KEY = new PluginKey(`blocknote-show-selection`);
  * text editor is not focused.
  */
 export class ShowSelectionPlugin extends BlockNoteExtension {
+  public static key() {
+    return "showSelection";
+  }
+
   private enabled = false;
 
   public constructor(private readonly editor: BlockNoteEditor<any, any, any>) {

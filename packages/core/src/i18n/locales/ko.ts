@@ -348,6 +348,9 @@ export const ko: Dictionary = {
     },
   },
   comments: {
+    edited: "수정됨",
+    save_button_text: "저장",
+    cancel_button_text: "취소",
     actions: {
       add_reaction: "반응 추가",
       resolve: "해결",

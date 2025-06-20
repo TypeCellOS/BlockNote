@@ -152,7 +152,10 @@ export async function doLLMRequest(
     : editor.getTextCursorPosition().block;
 
   const deleteCursorBlock: string | undefined =
-    cursorBlock && deleteEmptyCursorBlock && isEmptyParagraph(cursorBlock)
+    cursorBlock &&
+    deleteEmptyCursorBlock &&
+    isEmptyParagraph(cursorBlock) &&
+    editor.document.length > 1
       ? cursorBlock.id
       : undefined;
 
@@ -163,7 +166,18 @@ export async function doLLMRequest(
   let previousMessages: CoreMessage[] | undefined = undefined;
 
   if (previousResponse) {
-    previousMessages = previousResponse.messages;
+    previousMessages = previousResponse.messages.map((m) => {
+      // Some models, like Gemini and Anthropic don't support mixing system and user messages.
+      // Therefore, we convert all user messages to system messages.
+      // (also see comment below on a possibly better approach that might also address this)
+      if (m.role === "user" && typeof m.content === "string") {
+        return {
+          role: "system",
+          content: `USER_MESSAGE: ${m.content}`,
+        };
+      }
+      return m;
+    });
     /*
     We currently insert these messages as "assistant" string messages.
     When using Tools, the "official" pattern for this is to use a "tool_result" message.
