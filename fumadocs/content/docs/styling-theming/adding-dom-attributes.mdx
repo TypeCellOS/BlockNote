@@ -5,23 +5,20 @@ imageTitle: Styling & Theming
 path: /docs/theming
 ---
 
+BlockNote allows you to add custom HTML attributes to various DOM elements within the editor. This gives you fine-grained control over styling and functionality.
 
+## Available DOM Elements
 
-# Adding DOM Attributes
+The following DOM elements can receive custom attributes:
 
-You can set additional HTML attributes on a number of DOM elements inside the editor. There include:
+- **`editor`**: The main editor container, excluding menus & toolbars
+- **`block`**: The container element for individual blocks
+- **`blockGroup`**: Wrapper for top-level and nested blocks
+- **`blockContent`**: Wrapper for a block's content
+- **`inlineContent`**: Wrapper for rich-text content within blocks
 
-`editor:` The editor itself, excluding menus & toolbars.
+## Example Usage
 
-`block:` The main container element for blocks. Contains both the block's content and its nested blocks.
-
-`blockGroup:` The wrapper element for all top-level blocks in the editor and nested blocks.
-
-`blockContent:` The wrapper element for a block's content.
-
-`inlineContent:` The wrapper element for a block's rich-text content.
-
-
-In the demo below, we set a custom class on the `block` element to add a border to each block:
+The demo below shows how to add a custom class to the `block` element to create a border around each block:
 
 <Example name="theming/theming-dom-attributes" />

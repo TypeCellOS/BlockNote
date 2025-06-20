@@ -1,12 +1,8 @@
 ---
-title: Custom Block Types
+title: Custom Blocks
 description: Learn how to create custom block types for your BlockNote editor
-imageTitle: Custom Block Types
+imageTitle: Custom Blocks
 ---
-
-
-
-## Custom Block Types
 
 In addition to the default block types that BlockNote offers, you can also make your own custom blocks using React components. Take a look at the demo below, in which we add a custom alert block to a BlockNote editor, as well as a custom [Slash Menu Item](/docs/ui-components/suggestion-menus#changing-slash-menu-items) to insert it.
 
@@ -76,15 +72,13 @@ _In the alert demo, we want the user to be able to type text in our alert, so we
 The `PropSchema` specifies the props that the block supports. Block props (properties) are data stored with your Block in the document, and can be used to customize its appearance or behavior.
 
 ```typescript
-type PropSchema<
-  PrimitiveType extends "boolean" | "number" | "string"
-> = Record<
+type PropSchema<PrimitiveType extends "boolean" | "number" | "string"> = Record<
   string,
   {
     default: PrimitiveType;
     values?: PrimitiveType[];
   }
->
+>;
 ```
 
 `[key: string]` is the name of the prop, and the value is an object with two fields:

@@ -2,8 +2,7 @@
   "title": "API",
   "pages": [
     "react",
-    "manipulating-blocks",
-    "manipulating-inline-content",
+    "document-structure",
     "cursor-selections",
     "converting-blocks",
     "events",

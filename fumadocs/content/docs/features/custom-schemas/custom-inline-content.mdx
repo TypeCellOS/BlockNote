@@ -1,12 +1,8 @@
 ---
-title: Custom Inline Content Types
-description: Learn how to create custom inline content types for your BlockNote editor
-imageTitle: Custom Inline Content Types
+title: Custom Inline Content
+description: Learn how to create custom inline content for your BlockNote editor
+imageTitle: Custom Inline Content
 ---
-
-
-
-## Custom Inline Content Types
 
 In addition to the default inline content types that BlockNote offers, you can also make your own custom inline content using React components. Take a look at the demo below, in which we add a custom mention tag to a BlockNote editor, as well as a custom [Suggestion Menu](/docs/ui-components/suggestion-menus#creating-suggestion-menus) to insert it.
 
@@ -71,15 +67,13 @@ _In the mentions demo, we want each mention to be a single, non-editable element
 The `PropSchema` specifies the props that the inline content supports. Inline content props (properties) are data stored with your inline content in the document, and can be used to customize its appearance or behavior.
 
 ```typescript
-type PropSchema<
-  PrimitiveType extends "boolean" | "number" | "string"
-> = Record<
+type PropSchema<PrimitiveType extends "boolean" | "number" | "string"> = Record<
   string,
   {
     default: PrimitiveType;
     values?: PrimitiveType[];
   }
->
+>;
 ```
 
 `[key: string]` is the name of the prop, and the value is an object with two fields:

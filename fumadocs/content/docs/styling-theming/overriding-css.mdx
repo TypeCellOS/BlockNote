@@ -5,50 +5,43 @@ imageTitle: Overriding CSS
 path: /docs/styling-theming/overriding-css
 ---
 
+## Overview
 
+BlockNote provides several ways to customize the editor's appearance through CSS. You can override default styles using CSS classes and attributes.
 
-# Overriding CSS
+## Basic Example
 
 In the demo below, we create additional CSS rules to make the editor text and hovered slash menu items blue:
 
 <Example name="theming/theming-css" />
 
-In this page you'll find the main selectors which are useful to create your own CSS rules, including the ones seen in the demo. However, if you want to target a specific DOM element, it's easiest to just inspect the DOM tree using your browser's dev tools.
+## CSS Selectors Reference
 
-## BlockNote CSS Classes
+### BlockNote CSS Classes
 
-Within the editor's DOM structure, you'll find many elements have classes with the `bn-` prefix. BlockNote uses these to apply CSS styles to the editor, which you can override with your own. Here are some of the most useful BlockNote classes that you can use for your CSS rules:
+BlockNote uses classes with the `bn-` prefix to style editor elements. Here are the key classes you can target:
 
-`.bn-container`: Container element for the editor, as well as all menus and toolbars.
+#### Editor Structure
 
-`.bn-editor`: Element for only the editor.
+- `.bn-container`: Container for editor and all menus/toolbars
+- `.bn-editor`: Main editor element
+- `.bn-block`: Individual block element (including nested)
+- `.bn-block-group`: Container for nested blocks
+- `.bn-block-content`: Block content wrapper
+- `.bn-inline-content`: Block's editable rich text content
 
-`.bn-block`: Element for a block, including nested blocks.
+#### UI Components
 
-`.bn-block-group`: Container element for nested blocks.
+- `.bn-toolbar`: Formatting & link toolbars
+- `.bn-side-menu`: Side menu element
+- `.bn-drag-handle-menu`: Drag handle menu
+- `.bn-suggestion-menu`: Suggestion menu
 
-`.bn-block-content`: Element for a block's content.
+### BlockNote CSS Attributes
 
-`.bn-inline-content`: Element for only the block's editable, rich text content.
+BlockNote uses data attributes to target specific block types and properties:
 
-`.bn-toolbar`: Element for the formatting & link toolbars.
+- `[data-content-type="blockType"]`: Targets blocks of type `blockType`
+- `[data-propName="propValue"]`: Targets blocks with specific prop values
 
-`.bn-side-menu`: Element for the side menu.
-
-`.bn-drag-handle-menu`: Element for the drag handle menu.
-
-`.bn-suggestion-menu`: Element for suggestion menu.
-
-## BlockNote CSS Attributes
-
-In addition to classes, BlockNote also uses the following attributes to target a specific block type & props:
-
-`[data-content-type="blockType"]`: Element for a block's content, but only for blocks of type `blockType`.
-
-`[data-propName="propValue"]`: Element for a block's content, but only for blocks with the `propName` prop with value `propValue`.
-
-For example, `[data-content-type="heading"][data-level="2"]` will select all heading blocks with heading level 2.
-
-## Mantine Classes
-
-Because BlockNote uses [Mantine](https://mantine.dev/) for its UI, you can also write CSS rules using any of the default Mantine component classes.
+Example:

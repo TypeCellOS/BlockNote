@@ -6,6 +6,7 @@ const withMDX = createMDX();
 
 const config = {
   reactStrictMode: true,
+  serverExternalPackages: ["typescript", "twoslash"],
   experimental: {
     reactCompiler: true,
   },

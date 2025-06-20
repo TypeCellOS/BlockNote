@@ -1,12 +1,24 @@
 ---
-title: ShadCN
+title: With ShadCN
 description: ShadCN rich text editor using BlockNote
 imageTitle: ShadCN rich text editor using BlockNote
 ---
 
-## Using ShadCN, Radix and Tailwind with BlockNote
+[shadcn/ui](https://ui.shadcn.com/) is an open-source collection of React components based on [Radix](https://radix-ui.com/) and Tailwind.
 
-[shadcn/ui](https://ui.shadcn.com/) is an open-source collection of React components based on [Radix](https://radix-ui.com/) and Tailwind. To use BlockNote with shadcn, you can import `BlockNoteView` from `@blocknote/shadcn` (instead of from `@blocknote/mantine`) and the stylesheet from `@blocknote/shadcn/style.css`.
+```console tab="npm"
+npm install @blocknote/core @blocknote/react @blocknote/shadcn
+```
+
+```console tab="pnpm"
+pnpm add @blocknote/core @blocknote/react @blocknote/shadcn
+```
+
+```console tab="bun"
+bun add @blocknote/core @blocknote/react @blocknote/shadcn
+```
+
+To use BlockNote with shadcn, you can import `BlockNoteView` from `@blocknote/shadcn` and the stylesheet from `@blocknote/shadcn/style.css`.
 
 <Example name="basic/shadcn" />
 

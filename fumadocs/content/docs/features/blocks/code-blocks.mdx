@@ -1,44 +1,92 @@
 ---
-title: Code Block Syntax Highlighting
-description: This section explains how to add syntax highlighting to code blocks.
-imageTitle: Code Block Syntax Highlighting
+title: Code Blocks
+description: How to add syntax highlighting to code blocks.
+imageTitle: Code Blocks
 ---
 
+Code blocks are a simple way to display formatted code with syntax highlighting.
 
+<Example name="theming/code-block" />
 
-# Code Block Syntax Highlighting
+Code blocks by default are a simple way to display code. But, BlockNote also supports more advanced features like:
 
-To enable code block syntax highlighting, you can use the `codeBlock` option in the `useCreateBlockNote` hook. This is excluded by default to reduce bundle size.
+- Syntax highlighting
+- Custom themes
+- Multiple languages
+- Tab indentation
 
-We've created a default setup which automatically includes some of the most common languages in the most optimized way possible. The language syntaxes are loaded on-demand to ensure the smallest bundle size for your users.
+<Callout type="info">
+  These features are disabled by default to keep the default code block
+  experience easy to use and reduce bundle size.
+</Callout>
 
-To use it, you can do the following:
+You can enable more advanced features by passing the `codeBlock` option when creating the editor.
+
+```ts
+const editor = new BlockNoteEditor({
+  codeBlock: {
+    indentLineWithTab: true,
+    defaultLanguage: "typescript",
+    supportedLanguages: {
+      typescript: {
+        name: "TypeScript",
+        aliases: ["ts"],
+      },
+    },
+    createHighlighter: () =>
+      createHighlighter({
+        themes: ["light-plus", "dark-plus"],
+        langs: [],
+      }),
+  },
+});
+```
+
+You can choose to enable only certain features, or none at all. Giving you the flexibility to use code blocks how you need in your app.
+
+## Block Shape
+
+This describes the shape of a code block in BlockNote.
+
+```ts
+type CodeBlock = {
+  id: string;
+  type: "codeBlock";
+  props: {
+    language: string;
+  } & DefaultProps;
+  content: InlineContent[];
+  children: Block[];
+};
+```
+
+## Options
+
+### Basic Setup
+
+To enable code block syntax highlighting, you can use the `codeBlock` option in the `useCreateBlockNote` hook.
+
+First, install the package:
 
 ```sh
 npm install @blocknote/code-block
 ```
 
-And then you can use it like this:
+Then use it like this:
 
 ```tsx
 import { codeBlock } from "@blocknote/code-block";
 
 export default function App() {
-  // Creates a new editor instance.
   const editor = useCreateBlockNote({
     codeBlock,
   });
 
-  // Renders the editor instance using a React component.
   return <BlockNoteView editor={editor} />;
 }
 ```
 
-See the code block example for a more detailed example.
-
-<Example name="theming/code-block" />
-
-## Custom Themes & Languages
+### Custom Themes & Languages
 
 To configure a code block highlighting theme and language, you can use the `codeBlock` option in the `useCreateBlockNote` hook.
 
@@ -60,7 +108,6 @@ Like this:
 import { createHighlighter } from "./shiki.bundle.js";
 
 export default function App() {
-  // Creates a new editor instance.
   const editor = useCreateBlockNote({
     codeBlock: {
       indentLineWithTab: true,

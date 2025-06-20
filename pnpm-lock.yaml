@@ -3117,25 +3117,25 @@ importers:
   fumadocs:
     dependencies:
       '@ai-sdk/anthropic':
-        specifier: ^1.2.12
+        specifier: ^1.2.11
         version: 1.2.12(zod@3.25.57)
       '@ai-sdk/groq':
-        specifier: ^1.2.9
+        specifier: ^1.1.0
         version: 1.2.9(zod@3.25.57)
       '@ai-sdk/mistral':
         specifier: ^1.2.8
         version: 1.2.8(zod@3.25.57)
       '@ai-sdk/openai':
-        specifier: ^1.3.22
+        specifier: ^1.1.0
         version: 1.3.22(zod@3.25.57)
       '@ai-sdk/openai-compatible':
         specifier: ^0.2.14
         version: 0.2.14(zod@3.25.57)
       '@aws-sdk/client-s3':
-        specifier: ^3.826.0
+        specifier: ^3.609.0
         version: 3.826.0
       '@aws-sdk/s3-request-presigner':
-        specifier: ^3.826.0
+        specifier: ^3.609.0
         version: 3.826.0
       '@blocknote/code-block':
         specifier: latest
@@ -3159,10 +3159,10 @@ importers:
         specifier: latest
         version: link:../packages/xl-pdf-exporter
       '@emotion/react':
-        specifier: ^11.14.0
+        specifier: ^11.11.4
         version: 11.14.0(@types/react@19.1.7)(react@19.1.0)
       '@emotion/styled':
-        specifier: ^11.14.0
+        specifier: ^11.11.5
         version: 11.14.0(@emotion/react@11.14.0(@types/react@19.1.7)(react@19.1.0))(@types/react@19.1.7)(react@19.1.0)
       '@fumadocs/mdx-remote':
         specifier: 1.3.0
@@ -3174,28 +3174,28 @@ importers:
         specifier: ^2.1.4
         version: 2.2.0(react@19.1.0)
       '@liveblocks/client':
-        specifier: ^2.24.3
+        specifier: ^2.23.1
         version: 2.24.3
       '@liveblocks/react':
-        specifier: ^2.24.3
+        specifier: ^2.23.1
         version: 2.24.3(react@19.1.0)
       '@liveblocks/react-blocknote':
-        specifier: ^2.24.3
+        specifier: ^2.23.1
         version: 2.24.3(04e518e4182a3036b4a35283aa97679f)
       '@liveblocks/react-tiptap':
-        specifier: ^2.24.3
+        specifier: ^2.23.1
         version: 2.24.3(@tiptap/extension-collaboration-cursor@2.11.5(@tiptap/core@2.14.0(@tiptap/pm@2.12.0))(y-prosemirror@1.3.4(prosemirror-model@1.25.1)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)))(@tiptap/extension-collaboration@2.11.5(@tiptap/core@2.14.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0)(y-prosemirror@1.3.4(prosemirror-model@1.25.1)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)))(@tiptap/pm@2.12.0)(@tiptap/react@2.12.0(@tiptap/core@2.14.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@tiptap/suggestion@2.11.7(@tiptap/core@2.14.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0))(@types/react-dom@19.1.6(@types/react@19.1.7))(@types/react@19.1.7)(prosemirror-model@1.25.1)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(y-protocols@1.0.6(yjs@13.6.27))
       '@liveblocks/react-ui':
-        specifier: ^2.24.3
+        specifier: ^2.23.1
         version: 2.24.3(@types/react-dom@19.1.6(@types/react@19.1.7))(@types/react@19.1.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/core':
-        specifier: ^7.17.8
+        specifier: ^7.10.1
         version: 7.17.8(@mantine/hooks@7.17.3(react@19.1.0))(@types/react@19.1.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mui/icons-material':
-        specifier: ^5.17.1
+        specifier: ^5.16.1
         version: 5.17.1(@mui/material@5.17.1(@emotion/react@11.14.0(@types/react@19.1.7)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.7)(react@19.1.0))(@types/react@19.1.7)(react@19.1.0))(@types/react@19.1.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@types/react@19.1.7)(react@19.1.0)
       '@mui/material':
-        specifier: ^5.17.1
+        specifier: ^5.16.1
         version: 5.17.1(@emotion/react@11.14.0(@types/react@19.1.7)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.7)(react@19.1.0))(@types/react@19.1.7)(react@19.1.0))(@types/react@19.1.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@polar-sh/better-auth':
         specifier: ^0.1.2
@@ -3216,22 +3216,22 @@ importers:
         specifier: 9.14.0
         version: 9.14.0(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(encoding@0.1.13)(next@15.4.0-canary.75(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)(webpack@5.98.0)
       '@shikijs/core':
-        specifier: ^3.6.0
+        specifier: ^3.2.1
         version: 3.6.0
       '@shikijs/engine-javascript':
-        specifier: ^3.6.0
+        specifier: ^3.2.1
         version: 3.6.0
       '@shikijs/langs-precompiled':
-        specifier: ^3.6.0
+        specifier: ^3.2.1
         version: 3.6.0
       '@shikijs/themes':
-        specifier: ^3.6.0
+        specifier: ^3.2.1
         version: 3.6.0
       '@shikijs/types':
-        specifier: ^3.6.0
+        specifier: ^3.2.1
         version: 3.6.0
       '@tiptap/core':
-        specifier: ^2.14.0
+        specifier: ^2.12.0
         version: 2.14.0(@tiptap/pm@2.12.0)
       '@uppy/core':
         specifier: ^3.13.1
@@ -3258,13 +3258,13 @@ importers:
         specifier: ^3.2.0
         version: 3.2.0(@uppy/core@3.13.1)
       '@uppy/status-bar':
-        specifier: ^3.3.3
+        specifier: ^3.1.1
         version: 3.3.3(@uppy/core@3.13.1)
       '@uppy/webcam':
         specifier: ^3.4.2
         version: 3.4.2(@uppy/core@3.13.1)
       '@uppy/xhr-upload':
-        specifier: ^3.6.8
+        specifier: ^3.4.0
         version: 3.6.8(@uppy/core@3.13.1)
       '@vercel/analytics':
         specifier: ^1.5.0
@@ -3273,10 +3273,10 @@ importers:
         specifier: ^0.6.8
         version: 0.6.8
       '@y-sweet/react':
-        specifier: ^0.6.4
+        specifier: ^0.6.3
         version: 0.6.4(react@19.1.0)(yjs@13.6.27)
       ai:
-        specifier: ^4.3.16
+        specifier: ^4.1.0
         version: 4.3.16(react@19.1.0)(zod@3.25.57)
       babel-plugin-react-compiler:
         specifier: 19.1.0-rc.2
@@ -3294,7 +3294,7 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       docx:
-        specifier: ^9.5.0
+        specifier: ^9.0.2
         version: 9.5.0
       framer-motion:
         specifier: ^10.16.16
@@ -3308,6 +3308,9 @@ importers:
       fumadocs-mdx:
         specifier: ^11.6.7
         version: 11.6.7(@fumadocs/mdx-remote@1.3.0(acorn@8.14.1)(fumadocs-core@15.5.1(@types/react@19.1.7)(next@15.4.0-canary.75(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0))(acorn@8.14.1)(fumadocs-core@15.5.1(@types/react@19.1.7)(next@15.4.0-canary.75(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(next@15.4.0-canary.75(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))
+      fumadocs-twoslash:
+        specifier: 3.1.4
+        version: 3.1.4(@types/react-dom@19.1.6(@types/react@19.1.7))(@types/react@19.1.7)(fumadocs-ui@15.5.1(@types/react-dom@19.1.6(@types/react@19.1.7))(@types/react@19.1.7)(next@15.4.0-canary.75(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(tailwindcss@4.1.8))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)
       fumadocs-typescript:
         specifier: 4.0.5
         version: 4.0.5(typescript@5.8.3)
@@ -3333,7 +3336,7 @@ importers:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
       react-icons:
-        specifier: ^5.5.0
+        specifier: ^5.2.1
         version: 5.5.0(react@19.1.0)
       remark:
         specifier: 15.0.1
@@ -3353,17 +3356,20 @@ importers:
       ts-morph:
         specifier: 26.0.0
         version: 26.0.0
+      twoslash:
+        specifier: 0.3.1
+        version: 0.3.1(typescript@5.8.3)
       y-partykit:
-        specifier: ^0.0.33
-        version: 0.0.33(react@19.1.0)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)
+        specifier: ^0.0.25
+        version: 0.0.25
       yjs:
-        specifier: ^13.6.27
+        specifier: ^13.6.15
         version: 13.6.27
       zod:
         specifier: ^3.25.57
         version: 3.25.57
       zustand:
-        specifier: ^5.0.5
+        specifier: ^5.0.3
         version: 5.0.5(@types/react@19.1.7)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.4.0(react@19.1.0))
     devDependencies:
       '@blocknote/ariakit':
@@ -9433,6 +9439,9 @@ packages:
   '@shikijs/core@3.6.0':
     resolution: {integrity: sha512-9By7Xb3olEX0o6UeJyPLI1PE1scC4d3wcVepvtv2xbuN9/IThYN4Wcwh24rcFeASzPam11MCq8yQpwwzCgSBRw==}
 
+  '@shikijs/core@3.7.0':
+    resolution: {integrity: sha512-yilc0S9HvTPyahHpcum8eonYrQtmGTU0lbtwxhA6jHv4Bm1cAdlPFRCJX4AHebkCm75aKTjjRAW+DezqD1b/cg==}
+
   '@shikijs/engine-javascript@3.2.1':
     resolution: {integrity: sha512-eMdcUzN3FMQYxOmRf2rmU8frikzoSHbQDFH2hIuXsrMO+IBOCI9BeeRkCiBkcLDHeRKbOCtYMJK3D6U32ooU9Q==}
 
@@ -9480,6 +9489,11 @@ packages:
   '@shikijs/transformers@3.6.0':
     resolution: {integrity: sha512-PYkU54lYV0RCaUG8n2FNTF+YWiU3uPhcjLGq2x/C8lIrUX9GVnRb3bK+R5xtdFHbuctntATKm7ondp/H/dux9Q==}
 
+  '@shikijs/twoslash@3.7.0':
+    resolution: {integrity: sha512-EjnV193iasm/M5UHVDJg6WyX6dIMCb0YhsKKlgWv3OK7iLFjuW7sUp978ZkO2OIn3niqBT6e+CX1LgoPM8jYjQ==}
+    peerDependencies:
+      typescript: '>=5.5.0'
+
   '@shikijs/types@3.2.1':
     resolution: {integrity: sha512-/NTWAk4KE2M8uac0RhOsIhYQf4pdU0OywQuYDGIGAJ6Mjunxl2cGiuLkvu4HLCMn+OTTLRWkjZITp+aYJv60yA==}
 
@@ -9488,6 +9502,9 @@ packages:
 
   '@shikijs/types@3.6.0':
     resolution: {integrity: sha512-cLWFiToxYu0aAzJqhXTQsFiJRTFDAGl93IrMSBNaGSzs7ixkLfdG6pH11HipuWFGW5vyx4X47W8HDQ7eSrmBUg==}
+
+  '@shikijs/types@3.7.0':
+    resolution: {integrity: sha512-MGaLeaRlSWpnP0XSAum3kP3a8vtcTsITqoEPYdt3lQG3YCdQH4DnEhodkYcNMcU0uW0RffhoD1O3e0vG5eSBBg==}
 
   '@shikijs/vscode-textmate@10.0.2':
     resolution: {integrity: sha512-83yeghZ2xxin3Nj8z1NMd/NCuca+gsYXswywDy5bHvwlWL8tpTQmzGeUuHd9FC3E/SBEMvzJRwWEOz5gGes9Qg==}
@@ -10463,6 +10480,11 @@ packages:
   '@typescript-eslint/visitor-keys@5.62.0':
     resolution: {integrity: sha512-07ny+LHRzQXepkGg6w0mFY41fVUNBrL2Roj/++7V1txKugfjm/Ci/qSND03r2RhlJhJYMcTn9AhhSSqQp0Ysyw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+
+  '@typescript/vfs@1.6.1':
+    resolution: {integrity: sha512-JwoxboBh7Oz1v38tPbkrZ62ZXNHAk9bJ7c9x0eI5zBfBnBYGhURdbnh7Z4smN/MV48Y5OCcZb58n972UtbazsA==}
+    peerDependencies:
+      typescript: '*'
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
@@ -12599,6 +12621,16 @@ packages:
       next: ^15.3.0
     peerDependenciesMeta:
       '@fumadocs/mdx-remote':
+        optional: true
+
+  fumadocs-twoslash@3.1.4:
+    resolution: {integrity: sha512-mD3byKodAZ9c7OG6coppMUg/KcaYlM5DznTR4Yh0/adFkaToFYJcK/cJHHc/hHSou9WOXlwdSOrDUdMny8Qugw==}
+    peerDependencies:
+      '@types/react': '*'
+      fumadocs-ui: ^15.0.0
+      react: 18.x.x || 19.x.x
+    peerDependenciesMeta:
+      '@types/react':
         optional: true
 
   fumadocs-typescript@4.0.5:
@@ -16058,6 +16090,9 @@ packages:
   tailwind-merge@3.3.0:
     resolution: {integrity: sha512-fyW/pEfcQSiigd5SNn0nApUOxx0zB/dm6UDU/rEwc2c3sX2smWUNbapHv+QRqLGVp9GWX3THIa7MUGPo+YkDzQ==}
 
+  tailwind-merge@3.3.1:
+    resolution: {integrity: sha512-gBXpgUm/3rp1lMZZrM/w7D8GKqshif0zAymAhbCyIt8KMe+0v9DQ7cdYLR4FHH/cKpdTXb+A/tKKU3eolfsI+g==}
+
   tailwindcss-animate@1.0.7:
     resolution: {integrity: sha512-bl6mpH3T7I3UFxuvDEXLxy/VuFxBk5bbzplh7tXI68mwMokNYd1t9qPBHlnyTwfa4JGC4zP516I1hYYtQ/vspA==}
     peerDependencies:
@@ -16265,6 +16300,14 @@ packages:
 
   tunnel-agent@0.6.0:
     resolution: {integrity: sha512-McnNiV1l8RYeY8tBgEpuodCC1mLUdbSN+CYBL7kJsJNInOP8UjDDEwdk6Mw60vdLLrr5NHKZhMAOSrR2NZuQ+w==}
+
+  twoslash-protocol@0.3.1:
+    resolution: {integrity: sha512-BMePTL9OkuNISSyyMclBBhV2s9++DiOCyhhCoV5Kaht6eaWLwVjCCUJHY33eZJPsyKeZYS8Wzz0h+XI01VohVw==}
+
+  twoslash@0.3.1:
+    resolution: {integrity: sha512-OGqMTGvqXTcb92YQdwGfEdK0nZJA64Aj/ChLOelbl3TfYch2IoBST0Yx4C0LQ7Lzyqm9RpgcpgDxeXQIz4p2Kg==}
+    peerDependencies:
+      typescript: ^5.5.0
 
   type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
@@ -16923,16 +16966,6 @@ packages:
 
   y-partykit@0.0.25:
     resolution: {integrity: sha512-/EIL73TuYX6lYnxM4mb/kTTKllS1vNjBXk9KJXFwTXFrUqMo8hbJMqnE+glvBG2EDejEI06rk3jR50lpDB8Dqg==}
-
-  y-partykit@0.0.33:
-    resolution: {integrity: sha512-TqM2H/C1fBZbFjL9kpBLC3EWWaizBUYdFzW5DMGmcZYfQv5tYYIBTqUW4eCZOXHkhNLTEA+s2ydSKGYi8u1+sg==}
-    peerDependencies:
-      react: '*'
-      y-protocols: ^1.0.6
-      yjs: ^13.6.16
-    peerDependenciesMeta:
-      react:
-        optional: true
 
   y-prosemirror@1.3.4:
     resolution: {integrity: sha512-fvklwVnjowbrtmM5PkyIrHNoqe7Bt1KEtBvucsJNCSZwOQYNR5UcKwJmhUOaEHUAyYPg7RrVqnMK/3DvMBU8dA==}
@@ -18163,7 +18196,7 @@ snapshots:
       '@babel/core': 7.26.10
       '@babel/helper-compilation-targets': 7.27.0
       '@babel/helper-plugin-utils': 7.26.5
-      debug: 4.4.0
+      debug: 4.4.1
       lodash.debounce: 4.0.8
       resolve: 1.22.10
     transitivePeerDependencies:
@@ -23358,6 +23391,13 @@ snapshots:
       '@types/hast': 3.0.4
       hast-util-to-html: 9.0.5
 
+  '@shikijs/core@3.7.0':
+    dependencies:
+      '@shikijs/types': 3.7.0
+      '@shikijs/vscode-textmate': 10.0.2
+      '@types/hast': 3.0.4
+      hast-util-to-html: 9.0.5
+
   '@shikijs/engine-javascript@3.2.1':
     dependencies:
       '@shikijs/types': 3.2.1
@@ -23434,6 +23474,15 @@ snapshots:
       '@shikijs/core': 3.6.0
       '@shikijs/types': 3.6.0
 
+  '@shikijs/twoslash@3.7.0(typescript@5.8.3)':
+    dependencies:
+      '@shikijs/core': 3.7.0
+      '@shikijs/types': 3.7.0
+      twoslash: 0.3.1(typescript@5.8.3)
+      typescript: 5.8.3
+    transitivePeerDependencies:
+      - supports-color
+
   '@shikijs/types@3.2.1':
     dependencies:
       '@shikijs/vscode-textmate': 10.0.2
@@ -23445,6 +23494,11 @@ snapshots:
       '@types/hast': 3.0.4
 
   '@shikijs/types@3.6.0':
+    dependencies:
+      '@shikijs/vscode-textmate': 10.0.2
+      '@types/hast': 3.0.4
+
+  '@shikijs/types@3.7.0':
     dependencies:
       '@shikijs/vscode-textmate': 10.0.2
       '@types/hast': 3.0.4
@@ -24765,6 +24819,13 @@ snapshots:
       '@typescript-eslint/types': 5.62.0
       eslint-visitor-keys: 3.4.3
 
+  '@typescript/vfs@1.6.1(typescript@5.8.3)':
+    dependencies:
+      debug: 4.4.1
+      typescript: 5.8.3
+    transitivePeerDependencies:
+      - supports-color
+
   '@ungap/structured-clone@1.3.0': {}
 
   '@unrs/resolver-binding-darwin-arm64@1.3.2':
@@ -25251,7 +25312,7 @@ snapshots:
 
   agent-base@6.0.2:
     dependencies:
-      debug: 4.4.0
+      debug: 4.4.1
     transitivePeerDependencies:
       - supports-color
 
@@ -25777,7 +25838,7 @@ snapshots:
 
   capnp-ts@0.7.0:
     dependencies:
-      debug: 4.4.0
+      debug: 4.4.1
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
@@ -27445,6 +27506,26 @@ snapshots:
     transitivePeerDependencies:
       - acorn
       - supports-color
+
+  fumadocs-twoslash@3.1.4(@types/react-dom@19.1.6(@types/react@19.1.7))(@types/react@19.1.7)(fumadocs-ui@15.5.1(@types/react-dom@19.1.6(@types/react@19.1.7))(@types/react@19.1.7)(next@15.4.0-canary.75(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(tailwindcss@4.1.8))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3):
+    dependencies:
+      '@radix-ui/react-popover': 1.1.14(@types/react-dom@19.1.6(@types/react@19.1.7))(@types/react@19.1.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@shikijs/twoslash': 3.7.0(typescript@5.8.3)
+      fumadocs-ui: 15.5.1(@types/react-dom@19.1.6(@types/react@19.1.7))(@types/react@19.1.7)(next@15.4.0-canary.75(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(tailwindcss@4.1.8)
+      mdast-util-from-markdown: 2.0.2
+      mdast-util-gfm: 3.1.0
+      mdast-util-to-hast: 13.2.0
+      react: 19.1.0
+      shiki: 3.6.0
+      tailwind-merge: 3.3.1
+      twoslash: 0.3.1(typescript@5.8.3)
+    optionalDependencies:
+      '@types/react': 19.1.7
+    transitivePeerDependencies:
+      - '@types/react-dom'
+      - react-dom
+      - supports-color
+      - typescript
 
   fumadocs-typescript@4.0.5(typescript@5.8.3):
     dependencies:
@@ -29603,7 +29684,7 @@ snapshots:
   micromark@3.2.0:
     dependencies:
       '@types/debug': 4.1.12
-      debug: 4.4.0
+      debug: 4.4.1
       decode-named-character-reference: 1.1.0
       micromark-core-commonmark: 1.1.0
       micromark-factory-space: 1.1.0
@@ -29625,7 +29706,7 @@ snapshots:
   micromark@4.0.2:
     dependencies:
       '@types/debug': 4.1.12
-      debug: 4.4.0
+      debug: 4.4.1
       decode-named-character-reference: 1.1.0
       devlop: 1.1.0
       micromark-core-commonmark: 2.0.3
@@ -32208,6 +32289,8 @@ snapshots:
 
   tailwind-merge@3.3.0: {}
 
+  tailwind-merge@3.3.1: {}
+
   tailwindcss-animate@1.0.7(tailwindcss@3.4.17):
     dependencies:
       tailwindcss: 3.4.17
@@ -32435,6 +32518,16 @@ snapshots:
   tunnel-agent@0.6.0:
     dependencies:
       safe-buffer: 5.2.1
+
+  twoslash-protocol@0.3.1: {}
+
+  twoslash@0.3.1(typescript@5.8.3):
+    dependencies:
+      '@typescript/vfs': 1.6.1(typescript@5.8.3)
+      twoslash-protocol: 0.3.1
+      typescript: 5.8.3
+    transitivePeerDependencies:
+      - supports-color
 
   type-check@0.4.0:
     dependencies:
@@ -33340,17 +33433,8 @@ snapshots:
       lib0: 0.2.101
       lodash.debounce: 4.0.8
       react: 18.3.1
-      y-protocols: 1.0.6(yjs@13.6.24)
-      yjs: 13.6.24
-
-  y-partykit@0.0.33(react@19.1.0)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27):
-    dependencies:
-      lib0: 0.2.101
-      lodash.debounce: 4.0.8
       y-protocols: 1.0.6(yjs@13.6.27)
       yjs: 13.6.27
-    optionalDependencies:
-      react: 19.1.0
 
   y-prosemirror@1.3.4(prosemirror-model@1.25.1)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24):
     dependencies:

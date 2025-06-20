@@ -47,15 +47,6 @@ The hook takes two optional parameters:
   </p>
 </Callout>
 
-### Options
-
-There are a number of options you can pass to the `BlockNoteEditor` constructor. You can find the full list of these below:
-
-<auto-type-table
-  path="../../../../packages/core/src/editor/BlockNoteEditor.ts"
-  name="BlockNoteEditorOptions"
-/>
-
 ## Rendering the Editor with `<BlockNoteView>`
 
 Use the `<BlockNoteView>` component to render the `BlockNoteEditor` instance you just created:
@@ -82,17 +73,6 @@ function MyEditor() {
   );
 }
 ```
-
-### Props
-
-There are a number of additional props you can pass to `BlockNoteView`. You can find the full list of these below:
-
-<auto-type-table
-  path="../../../../packages/react/src/editor/BlockNoteView.tsx"
-  name="BlockNoteViewProps"
-/>
-
-Additional props passed are forwarded to the HTML `div` element BlockNote renders internally.
 
 <Callout type="info" emoji={"💡"}>
   <strong>Uncontrolled component</strong>
