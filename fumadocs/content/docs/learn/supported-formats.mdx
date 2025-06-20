@@ -1,0 +1,51 @@
+---
+title: Supported Formats
+description: Learn about the formats BlockNote supports for importing and exporting content.
+imageTitle: Supported Formats
+---
+
+When it comes to editors, formats can be tricky. The editor needs to be able to both read and write to each format.
+
+### Lossy Conversions
+
+If elements are not preserved in this transformation, we call the conversion _lossy_. While we'd ideally support every format, there are limitations to consider:
+
+- Some formats may not support certain types of content
+- Maintaining multiple parsers and serializers creates additional complexity
+
+We aim for full interoperability with our supported formats, though this isn't always possible. Where conversions may lose data, we indicate this through method names like:
+
+- `editor.tryParseHTMLToBlocks`
+- `editor.blocksToMarkdownLossy`
+- `editor.blocksToHTMLLossy`
+
+And when we are confident that the conversion is lossless (only the case for BlockNote JSON &lt;-&gt; BlockNote HTML), we use the following method names:
+
+- `editor.blocksToFullHTML`
+
+## Supported Formats
+
+### Import & Export
+
+BlockNote supports these formats for both importing and exporting content:
+
+- JSON (BlockNote JSON format)
+  - Accessible via `editor.document`
+- HTML
+  - BlockNote Internal HTML format
+    - Accessible via `editor.blocksToFullHTML()` and `editor.tryParseHTMLToBlocks()`
+  - Standard HTML (for interoperability with other tools)
+    - Accessible via `editor.blocksToHTMLLossy()` and `editor.tryParseHTMLToBlocks()`
+- Markdown
+  - Accessible via `editor.blocksToMarkdownLossy()` and `editor.tryParseMarkdownToBlocks()`
+
+### Export Only
+
+BlockNote can also export to these additional formats:
+
+- DOCX
+  - Via the [`@blocknote/xl-docx-exporter` package](/features/export/docx)
+- PDF
+  - Via the [`@blocknote/xl-pdf-exporter` package](/features/export/pdf)
+- ODT
+  - Via the [`@blocknote/xl-odt-exporter` package](/features/export/odt)

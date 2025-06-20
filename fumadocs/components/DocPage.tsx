@@ -22,7 +22,10 @@ export function CardTable({
 }) {
   return (
     <Cards>
-      {getPageTreePeers(source.pageTree, `${baseUrl}/${path}`).map((peer) => (
+      {getPageTreePeers(
+        source.pageTree,
+        `${baseUrl}/${path.startsWith("/") ? path.slice(1) : path}`,
+      ).map((peer) => (
         <Card key={peer.url} title={peer.name} href={peer.url}>
           {peer.description}
         </Card>

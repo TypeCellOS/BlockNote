@@ -1,0 +1,111 @@
+---
+title: useCreateBlockNote
+description: Learn how to create a BlockNote editor instance using the `useCreateBlockNote` hook
+imageTitle: useCreateBlockNote Hook
+---
+
+The `useCreateBlockNote` hook is the main hook for creating a new `BlockNoteEditor` instance. It returns a new editor instance that you can use to interact with the editor and its contents.
+
+## Basic Usage
+
+Here's a basic example of how to use the hook:
+
+```tsx
+import { useCreateBlockNote, BlockNoteView } from "@blocknote/react";
+
+function MyEditor() {
+  const editor = useCreateBlockNote();
+
+  return <BlockNoteView editor={editor} />;
+}
+```
+
+<Callout
+  type="info"
+  emoji={"💡"}
+  title="Manually creating the editor using `BlockNoteEditor.create`"
+>
+  Technically, the `useCreateBlockNote` hook is actually a simple `useMemo`
+  wrapper around the `BlockNoteEditor.create` method. You can use this method
+  directly if you want to control the editor lifecycle manually. For example, we
+  do this in the [Saving & Loading example](/examples/backend/saving-loading) to
+  delay the editor creation until some content has been fetched from an external
+  data source.
+</Callout>
+
+## Parameters
+
+The `useCreateBlockNote` hook accepts two optional parameters:
+
+### `options` (optional)
+
+An object containing configuration options for the editor:
+
+```tsx
+const editor = useCreateBlockNote({
+  initialContent: [
+    {
+      type: "paragraph",
+      content: "Hello, world!",
+    },
+  ],
+  sideMenuDetection: "editor",
+  editable: true,
+  // ... other options
+});
+```
+
+### `deps` (optional)
+
+A dependency array that's internally passed to `useMemo`. A new editor will only be created when this array changes:
+
+```tsx
+const editor = useCreateBlockNote(
+  {
+    initialContent: content,
+  },
+  [content], // Editor will be recreated when content changes
+);
+```
+
+## Examples
+
+### Setting Initial Content
+
+```tsx
+const editor = useCreateBlockNote({
+  initialContent: [
+    {
+      type: "heading",
+      content: "Welcome to BlockNote",
+      props: { level: 1 },
+    },
+    {
+      type: "paragraph",
+      content: "This is a paragraph with some text.",
+    },
+    {
+      type: "bulletListItem",
+      content: "This is a bullet point",
+    },
+  ],
+});
+```
+
+### Configuring Editor Behavior
+
+```tsx
+const editor = useCreateBlockNote({
+  editable: true, // Make editor editable (default: true)
+  sideMenuDetection: "editor", // Show side menu on editor hover
+});
+```
+
+## Reference
+
+All props supported by `useCreateBlockNote` are passed to the `BlockNoteEditor.create` method.
+
+<auto-type-table
+  path="../../../../../packages/core/src/editor/BlockNoteEditor.ts"
+  name="BlockNoteEditorOptions"
+/>

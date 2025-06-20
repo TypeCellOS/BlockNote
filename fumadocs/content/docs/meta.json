@@ -4,18 +4,20 @@
   "icon": "Building2",
   "root": true,
   "pages": [
+    "---Getting Started---",
     "index",
     "introduction",
-    "quickstart",
+    "getting-started",
+    "editor/setup",
+    "learn",
+    "---Features---",
+    "...features",
     "---Editor---",
-    "editor-basics",
-    "editor-api",
-    "---Styling & Theming---",
+    "...editor-api",
+    "---UI---",
     "styling-theming",
     "ui-components",
-    "---Advanced---",
-    "advanced",
-    "collaboration",
-    "custom-schemas"
+    "---Reference---",
+    "...reference"
   ]
 }

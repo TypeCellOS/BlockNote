@@ -1,0 +1,114 @@
+---
+title: Embeds
+description: How to use embeds in BlockNote.
+imageTitle: Embeds
+---
+
+Embeds are a way to display content from external sources in your documents. BlockNote supports various embeds to help you structure and format your content effectively.
+
+## Image
+
+An image block is a block that displays an image.
+
+**Type & Props**
+
+```typescript
+type ImageBlock = {
+  id: string;
+  type: "image";
+  props: {
+    url: string = "";
+    caption: string = "";
+    previewWidth: number = 512;
+  } & DefaultProps;
+  content: undefined;
+  children: Block[];
+};
+```
+
+`url:` The image URL.
+
+`caption:` The image caption.
+
+`previewWidth:` The image previewWidth in pixels.
+
+## File
+
+A file block is a block that displays a file.
+
+**Type & Props**
+
+```ts
+type FileBlock = {
+  id: string;
+  type: "file";
+  props: {
+    name: string = "";
+    url: string = "";
+    caption: string = "";
+  } & DefaultProps;
+  content: undefined;
+  children: Block[];
+};
+```
+
+## Video
+
+A video block is a block that displays a video.
+
+**Type & Props**
+
+```ts
+type VideoBlock = {
+  id: string;
+  type: "video";
+  props: {
+    name: string = "";
+    url: string = "";
+    caption: string = "";
+    showPreview: boolean = true;
+    previewWidth: number | undefined;
+  } & DefaultProps;
+  content: undefined;
+  children: Block[];
+};
+```
+
+`name:` The video name.
+
+`url:` The video URL.
+
+`caption:` The video caption.
+
+`showPreview:` Whether to show the video preview.
+
+`previewWidth:` The video preview width in pixels.
+
+## Audio
+
+An audio block is a block that displays an audio file.
+
+**Type & Props**
+
+```ts
+type AudioBlock = {
+  id: string;
+  type: "audio";
+  props: {
+    name: string = "";
+    url: string = "";
+    caption: string = "";
+    showPreview: boolean = true;
+  } & DefaultProps;
+  content: undefined;
+  children: Block[];
+};
+```
+
+`name:` The audio name.
+
+`url:` The audio URL.
+
+`caption:` The audio caption.
+
+`showPreview:` Whether to show the audio preview.

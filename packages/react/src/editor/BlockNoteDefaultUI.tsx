@@ -10,13 +10,52 @@ import { TableHandlesController } from "../components/TableHandles/TableHandlesC
 import { useBlockNoteEditor } from "../hooks/useBlockNoteEditor.js";
 
 export type BlockNoteDefaultUIProps = {
+  /**
+   * Whether the formatting toolbar should be enabled.
+   * @see {@link https://blocknotejs.org/docs/ui-components/formatting-toolbar}
+   */
   formattingToolbar?: boolean;
+
+  /**
+   * Whether the link toolbar should be enabled.
+   * @see {@link https://blocknotejs.org/docs/ui-components/link-toolbar}
+   */
   linkToolbar?: boolean;
+
+  /**
+   * Whether the slash menu should be enabled.
+   * @see {@link https://blocknotejs.org/docs/ui-components/suggestion-menus#slash-menu}
+   */
   slashMenu?: boolean;
+
+  /**
+   * Whether the block side menu should be enabled.
+   * @see {@link https://blocknotejs.org/docs/ui-components/side-menu}
+   */
   sideMenu?: boolean;
+
+  /**
+   * Whether the file panel should be enabled.
+   * @see {@link https://blocknotejs.org/docs/ui-components/file-panel}
+   */
   filePanel?: boolean;
+
+  /**
+   * Whether the table handles should be enabled.
+   * @see {@link https://blocknotejs.org/docs/ui-components/table-handles}
+   */
   tableHandles?: boolean;
+
+  /**
+   * Whether the emoji picker should be enabled.
+   * @see {@link https://blocknotejs.org/docs/advanced/grid-suggestion-menus#emoji-picker}
+   */
   emojiPicker?: boolean;
+
+  /**
+   * Whether the default comments UI feature should be enabled.
+   * @see {@link https://blocknotejs.org/docs/ui-components/comments}
+   */
   comments?: boolean;
 };
 

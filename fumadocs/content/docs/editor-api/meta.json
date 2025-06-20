@@ -1,15 +1,12 @@
 {
-  "title": "Editor API",
+  "title": "API",
   "pages": [
-    "manipulating-blocks",
-    "manipulating-inline-content",
+    "react",
+    "document-structure",
     "cursor-selections",
     "converting-blocks",
     "events",
     "server-processing",
-    "export-to-pdf",
-    "export-to-docx",
-    "export-to-odt",
     "..."
   ]
 }

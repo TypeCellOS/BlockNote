@@ -1,0 +1,111 @@
+---
+title: Inline Content
+description: How to use inline content in BlockNote.
+imageTitle: Inline Content
+---
+
+By default, `InlineContent` (the content of text blocks like paragraphs) in BlockNote can either be a `StyledText` or a `Link` object.
+
+Here's an overview of all default inline content and the properties they support:
+
+## Styled Text
+
+`StyledText` is a type of `InlineContent` used to display pieces of text with styles:
+
+```typescript twoslash
+/**
+ * Styles can be applied to text.
+ */
+type Styles = {
+  bold: boolean;
+  italic: boolean;
+  underline: boolean;
+  strike: boolean;
+  textColor: string;
+  backgroundColor: string;
+};
+
+// ---cut---
+type StyledText = {
+  type: "text";
+  /**
+   * The text content.
+   */
+  text: string;
+  /**
+   * The styles of the text.
+   */
+  styles: Styles;
+};
+```
+
+## Link
+
+`Link` objects represent links to a URL:
+
+```typescript twoslash
+type Styles = {
+  bold: boolean;
+  italic: boolean;
+  underline: boolean;
+  strike: boolean;
+  textColor: string;
+  backgroundColor: string;
+};
+
+/**
+ * Any text content within a link
+ */
+type StyledText = {
+  type: "text";
+  text: string;
+  styles: Styles;
+};
+
+// ---cut---
+type Link = {
+  type: "link";
+  /**
+   * The content of the link.
+   */
+  content: StyledText[];
+  /**
+   * The href of the link.
+   */
+  href: string;
+};
+```
+
+## Default Styles
+
+The default text formatting options in BlockNote are represented by the `Styles` in the default schema:
+
+```typescript twoslash
+type Styles = {
+  /**
+   * Whether the text is bold.
+   * @default false
+   */
+  bold: boolean;
+  /**
+   * Whether the text is italic.
+   * @default false
+   */
+  italic: boolean;
+  /**
+   * Whether the text is underlined.
+   * @default false
+   */
+  underline: boolean;
+  /**
+   * Whether the text is struck through.
+   * @default false
+   */
+  strike: boolean;
+  /**
+   * The text color.
+   * @default "default"
+   */
+  textColor: string;
+};
+```

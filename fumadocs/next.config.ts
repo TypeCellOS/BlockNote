@@ -6,6 +6,7 @@ const withMDX = createMDX();
 
 const config = {
   reactStrictMode: true,
+  serverExternalPackages: ["typescript", "twoslash"],
   experimental: {
     reactCompiler: true,
   },
@@ -29,6 +30,11 @@ const config = {
     {
       source: "/docs/introduction",
       destination: "/docs",
+      permanent: true,
+    },
+    {
+      source: "/docs/quickstart",
+      destination: "/docs/install",
       permanent: true,
     },
     {
