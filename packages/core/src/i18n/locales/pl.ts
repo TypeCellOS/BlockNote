@@ -20,6 +20,24 @@ export const pl: Dictionary = {
       aliases: ["h3", "naglowek3", "podnaglowek"],
       group: "Nagłówki",
     },
+    heading_4: {
+      title: "Nagłówek 4",
+      subtext: "Nagłówek mniejszej podsekcji",
+      aliases: ["h4", "naglowek4", "podnaglowek4"],
+      group: "Nagłówki",
+    },
+    heading_5: {
+      title: "Nagłówek 5",
+      subtext: "Nagłówek mniejszej podsekcji",
+      aliases: ["h5", "naglowek5", "podnaglowek5"],
+      group: "Nagłówki",
+    },
+    heading_6: {
+      title: "Nagłówek 6",
+      subtext: "Nagłówek najniższego poziomu",
+      aliases: ["h6", "naglowek6", "podnaglowek6"],
+      group: "Nagłówki",
+    },
     quote: {
       title: "Cytat",
       subtext: "Cytat lub fragment",

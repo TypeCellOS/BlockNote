@@ -20,6 +20,24 @@ export const zhTW: Dictionary = {
       aliases: ["h3", "heading3", "subheading", "標題", "三級標題"],
       group: "標題",
     },
+    heading_4: {
+      title: "四級標題",
+      subtext: "用於小節和分組標題",
+      aliases: ["h4", "heading4", "subheading", "標題", "四級標題"],
+      group: "標題",
+    },
+    heading_5: {
+      title: "五級標題",
+      subtext: "用於小節和分組標題",
+      aliases: ["h5", "heading5", "subheading", "標題", "五級標題"],
+      group: "標題",
+    },
+    heading_6: {
+      title: "六級標題",
+      subtext: "用於小節和分組標題",
+      aliases: ["h6", "heading6", "subheading", "標題", "六級標題"],
+      group: "標題",
+    },
     quote: {
       title: "引用",
       subtext: "引用或摘錄",

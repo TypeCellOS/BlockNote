@@ -20,6 +20,24 @@ export const nl: Dictionary = {
       aliases: ["h3", "kop3", "subkop"],
       group: "Koppen",
     },
+    heading_4: {
+      title: "Kop 4",
+      subtext: "Gebruikt voor kleinere subsecties",
+      aliases: ["h4", "kop4", "subkop4"],
+      group: "Koppen",
+    },
+    heading_5: {
+      title: "Kop 5",
+      subtext: "Gebruikt voor kleinere subsecties",
+      aliases: ["h5", "kop5", "subkop5"],
+      group: "Koppen",
+    },
+    heading_6: {
+      title: "Kop 6",
+      subtext: "Gebruikt voor koppen op het laagste niveau",
+      aliases: ["h6", "kop6", "subkop6"],
+      group: "Koppen",
+    },
     quote: {
       title: "Citaat",
       subtext: "Citaat of uittreksel",
