@@ -10,6 +10,7 @@ import {
   StyleSchema,
   StyledText,
 } from "@blocknote/core";
+import { Fragment } from "react";
 import {
   Document,
   Font,
@@ -154,7 +155,7 @@ export class PDFExporter<
 
       const style = this.blocknoteDefaultPropsToReactPDFStyle(b.props as any);
       ret.push(
-        <View key={b.id}>
+        <Fragment key={b.id}>
           <View
             style={{
               paddingVertical: 3 * PIXELS_PER_POINT,
@@ -175,7 +176,7 @@ export class PDFExporter<
               {children}
             </View>
           )}
-        </View>,
+        </Fragment>,
       );
     }
 
