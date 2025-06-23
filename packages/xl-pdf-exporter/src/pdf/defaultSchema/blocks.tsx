@@ -67,12 +67,18 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
     );
   },
   heading: (block, exporter) => {
-    const fontSizeEM =
-      block.props.level === 1 ? 2 : block.props.level === 2 ? 1.5 : 1.17;
+    const levelFontSizeEM = {
+      1: 2,
+      2: 1.5,
+      3: 1.17,
+      4: 1,
+      5: 0.83,
+      6: 0.67,
+    }[block.props.level];
     return (
       <Text
         style={{
-          fontSize: fontSizeEM * FONT_SIZE * PIXELS_PER_POINT,
+          fontSize: levelFontSizeEM * FONT_SIZE * PIXELS_PER_POINT,
           fontWeight: 700,
         }}
       >

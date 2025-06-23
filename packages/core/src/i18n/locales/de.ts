@@ -20,11 +20,29 @@ export const de: Dictionary = {
       aliases: ["h3", "überschrift3", "unterüberschrift"],
       group: "Überschriften",
     },
+    heading_4: {
+      title: "Überschrift 4",
+      subtext: "Überschrift für kleinere Unterabschnitte",
+      aliases: ["h4", "überschrift4", "unterüberschrift4"],
+      group: "Unterüberschriften",
+    },
+    heading_5: {
+      title: "Überschrift 5",
+      subtext: "Überschrift für tiefere Unterabschnitte",
+      aliases: ["h5", "überschrift5", "unterüberschrift5"],
+      group: "Unterüberschriften",
+    },
+    heading_6: {
+      title: "Überschrift 6",
+      subtext: "Überschrift auf der untersten Ebene",
+      aliases: ["h6", "überschrift6", "unterüberschrift6"],
+      group: "Unterüberschriften",
+    },
     toggle_heading: {
       title: "Aufklappbare Überschrift 1",
       subtext: "Aufklappbare Hauptebene Überschrift",
       aliases: ["h", "überschrift1", "h1", "aufklappbar", "einklappbar"],
-      group: "Überschriften",
+      group: "Unterüberschrift",
     },
     toggle_heading_2: {
       title: "Aufklappbare Überschrift 2",
@@ -36,7 +54,7 @@ export const de: Dictionary = {
         "aufklappbar",
         "einklappbar",
       ],
-      group: "Überschriften",
+      group: "Unterüberschriften",
     },
     toggle_heading_3: {
       title: "Aufklappbare Überschrift 3",
@@ -48,7 +66,7 @@ export const de: Dictionary = {
         "aufklappbar",
         "einklappbar",
       ],
-      group: "Überschriften",
+      group: "Unterüberschriften",
     },
     quote: {
       title: "Zitat",
