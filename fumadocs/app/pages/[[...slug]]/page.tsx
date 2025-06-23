@@ -3,9 +3,11 @@ import { getMDXComponents } from "@/util/mdx-components";
 import { DocsBody, DocsDescription, DocsTitle } from "fumadocs-ui/page";
 import { notFound } from "next/navigation";
 
-export default async function Page() {
-  const page = source.getPage(["about"]);
-  console.log(source.getPageTree());
+export default async function Page(props: {
+  params: Promise<{ slug?: string[] }>;
+}) {
+  const slug = (await props.params).slug || [];
+  const page = source.getPage(slug);
   if (!page) {
     notFound();
   }
@@ -28,8 +30,11 @@ export async function generateStaticParams() {
   return source.generateParams();
 }
 
-export async function generateMetadata() {
-  const page = source.getPage(["thanks"]);
+export async function generateMetadata(props: {
+  params: Promise<{ slug?: string[] }>;
+}) {
+  const slug = (await props.params).slug || [];
+  const page = source.getPage(slug);
   if (!page) {
     notFound();
   }

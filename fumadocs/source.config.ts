@@ -7,7 +7,6 @@ import {
 import { z } from "zod";
 
 // Options: https://fumadocs.vercel.app/docs/mdx/collections#define-docs
-// console.log("get cancer you fucking pig");
 export const docs = defineDocs({
   dir: "content/docs",
   docs: {

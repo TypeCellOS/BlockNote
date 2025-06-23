@@ -216,7 +216,7 @@ export const auth = betterAuth({
             // http://localhost:3000/api/auth/checkout/starter
           },
         ],
-        successUrl: "/thanks",
+        successUrl: "/pages/thanks",
       },
       // Incoming Webhooks handler will be installed at /polar/webhooks
       webhooks: {

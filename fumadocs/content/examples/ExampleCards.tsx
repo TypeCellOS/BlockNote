@@ -15,7 +15,7 @@ type CardGroupData = {
   cards: CardData[];
 };
 
-export function ExampleCards() {
+export default function ExampleCards() {
   // Creates card groups in the order the example & example categories appear
   // in the sidebar (i.e. from `meta.json` files in the `content/examples`
   // directory).

@@ -1,10 +1,13 @@
+import LogoLight from "@/public/img/logos/banner.svg";
+import LogoDark from "@/public/img/logos/banner.dark.svg";
 import cn from "classnames";
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactElement, ReactNode } from "react";
-// import { Logo } from "./Logo";
+
 function FooterLink({ href, children }: { href: string; children: ReactNode }) {
   const classes =
-    "text-sm text-[#666666] dark:text-[#888888] no-underline betterhover:hover:text-gray-700 betterhover:hover:dark:text-white transition";
+    "text-sm text-[#666666] dark:text-[#888888] no-underline hover:text-gray-700 hover:dark:text-white transition";
   if (href.startsWith("http")) {
     return (
       <a className={classes} href={href}>
@@ -44,14 +47,14 @@ const navigation = {
     },
   ],
   collaborate: () => [
-    { name: "Partner with us", href: `/about#partner-with-us` },
+    { name: "Partner with us", href: `/pages/about#partner-with-us` },
     {
       name: "Sponsorships",
-      href: `/about#sponsorships`,
+      href: `/pages/about#sponsorships`,
     },
     {
       name: "Contribute",
-      href: `/about#contribute`,
+      href: `/pages/about#contribute`,
     },
   ],
 };
@@ -66,7 +69,16 @@ export function FooterContent() {
         <div className="xl:grid xl:grid-cols-3 xl:gap-16">
           <div className="">
             {/* <FooterHeader>Subscribe to our newsletter</FooterHeader> */}
-            {/* <Logo /> */}
+            <Image
+              src={LogoLight}
+              alt="BlockNote"
+              className="block w-64 dark:hidden"
+            />
+            <Image
+              src={LogoDark}
+              alt="BlockNote"
+              className="hidden w-64 dark:block"
+            />
             <p className="mt-4 text-sm text-gray-600 dark:text-[#888888]">
               BlockNote is an extensible React rich text editor with support for
               block-based editing, collaboration and comes with ready-to-use
@@ -110,12 +122,12 @@ export function FooterContent() {
                 <FooterHeader>Legal</FooterHeader>
                 <ul className="ml-0 mt-4 list-none space-y-1.5">
                   <li key={"terms-and-conditions"}>
-                    <FooterLink href={"/legal/terms-and-conditions"}>
+                    <FooterLink href={"/pages/terms-and-conditions"}>
                       Terms & Conditions
                     </FooterLink>
                   </li>
                   <li key={"privacy-policy"}>
-                    <FooterLink href={"/legal/privacy-policy"}>
+                    <FooterLink href={"/pages/privacy-policy"}>
                       Privacy Policy
                     </FooterLink>
                   </li>
@@ -140,7 +152,7 @@ export function FooterContent() {
 
 export function Footer({ menu }: { menu?: boolean }): ReactElement {
   return (
-    <footer className="relative bg-[#FAFAFA] pb-[env(safe-area-inset-bottom)] dark:bg-[#111111]">
+    <footer className="relative mt-10 bg-[#FAFAFA] pb-[env(safe-area-inset-bottom)] dark:bg-[#111111]">
       {/* <div className="pointer-events-none absolute top-0 h-12 w-full -translate-y-full bg-gradient-to-t from-[#FAFAFA] to-transparent dark:from-black" /> */}
       {/* <div
         className={cn(
