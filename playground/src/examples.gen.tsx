@@ -988,6 +988,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-docx-exporter": "latest",
+            "@blocknote/xl-multi-column": "latest",
             "docx": "^9.0.2"
           } as any,
           "pro": true

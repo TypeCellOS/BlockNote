@@ -58,6 +58,7 @@
   },
   "dependencies": {
     "@blocknote/core": "0.31.3",
+    "@blocknote/xl-multi-column": "0.31.3",
     "buffer": "^6.0.3",
     "docx": "^9.0.2",
     "image-meta": "^0.2.1"
