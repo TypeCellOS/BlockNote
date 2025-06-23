@@ -1,4 +1,5 @@
 import {
+  BlockFromConfig,
   BlockMapping,
   DefaultBlockSchema,
   DefaultProps,
@@ -8,6 +9,7 @@ import {
   TableCell,
 } from "@blocknote/core";
 import { ODTExporter } from "../odtExporter.js";
+import { multiColumnSchema } from "@blocknote/xl-multi-column";
 
 export const getTabs = (nestingLevel: number) => {
   return Array.from({ length: nestingLevel }, () => <text:tab />);
@@ -168,7 +170,9 @@ const wrapWithLists = (
 };
 
 export const odtBlockMappingForDefaultSchema: BlockMapping<
-  DefaultBlockSchema & typeof pageBreakSchema.blockSchema,
+  DefaultBlockSchema &
+    typeof pageBreakSchema.blockSchema &
+    typeof multiColumnSchema.blockSchema,
   any,
   any,
   React.ReactNode,
@@ -300,6 +304,69 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
 
   pageBreak: async () => {
     return <text:p text:style-name="PageBreak" />;
+  },
+
+  column: (_block, exporter, _nestingLevel, _numberedListIndex, children) => {
+    const ex = exporter as ODTExporter<any, any, any>;
+    const style = ex.registerStyle((name) => (
+      <style:style style:name={name} style:family="table-cell">
+        <style:table-cell-properties
+          style:writing-mode="lr-tb"
+          fo:border="none"
+          fo:padding-top="0in"
+          fo:padding-left="0.075in"
+          fo:padding-bottom="0in"
+          fo:padding-right="0.075in"
+        />
+      </style:style>
+    ));
+
+    return (
+      <table:table-cell table:style-name={style}>{children}</table:table-cell>
+    );
+  },
+  columnList: (
+    block,
+    exporter,
+    _nestingLevel,
+    _numberedListIndex,
+    children,
+  ) => {
+    const blockWithChildren = block as BlockFromConfig<
+      {
+        type: "columnList";
+        content: "none";
+        propSchema: Record<string, any>;
+      },
+      any,
+      any
+    >;
+    const ex = exporter as ODTExporter<any, any, any>;
+    const style = ex.registerStyle((name) => (
+      <style:style style:name={name} style:family="table">
+        <style:table-properties
+          table:align="margins"
+          style:writing-mode="lr-tb"
+        />
+      </style:style>
+    ));
+
+    return (
+      <table:table table:name={block.id} table:style-name={style}>
+        {(blockWithChildren.children || []).map((column, index) => {
+          const style = ex.registerStyle((name) => (
+            <style:style style:name={name} style:family="table-column">
+              <style:table-column-properties
+                style:rel-column-width={`${column.props.width * 100}*`}
+              />
+            </style:style>
+          ));
+
+          return <table:table-column table:style-name={style} key={index} />;
+        })}
+        <table:table-row>{children}</table:table-row>
+      </table:table>
+    );
   },
 
   image: async (block, exporter) => {

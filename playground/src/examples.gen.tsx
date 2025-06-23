@@ -1011,7 +1011,8 @@
             ""
           ],
           "dependencies": {
-            "@blocknote/xl-odt-exporter": "latest"
+            "@blocknote/xl-odt-exporter": "latest",
+            "@blocknote/xl-multi-column": "latest"
           } as any,
           "pro": true
         },

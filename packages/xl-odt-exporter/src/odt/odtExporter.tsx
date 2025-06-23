@@ -126,20 +126,35 @@ export class ODTExporter<
         numberedListIndex = 0;
       }
 
-      const children = await this.transformBlocks(
-        block.children,
-        nestingLevel + 1,
-      );
+      if (["columnList", "column"].includes(block.type)) {
+        const children = await this.transformBlocks(
+          block.children,
+          nestingLevel,
+        );
+        const content = await this.mapBlock(
+          block as any,
+          nestingLevel,
+          numberedListIndex,
+          children,
+        );
 
-      const content = await this.mapBlock(
-        block as any,
-        nestingLevel,
-        numberedListIndex,
-      );
+        ret.push(content);
+      } else {
+        const children = await this.transformBlocks(
+          block.children,
+          nestingLevel + 1,
+        );
+        const content = await this.mapBlock(
+          block as any,
+          nestingLevel,
+          numberedListIndex,
+          children,
+        );
 
-      ret.push(content);
-      if (children.length > 0) {
-        ret.push(...children);
+        ret.push(content);
+        if (children.length > 0) {
+          ret.push(...children);
+        }
       }
     }
 

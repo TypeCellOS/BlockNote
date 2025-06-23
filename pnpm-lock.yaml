@@ -2087,6 +2087,9 @@ importers:
       '@blocknote/shadcn':
         specifier: latest
         version: link:../../../packages/shadcn
+      '@blocknote/xl-multi-column':
+        specifier: latest
+        version: link:../../../packages/xl-multi-column
       '@blocknote/xl-odt-exporter':
         specifier: latest
         version: link:../../../packages/xl-odt-exporter
@@ -4037,6 +4040,9 @@ importers:
       '@blocknote/core':
         specifier: 0.31.3
         version: link:../core
+      '@blocknote/xl-multi-column':
+        specifier: 0.31.3
+        version: link:../xl-multi-column
       '@zip.js/zip.js':
         specifier: ^2.7.57
         version: 2.7.62
