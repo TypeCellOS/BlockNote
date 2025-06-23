@@ -29,9 +29,7 @@ const baseGitHubURL = "https://github.com/TypeCellOS/BlockNote/tree/main/";
 const baseStackBlitzURL =
   "https://www.stackblitz.com/github/TypeCellOS/BlockNote/tree/main/";
 
-// const ThemedExample = dynamic(() => import("./ThemedExample"), {
-//   ssr: false,
-// });
+const ThemedExample = dynamic(() => import("./ThemedExample"));
 
 export async function Example(props: {
   name: string;
@@ -39,9 +37,6 @@ export async function Example(props: {
   children: any;
   pro?: boolean;
 }) {
-  const Component = dynamic(
-    () => import("./example/generated/components/" + props.name + "/index"),
-  );
   // const showCode =
   //   !props.isProExample ||
   //   props.isProExample.userStatus === "starter" ||
@@ -49,33 +44,39 @@ export async function Example(props: {
   const showCode = true;
 
   return (
-    <div className="demo nx-bg-primary-700/5 dark:nx-bg-primary-300/10 mt-6 rounded-lg p-4">
-      {showCode && (
-        <div className={"z-10 flex flex-row gap-6 pb-4"}>
-          <a
-            className={
-              "nx-select-none nx-text-gray-600 hover:nx-text-black dark:nx-text-gray-200 dark:hover:nx-text-white flex flex-row items-center gap-1"
-            }
-            href={`${baseGitHubURL}${props.path}/`}
-            target="_blank"
-            rel="noreferrer">
-            <AiFillGithub />
-            <div className={"text-sm"}>GitHub</div>
-          </a>
-          <a
-            className={
-              "nx-select-none nx-text-gray-600 hover:nx-text-black dark:nx-text-gray-200 dark:hover:nx-text-white flex flex-row items-center gap-1"
-            }
-            href={`${baseStackBlitzURL}${props.path}/`}
-            target="_blank"
-            rel="noreferrer">
-            <SiStackblitz />
-            <div className={"text-sm"}>StackBlitz</div>
-          </a>
+    <div className="demo">
+      <div className="not-prose bg-fd-secondary border-fd-border flex h-[600px] flex-col rounded-xl border">
+        {showCode && (
+          <div className={"flex items-center gap-4 px-4"}>
+            <a
+              className={
+                "hover:text-fd-accent-foreground flex items-center gap-1 py-2 text-sm font-medium"
+              }
+              href={`${baseGitHubURL}${props.path}/`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <AiFillGithub size={16} />
+              <div>GitHub</div>
+            </a>
+            <a
+              className={
+                "hover:text-fd-accent-foreground flex items-center gap-1 py-2 text-sm font-medium"
+              }
+              href={`${baseStackBlitzURL}${props.path}/`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <SiStackblitz size={16} />
+              <div className={"text-sm"}>StackBlitz</div>
+            </a>
+          </div>
+        )}
+        <div
+          className={"demo-contents bg-fd-background h-0 flex-1 rounded-xl p-4"}
+        >
+          <ThemedExample name={props.name} />
         </div>
-      )}
-      <div className={"demo-contents h-96 overflow-auto rounded-lg"}>
-        <Component />
       </div>
       {showCode ? (
         props.children
@@ -83,13 +84,14 @@ export async function Example(props: {
         <div
           className={
             "relative flex h-96 flex-col items-center justify-center gap-2"
-          }>
+          }
+        >
           <div className={"absolute h-1/2 w-1/2"}>
             <div className={"cta-glow h-full w-full"}></div>
           </div>
           <div className={"z-10 flex w-2/3 flex-col items-center"}>
             <SectionHeader>Pro Example</SectionHeader>
-            <p className={"text-center text-[#00000080] dark:text-[#FFFFFFB2]"}>
+            <p className={"text-center"}>
               Get access to the full source code for pro examples by subscribing
               to BlockNote Pro
             </p>
@@ -98,7 +100,8 @@ export async function Example(props: {
                 href={"/pricing"}
                 color={"pro"}
                 size={"large"}
-                hoverGlow={true}>
+                hoverGlow={true}
+              >
                 Get BlockNote Pro
               </CTAButton>
             </div>
