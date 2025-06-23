@@ -130,6 +130,15 @@ NESTED BLOCKS
 [data-content-type="heading"][data-level="3"] {
   --level: 1.3em;
 }
+[data-content-type="heading"][data-level="4"] {
+  --level: 1em;
+}
+[data-content-type="heading"][data-level="5"] {
+  --level: 0.9em;
+}
+[data-content-type="heading"][data-level="6"] {
+  --level: 0.8em;
+}
 
 [data-prev-level="1"] {
   --prev-level: 3em;
@@ -139,6 +148,15 @@ NESTED BLOCKS
 }
 [data-prev-level="3"] {
   --prev-level: 1.3em;
+}
+[data-prev-level="4"] {
+  --prev-level: 1em;
+}
+[data-prev-level="5"] {
+  --prev-level: 0.9em;
+}
+[data-prev-level="6"] {
+  --prev-level: 0.8em;
 }
 
 .bn-block-outer[data-prev-type="heading"] > .bn-block > .bn-block-content {

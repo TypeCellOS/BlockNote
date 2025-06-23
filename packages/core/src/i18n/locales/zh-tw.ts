@@ -20,11 +20,29 @@ export const zhTW: Dictionary = {
       aliases: ["h3", "heading3", "subheading", "標題", "三級標題"],
       group: "標題",
     },
+    heading_4: {
+      title: "四級標題",
+      subtext: "用於小節和分組標題",
+      aliases: ["h4", "heading4", "subheading", "標題", "四級標題"],
+      group: "副標題",
+    },
+    heading_5: {
+      title: "五級標題",
+      subtext: "用於小節和分組標題",
+      aliases: ["h5", "heading5", "subheading", "標題", "五級標題"],
+      group: "副標題",
+    },
+    heading_6: {
+      title: "六級標題",
+      subtext: "用於小節和分組標題",
+      aliases: ["h6", "heading6", "subheading", "標題", "六級標題"],
+      group: "副標題",
+    },
     toggle_heading: {
       title: "可摺疊一級標題",
       subtext: "可摺疊的頂級標題",
       aliases: ["h", "heading1", "h1", "標題", "一級標題", "摺疊"],
-      group: "標題",
+      group: "副標題",
     },
     toggle_heading_2: {
       title: "可摺疊二級標題",
@@ -38,13 +56,13 @@ export const zhTW: Dictionary = {
         "副標題",
         "摺疊",
       ],
-      group: "標題",
+      group: "副標題",
     },
     toggle_heading_3: {
       title: "可摺疊三級標題",
       subtext: "可摺疊的小節和分組標題",
       aliases: ["h3", "heading3", "subheading", "標題", "三級標題", "摺疊"],
-      group: "標題",
+      group: "副標題",
     },
     quote: {
       title: "引用",

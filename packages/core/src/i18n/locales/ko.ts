@@ -20,6 +20,24 @@ export const ko: Dictionary = {
       aliases: ["h3", "제목3", "subheading"],
       group: "제목",
     },
+    heading_4: {
+      title: "제목4",
+      subtext: "하위 소단락 제목",
+      aliases: ["h4", "제목4", "소제목4"],
+      group: "소제목",
+    },
+    heading_5: {
+      title: "제목5",
+      subtext: "작은 하위 섹션 제목",
+      aliases: ["h5", "제목5", "소제목5"],
+      group: "소제목",
+    },
+    heading_6: {
+      title: "제목6",
+      subtext: "가장 하위 수준 제목",
+      aliases: ["h6", "제목6", "소제목6"],
+      group: "소제목",
+    },
     toggle_heading: {
       title: "접을 수 있는 제목1",
       subtext: "내용을 표시하거나 숨길 수 있는 섹션 제목(대)",
@@ -30,13 +48,13 @@ export const ko: Dictionary = {
       title: "접을 수 있는 제목2",
       subtext: "내용을 표시하거나 숨길 수 있는 섹션 제목(중)",
       aliases: ["h2", "제목2", "중제목", "접기", "토글"],
-      group: "제목",
+      group: "소제목",
     },
     toggle_heading_3: {
       title: "접을 수 있는 제목3",
       subtext: "내용을 표시하거나 숨길 수 있는 섹션 제목(소)",
       aliases: ["h3", "제목3", "subheading", "접기", "토글"],
-      group: "제목",
+      group: "소제목",
     },
     quote: {
       title: "인용",

@@ -20,12 +20,30 @@ export const is: Dictionary = {
       aliases: ["h3", "fyrirsogn3", "undirfyrirsogn"],
       group: "Fyrirsagnir",
     },
+    heading_4: {
+      title: "Fyrirsögn 4",
+      subtext: "Titill fyrir minni undirhluta",
+      aliases: ["h4", "fyrirsogn4", "undirfyrirsogn4"],
+      group: "Undirfyrirsagnir",
+    },
+    heading_5: {
+      title: "Fyrirsögn 5",
+      subtext: "Titill fyrir litla undirkafla",
+      aliases: ["h5", "fyrirsogn5", "undirfyrirsogn5"],
+      group: "Undirfyrirsagnir",
+    },
+    heading_6: {
+      title: "Fyrirsögn 6",
+      subtext: "Titill á lægsta stigi",
+      aliases: ["h6", "fyrirsogn6", "undirfyrirsogn6"],
+      group: "Undirfyrirsagnir",
+    },
     toggle_heading: {
       title: "Fellanleg Fyrirsögn 1",
       subtext:
         "Fellanleg efsta fyrirsögn sem hægt er að sýna eða fela innihald",
       aliases: ["h", "fyrirsogn1", "h1", "fellanleg", "fellanlegt"],
-      group: "Fyrirsagnir",
+      group: "Undirfyrirsagnir",
     },
     toggle_heading_2: {
       title: "Fellanleg Fyrirsögn 2",
@@ -38,7 +56,7 @@ export const is: Dictionary = {
         "fellanleg",
         "fellanlegt",
       ],
-      group: "Fyrirsagnir",
+      group: "Undirfyrirsagnir",
     },
     toggle_heading_3: {
       title: "Fellanleg Fyrirsögn 3",
@@ -51,7 +69,7 @@ export const is: Dictionary = {
         "fellanleg",
         "fellanlegt",
       ],
-      group: "Fyrirsagnir",
+      group: "Undirfyrirsagnir",
     },
     quote: {
       title: "Tilvitnun",
