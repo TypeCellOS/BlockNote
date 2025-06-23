@@ -2,6 +2,7 @@ import { DefaultBlockSchema, StyledText } from "@blocknote/core";
 import { BlockMapping } from "@blocknote/core/src/exporter/mapping.js";
 import { CodeBlock, dracula, Heading, Img, Link, PrismLanguage, Text,} from "@react-email/components";
 import { pageBreakSchema } from "@blocknote/core";
+import { mapTableCell } from "@blocknote/core/src/util/table.js";
 
 export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
   DefaultBlockSchema & typeof pageBreakSchema.blockSchema,
@@ -129,6 +130,9 @@ export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
                     {table.rows.map((row: any, rowIndex: number) => (
                         <tr key={'row-' + rowIndex}>
                             {row.cells.map((cell: any, colIndex: number) => {
+                                // Use mapTableCell to normalize table cell data into a standard interface
+                                // This handles partial cells, provides default values, and ensures consistent structure
+                                const normalizedCell = mapTableCell(cell);
                                 const isHeaderRow = rowIndex < headerRowsCount;
                                 const isHeaderCol = colIndex < headerColsCount;
                                 const isHeader = isHeaderRow || isHeaderCol;
@@ -139,12 +143,21 @@ export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
                                         style={{
                                             border: '1px solid #ddd',
                                             padding: '8px 12px',
-                                            background: isHeader ? '#f5f5f5' : '#fff',
+                                            background: isHeader 
+                                                ? '#f5f5f5' 
+                                                : normalizedCell.props.backgroundColor !== 'default' 
+                                                    ? normalizedCell.props.backgroundColor 
+                                                    : '#fff',
                                             fontWeight: isHeader ? 'bold' : 'normal',
-                                            textAlign: cell.props?.textAlignment || 'left',
+                                            textAlign: normalizedCell.props.textAlignment || 'left',
+                                            color: normalizedCell.props.textColor !== 'default' 
+                                                ? normalizedCell.props.textColor 
+                                                : 'inherit',
                                         }}
+                                        {...((normalizedCell.props.colspan || 1) > 1 && { colSpan: normalizedCell.props.colspan || 1 })}
+                                        {...((normalizedCell.props.rowspan || 1) > 1 && { rowSpan: normalizedCell.props.rowspan || 1 })}
                                     >
-                                        {t.transformInlineContent(cell.content)}
+                                        {t.transformInlineContent(normalizedCell.content)}
                                     </CellTag>
                                 );
                             })}
