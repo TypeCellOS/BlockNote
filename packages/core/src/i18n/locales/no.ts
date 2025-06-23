@@ -24,25 +24,25 @@ export const no: Dictionary = {
       title: "Overskrift 4",
       subtext: "Underoverskrift for mindre underseksjoner",
       aliases: ["h4", "overskrift4", "underoverskrift4"],
-      group: "Overskrifter",
+      group: "Underoverskrifter",
     },
     heading_5: {
       title: "Overskrift 5",
       subtext: "Overskrift for mindre underseksjoner",
       aliases: ["h5", "overskrift5", "underoverskrift5"],
-      group: "Overskrifter",
+      group: "Underoverskrifter",
     },
     heading_6: {
       title: "Overskrift 6",
       subtext: "Overskrift på laveste nivå",
       aliases: ["h6", "overskrift6", "underoverskrift6"],
-      group: "Overskrifter",
+      group: "Underoverskrifter",
     },
     toggle_heading: {
       title: "Sammenleggbar Overskrift 1",
       subtext: "Toppnivåoverskrift som kan vises eller skjules",
       aliases: ["h", "overskrift1", "h1", "sammenleggbar", "toggle"],
-      group: "Overskrifter",
+      group: "Underoverskrifter",
     },
     toggle_heading_2: {
       title: "Sammenleggbar Overskrift 2",
@@ -54,7 +54,7 @@ export const no: Dictionary = {
         "sammenleggbar",
         "toggle",
       ],
-      group: "Overskrifter",
+      group: "Underoverskrifter",
     },
     toggle_heading_3: {
       title: "Sammenleggbar Overskrift 3",
@@ -66,7 +66,7 @@ export const no: Dictionary = {
         "sammenleggbar",
         "toggle",
       ],
-      group: "Overskrifter",
+      group: "Underoverskrifter",
     },
     quote: {
       title: "Sitat",

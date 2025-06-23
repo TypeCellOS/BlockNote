@@ -24,25 +24,25 @@ export const ja: Dictionary = {
       title: "見出し４",
       subtext: "小さなサブセクションの見出しに使用",
       aliases: ["h4", "見出し4", "subheading4", "小見出し4"],
-      group: "見出し",
+      group: "サブ見出し",
     },
     heading_5: {
       title: "見出し５",
       subtext: "小さなサブセクションの見出しに使用",
       aliases: ["h5", "見出し5", "subheading5", "小見出し5"],
-      group: "見出し",
+      group: "サブ見出し",
     },
     heading_6: {
       title: "見出し６",
       subtext: "最下位レベルの見出しに使用",
       aliases: ["h6", "見出し6", "subheading6", "小見出し6"],
-      group: "見出し",
+      group: "サブ見出し",
     },
     toggle_heading: {
       title: "折りたたみ見出し１",
       subtext: "内容の表示/非表示が切り替え可能なトップレベルの見出し",
       aliases: ["h", "見出し１", "h1", "大見出し", "折りたたみ", "トグル"],
-      group: "見出し",
+      group: "サブ見出し",
     },
     toggle_heading_2: {
       title: "折りたたみ見出し２",
@@ -55,7 +55,7 @@ export const ja: Dictionary = {
         "折りたたみ",
         "トグル",
       ],
-      group: "見出し",
+      group: "サブ見出し",
     },
     toggle_heading_3: {
       title: "折りたたみ見出し３",
@@ -68,7 +68,7 @@ export const ja: Dictionary = {
         "折りたたみ",
         "トグル",
       ],
-      group: "見出し",
+      group: "サブ見出し",
     },
     quote: {
       title: "引用",

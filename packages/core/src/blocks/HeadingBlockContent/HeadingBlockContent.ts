@@ -11,6 +11,7 @@ import {
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
 import { createToggleWrapper } from "../ToggleWrapper/createToggleWrapper.js";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 const HEADING_LEVELS = [1, 2, 3, 4, 5, 6] as const;
 
@@ -30,8 +31,9 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
   },
 
   addInputRules() {
+    const editor = this.options.editor as BlockNoteEditor<any, any, any>;
     return [
-      ...HEADING_LEVELS.map((level) => {
+      ...editor.settings.heading.levels.map((level) => {
         // Creates a heading of appropriate level when starting with "#", "##", or "###".
         return new InputRule({
           find: new RegExp(`^(#{${level}})\\s$`),
@@ -63,8 +65,10 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
   },
 
   addKeyboardShortcuts() {
+    const editor = this.options.editor as BlockNoteEditor<any, any, any>;
+
     return Object.fromEntries(
-      HEADING_LEVELS.map((level) => [
+      editor.settings.heading.levels.map((level) => [
         `Mod-Alt-${level}`,
         () => {
           const blockInfo = getBlockInfoFromSelection(this.editor.state);
@@ -88,13 +92,15 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
     );
   },
   parseHTML() {
+    const editor = this.options.editor as BlockNoteEditor<any, any, any>;
+
     return [
       // Parse from internal HTML.
       {
         tag: "div[data-content-type=" + this.name + "]",
         contentElement: ".bn-inline-content",
       },
-      ...HEADING_LEVELS.map((level) => ({
+      ...editor.settings.heading.levels.map((level) => ({
         tag: `h${level}`,
         attrs: { level },
         node: "heading",

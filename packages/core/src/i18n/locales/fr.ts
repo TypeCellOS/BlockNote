@@ -25,26 +25,26 @@ export const fr: Dictionary = {
       title: "Titre 4",
       subtext: "Titre de sous‑section mineure",
       aliases: ["h4", "titre4", "sous‑titre4"],
-      group: "Titres",
+      group: "Sous-titres",
     },
     heading_5: {
       title: "Titre 5",
       subtext: "Titre de sous-section mineure",
       aliases: ["h5", "titre5", "sous-titre5"],
-      group: "Titres",
+      group: "Sous-titres",
     },
     heading_6: {
       title: "Titre 6",
       subtext: "Titre de niveau le plus bas",
       aliases: ["h6", "titre6", "sous-titre6"],
-      group: "Titres",
+      group: "Sous-titres",
     },
     toggle_heading: {
       title: "Titre Repliable 1",
       subtext:
         "Titre de premier niveau qui peut être replié pour masquer son contenu",
       aliases: ["h", "titre1", "h1", "repliable", "masquable", "déroulant"],
-      group: "Titres",
+      group: "Sous-titres",
     },
     toggle_heading_2: {
       title: "Titre Repliable 2",
@@ -57,7 +57,7 @@ export const fr: Dictionary = {
         "masquable",
         "déroulant",
       ],
-      group: "Titres",
+      group: "Sous-titres",
     },
     toggle_heading_3: {
       title: "Titre Repliable 3",
@@ -71,7 +71,7 @@ export const fr: Dictionary = {
         "masquable",
         "déroulant",
       ],
-      group: "Titres",
+      group: "Sous-titres",
     },
     quote: {
       title: "Citation",

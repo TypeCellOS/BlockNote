@@ -24,26 +24,26 @@ export const it: Dictionary = {
       title: "Intestazione 4",
       subtext: "Intestazione di sottosezione minore",
       aliases: ["h4", "intestazione4", "sottotitolo4"],
-      group: "Intestazioni",
+      group: "Sottotitoli",
     },
     heading_5: {
       title: "Intestazione 5",
       subtext: "Intestazione di sottosezione minore",
       aliases: ["h5", "intestazione5", "sottotitolo5"],
-      group: "Intestazioni",
+      group: "Sottotitoli",
     },
     heading_6: {
       title: "Intestazione 6",
       subtext: "Intestazione di livello più basso",
       aliases: ["h6", "intestazione6", "sottotitolo6"],
-      group: "Intestazioni",
+      group: "Sottotitoli",
     },
     toggle_heading: {
       title: "Intestazione Espandibile 1",
       subtext:
         "Intestazione di primo livello che può essere espansa o compressa per mostrare il contenuto",
       aliases: ["h", "intestazione1", "h1", "espandibile", "comprimibile"],
-      group: "Intestazioni",
+      group: "Sottotitoli",
     },
     toggle_heading_2: {
       title: "Intestazione Espandibile 2",
@@ -56,7 +56,7 @@ export const it: Dictionary = {
         "espandibile",
         "comprimibile",
       ],
-      group: "Intestazioni",
+      group: "Sottotitoli",
     },
     toggle_heading_3: {
       title: "Intestazione Espandibile 3",
@@ -69,7 +69,7 @@ export const it: Dictionary = {
         "espandibile",
         "comprimibile",
       ],
-      group: "Intestazioni",
+      group: "Sottotitoli",
     },
     quote: {
       title: "Citazione",
