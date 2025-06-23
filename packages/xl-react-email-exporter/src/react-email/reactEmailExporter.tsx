@@ -23,7 +23,7 @@ import {
   import { render as renderEmail } from "@react-email/render";
 
 import React from "react";
-  import { CSSProperties } from "react";
+import { CSSProperties } from "react";
   
 export class ReactEmailExporter<
     B extends BlockSchema,
@@ -76,11 +76,8 @@ export class ReactEmailExporter<
       const listType = blocks[startIndex].type;
       const listItems: React.ReactElement<any>[] = [];
       let j = startIndex;
-      let itemIndex = 1;
-      while (
-        j < blocks.length &&
-        blocks[j].type === listType
-      ) {
+      
+      for (let itemIndex = 1; j < blocks.length && blocks[j].type === listType; j++, itemIndex++) {
         const block = blocks[j];
         const liContent = await this.mapBlock(block as any, nestingLevel, itemIndex) as any;
         let nestedList: React.ReactElement<any>[] = [];
@@ -93,8 +90,6 @@ export class ReactEmailExporter<
             {nestedList.length > 0 && nestedList}
           </React.Fragment>
         );
-        j++;
-        itemIndex++;
       }
       let element: React.ReactElement;
       if (listType === "bulletListItem") {
@@ -127,8 +122,8 @@ export class ReactEmailExporter<
           const listType = child.type;
           const listItems: React.ReactElement<any>[] = [];
           let j = i;
-          let itemIndex = 1;
-          while (j < children.length && children[j].type === listType) {
+          
+          for (let itemIndex = 1; j < children.length && children[j].type === listType; j++, itemIndex++) {
             const listItem = children[j];
             const liContent = await this.mapBlock(listItem as any, nestingLevel, itemIndex) as any;
             const style = this.blocknoteDefaultPropsToReactEmailStyle(listItem.props as any);
@@ -154,8 +149,6 @@ export class ReactEmailExporter<
                 )}
               </li>
             );
-            j++;
-            itemIndex++;
           }
           if (listType === "bulletListItem") {
             nestedList.push(
