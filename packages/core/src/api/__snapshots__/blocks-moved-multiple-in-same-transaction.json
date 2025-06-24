@@ -90,7 +90,7 @@
     "source": {
       "type": "local",
     },
-    "type": "outdent",
+    "type": "move",
   },
   {
     "block": {
@@ -183,6 +183,6 @@
     "source": {
       "type": "local",
     },
-    "type": "outdent",
+    "type": "move",
   },
 ]

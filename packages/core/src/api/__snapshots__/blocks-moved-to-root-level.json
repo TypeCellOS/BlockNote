@@ -73,6 +73,6 @@
     "source": {
       "type": "local",
     },
-    "type": "outdent",
+    "type": "move",
   },
 ]

@@ -104,14 +104,14 @@ export type BlocksChanged<
         prevBlock: undefined;
       }
     | {
-        type: "update" | "move";
+        type: "update";
         /**
          * The previous block.
          */
         prevBlock: Block<BSchema, ISchema, SSchema>;
       }
     | {
-        type: "indent" | "outdent";
+        type: "move";
         /**
          * The previous block.
          */
@@ -169,22 +169,26 @@ function determineChangeSource(transaction: Transaction): BlockChangeSource {
   return { type: "local" };
 }
 
-type BlockInfo<
-  BSchema extends BlockSchema,
-  ISchema extends InlineContentSchema,
-  SSchema extends StyleSchema,
-> = {
-  block: Block<BSchema, ISchema, SSchema>;
-  parentId: string | undefined;
-  depth: number;
-};
-
 function collectAllBlocks<
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
   SSchema extends StyleSchema,
->(doc: Node): Record<string, BlockInfo<BSchema, ISchema, SSchema>> {
-  const blocks: Record<string, BlockInfo<BSchema, ISchema, SSchema>> = {};
+>(
+  doc: Node,
+): Record<
+  string,
+  {
+    block: Block<BSchema, ISchema, SSchema>;
+    parentId: string | undefined;
+  }
+> {
+  const blocks: Record<
+    string,
+    {
+      block: Block<BSchema, ISchema, SSchema>;
+      parentId: string | undefined;
+    }
+  > = {};
   const pmSchema = getPmSchema(doc);
   doc.descendants((node, pos) => {
     if (isNodeBlock(node)) {
@@ -192,7 +196,6 @@ function collectAllBlocks<
       blocks[node.attrs.id] = {
         block: nodeToBlock(node, pmSchema),
         parentId,
-        depth: doc.resolve(pos).depth,
       };
     }
     return true;
@@ -257,46 +260,20 @@ export function getBlocksChangedByTransaction<
       const prev = prevBlocks[id];
       const next = nextBlocks[id];
       const isParentDifferent = prev.parentId !== next.parentId;
-      const isDepthDifferent = prev.depth !== next.depth;
 
-      if (isParentDifferent || isDepthDifferent) {
-        const isDepthIncrease = next.depth > prev.depth;
-        const isDepthDecrease = next.depth < prev.depth;
-
-        if (isDepthIncrease) {
-          changes.push({
-            type: "indent",
-            block: next.block,
-            prevBlock: prev.block,
-            source,
-            prevParent: prev.parentId
-              ? prevBlocks[prev.parentId]?.block
-              : undefined,
-            currentParent: next.parentId
-              ? nextBlocks[next.parentId]?.block
-              : undefined,
-          });
-        } else if (isDepthDecrease) {
-          changes.push({
-            type: "outdent",
-            block: next.block,
-            prevBlock: prev.block,
-            source,
-            prevParent: prev.parentId
-              ? prevBlocks[prev.parentId]?.block
-              : undefined,
-            currentParent: next.parentId
-              ? nextBlocks[next.parentId]?.block
-              : undefined,
-          });
-        } else {
-          changes.push({
-            type: "move",
-            block: next.block,
-            prevBlock: prev.block,
-            source,
-          });
-        }
+      if (isParentDifferent) {
+        changes.push({
+          type: "move",
+          block: next.block,
+          prevBlock: prev.block,
+          source,
+          prevParent: prev.parentId
+            ? prevBlocks[prev.parentId]?.block
+            : undefined,
+          currentParent: next.parentId
+            ? nextBlocks[next.parentId]?.block
+            : undefined,
+        });
       } else if (areBlocksDifferentExcludingChildren(prev.block, next.block)) {
         changes.push({
           type: "update",

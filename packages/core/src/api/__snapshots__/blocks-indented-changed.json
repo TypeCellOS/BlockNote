@@ -124,6 +124,6 @@
     "source": {
       "type": "local",
     },
-    "type": "indent",
+    "type": "move",
   },
 ]
