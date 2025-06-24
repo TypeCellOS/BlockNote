@@ -335,7 +335,9 @@ function FileLink({
 }
 
 function Caption({ caption, width }: { caption?: string; width?: number }) {
-  if (!caption) return null;
+  if (!caption) {
+    return null;
+  }
   return (
     <Text style={{ width, fontSize: 13, color: "#888", margin: "4px 0 0 0" }}>
       {caption}

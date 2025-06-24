@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { ReactEmailExporter } from "./reactEmailExporter";
-import { reactEmailDefaultSchemaMappings } from "./defaultSchema";
+import { ReactEmailExporter } from "./reactEmailExporter.jsx";
+import { reactEmailDefaultSchemaMappings } from "./defaultSchema/index.js";
 import {
   BlockNoteSchema,
   createBlockSpec,

@@ -1,2 +1,2 @@
-export * from "./defaultSchema/index";
-export * from "./reactEmailExporter";
+export * from "./defaultSchema/index.js";
+export * from "./reactEmailExporter.jsx";

@@ -10,7 +10,6 @@ import {
   StyleSchema,
   StyledText,
 } from "@blocknote/core";
-
 import {
   Body,
   Container,
@@ -22,7 +21,6 @@ import {
   Tailwind,
 } from "@react-email/components";
 import { render as renderEmail } from "@react-email/render";
-
 import React, { CSSProperties } from "react";
 
 export class ReactEmailExporter<
