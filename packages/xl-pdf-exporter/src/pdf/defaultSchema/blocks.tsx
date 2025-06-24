@@ -68,6 +68,7 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
       <Text
         style={{
           fontSize: fontSizeEM * FONT_SIZE * PIXELS_PER_POINT,
+          lineHeight: 1.25,
           fontWeight: 700,
         }}
       >
