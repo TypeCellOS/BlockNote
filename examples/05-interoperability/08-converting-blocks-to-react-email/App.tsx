@@ -10,13 +10,12 @@ import "@blocknote/mantine/style.css";
 import {
   SuggestionMenuController,
   getDefaultReactSlashMenuItems,
-  getPageBreakReactSlashMenuItems,
   useCreateBlockNote,
 } from "@blocknote/react";
 import {
   ReactEmailExporter,
   reactEmailDefaultSchemaMappings,
-} from "@blocknote/xl-react-email-exporter";
+} from "@blocknote/xl-email-exporter";
 import { useEffect, useMemo, useState } from "react";
 
 import "./styles.css";
@@ -316,7 +315,9 @@ export default function App() {
   });
 
   const onChange = async () => {
-    if (!editor || !editor.document) return;
+    if (!editor || !editor.document) {
+      return;
+    }
     const exporter = new ReactEmailExporter(
       editor.schema,
       reactEmailDefaultSchemaMappings,

@@ -1,5 +1,4 @@
 import { describe, it, expect } from "vitest";
-import { render } from "@react-email/render";
 import { ReactEmailExporter } from "./reactEmailExporter";
 import { reactEmailDefaultSchemaMappings } from "./defaultSchema";
 import {
@@ -21,10 +20,7 @@ describe("react email exporter", () => {
       reactEmailDefaultSchemaMappings,
     );
 
-    const reactElement = await exporter.toReactEmailDocument(
-      testDocument as any,
-    );
-    const html = await render(reactElement);
+    const html = await exporter.toReactEmailDocument(testDocument as any);
     expect(html).toMatchSnapshot("__snapshots__/reactEmailExporter");
   });
 

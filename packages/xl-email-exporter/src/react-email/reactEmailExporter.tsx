@@ -258,13 +258,34 @@ export class ReactEmailExporter<
   public async toReactEmailDocument(
     blocks: Block<B, I, S>[],
     options?: {
+      /**
+       * Inject elements into the {@link Head} element
+       * @see https://react.email/docs/components/head
+       */
+      head?: React.ReactElement;
+      /**
+       * Set the preview text for the email
+       * @see https://react.email/docs/components/preview
+       */
       preview?: string | string[];
+      /**
+       * Add a header to every page.
+       * The React component passed must be a React-Email component
+       * @see https://react.email/components
+       */
+      header?: React.ReactElement;
+      /**
+       * Add a footer to every page.
+       * The React component passed must be a React-Email component
+       * @see https://react.email/components
+       */
+      footer?: React.ReactElement;
     },
   ) {
     const transformedBlocks = await this.transformBlocks(blocks);
     return renderEmail(
       <Html>
-        <Head></Head>
+        <Head>{options?.head}</Head>
         <Body
           style={{
             fontFamily:
@@ -276,7 +297,11 @@ export class ReactEmailExporter<
         >
           {options?.preview && <Preview>{options.preview}</Preview>}
           <Tailwind>
-            <Container>{transformedBlocks}</Container>
+            <Container>
+              {options?.header}
+              {transformedBlocks}
+              {options?.footer}
+            </Container>
           </Tailwind>
         </Body>
       </Html>,

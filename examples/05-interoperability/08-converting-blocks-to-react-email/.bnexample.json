@@ -2,11 +2,9 @@
   "playground": true,
   "docs": true,
   "author": "jmarbutt",
-  "tags": [
-    ""
-  ],
+  "tags": [""],
   "dependencies": {
-    "@blocknote/xl-react-email-exporter": "latest",
+    "@blocknote/xl-email-exporter": "latest",
     "@react-email/render": "^1.1.2"
   },
   "pro": true
