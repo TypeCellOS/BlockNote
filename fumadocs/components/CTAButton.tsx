@@ -4,7 +4,6 @@ import { ReactNode } from "react";
 export default function CTAButton(props: {
   href: string;
   hoverGlow?: boolean;
-  color?: "default" | "pro";
   size?: "small" | "large";
   children: ReactNode;
 }) {

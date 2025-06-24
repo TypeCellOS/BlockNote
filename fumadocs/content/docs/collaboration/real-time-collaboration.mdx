@@ -4,16 +4,21 @@ description: Let's see how you can add Multiplayer capabilities to your BlockNot
 imageTitle: Real-time Collaboration
 ---
 
-
-
 # Real-time Collaboration (multiplayer text editor)
 
 Let's see how you can add Multiplayer capabilities to your BlockNote setup, and allow real-time collaboration between users (similar to Google Docs):
 
-<ThemedImage
-  style={{ border: "1px solid gray" }}
+<Image
+  className="border-fd-border block border dark:hidden"
   src="/img/features/collaboration_light.gif"
-  darkImage="/img/features/collaboration_dark.gif"
+  alt="text editing collaboration"
+  width={300}
+  height={300}
+/>
+
+<Image
+  className="border-fd-border hidden border dark:block"
+  src="/img/features/collaboration_dark.gif"
   alt="text editing collaboration"
   width={300}
   height={300}
@@ -45,7 +50,7 @@ const editor = useCreateBlockNote({
     },
     // When to show user labels on the collaboration cursor. Set by default to
     // "activity" (show when the cursor moves), but can also be set to "always".
-    showCursorLabels: "activity"
+    showCursorLabels: "activity",
   },
   // ...
 });

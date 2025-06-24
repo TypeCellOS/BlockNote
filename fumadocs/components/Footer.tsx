@@ -65,7 +65,7 @@ export function FooterContent() {
       <h2 className="sr-only" id="footer-heading">
         Footer
       </h2>
-      <div className="mx-auto w-full py-8">
+      <div className="mx-auto w-full">
         <div className="xl:grid xl:grid-cols-3 xl:gap-16">
           <div className="">
             {/* <FooterHeader>Subscribe to our newsletter</FooterHeader> */}

@@ -71,8 +71,10 @@ export default function ExampleCards() {
     <>
       {cardGroups.map((group) => (
         <>
-          <Heading key={group.groupName}>{group.groupName}</Heading>
-          <Cards key={group.groupName} className="mb-8">
+          <Heading key={group.groupName + "-heading"}>
+            {group.groupName}
+          </Heading>
+          <Cards key={group.groupName + "-cards"} className="mb-8">
             {group.cards.map((card) => (
               <Card
                 key={card.href}

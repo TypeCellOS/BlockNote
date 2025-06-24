@@ -5,8 +5,6 @@ import { Features } from "./features/Features";
 import { Hero } from "./hero/Hero";
 import { Letter } from "./letter/Letter";
 
-import "./gradients.css";
-
 export default function Home() {
   return (
     <main className="relative">

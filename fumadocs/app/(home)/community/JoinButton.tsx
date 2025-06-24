@@ -1,24 +1,20 @@
 import Link from "next/link";
-import { ComponentProps, FC } from "react";
+import { ReactNode } from "react";
 
 export const JoinButton = (props: {
   text: string;
   subtext: string;
-  icon: FC<ComponentProps<"svg">>;
+  icon: ReactNode;
   linkTitle: string;
   linkUrl: string;
 }) => {
-  const Icon = props.icon;
-
   return (
     <div
       className={
         "border-fd-border flex w-full flex-col items-start justify-between gap-4 rounded-lg border p-4 sm:flex-row sm:items-center sm:gap-8 md:max-w-screen-md"
       }
     >
-      <div className={"hidden md:block md:w-fit"}>
-        <Icon width={30} />
-      </div>
+      <div className={"hidden md:block md:w-fit"}>{props.icon}</div>
       <div className={"flex w-full flex-col items-start justify-start"}>
         <h2
           className={

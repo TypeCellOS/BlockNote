@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-// import { DiscordIcon, GitHubIcon } from "nextra/icons";
+import { RiDiscordFill, RiGithubFill } from "react-icons/ri";
 import { SectionSubHeader } from "@/components/Headings";
 import { JoinButton } from "@/app/(home)/community/JoinButton";
 import { FadeIn } from "@/components/FadeIn";
@@ -114,7 +114,7 @@ export const Contributors = () => (
         subtext={
           "Join the community of BlockNote developers by contributing code and supporting the project."
         }
-        icon={() => <div>GitHub</div>}
+        icon={<RiGithubFill size={32} />}
         linkTitle={"See our repository"}
         linkUrl={"https://github.com/TypeCellOS/BlockNote"}
       />
@@ -123,7 +123,7 @@ export const Contributors = () => (
         subtext={
           "Ask questions, discuss features, and share your work with other BlockNote users on Discord."
         }
-        icon={() => <div>Discord</div>}
+        icon={<RiDiscordFill size={32} />}
         linkTitle={"Join our Server"}
         linkUrl={"https://discord.gg/Qc2QTTH5dF"}
       />

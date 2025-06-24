@@ -9,20 +9,19 @@ import {
   DocsPage,
   DocsTitle,
 } from "fumadocs-ui/page";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 
 export function CardTable({
-  baseUrl,
   path,
   source,
 }: {
-  baseUrl: string;
   path: string;
   source: LoaderOutput<{ i18n: false; source: any }>;
 }) {
   return (
     <Cards>
-      {getPageTreePeers(source.pageTree, `${baseUrl}/${path}`).map((peer) => (
+      {getPageTreePeers(source.pageTree, `/docs/${path}`).map((peer) => (
         <Card key={peer.url} title={peer.name} href={peer.url}>
           {peer.description}
         </Card>
@@ -34,7 +33,6 @@ export function CardTable({
 export async function DocPage(props: {
   params: Promise<{ slug?: string[] }>;
   source: LoaderOutput<any>;
-  baseUrl: string;
 }) {
   const params = await props.params;
   const page = props.source.getPage(params.slug);
@@ -56,16 +54,11 @@ export async function DocPage(props: {
         <MDXContent
           components={getMDXComponents({
             // this allows you to link to other pages with relative file paths
-            // @ts-ignore
             a: createRelativeLink(props.source, page),
-            CardTable: (cardProps: any) => (
-              <CardTable
-                baseUrl={props.baseUrl}
-                source={props.source}
-                {...cardProps}
-              />
+            CardTable: (cardProps) => (
+              <CardTable source={props.source} path={cardProps.path} />
             ),
-            MadeByTable: () => <div>THIS TABLE IS NOT YET IMPLEMENTED</div>,
+            Image,
           })}
         />
       </DocsBody>

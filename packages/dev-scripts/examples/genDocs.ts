@@ -68,15 +68,6 @@ author: ${project.config.author}
 ---
 
 ${project.readme}
-
-<Example name="${project.fullSlug}" path="${project.pathFromRoot}" pro={${project.config.pro || false}}>
-${getProjectFiles(project)
-  .map(
-    ({ filename, code }) =>
-      `\`\`\`${getLanguageFromFileName(filename)} tab="${filename.slice(1)}"\n${code}\n\`\`\``,
-  )
-  .join("\n")}
-</Example>
 `;
 
 /**
@@ -104,20 +95,16 @@ async function generateMetaForExampleGroup(group: {
     fs.mkdirSync(path.join(EXAMPLES_PAGES_DIR, group.slug));
   }
 
-  // const target = path.join(EXAMPLES_PAGES_DIR, group.slug, "_meta.json");
+  const target = path.join(EXAMPLES_PAGES_DIR, group.slug, "meta.json");
 
-  // const meta = Object.fromEntries(
-  //   group.projects.map((project) => [
-  //     project.projectSlug,
-  //     {
-  //       title: project.config.shortTitle || project.title,
-  //     },
-  //   ]),
-  // );
+  const meta = {
+    title: group.title,
+    pages: group.projects.map((project) => project.projectSlug),
+  };
 
-  // const code = JSON.stringify(meta, undefined, 2);
+  const code = JSON.stringify(meta, undefined, 2);
 
-  // fs.writeFileSync(target, code);
+  fs.writeFileSync(target, code);
 }
 
 const templateExampleComponents = (
