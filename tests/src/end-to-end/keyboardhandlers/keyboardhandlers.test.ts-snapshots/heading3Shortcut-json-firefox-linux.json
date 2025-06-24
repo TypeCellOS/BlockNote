@@ -16,7 +16,8 @@
               "type": "heading",
               "attrs": {
                 "textAlignment": "left",
-                "level": 3
+                "level": 3,
+                "isToggleable": false
               },
               "content": [
                 {

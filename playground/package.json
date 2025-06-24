@@ -30,6 +30,7 @@
     "@blocknote/xl-multi-column": "workspace:^",
     "@blocknote/xl-odt-exporter": "workspace:^",
     "@blocknote/xl-pdf-exporter": "workspace:^",
+    "@blocknote/xl-email-exporter": "workspace:^",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@liveblocks/core": "^2.23.1",

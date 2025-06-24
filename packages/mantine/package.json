@@ -11,7 +11,7 @@
     "directory": "packages/mantine"
   },
   "license": "MPL-2.0",
-  "version": "0.31.3",
+  "version": "0.32.0",
   "files": [
     "dist",
     "types",
@@ -56,8 +56,8 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "0.31.3",
-    "@blocknote/react": "0.31.3",
+    "@blocknote/core": "0.32.0",
+    "@blocknote/react": "0.32.0",
     "@mantine/core": "^7.10.1",
     "@mantine/hooks": "^7.10.1",
     "@mantine/utils": "^6.0.21",

@@ -35,6 +35,9 @@ export const createTestEditor = <
           },
         },
       },
+      heading: {
+        levels: [1, 2, 3, 4, 5, 6],
+      },
       schema,
       trailingBlock: false,
       uploadFile: uploadToTmpFilesDotOrg_DEV_ONLY,

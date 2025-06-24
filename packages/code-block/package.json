@@ -9,7 +9,7 @@
     "directory": "packages/code-block"
   },
   "license": "MPL-2.0",
-  "version": "0.31.3",
+  "version": "0.32.0",
   "files": [
     "dist",
     "types",
@@ -49,7 +49,7 @@
     "test-watch": "vitest watch"
   },
   "dependencies": {
-    "@blocknote/core": "0.31.3",
+    "@blocknote/core": "0.32.0",
     "@shikijs/core": "^3.2.1",
     "@shikijs/engine-javascript": "^3.2.1",
     "@shikijs/langs-precompiled": "^3.2.1",

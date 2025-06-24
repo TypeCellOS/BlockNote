@@ -1021,6 +1021,29 @@
           "pathFromRoot": "examples/05-interoperability",
           "slug": "interoperability"
         }
+      },
+      {
+        "projectSlug": "converting-blocks-to-react-email",
+        "fullSlug": "interoperability/converting-blocks-to-react-email",
+        "pathFromRoot": "examples/05-interoperability/08-converting-blocks-to-react-email",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "jmarbutt",
+          "tags": [
+            ""
+          ],
+          "dependencies": {
+            "@blocknote/xl-email-exporter": "latest",
+            "@react-email/render": "^1.1.2"
+          } as any,
+          "pro": true
+        },
+        "title": "Exporting documents to React Email",
+        "group": {
+          "pathFromRoot": "examples/05-interoperability",
+          "slug": "interoperability"
+        }
       }
     ]
   },
@@ -1148,6 +1171,24 @@
           } as any
         },
         "title": "Alert Block with Full UX",
+        "group": {
+          "pathFromRoot": "examples/06-custom-schema",
+          "slug": "custom-schema"
+        }
+      },
+      {
+        "projectSlug": "toggleable-blocks",
+        "fullSlug": "custom-schema/toggleable-blocks",
+        "pathFromRoot": "examples/06-custom-schema/06-toggleable-blocks",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Toggleable Blocks",
         "group": {
           "pathFromRoot": "examples/06-custom-schema",
           "slug": "custom-schema"

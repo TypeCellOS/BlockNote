@@ -11,6 +11,7 @@ import {
   BULLET_MARKER,
   CHECK_MARKER_CHECKED,
   CHECK_MARKER_UNCHECKED,
+  CHEVRON_MARKER,
   ListItem,
 } from "../util/listItem.js";
 import { Table } from "../util/table/Table.js";
@@ -29,12 +30,23 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
 > = {
   paragraph: (block, exporter) => {
     // const style = blocknoteDefaultPropsToReactPDFStyle(block.props);
-    return <Text>{exporter.transformInlineContent(block.content)}</Text>;
+    return (
+      <Text key={"paragraph" + block.id}>
+        {exporter.transformInlineContent(block.content)}
+      </Text>
+    );
+  },
+  toggleListItem: (block, exporter) => {
+    return (
+      <ListItem listMarker={CHEVRON_MARKER}>
+        <Text>{exporter.transformInlineContent(block.content)}</Text>
+      </ListItem>
+    );
   },
   bulletListItem: (block, exporter) => {
     // const style = t(block.props);
     return (
-      <ListItem listMarker={BULLET_MARKER}>
+      <ListItem listMarker={BULLET_MARKER} key={"bulletListItem" + block.id}>
         <Text>{exporter.transformInlineContent(block.content)}</Text>
       </ListItem>
     );
@@ -43,7 +55,10 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
     // const style = blocknoteDefaultPropsToReactPDFStyle(block.props);
     // console.log("NUMBERED LIST ITEM", block.props.textAlignment, style);
     return (
-      <ListItem listMarker={`${numberedListIndex}.`}>
+      <ListItem
+        listMarker={`${numberedListIndex}.`}
+        key={"numberedListItem" + block.id}
+      >
         <Text>{exporter.transformInlineContent(block.content)}</Text>
       </ListItem>
     );
@@ -56,18 +71,26 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
         listMarker={
           block.props.checked ? CHECK_MARKER_CHECKED : CHECK_MARKER_UNCHECKED
         }
+        key={"checkListItem" + block.id}
       >
         <Text>{exporter.transformInlineContent(block.content)}</Text>
       </ListItem>
     );
   },
   heading: (block, exporter) => {
-    const fontSizeEM =
-      block.props.level === 1 ? 2 : block.props.level === 2 ? 1.5 : 1.17;
+    const levelFontSizeEM = {
+      1: 2,
+      2: 1.5,
+      3: 1.17,
+      4: 1,
+      5: 0.83,
+      6: 0.67,
+    }[block.props.level];
     return (
       <Text
+        key={"heading" + block.id}
         style={{
-          fontSize: fontSizeEM * FONT_SIZE * PIXELS_PER_POINT,
+          fontSize: levelFontSizeEM * FONT_SIZE * PIXELS_PER_POINT,
           lineHeight: 1.25,
           fontWeight: 700,
         }}
@@ -79,6 +102,7 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
   quote: (block, exporter) => {
     return (
       <Text
+        key={"quote" + block.id}
         style={{
           borderLeft: "#7D797A",
           color: "#7D797A",
@@ -96,7 +120,7 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
 
       return (
         <Text
-          key={`line_${index}`}
+          key={`line_${index}` + block.id}
           style={{
             marginLeft: indent * 9.5 * PIXELS_PER_POINT,
           }}
@@ -117,13 +141,14 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
           fontSize: FONT_SIZE * PIXELS_PER_POINT,
           fontFamily: "GeistMono",
         }}
+        key={"codeBlock" + block.id}
       >
         {lines}
       </View>
     );
   },
   pageBreak: () => {
-    return <View break />;
+    return <View break key={"pageBreak"} />;
   },
   column: (block, _exporter, _nestingLevel, _numberedListIndex, children) => {
     return <View style={{ flex: block.props.width }}>{children}</View>;
@@ -149,7 +174,7 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
   },
   audio: (block, exporter) => {
     return (
-      <View wrap={false}>
+      <View wrap={false} key={"audio" + block.id}>
         {file(
           block.props,
           "Open audio file",
@@ -164,7 +189,7 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
   },
   video: (block, exporter) => {
     return (
-      <View wrap={false}>
+      <View wrap={false} key={"video" + block.id}>
         {file(
           block.props,
           "Open video file",
@@ -179,7 +204,7 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
   },
   file: (block, exporter) => {
     return (
-      <View wrap={false}>
+      <View wrap={false} key={"file" + block.id}>
         {file(
           block.props,
           "Open file",
@@ -194,7 +219,7 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
   },
   image: async (block, t) => {
     return (
-      <View wrap={false}>
+      <View wrap={false} key={"image" + block.id}>
         <Image
           src={await t.resolveFile(block.props.url)}
           style={{
@@ -208,7 +233,9 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
     );
   },
   table: (block, t) => {
-    return <Table data={block.content} transformer={t} />;
+    return (
+      <Table data={block.content} transformer={t} key={"table" + block.id} />
+    );
   },
 };
 
@@ -220,7 +247,7 @@ function file(
 ) {
   const PIXELS_PER_POINT = 0.75;
   return (
-    <Link src={props.url}>
+    <Link src={props.url} key={"file" + props.url}>
       <View
         style={{
           display: "flex",
@@ -244,6 +271,7 @@ function caption(
   }
   return (
     <Text
+      key={"caption" + props.caption}
       style={{
         width: props.previewWidth
           ? props.previewWidth * PIXELS_PER_POINT
