@@ -42,8 +42,8 @@ export default defineConfig((conf) => ({
     sourcemap: true,
     lib: {
       entry: path.resolve(__dirname, "src/index.ts"),
-      name: "blocknote-xl-react-email-exporter",
-      fileName: "blocknote-xl-react-email-exporter",
+      name: "blocknote-xl-email-exporter",
+      fileName: "blocknote-xl-email-exporter",
     },
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
