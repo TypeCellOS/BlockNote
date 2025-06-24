@@ -1,0 +1,108 @@
+---
+title: Export to email
+description: Export BlockNote documents to an email.
+imageTitle: Export to email
+path: /docs/export-to-email
+---
+
+import { Example } from "@/components/example";
+import { Callout } from "nextra/components";
+
+# Exporting blocks to email
+
+Leveraging the [React Email](https://react.email/) library, it's possible to export BlockNote documents to email, completely client-side.
+
+<Callout type={"info"}>
+  This feature is provided by the `@blocknote/xl-email-exporter`. `xl-` packages
+  are fully open source, but released under a copyleft license. A commercial
+  license for usage in closed source, proprietary products comes as part of the
+  [Business subscription](/pricing).
+</Callout>
+
+First, install the `@blocknote/xl-email-exporter` packages:
+
+```bash
+npm install @blocknote/xl-email-exporter
+```
+
+Then, create an instance of the `ReactEmailExporter` class. This exposes the following methods:
+
+```typescript
+import {
+  ReactEmailExporter,
+  reactEmailDefaultSchemaMappings,
+} from "@blocknote/xl-email-exporter";
+
+// Create the exporter
+const exporter = new ReactEmailExporter(editor.schema, reactEmailDefaultSchemaMappings);
+
+// Convert the blocks to a react-email document
+const html = await exporter.toReactEmailDocument(editor.document);
+
+// Use react-email to write to file:
+await ReactEmail.render(html, `filename.html`);
+```
+
+See the [full example](/examples/interoperability/converting-blocks-to-react-email) with live React Email preview below:
+
+<Example name="interoperability/converting-blocks-to-react-email" />
+
+### Customizing the Email
+
+`toReactEmailDocument` takes an optional `options` parameter, which allows you to customize:
+
+ - **preview**: Set the preview text for the email (can be a string or an array of strings)
+ - **header**: Add content to the top of the email (must be a React-Email compatible component)
+ - **footer**: Add content to the bottom of the email (must be a React-Email compatible component)
+ - **head**: Inject elements into the [Head element](https://react.email/docs/components/head)
+
+Example usage:
+
+```tsx
+import { Text } from "@react-email/components";
+const html = await exporter.toReactEmailDocument(editor.document, {
+  preview: "This is a preview of the email content",
+  header: <Text>Header</Text>,
+  footer: <Text>Footer</Text>,
+  head: <title>My email</title>,
+});
+```
+
+### Custom mappings / custom schemas
+
+The `ReactEmailExporter` constructor takes a `schema` and `mappings` parameter.
+A _mapping_ defines how to convert a BlockNote schema element (a Block, Inline Content, or Style) to a React-Email element.
+If you're using a [custom schema](/docs/custom-schemas) in your editor, or if you want to overwrite how default BlockNote elements are converted to React Email, you can pass your own `mappings`:
+
+For example, use the following code in case your schema has an `extraBlock` type:
+
+```typescript
+import { ReactEmailExporter, reactEmailDefaultSchemaMappings } from "@blocknote/xl-email-exporter";
+import { Text } from "@react-email/components";
+
+new ReactEmailExporter(schema, {
+    blockMapping: {
+        ...reactEmailDefaultSchemaMappings.blockMapping,
+        myCustomBlock: (block, exporter) => {
+            return <Text>My custom block</Text>;
+        },
+    },
+    inlineContentMapping: reactEmailDefaultSchemaMappings.inlineContentMapping,
+    styleMapping: reactEmailDefaultSchemaMappings.styleMapping,
+});
+```
+
+### Exporter options
+
+The `ReactEmailExporter` constructor takes an optional `options` parameter.
+While conversion happens on the client-side, the default setup uses two server based resources:
+
+```typescript
+const defaultOptions = {
+  // a function to resolve external resources in order to avoid CORS issues
+  // by default, this calls a BlockNote hosted server-side proxy to resolve files
+  resolveFileUrl: corsProxyResolveFileUrl,
+  // the colors to use in the email
+  colors: COLORS_DEFAULT, // defaults from @blocknote/core
+};
+```
