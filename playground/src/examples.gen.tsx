@@ -1018,6 +1018,29 @@
           "pathFromRoot": "examples/05-interoperability",
           "slug": "interoperability"
         }
+      },
+      {
+        "projectSlug": "converting-blocks-to-react-email",
+        "fullSlug": "interoperability/converting-blocks-to-react-email",
+        "pathFromRoot": "examples/05-interoperability/08-converting-blocks-to-react-email",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "jmarbutt",
+          "tags": [
+            ""
+          ],
+          "dependencies": {
+            "@blocknote/xl-email-exporter": "latest",
+            "@react-email/render": "^1.1.2"
+          } as any,
+          "pro": true
+        },
+        "title": "Exporting documents to React Email",
+        "group": {
+          "pathFromRoot": "examples/05-interoperability",
+          "slug": "interoperability"
+        }
       }
     ]
   },

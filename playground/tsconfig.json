@@ -29,6 +29,7 @@
     { "path": "../packages/xl-pdf-exporter/" },
     { "path": "../packages/xl-odt-exporter/" },
     { "path": "../packages/xl-docx-exporter/" },
-    { "path": "../packages/xl-multi-column/" }
+    { "path": "../packages/xl-multi-column/" },
+    { "path": "../packages/xl-email-exporter/" }
   ]
 }
