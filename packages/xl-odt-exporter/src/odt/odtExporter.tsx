@@ -127,13 +127,10 @@ export class ODTExporter<
       }
 
       if (["columnList", "column"].includes(block.type)) {
-        const children = await this.transformBlocks(
-          block.children,
-          nestingLevel,
-        );
+        const children = await this.transformBlocks(block.children, 0);
         const content = await this.mapBlock(
           block as any,
-          nestingLevel,
+          0,
           numberedListIndex,
           children,
         );
