@@ -418,7 +418,7 @@
                                         </pic:cNvPicPr>
                                     </pic:nvPicPr>
                                     <pic:blipFill>
-                                        <a:blip r:embed="rId7" cstate="none"/>
+                                        <a:blip r:embed="rId6" cstate="none"/>
                                         <a:srcRect/>
                                         <a:stretch>
                                             <a:fillRect/>
@@ -471,7 +471,7 @@
                                         </pic:cNvPicPr>
                                     </pic:nvPicPr>
                                     <pic:blipFill>
-                                        <a:blip r:embed="rId7" cstate="none"/>
+                                        <a:blip r:embed="rId6" cstate="none"/>
                                         <a:srcRect/>
                                         <a:stretch>
                                             <a:fillRect/>

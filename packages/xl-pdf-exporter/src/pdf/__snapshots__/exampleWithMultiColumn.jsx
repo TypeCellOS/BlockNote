@@ -23,7 +23,7 @@
           flex: 0.8
         }}
       >
-        <React.Fragment key=".0">
+        <React.Fragment key=".$">
           <VIEW
             style={{
               alignItems: undefined,
@@ -46,7 +46,7 @@
           flex: 1.4
         }}
       >
-        <React.Fragment key=".0">
+        <React.Fragment key=".$">
           <VIEW
             style={{
               alignItems: undefined,
@@ -59,7 +59,8 @@
             <TEXT
               style={{
                 fontSize: 24,
-                fontWeight: 700
+                fontWeight: 700,
+                lineHeight: 1.25
               }}
             >
               <TEXT style={{}}>
@@ -74,7 +75,7 @@
           flex: 0.8
         }}
       >
-        <React.Fragment key=".0">
+        <React.Fragment key=".$">
           <VIEW
             style={{
               alignItems: undefined,
@@ -91,7 +92,7 @@
             </TEXT>
           </VIEW>
         </React.Fragment>
-        <React.Fragment key=".1">
+        <React.Fragment key=".$">
           <VIEW
             style={{
               alignItems: undefined,
@@ -110,7 +111,7 @@
             </ListItem>
           </VIEW>
         </React.Fragment>
-        <React.Fragment key=".2">
+        <React.Fragment key=".$">
           <VIEW
             style={{
               alignItems: undefined,
@@ -129,7 +130,7 @@
             </ListItem>
           </VIEW>
         </React.Fragment>
-        <React.Fragment key=".3">
+        <React.Fragment key=".$">
           <VIEW
             style={{
               alignItems: undefined,
