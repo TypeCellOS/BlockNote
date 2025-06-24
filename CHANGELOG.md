@@ -1,3 +1,29 @@
+## 0.32.0 (2025-06-24)
+
+### 🚀 Features
+
+- toggle blocks ([#1707](https://github.com/TypeCellOS/BlockNote/pull/1707))
+- **core:** support h4, h5, and h6 ([#1634](https://github.com/TypeCellOS/BlockNote/pull/1634))
+- **xl-email-exporter:** add email exporter ([#1768](https://github.com/TypeCellOS/BlockNote/pull/1768))
+
+### 🩹 Fixes
+
+- react 19 strict mode compatibility ([#1726](https://github.com/TypeCellOS/BlockNote/pull/1726))
+- add keys to pdf exporter ([#1739](https://github.com/TypeCellOS/BlockNote/pull/1739))
+- only listten for left click on formatting toolbar ([#1774](https://github.com/TypeCellOS/BlockNote/pull/1774))
+- prevent formatting toolbar from closing if click was from inside the editor ([#1775](https://github.com/TypeCellOS/BlockNote/pull/1775))
+- **locales:** add Hebrew translations for various components ([#1779](https://github.com/TypeCellOS/BlockNote/pull/1779))
+
+### ❤️ Thank You
+
+- Aslam @Aslam97
+- Drew Johnson
+- Jonathan Marbutt @jmarbutt
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Samuel Bisberg
+- Yousef
+
 ## 0.31.3 (2025-06-18)
 
 ### 🩹 Fixes

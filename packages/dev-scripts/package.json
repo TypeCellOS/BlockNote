@@ -8,7 +8,7 @@
     "directory": "packages/dev-scripts"
   },
   "license": "MPL-2.0",
-  "version": "0.31.3",
+  "version": "0.32.0",
   "description": "",
   "type": "module",
   "scripts": {

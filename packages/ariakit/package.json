@@ -11,7 +11,7 @@
     "directory": "packages/ariakit"
   },
   "license": "MPL-2.0",
-  "version": "0.31.3",
+  "version": "0.32.0",
   "files": [
     "dist",
     "types",
@@ -57,8 +57,8 @@
   },
   "dependencies": {
     "@ariakit/react": "^0.4.3",
-    "@blocknote/core": "0.31.3",
-    "@blocknote/react": "0.31.3"
+    "@blocknote/core": "0.32.0",
+    "@blocknote/react": "0.32.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",

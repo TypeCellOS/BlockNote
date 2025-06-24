@@ -9,7 +9,7 @@
     "directory": "packages/xl-multi-column"
   },
   "license": "AGPL-3.0 OR PROPRIETARY",
-  "version": "0.31.3",
+  "version": "0.32.0",
   "files": [
     "dist",
     "types",
@@ -51,8 +51,8 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "0.31.3",
-    "@blocknote/react": "0.31.3",
+    "@blocknote/core": "0.32.0",
+    "@blocknote/react": "0.32.0",
     "@tiptap/core": "^2.12.0",
     "prosemirror-model": "^1.25.1",
     "prosemirror-state": "^1.4.3",
