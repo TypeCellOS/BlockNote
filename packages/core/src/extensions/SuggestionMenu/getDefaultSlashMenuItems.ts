@@ -137,6 +137,19 @@ export function getDefaultSlashMenuItems<
     });
   }
 
+  if (checkDefaultBlockTypeInSchema("toggleListItem", editor)) {
+    items.push({
+      onItemClick: () => {
+        insertOrUpdateBlock(editor, {
+          type: "toggleListItem",
+        });
+      },
+      badge: formatKeyboardShortcut("Mod-Shift-6"),
+      key: "toggle_list",
+      ...editor.dictionary.slash_menu.toggle_list,
+    });
+  }
+
   if (checkDefaultBlockTypeInSchema("numberedListItem", editor)) {
     items.push({
       onItemClick: () => {
@@ -300,6 +313,57 @@ export function getDefaultSlashMenuItems<
       key: "file",
       ...editor.dictionary.slash_menu.file,
     });
+  }
+
+  if (checkDefaultBlockTypeInSchema("heading", editor)) {
+    items.push(
+      {
+        onItemClick: () => {
+          insertOrUpdateBlock(editor, {
+            type: "heading",
+            props: { level: 1, isToggleable: true },
+          });
+        },
+        key: "toggle_heading",
+        ...editor.dictionary.slash_menu.toggle_heading,
+      },
+      {
+        onItemClick: () => {
+          insertOrUpdateBlock(editor, {
+            type: "heading",
+            props: { level: 2, isToggleable: true },
+          });
+        },
+
+        key: "toggle_heading_2",
+        ...editor.dictionary.slash_menu.toggle_heading_2,
+      },
+      {
+        onItemClick: () => {
+          insertOrUpdateBlock(editor, {
+            type: "heading",
+            props: { level: 3, isToggleable: true },
+          });
+        },
+        key: "toggle_heading_3",
+        ...editor.dictionary.slash_menu.toggle_heading_3,
+      },
+    );
+
+    editor.settings.heading.levels
+      .filter((level): level is 4 | 5 | 6 => level > 3)
+      .forEach((level) => {
+        items.push({
+          onItemClick: () => {
+            insertOrUpdateBlock(editor, {
+              type: "heading",
+              props: { level: level },
+            });
+          },
+          key: `heading_${level}`,
+          ...editor.dictionary.slash_menu[`heading_${level}`],
+        });
+      });
   }
 
   items.push({

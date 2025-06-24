@@ -241,6 +241,13 @@ export const odtBlockMappingForDefaultSchema: BlockMapping<
    *
    * (LibreOffice does nicely wrap the list items in the same list element)
    */
+  toggleListItem: (block, exporter) => (
+    <text:p text:style-name="Standard">
+      {"> "}
+      {exporter.transformInlineContent(block.content)}
+    </text:p>
+  ),
+
   bulletListItem: (block, exporter, nestingLevel) => {
     const styleName = createParagraphStyle(
       exporter as ODTExporter<any, any, any>,
