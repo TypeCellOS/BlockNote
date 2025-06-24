@@ -292,13 +292,6 @@ export class DOCXExporter<
       ],
     });
 
-    // fix https://github.com/dolanmiu/docx/pull/2800/files
-    doc.Document.Relationships.createRelationship(
-      doc.Document.Relationships.RelationshipCount + 1,
-      "http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable",
-      "fontTable.xml",
-    );
-
     return doc;
   }
 }
