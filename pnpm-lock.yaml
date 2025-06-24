@@ -3996,7 +3996,7 @@ importers:
         specifier: 0.32.0
         version: link:../core
       '@blocknote/xl-multi-column':
-        specifier: 0.31.3
+        specifier: 0.32.0
         version: link:../xl-multi-column
       buffer:
         specifier: ^6.0.3
@@ -4176,7 +4176,7 @@ importers:
         specifier: 0.32.0
         version: link:../core
       '@blocknote/xl-multi-column':
-        specifier: 0.31.3
+        specifier: 0.32.0
         version: link:../xl-multi-column
       '@zip.js/zip.js':
         specifier: ^2.7.57
@@ -4231,7 +4231,7 @@ importers:
         specifier: 0.32.0
         version: link:../react
       '@blocknote/xl-multi-column':
-        specifier: 0.31.3
+        specifier: 0.32.0
         version: link:../xl-multi-column
       '@react-pdf/renderer':
         specifier: ^4.3.0
