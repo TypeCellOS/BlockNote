@@ -29,6 +29,10 @@ export const reactEmailBlockMappingForDefaultSchema: BlockMapping<
     // Return only the <li> for grouping in the exporter
     return <Text>{t.transformInlineContent(block.content)}</Text>;
   },
+  toggleListItem: (block, t) => {
+    // Return only the <li> for grouping in the exporter
+    return <Text>{t.transformInlineContent(block.content)}</Text>;
+  },
   numberedListItem: (block, t, _nestingLevel) => {
     // Return only the <li> for grouping in the exporter
     return <Text>{t.transformInlineContent(block.content)}</Text>;

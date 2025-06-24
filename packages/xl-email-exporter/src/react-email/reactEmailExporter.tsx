@@ -102,7 +102,7 @@ export class ReactEmailExporter<
       );
     }
     let element: React.ReactElement;
-    if (listType === "bulletListItem") {
+    if (listType === "bulletListItem" || listType === "toggleListItem") {
       element = (
         <ul className="mb-2 list-disc pl-6" key={blocks[startIndex].id + "-ul"}>
           {listItems}
