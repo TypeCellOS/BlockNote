@@ -11,9 +11,13 @@ import {
   RiH1,
   RiH2,
   RiH3,
+  RiH4,
+  RiH5,
+  RiH6,
   RiListCheck3,
   RiListOrdered,
   RiListUnordered,
+  RiPlayList2Fill,
   RiQuoteText,
   RiText,
 } from "react-icons/ri";
@@ -33,12 +37,12 @@ export type BlockTypeSelectItem = {
   props?: Record<string, boolean | number | string>;
   icon: IconType;
   isSelected: (
-    block: Block<BlockSchema, InlineContentSchema, StyleSchema>
+    block: Block<BlockSchema, InlineContentSchema, StyleSchema>,
   ) => boolean;
 };
 
 export const blockTypeSelectItems = (
-  dict: Dictionary
+  dict: Dictionary,
 ): BlockTypeSelectItem[] => [
   {
     name: dict.slash_menu.paragraph.title,
@@ -77,10 +81,82 @@ export const blockTypeSelectItems = (
       block.props.level === 3,
   },
   {
+    name: dict.slash_menu.heading_4.title,
+    type: "heading",
+    props: { level: 4 },
+    icon: RiH4,
+    isSelected: (block) =>
+      block.type === "heading" &&
+      "level" in block.props &&
+      block.props.level === 4,
+  },
+  {
+    name: dict.slash_menu.heading_5.title,
+    type: "heading",
+    props: { level: 5 },
+    icon: RiH5,
+    isSelected: (block) =>
+      block.type === "heading" &&
+      "level" in block.props &&
+      block.props.level === 5,
+  },
+  {
+    name: dict.slash_menu.heading_6.title,
+    type: "heading",
+    props: { level: 6 },
+    icon: RiH6,
+    isSelected: (block) =>
+      block.type === "heading" &&
+      "level" in block.props &&
+      block.props.level === 6,
+  },
+  {
+    name: dict.slash_menu.toggle_heading.title,
+    type: "heading",
+    props: { level: 1, isToggleable: true },
+    icon: RiH1,
+    isSelected: (block) =>
+      block.type === "heading" &&
+      "level" in block.props &&
+      block.props.level === 1 &&
+      "isToggleable" in block.props &&
+      block.props.isToggleable,
+  },
+  {
+    name: dict.slash_menu.toggle_heading_2.title,
+    type: "heading",
+    props: { level: 2, isToggleable: true },
+    icon: RiH2,
+    isSelected: (block) =>
+      block.type === "heading" &&
+      "level" in block.props &&
+      block.props.level === 2 &&
+      "isToggleable" in block.props &&
+      block.props.isToggleable,
+  },
+  {
+    name: dict.slash_menu.toggle_heading_3.title,
+    type: "heading",
+    props: { level: 3, isToggleable: true },
+    icon: RiH3,
+    isSelected: (block) =>
+      block.type === "heading" &&
+      "level" in block.props &&
+      block.props.level === 3 &&
+      "isToggleable" in block.props &&
+      block.props.isToggleable,
+  },
+  {
     name: dict.slash_menu.quote.title,
     type: "quote",
     icon: RiQuoteText,
     isSelected: (block) => block.type === "quote",
+  },
+  {
+    name: dict.slash_menu.toggle_list.title,
+    type: "toggleListItem",
+    icon: RiPlayList2Fill,
+    isSelected: (block) => block.type === "toggleListItem",
   },
   {
     name: dict.slash_menu.bullet_list.title,
@@ -118,13 +194,13 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
 
   const filteredItems: BlockTypeSelectItem[] = useMemo(() => {
     return (props.items || blockTypeSelectItems(dict)).filter(
-      (item) => item.type in editor.schema.blockSchema
+      (item) => item.type in editor.schema.blockSchema,
     );
   }, [editor, dict, props.items]);
 
   const shouldShow: boolean = useMemo(
     () => filteredItems.find((item) => item.type === block.type) !== undefined,
-    [block.type, filteredItems]
+    [block.type, filteredItems],
   );
 
   const fullItems: ComponentProps["FormattingToolbar"]["Select"]["items"] =
@@ -132,12 +208,14 @@ export const BlockTypeSelect = (props: { items?: BlockTypeSelectItem[] }) => {
       const onClick = (item: BlockTypeSelectItem) => {
         editor.focus();
 
-        for (const block of selectedBlocks) {
-          editor.updateBlock(block, {
-            type: item.type as any,
-            props: item.props as any,
-          });
-        }
+        editor.transact(() => {
+          for (const block of selectedBlocks) {
+            editor.updateBlock(block, {
+              type: item.type as any,
+              props: item.props as any,
+            });
+          }
+        });
       };
 
       return filteredItems.map((item) => {

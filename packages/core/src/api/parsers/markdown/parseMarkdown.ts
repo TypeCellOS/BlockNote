@@ -70,15 +70,9 @@ export async function markdownToHTML(markdown: string): Promise<string> {
 export async function markdownToBlocks<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
->(
-  markdown: string,
-  blockSchema: BSchema,
-  icSchema: I,
-  styleSchema: S,
-  pmSchema: Schema
-): Promise<Block<BSchema, I, S>[]> {
+  S extends StyleSchema,
+>(markdown: string, pmSchema: Schema): Promise<Block<BSchema, I, S>[]> {
   const htmlString = await markdownToHTML(markdown);
 
-  return HTMLToBlocks(htmlString, blockSchema, icSchema, styleSchema, pmSchema);
+  return HTMLToBlocks(htmlString, pmSchema);
 }

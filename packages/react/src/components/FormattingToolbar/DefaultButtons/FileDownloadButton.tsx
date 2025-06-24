@@ -51,7 +51,7 @@ export const FileDownloadButton = () => {
         editor
           .resolveFileUrl(fileBlock.props.url)
           .then((downloadUrl) =>
-            window.open(sanitizeUrl(downloadUrl, window.location.href))
+            window.open(sanitizeUrl(downloadUrl, window.location.href)),
           );
       }
     }

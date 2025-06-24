@@ -32,7 +32,8 @@ export const TableHandle = forwardRef<
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
       style={style}
-      {...rest}>
+      {...rest}
+    >
       {children}
     </MantineButton>
   );

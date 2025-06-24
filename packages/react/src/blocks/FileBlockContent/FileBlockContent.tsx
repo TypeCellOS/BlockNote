@@ -11,7 +11,7 @@ export const FileToExternalHTML = (
   props: Omit<
     ReactCustomBlockRenderProps<typeof fileBlockConfig, any, any>,
     "contentRef"
-  >
+  >,
 ) => {
   if (!props.block.props.url) {
     return <p>Add file</p>;
@@ -35,7 +35,7 @@ export const FileToExternalHTML = (
 };
 
 export const FileBlock = (
-  props: ReactCustomBlockRenderProps<typeof fileBlockConfig, any, any>
+  props: ReactCustomBlockRenderProps<typeof fileBlockConfig, any, any>,
 ) => {
   return <FileBlockWrapper {...(props as any)} />;
 };

@@ -9,6 +9,7 @@ import {
 } from "../../../schema/index.js";
 import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers.js";
 import { defaultProps } from "../../defaultProps.js";
+import { getListItemContent } from "../getListItemContent.js";
 import { handleEnter } from "../ListItemKeyboardShortcuts.js";
 import { NumberedListIndexingPlugin } from "./NumberedListIndexingPlugin.js";
 
@@ -57,18 +58,14 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
 
           chain()
             .command(
-              updateBlockCommand(
-                this.options.editor,
-                blockInfo.bnBlock.beforePos,
-                {
-                  type: "numberedListItem",
-                  props:
-                    (startIndex === 1 && {}) ||
-                    ({
-                      start: startIndex,
-                    } as any),
-                }
-              )
+              updateBlockCommand(blockInfo.bnBlock.beforePos, {
+                type: "numberedListItem",
+                props:
+                  (startIndex === 1 && {}) ||
+                  ({
+                    start: startIndex,
+                  } as any),
+              }),
             )
             // Removes the "1." characters used to set the list.
             .deleteRange({ from: range.from, to: range.to });
@@ -90,10 +87,10 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
         }
 
         return this.editor.commands.command(
-          updateBlockCommand(this.options.editor, blockInfo.bnBlock.beforePos, {
+          updateBlockCommand(blockInfo.bnBlock.beforePos, {
             type: "numberedListItem",
             props: {},
-          })
+          }),
         );
       },
     };
@@ -105,11 +102,12 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
 
   parseHTML() {
     return [
+      // Parse from internal HTML.
       {
         tag: "div[data-content-type=" + this.name + "]",
+        contentElement: ".bn-inline-content",
       },
-      // Case for regular HTML list structure.
-      // (e.g.: when pasting from other apps)
+      // Parse from external HTML.
       {
         tag: "li",
         getAttrs: (element) => {
@@ -125,7 +123,7 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
 
           if (
             parent.tagName === "OL" ||
-            (parent.tagName === "DIV" && parent.parentElement!.tagName === "OL")
+            (parent.tagName === "DIV" && parent.parentElement?.tagName === "OL")
           ) {
             const startIndex =
               parseInt(parent.getAttribute("start") || "1") || 1;
@@ -141,29 +139,10 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
 
           return false;
         },
-        node: "numberedListItem",
-      },
-      // Case for BlockNote list structure.
-      // (e.g.: when pasting from blocknote)
-      {
-        tag: "p",
-        getAttrs: (element) => {
-          if (typeof element === "string") {
-            return false;
-          }
-
-          const parent = element.parentElement;
-
-          if (parent === null) {
-            return false;
-          }
-
-          if (parent.getAttribute("data-content-type") === "numberedListItem") {
-            return {};
-          }
-
-          return false;
-        },
+        // As `li` elements can contain multiple paragraphs, we need to merge their contents
+        // into a single one so that ProseMirror can parse everything correctly.
+        getContent: (node, schema) =>
+          getListItemContent(node, schema, this.name),
         priority: 300,
         node: "numberedListItem",
       },
@@ -181,12 +160,12 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
         ...(this.options.domAttributes?.blockContent || {}),
         ...HTMLAttributes,
       },
-      this.options.domAttributes?.inlineContent || {}
+      this.options.domAttributes?.inlineContent || {},
     );
   },
 });
 
 export const NumberedListItem = createBlockSpecFromStronglyTypedTiptapNode(
   NumberedListItemBlockContent,
-  numberedListItemPropSchema
+  numberedListItemPropSchema,
 );

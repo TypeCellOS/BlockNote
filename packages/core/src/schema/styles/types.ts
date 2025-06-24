@@ -37,6 +37,6 @@ export type Styles<T extends StyleSchema> = {
   [K in keyof T]?: T[K]["propSchema"] extends "boolean"
     ? boolean
     : T[K]["propSchema"] extends "string"
-    ? string
-    : never;
+      ? string
+      : never;
 };

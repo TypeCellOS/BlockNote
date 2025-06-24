@@ -27,10 +27,10 @@ body {
 .cta-glow {
   --glow-opacity: 0.3;
   background: conic-gradient(
-          from 33deg at 50% 50%,
-          hsla(var(--glow-blue), var(--glow-opacity)),
-          hsla(var(--glow-purple), var(--glow-opacity)),
-          hsla(var(--glow-blue), var(--glow-opacity))
+    from 33deg at 50% 50%,
+    hsla(var(--glow-blue), var(--glow-opacity)),
+    hsla(var(--glow-purple), var(--glow-opacity)),
+    hsla(var(--glow-blue), var(--glow-opacity))
   );
   filter: blur(60px);
 }
@@ -102,7 +102,8 @@ body {
 
 .section-glow {
   --glow-opacity: 0.15;
-  background: linear-gradient(0deg, var(--bg-color) 80%, transparent),
+  background:
+    linear-gradient(0deg, var(--bg-color) 80%, transparent),
     linear-gradient(
       90deg,
       hsla(var(--glow-purple), var(--glow-opacity)),

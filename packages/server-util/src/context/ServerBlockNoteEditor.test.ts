@@ -15,6 +15,7 @@ describe("Test ServerBlockNoteEditor", () => {
         textColor: "yellow",
         textAlignment: "right",
         level: 2,
+        isToggleable: false,
       },
       content: [
         {

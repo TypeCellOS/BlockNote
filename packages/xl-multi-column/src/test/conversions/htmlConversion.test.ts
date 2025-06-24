@@ -6,25 +6,27 @@ import {
   InlineContentSchema,
   PartialBlock,
   StyleSchema,
-  addIdsToBlocks,
   createExternalHTMLExporter,
   createInternalHTMLSerializer,
-  partialBlocksToBlocksForTesting,
 } from "@blocknote/core";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
+import {
+  addIdsToBlocks,
+  partialBlocksToBlocksForTesting,
+} from "./formatConversionTestUtil.js";
 import { multiColumnSchemaTestCases } from "./testCases.js";
 
 // TODO: code same from @blocknote/core, maybe create separate test util package
 async function convertToHTMLAndCompareSnapshots<
   B extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   editor: BlockNoteEditor<B, I, S>,
   blocks: PartialBlock<B, I, S>[],
   snapshotDirectory: string,
-  snapshotName: string
+  snapshotName: string,
 ) {
   addIdsToBlocks(blocks);
   const serializer = createInternalHTMLSerializer(editor.pmSchema, editor);
@@ -91,7 +93,7 @@ describe("Test multi-column HTML conversion", () => {
             editor,
             document.blocks,
             nameSplit[0],
-            nameSplit[1]
+            nameSplit[1],
           );
         });
       }

@@ -24,7 +24,7 @@ describe("exporter", () => {
       BlockNoteSchema.create({
         blockSpecs: { ...defaultBlockSpecs, pageBreak: PageBreak },
       }),
-      docxDefaultSchemaMappings
+      docxDefaultSchemaMappings,
     );
     const doc = await exporter.toDocxJsDocument(testDocument);
 
@@ -33,10 +33,10 @@ describe("exporter", () => {
     const entries = await zip.getEntries();
 
     await expect(
-      prettify(await getZIPEntryContent(entries, "word/document.xml"))
+      prettify(await getZIPEntryContent(entries, "word/document.xml")),
     ).toMatchFileSnapshot("__snapshots__/basic/document.xml");
     await expect(
-      prettify(await getZIPEntryContent(entries, "word/styles.xml"))
+      prettify(await getZIPEntryContent(entries, "word/styles.xml")),
     ).toMatchFileSnapshot("__snapshots__/basic/styles.xml");
 
     // fs.writeFileSync(__dirname + "/My Document.docx", buffer);
@@ -50,7 +50,7 @@ describe("exporter", () => {
         BlockNoteSchema.create({
           blockSpecs: { ...defaultBlockSpecs, pageBreak: PageBreak },
         }),
-        docxDefaultSchemaMappings
+        docxDefaultSchemaMappings,
       );
 
       const doc = await exporter.toDocxJsDocument(testDocument, {
@@ -89,25 +89,25 @@ describe("exporter", () => {
       // files related to header / footer
       await expect(
         prettify(
-          await getZIPEntryContent(entries, "word/_rels/document.xml.rels")
-        )
+          await getZIPEntryContent(entries, "word/_rels/document.xml.rels"),
+        ),
       ).toMatchFileSnapshot(
-        "__snapshots__/withCustomOptions/document.xml.rels"
+        "__snapshots__/withCustomOptions/document.xml.rels",
       );
 
       await expect(
-        prettify(await getZIPEntryContent(entries, "word/header1.xml"))
+        prettify(await getZIPEntryContent(entries, "word/header1.xml")),
       ).toMatchFileSnapshot("__snapshots__/withCustomOptions/header1.xml");
 
       await expect(
-        prettify(await getZIPEntryContent(entries, "word/footer1.xml"))
+        prettify(await getZIPEntryContent(entries, "word/footer1.xml")),
       ).toMatchFileSnapshot("__snapshots__/withCustomOptions/footer1.xml");
 
       // has author data
       await expect(
-        prettify(await getZIPEntryContent(entries, "docProps/core.xml"))
+        prettify(await getZIPEntryContent(entries, "docProps/core.xml")),
       ).toMatchFileSnapshot("__snapshots__/withCustomOptions/core.xml");
-    }
+    },
   );
 });
 
@@ -123,13 +123,13 @@ function prettify(sourceXml: string) {
   // replace created date <dcterms:created xsi:type="dcterms:W3CDTF">...</dcterms:created>
   ret = ret.replace(
     /<dcterms:created xsi:type="dcterms:W3CDTF">[^<]*<\/dcterms:created>/g,
-    '<dcterms:created xsi:type="dcterms:W3CDTF">FAKE-DATE</dcterms:created>'
+    '<dcterms:created xsi:type="dcterms:W3CDTF">FAKE-DATE</dcterms:created>',
   );
 
   // replace modified date <dcterms:modified xsi:type="dcterms:W3CDTF">...</dcterms:modified>
   ret = ret.replace(
     /<dcterms:modified xsi:type="dcterms:W3CDTF">[^<]*<\/dcterms:modified>/g,
-    '<dcterms:modified xsi:type="dcterms:W3CDTF">FAKE-DATE</dcterms:modified>'
+    '<dcterms:modified xsi:type="dcterms:W3CDTF">FAKE-DATE</dcterms:modified>',
   );
   return ret;
 }

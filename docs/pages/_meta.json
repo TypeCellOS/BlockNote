@@ -16,6 +16,11 @@
     "title": "Docs",
     "display": "children"
   },
+  "ai": {
+    "title": "AI",
+    "href": "/docs/ai",
+    "route": "/needs-fake-route-otherwise-menu-shows-bold"
+  },
   "examples": {
     "title": "Examples",
     "display": "children"
@@ -35,6 +40,14 @@
     "theme": {
       "sidebar": false,
       "toc": false
+    }
+  },
+  "thanks": {
+    "type": "page",
+    "display": "hidden",
+    "theme": {
+      "toc": false,
+      "sidebar": false
     }
   }
 }

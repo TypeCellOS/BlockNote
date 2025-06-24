@@ -12,22 +12,24 @@ import "./styles.css";
 
 // Custom component to replace the default Emoji Picker.
 function CustomEmojiPicker(
-  props: GridSuggestionMenuProps<DefaultReactGridSuggestionItem>
+  props: GridSuggestionMenuProps<DefaultReactGridSuggestionItem>,
 ) {
   return (
     <div
       className={"emoji-picker"}
       style={
         { gridTemplateColumns: `repeat(${props.columns || 1}, 1fr)` } as any
-      }>
+      }
+    >
       {props.items.map((item, index) => (
         <div
           className={`emoji-picker-item ${
-            props.selectedIndex === index ? " selected" : ""
+            props.selectedIndex === index ? "selected" : ""
           }`}
           onClick={() => {
             props.onItemClick?.(item);
-          }}>
+          }}
+        >
           {item.icon}
         </div>
       ))}

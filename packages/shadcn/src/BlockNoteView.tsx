@@ -21,14 +21,14 @@ import {
 export const BlockNoteView = <
   BSchema extends BlockSchema,
   ISchema extends InlineContentSchema,
-  SSchema extends StyleSchema
+  SSchema extends StyleSchema,
 >(
   props: BlockNoteViewProps<BSchema, ISchema, SSchema> & {
     /**
      * (optional)Provide your own shadcn component overrides
      */
     shadCNComponents?: Partial<ShadCNComponents>;
-  }
+  },
 ) => {
   const { className, shadCNComponents, ...rest } = props;
 

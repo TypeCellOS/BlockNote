@@ -8,6 +8,7 @@ import {
 } from "../../../schema/index.js";
 import { createDefaultBlockDOMOutputSpec } from "../../defaultBlockHelpers.js";
 import { defaultProps } from "../../defaultProps.js";
+import { getListItemContent } from "../getListItemContent.js";
 import { handleEnter } from "../ListItemKeyboardShortcuts.js";
 
 export const bulletListItemPropSchema = {
@@ -37,14 +38,10 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
 
           chain()
             .command(
-              updateBlockCommand(
-                this.options.editor,
-                blockInfo.bnBlock.beforePos,
-                {
-                  type: "bulletListItem",
-                  props: {},
-                }
-              )
+              updateBlockCommand(blockInfo.bnBlock.beforePos, {
+                type: "bulletListItem",
+                props: {},
+              }),
             )
             // Removes the "-", "+", or "*" character used to set the list.
             .deleteRange({ from: range.from, to: range.to });
@@ -66,10 +63,10 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
         }
 
         return this.editor.commands.command(
-          updateBlockCommand(this.options.editor, blockInfo.bnBlock.beforePos, {
+          updateBlockCommand(blockInfo.bnBlock.beforePos, {
             type: "bulletListItem",
             props: {},
-          })
+          }),
         );
       },
     };
@@ -77,10 +74,12 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
 
   parseHTML() {
     return [
-      // Case for regular HTML list structure.
+      // Parse from internal HTML.
       {
         tag: "div[data-content-type=" + this.name + "]",
+        contentElement: ".bn-inline-content",
       },
+      // Parse from external HTML.
       {
         tag: "li",
         getAttrs: (element) => {
@@ -96,36 +95,17 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
 
           if (
             parent.tagName === "UL" ||
-            (parent.tagName === "DIV" && parent.parentElement!.tagName === "UL")
+            (parent.tagName === "DIV" && parent.parentElement?.tagName === "UL")
           ) {
             return {};
           }
 
           return false;
         },
-        node: "bulletListItem",
-      },
-      // Case for BlockNote list structure.
-      {
-        tag: "p",
-        getAttrs: (element) => {
-          if (typeof element === "string") {
-            return false;
-          }
-
-          const parent = element.parentElement;
-
-          if (parent === null) {
-            return false;
-          }
-
-          if (parent.getAttribute("data-content-type") === "bulletListItem") {
-            return {};
-          }
-
-          return false;
-        },
-        priority: 300,
+        // As `li` elements can contain multiple paragraphs, we need to merge their contents
+        // into a single one so that ProseMirror can parse everything correctly.
+        getContent: (node, schema) =>
+          getListItemContent(node, schema, this.name),
         node: "bulletListItem",
       },
     ];
@@ -142,12 +122,12 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
         ...(this.options.domAttributes?.blockContent || {}),
         ...HTMLAttributes,
       },
-      this.options.domAttributes?.inlineContent || {}
+      this.options.domAttributes?.inlineContent || {},
     );
   },
 });
 
 export const BulletListItem = createBlockSpecFromStronglyTypedTiptapNode(
   BulletListItemBlockContent,
-  bulletListItemPropSchema
+  bulletListItemPropSchema,
 );

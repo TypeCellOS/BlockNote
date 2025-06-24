@@ -3,20 +3,20 @@ import {
   EditorState,
   Plugin,
   PluginKey,
-  TextSelection,
   PluginView,
+  TextSelection,
 } from "@tiptap/pm/state";
 import { EditorView } from "@tiptap/pm/view";
 
 import { Block } from "../../blocks/defaultBlocks.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
 import {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
-import { EventEmitter } from "../../util/EventEmitter.js";
 import { initializeESMDependencies } from "../../util/esmDependencies.js";
 import { getDraggableBlockFromElement } from "../getDraggableBlockFromElement.js";
 import { dragStart, unsetDragImage } from "./dragging.js";
@@ -24,7 +24,7 @@ import { dragStart, unsetDragImage } from "./dragging.js";
 export type SideMenuState<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > = UiElementPosition & {
   // The block that the side menu is attached to.
   block: Block<BSchema, I, S>;
@@ -36,12 +36,12 @@ function getBlockFromCoords(
   view: EditorView,
   coords: { left: number; top: number },
   sideMenuDetection: "viewport" | "editor",
-  adjustForColumns = true
+  adjustForColumns = true,
 ) {
   const elements = view.root.elementsFromPoint(
     // bit hacky - offset x position to right to account for the width of sidemenu itself
     coords.left + (sideMenuDetection === "editor" ? 50 : 0),
-    coords.top
+    coords.top,
   );
 
   for (const element of elements) {
@@ -59,7 +59,7 @@ function getBlockFromCoords(
             top: coords.top,
           },
           sideMenuDetection,
-          false
+          false,
         );
       }
     }
@@ -74,7 +74,7 @@ function getBlockFromMousePos(
     y: number;
   },
   view: EditorView,
-  sideMenuDetection: "viewport" | "editor"
+  sideMenuDetection: "viewport" | "editor",
 ): { node: HTMLElement; id: string } | undefined {
   // Editor itself may have padding or other styling which affects
   // size/position, so we get the boundingRect of the first child (i.e. the
@@ -137,7 +137,7 @@ function getBlockFromMousePos(
 export class SideMenuView<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 > implements PluginView
 {
   public state?: SideMenuState<BSchema, I, S>;
@@ -155,7 +155,7 @@ export class SideMenuView<
     private readonly editor: BlockNoteEditor<BSchema, I, S>,
     private readonly sideMenuDetection: "viewport" | "editor",
     private readonly pmView: EditorView,
-    emitUpdate: (state: SideMenuState<BSchema, I, S>) => void
+    emitUpdate: (state: SideMenuState<BSchema, I, S>) => void,
   ) {
     this.emitUpdate = () => {
       if (!this.state) {
@@ -167,21 +167,21 @@ export class SideMenuView<
 
     this.pmView.root.addEventListener(
       "dragstart",
-      this.onDragStart as EventListener
+      this.onDragStart as EventListener,
     );
     this.pmView.root.addEventListener(
       "dragover",
-      this.onDragOver as EventListener
+      this.onDragOver as EventListener,
     );
     this.pmView.root.addEventListener(
       "drop",
       this.onDrop as EventListener,
-      true
+      true,
     );
     this.pmView.root.addEventListener(
       "dragend",
       this.onDragEnd as EventListener,
-      true
+      true,
     );
     initializeESMDependencies();
 
@@ -189,14 +189,14 @@ export class SideMenuView<
     this.pmView.root.addEventListener(
       "mousemove",
       this.onMouseMove as EventListener,
-      true
+      true,
     );
 
     // Hides and unfreezes the menu whenever the user presses a key.
     this.pmView.root.addEventListener(
       "keydown",
       this.onKeyDown as EventListener,
-      true
+      true,
     );
 
     // Setting capture=true ensures that any parent container of the editor that
@@ -218,7 +218,7 @@ export class SideMenuView<
     const block = getBlockFromMousePos(
       this.mousePos,
       this.pmView,
-      this.sideMenuDetection
+      this.sideMenuDetection,
     );
 
     // Closes the menu if the mouse cursor is beyond the editor vertically.
@@ -270,10 +270,10 @@ export class SideMenuView<
               ).getBoundingClientRect().x,
           blockContentBoundingBox.y,
           blockContentBoundingBox.width,
-          blockContentBoundingBox.height
+          blockContentBoundingBox.height,
         ),
         block: this.editor.getBlock(
-          this.hoveredBlock!.getAttribute("data-id")!
+          this.hoveredBlock!.getAttribute("data-id")!,
         )!,
       });
     }
@@ -312,9 +312,9 @@ export class SideMenuView<
           this.pmView.state.tr.setSelection(
             TextSelection.create(
               this.pmView.state.tr.doc,
-              this.pmView.state.tr.selection.to
-            )
-          )
+              this.pmView.state.tr.selection.to,
+            ),
+          ),
         );
       } else if (this.isDragOrigin && this.pmView.dom !== parentEditorElement) {
         // Because the editor from which the block originates doesn't get a drop
@@ -330,7 +330,7 @@ export class SideMenuView<
         // handle the event.
         setTimeout(
           () => this.pmView.dispatch(this.pmView.state.tr.deleteSelection()),
-          0
+          0,
         );
       }
     }
@@ -535,7 +535,7 @@ export class SideMenuView<
 
     evt.clientY = Math.min(
       Math.max(event.clientY, editorBoundingBox.top),
-      editorBoundingBox.top + editorBoundingBox.height
+      editorBoundingBox.top + editorBoundingBox.height,
     );
 
     evt.dataTransfer = event.dataTransfer;
@@ -573,30 +573,30 @@ export class SideMenuView<
     this.pmView.root.removeEventListener(
       "mousemove",
       this.onMouseMove as EventListener,
-      true
+      true,
     );
     this.pmView.root.removeEventListener(
       "dragstart",
-      this.onDragStart as EventListener
+      this.onDragStart as EventListener,
     );
     this.pmView.root.removeEventListener(
       "dragover",
-      this.onDragOver as EventListener
+      this.onDragOver as EventListener,
     );
     this.pmView.root.removeEventListener(
       "drop",
       this.onDrop as EventListener,
-      true
+      true,
     );
     this.pmView.root.removeEventListener(
       "dragend",
       this.onDragEnd as EventListener,
-      true
+      true,
     );
     this.pmView.root.removeEventListener(
       "keydown",
       this.onKeyDown as EventListener,
-      true
+      true,
     );
     this.pmView.root.removeEventListener("scroll", this.onScroll, true);
   }
@@ -607,30 +607,35 @@ export const sideMenuPluginKey = new PluginKey("SideMenuPlugin");
 export class SideMenuProsemirrorPlugin<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
-> extends EventEmitter<any> {
+  S extends StyleSchema,
+> extends BlockNoteExtension {
+  public static key() {
+    return "sideMenu";
+  }
+
   public view: SideMenuView<BSchema, I, S> | undefined;
-  public readonly plugin: Plugin;
 
   constructor(
     private readonly editor: BlockNoteEditor<BSchema, I, S>,
-    sideMenuDetection: "viewport" | "editor"
+    sideMenuDetection: "viewport" | "editor",
   ) {
     super();
-    this.plugin = new Plugin({
-      key: sideMenuPluginKey,
-      view: (editorView) => {
-        this.view = new SideMenuView(
-          editor,
-          sideMenuDetection,
-          editorView,
-          (state) => {
-            this.emit("update", state);
-          }
-        );
-        return this.view;
-      },
-    });
+    this.addProsemirrorPlugin(
+      new Plugin({
+        key: sideMenuPluginKey,
+        view: (editorView) => {
+          this.view = new SideMenuView(
+            editor,
+            sideMenuDetection,
+            editorView,
+            (state) => {
+              this.emit("update", state);
+            },
+          );
+          return this.view;
+        },
+      }),
+    );
   }
 
   public onUpdate(callback: (state: SideMenuState<BSchema, I, S>) => void) {
@@ -645,7 +650,7 @@ export class SideMenuProsemirrorPlugin<
       dataTransfer: DataTransfer | null;
       clientY: number;
     },
-    block: Block<BSchema, I, S>
+    block: Block<BSchema, I, S>,
   ) => {
     if (this.view) {
       this.view.isDragOrigin = true;

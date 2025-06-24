@@ -39,14 +39,14 @@ export type Props<PSchema extends PropSchema> = {
         ? PSchema[PName]["values"][number]
         : boolean
       : PSchema[PName] extends { default: number } | { type: "number" }
-      ? PSchema[PName]["values"] extends readonly number[]
-        ? PSchema[PName]["values"][number]
-        : number
-      : PSchema[PName] extends { default: string } | { type: "string" }
-      ? PSchema[PName]["values"] extends readonly string[]
-        ? PSchema[PName]["values"][number]
-        : string
-      : never
+        ? PSchema[PName]["values"] extends readonly number[]
+          ? PSchema[PName]["values"][number]
+          : number
+        : PSchema[PName] extends { default: string } | { type: "string" }
+          ? PSchema[PName]["values"] extends readonly string[]
+            ? PSchema[PName]["values"][number]
+            : string
+          : never
   ) extends infer T
     ? PSchema[PName] extends { optional: true }
       ? T | undefined

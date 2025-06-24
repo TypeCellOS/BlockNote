@@ -36,7 +36,7 @@ import type * as Y from "yjs";
 export class ServerBlockNoteEditor<
   BSchema extends BlockSchema = DefaultBlockSchema,
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
-  SSchema extends StyleSchema = DefaultStyleSchema
+  SSchema extends StyleSchema = DefaultStyleSchema,
 > {
   /**
    * Internal BlockNoteEditor (not recommended to use directly, use the methods of this class instead)
@@ -77,7 +77,7 @@ export class ServerBlockNoteEditor<
   public static create<
     BSchema extends BlockSchema = DefaultBlockSchema,
     ISchema extends InlineContentSchema = DefaultInlineContentSchema,
-    SSchema extends StyleSchema = DefaultStyleSchema
+    SSchema extends StyleSchema = DefaultStyleSchema,
   >(options: Partial<BlockNoteEditorOptions<BSchema, ISchema, SSchema>> = {}) {
     return new ServerBlockNoteEditor(options) as ServerBlockNoteEditor<
       BSchema,
@@ -87,7 +87,7 @@ export class ServerBlockNoteEditor<
   }
 
   protected constructor(
-    options: Partial<BlockNoteEditorOptions<any, any, any>>
+    options: Partial<BlockNoteEditorOptions<any, any, any>>,
   ) {
     this.editor = BlockNoteEditor.create({
       ...options,
@@ -107,14 +107,7 @@ export class ServerBlockNoteEditor<
 
     // note, this code is similar to editor.document
     pmNode.firstChild!.descendants((node) => {
-      blocks.push(
-        nodeToBlock(
-          node,
-          this.editor.schema.blockSchema,
-          this.editor.schema.inlineContentSchema,
-          this.editor.schema.styleSchema
-        )
-      );
+      blocks.push(nodeToBlock(node, this.editor.pmSchema));
 
       return false;
     });
@@ -140,15 +133,14 @@ export class ServerBlockNoteEditor<
    * @returns Prosemirror root node
    */
   public _blocksToProsemirrorNode(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[]
+    blocks: PartialBlock<BSchema, ISchema, SSchema>[],
   ) {
-    const pmNodes = blocks.map((b) =>
-      blockToNode(b, this.editor.pmSchema, this.editor.schema.styleSchema)
-    );
+    const pmSchema = this.editor.pmSchema;
+    const pmNodes = blocks.map((b) => blockToNode(b, pmSchema));
 
-    const doc = this.editor.pmSchema.topNodeType.create(
+    const doc = pmSchema.topNodeType.create(
       null,
-      this.editor.pmSchema.nodes["blockGroup"].create(null, pmNodes)
+      pmSchema.nodes["blockGroup"].create(null, pmNodes),
     );
     return doc;
   }
@@ -162,7 +154,7 @@ export class ServerBlockNoteEditor<
   public yXmlFragmentToBlocks(xmlFragment: Y.XmlFragment) {
     const pmNode = yXmlFragmentToProseMirrorRootNode(
       xmlFragment,
-      this.editor.pmSchema
+      this.editor.pmSchema,
     );
     return this._prosemirrorNodeToBlocks(pmNode);
   }
@@ -179,11 +171,11 @@ export class ServerBlockNoteEditor<
    */
   public blocksToYXmlFragment(
     blocks: Block<BSchema, ISchema, SSchema>[],
-    xmlFragment?: Y.XmlFragment
+    xmlFragment?: Y.XmlFragment,
   ) {
     return prosemirrorToYXmlFragment(
       this._blocksToProsemirrorNode(blocks),
-      xmlFragment
+      xmlFragment,
     );
   }
 
@@ -204,11 +196,11 @@ export class ServerBlockNoteEditor<
    */
   public blocksToYDoc(
     blocks: PartialBlock<BSchema, ISchema, SSchema>[],
-    xmlFragment = "prosemirror"
+    xmlFragment = "prosemirror",
   ) {
     return prosemirrorToYDoc(
       this._blocksToProsemirrorNode(blocks),
-      xmlFragment
+      xmlFragment,
     );
   }
 
@@ -222,12 +214,12 @@ export class ServerBlockNoteEditor<
    * @returns The blocks, serialized as an HTML string.
    */
   public async blocksToHTMLLossy(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[]
+    blocks: PartialBlock<BSchema, ISchema, SSchema>[],
   ): Promise<string> {
     return this._withJSDOM(async () => {
       const exporter = createExternalHTMLExporter(
         this.editor.pmSchema,
-        this.editor
+        this.editor,
       );
 
       return exporter.exportBlocks(blocks, {
@@ -246,12 +238,12 @@ export class ServerBlockNoteEditor<
    * @returns The blocks, serialized as an HTML string.
    */
   public async blocksToFullHTML(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[]
+    blocks: PartialBlock<BSchema, ISchema, SSchema>[],
   ): Promise<string> {
     return this._withJSDOM(async () => {
       const exporter = createInternalHTMLSerializer(
         this.editor.pmSchema,
-        this.editor
+        this.editor,
       );
 
       return exporter.serializeBlocks(blocks, {
@@ -268,7 +260,7 @@ export class ServerBlockNoteEditor<
    * @returns The blocks parsed from the HTML string.
    */
   public async tryParseHTMLToBlocks(
-    html: string
+    html: string,
   ): Promise<Block<BSchema, ISchema, SSchema>[]> {
     return this._withJSDOM(() => {
       return this.editor.tryParseHTMLToBlocks(html);
@@ -284,7 +276,7 @@ export class ServerBlockNoteEditor<
    * @returns The blocks, serialized as a Markdown string.
    */
   public async blocksToMarkdownLossy(
-    blocks: PartialBlock<BSchema, ISchema, SSchema>[]
+    blocks: PartialBlock<BSchema, ISchema, SSchema>[],
   ): Promise<string> {
     return this._withJSDOM(async () => {
       return blocksToMarkdown(blocks, this.editor.pmSchema, this.editor, {
@@ -301,7 +293,7 @@ export class ServerBlockNoteEditor<
    * @returns The blocks parsed from the Markdown string.
    */
   public async tryParseMarkdownToBlocks(
-    markdown: string
+    markdown: string,
   ): Promise<Block<BSchema, ISchema, SSchema>[]> {
     return this._withJSDOM(() => {
       return this.editor.tryParseMarkdownToBlocks(markdown);
@@ -325,7 +317,7 @@ export class ServerBlockNoteEditor<
   public async withReactContext<T>(comp: React.FC<any>, fn: () => Promise<T>) {
     return this._withJSDOM(async () => {
       const tmpRoot = createRoot(
-        this.jsdom.window.document.createElement("div")
+        this.jsdom.window.document.createElement("div"),
       );
 
       flushSync(() => {
@@ -335,8 +327,8 @@ export class ServerBlockNoteEditor<
             {},
             createElement(BlockNoteViewRaw<any, any, any>, {
               editor: this.editor,
-            })
-          )
+            }),
+          ),
         );
       });
       try {

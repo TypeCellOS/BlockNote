@@ -1,5 +1,5 @@
-import { Mark, Node } from "@tiptap/pm/model";
-
+import { Mark, Node, Schema, Slice } from "@tiptap/pm/model";
+import type { Block } from "../../blocks/defaultBlocks.js";
 import UniqueID from "../../extensions/UniqueID/UniqueID.js";
 import type {
   BlockSchema,
@@ -13,21 +13,25 @@ import type {
   TableCell,
   TableContent,
 } from "../../schema/index.js";
-import { getBlockInfoWithManualOffset } from "../getBlockInfoFromPos.js";
-
-import type { Block } from "../../blocks/defaultBlocks.js";
 import {
   isLinkInlineContent,
   isStyledTextInlineContent,
 } from "../../schema/inlineContent/types.js";
 import { UnreachableCaseError } from "../../util/typescript.js";
+import { getBlockInfoWithManualOffset } from "../getBlockInfoFromPos.js";
+import {
+  getBlockCache,
+  getBlockSchema,
+  getInlineContentSchema,
+  getStyleSchema,
+} from "../pmUtil.js";
 
 /**
  * Converts an internal (prosemirror) table node contentto a BlockNote Tablecontent
  */
 export function contentNodeToTableContent<
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(contentNode: Node, inlineContentSchema: I, styleSchema: S) {
   const ret: TableContent<I, S> = {
     type: "tableContent",
@@ -67,34 +71,37 @@ export function contentNodeToTableContent<
       // Convert cell content to inline content and merge adjacent styled text nodes
       const content = cellNode.content.content
         .map((child) =>
-          contentNodeToInlineContent(child, inlineContentSchema, styleSchema)
+          contentNodeToInlineContent(child, inlineContentSchema, styleSchema),
         )
         // The reason that we merge this content is that we allow table cells to contain multiple tableParagraph nodes
         // So that we can leverage prosemirror-tables native merging
         // If the schema only allowed a single tableParagraph node, then the merging would not work and cause prosemirror to fit the content into a new cell
-        .reduce((acc, contentPartial) => {
-          if (!acc.length) {
-            return contentPartial;
-          }
+        .reduce(
+          (acc, contentPartial) => {
+            if (!acc.length) {
+              return contentPartial;
+            }
 
-          const last = acc[acc.length - 1];
-          const first = contentPartial[0];
+            const last = acc[acc.length - 1];
+            const first = contentPartial[0];
 
-          // Only merge if the last and first content are both styled text nodes and have the same styles
-          if (
-            first &&
-            isStyledTextInlineContent(last) &&
-            isStyledTextInlineContent(first) &&
-            JSON.stringify(last.styles) === JSON.stringify(first.styles)
-          ) {
-            // Join them together if they have the same styles
-            last.text += "\n" + first.text;
-            acc.push(...contentPartial.slice(1));
+            // Only merge if the last and first content are both styled text nodes and have the same styles
+            if (
+              first &&
+              isStyledTextInlineContent(last) &&
+              isStyledTextInlineContent(first) &&
+              JSON.stringify(last.styles) === JSON.stringify(first.styles)
+            ) {
+              // Join them together if they have the same styles
+              last.text += "\n" + first.text;
+              acc.push(...contentPartial.slice(1));
+              return acc;
+            }
+            acc.push(...contentPartial);
             return acc;
-          }
-          acc.push(...contentPartial);
-          return acc;
-        }, [] as InlineContent<I, S>[]);
+          },
+          [] as InlineContent<I, S>[],
+        );
 
       return {
         type: "tableCell",
@@ -132,7 +139,7 @@ export function contentNodeToTableContent<
  */
 export function contentNodeToInlineContent<
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(contentNode: Node, inlineContentSchema: I, styleSchema: S) {
   const content: InlineContent<any, S>[] = [];
   let currentContent: InlineContent<any, S> | undefined = undefined;
@@ -179,7 +186,7 @@ export function contentNodeToInlineContent<
       }
 
       content.push(
-        nodeToCustomInlineContent(node, inlineContentSchema, styleSchema)
+        nodeToCustomInlineContent(node, inlineContentSchema, styleSchema),
       );
 
       return;
@@ -256,7 +263,8 @@ export function contentNodeToInlineContent<
             // Styles are the same.
             if (
               JSON.stringify(
-                currentContent.content[currentContent.content.length - 1].styles
+                currentContent.content[currentContent.content.length - 1]
+                  .styles,
               ) === JSON.stringify(styles)
             ) {
               currentContent.content[currentContent.content.length - 1].text +=
@@ -333,7 +341,7 @@ export function contentNodeToInlineContent<
 
 export function nodeToCustomInlineContent<
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(node: Node, inlineContentSchema: I, styleSchema: S): InlineContent<I, S> {
   if (node.type.name === "text" || node.type.name === "link") {
     throw new Error("unexpected");
@@ -360,7 +368,7 @@ export function nodeToCustomInlineContent<
     content = contentNodeToInlineContent(
       node,
       inlineContentSchema,
-      styleSchema
+      styleSchema,
     ) as any; // TODO: is this safe? could we have Links here that are undesired?
   } else {
     content = undefined;
@@ -382,18 +390,17 @@ export function nodeToCustomInlineContent<
 export function nodeToBlock<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   node: Node,
-  blockSchema: BSchema,
-  inlineContentSchema: I,
-  styleSchema: S,
-  blockCache?: WeakMap<Node, Block<BSchema, I, S>>
+  schema: Schema,
+  blockSchema: BSchema = getBlockSchema(schema) as BSchema,
+  inlineContentSchema: I = getInlineContentSchema(schema) as I,
+  styleSchema: S = getStyleSchema(schema) as S,
+  blockCache = getBlockCache(schema),
 ): Block<BSchema, I, S> {
   if (!node.type.isInGroup("bnBlock")) {
-    throw Error(
-      "Node must be in bnBlock group, but is of type" + node.type.name
-    );
+    throw Error("Node should be a bnBlock, but is instead: " + node.type.name);
   }
 
   const cachedBlock = blockCache?.get(node);
@@ -439,11 +446,12 @@ export function nodeToBlock<
     children.push(
       nodeToBlock(
         child,
+        schema,
         blockSchema,
         inlineContentSchema,
         styleSchema,
-        blockCache
-      )
+        blockCache,
+      ),
     );
   });
 
@@ -456,7 +464,7 @@ export function nodeToBlock<
     content = contentNodeToInlineContent(
       blockInfo.blockContent.node,
       inlineContentSchema,
-      styleSchema
+      styleSchema,
     );
   } else if (blockConfig.content === "table") {
     if (!blockInfo.isBlockContainer) {
@@ -465,7 +473,7 @@ export function nodeToBlock<
     content = contentNodeToTableContent(
       blockInfo.blockContent.node,
       inlineContentSchema,
-      styleSchema
+      styleSchema,
     );
   } else if (blockConfig.content === "none") {
     content = undefined;
@@ -484,4 +492,198 @@ export function nodeToBlock<
   blockCache?.set(node, block);
 
   return block;
+}
+
+/**
+ * Convert a Prosemirror document to a BlockNote document (array of blocks)
+ */
+export function docToBlocks<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema,
+>(
+  doc: Node,
+  schema: Schema,
+  blockSchema: BSchema = getBlockSchema(schema) as BSchema,
+  inlineContentSchema: I = getInlineContentSchema(schema) as I,
+  styleSchema: S = getStyleSchema(schema) as S,
+  blockCache = getBlockCache(schema),
+) {
+  const blocks: Block<BSchema, I, S>[] = [];
+  doc.firstChild!.descendants((node) => {
+    blocks.push(
+      nodeToBlock(
+        node,
+        schema,
+        blockSchema,
+        inlineContentSchema,
+        styleSchema,
+        blockCache,
+      ),
+    );
+    return false;
+  });
+  return blocks;
+}
+
+/**
+ *
+ * Parse a Prosemirror Slice into a BlockNote selection. The prosemirror schema looks like this:
+ *
+ * <blockGroup>
+ *   <blockContainer> (main content of block)
+ *       <p, heading, etc.>
+ *   <blockGroup> (only if blocks has children)
+ *     <blockContainer> (child block)
+ *       <p, heading, etc.>
+ *     </blockContainer>
+ *    <blockContainer> (child block 2)
+ *       <p, heading, etc.>
+ *     </blockContainer>
+ *   </blockContainer>
+ *  </blockGroup>
+ * </blockGroup>
+ *
+ */
+export function prosemirrorSliceToSlicedBlocks<
+  BSchema extends BlockSchema,
+  I extends InlineContentSchema,
+  S extends StyleSchema,
+>(
+  slice: Slice,
+  schema: Schema,
+  blockSchema: BSchema = getBlockSchema(schema) as BSchema,
+  inlineContentSchema: I = getInlineContentSchema(schema) as I,
+  styleSchema: S = getStyleSchema(schema) as S,
+  blockCache: WeakMap<Node, Block<BSchema, I, S>> = getBlockCache(schema),
+): {
+  /**
+   * The blocks that are included in the selection.
+   */
+  blocks: Block<BSchema, I, S>[];
+  /**
+   * If a block was "cut" at the start of the selection, this will be the id of the block that was cut.
+   */
+  blockCutAtStart: string | undefined;
+  /**
+   * If a block was "cut" at the end of the selection, this will be the id of the block that was cut.
+   */
+  blockCutAtEnd: string | undefined;
+} {
+  // console.log(JSON.stringify(slice.toJSON()));
+  function processNode(
+    node: Node,
+    openStart: number,
+    openEnd: number,
+  ): {
+    blocks: Block<BSchema, I, S>[];
+    blockCutAtStart: string | undefined;
+    blockCutAtEnd: string | undefined;
+  } {
+    if (node.type.name !== "blockGroup") {
+      throw new Error("unexpected");
+    }
+    const blocks: Block<BSchema, I, S>[] = [];
+    let blockCutAtStart: string | undefined;
+    let blockCutAtEnd: string | undefined;
+
+    node.forEach((blockContainer, _offset, index) => {
+      if (blockContainer.type.name !== "blockContainer") {
+        throw new Error("unexpected");
+      }
+      if (blockContainer.childCount === 0) {
+        return;
+      }
+      if (blockContainer.childCount === 0 || blockContainer.childCount > 2) {
+        throw new Error(
+          "unexpected, blockContainer.childCount: " + blockContainer.childCount,
+        );
+      }
+
+      const isFirstBlock = index === 0;
+      const isLastBlock = index === node.childCount - 1;
+
+      if (blockContainer.firstChild!.type.name === "blockGroup") {
+        // this is the parent where a selection starts within one of its children,
+        // e.g.:
+        // A
+        // ├── B
+        // selection starts within B, then this blockContainer is A, but we don't care about A
+        // so let's descend into B and continue processing
+        if (!isFirstBlock) {
+          throw new Error("unexpected");
+        }
+        const ret = processNode(
+          blockContainer.firstChild!,
+          Math.max(0, openStart - 1),
+          isLastBlock ? Math.max(0, openEnd - 1) : 0,
+        );
+        blockCutAtStart = ret.blockCutAtStart;
+        if (isLastBlock) {
+          blockCutAtEnd = ret.blockCutAtEnd;
+        }
+        blocks.push(...ret.blocks);
+        return;
+      }
+
+      const block = nodeToBlock(
+        blockContainer,
+        schema,
+        blockSchema,
+        inlineContentSchema,
+        styleSchema,
+        blockCache,
+      );
+      const childGroup =
+        blockContainer.childCount > 1 ? blockContainer.child(1) : undefined;
+
+      let childBlocks: Block<BSchema, I, S>[] = [];
+      if (childGroup) {
+        const ret = processNode(
+          childGroup,
+          0, // TODO: can this be anything other than 0?
+          isLastBlock ? Math.max(0, openEnd - 1) : 0,
+        );
+        childBlocks = ret.blocks;
+        if (isLastBlock) {
+          blockCutAtEnd = ret.blockCutAtEnd;
+        }
+      }
+
+      if (isLastBlock && !childGroup && openEnd > 1) {
+        blockCutAtEnd = block.id;
+      }
+
+      if (isFirstBlock && openStart > 1) {
+        blockCutAtStart = block.id;
+      }
+
+      blocks.push({
+        ...(block as any),
+        children: childBlocks,
+      });
+    });
+
+    return { blocks, blockCutAtStart, blockCutAtEnd };
+  }
+
+  if (slice.content.childCount === 0) {
+    return {
+      blocks: [],
+      blockCutAtStart: undefined,
+      blockCutAtEnd: undefined,
+    };
+  }
+
+  if (slice.content.childCount !== 1) {
+    throw new Error(
+      "slice must be a single block, did you forget includeParents=true?",
+    );
+  }
+
+  return processNode(
+    slice.content.firstChild!,
+    Math.max(slice.openStart - 1, 0),
+    Math.max(slice.openEnd - 1, 0),
+  );
 }

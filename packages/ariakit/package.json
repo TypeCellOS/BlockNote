@@ -11,7 +11,7 @@
     "directory": "packages/ariakit"
   },
   "license": "MPL-2.0",
-  "version": "0.28.0",
+  "version": "0.32.0",
   "files": [
     "dist",
     "types",
@@ -44,7 +44,8 @@
     },
     "./style.css": {
       "import": "./dist/style.css",
-      "require": "./dist/style.css"
+      "require": "./dist/style.css",
+      "style": "./dist/style.css"
     }
   },
   "scripts": {
@@ -56,15 +57,14 @@
   },
   "dependencies": {
     "@ariakit/react": "^0.4.3",
-    "@blocknote/core": "^0.28.0",
-    "@blocknote/react": "^0.28.0"
+    "@blocknote/core": "0.32.0",
+    "@blocknote/react": "0.32.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",
     "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^8.10.0",
-    "prettier": "^2.7.1",
     "rimraf": "^5.0.5",
     "rollup-plugin-webpack-stats": "^0.2.2",
     "typescript": "^5.3.3",
@@ -78,7 +78,7 @@
   },
   "eslintConfig": {
     "extends": [
-      "../../.eslintrc.js"
+      "../../.eslintrc.json"
     ]
   }
 }

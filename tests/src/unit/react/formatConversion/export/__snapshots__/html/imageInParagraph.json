@@ -1,0 +1,16 @@
+[
+  {
+    "children": [],
+    "content": undefined,
+    "id": "1",
+    "props": {
+      "backgroundColor": "default",
+      "caption": "",
+      "name": "",
+      "showPreview": true,
+      "textAlignment": "left",
+      "url": "exampleURL"
+    },
+    "type": "image"
+  }
+]

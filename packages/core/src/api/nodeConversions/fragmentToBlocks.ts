@@ -1,11 +1,11 @@
 import { Fragment } from "@tiptap/pm/model";
-import { BlockNoteSchema } from "../../editor/BlockNoteSchema.js";
 import {
   BlockNoDefaults,
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
+import { getPmSchema } from "../pmUtil.js";
 import { nodeToBlock } from "./nodeToBlock.js";
 
 /**
@@ -14,12 +14,13 @@ import { nodeToBlock } from "./nodeToBlock.js";
 export function fragmentToBlocks<
   B extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
->(fragment: Fragment, schema: BlockNoteSchema<B, I, S>) {
+  S extends StyleSchema,
+>(fragment: Fragment) {
   // first convert selection to blocknote-style blocks, and then
   // pass these to the exporter
   const blocks: BlockNoDefaults<B, I, S>[] = [];
   fragment.descendants((node) => {
+    const pmSchema = getPmSchema(node);
     if (node.type.name === "blockContainer") {
       if (node.firstChild?.type.name === "blockGroup") {
         // selection started within a block group
@@ -48,27 +49,13 @@ export function fragmentToBlocks<
     if (node.type.name === "columnList" && node.childCount === 1) {
       // column lists with a single column should be flattened (not the entire column list has been selected)
       node.firstChild?.forEach((child) => {
-        blocks.push(
-          nodeToBlock(
-            child,
-            schema.blockSchema,
-            schema.inlineContentSchema,
-            schema.styleSchema
-          )
-        );
+        blocks.push(nodeToBlock(child, pmSchema));
       });
       return false;
     }
 
     if (node.type.isInGroup("bnBlock")) {
-      blocks.push(
-        nodeToBlock(
-          node,
-          schema.blockSchema,
-          schema.inlineContentSchema,
-          schema.styleSchema
-        )
-      );
+      blocks.push(nodeToBlock(node, pmSchema));
       // don't descend into children, as they're already included in the block returned by nodeToBlock
       return false;
     }

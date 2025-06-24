@@ -26,8 +26,7 @@ export const TooltipContent = (props: {
   </MantineStack>
 );
 
-type ToolbarButtonProps = ComponentProps["FormattingToolbar"]["Button"] &
-  ComponentProps["LinkToolbar"]["Button"];
+type ToolbarButtonProps = ComponentProps["Generic"]["Toolbar"]["Button"];
 
 /**
  * Helper for basic buttons that show in the formatting toolbar.
@@ -83,7 +82,8 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         size={variant === "compact" ? "compact-xs" : "xs"}
         disabled={isDisabled || false}
         ref={ref}
-        {...rest}>
+        {...rest}
+      >
         {children}
       </MantineButton>
     ) : (
@@ -118,7 +118,8 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         size={variant === "compact" ? 20 : 30}
         disabled={isDisabled || false}
         ref={ref}
-        {...rest}>
+        {...rest}
+      >
         {icon}
       </MantineActionIcon>
     );
@@ -136,9 +137,10 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
             mainTooltip={mainTooltip}
             secondaryTooltip={secondaryTooltip}
           />
-        }>
+        }
+      >
         {button}
       </MantineTooltip>
     );
-  }
+  },
 );

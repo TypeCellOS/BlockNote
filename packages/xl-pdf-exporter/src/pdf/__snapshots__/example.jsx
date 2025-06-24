@@ -11,7 +11,7 @@
       paddingTop: 35
     }}
   >
-    <React.Fragment key=".1:0">
+    <React.Fragment key=".1:$">
       <VIEW
         style={{
           alignItems: undefined,
@@ -44,7 +44,7 @@
           marginLeft: 18
         }}
       >
-        <React.Fragment key=".0">
+        <React.Fragment key=".$">
           <VIEW
             style={{
               alignItems: undefined,
@@ -65,7 +65,7 @@
               marginLeft: 18
             }}
           >
-            <React.Fragment key=".0">
+            <React.Fragment key=".$">
               <VIEW
                 style={{
                   alignItems: undefined,
@@ -86,7 +86,7 @@
         </React.Fragment>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:1">
+    <React.Fragment key=".1:$">
       <VIEW
         style={{
           alignItems: undefined,
@@ -107,7 +107,7 @@
         </TEXT>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:2">
+    <React.Fragment key=".1:$">
       <VIEW
         style={{
           alignItems: undefined,
@@ -124,7 +124,7 @@
         </TEXT>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:3">
+    <React.Fragment key=".1:$">
       <VIEW
         style={{
           alignItems: undefined,
@@ -146,7 +146,7 @@
         </TEXT>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:4">
+    <React.Fragment key=".1:$">
       <VIEW
         style={{
           alignItems: 'flex-end',
@@ -168,7 +168,7 @@
         </TEXT>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:5">
+    <React.Fragment key=".1:$">
       <VIEW
         style={{
           alignItems: undefined,
@@ -186,7 +186,7 @@
       </VIEW>
     </React.Fragment>
     <VIEW break />
-    <React.Fragment key=".1:7">
+    <React.Fragment key=".1:$">
       <VIEW
         style={{
           alignItems: undefined,
@@ -209,7 +209,7 @@
           marginLeft: 18
         }}
       >
-        <React.Fragment key=".0">
+        <React.Fragment key=".$">
           <VIEW
             style={{
               alignItems: undefined,
@@ -228,7 +228,7 @@
             </ListItem>
           </VIEW>
         </React.Fragment>
-        <React.Fragment key=".1">
+        <React.Fragment key=".$">
           <VIEW
             style={{
               alignItems: 'flex-end',
@@ -247,7 +247,7 @@
             </ListItem>
           </VIEW>
         </React.Fragment>
-        <React.Fragment key=".2">
+        <React.Fragment key=".$">
           <VIEW
             style={{
               alignItems: undefined,
@@ -266,7 +266,7 @@
             </ListItem>
           </VIEW>
         </React.Fragment>
-        <React.Fragment key=".3">
+        <React.Fragment key=".$">
           <VIEW
             style={{
               alignItems: undefined,
@@ -289,7 +289,7 @@
               marginLeft: 18
             }}
           >
-            <React.Fragment key=".0">
+            <React.Fragment key=".$">
               <VIEW
                 style={{
                   alignItems: undefined,
@@ -308,7 +308,7 @@
                 </ListItem>
               </VIEW>
             </React.Fragment>
-            <React.Fragment key=".1">
+            <React.Fragment key=".$">
               <VIEW
                 style={{
                   alignItems: undefined,
@@ -327,7 +327,7 @@
                 </ListItem>
               </VIEW>
             </React.Fragment>
-            <React.Fragment key=".2">
+            <React.Fragment key=".$">
               <VIEW
                 style={{
                   alignItems: 'flex-end',
@@ -346,7 +346,7 @@
                 </ListItem>
               </VIEW>
             </React.Fragment>
-            <React.Fragment key=".3">
+            <React.Fragment key=".$">
               <VIEW
                 style={{
                   alignItems: 'center',
@@ -369,7 +369,7 @@
         </React.Fragment>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:8">
+    <React.Fragment key=".1:$">
       <VIEW
         style={{
           alignItems: undefined,
@@ -388,7 +388,7 @@
         </ListItem>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:9">
+    <React.Fragment key=".1:$">
       <VIEW
         style={{
           alignItems: undefined,
@@ -407,7 +407,7 @@
         </ListItem>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:a">
+    <React.Fragment key=".1:$">
       <VIEW
         style={{
           alignItems: undefined,
@@ -429,77 +429,167 @@
             rows: [
               {
                 cells: [
-                  [
-                    {
-                      styles: {},
-                      text: 'Wide Cell',
-                      type: 'text'
-                    }
-                  ],
-                  [
-                    {
-                      styles: {},
-                      text: 'Table Cell',
-                      type: 'text'
-                    }
-                  ],
-                  [
-                    {
-                      styles: {},
-                      text: 'Table Cell',
-                      type: 'text'
-                    }
-                  ]
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Wide Cell',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  },
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Table Cell',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  },
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Table Cell',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  }
                 ]
               },
               {
                 cells: [
-                  [
-                    {
-                      styles: {},
-                      text: 'Wide Cell',
-                      type: 'text'
-                    }
-                  ],
-                  [
-                    {
-                      styles: {},
-                      text: 'Table Cell',
-                      type: 'text'
-                    }
-                  ],
-                  [
-                    {
-                      styles: {},
-                      text: 'Table Cell',
-                      type: 'text'
-                    }
-                  ]
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Wide Cell',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  },
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Table Cell',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  },
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Table Cell',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  }
                 ]
               },
               {
                 cells: [
-                  [
-                    {
-                      styles: {},
-                      text: 'Wide Cell',
-                      type: 'text'
-                    }
-                  ],
-                  [
-                    {
-                      styles: {},
-                      text: 'Table Cell',
-                      type: 'text'
-                    }
-                  ],
-                  [
-                    {
-                      styles: {},
-                      text: 'Table Cell',
-                      type: 'text'
-                    }
-                  ]
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Wide Cell',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  },
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Table Cell',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  },
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Table Cell',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  }
                 ]
               }
             ],
@@ -509,7 +599,7 @@
         />
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:b">
+    <React.Fragment key=".1:$">
       <VIEW
         style={{
           alignItems: undefined,
@@ -544,7 +634,7 @@
         </VIEW>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:c">
+    <React.Fragment key=".1:$">
       <VIEW
         style={{
           alignItems: undefined,
@@ -558,13 +648,13 @@
           <IMAGE
             src={[object Blob]}
             style={{
-              width: 384
+              width: undefined
             }}
           />
           <TEXT
             style={{
               fontSize: 9.600000000000001,
-              width: 384
+              width: undefined
             }}
           >
             From https://interactive-examples.mdn.mozilla.net/media/cc0-images/grapefruit-slice-332-332.jpg
@@ -572,7 +662,7 @@
         </VIEW>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:d">
+    <React.Fragment key=".1:$">
       <VIEW
         style={{
           alignItems: 'flex-end',
@@ -592,7 +682,7 @@
         </VIEW>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:e">
+    <React.Fragment key=".1:$">
       <VIEW
         style={{
           alignItems: undefined,
@@ -627,7 +717,7 @@
           <TEXT
             style={{
               fontSize: 9.600000000000001,
-              width: 384
+              width: undefined
             }}
           >
             From https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm
@@ -635,7 +725,7 @@
         </VIEW>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:f">
+    <React.Fragment key=".1:$">
       <VIEW
         style={{
           alignItems: undefined,
@@ -678,7 +768,7 @@
         </VIEW>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:g">
+    <React.Fragment key=".1:$">
       <VIEW
         style={{
           alignItems: undefined,
@@ -691,7 +781,7 @@
         <TEXT />
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:h">
+    <React.Fragment key=".1:$">
       <VIEW
         style={{
           alignItems: undefined,
@@ -734,7 +824,7 @@
         </VIEW>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:i">
+    <React.Fragment key=".1:$">
       <VIEW
         style={{
           alignItems: undefined,
@@ -755,7 +845,7 @@
         </TEXT>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:j">
+    <React.Fragment key=".1:$">
       <VIEW
         style={{
           alignItems: undefined,
@@ -787,7 +877,7 @@
         </TEXT>
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:k">
+    <React.Fragment key=".1:$">
       <VIEW
         style={{
           alignItems: undefined,
@@ -809,79 +899,169 @@
             rows: [
               {
                 cells: [
-                  [
-                    {
-                      styles: {},
-                      text: 'Table Cell 1',
-                      type: 'text'
-                    }
-                  ],
-                  [
-                    {
-                      styles: {},
-                      text: 'Table Cell 2',
-                      type: 'text'
-                    }
-                  ],
-                  [
-                    {
-                      styles: {},
-                      text: 'Table Cell 3',
-                      type: 'text'
-                    }
-                  ]
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Table Cell 1',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  },
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Table Cell 2',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  },
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Table Cell 3',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  }
                 ]
               },
               {
                 cells: [
-                  [
-                    {
-                      styles: {},
-                      text: 'Table Cell 4',
-                      type: 'text'
-                    }
-                  ],
-                  [
-                    {
-                      styles: {
-                        bold: true
-                      },
-                      text: 'Table Cell Bold 5',
-                      type: 'text'
-                    }
-                  ],
-                  [
-                    {
-                      styles: {},
-                      text: 'Table Cell 6',
-                      type: 'text'
-                    }
-                  ]
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Table Cell 4',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  },
+                  {
+                    content: [
+                      {
+                        styles: {
+                          bold: true
+                        },
+                        text: 'Table Cell Bold 5',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  },
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Table Cell 6',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  }
                 ]
               },
               {
                 cells: [
-                  [
-                    {
-                      styles: {},
-                      text: 'Table Cell 7',
-                      type: 'text'
-                    }
-                  ],
-                  [
-                    {
-                      styles: {},
-                      text: 'Table Cell 8',
-                      type: 'text'
-                    }
-                  ],
-                  [
-                    {
-                      styles: {},
-                      text: 'Table Cell 9',
-                      type: 'text'
-                    }
-                  ]
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Table Cell 7',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  },
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Table Cell 8',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  },
+                  {
+                    content: [
+                      {
+                        styles: {},
+                        text: 'Table Cell 9',
+                        type: 'text'
+                      }
+                    ],
+                    props: {
+                      backgroundColor: 'default',
+                      colspan: 1,
+                      rowspan: 1,
+                      textAlignment: 'left',
+                      textColor: 'default'
+                    },
+                    type: 'tableCell'
+                  }
                 ]
               }
             ],
@@ -891,7 +1071,7 @@
         />
       </VIEW>
     </React.Fragment>
-    <React.Fragment key=".1:l">
+    <React.Fragment key=".1:$">
       <VIEW
         style={{
           alignItems: undefined,

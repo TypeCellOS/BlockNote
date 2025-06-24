@@ -30,7 +30,7 @@ export function useThreads(editor: BlockNoteEditor<any, any, any>) {
         cb();
       });
     },
-    [store]
+    [store],
   );
 
   return useSyncExternalStore(subscribe, () => threadsRef.current!);

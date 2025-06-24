@@ -8,7 +8,7 @@
     "directory": "packages/dev-scripts"
   },
   "license": "MPL-2.0",
-  "version": "0.28.0",
+  "version": "0.32.0",
   "description": "",
   "type": "module",
   "scripts": {
@@ -23,7 +23,6 @@
     "@types/react-dom": "^18.0.9",
     "eslint": "^8.10.0",
     "glob": "^10.3.10",
-    "prettier": "^2.7.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tinyglobby": "0.2.12",
@@ -32,7 +31,10 @@
   },
   "eslintConfig": {
     "extends": [
-      "../../.eslintrc.js"
+      "../../.eslintrc.json"
     ]
+  },
+  "dependencies": {
+    "prettier": "3.5.3"
   }
 }

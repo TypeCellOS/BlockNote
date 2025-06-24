@@ -27,7 +27,7 @@ const mention = createInlineContentSpec(
         dom: mention,
       };
     },
-  }
+  },
 );
 
 const tag = createInlineContentSpec(
@@ -49,7 +49,7 @@ const tag = createInlineContentSpec(
         contentDOM: content,
       };
     },
-  }
+  },
 );
 
 const schema = BlockNoteSchema.create({

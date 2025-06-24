@@ -113,6 +113,7 @@ exports[`Test replaceBlocks > Remove multiple consecutive blocks 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -144,7 +145,6 @@ exports[`Test replaceBlocks > Remove multiple consecutive blocks 1`] = `
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -460,6 +460,7 @@ exports[`Test replaceBlocks > Remove multiple consecutive blocks 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -663,6 +664,7 @@ exports[`Test replaceBlocks > Remove multiple non-consecutive blocks 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -694,7 +696,6 @@ exports[`Test replaceBlocks > Remove multiple non-consecutive blocks 1`] = `
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -960,6 +961,7 @@ exports[`Test replaceBlocks > Remove single block 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -991,7 +993,6 @@ exports[`Test replaceBlocks > Remove single block 1`] = `
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -1307,6 +1308,7 @@ exports[`Test replaceBlocks > Remove single block 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -1491,6 +1493,7 @@ exports[`Test replaceBlocks > Replace multiple consecutive blocks with multiple 
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -1522,7 +1525,6 @@ exports[`Test replaceBlocks > Replace multiple consecutive blocks with multiple 
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -1838,6 +1840,7 @@ exports[`Test replaceBlocks > Replace multiple consecutive blocks with multiple 
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -1982,6 +1985,7 @@ exports[`Test replaceBlocks > Replace multiple consecutive blocks with single ba
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -2013,7 +2017,6 @@ exports[`Test replaceBlocks > Replace multiple consecutive blocks with single ba
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -2329,6 +2332,7 @@ exports[`Test replaceBlocks > Replace multiple consecutive blocks with single ba
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -2413,6 +2417,7 @@ exports[`Test replaceBlocks > Replace multiple consecutive blocks with single co
     "id": "inserted-heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -2530,6 +2535,7 @@ exports[`Test replaceBlocks > Replace multiple consecutive blocks with single co
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -2561,7 +2567,6 @@ exports[`Test replaceBlocks > Replace multiple consecutive blocks with single co
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -2877,6 +2882,7 @@ exports[`Test replaceBlocks > Replace multiple consecutive blocks with single co
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -3131,6 +3137,7 @@ exports[`Test replaceBlocks > Replace multiple non-consecutive blocks with multi
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -3162,7 +3169,6 @@ exports[`Test replaceBlocks > Replace multiple non-consecutive blocks with multi
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -3439,6 +3445,7 @@ exports[`Test replaceBlocks > Replace multiple non-consecutive blocks with singl
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -3470,7 +3477,6 @@ exports[`Test replaceBlocks > Replace multiple non-consecutive blocks with singl
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -3617,6 +3623,7 @@ exports[`Test replaceBlocks > Replace multiple non-consecutive blocks with singl
     "id": "inserted-heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -3804,6 +3811,7 @@ exports[`Test replaceBlocks > Replace multiple non-consecutive blocks with singl
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -3835,7 +3843,6 @@ exports[`Test replaceBlocks > Replace multiple non-consecutive blocks with singl
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -4152,6 +4159,7 @@ exports[`Test replaceBlocks > Replace single block with multiple 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -4183,7 +4191,6 @@ exports[`Test replaceBlocks > Replace single block with multiple 1`] = `
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -4499,6 +4506,7 @@ exports[`Test replaceBlocks > Replace single block with multiple 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -4713,6 +4721,7 @@ exports[`Test replaceBlocks > Replace single block with single basic 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -4744,7 +4753,6 @@ exports[`Test replaceBlocks > Replace single block with single basic 1`] = `
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -5060,6 +5068,7 @@ exports[`Test replaceBlocks > Replace single block with single basic 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -5144,6 +5153,7 @@ exports[`Test replaceBlocks > Replace single block with single complex 1`] = `
     "id": "inserted-heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -5331,6 +5341,7 @@ exports[`Test replaceBlocks > Replace single block with single complex 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -5362,7 +5373,6 @@ exports[`Test replaceBlocks > Replace single block with single complex 1`] = `
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -5678,6 +5688,7 @@ exports[`Test replaceBlocks > Replace single block with single complex 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",

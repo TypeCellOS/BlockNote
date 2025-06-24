@@ -29,6 +29,7 @@ exports[`Test ServerBlockNoteEditor > converts to and from HTML (blocksToHTMLLos
     "id": "0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "right",
       "textColor": "default",
@@ -168,6 +169,7 @@ exports[`Test ServerBlockNoteEditor > converts to and from markdown (blocksToMar
     "id": "0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "left",
       "textColor": "default",
@@ -216,7 +218,6 @@ exports[`Test ServerBlockNoteEditor > converts to and from markdown (blocksToMar
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "exampleURL",

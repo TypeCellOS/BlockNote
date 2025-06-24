@@ -1,0 +1,1049 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`clear block formatting 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "attrs": {
+            "backgroundColor": "red",
+            "id": "ref1",
+            "textColor": "default",
+          },
+          "type": "blockContainer",
+        },
+      ],
+      "openEnd": 1,
+    },
+    "step": {
+      "from": 1,
+      "slice": {
+        "content": [
+          {
+            "attrs": {
+              "backgroundColor": "default",
+              "id": "ref1",
+              "textColor": "default",
+            },
+            "type": "blockContainer",
+          },
+        ],
+        "openEnd": 1,
+      },
+      "stepType": "replace",
+      "structure": true,
+      "to": 2,
+    },
+  },
+]
+`;
+
+exports[`clear block formatting 2`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "attrs": {
+            "textAlignment": "right",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "openEnd": 1,
+    },
+    "step": {
+      "from": 18,
+      "slice": {
+        "content": [
+          {
+            "attrs": {
+              "textAlignment": "left",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "openEnd": 1,
+      },
+      "stepType": "replace",
+      "structure": true,
+      "to": 19,
+    },
+  },
+]
+`;
+
+exports[`drop mark and link 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "marks": [
+            {
+              "type": "bold",
+            },
+          ],
+          "text": "Bold text. ",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 85,
+      "slice": {
+        "content": [
+          {
+            "text": "Bold text. ",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 96,
+    },
+  },
+  {
+    "replaced": {
+      "content": [
+        {
+          "marks": [
+            {
+              "attrs": {
+                "class": null,
+                "href": "https://www.google.com",
+                "rel": "noopener noreferrer nofollow",
+                "target": "_blank",
+              },
+              "type": "link",
+            },
+          ],
+          "text": "Link.",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 96,
+      "slice": {
+        "content": [
+          {
+            "text": "Link.",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 101,
+    },
+  },
+]
+`;
+
+exports[`drop mark and link and change text within mark 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "text": "Hello",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 71,
+      "slice": {
+        "content": [
+          {
+            "text": "Hi",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 76,
+    },
+  },
+  {
+    "replaced": {
+      "content": [
+        {
+          "marks": [
+            {
+              "type": "bold",
+            },
+          ],
+          "text": "Bold",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 85,
+      "slice": {
+        "content": [
+          {
+            "text": "Bold",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 89,
+    },
+  },
+  {
+    "replaced": null,
+    "step": {
+      "from": 89,
+      "slice": {
+        "content": [
+          {
+            "text": " the",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 89,
+    },
+  },
+  {
+    "replaced": {
+      "content": [
+        {
+          "marks": [
+            {
+              "type": "bold",
+            },
+          ],
+          "text": " text. ",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 89,
+      "slice": {
+        "content": [
+          {
+            "text": " text. ",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 96,
+    },
+  },
+  {
+    "replaced": {
+      "content": [
+        {
+          "marks": [
+            {
+              "attrs": {
+                "class": null,
+                "href": "https://www.google.com",
+                "rel": "noopener noreferrer nofollow",
+                "target": "_blank",
+              },
+              "type": "link",
+            },
+          ],
+          "text": "Link.",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 96,
+      "slice": {
+        "content": [
+          {
+            "text": "Link.",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 101,
+    },
+  },
+]
+`;
+
+exports[`modify nested content 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "text": "Apples",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 21,
+      "slice": {
+        "content": [
+          {
+            "text": "APPLES",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 27,
+    },
+  },
+]
+`;
+
+exports[`modify parent content 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "text": "need to buy",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 5,
+      "slice": {
+        "content": [
+          {
+            "text": "NEED TO BUY",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 16,
+    },
+  },
+]
+`;
+
+exports[`plain source block, add mention 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "text": "world",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 10,
+      "slice": {
+        "content": [
+          {
+            "attrs": {
+              "user": "Jane Doe",
+            },
+            "type": "mention",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 15,
+    },
+  },
+]
+`;
+
+exports[`standard update 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "text": "e",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 4,
+      "slice": {
+        "content": [
+          {
+            "text": "a",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 5,
+    },
+  },
+  {
+    "replaced": {
+      "content": [
+        {
+          "text": "world",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 10,
+      "slice": {
+        "content": [
+          {
+            "text": "Welt",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 15,
+    },
+  },
+]
+`;
+
+exports[`styles + ic in source block, remove mark 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "marks": [
+            {
+              "type": "bold",
+            },
+          ],
+          "text": "How are you doing?",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 30,
+      "slice": {
+        "content": [
+          {
+            "text": "How are you doing?",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 48,
+    },
+  },
+]
+`;
+
+exports[`styles + ic in source block, remove mention 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "text": ", ",
+          "type": "text",
+        },
+        {
+          "attrs": {
+            "user": "John Doe",
+          },
+          "type": "mention",
+        },
+      ],
+    },
+    "step": {
+      "from": 25,
+      "stepType": "replace",
+      "to": 28,
+    },
+  },
+]
+`;
+
+exports[`styles + ic in source block, replace content 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "attrs": {
+            "user": "John Doe",
+          },
+          "type": "mention",
+        },
+        {
+          "text": "! ",
+          "type": "text",
+        },
+        {
+          "marks": [
+            {
+              "type": "bold",
+            },
+          ],
+          "text": "How are you doing?",
+          "type": "text",
+        },
+        {
+          "text": " ",
+          "type": "text",
+        },
+        {
+          "marks": [
+            {
+              "attrs": {
+                "stringValue": "blue",
+              },
+              "type": "textColor",
+            },
+          ],
+          "text": "This text is blue!",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 27,
+      "slice": {
+        "content": [
+          {
+            "text": "updated content",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 67,
+    },
+  },
+]
+`;
+
+exports[`styles + ic in source block, update mention prop 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "attrs": {
+            "user": "John Doe",
+          },
+          "type": "mention",
+        },
+      ],
+    },
+    "step": {
+      "from": 27,
+      "slice": {
+        "content": [
+          {
+            "attrs": {
+              "user": "Jane Doe",
+            },
+            "type": "mention",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 28,
+    },
+  },
+]
+`;
+
+exports[`styles + ic in source block, update text 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "text": "e",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 21,
+      "slice": {
+        "content": [
+          {
+            "text": "a",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 22,
+    },
+  },
+  {
+    "replaced": {
+      "content": [
+        {
+          "marks": [
+            {
+              "type": "bold",
+            },
+          ],
+          "text": "How are you doing?",
+          "type": "text",
+        },
+        {
+          "text": " ",
+          "type": "text",
+        },
+        {
+          "marks": [
+            {
+              "attrs": {
+                "stringValue": "blue",
+              },
+              "type": "textColor",
+            },
+          ],
+          "text": "This text",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 30,
+      "slice": {
+        "content": [
+          {
+            "marks": [
+              {
+                "type": "bold",
+              },
+            ],
+            "text": "Wie geht es dir?",
+            "type": "text",
+          },
+          {
+            "text": " ",
+            "type": "text",
+          },
+          {
+            "marks": [
+              {
+                "attrs": {
+                  "stringValue": "blue",
+                },
+                "type": "textColor",
+              },
+            ],
+            "text": "Dieser Text",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 58,
+    },
+  },
+  {
+    "replaced": {
+      "content": [
+        {
+          "marks": [
+            {
+              "attrs": {
+                "stringValue": "blue",
+              },
+              "type": "textColor",
+            },
+          ],
+          "text": "is blue",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 59,
+      "slice": {
+        "content": [
+          {
+            "marks": [
+              {
+                "attrs": {
+                  "stringValue": "blue",
+                },
+                "type": "textColor",
+              },
+            ],
+            "text": "ist blau",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 66,
+    },
+  },
+]
+`;
+
+exports[`styles + ic in target block, add mark (paragraph) 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "text": "Hello, world!",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 3,
+      "slice": {
+        "content": [
+          {
+            "marks": [
+              {
+                "type": "bold",
+              },
+            ],
+            "text": "Hello, world!",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 16,
+    },
+  },
+]
+`;
+
+exports[`styles + ic in target block, add mark (word) 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "text": "world!",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 10,
+      "slice": {
+        "content": [
+          {
+            "marks": [
+              {
+                "type": "bold",
+              },
+            ],
+            "text": "world!",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 16,
+    },
+  },
+]
+`;
+
+exports[`translate selection 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "text": "e",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 21,
+      "slice": {
+        "content": [
+          {
+            "text": "a",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 22,
+    },
+  },
+]
+`;
+
+exports[`turn paragraphs into list 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "attrs": {
+            "textAlignment": "left",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "openEnd": 1,
+    },
+    "step": {
+      "from": 20,
+      "slice": {
+        "content": [
+          {
+            "attrs": {
+              "textAlignment": "left",
+            },
+            "type": "bulletListItem",
+          },
+        ],
+        "openEnd": 1,
+      },
+      "stepType": "replace",
+      "structure": true,
+      "to": 21,
+    },
+  },
+]
+`;
+
+exports[`turn paragraphs into list 2`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "attrs": {
+            "textAlignment": "left",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "openEnd": 1,
+    },
+    "step": {
+      "from": 30,
+      "slice": {
+        "content": [
+          {
+            "attrs": {
+              "textAlignment": "left",
+            },
+            "type": "bulletListItem",
+          },
+        ],
+        "openEnd": 1,
+      },
+      "stepType": "replace",
+      "structure": true,
+      "to": 31,
+    },
+  },
+]
+`;
+
+exports[`update block prop 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "attrs": {
+            "textAlignment": "left",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "openEnd": 1,
+    },
+    "step": {
+      "from": 2,
+      "slice": {
+        "content": [
+          {
+            "attrs": {
+              "textAlignment": "right",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "openEnd": 1,
+      },
+      "stepType": "replace",
+      "structure": true,
+      "to": 3,
+    },
+  },
+]
+`;
+
+exports[`update block prop and content 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "attrs": {
+            "textAlignment": "left",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "openEnd": 1,
+    },
+    "step": {
+      "from": 2,
+      "slice": {
+        "content": [
+          {
+            "attrs": {
+              "textAlignment": "right",
+            },
+            "type": "paragraph",
+          },
+        ],
+        "openEnd": 1,
+      },
+      "stepType": "replace",
+      "structure": true,
+      "to": 3,
+    },
+  },
+  {
+    "replaced": {
+      "content": [
+        {
+          "text": "Hello",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 3,
+      "slice": {
+        "content": [
+          {
+            "text": "What's up",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 8,
+    },
+  },
+]
+`;
+
+exports[`update block type 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "attrs": {
+            "textAlignment": "left",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "openEnd": 1,
+    },
+    "step": {
+      "from": 2,
+      "slice": {
+        "content": [
+          {
+            "attrs": {
+              "isToggleable": false,
+              "level": 1,
+              "textAlignment": "left",
+            },
+            "type": "heading",
+          },
+        ],
+        "openEnd": 1,
+      },
+      "stepType": "replace",
+      "structure": true,
+      "to": 3,
+    },
+  },
+]
+`;
+
+exports[`update block type and content 1`] = `
+[
+  {
+    "replaced": {
+      "content": [
+        {
+          "attrs": {
+            "textAlignment": "left",
+          },
+          "type": "paragraph",
+        },
+      ],
+      "openEnd": 1,
+    },
+    "step": {
+      "from": 2,
+      "slice": {
+        "content": [
+          {
+            "attrs": {
+              "isToggleable": false,
+              "level": 1,
+              "textAlignment": "left",
+            },
+            "type": "heading",
+          },
+        ],
+        "openEnd": 1,
+      },
+      "stepType": "replace",
+      "structure": true,
+      "to": 3,
+    },
+  },
+  {
+    "replaced": {
+      "content": [
+        {
+          "text": "Hello",
+          "type": "text",
+        },
+      ],
+    },
+    "step": {
+      "from": 3,
+      "slice": {
+        "content": [
+          {
+            "text": "What's up",
+            "type": "text",
+          },
+        ],
+      },
+      "stepType": "replace",
+      "to": 8,
+    },
+  },
+]
+`;

@@ -6,7 +6,7 @@ import { useEditorChange } from "./useEditorChange.js";
 import { useEditorSelectionChange } from "./useEditorSelectionChange.js";
 
 export function useActiveStyles<T extends StyleSchema>(
-  editor?: BlockNoteEditor<any, any, T>
+  editor?: BlockNoteEditor<any, any, T>,
 ) {
   const editorContext = useBlockNoteContext<any, any, T>();
   if (!editor) {
@@ -15,7 +15,7 @@ export function useActiveStyles<T extends StyleSchema>(
 
   if (!editor) {
     throw new Error(
-      "'editor' is required, either from BlockNoteContext or as a function argument"
+      "'editor' is required, either from BlockNoteContext or as a function argument",
     );
   }
 

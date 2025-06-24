@@ -32,7 +32,8 @@ export const Editor = forwardRef<
       editable={editable}
       ref={ref}
       onFocus={onFocus}
-      onBlur={onBlur}>
+      onBlur={onBlur}
+    >
       <FormattingToolbarController
         formattingToolbar={CustomFormattingToolbar}
       />
@@ -42,7 +43,7 @@ export const Editor = forwardRef<
 
 const CustomFormattingToolbar = () => {
   const items = getFormattingToolbarItems([]).filter(
-    (el) => el.key !== "nestBlockButton" && el.key !== "unnestBlockButton"
+    (el) => el.key !== "nestBlockButton" && el.key !== "unnestBlockButton",
   );
   return (
     <FormattingToolbar blockTypeSelectItems={[]}>{items}</FormattingToolbar>

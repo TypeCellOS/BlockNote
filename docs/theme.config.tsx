@@ -14,6 +14,7 @@ import { Logo } from "./components/Logo";
 import { Navigation } from "./components/Navigation";
 import { ProBadge } from "./components/example/ProBadge";
 import { proExamplesList } from "./components/example/proExamplesList";
+import { authClient } from "./util/auth-client";
 // import { Search } from "./components/Search";
 
 // const NoSSRCommentsButton = dynamic(
@@ -45,6 +46,41 @@ interface Frontmatter {
   description: string;
   imageTitle: string;
 }
+
+const NavBarExtraContent = () => {
+  const session = authClient.useSession();
+  const router = useRouter();
+  const theme = useTheme();
+
+  return (
+    <>
+      <NextLink
+        href="https://github.com/TypeCellOS/BlockNote"
+        className="generic-hover"
+      >
+        <span className="sr-only">GitHub</span>
+        <GitHubIcon />
+      </NextLink>
+      <NextLink href="https://discord.gg/Qc2QTTH5dF" className="generic-hover">
+        <span className="sr-only">Discord</span>
+        <DiscordIcon />
+      </NextLink>
+      {session.data ? null : (
+        <NextLink
+          href={`/signin?redirect=${encodeURIComponent(router.route || "")}&theme=${encodeURIComponent(theme.resolvedTheme || "")}`}
+        >
+          <CTA
+            href={`/signin?redirect=${encodeURIComponent(router.route || "")}&theme=${encodeURIComponent(theme.resolvedTheme || "")}`}
+            size={"small"}
+          >
+            Sign in
+          </CTA>
+        </NextLink>
+      )}
+      <AuthNavButton />
+    </>
+  );
+};
 
 const config: DocsThemeConfig = {
   sidebar: {
@@ -207,30 +243,7 @@ const config: DocsThemeConfig = {
   },
   navbar: {
     component: Navigation,
-    extraContent: () => {
-      return (
-        <>
-          <NextLink
-            href="https://github.com/TypeCellOS/BlockNote"
-            className="generic-hover">
-            <span className="sr-only">GitHub</span>
-            <GitHubIcon />
-          </NextLink>
-          <NextLink
-            href="https://discord.gg/Qc2QTTH5dF"
-            className="generic-hover">
-            <span className="sr-only">Discord</span>
-            <DiscordIcon />
-          </NextLink>
-          {/* <NextLink href="/pro">
-            <CTA href={"/pro"} variant={"small"}>
-              Sign in
-            </CTA>
-          </NextLink> */}
-          <AuthNavButton />
-        </>
-      );
-    },
+    extraContent: () => <NavBarExtraContent />,
     //   extraContent: (): JSX.Element => {
     //     // eslint-disable-next-line react-hooks/rules-of-hooks -- Nextra does not infer the type of extraContent correctly.
     //     const router = useRouter();

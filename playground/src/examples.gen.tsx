@@ -56,7 +56,8 @@
           ],
           "dependencies": {
             "@blocknote/xl-multi-column": "latest"
-          } as any
+          } as any,
+          "pro": true
         },
         "title": "Multi-Column Blocks",
         "group": {
@@ -959,7 +960,7 @@
           "docs": true,
           "author": "yousefed",
           "tags": [
-            ""
+            "Interoperability"
           ],
           "dependencies": {
             "@blocknote/xl-pdf-exporter": "latest",
@@ -1013,6 +1014,29 @@
           "pro": true
         },
         "title": "Exporting documents to .odt (Open Document Text)",
+        "group": {
+          "pathFromRoot": "examples/05-interoperability",
+          "slug": "interoperability"
+        }
+      },
+      {
+        "projectSlug": "converting-blocks-to-react-email",
+        "fullSlug": "interoperability/converting-blocks-to-react-email",
+        "pathFromRoot": "examples/05-interoperability/08-converting-blocks-to-react-email",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "jmarbutt",
+          "tags": [
+            ""
+          ],
+          "dependencies": {
+            "@blocknote/xl-email-exporter": "latest",
+            "@react-email/render": "^1.1.2"
+          } as any,
+          "pro": true
+        },
+        "title": "Exporting documents to React Email",
         "group": {
           "pathFromRoot": "examples/05-interoperability",
           "slug": "interoperability"
@@ -1150,6 +1174,24 @@
         }
       },
       {
+        "projectSlug": "toggleable-blocks",
+        "fullSlug": "custom-schema/toggleable-blocks",
+        "pathFromRoot": "examples/06-custom-schema/06-toggleable-blocks",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Toggleable Blocks",
+        "group": {
+          "pathFromRoot": "examples/06-custom-schema",
+          "slug": "custom-schema"
+        }
+      },
+      {
         "projectSlug": "react-custom-blocks",
         "fullSlug": "custom-schema/react-custom-blocks",
         "pathFromRoot": "examples/06-custom-schema/react-custom-blocks",
@@ -1241,11 +1283,11 @@
             "Collaboration"
           ],
           "dependencies": {
-            "@liveblocks/client": "^2.22.3",
-            "@liveblocks/react": "^2.22.3",
-            "@liveblocks/react-blocknote": "^2.22.3",
-            "@liveblocks/react-tiptap": "^2.22.3",
-            "@liveblocks/react-ui": "^2.22.3",
+            "@liveblocks/client": "^2.23.1",
+            "@liveblocks/react": "^2.23.1",
+            "@liveblocks/react-blocknote": "^2.23.1",
+            "@liveblocks/react-tiptap": "^2.23.1",
+            "@liveblocks/react-ui": "^2.23.1",
             "yjs": "^13.6.15"
           } as any
         },
@@ -1325,6 +1367,54 @@
           "pathFromRoot": "examples/07-collaboration",
           "slug": "collaboration"
         }
+      },
+      {
+        "projectSlug": "ghost-writer",
+        "fullSlug": "collaboration/ghost-writer",
+        "pathFromRoot": "examples/07-collaboration/06-ghost-writer",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "nperez0111",
+          "tags": [
+            "Advanced",
+            "Development",
+            "Collaboration"
+          ],
+          "dependencies": {
+            "y-partykit": "^0.0.25",
+            "yjs": "^13.6.15"
+          } as any
+        },
+        "title": "Ghost Writer",
+        "group": {
+          "pathFromRoot": "examples/07-collaboration",
+          "slug": "collaboration"
+        }
+      },
+      {
+        "projectSlug": "forking",
+        "fullSlug": "collaboration/forking",
+        "pathFromRoot": "examples/07-collaboration/07-forking",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "nperez0111",
+          "tags": [
+            "Advanced",
+            "Development",
+            "Collaboration"
+          ],
+          "dependencies": {
+            "y-partykit": "^0.0.25",
+            "yjs": "^13.6.15"
+          } as any
+        },
+        "title": "Collaborative Editing with Forking",
+        "group": {
+          "pathFromRoot": "examples/07-collaboration",
+          "slug": "collaboration"
+        }
       }
     ]
   },
@@ -1345,13 +1435,131 @@
           ],
           "pro": true,
           "dependencies": {
-            "@tiptap/core": "^2"
+            "@tiptap/core": "^2.12.0"
           } as any
         },
         "title": "TipTap extension (arrow InputRule)",
         "group": {
           "pathFromRoot": "examples/08-extensions",
           "slug": "extensions"
+        }
+      }
+    ]
+  },
+  "ai": {
+    "pathFromRoot": "examples/09-ai",
+    "slug": "ai",
+    "projects": [
+      {
+        "projectSlug": "minimal",
+        "fullSlug": "ai/minimal",
+        "pathFromRoot": "examples/09-ai/01-minimal",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "AI",
+            "llm"
+          ],
+          "dependencies": {
+            "@blocknote/xl-ai": "latest",
+            "@mantine/core": "^7.10.1",
+            "ai": "^4.3.15",
+            "@ai-sdk/groq": "^1.2.9",
+            "zustand": "^5.0.3"
+          } as any
+        },
+        "title": "Rich Text editor AI integration",
+        "group": {
+          "pathFromRoot": "examples/09-ai",
+          "slug": "ai"
+        }
+      },
+      {
+        "projectSlug": "playground",
+        "fullSlug": "ai/playground",
+        "pathFromRoot": "examples/09-ai/02-playground",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "yousefed",
+          "tags": [
+            "AI",
+            "llm"
+          ],
+          "dependencies": {
+            "@blocknote/xl-ai": "latest",
+            "@mantine/core": "^7.10.1",
+            "ai": "^4.3.15",
+            "@ai-sdk/openai": "^1.3.22",
+            "@ai-sdk/openai-compatible": "^0.2.14",
+            "@ai-sdk/groq": "^1.2.9",
+            "@ai-sdk/anthropic": "^1.2.11",
+            "@ai-sdk/mistral": "^1.2.8",
+            "zustand": "^5.0.3"
+          } as any
+        },
+        "title": "AI Playground",
+        "group": {
+          "pathFromRoot": "examples/09-ai",
+          "slug": "ai"
+        }
+      },
+      {
+        "projectSlug": "custom-ai-menu-items",
+        "fullSlug": "ai/custom-ai-menu-items",
+        "pathFromRoot": "examples/09-ai/03-custom-ai-menu-items",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "AI",
+            "llm"
+          ],
+          "dependencies": {
+            "@blocknote/xl-ai": "latest",
+            "@mantine/core": "^7.10.1",
+            "ai": "^4.1.0",
+            "@ai-sdk/openai": "^1.1.0",
+            "@ai-sdk/groq": "^1.1.0",
+            "react-icons": "^5.2.1",
+            "zustand": "^5.0.3"
+          } as any
+        },
+        "title": "Adding AI Menu Items",
+        "group": {
+          "pathFromRoot": "examples/09-ai",
+          "slug": "ai"
+        }
+      },
+      {
+        "projectSlug": "with-collaboration",
+        "fullSlug": "ai/with-collaboration",
+        "pathFromRoot": "examples/09-ai/04-with-collaboration",
+        "config": {
+          "playground": true,
+          "docs": false,
+          "author": "nperez0111",
+          "tags": [
+            "AI",
+            "llm"
+          ],
+          "dependencies": {
+            "@blocknote/xl-ai": "latest",
+            "@mantine/core": "^7.10.1",
+            "ai": "^4.3.15",
+            "@ai-sdk/groq": "^1.2.9",
+            "y-partykit": "^0.0.25",
+            "yjs": "^13.6.15",
+            "zustand": "^5.0.3"
+          } as any
+        },
+        "title": "AI + Ghost Writer",
+        "group": {
+          "pathFromRoot": "examples/09-ai",
+          "slug": "ai"
         }
       }
     ]

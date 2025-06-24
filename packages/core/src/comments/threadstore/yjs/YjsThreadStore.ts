@@ -26,13 +26,13 @@ export class YjsThreadStore extends YjsThreadStoreBase {
   constructor(
     private readonly userId: string,
     threadsYMap: Y.Map<any>,
-    auth: ThreadStoreAuth
+    auth: ThreadStoreAuth,
   ) {
     super(threadsYMap, auth);
   }
 
   private transact = <T, R>(
-    fn: (options: T) => R
+    fn: (options: T) => R,
   ): ((options: T) => Promise<R>) => {
     return async (options: T) => {
       return this.threadsYMap.doc!.transact(() => {
@@ -79,7 +79,7 @@ export class YjsThreadStore extends YjsThreadStoreBase {
       this.threadsYMap.set(thread.id, threadToYMap(thread));
 
       return thread;
-    }
+    },
   );
 
   // YjsThreadStore does not support addThreadToDocument
@@ -121,7 +121,7 @@ export class YjsThreadStore extends YjsThreadStoreBase {
 
       yThread.set("updatedAt", new Date().getTime());
       return comment;
-    }
+    },
   );
 
   public updateComment = this.transact(
@@ -140,7 +140,7 @@ export class YjsThreadStore extends YjsThreadStoreBase {
 
       const yCommentIndex = yArrayFindIndex(
         yThread.get("comments"),
-        (comment) => comment.get("id") === options.commentId
+        (comment) => comment.get("id") === options.commentId,
       );
 
       if (yCommentIndex === -1) {
@@ -156,7 +156,7 @@ export class YjsThreadStore extends YjsThreadStoreBase {
       yComment.set("body", options.comment.body);
       yComment.set("updatedAt", new Date().getTime());
       yComment.set("metadata", options.comment.metadata);
-    }
+    },
   );
 
   public deleteComment = this.transact(
@@ -172,7 +172,7 @@ export class YjsThreadStore extends YjsThreadStoreBase {
 
       const yCommentIndex = yArrayFindIndex(
         yThread.get("comments"),
-        (comment) => comment.get("id") === options.commentId
+        (comment) => comment.get("id") === options.commentId,
       );
 
       if (yCommentIndex === -1) {
@@ -210,13 +210,13 @@ export class YjsThreadStore extends YjsThreadStoreBase {
       }
 
       yThread.set("updatedAt", new Date().getTime());
-    }
+    },
   );
 
   public deleteThread = this.transact((options: { threadId: string }) => {
     if (
       !this.auth.canDeleteThread(
-        yMapToThread(this.threadsYMap.get(options.threadId))
+        yMapToThread(this.threadsYMap.get(options.threadId)),
       )
     ) {
       throw new Error("Not authorized");
@@ -263,7 +263,7 @@ export class YjsThreadStore extends YjsThreadStoreBase {
 
       const yCommentIndex = yArrayFindIndex(
         yThread.get("comments"),
-        (comment) => comment.get("id") === options.commentId
+        (comment) => comment.get("id") === options.commentId,
       );
 
       if (yCommentIndex === -1) {
@@ -292,7 +292,7 @@ export class YjsThreadStore extends YjsThreadStoreBase {
         reaction.set("userId", this.userId);
         reactionsByUser.set(key, reaction);
       }
-    }
+    },
   );
 
   public deleteReaction = this.transact(
@@ -304,7 +304,7 @@ export class YjsThreadStore extends YjsThreadStoreBase {
 
       const yCommentIndex = yArrayFindIndex(
         yThread.get("comments"),
-        (comment) => comment.get("id") === options.commentId
+        (comment) => comment.get("id") === options.commentId,
       );
 
       if (yCommentIndex === -1) {
@@ -324,13 +324,13 @@ export class YjsThreadStore extends YjsThreadStoreBase {
       const reactionsByUser = yComment.get("reactionsByUser");
 
       reactionsByUser.delete(key);
-    }
+    },
   );
 }
 
 function yArrayFindIndex(
   yArray: Y.Array<any>,
-  predicate: (item: any) => boolean
+  predicate: (item: any) => boolean,
 ) {
   for (let i = 0; i < yArray.length; i++) {
     if (predicate(yArray.get(i))) {

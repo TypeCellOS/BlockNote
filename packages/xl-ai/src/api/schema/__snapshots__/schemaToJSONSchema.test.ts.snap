@@ -1,0 +1,243 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`creates json schema 1`] = `
+{
+  "$defs": {
+    "block": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "content": {
+              "$ref": "#/$defs/inlinecontent",
+            },
+            "props": {
+              "additionalProperties": false,
+              "properties": {},
+              "type": "object",
+            },
+            "type": {
+              "enum": [
+                "paragraph",
+                "quote",
+                "toggleListItem",
+                "bulletListItem",
+                "numberedListItem",
+              ],
+              "type": "string",
+            },
+          },
+          "required": [
+            "type",
+          ],
+          "type": "object",
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "content": {
+              "$ref": "#/$defs/inlinecontent",
+            },
+            "props": {
+              "additionalProperties": false,
+              "properties": {
+                "isToggleable": {
+                  "enum": undefined,
+                  "type": "boolean",
+                },
+                "level": {
+                  "enum": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                  ],
+                  "type": "number",
+                },
+              },
+              "type": "object",
+            },
+            "type": {
+              "enum": [
+                "heading",
+              ],
+              "type": "string",
+            },
+          },
+          "required": [
+            "type",
+          ],
+          "type": "object",
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "content": {
+              "$ref": "#/$defs/inlinecontent",
+            },
+            "props": {
+              "additionalProperties": false,
+              "properties": {
+                "language": {
+                  "enum": undefined,
+                  "type": "string",
+                },
+              },
+              "type": "object",
+            },
+            "type": {
+              "enum": [
+                "codeBlock",
+              ],
+              "type": "string",
+            },
+          },
+          "required": [
+            "type",
+          ],
+          "type": "object",
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "content": {
+              "$ref": "#/$defs/inlinecontent",
+            },
+            "props": {
+              "additionalProperties": false,
+              "properties": {
+                "checked": {
+                  "enum": undefined,
+                  "type": "boolean",
+                },
+              },
+              "type": "object",
+            },
+            "type": {
+              "enum": [
+                "checkListItem",
+              ],
+              "type": "string",
+            },
+          },
+          "required": [
+            "type",
+          ],
+          "type": "object",
+        },
+        {
+          "additionalProperties": false,
+          "properties": {
+            "content": {
+              "properties": {},
+              "type": "object",
+            },
+            "props": {
+              "additionalProperties": false,
+              "properties": {},
+              "type": "object",
+            },
+            "type": {
+              "enum": [
+                "table",
+              ],
+              "type": "string",
+            },
+          },
+          "required": [
+            "type",
+          ],
+          "type": "object",
+        },
+      ],
+    },
+    "inlinecontent": {
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/styledtext",
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "content": {
+                "items": {
+                  "$ref": "#/$defs/styledtext",
+                },
+                "type": "array",
+              },
+              "href": {
+                "type": "string",
+              },
+              "type": {
+                "enum": [
+                  "link",
+                ],
+                "type": "string",
+              },
+            },
+            "required": [
+              "type",
+              "href",
+              "content",
+            ],
+            "type": "object",
+          },
+        ],
+      },
+      "type": "array",
+    },
+    "styledtext": {
+      "additionalProperties": false,
+      "properties": {
+        "styles": {
+          "$ref": "#/$defs/styles",
+        },
+        "text": {
+          "type": "string",
+        },
+        "type": {
+          "enum": [
+            "text",
+          ],
+          "type": "string",
+        },
+      },
+      "required": [
+        "type",
+        "text",
+      ],
+      "type": "object",
+    },
+    "styles": {
+      "additionalProperties": false,
+      "properties": {
+        "backgroundColor": {
+          "type": "string",
+        },
+        "bold": {
+          "type": "boolean",
+        },
+        "code": {
+          "type": "boolean",
+        },
+        "italic": {
+          "type": "boolean",
+        },
+        "strike": {
+          "type": "boolean",
+        },
+        "textColor": {
+          "type": "string",
+        },
+        "underline": {
+          "type": "boolean",
+        },
+      },
+      "type": "object",
+    },
+  },
+}
+`;

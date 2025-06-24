@@ -18,15 +18,15 @@ import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
 export function useBlockNoteEditor<
   BSchema extends BlockSchema = DefaultBlockSchema,
   ISchema extends InlineContentSchema = DefaultInlineContentSchema,
-  SSchema extends StyleSchema = DefaultStyleSchema
+  SSchema extends StyleSchema = DefaultStyleSchema,
 >(
-  _schema?: BlockNoteSchema<BSchema, ISchema, SSchema>
+  _schema?: BlockNoteSchema<BSchema, ISchema, SSchema>,
 ): BlockNoteEditor<BSchema, ISchema, SSchema> {
   const context = useBlockNoteContext(_schema);
 
   if (!context?.editor) {
     throw new Error(
-      "useBlockNoteEditor was called outside of a BlockNoteContext provider or BlockNoteView component"
+      "useBlockNoteEditor was called outside of a BlockNoteContext provider or BlockNoteView component",
     );
   }
 

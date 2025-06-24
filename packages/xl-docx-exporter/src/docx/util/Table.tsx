@@ -16,7 +16,7 @@ import {
 
 export const Table = (
   data: TableContent<InlineContentSchema>,
-  t: Exporter<any, any, any, any, ParagraphChild, any, any>
+  t: Exporter<any, any, any, any, ParagraphChild, any, any>,
 ) => {
   const DEFAULT_COLUMN_WIDTH = 120;
 
@@ -29,7 +29,7 @@ export const Table = (
     layout: "autofit",
     columnWidths: data.columnWidths.map(
       (w) =>
-        (w ?? DEFAULT_COLUMN_WIDTH) * /* to points */ 0.75 * /* to twips */ 20
+        (w ?? DEFAULT_COLUMN_WIDTH) * /* to points */ 0.75 * /* to twips */ 20,
     ),
     rows: data.rows.map((row, rowIndex) => {
       const isHeaderRow = headerRows[rowIndex];
@@ -70,16 +70,16 @@ export const Table = (
                   cell.props.textAlignment === "left"
                     ? undefined
                     : cell.props.textAlignment === "center"
-                    ? "center"
-                    : cell.props.textAlignment === "right"
-                    ? "right"
-                    : cell.props.textAlignment === "justify"
-                    ? "distribute"
-                    : (() => {
-                        throw new UnreachableCaseError(
-                          cell.props.textAlignment
-                        );
-                      })(),
+                      ? "center"
+                      : cell.props.textAlignment === "right"
+                        ? "right"
+                        : cell.props.textAlignment === "justify"
+                          ? "distribute"
+                          : (() => {
+                              throw new UnreachableCaseError(
+                                cell.props.textAlignment,
+                              );
+                            })(),
                 run: {
                   // TODO add support for table headers exporting, bolding seems to not be working at the moment
                   bold: isHeaderRow || isHeaderColumn,

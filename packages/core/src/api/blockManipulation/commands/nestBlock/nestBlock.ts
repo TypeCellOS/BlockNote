@@ -1,9 +1,9 @@
 import { Fragment, NodeType, Slice } from "prosemirror-model";
-import { EditorState } from "prosemirror-state";
+import { EditorState, Transaction } from "prosemirror-state";
 import { ReplaceAroundStep } from "prosemirror-transform";
 
 import { BlockNoteEditor } from "../../../../editor/BlockNoteEditor.js";
-import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
+import { getBlockInfoFromTransaction } from "../../../getBlockInfoFromPos.js";
 
 // TODO: Unit tests
 /**
@@ -12,13 +12,13 @@ import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
  * The original function derives too many information from the parentnode and itemtype
  */
 function sinkListItem(itemType: NodeType, groupType: NodeType) {
-  return function ({ state, dispatch }: { state: EditorState; dispatch: any }) {
+  return function (state: EditorState, dispatch?: (tr: Transaction) => void) {
     const { $from, $to } = state.selection;
     const range = $from.blockRange(
       $to,
       (node) =>
         node.childCount > 0 &&
-        (node.type.name === "blockGroup" || node.type.name === "column") // change necessary to not look at first item child type
+        (node.type.name === "blockGroup" || node.type.name === "column"), // change necessary to not look at first item child type
     );
     if (!range) {
       return false;
@@ -38,10 +38,10 @@ function sinkListItem(itemType: NodeType, groupType: NodeType) {
       const inner = Fragment.from(nestedBefore ? itemType.create() : null);
       const slice = new Slice(
         Fragment.from(
-          itemType.create(null, Fragment.from(groupType.create(null, inner))) // change necessary to create "groupType" instead of parent.type
+          itemType.create(null, Fragment.from(groupType.create(null, inner))), // change necessary to create "groupType" instead of parent.type
         ),
         nestedBefore ? 3 : 1,
-        0
+        0,
       );
 
       const before = range.start;
@@ -56,10 +56,10 @@ function sinkListItem(itemType: NodeType, groupType: NodeType) {
               after,
               slice,
               1,
-              true
-            )
+              true,
+            ),
           )
-          .scrollIntoView()
+          .scrollIntoView(),
       );
     }
     return true;
@@ -67,11 +67,11 @@ function sinkListItem(itemType: NodeType, groupType: NodeType) {
 }
 
 export function nestBlock(editor: BlockNoteEditor<any, any, any>) {
-  return editor._tiptapEditor.commands.command(
+  return editor.exec((state, dispatch) =>
     sinkListItem(
-      editor._tiptapEditor.schema.nodes["blockContainer"],
-      editor._tiptapEditor.schema.nodes["blockGroup"]
-    )
+      state.schema.nodes["blockContainer"],
+      state.schema.nodes["blockGroup"],
+    )(state, dispatch),
   );
 }
 
@@ -80,21 +80,17 @@ export function unnestBlock(editor: BlockNoteEditor<any, any, any>) {
 }
 
 export function canNestBlock(editor: BlockNoteEditor<any, any, any>) {
-  const { bnBlock: blockContainer } = getBlockInfoFromSelection(
-    editor._tiptapEditor.state
-  );
+  return editor.transact((tr) => {
+    const { bnBlock: blockContainer } = getBlockInfoFromTransaction(tr);
 
-  return (
-    editor._tiptapEditor.state.doc.resolve(blockContainer.beforePos)
-      .nodeBefore !== null
-  );
+    return tr.doc.resolve(blockContainer.beforePos).nodeBefore !== null;
+  });
 }
-export function canUnnestBlock(editor: BlockNoteEditor<any, any, any>) {
-  const { bnBlock: blockContainer } = getBlockInfoFromSelection(
-    editor._tiptapEditor.state
-  );
 
-  return (
-    editor._tiptapEditor.state.doc.resolve(blockContainer.beforePos).depth > 1
-  );
+export function canUnnestBlock(editor: BlockNoteEditor<any, any, any>) {
+  return editor.transact((tr) => {
+    const { bnBlock: blockContainer } = getBlockInfoFromTransaction(tr);
+
+    return tr.doc.resolve(blockContainer.beforePos).depth > 1;
+  });
 }

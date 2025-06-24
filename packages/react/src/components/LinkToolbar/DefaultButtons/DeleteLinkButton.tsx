@@ -5,7 +5,7 @@ import { useDictionary } from "../../../i18n/dictionary.js";
 import { LinkToolbarProps } from "../LinkToolbarProps.js";
 
 export const DeleteLinkButton = (
-  props: Pick<LinkToolbarProps, "deleteLink">
+  props: Pick<LinkToolbarProps, "deleteLink">,
 ) => {
   const Components = useComponentsContext()!;
   const dict = useDictionary();

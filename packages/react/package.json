@@ -11,7 +11,7 @@
     "directory": "packages/react"
   },
   "license": "MPL-2.0",
-  "version": "0.28.0",
+  "version": "0.32.0",
   "files": [
     "dist",
     "types",
@@ -44,7 +44,8 @@
     },
     "./style.css": {
       "import": "./dist/style.css",
-      "require": "./dist/style.css"
+      "require": "./dist/style.css",
+      "style": "./dist/style.css"
     }
   },
   "scripts": {
@@ -57,12 +58,12 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "^0.28.0",
+    "@blocknote/core": "0.32.0",
     "@emoji-mart/data": "^1.2.1",
     "@floating-ui/react": "^0.26.4",
-    "@tiptap/core": "^2.7.1",
-    "@tiptap/pm": "^2.7.1",
-    "@tiptap/react": "^2.7.1",
+    "@tiptap/core": "^2.12.0",
+    "@tiptap/pm": "^2.12.0",
+    "@tiptap/react": "^2.12.0",
     "emoji-mart": "^5.6.0",
     "lodash.merge": "^4.6.2",
     "react-icons": "^5.2.1"
@@ -76,7 +77,6 @@
     "@types/react-dom": "^18.0.9",
     "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^8.10.0",
-    "prettier": "^2.7.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "rimraf": "^5.0.5",
@@ -93,7 +93,7 @@
   },
   "eslintConfig": {
     "extends": [
-      "../../.eslintrc.js"
+      "../../.eslintrc.json"
     ]
   },
   "gitHead": "d5e8c96e2ad5f6832da60bc3c9acd3f6c16c25c5"

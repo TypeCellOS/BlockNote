@@ -313,10 +313,10 @@
                 Open file
             </text:p>
             <text:p text:style-name="Standard">
-                <draw:frame draw:style-name="Frame" style:rel-height="scale" style:rel-width="512px" svg:width="512px" svg:height="532px" text:anchor-type="as-char">
+                <draw:frame draw:style-name="Frame" style:rel-height="scale" style:rel-width="332px" svg:width="332px" svg:height="352px" text:anchor-type="as-char">
                     <draw:text-box>
                         <text:p text:style-name="Caption">
-                            <draw:frame draw:style-name="Frame" style:rel-height="scale" svg:width="512px" svg:height="512px" style:rel-width="100%">
+                            <draw:frame draw:style-name="Frame" style:rel-height="scale" svg:width="332px" svg:height="332px" style:rel-width="100%">
                                 <draw:image xlink:type="simple" xlink:show="embed" xlink:actuate="onLoad" xlink:href="Pictures/picture-0.jpg" draw:mime-type="image/jpeg"></draw:image>
                             </draw:frame>
                             <text:line-break></text:line-break>

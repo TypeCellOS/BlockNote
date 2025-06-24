@@ -37,7 +37,7 @@ interface DropCursorOptions {
 export function multiColumnDropCursor(
   options: DropCursorOptions & {
     editor: BlockNoteEditor<any, any, any>;
-  }
+  },
 ): Plugin {
   const editor = options.editor;
   return new Plugin({
@@ -80,9 +80,7 @@ export function multiColumnDropCursor(
 
         const draggedBlock = nodeToBlock(
           slice.content.child(0),
-          editor.schema.blockSchema,
-          editor.schema.inlineContentSchema,
-          editor.schema.styleSchema
+          editor.pmSchema,
           // TODO: cache?
         );
 
@@ -93,11 +91,9 @@ export function multiColumnDropCursor(
             .resolve(blockInfo.bnBlock.beforePos)
             .node();
 
-          const columnList = nodeToBlock(
+          const columnList = nodeToBlock<any, any, any>(
             parentBlock,
-            editor.schema.blockSchema,
-            editor.schema.inlineContentSchema,
-            editor.schema.styleSchema
+            editor.pmSchema,
           );
 
           // In a `columnList`, we expect that the average width of each column
@@ -127,7 +123,7 @@ export function multiColumnDropCursor(
           }
 
           const index = columnList.children.findIndex(
-            (b) => b.id === blockInfo.bnBlock.node.attrs.id
+            (b) => b.id === blockInfo.bnBlock.node.attrs.id,
           );
 
           const newChildren = columnList.children
@@ -135,7 +131,7 @@ export function multiColumnDropCursor(
             .map((column) => ({
               ...column,
               children: column.children.filter(
-                (block) => block.id !== draggedBlock.id
+                (block) => block.id !== draggedBlock.id,
               ),
             }))
             // Remove empty columns (can happen when dragged block is removed).
@@ -156,12 +152,7 @@ export function multiColumnDropCursor(
           });
         } else {
           // create new columnList with blocks as columns
-          const block = nodeToBlock(
-            blockInfo.bnBlock.node,
-            editor.schema.blockSchema,
-            editor.schema.inlineContentSchema,
-            editor.schema.styleSchema
-          );
+          const block = nodeToBlock(blockInfo.bnBlock.node, editor.pmSchema);
 
           // The user is dropping next to the original block being dragged - do
           // nothing.
@@ -184,7 +175,7 @@ export function multiColumnDropCursor(
                   };
                 }),
               },
-            ]
+            ],
           );
         }
 
@@ -205,7 +196,10 @@ class DropCursorView {
   timeout: ReturnType<typeof setTimeout> | undefined = undefined;
   handlers: { name: string; handler: (event: Event) => void }[];
 
-  constructor(readonly editorView: EditorView, options: DropCursorOptions) {
+  constructor(
+    readonly editorView: EditorView,
+    options: DropCursorOptions,
+  ) {
     this.width = options.width ?? 1;
     this.color = options.color === false ? undefined : options.color || "black";
     this.class = options.class;
@@ -220,7 +214,7 @@ class DropCursorView {
         // drop event captured in bubbling phase to make sure
         // "cursorPos" is set to undefined before the "handleDrop" handler is called
         // (otherwise an error could be thrown, see https://github.com/TypeCellOS/BlockNote/pull/1240)
-        name === "drop" ? true : undefined
+        name === "drop" ? true : undefined,
       );
       return { name, handler };
     });
@@ -231,8 +225,8 @@ class DropCursorView {
       this.editorView.dom.removeEventListener(
         name,
         handler,
-        name === "drop" ? true : undefined
-      )
+        name === "drop" ? true : undefined,
+      ),
     );
   }
 
@@ -250,7 +244,7 @@ class DropCursorView {
   setCursor(
     cursorPos:
       | { pos: number; position: "left" | "right" | "regular" }
-      | undefined
+      | undefined,
   ) {
     if (
       cursorPos === this.cursorPos ||
@@ -312,7 +306,7 @@ class DropCursorView {
         } else {
           // regular logic
           const node = this.editorView.nodeDOM(
-            this.cursorPos.pos - (before ? before.nodeSize : 0)
+            this.cursorPos.pos - (before ? before.nodeSize : 0),
           );
           if (node) {
             const nodeRect = (node as HTMLElement).getBoundingClientRect();
@@ -371,7 +365,7 @@ class DropCursorView {
     this.element.classList.toggle("prosemirror-dropcursor-block", isBlock);
     this.element.classList.toggle(
       "prosemirror-dropcursor-vertical",
-      this.cursorPos.position !== "regular"
+      this.cursorPos.position !== "regular",
     );
     this.element.classList.toggle("prosemirror-dropcursor-inline", !isBlock);
     let parentLeft, parentTop;
@@ -455,7 +449,7 @@ class DropCursorView {
         const point = dropPoint(
           this.editorView.state.doc,
           target,
-          this.editorView.dragging.slice
+          this.editorView.dragging.slice,
         );
 
         if (point != null) {
@@ -491,7 +485,7 @@ class DropCursorView {
  */
 function getTargetPosInfo(
   state: EditorState,
-  eventPos: { pos: number; inside: number }
+  eventPos: { pos: number; inside: number },
 ) {
   const blockPos = getNearestBlockPos(state.doc, eventPos.pos);
 

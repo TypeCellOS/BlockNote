@@ -19,9 +19,9 @@ export const multiColumnSchema = BlockNoteSchema.create({
 export const withMultiColumn = <
   B extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
-  schema: BlockNoteSchema<B, I, S>
+  schema: BlockNoteSchema<B, I, S>,
 ) => {
   return BlockNoteSchema.create({
     blockSpecs: {

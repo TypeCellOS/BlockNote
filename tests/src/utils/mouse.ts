@@ -36,7 +36,7 @@ export async function dragAndDropBlock(
   page: Page,
   dragTarget: Locator,
   dropTarget: Locator,
-  dropAbove: boolean
+  dropAbove: boolean,
 ) {
   await moveMouseOverElement(page, dragTarget);
 

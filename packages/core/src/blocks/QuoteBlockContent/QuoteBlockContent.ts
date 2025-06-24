@@ -33,14 +33,10 @@ export const QuoteBlockContent = createStronglyTypedTiptapNode({
 
           chain()
             .command(
-              updateBlockCommand(
-                this.options.editor,
-                blockInfo.bnBlock.beforePos,
-                {
-                  type: "quote",
-                  props: {},
-                }
-              )
+              updateBlockCommand(blockInfo.bnBlock.beforePos, {
+                type: "quote",
+                props: {},
+              }),
             )
             // Removes the ">" character used to set the list.
             .deleteRange({ from: range.from, to: range.to });
@@ -61,9 +57,9 @@ export const QuoteBlockContent = createStronglyTypedTiptapNode({
         }
 
         return this.editor.commands.command(
-          updateBlockCommand(this.options.editor, blockInfo.bnBlock.beforePos, {
+          updateBlockCommand(blockInfo.bnBlock.beforePos, {
             type: "quote",
-          })
+          }),
         );
       },
     };
@@ -71,7 +67,12 @@ export const QuoteBlockContent = createStronglyTypedTiptapNode({
 
   parseHTML() {
     return [
-      { tag: "div[data-content-type=" + this.name + "]" },
+      // Parse from internal HTML.
+      {
+        tag: "div[data-content-type=" + this.name + "]",
+        contentElement: ".bn-inline-content",
+      },
+      // Parse from external HTML.
       {
         tag: "blockquote",
         node: "quote",
@@ -87,12 +88,12 @@ export const QuoteBlockContent = createStronglyTypedTiptapNode({
         ...(this.options.domAttributes?.blockContent || {}),
         ...HTMLAttributes,
       },
-      this.options.domAttributes?.inlineContent || {}
+      this.options.domAttributes?.inlineContent || {},
     );
   },
 });
 
 export const Quote = createBlockSpecFromStronglyTypedTiptapNode(
   QuoteBlockContent,
-  quotePropSchema
+  quotePropSchema,
 );

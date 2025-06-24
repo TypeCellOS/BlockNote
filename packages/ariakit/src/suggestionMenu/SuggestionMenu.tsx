@@ -17,7 +17,8 @@ export const SuggestionMenu = forwardRef<
       className={mergeCSSClasses("bn-ak-menu", className || "")}
       id={id}
       role="listbox"
-      ref={ref}>
+      ref={ref}
+    >
       {children}
     </AriakitGroup>
   );

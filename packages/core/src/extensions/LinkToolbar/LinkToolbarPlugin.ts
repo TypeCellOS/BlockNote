@@ -4,14 +4,15 @@ import { EditorView } from "@tiptap/pm/view";
 import { Mark } from "prosemirror-model";
 import { EditorState, Plugin, PluginKey, PluginView } from "prosemirror-state";
 
+import { getPmSchema } from "../../api/pmUtil.js";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+import { BlockNoteExtension } from "../../editor/BlockNoteExtension.js";
 import { UiElementPosition } from "../../extensions-shared/UiElementPosition.js";
 import {
   BlockSchema,
   InlineContentSchema,
   StyleSchema,
 } from "../../schema/index.js";
-import { EventEmitter } from "../../util/EventEmitter.js";
 
 export type LinkToolbarState = UiElementPosition & {
   // The hovered link's URL, and the text it's displayed with in the
@@ -40,7 +41,7 @@ class LinkToolbarView implements PluginView {
   constructor(
     private readonly editor: BlockNoteEditor<any, any, any>,
     private readonly pmView: EditorView,
-    emitUpdate: (state: LinkToolbarState) => void
+    emitUpdate: (state: LinkToolbarState) => void,
   ) {
     this.emitUpdate = () => {
       if (!this.state) {
@@ -69,7 +70,7 @@ class LinkToolbarView implements PluginView {
     this.pmView.root.addEventListener(
       "click",
       this.clickHandler as EventListener,
-      true
+      true,
     );
 
     // Setting capture=true ensures that any parent container of the editor that
@@ -145,7 +146,7 @@ class LinkToolbarView implements PluginView {
         this.state.referencePos = posToDOMRect(
           this.pmView,
           this.linkMarkRange!.from,
-          this.linkMarkRange!.to
+          this.linkMarkRange!.to,
         );
         this.emitUpdate();
       }
@@ -153,17 +154,15 @@ class LinkToolbarView implements PluginView {
   };
 
   editLink(url: string, text: string) {
-    const tr = this.pmView.state.tr.insertText(
-      text,
-      this.linkMarkRange!.from,
-      this.linkMarkRange!.to
-    );
-    tr.addMark(
-      this.linkMarkRange!.from,
-      this.linkMarkRange!.from + text.length,
-      this.pmView.state.schema.mark("link", { href: url })
-    );
-    this.editor.dispatch(tr);
+    this.editor.transact((tr) => {
+      const pmSchema = getPmSchema(tr);
+      tr.insertText(text, this.linkMarkRange!.from, this.linkMarkRange!.to);
+      tr.addMark(
+        this.linkMarkRange!.from,
+        this.linkMarkRange!.from + text.length,
+        pmSchema.mark("link", { href: url }),
+      );
+    });
     this.pmView.focus();
 
     if (this.state?.show) {
@@ -173,14 +172,14 @@ class LinkToolbarView implements PluginView {
   }
 
   deleteLink() {
-    this.editor.dispatch(
-      this.pmView.state.tr
+    this.editor.transact((tr) =>
+      tr
         .removeMark(
           this.linkMarkRange!.from,
           this.linkMarkRange!.to,
-          this.linkMark!.type
+          this.linkMark!.type,
         )
-        .setMeta("preventAutolink", true)
+        .setMeta("preventAutolink", true),
     );
     this.pmView.focus();
 
@@ -227,7 +226,7 @@ class LinkToolbarView implements PluginView {
             getMarkRange(
               this.pmView.state.selection.$from,
               mark.type,
-              mark.attrs
+              mark.attrs,
             ) || undefined;
 
           break;
@@ -252,12 +251,12 @@ class LinkToolbarView implements PluginView {
         referencePos: posToDOMRect(
           this.pmView,
           this.linkMarkRange!.from,
-          this.linkMarkRange!.to
+          this.linkMarkRange!.to,
         ),
         url: this.linkMark!.attrs.href,
         text: this.pmView.state.doc.textBetween(
           this.linkMarkRange!.from,
-          this.linkMarkRange!.to
+          this.linkMarkRange!.to,
         ),
       };
       this.emitUpdate();
@@ -291,7 +290,7 @@ class LinkToolbarView implements PluginView {
     this.pmView.root.removeEventListener(
       "click",
       this.clickHandler as EventListener,
-      true
+      true,
     );
   }
 }
@@ -301,31 +300,36 @@ export const linkToolbarPluginKey = new PluginKey("LinkToolbarPlugin");
 export class LinkToolbarProsemirrorPlugin<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
-> extends EventEmitter<any> {
+  S extends StyleSchema,
+> extends BlockNoteExtension {
+  public static key() {
+    return "linkToolbar";
+  }
+
   private view: LinkToolbarView | undefined;
-  public readonly plugin: Plugin;
 
   constructor(editor: BlockNoteEditor<BSchema, I, S>) {
     super();
-    this.plugin = new Plugin({
-      key: linkToolbarPluginKey,
-      view: (editorView) => {
-        this.view = new LinkToolbarView(editor, editorView, (state) => {
-          this.emit("update", state);
-        });
-        return this.view;
-      },
-      props: {
-        handleKeyDown: (_view, event: KeyboardEvent) => {
-          if (event.key === "Escape" && this.shown) {
-            this.view!.closeMenu();
-            return true;
-          }
-          return false;
+    this.addProsemirrorPlugin(
+      new Plugin({
+        key: linkToolbarPluginKey,
+        view: (editorView) => {
+          this.view = new LinkToolbarView(editor, editorView, (state) => {
+            this.emit("update", state);
+          });
+          return this.view;
         },
-      },
-    });
+        props: {
+          handleKeyDown: (_view, event: KeyboardEvent) => {
+            if (event.key === "Escape" && this.shown) {
+              this.view!.closeMenu();
+              return true;
+            }
+            return false;
+          },
+        },
+      }),
+    );
   }
 
   public onUpdate(callback: (state: LinkToolbarState) => void) {

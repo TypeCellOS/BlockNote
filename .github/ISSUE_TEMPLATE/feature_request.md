@@ -20,4 +20,4 @@ A clear and concise description of any alternative solutions or features you've 
 Add any other context or screenshots about the feature request here.
 
 **Bonus**
-[ ] I'm a [sponsor](https://github.com/sponsors/YousefED) and would appreciate if you could look into this sooner than later 💖
+[ ] I'm a [sponsor](https://www.blocknotejs.org/pricing) and would appreciate if you could look into this sooner than later 💖

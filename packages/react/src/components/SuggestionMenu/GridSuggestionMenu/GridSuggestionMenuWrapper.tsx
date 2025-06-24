@@ -41,12 +41,12 @@ export function GridSuggestionMenuWrapper<Item>(props: {
       clearQuery();
       onItemClick?.(item);
     },
-    [onItemClick, closeMenu, clearQuery]
+    [onItemClick, closeMenu, clearQuery],
   );
 
   const { items, usedQuery, loadingState } = useLoadSuggestionMenuItems(
     query,
-    getItems
+    getItems,
   );
 
   useCloseSuggestionMenuNoItems(items, usedQuery, closeMenu);
@@ -56,7 +56,7 @@ export function GridSuggestionMenuWrapper<Item>(props: {
     query,
     items,
     columns,
-    onItemClickCloseMenu
+    onItemClickCloseMenu,
   );
 
   // set basic aria attributes when the menu is open

@@ -9,8 +9,7 @@ import { assertEmpty, isSafari, mergeCSSClasses } from "@blocknote/core";
 import { ComponentProps } from "@blocknote/react";
 import { forwardRef } from "react";
 
-type ToolbarButtonProps = ComponentProps["FormattingToolbar"]["Button"] &
-  ComponentProps["LinkToolbar"]["Button"];
+type ToolbarButtonProps = ComponentProps["Generic"]["Toolbar"]["Button"];
 
 /**
  * Helper for basic buttons that show in the formatting toolbar.
@@ -43,7 +42,7 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
               aria-label={label}
               className={mergeCSSClasses(
                 "bn-ak-button bn-ak-secondary",
-                className || ""
+                className || "",
               )}
               // Needed as Safari doesn't focus button elements on mouse down
               // unlike other browsers.
@@ -57,7 +56,8 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
               data-selected={isSelected ? "true" : undefined}
               disabled={isDisabled || false}
               ref={ref}
-              {...rest}>
+              {...rest}
+            >
               {icon}
               {children}
             </AriakitToolbarItem>
@@ -69,5 +69,5 @@ export const ToolbarButton = forwardRef<HTMLButtonElement, ToolbarButtonProps>(
         </AriakitTooltip>
       </AriakitTooltipProvider>
     );
-  }
+  },
 );

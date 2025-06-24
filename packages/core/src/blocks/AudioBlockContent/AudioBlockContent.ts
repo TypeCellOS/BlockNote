@@ -47,7 +47,7 @@ export const audioBlockConfig = {
 
 export const audioRender = (
   block: BlockFromConfig<typeof audioBlockConfig, any, any>,
-  editor: BlockNoteEditor<any, any, any>
+  editor: BlockNoteEditor<any, any, any>,
 ) => {
   const icon = document.createElement("div");
   icon.innerHTML = FILE_AUDIO_ICON_SVG;
@@ -70,14 +70,19 @@ export const audioRender = (
     editor,
     { dom: audio },
     editor.dictionary.file_blocks.audio.add_button_text,
-    icon.firstElementChild as HTMLElement
+    icon.firstElementChild as HTMLElement,
   );
 };
 
 export const audioParse = (
-  element: HTMLElement
+  element: HTMLElement,
 ): Partial<Props<typeof audioBlockConfig.propSchema>> | undefined => {
   if (element.tagName === "AUDIO") {
+    // Ignore if parent figure has already been parsed.
+    if (element.closest("figure")) {
+      return undefined;
+    }
+
     return parseAudioElement(element as HTMLAudioElement);
   }
 
@@ -99,7 +104,7 @@ export const audioParse = (
 };
 
 export const audioToExternalHTML = (
-  block: BlockFromConfig<typeof audioBlockConfig, any, any>
+  block: BlockFromConfig<typeof audioBlockConfig, any, any>,
 ) => {
   if (!block.props.url) {
     const div = document.createElement("p");

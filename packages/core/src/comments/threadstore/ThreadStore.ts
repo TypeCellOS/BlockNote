@@ -129,6 +129,6 @@ export abstract class ThreadStore {
    * @returns a function to unsubscribe from the thread store
    */
   abstract subscribe(
-    cb: (threads: Map<string, ThreadData>) => void
+    cb: (threads: Map<string, ThreadData>) => void,
   ): () => void;
 }

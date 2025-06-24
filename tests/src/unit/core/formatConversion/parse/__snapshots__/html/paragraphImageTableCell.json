@@ -1,0 +1,41 @@
+[
+  {
+    "children": [],
+    "content": {
+      "columnWidths": [
+        undefined,
+      ],
+      "headerCols": undefined,
+      "headerRows": undefined,
+      "rows": [
+        {
+          "cells": [
+            {
+              "content": [
+                {
+                  "styles": {},
+                  "text": "Table Cell",
+                  "type": "text",
+                },
+              ],
+              "props": {
+                "backgroundColor": "default",
+                "colspan": 1,
+                "rowspan": 1,
+                "textAlignment": "left",
+                "textColor": "default",
+              },
+              "type": "tableCell",
+            },
+          ],
+        },
+      ],
+      "type": "tableContent",
+    },
+    "id": "1",
+    "props": {
+      "textColor": "default",
+    },
+    "type": "table",
+  },
+]

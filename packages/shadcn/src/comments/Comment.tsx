@@ -1,5 +1,9 @@
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps, useFocusWithin } from "@blocknote/react";
+import {
+  ComponentProps,
+  useDictionary,
+  useFocusWithin,
+} from "@blocknote/react";
 import { forwardRef, useState } from "react";
 
 import { cn } from "../lib/utils.js";
@@ -13,6 +17,7 @@ const AuthorInfo = forwardRef<
   >
 >((props, _ref) => {
   const { authorInfo, timeString, edited, ...rest } = props;
+  const dict = useDictionary();
 
   assertEmpty(rest, false);
 
@@ -23,7 +28,8 @@ const AuthorInfo = forwardRef<
       <div
         className={
           "bn-flex bn-flex-row bn-flex-nowrap bn-items-center bn-gap-4"
-        }>
+        }
+      >
         <ShadCNComponents.Skeleton.Skeleton
           className={
             "bn-size-7 bn-rounded-full bn-bg-neutral-400 bn-animate-pulse"
@@ -40,7 +46,8 @@ const AuthorInfo = forwardRef<
 
   return (
     <div
-      className={"bn-flex bn-flex-row bn-flex-nowrap bn-items-center bn-gap-4"}>
+      className={"bn-flex bn-flex-row bn-flex-nowrap bn-items-center bn-gap-4"}
+    >
       <ShadCNComponents.Avatar.Avatar>
         <ShadCNComponents.Avatar.AvatarImage
           src={authorInfo.avatarUrl}
@@ -55,10 +62,11 @@ const AuthorInfo = forwardRef<
       <div
         className={
           "bn-flex bn-flex-row bn-flex-nowrap bn-items-center bn-gap-2"
-        }>
+        }
+      >
         <span className={"bn-text-sm bn-font-bold"}>{authorInfo.username}</span>
         <span className={"bn-text-xs"}>
-          {timeString} {edited && "(edited)"}
+          {timeString} {edited && `(${dict.comments.edited})`}
         </span>
       </div>
     </div>
@@ -97,11 +105,13 @@ export const Comment = forwardRef<
       ref={ref}
       className={cn(className, "bn-relative bn-flex bn-flex-col bn-gap-2")}
       onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}>
+      onMouseLeave={() => setHovered(false)}
+    >
       {doShowActions ? (
         <div
           className={"bn-absolute bn-right-0 bn-top-0 bn-z-10"}
-          ref={focusRef}>
+          ref={focusRef}
+        >
           {actions}
         </div>
       ) : null}

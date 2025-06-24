@@ -27,7 +27,7 @@ const schema = BlockNoteSchema.create({
 
 // Function which gets all users for the mentions menu.
 const getMentionMenuItems = (
-  editor: typeof schema.BlockNoteEditor
+  editor: typeof schema.BlockNoteEditor,
 ): DefaultReactSuggestionItem[] => {
   const users = ["Steve", "Bob", "Joe", "Mike"];
 

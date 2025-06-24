@@ -45,7 +45,7 @@ export const Image = createBlockSpec(
 
       return;
     },
-  }
+  },
 );
 
 export const insertImage = {
@@ -62,7 +62,7 @@ export const insertImage = {
         },
       ],
       editor.getTextCursorPosition().block,
-      "after"
+      "after",
     );
   },
   subtext: "Insert an image",

@@ -21,11 +21,11 @@ import {
 function fragmentToExternalHTML<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   view: EditorView,
   selectedFragment: Fragment,
-  editor: BlockNoteEditor<BSchema, I, S>
+  editor: BlockNoteEditor<BSchema, I, S>,
 ) {
   let isWithinBlockContent = false;
   const isWithinTable = view.state.selection instanceof CellSelection;
@@ -37,7 +37,7 @@ function fragmentToExternalHTML<
     const fragmentWithoutParents = view.state.doc.slice(
       view.state.selection.from,
       view.state.selection.to,
-      false
+      false,
     ).content;
 
     const children = [];
@@ -50,7 +50,7 @@ function fragmentToExternalHTML<
         (child) =>
           child.type.isInGroup("bnBlock") ||
           child.type.name === "blockGroup" ||
-          child.type.spec.group === "blockContent"
+          child.type.spec.group === "blockContent",
       ) === undefined;
     if (isWithinBlockContent) {
       selectedFragment = fragmentWithoutParents;
@@ -61,7 +61,7 @@ function fragmentToExternalHTML<
 
   const externalHTMLExporter = createExternalHTMLExporter(
     view.state.schema,
-    editor
+    editor,
   );
 
   if (isWithinTable) {
@@ -76,13 +76,13 @@ function fragmentToExternalHTML<
     const ic = contentNodeToTableContent(
       selectedFragment as any,
       editor.schema.inlineContentSchema,
-      editor.schema.styleSchema
+      editor.schema.styleSchema,
     );
 
     // Wrap in table to ensure correct parsing by spreadsheet applications
     externalHTML = `<table>${externalHTMLExporter.exportInlineContent(
       ic as any,
-      {}
+      {},
     )}</table>`;
   } else if (isWithinBlockContent) {
     // first convert selection to blocknote-style inline content, and then
@@ -90,11 +90,11 @@ function fragmentToExternalHTML<
     const ic = contentNodeToInlineContent(
       selectedFragment as any,
       editor.schema.inlineContentSchema,
-      editor.schema.styleSchema
+      editor.schema.styleSchema,
     );
     externalHTML = externalHTMLExporter.exportInlineContent(ic, {});
   } else {
-    const blocks = fragmentToBlocks(selectedFragment, editor.schema);
+    const blocks = fragmentToBlocks(selectedFragment);
     externalHTML = externalHTMLExporter.exportBlocks(blocks, {});
   }
   return externalHTML;
@@ -103,10 +103,10 @@ function fragmentToExternalHTML<
 export function selectedFragmentToHTML<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   view: EditorView,
-  editor: BlockNoteEditor<BSchema, I, S>
+  editor: BlockNoteEditor<BSchema, I, S>,
 ): {
   clipboardHTML: string;
   externalHTML: string;
@@ -120,16 +120,16 @@ export function selectedFragmentToHTML<
     "node" in view.state.selection &&
     (view.state.selection.node as Node).type.spec.group === "blockContent"
   ) {
-    editor.dispatch(
-      editor._tiptapEditor.state.tr.setSelection(
-        new NodeSelection(view.state.doc.resolve(view.state.selection.from - 1))
-      )
+    editor.transact((tr) =>
+      tr.setSelection(
+        new NodeSelection(tr.doc.resolve(view.state.selection.from - 1)),
+      ),
     );
   }
 
   // Uses default ProseMirror clipboard serialization.
   const clipboardHTML: string = view.serializeForClipboard(
-    view.state.selection.content()
+    view.state.selection.content(),
   ).dom.innerHTML;
 
   const selectedFragment = view.state.selection.content().content;
@@ -137,7 +137,7 @@ export function selectedFragmentToHTML<
   const externalHTML = fragmentToExternalHTML<BSchema, I, S>(
     view,
     selectedFragment,
-    editor
+    editor,
   );
 
   const markdown = cleanHTMLToMarkdown(externalHTML);
@@ -176,11 +176,11 @@ const checkIfSelectionInNonEditableBlock = () => {
 const copyToClipboard = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
   editor: BlockNoteEditor<BSchema, I, S>,
   view: EditorView,
-  event: ClipboardEvent
+  event: ClipboardEvent,
 ) => {
   // Stops the default browser copy behaviour.
   event.preventDefault();
@@ -188,7 +188,7 @@ const copyToClipboard = <
 
   const { clipboardHTML, externalHTML, markdown } = selectedFragmentToHTML(
     view,
-    editor
+    editor,
   );
 
   // TODO: Writing to other MIME types not working in Safari for
@@ -201,9 +201,9 @@ const copyToClipboard = <
 export const createCopyToClipboardExtension = <
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
+  S extends StyleSchema,
 >(
-  editor: BlockNoteEditor<BSchema, I, S>
+  editor: BlockNoteEditor<BSchema, I, S>,
 ) =>
   Extension.create<{ editor: BlockNoteEditor<BSchema, I, S> }, undefined>({
     name: "copyToClipboard",
@@ -251,12 +251,12 @@ export const createCopyToClipboardExtension = <
                 }
 
                 // Expands the selection to the parent `blockContainer` node.
-                editor.dispatch(
-                  editor._tiptapEditor.state.tr.setSelection(
+                editor.transact((tr) =>
+                  tr.setSelection(
                     new NodeSelection(
-                      view.state.doc.resolve(view.state.selection.from - 1)
-                    )
-                  )
+                      tr.doc.resolve(view.state.selection.from - 1),
+                    ),
+                  ),
                 );
 
                 // Stops the default browser drag start behaviour.

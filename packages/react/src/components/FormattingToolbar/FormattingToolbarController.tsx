@@ -5,6 +5,7 @@ import {
   StyleSchema,
 } from "@blocknote/core";
 import { UseFloatingOptions, flip, offset, shift } from "@floating-ui/react";
+import { isEventTargetWithin } from "@floating-ui/react/utils";
 import { FC, useMemo, useRef, useState } from "react";
 
 import { useBlockNoteEditor } from "../../hooks/useBlockNoteEditor.js";
@@ -16,7 +17,7 @@ import { FormattingToolbar } from "./FormattingToolbar.js";
 import { FormattingToolbarProps } from "./FormattingToolbarProps.js";
 
 const textAlignmentToPlacement = (
-  textAlignment: DefaultProps["textAlignment"]
+  textAlignment: DefaultProps["textAlignment"],
 ) => {
   switch (textAlignment) {
     case "left":
@@ -51,9 +52,9 @@ export const FormattingToolbarController = (props: {
       }
 
       return textAlignmentToPlacement(
-        block.props.textAlignment as DefaultProps["textAlignment"]
+        block.props.textAlignment as DefaultProps["textAlignment"],
       );
-    }
+    },
   );
 
   useEditorContentOrSelectionChange(() => {
@@ -64,14 +65,14 @@ export const FormattingToolbarController = (props: {
     } else {
       setPlacement(
         textAlignmentToPlacement(
-          block.props.textAlignment as DefaultProps["textAlignment"]
-        )
+          block.props.textAlignment as DefaultProps["textAlignment"],
+        ),
       );
     }
   }, editor);
 
   const state = useUIPluginState(
-    editor.formattingToolbar.onUpdate.bind(editor.formattingToolbar)
+    editor.formattingToolbar.onUpdate.bind(editor.formattingToolbar),
   );
 
   const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
@@ -88,8 +89,25 @@ export const FormattingToolbarController = (props: {
           editor.focus();
         }
       },
+      canDismiss: {
+        enabled: true,
+        escapeKey: true,
+        outsidePress: (e) => {
+          const view = editor._tiptapEditor?.view;
+          if (!view) {
+            return false;
+          }
+
+          const target = e.target;
+          if (!target) {
+            return false;
+          }
+
+          return !isEventTargetWithin(e, view.dom.parentElement);
+        },
+      },
       ...props.floatingOptions,
-    }
+    },
   );
 
   const combinedRef = useMemo(() => mergeRefs([divRef, ref]), [divRef, ref]);
@@ -106,7 +124,8 @@ export const FormattingToolbarController = (props: {
       <div
         ref={combinedRef}
         style={style}
-        dangerouslySetInnerHTML={{ __html: divRef.current.innerHTML }}></div>
+        dangerouslySetInnerHTML={{ __html: divRef.current.innerHTML }}
+      ></div>
     );
   }
 

@@ -1,0 +1,20 @@
+[
+  {
+    "block": {
+      "children": [],
+      "content": [],
+      "id": "0",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    "prevBlock": undefined,
+    "source": {
+      "type": "local",
+    },
+    "type": "insert",
+  },
+]

@@ -10,7 +10,10 @@ export default function ThemedExample(props: { name: keyof typeof examples }) {
 
   return (
     <BlockNoteContext.Provider
-      value={{ colorSchemePreference: resolvedTheme === "dark" ? "dark" : "light" }}>
+      value={{
+        colorSchemePreference: resolvedTheme === "dark" ? "dark" : "light",
+      }}
+    >
       <App />
     </BlockNoteContext.Provider>
   );

@@ -8,7 +8,7 @@ import {
 } from "./types.js";
 
 export function GridSuggestionMenu<T extends DefaultReactGridSuggestionItem>(
-  props: GridSuggestionMenuProps<T>
+  props: GridSuggestionMenuProps<T>,
 ) {
   const Components = useComponentsContext()!;
   const dict = useDictionary();
@@ -19,9 +19,8 @@ export function GridSuggestionMenu<T extends DefaultReactGridSuggestionItem>(
     loadingState === "loading-initial" || loadingState === "loading" ? (
       <Components.GridSuggestionMenu.Loader
         className={"bn-grid-suggestion-menu-loader"}
-        columns={columns}>
-        {dict.suggestion_menu.loading}
-      </Components.GridSuggestionMenu.Loader>
+        columns={columns}
+      />
     ) : null;
 
   const renderedItems = useMemo<JSX.Element[]>(() => {
@@ -49,7 +48,7 @@ export function GridSuggestionMenu<T extends DefaultReactGridSuggestionItem>(
           isSelected={i === selectedIndex}
           key={item.id}
           onClick={() => onItemClick?.(item)}
-        />
+        />,
       );
     }
 
@@ -60,13 +59,15 @@ export function GridSuggestionMenu<T extends DefaultReactGridSuggestionItem>(
     <Components.GridSuggestionMenu.Root
       id="bn-grid-suggestion-menu"
       columns={columns}
-      className="bn-grid-suggestion-menu">
+      className="bn-grid-suggestion-menu"
+    >
       {loader}
       {renderedItems}
       {renderedItems.length === 0 && props.loadingState === "loaded" && (
         <Components.GridSuggestionMenu.EmptyItem
           className={"bn-grid-suggestion-menu-empty-item"}
-          columns={columns}>
+          columns={columns}
+        >
           {dict.suggestion_menu.no_items_title}
         </Components.GridSuggestionMenu.EmptyItem>
       )}

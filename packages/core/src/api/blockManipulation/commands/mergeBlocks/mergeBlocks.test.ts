@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getBlockInfoFromSelection } from "../../../getBlockInfoFromPos.js";
+import { getBlockInfoFromTransaction } from "../../../getBlockInfoFromPos.js";
 import { setupTestEnv } from "../../setupTestEnv.js";
 import { mergeBlocksCommand } from "./mergeBlocks.js";
 
@@ -8,13 +8,14 @@ const getEditor = setupTestEnv();
 
 function mergeBlocks(posBetweenBlocks: number) {
   return getEditor()._tiptapEditor.commands.command(
-    mergeBlocksCommand(posBetweenBlocks)
+    mergeBlocksCommand(posBetweenBlocks),
   );
 }
 
 function getPosBeforeSelectedBlock() {
-  return getBlockInfoFromSelection(getEditor()._tiptapEditor.state).bnBlock
-    .beforePos;
+  return getEditor().transact(
+    (tr) => getBlockInfoFromTransaction(tr).bnBlock.beforePos,
+  );
 }
 
 describe("Test mergeBlocks", () => {
@@ -61,15 +62,16 @@ describe("Test mergeBlocks", () => {
   it("Selection is updated", () => {
     getEditor().setTextCursorPosition("paragraph-0", "end");
 
-    const firstBlockEndOffset =
-      getEditor()._tiptapEditor.state.selection.$anchor.parentOffset;
+    const firstBlockEndOffset = getEditor().transact(
+      (tr) => tr.selection.$anchor.parentOffset,
+    );
 
     getEditor().setTextCursorPosition("paragraph-1");
 
     mergeBlocks(getPosBeforeSelectedBlock());
 
     const anchorIsAtOldFirstBlockEndPos =
-      getEditor()._tiptapEditor.state.selection.$anchor.parentOffset ===
+      getEditor().transact((tr) => tr.selection.$anchor.parentOffset) ===
       firstBlockEndOffset;
 
     expect(anchorIsAtOldFirstBlockEndPos).toBeTruthy();

@@ -1,0 +1,42 @@
+[
+  {
+    "block": {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Paragraph 0",
+          "type": "text",
+        },
+      ],
+      "id": "paragraph-0",
+      "props": {
+        "backgroundColor": "blue",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    "prevBlock": {
+      "children": [],
+      "content": [
+        {
+          "styles": {},
+          "text": "Paragraph 0",
+          "type": "text",
+        },
+      ],
+      "id": "paragraph-0",
+      "props": {
+        "backgroundColor": "default",
+        "textAlignment": "left",
+        "textColor": "default",
+      },
+      "type": "paragraph",
+    },
+    "source": {
+      "type": "local",
+    },
+    "type": "update",
+  },
+]

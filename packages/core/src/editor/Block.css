@@ -14,20 +14,10 @@ BASIC STYLES
 }
 
 .bn-block-content {
-  display: flex;
   padding: 3px 0;
+  display: flex;
   transition: font-size 0.2s;
   width: 100%;
-  /*
-  because the content elements are display: block
-  we use flex to position them next to list markers
-  */
-}
-
-.bn-block-content::before {
-  /* content: ""; */
-  transition: all 0.2s;
-  /*margin: 0px;*/
 }
 
 .bn-block-content.ProseMirror-selectednode > *,
@@ -35,6 +25,19 @@ BASIC STYLES
 .ProseMirror-selectednode > .bn-block-content > * {
   border-radius: 4px;
   outline: 4px solid rgb(100, 160, 255);
+}
+
+.bn-block-content::before {
+  content: "";
+  margin-right: 0;
+  transition: all 0.2s;
+  /* Workaround for selection issue on Chrome, see #1588 and also here:
+  https://discuss.prosemirror.net/t/mouse-down-selection-behaviour-different-on-chrome/8426
+  The :before element causes the selection to be set in the wrong place vs 
+  other browsers. Setting no height fixes this, while list item indicators are 
+  still displayed fine as overflow is not hidden. */
+  height: 0;
+  overflow: visible;
 }
 
 .bn-inline-content {
@@ -46,7 +49,7 @@ NESTED BLOCKS
 */
 
 .bn-block-group .bn-block-group {
-  margin-left: 1.5em;
+  margin-left: 24px;
 }
 
 .bn-block-group .bn-block-group > .bn-block-outer {
@@ -127,6 +130,15 @@ NESTED BLOCKS
 [data-content-type="heading"][data-level="3"] {
   --level: 1.3em;
 }
+[data-content-type="heading"][data-level="4"] {
+  --level: 1em;
+}
+[data-content-type="heading"][data-level="5"] {
+  --level: 0.9em;
+}
+[data-content-type="heading"][data-level="6"] {
+  --level: 0.8em;
+}
 
 [data-prev-level="1"] {
   --prev-level: 3em;
@@ -137,6 +149,15 @@ NESTED BLOCKS
 [data-prev-level="3"] {
   --prev-level: 1.3em;
 }
+[data-prev-level="4"] {
+  --prev-level: 1em;
+}
+[data-prev-level="5"] {
+  --prev-level: 0.9em;
+}
+[data-prev-level="6"] {
+  --prev-level: 0.8em;
+}
 
 .bn-block-outer[data-prev-type="heading"] > .bn-block > .bn-block-content {
   font-size: var(--prev-level);
@@ -145,6 +166,11 @@ NESTED BLOCKS
 
 .bn-block-outer:not([data-prev-type])
   > .bn-block
+  > .bn-block-content[data-content-type="heading"],
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > div[data-type="modification"]
+  > div[data-type="modification"]
   > .bn-block-content[data-content-type="heading"] {
   font-size: var(--level);
   font-weight: bold;
@@ -166,9 +192,11 @@ NESTED BLOCKS
 }
 
 /* Ordered */
-.bn-block-content[data-content-type="numberedListItem"] {
+.bn-block-content[data-content-type="numberedListItem"]::before {
   display: flex;
-  gap: 0.5em;
+  justify-content: center;
+  min-width: 24px;
+  padding-right: 4px;
 }
 
 [data-content-type="numberedListItem"] {
@@ -187,14 +215,20 @@ NESTED BLOCKS
 
 .bn-block-outer:not([data-prev-type])
   > .bn-block
+  > .bn-block-content[data-content-type="numberedListItem"]::before,
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > div[data-type="modification"]
   > .bn-block-content[data-content-type="numberedListItem"]::before {
   content: var(--index) ".";
 }
 
 /* Unordered */
-.bn-block-content[data-content-type="bulletListItem"] {
+.bn-block-content[data-content-type="bulletListItem"]::before {
   display: flex;
-  gap: 0.5em;
+  justify-content: center;
+  min-width: 24px;
+  padding-right: 4px;
 }
 
 /* Checked */
@@ -203,9 +237,15 @@ NESTED BLOCKS
   width: 100%;
 }
 
+.bn-block-content[data-content-type="checkListItem"] > div > div {
+  display: flex;
+  justify-content: center;
+  min-width: 24px;
+  padding-right: 4px;
+}
+
 .bn-block-content[data-content-type="checkListItem"] > div > div > input {
   margin: 0;
-  margin-inline-end: 0.5em;
   cursor: pointer;
 }
 
@@ -222,6 +262,70 @@ NESTED BLOCKS
   justify-content: flex-end;
 }
 
+/* Toggle */
+.bn-block-content:has(.bn-toggle-wrapper) > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bn-block:has(
+    > .bn-block-content > div > .bn-toggle-wrapper[data-show-children="false"]
+  )
+  > .bn-block-group,
+.bn-block:has(
+    > .react-renderer
+      > .bn-block-content
+      > div
+      > .bn-toggle-wrapper[data-show-children="false"]
+  )
+  > .bn-block-group {
+  display: none;
+}
+
+.bn-toggle-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.bn-toggle-button {
+  color: var(--bn-colors-editor-text);
+  padding: 3px;
+}
+
+.bn-toggle-button > svg {
+  width: 18px;
+  height: 18px;
+}
+
+.bn-toggle-wrapper[data-show-children="true"] .bn-toggle-button {
+  transform: rotate(90deg);
+}
+
+.bn-toggle-add-block-button {
+  font-size: 16px;
+  color: var(--bn-colors-side-menu);
+  font-weight: normal;
+  margin-left: 22px;
+  padding-inline: 2px;
+  width: fit-content;
+}
+
+.bn-toggle-button,
+.bn-toggle-add-block-button {
+  background: none;
+  border: none;
+  border-radius: var(--bn-border-radius-small);
+  cursor: pointer;
+  display: flex;
+  user-select: none;
+}
+
+.bn-toggle-button:hover,
+.bn-toggle-add-block-button:hover {
+  background-color: var(--bn-colors-hovered-background);
+}
+
 /* No list nesting */
 .bn-block-outer[data-prev-type="bulletListItem"]
   > .bn-block
@@ -231,6 +335,10 @@ NESTED BLOCKS
 
 .bn-block-outer:not([data-prev-type])
   > .bn-block
+  > .bn-block-content[data-content-type="bulletListItem"]::before,
+.bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > div[data-type="modification"]
   > .bn-block-content[data-content-type="bulletListItem"]::before {
   content: "•";
 }
@@ -248,6 +356,12 @@ NESTED BLOCKS
   ~ .bn-block-group
   > .bn-block-outer:not([data-prev-type])
   > .bn-block
+  > .bn-block-content[data-content-type="bulletListItem"]::before,
+[data-content-type="bulletListItem"]
+  ~ .bn-block-group
+  > .bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > div[data-type="modification"]
   > .bn-block-content[data-content-type="bulletListItem"]::before {
   content: "◦";
 }
@@ -269,6 +383,14 @@ NESTED BLOCKS
   ~ .bn-block-group
   > .bn-block-outer:not([data-prev-type])
   > .bn-block
+  > .bn-block-content[data-content-type="bulletListItem"]::before,
+[data-content-type="bulletListItem"]
+  ~ .bn-block-group
+  [data-content-type="bulletListItem"]
+  ~ .bn-block-group
+  > .bn-block-outer:not([data-prev-type])
+  > .bn-block
+  > div[data-type="modification"]
   > .bn-block-content[data-content-type="bulletListItem"]::before {
   content: "▪";
 }
@@ -411,6 +533,7 @@ NESTED BLOCKS
   display: flex;
   align-items: center;
   position: relative;
+  max-width: 100%;
 }
 
 [data-file-block] .bn-visual-media {
@@ -433,7 +556,6 @@ NESTED BLOCKS
   position: absolute;
   font-style: italic;
 }
-
 /* TODO: should this be here? */
 
 /* TEXT COLORS */

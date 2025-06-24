@@ -2,7 +2,9 @@ import { Page } from "@playwright/test";
 
 export async function showMouseCursor(page: Page) {
   await page.evaluate(() => {
-    if (window !== window.parent) {return;}
+    if (window !== window.parent) {
+      return;
+    }
 
     const cursorStyle = {
       position: "absolute",
@@ -41,42 +43,42 @@ export async function showMouseCursor(page: Page) {
       (event) => {
         updatePosition(event.pageX, event.pageY);
       },
-      true
+      true,
     );
     document.addEventListener(
       "mousedown",
       () => {
         updateColor("rgba(243, 169, 4, 0.87)");
       },
-      true
+      true,
     );
     document.addEventListener(
       "mouseup",
       () => {
         updateColor("rgba(0, 0, 0, 0.39)");
       },
-      true
+      true,
     );
     document.addEventListener(
       "drag",
       (event) => {
         updatePosition(event.pageX, event.pageY);
       },
-      true
+      true,
     );
     document.addEventListener(
       "dragstart",
       () => {
         updateColor("rgba(243, 169, 4, 0.87)");
       },
-      true
+      true,
     );
     document.addEventListener(
       "dragend",
       () => {
         updateColor("rgba(0, 0, 0, 0.39)");
       },
-      true
+      true,
     );
   }, false);
 }

@@ -18,7 +18,7 @@ import { SideMenuProps } from "./SideMenuProps.js";
 export const SideMenuController = <
   BSchema extends BlockSchema = DefaultBlockSchema,
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 >(props: {
   sideMenu?: FC<SideMenuProps<BSchema, I, S>>;
   floatingOptions?: Partial<UseFloatingOptions>;
@@ -33,7 +33,7 @@ export const SideMenuController = <
   };
 
   const state = useUIPluginState(
-    editor.sideMenu.onUpdate.bind(editor.sideMenu)
+    editor.sideMenu.onUpdate.bind(editor.sideMenu),
   );
   const { isMounted, ref, style, getFloatingProps } = useUIElementPositioning(
     state?.show || false,
@@ -42,7 +42,7 @@ export const SideMenuController = <
     {
       placement: "left-start",
       ...props.floatingOptions,
-    }
+    },
   );
 
   if (!isMounted || !state) {

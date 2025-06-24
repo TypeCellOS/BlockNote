@@ -11,14 +11,8 @@ import { nestedListsToBlockNoteStructure } from "./util/nestedLists.js";
 export async function HTMLToBlocks<
   BSchema extends BlockSchema,
   I extends InlineContentSchema,
-  S extends StyleSchema
->(
-  html: string,
-  blockSchema: BSchema,
-  icSchema: I,
-  styleSchema: S,
-  pmSchema: Schema
-): Promise<Block<BSchema, I, S>[]> {
+  S extends StyleSchema,
+>(html: string, pmSchema: Schema): Promise<Block<BSchema, I, S>[]> {
   const htmlNode = nestedListsToBlockNoteStructure(html);
   const parser = DOMParser.fromSchema(pmSchema);
 
@@ -33,9 +27,7 @@ export async function HTMLToBlocks<
   const blocks: Block<BSchema, I, S>[] = [];
 
   for (let i = 0; i < parentNode.childCount; i++) {
-    blocks.push(
-      nodeToBlock(parentNode.child(i), blockSchema, icSchema, styleSchema)
-    );
+    blocks.push(nodeToBlock(parentNode.child(i), pmSchema));
   }
 
   return blocks;

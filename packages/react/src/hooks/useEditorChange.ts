@@ -3,8 +3,8 @@ import { useEffect } from "react";
 import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
 
 export function useEditorChange(
-  callback: () => void,
-  editor?: BlockNoteEditor<any, any, any>
+  callback: Parameters<BlockNoteEditor<any, any, any>["onChange"]>[0],
+  editor?: BlockNoteEditor<any, any, any>,
 ) {
   const editorContext = useBlockNoteContext();
   if (!editor) {
@@ -14,7 +14,7 @@ export function useEditorChange(
   useEffect(() => {
     if (!editor) {
       throw new Error(
-        "'editor' is required, either from BlockNoteContext or as a function argument"
+        "'editor' is required, either from BlockNoteContext or as a function argument",
       );
     }
 

@@ -30,12 +30,13 @@ async function resolveUsers(userIds: string[]) {
 // (but of course, you also use other collaboration providers
 // see the docs for more information)
 export default function App() {
-  const docId = "my-blocknote-document-with-comments-1";
+  const docId = "my-blocknote-document-with-commenting";
 
   return (
     <YDocProvider
       docId={docId}
-      authEndpoint="https://demos.y-sweet.dev/api/auth">
+      authEndpoint="https://demos.y-sweet.dev/api/auth"
+    >
       <Document />
     </YDocProvider>
   );
@@ -66,7 +67,7 @@ function Document() {
     return new YjsThreadStore(
       activeUser.id,
       doc.getMap("threads"),
-      new DefaultThreadStoreAuth(activeUser.id, activeUser.role)
+      new DefaultThreadStoreAuth(activeUser.id, activeUser.role),
     );
   }, [doc, activeUser]);
 
@@ -83,14 +84,15 @@ function Document() {
         user: { color: getRandomColor(), name: activeUser.username },
       },
     },
-    [activeUser, threadStore]
+    [activeUser, threadStore],
   );
 
   return (
     <BlockNoteView
       className={"comments-main-container"}
       editor={editor}
-      editable={activeUser.role === "editor"}>
+      editable={activeUser.role === "editor"}
+    >
       {/* We place user settings select within `BlockNoteView` as it uses
       BlockNote UI components and needs the context for them. */}
       <div className={"settings"}>

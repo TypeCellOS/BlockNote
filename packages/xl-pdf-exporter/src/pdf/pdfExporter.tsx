@@ -10,6 +10,7 @@ import {
   StyleSchema,
   StyledText,
 } from "@blocknote/core";
+import { Fragment } from "react";
 import {
   Document,
   Font,
@@ -42,7 +43,7 @@ type Options = ExporterOptions & {
 export class PDFExporter<
   B extends BlockSchema,
   S extends StyleSchema,
-  I extends InlineContentSchema
+  I extends InlineContentSchema,
 > extends Exporter<
   B,
   I,
@@ -92,7 +93,7 @@ export class PDFExporter<
       TextProps["style"], // RS
       React.ReactElement<Text> // TS
     >["mappings"],
-    options?: Partial<Options>
+    options?: Partial<Options>,
   ) {
     const defaults = {
       emojiSource: {
@@ -117,7 +118,11 @@ export class PDFExporter<
   public transformStyledText(styledText: StyledText<S>) {
     const stylesArray = this.mapStyles(styledText.styles);
     const styles = Object.assign({}, ...stylesArray);
-    return <Text style={styles}>{styledText.text}</Text>;
+    return (
+      <Text style={styles} key={styledText.text}>
+        {styledText.text}
+      </Text>
+    );
   }
 
   /**
@@ -125,7 +130,7 @@ export class PDFExporter<
    */
   public async transformBlocks(
     blocks: Block<B, I, S>[], // Or BlockFromConfig<B[keyof B], I, S>?
-    nestingLevel = 0
+    nestingLevel = 0,
   ): Promise<React.ReactElement<Text>[]> {
     const ret: React.ReactElement<Text>[] = [];
     let numberedListIndex = 0;
@@ -140,7 +145,7 @@ export class PDFExporter<
       const self = await this.mapBlock(
         b as any,
         nestingLevel,
-        numberedListIndex
+        numberedListIndex,
       ); // TODO: any
 
       if (b.type === "pageBreak") {
@@ -150,13 +155,14 @@ export class PDFExporter<
 
       const style = this.blocknoteDefaultPropsToReactPDFStyle(b.props as any);
       ret.push(
-        <>
+        <Fragment key={b.id}>
           <View
             style={{
               paddingVertical: 3 * PIXELS_PER_POINT,
               ...this.styles.block,
               ...style,
-            }}>
+            }}
+          >
             {self}
           </View>
           {children.length > 0 && (
@@ -164,11 +170,13 @@ export class PDFExporter<
               style={{
                 marginLeft: FONT_SIZE * 1.5 * PIXELS_PER_POINT,
                 ...this.styles.blockChildren,
-              }}>
+              }}
+              key={b.id + nestingLevel + "children"}
+            >
               {children}
             </View>
           )}
-        </>
+        </Fragment>,
       );
     }
 
@@ -184,7 +192,7 @@ export class PDFExporter<
       Font.registerEmojiSource(this.options.emojiSource);
     }
     let font = await loadFontDataUrl(
-      await import("@shared/assets/fonts/inter/Inter_18pt-Regular.ttf")
+      await import("@shared/assets/fonts/inter/Inter_18pt-Regular.ttf"),
     );
     Font.register({
       family: "Inter",
@@ -192,7 +200,7 @@ export class PDFExporter<
     });
 
     font = await loadFontDataUrl(
-      await import("@shared/assets/fonts/inter/Inter_18pt-Italic.ttf")
+      await import("@shared/assets/fonts/inter/Inter_18pt-Italic.ttf"),
     );
     Font.register({
       family: "Inter",
@@ -201,7 +209,7 @@ export class PDFExporter<
     });
 
     font = await loadFontDataUrl(
-      await import("@shared/assets/fonts/inter/Inter_18pt-Bold.ttf")
+      await import("@shared/assets/fonts/inter/Inter_18pt-Bold.ttf"),
     );
     Font.register({
       family: "Inter",
@@ -210,7 +218,7 @@ export class PDFExporter<
     });
 
     font = await loadFontDataUrl(
-      await import("@shared/assets/fonts/inter/Inter_18pt-BoldItalic.ttf")
+      await import("@shared/assets/fonts/inter/Inter_18pt-BoldItalic.ttf"),
     );
     Font.register({
       family: "Inter",
@@ -220,7 +228,7 @@ export class PDFExporter<
     });
 
     font = await loadFontDataUrl(
-      await import("@shared/assets/fonts/GeistMono-Regular.ttf")
+      await import("@shared/assets/fonts/GeistMono-Regular.ttf"),
     );
     Font.register({
       family: "GeistMono",
@@ -246,7 +254,7 @@ export class PDFExporter<
        * The React component passed must be a React-PDF component
        */
       footer?: React.ReactElement;
-    } = {}
+    } = {},
   ) {
     await this.registerFonts();
 
@@ -269,7 +277,8 @@ export class PDFExporter<
                   right: this.styles.page.paddingHorizontal || 0,
                 },
                 this.styles.footer,
-              ]}>
+              ]}
+            >
               {options.footer}
             </View>
           )}
@@ -279,7 +288,7 @@ export class PDFExporter<
   }
 
   protected blocknoteDefaultPropsToReactPDFStyle(
-    props: Partial<DefaultProps>
+    props: Partial<DefaultProps>,
   ): Style {
     return {
       textAlign: props.textAlignment,
@@ -299,8 +308,8 @@ export class PDFExporter<
         props.textAlignment === "right"
           ? "flex-end"
           : props.textAlignment === "center"
-          ? "center"
-          : undefined,
+            ? "center"
+            : undefined,
     };
   }
 }

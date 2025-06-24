@@ -77,11 +77,13 @@ export class MultipleNodeSelection extends Selection {
 
     return new MultipleNodeSelection(
       doc.resolve(fromResult.pos),
-      doc.resolve(toResult.pos)
+      doc.resolve(toResult.pos),
     );
   }
 
   toJSON(): any {
-    return { type: "node", anchor: this.anchor, head: this.head };
+    return { type: "multiple-node", anchor: this.anchor, head: this.head };
   }
 }
+
+Selection.jsonID("multiple-node", MultipleNodeSelection);

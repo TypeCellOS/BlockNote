@@ -10,7 +10,7 @@ import {
 
 export type ExtendButtonProps<
   I extends InlineContentSchema = DefaultInlineContentSchema,
-  S extends StyleSchema = DefaultStyleSchema
+  S extends StyleSchema = DefaultStyleSchema,
 > = {
   editor: BlockNoteEditor<
     {

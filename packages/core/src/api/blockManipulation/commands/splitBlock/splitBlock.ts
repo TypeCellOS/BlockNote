@@ -8,7 +8,7 @@ import {
 export const splitBlockCommand = (
   posInBlock: number,
   keepType?: boolean,
-  keepProps?: boolean
+  keepProps?: boolean,
 ) => {
   return ({
     state,
@@ -23,7 +23,7 @@ export const splitBlockCommand = (
 
     if (!info.isBlockContainer) {
       throw new Error(
-        `BlockContainer expected when calling splitBlock, position ${posInBlock}`
+        `BlockContainer expected when calling splitBlock, position ${posInBlock}`,
       );
     }
 

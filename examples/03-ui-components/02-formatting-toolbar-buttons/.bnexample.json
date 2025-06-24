@@ -2,5 +2,10 @@
   "playground": true,
   "docs": true,
   "author": "matthewlipski",
-  "tags": ["Intermediate", "Inline Content", "UI Components", "Formatting Toolbar"]
+  "tags": [
+    "Intermediate",
+    "Inline Content",
+    "UI Components",
+    "Formatting Toolbar"
+  ]
 }

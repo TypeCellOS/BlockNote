@@ -1,9 +1,8 @@
+import { Node, mergeAttributes } from "@tiptap/core";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
-import { TableRow } from "@tiptap/extension-table-row";
-import { Node as PMNode } from "prosemirror-model";
+import { DOMParser, Fragment, Node as PMNode, Schema } from "prosemirror-model";
 import { TableView } from "prosemirror-tables";
-
 import { NodeView } from "prosemirror-view";
 import {
   createBlockSpecFromStronglyTypedTiptapNode,
@@ -24,10 +23,15 @@ export const TableBlockContent = createStronglyTypedTiptapNode({
   group: "blockContent",
   tableRole: "table",
 
+  marks: "deletion insertion modification",
   isolating: true,
 
   parseHTML() {
-    return [{ tag: "table" }];
+    return [
+      {
+        tag: "table",
+      },
+    ];
   },
 
   renderHTML({ HTMLAttributes }) {
@@ -38,7 +42,7 @@ export const TableBlockContent = createStronglyTypedTiptapNode({
         ...(this.options.domAttributes?.blockContent || {}),
         ...HTMLAttributes,
       },
-      this.options.domAttributes?.inlineContent || {}
+      this.options.domAttributes?.inlineContent || {},
     );
   },
 
@@ -55,18 +59,18 @@ export const TableBlockContent = createStronglyTypedTiptapNode({
         constructor(
           public node: PMNode,
           public cellMinWidth: number,
-          public blockContentHTMLAttributes: Record<string, string>
+          public blockContentHTMLAttributes: Record<string, string>,
         ) {
           super(node, cellMinWidth);
 
           const blockContent = document.createElement("div");
           blockContent.className = mergeCSSClasses(
             "bn-block-content",
-            blockContentHTMLAttributes.class
+            blockContentHTMLAttributes.class,
           );
           blockContent.setAttribute("data-content-type", "table");
           for (const [attribute, value] of Object.entries(
-            blockContentHTMLAttributes
+            blockContentHTMLAttributes,
           )) {
             if (attribute !== "class") {
               blockContent.setAttribute(attribute, value);
@@ -114,20 +118,14 @@ const TableParagraph = createStronglyTypedTiptapNode({
   parseHTML() {
     return [
       {
-        preserveWhitespace: "full",
-        // set this rule as high priority so it takes precedence over the default paragraph rule,
-        // but only if we're in the tableContent context
-        priority: 210,
-        context: "tableContent",
-        tag: "p",
-        getAttrs: (_element) => {
-          return {};
-        },
-      },
-      {
         tag: "p",
         getAttrs: (element) => {
           if (typeof element === "string" || !element.textContent) {
+            return false;
+          }
+
+          // Only parse in internal HTML.
+          if (!element.closest("[data-content-type]")) {
             return false;
           }
 
@@ -137,12 +135,13 @@ const TableParagraph = createStronglyTypedTiptapNode({
             return false;
           }
 
-          if (parent.tagName === "TD") {
+          if (parent.tagName === "TD" || parent.tagName === "TH") {
             return {};
           }
 
           return false;
         },
+        node: "tableParagraph",
       },
     ];
   },
@@ -151,6 +150,72 @@ const TableParagraph = createStronglyTypedTiptapNode({
     return ["p", HTMLAttributes, 0];
   },
 });
+
+/**
+ * This extension allows you to create table rows.
+ * @see https://www.tiptap.dev/api/nodes/table-row
+ */
+export const TableRow = Node.create<{ HTMLAttributes: Record<string, any> }>({
+  name: "tableRow",
+
+  addOptions() {
+    return {
+      HTMLAttributes: {},
+    };
+  },
+
+  content: "(tableCell | tableHeader)+",
+
+  tableRole: "row",
+  marks: "deletion insertion modification",
+  parseHTML() {
+    return [{ tag: "tr" }];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "tr",
+      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes),
+      0,
+    ];
+  },
+});
+
+/*
+ * This will flatten a node's content to fit into a table cell's paragraph.
+ */
+function parseTableContent(node: HTMLElement, schema: Schema) {
+  const parser = DOMParser.fromSchema(schema);
+
+  // This will parse the content of the table paragraph as though it were a blockGroup.
+  // Resulting in a structure like:
+  // <blockGroup>
+  //   <blockContainer>
+  //     <p>Hello</p>
+  //   </blockContainer>
+  //   <blockContainer>
+  //     <p>Hello</p>
+  //   </blockContainer>
+  // </blockGroup>
+  const parsedContent = parser.parse(node, {
+    topNode: schema.nodes.blockGroup.create(),
+  });
+  const extractedContent: PMNode[] = [];
+
+  // Try to extract any content within the blockContainer.
+  parsedContent.content.descendants((child) => {
+    // As long as the child is an inline node, we can append it to the fragment.
+    if (child.isInline) {
+      // And append it to the fragment
+      extractedContent.push(child);
+      return false;
+    }
+
+    return undefined;
+  });
+
+  return Fragment.fromArray(extractedContent);
+}
 
 export const Table = createBlockSpecFromStronglyTypedTiptapNode(
   TableBlockContent,
@@ -167,10 +232,32 @@ export const Table = createBlockSpecFromStronglyTypedTiptapNode(
        * So, we manually fix this up when reading back in the `nodeToBlock` and only ever place a single tableContent back into the cell.
        */
       content: "tableContent+",
+      parseHTML() {
+        return [
+          {
+            tag: "th",
+            // As `th` elements can contain multiple paragraphs, we need to merge their contents
+            // into a single one so that ProseMirror can parse everything correctly.
+            getContent: (node, schema) =>
+              parseTableContent(node as HTMLElement, schema),
+          },
+        ];
+      },
     }),
     TableCell.extend({
       content: "tableContent+",
+      parseHTML() {
+        return [
+          {
+            tag: "td",
+            // As `td` elements can contain multiple paragraphs, we need to merge their contents
+            // into a single one so that ProseMirror can parse everything correctly.
+            getContent: (node, schema) =>
+              parseTableContent(node as HTMLElement, schema),
+          },
+        ];
+      },
     }),
     TableRow,
-  ]
+  ],
 );

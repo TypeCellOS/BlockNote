@@ -200,6 +200,7 @@ exports[`Test moveBlocksDown > Basic 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -231,7 +232,6 @@ exports[`Test moveBlocksDown > Basic 1`] = `
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -547,6 +547,7 @@ exports[`Test moveBlocksDown > Basic 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -767,6 +768,7 @@ exports[`Test moveBlocksDown > Into children 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -798,7 +800,6 @@ exports[`Test moveBlocksDown > Into children 1`] = `
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -1114,6 +1115,7 @@ exports[`Test moveBlocksDown > Into children 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -1334,6 +1336,7 @@ exports[`Test moveBlocksDown > Last block 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -1365,7 +1368,6 @@ exports[`Test moveBlocksDown > Last block 1`] = `
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -1681,6 +1683,7 @@ exports[`Test moveBlocksDown > Last block 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -1901,6 +1904,7 @@ exports[`Test moveBlocksDown > Multiple blocks 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -1932,7 +1936,6 @@ exports[`Test moveBlocksDown > Multiple blocks 1`] = `
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -2248,6 +2251,7 @@ exports[`Test moveBlocksDown > Multiple blocks 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -2468,6 +2472,7 @@ exports[`Test moveBlocksDown > Multiple blocks ending in block with children 1`]
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -2499,7 +2504,6 @@ exports[`Test moveBlocksDown > Multiple blocks ending in block with children 1`]
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -2815,6 +2819,7 @@ exports[`Test moveBlocksDown > Multiple blocks ending in block with children 1`]
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -3035,6 +3040,7 @@ exports[`Test moveBlocksDown > Multiple blocks ending in nested block 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -3066,7 +3072,6 @@ exports[`Test moveBlocksDown > Multiple blocks ending in nested block 1`] = `
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -3382,6 +3387,7 @@ exports[`Test moveBlocksDown > Multiple blocks ending in nested block 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -3612,6 +3618,7 @@ exports[`Test moveBlocksDown > Multiple blocks starting and ending in nested blo
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -3643,7 +3650,6 @@ exports[`Test moveBlocksDown > Multiple blocks starting and ending in nested blo
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -3959,6 +3965,7 @@ exports[`Test moveBlocksDown > Multiple blocks starting and ending in nested blo
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -4179,6 +4186,7 @@ exports[`Test moveBlocksDown > Multiple blocks starting in block with children 1
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -4210,7 +4218,6 @@ exports[`Test moveBlocksDown > Multiple blocks starting in block with children 1
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -4526,6 +4533,7 @@ exports[`Test moveBlocksDown > Multiple blocks starting in block with children 1
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -4745,6 +4753,7 @@ exports[`Test moveBlocksDown > Multiple blocks starting in nested block 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -4776,7 +4785,6 @@ exports[`Test moveBlocksDown > Multiple blocks starting in nested block 1`] = `
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -5092,6 +5100,7 @@ exports[`Test moveBlocksDown > Multiple blocks starting in nested block 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -5312,6 +5321,7 @@ exports[`Test moveBlocksDown > Out of children 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -5343,7 +5353,6 @@ exports[`Test moveBlocksDown > Out of children 1`] = `
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -5623,6 +5632,7 @@ exports[`Test moveBlocksDown > Out of children 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -5878,6 +5888,7 @@ exports[`Test moveBlocksUp > Basic 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -5909,7 +5920,6 @@ exports[`Test moveBlocksUp > Basic 1`] = `
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -6225,6 +6235,7 @@ exports[`Test moveBlocksUp > Basic 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -6445,6 +6456,7 @@ exports[`Test moveBlocksUp > First block 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -6476,7 +6488,6 @@ exports[`Test moveBlocksUp > First block 1`] = `
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -6792,6 +6803,7 @@ exports[`Test moveBlocksUp > First block 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -7012,6 +7024,7 @@ exports[`Test moveBlocksUp > Into children 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -7043,7 +7056,6 @@ exports[`Test moveBlocksUp > Into children 1`] = `
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -7359,6 +7371,7 @@ exports[`Test moveBlocksUp > Into children 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -7579,6 +7592,7 @@ exports[`Test moveBlocksUp > Multiple blocks 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -7610,7 +7624,6 @@ exports[`Test moveBlocksUp > Multiple blocks 1`] = `
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -7926,6 +7939,7 @@ exports[`Test moveBlocksUp > Multiple blocks 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -8146,6 +8160,7 @@ exports[`Test moveBlocksUp > Multiple blocks ending in block with children 1`] =
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -8177,7 +8192,6 @@ exports[`Test moveBlocksUp > Multiple blocks ending in block with children 1`] =
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -8493,6 +8507,7 @@ exports[`Test moveBlocksUp > Multiple blocks ending in block with children 1`] =
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -8713,6 +8728,7 @@ exports[`Test moveBlocksUp > Multiple blocks ending in nested block 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -8744,7 +8760,6 @@ exports[`Test moveBlocksUp > Multiple blocks ending in nested block 1`] = `
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -9060,6 +9075,7 @@ exports[`Test moveBlocksUp > Multiple blocks ending in nested block 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -9262,6 +9278,7 @@ exports[`Test moveBlocksUp > Multiple blocks starting and ending in nested block
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -9293,7 +9310,6 @@ exports[`Test moveBlocksUp > Multiple blocks starting and ending in nested block
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -9609,6 +9625,7 @@ exports[`Test moveBlocksUp > Multiple blocks starting and ending in nested block
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -9846,6 +9863,7 @@ exports[`Test moveBlocksUp > Multiple blocks starting in block with children 1`]
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -9877,7 +9895,6 @@ exports[`Test moveBlocksUp > Multiple blocks starting in block with children 1`]
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -10193,6 +10210,7 @@ exports[`Test moveBlocksUp > Multiple blocks starting in block with children 1`]
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -10412,6 +10430,7 @@ exports[`Test moveBlocksUp > Multiple blocks starting in nested block 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -10443,7 +10462,6 @@ exports[`Test moveBlocksUp > Multiple blocks starting in nested block 1`] = `
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -10759,6 +10777,7 @@ exports[`Test moveBlocksUp > Multiple blocks starting in nested block 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -10979,6 +10998,7 @@ exports[`Test moveBlocksUp > Out of children 1`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -11010,7 +11030,6 @@ exports[`Test moveBlocksUp > Out of children 1`] = `
       "backgroundColor": "default",
       "caption": "",
       "name": "",
-      "previewWidth": 512,
       "showPreview": true,
       "textAlignment": "left",
       "url": "https://via.placeholder.com/150",
@@ -11325,6 +11344,7 @@ exports[`Test moveBlocksUp > Out of children 1`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",

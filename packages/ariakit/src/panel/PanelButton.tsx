@@ -17,7 +17,8 @@ export const PanelButton = forwardRef<
       className={mergeCSSClasses("bn-ak-button", className || "")}
       onClick={onClick}
       aria-label={label}
-      ref={ref}>
+      ref={ref}
+    >
       {children}
     </AriakitButton>
   );

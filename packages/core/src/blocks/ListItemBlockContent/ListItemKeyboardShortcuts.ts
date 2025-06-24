@@ -1,21 +1,24 @@
 import { splitBlockCommand } from "../../api/blockManipulation/commands/splitBlock/splitBlock.js";
 import { updateBlockCommand } from "../../api/blockManipulation/commands/updateBlock/updateBlock.js";
-import { getBlockInfoFromSelection } from "../../api/getBlockInfoFromPos.js";
+import { getBlockInfoFromTransaction } from "../../api/getBlockInfoFromPos.js";
 import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 
 export const handleEnter = (editor: BlockNoteEditor<any, any, any>) => {
-  const ttEditor = editor._tiptapEditor;
-  const blockInfo = getBlockInfoFromSelection(ttEditor.state);
+  const { blockInfo, selectionEmpty } = editor.transact((tr) => {
+    return {
+      blockInfo: getBlockInfoFromTransaction(tr),
+      selectionEmpty: tr.selection.anchor === tr.selection.head,
+    };
+  });
+
   if (!blockInfo.isBlockContainer) {
     return false;
   }
   const { bnBlock: blockContainer, blockContent } = blockInfo;
 
-  const selectionEmpty =
-    ttEditor.state.selection.anchor === ttEditor.state.selection.head;
-
   if (
     !(
+      blockContent.node.type.name === "toggleListItem" ||
       blockContent.node.type.name === "bulletListItem" ||
       blockContent.node.type.name === "numberedListItem" ||
       blockContent.node.type.name === "checkListItem"
@@ -25,16 +28,16 @@ export const handleEnter = (editor: BlockNoteEditor<any, any, any>) => {
     return false;
   }
 
-  return ttEditor.commands.first(({ state, chain, commands }) => [
+  return editor._tiptapEditor.commands.first(({ state, chain, commands }) => [
     () =>
       // Changes list item block to a paragraph block if the content is empty.
       commands.command(() => {
         if (blockContent.node.childCount === 0) {
           return commands.command(
-            updateBlockCommand(editor, blockContainer.beforePos, {
+            updateBlockCommand(blockContainer.beforePos, {
               type: "paragraph",
               props: {},
-            })
+            }),
           );
         }
 
