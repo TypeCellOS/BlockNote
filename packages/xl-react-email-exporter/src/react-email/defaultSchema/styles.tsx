@@ -1,5 +1,4 @@
-import { DefaultStyleSchema } from "@blocknote/core";
-import { StyleMapping } from "@blocknote/core/src/exporter/mapping.js";
+import { DefaultStyleSchema, StyleMapping } from "@blocknote/core";
 import { CSSProperties } from "react";
 
 export const reactEmailStyleMappingForDefaultSchema: StyleMapping<
@@ -50,7 +49,7 @@ export const reactEmailStyleMappingForDefaultSchema: StyleMapping<
     return {
       color: val,
     };
-  },  
+  },
   code: (val) => {
     if (!val) {
       return {};

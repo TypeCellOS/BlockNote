@@ -5,16 +5,17 @@ import { reactEmailDefaultSchemaMappings } from "./defaultSchema";
 import { BlockNoteSchema } from "@blocknote/core";
 import { testDocument } from "@shared/testDocument.js";
 
-
 describe("react email exporter", () => {
   it("should export a document (HTML snapshot)", async () => {
     const exporter = new ReactEmailExporter(
       BlockNoteSchema.create(),
-      reactEmailDefaultSchemaMappings
+      reactEmailDefaultSchemaMappings,
     );
 
-    const reactElement = await exporter.toReactEmailDocument(testDocument as any);
-    const html = render(reactElement);
-    expect(html).toMatchSnapshot();
+    const reactElement = await exporter.toReactEmailDocument(
+      testDocument as any,
+    );
+    const html = await render(reactElement);
+    expect(html).toMatchSnapshot("__snapshots__/reactEmailExporter");
   });
 });
