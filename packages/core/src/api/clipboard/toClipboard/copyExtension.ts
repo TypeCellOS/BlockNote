@@ -1,5 +1,5 @@
 import { Extension } from "@tiptap/core";
-import { Fragment, Node } from "prosemirror-model";
+import { Fragment, Node, Slice } from "prosemirror-model";
 import { NodeSelection, Plugin } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
 import type { EditorView } from "prosemirror-view";
@@ -111,6 +111,7 @@ export function selectedFragmentToHTML<
   clipboardHTML: string;
   externalHTML: string;
   markdown: string;
+  slice: Slice;
 } {
   // Checks if a `blockContent` node is being copied and expands
   // the selection to the parent `blockContainer` node. This is
@@ -127,22 +128,21 @@ export function selectedFragmentToHTML<
     );
   }
 
+  const slice = view.state.selection.content();
   // Uses default ProseMirror clipboard serialization.
-  const clipboardHTML: string = view.serializeForClipboard(
-    view.state.selection.content(),
-  ).dom.innerHTML;
+  const clipboardHTML: string = view.serializeForClipboard(slice).dom.innerHTML;
 
-  const selectedFragment = view.state.selection.content().content;
-
+  // TODO should probably remove this and just use the slice.toJSON()
+  // Kept it so that the tests still pass
   const externalHTML = fragmentToExternalHTML<BSchema, I, S>(
     view,
-    selectedFragment,
+    slice.content,
     editor,
   );
 
   const markdown = cleanHTMLToMarkdown(externalHTML);
 
-  return { clipboardHTML, externalHTML, markdown };
+  return { clipboardHTML, externalHTML, markdown, slice };
 }
 
 const checkIfSelectionInNonEditableBlock = () => {
@@ -186,14 +186,17 @@ const copyToClipboard = <
   event.preventDefault();
   event.clipboardData!.clearData();
 
-  const { clipboardHTML, externalHTML, markdown } = selectedFragmentToHTML(
+  const { externalHTML, markdown, slice } = selectedFragmentToHTML(
     view,
     editor,
   );
 
   // TODO: Writing to other MIME types not working in Safari for
   //  some reason.
-  event.clipboardData!.setData("blocknote/html", clipboardHTML);
+  event.clipboardData!.setData(
+    "blocknote/json",
+    JSON.stringify(slice.toJSON()),
+  );
   event.clipboardData!.setData("text/html", externalHTML);
   event.clipboardData!.setData("text/plain", markdown);
 };
@@ -263,12 +266,15 @@ export const createCopyToClipboardExtension = <
                 event.preventDefault();
                 event.dataTransfer!.clearData();
 
-                const { clipboardHTML, externalHTML, markdown } =
+                const { externalHTML, markdown, slice } =
                   selectedFragmentToHTML(view, editor);
 
                 // TODO: Writing to other MIME types not working in Safari for
                 //  some reason.
-                event.dataTransfer!.setData("blocknote/html", clipboardHTML);
+                event.dataTransfer!.setData(
+                  "blocknote/json",
+                  JSON.stringify(slice.toJSON()),
+                );
                 event.dataTransfer!.setData("text/html", externalHTML);
                 event.dataTransfer!.setData("text/plain", markdown);
 
