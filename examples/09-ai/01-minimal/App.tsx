@@ -7,9 +7,9 @@ import "@blocknote/mantine/style.css";
 import {
   FormattingToolbar,
   FormattingToolbarController,
-  SuggestionMenuController,
   getDefaultReactSlashMenuItems,
   getFormattingToolbarItems,
+  SuggestionMenuController,
   useCreateBlockNote,
 } from "@blocknote/react";
 import {
@@ -64,6 +64,14 @@ export default function App() {
     extensions: [
       createAIExtension({
         model,
+        /*
+        executor: (opts) => {
+          // fetch data
+          const resp = await fetch(opts)
+          // process to stream tool calls
+          const streamToolCalls = await yourLogicToConvertRespToStreamToolCalls(opts);
+          return LLMResponse.fromArray(opts.messages, opts.streamTools, streamToolCalls);
+        },*/
       }),
     ],
     // We set some initial content for demo purposes
