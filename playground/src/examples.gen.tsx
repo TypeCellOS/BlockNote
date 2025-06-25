@@ -964,6 +964,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-pdf-exporter": "latest",
+            "@blocknote/xl-multi-column": "latest",
             "@react-pdf/renderer": "^4.3.0"
           } as any,
           "pro": true
@@ -987,6 +988,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-docx-exporter": "latest",
+            "@blocknote/xl-multi-column": "latest",
             "docx": "^9.0.2"
           } as any,
           "pro": true
@@ -1009,7 +1011,8 @@
             ""
           ],
           "dependencies": {
-            "@blocknote/xl-odt-exporter": "latest"
+            "@blocknote/xl-odt-exporter": "latest",
+            "@blocknote/xl-multi-column": "latest"
           } as any,
           "pro": true
         },
