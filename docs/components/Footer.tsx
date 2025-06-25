@@ -120,6 +120,16 @@ export function FooterContent() {
                       Privacy Policy
                     </FooterLink>
                   </li>
+                  <li key={"service-level-agreement"}>
+                    <FooterLink href={"/legal/service-level-agreement"}>
+                      Service Level Agreement
+                    </FooterLink>
+                  </li>
+                  <li key={"blocknote-xl-commercial-license"}>
+                    <FooterLink href={"/legal/blocknote-xl-commercial-license"}>
+                      BlockNote XL Commercial License
+                    </FooterLink>
+                  </li>
                 </ul>
               </div>
               <div className="mt-12 xl:!mt-0">
