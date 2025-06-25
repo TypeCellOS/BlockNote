@@ -3,7 +3,7 @@ import LogoLight from "@/public/img/logos/banner.svg";
 import LogoDark from "@/public/img/logos/banner.dark.svg";
 import type { DocsLayoutProps } from "fumadocs-ui/layouts/notebook";
 import Image from "next/image";
-import { FaBook, FaCode, FaDiscord, FaGithub, FaUser } from "react-icons/fa";
+import { FaBook, FaCode, FaDiscord, FaGithub } from "react-icons/fa";
 
 /**
  * Shared layout configurations

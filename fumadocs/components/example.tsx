@@ -1,15 +1,17 @@
-// import { authClient } from "@/util/auth-client";
+"use client";
+
 import dynamic from "next/dynamic";
+import { useTheme } from "next-themes";
+import { BlockNoteContext } from "@blocknote/react";
 import { AiFillGithub } from "react-icons/ai";
 import { SiStackblitz } from "react-icons/si";
 import { Tab, Tabs } from "fumadocs-ui/components/tabs";
 import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
-import fs from "fs";
 
 import CTAButton from "@/components/CTAButton";
 import { SectionHeader } from "@/components/Headings";
-
-const ThemedExample = dynamic(() => import("./ThemedExample"));
+import { EXAMPLES_CODE_BLOCK_TABS } from "@/components/example/generated/exampleCodeBlockTabs.gen";
+import { authClient } from "@/util/auth-client";
 
 function ExampleDemoBarSourceCodeLink(props: {
   name: string;
@@ -59,37 +61,42 @@ function ExampleDemoBar(props: { name: string }) {
 }
 
 function ExampleDemo(props: { name: string }) {
+  const Component = dynamic(
+    () => import("./example/generated/components/" + props.name + "/index"),
+    { ssr: false },
+  );
+
+  const { resolvedTheme } = useTheme();
+
   return (
     <div className="not-prose bg-fd-secondary border-fd-border flex h-[600px] flex-col rounded-xl border">
       <ExampleDemoBar name={props.name} />
       <div
         className={"demo-contents bg-fd-background h-0 flex-1 rounded-xl p-4"}
       >
-        <ThemedExample name={props.name} />
+        <BlockNoteContext.Provider
+          value={{
+            colorSchemePreference: resolvedTheme === "dark" ? "dark" : "light",
+          }}
+        >
+          <Component />
+        </BlockNoteContext.Provider>
       </div>
     </div>
   );
 }
 
 function ExampleCode(props: { name: string }) {
-  const files = fs
-    .readdirSync("components/example/generated/components/" + props.name)
-    .filter((file) => file !== "index.tsx");
+  const [group, example] = props.name.split("/");
+  const tabs: Record<string, string> = (EXAMPLES_CODE_BLOCK_TABS as any)[group][
+    example
+  ];
 
   return (
-    <Tabs items={files}>
-      {files.map((file) => (
-        <Tab key={file} value={file}>
-          <DynamicCodeBlock
-            lang="tsx"
-            code={fs.readFileSync(
-              "components/example/generated/components/" +
-                props.name +
-                "/" +
-                file,
-              "utf-8",
-            )}
-          />
+    <Tabs items={Object.keys(tabs)}>
+      {Object.entries(tabs).map(([fileName, fileContent]) => (
+        <Tab key={fileName} value={fileName}>
+          <DynamicCodeBlock lang="tsx" code={fileContent} />
         </Tab>
       ))}
     </Tabs>
@@ -137,16 +144,27 @@ function ExampleProPrompt() {
   );
 }
 
-export async function Example(props: { name: string; isPro?: boolean }) {
-  // const showCode =
-  //   !props.isProExample ||
-  //   props.isProExample.userStatus === "starter" ||
-  //   props.isProExample.userStatus === "business";
+export default function Example(props: {
+  name: string;
+  // Workaround as using `@/.source` only works in server components (to check
+  // example pro status), but `authClient.useSession()` only works in client
+  // components (to check user pro status). Otherwise, we would check both
+  // example and user pro status in this component, but instead we can only
+  // check the user pro status here.
+  exampleIsPro: boolean;
+}) {
+  const session = authClient.useSession();
+  const userIsPro = session.data && session.data.planType !== "free";
+  console.log(session.data);
 
   return (
     <div className="demo">
       <ExampleDemo name={props.name} />
-      {props.isPro ? <ExampleCode name={props.name} /> : <ExampleProPrompt />}
+      {props.exampleIsPro && !userIsPro ? (
+        <ExampleProPrompt />
+      ) : (
+        <ExampleCode name={props.name} />
+      )}
     </div>
   );
 }

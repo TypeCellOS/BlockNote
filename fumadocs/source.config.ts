@@ -21,6 +21,7 @@ export const examples = defineDocs({
   docs: {
     schema: frontmatterSchema.extend({
       author: z.string().optional(),
+      isPro: z.boolean().optional(),
     }),
   },
 });
