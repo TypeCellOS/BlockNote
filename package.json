@@ -54,5 +54,8 @@
     "start": "serve playground/dist -c ../serve.json",
     "test": "nx run-many --target=test",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,scss,md}\""
+  },
+  "dependencies": {
+    "@tanstack/store": "0.7.1"
   }
 }
