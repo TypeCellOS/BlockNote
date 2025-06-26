@@ -155,7 +155,6 @@ export default function Example(props: {
 }) {
   const session = authClient.useSession();
   const userIsPro = session.data && session.data.planType !== "free";
-  console.log(session.data);
 
   return (
     <div className="demo">
