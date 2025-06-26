@@ -72,7 +72,7 @@ function ExampleDemo(props: { name: string }) {
     <div className="not-prose bg-fd-secondary border-fd-border flex h-[600px] flex-col rounded-xl border">
       <ExampleDemoBar name={props.name} />
       <div
-        className={"demo-contents bg-fd-background h-0 flex-1 rounded-xl p-4"}
+        className={"bg-fd-background h-0 flex-1 overflow-auto rounded-xl p-4"}
       >
         <BlockNoteContext.Provider
           value={{
