@@ -1,3 +1,4 @@
+import ThemedImage from "@/components/ThemedImage";
 import { getMDXComponents } from "@/util/mdx-components";
 import { getPageTreePeers } from "fumadocs-core/server";
 import { LoaderOutput } from "fumadocs-core/source";
@@ -9,7 +10,6 @@ import {
   DocsPage,
   DocsTitle,
 } from "fumadocs-ui/page";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 
 export function CardTable({
@@ -58,7 +58,7 @@ export async function DocPage(props: {
             CardTable: (cardProps) => (
               <CardTable source={props.source} path={cardProps.path} />
             ),
-            Image,
+            ThemedImage,
           })}
         />
       </DocsBody>

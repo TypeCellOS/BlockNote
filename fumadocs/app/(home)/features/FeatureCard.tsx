@@ -1,3 +1,4 @@
+import ThemedImage from "@/components/ThemedImage";
 import Image from "next/image";
 import { IconType } from "react-icons";
 
@@ -24,14 +25,9 @@ export function FeatureCard(props: FeatureCardProps) {
             "thumbnail before:content before:bg-linear-to-b before:to-fd-card aspect-video w-full overflow-hidden before:absolute before:block before:aspect-video before:w-full before:from-transparent"
           }
         >
-          <Image
-            className={"block w-full dark:hidden"}
-            src={props.thumbnail.light}
-            alt={props.title}
-          />
-          <Image
-            className={"hidden w-full dark:block"}
-            src={props.thumbnail.dark}
+          <ThemedImage
+            className={"w-full"}
+            src={{ light: props.thumbnail.light, dark: props.thumbnail.dark }}
             alt={props.title}
           />
         </div>

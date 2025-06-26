@@ -7,9 +7,9 @@ import {
   DocsTitle,
 } from "fumadocs-ui/page";
 import { notFound } from "next/navigation";
-import { examples } from "@/.source";
 import Example from "@/components/Example";
 import ExampleCards from "@/components/ExampleCards";
+import { exampleIsPro } from "@/util/exampleIsPro";
 import { getMDXComponents } from "@/util/mdx-components";
 
 export async function ExamplePage(props: {
@@ -24,12 +24,6 @@ export async function ExamplePage(props: {
 
   const MDXContent = page.data.body;
 
-  const exampleIsPro =
-    examples.docs.find(
-      (example) =>
-        example._file.path.replace(/\.mdx$/, "") === params.slug?.join("/"),
-    )?.isPro || false;
-
   return (
     <DocsPage
       tableOfContent={{ style: "clerk" }}
@@ -41,7 +35,10 @@ export async function ExamplePage(props: {
       <DocsBody>
         <MDXContent components={getMDXComponents({ ExampleCards })} />
         {params.slug && params.slug.length > 0 ? (
-          <Example name={params.slug.join("/")} exampleIsPro={exampleIsPro} />
+          <Example
+            name={params.slug.join("/")}
+            exampleIsPro={exampleIsPro(params.slug.join("/"))}
+          />
         ) : null}
       </DocsBody>
     </DocsPage>

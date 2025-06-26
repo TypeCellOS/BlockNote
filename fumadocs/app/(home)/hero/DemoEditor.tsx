@@ -19,6 +19,7 @@ import {
   withMultiColumn,
 } from "@blocknote/xl-multi-column";
 import "@blocknote/mantine/style.css";
+import { useTheme } from "next-themes";
 import { useCallback, useMemo, useState } from "react";
 import YPartyKitProvider from "y-partykit/provider";
 import * as Y from "yjs";
@@ -69,7 +70,9 @@ function getUTCDateYYYYMMDD() {
   return `${year}${formattedMonth}${formattedDay}`;
 }
 
-export default function DemoEditor(props: { theme?: "light" | "dark" }) {
+export default function DemoEditor() {
+  const { resolvedTheme } = useTheme();
+
   const [doc, provider] = useMemo(() => {
     const doc = new Y.Doc();
     const provider = new YPartyKitProvider(
@@ -128,7 +131,7 @@ export default function DemoEditor(props: { theme?: "light" | "dark" }) {
     <BlockNoteView
       onFocus={focus}
       editor={editor}
-      theme={props.theme}
+      theme={resolvedTheme as "light" | "dark" | undefined}
       slashMenu={false}
     >
       <SuggestionMenuController

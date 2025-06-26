@@ -9,17 +9,11 @@ path: /docs/image-toolbar
 
 The Image Toolbar appears whenever you select an image that doesn't have a URL, or when you click the "Replace Image" button in the [Formatting Toolbar](/docs/formatting-toolbar) when an image is selected.
 
-<Image
-  className="block dark:hidden"
-  src="/img/screenshots/image_toolbar.png"
-  alt="image"
-  width={600}
-  height={600}
-/>
-
-<Image
-  className="hidden dark:block"
-  src="/img/screenshots/image_toolbar_dark.png"
+<ThemedImage
+  src={{
+    light: "/img/screenshots/image_toolbar.png",
+    dark: "/img/screenshots/image_toolbar_dark.png",
+  }}
   alt="image"
   width={600}
   height={600}

@@ -1,8 +1,8 @@
 import { AuthNavButton } from "@/components/AuthNavButton";
+import ThemedImage from "@/components/ThemedImage";
 import LogoLight from "@/public/img/logos/banner.svg";
 import LogoDark from "@/public/img/logos/banner.dark.svg";
 import type { DocsLayoutProps } from "fumadocs-ui/layouts/notebook";
-import Image from "next/image";
 import { FaBook, FaCode, FaDiscord, FaGithub } from "react-icons/fa";
 
 /**
@@ -15,18 +15,11 @@ import { FaBook, FaCode, FaDiscord, FaGithub } from "react-icons/fa";
 export const baseOptions: Partial<DocsLayoutProps> = {
   nav: {
     title: (
-      <>
-        <Image
-          src={LogoLight}
-          alt="BlockNote"
-          className="block w-32 dark:hidden"
-        />
-        <Image
-          src={LogoDark}
-          alt="BlockNote"
-          className="hidden w-32 dark:block"
-        />
-      </>
+      <ThemedImage
+        src={{ light: LogoLight, dark: LogoDark }}
+        alt="BlockNote"
+        className="w-32"
+      />
     ),
   },
   links: [

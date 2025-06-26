@@ -96,7 +96,10 @@ function ExampleCode(props: { name: string }) {
     <Tabs items={Object.keys(tabs)}>
       {Object.entries(tabs).map(([fileName, fileContent]) => (
         <Tab key={fileName} value={fileName}>
-          <DynamicCodeBlock lang="tsx" code={fileContent} />
+          <DynamicCodeBlock
+            lang={fileName.split(".").pop()!}
+            code={fileContent}
+          />
         </Tab>
       ))}
     </Tabs>
@@ -113,7 +116,7 @@ function ExampleProPrompt() {
       <div className={"absolute h-1/2 w-1/2"}>
         <div className={"cta-glow h-full w-full"}></div>
       </div>
-      <div className={"z-10 flex w-2/3 flex-col items-center"}>
+      <div className={"z-[5] flex w-2/3 flex-col items-center"}>
         <SectionHeader>Pro Example</SectionHeader>
         <p className={"text-center"}>
           Get access to the full source code for pro examples by subscribing to

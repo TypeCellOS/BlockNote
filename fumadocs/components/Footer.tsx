@@ -1,7 +1,7 @@
+import ThemedImage from "@/components/ThemedImage";
 import LogoLight from "@/public/img/logos/banner.svg";
 import LogoDark from "@/public/img/logos/banner.dark.svg";
 import cn from "classnames";
-import Image from "next/image";
 import Link from "next/link";
 import type { ReactElement, ReactNode } from "react";
 
@@ -69,15 +69,10 @@ export function FooterContent() {
         <div className="xl:grid xl:grid-cols-3 xl:gap-16">
           <div className="">
             {/* <FooterHeader>Subscribe to our newsletter</FooterHeader> */}
-            <Image
-              src={LogoLight}
+            <ThemedImage
+              src={{ light: LogoLight, dark: LogoDark }}
               alt="BlockNote"
-              className="block w-64 dark:hidden"
-            />
-            <Image
-              src={LogoDark}
-              alt="BlockNote"
-              className="hidden w-64 dark:block"
+              className="w-64"
             />
             <p className="mt-4 text-sm text-gray-600 dark:text-[#888888]">
               BlockNote is an extensible React rich text editor with support for
