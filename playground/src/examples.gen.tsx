@@ -1327,7 +1327,8 @@
             "Collaboration"
           ],
           "dependencies": {
-            "@y-sweet/react": "^0.6.3"
+            "@y-sweet/react": "^0.6.3",
+            "yjs": "^13.6.15"
           } as any
         },
         "title": "Collaborative Editing with Y-Sweet",
@@ -1352,7 +1353,8 @@
           ],
           "dependencies": {
             "@y-sweet/react": "^0.6.3",
-            "@mantine/core": "^7.10.1"
+            "@mantine/core": "^7.10.1",
+            "yjs": "^13.6.15"
           } as any
         },
         "title": "Comments & Threads",
@@ -1377,7 +1379,8 @@
           ],
           "dependencies": {
             "@y-sweet/react": "^0.6.3",
-            "@mantine/core": "^7.10.1"
+            "@mantine/core": "^7.10.1",
+            "yjs": "^13.6.15"
           } as any
         },
         "title": "Threads Sidebar",
