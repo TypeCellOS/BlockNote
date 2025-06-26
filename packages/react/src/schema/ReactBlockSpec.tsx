@@ -189,7 +189,10 @@ export function createReactBlockSpec<
                   editor={editor as any}
                   contentRef={(element) => {
                     ref(element);
-                    if (element) {
+                    if (
+                      element &&
+                      !element.classList.contains("bn-inline-content")
+                    ) {
                       element.className = mergeCSSClasses(
                         "bn-inline-content",
                         element.className,
@@ -268,7 +271,10 @@ export function createReactBlockSpec<
               editor={editor as any}
               contentRef={(element) => {
                 refCB(element);
-                if (element) {
+                if (
+                  element &&
+                  !element.classList.contains("bn-inline-content")
+                ) {
                   element.className = mergeCSSClasses(
                     "bn-inline-content",
                     element.className,
