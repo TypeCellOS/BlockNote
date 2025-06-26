@@ -3126,25 +3126,25 @@ importers:
   fumadocs:
     dependencies:
       '@ai-sdk/anthropic':
-        specifier: ^1.2.11
+        specifier: ^1.2.12
         version: 1.2.12(zod@3.25.57)
       '@ai-sdk/groq':
-        specifier: ^1.1.0
+        specifier: ^1.2.9
         version: 1.2.9(zod@3.25.57)
       '@ai-sdk/mistral':
         specifier: ^1.2.8
         version: 1.2.8(zod@3.25.57)
       '@ai-sdk/openai':
-        specifier: ^1.1.0
+        specifier: ^1.3.22
         version: 1.3.22(zod@3.25.57)
       '@ai-sdk/openai-compatible':
         specifier: ^0.2.14
         version: 0.2.14(zod@3.25.57)
       '@aws-sdk/client-s3':
-        specifier: ^3.609.0
+        specifier: ^3.826.0
         version: 3.826.0
       '@aws-sdk/s3-request-presigner':
-        specifier: ^3.609.0
+        specifier: ^3.826.0
         version: 3.826.0
       '@blocknote/code-block':
         specifier: latest
@@ -3168,10 +3168,10 @@ importers:
         specifier: latest
         version: link:../packages/xl-pdf-exporter
       '@emotion/react':
-        specifier: ^11.11.4
+        specifier: ^11.14.0
         version: 11.14.0(@types/react@19.1.7)(react@19.1.0)
       '@emotion/styled':
-        specifier: ^11.11.5
+        specifier: ^11.14.0
         version: 11.14.0(@emotion/react@11.14.0(@types/react@19.1.7)(react@19.1.0))(@types/react@19.1.7)(react@19.1.0)
       '@fumadocs/mdx-remote':
         specifier: 1.3.0
@@ -3183,28 +3183,28 @@ importers:
         specifier: ^2.1.4
         version: 2.2.0(react@19.1.0)
       '@liveblocks/client':
-        specifier: ^2.23.1
+        specifier: ^2.24.3
         version: 2.24.3
       '@liveblocks/react':
-        specifier: ^2.23.1
+        specifier: ^2.24.3
         version: 2.24.3(react@19.1.0)
       '@liveblocks/react-blocknote':
-        specifier: ^2.23.1
+        specifier: ^2.24.3
         version: 2.24.3(04e518e4182a3036b4a35283aa97679f)
       '@liveblocks/react-tiptap':
-        specifier: ^2.23.1
+        specifier: ^2.24.3
         version: 2.24.3(@tiptap/extension-collaboration-cursor@2.11.5(@tiptap/core@2.14.0(@tiptap/pm@2.12.0))(y-prosemirror@1.3.4(prosemirror-model@1.25.1)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)))(@tiptap/extension-collaboration@2.11.5(@tiptap/core@2.14.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0)(y-prosemirror@1.3.4(prosemirror-model@1.25.1)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)))(@tiptap/pm@2.12.0)(@tiptap/react@2.12.0(@tiptap/core@2.14.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@tiptap/suggestion@2.11.7(@tiptap/core@2.14.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0))(@types/react-dom@19.1.6(@types/react@19.1.7))(@types/react@19.1.7)(prosemirror-model@1.25.1)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(y-protocols@1.0.6(yjs@13.6.27))
       '@liveblocks/react-ui':
-        specifier: ^2.23.1
+        specifier: ^2.24.3
         version: 2.24.3(@types/react-dom@19.1.6(@types/react@19.1.7))(@types/react@19.1.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/core':
-        specifier: ^7.10.1
+        specifier: ^7.17.8
         version: 7.17.8(@mantine/hooks@7.17.3(react@19.1.0))(@types/react@19.1.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mui/icons-material':
-        specifier: ^5.16.1
+        specifier: ^5.17.1
         version: 5.17.1(@mui/material@5.17.1(@emotion/react@11.14.0(@types/react@19.1.7)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.7)(react@19.1.0))(@types/react@19.1.7)(react@19.1.0))(@types/react@19.1.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@types/react@19.1.7)(react@19.1.0)
       '@mui/material':
-        specifier: ^5.16.1
+        specifier: ^5.17.1
         version: 5.17.1(@emotion/react@11.14.0(@types/react@19.1.7)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.7)(react@19.1.0))(@types/react@19.1.7)(react@19.1.0))(@types/react@19.1.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@polar-sh/better-auth':
         specifier: ^0.1.2
@@ -3225,22 +3225,22 @@ importers:
         specifier: 9.14.0
         version: 9.14.0(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(encoding@0.1.13)(next@15.4.0-canary.75(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)(webpack@5.98.0)
       '@shikijs/core':
-        specifier: ^3.2.1
+        specifier: ^3.6.0
         version: 3.6.0
       '@shikijs/engine-javascript':
-        specifier: ^3.2.1
+        specifier: ^3.6.0
         version: 3.6.0
       '@shikijs/langs-precompiled':
-        specifier: ^3.2.1
+        specifier: ^3.6.0
         version: 3.6.0
       '@shikijs/themes':
-        specifier: ^3.2.1
+        specifier: ^3.6.0
         version: 3.6.0
       '@shikijs/types':
-        specifier: ^3.2.1
-        version: 3.2.1
+        specifier: ^3.6.0
+        version: 3.6.0
       '@tiptap/core':
-        specifier: ^2.12.0
+        specifier: ^2.14.0
         version: 2.14.0(@tiptap/pm@2.12.0)
       '@uppy/core':
         specifier: ^3.13.1
@@ -3267,13 +3267,13 @@ importers:
         specifier: ^3.2.0
         version: 3.2.0(@uppy/core@3.13.1)
       '@uppy/status-bar':
-        specifier: ^3.1.1
+        specifier: ^3.3.3
         version: 3.3.3(@uppy/core@3.13.1)
       '@uppy/webcam':
         specifier: ^3.4.2
         version: 3.4.2(@uppy/core@3.13.1)
       '@uppy/xhr-upload':
-        specifier: ^3.4.0
+        specifier: ^3.6.8
         version: 3.6.8(@uppy/core@3.13.1)
       '@vercel/analytics':
         specifier: ^1.5.0
@@ -3282,10 +3282,10 @@ importers:
         specifier: ^0.6.8
         version: 0.6.8
       '@y-sweet/react':
-        specifier: ^0.6.3
+        specifier: ^0.6.4
         version: 0.6.4(react@19.1.0)(yjs@13.6.27)
       ai:
-        specifier: ^4.1.0
+        specifier: ^4.3.16
         version: 4.3.16(react@19.1.0)(zod@3.25.57)
       babel-plugin-react-compiler:
         specifier: 19.1.0-rc.2
@@ -3303,7 +3303,7 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       docx:
-        specifier: ^9.0.2
+        specifier: ^9.5.0
         version: 9.5.0
       framer-motion:
         specifier: ^10.16.16
@@ -3345,7 +3345,7 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0(react@19.1.0)
       react-icons:
-        specifier: ^5.2.1
+        specifier: ^5.5.0
         version: 5.5.0(react@19.1.0)
       remark:
         specifier: 15.0.1
@@ -3363,16 +3363,16 @@ importers:
         specifier: 3.3.0
         version: 3.3.0
       y-partykit:
-        specifier: ^0.0.25
-        version: 0.0.25
+        specifier: ^0.0.33
+        version: 0.0.33(react@19.1.0)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)
       yjs:
-        specifier: ^13.6.15
+        specifier: ^13.6.27
         version: 13.6.27
       zod:
         specifier: ^3.25.57
         version: 3.25.57
       zustand:
-        specifier: ^5.0.3
+        specifier: ^5.0.5
         version: 5.0.5(@types/react@19.1.7)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.4.0(react@19.1.0))
     devDependencies:
       '@blocknote/ariakit':
@@ -16914,6 +16914,16 @@ packages:
   y-partykit@0.0.25:
     resolution: {integrity: sha512-/EIL73TuYX6lYnxM4mb/kTTKllS1vNjBXk9KJXFwTXFrUqMo8hbJMqnE+glvBG2EDejEI06rk3jR50lpDB8Dqg==}
 
+  y-partykit@0.0.33:
+    resolution: {integrity: sha512-TqM2H/C1fBZbFjL9kpBLC3EWWaizBUYdFzW5DMGmcZYfQv5tYYIBTqUW4eCZOXHkhNLTEA+s2ydSKGYi8u1+sg==}
+    peerDependencies:
+      react: '*'
+      y-protocols: ^1.0.6
+      yjs: ^13.6.16
+    peerDependenciesMeta:
+      react:
+        optional: true
+
   y-prosemirror@1.3.4:
     resolution: {integrity: sha512-fvklwVnjowbrtmM5PkyIrHNoqe7Bt1KEtBvucsJNCSZwOQYNR5UcKwJmhUOaEHUAyYPg7RrVqnMK/3DvMBU8dA==}
     engines: {node: '>=16.0.0', npm: '>=8.0.0'}
@@ -20024,7 +20034,7 @@ snapshots:
       '@liveblocks/core': 2.24.3
       '@liveblocks/react': 2.24.3(react@19.1.0)
       '@liveblocks/react-ui': 2.24.3(@types/react-dom@19.1.6(@types/react@19.1.7))(@types/react@19.1.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@liveblocks/yjs': 2.24.3(yjs@13.6.24)
+      '@liveblocks/yjs': 2.24.3(yjs@13.6.27)
       '@radix-ui/react-select': 2.1.6(@types/react-dom@19.1.6(@types/react@19.1.7))(@types/react@19.1.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@radix-ui/react-toggle': 1.1.2(@types/react-dom@19.1.6(@types/react@19.1.7))(@types/react@19.1.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@tiptap/core': 2.14.0(@tiptap/pm@2.12.0)
@@ -20036,8 +20046,8 @@ snapshots:
       cmdk: 1.1.1(@types/react-dom@19.1.6(@types/react@19.1.7))(@types/react@19.1.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
-      y-prosemirror: 1.3.4(prosemirror-model@1.25.1)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.24)
-      yjs: 13.6.24
+      y-prosemirror: 1.3.4(prosemirror-model@1.25.1)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)
+      yjs: 13.6.27
     transitivePeerDependencies:
       - '@types/react'
       - '@types/react-dom'
@@ -20106,14 +20116,6 @@ snapshots:
     dependencies:
       '@liveblocks/client': 2.23.1
       '@liveblocks/core': 2.23.1
-      js-base64: 3.7.7
-      y-indexeddb: 9.0.12(yjs@13.6.24)
-      yjs: 13.6.24
-
-  '@liveblocks/yjs@2.24.3(yjs@13.6.24)':
-    dependencies:
-      '@liveblocks/client': 2.24.3
-      '@liveblocks/core': 2.24.3
       js-base64: 3.7.7
       y-indexeddb: 9.0.12(yjs@13.6.24)
       yjs: 13.6.24
@@ -33248,6 +33250,15 @@ snapshots:
       y-protocols: 1.0.6(yjs@13.6.24)
       yjs: 13.6.24
 
+  y-partykit@0.0.33(react@19.1.0)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27):
+    dependencies:
+      lib0: 0.2.101
+      lodash.debounce: 4.0.8
+      y-protocols: 1.0.6(yjs@13.6.27)
+      yjs: 13.6.27
+    optionalDependencies:
+      react: 19.1.0
+
   y-prosemirror@1.3.4(prosemirror-model@1.25.1)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.24))(yjs@13.6.24):
     dependencies:
       lib0: 0.2.101
@@ -33255,15 +33266,6 @@ snapshots:
       prosemirror-state: 1.4.3
       prosemirror-view: 1.38.1
       y-protocols: 1.0.6(yjs@13.6.24)
-      yjs: 13.6.24
-
-  y-prosemirror@1.3.4(prosemirror-model@1.25.1)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.24):
-    dependencies:
-      lib0: 0.2.101
-      prosemirror-model: 1.25.1
-      prosemirror-state: 1.4.3
-      prosemirror-view: 1.38.1
-      y-protocols: 1.0.6(yjs@13.6.27)
       yjs: 13.6.24
 
   y-prosemirror@1.3.4(prosemirror-model@1.25.1)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27):
