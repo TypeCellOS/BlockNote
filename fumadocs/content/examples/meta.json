@@ -8,9 +8,11 @@
     "basic",
     "backend",
     "ui-components",
+    "interoperability",
     "theming",
     "custom-schema",
     "collaboration",
+    "extensions",
     "ai"
   ]
 }
