@@ -17,6 +17,7 @@ import { LLMResponse } from "./api/LLMResponse.js";
 import { PromptBuilder } from "./api/formats/PromptBuilder.js";
 import { LLMFormat, llmFormats } from "./api/index.js";
 import { createAgentCursorPlugin } from "./plugins/AgentCursorPlugin.js";
+import { createShortcutPlugin } from "./plugins/ShortcutPlugin.js";
 import { Fragment, Slice } from "prosemirror-model";
 
 type MakeOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
@@ -141,6 +142,7 @@ export class AIExtension extends BlockNoteExtension {
       ...options,
     }));
 
+    this.addProsemirrorPlugin(createShortcutPlugin(this.editor));
     this.addProsemirrorPlugin(
       new Plugin({
         key: PLUGIN_KEY,
