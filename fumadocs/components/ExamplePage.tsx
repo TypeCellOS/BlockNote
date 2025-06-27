@@ -31,7 +31,6 @@ export async function ExamplePage(props: {
       full={page.data.full}
     >
       <DocsTitle>{page.data.title}</DocsTitle>
-      <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
         <MDXContent components={getMDXComponents({ ExampleCards })} />
         {params.slug && params.slug.length > 0 ? (

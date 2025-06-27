@@ -71,7 +71,7 @@ export default function ExampleCards() {
     <>
       {cardGroups.map((group) => (
         <>
-          <Heading key={group.groupName + "-heading"}>
+          <Heading as="h2" key={group.groupName + "-heading"}>
             {group.groupName}
           </Heading>
           <Cards key={group.groupName + "-cards"} className="mb-8">
