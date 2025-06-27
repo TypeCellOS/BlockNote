@@ -1,5 +1,5 @@
 "use client";
-import { useSession } from "@/util/auth-client";
+import { authClient, useSession } from "@/util/auth-client";
 import { CheckIcon } from "@heroicons/react/20/solid";
 import { track } from "@vercel/analytics";
 import classNames from "classnames";
@@ -55,15 +55,12 @@ function TierDescription({ tier }: { tier: Tier }) {
 
 function TierCTAButton({ tier }: { tier: Tier }) {
   const { data: session } = useSession();
-  let href = "/signup";
   let text = "Sign up";
 
   if (session) {
     if (session.planType === "free") {
-      href = `/api/auth/checkout/${tier.id}`;
       text = "Buy now";
     } else {
-      href = "/api/auth/portal";
       text =
         session.planType === tier.id
           ? "Manage subscription"
@@ -72,17 +69,32 @@ function TierCTAButton({ tier }: { tier: Tier }) {
   }
   return (
     <a
-      href={tier.href ?? href}
+      onClick={async (e) => {
+        if (!session) {
+          return;
+        }
+
+        if (session.planType === "free") {
+          track("Signup", { tier: tier.id });
+          e.preventDefault();
+          e.stopPropagation();
+          await authClient.checkout({
+            slug: tier.id,
+          });
+        } else {
+          e.preventDefault();
+          e.stopPropagation();
+          await authClient.customer.portal();
+        }
+      }}
+      href={tier.href ?? (session ? undefined : "/signup")}
       aria-describedby={tier.id}
       className={classNames(
         tier.mostPopular
           ? "bg-indigo-600 text-white shadow-sm hover:bg-indigo-500"
           : "text-indigo-600 ring-1 ring-inset ring-indigo-600 hover:text-indigo-500 hover:ring-indigo-500",
-        "mt-8 block rounded-md px-3 py-2 text-center text-sm font-semibold leading-6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
+        "mt-8 block cursor-pointer rounded-md px-3 py-2 text-center text-sm font-semibold leading-6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
       )}
-      onClick={() => {
-        track("Signup", { tier: tier.id });
-      }}
     >
       {tier.id === "enterprise" ? "Get in touch" : text}
     </a>
