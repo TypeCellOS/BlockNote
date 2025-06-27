@@ -3,19 +3,20 @@ import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { MDXComponents } from "mdx/types";
 import { Suspense } from "react";
 
-import { Example } from "../components/example";
-import { ThemedImage } from "../components/ThemedImage";
+import Example from "@/components/Example";
+import { exampleIsPro } from "@/util/exampleIsPro";
 
 // use this function to get MDX components, you will need it for rendering MDX
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
     ...defaultMdxComponents,
-    Example: (props: any) => (
-      <Suspense fallback={null}>
-        <Example {...props} />
-      </Suspense>
-    ),
-    ThemedImage: ThemedImage,
+    Example: (props: { name: string }) => {
+      return (
+        <Suspense fallback={null}>
+          <Example name={props.name} exampleIsPro={exampleIsPro(props.name)} />
+        </Suspense>
+      );
+    },
     Tabs: Tabs,
     Tab: Tab,
     ...components,

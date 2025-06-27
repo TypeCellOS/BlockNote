@@ -1,27 +1,30 @@
-import Link from "next/link";
+import { FadeIn } from "@/components/FadeIn";
+import { FAQ } from "./faq/FAQ";
+import { Community } from "./community/Community";
+import { Features } from "./features/Features";
+import { Hero } from "./hero/Hero";
+import { Letter } from "./letter/Letter";
 
-export default function HomePage() {
+export default function Home() {
   return (
-    <main className="flex flex-1 flex-col justify-center text-center">
-      <h1 className="mb-4 text-2xl font-bold">Hello World</h1>
-      <p className="text-fd-muted-foreground">
-        You can open{" "}
-        <Link
-          href="/docs"
-          className="text-fd-foreground font-semibold underline">
-          /docs
-        </Link>{" "}
-        and see the documentation.
-      </p>
-      <p className="text-fd-muted-foreground">
-        You can open{" "}
-        <Link
-          href="/examples"
-          className="text-fd-foreground font-semibold underline">
-          /examples
-        </Link>{" "}
-        and see the examples.
-      </p>
+    <main className="relative">
+      <Hero />
+      <FadeIn noVertical>
+        <div className={"h-px w-full bg-gray-500 opacity-20"} />
+      </FadeIn>
+      <Features />
+      <FadeIn noVertical>
+        <div className={"section-border"} />
+      </FadeIn>
+      <Letter />
+      <FadeIn noVertical>
+        <div className={"section-border"} />
+      </FadeIn>
+      <Community />
+      <FadeIn noVertical>
+        <div className={"h-px w-full bg-gray-500 opacity-20"} />
+      </FadeIn>
+      <FAQ />
     </main>
   );
 }

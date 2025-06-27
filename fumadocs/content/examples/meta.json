@@ -6,11 +6,13 @@
   "pages": [
     "index",
     "basic",
-    "theming",
-    "ui-components",
-    "collaboration",
-    "custom-schemas",
     "backend",
+    "ui-components",
+    "interoperability",
+    "theming",
+    "custom-schema",
+    "collaboration",
+    "extensions",
     "ai"
   ]
 }

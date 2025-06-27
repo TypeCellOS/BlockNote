@@ -4,10 +4,6 @@ description: Learn how to enable comments in your BlockNote editor
 imageTitle: Comments
 ---
 
-import {Example} from "@/components/example";
-
-# Comments
-
 BlockNote supports Comments, Comment Threads (replies) and emoji reactions out of the box.
 
 To enable comments in your editor, you need to:
@@ -33,7 +29,7 @@ const editor = useCreateBlockNote({
 
 **Demo**
 
-<Example name="collaboration/comments"/>
+<Example name="collaboration/comments" />
 
 ## ThreadStores
 
@@ -147,7 +143,7 @@ async function myResolveUsers(userIds: string[]): Promise<User[]> {
 
 BlockNote also offers a different way of viewing and interacting with comments, via a sidebar instead of floating in the editor, using the `ThreadsSidebar` component:
 
-<Example name="collaboration/comments-with-sidebar"/>
+<Example name="collaboration/comments-with-sidebar" />
 
 The only requirement for `ThreadsSidebar` is that it should be placed somewhere within your `BlockNoteView`, other than that you can position and style it however you want.
 

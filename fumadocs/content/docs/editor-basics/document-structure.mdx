@@ -4,21 +4,23 @@ description: Learn how documents (the content of the rich text editor) are struc
 imageTitle: Document Structure
 ---
 
-# Blocks
+## Blocks
 
 Each BlockNote document is made up of a list of blocks.
 A block is a piece of content like a paragraph, heading, list item or image. Blocks can be dragged around by users in the editor. A block contains a piece of content and optionally nested (child) blocks:
 
 <ThemedImage
-  style={{ marginTop: "1em" }}
-  src="/img/screenshots/block_structure.png"
-  darkImage="/img/screenshots/block_structure_dark.png"
+  src={{
+    light: "/img/screenshots/block_structure.png",
+    dark: "/img/screenshots/block_structure_dark.png",
+  }}
+  className="mt-4"
   alt="image"
   width={2000}
   height={2000}
 />
 
-## Block Objects
+### Block Objects
 
 The `Block` type is used to describe any given block in the editor:
 
@@ -42,7 +44,7 @@ type Block = {
 
 `children:` Any blocks nested inside the block. The nested blocks are also represented using `Block` objects.
 
-## Column Blocks
+### Column Blocks
 
 The `@blocknote/xl-multi-column` package allows you to organize blocks side-by-side in columns. It introduces 2 additional block types, the column and column list:
 
@@ -70,11 +72,11 @@ While both of these act as regular blocks, there are a few additional restrictio
 - Children of column lists must be columns
 - There must be at least 2 columns in a column list
 
-# Inline Content
+## Inline Content
 
 The `content` field of a block contains the rich-text content of a block. This is defined as an array of `InlineContent` objects. Inline content can either be styled text or a link (or a custom inline content type if you customize the editor schema).
 
-## Inline Content Objects
+### Inline Content Objects
 
 The `InlineContent` type is used to describe a piece of inline content:
 
@@ -96,7 +98,7 @@ type InlineContent = Link | StyledText;
 
 The `styles` property is explained below.
 
-## Other types of Block Content
+### Other types of Block Content
 
 While most blocks use an array of `InlineContent` objects to describe their content (e.g.: paragraphs, headings, list items). Some blocks, like [images](/docs/editor-basics/default-schema#image), don't contain any rich text content, so their `content` fields will be `undefined`.
 
@@ -111,7 +113,7 @@ type TableContent = {
 };
 ```
 
-## Styles and Rich Text
+### Styles and Rich Text
 
 The `styles` property of `StyledText` objects is used to describe the rich text styles (e.g.: bold, italic, color) or other attributes of a piece of text. It's a set of key / value pairs that specify the styles applied to the text.
 

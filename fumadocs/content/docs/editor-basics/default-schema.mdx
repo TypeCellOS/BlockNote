@@ -10,17 +10,11 @@ The demo below showcases each of BlockNote's built-in block and inline content t
 
 <Example name="basic/default-blocks" />
 
-# Default Blocks
+## Default Blocks
 
-BlockNote's built-in blocks range from basic paragraphs to tables and images.
-
-## Reference
-
-Let's look more in-depth at the default blocks and the properties they support:
+BlockNote's built-in blocks range from basic paragraphs to tables and images. Let's look more in-depth at the default blocks and the properties they support:
 
 ### Paragraph
-
-**Type & Props**
 
 ```typescript
 type ParagraphBlock = {
@@ -33,8 +27,6 @@ type ParagraphBlock = {
 ```
 
 ### Heading
-
-**Type & Props**
 
 ```typescript
 type HeadingBlock = {
@@ -52,8 +44,6 @@ type HeadingBlock = {
 
 ### Quote
 
-**Type & Props**
-
 ```typescript
 type QuoteBlock = {
   id: string;
@@ -65,8 +55,6 @@ type QuoteBlock = {
 ```
 
 ### Bullet List Item
-
-**Type & Props**
 
 ```typescript
 type BulletListItemBlock = {
@@ -80,8 +68,6 @@ type BulletListItemBlock = {
 
 ### Numbered List Item
 
-**Type & Props**
-
 ```typescript
 type NumberedListItemBlock = {
   id: string;
@@ -93,8 +79,6 @@ type NumberedListItemBlock = {
 ```
 
 ### Image
-
-**Type & Props**
 
 ```typescript
 type ImageBlock = {
@@ -117,8 +101,6 @@ type ImageBlock = {
 `previewWidth:` The image previewWidth in pixels.
 
 ### Table
-
-**Type & Props**
 
 ```typescript
 type TableBlock = {
@@ -148,13 +130,9 @@ type DefaultProps = {
 
 `textAlignment:` The text alignment of the block.
 
-# Default Inline Content
+## Default Inline Content
 
-By default, `InlineContent` (the content of text blocks like paragraphs) in BlockNote can either be a `StyledText` or a `Link` object.
-
-## Reference
-
-Here's an overview of all default inline content and the properties they support:
+By default, `InlineContent` (the content of text blocks like paragraphs) in BlockNote can either be a `StyledText` or a `Link` object. Here's an overview of all default inline content and the properties they support:
 
 ### Styled Text
 
@@ -180,7 +158,7 @@ type Link = {
 };
 ```
 
-# Default Styles
+## Default Styles
 
 The default text formatting options in BlockNote are represented by the `Styles` in the default schema:
 
@@ -195,7 +173,7 @@ type Styles = {
 };
 ```
 
-# Creating New Block or Inline Content Types
+## Creating New Block or Inline Content Types
 
 You can also extend your editor and create your own Blocks, Inline Content or Styles using React.
 Skip to [Custom Schemas (advanced)](/docs/custom-schemas) to learn how to do this.
