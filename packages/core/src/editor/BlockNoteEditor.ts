@@ -251,6 +251,17 @@ export type BlockNoteEditorOptions<
   >[];
 
   /**
+   * Configures when input rules should be active. Input rules change the block
+   * type when a string is typed at the start of the block. For example, typing
+   * "# " changes the block to a heading level 1 and "- " changes it to a
+   * bullet list item. "allBlocks" means the input rules are active regardless
+   * of the initial block type, "paragraphs" means the input rules are only
+   * active within paragraph blocks, and "none" means the input rules are never
+   * active. Defaults to "allBlocks".
+   */
+  inputRules: "allBlocks" | "paragraphs" | "none";
+
+  /**
    * @deprecated, provide placeholders via dictionary instead
    */
   placeholders: Record<
@@ -642,6 +653,7 @@ export class BlockNoteEditor<
       sideMenuDetection: newOptions.sideMenuDetection || "viewport",
       comments: newOptions.comments,
       pasteHandler: newOptions.pasteHandler,
+      inputRules: newOptions.inputRules || "allBlocks",
     });
 
     // add extensions from _tiptapOptions

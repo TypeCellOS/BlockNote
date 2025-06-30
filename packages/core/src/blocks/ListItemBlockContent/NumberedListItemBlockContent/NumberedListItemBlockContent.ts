@@ -50,7 +50,9 @@ const NumberedListItemBlockContent = createStronglyTypedTiptapNode({
           if (
             !blockInfo.isBlockContainer ||
             blockInfo.blockContent.node.type.spec.content !== "inline*" ||
-            blockInfo.blockNoteType === "numberedListItem"
+            this.options.inputRules === "none" ||
+            (this.options.inputRules === "paragraphs" &&
+              blockInfo.blockNoteType !== "paragraph")
           ) {
             return;
           }

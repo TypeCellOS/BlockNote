@@ -95,6 +95,7 @@ type ExtensionOptions<
     threadStore: ThreadStore;
   };
   pasteHandler: BlockNoteEditorOptions<any, any, any>["pasteHandler"];
+  inputRules: "allBlocks" | "paragraphs" | "none";
 };
 
 /**
@@ -286,6 +287,7 @@ const getTipTapExtensions = <
         blockSpec.implementation.node.configure({
           editor: opts.editor,
           domAttributes: opts.domAttributes,
+          inputRules: opts.inputRules,
         }),
       ];
     }),
