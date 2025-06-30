@@ -19,7 +19,21 @@
     "declarationDir": "types",
     "composite": true,
     "skipLibCheck": true,
-    "emitDeclarationOnly": true
+    "emitDeclarationOnly": true,
+    "paths": {
+      "@shared/*": ["../../shared/*"]
+    }
   },
-  "include": ["src"]
+  "include": ["src"],
+  "references": [
+    {
+      "path": "../core"
+    },
+    {
+      "path": "../react"
+    },
+    {
+      "path": "../../shared"
+    }
+  ]
 }
