@@ -3,12 +3,12 @@ import {
   TestInlineContentSchema,
   TestStyleSchema,
 } from "../../testSchema.js";
-import { TextCursorPositionTestCase } from "../../../shared/selection/textCursorPosition/textCursorPositionTestCase.js";
+import { TextCursorPositionTestCase } from "../../../testTypes/selection/textCursorPosition/textCursorPositionTestCase.js";
 import {
   testTextCursorPositionEnd,
   testTextCursorPositionSetAndGet,
   testTextCursorPositionStart,
-} from "../../../shared/selection/textCursorPosition/textCursorPositionTestExecutors.js";
+} from "../../../testTypes/selection/textCursorPosition/textCursorPositionTestExecutors.js";
 import { TestInstance } from "../../../types.js";
 
 export const getTextCursorPositionTestInstancesGetAndSet: TestInstance<

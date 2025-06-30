@@ -6,12 +6,12 @@ import {
   TestInlineContentSchema,
   TestStyleSchema,
 } from "../../testSchema.js";
-import { CopyTestCase } from "../../../shared/clipboard/copy/copyTestCase.js";
-import { testCopyHTML } from "../../../shared/clipboard/copy/copyTestExecutors.js";
+import { CopyTestCase } from "../../../testTypes/clipboard/copy/copyTestCase.js";
+import { testCopyHTML } from "../../../testTypes/clipboard/copy/copyTestExecutors.js";
 import {
   getPosOfTableCellNode,
   getPosOfTextNode,
-} from "../../../shared/testUtil.js";
+} from "../../../testTypes/testUtil.js";
 import { TestInstance } from "../../../types.js";
 
 export const copyTestInstancesHTML: TestInstance<

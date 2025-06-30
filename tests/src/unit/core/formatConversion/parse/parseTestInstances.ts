@@ -1,8 +1,8 @@
-import { ParseTestCase } from "../../../shared/formatConversion/parse/parseTestCase.js";
+import { ParseTestCase } from "../../../testTypes/formatConversion/parse/parseTestCase.js";
 import {
   testParseHTML,
   testParseMarkdown,
-} from "../../../shared/formatConversion/parse/parseTestExecutors.js";
+} from "../../../testTypes/formatConversion/parse/parseTestExecutors.js";
 import { TestInstance } from "../../../types.js";
 import {
   TestBlockSchema,

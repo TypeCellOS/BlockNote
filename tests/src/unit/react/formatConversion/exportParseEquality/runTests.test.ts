@@ -1,6 +1,6 @@
 import { describe, it } from "vitest";
 
-import { setupTestEditor } from "../../setupTestEditor.js";
+import { createTestEditor } from "../../createTestEditor.js";
 import { testSchema } from "../../testSchema.js";
 import {
   exportParseEqualityTestInstancesBlockNoteHTML,
@@ -8,7 +8,7 @@ import {
 } from "./exportParseEqualityTestInstances.js";
 
 describe("Export/parse equality tests (BlockNote HTML)", () => {
-  const getEditor = setupTestEditor(testSchema);
+  const getEditor = createTestEditor(testSchema);
 
   for (const {
     testCase,
@@ -21,7 +21,7 @@ describe("Export/parse equality tests (BlockNote HTML)", () => {
 });
 
 describe("Export/parse equality tests (TipTap nodes)", () => {
-  const getEditor = setupTestEditor(testSchema);
+  const getEditor = createTestEditor(testSchema);
 
   for (const {
     testCase,

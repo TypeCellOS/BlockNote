@@ -1,6 +1,6 @@
 import { describe, it } from "vitest";
 
-import { setupTestEditor } from "../../setupTestEditor.js";
+import { createTestEditor } from "../../createTestEditor.js";
 import { testSchema } from "../../testSchema.js";
 import {
   exportTestInstancesBlockNoteHTML,
@@ -8,7 +8,7 @@ import {
 } from "./exportTestInstances.js";
 
 describe("React export tests (BlockNote HTML)", () => {
-  const getEditor = setupTestEditor(testSchema);
+  const getEditor = createTestEditor(testSchema);
 
   for (const { testCase, executeTest } of exportTestInstancesBlockNoteHTML) {
     it(`${testCase.name}`, async () => {
@@ -18,7 +18,7 @@ describe("React export tests (BlockNote HTML)", () => {
 });
 
 describe("React export tests (HTML)", () => {
-  const getEditor = setupTestEditor(testSchema);
+  const getEditor = createTestEditor(testSchema);
 
   for (const { testCase, executeTest } of exportTestInstancesHTML) {
     it(`${testCase.name}`, async () => {

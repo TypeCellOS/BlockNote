@@ -5,12 +5,12 @@ import {
   TestInlineContentSchema,
   TestStyleSchema,
 } from "../../testSchema.js";
-import { PasteTestCase } from "../../../shared/clipboard/paste/pasteTestCase.js";
+import { PasteTestCase } from "../../../testTypes/clipboard/paste/pasteTestCase.js";
 import {
   testPasteHTML,
   testPasteMarkdown,
-} from "../../../shared/clipboard/paste/pasteTestExecutors.js";
-import { getPosOfTextNode } from "../../../shared/testUtil.js";
+} from "../../../testTypes/clipboard/paste/pasteTestExecutors.js";
+import { getPosOfTextNode } from "../../../testTypes/testUtil.js";
 import { TestInstance } from "../../../types.js";
 
 export const pasteTestInstancesHTML: TestInstance<

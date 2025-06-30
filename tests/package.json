@@ -18,12 +18,15 @@
     "@blocknote/mantine": "workspace:^",
     "@blocknote/react": "workspace:^",
     "@blocknote/shadcn": "workspace:^",
+    "@blocknote/xl-docx-exporter": "workspace:^",
     "@playwright/experimental-ct-react": "1.51.1",
     "@playwright/test": "1.51.1",
     "@tiptap/pm": "^2.12.0",
     "@types/node": "^20.11.18",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",
+    "@zip.js/zip.js": "^2.7.57",
+    "docx": "^9.0.2",
     "eslint": "^8.10.0",
     "htmlfy": "^0.6.7",
     "react": "^18.3.1",
@@ -32,7 +35,8 @@
     "rimraf": "^5.0.5",
     "vite": "^5.3.4",
     "vite-plugin-eslint": "^1.8.1",
-    "vitest": "^2.0.3"
+    "vitest": "^2.0.3",
+    "xml-formatter": "^3.6.3"
   },
   "eslintConfig": {
     "extends": [

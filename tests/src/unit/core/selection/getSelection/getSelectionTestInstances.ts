@@ -6,15 +6,15 @@ import {
   TestInlineContentSchema,
   TestStyleSchema,
 } from "../../testSchema.js";
-import { GetSelectionTestCase } from "../../../shared/selection/getSelection/getSelectionTestCase.js";
+import { GetSelectionTestCase } from "../../../testTypes/selection/getSelection/getSelectionTestCase.js";
 import {
   testGetSelectionRegular,
   testGetSelectionCutBlocks,
-} from "../../../shared/selection/getSelection/getSelectionTestExecutors.js";
+} from "../../../testTypes/selection/getSelection/getSelectionTestExecutors.js";
 import {
   getPosOfTableCellNode,
   getPosOfTextNode,
-} from "../../../shared/testUtil.js";
+} from "../../../testTypes/testUtil.js";
 import { TestInstance } from "../../../types.js";
 
 export const getSelectionTestInstancesRegular: TestInstance<

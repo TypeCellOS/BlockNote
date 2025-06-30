@@ -1,8 +1,8 @@
-import { ExportParseEqualityTestCase } from "../../../shared/formatConversion/exportParseEquality/exportParseEqualityTestCase.js";
+import { ExportParseEqualityTestCase } from "../../../testTypes/formatConversion/exportParseEquality/exportParseEqualityTestCase.js";
 import {
   testExportParseEqualityBlockNoteHTML,
   testExportParseEqualityNodes,
-} from "../../../shared/formatConversion/exportParseEquality/exportParseEqualityTestExecutors.js";
+} from "../../../testTypes/formatConversion/exportParseEquality/exportParseEqualityTestExecutors.js";
 import { TestInstance } from "../../../types.js";
 import {
   TestBlockSchema,

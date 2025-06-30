@@ -1,8 +1,8 @@
-import { ExportTestCase } from "../../../shared/formatConversion/export/exportTestCase.js";
+import { ExportTestCase } from "../../../testTypes/formatConversion/export/exportTestCase.js";
 import {
   testExportBlockNoteHTML,
   testExportHTML,
-} from "../../../shared/formatConversion/export/exportTestExecutors.js";
+} from "../../../testTypes/formatConversion/export/exportTestExecutors.js";
 import { TestInstance } from "../../../types.js";
 import {
   TestBlockSchema,

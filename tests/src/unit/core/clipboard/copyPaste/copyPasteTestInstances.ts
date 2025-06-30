@@ -5,9 +5,9 @@ import {
   TestInlineContentSchema,
   TestStyleSchema,
 } from "../../testSchema.js";
-import { CopyPasteTestCase } from "../../../shared/clipboard/copyPaste/copyPasteTestCase.js";
-import { testCopyPaste } from "../../../shared/clipboard/copyPaste/copyPasteTestExecutors.js";
-import { getPosOfTextNode } from "../../../shared/testUtil.js";
+import { CopyPasteTestCase } from "../../../testTypes/clipboard/copyPaste/copyPasteTestCase.js";
+import { testCopyPaste } from "../../../testTypes/clipboard/copyPaste/copyPasteTestExecutors.js";
+import { getPosOfTextNode } from "../../../testTypes/testUtil.js";
 import { TestInstance } from "../../../types.js";
 
 export const copyPasteTestInstances: TestInstance<

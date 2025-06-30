@@ -3,11 +3,11 @@ import {
   TestInlineContentSchema,
   TestStyleSchema,
 } from "../../testSchema.js";
-import { IncrementSelectionTestCase } from "../../../shared/selection/incrementSelection/incrementSelectionTestCase.js";
+import { IncrementSelectionTestCase } from "../../../testTypes/selection/incrementSelection/incrementSelectionTestCase.js";
 import {
   testIncrementSelectionEnd,
   testIncrementSelectionStart,
-} from "../../../shared/selection/incrementSelection/incrementSelectionTestExecutors.js";
+} from "../../../testTypes/selection/incrementSelection/incrementSelectionTestExecutors.js";
 import { TestInstance } from "../../../types.js";
 
 export const incrementSelectionTestInstancesStart: TestInstance<

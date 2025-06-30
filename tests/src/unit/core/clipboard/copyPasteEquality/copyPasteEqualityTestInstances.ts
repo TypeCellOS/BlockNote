@@ -3,8 +3,8 @@ import {
   TestInlineContentSchema,
   TestStyleSchema,
 } from "../../testSchema.js";
-import { CopyPasteEqualityTestCase } from "../../../shared/clipboard/copyPasteEquality/copyPasteEqualityTestCase.js";
-import { testCopyPasteEquality } from "../../../shared/clipboard/copyPasteEquality/copyPasteEqualityTestExecutors.js";
+import { CopyPasteEqualityTestCase } from "../../../testTypes/clipboard/copyPasteEquality/copyPasteEqualityTestCase.js";
+import { testCopyPasteEquality } from "../../../testTypes/clipboard/copyPasteEquality/copyPasteEqualityTestExecutors.js";
 import { TestInstance } from "../../../types.js";
 import { copyTestInstancesHTML } from "../copy/copyTestInstances.js";
 
