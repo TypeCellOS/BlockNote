@@ -208,7 +208,6 @@ export async function doLLMRequest(
     previousMessages,
   });
 
-  debugger;
   const streamTools = getStreamTools(
     editor,
     withDelays,
