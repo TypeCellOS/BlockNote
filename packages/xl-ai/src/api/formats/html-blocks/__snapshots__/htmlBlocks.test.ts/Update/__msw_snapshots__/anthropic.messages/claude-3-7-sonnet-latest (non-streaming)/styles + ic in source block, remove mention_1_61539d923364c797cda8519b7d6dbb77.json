@@ -9,7 +9,7 @@
   "response": {
     "status": 200,
     "statusText": "",
-    "body": "{\"id\":\"msg_01CpUm7RNW4894yC2B56BYbh\",\"type\":\"message\",\"role\":\"assistant\",\"model\":\"claude-3-7-sonnet-20250219\",\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_019sPuEYDUzefwC8jLevSbG2\",\"name\":\"json\",\"input\":{\"operations\":[{\"type\":\"update\",\"id\":\"ref2$\",\"block\":\"<p>Hello! <strong>How are you doing?</strong> <span data-text-color=\\\"blue\\\">This text is blue!</span></p>\"}]}}],\"stop_reason\":\"tool_use\",\"stop_sequence\":null,\"usage\":{\"input_tokens\":1252,\"cache_creation_input_tokens\":0,\"cache_read_input_tokens\":0,\"output_tokens\":100,\"service_tier\":\"standard\"}}",
+    "body": "{\"id\":\"msg_01RX6G9jptDHomxj76CmVd7S\",\"type\":\"message\",\"role\":\"assistant\",\"model\":\"claude-3-7-sonnet-20250219\",\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_012Yj69Ms3C81E4d6yG4KMvH\",\"name\":\"json\",\"input\":{\"operations\":[{\"type\":\"update\",\"id\":\"ref2$\",\"block\":\"<p>Hello! <strong>How are you doing?</strong> <span data-text-color=\\\"blue\\\">This text is blue!</span></p>\"}]}}],\"stop_reason\":\"tool_use\",\"stop_sequence\":null,\"usage\":{\"input_tokens\":1252,\"cache_creation_input_tokens\":0,\"cache_read_input_tokens\":0,\"output_tokens\":100,\"service_tier\":\"standard\"}}",
     "headers": []
   }
 }

@@ -18,10 +18,52 @@ export const en = {
       aliases: ["h3", "heading3", "subheading"],
       group: "Headings",
     },
+    heading_4: {
+      title: "Heading 4",
+      subtext: "Minor subsection heading",
+      aliases: ["h4", "heading4", "subheading4"],
+      group: "Subheadings",
+    },
+    heading_5: {
+      title: "Heading 5",
+      subtext: "Small subsection heading",
+      aliases: ["h5", "heading5", "subheading5"],
+      group: "Subheadings",
+    },
+    heading_6: {
+      title: "Heading 6",
+      subtext: "Lowest-level heading",
+      aliases: ["h6", "heading6", "subheading6"],
+      group: "Subheadings",
+    },
+    toggle_heading: {
+      title: "Toggle Heading 1",
+      subtext: "Toggleable top-level heading",
+      aliases: ["h", "heading1", "h1", "collapsable"],
+      group: "Subheadings",
+    },
+    toggle_heading_2: {
+      title: "Toggle Heading 2",
+      subtext: "Toggleable key section heading",
+      aliases: ["h2", "heading2", "subheading", "collapsable"],
+      group: "Subheadings",
+    },
+    toggle_heading_3: {
+      title: "Toggle Heading 3",
+      subtext: "Toggleable subsection and group heading",
+      aliases: ["h3", "heading3", "subheading", "collapsable"],
+      group: "Subheadings",
+    },
     quote: {
       title: "Quote",
       subtext: "Quote or excerpt",
       aliases: ["quotation", "blockquote", "bq"],
+      group: "Basic blocks",
+    },
+    toggle_list: {
+      title: "Toggle List",
+      subtext: "List with hideable sub-items",
+      aliases: ["li", "list", "toggleList", "toggle list", "collapsable list"],
       group: "Basic blocks",
     },
     numbered_list: {
@@ -132,6 +174,7 @@ export const en = {
   placeholders: {
     default: "Enter text or type '/' for commands",
     heading: "Heading",
+    toggleListItem: "Toggle",
     bulletListItem: "List",
     numberedListItem: "List",
     checkListItem: "List",
@@ -335,6 +378,9 @@ export const en = {
     },
   },
   comments: {
+    edited: "edited",
+    save_button_text: "Save",
+    cancel_button_text: "Cancel",
     actions: {
       add_reaction: "Add reaction",
       resolve: "Resolve",

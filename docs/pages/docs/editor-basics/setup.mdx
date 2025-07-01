@@ -32,6 +32,9 @@ type BlockNoteEditorOptions = {
     width?: number;
     class?: string;
   }) => Plugin;
+  heading?: {
+    levels?: number[];
+  };
   initialContent?: PartialBlock[];
   pasteHandler?: (context: {
     event: ClipboardEvent;
@@ -72,6 +75,8 @@ The hook takes two optional parameters:
 `dropCursor`: A replacement indicator to use when dragging and dropping blocks. Uses the [ProseMirror drop cursor](https://github.com/ProseMirror/prosemirror-dropcursor), or a modified version when [Column Blocks](/docs/editor-basics/document-structure#column-blocks) are enabled.
 
 `initialContent:` The content that should be in the editor when it's created, represented as an array of [Partial Blocks](/docs/manipulating-blocks#partial-blocks).
+
+`heading`: Configuration for headings. Allows you to configure the number of levels of headings that should be available in the editor. Defaults to `[1, 2, 3]`. Configurable up to 6 levels of headings.
 
 `pasteHandler`: A function that can be used to override the default paste behavior. See [Paste Handling](/docs/advanced/paste-handling) for more.
 

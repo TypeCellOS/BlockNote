@@ -20,6 +20,43 @@ export const nl: Dictionary = {
       aliases: ["h3", "kop3", "subkop"],
       group: "Koppen",
     },
+    heading_4: {
+      title: "Kop 4",
+      subtext: "Gebruikt voor kleinere subsecties",
+      aliases: ["h4", "kop4", "subkop4"],
+      group: "Subkoppen",
+    },
+    heading_5: {
+      title: "Kop 5",
+      subtext: "Gebruikt voor kleinere subsecties",
+      aliases: ["h5", "kop5", "subkop5"],
+      group: "Subkoppen",
+    },
+    heading_6: {
+      title: "Kop 6",
+      subtext: "Gebruikt voor koppen op het laagste niveau",
+      aliases: ["h6", "kop6", "subkop6"],
+      group: "Subkoppen",
+    },
+    toggle_heading: {
+      title: "Uitklapbare Kop 1",
+      subtext: "Hoofdkop die kan worden uit- en ingeklapt om inhoud te tonen",
+      aliases: ["h", "kop1", "h1", "uitklapbaar", "inklapbaar"],
+      group: "Subkoppen",
+    },
+    toggle_heading_2: {
+      title: "Uitklapbare Kop 2",
+      subtext: "Sectiekop die kan worden uit- en ingeklapt om inhoud te tonen",
+      aliases: ["h2", "kop2", "subkop", "uitklapbaar", "inklapbaar"],
+      group: "Subkoppen",
+    },
+    toggle_heading_3: {
+      title: "Uitklapbare Kop 3",
+      subtext:
+        "Subsectiekop die kan worden uit- en ingeklapt om inhoud te tonen",
+      aliases: ["h3", "kop3", "subkop", "uitklapbaar", "inklapbaar"],
+      group: "Subkoppen",
+    },
     quote: {
       title: "Citaat",
       subtext: "Citaat of uittreksel",
@@ -42,6 +79,12 @@ export const nl: Dictionary = {
       title: "Controlelijst",
       subtext: "Gebruikt om een lijst met selectievakjes weer te geven",
       aliases: ["ul", "li", "lijst", "aangevinkte lijst", "selectievakje"],
+      group: "Basisblokken",
+    },
+    toggle_list: {
+      title: "Uitklapbare Lijst",
+      subtext: "Lijst met verbergbare sub-items",
+      aliases: ["li", "lijst", "uitklapbare lijst", "inklapbare lijst"],
       group: "Basisblokken",
     },
     paragraph: {
@@ -133,6 +176,7 @@ export const nl: Dictionary = {
   placeholders: {
     default: "Voer tekst in of type '/' voor commando's",
     heading: "Kop",
+    toggleListItem: "Uitklapbaar",
     bulletListItem: "Lijst",
     numberedListItem: "Lijst",
     checkListItem: "Lijst",
@@ -334,6 +378,9 @@ export const nl: Dictionary = {
     },
   },
   comments: {
+    edited: "bewerkt",
+    save_button_text: "Opslaan",
+    cancel_button_text: "Annuleren",
     actions: {
       add_reaction: "Reactie toevoegen",
       resolve: "Oplossen",

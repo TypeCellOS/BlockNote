@@ -1,6 +1,6 @@
 import { Editor } from "@tiptap/core";
 import { TagParseRule } from "@tiptap/pm/model";
-import { NodeView } from "@tiptap/pm/view";
+import { NodeView, ViewMutationRecord } from "@tiptap/pm/view";
 import type { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
 import { InlineContentSchema } from "../inlineContent/types.js";
 import { StyleSchema } from "../styles/types.js";
@@ -44,6 +44,7 @@ export type CustomBlockImplementation<
   ) => {
     dom: HTMLElement;
     contentDOM?: HTMLElement;
+    ignoreMutation?: (mutation: ViewMutationRecord) => boolean;
     destroy?: () => void;
   };
   // Exports block to external HTML. If not defined, the output will be the same
@@ -199,6 +200,7 @@ export function createBlockSpec<
           block.type,
           block.props,
           blockConfig.propSchema,
+          blockConfig.isFileBlock,
           blockContentDOMAttributes,
         );
 

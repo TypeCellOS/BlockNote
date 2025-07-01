@@ -9,7 +9,7 @@
   "response": {
     "status": 200,
     "statusText": "",
-    "body": "{\"id\":\"msg_01RytimvXEBjPq2SKi2yfjoT\",\"type\":\"message\",\"role\":\"assistant\",\"model\":\"claude-3-7-sonnet-20250219\",\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_01CdoPECHiULN1wqXg627X9x\",\"name\":\"json\",\"input\":{\"operations\":[{\"type\":\"update\",\"id\":\"ref2$\",\"block\":\"<p>APPLES</p>\"}]}}],\"stop_reason\":\"tool_use\",\"stop_sequence\":null,\"usage\":{\"input_tokens\":1115,\"cache_creation_input_tokens\":0,\"cache_read_input_tokens\":0,\"output_tokens\":73,\"service_tier\":\"standard\"}}",
+    "body": "{\"id\":\"msg_015zSCLEKvFZtY5fVGuSSDmt\",\"type\":\"message\",\"role\":\"assistant\",\"model\":\"claude-3-7-sonnet-20250219\",\"content\":[{\"type\":\"tool_use\",\"id\":\"toolu_015a8DZf63rupvgAefdHGeR7\",\"name\":\"json\",\"input\":{\"operations\":[{\"type\":\"update\",\"id\":\"ref2$\",\"block\":\"<p>APPLES</p>\"}]}}],\"stop_reason\":\"tool_use\",\"stop_sequence\":null,\"usage\":{\"input_tokens\":1115,\"cache_creation_input_tokens\":0,\"cache_read_input_tokens\":0,\"output_tokens\":73,\"service_tier\":\"standard\"}}",
     "headers": []
   }
 }

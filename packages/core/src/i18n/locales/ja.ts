@@ -20,6 +20,56 @@ export const ja: Dictionary = {
       aliases: ["h3", "見出し3", "subheading", "小見出し"],
       group: "見出し",
     },
+    heading_4: {
+      title: "見出し４",
+      subtext: "小さなサブセクションの見出しに使用",
+      aliases: ["h4", "見出し4", "subheading4", "小見出し4"],
+      group: "サブ見出し",
+    },
+    heading_5: {
+      title: "見出し５",
+      subtext: "小さなサブセクションの見出しに使用",
+      aliases: ["h5", "見出し5", "subheading5", "小見出し5"],
+      group: "サブ見出し",
+    },
+    heading_6: {
+      title: "見出し６",
+      subtext: "最下位レベルの見出しに使用",
+      aliases: ["h6", "見出し6", "subheading6", "小見出し6"],
+      group: "サブ見出し",
+    },
+    toggle_heading: {
+      title: "折りたたみ見出し１",
+      subtext: "内容の表示/非表示が切り替え可能なトップレベルの見出し",
+      aliases: ["h", "見出し１", "h1", "大見出し", "折りたたみ", "トグル"],
+      group: "サブ見出し",
+    },
+    toggle_heading_2: {
+      title: "折りたたみ見出し２",
+      subtext: "内容の表示/非表示が切り替え可能な重要なセクションの見出し",
+      aliases: [
+        "h2",
+        "見出し2",
+        "subheading",
+        "中見出し",
+        "折りたたみ",
+        "トグル",
+      ],
+      group: "サブ見出し",
+    },
+    toggle_heading_3: {
+      title: "折りたたみ見出し３",
+      subtext: "内容の表示/非表示が切り替え可能なセクションやグループの見出し",
+      aliases: [
+        "h3",
+        "見出し3",
+        "subheading",
+        "小見出し",
+        "折りたたみ",
+        "トグル",
+      ],
+      group: "サブ見出し",
+    },
     quote: {
       title: "引用",
       subtext: "引用または抜粋",
@@ -65,6 +115,18 @@ export const ja: Dictionary = {
         "リスト",
         "チェックリスト",
         "チェックされたリスト",
+      ],
+      group: "基本ブロック",
+    },
+    toggle_list: {
+      title: "折りたたみリスト",
+      subtext: "サブ項目を非表示にできるリスト",
+      aliases: [
+        "li",
+        "リスト",
+        "折りたたみリスト",
+        "トグルリスト",
+        "折りたたみリスト",
       ],
       group: "基本ブロック",
     },
@@ -153,6 +215,7 @@ export const ja: Dictionary = {
   placeholders: {
     default: "テキストを入力するか'/' を入力してコマンド選択",
     heading: "見出し",
+    toggleListItem: "トグル",
     bulletListItem: "リストを追加",
     numberedListItem: "リストを追加",
     checkListItem: "リストを追加",
@@ -355,6 +418,9 @@ export const ja: Dictionary = {
     },
   },
   comments: {
+    edited: "編集済み",
+    save_button_text: "保存",
+    cancel_button_text: "キャンセル",
     actions: {
       add_reaction: "リアクションを追加",
       resolve: "解決",

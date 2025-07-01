@@ -20,6 +20,42 @@ export const uk: Dictionary = {
       aliases: ["h3", "heading3", "subheading", "заголовок3"],
       group: "Заголовки",
     },
+    heading_4: {
+      title: "Заголовок 4",
+      subtext: "Використовується для менших підрозділів",
+      aliases: ["h4", "heading4", "subheading4", "заголовок4"],
+      group: "Підзаголовки",
+    },
+    heading_5: {
+      title: "Заголовок 5",
+      subtext: "Використовується для заголовків менших підрозділів",
+      aliases: ["h5", "heading5", "subheading5", "заголовок5", "підзаголовок5"],
+      group: "Підзаголовки",
+    },
+    heading_6: {
+      title: "Заголовок 6",
+      subtext: "Використовується для заголовків найнижчого рівня",
+      aliases: ["h6", "heading6", "subheading6", "заголовок6", "підзаголовок6"],
+      group: "Підзаголовки",
+    },
+    toggle_heading: {
+      title: "Розгортаємий заголовок 1",
+      subtext: "Розгортаємий заголовок найвищого рівня",
+      aliases: ["h", "heading1", "h1", "заголовок1", "розгортаємий"],
+      group: "Підзаголовки",
+    },
+    toggle_heading_2: {
+      title: "Розгортаємий заголовок 2",
+      subtext: "Розгортаємий основний заголовок розділу",
+      aliases: ["h2", "heading2", "subheading", "заголовок2", "розгортаємий"],
+      group: "Підзаголовки",
+    },
+    toggle_heading_3: {
+      title: "Розгортаємий заголовок 3",
+      subtext: "Розгортаємий підзаголовок і груповий заголовок",
+      aliases: ["h3", "heading3", "subheading", "заголовок3", "розгортаємий"],
+      group: "Підзаголовки",
+    },
     quote: {
       title: "Цитата",
       subtext: "Цитата або уривок",
@@ -68,6 +104,12 @@ export const uk: Dictionary = {
         "чекбокс",
         "чек-лист",
       ],
+      group: "Базові блоки",
+    },
+    toggle_list: {
+      title: "Розгортаємий список",
+      subtext: "Список із прихованими підпунктами",
+      aliases: ["li", "список", "розгортаємий список", "складений список"],
       group: "Базові блоки",
     },
     paragraph: {
@@ -158,6 +200,7 @@ export const uk: Dictionary = {
   placeholders: {
     default: "Введіть текст або наберіть '/' для команд",
     heading: "Заголовок",
+    toggleListItem: "Перемикач",
     bulletListItem: "Список",
     numberedListItem: "Список",
     checkListItem: "Список",
@@ -359,6 +402,9 @@ export const uk: Dictionary = {
     },
   },
   comments: {
+    edited: "відредаговано",
+    save_button_text: "Зберегти",
+    cancel_button_text: "Скасувати",
     actions: {
       add_reaction: "Додати реакцію",
       resolve: "Вирішити",

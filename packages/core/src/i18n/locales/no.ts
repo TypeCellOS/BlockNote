@@ -20,6 +20,54 @@ export const no: Dictionary = {
       aliases: ["h3", "overskrift3", "underoverskrift"],
       group: "Overskrifter",
     },
+    heading_4: {
+      title: "Overskrift 4",
+      subtext: "Underoverskrift for mindre underseksjoner",
+      aliases: ["h4", "overskrift4", "underoverskrift4"],
+      group: "Underoverskrifter",
+    },
+    heading_5: {
+      title: "Overskrift 5",
+      subtext: "Overskrift for mindre underseksjoner",
+      aliases: ["h5", "overskrift5", "underoverskrift5"],
+      group: "Underoverskrifter",
+    },
+    heading_6: {
+      title: "Overskrift 6",
+      subtext: "Overskrift på laveste nivå",
+      aliases: ["h6", "overskrift6", "underoverskrift6"],
+      group: "Underoverskrifter",
+    },
+    toggle_heading: {
+      title: "Sammenleggbar Overskrift 1",
+      subtext: "Toppnivåoverskrift som kan vises eller skjules",
+      aliases: ["h", "overskrift1", "h1", "sammenleggbar", "toggle"],
+      group: "Underoverskrifter",
+    },
+    toggle_heading_2: {
+      title: "Sammenleggbar Overskrift 2",
+      subtext: "Hovedseksjonsoverskrift som kan vises eller skjules",
+      aliases: [
+        "h2",
+        "overskrift2",
+        "underoverskrift",
+        "sammenleggbar",
+        "toggle",
+      ],
+      group: "Underoverskrifter",
+    },
+    toggle_heading_3: {
+      title: "Sammenleggbar Overskrift 3",
+      subtext: "Underseksjonsoverskrift som kan vises eller skjules",
+      aliases: [
+        "h3",
+        "overskrift3",
+        "underoverskrift",
+        "sammenleggbar",
+        "toggle",
+      ],
+      group: "Underoverskrifter",
+    },
     quote: {
       title: "Sitat",
       subtext: "Sitat eller utdrag",
@@ -49,6 +97,18 @@ export const no: Dictionary = {
         "sjekk liste",
         "avmerket liste",
         "avmerkingsboks",
+      ],
+      group: "Grunnleggende blokker",
+    },
+    toggle_list: {
+      title: "Sammenleggbar liste",
+      subtext: "Liste med skjulbare underpunkter",
+      aliases: [
+        "li",
+        "liste",
+        "sammenleggbar liste",
+        "skjulbar liste",
+        "sammenleggbar liste",
       ],
       group: "Grunnleggende blokker",
     },
@@ -134,6 +194,7 @@ export const no: Dictionary = {
   placeholders: {
     default: "Skriv tekst eller skriv '/' for å vise kommandoer",
     heading: "Overskrift",
+    toggleListItem: "Veksle",
     bulletListItem: "Liste",
     numberedListItem: "Liste",
     checkListItem: "Liste",
@@ -334,6 +395,9 @@ export const no: Dictionary = {
     },
   },
   comments: {
+    edited: "redigert",
+    save_button_text: "Lagre",
+    cancel_button_text: "Avbryt",
     actions: {
       add_reaction: "Legg til reaksjon",
       resolve: "Løs",

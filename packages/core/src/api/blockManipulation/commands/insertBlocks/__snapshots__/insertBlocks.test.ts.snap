@@ -307,6 +307,7 @@ exports[`Test insertBlocks > Insert multiple blocks after 2`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -653,6 +654,7 @@ exports[`Test insertBlocks > Insert multiple blocks after 2`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -980,6 +982,7 @@ exports[`Test insertBlocks > Insert multiple blocks before 2`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -1326,6 +1329,7 @@ exports[`Test insertBlocks > Insert multiple blocks before 2`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -1573,6 +1577,7 @@ exports[`Test insertBlocks > Insert single basic block after 2`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -1919,6 +1924,7 @@ exports[`Test insertBlocks > Insert single basic block after 2`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -2178,6 +2184,7 @@ exports[`Test insertBlocks > Insert single basic block before (without type) 2`]
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -2524,6 +2531,7 @@ exports[`Test insertBlocks > Insert single basic block before (without type) 2`]
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -2771,6 +2779,7 @@ exports[`Test insertBlocks > Insert single basic block before 2`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -3117,6 +3126,7 @@ exports[`Test insertBlocks > Insert single basic block before 2`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -3201,6 +3211,7 @@ exports[`Test insertBlocks > Insert single complex block after 1`] = `
     "id": "inserted-heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -3291,6 +3302,7 @@ exports[`Test insertBlocks > Insert single complex block after 2`] = `
     "id": "inserted-heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -3478,6 +3490,7 @@ exports[`Test insertBlocks > Insert single complex block after 2`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -3824,6 +3837,7 @@ exports[`Test insertBlocks > Insert single complex block after 2`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -3908,6 +3922,7 @@ exports[`Test insertBlocks > Insert single complex block before 1`] = `
     "id": "inserted-heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -3981,6 +3996,7 @@ exports[`Test insertBlocks > Insert single complex block before 2`] = `
     "id": "inserted-heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
@@ -4185,6 +4201,7 @@ exports[`Test insertBlocks > Insert single complex block before 2`] = `
     "id": "heading-0",
     "props": {
       "backgroundColor": "default",
+      "isToggleable": false,
       "level": 1,
       "textAlignment": "left",
       "textColor": "default",
@@ -4531,6 +4548,7 @@ exports[`Test insertBlocks > Insert single complex block before 2`] = `
     "id": "heading-with-everything",
     "props": {
       "backgroundColor": "red",
+      "isToggleable": false,
       "level": 2,
       "textAlignment": "center",
       "textColor": "red",
