@@ -314,13 +314,6 @@ export class AIExtension extends BlockNoteExtension {
 
     // Abort the current request
     this.currentAbortController?.abort();
-
-    // Keep partial changes as requested by user
-    // If in collaboration mode, merge the changes back into the original yDoc
-    this.editor.forkYDocPlugin?.merge({ keepChanges: true });
-
-    // Close the AI menu and clean up
-    this.closeAIMenu();
   }
 
   /**
@@ -375,6 +368,7 @@ export class AIExtension extends BlockNoteExtension {
    * Execute a call to an LLM and apply the result to the editor
    */
   public async callLLM(opts: MakeOptional<LLMRequestOptions, "model">) {
+    const startState = this.store.getState().aiMenuState;
     this.setAIResponseStatus("thinking");
     this.editor.forkYDocPlugin?.fork();
 
@@ -413,17 +407,32 @@ export class AIExtension extends BlockNoteExtension {
         llmResponse: ret,
       });
 
-      await ret.execute();
+      await ret.execute(this.currentAbortController?.signal);
 
       this.setAIResponseStatus("user-reviewing");
     } catch (e) {
       // Handle abort errors gracefully
       if (e instanceof Error && e.name === "AbortError") {
         // Request was aborted, don't set error status as abort() handles cleanup
+        const state = this.store.getState().aiMenuState;
+        if (state === "closed" || startState === "closed") {
+          throw new Error(
+            "Unexpected: AbortError occurred while the AI menu was closed",
+          );
+        }
+        if (state.status === "ai-writing") {
+          // we were already writing. Set to reviewing to show the user the partial result
+          this.setAIResponseStatus("user-reviewing");
+        } else {
+          // we were not writing yet. Set to the previous state
+          if (startState.status === "error") {
+            this.setAIResponseStatus({ status: startState.status, error: e });
+          } else {
+            this.setAIResponseStatus(startState.status);
+          }
+        }
         return ret;
       }
-
-      // TODO in error state, should we discard the forked document?
 
       this.setAIResponseStatus({
         status: "error",

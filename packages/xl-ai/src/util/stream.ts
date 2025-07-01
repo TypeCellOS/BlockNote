@@ -2,7 +2,7 @@
  * Converts an AsyncIterable to a ReadableStream
  */
 export function asyncIterableToStream<T>(
-  iterable: AsyncIterable<T>
+  iterable: AsyncIterable<T>,
 ): ReadableStream<T> {
   return new ReadableStream({
     async start(controller) {
@@ -29,11 +29,11 @@ export type AsyncIterableStream<T> = AsyncIterable<T> & ReadableStream<T>;
  * Creates an AsyncIterableStream from a ReadableStream
  */
 export function createAsyncIterableStream<T>(
-  source: ReadableStream<T>
+  source: ReadableStream<T>,
 ): AsyncIterableStream<T> {
   if (source.locked) {
     throw new Error(
-      "Stream (source) is already locked and cannot be iterated."
+      "Stream (source) is already locked and cannot be iterated.",
     );
   }
 
@@ -60,7 +60,24 @@ export function createAsyncIterableStream<T>(
  * Creates an AsyncIterableStream from an AsyncGenerator
  */
 export function createAsyncIterableStreamFromAsyncIterable<T>(
-  source: AsyncIterable<T>
+  source: AsyncIterable<T>,
 ): AsyncIterableStream<T> {
   return createAsyncIterableStream(asyncIterableToStream(source));
+}
+
+/**
+ * Helper to wrap an async iterable and throw if the abort signal is triggered.
+ */
+export async function* withAbort<T>(
+  iterable: AsyncIterable<T>,
+  signal?: AbortSignal,
+) {
+  for await (const item of iterable) {
+    if (signal?.aborted) {
+      const error = new Error("Operation was aborted");
+      error.name = "AbortError";
+      throw error;
+    }
+    yield item;
+  }
 }

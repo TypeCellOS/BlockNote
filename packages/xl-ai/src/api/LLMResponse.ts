@@ -28,14 +28,14 @@ export class LLMResponse {
    *
    * (this method consumes underlying streams in `llmResult`)
    */
-  async *applyToolCalls() {
+  async *applyToolCalls(abortSignal?: AbortSignal) {
     let currentStream: AsyncIterable<{
       operation: StreamToolCall<StreamTool<any>[]>;
       isUpdateToPreviousOperation: boolean;
       isPossiblyPartial: boolean;
     }> = this.llmResult.operationsSource;
     for (const tool of this.streamTools) {
-      currentStream = tool.execute(currentStream);
+      currentStream = tool.execute(currentStream, abortSignal);
     }
     yield* currentStream;
   }
@@ -45,9 +45,9 @@ export class LLMResponse {
    *
    * (this method consumes underlying streams in `llmResult`)
    */
-  public async execute() {
+  public async execute(abortSignal?: AbortSignal) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    for await (const _result of this.applyToolCalls()) {
+    for await (const _result of this.applyToolCalls(abortSignal)) {
       // no op
     }
   }
