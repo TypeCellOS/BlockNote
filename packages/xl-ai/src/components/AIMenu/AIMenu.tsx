@@ -120,7 +120,7 @@ export const AIMenu = (props: AIMenuProps) => {
     }
 
     return undefined;
-  }, [Components, aiResponseStatus]);
+  }, [Components, aiResponseStatus, ai]);
 
   return (
     <PromptSuggestionMenu
