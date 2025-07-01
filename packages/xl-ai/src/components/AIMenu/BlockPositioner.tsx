@@ -18,7 +18,7 @@ export const BlockPositioner = (props: {
     reason: OpenChangeReason,
   ) => void;
   canDismissViaOutsidePress?: boolean;
-  options?: Partial<
+  floatingOptions?: Partial<
     UseFloatingOptions & { canDismiss: boolean | UseDismissProps }
   >;
 }) => {
@@ -65,7 +65,7 @@ export const BlockPositioner = (props: {
         });
         return cleanup;
       },
-      ...props.options,
+      ...props.floatingOptions,
     });
 
   if (!isMounted) {
