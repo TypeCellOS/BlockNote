@@ -17,8 +17,8 @@ export default function Layout({ children }: { children: ReactNode }) {
     <html lang="en" suppressHydrationWarning>
       <body className="flex min-h-screen flex-col">
         <Banner
-          height="2em"
-          className="bg-fd-primary text-fd-primary-foreground whitespace-break-spaces"
+          height="24px"
+          className="whitespace-break-spaces bg-[#fef6d5] text-black"
         >
           🚀 BlockNote AI is here!{" "}
           <a href="/docs/ai" className="italic underline">

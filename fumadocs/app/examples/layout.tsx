@@ -14,18 +14,25 @@ export default function Layout({ children }: { children: ReactNode }) {
         if (page.type === "page" && page.$ref?.file) {
           const [exampleGroupName, exampleName] = page.$ref.file.split("/");
 
-          if (exampleGroups[exampleGroupName].examples[exampleName].isPro) {
-            page.icon = <ProBadge />;
-          }
+          page.name = (
+            <span>
+              {exampleGroups[exampleGroupName].examples[exampleName].title}
+              {exampleGroups[exampleGroupName].examples[exampleName].isPro && (
+                <ProBadge />
+              )}
+            </span>
+          );
         }
       }
     }
   }
 
   return (
-    <DocsLayout tree={source.pageTree} {...baseOptions}>
-      {children}
+    <>
+      <DocsLayout tree={source.pageTree} {...baseOptions}>
+        {children}
+      </DocsLayout>
       <Footer />
-    </DocsLayout>
+    </>
   );
 }

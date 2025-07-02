@@ -2,6 +2,15 @@ html {
   -webkit-font-smoothing: antialiased;
 }
 
+body {
+  overscroll-behavior: none;
+}
+
+#nd-sidebar,
+.dark #nd-sidebar {
+  background: var(--color-fd-background);
+}
+
 /* TODO: Don't think we should need to add this manually - bug in fumadocs? */
 #nd-subnav [data-active="true"] {
   color: var(--color-fd-primary);

@@ -5,9 +5,9 @@ import { Footer } from "@/components/Footer";
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <HomeLayout {...baseOptions}>
-      {children}
+    <>
+      <HomeLayout {...baseOptions}>{children}</HomeLayout>
       <Footer />
-    </HomeLayout>
+    </>
   );
 }

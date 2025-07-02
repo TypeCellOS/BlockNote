@@ -80,13 +80,19 @@ export const baseOptions: Partial<DocsLayoutProps> = {
 
     {
       type: "custom",
-      // only displayed on navbar, not mobile menu
-      on: "nav",
+      on: "all",
+      secondary: true,
       children: <AuthNavButton />,
+    },
+    {
+      type: "button",
+      on: "all",
+      secondary: true,
+      text: "Sign In",
+      url: "/signin",
     },
   ],
   sidebar: {
-    // footer: <div>THIS IS A FOOTER</div>,
     tabs: [
       {
         icon: (

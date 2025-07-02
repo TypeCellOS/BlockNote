@@ -3,12 +3,10 @@
 import LogoLight from "@/public/img/logos/banner.svg";
 import LogoDark from "@/public/img/logos/banner.dark.svg";
 import cn from "classnames";
-// Alternative native fumadocs toggle (can also be used in server components):
-// import { ThemeToggle } from "fumadocs-ui/components/layout/theme-toggle";
+import { ThemeToggle } from "fumadocs-ui/components/layout/theme-toggle";
 import Link from "next/link";
 import type { ReactElement, ReactNode } from "react";
 
-import ThemeToggle from "@/components/ThemeToggle";
 import ThemedImage from "@/components/ThemedImage";
 
 function FooterLink({ href, children }: { href: string; children: ReactNode }) {
@@ -78,7 +76,7 @@ export function FooterContent() {
             <ThemedImage
               src={{ light: LogoLight, dark: LogoDark }}
               alt="BlockNote"
-              className="w-64"
+              className="w-40"
             />
             <p className="text-fd-muted-foreground mt-4 text-sm">
               BlockNote is an extensible React rich text editor with support for
@@ -138,7 +136,7 @@ export function FooterContent() {
                 <FooterHeader>Theme</FooterHeader>
                 <ul className="ml-0 mt-4 list-none space-y-1.5">
                   <li key={"theme"}>
-                    <ThemeToggle />
+                    <ThemeToggle mode="light-dark-system" />
                   </li>
                 </ul>
               </div>
@@ -161,7 +159,7 @@ export function FooterContent() {
 
 export function Footer({ menu }: { menu?: boolean }): ReactElement {
   return (
-    <footer className="bg-fd-secondary relative mt-10">
+    <footer className="bg-fd-secondary relative z-30 mt-10">
       {/* <div className="pointer-events-none absolute top-0 h-12 w-full -translate-y-full bg-gradient-to-t from-[#FAFAFA] to-transparent dark:from-black" /> */}
       {/* <div
         className={cn(
