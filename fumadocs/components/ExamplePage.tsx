@@ -2,10 +2,8 @@ import { LoaderOutput } from "fumadocs-core/source";
 import { DocsBody, DocsPage, DocsTitle } from "fumadocs-ui/page";
 import { notFound } from "next/navigation";
 
-import { examplesMeta, examples } from "@/.source";
 import Example from "@/components/Example";
 import ExampleCards from "@/components/ExampleCards";
-import { getCategories } from "@/util/getCategories";
 import { getMDXComponents } from "@/util/mdx-components";
 
 export async function ExamplePage(props: {
@@ -31,8 +29,8 @@ export async function ExamplePage(props: {
         <MDXContent components={getMDXComponents({ ExampleCards })} />
         {params.slug && params.slug.length > 0 ? (
           <Example
-            name={params.slug.join("/")}
-            categories={getCategories(examples, examplesMeta)}
+            exampleGroupName={params.slug[0]}
+            exampleName={params.slug[1]}
           />
         ) : null}
       </DocsBody>

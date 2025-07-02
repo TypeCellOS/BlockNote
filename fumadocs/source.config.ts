@@ -35,16 +35,6 @@ export const pages = defineDocs({
   },
 });
 
-export const examplesMeta = defineCollections({
-  type: "meta",
-  dir: "content/examples",
-  schema: z.object({
-    title: z.string(),
-    pages: z.array(z.string()),
-    root: z.literal(true).optional(),
-  }),
-});
-
 export default defineConfig({
   mdxOptions: {
     // MDX options

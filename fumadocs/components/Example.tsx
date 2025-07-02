@@ -10,36 +10,24 @@ import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 
 import CTAButton from "@/components/CTAButton";
 import { SectionHeader } from "@/components/Headings";
-import { EXAMPLES_CODE_BLOCK_TABS } from "@/components/example/generated/exampleCodeBlockTabs.gen";
+import { exampleGroups } from "@/components/example/generated/exampleGroups.gen";
 import { authClient } from "@/util/auth-client";
 
 function ExampleDemoBarSourceCodeLink(props: {
-  name: string;
-  categories: {
-    name: string;
-    examples: { name: string; isPro: boolean }[];
-  }[];
+  exampleGroupName: string;
+  exampleName: string;
   platform: {
     name: string;
     icon: React.ReactNode;
     baseUrl: string;
   };
 }) {
-  const [categoryName, exampleName] = props.name.split("/");
-
-  const categoryIndex = props.categories.findIndex(
-    (category) => category.name === categoryName,
-  );
-  const exampleIndex = props.categories[categoryIndex].examples.findIndex(
-    (example) => example.name === exampleName,
-  );
-
   return (
     <a
       className={
         "hover:text-fd-accent-foreground flex items-center gap-1 py-2 text-sm font-medium"
       }
-      href={`${props.platform.baseUrl}/${(categoryIndex + 1).toString().padStart(2, "0")}-${categoryName}/${(exampleIndex + 1).toString().padStart(2, "0")}-${exampleName}/`}
+      href={`${props.platform.baseUrl}/${exampleGroups[props.exampleGroupName].examples[props.exampleName].pathFromRoot}`}
       target="_blank"
       rel="noreferrer"
     >
@@ -50,11 +38,8 @@ function ExampleDemoBarSourceCodeLink(props: {
 }
 
 function ExampleDemoBar(props: {
-  name: string;
-  categories: {
-    name: string;
-    examples: { name: string; isPro: boolean }[];
-  }[];
+  exampleGroupName: string;
+  exampleName: string;
 }) {
   return (
     <div className={"flex items-center gap-4 px-4"}>
@@ -79,15 +64,16 @@ function ExampleDemoBar(props: {
   );
 }
 
-function ExampleDemo(props: {
-  name: string;
-  categories: {
-    name: string;
-    examples: { name: string; isPro: boolean }[];
-  }[];
-}) {
+function ExampleDemo(props: { exampleGroupName: string; exampleName: string }) {
   const Component = dynamic(
-    () => import("./example/generated/components/" + props.name + "/index"),
+    () =>
+      import(
+        "./example/generated/components/" +
+          props.exampleGroupName +
+          "/" +
+          props.exampleName +
+          "/index"
+      ),
     { ssr: false },
   );
 
@@ -111,11 +97,9 @@ function ExampleDemo(props: {
   );
 }
 
-function ExampleCode(props: { name: string }) {
-  const [group, example] = props.name.split("/");
-  const tabs: Record<string, string> = (EXAMPLES_CODE_BLOCK_TABS as any)[group][
-    example
-  ];
+function ExampleCode(props: { exampleGroupName: string; exampleName: string }) {
+  const tabs: Record<string, string> =
+    exampleGroups[props.exampleGroupName].examples[props.exampleName].files;
 
   return (
     <Tabs items={Object.keys(tabs)}>
@@ -172,28 +156,21 @@ function ExampleProPrompt() {
   );
 }
 
-export default function ClientExample(props: {
-  name: string;
-  categories: {
-    name: string;
-    examples: { name: string; isPro: boolean }[];
-  }[];
+export default function Example(props: {
+  exampleGroupName: string;
+  exampleName: string;
 }) {
-  const [categoryName, exampleName] = props.name.split("/");
-  const exampleIsPro = props.categories
-    .find((category) => category.name === categoryName)
-    ?.examples.find((e) => e.name === exampleName)?.isPro;
-
   const session = authClient.useSession();
   const userIsPro = session.data && session.data.planType !== "free";
 
   return (
     <div className="demo">
       <ExampleDemo {...props} />
-      {exampleIsPro && !userIsPro ? (
+      {exampleGroups[props.exampleGroupName].examples[props.exampleName]
+        .isPro && !userIsPro ? (
         <ExampleProPrompt />
       ) : (
-        <ExampleCode name={props.name} />
+        <ExampleCode {...props} />
       )}
     </div>
   );

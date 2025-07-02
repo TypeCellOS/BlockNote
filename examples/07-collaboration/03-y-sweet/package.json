@@ -17,8 +17,7 @@
     "@blocknote/shadcn": "latest",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "@y-sweet/react": "^0.6.3",
-    "yjs": "13.6.24"
+    "@y-sweet/react": "^0.6.3"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",
