@@ -9,6 +9,7 @@ import { LLMResponse } from "./LLMResponse.js";
 import type { PromptBuilder } from "./formats/PromptBuilder.js";
 import { htmlBlockLLMFormat } from "./formats/html-blocks/htmlBlocks.js";
 import { LLMFormat } from "./index.js";
+import { trimEmptyBlocks } from "./promptHelpers/trimEmptyBlocks.js";
 
 export type LLMRequestOptions = {
   /**
@@ -155,7 +156,7 @@ export async function doLLMRequest(
     cursorBlock &&
     deleteEmptyCursorBlock &&
     isEmptyParagraph(cursorBlock) &&
-    editor.document.length > 1
+    trimEmptyBlocks(editor.document).length > 0
       ? cursorBlock.id
       : undefined;
 
