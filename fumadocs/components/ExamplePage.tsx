@@ -1,15 +1,11 @@
 import { LoaderOutput } from "fumadocs-core/source";
-
-import {
-  DocsBody,
-  DocsDescription,
-  DocsPage,
-  DocsTitle,
-} from "fumadocs-ui/page";
+import { DocsBody, DocsPage, DocsTitle } from "fumadocs-ui/page";
 import { notFound } from "next/navigation";
+
+import { examplesMeta, examples } from "@/.source";
 import Example from "@/components/Example";
 import ExampleCards from "@/components/ExampleCards";
-import { exampleIsPro } from "@/util/exampleIsPro";
+import { getCategories } from "@/util/getCategories";
 import { getMDXComponents } from "@/util/mdx-components";
 
 export async function ExamplePage(props: {
@@ -36,7 +32,7 @@ export async function ExamplePage(props: {
         {params.slug && params.slug.length > 0 ? (
           <Example
             name={params.slug.join("/")}
-            exampleIsPro={exampleIsPro(params.slug.join("/"))}
+            categories={getCategories(examples, examplesMeta)}
           />
         ) : null}
       </DocsBody>

@@ -4,6 +4,7 @@ import LogoLight from "@/public/img/logos/banner.svg";
 import LogoDark from "@/public/img/logos/banner.dark.svg";
 import type { DocsLayoutProps } from "fumadocs-ui/layouts/notebook";
 import { FaBook, FaCode, FaDiscord, FaGithub } from "react-icons/fa";
+import {} from "fumadocs-ui/components/ui/navigation-menu";
 
 /**
  * Shared layout configurations
@@ -13,12 +14,17 @@ import { FaBook, FaCode, FaDiscord, FaGithub } from "react-icons/fa";
  * Docs Layout: app/docs/layout.tsx
  */
 export const baseOptions: Partial<DocsLayoutProps> = {
+  themeSwitch: {
+    enabled: false,
+  },
+  tabMode: "sidebar",
   nav: {
+    mode: "top",
     title: (
       <ThemedImage
         src={{ light: LogoLight, dark: LogoDark }}
         alt="BlockNote"
-        className="w-32"
+        className="w-40"
       />
     ),
   },
@@ -38,6 +44,11 @@ export const baseOptions: Partial<DocsLayoutProps> = {
     {
       text: "Docs",
       url: "/docs",
+      active: "nested-url",
+    },
+    {
+      text: "AI",
+      url: "/docs/ai",
       active: "nested-url",
     },
     {

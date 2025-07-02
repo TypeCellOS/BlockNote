@@ -7,15 +7,13 @@
     "index",
     "introduction",
     "quickstart",
-    "---Editor---",
     "editor-basics",
     "editor-api",
-    "---Styling & Theming---",
     "styling-theming",
     "ui-components",
-    "---Advanced---",
-    "advanced",
+    "custom-schemas",
     "collaboration",
-    "custom-schemas"
+    "advanced",
+    "ai"
   ]
 }

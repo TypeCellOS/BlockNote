@@ -4,12 +4,7 @@ import { getPageTreePeers } from "fumadocs-core/server";
 import { LoaderOutput } from "fumadocs-core/source";
 import { Card, Cards } from "fumadocs-ui/components/card";
 import { createRelativeLink } from "fumadocs-ui/mdx";
-import {
-  DocsBody,
-  DocsDescription,
-  DocsPage,
-  DocsTitle,
-} from "fumadocs-ui/page";
+import { DocsBody, DocsPage, DocsTitle } from "fumadocs-ui/page";
 import { notFound } from "next/navigation";
 
 export function CardTable({

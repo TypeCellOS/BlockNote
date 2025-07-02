@@ -15,18 +15,31 @@ import { authClient } from "@/util/auth-client";
 
 function ExampleDemoBarSourceCodeLink(props: {
   name: string;
+  categories: {
+    name: string;
+    examples: { name: string; isPro: boolean }[];
+  }[];
   platform: {
     name: string;
     icon: React.ReactNode;
     baseUrl: string;
   };
 }) {
+  const [categoryName, exampleName] = props.name.split("/");
+
+  const categoryIndex = props.categories.findIndex(
+    (category) => category.name === categoryName,
+  );
+  const exampleIndex = props.categories[categoryIndex].examples.findIndex(
+    (example) => example.name === exampleName,
+  );
+
   return (
     <a
       className={
         "hover:text-fd-accent-foreground flex items-center gap-1 py-2 text-sm font-medium"
       }
-      href={`${props.platform.baseUrl}${props.name}/`}
+      href={`${props.platform.baseUrl}/${(categoryIndex + 1).toString().padStart(2, "0")}-${categoryName}/${(exampleIndex + 1).toString().padStart(2, "0")}-${exampleName}/`}
       target="_blank"
       rel="noreferrer"
     >
@@ -36,31 +49,43 @@ function ExampleDemoBarSourceCodeLink(props: {
   );
 }
 
-function ExampleDemoBar(props: { name: string }) {
+function ExampleDemoBar(props: {
+  name: string;
+  categories: {
+    name: string;
+    examples: { name: string; isPro: boolean }[];
+  }[];
+}) {
   return (
     <div className={"flex items-center gap-4 px-4"}>
       <ExampleDemoBarSourceCodeLink
-        name={props.name}
+        {...props}
         platform={{
           name: "GitHub",
           icon: <AiFillGithub size={16} />,
-          baseUrl: "https://github.com/TypeCellOS/BlockNote/tree/main/",
+          baseUrl: "https://github.com/TypeCellOS/BlockNote/tree/main/examples",
         }}
       />
       <ExampleDemoBarSourceCodeLink
-        name={props.name}
+        {...props}
         platform={{
           name: "StackBlitz",
           icon: <SiStackblitz size={16} />,
           baseUrl:
-            "https://www.stackblitz.com/github/TypeCellOS/BlockNote/tree/main/",
+            "https://www.stackblitz.com/github/TypeCellOS/BlockNote/tree/main/examples",
         }}
       />
     </div>
   );
 }
 
-function ExampleDemo(props: { name: string }) {
+function ExampleDemo(props: {
+  name: string;
+  categories: {
+    name: string;
+    examples: { name: string; isPro: boolean }[];
+  }[];
+}) {
   const Component = dynamic(
     () => import("./example/generated/components/" + props.name + "/index"),
     { ssr: false },
@@ -70,7 +95,7 @@ function ExampleDemo(props: { name: string }) {
 
   return (
     <div className="not-prose bg-fd-secondary border-fd-border flex h-[600px] flex-col rounded-xl border">
-      <ExampleDemoBar name={props.name} />
+      <ExampleDemoBar {...props} />
       <div
         className={"bg-fd-background h-0 flex-1 overflow-auto rounded-xl p-4"}
       >
@@ -147,22 +172,25 @@ function ExampleProPrompt() {
   );
 }
 
-export default function Example(props: {
+export default function ClientExample(props: {
   name: string;
-  // Workaround as using `@/.source` only works in server components (to check
-  // example pro status), but `authClient.useSession()` only works in client
-  // components (to check user pro status). Otherwise, we would check both
-  // example and user pro status in this component, but instead we can only
-  // check the user pro status here.
-  exampleIsPro: boolean;
+  categories: {
+    name: string;
+    examples: { name: string; isPro: boolean }[];
+  }[];
 }) {
+  const [categoryName, exampleName] = props.name.split("/");
+  const exampleIsPro = props.categories
+    .find((category) => category.name === categoryName)
+    ?.examples.find((e) => e.name === exampleName)?.isPro;
+
   const session = authClient.useSession();
   const userIsPro = session.data && session.data.planType !== "free";
 
   return (
     <div className="demo">
-      <ExampleDemo name={props.name} />
-      {props.exampleIsPro && !userIsPro ? (
+      <ExampleDemo {...props} />
+      {exampleIsPro && !userIsPro ? (
         <ExampleProPrompt />
       ) : (
         <ExampleCode name={props.name} />
