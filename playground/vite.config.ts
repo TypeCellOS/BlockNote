@@ -24,7 +24,7 @@ export default defineConfig((conf) => ({
         nesting,
         tailwindcss("../packages/shadcn/tailwind.config.js"), // Adjust the path as necessary
         auto,
-      ],
+      ] as any,
     },
     // postcss: "../packages/shadcn/postcss.config.js",
   },
