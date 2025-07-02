@@ -4,7 +4,6 @@ import LogoLight from "@/public/img/logos/banner.svg";
 import LogoDark from "@/public/img/logos/banner.dark.svg";
 import type { DocsLayoutProps } from "fumadocs-ui/layouts/notebook";
 import { FaBook, FaCode, FaDiscord, FaGithub } from "react-icons/fa";
-import {} from "fumadocs-ui/components/ui/navigation-menu";
 
 /**
  * Shared layout configurations
