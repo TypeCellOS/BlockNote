@@ -12,7 +12,6 @@ import {
 } from "@shared/formatConversionTestUtil.js";
 import { expect } from "vitest";
 
-// TODO: fix import and add lint rule, or allow?
 import { ExportParseEqualityTestCase } from "./exportParseEqualityTestCase.js";
 
 export const testExportParseEqualityBlockNoteHTML = async <
