@@ -61,9 +61,22 @@ function getProviderInfo(provider: string) {
   if (!key || !key.length) {
     return "not-found";
   }
+  if (provider === "google") {
+    return {
+      key,
+      header: "x-goog-api-key",
+    };
+  }
+  if (provider === "anthropic") {
+    return {
+      key,
+      header: "x-api-key",
+    };
+  }
+
   return {
     key,
-    header: provider === "anthropic" ? "x-api-key" : "Authorization",
+    header: "Authorization",
   };
 }
 
@@ -111,7 +124,6 @@ app.use("/ai", cors(), async (c) => {
     request.headers.set(providerInfo.header, `${providerInfo.key}`);
   }
 
-  request.headers.set("x-api-key", `${providerInfo.key}`);
   return proxyFetch(request);
 });
 

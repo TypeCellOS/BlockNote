@@ -1,4 +1,5 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createGroq } from "@ai-sdk/groq";
 import { createMistral } from "@ai-sdk/mistral";
 import { createOpenAI } from "@ai-sdk/openai";
@@ -31,6 +32,7 @@ import {
 import { en as aiEn } from "@blocknote/xl-ai/locales";
 import "@blocknote/xl-ai/style.css";
 import { Fieldset, MantineProvider, Switch } from "@mantine/core";
+
 
 import { LanguageModelV1 } from "ai";
 import { useEffect, useMemo, useState } from "react";
@@ -72,6 +74,12 @@ function getModel(aiModelString: string) {
     return createAnthropic({
       ...client.getProviderSettings("anthropic"),
     })(modelName);
+  } else if (provider === "google.generative-ai") {
+    return createGoogleGenerativeAI({
+      ...client.getProviderSettings("google"),
+    })(modelName, {
+      structuredOutputs: false,
+    });
   } else {
     return "unknown-model" as const;
   }

@@ -1185,7 +1185,7 @@
             "Basic"
           ]
         },
-        "title": "Toggleable Blocks",
+        "title": "Toggleable Custom Blocks",
         "group": {
           "pathFromRoot": "examples/06-custom-schema",
           "slug": "custom-schema"
@@ -1492,6 +1492,7 @@
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^7.10.1",
             "ai": "^4.3.15",
+            "@ai-sdk/google": "^1.2.20",
             "@ai-sdk/openai": "^1.3.22",
             "@ai-sdk/openai-compatible": "^0.2.14",
             "@ai-sdk/groq": "^1.2.9",

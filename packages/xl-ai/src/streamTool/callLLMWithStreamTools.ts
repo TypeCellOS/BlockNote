@@ -105,9 +105,14 @@ export async function generateOperations<T extends StreamTool<any>[]>(
     // - optional, with defaults
 
     // mistral somehow needs "auto", while groq/llama needs "tool"
+    // google needs "auto" because https://github.com/vercel/ai/issues/6959
     // TODO: further research this and / or make configurable
     // for now stick to "tool" by default as this has been tested mostly
-    mode: rest.model.provider === "mistral.chat" ? "auto" : "tool",
+    mode:
+      rest.model.provider === "mistral.chat" ||
+      rest.model.provider === "google.generative-ai"
+        ? "auto"
+        : "tool",
     //  - mandatory ones:
     ...rest,
 
@@ -215,9 +220,14 @@ export async function streamOperations<T extends StreamTool<any>[]>(
 
     // - optional, with defaults
     // mistral somehow needs "auto", while groq/llama needs "tool"
+    // google needs "auto" because https://github.com/vercel/ai/issues/6959
     // TODO: further research this and / or make configurable
     // for now stick to "tool" by default as this has been tested mostly
-    mode: rest.model.provider === "mistral.chat" ? "auto" : "tool",
+    mode:
+      rest.model.provider === "mistral.chat" ||
+      rest.model.provider === "google.generative-ai"
+        ? "auto"
+        : "tool",
     //  - mandatory ones:
     ...rest,
 
