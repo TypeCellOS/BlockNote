@@ -169,7 +169,7 @@ export function createAddBlocksTool<T>(config: {
       },
       // Note: functionality mostly tested in jsontools.test.ts
       // would be nicer to add a direct unit test
-      execute: async function* (operationsStream) {
+      execute: async function* (operationsStream, abortSignal?: AbortSignal) {
         // An add operation has some complexity:
         // - it can add multiple blocks in 1 operation
         //   (this is needed because you need an id as reference block - and if you want to insert multiple blocks you can only use an existing block as reference id)
@@ -266,6 +266,11 @@ export function createAddBlocksTool<T>(config: {
             }
 
             for (const step of agentSteps) {
+              if (abortSignal?.aborted) {
+                const error = new Error("Operation was aborted");
+                error.name = "AbortError";
+                throw error;
+              }
               if (options.withDelays) {
                 await delayAgentStep(step);
               }
