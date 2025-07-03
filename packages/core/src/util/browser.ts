@@ -13,7 +13,17 @@ export function formatKeyboardShortcut(shortcut: string, ctrlText = "Ctrl") {
 }
 
 export function mergeCSSClasses(...classes: (string | false | undefined)[]) {
-  return classes.filter((c) => c).join(" ");
+  return [
+    // Converts to & from set to remove duplicates.
+    ...new Set(
+      classes
+        .filter((c) => c)
+        // Ensures that if multiple classes are passed as a single string, they
+        // are split.
+        .join(" ")
+        .split(" "),
+    ),
+  ].join(" ");
 }
 
 export const isSafari = () =>
