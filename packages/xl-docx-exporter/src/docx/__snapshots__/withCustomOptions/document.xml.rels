@@ -7,7 +7,6 @@
     <Relationship Id="FAKE-ID" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments" Target="comments.xml"/>
     <Relationship Id="FAKE-ID" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/>
     <Relationship Id="FAKE-ID" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/>
-    <Relationship Id="FAKE-ID" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable" Target="fontTable.xml"/>
     <Relationship Id="FAKE-ID" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="" TargetMode="External"/>
     <Relationship Id="FAKE-ID" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm" TargetMode="External"/>
     <Relationship Id="FAKE-ID" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3" TargetMode="External"/>

@@ -90,12 +90,14 @@ export abstract class Exporter<
     block: BlockFromConfig<B[keyof B], I, S>,
     nestingLevel: number,
     numberedListIndex: number,
+    children?: Array<Awaited<RB>>,
   ) {
     return this.mappings.blockMapping[block.type](
       block,
       this,
       nestingLevel,
       numberedListIndex,
+      children,
     );
   }
 }

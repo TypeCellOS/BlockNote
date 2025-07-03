@@ -5,6 +5,7 @@ import {
   pageBreakSchema,
   StyledText,
 } from "@blocknote/core";
+import { multiColumnSchema } from "@blocknote/xl-multi-column";
 import { Image, Link, Path, Svg, Text, View } from "@react-pdf/renderer";
 import {
   BULLET_MARKER,
@@ -19,7 +20,9 @@ const PIXELS_PER_POINT = 0.75;
 const FONT_SIZE = 16;
 
 export const pdfBlockMappingForDefaultSchema: BlockMapping<
-  DefaultBlockSchema & typeof pageBreakSchema.blockSchema,
+  DefaultBlockSchema &
+    typeof pageBreakSchema.blockSchema &
+    typeof multiColumnSchema.blockSchema,
   any,
   any,
   React.ReactElement<Text>,
@@ -88,6 +91,7 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
         key={"heading" + block.id}
         style={{
           fontSize: levelFontSizeEM * FONT_SIZE * PIXELS_PER_POINT,
+          lineHeight: 1.25,
           fontWeight: 700,
         }}
       >
@@ -145,6 +149,28 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
   },
   pageBreak: () => {
     return <View break key={"pageBreak"} />;
+  },
+  column: (block, _exporter, _nestingLevel, _numberedListIndex, children) => {
+    return <View style={{ flex: block.props.width }}>{children}</View>;
+  },
+  columnList: (
+    _block,
+    _exporter,
+    _nestingLevel,
+    _numberedListIndex,
+    children,
+  ) => {
+    return (
+      <View
+        style={{
+          display: "flex",
+          gap: 8 * PIXELS_PER_POINT,
+          flexDirection: "row",
+        }}
+      >
+        {children}
+      </View>
+    );
   },
   audio: (block, exporter) => {
     return (

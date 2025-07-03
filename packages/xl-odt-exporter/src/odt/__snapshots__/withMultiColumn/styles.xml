@@ -1,0 +1,599 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<office:document-styles xmlns:css3t="http://www.w3.org/TR/css3-text/" xmlns:grddl="http://www.w3.org/2003/g/data-view#" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:dom="http://www.w3.org/2001/xml-events" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:field="urn:openoffice:names:experimental:ooo-ms-interop:xmlns:field:1.0" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0" xmlns:officeooo="http://openoffice.org/2009/office" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:rpt="http://openoffice.org/2005/report" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:tableooo="http://openoffice.org/2009/table" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:calcext="urn:org:documentfoundation:names:experimental:calc:xmlns:calcext:1.0" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:drawooo="http://openoffice.org/2010/draw" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" office:version="1.3">
+    <office:font-face-decls>
+        <style:font-face style:name="Geist Mono" svg:font-family="Geist Mono"/>
+        <style:font-face style:name="Inter 18pt" svg:font-family="Inter 18pt" style:font-pitch="variable"/>
+        <style:font-face style:name="Liberation Serif" svg:font-family="&apos;Liberation Serif&apos;" style:font-family-generic="roman" style:font-pitch="variable"/>
+        <style:font-face style:name="OpenSymbol" svg:font-family="OpenSymbol" style:font-charset="x-symbol"/>
+        <style:font-face style:name="PingFang SC" svg:font-family="&apos;PingFang SC&apos;" style:font-family-generic="system" style:font-pitch="variable"/>
+        <style:font-face style:name="Tahoma" svg:font-family="Tahoma" style:font-family-generic="system" style:font-pitch="variable"/>
+        <style:font-face style:name="Times New Roman (Body CS)" svg:font-family="&apos;Times New Roman (Body CS)&apos;" style:font-family-generic="system" style:font-pitch="variable"/>
+    </office:font-face-decls>
+    <office:styles>
+        <draw:gradient draw:name="Gradient_20_1" draw:display-name="Gradient 1" draw:style="linear" draw:start-color="#000000" draw:end-color="#ffffff" draw:start-intensity="100%" draw:end-intensity="100%" draw:angle="0deg" draw:border="0%">
+            <loext:gradient-stop svg:offset="0" loext:color-type="rgb" loext:color-value="#000000"/>
+            <loext:gradient-stop svg:offset="1" loext:color-type="rgb" loext:color-value="#ffffff"/>
+        </draw:gradient>
+        <draw:hatch draw:name="Red_20_90_20_Degrees_20_Crossed_20_1" draw:display-name="Red 90 Degrees Crossed 1" draw:style="single" draw:color="#3465a4" draw:distance="0.0079in" draw:rotation="0"/>
+        <style:default-style style:family="graphic">
+            <style:graphic-properties svg:stroke-color="#3465a4" draw:fill-color="#729fcf" fo:wrap-option="no-wrap" draw:shadow-offset-x="0.1181in" draw:shadow-offset-y="0.1181in" draw:start-line-spacing-horizontal="0.1114in" draw:start-line-spacing-vertical="0.1114in" draw:end-line-spacing-horizontal="0.1114in" draw:end-line-spacing-vertical="0.1114in" style:flow-with-text="false"/>
+            <style:paragraph-properties style:text-autospace="ideograph-alpha" style:line-break="strict" loext:tab-stop-distance="0in" style:writing-mode="lr-tb" style:font-independent-line-spacing="false">
+                <style:tab-stops/>
+            </style:paragraph-properties>
+            <style:text-properties style:font-name="Inter 18pt" fo:font-family="Inter 18pt" style:font-style-name="Regular" style:font-pitch="variable" style:font-name-complex="Times New Roman (Body CS)" style:font-family-complex="&apos;Times New Roman (Body CS)&apos;" style:font-family-generic-complex="system" style:font-pitch-complex="variable" style:use-window-font-color="true" loext:opacity="0%" fo:font-size="12pt" fo:language="en" fo:country="NL" style:letter-kerning="true" style:font-size-asian="12pt" style:language-asian="en" style:country-asian="GB" style:font-size-complex="12pt" style:language-complex="ar" style:country-complex="SA"/>
+        </style:default-style>
+        <style:default-style style:family="paragraph">
+            <style:paragraph-properties fo:hyphenation-ladder-count="no-limit" fo:hyphenation-keep="auto" loext:hyphenation-keep-type="column" style:text-autospace="ideograph-alpha" style:punctuation-wrap="hanging" style:line-break="strict" style:tab-stop-distance="0.139in" style:writing-mode="page"/>
+            <style:text-properties style:font-name="Inter 18pt" fo:font-family="Inter 18pt" style:font-style-name="Regular" style:font-pitch="variable" style:font-name-complex="Times New Roman (Body CS)" style:font-family-complex="&apos;Times New Roman (Body CS)&apos;" style:font-family-generic-complex="system" style:font-pitch-complex="variable" style:use-window-font-color="true" loext:opacity="0%" fo:font-size="12pt" fo:language="en" fo:country="NL" style:letter-kerning="true" style:font-size-asian="12pt" style:language-asian="en" style:country-asian="GB" style:font-size-complex="12pt" style:language-complex="ar" style:country-complex="SA" fo:hyphenate="false" fo:hyphenation-remain-char-count="2" fo:hyphenation-push-char-count="2" loext:hyphenation-no-caps="false" loext:hyphenation-no-last-word="false" loext:hyphenation-word-char-count="5" loext:hyphenation-zone="no-limit"/>
+        </style:default-style>
+        <style:default-style style:family="table">
+            <style:table-properties table:border-model="collapsing"/>
+        </style:default-style>
+        <style:default-style style:family="table-row">
+            <style:table-row-properties fo:keep-together="auto"/>
+        </style:default-style>
+        <style:style style:name="Standard" style:family="paragraph" style:class="text">
+            <style:paragraph-properties fo:margin-top="0.0311in" fo:margin-bottom="0.0311in" style:contextual-spacing="false" fo:line-height="150%" fo:text-align="start" style:justify-single-word="false" fo:orphans="2" fo:widows="2" style:writing-mode="lr-tb"/>
+            <style:text-properties style:font-name="Inter 18pt" fo:font-family="Inter 18pt" style:font-style-name="Regular" style:font-pitch="variable" style:font-name-complex="Times New Roman (Body CS)" style:font-family-complex="&apos;Times New Roman (Body CS)&apos;" style:font-family-generic-complex="system" style:font-pitch-complex="variable"/>
+        </style:style>
+        <style:style style:name="Heading" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Text_20_body" style:class="text">
+            <style:paragraph-properties fo:margin-top="0.1665in" fo:margin-bottom="0.0835in" style:contextual-spacing="false" fo:keep-with-next="always"/>
+            <style:text-properties style:font-family-generic="swiss" style:font-pitch="variable" fo:font-size="14pt" style:font-name-asian="PingFang SC" style:font-family-asian="&apos;PingFang SC&apos;" style:font-family-generic-asian="system" style:font-pitch-asian="variable" style:font-size-asian="14pt" style:font-name-complex="Arial Unicode MS1" style:font-family-complex="&apos;Arial Unicode MS&apos;" style:font-family-generic-complex="system" style:font-pitch-complex="variable" style:font-size-complex="14pt"/>
+        </style:style>
+        <style:style style:name="Text_20_body" style:display-name="Text body" style:family="paragraph" style:parent-style-name="Standard" style:class="text">
+            <style:paragraph-properties fo:margin-top="0in" fo:margin-bottom="0.0972in" style:contextual-spacing="false" fo:line-height="115%"/>
+        </style:style>
+        <style:style style:name="List" style:family="paragraph" style:parent-style-name="Text_20_body" style:class="list">
+            <style:text-properties style:font-size-asian="12pt" style:font-name-complex="Arial Unicode MS" style:font-family-complex="&apos;Arial Unicode MS&apos;" style:font-family-generic-complex="swiss"/>
+        </style:style>
+        <style:style style:name="Caption" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="extra">
+            <style:paragraph-properties fo:margin-top="0in" fo:margin-bottom="0.139in" style:contextual-spacing="false" fo:line-height="100%"/>
+            <style:text-properties fo:color="#0e2841" loext:opacity="100%" fo:font-size="9pt" fo:font-style="italic" style:font-size-asian="9pt" style:font-style-asian="italic" style:font-size-complex="9pt" style:font-style-complex="italic">
+                <loext:char-complex-color loext:theme-type="dark2" loext:color-type="theme"/>
+            </style:text-properties>
+        </style:style>
+        <style:style style:name="Index" style:family="paragraph" style:parent-style-name="Standard" style:class="index">
+            <style:paragraph-properties text:number-lines="false" text:line-number="0"/>
+            <style:text-properties style:font-size-asian="12pt" style:font-name-complex="Arial Unicode MS" style:font-family-complex="&apos;Arial Unicode MS&apos;" style:font-family-generic-complex="swiss"/>
+        </style:style>
+        <style:style style:name="Heading_20_1" style:display-name="Heading 1" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" loext:linked-style-name="Heading_20_1_20_Char" style:default-outline-level="1" style:list-style-name="" style:class="text">
+            <style:text-properties fo:font-size="24pt" fo:font-weight="bold" style:font-size-asian="24pt" style:font-weight-asian="bold" style:font-size-complex="24pt"/>
+        </style:style>
+        <style:style style:name="Heading_20_2" style:display-name="Heading 2" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" loext:linked-style-name="Heading_20_2_20_Char" style:default-outline-level="2" style:list-style-name="" style:class="text">
+            <style:text-properties fo:font-size="18pt" fo:font-weight="bold" style:font-size-asian="18pt" style:font-weight-asian="bold" style:font-size-complex="18pt"/>
+        </style:style>
+        <style:style style:name="Heading_20_3" style:display-name="Heading 3" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" loext:linked-style-name="Heading_20_3_20_Char" style:default-outline-level="3" style:list-style-name="" style:class="text">
+            <style:text-properties fo:font-size="14pt" fo:font-weight="bold" style:font-size-asian="14pt" style:font-weight-asian="bold" style:font-size-complex="14pt"/>
+        </style:style>
+        <style:style style:name="Heading_20_4" style:display-name="Heading 4" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" loext:linked-style-name="Heading_20_4_20_Char" style:default-outline-level="4" style:list-style-name="" style:class="text">
+            <style:paragraph-properties fo:margin-top="0.0555in" fo:margin-bottom="0.028in" style:contextual-spacing="false" fo:keep-together="always" fo:keep-with-next="always"/>
+            <style:text-properties fo:color="#0f4761" loext:opacity="100%" fo:font-style="italic" style:font-name-asian="F2" style:font-family-generic-asian="system" style:font-pitch-asian="variable" style:font-style-asian="italic" style:font-name-complex="F2" style:font-family-generic-complex="system" style:font-pitch-complex="variable" style:font-style-complex="italic">
+                <loext:char-complex-color loext:theme-type="accent1" loext:color-type="theme">
+                    <loext:transformation loext:type="shade" loext:value="2509"/>
+                </loext:char-complex-color>
+            </style:text-properties>
+        </style:style>
+        <style:style style:name="Heading_20_5" style:display-name="Heading 5" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" loext:linked-style-name="Heading_20_5_20_Char" style:default-outline-level="5" style:list-style-name="" style:class="text">
+            <style:paragraph-properties fo:margin-top="0.0555in" fo:margin-bottom="0.028in" style:contextual-spacing="false" fo:keep-together="always" fo:keep-with-next="always"/>
+            <style:text-properties fo:color="#0f4761" loext:opacity="100%" style:font-name-asian="F2" style:font-family-generic-asian="system" style:font-pitch-asian="variable" style:font-name-complex="F2" style:font-family-generic-complex="system" style:font-pitch-complex="variable">
+                <loext:char-complex-color loext:theme-type="accent1" loext:color-type="theme">
+                    <loext:transformation loext:type="shade" loext:value="2509"/>
+                </loext:char-complex-color>
+            </style:text-properties>
+        </style:style>
+        <style:style style:name="Heading_20_6" style:display-name="Heading 6" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" loext:linked-style-name="Heading_20_6_20_Char" style:default-outline-level="6" style:list-style-name="" style:class="text">
+            <style:paragraph-properties fo:margin-top="0.028in" fo:margin-bottom="0in" style:contextual-spacing="false" fo:keep-together="always" fo:keep-with-next="always"/>
+            <style:text-properties fo:color="#595959" loext:opacity="100%" fo:font-style="italic" style:font-name-asian="F2" style:font-family-generic-asian="system" style:font-pitch-asian="variable" style:font-style-asian="italic" style:font-name-complex="F2" style:font-family-generic-complex="system" style:font-pitch-complex="variable" style:font-style-complex="italic">
+                <loext:char-complex-color loext:theme-type="dark1" loext:color-type="theme">
+                    <loext:transformation loext:type="tint" loext:value="3490"/>
+                </loext:char-complex-color>
+            </style:text-properties>
+        </style:style>
+        <style:style style:name="Heading_20_7" style:display-name="Heading 7" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" loext:linked-style-name="Heading_20_7_20_Char" style:default-outline-level="7" style:list-style-name="" style:class="text">
+            <style:paragraph-properties fo:margin-top="0.028in" fo:margin-bottom="0in" style:contextual-spacing="false" fo:keep-together="always" fo:keep-with-next="always"/>
+            <style:text-properties fo:color="#595959" loext:opacity="100%" style:font-name-asian="F2" style:font-family-generic-asian="system" style:font-pitch-asian="variable" style:font-name-complex="F2" style:font-family-generic-complex="system" style:font-pitch-complex="variable">
+                <loext:char-complex-color loext:theme-type="dark1" loext:color-type="theme">
+                    <loext:transformation loext:type="tint" loext:value="3490"/>
+                </loext:char-complex-color>
+            </style:text-properties>
+        </style:style>
+        <style:style style:name="Heading_20_8" style:display-name="Heading 8" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" loext:linked-style-name="Heading_20_8_20_Char" style:default-outline-level="8" style:list-style-name="" style:class="text">
+            <style:paragraph-properties fo:margin-top="0.0311in" fo:margin-bottom="0in" style:contextual-spacing="false" fo:keep-together="always" fo:keep-with-next="always"/>
+            <style:text-properties fo:color="#272727" loext:opacity="100%" fo:font-style="italic" style:font-name-asian="F2" style:font-family-generic-asian="system" style:font-pitch-asian="variable" style:font-style-asian="italic" style:font-name-complex="F2" style:font-family-generic-complex="system" style:font-pitch-complex="variable" style:font-style-complex="italic">
+                <loext:char-complex-color loext:theme-type="dark1" loext:color-type="theme">
+                    <loext:transformation loext:type="tint" loext:value="1529"/>
+                </loext:char-complex-color>
+            </style:text-properties>
+        </style:style>
+        <style:style style:name="Heading_20_9" style:display-name="Heading 9" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" loext:linked-style-name="Heading_20_9_20_Char" style:default-outline-level="9" style:list-style-name="" style:class="text">
+            <style:paragraph-properties fo:margin-top="0.0311in" fo:margin-bottom="0in" style:contextual-spacing="false" fo:keep-together="always" fo:keep-with-next="always"/>
+            <style:text-properties fo:color="#272727" loext:opacity="100%" style:font-name-asian="F2" style:font-family-generic-asian="system" style:font-pitch-asian="variable" style:font-name-complex="F2" style:font-family-generic-complex="system" style:font-pitch-complex="variable">
+                <loext:char-complex-color loext:theme-type="dark1" loext:color-type="theme">
+                    <loext:transformation loext:type="tint" loext:value="1529"/>
+                </loext:char-complex-color>
+            </style:text-properties>
+        </style:style>
+        <style:style style:name="Title" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" loext:linked-style-name="Title_20_Char" style:class="chapter">
+            <style:paragraph-properties fo:margin-top="0.0311in" fo:margin-bottom="0.0555in" style:contextual-spacing="true" fo:line-height="100%"/>
+            <style:text-properties fo:font-size="28pt" fo:letter-spacing="-0.0071in" style:letter-kerning="true" style:font-name-asian="F2" style:font-family-generic-asian="system" style:font-pitch-asian="variable" style:font-size-asian="28pt" style:font-name-complex="F2" style:font-family-generic-complex="system" style:font-pitch-complex="variable" style:font-size-complex="28pt"/>
+        </style:style>
+        <style:style style:name="Subtitle" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" loext:linked-style-name="Subtitle_20_Char" style:class="chapter">
+            <style:text-properties fo:color="#595959" loext:opacity="100%" fo:font-size="14pt" fo:letter-spacing="0.0102in" style:font-name-asian="F2" style:font-family-generic-asian="system" style:font-pitch-asian="variable" style:font-size-asian="14pt" style:font-name-complex="F2" style:font-family-generic-complex="system" style:font-pitch-complex="variable" style:font-size-complex="14pt">
+                <loext:char-complex-color loext:theme-type="dark1" loext:color-type="theme">
+                    <loext:transformation loext:type="tint" loext:value="3490"/>
+                </loext:char-complex-color>
+            </style:text-properties>
+        </style:style>
+        <style:style style:name="Quote" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" loext:linked-style-name="Quote_20_Char">
+            <style:paragraph-properties fo:margin-top="0.111in" fo:margin-bottom="0.0311in" style:contextual-spacing="false" fo:text-align="center" style:justify-single-word="false"/>
+            <style:text-properties fo:color="#404040" loext:opacity="100%" fo:font-style="italic" style:font-style-asian="italic" style:font-style-complex="italic">
+                <loext:char-complex-color loext:theme-type="dark1" loext:color-type="theme">
+                    <loext:transformation loext:type="tint" loext:value="2509"/>
+                </loext:char-complex-color>
+            </style:text-properties>
+        </style:style>
+        <style:style style:name="List_20_Paragraph" style:display-name="List Paragraph" style:family="paragraph" style:parent-style-name="Standard">
+            <style:paragraph-properties fo:margin-left="0.5in" fo:margin-top="0.0311in" fo:margin-bottom="0.0311in" style:contextual-spacing="true"/>
+        </style:style>
+        <style:style style:name="Intense_20_Quote" style:display-name="Intense Quote" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" loext:linked-style-name="Intense_20_Quote_20_Char">
+            <style:paragraph-properties fo:margin-left="0.6in" fo:margin-right="0.6in" fo:margin-top="0.25in" fo:margin-bottom="0.25in" style:contextual-spacing="false" fo:text-align="center" style:justify-single-word="false" fo:padding-left="0in" fo:padding-right="0in" fo:padding-top="0.139in" fo:padding-bottom="0.139in" fo:border-left="none" fo:border-right="none" fo:border-top="0.51pt solid #0f4761" fo:border-bottom="0.51pt solid #0f4761"/>
+            <style:text-properties fo:color="#0f4761" loext:opacity="100%" fo:font-style="italic" style:font-style-asian="italic" style:font-style-complex="italic">
+                <loext:char-complex-color loext:theme-type="accent1" loext:color-type="theme">
+                    <loext:transformation loext:type="shade" loext:value="2509"/>
+                </loext:char-complex-color>
+            </style:text-properties>
+        </style:style>
+        <style:style style:name="PageBreak" style:family="paragraph" style:parent-style-name="Standard">
+            <style:paragraph-properties fo:break-before="page"/>
+        </style:style>
+        <style:style style:name="Codeblock" style:family="paragraph" style:parent-style-name="Standard">
+            <loext:graphic-properties draw:fill="solid" draw:fill-color="#161616"/>
+            <style:paragraph-properties fo:line-height="100%" fo:background-color="#161616"/>
+            <style:text-properties fo:color="#e1e4e8" loext:opacity="100%" style:font-name="Geist Mono" fo:font-family="Geist Mono"/>
+        </style:style>
+        <style:style style:name="Heading_20_1_20_Char" style:display-name="Heading 1 Char" style:family="text" style:parent-style-name="Standard" loext:linked-style-name="Heading_20_1">
+            <style:text-properties fo:font-size="20pt" style:font-size-asian="20pt" style:font-size-complex="20pt"/>
+        </style:style>
+        <style:style style:name="Heading_20_2_20_Char" style:display-name="Heading 2 Char" style:family="text" style:parent-style-name="Standard" loext:linked-style-name="Heading_20_2">
+            <style:text-properties fo:color="#0f4761" loext:opacity="100%" fo:font-size="16pt" style:font-size-asian="16pt" style:font-size-complex="16pt">
+                <loext:char-complex-color loext:theme-type="accent1" loext:color-type="theme">
+                    <loext:transformation loext:type="shade" loext:value="2509"/>
+                </loext:char-complex-color>
+            </style:text-properties>
+        </style:style>
+        <style:style style:name="Heading_20_3_20_Char" style:display-name="Heading 3 Char" style:family="text" style:parent-style-name="Standard" loext:linked-style-name="Heading_20_3">
+            <style:text-properties fo:color="#0f4761" loext:opacity="100%" fo:font-size="14pt" style:font-name-asian="F2" style:font-family-generic-asian="system" style:font-pitch-asian="variable" style:font-size-asian="14pt" style:font-name-complex="F2" style:font-family-generic-complex="system" style:font-pitch-complex="variable" style:font-size-complex="14pt">
+                <loext:char-complex-color loext:theme-type="accent1" loext:color-type="theme">
+                    <loext:transformation loext:type="shade" loext:value="2509"/>
+                </loext:char-complex-color>
+            </style:text-properties>
+        </style:style>
+        <style:style style:name="Heading_20_4_20_Char" style:display-name="Heading 4 Char" style:family="text" style:parent-style-name="Standard" loext:linked-style-name="Heading_20_4">
+            <style:text-properties fo:color="#0f4761" loext:opacity="100%" fo:font-style="italic" style:font-name-asian="F2" style:font-family-generic-asian="system" style:font-pitch-asian="variable" style:font-style-asian="italic" style:font-name-complex="F2" style:font-family-generic-complex="system" style:font-pitch-complex="variable" style:font-style-complex="italic">
+                <loext:char-complex-color loext:theme-type="accent1" loext:color-type="theme">
+                    <loext:transformation loext:type="shade" loext:value="2509"/>
+                </loext:char-complex-color>
+            </style:text-properties>
+        </style:style>
+        <style:style style:name="Heading_20_5_20_Char" style:display-name="Heading 5 Char" style:family="text" style:parent-style-name="Standard" loext:linked-style-name="Heading_20_5">
+            <style:text-properties fo:color="#0f4761" loext:opacity="100%" style:font-name-asian="F2" style:font-family-generic-asian="system" style:font-pitch-asian="variable" style:font-name-complex="F2" style:font-family-generic-complex="system" style:font-pitch-complex="variable">
+                <loext:char-complex-color loext:theme-type="accent1" loext:color-type="theme">
+                    <loext:transformation loext:type="shade" loext:value="2509"/>
+                </loext:char-complex-color>
+            </style:text-properties>
+        </style:style>
+        <style:style style:name="Heading_20_6_20_Char" style:display-name="Heading 6 Char" style:family="text" style:parent-style-name="Standard" loext:linked-style-name="Heading_20_6">
+            <style:text-properties fo:color="#595959" loext:opacity="100%" fo:font-style="italic" style:font-name-asian="F2" style:font-family-generic-asian="system" style:font-pitch-asian="variable" style:font-style-asian="italic" style:font-name-complex="F2" style:font-family-generic-complex="system" style:font-pitch-complex="variable" style:font-style-complex="italic">
+                <loext:char-complex-color loext:theme-type="dark1" loext:color-type="theme">
+                    <loext:transformation loext:type="tint" loext:value="3490"/>
+                </loext:char-complex-color>
+            </style:text-properties>
+        </style:style>
+        <style:style style:name="Heading_20_7_20_Char" style:display-name="Heading 7 Char" style:family="text" style:parent-style-name="Standard" loext:linked-style-name="Heading_20_7">
+            <style:text-properties fo:color="#595959" loext:opacity="100%" style:font-name-asian="F2" style:font-family-generic-asian="system" style:font-pitch-asian="variable" style:font-name-complex="F2" style:font-family-generic-complex="system" style:font-pitch-complex="variable">
+                <loext:char-complex-color loext:theme-type="dark1" loext:color-type="theme">
+                    <loext:transformation loext:type="tint" loext:value="3490"/>
+                </loext:char-complex-color>
+            </style:text-properties>
+        </style:style>
+        <style:style style:name="Heading_20_8_20_Char" style:display-name="Heading 8 Char" style:family="text" style:parent-style-name="Standard" loext:linked-style-name="Heading_20_8">
+            <style:text-properties fo:color="#272727" loext:opacity="100%" fo:font-style="italic" style:font-name-asian="F2" style:font-family-generic-asian="system" style:font-pitch-asian="variable" style:font-style-asian="italic" style:font-name-complex="F2" style:font-family-generic-complex="system" style:font-pitch-complex="variable" style:font-style-complex="italic">
+                <loext:char-complex-color loext:theme-type="dark1" loext:color-type="theme">
+                    <loext:transformation loext:type="tint" loext:value="1529"/>
+                </loext:char-complex-color>
+            </style:text-properties>
+        </style:style>
+        <style:style style:name="Heading_20_9_20_Char" style:display-name="Heading 9 Char" style:family="text" style:parent-style-name="Standard" loext:linked-style-name="Heading_20_9">
+            <style:text-properties fo:color="#272727" loext:opacity="100%" style:font-name-asian="F2" style:font-family-generic-asian="system" style:font-pitch-asian="variable" style:font-name-complex="F2" style:font-family-generic-complex="system" style:font-pitch-complex="variable">
+                <loext:char-complex-color loext:theme-type="dark1" loext:color-type="theme">
+                    <loext:transformation loext:type="tint" loext:value="1529"/>
+                </loext:char-complex-color>
+            </style:text-properties>
+        </style:style>
+        <style:style style:name="Title_20_Char" style:display-name="Title Char" style:family="text" style:parent-style-name="Standard" loext:linked-style-name="Title">
+            <style:text-properties style:font-name="Inter 18pt" fo:font-size="28pt" fo:letter-spacing="-0.0071in" style:letter-kerning="true" style:font-size-asian="28pt" style:font-size-complex="28pt"/>
+        </style:style>
+        <style:style style:name="Subtitle_20_Char" style:display-name="Subtitle Char" style:family="text" style:parent-style-name="Standard" loext:linked-style-name="Subtitle">
+            <style:text-properties fo:color="#595959" loext:opacity="100%" fo:font-size="14pt" fo:letter-spacing="0.0102in" style:font-name-asian="F2" style:font-family-generic-asian="system" style:font-pitch-asian="variable" style:font-size-asian="14pt" style:font-name-complex="F2" style:font-family-generic-complex="system" style:font-pitch-complex="variable" style:font-size-complex="14pt">
+                <loext:char-complex-color loext:theme-type="dark1" loext:color-type="theme">
+                    <loext:transformation loext:type="tint" loext:value="3490"/>
+                </loext:char-complex-color>
+            </style:text-properties>
+        </style:style>
+        <style:style style:name="Quote_20_Char" style:display-name="Quote Char" style:family="text" style:parent-style-name="Standard" loext:linked-style-name="Quote">
+            <style:text-properties fo:color="#404040" loext:opacity="100%" fo:font-style="italic" style:font-style-asian="italic" style:font-style-complex="italic">
+                <loext:char-complex-color loext:theme-type="dark1" loext:color-type="theme">
+                    <loext:transformation loext:type="tint" loext:value="2509"/>
+                </loext:char-complex-color>
+            </style:text-properties>
+        </style:style>
+        <style:style style:name="Intense_20_Emphasis" style:display-name="Intense Emphasis" style:family="text" style:parent-style-name="Standard">
+            <style:text-properties fo:color="#0f4761" loext:opacity="100%" fo:font-style="italic" style:font-style-asian="italic" style:font-style-complex="italic">
+                <loext:char-complex-color loext:theme-type="accent1" loext:color-type="theme">
+                    <loext:transformation loext:type="shade" loext:value="2509"/>
+                </loext:char-complex-color>
+            </style:text-properties>
+        </style:style>
+        <style:style style:name="Intense_20_Quote_20_Char" style:display-name="Intense Quote Char" style:family="text" style:parent-style-name="Standard" loext:linked-style-name="Intense_20_Quote">
+            <style:text-properties fo:color="#0f4761" loext:opacity="100%" fo:font-style="italic" style:font-style-asian="italic" style:font-style-complex="italic">
+                <loext:char-complex-color loext:theme-type="accent1" loext:color-type="theme">
+                    <loext:transformation loext:type="shade" loext:value="2509"/>
+                </loext:char-complex-color>
+            </style:text-properties>
+        </style:style>
+        <style:style style:name="Intense_20_Reference" style:display-name="Intense Reference" style:family="text" style:parent-style-name="Standard">
+            <style:text-properties fo:font-variant="small-caps" fo:color="#0f4761" loext:opacity="100%" fo:letter-spacing="0.0035in" fo:font-weight="bold" style:font-weight-asian="bold" style:font-weight-complex="bold">
+                <loext:char-complex-color loext:theme-type="accent1" loext:color-type="theme">
+                    <loext:transformation loext:type="shade" loext:value="2509"/>
+                </loext:char-complex-color>
+            </style:text-properties>
+        </style:style>
+        <style:style style:name="Internet_20_link" style:display-name="Internet link" style:family="text" style:parent-style-name="Standard">
+            <style:text-properties style:font-name="Inter 18pt" style:font-name-asian="Inter 18pt" style:font-name-complex="Times New Roman (Body CS)" fo:color="#0000ef" loext:opacity="100%" style:text-underline-type="single" style:text-underline-style="solid" style:text-underline-width="auto" style:text-underline-mode="continuous" style:text-underline-color="font-color"/>
+        </style:style>
+        <style:style style:name="Unresolved_20_Mention" style:display-name="Unresolved Mention" style:family="text" style:parent-style-name="Standard">
+            <style:text-properties fo:color="#605e5c" loext:opacity="100%" fo:background-color="#e1dfdd"/>
+        </style:style>
+        <style:style style:name="ListLabel_20_1" style:display-name="ListLabel 1" style:family="text"/>
+        <style:style style:name="ListLabel_20_2" style:display-name="ListLabel 2" style:family="text"/>
+        <style:style style:name="ListLabel_20_3" style:display-name="ListLabel 3" style:family="text"/>
+        <style:style style:name="ListLabel_20_4" style:display-name="ListLabel 4" style:family="text"/>
+        <style:style style:name="ListLabel_20_5" style:display-name="ListLabel 5" style:family="text"/>
+        <style:style style:name="ListLabel_20_6" style:display-name="ListLabel 6" style:family="text"/>
+        <style:style style:name="ListLabel_20_7" style:display-name="ListLabel 7" style:family="text"/>
+        <style:style style:name="ListLabel_20_8" style:display-name="ListLabel 8" style:family="text"/>
+        <style:style style:name="ListLabel_20_9" style:display-name="ListLabel 9" style:family="text"/>
+        <style:style style:name="ListLabel_20_10" style:display-name="ListLabel 10" style:family="text"/>
+        <style:style style:name="ListLabel_20_11" style:display-name="ListLabel 11" style:family="text"/>
+        <style:style style:name="ListLabel_20_12" style:display-name="ListLabel 12" style:family="text"/>
+        <style:style style:name="ListLabel_20_13" style:display-name="ListLabel 13" style:family="text"/>
+        <style:style style:name="ListLabel_20_14" style:display-name="ListLabel 14" style:family="text"/>
+        <style:style style:name="ListLabel_20_15" style:display-name="ListLabel 15" style:family="text"/>
+        <style:style style:name="ListLabel_20_16" style:display-name="ListLabel 16" style:family="text"/>
+        <style:style style:name="ListLabel_20_17" style:display-name="ListLabel 17" style:family="text"/>
+        <style:style style:name="ListLabel_20_18" style:display-name="ListLabel 18" style:family="text"/>
+        <style:style style:name="ListLabel_20_19" style:display-name="ListLabel 19" style:family="text"/>
+        <style:style style:name="ListLabel_20_20" style:display-name="ListLabel 20" style:family="text"/>
+        <style:style style:name="ListLabel_20_21" style:display-name="ListLabel 21" style:family="text"/>
+        <style:style style:name="ListLabel_20_22" style:display-name="ListLabel 22" style:family="text"/>
+        <style:style style:name="ListLabel_20_23" style:display-name="ListLabel 23" style:family="text"/>
+        <style:style style:name="ListLabel_20_24" style:display-name="ListLabel 24" style:family="text"/>
+        <style:style style:name="ListLabel_20_25" style:display-name="ListLabel 25" style:family="text"/>
+        <style:style style:name="ListLabel_20_26" style:display-name="ListLabel 26" style:family="text"/>
+        <style:style style:name="ListLabel_20_27" style:display-name="ListLabel 27" style:family="text"/>
+        <style:style style:name="ListLabel_20_28" style:display-name="ListLabel 28" style:family="text"/>
+        <style:style style:name="Graphics" style:family="graphic">
+            <style:graphic-properties text:anchor-type="paragraph" svg:x="0in" svg:y="0in" style:wrap="dynamic" style:number-wrapped-paragraphs="no-limit" style:wrap-contour="false" style:vertical-pos="top" style:vertical-rel="paragraph" style:horizontal-pos="center" style:horizontal-rel="paragraph" draw:fill="none"/>
+        </style:style>
+        <style:style style:name="Frame" style:family="graphic">
+            <style:graphic-properties fo:margin-left="0in" fo:margin-right="0in" fo:margin-top="0in" fo:margin-bottom="0in" style:run-through="foreground" style:wrap="dynamic" style:number-wrapped-paragraphs="no-limit" style:vertical-pos="from-top" style:horizontal-pos="center" style:horizontal-rel="paragraph" fo:padding="0in" draw:fill="none" draw:stroke="none" fo:border="none" style:shadow="none" svg:stroke-color="transparent" draw:shadow-opacity="100%" loext:rel-width-rel="paragraph"/>
+        </style:style>
+        <text:outline-style style:name="Outline">
+            <text:outline-level-style text:level="1" style:num-format="">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab"/>
+                </style:list-level-properties>
+            </text:outline-level-style>
+            <text:outline-level-style text:level="2" style:num-format="">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab"/>
+                </style:list-level-properties>
+            </text:outline-level-style>
+            <text:outline-level-style text:level="3" style:num-format="">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab"/>
+                </style:list-level-properties>
+            </text:outline-level-style>
+            <text:outline-level-style text:level="4" style:num-format="">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab"/>
+                </style:list-level-properties>
+            </text:outline-level-style>
+            <text:outline-level-style text:level="5" style:num-format="">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab"/>
+                </style:list-level-properties>
+            </text:outline-level-style>
+            <text:outline-level-style text:level="6" style:num-format="">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab"/>
+                </style:list-level-properties>
+            </text:outline-level-style>
+            <text:outline-level-style text:level="7" style:num-format="">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab"/>
+                </style:list-level-properties>
+            </text:outline-level-style>
+            <text:outline-level-style text:level="8" style:num-format="">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab"/>
+                </style:list-level-properties>
+            </text:outline-level-style>
+            <text:outline-level-style text:level="9" style:num-format="">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab"/>
+                </style:list-level-properties>
+            </text:outline-level-style>
+            <text:outline-level-style text:level="10" style:num-format="">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab"/>
+                </style:list-level-properties>
+            </text:outline-level-style>
+        </text:outline-style>
+        <text:list-style style:name="No_20_List" style:display-name="No List">
+            <text:list-level-style-number text:level="1" loext:num-list-format="%1%." style:num-suffix="." style:num-format="1">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="0.5in" fo:text-indent="-0.25in" fo:margin-left="0.5in"/>
+                </style:list-level-properties>
+            </text:list-level-style-number>
+            <text:list-level-style-number text:level="2" loext:num-list-format="%2%." style:num-suffix="." style:num-format="1">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="0.75in" fo:text-indent="-0.25in" fo:margin-left="0.75in"/>
+                </style:list-level-properties>
+            </text:list-level-style-number>
+            <text:list-level-style-number text:level="3" loext:num-list-format="%3%." style:num-suffix="." style:num-format="1">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1in" fo:text-indent="-0.25in" fo:margin-left="1in"/>
+                </style:list-level-properties>
+            </text:list-level-style-number>
+            <text:list-level-style-number text:level="4" loext:num-list-format="%4%." style:num-suffix="." style:num-format="1">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.25in" fo:text-indent="-0.25in" fo:margin-left="1.25in"/>
+                </style:list-level-properties>
+            </text:list-level-style-number>
+            <text:list-level-style-number text:level="5" loext:num-list-format="%5%." style:num-suffix="." style:num-format="1">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.5in" fo:text-indent="-0.25in" fo:margin-left="1.5in"/>
+                </style:list-level-properties>
+            </text:list-level-style-number>
+            <text:list-level-style-number text:level="6" loext:num-list-format="%6%." style:num-suffix="." style:num-format="1">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="1.75in" fo:text-indent="-0.25in" fo:margin-left="1.75in"/>
+                </style:list-level-properties>
+            </text:list-level-style-number>
+            <text:list-level-style-number text:level="7" loext:num-list-format="%7%." style:num-suffix="." style:num-format="1">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2in" fo:text-indent="-0.25in" fo:margin-left="2in"/>
+                </style:list-level-properties>
+            </text:list-level-style-number>
+            <text:list-level-style-number text:level="8" loext:num-list-format="%8%." style:num-suffix="." style:num-format="1">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.25in" fo:text-indent="-0.25in" fo:margin-left="2.25in"/>
+                </style:list-level-properties>
+            </text:list-level-style-number>
+            <text:list-level-style-number text:level="9" loext:num-list-format="%9%." style:num-suffix="." style:num-format="1">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.5in" fo:text-indent="-0.25in" fo:margin-left="2.5in"/>
+                </style:list-level-properties>
+            </text:list-level-style-number>
+            <text:list-level-style-number text:level="10" loext:num-list-format="%10%." style:num-suffix="." style:num-format="1">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.75in" fo:text-indent="-0.25in" fo:margin-left="2.75in"/>
+                </style:list-level-properties>
+            </text:list-level-style-number>
+        </text:list-style>
+        <text:list-style style:name="WWNum1">
+            <text:list-level-style-bullet text:level="1" text:style-name="ListLabel_20_1" loext:num-list-format="•" style:num-suffix="•" text:bullet-char="•">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="0.5in"/>
+                </style:list-level-properties>
+            </text:list-level-style-bullet>
+            <text:list-level-style-bullet text:level="2" text:style-name="ListLabel_20_2" loext:num-list-format="◦" style:num-suffix="◦" text:bullet-char="◦">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="1in"/>
+                </style:list-level-properties>
+            </text:list-level-style-bullet>
+            <text:list-level-style-bullet text:level="3" text:style-name="ListLabel_20_3" loext:num-list-format="▪" style:num-suffix="▪" text:bullet-char="▪">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="1.5in"/>
+                </style:list-level-properties>
+            </text:list-level-style-bullet>
+            <text:list-level-style-bullet text:level="4" text:style-name="ListLabel_20_4" loext:num-list-format="•" style:num-suffix="•" text:bullet-char="•">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="2in"/>
+                </style:list-level-properties>
+            </text:list-level-style-bullet>
+            <text:list-level-style-bullet text:level="5" text:style-name="ListLabel_20_5" loext:num-list-format="◦" style:num-suffix="◦" text:bullet-char="◦">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="2.5in"/>
+                </style:list-level-properties>
+            </text:list-level-style-bullet>
+            <text:list-level-style-bullet text:level="6" text:style-name="ListLabel_20_6" loext:num-list-format="▪" style:num-suffix="▪" text:bullet-char="▪">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="3in"/>
+                </style:list-level-properties>
+            </text:list-level-style-bullet>
+            <text:list-level-style-bullet text:level="7" text:style-name="ListLabel_20_7" loext:num-list-format="•" style:num-suffix="•" text:bullet-char="•">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="3.5in"/>
+                </style:list-level-properties>
+            </text:list-level-style-bullet>
+            <text:list-level-style-bullet text:level="8" text:style-name="ListLabel_20_8" loext:num-list-format="•" style:num-suffix="•" text:bullet-char="•">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="4in"/>
+                </style:list-level-properties>
+            </text:list-level-style-bullet>
+            <text:list-level-style-bullet text:level="9" text:style-name="ListLabel_20_9" loext:num-list-format="•" style:num-suffix="•" text:bullet-char="•">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="4.5in"/>
+                </style:list-level-properties>
+            </text:list-level-style-bullet>
+            <text:list-level-style-number text:level="10" loext:num-list-format="%10%." style:num-suffix="." style:num-format="1">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.75in" fo:text-indent="-0.25in" fo:margin-left="2.75in"/>
+                </style:list-level-properties>
+            </text:list-level-style-number>
+        </text:list-style>
+        <text:list-style style:name="WWNum2">
+            <text:list-level-style-bullet text:level="1" text:style-name="ListLabel_20_10" loext:num-list-format="•" style:num-suffix="•" text:bullet-char="•">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="0.25in"/>
+                </style:list-level-properties>
+            </text:list-level-style-bullet>
+            <text:list-level-style-bullet text:level="2" text:style-name="ListLabel_20_11" loext:num-list-format="•" style:num-suffix="•" text:bullet-char="•">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="0.5in"/>
+                </style:list-level-properties>
+            </text:list-level-style-bullet>
+            <text:list-level-style-bullet text:level="3" text:style-name="ListLabel_20_12" loext:num-list-format="•" style:num-suffix="•" text:bullet-char="•">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="0.75in"/>
+                </style:list-level-properties>
+            </text:list-level-style-bullet>
+            <text:list-level-style-bullet text:level="4" text:style-name="ListLabel_20_13" loext:num-list-format="•" style:num-suffix="•" text:bullet-char="•">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="1in"/>
+                </style:list-level-properties>
+            </text:list-level-style-bullet>
+            <text:list-level-style-bullet text:level="5" text:style-name="ListLabel_20_14" loext:num-list-format="•" style:num-suffix="•" text:bullet-char="•">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="1.25in"/>
+                </style:list-level-properties>
+            </text:list-level-style-bullet>
+            <text:list-level-style-bullet text:level="6" text:style-name="ListLabel_20_15" loext:num-list-format="•" style:num-suffix="•" text:bullet-char="•">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="1.5in"/>
+                </style:list-level-properties>
+            </text:list-level-style-bullet>
+            <text:list-level-style-bullet text:level="7" text:style-name="ListLabel_20_16" loext:num-list-format="•" style:num-suffix="•" text:bullet-char="•">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="1.75in"/>
+                </style:list-level-properties>
+            </text:list-level-style-bullet>
+            <text:list-level-style-bullet text:level="8" text:style-name="ListLabel_20_17" loext:num-list-format="•" style:num-suffix="•" text:bullet-char="•">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="2in"/>
+                </style:list-level-properties>
+            </text:list-level-style-bullet>
+            <text:list-level-style-bullet text:level="9" text:style-name="ListLabel_20_18" loext:num-list-format="•" style:num-suffix="•" text:bullet-char="•">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="2.25in"/>
+                </style:list-level-properties>
+            </text:list-level-style-bullet>
+            <text:list-level-style-number text:level="10" loext:num-list-format="%10%." style:num-suffix="." style:num-format="1">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.75in" fo:text-indent="-0.25in" fo:margin-left="2.75in"/>
+                </style:list-level-properties>
+            </text:list-level-style-number>
+        </text:list-style>
+        <text:list-style style:name="WWNum3">
+            <text:list-level-style-number text:level="1" text:style-name="ListLabel_20_19" loext:num-list-format="%1%." style:num-suffix="." style:num-format="1">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="0.25in"/>
+                </style:list-level-properties>
+            </text:list-level-style-number>
+            <text:list-level-style-number text:level="2" text:style-name="ListLabel_20_20" loext:num-list-format="%2%." style:num-suffix="." style:num-format="1">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="0.5in"/>
+                </style:list-level-properties>
+            </text:list-level-style-number>
+            <text:list-level-style-number text:level="3" text:style-name="ListLabel_20_21" loext:num-list-format="%3%." style:num-suffix="." style:num-format="1">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="0.75in"/>
+                </style:list-level-properties>
+            </text:list-level-style-number>
+            <text:list-level-style-number text:level="4" text:style-name="ListLabel_20_22" loext:num-list-format="%4%." style:num-suffix="." style:num-format="1">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="1in"/>
+                </style:list-level-properties>
+            </text:list-level-style-number>
+            <text:list-level-style-number text:level="5" text:style-name="ListLabel_20_23" loext:num-list-format="%5%." style:num-suffix="." style:num-format="1">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="1.25in"/>
+                </style:list-level-properties>
+            </text:list-level-style-number>
+            <text:list-level-style-number text:level="6" text:style-name="ListLabel_20_24" loext:num-list-format="%6%." style:num-suffix="." style:num-format="1">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="1.5in"/>
+                </style:list-level-properties>
+            </text:list-level-style-number>
+            <text:list-level-style-number text:level="7" text:style-name="ListLabel_20_25" loext:num-list-format="%7%." style:num-suffix="." style:num-format="1">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="1.75in"/>
+                </style:list-level-properties>
+            </text:list-level-style-number>
+            <text:list-level-style-number text:level="8" text:style-name="ListLabel_20_26" loext:num-list-format="%8%." style:num-suffix="." style:num-format="1">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="2in"/>
+                </style:list-level-properties>
+            </text:list-level-style-number>
+            <text:list-level-style-number text:level="9" text:style-name="ListLabel_20_27" loext:num-list-format="%9%." style:num-suffix="." style:num-format="1">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" fo:text-indent="-0.25in" fo:margin-left="2.25in"/>
+                </style:list-level-properties>
+            </text:list-level-style-number>
+            <text:list-level-style-number text:level="10" loext:num-list-format="%10%." style:num-suffix="." style:num-format="1">
+                <style:list-level-properties text:list-level-position-and-space-mode="label-alignment">
+                    <style:list-level-label-alignment text:label-followed-by="listtab" text:list-tab-stop-position="2.75in" fo:text-indent="-0.25in" fo:margin-left="2.75in"/>
+                </style:list-level-properties>
+            </text:list-level-style-number>
+        </text:list-style>
+        <text:notes-configuration text:note-class="footnote" style:num-format="1" text:start-value="0" text:footnotes-position="page" text:start-numbering-at="document"/>
+        <text:notes-configuration text:note-class="endnote" style:num-format="i" text:start-value="0"/>
+        <text:linenumbering-configuration text:number-lines="false" text:offset="0.1965in" style:num-format="1" text:number-position="left" text:increment="5"/>
+        <style:default-page-layout>
+            <style:page-layout-properties style:layout-grid-standard-mode="true"/>
+        </style:default-page-layout>
+        <loext:theme loext:name="Office">
+            <loext:theme-colors loext:name="LibreOffice">
+                <loext:color loext:name="dark1" loext:color="#000000"/>
+                <loext:color loext:name="light1" loext:color="#ffffff"/>
+                <loext:color loext:name="dark2" loext:color="#000000"/>
+                <loext:color loext:name="light2" loext:color="#ffffff"/>
+                <loext:color loext:name="accent1" loext:color="#18a303"/>
+                <loext:color loext:name="accent2" loext:color="#0369a3"/>
+                <loext:color loext:name="accent3" loext:color="#a33e03"/>
+                <loext:color loext:name="accent4" loext:color="#8e03a3"/>
+                <loext:color loext:name="accent5" loext:color="#c99c00"/>
+                <loext:color loext:name="accent6" loext:color="#c9211e"/>
+                <loext:color loext:name="hyperlink" loext:color="#0000ee"/>
+                <loext:color loext:name="followed-hyperlink" loext:color="#551a8b"/>
+            </loext:theme-colors>
+        </loext:theme>
+    </office:styles>
+    <office:automatic-styles>
+        <style:style style:name="MP1" style:family="paragraph" style:parent-style-name="Header">
+            <style:text-properties officeooo:rsid="0008951b" officeooo:paragraph-rsid="0008951b"/>
+        </style:style>
+        <style:style style:name="MP2" style:family="paragraph" style:parent-style-name="Footer">
+            <style:text-properties officeooo:rsid="0008951b" officeooo:paragraph-rsid="0008951b"/>
+        </style:style>
+        <style:page-layout style:name="Mpm1">
+            <style:page-layout-properties fo:page-width="8.2681in" fo:page-height="11.6929in" style:num-format="1" style:print-orientation="portrait" fo:margin-top="1in" fo:margin-bottom="1in" fo:margin-left="1in" fo:margin-right="1in" style:writing-mode="lr-tb" style:layout-grid-color="#c0c0c0" style:layout-grid-lines="38" style:layout-grid-base-height="0.25in" style:layout-grid-ruby-height="0in" style:layout-grid-mode="none" style:layout-grid-ruby-below="false" style:layout-grid-print="false" style:layout-grid-display="false" style:layout-grid-base-width="0.1665in" style:layout-grid-snap-to="true" style:footnote-max-height="0in" loext:margin-gutter="0in">
+                <style:footnote-sep style:width="0.0071in" style:distance-before-sep="0.0398in" style:distance-after-sep="0.0398in" style:line-style="solid" style:adjustment="left" style:rel-width="25%" style:color="#000000"/>
+            </style:page-layout-properties>
+            <style:header-style>
+                <style:header-footer-properties fo:min-height="0in" fo:margin-bottom="0.1965in" fo:background-color="transparent"/>
+            </style:header-style>
+            <style:footer-style>
+                <style:header-footer-properties fo:min-height="0in" fo:margin-top="0.1965in" fo:background-color="transparent"/>
+            </style:footer-style>
+        </style:page-layout>
+        <style:style style:name="Mdp1" style:family="drawing-page">
+            <style:drawing-page-properties draw:background-size="full"/>
+        </style:style>
+    </office:automatic-styles>
+    <office:master-styles>
+        <style:master-page style:name="Standard" style:page-layout-name="Mpm1" draw:style-name="Mdp1"/>
+    </office:master-styles>
+</office:document-styles>

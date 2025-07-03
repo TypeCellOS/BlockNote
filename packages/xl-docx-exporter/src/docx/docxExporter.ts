@@ -114,22 +114,33 @@ export class DOCXExporter<
 
     for (const b of blocks) {
       let children = await this.transformBlocks(b.children, nestingLevel + 1);
-      children = children.map((c, _i) => {
-        // NOTE: nested tables not supported (we can't insert the new Tab before a table)
-        if (
-          c instanceof Paragraph &&
-          !(c as any).properties.numberingReferences.length
-        ) {
-          c.addRunToFront(
-            new TextRun({
-              children: [new Tab()],
-            }),
-          );
-        }
-        return c;
-      });
-      const self = await this.mapBlock(b as any, nestingLevel, 0 /*unused*/); // TODO: any
-      if (Array.isArray(self)) {
+
+      if (!["columnList", "column"].includes(b.type)) {
+        children = children.map((c, _i) => {
+          // NOTE: nested tables not supported (we can't insert the new Tab before a table)
+          if (
+            c instanceof Paragraph &&
+            !(c as any).properties.numberingReferences.length
+          ) {
+            c.addRunToFront(
+              new TextRun({
+                children: [new Tab()],
+              }),
+            );
+          }
+          return c;
+        });
+      }
+
+      const self = await this.mapBlock(
+        b as any,
+        nestingLevel,
+        0 /*unused*/,
+        children,
+      ); // TODO: any
+      if (["columnList", "column"].includes(b.type)) {
+        ret.push(self as Table);
+      } else if (Array.isArray(self)) {
         ret.push(...self, ...children);
       } else {
         ret.push(self, ...children);
@@ -280,13 +291,6 @@ export class DOCXExporter<
         },
       ],
     });
-
-    // fix https://github.com/dolanmiu/docx/pull/2800/files
-    doc.Document.Relationships.createRelationship(
-      doc.Document.Relationships.RelationshipCount + 1,
-      "http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable",
-      "fontTable.xml",
-    );
 
     return doc;
   }
