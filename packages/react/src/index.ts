@@ -6,6 +6,8 @@ export * from "./editor/ComponentsContext.js";
 export * from "./i18n/dictionary.js";
 
 export * from "./blocks/AudioBlockContent/AudioBlockContent.js";
+export * from "./blocks/BibliographyBlockContent/BibliographyBlockContent.js";
+export * from "./blocks/BibliographyBlockContent/hooks/useSingleBibliographyBlock.js";
 export * from "./blocks/FileBlockContent/FileBlockContent.js";
 export * from "./blocks/FileBlockContent/helpers/render/AddFileButton.js";
 export * from "./blocks/FileBlockContent/helpers/render/FileBlockWrapper.js";
@@ -18,6 +20,8 @@ export * from "./blocks/ImageBlockContent/ImageBlockContent.js";
 export * from "./blocks/PageBreakBlockContent/getPageBreakReactSlashMenuItems.js";
 export * from "./blocks/VideoBlockContent/VideoBlockContent.js";
 export * from "./blocks/ToggleWrapper/ToggleWrapper.js";
+
+export * from "./inlineContent/ReferenceInlineContent/ReferenceInlineContent.js";
 
 export * from "./components/FormattingToolbar/DefaultButtons/AddCommentButton.js";
 export * from "./components/FormattingToolbar/DefaultButtons/AddTiptapCommentButton.js";
@@ -62,6 +66,7 @@ export * from "./components/SideMenu/DragHandleMenu/DragHandleMenuProps.js";
 export * from "./components/SuggestionMenu/SuggestionMenuController.js";
 export * from "./components/SuggestionMenu/SuggestionMenuWrapper.js";
 export * from "./components/SuggestionMenu/getDefaultReactSlashMenuItems.js";
+export * from "./components/SuggestionMenu/getBibliographyReactSlashMenuItems.js";
 export * from "./components/SuggestionMenu/hooks/useCloseSuggestionMenuNoItems.js";
 export * from "./components/SuggestionMenu/hooks/useLoadSuggestionMenuItems.js";
 export * from "./components/SuggestionMenu/hooks/useSuggestionMenuKeyboardNavigation.js";
