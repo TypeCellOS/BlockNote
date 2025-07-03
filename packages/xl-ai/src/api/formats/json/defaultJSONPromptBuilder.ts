@@ -1,4 +1,5 @@
 import { CoreMessage } from "ai";
+import { trimEmptyBlocks } from "../../promptHelpers/trimEmptyBlocks.js";
 import { PromptBuilder } from "../PromptBuilder.js";
 import {
   getDataForPromptNoSelection,
@@ -122,21 +123,24 @@ function promptManipulateDocumentUseJSONBlocks(opts: {
 }
 
 export const defaultJSONPromptBuilder: PromptBuilder = async (editor, opts) => {
+  const isEmptyDocument = trimEmptyBlocks(editor.document).length === 0;
+
   if (opts.selectedBlocks) {
     const data = await getDataForPromptWithSelection(editor, {
       selectedBlocks: opts.selectedBlocks,
     });
+
     return promptManipulateSelectionJSONBlocks({
       ...data,
       userPrompt: opts.userPrompt,
-      isEmptyDocument: editor.isEmpty,
+      isEmptyDocument,
     });
   } else {
     const data = await getDataForPromptNoSelection(editor, opts);
     return promptManipulateDocumentUseJSONBlocks({
       ...data,
       userPrompt: opts.userPrompt,
-      isEmptyDocument: editor.isEmpty,
+      isEmptyDocument,
     });
   }
 };
