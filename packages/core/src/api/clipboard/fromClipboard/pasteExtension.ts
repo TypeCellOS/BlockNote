@@ -14,6 +14,8 @@ import {
 import { acceptedMIMETypes } from "./acceptedMIMETypes.js";
 import { handleFileInsertion } from "./handleFileInsertion.js";
 import { handleVSCodePaste } from "./handleVSCodePaste.js";
+import { Slice } from "prosemirror-model";
+import { getPmSchema } from "../../pmUtil.js";
 
 function defaultPasteHandler({
   event,
@@ -68,9 +70,13 @@ function defaultPasteHandler({
 
   const data = event.clipboardData!.getData(format);
 
-  if (format === "blocknote/html") {
-    // Is blocknote/html, so no need to convert it
-    editor.pasteHTML(data, true);
+  if (format === "blocknote/json") {
+    editor.transact((tr) => {
+      const schema = getPmSchema(tr);
+      const slice = Slice.fromJSON(schema, JSON.parse(data));
+      // Probably need to expand the selection to the block that is being pasted into?
+      tr.replaceSelection(slice);
+    });
     return true;
   }
 
