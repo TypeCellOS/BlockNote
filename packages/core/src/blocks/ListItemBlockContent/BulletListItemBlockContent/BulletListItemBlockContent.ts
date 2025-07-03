@@ -31,7 +31,10 @@ const BulletListItemBlockContent = createStronglyTypedTiptapNode({
           const blockInfo = getBlockInfoFromSelection(state);
           if (
             !blockInfo.isBlockContainer ||
-            blockInfo.blockContent.node.type.spec.content !== "inline*"
+            blockInfo.blockContent.node.type.spec.content !== "inline*" ||
+            this.options.inputRules === "none" ||
+            (this.options.inputRules === "paragraphs" &&
+              blockInfo.blockNoteType !== "paragraph")
           ) {
             return;
           }
