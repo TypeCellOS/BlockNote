@@ -10,68 +10,54 @@ import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 
 import CTAButton from "@/components/CTAButton";
 import { SectionHeader } from "@/components/Headings";
-import { exampleGroups } from "@/components/example/generated/exampleGroups.gen";
+import { ExampleData } from "@/components/example/generated/exampleGroupsData.gen";
 import { authClient } from "@/util/auth-client";
 
 function ExampleDemoBarSourceCodeLink(props: {
-  exampleGroupName: string;
-  exampleName: string;
-  platform: {
-    name: string;
-    icon: React.ReactNode;
-    baseUrl: string;
-  };
+  name: string;
+  icon: React.ReactNode;
+  url: string;
 }) {
   return (
     <a
       className={
         "hover:text-fd-accent-foreground flex items-center gap-1 py-2 text-sm font-medium"
       }
-      href={`${props.platform.baseUrl}/${exampleGroups[props.exampleGroupName].examples[props.exampleName].pathFromRoot}`}
+      href={props.url}
       target="_blank"
       rel="noreferrer"
     >
-      {props.platform.icon}
-      <div>{props.platform.name}</div>
+      {props.icon}
+      <div>{props.name}</div>
     </a>
   );
 }
 
-function ExampleDemoBar(props: {
-  exampleGroupName: string;
-  exampleName: string;
-}) {
+function ExampleDemoBar(props: { exampleData: ExampleData }) {
   return (
     <div className={"flex items-center gap-4 px-4"}>
       <ExampleDemoBarSourceCodeLink
-        {...props}
-        platform={{
-          name: "GitHub",
-          icon: <AiFillGithub size={16} />,
-          baseUrl: "https://github.com/TypeCellOS/BlockNote/tree/main/examples",
-        }}
+        name="GitHub"
+        icon={<AiFillGithub size={16} />}
+        url={`https://github.com/TypeCellOS/BlockNote/tree/main/examples/${props.exampleData.pathFromRoot}`}
       />
       <ExampleDemoBarSourceCodeLink
-        {...props}
-        platform={{
-          name: "StackBlitz",
-          icon: <SiStackblitz size={16} />,
-          baseUrl:
-            "https://www.stackblitz.com/github/TypeCellOS/BlockNote/tree/main/examples",
-        }}
+        name="StackBlitz"
+        icon={<SiStackblitz size={16} />}
+        url={`https://www.stackblitz.com/github/TypeCellOS/BlockNote/tree/main/examples/${props.exampleData.pathFromRoot}`}
       />
     </div>
   );
 }
 
-function ExampleDemo(props: { exampleGroupName: string; exampleName: string }) {
+function ExampleDemo(props: { exampleData: ExampleData }) {
   const Component = dynamic(
     () =>
       import(
         "./example/generated/components/" +
-          props.exampleGroupName +
+          props.exampleData.exampleGroupName +
           "/" +
-          props.exampleName +
+          props.exampleData.exampleName +
           "/index"
       ),
     { ssr: false },
@@ -81,7 +67,7 @@ function ExampleDemo(props: { exampleGroupName: string; exampleName: string }) {
 
   return (
     <div className="not-prose bg-fd-secondary border-fd-border flex h-[600px] flex-col rounded-xl border">
-      <ExampleDemoBar {...props} />
+      <ExampleDemoBar exampleData={props.exampleData} />
       <div
         className={"bg-fd-background h-0 flex-1 overflow-auto rounded-xl p-4"}
       >
@@ -97,20 +83,19 @@ function ExampleDemo(props: { exampleGroupName: string; exampleName: string }) {
   );
 }
 
-function ExampleCode(props: { exampleGroupName: string; exampleName: string }) {
-  const tabs: Record<string, string> =
-    exampleGroups[props.exampleGroupName].examples[props.exampleName].files;
-
+function ExampleCode(props: { exampleData: ExampleData }) {
   return (
-    <Tabs items={Object.keys(tabs)}>
-      {Object.entries(tabs).map(([fileName, fileContent]) => (
-        <Tab key={fileName} value={fileName}>
-          <DynamicCodeBlock
-            lang={fileName.split(".").pop()!}
-            code={fileContent}
-          />
-        </Tab>
-      ))}
+    <Tabs items={Object.keys(props.exampleData.files)}>
+      {Object.entries(props.exampleData.files).map(
+        ([fileName, fileContent]) => (
+          <Tab key={fileName} value={fileName}>
+            <DynamicCodeBlock
+              lang={fileName.split(".").pop()!}
+              code={fileContent}
+            />
+          </Tab>
+        ),
+      )}
     </Tabs>
   );
 }
@@ -156,21 +141,17 @@ function ExampleProPrompt() {
   );
 }
 
-export default function Example(props: {
-  exampleGroupName: string;
-  exampleName: string;
-}) {
+export default function Example(props: { exampleData: ExampleData }) {
   const session = authClient.useSession();
   const userIsPro = session.data && session.data.planType !== "free";
 
   return (
     <div className="demo">
-      <ExampleDemo {...props} />
-      {exampleGroups[props.exampleGroupName].examples[props.exampleName]
-        .isPro && !userIsPro ? (
+      <ExampleDemo exampleData={props.exampleData} />
+      {props.exampleData.isPro && !userIsPro ? (
         <ExampleProPrompt />
       ) : (
-        <ExampleCode {...props} />
+        <ExampleCode exampleData={props.exampleData} />
       )}
     </div>
   );

@@ -4,6 +4,7 @@ import type { MDXComponents } from "mdx/types";
 import { Suspense } from "react";
 
 import Example from "@/components/Example";
+import { getExampleData } from "@/util/getExampleData";
 
 // use this function to get MDX components, you will need it for rendering MDX
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
@@ -15,8 +16,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
       return (
         <Suspense fallback={null}>
           <Example
-            exampleGroupName={exampleGroupName}
-            exampleName={exampleName}
+            exampleData={getExampleData(exampleGroupName, exampleName)}
           />
         </Suspense>
       );

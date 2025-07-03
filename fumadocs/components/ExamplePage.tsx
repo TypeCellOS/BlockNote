@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import Example from "@/components/Example";
 import ExampleCards from "@/components/ExampleCards";
 import { getMDXComponents } from "@/util/mdx-components";
+import { getExampleData } from "@/util/getExampleData";
 
 export async function ExamplePage(props: {
   params: Promise<{ slug?: string[] }>;
@@ -29,8 +30,7 @@ export async function ExamplePage(props: {
         <MDXContent components={getMDXComponents({ ExampleCards })} />
         {params.slug && params.slug.length > 0 ? (
           <Example
-            exampleGroupName={params.slug[0]}
-            exampleName={params.slug[1]}
+            exampleData={getExampleData(params.slug[0], params.slug[1])}
           />
         ) : null}
       </DocsBody>
