@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default function Layout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="flex min-h-screen flex-col">
+      <body className="flex min-h-screen flex-col [--spacing-fd-container:1566px]">
         <Banner
           height="24px"
           className="whitespace-break-spaces bg-[#fef6d5] text-black"

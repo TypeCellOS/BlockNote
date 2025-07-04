@@ -39,7 +39,8 @@ export async function DocPage(props: {
 
   return (
     <DocsPage
-      tableOfContent={{ style: "clerk" }}
+      // footer: null forces ToC to be visible with no items
+      tableOfContent={{ style: "clerk", footer: null }}
       toc={page.data.toc}
       full={page.data.full}
     >
