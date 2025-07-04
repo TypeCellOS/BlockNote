@@ -5,6 +5,7 @@ import { StyleSchema, Styles } from "../styles/types.js";
 export type CustomInlineContentConfig = {
   type: string;
   content: "styled" | "none"; // | "plain"
+  draggable?: boolean;
   readonly propSchema: PropSchema;
   // content: "inline" | "none" | "table";
 };
