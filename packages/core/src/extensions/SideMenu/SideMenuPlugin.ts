@@ -286,6 +286,14 @@ export class SideMenuView<
       return;
     }
 
+    if (
+      this.sideMenuDetection === "editor" ||
+      (event as any).synthetic ||
+      !event.dataTransfer?.types.includes("blocknote/html")
+    ) {
+      return;
+    }
+
     this.editor._tiptapEditor.commands.blur();
 
     // Finds the BlockNote editor element that the drop event occurred in (if
@@ -333,14 +341,6 @@ export class SideMenuView<
           0,
         );
       }
-    }
-
-    if (
-      this.sideMenuDetection === "editor" ||
-      (event as any).synthetic ||
-      !event.dataTransfer?.types.includes("blocknote/html")
-    ) {
-      return;
     }
 
     const pos = this.pmView.posAtCoords({
