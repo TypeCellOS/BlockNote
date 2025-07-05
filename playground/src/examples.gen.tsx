@@ -1238,6 +1238,27 @@
           "pathFromRoot": "examples/06-custom-schema",
           "slug": "custom-schema"
         }
+      },
+      {
+        "projectSlug": "inline-content-draggable",
+        "fullSlug": "custom-schema/inline-content-draggable",
+        "pathFromRoot": "examples/06-custom-schema/inline-content-draggable",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "hectorchong",
+          "tags": [
+            "Intermediate",
+            "Inline Content",
+            "Custom Schemas",
+            "Draggable"
+          ]
+        },
+        "title": "Draggable Inline Content",
+        "group": {
+          "pathFromRoot": "examples/06-custom-schema",
+          "slug": "custom-schema"
+        }
       }
     ]
   },
