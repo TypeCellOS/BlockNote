@@ -1,6 +1,6 @@
-import { DocsLayout } from "fumadocs-ui/layouts/notebook";
 import type { ReactNode } from "react";
 import { baseOptions } from "@/app/layout.config";
+import { CustomDocsLayout } from "@/components/CustomDocsLayout";
 import { Footer } from "@/components/Footer";
 import { ProBadge } from "@/components/ProBadge";
 import { source } from "@/lib/source/examples";
@@ -28,9 +28,9 @@ export default function Layout({ children }: { children: ReactNode }) {
 
   return (
     <>
-      <DocsLayout tree={source.pageTree} {...baseOptions}>
+      <CustomDocsLayout tree={source.pageTree} {...baseOptions}>
         {children}
-      </DocsLayout>
+      </CustomDocsLayout>
       <Footer />
     </>
   );

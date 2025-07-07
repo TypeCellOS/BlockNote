@@ -21,9 +21,20 @@ export async function ExamplePage(props: {
 
   return (
     <DocsPage
+      breadcrumb={{
+        enabled: true,
+        includeRoot: true,
+        includePage: true,
+        includeSeparator: true,
+      }}
       tableOfContent={{ style: "clerk" }}
       toc={page.data.toc}
       full={page.data.full}
+      container={{
+        // Slight hack to force uniform padding for viewport sizes where the
+        // ToC is hidden but the sidebar is still visible.
+        className: "*:md:px-12! *:md:pt-12!",
+      }}
     >
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsBody>

@@ -21,7 +21,7 @@ function ExampleDemoBarSourceCodeLink(props: {
   return (
     <a
       className={
-        "hover:text-fd-accent-foreground flex items-center gap-1 py-2 text-sm font-medium"
+        "hover:text-fd-accent-foreground text-fd-muted-foreground flex items-center gap-1 py-2 text-sm font-medium"
       }
       href={props.url}
       target="_blank"

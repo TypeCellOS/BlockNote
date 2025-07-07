@@ -76,7 +76,7 @@ function TierCTAButton({ tier }: { tier: Tier }) {
       aria-describedby={tier.id}
       className={classNames(
         tier.mostPopular
-          ? "bg-indigo-600 text-white shadow-sm hover:bg-indigo-500"
+          ? "text-fd-foreground bg-indigo-600 shadow-sm hover:bg-indigo-500"
           : "text-indigo-600 ring-1 ring-inset ring-indigo-600 hover:text-indigo-500 hover:ring-indigo-500",
         "mt-8 block rounded-md px-3 py-2 text-center text-sm font-semibold leading-6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600",
       )}
@@ -124,10 +124,8 @@ export function Tiers({
         <div
           key={tier.id}
           className={classNames(
-            tier.mostPopular
-              ? "ring-indigo-600"
-              : "ring-gray-200 dark:ring-gray-800",
-            "rounded-md p-8 ring-2 xl:p-10",
+            tier.mostPopular ? "ring-indigo-600" : "ring-fd-border",
+            "bg-fd-accent rounded-md p-8 ring-2 xl:p-10",
           )}
         >
           <TierHeader tier={tier} frequency={frequency} />

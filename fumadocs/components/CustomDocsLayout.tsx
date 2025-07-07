@@ -1,8 +1,26 @@
+// Custom Docs Layout adapted from base fumadocs Docs Layout:
+// https://github.com/fuma-nama/fumadocs/blob/dev/packages/ui/src/layouts/docs.tsx
+
+// We customize the docs layout for 2 main reasons:
+// 1. Navbar customization - The base Docs Layout can't have  a navbar at all,
+// while the Notebook & Home Layout navbars are quite different. The custom
+// layout allows us to use the Home Layout navbar for all pages.
+// 2. Sidebar customization - We can now offset the sidebar from the side of
+// the viewport, and have better control of its content for smaller viewports.
+// This is useful as the bas Docs Layout e.g. moves navbar items to the side
+// bar, and forces displaying a footer element even with no content.
+
+// The Custom Docs Layout generally tries to ensure that the options from
+// `layout.config.tsx` all still work, with the exception of items that are
+// already in the navbar.
+
 import type { PageTree } from "fumadocs-core/server";
 import { type HTMLAttributes, type ReactNode, useMemo } from "react";
+import { LuLanguages as Languages } from "react-icons/lu";
 import { cn } from "fumadocs-ui/utils/cn";
 import {
   Sidebar,
+  SidebarFooter,
   SidebarHeader,
   SidebarPageTree,
   SidebarViewport,
@@ -11,12 +29,17 @@ import { type LinkItemType } from "fumadocs-ui/layouts/links";
 import { RootToggle } from "fumadocs-ui/components/layout/root-toggle";
 import { type BaseLayoutProps, getLinks } from "fumadocs-ui/layouts/shared";
 import {
+  LanguageToggle,
+  LanguageToggleText,
+} from "fumadocs-ui/components/layout/language-toggle";
+import {
   CollapsibleControl,
   LayoutBody,
   Navbar,
   NavbarSidebarTrigger,
 } from "fumadocs-ui/layouts/docs-client";
 import { TreeContextProvider } from "fumadocs-ui/contexts/tree";
+import { ThemeToggle } from "fumadocs-ui/components/layout/theme-toggle";
 import {
   getSidebarTabsFromOptions,
   type SidebarOptions,
@@ -81,13 +104,35 @@ export function CustomDocsLayout({
       >
         <HideIfEmpty>
           <SidebarHeader className="data-[empty=true]:hidden">
+            {/* Removed navbar links & title. */}
+            {/* Also removed optional collapse button since it messes with
+              the layout. */}
             {tabs.length > 0 && <RootToggle options={tabs} />}
             {sidebarBanner}
           </SidebarHeader>
         </HideIfEmpty>
         <SidebarViewport>
+          {/* Removed navbar links. */}
           <SidebarPageTree components={sidebarComponents} />
         </SidebarViewport>
+        <HideIfEmpty>
+          <SidebarFooter className="data-[empty=true]:hidden">
+            {/* Removed navbar links. */}
+            <div className="flex items-center justify-end empty:hidden">
+              {i18n ? (
+                <LanguageToggle className="me-1.5">
+                  <Languages className="size-4.5" />
+                  <LanguageToggleText className="md:hidden" />
+                </LanguageToggle>
+              ) : null}
+              {themeSwitch.enabled !== false &&
+                (themeSwitch.component ?? (
+                  <ThemeToggle className="p-0" mode={themeSwitch.mode} />
+                ))}
+            </div>
+            {sidebarFooter}
+          </SidebarFooter>
+        </HideIfEmpty>
       </Sidebar>
     </>
   );
@@ -95,12 +140,14 @@ export function CustomDocsLayout({
   return (
     <TreeContextProvider tree={props.tree}>
       <NavProvider transparentMode={transparentMode}>
+        {/* Replaced default navbar with Home Layout Header. */}
         <Header
           {...props}
           nav={{
             ...nav,
             children: (
               <>
+                {/* Added custom sidebar toggle button for mobile views. */}
                 <NavbarSidebarTrigger className="ml-1.5 p-2 md:hidden" />
                 {nav.children}
               </>
@@ -120,6 +167,7 @@ export function CustomDocsLayout({
             "!mx-0 flex flex-row",
           )}
         >
+          {/* Added structuring/styling divs */}
           <div className="flex w-screen items-start justify-center">
             <div className="flex max-w-full flex-row">
               {sidebarEnabled && sidebar}

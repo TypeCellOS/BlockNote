@@ -17,7 +17,7 @@ export function FeatureCard(props: FeatureCardProps) {
 
   return (
     <div
-      className={`card border-fd-accent bg-fd-card relative flex w-[360px] max-w-full flex-col justify-between gap-1 overflow-hidden rounded-lg border ${props.thumbnail ? "row-span-2" : "row-span-1"}`}
+      className={`card border-fd-border bg-fd-card relative flex w-[360px] max-w-full flex-col justify-between gap-1 overflow-hidden rounded-lg border ${props.thumbnail ? "row-span-2" : "row-span-1"}`}
     >
       {props.thumbnail && (
         <div

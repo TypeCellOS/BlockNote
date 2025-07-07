@@ -39,10 +39,24 @@ export async function DocPage(props: {
 
   return (
     <DocsPage
+      breadcrumb={{
+        enabled: true,
+        includeRoot: true,
+        includePage: true,
+        includeSeparator: true,
+      }}
       // footer: null forces ToC to be visible with no items
       tableOfContent={{ style: "clerk", footer: null }}
+      // Removes the ToC dropdown on mobile views. Have to pass an empty
+      // element as `null` renders the default dropdown.
+      tableOfContentPopover={{ component: <></> }}
       toc={page.data.toc}
       full={page.data.full}
+      container={{
+        // Slight hack to force uniform padding for viewport sizes where the
+        // ToC is hidden but the sidebar is still visible.
+        className: "*:md:px-12! *:md:pt-12!",
+      }}
     >
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsBody>
