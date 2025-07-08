@@ -3211,6 +3211,9 @@ importers:
       '@ai-sdk/anthropic':
         specifier: ^1.2.11
         version: 1.2.12(zod@3.25.75)
+      '@ai-sdk/google':
+        specifier: ^1.2.20
+        version: 1.2.20(zod@3.25.75)
       '@ai-sdk/groq':
         specifier: ^1.1.0
         version: 1.2.9(zod@3.25.75)
@@ -3241,6 +3244,9 @@ importers:
       '@blocknote/xl-docx-exporter':
         specifier: latest
         version: link:../packages/xl-docx-exporter
+      '@blocknote/xl-email-exporter':
+        specifier: latest
+        version: link:../packages/xl-email-exporter
       '@blocknote/xl-multi-column':
         specifier: latest
         version: link:../packages/xl-multi-column
@@ -3299,8 +3305,8 @@ importers:
         specifier: ^0.32.16
         version: 0.32.16(zod@3.25.75)
       '@react-email/render':
-        specifier: 1.0.6
-        version: 1.0.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^1.1.2
+        version: 1.1.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-pdf/renderer':
         specifier: ^4.3.0
         version: 4.3.0(react@19.1.0)
@@ -21828,6 +21834,14 @@ snapshots:
       prettier: 3.5.3
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
+      react-promise-suspense: 0.3.4
+
+  '@react-email/render@1.1.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      html-to-text: 9.0.5
+      prettier: 3.5.3
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
       react-promise-suspense: 0.3.4
 
   '@react-email/row@0.0.12(react@18.3.1)':
