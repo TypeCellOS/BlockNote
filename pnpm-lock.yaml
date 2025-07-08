@@ -3209,58 +3209,58 @@ importers:
   fumadocs:
     dependencies:
       '@ai-sdk/anthropic':
-        specifier: ^1.2.12
+        specifier: ^1.2.11
         version: 1.2.12(zod@3.25.75)
       '@ai-sdk/google':
         specifier: ^1.2.20
         version: 1.2.20(zod@3.25.75)
       '@ai-sdk/groq':
-        specifier: ^1.2.9
+        specifier: ^1.1.0
         version: 1.2.9(zod@3.25.75)
       '@ai-sdk/mistral':
         specifier: ^1.2.8
         version: 1.2.8(zod@3.25.75)
       '@ai-sdk/openai':
-        specifier: ^1.3.22
+        specifier: ^1.1.0
         version: 1.3.22(zod@3.25.75)
       '@ai-sdk/openai-compatible':
         specifier: ^0.2.14
         version: 0.2.14(zod@3.25.75)
       '@aws-sdk/client-s3':
-        specifier: ^3.832.0
+        specifier: ^3.609.0
         version: 3.842.0
       '@aws-sdk/s3-request-presigner':
-        specifier: ^3.832.0
+        specifier: ^3.609.0
         version: 3.842.0
       '@blocknote/code-block':
-        specifier: workspace:latest
+        specifier: latest
         version: link:../packages/code-block
       '@blocknote/server-util':
-        specifier: workspace:latest
+        specifier: latest
         version: link:../packages/server-util
       '@blocknote/xl-ai':
-        specifier: workspace:latest
+        specifier: latest
         version: link:../packages/xl-ai
       '@blocknote/xl-docx-exporter':
-        specifier: workspace:latest
+        specifier: latest
         version: link:../packages/xl-docx-exporter
       '@blocknote/xl-email-exporter':
-        specifier: workspace:latest
+        specifier: latest
         version: link:../packages/xl-email-exporter
       '@blocknote/xl-multi-column':
-        specifier: workspace:latest
+        specifier: latest
         version: link:../packages/xl-multi-column
       '@blocknote/xl-odt-exporter':
-        specifier: workspace:latest
+        specifier: latest
         version: link:../packages/xl-odt-exporter
       '@blocknote/xl-pdf-exporter':
-        specifier: workspace:latest
+        specifier: latest
         version: link:../packages/xl-pdf-exporter
       '@emotion/react':
-        specifier: ^11.14.0
+        specifier: ^11.11.4
         version: 11.14.0(@types/react@19.1.8)(react@19.1.0)
       '@emotion/styled':
-        specifier: ^11.14.0
+        specifier: ^11.11.5
         version: 11.14.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)
       '@fumadocs/mdx-remote':
         specifier: 1.3.0
@@ -3272,28 +3272,28 @@ importers:
         specifier: ^2.2.0
         version: 2.2.0(react@19.1.0)
       '@liveblocks/client':
-        specifier: ^2.24.3
+        specifier: ^2.23.1
         version: 2.24.3
       '@liveblocks/react':
-        specifier: ^2.24.3
+        specifier: ^2.23.1
         version: 2.24.3(react@19.1.0)
       '@liveblocks/react-blocknote':
-        specifier: ^2.24.3
+        specifier: ^2.23.1
         version: 2.24.3(8539b2342d61009ca8ec75e6340b0d67)
       '@liveblocks/react-tiptap':
-        specifier: ^2.24.3
+        specifier: ^2.23.1
         version: 2.24.3(@tiptap/extension-collaboration-cursor@2.11.5(@tiptap/core@2.25.0(@tiptap/pm@2.12.0))(y-prosemirror@1.3.4(prosemirror-model@1.25.1)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)))(@tiptap/extension-collaboration@2.11.5(@tiptap/core@2.25.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0)(y-prosemirror@1.3.4(prosemirror-model@1.25.1)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(y-protocols@1.0.6(yjs@13.6.27))(yjs@13.6.27)))(@tiptap/pm@2.12.0)(@tiptap/react@2.12.0(@tiptap/core@2.25.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@tiptap/suggestion@2.11.7(@tiptap/core@2.25.0(@tiptap/pm@2.12.0))(@tiptap/pm@2.12.0))(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(prosemirror-model@1.25.1)(prosemirror-state@1.4.3)(prosemirror-view@1.38.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(y-protocols@1.0.6(yjs@13.6.27))
       '@liveblocks/react-ui':
-        specifier: ^2.24.3
+        specifier: ^2.23.1
         version: 2.24.3(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mantine/core':
-        specifier: ^7.17.8
+        specifier: ^7.10.1
         version: 7.17.8(@mantine/hooks@7.17.3(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@mui/icons-material':
-        specifier: ^5.17.1
+        specifier: ^5.16.1
         version: 5.17.1(@mui/material@5.17.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@types/react@19.1.8)(react@19.1.0)
       '@mui/material':
-        specifier: ^5.17.1
+        specifier: ^5.16.1
         version: 5.17.1(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@polar-sh/better-auth':
         specifier: ^1.0.2
@@ -3305,8 +3305,8 @@ importers:
         specifier: ^0.34.2
         version: 0.34.3(zod@3.25.75)
       '@react-email/render':
-        specifier: 1.0.6
-        version: 1.0.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^1.1.2
+        version: 1.1.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-pdf/renderer':
         specifier: ^4.3.0
         version: 4.3.0(react@19.1.0)
@@ -3314,22 +3314,22 @@ importers:
         specifier: 9.14.0
         version: 9.14.0(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(encoding@0.1.13)(next@15.4.0-canary.75(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(@playwright/test@1.51.1)(babel-plugin-react-compiler@19.1.0-rc.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)(webpack@5.98.0)
       '@shikijs/core':
-        specifier: ^3.7.0
+        specifier: ^3.2.1
         version: 3.7.0
       '@shikijs/engine-javascript':
-        specifier: ^3.7.0
+        specifier: ^3.2.1
         version: 3.7.0
       '@shikijs/langs-precompiled':
-        specifier: ^3.7.0
+        specifier: ^3.2.1
         version: 3.7.0
       '@shikijs/themes':
-        specifier: ^3.7.0
+        specifier: ^3.2.1
         version: 3.7.0
       '@shikijs/types':
-        specifier: ^3.7.0
-        version: 3.7.0
+        specifier: ^3.2.1
+        version: 3.2.1
       '@tiptap/core':
-        specifier: ^2.22.3
+        specifier: ^2.12.0
         version: 2.25.0(@tiptap/pm@2.12.0)
       '@uppy/core':
         specifier: ^3.13.1
@@ -3392,7 +3392,7 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       docx:
-        specifier: ^9.5.1
+        specifier: ^9.0.2
         version: 9.5.1
       framer-motion:
         specifier: ^10.18.0
@@ -3437,7 +3437,7 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0(react@19.1.0)
       react-icons:
-        specifier: ^5.5.0
+        specifier: ^5.2.1
         version: 5.5.0(react@19.1.0)
       remark:
         specifier: 15.0.1
@@ -3461,13 +3461,13 @@ importers:
         specifier: ^0.0.25
         version: 0.0.25
       yjs:
-        specifier: ^13.6.27
+        specifier: ^13.6.15
         version: 13.6.27
       zod:
         specifier: ^3.25.67
         version: 3.25.75
       zustand:
-        specifier: ^5.0.5
+        specifier: ^5.0.3
         version: 5.0.6(@types/react@19.1.8)(immer@10.1.1)(react@19.1.0)(use-sync-external-store@1.4.0(react@19.1.0))
     devDependencies:
       '@blocknote/ariakit':
@@ -17429,13 +17429,13 @@ snapshots:
   '@aws-crypto/crc32@5.2.0':
     dependencies:
       '@aws-crypto/util': 5.2.0
-      '@aws-sdk/types': 3.775.0
+      '@aws-sdk/types': 3.840.0
       tslib: 2.8.1
 
   '@aws-crypto/crc32c@5.2.0':
     dependencies:
       '@aws-crypto/util': 5.2.0
-      '@aws-sdk/types': 3.775.0
+      '@aws-sdk/types': 3.840.0
       tslib: 2.8.1
 
   '@aws-crypto/sha1-browser@5.2.0':
@@ -17469,7 +17469,7 @@ snapshots:
 
   '@aws-crypto/util@5.2.0':
     dependencies:
-      '@aws-sdk/types': 3.775.0
+      '@aws-sdk/types': 3.840.0
       '@smithy/util-utf8': 2.3.0
       tslib: 2.8.1
 
@@ -17611,30 +17611,30 @@ snapshots:
       '@aws-sdk/util-endpoints': 3.775.0
       '@aws-sdk/util-user-agent-browser': 3.775.0
       '@aws-sdk/util-user-agent-node': 3.775.0
-      '@smithy/config-resolver': 4.1.0
-      '@smithy/core': 3.2.0
-      '@smithy/fetch-http-handler': 5.0.2
-      '@smithy/hash-node': 4.0.2
-      '@smithy/invalid-dependency': 4.0.2
-      '@smithy/middleware-content-length': 4.0.2
-      '@smithy/middleware-endpoint': 4.1.0
-      '@smithy/middleware-retry': 4.1.0
-      '@smithy/middleware-serde': 4.0.3
-      '@smithy/middleware-stack': 4.0.2
-      '@smithy/node-config-provider': 4.0.2
-      '@smithy/node-http-handler': 4.0.4
-      '@smithy/protocol-http': 5.1.0
-      '@smithy/smithy-client': 4.2.0
-      '@smithy/types': 4.2.0
-      '@smithy/url-parser': 4.0.2
+      '@smithy/config-resolver': 4.1.4
+      '@smithy/core': 3.6.0
+      '@smithy/fetch-http-handler': 5.0.4
+      '@smithy/hash-node': 4.0.4
+      '@smithy/invalid-dependency': 4.0.4
+      '@smithy/middleware-content-length': 4.0.4
+      '@smithy/middleware-endpoint': 4.1.13
+      '@smithy/middleware-retry': 4.1.14
+      '@smithy/middleware-serde': 4.0.8
+      '@smithy/middleware-stack': 4.0.4
+      '@smithy/node-config-provider': 4.1.3
+      '@smithy/node-http-handler': 4.0.6
+      '@smithy/protocol-http': 5.1.2
+      '@smithy/smithy-client': 4.4.5
+      '@smithy/types': 4.3.1
+      '@smithy/url-parser': 4.0.4
       '@smithy/util-base64': 4.0.0
       '@smithy/util-body-length-browser': 4.0.0
       '@smithy/util-body-length-node': 4.0.0
-      '@smithy/util-defaults-mode-browser': 4.0.8
-      '@smithy/util-defaults-mode-node': 4.0.8
-      '@smithy/util-endpoints': 3.0.2
-      '@smithy/util-middleware': 4.0.2
-      '@smithy/util-retry': 4.0.2
+      '@smithy/util-defaults-mode-browser': 4.0.21
+      '@smithy/util-defaults-mode-node': 4.0.21
+      '@smithy/util-endpoints': 3.0.6
+      '@smithy/util-middleware': 4.0.4
+      '@smithy/util-retry': 4.0.6
       '@smithy/util-utf8': 4.0.0
       tslib: 2.8.1
     transitivePeerDependencies:
@@ -17720,7 +17720,7 @@ snapshots:
       '@aws-sdk/core': 3.775.0
       '@aws-sdk/types': 3.775.0
       '@smithy/property-provider': 4.0.2
-      '@smithy/types': 4.2.0
+      '@smithy/types': 4.3.1
       tslib: 2.8.1
 
   '@aws-sdk/credential-provider-env@3.840.0':
@@ -17735,13 +17735,13 @@ snapshots:
     dependencies:
       '@aws-sdk/core': 3.775.0
       '@aws-sdk/types': 3.775.0
-      '@smithy/fetch-http-handler': 5.0.2
-      '@smithy/node-http-handler': 4.0.4
+      '@smithy/fetch-http-handler': 5.0.4
+      '@smithy/node-http-handler': 4.0.6
       '@smithy/property-provider': 4.0.2
-      '@smithy/protocol-http': 5.1.0
-      '@smithy/smithy-client': 4.2.0
-      '@smithy/types': 4.2.0
-      '@smithy/util-stream': 4.2.0
+      '@smithy/protocol-http': 5.1.2
+      '@smithy/smithy-client': 4.4.5
+      '@smithy/types': 4.3.1
+      '@smithy/util-stream': 4.2.2
       tslib: 2.8.1
 
   '@aws-sdk/credential-provider-http@3.840.0':
@@ -17770,7 +17770,7 @@ snapshots:
       '@smithy/credential-provider-imds': 4.0.2
       '@smithy/property-provider': 4.0.2
       '@smithy/shared-ini-file-loader': 4.0.2
-      '@smithy/types': 4.2.0
+      '@smithy/types': 4.3.1
       tslib: 2.8.1
     transitivePeerDependencies:
       - aws-crt
@@ -17833,7 +17833,7 @@ snapshots:
       '@aws-sdk/types': 3.775.0
       '@smithy/property-provider': 4.0.2
       '@smithy/shared-ini-file-loader': 4.0.2
-      '@smithy/types': 4.2.0
+      '@smithy/types': 4.3.1
       tslib: 2.8.1
 
   '@aws-sdk/credential-provider-process@3.840.0':
@@ -17853,7 +17853,7 @@ snapshots:
       '@aws-sdk/types': 3.775.0
       '@smithy/property-provider': 4.0.2
       '@smithy/shared-ini-file-loader': 4.0.2
-      '@smithy/types': 4.2.0
+      '@smithy/types': 4.3.1
       tslib: 2.8.1
     transitivePeerDependencies:
       - aws-crt
@@ -17877,7 +17877,7 @@ snapshots:
       '@aws-sdk/nested-clients': 3.775.0
       '@aws-sdk/types': 3.775.0
       '@smithy/property-provider': 4.0.2
-      '@smithy/types': 4.2.0
+      '@smithy/types': 4.3.1
       tslib: 2.8.1
     transitivePeerDependencies:
       - aws-crt
@@ -18091,30 +18091,30 @@ snapshots:
       '@aws-sdk/util-endpoints': 3.775.0
       '@aws-sdk/util-user-agent-browser': 3.775.0
       '@aws-sdk/util-user-agent-node': 3.775.0
-      '@smithy/config-resolver': 4.1.0
-      '@smithy/core': 3.2.0
-      '@smithy/fetch-http-handler': 5.0.2
-      '@smithy/hash-node': 4.0.2
-      '@smithy/invalid-dependency': 4.0.2
-      '@smithy/middleware-content-length': 4.0.2
-      '@smithy/middleware-endpoint': 4.1.0
-      '@smithy/middleware-retry': 4.1.0
-      '@smithy/middleware-serde': 4.0.3
-      '@smithy/middleware-stack': 4.0.2
-      '@smithy/node-config-provider': 4.0.2
-      '@smithy/node-http-handler': 4.0.4
-      '@smithy/protocol-http': 5.1.0
-      '@smithy/smithy-client': 4.2.0
-      '@smithy/types': 4.2.0
-      '@smithy/url-parser': 4.0.2
+      '@smithy/config-resolver': 4.1.4
+      '@smithy/core': 3.6.0
+      '@smithy/fetch-http-handler': 5.0.4
+      '@smithy/hash-node': 4.0.4
+      '@smithy/invalid-dependency': 4.0.4
+      '@smithy/middleware-content-length': 4.0.4
+      '@smithy/middleware-endpoint': 4.1.13
+      '@smithy/middleware-retry': 4.1.14
+      '@smithy/middleware-serde': 4.0.8
+      '@smithy/middleware-stack': 4.0.4
+      '@smithy/node-config-provider': 4.1.3
+      '@smithy/node-http-handler': 4.0.6
+      '@smithy/protocol-http': 5.1.2
+      '@smithy/smithy-client': 4.4.5
+      '@smithy/types': 4.3.1
+      '@smithy/url-parser': 4.0.4
       '@smithy/util-base64': 4.0.0
       '@smithy/util-body-length-browser': 4.0.0
       '@smithy/util-body-length-node': 4.0.0
-      '@smithy/util-defaults-mode-browser': 4.0.8
-      '@smithy/util-defaults-mode-node': 4.0.8
-      '@smithy/util-endpoints': 3.0.2
-      '@smithy/util-middleware': 4.0.2
-      '@smithy/util-retry': 4.0.2
+      '@smithy/util-defaults-mode-browser': 4.0.21
+      '@smithy/util-defaults-mode-node': 4.0.21
+      '@smithy/util-endpoints': 3.0.6
+      '@smithy/util-middleware': 4.0.4
+      '@smithy/util-retry': 4.0.6
       '@smithy/util-utf8': 4.0.0
       tslib: 2.8.1
     transitivePeerDependencies:
@@ -18225,9 +18225,9 @@ snapshots:
     dependencies:
       '@aws-sdk/nested-clients': 3.775.0
       '@aws-sdk/types': 3.775.0
-      '@smithy/property-provider': 4.0.2
-      '@smithy/shared-ini-file-loader': 4.0.2
-      '@smithy/types': 4.2.0
+      '@smithy/property-provider': 4.0.4
+      '@smithy/shared-ini-file-loader': 4.0.4
+      '@smithy/types': 4.3.1
       tslib: 2.8.1
     transitivePeerDependencies:
       - aws-crt
@@ -22862,6 +22862,14 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       react-promise-suspense: 0.3.4
 
+  '@react-email/render@1.1.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      html-to-text: 9.0.5
+      prettier: 3.5.3
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+      react-promise-suspense: 0.3.4
+
   '@react-email/row@0.0.12(react@18.3.1)':
     dependencies:
       react: 18.3.1
@@ -23679,7 +23687,7 @@ snapshots:
 
   '@smithy/abort-controller@4.0.2':
     dependencies:
-      '@smithy/types': 4.2.0
+      '@smithy/types': 4.3.1
       tslib: 2.8.1
 
   '@smithy/abort-controller@4.0.4':
@@ -23737,10 +23745,10 @@ snapshots:
 
   '@smithy/credential-provider-imds@4.0.2':
     dependencies:
-      '@smithy/node-config-provider': 4.0.2
+      '@smithy/node-config-provider': 4.1.3
       '@smithy/property-provider': 4.0.2
-      '@smithy/types': 4.2.0
-      '@smithy/url-parser': 4.0.2
+      '@smithy/types': 4.3.1
+      '@smithy/url-parser': 4.0.4
       tslib: 2.8.1
 
   '@smithy/credential-provider-imds@4.0.6':
@@ -23754,7 +23762,7 @@ snapshots:
   '@smithy/eventstream-codec@4.0.2':
     dependencies:
       '@aws-crypto/crc32': 5.2.0
-      '@smithy/types': 4.2.0
+      '@smithy/types': 4.3.1
       '@smithy/util-hex-encoding': 4.0.0
       tslib: 2.8.1
 
@@ -23802,7 +23810,7 @@ snapshots:
   '@smithy/eventstream-serde-universal@4.0.2':
     dependencies:
       '@smithy/eventstream-codec': 4.0.2
-      '@smithy/types': 4.2.0
+      '@smithy/types': 4.3.1
       tslib: 2.8.1
 
   '@smithy/eventstream-serde-universal@4.0.4':
@@ -24008,7 +24016,7 @@ snapshots:
 
   '@smithy/property-provider@4.0.2':
     dependencies:
-      '@smithy/types': 4.2.0
+      '@smithy/types': 4.3.1
       tslib: 2.8.1
 
   '@smithy/property-provider@4.0.4':
@@ -24028,7 +24036,7 @@ snapshots:
 
   '@smithy/querystring-builder@4.0.2':
     dependencies:
-      '@smithy/types': 4.2.0
+      '@smithy/types': 4.3.1
       '@smithy/util-uri-escape': 4.0.0
       tslib: 2.8.1
 
@@ -24040,7 +24048,7 @@ snapshots:
 
   '@smithy/querystring-parser@4.0.2':
     dependencies:
-      '@smithy/types': 4.2.0
+      '@smithy/types': 4.3.1
       tslib: 2.8.1
 
   '@smithy/querystring-parser@4.0.4':
@@ -24050,7 +24058,7 @@ snapshots:
 
   '@smithy/service-error-classification@4.0.2':
     dependencies:
-      '@smithy/types': 4.2.0
+      '@smithy/types': 4.3.1
 
   '@smithy/service-error-classification@4.0.6':
     dependencies:
@@ -24058,7 +24066,7 @@ snapshots:
 
   '@smithy/shared-ini-file-loader@4.0.2':
     dependencies:
-      '@smithy/types': 4.2.0
+      '@smithy/types': 4.3.1
       tslib: 2.8.1
 
   '@smithy/shared-ini-file-loader@4.0.4':
@@ -24069,10 +24077,10 @@ snapshots:
   '@smithy/signature-v4@5.0.2':
     dependencies:
       '@smithy/is-array-buffer': 4.0.0
-      '@smithy/protocol-http': 5.1.0
-      '@smithy/types': 4.2.0
+      '@smithy/protocol-http': 5.1.2
+      '@smithy/types': 4.3.1
       '@smithy/util-hex-encoding': 4.0.0
-      '@smithy/util-middleware': 4.0.2
+      '@smithy/util-middleware': 4.0.4
       '@smithy/util-uri-escape': 4.0.0
       '@smithy/util-utf8': 4.0.0
       tslib: 2.8.1
