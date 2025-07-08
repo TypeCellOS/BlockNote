@@ -145,7 +145,8 @@
         <TEXT
           style={{
             fontSize: 24,
-            fontWeight: 700
+            fontWeight: 700,
+            lineHeight: 1.25
           }}
         >
           <TEXT style={{}}>
@@ -167,7 +168,8 @@
         <TEXT
           style={{
             fontSize: 24,
-            fontWeight: 700
+            fontWeight: 700,
+            lineHeight: 1.25
           }}
         >
           <TEXT style={{}}>

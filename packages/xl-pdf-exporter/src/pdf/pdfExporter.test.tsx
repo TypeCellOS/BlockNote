@@ -8,12 +8,14 @@ import {
   defaultStyleSpecs,
   PageBreak,
 } from "@blocknote/core";
+import { ColumnBlock, ColumnListBlock } from "@blocknote/xl-multi-column";
 import { Text } from "@react-pdf/renderer";
 import { testDocument } from "@shared/testDocument.js";
 import reactElementToJSXString from "react-element-to-jsx-string";
 import { describe, expect, it } from "vitest";
 import { pdfDefaultSchemaMappings } from "./defaultSchema/index.js";
 import { PDFExporter } from "./pdfExporter.js";
+import { partialBlocksToBlocksForTesting } from "@shared/formatConversionTestUtil.js";
 // import * as ReactPDF from "@react-pdf/renderer";
 // expect.extend({ toMatchImageSnapshot });
 // import { toMatchImageSnapshot } from "jest-image-snapshot";
@@ -28,6 +30,8 @@ describe("exporter", () => {
       blockSpecs: {
         ...defaultBlockSpecs,
         pageBreak: PageBreak,
+        column: ColumnBlock,
+        columnList: ColumnListBlock,
         extraBlock: createBlockSpec(
           {
             content: "none",
@@ -158,7 +162,12 @@ describe("exporter", () => {
   it("should export a document", async () => {
     const exporter = new PDFExporter(
       BlockNoteSchema.create({
-        blockSpecs: { ...defaultBlockSpecs, pageBreak: PageBreak },
+        blockSpecs: {
+          ...defaultBlockSpecs,
+          pageBreak: PageBreak,
+          column: ColumnBlock,
+          columnList: ColumnListBlock,
+        },
       }),
       pdfDefaultSchemaMappings,
     );
@@ -191,7 +200,12 @@ describe("exporter", () => {
   it("should export a document with header and footer", async () => {
     const exporter = new PDFExporter(
       BlockNoteSchema.create({
-        blockSpecs: { ...defaultBlockSpecs, pageBreak: PageBreak },
+        blockSpecs: {
+          ...defaultBlockSpecs,
+          pageBreak: PageBreak,
+          column: ColumnBlock,
+          columnList: ColumnListBlock,
+        },
       }),
       pdfDefaultSchemaMappings,
     );
@@ -209,5 +223,78 @@ describe("exporter", () => {
     //   transformed,
     //   `${__dirname}/exampleWithHeaderAndFooter.pdf`
     // );
+  });
+  it("should export a document with a multi-column block", async () => {
+    const schema = BlockNoteSchema.create({
+      blockSpecs: {
+        ...defaultBlockSpecs,
+        pageBreak: PageBreak,
+        column: ColumnBlock,
+        columnList: ColumnListBlock,
+      },
+    });
+    const exporter = new PDFExporter(schema, pdfDefaultSchemaMappings);
+    const transformed = await exporter.toReactPDFDocument(
+      partialBlocksToBlocksForTesting(schema, [
+        {
+          type: "columnList",
+          children: [
+            {
+              type: "column",
+              props: {
+                width: 0.8,
+              },
+              children: [
+                {
+                  type: "paragraph",
+                  content: "This paragraph is in a column!",
+                },
+              ],
+            },
+            {
+              type: "column",
+              props: {
+                width: 1.4,
+              },
+              children: [
+                {
+                  type: "heading",
+                  content: "So is this heading!",
+                },
+              ],
+            },
+            {
+              type: "column",
+              props: {
+                width: 0.8,
+              },
+              children: [
+                {
+                  type: "paragraph",
+                  content: "You can have multiple blocks in a column too",
+                },
+                {
+                  type: "bulletListItem",
+                  content: "Block 1",
+                },
+                {
+                  type: "bulletListItem",
+                  content: "Block 2",
+                },
+                {
+                  type: "bulletListItem",
+                  content: "Block 3",
+                },
+              ],
+            },
+          ],
+        },
+      ]),
+    );
+    const str = reactElementToJSXString(transformed);
+
+    await expect(str).toMatchFileSnapshot(
+      "__snapshots__/exampleWithMultiColumn.jsx",
+    );
   });
 });
