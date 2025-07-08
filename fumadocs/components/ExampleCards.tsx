@@ -40,7 +40,7 @@ export default function ExampleCards() {
               />
             ))}
           </Cards>
-        </F>
+        </Fragment>
       ))}
     </>
   );
