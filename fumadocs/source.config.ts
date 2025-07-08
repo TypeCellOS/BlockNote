@@ -1,9 +1,14 @@
-import { defineConfig, defineDocs } from "fumadocs-mdx/config";
-import { createGenerator, remarkAutoTypeTable } from "fumadocs-typescript";
-import { transformerTwoslash } from "fumadocs-twoslash";
 import { rehypeCodeDefaultOptions } from "fumadocs-core/mdx-plugins";
+import {
+  defineConfig,
+  defineDocs,
+  frontmatterSchema,
+} from "fumadocs-mdx/config";
+import { transformerTwoslash } from "fumadocs-twoslash";
 import { createFileSystemTypesCache } from "fumadocs-twoslash/cache-fs";
-import { getSingletonHighlighter, bundledLanguages } from "shiki";
+import { createGenerator, remarkAutoTypeTable } from "fumadocs-typescript";
+import { bundledLanguages, getSingletonHighlighter } from "shiki";
+import { z } from "zod";
 const generator = createGenerator();
 
 // suggested here: https://github.com/fuma-nama/fumadocs/issues/1095#issuecomment-2495855920
@@ -14,14 +19,30 @@ await getSingletonHighlighter({
 // Options: https://fumadocs.vercel.app/docs/mdx/collections#define-docs
 export const docs = defineDocs({
   dir: "content/docs",
+  docs: {
+    schema: frontmatterSchema.extend({
+      description: z.string(),
+    }),
+  },
 });
 
 export const examples = defineDocs({
   dir: "content/examples",
+  docs: {
+    schema: frontmatterSchema.extend({
+      author: z.string().optional(),
+      isPro: z.boolean().optional(),
+    }),
+  },
 });
 
 export const pages = defineDocs({
   dir: "content/pages",
+  docs: {
+    schema: frontmatterSchema.extend({
+      description: z.string(),
+    }),
+  },
 });
 
 export default defineConfig({

@@ -6,13 +6,12 @@ import {
   nodeToBlock,
   StyleSchema,
 } from "@blocknote/core";
-import { expect } from "vitest";
-
-// TODO: fix import and add lint rule, or allow?
 import {
   addIdsToBlocks,
   partialBlocksToBlocksForTesting,
-} from "../formatConversionTestUtil.js";
+} from "@shared/formatConversionTestUtil.js";
+import { expect } from "vitest";
+
 import { ExportParseEqualityTestCase } from "./exportParseEqualityTestCase.js";
 
 export const testExportParseEqualityBlockNoteHTML = async <

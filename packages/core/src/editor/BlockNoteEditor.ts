@@ -252,6 +252,18 @@ export type BlockNoteEditorOptions<
   }) => Plugin;
 
   /**
+   * Configuration for headings
+   */
+  heading?: {
+    /**
+     * The levels of headings that should be available in the editor.
+     * @note Configurable up to 6 levels of headings.
+     * @default [1, 2, 3]
+     */
+    levels?: (1 | 2 | 3 | 4 | 5 | 6)[];
+  };
+
+  /**
    * The content that should be in the editor when it's created, represented as an array of {@link PartialBlock} objects.
    *
    * See [Partial Blocks](https://www.blocknotejs.org/docs/editor-api/manipulating-blocks#partial-blocks) for more info.
@@ -578,6 +590,9 @@ export class BlockNoteEditor<
       headers: boolean;
     };
     codeBlock: CodeBlockOptions;
+    heading: {
+      levels: (1 | 2 | 3 | 4 | 5 | 6)[];
+    };
   };
 
   public static create<
@@ -630,6 +645,9 @@ export class BlockNoteEditor<
         defaultLanguage: options?.codeBlock?.defaultLanguage ?? "text",
         supportedLanguages: options?.codeBlock?.supportedLanguages ?? {},
         createHighlighter: options?.codeBlock?.createHighlighter ?? undefined,
+      },
+      heading: {
+        levels: options?.heading?.levels ?? [1, 2, 3],
       },
     };
 

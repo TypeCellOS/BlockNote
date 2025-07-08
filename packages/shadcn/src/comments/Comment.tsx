@@ -1,5 +1,9 @@
 import { assertEmpty } from "@blocknote/core";
-import { ComponentProps, useFocusWithin } from "@blocknote/react";
+import {
+  ComponentProps,
+  useDictionary,
+  useFocusWithin,
+} from "@blocknote/react";
 import { forwardRef, useState } from "react";
 
 import { cn } from "../lib/utils.js";
@@ -13,6 +17,7 @@ const AuthorInfo = forwardRef<
   >
 >((props, _ref) => {
   const { authorInfo, timeString, edited, ...rest } = props;
+  const dict = useDictionary();
 
   assertEmpty(rest, false);
 
@@ -61,7 +66,7 @@ const AuthorInfo = forwardRef<
       >
         <span className={"bn-text-sm bn-font-bold"}>{authorInfo.username}</span>
         <span className={"bn-text-xs"}>
-          {timeString} {edited && "(edited)"}
+          {timeString} {edited && `(${dict.comments.edited})`}
         </span>
       </div>
     </div>

@@ -11,7 +11,10 @@ export async function getDataForPromptNoSelection(
     excludeBlockIds?: string[];
   },
 ) {
-  const input = trimEmptyBlocks(editor.document);
+  const cursorBlockId = editor.getTextCursorPosition().block.id;
+  const input = trimEmptyBlocks(editor.document, {
+    cursorBlockId,
+  });
   const blockArray = await convertBlocks(
     flattenBlocks(input),
     async (block) => {

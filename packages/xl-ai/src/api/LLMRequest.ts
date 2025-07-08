@@ -9,6 +9,7 @@ import { LLMResponse } from "./LLMResponse.js";
 import type { PromptBuilder } from "./formats/PromptBuilder.js";
 import { htmlBlockLLMFormat } from "./formats/html-blocks/htmlBlocks.js";
 import { LLMFormat } from "./index.js";
+import { trimEmptyBlocks } from "./promptHelpers/trimEmptyBlocks.js";
 
 export type LLMRequestOptions = {
   /**
@@ -155,7 +156,7 @@ export async function doLLMRequest(
     cursorBlock &&
     deleteEmptyCursorBlock &&
     isEmptyParagraph(cursorBlock) &&
-    editor.document.length > 1
+    trimEmptyBlocks(editor.document).length > 0
       ? cursorBlock.id
       : undefined;
 
@@ -166,7 +167,19 @@ export async function doLLMRequest(
   let previousMessages: CoreMessage[] | undefined = undefined;
 
   if (previousResponse) {
-    previousMessages = previousResponse.messages;
+    previousMessages = previousResponse.messages.map((m) => {
+      // Some models, like Gemini and Anthropic don't support mixing system and user messages.
+      // Therefore, we convert all user messages to system messages.
+      // (also see comment below on a possibly better approach that might also address this)
+      if (m.role === "user" && typeof m.content === "string") {
+        return {
+          role: "system",
+          content: `USER_MESSAGE: ${m.content}`,
+        };
+      }
+
+      return m;
+    });
     /*
     We currently insert these messages as "assistant" string messages.
     When using Tools, the "official" pattern for this is to use a "tool_result" message.
@@ -180,9 +193,9 @@ export async function doLLMRequest(
     For now, this approach works ok.
     */
     previousMessages.push({
-      role: "assistant",
+      role: "system", // using "assistant" here doesn't work with gemini because we can't mix system / assistant messages
       content:
-        "These are the operations returned by a previous LLM call: \n" +
+        "ASSISTANT_MESSAGE: These are the operations returned by a previous LLM call: \n" +
         JSON.stringify(
           await previousResponse.llmResult.getGeneratedOperations(),
         ),

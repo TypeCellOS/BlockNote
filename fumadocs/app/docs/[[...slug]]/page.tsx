@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 export default async function Page(props: {
   params: Promise<{ slug?: string[] }>;
 }) {
-  return <DocPage {...props} source={source} baseUrl="/docs" />;
+  return <DocPage {...props} source={source} />;
 }
 
 export async function generateStaticParams() {

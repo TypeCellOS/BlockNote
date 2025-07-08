@@ -8,7 +8,7 @@ In addition to the default block types that BlockNote offers, you can also make 
 
 <Example name="custom-schema/alert-block" />
 
-### Creating a Custom Block Type
+## Creating a Custom Block Type
 
 Use the `createReactBlockSpec` function to create a custom block type. This function takes two arguments:
 
@@ -43,7 +43,7 @@ const Alert = createReactBlockSpec(
 );
 ```
 
-#### Block Config (`CustomBlockConfig`)
+### Block Config (`CustomBlockConfig`)
 
 The Block Config describes the shape of your custom blocks. Use it to specify the type, properties (props) and content your custom blocks should support:
 
@@ -97,9 +97,9 @@ Can be set to false in order to make the block non-selectable, both using the mo
 
 Defines which keyboard shortcut should be used to insert a hard break into the block's inline content. Defaults to `"shift+enter"`.
 
-##### File Block Config
+#### File Block Config
 
-#### Block Implementation (`ReactCustomBlockImplementation`)
+### Block Implementation (`ReactCustomBlockImplementation`)
 
 The Block Implementation defines how the block should be rendered in the editor, and how it should be parsed from and converted to HTML.
 
@@ -141,7 +141,7 @@ The `parse` function defines how to parse HTML content into your block, for exam
 
 `element`: The HTML element that's being parsed.
 
-### Adding Custom Blocks to the Editor
+## Adding Custom Blocks to the Editor
 
 Finally, create a BlockNoteSchema using the definition of your custom blocks:
 
@@ -159,7 +159,7 @@ const schema = BlockNoteSchema.create({
 
 You can then instantiate your editor with this custom schema, as explained on the [Custom Schemas](/docs/custom-schemas) page.
 
-### Improving the User Experience
+## Improving the User Experience
 
 Now you know how to create a custom block and add it to your editor. However, users don't have a way of creating instances of it to their documents.
 

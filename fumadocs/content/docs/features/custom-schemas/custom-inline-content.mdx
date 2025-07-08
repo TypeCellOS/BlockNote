@@ -8,7 +8,7 @@ In addition to the default inline content types that BlockNote offers, you can a
 
 <Example name="custom-schema/suggestion-menus-mentions" />
 
-### Creating a Custom Inline Content Type
+## Creating a Custom Inline Content Type
 
 Use the `createReactInlineContentSpec` function to create a custom inline content type. This function takes two arguments:
 
@@ -40,7 +40,7 @@ const Mention = createReactInlineContentSpec(
 );
 ```
 
-#### Inline Content Config (`CustomInlineContentConfig`)
+### Inline Content Config (`CustomInlineContentConfig`)
 
 The Inline Content Config describes the shape of your custom inline content. Use it to specify the type, properties (props) and content your custom inline content should support:
 
@@ -84,7 +84,7 @@ type PropSchema<PrimitiveType extends "boolean" | "number" | "string"> = Record<
 
 _In the mentions demo, we add a `user` prop for the user that's being mentioned._
 
-#### Inline Content Implementation (`ReactCustomInlineContentImplementation`)
+### Inline Content Implementation (`ReactCustomInlineContentImplementation`)
 
 The Inline Content Implementation defines how the inline content should be rendered to HTML.
 
@@ -107,7 +107,7 @@ This is your React component which defines how your custom inline content should
 
 _Note that since inline content is, by definition, inline, your component should also return an HTML inline element._
 
-### Adding Custom Inline Content to the Editor
+## Adding Custom Inline Content to the Editor
 
 Finally, create a BlockNoteSchema using the definition of your custom inline content:
 

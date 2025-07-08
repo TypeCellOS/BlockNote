@@ -1,7 +1,13 @@
 import { AuthNavButton } from "@/components/AuthNavButton";
-import { ThemedImage } from "@/components/ThemedImage";
-import type { DocsLayoutProps } from "fumadocs-ui/layouts/notebook";
-import { FaBook, FaCode, FaDiscord, FaGithub, FaUser } from "react-icons/fa";
+import ThemedImage from "@/components/ThemedImage";
+import LogoLight from "@/public/img/logos/banner.svg";
+import LogoDark from "@/public/img/logos/banner.dark.svg";
+import {
+  NavbarSidebarTrigger,
+  type DocsLayoutProps,
+} from "fumadocs-ui/layouts/docs";
+import { FaBook, FaCode, FaDiscord, FaGithub } from "react-icons/fa";
+import { HomeLayoutProps } from "fumadocs-ui/layouts/home";
 
 /**
  * Shared layout configurations
@@ -10,18 +16,17 @@ import { FaBook, FaCode, FaDiscord, FaGithub, FaUser } from "react-icons/fa";
  * Home Layout: app/(home)/layout.tsx
  * Docs Layout: app/docs/layout.tsx
  */
-export const baseOptions: Partial<DocsLayoutProps> = {
+export const baseOptions: Partial<DocsLayoutProps & HomeLayoutProps> = {
+  themeSwitch: {
+    enabled: false,
+  },
   nav: {
     title: (
-      <>
-        <ThemedImage
-          height={32}
-          width={170}
-          src="/img/logos/banner.svg"
-          darkImage={"/img/logos/banner.dark.svg"}
-          alt="BlockNote"
-        />
-      </>
+      <ThemedImage
+        src={{ light: LogoLight, dark: LogoDark }}
+        alt="BlockNote"
+        className="w-40"
+      />
     ),
   },
   links: [
@@ -43,6 +48,11 @@ export const baseOptions: Partial<DocsLayoutProps> = {
       active: "nested-url",
     },
     {
+      text: "AI",
+      url: "/docs/ai",
+      active: "nested-url",
+    },
+    {
       text: "Examples",
       url: "/examples",
       active: "nested-url",
@@ -54,7 +64,7 @@ export const baseOptions: Partial<DocsLayoutProps> = {
     },
     {
       text: "About",
-      url: "/about",
+      url: "/pages/about",
       active: "url",
     },
     {
@@ -69,16 +79,20 @@ export const baseOptions: Partial<DocsLayoutProps> = {
       text: "GitHub",
       url: "https://github.com/TypeCellOS/BlockNote",
     },
-
     {
       type: "custom",
-      // only displayed on navbar, not mobile menu
-      on: "nav",
+      on: "all",
+      secondary: true,
       children: <AuthNavButton />,
+    },
+    {
+      type: "custom",
+      on: "all",
+      secondary: true,
+      children: <NavbarSidebarTrigger className="-me-1.5 p-2 md:hidden" />,
     },
   ],
   sidebar: {
-    // footer: <div>THIS IS A FOOTER</div>,
     tabs: [
       {
         icon: (

@@ -20,6 +20,42 @@ export const pl: Dictionary = {
       aliases: ["h3", "naglowek3", "podnaglowek"],
       group: "Nagłówki",
     },
+    heading_4: {
+      title: "Nagłówek 4",
+      subtext: "Nagłówek mniejszej podsekcji",
+      aliases: ["h4", "naglowek4", "podnaglowek4"],
+      group: "Podnagłówki",
+    },
+    heading_5: {
+      title: "Nagłówek 5",
+      subtext: "Nagłówek mniejszej podsekcji",
+      aliases: ["h5", "naglowek5", "podnaglowek5"],
+      group: "Podnagłówki",
+    },
+    heading_6: {
+      title: "Nagłówek 6",
+      subtext: "Nagłówek najniższego poziomu",
+      aliases: ["h6", "naglowek6", "podnaglowek6"],
+      group: "Podnagłówki",
+    },
+    toggle_heading: {
+      title: "Nagłówek rozwijany 1",
+      subtext: "Rozwijany nagłówek najwyższego poziomu",
+      aliases: ["h", "naglowek1", "h1", "rozwijany"],
+      group: "Podnagłówki",
+    },
+    toggle_heading_2: {
+      title: "Nagłówek rozwijany 2",
+      subtext: "Rozwijany nagłówek dla kluczowych sekcji",
+      aliases: ["h2", "naglowek2", "podnaglowek", "rozwijany"],
+      group: "Podnagłówki",
+    },
+    toggle_heading_3: {
+      title: "Nagłówek rozwijany 3",
+      subtext: "Rozwijany nagłówek dla podsekcji i grup",
+      aliases: ["h3", "naglowek3", "podnaglowek", "rozwijany"],
+      group: "Podnagłówki",
+    },
     quote: {
       title: "Cytat",
       subtext: "Cytat lub fragment",
@@ -42,6 +78,18 @@ export const pl: Dictionary = {
       title: "Lista z polami wyboru",
       subtext: "Używana do wyświetlania listy z polami wyboru",
       aliases: ["ul", "li", "lista", "lista z polami wyboru", "pole wyboru"],
+      group: "Podstawowe bloki",
+    },
+    toggle_list: {
+      title: "Lista rozwijana",
+      subtext: "Lista z elementami, które można ukryć",
+      aliases: [
+        "li",
+        "lista",
+        "lista rozwijana",
+        "lista rozwijalna",
+        "lista składana",
+      ],
       group: "Podstawowe bloki",
     },
     paragraph: {
@@ -118,6 +166,7 @@ export const pl: Dictionary = {
   placeholders: {
     default: "Wprowadź tekst lub wpisz '/' aby użyć poleceń",
     heading: "Nagłówek",
+    toggleListItem: "Przełącz",
     bulletListItem: "Lista",
     numberedListItem: "Lista",
     checkListItem: "Lista",
@@ -319,6 +368,9 @@ export const pl: Dictionary = {
     },
   },
   comments: {
+    edited: "edytowany",
+    save_button_text: "Zapisz",
+    cancel_button_text: "Anuluj",
     actions: {
       add_reaction: "Dodaj reakcję",
       resolve: "Rozwiąż",

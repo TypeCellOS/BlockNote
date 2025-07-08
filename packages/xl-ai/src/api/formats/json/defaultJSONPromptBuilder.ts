@@ -1,4 +1,5 @@
 import { CoreMessage } from "ai";
+import { trimEmptyBlocks } from "../../promptHelpers/trimEmptyBlocks.js";
 import { PromptBuilder } from "../PromptBuilder.js";
 import {
   getDataForPromptNoSelection,
@@ -103,10 +104,6 @@ function promptManipulateDocumentUseJSONBlocks(opts: {
       content: "The user asks you to do the following:",
     },
     {
-      role: "user",
-      content: opts.userPrompt,
-    },
-    {
       role: "system",
       content:
         `First, determine what part of the document the user is talking about. You SHOULD probably take cursor info into account if needed.
@@ -118,25 +115,32 @@ function promptManipulateDocumentUseJSONBlocks(opts: {
           ? `Because the document is empty, first update the empty block before adding new blocks.`
           : "Prefer updating existing blocks over removing and adding (but this also depends on the user's question)."),
     },
+    {
+      role: "user",
+      content: opts.userPrompt,
+    },
   ];
 }
 
 export const defaultJSONPromptBuilder: PromptBuilder = async (editor, opts) => {
+  const isEmptyDocument = trimEmptyBlocks(editor.document).length === 0;
+
   if (opts.selectedBlocks) {
     const data = await getDataForPromptWithSelection(editor, {
       selectedBlocks: opts.selectedBlocks,
     });
+
     return promptManipulateSelectionJSONBlocks({
       ...data,
       userPrompt: opts.userPrompt,
-      isEmptyDocument: editor.isEmpty,
+      isEmptyDocument,
     });
   } else {
     const data = await getDataForPromptNoSelection(editor, opts);
     return promptManipulateDocumentUseJSONBlocks({
       ...data,
       userPrompt: opts.userPrompt,
-      isEmptyDocument: editor.isEmpty,
+      isEmptyDocument,
     });
   }
 };

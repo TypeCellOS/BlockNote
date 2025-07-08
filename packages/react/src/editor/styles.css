@@ -113,6 +113,7 @@
 
 /* Indent line styling */
 .bn-block-group
+  .bn-block:not(:has(.bn-toggle-wrapper))
   .bn-block-group
   .bn-block-outer:not([data-prev-depth-changed])::before {
   border-left: 1px solid var(--bn-colors-side-menu);

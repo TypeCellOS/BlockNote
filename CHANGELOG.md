@@ -1,3 +1,72 @@
+## 0.33.0 (2025-07-03)
+
+### 🚀 Features
+
+- FloatingUI options prop for `BlockPositioner` ([#1801](https://github.com/TypeCellOS/BlockNote/pull/1801))
+- Support Google Gemini AI ([#1805](https://github.com/TypeCellOS/BlockNote/pull/1805))
+
+### 🩹 Fixes
+
+- support multi-character suggestions ([#1734](https://github.com/TypeCellOS/BlockNote/pull/1734))
+- switch foreground color based on selected user color dynamically #1785 ([#1787](https://github.com/TypeCellOS/BlockNote/pull/1787), [#1785](https://github.com/TypeCellOS/BlockNote/issues/1785))
+- mark react package as external in email exporter ([#1807](https://github.com/TypeCellOS/BlockNote/pull/1807))
+- Duplicate `formatConversionTest` files ([#1798](https://github.com/TypeCellOS/BlockNote/pull/1798))
+- AI empty document handling ([#1810](https://github.com/TypeCellOS/BlockNote/pull/1810))
+- `bn-inline-content` class name getting duplicated ([#1794](https://github.com/TypeCellOS/BlockNote/pull/1794))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Yousef
+
+## 0.32.0 (2025-06-24)
+
+### 🚀 Features
+
+- toggle blocks ([#1707](https://github.com/TypeCellOS/BlockNote/pull/1707))
+- **core:** support h4, h5, and h6 ([#1634](https://github.com/TypeCellOS/BlockNote/pull/1634))
+- **xl-email-exporter:** add email exporter ([#1768](https://github.com/TypeCellOS/BlockNote/pull/1768))
+
+### 🩹 Fixes
+
+- react 19 strict mode compatibility ([#1726](https://github.com/TypeCellOS/BlockNote/pull/1726))
+- add keys to pdf exporter ([#1739](https://github.com/TypeCellOS/BlockNote/pull/1739))
+- only listten for left click on formatting toolbar ([#1774](https://github.com/TypeCellOS/BlockNote/pull/1774))
+- prevent formatting toolbar from closing if click was from inside the editor ([#1775](https://github.com/TypeCellOS/BlockNote/pull/1775))
+- **locales:** add Hebrew translations for various components ([#1779](https://github.com/TypeCellOS/BlockNote/pull/1779))
+
+### ❤️ Thank You
+
+- Aslam @Aslam97
+- Drew Johnson
+- Jonathan Marbutt @jmarbutt
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Samuel Bisberg
+- Yousef
+
+## 0.31.3 (2025-06-18)
+
+### 🩹 Fixes
+
+- AI generation with empty document ([#1740](https://github.com/TypeCellOS/BlockNote/pull/1740))
+- do not send a welcome email if magic link was used on an account older than a minute ago ([db88fe4aa](https://github.com/TypeCellOS/BlockNote/commit/db88fe4aa))
+- AI system messages should always be at start of prompt ([#1741](https://github.com/TypeCellOS/BlockNote/pull/1741))
+- Selection clicking editor padding ([#1717](https://github.com/TypeCellOS/BlockNote/pull/1717))
+- preserve marks across a shift+enter #1672 ([#1743](https://github.com/TypeCellOS/BlockNote/pull/1743), [#1672](https://github.com/TypeCellOS/BlockNote/issues/1672))
+- **ai:** undo-redo after accepting/rejecting changes will undo as expected ([#1752](https://github.com/TypeCellOS/BlockNote/pull/1752))
+- **locales:** add translations for some comment strings ([#1764](https://github.com/TypeCellOS/BlockNote/pull/1764))
+- **website:** log in bug fixes ([#1742](https://github.com/TypeCellOS/BlockNote/pull/1742))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Nick the Sick
+- Vinicius Fernandes @ViniCleFer
+- Yousef
+
 ## 0.31.2 (2025-06-05)
 
 ### 🩹 Fixes

@@ -6,6 +6,7 @@ export default defineWorkspace([
   "./packages/shadcn/vite.config.ts",
   "./packages/server-util/vite.config.ts",
   "./packages/xl-pdf-exporter/vite.config.ts",
+  "./packages/xl-email-exporter/vite.config.ts",
   "./packages/xl-ai/vite.config.ts",
   "./packages/mantine/vite.config.ts",
   "./packages/core/vite.config.ts",

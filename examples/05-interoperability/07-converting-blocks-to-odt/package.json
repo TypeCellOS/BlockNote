@@ -17,7 +17,8 @@
     "@blocknote/shadcn": "latest",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "@blocknote/xl-odt-exporter": "latest"
+    "@blocknote/xl-odt-exporter": "latest",
+    "@blocknote/xl-multi-column": "latest"
   },
   "devDependencies": {
     "@types/react": "^18.0.25",

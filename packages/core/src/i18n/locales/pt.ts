@@ -20,6 +20,42 @@ export const pt: Dictionary = {
       aliases: ["h3", "titulo3", "subtitulo"],
       group: "Títulos",
     },
+    heading_4: {
+      title: "Título 4",
+      subtext: "Usado para subseções menores",
+      aliases: ["h4", "titulo4", "subtitulo4"],
+      group: "Subtítulos",
+    },
+    heading_5: {
+      title: "Título 5",
+      subtext: "Usado para títulos de subseções pequenas",
+      aliases: ["h5", "titulo5", "subtitulo5"],
+      group: "Subtítulos",
+    },
+    heading_6: {
+      title: "Título 6",
+      subtext: "Usado para títulos de nível mais baixo",
+      aliases: ["h6", "titulo6", "subtitulo6"],
+      group: "Subtítulos",
+    },
+    toggle_heading: {
+      title: "Título Expansível",
+      subtext: "Título expansível de nível superior",
+      aliases: ["h", "titulo1", "h1", "expansível"],
+      group: "Subtítulos",
+    },
+    toggle_heading_2: {
+      title: "Título Expansível 2",
+      subtext: "Título expansível para seções principais",
+      aliases: ["h2", "titulo2", "subtitulo", "expansível"],
+      group: "Subtítulos",
+    },
+    toggle_heading_3: {
+      title: "Título Expansível 3",
+      subtext: "Título expansível para subseções e títulos de grupo",
+      aliases: ["h3", "titulo3", "subtitulo", "expansível"],
+      group: "Subtítulos",
+    },
     quote: {
       title: "Citação",
       subtext: "Citação ou trecho",
@@ -49,6 +85,12 @@ export const pt: Dictionary = {
         "lista marcada",
         "caixa de seleção",
       ],
+      group: "Blocos básicos",
+    },
+    toggle_list: {
+      title: "Lista expansível",
+      subtext: "Lista com subitens ocultáveis",
+      aliases: ["li", "lista", "lista expansível", "lista recolhível"],
       group: "Blocos básicos",
     },
     paragraph: {
@@ -125,6 +167,7 @@ export const pt: Dictionary = {
   placeholders: {
     default: "Digite texto ou use '/' para comandos",
     heading: "Título",
+    toggleListItem: "Alternar",
     bulletListItem: "Lista",
     numberedListItem: "Lista",
     checkListItem: "Lista",
@@ -327,6 +370,9 @@ export const pt: Dictionary = {
     },
   },
   comments: {
+    edited: "editado",
+    save_button_text: "Salvar",
+    cancel_button_text: "Cancelar",
     actions: {
       add_reaction: "Adicionar reação",
       resolve: "Resolver",

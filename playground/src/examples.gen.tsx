@@ -1008,6 +1008,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-pdf-exporter": "latest",
+            "@blocknote/xl-multi-column": "latest",
             "@react-pdf/renderer": "^4.3.0"
           } as any,
           "pro": true
@@ -1032,6 +1033,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-docx-exporter": "latest",
+            "@blocknote/xl-multi-column": "latest",
             "docx": "^9.0.2"
           } as any,
           "pro": true
@@ -1055,7 +1057,8 @@
             ""
           ],
           "dependencies": {
-            "@blocknote/xl-odt-exporter": "latest"
+            "@blocknote/xl-odt-exporter": "latest",
+            "@blocknote/xl-multi-column": "latest"
           } as any,
           "pro": true
         },
@@ -1065,6 +1068,30 @@
           "slug": "interoperability"
         },
         "readme": "This example exports the current document (all blocks) as an Open Document Text (ODT) file and downloads it to your computer.\n\n**Try it out:** Edit the document and click \"Download .odt\" in top-left corner, to download the ODT file."
+      },
+      {
+        "projectSlug": "converting-blocks-to-react-email",
+        "fullSlug": "interoperability/converting-blocks-to-react-email",
+        "pathFromRoot": "examples/05-interoperability/08-converting-blocks-to-react-email",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "jmarbutt",
+          "tags": [
+            ""
+          ],
+          "dependencies": {
+            "@blocknote/xl-email-exporter": "latest",
+            "@react-email/render": "^1.1.2"
+          } as any,
+          "pro": true
+        },
+        "title": "Exporting documents to React Email",
+        "group": {
+          "pathFromRoot": "examples/05-interoperability",
+          "slug": "interoperability"
+        },
+        "readme": "This example exports the current document (all blocks) as a React Email document.\n\n**Try it out:** Edit the document and the preview will update."
       }
     ]
   },
@@ -1201,6 +1228,25 @@
           "slug": "custom-schema"
         },
         "readme": "In this example, we create a custom `Alert` block which is used to emphasize text, same as in the [minimal `Alert` block example](/examples/custom-schema/alert-block). However, in this example, we also add a command to insert the block via the Slash Menu, and an entry in the Formatting Toolbar's Block Type Select to change the current block to an `Alert`.\n\n**Try it out:** Press the \"/\" key to open the Slash Menu and insert an `Alert` block! Or highlight text in a paragraph, then change the block type to an `Alert` using the Block Type Select in the Formatting Toolbar!\n\n**Relevant Docs:**\n\n- [Minimal Alert Block Example](/examples/custom-schema/alert-block)\n- [Changing Slash Menu Items](/docs/ui-components/suggestion-menus#changing-slash-menu-items)\n- [Changing Block Type Select Items](/docs/ui-components/formatting-toolbar#changing-block-type-select-items)\n- [Custom Blocks](/docs/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/editor-basics/setup)"
+      },
+      {
+        "projectSlug": "toggleable-blocks",
+        "fullSlug": "custom-schema/toggleable-blocks",
+        "pathFromRoot": "examples/06-custom-schema/06-toggleable-blocks",
+        "config": {
+          "playground": true,
+          "docs": true,
+          "author": "matthewlipski",
+          "tags": [
+            "Basic"
+          ]
+        },
+        "title": "Toggleable Custom Blocks",
+        "group": {
+          "pathFromRoot": "examples/06-custom-schema",
+          "slug": "custom-schema"
+        },
+        "readme": "This example shows how to create custom blocks with a toggle button to show/hide their children, like with the default toggle heading and list item blocks. This is done using the use the `ToggleWrapper` component from `@blocknote/react`.\n\n**Relevant Docs:**\n\n- [Custom Blocks](/docs/custom-schemas/custom-blocks)\n- [Editor Setup](/docs/editor-basics/setup)\n- [Default Schema](/docs/editor-basics/default-schema)"
       },
       {
         "projectSlug": "react-custom-blocks",
@@ -1515,6 +1561,7 @@
             "@blocknote/xl-ai": "latest",
             "@mantine/core": "^7.10.1",
             "ai": "^4.3.15",
+            "@ai-sdk/google": "^1.2.20",
             "@ai-sdk/openai": "^1.3.22",
             "@ai-sdk/openai-compatible": "^0.2.14",
             "@ai-sdk/groq": "^1.2.9",

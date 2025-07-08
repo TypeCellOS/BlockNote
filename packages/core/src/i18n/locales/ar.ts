@@ -20,6 +20,42 @@ export const ar: Dictionary = {
       aliases: ["ع3", "عنوان3", "عنوان فرعي"],
       group: "العناوين",
     },
+    heading_4: {
+      title: "عنوان 4",
+      subtext: "عنوان فرعي ثانوي صغير",
+      aliases: ["ع4", "عنوان4", "عنوان فرعي صغير"],
+      group: "العناوين الفرعية",
+    },
+    heading_5: {
+      title: "عنوان 5",
+      subtext: "عنوان فرعي صغير",
+      aliases: ["ع5", "عنوان5", "عنوان فرعي صغير"],
+      group: "العناوين الفرعية",
+    },
+    heading_6: {
+      title: "عنوان 6",
+      subtext: "أدنى مستوى للعناوين",
+      aliases: ["ع6", "عنوان6", "العنوان الفرعي الأدنى"],
+      group: "العناوين الفرعية",
+    },
+    toggle_heading: {
+      title: "عنوان قابل للطي 1",
+      subtext: "عنوان قابل للطي لإظهار وإخفاء المحتوى",
+      aliases: ["ع", "عنوان1", "ع1", "قابل للطي", "طي"],
+      group: "العناوين الفرعية",
+    },
+    toggle_heading_2: {
+      title: "عنوان قابل للطي 2",
+      subtext: "عنوان فرعي قابل للطي لإظهار وإخفاء المحتوى",
+      aliases: ["ع2", "عنوان2", "عنوان فرعي", "قابل للطي", "طي"],
+      group: "العناوين الفرعية",
+    },
+    toggle_heading_3: {
+      title: "عنوان قابل للطي 3",
+      subtext: "عنوان فرعي ثانوي قابل للطي لإظهار وإخفاء المحتوى",
+      aliases: ["ع3", "عنوان3", "عنوان فرعي", "قابل للطي", "طي"],
+      group: "العناوين الفرعية",
+    },
     quote: {
       title: "اقتباس",
       subtext: "اقتباس أو مقتطف",
@@ -50,6 +86,12 @@ export const ar: Dictionary = {
         "قائمة مشطوبة",
         "مربع التحقق",
       ],
+      group: "الكتل الأساسية",
+    },
+    toggle_list: {
+      title: "قائمة قابلة للطي",
+      subtext: "قائمة بعناصر فرعية قابلة للإخفاء",
+      aliases: ["عناصر قائمة", "قائمة", "قائمة قابلة للطي", "قائمة منسدلة"],
       group: "الكتل الأساسية",
     },
     paragraph: {
@@ -118,6 +160,7 @@ export const ar: Dictionary = {
   placeholders: {
     default: "أدخل نصًا أو اكتب '/' للأوامر",
     heading: "عنوان",
+    toggleListItem: "طيّ",
     bulletListItem: "قائمة",
     numberedListItem: "قائمة",
     checkListItem: "قائمة",
@@ -320,6 +363,9 @@ export const ar: Dictionary = {
     },
   },
   comments: {
+    edited: "تم التحرير",
+    save_button_text: "حفظ",
+    cancel_button_text: "إلغاء",
     actions: {
       add_reaction: "أضف تفاعلًا",
       resolve: "حل",

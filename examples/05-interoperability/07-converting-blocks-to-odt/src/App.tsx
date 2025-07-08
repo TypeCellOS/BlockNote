@@ -4,6 +4,7 @@ import {
   filterSuggestionItems,
   withPageBreak,
 } from "@blocknote/core";
+import * as locales from "@blocknote/core/locales";
 import "@blocknote/core/fonts/inter.css";
 import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
@@ -17,6 +18,12 @@ import {
   ODTExporter,
   odtDefaultSchemaMappings,
 } from "@blocknote/xl-odt-exporter";
+import {
+  getMultiColumnSlashMenuItems,
+  multiColumnDropCursor,
+  locales as multiColumnLocales,
+  withMultiColumn,
+} from "@blocknote/xl-multi-column";
 import { useMemo } from "react";
 
 import "./styles.css";
@@ -24,7 +31,12 @@ import "./styles.css";
 export default function App() {
   // Creates a new editor instance with some initial content.
   const editor = useCreateBlockNote({
-    schema: withPageBreak(BlockNoteSchema.create()),
+    schema: withMultiColumn(withPageBreak(BlockNoteSchema.create())),
+    dropCursor: multiColumnDropCursor,
+    dictionary: {
+      ...locales.en,
+      multi_column: multiColumnLocales.en,
+    },
     tables: {
       splitCells: true,
       cellTextColor: true,
@@ -308,9 +320,72 @@ export default function App() {
   console.log("Hello World", message);
 };`,
       },
+      {
+        type: "columnList",
+        children: [
+          {
+            type: "column",
+            props: {
+              width: 0.8,
+            },
+            children: [
+              {
+                type: "paragraph",
+                content: "This paragraph is in a column!",
+              },
+            ],
+          },
+          {
+            type: "column",
+            props: {
+              width: 1.4,
+            },
+            children: [
+              {
+                type: "heading",
+                content: "So is this heading!",
+              },
+            ],
+          },
+          {
+            type: "column",
+            props: {
+              width: 0.8,
+            },
+            children: [
+              {
+                type: "paragraph",
+                content: "You can have multiple blocks in a column too",
+              },
+              {
+                type: "bulletListItem",
+                content: "Block 1",
+              },
+              {
+                type: "bulletListItem",
+                content: "Block 2",
+              },
+              {
+                type: "bulletListItem",
+                content: "Block 3",
+              },
+            ],
+          },
+        ],
+      },
     ],
   });
-
+  const getSlashMenuItems = useMemo(() => {
+    return async (query: string) =>
+      filterSuggestionItems(
+        combineByGroup(
+          getDefaultReactSlashMenuItems(editor),
+          getPageBreakReactSlashMenuItems(editor),
+          getMultiColumnSlashMenuItems(editor),
+        ),
+        query,
+      );
+  }, [editor]);
   const onDownloadClick = async () => {
     const exporter = new ODTExporter(editor.schema, odtDefaultSchemaMappings);
 
@@ -331,13 +406,6 @@ export default function App() {
     window.URL.revokeObjectURL(link.href);
   };
 
-  const slashMenuItems = useMemo(() => {
-    return combineByGroup(
-      getDefaultReactSlashMenuItems(editor),
-      getPageBreakReactSlashMenuItems(editor),
-    );
-  }, [editor]);
-
   // Renders the editor instance, and its contents as HTML below.
   return (
     <div>
@@ -350,9 +418,7 @@ export default function App() {
         <BlockNoteView editor={editor} slashMenu={false}>
           <SuggestionMenuController
             triggerCharacter={"/"}
-            getItems={async (query) =>
-              filterSuggestionItems(slashMenuItems, query)
-            }
+            getItems={getSlashMenuItems}
           />
         </BlockNoteView>
       </div>
