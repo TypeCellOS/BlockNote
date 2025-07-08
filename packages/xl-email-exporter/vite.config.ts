@@ -52,6 +52,9 @@ export default defineConfig((conf) => ({
         if (deps.includes(source)) {
           return true;
         }
+        if (source === "react/jsx-runtime") {
+          return true;
+        }
         return source.startsWith("prosemirror-");
       },
       output: {

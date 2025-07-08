@@ -1,4 +1,5 @@
 import { CoreMessage } from "ai";
+import { trimEmptyBlocks } from "../../promptHelpers/trimEmptyBlocks.js";
 import type { PromptBuilder } from "../PromptBuilder.js";
 import {
   getDataForPromptNoSelection,
@@ -99,6 +100,8 @@ function promptManipulateDocumentUseHTMLBlocks(opts: {
 }
 
 export const defaultHTMLPromptBuilder: PromptBuilder = async (editor, opts) => {
+  const isEmptyDocument = trimEmptyBlocks(editor.document).length === 0;
+
   if (opts.selectedBlocks) {
     const data = await getDataForPromptWithSelection(editor, {
       selectedBlocks: opts.selectedBlocks,
@@ -141,7 +144,7 @@ export const defaultHTMLPromptBuilder: PromptBuilder = async (editor, opts) => {
     return promptManipulateSelectionHTMLBlocks({
       ...data,
       userPrompt: opts.userPrompt,
-      isEmptyDocument: editor.isEmpty,
+      isEmptyDocument,
     });
   } else {
     const data = await getDataForPromptNoSelection(editor, opts);
@@ -174,7 +177,7 @@ export const defaultHTMLPromptBuilder: PromptBuilder = async (editor, opts) => {
     return promptManipulateDocumentUseHTMLBlocks({
       ...data,
       userPrompt: opts.userPrompt,
-      isEmptyDocument: editor.isEmpty,
+      isEmptyDocument,
     });
   }
 };

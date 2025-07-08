@@ -2917,6 +2917,9 @@ importers:
       '@ai-sdk/anthropic':
         specifier: ^1.2.11
         version: 1.2.11(zod@3.24.2)
+      '@ai-sdk/google':
+        specifier: ^1.2.20
+        version: 1.2.20(zod@3.24.2)
       '@ai-sdk/groq':
         specifier: ^1.2.9
         version: 1.2.9(zod@3.24.2)
@@ -3209,10 +3212,10 @@ importers:
         specifier: ^0.4.3
         version: 0.4.15(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@blocknote/core':
-        specifier: 0.32.0
+        specifier: 0.33.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.32.0
+        specifier: 0.33.0
         version: link:../react
       react:
         specifier: ^18.0 || ^19.0 || >= 19.0.0-rc
@@ -3255,7 +3258,7 @@ importers:
   packages/code-block:
     dependencies:
       '@blocknote/core':
-        specifier: 0.32.0
+        specifier: 0.33.0
         version: link:../core
       '@shikijs/core':
         specifier: ^3.2.1
@@ -3489,10 +3492,10 @@ importers:
   packages/mantine:
     dependencies:
       '@blocknote/core':
-        specifier: 0.32.0
+        specifier: 0.33.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.32.0
+        specifier: 0.33.0
         version: link:../react
       '@mantine/core':
         specifier: ^7.10.1
@@ -3547,7 +3550,7 @@ importers:
   packages/react:
     dependencies:
       '@blocknote/core':
-        specifier: 0.32.0
+        specifier: 0.33.0
         version: link:../core
       '@emoji-mart/data':
         specifier: ^1.2.1
@@ -3629,10 +3632,10 @@ importers:
   packages/server-util:
     dependencies:
       '@blocknote/core':
-        specifier: 0.32.0
+        specifier: 0.33.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.32.0
+        specifier: 0.33.0
         version: link:../react
       '@tiptap/core':
         specifier: ^2.12.0
@@ -3690,10 +3693,10 @@ importers:
   packages/shadcn:
     dependencies:
       '@blocknote/core':
-        specifier: 0.32.0
+        specifier: 0.33.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.32.0
+        specifier: 0.33.0
         version: link:../react
       '@hookform/resolvers':
         specifier: ^3.6.0
@@ -3802,16 +3805,16 @@ importers:
   packages/xl-ai:
     dependencies:
       '@blocknote/core':
-        specifier: 0.32.0
+        specifier: 0.33.0
         version: link:../core
       '@blocknote/mantine':
-        specifier: 0.32.0
+        specifier: 0.33.0
         version: link:../mantine
       '@blocknote/prosemirror-suggest-changes':
         specifier: ^0.1.3
         version: 0.1.3(prosemirror-model@1.25.1)(prosemirror-state@1.4.3)(prosemirror-transform@1.10.4)(prosemirror-view@1.38.1)
       '@blocknote/react':
-        specifier: 0.32.0
+        specifier: 0.33.0
         version: link:../react
       '@floating-ui/react':
         specifier: ^0.26.4
@@ -3871,6 +3874,9 @@ importers:
       '@ai-sdk/anthropic':
         specifier: ^1.2.12
         version: 1.2.12(zod@3.24.2)
+      '@ai-sdk/google':
+        specifier: ^1.2.20
+        version: 1.2.20(zod@3.24.2)
       '@ai-sdk/groq':
         specifier: ^1.2.9
         version: 1.2.9(zod@3.24.2)
@@ -3993,10 +3999,10 @@ importers:
   packages/xl-docx-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.32.0
+        specifier: 0.33.0
         version: link:../core
       '@blocknote/xl-multi-column':
-        specifier: 0.32.0
+        specifier: 0.33.0
         version: link:../xl-multi-column
       buffer:
         specifier: ^6.0.3
@@ -4048,10 +4054,10 @@ importers:
   packages/xl-email-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.32.0
+        specifier: 0.33.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.32.0
+        specifier: 0.33.0
         version: link:../react
       '@react-email/components':
         specifier: ^0.1.0
@@ -4103,10 +4109,10 @@ importers:
   packages/xl-multi-column:
     dependencies:
       '@blocknote/core':
-        specifier: 0.32.0
+        specifier: 0.33.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.32.0
+        specifier: 0.33.0
         version: link:../react
       '@tiptap/core':
         specifier: ^2.12.0
@@ -4173,10 +4179,10 @@ importers:
   packages/xl-odt-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.32.0
+        specifier: 0.33.0
         version: link:../core
       '@blocknote/xl-multi-column':
-        specifier: 0.32.0
+        specifier: 0.33.0
         version: link:../xl-multi-column
       '@zip.js/zip.js':
         specifier: ^2.7.57
@@ -4225,13 +4231,13 @@ importers:
   packages/xl-pdf-exporter:
     dependencies:
       '@blocknote/core':
-        specifier: 0.32.0
+        specifier: 0.33.0
         version: link:../core
       '@blocknote/react':
-        specifier: 0.32.0
+        specifier: 0.33.0
         version: link:../react
       '@blocknote/xl-multi-column':
-        specifier: 0.32.0
+        specifier: 0.33.0
         version: link:../xl-multi-column
       '@react-pdf/renderer':
         specifier: ^4.3.0
@@ -4297,6 +4303,9 @@ importers:
       '@ai-sdk/anthropic':
         specifier: ^1.2.11
         version: 1.2.11(zod@3.24.2)
+      '@ai-sdk/google':
+        specifier: ^1.2.20
+        version: 1.2.20(zod@3.24.2)
       '@ai-sdk/groq':
         specifier: ^1.2.9
         version: 1.2.9(zod@3.24.2)
@@ -4574,6 +4583,12 @@ packages:
 
   '@ai-sdk/anthropic@1.2.12':
     resolution: {integrity: sha512-YSzjlko7JvuiyQFmI9RN1tNZdEiZxc+6xld/0tq/VkJaHpEzGAb1yiNxxvmYVcjvfu/PcvCxAAYXmTYQQ63IHQ==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.0.0
+
+  '@ai-sdk/google@1.2.20':
+    resolution: {integrity: sha512-XJcJPazNmvd1WQ/CHS17EDiJs1kPU0eakOgBin0o1DgXsnhX9OKdDxz+tgtriWE8HliN9edU0mhzMiiraz7EQA==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.0.0
@@ -15195,6 +15210,12 @@ snapshots:
       zod: 3.24.2
 
   '@ai-sdk/anthropic@1.2.12(zod@3.24.2)':
+    dependencies:
+      '@ai-sdk/provider': 1.1.3
+      '@ai-sdk/provider-utils': 2.2.8(zod@3.24.2)
+      zod: 3.24.2
+
+  '@ai-sdk/google@1.2.20(zod@3.24.2)':
     dependencies:
       '@ai-sdk/provider': 1.1.3
       '@ai-sdk/provider-utils': 2.2.8(zod@3.24.2)
