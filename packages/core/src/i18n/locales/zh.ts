@@ -20,6 +20,50 @@ export const zh: Dictionary = {
       aliases: ["h3", "heading3", "subheading", "标题", "三级标题"],
       group: "标题",
     },
+    heading_4: {
+      title: "四级标题",
+      subtext: "用于较小的子节标题",
+      aliases: ["h4", "heading4", "subheading4", "四级标题"],
+      group: "副标题",
+    },
+    heading_5: {
+      title: "五级标题",
+      subtext: "用于较小的子节标题",
+      aliases: ["h5", "heading5", "subheading5", "五级标题"],
+      group: "副标题",
+    },
+    heading_6: {
+      title: "六级标题",
+      subtext: "用于最低层级的标题",
+      aliases: ["h6", "heading6", "subheading6", "六级标题"],
+      group: "副标题",
+    },
+    toggle_heading: {
+      title: "可折叠一级标题",
+      subtext: "可折叠的顶级标题",
+      aliases: ["h", "heading1", "h1", "标题", "一级标题", "折叠"],
+      group: "副标题",
+    },
+    toggle_heading_2: {
+      title: "可折叠二级标题",
+      subtext: "可折叠的关键部分标题",
+      aliases: [
+        "h2",
+        "heading2",
+        "subheading",
+        "标题",
+        "二级标题",
+        "副标题",
+        "折叠",
+      ],
+      group: "副标题",
+    },
+    toggle_heading_3: {
+      title: "可折叠三级标题",
+      subtext: "可折叠的小节和分组标题",
+      aliases: ["h3", "heading3", "subheading", "标题", "三级标题", "折叠"],
+      group: "副标题",
+    },
     quote: {
       title: "引用",
       subtext: "引用或摘录",
@@ -67,6 +111,12 @@ export const zh: Dictionary = {
         "勾选列表",
         "复选框",
       ],
+      group: "基础",
+    },
+    toggle_list: {
+      title: "可折叠列表",
+      subtext: "带有可隐藏子项的列表",
+      aliases: ["li", "列表", "可折叠列表", "折叠列表"],
       group: "基础",
     },
     paragraph: {
@@ -166,6 +216,7 @@ export const zh: Dictionary = {
   placeholders: {
     default: "输入 '/' 以使用命令",
     heading: "标题",
+    toggleListItem: "切换",
     bulletListItem: "列表",
     numberedListItem: "列表",
     checkListItem: "列表",
@@ -368,6 +419,9 @@ export const zh: Dictionary = {
     },
   },
   comments: {
+    edited: "已编辑",
+    save_button_text: "保存",
+    cancel_button_text: "取消",
     actions: {
       add_reaction: "添加反应",
       resolve: "解决",

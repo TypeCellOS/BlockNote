@@ -9,12 +9,12 @@ import {
   createExternalHTMLExporter,
   createInternalHTMLSerializer,
 } from "@blocknote/core";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
-
 import {
   addIdsToBlocks,
   partialBlocksToBlocksForTesting,
-} from "./formatConversionTestUtil.js";
+} from "@shared/formatConversionTestUtil.js";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+
 import { multiColumnSchemaTestCases } from "./testCases.js";
 
 // TODO: code same from @blocknote/core, maybe create separate test util package

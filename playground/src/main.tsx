@@ -1,3 +1,4 @@
+import { usePrefersColorScheme } from "@blocknote/react";
 import { AppShell, MantineProvider, ScrollArea } from "@mantine/core";
 import React from "react";
 import { createRoot } from "react-dom/client";
@@ -31,8 +32,15 @@ function Root() {
   //   },
   //   // "root:hover": { background: "blue" },
   // });
+
+  const themePreference = usePrefersColorScheme();
+
   return (
-    <MantineProvider>
+    <MantineProvider
+      forceColorScheme={
+        themePreference === "no-preference" ? undefined : themePreference
+      }
+    >
       <AppShell
         navbar={
           window.location.search.includes("hideMenu")
@@ -46,14 +54,6 @@ function Root() {
         //   header={<Header height={60} p="xs">
         //   {/* Header content */}
         // </Header>}
-        styles={() => ({
-          main: {
-            backgroundColor: "white",
-            // theme.colorScheme === "dark"
-            //   ? theme.colors.dark[8]
-            //   : theme.colors.gray[0],
-          },
-        })}
       >
         {window.location.search.includes("hideMenu") ? undefined : (
           <AppShell.Navbar p="xs">

@@ -18,6 +18,42 @@ export const sk = {
       aliases: ["h3", "nadpis3", "podnadpis"],
       group: "Nadpisy",
     },
+    heading_4: {
+      title: "Nadpis 4",
+      subtext: "Podsekcia alebo skupinový nadpis",
+      aliases: ["h4", "nadpis4", "podnadpis"],
+      group: "Podnáslovi",
+    },
+    heading_5: {
+      title: "Nadpis 5",
+      subtext: "Podsekcia alebo skupinový nadpis",
+      aliases: ["h5", "nadpis5", "podnadpis"],
+      group: "Podnáslovi",
+    },
+    heading_6: {
+      title: "Nadpis 6",
+      subtext: "Podsekcia alebo skupinový nadpis",
+      aliases: ["h6", "nadpis6", "podnadpis"],
+      group: "Podnáslovi",
+    },
+    toggle_heading: {
+      title: "Rozbaľovací Nadpis 1",
+      subtext: "Rozbaľovací nadpis najvyššej úrovne",
+      aliases: ["h", "nadpis1", "h1", "rozbaľovací"],
+      group: "Podnáslovi",
+    },
+    toggle_heading_2: {
+      title: "Rozbaľovací Nadpis 2",
+      subtext: "Rozbaľovací kľúčový nadpis sekcie",
+      aliases: ["h2", "nadpis2", "podnadpis", "rozbaľovací"],
+      group: "Podnáslovi",
+    },
+    toggle_heading_3: {
+      title: "Rozbaľovací Nadpis 3",
+      subtext: "Rozbaľovací nadpis podsekcie alebo skupiny",
+      aliases: ["h3", "nadpis3", "podnadpis", "rozbaľovací"],
+      group: "Podnáslovi",
+    },
     quote: {
       title: "Citát",
       subtext: "Citát alebo výňatok",
@@ -48,6 +84,12 @@ export const sk = {
         "zaškrtnutý zoznam",
         "checkbox",
       ],
+      group: "Základné bloky",
+    },
+    toggle_list: {
+      title: "Rozbaľovací zoznam",
+      subtext: "Zoznam so skrývateľnými položkami",
+      aliases: ["li", "zoznam", "rozbaľovací zoznam", "zabaliteľný zoznam"],
       group: "Základné bloky",
     },
     paragraph: {
@@ -132,6 +174,7 @@ export const sk = {
   placeholders: {
     default: "Zadajte text alebo napíšte '/' pre príkazy",
     heading: "Nadpis",
+    toggleListItem: "Prepnúť",
     bulletListItem: "Zoznam",
     numberedListItem: "Zoznam",
     checkListItem: "Zoznam",
@@ -333,6 +376,9 @@ export const sk = {
     },
   },
   comments: {
+    edited: "upravený",
+    save_button_text: "Uložiť",
+    cancel_button_text: "Zrušiť",
     actions: {
       add_reaction: "Pridať reakciu",
       resolve: "Vyriešiť",

@@ -5,14 +5,20 @@ import {
   PropSchema,
   createBlockSpecFromStronglyTypedTiptapNode,
   createStronglyTypedTiptapNode,
+  getBlockFromPos,
   propsToAttributes,
 } from "../../schema/index.js";
 import { createDefaultBlockDOMOutputSpec } from "../defaultBlockHelpers.js";
 import { defaultProps } from "../defaultProps.js";
+import { createToggleWrapper } from "../ToggleWrapper/createToggleWrapper.js";
+import { BlockNoteEditor } from "../../editor/BlockNoteEditor.js";
+
+const HEADING_LEVELS = [1, 2, 3, 4, 5, 6] as const;
 
 export const headingPropSchema = {
   ...defaultProps,
-  level: { default: 1, values: [1, 2, 3] as const },
+  level: { default: 1, values: HEADING_LEVELS },
+  isToggleable: { default: false },
 } satisfies PropSchema;
 
 const HeadingBlockContent = createStronglyTypedTiptapNode({
@@ -25,8 +31,9 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
   },
 
   addInputRules() {
+    const editor = this.options.editor as BlockNoteEditor<any, any, any>;
     return [
-      ...[1, 2, 3].map((level) => {
+      ...editor.settings.heading.levels.map((level) => {
         // Creates a heading of appropriate level when starting with "#", "##", or "###".
         return new InputRule({
           find: new RegExp(`^(#{${level}})\\s$`),
@@ -58,87 +65,46 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
   },
 
   addKeyboardShortcuts() {
-    return {
-      "Mod-Alt-1": () => {
-        const blockInfo = getBlockInfoFromSelection(this.editor.state);
-        if (
-          !blockInfo.isBlockContainer ||
-          blockInfo.blockContent.node.type.spec.content !== "inline*"
-        ) {
-          return true;
-        }
+    const editor = this.options.editor as BlockNoteEditor<any, any, any>;
 
-        // call updateBlockCommand
-        return this.editor.commands.command(
-          updateBlockCommand(blockInfo.bnBlock.beforePos, {
-            type: "heading",
-            props: {
-              level: 1 as any,
-            },
-          }),
-        );
-      },
-      "Mod-Alt-2": () => {
-        const blockInfo = getBlockInfoFromSelection(this.editor.state);
-        if (
-          !blockInfo.isBlockContainer ||
-          blockInfo.blockContent.node.type.spec.content !== "inline*"
-        ) {
-          return true;
-        }
+    return Object.fromEntries(
+      editor.settings.heading.levels.map((level) => [
+        `Mod-Alt-${level}`,
+        () => {
+          const blockInfo = getBlockInfoFromSelection(this.editor.state);
+          if (
+            !blockInfo.isBlockContainer ||
+            blockInfo.blockContent.node.type.spec.content !== "inline*"
+          ) {
+            return true;
+          }
 
-        return this.editor.commands.command(
-          updateBlockCommand(blockInfo.bnBlock.beforePos, {
-            type: "heading",
-            props: {
-              level: 2 as any,
-            },
-          }),
-        );
-      },
-      "Mod-Alt-3": () => {
-        const blockInfo = getBlockInfoFromSelection(this.editor.state);
-        if (
-          !blockInfo.isBlockContainer ||
-          blockInfo.blockContent.node.type.spec.content !== "inline*"
-        ) {
-          return true;
-        }
-
-        return this.editor.commands.command(
-          updateBlockCommand(blockInfo.bnBlock.beforePos, {
-            type: "heading",
-            props: {
-              level: 3 as any,
-            },
-          }),
-        );
-      },
-    };
+          return this.editor.commands.command(
+            updateBlockCommand(blockInfo.bnBlock.beforePos, {
+              type: "heading",
+              props: {
+                level: level as any,
+              },
+            }),
+          );
+        },
+      ]),
+    );
   },
   parseHTML() {
+    const editor = this.options.editor as BlockNoteEditor<any, any, any>;
+
     return [
       // Parse from internal HTML.
       {
         tag: "div[data-content-type=" + this.name + "]",
         contentElement: ".bn-inline-content",
       },
-      // Parse from external HTML.
-      {
-        tag: "h1",
-        attrs: { level: 1 },
+      ...editor.settings.heading.levels.map((level) => ({
+        tag: `h${level}`,
+        attrs: { level },
         node: "heading",
-      },
-      {
-        tag: "h2",
-        attrs: { level: 2 },
-        node: "heading",
-      },
-      {
-        tag: "h3",
-        attrs: { level: 3 },
-        node: "heading",
-      },
+      })),
     ];
   },
 
@@ -152,6 +118,38 @@ const HeadingBlockContent = createStronglyTypedTiptapNode({
       },
       this.options.domAttributes?.inlineContent || {},
     );
+  },
+
+  addNodeView() {
+    return ({ node, HTMLAttributes, getPos }) => {
+      const { dom, contentDOM } = createDefaultBlockDOMOutputSpec(
+        this.name,
+        `h${node.attrs.level}`,
+        {
+          ...(this.options.domAttributes?.blockContent || {}),
+          ...HTMLAttributes,
+        },
+        this.options.domAttributes?.inlineContent || {},
+      );
+      dom.removeChild(contentDOM);
+
+      const editor = this.options.editor;
+      const block = getBlockFromPos(getPos, editor, this.editor, this.name);
+
+      const toggleWrapper = createToggleWrapper(
+        block as any,
+        editor,
+        contentDOM,
+      );
+      dom.appendChild(toggleWrapper.dom);
+
+      return {
+        dom,
+        contentDOM,
+        ignoreMutation: toggleWrapper.ignoreMutation,
+        destroy: toggleWrapper.destroy,
+      };
+    };
   },
 });
 

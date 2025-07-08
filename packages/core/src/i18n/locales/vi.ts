@@ -20,6 +20,42 @@ export const vi: Dictionary = {
       aliases: ["h3", "tieude3", "tieudephu"],
       group: "Tiêu đề",
     },
+    heading_4: {
+      title: "Tiêu đề H4",
+      subtext: "Sử dụng cho tiêu đề phụ nhỏ hơn",
+      aliases: ["h4", "tieude4", "tieudephu4"],
+      group: "Tiêu đề phụ",
+    },
+    heading_5: {
+      title: "Tiêu đề H5",
+      subtext: "Sử dụng cho tiêu đề phụ nhỏ hơn",
+      aliases: ["h5", "tieude5", "tieudephu5"],
+      group: "Tiêu đề phụ",
+    },
+    heading_6: {
+      title: "Tiêu đề H6",
+      subtext: "Sử dụng cho tiêu đề cấp thấp nhất",
+      aliases: ["h6", "tieude6", "tieudephu6"],
+      group: "Tiêu đề phụ",
+    },
+    toggle_heading: {
+      title: "Tiêu đề có thể thu gọn H1",
+      subtext: "Tiêu đề cấp cao nhất có thể thu gọn",
+      aliases: ["h", "tieude1", "dd1", "thugon"],
+      group: "Tiêu đề phụ",
+    },
+    toggle_heading_2: {
+      title: "Tiêu đề có thể thu gọn H2",
+      subtext: "Tiêu đề cho các phần chính có thể thu gọn",
+      aliases: ["h2", "tieude2", "tieudephu", "thugon"],
+      group: "Tiêu đề phụ",
+    },
+    toggle_heading_3: {
+      title: "Tiêu đề có thể thu gọn H3",
+      subtext: "Tiêu đề cho phụ đề và tiêu đề nhóm có thể thu gọn",
+      aliases: ["h3", "tieude3", "tieudephu", "thugon"],
+      group: "Tiêu đề phụ",
+    },
     quote: {
       title: "Trích dẫn",
       subtext: "Trích dẫn hoặc đoạn trích",
@@ -49,6 +85,12 @@ export const vi: Dictionary = {
         "danh sach da kiem tra",
         "hop kiem",
       ],
+      group: "Khối cơ bản",
+    },
+    toggle_list: {
+      title: "Danh sách có thể thu gọn",
+      subtext: "Danh sách với các mục con có thể ẩn",
+      aliases: ["li", "danh sach", "danh sach thu gon", "danh sach co the an"],
       group: "Khối cơ bản",
     },
     paragraph: {
@@ -132,6 +174,7 @@ export const vi: Dictionary = {
   placeholders: {
     default: "Nhập văn bản hoặc gõ '/' để thêm định dạng",
     heading: "Tiêu đề",
+    toggleListItem: "Chuyển đổi",
     bulletListItem: "Danh sách",
     numberedListItem: "Danh sách",
     checkListItem: "Danh sách",
@@ -334,6 +377,9 @@ export const vi: Dictionary = {
     },
   },
   comments: {
+    edited: "đã chỉnh sửa",
+    save_button_text: "Lưu",
+    cancel_button_text: "Hủy",
     actions: {
       add_reaction: "Thêm phản ứng",
       resolve: "Giải quyết",

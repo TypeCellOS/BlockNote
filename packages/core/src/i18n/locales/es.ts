@@ -20,6 +20,42 @@ export const es: Dictionary = {
       aliases: ["h3", "encabezado3", "subencabezado"],
       group: "Encabezados",
     },
+    heading_4: {
+      title: "Encabezado 4",
+      subtext: "Encabezado de subsección menor",
+      aliases: ["h4", "encabezado4", "subencabezado4"],
+      group: "Subencabezados",
+    },
+    heading_5: {
+      title: "Encabezado 5",
+      subtext: "Encabezado de subsección pequeña",
+      aliases: ["h5", "encabezado5", "subencabezado5"],
+      group: "Subencabezados",
+    },
+    heading_6: {
+      title: "Encabezado 6",
+      subtext: "Encabezado de nivel más bajo",
+      aliases: ["h6", "encabezado6", "subencabezado6"],
+      group: "Subencabezados",
+    },
+    toggle_heading: {
+      title: "Encabezado Plegable 1",
+      subtext: "Encabezado de primer nivel que se puede plegar",
+      aliases: ["h", "encabezado1", "h1", "plegable", "contraible"],
+      group: "Subencabezados",
+    },
+    toggle_heading_2: {
+      title: "Encabezado Plegable 2",
+      subtext: "Encabezado de sección principal que se puede plegar",
+      aliases: ["h2", "encabezado2", "subencabezado", "plegable", "contraible"],
+      group: "Subencabezados",
+    },
+    toggle_heading_3: {
+      title: "Encabezado Plegable 3",
+      subtext: "Encabezado de subsección y grupo que se puede plegar",
+      aliases: ["h3", "encabezado3", "subencabezado", "plegable", "contraible"],
+      group: "Subencabezados",
+    },
     quote: {
       title: "Cita",
       subtext: "Cita o extracto",
@@ -49,6 +85,12 @@ export const es: Dictionary = {
         "lista de chequeo",
         "checkbox",
       ],
+      group: "Bloques básicos",
+    },
+    toggle_list: {
+      title: "Lista Plegable",
+      subtext: "Lista con subelementos ocultables",
+      aliases: ["li", "lista", "lista plegable", "lista colapsable"],
       group: "Bloques básicos",
     },
     paragraph: {
@@ -133,6 +175,7 @@ export const es: Dictionary = {
   placeholders: {
     default: "Escribe o teclea '/' para comandos",
     heading: "Encabezado",
+    toggleListItem: "Plegable",
     bulletListItem: "Lista",
     numberedListItem: "Lista",
     checkListItem: "Lista",
@@ -333,6 +376,9 @@ export const es: Dictionary = {
     },
   },
   comments: {
+    edited: "editado",
+    save_button_text: "Guardar",
+    cancel_button_text: "Cancelar",
     actions: {
       add_reaction: "Agregar reacción",
       resolve: "Resolver",

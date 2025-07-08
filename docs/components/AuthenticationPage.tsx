@@ -297,7 +297,7 @@ function PasswordSignInButton() {
         </svg>
       }
       onClick={() =>
-        router.push(`/signin/email?redirect=${callbackURL}&theme=${theme}`)
+        router.push(`/signin/password?redirect=${callbackURL}&theme=${theme}`)
       }
     />
   );
