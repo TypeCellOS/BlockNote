@@ -1,0 +1,126 @@
+---
+title: Overview
+description: Learn how to manipulate the content of the editor.
+imageTitle: Manipulating Content
+---
+
+## Quick Start
+
+The fastest way to get started with the React bindings is by using the `useCreateBlockNote` hook and `BlockNoteView` component:
+
+```tsx twoslash
+import React from "react";
+import { useCreateBlockNote } from "@blocknote/react";
+import { BlockNoteView } from "@blocknote/mantine";
+// Or ariakit, shadcn, etc.
+
+function MyEditor() {
+  const editor = useCreateBlockNote();
+
+  return <BlockNoteView editor={editor} />;
+}
+```
+
+That's it! You now have a fully functional editor with all the basic features like:
+
+- Text editing and formatting
+- Block types (paragraphs, headings, lists, etc.)
+- Toolbar for formatting options
+- Side menu for block operations
+
+## Examples
+
+### Adding Initial Content
+
+You can start your editor with some predefined content:
+
+```tsx twoslash
+import React from "react";
+import { useCreateBlockNote } from "@blocknote/react";
+import { BlockNoteView } from "@blocknote/mantine";
+
+// ---cut---
+function EditorWithContent() {
+  const editor = useCreateBlockNote({
+    initialContent: [
+      {
+        type: "heading",
+        content: "Welcome to BlockNote",
+        props: { level: 1 },
+      },
+      {
+        type: "paragraph",
+        content: "This is a paragraph with some text.",
+      },
+      {
+        type: "bulletListItem",
+        content: "This is a bullet point",
+      },
+    ],
+  });
+
+  return <BlockNoteView editor={editor} />;
+}
+```
+
+### Handling Changes
+
+You can listen for changes in your editor content:
+
+```tsx twoslash
+import React from "react";
+import { BlockNoteEditor } from "@blocknote/core";
+import { useCreateBlockNote } from "@blocknote/react";
+import { BlockNoteView } from "@blocknote/mantine";
+
+// ---cut---
+function EditorWithHandlers() {
+  const editor = useCreateBlockNote();
+
+  const handleChange = (editor: BlockNoteEditor<any, any, any>) => {
+    // Get the current content as JSON
+    const content = editor.document;
+    console.log("Content changed:", content);
+  };
+
+  return <BlockNoteView editor={editor} onChange={handleChange} />;
+}
+```
+
+### Customizing the Appearance
+
+You can customize the editor's appearance with themes and styling:
+
+```tsx twoslash
+import React from "react";
+import { useCreateBlockNote } from "@blocknote/react";
+import { BlockNoteView } from "@blocknote/mantine";
+
+// ---cut---
+function StyledEditor() {
+  const editor = useCreateBlockNote();
+
+  return (
+    <div
+      style={{ border: "1px solid #ccc", borderRadius: "8px", padding: "16px" }}
+    >
+      <BlockNoteView
+        editor={editor}
+        theme="dark"
+        style={{ minHeight: "300px" }}
+      />
+    </div>
+  );
+}
+```
+
+## Next Steps
+
+Now that you have a basic editor working, you can explore:
+
+- [Block Types](/docs/block-types) - Learn about different content blocks
+- [Formatting](/docs/formatting) - Customize text and block formatting
+- [Customization](/docs/customization) - Build custom UI components
+- [Examples](/examples) - See more advanced usage patterns
+
+The editor is now ready to use! Start typing and explore the various block types and formatting options available in the toolbar.

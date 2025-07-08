@@ -1,0 +1,278 @@
+---
+title: Storage Formats
+description: Learn about the formats BlockNote supports for importing and exporting content.
+imageTitle: Storage Formats
+---
+
+BlockNote is compatible with a few different storage formats, each with its own advantages and disadvantages. This guide will show you how to use each of them.
+
+## Overview
+
+When it comes to editors, formats can be tricky. The editor needs to be able to both read and write to each format.
+
+<Callout type="info">
+If elements are not preserved in this transformation, we call the conversion _lossy_. While we'd ideally support every format, there are limitations to consider:
+
+- Some formats may not support certain types of content
+- Maintaining multiple parsers and serializers creates additional complexity
+
+</Callout>
+
+See the table below for a summary of the formats we support and their lossiness:
+
+| Format                                                            | Import     | Export     | [Pro Only](/pricing) |
+| :---------------------------------------------------------------- | :--------- | :--------- | :------------------- |
+| **BlockNote JSON (`editor.document`)**                            | ✅         | ✅         | ❌                   |
+| **BlockNote HTML (`blocksToFullHTML`)**                           | ✅         | ✅         | ❌                   |
+| **Standard HTML (`blocksToHTMLLossy`)**                           | ✅ (lossy) | ✅ (lossy) | ❌                   |
+| **Markdown (`blocksToMarkdownLossy`)**                            | ✅ (lossy) | ✅ (lossy) | ❌                   |
+| [**PDF (`@blocknote/xl-pdf-exporter`)**](/features/export/pdf)    | ❌         | ✅         | ✅                   |
+| [**DOCX (`@blocknote/xl-docx-exporter`)**](/features/export/docx) | ❌         | ✅         | ✅                   |
+| [**ODT (`@blocknote/xl-odt-exporter`)**](/features/export/odt)    | ❌         | ✅         | ✅                   |
+
+<Callout>
+  **Tip:** It's recommended to use **BlockNote JSON (`editor.document`)** for
+  storing your documents, as it's the most durable format & guaranteed to be
+  lossless.
+</Callout>
+
+## Working with Blocks (JSON)
+
+BlockNote uses a JSON structure (an array of `Block` objects) as its native format. This is the recommended way to store documents as it's **lossless**, preserving the exact structure and all attributes of your content.
+
+### Saving Blocks
+
+The best way to get the latest content is to use the `editor.onChange` callback if using vanilla JS or `useEditorChange` hook if using React. This function is called every time the editor's content changes.
+
+```tsx twoslash
+import React from "react";
+import { useCreateBlockNote, useEditorChange } from "@blocknote/react";
+import { BlockNoteView } from "@blocknote/mantine";
+
+// ---cut-start---
+function storeToDB(blocks: string) {
+  console.log(blocks);
+}
+// ---cut-end---
+
+export default function App() {
+  const editor = useCreateBlockNote();
+
+  useEditorChange((editor) => {
+    // The current document content as a string
+    const savedBlocks = JSON.stringify(editor.document);
+    //                                 ^^^^^^^^^^^^^^^
+
+    storeToDB(savedBlocks);
+  }, editor);
+
+  return <BlockNoteView editor={editor} />;
+}
+```
+
+### Loading Blocks
+
+To load content, you can use the `initialContent` prop when creating the editor. You can pass the array of `Block` objects you previously saved.
+
+```tsx
+import { useCreateBlockNote } from "@blocknote/react";
+import type { Block } from "@blocknote/core";
+import { BlockNoteView } from "@blocknote/mantine";
+
+export default function App({
+  initialContent,
+}: {
+  initialContent?: Block<any, any, any>[];
+}) {
+  const editor = useCreateBlockNote({
+    initialContent,
+  });
+
+  return <BlockNoteView editor={editor} />;
+}
+```
+
+## Working with HTML
+
+BlockNote provides utilities to convert content between `Block` objects and HTML. Note that converting to standard HTML can be **lossy**.
+
+### Saving as HTML
+
+To convert the document to an HTML string, you can use `editor.blocksToFullHTML(blocks: Block[])`:
+
+```tsx twoslash
+import React from "react";
+import { useCreateBlockNote, useEditorChange } from "@blocknote/react";
+import { BlockNoteView } from "@blocknote/mantine";
+
+// ---cut-start---
+function storeToDB(html: string) {
+  console.log(html);
+}
+// ---cut-end---
+
+export default function App() {
+  const editor = useCreateBlockNote();
+
+  useEditorChange(async (editor) => {
+    const html = await editor.blocksToFullHTML(editor.document);
+    //                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // You can now save this HTML string
+    storeToDB(html);
+  }, editor);
+
+  return <BlockNoteView editor={editor} />;
+}
+```
+
+<Callout type="info">
+  The `editor.blocksToFullHTML` method will output HTML in the BlockNote
+  internal format. If you want to export to standard HTML, you can use
+  `editor.blocksToHTMLLossy` instead.
+</Callout>
+
+### Loading from HTML
+
+To load HTML content, you first need to convert it to an array of `Block` objects using `editor.tryParseHTMLToBlocks()`. Then, you can insert it into the editor.
+
+```tsx twoslash
+import React from "react";
+import { useEffect } from "react";
+import { useCreateBlockNote } from "@blocknote/react";
+import { BlockNoteView } from "@blocknote/mantine";
+
+const myHTML = "<p>This is a paragraph.</p>";
+
+export default function App() {
+  const editor = useCreateBlockNote();
+
+  useEffect(() => {
+    // Replaces the blocks on initialization
+    // But, you can also call this before rendering the editor
+    async function loadHTML() {
+      const blocks = await editor.tryParseHTMLToBlocks(myHTML);
+      //                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      editor.replaceBlocks(editor.document, blocks);
+    }
+    loadHTML();
+  }, [editor]);
+
+  return <BlockNoteView editor={editor} />;
+}
+```
+
+## Working with Markdown
+
+BlockNote also supports converting to and from Markdown. However, converting to and from Markdown is a **lossy** conversion.
+
+### Saving as Markdown
+
+To convert the document to a Markdown string, you can use `editor.blocksToMarkdownLossy()`:
+
+```tsx twoslash
+import React from "react";
+import { useCreateBlockNote, useEditorChange } from "@blocknote/react";
+import { BlockNoteView } from "@blocknote/mantine";
+
+// ---cut-start---
+function storeToDB(markdown: string) {
+  console.log(markdown);
+}
+// ---cut-end---
+
+export default function App() {
+  const editor = useCreateBlockNote();
+
+  useEditorChange(async (editor) => {
+    const markdown = await editor.blocksToMarkdownLossy(editor.document);
+    //                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // You can now save this Markdown string
+    storeToDB(markdown);
+  }, editor);
+
+  return <BlockNoteView editor={editor} />;
+}
+```
+
+### Loading from Markdown
+
+To load Markdown content, you first need to convert it to an array of `Block` objects using `editor.tryParseMarkdownToBlocks()`. Then, you can insert it into the editor.
+
+```tsx twoslash
+import React from "react";
+import { useEffect } from "react";
+import { useCreateBlockNote } from "@blocknote/react";
+import { BlockNoteView } from "@blocknote/mantine";
+
+const myMarkdown = "This is a paragraph with **bold** text.";
+
+export default function App() {
+  const editor = useCreateBlockNote();
+
+  useEffect(() => {
+    async function loadMarkdown() {
+      const blocks = await editor.tryParseMarkdownToBlocks(myMarkdown);
+      //                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      editor.replaceBlocks(editor.document, blocks);
+    }
+    loadMarkdown();
+  }, [editor]);
+
+  return <BlockNoteView editor={editor} />;
+}
+```
+
+## Export Only
+
+BlockNote can also export to these additional formats:
+
+- DOCX
+  - Via the [`@blocknote/xl-docx-exporter` package](/features/export/docx)
+- PDF
+  - Via the [`@blocknote/xl-pdf-exporter` package](/features/export/pdf)
+- ODT
+  - Via the [`@blocknote/xl-odt-exporter` package](/features/export/odt)
+
+## Migrating Between Editors
+
+When switching editors, there are several migration strategies to consider:
+
+- **Legacy Editor Approach**: Keep both the old and new editors running in parallel. Use the legacy editor for existing content while creating new content in BlockNote.
+  - Minimizes disruption to your existing application
+  - Can segment usage by content type, organization, or other criteria
+- **Hard Cutoff**: Migrate all content at once on a specific date
+  - Provides a clean break and fresh start
+  - May require more upfront preparation
+- **Gradual Migration**: Convert content progressively, such as when files are opened
+  - Smoother transition with less immediate impact
+  - Migration period may extend over a longer time
+
+Choose the strategy that best fits your specific needs and constraints.
+
+### Importing to BlockNote
+
+The recommended approach for importing content into BlockNote is to convert your source content to HTML first, then use `editor.tryParseHTMLToBlocks`:
+
+```tsx
+const existingContent = "<p>This is a paragraph.</p>";
+
+const blocks = await editor.tryParseHTMLToBlocks(existingContent);
+
+await storeToDB(blocks);
+```
+
+<Callout type="info">
+  For details on server-side processing, see our [server-side
+  guide](/features/server-processing).
+</Callout>
+
+### Migrating from BlockNote
+
+To migrate content out of BlockNote, convert it to HTML using the `editor.blocksToHTMLLossy` method.
+
+HTML is widely supported and can be easily imported into most other editors.
+
+<Callout type="info">
+  For details on server-side processing, see our [server-side
+  guide](/features/server-processing).
+</Callout>

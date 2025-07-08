@@ -106,6 +106,6 @@ const editor = useCreateBlockNote({
 All props supported by `useCreateBlockNote` are passed to the `BlockNoteEditor.create` method.
 
 <auto-type-table
-  path="../../../../../packages/core/src/editor/BlockNoteEditor.ts"
+  path="../../../../packages/core/src/editor/BlockNoteEditor.ts"
   name="BlockNoteEditorOptions"
 />

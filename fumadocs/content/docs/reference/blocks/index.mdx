@@ -1,0 +1,431 @@
+---
+title: Blocks
+description: Complete reference for BlockNote blocks, types, and schemas
+imageTitle: Blocks
+---
+
+Blocks are the fundamental building blocks of BlockNote documents. Every piece of content in the editor is organized into blocks, from simple paragraphs to complex nested structures.
+
+## Block Structure
+
+### Basic Block Type
+
+```typescript
+type Block = {
+  id: string;
+  type: string;
+  props: Record<string, any>;
+  content: string | InlineContent[] | TableContent;
+  children: Block[];
+};
+```
+
+- `id`: Unique identifier for the block
+- `type`: Block type (e.g., "paragraph", "heading", "bulletListItem")
+- `props`: Block-specific properties (e.g., heading level, list style)
+- `content`: Block content (text, inline elements, or table data)
+- `children`: Nested blocks (for container blocks like lists)
+
+### PartialBlock Type
+
+For creating and updating blocks, you can use `PartialBlock` which makes all properties optional:
+
+```typescript
+type PartialBlock = {
+  id?: string;
+  type?: string;
+  props?: Partial<Record<string, any>>;
+  content?: string | InlineContent[] | TableContent;
+  children?: PartialBlock[];
+};
+```
+
+## Built-in Block Types
+
+### Text Blocks
+
+#### Paragraph
+
+```typescript
+{
+  type: "paragraph",
+  content: "Simple text content",
+  props: {}
+}
+```
+
+#### Heading
+
+```typescript
+{
+  type: "heading",
+  content: "Heading text",
+  props: { level: 1 | 2 | 3 | 4 | 5 | 6 }
+}
+```
+
+### List Blocks
+
+#### Bullet List Item
+
+```typescript
+{
+  type: "bulletListItem",
+  content: "List item text",
+  props: {}
+}
+```
+
+#### Numbered List Item
+
+```typescript
+{
+  type: "numberedListItem",
+  content: "Numbered item text",
+  props: {}
+}
+```
+
+#### Toggle List Item
+
+```typescript
+{
+  type: "toggleListItem",
+  content: "Toggle item text",
+  props: {}
+}
+```
+
+### Media Blocks
+
+#### Image
+
+```typescript
+{
+  type: "image",
+  content: "",
+  props: {
+    url: "https://example.com/image.jpg",
+    caption: "Image caption",
+    altText: "Alternative text"
+  }
+}
+```
+
+#### Video
+
+```typescript
+{
+  type: "video",
+  content: "",
+  props: {
+    url: "https://example.com/video.mp4",
+    caption: "Video caption"
+  }
+}
+```
+
+### Code Blocks
+
+#### Code Block
+
+```typescript
+{
+  type: "codeBlock",
+  content: "console.log('Hello, world!');",
+  props: {
+    language: "javascript"
+  }
+}
+```
+
+### Table Blocks
+
+#### Table
+
+```typescript
+{
+  type: "table",
+  content: {
+    type: "tableContent",
+    rows: [
+      [
+        { type: "tableCell", content: "Cell 1" },
+        { type: "tableCell", content: "Cell 2" }
+      ],
+      [
+        { type: "tableCell", content: "Cell 3" },
+        { type: "tableCell", content: "Cell 4" }
+      ]
+    ]
+  },
+  props: {}
+}
+```
+
+### Quote Blocks
+
+#### Quote
+
+```typescript
+{
+  type: "quote",
+  content: "Quoted text content",
+  props: {}
+}
+```
+
+### Divider
+
+#### Horizontal Rule
+
+```typescript
+{
+  type: "horizontalRule",
+  content: "",
+  props: {}
+}
+```
+
+## Block Schemas
+
+BlockNote uses schemas to define the structure and validation rules for blocks.
+
+### Default Block Schema
+
+```typescript
+import { DefaultBlockSchema } from "@blocknote/core";
+
+// The default schema includes all built-in block types
+type DefaultBlockSchema = {
+  paragraph: {
+    type: "paragraph";
+    content: "inline";
+    group: "basic";
+    props: {};
+  };
+  heading: {
+    type: "heading";
+    content: "inline";
+    group: "basic";
+    props: { level: 1 | 2 | 3 | 4 | 5 | 6 };
+  };
+  // ... other block types
+};
+```
+
+### Custom Block Schemas
+
+You can extend or replace the default schema to add custom block types:
+
+```typescript
+import { BlockSchema } from "@blocknote/core";
+
+type CustomBlockSchema = DefaultBlockSchema & {
+  alert: {
+    type: "alert";
+    content: "inline";
+    group: "custom";
+    props: {
+      variant: "info" | "warning" | "error";
+    };
+  };
+};
+```
+
+## Block Manipulation
+
+### Creating Blocks
+
+```typescript
+// Simple paragraph
+const paragraph: PartialBlock = {
+  type: "paragraph",
+  content: "Hello, world!",
+};
+
+// Heading with properties
+const heading: PartialBlock = {
+  type: "heading",
+  content: "My Heading",
+  props: { level: 2 },
+};
+
+// Complex nested structure
+const listItem: PartialBlock = {
+  type: "bulletListItem",
+  content: "Parent item",
+  children: [
+    {
+      type: "bulletListItem",
+      content: "Child item",
+    },
+  ],
+};
+```
+
+### Block Properties
+
+Different block types support different properties:
+
+```typescript
+// Heading levels
+const h1: PartialBlock = {
+  type: "heading",
+  content: "Level 1",
+  props: { level: 1 },
+};
+
+const h2: PartialBlock = {
+  type: "heading",
+  content: "Level 2",
+  props: { level: 2 },
+};
+
+// Image with metadata
+const image: PartialBlock = {
+  type: "image",
+  content: "",
+  props: {
+    url: "https://example.com/image.jpg",
+    caption: "Beautiful sunset",
+    altText: "Sunset over mountains",
+  },
+};
+
+// Code block with language
+const codeBlock: PartialBlock = {
+  type: "codeBlock",
+  content: "function hello() { return 'world'; }",
+  props: { language: "javascript" },
+};
+```
+
+## Block Groups
+
+Blocks are organized into groups for UI organization:
+
+- **basic**: Paragraph, heading, quote
+- **list**: Bullet list, numbered list, toggle list
+- **media**: Image, video
+- **code**: Code block
+- **table**: Table
+- **custom**: User-defined blocks
+
+## Block Validation
+
+BlockNote automatically validates blocks against their schemas:
+
+```typescript
+// Valid block
+const validBlock: PartialBlock = {
+  type: "heading",
+  content: "Valid heading",
+  props: { level: 1 }, // Valid level
+};
+
+// Invalid block (will throw error)
+const invalidBlock: PartialBlock = {
+  type: "heading",
+  content: "Invalid heading",
+  props: { level: 7 }, // Invalid level (max is 6)
+};
+```
+
+## Block Relationships
+
+### Parent-Child Relationships
+
+Blocks can have parent-child relationships for nested structures:
+
+```typescript
+// List with nested items
+const listBlock: PartialBlock = {
+  type: "bulletListItem",
+  content: "Parent item",
+  children: [
+    {
+      type: "bulletListItem",
+      content: "Child item 1",
+    },
+    {
+      type: "bulletListItem",
+      content: "Child item 2",
+      children: [
+        {
+          type: "bulletListItem",
+          content: "Grandchild item",
+        },
+      ],
+    },
+  ],
+};
+```
+
+### Sibling Relationships
+
+Blocks at the same nesting level are siblings:
+
+```typescript
+// Sibling blocks
+const siblings: PartialBlock[] = [
+  { type: "paragraph", content: "First paragraph" },
+  { type: "paragraph", content: "Second paragraph" },
+  { type: "heading", content: "Heading", props: { level: 2 } },
+];
+```
+
+## Block Content Types
+
+### Inline Content
+
+Text blocks can contain rich inline content:
+
+```typescript
+const richContent: PartialBlock = {
+  type: "paragraph",
+  content: [
+    "Plain text ",
+    { type: "text", text: "bold text", styles: { bold: true } },
+    " and ",
+    { type: "link", content: "a link", href: "https://example.com" },
+  ],
+};
+```
+
+### Table Content
+
+Tables have a specific content structure:
+
+```typescript
+const tableBlock: PartialBlock = {
+  type: "table",
+  content: {
+    type: "tableContent",
+    rows: [
+      [
+        { type: "tableCell", content: "Header 1" },
+        { type: "tableCell", content: "Header 2" },
+      ],
+      [
+        { type: "tableCell", content: "Data 1" },
+        { type: "tableCell", content: "Data 2" },
+      ],
+    ],
+  },
+};
+```
+
+## Best Practices
+
+1. **Use appropriate block types** - Choose the right block type for your content
+2. **Validate properties** - Ensure block properties match the schema
+3. **Handle nested content** - Consider parent-child relationships
+4. **Use partial blocks** - Use `PartialBlock` for updates and creation
+5. **Group related blocks** - Use block groups for organization
+
+## Related APIs
+
+- **[Manipulating Blocks](../editor/manipulating-blocks)** - How to create, update, and delete blocks
+- **[Custom Blocks](./custom-blocks)** - Creating custom block types
+- **[Block Schemas](./custom-schemas)** - Defining custom block schemas

@@ -8,7 +8,6 @@
     "import",
     "server-processing",
     "localization",
-    "custom-schemas",
     "..."
   ]
 }

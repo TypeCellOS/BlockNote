@@ -1,0 +1,107 @@
+---
+title: Editor API
+description: Complete reference for the BlockNote editor API
+imageTitle: Editor API
+---
+
+The BlockNote editor provides a comprehensive API for programmatically interacting with content, selections, and editor state.
+
+## Core Concepts
+
+BlockNote operates on a **block-based architecture** where all content is organized into discrete blocks. The editor API provides methods to manipulate these blocks, handle user interactions, and respond to changes.
+
+## API Categories
+
+### Content Manipulation
+
+- **[Manipulating Blocks](./manipulating-blocks)** - Create, read, update, and delete blocks
+- **[Manipulating Inline Content](./manipulating-inline-content)** - Work with text formatting and inline elements
+- **[Cursor & Selections](./cursor-selections)** - Handle cursor positions and text selections
+
+### Editor Lifecycle
+
+- **[Events](./events)** - Listen to editor lifecycle and content change events
+- **[Options](./options)** - Configure editor behavior and appearance
+
+### Advanced Features
+
+- **[Paste Handling](./paste-handling)** - Customize how pasted content is processed
+- **[Low-level APIs](./low-level-apis)** - Direct access to ProseMirror for advanced use cases
+
+## Quick Start
+
+```typescript
+import { BlockNoteEditor } from "@blocknote/core";
+
+// Create an editor instance
+const editor = new BlockNoteEditor();
+
+// Get the current document
+const document = editor.document;
+
+// Insert new content
+editor.insertBlocks(
+  [{ type: "paragraph", content: "Hello, world!" }],
+  referenceBlock,
+);
+
+// Listen for changes
+editor.onChange((editor, { getChanges }) => {
+  console.log("Document changed:", getChanges());
+});
+```
+
+## Common Patterns
+
+### Working with Selections
+
+```typescript
+// Get current selection
+const selection = editor.getSelection();
+
+// Get cursor position
+const cursorPos = editor.getTextCursorPosition();
+
+// Set cursor position
+editor.setTextCursorPosition(blockId, "start");
+```
+
+### Batch Operations
+
+```typescript
+// Group multiple operations into a single undo/redo step
+editor.transact(() => {
+  editor.insertBlocks([newBlock], referenceBlock);
+  editor.updateBlock(blockId, { type: "heading" });
+});
+```
+
+### Error Handling
+
+```typescript
+try {
+  editor.updateBlock(blockId, { content: "Updated" });
+} catch (error) {
+  console.error("Block not found or invalid operation:", error);
+}
+```
+
+## Type Safety
+
+BlockNote provides full TypeScript support with comprehensive type definitions for:
+
+- Block schemas and types
+- Inline content structures
+- Editor events and callbacks
+- Selection and cursor objects
+
+## Performance Considerations
+
+- Use `transact()` to group related operations
+- Avoid frequent calls to `document` getter in render loops
+- Prefer batch operations over individual updates
+- Use event listeners sparingly and clean them up when done
+
+## Next Steps
+
+Explore the specific API categories above to learn about detailed functionality, or check out the [examples](/examples) for practical usage patterns.

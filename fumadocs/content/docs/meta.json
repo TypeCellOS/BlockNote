@@ -8,16 +8,15 @@
     "index",
     "introduction",
     "getting-started",
-    "editor/setup",
-    "learn",
+    "getting-started/editor-setup",
+    "getting-started/saving-content",
+    "---Foundations---",
+    "...foundations",
     "---Features---",
     "...features",
-    "---Editor---",
-    "...editor-api",
-    "---UI---",
-    "styling-theming",
-    "ui-components",
+    "---React---",
+    "...react",
     "---Reference---",
-    "...reference"
+    "...ref"
   ]
 }

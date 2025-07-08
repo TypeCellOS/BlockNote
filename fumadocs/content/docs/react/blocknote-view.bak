@@ -25,7 +25,7 @@ function MyEditor() {
 The `BlockNoteView` component accepts a number of props. You can find the full list of these below:
 
 <auto-type-table
-  path="../../../../../packages/react/src/editor/BlockNoteView.tsx"
+  path="../../../../packages/react/src/editor/BlockNoteView.tsx"
   name="BlockNoteViewProps"
 />
 
