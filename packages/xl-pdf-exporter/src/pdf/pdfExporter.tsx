@@ -146,9 +146,10 @@ export class PDFExporter<
         b as any,
         nestingLevel,
         numberedListIndex,
+        children,
       ); // TODO: any
 
-      if (b.type === "pageBreak") {
+      if (["pageBreak", "columnList", "column"].includes(b.type)) {
         ret.push(self);
         continue;
       }
