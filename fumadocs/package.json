@@ -41,7 +41,7 @@
     "@polar-sh/better-auth": "^0.1.2",
     "@polar-sh/nextjs": "^0.4.0",
     "@polar-sh/sdk": "^0.32.16",
-    "@react-email/render": "1.0.6",
+    "@react-email/render": "^1.1.2",
     "@react-pdf/renderer": "^4.3.0",
     "@sentry/nextjs": "9.14.0",
     "@shikijs/core": "^3.2.1",
@@ -93,7 +93,9 @@
     "y-partykit": "^0.0.25",
     "yjs": "^13.6.15",
     "zod": "^3.25.57",
-    "zustand": "^5.0.3"
+    "zustand": "^5.0.3",
+    "@blocknote/xl-email-exporter": "latest",
+    "@ai-sdk/google": "^1.2.20"
   },
   "devDependencies": {
     "@blocknote/ariakit": "workspace:^",
