@@ -13,7 +13,11 @@ export default function Layout({ children }: { children: ReactNode }) {
       for (const page of category.children) {
         if (page.type === "page" && page.$ref?.file) {
           const [exampleGroupName, exampleName] = page.$ref.file.split("/");
-          const exampleData = getExampleData(exampleGroupName, exampleName);
+
+          const exampleData = getExampleData(
+            exampleGroupName,
+            exampleName.split(".mdx")[0],
+          );
 
           page.name = (
             <span>

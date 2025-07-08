@@ -1,0 +1,304 @@
+---
+title: Events
+description: BlockNote emits events when certain actions occur in the editor
+imageTitle: Events
+---
+
+# Events
+
+BlockNote provides several event callbacks that allow you to respond to changes in the editor. These events are essential for building reactive applications and tracking user interactions.
+
+## Overview
+
+The editor emits events for:
+
+- **Editor initialization** - When the editor is ready for use
+- **Content changes** - When blocks are inserted, updated, or deleted
+- **Selection changes** - When the cursor position or selection changes
+
+## `onCreate`
+
+The `onCreate` callback is called when the editor has been initialized and is ready for use.
+
+```typescript
+editor.onCreate(() => {
+  console.log("Editor is ready for use");
+  // Initialize plugins, set up event listeners, etc.
+});
+```
+
+### Use Cases
+
+- Initialize plugins that depend on the editor being ready
+- Set up additional event listeners
+- Perform one-time setup operations
+- Load initial content or configuration
+
+## `onChange`
+
+The `onChange` callback is called whenever the editor's content changes. This is the primary way to track modifications to the document.
+
+```typescript
+editor.onChange((editor, { getChanges }) => {
+  console.log("Editor content changed");
+
+  // Get detailed information about what changed
+  const changes = getChanges();
+  console.log("Changes:", changes);
+
+  // Save content, update UI, etc.
+});
+```
+
+### Understanding Changes
+
+The `getChanges()` function returns detailed information about what blocks were affected:
+
+```typescript
+/**
+ * The changes that occurred in the editor.
+ */
+type BlocksChanged = Array<
+  | {
+      // The affected block
+      block: Block;
+      // The source of the change
+      source: BlockChangeSource;
+      type: "insert" | "delete";
+      // Insert and delete changes don't have a previous block
+      prevBlock: undefined;
+    }
+  | {
+      // The affected block
+      block: Block;
+      // The source of the change
+      source: BlockChangeSource;
+      type: "update";
+      // The block before the update
+      prevBlock: Block;
+    }
+>;
+```
+
+### Change Sources
+
+Each change includes a source that indicates what triggered the modification:
+
+```typescript
+type BlockChangeSource = {
+  type:
+    | "local" // Triggered by local user (default)
+    | "paste" // From paste operation
+    | "drop" // From drop operation
+    | "undo" // From undo operation
+    | "redo" // From redo operation
+    | "undo-redo" // From undo/redo operations
+    | "yjs-remote"; // From remote user (collaboration)
+};
+```
+
+### Example: Tracking Different Types of Changes
+
+```typescript
+editor.onChange((editor, { getChanges }) => {
+  const changes = getChanges();
+
+  changes.forEach((change) => {
+    switch (change.type) {
+      case "insert":
+        console.log(`Block inserted: ${change.block.type}`);
+        break;
+      case "delete":
+        console.log(`Block deleted: ${change.block.type}`);
+        break;
+      case "update":
+        console.log(`Block updated: ${change.block.type}`);
+        console.log("Previous content:", change.prevBlock);
+        console.log("New content:", change.block);
+        break;
+    }
+
+    // Check the source of the change
+    if (change.source.type === "yjs-remote") {
+      console.log("Change came from another user");
+    } else if (change.source.type === "paste") {
+      console.log("Change came from pasting content");
+    }
+  });
+});
+```
+
+### Example: Auto-save Implementation
+
+```typescript
+let saveTimeout: NodeJS.Timeout;
+
+editor.onChange((editor) => {
+  // Clear existing timeout
+  clearTimeout(saveTimeout);
+
+  // Set new timeout for auto-save
+  saveTimeout = setTimeout(() => {
+    const blocks = editor.document;
+    saveToDatabase(blocks);
+    console.log("Content auto-saved");
+  }, 1000); // Save after 1 second of inactivity
+});
+```
+
+## `onSelectionChange`
+
+The `onSelectionChange` callback is called whenever the editor's selection changes, including cursor movements and text selections.
+
+```typescript
+editor.onSelectionChange((editor) => {
+  console.log("Selection changed");
+
+  // Get current selection information
+  const selection = editor.getSelection();
+  const textCursorPosition = editor.getTextCursorPosition();
+
+  console.log("Current selection:", selection);
+  console.log("Text cursor position:", textCursorPosition);
+});
+```
+
+### Parameters
+
+The callback receives the editor instance and an optional parameter to include remote selection changes:
+
+```typescript
+editor.onSelectionChange(
+  (editor) => {
+    // Handle selection change
+  },
+  true, // Include selection changes from remote users (collaboration)
+);
+```
+
+### Example: Tracking Cursor Position
+
+```typescript
+editor.onSelectionChange((editor) => {
+  const position = editor.getTextCursorPosition();
+
+  if (position) {
+    console.log(`Cursor at block: ${position.block.id}`);
+    console.log(`Text position: ${position.textCursor}`);
+  }
+});
+```
+
+### Example: UI Updates Based on Selection
+
+```typescript
+editor.onSelectionChange((editor) => {
+  const selection = editor.getSelection();
+
+  if (selection) {
+    // Update toolbar state based on selected blocks
+    const hasSelection = selection.blocks.length > 0;
+    updateToolbarVisibility(hasSelection);
+
+    // Update formatting buttons based on active styles
+    const activeStyles = editor.getActiveStyles();
+    updateFormattingButtons(activeStyles);
+  }
+});
+```
+
+## Event Cleanup
+
+All event callbacks return cleanup functions that you can call to remove the event listener:
+
+```typescript
+// Set up event listeners
+const cleanupOnChange = editor.onChange((editor, { getChanges }) => {
+  console.log("Content changed");
+});
+
+const cleanupOnSelection = editor.onSelectionChange((editor) => {
+  console.log("Selection changed");
+});
+
+// Later, clean up event listeners
+cleanupOnChange();
+cleanupOnSelection();
+```
+
+### React Component Example
+
+```typescript
+import { useEffect } from 'react';
+import { BlockNoteEditor } from '@blocknote/core';
+
+function MyEditor({ editor }: { editor: BlockNoteEditor }) {
+  useEffect(() => {
+    // Set up event listeners
+    const cleanupOnChange = editor.onChange((editor, { getChanges }) => {
+      console.log("Content changed:", getChanges());
+    });
+
+    const cleanupOnSelection = editor.onSelectionChange((editor) => {
+      console.log("Selection changed");
+    });
+
+    // Clean up on component unmount
+    return () => {
+      cleanupOnChange();
+      cleanupOnSelection();
+    };
+  }, [editor]);
+
+  return <div>Editor component</div>;
+}
+```
+
+## Best Practices
+
+### 1. Use Appropriate Events
+
+- Use `onChange` for content modifications and auto-save functionality
+- Use `onSelectionChange` for UI updates based on cursor position
+- Use `onCreate` for one-time initialization
+
+### 2. Handle Cleanup
+
+Always clean up event listeners to prevent memory leaks, especially in React components.
+
+### 3. Debounce Frequent Events
+
+For operations that might be triggered frequently (like auto-save), consider debouncing:
+
+```typescript
+import { debounce } from "lodash";
+
+const debouncedSave = debounce((blocks) => {
+  saveToDatabase(blocks);
+}, 1000);
+
+editor.onChange((editor) => {
+  debouncedSave(editor.document);
+});
+```
+
+### 4. Check Change Sources
+
+Use the change source to handle different types of modifications appropriately:
+
+```typescript
+editor.onChange((editor, { getChanges }) => {
+  const changes = getChanges();
+
+  const hasLocalChanges = changes.some(
+    (change) => change.source.type === "local",
+  );
+
+  if (hasLocalChanges) {
+    // Only show "unsaved changes" indicator for local changes
+    setHasUnsavedChanges(true);
+  }
+});
+```
+
+These events provide the foundation for building reactive applications that respond to user interactions and maintain synchronization with external systems.

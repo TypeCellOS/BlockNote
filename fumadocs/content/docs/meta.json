@@ -4,16 +4,19 @@
   "icon": "Building2",
   "root": true,
   "pages": [
+    "---Getting Started---",
     "index",
     "introduction",
-    "quickstart",
-    "editor-basics",
-    "editor-api",
-    "styling-theming",
-    "ui-components",
-    "custom-schemas",
-    "collaboration",
-    "advanced",
-    "ai"
+    "getting-started",
+    "getting-started/editor-setup",
+    "getting-started/saving-content",
+    "---Foundations---",
+    "...foundations",
+    "---Features---",
+    "...features",
+    "---React---",
+    "...react",
+    "---Reference---",
+    "...ref"
   ]
 }

@@ -1,4 +1,3 @@
-import ThemedImage from "@/components/ThemedImage";
 import { getMDXComponents } from "@/util/mdx-components";
 import { getPageTreePeers } from "fumadocs-core/server";
 import { LoaderOutput } from "fumadocs-core/source";
@@ -16,7 +15,10 @@ export function CardTable({
 }) {
   return (
     <Cards>
-      {getPageTreePeers(source.pageTree, `/docs/${path}`).map((peer) => (
+      {getPageTreePeers(
+        source.pageTree,
+        `docs/${path.startsWith("/") ? path.slice(1) : path}`,
+      ).map((peer) => (
         <Card key={peer.url} title={peer.name} href={peer.url}>
           {peer.description}
         </Card>
@@ -63,11 +65,11 @@ export async function DocPage(props: {
         <MDXContent
           components={getMDXComponents({
             // this allows you to link to other pages with relative file paths
+            // @ts-ignore
             a: createRelativeLink(props.source, page),
-            CardTable: (cardProps) => (
-              <CardTable source={props.source} path={cardProps.path} />
+            CardTable: (cardProps: any) => (
+              <CardTable source={props.source} {...cardProps} />
             ),
-            ThemedImage,
           })}
         />
       </DocsBody>

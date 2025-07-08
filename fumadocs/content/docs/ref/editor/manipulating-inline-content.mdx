@@ -1,0 +1,477 @@
+---
+title: Manipulating Inline Content
+description: How to read, create, update, and remove inline content in the BlockNote editor
+imageTitle: Manipulating Inline Content
+---
+
+# Manipulating Inline Content
+
+BlockNote provides APIs for working with inline content within blocks, including text, links, and text styling. These APIs allow you to programmatically manipulate the content at the character level.
+
+## Overview
+
+The inline content manipulation APIs cover:
+
+- **Inserting content** - Adding text, links, and styled content
+- **Reading content** - Getting selected text and active styles
+- **Styling text** - Adding, removing, and toggling text styles
+- **Working with links** - Creating and accessing link content
+
+## Common Types
+
+### Partial Inline Content
+
+When creating or updating inline content, you use `PartialInlineContent` which allows for flexible content specification:
+
+```typescript
+type PartialLink = {
+  type: "link";
+  content: string | StyledText[];
+  href: string;
+};
+
+type PartialInlineContent = string | (string | PartialLink | StyledText)[];
+```
+
+This type allows you to:
+
+- Pass a simple string for plain text
+- Pass an array of mixed content (strings, links, styled text)
+- Use `PartialLink` for link content
+- Use `StyledText` for text with formatting
+
+## Inserting Inline Content
+
+### Basic Insertion
+
+```typescript
+insertInlineContent(
+  content: PartialInlineContent,
+  options?: { updateSelection?: boolean }
+): void
+```
+
+Inserts content at the current cursor position or replaces the current selection.
+
+```typescript
+// Insert plain text
+editor.insertInlineContent("Hello, world!");
+
+// Insert mixed content
+editor.insertInlineContent([
+  "Hello ",
+  { type: "text", text: "World", styles: { bold: true } },
+  "! Welcome to ",
+  { type: "link", content: "BlockNote", href: "https://blocknotejs.org" },
+]);
+
+// Insert with selection update
+editor.insertInlineContent("New content", { updateSelection: true });
+```
+
+### Advanced Content Examples
+
+```typescript
+// Insert styled text
+editor.insertInlineContent([
+  {
+    type: "text",
+    text: "Bold and italic",
+    styles: { bold: true, italic: true },
+  },
+]);
+
+// Insert link with styled content
+editor.insertInlineContent([
+  {
+    type: "link",
+    content: [
+      { type: "text", text: "Visit ", styles: {} },
+      { type: "text", text: "BlockNote", styles: { bold: true } },
+    ],
+    href: "https://blocknotejs.org",
+  },
+]);
+
+// Insert complex mixed content
+editor.insertInlineContent([
+  "This is ",
+  { type: "text", text: "important", styles: { bold: true, textColor: "red" } },
+  " and you should ",
+  { type: "link", content: "read more", href: "https://example.com" },
+  " about it.",
+]);
+```
+
+## Reading Content
+
+### Getting Selected Text
+
+```typescript
+getSelectedText(): string
+```
+
+Retrieves the currently selected text as a plain string.
+
+```typescript
+const selectedText = editor.getSelectedText();
+console.log("Selected text:", selectedText);
+
+// Example: Copy selected text to clipboard
+if (selectedText) {
+  navigator.clipboard.writeText(selectedText);
+}
+```
+
+### Getting Active Styles
+
+```typescript
+getActiveStyles(): Styles
+```
+
+Returns the active text styles at the current cursor position or at the end of the current selection.
+
+```typescript
+const activeStyles = editor.getActiveStyles();
+console.log("Active styles:", activeStyles);
+
+// Example: Check if text is bold
+if (activeStyles.bold) {
+  console.log("Text is bold");
+}
+
+// Example: Get text color
+if (activeStyles.textColor) {
+  console.log("Text color:", activeStyles.textColor);
+}
+```
+
+### Getting Selected Link
+
+```typescript
+getSelectedLinkUrl(): string | undefined
+```
+
+Returns the URL of the last link in the current selection, or `undefined` if no links are selected.
+
+```typescript
+const linkUrl = editor.getSelectedLinkUrl();
+
+if (linkUrl) {
+  console.log("Selected link URL:", linkUrl);
+  // Open link in new tab
+  window.open(linkUrl, "_blank");
+} else {
+  console.log("No link selected");
+}
+```
+
+## Styling Text
+
+### Adding Styles
+
+```typescript
+addStyles(styles: Styles): void
+```
+
+Applies styles to the currently selected text.
+
+```typescript
+// Add single style
+editor.addStyles({ bold: true });
+
+// Add multiple styles
+editor.addStyles({
+  bold: true,
+  italic: true,
+  textColor: "red",
+});
+
+// Add background color
+editor.addStyles({ backgroundColor: "yellow" });
+```
+
+### Removing Styles
+
+```typescript
+removeStyles(styles: Styles): void
+```
+
+Removes specific styles from the currently selected text.
+
+```typescript
+// Remove single style
+editor.removeStyles({ bold: true });
+
+// Remove multiple styles
+editor.removeStyles({ bold: true, italic: true });
+
+// Remove color styles
+editor.removeStyles({ textColor: "red", backgroundColor: "yellow" });
+```
+
+### Toggling Styles
+
+```typescript
+toggleStyles(styles: Styles): void
+```
+
+Toggles styles on the currently selected text (adds if not present, removes if present).
+
+```typescript
+// Toggle single style
+editor.toggleStyles({ bold: true });
+
+// Toggle multiple styles
+editor.toggleStyles({ bold: true, italic: true });
+
+// Toggle color
+editor.toggleStyles({ textColor: "blue" });
+```
+
+## Working with Links
+
+### Creating Links
+
+```typescript
+createLink(url: string, text?: string): void
+```
+
+Creates a new link, optionally replacing the currently selected text.
+
+```typescript
+// Create link from selected text
+editor.createLink("https://blocknotejs.org");
+
+// Create link with custom text
+editor.createLink("https://blocknotejs.org", "Visit BlockNote");
+
+// Create link with empty URL (removes link)
+editor.createLink("");
+```
+
+## Practical Examples
+
+### Example 1: Text Formatting Toolbar
+
+```typescript
+function createFormattingToolbar(editor: BlockNoteEditor) {
+  const toolbar = {
+    bold: () => editor.toggleStyles({ bold: true }),
+    italic: () => editor.toggleStyles({ italic: true }),
+    underline: () => editor.toggleStyles({ underline: true }),
+    strikethrough: () => editor.toggleStyles({ strikethrough: true }),
+    textColor: (color: string) => editor.addStyles({ textColor: color }),
+    backgroundColor: (color: string) =>
+      editor.addStyles({ backgroundColor: color }),
+  };
+
+  return toolbar;
+}
+
+// Usage
+const toolbar = createFormattingToolbar(editor);
+toolbar.bold();
+toolbar.textColor("red");
+```
+
+### Example 2: Smart Link Creation
+
+```typescript
+function createSmartLink(editor: BlockNoteEditor, url: string) {
+  const selectedText = editor.getSelectedText();
+
+  if (selectedText) {
+    // Use selected text as link text
+    editor.createLink(url);
+  } else {
+    // Insert link with URL as text
+    editor.insertInlineContent([{ type: "link", content: url, href: url }]);
+  }
+}
+
+// Usage
+createSmartLink(editor, "https://example.com");
+```
+
+### Example 3: Style Inspector
+
+```typescript
+function inspectTextStyles(editor: BlockNoteEditor) {
+  const selectedText = editor.getSelectedText();
+  const activeStyles = editor.getActiveStyles();
+  const linkUrl = editor.getSelectedLinkUrl();
+
+  console.log("Text Analysis:");
+  console.log("- Selected text:", selectedText);
+  console.log("- Character count:", selectedText.length);
+  console.log("- Active styles:", activeStyles);
+  console.log("- Link URL:", linkUrl);
+
+  return {
+    text: selectedText,
+    styles: activeStyles,
+    linkUrl,
+    hasContent: selectedText.length > 0,
+    hasStyles: Object.keys(activeStyles).length > 0,
+    hasLink: !!linkUrl,
+  };
+}
+```
+
+### Example 4: Content Transformation
+
+```typescript
+function transformSelectedContent(
+  editor: BlockNoteEditor,
+  transformation: "uppercase" | "lowercase" | "titlecase",
+) {
+  const selectedText = editor.getSelectedText();
+
+  if (!selectedText) return;
+
+  let transformedText: string;
+
+  switch (transformation) {
+    case "uppercase":
+      transformedText = selectedText.toUpperCase();
+      break;
+    case "lowercase":
+      transformedText = selectedText.toLowerCase();
+      break;
+    case "titlecase":
+      transformedText = selectedText.replace(
+        /\w\S*/g,
+        (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(),
+      );
+      break;
+  }
+
+  editor.insertInlineContent(transformedText);
+}
+
+// Usage
+transformSelectedContent(editor, "uppercase");
+```
+
+### Example 5: Auto-formatting
+
+```typescript
+function autoFormatText(editor: BlockNoteEditor) {
+  const selectedText = editor.getSelectedText();
+
+  if (!selectedText) return;
+
+  // Auto-format email addresses
+  const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
+  if (emailRegex.test(selectedText)) {
+    editor.createLink(`mailto:${selectedText}`);
+    return;
+  }
+
+  // Auto-format URLs
+  const urlRegex = /https?:\/\/[^\s]+/g;
+  if (urlRegex.test(selectedText)) {
+    editor.createLink(selectedText);
+    return;
+  }
+
+  // Auto-format phone numbers
+  const phoneRegex = /\+?[\d\s\-\(\)]{10,}/g;
+  if (phoneRegex.test(selectedText)) {
+    editor.createLink(`tel:${selectedText.replace(/\s/g, "")}`);
+    return;
+  }
+}
+
+// Usage
+autoFormatText(editor);
+```
+
+### Example 6: Style Preserving Operations
+
+```typescript
+function duplicateWithStyles(editor: BlockNoteEditor) {
+  const selectedText = editor.getSelectedText();
+  const activeStyles = editor.getActiveStyles();
+  const linkUrl = editor.getSelectedLinkUrl();
+
+  if (!selectedText) return;
+
+  // Create content with preserved styles
+  let content: PartialInlineContent;
+
+  if (linkUrl) {
+    content = { type: "link", content: selectedText, href: linkUrl };
+  } else if (Object.keys(activeStyles).length > 0) {
+    content = [{ type: "text", text: selectedText, styles: activeStyles }];
+  } else {
+    content = selectedText;
+  }
+
+  // Insert duplicated content
+  editor.insertInlineContent(content);
+}
+```
+
+## Best Practices
+
+### 1. Check for Selection
+
+```typescript
+// ✅ Good - Check if text is selected
+const selectedText = editor.getSelectedText();
+if (selectedText) {
+  editor.addStyles({ bold: true });
+} else {
+  console.log("No text selected");
+}
+
+// ❌ Avoid - Applying styles without checking
+editor.addStyles({ bold: true }); // Might not work as expected
+```
+
+### 2. Preserve Existing Styles
+
+```typescript
+// ✅ Good - Preserve existing styles when adding new ones
+const currentStyles = editor.getActiveStyles();
+editor.addStyles({
+  ...currentStyles,
+  bold: true,
+});
+
+// ❌ Avoid - Overwriting existing styles
+editor.addStyles({ bold: true }); // Removes other styles
+```
+
+### 3. Handle Link Operations Safely
+
+```typescript
+// ✅ Good - Validate URLs before creating links
+function createValidLink(editor: BlockNoteEditor, url: string) {
+  try {
+    new URL(url); // Validate URL format
+    editor.createLink(url);
+  } catch (error) {
+    console.error("Invalid URL:", url);
+  }
+}
+
+// ❌ Avoid - Creating links without validation
+editor.createLink("invalid-url");
+```
+
+### 4. Use Appropriate Content Types
+
+```typescript
+// ✅ Good - Use appropriate content type for the data
+const content = isUrl ? { type: "link", content: text, href: text } : text;
+
+editor.insertInlineContent(content);
+
+// ❌ Avoid - Always using plain text
+editor.insertInlineContent(text); // Loses link functionality
+```
+
+These APIs provide powerful tools for manipulating inline content, enabling features like rich text editing, auto-formatting, and content transformation while maintaining the document's structure and formatting.

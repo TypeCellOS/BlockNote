@@ -48,7 +48,7 @@ export default function App() {
       <div>Document JSON:</div>
       <div className={"item bordered"}>
         <pre>
-          <code>{JSON.stringify(blocks, null, 2)}</code>
+          <code>{JSON.stringify(editor.document, null, 2)}</code>
         </pre>
       </div>
     </div>

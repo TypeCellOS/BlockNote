@@ -1,0 +1,385 @@
+---
+title: Low-level APIs
+description: Advanced APIs for direct editor state manipulation and ProseMirror integration
+imageTitle: Low-level APIs
+---
+
+# Low-level APIs
+
+BlockNote provides low-level APIs for advanced use cases that require direct access to the underlying ProseMirror editor state and transactions. These APIs are primarily intended for:
+
+- **Reading editor state** (document, selection, etc.)
+- **Performing complex operations** that need to be batched together
+- **ProseMirror ecosystem compatibility** for existing plugins and extensions
+
+## Core Concepts
+
+### BlockNote Transactions
+
+The `transact` method is the primary way to interact with the editor's low-level state. It provides a safe way to read the current state and perform changes while ensuring proper batching and undo/redo behavior.
+
+### When to Use Each API
+
+- **`transact`**: Primary API for reading state and performing changes. Use this for most low-level operations.
+- **`exec`**: For ProseMirror ecosystem compatibility. Avoid using this for BlockNote extensions.
+- **`canExec`**: For checking if ProseMirror commands can be executed. Avoid using this for BlockNote extensions.
+
+## The `transact` Method
+
+The `transact` method is the foundation for low-level editor operations. It provides a ProseMirror transaction object that allows you to read the current state and perform changes.
+
+### Basic Usage
+
+```typescript
+editor.transact((tr) => {
+  // Read state
+  const doc = tr.doc;
+  const selection = tr.selection;
+
+  // Perform changes
+  tr.insertText("Hello, world!");
+
+  // Return values
+  return { docSize: doc.content.size };
+});
+```
+
+### Reading Editor State
+
+You can read various aspects of the editor state within a transaction:
+
+```typescript
+// Get document information
+const docInfo = editor.transact((tr) => {
+  return {
+    totalSize: tr.doc.content.size,
+    isSelectionEmpty: tr.selection.empty,
+    selectionFrom: tr.selection.from,
+    selectionTo: tr.selection.to,
+  };
+});
+
+console.log(`Document has ${docInfo.totalSize} characters`);
+console.log(`Selection is ${docInfo.isSelectionEmpty ? "empty" : "not empty"}`);
+```
+
+### Reading Selection Information
+
+```typescript
+const selectionInfo = editor.transact((tr) => {
+  const { selection } = tr;
+
+  return {
+    isEmpty: selection.empty,
+    from: selection.from,
+    to: selection.to,
+    anchor: selection.anchor,
+    head: selection.head,
+    // Get the text content of the selection
+    selectedText: tr.doc.textBetween(selection.from, selection.to),
+  };
+});
+```
+
+### Reading Document Structure
+
+```typescript
+const documentStructure = editor.transact((tr) => {
+  const doc = tr.doc;
+  const blocks: Array<{ type: string; pos: number }> = [];
+
+  doc.descendants((node, pos) => {
+    if (node.type.name === "blockContainer") {
+      blocks.push({
+        type: node.attrs.blockType || "unknown",
+        pos: pos,
+      });
+    }
+  });
+
+  return blocks;
+});
+```
+
+### Performing Multiple Operations
+
+The `transact` method automatically batches all operations into a single undo/redo step:
+
+```typescript
+editor.transact((tr) => {
+  // All these operations will be grouped together
+  tr.insertText("First operation");
+  tr.insertText("Second operation");
+  tr.insertText("Third operation");
+
+  // This creates only one undo step
+});
+```
+
+### Nested Transactions
+
+You can nest `transact` calls, and they will all use the same underlying transaction:
+
+```typescript
+editor.transact((tr) => {
+  tr.insertText("Start");
+
+  // This nested transact uses the same transaction
+  editor.transact((nestedTr) => {
+    nestedTr.insertText("Nested");
+  });
+
+  tr.insertText("End");
+
+  // All operations are still batched together
+});
+```
+
+### Returning Values
+
+The `transact` method returns whatever value you return from the callback:
+
+```typescript
+const result = editor.transact((tr) => {
+  const docSize = tr.doc.content.size;
+  const selectionSize = tr.selection.to - tr.selection.from;
+
+  // Perform some operations
+  tr.insertText("Modified content");
+
+  // Return computed values
+  return {
+    originalSize: docSize,
+    originalSelectionSize: selectionSize,
+    newSize: tr.doc.content.size,
+  };
+});
+
+console.log(
+  `Document grew by ${result.newSize - result.originalSize} characters`,
+);
+```
+
+### Reading and Modifying in One Transaction
+
+```typescript
+const modificationResult = editor.transact((tr) => {
+  // Read current state
+  const originalText = tr.doc.textBetween(tr.selection.from, tr.selection.to);
+  const originalLength = originalText.length;
+
+  // Perform modifications
+  tr.insertText("New content");
+
+  // Read modified state
+  const newText = tr.doc.textBetween(tr.selection.from, tr.selection.to);
+  const newLength = newText.length;
+
+  return {
+    originalText,
+    originalLength,
+    newText,
+    newLength,
+    change: newLength - originalLength,
+  };
+});
+```
+
+## The `exec` Method
+
+The `exec` method executes ProseMirror commands. This is primarily for compatibility with the ProseMirror ecosystem and should not be used for BlockNote extensions.
+
+### Basic Usage
+
+```typescript
+editor.exec((state, dispatch, view) => {
+  if (dispatch) {
+    dispatch(state.tr.insertText("Hello, world!"));
+  }
+  return true;
+});
+```
+
+### Checking Before Executing
+
+An early return can be used to check whether a command can be executed. This pattern is useful for determining whether a command can be executed before actually executing it.
+
+```typescript
+const canInsertText = editor.exec((state, dispatch, view) => {
+  if (!state.selection.empty) {
+    return false;
+  }
+
+  if (dispatch) {
+    dispatch(state.tr.insertText("Inserted text"));
+  }
+  return true;
+});
+```
+
+### Important Notes
+
+- **Cannot be used within `transact`**: The `exec` method conflicts with `transact` calls
+- **Prefer `transact`**: Use `transact` for most operations as it provides better integration with BlockNote
+- **Recommendation**: Only use `exec` when working with existing ProseMirror plugins or commands
+
+## The `canExec` Method
+
+The `canExec` method checks whether a ProseMirror command can be executed without actually executing it.
+
+### Basic Usage
+
+```typescript
+const canReplaceSelection = editor.canExec((state, dispatch, view) => {
+  // Check if there's a selection to replace
+  if (state.selection.from === state.selection.to) {
+    return false;
+  }
+
+  if (dispatch) {
+    dispatch(state.tr.insertText("Replacement text"));
+  }
+  return true;
+});
+
+if (canReplaceSelection) {
+  console.log("Can replace current selection");
+} else {
+  console.log("No selection to replace");
+}
+```
+
+### Important Notes
+
+- **Cannot be used within `transact`**: The `canExec` method conflicts with `transact` calls
+- **Prefer `transact`**: Use `transact` for reading state when possible
+- **Recommendation**: Only use `canExec` when working with existing ProseMirror plugins or commands
+
+## Best Practices
+
+### 1. Use `transact` for Most Operations
+
+```typescript
+// ✅ Good - Using transact
+editor.transact((tr) => {
+  const canInsert = tr.selection.empty;
+  if (canInsert) {
+    tr.insertText("Text");
+  }
+  return canInsert;
+});
+
+// ❌ Avoid - Using exec for simple operations
+editor.exec((state, dispatch) => {
+  if (dispatch) {
+    dispatch(state.tr.insertText("Text"));
+  }
+  return true;
+});
+```
+
+### 2. Batch Related Operations
+
+```typescript
+// ✅ Good - Batching related operations
+editor.transact((tr) => {
+  tr.insertText("First");
+  tr.insertText("Second");
+  tr.insertText("Third");
+  // All operations are batched together
+});
+
+// ❌ Avoid - Multiple separate operations
+editor.transact((tr) => tr.insertText("First"));
+editor.transact((tr) => tr.insertText("Second"));
+editor.transact((tr) => tr.insertText("Third"));
+// Creates multiple undo steps
+```
+
+### 3. Read State Before Modifying
+
+```typescript
+// ✅ Good - Reading state before modifying
+editor.transact((tr) => {
+  const originalSelection = {
+    from: tr.selection.from,
+    to: tr.selection.to,
+  };
+
+  tr.insertText("New content");
+
+  return {
+    originalSelection,
+    newSelection: {
+      from: tr.selection.from,
+      to: tr.selection.to,
+    },
+  };
+});
+```
+
+## Advanced Examples
+
+### Custom Selection Manipulation
+
+```typescript
+const expandSelection = editor.transact((tr) => {
+  const { selection } = tr;
+  const { from, to } = selection;
+
+  // Expand selection by 5 characters in each direction
+  const newFrom = Math.max(0, from - 5);
+  const newTo = Math.min(tr.doc.content.size, to + 5);
+
+  tr.setSelection(TextSelection.create(tr.doc, newFrom, newTo));
+
+  return {
+    originalRange: { from, to },
+    newRange: { from: newFrom, to: newTo },
+  };
+});
+```
+
+### Document Analysis
+
+```typescript
+const generateTableOfContents = editor.transact((tr) => {
+  const doc = tr.doc;
+  const toc: Array<{
+    level: number;
+    text: string;
+    position: number;
+    id?: string;
+  }> = [];
+
+  doc.descendants((node, pos) => {
+    if (node.type.name === "heading") {
+      // Extract heading level from the heading block
+      const level = node.attrs.level || 1;
+
+      // Get the text content of the heading
+      const text = node.textContent;
+
+      // Get the block ID if available
+      const id = node.attrs.id;
+
+      toc.push({
+        level,
+        text,
+        position: pos,
+        id,
+      });
+    }
+  });
+
+  // Sort by position to maintain document order
+  toc.sort((a, b) => a.position - b.position);
+
+  return {
+    totalHeadings: toc.length,
+    tableOfContents: toc,
+  };
+});
+```
+
+These low-level APIs provide powerful tools for advanced editor customization while maintaining proper state management and undo/redo behavior. Always prefer `transact` for most operations, and only use `exec` and `canExec` when working with existing ProseMirror ecosystem code.
