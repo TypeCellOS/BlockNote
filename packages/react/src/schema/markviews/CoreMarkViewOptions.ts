@@ -1,6 +1,6 @@
 import { BlockNoteEditor } from "@blocknote/core";
 import type { Mark } from "prosemirror-model";
-import type { EditorView, ViewMutationRecord } from "prosemirror-view";
+import type { EditorView, ViewMutationRecord } from "@tiptap/pm/view";
 
 export type MarkViewDOMSpec =
   | string

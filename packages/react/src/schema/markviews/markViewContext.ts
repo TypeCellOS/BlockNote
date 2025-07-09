@@ -1,5 +1,5 @@
 import type { Mark } from "prosemirror-model";
-import type { EditorView, MarkViewConstructor } from "prosemirror-view";
+import type { EditorView, MarkViewConstructor } from "@tiptap/pm/view";
 import { createContext, useContext } from "react";
 import type { ReactMarkViewUserOptions } from "./ReactMarkViewOptions.js";
 
