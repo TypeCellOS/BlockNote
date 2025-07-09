@@ -240,7 +240,10 @@ export const BlockNoteViewRaw = React.forwardRef(BlockNoteViewComponent) as <
 >(
   props: BlockNoteViewProps<BSchema, ISchema, SSchema> & {
     ref?: React.ForwardedRef<HTMLDivElement>;
-  },
+  } & Omit<
+      HTMLAttributes<HTMLDivElement>,
+      "onChange" | "onSelectionChange" | "children"
+    >,
 ) => ReturnType<typeof BlockNoteViewComponent<BSchema, ISchema, SSchema>>;
 
 /**

@@ -10,7 +10,7 @@ React rich text editor. Easily add a modern text editing experience to your app.
 </p>
 
 <p align="center">
-<a href="https://discord.gg/Qc2QTTH5dF"><img alt="Discord" src="https://img.shields.io/badge/Chat on discord%20-%237289DA.svg?&style=for-the-badge&logo=discord&logoColor=white"/></a>
+<a href="https://discord.gg/Qc2QTTH5dF"><img alt="Discord" src="https://img.shields.io/badge/Chat on discord%20-%237289DA.svg?&style=for-the-badge&logo=discord&logoColor=white"/></a> 
 </p>
 
 <p align="center">
@@ -18,7 +18,7 @@ React rich text editor. Easily add a modern text editing experience to your app.
     Homepage
   </a> - <a href="https://www.blocknotejs.org/docs/introduction">
     Documentation
-  </a> - <a href="https://www.blocknotejs.org/docs/install">
+  </a> - <a href="https://www.blocknotejs.org/docs/quickstart">
     Quickstart
   </a>- <a href="https://www.blocknotejs.org/examples">
     Examples
@@ -54,31 +54,31 @@ If you prefer to create your own UI components (menus), or don't want to use Rea
 
 BlockNote comes with a number of features and components to make it easy to embed a high-quality block-based editor in your app:
 
-### Animations
+### Animations:
 
 <img src="https://github.com/TypeCellOS/BlockNote/blob/readme/.resources/animations.gif?raw=true" width="400" />
 
-### Helpful placeholders
+### Helpful placeholders:
 
 <img src="https://github.com/TypeCellOS/BlockNote/blob/readme/.resources/placeholders.gif?raw=true" width="400" />
 
-### Drag and drop blocks
+### Drag and drop blocks:
 
 <img src="https://github.com/TypeCellOS/BlockNote/blob/readme/.resources/dragdrop.gif?raw=true" width="400" />
 
-### Nesting / indentation with tab and shift+tab
+### Nesting / indentation with tab and shift+tab:
 
 <img src="https://github.com/TypeCellOS/BlockNote/blob/readme/.resources/nesting.gif?raw=true" width="400" />
 
-### Slash (/) menu
+### Slash (/) menu:
 
 <img src="https://github.com/TypeCellOS/BlockNote/blob/readme/.resources/slashmenu.gif?raw=true" width="400" />
 
-### Format menu
+### Format menu:
 
 <img src="https://github.com/TypeCellOS/BlockNote/blob/readme/.resources/selectmenu.gif?raw=true" width="400" />
 
-### Real-time collaboration
+### Real-time collaboration:
 
 <img src="https://github.com/TypeCellOS/BlockNote/blob/readme/.resources/collaboration.gif?raw=true" width="400" />
 
