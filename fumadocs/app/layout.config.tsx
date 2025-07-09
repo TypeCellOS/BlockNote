@@ -96,39 +96,25 @@ export const baseOptions: Partial<DocsLayoutProps & HomeLayoutProps> = {
     tabs: [
       {
         icon: (
-          <FaBook
-            className="h-8 w-8 rounded-md p-2 ring-2"
-            style={{
-              color: "var(--ui-color, var(--color-fd-foreground))",
-              borderColor:
-                "color-mix(in oklab, var(--ui-color, var(--color-fd-foreground)) 50%, transparent)",
-              // @ts-ignore
-              "--tw-ring-color":
-                "color-mix(in oklab, var(--ui-color, var(--color-fd-foreground)) 20%, transparent)",
-            }}
-          />
+          <FaBook className="border-fd-primary text-fd-primary bg-fd-primary/10 h-5 w-5 rounded-sm border p-0.5" />
         ),
         title: "Documentation",
         description: "Learn how to use BlockNote",
         url: "/docs",
+        props: {
+          className: "fesfesfes",
+        },
       },
       {
         icon: (
-          <FaCode
-            className="h-8 w-8 rounded-md p-2 ring-2"
-            style={{
-              color: "var(--ui-color, var(--color-fd-foreground))",
-              borderColor:
-                "color-mix(in oklab, var(--ui-color, var(--color-fd-foreground)) 50%, transparent)",
-              // @ts-ignore
-              "--tw-ring-color":
-                "color-mix(in oklab, var(--ui-color, var(--color-fd-foreground)) 20%, transparent)",
-            }}
-          />
+          <FaCode className="border-fd-primary text-fd-primary bg-fd-primary/10 h-5 w-5 rounded-sm border p-0.5" />
         ),
         title: "Examples",
         description: "See BlockNote in action",
         url: "/examples",
+        props: {
+          className: "fesfesfes",
+        },
       },
     ],
   },

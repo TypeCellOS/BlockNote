@@ -88,7 +88,7 @@ export function CustomDocsLayout({
   const links = getLinks(props.links ?? [], props.githubUrl);
 
   const variables = cn(
-    "[--fd-layout-offset:0px] [--fd-layout-width:1566px] [--fd-page-width:1566px] md:[--fd-sidebar-width:286px] md:[--fd-toc-width:286px]",
+    "[--fd-layout-offset:0px] [--fd-layout-width:100vw] [--fd-page-width:1280px] md:[--fd-sidebar-width:286px] md:[--fd-toc-width:286px]",
     !nav.component && nav.enabled !== false
       ? "[--fd-nav-height:56px]"
       : undefined,
@@ -167,12 +167,10 @@ export function CustomDocsLayout({
             "!mx-0 flex flex-row",
           )}
         >
-          {/* Added structuring/styling divs */}
-          <div className="flex w-screen items-start justify-center">
-            <div className="flex max-w-full flex-row">
-              {sidebarEnabled && sidebar}
-              {children}
-            </div>
+          {/* Added structuring/styling div */}
+          <div className="flex w-screen flex-row items-start justify-center">
+            {sidebarEnabled && sidebar}
+            {children}
           </div>
         </LayoutBody>
       </NavProvider>

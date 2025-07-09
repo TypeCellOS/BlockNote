@@ -68,16 +68,17 @@ function ExampleDemo(props: { exampleData: ExampleData }) {
   return (
     <div className="not-prose bg-fd-secondary border-fd-border flex h-[600px] flex-col rounded-xl border">
       <ExampleDemoBar exampleData={props.exampleData} />
-      <div
-        className={"bg-fd-background h-0 flex-1 overflow-auto rounded-xl p-4"}
-      >
-        <BlockNoteContext.Provider
-          value={{
-            colorSchemePreference: resolvedTheme === "dark" ? "dark" : "light",
-          }}
-        >
-          <Component />
-        </BlockNoteContext.Provider>
+      <div className="bg-fd-background flex h-0 flex-1 flex-col overflow-hidden rounded-xl p-1">
+        <div className="border-fd-border bg-fd-secondary h-0 flex-1 overflow-auto rounded-lg border">
+          <BlockNoteContext.Provider
+            value={{
+              colorSchemePreference:
+                resolvedTheme === "dark" ? "dark" : "light",
+            }}
+          >
+            <Component />
+          </BlockNoteContext.Provider>
+        </div>
       </div>
     </div>
   );

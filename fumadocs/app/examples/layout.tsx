@@ -16,7 +16,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 
           const exampleData = getExampleData(
             exampleGroupName,
-            exampleName.split(".mdx")[0],
+            exampleName.replace(".mdx", ""),
           );
 
           page.name = (

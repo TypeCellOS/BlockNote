@@ -33,7 +33,7 @@ export async function ExamplePage(props: {
       container={{
         // Slight hack to force uniform padding for viewport sizes where the
         // ToC is hidden but the sidebar is still visible.
-        className: "*:md:px-12! *:md:pt-12!",
+        className: "m-0 *:md:pl-12! *:md:pt-12! *:md:pr-4!",
       }}
     >
       <DocsTitle>{page.data.title}</DocsTitle>

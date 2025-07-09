@@ -4,6 +4,8 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { ChangeEvent, useCallback, useEffect } from "react";
 
+import "./styles.css";
+
 const initialMarkdown = "Hello, **world!**";
 
 export default function App() {
