@@ -48,8 +48,10 @@ export class PDFExporter<
   B,
   I,
   S,
-  React.ReactElement<Text>,
-  React.ReactElement<Link> | React.ReactElement<Text>,
+  React.ReactElement<Text> | Promise<React.ReactElement<Text>>,
+  | React.ReactElement<Text>
+  | React.ReactElement<Link>
+  | Promise<React.ReactElement<Text> | React.ReactElement<Link>>,
   TextProps["style"],
   React.ReactElement<Text>
 > {
@@ -88,8 +90,10 @@ export class PDFExporter<
       NoInfer<B>,
       NoInfer<I>,
       NoInfer<S>,
-      React.ReactElement<Text>, // RB
-      React.ReactElement<Link> | React.ReactElement<Text>, // RI
+      React.ReactElement<Text> | Promise<React.ReactElement<Text>>, // RB
+      | React.ReactElement<Text>
+      | React.ReactElement<Link>
+      | Promise<React.ReactElement<Text> | React.ReactElement<Link>>, // RI
       TextProps["style"], // RS
       React.ReactElement<Text> // TS
     >["mappings"],

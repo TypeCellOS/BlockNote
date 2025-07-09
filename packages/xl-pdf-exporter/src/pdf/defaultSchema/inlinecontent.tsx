@@ -7,7 +7,9 @@ import { Link, Text } from "@react-pdf/renderer";
 export const pdfInlineContentMappingForDefaultSchema: InlineContentMapping<
   DefaultInlineContentSchema,
   any,
-  React.ReactElement<Link> | React.ReactElement<Text>,
+  | React.ReactElement<Text>
+  | React.ReactElement<Link>
+  | Promise<React.ReactElement<Text> | React.ReactElement<Link>>,
   React.ReactElement<Text>
 > = {
   link: (ic, exporter) => {

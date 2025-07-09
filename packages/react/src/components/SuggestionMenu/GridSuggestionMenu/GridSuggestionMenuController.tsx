@@ -149,7 +149,8 @@ export function GridSuggestionMenuController<
         getItems={getItemsOrDefault}
         columns={columns}
         gridSuggestionMenuComponent={
-          gridSuggestionMenuComponent || GridSuggestionMenu
+          gridSuggestionMenuComponent ||
+          GridSuggestionMenu<ItemType<GetItemsType>>
         }
         onItemClick={onItemClickOrDefault}
       />

@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { JSX, ReactNode } from "react";
 
 import { useComponentsContext } from "../../editor/ComponentsContext.js";
 import { BasicTextStyleButton } from "./DefaultButtons/BasicTextStyleButton.js";

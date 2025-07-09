@@ -25,8 +25,10 @@ export const pdfBlockMappingForDefaultSchema: BlockMapping<
     typeof multiColumnSchema.blockSchema,
   any,
   any,
-  React.ReactElement<Text>,
-  React.ReactElement<Text> | React.ReactElement<Link>
+  React.ReactElement<Text> | Promise<React.ReactElement<Text>>,
+  | React.ReactElement<Text>
+  | React.ReactElement<Link>
+  | Promise<React.ReactElement<Text> | React.ReactElement<Link>>
 > = {
   paragraph: (block, exporter) => {
     // const style = blocknoteDefaultPropsToReactPDFStyle(block.props);

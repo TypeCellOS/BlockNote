@@ -73,8 +73,10 @@ function serializeBlock<
     }
   }
 
+  debugger;
   const impl = editor.blockImplementations[block.type as any].implementation;
   const ret = impl.toInternalHTML({ ...block, props } as any, editor as any);
+  debugger;
 
   if (block.type === "numberedListItem") {
     // This is a workaround to make sure there's a list index set.
@@ -87,6 +89,7 @@ function serializeBlock<
   }
 
   if (ret.contentDOM && block.content) {
+    debugger;
     const ic = serializeInlineContentInternalHTML(
       editor,
       block.content as any, // TODO
@@ -94,6 +97,7 @@ function serializeBlock<
       block.type,
       options,
     );
+    debugger;
     ret.contentDOM.appendChild(ic);
   }
 
@@ -184,7 +188,9 @@ export const serializeBlocksInternalHTML = <
     contentDOM?: HTMLElement;
   };
 
+  debugger;
   const fragment = serializeBlocks(editor, blocks, serializer, options);
+  debugger;
 
   bg.contentDOM?.appendChild(fragment);
 

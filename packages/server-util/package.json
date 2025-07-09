@@ -67,8 +67,8 @@
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.7",
-    "@types/react": "^18.0.25",
-    "@types/react-dom": "^18.0.9",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
     "eslint": "^8.10.0",
     "rollup-plugin-webpack-stats": "^0.2.2",
     "typescript": "^5.0.4",

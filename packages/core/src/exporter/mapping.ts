@@ -27,8 +27,8 @@ export type BlockMapping<
     exporter: Exporter<any, any, any, RB, RI, any, any>,
     nestingLevel: number,
     numberedListIndex?: number,
-    children?: Array<Awaited<RB>>,
-  ) => RB | Promise<RB>;
+    children?: Array<RB>,
+  ) => RB;
 };
 
 /**

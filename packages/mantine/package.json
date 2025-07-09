@@ -58,14 +58,14 @@
   "dependencies": {
     "@blocknote/core": "0.33.0",
     "@blocknote/react": "0.33.0",
-    "@mantine/core": "^7.10.1",
-    "@mantine/hooks": "^7.10.1",
+    "@mantine/core": "^7.17.3",
+    "@mantine/hooks": "^7.17.3",
     "@mantine/utils": "^6.0.21",
     "react-icons": "^5.2.1"
   },
   "devDependencies": {
-    "@types/react": "^18.0.25",
-    "@types/react-dom": "^18.0.9",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
     "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^8.10.0",
     "rimraf": "^5.0.5",
