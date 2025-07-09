@@ -192,6 +192,12 @@ export class SideMenuView<
       true,
     );
 
+    // Update state when the editor scrolls
+    this.pmView.root.addEventListener(
+      "scroll",
+      this.updateStateFromMousePos as EventListener,
+    );
+
     // Hides and unfreezes the menu whenever the user presses a key.
     this.pmView.root.addEventListener(
       "keydown",
@@ -574,6 +580,10 @@ export class SideMenuView<
       "mousemove",
       this.onMouseMove as EventListener,
       true,
+    );
+    this.pmView.root.removeEventListener(
+      "scroll",
+      this.updateStateFromMousePos as EventListener,
     );
     this.pmView.root.removeEventListener(
       "dragstart",
