@@ -41,6 +41,7 @@ export const createToggleWrapper = (
 
   const toggleButton = document.createElement("button");
   toggleButton.className = "bn-toggle-button";
+  toggleButton.type = "button";
   toggleButton.innerHTML =
     // https://fonts.google.com/icons?selected=Material+Symbols+Rounded:chevron_right:FILL@0;wght@700;GRAD@0;opsz@24&icon.query=chevron&icon.style=Rounded&icon.size=24&icon.color=%23e8eaed
     '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="CURRENTCOLOR"><path d="M320-200v-560l440 280-440 280Z"/></svg>';
@@ -75,6 +76,7 @@ export const createToggleWrapper = (
 
   const toggleAddBlockButton = document.createElement("button");
   toggleAddBlockButton.className = "bn-toggle-add-block-button";
+  toggleAddBlockButton.type = "button";
   toggleAddBlockButton.textContent = "Empty toggle. Click to add a block.";
   const toggleAddBlockButtonMouseDown = (event: MouseEvent) =>
     event.preventDefault();

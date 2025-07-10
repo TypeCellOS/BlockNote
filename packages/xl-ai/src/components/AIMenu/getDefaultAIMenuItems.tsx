@@ -49,7 +49,7 @@ function getDefaultAIMenuItemsWithoutSelection<
       onItemClick: async () => {
         await ai.callLLM({
           userPrompt:
-            "Continue writing: write more text at the current cursor position related to the previous text",
+            "Continue writing at the current cursor position related to the previous text. Add multiple blocks if needed. If the document looks like a template / draft, follow the template. Be extensive if needed.",
           // By default, LLM will be able to add / update / delete blocks. For "continue writing", we only want to allow adding new blocks.
           defaultStreamTools: {
             add: true,

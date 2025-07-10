@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { JSX, useMemo } from "react";
 
 import { useComponentsContext } from "../../../editor/ComponentsContext.js";
 import { useDictionary } from "../../../i18n/dictionary.js";

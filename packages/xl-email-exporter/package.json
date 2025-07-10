@@ -9,7 +9,7 @@
     "directory": "packages/xl-email-exporter"
   },
   "license": "AGPL-3.0 OR PROPRIETARY",
-  "version": "0.32.0",
+  "version": "0.33.0",
   "files": [
     "dist",
     "types",
@@ -54,19 +54,19 @@
     "email": "email dev"
   },
   "dependencies": {
-    "@blocknote/core": "0.32.0",
-    "@blocknote/react": "0.32.0",
+    "@blocknote/core": "0.33.0",
+    "@blocknote/react": "0.33.0",
     "buffer": "^6.0.3",
-    "react": "^18",
-    "react-dom": "^18",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "react-email": "^4.0.16",
     "@react-email/components": "^0.1.0",
     "@react-email/render": "^1.1.2"
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.7",
-    "@types/react": "^18.0.25",
-    "@types/react-dom": "^18.0.9",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
     "eslint": "^8.10.0",
     "rollup-plugin-webpack-stats": "^0.2.2",
     "typescript": "^5.0.4",

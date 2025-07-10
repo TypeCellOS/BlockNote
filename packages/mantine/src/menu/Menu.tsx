@@ -87,7 +87,9 @@ const SubMenu = forwardRef<
 
   const itemRef = useRef<HTMLButtonElement | null>(null);
 
-  const menuCloseTimer = useRef<ReturnType<typeof setTimeout> | undefined>();
+  const menuCloseTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
 
   const mouseLeave = useCallback(() => {
     if (menuCloseTimer.current) {

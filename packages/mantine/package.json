@@ -11,7 +11,7 @@
     "directory": "packages/mantine"
   },
   "license": "MPL-2.0",
-  "version": "0.32.0",
+  "version": "0.33.0",
   "files": [
     "dist",
     "types",
@@ -56,18 +56,20 @@
     "clean": "rimraf dist && rimraf types"
   },
   "dependencies": {
-    "@blocknote/core": "0.32.0",
-    "@blocknote/react": "0.32.0",
-    "@mantine/core": "^7.10.1",
-    "@mantine/hooks": "^7.10.1",
+    "@blocknote/core": "0.33.0",
+    "@blocknote/react": "0.33.0",
+    "@mantine/core": "^7.17.3",
+    "@mantine/hooks": "^7.17.3",
     "@mantine/utils": "^6.0.21",
     "react-icons": "^5.2.1"
   },
   "devDependencies": {
-    "@types/react": "^18.0.25",
-    "@types/react-dom": "^18.0.9",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
     "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^8.10.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "rimraf": "^5.0.5",
     "rollup-plugin-webpack-stats": "^0.2.2",
     "typescript": "^5.3.3",

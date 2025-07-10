@@ -15,14 +15,15 @@
     "@blocknote/ariakit": "latest",
     "@blocknote/mantine": "latest",
     "@blocknote/shadcn": "latest",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "@blocknote/xl-pdf-exporter": "latest",
+    "@blocknote/xl-multi-column": "latest",
     "@react-pdf/renderer": "^4.3.0"
   },
   "devDependencies": {
-    "@types/react": "^18.0.25",
-    "@types/react-dom": "^18.0.9",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
     "@vitejs/plugin-react": "^4.3.1",
     "vite": "^5.3.4"
   }
