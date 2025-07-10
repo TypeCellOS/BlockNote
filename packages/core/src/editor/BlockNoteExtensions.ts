@@ -286,7 +286,6 @@ const getTipTapExtensions = <
         blockSpec.implementation.node.configure({
           editor: opts.editor,
           domAttributes: opts.domAttributes,
-          inputRules: opts.inputRules,
         }),
       ];
     }),

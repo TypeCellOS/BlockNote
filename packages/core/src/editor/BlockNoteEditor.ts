@@ -642,7 +642,6 @@ export class BlockNoteEditor<
       sideMenuDetection: newOptions.sideMenuDetection || "viewport",
       comments: newOptions.comments,
       pasteHandler: newOptions.pasteHandler,
-      inputRules: newOptions.inputRules || "allBlocks",
     });
 
     // add extensions from _tiptapOptions
