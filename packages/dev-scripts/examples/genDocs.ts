@@ -173,14 +173,7 @@ async function addDependenciesToExample(project: Project) {
 // clean old files / dirs
 fs.rmSync(COMPONENT_DIR, { recursive: true, force: true });
 
-fs.readdirSync(EXAMPLES_PAGES_DIR, { withFileTypes: true }).forEach((file) => {
-  if (file.isDirectory()) {
-    fs.rmSync(path.join(EXAMPLES_PAGES_DIR, file.name), {
-      recursive: true,
-      force: true,
-    });
-  }
-});
+fs.rmSync(EXAMPLES_PAGES_DIR, { recursive: true, force: true });
 
 // generate new files
 const projects = getExampleProjects().filter((p) => p.config?.docs === true);
