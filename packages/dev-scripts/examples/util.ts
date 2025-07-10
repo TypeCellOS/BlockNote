@@ -78,19 +78,25 @@ export function groupProjects(projects: Project[]) {
 
 export function addTitleToGroups(grouped: ReturnType<typeof groupProjects>) {
   // read group titles from /pages/examples/_meta.json
-  const meta = JSON.parse(
-    fs.readFileSync(
-      path.resolve(dir, "../../../docs/pages/examples/_meta.json"),
-      "utf-8",
-    ),
-  );
+  const meta = {
+    index: "Overview",
+    basic: "Basic",
+    backend: "Backend",
+    "ui-components": "UI Components",
+    theming: "Theming",
+    interoperability: "Interoperability",
+    "custom-schema": "Custom Schemas",
+    collaboration: "Collaboration",
+    extensions: "Extensions",
+    ai: "AI",
+  };
 
   const groupsWithTitles = Object.fromEntries(
     Object.entries(grouped).map(([key, group]) => {
       const title = meta[key];
       if (!title) {
         throw new Error(
-          `Missing group title for ${key}, add to examples/_meta.json?`,
+          `Missing group title for ${key}, add to docs/content/examples/meta.json?`,
         );
       }
       return [

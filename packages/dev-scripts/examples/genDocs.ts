@@ -15,7 +15,7 @@ import {
  */
 const dir = path.parse(fileURLToPath(import.meta.url)).dir;
 
-const DOCS_DIR = path.resolve(dir, "../../../fumadocs/");
+const DOCS_DIR = path.resolve(dir, "../../../docs/");
 const COMPONENT_DIR = path.resolve(DOCS_DIR, "./components/example/generated/");
 const EXAMPLES_PAGES_DIR = path.resolve(DOCS_DIR, "./content/examples/");
 
