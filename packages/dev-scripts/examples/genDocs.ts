@@ -174,6 +174,7 @@ async function addDependenciesToExample(project: Project) {
 fs.rmSync(COMPONENT_DIR, { recursive: true, force: true });
 
 fs.rmSync(EXAMPLES_PAGES_DIR, { recursive: true, force: true });
+fs.mkdirSync(EXAMPLES_PAGES_DIR, { recursive: true });
 
 // generate new files
 const projects = getExampleProjects().filter((p) => p.config?.docs === true);
