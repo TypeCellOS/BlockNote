@@ -192,28 +192,19 @@ export const docxBlockMappingForDefaultSchema: BlockMapping<
       children: [new PageBreak()],
     });
   },
-  column: async (
-    block,
-    _exporter,
-    _nestingLevel,
-    _numberedListIndex,
-    children,
-  ) => {
-    const resolvedChildren = (await Promise.all(children || [])).flatMap(
-      (child) => {
-        if (Array.isArray(child)) {
-          return child;
-        }
-        return [child];
-      },
-    );
-
+  column: (block, _exporter, _nestingLevel, _numberedListIndex, children) => {
     return new TableCell({
       width: {
         size: `${block.props.width * 100}%`,
         type: "pct",
       },
-      children: resolvedChildren,
+      children: (children || []).flatMap((child) => {
+        if (Array.isArray(child)) {
+          return child;
+        }
+
+        return [child];
+      }),
     }) as any;
   },
   columnList: (

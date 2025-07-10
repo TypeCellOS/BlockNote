@@ -10,7 +10,6 @@ import {
   StyleSchema,
   StyledText,
 } from "@blocknote/core";
-import { Fragment } from "react";
 import {
   Document,
   Font,
@@ -22,6 +21,7 @@ import {
   View,
 } from "@react-pdf/renderer";
 import { corsProxyResolveFileUrl } from "@shared/api/corsProxy.js";
+import { Fragment } from "react";
 import { loadFontDataUrl } from "../../../../shared/util/fileUtil.js";
 
 import { Style } from "./types.js";
@@ -48,10 +48,8 @@ export class PDFExporter<
   B,
   I,
   S,
-  React.ReactElement<Text> | Promise<React.ReactElement<Text>>,
-  | React.ReactElement<Text>
-  | React.ReactElement<Link>
-  | Promise<React.ReactElement<Text> | React.ReactElement<Link>>,
+  React.ReactElement<Text>,
+  React.ReactElement<Link> | React.ReactElement<Text>,
   TextProps["style"],
   React.ReactElement<Text>
 > {
@@ -90,10 +88,8 @@ export class PDFExporter<
       NoInfer<B>,
       NoInfer<I>,
       NoInfer<S>,
-      React.ReactElement<Text> | Promise<React.ReactElement<Text>>, // RB
-      | React.ReactElement<Text>
-      | React.ReactElement<Link>
-      | Promise<React.ReactElement<Text> | React.ReactElement<Link>>, // RI
+      React.ReactElement<Text>, // RB
+      React.ReactElement<Link> | React.ReactElement<Text>, // RI
       TextProps["style"], // RS
       React.ReactElement<Text> // TS
     >["mappings"],
