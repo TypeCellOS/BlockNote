@@ -194,7 +194,7 @@ export const updateOperationTestCases: DocumentOperationTestCase[] = [
       },
     ],
     userPrompt:
-      "translate the second block to german (use dir instead of Ihnen)",
+      "translate the second block including the greeting to German (use dir instead of Ihnen)",
   },
   {
     editor: getEditorWithFormattingAndMentions,
