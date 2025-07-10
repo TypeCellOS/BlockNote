@@ -211,7 +211,7 @@ export const auth = betterAuth({
               slug: PRODUCTS.starter.slug,
             },
           ],
-          successUrl: "/thanks",
+          successUrl: "/pages/thanks",
           authenticatedUsersOnly: true,
         }),
         portal(),
