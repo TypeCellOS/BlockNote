@@ -153,7 +153,9 @@ export function SuggestionMenuController<
         closeMenu={callbacks.closeMenu}
         clearQuery={callbacks.clearQuery}
         getItems={getItemsOrDefault}
-        suggestionMenuComponent={suggestionMenuComponent || SuggestionMenu}
+        suggestionMenuComponent={
+          suggestionMenuComponent || SuggestionMenu<ItemType<GetItemsType>>
+        }
         onItemClick={onItemClickOrDefault}
       />
     </div>

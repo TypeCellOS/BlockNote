@@ -115,8 +115,8 @@ export class ODTExporter<
   public async transformBlocks(
     blocks: Block<B, I, S>[],
     nestingLevel = 0,
-  ): Promise<React.ReactNode[]> {
-    const ret: React.ReactNode[] = [];
+  ): Promise<Awaited<React.ReactNode>[]> {
+    const ret: Awaited<React.ReactNode>[] = [];
     let numberedListIndex = 0;
 
     for (const block of blocks) {
