@@ -17,13 +17,8 @@ export const tools = {
     description: "Insert new blocks",
     schema: {
       block: {
-        $ref: "#/$defs/block",
-      },
-      $defs: {
-        block: {
-          type: "string",
-          description: "html of block (MUST be a single HTML element)",
-        },
+        type: "string",
+        description: "html of block (MUST be a single HTML element)",
       },
     },
     validateBlock: validateBlockFunction,
@@ -70,13 +65,8 @@ export const tools = {
     description: "Update a block",
     schema: {
       block: {
-        $ref: "#/$defs/block",
-      },
-      $defs: {
-        block: {
-          type: "string",
-          description: "html of block (MUST be a single HTML element)",
-        },
+        type: "string",
+        description: "html of block (MUST be a single HTML element)",
       },
     },
     validateBlock: validateBlockFunction,

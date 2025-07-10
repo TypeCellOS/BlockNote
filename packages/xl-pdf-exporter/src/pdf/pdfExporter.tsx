@@ -10,7 +10,6 @@ import {
   StyleSchema,
   StyledText,
 } from "@blocknote/core";
-import { Fragment } from "react";
 import {
   Document,
   Font,
@@ -22,6 +21,7 @@ import {
   View,
 } from "@react-pdf/renderer";
 import { corsProxyResolveFileUrl } from "@shared/api/corsProxy.js";
+import { Fragment } from "react";
 import { loadFontDataUrl } from "../../../../shared/util/fileUtil.js";
 
 import { Style } from "./types.js";

@@ -14,8 +14,8 @@ export function useLoadSuggestionMenuItems<T>(
   const [items, setItems] = useState<T[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const currentQuery = useRef<string | undefined>();
-  const usedQuery = useRef<string | undefined>();
+  const currentQuery = useRef<string | undefined>(undefined);
+  const usedQuery = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     const thisQuery = query;

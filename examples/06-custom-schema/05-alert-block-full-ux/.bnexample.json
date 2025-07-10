@@ -11,7 +11,7 @@
     "Slash Menu"
   ],
   "dependencies": {
-    "@mantine/core": "^7.10.1",
+    "@mantine/core": "^7.17.3",
     "react-icons": "^5.2.1"
   }
 }

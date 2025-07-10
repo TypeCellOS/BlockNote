@@ -417,7 +417,7 @@
             "Custom Schemas"
           ],
           "dependencies": {
-            "@mantine/core": "^7.10.1",
+            "@mantine/core": "^7.17.3",
             "react-icons": "^5.2.1"
           } as any
         },
@@ -1115,7 +1115,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^7.10.1",
+            "@mantine/core": "^7.17.3",
             "react-icons": "^5.2.1"
           } as any
         },
@@ -1189,7 +1189,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^7.10.1",
+            "@mantine/core": "^7.17.3",
             "react-icons": "^5.2.1"
           } as any,
           "pro": true
@@ -1218,7 +1218,7 @@
             "Slash Menu"
           ],
           "dependencies": {
-            "@mantine/core": "^7.10.1",
+            "@mantine/core": "^7.17.3",
             "react-icons": "^5.2.1"
           } as any
         },
@@ -1532,7 +1532,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^7.10.1",
+            "@mantine/core": "^7.17.3",
             "ai": "^4.3.15",
             "@ai-sdk/groq": "^1.2.9",
             "zustand": "^5.0.3"
@@ -1559,7 +1559,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^7.10.1",
+            "@mantine/core": "^7.17.3",
             "ai": "^4.3.15",
             "@ai-sdk/google": "^1.2.20",
             "@ai-sdk/openai": "^1.3.22",
@@ -1591,7 +1591,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^7.10.1",
+            "@mantine/core": "^7.17.3",
             "ai": "^4.1.0",
             "@ai-sdk/openai": "^1.1.0",
             "@ai-sdk/groq": "^1.1.0",
@@ -1620,7 +1620,7 @@
           ],
           "dependencies": {
             "@blocknote/xl-ai": "latest",
-            "@mantine/core": "^7.10.1",
+            "@mantine/core": "^7.17.3",
             "ai": "^4.3.15",
             "@ai-sdk/groq": "^1.2.9",
             "y-partykit": "^0.0.25",
