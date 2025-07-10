@@ -1,4 +1,4 @@
 {
   "title": "Export",
-  "pages": ["markdown", "html", "pdf", "docx", "odt", "..."]
+  "pages": ["markdown", "html", "pdf", "docx", "email", "odt", "..."]
 }

@@ -20,15 +20,16 @@ If elements are not preserved in this transformation, we call the conversion _lo
 
 See the table below for a summary of the formats we support and their lossiness:
 
-| Format                                                            | Import     | Export     | [Pro Only](/pricing) |
-| :---------------------------------------------------------------- | :--------- | :--------- | :------------------- |
-| **BlockNote JSON (`editor.document`)**                            | ✅         | ✅         | ❌                   |
-| **BlockNote HTML (`blocksToFullHTML`)**                           | ✅         | ✅         | ❌                   |
-| **Standard HTML (`blocksToHTMLLossy`)**                           | ✅ (lossy) | ✅ (lossy) | ❌                   |
-| **Markdown (`blocksToMarkdownLossy`)**                            | ✅ (lossy) | ✅ (lossy) | ❌                   |
-| **[PDF](/features/export/pdf)** (`@blocknote/xl-pdf-exporter`)    | ❌         | ✅         | ✅                   |
-| **[DOCX](/features/export/docx)** (`@blocknote/xl-docx-exporter`) | ❌         | ✅         | ✅                   |
-| **[ODT](/features/export/odt)** (`@blocknote/xl-odt-exporter`)    | ❌         | ✅         | ✅                   |
+| Format                                                                    | Import     | Export     | [Pro Only](/pricing) |
+| :------------------------------------------------------------------------ | :--------- | :--------- | :------------------- |
+| **BlockNote JSON (`editor.document`)**                                    | ✅         | ✅         | ❌                   |
+| **BlockNote HTML (`blocksToFullHTML`)**                                   | ✅         | ✅         | ❌                   |
+| **Standard HTML (`blocksToHTMLLossy`)**                                   | ✅ (lossy) | ✅ (lossy) | ❌                   |
+| **Markdown (`blocksToMarkdownLossy`)**                                    | ✅ (lossy) | ✅ (lossy) | ❌                   |
+| **[PDF](/docs/features/export/pdf)** (`@blocknote/xl-pdf-exporter`)       | ❌         | ✅         | ✅                   |
+| **[DOCX](/docs/features/export/docx)** (`@blocknote/xl-docx-exporter`)    | ❌         | ✅         | ✅                   |
+| **[ODT](/docs/features/export/odt)** (`@blocknote/xl-odt-exporter`)       | ❌         | ✅         | ✅                   |
+| **[Email](/docs/features/export/email)** (`@blocknote/xl-email-exporter`) | ❌         | ✅         | ✅                   |
 
 <Callout>
   **Tip:** It's recommended to use **BlockNote JSON (`editor.document`)** for
@@ -227,11 +228,13 @@ export default function App() {
 BlockNote can also export to these additional formats:
 
 - DOCX
-  - Via the [`@blocknote/xl-docx-exporter` package](/features/export/docx)
+  - Via the [`@blocknote/xl-docx-exporter` package](/docs/features/export/docx)
 - PDF
-  - Via the [`@blocknote/xl-pdf-exporter` package](/features/export/pdf)
+  - Via the [`@blocknote/xl-pdf-exporter` package](/docs/features/export/pdf)
 - ODT
-  - Via the [`@blocknote/xl-odt-exporter` package](/features/export/odt)
+  - Via the [`@blocknote/xl-odt-exporter` package](/docs/features/export/odt)
+- Email
+  - Via the [`@blocknote/xl-email-exporter` package](/docs/features/export/email)
 
 ## Migrating Between Editors
 
@@ -263,7 +266,7 @@ await storeToDB(blocks);
 
 <Callout type="info">
   For details on server-side processing, see our [server-side
-  guide](/features/server-processing).
+  guide](/docs/features/server-processing).
 </Callout>
 
 ### Migrating from BlockNote
@@ -274,5 +277,5 @@ HTML is widely supported and can be easily imported into most other editors.
 
 <Callout type="info">
   For details on server-side processing, see our [server-side
-  guide](/features/server-processing).
+  guide](/docs/features/server-processing).
 </Callout>
