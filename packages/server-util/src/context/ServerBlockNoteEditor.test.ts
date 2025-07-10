@@ -104,19 +104,19 @@ describe("Test ServerBlockNoteEditor", () => {
     },
   ];
 
-  it.skip("converts to and from prosemirror (doc)", async () => {
+  it("converts to and from prosemirror (doc)", async () => {
     const node = await editor._blocksToProsemirrorNode(blocks);
     const blockOutput = await editor._prosemirrorNodeToBlocks(node);
     expect(blockOutput).toEqual(blocks);
   });
 
-  it.skip("converts to and from yjs (doc)", async () => {
+  it("converts to and from yjs (doc)", async () => {
     const ydoc = await editor.blocksToYDoc(blocks);
     const blockOutput = await editor.yDocToBlocks(ydoc);
     expect(blockOutput).toEqual(blocks);
   });
 
-  it.skip("converts to and from yjs (fragment)", async () => {
+  it("converts to and from yjs (fragment)", async () => {
     const fragment = await editor.blocksToYXmlFragment(blocks);
 
     // fragment needs to be part of a Y.Doc before we can use other operations on it
@@ -127,7 +127,7 @@ describe("Test ServerBlockNoteEditor", () => {
     expect(blockOutput).toEqual(blocks);
   });
 
-  it.skip("converts to and from HTML (blocksToHTMLLossy)", async () => {
+  it("converts to and from HTML (blocksToHTMLLossy)", async () => {
     const html = await editor.blocksToHTMLLossy(blocks);
     expect(html).toMatchSnapshot();
 
@@ -135,12 +135,12 @@ describe("Test ServerBlockNoteEditor", () => {
     expect(blockOutput).toMatchSnapshot();
   });
 
-  it.skip("converts to HTML (blocksToFullHTML)", async () => {
+  it("converts to HTML (blocksToFullHTML)", async () => {
     const html = await editor.blocksToFullHTML(blocks);
     expect(html).toMatchSnapshot();
   });
 
-  it.skip("converts to and from markdown (blocksToMarkdownLossy)", async () => {
+  it("converts to and from markdown (blocksToMarkdownLossy)", async () => {
     const md = await editor.blocksToMarkdownLossy(blocks);
     expect(md).toMatchSnapshot();
 

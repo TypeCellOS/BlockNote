@@ -66,25 +66,25 @@ describe("Test ServerBlockNoteEditor with React blocks", () => {
     expect(html).toMatchSnapshot();
   });
 
-  // it("works for blocks with context", async () => {
-  //   const editor = ServerBlockNoteEditor.create({
-  //     schema,
-  //   });
+  it("works for blocks with context", async () => {
+    const editor = ServerBlockNoteEditor.create({
+      schema,
+    });
 
-  //   const html = await editor.withReactContext(
-  //     ({ children }) => (
-  //       <TestContext.Provider value={true}>{children}</TestContext.Provider>
-  //     ),
-  //     async () =>
-  //       editor.blocksToFullHTML([
-  //         {
-  //           id: "1",
-  //           type: "reactContextParagraph",
-  //           content: "React Context Paragraph",
-  //         },
-  //       ]),
-  //   );
+    const html = await editor.withReactContext(
+      ({ children }) => (
+        <TestContext.Provider value={true}>{children}</TestContext.Provider>
+      ),
+      async () =>
+        editor.blocksToFullHTML([
+          {
+            id: "1",
+            type: "reactContextParagraph",
+            content: "React Context Paragraph",
+          },
+        ]),
+    );
 
-  //   expect(html).toMatchSnapshot();
-  // });
+    expect(html).toMatchSnapshot();
+  });
 });
