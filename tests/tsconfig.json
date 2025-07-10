@@ -19,7 +19,10 @@
     "declarationDir": "types",
     "composite": true,
     "skipLibCheck": true,
-    "types": ["node"]
+    "types": ["node"],
+    "paths": {
+      "@shared/*": ["../shared/*"]
+    }
   },
   "include": ["src"],
   "references": [
@@ -28,6 +31,9 @@
     },
     {
       "path": "../packages/react"
+    },
+    {
+      "path": "../shared"
     }
   ]
 }

@@ -1,3 +1,25 @@
+## 0.33.0 (2025-07-03)
+
+### 🚀 Features
+
+- FloatingUI options prop for `BlockPositioner` ([#1801](https://github.com/TypeCellOS/BlockNote/pull/1801))
+- Support Google Gemini AI ([#1805](https://github.com/TypeCellOS/BlockNote/pull/1805))
+
+### 🩹 Fixes
+
+- support multi-character suggestions ([#1734](https://github.com/TypeCellOS/BlockNote/pull/1734))
+- switch foreground color based on selected user color dynamically #1785 ([#1787](https://github.com/TypeCellOS/BlockNote/pull/1787), [#1785](https://github.com/TypeCellOS/BlockNote/issues/1785))
+- mark react package as external in email exporter ([#1807](https://github.com/TypeCellOS/BlockNote/pull/1807))
+- Duplicate `formatConversionTest` files ([#1798](https://github.com/TypeCellOS/BlockNote/pull/1798))
+- AI empty document handling ([#1810](https://github.com/TypeCellOS/BlockNote/pull/1810))
+- `bn-inline-content` class name getting duplicated ([#1794](https://github.com/TypeCellOS/BlockNote/pull/1794))
+
+### ❤️ Thank You
+
+- Matthew Lipski @matthewlipski
+- Nick Perez
+- Yousef
+
 ## 0.32.0 (2025-06-24)
 
 ### 🚀 Features

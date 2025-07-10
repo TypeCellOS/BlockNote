@@ -5,7 +5,7 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useBlockNoteContext } from "../editor/BlockNoteContext.js";
 import { useEditorContentOrSelectionChange } from "./useEditorContentOrSelectionChange.js";
 
@@ -31,13 +31,15 @@ export function useSelectedBlocks<
     Block<BSchema, ISchema, SSchema>[]
   >(() => e.getSelection()?.blocks || [e.getTextCursorPosition().block]);
 
-  useEditorContentOrSelectionChange(
+  const updateSelectedBlocks = useCallback(
     () =>
       setSelectedBlocks(
         e.getSelection()?.blocks || [e.getTextCursorPosition().block],
       ),
-    e,
+    [e],
   );
+
+  useEditorContentOrSelectionChange(updateSelectedBlocks, e);
 
   return selectedBlocks;
 }

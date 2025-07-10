@@ -9,6 +9,7 @@ import { LLMResponse } from "./LLMResponse.js";
 import type { PromptBuilder } from "./formats/PromptBuilder.js";
 import { htmlBlockLLMFormat } from "./formats/html-blocks/htmlBlocks.js";
 import { LLMFormat } from "./index.js";
+import { trimEmptyBlocks } from "./promptHelpers/trimEmptyBlocks.js";
 
 export type LLMRequestOptions = {
   /**
@@ -155,7 +156,7 @@ export async function doLLMRequest(
     cursorBlock &&
     deleteEmptyCursorBlock &&
     isEmptyParagraph(cursorBlock) &&
-    editor.document.length > 1
+    trimEmptyBlocks(editor.document).length > 0
       ? cursorBlock.id
       : undefined;
 
@@ -176,6 +177,7 @@ export async function doLLMRequest(
           content: `USER_MESSAGE: ${m.content}`,
         };
       }
+
       return m;
     });
     /*
@@ -191,9 +193,9 @@ export async function doLLMRequest(
     For now, this approach works ok.
     */
     previousMessages.push({
-      role: "assistant",
+      role: "system", // using "assistant" here doesn't work with gemini because we can't mix system / assistant messages
       content:
-        "These are the operations returned by a previous LLM call: \n" +
+        "ASSISTANT_MESSAGE: These are the operations returned by a previous LLM call: \n" +
         JSON.stringify(
           await previousResponse.llmResult.getGeneratedOperations(),
         ),

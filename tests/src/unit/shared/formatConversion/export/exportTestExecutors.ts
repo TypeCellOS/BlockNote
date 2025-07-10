@@ -5,10 +5,10 @@ import {
   InlineContentSchema,
   StyleSchema,
 } from "@blocknote/core";
+import { addIdsToBlocks } from "@shared/formatConversionTestUtil.js";
 import { prettify } from "htmlfy";
 import { expect } from "vitest";
 
-import { addIdsToBlocks } from "../formatConversionTestUtil.js";
 import { ExportTestCase } from "./exportTestCase.js";
 
 export const testExportBlockNoteHTML = async <
