@@ -303,9 +303,11 @@ export class BlockNoteTipTapEditor extends TiptapEditor {
     if (!element) {
       this.destroy();
       this.isInitialized = false;
+      this.emit("unmount", { editor: this });
     } else {
       this.options.element = element;
       this.createViewAlternative(blockNoteEditor, contentComponent);
+      this.emit("mount", { editor: this });
     }
   };
 }
@@ -330,6 +332,14 @@ declare module "@tiptap/core" {
       editor: Editor;
       transaction: Transaction;
       appendedTransactions: Transaction[];
+    };
+
+    mount: {
+      editor: Editor;
+    };
+
+    unmount: {
+      editor: Editor;
     };
   }
 }
