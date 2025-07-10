@@ -1,9 +1,11 @@
 import { CellSelection } from "prosemirror-tables";
 import type { BlockNoteEditor } from "../editor/BlockNoteEditor.js";
 import {
+  BlockConfig,
   BlockFromConfig,
   BlockSchema,
   FileBlockConfig,
+  InlineContentConfig,
   InlineContentSchema,
   StyleSchema,
 } from "../schema/index.js";
@@ -35,6 +37,20 @@ export function checkDefaultBlockTypeInSchema<
   );
 }
 
+export function checkBlockTypeInSchema<
+  BlockType extends string,
+  Config extends BlockConfig,
+>(
+  blockType: BlockType,
+  blockConfig: Config,
+  editor: BlockNoteEditor<any, any, any>,
+): editor is BlockNoteEditor<{ [T in BlockType]: Config }, any, any> {
+  return (
+    blockType in editor.schema.blockSchema &&
+    editor.schema.blockSchema[blockType] === blockConfig
+  );
+}
+
 export function checkDefaultInlineContentTypeInSchema<
   InlineContentType extends keyof DefaultInlineContentSchema,
   B extends BlockSchema,
@@ -51,6 +67,20 @@ export function checkDefaultInlineContentTypeInSchema<
     inlineContentType in editor.schema.inlineContentSchema &&
     editor.schema.inlineContentSchema[inlineContentType] ===
       defaultInlineContentSchema[inlineContentType]
+  );
+}
+
+export function checkInlineContentTypeInSchema<
+  InlineContentType extends string,
+  Config extends InlineContentConfig,
+>(
+  inlineContentType: InlineContentType,
+  inlineContentConfig: Config,
+  editor: BlockNoteEditor<any, any, any>,
+): editor is BlockNoteEditor<any, { [T in InlineContentType]: Config }, any> {
+  return (
+    inlineContentType in editor.schema.inlineContentSchema &&
+    editor.schema.inlineContentSchema[inlineContentType] === inlineContentConfig
   );
 }
 
