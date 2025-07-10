@@ -26,6 +26,7 @@
     "onlyBuiltDependencies": [
       "@parcel/watcher",
       "@sentry/cli",
+      "@tailwindcss/oxide",
       "better-sqlite3",
       "canvas",
       "esbuild",
