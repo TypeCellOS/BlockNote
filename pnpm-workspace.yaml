@@ -9,6 +9,7 @@ packages:
 preferWorkspacePackages: true
 linkWorkspacePackages: true
 gitChecks: false
+storeDir: ./node_modules/.pnpm-store
 publicHoistPattern:
   # We have been preferring to use `prosemirror-*` packages instead of `@tiptap/pm` packages
   - "prosemirror-*"
