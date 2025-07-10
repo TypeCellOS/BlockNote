@@ -1,9 +1,5 @@
 import type { Mark } from "prosemirror-model";
-import type {
-  EditorView,
-  MarkView,
-  ViewMutationRecord,
-} from "prosemirror-view";
+import type { EditorView, MarkView, ViewMutationRecord } from "@tiptap/pm/view";
 
 import type { BlockNoteEditor } from "@blocknote/core";
 import type {
