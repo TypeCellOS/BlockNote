@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbo",
     "dev:email": "email dev",
-    "build:site": "next build",
+    "build:site": "next build --turbo",
     "start": "next start",
     "postinstall": "fumadocs-mdx",
     "init-db": "pnpx @better-auth/cli migrate"
